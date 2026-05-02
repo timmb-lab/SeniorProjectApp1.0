@@ -6,7 +6,9 @@ Static MVP for a public companion site to the physical `Your Senior` booklet.
 
 - Page-referenced process guide for booklet pages 2-18.
 - Expanded phase-by-phase student workflow for booklet pages 1-18.
+- Separate public pages instead of one long scrolling page.
 - Quick start steps, detailed student moves, evidence reminders, adult questions, mastery checks, and common mistakes for each process stop.
+- Concrete examples throughout the phase pages for students who need to see what strong work can sound like.
 - Phase-by-phase student checklist with progress saved in the browser.
 - Local draft notes saved in the browser.
 - Template file library for proposal, rubrics, build, mentor meetings, presentation, display, gratitude, portfolio, recognition, resume highlights, and status tracking.
@@ -30,12 +32,15 @@ Because the app is static, it can be hosted from the repository root on GitHub P
 
 For GitHub Pages, push the repo to GitHub and set Pages to deploy from the branch root.
 
+The public entry page is `index.html`. Top-level navigation now points to separate files such as `process.html`, `templates.html`, `portfolio.html`, `rubrics.html`, `grades.html`, and `roadmap.html`.
+
 ## Updating official links
 
 The student-facing data lives in `app.js`.
 
 - Edit `templates` to replace local Markdown files with official Google Docs, Google Forms, PDFs, or class website URLs.
 - Edit `phases` to adjust page references, dates, program language, or checklist items.
+- Edit `phaseExamples` to add district-approved examples for each CTE program or student pathway.
 - Edit `auditFindings`, `grades`, `recognitions`, `portfolioFeatures`, and `rubrics` when the booklet or school requirements change.
 - Keep any public images free of identifiable students unless the school has explicit permission for public web use.
 

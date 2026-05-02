@@ -959,6 +959,190 @@ const roadmap = [
   }
 ];
 
+const phasePages = [
+  { id: "purpose", href: "start.html" },
+  { id: "phase-1", href: "phase-1.html" },
+  { id: "phase-2a", href: "phase-2a.html" },
+  { id: "phase-2b", href: "phase-2b.html" },
+  { id: "phase-3a", href: "present.html" },
+  { id: "phase-3b", href: "celebrate.html" },
+  { id: "phase-4", href: "launch.html" },
+  { id: "wrap-up", href: "finish.html" }
+];
+
+const phaseExamples = {
+  purpose: [
+    {
+      title: "Good early idea",
+      label: "CTE fit",
+      body:
+        "A construction student wants to build a small model of a safe sleeping space and explain materials, safety, budget, and community need. That is stronger than saying, 'I want to build something.'"
+    },
+    {
+      title: "Question worth asking",
+      label: "Teacher check",
+      body:
+        "Can this be a group project, or does every person need a separate product, presentation, or portfolio evidence?"
+    },
+    {
+      title: "First note to save",
+      label: "Evidence",
+      body:
+        "Write down the exact program requirement your teacher gives you. Later, your display and presentation should prove you met it."
+    }
+  ],
+  "phase-1": [
+    {
+      title: "Weak proposal sentence",
+      label: "Too vague",
+      body:
+        "I am going to make a website about sports. This does not explain audience, technical skill, feasibility, or program connection."
+    },
+    {
+      title: "Stronger proposal sentence",
+      label: "Clearer",
+      body:
+        "I will design a mobile-friendly website that helps student athletes track practice, nutrition goals, and highlight videos, using HTML, CSS, JavaScript, and user feedback from three athletes."
+    },
+    {
+      title: "Feasibility example",
+      label: "Timeline",
+      body:
+        "September: proposal. October: wireframes and interviews. November: first working version. December: test and revise. January: final features. February: presentation outline."
+    }
+  ],
+  "phase-2a": [
+    {
+      title: "Real build evidence",
+      label: "Save it",
+      body:
+        "Photos of a prototype, screenshots of code, a recipe test log, patient-care practice notes, CAD drafts, interview notes, or before-and-after revisions all count as progress evidence."
+    },
+    {
+      title: "Useful check-in answer",
+      label: "Honest",
+      body:
+        "I finished the first draft, but my material cost is higher than expected. Next I need to simplify the design or find donated materials."
+    },
+    {
+      title: "Mentor question",
+      label: "Ask",
+      body:
+        "If you were watching my final presentation, what part would you need me to explain more clearly?"
+    }
+  ],
+  "phase-2b": [
+    {
+      title: "Outline section example",
+      label: "Say it",
+      body:
+        "First I will explain the original problem. Then I will show my planning sketches, the build steps, two mistakes I fixed, and the final product."
+    },
+    {
+      title: "Time-slot reminder",
+      label: "Logistics",
+      body:
+        "Do not assume your mentor knows when you are presenting. Confirm the date, class period, room, and what technology you need."
+    },
+    {
+      title: "Optional outreach",
+      label: "Extra",
+      body:
+        "If your project connects to another class, ask that teacher early: 'Would there be a good day for me to present my senior project to your class?'"
+    }
+  ],
+  "phase-3a": [
+    {
+      title: "Opening example",
+      label: "Plain English",
+      body:
+        "My project is a prototype emergency kit for new drivers. I made it for students who are about to get their license and may not know what to keep in a car."
+    },
+    {
+      title: "Growth example",
+      label: "Reflection",
+      body:
+        "At first I only focused on making the product look good. My mentor helped me realize I needed testing evidence, so I revised the kit after feedback."
+    },
+    {
+      title: "Question answer",
+      label: "Audience",
+      body:
+        "If someone asks why you chose a material or design, answer with the reason, not 'because it looked nice.' Connect it to safety, cost, durability, audience, or program skill."
+    }
+  ],
+  "phase-3b": [
+    {
+      title: "Display label example",
+      label: "Clear",
+      body:
+        "Problem: students waste supplies during setup. Solution: a color-coded kit with a setup checklist. Evidence: three test runs with fewer missing items."
+    },
+    {
+      title: "Visitor test",
+      label: "Try this",
+      body:
+        "Ask someone who does not know your project to look at the display for 30 seconds. Then ask what they think you did. If they cannot tell, simplify the display."
+    },
+    {
+      title: "Quality check",
+      label: "Rubric",
+      body:
+        "Straight labels, readable text, clean visuals, process evidence, and a clear final product usually beat a crowded board with too many decorations."
+    }
+  ],
+  "phase-4": [
+    {
+      title: "Thank-you sentence",
+      label: "Specific",
+      body:
+        "Thank you for meeting with me before my presentation and helping me realize I needed to explain my testing process, not just show the final product."
+    },
+    {
+      title: "Resume bullet",
+      label: "Professional",
+      body:
+        "Designed and tested a community resource prototype using user feedback, material planning, revision logs, and a public presentation."
+    },
+    {
+      title: "Reflection upgrade",
+      label: "Stronger",
+      body:
+        "Instead of 'I learned time management,' explain the moment you fell behind, what system you used to recover, and how that changed the final project."
+    }
+  ],
+  "wrap-up": [
+    {
+      title: "Service evidence",
+      label: "Recognition",
+      body:
+        "If your project helped a real group, save proof: who it helped, what changed, photos, a message from the organization, or data from before and after."
+    },
+    {
+      title: "Distinction evidence",
+      label: "CTE mastery",
+      body:
+        "Show advanced skill: technical precision, original design, strong research, client feedback, professional documentation, or a final product above normal class expectations."
+    },
+    {
+      title: "Final reflection",
+      label: "Launch",
+      body:
+        "Connect the project to what comes next: employment, college, trade training, military, entrepreneurship, or personal responsibility after graduation."
+    }
+  ]
+};
+
+const navItems = [
+  { page: "home", label: "Home", href: "index.html" },
+  { page: "process", label: "Process", href: "process.html" },
+  { page: "templates", label: "Templates", href: "templates.html" },
+  { page: "portfolio", label: "Portfolio", href: "portfolio.html" },
+  { page: "rubrics", label: "Rubrics", href: "rubrics.html" },
+  { page: "grades", label: "Grades", href: "grades.html" },
+  { page: "roadmap", label: "1.0", href: "roadmap.html" }
+];
+
 const state = {
   activePhaseId: phases[0].id,
   query: ""
@@ -1295,21 +1479,641 @@ function renderRoadmap() {
     .join("");
 }
 
+function getPhaseHref(id) {
+  return phasePages.find((item) => item.id === id)?.href ?? "process.html";
+}
+
+function getActiveNavPage() {
+  const page = document.body.dataset.page;
+  return page === "phase" ? "process" : page;
+}
+
+function listHtml(items, className = "ada-list") {
+  return `<ul class="${className}">${items.map((item) => `<li>${item}</li>`).join("")}</ul>`;
+}
+
+function cardMeta(label, pages) {
+  return `
+    <div class="card-meta">
+      <span class="tag">${label}</span>
+      ${pagePill(pages)}
+    </div>
+  `;
+}
+
+function renderSiteChrome() {
+  const chrome = document.querySelector("#siteChrome");
+  if (!chrome) return;
+
+  const active = getActiveNavPage();
+  const links = navItems
+    .map((item) => {
+      const current = item.page === active ? ` aria-current="page"` : "";
+      return `<a href="${item.href}"${current}>${item.label}</a>`;
+    })
+    .join("");
+
+  const homeHero = `
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-copy">
+        <p class="eyebrow">Your Senior companion</p>
+        <h1 id="hero-title">Senior Capstone Project</h1>
+        <p class="hero-text">
+          One clear page at a time: what to do, what to save, what to ask, and how each step connects to the physical booklet.
+        </p>
+        <div class="hero-actions" aria-label="Primary actions">
+          <a class="button button-primary" href="process.html">Start The Process</a>
+          <a class="button button-secondary" href="templates.html">Open Templates</a>
+        </div>
+      </div>
+      <dl class="hero-stats" aria-label="Booklet coverage">
+        <div>
+          <dt>18</dt>
+          <dd>booklet pages mapped</dd>
+        </div>
+        <div>
+          <dt>8</dt>
+          <dd>separate process pages</dd>
+        </div>
+        <div>
+          <dt>15</dt>
+          <dd>student support files</dd>
+        </div>
+      </dl>
+    </section>
+  `;
+
+  chrome.innerHTML = `
+    <header class="${document.body.dataset.page === "home" ? "site-header" : "subpage-header"}">
+      <nav class="topbar" aria-label="Primary navigation">
+        <a class="brand" href="index.html" aria-label="Senior Capstone Project home">
+          <span class="brand-mark" aria-hidden="true">SP</span>
+          <span>Senior Capstone</span>
+        </a>
+        <div class="nav-links">${links}</div>
+      </nav>
+      ${document.body.dataset.page === "home" ? homeHero : ""}
+    </header>
+  `;
+}
+
+function renderFooter() {
+  const footer = document.querySelector("#siteFooter");
+  if (!footer) return;
+  footer.innerHTML = `
+    <p>
+      Built as a companion to the physical <cite>Your Senior</cite> booklet.
+      Page labels refer to the PDF/booklet page order.
+    </p>
+    <p>
+      Public pages should not include student names, grades, mentor assignments, private comments, or group rosters.
+    </p>
+  `;
+}
+
+function pageHeroHtml({ eyebrow, title, summary, breadcrumb = "" }) {
+  return `
+    <section class="page-hero" aria-labelledby="page-title">
+      ${breadcrumb}
+      <p class="eyebrow">${eyebrow}</p>
+      <h1 id="page-title">${title}</h1>
+      <p>${summary}</p>
+    </section>
+  `;
+}
+
+function phaseCardHtml(phase, index) {
+  return `
+    <article class="phase-card">
+      ${cardMeta(phase.nav, phase.pages)}
+      <h3>${index + 1}. ${phase.title}</h3>
+      <p><strong>${phase.time}</strong></p>
+      <p>${phase.summary}</p>
+      <a class="button button-primary" href="${getPhaseHref(phase.id)}">Open This Page</a>
+    </article>
+  `;
+}
+
+function renderHomePage(root) {
+  document.title = "Senior Capstone Project";
+  root.innerHTML = `
+    <section class="section">
+      <div class="plain-card stack">
+        <h2>Use This Site Like A Checklist, Not A Textbook</h2>
+        <p class="measure">
+          The booklet tells you the official project journey. This site breaks that journey into smaller pages so you can do one thing at a time. Each process page tells you what to do, what to save, what to ask, and what strong work can look like.
+        </p>
+      </div>
+    </section>
+    <section class="section section-tight" aria-labelledby="home-process-title">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Start here</p>
+          <h2 id="home-process-title">Process Pages</h2>
+        </div>
+        <p class="section-note">No giant scroll. Every stop has its own page.</p>
+      </div>
+      <div class="phase-grid">${phases.map(phaseCardHtml).join("")}</div>
+    </section>
+    <section class="section" aria-labelledby="home-support-title">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Support pages</p>
+          <h2 id="home-support-title">Find What You Need</h2>
+        </div>
+        <p class="section-note">Jump directly to templates, portfolio rules, rubrics, grades, or the future login plan.</p>
+      </div>
+      <div class="page-grid">
+        ${[
+          ["Templates", "Open starter files for proposals, meetings, presentations, displays, gratitude, portfolio, and recognition.", "templates.html"],
+          ["Portfolio", "Compare the minimum and maximum portfolio paths with plain-language tips.", "portfolio.html"],
+          ["Rubrics", "See how proposal, presentation, display, and portfolio work will be evaluated.", "rubrics.html"],
+          ["Grades", "See where the project counts and what special recognition can mean.", "grades.html"],
+          ["1.0 Roadmap", "Preview the future login app for students, mentors, teachers, and admins.", "roadmap.html"],
+          ["Coverage Audit", "See what the app adds beyond the booklet and what still needs official school links.", "audit.html"]
+        ]
+          .map(
+            ([title, body, href]) => `
+              <article class="support-card">
+                <h3>${title}</h3>
+                <p>${body}</p>
+                <a class="button" href="${href}">Open</a>
+              </article>
+            `
+          )
+          .join("")}
+      </div>
+    </section>
+  `;
+}
+
+function renderProcessPage(root) {
+  document.title = "Process | Senior Capstone Project";
+  root.innerHTML = `
+    ${pageHeroHtml({
+      eyebrow: "One page per step",
+      title: "Project Process",
+      summary:
+        "Open the page for the step you are on. Each page is written for students first: short starts, clear directions, examples, and reminders about what evidence to save."
+    })}
+    <section class="section section-tight">
+      <div class="plain-card stack">
+        <h2>How To Use This</h2>
+        ${listHtml([
+          "Start with the page for your current phase.",
+          "Read the Finish Line first so you know what done means.",
+          "Use the checklist while you work. It saves on this device only.",
+          "Open the related templates when you need a document or planning sheet.",
+          "Use the examples if you are stuck on what to write or say."
+        ])}
+      </div>
+    </section>
+    <section class="section" aria-labelledby="process-list-title">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Book pp. 1-18</p>
+          <h2 id="process-list-title">Choose Your Current Step</h2>
+        </div>
+      </div>
+      <div class="phase-grid">${phases.map(phaseCardHtml).join("")}</div>
+    </section>
+  `;
+}
+
+function checklistHtml(phase) {
+  return `
+    <ul class="checklist">
+      ${phase.checkpoints
+        .map((item) => {
+          const id = `${phase.id}-${slug(item)}`;
+          const checked = progress[id] ? "checked" : "";
+          return `
+            <li>
+              <label>
+                <input type="checkbox" data-progress-id="${id}" ${checked}>
+                <span>${item}</span>
+              </label>
+            </li>
+          `;
+        })
+        .join("")}
+    </ul>
+  `;
+}
+
+function examplesHtml(phaseId) {
+  return `
+    <div class="example-grid">
+      ${(phaseExamples[phaseId] ?? [])
+        .map(
+          (example) => `
+            <article class="example-card">
+              <span class="example-label">${example.label}</span>
+              <h3>${example.title}</h3>
+              <p>${example.body}</p>
+            </article>
+          `
+        )
+        .join("")}
+    </div>
+  `;
+}
+
+function sectionCard(title, content, extraClass = "") {
+  return `
+    <section class="content-card student-section ${extraClass}">
+      <h2>${title}</h2>
+      ${content}
+    </section>
+  `;
+}
+
+function renderPhasePage(root) {
+  const phaseId = document.body.dataset.phaseId;
+  const phase = phases.find((item) => item.id === phaseId) ?? phases[0];
+  const phaseIndex = phases.findIndex((item) => item.id === phase.id);
+  const previous = phases[phaseIndex - 1];
+  const next = phases[phaseIndex + 1];
+  const relatedTemplates = phase.templates
+    .map((templateName) => templates.find((template) => template.title === templateName))
+    .filter(Boolean);
+
+  document.title = `${phase.title} | Senior Capstone Project`;
+
+  root.innerHTML = `
+    ${pageHeroHtml({
+      eyebrow: `Book p. ${phase.pages} / ${phase.time}`,
+      title: phase.title,
+      summary: phase.summary,
+      breadcrumb: `<nav class="breadcrumb" aria-label="Breadcrumb"><a href="process.html">Process</a><span aria-hidden="true">/</span><span>${phase.nav}</span></nav>`
+    })}
+    <section class="section section-tight">
+      <div class="student-layout">
+        <div class="stack-lg">
+          ${sectionCard("Plain English Version", `<p class="measure">${phase.goal}</p>`, "plain-card")}
+          ${sectionCard("Quick Start", listHtml(phase.quickStart))}
+          ${sectionCard("Step-By-Step: What To Do", listHtml(phase.studentMoves))}
+          ${sectionCard("Examples", examplesHtml(phase.id))}
+          <div class="info-grid">
+            ${sectionCard("Evidence To Save", listHtml(phase.evidence))}
+            ${sectionCard("Ask Or Confirm", listHtml(phase.questions))}
+          </div>
+          <div class="info-grid">
+            ${sectionCard("Strong Work Looks Like", listHtml(phase.masteryChecks))}
+            ${sectionCard("Common Mistakes", listHtml(phase.avoid), "note-warning")}
+          </div>
+          ${sectionCard("Adult Roles", listHtml(phase.adultRoles))}
+          ${sectionCard("Booklet Connection", `<p class="measure">${phase.bookletConnection}</p>`)}
+          ${sectionCard(
+            "Related Files",
+            `<div class="large-link-list">${
+              relatedTemplates
+                .map((template) => `<a class="large-link" href="${template.href}"><span>${template.title}</span><span>${pagePill(template.pages)}</span></a>`)
+                .join("") || "<p>No related files yet.</p>"
+            }</div>`
+          )}
+          ${sectionCard(
+            "Draft Notes",
+            `<label class="search-box"><span>Notes saved on this device only</span><textarea id="phaseNote" data-note-id="${phase.id}" placeholder="Questions, mentor feedback, next actions"></textarea></label><div class="save-row"><button class="small-button" type="button" data-save-note="${phase.id}">Save Note</button><span class="saved-state" id="saved-${phase.id}">Saved on this device</span></div>`
+          )}
+          <nav class="phase-next" aria-label="Previous and next phase">
+            ${previous ? `<a class="button" href="${getPhaseHref(previous.id)}">Previous: ${previous.nav}</a>` : `<a class="button" href="process.html">Back To Process</a>`}
+            ${next ? `<a class="button button-primary" href="${getPhaseHref(next.id)}">Next: ${next.nav}</a>` : `<a class="button button-primary" href="grades.html">Review Grades</a>`}
+          </nav>
+        </div>
+        <aside class="student-aside" aria-label="Phase tools">
+          <section class="content-card">
+            <h2>Checklist</h2>
+            ${checklistHtml(phase)}
+          </section>
+          <section class="content-card">
+            <h2>All Steps</h2>
+            <div class="large-link-list">
+              ${phases
+                .map((item) => `<a class="large-link" href="${getPhaseHref(item.id)}"${item.id === phase.id ? ` aria-current="page"` : ""}><span>${item.nav}</span><span>${pagePill(item.pages)}</span></a>`)
+                .join("")}
+            </div>
+          </section>
+        </aside>
+      </div>
+    </section>
+  `;
+
+  const note = root.querySelector("#phaseNote");
+  if (note) note.value = notes[phase.id] ?? "";
+
+  root.querySelectorAll("[data-progress-id]").forEach((checkbox) => {
+    checkbox.addEventListener("change", (event) => {
+      progress[event.target.dataset.progressId] = event.target.checked;
+      writeJson(progressKey, progress);
+    });
+  });
+
+  const saveButton = root.querySelector("[data-save-note]");
+  if (saveButton) {
+    saveButton.addEventListener("click", (event) => {
+      const noteId = event.target.dataset.saveNote;
+      notes[noteId] = root.querySelector(`[data-note-id="${noteId}"]`).value;
+      writeJson(notesKey, notes);
+      const saved = root.querySelector(`#saved-${noteId}`);
+      saved.textContent = "Saved just now";
+      window.setTimeout(() => {
+        saved.textContent = "Saved on this device";
+      }, 1600);
+    });
+  }
+}
+
+function renderTemplatesPage(root) {
+  document.title = "Templates | Senior Capstone Project";
+  root.innerHTML = `
+    ${pageHeroHtml({
+      eyebrow: "Student files",
+      title: "Templates",
+      summary:
+        "Use these as starter files. The school can later replace them with official Google Docs, Forms, PDFs, or class website links."
+    })}
+    <section class="section section-tight">
+      <div class="resource-grid">
+        ${templates
+          .map(
+            (template) => `
+              <article class="resource-card">
+                <div class="resource-meta">
+                  <span class="tag">${template.audience}</span>
+                  ${pagePill(template.pages)}
+                </div>
+                <h2>${template.title}</h2>
+                <p>${template.description}</p>
+                <a class="button" href="${template.href}">Open File</a>
+              </article>
+            `
+          )
+          .join("")}
+      </div>
+    </section>
+  `;
+}
+
+function renderPortfolioPage(root) {
+  document.title = "Portfolio | Senior Capstone Project";
+  root.innerHTML = `
+    ${pageHeroHtml({
+      eyebrow: "Book pp. 10-11 and 17",
+      title: "Portfolio",
+      summary:
+        "The portfolio is the professional story of your project. Choose the minimum path or the maximum path, then collect evidence as you go."
+    })}
+    <section class="section section-tight">
+      <div class="compare-grid">
+        <article class="compare-panel">
+          <p class="tag">Minimum / B</p>
+          <h2>Submitted Portfolio</h2>
+          ${listHtml([
+            "Google Form submission on the Senior Project website.",
+            "Standard resume with CTE highlights.",
+            "Project, Tenet, and Portrait of a Titan reflections.",
+            "Copy of the formal thank-you letter."
+          ])}
+        </article>
+        <article class="compare-panel accent-panel">
+          <p class="tag">Maximum / A</p>
+          <h2>Professional Folder</h2>
+          ${listHtml([
+            "Physical folder for Economics review and final project review.",
+            "Title page with personal brand identity.",
+            "Enhanced resume and adult recommendation letter.",
+            "Project process photos, presentation copy, reflections, and best work sample."
+          ])}
+        </article>
+      </div>
+      <div class="portfolio-feature-grid">
+        ${portfolioFeatures
+          .map(
+            (item) => `
+              <article class="portfolio-feature-card info-card">
+                <span class="tag">${item.feature}</span>
+                <h2>${item.feature}</h2>
+                <p><strong>Minimum:</strong> ${item.minimum}</p>
+                <p><strong>Maximum:</strong> ${item.maximum}</p>
+                <p><strong>Student tip:</strong> ${item.tip}</p>
+              </article>
+            `
+          )
+          .join("")}
+      </div>
+    </section>
+  `;
+}
+
+function renderRubricsPage(root) {
+  document.title = "Rubrics | Senior Capstone Project";
+  root.innerHTML = `
+    ${pageHeroHtml({
+      eyebrow: "Book pp. 14-17",
+      title: "Rubrics",
+      summary:
+        "Rubrics are not just for teachers after you submit. Use them before you turn things in so you can fix weak spots early."
+    })}
+    <section class="section section-tight">
+      <div class="rubric-grid">
+        ${rubrics
+          .map(
+            (rubric) => `
+              <article class="rubric-card info-card">
+                <div class="rubric-meta">
+                  <span class="tag">Rubric</span>
+                  ${pagePill(rubric.pages)}
+                </div>
+                <h2>${rubric.title}</h2>
+                <p>${rubric.intro}</p>
+                <div class="rubric-table">
+                  ${rubric.rows
+                    .map(
+                      (row) => `
+                        <div class="rubric-row">
+                          <div class="rubric-cell">
+                            <span class="rubric-label">Criterion</span>
+                            <strong>${row.criterion}</strong>
+                          </div>
+                          ${row.cells
+                            .map(
+                              (cell, index) => `
+                                <div class="rubric-cell">
+                                  <span class="rubric-label">${rubric.columns[index]}</span>
+                                  <p>${cell}</p>
+                                </div>
+                              `
+                            )
+                            .join("")}
+                        </div>
+                      `
+                    )
+                    .join("")}
+                </div>
+              </article>
+            `
+          )
+          .join("")}
+      </div>
+    </section>
+  `;
+}
+
+function renderGradesPage(root) {
+  document.title = "Grades And Recognition | Senior Capstone Project";
+  root.innerHTML = `
+    ${pageHeroHtml({
+      eyebrow: "Book pp. 12-13",
+      title: "Grades And Recognition",
+      summary:
+        "This project counts in more than one class. This page shows where work counts and what exceptional projects may earn."
+    })}
+    <section class="section section-tight">
+      <div class="grade-grid">
+        ${grades
+          .map(
+            (grade) => `
+              <article class="grade-card info-card">
+                ${cardMeta("Grade", grade.pages)}
+                <h2>${grade.title}</h2>
+                <p>${grade.description}</p>
+                ${listHtml(grade.classes)}
+              </article>
+            `
+          )
+          .join("")}
+      </div>
+      <div class="recognition-grid">
+        ${recognitions
+          .map(
+            (recognition) => `
+              <article class="recognition-card info-card">
+                ${cardMeta("Recognition", recognition.pages)}
+                <h2>${recognition.title}</h2>
+                <p>${recognition.description}</p>
+                <h3>Evidence To Gather</h3>
+                ${listHtml(recognition.evidence)}
+              </article>
+            `
+          )
+          .join("")}
+      </div>
+    </section>
+  `;
+}
+
+function renderRoadmapPage(root) {
+  document.title = "Version 1.0 Roadmap | Senior Capstone Project";
+  root.innerHTML = `
+    ${pageHeroHtml({
+      eyebrow: "Future login app",
+      title: "Version 1.0 Roadmap",
+      summary:
+        "The public MVP should stay general. The future app can add private student accounts, phase tracking, mentor assignments, teacher comments, and admin views."
+    })}
+    <section class="section section-tight">
+      <div class="content-card note-warning stack">
+        <h2>Privacy Line</h2>
+        <p class="measure">
+          Do not put student names, grades, mentor assignments, groups, comments, or progress records on public pages. Those belong in a secure login system approved by the school or district.
+        </p>
+      </div>
+    </section>
+    <section class="section section-tight">
+      <div class="roadmap-grid">
+        ${roadmap
+          .map(
+            (item) => `
+              <article class="roadmap-card info-card">
+                <span class="tag">1.0</span>
+                <h2>${item.title}</h2>
+                <p>${item.description}</p>
+              </article>
+            `
+          )
+          .join("")}
+      </div>
+    </section>
+  `;
+}
+
+function renderAuditPage(root) {
+  document.title = "Coverage Audit | Senior Capstone Project";
+  root.innerHTML = `
+    ${pageHeroHtml({
+      eyebrow: "Staff reference",
+      title: "Coverage Audit",
+      summary:
+        "This page shows what the site adds beyond the physical booklet and what still needs official school-specific content."
+    })}
+    <section class="section section-tight">
+      <div class="audit-grid">
+        ${auditFindings
+          .map(
+            (item) => `
+              <article class="audit-card info-card">
+                ${cardMeta(item.status, item.pages)}
+                <h2>${item.title}</h2>
+                <p>${item.description}</p>
+              </article>
+            `
+          )
+          .join("")}
+      </div>
+    </section>
+  `;
+}
+
+function initPageApp() {
+  renderSiteChrome();
+  renderFooter();
+
+  const root = document.querySelector("#pageRoot");
+  if (!root) return;
+
+  const page = document.body.dataset.page;
+  if (page === "home") renderHomePage(root);
+  if (page === "process") renderProcessPage(root);
+  if (page === "phase") renderPhasePage(root);
+  if (page === "templates") renderTemplatesPage(root);
+  if (page === "portfolio") renderPortfolioPage(root);
+  if (page === "rubrics") renderRubricsPage(root);
+  if (page === "grades") renderGradesPage(root);
+  if (page === "roadmap") renderRoadmapPage(root);
+  if (page === "audit") renderAuditPage(root);
+}
+
 function render() {
   renderPhaseList();
   renderPhaseDetail();
 }
 
-processSearch.addEventListener("input", (event) => {
-  state.query = event.target.value.trim();
-  render();
-});
+if (document.body.dataset.page) {
+  initPageApp();
+} else if (
+  phaseList &&
+  phaseDetail &&
+  processSearch &&
+  auditGrid &&
+  templateGrid &&
+  portfolioFeatureGrid &&
+  rubricGrid &&
+  gradeGrid &&
+  recognitionGrid &&
+  roadmapGrid
+) {
+  processSearch.addEventListener("input", (event) => {
+    state.query = event.target.value.trim();
+    render();
+  });
 
-render();
-renderAudit();
-renderTemplates();
-renderPortfolioFeatures();
-renderRubrics();
-renderGrades();
-renderRecognition();
-renderRoadmap();
+  render();
+  renderAudit();
+  renderTemplates();
+  renderPortfolioFeatures();
+  renderRubrics();
+  renderGrades();
+  renderRecognition();
+  renderRoadmap();
+}

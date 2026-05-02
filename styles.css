@@ -20,7 +20,7 @@
 }
 
 html {
-  scroll-behavior: smooth;
+  scroll-behavior: auto;
 }
 
 body {
@@ -216,6 +216,15 @@ h3 {
 .button:focus-visible {
   transform: translateY(-1px);
   outline: none;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+summary:focus-visible {
+  outline: 4px solid rgba(217, 164, 65, 0.72);
+  outline-offset: 3px;
 }
 
 .hero-stats {
@@ -768,6 +777,294 @@ li + li {
   color: var(--muted);
 }
 
+.subpage-header {
+  background: var(--charcoal);
+  color: #fff;
+}
+
+.subpage-header .topbar {
+  padding-bottom: 1rem;
+}
+
+.nav-links a[aria-current="page"] {
+  background: rgba(255, 255, 255, 0.22);
+  color: #fff;
+  text-decoration: underline;
+  text-underline-offset: 0.25rem;
+}
+
+.page-main {
+  min-height: 68vh;
+}
+
+.page-hero {
+  width: min(1180px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 3.25rem 0 2.2rem;
+}
+
+.page-hero .eyebrow {
+  color: var(--teal-dark);
+}
+
+.subpage-header .page-hero .eyebrow {
+  color: #ffd16d;
+}
+
+.subpage-header .page-hero {
+  padding-top: 2rem;
+}
+
+.subpage-header .page-hero p {
+  color: rgba(255, 255, 255, 0.84);
+}
+
+.page-hero h1 {
+  max-width: 880px;
+  font-size: clamp(2.35rem, 6vw, 4.8rem);
+}
+
+.page-hero p {
+  max-width: 760px;
+  margin: 1rem 0 0;
+  color: var(--muted);
+  font-size: 1.12rem;
+}
+
+.breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-bottom: 1rem;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.breadcrumb a {
+  color: var(--teal-dark);
+  font-weight: 900;
+}
+
+.content-card,
+.example-card,
+.phase-card,
+.support-card,
+.plain-card {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  padding: 1rem;
+  box-shadow: 0 8px 24px rgba(26, 42, 48, 0.05);
+}
+
+.plain-card {
+  border-left: 6px solid var(--teal);
+  background: #f7fcfb;
+}
+
+.plain-card p,
+.content-card p,
+.example-card p,
+.phase-card p,
+.support-card p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.content-card h2,
+.content-card h3,
+.example-card h3,
+.phase-card h3,
+.support-card h3,
+.plain-card h2 {
+  margin: 0;
+}
+
+.stack {
+  display: grid;
+  gap: 1rem;
+}
+
+.stack-lg {
+  display: grid;
+  gap: 1.35rem;
+}
+
+.measure {
+  max-width: 74ch;
+}
+
+.page-grid,
+.phase-grid,
+.example-grid,
+.support-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.phase-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.phase-card {
+  display: grid;
+  gap: 0.75rem;
+  min-height: 250px;
+  border-top: 5px solid var(--teal);
+}
+
+.phase-card .button,
+.content-card .button,
+.support-card .button {
+  width: fit-content;
+  margin-top: auto;
+  background: var(--charcoal);
+  color: #fff;
+}
+
+.phase-card .button-primary {
+  background: var(--gold);
+  color: #241704;
+}
+
+.section-tight {
+  padding-top: 2rem;
+}
+
+.student-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 1.1rem;
+  align-items: start;
+}
+
+.student-aside {
+  position: sticky;
+  top: 1rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.student-aside .content-card {
+  box-shadow: none;
+}
+
+.student-section {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.student-section h2 {
+  font-size: clamp(1.45rem, 3vw, 2.1rem);
+}
+
+.student-section h3 {
+  font-size: 1.08rem;
+}
+
+.student-section p,
+.student-section li {
+  font-size: 1rem;
+}
+
+.student-section li + li {
+  margin-top: 0.5rem;
+}
+
+.callout {
+  border-left: 6px solid var(--gold);
+  background: #fff7e6;
+  color: #3c2b0b;
+}
+
+.callout p {
+  color: #3c2b0b;
+}
+
+.example-card {
+  display: grid;
+  gap: 0.7rem;
+  border-top: 5px solid var(--red);
+}
+
+.example-label {
+  display: inline-block;
+  width: fit-content;
+  border-radius: 999px;
+  background: #eef7f7;
+  color: var(--teal-dark);
+  padding: 0.25rem 0.5rem;
+  font-size: 0.76rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.details-panel {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  padding: 0.85rem 1rem;
+}
+
+.details-panel summary {
+  cursor: pointer;
+  font-weight: 900;
+}
+
+.details-panel > div {
+  margin-top: 0.85rem;
+}
+
+.phase-next {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.75rem;
+  border-top: 1px solid var(--line);
+  padding-top: 1rem;
+}
+
+.large-link-list {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.large-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #f9fcfb;
+  padding: 0.75rem 0.85rem;
+  color: var(--ink);
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.large-link:hover,
+.large-link:focus-visible {
+  border-color: var(--teal);
+  background: #eef8f7;
+}
+
+.ada-list {
+  display: grid;
+  gap: 0.6rem;
+  padding-left: 1.2rem;
+}
+
+.ada-list li {
+  max-width: 78ch;
+}
+
+.note-warning {
+  border-left: 6px solid var(--red);
+  background: #fff7f5;
+}
+
 .empty-state {
   border: 1px dashed #b7c9c9;
   border-radius: var(--radius);
@@ -824,8 +1121,21 @@ li + li {
   .audit-grid,
   .grade-grid,
   .recognition-grid,
-  .portfolio-feature-grid {
+  .portfolio-feature-grid,
+  .page-grid,
+  .phase-grid,
+  .example-grid,
+  .support-grid,
+  .student-layout {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .student-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .student-aside {
+    position: static;
   }
 
   .rubric-card {
@@ -871,7 +1181,11 @@ li + li {
   .audit-grid,
   .grade-grid,
   .recognition-grid,
-  .portfolio-feature-grid {
+  .portfolio-feature-grid,
+  .page-grid,
+  .phase-grid,
+  .example-grid,
+  .support-grid {
     grid-template-columns: 1fr;
   }
 
@@ -891,5 +1205,29 @@ li + li {
   .detail-body,
   .detail-banner {
     padding: 1rem;
+  }
+
+  .page-hero {
+    width: min(100% - 22px, 1180px);
+    padding: 2.2rem 0 1.6rem;
+  }
+
+  .phase-card,
+  .content-card,
+  .example-card,
+  .support-card,
+  .plain-card {
+    padding: 0.9rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
   }
 }
