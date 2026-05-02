@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta
+      name="description"
+      content="A public companion guide for the East Career and Technical Academy Senior Capstone Project."
+    >
+    <title>Senior Capstone Project</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#process">Skip to process</a>
+
+    <header class="site-header">
+      <nav class="topbar" aria-label="Primary navigation">
+        <a class="brand" href="#top" aria-label="Senior Capstone Project home">
+          <span class="brand-mark" aria-hidden="true">SP</span>
+          <span>Senior Capstone</span>
+        </a>
+        <div class="nav-links">
+          <a href="#process">Process</a>
+          <a href="#audit">Audit</a>
+          <a href="#templates">Templates</a>
+          <a href="#portfolio">Portfolio</a>
+          <a href="#rubrics">Rubrics</a>
+          <a href="#grades">Grades</a>
+          <a href="#roadmap">1.0</a>
+        </div>
+      </nav>
+
+      <section class="hero" id="top" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <p class="eyebrow">Your Senior companion</p>
+          <h1 id="hero-title">Senior Capstone Project</h1>
+          <p class="hero-text">
+            A student-facing guide to the phases, deliverables, mentor meetings,
+            portfolio expectations, grades, and rubrics in the physical booklet.
+          </p>
+          <div class="hero-actions" aria-label="Primary actions">
+            <a class="button button-primary" href="#process">Start The Process</a>
+            <a class="button button-secondary" href="#templates">Open Templates</a>
+          </div>
+        </div>
+        <dl class="hero-stats" aria-label="Booklet coverage">
+          <div>
+            <dt>18</dt>
+            <dd>booklet pages mapped</dd>
+          </div>
+          <div>
+            <dt>4</dt>
+            <dd>project phases</dd>
+          </div>
+          <div>
+            <dt>8</dt>
+            <dd>guided process stops</dd>
+          </div>
+        </dl>
+      </section>
+    </header>
+
+    <main>
+      <section class="section process-section" id="process" aria-labelledby="process-title">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">MVP guide</p>
+            <h2 id="process-title">Project Process</h2>
+          </div>
+          <label class="search-box">
+            <span>Search</span>
+            <input id="processSearch" type="search" placeholder="phase, task, page, rubric">
+          </label>
+        </div>
+
+        <div class="process-layout">
+          <aside class="phase-list" id="phaseList" aria-label="Project phase list"></aside>
+          <article class="phase-detail" id="phaseDetail" aria-live="polite"></article>
+        </div>
+      </section>
+
+      <section class="section" id="audit" aria-labelledby="audit-title">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Coverage audit</p>
+            <h2 id="audit-title">What The Site Adds</h2>
+          </div>
+          <p class="section-note">The booklet names the journey. The app turns it into a repeatable checklist, reference hub, and student support tool.</p>
+        </div>
+        <div class="audit-grid" id="auditGrid"></div>
+      </section>
+
+      <section class="section" id="templates" aria-labelledby="templates-title">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Template library</p>
+            <h2 id="templates-title">Files Students Need</h2>
+          </div>
+          <p class="section-note">Each file is paired with the booklet pages that explain why it matters.</p>
+        </div>
+        <div class="resource-grid" id="templateGrid"></div>
+      </section>
+
+      <section class="section split-section" id="portfolio" aria-labelledby="portfolio-title">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Book pp. 10-11 and 17</p>
+            <h2 id="portfolio-title">Portfolio Paths</h2>
+          </div>
+          <p class="section-note">Students choose the minimum path or build the maximum portfolio.</p>
+        </div>
+        <div class="compare-grid">
+          <article class="compare-panel">
+            <p class="tag">Minimum / B</p>
+            <h3>Submitted Portfolio</h3>
+            <ul>
+              <li>Google Form submission on the Senior Project website.</li>
+              <li>Standard resume with CTE highlights.</li>
+              <li>Project, Tenet, and Portrait of a Titan reflections.</li>
+              <li>Copy of the formal thank-you letter.</li>
+            </ul>
+          </article>
+          <article class="compare-panel accent-panel">
+            <p class="tag">Maximum / A</p>
+            <h3>Professional Folder</h3>
+            <ul>
+              <li>Physical folder for Economics review and final project review.</li>
+              <li>Title page with personal brand identity.</li>
+              <li>Enhanced resume and adult recommendation letter.</li>
+              <li>Project process photos, presentation copy, reflections, and best work sample.</li>
+            </ul>
+          </article>
+        </div>
+        <div class="portfolio-feature-grid" id="portfolioFeatureGrid"></div>
+      </section>
+
+      <section class="section" id="rubrics" aria-labelledby="rubrics-title">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Book pp. 14-17</p>
+            <h2 id="rubrics-title">Evaluation Rubrics</h2>
+          </div>
+          <p class="section-note">The app summarizes what students should check before submitting or presenting.</p>
+        </div>
+        <div class="rubric-grid" id="rubricGrid"></div>
+      </section>
+
+      <section class="section" id="grades" aria-labelledby="grades-title">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Book pp. 12-13</p>
+            <h2 id="grades-title">Grades And Recognition</h2>
+          </div>
+          <p class="section-note">Students should know where the work counts and what exceptional projects can earn.</p>
+        </div>
+        <div class="grade-grid" id="gradeGrid"></div>
+        <div class="recognition-grid" id="recognitionGrid"></div>
+      </section>
+
+      <section class="section" id="roadmap" aria-labelledby="roadmap-title">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Version 1.0 foundation</p>
+            <h2 id="roadmap-title">Login And Role Roadmap</h2>
+          </div>
+          <p class="section-note">The MVP stays public; 1.0 adds accounts, assignments, comments, and reporting.</p>
+        </div>
+        <div class="roadmap-grid" id="roadmapGrid"></div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>
+        Built as a companion to the physical <cite>Your Senior</cite> booklet.
+        Page labels refer to the PDF/booklet page order.
+      </p>
+    </footer>
+
+    <script src="app.js"></script>
+  </body>
+</html>
