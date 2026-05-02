@@ -1484,8 +1484,7 @@ function getPhaseHref(id) {
 }
 
 function getActiveNavPage() {
-  const page = document.body.dataset.page;
-  return page === "phase" ? "process" : page;
+  return document.body.dataset.page;
 }
 
 function listHtml(items, className = "ada-list") {
@@ -1513,7 +1512,7 @@ function renderSiteChrome() {
   ]
     .map((item) => {
       const current = item.page === active ? ` aria-current="page"` : "";
-      return `<a class="side-link" href="${item.href}"${current}>${item.label}</a>`;
+      return `<a class="menu-resource-link" href="${item.href}"${current}>${item.label}</a>`;
     })
     .join("");
 
@@ -1521,39 +1520,125 @@ function renderSiteChrome() {
     .map((phase, index) => {
       const current = phase.id === activePhaseId ? ` aria-current="page"` : "";
       return `
-        <a class="phase-nav-link" href="${getPhaseHref(phase.id)}"${current}>
-          <span class="phase-nav-number">${index + 1}</span>
+        <a class="menu-phase-link" href="${getPhaseHref(phase.id)}"${current}>
+          <span class="menu-phase-number">${index + 1}</span>
           <span>
             <strong>${phase.nav}</strong>
             <small>${phase.title}</small>
           </span>
+          <span class="menu-phase-pages">${phase.pages}</span>
         </a>
       `;
     })
     .join("");
-  const menuOpen = window.matchMedia("(min-width: 901px)").matches ? " open" : "";
 
   chrome.innerHTML = `
-    <aside class="site-sidebar">
-      <a class="brand sidebar-brand" href="index.html" aria-label="Senior Capstone Project home">
+    <header class="app-header">
+      <a class="brand app-brand" href="index.html" aria-label="Senior Capstone Project home">
         <span class="brand-mark" aria-hidden="true">SP</span>
         <span>Senior Capstone</span>
       </a>
-      <details class="sidebar-menu"${menuOpen}>
-        <summary>Open navigation</summary>
-        <nav class="side-nav" aria-label="Main navigation">
-          <section class="side-nav-section" aria-labelledby="phase-nav-title">
-            <h2 id="phase-nav-title">Project Phases</h2>
-            <div class="phase-nav-list">${phaseLinks}</div>
-          </section>
-          <section class="side-nav-section" aria-labelledby="support-nav-title">
-            <h2 id="support-nav-title">Support Pages</h2>
-            <div class="side-link-list">${supportLinks}</div>
-          </section>
-        </nav>
-      </details>
+      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="projectMenu" data-menu-toggle>
+        <span class="menu-bars" aria-hidden="true"><span></span><span></span><span></span></span>
+        <span>Project Menu</span>
+      </button>
+    </header>
+    <div class="menu-backdrop" data-menu-close hidden></div>
+    <aside class="project-menu" id="projectMenu" role="dialog" aria-modal="true" aria-labelledby="project-menu-title" hidden>
+      <div class="project-menu-header">
+        <div>
+          <p class="menu-kicker">Jump without scrolling</p>
+          <h2 id="project-menu-title">Project Menu</h2>
+        </div>
+        <button class="menu-close" type="button" data-menu-close>Close</button>
+      </div>
+      <p class="menu-intro">
+        Use this menu when you need to move to another step. The page you are on stays highlighted.
+      </p>
+      <nav class="project-menu-nav" aria-label="Project navigation">
+        <section class="project-menu-section" aria-labelledby="phase-menu-title">
+          <h3 id="phase-menu-title">Build Process</h3>
+          <div class="menu-phase-list">${phaseLinks}</div>
+        </section>
+        <section class="project-menu-section" aria-labelledby="resource-menu-title">
+          <h3 id="resource-menu-title">Support Pages</h3>
+          <div class="menu-resource-list">${supportLinks}</div>
+        </section>
+      </nav>
     </aside>
   `;
+
+  setupProjectMenu(chrome);
+}
+
+function setupProjectMenu(chrome) {
+  const toggle = chrome.querySelector("[data-menu-toggle]");
+  const menu = chrome.querySelector("#projectMenu");
+  const backdrop = chrome.querySelector(".menu-backdrop");
+  const closeControls = chrome.querySelectorAll("[data-menu-close]");
+  if (!toggle || !menu || !backdrop) return;
+
+  let lastFocused = null;
+  const focusableSelector = "a[href], button:not([disabled])";
+
+  function openMenu() {
+    lastFocused = document.activeElement;
+    menu.hidden = false;
+    backdrop.hidden = false;
+    document.body.classList.add("menu-open");
+    toggle.setAttribute("aria-expanded", "true");
+    menu.querySelector("[data-menu-close]")?.focus();
+  }
+
+  function closeMenu({ restoreFocus = true } = {}) {
+    menu.hidden = true;
+    backdrop.hidden = true;
+    document.body.classList.remove("menu-open");
+    toggle.setAttribute("aria-expanded", "false");
+    if (restoreFocus && lastFocused && typeof lastFocused.focus === "function") {
+      lastFocused.focus();
+    }
+  }
+
+  toggle.addEventListener("click", () => {
+    if (menu.hidden) {
+      openMenu();
+    } else {
+      closeMenu();
+    }
+  });
+
+  closeControls.forEach((control) => {
+    control.addEventListener("click", () => closeMenu());
+  });
+
+  menu.querySelectorAll("a").forEach((link) => {
+    link.addEventListener("click", () => closeMenu({ restoreFocus: false }));
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (menu.hidden) return;
+
+    if (event.key === "Escape") {
+      event.preventDefault();
+      closeMenu();
+      return;
+    }
+
+    if (event.key !== "Tab") return;
+    const focusable = [...menu.querySelectorAll(focusableSelector)];
+    if (!focusable.length) return;
+
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  });
 }
 
 function renderFooter() {
