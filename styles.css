@@ -31,6 +31,9 @@ body {
     Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
     sans-serif;
   line-height: 1.5;
+  display: grid;
+  grid-template-columns: 310px minmax(0, 1fr);
+  min-height: 100vh;
 }
 
 a {
@@ -63,6 +66,160 @@ textarea {
   min-height: 620px;
   background:
     linear-gradient(90deg, rgba(19, 28, 32, 0.9) 0%, rgba(19, 28, 32, 0.74) 35%, rgba(19, 28, 32, 0.28) 68%),
+    url("assets/app-hero.jpg") center / cover no-repeat;
+  color: #fff;
+}
+
+#siteChrome {
+  grid-column: 1;
+  grid-row: 1 / span 2;
+  min-width: 0;
+}
+
+.site-sidebar {
+  position: sticky;
+  top: 0;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 1rem;
+  height: 100vh;
+  overflow-y: auto;
+  border-right: 1px solid rgba(255, 255, 255, 0.16);
+  background:
+    linear-gradient(180deg, rgba(20, 34, 39, 0.98), rgba(27, 46, 52, 0.98)),
+    url("assets/app-hero.jpg") center / cover no-repeat;
+  color: #fff;
+  padding: 1.05rem;
+}
+
+.sidebar-brand {
+  width: 100%;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+  padding-bottom: 1rem;
+}
+
+.side-nav {
+  display: grid;
+  gap: 1.1rem;
+  align-content: start;
+}
+
+.sidebar-menu {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.sidebar-menu summary {
+  display: none;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  padding: 0.75rem;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.sidebar-menu summary::marker {
+  color: #ffd16d;
+}
+
+.side-nav-section {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.side-nav-section h2 {
+  margin: 0;
+  color: #ffd16d;
+  font-size: 0.76rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.phase-nav-list,
+.side-link-list {
+  display: grid;
+  gap: 0.42rem;
+}
+
+.phase-nav-link,
+.side-link {
+  display: grid;
+  align-items: center;
+  min-height: 46px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.07);
+  color: rgba(255, 255, 255, 0.92);
+  text-decoration: none;
+}
+
+.phase-nav-link {
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 0.55rem;
+  padding: 0.55rem;
+}
+
+.side-link {
+  padding: 0.62rem 0.7rem;
+  font-weight: 900;
+}
+
+.phase-nav-link small {
+  display: block;
+  color: rgba(255, 255, 255, 0.74);
+  font-size: 0.78rem;
+  line-height: 1.25;
+}
+
+.phase-nav-number {
+  display: inline-grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+  font-weight: 900;
+}
+
+.phase-nav-link:hover,
+.phase-nav-link:focus-visible,
+.side-link:hover,
+.side-link:focus-visible {
+  border-color: rgba(255, 255, 255, 0.46);
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.phase-nav-link[aria-current="page"],
+.side-link[aria-current="page"] {
+  border-color: rgba(217, 164, 65, 0.92);
+  background: #fff;
+  color: var(--ink);
+}
+
+.phase-nav-link[aria-current="page"] small {
+  color: var(--muted);
+}
+
+.phase-nav-link[aria-current="page"] .phase-nav-number {
+  background: var(--red);
+  color: #fff;
+}
+
+.page-main {
+  grid-column: 2;
+  min-width: 0;
+}
+
+.site-footer {
+  grid-column: 2;
+}
+
+.home-hero {
+  background:
+    linear-gradient(90deg, rgba(19, 28, 32, 0.92) 0%, rgba(19, 28, 32, 0.72) 38%, rgba(19, 28, 32, 0.24) 72%),
     url("assets/app-hero.jpg") center / cover no-repeat;
   color: #fff;
 }
@@ -950,6 +1107,11 @@ li + li {
   box-shadow: none;
 }
 
+.student-aside h2 {
+  font-size: clamp(1.55rem, 3vw, 2rem);
+  line-height: 1.05;
+}
+
 .student-section {
   display: grid;
   gap: 0.75rem;
@@ -1074,6 +1236,51 @@ li + li {
 }
 
 @media (max-width: 900px) {
+  body {
+    grid-template-columns: 1fr;
+  }
+
+  #siteChrome,
+  .page-main,
+  .site-footer {
+    grid-column: 1;
+  }
+
+  #siteChrome {
+    grid-row: auto;
+  }
+
+  .site-sidebar {
+    position: static;
+    height: auto;
+    overflow: visible;
+    border-right: 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+    padding: 0.85rem;
+  }
+
+  .sidebar-menu summary {
+    display: block;
+  }
+
+  .sidebar-menu:not([open]) .side-nav {
+    display: none;
+  }
+
+  .side-nav {
+    grid-template-columns: 1.4fr 1fr;
+    align-items: start;
+    margin-top: 0.8rem;
+  }
+
+  .phase-nav-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .side-link-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .site-header {
     min-height: auto;
   }
@@ -1148,6 +1355,23 @@ li + li {
 }
 
 @media (max-width: 620px) {
+  .site-sidebar {
+    padding: 0.75rem;
+  }
+
+  .side-nav {
+    grid-template-columns: 1fr;
+  }
+
+  .phase-nav-list,
+  .side-link-list {
+    grid-template-columns: 1fr;
+  }
+
+  .phase-nav-link {
+    min-height: 42px;
+  }
+
   .site-header {
     background:
       linear-gradient(180deg, rgba(19, 28, 32, 0.94) 0%, rgba(19, 28, 32, 0.76) 60%, rgba(19, 28, 32, 0.48) 100%),

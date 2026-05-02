@@ -7,6 +7,7 @@ Static MVP for a public companion site to the physical `Your Senior` booklet.
 - Page-referenced process guide for booklet pages 2-18.
 - Expanded phase-by-phase student workflow for booklet pages 1-18.
 - Separate public pages instead of one long scrolling page.
+- Single left-navigation system with every project phase quickly available on desktop, plus an accessible collapsible version on mobile.
 - Quick start steps, detailed student moves, evidence reminders, adult questions, mastery checks, and common mistakes for each process stop.
 - Concrete examples throughout the phase pages for students who need to see what strong work can sound like.
 - Phase-by-phase student checklist with progress saved in the browser.

@@ -1506,54 +1506,53 @@ function renderSiteChrome() {
   if (!chrome) return;
 
   const active = getActiveNavPage();
-  const links = navItems
+  const activePhaseId = document.body.dataset.phaseId;
+  const supportLinks = [
+    ...navItems,
+    { page: "audit", label: "Audit", href: "audit.html" }
+  ]
     .map((item) => {
       const current = item.page === active ? ` aria-current="page"` : "";
-      return `<a href="${item.href}"${current}>${item.label}</a>`;
+      return `<a class="side-link" href="${item.href}"${current}>${item.label}</a>`;
     })
     .join("");
 
-  const homeHero = `
-    <section class="hero" aria-labelledby="hero-title">
-      <div class="hero-copy">
-        <p class="eyebrow">Your Senior companion</p>
-        <h1 id="hero-title">Senior Capstone Project</h1>
-        <p class="hero-text">
-          One clear page at a time: what to do, what to save, what to ask, and how each step connects to the physical booklet.
-        </p>
-        <div class="hero-actions" aria-label="Primary actions">
-          <a class="button button-primary" href="process.html">Start The Process</a>
-          <a class="button button-secondary" href="templates.html">Open Templates</a>
-        </div>
-      </div>
-      <dl class="hero-stats" aria-label="Booklet coverage">
-        <div>
-          <dt>18</dt>
-          <dd>booklet pages mapped</dd>
-        </div>
-        <div>
-          <dt>8</dt>
-          <dd>separate process pages</dd>
-        </div>
-        <div>
-          <dt>15</dt>
-          <dd>student support files</dd>
-        </div>
-      </dl>
-    </section>
-  `;
+  const phaseLinks = phases
+    .map((phase, index) => {
+      const current = phase.id === activePhaseId ? ` aria-current="page"` : "";
+      return `
+        <a class="phase-nav-link" href="${getPhaseHref(phase.id)}"${current}>
+          <span class="phase-nav-number">${index + 1}</span>
+          <span>
+            <strong>${phase.nav}</strong>
+            <small>${phase.title}</small>
+          </span>
+        </a>
+      `;
+    })
+    .join("");
+  const menuOpen = window.matchMedia("(min-width: 901px)").matches ? " open" : "";
 
   chrome.innerHTML = `
-    <header class="${document.body.dataset.page === "home" ? "site-header" : "subpage-header"}">
-      <nav class="topbar" aria-label="Primary navigation">
-        <a class="brand" href="index.html" aria-label="Senior Capstone Project home">
-          <span class="brand-mark" aria-hidden="true">SP</span>
-          <span>Senior Capstone</span>
-        </a>
-        <div class="nav-links">${links}</div>
-      </nav>
-      ${document.body.dataset.page === "home" ? homeHero : ""}
-    </header>
+    <aside class="site-sidebar">
+      <a class="brand sidebar-brand" href="index.html" aria-label="Senior Capstone Project home">
+        <span class="brand-mark" aria-hidden="true">SP</span>
+        <span>Senior Capstone</span>
+      </a>
+      <details class="sidebar-menu"${menuOpen}>
+        <summary>Open navigation</summary>
+        <nav class="side-nav" aria-label="Main navigation">
+          <section class="side-nav-section" aria-labelledby="phase-nav-title">
+            <h2 id="phase-nav-title">Project Phases</h2>
+            <div class="phase-nav-list">${phaseLinks}</div>
+          </section>
+          <section class="side-nav-section" aria-labelledby="support-nav-title">
+            <h2 id="support-nav-title">Support Pages</h2>
+            <div class="side-link-list">${supportLinks}</div>
+          </section>
+        </nav>
+      </details>
+    </aside>
   `;
 }
 
@@ -1597,6 +1596,35 @@ function phaseCardHtml(phase, index) {
 function renderHomePage(root) {
   document.title = "Senior Capstone Project";
   root.innerHTML = `
+    <section class="home-hero" aria-labelledby="hero-title">
+      <div class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">Your Senior companion</p>
+          <h1 id="hero-title">Senior Capstone Project</h1>
+          <p class="hero-text">
+            One clear page at a time: what to do, what to save, what to ask, and how each step connects to the physical booklet.
+          </p>
+          <div class="hero-actions" aria-label="Primary actions">
+            <a class="button button-primary" href="process.html">Start The Process</a>
+            <a class="button button-secondary" href="templates.html">Open Templates</a>
+          </div>
+        </div>
+        <dl class="hero-stats" aria-label="Booklet coverage">
+          <div>
+            <dt>18</dt>
+            <dd>booklet pages mapped</dd>
+          </div>
+          <div>
+            <dt>8</dt>
+            <dd>separate process pages</dd>
+          </div>
+          <div>
+            <dt>15</dt>
+            <dd>student support files</dd>
+          </div>
+        </dl>
+      </div>
+    </section>
     <section class="section">
       <div class="plain-card stack">
         <h2>Use This Site Like A Checklist, Not A Textbook</h2>
@@ -1785,14 +1813,6 @@ function renderPhasePage(root) {
           <section class="content-card">
             <h2>Checklist</h2>
             ${checklistHtml(phase)}
-          </section>
-          <section class="content-card">
-            <h2>All Steps</h2>
-            <div class="large-link-list">
-              ${phases
-                .map((item) => `<a class="large-link" href="${getPhaseHref(item.id)}"${item.id === phase.id ? ` aria-current="page"` : ""}><span>${item.nav}</span><span>${pagePill(item.pages)}</span></a>`)
-                .join("")}
-            </div>
           </section>
         </aside>
       </div>
