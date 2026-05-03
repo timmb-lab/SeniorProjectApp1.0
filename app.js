@@ -1188,9 +1188,406 @@ const phaseExamples = {
   ]
 };
 
+const curriculumSupports = {
+  purpose: {
+    targets: [
+      "I can explain why the Senior Capstone is more than a final assignment.",
+      "I can identify where official updates, links, and deadlines will be posted.",
+      "I can confirm the program-specific rules that affect my project idea."
+    ],
+    ready: [
+      "I can tell another student what the project is for and where to find official updates.",
+      "I have written down the rules for my CTE pathway before choosing a final idea.",
+      "I have at least two realistic project ideas connected to program skills."
+    ],
+    support: {
+      stuck: "Start with one program skill you know well, then ask what kind of project could prove that skill.",
+      onTrack: "Compare two project ideas and choose the one with clearer evidence, timeline, and CTE connection.",
+      mastery: "Ask how your project could show service, innovation, or unusually strong technical skill."
+    },
+    checks: [
+      "Show your notes to someone else. Can they tell which program skill your idea will prove?",
+      "Ask your teacher one specific question before moving into the proposal.",
+      "Circle any unknowns that could block the project later: cost, safety, group rules, time, tools, or permission."
+    ],
+    vocabulary: [
+      "CTE pathway: your career and technical education program area.",
+      "Program-specific requirement: a rule or expectation that may be different for each pathway.",
+      "Feasibility: whether the idea can realistically be completed with the time, tools, and support available."
+    ]
+  },
+  "phase-1": {
+    targets: [
+      "I can turn a rough idea into a clear Core Concept Proposal.",
+      "I can explain the CTE skill, Titan connection, materials, and timeline for my project.",
+      "I can revise my plan using teacher feedback before final approval."
+    ],
+    ready: [
+      "A reader can tell what I will make, do, solve, research, design, demonstrate, or improve.",
+      "My proposal names the exact program skill and the evidence that will prove it.",
+      "My plan includes a realistic timeline and specific materials or sources."
+    ],
+    support: {
+      stuck: "Use this sentence: 'I will create or complete ___ for ___ so that ___, using the CTE skills of ___.'",
+      onTrack: "Have a peer read your proposal and underline any sentence that is still vague.",
+      mastery: "Add detail about how you will test, revise, document, or measure the quality of your work."
+    },
+    checks: [
+      "Before submitting, ask: can someone understand my project without me explaining it out loud?",
+      "Check the rubric: CTE alignment, Titan Tenets, and feasibility should all be visible.",
+      "Make one revision based on feedback before seeking final approval."
+    ],
+    vocabulary: [
+      "Core Concept Proposal: the approved plan that launches the project.",
+      "CTE alignment: the clear connection between your project and your program skills.",
+      "Source/material list: the people, tools, supplies, research, or references your project needs."
+    ]
+  },
+  "phase-2a": {
+    targets: [
+      "I can break a large project into manageable work sessions.",
+      "I can document progress with artifacts and evidence.",
+      "I can use check-ins and mentor feedback to improve my plan."
+    ],
+    ready: [
+      "I can show visible evidence of progress, not just describe what I plan to do.",
+      "My build plan shows what I am doing next and what might block me.",
+      "My mentor meeting notes include feedback and next actions."
+    ],
+    support: {
+      stuck: "Choose the smallest visible next step: sketch, test, photo, outline, interview, prototype, or research note.",
+      onTrack: "Update your build plan after each work session so the next step is always obvious.",
+      mastery: "Collect before-and-after evidence showing how feedback or testing changed your work."
+    },
+    checks: [
+      "Show one artifact from this week: photo, screenshot, sketch, draft, log, or prototype.",
+      "Write one blocker and one plan to solve it.",
+      "Ask your mentor a question that could change or improve the project."
+    ],
+    vocabulary: [
+      "Artifact: a piece of evidence from your work process.",
+      "Check-in: a progress reflection that shows what changed, what is blocked, and what happens next.",
+      "Mentor feedback: guidance you use to refine the project, not work someone else does for you."
+    ]
+  },
+  "phase-2b": {
+    targets: [
+      "I can turn build progress into a clear presentation plan.",
+      "I can prepare for the second mentor meeting with evidence and questions.",
+      "I can confirm presentation logistics before Presentation Day."
+    ],
+    ready: [
+      "My presentation outline tells the story of the project, not just a list of slides.",
+      "My mentor understands what I will say and show.",
+      "I know my presentation time, location, audience, and technology needs."
+    ],
+    support: {
+      stuck: "Use the outline order: problem or goal, program connection, process, final result, growth, questions.",
+      onTrack: "Practice the outline out loud once and mark any section that feels confusing.",
+      mastery: "Add one audience interaction, demonstration, or artifact that makes the project easier to understand."
+    },
+    checks: [
+      "Ask one person to explain your project back to you after hearing your outline.",
+      "Confirm the date, period, room, and technology before Presentation Day.",
+      "Revise one slide, visual, or talking point based on mentor feedback."
+    ],
+    vocabulary: [
+      "Presentation outline: the plan for what you will say and show.",
+      "Logistics: the time, place, technology, materials, and people needed for the presentation.",
+      "Audience question: a question listeners may ask because they want to understand the project better."
+    ]
+  },
+  "phase-3a": {
+    targets: [
+      "I can present my project clearly to an audience.",
+      "I can explain my CTE program connection and final process or product.",
+      "I can answer questions using evidence from my project."
+    ],
+    ready: [
+      "Someone outside my program can explain what I made or did and why it matters.",
+      "I can point to evidence when explaining my process, product, or growth.",
+      "I have rehearsed enough to be organized, on time, and professional."
+    ],
+    support: {
+      stuck: "Write a 30-second opening: project, audience or problem, CTE skill, and final outcome.",
+      onTrack: "Practice once for a person who does not already know the project.",
+      mastery: "Prepare strong answers for the hardest questions your audience might ask."
+    },
+    checks: [
+      "Record or time one practice run and fix the part that drags or confuses people.",
+      "Ask a listener what your CTE connection was. If they cannot answer, revise.",
+      "Prepare one sentence about how the project changed because of feedback or failure."
+    ],
+    vocabulary: [
+      "Project overview: the short explanation of what the project is and why it matters.",
+      "Process: the steps, decisions, problems, and revisions that led to the final outcome.",
+      "Professional presence: being organized, prepared, respectful, and clear in front of an audience."
+    ]
+  },
+  "phase-3b": {
+    targets: [
+      "I can design a display that makes my project understandable to visitors.",
+      "I can show both process and final product or outcome.",
+      "I can represent my work with quality, clarity, and pride."
+    ],
+    ready: [
+      "A visitor can understand the project without needing several clarifying questions.",
+      "The display follows program expectations and shows careful work.",
+      "I have documented the display for my portfolio."
+    ],
+    support: {
+      stuck: "Make three labels first: problem or goal, process, final result.",
+      onTrack: "Use the 30-second visitor test before Celebration Day.",
+      mastery: "Add evidence of testing, revision, impact, or professional-level skill."
+    },
+    checks: [
+      "Stand six feet away. Can the title, sequence, and main evidence still be read?",
+      "Ask someone new what they think the project was about after 30 seconds.",
+      "Take photos before, during, and after setup for your portfolio."
+    ],
+    vocabulary: [
+      "Exhibit: the public display of your project work.",
+      "Representation: how clearly the display shows the project process or product.",
+      "Visitor takeaway: what someone should understand after seeing your display."
+    ]
+  },
+  "phase-4": {
+    targets: [
+      "I can express specific gratitude to people who supported me.",
+      "I can build a portfolio that tells the professional story of my project.",
+      "I can reflect on growth using evidence instead of summary."
+    ],
+    ready: [
+      "My thank-you letter names specific support and why it mattered.",
+      "My portfolio includes all required items for the path I chose.",
+      "My reflections explain what changed in me and what evidence proves it."
+    ],
+    support: {
+      stuck: "Start each reflection with one real moment: a problem, feedback, failure, revision, or breakthrough.",
+      onTrack: "Check every portfolio artifact and ask what it proves.",
+      mastery: "Make the portfolio feel like a professional brand, not a pile of assignments."
+    },
+    checks: [
+      "Highlight one sentence in each reflection that shows growth.",
+      "Read your resume and add one CTE skill from the project.",
+      "Confirm the mentor handwritten note is complete and delivered or ready to deliver."
+    ],
+    vocabulary: [
+      "Professional portfolio: a collection of evidence that shows skill, growth, and readiness.",
+      "Best work sample: an artifact that proves strong skill or growth from high school.",
+      "Reflection: writing that explains what changed, why it mattered, and what it proves."
+    ]
+  },
+  "wrap-up": {
+    targets: [
+      "I can explain where the Senior Capstone counts for grades.",
+      "I can use rubrics to self-check before final submission.",
+      "I can identify evidence for recognition or final reflection."
+    ],
+    ready: [
+      "I know which work counts in English, Government, Economics, and Senior Program Class.",
+      "I have checked the rubrics before the final deadline.",
+      "My final reflection connects the project to life after graduation."
+    ],
+    support: {
+      stuck: "Start with the grade map and list what is already complete, missing, or unclear.",
+      onTrack: "Use each rubric to choose one final fix before submission.",
+      mastery: "Gather evidence for service, distinction, leadership, innovation, or professional readiness."
+    },
+    checks: [
+      "Name one piece of evidence for each major rubric.",
+      "Ask whether your project may qualify for recognition before Celebration Day evidence disappears.",
+      "Write a final launch statement: 'This project proves I am ready to ___ because ___.'"
+    ],
+    vocabulary: [
+      "Recognition: special honor for exceptional service or exemplary CTE work.",
+      "Distinction: recognition for exemplary growth and professional promise in the program of study.",
+      "Final reflection: the closing explanation of what the project proves about your readiness."
+    ]
+  }
+};
+
+const pacingMilestones = [
+  {
+    time: "Before September",
+    focus: "Understand the purpose and program rules",
+    studentMove: "Join Senior Remind, bookmark the class website, and confirm your CTE pathway requirements.",
+    evidence: "Program Requirement Notes and early project ideas.",
+    watchFor: "Choosing an idea before knowing the rules."
+  },
+  {
+    time: "September",
+    focus: "Phase 1: Kickoff",
+    studentMove: "Draft, revise, and submit the Core Concept Proposal for approval.",
+    evidence: "Approved proposal, timeline, materials or source list, rubric self-check.",
+    watchFor: "A proposal that sounds interesting but does not prove CTE skill."
+  },
+  {
+    time: "October-November",
+    focus: "Phase 2A: Build",
+    studentMove: "Begin the real work, complete check-ins, collect artifacts, and prepare for the first mentor meeting.",
+    evidence: "Build plan, photos, drafts, research notes, screenshots, prototypes, or logs.",
+    watchFor: "Waiting too long to create visible proof of progress."
+  },
+  {
+    time: "December",
+    focus: "Build checkpoint",
+    studentMove: "Use feedback to adjust the plan before winter break.",
+    evidence: "Updated next steps, mentor or teacher feedback, revised timeline.",
+    watchFor: "Saying everything is fine when a blocker needs help."
+  },
+  {
+    time: "January-February",
+    focus: "Phase 2B: Build Part II",
+    studentMove: "Meet with your mentor again, write the presentation outline, and confirm the presentation time slot.",
+    evidence: "Second mentor notes, outline, time-slot confirmation, final build evidence.",
+    watchFor: "Making slides before the presentation story is clear."
+  },
+  {
+    time: "Presentation Day",
+    focus: "Phase 3A: Present",
+    studentMove: "Present the project in the mentor's class and answer audience questions.",
+    evidence: "Slides or visuals, outline, audience feedback, presentation reflection.",
+    watchFor: "Showing a product without explaining the process."
+  },
+  {
+    time: "Celebration Day",
+    focus: "Phase 3B: Celebrate",
+    studentMove: "Set up the display and explain the project to visitors.",
+    evidence: "Display photos, visitor questions, rubric self-check, portfolio artifacts.",
+    watchFor: "A display that looks decorative but does not explain the project."
+  },
+  {
+    time: "Senior Project Week",
+    focus: "Phase 4: Give Thanks, Reflect, Launch",
+    studentMove: "Finish gratitude, reflections, resume work, and the portfolio path you chose.",
+    evidence: "Thank-you letter, handwritten mentor note, portfolio submission or physical folder.",
+    watchFor: "Rushing the portfolio without enough evidence of growth."
+  }
+];
+
+const pathwayExamples = [
+  {
+    cluster: "Construction, Manufacturing, And Design",
+    ideas: [
+      "Build a model, prototype, or plan that shows safety, materials, measurements, design process, and revision.",
+      "Document sketches, material choices, tool use, cost, constraints, and before-and-after improvements."
+    ]
+  },
+  {
+    cluster: "Culinary, Hospitality, And Business",
+    ideas: [
+      "Develop a product, event, service plan, menu, brand, or business solution for a real audience.",
+      "Document testing, costing, customer feedback, food safety, marketing, and revision."
+    ]
+  },
+  {
+    cluster: "Information Technology, Media, And Engineering",
+    ideas: [
+      "Design a website, app prototype, media campaign, device, simulation, or technical solution for a user need.",
+      "Document user research, wireframes, code or tools, testing, accessibility, troubleshooting, and updates."
+    ]
+  },
+  {
+    cluster: "Health, Education, And Human Services",
+    ideas: [
+      "Create a health education tool, training resource, simulation, outreach project, or community support product.",
+      "Document ethical boundaries, audience needs, accuracy, safety, feedback, and measurable impact."
+    ]
+  },
+  {
+    cluster: "Arts, Communication, And Public Service",
+    ideas: [
+      "Produce a campaign, exhibit, public message, performance, event, publication, or service resource.",
+      "Document audience, purpose, creative choices, revisions, community response, and professional presentation."
+    ]
+  }
+];
+
+const exemplarBank = [
+  {
+    skill: "Project Overview",
+    weak: "I am doing a project about sports.",
+    better: "I am making a website for student athletes.",
+    strongest:
+      "I am designing a mobile-friendly website that helps student athletes track practice, nutrition goals, and highlight videos using HTML, CSS, JavaScript, and feedback from three athletes."
+  },
+  {
+    skill: "CTE Connection",
+    weak: "This connects to my program because it uses technology.",
+    better: "This connects to my program because I am building a website.",
+    strongest:
+      "This connects to my IT program because I am using responsive design, user testing, debugging, and accessibility checks to solve a real user problem."
+  },
+  {
+    skill: "Titan Tenet Reflection",
+    weak: "I showed leadership and worked hard.",
+    better: "I showed leadership by helping my group stay organized.",
+    strongest:
+      "I showed leadership when our first prototype failed. I created a shared revision checklist, divided tasks by strength, and helped the group finish the second test on time."
+  },
+  {
+    skill: "Presentation Opening",
+    weak: "Today I am going to talk about my senior project.",
+    better: "My project is a kit for new drivers.",
+    strongest:
+      "My project is a prototype emergency kit for new drivers. I made it for students who are about to get their license and may not know what to keep in a car."
+  },
+  {
+    skill: "Display Label",
+    weak: "My project pictures.",
+    better: "These pictures show my process.",
+    strongest:
+      "Problem: students waste supplies during setup. Solution: a color-coded kit with a setup checklist. Evidence: three test runs with fewer missing items."
+  },
+  {
+    skill: "Resume Bullet",
+    weak: "Did a senior project.",
+    better: "Created a community resource for my senior project.",
+    strongest:
+      "Designed and tested a community resource prototype using user feedback, material planning, revision logs, and a public presentation."
+  },
+  {
+    skill: "Thank-You Note",
+    weak: "Thank you for helping me.",
+    better: "Thank you for helping me with my presentation.",
+    strongest:
+      "Thank you for meeting with me before my presentation and helping me realize I needed to explain my testing process, not just show the final product."
+  },
+  {
+    skill: "Portfolio Reflection",
+    weak: "I learned time management.",
+    better: "I learned time management because I had to finish many parts of the project.",
+    strongest:
+      "I learned time management when I fell behind after my first prototype failed. I started using weekly work blocks and revision logs, which helped me finish the final version before Presentation Day."
+  }
+];
+
+const reflectionFrames = [
+  "At first, I thought ___. After working through ___, I realized ___.",
+  "The hardest part was ___ because ___. I responded by ___.",
+  "The feedback that changed my work was ___. I used it to ___.",
+  "A Titan Tenet I demonstrated was ___ because I ___.",
+  "This project proves I am ready for ___ because ___.",
+  "If I continued this project, my next improvement would be ___ because ___."
+];
+
+const vocabularyTerms = [
+  { term: "Artifact", meaning: "A piece of evidence from your work, such as a photo, draft, screenshot, prototype, log, or reflection." },
+  { term: "Audience", meaning: "The people who will use, view, learn from, or judge your project." },
+  { term: "CTE Alignment", meaning: "The clear connection between your project and the technical skills from your program." },
+  { term: "Feasibility", meaning: "Whether the project can realistically be completed with available time, tools, materials, and support." },
+  { term: "Mentor", meaning: "An East Tech teacher or staff advocate who helps you think, reflect, and prepare." },
+  { term: "Portfolio", meaning: "A professional collection of evidence that shows your project, growth, skill, and readiness." },
+  { term: "Reflection", meaning: "Writing that explains what changed, what you learned, and what evidence proves your growth." },
+  { term: "Revision", meaning: "A change made because of feedback, testing, failure, or new information." }
+];
+
 const navItems = [
   { page: "home", label: "Home", href: "index.html" },
   { page: "process", label: "Process", href: "process.html" },
+  { page: "pacing", label: "Pacing", href: "pacing.html" },
+  { page: "examples", label: "Examples", href: "examples.html" },
   { page: "links", label: "Official Links", href: "links.html" },
   { page: "program", label: "Program Requirements", href: "program.html" },
   { page: "templates", label: "Templates", href: "templates.html" },
@@ -1540,6 +1937,49 @@ function featureCardsHtml(items) {
   `;
 }
 
+function supportLevelHtml(support) {
+  if (!support) return "";
+  return `
+    <div class="level-grid">
+      <article class="level-card">
+        <span class="tag">If stuck</span>
+        <p>${support.stuck}</p>
+      </article>
+      <article class="level-card">
+        <span class="tag">On track</span>
+        <p>${support.onTrack}</p>
+      </article>
+      <article class="level-card">
+        <span class="tag">Push for mastery</span>
+        <p>${support.mastery}</p>
+      </article>
+    </div>
+  `;
+}
+
+function curriculumSectionsHtml(phaseId) {
+  const curriculum = curriculumSupports[phaseId];
+  if (!curriculum) return "";
+  return `
+    <div class="info-grid">
+      ${sectionCard("Learning Targets", listHtml(curriculum.targets))}
+      ${sectionCard("I Know I'm Ready When", listHtml(curriculum.ready), "readiness-card")}
+    </div>
+    ${sectionCard("Choose Your Support Level", supportLevelHtml(curriculum.support))}
+  `;
+}
+
+function formativeSectionsHtml(phaseId) {
+  const curriculum = curriculumSupports[phaseId];
+  if (!curriculum) return "";
+  return `
+    <div class="info-grid">
+      ${sectionCard("Check Before Moving On", listHtml(curriculum.checks), "formative-card")}
+      ${sectionCard("Key Words", listHtml(curriculum.vocabulary), "vocab-card")}
+    </div>
+  `;
+}
+
 function phaseExtraSectionsHtml(phaseId) {
   if (phaseId === "purpose") {
     return sectionCard(
@@ -1803,6 +2243,8 @@ function renderHomePage(root) {
       </div>
       <div class="page-grid">
         ${[
+          ["Pacing", "See the suggested project timeline and what evidence to collect at each point.", "pacing.html"],
+          ["Examples", "Compare weak, better, and strongest samples for writing, presenting, and reflecting.", "examples.html"],
           ["Official Links", "Know where to check for Remind, class website updates, proposal forms, check-ins, presentation signup, and portfolio submission.", "links.html"],
           ["Program Requirements", "Capture the rules for your specific CTE pathway before you commit to a project idea.", "program.html"],
           ["Templates", "Open starter files for proposals, meetings, presentations, displays, gratitude, portfolio, and recognition.", "templates.html"],
@@ -1854,6 +2296,116 @@ function renderProcessPage(root) {
         </div>
       </div>
       <div class="phase-grid">${phases.map(phaseCardHtml).join("")}</div>
+    </section>
+  `;
+}
+
+function renderPacingPage(root) {
+  document.title = "Pacing | Senior Capstone Project";
+  root.innerHTML = `
+    ${pageHeroHtml({
+      eyebrow: "Suggested timeline",
+      title: "Pacing Map",
+      summary:
+        "Use this as a flexible map for the year. Your senior project team may adjust dates, but the order of work should stay the same: understand, propose, build, present, celebrate, reflect, and launch."
+    })}
+    <section class="section section-tight">
+      <div class="plain-card stack">
+        <h2>What Should I Be Doing Right Now?</h2>
+        <p class="measure">
+          The strongest projects are built in small, steady moves. Do not wait for a final deadline to collect evidence. Each checkpoint should leave behind something you can show.
+        </p>
+      </div>
+    </section>
+    <section class="section" aria-labelledby="pacing-title">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Stay on track</p>
+          <h2 id="pacing-title">Year At A Glance</h2>
+        </div>
+      </div>
+      <div class="pacing-grid">
+        ${pacingMilestones
+          .map(
+            (item) => `
+              <article class="pacing-card content-card">
+                <span class="tag">${item.time}</span>
+                <h3>${item.focus}</h3>
+                <p><strong>Do:</strong> ${item.studentMove}</p>
+                <p><strong>Save:</strong> ${item.evidence}</p>
+                <p><strong>Watch for:</strong> ${item.watchFor}</p>
+              </article>
+            `
+          )
+          .join("")}
+      </div>
+    </section>
+  `;
+}
+
+function renderExamplesPage(root) {
+  document.title = "Examples And Supports | Senior Capstone Project";
+  root.innerHTML = `
+    ${pageHeroHtml({
+      eyebrow: "Exemplars, sentence frames, and vocabulary",
+      title: "Examples And Supports",
+      summary:
+        "Use these when you are stuck, revising, or trying to push work from acceptable to strong. The goal is not to copy the examples; it is to understand what makes the strongest version clearer."
+    })}
+    <section class="section section-tight">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Weak / better / strongest</p>
+          <h2>Exemplar Bank</h2>
+        </div>
+      </div>
+      <div class="exemplar-grid">
+        ${exemplarBank
+          .map(
+            (item) => `
+              <article class="exemplar-card content-card">
+                <h3>${item.skill}</h3>
+                <div class="exemplar-comparison">
+                  <div><span class="tag">Weak</span><p>${item.weak}</p></div>
+                  <div><span class="tag">Better</span><p>${item.better}</p></div>
+                  <div><span class="tag">Strongest</span><p>${item.strongest}</p></div>
+                </div>
+              </article>
+            `
+          )
+          .join("")}
+      </div>
+    </section>
+    <section class="section">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Reflection help</p>
+          <h2>Sentence Frames</h2>
+        </div>
+      </div>
+      <div class="frame-grid">
+        ${reflectionFrames.map((frame) => `<article class="content-card"><p>${frame}</p></article>`).join("")}
+      </div>
+    </section>
+    <section class="section">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Key words</p>
+          <h2>Vocabulary</h2>
+        </div>
+      </div>
+      <div class="vocab-grid">
+        ${vocabularyTerms
+          .map(
+            (item) => `
+              <article class="content-card vocab-card">
+                <h3>${item.term}</h3>
+                <p>${item.meaning}</p>
+              </article>
+            `
+          )
+          .join("")}
+      </div>
     </section>
   `;
 }
@@ -1944,6 +2496,26 @@ function renderProgramPage(root) {
           .join("")}
       </div>
     </section>
+    <section class="section" aria-labelledby="pathway-examples-title">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Examples by pathway type</p>
+          <h2 id="pathway-examples-title">What Could Evidence Look Like?</h2>
+        </div>
+      </div>
+      <div class="pathway-grid">
+        ${pathwayExamples
+          .map(
+            (item) => `
+              <article class="pathway-card content-card">
+                <h3>${item.cluster}</h3>
+                ${listHtml(item.ideas)}
+              </article>
+            `
+          )
+          .join("")}
+      </div>
+    </section>
   `;
 }
 
@@ -2019,9 +2591,11 @@ function renderPhasePage(root) {
         <div class="stack-lg">
           ${sectionCard("Plain English Version", `<p class="measure">${phase.goal}</p>`, "plain-card")}
           ${phaseExtraSectionsHtml(phase.id)}
+          ${curriculumSectionsHtml(phase.id)}
           ${sectionCard("Quick Start", listHtml(phase.quickStart))}
           ${sectionCard("Step-By-Step: What To Do", listHtml(phase.studentMoves))}
           ${sectionCard("Examples", examplesHtml(phase.id))}
+          ${formativeSectionsHtml(phase.id)}
           <div class="info-grid">
             ${sectionCard("Evidence To Save", listHtml(phase.evidence))}
             ${sectionCard("Ask Or Confirm", listHtml(phase.questions))}
@@ -2282,6 +2856,8 @@ function initPageApp() {
   const page = document.body.dataset.page;
   if (page === "home") renderHomePage(root);
   if (page === "process") renderProcessPage(root);
+  if (page === "pacing") renderPacingPage(root);
+  if (page === "examples") renderExamplesPage(root);
   if (page === "links") renderLinksPage(root);
   if (page === "program") renderProgramPage(root);
   if (page === "phase") renderPhasePage(root);

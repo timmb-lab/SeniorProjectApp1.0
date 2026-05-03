@@ -4,6 +4,15 @@ Book reference: Your Senior, pp. 10-11 and 17
 
 Strong reflections do more than summarize. They explain evidence, growth, and readiness for life after graduation.
 
+## Sentence Frames
+
+- At first, I thought ___. After working through ___, I realized ___.
+- The hardest part was ___ because ___. I responded by ___.
+- The feedback that changed my work was ___. I used it to ___.
+- A Titan Tenet I demonstrated was ___ because I ___.
+- This project proves I am ready for ___ because ___.
+- If I continued this project, my next improvement would be ___ because ___.
+
 ## Project Reflection
 
 ### What I Set Out To Do
@@ -46,5 +55,4 @@ Strong reflections do more than summarize. They explain evidence, growth, and re
 ## Professional Story
 
 Life is project-based. How does this Senior Capstone show that you are ready to thrive?
-
 
