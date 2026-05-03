@@ -1025,6 +1025,117 @@ const phasePages = [
   { id: "wrap-up", href: "finish.html" }
 ];
 
+const phaseStudentGuides = {
+  purpose: {
+    menu: "I need to understand the project",
+    outcome: "Know the purpose, official update spots, and the rules for your pathway before choosing an idea.",
+    today: "Bookmark the official update spots and write down one CTE-connected project idea.",
+    stopWhen: "You know who to ask, where updates live, and what your program teacher needs you to confirm.",
+    ignoreForNow: "Do not worry about presentation boards, portfolios, or grades yet.",
+    minimum: "You know where updates live, who to ask, and at least one realistic CTE-connected idea.",
+    strong: "You can compare two ideas and explain which one has clearer evidence, timeline, and program fit.",
+    excellent: "You can already see how the idea could show service, innovation, or strong technical skill."
+  },
+  "phase-1": {
+    menu: "I need to get my idea approved",
+    outcome: "Turn a rough idea into a Core Concept Proposal that adults can understand and approve.",
+    today: "Draft the Core Concept Proposal in plain language before trying to make it perfect.",
+    stopWhen: "Your proposal says what you will do, which CTE skill it proves, and why the plan can actually happen.",
+    ignoreForNow: "Do not build slides, a display, or a final portfolio before the idea is approved.",
+    minimum: "Your proposal explains what you will do, the CTE skill it proves, and why the plan is realistic.",
+    strong: "Your proposal includes specific materials, timeline details, Titan connections, and teacher feedback.",
+    excellent: "Your plan shows advanced program skill, a clear audience or purpose, and a thoughtful revision path."
+  },
+  "phase-2a": {
+    menu: "I am starting the real work",
+    outcome: "Move from approved idea to visible progress, evidence, check-ins, and first mentor feedback.",
+    today: "Create one visible piece of progress and save evidence of it.",
+    stopWhen: "You can show what changed, what is next, and what question or blocker needs attention.",
+    ignoreForNow: "Do not polish the final presentation before you have real build evidence.",
+    minimum: "You can show proof of progress and explain your next work session.",
+    strong: "Your build plan, check-ins, and mentor notes show what changed and what support you need.",
+    excellent: "You have before-and-after evidence showing how feedback, testing, or a mistake improved the project."
+  },
+  "phase-2b": {
+    menu: "I need to prepare my presentation",
+    outcome: "Use final build progress to plan what you will say, show, practice, and schedule.",
+    today: "Write the presentation outline before decorating slides.",
+    stopWhen: "You have a mentor check, an outline, and a confirmed date, class period, room, and technology plan.",
+    ignoreForNow: "Do not memorize a script until the presentation story makes sense.",
+    minimum: "You have a second mentor check, a presentation outline, and a confirmed time slot.",
+    strong: "Your outline tells the project story clearly and includes evidence, growth, and audience questions.",
+    excellent: "Your presentation includes a strong visual, artifact, demonstration, or audience move that makes the project easy to understand."
+  },
+  "phase-3a": {
+    menu: "I am presenting my project",
+    outcome: "Explain your project clearly in your mentor's class and answer questions with evidence.",
+    today: "Practice the opening out loud and choose the evidence you will point to.",
+    stopWhen: "You can explain the project, CTE connection, process, final result, and one thing you learned.",
+    ignoreForNow: "Do not add more slides if the audience still cannot understand the main story.",
+    minimum: "You present the project, explain the CTE connection, and answer basic audience questions.",
+    strong: "Your audience can describe what you made or did, why it matters, and what you learned.",
+    excellent: "You sound prepared, professional, and reflective, with evidence ready for difficult questions."
+  },
+  "phase-3b": {
+    menu: "I need my display ready",
+    outcome: "Create a Celebration Day display that helps visitors understand the process and final outcome.",
+    today: "Make the title, process, evidence, and final result easy to understand from a few feet away.",
+    stopWhen: "A new person can look at the display and explain the project back to you.",
+    ignoreForNow: "Do not add decorations that make the evidence harder to read.",
+    minimum: "Your display shows the project, follows program expectations, and can be explained to visitors.",
+    strong: "A visitor can understand the problem or goal, process, evidence, and final result quickly.",
+    excellent: "The display feels polished, readable, and professional, with evidence of testing, revision, or impact."
+  },
+  "phase-4": {
+    menu: "I need to finish strong",
+    outcome: "Complete gratitude, reflections, resume updates, and the professional portfolio path you chose.",
+    today: "Choose the required portfolio path and gather the missing evidence before writing final reflections.",
+    stopWhen: "Your thank-you, resume, reflections, and portfolio evidence are complete for the path you chose.",
+    ignoreForNow: "Do not rewrite everything from scratch if you already have strong evidence saved.",
+    minimum: "You complete the required thank-you, reflection, resume, and portfolio pieces.",
+    strong: "Your portfolio uses evidence to show skill, growth, mentor feedback, presentation, and final quality.",
+    excellent: "Your portfolio feels like a professional story you could proudly show after graduation."
+  },
+  "wrap-up": {
+    menu: "I need final grades and recognition",
+    outcome: "Check where the project counts, what rubrics expect, and what evidence may support recognition.",
+    today: "Use the rubrics to list what is complete, missing, or worth improving.",
+    stopWhen: "You know what counts for grades and what final evidence you still need to submit.",
+    ignoreForNow: "Do not chase recognition paperwork until required work is complete.",
+    minimum: "You know what is complete, what is missing, and which rubric or grade area each item connects to.",
+    strong: "You use rubrics to make final fixes before submitting or presenting evidence.",
+    excellent: "You gather strong evidence for service, distinction, leadership, innovation, or readiness after graduation."
+  }
+};
+
+const stepChooserCards = [
+  {
+    prompt: "I do not know what this project is yet.",
+    answer: "Start with the purpose and program rules.",
+    href: "start.html"
+  },
+  {
+    prompt: "I have an idea, but it is not approved.",
+    answer: "Go to Phase 1 and work on the proposal.",
+    href: "phase-1.html"
+  },
+  {
+    prompt: "My idea is approved, but I need to make progress.",
+    answer: "Go to Phase 2A and create evidence.",
+    href: "phase-2a.html"
+  },
+  {
+    prompt: "I built something and need to explain it.",
+    answer: "Go to Phase 2B or Phase 3A.",
+    href: "phase-2b.html"
+  },
+  {
+    prompt: "I already presented and need to finish.",
+    answer: "Go to Celebration, portfolio, grades, or final reflection.",
+    href: "celebrate.html"
+  }
+];
+
 const phaseExamples = {
   purpose: [
     {
@@ -1680,10 +1791,9 @@ function renderPhaseList() {
     button.innerHTML = `
       <span class="phase-number">${index + 1}</span>
       <span>
-        <span class="phase-button-title">${phase.nav}: ${phase.title}</span>
-        <span class="phase-button-meta">${phase.time}</span>
+        ${phaseButtonTitleHtml(phase)}
       </span>
-      ${pagePill(phase.pages)}
+      ${phaseButtonPagePillHtml(phase)}
     `;
     button.addEventListener("click", () => {
       state.activePhaseId = phase.id;
@@ -1911,6 +2021,10 @@ function listHtml(items, className = "ada-list") {
   return `<ul class="${className}">${items.map((item) => `<li>${item}</li>`).join("")}</ul>`;
 }
 
+function numberListHtml(items, className = "number-list") {
+  return `<ol class="${className}">${items.map((item) => `<li>${item}</li>`).join("")}</ol>`;
+}
+
 function cardMeta(label, pages) {
   return `
     <div class="card-meta">
@@ -1918,6 +2032,128 @@ function cardMeta(label, pages) {
       ${pagePill(pages)}
     </div>
   `;
+}
+
+function getPhaseGuide(phase) {
+  return (
+    phaseStudentGuides[phase.id] ?? {
+      menu: `${phase.nav}: ${phase.title}`,
+      outcome: phase.summary,
+      today: phase.quickStart[0] ?? phase.summary,
+      stopWhen: phase.checkpoints[0] ?? phase.summary,
+      ignoreForNow: "Do not open every support page unless your teacher asks or you need help.",
+      minimum: phase.checkpoints[0] ?? phase.summary,
+      strong: phase.masteryChecks[0] ?? phase.goal,
+      excellent: phase.masteryChecks[1] ?? phase.goal
+    }
+  );
+}
+
+function focusStripHtml(phase) {
+  const guide = getPhaseGuide(phase);
+  return `
+    <section class="focus-strip" aria-label="What to do right now">
+      <h2>Today Plan</h2>
+      <dl class="focus-list">
+        <div>
+          <dt>Do today</dt>
+          <dd>${guide.today}</dd>
+        </div>
+        <div>
+          <dt>Stop when</dt>
+          <dd>${guide.stopWhen}</dd>
+        </div>
+        <div>
+          <dt>Ignore for now</dt>
+          <dd>${guide.ignoreForNow}</dd>
+        </div>
+      </dl>
+    </section>
+  `;
+}
+
+function stopHereHtml(phase) {
+  const guide = getPhaseGuide(phase);
+  return `
+    <aside class="stop-here" aria-label="Stop here reminder">
+      <strong>Stop reading if you know your next move.</strong>
+      <p>${guide.today} Come back when that move is done or when you get stuck.</p>
+    </aside>
+  `;
+}
+
+function qualityLevelsHtml(phase) {
+  const guide = getPhaseGuide(phase);
+  return `
+    <div class="quality-grid" aria-label="Quality levels">
+      <article class="quality-card minimum-card">
+        <span class="tag">Minimum to move on</span>
+        <p>${guide.minimum}</p>
+      </article>
+      <article class="quality-card">
+        <span class="tag">Strong work</span>
+        <p>${guide.strong}</p>
+      </article>
+      <article class="quality-card">
+        <span class="tag">Excellent work</span>
+        <p>${guide.excellent}</p>
+      </article>
+    </div>
+  `;
+}
+
+function stuckBoxHtml(phase) {
+  const curriculum = curriculumSupports[phase.id];
+  return `
+    <div class="stuck-box">
+      <p class="measure">
+        If your brain is yelling that this is too much, do not read the whole page. Answer these three questions first.
+      </p>
+      ${numberListHtml([
+        `What phase am I in? <strong>${phase.nav}: ${phase.title}</strong>.`,
+        "What evidence do I already have: notes, photo, screenshot, draft, outline, feedback, or finished work?",
+        "What is the next thing I need an adult to approve, answer, or see?"
+      ])}
+      <div class="stuck-next">
+        <span class="tag">Next tiny move</span>
+        <p>${curriculum?.support?.stuck ?? phase.quickStart[0]}</p>
+      </div>
+    </div>
+  `;
+}
+
+function detailsPanelHtml(title, content, extraClass = "") {
+  return `
+    <details class="details-panel ${extraClass}">
+      <summary>${title}</summary>
+      <div>${content}</div>
+    </details>
+  `;
+}
+
+function phaseContextDetailHtml(phaseId) {
+  if (phaseId === "purpose") {
+    return detailsPanelHtml(
+      "Why This Matters",
+      `<p class="measure">The booklet says this project is more than a final assignment. It is your chance to prove skill, character, resilience, and readiness for life after graduation.</p>${featureCardsHtml(purposeWhyCards)}`
+    );
+  }
+
+  if (phaseId === "phase-4") {
+    return detailsPanelHtml(
+      "Why The Portfolio Matters",
+      `<p class="measure">The portfolio is not just a final check-off. It is the bridge between your time as an East Tech student and your future as a professional.</p>${featureCardsHtml(portfolioWhyCards)}`
+    );
+  }
+
+  if (phaseId === "wrap-up") {
+    return detailsPanelHtml(
+      "Launch Your Future",
+      `<p class="measure">Page 18 closes the booklet by reminding you that this project proves more than completion. It shows that you can lead, innovate, and finish something complex.</p>${featureCardsHtml(closingCards)}`
+    );
+  }
+
+  return "";
 }
 
 function featureCardsHtml(items) {
@@ -1957,55 +2193,26 @@ function supportLevelHtml(support) {
   `;
 }
 
-function curriculumSectionsHtml(phaseId) {
-  const curriculum = curriculumSupports[phaseId];
-  if (!curriculum) return "";
-  return `
-    <div class="info-grid">
-      ${sectionCard("Learning Targets", listHtml(curriculum.targets))}
-      ${sectionCard("I Know I'm Ready When", listHtml(curriculum.ready), "readiness-card")}
-    </div>
-    ${sectionCard("Choose Your Support Level", supportLevelHtml(curriculum.support))}
-  `;
-}
+function goingFurtherHtml(phase) {
+  const curriculum = curriculumSupports[phase.id];
+  const panels = [
+    phaseContextDetailHtml(phase.id),
+    detailsPanelHtml("Full Step-By-Step", listHtml(phase.studentMoves)),
+    curriculum ? detailsPanelHtml("Learning Targets", listHtml(curriculum.targets)) : "",
+    curriculum ? detailsPanelHtml("Ready Check", listHtml(curriculum.ready), "readiness-panel") : "",
+    detailsPanelHtml("Questions To Ask", listHtml(phase.questions)),
+    detailsPanelHtml("Strong Work Looks Like", listHtml(phase.masteryChecks)),
+    detailsPanelHtml("Common Mistakes", listHtml(phase.avoid), "warning-panel"),
+    curriculum ? detailsPanelHtml("Key Words", listHtml(curriculum.vocabulary)) : "",
+    detailsPanelHtml("Adult Roles", listHtml(phase.adultRoles)),
+    detailsPanelHtml("Booklet Connection", `<p class="measure">${phase.bookletConnection}</p>`)
+  ].filter(Boolean);
 
-function formativeSectionsHtml(phaseId) {
-  const curriculum = curriculumSupports[phaseId];
-  if (!curriculum) return "";
-  return `
-    <div class="info-grid">
-      ${sectionCard("Check Before Moving On", listHtml(curriculum.checks), "formative-card")}
-      ${sectionCard("Key Words", listHtml(curriculum.vocabulary), "vocab-card")}
-    </div>
-  `;
-}
-
-function phaseExtraSectionsHtml(phaseId) {
-  if (phaseId === "purpose") {
-    return sectionCard(
-      "Why Senior Projects?",
-      `<p class="measure">The booklet says this project is more than a final assignment. It is your chance to prove skill, character, resilience, and readiness for life after graduation.</p>${featureCardsHtml(purposeWhyCards)}`,
-      "callout"
-    );
-  }
-
-  if (phaseId === "phase-4") {
-    return sectionCard(
-      "Why Build A Professional Portfolio?",
-      `<p class="measure">The portfolio is not just a final check-off. It is the bridge between your time as an East Tech student and your future as a professional.</p>${featureCardsHtml(portfolioWhyCards)}`,
-      "callout"
-    );
-  }
-
-  if (phaseId === "wrap-up") {
-    return sectionCard(
-      "Titan Seniors: Launch Your Future",
-      `<p class="measure">Page 18 closes the booklet by reminding you that this project proves more than completion. It shows that you can lead, innovate, and finish something complex.</p>${featureCardsHtml(closingCards)}`,
-      "callout"
-    );
-  }
-
-  return "";
+  return sectionCard(
+    "Open Only If You Need More",
+    `<p class="measure">These panels are here for confusion, revision, or stronger work. You do not need to open them just because they exist.</p><div class="details-stack">${panels.join("")}</div>`,
+    "going-further-card"
+  );
 }
 
 function renderSiteChrome() {
@@ -2024,12 +2231,13 @@ function renderSiteChrome() {
   const phaseLinks = phases
     .map((phase, index) => {
       const current = phase.id === activePhaseId ? ` aria-current="page"` : "";
+      const guide = getPhaseGuide(phase);
       return `
         <a class="menu-phase-link" href="${getPhaseHref(phase.id)}"${current}>
           <span class="menu-phase-number">${index + 1}</span>
           <span>
-            <strong>${phase.nav}</strong>
-            <small>${phase.title}</small>
+            <strong>${guide.menu}</strong>
+            <small>${phase.nav}: ${phase.title}</small>
           </span>
           <span class="menu-phase-pages">${phase.pages}</span>
         </a>
@@ -2052,17 +2260,17 @@ function renderSiteChrome() {
     <aside class="project-menu" id="projectMenu" role="dialog" aria-modal="true" aria-labelledby="project-menu-title" hidden>
       <div class="project-menu-header">
         <div>
-          <p class="menu-kicker">Jump without scrolling</p>
+          <p class="menu-kicker">Where am I?</p>
           <h2 id="project-menu-title">Project Menu</h2>
         </div>
         <button class="menu-close" type="button" data-menu-close>Close</button>
       </div>
       <p class="menu-intro">
-        Use this menu when you need to move to another step. The page you are on stays highlighted.
+        Choose the sentence that sounds closest to what you need right now. The page you are on stays highlighted.
       </p>
       <nav class="project-menu-nav" aria-label="Project navigation">
         <section class="project-menu-section" aria-labelledby="phase-menu-title">
-          <h3 id="phase-menu-title">Project Stops</h3>
+          <h3 id="phase-menu-title">Project Steps</h3>
           <div class="menu-phase-list">${phaseLinks}</div>
         </section>
         <section class="project-menu-section" aria-labelledby="resource-menu-title">
@@ -2172,15 +2380,202 @@ function pageHeroHtml({ eyebrow, title, summary, breadcrumb = "" }) {
 }
 
 function phaseCardHtml(phase, index) {
+  const guide = getPhaseGuide(phase);
   return `
     <article class="phase-card">
       ${cardMeta(phase.nav, phase.pages)}
-      <h3>${index + 1}. ${phase.title}</h3>
-      <p><strong>${phase.time}</strong></p>
-      <p>${phase.summary}</p>
-      <a class="button button-primary" href="${getPhaseHref(phase.id)}">Open This Page</a>
+      <h3>${index + 1}. ${guide.menu}</h3>
+      <p class="phase-formal">${phase.title} / ${phase.time}</p>
+      <p>${guide.outcome}</p>
+      <p><strong>First move:</strong> ${phase.quickStart[0]}</p>
+      <a class="button button-primary" href="${getPhaseHref(phase.id)}">Open This Step</a>
     </article>
   `;
+}
+
+function phaseRouteCardHtml(phase, index) {
+  const guide = getPhaseGuide(phase);
+  return `
+    <a class="route-card" href="${getPhaseHref(phase.id)}">
+      <span class="route-number" aria-hidden="true">${index + 1}</span>
+      <span>
+        <strong>${guide.menu}</strong>
+        <small>${phase.nav}: ${phase.title}</small>
+      </span>
+    </a>
+  `;
+}
+
+function supportCardHtml([title, body, href]) {
+  return `
+    <article class="support-card compact-support-card">
+      <h3>${title}</h3>
+      <p>${body}</p>
+      <a class="button" href="${href}">Open</a>
+    </article>
+  `;
+}
+
+function supportCardsHtml() {
+  return [
+    ["Pacing", "See what should happen now, next, and later.", "pacing.html"],
+    ["Examples", "Look at weak, better, and strongest samples.", "examples.html"],
+    ["Official Links", "Find where current teacher links and deadlines live.", "links.html"],
+    ["Program Requirements", "Write down the rules for your pathway.", "program.html"],
+    ["Templates", "Open starter files when you need a document.", "templates.html"],
+    ["Portfolio", "Check what belongs in the final portfolio.", "portfolio.html"],
+    ["Rubrics", "Use rubrics before you turn work in.", "rubrics.html"],
+    ["Grades", "See where the project counts and what recognition means.", "grades.html"]
+  ]
+    .map(supportCardHtml)
+    .join("");
+}
+
+function stepChooserHtml() {
+  return `
+    <section class="chooser-card" aria-labelledby="chooser-title">
+      <div>
+        <p class="eyebrow">Not sure?</p>
+        <h2 id="chooser-title">Use The 20-Second Chooser</h2>
+        <p class="measure">Pick the sentence that sounds most true. You can always change pages later.</p>
+      </div>
+      <div class="chooser-grid">
+        ${stepChooserCards
+          .map(
+            (card) => `
+              <a class="chooser-option" href="${card.href}">
+                <strong>${card.prompt}</strong>
+                <span>${card.answer}</span>
+              </a>
+            `
+          )
+          .join("")}
+      </div>
+    </section>
+  `;
+}
+
+function calmUseCardHtml() {
+  return `
+    <div class="plain-card stack calm-use-card">
+      <h2>Use This Like A Checklist</h2>
+      ${listHtml([
+        "Pick the step that matches where you are today.",
+        "Read only Do This First before opening the deeper panels.",
+        "Use the checklist and save evidence as you work.",
+        "Ask for help as soon as one part is unclear."
+      ])}
+    </div>
+  `;
+}
+
+function phaseHeroTitle(phase) {
+  const guide = getPhaseGuide(phase);
+  return `${phase.nav}: ${phase.title}`;
+}
+
+function phaseHeroSummary(phase) {
+  return getPhaseGuide(phase).outcome;
+}
+
+function phaseQuickLayerHtml(phase, relatedTemplates) {
+  const curriculum = curriculumSupports[phase.id];
+  return `
+    ${focusStripHtml(phase)}
+    ${sectionCard("Do This First", numberListHtml(phase.quickStart), "priority-card")}
+    ${stopHereHtml(phase)}
+    ${sectionCard(
+      "Your Goal",
+      `<p class="measure">${phase.goal}</p>${qualityLevelsHtml(phase)}`,
+      "plain-card goal-card"
+    )}
+    ${sectionCard("What To Turn In Or Save", listHtml(phase.evidence), "turn-in-card")}
+    ${sectionCard(
+      "Files For This Step",
+      `<div class="large-link-list">${
+        relatedTemplates
+          .map((template) => `<a class="large-link" href="${template.href}"><span>${template.title}</span><span>${pagePill(template.pages)}</span></a>`)
+          .join("") || "<p>No related files yet.</p>"
+      }</div>`,
+      "files-card"
+    )}
+    ${sectionCard("Examples", examplesHtml(phase.id), "examples-card")}
+    ${sectionCard("Need Help?", `${stuckBoxHtml(phase)}${supportLevelHtml(curriculum?.support)}`, "help-card")}
+    ${goingFurtherHtml(phase)}
+  `;
+}
+
+function phaseNoteCardHtml(phase) {
+  return sectionCard(
+    "Draft Notes",
+    `<label class="search-box"><span>Notes saved on this device only</span><textarea id="phaseNote" data-note-id="${phase.id}" placeholder="Questions, mentor feedback, next actions"></textarea></label><div class="save-row"><button class="small-button" type="button" data-save-note="${phase.id}">Save Note</button><span class="saved-state" id="saved-${phase.id}">Saved on this device</span></div>`
+  );
+}
+
+function sideMinimumHtml(phase) {
+  const guide = getPhaseGuide(phase);
+  return `
+    <section class="content-card minimum-aside">
+      <h2>Minimum To Move On</h2>
+      <p>${guide.minimum}</p>
+    </section>
+  `;
+}
+
+function routeDashboardHtml(titleId = "home-process-title") {
+  return `
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">Start here</p>
+        <h2 id="${titleId}">Where Are You Right Now?</h2>
+      </div>
+      <p class="section-note">Choose the sentence that sounds most like your current problem.</p>
+    </div>
+    <div class="route-grid">${phases.map(phaseRouteCardHtml).join("")}</div>
+  `;
+}
+
+function phaseSummaryCardHtml(phase, index) {
+  const guide = getPhaseGuide(phase);
+  return `
+    <article class="phase-summary-row">
+      <span class="route-number" aria-hidden="true">${index + 1}</span>
+      <div>
+        <h3>${guide.menu}</h3>
+        <p><strong>${phase.nav}: ${phase.title}</strong> / ${phase.time}</p>
+        <p>${guide.outcome}</p>
+      </div>
+      <a class="button button-primary" href="${getPhaseHref(phase.id)}">Open</a>
+    </article>
+  `;
+}
+
+function phaseSummaryRowsHtml() {
+  return `<div class="phase-summary-list">${phases.map(phaseSummaryCardHtml).join("")}</div>`;
+}
+
+function legacyPhaseTitle(phase) {
+  const guide = getPhaseGuide(phase);
+  return `${guide.menu}`;
+}
+
+function legacyPhaseMeta(phase) {
+  return `${phase.nav}: ${phase.title} / ${phase.time}`;
+}
+
+function legacyPagePill(phase) {
+  return pagePill(phase.pages);
+}
+
+function phaseButtonTitleHtml(phase) {
+  return `
+    <span class="phase-button-title">${legacyPhaseTitle(phase)}</span>
+    <span class="phase-button-meta">${legacyPhaseMeta(phase)}</span>
+  `;
+}
+
+function phaseButtonPagePillHtml(phase) {
+  return legacyPagePill(phase);
 }
 
 function renderHomePage(root) {
@@ -2192,76 +2587,46 @@ function renderHomePage(root) {
           <p class="eyebrow">Your senior project guide</p>
           <h1 id="hero-title">Senior Capstone Project</h1>
           <p class="hero-text">
-            Know what to do next, what to save, what to ask, and how to show your best work from proposal to Celebration Day.
+            One step at a time: pick where you are, do the first move, save evidence, and ask for help before the project feels too big.
           </p>
           <div class="hero-actions" aria-label="Primary actions">
-            <a class="button button-primary" href="process.html">Start The Process</a>
+            <a class="button button-primary" href="#where-am-i">Find My Step</a>
             <a class="button button-secondary" href="pacing.html">See The Timeline</a>
           </div>
         </div>
         <dl class="hero-stats hero-promises" aria-label="Project support">
           <div>
-            <dt>Start</dt>
-            <dd>choose the step you are on</dd>
+            <dt>Pick</dt>
+            <dd>find the step that matches today</dd>
           </div>
           <div>
-            <dt>Build</dt>
-            <dd>save evidence as you work</dd>
+            <dt>Do</dt>
+            <dd>start with three clear moves</dd>
           </div>
           <div>
-            <dt>Launch</dt>
-            <dd>finish with a strong portfolio</dd>
+            <dt>Save</dt>
+            <dd>keep proof as you go</dd>
           </div>
         </dl>
       </div>
     </section>
-    <section class="section">
-      <div class="plain-card stack">
-        <h2>Use This Site Like A Checklist, Not A Textbook</h2>
-        <p class="measure">
-          The booklet tells you the official project journey. This site breaks that journey into smaller pages so you can do one thing at a time. Each process page tells you what to do, what to save, what to ask, and what strong work can look like.
-        </p>
-      </div>
+    <section class="section section-tight" id="where-am-i" aria-labelledby="home-process-title">
+      ${stepChooserHtml()}
+      ${routeDashboardHtml("home-process-title")}
     </section>
-    <section class="section section-tight" aria-labelledby="home-process-title">
-      <div class="section-head">
-        <div>
-          <p class="eyebrow">Start here</p>
-          <h2 id="home-process-title">Process Pages</h2>
-        </div>
-        <p class="section-note">No giant scroll. Every stop has its own page.</p>
-      </div>
-      <div class="phase-grid">${phases.map(phaseCardHtml).join("")}</div>
+    <section class="section section-tight">
+      ${calmUseCardHtml()}
     </section>
     <section class="section" aria-labelledby="home-support-title">
       <div class="section-head">
         <div>
           <p class="eyebrow">Support pages</p>
-          <h2 id="home-support-title">Find What You Need</h2>
+          <h2 id="home-support-title">Open Only What You Need</h2>
         </div>
-        <p class="section-note">Jump directly to links, program requirements, templates, portfolio rules, rubrics, and grades.</p>
+        <p class="section-note">These pages help when a specific part of the project is confusing.</p>
       </div>
       <div class="page-grid">
-        ${[
-          ["Pacing", "See the suggested project timeline and what evidence to collect at each point.", "pacing.html"],
-          ["Examples", "Compare weak, better, and strongest samples for writing, presenting, and reflecting.", "examples.html"],
-          ["Official Links", "Know where to check for Remind, class website updates, proposal forms, check-ins, presentation signup, and portfolio submission.", "links.html"],
-          ["Program Requirements", "Capture the rules for your specific CTE pathway before you commit to a project idea.", "program.html"],
-          ["Templates", "Open starter files for proposals, meetings, presentations, displays, gratitude, portfolio, and recognition.", "templates.html"],
-          ["Portfolio", "Compare the minimum and maximum portfolio paths with plain-language tips.", "portfolio.html"],
-          ["Rubrics", "See how proposal, presentation, display, and portfolio work will be evaluated.", "rubrics.html"],
-          ["Grades", "See where the project counts and what special recognition can mean.", "grades.html"]
-        ]
-          .map(
-            ([title, body, href]) => `
-              <article class="support-card">
-                <h3>${title}</h3>
-                <p>${body}</p>
-                <a class="button" href="${href}">Open</a>
-              </article>
-            `
-          )
-          .join("")}
+        ${supportCardsHtml()}
       </div>
     </section>
   `;
@@ -2271,31 +2636,22 @@ function renderProcessPage(root) {
   document.title = "Process | Senior Capstone Project";
   root.innerHTML = `
     ${pageHeroHtml({
-      eyebrow: "One page per step",
+      eyebrow: "One step at a time",
       title: "Project Process",
       summary:
-        "Open the page for the step you are on. Each page is written for students first: short starts, clear directions, examples, and reminders about what evidence to save."
+        "Do not read the whole project at once. Choose the step that matches where you are today, then follow that page's first moves."
     })}
     <section class="section section-tight">
-      <div class="plain-card stack">
-        <h2>How To Use This</h2>
-        ${listHtml([
-          "Start with the page for your current phase.",
-          "Read the Finish Line first so you know what done means.",
-          "Use the checklist while you work. It saves on this device only.",
-          "Open the related templates when you need a document or planning sheet.",
-          "Use the examples if you are stuck on what to write or say."
-        ])}
-      </div>
+      ${calmUseCardHtml()}
     </section>
     <section class="section" aria-labelledby="process-list-title">
-      <div class="section-head">
-        <div>
-          <p class="eyebrow">Book pp. 1-18</p>
-          <h2 id="process-list-title">Choose Your Current Step</h2>
-        </div>
+      ${stepChooserHtml()}
+      ${routeDashboardHtml("process-list-title")}
+      <div class="section-subhead">
+        <p class="eyebrow">Book pp. 1-18</p>
+        <h2>All Steps In Order</h2>
       </div>
-      <div class="phase-grid">${phases.map(phaseCardHtml).join("")}</div>
+      ${phaseSummaryRowsHtml()}
     </section>
   `;
 }
@@ -2582,48 +2938,22 @@ function renderPhasePage(root) {
   root.innerHTML = `
     ${pageHeroHtml({
       eyebrow: `Book p. ${phase.pages} / ${phase.time}`,
-      title: phase.title,
-      summary: phase.summary,
+      title: phaseHeroTitle(phase),
+      summary: phaseHeroSummary(phase),
       breadcrumb: `<nav class="breadcrumb" aria-label="Breadcrumb"><a href="process.html">Process</a><span aria-hidden="true">/</span><span>${phase.nav}</span></nav>`
     })}
     <section class="section section-tight">
       <div class="student-layout">
         <div class="stack-lg">
-          ${sectionCard("Plain English Version", `<p class="measure">${phase.goal}</p>`, "plain-card")}
-          ${phaseExtraSectionsHtml(phase.id)}
-          ${curriculumSectionsHtml(phase.id)}
-          ${sectionCard("Quick Start", listHtml(phase.quickStart))}
-          ${sectionCard("Step-By-Step: What To Do", listHtml(phase.studentMoves))}
-          ${sectionCard("Examples", examplesHtml(phase.id))}
-          ${formativeSectionsHtml(phase.id)}
-          <div class="info-grid">
-            ${sectionCard("Evidence To Save", listHtml(phase.evidence))}
-            ${sectionCard("Ask Or Confirm", listHtml(phase.questions))}
-          </div>
-          <div class="info-grid">
-            ${sectionCard("Strong Work Looks Like", listHtml(phase.masteryChecks))}
-            ${sectionCard("Common Mistakes", listHtml(phase.avoid), "note-warning")}
-          </div>
-          ${sectionCard("Adult Roles", listHtml(phase.adultRoles))}
-          ${sectionCard("Booklet Connection", `<p class="measure">${phase.bookletConnection}</p>`)}
-          ${sectionCard(
-            "Related Files",
-            `<div class="large-link-list">${
-              relatedTemplates
-                .map((template) => `<a class="large-link" href="${template.href}"><span>${template.title}</span><span>${pagePill(template.pages)}</span></a>`)
-                .join("") || "<p>No related files yet.</p>"
-            }</div>`
-          )}
-          ${sectionCard(
-            "Draft Notes",
-            `<label class="search-box"><span>Notes saved on this device only</span><textarea id="phaseNote" data-note-id="${phase.id}" placeholder="Questions, mentor feedback, next actions"></textarea></label><div class="save-row"><button class="small-button" type="button" data-save-note="${phase.id}">Save Note</button><span class="saved-state" id="saved-${phase.id}">Saved on this device</span></div>`
-          )}
+          ${phaseQuickLayerHtml(phase, relatedTemplates)}
+          ${phaseNoteCardHtml(phase)}
           <nav class="phase-next" aria-label="Previous and next phase">
             ${previous ? `<a class="button" href="${getPhaseHref(previous.id)}">Previous: ${previous.nav}</a>` : `<a class="button" href="process.html">Back To Process</a>`}
             ${next ? `<a class="button button-primary" href="${getPhaseHref(next.id)}">Next: ${next.nav}</a>` : `<a class="button button-primary" href="grades.html">Review Grades</a>`}
           </nav>
         </div>
         <aside class="student-aside" aria-label="Phase tools">
+          ${sideMinimumHtml(phase)}
           <section class="content-card">
             <h2>Checklist</h2>
             ${checklistHtml(phase)}
