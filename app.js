@@ -2189,28 +2189,28 @@ function renderHomePage(root) {
     <section class="home-hero" aria-labelledby="hero-title">
       <div class="hero">
         <div class="hero-copy">
-          <p class="eyebrow">Your Senior companion</p>
+          <p class="eyebrow">Your senior project guide</p>
           <h1 id="hero-title">Senior Capstone Project</h1>
           <p class="hero-text">
-            One clear page at a time: what to do, what to save, what to ask, and how each step connects to the physical booklet.
+            Know what to do next, what to save, what to ask, and how to show your best work from proposal to Celebration Day.
           </p>
           <div class="hero-actions" aria-label="Primary actions">
             <a class="button button-primary" href="process.html">Start The Process</a>
-            <a class="button button-secondary" href="templates.html">Open Templates</a>
+            <a class="button button-secondary" href="pacing.html">See The Timeline</a>
           </div>
         </div>
-        <dl class="hero-stats" aria-label="Booklet coverage">
+        <dl class="hero-stats hero-promises" aria-label="Project support">
           <div>
-            <dt>18</dt>
-            <dd>booklet pages mapped</dd>
+            <dt>Start</dt>
+            <dd>choose the step you are on</dd>
           </div>
           <div>
-            <dt>8</dt>
-            <dd>student stops across the project</dd>
+            <dt>Build</dt>
+            <dd>save evidence as you work</dd>
           </div>
           <div>
-            <dt>15</dt>
-            <dd>student support files</dd>
+            <dt>Launch</dt>
+            <dd>finish with a strong portfolio</dd>
           </div>
         </dl>
       </div>
