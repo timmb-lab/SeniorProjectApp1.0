@@ -1622,7 +1622,7 @@ function renderSiteChrome() {
       </p>
       <nav class="project-menu-nav" aria-label="Project navigation">
         <section class="project-menu-section" aria-labelledby="phase-menu-title">
-          <h3 id="phase-menu-title">Build Process</h3>
+          <h3 id="phase-menu-title">Project Stops</h3>
           <div class="menu-phase-list">${phaseLinks}</div>
         </section>
         <section class="project-menu-section" aria-labelledby="resource-menu-title">
@@ -1766,7 +1766,7 @@ function renderHomePage(root) {
           </div>
           <div>
             <dt>8</dt>
-            <dd>separate process pages</dd>
+            <dd>student stops across the project</dd>
           </div>
           <div>
             <dt>15</dt>
@@ -2272,49 +2272,6 @@ function renderGradesPage(root) {
   `;
 }
 
-function renderStudentGuideLanding(root) {
-  document.title = "Student Guide | Senior Capstone Project";
-  root.innerHTML = `
-    ${pageHeroHtml({
-      eyebrow: "Student guide",
-      title: "Choose Your Next Step",
-      summary:
-        "This public guide is focused on what you need to do, what to save, what to ask, and how each step connects to the Your Senior booklet."
-    })}
-    <section class="section section-tight">
-      <div class="page-grid">
-        ${[
-          ["Process", "Open the step you are working on right now.", "process.html"],
-          ["Official Links", "Know which official links to check and what each link is used for.", "links.html"],
-          ["Program Requirements", "Record the rules for your specific CTE pathway before you commit to a project idea.", "program.html"],
-          ["Templates", "Use starter files for planning, meetings, presentations, display work, gratitude, and your portfolio.", "templates.html"],
-          ["Portfolio", "Check what belongs in the minimum path and the maximum path.", "portfolio.html"],
-          ["Rubrics", "Use the scoring guides before you submit or present.", "rubrics.html"],
-          ["Grades", "See where the project counts and what recognition can mean.", "grades.html"]
-        ]
-          .map(
-            ([title, body, href]) => `
-              <article class="support-card">
-                <h2>${title}</h2>
-                <p>${body}</p>
-                <a class="button" href="${href}">Open</a>
-              </article>
-            `
-          )
-          .join("")}
-      </div>
-    </section>
-  `;
-}
-
-function renderRoadmapPage(root) {
-  renderStudentGuideLanding(root);
-}
-
-function renderAuditPage(root) {
-  renderStudentGuideLanding(root);
-}
-
 function initPageApp() {
   renderSiteChrome();
   renderFooter();
@@ -2332,8 +2289,6 @@ function initPageApp() {
   if (page === "portfolio") renderPortfolioPage(root);
   if (page === "rubrics") renderRubricsPage(root);
   if (page === "grades") renderGradesPage(root);
-  if (page === "roadmap") renderRoadmapPage(root);
-  if (page === "audit") renderAuditPage(root);
 }
 
 function render() {

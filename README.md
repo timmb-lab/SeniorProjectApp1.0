@@ -1,58 +1,18 @@
-# Senior Capstone Project App
+# Senior Capstone Project Guide
 
-Static MVP for a public companion site to the physical `Your Senior` booklet.
+Public companion site for the East Career and Technical Academy Senior Capstone Project.
 
-## What is included
+The site is written for students. It maps the physical `Your Senior` booklet into separate pages with:
 
-- Page-referenced process guide for booklet pages 2-18.
-- Expanded phase-by-phase student workflow for booklet pages 1-18.
-- Separate public pages instead of one long scrolling page.
-- Single left-navigation system with every project phase quickly available on desktop, plus an accessible collapsible version on mobile.
-- Quick start steps, detailed student moves, evidence reminders, adult questions, mastery checks, and common mistakes for each process stop.
-- Concrete examples throughout the phase pages for students who need to see what strong work can sound like.
-- Phase-by-phase student checklist with progress saved in the browser.
-- Local draft notes saved in the browser.
-- Template file library for proposal, rubrics, build, mentor meetings, presentation, display, gratitude, portfolio, recognition, resume highlights, and status tracking.
-- Portfolio path summary, full rubric tables, grade map, recognition section, and a 1.0 role/login roadmap.
-- Written coverage audit in `AUDIT.md`.
-- Public-safe generated hero image in `assets/app-hero.jpg` with no identifiable students.
+- one page for each project stop;
+- page references back to the booklet;
+- official-link reminders;
+- program requirement checks;
+- templates for planning and evidence;
+- portfolio, rubric, grade, and recognition guidance.
 
-## Run locally
+Students should always follow the current directions, deadlines, and links shared through Senior Remind, the class website, and their senior project team.
 
-Open `index.html` in a browser. No build step is required.
+## Public Entry
 
-For a local server:
-
-```powershell
-& "C:\Users\bryan\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin\node.exe" -e "const http=require('http'),fs=require('fs'),path=require('path');const root=process.cwd();const types={'.html':'text/html','.css':'text/css','.js':'text/javascript','.jpg':'image/jpeg','.md':'text/markdown'};http.createServer((req,res)=>{const clean=decodeURIComponent(req.url.split('?')[0]);let file=path.join(root,clean==='/'?'index.html':clean);if(!file.startsWith(root)){res.writeHead(403);return res.end('Forbidden')}fs.readFile(file,(err,data)=>{if(err){res.writeHead(404);return res.end('Not found')}res.writeHead(200,{'Content-Type':types[path.extname(file)]||'application/octet-stream'});res.end(data)})}).listen(4173,()=>console.log('http://localhost:4173'))"
-```
-
-## Public hosting
-
-Because the app is static, it can be hosted from the repository root on GitHub Pages, Netlify, Vercel, Cloudflare Pages, or any basic web host.
-
-For GitHub Pages, push the repo to GitHub and set Pages to deploy from the branch root.
-
-The public entry page is `index.html`. Top-level navigation now points to separate files such as `process.html`, `templates.html`, `portfolio.html`, `rubrics.html`, `grades.html`, and `roadmap.html`.
-
-## Updating official links
-
-The student-facing data lives in `app.js`.
-
-- Edit `templates` to replace local Markdown files with official Google Docs, Google Forms, PDFs, or class website URLs.
-- Edit `phases` to adjust page references, dates, program language, or checklist items.
-- Edit `phaseExamples` to add district-approved examples for each CTE program or student pathway.
-- Edit `auditFindings`, `grades`, `recognitions`, `portfolioFeatures`, and `rubrics` when the booklet or school requirements change.
-- Keep any public images free of identifiable students unless the school has explicit permission for public web use.
-
-## 1.0 direction
-
-The public MVP should remain separate from private student records. For 1.0, add:
-
-- Authentication for students, mentors, teachers, and admins.
-- Student profile fields: name, email, program, graduation year, teacher, mentor, group, current phase, status, timestamps.
-- Group assignments and mentor caseloads.
-- Shared comments with role labels, timestamps, visibility rules, and audit history.
-- Admin reporting for completion by phase, program, teacher, mentor, and recognition candidates.
-
-Good backend options for the next step: Supabase, Firebase, or a small custom API with Postgres.
+Open `index.html` or the GitHub Pages URL for the student guide.

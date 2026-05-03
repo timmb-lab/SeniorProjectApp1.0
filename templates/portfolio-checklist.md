@@ -4,6 +4,13 @@ Book reference: Your Senior, pp. 10-11 and 17
 
 Your portfolio is the professional story of your Senior Capstone. Choose the minimum path or maximum path and finish it carefully.
 
+## Why The Portfolio Matters
+
+- Evidence of mastery: show what you can do in your CTE program.
+- Titan identity: connect your work to character, resilience, leadership, and growth.
+- Professional storytelling: explain the project from Core Concept Proposal to Celebration Day.
+- Progress over time: collect artifacts as you go instead of rushing at the finish line.
+
 ## Minimum Portfolio Path
 
 Final Portfolio Grade: B
@@ -46,4 +53,3 @@ Final Portfolio Grade: A
 - [ ] My portfolio shows Titan identity and growth.
 - [ ] My portfolio explains the project process from proposal to Celebration Day.
 - [ ] My portfolio looks professional.
-
