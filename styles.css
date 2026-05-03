@@ -1150,7 +1150,10 @@ li + li {
 .page-grid,
 .phase-grid,
 .example-grid,
-.support-grid {
+.support-grid,
+.feature-grid,
+.official-grid,
+.program-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1rem;
@@ -1158,6 +1161,45 @@ li + li {
 
 .phase-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.feature-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.official-grid,
+.program-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.feature-card {
+  border: 1px solid rgba(217, 164, 65, 0.42);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.72);
+  padding: 0.9rem;
+}
+
+.feature-card h3,
+.official-card h3,
+.program-card h3 {
+  margin: 0;
+}
+
+.feature-card p {
+  margin: 0.35rem 0 0;
+  color: var(--muted);
+}
+
+.official-card,
+.program-card {
+  display: grid;
+  gap: 0.75rem;
+  border-top: 5px solid var(--teal);
+}
+
+.official-card p,
+.program-card p {
+  margin: 0;
 }
 
 .phase-card {
