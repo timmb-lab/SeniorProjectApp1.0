@@ -56,11 +56,11 @@ const phases = [
     adultRoles: [
       "Senior program teacher: primary guide for program-specific expectations.",
       "Student: owns the idea, questions, and early feasibility thinking.",
-      "App/site: keeps the steps, page references, templates, and links in one place."
+      "This guide: keeps the steps, page references, templates, and student reminders in one place."
     ],
     bookletConnection:
       "Page 1 points students to Senior Remind and the class website. Pages 2-3 explain that each career path is unique and that the senior program teacher provides the essential project requirements.",
-    templates: ["Project Idea Notes", "Core Concept Proposal"]
+    templates: ["Project Idea Notes", "Program Requirement Notes", "Core Concept Proposal"]
   },
   {
     id: "phase-1",
@@ -543,6 +543,14 @@ const templates = [
       "Capture possible topics, CTE fit, group or individual path, materials, permissions, constraints, and teacher questions before the proposal."
   },
   {
+    title: "Program Requirement Notes",
+    href: "templates/program-requirement-notes.md",
+    pages: "3",
+    audience: "Students",
+    description:
+      "Record the exact rules for your CTE pathway: group rules, required product or demonstration, evidence, display expectations, safety needs, and due dates."
+  },
+  {
     title: "Core Concept Proposal",
     href: "templates/core-concept-proposal.md",
     pages: "4, 14",
@@ -687,6 +695,153 @@ const portfolioFeatures = [
   }
 ];
 
+const officialLinks = [
+  {
+    title: "Senior Remind",
+    pages: "1",
+    action: "Join the Senior Remind and keep notifications on.",
+    useFor: "Deadline reminders, quick updates, and schoolwide senior project announcements.",
+    currentLink: "Use the join code or invite link shared by your senior project team."
+  },
+  {
+    title: "Class Website",
+    pages: "1",
+    action: "Bookmark the class website and check it before each major phase.",
+    useFor: "Official directions, due dates, form links, and teacher updates.",
+    currentLink: "Use the website link shared in class or posted by your senior program teacher."
+  },
+  {
+    title: "Core Concept Proposal Submission",
+    pages: "4, 14",
+    action: "Submit only after your idea is clear, feasible, and connected to your CTE program.",
+    useFor: "Phase 1 approval and proposal completion grades.",
+    currentLink: "Use the current proposal form or document link from your class website."
+  },
+  {
+    title: "Build Check-In Forms",
+    pages: "5",
+    action: "Complete check-ins honestly. Name progress, blockers, pivots, and next steps.",
+    useFor: "Showing that your project is moving from idea to real work.",
+    currentLink: "Use the check-in forms posted by your senior project team."
+  },
+  {
+    title: "Presentation Time Slot",
+    pages: "6-7, 15",
+    action: "Confirm your date, class period, room, technology, and mentor expectations.",
+    useFor: "Senior Project Presentation Day logistics.",
+    currentLink: "Use the signup process shared by your mentor or senior program teacher."
+  },
+  {
+    title: "Portfolio Google Form",
+    pages: "10-11, 17",
+    action: "Submit the minimum portfolio path through the official form unless your teacher gives a different direction.",
+    useFor: "Final portfolio evidence and Quarter 4 grading.",
+    currentLink: "Use the official Google Form on the Senior Project Website."
+  }
+];
+
+const programRequirements = [
+  {
+    title: "Individual Or Group Path",
+    pages: "3-4",
+    question: "Am I allowed to work with a group, or does my program require individual mastery?",
+    evidence:
+      "Write the decision down before the proposal. If you are in a group, record each person's role and individual evidence."
+  },
+  {
+    title: "Required Product Or Demonstration",
+    pages: "3",
+    question: "What must my program see: technical demonstration, portfolio, research, product, service, live demo, or something else?",
+    evidence:
+      "Name the exact deliverable your program expects, then make sure the proposal, presentation, and display all point back to it."
+  },
+  {
+    title: "CTE Skill Standard",
+    pages: "2-4, 14",
+    question: "Which technical skill should my project prove at a senior level?",
+    evidence:
+      "Use program vocabulary. For example: design process, patient care, coding, culinary technique, construction safety, business planning, media production, or another pathway skill."
+  },
+  {
+    title: "Materials, Safety, And Permissions",
+    pages: "3-5, 14",
+    question: "Do I need tools, materials, purchases, donations, safety approval, transportation, software, or outside partners?",
+    evidence:
+      "List constraints early. A plan with sources, materials, and limits is stronger than an idea that sounds exciting but cannot be completed."
+  },
+  {
+    title: "Celebration Day Display",
+    pages: "3, 8, 16",
+    question: "What does my program require for the public display?",
+    evidence:
+      "Record size, artifacts, labels, live demo rules, setup needs, and what visitors should understand without needing a long explanation."
+  },
+  {
+    title: "Teacher Checkpoints",
+    pages: "5-6, 10",
+    question: "When should I show progress before the final deadline?",
+    evidence:
+      "Use check-ins, mentor meetings, and class work time to show drafts, photos, screenshots, notes, feedback, and revisions."
+  }
+];
+
+const purposeWhyCards = [
+  {
+    title: "Mastery",
+    body: "The project is a chance to prove you have built real technical expertise in your CTE program of study."
+  },
+  {
+    title: "Titan Identity",
+    body: "Your work should show Titan Tenets and Portrait of a Titan attributes through specific actions, not just words."
+  },
+  {
+    title: "Resilience",
+    body: "You will move from an idea to a finished outcome. That means planning, revising, solving problems, and finishing when the work gets messy."
+  },
+  {
+    title: "Celebration",
+    body: "The journey leads to Celebration Day, where families, community members, and the East Tech community get to see what you created."
+  },
+  {
+    title: "Readiness",
+    body: "The finish line is bigger than graduation. The goal is to leave with evidence that you are ready for college, career, service, or whatever comes next."
+  }
+];
+
+const portfolioWhyCards = [
+  {
+    title: "Evidence Of Mastery",
+    body: "The portfolio lets you show, not just tell, what you can do. Save artifacts that prove technical skill, revision, and final quality."
+  },
+  {
+    title: "Titan Identity",
+    body: "Your reflections should connect character, resilience, leadership, and growth to real choices you made during the project."
+  },
+  {
+    title: "Professional Storytelling",
+    body: "A strong portfolio explains the full arc: proposal, build, mentor feedback, presentation, Celebration Day, gratitude, and what you learned."
+  },
+  {
+    title: "Progress Over Time",
+    body: "Do not build the portfolio in one night. Collect resume bullets, photos, drafts, feedback, and best work samples as the project moves."
+  }
+];
+
+const closingCards = [
+  {
+    title: "Ready To Lead",
+    body: "You are proving that you can take a complex idea, organize the work, communicate clearly, and finish with pride."
+  },
+  {
+    title: "Ready To Innovate",
+    body: "The strongest projects show curiosity and problem solving. They do not just repeat what you already knew how to do."
+  },
+  {
+    title: "Ready For What Comes Next",
+    body: "Use your final reflection to connect the project to employment, college, trade training, military service, entrepreneurship, or personal growth."
+  }
+];
+
 const rubrics = [
   {
     title: "Core Concept Proposal Rubric",
@@ -725,39 +880,39 @@ const rubrics = [
     title: "Presentation Rubric",
     pages: "15",
     intro:
-      "Use this before Presentation Day. A strong presentation makes the topic, program connection, process, final product, and preparation obvious to the audience.",
-    columns: ["Does Not Meet", "Meets (B)", "Exceeds (A)"],
+      "Use this before Presentation Day. The printed rubric looks for a clear project overview, a clear program connection, a clear explanation of the final process or product, and prepared presentation skills.",
+    columns: ["Exceeds (A Grade)", "Meets (B)", "Does Not Meet (needs to present again)"],
     rows: [
       {
         criterion: "Project Overview",
         cells: [
-          "It is not clear what the project was about.",
+          "Student described the topic of the project and explained what they did or made in a clear and relevant manner.",
           "Student described the topic.",
-          "Student described the topic and explained what they did or made in a clear and relevant manner."
+          "It is not clear what this project was all about."
         ]
       },
       {
         criterion: "Connection To Program",
         cells: [
-          "Audience has no understanding of how the project connects to an East Tech program.",
-          "Audience knows the student's program and sees a connection to the program area of study.",
-          "The program connection is clear and directly connected to what the student undertook as a project."
+          "It is clear what program this student is in and how this project connects to the program. The student has a clear connection to both the program and the project work.",
+          "The audience knows what program the student is in. The project has a connection to the program area of study.",
+          "The audience has no understanding of this project and no idea how it connects to any East Tech program."
         ]
       },
       {
         criterion: "Final Process Or Product",
         cells: [
-          "Audience does not understand what the student did or whether the student understood the task.",
-          "Audience understands the process the student went through.",
-          "Audience understands the process, the outcome, and the final product or result has impact."
+          "The audience understood what the student went through and what the outcome of their hard work was. The final product or result has impact.",
+          "The audience understood the process the student went through to complete the project.",
+          "The audience does not really know or understand what the student did, or the student did not seem to fully understand the task."
         ]
       },
       {
         criterion: "Presentation Skills",
         cells: [
-          "Student was late, unorganized, unrehearsed, or difficult to watch.",
+          "Student was on time, organized, and had rehearsed this presentation. This was an enjoyable experience for the audience.",
           "Student was on time and organized.",
-          "Student was on time, organized, rehearsed, and created an enjoyable experience."
+          "Student was late, the presentation lacked organization, or the student clearly had not prepared."
         ]
       }
     ]
@@ -767,30 +922,30 @@ const rubrics = [
     pages: "16",
     intro:
       "Use this while building the public display. The display should communicate quality and make the project understandable to visitors.",
-    columns: ["Does Not Meet", "Meets", "Exceeds"],
+    columns: ["Exceeds", "Meets", "Does Not Meet"],
     rows: [
       {
         criterion: "Following Guidelines",
         cells: [
-          "Display does not meet minimum expectations from the program teacher.",
+          "Student went above and beyond expectations for this exhibit, as set by the program teacher.",
           "Display does exactly what was required.",
-          "Display goes above and beyond program teacher expectations."
+          "Display does not meet minimum expectations from the program teacher."
         ]
       },
       {
         criterion: "Creativity And Quality",
         cells: [
-          "Display lacks quality and appears thrown together at the last minute.",
-          "Display is quality work and does not look rushed.",
-          "Display is high-quality, detailed, and shows pride in the accomplishment."
+          "This is a high-quality exhibit. It is clear the student took time, paid attention to detail, and showed pride in the accomplishment.",
+          "This is a quality exhibit. It was not thrown together at the last minute, and the student did what was asked.",
+          "This exhibit lacks quality and looks thrown together, probably at the last minute."
         ]
       },
       {
         criterion: "Clear Representation",
         cells: [
-          "Visitors need several clarifying questions to understand the project.",
-          "Visitors can tell what the project was about.",
-          "Visitors can understand and appreciate the project even without the student standing next to it."
+          "It is clear what the project was about. Visitors would not need the student standing next to the exhibit to understand and appreciate it.",
+          "It is clear when viewing the exhibit what the student's project was about.",
+          "It is unclear what the project was about. Visitors need several clarifying questions to understand it."
         ]
       }
     ]
@@ -1036,6 +1191,8 @@ const phaseExamples = {
 const navItems = [
   { page: "home", label: "Home", href: "index.html" },
   { page: "process", label: "Process", href: "process.html" },
+  { page: "links", label: "Official Links", href: "links.html" },
+  { page: "program", label: "Program Requirements", href: "program.html" },
   { page: "templates", label: "Templates", href: "templates.html" },
   { page: "portfolio", label: "Portfolio", href: "portfolio.html" },
   { page: "rubrics", label: "Rubrics", href: "rubrics.html" },
@@ -1366,6 +1523,51 @@ function cardMeta(label, pages) {
   `;
 }
 
+function featureCardsHtml(items) {
+  return `
+    <div class="feature-grid">
+      ${items
+        .map(
+          (item) => `
+            <article class="feature-card">
+              <h3>${item.title}</h3>
+              <p>${item.body}</p>
+            </article>
+          `
+        )
+        .join("")}
+    </div>
+  `;
+}
+
+function phaseExtraSectionsHtml(phaseId) {
+  if (phaseId === "purpose") {
+    return sectionCard(
+      "Why Senior Projects?",
+      `<p class="measure">The booklet says this project is more than a final assignment. It is your chance to prove skill, character, resilience, and readiness for life after graduation.</p>${featureCardsHtml(purposeWhyCards)}`,
+      "callout"
+    );
+  }
+
+  if (phaseId === "phase-4") {
+    return sectionCard(
+      "Why Build A Professional Portfolio?",
+      `<p class="measure">The portfolio is not just a final check-off. It is the bridge between your time as an East Tech student and your future as a professional.</p>${featureCardsHtml(portfolioWhyCards)}`,
+      "callout"
+    );
+  }
+
+  if (phaseId === "wrap-up") {
+    return sectionCard(
+      "Titan Seniors: Launch Your Future",
+      `<p class="measure">Page 18 closes the booklet by reminding you that this project proves more than completion. It shows that you can lead, innovate, and finish something complex.</p>${featureCardsHtml(closingCards)}`,
+      "callout"
+    );
+  }
+
+  return "";
+}
+
 function renderSiteChrome() {
   const chrome = document.querySelector("#siteChrome");
   if (!chrome) return;
@@ -1567,7 +1769,7 @@ function renderHomePage(root) {
             <dd>separate process pages</dd>
           </div>
           <div>
-            <dt>14</dt>
+            <dt>15</dt>
             <dd>student support files</dd>
           </div>
         </dl>
@@ -1597,10 +1799,12 @@ function renderHomePage(root) {
           <p class="eyebrow">Support pages</p>
           <h2 id="home-support-title">Find What You Need</h2>
         </div>
-        <p class="section-note">Jump directly to templates, portfolio rules, rubrics, and grades.</p>
+        <p class="section-note">Jump directly to links, program requirements, templates, portfolio rules, rubrics, and grades.</p>
       </div>
       <div class="page-grid">
         ${[
+          ["Official Links", "Know where to check for Remind, class website updates, proposal forms, check-ins, presentation signup, and portfolio submission.", "links.html"],
+          ["Program Requirements", "Capture the rules for your specific CTE pathway before you commit to a project idea.", "program.html"],
           ["Templates", "Open starter files for proposals, meetings, presentations, displays, gratitude, portfolio, and recognition.", "templates.html"],
           ["Portfolio", "Compare the minimum and maximum portfolio paths with plain-language tips.", "portfolio.html"],
           ["Rubrics", "See how proposal, presentation, display, and portfolio work will be evaluated.", "rubrics.html"],
@@ -1650,6 +1854,95 @@ function renderProcessPage(root) {
         </div>
       </div>
       <div class="phase-grid">${phases.map(phaseCardHtml).join("")}</div>
+    </section>
+  `;
+}
+
+function renderLinksPage(root) {
+  document.title = "Official Links | Senior Capstone Project";
+  root.innerHTML = `
+    ${pageHeroHtml({
+      eyebrow: "Book p. 1 and major checkpoints",
+      title: "Official Links And Deadlines",
+      summary:
+        "This page tells you which official links to look for. Always follow the current links and deadlines shared through Senior Remind, your class website, and your senior project team."
+    })}
+    <section class="section section-tight">
+      <div class="plain-card stack">
+        <h2>Use The Current Official Link</h2>
+        <p class="measure">
+          Links can change during the year. If this guide and your teacher's current directions disagree, follow the current teacher directions and ask for clarification.
+        </p>
+      </div>
+    </section>
+    <section class="section" aria-labelledby="official-links-title">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Do not miss the source</p>
+          <h2 id="official-links-title">What To Check</h2>
+        </div>
+      </div>
+      <div class="official-grid">
+        ${officialLinks
+          .map(
+            (item) => `
+              <article class="official-card content-card">
+                ${cardMeta("Official source", item.pages)}
+                <h3>${item.title}</h3>
+                <p><strong>Do this:</strong> ${item.action}</p>
+                <p><strong>Use it for:</strong> ${item.useFor}</p>
+                <p><strong>Current link:</strong> ${item.currentLink}</p>
+              </article>
+            `
+          )
+          .join("")}
+      </div>
+    </section>
+  `;
+}
+
+function renderProgramPage(root) {
+  document.title = "Program Requirements | Senior Capstone Project";
+  root.innerHTML = `
+    ${pageHeroHtml({
+      eyebrow: "Book p. 3",
+      title: "Program Requirements",
+      summary:
+        "Each CTE pathway is unique. Before you fall in love with an idea, write down the exact requirements for your program so your proposal, build, presentation, display, and portfolio all line up."
+    })}
+    <section class="section section-tight">
+      <div class="plain-card stack">
+        <h2>Your First Job: Make The Rules Visible</h2>
+        ${listHtml([
+          "Ask your senior program teacher what your pathway requires.",
+          "Write down whether collaboration is allowed or whether individual mastery is required.",
+          "Name the required product, demonstration, research, service, portfolio evidence, or display expectations.",
+          "Keep those rules next to your proposal so you do not build the wrong project."
+        ])}
+        <a class="button button-primary" href="templates/program-requirement-notes.md">Open Program Requirement Notes</a>
+      </div>
+    </section>
+    <section class="section" aria-labelledby="program-check-title">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Ask before you build</p>
+          <h2 id="program-check-title">Requirement Checks</h2>
+        </div>
+      </div>
+      <div class="program-grid">
+        ${programRequirements
+          .map(
+            (item) => `
+              <article class="program-card content-card">
+                ${cardMeta("Program check", item.pages)}
+                <h3>${item.title}</h3>
+                <p><strong>Ask:</strong> ${item.question}</p>
+                <p><strong>Save:</strong> ${item.evidence}</p>
+              </article>
+            `
+          )
+          .join("")}
+      </div>
     </section>
   `;
 }
@@ -1725,6 +2018,7 @@ function renderPhasePage(root) {
       <div class="student-layout">
         <div class="stack-lg">
           ${sectionCard("Plain English Version", `<p class="measure">${phase.goal}</p>`, "plain-card")}
+          ${phaseExtraSectionsHtml(phase.id)}
           ${sectionCard("Quick Start", listHtml(phase.quickStart))}
           ${sectionCard("Step-By-Step: What To Do", listHtml(phase.studentMoves))}
           ${sectionCard("Examples", examplesHtml(phase.id))}
@@ -2020,6 +2314,8 @@ function initPageApp() {
   const page = document.body.dataset.page;
   if (page === "home") renderHomePage(root);
   if (page === "process") renderProcessPage(root);
+  if (page === "links") renderLinksPage(root);
+  if (page === "program") renderProgramPage(root);
   if (page === "phase") renderPhasePage(root);
   if (page === "templates") renderTemplatesPage(root);
   if (page === "portfolio") renderPortfolioPage(root);
