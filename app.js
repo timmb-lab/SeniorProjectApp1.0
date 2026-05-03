@@ -2091,7 +2091,7 @@ function renderTemplatesPage(root) {
       eyebrow: "Student files",
       title: "Templates",
       summary:
-        "Use these as starter files. The school can later replace them with official Google Docs, Forms, PDFs, or class website links."
+        "Use these as starter files while you work. When your teacher provides an official Google Doc, Form, PDF, or class website link, use the official version."
     })}
     <section class="section section-tight">
       <div class="resource-grid">
@@ -2124,6 +2124,15 @@ function renderPortfolioPage(root) {
       summary:
         "The portfolio is the professional story of your project. Choose the minimum path or the maximum path, then collect evidence as you go."
     })}
+    <section class="section section-tight">
+      <div class="plain-card stack">
+        <h2>Why Build A Professional Portfolio?</h2>
+        <p class="measure">
+          The booklet calls the portfolio the bridge between your time as an East Tech student and your future as a professional. It is where your project becomes evidence you can explain to colleges, employers, scholarship committees, or anyone asking what you can actually do.
+        </p>
+        ${featureCardsHtml(portfolioWhyCards)}
+      </div>
+    </section>
     <section class="section section-tight">
       <div class="compare-grid">
         <article class="compare-panel">
@@ -2276,6 +2285,8 @@ function renderStudentGuideLanding(root) {
       <div class="page-grid">
         ${[
           ["Process", "Open the step you are working on right now.", "process.html"],
+          ["Official Links", "Know which official links to check and what each link is used for.", "links.html"],
+          ["Program Requirements", "Record the rules for your specific CTE pathway before you commit to a project idea.", "program.html"],
           ["Templates", "Use starter files for planning, meetings, presentations, display work, gratitude, and your portfolio.", "templates.html"],
           ["Portfolio", "Check what belongs in the minimum path and the maximum path.", "portfolio.html"],
           ["Rubrics", "Use the scoring guides before you submit or present.", "rubrics.html"],
