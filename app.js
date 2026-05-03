@@ -60,7 +60,7 @@ const phases = [
     ],
     bookletConnection:
       "Page 1 points students to Senior Remind and the class website. Pages 2-3 explain that each career path is unique and that the senior program teacher provides the essential project requirements.",
-    templates: ["Project Idea Notes", "Core Concept Proposal", "Student Status Snapshot"]
+    templates: ["Project Idea Notes", "Core Concept Proposal"]
   },
   {
     id: "phase-1",
@@ -129,7 +129,7 @@ const phases = [
     ],
     bookletConnection:
       "Page 4 names the Core Concept Proposal and approval path. Page 14 gives the proposal rubric: CTE alignment, Titan Tenets, and feasibility.",
-    templates: ["Core Concept Proposal", "Proposal Rubric", "Student Status Snapshot"]
+    templates: ["Core Concept Proposal", "Proposal Rubric"]
   },
   {
     id: "phase-2a",
@@ -195,7 +195,7 @@ const phases = [
     ],
     bookletConnection:
       "Page 5 names four focus areas: logistics and planning, reflection through form-based check-ins, mentorship, and collaboration through the first mentor meeting.",
-    templates: ["Build Plan", "Mentor Meeting Notes", "Student Status Snapshot"]
+    templates: ["Build Plan", "Mentor Meeting Notes"]
   },
   {
     id: "phase-2b",
@@ -524,71 +524,12 @@ const phases = [
     ],
     adultRoles: [
       "English, Government, Economics, and Senior Program teachers: grade different milestones.",
-      "Principal or assistant principal/admin: may use recognition and program-wide completion data.",
-      "Senior program teachers: grant Senior Project with Distinction for exemplary work."
+      "School leaders may recognize projects that show meaningful service to the community.",
+      "Senior program teachers review Senior Project with Distinction for exemplary work."
     ],
     bookletConnection:
       "Pages 12-13 explain special recognition and grade locations. Pages 14-17 provide rubrics. Page 18 closes by connecting the project to readiness for life beyond East Tech.",
-    templates: ["Recognition Prep", "Portfolio Checklist", "Student Status Snapshot"]
-  }
-];
-
-const auditFindings = [
-  {
-    title: "Missing: p. 1 update habits",
-    status: "Added to Start",
-    pages: "1",
-    description:
-      "The first MVP did not surface Senior Remind or the class website. The Start section now tells students where official updates live before any project work begins."
-  },
-  {
-    title: "Thin: phase instructions",
-    status: "Expanded",
-    pages: "4-9",
-    description:
-      "The MVP listed the phases but did not explain how to act inside each one. Every phase now includes quick start steps, exact student moves, evidence to save, adult questions, mastery checks, and common mistakes."
-  },
-  {
-    title: "Missing: grade map",
-    status: "Added",
-    pages: "13",
-    description:
-      "Grades were buried in one final process stop. The app now has a dedicated Grades section showing which milestones count in English, Government, Economics, and Senior Program Class."
-  },
-  {
-    title: "Missing: recognition",
-    status: "Added",
-    pages: "12",
-    description:
-      "Special recognition deserved its own surface. The app now explains the Principal's Award for Service to the Community and Senior Project with Distinction."
-  },
-  {
-    title: "Thin: rubrics",
-    status: "Expanded",
-    pages: "14-17",
-    description:
-      "The first MVP summarized rubrics too aggressively. The app now presents the actual criteria and performance levels in student-friendly tables."
-  },
-  {
-    title: "Still needed: official local links",
-    status: "Local decision",
-    pages: "1, 11",
-    description:
-      "The app has starter template files, but the school should replace them with official Google Docs, Google Forms, class website pages, Remind directions, and program-specific links."
-  },
-  {
-    title: "Still needed: Titan definitions",
-    status: "Local decision",
-    pages: "2, 4, 7, 10, 14",
-    description:
-      "The booklet references Titan Tenets and Portrait of a Titan attributes but does not list definitions. The site should add those definitions once the official language is provided."
-  },
-  {
-    title: "Still needed: program pages",
-    status: "1.0 candidate",
-    pages: "3",
-    description:
-      "Because each CTE pathway is unique, the best future improvement is a program-specific page or filter where teachers can add requirements, deadlines, examples, and approved project types."
+    templates: ["Recognition Prep", "Portfolio Checklist"]
   }
 ];
 
@@ -701,17 +642,9 @@ const templates = [
     title: "Recognition Prep",
     href: "templates/recognition-prep.md",
     pages: "12",
-    audience: "Students and teachers",
+    audience: "Students",
     description:
       "Gather evidence for service to the community or Senior Project with Distinction consideration."
-  },
-  {
-    title: "Student Status Snapshot",
-    href: "templates/student-status-snapshot.md",
-    pages: "1-18",
-    audience: "Teachers and admins",
-    description:
-      "A 1.0-ready paper trail for phase reached, mentor, teacher, group, blockers, comments, and next action."
   }
 ];
 
@@ -720,31 +653,31 @@ const portfolioFeatures = [
     feature: "Format",
     minimum: "Submit through the Google Form on the Senior Project Website.",
     maximum: "Create a professional physical folder for Economics review and end-of-cycle review.",
-    tip: "The app should eventually link the exact form and provide a printable folder order."
+    tip: "Use the official Google Form link from your class directions, then keep a copy or screenshot of your submission confirmation."
   },
   {
     feature: "Branding",
     minimum: "No personal brand title page required.",
     maximum: "Include a title page featuring personal brand identity.",
-    tip: "A strong site could offer examples of student-safe personal branding: name, program, project title, color, typography, and professional tagline."
+    tip: "Keep personal branding professional: your name, program, project title, clean colors, readable type, and a short professional tagline."
   },
   {
     feature: "Professionalism",
     minimum: "Submit a standard resume with CTE highlights through the Google Form.",
     maximum: "Include an enhanced resume and a letter of recommendation from an adult.",
-    tip: "Students need reminders to translate project work into resume language."
+    tip: "Translate project work into resume language by naming skills, tools, leadership, service, certifications, and measurable results."
   },
   {
     feature: "Visuals",
     minimum: "No visuals required.",
     maximum: "Include photos of the project process and a copy of the presentation.",
-    tip: "The app should prompt students to capture evidence during every phase, not only at the end."
+    tip: "Capture evidence during every phase, not only at the end. Progress photos and drafts make the final portfolio easier."
   },
   {
     feature: "Reflections",
     minimum: "Submit project, Tenet, and Portrait of a Titan reflections through the Google Form.",
     maximum: "Include all reflections plus a best work sample from high school.",
-    tip: "Reflection prompts should push students from summary into growth, evidence, and professional readiness."
+    tip: "Push past summary. Explain what changed, what evidence proves it, and how the project connects to life after graduation."
   },
   {
     feature: "Gratitude",
@@ -867,7 +800,7 @@ const rubrics = [
     pages: "17",
     intro:
       "The booklet repeats the portfolio performance table as Rubric 4. Students choose the minimum path for a B-level portfolio or the maximum path for an A-level portfolio.",
-    columns: ["Minimum (B)", "Maximum (A)", "App Tip"],
+    columns: ["Minimum (B)", "Maximum (A)", "Student Tip"],
     rows: portfolioFeatures.map((item) => ({
       criterion: item.feature,
       cells: [item.minimum, item.maximum, item.tip]
@@ -923,39 +856,6 @@ const recognitions = [
       "Teacher support for distinction.",
       "Certificate displayed during Celebration Day and included in the portfolio."
     ]
-  }
-];
-
-const roadmap = [
-  {
-    title: "Student Accounts",
-    description:
-      "Login, name, email, program, graduation year, assigned teacher, assigned mentor, group, current phase, progress history, and private/public profile settings."
-  },
-  {
-    title: "Teacher And Mentor Views",
-    description:
-      "Teacher rosters, mentor caseloads, assigned groups, phase filters, missing deliverables, meeting notes, comments, and quick progress updates."
-  },
-  {
-    title: "Admin Dashboard",
-    description:
-      "Assistant principal and principal visibility across programs, mentors, student groups, recognition candidates, phase completion, and intervention flags."
-  },
-  {
-    title: "Shared Comments",
-    description:
-      "Threaded notes from students, mentors, teachers, and admins with role labels, timestamps, optional visibility rules, and notification hooks."
-  },
-  {
-    title: "Template And Form Control",
-    description:
-      "Editable links for official Google Docs, Forms, rubrics, school website pages, mentor materials, and program-specific requirements."
-  },
-  {
-    title: "Privacy And Permissions",
-    description:
-      "Role-based access, student data protection, audit history, and a public MVP guide separated from authenticated student records."
   }
 ];
 
@@ -1139,8 +1039,7 @@ const navItems = [
   { page: "templates", label: "Templates", href: "templates.html" },
   { page: "portfolio", label: "Portfolio", href: "portfolio.html" },
   { page: "rubrics", label: "Rubrics", href: "rubrics.html" },
-  { page: "grades", label: "Grades", href: "grades.html" },
-  { page: "roadmap", label: "1.0", href: "roadmap.html" }
+  { page: "grades", label: "Grades", href: "grades.html" }
 ];
 
 const state = {
@@ -1151,13 +1050,11 @@ const state = {
 const phaseList = document.querySelector("#phaseList");
 const phaseDetail = document.querySelector("#phaseDetail");
 const processSearch = document.querySelector("#processSearch");
-const auditGrid = document.querySelector("#auditGrid");
 const templateGrid = document.querySelector("#templateGrid");
 const portfolioFeatureGrid = document.querySelector("#portfolioFeatureGrid");
 const rubricGrid = document.querySelector("#rubricGrid");
 const gradeGrid = document.querySelector("#gradeGrid");
 const recognitionGrid = document.querySelector("#recognitionGrid");
-const roadmapGrid = document.querySelector("#roadmapGrid");
 
 const progressKey = "senior-capstone-progress";
 const notesKey = "senior-capstone-notes";
@@ -1336,23 +1233,6 @@ function renderPhaseDetail() {
   });
 }
 
-function renderAudit() {
-  auditGrid.innerHTML = auditFindings
-    .map(
-      (item) => `
-        <article class="audit-card info-card">
-          <div class="card-meta">
-            <span class="tag">${item.status}</span>
-            ${pagePill(item.pages)}
-          </div>
-          <h3>${item.title}</h3>
-          <p>${item.description}</p>
-        </article>
-      `
-    )
-    .join("");
-}
-
 function renderTemplates() {
   templateGrid.innerHTML = templates
     .map(
@@ -1380,7 +1260,7 @@ function renderPortfolioFeatures() {
           <h3>${item.feature}</h3>
           <p><strong>Minimum:</strong> ${item.minimum}</p>
           <p><strong>Maximum:</strong> ${item.maximum}</p>
-          <p><strong>App tip:</strong> ${item.tip}</p>
+          <p><strong>Student tip:</strong> ${item.tip}</p>
         </article>
       `
     )
@@ -1465,20 +1345,6 @@ function renderRecognition() {
     .join("");
 }
 
-function renderRoadmap() {
-  roadmapGrid.innerHTML = roadmap
-    .map(
-      (item) => `
-        <article class="roadmap-card info-card">
-          <span class="tag">1.0</span>
-          <h3>${item.title}</h3>
-          <p>${item.description}</p>
-        </article>
-      `
-    )
-    .join("");
-}
-
 function getPhaseHref(id) {
   return phasePages.find((item) => item.id === id)?.href ?? "process.html";
 }
@@ -1506,10 +1372,7 @@ function renderSiteChrome() {
 
   const active = getActiveNavPage();
   const activePhaseId = document.body.dataset.phaseId;
-  const supportLinks = [
-    ...navItems,
-    { page: "audit", label: "Audit", href: "audit.html" }
-  ]
+  const supportLinks = navItems
     .map((item) => {
       const current = item.page === active ? ` aria-current="page"` : "";
       return `<a class="menu-resource-link" href="${item.href}"${current}>${item.label}</a>`;
@@ -1650,7 +1513,7 @@ function renderFooter() {
       Page labels refer to the PDF/booklet page order.
     </p>
     <p>
-      Public pages should not include student names, grades, mentor assignments, private comments, or group rosters.
+      Use this guide with the directions, deadlines, and links shared by your senior project team.
     </p>
   `;
 }
@@ -1704,7 +1567,7 @@ function renderHomePage(root) {
             <dd>separate process pages</dd>
           </div>
           <div>
-            <dt>15</dt>
+            <dt>14</dt>
             <dd>student support files</dd>
           </div>
         </dl>
@@ -1734,16 +1597,14 @@ function renderHomePage(root) {
           <p class="eyebrow">Support pages</p>
           <h2 id="home-support-title">Find What You Need</h2>
         </div>
-        <p class="section-note">Jump directly to templates, portfolio rules, rubrics, grades, or the future login plan.</p>
+        <p class="section-note">Jump directly to templates, portfolio rules, rubrics, and grades.</p>
       </div>
       <div class="page-grid">
         ${[
           ["Templates", "Open starter files for proposals, meetings, presentations, displays, gratitude, portfolio, and recognition.", "templates.html"],
           ["Portfolio", "Compare the minimum and maximum portfolio paths with plain-language tips.", "portfolio.html"],
           ["Rubrics", "See how proposal, presentation, display, and portfolio work will be evaluated.", "rubrics.html"],
-          ["Grades", "See where the project counts and what special recognition can mean.", "grades.html"],
-          ["1.0 Roadmap", "Preview the future login app for students, mentors, teachers, and admins.", "roadmap.html"],
-          ["Coverage Audit", "See what the app adds beyond the booklet and what still needs official school links.", "audit.html"]
+          ["Grades", "See where the project counts and what special recognition can mean.", "grades.html"]
         ]
           .map(
             ([title, body, href]) => `
@@ -2108,32 +1969,30 @@ function renderGradesPage(root) {
   `;
 }
 
-function renderRoadmapPage(root) {
-  document.title = "Version 1.0 Roadmap | Senior Capstone Project";
+function renderStudentGuideLanding(root) {
+  document.title = "Student Guide | Senior Capstone Project";
   root.innerHTML = `
     ${pageHeroHtml({
-      eyebrow: "Future login app",
-      title: "Version 1.0 Roadmap",
+      eyebrow: "Student guide",
+      title: "Choose Your Next Step",
       summary:
-        "The public MVP should stay general. The future app can add private student accounts, phase tracking, mentor assignments, teacher comments, and admin views."
+        "This public guide is focused on what you need to do, what to save, what to ask, and how each step connects to the Your Senior booklet."
     })}
     <section class="section section-tight">
-      <div class="content-card note-warning stack">
-        <h2>Privacy Line</h2>
-        <p class="measure">
-          Do not put student names, grades, mentor assignments, groups, comments, or progress records on public pages. Those belong in a secure login system approved by the school or district.
-        </p>
-      </div>
-    </section>
-    <section class="section section-tight">
-      <div class="roadmap-grid">
-        ${roadmap
+      <div class="page-grid">
+        ${[
+          ["Process", "Open the step you are working on right now.", "process.html"],
+          ["Templates", "Use starter files for planning, meetings, presentations, display work, gratitude, and your portfolio.", "templates.html"],
+          ["Portfolio", "Check what belongs in the minimum path and the maximum path.", "portfolio.html"],
+          ["Rubrics", "Use the scoring guides before you submit or present.", "rubrics.html"],
+          ["Grades", "See where the project counts and what recognition can mean.", "grades.html"]
+        ]
           .map(
-            (item) => `
-              <article class="roadmap-card info-card">
-                <span class="tag">1.0</span>
-                <h2>${item.title}</h2>
-                <p>${item.description}</p>
+            ([title, body, href]) => `
+              <article class="support-card">
+                <h2>${title}</h2>
+                <p>${body}</p>
+                <a class="button" href="${href}">Open</a>
               </article>
             `
           )
@@ -2143,31 +2002,12 @@ function renderRoadmapPage(root) {
   `;
 }
 
+function renderRoadmapPage(root) {
+  renderStudentGuideLanding(root);
+}
+
 function renderAuditPage(root) {
-  document.title = "Coverage Audit | Senior Capstone Project";
-  root.innerHTML = `
-    ${pageHeroHtml({
-      eyebrow: "Staff reference",
-      title: "Coverage Audit",
-      summary:
-        "This page shows what the site adds beyond the physical booklet and what still needs official school-specific content."
-    })}
-    <section class="section section-tight">
-      <div class="audit-grid">
-        ${auditFindings
-          .map(
-            (item) => `
-              <article class="audit-card info-card">
-                ${cardMeta(item.status, item.pages)}
-                <h2>${item.title}</h2>
-                <p>${item.description}</p>
-              </article>
-            `
-          )
-          .join("")}
-      </div>
-    </section>
-  `;
+  renderStudentGuideLanding(root);
 }
 
 function initPageApp() {
@@ -2200,13 +2040,11 @@ if (document.body.dataset.page) {
   phaseList &&
   phaseDetail &&
   processSearch &&
-  auditGrid &&
   templateGrid &&
   portfolioFeatureGrid &&
   rubricGrid &&
   gradeGrid &&
-  recognitionGrid &&
-  roadmapGrid
+  recognitionGrid
 ) {
   processSearch.addEventListener("input", (event) => {
     state.query = event.target.value.trim();
@@ -2214,11 +2052,9 @@ if (document.body.dataset.page) {
   });
 
   render();
-  renderAudit();
   renderTemplates();
   renderPortfolioFeatures();
   renderRubrics();
   renderGrades();
   renderRecognition();
-  renderRoadmap();
 }
