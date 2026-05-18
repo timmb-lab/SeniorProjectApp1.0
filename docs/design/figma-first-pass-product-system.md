@@ -525,6 +525,24 @@ Developer contract:
 - Guardrails: status transitions are server-owned, no `localStorage` source of truth, dashboard counts derive from persisted rows, stale writes return conflict states, audit writes precede visible sensitive state changes, and no student messaging is introduced.
 - Acceptance checks: allowed self-update persists progress/history, unauthorized update is denied and audited, stale writes do not change aggregates, aggregates link to source records, private evidence storage keys never render in dashboards, and audit events persist for status/staff/override/export-sensitive reads.
 
+## Audit Log And Export Controls Contract
+
+Node `69:2` deepens the security and records side of the MVP by specifying the audit-log review and export/archive control surface. It is implementation-facing: audit events are immutable, sensitive details are redacted, exports require explicit reason and scope, download links expire, denied access is audited, and retention-policy values stay configurable until school policy is confirmed.
+
+Audit/export states:
+- `Audit Stream Filtered`
+- `Sensitive Event Detail`
+- `Export Request Draft`
+- `Export Queued + Ready`
+- `Permission Denied + Retention Review`
+
+Developer contract:
+- Handoff node: `69:180`
+- Routes/API: `/admin/audit`, `/api/audit-events`, `/api/audit-events/:id`, `/admin/exports`, `/api/exports/student-archive`, `/api/exports/:id/download`, and `/student/archive`.
+- Records: `AuditEvent`, `AuditEventView`, `ExportRequest`, `StudentArchiveExport`, `ExportArtifact`, `EvidenceArtifact`, `Submission`, `StudentProfile`, `UserGroupRole`, `Program`, `Cohort`, and `RetentionPolicy`.
+- Guardrails: audit events are append-only, export requires reason/scope/explicit permission, signed downloads expire, storage keys never render, view/export/download/denied actions write audit events, misc-admin access stays explicitly scoped, retention values are configurable, and no student messaging is introduced.
+- Acceptance checks: audit stream filtering by actor/entity/student/program/cohort/date/event type, sensitive detail redaction, denied export without reason/scope/permission, expiring signed archive download, student own-archive-only access, misc-admin scoped export limits, and audit events for request/download/view/denied access.
+
 ## Acceptance Checks For Next Figma Run
 
 - Continue active writable file `z4t4tFPAKrMDh6pIYOeEw6` in `team::1638213362346160913`.
@@ -557,12 +575,13 @@ Artifact:
 - Admin account/group provisioning contract: node `48:2` in the active Figma file.
 - Mobile evidence/revision workflow contract: node `56:2` in the active Figma file.
 - Progress update/dashboard aggregate contract: node `61:2` in the active Figma file.
+- Audit log/export controls contract: node `69:2` in the active Figma file.
 
 Exact next action:
-- Rebuild should consume nodes `18:2`, `31:2`, `37:2`, `43:2`, `48:2`, `56:2`, and `61:2` while scaffolding the accepted Cloudflare database/auth/progress foundation. Figma should only add more broad design detail if rebuild hits a specific UI ambiguity.
+- Rebuild should consume nodes `18:2`, `31:2`, `37:2`, `43:2`, `48:2`, `56:2`, `61:2`, and `69:2` while scaffolding the accepted Cloudflare database/auth/progress/audit/export foundation. Figma should only add more broad design detail if rebuild hits a specific UI ambiguity.
 
 Acceptance check:
 - Figma progress log records page/frame IDs, screenshot or metadata verification, route/data fields, permission scopes, and the next UI slice.
 
 Known limits:
-- The original historical file hit the Starter MCP tool-call limit. The regenerated reference file was successfully written through the updated Figma connection, but the 2026-05-18 follow-up pass hit the Education-plan MCP tool-call limit with rate-limit links pointing at old team `1601310068697743794`. The recreated file was then created and written in `team::1638213362346160913`. Bryan's professional-plan upgrade later unblocked the active-file metadata/screenshot verification and the `18:2`, `31:2`, `37:2`, `43:2`, `48:2`, `56:2`, and `61:2` canvas writes.
+- The original historical file hit the Starter MCP tool-call limit. The regenerated reference file was successfully written through the updated Figma connection, but the 2026-05-18 follow-up pass hit the Education-plan MCP tool-call limit with rate-limit links pointing at old team `1601310068697743794`. The recreated file was then created and written in `team::1638213362346160913`. Bryan's professional-plan upgrade later unblocked the active-file metadata/screenshot verification and the `18:2`, `31:2`, `37:2`, `43:2`, `48:2`, `56:2`, `61:2`, and `69:2` canvas writes.

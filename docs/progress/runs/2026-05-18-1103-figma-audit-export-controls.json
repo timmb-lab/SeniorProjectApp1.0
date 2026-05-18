@@ -1,0 +1,166 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-05-18-1103-figma-audit-export-controls",
+  "timestampLocal": "2026-05-18T11:03:00-07:00",
+  "lane": "figma",
+  "automationId": "senior-capstone-figma-product-design-rebuilt",
+  "scope": "Continue the active Figma product UI file by adding an audit-log and export-controls contract with route, record, permission, redaction, signed-download, retention, and acceptance-check handoff.",
+  "masterPlanSections": [
+    "Product Destination",
+    "MVP 1.0 Vertical Slice",
+    "100-Pass Delivery Constraint",
+    "Lane Responsibilities",
+    "Logging Requirements"
+  ],
+  "logsRead": [
+    "C:/Users/bryan/.codex/automations/senior-capstone-figma-product-design-rebuilt/memory.md",
+    "docs/master-plan.md",
+    "docs/automation-runbook.md",
+    "docs/automation-self-improvement.md",
+    "docs/automation-cadence.md",
+    "docs/automation-milestones.md",
+    "docs/automation-memory.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/",
+    "docs/progress/handoffs.md",
+    "docs/progress/decision-log.md",
+    "docs/automation-backlog.md",
+    "docs/artifacts.json",
+    "docs/human-decisions.md",
+    "docs/progress/figma.md",
+    "docs/progress/rebuild.md",
+    "docs/progress/audit.md",
+    "docs/progress/canva.md",
+    "docs/domain-model.md",
+    "docs/curriculum-framework-integration.md",
+    "data/capstone-framework.json"
+  ],
+  "figmaTarget": {
+    "fileKey": "z4t4tFPAKrMDh6pIYOeEw6",
+    "url": "https://www.figma.com/design/z4t4tFPAKrMDh6pIYOeEw6",
+    "teamId": "1638213362346160913",
+    "page": "03 Product Preview + State Variants",
+    "boardNodeId": "6:2",
+    "createdNodes": {
+      "auditExportControlsContract": "69:2",
+      "auditExportControlsHandoff": "69:180"
+    },
+    "boardHeightAfter": 13078.8
+  },
+  "result": "completed",
+  "figmaCalls": [
+    "get_design_context for state variants board 6:2",
+    "get_libraries for active file",
+    "search_design_system for audit/export/archive/filter/detail/permission terms",
+    "use_figma readback for board, local components, and duplicate check",
+    "use_figma write for audit export controls contract",
+    "get_screenshot for node 69:2",
+    "get_design_context for handoff node 69:180",
+    "get_metadata for node 69:2",
+    "use_figma text-height and autosizing correction",
+    "get_screenshot for node 69:2 after text-height correction",
+    "get_design_context for node 69:2 after text-height correction",
+    "get_metadata for node 69:2 after text-height correction",
+    "use_figma readback for node 69:2 shared contract data and clipping checks"
+  ],
+  "contract": {
+    "states": [
+      "Audit Stream Filtered",
+      "Sensitive Event Detail",
+      "Export Request Draft",
+      "Export Queued + Ready",
+      "Permission Denied + Retention Review"
+    ],
+    "pipelineSteps": [
+      "Filter event stream",
+      "Open redacted event detail",
+      "Request scoped export",
+      "Authorize reason and scope",
+      "Generate signed archive",
+      "Record download acknowledgement"
+    ],
+    "routes": [
+      "/admin/audit",
+      "/api/audit-events",
+      "/api/audit-events/:id",
+      "/admin/exports",
+      "/api/exports/student-archive",
+      "/api/exports/:id/download",
+      "/student/archive"
+    ],
+    "records": [
+      "AuditEvent",
+      "AuditEventView",
+      "ExportRequest",
+      "StudentArchiveExport",
+      "ExportArtifact",
+      "EvidenceArtifact",
+      "Submission",
+      "StudentProfile",
+      "UserGroupRole",
+      "Program",
+      "Cohort",
+      "RetentionPolicy"
+    ],
+    "permissions": [
+      "admin:all-audited",
+      "misc_admin:explicit-audit-or-export",
+      "program_teacher:program-cohort-read-no-export",
+      "mentor:assigned-read-no-export",
+      "student:own-archive-only"
+    ],
+    "guardrails": [
+      "audit events are immutable append-only records",
+      "export requires reason, scope, and explicit permission",
+      "signed download URLs expire and never expose storage_key",
+      "view/export/download/denied actions write AuditEvent rows",
+      "misc admin cannot export all students without explicit scope",
+      "retention policy values remain configurable, not hard-coded",
+      "no student-to-student messaging"
+    ],
+    "acceptanceChecks": [
+      "audit stream filters by actor, entity, student, program, cohort, date, and event type",
+      "sensitive event detail redacts private storage keys and signed URLs",
+      "export request is denied without explicit permission, reason, and scope",
+      "generated archive uses expiring signed download and records expiry",
+      "student can access own archive only",
+      "misc admin cannot export all students without explicit scoped permission",
+      "audit event is written for export request, download, view, and denied access"
+    ]
+  },
+  "filesChanged": [
+    "docs/artifacts.json",
+    "docs/automation-backlog.md",
+    "docs/automation-memory.md",
+    "docs/master-plan.md",
+    "docs/design/figma-first-pass-product-system.md",
+    "docs/design/figma-product-preview-state-variants.md",
+    "docs/progress/figma.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-18-1103-figma-audit-export-controls.json"
+  ],
+  "validation": [
+    "Figma get_design_context succeeded for board 6:2.",
+    "Figma get_libraries succeeded for active file z4t4tFPAKrMDh6pIYOeEw6.",
+    "Figma search_design_system returned no richer audit/export/archive primitive.",
+    "Figma read-only inspection confirmed no existing audit/export controls contract.",
+    "Figma write created node 69:2 and handoff node 69:180.",
+    "First screenshot/metadata caught clipped non-pill text heights.",
+    "Layout correction adjusted 66 text nodes, 50 horizontal rows, and 28 vertical frames in place.",
+    "Final Figma screenshot, design context, and metadata returned for node 69:2.",
+    "Figma readback confirmed 5 states, 6 pipeline steps, 7 routes, 12 records, 5 permissions, 7 guardrails, 7 acceptance checks, zero clipped text nodes, and zero clipped horizontal rows."
+  ],
+  "handoffsUpdated": [
+    "H-2026-05-18-008"
+  ],
+  "backlogUpdated": [
+    "SC-004",
+    "SC-005"
+  ],
+  "selfImprovement": "none; no live automation prompt/config change was needed.",
+  "nextActions": [
+    "Rebuild should consume node 69:2 while implementing AuditEvent, redacted audit detail, ExportRequest, StudentArchiveExport, ExportArtifact, signed download expiry, scoped export permission, and denied-access audit tests.",
+    "Next accepted MVP pass should be rebuild-heavy: Cloudflare/TypeScript scaffold, D1/R2/migration layout, auth/users/groups, permission/audit/export primitives, progress/dashboard aggregate tests, and private evidence tests."
+  ]
+}

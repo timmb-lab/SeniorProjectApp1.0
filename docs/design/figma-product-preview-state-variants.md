@@ -465,6 +465,10 @@ Created/updated frames:
   - Five progress/dashboard states: student progress update draft, staff progress adjustment, status history persisted, dashboard aggregate recalculated, and conflict plus audit visible.
   - Six server transition pipeline steps: receive update, authorize scope, validate transition, persist records, write audit, and recompute dashboard.
   - `Developer Handoff / Progress Dashboard Aggregate Route Data Contract`, node `61:113`
+- `Section / Audit Log + Export Controls Contract`, node `69:2` on `03 Product Preview + State Variants`
+  - Five audit/export states: audit stream filtered, sensitive event detail, export request draft, export queued and ready, and permission denied plus retention review.
+  - Six audit/export pipeline steps: filter event stream, open redacted event detail, request scoped export, authorize reason and scope, generate signed archive, and record download acknowledgement.
+  - `Developer Handoff / Audit Export Route Data Contract`, node `69:180`
 
 Verification status:
 - Canvas write succeeded and returned the frame IDs above.
@@ -495,3 +499,10 @@ Verification status:
 - Follow-up `use_figma` autosizing correction adjusted 31 horizontal rows and 22 vertical frames in place, expanded node `61:2` to `1584x1345`, and expanded board `6:2` to height `11231.8`.
 - Final `get_screenshot`, `get_design_context`, and metadata succeeded for node `61:2`.
 - Follow-up readback confirmed shared contract data on `61:2`, handoff node `61:113`, 5 progress/dashboard states, 6 pipeline steps, 7 routes, 12 records, 5 permission scopes, 6 guardrails, 7 acceptance checks, zero clipped text nodes, and zero clipped horizontal rows.
+- `get_design_context`, `get_libraries`, and `search_design_system` succeeded before adding node `69:2`; search returned no richer audit/export primitive, so the section matched local conventions.
+- `use_figma` readback confirmed board `6:2` had no existing audit/export controls contract before the write.
+- `use_figma` write created node `69:2`, five audit/export states, six pipeline steps, audit stream/export request panels, and handoff node `69:180`.
+- First screenshot/metadata verification found non-pill text nodes at 1px height.
+- Follow-up `use_figma` text-height and autosizing correction adjusted 66 text nodes, 50 horizontal rows, and 28 vertical frames in place, expanded node `69:2` to `1584x1819`, and expanded board `6:2` to height `13078.8`.
+- Final `get_screenshot`, `get_design_context`, and metadata succeeded for node `69:2`.
+- Follow-up readback confirmed shared contract data on `69:2`, handoff node `69:180`, 5 audit/export states, 6 pipeline steps, 7 routes, 12 records, 5 permission scopes, 7 guardrails, 7 acceptance checks, zero clipped text nodes, and zero clipped horizontal rows.

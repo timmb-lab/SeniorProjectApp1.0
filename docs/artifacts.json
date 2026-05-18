@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-05-18T10:50:47-07:00",
+  "updated_at": "2026-05-18T11:03:00-07:00",
   "artifacts": [
     {
       "id": "figma-senior-project-app-team-target",
@@ -47,7 +47,7 @@
       "plan_key": "team::1638213362346160913",
       "account_observed": "timmb@nv.ccsd.net",
       "purpose": "Active product UI source for the hosted Senior Capstone app, recreated in Bryan's Senior Project App Figma team/project.",
-      "app_placement": "Design source for app shell, visual foundations, shared component variants, student workspace, guided proposal form, teacher review queue, mentor/admin dashboards, mobile student view, automation handoff board, product preview state variants, the 100-pass MVP route/data contract, review/override interaction variants, private evidence/review-history contract, admin account/group/role provisioning contract, and progress update/dashboard aggregate contract.",
+      "app_placement": "Design source for app shell, visual foundations, shared component variants, student workspace, guided proposal form, teacher review queue, mentor/admin dashboards, mobile student view, automation handoff board, product preview state variants, the 100-pass MVP route/data contract, review/override interaction variants, private evidence/review-history contract, admin account/group/role provisioning contract, progress update/dashboard aggregate contract, and audit log/export controls contract.",
       "consuming_lanes": [
         "figma",
         "rebuild",
@@ -119,7 +119,9 @@
         "mobile_evidence_revision_contract": "56:2",
         "mobile_evidence_revision_handoff_contract": "56:114",
         "progress_dashboard_aggregate_contract": "61:2",
-        "progress_dashboard_aggregate_handoff_contract": "61:113"
+        "progress_dashboard_aggregate_handoff_contract": "61:113",
+        "audit_export_controls_contract": "69:2",
+        "audit_export_controls_handoff_contract": "69:180"
       },
       "verification": [
         "File creation succeeded in plan team::1638213362346160913.",
@@ -139,7 +141,9 @@
         "Figma write on 2026-05-18 added Mobile Evidence + Revision Workflow Contract node 56:2 to board 6:2, with four mobile states and developer handoff contract node 56:114.",
         "Screenshot verification returned for node 56:2 after tightening oversized mobile pill labels; follow-up readback confirmed board 6:2 height 9858.8, 4 mobile states, no direct child overflow inside 360px phone frames, 7 routes, 9 records, 5 permission scopes, and 6 acceptance checks in shared contract data.",
         "Figma write on 2026-05-18 added Progress Update + Dashboard Aggregate Contract node 61:2 to board 6:2, with five progress/dashboard states, six server-side transition steps, and developer handoff contract node 61:113.",
-        "Screenshot, design-context, metadata, and readback verification returned for node 61:2 after row autosizing correction; readback confirmed board 6:2 height 11231.8, 5 states, 6 pipeline steps, 7 routes, 12 records, 5 permission scopes, 7 acceptance checks, no clipped text nodes, and no clipped horizontal rows."
+        "Screenshot, design-context, metadata, and readback verification returned for node 61:2 after row autosizing correction; readback confirmed board 6:2 height 11231.8, 5 states, 6 pipeline steps, 7 routes, 12 records, 5 permission scopes, 7 acceptance checks, no clipped text nodes, and no clipped horizontal rows.",
+        "Figma write on 2026-05-18 added Audit Log + Export Controls Contract node 69:2 to board 6:2, with five audit/export states, six pipeline steps, an audit stream/export request panel, and developer handoff contract node 69:180.",
+        "Screenshot, design-context, metadata, and readback verification returned for node 69:2 after text-height correction; readback confirmed board 6:2 height 13078.8, 5 states, 6 pipeline steps, 7 routes, 12 records, 5 permission scopes, 7 guardrails, 7 acceptance checks, no clipped text nodes, and no clipped horizontal rows."
       ],
       "supersedes": [
         "figma-product-ui-system-reference-old-team",

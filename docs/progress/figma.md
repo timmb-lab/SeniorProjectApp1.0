@@ -897,3 +897,80 @@ Self-improvement:
 
 Next Figma slice:
 - Stop broad Figma deepening while `SC-005` lacks scaffold/code. The next accepted MVP pass should be rebuild-heavy: Cloudflare/TypeScript scaffold, D1/R2/migration layout, auth/users/groups, `ProgressUpdate`/`DashboardAggregate`, permission/audit primitives, and tests.
+
+## 2026-05-18 Audit Log And Export Controls Contract
+
+Automation:
+- `senior-capstone-figma-product-design-rebuilt`
+
+Master-plan section:
+- Product Destination
+- MVP 1.0 Vertical Slice
+- 100-Pass Delivery Constraint
+- Lane Responsibilities
+- Logging Requirements
+
+Logs referenced:
+- `C:\Users\bryan\.codex\automations\senior-capstone-figma-product-design-rebuilt\memory.md`
+- `docs/master-plan.md`
+- `docs/automation-runbook.md`
+- `docs/automation-self-improvement.md`
+- `docs/automation-cadence.md`
+- `docs/automation-milestones.md`
+- `docs/automation-memory.md`
+- `docs/progress/run-log.md`
+- `docs/progress/runs/`
+- `docs/progress/handoffs.md`
+- `docs/progress/decision-log.md`
+- `docs/automation-backlog.md`
+- `docs/artifacts.json`
+- `docs/human-decisions.md`
+- `docs/progress/figma.md`
+- adjacent rebuild/audit/Canva lane logs
+- `docs/domain-model.md`
+- `docs/curriculum-framework-integration.md`
+- `data/capstone-framework.json`
+
+Active Figma artifact:
+- File: `Senior Capstone App - Product UI System Recreated`
+- File key: `z4t4tFPAKrMDh6pIYOeEw6`
+- URL: `https://www.figma.com/design/z4t4tFPAKrMDh6pIYOeEw6`
+- Team id: `1638213362346160913`
+- Plan key: `team::1638213362346160913`
+
+What changed:
+- Added `Section / Audit Log + Export Controls Contract`, node `69:2`, to `03 Product Preview + State Variants` board `6:2`.
+- Added five audit/export states:
+  - `Audit Stream Filtered`
+  - `Sensitive Event Detail`
+  - `Export Request Draft`
+  - `Export Queued + Ready`
+  - `Permission Denied + Retention Review`
+- Added audit stream and export request panels for filtered immutable events, redacted sensitive detail, scoped export request metadata, signed archive readiness, denied access, and configurable retention-policy cues.
+- Added six pipeline steps: filter event stream, open redacted event detail, request scoped export, authorize reason and scope, generate signed archive, and record download acknowledgement.
+- Added `Developer Handoff / Audit Export Route Data Contract`, node `69:180`.
+- Stored shared Figma plugin data on node `69:2` for routes `/admin/audit`, `/api/audit-events`, `/api/audit-events/:id`, `/admin/exports`, `/api/exports/student-archive`, `/api/exports/:id/download`, and `/student/archive`.
+- Stored shared contract records `AuditEvent`, `AuditEventView`, `ExportRequest`, `StudentArchiveExport`, `ExportArtifact`, `EvidenceArtifact`, `Submission`, `StudentProfile`, `UserGroupRole`, `Program`, `Cohort`, and `RetentionPolicy`, plus permission scopes and acceptance checks.
+
+Verification:
+- `get_design_context` for board `6:2` succeeded before the write and confirmed the state-variant board did not yet contain an audit/export controls contract.
+- `get_libraries` succeeded for active file `z4t4tFPAKrMDh6pIYOeEw6`.
+- `search_design_system` for audit/export/archive/filter/detail/permission terms returned no richer reusable primitive, so the section matched local conventions.
+- `use_figma` read-only inspection confirmed board `6:2` height `11231.8`, 12 existing children, and no duplicate audit/export contract.
+- `use_figma` write created node `69:2`, handoff node `69:180`, 5 states, 6 pipeline steps, 7 routes, 12 records, 5 permissions, 7 guardrails, and 7 acceptance checks.
+- First `get_screenshot`, `get_design_context`, and metadata verification surfaced clipped non-pill text heights.
+- Follow-up `use_figma` text-height and autosizing correction adjusted 66 text nodes, 50 horizontal rows, and 28 vertical frames in place.
+- Final `get_screenshot`, `get_design_context`, and metadata succeeded for node `69:2`.
+- Follow-up `use_figma` readback confirmed board `6:2` height `13078.8`, node `69:2` height `1819`, handoff node `69:180`, 5 audit/export states, 6 pipeline steps, 7 routes, 12 records, 5 permission scopes, 7 guardrails, 7 acceptance checks, zero clipped text nodes, and zero clipped horizontal rows.
+
+Handoff packet:
+- Consumer lane: rebuild.
+- Artifact/spec: active Figma file `z4t4tFPAKrMDh6pIYOeEw6`, state-variant board `6:2`, audit log/export controls contract `69:2`, and handoff contract `69:180`.
+- Exact next action: implement immutable `AuditEvent` stream filters, redacted event detail, `ExportRequest`, `StudentArchiveExport`, `ExportArtifact`, signed download expiry, denied audit/export access states, and export/download/view audit events while scaffolding the accepted Cloudflare database/auth/private-storage foundation.
+- Acceptance check: rebuild maps the audit/export routes and records to persisted data, server-side authorization, explicit misc-admin export scope, no storage-key exposure, signed URL expiry, configurable retention-policy values, and tests for unauthorized audit/export access and student own-archive-only access.
+
+Self-improvement:
+- none; no live automation prompt/config change was needed.
+
+Next Figma slice:
+- Stop broad Figma deepening while `SC-005` lacks scaffold/code. The next accepted MVP pass should be rebuild-heavy: Cloudflare/TypeScript scaffold, D1/R2/migration layout, auth/users/groups, private evidence, `ProgressUpdate`/`DashboardAggregate`, audit/export primitives, and tests consuming nodes `18:2`, `37:2`, `43:2`, `48:2`, `56:2`, `61:2`, and `69:2`.
