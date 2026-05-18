@@ -7,6 +7,11 @@
   --line: #dce4e5;
   --red: #b82f2f;
   --red-dark: #8f2224;
+  --blue: #2463a6;
+  --green: #22734d;
+  --amber: #a65f00;
+  --violet: #6c4aa3;
+  --coral: #c6553d;
   --teal: #047b83;
   --teal-dark: #075f66;
   --gold: #d9a441;
@@ -1769,6 +1774,554 @@ li + li {
   padding: 1rem;
 }
 
+.product-preview-shell {
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.product-sidebar,
+.product-workspace,
+.product-preview-card,
+.product-submission-card,
+.product-state-card,
+.component-variant-card,
+.mentor-student-card {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: 0 8px 24px rgba(26, 42, 48, 0.05);
+}
+
+.product-sidebar {
+  position: sticky;
+  top: 92px;
+  display: grid;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.product-sidebar h2 {
+  font-size: 1.55rem;
+}
+
+.product-role-tabs {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.product-role-tab {
+  display: grid;
+  gap: 0.24rem;
+  width: 100%;
+  border: 1px solid var(--line);
+  border-left: 5px solid transparent;
+  border-radius: var(--radius);
+  background: #fbfdfc;
+  color: var(--ink);
+  padding: 0.7rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.product-role-tab span {
+  font-weight: 900;
+}
+
+.product-role-tab small,
+.product-sidebar-note p,
+.product-panel-header p,
+.product-metric p,
+.product-submission-card p,
+.research-section-row p,
+.product-state-card p,
+.program-health-row p,
+.audit-event-row p,
+.mentor-student-card dd {
+  margin: 0;
+  color: var(--muted);
+}
+
+.product-role-tab[aria-selected="true"] {
+  border-left-color: var(--red);
+  background: #fff8e8;
+}
+
+.product-sidebar-note {
+  border-top: 1px solid var(--line);
+  padding-top: 1rem;
+}
+
+.product-workspace {
+  overflow: clip;
+  background: #f6f8f7;
+}
+
+.product-topbar {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.84);
+  padding: 0.95rem;
+}
+
+.product-search {
+  display: grid;
+  gap: 0.35rem;
+  min-width: min(420px, 100%);
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 900;
+}
+
+.product-search input {
+  min-height: 42px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #fff;
+  color: var(--ink);
+  padding: 0.65rem 0.8rem;
+}
+
+.product-control-chips,
+.component-chip-list,
+.product-card-meta,
+.student-action-buttons,
+.product-filter-bar,
+.review-action-stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.product-control-chips {
+  justify-content: flex-end;
+}
+
+.product-control-chips span,
+.component-chip-list span,
+.product-due {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  border: 1px solid #c9d5d5;
+  border-radius: 999px;
+  background: #fff;
+  color: var(--charcoal);
+  padding: 0.32rem 0.58rem;
+  font-size: 0.8rem;
+  font-weight: 900;
+}
+
+.product-role-panel {
+  display: grid;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.product-role-panel[hidden] {
+  display: none;
+}
+
+.product-panel-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 340px);
+  gap: 1rem;
+  align-items: start;
+}
+
+.product-panel-header h2 {
+  font-size: clamp(2rem, 3.5vw, 3.4rem);
+}
+
+.product-mini-nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.4rem;
+}
+
+.product-mini-nav a {
+  border: 1px solid #c9d5d5;
+  border-radius: 999px;
+  background: #fff;
+  color: var(--charcoal);
+  padding: 0.38rem 0.58rem;
+  font-size: 0.82rem;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.product-mini-nav a[aria-current="page"] {
+  border-color: rgba(217, 164, 65, 0.95);
+  background: #fff5dc;
+}
+
+.product-metric-grid,
+.product-card-grid,
+.product-state-grid,
+.component-variant-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.product-metric {
+  display: grid;
+  gap: 0.24rem;
+  border: 1px solid var(--line);
+  border-left: 5px solid var(--blue);
+  border-radius: var(--radius);
+  background: #fff;
+  padding: 0.85rem;
+}
+
+.product-metric strong {
+  font-size: 1.85rem;
+  line-height: 1;
+}
+
+.product-metric span {
+  font-weight: 900;
+}
+
+.product-tone-blue {
+  border-left-color: var(--blue);
+}
+
+.product-tone-green {
+  border-left-color: var(--green);
+}
+
+.product-tone-amber {
+  border-left-color: var(--amber);
+}
+
+.product-tone-red {
+  border-left-color: var(--red);
+}
+
+.product-tone-teal {
+  border-left-color: var(--teal);
+}
+
+.student-next-action {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1rem;
+  align-items: center;
+  border: 1px solid rgba(217, 164, 65, 0.65);
+  border-left: 7px solid var(--gold);
+  border-radius: var(--radius);
+  background: #fff9ea;
+  padding: 1rem;
+}
+
+.student-next-action h3 {
+  margin-top: 0.35rem;
+  font-size: 1.55rem;
+}
+
+.student-next-action p {
+  margin: 0.35rem 0 0;
+  color: var(--muted);
+}
+
+.student-next-action .button:not(.button-primary) {
+  background: var(--charcoal);
+  color: #fff;
+}
+
+.product-progress-strip {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+.product-progress-strip article {
+  display: grid;
+  gap: 0.38rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #fff;
+  padding: 0.75rem;
+}
+
+.product-progress-strip h3,
+.product-submission-card h3,
+.research-section-row h3,
+.product-state-card h3,
+.component-variant-card h3,
+.program-health-row h3,
+.audit-event-row h3 {
+  margin: 0;
+}
+
+.product-progress-strip p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.product-two-column {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.product-two-column-rail {
+  grid-template-columns: minmax(0, 1.25fr) minmax(260px, 0.75fr);
+}
+
+.product-preview-card {
+  display: grid;
+  gap: 0.85rem;
+  padding: 1rem;
+}
+
+.product-card-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.product-submission-card,
+.product-state-card,
+.component-variant-card,
+.mentor-student-card {
+  display: grid;
+  align-content: start;
+  gap: 0.7rem;
+  padding: 0.85rem;
+}
+
+.product-card-meta {
+  align-items: center;
+  justify-content: space-between;
+}
+
+.product-status {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  min-height: 28px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  padding: 0.24rem 0.52rem;
+  font-size: 0.76rem;
+  font-weight: 900;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
+.product-status-draft,
+.product-status-not-started,
+.product-status-archived {
+  border-color: #bdcaca;
+  background: #f1f4f4;
+  color: #34434b;
+}
+
+.product-status-submitted,
+.product-status-under-review {
+  border-color: rgba(36, 99, 166, 0.35);
+  background: #edf5ff;
+  color: #1d5189;
+}
+
+.product-status-approved {
+  border-color: rgba(34, 115, 77, 0.35);
+  background: #edf8f1;
+  color: #1b5d3e;
+}
+
+.product-status-revision-requested {
+  border-color: rgba(166, 95, 0, 0.38);
+  background: #fff4df;
+  color: #7d4700;
+}
+
+.product-status-blocked,
+.product-status-rejected {
+  border-color: rgba(184, 47, 47, 0.38);
+  background: #fff0ef;
+  color: var(--red-dark);
+}
+
+.product-status-overridden {
+  border-color: rgba(108, 74, 163, 0.38);
+  background: #f5efff;
+  color: var(--violet);
+}
+
+.research-section-list,
+.mentor-card-list,
+.program-health-list,
+.audit-event-list {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.research-section-row,
+.audit-event-row {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) auto;
+  gap: 0.65rem;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #fbfdfc;
+  padding: 0.65rem;
+}
+
+.audit-event-row {
+  grid-template-columns: auto minmax(0, 1fr);
+}
+
+.research-section-number {
+  display: inline-grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--charcoal);
+  color: #fff;
+  font-weight: 900;
+}
+
+.product-table {
+  display: grid;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.product-table-row {
+  display: grid;
+  grid-template-columns: 1.1fr 0.8fr 1.45fr auto;
+  gap: 0.75rem;
+  align-items: center;
+  border-top: 1px solid var(--line);
+  background: #fff;
+  padding: 0.72rem;
+}
+
+.review-queue-table .product-table-row {
+  grid-template-columns: 1fr 1.05fr 1.5fr auto auto;
+}
+
+.product-table-row:first-child {
+  border-top: 0;
+}
+
+.product-table-head {
+  background: #edf2f2;
+  color: var(--charcoal);
+  font-size: 0.78rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.product-table-row small {
+  display: block;
+  margin-top: 0.18rem;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.product-filter-bar {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #fbfdfc;
+  padding: 0.65rem;
+}
+
+.product-filter-bar span {
+  border: 1px solid #c9d5d5;
+  border-radius: 999px;
+  background: #fff;
+  padding: 0.32rem 0.58rem;
+  font-size: 0.82rem;
+  font-weight: 900;
+}
+
+.product-alert-list {
+  color: var(--muted);
+}
+
+.review-action-stack .small-button {
+  background: var(--charcoal);
+}
+
+.mentor-card-list {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.mentor-student-card dl {
+  display: grid;
+  gap: 0.45rem;
+  margin: 0;
+}
+
+.mentor-student-card dt {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.mentor-student-card dd {
+  font-weight: 800;
+}
+
+.program-health-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(120px, 170px) auto auto;
+  gap: 0.75rem;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-left: 5px solid var(--blue);
+  border-radius: var(--radius);
+  background: #fff;
+  padding: 0.7rem;
+}
+
+.program-health-meter {
+  height: 12px;
+  border-radius: 999px;
+  background: #e7eeee;
+  overflow: hidden;
+}
+
+.program-health-meter span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--teal);
+}
+
+.component-variant-grid {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.component-variant-card {
+  min-height: 160px;
+}
+
+.component-chip-list span {
+  min-height: 28px;
+  font-size: 0.76rem;
+}
+
+.product-state-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.product-implementation-note {
+  max-width: none;
+}
+
 @media (max-width: 900px) {
   .app-header {
     min-height: 66px;
@@ -1858,6 +2411,39 @@ li + li {
   .student-aside {
     position: static;
     top: auto;
+  }
+
+  .product-preview-shell,
+  .product-panel-header,
+  .product-two-column,
+  .product-two-column-rail {
+    grid-template-columns: 1fr;
+  }
+
+  .product-sidebar {
+    position: static;
+    top: auto;
+  }
+
+  .product-topbar {
+    display: grid;
+    align-items: start;
+  }
+
+  .product-control-chips,
+  .product-mini-nav {
+    justify-content: flex-start;
+  }
+
+  .product-metric-grid,
+  .product-progress-strip,
+  .component-variant-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .product-state-grid,
+  .mentor-card-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .rubric-card {
@@ -1968,6 +2554,39 @@ li + li {
 
   .phase-summary-row .button {
     grid-column: 1 / -1;
+    width: 100%;
+  }
+
+  .product-metric-grid,
+  .product-card-grid,
+  .product-progress-strip,
+  .product-state-grid,
+  .component-variant-grid,
+  .mentor-card-list {
+    grid-template-columns: 1fr;
+  }
+
+  .student-next-action,
+  .product-table-row,
+  .review-queue-table .product-table-row,
+  .program-health-row {
+    grid-template-columns: 1fr;
+  }
+
+  .product-table-head {
+    display: none;
+  }
+
+  .research-section-row {
+    grid-template-columns: 34px minmax(0, 1fr);
+  }
+
+  .research-section-row .product-status {
+    grid-column: 2;
+  }
+
+  .student-action-buttons .button,
+  .review-action-stack .small-button {
     width: 100%;
   }
 

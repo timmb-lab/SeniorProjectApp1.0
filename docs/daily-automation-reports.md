@@ -6,7 +6,7 @@ The intended permanent destination is the Google Doc titled `Senior Capstone Dai
 
 ## 2026-05-18 Setup Note
 
-The daily reporting automation was created and scheduled for 07:30 daily.
+The daily reporting automation was originally created and scheduled for 07:30 daily. It now runs at 07:40 daily to avoid the primary beta loop's 07:30 start.
 
 Destinations:
 - Email: `bryan.timm89@gmail.com`

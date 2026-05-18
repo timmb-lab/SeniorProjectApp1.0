@@ -36,7 +36,7 @@ This file tracks unresolved cross-lane issues for the Senior Capstone rebuild. T
 - `status`: resolved
 - `source`: Research Proposal Challenge PDF
 - `affected area`: student proposal/research workflow
-- `evidence`: The source assignment is a guided quality engine. The active regenerated Figma file `LLucMgAPscRa9020iHHigB` now includes `Screen / Guided Proposal Form` node `2:111`, with section-level completeness, revision feedback, attached evidence, submit/resubmit path, and teacher review context. `docs/design/figma-first-pass-product-system.md` records the active file and frame IDs.
+- `evidence`: The source assignment is a guided quality engine. The active recreated Figma file `z4t4tFPAKrMDh6pIYOeEw6` now includes guided proposal frame `3:154`, with section-level completeness, revision feedback, attached evidence, submit/resubmit path, and teacher review context. `docs/design/figma-first-pass-product-system.md` records the active file and frame IDs.
 - `next action`: Future Figma runs should deepen variants and edge states instead of treating the guided proposal form as missing.
 - `last updated`: 2026-05-18
 

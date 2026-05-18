@@ -1,0 +1,79 @@
+{
+  "run_id": "2026-05-18-0814-audit-repo-automation-cleanup",
+  "timestamp_local": "2026-05-18T08:14:00-07:00",
+  "lane": "audit/ops",
+  "automation_id": null,
+  "trigger": "user-requested",
+  "master_plan_sections": [
+    "Product Destination",
+    "Lane Responsibilities",
+    "Logging Requirements",
+    "Anti-Drift Rules"
+  ],
+  "scope": "One broad cleanup pass to repair repo and automation drift around the active Figma source, then validate static app and automation contracts.",
+  "files_changed": [
+    "app.js",
+    "docs/automation-backlog.md",
+    "docs/automation-progress.md",
+    "docs/automation-prompts/README.md",
+    "docs/automation-prompts/senior-capstone-canva-visual-system-rebuilt.md",
+    "docs/automation-prompts/senior-capstone-content-quality-audits-rebuilt.md",
+    "docs/automation-prompts/senior-capstone-daily-automation-report-rebuilt.md",
+    "docs/automation-prompts/senior-capstone-figma-product-design-rebuilt.md",
+    "docs/automation-prompts/senior-capstone-rebuild-rebuilt.md",
+    "docs/automation-prompts/senior-capstone-weekly-deep-audit-rebuilt.md",
+    "docs/progress/audit.md",
+    "docs/progress/figma.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-18-0814-audit-repo-automation-cleanup.json",
+    "scripts/check-automation-contract.ps1"
+  ],
+  "external_artifacts": [
+    {
+      "id": "figma-product-ui-system-active",
+      "type": "figma",
+      "file_key": "z4t4tFPAKrMDh6pIYOeEw6",
+      "url": "https://www.figma.com/design/z4t4tFPAKrMDh6pIYOeEw6"
+    }
+  ],
+  "validation": [
+    "automation_update succeeded for senior-capstone-content-quality-audits-rebuilt, senior-capstone-canva-visual-system-rebuilt, senior-capstone-daily-automation-report-rebuilt, and senior-capstone-weekly-deep-audit-rebuilt while preserving schedules, workspaces, models, reasoning effort, and statuses.",
+    "powershell -NoProfile -ExecutionPolicy Bypass -File .\\scripts\\snapshot-automation-prompts.ps1",
+    "powershell -NoProfile -ExecutionPolicy Bypass -File .\\scripts\\check-automation-contract.ps1 -RepoRoot .",
+    "Bundled Node --check app.js",
+    "Static sweep passed for 21 HTML files, 11 JSON files, local refs, CSS assets, and phase routes.",
+    "Browser smoke test passed for app-preview.html over localhost: active Figma key copy rendered, old active-copy string was absent, Program Teacher tab switched to panel-teacher, Review Queue text was visible, and horizontal overflow was false.",
+    "git diff --check passed with CRLF normalization warnings only."
+  ],
+  "backlog_updates": [
+    {
+      "id": "SC-002",
+      "status": "resolved",
+      "change": "Updated evidence to name active recreated Figma file z4t4tFPAKrMDh6pIYOeEw6 and guided proposal frame 3:154."
+    }
+  ],
+  "handoffs_opened": [],
+  "handoffs_closed": [],
+  "decisions_added": [],
+  "human_decisions_added": [],
+  "self_improvement": {
+    "result": "updated-cross-automation-prompts-and-contract",
+    "evidence": "Four live prompts still named LLucMgAPscRa9020iHHigB as the active design source after artifacts/memory/decision logs had promoted z4t4tFPAKrMDh6pIYOeEw6; the contract checker now requires the new active file key and team key in all snapshots.",
+    "automation_updated": [
+      "senior-capstone-content-quality-audits-rebuilt",
+      "senior-capstone-canva-visual-system-rebuilt",
+      "senior-capstone-daily-automation-report-rebuilt",
+      "senior-capstone-weekly-deep-audit-rebuilt"
+    ]
+  },
+  "commit": {
+    "message": "",
+    "hash": null,
+    "pushed": false
+  },
+  "next": [
+    "Rebuild lane should consume active Figma file z4t4tFPAKrMDh6pIYOeEw6 for route, component, data-field, and permission mapping after the Cloudflare stack decision.",
+    "Figma lane should run screenshot/metadata verification against z4t4tFPAKrMDh6pIYOeEw6 when MCP quota resets."
+  ]
+}

@@ -10,15 +10,16 @@ The goal is a GitHub-to-Cloudflare hosted app whose MVP is a secure database-bac
 
 Every main lane and the daily reporting job should run this loop:
 
-1. Read `docs/master-plan.md`, `docs/automation-runbook.md`, this protocol, `docs/automation-cadence.md`, `docs/automation-memory.md`, `docs/progress/run-log.md`, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, and the relevant lane/reporting logs before selecting work.
+1. Read `docs/master-plan.md`, `docs/automation-runbook.md`, this protocol, `docs/automation-cadence.md`, `docs/automation-milestones.md`, `docs/automation-memory.md`, `docs/progress/run-log.md`, recent `docs/progress/runs/`, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, and the relevant lane/reporting logs before selecting work.
 2. Do the highest-value bounded product, audit, visual, or reporting slice unless the automation itself is blocked or the user explicitly requested automation improvement.
 3. During closeout, compare the run against its own prompt, the shared docs, and recent logs.
 4. If no prompt/config improvement is justified, write `self-improvement: none` in the lane/report log.
 5. If a small improvement is justified by evidence, update only that automation's own live prompt/config with `automation_update`, then log what changed and why.
-6. Preserve the existing automation `id`, `kind`, `name`, schedule, workspace, model, reasoning effort, and active status unless the user explicitly asked to change one of those fields.
+6. Preserve the existing automation `id`, `kind`, `name`, schedule, workspace, model, reasoning effort, and status unless the user explicitly asked to change one of those fields.
 7. Regenerate prompt snapshots with `scripts/snapshot-automation-prompts.ps1` after any live prompt/config change.
-8. Run `scripts/check-automation-contract.ps1` after any prompt/config or automation-operating-doc change.
-9. Commit and push any repo documentation, log, manifest, prompt snapshot, spec, or script changes created during the run.
+8. Update `scripts/check-automation-contract.ps1` when the master planner, pass logger, prompt snapshot, manifest, or self-patching contract changed and the checker needs to enforce the new requirement.
+9. Run `scripts/check-automation-contract.ps1` after any prompt/config, support-script, or automation-operating-doc change.
+10. Commit and push any repo documentation, log, manifest, prompt snapshot, spec, or script changes created during the run.
 
 ## Valid Self-Improvement Triggers
 
@@ -46,6 +47,7 @@ Allowed self-improvement changes are narrow:
 - Add a missing source-of-truth reference.
 - Improve final-response requirements so the human can see what changed.
 - Update repo docs that describe the automation operating contract.
+- Update `scripts/check-automation-contract.ps1` or `scripts/snapshot-automation-prompts.ps1` when the automation contract or snapshot format changed.
 
 ## Forbidden Changes
 
@@ -53,7 +55,7 @@ Do not:
 
 - Weaken the hosted-app goal, role/permission requirements, upload/evidence privacy, audit logging, or protected student-record posture.
 - Remove the requirement to log, commit, and push.
-- Change cadence, schedule, workspace, model, reasoning effort, active status, or other automations unless the user explicitly asked.
+- Change cadence, schedule, workspace, model, reasoning effort, status, or other automations unless the user explicitly asked.
 - Rewrite another lane's prompt. Create a handoff for that lane instead.
 - Spend a run on broad prompt polishing without evidence.
 - Delete historical logs, handoffs, decisions, or backlog items to make the state look cleaner.
@@ -67,9 +69,10 @@ When an automation improves itself, it must record:
 - The evidence that triggered the change.
 - The exact automation ID updated.
 - The prompt/config area changed.
-- The fields intentionally preserved, especially schedule, workspace, model, reasoning effort, and active status.
+- The fields intentionally preserved, especially schedule, workspace, model, reasoning effort, and status.
 - Verification that the live automation file or tool response now includes the intended rule.
 - Verification that prompt snapshots and the automation contract checker are current when prompt/config changed.
+- Verification that support scripts were updated when the master planner, pass logger, prompt snapshot, or self-patching contract changed.
 - The commit hash for repo documentation/log updates, or the blocker if commit/push could not complete.
 
 Durable decisions belong in `docs/progress/decision-log.md`. Routine per-run notes belong in the lane log and `docs/progress/run-log.md`.

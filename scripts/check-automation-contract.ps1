@@ -16,17 +16,29 @@ $automationIds = @(
 )
 
 $requiredPromptFragments = @(
+    "master planner",
+    "pass logger",
     "docs/master-plan.md",
     "docs/automation-runbook.md",
     "docs/automation-self-improvement.md",
+    "docs/automation-cadence.md",
+    "docs/automation-milestones.md",
     "docs/automation-memory.md",
     "docs/progress/run-log.md",
+    "docs/progress/runs/",
     "docs/progress/handoffs.md",
     "docs/progress/decision-log.md",
     "docs/automation-backlog.md",
+    "docs/artifacts.json",
+    "docs/human-decisions.md",
     "git status --short",
+    "commit",
     "push the current branch",
     "automation_update",
+    "scripts/snapshot-automation-prompts.ps1",
+    "scripts/check-automation-contract.ps1",
+    "z4t4tFPAKrMDh6pIYOeEw6",
+    "team::1638213362346160913",
     "LLucMgAPscRa9020iHHigB"
 )
 
@@ -59,12 +71,28 @@ function Get-StringSha256 {
     }
 }
 
+function Get-RRulePart {
+    param(
+        [Parameter(Mandatory = $true)][string]$RRule,
+        [Parameter(Mandatory = $true)][string]$Key
+    )
+
+    $match = [regex]::Match($RRule, "(^|;)" + [regex]::Escape($Key) + "=([^;]+)")
+    if (-not $match.Success) {
+        return @()
+    }
+
+    return $match.Groups[2].Value.Split(",") | ForEach-Object { $_.Trim() }
+}
+
 function Assert-File {
     param([string]$Path)
     if (-not (Test-Path -LiteralPath $Path)) {
         $failures.Add("Missing required file: $Path")
     }
 }
+
+$scheduleSlots = @{}
 
 foreach ($id in $automationIds) {
     $tomlPath = Join-Path $AutomationRoot "$id\automation.toml"
@@ -75,7 +103,37 @@ foreach ($id in $automationIds) {
 
     $raw = Get-Content -Raw -LiteralPath $tomlPath
     $prompt = Get-TomlStringValue -Content $raw -Key "prompt"
+    $status = Get-TomlStringValue -Content $raw -Key "status"
+    $rrule = Get-TomlStringValue -Content $raw -Key "rrule"
     $promptHash = Get-StringSha256 -Value $prompt
+
+    if ($status -ne "ACTIVE" -and $prompt -like "*ACTIVE status*") {
+        $failures.Add("$id is $status but prompt says to preserve ACTIVE status")
+    }
+
+    $days = Get-RRulePart -RRule $rrule -Key "BYDAY"
+    if ($days.Count -eq 0 -and $rrule -like "FREQ=DAILY*") {
+        $days = @("MO", "TU", "WE", "TH", "FR", "SA", "SU")
+    }
+
+    $hours = Get-RRulePart -RRule $rrule -Key "BYHOUR"
+    $minutes = Get-RRulePart -RRule $rrule -Key "BYMINUTE"
+    if ($days.Count -eq 0 -or $hours.Count -eq 0 -or $minutes.Count -eq 0) {
+        $failures.Add("$id has an RRULE the schedule conflict checker cannot parse: $rrule")
+    }
+    else {
+        foreach ($day in $days) {
+            foreach ($hour in $hours) {
+                foreach ($minute in $minutes) {
+                    $slot = "{0} {1:D2}:{2:D2}" -f $day, [int]$hour, [int]$minute
+                    if (-not $scheduleSlots.ContainsKey($slot)) {
+                        $scheduleSlots[$slot] = New-Object System.Collections.Generic.List[string]
+                    }
+                    $scheduleSlots[$slot].Add("$($id)[$status]")
+                }
+            }
+        }
+    }
 
     foreach ($fragment in $requiredPromptFragments) {
         if ($prompt -notlike "*$fragment*") {
@@ -99,11 +157,32 @@ foreach ($id in $automationIds) {
     }
 }
 
+foreach ($slot in $scheduleSlots.Keys) {
+    if ($scheduleSlots[$slot].Count -gt 1) {
+        $failures.Add("Schedule slot conflict at $slot`: $($scheduleSlots[$slot] -join ', ')")
+    }
+}
+
 $requiredFiles = @(
+    "docs\master-plan.md",
+    "docs\automation-runbook.md",
+    "docs\automation-self-improvement.md",
+    "docs\automation-cadence.md",
+    "docs\automation-milestones.md",
+    "docs\automation-memory.md",
+    "docs\automation-backlog.md",
     "docs\automation-prompts\README.md",
+    "docs\progress\run-log.md",
+    "docs\progress\handoffs.md",
+    "docs\progress\decision-log.md",
     "docs\progress\runs\README.md",
+    "docs\progress\figma.md",
+    "docs\progress\canva.md",
     "docs\progress\rebuild.md",
     "docs\progress\audit.md",
+    "docs\progress\weekly-deep-audit.md",
+    "docs\daily-automation-reporting.md",
+    "docs\daily-automation-reports.md",
     "docs\human-decisions.md",
     "docs\artifacts.json",
     "docs\architecture\adr-0001-stack-auth-database-upload.md",
@@ -115,10 +194,18 @@ foreach ($relative in $requiredFiles) {
     Assert-File -Path (Join-Path $RepoRoot $relative)
 }
 
-$jsonFiles = @(
-    "docs\artifacts.json",
-    "docs\progress\runs\2026-05-18-ops-self-improvement-infrastructure.json"
-)
+$jsonFiles = New-Object System.Collections.Generic.List[string]
+$jsonFiles.Add("docs\artifacts.json")
+
+$runManifestDir = Join-Path $RepoRoot "docs\progress\runs"
+if (Test-Path -LiteralPath $runManifestDir) {
+    Get-ChildItem -LiteralPath $runManifestDir -Filter "*.json" | ForEach-Object {
+        $jsonFiles.Add((Resolve-Path -Relative -LiteralPath $_.FullName))
+    }
+}
+else {
+    $failures.Add("Missing run manifest directory: $runManifestDir")
+}
 
 foreach ($relative in $jsonFiles) {
     $path = Join-Path $RepoRoot $relative
@@ -138,7 +225,7 @@ foreach ($relative in $jsonFiles) {
 $runbookPath = Join-Path $RepoRoot "docs\automation-runbook.md"
 if (Test-Path -LiteralPath $runbookPath) {
     $runbook = Get-Content -Raw -LiteralPath $runbookPath
-    foreach ($fragment in @("docs/progress/runs/", "docs/artifacts.json", "docs/human-decisions.md", "scripts/check-automation-contract.ps1", "docs/automation-prompts/")) {
+    foreach ($fragment in @("master planner", "pass logger", "docs/progress/runs/", "docs/artifacts.json", "docs/human-decisions.md", "scripts/check-automation-contract.ps1", "scripts/snapshot-automation-prompts.ps1", "docs/automation-prompts/")) {
         if ($runbook -notlike "*$fragment*") {
             $failures.Add("Runbook is missing infrastructure reference: $fragment")
         }

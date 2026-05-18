@@ -1,18 +1,52 @@
 {
   "version": 1,
-  "updated_at": "2026-05-18T00:00:00-07:00",
+  "updated_at": "2026-05-18T08:00:00-07:00",
   "artifacts": [
+    {
+      "id": "figma-senior-project-app-team-target",
+      "type": "figma_team_project",
+      "status": "active_target",
+      "owner_lane": "figma",
+      "title": "Senior Project App",
+      "team_id": "1638213362346160913",
+      "plan_key": "team::1638213362346160913",
+      "url": "https://www.figma.com/files/team/1638213362346160913/all-projects?fuid=1601310066605052228",
+      "purpose": "Preferred writable Figma team/project for future Senior Capstone product UI files and MCP calls.",
+      "app_placement": "Create or regenerate the next active product UI file here before spending more write calls against old team-bound files.",
+      "consuming_lanes": [
+        "figma",
+        "rebuild",
+        "audit",
+        "canva",
+        "daily-report",
+        "weekly-deep-audit"
+      ],
+      "repo_records": [
+        "docs/automation-memory.md",
+        "docs/progress/decision-log.md",
+        "docs/progress/figma.md",
+        "docs/progress/handoffs.md",
+        "docs/design/figma-first-pass-product-system.md",
+        "docs/design/figma-product-preview-state-variants.md"
+      ],
+      "verification": [
+        "Observed in Bryan's browser screenshot on 2026-05-18.",
+        "Figma MCP rate-limit errors were pointing at older team 1601310068697743794, so the live Figma automation prompt now targets this team."
+      ],
+      "last_updated": "2026-05-18"
+    },
     {
       "id": "figma-product-ui-system-active",
       "type": "figma",
       "status": "active",
       "owner_lane": "figma",
-      "title": "Senior Capstone App - Product UI System Regenerated",
-      "file_key": "LLucMgAPscRa9020iHHigB",
-      "url": "https://www.figma.com/design/LLucMgAPscRa9020iHHigB",
-      "account_observed": "timmb@nv.ccsd.net",
-      "purpose": "Active product UI source for the hosted Senior Capstone app.",
-      "app_placement": "Design source for app shell, student workspace, guided proposal form, review queue, mentor/admin dashboards, mobile student view, and automation handoff board.",
+      "title": "Senior Capstone App - Product UI System Recreated",
+      "file_key": "z4t4tFPAKrMDh6pIYOeEw6",
+      "url": "https://www.figma.com/design/z4t4tFPAKrMDh6pIYOeEw6",
+      "team_id": "1638213362346160913",
+      "plan_key": "team::1638213362346160913",
+      "purpose": "Active product UI source for the hosted Senior Capstone app, recreated in Bryan's Senior Project App Figma team/project.",
+      "app_placement": "Design source for app shell, visual foundations, student workspace, guided proposal form, teacher review queue, mentor/admin dashboards, mobile student view, automation handoff board, and product preview state variants.",
       "consuming_lanes": [
         "figma",
         "rebuild",
@@ -23,12 +57,97 @@
       ],
       "repo_records": [
         "docs/design/figma-first-pass-product-system.md",
+        "docs/design/figma-product-preview-state-variants.md",
+        "docs/progress/figma.md",
+        "docs/progress/handoffs.md",
+        "docs/progress/run-log.md"
+      ],
+      "pages": [
+        {
+          "name": "00 Master Plan + Foundations",
+          "id": "0:1",
+          "primary_frame": "2:5"
+        },
+        {
+          "name": "01 Components + App Screens",
+          "id": "2:2",
+          "primary_frame": "3:2"
+        },
+        {
+          "name": "02 Automation Handoff",
+          "id": "2:3",
+          "primary_frame": "5:2"
+        },
+        {
+          "name": "03 Product Preview + State Variants",
+          "id": "2:4",
+          "primary_frame": "6:2"
+        }
+      ],
+      "key_frames": {
+        "foundations_board": "2:5",
+        "components_board": "3:2",
+        "student_desktop": "3:66",
+        "guided_proposal_form": "3:154",
+        "teacher_review_queue": "3:190",
+        "mentor_admin_snapshots": "3:246",
+        "student_mobile": "3:301",
+        "handoff_board": "5:2",
+        "state_variants_board": "6:2",
+        "state_student_workspace": "6:34",
+        "state_teacher_queue": "6:77",
+        "state_mentor_dashboard": "6:112",
+        "state_admin_overview": "6:127",
+        "edge_states": "6:143",
+        "review_drawer": "6:198",
+        "admin_override_modal": "6:219",
+        "state_mobile_student": "6:232",
+        "rebuild_mapping": "6:257"
+      },
+      "verification": [
+        "File creation succeeded in plan team::1638213362346160913.",
+        "Canvas writes succeeded for all four planned pages before the final screenshot/metadata pass hit the Education-plan MCP tool-call limit for the new team.",
+        "Successful write calls returned page IDs, primary frame IDs, 9 status components, and key screen/state frame IDs."
+      ],
+      "supersedes": [
+        "figma-product-ui-system-reference-old-team",
+        "figma-product-ui-system-superseded"
+      ],
+      "last_updated": "2026-05-18"
+    },
+    {
+      "id": "figma-product-ui-system-reference-old-team",
+      "type": "figma",
+      "status": "reference_only_superseded_by_new_team_file",
+      "owner_lane": "figma",
+      "title": "Senior Capstone App - Product UI System Regenerated",
+      "file_key": "LLucMgAPscRa9020iHHigB",
+      "url": "https://www.figma.com/design/LLucMgAPscRa9020iHHigB",
+      "account_observed": "timmb@nv.ccsd.net",
+      "team_context": "team::1601310068697743794",
+      "purpose": "Reference product UI source until the next active writable file is created or recorded in the Senior Project App team.",
+      "app_placement": "Reference source for app shell, student workspace, guided proposal form, review queue, mentor/admin dashboards, mobile student view, and automation handoff board.",
+      "consuming_lanes": [
+        "figma",
+        "rebuild",
+        "audit",
+        "canva",
+        "daily-report",
+        "weekly-deep-audit"
+      ],
+      "repo_records": [
+        "docs/design/figma-first-pass-product-system.md",
+        "docs/design/figma-product-preview-state-variants.md",
         "docs/progress/figma.md",
         "docs/progress/handoffs.md"
       ],
       "verification": [
         "Metadata inspection returned 3 pages, 212 frames total, and 9 components.",
-        "Screenshot verification generated for student desktop and handoff board."
+        "Screenshot verification generated for student desktop and handoff board.",
+        "Later Figma MCP limit errors referenced old team 1601310068697743794, so future writes should not assume this file is the preferred writable target."
+      ],
+      "superseded_by": [
+        "figma-product-ui-system-active"
       ],
       "supersedes": [
         "figma-product-ui-system-superseded"

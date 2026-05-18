@@ -725,7 +725,7 @@ What changed:
 - Added desktop student home, guided proposal form, program teacher review queue, mentor/admin snapshots, and mobile student home.
 - Added automation handoff board, permission matrix, first vertical slice flow, and acceptance checks.
 - Updated the Figma spec, Figma progress log, automation memory, backlog, handoff ledger, run log, and decision log.
-- Updated all six active Senior Capstone automations to reference active Figma file `LLucMgAPscRa9020iHHigB`.
+- Updated all six active Senior Capstone automations to reference then-active Figma file `LLucMgAPscRa9020iHHigB`; later retargeting superseded this with `z4t4tFPAKrMDh6pIYOeEw6`.
 
 Verification:
 - Figma metadata check returned 3 pages, 212 frames total, and 9 components.

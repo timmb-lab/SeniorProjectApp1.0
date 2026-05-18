@@ -20,13 +20,14 @@ Figma is the heavy product-design source for functional app screens, database-ba
 - No production app scaffold has been committed yet.
 - No managed auth, database, user/group model, private upload storage, migrations, API layer, tests, CI, or GitHub-to-Cloudflare deployment pipeline has been implemented yet.
 - Source PDFs have been extracted and converted into app-native requirements in `data/capstone-framework.json`.
-- The four main automation lanes run 4x/day each and are staggered to avoid overlap: Canva `00:00/06:00/12:00/18:00`, Figma `01:15/07:15/13:15/19:15`, rebuild `02:30/08:30/14:30/20:30`, and audit `03:45/09:45/15:45/21:45`.
+- The primary beta-build automation is now `senior-capstone-rebuild-rebuilt`, renamed in the app as `Senior Capstone Beta Evolution Loop`, running every 30 minutes all day every day at minute `00` and `30`. It uses the master plan and logs to choose one bounded beta-advancing slice per run until the app reaches a real beta.
+- Specialist lane jobs still exist for Figma, Canva, content audit, daily report, and weekly deep audit. The 30-minute beta loop is the primary continuous runner; weekly deep audit remains separate for long severe review.
 - The four main automation lanes and the daily reporting automation now read the shared memory, run log, handoff ledger, and decision log before choosing work or summarizing progress.
 - Every main lane prompt now requires a lane log entry, compact run-log entry, relevant memory/handoff/decision updates, verification, commit, and push.
 - Every main lane and the daily reporting automation now reference `docs/master-plan.md` along with the logs.
 - Daily automation summaries and the Google Drive/Doc target should use `bryan.timm89@gmail.com`.
 - Every main lane and the daily reporting automation now use `docs/automation-self-improvement.md` to self-review, log whether prompt/config changes were needed, and update only their own live automation prompt/config when evidence justifies it.
-- A weekly deep audit automation, `senior-capstone-weekly-deep-audit-rebuilt`, now runs Sundays at `23:30 PT` to produce a severe whole-system audit and feed durable findings into the master plan, memory, backlog, handoffs, decision log, and run logs.
+- A weekly deep audit automation, `senior-capstone-weekly-deep-audit-rebuilt`, now runs Sundays at `23:45 PT` to produce a severe whole-system audit and feed durable findings into the master plan, memory, backlog, handoffs, decision log, and run logs without sharing an exact start slot with the 30-minute beta loop.
 - Automation operating infrastructure now includes prompt snapshots in `docs/automation-prompts/`, structured run manifests in `docs/progress/runs/`, human decisions in `docs/human-decisions.md`, external artifact registry in `docs/artifacts.json`, and contract scripts in `scripts/`.
 - Rebuild and content audit lane logs now exist at `docs/progress/rebuild.md` and `docs/progress/audit.md`; `scripts/check-automation-contract.ps1` requires both so future automation reviews catch missing lane-log anchors.
 
@@ -67,8 +68,11 @@ Current backlog anchors:
 - Canva folder: `FAHJ-n-VqFE`.
 - Canva asset: `DAHJ-v7TOM8`, proposal approval process strip, no-text 1600x500, palette from `styles.css`.
 - Next Canva priority: proposal dashboard empty-state family.
-- Active Figma product UI file: `https://www.figma.com/design/LLucMgAPscRa9020iHHigB` (`LLucMgAPscRa9020iHHigB`). Regenerated after the Figma account update; canvas writing succeeded under authenticated account `timmb@nv.ccsd.net`.
-- Active Figma repo spec: `docs/design/figma-first-pass-product-system.md`.
+- Active Figma product UI file: `https://www.figma.com/design/z4t4tFPAKrMDh6pIYOeEw6` (`z4t4tFPAKrMDh6pIYOeEw6`). Created and populated in Bryan's `Senior Project App` Figma team/project, team id `1638213362346160913`, plan key `team::1638213362346160913`.
+- Active Figma file contains four pages: `00 Master Plan + Foundations`, `01 Components + App Screens`, `02 Automation Handoff`, and `03 Product Preview + State Variants`. Key frames include foundations board `2:5`, components board `3:2`, student desktop `3:66`, guided proposal `3:154`, teacher queue `3:190`, mentor/admin snapshots `3:246`, mobile student `3:301`, handoff board `5:2`, state variants board `6:2`, review drawer `6:198`, admin override modal `6:219`, and rebuild mapping `6:257`.
+- Preferred Figma write target remains Bryan's `Senior Project App` Figma team/project, team id `1638213362346160913`, plan key `team::1638213362346160913`, URL `https://www.figma.com/files/team/1638213362346160913/all-projects?fuid=1601310066605052228`. Future Figma automation should continue active work in file `z4t4tFPAKrMDh6pIYOeEw6`.
+- Prior regenerated Figma file for reference only: `https://www.figma.com/design/LLucMgAPscRa9020iHHigB` (`LLucMgAPscRa9020iHHigB`). It was created under the older target `team::1601310068697743794`, which is the team id shown in the previous MCP rate-limit/paywall URL.
+- Active Figma repo specs: `docs/design/figma-first-pass-product-system.md` and `docs/design/figma-product-preview-state-variants.md`.
 - Superseded Figma historical file: `https://www.figma.com/design/fkfNI9JNy0A3Rm8KnoxJLj` (`fkfNI9JNy0A3Rm8KnoxJLj`). File creation succeeded but canvas write was blocked by the prior Starter MCP tool-call limit.
 - Canva first-pass folder: `FAHJ-8DxQyk`, `https://www.canva.com/folder/FAHJ-8DxQyk`.
 - Canva first-pass workflow infographic: `DAHJ-3dKnPU`, edit `https://www.canva.com/d/C-dVNnTDKRODcKi`, view `https://www.canva.com/d/tfRo2Sq_1JHu0zu`.
@@ -85,13 +89,17 @@ Read `docs/progress/decision-log.md` for accepted or superseded decisions.
 - `D-2026-05-18-003`: daily automation summaries and Google Drive/Doc target account use `bryan.timm89@gmail.com`.
 - `D-2026-05-18-004`: automations may improve their own prompt/config from evidence using the guarded self-improvement protocol, while preserving schedule/workspace/model/status unless the user explicitly asks otherwise.
 - `D-2026-05-18-005`: run a weekly deep audit automation to perform a long piece-by-piece whole-system review and feed findings back into the master plan and logs.
+- `D-2026-05-18-006`: superseded by `D-2026-05-18-009` and `D-2026-05-18-010`; prior regenerated Figma file `LLucMgAPscRa9020iHHigB` is now reference-only rather than the active writable target.
 - `D-2026-05-18-007`: automations use prompt snapshots, structured run manifests, human decisions, artifact registry, and a contract checker as core operating infrastructure.
 - `D-2026-05-18-008`: MVP 1.0 is a secure database/account/group/progress foundation hosted through GitHub to Cloudflare; Figma and Canva are heavy product/visual inputs; 2.0 may add iOS/Android notifications and announcements, with no student messaging.
+- `D-2026-05-18-009`: Figma product-design automation should target Bryan's `Senior Project App` team/project (`team::1638213362346160913`) for future writes because repeated MCP rate-limit errors were pointing at the older team `team::1601310068697743794`.
+- `D-2026-05-18-010`: active Figma product UI source was recreated and continued in the new `Senior Project App` team as file `z4t4tFPAKrMDh6pIYOeEw6`; final screenshot/metadata verification is still blocked by the new team's MCP quota until calls reset.
+- `D-2026-05-18-011`: the consolidated Senior Capstone beta evolution loop runs every 30 minutes all day every day and keeps upgrading the project from the master plan and logs until beta.
 
 Current rebuilt automation IDs:
 - `senior-capstone-canva-visual-system-rebuilt`
 - `senior-capstone-figma-product-design-rebuilt`
-- `senior-capstone-rebuild-rebuilt`
+- `senior-capstone-rebuild-rebuilt` (`Senior Capstone Beta Evolution Loop`, primary every-30-minute beta runner)
 - `senior-capstone-content-quality-audits-rebuilt`
 - `senior-capstone-daily-automation-report-rebuilt`
 - `senior-capstone-weekly-deep-audit-rebuilt`

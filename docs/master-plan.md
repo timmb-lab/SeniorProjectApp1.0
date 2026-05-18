@@ -230,6 +230,8 @@ Every productive automation run must reference:
 - `docs/artifacts.json` when external artifacts are created, consumed, superseded, or verified.
 - `docs/human-decisions.md` when a human-level decision is needed or changed.
 
+For automation control, this file is the master planner. The pass logger is `docs/progress/run-log.md` plus the structured manifest written to `docs/progress/runs/` and the lane/report log. If an automation changes those operating rules, it must update the relevant live prompt or support script, especially `scripts/check-automation-contract.ps1`, in the same pass.
+
 Each run must log:
 
 - Which master-plan section justified the slice.

@@ -25,6 +25,34 @@ Automation operating infrastructure now includes:
 - `scripts/snapshot-automation-prompts.ps1`: regenerates prompt snapshots from live automation TOML files.
 - `scripts/check-automation-contract.ps1`: validates live prompts, snapshots, registry files, and required automation contract references.
 
+## Connector Approval Preflight
+
+Unattended automations must not discover a write-approval prompt only after they have started a connector action. Connector write access is a local Codex app preflight item, not something a prompt can reliably solve after the tool call is already waiting.
+
+Before a scheduled automation depends on an external write tool, verify that the needed tool is either already allowed in `C:\Users\bryan\.codex\config.toml` or that the automation has an explicit repo fallback.
+
+For the daily Senior Capstone Google Doc report, the required Google Drive write grants are:
+
+```toml
+[apps.connector_5f3c8c41a1e54ad7a76272c89e2554fa.tools."google drive_create_file"]
+approval_mode = "approve"
+
+[apps.connector_5f3c8c41a1e54ad7a76272c89e2554fa.tools."google drive_batch_update_document"]
+approval_mode = "approve"
+```
+
+If a grant is missing, Bryan must run the action once while present and choose `Always allow`, or the automation must skip that connector write and use its committed repo fallback. Do not rely on a future unattended run to click approval. For email reporting, prefer drafts over direct sends unless Bryan has explicitly approved unattended sending.
+
+## Autonomous Loop Contract
+
+The automation system has three durable control surfaces:
+
+- Master planner: `docs/master-plan.md`. Every run reads it first, names the section that justifies the selected slice, and updates it only when evidence shows the destination, source order, milestone path, or anti-drift rules are stale.
+- Pass logger: `docs/progress/run-log.md` plus one structured JSON manifest in `docs/progress/runs/` and the relevant lane/report log. Every productive run writes all three layers so the next run can continue without relying on chat history.
+- Self-patching contract: the live automation prompt, `docs/automation-prompts/`, `scripts/snapshot-automation-prompts.ps1`, and `scripts/check-automation-contract.ps1`. When a run changes the automation operating contract, it must update the relevant prompt or support script in the same pass, regenerate snapshots when live prompts changed, run the checker, log the evidence, commit, and push.
+
+The loop should be able to run repeatedly: planner -> bounded work -> pass logger -> self-review -> narrow prompt/script patch when evidence justifies it -> validation -> commit/push.
+
 ## Required Source Materials
 
 The app framework now includes the four source PDFs the school uses to run the Senior Project cycle.
@@ -144,6 +172,7 @@ At the end of every run, leave enough memory for the next lane to continue witho
 - Update `docs/human-decisions.md` when a decision needs Bryan's judgment, account access, provisioning, budget, privacy approval, or school-operation confirmation.
 - Run the self-improvement closeout from `docs/automation-self-improvement.md`: record `self-improvement: none` when no prompt/config change is justified, or update only the automation's own prompt/config with evidence and a log entry when a narrow change is justified.
 - If a live automation prompt/config changed, run `scripts/snapshot-automation-prompts.ps1`, then run `scripts/check-automation-contract.ps1`, and commit the updated prompt snapshots.
+- If the master planner, pass logger, or self-patching contract changed, update `scripts/check-automation-contract.ps1` in the same pass when the checker needs to enforce the new rule.
 
 Do not make vague log entries such as "made improvements." Every log entry should name files, artifacts, checks, decisions, blockers, and the next specific action.
 

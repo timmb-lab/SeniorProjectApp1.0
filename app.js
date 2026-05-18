@@ -1696,6 +1696,7 @@ const vocabularyTerms = [
 
 const navItems = [
   { page: "home", label: "Home", href: "index.html" },
+  { page: "app-preview", label: "Product App Preview", href: "app-preview.html" },
   { page: "process", label: "Process", href: "process.html" },
   { page: "pacing", label: "Pacing", href: "pacing.html" },
   { page: "examples", label: "Examples", href: "examples.html" },
@@ -1705,6 +1706,141 @@ const navItems = [
   { page: "portfolio", label: "Portfolio", href: "portfolio.html" },
   { page: "rubrics", label: "Rubrics", href: "rubrics.html" },
   { page: "grades", label: "Grades", href: "grades.html" }
+];
+
+const productPreviewRoles = [
+  {
+    id: "student",
+    label: "Student",
+    scope: "Own workspace, own submissions, visible feedback, private evidence.",
+    nav: ["My Progress", "Submit Work", "Feedback", "Deadlines", "Portfolio", "Resources"]
+  },
+  {
+    id: "teacher",
+    label: "Program Teacher",
+    scope: "Assigned program/cohort submissions, review decisions, interventions, reports.",
+    nav: ["Program Dashboard", "Students", "Review Queue", "Requirements", "Deadlines", "Reports"]
+  },
+  {
+    id: "mentor",
+    label: "Mentor",
+    scope: "Assigned students only, meeting support, presentation readiness, comments.",
+    nav: ["Assigned Students", "Review Queue", "Meetings", "Presentation Prep", "Comments"]
+  },
+  {
+    id: "admin",
+    label: "Admin",
+    scope: "System-level setup, role assignments, deadlines, exports, audit log, overrides.",
+    nav: ["Overview", "Programs", "Users", "Assignments", "Exports", "Audit Log", "Settings"]
+  }
+];
+
+const productMetrics = {
+  student: [
+    { value: "7/9", label: "Research sections complete", detail: "Problem, sources, quote, counterclaim, and draft saved.", tone: "blue" },
+    { value: "3", label: "Evidence artifacts", detail: "Two uploads and one checked external link.", tone: "teal" },
+    { value: "Nov 14", label: "Approval target", detail: "Proposal approval checkpoint.", tone: "amber" },
+    { value: "1", label: "Open revision", detail: "Teacher feedback is ready for resubmission.", tone: "red" }
+  ],
+  teacher: [
+    { value: "18", label: "Awaiting review", detail: "Proposal or research challenge submitted.", tone: "blue" },
+    { value: "9", label: "Revision loops", detail: "Students with more than one request.", tone: "amber" },
+    { value: "6", label: "Evidence risks", detail: "Missing sources or inaccessible links.", tone: "red" },
+    { value: "12", label: "Approved this week", detail: "Ready for build-phase check-ins.", tone: "green" }
+  ],
+  mentor: [
+    { value: "14", label: "Assigned students", detail: "Visible through mentor scope only.", tone: "blue" },
+    { value: "5", label: "Meetings due", detail: "Need scheduling or make-up notes.", tone: "amber" },
+    { value: "4", label: "Presentation risks", detail: "Outline missing or slot unconfirmed.", tone: "red" },
+    { value: "8", label: "Ready to coach", detail: "Students with fresh evidence to discuss.", tone: "green" }
+  ],
+  admin: [
+    { value: "486", label: "Cohort records", detail: "Sample operational student records.", tone: "blue" },
+    { value: "27", label: "Missing mentors", detail: "Assignment gaps before Phase 2B.", tone: "amber" },
+    { value: "11", label: "Provisioning issues", detail: "Accounts or roles need correction.", tone: "red" },
+    { value: "4", label: "Exports queued", detail: "Archive packages awaiting generation.", tone: "teal" }
+  ]
+};
+
+const productPhaseProgress = [
+  { label: "Setup", status: "Approved", detail: "Workspace, program, cohort, and role scope created." },
+  { label: "Proposal", status: "Revision requested", detail: "Teacher asked for clearer CTE evidence." },
+  { label: "Research", status: "Draft", detail: "Two sections still need completion." },
+  { label: "Build", status: "Not started", detail: "Unlocks after proposal approval." },
+  { label: "Present", status: "Locked", detail: "Presentation outline opens in Phase 2B." }
+];
+
+const researchSections = [
+  { title: "Problem And Proposed Solution", status: "Approved", meta: "Specific audience and project goal." },
+  { title: "Three Sources", status: "Submitted", meta: "3 sources attached, one needs access check." },
+  { title: "Key Quote", status: "Draft", meta: "Quote saved; explanation needs revision." },
+  { title: "Counterclaim", status: "Draft", meta: "Student started but not submitted." },
+  { title: "Refutation", status: "Not started", meta: "Required before submit." },
+  { title: "Student Draft", status: "Submitted", meta: "Locked while under review." },
+  { title: "AI Feedback Used", status: "Under review", meta: "Feedback present, final revision missing." },
+  { title: "Final Student Version", status: "Revision requested", meta: "Teacher feedback attached." },
+  { title: "Why It Matters", status: "Draft", meta: "Needs stronger CTE program connection." }
+];
+
+const submissionCards = [
+  { title: "Core Concept Proposal", status: "Revision requested", due: "Nov 14", detail: "Clarify CTE skill, testing plan, and final evidence.", action: "Open Feedback" },
+  { title: "Research Proposal Challenge", status: "Draft", due: "Nov 18", detail: "Two required sections remain before submit.", action: "Continue Draft" },
+  { title: "Private Evidence Space", status: "Submitted", due: "Rolling", detail: "3 artifacts mapped to proposal and research.", action: "Add Evidence" },
+  { title: "Mentor Meeting Prep", status: "Not started", due: "Dec 06", detail: "Unlocks after proposal resubmission.", action: "Preview Prep" }
+];
+
+const evidenceArtifacts = [
+  { title: "Project proposal draft v2", type: "Document", owner: "Student", visibility: "Private to student and assigned staff", status: "Revision requested" },
+  { title: "Audience survey notes", type: "Upload", owner: "Student", visibility: "Program teacher and mentor", status: "Submitted" },
+  { title: "Source article link", type: "External link", owner: "Student", visibility: "Access check needed", status: "Blocked" },
+  { title: "Teacher coaching note", type: "Staff note", owner: "Program teacher", visibility: "Staff only", status: "Under review" }
+];
+
+const teacherQueueRows = [
+  { student: "Sample Student A", program: "IT", requirement: "Research Challenge", status: "Revision requested", evidence: 3, sources: 2, revisions: 2, last: "Today", due: "Nov 18", action: "Review" },
+  { student: "Sample Student B", program: "Culinary", requirement: "Core Concept Proposal", status: "Submitted", evidence: 1, sources: 0, revisions: 0, last: "Yesterday", due: "Nov 14", action: "Open" },
+  { student: "Sample Student C", program: "Medical Professions", requirement: "Safety Scope", status: "Blocked", evidence: 2, sources: 3, revisions: 1, last: "2 days ago", due: "Nov 14", action: "Escalate" },
+  { student: "Sample Student D", program: "Construction", requirement: "Materials Plan", status: "Under review", evidence: 5, sources: 1, revisions: 0, last: "3 days ago", due: "Nov 21", action: "Approve" },
+  { student: "Sample Student E", program: "Teaching & Training", requirement: "Proposal", status: "Approved", evidence: 4, sources: 3, revisions: 1, last: "This week", due: "Complete", action: "Archive" }
+];
+
+const mentorRows = [
+  { student: "Sample Student A", meeting: "Needs make-up", readiness: "Outline missing", evidence: "No new artifact in 9 days", status: "Blocked" },
+  { student: "Sample Student F", meeting: "Scheduled", readiness: "Draft outline ready", evidence: "2 fresh uploads", status: "Submitted" },
+  { student: "Sample Student G", meeting: "Complete", readiness: "Needs practice questions", evidence: "Prototype photos added", status: "Under review" },
+  { student: "Sample Student H", meeting: "Not scheduled", readiness: "Presentation slot missing", evidence: "Research approved", status: "Revision requested" }
+];
+
+const programHealthRows = [
+  { program: "IT", completion: 78, backlog: 9, risk: "Evidence access checks", tone: "blue" },
+  { program: "Culinary", completion: 64, backlog: 14, risk: "Costing and safety plans", tone: "amber" },
+  { program: "Medical Professions", completion: 58, backlog: 11, risk: "Scope and source accuracy", tone: "red" },
+  { program: "Construction", completion: 71, backlog: 7, risk: "Materials approval", tone: "teal" },
+  { program: "Teaching & Training", completion: 82, backlog: 5, risk: "Learner feedback evidence", tone: "green" }
+];
+
+const auditEvents = [
+  { action: "Role assignment changed", actor: "Admin", scope: "Program teacher -> IT cohort", status: "Overridden" },
+  { action: "Private evidence accessed", actor: "Program teacher", scope: "Assigned student only", status: "Approved" },
+  { action: "Revision requested", actor: "Program teacher", scope: "Proposal v2", status: "Revision requested" },
+  { action: "Export package queued", actor: "Admin", scope: "Student archive", status: "Under review" }
+];
+
+const productStateCards = [
+  { title: "Permission Denied", status: "Rejected", detail: "Mentors see assigned students only. Misc admin sees explicitly granted dashboards only." },
+  { title: "Upload Failed", status: "Blocked", detail: "Student can retry, replace, or attach an external link without exposing a public file URL." },
+  { title: "Submission Locked", status: "Under review", detail: "Draft fields lock while a reviewer is making a decision, with version history still visible." },
+  { title: "Resubmission Ready", status: "Revision requested", detail: "Feedback routes back to the exact section that must change before the next submit." },
+  { title: "Admin Override", status: "Overridden", detail: "Override requires a reason and writes an audit event before state changes." },
+  { title: "Empty Queue", status: "Archived", detail: "Empty states explain the missing action, filter, or assignment instead of showing a blank panel." }
+];
+
+const componentVariantGroups = [
+  { name: "Status Pill", variants: ["Draft", "Submitted", "Under review", "Revision requested", "Approved", "Blocked", "Overridden"] },
+  { name: "Submission Card", variants: ["No work started", "Draft saved", "Submitted locked", "Revision open", "Approved"] },
+  { name: "Evidence Row", variants: ["Upload", "External link", "Staff note", "Access check", "Failed upload"] },
+  { name: "Review Drawer", variants: ["Comment", "Request revision", "Approve", "Escalate", "Flag weak CTE alignment"] },
+  { name: "Admin Modal", variants: ["Role edit", "Deadline change", "Override reason", "Export confirmation"] }
 ];
 
 const state = {
@@ -2418,6 +2554,7 @@ function supportCardHtml([title, body, href]) {
 
 function supportCardsHtml() {
   return [
+    ["Product App Preview", "See the Figma-aligned student, teacher, mentor, and admin app surface.", "app-preview.html"],
     ["Pacing", "See what should happen now, next, and later.", "pacing.html"],
     ["Examples", "Look at weak, better, and strongest samples.", "examples.html"],
     ["Official Links", "Find where current teacher links and deadlines live.", "links.html"],
@@ -2429,6 +2566,534 @@ function supportCardsHtml() {
   ]
     .map(supportCardHtml)
     .join("");
+}
+
+function productStatusClass(status) {
+  return slug(status).replace("locked", "blocked");
+}
+
+function productStatusPillHtml(status) {
+  return `<span class="product-status product-status-${productStatusClass(status)}">${status}</span>`;
+}
+
+function productMetricCardHtml(metric) {
+  return `
+    <article class="product-metric product-tone-${metric.tone}">
+      <strong>${metric.value}</strong>
+      <span>${metric.label}</span>
+      <p>${metric.detail}</p>
+    </article>
+  `;
+}
+
+function productMetricsHtml(roleId) {
+  return `<div class="product-metric-grid">${productMetrics[roleId].map(productMetricCardHtml).join("")}</div>`;
+}
+
+function productRoleTabsHtml() {
+  return `
+    <div class="product-role-tabs" role="tablist" aria-label="Preview role">
+      ${productPreviewRoles
+        .map(
+          (role, index) => `
+            <button
+              class="product-role-tab"
+              type="button"
+              role="tab"
+              id="tab-${role.id}"
+              aria-controls="panel-${role.id}"
+              aria-selected="${index === 0 ? "true" : "false"}"
+              data-product-role="${role.id}"
+            >
+              <span>${role.label}</span>
+              <small>${role.scope}</small>
+            </button>
+          `
+        )
+        .join("")}
+    </div>
+  `;
+}
+
+function productNavRailHtml(role) {
+  return `
+    <nav class="product-mini-nav" aria-label="${role.label} app navigation">
+      ${role.nav.map((item, index) => `<a href="#${role.id}-${slug(item)}" ${index === 0 ? `aria-current="page"` : ""}>${item}</a>`).join("")}
+    </nav>
+  `;
+}
+
+function productProgressStripHtml() {
+  return `
+    <div class="product-progress-strip" aria-label="Student phase progress">
+      ${productPhaseProgress
+        .map(
+          (item) => `
+            <article>
+              ${productStatusPillHtml(item.status)}
+              <h3>${item.label}</h3>
+              <p>${item.detail}</p>
+            </article>
+          `
+        )
+        .join("")}
+    </div>
+  `;
+}
+
+function productSubmissionCardsHtml() {
+  return `
+    <div class="product-card-grid">
+      ${submissionCards
+        .map(
+          (card) => `
+            <article class="product-submission-card">
+              <div class="product-card-meta">
+                ${productStatusPillHtml(card.status)}
+                <span class="product-due">${card.due}</span>
+              </div>
+              <h3>${card.title}</h3>
+              <p>${card.detail}</p>
+              <button class="small-button" type="button">${card.action}</button>
+            </article>
+          `
+        )
+        .join("")}
+    </div>
+  `;
+}
+
+function researchSectionsHtml() {
+  return `
+    <div class="research-section-list">
+      ${researchSections
+        .map(
+          (section, index) => `
+            <article class="research-section-row">
+              <span class="research-section-number">${index + 1}</span>
+              <div>
+                <h3>${section.title}</h3>
+                <p>${section.meta}</p>
+              </div>
+              ${productStatusPillHtml(section.status)}
+            </article>
+          `
+        )
+        .join("")}
+    </div>
+  `;
+}
+
+function evidenceRowsHtml() {
+  return `
+    <div class="product-table evidence-table" role="table" aria-label="Evidence artifacts">
+      <div class="product-table-row product-table-head" role="row">
+        <span role="columnheader">Artifact</span>
+        <span role="columnheader">Type</span>
+        <span role="columnheader">Visibility</span>
+        <span role="columnheader">Status</span>
+      </div>
+      ${evidenceArtifacts
+        .map(
+          (item) => `
+            <div class="product-table-row" role="row">
+              <span role="cell"><strong>${item.title}</strong><small>${item.owner}</small></span>
+              <span role="cell">${item.type}</span>
+              <span role="cell">${item.visibility}</span>
+              <span role="cell">${productStatusPillHtml(item.status)}</span>
+            </div>
+          `
+        )
+        .join("")}
+    </div>
+  `;
+}
+
+function teacherQueueHtml() {
+  return `
+    <div class="product-table review-queue-table" role="table" aria-label="Program teacher review queue">
+      <div class="product-table-row product-table-head" role="row">
+        <span role="columnheader">Student</span>
+        <span role="columnheader">Requirement</span>
+        <span role="columnheader">Signals</span>
+        <span role="columnheader">Status</span>
+        <span role="columnheader">Action</span>
+      </div>
+      ${teacherQueueRows
+        .map(
+          (row) => `
+            <div class="product-table-row" role="row">
+              <span role="cell"><strong>${row.student}</strong><small>${row.program}</small></span>
+              <span role="cell">${row.requirement}<small>Due ${row.due}</small></span>
+              <span role="cell">${row.evidence} evidence / ${row.sources} sources / ${row.revisions} revisions<small>Last activity ${row.last}</small></span>
+              <span role="cell">${productStatusPillHtml(row.status)}</span>
+              <span role="cell"><button class="small-button" type="button">${row.action}</button></span>
+            </div>
+          `
+        )
+        .join("")}
+    </div>
+  `;
+}
+
+function mentorRowsHtml() {
+  return `
+    <div class="mentor-card-list">
+      ${mentorRows
+        .map(
+          (row) => `
+            <article class="mentor-student-card">
+              <div class="product-card-meta">
+                <strong>${row.student}</strong>
+                ${productStatusPillHtml(row.status)}
+              </div>
+              <dl>
+                <div><dt>Meeting</dt><dd>${row.meeting}</dd></div>
+                <div><dt>Readiness</dt><dd>${row.readiness}</dd></div>
+                <div><dt>Evidence</dt><dd>${row.evidence}</dd></div>
+              </dl>
+              <button class="small-button" type="button">Add Mentor Note</button>
+            </article>
+          `
+        )
+        .join("")}
+    </div>
+  `;
+}
+
+function programHealthHtml() {
+  return `
+    <div class="program-health-list">
+      ${programHealthRows
+        .map(
+          (row) => `
+            <article class="program-health-row product-tone-${row.tone}">
+              <div>
+                <h3>${row.program}</h3>
+                <p>${row.risk}</p>
+              </div>
+              <div class="program-health-meter" aria-label="${row.program} ${row.completion}% complete">
+                <span style="width: ${row.completion}%"></span>
+              </div>
+              <strong>${row.completion}%</strong>
+              <span>${row.backlog} backlog</span>
+            </article>
+          `
+        )
+        .join("")}
+    </div>
+  `;
+}
+
+function auditEventsHtml() {
+  return `
+    <div class="audit-event-list">
+      ${auditEvents
+        .map(
+          (event) => `
+            <article class="audit-event-row">
+              ${productStatusPillHtml(event.status)}
+              <div>
+                <h3>${event.action}</h3>
+                <p>${event.actor} / ${event.scope}</p>
+              </div>
+            </article>
+          `
+        )
+        .join("")}
+    </div>
+  `;
+}
+
+function productStatesHtml() {
+  return `
+    <div class="product-state-grid">
+      ${productStateCards
+        .map(
+          (stateCard) => `
+            <article class="product-state-card">
+              ${productStatusPillHtml(stateCard.status)}
+              <h3>${stateCard.title}</h3>
+              <p>${stateCard.detail}</p>
+            </article>
+          `
+        )
+        .join("")}
+    </div>
+  `;
+}
+
+function componentVariantsHtml() {
+  return `
+    <div class="component-variant-grid">
+      ${componentVariantGroups
+        .map(
+          (group) => `
+            <article class="component-variant-card">
+              <h3>${group.name}</h3>
+              <div class="component-chip-list">
+                ${group.variants.map((variant) => `<span>${variant}</span>`).join("")}
+              </div>
+            </article>
+          `
+        )
+        .join("")}
+    </div>
+  `;
+}
+
+function studentRolePanelHtml() {
+  const role = productPreviewRoles.find((item) => item.id === "student");
+  return `
+    <section class="product-role-panel" id="panel-student" role="tabpanel" aria-labelledby="tab-student">
+      <div class="product-panel-header">
+        <div>
+          <p class="eyebrow">Student workspace</p>
+          <h2>Know The Next Move</h2>
+          <p>The student view stays calm: current phase, one next action, feedback, evidence, and clear resubmission paths.</p>
+        </div>
+        ${productNavRailHtml(role)}
+      </div>
+      ${productMetricsHtml("student")}
+      <article class="student-next-action">
+        <div>
+          ${productStatusPillHtml("Revision requested")}
+          <h3>Finish Research Proposal Challenge</h3>
+          <p>Teacher feedback asks for a stronger CTE connection, a verified third source, and a final student revision.</p>
+        </div>
+        <div class="student-action-buttons">
+          <button class="button button-primary" type="button">Continue Draft</button>
+          <button class="button" type="button">View Feedback</button>
+        </div>
+      </article>
+      ${productProgressStripHtml()}
+      <div class="product-two-column">
+        <section class="product-preview-card">
+          <div class="section-subhead">
+            <p class="eyebrow">Submissions</p>
+            <h3>Current Work</h3>
+          </div>
+          ${productSubmissionCardsHtml()}
+        </section>
+        <section class="product-preview-card">
+          <div class="section-subhead">
+            <p class="eyebrow">Guided quality engine</p>
+            <h3>Research Sections</h3>
+          </div>
+          ${researchSectionsHtml()}
+        </section>
+      </div>
+      <section class="product-preview-card">
+        <div class="section-subhead">
+          <p class="eyebrow">Private evidence</p>
+          <h3>Uploads, Links, And Staff Notes</h3>
+        </div>
+        ${evidenceRowsHtml()}
+      </section>
+    </section>
+  `;
+}
+
+function teacherRolePanelHtml() {
+  const role = productPreviewRoles.find((item) => item.id === "teacher");
+  return `
+    <section class="product-role-panel" id="panel-teacher" role="tabpanel" aria-labelledby="tab-teacher" hidden>
+      <div class="product-panel-header">
+        <div>
+          <p class="eyebrow">Program teacher dashboard</p>
+          <h2>Review Faster, Intervene Earlier</h2>
+          <p>The staff surface is denser: filters, review queue, evidence risks, source counts, revision loops, and direct actions.</p>
+        </div>
+        ${productNavRailHtml(role)}
+      </div>
+      ${productMetricsHtml("teacher")}
+      <section class="product-preview-card">
+        <div class="product-filter-bar" aria-label="Queue filters">
+          <span>Program: All assigned</span>
+          <span>Cohort: Class of 2026</span>
+          <span>Status: Action needed</span>
+          <span>Overdue: On</span>
+        </div>
+        ${teacherQueueHtml()}
+      </section>
+      <div class="product-two-column product-two-column-rail">
+        <section class="product-preview-card">
+          <div class="section-subhead">
+            <p class="eyebrow">Top interventions</p>
+            <h3>What Needs Coaching</h3>
+          </div>
+          ${listHtml([
+            "Projects too vague to prove a senior-level CTE skill.",
+            "Research challenge has AI feedback but no final student revision.",
+            "Medical and food-related projects need explicit safety or scope notes.",
+            "External links need access checks before reviewers can approve evidence."
+          ], "ada-list product-alert-list")}
+        </section>
+        <section class="product-preview-card">
+          <div class="section-subhead">
+            <p class="eyebrow">Review drawer</p>
+            <h3>Decision Actions</h3>
+          </div>
+          <div class="review-action-stack">
+            <button class="small-button" type="button">Approve</button>
+            <button class="small-button" type="button">Request Revision</button>
+            <button class="small-button" type="button">Flag Weak CTE Alignment</button>
+            <button class="small-button" type="button">Escalate</button>
+          </div>
+        </section>
+      </div>
+    </section>
+  `;
+}
+
+function mentorRolePanelHtml() {
+  const role = productPreviewRoles.find((item) => item.id === "mentor");
+  return `
+    <section class="product-role-panel" id="panel-mentor" role="tabpanel" aria-labelledby="tab-mentor" hidden>
+      <div class="product-panel-header">
+        <div>
+          <p class="eyebrow">Mentor dashboard</p>
+          <h2>Coach Assigned Students Only</h2>
+          <p>Mentors see meeting status, presentation readiness, recent evidence, and comments for assigned students without broad cohort access.</p>
+        </div>
+        ${productNavRailHtml(role)}
+      </div>
+      ${productMetricsHtml("mentor")}
+      ${mentorRowsHtml()}
+      <section class="product-preview-card">
+        <div class="section-subhead">
+          <p class="eyebrow">Meeting workflow</p>
+          <h3>Mentor Support States</h3>
+        </div>
+        ${productStatesHtml()}
+      </section>
+    </section>
+  `;
+}
+
+function adminRolePanelHtml() {
+  const role = productPreviewRoles.find((item) => item.id === "admin");
+  return `
+    <section class="product-role-panel" id="panel-admin" role="tabpanel" aria-labelledby="tab-admin" hidden>
+      <div class="product-panel-header">
+        <div>
+          <p class="eyebrow">Admin overview</p>
+          <h2>Run The Cohort Safely</h2>
+          <p>Admin tools focus on provisioning, assignments, exports, audit events, deadline pressure, and audited overrides.</p>
+        </div>
+        ${productNavRailHtml(role)}
+      </div>
+      ${productMetricsHtml("admin")}
+      <div class="product-two-column product-two-column-rail">
+        <section class="product-preview-card">
+          <div class="section-subhead">
+            <p class="eyebrow">Program comparison</p>
+            <h3>Cohort Health</h3>
+          </div>
+          ${programHealthHtml()}
+        </section>
+        <section class="product-preview-card">
+          <div class="section-subhead">
+            <p class="eyebrow">Audit-sensitive</p>
+            <h3>Recent Events</h3>
+          </div>
+          ${auditEventsHtml()}
+        </section>
+      </div>
+      <section class="product-preview-card">
+        <div class="section-subhead">
+          <p class="eyebrow">System states</p>
+          <h3>Permissions, Uploads, Locks, And Overrides</h3>
+        </div>
+        ${productStatesHtml()}
+      </section>
+    </section>
+  `;
+}
+
+function productRolePanelsHtml() {
+  return `
+    ${studentRolePanelHtml()}
+    ${teacherRolePanelHtml()}
+    ${mentorRolePanelHtml()}
+    ${adminRolePanelHtml()}
+  `;
+}
+
+function setupProductPreviewInteractions(root) {
+  const tabs = [...root.querySelectorAll("[data-product-role]")];
+  const panels = [...root.querySelectorAll(".product-role-panel")];
+  tabs.forEach((tab) => {
+    tab.addEventListener("click", () => {
+      const role = tab.dataset.productRole;
+      tabs.forEach((item) => item.setAttribute("aria-selected", item === tab ? "true" : "false"));
+      panels.forEach((panel) => {
+        panel.hidden = panel.id !== `panel-${role}`;
+      });
+    });
+  });
+}
+
+function renderAppPreviewPage(root) {
+  document.title = "Product App Preview | Senior Capstone Project";
+  root.innerHTML = `
+    ${pageHeroHtml({
+      eyebrow: "Figma-driven product upgrade",
+      title: "Role-Aware Capstone App Preview",
+      summary:
+        "A rebuild-ready product surface for students, mentors, program teachers, and admins. This preview uses sample data only, but it models the real workflows the hosted app needs: private evidence, review decisions, revision loops, dashboards, and audit-safe operations."
+    })}
+    <section class="section section-tight">
+      <div class="product-preview-shell">
+        <aside class="product-sidebar" aria-label="Product roles">
+          <div>
+            <p class="eyebrow">Preview roles</p>
+            <h2>Switch View</h2>
+          </div>
+          ${productRoleTabsHtml()}
+          <div class="product-sidebar-note">
+            <strong>Figma source</strong>
+            <p>Targets active Figma file z4t4tFPAKrMDh6pIYOeEw6 and the documented next slice: richer states, review drawer, upload failures, permissions, and resubmission paths.</p>
+          </div>
+        </aside>
+        <div class="product-workspace">
+          <div class="product-topbar" aria-label="App controls">
+            <label class="product-search">
+              <span>Search students, submissions, evidence</span>
+              <input type="search" value="proposal evidence risks" aria-label="Search preview data">
+            </label>
+            <div class="product-control-chips" aria-label="Active filters">
+              <span>Class of 2026</span>
+              <span>All programs</span>
+              <span>Action needed</span>
+            </div>
+          </div>
+          ${productRolePanelsHtml()}
+        </div>
+      </div>
+    </section>
+    <section class="section" aria-labelledby="component-states-title">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Component system</p>
+          <h2 id="component-states-title">Variants Figma Should Carry Forward</h2>
+        </div>
+        <p class="section-note">These are the component families and states that should become reusable Figma variants before production build-out.</p>
+      </div>
+      ${componentVariantsHtml()}
+    </section>
+    <section class="section" aria-labelledby="implementation-notes-title">
+      <div class="plain-card stack product-implementation-note">
+        <p class="eyebrow">Implementation guardrail</p>
+        <h2 id="implementation-notes-title">This Is A Preview, Not Fake Production State</h2>
+        <p>
+          The final hosted app still needs database-backed accounts, roles, permissions, private uploads, status history, review decisions, audit logs, tests, and Cloudflare deployment before it should manage real student records.
+        </p>
+      </div>
+    </section>
+  `;
+
+  setupProductPreviewInteractions(root);
 }
 
 function stepChooserHtml() {
@@ -2591,6 +3256,7 @@ function renderHomePage(root) {
           </p>
           <div class="hero-actions" aria-label="Primary actions">
             <a class="button button-primary" href="#where-am-i">Find My Step</a>
+            <a class="button button-secondary" href="app-preview.html">Preview The Product App</a>
             <a class="button button-secondary" href="pacing.html">See The Timeline</a>
           </div>
         </div>
@@ -3185,6 +3851,7 @@ function initPageApp() {
 
   const page = document.body.dataset.page;
   if (page === "home") renderHomePage(root);
+  if (page === "app-preview") renderAppPreviewPage(root);
   if (page === "process") renderProcessPage(root);
   if (page === "pacing") renderPacingPage(root);
   if (page === "examples") renderExamplesPage(root);

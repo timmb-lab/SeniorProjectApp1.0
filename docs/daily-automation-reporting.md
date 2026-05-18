@@ -10,7 +10,7 @@ Automation:
 - `senior-capstone-daily-automation-report`
 
 Schedule:
-- Daily at `07:30`.
+- Daily at `07:40`, staggered away from the 30-minute beta loop.
 
 Email recipient:
 - `bryan.timm89@gmail.com`
@@ -39,6 +39,13 @@ Each daily report should include:
 ## Current Connector Note
 
 Google Drive write access returned `403 Forbidden` when attempting to create/import the initial Google Doc on 2026-05-18.
+
+The daily report is intended to run without Bryan sitting at the machine. Before attempting Google Drive writes, confirm the local Codex app has `Always allow` grants for:
+
+- `google drive_create_file`
+- `google drive_batch_update_document`
+
+In `C:\Users\bryan\.codex\config.toml`, those grants appear as `approval_mode = "approve"` entries under the Google Drive connector tool sections. If either grant is missing, the automation should not start a mutating Drive call because it may pause on an approval prompt. It should use the repo fallback and log an action-required note instead.
 
 Until the Google Drive connector is reauthorized with write access, the automation should:
 

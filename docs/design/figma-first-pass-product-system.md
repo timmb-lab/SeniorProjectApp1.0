@@ -9,16 +9,26 @@ Master-plan sections referenced:
 - Lane Responsibilities
 - Logging Requirements
 
-Figma artifact:
-- Active file: `Senior Capstone App - Product UI System Regenerated`
-- Active file key: `LLucMgAPscRa9020iHHigB`
-- Active URL: `https://www.figma.com/design/LLucMgAPscRa9020iHHigB`
+Preferred Figma write target:
+- Team/project: `Senior Project App`
+- Team id: `1638213362346160913`
+- Plan key: `team::1638213362346160913`
+- Project URL: `https://www.figma.com/files/team/1638213362346160913/all-projects?fuid=1601310066605052228`
+
+Reference Figma artifact:
+- Active recreated file: `Senior Capstone App - Product UI System Recreated`
+- Active file key: `z4t4tFPAKrMDh6pIYOeEw6`
+- Active URL: `https://www.figma.com/design/z4t4tFPAKrMDh6pIYOeEw6`
+- Prior populated file: `Senior Capstone App - Product UI System Regenerated`, key `LLucMgAPscRa9020iHHigB`, URL `https://www.figma.com/design/LLucMgAPscRa9020iHHigB`
 - Authenticated Figma account reported during regeneration: `timmb@nv.ccsd.net`
+- Prior target context: `team::1601310068697743794`
 
 Status:
-- Regenerated file creation succeeded under the updated Figma connection.
-- Direct canvas writing succeeded.
-- The file now contains the planned three-page structure, reusable component examples, desktop screens, mobile screen, and automation handoff board.
+- Future Figma writes should continue the active writable product UI file `z4t4tFPAKrMDh6pIYOeEw6` inside the `Senior Project App` team/project.
+- The prior regenerated file remains reference-only.
+- Active file creation and canvas writes succeeded in `team::1638213362346160913`.
+- Prior regenerated file creation succeeded under the updated Figma connection and direct canvas writing succeeded.
+- The prior file contains the planned three-page structure, reusable component examples, desktop screens, mobile screen, and automation handoff board.
 - Prior historical file `fkfNI9JNy0A3Rm8KnoxJLj` is superseded. That file was created under the earlier Figma setup but canvas writing was blocked by the Starter MCP tool-call limit.
 
 ## Product UI Thesis
@@ -302,7 +312,7 @@ Required error states:
 
 ## Figma Artifact Plan
 
-The active regenerated file is built as three dense pages:
+The active writable file `z4t4tFPAKrMDh6pIYOeEw6` was created in `team::1638213362346160913` and preserves the same core three dense pages from the prior regenerated reference file, plus the new state-variant page:
 
 1. `00 Master Plan + Foundations`
    - Product control center.
@@ -327,28 +337,43 @@ The active regenerated file is built as three dense pages:
    - Known limits.
    - Acceptance checks.
 
-Verified active file structure:
+4. `03 Product Preview + State Variants`
+   - Status system.
+   - Student, teacher, mentor, and admin state slices.
+   - Permission, upload, lock, resubmission, empty queue, and override states.
+   - Review drawer variants, admin override modal, mobile student view, and rebuild mapping.
+
+Active file structure from successful write calls:
 
 - `00 Master Plan + Foundations`
   - Page ID: `0:1`
-  - Primary frame: `Senior Capstone Product Control Center`, node `1:4`
-  - Frame count: 50
+  - Primary frame: `Senior Capstone Product Control Center`, node `2:5`
 - `01 Components + App Screens`
-  - Page ID: `1:2`
+  - Page ID: `2:2`
   - Component count: 9
   - Primary frames:
-    - `Screen / Student Home / Desktop`, node `2:40`
-    - `Screen / Guided Proposal Form`, node `2:111`
-    - `Screen / Program Teacher Review Queue`, node `2:163`
-    - `Screens / Mentor + Admin Snapshots`, node `2:229`
-    - `Screen / Student Home / Mobile`, node `2:292`
+    - `Senior Capstone Components + App Screens`, node `3:2`
+    - `Screen / Student Home / Desktop`, node `3:66`
+    - `Screen / Guided Proposal Form`, node `3:154`
+    - `Screen / Program Teacher Review Queue`, node `3:190`
+    - `Screens / Mentor + Admin Snapshots`, node `3:246`
+    - `Screen / Student Home / Mobile`, node `3:301`
 - `02 Automation Handoff`
-  - Page ID: `1:3`
-  - Primary frame: `Handoff Control Board`, node `3:4`
-  - Lane handoff frame: `Lane Handoff Cards`, node `3:32`
+  - Page ID: `2:3`
+  - Primary frame: `Handoff Control Board`, node `5:2`
+  - Lane handoff frame: `Lane Handoff Cards`, node `5:38`
+- `03 Product Preview + State Variants`
+  - Page ID: `2:4`
+  - Primary frame: `Senior Capstone Product Preview + State Variants`, node `6:2`
+  - Edge states: `Section / Permission Upload Lock Override States`, node `6:143`
+  - Review drawer: `Component / Review Drawer`, node `6:198`
+  - Admin override modal: `Modal / Admin Override Reason`, node `6:219`
+  - Mobile student: `Screen / Student Product Preview / Mobile`, node `6:232`
+  - Rebuild mapping: `Section / Rebuild Data Mapping`, node `6:257`
 
 ## Acceptance Checks For Next Figma Run
 
+- Continue active writable file `z4t4tFPAKrMDh6pIYOeEw6` in `team::1638213362346160913`.
 - Maintain all three planned pages unless a future accepted decision expands the file.
 - Deepen the existing desktop student screen rather than recreating it from scratch.
 - Deepen the existing teacher review queue screen rather than recreating it from scratch.
@@ -366,15 +391,18 @@ Consumer lane:
 - Figma
 
 Artifact:
-- Active: `https://www.figma.com/design/LLucMgAPscRa9020iHHigB`
+- Preferred team/project target: `https://www.figma.com/files/team/1638213362346160913/all-projects?fuid=1601310066605052228`
+- Active recreated file: `https://www.figma.com/design/z4t4tFPAKrMDh6pIYOeEw6`
+- Reference-only prior file: `https://www.figma.com/design/LLucMgAPscRa9020iHHigB`
 - Superseded historical: `https://www.figma.com/design/fkfNI9JNy0A3Rm8KnoxJLj`
 - This spec file.
+- Next state-variant packet: `docs/design/figma-product-preview-state-variants.md`
 
 Exact next action:
-- Continue from the active regenerated file. Add deeper component variants, modal states, review drawer states, permission-denied variants, upload failure/resubmission variants, and rebuild-ready data-field annotations.
+- Continue `z4t4tFPAKrMDh6pIYOeEw6`. When MCP quota resets, run final metadata/screenshot verification for the recreated pages, then deepen component variants and route-level annotations from `docs/design/figma-product-preview-state-variants.md`.
 
 Acceptance check:
 - Figma progress log records page/frame IDs, screenshot or metadata verification, and next UI slice.
 
 Known limits:
-- The old file hit the Starter MCP tool-call limit. The active regenerated file was successfully written through the updated Figma connection.
+- The original historical file hit the Starter MCP tool-call limit. The regenerated reference file was successfully written through the updated Figma connection, but the 2026-05-18 follow-up pass hit the Education-plan MCP tool-call limit with rate-limit links pointing at old team `1601310068697743794`. The recreated file was then created and written in `team::1638213362346160913`; the final verification call hit the Education-plan MCP limit for the new team, confirming the route is corrected but quota is temporarily exhausted.

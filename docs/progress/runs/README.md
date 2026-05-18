@@ -58,5 +58,7 @@ Examples:
 - One manifest per run.
 - Keep values concrete and grep-friendly.
 - Use stable IDs for backlog, handoffs, artifacts, decisions, and human decisions.
+- Treat this folder as the machine-readable pass logger paired with `docs/progress/run-log.md`.
 - If the run changes a live automation prompt, regenerate `docs/automation-prompts/` and run `scripts/check-automation-contract.ps1`.
+- If the run changes the master planner, pass logger, snapshot format, or self-patching contract, update `scripts/check-automation-contract.ps1` when needed so future passes enforce the new rule.
 - Do not delete old manifests; weekly audits should summarize rather than prune.

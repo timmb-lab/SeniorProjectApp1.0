@@ -2,7 +2,9 @@
 
 Date: 2026-05-18
 
-The Senior Capstone rebuild now uses a non-overlap core rotation. Each core lane runs 4x/day, staggered so no two core jobs start together: Canva at `00:00/06:00/12:00/18:00`, Figma at `01:15/07:15/13:15/19:15`, core rebuild at `02:30/08:30/14:30/20:30`, and content audit at `03:45/09:45/15:45/21:45`. Each automation should read the shared anchor docs, update `docs/automation-progress.md`, and avoid duplicating the prior job's work.
+The Senior Capstone rebuild now uses a primary 30-minute beta evolution loop. The live app automation `senior-capstone-rebuild-rebuilt` is named `Senior Capstone Beta Evolution Loop` and runs every day at minute `00` and `30` across all 24 hours. It reads the master plan and logs, chooses one bounded beta-advancing slice, updates the repo or external artifact, verifies, logs, commits, and pushes. Specialist jobs are staggered away from those exact start slots; weekly deep audit remains separate for long severe review.
+
+Legacy/specialist lane automations still exist for Figma, Canva, content audit, daily reporting, and weekly deep audit. They should not fight the beta loop. The beta loop is the primary continuous runner until the app reaches a real beta.
 
 End goal: a GitHub-to-Cloudflare hosted app whose MVP is a secure database-backed Senior Capstone operating system: users, groups, roles, programs, cohorts, progress updates, submissions, private evidence, reviews, approvals, dashboards, announcements, admin controls, audit logs, exports, and protected student records.
 
@@ -55,7 +57,7 @@ Every automation should:
 - Create one structured run manifest in `docs/progress/runs/`.
 - Update `docs/artifacts.json` for durable external artifacts.
 - Update `docs/human-decisions.md` for Bryan-level decisions.
-- Run the self-improvement closeout: log `self-improvement: none` when no prompt/config change is justified, or update only its own live automation prompt/config with evidence while preserving schedule, workspace, model, reasoning effort, and active status.
+- Run the self-improvement closeout: log `self-improvement: none` when no prompt/config change is justified, or update only its own live automation prompt/config with evidence while preserving schedule, workspace, model, reasoning effort, and status.
 - If a live prompt/config changes, regenerate `docs/automation-prompts/` and run `scripts/check-automation-contract.ps1`.
 - Satisfy the publication/commit gate in `docs/automation-runbook.md`: pushed repo commit, published external artifact with committed repo handoff, or committed blocker entry.
 - Record every external artifact link or ID in a committed lane log, design spec, asset registry, or audit handoff before ending the run.
@@ -133,11 +135,23 @@ Definition of done for every run:
 - Lane-prefixed commit created when repo files changed.
 - Current branch pushed, or blocker logged precisely.
 
-## Four-Times-Daily Non-Overlap Cadence
+## Primary 30-Minute Beta Evolution Loop
+
+Senior Capstone Beta Evolution Loop
+- Automation: `senior-capstone-rebuild-rebuilt`
+- Schedule: every day at `00` and `30` minutes of every hour.
+- RRULE: `FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23;BYMINUTE=0,30`
+- Purpose: keep upgrading the project from the master plan, backlog, handoffs, decision log, artifacts, and recent run manifests until beta.
+- Beta target: hosted GitHub-to-Cloudflare app with secure database-backed users/groups/roles/programs/cohorts, trusted progress state, private evidence/upload metadata, submissions, review/revision/approval, audit events, dashboards, admin controls, tests, and deployment path.
+- Run shape: one bounded deliverable per run, with verification, lane log, run log, structured run manifest, material memory/handoff/backlog/decision/artifact updates, commit, and push.
+
+## Specialist Lane Cadence
+
+These jobs remain available as specialist lanes, but the 30-minute beta loop is the primary continuous runner.
 
 Canva Visual System
 - Automation: `senior-capstone-canva-visual-system-rebuilt`
-- Schedule: `00:00`, `06:00`, `12:00`, and `18:00`.
+- Schedule: `00:10`, `06:10`, `12:10`, and `18:10`.
 - Purpose: supporting visual assets, program identity graphics, phase/process visuals, onboarding graphics, report visuals, recognition assets, certificates, and printable/exportable collateral.
 - MVP emphasis: create polished app-supporting image families while preserving live UI text, privacy, accessibility, and Figma/rebuild placement.
 - Primary anchors: `docs/dashboard-ux-direction.md`, `data/programs.json`, `data/capstone-framework.json`, templates, and progress log.
@@ -152,7 +166,7 @@ Figma Product Design
 
 Core Hosted-App Rebuild
 - Automation: `senior-capstone-rebuild-rebuilt`
-- Schedule: `02:30`, `08:30`, `14:30`, and `20:30`.
+- Schedule: every 30 minutes all day, every day.
 - Purpose: Cloudflare/GitHub architecture, app scaffolding, backend, auth, database/schema, user groups, progress updates, tests, deployment readiness, and integration of the design/content direction into a working hosted app.
 - Primary anchors: `docs/rebuild-gameplan.md`, `docs/domain-model.md`, `docs/dashboard-ux-direction.md`, `data/programs.json`, `data/capstone-framework.json`, `docs/curriculum-framework-integration.md`.
 - Primary log: `docs/progress/rebuild.md`.
@@ -228,7 +242,7 @@ Every automation must keep these programs explicit:
 
 Reporting job:
 - Automation: `senior-capstone-daily-automation-report-rebuilt`
-- Schedule: daily at `07:30`.
+- Schedule: daily at `07:40`.
 - Purpose: summarize the previous 24 hours of automation changes, email the summary to `bryan.timm89@gmail.com`, and append the same summary to the Google Doc titled `Senior Capstone Daily Automation Log` under the `bryan.timm89@gmail.com` Google Drive target when connector permissions allow.
 
 Fallback:
@@ -239,7 +253,7 @@ Fallback:
 
 Weekly audit job:
 - Automation: `senior-capstone-weekly-deep-audit-rebuilt`
-- Schedule: Sundays at `23:30`.
+- Schedule: Sundays at `23:45`.
 - Purpose: run a long, severe, piece-by-piece audit of the whole Senior Capstone product, repo, source-framework coverage, app-readiness, security/privacy posture, dashboard usefulness, Figma/Canva usefulness, backlog health, log quality, automation health, and weekly human check-in readiness.
 
 Required outputs:
