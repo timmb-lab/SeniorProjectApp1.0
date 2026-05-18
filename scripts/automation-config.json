@@ -1,0 +1,227 @@
+{
+  "weekDays": ["MO", "TU", "WE", "TH", "FR", "SA", "SU"],
+  "expectedDailyTimes": [
+    "00:03",
+    "00:51",
+    "01:39",
+    "02:27",
+    "03:15",
+    "04:03",
+    "04:51",
+    "05:39",
+    "06:27",
+    "07:15",
+    "08:03",
+    "08:51",
+    "09:39",
+    "10:27",
+    "11:15",
+    "12:03",
+    "12:51",
+    "13:39",
+    "14:27",
+    "15:15",
+    "16:03",
+    "16:51",
+    "17:39",
+    "18:27",
+    "19:15",
+    "20:03",
+    "20:51",
+    "21:39",
+    "22:27",
+    "23:15"
+  ],
+  "minimumStartSpacingMinutes": 45,
+  "telemetryCutoff": "2026-05-18T14:47:00-07:00",
+  "strictManifestCutoff": "2026-05-18T16:15:00-07:00",
+  "mvpRequirementCount": 30,
+  "allowedOutputKinds": [
+    "implementation",
+    "test",
+    "deployment-proof",
+    "figma",
+    "canva",
+    "audit",
+    "script-repair",
+    "blocker"
+  ],
+  "allowedScaleSignals": [
+    "keep",
+    "retarget",
+    "reduce-collisions",
+    "needs-human-blocker"
+  ],
+  "allowedManifestStatuses": ["completed", "blocked", "failed"],
+  "requiredPromptFragments": [
+    "docs/master-plan.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/automation-runbook.md",
+    "docs/automation-self-improvement.md",
+    "docs/automation-cadence.md",
+    "docs/automation-milestones.md",
+    "docs/automation-memory.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/",
+    "docs/progress/handoffs.md",
+    "docs/progress/decision-log.md",
+    "docs/automation-backlog.md",
+    "docs/artifacts.json",
+    "docs/human-decisions.md",
+    "git status --short --branch",
+    "QoL target",
+    "Primary requirement IDs",
+    "Token budget guardrail",
+    "Laddering rule",
+    "A-material quality bar",
+    "Surface expansion rule",
+    "app code/routes/schema",
+    "Cloudflare Pages/D1/env/deploy",
+    "Figma route-data-permission handoff",
+    "Canva support assets",
+    "tests/CI",
+    "docs/artifacts/handoffs",
+    "No-human-approval rule",
+    "Run project scripts non-interactively",
+    "Self-improvement to scripts as you go",
+    "Only touch automation related to this project",
+    "commit",
+    "push the current branch",
+    "scripts/snapshot-automation-prompts.ps1",
+    "scripts/check-automation-contract.ps1",
+    "scripts/run-powershell-script.mjs",
+    "npm run automation:snapshot",
+    "npm run check:automation",
+    "npm run check:automation:live",
+    "-RequireLive",
+    "measure-automation-efficiency.ps1",
+    "-OutputPath",
+    "accepted_mvp_pass",
+    "duration_minutes",
+    "output_kind",
+    "automation_efficiency.duplicate_scope_checked",
+    "automation_efficiency.scale_signal",
+    "real auth",
+    "protected student records",
+    "z4t4tFPAKrMDh6pIYOeEw6",
+    "team::1638213362346160913"
+  ],
+  "automations": [
+    {
+      "id": "senior-capstone-qol-source-framework-seed-2",
+      "name": "Senior Capstone QoL - Source Framework Seed",
+      "status": "ACTIVE",
+      "rrule": "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=0,8,16;BYMINUTE=03",
+      "targetFragments": ["source-framework seed loader", "MVP-009", "data/capstone-framework.json"]
+    },
+    {
+      "id": "senior-capstone-qol-drive-upload-oauth-2",
+      "name": "Senior Capstone QoL - Drive Upload OAuth",
+      "status": "ACTIVE",
+      "rrule": "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=0,8,16;BYMINUTE=51",
+      "targetFragments": ["Google Drive upload credential/OAuth", "MVP-013", "evidence metadata"]
+    },
+    {
+      "id": "senior-capstone-qol-protected-evidence-tests-2",
+      "name": "Senior Capstone QoL - Protected Evidence Tests",
+      "status": "ACTIVE",
+      "rrule": "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=1,9,17;BYMINUTE=39",
+      "targetFragments": ["protected evidence access checks", "MVP-014", "permission"]
+    },
+    {
+      "id": "senior-capstone-qol-teacher-review-endpoints-2",
+      "name": "Senior Capstone QoL - Teacher Review Endpoints",
+      "status": "ACTIVE",
+      "rrule": "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=2,10,18;BYMINUTE=27",
+      "targetFragments": ["teacher review", "MVP-015", "revision"]
+    },
+    {
+      "id": "senior-capstone-qol-immutable-review-history-2",
+      "name": "Senior Capstone QoL - Immutable Review History",
+      "status": "ACTIVE",
+      "rrule": "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=3,11,19;BYMINUTE=15",
+      "targetFragments": ["immutable review history", "MVP-016", "submission versioning"]
+    },
+    {
+      "id": "senior-capstone-qol-mentor-presentation-flow-2",
+      "name": "Senior Capstone QoL - Mentor Presentation Flow",
+      "status": "ACTIVE",
+      "rrule": "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=4,12,20;BYMINUTE=03",
+      "targetFragments": ["mentor assigned-student", "MVP-017", "presentation"]
+    },
+    {
+      "id": "senior-capstone-qol-admin-ops-endpoints-2",
+      "name": "Senior Capstone QoL - Admin Ops Endpoints",
+      "status": "ACTIVE",
+      "rrule": "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=4,12,20;BYMINUTE=51",
+      "targetFragments": ["admin operations endpoints", "MVP-018", "export"]
+    },
+    {
+      "id": "senior-capstone-qol-announcements-2",
+      "name": "Senior Capstone QoL - Announcements",
+      "status": "ACTIVE",
+      "rrule": "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=5,13,21;BYMINUTE=39",
+      "targetFragments": ["announcement", "MVP-023", "No student-to-student messaging"]
+    },
+    {
+      "id": "senior-capstone-qol-account-lifecycle-2",
+      "name": "Senior Capstone QoL - Account Lifecycle",
+      "status": "ACTIVE",
+      "rrule": "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=6,14,22;BYMINUTE=27",
+      "targetFragments": ["account lifecycle", "MVP-004", "session expiry"]
+    },
+    {
+      "id": "senior-capstone-qol-cloudflare-verification-2",
+      "name": "Senior Capstone QoL - Cloudflare Verification",
+      "status": "ACTIVE",
+      "rrule": "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=7,15,23;BYMINUTE=15",
+      "targetFragments": ["Cloudflare", "MVP-026", "D1 binding"]
+    }
+  ],
+  "supportAutomations": [
+    {
+      "id": "senior-capstone-public-site-refresh",
+      "name": "Senior Capstone Public Site Refresh",
+      "status": "ACTIVE",
+      "rrule": "FREQ=DAILY;INTERVAL=3;BYHOUR=6;BYMINUTE=20",
+      "requiredPromptFragments": [
+        "commit and push only relevant public-site/source changes",
+        "npm run build:site-options",
+        "public-companion/",
+        "stakeholder-options/titan-blend/",
+        "stakeholder-options/back-to-basics/",
+        "senior-capstone-option-titan",
+        "senior-capstone-option-primary"
+      ],
+      "targetFragments": [
+        "commit and push only relevant public-site/source changes",
+        "npm run build:site-options",
+        "senior-capstone-option-titan",
+        "senior-capstone-option-primary"
+      ]
+    },
+    {
+      "id": "senior-capstone-weekly-script-audit",
+      "name": "Senior Capstone Weekly Script Audit",
+      "status": "ACTIVE",
+      "rrule": "FREQ=WEEKLY;BYDAY=SU;BYHOUR=23;BYMINUTE=45",
+      "requiredPromptFragments": [
+        "automation-support script layer",
+        "scripts/automation-config.json",
+        "scripts/check-automation-contract.ps1",
+        "scripts/measure-automation-efficiency.ps1",
+        "scripts/snapshot-automation-prompts.ps1",
+        "scripts/run-powershell-script.mjs",
+        "docs/progress/runs/README.md",
+        "Validate changes",
+        "Commit and push only the files touched by this weekly script audit"
+      ],
+      "targetFragments": [
+        "automation-support script layer",
+        "Commit and push only the files touched by this weekly script audit",
+        "scripts/automation-config.json",
+        "docs/progress/runs/README.md"
+      ]
+    }
+  ]
+}

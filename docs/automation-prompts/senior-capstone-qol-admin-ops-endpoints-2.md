@@ -1,9 +1,9 @@
 ﻿---
 automation_id: "senior-capstone-qol-admin-ops-endpoints-2"
 name: "Senior Capstone QoL - Admin Ops Endpoints"
-snapshot_generated_utc: "2026-05-18T23:11:22Z"
+snapshot_generated_utc: "2026-05-18T23:49:47Z"
 rrule: "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=4,12,20;BYMINUTE=51"
-model: "gpt-5.2"
+model: "gpt-5.4"
 reasoning_effort: "high"
 prompt_sha256: "9a96b3140a6b5c6d7b1cfd139df8f224552d8f01a76fcc868c217d806006fe0a"
 source_toml: "C:\Users\bryan\.codex\automations\senior-capstone-qol-admin-ops-endpoints-2\automation.toml"

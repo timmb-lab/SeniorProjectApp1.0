@@ -2,10 +2,29 @@ param(
     [string]$RepoRoot = ".",
     [string]$AutomationRoot = "$HOME\.codex\automations",
     [int]$Days = 30,
-    [string]$OutputPath = ""
+    [string]$OutputPath = "",
+    [string]$ConfigPath = (Join-Path $PSScriptRoot "automation-config.json")
 )
 
 $ErrorActionPreference = "Stop"
+$RepoRoot = (Resolve-Path -LiteralPath $RepoRoot).Path
+
+function Read-AutomationConfig {
+    param([Parameter(Mandatory = $true)][string]$Path)
+
+    $resolvedPath = if ([System.IO.Path]::IsPathRooted($Path)) {
+        $Path
+    }
+    else {
+        Join-Path $RepoRoot $Path
+    }
+
+    if (-not (Test-Path -LiteralPath $resolvedPath)) {
+        throw "Missing automation config: $resolvedPath"
+    }
+
+    return Get-Content -Raw -LiteralPath $resolvedPath | ConvertFrom-Json
+}
 
 function Get-TomlStringValue {
     param(
@@ -36,17 +55,48 @@ function Get-RRulePart {
     return $match.Groups[2].Value.Split(",") | ForEach-Object { $_.Trim() }
 }
 
-function Get-ManifestTimestamp {
-    param([Parameter(Mandatory = $true)]$Manifest)
+function Get-JsonProperty {
+    param(
+        [Parameter(Mandatory = $true)]$Object,
+        [Parameter(Mandatory = $true)][string[]]$Names
+    )
 
-    foreach ($field in @("timestamp", "timestamp_local")) {
-        if ($Manifest.PSObject.Properties.Name -contains $field -and $Manifest.$field) {
+    foreach ($name in $Names) {
+        if ($Object.PSObject.Properties.Name -contains $name) {
+            return $Object.$name
+        }
+    }
+
+    return $null
+}
+
+function Convert-ToManifestTimestamp {
+    param([Parameter(Mandatory = $true)][string]$Value)
+
+    try {
+        return [DateTimeOffset]::Parse($Value)
+    }
+    catch {
+        if ($Value -match "\sPT$") {
             try {
-                return [DateTimeOffset]::Parse([string]$Manifest.$field)
+                return [DateTimeOffset]::Parse(($Value -replace "\sPT$", "-07:00"))
             }
             catch {
                 return $null
             }
+        }
+
+        return $null
+    }
+}
+
+function Get-ManifestTimestamp {
+    param([Parameter(Mandatory = $true)]$Manifest)
+
+    foreach ($field in @("timestamp_local", "timestamp", "timestampLocal", "timestamp_pt", "timestampPt")) {
+        $value = Get-JsonProperty -Object $Manifest -Names @($field)
+        if ($null -ne $value -and [string]$value -ne "") {
+            return Convert-ToManifestTimestamp -Value ([string]$value)
         }
     }
 
@@ -63,7 +113,7 @@ function Group-PropertyCount {
     $counts = @{}
     foreach ($item in $Items) {
         $value = $Fallback
-        if ($item.PSObject.Properties.Name -contains $PropertyName -and $item.$PropertyName) {
+        if ($item.PSObject.Properties.Name -contains $PropertyName -and $null -ne $item.$PropertyName -and [string]$item.$PropertyName -ne "") {
             $value = [string]$item.$PropertyName
         }
         if (-not $counts.ContainsKey($value)) {
@@ -76,19 +126,9 @@ function Group-PropertyCount {
 
 $now = Get-Date
 $windowStart = $now.AddDays(-1 * $Days)
-
-$automationIds = @(
-    "senior-capstone-qol-source-framework-seed-2",
-    "senior-capstone-qol-drive-upload-oauth-2",
-    "senior-capstone-qol-protected-evidence-tests-2",
-    "senior-capstone-qol-teacher-review-endpoints-2",
-    "senior-capstone-qol-immutable-review-history-2",
-    "senior-capstone-qol-mentor-presentation-flow-2",
-    "senior-capstone-qol-admin-ops-endpoints-2",
-    "senior-capstone-qol-announcements-2",
-    "senior-capstone-qol-account-lifecycle-2",
-    "senior-capstone-qol-cloudflare-verification-2"
-)
+$config = Read-AutomationConfig -Path $ConfigPath
+$automationIds = @($config.automations | ForEach-Object { $_.id })
+$strictManifestCutoff = [DateTimeOffset]::Parse([string]$config.strictManifestCutoff)
 
 $automations = @()
 $dailySlots = New-Object System.Collections.Generic.List[string]
@@ -161,12 +201,14 @@ if (Test-Path -LiteralPath $manifestDir) {
                     raw = $raw
                     manifest = $manifest
                     timestamp = $timestamp.ToString("o")
-                    lane = if ($manifest.PSObject.Properties.Name -contains "lane") { $manifest.lane } else { $null }
-                    automation_id = if ($manifest.PSObject.Properties.Name -contains "automation_id") { $manifest.automation_id } else { $null }
-                    status = if ($manifest.PSObject.Properties.Name -contains "status") { $manifest.status } else { $null }
+                    timestamp_offset = $timestamp
+                    has_timestamp_local = ($manifest.PSObject.Properties.Name -contains "timestamp_local")
+                    lane = Get-JsonProperty -Object $manifest -Names @("lane", "category")
+                    automation_id = Get-JsonProperty -Object $manifest -Names @("automation_id", "automation")
+                    status = Get-JsonProperty -Object $manifest -Names @("status")
                     accepted_mvp_pass = if ($manifest.PSObject.Properties.Name -contains "accepted_mvp_pass") { [bool]$manifest.accepted_mvp_pass } else { $null }
-                    duration_minutes = if ($manifest.PSObject.Properties.Name -contains "duration_minutes") { $manifest.duration_minutes } else { $null }
-                    output_kind = if ($manifest.PSObject.Properties.Name -contains "output_kind") { $manifest.output_kind } else { $null }
+                    duration_minutes = Get-JsonProperty -Object $manifest -Names @("duration_minutes")
+                    output_kind = Get-JsonProperty -Object $manifest -Names @("output_kind")
                 }
             }
         }
@@ -185,6 +227,10 @@ $explicitAccepted = @($manifestRecords | Where-Object { $_.accepted_mvp_pass -eq
 $completed = @($manifestRecords | Where-Object { $_.status -eq "completed" })
 $missingAcceptedField = @($manifestRecords | Where-Object { $null -eq $_.accepted_mvp_pass })
 $missingDurationField = @($manifestRecords | Where-Object { $null -eq $_.duration_minutes })
+$strictManifestRecords = @($manifestRecords | Where-Object { $_.timestamp_offset -and $_.timestamp_offset -ge $strictManifestCutoff })
+$missingAutomationIdField = @($strictManifestRecords | Where-Object { -not $_.automation_id })
+$missingStatusField = @($strictManifestRecords | Where-Object { -not $_.status })
+$missingCanonicalTimestampField = @($strictManifestRecords | Where-Object { -not $_.has_timestamp_local })
 
 $requirementMatches = New-Object System.Collections.Generic.HashSet[string]
 foreach ($record in $manifestRecords) {
@@ -221,6 +267,9 @@ if ($missingAcceptedField.Count -gt 0) {
 if ($missingDurationField.Count -gt 0) {
     $recommendations.Add("Add duration_minutes to future run manifests so overlap risk can be measured against the 45-minute spacing.")
 }
+if ($missingAutomationIdField.Count -gt 0 -or $missingStatusField.Count -gt 0 -or $missingCanonicalTimestampField.Count -gt 0) {
+    $recommendations.Add("Use canonical timestamp_local, automation_id, and status fields in new run manifests so audits can attribute QoL output reliably.")
+}
 if ($qolAutomationsWithoutObservedManifest.Count -gt 0) {
     $recommendations.Add("The current QoL system is new; require the next weekly calibration to verify each QoL automation has at least one observed manifest or exact blocker.")
 }
@@ -256,6 +305,10 @@ $result = [pscustomobject]@{
         explicit_accepted_mvp_pass_count = $explicitAccepted.Count
         missing_accepted_mvp_pass_field_count = $missingAcceptedField.Count
         missing_duration_minutes_field_count = $missingDurationField.Count
+        strict_manifest_count = $strictManifestRecords.Count
+        missing_automation_id_field_count = $missingAutomationIdField.Count
+        missing_status_field_count = $missingStatusField.Count
+        missing_canonical_timestamp_local_field_count = $missingCanonicalTimestampField.Count
         status_counts = Group-PropertyCount -Items $manifestRecords -PropertyName "status"
         lane_counts = Group-PropertyCount -Items $manifestRecords -PropertyName "lane"
         automation_counts = Group-PropertyCount -Items $manifestRecords -PropertyName "automation_id"

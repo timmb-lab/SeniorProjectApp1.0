@@ -1,9 +1,9 @@
 ﻿---
 automation_id: "senior-capstone-qol-teacher-review-endpoints-2"
 name: "Senior Capstone QoL - Teacher Review Endpoints"
-snapshot_generated_utc: "2026-05-18T23:11:22Z"
+snapshot_generated_utc: "2026-05-18T23:49:47Z"
 rrule: "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=2,10,18;BYMINUTE=27"
-model: "gpt-5.2"
+model: "gpt-5.4"
 reasoning_effort: "high"
 prompt_sha256: "c1e1bb1871524e7f061765549aedd6315a38418203b5bc4e44598fb4132bf340"
 source_toml: "C:\Users\bryan\.codex\automations\senior-capstone-qol-teacher-review-endpoints-2\automation.toml"

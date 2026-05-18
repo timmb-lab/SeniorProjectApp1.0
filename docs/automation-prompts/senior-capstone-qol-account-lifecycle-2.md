@@ -1,9 +1,9 @@
 ﻿---
 automation_id: "senior-capstone-qol-account-lifecycle-2"
 name: "Senior Capstone QoL - Account Lifecycle"
-snapshot_generated_utc: "2026-05-18T23:11:22Z"
+snapshot_generated_utc: "2026-05-18T23:49:47Z"
 rrule: "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=6,14,22;BYMINUTE=27"
-model: "gpt-5.2"
+model: "gpt-5.4"
 reasoning_effort: "high"
 prompt_sha256: "f89cdec02d48663b964c6fabfb7c25f072b753b2eeddc2d03b71ed624706d462"
 source_toml: "C:\Users\bryan\.codex\automations\senior-capstone-qol-account-lifecycle-2\automation.toml"

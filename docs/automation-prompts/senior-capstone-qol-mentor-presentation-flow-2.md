@@ -1,9 +1,9 @@
 ﻿---
 automation_id: "senior-capstone-qol-mentor-presentation-flow-2"
 name: "Senior Capstone QoL - Mentor Presentation Flow"
-snapshot_generated_utc: "2026-05-18T23:11:22Z"
+snapshot_generated_utc: "2026-05-18T23:49:47Z"
 rrule: "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=4,12,20;BYMINUTE=03"
-model: "gpt-5.2"
+model: "gpt-5.4"
 reasoning_effort: "high"
 prompt_sha256: "4210ae2c261d461be7a8e71b23a7dafcfe52c006283ac81ce820d274ebced5f6"
 source_toml: "C:\Users\bryan\.codex\automations\senior-capstone-qol-mentor-presentation-flow-2\automation.toml"

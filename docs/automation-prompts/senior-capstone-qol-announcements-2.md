@@ -1,9 +1,9 @@
 ﻿---
 automation_id: "senior-capstone-qol-announcements-2"
 name: "Senior Capstone QoL - Announcements"
-snapshot_generated_utc: "2026-05-18T23:11:22Z"
+snapshot_generated_utc: "2026-05-18T23:49:47Z"
 rrule: "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=5,13,21;BYMINUTE=39"
-model: "gpt-5.2"
+model: "gpt-5.4"
 reasoning_effort: "high"
 prompt_sha256: "ec31e25799709d5ceb9a5306c5f62d9394738b6503000fbd7b516c0c8fd482a2"
 source_toml: "C:\Users\bryan\.codex\automations\senior-capstone-qol-announcements-2\automation.toml"

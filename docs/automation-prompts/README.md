@@ -1,6 +1,6 @@
 ﻿# Automation Prompt Snapshots
 
-Generated: 2026-05-18T23:11:22Z
+Generated: 2026-05-18T23:49:47Z
 
 These files are repo snapshots of the live Codex automation prompts. Regenerate them after any prompt/config update with:
 
@@ -20,3 +20,5 @@ powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\sn
 | senior-capstone-qol-announcements-2 | ec31e25799709d5ceb9a5306c5f62d9394738b6503000fbd7b516c0c8fd482a2 | [senior-capstone-qol-announcements-2.md](./senior-capstone-qol-announcements-2.md) |
 | senior-capstone-qol-account-lifecycle-2 | f89cdec02d48663b964c6fabfb7c25f072b753b2eeddc2d03b71ed624706d462 | [senior-capstone-qol-account-lifecycle-2.md](./senior-capstone-qol-account-lifecycle-2.md) |
 | senior-capstone-qol-cloudflare-verification-2 | 60c50e32e6a4d68e9fd9cbe56acb7bf16abe15c83d00c22f4fb6a5206057af89 | [senior-capstone-qol-cloudflare-verification-2.md](./senior-capstone-qol-cloudflare-verification-2.md) |
+| senior-capstone-public-site-refresh | 59d9d0c637a6a850c09f7b92e6f50746c09c308a9eaafd4270a50e15cfc841f2 | [senior-capstone-public-site-refresh.md](./senior-capstone-public-site-refresh.md) |
+| senior-capstone-weekly-script-audit | bfe9759683bc396ac56283c48dd128446a5d57c9011eda6395947b158f5ad16d | [senior-capstone-weekly-script-audit.md](./senior-capstone-weekly-script-audit.md) |

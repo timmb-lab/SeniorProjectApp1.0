@@ -1,9 +1,9 @@
 ﻿---
 automation_id: "senior-capstone-qol-drive-upload-oauth-2"
 name: "Senior Capstone QoL - Drive Upload OAuth"
-snapshot_generated_utc: "2026-05-18T23:11:22Z"
+snapshot_generated_utc: "2026-05-18T23:49:47Z"
 rrule: "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=0,8,16;BYMINUTE=51"
-model: "gpt-5.2"
+model: "gpt-5.4"
 reasoning_effort: "high"
 prompt_sha256: "a0de2b59834ba5c2f25a79b4217770d6f193020c1f225262ec210cc9efd1d230"
 source_toml: "C:\Users\bryan\.codex\automations\senior-capstone-qol-drive-upload-oauth-2\automation.toml"

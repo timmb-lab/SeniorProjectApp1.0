@@ -1,9 +1,9 @@
 ﻿---
 automation_id: "senior-capstone-qol-source-framework-seed-2"
 name: "Senior Capstone QoL - Source Framework Seed"
-snapshot_generated_utc: "2026-05-18T23:11:22Z"
+snapshot_generated_utc: "2026-05-18T23:49:47Z"
 rrule: "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=0,8,16;BYMINUTE=03"
-model: "gpt-5.2"
+model: "gpt-5.4"
 reasoning_effort: "high"
 prompt_sha256: "ea80cff8174c8cd953dee4fe0c0b570aae375ce1e874a23b9eef70e2f65de07c"
 source_toml: "C:\Users\bryan\.codex\automations\senior-capstone-qol-source-framework-seed-2\automation.toml"

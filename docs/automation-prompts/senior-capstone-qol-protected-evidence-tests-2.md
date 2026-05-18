@@ -1,9 +1,9 @@
 ﻿---
 automation_id: "senior-capstone-qol-protected-evidence-tests-2"
 name: "Senior Capstone QoL - Protected Evidence Tests"
-snapshot_generated_utc: "2026-05-18T23:11:22Z"
+snapshot_generated_utc: "2026-05-18T23:49:47Z"
 rrule: "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=1,9,17;BYMINUTE=39"
-model: "gpt-5.2"
+model: "gpt-5.4"
 reasoning_effort: "high"
 prompt_sha256: "d0aafeb92436653cd9abe89bdf7507461f6724a9aba3a0e5c9d3b4e36fccd5ad"
 source_toml: "C:\Users\bryan\.codex\automations\senior-capstone-qol-protected-evidence-tests-2\automation.toml"
