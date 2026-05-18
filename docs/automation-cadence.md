@@ -17,6 +17,11 @@ Shared curriculum framework: `data/capstone-framework.json` and `docs/curriculum
 Daily reporting notes: `docs/daily-automation-reporting.md`.
 Self-improvement protocol: `docs/automation-self-improvement.md`.
 Weekly deep audit log: `docs/progress/weekly-deep-audit.md`.
+Prompt snapshots: `docs/automation-prompts/`.
+Structured run manifests: `docs/progress/runs/`.
+Human decision queue: `docs/human-decisions.md`.
+Artifact registry: `docs/artifacts.json`.
+Contract checker: `scripts/check-automation-contract.ps1`.
 
 ## Shared Operating Contract
 
@@ -32,6 +37,7 @@ Every automation should:
 - Read `docs/automation-runbook.md` before selecting work.
 - Read `docs/automation-self-improvement.md` before selecting work and again during closeout.
 - Read `docs/automation-milestones.md` before selecting work.
+- Read `docs/human-decisions.md`, `docs/artifacts.json`, and recent `docs/progress/runs/` manifests when the run touches stack decisions, external artifacts, prompt changes, or repeated-work analysis.
 - Read `data/capstone-framework.json` and `docs/curriculum-framework-integration.md` before changing requirement, workflow, dashboard, or source-material behavior.
 - Read `docs/automation-backlog.md` when present and choose work from the highest-priority relevant item.
 - Check the last two entries in its lane log to avoid repeating the same scope.
@@ -46,7 +52,11 @@ Every automation should:
 - Update `docs/progress/handoffs.md` for every cross-lane ask and close handoffs only with evidence.
 - Update `docs/progress/decision-log.md` for durable decisions future runs should respect.
 - Update `docs/automation-progress.md` with only a short rollup when it is safe to do so.
+- Create one structured run manifest in `docs/progress/runs/`.
+- Update `docs/artifacts.json` for durable external artifacts.
+- Update `docs/human-decisions.md` for Bryan-level decisions.
 - Run the self-improvement closeout: log `self-improvement: none` when no prompt/config change is justified, or update only its own live automation prompt/config with evidence while preserving schedule, workspace, model, reasoning effort, and active status.
+- If a live prompt/config changes, regenerate `docs/automation-prompts/` and run `scripts/check-automation-contract.ps1`.
 - Satisfy the publication/commit gate in `docs/automation-runbook.md`: pushed repo commit, published external artifact with committed repo handoff, or committed blocker entry.
 - Record every external artifact link or ID in a committed lane log, design spec, asset registry, or audit handoff before ending the run.
 - If it changes repository files, stage only its own changes, commit with a lane-prefixed message, and push the current branch.
@@ -94,8 +104,11 @@ Scaling logs:
 - Self-improvement protocol: `docs/automation-self-improvement.md`
 - Compact current memory: `docs/automation-memory.md`
 - Cross-lane run index: `docs/progress/run-log.md`
+- Structured run manifests: `docs/progress/runs/`
 - Handoff ledger: `docs/progress/handoffs.md`
 - Durable decision log: `docs/progress/decision-log.md`
+- Human decision queue: `docs/human-decisions.md`
+- Artifact registry: `docs/artifacts.json`
 
 The shared `docs/automation-progress.md` is now a rollup file, not the primary scratchpad. This reduces merge conflicts when multiple automations run in the same hour.
 

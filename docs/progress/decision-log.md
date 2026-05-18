@@ -70,3 +70,13 @@ Decision status values:
 - `applies to`: Figma automation, rebuild automation, audit automation, Canva automation, daily report, weekly deep audit, Figma specs and handoffs
 - `source`: user request: "I updated my Figma account so it's using a new one - regenerate all the Figma stuff in the new account - it has higher limits now -- and then adjust all automations accordingly"
 - `last updated`: 2026-05-18
+
+### D-2026-05-18-007
+
+- `status`: accepted
+- `area`: automation operations, measurement, and quality control
+- `decision`: Use prompt snapshots, structured run manifests, a human decision queue, an external artifact registry, and an automation contract-check script as core operating infrastructure for the Senior Capstone automation system.
+- `reason`: Markdown lane logs are readable but not enough to prove automation work is compounding. The loop needs exact prompt snapshots, machine-readable run records, artifact tracking, explicit Bryan-level decisions, and a fail-fast contract checker.
+- `applies to`: all Senior Capstone automations, weekly deep audit, daily reporting, prompt self-improvement, external artifact creation, and rebuild stack governance
+- `source`: user accepted the recommendation: "prompt snapshots, structured run manifests, human decision queue, artifact registry, and the contract-check script"
+- `last updated`: 2026-05-18

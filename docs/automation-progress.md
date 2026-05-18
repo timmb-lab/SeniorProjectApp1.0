@@ -734,3 +734,28 @@ Verification:
 Recommended next slice:
 - Rebuild should consume `LLucMgAPscRa9020iHHigB` after the stack/scaffold decision.
 - Figma should deepen component variants and states: review drawer, upload failure, permission denied, resubmission, version history, admin override reason modal, and teacher intervention flags.
+
+## 2026-05-18 Automation Operating Infrastructure
+
+Intent:
+- Implement the recommended self-improvement upgrades instead of leaving them as ideas.
+
+Files and systems added:
+- `docs/automation-prompts/`: repo snapshots of all live Senior Capstone automation prompts.
+- `docs/progress/runs/`: structured JSON run manifests.
+- `docs/human-decisions.md`: Bryan-level decision queue.
+- `docs/artifacts.json`: structured external artifact registry.
+- `scripts/snapshot-automation-prompts.ps1`: prompt snapshot generator.
+- `scripts/check-automation-contract.ps1`: live automation contract checker.
+- `docs/architecture/adr-0001-stack-auth-database-upload.md`: proposed stack/auth/database/private-upload ADR.
+
+What changed:
+- Shared runbook/cadence now require structured run manifests, artifact registry updates, human decision queue updates, prompt snapshots after prompt changes, and contract-check verification.
+- Self-improvement protocol now requires prompt snapshots and contract checks after live prompt/config edits.
+- Master plan now points rebuild toward `SC-005`, `HD-2026-05-18-001`, and the proposed stack ADR.
+- Added `SC-005` as a P0 rebuild backlog item for the production stack/auth/database/private-upload decision.
+- Added `H-2026-05-18-006` to force rebuild to resolve the stack decision before broad feature work.
+- Added `D-2026-05-18-007` for the new automation operating infrastructure.
+
+Recommended next slice:
+- Rebuild lane should accept or supersede `docs/architecture/adr-0001-stack-auth-database-upload.md`, then scaffold the selected stack with auth/database/private-upload assumptions explicit.

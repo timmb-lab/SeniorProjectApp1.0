@@ -1,0 +1,172 @@
+{
+  "version": 1,
+  "updated_at": "2026-05-18T00:00:00-07:00",
+  "artifacts": [
+    {
+      "id": "figma-product-ui-system-active",
+      "type": "figma",
+      "status": "active",
+      "owner_lane": "figma",
+      "title": "Senior Capstone App - Product UI System Regenerated",
+      "file_key": "LLucMgAPscRa9020iHHigB",
+      "url": "https://www.figma.com/design/LLucMgAPscRa9020iHHigB",
+      "account_observed": "timmb@nv.ccsd.net",
+      "purpose": "Active product UI source for the hosted Senior Capstone app.",
+      "app_placement": "Design source for app shell, student workspace, guided proposal form, review queue, mentor/admin dashboards, mobile student view, and automation handoff board.",
+      "consuming_lanes": [
+        "figma",
+        "rebuild",
+        "audit",
+        "canva",
+        "daily-report",
+        "weekly-deep-audit"
+      ],
+      "repo_records": [
+        "docs/design/figma-first-pass-product-system.md",
+        "docs/progress/figma.md",
+        "docs/progress/handoffs.md"
+      ],
+      "verification": [
+        "Metadata inspection returned 3 pages, 212 frames total, and 9 components.",
+        "Screenshot verification generated for student desktop and handoff board."
+      ],
+      "supersedes": [
+        "figma-product-ui-system-superseded"
+      ],
+      "last_updated": "2026-05-18"
+    },
+    {
+      "id": "figma-product-ui-system-superseded",
+      "type": "figma",
+      "status": "superseded",
+      "owner_lane": "figma",
+      "title": "Senior Capstone App - Product UI First Pass",
+      "file_key": "fkfNI9JNy0A3Rm8KnoxJLj",
+      "url": "https://www.figma.com/design/fkfNI9JNy0A3Rm8KnoxJLj",
+      "purpose": "Historical first-pass file created before the Figma account update.",
+      "app_placement": "Historical context only; do not use as active design source.",
+      "consuming_lanes": [],
+      "repo_records": [
+        "docs/progress/figma.md",
+        "docs/design/figma-first-pass-product-system.md"
+      ],
+      "verification": [
+        "File creation succeeded.",
+        "Canvas write was blocked by the old Starter MCP tool-call limit."
+      ],
+      "last_updated": "2026-05-18"
+    },
+    {
+      "id": "canva-proposal-approval-process-strip",
+      "type": "canva",
+      "status": "active",
+      "owner_lane": "canva",
+      "title": "Proposal approval process strip",
+      "folder_id": "FAHJ-n-VqFE",
+      "design_id": "DAHJ-v7TOM8",
+      "purpose": "No-text visual support for proposal approval process states.",
+      "app_placement": "Proposal dashboard onboarding or empty-state support; labels remain live app text.",
+      "consuming_lanes": [
+        "canva",
+        "figma",
+        "rebuild"
+      ],
+      "repo_records": [
+        "docs/progress/canva.md",
+        "docs/visual-assets/canva-asset-specs.md"
+      ],
+      "last_updated": "2026-05-18"
+    },
+    {
+      "id": "canva-first-pass-folder",
+      "type": "canva_folder",
+      "status": "active",
+      "owner_lane": "canva",
+      "title": "Senior Capstone first-pass visual system folder",
+      "folder_id": "FAHJ-8DxQyk",
+      "url": "https://www.canva.com/folder/FAHJ-8DxQyk",
+      "purpose": "Folder for first-pass supporting visuals and reports.",
+      "app_placement": "Supporting visual assets only; not the functional app UI.",
+      "consuming_lanes": [
+        "canva",
+        "audit",
+        "daily-report",
+        "weekly-deep-audit"
+      ],
+      "repo_records": [
+        "docs/visual-assets/canva-first-pass.md",
+        "docs/visual-assets/canva-asset-specs.md"
+      ],
+      "last_updated": "2026-05-18"
+    },
+    {
+      "id": "canva-first-pass-workflow-infographic",
+      "type": "canva",
+      "status": "active",
+      "owner_lane": "canva",
+      "title": "Senior Capstone workflow infographic",
+      "folder_id": "FAHJ-8DxQyk",
+      "design_id": "DAHJ-3dKnPU",
+      "edit_url": "https://www.canva.com/d/C-dVNnTDKRODcKi",
+      "view_url": "https://www.canva.com/d/tfRo2Sq_1JHu0zu",
+      "purpose": "Supporting infographic for the app-native proposal/evidence/review workflow.",
+      "app_placement": "Onboarding, help, or printable collateral; not a replacement for live app workflow.",
+      "consuming_lanes": [
+        "canva",
+        "figma",
+        "rebuild"
+      ],
+      "repo_records": [
+        "docs/visual-assets/canva-first-pass.md",
+        "docs/visual-assets/canva-asset-specs.md"
+      ],
+      "last_updated": "2026-05-18"
+    },
+    {
+      "id": "canva-first-pass-visual-system-report",
+      "type": "canva",
+      "status": "active",
+      "owner_lane": "canva",
+      "title": "Senior Capstone visual-system report",
+      "folder_id": "FAHJ-8DxQyk",
+      "design_id": "DAHJ-xaMuj8",
+      "edit_url": "https://www.canva.com/d/NXZGwxgXRKYnTPc",
+      "view_url": "https://www.canva.com/d/MA6S4b_xAC69y1C",
+      "purpose": "Supporting report for visual direction and collateral system.",
+      "app_placement": "Design reference and stakeholder communication.",
+      "consuming_lanes": [
+        "canva",
+        "audit",
+        "weekly-deep-audit"
+      ],
+      "repo_records": [
+        "docs/visual-assets/canva-first-pass.md",
+        "docs/visual-assets/canva-asset-specs.md"
+      ],
+      "last_updated": "2026-05-18"
+    },
+    {
+      "id": "canva-first-pass-program-identity-poster",
+      "type": "canva",
+      "status": "active",
+      "owner_lane": "canva",
+      "title": "Program identity poster",
+      "folder_id": "FAHJ-8DxQyk",
+      "design_id": "DAHJ-6LVuME",
+      "edit_url": "https://www.canva.com/d/J9nRXQPXi0O-_hM",
+      "view_url": "https://www.canva.com/d/2FoRYnzFDrZAHqc",
+      "purpose": "Program identity support for all nine CTE programs.",
+      "app_placement": "Program overview, recognition, print/export collateral, or onboarding support.",
+      "consuming_lanes": [
+        "canva",
+        "figma",
+        "audit"
+      ],
+      "repo_records": [
+        "docs/visual-assets/canva-first-pass.md",
+        "docs/visual-assets/canva-asset-specs.md"
+      ],
+      "last_updated": "2026-05-18"
+    }
+  ]
+}

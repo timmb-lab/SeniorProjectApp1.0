@@ -59,6 +59,18 @@ Status values:
 - `evidence to close`: Committed implementation plan or code scaffold consuming the active Figma file and naming routes/components/data fields.
 - `last updated`: 2026-05-18
 
+### H-2026-05-18-006
+
+- `source lane`: ops
+- `owner lane`: rebuild
+- `status`: open
+- `source`: automation operating-infrastructure pass
+- `artifact`: `SC-005`, `HD-2026-05-18-001`, `docs/architecture/adr-0001-stack-auth-database-upload.md`
+- `next action`: Resolve the production stack/auth/database/private-upload decision before broad feature work.
+- `acceptance check`: Rebuild commits an accepted or superseding ADR naming app framework, auth provider, database, private upload storage, ORM/migrations approach, deployment host, environment/secrets path, local development setup, tests, and security tradeoffs.
+- `evidence to close`: Committed ADR with status accepted or superseded, plus either scaffold work or a precisely blocked provisioning note.
+- `last updated`: 2026-05-18
+
 ## Resolved Handoffs
 
 ### H-2026-05-18-003

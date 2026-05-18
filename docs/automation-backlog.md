@@ -61,3 +61,14 @@ This file tracks unresolved cross-lane issues for the Senior Capstone rebuild. T
 - `evidence`: The PDFs require mentor meeting attendance/make-up tracking, outline approval, presentation time scheduling, presentation check-out/check-in, celebration setup photo, ingredient lists for food, and May 5 personal archive/export, but these are not implemented yet.
 - `next action`: Create implementation slices after SC-001/SC-003 for meeting attendance, presentation slots, celebration evidence, and archive/export workflow.
 - `last updated`: 2026-05-18
+
+### SC-005
+
+- `severity`: P0
+- `owner`: rebuild
+- `status`: open
+- `source`: automation self-improvement infrastructure pass and repeated stack-decision risk
+- `affected area`: production stack, auth, database, private uploads, deployment, secrets, tests, and safe hosted-app foundation
+- `evidence`: `docs/master-plan.md` says no automation should pretend the app is functional until app framework, auth provider, database, private upload/file storage, ORM/migrations, deployment host, environment/secrets strategy, test runner, CI, backup/export posture exist in the repo and are tested. `docs/architecture/adr-0001-stack-auth-database-upload.md` is proposed but not accepted. No production app scaffold, managed auth, database, private file storage, migrations, API layer, tests, CI, or deployment pipeline exists yet.
+- `next action`: Rebuild lane must accept/supersede `docs/architecture/adr-0001-stack-auth-database-upload.md` or create an equivalent ADR, then scaffold the selected stack with auth/database/private-upload assumptions explicit.
+- `last updated`: 2026-05-18

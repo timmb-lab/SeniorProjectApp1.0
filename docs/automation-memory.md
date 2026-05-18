@@ -25,10 +25,11 @@ This is not a static guide, brochure, or visual-only project.
 - Daily automation summaries and the Google Drive/Doc target should use `bryan.timm89@gmail.com`.
 - Every main lane and the daily reporting automation now use `docs/automation-self-improvement.md` to self-review, log whether prompt/config changes were needed, and update only their own live automation prompt/config when evidence justifies it.
 - A weekly deep audit automation, `senior-capstone-weekly-deep-audit`, now runs Sundays at `23:30 PT` to produce a severe whole-system audit and feed durable findings into the master plan, memory, backlog, handoffs, decision log, and run logs.
+- Automation operating infrastructure now includes prompt snapshots in `docs/automation-prompts/`, structured run manifests in `docs/progress/runs/`, human decisions in `docs/human-decisions.md`, external artifact registry in `docs/artifacts.json`, and contract scripts in `scripts/`.
 
 ## Current Priority
 
-1. Choose and document the app stack/hosting/auth/database/storage architecture.
+1. Resolve `SC-005` / `HD-2026-05-18-001`: choose and document the app stack/hosting/auth/database/private-upload architecture.
 2. Scaffold the real app foundation with TypeScript, package scripts, tests, and a protected app structure.
 3. Model users, roles, permissions, programs, requirements, submissions, evidence artifacts, reviews, approvals, and audit events.
 4. Build the first vertical slice: student proposal submission -> evidence upload/link -> teacher review -> revision/approval -> audit log -> dashboard aggregate.
@@ -49,12 +50,13 @@ This is not a static guide, brochure, or visual-only project.
 
 See `docs/automation-backlog.md`.
 
-Current P1 anchors:
+Current backlog anchors:
 
 - `SC-001`: framework seed loader and minimal requirement schema.
 - `SC-002`: guided Research Proposal Challenge UI and review queue spec.
 - `SC-003`: private EvidenceArtifact model and permission tests.
 - `SC-004`: mentor meetings, presentation scheduling, celebration evidence, archive/export workflows.
+- `SC-005`: P0 stack/auth/database/private-upload decision and scaffold pressure.
 
 ## Known External Artifact Memory
 
@@ -79,6 +81,7 @@ Read `docs/progress/decision-log.md` for accepted or superseded decisions.
 - `D-2026-05-18-003`: daily automation summaries and Google Drive/Doc target account use `bryan.timm89@gmail.com`.
 - `D-2026-05-18-004`: automations may improve their own prompt/config from evidence using the guarded self-improvement protocol, while preserving schedule/workspace/model/status unless the user explicitly asks otherwise.
 - `D-2026-05-18-005`: run a weekly deep audit automation to perform a long piece-by-piece whole-system review and feed findings back into the master plan and logs.
+- `D-2026-05-18-007`: automations use prompt snapshots, structured run manifests, human decisions, artifact registry, and a contract checker as core operating infrastructure.
 
 ## Handoff Rules
 
@@ -100,7 +103,10 @@ Every productive automation run should update:
 
 - Its lane log in `docs/progress/`.
 - `docs/progress/run-log.md`.
+- A structured run manifest in `docs/progress/runs/`.
 - Any changed handoff, decision, backlog, or memory file.
+- `docs/artifacts.json` for durable external artifacts.
+- `docs/human-decisions.md` for Bryan-level decisions.
 
 Every run should end with a pushed commit or a committed blocker entry explaining why that could not happen.
 

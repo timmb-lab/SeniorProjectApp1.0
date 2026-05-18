@@ -16,7 +16,9 @@ Every main lane and the daily reporting job should run this loop:
 4. If no prompt/config improvement is justified, write `self-improvement: none` in the lane/report log.
 5. If a small improvement is justified by evidence, update only that automation's own live prompt/config with `automation_update`, then log what changed and why.
 6. Preserve the existing automation `id`, `kind`, `name`, schedule, workspace, model, reasoning effort, and active status unless the user explicitly asked to change one of those fields.
-7. Commit and push any repo documentation, log, spec, or script changes created during the run.
+7. Regenerate prompt snapshots with `scripts/snapshot-automation-prompts.ps1` after any live prompt/config change.
+8. Run `scripts/check-automation-contract.ps1` after any prompt/config or automation-operating-doc change.
+9. Commit and push any repo documentation, log, manifest, prompt snapshot, spec, or script changes created during the run.
 
 ## Valid Self-Improvement Triggers
 
@@ -38,6 +40,7 @@ Allowed self-improvement changes are narrow:
 
 - Add or clarify required reads.
 - Add missing log, handoff, backlog, decision, verification, commit, or push instructions.
+- Add missing structured run manifest, artifact registry, human decision queue, or prompt snapshot instructions.
 - Tighten lane ownership and acceptance checks.
 - Improve fallback behavior for Figma, Canva, Gmail, Google Drive, git, or deployment blockers.
 - Add a missing source-of-truth reference.
@@ -66,6 +69,7 @@ When an automation improves itself, it must record:
 - The prompt/config area changed.
 - The fields intentionally preserved, especially schedule, workspace, model, reasoning effort, and active status.
 - Verification that the live automation file or tool response now includes the intended rule.
+- Verification that prompt snapshots and the automation contract checker are current when prompt/config changed.
 - The commit hash for repo documentation/log updates, or the blocker if commit/push could not complete.
 
 Durable decisions belong in `docs/progress/decision-log.md`. Routine per-run notes belong in the lane log and `docs/progress/run-log.md`.

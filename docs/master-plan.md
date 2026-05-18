@@ -144,6 +144,13 @@ The next major rebuild decision is the production stack:
 
 No automation should pretend the app is functional until this foundation exists in the repo and is tested.
 
+Current stack pressure:
+
+- `HD-2026-05-18-001` is the active human decision queue item for the production stack.
+- `docs/architecture/adr-0001-stack-auth-database-upload.md` is the proposed default ADR.
+- `SC-005` is the P0 rebuild backlog item that keeps this decision in front of the automation loop.
+- Until accepted or superseded, rebuild should prioritize the stack/auth/database/private-upload foundation before broad app feature work.
+
 ## Lane Responsibilities
 
 Figma:
@@ -184,10 +191,13 @@ Every productive automation run must reference:
 - `docs/automation-self-improvement.md`
 - `docs/automation-memory.md`
 - `docs/progress/run-log.md`
+- `docs/progress/runs/`
 - `docs/progress/handoffs.md`
 - `docs/progress/decision-log.md`
 - Its lane log.
 - `docs/automation-backlog.md`
+- `docs/artifacts.json` when external artifacts are created, consumed, superseded, or verified.
+- `docs/human-decisions.md` when a human-level decision is needed or changed.
 
 Each run must log:
 
@@ -198,6 +208,7 @@ Each run must log:
 - What remains blocked.
 - What the next lane should do.
 - Whether self-improvement was unnecessary or what narrow prompt/config improvement was made with evidence.
+- Which structured run manifest was written.
 
 ## Anti-Drift Rules
 
