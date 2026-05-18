@@ -16,9 +16,9 @@ The site is written for students. It maps the physical `Your Senior` booklet int
 
 Students should always follow the current directions, deadlines, and links shared through Senior Remind, the class website, and their senior project team.
 
-## Public Entry
+## Public Website
 
-Open `index.html` or the GitHub Pages URL for the student guide.
+Open `index.html` or the Cloudflare/GitHub Pages URL for the public ECTA Senior Capstone website. The root page links into program requirements, the phase menu, focused student supports, templates, product app preview, and Day 7 alpha flow.
 
 ## Day 7 Alpha
 

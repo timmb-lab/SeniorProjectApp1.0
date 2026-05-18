@@ -1709,6 +1709,309 @@ const navItems = [
   { page: "grades", label: "Grades", href: "grades.html" }
 ];
 
+const resourcePages = {
+  "sponsorship-support": {
+    title: "Sponsorship Support",
+    file: "sponsorship-support.html",
+    eyebrow: "Program requirements",
+    summary:
+      "Use this when a project needs donations, materials, community partners, letters, approvals, or outside support.",
+    appTie:
+      "The app should eventually track sponsor contacts, approval status, uploaded letters, received materials, and thank-you evidence.",
+    actions: [
+      "Confirm with the senior program teacher before contacting any outside sponsor.",
+      "Write what support is needed: supplies, funding, expertise, space, permission, or audience access.",
+      "Prepare a short explanation of the project, CTE connection, student benefit, and exact request.",
+      "Save every approval, email, receipt, donation note, and thank-you follow-up as project evidence."
+    ],
+    cards: [
+      {
+        title: "Before Asking",
+        body:
+          "The request should be specific and school-appropriate. Students should know who they are contacting, what they are asking for, and how the support connects to the approved project."
+      },
+      {
+        title: "What To Save",
+        body:
+          "Keep the sponsor name, contact date, request, adult approval, response, materials received, and any required thank-you evidence."
+      },
+      {
+        title: "Staff Check",
+        body:
+          "Outside support can affect safety, cost, school policy, and public communication. A quick teacher check prevents messy surprises later."
+      }
+    ]
+  },
+  calendar: {
+    title: "Calendar",
+    file: "calendar.html",
+    eyebrow: "Year map",
+    summary:
+      "A readable planning calendar for the Senior Capstone cycle: proposal, build, mentor meetings, presentation, showcase, gratitude, and portfolio.",
+    appTie:
+      "The app should turn these windows into program/cohort deadlines, reminders, dashboard alerts, and review queues.",
+    actions: [
+      "Use September for proposal approval and realistic planning.",
+      "Use October through December for gathering supplies, building, check-ins, and Mentor Meeting 1.",
+      "Use January and February to finish the build, meet with the mentor again, and prepare the presentation.",
+      "Use spring for presentation, showcase, gratitude, reflections, and portfolio completion."
+    ],
+    cards: [
+      {
+        title: "September",
+        body:
+          "Clarify the idea, program requirements, group rules, materials, timeline, and approval path."
+      },
+      {
+        title: "October-December",
+        body:
+          "Gather supplies, make visible progress, document evidence, complete check-ins, and use Mentor Meeting 1 to improve direction."
+      },
+      {
+        title: "January-Spring",
+        body:
+          "Sprint to finish, complete Mentor Meeting 2, present, showcase the work, thank supporters, and submit portfolio evidence."
+      }
+    ]
+  },
+  "gathering-supplies": {
+    title: "Gathering Supplies",
+    file: "gathering-supplies.html",
+    eyebrow: "Phase 2 - Build Part I",
+    summary:
+      "Turn a promising proposal into a workable supply, tool, space, safety, and permission plan.",
+    appTie:
+      "The app should collect materials lists, cost notes, sponsor needs, safety checks, and evidence that supplies are ready.",
+    actions: [
+      "List every material, tool, software account, space, adult approval, and outside contact needed.",
+      "Mark each item as already available, needs school support, needs donation, needs purchase, or needs permission.",
+      "Save receipts, screenshots, safety notes, approvals, and sponsor communication as evidence.",
+      "Build a fallback plan for expensive, delayed, unavailable, or unsafe items."
+    ],
+    cards: [
+      {
+        title: "Supply Map",
+        body:
+          "A strong supply plan shows the item, source, cost, deadline, adult approval, and why it matters."
+      },
+      {
+        title: "Safety And Permission",
+        body:
+          "Projects involving tools, food, patients, children, client data, money, transportation, or public partners need early adult review."
+      },
+      {
+        title: "Fallbacks",
+        body:
+          "If an item falls through, the project should still have a smaller safe version that proves the same CTE skill."
+      }
+    ]
+  },
+  "managing-your-vision": {
+    title: "Managing Your Vision",
+    file: "managing-your-vision.html",
+    eyebrow: "Phase 2 - Build Part I",
+    summary:
+      "Keep the project focused, realistic, and visible as the first big build stretch begins.",
+    appTie:
+      "The app should make this visible through milestones, blockers, progress notes, status history, and evidence artifacts.",
+    actions: [
+      "Rewrite the project goal in one sentence before every major work session.",
+      "Choose the next visible proof: sketch, prototype, recipe test, code screen, interview, photo, draft, or log.",
+      "Use check-ins to name what changed, what is blocked, and what support is needed.",
+      "Remove features that make the project bigger without making the CTE evidence stronger."
+    ],
+    cards: [
+      {
+        title: "Stay Focused",
+        body:
+          "A project gets stronger when students can explain the goal, audience, evidence, and next move without wandering."
+      },
+      {
+        title: "Make Progress Visible",
+        body:
+          "Adults cannot coach invisible work. Save drafts, photos, screenshots, measurements, feedback, and revisions early."
+      },
+      {
+        title: "Protect The Scope",
+        body:
+          "If the idea keeps expanding, return to the approved proposal and cut anything that does not prove the core skill."
+      }
+    ]
+  },
+  "mentor-meeting-1": {
+    title: "Mentor Meeting 1",
+    file: "mentor-meeting-1.html",
+    eyebrow: "Phase 2 - Build Part I",
+    summary:
+      "Prepare the first mentor conversation so it creates feedback, confidence, and a better next step.",
+    appTie:
+      "The app should track mentor assignments, meeting prep, notes, feedback, student commitments, and make-up needs.",
+    actions: [
+      "Bring the approved proposal, project summary, timeline, supply plan, current evidence, and three questions.",
+      "Ask for feedback that can change the project, not just encouragement.",
+      "Write down decisions, risks, and next actions during or immediately after the meeting.",
+      "Save meeting notes as evidence and update the build plan."
+    ],
+    cards: [
+      {
+        title: "Best Questions",
+        body:
+          "Ask what is unclear, what might go wrong, what evidence would be convincing, and what the audience will need explained."
+      },
+      {
+        title: "Mentor Role",
+        body:
+          "The mentor helps students think, reflect, and prepare. The student still owns the work."
+      },
+      {
+        title: "After The Meeting",
+        body:
+          "Turn feedback into one change, one deadline, and one new piece of evidence."
+      }
+    ]
+  },
+  "sprint-to-finish": {
+    title: "Sprint To The Finish",
+    file: "sprint-to-finish.html",
+    eyebrow: "Phase 2 continues",
+    summary:
+      "Use the second build stretch to finish the product/process, close gaps, and prepare the story.",
+    appTie:
+      "The app should highlight overdue blockers, final evidence needs, revision loops, presentation readiness, and risk flags.",
+    actions: [
+      "List what is finished, what is partially done, what is blocked, and what must be cut.",
+      "Choose the final evidence set that proves planning, build, feedback, revision, and outcome.",
+      "Finish the strongest possible version before polishing the presentation.",
+      "Ask an adult what is still unclear before the presentation outline is due."
+    ],
+    cards: [
+      {
+        title: "Finish Means Evidence",
+        body:
+          "A finished project should leave behind proof: final product, process photos, revision notes, testing, feedback, or impact."
+      },
+      {
+        title: "Cut Wisely",
+        body:
+          "Removing weak extra features can make the final project clearer and more professional."
+      },
+      {
+        title: "Prepare The Story",
+        body:
+          "The presentation works best when the student can explain the original goal, major decisions, changes, and final result."
+      }
+    ]
+  },
+  "mentor-meeting-2": {
+    title: "Mentor Meeting 2",
+    file: "mentor-meeting-2.html",
+    eyebrow: "Phase 2 continues",
+    summary:
+      "Use the second mentor meeting to check final progress, presentation structure, and logistics.",
+    appTie:
+      "The app should connect this meeting to presentation outline approval, slot confirmation, readiness notes, and attendance history.",
+    actions: [
+      "Bring final build evidence, the presentation outline, possible visuals, and a logistics checklist.",
+      "Ask whether the presentation story is clear enough for someone outside the project.",
+      "Confirm date, period, room, technology, artifacts, and any make-up plan.",
+      "Record feedback and revise the outline before practicing."
+    ],
+    cards: [
+      {
+        title: "Review The Story",
+        body:
+          "The mentor should understand the project overview, CTE connection, process, outcome, growth, and likely questions."
+      },
+      {
+        title: "Confirm Logistics",
+        body:
+          "A good project can still stumble if the room, time, device, display, artifact, or audience plan is unclear."
+      },
+      {
+        title: "Practice Next",
+        body:
+          "After this meeting, the student should practice out loud and refine the opening, transitions, and evidence points."
+      }
+    ]
+  },
+  "project-showcase": {
+    title: "Project Showcase",
+    file: "project-showcase.html",
+    eyebrow: "Phase 3 - Present",
+    summary:
+      "Prepare a public-facing showcase that makes the project understandable, professional, and worth celebrating.",
+    appTie:
+      "The app should support display readiness, artifact lists, photos, program requirements, and final archive evidence.",
+    actions: [
+      "Make the project title, purpose, process, final result, and CTE skill visible at a glance.",
+      "Use clean labels, readable type, strong evidence, and intentional visual hierarchy.",
+      "Test the display with someone who does not already know the project.",
+      "Save final showcase photos and feedback for the portfolio."
+    ],
+    cards: [
+      {
+        title: "Visitor Test",
+        body:
+          "If a visitor cannot understand what the student did in 30 seconds, simplify the display."
+      },
+      {
+        title: "Professional Proof",
+        body:
+          "The showcase should feel like evidence of skill, care, revision, and readiness, not just decoration."
+      },
+      {
+        title: "Portfolio Capture",
+        body:
+          "Take photos of the final display, the artifact, the process, and any feedback or recognition before teardown."
+      }
+    ]
+  }
+};
+
+const siteMenuGroups = [
+  {
+    title: "Program Requirements",
+    href: "program.html",
+    items: [
+      { label: "Sponsorship Support", href: "sponsorship-support.html", resourceId: "sponsorship-support" },
+      { label: "Calendar", href: "calendar.html", resourceId: "calendar" }
+    ]
+  },
+  {
+    title: "Phases",
+    href: "process.html",
+    items: [
+      { label: "Phase 1 - Kickoff", href: "phase-1.html", phaseId: "phase-1" },
+      {
+        label: "Phase 2 - Build Part I",
+        href: "phase-2a.html",
+        phaseId: "phase-2a",
+        items: [
+          { label: "Gathering Supplies", href: "gathering-supplies.html", resourceId: "gathering-supplies" },
+          { label: "Managing Your Vision", href: "managing-your-vision.html", resourceId: "managing-your-vision" },
+          { label: "Mentor Meeting 1", href: "mentor-meeting-1.html", resourceId: "mentor-meeting-1" }
+        ]
+      },
+      {
+        label: "Phase 2 Continues - Build Part II",
+        href: "phase-2b.html",
+        phaseId: "phase-2b",
+        items: [
+          { label: "Sprint To The Finish", href: "sprint-to-finish.html", resourceId: "sprint-to-finish" },
+          { label: "Mentor Meeting 2", href: "mentor-meeting-2.html", resourceId: "mentor-meeting-2" }
+        ]
+      },
+      {
+        label: "Phase 3 - Present",
+        href: "present.html",
+        phaseId: "phase-3a",
+        items: [{ label: "Project Showcase", href: "project-showcase.html", resourceId: "project-showcase" }]
+      },
+      { label: "Phase 4 - Portfolio + Reflection", href: "launch.html", phaseId: "phase-4" }
+    ]
+  }
+];
+
 const productPreviewRoles = [
   {
     id: "student",
@@ -2352,68 +2655,98 @@ function goingFurtherHtml(phase) {
   );
 }
 
-function renderSiteChrome() {
-  const chrome = document.querySelector("#siteChrome");
-  if (!chrome) return;
+function isMenuNodeCurrent(node) {
+  if (node.phaseId && node.phaseId === document.body.dataset.phaseId) return true;
+  if (node.resourceId && node.resourceId === document.body.dataset.resourceId) return true;
+  if (node.page && node.page === document.body.dataset.page) return true;
+  const currentFile = window.location.pathname.split("/").pop() || "index.html";
+  return Boolean(node.href && node.href === currentFile);
+}
 
-  const active = getActiveNavPage();
-  const activePhaseId = document.body.dataset.phaseId;
-  const supportLinks = navItems
-    .map((item) => {
-      const current = item.page === active ? ` aria-current="page"` : "";
-      return `<a class="menu-resource-link" href="${item.href}"${current}>${item.label}</a>`;
-    })
-    .join("");
+function menuNodeHasCurrent(node) {
+  return isMenuNodeCurrent(node) || Boolean(node.items?.some(menuNodeHasCurrent));
+}
 
-  const phaseLinks = phases
-    .map((phase, index) => {
-      const current = phase.id === activePhaseId ? ` aria-current="page"` : "";
-      const guide = getPhaseGuide(phase);
+function menuNodeHtml(node, depth = 0) {
+  const current = isMenuNodeCurrent(node) ? ` aria-current="page"` : "";
+  const className = `menu-tree-link menu-depth-${depth}`;
+
+  if (node.items?.length) {
+    const open = " open";
+    return `
+      <details class="menu-tree-branch"${open}>
+        <summary>
+          <a class="${className}" href="${node.href}"${current}>${node.label}</a>
+        </summary>
+        <div class="menu-tree-children">
+          ${node.items.map((item) => menuNodeHtml(item, depth + 1)).join("")}
+        </div>
+      </details>
+    `;
+  }
+
+  return `<a class="${className}" href="${node.href}"${current}>${node.label}</a>`;
+}
+
+function siteMenuHtml() {
+  const groups = siteMenuGroups
+    .map((group) => {
+      const current = menuNodeHasCurrent(group) ? ` aria-current="page"` : "";
       return `
-        <a class="menu-phase-link" href="${getPhaseHref(phase.id)}"${current}>
-          <span class="menu-phase-number">${index + 1}</span>
-          <span>
-            <strong>${guide.menu}</strong>
-            <small>${phase.nav}: ${phase.title}</small>
-          </span>
-          <span class="menu-phase-pages">${phase.pages}</span>
-        </a>
+        <section class="project-menu-section menu-tree-section">
+          <a class="menu-tree-heading" href="${group.href}"${current}>${group.title}</a>
+          <div class="menu-tree-list">
+            ${group.items.map((item) => menuNodeHtml(item)).join("")}
+          </div>
+        </section>
       `;
     })
     .join("");
 
+  return `
+    ${groups}
+    <section class="project-menu-section menu-tree-section">
+      <a class="menu-tree-heading" href="app-preview.html">Web App</a>
+      <div class="menu-app-links">
+        <a class="menu-resource-link" href="app-preview.html">Product App Preview</a>
+        <a class="menu-resource-link" href="alpha.html">Alpha Console</a>
+        <a class="menu-resource-link" href="templates.html">Templates</a>
+        <a class="menu-resource-link" href="rubrics.html">Rubrics</a>
+        <a class="menu-resource-link" href="grades.html">Grades</a>
+      </div>
+    </section>
+  `;
+}
+
+function renderSiteChrome() {
+  const chrome = document.querySelector("#siteChrome");
+  if (!chrome) return;
+
   chrome.innerHTML = `
     <header class="app-header">
       <a class="brand app-brand" href="index.html" aria-label="Senior Capstone Project home">
-        <span class="brand-mark" aria-hidden="true">SP</span>
-        <span>Senior Capstone</span>
+        <span class="brand-mark" aria-hidden="true">TT</span>
+        <span>ECTA Senior Capstone</span>
       </a>
       <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="projectMenu" data-menu-toggle>
         <span class="menu-bars" aria-hidden="true"><span></span><span></span><span></span></span>
-        <span>Project Menu</span>
+        <span>Capstone Menu</span>
       </button>
     </header>
     <div class="menu-backdrop" data-menu-close hidden></div>
     <aside class="project-menu" id="projectMenu" role="dialog" aria-modal="true" aria-labelledby="project-menu-title" hidden>
       <div class="project-menu-header">
         <div>
-          <p class="menu-kicker">Where am I?</p>
-          <h2 id="project-menu-title">Project Menu</h2>
+          <p class="menu-kicker">Titan roadmap</p>
+          <h2 id="project-menu-title">Capstone Menu</h2>
         </div>
         <button class="menu-close" type="button" data-menu-close>Close</button>
       </div>
       <p class="menu-intro">
-        Choose the sentence that sounds closest to what you need right now. The page you are on stays highlighted.
+        Program requirements, phase supports, and app surfaces in one readable map.
       </p>
       <nav class="project-menu-nav" aria-label="Project navigation">
-        <section class="project-menu-section" aria-labelledby="phase-menu-title">
-          <h3 id="phase-menu-title">Project Steps</h3>
-          <div class="menu-phase-list">${phaseLinks}</div>
-        </section>
-        <section class="project-menu-section" aria-labelledby="resource-menu-title">
-          <h3 id="resource-menu-title">Support Pages</h3>
-          <div class="menu-resource-list">${supportLinks}</div>
-        </section>
+        ${siteMenuHtml()}
       </nav>
     </aside>
   `;
@@ -2429,7 +2762,7 @@ function setupProjectMenu(chrome) {
   if (!toggle || !menu || !backdrop) return;
 
   let lastFocused = null;
-  const focusableSelector = "a[href], button:not([disabled])";
+  const focusableSelector = "a[href], button:not([disabled]), summary";
 
   function openMenu() {
     lastFocused = document.activeElement;
@@ -2555,16 +2888,15 @@ function supportCardHtml([title, body, href]) {
 
 function supportCardsHtml() {
   return [
-    ["Day 7 Alpha", "Walk the working seeded app flow with server-owned demo state.", "alpha.html"],
-    ["Product App Preview", "See the Figma-aligned student, teacher, mentor, and admin app surface.", "app-preview.html"],
-    ["Pacing", "See what should happen now, next, and later.", "pacing.html"],
-    ["Examples", "Look at weak, better, and strongest samples.", "examples.html"],
-    ["Official Links", "Find where current teacher links and deadlines live.", "links.html"],
-    ["Program Requirements", "Write down the rules for your pathway.", "program.html"],
-    ["Templates", "Open starter files when you need a document.", "templates.html"],
-    ["Portfolio", "Check what belongs in the final portfolio.", "portfolio.html"],
-    ["Rubrics", "Use rubrics before you turn work in.", "rubrics.html"],
-    ["Grades", "See where the project counts and what recognition means.", "grades.html"]
+    ["Sponsorship Support", "Plan donations, outside help, approvals, and thank-you evidence.", "sponsorship-support.html"],
+    ["Calendar", "See the year as proposal, build, mentor, presentation, showcase, and portfolio windows.", "calendar.html"],
+    ["Gathering Supplies", "Make materials, tools, safety, cost, and fallback plans visible.", "gathering-supplies.html"],
+    ["Managing Your Vision", "Keep the project focused, realistic, and evidence-driven.", "managing-your-vision.html"],
+    ["Mentor Meeting 1", "Prepare the first mentor conversation with useful questions and next actions.", "mentor-meeting-1.html"],
+    ["Sprint To The Finish", "Close build gaps before presentation prep takes over.", "sprint-to-finish.html"],
+    ["Mentor Meeting 2", "Check final progress, presentation structure, and logistics.", "mentor-meeting-2.html"],
+    ["Project Showcase", "Prepare a clean public display that visitors can understand quickly.", "project-showcase.html"],
+    ["Product App Preview", "See how the secure app will track evidence, review, status, and dashboards.", "app-preview.html"]
   ]
     .map(supportCardHtml)
     .join("");
@@ -3221,6 +3553,100 @@ function phaseSummaryRowsHtml() {
   return `<div class="phase-summary-list">${phases.map(phaseSummaryCardHtml).join("")}</div>`;
 }
 
+function menuPreviewHtml() {
+  return `
+    <div class="site-map-showcase">
+      ${siteMenuGroups
+        .map(
+          (group) => `
+            <article class="site-map-card">
+              <a class="site-map-heading" href="${group.href}">${group.title}</a>
+              <div class="site-map-list">
+                ${group.items
+                  .map(
+                    (item) => `
+                      <div class="site-map-item">
+                        <a href="${item.href}">${item.label}</a>
+                        ${
+                          item.items
+                            ? `<div class="site-map-sublist">${item.items
+                                .map((child) => `<a href="${child.href}">${child.label}</a>`)
+                                .join("")}</div>`
+                            : ""
+                        }
+                      </div>
+                    `
+                  )
+                  .join("")}
+              </div>
+            </article>
+          `
+        )
+        .join("")}
+    </div>
+  `;
+}
+
+function resourcePageLinksHtml() {
+  return `
+    <div class="resource-jump-grid">
+      ${Object.values(resourcePages)
+        .map((page) => `<a class="resource-jump-link" href="${page.file}">${page.title}</a>`)
+        .join("")}
+    </div>
+  `;
+}
+
+function renderResourcePage(root) {
+  const resourceId = document.body.dataset.resourceId;
+  const page = resourcePages[resourceId] ?? resourcePages.calendar;
+
+  document.title = `${page.title} | Senior Capstone Project`;
+  root.innerHTML = `
+    ${pageHeroHtml({
+      eyebrow: page.eyebrow,
+      title: page.title,
+      summary: page.summary,
+      breadcrumb: `<nav class="breadcrumb" aria-label="Breadcrumb"><a href="index.html">Home</a><span aria-hidden="true">/</span><span>${page.title}</span></nav>`
+    })}
+    <section class="section section-tight">
+      <div class="resource-layout">
+        <div class="stack-lg">
+          <section class="content-card student-section titan-panel">
+            <p class="eyebrow">Student moves</p>
+            <h2>What To Do</h2>
+            ${numberListHtml(page.actions)}
+          </section>
+          <section class="section-card-grid" aria-label="${page.title} supports">
+            ${page.cards
+              .map(
+                (card) => `
+                  <article class="content-card resource-focus-card">
+                    <h2>${card.title}</h2>
+                    <p>${card.body}</p>
+                  </article>
+                `
+              )
+              .join("")}
+          </section>
+        </div>
+        <aside class="student-aside resource-aside" aria-label="Connected app support">
+          <section class="content-card app-tie-card">
+            <p class="eyebrow">Hand in hand with the app</p>
+            <h2>App Connection</h2>
+            <p>${page.appTie}</p>
+            <a class="button button-primary" href="app-preview.html">Preview The App</a>
+          </section>
+          <section class="content-card">
+            <h2>More Supports</h2>
+            ${resourcePageLinksHtml()}
+          </section>
+        </aside>
+      </div>
+    </section>
+  `;
+}
+
 function legacyPhaseTitle(phase) {
   const guide = getPhaseGuide(phase);
   return `${guide.menu}`;
@@ -3246,36 +3672,99 @@ function phaseButtonPagePillHtml(phase) {
 }
 
 function renderHomePage(root) {
-  document.title = "Senior Capstone Project";
+  const websitePillars = [
+    {
+      title: "Readable Roadmap",
+      body: "Students can find the exact phase, support page, or template they need without digging through a long document.",
+      href: "process.html",
+      action: "Open Phases"
+    },
+    {
+      title: "Program Requirements",
+      body: "Pathway rules, sponsorship support, and calendar planning stay visible before students build the wrong thing.",
+      href: "program.html",
+      action: "Open Requirements"
+    },
+    {
+      title: "App Companion",
+      body: "The website explains the work. The app tracks evidence, review, feedback, status, and dashboards.",
+      href: "app-preview.html",
+      action: "Preview The App"
+    },
+    {
+      title: "Titan Finish",
+      body: "Presentation, showcase, gratitude, portfolio, rubrics, and recognition all point toward a professional close.",
+      href: "launch.html",
+      action: "Finish Strong"
+    }
+  ];
+
+  document.title = "ECTA Senior Capstone";
   root.innerHTML = `
     <section class="home-hero" aria-labelledby="hero-title">
       <div class="hero">
         <div class="hero-copy">
-          <p class="eyebrow">Your senior project guide</p>
+          <p class="eyebrow">ECTA Titan senior project</p>
           <h1 id="hero-title">Senior Capstone Project</h1>
           <p class="hero-text">
-            One step at a time: pick where you are, do the first move, save evidence, and ask for help before the project feels too big.
+            A polished website companion for the Senior Capstone app: clear steps, Titan-ready supports, practical resources, and a calm path from idea to portfolio.
           </p>
           <div class="hero-actions" aria-label="Primary actions">
-            <a class="button button-primary" href="#where-am-i">Find My Step</a>
-            <a class="button button-secondary" href="app-preview.html">Preview The Product App</a>
-            <a class="button button-secondary" href="pacing.html">See The Timeline</a>
+            <a class="button button-primary" href="program.html">Program Requirements</a>
+            <a class="button button-secondary" href="process.html">Open Phases</a>
+            <a class="button button-secondary" href="app-preview.html">Web App Preview</a>
           </div>
         </div>
         <dl class="hero-stats hero-promises" aria-label="Project support">
           <div>
-            <dt>Pick</dt>
-            <dd>find the step that matches today</dd>
+            <dt>Plan</dt>
+            <dd>requirements and calendar</dd>
           </div>
           <div>
-            <dt>Do</dt>
-            <dd>start with three clear moves</dd>
+            <dt>Build</dt>
+            <dd>supplies, vision, mentor checks</dd>
           </div>
           <div>
-            <dt>Save</dt>
-            <dd>keep proof as you go</dd>
+            <dt>Launch</dt>
+            <dd>present, showcase, portfolio</dd>
           </div>
         </dl>
+      </div>
+    </section>
+    <section class="section" aria-labelledby="site-menu-title">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Student-first menu</p>
+          <h2 id="site-menu-title">Built Around The Work</h2>
+        </div>
+        <p class="section-note">
+          This site follows the practical menu students and staff already expect, with cleaner design and app-friendly structure.
+        </p>
+      </div>
+      ${menuPreviewHtml()}
+    </section>
+    <section class="section" aria-labelledby="hand-in-hand-title">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Website + app</p>
+          <h2 id="hand-in-hand-title">Hand In Hand</h2>
+        </div>
+        <p class="section-note">
+          Public guidance stays readable here; operational workflow lives in the secure app.
+        </p>
+      </div>
+      <div class="page-grid">
+        ${websitePillars
+          .map(
+            (item) => `
+              <article class="support-card compact-support-card">
+                <h3>${item.title}</h3>
+                <p>${item.body}</p>
+                <a class="button" href="${item.href}">${item.action}</a>
+              </article>
+            `
+          )
+          .join("")}
       </div>
     </section>
     <section class="section section-tight" id="where-am-i" aria-labelledby="home-process-title">
@@ -3854,6 +4343,7 @@ function initPageApp() {
   const page = document.body.dataset.page;
   if (page === "home") renderHomePage(root);
   if (page === "app-preview") renderAppPreviewPage(root);
+  if (page === "resource") renderResourcePage(root);
   if (page === "process") renderProcessPage(root);
   if (page === "pacing") renderPacingPage(root);
   if (page === "examples") renderExamplesPage(root);

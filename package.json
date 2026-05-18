@@ -5,8 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "wrangler pages dev . --compatibility-date=2026-05-18",
+    "build:public-site": "node scripts/build-public-site.mjs",
+    "dev:public-site": "npm run build:public-site && wrangler pages dev public-site --compatibility-date=2026-05-18 --port 8789",
     "dev:alpha": "wrangler pages dev . --compatibility-date=2026-05-18 --port 8788",
     "deploy": "wrangler pages deploy . --project-name=senior-capstone-app",
+    "deploy:public-site": "npm run build:public-site && wrangler pages deploy public-site --project-name=senior-capstone-public",
     "deploy:preview": "wrangler pages deploy . --project-name=senior-capstone-app --branch alpha",
     "db:migrate:local": "wrangler d1 migrations apply senior-capstone-db --local",
     "db:migrate:remote": "wrangler d1 migrations apply senior-capstone-db --remote",
