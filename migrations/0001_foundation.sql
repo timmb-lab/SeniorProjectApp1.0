@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS password_credentials (
   password_hash TEXT NOT NULL,
   password_salt TEXT NOT NULL,
   algorithm TEXT NOT NULL DEFAULT 'PBKDF2-SHA-256',
-  iterations INTEGER NOT NULL DEFAULT 310000,
+  iterations INTEGER NOT NULL DEFAULT 100000,
   password_version INTEGER NOT NULL DEFAULT 1,
   requires_reset INTEGER NOT NULL DEFAULT 0,
   password_changed_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
