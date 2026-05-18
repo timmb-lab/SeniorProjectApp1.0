@@ -135,6 +135,24 @@ Deadline:
 
 ## Curriculum And Requirements
 
+SourceDocument:
+- `id`
+- `slug`
+- `title`
+- `source_pdf_path`
+- `extracted_text_path`
+- `page_count`
+- `character_count`
+- `imported_at`
+
+SourceDocumentMapping:
+- `id`
+- `source_document_id`
+- `entity_type`: phase, requirement, requirement_section, quality_check, deadline, rubric, workflow_note
+- `entity_id`
+- `page_numbers`
+- `notes`
+
 Phase:
 - `id`
 - `slug`
@@ -155,6 +173,39 @@ Requirement:
 - `required`
 - `sequence`
 - `default_reviewer_role`
+- `credit_owner_label`
+- `due_label`
+- `source_requirement_slug`
+- `active`
+
+RequirementSection:
+- `id`
+- `requirement_id`
+- `slug`
+- `title`
+- `instructions`
+- `sequence`
+- `required`
+- `min_response_length` optional
+- `quality_check_group_id` optional
+
+RequirementField:
+- `id`
+- `requirement_section_id`
+- `slug`
+- `label`
+- `field_type`: short_text, long_text, rich_text, url, upload, date, select, checklist, rubric_score
+- `required`
+- `help_text`
+- `sequence`
+
+QualityCheck:
+- `id`
+- `requirement_id`
+- `requirement_section_id` optional
+- `severity`: blocker, warning, nudge
+- `prompt`
+- `check_type`: human_review, required_field, source_count, evidence_required, rubric_prompt, automated_heuristic
 - `active`
 
 ProgramRequirement:
@@ -177,6 +228,10 @@ Template:
 - `content`
 - `format`
 - `active`
+
+Seed source:
+- `data/capstone-framework.json` contains the first structured requirement map extracted from the four 2026 Senior Project PDFs.
+- `docs/curriculum-framework-integration.md` explains how old linked-document instructions become app-native submissions, evidence, review gates, and dashboards.
 
 ## Submissions
 
@@ -217,6 +272,11 @@ EvidenceArtifact:
 - `external_url`
 - `mime_type`
 - `size_bytes`
+- `original_filename`
+- `visibility`
+- `review_status`
+- `last_checked_at`
+- `access_risk_note`
 - `created_by_user_id`
 - `created_at`
 
@@ -236,6 +296,59 @@ Approval:
 - `approval_type`: mentor, teacher, admin_override, final
 - `comment`
 - `created_at`
+
+Meeting:
+- `id`
+- `cohort_id`
+- `meeting_type`: mentor_meeting_one, mentor_meeting_two, presentation_day, celebration_day, other
+- `title`
+- `scheduled_for`
+- `makeup_for_meeting_id` optional
+- `created_by_user_id`
+
+MeetingAttendance:
+- `id`
+- `meeting_id`
+- `student_profile_id`
+- `mentor_staff_profile_id` optional
+- `status`: scheduled, attended, missed, makeup_needed, excused
+- `notes`
+- `recorded_by_user_id`
+- `recorded_at`
+
+PresentationSlot:
+- `id`
+- `student_profile_id`
+- `cohort_id`
+- `program_id`
+- `mentor_staff_profile_id` optional
+- `scheduled_start_at`
+- `scheduled_end_at`
+- `location`
+- `status`: unscheduled, scheduled, checked_out, presented, no_show, rescheduled
+- `created_by_user_id`
+- `updated_at`
+
+RubricScore:
+- `id`
+- `submission_id` optional
+- `student_profile_id`
+- `requirement_id`
+- `scorer_user_id`
+- `rubric_slug`
+- `score_json`
+- `comment`
+- `created_at`
+
+StudentArchiveExport:
+- `id`
+- `student_profile_id`
+- `cohort_id`
+- `status`: not_started, queued, generated, downloaded, failed
+- `storage_key`
+- `generated_at`
+- `downloaded_at`
+- `acknowledged_by_student_at`
 
 Comment:
 - `id`
@@ -305,6 +418,12 @@ Event types:
 - submission.override_applied
 - artifact.created
 - artifact.deleted
+- meeting.attendance_recorded
+- presentation.slot_scheduled
+- presentation.checkout_recorded
+- rubric.score_created
+- archive.export_generated
+- archive.download_acknowledged
 - export.created
 - audit.viewed
 
@@ -351,6 +470,8 @@ Student dashboard:
 - Revision requests.
 - Due dates.
 - Mentor and teacher contact.
+- Missing evidence by requirement.
+- Archive/export reminder near May 5.
 
 Mentor dashboard:
 - Assigned students.
@@ -358,6 +479,8 @@ Mentor dashboard:
 - Upcoming meetings.
 - Revision loops.
 - Missing presentation readiness items.
+- Missed mentor meetings.
+- Outline approval and presentation scheduling gaps.
 
 Program teacher dashboard:
 - Program completion by phase.
@@ -367,6 +490,8 @@ Program teacher dashboard:
 - Mentor meeting status.
 - Presentation status.
 - Display/portfolio completion.
+- Celebration photo and ingredient-list gaps.
+- Projects flagged as complete but not yet strong enough.
 
 Admin dashboard:
 - Cohort-wide completion.
@@ -377,6 +502,7 @@ Admin dashboard:
 - Export queue.
 - Role and assignment health.
 - Audit flags for overrides and exports.
+- Archive/export completion before district account access ends.
 
 ## Program Requirement Dimensions
 
@@ -405,4 +531,3 @@ Each program should be able to define:
 - What exports are required for grading systems?
 - How long should student records be retained?
 - What file types and upload sizes are allowed?
-

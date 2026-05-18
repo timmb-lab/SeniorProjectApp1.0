@@ -1,0 +1,96 @@
+[
+  {
+    "slug": "research-proposal-challenge",
+    "source_pdf": "C:\\Users\\bryan\\Downloads\\Copy of 26 Senior Project Research Proposal Challenge.pdf",
+    "output_text": "docs/source-materials/research-proposal-challenge.txt",
+    "pages": 3,
+    "characters_extracted_without_page_markers": 7397,
+    "characters_in_output_file": 7361,
+    "page_counts": [
+      {
+        "page": 1,
+        "characters": 2701,
+        "lines": 98
+      },
+      {
+        "page": 2,
+        "characters": 3109,
+        "lines": 1
+      },
+      {
+        "page": 3,
+        "characters": 1587,
+        "lines": 2
+      }
+    ],
+    "output_normalization": "Preserved page boundaries and extracted content; trimmed line-end layout whitespace from text capture."
+  },
+  {
+    "slug": "senior-project-cycle-linked-document",
+    "source_pdf": "C:\\Users\\bryan\\Downloads\\26 Senior Project Cycle Linked Document.pdf",
+    "output_text": "docs/source-materials/senior-project-cycle-linked-document.txt",
+    "pages": 2,
+    "characters_extracted_without_page_markers": 5095,
+    "characters_in_output_file": 4966,
+    "page_counts": [
+      {
+        "page": 1,
+        "characters": 2432,
+        "lines": 150
+      },
+      {
+        "page": 2,
+        "characters": 2663,
+        "lines": 25
+      }
+    ],
+    "output_normalization": "Preserved page boundaries and extracted content; trimmed line-end layout whitespace from text capture."
+  },
+  {
+    "slug": "senior-guide",
+    "source_pdf": "C:\\Users\\bryan\\Downloads\\26 S2 Senior Project SENIOR GUIDE.pdf",
+    "output_text": "docs/source-materials/senior-guide.txt",
+    "pages": 3,
+    "characters_extracted_without_page_markers": 5213,
+    "characters_in_output_file": 5072,
+    "page_counts": [
+      {
+        "page": 1,
+        "characters": 2297,
+        "lines": 87
+      },
+      {
+        "page": 2,
+        "characters": 2856,
+        "lines": 82
+      },
+      {
+        "page": 3,
+        "characters": 60,
+        "lines": 3
+      }
+    ],
+    "output_normalization": "Preserved page boundaries and extracted content; trimmed line-end layout whitespace from text capture."
+  },
+  {
+    "slug": "mentor-teacher-guide",
+    "source_pdf": "C:\\Users\\bryan\\Downloads\\26 S2 Senior Project MENTOR TEACHER GUIDE.pdf",
+    "output_text": "docs/source-materials/mentor-teacher-guide.txt",
+    "pages": 2,
+    "characters_extracted_without_page_markers": 2319,
+    "characters_in_output_file": 2315,
+    "page_counts": [
+      {
+        "page": 1,
+        "characters": 2318,
+        "lines": 23
+      },
+      {
+        "page": 2,
+        "characters": 1,
+        "lines": 1
+      }
+    ],
+    "output_normalization": "Preserved page boundaries and extracted content; trimmed line-end layout whitespace from text capture."
+  }
+]

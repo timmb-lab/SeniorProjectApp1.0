@@ -16,7 +16,10 @@ Definition of done:
 - `docs/rebuild-gameplan.md`
 - `docs/domain-model.md`
 - `docs/dashboard-ux-direction.md`
+- `docs/curriculum-framework-integration.md`
 - `data/programs.json`
+- `data/capstone-framework.json`
+- `docs/source-materials/extraction-manifest.json`
 
 Status:
 - In progress until these files are committed and pushed.
@@ -33,6 +36,7 @@ Required outputs:
 - Test runner.
 - Initial CI/build notes.
 - Explicit public-guide preservation strategy.
+- Explicit source-PDF framework preservation strategy.
 
 Primary owner:
 - Core rebuild.
@@ -50,8 +54,11 @@ Required outputs:
 - User/account model or managed-auth strategy.
 - Role and permission model.
 - Program seed loader or seed strategy.
+- Senior Project framework seed loader for `data/capstone-framework.json`.
 - Private upload/evidence artifact model.
+- Requirement section and quality-check model.
 - Submission status transition rules.
+- Mentor meeting attendance and presentation slot models.
 - Permission matrix.
 - Audit event model.
 - Tests for permissions and status transitions.
@@ -71,6 +78,7 @@ Goal:
 Workflow:
 - Student creates Core Concept Proposal.
 - Student uploads or links required evidence/artifacts and supporting reflections.
+- Student completes Research Proposal Challenge sections: problem, solution, sources, quote, counterclaim, refutation, own draft, AI feedback, final version, and significance.
 - Student submits proposal.
 - Program teacher reviews proposal.
 - Teacher requests revision or approves.
@@ -81,12 +89,46 @@ Workflow:
 Required outputs:
 - Student proposal UI/spec.
 - Evidence upload/link UI/spec.
+- Research challenge guided-section UI/spec.
 - Teacher review queue UI/spec.
 - Server/database-style workflow implementation.
 - Tests for valid transitions and unauthorized access.
 - Tests for protected evidence access.
+- Tests for section-level revision and review status.
 - Program-level aggregate.
 - Upload-failure, empty/loading/error, and permission states.
+
+## M3B - Source Cycle Completion Slice
+
+Goal:
+- Implement the remaining source-PDF workflow structure after the first proposal/research slice is reliable.
+
+Workflow:
+- Mentor Meeting One prep, attendance, missed-meeting follow-up, and next actions.
+- Mentor Meeting Two outline approval and presentation time scheduling.
+- Thanks and Thanks thank-you submission.
+- Presentation Day slides, check-out/check-in, rubric scoring, and completion status.
+- Celebration Day display plan, setup photo, ingredient list when food is shared, rubric status.
+- Five reflections.
+- May 5 archive/export package and student acknowledgement.
+
+Required outputs:
+- Requirement records seeded from `data/capstone-framework.json`.
+- Meeting attendance implementation.
+- Presentation slot/check-out model.
+- Celebration evidence model.
+- Reflection submission model.
+- Archive/export workflow.
+- Dashboard aggregates for each workflow signal.
+- Permission tests for private records.
+
+Primary owner:
+- Core rebuild.
+
+Support:
+- Figma designs the student/staff surfaces.
+- Audit validates source-PDF coverage.
+- Canva supports student-facing visuals where they reduce confusion.
 
 Primary owner:
 - Core rebuild.

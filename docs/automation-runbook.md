@@ -10,6 +10,22 @@ The automations should steadily turn the current static guide into a hosted, rol
 
 Milestones live in `docs/automation-milestones.md`. Product work should advance the earliest incomplete milestone unless a higher-severity backlog item demands attention.
 
+## Required Source Materials
+
+The app framework now includes the four source PDFs the school uses to run the Senior Project cycle.
+
+Every lane should treat these as product requirements, not optional reference notes:
+
+- `data/capstone-framework.json`
+- `docs/curriculum-framework-integration.md`
+- `docs/source-materials/extraction-manifest.json`
+- `docs/source-materials/research-proposal-challenge.txt`
+- `docs/source-materials/senior-project-cycle-linked-document.txt`
+- `docs/source-materials/senior-guide.txt`
+- `docs/source-materials/mentor-teacher-guide.txt`
+
+The key translation is: old instructions to copy, link, email, or save documents become app-native requirements, private evidence artifacts, guided submission sections, review gates, dashboard signals, and export/archive workflows.
+
 ## App End Goal
 
 The final product is a hosted application, not a static website, loose documentation set, or collection of visuals.
@@ -21,6 +37,9 @@ The app must support:
 - Private student upload/evidence spaces for documents, images, links, reflections, artifacts, forms, and phase deliverables.
 - Student submissions, revisions, resubmissions, comments, and status history.
 - Mentor and teacher review flows for approving or rejecting phase progress.
+- Mentor meeting attendance, make-up, outline approval, and presentation scheduling flows.
+- Presentation day check-out/check-in, rubric scoring, and celebration day evidence flows.
+- Final student archive/export before district account access ends.
 - Admin override and escalation flows with audit records.
 - Dashboards for students, mentors, teachers, program leads, and administrators.
 - Filters and reporting by program, cohort, phase, mentor, teacher, status, overdue state, and risk.
@@ -118,6 +137,7 @@ Avoid:
 - Creating UI specs with no data or permission mapping.
 - Treating `localStorage`, static files, or public assets as final storage for student records, submissions, approvals, uploads, or staff notes.
 - Ignoring upload/evidence ownership, privacy, metadata, virus/security posture, size/type constraints, failure states, or retention questions.
+- Rebuilding the PDF linked-document workflow as a static checklist instead of turning it into app-native submissions, evidence, review gates, and dashboards.
 - Creating code without tests when behavior changes.
 - Writing important app text only inside images.
 - Staging unrelated dirty files.
@@ -151,6 +171,7 @@ Figma:
 - State and interaction specs.
 - Upload/evidence flow specs.
 - Permission and role-state specs.
+- Guided research challenge and mentor-meeting flow specs.
 - Figma links when tools create actual artifacts.
 
 Core rebuild:
@@ -159,6 +180,8 @@ Core rebuild:
 - Schema and workflow logic.
 - Auth, user, role, and permission foundations.
 - Private upload/evidence storage model.
+- Requirement seed loader for `data/capstone-framework.json`.
+- Meeting, presentation, celebration, reflection, and archive/export workflow foundations.
 - Tests.
 - CI/deployment readiness.
 
@@ -173,6 +196,7 @@ Canva:
 - Program identity visuals.
 - Phase/process visuals.
 - Upload, permission, evidence, review, and revision support visuals.
+- Research challenge, mentor meeting, presentation, celebration, reflection, and archive support visuals.
 - Empty states, onboarding, recognition, and print/export visuals.
 
 ## Git Rules

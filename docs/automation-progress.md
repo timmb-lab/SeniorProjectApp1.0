@@ -369,3 +369,30 @@ Verification:
 Recommended next slice:
 - Core rebuild should choose the auth/permissions/upload storage architecture and scaffold the first secure workflow boundary.
 - Figma should specify the student proposal plus evidence upload/link flow, including permission, failure, and review states.
+
+## 2026-05-18 Source-PDF Curriculum Integration Pass
+
+Intent:
+- Ingest the four supplied Senior Project PDFs and turn them into app-native workflow requirements instead of static linked-document instructions.
+
+Source PDFs processed:
+- `Copy of 26 Senior Project Research Proposal Challenge.pdf`
+- `26 Senior Project Cycle Linked Document.pdf`
+- `26 S2 Senior Project SENIOR GUIDE.pdf`
+- `26 S2 Senior Project MENTOR TEACHER GUIDE.pdf`
+
+What changed:
+- Extracted page-bounded text into `docs/source-materials/`.
+- Added `data/capstone-framework.json` as the structured seed for requirements, evidence, review gates, deadlines, credit owners, quality checks, staff actions, and dashboard signals.
+- Added `docs/curriculum-framework-integration.md` to explain how the source process becomes private app workspaces, uploads/links, submissions, mentor/teacher review, presentation scheduling, celebration evidence, reflections, and archive/export.
+- Updated the domain model with source documents, requirement sections, quality checks, meeting attendance, presentation slots, rubric scores, and archive exports.
+- Updated the rebuild plan, dashboard direction, cadence, runbook, and milestones to require this framework.
+
+Verification:
+- Extracted 10 pages and 20,024 embedded source characters across the four PDFs.
+- `data/capstone-framework.json` and `docs/source-materials/extraction-manifest.json` validated as JSON.
+
+Recommended next slice:
+- Core rebuild should add a framework seed loader and minimal requirement/section/evidence schema.
+- Figma should design the Research Proposal Challenge guided form plus teacher intervention queue.
+- Audit should verify every PDF requirement has a matching app requirement and dashboard signal.

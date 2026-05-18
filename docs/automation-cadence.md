@@ -8,6 +8,7 @@ End goal: a hosted app with secure users, roles, permissions, private upload/evi
 
 Shared runbook: `docs/automation-runbook.md`.
 Shared milestones: `docs/automation-milestones.md`.
+Shared curriculum framework: `data/capstone-framework.json` and `docs/curriculum-framework-integration.md`.
 
 ## Shared Operating Contract
 
@@ -20,6 +21,7 @@ Every automation should:
 - Read its lane-specific progress log and the other lane logs before choosing work.
 - Read `docs/automation-runbook.md` before selecting work.
 - Read `docs/automation-milestones.md` before selecting work.
+- Read `data/capstone-framework.json` and `docs/curriculum-framework-integration.md` before changing requirement, workflow, dashboard, or source-material behavior.
 - Read `docs/automation-backlog.md` when present and choose work from the highest-priority relevant item.
 - Check the last two entries in its lane log to avoid repeating the same scope.
 - Choose one bounded slice per run.
@@ -42,6 +44,7 @@ Lane boundaries:
 - Canva may create or specify supporting visuals for upload/evidence/review/revision/permission concepts, but should not define functional app layout.
 - Content audits may critique and patch content/specs, but should clearly hand larger work to Figma, Canva, or core rebuild.
 - Content audits own unresolved issue triage in `docs/automation-backlog.md`.
+- No lane should recreate the source PDFs as static checklist pages when the app can make the same requirement a submission, evidence artifact, review gate, dashboard signal, or export task.
 
 Work priority:
 
@@ -91,25 +94,25 @@ Definition of done for every run:
 `:00` - Figma Product Design
 - Automation: `senior-capstone-figma-product-design`
 - Purpose: app UI source of truth, dashboard layouts, design system, components, responsive states, accessibility states, and implementation-ready product specs.
-- Primary anchors: `docs/dashboard-ux-direction.md`, `docs/domain-model.md`, `data/programs.json`.
+- Primary anchors: `docs/dashboard-ux-direction.md`, `docs/domain-model.md`, `data/programs.json`, `data/capstone-framework.json`, `docs/curriculum-framework-integration.md`.
 - Primary log: `docs/progress/figma.md`.
 
 `:05` - Core Hosted-App Rebuild
 - Automation: `senior-capstone-rebuild-hourly`
 - Purpose: architecture, app scaffolding, backend, auth, database/schema, tests, deployment readiness, and integration of the design/content direction into a working hosted app.
-- Primary anchors: `docs/rebuild-gameplan.md`, `docs/domain-model.md`, `docs/dashboard-ux-direction.md`, `data/programs.json`.
+- Primary anchors: `docs/rebuild-gameplan.md`, `docs/domain-model.md`, `docs/dashboard-ux-direction.md`, `data/programs.json`, `data/capstone-framework.json`, `docs/curriculum-framework-integration.md`.
 - Primary log: `docs/progress/rebuild.md`.
 
 `:15` - Content Quality Audit
 - Automation: `senior-capstone-content-quality-audits`
 - Purpose: critical audit of curriculum, product requirements, roles, dashboards, program specificity, accessibility, privacy, workflow clarity, and implementation readiness.
-- Primary anchors: all docs, `app.js`, templates, teacher companion guide, and program seed data.
+- Primary anchors: all docs, `app.js`, templates, teacher companion guide, program seed data, and `data/capstone-framework.json`.
 - Primary log: `docs/progress/audit.md`.
 
 `:30` - Canva Visual System
 - Automation: `senior-capstone-canva-visual-system`
 - Purpose: supporting visual assets, program identity graphics, phase/process visuals, onboarding graphics, report visuals, recognition assets, certificates, and printable/exportable collateral.
-- Primary anchors: `docs/dashboard-ux-direction.md`, `data/programs.json`, templates, and progress log.
+- Primary anchors: `docs/dashboard-ux-direction.md`, `data/programs.json`, `data/capstone-framework.json`, templates, and progress log.
 - Primary log: `docs/progress/canva.md`.
 
 `:45` - Content Quality Audit

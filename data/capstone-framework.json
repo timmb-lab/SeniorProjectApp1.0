@@ -1,0 +1,735 @@
+{
+  "metadata": {
+    "name": "Senior Capstone Framework",
+    "cohortLabel": "Class of 2026",
+    "sourceMaterialDate": "2026-05-17",
+    "extractedOn": "2026-05-18",
+    "purpose": "Seed the hosted app with the real Senior Project cycle, required submissions, review gates, evidence spaces, deadlines, staff visibility signals, and student guidance patterns from the source PDFs.",
+    "sourceDocuments": [
+      {
+        "slug": "research-proposal-challenge",
+        "title": "Senior Project Research Proposal Challenge",
+        "path": "docs/source-materials/research-proposal-challenge.txt",
+        "sourcePdf": "C:/Users/bryan/Downloads/Copy of 26 Senior Project Research Proposal Challenge.pdf",
+        "pages": 3,
+        "charactersExtracted": 7397
+      },
+      {
+        "slug": "senior-project-cycle-linked-document",
+        "title": "Senior Project Cycle Linked Document",
+        "path": "docs/source-materials/senior-project-cycle-linked-document.txt",
+        "sourcePdf": "C:/Users/bryan/Downloads/26 Senior Project Cycle Linked Document.pdf",
+        "pages": 2,
+        "charactersExtracted": 5095
+      },
+      {
+        "slug": "senior-guide",
+        "title": "Semester 2 Senior Project Senior Guide",
+        "path": "docs/source-materials/senior-guide.txt",
+        "sourcePdf": "C:/Users/bryan/Downloads/26 S2 Senior Project SENIOR GUIDE.pdf",
+        "pages": 3,
+        "charactersExtracted": 5213
+      },
+      {
+        "slug": "mentor-teacher-guide",
+        "title": "Semester 2 Senior Project Mentor Teacher Guide",
+        "path": "docs/source-materials/mentor-teacher-guide.txt",
+        "sourcePdf": "C:/Users/bryan/Downloads/26 S2 Senior Project MENTOR TEACHER GUIDE.pdf",
+        "pages": 2,
+        "charactersExtracted": 2319
+      }
+    ]
+  },
+  "sourceProcessDiagnosis": [
+    "The current source workflow depends heavily on students copying documents, moving them into folders, linking final products, emailing staff, and remembering which class gives credit.",
+    "The hosted app should replace that fragile link-hunting workflow with first-class submissions, private upload/evidence spaces, clear statuses, review gates, and role dashboards.",
+    "The app should still allow external links, but every link must become an evidence artifact with ownership, requirement mapping, review status, and visibility rules.",
+    "Students should be guided through each piece in small steps, with quality checks before submission, instead of seeing a long static checklist and guessing what matters."
+  ],
+  "roles": [
+    {
+      "slug": "student",
+      "visibilityGoal": "See exactly what is due, what has been approved, what needs revision, and what evidence is missing."
+    },
+    {
+      "slug": "mentor",
+      "visibilityGoal": "See assigned students, meeting attendance, outlines/readiness, evidence gaps, and comments needed."
+    },
+    {
+      "slug": "program_teacher",
+      "visibilityGoal": "See program students, proposal approvals, mentor meeting completion, presentation readiness, celebration evidence, and program-specific blockers."
+    },
+    {
+      "slug": "admin",
+      "visibilityGoal": "See cohort-wide completion, program comparison, missing assignments, review backlog, override history, and export/archive health."
+    },
+    {
+      "slug": "misc_admin",
+      "visibilityGoal": "See only explicitly permitted dashboards, exports, or support queues."
+    }
+  ],
+  "phaseGroups": [
+    {
+      "slug": "setup",
+      "title": "Setup and Senior Project Folder Replacement",
+      "appTranslation": "Replace the copied linked-document folder workflow with a private student workspace that can hold uploads, links, drafts, reflections, and approved artifacts."
+    },
+    {
+      "slug": "proposal-and-research",
+      "title": "Proposal, Approval, and Research Challenge",
+      "appTranslation": "Guide students from problem selection through evidence, counterclaim, AI-supported revision, final proposal, and teacher approval."
+    },
+    {
+      "slug": "mentor-checkpoints",
+      "title": "Mentor Meetings and Presentation Readiness",
+      "appTranslation": "Track meeting prep, attendance, missed meetings, outline approval, next actions, and presentation scheduling."
+    },
+    {
+      "slug": "presentation-and-celebration",
+      "title": "Presentation Day and Celebration Day",
+      "appTranslation": "Manage slides, schedule, check-out/check-in, presentation grading, celebration setup evidence, food ingredient requirements, photos, and rubrics."
+    },
+    {
+      "slug": "reflection-and-archive",
+      "title": "Reflections, Portfolio, and Personal Archive",
+      "appTranslation": "Collect final reflections, best-work evidence, next-year planning, thank-you evidence, export packages, and personal download reminders."
+    }
+  ],
+  "requirements": [
+    {
+      "slug": "senior-project-workspace",
+      "title": "Senior Project Workspace",
+      "phaseGroup": "setup",
+      "sourceDocuments": [
+        "senior-project-cycle-linked-document",
+        "senior-guide"
+      ],
+      "dueLabel": "Before using cycle documents",
+      "creditOwners": [
+        "Program support",
+        "Admin support"
+      ],
+      "studentEvidence": [
+        "Workspace exists",
+        "Student can see own requirements",
+        "Student has private evidence space",
+        "Staff can see assigned student workspace"
+      ],
+      "appWorkflow": [
+        "Create student workspace automatically when the student account is provisioned.",
+        "Assign cohort, program, program teacher, and mentor.",
+        "Show the student a setup checklist that confirms where uploads, links, drafts, and feedback live.",
+        "Do not require students to manage a separate linked-document hub as the primary record."
+      ],
+      "dashboardSignals": [
+        "Students without workspace",
+        "Students missing program assignment",
+        "Students missing mentor assignment",
+        "Students with no uploaded or linked evidence"
+      ],
+      "qualityNudges": [
+        "Your app workspace replaces the old folder/link hunt. Anything important for Senior Project should be uploaded or linked here."
+      ]
+    },
+    {
+      "slug": "resume",
+      "title": "Resume",
+      "phaseGroup": "setup",
+      "sourceDocuments": [
+        "senior-project-cycle-linked-document",
+        "senior-guide"
+      ],
+      "dueLabel": "October 1 and 2",
+      "creditOwners": [
+        "English Class"
+      ],
+      "studentEvidence": [
+        "Resume upload or private external link",
+        "Resume quality checklist completion"
+      ],
+      "appWorkflow": [
+        "Provide resume template/help link.",
+        "Let student upload a PDF/DOCX or paste a private document link.",
+        "Require a quick self-check before marking ready."
+      ],
+      "dashboardSignals": [
+        "Resume not started",
+        "Resume uploaded but not checked",
+        "Resume approved or credited"
+      ],
+      "qualityNudges": [
+        "Does your resume show skills, certifications, work-based learning, projects, and program-specific strengths?"
+      ]
+    },
+    {
+      "slug": "proposal-draft",
+      "title": "Senior Project Proposal Draft",
+      "phaseGroup": "proposal-and-research",
+      "sourceDocuments": [
+        "senior-project-cycle-linked-document"
+      ],
+      "dueLabel": "October 9 and 10",
+      "creditOwners": [
+        "Program Class"
+      ],
+      "studentEvidence": [
+        "Proposal draft",
+        "Program fit explanation",
+        "Feasibility notes"
+      ],
+      "reviewGate": {
+        "required": true,
+        "reviewerRoles": [
+          "program_teacher"
+        ],
+        "approvalMeaning": "The project is feasible enough to keep developing and may move toward final approval."
+      },
+      "appWorkflow": [
+        "Student drafts proposal in the app or uploads a proposal document.",
+        "Program teacher reviews for feasibility, pathway fit, safety, scope, and evidence plan.",
+        "Student cannot mark final proposal approved until the review gate is approved."
+      ],
+      "dashboardSignals": [
+        "Draft missing",
+        "Submitted for program review",
+        "Revision requested",
+        "Approved for final proposal"
+      ],
+      "qualityNudges": [
+        "What problem are you solving?",
+        "Who benefits?",
+        "What will you actually build, improve, teach, design, serve, or demonstrate?",
+        "What evidence will prove the project is more than a simple task?"
+      ]
+    },
+    {
+      "slug": "approved-proposal",
+      "title": "Senior Project Proposal - Approved",
+      "phaseGroup": "proposal-and-research",
+      "sourceDocuments": [
+        "senior-project-cycle-linked-document",
+        "senior-guide"
+      ],
+      "dueLabel": "November 14",
+      "creditOwners": [
+        "English Class",
+        "Government Class",
+        "Program Classes"
+      ],
+      "studentEvidence": [
+        "Approved final proposal",
+        "Approval record",
+        "Final proposal artifact or app-generated proposal"
+      ],
+      "reviewGate": {
+        "required": true,
+        "reviewerRoles": [
+          "program_teacher",
+          "admin"
+        ],
+        "approvalMeaning": "The official senior project proposal is approved and can be used by English, Government, and Program classes."
+      },
+      "appWorkflow": [
+        "Copy-forward the approved draft into a final proposal record.",
+        "Preserve previous draft versions.",
+        "Lock the approved version except through revision/override workflow.",
+        "Expose approval status to English, Government, Program, mentor, and admin dashboards according to role permissions."
+      ],
+      "dashboardSignals": [
+        "Awaiting approval",
+        "Approved proposals by program",
+        "Revision loop count",
+        "Students blocked before research challenge"
+      ],
+      "qualityNudges": [
+        "A strong proposal should be specific, doable, connected to your program, and clear about the evidence you will produce."
+      ]
+    },
+    {
+      "slug": "research-proposal-challenge",
+      "title": "Research Proposal Challenge",
+      "phaseGroup": "proposal-and-research",
+      "sourceDocuments": [
+        "research-proposal-challenge",
+        "senior-project-cycle-linked-document",
+        "senior-guide"
+      ],
+      "dueLabel": "December or January, depending on English teacher",
+      "creditOwners": [
+        "English Class"
+      ],
+      "studentEvidence": [
+        "Problem statement",
+        "Proposed solution",
+        "Three relevant research sources",
+        "One key quote",
+        "Counterclaim",
+        "Refutation using facts",
+        "Student's own-words solution draft",
+        "AI-supported feedback",
+        "Final voice-preserving proposal",
+        "Why the solution matters"
+      ],
+      "formSections": [
+        {
+          "slug": "problem-and-solution",
+          "title": "Problem and Proposed Solution",
+          "requiredFields": [
+            "problemAsYouSeeIt",
+            "whyItMattersToYou",
+            "proposedSolution"
+          ]
+        },
+        {
+          "slug": "relevant-evidence",
+          "title": "Relevant Evidence",
+          "requiredFields": [
+            "sourceOne",
+            "sourceTwo",
+            "sourceThree",
+            "keyQuote"
+          ],
+          "qualityChecks": [
+            "At least three source records exist.",
+            "Each source has title, author or organization when available, URL, and publication date when available.",
+            "Key quote is attached to a source and explained in the student's own words."
+          ]
+        },
+        {
+          "slug": "counterclaim-refutation",
+          "title": "Counterclaim and Refutation",
+          "requiredFields": [
+            "counterclaim",
+            "refutation"
+          ],
+          "qualityChecks": [
+            "Counterclaim represents a real opposing view.",
+            "Refutation uses facts rather than only opinion."
+          ]
+        },
+        {
+          "slug": "own-ai-final",
+          "title": "Own Words, AI Feedback, Final Version",
+          "requiredFields": [
+            "ownWordsDraft",
+            "aiFeedback",
+            "finalizedVersion"
+          ],
+          "qualityChecks": [
+            "Final version improves clarity but still sounds like the student.",
+            "AI feedback is treated as revision support, not as the student's replacement voice.",
+            "Final version names audience, expected impact, and how the solution works."
+          ]
+        },
+        {
+          "slug": "why-it-matters",
+          "title": "Why Finding a Solution Matters",
+          "requiredFields": [
+            "significance"
+          ],
+          "qualityChecks": [
+            "Student explains who benefits and what improves if the problem is solved."
+          ]
+        }
+      ],
+      "reviewGate": {
+        "required": true,
+        "reviewerRoles": [
+          "program_teacher",
+          "mentor"
+        ],
+        "approvalMeaning": "The research support is strong enough to push the project beyond a basic or generic idea."
+      },
+      "appWorkflow": [
+        "Break the assignment into guided sections with save-as-draft.",
+        "Show source/evidence completeness before submission.",
+        "Warn if the problem, solution, audience, evidence, or counterclaim is vague.",
+        "Let staff comment at section level.",
+        "Keep AI feedback distinct from final student-authored work."
+      ],
+      "dashboardSignals": [
+        "Missing sources",
+        "Missing counterclaim",
+        "Missing final version",
+        "Weak or unreviewed research",
+        "Research ready for mentor/program push"
+      ],
+      "qualityNudges": [
+        "Your project gets better when the problem is real, your solution is specific, and your evidence proves both.",
+        "Do not stop at 'raise awareness' unless you can show what people will do differently."
+      ]
+    },
+    {
+      "slug": "mentor-meeting-one-plan",
+      "title": "Mentor Meeting One Plan of Action",
+      "phaseGroup": "mentor-checkpoints",
+      "sourceDocuments": [
+        "senior-guide",
+        "mentor-teacher-guide"
+      ],
+      "dueLabel": "January 14, make-up January 16",
+      "creditOwners": [
+        "Required attendance"
+      ],
+      "studentEvidence": [
+        "Meeting prep notes",
+        "Proposal copy available",
+        "Questions for mentor",
+        "Attendance status",
+        "Next actions"
+      ],
+      "staffActions": [
+        "Mark attended, missed, or make-up needed.",
+        "Submit missed-meeting form or app equivalent for absent mentees.",
+        "Record feedback and next action."
+      ],
+      "dashboardSignals": [
+        "Meeting one not scheduled",
+        "Meeting one missed",
+        "Make-up required",
+        "No next action recorded"
+      ],
+      "qualityNudges": [
+        "Bring your proposal and ask for help on scope, evidence, timeline, and what would make the project stronger."
+      ]
+    },
+    {
+      "slug": "mentor-meeting-two-outline",
+      "title": "Mentor Meeting Two Outline",
+      "phaseGroup": "mentor-checkpoints",
+      "sourceDocuments": [
+        "senior-project-cycle-linked-document",
+        "senior-guide",
+        "mentor-teacher-guide"
+      ],
+      "dueLabel": "February 18",
+      "creditOwners": [
+        "Program Class"
+      ],
+      "studentEvidence": [
+        "Presentation outline",
+        "Presentation readiness checklist",
+        "Scheduled presentation time",
+        "Mentor approval or revision request"
+      ],
+      "reviewGate": {
+        "required": true,
+        "reviewerRoles": [
+          "mentor",
+          "program_teacher"
+        ],
+        "approvalMeaning": "The outline is coherent enough for presentation preparation and a presentation time has been scheduled."
+      },
+      "staffActions": [
+        "Approve or request revision on outline.",
+        "Schedule presentation time.",
+        "Record missing attendance."
+      ],
+      "dashboardSignals": [
+        "Outline missing",
+        "Outline awaiting approval",
+        "Presentation time missing",
+        "Meeting two missed"
+      ],
+      "qualityNudges": [
+        "Your outline should make the audience understand the problem, your solution, your process, your evidence, and what you learned."
+      ]
+    },
+    {
+      "slug": "thanks-and-thanks",
+      "title": "Thanks and Thanks Senior Project Week",
+      "phaseGroup": "reflection-and-archive",
+      "sourceDocuments": [
+        "senior-project-cycle-linked-document",
+        "senior-guide"
+      ],
+      "dueLabel": "March 24",
+      "creditOwners": [
+        "English Class",
+        "Government Class"
+      ],
+      "studentEvidence": [
+        "Thank-you letter",
+        "Recipient or audience",
+        "Submission/link confirmation"
+      ],
+      "appWorkflow": [
+        "Provide thank-you letter template.",
+        "Allow upload/link/paste.",
+        "Track completion separately from presentation and celebration readiness."
+      ],
+      "dashboardSignals": [
+        "Thank-you missing",
+        "Thank-you submitted",
+        "Thank-you credited"
+      ],
+      "qualityNudges": [
+        "Name the specific support you received and explain why it mattered."
+      ]
+    },
+    {
+      "slug": "presentation-day",
+      "title": "Senior Project Presentation Day",
+      "phaseGroup": "presentation-and-celebration",
+      "sourceDocuments": [
+        "senior-project-cycle-linked-document",
+        "senior-guide",
+        "mentor-teacher-guide"
+      ],
+      "dueLabel": "March 26",
+      "creditOwners": [
+        "English Class",
+        "Government Class",
+        "Program Classes"
+      ],
+      "studentEvidence": [
+        "Presentation slides",
+        "Presentation time",
+        "Check-out/check-in status",
+        "Rubric score or review record",
+        "Audience/readiness acknowledgement"
+      ],
+      "staffActions": [
+        "Grade presentation using rubric.",
+        "Track class check-out for scheduled presentations.",
+        "Confirm students attend first 10 minutes of each class unless presenting."
+      ],
+      "dashboardSignals": [
+        "Slides missing",
+        "Presentation unscheduled",
+        "Awaiting score",
+        "Check-out conflict",
+        "Presented"
+      ],
+      "qualityNudges": [
+        "Your slides should support your story, not replace it. Show problem, solution, process, evidence, impact, and learning."
+      ]
+    },
+    {
+      "slug": "celebration-day",
+      "title": "Senior Project Celebration Day",
+      "phaseGroup": "presentation-and-celebration",
+      "sourceDocuments": [
+        "senior-project-cycle-linked-document",
+        "senior-guide",
+        "mentor-teacher-guide"
+      ],
+      "dueLabel": "March 27",
+      "creditOwners": [
+        "Senior Program Teachers"
+      ],
+      "studentEvidence": [
+        "Celebration display plan",
+        "At least one setup photo",
+        "Display rubric record",
+        "Ingredient list if food is shared",
+        "Safety/permission notes when relevant"
+      ],
+      "staffActions": [
+        "Review celebration setup against rubric.",
+        "Confirm ingredient list for food items.",
+        "Support viewing schedule and student audience expectations.",
+        "Use QR/form/paper rubric equivalent as needed."
+      ],
+      "dashboardSignals": [
+        "Display plan missing",
+        "Photo missing",
+        "Ingredient list required",
+        "Celebration score pending",
+        "Celebration complete"
+      ],
+      "qualityNudges": [
+        "Your display should help someone understand what you built, why it mattered, and what evidence proves it worked."
+      ]
+    },
+    {
+      "slug": "reflection-best-work",
+      "title": "Reflection 1: My Best Work",
+      "phaseGroup": "reflection-and-archive",
+      "sourceDocuments": [
+        "senior-project-cycle-linked-document",
+        "senior-guide"
+      ],
+      "dueLabel": "April 8 and 9",
+      "creditOwners": [
+        "English Class",
+        "Government Class"
+      ],
+      "studentEvidence": [
+        "Best-work artifact",
+        "Reflection text",
+        "Link/upload to final product"
+      ],
+      "dashboardSignals": [
+        "Best-work reflection missing",
+        "Artifact missing",
+        "Submitted",
+        "Credited"
+      ],
+      "qualityNudges": [
+        "Choose work that proves growth, skill, effort, or impact. Explain why it is your best, not just what it is."
+      ]
+    },
+    {
+      "slug": "reflection-senior-project",
+      "title": "Reflection 2: Senior Project Reflection",
+      "phaseGroup": "reflection-and-archive",
+      "sourceDocuments": [
+        "senior-project-cycle-linked-document",
+        "senior-guide"
+      ],
+      "dueLabel": "April 8 and 9",
+      "creditOwners": [
+        "English Class",
+        "Government Class"
+      ],
+      "studentEvidence": [
+        "Senior project reflection"
+      ],
+      "dashboardSignals": [
+        "Reflection missing",
+        "Submitted",
+        "Credited"
+      ],
+      "qualityNudges": [
+        "Explain what changed from your first idea to the final result, including setbacks and revisions."
+      ]
+    },
+    {
+      "slug": "reflection-tenet-mastery",
+      "title": "Reflection 3: Tenet Mastery Reflection",
+      "phaseGroup": "reflection-and-archive",
+      "sourceDocuments": [
+        "senior-project-cycle-linked-document",
+        "senior-guide"
+      ],
+      "dueLabel": "April 8 and 9",
+      "creditOwners": [
+        "English Class",
+        "Government Class"
+      ],
+      "studentEvidence": [
+        "Tenet mastery reflection",
+        "Evidence tied to selected tenets"
+      ],
+      "dashboardSignals": [
+        "Tenet reflection missing",
+        "Evidence missing",
+        "Submitted",
+        "Credited"
+      ],
+      "qualityNudges": [
+        "Do not only name the tenet. Prove mastery with a specific moment, artifact, or decision."
+      ]
+    },
+    {
+      "slug": "reflection-project-based-learning",
+      "title": "Reflection 4: Project-Based Learning Reflection",
+      "phaseGroup": "reflection-and-archive",
+      "sourceDocuments": [
+        "senior-project-cycle-linked-document",
+        "senior-guide"
+      ],
+      "dueLabel": "April 8 and 9",
+      "creditOwners": [
+        "English Class",
+        "Government Class"
+      ],
+      "studentEvidence": [
+        "Project-based learning reflection",
+        "Process evidence"
+      ],
+      "dashboardSignals": [
+        "PBL reflection missing",
+        "Submitted",
+        "Credited"
+      ],
+      "qualityNudges": [
+        "Show how planning, feedback, iteration, and evidence shaped the work."
+      ]
+    },
+    {
+      "slug": "reflection-next-year-plan",
+      "title": "Reflection 5: Plan for the Next Year",
+      "phaseGroup": "reflection-and-archive",
+      "sourceDocuments": [
+        "senior-project-cycle-linked-document",
+        "senior-guide"
+      ],
+      "dueLabel": "April 8 and 9",
+      "creditOwners": [
+        "English Class",
+        "Government Class"
+      ],
+      "studentEvidence": [
+        "August-July 2026-2027 plan",
+        "Reflection on first year after high school"
+      ],
+      "dashboardSignals": [
+        "Next-year plan missing",
+        "Submitted",
+        "Credited"
+      ],
+      "qualityNudges": [
+        "Make the plan specific enough that future-you could use it: next steps, supports, dates, money/time realities, and backup options."
+      ]
+    },
+    {
+      "slug": "personal-archive-export",
+      "title": "Download and Keep Personal Copies",
+      "phaseGroup": "reflection-and-archive",
+      "sourceDocuments": [
+        "senior-project-cycle-linked-document"
+      ],
+      "dueLabel": "May 5",
+      "creditOwners": [
+        "Student responsibility",
+        "Admin support"
+      ],
+      "studentEvidence": [
+        "Student export package generated",
+        "Student confirms personal download or transfer"
+      ],
+      "appWorkflow": [
+        "Generate export package of approved documents, artifacts, reflections, and portfolio links.",
+        "Warn students that district account access may end after graduation.",
+        "Let staff see who has not generated or acknowledged the archive."
+      ],
+      "dashboardSignals": [
+        "Archive not generated",
+        "Archive generated",
+        "Student download acknowledged",
+        "External links at risk after graduation"
+      ],
+      "qualityNudges": [
+        "Keep proof of what you built and learned where you can access it after graduation."
+      ]
+    }
+  ],
+  "crossCuttingAppRules": [
+    {
+      "slug": "external-links-as-evidence",
+      "rule": "Any linked Google Doc, slide deck, photo, form response, or external artifact becomes an EvidenceArtifact with owner, requirement, visibility, review status, URL, and last-checked metadata."
+    },
+    {
+      "slug": "review-gates-not-checkboxes",
+      "rule": "Items that require approval must use submitted/under_review/revision_requested/approved status transitions rather than simple checkboxes."
+    },
+    {
+      "slug": "student-guidance-before-submission",
+      "rule": "The app should show section-level prompts, examples, and quality checks before students submit, especially for proposal and research work."
+    },
+    {
+      "slug": "staff-visibility",
+      "rule": "Every requirement must map to dashboard signals so mentors, teachers, and admins can see missing evidence, review backlog, attendance issues, scheduling gaps, and revision loops."
+    },
+    {
+      "slug": "privacy-by-default",
+      "rule": "Student work, uploads, reflections, attendance, comments, and rubric scores are private records scoped by role and assignment."
+    },
+    {
+      "slug": "export-before-account-loss",
+      "rule": "The app must support a student-facing archive/export workflow before district account access ends."
+    }
+  ]
+}

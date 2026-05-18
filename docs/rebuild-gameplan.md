@@ -25,8 +25,36 @@ The biggest risk is mistaking the current local checklist behavior for real stud
 - Rubrics and portfolio expectations.
 - Template content.
 - Teacher companion guidance.
+- The 2026 source-PDF framework for resume, proposal, research challenge, mentor meetings, presentation day, celebration day, reflections, and final archive/export.
 - The calm student tone and step-based navigation approach.
 - Some visual style decisions, as long as the future app becomes more operational for staff dashboards.
+
+## Source Curriculum Now Ingested
+
+Four 2026 Senior Project PDFs have been extracted and mapped into the product framework:
+
+- `docs/source-materials/research-proposal-challenge.txt`
+- `docs/source-materials/senior-project-cycle-linked-document.txt`
+- `docs/source-materials/senior-guide.txt`
+- `docs/source-materials/mentor-teacher-guide.txt`
+
+The app-facing requirement seed is `data/capstone-framework.json`.
+
+The implementation guide is `docs/curriculum-framework-integration.md`.
+
+These sources make the target process more concrete. The app must cover:
+
+- Senior Project workspace setup as an app-native private evidence space.
+- Resume submission.
+- Proposal draft and approved proposal gates.
+- Research Proposal Challenge with problem, solution, sources, key quote, counterclaim, refutation, AI revision support, final version, and significance.
+- Mentor Meeting One attendance, prep, missed-meeting follow-up, and next actions.
+- Mentor Meeting Two outline approval and presentation scheduling.
+- Thanks and Thanks thank-you letter.
+- Presentation Day slides, check-out/check-in, schedule, and rubric scoring.
+- Celebration Day display plan, setup photos, rubric, and ingredient-list requirements for food.
+- Five final reflections.
+- Personal archive/export before students lose district account access.
 
 ## What Is Not Salvageable As Production Infrastructure
 
@@ -112,30 +140,45 @@ Misc admin:
    - Program teacher reviews for CTE fit and feasibility.
    - Final approver approves or returns revision.
 
-4. Build and check-ins
+4. Research challenge
+   - Student defines the problem and proposed solution.
+   - Student adds three sources and one key quote.
+   - Student writes a counterclaim and factual refutation.
+   - Student drafts in their own words, uses AI feedback as revision support, then submits a final voice-preserving version.
+   - Staff use this as an intervention point to push weak, vague, or low-ambition projects into stronger territory.
+
+5. Build and check-ins
    - Student submits evidence, check-in reflections, blockers, and progress artifacts.
    - Mentor or teacher comments.
    - Revision and support flags are tracked.
 
-5. Mentor meetings
+6. Mentor meetings
    - Student prepares notes and questions.
    - Mentor records feedback and next actions.
    - Meeting can be marked complete, missed, or needs follow-up.
+   - Meeting two requires presentation outline review and presentation time scheduling.
 
-6. Presentation preparation and presentation
+7. Presentation preparation and presentation
    - Student submits outline, visuals, logistics, and evidence.
    - Mentor checks readiness.
    - Teacher or assigned reviewer records presentation status.
+   - Staff can record presentation slot, check-out/check-in, rubric score, and no-show/reschedule state.
 
-7. Celebration display
+8. Celebration display
    - Student submits display plan and photos.
    - Program teacher reviews against program expectations.
+   - Food-related displays require an ingredient list and safety visibility.
 
-8. Gratitude, portfolio, and reflection
+9. Gratitude, portfolio, and reflection
    - Student submits thank-you evidence, portfolio items, resume/reflection pieces, and final reflection.
    - Teacher/admin approves final completion.
 
-9. Dashboards and reporting
+10. Archive/export
+   - Student generates or receives a final package of approved documents, artifacts, reflections, and portfolio links.
+   - App warns about district account access ending after graduation.
+   - Staff can see who has not generated or acknowledged their archive by May 5.
+
+11. Dashboards and reporting
    - Staff see completion status by program, phase, section, mentor, and cohort.
    - Admin can export progress, missing work, overdue work, approvals, and revision loops.
 
@@ -263,6 +306,10 @@ P1:
 - Audit log.
 - Evidence artifacts and private file handling.
 - Deadline/overdue logic.
+- Research challenge section-level quality checks.
+- Mentor meeting attendance and make-up tracking.
+- Presentation scheduling and check-out/check-in.
+- Celebration setup photo and ingredient-list tracking.
 
 P2:
 - Notifications.
@@ -273,19 +320,21 @@ P2:
 - Rubric scoring.
 - Recognition workflows.
 - Read-only public guide mode.
+- External link health checks and graduation account-loss warnings.
 
 ## Migration Strategy
 
 1. Freeze current static guide as the content source.
 2. Extract phase, rubric, template, pacing, and program content into structured files.
-3. Build a new app shell with real routing and authentication.
-4. Seed the database with phase and program records.
-5. Implement one vertical slice: student proposal submission to teacher approval.
-6. Expand slice-by-slice through build, mentor meeting, presentation, display, and portfolio.
-7. Add dashboards once the underlying statuses are trustworthy.
-8. Pilot with demo data before real student data.
-9. Run a limited real cohort pilot.
-10. Only then deprecate the static-only guide.
+3. Seed `data/capstone-framework.json` into phases, requirements, sections, quality checks, deadlines, credit owners, and review gates.
+4. Build a new app shell with real routing and authentication.
+5. Seed the database with phase, program, source-document, and requirement records.
+6. Implement one vertical slice: student proposal/research submission to teacher approval.
+7. Expand slice-by-slice through mentor meetings, presentation, celebration, reflections, and archive/export.
+8. Add dashboards once the underlying statuses are trustworthy.
+9. Pilot with demo data before real student data.
+10. Run a limited real cohort pilot.
+11. Only then deprecate the static-only guide.
 
 ## First Vertical Slice
 
@@ -304,6 +353,8 @@ Acceptance criteria:
 - Revisions do not destroy prior versions.
 - Dashboard counts update from database state.
 - Tests cover unauthorized access and valid transitions.
+- Research challenge evidence sections can be saved, submitted, reviewed, and revised.
+- Staff can flag a technically complete proposal/research submission as "not ambitious/specific enough yet" with actionable feedback.
 
 ## Testing Strategy
 

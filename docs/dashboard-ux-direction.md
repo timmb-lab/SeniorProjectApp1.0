@@ -234,12 +234,19 @@ Metric cards must be actionable. Every metric should click through to the underl
 
 Good metric cards:
 - Proposals awaiting review.
+- Research challenges missing three sources.
+- AI feedback present but no final student revision.
 - Students overdue this week.
 - Revision requests open.
 - Mentor meetings not scheduled.
+- Mentor meetings missed or needing make-up.
+- Presentation outlines awaiting approval.
 - Presentation slots missing.
 - Display plans missing.
+- Celebration setup photos missing.
+- Ingredient lists missing for food-related displays.
 - Portfolios incomplete.
+- Final archive/export not acknowledged by May 5.
 - Medical Professions students blocked by safety/permission notes.
 
 Weak metric cards:
@@ -304,16 +311,20 @@ For the first real implementation, build:
 
 Student:
 - Proposal submission card.
+- Research challenge section progress.
+- Evidence upload/link area for sources and proposal artifacts.
 - Proposal status history.
 - Revision feedback panel.
 
 Program teacher:
 - Proposal review queue.
+- Research challenge quality/intervention queue.
 - Student/program filter.
 - Approve/request revision controls.
 
 Admin:
 - Read-only cohort overview showing proposal counts by program.
+- Missing proposal/research evidence counts by program.
 
 This slice proves:
 - Auth boundaries.
@@ -343,7 +354,33 @@ Needed fields:
 - `revision_count`
 - `blocked_reason`
 - `reviewer_id`
+- `source_count`
+- `missing_required_sections`
+- `mentor_meeting_one_status`
+- `mentor_meeting_two_status`
+- `presentation_slot_status`
+- `celebration_photo_status`
+- `ingredient_list_required`
+- `archive_export_status`
 - `updated_at`
+
+## Source-PDF Workflow Signals
+
+The 2026 PDFs add concrete operational signals that the dashboards must expose:
+
+- Resume submitted or missing.
+- Proposal draft submitted, under review, revision requested, or approved.
+- Approved proposal complete by November 14.
+- Research Proposal Challenge complete by section: problem/solution, sources, quote, counterclaim/refutation, own draft, AI feedback, final version, why it matters.
+- Mentor Meeting One attended, missed, make-up needed, or missing next action.
+- Mentor Meeting Two outline submitted, approved, revision requested, and presentation time scheduled.
+- Thank-you letter submitted.
+- Presentation slides linked/uploaded, presentation slot scheduled, check-out/check-in recorded, score pending or complete.
+- Celebration display plan, setup photo, rubric status, and ingredient list if food is involved.
+- Five reflections submitted and credited.
+- Archive/export generated and acknowledged before district account access ends.
+
+These are not decorative metrics. Each one should route staff to the exact students and artifacts needing action.
 
 ## Design Guardrails
 
@@ -375,4 +412,3 @@ Resource planning grid:
 
 Project phase diagram:
 - Use as a simplified student progress strip, not as the staff dashboard centerpiece.
-
