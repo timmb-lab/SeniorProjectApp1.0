@@ -35,3 +35,13 @@ This log tracks the weekly whole-system audit automation. Detailed audit finding
 - `expected audit behavior`: review the last seven days of committed run evidence, backlog movement, handoffs, blockers, and requirement status; update only this project's master plan, automation memory, and MVP requirements catalog when the next week's goal/allocation needs adjustment.
 - `validation`: contract checker enforces the seven category automations, 20x/day category schedule, no shared start slots, prompt snapshots, non-interactive scripts, A-material prompt rules, and MVP requirements catalog references.
 - `next`: requirements-audit should use `docs/mvp-requirements-catalog.md` as the weekly calibration ledger instead of reviving the old standalone weekly automation.
+
+### 2026-05-18 Weekly Audit Folded Into QoL Source-Framework Runner
+
+- `scope`: supersede the 20x requirements-audit category owner with the ten-runner QoL automation system.
+- `reason`: Bryan explicitly requested deleting all project automation again and rebuilding from scratch so every listed QoL item gets at least three daily passes while reducing broad-runner token pressure.
+- `new owner`: `senior-capstone-qol-source-framework-seed`.
+- `schedule`: `00:03`, `08:03`, and `16:03` PT; Sunday source-framework/catalog runs own the weekly accepted-pass count and goal calibration.
+- `expected audit behavior`: review the last seven days of committed run evidence, backlog movement, handoffs, blockers, and requirement status; update only this project's master plan, automation memory, and MVP requirements catalog when the next week's goal/allocation needs adjustment.
+- `validation`: contract checker enforces the ten QoL automations, exact 30-start/day schedule, no shared start slots, at least 45 minutes between starts, prompt snapshots, non-interactive scripts, A-material prompt rules, token budget guardrails, surface expansion rules, and full MVP requirement coverage.
+- `next`: the source-framework QoL runner should keep `docs/mvp-requirements-catalog.md` as the weekly calibration ledger and should not revive the old standalone weekly automation.

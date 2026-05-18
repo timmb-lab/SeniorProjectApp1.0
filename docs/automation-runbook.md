@@ -66,11 +66,17 @@ For the Senior Capstone app backend foundation, local scaffolding, schema design
 
 If those account/provisioning pieces are missing, rebuild should still scaffold local code and migrations, then log a precise `ACTION REQUIRED` item instead of blocking all work.
 
+## QoL Automation Rebuild
+
+Bryan explicitly rebuilt the project automation from scratch into ten focused QoL automations. Each runs 3x/day and owns one unfinished MVP item or item cluster: source framework seed, Drive upload/OAuth, protected evidence tests, teacher review endpoints, immutable review history, mentor presentation flow, admin ops endpoints, announcements, account lifecycle, and Cloudflare verification.
+
+This shape is intentionally more granular than the prior seven-category 20x system. It keeps each run narrow, lowers token pressure, and still gives every listed QoL target at least three daily chances to move or log a precise blocker.
+
 ## Category Runner No-Intervention Contract
 
-The Senior Capstone automation system now uses seven active MVP requirement category runners. Together they run 20 times per day on a staggered schedule recorded in `docs/automation-cadence.md`, with no shared scheduled start slots. The older orchestrator, standby lanes, daily prototype job, separate weekly audit job, and brief hourly escalation are superseded by these category runners.
+The Senior Capstone automation system now uses ten active QoL runners. Together they run 30 times per day on a staggered schedule recorded in `docs/automation-cadence.md`, with no shared scheduled start slots. The older orchestrator, standby lanes, daily prototype job, separate weekly audit job, broad seven-category runners, brief hourly escalation, and 20x category system are superseded by these QoL runners.
 
-Each category runner should resolve everything it can resolve from accepted docs, repo evidence, saved connector approvals, and safe fallbacks. It should not stop for a human when it can:
+Each QoL runner should resolve everything it can resolve from accepted docs, repo evidence, saved connector approvals, and safe fallbacks. It should not stop for a human when it can:
 
 - Accept an already documented default decision that Bryan has explicitly or implicitly authorized in this project.
 - Patch a script, prompt, checker, snapshot, manifest, log, or fallback path that is clearly failing.
@@ -90,9 +96,18 @@ Every productive run should produce A-material evidence. It must do one of three
 
 For automation maintenance, only touch automation related to this project: local Senior Capstone automation TOMLs, prompt snapshots, automation docs/logs/manifests, project automation scripts/checkers, and project automation memory.
 
+## Token Budget Guardrail
+
+QoL automations should avoid giant context loads. Every run reads the required anchors, then stays narrow:
+
+- Prefer `rg`, recent run manifests, and relevant log sections before opening long files.
+- Read the specific source files, tests, docs, Figma/Canva handoffs, or Cloudflare setup notes needed for the selected QoL target.
+- Avoid broad repo scans unless the selected acceptance check requires it.
+- Pick one bounded QoL slice per run and leave unrelated MVP work for its own automation.
+
 ## Surface Expansion Rule
 
-Every category run should treat the selected requirement as a cross-surface product slice. Before closeout, decide which of these surfaces need work or proof:
+Every QoL run should treat the selected requirement as a cross-surface product slice. Before closeout, decide which of these surfaces need work or proof:
 
 - App code, routes, D1 schema, data models, and server-side authorization.
 - Cloudflare Pages, D1 bindings, environment/secrets, deploy proof, and exact Cloudflare/Wrangler blockers.
@@ -179,7 +194,7 @@ For this Senior Capstone project only, the current 100-pass / roughly 45-day MVP
 
 An accepted MVP pass must leave durable evidence: a pushed commit or published external artifact recorded in the repo, plus validation or a concrete blocker that reduces MVP ambiguity. The first two accepted passes each day should usually be implementation-heavy while `SC-005` remains open.
 
-The `requirements-audit` category runner owns weekly calibration. On Sundays it must review the last seven days of run manifests, run-log entries, commits, backlog movement, handoffs, and audit findings. It should count accepted MVP passes against the minimum 2/day and 14/week goal, then update only this project's `docs/master-plan.md`, `docs/automation-memory.md`, and `docs/mvp-requirements-catalog.md` with the next week's daily goal/allocation when evidence requires adjustment.
+`senior-capstone-qol-source-framework-seed` owns weekly calibration. On Sundays it must review the last seven days of run manifests, run-log entries, commits, backlog movement, handoffs, and audit findings. It should count accepted MVP passes against the minimum 2/day and 14/week goal, then update only this project's `docs/master-plan.md`, `docs/automation-memory.md`, and `docs/mvp-requirements-catalog.md` with the next week's daily goal/allocation when evidence requires adjustment.
 
 Priority order:
 

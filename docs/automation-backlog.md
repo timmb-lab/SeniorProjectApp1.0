@@ -1,8 +1,8 @@
 # Automation Backlog
 
-This file tracks unresolved cross-category issues for the Senior Capstone rebuild. The `requirements-audit` category owns backlog hygiene.
+This file tracks unresolved cross-category issues for the Senior Capstone rebuild. The `senior-capstone-qol-source-framework-seed` automation owns backlog hygiene because it owns source-framework/catalog alignment in the current QoL system.
 
-After the 2026-05-18 automation reset, category ownership is tracked in `docs/mvp-requirements-catalog.md`. Legacy `owner` values in existing backlog items can remain for continuity, but new or materially updated items should name the active category owner when possible: `requirements-audit`, `backend-security-data`, `student-workflow-evidence`, `staff-review-mentor`, `admin-ops-reporting`, `deployment-qa`, or `design-assets-handoff`.
+After the 2026-05-18 QoL automation rebuild, active automation ownership is tracked in `docs/automation-cadence.md`. Legacy `owner` values in existing backlog items can remain for continuity, but new or materially updated items should name the active QoL owner when possible: `source-framework-seed`, `drive-upload-oauth`, `protected-evidence-tests`, `teacher-review-endpoints`, `immutable-review-history`, `mentor-presentation-flow`, `admin-ops-endpoints`, `announcements`, `account-lifecycle`, or `cloudflare-verification`.
 
 ## Status Values
 

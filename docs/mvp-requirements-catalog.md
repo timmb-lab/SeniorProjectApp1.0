@@ -2,7 +2,7 @@
 
 Date: 2026-05-18
 
-This catalog converts the master plan into category-owned MVP requirements. It is the operating map for the rebuilt automation system. Every category automation must read this file after `docs/master-plan.md`, choose one bounded requirement slice, update the status/evidence here when material progress happens, and ladder the next pass from the highest-risk incomplete requirement in its category.
+This catalog converts the master plan into MVP requirements. It is the operating map for the rebuilt QoL automation system. Every QoL automation must read this file after `docs/master-plan.md`, choose one bounded requirement slice, update the status/evidence here when material progress happens, and ladder the next pass from the highest-risk incomplete requirement in its target area.
 
 Status values:
 
@@ -13,7 +13,7 @@ Status values:
 - `mvp blocked`: account, credential, policy, connector, or platform blocker is stopping safe MVP completion.
 - `mvp ready`: production-ready enough for pilot review, with tests and privacy/security evidence.
 
-Automation owner categories:
+Functional requirement groupings:
 
 - `requirements-audit`: requirement catalog, weekly goal audit, scope control, backlog hygiene, source-framework coverage.
 - `backend-security-data`: auth, sessions, users, groups, roles, permissions, D1 schema, seed loaders, server authorization.
@@ -22,6 +22,8 @@ Automation owner categories:
 - `admin-ops-reporting`: admin provisioning, programs/cohorts/deadlines/templates, announcements, misc admin, exports, audit views.
 - `deployment-qa`: GitHub-to-Cloudflare deployment, CI, test coverage, smoke checks, environment/secrets, backup/restore posture.
 - `design-assets-handoff`: Figma product specs, Canva supporting imagery, component/state handoffs, guided prototype, implementation annotations.
+
+Current active QoL automations are recorded in `docs/automation-cadence.md`. The owner category column below remains a functional grouping; active run ownership now comes from the ten QoL targets: source-framework seed, Drive upload/OAuth, protected evidence tests, teacher review endpoints, immutable review history, mentor presentation flow, admin ops endpoints, announcements, account lifecycle, and Cloudflare verification.
 
 ## Category Summary
 
@@ -84,9 +86,9 @@ Automation owner categories:
 
 ## Laddering Rule
 
-Each category automation must:
+Each QoL automation must:
 
-1. Pick the highest-risk incomplete requirement in its owner category.
+1. Pick the highest-risk incomplete requirement in its target area.
 2. Prefer implementation, tests, deployment evidence, or a verified external artifact over planning.
 3. Update this catalog only when a requirement's status, evidence, blocker, or next acceptance check materially changes.
 4. Write the structured run manifest with the requirement IDs touched.

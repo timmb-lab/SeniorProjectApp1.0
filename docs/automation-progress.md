@@ -858,3 +858,23 @@ Verification:
 
 Recommended next slice:
 - Keep the next automation work scoped to this project and let the 20x runners prioritize protected evidence permissions, Drive upload/OAuth, source-framework seed loader, production workflow endpoints/history, account lifecycle, and deployment verification.
+
+## 2026-05-18 QoL Automation Rebuild
+
+Intent:
+- Delete all Senior Capstone project automation again and rebuild from scratch as individual QoL automations so every listed MVP gap receives at least three daily passes without concentrating work in broad token-heavy runners.
+
+What changed:
+- Removed all prior local Senior Capstone 20x category TOMLs from the active registry.
+- Created ten active QoL automations: source framework seed, Drive upload OAuth, protected evidence tests, teacher review endpoints, immutable review history, mentor presentation flow, admin ops endpoints, announcements, account lifecycle, and Cloudflare verification.
+- Each QoL automation runs exactly 3x/day in America/Los_Angeles, for 30 total Senior Capstone starts/day, no shared start slots, and at least 45 minutes between starts.
+- Updated cadence, runbook, master plan, self-improvement protocol, memory, backlog/handoff owner notes, daily/weekly reporting notes, artifact registry, decision log, prompt snapshots, snapshot script, and contract checker.
+- Prompt closeout now enforces token budget guardrails, surface expansion, A-material quality, no project-script approval gates, self-improvement to scripts/checkers when justified, validation, commit, and push.
+
+Verification:
+- `scripts/snapshot-automation-prompts.ps1` regenerated exactly 10 prompt snapshots.
+- `scripts/check-automation-contract.ps1 -RepoRoot .` passed for all 10 QoL automations.
+- The checker now fails stale Senior Capstone TOMLs, stale prompt snapshots, missing runbook/master-plan QoL sections, missing full `MVP-001` through `MVP-030` prompt coverage, schedule overlap, spacing drift, JSON parse errors, and interactive script prompt patterns.
+
+Recommended next slice:
+- Let the QoL runners start with the highest-risk implementation gaps: source-framework seed loader, Drive upload/OAuth, permission/protected-evidence tests, production review/history endpoints, account lifecycle, announcements, and post-push Cloudflare verification.

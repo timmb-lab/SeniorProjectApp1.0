@@ -2,7 +2,7 @@
 
 This file tracks cross-lane asks that should survive for future automation runs. Lane logs can contain narrative, but this ledger is the actionable queue.
 
-After the 2026-05-18 automation reset, new handoffs should use active category owners from `docs/mvp-requirements-catalog.md`: `requirements-audit`, `backend-security-data`, `student-workflow-evidence`, `staff-review-mentor`, `admin-ops-reporting`, `deployment-qa`, and `design-assets-handoff`. Legacy lane labels remain in historical entries.
+After the 2026-05-18 QoL automation rebuild, new handoffs should use active QoL owners from `docs/automation-cadence.md`: `source-framework-seed`, `drive-upload-oauth`, `protected-evidence-tests`, `teacher-review-endpoints`, `immutable-review-history`, `mentor-presentation-flow`, `admin-ops-endpoints`, `announcements`, `account-lifecycle`, and `cloudflare-verification`. Legacy lane labels remain in historical entries.
 
 Status values:
 

@@ -275,7 +275,7 @@ Decision status values:
 
 ### D-2026-05-18-026
 
-- `status`: accepted
+- `status`: superseded by `D-2026-05-18-027`
 - `area`: 20x/day A-material automation readiness and project-only automation scope
 - `decision`: Tune the seven active Senior Capstone category runners into a 20x/day project automation system with no shared start slots, GUI-facing `Senior Capstone 20x System - ...` names, no project-script human approval gates, required logging/laddering, and self-improvement to scripts/checkers when evidence justifies it.
 - `schedule`: `requirements-audit` at `00:03`, `12:03`, `23:03`; `backend-security-data` at `01:15`, `07:15`, `13:15`, `19:15`; `student-workflow-evidence` at `02:27`, `08:27`, `14:27`, `20:27`; `staff-review-mentor` at `03:39`, `10:39`, `18:39`; `admin-ops-reporting` at `04:51`, `15:51`; `deployment-qa` at `06:03`, `17:03`; and `design-assets-handoff` at `09:39`, `21:39`.
@@ -285,3 +285,16 @@ Decision status values:
 - `applies to`: local Senior Capstone automation TOMLs, `docs/automation-cadence.md`, `docs/automation-runbook.md`, `docs/automation-memory.md`, `docs/master-plan.md`, prompt snapshots, `scripts/check-automation-contract.ps1`, and future run manifests.
 - `source`: User request on 2026-05-18: "Make any and all changes you need to get this A material and ready to run 20x a day ... only touch automation related to this project"
 - `last updated`: 2026-05-18 13:07 PT
+
+### D-2026-05-18-027
+
+- `status`: accepted
+- `area`: QoL automation rebuild, three-daily-pass coverage, and token-budget discipline
+- `decision`: Delete all Senior Capstone project automation setup again and rebuild from scratch as ten active QoL automations, each running exactly 3x/day, with no shared start slots, at least 45 minutes between starts, no project-script human approval gates, required logging/laddering, token budget guardrails, surface expansion, validation, commit, push, and self-improvement to scripts/checkers when evidence justifies it.
+- `schedule`: `source-framework-seed` at `00:03`, `08:03`, `16:03`; `drive-upload-oauth` at `00:51`, `08:51`, `16:51`; `protected-evidence-tests` at `01:39`, `09:39`, `17:39`; `teacher-review-endpoints` at `02:27`, `10:27`, `18:27`; `immutable-review-history` at `03:15`, `11:15`, `19:15`; `mentor-presentation-flow` at `04:03`, `12:03`, `20:03`; `admin-ops-endpoints` at `04:51`, `12:51`, `20:51`; `announcements` at `05:39`, `13:39`, `21:39`; `account-lifecycle` at `06:27`, `14:27`, `22:27`; and `cloudflare-verification` at `07:15`, `15:15`, `23:15`.
+- `A-material quality bar`: Each productive run must land verified MVP progress, repair a repeatable project automation/script/checker failure, or commit an exact blocker with requirement IDs, validation, and next action.
+- `guardrail`: The 30 daily QoL starts are capacity, not accepted-pass count. Only touch automation related to this project during automation maintenance; product implementation remains allowed only when a QoL run selects a bounded MVP requirement slice from the master plan/catalog.
+- `reason`: Bryan explicitly asked to delete all project automation and rebuild from scratch so there are QoL passes on every listed item at least 3x/day, spread as individual automations to avoid token abuse and limits.
+- `applies to`: local Senior Capstone automation TOMLs, `docs/automation-cadence.md`, `docs/automation-runbook.md`, `docs/automation-self-improvement.md`, `docs/automation-memory.md`, `docs/master-plan.md`, `docs/mvp-requirements-catalog.md`, prompt snapshots, `scripts/check-automation-contract.ps1`, `scripts/snapshot-automation-prompts.ps1`, and future run manifests.
+- `source`: User request on 2026-05-18: "Delete all automation related to this project and rebuild from scratch ensuring that there are QoL passes on every single one of the above items at LEAST 3x a day ..."
+- `last updated`: 2026-05-18 13:24 PT

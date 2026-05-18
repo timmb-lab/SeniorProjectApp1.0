@@ -271,7 +271,7 @@ Daily priority order:
 2. Second accepted pass should deepen or verify the same alpha path: working transitions, seeded/demo data, tests, local run proof, Cloudflare preview proof, error/empty/permission states, or bug fixes.
 3. Stretch pass can be Figma, Canva, audit, or docs only when it directly unblocks the Day 7 alpha or closes a concrete P0/P1 handoff.
 
-Weekly adjustment rule for this project only: the `requirements-audit` category runner reviews the last seven days of run manifests, run log entries, commits, backlog movement, handoffs, and audit findings on Sundays. It then updates this master plan, `docs/automation-memory.md`, and `docs/mvp-requirements-catalog.md` with the next week's daily goal/allocation if evidence shows the plan is too loose, too aggressive, or pointed at the wrong category.
+Weekly adjustment rule for this project only: `senior-capstone-qol-source-framework-seed` reviews the last seven days of run manifests, run log entries, commits, backlog movement, handoffs, and audit findings on Sundays. It then updates this master plan, `docs/automation-memory.md`, and `docs/mvp-requirements-catalog.md` with the next week's daily goal/allocation if evidence shows the plan is too loose, too aggressive, or pointed at the wrong QoL target.
 
 ### 2026-05-18 Baseline After Figma And Automation Catch-Up
 
@@ -320,11 +320,11 @@ Bryan explicitly asked for the automation to run as many times per day as practi
 - `deployment-qa`: hourly at `:43`.
 - `design-assets-handoff`: hourly at `:51`.
 
-This cadence is the Codex GUI-facing source of truth. It is intentionally aggressive, but the accepted-pass goal remains evidence-based rather than schedule-count based: hourly runs should move, verify, or log one bounded requirement slice, and they should write a committed blocker instead of waiting for human approval when external account/tool authorization is missing.
+This cadence was briefly the Codex GUI-facing source of truth before the later 20x tuning and QoL rebuild. It is intentionally preserved as historical context, but the active source of truth is now the QoL Automation Rebuild section below.
 
 ### 2026-05-18 20x Automation Readiness
 
-Bryan then asked to make the automation A-material and ready to run 20x/day while touching only this project's automation. The current Codex GUI-facing source of truth is now the 20x/day Senior Capstone system: 20 total project starts per day, distributed across seven category runners by MVP risk.
+Bryan then asked to make the automation A-material and ready to run 20x/day while touching only this project's automation. This 20x/day system was the Codex GUI-facing source of truth before the later QoL rebuild: 20 total project starts per day, distributed across seven category runners by MVP risk.
 
 - `requirements-audit`: `00:03`, `12:03`, `23:03`.
 - `backend-security-data`: `01:15`, `07:15`, `13:15`, `19:15`.
@@ -335,6 +335,23 @@ Bryan then asked to make the automation A-material and ready to run 20x/day whil
 - `design-assets-handoff`: `09:39`, `21:39`.
 
 A-material automation means each productive run must do one of three things: land verified MVP progress, repair a repeatable project automation/script/checker failure, or commit an exact blocker that makes the next account/tool action clear. It must name requirement IDs, log durable evidence, run relevant checks, commit, push, and avoid waiting for human approval on project-owned files/scripts/commits.
+
+### 2026-05-18 QoL Automation Rebuild
+
+Bryan then requested deleting all project automation and rebuilding from scratch so every listed unfinished QoL item gets at least three passes per day without concentrating token use in a few broad runners. The current Codex GUI-facing source of truth is ten individual QoL automations, each running 3x/day:
+
+- `senior-capstone-qol-source-framework-seed`: `00:03`, `08:03`, `16:03`.
+- `senior-capstone-qol-drive-upload-oauth`: `00:51`, `08:51`, `16:51`.
+- `senior-capstone-qol-protected-evidence-tests`: `01:39`, `09:39`, `17:39`.
+- `senior-capstone-qol-teacher-review-endpoints`: `02:27`, `10:27`, `18:27`.
+- `senior-capstone-qol-immutable-review-history`: `03:15`, `11:15`, `19:15`.
+- `senior-capstone-qol-mentor-presentation-flow`: `04:03`, `12:03`, `20:03`.
+- `senior-capstone-qol-admin-ops-endpoints`: `04:51`, `12:51`, `20:51`.
+- `senior-capstone-qol-announcements`: `05:39`, `13:39`, `21:39`.
+- `senior-capstone-qol-account-lifecycle`: `06:27`, `14:27`, `22:27`.
+- `senior-capstone-qol-cloudflare-verification`: `07:15`, `15:15`, `23:15`.
+
+Each QoL automation stays narrow, names requirement IDs, respects the token budget guardrail, applies the surface expansion rule, validates, logs, commits, and pushes. The schedule is execution capacity, not an accepted-pass count.
 
 ### Updated 100-Pass Allocation From Current State
 
@@ -489,7 +506,7 @@ Do not:
 Each week, Bryan should be able to answer:
 
 - Did the project hit at least 14 accepted MVP passes this week, and were they mostly implementation-heavy while `SC-005` remained open?
-- Did the `requirements-audit` category adjust the next week's daily goal/allocation from evidence instead of vibes?
+- Did `senior-capstone-qol-source-framework-seed` adjust the next week's daily goal/allocation from evidence instead of vibes?
 - Did the repo move closer to a real hosted app?
 - Did the repo move closer to the secure database/account/group/progress MVP?
 - Did the GitHub-to-Cloudflare deployment path move forward?

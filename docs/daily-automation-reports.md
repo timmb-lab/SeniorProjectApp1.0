@@ -6,7 +6,7 @@ The intended permanent destination is the Google Doc titled `Senior Capstone Dai
 
 ## 2026-05-18 Setup Note
 
-The standalone daily reporting automation was originally created and scheduled for 07:30 daily, then moved to 07:40, then paused as a standby prompt. On 2026-05-18 Bryan reset all project automation setup; daily reporting is now owned by the `requirements-audit` category runner and should happen at most once per local day when needed.
+The standalone daily reporting automation was originally created and scheduled for 07:30 daily, then moved to 07:40, then paused as a standby prompt. On 2026-05-18 Bryan reset all project automation setup and later rebuilt it as QoL runners; daily reporting is now owned by `senior-capstone-qol-source-framework-seed` and should happen at most once per local day when needed.
 
 Destinations:
 - Email: `bryan.timm89@gmail.com`

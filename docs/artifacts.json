@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-05-18T12:45:00-07:00",
+  "updated_at": "2026-05-18T13:24:00-07:00",
   "artifacts": [
     {
       "id": "cloudflare-pages-senior-capstone-app",
@@ -524,21 +524,24 @@
       "last_updated": "2026-05-18"
     },
     {
-      "id": "senior-capstone-mvp-category-automation-system",
+      "id": "senior-capstone-qol-automation-system",
       "type": "automation_system",
       "status": "active",
       "owner_lane": "requirements-audit",
-      "title": "Senior Capstone MVP Category Automation System",
-      "purpose": "Seven active MVP requirement category runners replacing the prior active/standby Senior Capstone automation setup.",
-      "app_placement": "Automation operating layer for the 100-pass MVP plan and Day 7 alpha ladder.",
+      "title": "Senior Capstone QoL Automation System",
+      "purpose": "Ten focused QoL automations replacing all prior Senior Capstone project automation setup.",
+      "app_placement": "Automation operating layer for the 100-pass MVP plan, Day 7 alpha ladder, and three-daily-pass QoL coverage.",
       "automation_ids": [
-        "senior-capstone-mvp-requirements-audit",
-        "senior-capstone-backend-security-data",
-        "senior-capstone-student-workflow-evidence",
-        "senior-capstone-staff-review-mentor",
-        "senior-capstone-admin-ops-reporting",
-        "senior-capstone-deployment-qa",
-        "senior-capstone-design-assets-handoff"
+        "senior-capstone-qol-source-framework-seed",
+        "senior-capstone-qol-drive-upload-oauth",
+        "senior-capstone-qol-protected-evidence-tests",
+        "senior-capstone-qol-teacher-review-endpoints",
+        "senior-capstone-qol-immutable-review-history",
+        "senior-capstone-qol-mentor-presentation-flow",
+        "senior-capstone-qol-admin-ops-endpoints",
+        "senior-capstone-qol-announcements",
+        "senior-capstone-qol-account-lifecycle",
+        "senior-capstone-qol-cloudflare-verification"
       ],
       "repo_records": [
         "docs/automation-cadence.md",
@@ -548,9 +551,9 @@
         "scripts/snapshot-automation-prompts.ps1"
       ],
       "verification": [
-        "Category schedules create 20 total Senior Capstone starts/day with no shared start slots.",
-        "Each category ladders from docs/master-plan.md plus docs/mvp-requirements-catalog.md and carries an A-material quality bar.",
-        "Contract checker validates category automation IDs, GUI-facing names, snapshots, 20x/day schedules, required prompt fragments, all MVP requirement coverage, JSON manifests, and non-interactive project scripts."
+        "QoL schedules create 30 total Senior Capstone starts/day with no shared start slots and at least 45 minutes between starts.",
+        "Each QoL target runs exactly 3x/day, ladders from docs/master-plan.md plus docs/mvp-requirements-catalog.md, respects the token budget guardrail, and carries an A-material quality bar.",
+        "Contract checker validates the exact ten automation IDs, GUI-facing names, snapshots, 30x/day schedule, required prompt fragments, all MVP requirement coverage, JSON manifests, and non-interactive project scripts."
       ],
       "last_updated": "2026-05-18"
     }

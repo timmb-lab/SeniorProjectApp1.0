@@ -8,14 +8,14 @@ The goal is a GitHub-to-Cloudflare hosted app whose MVP is a secure database-bac
 
 ## Required Loop
 
-The seven active Senior Capstone MVP category runners should run this loop:
+The ten active Senior Capstone QoL automations should run this loop:
 
 1. Read `docs/master-plan.md`, `docs/mvp-requirements-catalog.md`, `docs/automation-runbook.md`, this protocol, `docs/automation-cadence.md`, `docs/automation-milestones.md`, `docs/automation-memory.md`, `docs/progress/run-log.md`, recent `docs/progress/runs/`, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, and the relevant lane/reporting logs before selecting work.
 2. Do the highest-value bounded product, audit, visual, or reporting slice unless the automation itself is blocked or the user explicitly requested automation improvement.
 3. During closeout, compare the run against its own prompt, the shared docs, and recent logs.
 4. If no prompt/config improvement is justified, write `self-improvement: none` in the lane/report log.
 5. If a small improvement is justified by evidence, update only that automation's own live prompt/config with `automation_update`, then log what changed and why.
-6. Preserve the existing automation `id`, `kind`, `name`, schedule, workspace, model, reasoning effort, and status unless the user explicitly asked to change one of those fields. Bryan explicitly reset the Senior Capstone project automations on 2026-05-18; future category runners should preserve the new category IDs and schedules until he asks again.
+6. Preserve the existing automation `id`, `kind`, `name`, schedule, workspace, model, reasoning effort, and status unless the user explicitly asked to change one of those fields. Bryan explicitly rebuilt the Senior Capstone project automations on 2026-05-18; future QoL runners should preserve the new QoL IDs and schedules until he asks again.
 7. Regenerate prompt snapshots with `scripts/snapshot-automation-prompts.ps1` after any live prompt/config change.
 8. Update `scripts/check-automation-contract.ps1` when the master planner, pass logger, prompt snapshot, manifest, or self-patching contract changed and the checker needs to enforce the new requirement.
 9. Run project scripts non-interactively with `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File ...` so scheduled runs do not pause for shell-level prompts.
@@ -87,4 +87,4 @@ The default work of each run is still product progress. Self-improvement is a cl
 
 ## Weekly Goal Calibration
 
-For this Senior Capstone project only, the `requirements-audit` category runner owns the 100-pass goal calibration loop. It should compare the last seven days of committed run evidence against the real daily target in `docs/master-plan.md`: minimum 2 accepted MVP passes per day, 3 stretch, and 14 accepted MVP passes per week. When evidence shows the next week's target or allocation should change, update only this project's `docs/master-plan.md`, `docs/automation-memory.md`, and `docs/mvp-requirements-catalog.md`, log the rationale, validate, commit, and push.
+For this Senior Capstone project only, the `senior-capstone-qol-source-framework-seed` automation owns the 100-pass goal calibration loop because it is the current source-framework/catalog/requirements runner. It should compare the last seven days of committed run evidence against the real daily target in `docs/master-plan.md`: minimum 2 accepted MVP passes per day, 3 stretch, and 14 accepted MVP passes per week. When evidence shows the next week's target or allocation should change, update only this project's `docs/master-plan.md`, `docs/automation-memory.md`, and `docs/mvp-requirements-catalog.md`, log the rationale, validate, commit, and push.

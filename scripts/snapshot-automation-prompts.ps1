@@ -6,13 +6,16 @@ param(
 $ErrorActionPreference = "Stop"
 
 $automationIds = @(
-    "senior-capstone-mvp-requirements-audit",
-    "senior-capstone-backend-security-data",
-    "senior-capstone-student-workflow-evidence",
-    "senior-capstone-staff-review-mentor",
-    "senior-capstone-admin-ops-reporting",
-    "senior-capstone-deployment-qa",
-    "senior-capstone-design-assets-handoff"
+    "senior-capstone-qol-source-framework-seed",
+    "senior-capstone-qol-drive-upload-oauth",
+    "senior-capstone-qol-protected-evidence-tests",
+    "senior-capstone-qol-teacher-review-endpoints",
+    "senior-capstone-qol-immutable-review-history",
+    "senior-capstone-qol-mentor-presentation-flow",
+    "senior-capstone-qol-admin-ops-endpoints",
+    "senior-capstone-qol-announcements",
+    "senior-capstone-qol-account-lifecycle",
+    "senior-capstone-qol-cloudflare-verification"
 )
 
 function Get-TomlStringValue {
@@ -45,6 +48,8 @@ function Get-StringSha256 {
 }
 
 New-Item -ItemType Directory -Force -Path $OutputDir | Out-Null
+Get-ChildItem -LiteralPath $OutputDir -Filter "senior-capstone*.md" -File | Remove-Item -Force
+
 $generatedAt = (Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ")
 $indexRows = New-Object System.Collections.Generic.List[string]
 $indexRows.Add("# Automation Prompt Snapshots")

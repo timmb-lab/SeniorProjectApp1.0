@@ -2,7 +2,7 @@
 
 Date: 2026-05-18
 
-Bryan explicitly reset the Senior Capstone automation setup on 2026-05-18, then explicitly tuned the cadence the same day. The prior project automations were deleted from the active local automation set and replaced with seven MVP requirement category runners. The current production cadence is a 20x/day Senior Capstone system in America/Los_Angeles, distributed across the seven categories by risk with no shared scheduled start.
+Bryan explicitly reset the Senior Capstone automation setup on 2026-05-18, then explicitly rebuilt it again as a focused QoL system. All prior project automation TOMLs are deleted. The current production cadence is ten individual Senior Capstone QoL automations, each running 3x/day in America/Los_Angeles, spread out so the project gets 30 small targeted starts/day without one giant token-heavy runner.
 
 End goal: a GitHub-to-Cloudflare hosted Senior Capstone app whose MVP is a secure database-backed operating system with users, groups, roles, programs, cohorts, progress updates, submissions, private evidence, reviews, approvals, dashboards, announcements, admin controls, audit logs, exports, and protected student records.
 
@@ -21,29 +21,33 @@ Human decision queue: `docs/human-decisions.md`.
 Artifact registry: `docs/artifacts.json`.
 Contract checker: `scripts/check-automation-contract.ps1`.
 
-## Active Category Automations
+## Active QoL Automations
 
-| Category | Automation ID | Schedule PT | RRULE | Primary output |
+| QoL target | Automation ID | Schedule PT | RRULE | Primary output |
 | --- | --- | --- | --- | --- |
-| Requirements + Audit | `senior-capstone-mvp-requirements-audit` | `00:03`, `12:03`, `23:03` | `FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=0,12,23;BYMINUTE=03` | Requirement catalog, backlog hygiene, accepted-pass count, weekly calibration. |
-| Backend Security + Data | `senior-capstone-backend-security-data` | `01:15`, `07:15`, `13:15`, `19:15` | `FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=1,7,13,19;BYMINUTE=15` | Auth, users, groups, roles, permissions, D1 schema, server authorization. |
-| Student Workflow + Evidence | `senior-capstone-student-workflow-evidence` | `02:27`, `08:27`, `14:27`, `20:27` | `FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=2,8,14,20;BYMINUTE=27` | Student dashboard, proposal/research, progress, evidence metadata, mobile student path. |
-| Staff Review + Mentor | `senior-capstone-staff-review-mentor` | `03:39`, `10:39`, `18:39` | `FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=3,10,18;BYMINUTE=39` | Teacher review, revision, approval, comments, mentor meetings, presentation scheduling. |
-| Admin Ops + Reporting | `senior-capstone-admin-ops-reporting` | `04:51`, `15:51` | `FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=4,15;BYMINUTE=51` | Admin provisioning, deadlines/templates, announcements, exports, audit views, misc-admin narrowing. |
-| Deployment QA + CI | `senior-capstone-deployment-qa` | `06:03`, `17:03` | `FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=6,17;BYMINUTE=03` | Cloudflare preview/prod proof, CI, smoke tests, secrets/env checks, backup/readiness notes. |
-| Design Assets + Handoff | `senior-capstone-design-assets-handoff` | `09:39`, `21:39` | `FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=9,21;BYMINUTE=39` | Figma implementation specs, Canva supporting imagery, component/state handoffs, guided prototype. |
+| Source framework seed | `senior-capstone-qol-source-framework-seed` | `00:03`, `08:03`, `16:03` | `FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=0,8,16;BYMINUTE=03` | Source-framework loader, requirement/deadline/check records, catalog drift control. |
+| Drive upload OAuth | `senior-capstone-qol-drive-upload-oauth` | `00:51`, `08:51`, `16:51` | `FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=0,8,16;BYMINUTE=51` | Google Drive upload credentials/OAuth, evidence metadata, provider states. |
+| Protected evidence tests | `senior-capstone-qol-protected-evidence-tests` | `01:39`, `09:39`, `17:39` | `FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=1,9,17;BYMINUTE=39` | Private evidence permissions, denied-access audit events, protected-record tests. |
+| Teacher review endpoints | `senior-capstone-qol-teacher-review-endpoints` | `02:27`, `10:27`, `18:27` | `FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=2,10,18;BYMINUTE=27` | Teacher queue/detail endpoints, comments, revision, approval, status history. |
+| Immutable review history | `senior-capstone-qol-immutable-review-history` | `03:15`, `11:15`, `19:15` | `FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=3,11,19;BYMINUTE=15` | Submission versions, immutable reviews/comments, destructive-overwrite prevention. |
+| Mentor presentation flow | `senior-capstone-qol-mentor-presentation-flow` | `04:03`, `12:03`, `20:03` | `FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=4,12,20;BYMINUTE=03` | Mentor scope, meeting attendance, outline gates, presentation slots, conflicts. |
+| Admin ops endpoints | `senior-capstone-qol-admin-ops-endpoints` | `04:51`, `12:51`, `20:51` | `FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=4,12,20;BYMINUTE=51` | Admin operations, overrides, deadlines/templates, exports, audit redaction. |
+| Announcements | `senior-capstone-qol-announcements` | `05:39`, `13:39`, `21:39` | `FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=5,13,21;BYMINUTE=39` | Staff/admin announcements without student messaging. |
+| Account lifecycle | `senior-capstone-qol-account-lifecycle` | `06:27`, `14:27`, `22:27` | `FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=6,14,22;BYMINUTE=27` | Invitations/imports, password reset, credential rotation, sessions, role scopes. |
+| Cloudflare verification | `senior-capstone-qol-cloudflare-verification` | `07:15`, `15:15`, `23:15` | `FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=7,15,23;BYMINUTE=15` | Post-push Pages/D1/env verification, CI, smoke checks, secrets, blockers. |
 
-This creates 20 Senior Capstone starts per day across the project, weighted toward backend/security and student workflow while preserving all seven categories. The start slots are staggered with no exact overlaps and at least 30 minutes between starts. Each runner must keep its own slice bounded, favor implementation or verification evidence, and must not overwrite unrelated dirty work. If the worktree is dirty because another category run is still closing, the runner should classify the dirty files, avoid staging unrelated changes, and either pick a non-conflicting read-only/verification slice or record a compact committed blocker.
+This creates 30 Senior Capstone starts per day across the project. Each unfinished QoL item runs at least 3x/day. The start slots are staggered with no exact overlaps and at least 45 minutes between starts. Each runner must keep its own slice bounded, favor implementation or verification evidence, and must not overwrite unrelated dirty work. If the worktree is dirty because another QoL run is still closing, the runner should classify the dirty files, avoid staging unrelated changes, and either pick a non-conflicting read-only/verification slice or record a compact committed blocker.
 
 ## Shared Operating Contract
 
-Every category automation must:
+Every QoL automation must:
 
 - Inspect `git status --short --branch` before reading or editing.
 - Read `docs/master-plan.md` and `docs/mvp-requirements-catalog.md` before selecting work.
 - Read `docs/automation-runbook.md`, `docs/automation-self-improvement.md`, `docs/automation-cadence.md`, `docs/automation-milestones.md`, `docs/automation-memory.md`, `docs/progress/run-log.md`, recent `docs/progress/runs/`, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, and the relevant lane/category logs.
 - Name the master-plan section and requirement IDs that justify the slice.
 - Choose one bounded slice from its category, preferring P0/P1 MVP gaps and Day 7 alpha work while the alpha is incomplete.
+- Respect the token budget guardrail: read the required anchors, then use targeted `rg`, recent manifests, and relevant log sections rather than broad full-file or full-repo reads.
 - Meet the A-material quality bar: land verified MVP progress, repair a repeatable automation/script/checker failure, or commit an exact blocker with requirement IDs, validation, and next action.
 - Apply the surface expansion rule: for the selected requirement, decide which surfaces need work or proof across app code/routes/schema, Cloudflare Pages/D1/env/deploy, Figma route-data-permission handoff, Canva support assets, tests/CI, docs/artifacts/handoffs, and exact blockers.
 - Update `docs/mvp-requirements-catalog.md` when status, evidence, blocker, or acceptance checks materially change.
@@ -94,7 +98,7 @@ The 100-pass target remains evidence-based:
 - Weekly stretch: 16-18 accepted MVP passes.
 - Cap discipline: do not count more than 100 accepted passes before the MVP is honestly assessed as pilot-ready or not.
 
-The `requirements-audit` category owns weekly calibration. On Sundays, it reviews the prior seven days of commits, run manifests, run-log entries, backlog movement, handoffs, and blockers, then updates only this project's master plan, memory, and requirements catalog when evidence shows the next week's daily goal or category allocation should change.
+`senior-capstone-qol-source-framework-seed` owns weekly calibration. On Sundays, it reviews the prior seven days of commits, run manifests, run-log entries, backlog movement, handoffs, and blockers, then updates only this project's master plan, memory, and requirements catalog when evidence shows the next week's daily goal or QoL allocation should change.
 
 ## Commit Prefixes
 
@@ -108,7 +112,7 @@ The `requirements-audit` category owns weekly calibration. On Sundays, it review
 
 ## Deleted Prior Project Automations
 
-The category reset supersedes these prior local automation TOMLs:
+The QoL rebuild supersedes these prior local automation TOMLs:
 
 - `senior-capstone-canva-visual-system-rebuilt`
 - `senior-capstone-content-quality-audits-rebuilt`
@@ -117,5 +121,12 @@ The category reset supersedes these prior local automation TOMLs:
 - `senior-capstone-figma-product-design-rebuilt`
 - `senior-capstone-rebuild-rebuilt`
 - `senior-capstone-weekly-deep-audit-rebuilt`
+- `senior-capstone-mvp-requirements-audit`
+- `senior-capstone-backend-security-data`
+- `senior-capstone-student-workflow-evidence`
+- `senior-capstone-staff-review-mentor`
+- `senior-capstone-admin-ops-reporting`
+- `senior-capstone-deployment-qa`
+- `senior-capstone-design-assets-handoff`
 
-The old concepts are not lost; they are absorbed into the seven requirement categories above.
+The old concepts are not lost; they are absorbed into the ten QoL runners above.

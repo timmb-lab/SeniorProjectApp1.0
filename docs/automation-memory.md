@@ -27,15 +27,14 @@ Figma is the heavy product-design source for functional app screens, database-ba
 - Google Drive evidence repository root folder `1XPgYKbIMqv332DAJZJNJetHppFB670e7` and index sheet `1b446rp3oyx9G4LpKYE47qXxpU41EOW-2Ota2fGum49c` exist and are wired into Pages config and D1 metadata. Server-side Drive upload credential/OAuth flow remains pending.
 - Alpha state-machine tests, alpha contract checks, and GitHub Actions CI workflows now exist (`tests/alpha-flow.test.mjs`, `scripts/check-alpha-contract.mjs`, `npm run check`, `.github/workflows/ci.yml`, and `.github/workflows/alpha-ci.yml`); broader auth/permission/Drive-upload tests remain incomplete.
 - Source PDFs have been extracted and converted into app-native requirements in `data/capstone-framework.json`.
-- Bryan reset the Senior Capstone automation setup on 2026-05-18. The old active/standby automation set was deleted from the active local automation registry and replaced with seven active MVP requirement category runners. Bryan later tuned the cadence to a 20x/day Senior Capstone system, creating 20 total scheduled starts/day distributed by MVP risk across the seven categories.
-- The category source of truth is `docs/mvp-requirements-catalog.md`. Every category run must ladder from `docs/master-plan.md` into that catalog, name requirement IDs advanced, and update catalog status/evidence/blockers when material progress happens.
-- Design/guided-prototype upkeep is now part of `senior-capstone-design-assets-handoff`, not a separate daily automation.
-- Daily reporting and weekly audit work are now category responsibilities rather than separate active automation records.
-- Every category prompt now requires a lane/category log entry, compact run-log entry, structured run manifest, relevant memory/handoff/decision/catalog updates, verification, commit, and push.
-- Every category prompt references `docs/master-plan.md` and `docs/mvp-requirements-catalog.md` along with the durable logs.
+- Bryan reset the Senior Capstone automation setup on 2026-05-18, then rebuilt it again as ten active QoL automations. All prior active/standby, daily prototype, weekly audit, seven-category, hourly, and 20x project automation TOMLs are superseded by the QoL set.
+- The QoL source of truth is `docs/automation-cadence.md`, and the requirements source of truth remains `docs/mvp-requirements-catalog.md`. Every QoL run must ladder from `docs/master-plan.md` into that catalog, name requirement IDs advanced, and update catalog status/evidence/blockers when material progress happens.
+- Figma, Canva, guided-prototype, daily reporting, weekly calibration, and deployment verification work are now handled only when a relevant QoL runner selects a bounded slice that needs that surface.
+- Every QoL prompt now requires a relevant progress log entry, compact run-log entry, structured run manifest, relevant memory/handoff/decision/catalog updates, verification, commit, and push.
+- Every QoL prompt references `docs/master-plan.md` and `docs/mvp-requirements-catalog.md` along with the durable logs.
 - Daily automation summaries, when produced as part of category work, should use `bryan.timm89@gmail.com` for the Google Drive/Doc target if connector permissions allow.
-- Every category automation now uses `docs/automation-self-improvement.md` to self-review, log whether prompt/config/script changes were needed, and update only its own live automation prompt/config plus the smallest relevant project script when evidence and tool availability justify it.
-- Weekly 100-pass goal calibration is now owned by the `requirements-audit` category runner on Sundays. It reviews committed evidence, counts accepted MVP passes, and updates only this project's master plan, memory, and requirements catalog when evidence requires a goal/allocation adjustment.
+- Every QoL automation now uses `docs/automation-self-improvement.md` to self-review, log whether prompt/config/script changes were needed, and update only its own live automation prompt/config plus the smallest relevant project script when evidence and tool availability justify it.
+- Weekly 100-pass goal calibration is now owned by `senior-capstone-qol-source-framework-seed` on Sunday source-framework/catalog runs. It reviews committed evidence, counts accepted MVP passes, and updates only this project's master plan, memory, and requirements catalog when evidence requires a goal/allocation adjustment.
 - Automation operating infrastructure now includes prompt snapshots in `docs/automation-prompts/`, structured run manifests in `docs/progress/runs/`, human decisions in `docs/human-decisions.md`, external artifact registry in `docs/artifacts.json`, and contract scripts in `scripts/`.
 - Rebuild and content audit lane logs now exist at `docs/progress/rebuild.md` and `docs/progress/audit.md`; `scripts/check-automation-contract.ps1` requires both so future automation reviews catch missing lane-log anchors.
 - The automation contract now explicitly forbids local-only repo closeout and interactive project-script prompts: live prompts include the no-human-approval rule, and `scripts/check-automation-contract.ps1` fails if project scripts use PowerShell or JavaScript prompt/confirmation patterns.
@@ -52,7 +51,7 @@ The 100-pass master plan was refreshed on 2026-05-18 after the professional-plan
 
 Immediate next five useful passes: broaden auth/permission/evidence tests, extend alpha data into real workflow endpoints, add Google Drive upload credential/OAuth implementation, implement account provisioning/invitation/password-reset lifecycle, then deepen mobile/error/empty/permission alpha QA. The D1-backed alpha flow, persona switcher, student/teacher/mentor/admin/misc-admin views, fake login-capable role accounts, audit timeline, runbook, alpha-week framework, alpha contract checker, preview deploy command, CI workflows, production deployment, and first-admin bootstrap verification now exist.
 
-Real daily MVP goal: minimum 2 accepted MVP passes per calendar day, stretch 3 when unblocked, and at least 14 accepted MVP passes per week until the 100-pass target is met or recalibrated. Until the Day 7 alpha is accepted, the first two accepted passes each day should usually be app-flow implementation or alpha verification, not broad design polish or production account hardening. The 20 daily category starts are capacity, not a goal to count scheduled starts as accepted passes. The `requirements-audit` category must review the prior seven days of committed run evidence and adjust only this project's next-week daily goal/allocation in `docs/master-plan.md`, `docs/automation-memory.md`, and `docs/mvp-requirements-catalog.md` when evidence requires it.
+Real daily MVP goal: minimum 2 accepted MVP passes per calendar day, stretch 3 when unblocked, and at least 14 accepted MVP passes per week until the 100-pass target is met or recalibrated. Until the Day 7 alpha is accepted, the first two accepted passes each day should usually be app-flow implementation or alpha verification, not broad design polish or production account hardening. The 30 daily QoL starts are capacity, not a goal to count scheduled starts as accepted passes. `senior-capstone-qol-source-framework-seed` must review the prior seven days of committed run evidence and adjust only this project's next-week daily goal/allocation in `docs/master-plan.md`, `docs/automation-memory.md`, and `docs/mvp-requirements-catalog.md` when evidence requires it.
 
 Current account/provisioning watchpoint: Cloudflare Pages/D1 setup is done for the first foundation, district SSO is explicitly unavailable for MVP, and the Google Drive evidence root folder is now selected/configured. First-admin credentials and fake test-account credentials were generated into ignored local `.secrets/` storage; bootstrap is complete, production setup key is removed, and four fake `.test` role accounts can log in. Remaining account/config-owned work is server-side Drive upload credentials/OAuth, invitation/import/password-reset flows, credential rotation, broader permission tests, and any district/privacy approval before real student records are entered.
 
@@ -140,16 +139,20 @@ Read `docs/progress/decision-log.md` for accepted or superseded decisions.
 - `D-2026-05-18-023`: use `docs/alpha-week-framework.md`, `npm run check`, `scripts/check-alpha-contract.mjs`, `.github/workflows/alpha-ci.yml`, and `npm run deploy:preview` as the Day 7 alpha execution/verification rail.
 - `D-2026-05-18-024`: delete the prior Senior Capstone active/standby automation setup and replace it with seven active MVP requirement category runners, laddering from `docs/mvp-requirements-catalog.md`.
 - `D-2026-05-18-025`: escalate the seven category runners to hourly execution, 168 scheduled starts/day total, with no human approvals inside project scripts, GUI-facing hourly names, and self-improvement to scripts/checkers as evidence requires.
-- `D-2026-05-18-026`: tune the seven category runners into a 20x/day A-material automation system with no shared start slots, no human approvals inside project scripts, explicit GUI-facing `20x System` names, requirement laddering, and script/checker self-improvement.
+- `D-2026-05-18-026`: superseded by `D-2026-05-18-027`; the seven category runners were tuned into a 20x/day A-material automation system.
+- `D-2026-05-18-027`: delete all Senior Capstone project automation again and rebuild from scratch as ten focused QoL automations, each running exactly 3x/day, with no shared start slots, at least 45 minutes between starts, no human approvals inside project scripts, requirement laddering, token budget guardrails, surface expansion, and script/checker self-improvement.
 
-Current category automation IDs:
-- `senior-capstone-mvp-requirements-audit` (`ACTIVE`; `00:03`, `12:03`, `23:03` PT; GUI name `Senior Capstone 20x System - Requirements + Audit`)
-- `senior-capstone-backend-security-data` (`ACTIVE`; `01:15`, `07:15`, `13:15`, `19:15` PT; GUI name `Senior Capstone 20x System - Backend Security + Data`)
-- `senior-capstone-student-workflow-evidence` (`ACTIVE`; `02:27`, `08:27`, `14:27`, `20:27` PT; GUI name `Senior Capstone 20x System - Student Workflow + Evidence`)
-- `senior-capstone-staff-review-mentor` (`ACTIVE`; `03:39`, `10:39`, `18:39` PT; GUI name `Senior Capstone 20x System - Staff Review + Mentor`)
-- `senior-capstone-admin-ops-reporting` (`ACTIVE`; `04:51`, `15:51` PT; GUI name `Senior Capstone 20x System - Admin Ops + Reporting`)
-- `senior-capstone-deployment-qa` (`ACTIVE`; `06:03`, `17:03` PT; GUI name `Senior Capstone 20x System - Deployment QA + CI`)
-- `senior-capstone-design-assets-handoff` (`ACTIVE`; `09:39`, `21:39` PT; GUI name `Senior Capstone 20x System - Design Assets + Handoff`)
+Current QoL automation IDs:
+- `senior-capstone-qol-source-framework-seed` (`ACTIVE`; `00:03`, `08:03`, `16:03` PT; GUI name `Senior Capstone QoL - Source Framework Seed`)
+- `senior-capstone-qol-drive-upload-oauth` (`ACTIVE`; `00:51`, `08:51`, `16:51` PT; GUI name `Senior Capstone QoL - Drive Upload OAuth`)
+- `senior-capstone-qol-protected-evidence-tests` (`ACTIVE`; `01:39`, `09:39`, `17:39` PT; GUI name `Senior Capstone QoL - Protected Evidence Tests`)
+- `senior-capstone-qol-teacher-review-endpoints` (`ACTIVE`; `02:27`, `10:27`, `18:27` PT; GUI name `Senior Capstone QoL - Teacher Review Endpoints`)
+- `senior-capstone-qol-immutable-review-history` (`ACTIVE`; `03:15`, `11:15`, `19:15` PT; GUI name `Senior Capstone QoL - Immutable Review History`)
+- `senior-capstone-qol-mentor-presentation-flow` (`ACTIVE`; `04:03`, `12:03`, `20:03` PT; GUI name `Senior Capstone QoL - Mentor Presentation Flow`)
+- `senior-capstone-qol-admin-ops-endpoints` (`ACTIVE`; `04:51`, `12:51`, `20:51` PT; GUI name `Senior Capstone QoL - Admin Ops Endpoints`)
+- `senior-capstone-qol-announcements` (`ACTIVE`; `05:39`, `13:39`, `21:39` PT; GUI name `Senior Capstone QoL - Announcements`)
+- `senior-capstone-qol-account-lifecycle` (`ACTIVE`; `06:27`, `14:27`, `22:27` PT; GUI name `Senior Capstone QoL - Account Lifecycle`)
+- `senior-capstone-qol-cloudflare-verification` (`ACTIVE`; `07:15`, `15:15`, `23:15` PT; GUI name `Senior Capstone QoL - Cloudflare Verification`)
 
 ## Handoff Rules
 
@@ -182,7 +185,7 @@ Every run should also record `self-improvement: none` or a specific self-improve
 
 ## 2026-05-18 12:47 PT - Automation Coverage Audit
 
-- Seven active category automations remain the live source of truth: requirements-audit, backend-security-data, student-workflow-evidence, staff-review-mentor, admin-ops-reporting, deployment-qa, and design-assets-handoff.
+- At that point, seven active category automations were the live source of truth: requirements-audit, backend-security-data, student-workflow-evidence, staff-review-mentor, admin-ops-reporting, deployment-qa, and design-assets-handoff.
 - Superseded by the 12:55 PT cadence escalation: the live registry now has 168 starts/day, 24 per category, with no shared scheduled start minute.
 - A custom prompt coverage audit verified every `MVP-001` through `MVP-030` is explicitly targeted by at least one active automation prompt.
 - `scripts/check-automation-contract.ps1` now enforces all 30 catalog IDs and all 30 active-prompt coverage IDs instead of only checking representative samples.
@@ -212,3 +215,12 @@ Every run should also record `self-improvement: none` or a specific self-improve
 - Added a surface expansion rule to all seven live local prompts so each selected requirement slice must identify required work/proof in app code/routes/schema, Cloudflare Pages/D1/env/deploy, Figma route-data-permission handoff, Canva support assets, tests/CI, docs/artifacts/handoffs, and exact blockers.
 - `scripts/check-automation-contract.ps1` now enforces that surface expansion rule in prompt snapshots.
 - Validation passed: prompt snapshots regenerated, automation contract passed, and a custom coverage audit confirmed all 30 MVP IDs remain covered.
+
+## 2026-05-18 13:24 PT - QoL Automation Rebuild
+
+- Bryan asked to delete all project automation and rebuild from scratch so every listed QoL/MVP gap gets at least three daily passes while spreading work across individual automations to control token pressure.
+- Deleted the prior seven local Senior Capstone 20x category TOMLs from the active registry and created ten focused QoL automation TOMLs.
+- The live QoL cadence creates 30 starts/day, exactly 3x/day per QoL target, with no exact overlaps and at least 45 minutes between starts.
+- `scripts/snapshot-automation-prompts.ps1` now removes stale Senior Capstone prompt snapshots before writing the current ten snapshots.
+- `scripts/check-automation-contract.ps1` now enforces the exact ten IDs, GUI-facing names, schedules, prompt fragments, token budget guardrails, surface expansion rules, full `MVP-001` through `MVP-030` prompt coverage, no stale Senior Capstone TOMLs, non-interactive scripts, current runbook/master-plan sections, and JSON parse checks.
+- Current validation passed: prompt snapshots regenerated and the automation contract passed for 10 QoL automations.

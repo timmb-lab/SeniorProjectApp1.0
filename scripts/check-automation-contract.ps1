@@ -7,71 +7,69 @@ $ErrorActionPreference = "Stop"
 $failures = New-Object System.Collections.Generic.List[string]
 
 $automationIds = @(
-    "senior-capstone-mvp-requirements-audit",
-    "senior-capstone-backend-security-data",
-    "senior-capstone-student-workflow-evidence",
-    "senior-capstone-staff-review-mentor",
-    "senior-capstone-admin-ops-reporting",
-    "senior-capstone-deployment-qa",
-    "senior-capstone-design-assets-handoff"
-)
-
-$legacyAutomationIds = @(
-    "senior-capstone-canva-visual-system-rebuilt",
-    "senior-capstone-content-quality-audits-rebuilt",
-    "senior-capstone-daily-automation-report-rebuilt",
-    "senior-capstone-daily-guided-prototype-refresh",
-    "senior-capstone-figma-product-design-rebuilt",
-    "senior-capstone-rebuild-rebuilt",
-    "senior-capstone-weekly-deep-audit-rebuilt"
+    "senior-capstone-qol-source-framework-seed",
+    "senior-capstone-qol-drive-upload-oauth",
+    "senior-capstone-qol-protected-evidence-tests",
+    "senior-capstone-qol-teacher-review-endpoints",
+    "senior-capstone-qol-immutable-review-history",
+    "senior-capstone-qol-mentor-presentation-flow",
+    "senior-capstone-qol-admin-ops-endpoints",
+    "senior-capstone-qol-announcements",
+    "senior-capstone-qol-account-lifecycle",
+    "senior-capstone-qol-cloudflare-verification"
 )
 
 $expectedAutomationConfig = @{
-    "senior-capstone-mvp-requirements-audit" = @{
-        Name = "Senior Capstone 20x System - Requirements + Audit"
+    "senior-capstone-qol-source-framework-seed" = @{
+        Name = "Senior Capstone QoL - Source Framework Seed"
         Status = "ACTIVE"
-        RRule = "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=0,12,23;BYMINUTE=03"
+        RRule = "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=0,8,16;BYMINUTE=03"
     }
-    "senior-capstone-backend-security-data" = @{
-        Name = "Senior Capstone 20x System - Backend Security + Data"
+    "senior-capstone-qol-drive-upload-oauth" = @{
+        Name = "Senior Capstone QoL - Drive Upload OAuth"
         Status = "ACTIVE"
-        RRule = "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=1,7,13,19;BYMINUTE=15"
+        RRule = "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=0,8,16;BYMINUTE=51"
     }
-    "senior-capstone-student-workflow-evidence" = @{
-        Name = "Senior Capstone 20x System - Student Workflow + Evidence"
+    "senior-capstone-qol-protected-evidence-tests" = @{
+        Name = "Senior Capstone QoL - Protected Evidence Tests"
         Status = "ACTIVE"
-        RRule = "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=2,8,14,20;BYMINUTE=27"
+        RRule = "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=1,9,17;BYMINUTE=39"
     }
-    "senior-capstone-staff-review-mentor" = @{
-        Name = "Senior Capstone 20x System - Staff Review + Mentor"
+    "senior-capstone-qol-teacher-review-endpoints" = @{
+        Name = "Senior Capstone QoL - Teacher Review Endpoints"
         Status = "ACTIVE"
-        RRule = "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=3,10,18;BYMINUTE=39"
+        RRule = "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=2,10,18;BYMINUTE=27"
     }
-    "senior-capstone-admin-ops-reporting" = @{
-        Name = "Senior Capstone 20x System - Admin Ops + Reporting"
+    "senior-capstone-qol-immutable-review-history" = @{
+        Name = "Senior Capstone QoL - Immutable Review History"
         Status = "ACTIVE"
-        RRule = "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=4,15;BYMINUTE=51"
+        RRule = "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=3,11,19;BYMINUTE=15"
     }
-    "senior-capstone-deployment-qa" = @{
-        Name = "Senior Capstone 20x System - Deployment QA + CI"
+    "senior-capstone-qol-mentor-presentation-flow" = @{
+        Name = "Senior Capstone QoL - Mentor Presentation Flow"
         Status = "ACTIVE"
-        RRule = "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=6,17;BYMINUTE=03"
+        RRule = "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=4,12,20;BYMINUTE=03"
     }
-    "senior-capstone-design-assets-handoff" = @{
-        Name = "Senior Capstone 20x System - Design Assets + Handoff"
+    "senior-capstone-qol-admin-ops-endpoints" = @{
+        Name = "Senior Capstone QoL - Admin Ops Endpoints"
         Status = "ACTIVE"
-        RRule = "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=9,21;BYMINUTE=39"
+        RRule = "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=4,12,20;BYMINUTE=51"
     }
-}
-
-$expectedRunsPerDayByAutomation = @{
-    "senior-capstone-mvp-requirements-audit" = 3
-    "senior-capstone-backend-security-data" = 4
-    "senior-capstone-student-workflow-evidence" = 4
-    "senior-capstone-staff-review-mentor" = 3
-    "senior-capstone-admin-ops-reporting" = 2
-    "senior-capstone-deployment-qa" = 2
-    "senior-capstone-design-assets-handoff" = 2
+    "senior-capstone-qol-announcements" = @{
+        Name = "Senior Capstone QoL - Announcements"
+        Status = "ACTIVE"
+        RRule = "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=5,13,21;BYMINUTE=39"
+    }
+    "senior-capstone-qol-account-lifecycle" = @{
+        Name = "Senior Capstone QoL - Account Lifecycle"
+        Status = "ACTIVE"
+        RRule = "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=6,14,22;BYMINUTE=27"
+    }
+    "senior-capstone-qol-cloudflare-verification" = @{
+        Name = "Senior Capstone QoL - Cloudflare Verification"
+        Status = "ACTIVE"
+        RRule = "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=7,15,23;BYMINUTE=15"
+    }
 }
 
 $requiredPromptFragments = @(
@@ -90,10 +88,10 @@ $requiredPromptFragments = @(
     "docs/artifacts.json",
     "docs/human-decisions.md",
     "git status --short --branch",
-    "requirement IDs",
-    "commit",
-    "push the current branch",
-    "20x/day Senior Capstone system",
+    "QoL target",
+    "Primary requirement IDs",
+    "Token budget guardrail",
+    "Laddering rule",
     "A-material quality bar",
     "Surface expansion rule",
     "app code/routes/schema",
@@ -106,6 +104,8 @@ $requiredPromptFragments = @(
     "auto-approved execution flags",
     "Self-improvement to scripts as you go",
     "Only touch automation related to this project",
+    "commit",
+    "push the current branch",
     "scripts/snapshot-automation-prompts.ps1",
     "scripts/check-automation-contract.ps1",
     "real auth",
@@ -114,19 +114,26 @@ $requiredPromptFragments = @(
     "team::1638213362346160913"
 )
 
-$categoryFragments = @{
-    "senior-capstone-mvp-requirements-audit" = @("requirements-audit", "weekly calibration", "accepted MVP passes", "source-framework coverage")
-    "senior-capstone-backend-security-data" = @("backend-security-data", "first-admin bootstrap", "permissions", "D1")
-    "senior-capstone-student-workflow-evidence" = @("student-workflow-evidence", "student dashboard", "evidence metadata", "mobile")
-    "senior-capstone-staff-review-mentor" = @("staff-review-mentor", "teacher review", "revision", "mentor")
-    "senior-capstone-admin-ops-reporting" = @("admin-ops-reporting", "exports", "audit", "misc admin")
-    "senior-capstone-deployment-qa" = @("deployment-qa", "Cloudflare", "CI", "smoke")
-    "senior-capstone-design-assets-handoff" = @("design-assets-handoff", "Figma", "Canva", "handoff")
+$targetFragments = @{
+    "senior-capstone-qol-source-framework-seed" = @("source-framework seed loader", "MVP-009", "data/capstone-framework.json")
+    "senior-capstone-qol-drive-upload-oauth" = @("Google Drive upload credential/OAuth", "MVP-013", "evidence metadata")
+    "senior-capstone-qol-protected-evidence-tests" = @("protected evidence access checks", "MVP-014", "permission")
+    "senior-capstone-qol-teacher-review-endpoints" = @("teacher review", "MVP-015", "revision")
+    "senior-capstone-qol-immutable-review-history" = @("immutable review history", "MVP-016", "submission versioning")
+    "senior-capstone-qol-mentor-presentation-flow" = @("mentor assigned-student", "MVP-017", "presentation")
+    "senior-capstone-qol-admin-ops-endpoints" = @("admin operations endpoints", "MVP-018", "export")
+    "senior-capstone-qol-announcements" = @("announcement", "MVP-023", "No student-to-student messaging")
+    "senior-capstone-qol-account-lifecycle" = @("account lifecycle", "MVP-004", "session expiry")
+    "senior-capstone-qol-cloudflare-verification" = @("Cloudflare", "MVP-026", "D1 binding")
 }
 
 $allWeekDays = @("MO", "TU", "WE", "TH", "FR", "SA", "SU")
-$expectedDailyTimes = @("00:03", "01:15", "02:27", "03:39", "04:51", "06:03", "07:15", "08:27", "09:39", "10:39", "12:03", "13:15", "14:27", "15:51", "17:03", "18:39", "19:15", "20:27", "21:39", "23:03")
-$minimumStartSpacingMinutes = 30
+$expectedDailyTimes = @(
+    "00:03", "00:51", "01:39", "02:27", "03:15", "04:03", "04:51", "05:39", "06:27", "07:15",
+    "08:03", "08:51", "09:39", "10:27", "11:15", "12:03", "12:51", "13:39", "14:27", "15:15",
+    "16:03", "16:51", "17:39", "18:27", "19:15", "20:03", "20:51", "21:39", "22:27", "23:15"
+)
+$minimumStartSpacingMinutes = 45
 
 function Get-TomlStringValue {
     param(
@@ -182,10 +189,11 @@ if (-not (Test-Path -LiteralPath $AutomationRoot)) {
     $failures.Add("Missing automation root: $AutomationRoot")
 }
 else {
-    foreach ($legacyId in $legacyAutomationIds) {
-        $legacyToml = Join-Path $AutomationRoot "$legacyId\automation.toml"
-        if (Test-Path -LiteralPath $legacyToml) {
-            $failures.Add("Legacy Senior Capstone automation TOML still exists after reset: $legacyToml")
+    $projectTomls = @(Get-ChildItem -LiteralPath $AutomationRoot -Recurse -Filter "automation.toml" | Where-Object { $_.FullName -like "*senior-capstone*" })
+    foreach ($toml in $projectTomls) {
+        $id = $toml.Directory.Name
+        if ($automationIds -notcontains $id) {
+            $failures.Add("Unexpected Senior Capstone automation TOML exists after reset: $($toml.FullName)")
         }
     }
 }
@@ -229,18 +237,17 @@ foreach ($id in $automationIds) {
         }
     }
 
-    foreach ($fragment in $categoryFragments[$id]) {
+    foreach ($fragment in $targetFragments[$id]) {
         if ($prompt -notlike "*$fragment*") {
-            $failures.Add("$id prompt is missing category fragment: $fragment")
+            $failures.Add("$id prompt is missing target fragment: $fragment")
         }
     }
 
     $days = @(Get-RRulePart -RRule $rrule -Key "BYDAY")
     $hours = @(Get-RRulePart -RRule $rrule -Key "BYHOUR")
     $minutes = @(Get-RRulePart -RRule $rrule -Key "BYMINUTE")
-    $expectedRunsPerDay = $expectedRunsPerDayByAutomation[$id]
-    if ($days.Count -ne 7 -or $hours.Count -ne $expectedRunsPerDay -or $minutes.Count -ne 1) {
-        $failures.Add("$id must run $expectedRunsPerDay times per day across all seven days; got RRULE $rrule")
+    if ($days.Count -ne 7 -or $hours.Count -ne 3 -or $minutes.Count -ne 1) {
+        $failures.Add("$id must run exactly 3x/day across all seven days; got RRULE $rrule")
     }
     else {
         foreach ($day in $days) {
@@ -284,11 +291,11 @@ foreach ($slot in $scheduleSlots.Keys) {
 foreach ($day in $allWeekDays) {
     $times = @($activeSlotsByDay[$day] | Sort-Object)
     $expected = @($expectedDailyTimes | Sort-Object)
-    if ($times.Count -ne 20) {
-        $failures.Add("$day has $($times.Count) active Senior Capstone category starts; expected 20")
+    if ($times.Count -ne 30) {
+        $failures.Add("$day has $($times.Count) active Senior Capstone QoL starts; expected 30")
     }
     elseif (($times -join ",") -ne ($expected -join ",")) {
-        $failures.Add("$day active category starts are $($times -join ', '); expected $($expected -join ', ')")
+        $failures.Add("$day active QoL starts are $($times -join ', '); expected $($expected -join ', ')")
     }
 
     $minutesOfDay = @($times | ForEach-Object {
@@ -299,7 +306,7 @@ foreach ($day in $allWeekDays) {
         $current = $minutesOfDay[$i]
         $next = if ($i -eq $minutesOfDay.Count - 1) { $minutesOfDay[0] + 1440 } else { $minutesOfDay[$i + 1] }
         if (($next - $current) -lt $minimumStartSpacingMinutes) {
-            $failures.Add("$day has category starts less than $minimumStartSpacingMinutes minutes apart around minute $current")
+            $failures.Add("$day has QoL starts less than $minimumStartSpacingMinutes minutes apart around minute $current")
         }
     }
 }
@@ -407,7 +414,7 @@ foreach ($relative in $jsonFiles) {
 $runbookPath = Join-Path $RepoRoot "docs\automation-runbook.md"
 if (Test-Path -LiteralPath $runbookPath) {
     $runbook = Get-Content -Raw -LiteralPath $runbookPath
-    foreach ($fragment in @("docs/mvp-requirements-catalog.md", "Category Runner No-Intervention Contract", "No-Human-Approval Script Rule", "-NonInteractive", "local-only repo changes are not an acceptable closeout")) {
+    foreach ($fragment in @("QoL Automation Rebuild", "Token Budget Guardrail", "Surface Expansion Rule", "No-Human-Approval Script Rule", "-NonInteractive", "local-only repo changes are not an acceptable closeout")) {
         if ($runbook -notlike "*$fragment*") {
             $failures.Add("Runbook is missing infrastructure reference: $fragment")
         }
@@ -417,7 +424,7 @@ if (Test-Path -LiteralPath $runbookPath) {
 $masterPlanPath = Join-Path $RepoRoot "docs\master-plan.md"
 if (Test-Path -LiteralPath $masterPlanPath) {
     $masterPlan = Get-Content -Raw -LiteralPath $masterPlanPath
-    foreach ($fragment in @("docs/mvp-requirements-catalog.md", "Real Daily MVP Goal", "Minimum: 2 accepted MVP passes per calendar day", "20x Automation Readiness")) {
+    foreach ($fragment in @("docs/mvp-requirements-catalog.md", "Real Daily MVP Goal", "Minimum: 2 accepted MVP passes per calendar day", "QoL Automation Rebuild")) {
         if ($masterPlan -notlike "*$fragment*") {
             $failures.Add("Master plan is missing category/daily goal reference: $fragment")
         }
@@ -438,7 +445,7 @@ if (Test-Path -LiteralPath $catalogPath) {
             $failures.Add("MVP requirements catalog is missing requirement: $requirementId")
         }
         if ($combinedPromptText -notlike "*$requirementId*") {
-            $failures.Add("No active category automation prompt explicitly targets requirement: $requirementId")
+            $failures.Add("No active QoL automation prompt explicitly references requirement: $requirementId")
         }
     }
 }
@@ -448,4 +455,4 @@ if ($failures.Count -gt 0) {
     exit 1
 }
 
-Write-Output "Automation contract check passed for $($automationIds.Count) category automations."
+Write-Output "Automation contract check passed for $($automationIds.Count) QoL automations."
