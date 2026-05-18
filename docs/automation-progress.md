@@ -796,6 +796,7 @@ What changed:
 
 Verification:
 - `scripts/check-automation-contract.ps1 -RepoRoot .` passed for all 6 Senior automations.
+- Expanded RRULE proof returned 35 weekly slots and `RUNS_PER_DAY=5` for the gold orchestrator.
 - Active schedule scan found no exact start conflicts across local automations.
 
 Recommended next slice:

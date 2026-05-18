@@ -126,6 +126,33 @@ function Assert-File {
 }
 
 $scheduleSlots = @{}
+$activeEverydaySeniorSlots = @{}
+$expectedDailyTimes = @("00:20", "05:20", "10:20", "15:20", "20:20")
+$allWeekDays = @("MO", "TU", "WE", "TH", "FR", "SA", "SU")
+
+foreach ($day in $allWeekDays) {
+    $activeEverydaySeniorSlots[$day] = New-Object System.Collections.Generic.List[string]
+}
+
+$knownAutomationIds = @{}
+foreach ($id in $automationIds) {
+    $knownAutomationIds[$id] = $true
+}
+
+if (Test-Path -LiteralPath $AutomationRoot) {
+    Get-ChildItem -LiteralPath $AutomationRoot -Directory -Filter "senior-capstone-*" | ForEach-Object {
+        if (-not $knownAutomationIds.ContainsKey($_.Name)) {
+            $tomlPath = Join-Path $_.FullName "automation.toml"
+            if (Test-Path -LiteralPath $tomlPath) {
+                $raw = Get-Content -Raw -LiteralPath $tomlPath
+                $status = Get-TomlStringValue -Content $raw -Key "status"
+                if ($status -eq "ACTIVE") {
+                    $failures.Add("Unexpected ACTIVE Senior Capstone automation outside source-of-truth set: $($_.Name)")
+                }
+            }
+        }
+    }
+}
 
 foreach ($id in $automationIds) {
     $tomlPath = Join-Path $AutomationRoot "$id\automation.toml"
@@ -174,11 +201,16 @@ foreach ($id in $automationIds) {
         foreach ($day in $days) {
             foreach ($hour in $hours) {
                 foreach ($minute in $minutes) {
-                    $slot = "{0} {1:D2}:{2:D2}" -f $day, [int]$hour, [int]$minute
+                    $time = "{0:D2}:{1:D2}" -f [int]$hour, [int]$minute
+                    $slot = "{0} {1}" -f $day, $time
                     if (-not $scheduleSlots.ContainsKey($slot)) {
                         $scheduleSlots[$slot] = New-Object System.Collections.Generic.List[string]
                     }
                     $scheduleSlots[$slot].Add("$($id)[$status]")
+
+                    if ($status -eq "ACTIVE" -and $days.Count -eq 7) {
+                        $activeEverydaySeniorSlots[$day].Add("$time $id")
+                    }
                 }
             }
         }
@@ -209,6 +241,24 @@ foreach ($id in $automationIds) {
 foreach ($slot in $scheduleSlots.Keys) {
     if ($scheduleSlots[$slot].Count -gt 1) {
         $failures.Add("Schedule slot conflict at $slot`: $($scheduleSlots[$slot] -join ', ')")
+    }
+}
+
+foreach ($day in $allWeekDays) {
+    $slots = @($activeEverydaySeniorSlots[$day])
+    $times = @($slots | ForEach-Object { ($_ -split " ")[0] } | Sort-Object)
+    $expected = @($expectedDailyTimes | Sort-Object)
+    $unexpectedOwners = @($slots | Where-Object { $_ -notlike "* senior-capstone-rebuild-rebuilt" })
+
+    if ($slots.Count -ne 5) {
+        $failures.Add("$day has $($slots.Count) active everyday Senior Capstone starts; expected exactly 5: $($expectedDailyTimes -join ', ')")
+    }
+    elseif (($times -join ",") -ne ($expected -join ",")) {
+        $failures.Add("$day active everyday Senior Capstone starts are $($times -join ', '); expected exactly $($expectedDailyTimes -join ', ')")
+    }
+
+    if ($unexpectedOwners.Count -gt 0) {
+        $failures.Add("$day has active daily Senior starts outside the gold orchestrator: $($unexpectedOwners -join ', ')")
     }
 }
 

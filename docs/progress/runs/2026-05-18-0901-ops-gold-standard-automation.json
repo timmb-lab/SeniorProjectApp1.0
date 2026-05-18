@@ -86,11 +86,12 @@
   "verification": [
     "powershell -NoProfile -ExecutionPolicy Bypass -File .\\scripts\\snapshot-automation-prompts.ps1",
     "powershell -NoProfile -ExecutionPolicy Bypass -File .\\scripts\\check-automation-contract.ps1 -RepoRoot .",
+    "expanded RRULE proof returned TOTAL_WEEKLY_SLOTS=35 and RUNS_PER_DAY=5 for senior-capstone-rebuild-rebuilt",
     "active schedule scan returned no exact start conflicts across all local automations"
   ],
   "self_improvement": {
     "result": "updated-contract-checker",
-    "evidence": "The previous contract checker allowed drift in names/statuses/RRULEs. It now enforces the gold-standard Senior automation configuration."
+    "evidence": "The previous contract checker allowed drift in names/statuses/RRULEs and did not explicitly prove the active daily slot count. It now enforces the gold-standard Senior automation configuration and exactly five active everyday starts from the gold orchestrator."
   },
   "next": [
     "The 5x/day orchestrator should scaffold the accepted Cloudflare stack path from ADR-0001 and SC-005.",
