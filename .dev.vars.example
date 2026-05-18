@@ -1,4 +1,5 @@
 # Copy to .dev.vars for local development. Do not commit .dev.vars.
+APP_ENV=local
 BOOTSTRAP_SETUP_KEY=replace-with-long-random-setup-key
 SESSION_PEPPER=replace-with-long-random-session-pepper
 PASSWORD_PEPPER=replace-with-long-random-password-pepper

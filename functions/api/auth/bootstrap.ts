@@ -45,28 +45,34 @@ export const onRequest: PagesFunction<Env> = async ({ request, env }) => {
   const emailNorm = normalizeEmail(email);
   const credential = await hashPassword(password, env.PASSWORD_PEPPER || "");
 
-  await env.DB.batch([
-    env.DB.prepare(
+  try {
+    await env.DB.prepare(
       `INSERT INTO user_accounts (id, email, email_norm, display_name, status)
        VALUES (?, ?, ?, ?, 'active')`,
-    ).bind(userId, email.trim(), emailNorm, displayName),
-    env.DB.prepare(
+    ).bind(userId, email.trim(), emailNorm, displayName).run();
+    await env.DB.prepare(
       `INSERT INTO password_credentials (user_id, password_hash, password_salt, algorithm, iterations)
        VALUES (?, ?, ?, ?, ?)`,
-    ).bind(userId, credential.hash, credential.salt, credential.algorithm, credential.iterations),
-    env.DB.prepare(
+    ).bind(userId, credential.hash, credential.salt, credential.algorithm, credential.iterations).run();
+    await env.DB.prepare(
       `INSERT INTO user_roles (user_id, role_id, scope_type, scope_id, assigned_by)
        VALUES (?, 'admin', 'global', '', NULL)`,
-    ).bind(userId),
-  ]);
-
-  await writeAudit(env, {
-    actorUserId: userId,
-    action: "bootstrap_admin_created",
-    entityType: "user_account",
-    entityId: userId,
-    request,
-  });
+    ).bind(userId).run();
+    await writeAudit(env, {
+      actorUserId: userId,
+      action: "bootstrap_admin_created",
+      entityType: "user_account",
+      entityId: userId,
+      request,
+    });
+  } catch (error) {
+    await env.DB.prepare("DELETE FROM audit_events WHERE actor_user_id = ?").bind(userId).run();
+    await env.DB.prepare("DELETE FROM user_roles WHERE user_id = ?").bind(userId).run();
+    await env.DB.prepare("DELETE FROM password_credentials WHERE user_id = ?").bind(userId).run();
+    await env.DB.prepare("DELETE FROM user_accounts WHERE id = ?").bind(userId).run();
+    console.error("bootstrap_admin_create_failed", error);
+    return json({ error: "bootstrap_failed" }, { status: 500 });
+  }
 
   return json({ ok: true, userId, email: emailNorm });
 };

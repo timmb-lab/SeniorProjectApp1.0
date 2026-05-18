@@ -12,7 +12,6 @@
     }
   ],
   "vars": {
-    "APP_ENV": "local",
     "AUTH_MODE": "hardened_username_password",
     "EVIDENCE_STORAGE_PROVIDER": "google_drive",
     "GOOGLE_DRIVE_EVIDENCE_ROOT_ID": "1XPgYKbIMqv332DAJZJNJetHppFB670e7",
