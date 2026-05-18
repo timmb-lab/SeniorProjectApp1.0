@@ -1,0 +1,107 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-05-18-1145-rebuild-alpha-shell-personas",
+  "timestampLocal": "2026-05-18T11:45:00-07:00",
+  "lane": "rebuild",
+  "automationId": "interactive-continue-to-mvp",
+  "scope": "Create the first Day 7 alpha app shell with seeded personas, route/persona switching, server-owned alpha state, static fallback seed, in-memory workflow transitions, audit timeline updates, and a local runbook.",
+  "masterPlanSections": [
+    "Day 7 Alpha Gate",
+    "MVP 1.0 Vertical Slice",
+    "Stack And Deployment Direction",
+    "Anti-Drift Rules",
+    "Logging Requirements"
+  ],
+  "logsRead": [
+    "C:/Users/bryan/.codex/automations/senior-capstone-figma-product-design-rebuilt/memory.md",
+    "docs/master-plan.md",
+    "docs/automation-self-improvement.md",
+    "docs/automation-memory.md",
+    "docs/progress/run-log.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/decision-log.md",
+    "docs/automation-backlog.md",
+    "docs/progress/rebuild.md",
+    "docs/progress/figma.md",
+    "docs/progress/runs/"
+  ],
+  "backlogUpdated": [
+    "SC-005",
+    "SC-006"
+  ],
+  "handoffsUpdated": [
+    "H-2026-05-18-006",
+    "H-2026-05-18-008"
+  ],
+  "filesChanged": [
+    "alpha.html",
+    "alpha.js",
+    "alpha.css",
+    "functions/_lib/alphaDemo.ts",
+    "functions/api/alpha/state.ts",
+    "data/alpha-demo-state.json",
+    "package.json",
+    "README.md",
+    "docs/alpha-runbook.md",
+    "docs/automation-backlog.md",
+    "docs/automation-memory.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/rebuild.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-18-1145-rebuild-alpha-shell-personas.json"
+  ],
+  "implementation": {
+    "route": "/alpha.html",
+    "api": "/api/alpha/state",
+    "staticFallback": "data/alpha-demo-state.json",
+    "personas": [
+      "student",
+      "program_teacher",
+      "mentor",
+      "admin",
+      "misc_admin"
+    ],
+    "views": [
+      "student workspace",
+      "teacher review",
+      "mentor meetings",
+      "admin overview",
+      "audit activity"
+    ],
+    "alphaActions": [
+      "save draft",
+      "add evidence metadata",
+      "submit",
+      "request revision",
+      "approve proposal",
+      "record mentor make-up",
+      "resolve presentation slot conflict",
+      "presentation check-in",
+      "admin note"
+    ],
+    "antiDrift": [
+      "no real student records",
+      "production accounts explicitly incomplete",
+      "no localStorage student-record persistence",
+      "misc admin read-only/narrow by default",
+      "Figma is referenced as design contract, not production state"
+    ]
+  },
+  "validation": [
+    "package.json parsed as JSON.",
+    "data/alpha-demo-state.json parsed as JSON.",
+    "Node REPL parsed alpha.js successfully and confirmed 5 personas, 5 routes, and 4 seed audit events.",
+    "scripts/check-automation-contract.ps1 passed for 7 automations."
+  ],
+  "validationBlockers": [
+    "PowerShell could not execute the bundled Codex node.exe: Access is denied.",
+    "npm, wrangler, and tsc were not installed in this shell, so Wrangler check, TypeScript check, and local Pages dev/browser verification could not run here."
+  ],
+  "selfImprovement": "none; no live automation prompt/config change was made.",
+  "nextActions": [
+    "Persist alpha proposal/review/evidence/audit transitions through D1 or a server-owned demo-state API.",
+    "Add smoke tests/CI for alpha route access, persona scoping, and status/audit transitions.",
+    "Verify mobile no-overflow and attempt Cloudflare preview deployment."
+  ],
+  "result": "completed_with_toolchain_blocker"
+}

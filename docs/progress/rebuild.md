@@ -55,3 +55,16 @@ Each rebuild run should append a dated entry with:
 - `self-improvement`: none.
 - `commit/push status`: pending in this interactive pass.
 - `next action`: Continue Day 7 alpha implementation; Drive upload credential/OAuth and permission tests are still required before real student evidence uploads.
+
+### 2026-05-18 11:45 PT - Day 7 Alpha Shell + Persona Seed
+
+- `automation`: interactive rebuild pass from Bryan's continue-to-MVP request.
+- `master-plan section`: Day 7 Alpha Gate; MVP 1.0 Vertical Slice; Stack And Deployment Direction; Anti-Drift Rules.
+- `source docs/logs read`: `docs/master-plan.md`, external Figma automation memory, `docs/automation-self-improvement.md`, `docs/automation-memory.md`, `docs/progress/run-log.md`, `docs/progress/handoffs.md`, `docs/automation-backlog.md`, `docs/progress/rebuild.md`, `docs/progress/figma.md`, and recent run manifests.
+- `backlog or handoff IDs selected`: `SC-005`, `SC-006`, `H-2026-05-18-006`, and `H-2026-05-18-008`.
+- `bounded scope`: Create the first working Day 7 alpha app shell with seeded personas, route/persona switching, server-owned alpha state endpoint, static fallback seed, student/teacher/mentor/admin/misc-admin views, in-memory demo workflow transitions, audit timeline updates, and an initial alpha runbook.
+- `files changed`: `alpha.html`, `alpha.js`, `alpha.css`, `functions/_lib/alphaDemo.ts`, `functions/api/alpha/state.ts`, `data/alpha-demo-state.json`, `package.json`, `README.md`, `docs/alpha-runbook.md`, `docs/automation-backlog.md`, `docs/automation-memory.md`, `docs/progress/handoffs.md`, `docs/progress/rebuild.md`, `docs/progress/run-log.md`, and structured run manifest.
+- `validation`: `data/alpha-demo-state.json` and `package.json` parsed successfully; Node REPL parsed `alpha.js` and confirmed 5 personas, 5 routes, and 4 seed audit events; automation contract checker passed for 7 automations. PowerShell could not run the bundled `node.exe` (`Access is denied`), and `npm`, `wrangler`, and `tsc` were not installed in this shell, so Wrangler/TypeScript/local browser verification remains for the next environment-equipped pass.
+- `self-improvement`: none; no live automation prompt/config change was made.
+- `commit/push status`: pending in this run.
+- `next action`: Persist alpha proposal/review/evidence/audit transitions through D1 or a server-owned demo-state API, add tests/CI, verify mobile no-overflow, and attempt Cloudflare preview deployment.

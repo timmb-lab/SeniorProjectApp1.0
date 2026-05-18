@@ -5,9 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "wrangler pages dev . --compatibility-date=2026-05-18",
+    "dev:alpha": "wrangler pages dev . --compatibility-date=2026-05-18 --port 8788",
     "deploy": "wrangler pages deploy . --project-name=senior-capstone-app",
     "db:migrate:local": "wrangler d1 migrations apply senior-capstone-db --local",
     "db:migrate:remote": "wrangler d1 migrations apply senior-capstone-db --remote",
+    "check:alpha": "node --check alpha.js",
     "check:cloudflare": "wrangler check",
     "types": "wrangler types functions/worker-configuration.d.ts"
   },

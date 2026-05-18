@@ -20,6 +20,18 @@ Students should always follow the current directions, deadlines, and links share
 
 Open `index.html` or the GitHub Pages URL for the student guide.
 
+## Day 7 Alpha
+
+The working MVP alpha shell is `alpha.html`. It uses seeded personas for student, program teacher, mentor, admin, and misc admin roles while production accounts are still hardening.
+
+Run it locally with:
+
+```powershell
+npm run dev:alpha
+```
+
+Then open `http://localhost:8788/alpha.html`. This requires Node/npm plus Wrangler from the project dev dependencies. The alpha loads `/api/alpha/state` from a Cloudflare Pages Function when available and falls back to `data/alpha-demo-state.json` for static review. Do not enter real student records.
+
 ## MVP Backend Foundation
 
 The first Cloudflare MVP foundation is scaffolded with Pages Functions, D1, hardened username/password auth endpoints, and Google Drive evidence-repository metadata. Setup notes and live resource IDs are tracked in `docs/backend-setup.md`.
