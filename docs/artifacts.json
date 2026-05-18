@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-05-18T09:06:00-07:00",
+  "updated_at": "2026-05-18T09:32:00-07:00",
   "artifacts": [
     {
       "id": "figma-senior-project-app-team-target",
@@ -47,7 +47,7 @@
       "plan_key": "team::1638213362346160913",
       "account_observed": "timmb@nv.ccsd.net",
       "purpose": "Active product UI source for the hosted Senior Capstone app, recreated in Bryan's Senior Project App Figma team/project.",
-      "app_placement": "Design source for app shell, visual foundations, student workspace, guided proposal form, teacher review queue, mentor/admin dashboards, mobile student view, automation handoff board, product preview state variants, and the 100-pass MVP route/data contract.",
+      "app_placement": "Design source for app shell, visual foundations, student workspace, guided proposal form, teacher review queue, mentor/admin dashboards, mobile student view, automation handoff board, product preview state variants, the 100-pass MVP route/data contract, and review/override interaction variants.",
       "consuming_lanes": [
         "figma",
         "rebuild",
@@ -104,7 +104,9 @@
         "admin_override_modal": "6:219",
         "state_mobile_student": "6:232",
         "rebuild_mapping": "6:257",
-        "mvp_100_pass_map": "18:2"
+        "mvp_100_pass_map": "18:2",
+        "review_override_interaction_variants": "31:2",
+        "review_override_handoff_contract": "31:144"
       },
       "verification": [
         "File creation succeeded in plan team::1638213362346160913.",
@@ -112,7 +114,9 @@
         "Successful write calls returned page IDs, primary frame IDs, 9 status components, key screen/state frame IDs, and node 18:2.",
         "After Bryan upgraded the Figma plan, metadata inspection succeeded for node 6:2 and node 18:2.",
         "Screenshot verification returned for nodes 6:2, 6:198, 6:219, 6:257, and 18:2.",
-        "Read-only use_figma inspection returned four top-level pages, 9 status-pill components, and no local variables/styles."
+        "Read-only use_figma inspection returned four top-level pages, 9 status-pill components, and no local variables/styles.",
+        "Figma write on 2026-05-18 added Review + Override Interaction Variants node 31:2 with teacher review states, admin override states, and developer handoff contract node 31:144.",
+        "Screenshot and design-context verification returned for node 31:2; follow-up readback confirmed board 6:2 includes node 31:2 and shared contract data for routes, records, and guardrails."
       ],
       "supersedes": [
         "figma-product-ui-system-reference-old-team",

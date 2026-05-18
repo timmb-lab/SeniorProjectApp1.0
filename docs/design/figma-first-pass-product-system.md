@@ -373,6 +373,8 @@ Active file structure from successful write calls:
   - Rebuild mapping: `Section / Rebuild Data Mapping`, node `6:257`
   - 100-pass MVP execution map: `Section / 100-Pass MVP Execution Map`, node `18:2`
   - Route/data contract nodes: `/student/progress`, `/teacher/review`, `/mentor/assigned`, `/admin/users`, and `/admin/audit`, nodes `18:44` through `18:47`
+  - Review and admin override interaction variants: `Section / Review + Override Interaction Variants`, node `31:2`
+  - Review/override developer handoff contract: node `31:144`
 
 ## 100-Pass MVP Execution Map
 
@@ -394,6 +396,30 @@ Route/data contract:
 - `/admin/audit`: sensitive actions, exports, role changes, overrides, evidence access, and retention/export controls; admin/audit permission only.
 
 Every rebuild route that consumes this section should name persisted data, server authorization, loading/error/permission states, audit events, and tests before it is counted as implemented.
+
+## Review And Override Interaction Variants
+
+Node `31:2` deepens the MVP review/approval slice with developer-ready states for the teacher review drawer and admin override modal.
+
+Teacher review drawer states:
+- `Default Evidence Loaded`, node `31:21`
+- `Request Revision Draft`, node `31:36`
+- `Submitting Decision`, node `31:49`
+- `Success Logged`, node `31:60`
+- `Permission Denied`, node `31:71`
+
+Admin override modal states:
+- `Missing Reason Disabled`, node `31:85`
+- `Valid Reason Ready`, node `31:96`
+- `Submitting Override`, node `31:109`
+- `Audit Event Preview`, node `31:120`
+- `Rollback Error`, node `31:131`
+
+Developer contract:
+- Routes: `/teacher/review/:submissionId`, `/admin/submissions/:id/override`, `/admin/audit`
+- Records: `ReviewDecision`, `OverrideRequest`, `AuditEvent`, `Submission`, `EvidenceArtifact`, `UserGroupRole`
+- Guardrails: private evidence remains role-scoped, no student-to-student messaging, override reason is required, and audit is captured before status transition.
+- Acceptance checks: audit-first state changes, required admin reason, private-evidence authorization, and default/invalid/loading/success/permission/error state coverage.
 
 ## Acceptance Checks For Next Figma Run
 
@@ -424,10 +450,10 @@ Artifact:
 - 100-pass MVP execution map: node `18:2` in the active Figma file.
 
 Exact next action:
-- Continue `z4t4tFPAKrMDh6pIYOeEw6` by deepening the review drawer and admin override modal variants: default, invalid or missing reason, submitting, success, permission denied, audit event preview, rollback, and error states.
+- Continue `z4t4tFPAKrMDh6pIYOeEw6` by adding route/data-field annotations for private evidence upload and review history, or by promoting repeated status/action patterns into richer component variants.
 
 Acceptance check:
 - Figma progress log records page/frame IDs, screenshot or metadata verification, route/data fields, permission scopes, and the next UI slice.
 
 Known limits:
-- The original historical file hit the Starter MCP tool-call limit. The regenerated reference file was successfully written through the updated Figma connection, but the 2026-05-18 follow-up pass hit the Education-plan MCP tool-call limit with rate-limit links pointing at old team `1601310068697743794`. The recreated file was then created and written in `team::1638213362346160913`. Bryan's professional-plan upgrade later unblocked the active-file metadata/screenshot verification and the `18:2` canvas write.
+- The original historical file hit the Starter MCP tool-call limit. The regenerated reference file was successfully written through the updated Figma connection, but the 2026-05-18 follow-up pass hit the Education-plan MCP tool-call limit with rate-limit links pointing at old team `1601310068697743794`. The recreated file was then created and written in `team::1638213362346160913`. Bryan's professional-plan upgrade later unblocked the active-file metadata/screenshot verification and the `18:2` and `31:2` canvas writes.

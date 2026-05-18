@@ -418,7 +418,22 @@ Created/updated frames:
 - `Modal / Admin Override Reason`, node `6:219`
 - `Screen / Student Product Preview / Mobile`, node `6:232`
 - `Section / Rebuild Data Mapping`, node `6:257`
+- `Section / Review + Override Interaction Variants`, node `31:2`
+  - `State / Review Drawer / Default Evidence Loaded`, node `31:21`
+  - `State / Review Drawer / Request Revision Draft`, node `31:36`
+  - `State / Review Drawer / Submitting Decision`, node `31:49`
+  - `State / Review Drawer / Success Logged`, node `31:60`
+  - `State / Review Drawer / Permission Denied`, node `31:71`
+  - `State / Admin Override / Missing Reason Disabled`, node `31:85`
+  - `State / Admin Override / Valid Reason Ready`, node `31:96`
+  - `State / Admin Override / Submitting Override`, node `31:109`
+  - `State / Admin Override / Audit Event Preview`, node `31:120`
+  - `State / Admin Override / Rollback Error`, node `31:131`
+  - `Developer Handoff / Route Data Permission Contract`, node `31:144`
 
 Verification status:
 - Canvas write succeeded and returned the frame IDs above.
-- Final screenshot/metadata verification is pending because the follow-up MCP call hit the Education-plan tool-call limit for team `1638213362346160913`.
+- Professional-plan verification later succeeded for the active file.
+- `get_screenshot` succeeded for nodes `6:2`, `6:198`, `6:219`, `6:257`, `18:2`, and `31:2`.
+- `get_design_context` succeeded for node `31:2`.
+- Follow-up readback confirmed board `6:2` includes node `31:2`, board height expanded to `5393`, and shared contract data on `31:2` names review/override routes, data records, and security guardrails.

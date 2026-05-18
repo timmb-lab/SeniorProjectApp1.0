@@ -447,3 +447,78 @@ Self-improvement:
 
 Next Figma slice:
 - Deepen review drawer and admin override modal variants: default, invalid/missing reason, submitting, success, permission denied, audit event preview, rollback/error states.
+
+## 2026-05-18 Review And Override Variant Deepening
+
+Automation:
+- `senior-capstone-figma-product-design-rebuilt`
+
+Master-plan section:
+- Product Destination
+- MVP 1.0 Vertical Slice
+- 100-Pass Delivery Constraint
+- Lane Responsibilities
+- Logging Requirements
+
+Logs referenced:
+- `docs/master-plan.md`
+- `docs/automation-runbook.md`
+- `docs/automation-self-improvement.md`
+- `docs/automation-cadence.md`
+- `docs/automation-milestones.md`
+- `docs/automation-memory.md`
+- `docs/progress/run-log.md`
+- `docs/progress/runs/`
+- `docs/progress/handoffs.md`
+- `docs/progress/decision-log.md`
+- `docs/automation-backlog.md`
+- `docs/artifacts.json`
+- `docs/human-decisions.md`
+- `docs/progress/figma.md`
+- adjacent rebuild/audit lane logs
+
+Active Figma artifact:
+- File: `Senior Capstone App - Product UI System Recreated`
+- File key: `z4t4tFPAKrMDh6pIYOeEw6`
+- URL: `https://www.figma.com/design/z4t4tFPAKrMDh6pIYOeEw6`
+- Team id: `1638213362346160913`
+- Plan key: `team::1638213362346160913`
+
+What changed:
+- Continued the active file after professional-plan verification succeeded.
+- Added `Section / Review + Override Interaction Variants`, node `31:2`, to `03 Product Preview + State Variants` board `6:2`.
+- Added five teacher review drawer states:
+  - `Default Evidence Loaded`, node `31:21`
+  - `Request Revision Draft`, node `31:36`
+  - `Submitting Decision`, node `31:49`
+  - `Success Logged`, node `31:60`
+  - `Permission Denied`, node `31:71`
+- Added five admin override modal states:
+  - `Missing Reason Disabled`, node `31:85`
+  - `Valid Reason Ready`, node `31:96`
+  - `Submitting Override`, node `31:109`
+  - `Audit Event Preview`, node `31:120`
+  - `Rollback Error`, node `31:131`
+- Added `Developer Handoff / Route Data Permission Contract`, node `31:144`, with data records, routes/APIs, permissions, and acceptance checks.
+- Stored shared Figma plugin data on node `31:2` for routes `/teacher/review/:submissionId`, `/admin/submissions/:id/override`, and `/admin/audit`; records `ReviewDecision`, `OverrideRequest`, `AuditEvent`, `Submission`, `EvidenceArtifact`, and `UserGroupRole`; and guardrails for private evidence, no student messaging, required override reason, and audit-before-transition.
+
+Verification:
+- `get_libraries` succeeded and confirmed the active file library, Material 3 Design Kit, Simple Design System, and Apple UI kits are available.
+- `search_design_system` succeeded; broad drawer/modal search returned no reusable primitives, while a focused button/dialog search found the file's own status pill component.
+- `use_figma` readback confirmed board `6:2` was vertical layout before writing.
+- `use_figma` write created node `31:2` plus child contract/state nodes.
+- `get_screenshot` succeeded for node `31:2` at original size `1584x1521`.
+- `get_design_context` succeeded for node `31:2` and returned rendered design context plus screenshot.
+- Follow-up `use_figma` readback confirmed board `6:2` height is `5393`, node `31:2` is visible at `y=3824`, and shared contract data was readable.
+
+Handoff packet:
+- Consumer lane: rebuild.
+- Artifact/spec: active Figma file `z4t4tFPAKrMDh6pIYOeEw6`, state-variant board `6:2`, review/override section `31:2`, developer handoff contract `31:144`, teacher review states `31:21` through `31:71`, admin override states `31:85` through `31:131`.
+- Exact next action: implement the teacher review decision and admin override contract while scaffolding the accepted Cloudflare database/auth/progress foundation.
+- Acceptance check: rebuild maps review decisions and admin overrides to persisted records, server authorization, private-evidence guards, audit events, invalid/loading/success/permission/error states, and tests.
+
+Self-improvement:
+- none; no live automation prompt/config change was needed.
+
+Next Figma slice:
+- Add route/data-field annotations for private evidence upload/review history and mobile student refinements, or promote repeated status/action patterns into richer component variants.

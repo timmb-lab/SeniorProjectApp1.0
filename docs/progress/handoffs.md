@@ -77,11 +77,11 @@ Status values:
 - `owner lane`: rebuild
 - `status`: open
 - `source`: professional-plan Figma verification and 100-pass MVP map
-- `artifact`: active Figma file `z4t4tFPAKrMDh6pIYOeEw6`, `03 Product Preview + State Variants` node `6:2`, `100-Pass MVP Execution Map` node `18:2`, route/data contract nodes `18:44` through `18:47`
-- `next action`: Consume the route/data/permission contract while scaffolding the accepted Cloudflare database/auth/progress foundation.
-- `acceptance check`: Rebuild commits a stack/scaffold or implementation plan that maps `/student/progress`, `/teacher/review`, `/mentor/assigned`, `/admin/users`, and `/admin/audit` to persisted data, server authorization, audit events, and loading/error/permission states.
-- `evidence to close`: Committed rebuild plan or code scaffold referencing `z4t4tFPAKrMDh6pIYOeEw6` and node `18:2`.
-- `last updated`: 2026-05-18 09:06 PT
+- `artifact`: active Figma file `z4t4tFPAKrMDh6pIYOeEw6`, `03 Product Preview + State Variants` node `6:2`, `100-Pass MVP Execution Map` node `18:2`, route/data contract nodes `18:44` through `18:47`, review/override variants node `31:2`, developer handoff contract node `31:144`
+- `next action`: Consume the route/data/permission contract while scaffolding the accepted Cloudflare database/auth/progress foundation, then implement teacher review decisions and admin override paths from node `31:2`.
+- `acceptance check`: Rebuild commits a stack/scaffold or implementation plan that maps `/student/progress`, `/teacher/review`, `/mentor/assigned`, `/admin/users`, `/admin/audit`, review decisions, and admin overrides to persisted data, server authorization, audit events, private-evidence guards, and loading/error/permission states.
+- `evidence to close`: Committed rebuild plan or code scaffold referencing `z4t4tFPAKrMDh6pIYOeEw6`, node `18:2`, and node `31:2`.
+- `last updated`: 2026-05-18 09:32 PT
 
 ## Resolved Handoffs
 
