@@ -181,6 +181,7 @@ Today's work materially improved the implementation runway, but it did not yet c
   - `31:2`: teacher review drawer and admin override states.
   - `37:2`: private evidence, access checks, and immutable review-history contract.
   - `43:2`: shared `StatusPill`, `ActionButton`, `EvidenceArtifactRow`, `PermissionGate`, and `ReviewHistoryItem` component contract.
+  - `48:2`: admin account/group/role/program/cohort provisioning, scoped misc-admin permissions, duplicate import handling, and audit-event contract.
 - The critical gap is unchanged: no production app scaffold, managed auth, database schema, private file storage, migrations, API layer, tests, CI, or GitHub-to-Cloudflare deployment pipeline exists yet.
 
 Because of that gap, the next useful 100-pass plan must prioritize implementation over additional design polish unless the design work is directly blocking rebuild.
@@ -203,7 +204,7 @@ Immediate next five passes should be implementation-heavy:
 
 1. Scaffold the accepted Cloudflare/TypeScript app with build/test/dev commands.
 2. Add database/storage configuration stubs, migration layout, and domain model types.
-3. Add users/groups/programs/cohorts/roles schema and seed loading for canonical programs.
+3. Add users/groups/programs/cohorts/roles schema and seed loading for canonical programs, consuming Figma node `48:2` for provisioning states and permission guardrails.
 4. Add permission and audit-event primitives with focused tests.
 5. Add private `EvidenceArtifact` storage/link metadata model with signed URL/link-check/review-history tests.
 

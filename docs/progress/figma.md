@@ -669,3 +669,81 @@ Self-improvement:
 
 Next Figma slice:
 - Refine the mobile student evidence/revision states or add admin account/group management state details.
+
+## 2026-05-18 Admin Account And Group Provisioning Contract
+
+Automation:
+- `senior-capstone-figma-product-design-rebuilt`
+
+Master-plan section:
+- Product Destination
+- MVP 1.0 Vertical Slice
+- 100-Pass Delivery Constraint
+- Lane Responsibilities
+- Logging Requirements
+
+Logs referenced:
+- `docs/master-plan.md`
+- `docs/automation-runbook.md`
+- `docs/automation-self-improvement.md`
+- `docs/automation-cadence.md`
+- `docs/automation-milestones.md`
+- `docs/automation-memory.md`
+- `docs/progress/run-log.md`
+- `docs/progress/runs/`
+- `docs/progress/handoffs.md`
+- `docs/progress/decision-log.md`
+- `docs/automation-backlog.md`
+- `docs/artifacts.json`
+- `docs/human-decisions.md`
+- `docs/progress/figma.md`
+- adjacent rebuild/audit lane logs
+- `docs/domain-model.md`
+- `docs/curriculum-framework-integration.md`
+
+Active Figma artifact:
+- File: `Senior Capstone App - Product UI System Recreated`
+- File key: `z4t4tFPAKrMDh6pIYOeEw6`
+- URL: `https://www.figma.com/design/z4t4tFPAKrMDh6pIYOeEw6`
+- Team id: `1638213362346160913`
+- Plan key: `team::1638213362346160913`
+
+What changed:
+- Added `Section / Admin Account + Group Provisioning Contract`, node `48:2`, to `03 Product Preview + State Variants` board `6:2`.
+- Added eight admin provisioning states:
+  - `User Import Draft`
+  - `Role Assignment Ready`
+  - `Program + Cohort Scope`
+  - `Assignment Conflict`
+  - `Saving Provisioning Change`
+  - `Audit Logged Success`
+  - `Permission Denied`
+  - `Misc Admin Narrow Scope`
+- Added data model and permission panels for `User`, `UserRole`, `StudentProfile`, `StaffProfile`, `GroupMembership`, `MentorAssignment`, admin, misc admin, program teacher, mentor, and student boundaries.
+- Added `Developer Handoff / Admin Provisioning Route Data Contract`, node `48:208`, with routes, server guards, audit events, and acceptance checks.
+- Stored shared Figma plugin data on node `48:2` for routes `/admin/users`, `/admin/groups`, `/admin/programs`, `/admin/cohorts`, `/admin/audit`, `/api/admin/users/import`, `/api/admin/role-assignments`, and `/api/admin/mentor-assignments`; records `User`, `UserRole`, `StudentProfile`, `StaffProfile`, `Group`, `GroupMembership`, `Program`, `Cohort`, `MentorAssignment`, `StaffProgramAssignment`, `Permission`, and `AuditEvent`; and guardrails for server-side authorization, duplicate import validation, idempotent saves, narrow misc-admin scope, protected student records, and no student messaging.
+
+Verification:
+- No Code Connect files were present in the repo for this slice.
+- `get_libraries` succeeded and confirmed the active file library, Material 3 Design Kit, Simple Design System, and Apple UI kits are available.
+- `search_design_system` for admin/user/role/group forms returned only the file's own status-pill component, so the section matched existing local Figma conventions.
+- `get_design_context` for board `6:2` confirmed the board was a vertical state-variant board and that no existing admin provisioning contract existed.
+- First `use_figma` inspection confirmed board `6:2` height was `7053.8` with 9 children and that the new section could be appended after private evidence node `37:2`.
+- `use_figma` write created node `48:2` and handoff node `48:208`; board `6:2` expanded to height `8305.8`.
+- First `get_screenshot` for node `48:2` surfaced clipped text heights.
+- Follow-up `use_figma` text-height fix expanded node `48:2` to `1584x1680`, expanded board `6:2` to height `8761.8`, and mutated the affected text nodes without recreating the section.
+- Final `get_screenshot` succeeded for node `48:2`.
+- `get_design_context` succeeded for node `48:208`.
+- Follow-up `use_figma` readback confirmed node `48:2`, node `48:208`, 8 provisioning states, 8 routes, 12 records, 6 acceptance checks, and zero clipped text nodes.
+
+Handoff packet:
+- Consumer lane: rebuild.
+- Artifact/spec: active Figma file `z4t4tFPAKrMDh6pIYOeEw6`, state-variant board `6:2`, admin account/group provisioning contract `48:2`, admin provisioning handoff `48:208`.
+- Exact next action: implement the Cloudflare scaffold's user/group/role/program/cohort schema and admin provisioning routes from node `48:2`, alongside existing route/data contracts in nodes `18:2`, `37:2`, and `43:2`.
+- Acceptance check: rebuild maps users, roles, groups, programs, cohorts, mentor/teacher assignments, duplicate import handling, scoped misc-admin permissions, and audit events to persisted records, server authorization, denial states, and tests.
+
+Self-improvement:
+- none; no live automation prompt/config change was needed.
+
+Next Figma slice:
+- Figma should pause broad polish while `SC-005` remains without a scaffold unless rebuild hits a specific UI ambiguity. If another Figma slice is useful, refine mobile student evidence/revision states after the rebuild lane starts consuming the route/data contracts.

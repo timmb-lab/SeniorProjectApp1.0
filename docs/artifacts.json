@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-05-18T09:59:00-07:00",
+  "updated_at": "2026-05-18T10:17:00-07:00",
   "artifacts": [
     {
       "id": "figma-senior-project-app-team-target",
@@ -47,7 +47,7 @@
       "plan_key": "team::1638213362346160913",
       "account_observed": "timmb@nv.ccsd.net",
       "purpose": "Active product UI source for the hosted Senior Capstone app, recreated in Bryan's Senior Project App Figma team/project.",
-      "app_placement": "Design source for app shell, visual foundations, shared component variants, student workspace, guided proposal form, teacher review queue, mentor/admin dashboards, mobile student view, automation handoff board, product preview state variants, the 100-pass MVP route/data contract, review/override interaction variants, and private evidence/review-history contract.",
+      "app_placement": "Design source for app shell, visual foundations, shared component variants, student workspace, guided proposal form, teacher review queue, mentor/admin dashboards, mobile student view, automation handoff board, product preview state variants, the 100-pass MVP route/data contract, review/override interaction variants, private evidence/review-history contract, and admin account/group/role provisioning contract.",
       "consuming_lanes": [
         "figma",
         "rebuild",
@@ -113,7 +113,9 @@
         "mvp_status_pill_component_set": "43:55",
         "mvp_action_button_component_set": "43:73",
         "mvp_evidence_artifact_row_component_set": "43:149",
-        "mvp_shared_ui_handoff_contract": "43:150"
+        "mvp_shared_ui_handoff_contract": "43:150",
+        "admin_account_group_provisioning_contract": "48:2",
+        "admin_provisioning_handoff_contract": "48:208"
       },
       "verification": [
         "File creation succeeded in plan team::1638213362346160913.",
@@ -127,7 +129,9 @@
         "Figma write on 2026-05-18 added Private Evidence + Review History Contract node 37:2 with evidence lifecycle states, permission matrix, immutable review history, and developer handoff contract node 37:177.",
         "Screenshot verification returned for node 37:2 after layout correction; follow-up readback confirmed board 6:2 includes node 37:2, two evidence lifecycle rows, timeline rows at 716px, and shared contract data.",
         "Figma write on 2026-05-18 added MVP Component Variant Implementation Matrix node 43:2 to board 3:2 with component sets StatusPill 43:55, ActionButton 43:73, EvidenceArtifactRow 43:149, and shared UI handoff contract 43:150.",
-        "Screenshot verification returned for node 43:2 after a status-set clipping fix; follow-up readback confirmed component-set variant counts, board height 4978, and shared contract data for routes, records, permissions, guardrails, and acceptance checks."
+        "Screenshot verification returned for node 43:2 after a status-set clipping fix; follow-up readback confirmed component-set variant counts, board height 4978, and shared contract data for routes, records, permissions, guardrails, and acceptance checks.",
+        "Figma write on 2026-05-18 added Admin Account + Group Provisioning Contract node 48:2 to board 6:2, with eight provisioning states and developer handoff contract node 48:208.",
+        "Screenshot verification returned for node 48:2 after a text-height correction; follow-up readback confirmed board 6:2 height 8761.8, no clipped text nodes, 8 provisioning states, 8 routes, 12 records, and 6 acceptance checks in shared contract data."
       ],
       "supersedes": [
         "figma-product-ui-system-reference-old-team",

@@ -452,6 +452,9 @@ Created/updated frames:
   - `MVP / ActionButton` component set, node `43:73`
   - `MVP / EvidenceArtifactRow` component set, node `43:149`
   - `Developer Handoff / Shared UI Data Contract`, node `43:150`
+- `Section / Admin Account + Group Provisioning Contract`, node `48:2` on `03 Product Preview + State Variants`
+  - `Developer Handoff / Admin Provisioning Route Data Contract`, node `48:208`
+  - Eight provisioning states: user import draft, role assignment ready, program/cohort scope, assignment conflict, saving, audit logged success, permission denied, and misc admin narrow scope.
 
 Verification status:
 - Canvas write succeeded and returned the frame IDs above.
@@ -465,3 +468,6 @@ Verification status:
 - `get_screenshot` succeeded for node `43:2`; visual QA found status variant clipping on the first screenshot.
 - Follow-up `use_figma` layout fix expanded `MVP / StatusPill` node `43:55` to a two-column layout, expanded board `3:2` to height `4978`, and final `get_screenshot` succeeded for node `43:2` at `1584x1404`.
 - Follow-up readback confirmed shared contract data on `43:2`, component-set contracts on nodes `43:55`, `43:73`, and `43:149`, and variant counts of 11 status states, 7 action states, and 8 evidence row states.
+- `get_screenshot` succeeded for node `48:2`; visual QA found clipped text heights on the first screenshot.
+- Follow-up `use_figma` text-height correction expanded node `48:2` to `1584x1680`, expanded board `6:2` to height `8761.8`, and final `get_screenshot` succeeded for node `48:2`.
+- Follow-up readback confirmed shared contract data on `48:2`, handoff node `48:208`, 8 provisioning states, 8 routes, 12 records, 6 acceptance checks, and zero clipped text nodes.

@@ -469,6 +469,27 @@ Developer contract:
 - Guardrails: status uses text plus color, private storage keys stay hidden, signed URLs are time-boxed, overrides and denials are audited, disabled/loading layouts stay stable, and no student messaging is introduced.
 - Acceptance checks: all variants include accessible labels, unauthorized users never see private fields, audit event IDs are available for sensitive actions, mobile labels fit without overlap, and tests cover denied, loading, error, retry, and revision states.
 
+## Admin Account And Group Provisioning Contract
+
+Node `48:2` deepens the MVP admin foundation so rebuild can scaffold secure users, groups, roles, cohorts, assignments, scoped misc-admin permissions, and audit events without guessing the first admin workflow.
+
+Provisioning states:
+- `User Import Draft`
+- `Role Assignment Ready`
+- `Program + Cohort Scope`
+- `Assignment Conflict`
+- `Saving Provisioning Change`
+- `Audit Logged Success`
+- `Permission Denied`
+- `Misc Admin Narrow Scope`
+
+Developer contract:
+- Handoff node: `48:208`
+- Routes/API: `/admin/users`, `/admin/groups`, `/admin/programs`, `/admin/cohorts`, `/admin/audit`, `/api/admin/users/import`, `/api/admin/role-assignments`, and `/api/admin/mentor-assignments`.
+- Records: `User`, `UserRole`, `StudentProfile`, `StaffProfile`, `Group`, `GroupMembership`, `Program`, `Cohort`, `MentorAssignment`, `StaffProgramAssignment`, `Permission`, and `AuditEvent`.
+- Guardrails: server-side authorization is required, misc admin has no broad default access, duplicate imports are blocked before submit, save requests are idempotent, protected student records never leak through denial states, and no student messaging is introduced.
+- Acceptance checks: denied role edit, valid assignment, duplicate import, audit event persistence, dashboard scope update, and misc-admin narrow-scope tests.
+
 ## Acceptance Checks For Next Figma Run
 
 - Continue active writable file `z4t4tFPAKrMDh6pIYOeEw6` in `team::1638213362346160913`.
@@ -498,12 +519,13 @@ Artifact:
 - State-variant packet: `docs/design/figma-product-preview-state-variants.md`
 - 100-pass MVP execution map: node `18:2` in the active Figma file.
 - MVP component variant implementation matrix: node `43:2` in the active Figma file.
+- Admin account/group provisioning contract: node `48:2` in the active Figma file.
 
 Exact next action:
-- Continue `z4t4tFPAKrMDh6pIYOeEw6` by refining the mobile student evidence/revision states or adding admin account/group management state details.
+- Rebuild should consume nodes `18:2`, `31:2`, `37:2`, `43:2`, and `48:2` while scaffolding the accepted Cloudflare database/auth/progress foundation. Figma should only add more broad design detail if rebuild hits a specific UI ambiguity; otherwise the next Figma slice can refine mobile evidence/revision states.
 
 Acceptance check:
 - Figma progress log records page/frame IDs, screenshot or metadata verification, route/data fields, permission scopes, and the next UI slice.
 
 Known limits:
-- The original historical file hit the Starter MCP tool-call limit. The regenerated reference file was successfully written through the updated Figma connection, but the 2026-05-18 follow-up pass hit the Education-plan MCP tool-call limit with rate-limit links pointing at old team `1601310068697743794`. The recreated file was then created and written in `team::1638213362346160913`. Bryan's professional-plan upgrade later unblocked the active-file metadata/screenshot verification and the `18:2`, `31:2`, and `37:2` canvas writes.
+- The original historical file hit the Starter MCP tool-call limit. The regenerated reference file was successfully written through the updated Figma connection, but the 2026-05-18 follow-up pass hit the Education-plan MCP tool-call limit with rate-limit links pointing at old team `1601310068697743794`. The recreated file was then created and written in `team::1638213362346160913`. Bryan's professional-plan upgrade later unblocked the active-file metadata/screenshot verification and the `18:2`, `31:2`, `37:2`, `43:2`, and `48:2` canvas writes.
