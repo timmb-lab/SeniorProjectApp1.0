@@ -34,11 +34,15 @@ Figma is the heavy product-design source for functional app screens, database-ba
 
 ## Current Priority
 
+The 100-pass master plan was refreshed on 2026-05-18 after the professional-plan Figma catch-up and automation hardening work. Repo state through commit `08660f3` is the baseline: Figma implementation contracts are now ahead of the hosted app, while the production scaffold/auth/database/storage/test/deployment foundation is still missing.
+
 1. Execute accepted `SC-005` / `HD-2026-05-18-001` / ADR-0001: Cloudflare Workers/Pages + D1 + R2 + Workers-compatible managed auth or school-approved SSO, with explicit auth/security assumptions.
 2. Scaffold the real app foundation with TypeScript, package scripts, tests, and GitHub-to-Cloudflare deployment structure.
 3. Model users, groups, roles, permissions, programs, cohorts, requirements, progress records, submissions, evidence artifacts, reviews, approvals, announcements, and audit events.
 4. Build the MVP admin/progress vertical slice: admin creates/imports users/groups/programs/cohorts -> role-aware progress update -> audit log -> dashboard aggregate -> Cloudflare preview.
 5. Build the proposal workflow slice: student proposal submission -> evidence upload/link -> teacher review -> revision/approval -> audit log -> dashboard aggregate.
+
+Immediate next five useful passes: Cloudflare/TypeScript scaffold, database/storage/migration layout, users/groups/programs/cohorts/roles schema and seeds, permission/audit primitives with tests, and private `EvidenceArtifact` storage/link/review-history tests.
 
 ## Canonical Programs
 

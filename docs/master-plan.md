@@ -169,6 +169,46 @@ The pass budget should bias every lane toward reducing implementation ambiguity:
 
 The target is not "100 design passes." It is 100 total compounding passes toward a secure hosted MVP.
 
+### 2026-05-18 Baseline After Figma And Automation Catch-Up
+
+Today's work materially improved the implementation runway, but it did not yet create the hosted database-backed app. Treat the repo state through commit `08660f3` as the 100-pass baseline:
+
+- Operating base is stronger: the project now has a 5x/day gold-standard orchestrator, prompt snapshots, structured run manifests, a human-decision queue, artifact registry, contract checker, publication/commit-push requirements, and non-interactive project-script rules.
+- Stack direction is accepted: `HD-2026-05-18-001` and ADR-0001 select the default GitHub-to-Cloudflare path with TypeScript, Cloudflare Workers/Pages, D1-compatible database, R2-compatible private evidence storage, Workers-compatible managed auth or school-approved SSO, server authorization, and audit logging.
+- Active Figma source is usable: professional-plan calls verified and updated file `z4t4tFPAKrMDh6pIYOeEw6` in team `1638213362346160913`.
+- Figma implementation handoffs now exist for the first MVP spine:
+  - `18:2`: 100-pass route/data/permission execution map.
+  - `31:2`: teacher review drawer and admin override states.
+  - `37:2`: private evidence, access checks, and immutable review-history contract.
+  - `43:2`: shared `StatusPill`, `ActionButton`, `EvidenceArtifactRow`, `PermissionGate`, and `ReviewHistoryItem` component contract.
+- The critical gap is unchanged: no production app scaffold, managed auth, database schema, private file storage, migrations, API layer, tests, CI, or GitHub-to-Cloudflare deployment pipeline exists yet.
+
+Because of that gap, the next useful 100-pass plan must prioritize implementation over additional design polish unless the design work is directly blocking rebuild.
+
+### Updated 100-Pass Allocation From Current State
+
+Use this allocation as the working budget until a committed implementation pass proves it should change:
+
+1. Passes 1-10: create the Cloudflare-compatible TypeScript app scaffold, package scripts, local dev path, test runner, CI/build notes, Wrangler/Pages structure, environment template, and public-guide/source-framework preservation path.
+2. Passes 11-25: create D1-compatible schema/migrations and seed strategy for programs, cohorts, requirements, requirement sections, quality checks, deadlines, submissions, evidence artifacts, reviews, comments, status history, audit events, announcements, and exports.
+3. Passes 26-40: implement auth/account identity, user groups, roles, role scopes, mentor/teacher assignments, admin provisioning surfaces, permission helpers, and tests for student/mentor/teacher/admin/misc-admin boundaries.
+4. Passes 41-55: implement trusted progress updates, status transitions, audit-event persistence, dashboard aggregates from server/database state, and tests for valid/invalid transitions and unauthorized access.
+5. Passes 56-70: implement private evidence upload/link metadata, R2 or equivalent private storage assumptions, signed URL expiry, external-link access checks, immutable review history, denied-access audit events, and protected-evidence tests.
+6. Passes 71-82: implement the proposal/research workflow slice: guided sections, source/quote/counterclaim quality checks, submit/resubmit, teacher review queue, revision request, approval, comments, and dashboard update.
+7. Passes 83-90: implement admin override, export/archive, announcement, misc-admin scoped reporting, audit-log views, and source-cycle extensions needed for mentor meetings, presentation, celebration, reflections, and May 5 archive readiness.
+8. Passes 91-97: harden deployment and operations: Cloudflare preview evidence, environment/secrets checklist, backup/export posture, accessibility/security QA, retention notes, and no-student-messaging verification.
+9. Passes 98-100: finish pilot readiness: staff provisioning checklist, seed/demo data posture without real student records, custom-domain readiness, final audit review, and Bryan-facing pilot checklist.
+
+Immediate next five passes should be implementation-heavy:
+
+1. Scaffold the accepted Cloudflare/TypeScript app with build/test/dev commands.
+2. Add database/storage configuration stubs, migration layout, and domain model types.
+3. Add users/groups/programs/cohorts/roles schema and seed loading for canonical programs.
+4. Add permission and audit-event primitives with focused tests.
+5. Add private `EvidenceArtifact` storage/link metadata model with signed URL/link-check/review-history tests.
+
+Do not spend the next several non-audit passes on additional broad Figma polish while `SC-005` remains in progress, unless rebuild hits a specific UI ambiguity that only Figma can resolve. The design side is currently ahead of the hosted-app foundation; the app now needs code, schema, tests, and Cloudflare deployment evidence.
+
 ## Stack And Deployment Direction
 
 The accepted deployment direction is GitHub-connected Cloudflare hosting. Bryan expects to purchase a domain after the hosted path is ready.
