@@ -108,6 +108,16 @@ async function writeManifest() {
   await writeFile(join(outDir, "site-manifest.json"), `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
 }
 
+async function writeWranglerConfig() {
+  const config = {
+    "$schema": "../node_modules/wrangler/config-schema.json",
+    name: "senior-capstone-public",
+    compatibility_date: "2026-05-18",
+    pages_build_output_dir: "."
+  };
+  await writeFile(join(outDir, "wrangler.jsonc"), `${JSON.stringify(config, null, 2)}\n`, "utf8");
+}
+
 async function main() {
   assertInsideRepo(outDir);
   await rm(outDir, { recursive: true, force: true });
@@ -131,6 +141,7 @@ async function main() {
   await writeRedirects();
   await writeHeaders();
   await writeManifest();
+  await writeWranglerConfig();
 
   const outputFiles = await readdir(outDir);
   console.log(`Built public-companion with ${outputFiles.length} top-level entries.`);
