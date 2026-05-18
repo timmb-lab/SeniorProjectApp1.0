@@ -52,3 +52,15 @@ Each audit run should append a dated entry with:
 - `self-improvement`: updated the contract checker so future runs fail on duplicate exact scheduled slots and on paused automations whose prompts still say to preserve `ACTIVE status`.
 - `commit/push status`: not committed or pushed during this interactive pass.
 - `next action`: If re-enabling paused specialist lanes, keep them on the staggered times now recorded in `docs/automation-cadence.md`.
+
+### 2026-05-18 09:01 PT - Gold Standard Automation Correction
+
+- `automation`: manual user-requested ops/audit correction pass
+- `master-plan section`: Product Destination; Lane Responsibilities; Logging Requirements; Anti-Drift Rules
+- `scope`: Correct Senior Capstone automations to the gold standard requested by Bryan: 5x/day primary runner, master planner, pass logger, work ladder, self-healing prompt/script repair, no-intervention approval preflight/fallbacks, and accepted default stack decision.
+- `live automations changed`: Renamed `senior-capstone-rebuild-rebuilt` to `Senior Capstone Gold Standard Orchestrator`, set it `ACTIVE`, and changed it to `00:20`, `05:20`, `10:20`, `15:20`, `20:20` PT. Updated Figma, Canva, content-audit, and daily-report jobs as `PAUSED` standby prompts. Kept weekly deep audit `ACTIVE` Sundays at `23:45`.
+- `files changed`: `docs/automation-cadence.md`, `docs/automation-memory.md`, `docs/automation-runbook.md`, `docs/automation-self-improvement.md`, `docs/automation-progress.md`, `docs/daily-automation-reporting.md`, `docs/daily-automation-reports.md`, `docs/human-decisions.md`, `docs/master-plan.md`, `docs/architecture/adr-0001-stack-auth-database-upload.md`, `docs/automation-backlog.md`, `docs/progress/decision-log.md`, `docs/progress/handoffs.md`, `docs/progress/weekly-deep-audit.md`, `docs/automation-prompts/`, `scripts/check-automation-contract.ps1`, and this log.
+- `validation`: Regenerated prompt snapshots; `scripts/check-automation-contract.ps1 -RepoRoot .` passed for 6 automations; active schedule scan found no exact start conflicts across all local automations.
+- `self-improvement`: tightened the contract checker so it now fails if Senior Capstone drifts away from the gold-standard automation names, statuses, or RRULEs.
+- `commit/push status`: pending in this interactive pass.
+- `next action`: The 5x/day orchestrator should scaffold the accepted Cloudflare stack path from ADR-0001 and `SC-005`.

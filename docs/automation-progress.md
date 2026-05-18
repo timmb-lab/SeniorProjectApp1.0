@@ -752,7 +752,7 @@ Files and systems added:
 What changed:
 - Shared runbook/cadence now require structured run manifests, artifact registry updates, human decision queue updates, prompt snapshots after prompt changes, and contract-check verification.
 - Self-improvement protocol now requires prompt snapshots and contract checks after live prompt/config edits.
-- Master plan now points rebuild toward `SC-005`, `HD-2026-05-18-001`, and the proposed stack ADR.
+- Master plan now points rebuild toward `SC-005`, `HD-2026-05-18-001`, and the then-proposed stack ADR, now accepted as ADR-0001.
 - Added `SC-005` as a P0 rebuild backlog item for the production stack/auth/database/private-upload decision.
 - Added `H-2026-05-18-006` to force rebuild to resolve the stack decision before broad feature work.
 - Added `D-2026-05-18-007` for the new automation operating infrastructure.
@@ -779,3 +779,24 @@ Key direction:
 
 Recommended next slice:
 - Rebuild should accept or supersede the Cloudflare-oriented ADR and scaffold the secure database/account/group/progress foundation.
+
+## 2026-05-18 Gold Standard Automation Correction
+
+Intent:
+- Correct the Senior Capstone automation system to the requested gold standard: one active 5x/day orchestrator, durable logging/laddering/master-plan reads, self-healing prompt/script repair, no-intervention approval preflight/fallbacks, and accepted default stack decision.
+
+What changed:
+- Renamed `senior-capstone-rebuild-rebuilt` to `Senior Capstone Gold Standard Orchestrator`.
+- Changed the primary schedule to `00:20`, `05:20`, `10:20`, `15:20`, and `20:20` PT.
+- Set Figma, Canva, content-audit, and daily-report automations to `PAUSED` standby prompts.
+- Kept weekly deep audit `ACTIVE` Sundays at `23:45`.
+- Accepted `HD-2026-05-18-001` and ADR-0001 as the default Cloudflare stack path.
+- Tightened `scripts/check-automation-contract.ps1` so future runs fail name/status/RRULE drift.
+- Regenerated live prompt snapshots in `docs/automation-prompts/`.
+
+Verification:
+- `scripts/check-automation-contract.ps1 -RepoRoot .` passed for all 6 Senior automations.
+- Active schedule scan found no exact start conflicts across local automations.
+
+Recommended next slice:
+- The 5x/day orchestrator should scaffold the accepted Cloudflare stack path from ADR-0001 and `SC-005`.

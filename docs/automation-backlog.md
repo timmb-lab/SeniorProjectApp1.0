@@ -66,9 +66,9 @@ This file tracks unresolved cross-lane issues for the Senior Capstone rebuild. T
 
 - `severity`: P0
 - `owner`: rebuild
-- `status`: open
+- `status`: in-progress
 - `source`: automation self-improvement infrastructure pass and repeated stack-decision risk
 - `affected area`: Cloudflare production stack, auth, database, user groups, progress updates, private uploads, deployment, secrets, tests, and safe hosted-app foundation
-- `evidence`: `docs/master-plan.md` now defines the revised MVP as a secure database-backed app with users, groups, roles, progress updates, private evidence, audit logs, dashboards, announcements, and GitHub-to-Cloudflare hosting. `docs/architecture/adr-0001-stack-auth-database-upload.md` is proposed but not accepted. No production app scaffold, managed auth, database, private file storage, migrations, API layer, tests, CI, or GitHub-to-Cloudflare deployment pipeline exists yet.
-- `next action`: Rebuild lane must accept/supersede `docs/architecture/adr-0001-stack-auth-database-upload.md` or create an equivalent Cloudflare-compatible ADR, then scaffold the selected stack with auth/database/user-group/progress/private-upload/deployment assumptions explicit.
+- `evidence`: `docs/master-plan.md` now defines the revised MVP as a secure database-backed app with users, groups, roles, progress updates, private evidence, audit logs, dashboards, announcements, and GitHub-to-Cloudflare hosting. `docs/architecture/adr-0001-stack-auth-database-upload.md` is accepted as the default Cloudflare-compatible stack path. No production app scaffold, managed auth, database, private file storage, migrations, API layer, tests, CI, or GitHub-to-Cloudflare deployment pipeline exists yet.
+- `next action`: Rebuild lane must scaffold the selected stack with auth/database/user-group/progress/private-upload/deployment assumptions explicit.
 - `last updated`: 2026-05-18

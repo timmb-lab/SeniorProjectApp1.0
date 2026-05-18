@@ -8,7 +8,7 @@ The goal is a GitHub-to-Cloudflare hosted app whose MVP is a secure database-bac
 
 ## Required Loop
 
-Every main lane and the daily reporting job should run this loop:
+The active 5x/day orchestrator, active weekly deep audit, and any explicitly reactivated standby lane should run this loop:
 
 1. Read `docs/master-plan.md`, `docs/automation-runbook.md`, this protocol, `docs/automation-cadence.md`, `docs/automation-milestones.md`, `docs/automation-memory.md`, `docs/progress/run-log.md`, recent `docs/progress/runs/`, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, and the relevant lane/reporting logs before selecting work.
 2. Do the highest-value bounded product, audit, visual, or reporting slice unless the automation itself is blocked or the user explicitly requested automation improvement.
@@ -28,6 +28,7 @@ An automation may improve its own prompt/config when recent evidence shows one o
 - It repeatedly missed a required source doc, master-plan section, log, handoff, decision, backlog item, or lane output.
 - It produced vague logs, missing next actions, missing artifact links/IDs, or non-actionable handoffs.
 - It failed to preserve commit/push evidence, external artifact records, or blocker records.
+- It found a reproducible script, checker, prompt snapshot, manifest, verifier, or fallback failure that blocks unattended runs.
 - It repeated the same scope without closing a backlog item, handoff, or concrete acceptance check.
 - It confused lane ownership, created work for the wrong lane, or needed a clearer handoff boundary.
 - It missed a security, privacy, role/permission, upload/evidence, audit-log, or hosted-app constraint.
@@ -42,6 +43,7 @@ Allowed self-improvement changes are narrow:
 - Add or clarify required reads.
 - Add missing log, handoff, backlog, decision, verification, commit, or push instructions.
 - Add missing structured run manifest, artifact registry, human decision queue, or prompt snapshot instructions.
+- Add or repair a script/checker/snapshot/manifest/fallback path that lets future runs resolve the same issue without human intervention.
 - Tighten lane ownership and acceptance checks.
 - Improve fallback behavior for Figma, Canva, Gmail, Google Drive, git, or deployment blockers.
 - Add a missing source-of-truth reference.

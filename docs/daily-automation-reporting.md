@@ -4,13 +4,18 @@ Date: 2026-05-18
 
 ## Purpose
 
-The daily reporting automation summarizes the last 24 hours of SeniorProjectApp1.0 automation work and sends the update to Bryan.
+Daily reporting is now owned by the 5x/day Senior Capstone Gold Standard Orchestrator. The standalone daily-report automation remains as a paused standby prompt so the system stays at exactly five Senior runs per day while still producing a daily summary when needed.
 
-Automation:
+Primary automation:
+- `senior-capstone-rebuild-rebuilt`
+
+Standby automation:
 - `senior-capstone-daily-automation-report`
+- `senior-capstone-daily-automation-report-rebuilt`
 
 Schedule:
-- Daily at `07:40`, staggered away from the 30-minute beta loop.
+- Primary path: at most once per local day during one of the five orchestrator passes.
+- Standby path if explicitly reactivated: daily at `07:40`.
 
 Email recipient:
 - `bryan.timm89@gmail.com`
@@ -45,7 +50,7 @@ The daily report is intended to run without Bryan sitting at the machine. Before
 - `google drive_create_file`
 - `google drive_batch_update_document`
 
-In `C:\Users\bryan\.codex\config.toml`, those grants appear as `approval_mode = "approve"` entries under the Google Drive connector tool sections. If either grant is missing, the automation should not start a mutating Drive call because it may pause on an approval prompt. It should use the repo fallback and log an action-required note instead.
+In `C:\Users\bryan\.codex\config.toml`, those grants appear as `approval_mode = "approve"` entries under the Google Drive connector tool sections. If either grant is missing, the automation should not start a mutating Drive call because it may pause on an approval prompt. It should use the repo fallback and log an action-required note instead. If the grants exist but Google Drive returns `403 Forbidden`, treat that as an account/scope reauthorization blocker, not as an automation prompt to wait on.
 
 Until the Google Drive connector is reauthorized with write access, the automation should:
 

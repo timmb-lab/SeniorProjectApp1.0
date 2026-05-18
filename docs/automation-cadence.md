@@ -2,9 +2,9 @@
 
 Date: 2026-05-18
 
-The Senior Capstone rebuild now uses a primary 30-minute beta evolution loop. The live app automation `senior-capstone-rebuild-rebuilt` is named `Senior Capstone Beta Evolution Loop` and runs every day at minute `00` and `30` across all 24 hours. It reads the master plan and logs, chooses one bounded beta-advancing slice, updates the repo or external artifact, verifies, logs, commits, and pushes. Specialist jobs are staggered away from those exact start slots; weekly deep audit remains separate for long severe review.
+The Senior Capstone rebuild now uses a primary 5x/day gold-standard orchestrator. The live app automation `senior-capstone-rebuild-rebuilt` is named `Senior Capstone Gold Standard Orchestrator` and runs every day at `00:20`, `05:20`, `10:20`, `15:20`, and `20:20` PT. It reads the master plan and logs, follows the work ladder, chooses one bounded beta-advancing slice, updates the repo or external artifact, verifies, logs, commits, pushes, and repairs its own prompt/scripts when evidence shows drift.
 
-Legacy/specialist lane automations still exist for Figma, Canva, content audit, daily reporting, and weekly deep audit. They should not fight the beta loop. The beta loop is the primary continuous runner until the app reaches a real beta.
+Specialist lane automations still exist for Figma, Canva, content audit, and daily reporting, but they are intentionally `PAUSED` standby records so the Senior Capstone daily cadence is one reliable 5x/day orchestrator rather than overlapping lane jobs. Weekly deep audit remains `ACTIVE` as the separate severe weekly review.
 
 End goal: a GitHub-to-Cloudflare hosted app whose MVP is a secure database-backed Senior Capstone operating system: users, groups, roles, programs, cohorts, progress updates, submissions, private evidence, reviews, approvals, dashboards, announcements, admin controls, audit logs, exports, and protected student records.
 
@@ -135,23 +135,25 @@ Definition of done for every run:
 - Lane-prefixed commit created when repo files changed.
 - Current branch pushed, or blocker logged precisely.
 
-## Primary 30-Minute Beta Evolution Loop
+## Primary 5x/Day Gold Standard Orchestrator
 
-Senior Capstone Beta Evolution Loop
+Senior Capstone Gold Standard Orchestrator
 - Automation: `senior-capstone-rebuild-rebuilt`
-- Schedule: every day at `00` and `30` minutes of every hour.
-- RRULE: `FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23;BYMINUTE=0,30`
+- Schedule: every day at `00:20`, `05:20`, `10:20`, `15:20`, and `20:20` PT.
+- RRULE: `FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=0,5,10,15,20;BYMINUTE=20`
 - Purpose: keep upgrading the project from the master plan, backlog, handoffs, decision log, artifacts, and recent run manifests until beta.
 - Beta target: hosted GitHub-to-Cloudflare app with secure database-backed users/groups/roles/programs/cohorts, trusted progress state, private evidence/upload metadata, submissions, review/revision/approval, audit events, dashboards, admin controls, tests, and deployment path.
-- Run shape: one bounded deliverable per run, with verification, lane log, run log, structured run manifest, material memory/handoff/backlog/decision/artifact updates, commit, and push.
+- Run shape: one bounded deliverable per run, with verification, lane log, run log, structured run manifest, material memory/handoff/backlog/decision/artifact updates, self-improvement closeout, commit, and push.
+- No-intervention rule: use saved connector approvals when already present, avoid tool calls that would pause for approval, use repo fallbacks for connector/OAuth blockers, and record `ACTION REQUIRED` only for account/legal/budget/school-policy issues that cannot be resolved from the repo.
 
 ## Specialist Lane Cadence
 
-These jobs remain available as specialist lanes, but the 30-minute beta loop is the primary continuous runner.
+These jobs remain available as specialist lane definitions, but they are intentionally `PAUSED`. The 5x/day orchestrator owns lane selection and may perform bounded Figma, Canva, audit, or daily-report work from these rules without reactivating separate jobs.
 
 Canva Visual System
 - Automation: `senior-capstone-canva-visual-system-rebuilt`
-- Schedule: `00:10`, `06:10`, `12:10`, and `18:10`.
+- Status: `PAUSED` standby.
+- Retained schedule if reactivated: `00:10`, `06:10`, `12:10`, and `18:10`.
 - Purpose: supporting visual assets, program identity graphics, phase/process visuals, onboarding graphics, report visuals, recognition assets, certificates, and printable/exportable collateral.
 - MVP emphasis: create polished app-supporting image families while preserving live UI text, privacy, accessibility, and Figma/rebuild placement.
 - Primary anchors: `docs/dashboard-ux-direction.md`, `data/programs.json`, `data/capstone-framework.json`, templates, and progress log.
@@ -159,21 +161,23 @@ Canva Visual System
 
 Figma Product Design
 - Automation: `senior-capstone-figma-product-design-rebuilt`
-- Schedule: `01:15`, `07:15`, `13:15`, and `19:15`.
+- Status: `PAUSED` standby.
+- Retained schedule if reactivated: `01:15`, `07:15`, `13:15`, and `19:15`.
 - Purpose: app UI source of truth, database-backed state design, dashboard layouts, admin-preview readiness, design system, components, responsive states, accessibility states, and implementation-ready product specs.
 - Primary anchors: `docs/dashboard-ux-direction.md`, `docs/domain-model.md`, `data/programs.json`, `data/capstone-framework.json`, `docs/curriculum-framework-integration.md`.
 - Primary log: `docs/progress/figma.md`.
 
 Core Hosted-App Rebuild
 - Automation: `senior-capstone-rebuild-rebuilt`
-- Schedule: every 30 minutes all day, every day.
+- Schedule: `00:20`, `05:20`, `10:20`, `15:20`, and `20:20` PT.
 - Purpose: Cloudflare/GitHub architecture, app scaffolding, backend, auth, database/schema, user groups, progress updates, tests, deployment readiness, and integration of the design/content direction into a working hosted app.
 - Primary anchors: `docs/rebuild-gameplan.md`, `docs/domain-model.md`, `docs/dashboard-ux-direction.md`, `data/programs.json`, `data/capstone-framework.json`, `docs/curriculum-framework-integration.md`.
 - Primary log: `docs/progress/rebuild.md`.
 
 Content Quality Audit
 - Automation: `senior-capstone-content-quality-audits-rebuilt`
-- Schedule: `03:45`, `09:45`, `15:45`, and `21:45`.
+- Status: `PAUSED` standby.
+- Retained schedule if reactivated: `03:45`, `09:45`, `15:45`, and `21:45`.
 - Purpose: critical audit of MVP database/security readiness, curriculum, product requirements, roles, dashboards, program specificity, accessibility, privacy, workflow clarity, Cloudflare deployment readiness, and implementation readiness.
 - Primary anchors: all docs, `app.js`, templates, teacher companion guide, program seed data, and `data/capstone-framework.json`.
 - Primary log: `docs/progress/audit.md`.
@@ -242,11 +246,13 @@ Every automation must keep these programs explicit:
 
 Reporting job:
 - Automation: `senior-capstone-daily-automation-report-rebuilt`
-- Schedule: daily at `07:40`.
-- Purpose: summarize the previous 24 hours of automation changes, email the summary to `bryan.timm89@gmail.com`, and append the same summary to the Google Doc titled `Senior Capstone Daily Automation Log` under the `bryan.timm89@gmail.com` Google Drive target when connector permissions allow.
+- Status: `PAUSED` standby.
+- Retained schedule if reactivated: daily at `07:40`.
+- Primary path: the 5x/day orchestrator owns at-most-once-per-local-day reporting so the system stays at 5 daily Senior runs while still producing a daily report when needed.
+- Purpose: summarize the previous 24 hours of automation changes, email or draft the summary to `bryan.timm89@gmail.com`, and append the same summary to the Google Doc titled `Senior Capstone Daily Automation Log` under the `bryan.timm89@gmail.com` Google Drive target when connector permissions allow.
 
 Fallback:
-- If Google Drive write access is blocked, the report should still be emailed and should also be written to `docs/daily-automation-reports.md`.
+- If Google Drive write access is blocked, the report should still be written to `docs/daily-automation-reports.md`.
 - Google Drive create/import returned `403 Forbidden` during setup on 2026-05-18, so Drive reauthorization with write access for `bryan.timm89@gmail.com` may be required before the Google Doc append path succeeds.
 
 ## Weekly Deep Audit Automation

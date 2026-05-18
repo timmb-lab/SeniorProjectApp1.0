@@ -66,10 +66,10 @@ Status values:
 - `status`: open
 - `source`: automation operating-infrastructure pass plus revised MVP direction
 - `artifact`: `SC-005`, `HD-2026-05-18-001`, `docs/architecture/adr-0001-stack-auth-database-upload.md`
-- `next action`: Resolve the Cloudflare production stack/auth/database/user-group/progress/private-upload decision before broad feature work.
-- `acceptance check`: Rebuild commits an accepted or superseding ADR naming app framework, auth provider, database, user/group model, progress model, private upload storage, ORM/migrations approach, GitHub-to-Cloudflare deployment path, environment/secrets path, local development setup, tests, backup/export posture, and security tradeoffs.
-- `evidence to close`: Committed ADR with status accepted or superseded, plus either scaffold work or a precisely blocked provisioning note.
-- `last updated`: 2026-05-18
+- `next action`: Scaffold the accepted Cloudflare stack path with auth/database/user-group/progress/private-upload assumptions explicit.
+- `acceptance check`: Rebuild commits starter app/package/deployment structure or a precise provisioning blocker that names app framework, auth provider, database, user/group model, progress model, private upload storage, ORM/migrations approach, GitHub-to-Cloudflare deployment path, environment/secrets path, local development setup, tests, backup/export posture, and security tradeoffs.
+- `evidence to close`: Committed scaffold work or a precisely blocked provisioning note.
+- `last updated`: 2026-05-18 09:01 PT
 
 ### H-2026-05-18-007
 

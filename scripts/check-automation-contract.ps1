@@ -42,6 +42,39 @@ $requiredPromptFragments = @(
     "LLucMgAPscRa9020iHHigB"
 )
 
+$expectedAutomationConfig = @{
+    "senior-capstone-rebuild-rebuilt" = @{
+        Name = "Senior Capstone Gold Standard Orchestrator"
+        Status = "ACTIVE"
+        RRule = "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=0,5,10,15,20;BYMINUTE=20"
+    }
+    "senior-capstone-figma-product-design-rebuilt" = @{
+        Name = "Senior Capstone Figma Product Design Standby"
+        Status = "PAUSED"
+        RRule = "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=1,7,13,19;BYMINUTE=15"
+    }
+    "senior-capstone-canva-visual-system-rebuilt" = @{
+        Name = "Senior Capstone Canva Visual System Standby"
+        Status = "PAUSED"
+        RRule = "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=0,6,12,18;BYMINUTE=10"
+    }
+    "senior-capstone-content-quality-audits-rebuilt" = @{
+        Name = "Senior Capstone Content Quality Audit Standby"
+        Status = "PAUSED"
+        RRule = "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=3,9,15,21;BYMINUTE=45"
+    }
+    "senior-capstone-daily-automation-report-rebuilt" = @{
+        Name = "Senior Capstone Daily Report Standby"
+        Status = "PAUSED"
+        RRule = "FREQ=DAILY;BYHOUR=7;BYMINUTE=40"
+    }
+    "senior-capstone-weekly-deep-audit-rebuilt" = @{
+        Name = "Senior Capstone Weekly Deep Audit Rebuilt"
+        Status = "ACTIVE"
+        RRule = "FREQ=WEEKLY;BYDAY=SU;BYHOUR=23;BYMINUTE=45"
+    }
+}
+
 function Get-TomlStringValue {
     param(
         [Parameter(Mandatory = $true)][string]$Content,
@@ -102,10 +135,26 @@ foreach ($id in $automationIds) {
     }
 
     $raw = Get-Content -Raw -LiteralPath $tomlPath
+    $name = Get-TomlStringValue -Content $raw -Key "name"
     $prompt = Get-TomlStringValue -Content $raw -Key "prompt"
     $status = Get-TomlStringValue -Content $raw -Key "status"
     $rrule = Get-TomlStringValue -Content $raw -Key "rrule"
     $promptHash = Get-StringSha256 -Value $prompt
+
+    $expected = $expectedAutomationConfig[$id]
+    if ($expected) {
+        if ($name -ne $expected.Name) {
+            $failures.Add("$id has unexpected name '$name'; expected '$($expected.Name)'")
+        }
+
+        if ($status -ne $expected.Status) {
+            $failures.Add("$id has unexpected status '$status'; expected '$($expected.Status)'")
+        }
+
+        if ($rrule -ne $expected.RRule) {
+            $failures.Add("$id has unexpected RRULE '$rrule'; expected '$($expected.RRule)'")
+        }
+    }
 
     if ($status -ne "ACTIVE" -and $prompt -like "*ACTIVE status*") {
         $failures.Add("$id is $status but prompt says to preserve ACTIVE status")

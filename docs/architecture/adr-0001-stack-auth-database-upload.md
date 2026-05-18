@@ -1,6 +1,6 @@
 # ADR-0001: Cloudflare Stack, Auth, Database, And Private Upload Foundation
 
-Status: proposed
+Status: accepted
 
 Date: 2026-05-18
 
@@ -23,9 +23,9 @@ The project cannot become a functional hosted Senior Capstone app until the foun
 
 The current repo still contains the original static guide shell. It has no production app scaffold, managed auth, database, private file storage, migrations, API layer, tests, CI, or deployment pipeline.
 
-## Proposed Decision
+## Accepted Decision
 
-Use this as the revised default implementation path unless Bryan rejects or supersedes it:
+Use this as the revised default implementation path unless later implementation evidence forces a superseding ADR:
 
 - App framework: TypeScript app deployable through GitHub to Cloudflare Workers/Pages.
 - Runtime/API: Cloudflare Workers.
@@ -56,12 +56,11 @@ The alternative is keeping the earlier Supabase/Vercel recommendation. That may 
 - Who can provision secrets and production environment variables?
 - What D1/R2 backup, export, retention, and incident-response process is acceptable for student records?
 
-## Acceptance Criteria
+## Implementation Acceptance Criteria
 
-This ADR can move from proposed to accepted when:
+This ADR is accepted. The rebuild lane should now satisfy these implementation checks:
 
-- Bryan accepts the default stack or selects a replacement.
-- The rebuild lane records local setup, environment variables, and deployment assumptions.
+- Record local setup, environment variables, and deployment assumptions.
 - The schema plan includes users, groups, memberships, roles, programs, cohorts, mentor assignments, requirements, progress records, submissions, evidence artifacts, reviews, comments, announcements, status history, audit events, exports, and deadlines.
 - Permission tests are planned for student-own access, assigned mentor access, program/cohort teacher access, admin access, misc admin narrowing, and unauthorized denial.
 - Private upload access, deletion/replacement rules, signed URLs, retention, archive/export, and audit events are explicitly addressed.

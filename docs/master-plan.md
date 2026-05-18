@@ -160,7 +160,7 @@ Earlier incomplete milestones beat later polish unless a P0/P1 risk says otherwi
 
 The accepted deployment direction is GitHub-connected Cloudflare hosting. Bryan expects to purchase a domain after the hosted path is ready.
 
-The next major rebuild decision is the detailed Cloudflare-compatible production stack:
+The accepted rebuild stack direction is the Cloudflare-compatible production stack:
 
 - App framework and Workers/Pages structure.
 - Auth provider and account/group provisioning model.
@@ -177,10 +177,10 @@ No automation should pretend the app is functional until this foundation exists 
 
 Current stack pressure:
 
-- `HD-2026-05-18-001` is the active human decision queue item for the production stack.
-- `docs/architecture/adr-0001-stack-auth-database-upload.md` is the Cloudflare-oriented proposed ADR.
-- `SC-005` is the P0 rebuild backlog item that keeps this decision in front of the automation loop.
-- Until accepted or superseded with implementation evidence, rebuild should prioritize the Cloudflare stack/auth/database/user-group/progress/private-upload foundation before broad app feature work.
+- `HD-2026-05-18-001` is accepted for the production stack.
+- `docs/architecture/adr-0001-stack-auth-database-upload.md` is the accepted Cloudflare-oriented ADR.
+- `SC-005` is now in-progress and keeps the scaffold in front of the automation loop.
+- Rebuild should prioritize the Cloudflare stack/auth/database/user-group/progress/private-upload foundation before broad app feature work.
 
 ## Lane Responsibilities
 

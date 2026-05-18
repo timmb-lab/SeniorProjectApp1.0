@@ -8,7 +8,7 @@ This log tracks the weekly whole-system audit automation. Detailed audit finding
 
 - `scope`: created weekly deep audit automation.
 - `automation`: `senior-capstone-weekly-deep-audit`
-- `schedule`: Sundays at `23:45 PT`, staggered away from the 30-minute beta loop exact start slots.
+- `schedule`: Sundays at `23:45 PT`, separate from the active 5x/day gold-standard orchestrator.
 - `purpose`: long-form piece-by-piece audit of product quality, implementation reality, source-framework coverage, roles/permissions, uploads/evidence, dashboards, Figma/Canva usefulness, automation health, backlog quality, master-plan accuracy, and weekly human check-in readiness.
 - `expected audit file`: `docs/audits/weekly-deep-audit.md`
 - `expected log updates`: master plan when materially needed, automation memory, run log, handoffs, decision log, backlog, weekly progress log, and short automation-progress rollup.

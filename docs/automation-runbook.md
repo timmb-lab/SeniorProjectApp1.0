@@ -43,6 +43,20 @@ approval_mode = "approve"
 
 If a grant is missing, Bryan must run the action once while present and choose `Always allow`, or the automation must skip that connector write and use its committed repo fallback. Do not rely on a future unattended run to click approval. For email reporting, prefer drafts over direct sends unless Bryan has explicitly approved unattended sending.
 
+## Gold Standard No-Intervention Contract
+
+The Senior Capstone automation system now uses one active 5x/day orchestrator plus the active weekly deep audit. Specialist Figma, Canva, content-audit, and daily-report records are standby prompts, not concurrent daily runners.
+
+The orchestrator should resolve everything it can resolve from accepted docs, repo evidence, saved connector approvals, and safe fallbacks. It should not stop for a human when it can:
+
+- Accept an already documented default decision that Bryan has implicitly authorized in a later gold-standard automation request.
+- Patch a script, prompt, checker, snapshot, manifest, log, or fallback path that is clearly failing.
+- Use `C:\Users\bryan\.codex\config.toml` approval grants that already exist.
+- Avoid a mutating connector call that would require a fresh approval and write the repo fallback instead.
+- Convert an external OAuth/scope failure into a committed blocker with exact account-level action required.
+
+Human-decision entries are reserved for account ownership, legal/privacy policy, school operations, budget, credentials, and production provisioning decisions that cannot be inferred from accepted docs.
+
 ## Autonomous Loop Contract
 
 The automation system has three durable control surfaces:
@@ -171,6 +185,7 @@ At the end of every run, leave enough memory for the next lane to continue witho
 - Update `docs/artifacts.json` whenever creating, superseding, verifying, or consuming a durable external artifact.
 - Update `docs/human-decisions.md` when a decision needs Bryan's judgment, account access, provisioning, budget, privacy approval, or school-operation confirmation.
 - Run the self-improvement closeout from `docs/automation-self-improvement.md`: record `self-improvement: none` when no prompt/config change is justified, or update only the automation's own prompt/config with evidence and a log entry when a narrow change is justified.
+- If a script/checker/snapshot/manifest failure is reproducible and repairable inside the repo, patch it before ordinary product work or record a compact blocker with the exact command, error, suspected file, and next action.
 - If a live automation prompt/config changed, run `scripts/snapshot-automation-prompts.ps1`, then run `scripts/check-automation-contract.ps1`, and commit the updated prompt snapshots.
 - If the master planner, pass logger, or self-patching contract changed, update `scripts/check-automation-contract.ps1` in the same pass when the checker needs to enforce the new rule.
 

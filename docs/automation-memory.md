@@ -20,20 +20,20 @@ Figma is the heavy product-design source for functional app screens, database-ba
 - No production app scaffold has been committed yet.
 - No managed auth, database, user/group model, private upload storage, migrations, API layer, tests, CI, or GitHub-to-Cloudflare deployment pipeline has been implemented yet.
 - Source PDFs have been extracted and converted into app-native requirements in `data/capstone-framework.json`.
-- The primary beta-build automation is now `senior-capstone-rebuild-rebuilt`, renamed in the app as `Senior Capstone Beta Evolution Loop`, running every 30 minutes all day every day at minute `00` and `30`. It uses the master plan and logs to choose one bounded beta-advancing slice per run until the app reaches a real beta.
-- Specialist lane jobs still exist for Figma, Canva, content audit, daily report, and weekly deep audit. The 30-minute beta loop is the primary continuous runner; weekly deep audit remains separate for long severe review.
+- The primary beta-build automation is now `senior-capstone-rebuild-rebuilt`, renamed in the app as `Senior Capstone Gold Standard Orchestrator`, running exactly 5x/day at `00:20`, `05:20`, `10:20`, `15:20`, and `20:20` PT. It uses the master plan, logs, and work ladder to choose one bounded beta-advancing slice per run until the app reaches a real beta.
+- Specialist lane jobs still exist for Figma, Canva, content audit, and daily report, but they are intentionally `PAUSED` standby prompts so the Senior Capstone system has one reliable 5x/day daily runner. Weekly deep audit remains `ACTIVE` and separate for long severe review.
 - The four main automation lanes and the daily reporting automation now read the shared memory, run log, handoff ledger, and decision log before choosing work or summarizing progress.
 - Every main lane prompt now requires a lane log entry, compact run-log entry, relevant memory/handoff/decision updates, verification, commit, and push.
 - Every main lane and the daily reporting automation now reference `docs/master-plan.md` along with the logs.
 - Daily automation summaries and the Google Drive/Doc target should use `bryan.timm89@gmail.com`.
 - Every main lane and the daily reporting automation now use `docs/automation-self-improvement.md` to self-review, log whether prompt/config changes were needed, and update only their own live automation prompt/config when evidence justifies it.
-- A weekly deep audit automation, `senior-capstone-weekly-deep-audit-rebuilt`, now runs Sundays at `23:45 PT` to produce a severe whole-system audit and feed durable findings into the master plan, memory, backlog, handoffs, decision log, and run logs without sharing an exact start slot with the 30-minute beta loop.
+- A weekly deep audit automation, `senior-capstone-weekly-deep-audit-rebuilt`, now runs Sundays at `23:45 PT` to produce a severe whole-system audit and feed durable findings into the master plan, memory, backlog, handoffs, decision log, and run logs without sharing an exact start slot with the 5x/day orchestrator.
 - Automation operating infrastructure now includes prompt snapshots in `docs/automation-prompts/`, structured run manifests in `docs/progress/runs/`, human decisions in `docs/human-decisions.md`, external artifact registry in `docs/artifacts.json`, and contract scripts in `scripts/`.
 - Rebuild and content audit lane logs now exist at `docs/progress/rebuild.md` and `docs/progress/audit.md`; `scripts/check-automation-contract.ps1` requires both so future automation reviews catch missing lane-log anchors.
 
 ## Current Priority
 
-1. Resolve `SC-005` / `HD-2026-05-18-001`: choose and document the Cloudflare-compatible app stack/hosting/auth/database/private-upload architecture.
+1. Execute accepted `SC-005` / `HD-2026-05-18-001` / ADR-0001: Cloudflare Workers/Pages + D1 + R2 + Workers-compatible managed auth or school-approved SSO, with explicit auth/security assumptions.
 2. Scaffold the real app foundation with TypeScript, package scripts, tests, and GitHub-to-Cloudflare deployment structure.
 3. Model users, groups, roles, permissions, programs, cohorts, requirements, progress records, submissions, evidence artifacts, reviews, approvals, announcements, and audit events.
 4. Build the MVP admin/progress vertical slice: admin creates/imports users/groups/programs/cohorts -> role-aware progress update -> audit log -> dashboard aggregate -> Cloudflare preview.
@@ -83,7 +83,7 @@ Current backlog anchors:
 
 Read `docs/progress/decision-log.md` for accepted or superseded decisions.
 
-- As of this update, the deployment direction is GitHub-to-Cloudflare Workers/Pages; the exact Cloudflare-compatible auth/database/storage/security implementation is still open under `HD-2026-05-18-001`.
+- As of this update, the deployment direction and default Cloudflare-compatible stack are accepted under `HD-2026-05-18-001` and ADR-0001: GitHub-connected Cloudflare Workers/Pages, D1-compatible database, R2-compatible private evidence storage, Workers-compatible managed auth or school-approved SSO, server-side authorization, and audit logging.
 - `D-2026-05-18-001`: automations use the log-first scaling protocol.
 - `D-2026-05-18-002`: `docs/master-plan.md` is the top-level product plan.
 - `D-2026-05-18-003`: daily automation summaries and Google Drive/Doc target account use `bryan.timm89@gmail.com`.
@@ -94,14 +94,16 @@ Read `docs/progress/decision-log.md` for accepted or superseded decisions.
 - `D-2026-05-18-008`: MVP 1.0 is a secure database/account/group/progress foundation hosted through GitHub to Cloudflare; Figma and Canva are heavy product/visual inputs; 2.0 may add iOS/Android notifications and announcements, with no student messaging.
 - `D-2026-05-18-009`: Figma product-design automation should target Bryan's `Senior Project App` team/project (`team::1638213362346160913`) for future writes because repeated MCP rate-limit errors were pointing at the older team `team::1601310068697743794`.
 - `D-2026-05-18-010`: active Figma product UI source was recreated and continued in the new `Senior Project App` team as file `z4t4tFPAKrMDh6pIYOeEw6`; final screenshot/metadata verification is still blocked by the new team's MCP quota until calls reset.
-- `D-2026-05-18-011`: the consolidated Senior Capstone beta evolution loop runs every 30 minutes all day every day and keeps upgrading the project from the master plan and logs until beta.
+- `D-2026-05-18-011`: superseded by `D-2026-05-18-013`; the prior every-30-minute beta loop is replaced by the 5x/day gold-standard orchestrator.
+- `D-2026-05-18-013`: the consolidated Senior Capstone gold-standard orchestrator runs exactly 5x/day, keeps specialists paused as standby prompts, performs no-intervention approval preflight/fallbacks, self-heals scripts/prompts/checkers when evidence justifies it, and keeps upgrading the project from the master plan and logs until beta.
+- `D-2026-05-18-014`: `HD-2026-05-18-001` and ADR-0001 are accepted as the default Cloudflare stack path.
 
 Current rebuilt automation IDs:
-- `senior-capstone-canva-visual-system-rebuilt`
-- `senior-capstone-figma-product-design-rebuilt`
-- `senior-capstone-rebuild-rebuilt` (`Senior Capstone Beta Evolution Loop`, primary every-30-minute beta runner)
-- `senior-capstone-content-quality-audits-rebuilt`
-- `senior-capstone-daily-automation-report-rebuilt`
+- `senior-capstone-canva-visual-system-rebuilt` (`PAUSED` standby)
+- `senior-capstone-figma-product-design-rebuilt` (`PAUSED` standby)
+- `senior-capstone-rebuild-rebuilt` (`Senior Capstone Gold Standard Orchestrator`, primary 5x/day runner)
+- `senior-capstone-content-quality-audits-rebuilt` (`PAUSED` standby)
+- `senior-capstone-daily-automation-report-rebuilt` (`PAUSED` standby; reporting handled by orchestrator)
 - `senior-capstone-weekly-deep-audit-rebuilt`
 
 ## Handoff Rules

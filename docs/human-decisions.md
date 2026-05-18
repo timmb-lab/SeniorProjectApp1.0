@@ -12,26 +12,28 @@ Status values:
 
 ## Open Decisions
 
+No open decisions currently block automation execution. New entries should be reserved for account ownership, legal/privacy policy, school operations, budget, credentials, or production provisioning decisions that cannot be inferred from accepted docs.
+
+## Accepted Decisions
+
 ### HD-2026-05-18-001
 
-- `status`: recommended
+- `status`: accepted
 - `area`: Cloudflare production stack, secure users, database, groups, progress, and private uploads
 - `owner`: Bryan with rebuild lane recommendation
 - `severity`: P0
-- `decision needed`: Choose the detailed Cloudflare-compatible production stack for the hosted Senior Capstone app.
-- `default recommendation`: TypeScript app deployed from GitHub to Cloudflare Workers/Pages + Cloudflare D1 or another Cloudflare-compatible secure database + Cloudflare R2 or another private evidence storage path + Workers-compatible managed auth or school-approved SSO + server-side authorization and audit logging.
+- `decision`: Proceed with the default Cloudflare-compatible stack unless later evidence forces a superseding ADR.
+- `accepted stack`: TypeScript app deployed from GitHub to Cloudflare Workers/Pages + Cloudflare D1 or another Cloudflare-compatible secure database + Cloudflare R2 or another private evidence storage path + Workers-compatible managed auth or school-approved SSO + server-side authorization and audit logging.
 - `why this is recommended`: Bryan has stated the hosting goal is GitHub to Cloudflare Workers with a future purchased domain. The revised MVP needs a fully functional secure database for users, groups, roles, progress, submissions, reviews, approvals, private evidence, announcements, dashboards, and audit logs. The stack decision should now optimize for Cloudflare deployment without weakening auth, authorization, backups, or private evidence controls.
 - `options`:
   - `A`: Cloudflare Workers/Pages + D1 + R2 + Workers-compatible managed auth or school-approved SSO. Aligns with the revised hosting goal; auth/security design must be made explicit.
   - `B`: Cloudflare Workers/Pages + external managed Postgres/storage/auth. Keeps Cloudflare hosting while using stronger managed data/auth services if D1/R2 are not enough.
   - `C`: Next.js + Supabase + Vercel or equivalent. Faster integrated auth/database/storage path, but now conflicts with the preferred Cloudflare hosting direction unless used as a fallback.
   - `D`: Custom server + database + storage. Maximum control, highest maintenance burden.
-- `recommended default if Bryan does not override`: Proceed with option A as the proposed ADR path, then document exact auth, database, storage, backup/export, local development, secrets, GitHub-to-Cloudflare deployment, and custom-domain assumptions before broad feature work.
-- `impact if delayed`: Rebuild automation can continue producing plans/specs, but cannot honestly implement secure users, groups, permissions, private uploads, progress updates, reliable dashboards, announcements, or audit logs.
-- `acceptance check`: `docs/architecture/adr-0001-stack-auth-database-upload.md` is accepted or superseded with a concrete Cloudflare-compatible stack, account/provisioning assumptions, local development path, secrets strategy, backup/export posture, and security tradeoffs.
+- `automation instruction`: Rebuild should implement option A by default and only open a new human-decision item if account ownership, district policy, credentials, budget, or production provisioning blocks the work.
+- `acceptance check`: `docs/architecture/adr-0001-stack-auth-database-upload.md` is accepted and implementation work begins with auth, database, storage, backup/export, local development, secrets, GitHub-to-Cloudflare deployment, and custom-domain assumptions explicit.
 - `created`: 2026-05-18
-
-## Accepted Decisions
+- `accepted`: 2026-05-18
 
 ### HD-2026-05-18-002
 

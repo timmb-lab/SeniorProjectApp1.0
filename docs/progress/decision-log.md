@@ -112,7 +112,7 @@ Decision status values:
 
 ### D-2026-05-18-011
 
-- `status`: accepted
+- `status`: superseded
 - `area`: automation cadence and beta delivery
 - `decision`: Use `senior-capstone-rebuild-rebuilt`, named `Senior Capstone Beta Evolution Loop`, as the primary continuous beta-build automation. It runs every 30 minutes all day every day at minute `00` and `30`, reads the master plan and logs, chooses one bounded beta-advancing slice, updates/upgrades the project, verifies, logs, commits, and pushes until the app reaches beta.
 - `reason`: Bryan explicitly asked to set up automation to continue evolving the project using the master plan and logs until beta, running every 30 minutes all day every day.
@@ -122,10 +122,30 @@ Decision status values:
 
 ### D-2026-05-18-012
 
-- `status`: accepted
+- `status`: superseded
 - `area`: automation cadence and conflict avoidance
 - `decision`: Senior Capstone automations must not share exact scheduled start slots. Keep the primary beta loop at minute `00` and `30`; stagger specialist jobs away from those slots: Canva at `00:10`, `06:10`, `12:10`, and `18:10`; daily report at `07:40`; weekly deep audit at Sunday `23:45`; Figma at `01:15`, `07:15`, `13:15`, and `19:15`; content audit at `03:45`, `09:45`, `15:45`, and `21:45`.
 - `reason`: Live review found the weekly deep audit had an active exact-start conflict with the 30-minute beta loop at Sunday `23:30`, while paused Canva and daily report schedules would conflict with the beta loop if re-enabled.
 - `applies to`: all Senior Capstone automations, automation cadence docs, prompt snapshots, contract checker, and future schedule edits
 - `source`: user request on 2026-05-18: "verify automations don't conflict and review all senior proejct automations"
 - `last updated`: 2026-05-18 08:27 PT
+
+### D-2026-05-18-013
+
+- `status`: accepted
+- `area`: automation cadence, no-intervention operations, and beta delivery
+- `decision`: Replace the Senior Capstone every-30-minute beta loop with one active 5x/day gold-standard orchestrator named `Senior Capstone Gold Standard Orchestrator`. It runs at `00:20`, `05:20`, `10:20`, `15:20`, and `20:20` PT. Specialist Figma, Canva, content-audit, and daily-report automations are intentionally paused standby records; weekly deep audit remains active Sundays at `23:45`.
+- `reason`: Bryan asked to correct the automation system to the gold standard after reviewing whether it was running 5x/day, logging, laddering, using a master file, self-improving scripts, and avoiding intervention.
+- `applies to`: all Senior Capstone automations, automation cadence docs, automation memory, prompt snapshots, run manifests, contract checker, and daily reporting
+- `source`: user request on 2026-05-18: "Make the changes necessary to correct to get to the gold standard"
+- `last updated`: 2026-05-18 09:01 PT
+
+### D-2026-05-18-014
+
+- `status`: accepted
+- `area`: Cloudflare production stack, secure users, database, private uploads, and deployment
+- `decision`: Accept `HD-2026-05-18-001` and ADR-0001 as the default implementation path: TypeScript app deployed from GitHub to Cloudflare Workers/Pages, Cloudflare D1 or Cloudflare-compatible database, Cloudflare R2 or access-controlled private evidence storage, Workers-compatible managed auth or school-approved SSO, server-side authorization, and audit logging.
+- `reason`: The gold-standard no-intervention request authorizes the automation to stop waiting on the recommended stack decision and proceed with the safe default unless implementation evidence requires a superseding ADR.
+- `applies to`: rebuild lane, stack ADR, master plan, automation memory, backlog item `SC-005`, and future Cloudflare scaffold work
+- `source`: user request on 2026-05-18: "Make the changes necessary to correct to get to the gold standard"
+- `last updated`: 2026-05-18 09:01 PT
