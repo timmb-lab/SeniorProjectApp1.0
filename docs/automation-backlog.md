@@ -47,9 +47,9 @@ This file tracks unresolved cross-lane issues for the Senior Capstone rebuild. T
 - `status`: open
 - `source`: Cycle linked document, senior guide, and mentor teacher guide PDFs
 - `affected area`: private evidence/upload/link model
-- `evidence`: Source workflow repeatedly asks students to link documents, slides, photos, letters, reflections, and final products. Figma now has a private evidence/review-history implementation contract in active file `z4t4tFPAKrMDh6pIYOeEw6`, node `37:2`, plus shared `EvidenceArtifactRow` component variants in node `43:2` / component set `43:149`, with upload/link states, permission matrix, review history, and audit guardrails, but the hosted app has not yet implemented private EvidenceArtifact storage, external-link metadata, access checks, or review status.
+- `evidence`: Source workflow repeatedly asks students to link documents, slides, photos, letters, reflections, and final products. Figma now has a private evidence/review-history implementation contract in active file `z4t4tFPAKrMDh6pIYOeEw6`, node `37:2`, shared `EvidenceArtifactRow` component variants in node `43:2` / component set `43:149`, and mobile student evidence/revision contract node `56:2`, with upload/link states, permission matrix, review history, mobile blocked-submit/access-denied states, and audit guardrails, but the hosted app has not yet implemented private EvidenceArtifact storage, external-link metadata, access checks, or review status.
 - `next action`: Rebuild must implement the private EvidenceArtifact model, upload/link access checks, signed URL expiry, immutable review history, unauthorized access audit events, and permission tests before any dashboard relies on submission counts.
-- `last updated`: 2026-05-18 09:41 PT
+- `last updated`: 2026-05-18 10:37 PT
 
 ### SC-004
 
@@ -70,5 +70,5 @@ This file tracks unresolved cross-lane issues for the Senior Capstone rebuild. T
 - `source`: automation self-improvement infrastructure pass and repeated stack-decision risk
 - `affected area`: Cloudflare production stack, auth, database, user groups, progress updates, private uploads, deployment, secrets, tests, and safe hosted-app foundation
 - `evidence`: `docs/master-plan.md` now defines the revised MVP as a secure database-backed app with users, groups, roles, progress updates, private evidence, audit logs, dashboards, announcements, and GitHub-to-Cloudflare hosting. `docs/architecture/adr-0001-stack-auth-database-upload.md` is accepted as the default Cloudflare-compatible stack path. Active Figma node `48:2` now specifies the admin provisioning states, routes, data records, permissions, audit events, duplicate import handling, and narrow misc-admin scope needed for the users/groups/roles portion of this scaffold. No production app scaffold, managed auth, database, private file storage, migrations, API layer, tests, CI, or GitHub-to-Cloudflare deployment pipeline exists yet.
-- `next action`: Rebuild lane must scaffold the selected stack with auth/database/user-group/progress/private-upload/deployment assumptions explicit, consuming Figma nodes `18:2`, `37:2`, `43:2`, and `48:2` for route/data/permission contracts.
-- `last updated`: 2026-05-18 10:17 PT
+- `next action`: Rebuild lane must scaffold the selected stack with auth/database/user-group/progress/private-upload/deployment assumptions explicit, consuming Figma nodes `18:2`, `37:2`, `43:2`, `48:2`, and `56:2` for route/data/permission contracts.
+- `last updated`: 2026-05-18 10:37 PT

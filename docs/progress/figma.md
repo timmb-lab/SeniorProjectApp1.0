@@ -747,3 +747,76 @@ Self-improvement:
 
 Next Figma slice:
 - Figma should pause broad polish while `SC-005` remains without a scaffold unless rebuild hits a specific UI ambiguity. If another Figma slice is useful, refine mobile student evidence/revision states after the rebuild lane starts consuming the route/data contracts.
+
+## 2026-05-18 Mobile Evidence And Revision Workflow Contract
+
+Automation:
+- `senior-capstone-figma-product-design-rebuilt`
+
+Master-plan section:
+- Product Destination
+- MVP 1.0 Vertical Slice
+- 100-Pass Delivery Constraint
+- Lane Responsibilities
+- Logging Requirements
+
+Logs referenced:
+- `C:\Users\bryan\.codex\automations\senior-capstone-figma-product-design-rebuilt\memory.md`
+- `docs/master-plan.md`
+- `docs/automation-runbook.md`
+- `docs/automation-self-improvement.md`
+- `docs/automation-cadence.md`
+- `docs/automation-milestones.md`
+- `docs/automation-memory.md`
+- `docs/progress/run-log.md`
+- `docs/progress/runs/`
+- `docs/progress/handoffs.md`
+- `docs/progress/decision-log.md`
+- `docs/automation-backlog.md`
+- `docs/artifacts.json`
+- `docs/human-decisions.md`
+- `docs/progress/figma.md`
+- adjacent rebuild/audit/Canva lane logs
+- `docs/domain-model.md`
+- `docs/curriculum-framework-integration.md`
+
+Active Figma artifact:
+- File: `Senior Capstone App - Product UI System Recreated`
+- File key: `z4t4tFPAKrMDh6pIYOeEw6`
+- URL: `https://www.figma.com/design/z4t4tFPAKrMDh6pIYOeEw6`
+- Team id: `1638213362346160913`
+- Plan key: `team::1638213362346160913`
+
+What changed:
+- Added `Section / Mobile Evidence + Revision Workflow Contract`, node `56:2`, to `03 Product Preview + State Variants` board `6:2`.
+- Added four mobile student states:
+  - `Mobile State / Revision Checklist`, node `56:8`
+  - `Mobile State / Evidence Upload`, node `56:37`
+  - `Mobile State / Submit Blocked`, node `56:66`
+  - `Mobile State / Access Recovery`, node `56:91`
+- Added `Developer Handoff / Mobile Evidence Revision Route Data Contract`, node `56:114`.
+- Stored shared Figma plugin data on node `56:2` for routes `/student/progress`, `/student/evidence`, `/student/submissions/:submissionId/revise`, `/api/submissions/:id/evidence`, `/api/evidence/:id/check-access`, `/api/reviews/:id/history`, and `/admin/audit`.
+- Stored shared contract records `Submission`, `SubmissionVersion`, `EvidenceArtifact`, `Review`, `Comment`, `AuditEvent`, `UserGroupRole`, `RequirementSection`, and `Deadline`, plus student/mentor/program-teacher/admin/misc-admin permission scopes.
+
+Verification:
+- `get_design_context` for existing mobile node `6:232` succeeded and confirmed the existing mobile visual conventions.
+- `get_libraries` succeeded for active file `z4t4tFPAKrMDh6pIYOeEw6`.
+- `search_design_system` for mobile evidence/upload/revision returned no richer reusable primitive, so the section matched local conventions and shared status/action/evidence language from node `43:2`.
+- First `use_figma` write failed atomically on an invalid auto-layout enum before changing the file.
+- Corrected `use_figma` write created node `56:2`, four mobile state nodes, and handoff node `56:114`.
+- First `get_screenshot` for node `56:2` surfaced oversized mobile pill labels.
+- Follow-up `use_figma` layout fix tightened 21 pill labels and 4 mobile bottom-nav groups.
+- Final `get_screenshot` and `get_design_context` succeeded for node `56:2`.
+- Follow-up `use_figma` readback confirmed board `6:2` height `9858.8`, 4 mobile states, 7 routes, 9 records, 5 permission scopes, 6 acceptance checks, and zero direct-child overflow inside the 360px phone frames.
+
+Handoff packet:
+- Consumer lane: rebuild.
+- Artifact/spec: active Figma file `z4t4tFPAKrMDh6pIYOeEw6`, state-variant board `6:2`, mobile evidence/revision contract `56:2`, mobile handoff contract `56:114`, mobile states `56:8`, `56:37`, `56:66`, and `56:91`.
+- Exact next action: implement mobile-safe private evidence, revision checklist, submit-blocked, and access-denied states while scaffolding the accepted Cloudflare database/auth/private-storage foundation.
+- Acceptance check: rebuild maps these mobile states to persisted `Submission`, `SubmissionVersion`, `EvidenceArtifact`, `Review`, `Comment`, and `AuditEvent` records, server-side authorization, access-check endpoints, no exposed storage keys, disabled submit while evidence is blocked/scanning/link-check-needed, 390px no-overflow behavior, and permission/audit tests.
+
+Self-improvement:
+- none; no live automation prompt/config change was needed.
+
+Next Figma slice:
+- Stop broad Figma deepening until rebuild consumes the active route/data contracts or reports a specific UI ambiguity. The next accepted MVP pass should be rebuild-heavy: Cloudflare/TypeScript scaffold, database/storage/migration layout, permission/audit primitives, and private evidence tests.

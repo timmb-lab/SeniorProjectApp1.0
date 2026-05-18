@@ -455,6 +455,12 @@ Created/updated frames:
 - `Section / Admin Account + Group Provisioning Contract`, node `48:2` on `03 Product Preview + State Variants`
   - `Developer Handoff / Admin Provisioning Route Data Contract`, node `48:208`
   - Eight provisioning states: user import draft, role assignment ready, program/cohort scope, assignment conflict, saving, audit logged success, permission denied, and misc admin narrow scope.
+- `Section / Mobile Evidence + Revision Workflow Contract`, node `56:2` on `03 Product Preview + State Variants`
+  - `Mobile State / Revision Checklist`, node `56:8`
+  - `Mobile State / Evidence Upload`, node `56:37`
+  - `Mobile State / Submit Blocked`, node `56:66`
+  - `Mobile State / Access Recovery`, node `56:91`
+  - `Developer Handoff / Mobile Evidence Revision Route Data Contract`, node `56:114`
 
 Verification status:
 - Canvas write succeeded and returned the frame IDs above.
@@ -471,3 +477,11 @@ Verification status:
 - `get_screenshot` succeeded for node `48:2`; visual QA found clipped text heights on the first screenshot.
 - Follow-up `use_figma` text-height correction expanded node `48:2` to `1584x1680`, expanded board `6:2` to height `8761.8`, and final `get_screenshot` succeeded for node `48:2`.
 - Follow-up readback confirmed shared contract data on `48:2`, handoff node `48:208`, 8 provisioning states, 8 routes, 12 records, 6 acceptance checks, and zero clipped text nodes.
+- `get_design_context` for existing mobile node `6:232` confirmed the current mobile style before adding node `56:2`.
+- `get_libraries` and `search_design_system` succeeded; no richer mobile/evidence component matched, so the section reused local visual conventions and shared status/action/evidence language from node `43:2`.
+- Initial `use_figma` write for node `56:2` failed atomically on an invalid auto-layout enum before making changes.
+- Corrected `use_figma` write created node `56:2`, mobile state nodes `56:8`, `56:37`, `56:66`, `56:91`, and handoff node `56:114`.
+- `get_screenshot` succeeded for node `56:2`; visual QA found oversized mobile pill labels on the first screenshot.
+- Follow-up `use_figma` layout correction tightened 21 pill labels and 4 mobile bottom-nav groups.
+- Final `get_screenshot` and `get_design_context` succeeded for node `56:2`.
+- Follow-up readback confirmed board `6:2` height `9858.8`, 4 mobile states, zero direct-child overflow inside 360px phone frames, 7 routes, 9 records, 5 permission scopes, and 6 acceptance checks in shared contract data.

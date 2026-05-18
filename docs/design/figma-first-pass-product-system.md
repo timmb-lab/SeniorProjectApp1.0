@@ -490,6 +490,23 @@ Developer contract:
 - Guardrails: server-side authorization is required, misc admin has no broad default access, duplicate imports are blocked before submit, save requests are idempotent, protected student records never leak through denial states, and no student messaging is introduced.
 - Acceptance checks: denied role edit, valid assignment, duplicate import, audit event persistence, dashboard scope update, and misc-admin narrow-scope tests.
 
+## Mobile Evidence And Revision Workflow Contract
+
+Node `56:2` deepens the mobile student implementation path for private evidence and revision loops without changing MVP scope into a native app. It shows the responsive web states rebuild must support at a 390px mobile viewport.
+
+Mobile states:
+- `Mobile State / Revision Checklist`, node `56:8`
+- `Mobile State / Evidence Upload`, node `56:37`
+- `Mobile State / Submit Blocked`, node `56:66`
+- `Mobile State / Access Recovery`, node `56:91`
+
+Developer contract:
+- Handoff node: `56:114`
+- Routes/API: `/student/evidence`, `/student/submissions/:submissionId/revise`, `/api/submissions/:id/evidence`, `/api/evidence/:id/check-access`, `/api/reviews/:id/history`, and `/admin/audit`.
+- Records: `Submission`, `SubmissionVersion`, `EvidenceArtifact`, `Review`, `Comment`, `AuditEvent`, `UserGroupRole`, `RequirementSection`, and `Deadline`.
+- Guardrails: mobile UI is a thin view over trusted server/database state, submit remains disabled while evidence is blocked/scanning/link-check-needed, storage keys are never exposed, denied evidence access is audited, and offline draft behavior cannot become the source of truth for protected records.
+- Acceptance checks: 390px mobile layout has no horizontal overflow, revision checklist is derived from persisted review/comment data, upload/link actions require server authorization, access denied creates an audit event, and no student messaging is introduced.
+
 ## Acceptance Checks For Next Figma Run
 
 - Continue active writable file `z4t4tFPAKrMDh6pIYOeEw6` in `team::1638213362346160913`.
@@ -520,12 +537,13 @@ Artifact:
 - 100-pass MVP execution map: node `18:2` in the active Figma file.
 - MVP component variant implementation matrix: node `43:2` in the active Figma file.
 - Admin account/group provisioning contract: node `48:2` in the active Figma file.
+- Mobile evidence/revision workflow contract: node `56:2` in the active Figma file.
 
 Exact next action:
-- Rebuild should consume nodes `18:2`, `31:2`, `37:2`, `43:2`, and `48:2` while scaffolding the accepted Cloudflare database/auth/progress foundation. Figma should only add more broad design detail if rebuild hits a specific UI ambiguity; otherwise the next Figma slice can refine mobile evidence/revision states.
+- Rebuild should consume nodes `18:2`, `31:2`, `37:2`, `43:2`, `48:2`, and `56:2` while scaffolding the accepted Cloudflare database/auth/progress foundation. Figma should only add more broad design detail if rebuild hits a specific UI ambiguity.
 
 Acceptance check:
 - Figma progress log records page/frame IDs, screenshot or metadata verification, route/data fields, permission scopes, and the next UI slice.
 
 Known limits:
-- The original historical file hit the Starter MCP tool-call limit. The regenerated reference file was successfully written through the updated Figma connection, but the 2026-05-18 follow-up pass hit the Education-plan MCP tool-call limit with rate-limit links pointing at old team `1601310068697743794`. The recreated file was then created and written in `team::1638213362346160913`. Bryan's professional-plan upgrade later unblocked the active-file metadata/screenshot verification and the `18:2`, `31:2`, `37:2`, `43:2`, and `48:2` canvas writes.
+- The original historical file hit the Starter MCP tool-call limit. The regenerated reference file was successfully written through the updated Figma connection, but the 2026-05-18 follow-up pass hit the Education-plan MCP tool-call limit with rate-limit links pointing at old team `1601310068697743794`. The recreated file was then created and written in `team::1638213362346160913`. Bryan's professional-plan upgrade later unblocked the active-file metadata/screenshot verification and the `18:2`, `31:2`, `37:2`, `43:2`, `48:2`, and `56:2` canvas writes.

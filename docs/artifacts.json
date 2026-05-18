@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-05-18T10:17:00-07:00",
+  "updated_at": "2026-05-18T10:37:00-07:00",
   "artifacts": [
     {
       "id": "figma-senior-project-app-team-target",
@@ -115,7 +115,9 @@
         "mvp_evidence_artifact_row_component_set": "43:149",
         "mvp_shared_ui_handoff_contract": "43:150",
         "admin_account_group_provisioning_contract": "48:2",
-        "admin_provisioning_handoff_contract": "48:208"
+        "admin_provisioning_handoff_contract": "48:208",
+        "mobile_evidence_revision_contract": "56:2",
+        "mobile_evidence_revision_handoff_contract": "56:114"
       },
       "verification": [
         "File creation succeeded in plan team::1638213362346160913.",
@@ -131,7 +133,9 @@
         "Figma write on 2026-05-18 added MVP Component Variant Implementation Matrix node 43:2 to board 3:2 with component sets StatusPill 43:55, ActionButton 43:73, EvidenceArtifactRow 43:149, and shared UI handoff contract 43:150.",
         "Screenshot verification returned for node 43:2 after a status-set clipping fix; follow-up readback confirmed component-set variant counts, board height 4978, and shared contract data for routes, records, permissions, guardrails, and acceptance checks.",
         "Figma write on 2026-05-18 added Admin Account + Group Provisioning Contract node 48:2 to board 6:2, with eight provisioning states and developer handoff contract node 48:208.",
-        "Screenshot verification returned for node 48:2 after a text-height correction; follow-up readback confirmed board 6:2 height 8761.8, no clipped text nodes, 8 provisioning states, 8 routes, 12 records, and 6 acceptance checks in shared contract data."
+        "Screenshot verification returned for node 48:2 after a text-height correction; follow-up readback confirmed board 6:2 height 8761.8, no clipped text nodes, 8 provisioning states, 8 routes, 12 records, and 6 acceptance checks in shared contract data.",
+        "Figma write on 2026-05-18 added Mobile Evidence + Revision Workflow Contract node 56:2 to board 6:2, with four mobile states and developer handoff contract node 56:114.",
+        "Screenshot verification returned for node 56:2 after tightening oversized mobile pill labels; follow-up readback confirmed board 6:2 height 9858.8, 4 mobile states, no direct child overflow inside 360px phone frames, 7 routes, 9 records, 5 permission scopes, and 6 acceptance checks in shared contract data."
       ],
       "supersedes": [
         "figma-product-ui-system-reference-old-team",
