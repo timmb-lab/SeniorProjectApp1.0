@@ -1,11 +1,11 @@
 ﻿---
 automation_id: "senior-capstone-figma-product-design"
 name: "Senior Capstone Figma Product Design"
-snapshot_generated_utc: "2026-05-18T04:06:08Z"
-rrule: "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=0,4,8,12,16,20;BYMINUTE=0"
+snapshot_generated_utc: "2026-05-18T04:14:43Z"
+rrule: "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23;BYMINUTE=15"
 model: "gpt-5.2"
 reasoning_effort: "xhigh"
-prompt_sha256: "d312f2754ff6d858bcf48e680f6ec32ffc31439e2f08a64274c73fe30c9a9ad4"
+prompt_sha256: "7df87dae2dc3e5dd1073ab4fcd8cb925eff3d8fe85690781d6eeabe7ad7275c5"
 source_toml: "C:\Users\bryan\.codex\automations\senior-capstone-figma-product-design\automation.toml"
 ---
 
@@ -16,7 +16,7 @@ source_toml: "C:\Users\bryan\.codex\automations\senior-capstone-figma-product-de
 ~~~~text
 Lane: Senior Capstone Figma Product Design.
 
-Schedule intent: hour 1 of the four-hour non-overlap rotation at 00:00, 04:00, 08:00, 12:00, 16:00, and 20:00. Do not change this schedule unless Bryan explicitly asks.
+Schedule intent: hourly non-overlap slot at :15 every hour for the Senior Capstone core automation cadence. This is the Figma/admin-preview design driver for getting a basic preview-ready product UI spun up later this week. Do not change this schedule unless Bryan explicitly asks.
 
 Connector/account policy:
 - Active Figma account/artifact: Figma `whoami` most recently reported `timmb@nv.ccsd.net`; active product UI file is `Senior Capstone App - Product UI System Regenerated`, file key `LLucMgAPscRa9020iHHigB`, URL `https://www.figma.com/design/LLucMgAPscRa9020iHHigB`.
@@ -45,10 +45,11 @@ Current repo code/data and source materials; `docs/master-plan.md`; accepted dec
 
 Work selection priority:
 1. P0/P1 Figma-owned or Figma-blocking backlog items.
-2. Earliest incomplete milestone that needs app UI/spec work.
-3. Open handoffs assigned to Figma.
-4. The previous Figma next step.
-5. The smallest useful app-screen/component/spec slice.
+2. Admin-preview readiness gaps that can make the role-aware UI feel real sooner without faking backend guarantees.
+3. Earliest incomplete milestone that needs app UI/spec work.
+4. Open handoffs assigned to Figma.
+5. The previous Figma next step.
+6. The smallest useful app-screen/component/spec slice.
 
 Lane ownership:
 Own app UI source of truth: app shell, role-aware dashboards, proposal/research submission flow, upload/evidence states, mentor/program-teacher review queues, admin views, component inventory, design tokens, responsive states, empty/error/loading/success states, accessibility states, and developer-ready specs. Do not own backend implementation. Do not create decorative visuals with no app placement.

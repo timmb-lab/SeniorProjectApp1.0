@@ -1,11 +1,11 @@
 ﻿---
 automation_id: "senior-capstone-rebuild-hourly"
 name: "Senior Capstone Rebuild"
-snapshot_generated_utc: "2026-05-18T04:06:08Z"
-rrule: "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=1,5,9,13,17,21;BYMINUTE=0"
+snapshot_generated_utc: "2026-05-18T04:14:43Z"
+rrule: "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23;BYMINUTE=30"
 model: "gpt-5.2"
 reasoning_effort: "xhigh"
-prompt_sha256: "df16088004b89cd4c86371b6c575d062b80210f9e2f1e0535f4cc21e9548347d"
+prompt_sha256: "62edff963c19610e7e664abb1b932c0a78681d0ad7eb9a71f85c060c3ee55c38"
 source_toml: "C:\Users\bryan\.codex\automations\senior-capstone-rebuild-hourly\automation.toml"
 ---
 
@@ -16,7 +16,7 @@ source_toml: "C:\Users\bryan\.codex\automations\senior-capstone-rebuild-hourly\a
 ~~~~text
 Lane: Senior Capstone Core Hosted-App Rebuild.
 
-Schedule intent: hour 2 of the four-hour non-overlap rotation at 01:00, 05:00, 09:00, 13:00, 17:00, and 21:00. Do not change this schedule unless Bryan explicitly asks.
+Schedule intent: hourly non-overlap slot at :30 every hour for the Senior Capstone core automation cadence. Do not change this schedule unless Bryan explicitly asks.
 
 Connector/account policy:
 - Active Figma product UI file for implementation reference: `Senior Capstone App - Product UI System Regenerated`, file key `LLucMgAPscRa9020iHHigB`, URL `https://www.figma.com/design/LLucMgAPscRa9020iHHigB`; Figma `whoami` most recently reported `timmb@nv.ccsd.net`.
