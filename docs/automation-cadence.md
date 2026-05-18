@@ -100,6 +100,24 @@ The 100-pass target remains evidence-based:
 
 `senior-capstone-qol-source-framework-seed` owns weekly calibration. On Sundays, it reviews the prior seven days of commits, run manifests, run-log entries, backlog movement, handoffs, and blockers, then updates only this project's master plan, memory, and requirements catalog when evidence shows the next week's daily goal or QoL allocation should change.
 
+## 30-Day Efficiency Auto-Scaling Audit
+
+Run this scorecard during explicit automation audits and Sunday calibration:
+
+```powershell
+powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\measure-automation-efficiency.ps1 -RepoRoot . -Days 30
+```
+
+Current scale math:
+
+- 30 scheduled starts/day.
+- 900 scheduled starts per 30 days.
+- Minimum target: 60 accepted MVP passes per 30 days.
+- Stretch target: 90 accepted MVP passes per 30 days.
+- Required conversion: 6.67 percent for minimum, 10 percent for stretch.
+
+Auto-scaling means retargeting the next week's QoL focus and acceptance checks from evidence before changing the schedule. Schedule changes should be recommended only when accepted-pass conversion, run duration, dirty-worktree collisions, connector limits, or repeated blockers prove the current 30-start/day shape is harming output.
+
 ## Commit Prefixes
 
 - Requirements + Audit: `audit:`

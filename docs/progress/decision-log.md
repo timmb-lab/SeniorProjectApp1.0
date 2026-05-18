@@ -298,3 +298,15 @@ Decision status values:
 - `applies to`: local Senior Capstone automation TOMLs, `docs/automation-cadence.md`, `docs/automation-runbook.md`, `docs/automation-self-improvement.md`, `docs/automation-memory.md`, `docs/master-plan.md`, `docs/mvp-requirements-catalog.md`, prompt snapshots, `scripts/check-automation-contract.ps1`, `scripts/snapshot-automation-prompts.ps1`, and future run manifests.
 - `source`: User request on 2026-05-18: "Delete all automation related to this project and rebuild from scratch ensuring that there are QoL passes on every single one of the above items at LEAST 3x a day ..."
 - `last updated`: 2026-05-18 13:24 PT
+
+### D-2026-05-18-028
+
+- `status`: accepted
+- `area`: 30-day automation efficiency and auto-scaling
+- `decision`: Keep the current 10-QoL / 30-starts-per-day automation shape and scale by evidence first: accepted-pass conversion, run duration, blocker rate, dirty-worktree collisions, QoL runner yield, and requirement coverage. Use `scripts/measure-automation-efficiency.ps1` for explicit automation audits and Sunday calibration before recommending any schedule change.
+- `reason`: The current schedule already creates 900 starts in 30 days. The project only needs 60 accepted MVP passes in 30 days for the 2/day minimum and 90 for the 3/day stretch, meaning 6.67 percent and 10 percent conversion respectively. More starts without conversion telemetry would risk churn and token waste.
+- `scale rule`: Retarget QoL focus, blockers, prompt clarity, and acceptance checks before changing cadence. Recommend cadence changes only when conversion, duration, dirty-worktree collisions, connector limits, or repeated blockers prove the current schedule is harming output.
+- `manifest rule`: New run manifests should include `requirement_ids`, `accepted_mvp_pass`, `duration_minutes`, `output_kind`, and `automation_efficiency.scale_signal` so weekly audits can measure yield instead of guessing.
+- `applies to`: `docs/master-plan.md`, `docs/automation-cadence.md`, `docs/automation-runbook.md`, `docs/automation-self-improvement.md`, `docs/automation-memory.md`, `docs/progress/runs/README.md`, `scripts/measure-automation-efficiency.ps1`, `scripts/check-automation-contract.ps1`, and future QoL run manifests.
+- `source`: User request on 2026-05-18: "big massive giant audit on efficiency for it auto-scaling itself over the next 30 days"
+- `last updated`: 2026-05-18 14:47 PT

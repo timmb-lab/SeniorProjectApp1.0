@@ -231,3 +231,12 @@ Every run should also record `self-improvement: none` or a specific self-improve
 - The prototype has 15 primary app states, frames `98:3` through `98:17`, plus map rail `98:1130`.
 - Verified by Figma readback: 16 top-level nodes, 15 screens, 176 prototype reactions, 600 text nodes, zero suspicious clipped text nodes, zero detected top-level frame overflow, and shared full-alpha prototype contract data with 15 route entries.
 - This should be the primary Figma prototype reference for build-week implementation alongside existing contract nodes `18:2`, `31:2`, `37:2`, `43:2`, `48:2`, `56:2`, `61:2`, `69:2`, and `78:2`.
+
+## 2026-05-18 14:47 PT - 30-Day Automation Efficiency Audit
+
+- Current schedule remains 10 active QoL automations and 30 starts/day, with no exact overlaps and 48-minute minimum spacing.
+- 30-day capacity is 900 starts. Minimum accepted-pass target is 60 and stretch target is 90, so conversion thresholds are 6.67 percent and 10 percent.
+- Added `scripts/measure-automation-efficiency.ps1` to make Sunday calibration and explicit automation audits evidence-based.
+- Added future manifest telemetry requirements: `requirement_ids`, `accepted_mvp_pass`, `duration_minutes`, `output_kind`, and `automation_efficiency.scale_signal`.
+- Durable audit: `docs/audits/automation-30-day-efficiency-audit-2026-05-18.md`.
+- Decision: keep cadence stable and scale by retargeting QoL focus, blockers, prompt clarity, and acceptance checks before recommending schedule changes.

@@ -253,7 +253,7 @@ The target is not "100 design passes." It is 100 total compounding passes toward
 
 ### Real Daily MVP Goal
 
-The schedule provides five orchestration opportunities per day, but the real delivery goal is evidence-based accepted MVP progress, not five perfect changesets every day.
+The current QoL schedule provides 30 targeted starts per day, but the real delivery goal is evidence-based accepted MVP progress, not 30 counted changesets every day.
 
 For the current 45-day / 100-pass target, use this daily goal:
 
@@ -272,6 +272,8 @@ Daily priority order:
 3. Stretch pass can be Figma, Canva, audit, or docs only when it directly unblocks the Day 7 alpha or closes a concrete P0/P1 handoff.
 
 Weekly adjustment rule for this project only: `senior-capstone-qol-source-framework-seed` reviews the last seven days of run manifests, run log entries, commits, backlog movement, handoffs, and audit findings on Sundays. It then updates this master plan, `docs/automation-memory.md`, and `docs/mvp-requirements-catalog.md` with the next week's daily goal/allocation if evidence shows the plan is too loose, too aggressive, or pointed at the wrong QoL target.
+
+30-day efficiency rule: use `scripts/measure-automation-efficiency.ps1` to audit the active automation system before changing cadence. The current 30-start/day QoL system creates 900 scheduled starts in 30 days; it needs 60 accepted MVP passes for the minimum target and 90 for the stretch target. That means conversion quality matters more than more starts. Auto-scaling should retarget QoL focus, blockers, prompt clarity, and acceptance checks from evidence before recommending schedule changes.
 
 ### 2026-05-18 Baseline After Figma And Automation Catch-Up
 

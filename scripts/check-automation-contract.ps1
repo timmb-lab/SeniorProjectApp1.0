@@ -325,6 +325,7 @@ $requiredFiles = @(
     "docs\progress\handoffs.md",
     "docs\progress\decision-log.md",
     "docs\progress\runs\README.md",
+    "docs\audits\automation-30-day-efficiency-audit-2026-05-18.md",
     "docs\progress\figma.md",
     "docs\progress\canva.md",
     "docs\progress\rebuild.md",
@@ -336,7 +337,8 @@ $requiredFiles = @(
     "docs\artifacts.json",
     "docs\architecture\adr-0001-stack-auth-database-upload.md",
     "scripts\snapshot-automation-prompts.ps1",
-    "scripts\check-automation-contract.ps1"
+    "scripts\check-automation-contract.ps1",
+    "scripts\measure-automation-efficiency.ps1"
 )
 
 foreach ($relative in $requiredFiles) {
@@ -414,7 +416,7 @@ foreach ($relative in $jsonFiles) {
 $runbookPath = Join-Path $RepoRoot "docs\automation-runbook.md"
 if (Test-Path -LiteralPath $runbookPath) {
     $runbook = Get-Content -Raw -LiteralPath $runbookPath
-    foreach ($fragment in @("QoL Automation Rebuild", "Token Budget Guardrail", "Surface Expansion Rule", "No-Human-Approval Script Rule", "-NonInteractive", "local-only repo changes are not an acceptable closeout")) {
+    foreach ($fragment in @("QoL Automation Rebuild", "Token Budget Guardrail", "30-Day Efficiency Auto-Scaling Protocol", "measure-automation-efficiency.ps1", "accepted_mvp_pass", "Surface Expansion Rule", "No-Human-Approval Script Rule", "-NonInteractive", "local-only repo changes are not an acceptable closeout")) {
         if ($runbook -notlike "*$fragment*") {
             $failures.Add("Runbook is missing infrastructure reference: $fragment")
         }
@@ -424,9 +426,19 @@ if (Test-Path -LiteralPath $runbookPath) {
 $masterPlanPath = Join-Path $RepoRoot "docs\master-plan.md"
 if (Test-Path -LiteralPath $masterPlanPath) {
     $masterPlan = Get-Content -Raw -LiteralPath $masterPlanPath
-    foreach ($fragment in @("docs/mvp-requirements-catalog.md", "Real Daily MVP Goal", "Minimum: 2 accepted MVP passes per calendar day", "QoL Automation Rebuild")) {
+    foreach ($fragment in @("docs/mvp-requirements-catalog.md", "Real Daily MVP Goal", "Minimum: 2 accepted MVP passes per calendar day", "QoL Automation Rebuild", "30-day efficiency rule", "measure-automation-efficiency.ps1")) {
         if ($masterPlan -notlike "*$fragment*") {
             $failures.Add("Master plan is missing category/daily goal reference: $fragment")
+        }
+    }
+}
+
+$manifestReadmePath = Join-Path $RepoRoot "docs\progress\runs\README.md"
+if (Test-Path -LiteralPath $manifestReadmePath) {
+    $manifestReadme = Get-Content -Raw -LiteralPath $manifestReadmePath
+    foreach ($fragment in @("accepted_mvp_pass", "duration_minutes", "output_kind", "automation_efficiency", "scale_signal")) {
+        if ($manifestReadme -notlike "*$fragment*") {
+            $failures.Add("Run manifest README is missing efficiency field reference: $fragment")
         }
     }
 }

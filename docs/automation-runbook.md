@@ -105,6 +105,30 @@ QoL automations should avoid giant context loads. Every run reads the required a
 - Avoid broad repo scans unless the selected acceptance check requires it.
 - Pick one bounded QoL slice per run and leave unrelated MVP work for its own automation.
 
+## 30-Day Efficiency Auto-Scaling Protocol
+
+The current 30-start/day QoL cadence is already high. Scaling should first improve conversion, target selection, and blocker burn-down, not simply add starts.
+
+Use this command for explicit automation audits and Sunday calibration:
+
+```powershell
+powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\measure-automation-efficiency.ps1 -RepoRoot . -Days 30
+```
+
+The efficiency scorecard measures active QoL count, daily start capacity, 30-day start capacity, minimum spacing, observed run manifests, accepted-pass telemetry, requirement IDs seen, and QoL automations with no observed manifest.
+
+Scaling rules:
+
+- Keep the 30-start/day schedule unless Bryan explicitly asks to change it or evidence shows the schedule itself is hurting output.
+- Minimum 30-day target is 60 accepted MVP passes; stretch is 90. With 900 scheduled starts in 30 days, the system only needs 6.67 percent accepted-pass conversion for minimum and 10 percent for stretch.
+- If accepted-pass conversion is below target, retarget the next week toward implementation, tests, deployment proof, exact blockers, and high-risk requirements before adding more runs.
+- If a QoL automation has no accepted evidence or exact blocker after seven days, sharpen its backlog item, prompt instructions, or handoff before changing cadence.
+- If run duration or dirty-worktree collisions repeatedly exceed the 48-minute start spacing, reduce collision risk by selecting non-conflicting verification slices, narrowing prompts, or recommending a schedule adjustment for Bryan.
+- If blockers dominate a QoL area, the automation should commit one precise blocker with the account/tool/policy action required and then move to adjacent non-blocked evidence in its scope.
+- If the project exceeds the stretch target with low collision risk, keep cadence stable and tighten acceptance quality; do not chase more starts for its own sake.
+
+New run manifests should include `accepted_mvp_pass`, `requirement_ids`, `duration_minutes`, `output_kind`, and `automation_efficiency.scale_signal` so the weekly source-framework/catalog runner can retarget from evidence instead of guessing.
+
 ## Surface Expansion Rule
 
 Every QoL run should treat the selected requirement as a cross-surface product slice. Before closeout, decide which of these surfaces need work or proof:
@@ -190,7 +214,7 @@ Each run chooses exactly one bounded scope.
 
 ## Daily Goal And Weekly Calibration
 
-For this Senior Capstone project only, the current 100-pass / roughly 45-day MVP target translates to a real daily goal of at least 2 accepted MVP passes per calendar day, with 3 accepted passes as the stretch goal when the repo is unblocked. The 28 daily category starts are execution capacity, not a requirement to count 28 accepted passes every day.
+For this Senior Capstone project only, the current 100-pass / roughly 45-day MVP target translates to a real daily goal of at least 2 accepted MVP passes per calendar day, with 3 accepted passes as the stretch goal when the repo is unblocked. The 30 daily QoL starts are execution capacity, not a requirement to count 30 accepted passes every day.
 
 An accepted MVP pass must leave durable evidence: a pushed commit or published external artifact recorded in the repo, plus validation or a concrete blocker that reduces MVP ambiguity. The first two accepted passes each day should usually be implementation-heavy while `SC-005` remains open.
 

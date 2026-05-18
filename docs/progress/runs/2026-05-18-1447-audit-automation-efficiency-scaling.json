@@ -1,0 +1,69 @@
+{
+  "run_id": "2026-05-18-1447-audit-automation-efficiency-scaling",
+  "timestamp": "2026-05-18T14:47:00-07:00",
+  "timestamp_local": "2026-05-18T14:47:00-07:00",
+  "lane": "audit",
+  "automation_id": "manual-codex-thread",
+  "trigger": "user-requested",
+  "requirement_ids": [
+    "MVP-030",
+    "MVP-001",
+    "MVP-025",
+    "MVP-026"
+  ],
+  "accepted_mvp_pass": true,
+  "duration_minutes": 55,
+  "output_kind": "script-repair",
+  "status": "completed",
+  "master_plan_sections": [
+    "100-Pass Delivery Constraint",
+    "QoL Automation Rebuild",
+    "Logging Requirements",
+    "Anti-Drift Rules"
+  ],
+  "scope": "Audit the ten active QoL automations for 30-day efficiency and add reusable measurement plus auto-scaling guardrails.",
+  "files_changed": [
+    "scripts/measure-automation-efficiency.ps1",
+    "docs/audits/automation-30-day-efficiency-audit-2026-05-18.md",
+    "docs/progress/runs/README.md",
+    "docs/automation-runbook.md",
+    "docs/automation-cadence.md",
+    "docs/automation-self-improvement.md",
+    "docs/master-plan.md",
+    "docs/automation-memory.md",
+    "docs/progress/decision-log.md",
+    "docs/progress/audit.md",
+    "docs/progress/run-log.md",
+    "scripts/check-automation-contract.ps1"
+  ],
+  "external_artifacts": [],
+  "validation": [
+    "scripts/measure-automation-efficiency.ps1 ran successfully and reported 10 active QoL automations, 30 starts/day, 900 starts/30 days, 48-minute minimum spacing, 60 minimum accepted passes, 90 stretch accepted passes, and 6.67/10 percent conversion thresholds.",
+    "Follow-up closeout validation must parse JSON, run the automation contract checker, scan for conflict markers, and run git diff --check."
+  ],
+  "efficiency_findings": [
+    "The schedule is already aggressive enough; more starts are not the immediate efficiency lever.",
+    "Accepted-pass and duration telemetry were missing from older manifests, making conversion and overlap measurement weak.",
+    "The QoL system is new, so the next weekly calibration must verify each QoL runner has observed evidence or an exact blocker."
+  ],
+  "automation_efficiency": {
+    "duplicate_scope_checked": true,
+    "scale_signal": "retarget",
+    "notes": "Retarget QoL focus and manifest telemetry before considering schedule changes."
+  },
+  "self_improvement": {
+    "result": "script-repair",
+    "evidence": "Added reusable 30-day efficiency scorecard and documented accepted-pass telemetry fields.",
+    "automation_updated": null
+  },
+  "commit": {
+    "message": "audit: add automation efficiency scaling",
+    "hash": null,
+    "pushed": false
+  },
+  "next": [
+    "Run the 30-day scorecard during Sunday calibration.",
+    "Require future QoL manifests to include accepted_mvp_pass, requirement_ids, duration_minutes, output_kind, and automation_efficiency.scale_signal.",
+    "Keep the 30-start/day cadence unless conversion, collision, or blocker evidence proves it should change."
+  ]
+}

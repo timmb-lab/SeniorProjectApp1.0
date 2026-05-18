@@ -184,3 +184,14 @@ Each audit run should append a dated entry with:
 - `self-improvement`: updated live prompts, `scripts/snapshot-automation-prompts.ps1`, and `scripts/check-automation-contract.ps1` because Bryan changed the automation operating contract to ten QoL runners with token budget guardrails and every-item 3x/day coverage.
 - `validation`: prompt snapshots regenerated; `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\check-automation-contract.ps1 -RepoRoot .` passed for 10 QoL automations.
 - `next action`: QoL runners should start with source-framework seed loading, Drive upload/OAuth, protected-evidence permission tests, production review/history endpoints, account lifecycle, announcements, and post-push Cloudflare verification.
+
+### 2026-05-18 14:47 PT - 30-Day Automation Efficiency Audit
+
+- `automation`: manual user-requested audit pass.
+- `master-plan section`: 100-Pass Delivery Constraint; QoL Automation Rebuild; Logging Requirements; Anti-Drift Rules.
+- `scope`: Audit whether the ten active QoL automations can efficiently auto-scale over the next 30 days without turning schedule volume into token churn.
+- `findings`: The current schedule is already aggressive enough: 10 active QoL automations, 30 starts/day, 900 starts over 30 days, no exact overlaps, and 48-minute minimum spacing. The 30-day minimum target is 60 accepted MVP passes and stretch is 90, so the system only needs 6.67 percent and 10 percent accepted-pass conversion. The main gap was telemetry: existing manifests did not consistently include `accepted_mvp_pass`, `duration_minutes`, `output_kind`, or scale signals.
+- `files changed`: `scripts/measure-automation-efficiency.ps1`, `docs/audits/automation-30-day-efficiency-audit-2026-05-18.md`, `docs/progress/runs/README.md`, `docs/automation-runbook.md`, `docs/automation-cadence.md`, `docs/automation-self-improvement.md`, `docs/master-plan.md`, `docs/automation-memory.md`, `docs/progress/decision-log.md`, `docs/progress/run-log.md`, `docs/progress/runs/2026-05-18-1447-audit-automation-efficiency-scaling.json`, and `scripts/check-automation-contract.ps1`.
+- `self-improvement`: added a reusable non-interactive 30-day efficiency scorecard and checker-enforced operating-doc references. No live automation TOML or schedule changed.
+- `validation`: `scripts/measure-automation-efficiency.ps1` ran successfully and reported 10 active QoL automations, 30 daily starts, 900 starts/30 days, 48-minute minimum spacing, 60/90 accepted-pass targets, and 6.67/10 percent conversion thresholds. Closeout validation must parse JSON, run the automation contract checker, scan conflict markers, and run `git diff --check`.
+- `next action`: Sunday calibration should run the scorecard, verify each QoL runner has observed accepted evidence or an exact blocker, and retarget next-week QoL focus before recommending any cadence change.
