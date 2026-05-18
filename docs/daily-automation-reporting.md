@@ -50,6 +50,7 @@ After Google Drive write access is fixed, the automation should create or append
 
 The report should read these logs before writing the daily summary:
 
+- `docs/master-plan.md`
 - `docs/automation-memory.md`
 - `docs/progress/run-log.md`
 - `docs/progress/handoffs.md`

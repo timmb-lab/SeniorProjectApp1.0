@@ -558,3 +558,32 @@ Live prompt update:
 - Each main lane now reads `docs/automation-memory.md`, `docs/progress/run-log.md`, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, lane logs, backlog, milestones, and source docs before work selection.
 - Each main lane now records the specific logs referenced, appends a detailed lane log, appends one compact run-log entry, updates memory/handoff/decision files when relevant, verifies changes, commits with the lane prefix, and pushes.
 - The daily report now audits log health, stale handoffs, repeated work, memory drift, and decision/backlog changes in addition to emailing the 24-hour summary.
+
+## 2026-05-18 Master Plan Anchor Pass
+
+Intent:
+- Add a single master plan and require all automations to reference it along with the shared logs.
+
+Files changed:
+- `docs/master-plan.md`
+- `docs/automation-runbook.md`
+- `docs/automation-cadence.md`
+- `docs/automation-memory.md`
+- `docs/progress/decision-log.md`
+- `docs/progress/run-log.md`
+- `docs/daily-automation-reporting.md`
+- `docs/automation-progress.md`
+
+What changed:
+- Added the master plan as the top-level product destination for the hosted app.
+- Updated shared docs so every automation must read the master plan, cite the relevant section, and use the logs for current context.
+- Recorded the master-plan decision in the decision log.
+
+Recommended next slice:
+- Update all five live Senior Capstone automation prompts to include `docs/master-plan.md` in their start-of-run reads and final log formats.
+
+Live prompt update:
+- Updated `senior-capstone-figma-product-design`, `senior-capstone-rebuild-hourly`, `senior-capstone-content-quality-audits`, `senior-capstone-canva-visual-system`, and `senior-capstone-daily-automation-report`.
+- Each main lane now reads `docs/master-plan.md` before the scaling logs and must name the master-plan section that justifies its selected slice.
+- Each main lane now logs the master-plan section referenced in its lane log and compact run-log entry.
+- The daily report now includes master-plan alignment, first-vertical-slice progress, log health, and next priorities tied to the master plan.

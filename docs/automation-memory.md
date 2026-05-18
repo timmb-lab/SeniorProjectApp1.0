@@ -4,6 +4,8 @@ Date initialized: 2026-05-18
 
 This is the compact working memory for the long-running automation loop. Every automation should read this before selecting work and update it only when the current state materially changes.
 
+Top-level product plan: `docs/master-plan.md`.
+
 ## Product Target
 
 Build a hosted Senior Capstone app with secure accounts, role-based permissions, private upload/evidence spaces, student submissions, mentor/teacher review, revision requests, approvals, dashboards, admin controls, audit logs, exports, and protected student records.
@@ -19,6 +21,7 @@ This is not a static guide, brochure, or visual-only project.
 - The four main automation lanes are staggered in a four-hour rotation and must commit/push their durable outputs.
 - The four main automation lanes and the daily reporting automation now read the shared memory, run log, handoff ledger, and decision log before choosing work or summarizing progress.
 - Every main lane prompt now requires a lane log entry, compact run-log entry, relevant memory/handoff/decision updates, verification, commit, and push.
+- Every main lane and the daily reporting automation now reference `docs/master-plan.md` along with the logs.
 
 ## Current Priority
 
@@ -62,6 +65,7 @@ Read `docs/progress/decision-log.md` for accepted or superseded decisions.
 
 - As of initialization, no final app stack has been accepted in-repo.
 - `D-2026-05-18-001`: automations use the log-first scaling protocol.
+- `D-2026-05-18-002`: `docs/master-plan.md` is the top-level product plan.
 
 ## Handoff Rules
 

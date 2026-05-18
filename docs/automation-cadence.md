@@ -6,6 +6,7 @@ The Senior Capstone rebuild now uses a four-hour non-overlap automation rotation
 
 End goal: a hosted app with secure users, roles, permissions, private upload/evidence spaces, submissions, reviews, approvals, dashboards, admin controls, audit logs, and protected student records.
 
+Master plan: `docs/master-plan.md`.
 Shared runbook: `docs/automation-runbook.md`.
 Shared memory: `docs/automation-memory.md`.
 Cross-lane run log: `docs/progress/run-log.md`.
@@ -23,6 +24,7 @@ Every automation should:
 - Inspect the current branch and upstream before changing files.
 - If the worktree is clean and an upstream exists, sync with a safe fast-forward pull before editing.
 - If the worktree is dirty, do not pull; classify the dirty files and avoid overwriting unrelated work.
+- Read `docs/master-plan.md` and name the section that justifies the run's selected slice.
 - Read its lane-specific progress log and the other lane logs before choosing work.
 - Read `docs/automation-memory.md`, `docs/progress/run-log.md`, `docs/progress/handoffs.md`, and `docs/progress/decision-log.md` before choosing work.
 - Read `docs/automation-runbook.md` before selecting work.
@@ -35,6 +37,7 @@ Every automation should:
 - Preserve user and automation changes from other jobs.
 - Validate any files it changes.
 - Update its lane-specific progress log with timestamp, scope, changes, verification, risks, and next action.
+- Include the master-plan section referenced in the lane progress entry.
 - Update `docs/progress/run-log.md` with one compact entry each run.
 - Update `docs/automation-memory.md` when active priorities, stack decisions, artifact IDs, blockers, or next-lane priorities changed.
 - Update `docs/progress/handoffs.md` for every cross-lane ask and close handoffs only with evidence.
@@ -83,6 +86,7 @@ Lane-specific progress logs:
 
 Scaling logs:
 
+- Master plan: `docs/master-plan.md`
 - Compact current memory: `docs/automation-memory.md`
 - Cross-lane run index: `docs/progress/run-log.md`
 - Handoff ledger: `docs/progress/handoffs.md`

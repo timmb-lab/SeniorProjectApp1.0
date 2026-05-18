@@ -20,3 +20,13 @@ Decision status values:
 - `applies to`: all Senior Capstone automations
 - `source`: user request to edit automations to log and reference logs for scaling
 - `last updated`: 2026-05-18
+
+### D-2026-05-18-002
+
+- `status`: accepted
+- `area`: automation operations and product planning
+- `decision`: Use `docs/master-plan.md` as the top-level product plan that every Senior Capstone automation must read before selecting work.
+- `reason`: The product direction was spread across rebuild, milestones, memory, domain, dashboard, and progress docs. A single master plan gives every lane one common destination while the logs preserve recent context and handoffs.
+- `applies to`: all Senior Capstone automations
+- `source`: user request to edit automations to reference the master plan and logs
+- `last updated`: 2026-05-18

@@ -8,6 +8,8 @@ This runbook is the shared operating manual for the Senior Capstone automation l
 
 The automations should steadily turn the current static guide into a hosted, role-based Senior Capstone platform without duplicating work, trampling each other's files, or producing vague planning artifacts that no one can implement.
 
+The top-level product anchor is `docs/master-plan.md`. Every automation must read it before selecting work and should be able to name the master-plan section its chosen slice advances.
+
 Milestones live in `docs/automation-milestones.md`. Product work should advance the earliest incomplete milestone unless a higher-severity backlog item demands attention.
 
 ## Required Source Materials
@@ -82,6 +84,7 @@ The automation loop is expected to run for months, so every lane must work from 
 
 At the start of every run, read these logs before selecting work:
 
+- `docs/master-plan.md`: top-level product destination, milestone path, source-of-truth order, and anti-drift rules.
 - `docs/automation-memory.md`: compact current-state snapshot and source-of-truth index.
 - `docs/progress/run-log.md`: cross-lane chronological run index. Read the most recent 20 entries when the file grows large.
 - Your lane log:
@@ -97,16 +100,19 @@ At the start of every run, read these logs before selecting work:
 Use this source-of-truth order when logs conflict:
 
 1. Current repository code/data and source materials.
-2. Accepted architecture/product decisions in `docs/progress/decision-log.md`.
-3. Open P0/P1 backlog items.
-4. Open handoffs assigned to the lane.
-5. Lane progress logs and run log.
-6. Older rollup notes in `docs/automation-progress.md`.
+2. `docs/master-plan.md`.
+3. Accepted architecture/product decisions in `docs/progress/decision-log.md`.
+4. Open P0/P1 backlog items.
+5. Open handoffs assigned to the lane.
+6. `docs/automation-memory.md`.
+7. Lane progress logs and run log.
+8. Older rollup notes in `docs/automation-progress.md`.
 
 At the end of every run, leave enough memory for the next lane to continue without guessing:
 
 - Append a detailed entry to the lane progress log.
 - Append a compact one-entry summary to `docs/progress/run-log.md`.
+- Update `docs/master-plan.md` only when the product destination, source-of-truth order, milestone path, or anti-drift rules materially change.
 - Update `docs/automation-memory.md` when current milestone, active stack choice, artifact IDs, open blockers, or next-lane priorities changed.
 - Update `docs/progress/handoffs.md` for every cross-lane ask, with a stable handoff ID, owner lane, status, exact next action, acceptance check, and evidence needed to close.
 - Update `docs/progress/decision-log.md` only for real product, architecture, data, security, workflow, or visual-system decisions that future runs should respect.
