@@ -1,0 +1,26 @@
+{
+  "generatedAt": "2026-05-18T23:43:11.420Z",
+  "option": "Back To Basics",
+  "projectName": "senior-capstone-option-primary",
+  "appUrl": "https://senior-capstone-app.pages.dev",
+  "pages": [
+    "program.html",
+    "sponsorship-support.html",
+    "calendar.html",
+    "phase-1.html",
+    "phase-2a.html",
+    "gathering-supplies.html",
+    "managing-your-vision.html",
+    "mentor-meeting-1.html",
+    "phase-2b.html",
+    "sprint-to-finish.html",
+    "mentor-meeting-2.html",
+    "present.html",
+    "project-showcase.html",
+    "portfolio.html",
+    "app-preview.html",
+    "templates.html",
+    "rubrics.html",
+    "grades.html"
+  ]
+}

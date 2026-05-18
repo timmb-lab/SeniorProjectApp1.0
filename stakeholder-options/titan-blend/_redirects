@@ -1,0 +1,2 @@
+/alpha.html https://senior-capstone-app.pages.dev/alpha.html 302
+/api/* https://senior-capstone-app.pages.dev/api/:splat 302

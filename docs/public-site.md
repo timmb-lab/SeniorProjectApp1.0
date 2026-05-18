@@ -7,9 +7,17 @@ The ECTA Senior Capstone public companion site is published separately from the 
 ## Cloudflare Projects
 
 - Public companion site: `senior-capstone-public`
+- Stakeholder option 2, Titan Blend: `senior-capstone-option-titan`
+- Stakeholder option 3, Back To Basics: `senior-capstone-option-primary`
 - Web app and backend: `senior-capstone-app`
 - App URL used by public-site redirects: `https://senior-capstone-app.pages.dev`
 - Cloudflare Pages project created: 2026-05-18
+
+Review URLs:
+
+- Option 1: `https://senior-capstone-public.pages.dev/`
+- Option 2: `https://senior-capstone-option-titan.pages.dev/`
+- Option 3: `https://senior-capstone-option-primary.pages.dev/`
 
 ## Local Build
 
