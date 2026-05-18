@@ -1,11 +1,11 @@
 ﻿---
 automation_id: "senior-capstone-daily-automation-report-rebuilt"
 name: "Senior Capstone Daily Report Standby"
-snapshot_generated_utc: "2026-05-18T16:19:44Z"
+snapshot_generated_utc: "2026-05-18T16:27:07Z"
 rrule: "FREQ=DAILY;BYHOUR=7;BYMINUTE=40"
 model: "gpt-5.2"
 reasoning_effort: "high"
-prompt_sha256: "d62ae40b51358480e58de19737a56ce733f0e212313d56fe25c284456ce77097"
+prompt_sha256: "1adf97cf011ec03a11b12b599b41e85248ce7c029c99d53afb7493ae4cc15d1f"
 source_toml: "C:\Users\bryan\.codex\automations\senior-capstone-daily-automation-report-rebuilt\automation.toml"
 ---
 
@@ -33,4 +33,5 @@ Autonomous loop contract: treat `docs/master-plan.md` as the master planner and 
 Report scope: previous 24 hours of commits, push status, lane activity, progress toward secure database/account/group/progress MVP, GitHub-to-Cloudflare deployment, auth/database/upload/permissions/security gaps, Figma/Canva artifact links, backlog changes, open P0/P1 items, stale blockers/handoffs, new decisions, repeated work, missing logs/commits, connector blockers, next priorities, and human decisions.
 
 Self-improvement: use `automation_update` only for this automation's own prompt/config if evidence from `docs/automation-self-improvement.md` justifies it. Regenerate prompt snapshots with `scripts/snapshot-automation-prompts.ps1`, update `scripts/check-automation-contract.ps1` when the contract changed, run that checker, and log the self-improvement result. Otherwise record `self-improvement: none`. Validate, inspect `git status --short`, commit repo fallback/log updates with prefix `audit:`, and push the current branch.
+Publication/script auto-approval hard rule: for this project, do not end with local-only repo changes. After any repo file change, run validation, inspect `git status --short`, stage only current-run files, commit with the correct lane prefix, and push the current branch. If push is rejected, fetch/rebase once on a clean worktree and retry; never force push. Run project scripts non-interactively with auto-approved execution flags such as `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\...`. Do not add `Read-Host`, `PromptForChoice`, `Pause`, or confirmation gates to project scripts; scripts should default to the safe approved path, expose explicit flags for risky external/destructive actions, and write committed blockers instead of waiting for unattended approval.
 ~~~~

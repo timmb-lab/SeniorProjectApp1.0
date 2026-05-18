@@ -1,11 +1,11 @@
 ﻿---
 automation_id: "senior-capstone-canva-visual-system-rebuilt"
 name: "Senior Capstone Canva Visual System Standby"
-snapshot_generated_utc: "2026-05-18T16:19:44Z"
+snapshot_generated_utc: "2026-05-18T16:27:07Z"
 rrule: "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=0,6,12,18;BYMINUTE=10"
 model: "gpt-5.2"
 reasoning_effort: "xhigh"
-prompt_sha256: "4ffb301cc42ac1254dfab57269c3c3d44198a6caba425b65b8511fe38a694b55"
+prompt_sha256: "c18689b3c257239cd7d99fa0eab75757b5e6696ddb9eafa04dbd5f4f0d037a8a"
 source_toml: "C:\Users\bryan\.codex\automations\senior-capstone-canva-visual-system-rebuilt\automation.toml"
 ---
 
@@ -31,4 +31,5 @@ Work ladder when active: 1) visual blocker needed by a concrete app screen/workf
 No-intervention connector rule: if Canva auth, quota, export, or approval would block a write, do not wait for Bryan. Use a repo-side asset spec or handoff fallback, log the blocker, and continue validation, commit, and push the current branch.
 
 Self-improvement: use `automation_update` only for this automation's own prompt/config if evidence from `docs/automation-self-improvement.md` justifies it. Regenerate prompt snapshots with `scripts/snapshot-automation-prompts.ps1`, update `scripts/check-automation-contract.ps1` when the contract changed, run that checker, and log the self-improvement result. Otherwise log `self-improvement: none`. Validate touched files, inspect `git status --short`, commit with prefix `canva:`, and push the current branch.
+Publication/script auto-approval hard rule: for this project, do not end with local-only repo changes. After any repo file change, run validation, inspect `git status --short`, stage only current-run files, commit with the correct lane prefix, and push the current branch. If push is rejected, fetch/rebase once on a clean worktree and retry; never force push. Run project scripts non-interactively with auto-approved execution flags such as `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\...`. Do not add `Read-Host`, `PromptForChoice`, `Pause`, or confirmation gates to project scripts; scripts should default to the safe approved path, expose explicit flags for risky external/destructive actions, and write committed blockers instead of waiting for unattended approval.
 ~~~~

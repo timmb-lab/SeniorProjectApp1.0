@@ -18,8 +18,9 @@ The active 5x/day orchestrator, active weekly deep audit, and any explicitly rea
 6. Preserve the existing automation `id`, `kind`, `name`, schedule, workspace, model, reasoning effort, and status unless the user explicitly asked to change one of those fields.
 7. Regenerate prompt snapshots with `scripts/snapshot-automation-prompts.ps1` after any live prompt/config change.
 8. Update `scripts/check-automation-contract.ps1` when the master planner, pass logger, prompt snapshot, manifest, or self-patching contract changed and the checker needs to enforce the new requirement.
-9. Run `scripts/check-automation-contract.ps1` after any prompt/config, support-script, or automation-operating-doc change.
-10. Commit and push any repo documentation, log, manifest, prompt snapshot, spec, or script changes created during the run.
+9. Run project scripts non-interactively with `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File ...` so scheduled runs do not pause for shell-level prompts.
+10. Run `scripts/check-automation-contract.ps1` after any prompt/config, support-script, or automation-operating-doc change.
+11. Commit and push any repo documentation, log, manifest, prompt snapshot, spec, or script changes created during the run; local-only repo changes are not an acceptable closeout.
 
 ## Valid Self-Improvement Triggers
 
@@ -44,6 +45,7 @@ Allowed self-improvement changes are narrow:
 - Add missing log, handoff, backlog, decision, verification, commit, or push instructions.
 - Add missing structured run manifest, artifact registry, human decision queue, or prompt snapshot instructions.
 - Add or repair a script/checker/snapshot/manifest/fallback path that lets future runs resolve the same issue without human intervention.
+- Add or repair non-interactive script execution, auto-approval defaults, and checker coverage when scripts could otherwise wait for unattended approval.
 - Tighten lane ownership and acceptance checks.
 - Improve fallback behavior for Figma, Canva, Gmail, Google Drive, git, or deployment blockers.
 - Add a missing source-of-truth reference.

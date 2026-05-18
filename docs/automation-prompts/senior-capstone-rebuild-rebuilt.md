@@ -1,11 +1,11 @@
 ﻿---
 automation_id: "senior-capstone-rebuild-rebuilt"
 name: "Senior Capstone Gold Standard Orchestrator"
-snapshot_generated_utc: "2026-05-18T16:19:44Z"
+snapshot_generated_utc: "2026-05-18T16:27:07Z"
 rrule: "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=0,5,10,15,20;BYMINUTE=20"
 model: "gpt-5.2"
 reasoning_effort: "high"
-prompt_sha256: "b29a747e3d5545e49f4e799f67618b3fc30924345b77366c3a40023d7c56c09e"
+prompt_sha256: "900985d02f1b42bd97daf26d29852e425637455af8cb2b6641034bdf56a31aa6"
 source_toml: "C:\Users\bryan\.codex\automations\senior-capstone-rebuild-rebuilt\automation.toml"
 ---
 
@@ -41,4 +41,5 @@ Approval and connector rule: before mutating Google Drive, Gmail, Figma, Canva, 
 Self-healing and self-improvement: if a script, checker, prompt snapshot, manifest writer, or repeatable workflow fails, repair the root cause in the same run when safe; otherwise record a compact blocker with command, error, suspected file, and next action. Use `automation_update` only for this automation's own prompt/config if evidence from `docs/automation-self-improvement.md` justifies it. Regenerate prompt snapshots with `scripts/snapshot-automation-prompts.ps1`, update `scripts/check-automation-contract.ps1` when the contract changed, run that checker, and log the self-improvement result. Otherwise record `self-improvement: none`.
 
 Required output each run: one bounded beta-advancing deliverable tied to `docs/master-plan.md`; updated relevant lane log; updated `docs/progress/run-log.md`; a structured run manifest in `docs/progress/runs/`; material updates to handoffs, backlog, memory, decision log, artifacts, human decisions, or daily reports when needed; validation of touched files; inspected `git status --short`; a lane-prefixed commit when repo files changed; and push the current branch. Never force push and never stage unrelated dirty files.
+Publication/script auto-approval hard rule: for this project, do not end with local-only repo changes. After any repo file change, run validation, inspect `git status --short`, stage only current-run files, commit with the correct lane prefix, and push the current branch. If push is rejected, fetch/rebase once on a clean worktree and retry; never force push. Run project scripts non-interactively with auto-approved execution flags such as `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\...`. Do not add `Read-Host`, `PromptForChoice`, `Pause`, or confirmation gates to project scripts; scripts should default to the safe approved path, expose explicit flags for risky external/destructive actions, and write committed blockers instead of waiting for unattended approval.
 ~~~~

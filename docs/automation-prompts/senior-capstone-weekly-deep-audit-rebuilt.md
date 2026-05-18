@@ -1,11 +1,11 @@
 ﻿---
 automation_id: "senior-capstone-weekly-deep-audit-rebuilt"
 name: "Senior Capstone Weekly Deep Audit Rebuilt"
-snapshot_generated_utc: "2026-05-18T16:19:44Z"
+snapshot_generated_utc: "2026-05-18T16:27:07Z"
 rrule: "FREQ=WEEKLY;BYDAY=SU;BYHOUR=23;BYMINUTE=45"
 model: "gpt-5.2"
 reasoning_effort: "xhigh"
-prompt_sha256: "9529e1a11b96b781c3bd6819d7cbc7af9802182a1bca2fcae67a8ba305e04e07"
+prompt_sha256: "d67d3ac5be6a37b02d35a14d0c6335d63be045088b61e25c0b370c9521df3034"
 source_toml: "C:\Users\bryan\.codex\automations\senior-capstone-weekly-deep-audit-rebuilt\automation.toml"
 ---
 
@@ -33,4 +33,5 @@ Audit ladder: 1) P0/P1 security/privacy/data-integrity findings, 2) Cloudflare a
 Output: create/update `docs/audits/weekly-deep-audit.md` with severity-ranked findings, evidence, file references, impact, owner lane, acceptance checks, and next actions. Update backlog, master plan, memory, handoffs, decision log, artifacts/human decisions when needed, `docs/progress/run-log.md`, `docs/progress/weekly-deep-audit.md`, and structured run manifest in `docs/progress/runs/` when materially needed.
 
 Self-healing and self-improvement: if a script, checker, prompt snapshot, manifest writer, or repeatable workflow fails, repair the root cause in the same run when safe; otherwise record a compact blocker with command, error, suspected file, and next action. Use `automation_update` only for this automation's own prompt/config if evidence from `docs/automation-self-improvement.md` justifies it. Regenerate prompt snapshots with `scripts/snapshot-automation-prompts.ps1`, update `scripts/check-automation-contract.ps1` when the contract changed, run that checker, and log the self-improvement result. Otherwise record `self-improvement: none`. Run `git diff --check`, validate touched JSON, run relevant checks, inspect `git status --short`, commit with prefix `audit:`, and push the current branch.
+Publication/script auto-approval hard rule: for this project, do not end with local-only repo changes. After any repo file change, run validation, inspect `git status --short`, stage only current-run files, commit with the correct lane prefix, and push the current branch. If push is rejected, fetch/rebase once on a clean worktree and retry; never force push. Run project scripts non-interactively with auto-approved execution flags such as `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\...`. Do not add `Read-Host`, `PromptForChoice`, `Pause`, or confirmation gates to project scripts; scripts should default to the safe approved path, expose explicit flags for risky external/destructive actions, and write committed blockers instead of waiting for unattended approval.
 ~~~~

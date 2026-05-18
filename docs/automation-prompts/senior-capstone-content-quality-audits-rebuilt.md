@@ -1,11 +1,11 @@
 ﻿---
 automation_id: "senior-capstone-content-quality-audits-rebuilt"
 name: "Senior Capstone Content Quality Audit Standby"
-snapshot_generated_utc: "2026-05-18T16:19:44Z"
+snapshot_generated_utc: "2026-05-18T16:27:07Z"
 rrule: "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=3,9,15,21;BYMINUTE=45"
 model: "gpt-5.2"
 reasoning_effort: "xhigh"
-prompt_sha256: "0f4b2b536e1f59c8f28e5be835df85447021d98f3cb4c25285581135808373d4"
+prompt_sha256: "65edd2f0c07d5366298be3fbb07d4b78f2a0e3fa2df6996dba75a63d9a042c90"
 source_toml: "C:\Users\bryan\.codex\automations\senior-capstone-content-quality-audits-rebuilt\automation.toml"
 ---
 
@@ -31,4 +31,5 @@ Work ladder when active: 1) P0/P1 security/privacy/data-integrity risk, 2) Cloud
 No-intervention rule: resolve safe backlog and handoff hygiene directly when evidence is sufficient. Only leave `ACTION REQUIRED` for account/legal/budget/school-policy items that cannot be decided from accepted docs. Continue validation, commit, and push the current branch.
 
 Self-improvement: use `automation_update` only for this automation's own prompt/config if evidence from `docs/automation-self-improvement.md` justifies it. Regenerate prompt snapshots with `scripts/snapshot-automation-prompts.ps1`, update `scripts/check-automation-contract.ps1` when the contract changed, run that checker, and log the self-improvement result. Otherwise log `self-improvement: none`. Validate touched files, inspect `git status --short`, commit with prefix `audit:`, and push the current branch.
+Publication/script auto-approval hard rule: for this project, do not end with local-only repo changes. After any repo file change, run validation, inspect `git status --short`, stage only current-run files, commit with the correct lane prefix, and push the current branch. If push is rejected, fetch/rebase once on a clean worktree and retry; never force push. Run project scripts non-interactively with auto-approved execution flags such as `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\...`. Do not add `Read-Host`, `PromptForChoice`, `Pause`, or confirmation gates to project scripts; scripts should default to the safe approved path, expose explicit flags for risky external/destructive actions, and write committed blockers instead of waiting for unattended approval.
 ~~~~

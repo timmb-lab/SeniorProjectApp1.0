@@ -159,3 +159,13 @@ Decision status values:
 - `applies to`: active Figma file, Figma specs, rebuild handoffs, artifact registry, master plan, milestones, run manifests, and gold-standard orchestrator work selection
 - `source`: user request on 2026-05-18: "I updated the pklan to a professional one so can we try all the figma calls again and get it caught up? I want you to really really dial in to get to a MVP in 100 passes or less over the next 45 days or so"
 - `last updated`: 2026-05-18 09:06 PT
+
+### D-2026-05-18-016
+
+- `status`: accepted
+- `area`: automation publication and project-script auto-approval
+- `decision`: Senior Capstone automations must not leave project repo changes local-only. When repo files change, each run must validate, inspect `git status --short`, stage only current-run files, commit with the lane prefix, and push. Project scripts must run unattended with non-interactive execution flags and must not include interactive approval prompts such as `Read-Host`, `PromptForChoice`, `Pause`, or ad hoc confirmation gates.
+- `reason`: Bryan explicitly asked to commit and push all changes and ensure automations always do this for the project, with auto approvals for script items.
+- `applies to`: live Senior Capstone automation prompts, `docs/automation-runbook.md`, `docs/automation-self-improvement.md`, prompt snapshots, `scripts/check-automation-contract.ps1`, and `scripts/snapshot-automation-prompts.ps1`
+- `source`: user request on 2026-05-18: "commit and push all changes - ensure automation also always does this related to this proejct as well as auto approvals on all items in scripots"
+- `last updated`: 2026-05-18 09:23 PT

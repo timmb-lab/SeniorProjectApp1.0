@@ -64,3 +64,15 @@ Each audit run should append a dated entry with:
 - `self-improvement`: tightened the contract checker so it now fails if Senior Capstone drifts away from the gold-standard automation names, statuses, RRULEs, or exact five active everyday starts from the gold orchestrator.
 - `commit/push status`: pending in this interactive pass.
 - `next action`: The 5x/day orchestrator should scaffold the accepted Cloudflare stack path from ADR-0001 and `SC-005`.
+
+### 2026-05-18 09:23 PT - Publication And Script Auto-Approval Contract
+
+- `automation`: manual user-requested ops/audit correction pass
+- `master-plan section`: Logging Requirements; Anti-Drift Rules
+- `scope`: Ensure all Senior Capstone automations commit/push project repo changes and run project scripts without unattended approval prompts.
+- `live automations changed`: Added a publication/script auto-approval hard rule to all six live `senior-capstone-*-rebuilt` automation TOML prompts. Preserved automation IDs, schedules, workspaces, models, reasoning effort, and active/paused status.
+- `files changed`: `docs/automation-runbook.md`, `docs/automation-self-improvement.md`, `docs/automation-memory.md`, `docs/progress/decision-log.md`, `docs/progress/audit.md`, `docs/progress/run-log.md`, `docs/progress/runs/2026-05-18-0923-audit-automation-publication-contract.json`, regenerated `docs/automation-prompts/`, `scripts/check-automation-contract.ps1`, and `scripts/snapshot-automation-prompts.ps1`.
+- `validation`: Regenerated prompt snapshots with `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts\snapshot-automation-prompts.ps1`; `scripts/check-automation-contract.ps1` passed and now enforces the live prompt rule plus non-interactive script constraints.
+- `self-improvement`: updated live prompts and contract checker because Bryan explicitly requested stricter commit/push and script auto-approval behavior.
+- `commit/push status`: pending in this interactive pass.
+- `next action`: Future automation runs must fail contract checks if they drop the hard publication rule or add interactive project-script prompts.

@@ -43,6 +43,16 @@ approval_mode = "approve"
 
 If a grant is missing, Bryan must run the action once while present and choose `Always allow`, or the automation must skip that connector write and use its committed repo fallback. Do not rely on a future unattended run to click approval. For email reporting, prefer drafts over direct sends unless Bryan has explicitly approved unattended sending.
 
+## Project Script Auto-Approval Rule
+
+Senior Capstone project scripts must be safe for unattended automation. Automations should run repo scripts with explicit non-interactive execution flags:
+
+```powershell
+powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\<script-name>.ps1
+```
+
+Scripts in `scripts/` must not use `Read-Host`, `PromptForChoice`, `Pause`, or ad hoc confirmation gates. If a script needs a risky external or destructive action, it should require an explicit command-line flag and otherwise choose the safe repo-only path. Unattended automations should not wait for approvals inside scripts; they should use saved approval grants, safe defaults, or committed blocker records with exact next action.
+
 ## Gold Standard No-Intervention Contract
 
 The Senior Capstone automation system now uses one active 5x/day orchestrator plus the active weekly deep audit. Specialist Figma, Canva, content-audit, and daily-report records are standby prompts, not concurrent daily runners.
@@ -244,7 +254,7 @@ Every run should end with:
 - Publication/commit gate satisfied.
 - Only own files staged.
 - Lane-prefixed commit when repo files changed.
-- Current branch pushed, or exact blocker logged.
+- Current branch pushed, or exact blocker committed and pushed.
 
 ## Publication And Commit Gate
 
@@ -255,6 +265,8 @@ Each run must end in exactly one of these durable outcomes:
 1. A pushed repo commit containing the code, docs, data, tests, specs, logs, or assets changed by that run.
 2. A published external artifact, such as a Figma or Canva artifact, with its returned link or ID recorded in a committed and pushed repo handoff file.
 3. A committed and pushed blocker entry that explains why publication, artifact creation, commit, or push could not be completed.
+
+For this project, local-only repo changes are not an acceptable closeout. If repo files changed, the automation must validate, inspect `git status --short`, stage only current-run files, commit with the lane prefix, and push. If the first push is rejected, fetch/rebase once on a clean worktree and retry. Never force push.
 
 External artifacts count only when:
 

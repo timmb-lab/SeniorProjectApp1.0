@@ -1,0 +1,90 @@
+{
+  "run_id": "2026-05-18-0923-audit-automation-publication-contract",
+  "timestamp_local": "2026-05-18T09:23:00-07:00",
+  "lane": "audit",
+  "automation_id": null,
+  "trigger": "user-requested",
+  "master_plan_sections": [
+    "Logging Requirements",
+    "Anti-Drift Rules"
+  ],
+  "scope": "Ensure Senior Capstone automations commit and push project repo changes, and ensure project scripts run non-interactively without approval prompts.",
+  "files_changed": [
+    "docs/automation-runbook.md",
+    "docs/automation-self-improvement.md",
+    "docs/automation-memory.md",
+    "docs/progress/decision-log.md",
+    "docs/progress/audit.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-18-0923-audit-automation-publication-contract.json",
+    "docs/automation-prompts/",
+    "scripts/check-automation-contract.ps1",
+    "scripts/snapshot-automation-prompts.ps1"
+  ],
+  "external_artifacts": [],
+  "live_automation_updates": [
+    {
+      "id": "senior-capstone-figma-product-design-rebuilt",
+      "changed": "Added publication/script auto-approval hard rule to prompt.",
+      "preserved": "id, schedule, workspace, model, reasoning effort, status"
+    },
+    {
+      "id": "senior-capstone-rebuild-rebuilt",
+      "changed": "Added publication/script auto-approval hard rule to prompt.",
+      "preserved": "id, schedule, workspace, model, reasoning effort, status"
+    },
+    {
+      "id": "senior-capstone-content-quality-audits-rebuilt",
+      "changed": "Added publication/script auto-approval hard rule to prompt.",
+      "preserved": "id, schedule, workspace, model, reasoning effort, status"
+    },
+    {
+      "id": "senior-capstone-canva-visual-system-rebuilt",
+      "changed": "Added publication/script auto-approval hard rule to prompt.",
+      "preserved": "id, schedule, workspace, model, reasoning effort, status"
+    },
+    {
+      "id": "senior-capstone-daily-automation-report-rebuilt",
+      "changed": "Added publication/script auto-approval hard rule to prompt.",
+      "preserved": "id, schedule, workspace, model, reasoning effort, status"
+    },
+    {
+      "id": "senior-capstone-weekly-deep-audit-rebuilt",
+      "changed": "Added publication/script auto-approval hard rule to prompt.",
+      "preserved": "id, schedule, workspace, model, reasoning effort, status"
+    }
+  ],
+  "validation": [
+    "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/snapshot-automation-prompts.ps1",
+    "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/check-automation-contract.ps1",
+    "Automation contract checker passed for 6 automations and now verifies publication/script auto-approval prompt fragments plus script prompt-pattern restrictions."
+  ],
+  "backlog_updates": [],
+  "handoffs_opened": [],
+  "handoffs_closed": [],
+  "decisions_added": [
+    "D-2026-05-18-016"
+  ],
+  "human_decisions_added": [],
+  "self_improvement": {
+    "result": "updated-live-prompts-and-contract-checker",
+    "evidence": "Bryan explicitly requested commit/push behavior for all project automations plus auto approvals for script items.",
+    "automation_updated": [
+      "senior-capstone-figma-product-design-rebuilt",
+      "senior-capstone-rebuild-rebuilt",
+      "senior-capstone-content-quality-audits-rebuilt",
+      "senior-capstone-canva-visual-system-rebuilt",
+      "senior-capstone-daily-automation-report-rebuilt",
+      "senior-capstone-weekly-deep-audit-rebuilt"
+    ]
+  },
+  "commit": {
+    "message": "audit: enforce automation publication contract",
+    "hash": null,
+    "pushed": false
+  },
+  "next": [
+    "Future automation runs should fail contract checks if live prompts drop the hard publication rule or scripts add interactive prompts.",
+    "Core rebuild should continue with the accepted Cloudflare database/auth/progress scaffold."
+  ]
+}

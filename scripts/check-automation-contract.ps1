@@ -34,6 +34,9 @@ $requiredPromptFragments = @(
     "git status --short",
     "commit",
     "push the current branch",
+    "Publication/script auto-approval hard rule",
+    "auto-approved execution flags",
+    "committed blockers",
     "automation_update",
     "scripts/snapshot-automation-prompts.ps1",
     "scripts/check-automation-contract.ps1",
@@ -293,6 +296,28 @@ foreach ($relative in $requiredFiles) {
     Assert-File -Path (Join-Path $RepoRoot $relative)
 }
 
+$scriptDir = Join-Path $RepoRoot "scripts"
+if (Test-Path -LiteralPath $scriptDir) {
+    $forbiddenScriptPatterns = @(
+        ("Read" + "-Host"),
+        ("Prompt" + "ForChoice"),
+        ("(?m)^\s*" + "Pause\b"),
+        ("-" + "Confirm")
+    )
+
+    Get-ChildItem -LiteralPath $scriptDir -Filter "*.ps1" -File | ForEach-Object {
+        $scriptContent = Get-Content -Raw -LiteralPath $_.FullName
+        foreach ($pattern in $forbiddenScriptPatterns) {
+            if ($scriptContent -match $pattern) {
+                $failures.Add("Project script $($_.Name) contains interactive approval/prompt pattern: $pattern")
+            }
+        }
+    }
+}
+else {
+    $failures.Add("Missing scripts directory: $scriptDir")
+}
+
 $jsonFiles = New-Object System.Collections.Generic.List[string]
 $jsonFiles.Add("docs\artifacts.json")
 
@@ -324,7 +349,7 @@ foreach ($relative in $jsonFiles) {
 $runbookPath = Join-Path $RepoRoot "docs\automation-runbook.md"
 if (Test-Path -LiteralPath $runbookPath) {
     $runbook = Get-Content -Raw -LiteralPath $runbookPath
-    foreach ($fragment in @("master planner", "pass logger", "docs/progress/runs/", "docs/artifacts.json", "docs/human-decisions.md", "scripts/check-automation-contract.ps1", "scripts/snapshot-automation-prompts.ps1", "docs/automation-prompts/")) {
+    foreach ($fragment in @("master planner", "pass logger", "docs/progress/runs/", "docs/artifacts.json", "docs/human-decisions.md", "scripts/check-automation-contract.ps1", "scripts/snapshot-automation-prompts.ps1", "docs/automation-prompts/", "Project Script Auto-Approval Rule", "-NonInteractive", "local-only repo changes are not an acceptable closeout")) {
         if ($runbook -notlike "*$fragment*") {
             $failures.Add("Runbook is missing infrastructure reference: $fragment")
         }
