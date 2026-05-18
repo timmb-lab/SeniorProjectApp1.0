@@ -1,6 +1,8 @@
 # Automation Backlog
 
-This file tracks unresolved cross-lane issues for the Senior Capstone rebuild. The content audit automation owns backlog hygiene.
+This file tracks unresolved cross-category issues for the Senior Capstone rebuild. The `requirements-audit` category owns backlog hygiene.
+
+After the 2026-05-18 automation reset, category ownership is tracked in `docs/mvp-requirements-catalog.md`. Legacy `owner` values in existing backlog items can remain for continuity, but new or materially updated items should name the active category owner when possible: `requirements-audit`, `backend-security-data`, `student-workflow-evidence`, `staff-review-mentor`, `admin-ops-reporting`, `deployment-qa`, or `design-assets-handoff`.
 
 ## Status Values
 

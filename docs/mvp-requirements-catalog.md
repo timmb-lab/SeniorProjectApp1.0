@@ -1,0 +1,93 @@
+# Senior Capstone MVP Requirements Catalog
+
+Date: 2026-05-18
+
+This catalog converts the master plan into category-owned MVP requirements. It is the operating map for the rebuilt automation system. Every category automation must read this file after `docs/master-plan.md`, choose one bounded requirement slice, update the status/evidence here when material progress happens, and ladder the next pass from the highest-risk incomplete requirement in its category.
+
+Status values:
+
+- `not started`: no durable implementation/spec evidence yet.
+- `designed`: Figma/Canva/spec evidence exists, but implementation is not started.
+- `foundation started`: schema, route, test, config, or alpha proof exists but the production behavior is incomplete.
+- `alpha active`: Day 7 alpha can demonstrate the behavior with seeded/demo personas or server-owned demo state.
+- `mvp blocked`: account, credential, policy, connector, or platform blocker is stopping safe MVP completion.
+- `mvp ready`: production-ready enough for pilot review, with tests and privacy/security evidence.
+
+Automation owner categories:
+
+- `requirements-audit`: requirement catalog, weekly goal audit, scope control, backlog hygiene, source-framework coverage.
+- `backend-security-data`: auth, sessions, users, groups, roles, permissions, D1 schema, seed loaders, server authorization.
+- `student-workflow-evidence`: student dashboard, proposal/research flow, progress updates, evidence metadata, mobile student path.
+- `staff-review-mentor`: teacher review queue, comments, revision requests, approvals, mentor meetings, presentation workflow.
+- `admin-ops-reporting`: admin provisioning, programs/cohorts/deadlines/templates, announcements, misc admin, exports, audit views.
+- `deployment-qa`: GitHub-to-Cloudflare deployment, CI, test coverage, smoke checks, environment/secrets, backup/restore posture.
+- `design-assets-handoff`: Figma product specs, Canva supporting imagery, component/state handoffs, guided prototype, implementation annotations.
+
+## Category Summary
+
+| Category | Primary MVP question | Current status | Next evidence needed |
+| --- | --- | --- | --- |
+| Product, privacy, and alpha boundary | Is the project aiming at a real secure hosted app and not a visual prototype? | `foundation started` | Keep alpha shortcuts clearly labeled and preserve no-real-student-data guardrails. |
+| Identity, sessions, users, groups, roles | Can authorized users be created, scoped, signed in, and denied correctly? | `foundation started` | Add permission helpers/tests, account lifecycle, and hardened user/group assignment flows. |
+| Programs, cohorts, requirements, deadlines | Are the nine CTE programs and source-PDF requirements first-class records? | `foundation started` | Add framework seed loader and requirement/deadline tests. |
+| Student workspace, proposal/research, progress | Can a student complete the core capstone proposal path from dashboard to submission? | `alpha active` | Deepen guided sections, blocked-submit states, progress persistence, and mobile proof. |
+| Private evidence and protected records | Are evidence artifacts private, linked to submissions, reviewable, and auditable? | `foundation started` | Implement Drive upload credentials/OAuth, access checks, and protected-evidence tests. |
+| Reviews, revisions, approvals, mentor flow | Can staff review, request revision, approve, and mentor through scoped workflow? | `alpha active` | Convert alpha actions into production endpoints and tests for scopes/history. |
+| Admin operations, announcements, exports, audit | Can admins manage operations and produce auditable exports without overexposing data? | `foundation started` | Implement admin surfaces/endpoints, scoped misc-admin checks, export records, and redaction. |
+| Dashboards and reporting | Do dashboards derive from trusted server/database state and link to underlying records? | `alpha active` | Persist dashboard aggregates and add tests against stale/client-only counts. |
+| Deployment, QA, observability, backup | Can the app be deployed, checked, monitored, and recovered safely? | `foundation started` | Verify each new post-push deployment, restore MCP/Wrangler path, broaden CI. |
+| Figma, Canva, and handoff assets | Do visuals/specs reduce implementation ambiguity without becoming the source of truth? | `designed` | Keep Figma/Canva tied to route/data/permission gaps and stop broad polish until alpha gaps close. |
+
+## Core Requirements
+
+| ID | Requirement | Owner category | Current evidence | Acceptance evidence needed | Status |
+| --- | --- | --- | --- | --- | --- |
+| MVP-001 | Build a GitHub-to-Cloudflare hosted Senior Capstone app, not a static guide or Figma-only prototype. | `deployment-qa` | `docs/backend-setup.md`, `wrangler.jsonc`, Cloudflare Pages artifact, production deployment `2aadfa71`, live alpha route, and `/api/alpha/state`. | Verify each new post-push deployment, record URL/API status, and commit exact blocker if Cloudflare auth or Wrangler blocks. | `foundation started` |
+| MVP-002 | Preserve the Day 7 alpha account exception while clearly labeling seeded/demo personas as not production auth. | `requirements-audit` | `docs/alpha-week-framework.md`, `docs/alpha-runbook.md`, `alpha.html`, `alpha.js`. | Walkthrough labels account shortcuts; no alpha copy claims pilot readiness or real account safety. | `alpha active` |
+| MVP-003 | Exclude real student data from alpha and prevent private records from entering public/static assets. | `requirements-audit` | Alpha runbook and checker guardrails. | Contract check plus audit review confirms no real student names, private evidence, credentials, or staff-only notes. | `foundation started` |
+| MVP-004 | Provide hardened username/password pilot auth behind a narrow boundary that can later swap to SSO. | `backend-security-data` | `functions/api/auth/*`, `migrations/0001_foundation.sql`, auth setup notes, verified first-admin bootstrap for `bryan.timm89@gmail.com`, setup-key removal, login/session proof, and `bootstrap_admin_created` audit event. | Add account lifecycle, password reset, invitation/import, credential rotation, logout/session expiry tests, and role-scope tests before pilot use. | `foundation started` |
+| MVP-005 | Store users, credentials, sessions, login attempts, roles, and role assignments in D1. | `backend-security-data` | D1 migration creates auth/account tables. | D1 read/write tests cover active, disabled, reset-required, invalid login, and session expiry states. | `foundation started` |
+| MVP-006 | Support student, mentor, program teacher, admin, and misc admin roles with default-deny permissions. | `backend-security-data` | Migration seeds 5 roles; alpha persona switcher models scopes. | Permission helper tests cover student-own, mentor-assigned, teacher program/cohort, admin all, misc-admin narrow, and unauthorized denial. | `foundation started` |
+| MVP-007 | Let admins manage users, groups, programs, cohorts, mentor assignments, teacher assignments, and role scopes. | `admin-ops-reporting` | Figma node `48:2`; D1 tables exist; admin test account seeding endpoint `functions/api/admin/test-accounts.ts` and `tests/test-account-seed.test.mjs` exist. | Admin endpoints/surfaces create/update/import assignments, detect duplicates, audit role changes, and block misc-admin broad access. | `foundation started` |
+| MVP-008 | Represent all nine required CTE programs as first-class records and filters. | `backend-security-data` | Migration seeds all nine programs. | UI/API filters and dashboard aggregates can scope by every required program. | `foundation started` |
+| MVP-009 | Convert source-PDF workflow into app-native requirements, sections, quality checks, deadlines, review gates, and dashboard signals. | `requirements-audit` | `data/capstone-framework.json`; backlog `SC-001`. | Seed loader populates requirements/deadlines/checks from source framework and tests verify counts/required fields. | `not started` |
+| MVP-010 | Track student progress records and status history from trusted server/database state. | `student-workflow-evidence` | D1 tables; Figma node `61:2`; alpha state transitions. | API writes progress/status history with stale-write handling and audit events; dashboard counts derive from DB/server state. | `foundation started` |
+| MVP-011 | Provide student dashboard with phase, next action, due items, evidence needs, revision state, and program context. | `student-workflow-evidence` | Alpha student workspace; Figma student desktop/mobile frames. | Mobile and desktop walkthrough shows live state changes after submit/revision/approval. | `alpha active` |
+| MVP-012 | Provide guided proposal/research workflow with sections, evidence requirements, draft, submit, revise, and resubmit. | `student-workflow-evidence` | Alpha actions and Figma guided proposal `3:154`. | Server-owned guided sections persist drafts/submissions and preserve prior versions on resubmission. | `alpha active` |
+| MVP-013 | Validate evidence metadata and support private evidence links/uploads through Google Drive repository path. | `student-workflow-evidence` | D1 `evidence_artifacts`, Drive root/index artifacts, alpha evidence URL validation. | Drive upload credential/OAuth path exists; metadata links to submissions; invalid URLs/provider failure/access denied states tested. | `foundation started` |
+| MVP-014 | Keep evidence artifacts access-controlled and auditable, including denied-access events. | `backend-security-data` | Figma nodes `37:2`, `43:149`, `56:2`; D1 evidence tables. | Tests prove student own access, mentor assigned access, program teacher scope, admin scope, misc-admin narrowing, unauthorized denial, and audit events. | `designed` |
+| MVP-015 | Provide program teacher review queue, detail, comments, revision request, approval, status history, and dashboard count updates. | `staff-review-mentor` | Alpha teacher review actions; Figma nodes `31:2`, `61:2`. | End-to-end student -> teacher -> revision -> resubmission -> approval loop works without code edits and persists history. | `alpha active` |
+| MVP-016 | Preserve immutable review history and prior submission versions. | `staff-review-mentor` | Figma node `37:2`; alpha review history timeline. | Production/state API stores review decisions, comments, version history, and prevents destructive overwrite. | `foundation started` |
+| MVP-017 | Support mentor assigned-student visibility, meeting attendance, make-up requirements, outline approval cues, presentation slot risk, and scoped actions. | `staff-review-mentor` | Alpha mentor actions; Figma node `78:2`; backlog `SC-004`. | Meeting/presentation records exist, mentor scope is enforced, conflicts are blocked, and audit events are recorded. | `alpha active` |
+| MVP-018 | Support admin overview, deadlines, templates, announcements, overrides, audit/activity, exports, and archive controls. | `admin-ops-reporting` | Alpha admin actions; Figma nodes `48:2`, `69:2`; D1 tables for deadlines, announcements, exports, audit. | Admin endpoints/surfaces persist operations, require override reasons, redact audit details, and record export lifecycle. | `foundation started` |
+| MVP-019 | Provide misc-admin narrow read/reporting view without broad admin powers. | `admin-ops-reporting` | Alpha misc-admin report and restricted approval denial. | Tests show misc-admin can run allowed reports but cannot approve, export protected archives, change roles, or view out-of-scope evidence. | `alpha active` |
+| MVP-020 | Maintain audit logs for sensitive actions: login, role changes, progress/status changes, evidence access, review decisions, overrides, exports, and permission denials. | `admin-ops-reporting` | D1 `audit_events`; alpha activity timeline; Figma node `69:2`. | Audit API/view filters immutable events, redacts sensitive metadata, and records denied access. | `foundation started` |
+| MVP-021 | Generate dashboard aggregates from trusted state for students, mentors, teachers, admins, and misc admins. | `student-workflow-evidence` | Alpha dashboard metrics; Figma node `61:2`. | Aggregates are computed from DB/server state, not client-only state, and link to underlying records. | `alpha active` |
+| MVP-022 | Support exports/archives, including May 5 student archive package and scoped signed download behavior. | `admin-ops-reporting` | D1 `exports`; Figma node `69:2`; alpha export queue. | Export request lifecycle exists with scoped authorization, signed expiry or safe Drive link behavior, audit events, and retention notes. | `foundation started` |
+| MVP-023 | Provide announcement surfaces for staff/admin updates without adding student-to-student messaging. | `admin-ops-reporting` | D1 `announcements`; master-plan guardrail. | Admin/staff announcement create/list/read flow exists; audit confirms no chat, peer DMs, or social feed. | `not started` |
+| MVP-024 | Preserve mobile-safe student path with no horizontal overflow. | `student-workflow-evidence` | Alpha CSS and earlier Edge mobile render proof; Figma node `56:2`. | Browser/mobile smoke proof after current alpha route, including revision/evidence states. | `foundation started` |
+| MVP-025 | Maintain CI and local validation for alpha contract, state machine, syntax, type checks, and future permission tests. | `deployment-qa` | `npm run check`, `scripts/check-alpha-contract.mjs`, `tests/alpha-flow.test.mjs`, `tests/test-account-seed.test.mjs`, `.github/workflows/*.yml`. | CI green on GitHub and local/Node REPL fallback documented when local shell lacks Node/npm/Wrangler. | `foundation started` |
+| MVP-026 | Verify Cloudflare Pages deployment, D1 binding, env vars/secrets, and `/api/alpha/state` after pushes. | `deployment-qa` | Production deployment `2aadfa71` verified `/alpha.html`, `/api/alpha/state`, `/api/health`, D1 first-admin state, login/session, and bootstrap 403 after setup-key removal. Cloudflare MCP still returned `Auth required` in a later Codex session, so future remote mutation may need reauthorization or Wrangler. | After this category-reset commit lands, verify the new production/preview deployment or record the exact connector/Wrangler blocker. | `foundation started` |
+| MVP-027 | Maintain backup/export posture, retention notes, secrets discipline, and no credential commits. | `deployment-qa` | `.gitignore`, backend setup notes, artifact registry, alpha runbook. | Backup/restore and secret rotation checklist exists; scan confirms no secrets or real records committed. | `foundation started` |
+| MVP-028 | Keep Figma as functional product-design source for route/data/permission/states, not production data. | `design-assets-handoff` | Active file `z4t4tFPAKrMDh6pIYOeEw6`, nodes `18:2`, `31:2`, `37:2`, `43:2`, `48:2`, `56:2`, `61:2`, `69:2`, `78:2`. | Design handoffs are consumed by code/tests; no new broad Figma polish while Day 7 alpha gaps are open unless a specific implementation ambiguity exists. | `designed` |
+| MVP-029 | Keep Canva as supporting-image source with live-text and privacy discipline. | `design-assets-handoff` | Canva folder/artifacts and open empty-state handoffs. | Asset specs include placement, dimensions, alt text, no private data, and live-text guidance; assets are used only where helpful. | `designed` |
+| MVP-030 | Keep the 100-pass target honest with weekly evidence-based calibration. | `requirements-audit` | Prior daily goal docs; new category automation reset. | Requirements-audit category counts accepted passes weekly and updates only this project master plan/memory/catalog from evidence. | `foundation started` |
+
+## Current Highest-Risk Requirements
+
+1. `MVP-006` and `MVP-014`: permission/protected-evidence tests are not broad enough for real student records.
+2. `MVP-013`: Google Drive upload credential/OAuth path is not implemented.
+3. `MVP-009`: source-framework seed loader is still missing.
+4. `MVP-015` through `MVP-018`: alpha demonstrates workflow actions, but production endpoints and immutable history need depth.
+5. `MVP-004`: account lifecycle, invitation/import, password reset, credential rotation, and session expiry tests remain incomplete after first-admin bootstrap.
+6. `MVP-026`: each new post-push deployment still needs verification; Cloudflare MCP/Wrangler access may block future remote mutation proof.
+
+## Laddering Rule
+
+Each category automation must:
+
+1. Pick the highest-risk incomplete requirement in its owner category.
+2. Prefer implementation, tests, deployment evidence, or a verified external artifact over planning.
+3. Update this catalog only when a requirement's status, evidence, blocker, or next acceptance check materially changes.
+4. Write the structured run manifest with the requirement IDs touched.
+5. Commit and push every repo change, or commit a blocker record that names the exact unavailable account/tool/policy step.

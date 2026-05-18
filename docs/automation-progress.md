@@ -801,3 +801,21 @@ Verification:
 
 Recommended next slice:
 - The 5x/day orchestrator should scaffold the accepted Cloudflare stack path from ADR-0001 and `SC-005`.
+
+## 2026-05-18 MVP Category Automation Reset
+
+Intent:
+- Supersede the prior gold-standard orchestrator/standby setup after Bryan explicitly asked to delete all Senior Capstone project automation setup and restart with requirement categories.
+
+What changed:
+- Added `docs/mvp-requirements-catalog.md` with 30 categorized core MVP requirements, owner categories, current evidence, statuses, and acceptance evidence.
+- Replaced the old local Senior Capstone automation TOMLs with seven active category runners: requirements/audit, backend security/data, student workflow/evidence, staff review/mentor, admin ops/reporting, deployment QA/CI, and design assets/handoff.
+- Each category now runs 4x/day with staggered non-overlapping start slots, about 50 minutes apart inside each six-hour cycle.
+- Updated prompt snapshots, snapshot generation, contract checker, cadence, master plan, memory, runbook, backlog, handoffs, decisions, artifact registry, weekly audit notes, and daily reporting notes.
+
+Verification:
+- `scripts/check-automation-contract.ps1 -RepoRoot .` passed for all 7 category automations.
+- JSON parsing, conflict-marker scan, and `git diff --check` passed; diff check only reported CRLF normalization warnings.
+
+Recommended next slice:
+- Deployment QA should verify the Cloudflare alpha route/API or commit the exact auth/Wrangler blocker; backend should verify first-admin bootstrap and broaden permission/protected-evidence tests.

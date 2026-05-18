@@ -4,6 +4,8 @@ Date: 2026-05-18
 
 This is the top-level product plan for the Senior Capstone rebuild. Every automation lane must read this before choosing work. If a run cannot explain how its slice advances this plan, it should pick a different slice.
 
+The category-owned MVP requirement source is `docs/mvp-requirements-catalog.md`. Every automation run must ladder from this master plan into that catalog, name the requirement IDs it advances, and update the catalog when status, evidence, blockers, owner category, or acceptance checks materially change.
+
 ## Product Destination
 
 Build a hosted Senior Capstone application for students, mentors, program teachers, administrators, and miscellaneous support/admin users.
@@ -32,7 +34,7 @@ MVP 1.0 must support:
 
 Day 7 alpha may temporarily defer production user-account readiness. It must still prove the whole user journey through seeded/demo personas, route guards, working forms, persisted or server-owned demo state where practical, dashboard updates, review/status transitions, and clear audit/activity history. First-admin bootstrap is now complete, but do not let password reset, invitation, account import, district SSO, or remaining account hardening block the Day 7 alpha.
 
-Figma and Canva are major first-class inputs to the product experience. Figma should drive functional UI design, role-aware screens, implementation-ready specs, state coverage, and the daily guided prototype page that explains what today's real app progress means for users and the next ladder step. Canva should create stunning supporting images and visual assets that make the app feel polished without baking important live text or private data into images.
+Figma and Canva are major first-class inputs to the product experience. Figma should drive functional UI design, role-aware screens, implementation-ready specs, state coverage, and guided prototype/page annotations that explain real app progress and the next ladder step. Canva should create stunning supporting images and visual assets that make the app feel polished without baking important live text or private data into images.
 
 This project is not finished when it looks good. It is finished when the hosted app can safely manage real student workflow and staff visibility from a secure database-backed foundation.
 
@@ -203,7 +205,7 @@ Day 7 acceptance checks:
 
 Seven-day implementation ladder:
 1. Day 1, 2026-05-18: lock alpha scope, preserve Cloudflare/D1/Drive setup records, create the alpha route/persona shell, add the runbook/framework/check/CI rails, and prioritize working flows over more broad design polish.
-2. Day 2, 2026-05-19: verify the D1-backed alpha on Cloudflare Pages, complete first-admin bootstrap verification, and turn any deploy/bootstrap blocker into a committed exact next action.
+2. Day 2, 2026-05-19: preserve the verified D1-backed alpha/first-admin bootstrap proof, verify any new deployment after subsequent commits, and turn any new deploy/config blocker into a committed exact next action.
 3. Day 3, 2026-05-20: deepen student dashboard, guided proposal/research form, save/draft/submit states, evidence metadata validation, blocked-submit/access states, and mobile no-overflow proof.
 4. Day 4, 2026-05-21: complete program teacher review queue, comments, revision request, approval, resubmission loop, immutable history, status history, and broader permission tests.
 5. Day 5, 2026-05-22: deepen mentor dashboard, meeting/presentation cues, admin overview, misc-admin narrowing, program/cohort/deadline/template surfaces, dashboard aggregates, and audit/activity timeline into real workflow endpoints.
@@ -268,13 +270,13 @@ Daily priority order:
 2. Second accepted pass should deepen or verify the same alpha path: working transitions, seeded/demo data, tests, local run proof, Cloudflare preview proof, error/empty/permission states, or bug fixes.
 3. Stretch pass can be Figma, Canva, audit, or docs only when it directly unblocks the Day 7 alpha or closes a concrete P0/P1 handoff.
 
-Weekly adjustment rule for this project only: the Sunday weekly deep audit reviews the last seven days of run manifests, run log entries, commits, backlog movement, handoffs, and audit findings. It then updates this master plan and `docs/automation-memory.md` with the next week's daily goal/allocation if evidence shows the plan is too loose, too aggressive, or pointed at the wrong lane. This weekly calibration may adjust goals and pass allocation, but it must not change automation schedules, workspace, model, reasoning effort, or status unless Bryan explicitly asks.
+Weekly adjustment rule for this project only: the `requirements-audit` category runner reviews the last seven days of run manifests, run log entries, commits, backlog movement, handoffs, and audit findings on Sundays. It then updates this master plan, `docs/automation-memory.md`, and `docs/mvp-requirements-catalog.md` with the next week's daily goal/allocation if evidence shows the plan is too loose, too aggressive, or pointed at the wrong category.
 
 ### 2026-05-18 Baseline After Figma And Automation Catch-Up
 
 Today's work materially improved the implementation runway, but it did not yet create the hosted database-backed app. Treat the repo state through commit `08660f3` as the 100-pass baseline:
 
-- Operating base is stronger: the project now has a 5x/day gold-standard orchestrator, prompt snapshots, structured run manifests, a human-decision queue, artifact registry, contract checker, publication/commit-push requirements, and non-interactive project-script rules.
+- Operating base is stronger: the project now has category-owned MVP requirements, prompt snapshots, structured run manifests, a human-decision queue, artifact registry, contract checker, publication/commit-push requirements, and non-interactive project-script rules.
 - Stack direction is accepted: `HD-2026-05-18-001` and ADR-0001 select the default GitHub-to-Cloudflare path with TypeScript, Cloudflare Workers/Pages, D1-compatible database, R2-compatible private evidence storage, Workers-compatible managed auth or school-approved SSO, server authorization, and audit logging.
 - Active Figma source is usable: professional-plan calls verified and updated file `z4t4tFPAKrMDh6pIYOeEw6` in team `1638213362346160913`.
 - Figma implementation handoffs now exist for the first MVP spine:
@@ -287,9 +289,23 @@ Today's work materially improved the implementation runway, but it did not yet c
   - `61:2`: progress-update to dashboard-aggregate contract with server-owned transitions, stale-write conflict handling, audit-first sensitive changes, and database-derived dashboard counts.
   - `69:2`: audit-log and export-controls contract with immutable audit stream filters, redacted event detail, scoped export request, signed archive/download states, permission denial, retention-policy cues, and no-storage-key exposure.
   - `78:2`: mentor meeting and presentation scheduling contract with prep evidence, attendance/make-up tracking, outline approval gate, presentation slot conflict handling, check-out/check-in state, scoped permissions, and audit events.
-- The critical gap is unchanged: no production app scaffold, managed auth, database schema, private file storage, migrations, API layer, tests, CI, or GitHub-to-Cloudflare deployment pipeline exists yet.
+- The critical gap has shifted: the Cloudflare Pages/D1 scaffold, auth endpoints, production alpha route, first-admin bootstrap, alpha tests, and CI rails now exist, but Drive upload credentials, broad permission/protected-evidence tests, account lifecycle, post-reset deployment verification, and production workflow endpoints remain incomplete.
 
-Because of that gap, the next useful 100-pass plan must prioritize implementation over additional design polish unless the design work is directly blocking rebuild.
+Because of that gap, the next useful 100-pass plan must prioritize implementation, deployment proof, and tests over additional design polish unless design work is directly blocking a concrete route/data/permission implementation.
+
+### 2026-05-18 Category Automation Reset
+
+Bryan explicitly reset the Senior Capstone automation setup on 2026-05-18. The prior active/standby automation model is superseded by seven active MVP category runners, each scheduled four times per day with staggered non-overlapping start slots:
+
+- `requirements-audit`
+- `backend-security-data`
+- `student-workflow-evidence`
+- `staff-review-mentor`
+- `admin-ops-reporting`
+- `deployment-qa`
+- `design-assets-handoff`
+
+The requirement catalog in `docs/mvp-requirements-catalog.md` is now the pass ladder between this master plan and individual run work. The schedule is execution capacity, not a target to count 28 accepted passes per day. Keep the daily accepted-pass goal at 2 minimum, 3 stretch, until the weekly evidence review changes it.
 
 ### Updated 100-Pass Allocation From Current State
 
@@ -358,7 +374,7 @@ Current stack pressure:
 ## Lane Responsibilities
 
 Figma:
-- Heavy product-design ownership for functional app screens, app shell, dashboards, admin preview, components, responsive states, accessibility, permission-aware UI states, upload/evidence states, database-backed states, announcement surfaces, mobile-aware patterns, developer-ready specs, and the daily guided multi-page prototype that ladders from actual progress into the next MVP slice.
+- Heavy product-design ownership for functional app screens, app shell, dashboards, admin preview, components, responsive states, accessibility, permission-aware UI states, upload/evidence states, database-backed states, announcement surfaces, mobile-aware patterns, developer-ready specs, and guided prototype/page annotations that ladder from actual progress into the next MVP slice.
 
 Core rebuild:
 - Cloudflare/GitHub architecture, scaffold, auth, authorization, database/schema, user groups, progress updates, private upload/evidence storage, workflow logic, dashboard aggregates, tests, CI/deployment readiness, custom-domain readiness, and security posture.
@@ -444,7 +460,7 @@ Do not:
 Each week, Bryan should be able to answer:
 
 - Did the project hit at least 14 accepted MVP passes this week, and were they mostly implementation-heavy while `SC-005` remained open?
-- Did the weekly deep audit adjust the next week's daily goal/allocation from evidence instead of vibes?
+- Did the `requirements-audit` category adjust the next week's daily goal/allocation from evidence instead of vibes?
 - Did the repo move closer to a real hosted app?
 - Did the repo move closer to the secure database/account/group/progress MVP?
 - Did the GitHub-to-Cloudflare deployment path move forward?

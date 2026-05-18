@@ -7,19 +7,66 @@ $ErrorActionPreference = "Stop"
 $failures = New-Object System.Collections.Generic.List[string]
 
 $automationIds = @(
-    "senior-capstone-figma-product-design-rebuilt",
-    "senior-capstone-rebuild-rebuilt",
-    "senior-capstone-content-quality-audits-rebuilt",
+    "senior-capstone-mvp-requirements-audit",
+    "senior-capstone-backend-security-data",
+    "senior-capstone-student-workflow-evidence",
+    "senior-capstone-staff-review-mentor",
+    "senior-capstone-admin-ops-reporting",
+    "senior-capstone-deployment-qa",
+    "senior-capstone-design-assets-handoff"
+)
+
+$legacyAutomationIds = @(
     "senior-capstone-canva-visual-system-rebuilt",
+    "senior-capstone-content-quality-audits-rebuilt",
     "senior-capstone-daily-automation-report-rebuilt",
     "senior-capstone-daily-guided-prototype-refresh",
+    "senior-capstone-figma-product-design-rebuilt",
+    "senior-capstone-rebuild-rebuilt",
     "senior-capstone-weekly-deep-audit-rebuilt"
 )
 
+$expectedAutomationConfig = @{
+    "senior-capstone-mvp-requirements-audit" = @{
+        Name = "Senior Capstone MVP Requirements + Audit"
+        Status = "ACTIVE"
+        RRule = "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=0,6,12,18;BYMINUTE=5"
+    }
+    "senior-capstone-backend-security-data" = @{
+        Name = "Senior Capstone Backend Security + Data"
+        Status = "ACTIVE"
+        RRule = "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=0,6,12,18;BYMINUTE=55"
+    }
+    "senior-capstone-student-workflow-evidence" = @{
+        Name = "Senior Capstone Student Workflow + Evidence"
+        Status = "ACTIVE"
+        RRule = "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=1,7,13,19;BYMINUTE=45"
+    }
+    "senior-capstone-staff-review-mentor" = @{
+        Name = "Senior Capstone Staff Review + Mentor"
+        Status = "ACTIVE"
+        RRule = "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=2,8,14,20;BYMINUTE=35"
+    }
+    "senior-capstone-admin-ops-reporting" = @{
+        Name = "Senior Capstone Admin Ops + Reporting"
+        Status = "ACTIVE"
+        RRule = "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=3,9,15,21;BYMINUTE=25"
+    }
+    "senior-capstone-deployment-qa" = @{
+        Name = "Senior Capstone Deployment QA + CI"
+        Status = "ACTIVE"
+        RRule = "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=4,10,16,22;BYMINUTE=15"
+    }
+    "senior-capstone-design-assets-handoff" = @{
+        Name = "Senior Capstone Design Assets + Handoff"
+        Status = "ACTIVE"
+        RRule = "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=5,11,17,23;BYMINUTE=5"
+    }
+}
+
 $requiredPromptFragments = @(
-    "master planner",
-    "pass logger",
     "docs/master-plan.md",
+    "docs/mvp-requirements-catalog.md",
     "docs/automation-runbook.md",
     "docs/automation-self-improvement.md",
     "docs/automation-cadence.md",
@@ -32,67 +79,33 @@ $requiredPromptFragments = @(
     "docs/automation-backlog.md",
     "docs/artifacts.json",
     "docs/human-decisions.md",
-    "git status --short",
+    "git status --short --branch",
+    "requirement IDs",
     "commit",
     "push the current branch",
     "Publication/script auto-approval hard rule",
     "auto-approved execution flags",
-    "committed blockers",
-    "automation_update",
+    "self-improvement",
     "scripts/snapshot-automation-prompts.ps1",
     "scripts/check-automation-contract.ps1",
     "real auth",
+    "protected student records",
     "z4t4tFPAKrMDh6pIYOeEw6",
-    "team::1638213362346160913",
-    "LLucMgAPscRa9020iHHigB"
+    "team::1638213362346160913"
 )
 
-$weeklyDeepAuditPromptFragments = @(
-    "Weekly 100-pass goal calibration",
-    "only for this Senior Capstone project",
-    "minimum 2 accepted MVP passes per day",
-    "14 accepted MVP passes per week",
-    "Update only this project's",
-    "Do not change schedule, workspace, model, reasoning effort, or status while adjusting goals"
-)
-
-$expectedAutomationConfig = @{
-    "senior-capstone-rebuild-rebuilt" = @{
-        Name = "Senior Capstone Gold Standard Orchestrator"
-        Status = "ACTIVE"
-        RRule = "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=0,5,10,15,20;BYMINUTE=20"
-    }
-    "senior-capstone-figma-product-design-rebuilt" = @{
-        Name = "Senior Capstone Figma Product Design Standby"
-        Status = "PAUSED"
-        RRule = "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=1,7,13,19;BYMINUTE=15"
-    }
-    "senior-capstone-canva-visual-system-rebuilt" = @{
-        Name = "Senior Capstone Canva Visual System Standby"
-        Status = "PAUSED"
-        RRule = "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=0,6,12,18;BYMINUTE=10"
-    }
-    "senior-capstone-content-quality-audits-rebuilt" = @{
-        Name = "Senior Capstone Content Quality Audit Standby"
-        Status = "PAUSED"
-        RRule = "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=3,9,15,21;BYMINUTE=45"
-    }
-    "senior-capstone-daily-automation-report-rebuilt" = @{
-        Name = "Senior Capstone Daily Report Standby"
-        Status = "PAUSED"
-        RRule = "FREQ=DAILY;BYHOUR=7;BYMINUTE=40"
-    }
-    "senior-capstone-daily-guided-prototype-refresh" = @{
-        Name = "Senior Capstone Daily Guided Prototype Refresh"
-        Status = "ACTIVE"
-        RRule = "FREQ=DAILY;BYHOUR=22;BYMINUTE=10"
-    }
-    "senior-capstone-weekly-deep-audit-rebuilt" = @{
-        Name = "Senior Capstone Weekly Deep Audit Rebuilt"
-        Status = "ACTIVE"
-        RRule = "FREQ=WEEKLY;BYDAY=SU;BYHOUR=23;BYMINUTE=45"
-    }
+$categoryFragments = @{
+    "senior-capstone-mvp-requirements-audit" = @("requirements-audit", "weekly calibration", "accepted MVP passes", "source-framework coverage")
+    "senior-capstone-backend-security-data" = @("backend-security-data", "first-admin bootstrap", "permissions", "D1")
+    "senior-capstone-student-workflow-evidence" = @("student-workflow-evidence", "student dashboard", "evidence metadata", "mobile")
+    "senior-capstone-staff-review-mentor" = @("staff-review-mentor", "teacher review", "revision", "mentor")
+    "senior-capstone-admin-ops-reporting" = @("admin-ops-reporting", "exports", "audit", "misc admin")
+    "senior-capstone-deployment-qa" = @("deployment-qa", "Cloudflare", "CI", "smoke")
+    "senior-capstone-design-assets-handoff" = @("design-assets-handoff", "Figma", "Canva", "handoff")
 }
+
+$allWeekDays = @("MO", "TU", "WE", "TH", "FR", "SA", "SU")
+$expectedDailyTimes = @("00:05", "00:55", "01:45", "02:35", "03:25", "04:15", "05:05", "06:05", "06:55", "07:45", "08:35", "09:25", "10:15", "11:05", "12:05", "12:55", "13:45", "14:35", "15:25", "16:15", "17:05", "18:05", "18:55", "19:45", "20:35", "21:25", "22:15", "23:05")
 
 function Get-TomlStringValue {
     param(
@@ -144,41 +157,22 @@ function Assert-File {
     }
 }
 
-$scheduleSlots = @{}
-$activeEverydaySeniorSlots = @{}
-$expectedDailyTimes = @("00:20", "05:20", "10:20", "15:20", "20:20", "22:10")
-$expectedDailyOwnerByTime = @{
-    "00:20" = "senior-capstone-rebuild-rebuilt"
-    "05:20" = "senior-capstone-rebuild-rebuilt"
-    "10:20" = "senior-capstone-rebuild-rebuilt"
-    "15:20" = "senior-capstone-rebuild-rebuilt"
-    "20:20" = "senior-capstone-rebuild-rebuilt"
-    "22:10" = "senior-capstone-daily-guided-prototype-refresh"
+if (-not (Test-Path -LiteralPath $AutomationRoot)) {
+    $failures.Add("Missing automation root: $AutomationRoot")
 }
-$allWeekDays = @("MO", "TU", "WE", "TH", "FR", "SA", "SU")
-
-foreach ($day in $allWeekDays) {
-    $activeEverydaySeniorSlots[$day] = New-Object System.Collections.Generic.List[string]
-}
-
-$knownAutomationIds = @{}
-foreach ($id in $automationIds) {
-    $knownAutomationIds[$id] = $true
-}
-
-if (Test-Path -LiteralPath $AutomationRoot) {
-    Get-ChildItem -LiteralPath $AutomationRoot -Directory -Filter "senior-capstone-*" | ForEach-Object {
-        if (-not $knownAutomationIds.ContainsKey($_.Name)) {
-            $tomlPath = Join-Path $_.FullName "automation.toml"
-            if (Test-Path -LiteralPath $tomlPath) {
-                $raw = Get-Content -Raw -LiteralPath $tomlPath
-                $status = Get-TomlStringValue -Content $raw -Key "status"
-                if ($status -eq "ACTIVE") {
-                    $failures.Add("Unexpected ACTIVE Senior Capstone automation outside source-of-truth set: $($_.Name)")
-                }
-            }
+else {
+    foreach ($legacyId in $legacyAutomationIds) {
+        $legacyToml = Join-Path $AutomationRoot "$legacyId\automation.toml"
+        if (Test-Path -LiteralPath $legacyToml) {
+            $failures.Add("Legacy Senior Capstone automation TOML still exists after reset: $legacyToml")
         }
     }
+}
+
+$scheduleSlots = @{}
+$activeSlotsByDay = @{}
+foreach ($day in $allWeekDays) {
+    $activeSlotsByDay[$day] = New-Object System.Collections.Generic.List[string]
 }
 
 foreach ($id in $automationIds) {
@@ -196,51 +190,14 @@ foreach ($id in $automationIds) {
     $promptHash = Get-StringSha256 -Value $prompt
 
     $expected = $expectedAutomationConfig[$id]
-    if ($expected) {
-        if ($name -ne $expected.Name) {
-            $failures.Add("$id has unexpected name '$name'; expected '$($expected.Name)'")
-        }
-
-        if ($status -ne $expected.Status) {
-            $failures.Add("$id has unexpected status '$status'; expected '$($expected.Status)'")
-        }
-
-        if ($rrule -ne $expected.RRule) {
-            $failures.Add("$id has unexpected RRULE '$rrule'; expected '$($expected.RRule)'")
-        }
+    if ($name -ne $expected.Name) {
+        $failures.Add("$id has unexpected name '$name'; expected '$($expected.Name)'")
     }
-
-    if ($status -ne "ACTIVE" -and $prompt -like "*ACTIVE status*") {
-        $failures.Add("$id is $status but prompt says to preserve ACTIVE status")
+    if ($status -ne $expected.Status) {
+        $failures.Add("$id has unexpected status '$status'; expected '$($expected.Status)'")
     }
-
-    $days = Get-RRulePart -RRule $rrule -Key "BYDAY"
-    if ($days.Count -eq 0 -and $rrule -like "FREQ=DAILY*") {
-        $days = @("MO", "TU", "WE", "TH", "FR", "SA", "SU")
-    }
-
-    $hours = Get-RRulePart -RRule $rrule -Key "BYHOUR"
-    $minutes = Get-RRulePart -RRule $rrule -Key "BYMINUTE"
-    if ($days.Count -eq 0 -or $hours.Count -eq 0 -or $minutes.Count -eq 0) {
-        $failures.Add("$id has an RRULE the schedule conflict checker cannot parse: $rrule")
-    }
-    else {
-        foreach ($day in $days) {
-            foreach ($hour in $hours) {
-                foreach ($minute in $minutes) {
-                    $time = "{0:D2}:{1:D2}" -f [int]$hour, [int]$minute
-                    $slot = "{0} {1}" -f $day, $time
-                    if (-not $scheduleSlots.ContainsKey($slot)) {
-                        $scheduleSlots[$slot] = New-Object System.Collections.Generic.List[string]
-                    }
-                    $scheduleSlots[$slot].Add("$($id)[$status]")
-
-                    if ($status -eq "ACTIVE" -and $days.Count -eq 7) {
-                        $activeEverydaySeniorSlots[$day].Add("$time $id")
-                    }
-                }
-            }
-        }
+    if ($rrule -ne $expected.RRule) {
+        $failures.Add("$id has unexpected RRULE '$rrule'; expected '$($expected.RRule)'")
     }
 
     foreach ($fragment in $requiredPromptFragments) {
@@ -249,10 +206,31 @@ foreach ($id in $automationIds) {
         }
     }
 
-    if ($id -eq "senior-capstone-weekly-deep-audit-rebuilt") {
-        foreach ($fragment in $weeklyDeepAuditPromptFragments) {
-            if ($prompt -notlike "*$fragment*") {
-                $failures.Add("$id prompt is missing weekly goal calibration fragment: $fragment")
+    foreach ($fragment in $categoryFragments[$id]) {
+        if ($prompt -notlike "*$fragment*") {
+            $failures.Add("$id prompt is missing category fragment: $fragment")
+        }
+    }
+
+    $days = @(Get-RRulePart -RRule $rrule -Key "BYDAY")
+    $hours = @(Get-RRulePart -RRule $rrule -Key "BYHOUR")
+    $minutes = @(Get-RRulePart -RRule $rrule -Key "BYMINUTE")
+    if ($days.Count -ne 7 -or $hours.Count -ne 4 -or $minutes.Count -ne 1) {
+        $failures.Add("$id must run four times per day across all seven days; got RRULE $rrule")
+    }
+    else {
+        foreach ($day in $days) {
+            foreach ($hour in $hours) {
+                $minuteValue = [int]($minutes[0])
+                $time = "{0:D2}:{1:D2}" -f [int]$hour, $minuteValue
+                $slot = "{0} {1}" -f $day, $time
+                if (-not $scheduleSlots.ContainsKey($slot)) {
+                    $scheduleSlots[$slot] = New-Object System.Collections.Generic.List[string]
+                }
+                $scheduleSlots[$slot].Add($id)
+                if ($status -eq "ACTIVE") {
+                    $activeSlotsByDay[$day].Add($time)
+                }
             }
         }
     }
@@ -280,38 +258,31 @@ foreach ($slot in $scheduleSlots.Keys) {
 }
 
 foreach ($day in $allWeekDays) {
-    $slots = @($activeEverydaySeniorSlots[$day])
-    $times = @($slots | ForEach-Object { ($_ -split " ")[0] } | Sort-Object)
+    $times = @($activeSlotsByDay[$day] | Sort-Object)
     $expected = @($expectedDailyTimes | Sort-Object)
-    $unexpectedOwners = @()
-    foreach ($slot in $slots) {
-        $parts = $slot -split " "
-        if ($parts.Count -lt 2) {
-            $unexpectedOwners += $slot
-            continue
-        }
-
-        $time = $parts[0]
-        $owner = $parts[1]
-        if (-not $expectedDailyOwnerByTime.ContainsKey($time) -or $expectedDailyOwnerByTime[$time] -ne $owner) {
-            $unexpectedOwners += $slot
-        }
-    }
-
-    if ($slots.Count -ne 6) {
-        $failures.Add("$day has $($slots.Count) active everyday Senior Capstone starts; expected exactly 6: $($expectedDailyTimes -join ', ')")
+    if ($times.Count -ne 28) {
+        $failures.Add("$day has $($times.Count) active Senior Capstone category starts; expected 28")
     }
     elseif (($times -join ",") -ne ($expected -join ",")) {
-        $failures.Add("$day active everyday Senior Capstone starts are $($times -join ', '); expected exactly $($expectedDailyTimes -join ', ')")
+        $failures.Add("$day active category starts are $($times -join ', '); expected $($expected -join ', ')")
     }
 
-    if ($unexpectedOwners.Count -gt 0) {
-        $failures.Add("$day has active daily Senior starts outside the expected owner map: $($unexpectedOwners -join ', ')")
+    $minutesOfDay = @($times | ForEach-Object {
+        $parts = $_.Split(":")
+        ([int]$parts[0] * 60) + [int]$parts[1]
+    } | Sort-Object)
+    for ($i = 0; $i -lt $minutesOfDay.Count; $i++) {
+        $current = $minutesOfDay[$i]
+        $next = if ($i -eq $minutesOfDay.Count - 1) { $minutesOfDay[0] + 1440 } else { $minutesOfDay[$i + 1] }
+        if (($next - $current) -lt 45) {
+            $failures.Add("$day has category starts less than 45 minutes apart around minute $current")
+        }
     }
 }
 
 $requiredFiles = @(
     "docs\master-plan.md",
+    "docs\mvp-requirements-catalog.md",
     "docs\automation-runbook.md",
     "docs\automation-self-improvement.md",
     "docs\automation-cadence.md",
@@ -394,27 +365,36 @@ foreach ($relative in $jsonFiles) {
 $runbookPath = Join-Path $RepoRoot "docs\automation-runbook.md"
 if (Test-Path -LiteralPath $runbookPath) {
     $runbook = Get-Content -Raw -LiteralPath $runbookPath
-    foreach ($fragment in @("master planner", "pass logger", "docs/progress/runs/", "docs/artifacts.json", "docs/human-decisions.md", "scripts/check-automation-contract.ps1", "scripts/snapshot-automation-prompts.ps1", "docs/automation-prompts/", "Project Script Auto-Approval Rule", "-NonInteractive", "local-only repo changes are not an acceptable closeout")) {
+    foreach ($fragment in @("docs/mvp-requirements-catalog.md", "Category Runner No-Intervention Contract", "Project Script Auto-Approval Rule", "-NonInteractive", "local-only repo changes are not an acceptable closeout")) {
         if ($runbook -notlike "*$fragment*") {
             $failures.Add("Runbook is missing infrastructure reference: $fragment")
         }
     }
 }
-else {
-    $failures.Add("Missing runbook: $runbookPath")
-}
 
 $masterPlanPath = Join-Path $RepoRoot "docs\master-plan.md"
 if (Test-Path -LiteralPath $masterPlanPath) {
     $masterPlan = Get-Content -Raw -LiteralPath $masterPlanPath
-    foreach ($fragment in @("Real Daily MVP Goal", "Minimum: 2 accepted MVP passes per calendar day", "Weekly minimum: 14 accepted MVP passes", "Weekly adjustment rule for this project only")) {
+    foreach ($fragment in @("docs/mvp-requirements-catalog.md", "Real Daily MVP Goal", "Minimum: 2 accepted MVP passes per calendar day", "Category Automation Reset")) {
         if ($masterPlan -notlike "*$fragment*") {
-            $failures.Add("Master plan is missing daily goal calibration reference: $fragment")
+            $failures.Add("Master plan is missing category/daily goal reference: $fragment")
         }
     }
 }
-else {
-    $failures.Add("Missing master plan: $masterPlanPath")
+
+$catalogPath = Join-Path $RepoRoot "docs\mvp-requirements-catalog.md"
+if (Test-Path -LiteralPath $catalogPath) {
+    $catalog = Get-Content -Raw -LiteralPath $catalogPath
+    foreach ($category in @("requirements-audit", "backend-security-data", "student-workflow-evidence", "staff-review-mentor", "admin-ops-reporting", "deployment-qa", "design-assets-handoff")) {
+        if ($catalog -notlike "*$category*") {
+            $failures.Add("MVP requirements catalog is missing category: $category")
+        }
+    }
+    foreach ($requirementId in @("MVP-001", "MVP-010", "MVP-014", "MVP-026", "MVP-030")) {
+        if ($catalog -notlike "*$requirementId*") {
+            $failures.Add("MVP requirements catalog is missing requirement: $requirementId")
+        }
+    }
 }
 
 if ($failures.Count -gt 0) {
@@ -422,4 +402,4 @@ if ($failures.Count -gt 0) {
     exit 1
 }
 
-Write-Output "Automation contract check passed for $($automationIds.Count) automations."
+Write-Output "Automation contract check passed for $($automationIds.Count) category automations."

@@ -22,6 +22,7 @@ Automation operating infrastructure now includes:
 - `docs/progress/runs/`: structured JSON run manifests.
 - `docs/human-decisions.md`: Bryan-level decision queue.
 - `docs/artifacts.json`: structured external artifact registry.
+- `docs/mvp-requirements-catalog.md`: category-owned MVP requirements, statuses, blockers, and acceptance evidence.
 - `scripts/snapshot-automation-prompts.ps1`: regenerates prompt snapshots from live automation TOML files.
 - `scripts/check-automation-contract.ps1`: validates live prompts, snapshots, registry files, and required automation contract references.
 
@@ -65,13 +66,13 @@ For the Senior Capstone app backend foundation, local scaffolding, schema design
 
 If those account/provisioning pieces are missing, rebuild should still scaffold local code and migrations, then log a precise `ACTION REQUIRED` item instead of blocking all work.
 
-## Gold Standard No-Intervention Contract
+## Category Runner No-Intervention Contract
 
-The Senior Capstone automation system now uses one active 5x/day orchestrator, one active daily guided-prototype refresh, and the active weekly deep audit. Specialist Figma, Canva, content-audit, and daily-report records are standby prompts, not concurrent all-day lane runners.
+The Senior Capstone automation system now uses seven active MVP requirement category runners. Each category runs four times per day on a staggered schedule recorded in `docs/automation-cadence.md`, with no shared scheduled start slots. The older orchestrator, standby lanes, daily prototype job, and separate weekly audit job are superseded by these category runners.
 
-The orchestrator should resolve everything it can resolve from accepted docs, repo evidence, saved connector approvals, and safe fallbacks. It should not stop for a human when it can:
+Each category runner should resolve everything it can resolve from accepted docs, repo evidence, saved connector approvals, and safe fallbacks. It should not stop for a human when it can:
 
-- Accept an already documented default decision that Bryan has implicitly authorized in a later gold-standard automation request.
+- Accept an already documented default decision that Bryan has explicitly or implicitly authorized in this project.
 - Patch a script, prompt, checker, snapshot, manifest, log, or fallback path that is clearly failing.
 - Use `C:\Users\bryan\.codex\config.toml` approval grants that already exist.
 - Avoid a mutating connector call that would require a fresh approval and write the repo fallback instead.
@@ -151,11 +152,11 @@ Each run chooses exactly one bounded scope.
 
 ## Daily Goal And Weekly Calibration
 
-For this Senior Capstone project only, the current 100-pass / roughly 45-day MVP target translates to a real daily goal of at least 2 accepted MVP passes per calendar day, with 3 accepted passes as the stretch goal when the repo is unblocked. The 5x/day orchestrator schedule is execution capacity, not a requirement to count five accepted passes every day.
+For this Senior Capstone project only, the current 100-pass / roughly 45-day MVP target translates to a real daily goal of at least 2 accepted MVP passes per calendar day, with 3 accepted passes as the stretch goal when the repo is unblocked. The 28 daily category starts are execution capacity, not a requirement to count 28 accepted passes every day.
 
 An accepted MVP pass must leave durable evidence: a pushed commit or published external artifact recorded in the repo, plus validation or a concrete blocker that reduces MVP ambiguity. The first two accepted passes each day should usually be implementation-heavy while `SC-005` remains open.
 
-The weekly deep audit automation must review the last seven days of run manifests, run-log entries, commits, backlog movement, handoffs, and audit findings. It should count accepted MVP passes against the minimum 2/day and 14/week goal, then update only this project's `docs/master-plan.md` and `docs/automation-memory.md` with the next week's daily goal/allocation when evidence requires adjustment. Weekly goal calibration must not change schedules, workspace, model, reasoning effort, or status unless Bryan explicitly asks.
+The `requirements-audit` category runner owns weekly calibration. On Sundays it must review the last seven days of run manifests, run-log entries, commits, backlog movement, handoffs, and audit findings. It should count accepted MVP passes against the minimum 2/day and 14/week goal, then update only this project's `docs/master-plan.md`, `docs/automation-memory.md`, and `docs/mvp-requirements-catalog.md` with the next week's daily goal/allocation when evidence requires adjustment.
 
 Priority order:
 
@@ -175,6 +176,7 @@ The automation loop is expected to run for months, so every lane must work from 
 At the start of every run, read these logs before selecting work:
 
 - `docs/master-plan.md`: top-level product destination, milestone path, source-of-truth order, and anti-drift rules.
+- `docs/mvp-requirements-catalog.md`: category-owned MVP requirements, statuses, evidence, blockers, and acceptance checks.
 - `docs/automation-memory.md`: compact current-state snapshot and source-of-truth index.
 - `docs/progress/run-log.md`: cross-lane chronological run index. Read the most recent 20 entries when the file grows large.
 - Your lane log:
@@ -207,6 +209,7 @@ At the end of every run, leave enough memory for the next lane to continue witho
 - Append a detailed entry to the lane progress log.
 - Append a compact one-entry summary to `docs/progress/run-log.md`.
 - Update `docs/master-plan.md` only when the product destination, source-of-truth order, milestone path, or anti-drift rules materially change.
+- Update `docs/mvp-requirements-catalog.md` when requirement status, evidence, blocker, owner category, or acceptance checks materially change.
 - Update `docs/automation-memory.md` when current milestone, active stack choice, artifact IDs, open blockers, or next-lane priorities changed.
 - Update `docs/progress/handoffs.md` for every cross-lane ask, with a stable handoff ID, owner lane, status, exact next action, acceptance check, and evidence needed to close.
 - Update `docs/progress/decision-log.md` only for real product, architecture, data, security, workflow, or visual-system decisions that future runs should respect.

@@ -26,15 +26,15 @@ Figma is the heavy product-design source for functional app screens, database-ba
 - Google Drive evidence repository root folder `1XPgYKbIMqv332DAJZJNJetHppFB670e7` and index sheet `1b446rp3oyx9G4LpKYE47qXxpU41EOW-2Ota2fGum49c` exist and are wired into Pages config and D1 metadata. Server-side Drive upload credential/OAuth flow remains pending.
 - Alpha state-machine tests, alpha contract checks, and GitHub Actions CI workflows now exist (`tests/alpha-flow.test.mjs`, `scripts/check-alpha-contract.mjs`, `npm run check`, `.github/workflows/ci.yml`, and `.github/workflows/alpha-ci.yml`); broader auth/permission/Drive-upload tests remain incomplete.
 - Source PDFs have been extracted and converted into app-native requirements in `data/capstone-framework.json`.
-- The primary beta-build automation is now `senior-capstone-rebuild-rebuilt`, renamed in the app as `Senior Capstone Gold Standard Orchestrator`, running exactly 5x/day at `00:20`, `05:20`, `10:20`, `15:20`, and `20:20` PT. It uses the master plan, logs, and work ladder to choose one bounded beta-advancing slice per run until the app reaches a real beta.
-- Specialist lane jobs still exist for Figma, Canva, content audit, and daily report, but they are intentionally `PAUSED` standby prompts so the Senior Capstone system is not running overlapping specialist jobs all day. Weekly deep audit remains `ACTIVE` and separate for long severe review.
-- Daily guided prototype refresh automation `senior-capstone-daily-guided-prototype-refresh` is `ACTIVE` at `22:10 PT` and updates the active Figma page `04 Guided Daily Prototype` from that day's progress, blockers, and next ladder step.
-- The four main automation lanes and the daily reporting automation now read the shared memory, run log, handoff ledger, and decision log before choosing work or summarizing progress.
-- Every main lane prompt now requires a lane log entry, compact run-log entry, relevant memory/handoff/decision updates, verification, commit, and push.
-- Every main lane and the daily reporting automation now reference `docs/master-plan.md` along with the logs.
-- Daily automation summaries and the Google Drive/Doc target should use `bryan.timm89@gmail.com`.
-- Every main lane and the daily reporting automation now use `docs/automation-self-improvement.md` to self-review, log whether prompt/config changes were needed, and update only their own live automation prompt/config when evidence justifies it.
-- A weekly deep audit automation, `senior-capstone-weekly-deep-audit-rebuilt`, now runs Sundays at `23:45 PT` to produce a severe whole-system audit and feed durable findings into the master plan, memory, backlog, handoffs, decision log, and run logs without sharing an exact start slot with the 5x/day orchestrator.
+- Bryan reset the Senior Capstone automation setup on 2026-05-18. The old active/standby automation set was deleted from the active local automation registry and replaced with seven active MVP requirement category runners, each running 4x/day with staggered non-overlapping start slots.
+- The category source of truth is `docs/mvp-requirements-catalog.md`. Every category run must ladder from `docs/master-plan.md` into that catalog, name requirement IDs advanced, and update catalog status/evidence/blockers when material progress happens.
+- Design/guided-prototype upkeep is now part of `senior-capstone-design-assets-handoff`, not a separate daily automation.
+- Daily reporting and weekly audit work are now category responsibilities rather than separate active automation records.
+- Every category prompt now requires a lane/category log entry, compact run-log entry, structured run manifest, relevant memory/handoff/decision/catalog updates, verification, commit, and push.
+- Every category prompt references `docs/master-plan.md` and `docs/mvp-requirements-catalog.md` along with the durable logs.
+- Daily automation summaries, when produced as part of category work, should use `bryan.timm89@gmail.com` for the Google Drive/Doc target if connector permissions allow.
+- Every category automation now uses `docs/automation-self-improvement.md` to self-review, log whether prompt/config changes were needed, and update only its own live automation prompt/config when evidence and tool availability justify it.
+- Weekly 100-pass goal calibration is now owned by the `requirements-audit` category runner on Sundays. It reviews committed evidence, counts accepted MVP passes, and updates only this project's master plan, memory, and requirements catalog when evidence requires a goal/allocation adjustment.
 - Automation operating infrastructure now includes prompt snapshots in `docs/automation-prompts/`, structured run manifests in `docs/progress/runs/`, human decisions in `docs/human-decisions.md`, external artifact registry in `docs/artifacts.json`, and contract scripts in `scripts/`.
 - Rebuild and content audit lane logs now exist at `docs/progress/rebuild.md` and `docs/progress/audit.md`; `scripts/check-automation-contract.ps1` requires both so future automation reviews catch missing lane-log anchors.
 - The automation contract now explicitly forbids local-only repo closeout and interactive project-script prompts: live prompts include the publication/script auto-approval hard rule, and `scripts/check-automation-contract.ps1` fails if project scripts use interactive prompt/confirmation patterns.
@@ -51,7 +51,7 @@ The 100-pass master plan was refreshed on 2026-05-18 after the professional-plan
 
 Immediate next five useful passes: broaden auth/permission/evidence tests, extend alpha data into real workflow endpoints, add Google Drive upload credential/OAuth implementation, implement account provisioning/invitation/password-reset lifecycle, then deepen mobile/error/empty/permission alpha QA. The D1-backed alpha flow, persona switcher, student/teacher/mentor/admin/misc-admin views, audit timeline, runbook, alpha-week framework, alpha contract checker, preview deploy command, CI workflows, production deployment, and first-admin bootstrap verification now exist.
 
-Real daily MVP goal: minimum 2 accepted MVP passes per calendar day, stretch 3 when unblocked, and at least 14 accepted MVP passes per week until the 100-pass target is met or recalibrated. Until the Day 7 alpha is accepted, the first two accepted passes each day should usually be app-flow implementation or alpha verification, not broad design polish or production account hardening. The active weekly deep audit must review the prior seven days of committed run evidence and adjust only this project's next-week daily goal/allocation in `docs/master-plan.md` and this memory file when evidence requires it; schedules, workspace, model, reasoning effort, and status stay unchanged unless Bryan explicitly asks.
+Real daily MVP goal: minimum 2 accepted MVP passes per calendar day, stretch 3 when unblocked, and at least 14 accepted MVP passes per week until the 100-pass target is met or recalibrated. Until the Day 7 alpha is accepted, the first two accepted passes each day should usually be app-flow implementation or alpha verification, not broad design polish or production account hardening. The 28 daily category starts are capacity, not a goal to count 28 accepted passes. The `requirements-audit` category must review the prior seven days of committed run evidence and adjust only this project's next-week daily goal/allocation in `docs/master-plan.md`, `docs/automation-memory.md`, and `docs/mvp-requirements-catalog.md` when evidence requires it.
 
 Current account/provisioning watchpoint: Cloudflare Pages/D1 setup is done for the first foundation, district SSO is explicitly unavailable for MVP, and the Google Drive evidence root folder is now selected/configured. First-admin credentials were generated into ignored local `.secrets/` storage and bootstrap is complete; production setup key is removed. Remaining account/config-owned work is server-side Drive upload credentials/OAuth, invitation/import/password-reset flows, credential rotation, broader permission tests, and any district/privacy approval before real student records are entered.
 
@@ -137,15 +137,16 @@ Read `docs/progress/decision-log.md` for accepted or superseded decisions.
 - `D-2026-05-18-021`: Day 7 alpha is due 2026-05-24 PT with all app flow working through seeded/demo personas; production user accounts are explicitly post-alpha hardening, not an alpha blocker.
 - `D-2026-05-18-022`: use Google Drive folder `1XPgYKbIMqv332DAJZJNJetHppFB670e7` (`Senior Project App`) as the MVP evidence repository root.
 - `D-2026-05-18-023`: use `docs/alpha-week-framework.md`, `npm run check`, `scripts/check-alpha-contract.mjs`, `.github/workflows/alpha-ci.yml`, and `npm run deploy:preview` as the Day 7 alpha execution/verification rail.
+- `D-2026-05-18-024`: delete the prior Senior Capstone active/standby automation setup and replace it with seven active MVP requirement category runners, each running 4x/day with staggered non-overlapping start slots and laddering from `docs/mvp-requirements-catalog.md`.
 
-Current rebuilt automation IDs:
-- `senior-capstone-canva-visual-system-rebuilt` (`PAUSED` standby)
-- `senior-capstone-figma-product-design-rebuilt` (`PAUSED` standby)
-- `senior-capstone-rebuild-rebuilt` (`Senior Capstone Gold Standard Orchestrator`, primary 5x/day runner)
-- `senior-capstone-content-quality-audits-rebuilt` (`PAUSED` standby)
-- `senior-capstone-daily-automation-report-rebuilt` (`PAUSED` standby; reporting handled by orchestrator)
-- `senior-capstone-daily-guided-prototype-refresh` (`ACTIVE`; daily `04 Guided Daily Prototype` refresh at `22:10 PT`)
-- `senior-capstone-weekly-deep-audit-rebuilt`
+Current category automation IDs:
+- `senior-capstone-mvp-requirements-audit` (`ACTIVE`; `00:05`, `06:05`, `12:05`, `18:05` PT)
+- `senior-capstone-backend-security-data` (`ACTIVE`; `00:55`, `06:55`, `12:55`, `18:55` PT)
+- `senior-capstone-student-workflow-evidence` (`ACTIVE`; `01:45`, `07:45`, `13:45`, `19:45` PT)
+- `senior-capstone-staff-review-mentor` (`ACTIVE`; `02:35`, `08:35`, `14:35`, `20:35` PT)
+- `senior-capstone-admin-ops-reporting` (`ACTIVE`; `03:25`, `09:25`, `15:25`, `21:25` PT)
+- `senior-capstone-deployment-qa` (`ACTIVE`; `04:15`, `10:15`, `16:15`, `22:15` PT)
+- `senior-capstone-design-assets-handoff` (`ACTIVE`; `05:05`, `11:05`, `17:05`, `23:05` PT)
 
 ## Handoff Rules
 

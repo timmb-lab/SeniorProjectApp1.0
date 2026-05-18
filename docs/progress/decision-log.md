@@ -248,3 +248,15 @@ Decision status values:
 - `implementation evidence`: Day 1 framework/check/CI/deploy rails were added on 2026-05-18. Cloudflare MCP remote mutation was attempted but returned `Auth required`; remote deploy/mutation still needs connector reauthorization or working Wrangler.
 - `source`: User request on 2026-05-18: "Set up any and all pieces you need that you have access to - and really give me a framework for the alpha to be built throughout the week"
 - `last updated`: 2026-05-18 12:02 PT
+
+### D-2026-05-18-024
+
+- `status`: accepted
+- `area`: automation reset, MVP requirement categories, and 100-pass laddering
+- `decision`: Delete the prior Senior Capstone active/standby automation setup and replace it with seven active MVP requirement category runners. Each category runs 4x/day with staggered non-overlapping start slots and ladders from `docs/master-plan.md` into `docs/mvp-requirements-catalog.md`.
+- `categories`: `requirements-audit`, `backend-security-data`, `student-workflow-evidence`, `staff-review-mentor`, `admin-ops-reporting`, `deployment-qa`, and `design-assets-handoff`.
+- `reason`: Bryan explicitly asked to categorize all core MVP requirements, delete all project automation setup, start from scratch, and create thorough self-evolving automation that runs 4x/day per category without overlapping the others.
+- `applies to`: local Senior Capstone automation TOMLs, `docs/automation-cadence.md`, `docs/mvp-requirements-catalog.md`, prompt snapshots, `scripts/check-automation-contract.ps1`, `scripts/snapshot-automation-prompts.ps1`, master plan, memory, backlog, handoffs, and future run manifests.
+- `guardrail`: The 28 daily category starts are capacity, not a requirement to count 28 accepted MVP passes per day. The real daily target remains minimum 2 accepted MVP passes, stretch 3 when unblocked, and at least 14 accepted passes per week.
+- `source`: User request on 2026-05-18: "Figure out and categorize all vcore MVP requiremennts for the app - then delete ALL automation set up for this project ... start from scratch and give me automation that runs 4x per day per category without overlapping the otehrs"
+- `last updated`: 2026-05-18 12:35 PT

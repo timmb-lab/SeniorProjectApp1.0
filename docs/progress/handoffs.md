@@ -2,6 +2,8 @@
 
 This file tracks cross-lane asks that should survive for future automation runs. Lane logs can contain narrative, but this ledger is the actionable queue.
 
+After the 2026-05-18 automation reset, new handoffs should use active category owners from `docs/mvp-requirements-catalog.md`: `requirements-audit`, `backend-security-data`, `student-workflow-evidence`, `staff-review-mentor`, `admin-ops-reporting`, `deployment-qa`, and `design-assets-handoff`. Legacy lane labels remain in historical entries.
+
 Status values:
 
 - `open`
@@ -14,7 +16,7 @@ Status values:
 ### H-2026-05-18-001
 
 - `source lane`: canva
-- `owner lane`: canva
+- `owner lane`: design-assets-handoff
 - `status`: open
 - `source`: captured Canva memory from prior run
 - `artifact`: Canva asset `DAHJ-v7TOM8` in folder `FAHJ-n-VqFE`
@@ -26,7 +28,7 @@ Status values:
 ### H-2026-05-18-004
 
 - `source lane`: canva
-- `owner lane`: canva
+- `owner lane`: design-assets-handoff
 - `status`: open
 - `source`: manual Canva first-pass kickoff
 - `artifact`: Canva folder `FAHJ-8DxQyk`, specs `docs/visual-assets/canva-first-pass.md` and `docs/visual-assets/canva-asset-specs.md`
@@ -38,7 +40,7 @@ Status values:
 ### H-2026-05-18-005
 
 - `source lane`: figma
-- `owner lane`: rebuild
+- `owner lane`: backend-security-data
 - `status`: open
 - `source`: regenerated Figma product UI system
 - `artifact`: active Figma file `z4t4tFPAKrMDh6pIYOeEw6` in `team::1638213362346160913`, reference-only prior file `LLucMgAPscRa9020iHHigB`, spec `docs/design/figma-first-pass-product-system.md`
@@ -50,7 +52,7 @@ Status values:
 ### H-2026-05-18-006
 
 - `source lane`: ops
-- `owner lane`: rebuild
+- `owner lane`: backend-security-data and deployment-qa
 - `status`: in-progress
 - `source`: automation operating-infrastructure pass plus revised MVP direction
 - `artifact`: `SC-005`, `HD-2026-05-18-001`, `docs/architecture/adr-0001-stack-auth-database-upload.md`
@@ -62,7 +64,7 @@ Status values:
 ### H-2026-05-18-008
 
 - `source lane`: figma
-- `owner lane`: rebuild
+- `owner lane`: student-workflow-evidence, staff-review-mentor, admin-ops-reporting, backend-security-data, and deployment-qa
 - `status`: open
 - `source`: professional-plan Figma verification and 100-pass MVP map
 - `artifact`: active Figma file `z4t4tFPAKrMDh6pIYOeEw6`, `03 Product Preview + State Variants` node `6:2`, `100-Pass MVP Execution Map` node `18:2`, route/data contract nodes `18:44` through `18:47`, review/override variants node `31:2`, developer handoff contract node `31:144`, private evidence/review-history contract node `37:2`, evidence handoff contract node `37:177`, MVP component variant matrix node `43:2`, status component set `43:55`, action component set `43:73`, evidence row component set `43:149`, shared UI contract `43:150`, admin account/group provisioning contract node `48:2`, admin provisioning handoff node `48:208`, mobile evidence/revision contract node `56:2`, mobile handoff node `56:114`, progress dashboard aggregate contract node `61:2`, progress dashboard aggregate handoff node `61:113`, audit log/export controls contract node `69:2`, audit export handoff node `69:180`, mentor meeting/presentation scheduling contract node `78:2`, and mentor presentation handoff node `78:166`

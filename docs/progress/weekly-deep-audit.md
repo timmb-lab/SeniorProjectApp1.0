@@ -25,3 +25,13 @@ This log tracks the weekly whole-system audit automation. Detailed audit finding
 - `expected audit behavior`: weekly audit may adjust goals and pass allocation, but it must not change schedules, workspace, model, reasoning effort, or status unless Bryan explicitly asks.
 - `validation`: prompt snapshots regenerated; automation contract checker passed for 6 automations and now requires the weekly calibration fragments.
 - `next`: first Sunday audit should produce a weekly accepted-pass count, note whether the project hit 14 accepted MVP passes, and revise the next-week allocation only from evidence.
+
+### 2026-05-18 Weekly Audit Folded Into Requirements Category
+
+- `scope`: supersede the separate weekly deep audit automation with the new `requirements-audit` category runner.
+- `reason`: Bryan explicitly requested deletion of all project automation setup and a fresh 4x/day-per-category schedule.
+- `new owner`: `senior-capstone-mvp-requirements-audit`.
+- `schedule`: `00:05`, `06:05`, `12:05`, and `18:05` PT daily; Sunday runs own the weekly accepted-pass count and goal calibration.
+- `expected audit behavior`: review the last seven days of committed run evidence, backlog movement, handoffs, blockers, and requirement status; update only this project's master plan, automation memory, and MVP requirements catalog when the next week's goal/allocation needs adjustment.
+- `validation`: new contract checker enforces the seven category automations, 4x/day category schedules, no shared start slots, prompt snapshots, non-interactive scripts, and MVP requirements catalog references.
+- `next`: requirements-audit should use `docs/mvp-requirements-catalog.md` as the weekly calibration ledger instead of reviving the old standalone weekly automation.

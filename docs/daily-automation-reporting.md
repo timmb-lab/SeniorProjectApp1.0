@@ -4,18 +4,14 @@ Date: 2026-05-18
 
 ## Purpose
 
-Daily reporting is now owned by the 5x/day Senior Capstone Gold Standard Orchestrator. The standalone daily-report automation remains as a paused standby prompt so the system stays at exactly five Senior runs per day while still producing a daily summary when needed.
+Daily reporting is now a category-runner responsibility after the 2026-05-18 automation reset. The standalone daily-report automation was deleted with the old project automation setup.
 
-Primary automation:
-- `senior-capstone-rebuild-rebuilt`
-
-Standby automation:
-- `senior-capstone-daily-automation-report`
-- `senior-capstone-daily-automation-report-rebuilt`
+Primary owner:
+- `senior-capstone-mvp-requirements-audit`
 
 Schedule:
-- Primary path: at most once per local day during one of the five orchestrator passes.
-- Standby path if explicitly reactivated: daily at `07:40`.
+- Primary path: at most once per local day during a requirements-audit category pass.
+- Supporting evidence may be gathered from any category runner's logs and manifests.
 
 Email recipient:
 - `bryan.timm89@gmail.com`
@@ -66,6 +62,7 @@ After Google Drive write access is fixed, the automation should create or append
 The report should read these logs before writing the daily summary:
 
 - `docs/master-plan.md`
+- `docs/mvp-requirements-catalog.md`
 - `docs/automation-memory.md`
 - `docs/progress/run-log.md`
 - `docs/progress/handoffs.md`

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-05-18T12:16:00-07:00",
+  "updated_at": "2026-05-18T12:35:00-07:00",
   "artifacts": [
     {
       "id": "cloudflare-pages-senior-capstone-app",
@@ -467,6 +467,37 @@
       "repo_records": [
         "docs/visual-assets/canva-first-pass.md",
         "docs/visual-assets/canva-asset-specs.md"
+      ],
+      "last_updated": "2026-05-18"
+    },
+    {
+      "id": "senior-capstone-mvp-category-automation-system",
+      "type": "automation_system",
+      "status": "active",
+      "owner_lane": "requirements-audit",
+      "title": "Senior Capstone MVP Category Automation System",
+      "purpose": "Seven active MVP requirement category runners replacing the prior active/standby Senior Capstone automation setup.",
+      "app_placement": "Automation operating layer for the 100-pass MVP plan and Day 7 alpha ladder.",
+      "automation_ids": [
+        "senior-capstone-mvp-requirements-audit",
+        "senior-capstone-backend-security-data",
+        "senior-capstone-student-workflow-evidence",
+        "senior-capstone-staff-review-mentor",
+        "senior-capstone-admin-ops-reporting",
+        "senior-capstone-deployment-qa",
+        "senior-capstone-design-assets-handoff"
+      ],
+      "repo_records": [
+        "docs/automation-cadence.md",
+        "docs/mvp-requirements-catalog.md",
+        "docs/automation-prompts/README.md",
+        "scripts/check-automation-contract.ps1",
+        "scripts/snapshot-automation-prompts.ps1"
+      ],
+      "verification": [
+        "Category schedules are staggered with no shared Senior Capstone start slots.",
+        "Each category runs 4x/day and ladders from docs/master-plan.md plus docs/mvp-requirements-catalog.md.",
+        "Contract checker validates category automation IDs, snapshots, schedules, required prompt fragments, JSON manifests, and non-interactive project scripts."
       ],
       "last_updated": "2026-05-18"
     }
