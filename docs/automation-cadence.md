@@ -2,7 +2,7 @@
 
 Date: 2026-05-18
 
-The Senior Capstone rebuild now uses a staggered every-3-hours automation loop. Each automation should read the shared anchor docs, update `docs/automation-progress.md`, and avoid duplicating the prior job's work.
+The Senior Capstone rebuild now uses a four-hour non-overlap automation rotation. Only one automation lane should run in a given hour: Figma first, core rebuild second, audit third, Canva fourth, then the cycle repeats. Each automation should read the shared anchor docs, update `docs/automation-progress.md`, and avoid duplicating the prior job's work.
 
 End goal: a hosted app with secure users, roles, permissions, private upload/evidence spaces, submissions, reviews, approvals, dashboards, admin controls, audit logs, and protected student records.
 
@@ -89,28 +89,32 @@ Definition of done for every run:
 - Lane-prefixed commit created when repo files changed.
 - Current branch pushed, or blocker logged precisely.
 
-## Every-3-Hours Loop
+## Four-Hour Non-Overlap Rotation
 
-`:00` every 3 hours - Figma Product Design
+Hour 1 at `:00` - Figma Product Design
 - Automation: `senior-capstone-figma-product-design`
+- Schedule: `00:00`, `04:00`, `08:00`, `12:00`, `16:00`, `20:00`.
 - Purpose: app UI source of truth, dashboard layouts, design system, components, responsive states, accessibility states, and implementation-ready product specs.
 - Primary anchors: `docs/dashboard-ux-direction.md`, `docs/domain-model.md`, `data/programs.json`, `data/capstone-framework.json`, `docs/curriculum-framework-integration.md`.
 - Primary log: `docs/progress/figma.md`.
 
-`:05` every 3 hours - Core Hosted-App Rebuild
+Hour 2 at `:00` - Core Hosted-App Rebuild
 - Automation: `senior-capstone-rebuild-hourly`
+- Schedule: `01:00`, `05:00`, `09:00`, `13:00`, `17:00`, `21:00`.
 - Purpose: architecture, app scaffolding, backend, auth, database/schema, tests, deployment readiness, and integration of the design/content direction into a working hosted app.
 - Primary anchors: `docs/rebuild-gameplan.md`, `docs/domain-model.md`, `docs/dashboard-ux-direction.md`, `data/programs.json`, `data/capstone-framework.json`, `docs/curriculum-framework-integration.md`.
 - Primary log: `docs/progress/rebuild.md`.
 
-`:15` every 3 hours - Content Quality Audit
+Hour 3 at `:00` - Content Quality Audit
 - Automation: `senior-capstone-content-quality-audits`
+- Schedule: `02:00`, `06:00`, `10:00`, `14:00`, `18:00`, `22:00`.
 - Purpose: critical audit of curriculum, product requirements, roles, dashboards, program specificity, accessibility, privacy, workflow clarity, and implementation readiness.
 - Primary anchors: all docs, `app.js`, templates, teacher companion guide, program seed data, and `data/capstone-framework.json`.
 - Primary log: `docs/progress/audit.md`.
 
-`:30` every 3 hours - Canva Visual System
+Hour 4 at `:00` - Canva Visual System
 - Automation: `senior-capstone-canva-visual-system`
+- Schedule: `03:00`, `07:00`, `11:00`, `15:00`, `19:00`, `23:00`.
 - Purpose: supporting visual assets, program identity graphics, phase/process visuals, onboarding graphics, report visuals, recognition assets, certificates, and printable/exportable collateral.
 - Primary anchors: `docs/dashboard-ux-direction.md`, `data/programs.json`, `data/capstone-framework.json`, templates, and progress log.
 - Primary log: `docs/progress/canva.md`.

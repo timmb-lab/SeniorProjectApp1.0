@@ -442,3 +442,26 @@ What changed:
 Recommended next slice:
 - Canva should create the proposal dashboard empty-state family: no proposals yet, filtered out, waiting on review, and revision requested.
 - Figma/rebuild should keep all labels and statuses as live app text when using the no-text visual.
+
+## 2026-05-18 Non-Overlap Hour Rotation
+
+Intent:
+- Adjust the four active Senior Capstone automations so they do not run in the same hour.
+
+Automations updated:
+- `senior-capstone-figma-product-design`: hour 1 of the rotation at `00:00`, `04:00`, `08:00`, `12:00`, `16:00`, `20:00`.
+- `senior-capstone-rebuild-hourly`: hour 2 of the rotation at `01:00`, `05:00`, `09:00`, `13:00`, `17:00`, `21:00`.
+- `senior-capstone-content-quality-audits`: hour 3 of the rotation at `02:00`, `06:00`, `10:00`, `14:00`, `18:00`, `22:00`.
+- `senior-capstone-canva-visual-system`: hour 4 of the rotation at `03:00`, `07:00`, `11:00`, `15:00`, `19:00`, `23:00`.
+
+What changed:
+- Converted the live schedules from same-window every-3-hours runs into a four-hour lane rotation.
+- Updated prompt headers to say each lane's hour in the non-overlap rotation.
+- Updated `docs/automation-cadence.md` to show the concrete daily hour buckets.
+
+Verification:
+- Automation tool confirmed updates for all four automations.
+- Persisted automation TOML files show non-overlapping `BYHOUR` buckets and `BYMINUTE=0`.
+
+Recommended next slice:
+- Keep the lane order intact unless the user explicitly asks for a different owner sequence.
