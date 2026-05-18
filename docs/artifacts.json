@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-05-18T13:24:00-07:00",
+  "updated_at": "2026-05-18T14:10:00-07:00",
   "artifacts": [
     {
       "id": "cloudflare-pages-senior-capstone-app",
@@ -231,7 +231,7 @@
       "plan_key": "team::1638213362346160913",
       "account_observed": "timmb@nv.ccsd.net",
       "purpose": "Active product UI source for the hosted Senior Capstone app, recreated in Bryan's Senior Project App Figma team/project.",
-      "app_placement": "Design source for app shell, visual foundations, shared component variants, student workspace, guided proposal form, teacher review queue, mentor/admin dashboards, mobile student view, automation handoff board, product preview state variants, the 100-pass MVP route/data contract, review/override interaction variants, private evidence/review-history contract, admin account/group/role provisioning contract, progress update/dashboard aggregate contract, audit log/export controls contract, and mentor meeting/presentation scheduling contract.",
+      "app_placement": "Design source for app shell, visual foundations, shared component variants, student workspace, guided proposal form, teacher review queue, mentor/admin dashboards, mobile student view, automation handoff board, product preview state variants, the 100-pass MVP route/data contract, review/override interaction variants, private evidence/review-history contract, admin account/group/role provisioning contract, progress update/dashboard aggregate contract, audit log/export controls contract, mentor meeting/presentation scheduling contract, and full 15-screen clickable MVP alpha prototype.",
       "consuming_lanes": [
         "figma",
         "rebuild",
@@ -272,6 +272,11 @@
           "name": "04 Guided Daily Prototype",
           "id": "75:2",
           "primary_frame": "75:3"
+        },
+        {
+          "name": "05 Full MVP Alpha Prototype",
+          "id": "98:2",
+          "primary_frame": "98:3"
         }
       ],
       "key_frames": {
@@ -318,7 +323,23 @@
         "guided_daily_security_boundary": "75:127",
         "guided_daily_next_ladder": "75:158",
         "mentor_presentation_scheduling_contract": "78:2",
-        "mentor_presentation_scheduling_handoff_contract": "78:166"
+        "mentor_presentation_scheduling_handoff_contract": "78:166",
+        "full_alpha_prototype_start": "98:3",
+        "full_alpha_prototype_student": "98:4",
+        "full_alpha_prototype_proposal": "98:5",
+        "full_alpha_prototype_evidence": "98:6",
+        "full_alpha_prototype_submit": "98:7",
+        "full_alpha_prototype_teacher_queue": "98:8",
+        "full_alpha_prototype_review_detail": "98:9",
+        "full_alpha_prototype_student_revision": "98:10",
+        "full_alpha_prototype_mentor": "98:11",
+        "full_alpha_prototype_admin_ops": "98:12",
+        "full_alpha_prototype_audit_export": "98:13",
+        "full_alpha_prototype_announcements": "98:14",
+        "full_alpha_prototype_mobile_student": "98:15",
+        "full_alpha_prototype_access_boundary": "98:16",
+        "full_alpha_prototype_handoff": "98:17",
+        "full_alpha_prototype_map_rail": "98:1130"
       },
       "verification": [
         "File creation succeeded in plan team::1638213362346160913.",
@@ -343,7 +364,10 @@
         "Screenshot, design-context, metadata, and readback verification returned for node 69:2 after text-height correction; readback confirmed board 6:2 height 13078.8, 5 states, 6 pipeline steps, 7 routes, 12 records, 5 permission scopes, 7 guardrails, 7 acceptance checks, no clipped text nodes, and no clipped horizontal rows.",
         "Page 04 Guided Daily Prototype was created on 2026-05-18 with 6 clickable frames and 5 prototype links: 75:3, 75:34, 75:65, 75:96, 75:127, and 75:158.",
         "Figma write on 2026-05-18 added Mentor Meeting + Presentation Scheduling Contract node 78:2 to board 6:2, with six meeting/presentation states, six pipeline steps, meeting attendance and presentation scheduling panels, and developer handoff contract node 78:166.",
-        "Screenshot, design-context, metadata, and readback verification returned for node 78:2 after pill-height correction; readback confirmed board 6:2 height 15006.8, 6 states, 6 pipeline steps, 9 routes, 13 records, 5 permission scopes, 7 guardrails, 7 acceptance checks, zero clipped text nodes, zero collapsed pills, and zero clipped horizontal rows."
+        "Screenshot, design-context, metadata, and readback verification returned for node 78:2 after pill-height correction; readback confirmed board 6:2 height 15006.8, 6 states, 6 pipeline steps, 9 routes, 13 records, 5 permission scopes, 7 guardrails, 7 acceptance checks, zero clipped text nodes, zero collapsed pills, and zero clipped horizontal rows.",
+        "Figma write on 2026-05-18 added page 05 Full MVP Alpha Prototype, page id 98:2, with 15 primary 1360px app states plus map rail 98:1130.",
+        "Readback verification confirmed page 98:2 has 16 top-level nodes, 15 prototype screens, 176 click-through reactions, 600 text nodes, zero suspicious clipped text nodes, zero detected top-level frame overflow, and shared full-alpha prototype contract data with 15 route entries.",
+        "Screenshot verification returned for launch node 98:3 after launch-frame fit correction and student dashboard node 98:4; the prototype covers student, proposal, evidence, submit, teacher review, revision, mentor, admin ops, audit/export, announcements, mobile, protected boundary, and handoff states."
       ],
       "supersedes": [
         "figma-product-ui-system-reference-old-team",

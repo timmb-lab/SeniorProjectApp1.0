@@ -224,3 +224,10 @@ Every run should also record `self-improvement: none` or a specific self-improve
 - `scripts/snapshot-automation-prompts.ps1` now removes stale Senior Capstone prompt snapshots before writing the current ten snapshots.
 - `scripts/check-automation-contract.ps1` now enforces the exact ten IDs, GUI-facing names, schedules, prompt fragments, token budget guardrails, surface expansion rules, full `MVP-001` through `MVP-030` prompt coverage, no stale Senior Capstone TOMLs, non-interactive scripts, current runbook/master-plan sections, and JSON parse checks.
 - Current validation passed: prompt snapshots regenerated and the automation contract passed for 10 QoL automations.
+
+## 2026-05-18 14:10 PT - Full MVP Alpha Prototype
+
+- Active Figma file `z4t4tFPAKrMDh6pIYOeEw6` now includes page `05 Full MVP Alpha Prototype`, page id `98:2`.
+- The prototype has 15 primary app states, frames `98:3` through `98:17`, plus map rail `98:1130`.
+- Verified by Figma readback: 16 top-level nodes, 15 screens, 176 prototype reactions, 600 text nodes, zero suspicious clipped text nodes, zero detected top-level frame overflow, and shared full-alpha prototype contract data with 15 route entries.
+- This should be the primary Figma prototype reference for build-week implementation alongside existing contract nodes `18:2`, `31:2`, `37:2`, `43:2`, `48:2`, `56:2`, `61:2`, `69:2`, and `78:2`.

@@ -1108,3 +1108,58 @@ Self-improvement:
 
 Next Figma slice:
 - Stop broad Figma deepening while `SC-005` needs tests and vertical slices. The next accepted MVP pass should be rebuild-heavy: bootstrap key/root folder, first-admin setup, CI/tests, private evidence access, `ProgressUpdate`/`DashboardAggregate`, audit/export primitives, meeting/presentation records, and tests consuming nodes `18:2`, `37:2`, `43:2`, `48:2`, `56:2`, `61:2`, `69:2`, and `78:2`.
+
+## 2026-05-18 14:10 PT - Full MVP Alpha Prototype
+
+Automation:
+- `senior-capstone-figma-product-design-rebuilt` legacy memory contract, manual continuation from Bryan's request for a full multi-page Figma prototype.
+
+Master-plan section:
+- Product Destination
+- MVP 1.0 Vertical Slice
+- Day 7 Alpha Gate
+- 100-Pass Delivery Constraint
+- Anti-Drift Rules
+
+Active Figma artifact:
+- File: `Senior Capstone App - Product UI System Recreated`
+- File key: `z4t4tFPAKrMDh6pIYOeEw6`
+- URL: `https://www.figma.com/design/z4t4tFPAKrMDh6pIYOeEw6`
+- Team id: `1638213362346160913`
+- Page: `05 Full MVP Alpha Prototype`, page id `98:2`
+
+What changed:
+- Added a full 15-screen click-through MVP alpha prototype page with 1360px desktop frames plus a prototype map rail.
+- Added primary frames:
+  - `98:3` Launch and alpha map
+  - `98:4` Student dashboard
+  - `98:5` Guided proposal builder
+  - `98:6` Private evidence workspace
+  - `98:7` Submission and status history
+  - `98:8` Program teacher review queue
+  - `98:9` Review detail and decision drawer
+  - `98:10` Student revision loop
+  - `98:11` Mentor meetings and presentation flow
+  - `98:12` Admin operations
+  - `98:13` Audit log and export controls
+  - `98:14` Announcements without messaging
+  - `98:15` Mobile student path
+  - `98:16` Protected-record boundary
+  - `98:17` Route and implementation handoff
+  - `98:1130` Prototype map rail
+- Wired cross-screen prototype links for role navigation, student workflow, review decisions, admin/audit handoffs, mobile preview, and protected-boundary checks.
+- Stored shared Figma plugin data on launch frame `98:3` with 15 route entries, records, permission scopes, and acceptance checks for the full alpha prototype.
+
+Verification:
+- Initial write created page `98:2`, 15 primary screens, map rail `98:1130`, and 168 valid prototype reactions with zero reaction errors.
+- Follow-up fit pass rebuilt the launch contents so the opening frame stays inside the 1360x860 viewport.
+- Final readback confirmed 16 top-level nodes, 15 prototype screens, 176 click-through reactions, 600 text nodes, zero suspicious clipped text nodes, zero detected top-level frame overflow, shared contract data present, and 15 contract routes.
+- Screenshot verification returned for launch frame `98:3`, student dashboard `98:4`, and mobile student frame `98:15`.
+
+Handoff packet:
+- Consumer lanes: source-framework-seed, protected-evidence-tests, teacher-review-endpoints, immutable-review-history, mentor-presentation-flow, admin-ops-endpoints, announcements, account-lifecycle, and Cloudflare verification.
+- Exact next action: build from the prototype route map into real D1-backed workflow endpoints and shared UI primitives, keeping Figma as route/data/permission source-of-truth but not production storage.
+- Acceptance check: implementation references page `98:2` and key frames `98:3` through `98:17` while adding server-owned routes, authorization, audit events, private evidence guards, dashboard aggregates, workflow tests, and mobile no-overflow checks.
+
+Self-improvement:
+- none for live prompt/config; this pass used the legacy memory file only because the old automation ID is now memory-only after the QoL rebuild.

@@ -290,9 +290,10 @@ Today's work materially improved the implementation runway, but it did not yet c
   - `61:2`: progress-update to dashboard-aggregate contract with server-owned transitions, stale-write conflict handling, audit-first sensitive changes, and database-derived dashboard counts.
   - `69:2`: audit-log and export-controls contract with immutable audit stream filters, redacted event detail, scoped export request, signed archive/download states, permission denial, retention-policy cues, and no-storage-key exposure.
   - `78:2`: mentor meeting and presentation scheduling contract with prep evidence, attendance/make-up tracking, outline approval gate, presentation slot conflict handling, check-out/check-in state, scoped permissions, and audit events.
+  - `98:2`: full MVP alpha prototype page with 15 clickable app states, frames `98:3` through `98:17`, map rail `98:1130`, route/data/permission annotations, protected-record boundary, announcements without peer messaging, mobile path, and implementation handoff.
 - The critical gap has shifted: the Cloudflare Pages/D1 scaffold, auth endpoints, production alpha route, first-admin bootstrap, fake role test accounts, alpha tests, and CI rails now exist, but Drive upload credentials, broad permission/protected-evidence tests, account lifecycle, post-reset deployment verification, and production workflow endpoints remain incomplete.
 
-Because of that gap, the next useful 100-pass plan must prioritize implementation, deployment proof, and tests over additional design polish unless design work is directly blocking a concrete route/data/permission implementation.
+Because of that gap, the next useful 100-pass plan must prioritize implementation, deployment proof, and tests over additional design polish unless design work is directly blocking a concrete route/data/permission implementation. The full Figma prototype now exists; future Figma work should be targeted QA/handoff refinement, not another broad prototype pass, until the hosted alpha catches up.
 
 ### 2026-05-18 Category Automation Reset
 
@@ -375,7 +376,7 @@ Immediate next five passes should deepen the shipped alpha into the real MVP spi
 4. Add Google Drive server-side credential/OAuth implementation plus access-controlled evidence upload/retrieval assumptions before real uploads.
 5. Add account provisioning/import, invitation, password reset, credential rotation, and known-gaps QA while keeping seeded personas and fake login-capable test accounts available for the Day 7 walkthrough.
 
-Do not spend the next several non-audit passes on additional broad Figma polish while the Day 7 alpha still needs deeper workflow endpoints and QA, unless rebuild hits a specific UI/security ambiguity that blocks the alpha. The design side is currently ahead of the hosted app; the app now needs real routes, forms, transitions, demo data, tests/smoke checks, and preview evidence.
+Do not spend the next several non-audit passes on additional broad Figma polish while the Day 7 alpha still needs deeper workflow endpoints and QA, unless rebuild hits a specific UI/security ambiguity that blocks the alpha. The design side is currently ahead of the hosted app, including full prototype page `98:2`; the app now needs real routes, forms, transitions, demo data, tests/smoke checks, and preview evidence.
 
 ## Stack And Deployment Direction
 

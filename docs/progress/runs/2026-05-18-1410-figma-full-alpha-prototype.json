@@ -1,0 +1,72 @@
+{
+  "run_id": "2026-05-18-1410-figma-full-alpha-prototype",
+  "timestamp": "2026-05-18T14:10:00-07:00",
+  "lane": "figma",
+  "automation_id": "senior-capstone-figma-product-design-rebuilt",
+  "status": "completed",
+  "master_plan_sections": [
+    "Product Destination",
+    "MVP 1.0 Vertical Slice",
+    "Day 7 Alpha Gate",
+    "100-Pass Delivery Constraint",
+    "Anti-Drift Rules"
+  ],
+  "referenced_logs": [
+    "docs/master-plan.md",
+    "docs/automation-memory.md",
+    "docs/progress/run-log.md",
+    "docs/progress/figma.md",
+    "docs/progress/handoffs.md",
+    "docs/artifacts.json",
+    "C:/Users/bryan/.codex/automations/senior-capstone-figma-product-design-rebuilt/memory.md"
+  ],
+  "figma": {
+    "file_key": "z4t4tFPAKrMDh6pIYOeEw6",
+    "url": "https://www.figma.com/design/z4t4tFPAKrMDh6pIYOeEw6",
+    "page_name": "05 Full MVP Alpha Prototype",
+    "page_id": "98:2",
+    "map_rail_id": "98:1130",
+    "frames": {
+      "launch": "98:3",
+      "student_dashboard": "98:4",
+      "guided_proposal_builder": "98:5",
+      "private_evidence_workspace": "98:6",
+      "submit_status_history": "98:7",
+      "teacher_review_queue": "98:8",
+      "review_detail_decision_drawer": "98:9",
+      "student_revision_loop": "98:10",
+      "mentor_presentation_flow": "98:11",
+      "admin_operations": "98:12",
+      "audit_export_controls": "98:13",
+      "announcements": "98:14",
+      "mobile_student_path": "98:15",
+      "protected_record_boundary": "98:16",
+      "route_implementation_handoff": "98:17"
+    }
+  },
+  "changes": [
+    "Created a full 15-screen clickable MVP alpha prototype page in the active Senior Project App Figma file.",
+    "Added route/data/permission annotations for student, proposal, evidence, submit, review, revision, mentor, admin, audit/export, announcements, mobile, protected-boundary, and handoff states.",
+    "Wired cross-screen prototype navigation and map rail links while skipping invalid same-frame self-links.",
+    "Stored shared Figma plugin data on launch frame 98:3 for routes, records, permissions, and acceptance checks.",
+    "Tightened the launch screen after initial screenshot showed vertical overflow."
+  ],
+  "verification": [
+    "Figma write returned page id 98:2, 15 screen IDs, map rail 98:1130, and zero reaction errors.",
+    "Final Figma readback confirmed 16 top-level nodes, 15 prototype screens, 176 reactions, 600 text nodes, zero suspicious clipped text nodes, zero detected top-level frame overflow, shared contract data present, and 15 contract routes.",
+    "Screenshot verification returned for launch frame 98:3, student dashboard 98:4, and mobile student path 98:15.",
+    "docs/artifacts.json and this run manifest parsed as JSON.",
+    "Automation contract checker passed.",
+    "Conflict-marker scan passed.",
+    "git diff --check passed."
+  ],
+  "handoffs": [
+    {
+      "id": "H-2026-05-18-008",
+      "status": "updated",
+      "next_action": "Consume page 98:2 and frames 98:3 through 98:17 while implementing real D1-backed workflows, authorization, audit events, private evidence guards, shared primitives, and mobile no-overflow checks."
+    }
+  ],
+  "self_improvement": "none for live prompt/config; the legacy automation ID is now memory-only after the QoL automation rebuild.",
+  "next": "Rebuild should use the prototype route map as build-week scaffolding and prioritize real workflow endpoints and tests over additional visual-only Figma expansion."
+}
