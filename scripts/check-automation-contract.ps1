@@ -102,6 +102,8 @@ foreach ($id in $automationIds) {
 $requiredFiles = @(
     "docs\automation-prompts\README.md",
     "docs\progress\runs\README.md",
+    "docs\progress\rebuild.md",
+    "docs\progress\audit.md",
     "docs\human-decisions.md",
     "docs\artifacts.json",
     "docs\architecture\adr-0001-stack-auth-database-upload.md",
