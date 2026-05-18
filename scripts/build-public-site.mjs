@@ -68,7 +68,7 @@ async function copyFileWithTransforms(file) {
   const destination = join(outDir, file);
   let text = await readFile(source, "utf8");
 
-  if (file === "app.js") {
+  if (file === "app.js" || file.endsWith(".html")) {
     text = text.replaceAll('"alpha.html"', `"${appUrl}/alpha.html"`);
     text = text.replaceAll('href="alpha.html"', `href="${appUrl}/alpha.html"`);
   }
