@@ -143,6 +143,7 @@ Read `docs/progress/decision-log.md` for accepted or superseded decisions.
 - `D-2026-05-18-027`: delete all Senior Capstone project automation again and rebuild from scratch as ten focused QoL automations, each running exactly 3x/day, with no shared start slots, at least 45 minutes between starts, no human approvals inside project scripts, requirement laddering, token budget guardrails, surface expansion, and script/checker self-improvement.
 - `D-2026-05-18-028`: use `scripts/measure-automation-efficiency.ps1` for explicit automation audits and Sunday calibration before recommending schedule changes.
 - `D-2026-05-18-029`: consolidate CI to `.github/workflows/ci.yml`, include the automation contract checker in `npm run check`, and let `scripts/check-automation-contract.ps1` use repo prompt snapshots by default when live local TOMLs are absent; use `-RequireLive` for live registry audits.
+- `D-2026-05-18-030`: all ten QoL automation prompts carry the audit-recommended script usage rules: npm wrappers when available, `scripts/run-powershell-script.mjs` fallback, `-RequireLive` only for live registry audits, manifest telemetry, and `measure-automation-efficiency.ps1 -OutputPath` guidance without any cadence changes.
 
 Current QoL automation IDs:
 - `senior-capstone-qol-source-framework-seed` (`ACTIVE`; `00:03`, `08:03`, `16:03` PT; GUI name `Senior Capstone QoL - Source Framework Seed`)
@@ -249,3 +250,10 @@ Every run should also record `self-improvement: none` or a specific self-improve
 - `npm run check` now includes `check:automation`, which runs `scripts/check-automation-contract.ps1` through `scripts/run-powershell-script.mjs` with non-interactive PowerShell flags.
 - Default automation contract checks pass from repo snapshots when live Codex TOMLs are absent, while `check:automation:live` / `-RequireLive` remains the strict live-registry audit.
 - Current local validation found the ten expected Senior Capstone QoL TOMLs under `C:\Users\bryan\.codex\automations`; snapshot fallback remains available for CI and repo-only audits.
+
+## 2026-05-18 15:30 PT - QoL Prompt Script-Usage Refresh
+
+- All ten live QoL automation prompts now explicitly use the audit-recommended script paths: `npm run automation:snapshot`, `npm run check:automation`, `npm run check:automation:live`, and `node scripts/run-powershell-script.mjs ...` fallback commands.
+- Prompts now require structured manifests with `requirement_ids`, `accepted_mvp_pass`, `duration_minutes`, `output_kind`, `automation_efficiency.duplicate_scope_checked`, and `automation_efficiency.scale_signal`.
+- Prompt guidance says to save reusable 30-day scorecards with `measure-automation-efficiency.ps1 -OutputPath docs/audits/<scorecard>.json`, not as non-manifest JSON under `docs/progress/runs/`.
+- No automation IDs, names, RRULE schedules, statuses, workspace paths, models, or reasoning effort were changed.

@@ -20,6 +20,7 @@ Structured run manifests: `docs/progress/runs/`.
 Human decision queue: `docs/human-decisions.md`.
 Artifact registry: `docs/artifacts.json`.
 Contract checker: `scripts/check-automation-contract.ps1`.
+Npm/CI wrapper: `scripts/run-powershell-script.mjs`.
 
 ## Active QoL Automations
 
@@ -54,7 +55,7 @@ Every QoL automation must:
 - Update the relevant progress log, `docs/progress/run-log.md`, and one structured manifest in `docs/progress/runs/`.
 - Update `docs/automation-memory.md`, handoffs, decisions, backlog, artifacts, or human decisions when materially needed.
 - Run the self-improvement closeout: record `self-improvement: none` when no prompt/config/script change is justified, or update only its own prompt/config and the smallest relevant project script when evidence and tool availability justify it.
-- If automation prompts/configs changed, regenerate `docs/automation-prompts/` with `scripts/snapshot-automation-prompts.ps1`, update `scripts/check-automation-contract.ps1` when the contract changed, and run the checker.
+- If automation prompts/configs changed, regenerate `docs/automation-prompts/` with `npm run automation:snapshot` or `scripts/snapshot-automation-prompts.ps1`, update `scripts/check-automation-contract.ps1` when the contract changed, and run `npm run check:automation` or the checker directly. Use `npm run check:automation:live` only when live registry health is the audit target.
 - Validate touched files with the strongest available checks.
 - Commit and push repo changes with a category-appropriate prefix, staging only files touched by the current run.
 

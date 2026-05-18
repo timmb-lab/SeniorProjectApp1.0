@@ -53,6 +53,24 @@ Senior Capstone project scripts must be safe for unattended automation. Automati
 powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\<script-name>.ps1
 ```
 
+When npm is available, use the repo wrappers for common automation script actions:
+
+```powershell
+npm run automation:snapshot
+npm run check:automation
+npm run check:automation:live
+```
+
+When npm is unavailable but Node is available, use the wrapper directly:
+
+```powershell
+node scripts/run-powershell-script.mjs scripts/check-automation-contract.ps1
+node scripts/run-powershell-script.mjs scripts/check-automation-contract.ps1 -RequireLive
+node scripts/run-powershell-script.mjs scripts/measure-automation-efficiency.ps1 -RepoRoot . -Days 30
+```
+
+Use `-RequireLive` / `npm run check:automation:live` only when auditing the live Codex GUI/local automation registry. The default automation check may validate repo prompt snapshots when live TOMLs are unavailable, which keeps CI and repo-only audits useful.
+
 Scripts in `scripts/` must not use `Read-Host`, `PromptForChoice`, `Pause`, `prompt()`, `confirm()`, `readline`, `inquirer`, stdin waits, or ad hoc confirmation gates. If a script needs a risky external or destructive action, it should require an explicit command-line flag and otherwise choose the safe repo-only path. Unattended automations should not wait for approvals inside scripts; they should use saved approval grants, safe defaults, or committed blocker records with exact next action.
 
 ## Backend Account/Provisioning Rule

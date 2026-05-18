@@ -320,3 +320,13 @@ Decision status values:
 - `applies to`: `.github/workflows/ci.yml`, `package.json`, `scripts/check-automation-contract.ps1`, `scripts/snapshot-automation-prompts.ps1`, `scripts/run-powershell-script.mjs`, alpha framework docs, automation runbook, backlog `SC-006`, and future CI/run manifests.
 - `guardrail`: Snapshot fallback is not proof that the Codex GUI has the expected active automations. Use `npm run check:automation:live` or `scripts/check-automation-contract.ps1 -RequireLive` before claiming live local automation registry health.
 - `last updated`: 2026-05-18 15:17 PT
+
+### D-2026-05-18-030
+
+- `status`: accepted
+- `area`: QoL automation script usage, manifest telemetry, and no-schedule-change prompt alignment
+- `decision`: Keep the ten QoL automation schedules unchanged while updating every live QoL prompt to use the audit-recommended script commands: npm wrappers when available, `scripts/run-powershell-script.mjs` fallback, `-RequireLive` only for live-registry audits, required manifest telemetry, and `measure-automation-efficiency.ps1 -OutputPath` guidance for durable scorecards.
+- `reason`: Bryan explicitly asked to apply the prior audit's recommended changes to all automations, with no scheduling changes and with changes limited to script usage.
+- `applies to`: local Senior Capstone QoL automation TOMLs, `docs/automation-prompts/`, `docs/automation-runbook.md`, `docs/automation-cadence.md`, `docs/automation-self-improvement.md`, `docs/automation-memory.md`, `docs/progress/audit.md`, `docs/progress/run-log.md`, `scripts/check-automation-contract.ps1`, and future QoL run manifests.
+- `guardrail`: This decision changes prompt/script guidance only. It does not alter RRULEs, start counts, active status, workspace, model, reasoning effort, or QoL ownership.
+- `last updated`: 2026-05-18 15:30 PT
