@@ -47,7 +47,7 @@ This file tracks unresolved cross-lane issues for the Senior Capstone rebuild. T
 - `status`: open
 - `source`: Cycle linked document, senior guide, and mentor teacher guide PDFs
 - `affected area`: private evidence/upload/link model
-- `evidence`: Source workflow repeatedly asks students to link documents, slides, photos, letters, reflections, and final products. Figma now has a private evidence/review-history implementation contract in active file `z4t4tFPAKrMDh6pIYOeEw6`, node `37:2`, with upload/link states, permission matrix, review history, and audit guardrails, but the hosted app has not yet implemented private EvidenceArtifact storage, external-link metadata, access checks, or review status.
+- `evidence`: Source workflow repeatedly asks students to link documents, slides, photos, letters, reflections, and final products. Figma now has a private evidence/review-history implementation contract in active file `z4t4tFPAKrMDh6pIYOeEw6`, node `37:2`, plus shared `EvidenceArtifactRow` component variants in node `43:2` / component set `43:149`, with upload/link states, permission matrix, review history, and audit guardrails, but the hosted app has not yet implemented private EvidenceArtifact storage, external-link metadata, access checks, or review status.
 - `next action`: Rebuild must implement the private EvidenceArtifact model, upload/link access checks, signed URL expiry, immutable review history, unauthorized access audit events, and permission tests before any dashboard relies on submission counts.
 - `last updated`: 2026-05-18 09:41 PT
 

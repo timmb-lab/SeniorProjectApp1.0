@@ -359,13 +359,19 @@ Mobile rules:
 Create a summary grid:
 
 - `Status Pill`
-  - Draft, Submitted, Under review, Revision requested, Approved, Blocked, Overridden
+  - Draft, Submitted, Under review, Revision requested, Approved, Blocked, Overridden, Archived, Access denied, Upload scanning, Link check needed
 
 - `Submission Card`
   - No work started, Draft saved, Submitted locked, Revision open, Approved
 
 - `Evidence Row`
-  - Upload, External link, Staff note, Access check, Failed upload
+  - Draft upload, Scanning, External link check, Submitted locked, Revision requested, Reviewer redacted, Approved archive, Failed upload
+
+- `Action Button`
+  - Primary submit, Secondary save draft, Danger override, Disabled pending, Loading submit, Permission blocked, Retry
+
+- `Permission Gate`
+  - Allowed, Denied, Redacted fields, Expired signed URL, Explicit misc admin scope
 
 - `Review Drawer`
   - Comment, Request revision, Approve, Escalate, Flag weak CTE alignment
@@ -441,6 +447,11 @@ Created/updated frames:
   - `Review History Timeline`, node `37:132`
   - `Developer Handoff / Evidence Data Route Contract`, node `37:177`
   - `Evidence Acceptance Checks`, node `37:201`
+- `Section / MVP Component Variant Implementation Matrix`, node `43:2` on `01 Components + App Screens`
+  - `MVP / StatusPill` component set, node `43:55`
+  - `MVP / ActionButton` component set, node `43:73`
+  - `MVP / EvidenceArtifactRow` component set, node `43:149`
+  - `Developer Handoff / Shared UI Data Contract`, node `43:150`
 
 Verification status:
 - Canvas write succeeded and returned the frame IDs above.
@@ -451,3 +462,6 @@ Verification status:
 - `get_screenshot` succeeded for node `37:2`; visual QA found lifecycle cards clipping on the first screenshot.
 - Follow-up `use_figma` layout fix created lifecycle rows `38:2` and `38:3`, expanded board `6:2` to height `7054`, and final `get_screenshot` succeeded for node `37:2` at `1584x1633`.
 - Follow-up readback confirmed shared contract data on `37:2` names private evidence routes, data records, and security guardrails.
+- `get_screenshot` succeeded for node `43:2`; visual QA found status variant clipping on the first screenshot.
+- Follow-up `use_figma` layout fix expanded `MVP / StatusPill` node `43:55` to a two-column layout, expanded board `3:2` to height `4978`, and final `get_screenshot` succeeded for node `43:2` at `1584x1404`.
+- Follow-up readback confirmed shared contract data on `43:2`, component-set contracts on nodes `43:55`, `43:73`, and `43:149`, and variant counts of 11 status states, 7 action states, and 8 evidence row states.

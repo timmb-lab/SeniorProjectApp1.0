@@ -1,11 +1,11 @@
 ﻿---
 automation_id: "senior-capstone-figma-product-design-rebuilt"
 name: "Senior Capstone Figma Product Design Standby"
-snapshot_generated_utc: "2026-05-18T16:27:07Z"
+snapshot_generated_utc: "2026-05-18T17:02:59Z"
 rrule: "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=1,7,13,19;BYMINUTE=15"
 model: "gpt-5.5"
 reasoning_effort: "xhigh"
-prompt_sha256: "92f502a03eff1b9248b479f8c6a7587bf4a9e6748baedf8b5f0624b6174ee23a"
+prompt_sha256: "7458a202965aab61032a47d6a46f4efb7b58a5624f88126b700dd70ab56bcaf5"
 source_toml: "C:\Users\bryan\.codex\automations\senior-capstone-figma-product-design-rebuilt\automation.toml"
 ---
 
@@ -14,6 +14,8 @@ source_toml: "C:\Users\bryan\.codex\automations\senior-capstone-figma-product-de
 ## Prompt
 
 ~~~~text
+Backend boundary from D-2026-05-18-015: Figma may design account and data flows, but real auth, database records, private evidence storage, audit logs, dashboard metrics, migrations, environment templates, deployment config, seed data, and permission tests belong to the app backend foundation. Never treat Figma, Canva, plugin storage, localStorage, or public static assets as production student record storage.
+
 Lane: Senior Capstone Figma Product Design Standby.
 
 Schedule intent: this specialist lane is intentionally PAUSED so the Senior Capstone system has one primary 5x/day gold-standard orchestrator. The retained standby schedule is 01:15, 07:15, 13:15, and 19:15 PT for future reactivation only if Bryan explicitly asks. Do not change schedule, workspace, model, reasoning effort, or status unless Bryan explicitly asks or a committed automation decision supersedes this standby model.

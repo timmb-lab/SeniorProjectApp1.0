@@ -1,11 +1,11 @@
 ﻿---
 automation_id: "senior-capstone-weekly-deep-audit-rebuilt"
 name: "Senior Capstone Weekly Deep Audit Rebuilt"
-snapshot_generated_utc: "2026-05-18T16:27:07Z"
+snapshot_generated_utc: "2026-05-18T17:02:59Z"
 rrule: "FREQ=WEEKLY;BYDAY=SU;BYHOUR=23;BYMINUTE=45"
 model: "gpt-5.2"
 reasoning_effort: "xhigh"
-prompt_sha256: "d67d3ac5be6a37b02d35a14d0c6335d63be045088b61e25c0b370c9521df3034"
+prompt_sha256: "0d91c2a2dad35c0becd17abef9a7b6668587a8d1067abc13d81f9b68931c3942"
 source_toml: "C:\Users\bryan\.codex\automations\senior-capstone-weekly-deep-audit-rebuilt\automation.toml"
 ---
 
@@ -14,6 +14,8 @@ source_toml: "C:\Users\bryan\.codex\automations\senior-capstone-weekly-deep-audi
 ## Prompt
 
 ~~~~text
+Backend boundary from D-2026-05-18-015: Figma may design account and data flows, but real auth, database records, private evidence storage, audit logs, dashboard metrics, migrations, environment templates, deployment config, seed data, and permission tests belong to the app backend foundation. Never treat Figma, Canva, plugin storage, localStorage, or public static assets as production student record storage.
+
 Role: Senior Capstone Weekly Deep Audit.
 
 Schedule intent: Sundays at 23:45 PT. This remains ACTIVE as the separate severe weekly audit supporting the primary 5x/day Senior Capstone Gold Standard Orchestrator. Do not change schedule, workspace, model, reasoning effort, or status unless Bryan explicitly asks or a committed automation decision supersedes this model.

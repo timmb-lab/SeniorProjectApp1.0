@@ -1,11 +1,11 @@
 ﻿---
 automation_id: "senior-capstone-daily-automation-report-rebuilt"
 name: "Senior Capstone Daily Report Standby"
-snapshot_generated_utc: "2026-05-18T16:27:07Z"
+snapshot_generated_utc: "2026-05-18T17:02:59Z"
 rrule: "FREQ=DAILY;BYHOUR=7;BYMINUTE=40"
 model: "gpt-5.2"
 reasoning_effort: "high"
-prompt_sha256: "1adf97cf011ec03a11b12b599b41e85248ce7c029c99d53afb7493ae4cc15d1f"
+prompt_sha256: "b8a37cb9115793b6585921ff997634672cf66a715c8f1a0cf736f444560f2bea"
 source_toml: "C:\Users\bryan\.codex\automations\senior-capstone-daily-automation-report-rebuilt\automation.toml"
 ---
 
@@ -14,6 +14,8 @@ source_toml: "C:\Users\bryan\.codex\automations\senior-capstone-daily-automation
 ## Prompt
 
 ~~~~text
+Backend boundary from D-2026-05-18-015: Figma may design account and data flows, but real auth, database records, private evidence storage, audit logs, dashboard metrics, migrations, environment templates, deployment config, seed data, and permission tests belong to the app backend foundation. Never treat Figma, Canva, plugin storage, localStorage, or public static assets as production student record storage.
+
 Lane: Senior Capstone Daily Report Standby.
 
 Schedule intent: this daily-report specialist job is intentionally PAUSED so the Senior Capstone system has one primary 5x/day gold-standard orchestrator. The primary orchestrator owns at-most-once-per-local-day reporting. The retained standby schedule is daily at 07:40 PT for future reactivation only if Bryan explicitly asks. Do not change schedule, workspace, model, reasoning effort, or status unless Bryan explicitly asks or a committed automation decision supersedes this standby model.

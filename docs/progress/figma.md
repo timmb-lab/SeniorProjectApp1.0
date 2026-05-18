@@ -596,3 +596,76 @@ Self-improvement:
 
 Next Figma slice:
 - Promote repeated status/action patterns into richer component variants or refine the mobile student evidence/revision states.
+
+## 2026-05-18 MVP Component Variant Implementation Matrix
+
+Automation:
+- `senior-capstone-figma-product-design-rebuilt`
+
+Master-plan section:
+- Product Destination
+- MVP 1.0 Vertical Slice
+- 100-Pass Delivery Constraint
+- Lane Responsibilities
+- Logging Requirements
+
+Logs referenced:
+- `docs/master-plan.md`
+- `docs/automation-runbook.md`
+- `docs/automation-self-improvement.md`
+- `docs/automation-cadence.md`
+- `docs/automation-milestones.md`
+- `docs/automation-memory.md`
+- `docs/progress/run-log.md`
+- `docs/progress/runs/`
+- `docs/progress/handoffs.md`
+- `docs/progress/decision-log.md`
+- `docs/automation-backlog.md`
+- `docs/artifacts.json`
+- `docs/human-decisions.md`
+- `docs/progress/figma.md`
+- adjacent rebuild/audit lane logs
+- `docs/domain-model.md`
+- `docs/curriculum-framework-integration.md`
+
+Active Figma artifact:
+- File: `Senior Capstone App - Product UI System Recreated`
+- File key: `z4t4tFPAKrMDh6pIYOeEw6`
+- URL: `https://www.figma.com/design/z4t4tFPAKrMDh6pIYOeEw6`
+- Team id: `1638213362346160913`
+- Plan key: `team::1638213362346160913`
+
+What changed:
+- Added `Section / MVP Component Variant Implementation Matrix`, node `43:2`, to `01 Components + App Screens` board `3:2`.
+- Inserted it after the existing component variant lab so rebuild sees shared UI contracts before page-specific screens.
+- Added `MVP / StatusPill` component set, node `43:55`, with 11 variants: Draft, Submitted, Under Review, Revision Requested, Approved, Blocked, Overridden, Archived, Access Denied, Upload Scanning, and Link Check Needed.
+- Added `MVP / ActionButton` component set, node `43:73`, with 7 variants: Primary Submit, Secondary Save Draft, Danger Override, Disabled Pending, Loading Submit, Permission Blocked, and Retry.
+- Added `MVP / EvidenceArtifactRow` component set, node `43:149`, with 8 variants: Draft Upload, Scanning, External Link Check, Submitted Locked, Revision Requested, Reviewer Redacted, Approved Archive, and Failed Upload.
+- Added `Developer Handoff / Shared UI Data Contract`, node `43:150`, covering `StatusPill`, `ActionButton`, `EvidenceArtifactRow`, `PermissionGate`, and `ReviewHistoryItem`.
+- Stored shared Figma plugin data on node `43:2` for routes `/student/progress`, `/student/evidence`, `/teacher/review`, `/admin/users`, `/admin/audit`, and `/api/evidence/:id/check-access`; records `Submission`, `EvidenceArtifact`, `Review`, `Comment`, `AuditEvent`, `UserGroupRole`, and `StudentArchiveExport`; permissions for student/mentor/teacher/admin/misc admin; and guardrails for no messaging, accessible status, hidden storage keys, signed URL expiry, audit denials/overrides, and stable loading/disabled states.
+
+Verification:
+- No Code Connect files were present in the repo for this slice.
+- `get_libraries` succeeded and confirmed the active file library, Material 3 Design Kit, Simple Design System, and Apple UI kits are available.
+- `search_design_system` broad component/variant search returned no richer shared primitive; focused button/status search found the file's own `Component / Status Pill / Submitted`.
+- `get_design_context` for the existing component lab confirmed local visual conventions, colors, text sizing, and status-pill styling before the new section was written.
+- `use_figma` inspection confirmed board `3:2` was vertical layout, had 9 existing status-pill components, no component sets, no component instances, and no local variables/styles.
+- `use_figma` write created node `43:2` plus component sets `43:55`, `43:73`, `43:149`, and contract panel `43:150`.
+- First `get_screenshot` surfaced clipped right-column status variants in node `43:55`; a follow-up `use_figma` layout fix changed the status set to two columns and expanded node `43:2` to `1584x1404`.
+- Final `get_screenshot` succeeded for node `43:2` at original size `1584x1404`.
+- `get_design_context` succeeded for node `43:2`.
+- Follow-up `use_figma` readback confirmed board `3:2` height is `4978`, node `43:2` is visible at `y=658`, component-set variant counts are 11/7/8, and shared contract data is readable.
+- Initial automation contract check found stale prompt snapshot hashes; regenerated snapshots with `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts\snapshot-automation-prompts.ps1`.
+- Follow-up `scripts/check-automation-contract.ps1` passed for 6 automations.
+
+Handoff packet:
+- Consumer lane: rebuild.
+- Artifact/spec: active Figma file `z4t4tFPAKrMDh6pIYOeEw6`, components board `3:2`, component variant matrix `43:2`, status set `43:55`, action set `43:73`, evidence row set `43:149`, shared UI contract `43:150`.
+- Exact next action: implement shared `StatusPill`, `ActionButton`, `EvidenceArtifactRow`, `PermissionGate`, and `ReviewHistoryItem` primitives while scaffolding the accepted Cloudflare database/auth/progress/evidence foundation.
+- Acceptance check: rebuild maps shared UI variants to persisted submission/evidence/review/audit data, server authorization, role scopes, hidden private storage keys, signed URL expiry, loading/error/permission states, and tests before duplicating page-specific UI state.
+
+Self-improvement:
+- none to live automation prompt/config; stale prompt snapshots were refreshed after the checker caught hash mismatch, with schedules, workspace, model, reasoning effort, and status unchanged.
+
+Next Figma slice:
+- Refine the mobile student evidence/revision states or add admin account/group management state details.

@@ -377,6 +377,12 @@ Active file structure from successful write calls:
   - Review/override developer handoff contract: node `31:144`
   - Private evidence and review-history contract: `Section / Private Evidence + Review History Contract`, node `37:2`
   - Private evidence developer handoff contract: node `37:177`
+- `01 Components + App Screens`
+  - MVP component variant implementation matrix: `Section / MVP Component Variant Implementation Matrix`, node `43:2`
+  - `MVP / StatusPill` component set: node `43:55`
+  - `MVP / ActionButton` component set: node `43:73`
+  - `MVP / EvidenceArtifactRow` component set: node `43:149`
+  - Shared UI developer handoff contract: node `43:150`
 
 ## 100-Pass MVP Execution Map
 
@@ -447,6 +453,22 @@ Developer contract:
 - Guardrails: `storage_key` is never rendered to clients, signed URLs are time boxed, external links get access checks, review history is immutable, and unauthorized evidence access logs an audit denial.
 - Acceptance checks: no public storage keys, signed URL expiry, link access check, immutable history, and unauthorized audit event tests.
 
+## MVP Component Variant Implementation Matrix
+
+Node `43:2` deepens the shared UI system so rebuild can implement common components before hard-coding page-specific statuses, action buttons, or private evidence rows.
+
+Component sets:
+- `MVP / StatusPill`, node `43:55`, with 11 variants: Draft, Submitted, Under Review, Revision Requested, Approved, Blocked, Overridden, Archived, Access Denied, Upload Scanning, and Link Check Needed.
+- `MVP / ActionButton`, node `43:73`, with 7 variants: Primary Submit, Secondary Save Draft, Danger Override, Disabled Pending, Loading Submit, Permission Blocked, and Retry.
+- `MVP / EvidenceArtifactRow`, node `43:149`, with 8 variants: Draft Upload, Scanning, External Link Check, Submitted Locked, Revision Requested, Reviewer Redacted, Approved Archive, and Failed Upload.
+
+Developer contract:
+- Shared components: `StatusPill`, `ActionButton`, `EvidenceArtifactRow`, `PermissionGate`, and `ReviewHistoryItem`.
+- Routes/API: `/student/progress`, `/student/evidence`, `/teacher/review`, `/admin/users`, `/admin/audit`, and `/api/evidence/:id/check-access`.
+- Records: `Submission`, `EvidenceArtifact`, `Review`, `Comment`, `AuditEvent`, `UserGroupRole`, and `StudentArchiveExport`.
+- Guardrails: status uses text plus color, private storage keys stay hidden, signed URLs are time-boxed, overrides and denials are audited, disabled/loading layouts stay stable, and no student messaging is introduced.
+- Acceptance checks: all variants include accessible labels, unauthorized users never see private fields, audit event IDs are available for sensitive actions, mobile labels fit without overlap, and tests cover denied, loading, error, retry, and revision states.
+
 ## Acceptance Checks For Next Figma Run
 
 - Continue active writable file `z4t4tFPAKrMDh6pIYOeEw6` in `team::1638213362346160913`.
@@ -455,6 +477,7 @@ Developer contract:
 - Deepen the existing teacher review queue screen rather than recreating it from scratch.
 - Deepen the existing mobile student screen rather than recreating it from scratch.
 - Components are named consistently with this spec and should become richer variants over time.
+- Shared component sets from node `43:2` should be consumed before rebuild creates one-off status/action/evidence UI.
 - Every screen names role, permission scope, data source, status behavior, upload/evidence implications, and audit implications.
 - No screen uses real student data.
 - No critical app text is baked into Canva imagery.
@@ -474,9 +497,10 @@ Artifact:
 - This spec file.
 - State-variant packet: `docs/design/figma-product-preview-state-variants.md`
 - 100-pass MVP execution map: node `18:2` in the active Figma file.
+- MVP component variant implementation matrix: node `43:2` in the active Figma file.
 
 Exact next action:
-- Continue `z4t4tFPAKrMDh6pIYOeEw6` by promoting repeated status/action patterns into richer component variants or refining the mobile student evidence/revision states.
+- Continue `z4t4tFPAKrMDh6pIYOeEw6` by refining the mobile student evidence/revision states or adding admin account/group management state details.
 
 Acceptance check:
 - Figma progress log records page/frame IDs, screenshot or metadata verification, route/data fields, permission scopes, and the next UI slice.

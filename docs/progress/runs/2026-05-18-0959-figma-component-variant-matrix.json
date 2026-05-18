@@ -1,0 +1,103 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-05-18-0959-figma-component-variant-matrix",
+  "timestampLocal": "2026-05-18T09:59:00-07:00",
+  "lane": "figma",
+  "automationId": "senior-capstone-figma-product-design-rebuilt",
+  "scope": "Continue the active Figma product UI file by adding reusable MVP component variants for status, actions, evidence rows, permission gates, and review history handoff contracts.",
+  "masterPlanSections": [
+    "Product Destination",
+    "MVP 1.0 Vertical Slice",
+    "100-Pass Delivery Constraint",
+    "Lane Responsibilities",
+    "Logging Requirements"
+  ],
+  "logsRead": [
+    "docs/master-plan.md",
+    "docs/automation-runbook.md",
+    "docs/automation-self-improvement.md",
+    "docs/automation-cadence.md",
+    "docs/automation-milestones.md",
+    "docs/automation-memory.md",
+    "docs/progress/run-log.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/decision-log.md",
+    "docs/automation-backlog.md",
+    "docs/artifacts.json",
+    "docs/human-decisions.md",
+    "docs/progress/figma.md",
+    "docs/progress/rebuild.md",
+    "docs/progress/audit.md",
+    "docs/design/figma-first-pass-product-system.md",
+    "docs/design/figma-product-preview-state-variants.md",
+    "docs/domain-model.md",
+    "docs/curriculum-framework-integration.md"
+  ],
+  "figmaTarget": {
+    "fileKey": "z4t4tFPAKrMDh6pIYOeEw6",
+    "url": "https://www.figma.com/design/z4t4tFPAKrMDh6pIYOeEw6",
+    "teamId": "1638213362346160913",
+    "page": "01 Components + App Screens",
+    "boardNodeId": "3:2",
+    "createdNodes": {
+      "componentVariantMatrix": "43:2",
+      "statusPillSet": "43:55",
+      "actionButtonSet": "43:73",
+      "evidenceArtifactRowSet": "43:149",
+      "sharedUiHandoffContract": "43:150"
+    },
+    "variantCounts": {
+      "statusPill": 11,
+      "actionButton": 7,
+      "evidenceArtifactRow": 8
+    }
+  },
+  "result": "completed",
+  "figmaCalls": [
+    "get_libraries for active file",
+    "search_design_system for status/action/evidence/component variants",
+    "search_design_system focused button/status query",
+    "use_figma readback for board 3:2 and existing components",
+    "get_design_context for existing component lab 3:5",
+    "use_figma write for MVP component variant implementation matrix",
+    "get_screenshot for node 43:2",
+    "use_figma layout fix for clipped StatusPill variants",
+    "get_screenshot for node 43:2 after layout fix",
+    "use_figma readback for board 3:2, component sets, and shared contract data",
+    "get_design_context for node 43:2"
+  ],
+  "filesChanged": [
+    "docs/artifacts.json",
+    "docs/automation-memory.md",
+    "docs/automation-prompts/",
+    "docs/design/figma-first-pass-product-system.md",
+    "docs/design/figma-product-preview-state-variants.md",
+    "docs/progress/figma.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-18-0959-figma-component-variant-matrix.json"
+  ],
+  "validation": [
+    "Figma get_libraries succeeded for active file z4t4tFPAKrMDh6pIYOeEw6.",
+    "Figma design-system search succeeded and found the file's own status-pill component.",
+    "Figma use_figma inspection confirmed board 3:2, 9 existing status-pill components, no component sets, and no component instances.",
+    "Figma write created node 43:2 plus component sets 43:55, 43:73, and 43:149.",
+    "First Figma screenshot caught clipped right-column status labels.",
+    "Figma layout fix resized node 43:55 to a two-column status layout.",
+    "Final Figma screenshot returned for node 43:2 at original size 1584x1404.",
+    "Figma design context returned for node 43:2.",
+    "Figma readback confirmed board 3:2 height is 4978, node 43:2 is visible at y=658, component-set variant counts are 11/7/8, and shared contract data is readable.",
+    "docs/artifacts.json parsed with ConvertFrom-Json.",
+    "docs/progress/runs/2026-05-18-0959-figma-component-variant-matrix.json parsed with ConvertFrom-Json.",
+    "Initial scripts/check-automation-contract.ps1 found stale prompt snapshot hashes.",
+    "scripts/snapshot-automation-prompts.ps1 regenerated 6 prompt snapshots non-interactively.",
+    "Follow-up scripts/check-automation-contract.ps1 passed.",
+    "git diff --check passed with CRLF warnings only.",
+    "Conflict-marker scan found no matches."
+  ],
+  "selfImprovement": "none to live automation prompt/config; stale prompt snapshots were refreshed after checker hash mismatch while preserving schedules, workspace, model, reasoning effort, and status.",
+  "nextActions": [
+    "Rebuild should consume nodes 18:2, 31:2, 37:2, and 43:2 while scaffolding the accepted Cloudflare foundation.",
+    "Figma should next refine mobile student evidence/revision states or add admin account/group management state details."
+  ]
+}

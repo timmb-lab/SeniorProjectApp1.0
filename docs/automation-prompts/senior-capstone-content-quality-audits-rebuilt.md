@@ -1,11 +1,11 @@
 ﻿---
 automation_id: "senior-capstone-content-quality-audits-rebuilt"
 name: "Senior Capstone Content Quality Audit Standby"
-snapshot_generated_utc: "2026-05-18T16:27:07Z"
+snapshot_generated_utc: "2026-05-18T17:02:59Z"
 rrule: "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=3,9,15,21;BYMINUTE=45"
 model: "gpt-5.2"
 reasoning_effort: "xhigh"
-prompt_sha256: "65edd2f0c07d5366298be3fbb07d4b78f2a0e3fa2df6996dba75a63d9a042c90"
+prompt_sha256: "e18fb704f44c1bd5ad7fccc14b4f48daca5b25521302461dc4f0a48c76defb1e"
 source_toml: "C:\Users\bryan\.codex\automations\senior-capstone-content-quality-audits-rebuilt\automation.toml"
 ---
 
@@ -14,6 +14,8 @@ source_toml: "C:\Users\bryan\.codex\automations\senior-capstone-content-quality-
 ## Prompt
 
 ~~~~text
+Backend boundary from D-2026-05-18-015: Figma may design account and data flows, but real auth, database records, private evidence storage, audit logs, dashboard metrics, migrations, environment templates, deployment config, seed data, and permission tests belong to the app backend foundation. Never treat Figma, Canva, plugin storage, localStorage, or public static assets as production student record storage.
+
 Lane: Senior Capstone Content Quality Audit Standby.
 
 Schedule intent: this specialist lane is intentionally PAUSED so the Senior Capstone system has one primary 5x/day gold-standard orchestrator. The retained standby schedule is 03:45, 09:45, 15:45, and 21:45 PT for future reactivation only if Bryan explicitly asks. Do not change schedule, workspace, model, reasoning effort, or status unless Bryan explicitly asks or a committed automation decision supersedes this standby model.

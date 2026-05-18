@@ -77,11 +77,11 @@ Status values:
 - `owner lane`: rebuild
 - `status`: open
 - `source`: professional-plan Figma verification and 100-pass MVP map
-- `artifact`: active Figma file `z4t4tFPAKrMDh6pIYOeEw6`, `03 Product Preview + State Variants` node `6:2`, `100-Pass MVP Execution Map` node `18:2`, route/data contract nodes `18:44` through `18:47`, review/override variants node `31:2`, developer handoff contract node `31:144`, private evidence/review-history contract node `37:2`, evidence handoff contract node `37:177`
-- `next action`: Consume the route/data/permission contract while scaffolding the accepted Cloudflare database/auth/progress foundation, then implement teacher review decisions, admin override paths, private evidence upload/link access checks, and immutable review history from nodes `31:2` and `37:2`.
-- `acceptance check`: Rebuild commits a stack/scaffold or implementation plan that maps `/student/progress`, `/teacher/review`, `/mentor/assigned`, `/admin/users`, `/admin/audit`, `/student/evidence`, review decisions, admin overrides, evidence upload/link checks, and review history to persisted data, server authorization, audit events, private-evidence guards, signed URL expiry, and loading/error/permission states.
-- `evidence to close`: Committed rebuild plan or code scaffold referencing `z4t4tFPAKrMDh6pIYOeEw6`, node `18:2`, node `31:2`, and node `37:2`.
-- `last updated`: 2026-05-18 09:41 PT
+- `artifact`: active Figma file `z4t4tFPAKrMDh6pIYOeEw6`, `03 Product Preview + State Variants` node `6:2`, `100-Pass MVP Execution Map` node `18:2`, route/data contract nodes `18:44` through `18:47`, review/override variants node `31:2`, developer handoff contract node `31:144`, private evidence/review-history contract node `37:2`, evidence handoff contract node `37:177`, MVP component variant matrix node `43:2`, status component set `43:55`, action component set `43:73`, evidence row component set `43:149`, shared UI contract `43:150`
+- `next action`: Consume the route/data/permission contract while scaffolding the accepted Cloudflare database/auth/progress foundation, then implement shared `StatusPill`, `ActionButton`, `EvidenceArtifactRow`, `PermissionGate`, and `ReviewHistoryItem` primitives before wiring teacher review decisions, admin override paths, private evidence upload/link access checks, and immutable review history from nodes `31:2`, `37:2`, and `43:2`.
+- `acceptance check`: Rebuild commits a stack/scaffold or implementation plan that maps `/student/progress`, `/teacher/review`, `/mentor/assigned`, `/admin/users`, `/admin/audit`, `/student/evidence`, review decisions, admin overrides, evidence upload/link checks, review history, and shared component variants to persisted data, server authorization, audit events, private-evidence guards, signed URL expiry, stable loading/disabled states, accessible text-plus-color status, and loading/error/permission tests.
+- `evidence to close`: Committed rebuild plan or code scaffold referencing `z4t4tFPAKrMDh6pIYOeEw6`, node `18:2`, node `31:2`, node `37:2`, and node `43:2`.
+- `last updated`: 2026-05-18 09:59 PT
 
 ## Resolved Handoffs
 
