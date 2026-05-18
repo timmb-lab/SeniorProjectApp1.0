@@ -17,7 +17,7 @@ The ECTA Senior Capstone public companion site is published separately from the 
 npm run build:public-site
 ```
 
-The build writes static output to `public-site/`, which is intentionally ignored by git.
+The build writes static output to `public-companion/`, which is tracked so Cloudflare can deploy it from a separate project root without reading the app's root Wrangler configuration.
 
 The public build includes student-facing site pages, assets, templates, `styles.css`, and `app.js`. It does not include Cloudflare Pages Functions, D1 bindings, migrations, or backend app routes. The alpha console link redirects to the app project.
 
@@ -27,7 +27,7 @@ The public build includes student-facing site pages, assets, templates, `styles.
 npm run deploy:public-site
 ```
 
-That deploys `public-site/` to the Cloudflare Pages project `senior-capstone-public`.
+That deploys `public-companion/` to the Cloudflare Pages project `senior-capstone-public`.
 
 ## Update Cadence
 

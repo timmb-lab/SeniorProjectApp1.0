@@ -3,7 +3,7 @@ import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const outDir = resolve(repoRoot, "public-site");
+const outDir = resolve(repoRoot, "public-companion");
 const appUrl = "https://senior-capstone-app.pages.dev";
 
 const pages = [
@@ -133,7 +133,7 @@ async function main() {
   await writeManifest();
 
   const outputFiles = await readdir(outDir);
-  console.log(`Built public-site with ${outputFiles.length} top-level entries.`);
+  console.log(`Built public-companion with ${outputFiles.length} top-level entries.`);
 }
 
 main().catch((error) => {

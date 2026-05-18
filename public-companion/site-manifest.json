@@ -1,0 +1,33 @@
+{
+  "generatedAt": "2026-05-18T23:33:07.237Z",
+  "source": "SeniorProjectApp1.0 public companion site",
+  "appUrl": "https://senior-capstone-app.pages.dev",
+  "pages": [
+    "index.html",
+    "program.html",
+    "sponsorship-support.html",
+    "calendar.html",
+    "process.html",
+    "phase-1.html",
+    "phase-2a.html",
+    "gathering-supplies.html",
+    "managing-your-vision.html",
+    "mentor-meeting-1.html",
+    "phase-2b.html",
+    "sprint-to-finish.html",
+    "mentor-meeting-2.html",
+    "present.html",
+    "project-showcase.html",
+    "celebrate.html",
+    "launch.html",
+    "finish.html",
+    "pacing.html",
+    "examples.html",
+    "links.html",
+    "templates.html",
+    "portfolio.html",
+    "rubrics.html",
+    "grades.html",
+    "app-preview.html"
+  ]
+}
