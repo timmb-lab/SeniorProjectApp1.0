@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-05-18T12:02:00-07:00",
+  "updated_at": "2026-05-18T12:16:00-07:00",
   "artifacts": [
     {
       "id": "cloudflare-pages-senior-capstone-app",
@@ -30,7 +30,8 @@
       "verification": [
         "Cloudflare API returned project id 45041fa7-82ad-489d-a928-962d53c3b95a on 2026-05-18.",
         "Preview and production deployment configs include DB D1 binding, hardened username/password auth mode, Google Drive evidence provider, evidence root folder id, evidence index sheet id, PASSWORD_PEPPER and SESSION_PEPPER secret_text vars, and fail_open=false.",
-        "Cloudflare MCP API call on 2026-05-18 12:02 PT returned Auth required in this Codex session; remote state was not reverified in that pass."
+        "Production deployment 2aadfa71 for commit 17a04f3 succeeded on 2026-05-18; /api/health returned APP_ENV production and userCount 1 after first-admin bootstrap.",
+        "Production BOOTSTRAP_SETUP_KEY was removed after first-admin bootstrap and redeploy; live bootstrap endpoint returned 403."
       ],
       "last_updated": "2026-05-18"
     },
@@ -64,7 +65,8 @@
       "verification": [
         "Node test suite passed 5 alpha state-machine tests on 2026-05-18.",
         "Node syntax checks passed for alpha client, alpha Pages Function, alpha model, and existing app.js on 2026-05-18.",
-        "Local HTTP smoke API returned seeded alpha state; Edge headless DOM check rendered Student workspace, metrics, evidence, and audit content on mobile viewport."
+        "Local HTTP smoke API returned seeded alpha state; Edge headless DOM check rendered Student workspace, metrics, evidence, and audit content on mobile viewport.",
+        "Cloudflare Pages production served alpha.html and /api/alpha/state for commit 17a04f3 on 2026-05-18."
       ],
       "last_updated": "2026-05-18"
     },
@@ -93,7 +95,8 @@
       ],
       "verification": [
         "Migration 0001 applied successfully through Cloudflare D1 raw query API on 2026-05-18.",
-        "Remote query verified 5 roles, 9 programs, default Google Drive evidence repository row, and expected foundation tables."
+        "Remote query verified 5 roles, 9 programs, default Google Drive evidence repository row, and expected foundation tables.",
+        "Remote query verified first admin user bryan.timm89@gmail.com, global admin role, bootstrap_admin_created audit event, and session creation on 2026-05-18."
       ],
       "last_updated": "2026-05-18"
     },

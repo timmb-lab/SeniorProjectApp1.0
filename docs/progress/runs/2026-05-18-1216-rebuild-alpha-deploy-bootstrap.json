@@ -1,0 +1,76 @@
+{
+  "run_id": "2026-05-18-1216-rebuild-alpha-deploy-bootstrap",
+  "timestamp_pt": "2026-05-18 12:16 PT",
+  "lane": "rebuild",
+  "automation_id": "interactive-codex",
+  "master_plan_sections": [
+    "MVP 1.0 Vertical Slice",
+    "Day 7 Alpha Gate",
+    "Stack And Deployment Direction",
+    "Logging Requirements"
+  ],
+  "selected_items": [
+    "SC-003",
+    "SC-005",
+    "SC-006",
+    "H-2026-05-18-006"
+  ],
+  "scope": "Finish the immediate deploy/bootstrap blockers after the D1-backed Day 7 alpha commit.",
+  "next_step_blocks": [
+    {
+      "block": "Production alpha needed deployment verification",
+      "resolution": "Verified Cloudflare Pages deployment for commit 17a04f3, alpha.html, /api/alpha/state, and /api/health."
+    },
+    {
+      "block": "Production health was inheriting local APP_ENV",
+      "resolution": "Moved APP_ENV into the deploy vars as production and kept APP_ENV=local only in .dev.vars.example."
+    },
+    {
+      "block": "First-admin bootstrap returned 500 in Workers",
+      "resolution": "Reduced PBKDF2-SHA-256 to a Workers-compatible 100000 iterations and wrapped credential generation inside the bootstrap failure handler."
+    },
+    {
+      "block": "One-time bootstrap key had to be removed after first admin creation",
+      "resolution": "Removed BOOTSTRAP_SETUP_KEY from Cloudflare Pages production config and redeployed so the live bootstrap endpoint returns 403."
+    }
+  ],
+  "files_changed": [
+    ".dev.vars.example",
+    "wrangler.jsonc",
+    "functions/_lib/crypto.ts",
+    "functions/api/auth/bootstrap.ts",
+    "docs/backend-setup.md",
+    "docs/master-plan.md",
+    "docs/automation-memory.md",
+    "docs/automation-backlog.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/rebuild.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-18-1216-rebuild-alpha-deploy-bootstrap.json"
+  ],
+  "external_changes": [
+    "Cloudflare Pages deployed commit 17a04f3.",
+    "Cloudflare Pages production BOOTSTRAP_SETUP_KEY removed.",
+    "D1 first admin account created for bryan.timm89@gmail.com with global admin role."
+  ],
+  "validation": [
+    "Cloudflare Pages deployment 2aadfa71 succeeded for commit 17a04f3.",
+    "/api/health returned environment=production and userCount=1.",
+    "/api/alpha/state returned seeded Day 7 alpha state.",
+    "alpha.html served the alpha shell.",
+    "D1 verified active user, global admin role, and bootstrap_admin_created audit event.",
+    "Login and /api/auth/me verified the first admin session and role.",
+    "Bootstrap endpoint returned 403 after the one-time setup key was removed and redeployed.",
+    "Bundled Node alpha state-machine tests passed.",
+    "Bundled Node syntax checks passed for app.js, alpha.js, functions/_lib/alpha-flow-model.js, and functions/api/alpha/state.js.",
+    "Automation contract checker passed."
+  ],
+  "remaining_blockers": [
+    "Google Drive server-side credential/OAuth and file-byte upload flow are not implemented.",
+    "Broader auth, role/permission, evidence access, status transition, audit/export, meeting, and presentation-slot tests are still needed.",
+    "Account provisioning/import, invitation, password reset, and credential rotation are still needed before pilot use.",
+    "Alpha demo-state transitions need to be split into real workflow endpoints."
+  ],
+  "self_improvement": "none",
+  "commit_push_status": "Code commits 992354a and 17a04f3 pushed; documentation/status commit pending."
+}

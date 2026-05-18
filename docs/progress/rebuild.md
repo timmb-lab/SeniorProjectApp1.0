@@ -96,3 +96,17 @@ Each rebuild run should append a dated entry with:
 - `self-improvement`: none; no live automation prompt/config change was justified.
 - `commit/push status`: pending in this run.
 - `next action`: Verify the pushed D1-backed alpha deployment, complete first-admin bootstrap verification, broaden auth/permission/evidence tests, and retry Cloudflare mutation/deploy proof when connector auth or Wrangler access works.
+
+### 2026-05-18 12:16 PT - Alpha Deploy + First Admin Bootstrap
+
+- `automation`: interactive rebuild continuation from Bryan's "list next step blocks and solve them" request
+- `master-plan section`: MVP 1.0 Vertical Slice; Day 7 Alpha Gate; Stack And Deployment Direction
+- `source docs/logs read`: `docs/master-plan.md`, `docs/backend-setup.md`, `docs/automation-memory.md`, `docs/automation-backlog.md`, `docs/progress/handoffs.md`, `docs/progress/run-log.md`, Cloudflare Pages deployment state, and D1 query results.
+- `backlog or handoff IDs selected`: `SC-005`, `SC-006`, `SC-003`, `H-2026-05-18-006`.
+- `bounded scope`: Finish the immediate deployment/bootstrap blockers after the D1-backed alpha commit by deploying the alpha, fixing the Pages config and Workers-compatible PBKDF2 iteration count, bootstrapping the first admin, verifying login/session/audit, and removing the one-time setup key.
+- `files changed`: `.dev.vars.example`, `wrangler.jsonc`, `functions/_lib/crypto.ts`, `functions/api/auth/bootstrap.ts`, `docs/backend-setup.md`, `docs/master-plan.md`, `docs/automation-memory.md`, `docs/automation-backlog.md`, `docs/progress/handoffs.md`, `docs/progress/rebuild.md`, `docs/progress/run-log.md`, and structured run manifest.
+- `external/config changes`: Cloudflare Pages production redeployed commit `17a04f3`, verified `APP_ENV=production`, completed first-admin bootstrap for `bryan.timm89@gmail.com`, removed `BOOTSTRAP_SETUP_KEY`, and redeployed again so the live bootstrap endpoint returns 403.
+- `validation`: Cloudflare Pages deployment `2aadfa71` succeeded for commit `17a04f3`; `/api/health` returns `environment=production` and `userCount=1`; `/api/alpha/state` returns seeded alpha state; `alpha.html` serves the alpha shell; D1 verified active global admin role and `bootstrap_admin_created` audit event; login plus `/api/auth/me` verified admin session and role; local alpha tests and syntax checks passed.
+- `self-improvement`: none.
+- `commit/push status`: code fixes pushed in commits `992354a` and `17a04f3`; documentation/status commit pending in this entry.
+- `next action`: Broaden auth/permission/evidence tests, build account provisioning and password-reset lifecycle, add Drive upload credentials/OAuth, and deepen alpha demo-state transitions into real workflow endpoints.

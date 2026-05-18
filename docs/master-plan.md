@@ -30,7 +30,7 @@ MVP 1.0 must support:
 - Privacy-conscious handling of student records, uploads, exports, staff notes, and access control.
 - GitHub-connected deployment to Cloudflare Workers/Pages, with Cloudflare-managed production environments and a future Bryan-purchased custom domain.
 
-Day 7 alpha may temporarily defer production user-account readiness. It must still prove the whole user journey through seeded/demo personas, route guards, working forms, persisted or server-owned demo state where practical, dashboard updates, review/status transitions, and clear audit/activity history. Do not let login, password reset, invitation, account import, district SSO, or first-admin bootstrap hardening block the Day 7 alpha.
+Day 7 alpha may temporarily defer production user-account readiness. It must still prove the whole user journey through seeded/demo personas, route guards, working forms, persisted or server-owned demo state where practical, dashboard updates, review/status transitions, and clear audit/activity history. First-admin bootstrap is now complete, but do not let password reset, invitation, account import, district SSO, or remaining account hardening block the Day 7 alpha.
 
 Figma and Canva are major first-class inputs to the product experience. Figma should drive functional UI design, role-aware screens, implementation-ready specs, state coverage, and the daily guided prototype page that explains what today's real app progress means for users and the next ladder step. Canva should create stunning supporting images and visual assets that make the app feel polished without baking important live text or private data into images.
 
@@ -190,7 +190,7 @@ Execution framework:
 - Day 1 evidence now includes the D1-backed alpha route/persona flow, Cloudflare/D1/Drive setup records, the alpha runbook, alpha week framework, alpha state-machine tests, alpha contract checker, preview deployment command, and GitHub Actions CI workflows.
 
 Account exception for alpha:
-- Production login, password reset, invitations, account import, first-admin bootstrap, credential lifecycle, district SSO, and full server-side account hardening are not required for Day 7 alpha.
+- Production login, password reset, invitations, account import, credential lifecycle, district SSO, and full server-side account hardening are not required for Day 7 alpha. First-admin bootstrap has been completed and should stay behind the alpha flow as production hardening, not as a Day 7 walkthrough dependency.
 - Do not delete or abandon the real auth scaffold. Keep it behind the alpha flow as the post-alpha hardening path.
 - Permission behavior in alpha should be represented through route/persona scoping and tests where practical, but must be labeled as alpha-scoped until hardened accounts work.
 
@@ -212,7 +212,7 @@ Seven-day implementation ladder:
 
 Post-alpha hardening starts after the Day 7 gate:
 - Hardened username/password account lifecycle.
-- First-admin bootstrap and credential rotation.
+- First-admin credential rotation.
 - Import/invitation/provisioning flows.
 - Full server-side authorization tests.
 - Google Drive upload credentials/OAuth, access-control tests, and credential rotation.
@@ -305,15 +305,15 @@ Use this allocation as the working budget until a committed implementation pass 
 8. Passes 91-97: harden deployment and operations: Cloudflare preview evidence, environment/secrets checklist, backup/export posture, accessibility/security QA, retention notes, and no-student-messaging verification.
 9. Passes 98-100: finish pilot readiness: staff provisioning checklist, seed/demo data posture without real student records, custom-domain readiness, final audit review, and Bryan-facing pilot checklist.
 
-Immediate next five passes should be alpha-flow verification and hardening from the new framework:
+Immediate next five passes should deepen the shipped alpha into the real MVP spine:
 
-1. Verify the pushed D1-backed alpha on Cloudflare Pages, including `/alpha.html` and `/api/alpha/state`, or commit the exact connector/deploy blocker.
-2. Complete first-admin bootstrap verification, then remove or rotate the one-time setup key from Pages config.
-3. Add broader auth/permission/protected-evidence tests around the current alpha state-machine and contract checks.
-4. Deepen the student dashboard and guided proposal/evidence path with validation, blocked-submit recovery, link-check/provider-unavailable states, and mobile no-overflow proof.
-5. Extend alpha data into real workflow endpoints for teacher review, mentor meeting/presentation, admin export/audit, and misc-admin reporting while consuming Figma nodes `69:2` and `78:2`.
+1. Broaden tests for auth, permission helpers, protected evidence access, status transitions, audit/export controls, meeting attendance, and presentation-slot conflicts.
+2. Extend alpha proposal/review/evidence/audit records into real workflow endpoints instead of one demo-state endpoint.
+3. Implement shared `StatusPill`, `ActionButton`, `EvidenceArtifactRow`, `PermissionGate`, and `ReviewHistoryItem` primitives against the current alpha states.
+4. Add Google Drive server-side credential/OAuth implementation plus access-controlled evidence upload/retrieval assumptions before real uploads.
+5. Add account provisioning/import, invitation, password reset, credential rotation, and known-gaps QA while keeping seeded personas available for the Day 7 walkthrough.
 
-Do not spend the next several non-audit passes on additional broad Figma polish or production account hardening while the Day 7 alpha flow is incomplete, unless rebuild hits a specific UI/security ambiguity that blocks the alpha. The design side is currently ahead of the hosted app; the app now needs working routes, forms, transitions, demo data, tests/smoke checks, and preview evidence.
+Do not spend the next several non-audit passes on additional broad Figma polish while the Day 7 alpha still needs deeper workflow endpoints and QA, unless rebuild hits a specific UI/security ambiguity that blocks the alpha. The design side is currently ahead of the hosted app; the app now needs real routes, forms, transitions, demo data, tests/smoke checks, and preview evidence.
 
 ## Stack And Deployment Direction
 

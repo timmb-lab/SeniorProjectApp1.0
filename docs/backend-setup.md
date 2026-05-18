@@ -36,26 +36,28 @@ Seeded records:
 
 The pilot auth flow uses:
 
-- PBKDF2-SHA-256 password hashing with 310,000 iterations and per-password salt.
+- PBKDF2-SHA-256 password hashing with 100,000 Cloudflare Workers-compatible iterations and per-password salt.
 - Optional `PASSWORD_PEPPER` secret for production.
 - 14-character minimum password with lowercase, uppercase, number, symbol, and name/email checks.
 - Login throttling after repeated failures.
 - 12-hour HttpOnly, Secure, SameSite=Lax session cookies.
 - Hashed session tokens, optional `SESSION_PEPPER`, logout revocation, and audit events.
-- One-time admin bootstrap endpoint gated by `BOOTSTRAP_SETUP_KEY`.
+- One-time admin bootstrap endpoint gated by `BOOTSTRAP_SETUP_KEY`; production setup key is removed after first-admin creation.
 - Cloudflare Pages preview/production now have `PASSWORD_PEPPER` and `SESSION_PEPPER` stored as `secret_text` environment variables.
 
 ## Remaining Required Config
 
-- Verify the one-time Cloudflare Pages bootstrap secret `BOOTSTRAP_SETUP_KEY` and first-admin bootstrap after the next production deployment. A prior rebuild pass staged bootstrap credentials in ignored local `.secrets/` storage; do not commit those credentials.
 - Add Google Drive server-side credential/OAuth implementation before accepting file bytes from students.
 - Add permission tests and workflow tests before real student data is entered.
-- Current Codex Cloudflare MCP status: the Cloudflare plugin is discoverable, but API calls in this session return `Auth required`. Continue repo-side setup and use connector reauthorization or a working Wrangler environment for the next remote mutation/deploy.
+- Add account lifecycle flows for invitation/import, password reset, credential rotation, and role/group management before pilot use.
 
 Completed on 2026-05-18:
 
 - `GOOGLE_DRIVE_EVIDENCE_ROOT_ID` is set to `1XPgYKbIMqv332DAJZJNJetHppFB670e7` in Cloudflare Pages preview and production.
 - D1 `evidence_repositories.root_folder_id` for `default-google-drive` is set to `1XPgYKbIMqv332DAJZJNJetHppFB670e7` and status is `active`.
 - Google Drive connector metadata verified the folder as a Drive folder titled `Senior Project App`.
+- Production deployment `17a04f3` verified `APP_ENV=production`, `userCount=1`, and live Day 7 alpha routes.
+- First admin bootstrap completed for `bryan.timm89@gmail.com`; D1 verified active global admin role plus `bootstrap_admin_created` audit event.
+- Login and `/api/auth/me` verified with the first admin account; `BOOTSTRAP_SETUP_KEY` was removed from Cloudflare Pages production and a redeploy made the live bootstrap endpoint return 403.
 
 R2 is no longer the MVP upload blocker because the accepted upload repository is Google Drive. R2 can remain a future fallback if enabled in the Cloudflare dashboard.
