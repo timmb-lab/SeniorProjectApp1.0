@@ -19,6 +19,7 @@ This records the first MVP backend foundation now configured for the Senior Caps
 - Pages URL: `https://senior-capstone-app.pages.dev`.
 - D1 database id: `3141d9ac-08b7-49c1-92ba-bbf50c1a611f`.
 - D1 region: `WNAM`.
+- Google Drive evidence root folder: `https://drive.google.com/drive/folders/1XPgYKbIMqv332DAJZJNJetHppFB670e7`.
 - Google Drive evidence index: `https://docs.google.com/spreadsheets/d/1b446rp3oyx9G4LpKYE47qXxpU41EOW-2Ota2fGum49c`.
 
 ## Current Schema
@@ -29,7 +30,7 @@ Seeded records:
 
 - 5 roles: student, mentor, program teacher, admin, misc admin.
 - 9 CTE programs.
-- Default Google Drive evidence repository row pointing at the evidence index sheet.
+- Default Google Drive evidence repository row pointing at the evidence root folder and index sheet.
 
 ## Auth Boundary
 
@@ -46,10 +47,15 @@ The pilot auth flow uses:
 
 ## Remaining Required Config
 
-- Create or select a real Google Drive folder for student evidence uploads, then set `GOOGLE_DRIVE_EVIDENCE_ROOT_ID` in Cloudflare Pages and the D1 `evidence_repositories.root_folder_id`.
 - Set the one-time Cloudflare Pages bootstrap secret `BOOTSTRAP_SETUP_KEY` before creating the first admin account.
 - Choose the first admin email/display name/password and bootstrap it through `/api/auth/bootstrap`.
 - Add Google Drive server-side credential/OAuth implementation before accepting file bytes from students.
 - Add permission tests and workflow tests before real student data is entered.
+
+Completed on 2026-05-18:
+
+- `GOOGLE_DRIVE_EVIDENCE_ROOT_ID` is set to `1XPgYKbIMqv332DAJZJNJetHppFB670e7` in Cloudflare Pages preview and production.
+- D1 `evidence_repositories.root_folder_id` for `default-google-drive` is set to `1XPgYKbIMqv332DAJZJNJetHppFB670e7` and status is `active`.
+- Google Drive connector metadata verified the folder as a Drive folder titled `Senior Project App`.
 
 R2 is no longer the MVP upload blocker because the accepted upload repository is Google Drive. R2 can remain a future fallback if enabled in the Cloudflare dashboard.

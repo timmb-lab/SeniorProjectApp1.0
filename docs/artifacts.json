@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-05-18T11:18:00-07:00",
+  "updated_at": "2026-05-18T11:32:00-07:00",
   "artifacts": [
     {
       "id": "cloudflare-pages-senior-capstone-app",
@@ -29,7 +29,7 @@
       ],
       "verification": [
         "Cloudflare API returned project id 45041fa7-82ad-489d-a928-962d53c3b95a on 2026-05-18.",
-        "Preview and production deployment configs include DB D1 binding, hardened username/password auth mode, Google Drive evidence provider, evidence index sheet id, PASSWORD_PEPPER and SESSION_PEPPER secret_text vars, and fail_open=false."
+        "Preview and production deployment configs include DB D1 binding, hardened username/password auth mode, Google Drive evidence provider, evidence root folder id, evidence index sheet id, PASSWORD_PEPPER and SESSION_PEPPER secret_text vars, and fail_open=false."
       ],
       "last_updated": "2026-05-18"
     },
@@ -65,13 +65,16 @@
     {
       "id": "google-drive-evidence-repository-index",
       "type": "google_sheet",
-      "status": "active_index_pending_root_folder",
+      "status": "active",
       "owner_lane": "rebuild",
       "title": "Senior Capstone Evidence Repository Index",
       "file_id": "1b446rp3oyx9G4LpKYE47qXxpU41EOW-2Ota2fGum49c",
       "url": "https://docs.google.com/spreadsheets/d/1b446rp3oyx9G4LpKYE47qXxpU41EOW-2Ota2fGum49c",
-      "purpose": "Google Drive-native evidence repository index for MVP uploads and evidence metadata reconciliation.",
-      "app_placement": "Referenced by Cloudflare Pages env var GOOGLE_DRIVE_EVIDENCE_INDEX_SHEET_ID and D1 evidence_repositories.index_sheet_id.",
+      "root_folder_id": "1XPgYKbIMqv332DAJZJNJetHppFB670e7",
+      "root_folder_url": "https://drive.google.com/drive/folders/1XPgYKbIMqv332DAJZJNJetHppFB670e7",
+      "root_folder_title": "Senior Project App",
+      "purpose": "Google Drive-native evidence repository root and index for MVP uploads and evidence metadata reconciliation.",
+      "app_placement": "Referenced by Cloudflare Pages env vars GOOGLE_DRIVE_EVIDENCE_ROOT_ID and GOOGLE_DRIVE_EVIDENCE_INDEX_SHEET_ID, plus D1 evidence_repositories.root_folder_id and index_sheet_id.",
       "consuming_lanes": [
         "rebuild",
         "audit",
@@ -86,7 +89,9 @@
       ],
       "verification": [
         "Google Drive metadata returned native spreadsheet title and sheets Evidence Index, Folder Policy, and Upload Intake Fields on 2026-05-18.",
-        "Root folder ID is still pending because the available Drive connector does not expose generic folder creation."
+        "Bryan provided root folder https://drive.google.com/drive/folders/1XPgYKbIMqv332DAJZJNJetHppFB670e7 on 2026-05-18.",
+        "Google Drive metadata verified folder id 1XPgYKbIMqv332DAJZJNJetHppFB670e7 as folder title Senior Project App; folder listing returned successfully and was empty at verification time.",
+        "Cloudflare Pages preview/production env vars and D1 evidence_repositories row were updated to the root folder id on 2026-05-18."
       ],
       "last_updated": "2026-05-18"
     },

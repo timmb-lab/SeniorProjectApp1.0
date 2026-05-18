@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "run_id": "2026-05-18-1132-rebuild-drive-root-folder",
+  "timestamp": "2026-05-18T11:32:00-07:00",
+  "lane": "rebuild",
+  "automation": "interactive-drive-root-folder-wiring",
+  "master_plan_sections": [
+    "MVP 1.0 Vertical Slice",
+    "Day 7 Alpha Gate",
+    "Stack And Deployment Direction",
+    "Logging Requirements"
+  ],
+  "selected_backlog": [
+    "SC-003",
+    "SC-005",
+    "SC-006"
+  ],
+  "selected_handoffs": [
+    "H-2026-05-18-006"
+  ],
+  "selected_decisions": [
+    "D-2026-05-18-019",
+    "D-2026-05-18-021",
+    "D-2026-05-18-022"
+  ],
+  "scope": "Verify Bryan-provided Google Drive folder and wire it as the MVP evidence repository root across local config, Cloudflare Pages, D1 metadata, and durable project logs.",
+  "files_changed": [
+    "wrangler.jsonc",
+    ".dev.vars.example",
+    "migrations/0001_foundation.sql",
+    "docs/backend-setup.md",
+    "docs/artifacts.json",
+    "docs/automation-memory.md",
+    "docs/automation-backlog.md",
+    "docs/human-decisions.md",
+    "docs/progress/handoffs.md",
+    "docs/master-plan.md",
+    "docs/progress/decision-log.md",
+    "docs/progress/rebuild.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-18-1132-rebuild-drive-root-folder.json"
+  ],
+  "external_artifacts": [
+    {
+      "type": "google_drive_folder",
+      "id": "1XPgYKbIMqv332DAJZJNJetHppFB670e7",
+      "name": "Senior Project App",
+      "url": "https://drive.google.com/drive/folders/1XPgYKbIMqv332DAJZJNJetHppFB670e7"
+    },
+    {
+      "type": "cloudflare_pages_env",
+      "project": "senior-capstone-app",
+      "key": "GOOGLE_DRIVE_EVIDENCE_ROOT_ID",
+      "value": "1XPgYKbIMqv332DAJZJNJetHppFB670e7",
+      "environments": [
+        "preview",
+        "production"
+      ]
+    },
+    {
+      "type": "cloudflare_d1_row",
+      "database": "senior-capstone-db",
+      "table": "evidence_repositories",
+      "id": "default-google-drive",
+      "root_folder_id": "1XPgYKbIMqv332DAJZJNJetHppFB670e7",
+      "status": "active"
+    }
+  ],
+  "verification": [
+    "Google Drive metadata verified folder id 1XPgYKbIMqv332DAJZJNJetHppFB670e7 as a folder titled Senior Project App.",
+    "Google Drive folder listing returned successfully and was empty at verification time.",
+    "Cloudflare Pages preview and production environment variables include GOOGLE_DRIVE_EVIDENCE_ROOT_ID=1XPgYKbIMqv332DAJZJNJetHppFB670e7.",
+    "Cloudflare D1 query verified evidence_repositories.default-google-drive has root_folder_id 1XPgYKbIMqv332DAJZJNJetHppFB670e7 and status active."
+  ],
+  "blocked": [
+    "Server-side Google Drive upload credentials/OAuth and protected file retrieval are still not implemented.",
+    "BOOTSTRAP_SETUP_KEY, first-admin bootstrap, tests/CI, and Day 7 alpha app flows remain next priorities before real student data."
+  ],
+  "self_improvement": "none",
+  "commit_push_status": "pending in this interactive pass"
+}

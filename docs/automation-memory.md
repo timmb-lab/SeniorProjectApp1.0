@@ -22,7 +22,7 @@ Figma is the heavy product-design source for functional app screens, database-ba
 - Cloudflare Pages project `senior-capstone-app` is provisioned against `timmb-lab/SeniorProjectApp1.0`; the public Pages URL is `https://senior-capstone-app.pages.dev`.
 - Cloudflare D1 database `senior-capstone-db` (`3141d9ac-08b7-49c1-92ba-bbf50c1a611f`) is provisioned and migration `migrations/0001_foundation.sql` has been applied remotely.
 - Hardened username/password auth endpoints now exist for bootstrap, login, logout, and session lookup. `PASSWORD_PEPPER` and `SESSION_PEPPER` are set as Cloudflare Pages secrets; `BOOTSTRAP_SETUP_KEY` and first-admin bootstrap are not complete.
-- Google Drive evidence repository index sheet `1b446rp3oyx9G4LpKYE47qXxpU41EOW-2Ota2fGum49c` exists and is wired into Pages config and D1 metadata. The Drive root folder ID and server-side Drive upload credential/OAuth flow remain pending.
+- Google Drive evidence repository root folder `1XPgYKbIMqv332DAJZJNJetHppFB670e7` and index sheet `1b446rp3oyx9G4LpKYE47qXxpU41EOW-2Ota2fGum49c` exist and are wired into Pages config and D1 metadata. Server-side Drive upload credential/OAuth flow remains pending.
 - Tests and CI are not implemented yet.
 - Source PDFs have been extracted and converted into app-native requirements in `data/capstone-framework.json`.
 - The primary beta-build automation is now `senior-capstone-rebuild-rebuilt`, renamed in the app as `Senior Capstone Gold Standard Orchestrator`, running exactly 5x/day at `00:20`, `05:20`, `10:20`, `15:20`, and `20:20` PT. It uses the master plan, logs, and work ladder to choose one bounded beta-advancing slice per run until the app reaches a real beta.
@@ -52,7 +52,7 @@ Immediate next five useful passes: alpha app shell/role switcher/seed data, stud
 
 Real daily MVP goal: minimum 2 accepted MVP passes per calendar day, stretch 3 when unblocked, and at least 14 accepted MVP passes per week until the 100-pass target is met or recalibrated. Until the Day 7 alpha is accepted, the first two accepted passes each day should usually be app-flow implementation or alpha verification, not broad design polish or production account hardening. The active weekly deep audit must review the prior seven days of committed run evidence and adjust only this project's next-week daily goal/allocation in `docs/master-plan.md` and this memory file when evidence requires it; schedules, workspace, model, reasoning effort, and status stay unchanged unless Bryan explicitly asks.
 
-Current account/provisioning watchpoint: Cloudflare Pages/D1 setup is done for the first foundation, and district SSO is explicitly unavailable for MVP. Remaining Bryan/config-owned work is the Google Drive evidence root folder ID, `BOOTSTRAP_SETUP_KEY`, first-admin credentials, and any district/privacy approval before real student records are entered.
+Current account/provisioning watchpoint: Cloudflare Pages/D1 setup is done for the first foundation, district SSO is explicitly unavailable for MVP, and the Google Drive evidence root folder is now selected/configured. Remaining Bryan/config-owned work is `BOOTSTRAP_SETUP_KEY`, first-admin credentials, server-side Drive upload credentials/OAuth, and any district/privacy approval before real student records are entered.
 
 ## Canonical Programs
 
@@ -74,9 +74,9 @@ Current backlog anchors:
 
 - `SC-001`: framework seed loader and minimal requirement schema.
 - `SC-002`: guided Research Proposal Challenge UI and review queue spec.
-- `SC-003`: Google Drive EvidenceArtifact model is in-progress; metadata tables exist, but root folder, upload credentials, and permission tests are still needed.
+- `SC-003`: Google Drive EvidenceArtifact model is in-progress; metadata tables and root folder exist, but upload credentials and permission tests are still needed.
 - `SC-004`: mentor meetings, presentation scheduling, celebration evidence, archive/export workflows.
-- `SC-005`: P0 Cloudflare stack/auth/database/user-group/progress/private-upload scaffold is in-progress with Pages/D1/migrations/auth endpoints and password/session pepper secrets created; tests, CI, Drive root folder, upload credentials, bootstrap key, and first-admin bootstrap remain.
+- `SC-005`: P0 Cloudflare stack/auth/database/user-group/progress/private-upload scaffold is in-progress with Pages/D1/migrations/auth endpoints, password/session pepper secrets, and Drive root folder configured; tests, CI, Drive upload credentials, bootstrap key, and first-admin bootstrap remain.
 - `SC-006`: P0 Day 7 full app-flow alpha due 2026-05-24 PT; production user accounts may be incomplete, but every core role/workflow must work through seeded/demo personas.
 
 ## Known External Artifact Memory
@@ -105,7 +105,8 @@ Current backlog anchors:
 - Canva first-pass program identity poster: `DAHJ-6LVuME`, edit `https://www.canva.com/d/J9nRXQPXi0O-_hM`, view `https://www.canva.com/d/2FoRYnzFDrZAHqc`.
 - Cloudflare Pages app: `https://senior-capstone-app.pages.dev`, project `senior-capstone-app`, project id `45041fa7-82ad-489d-a928-962d53c3b95a`.
 - Cloudflare D1 database: `senior-capstone-db`, database id `3141d9ac-08b7-49c1-92ba-bbf50c1a611f`, region `WNAM`.
-- Google Drive evidence repository index: `https://docs.google.com/spreadsheets/d/1b446rp3oyx9G4LpKYE47qXxpU41EOW-2Ota2fGum49c`, sheets `Evidence Index`, `Folder Policy`, and `Upload Intake Fields`; root folder pending.
+- Google Drive evidence repository root folder: `https://drive.google.com/drive/folders/1XPgYKbIMqv332DAJZJNJetHppFB670e7`, title `Senior Project App`; configured in Cloudflare Pages and D1 on 2026-05-18.
+- Google Drive evidence repository index: `https://docs.google.com/spreadsheets/d/1b446rp3oyx9G4LpKYE47qXxpU41EOW-2Ota2fGum49c`, sheets `Evidence Index`, `Folder Policy`, and `Upload Intake Fields`.
 
 ## Decisions To Respect
 
@@ -132,6 +133,7 @@ Read `docs/progress/decision-log.md` for accepted or superseded decisions.
 - `D-2026-05-18-019`: use hardened app-owned username/password auth for the MVP pilot because district SSO is unavailable, provision the first Cloudflare Pages + D1 foundation in Bryan's authorized Cloudflare account, and use Google Drive as the MVP evidence repository path.
 - `D-2026-05-18-020`: keep a daily guided multi-frame Figma prototype refresh active at `22:10 PT` so Bryan can see that day's actual progress and next ladder position without turning Figma into the production data source.
 - `D-2026-05-18-021`: Day 7 alpha is due 2026-05-24 PT with all app flow working through seeded/demo personas; production user accounts are explicitly post-alpha hardening, not an alpha blocker.
+- `D-2026-05-18-022`: use Google Drive folder `1XPgYKbIMqv332DAJZJNJetHppFB670e7` (`Senior Project App`) as the MVP evidence repository root.
 
 Current rebuilt automation IDs:
 - `senior-capstone-canva-visual-system-rebuilt` (`PAUSED` standby)

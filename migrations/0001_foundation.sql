@@ -223,10 +223,10 @@ INSERT OR IGNORE INTO evidence_repositories (
   'default-google-drive',
   'google_drive',
   'Senior Capstone Evidence Repository',
-  NULL,
+  '1XPgYKbIMqv332DAJZJNJetHppFB670e7',
   '1b446rp3oyx9G4LpKYE47qXxpU41EOW-2Ota2fGum49c',
   'bryan.timm89@gmail.com',
-  'pending_folder'
+  'active'
 );
 
 CREATE TABLE IF NOT EXISTS evidence_artifacts (

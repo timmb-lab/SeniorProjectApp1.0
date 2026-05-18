@@ -39,4 +39,19 @@ Each rebuild run should append a dated entry with:
 - `validation`: Local SQLite executed `migrations/0001_foundation.sql`; Cloudflare API applied the migration and verified remote tables, 5 roles, 9 programs, and default Google Drive evidence repository row; Pages preview/production env vars include the D1 binding, auth mode, evidence provider, evidence index sheet, `PASSWORD_PEPPER` / `SESSION_PEPPER` secrets, and `fail_open=false`; Google Drive metadata verified the three expected index tabs.
 - `self-improvement`: none; this pass updated product/ops docs and artifact records, not live automation prompts.
 - `commit/push status`: not committed or pushed during this interactive pass; branch is still behind origin with existing dirty work.
-- `next action`: Set `BOOTSTRAP_SETUP_KEY`, create/select the Drive evidence root folder ID, bootstrap the first admin, add tests/CI, and build the first admin/progress workflow endpoints.
+- `next action`: Build the Day 7 alpha flow, set `BOOTSTRAP_SETUP_KEY`, bootstrap the first admin, add tests/CI, add Drive upload credentials, and build the first admin/progress workflow endpoints.
+
+### 2026-05-18 11:32 PT - Google Drive Evidence Root Folder Wired
+
+- `automation`: interactive rebuild configuration pass from Bryan's Drive folder link
+- `master-plan section`: MVP 1.0 Vertical Slice; Stack And Deployment Direction; Day 7 Alpha Gate; Logging Requirements
+- `source docs/logs read`: `docs/backend-setup.md`, `docs/automation-memory.md`, `docs/automation-backlog.md`, `docs/progress/handoffs.md`, `docs/artifacts.json`, `wrangler.jsonc`, `.dev.vars.example`, and remote Cloudflare/D1 state.
+- `backlog or handoff IDs selected`: `SC-003`, `SC-005`, `H-2026-05-18-006`.
+- `bounded scope`: Record Bryan-provided Google Drive folder as the MVP evidence root and wire it into local config, Cloudflare Pages preview/production env vars, and D1 evidence repository metadata.
+- `external artifact`: Google Drive folder `Senior Project App`, id `1XPgYKbIMqv332DAJZJNJetHppFB670e7`, URL `https://drive.google.com/drive/folders/1XPgYKbIMqv332DAJZJNJetHppFB670e7`.
+- `remote changes`: Cloudflare Pages preview/production `GOOGLE_DRIVE_EVIDENCE_ROOT_ID` set to `1XPgYKbIMqv332DAJZJNJetHppFB670e7`; D1 `evidence_repositories.default-google-drive.root_folder_id` set to the same id and `status` set to `active`.
+- `files changed`: `wrangler.jsonc`, `.dev.vars.example`, `migrations/0001_foundation.sql`, `docs/backend-setup.md`, `docs/artifacts.json`, `docs/automation-memory.md`, `docs/automation-backlog.md`, `docs/human-decisions.md`, `docs/progress/handoffs.md`, `docs/progress/rebuild.md`, `docs/progress/decision-log.md`, `docs/progress/run-log.md`, and structured run manifest.
+- `validation`: Google Drive metadata verified the folder as a Drive folder titled `Senior Project App`; folder listing returned successfully; Cloudflare API verified Pages preview/production env vars; D1 raw query verified root folder id and `active` status.
+- `self-improvement`: none.
+- `commit/push status`: pending in this interactive pass.
+- `next action`: Continue Day 7 alpha implementation; Drive upload credential/OAuth and permission tests are still required before real student evidence uploads.

@@ -211,7 +211,7 @@ Post-alpha hardening starts after the Day 7 gate:
 - First-admin bootstrap and credential rotation.
 - Import/invitation/provisioning flows.
 - Full server-side authorization tests.
-- Google Drive root folder and upload credentials.
+- Google Drive upload credentials/OAuth, access-control tests, and credential rotation.
 - Real private evidence access and retention controls.
 - Pilot-readiness security/privacy review.
 
@@ -295,7 +295,7 @@ Use this allocation as the working budget until a committed implementation pass 
 2. Passes 11-25: create D1-compatible schema/migrations and seed strategy for programs, cohorts, requirements, requirement sections, quality checks, deadlines, submissions, evidence artifacts, reviews, comments, status history, audit events, announcements, and exports.
 3. Passes 26-40: implement auth/account identity, user groups, roles, role scopes, mentor/teacher assignments, admin provisioning surfaces, permission helpers, and tests for student/mentor/teacher/admin/misc-admin boundaries.
 4. Passes 41-55: implement trusted progress updates, status transitions, audit-event persistence, dashboard aggregates from server/database state, and tests for valid/invalid transitions and unauthorized access.
-5. Passes 56-70: implement private evidence upload/link metadata, R2 or equivalent private storage assumptions, signed URL expiry, external-link access checks, immutable review history, denied-access audit events, and protected-evidence tests.
+5. Passes 56-70: implement private evidence upload/link metadata, Google Drive repository upload/retrieval assumptions, access-controlled download or redirect behavior, external-link access checks, immutable review history, denied-access audit events, and protected-evidence tests.
 6. Passes 71-82: implement the proposal/research workflow slice: guided sections, source/quote/counterclaim quality checks, submit/resubmit, teacher review queue, revision request, approval, comments, and dashboard update.
 7. Passes 83-90: implement admin override, export/archive, announcement, misc-admin scoped reporting, audit-log views, and source-cycle extensions needed for mentor meetings, presentation, celebration, reflections, and May 5 archive readiness.
 8. Passes 91-97: harden deployment and operations: Cloudflare preview evidence, environment/secrets checklist, backup/export posture, accessibility/security QA, retention notes, and no-student-messaging verification.
@@ -338,7 +338,7 @@ Immediate setup order:
 4. Wire student, teacher, mentor, admin, and misc-admin alpha routes to shared demo/server-owned state and status transitions.
 5. Add hardened username/password auth/session integration behind a narrow app-owned interface so the exact provider can be swapped if school SSO later becomes available.
 6. Add server-side permission checks and tests before using the alpha for real records.
-7. Add Google Drive evidence metadata and storage access patterns before accepting real uploads.
+7. Add Google Drive upload credential/OAuth and storage access patterns before accepting real uploads.
 8. Wire the first admin/student/teacher dashboard metrics only from server/database or explicit alpha demo state.
 9. Connect Figma implementation specs to the real routes/components after the secure data boundary exists.
 
@@ -347,7 +347,7 @@ Current stack pressure:
 - `HD-2026-05-18-001` is accepted for the production stack.
 - `docs/architecture/adr-0001-stack-auth-database-upload.md` is the accepted Cloudflare-oriented ADR.
 - `D-2026-05-18-019` accepts the no-district-SSO hardened username/password pilot and Google Drive evidence repository path.
-- Cloudflare Pages project `senior-capstone-app`, D1 database `senior-capstone-db`, migration `0001_foundation`, and Google Drive evidence index sheet are now provisioned and recorded in `docs/backend-setup.md`.
+- Cloudflare Pages project `senior-capstone-app`, D1 database `senior-capstone-db`, migration `0001_foundation`, Google Drive evidence root folder, and Google Drive evidence index sheet are now provisioned and recorded in `docs/backend-setup.md`.
 - `SC-005` is now in-progress and keeps the scaffold in front of the automation loop.
 - Rebuild should prioritize the Cloudflare stack/auth/database/user-group/progress/private-upload foundation before broad app feature work.
 

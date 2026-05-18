@@ -198,7 +198,7 @@ Decision status values:
 - `reason`: Bryan authorized the Cloudflare account work and clarified that the app cannot connect to district SSO; uploads must use a Google Drive repository. R2 is not enabled in the Cloudflare account and is no longer the MVP upload blocker.
 - `applies to`: master plan, ADR-0001, `SC-005`, auth/session scaffold, D1 migrations, Google Drive evidence repository, deployment config, human decision queue, and future permission/upload tests
 - `implementation evidence`: Cloudflare Pages project `senior-capstone-app`, D1 database `senior-capstone-db` (`3141d9ac-08b7-49c1-92ba-bbf50c1a611f`), migration `migrations/0001_foundation.sql`, and Google Drive evidence index sheet `1b446rp3oyx9G4LpKYE47qXxpU41EOW-2Ota2fGum49c` were created or configured on 2026-05-18.
-- `remaining setup`: create/select the Google Drive root folder ID, set `BOOTSTRAP_SETUP_KEY`, bootstrap the first admin, implement Drive upload credentials, and add permission/workflow tests before real student data is entered. `PASSWORD_PEPPER` and `SESSION_PEPPER` are already set as Cloudflare Pages secrets.
+- `remaining setup`: set `BOOTSTRAP_SETUP_KEY`, bootstrap the first admin, implement Drive upload credentials/OAuth, and add permission/workflow tests before real student data is entered. `PASSWORD_PEPPER`, `SESSION_PEPPER`, and the Google Drive root folder ID are already set in Cloudflare Pages.
 - `source`: user request on 2026-05-18: "You are authorized in cloudflare, can you do all this for me? We need hardned Un?pw as we can't connect to district SSO -- uploads need to have google drive repo"
 - `last updated`: 2026-05-18
 
@@ -224,3 +224,15 @@ Decision status values:
 - `guardrail`: Do not call the alpha pilot-ready or safe for real student records while production login, first-admin bootstrap, account lifecycle, Google Drive upload credentials, and hardened authorization tests are incomplete.
 - `source`: user request on 2026-05-18: "by day 7 I need a full flredged alpha (w/o user accounts working)_ but all app flow should work"
 - `last updated`: 2026-05-18 11:26 PT
+
+### D-2026-05-18-022
+
+- `status`: accepted
+- `area`: MVP evidence storage and Google Drive repository setup
+- `decision`: Use Google Drive folder `1XPgYKbIMqv332DAJZJNJetHppFB670e7` (`Senior Project App`) as the MVP evidence repository root.
+- `reason`: Bryan provided the Google Drive repository folder link to use for uploads/evidence, closing the open root-folder selection blocker.
+- `applies to`: master plan, backend setup, `wrangler.jsonc`, `.dev.vars.example`, D1 `evidence_repositories`, Cloudflare Pages environment variables, artifact registry, backlog, handoffs, and future Drive upload/access tests
+- `implementation evidence`: Google Drive metadata verified folder id `1XPgYKbIMqv332DAJZJNJetHppFB670e7` as a Drive folder titled `Senior Project App`; folder listing returned successfully; Cloudflare Pages preview and production now set `GOOGLE_DRIVE_EVIDENCE_ROOT_ID`; D1 row `default-google-drive` now has the root folder id and `active` status.
+- `remaining setup`: Add the server-side Google Drive upload credential/OAuth path, protected retrieval/access behavior, permission tests, `BOOTSTRAP_SETUP_KEY`, and first-admin bootstrap before real student evidence or records are entered.
+- `source`: Bryan provided `https://drive.google.com/drive/folders/1XPgYKbIMqv332DAJZJNJetHppFB670e7?usp=drive_link` on 2026-05-18.
+- `last updated`: 2026-05-18 11:32 PT

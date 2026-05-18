@@ -12,7 +12,7 @@ Status values:
 
 ## Open Decisions
 
-No open human decisions are blocking the current scaffold. The remaining setup work is configuration: create/select a Google Drive evidence root folder, set production secrets, choose first-admin credentials, and implement Drive upload credentials before real student data is entered.
+No open human decisions are blocking the current scaffold. The Google Drive evidence root folder is selected and configured. Remaining setup work is configuration: set production bootstrap secret, choose first-admin credentials, and implement Drive upload credentials before real student data is entered.
 
 ## Accepted Decisions
 
@@ -23,10 +23,10 @@ No open human decisions are blocking the current scaffold. The remaining setup w
 - `owner`: Bryan
 - `severity`: P0
 - `decision`: Use Bryan's authorized Cloudflare account for the first remote MVP foundation, use hardened username/password auth because district SSO is not available, and use Google Drive as the MVP upload/evidence repository path.
-- `accepted implementation`: Cloudflare Pages project `senior-capstone-app` is configured for GitHub-connected deployment; D1 database `senior-capstone-db` is created and migrated; Pages preview/production environment variables point to hardened username/password auth and Google Drive evidence storage; Google Drive evidence index sheet `1b446rp3oyx9G4LpKYE47qXxpU41EOW-2Ota2fGum49c` exists.
-- `remaining configuration`: create/select the Google Drive root folder ID, set the one-time Pages bootstrap secret `BOOTSTRAP_SETUP_KEY`, choose first admin credentials, and add server-side Google Drive upload credentials/OAuth before accepting real student uploads. `PASSWORD_PEPPER` and `SESSION_PEPPER` are already set as Cloudflare Pages secrets.
+- `accepted implementation`: Cloudflare Pages project `senior-capstone-app` is configured for GitHub-connected deployment; D1 database `senior-capstone-db` is created and migrated; Pages preview/production environment variables point to hardened username/password auth and Google Drive evidence storage; Google Drive evidence root folder `1XPgYKbIMqv332DAJZJNJetHppFB670e7` and index sheet `1b446rp3oyx9G4LpKYE47qXxpU41EOW-2Ota2fGum49c` exist.
+- `remaining configuration`: set the one-time Pages bootstrap secret `BOOTSTRAP_SETUP_KEY`, choose first admin credentials, and add server-side Google Drive upload credentials/OAuth before accepting real student uploads. `PASSWORD_PEPPER`, `SESSION_PEPPER`, and `GOOGLE_DRIVE_EVIDENCE_ROOT_ID` are already set in Cloudflare Pages.
 - `current account evidence`: Cloudflare account `539e8f7c55e7b1472013626ad72f4c7f` is reachable; D1 and Pages provisioning succeeded; Workers has existing Worker `it-networking-curriculum`; R2 remains disabled with Cloudflare error `10042` but is no longer an MVP blocker because Google Drive is the accepted evidence repository path. GitHub app access is installed for `timmb-lab`. Local `wrangler` and `npx` are not on PATH.
-- `safe automation behavior`: Continue local scaffold, tests, and Cloudflare Pages/D1 configuration. Do not enter real student data or claim pilot readiness until the bootstrap secret, Drive root folder, upload credentials, and permission tests are complete.
+- `safe automation behavior`: Continue local scaffold, tests, and Cloudflare Pages/D1 configuration. Do not enter real student data or claim pilot readiness until the bootstrap secret, Drive upload credentials, and permission tests are complete.
 - `source`: User confirmed on 2026-05-18: "You are authorized in cloudflare... We need hardned Un?pw as we can't connect to district SSO -- uploads need to have google drive repo"
 - `last updated`: 2026-05-18
 

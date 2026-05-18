@@ -54,7 +54,7 @@ Status values:
 - `status`: in-progress
 - `source`: automation operating-infrastructure pass plus revised MVP direction
 - `artifact`: `SC-005`, `HD-2026-05-18-001`, `docs/architecture/adr-0001-stack-auth-database-upload.md`
-- `next action`: Finish the scaffold by adding tests/CI, first-admin bootstrap, Drive root folder ID, server-side Drive upload credentials, and first admin/progress workflow endpoints.
+- `next action`: Finish the scaffold by adding tests/CI, first-admin bootstrap, server-side Drive upload credentials, Day 7 alpha app flow, and first admin/progress workflow endpoints.
 - `acceptance check`: Tests cover hardened auth, student-own access, assigned mentor access, program/cohort teacher access, admin access, misc-admin narrowing, protected evidence access, unauthorized denial, valid status transitions, and audit events.
 - `evidence to close`: Passing tests plus first vertical-slice endpoints that use the D1 schema and Google Drive evidence repository metadata without real student data.
 - `last updated`: 2026-05-18 10:54 PT
