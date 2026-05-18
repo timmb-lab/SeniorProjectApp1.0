@@ -1,0 +1,128 @@
+[
+  {
+    "slug": "it",
+    "name": "IT",
+    "pathwayGroup": "Information Technology",
+    "evidencePatterns": [
+      "application, website, network, cybersecurity, database, automation, or support workflow",
+      "requirements, design notes, implementation artifacts, testing evidence, debugging logs, and user feedback"
+    ],
+    "riskQuestions": [
+      "Does the project demonstrate a specific technical skill beyond basic tool use?",
+      "Is there testing evidence from real or realistic users?",
+      "Are privacy, access, or security concerns documented?"
+    ]
+  },
+  {
+    "slug": "culinary",
+    "name": "Culinary",
+    "pathwayGroup": "Culinary Arts",
+    "evidencePatterns": [
+      "menu, recipe development, service plan, food production, costing, safety, or hospitality event component",
+      "test batches, costing sheets, sanitation plans, feedback, revisions, and final product documentation"
+    ],
+    "riskQuestions": [
+      "Are food safety and sanitation expectations explicit?",
+      "Does the student document testing and revision rather than only a final product?",
+      "Are cost, sourcing, and timing realistic?"
+    ]
+  },
+  {
+    "slug": "hospitality-marketing",
+    "name": "Hospitality & Marketing",
+    "pathwayGroup": "Hospitality and Business",
+    "evidencePatterns": [
+      "event plan, campaign, customer experience improvement, brand package, market research, or service design",
+      "audience research, campaign assets, budget, timeline, feedback, metrics, and revision notes"
+    ],
+    "riskQuestions": [
+      "Is the target audience clear?",
+      "Are marketing or hospitality decisions tied to evidence?",
+      "Can the student show measurable impact or realistic evaluation?"
+    ]
+  },
+  {
+    "slug": "mechanical-technology",
+    "name": "Mechanical Technology",
+    "pathwayGroup": "Mechanical Technology",
+    "evidencePatterns": [
+      "prototype, repair, fabrication, mechanical system, technical drawing, measurement, or diagnostic process",
+      "design sketches, tool and safety documentation, build logs, measurements, tests, failures, and revisions"
+    ],
+    "riskQuestions": [
+      "Are tool safety and material constraints documented?",
+      "Does the project show mechanical reasoning, precision, or diagnostics?",
+      "Is testing evidence strong enough to prove the outcome works?"
+    ]
+  },
+  {
+    "slug": "construction",
+    "name": "Construction",
+    "pathwayGroup": "Construction",
+    "evidencePatterns": [
+      "build plan, model, structure, construction detail, materials plan, safety procedure, or client-style deliverable",
+      "measurements, drawings, materials list, cost estimate, safety checks, progress photos, and quality review"
+    ],
+    "riskQuestions": [
+      "Are safety, tools, and permissions clear before work begins?",
+      "Does the evidence show process and quality, not just completion?",
+      "Are measurements, materials, and constraints realistic?"
+    ]
+  },
+  {
+    "slug": "sports-medicine",
+    "name": "Sports Medicine",
+    "pathwayGroup": "Health Sciences",
+    "evidencePatterns": [
+      "training resource, injury prevention plan, wellness education, anatomy/physiology demonstration, or support protocol",
+      "research sources, ethical boundaries, accuracy checks, audience feedback, and practical demonstration evidence"
+    ],
+    "riskQuestions": [
+      "Is the project educational rather than unauthorized medical advice?",
+      "Are sources accurate and appropriate?",
+      "Does the student document audience need and feedback?"
+    ]
+  },
+  {
+    "slug": "teaching-training",
+    "name": "Teaching & Training",
+    "pathwayGroup": "Education",
+    "evidencePatterns": [
+      "lesson plan, instructional resource, tutoring sequence, classroom support tool, assessment, or training material",
+      "learning objective, audience analysis, lesson artifacts, feedback, reflection, and revision evidence"
+    ],
+    "riskQuestions": [
+      "Is there a clear learner and learning goal?",
+      "Does the project include feedback from learners or educators?",
+      "Are privacy and age-appropriate boundaries respected?"
+    ]
+  },
+  {
+    "slug": "early-childhood-education",
+    "name": "Early Childhood Education",
+    "pathwayGroup": "Education",
+    "evidencePatterns": [
+      "developmentally appropriate activity, classroom material, family resource, observation tool, or early learning support",
+      "developmental rationale, safety notes, activity plan, adult feedback, child-appropriate reflection, and revision evidence"
+    ],
+    "riskQuestions": [
+      "Is the activity developmentally appropriate?",
+      "Are safety, supervision, and privacy boundaries clear?",
+      "Does the evidence show learning purpose rather than decoration?"
+    ]
+  },
+  {
+    "slug": "medical-professions",
+    "name": "Medical Professions",
+    "pathwayGroup": "Health Sciences",
+    "evidencePatterns": [
+      "health education resource, clinical skills simulation, patient communication tool, safety protocol, or healthcare pathway project",
+      "research sources, scope boundaries, skill demonstration, feedback, revision, and reflection on professional ethics"
+    ],
+    "riskQuestions": [
+      "Is the project safely inside student scope and not providing diagnosis or treatment?",
+      "Are medical facts sourced and reviewed appropriately?",
+      "Does the evidence show professionalism, accuracy, safety, and ethical boundaries?"
+    ]
+  }
+]
