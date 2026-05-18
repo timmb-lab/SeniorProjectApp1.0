@@ -27,6 +27,7 @@ Status:
 - Future Figma writes should continue the active writable product UI file `z4t4tFPAKrMDh6pIYOeEw6` inside the `Senior Project App` team/project.
 - The prior regenerated file remains reference-only.
 - Active file creation and canvas writes succeeded in `team::1638213362346160913`.
+- Bryan's professional-plan upgrade unblocked follow-up Figma MCP calls: metadata, screenshots, read-only inspection, library discovery, design-system search, and a new canvas write all succeeded on 2026-05-18.
 - Prior regenerated file creation succeeded under the updated Figma connection and direct canvas writing succeeded.
 - The prior file contains the planned three-page structure, reusable component examples, desktop screens, mobile screen, and automation handoff board.
 - Prior historical file `fkfNI9JNy0A3Rm8KnoxJLj` is superseded. That file was created under the earlier Figma setup but canvas writing was blocked by the Starter MCP tool-call limit.
@@ -370,11 +371,34 @@ Active file structure from successful write calls:
   - Admin override modal: `Modal / Admin Override Reason`, node `6:219`
   - Mobile student: `Screen / Student Product Preview / Mobile`, node `6:232`
   - Rebuild mapping: `Section / Rebuild Data Mapping`, node `6:257`
+  - 100-pass MVP execution map: `Section / 100-Pass MVP Execution Map`, node `18:2`
+  - Route/data contract nodes: `/student/progress`, `/teacher/review`, `/mentor/assigned`, `/admin/users`, and `/admin/audit`, nodes `18:44` through `18:47`
+
+## 100-Pass MVP Execution Map
+
+Bryan's professional-plan upgrade allowed a new implementation-facing section to be added directly to the active Figma file. Node `18:2` defines the pass budget as a product constraint: reach MVP in 100 automation passes or fewer over roughly 45 days without changing the accepted gold-standard automation cadence.
+
+Pass lanes:
+- `01-15`: Operating backbone, stack scaffold, database/auth/storage decisions, deployment path, and seed models.
+- `16-35`: Secure records, permissions, private evidence, audit events, and protected student access.
+- `36-55`: Admin progress slice, users/groups/programs/cohorts, trusted dashboard aggregates, and audit log.
+- `56-75`: Proposal workflow, guided research sections, evidence upload/link, teacher review, revision, approval, and status history.
+- `76-90`: Pilot hardening, empty/error states, exports, announcements, mobile-aware student states, and role QA.
+- `91-100`: Launch polish, accessibility checks, Cloudflare preview/domain readiness, and human pilot checklist.
+
+Route/data contract:
+- `/student/progress`: own submissions, evidence, review feedback, section completeness, and next action; student self-scope only.
+- `/teacher/review`: program/cohort queue, revision/approval action, evidence count, source count, and review state; teacher program/cohort scope.
+- `/mentor/assigned`: assigned students, meetings, presentation prep, and safe comments; assigned-student scope only.
+- `/admin/users`: users, groups, roles, cohorts, assignments, provisioning, and override controls; admin-only with audit events.
+- `/admin/audit`: sensitive actions, exports, role changes, overrides, evidence access, and retention/export controls; admin/audit permission only.
+
+Every rebuild route that consumes this section should name persisted data, server authorization, loading/error/permission states, audit events, and tests before it is counted as implemented.
 
 ## Acceptance Checks For Next Figma Run
 
 - Continue active writable file `z4t4tFPAKrMDh6pIYOeEw6` in `team::1638213362346160913`.
-- Maintain all three planned pages unless a future accepted decision expands the file.
+- Maintain all four planned pages unless a future accepted decision expands the file.
 - Deepen the existing desktop student screen rather than recreating it from scratch.
 - Deepen the existing teacher review queue screen rather than recreating it from scratch.
 - Deepen the existing mobile student screen rather than recreating it from scratch.
@@ -396,13 +420,14 @@ Artifact:
 - Reference-only prior file: `https://www.figma.com/design/LLucMgAPscRa9020iHHigB`
 - Superseded historical: `https://www.figma.com/design/fkfNI9JNy0A3Rm8KnoxJLj`
 - This spec file.
-- Next state-variant packet: `docs/design/figma-product-preview-state-variants.md`
+- State-variant packet: `docs/design/figma-product-preview-state-variants.md`
+- 100-pass MVP execution map: node `18:2` in the active Figma file.
 
 Exact next action:
-- Continue `z4t4tFPAKrMDh6pIYOeEw6`. When MCP quota resets, run final metadata/screenshot verification for the recreated pages, then deepen component variants and route-level annotations from `docs/design/figma-product-preview-state-variants.md`.
+- Continue `z4t4tFPAKrMDh6pIYOeEw6` by deepening the review drawer and admin override modal variants: default, invalid or missing reason, submitting, success, permission denied, audit event preview, rollback, and error states.
 
 Acceptance check:
-- Figma progress log records page/frame IDs, screenshot or metadata verification, and next UI slice.
+- Figma progress log records page/frame IDs, screenshot or metadata verification, route/data fields, permission scopes, and the next UI slice.
 
 Known limits:
-- The original historical file hit the Starter MCP tool-call limit. The regenerated reference file was successfully written through the updated Figma connection, but the 2026-05-18 follow-up pass hit the Education-plan MCP tool-call limit with rate-limit links pointing at old team `1601310068697743794`. The recreated file was then created and written in `team::1638213362346160913`; the final verification call hit the Education-plan MCP limit for the new team, confirming the route is corrected but quota is temporarily exhausted.
+- The original historical file hit the Starter MCP tool-call limit. The regenerated reference file was successfully written through the updated Figma connection, but the 2026-05-18 follow-up pass hit the Education-plan MCP tool-call limit with rate-limit links pointing at old team `1601310068697743794`. The recreated file was then created and written in `team::1638213362346160913`. Bryan's professional-plan upgrade later unblocked the active-file metadata/screenshot verification and the `18:2` canvas write.

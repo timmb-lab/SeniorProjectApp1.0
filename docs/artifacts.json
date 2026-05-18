@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-05-18T08:00:00-07:00",
+  "updated_at": "2026-05-18T09:06:00-07:00",
   "artifacts": [
     {
       "id": "figma-senior-project-app-team-target",
@@ -45,8 +45,9 @@
       "url": "https://www.figma.com/design/z4t4tFPAKrMDh6pIYOeEw6",
       "team_id": "1638213362346160913",
       "plan_key": "team::1638213362346160913",
+      "account_observed": "timmb@nv.ccsd.net",
       "purpose": "Active product UI source for the hosted Senior Capstone app, recreated in Bryan's Senior Project App Figma team/project.",
-      "app_placement": "Design source for app shell, visual foundations, student workspace, guided proposal form, teacher review queue, mentor/admin dashboards, mobile student view, automation handoff board, and product preview state variants.",
+      "app_placement": "Design source for app shell, visual foundations, student workspace, guided proposal form, teacher review queue, mentor/admin dashboards, mobile student view, automation handoff board, product preview state variants, and the 100-pass MVP route/data contract.",
       "consuming_lanes": [
         "figma",
         "rebuild",
@@ -102,12 +103,16 @@
         "review_drawer": "6:198",
         "admin_override_modal": "6:219",
         "state_mobile_student": "6:232",
-        "rebuild_mapping": "6:257"
+        "rebuild_mapping": "6:257",
+        "mvp_100_pass_map": "18:2"
       },
       "verification": [
         "File creation succeeded in plan team::1638213362346160913.",
-        "Canvas writes succeeded for all four planned pages before the final screenshot/metadata pass hit the Education-plan MCP tool-call limit for the new team.",
-        "Successful write calls returned page IDs, primary frame IDs, 9 status components, and key screen/state frame IDs."
+        "Canvas writes succeeded for all four planned pages and later added 100-Pass MVP Execution Map node 18:2.",
+        "Successful write calls returned page IDs, primary frame IDs, 9 status components, key screen/state frame IDs, and node 18:2.",
+        "After Bryan upgraded the Figma plan, metadata inspection succeeded for node 6:2 and node 18:2.",
+        "Screenshot verification returned for nodes 6:2, 6:198, 6:219, 6:257, and 18:2.",
+        "Read-only use_figma inspection returned four top-level pages, 9 status-pill components, and no local variables/styles."
       ],
       "supersedes": [
         "figma-product-ui-system-reference-old-team",

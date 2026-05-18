@@ -55,9 +55,9 @@ Status values:
 - `source`: regenerated Figma product UI system
 - `artifact`: active Figma file `z4t4tFPAKrMDh6pIYOeEw6` in `team::1638213362346160913`, reference-only prior file `LLucMgAPscRa9020iHHigB`, spec `docs/design/figma-first-pass-product-system.md`
 - `next action`: After the Cloudflare stack/scaffold decision, map the active Figma screens to app routes/components/data fields for the revised MVP admin/progress slice and the proposal workflow slice.
-- `acceptance check`: Rebuild plan or implementation references the active Figma frame IDs for student home, guided proposal form, evidence/review states, teacher review queue, mentor/admin dashboards, mobile student home, and any new admin account/group/progress screens Figma adds.
+- `acceptance check`: Rebuild plan or implementation references the active Figma frame IDs for student home, guided proposal form, evidence/review states, teacher review queue, mentor/admin dashboards, mobile student home, product preview state variants, and the 100-pass route/data contract.
 - `evidence to close`: Committed implementation plan or code scaffold consuming `z4t4tFPAKrMDh6pIYOeEw6` and naming routes/components/data fields.
-- `last updated`: 2026-05-18 08:14 PT
+- `last updated`: 2026-05-18 09:06 PT
 
 ### H-2026-05-18-006
 
@@ -71,17 +71,17 @@ Status values:
 - `evidence to close`: Committed scaffold work or a precisely blocked provisioning note.
 - `last updated`: 2026-05-18 09:01 PT
 
-### H-2026-05-18-007
+### H-2026-05-18-008
 
-- `source lane`: figma/rebuild
-- `owner lane`: figma
-- `status`: blocked
-- `source`: local product preview upgrade and state-variant packet; active file recreation succeeded, final screenshot/metadata verification is blocked by the new team's Education-plan MCP quota
-- `artifact`: active Figma file `z4t4tFPAKrMDh6pIYOeEw6` in `Senior Project App`, team id `1638213362346160913`, plan key `team::1638213362346160913`; reference-only prior Figma file `LLucMgAPscRa9020iHHigB`; local preview `app-preview.html`; implementation in `app.js` and `styles.css`; state-variant packet `docs/design/figma-product-preview-state-variants.md`; lane log `docs/progress/figma.md`
-- `next action`: When Figma MCP quota resets, run screenshot/metadata verification against active file `z4t4tFPAKrMDh6pIYOeEw6`, especially page `03 Product Preview + State Variants`, then resolve this handoff if the returned structure still includes the recorded frame IDs.
-- `acceptance check`: Figma includes role-aware shell states, status pill variants, review drawer variants, permission denied, upload failure, submission locked, resubmission, empty queue, admin override states, desktop/mobile verification, and page/frame IDs in `docs/progress/figma.md`.
-- `evidence to close`: Figma metadata or screenshot verification for `z4t4tFPAKrMDh6pIYOeEw6` plus updated Figma progress entry naming the verified page and frame IDs.
-- `last updated`: 2026-05-18 08:00 PT
+- `source lane`: figma
+- `owner lane`: rebuild
+- `status`: open
+- `source`: professional-plan Figma verification and 100-pass MVP map
+- `artifact`: active Figma file `z4t4tFPAKrMDh6pIYOeEw6`, `03 Product Preview + State Variants` node `6:2`, `100-Pass MVP Execution Map` node `18:2`, route/data contract nodes `18:44` through `18:47`
+- `next action`: Consume the route/data/permission contract while scaffolding the accepted Cloudflare database/auth/progress foundation.
+- `acceptance check`: Rebuild commits a stack/scaffold or implementation plan that maps `/student/progress`, `/teacher/review`, `/mentor/assigned`, `/admin/users`, and `/admin/audit` to persisted data, server authorization, audit events, and loading/error/permission states.
+- `evidence to close`: Committed rebuild plan or code scaffold referencing `z4t4tFPAKrMDh6pIYOeEw6` and node `18:2`.
+- `last updated`: 2026-05-18 09:06 PT
 
 ## Resolved Handoffs
 
@@ -96,3 +96,15 @@ Status values:
 - `acceptance check`: Figma progress log includes page/frame IDs plus metadata or screenshot verification.
 - `evidence to close`: `docs/progress/figma.md` records active file `LLucMgAPscRa9020iHHigB`, all three pages, key frame IDs, 9 components, metadata verification, and screenshot verification.
 - `last updated`: 2026-05-18
+
+### H-2026-05-18-007
+
+- `source lane`: figma/rebuild
+- `owner lane`: figma
+- `status`: resolved
+- `source`: local product preview upgrade and state-variant packet; active file recreation succeeded but final screenshot/metadata verification was initially blocked by the new team's Education-plan MCP quota
+- `artifact`: active Figma file `z4t4tFPAKrMDh6pIYOeEw6`, `03 Product Preview + State Variants` node `6:2`, review drawer `6:198`, admin override modal `6:219`, rebuild mapping `6:257`, and 100-pass MVP execution map `18:2`
+- `next action`: Verify metadata and screenshots after Bryan upgraded Figma to the professional plan.
+- `acceptance check`: Figma includes role-aware shell states, status pill variants, review drawer variants, permission denied, upload failure, submission locked, resubmission, empty queue, admin override states, desktop/mobile verification, and page/frame IDs in `docs/progress/figma.md`.
+- `evidence to close`: `docs/progress/figma.md` records successful metadata, screenshots, library discovery, design-system search, read-only inspection, and write verification for node `18:2`.
+- `last updated`: 2026-05-18 09:06 PT

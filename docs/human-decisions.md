@@ -35,6 +35,17 @@ No open decisions currently block automation execution. New entries should be re
 - `created`: 2026-05-18
 - `accepted`: 2026-05-18
 
+### HD-2026-05-18-003
+
+- `status`: accepted
+- `area`: MVP delivery constraint and Figma plan
+- `owner`: Bryan
+- `severity`: P0
+- `decision`: Bryan upgraded Figma to a professional plan and set the operating target to reach MVP in 100 automation passes or fewer over roughly the next 45 days.
+- `impact`: Automations should keep the existing cadence and active status, but each pass should reduce implementation ambiguity and prioritize secure hosted MVP evidence over broad polish.
+- `source`: User request on 2026-05-18: "I updated the pklan to a professional one so can we try all the figma calls again and get it caught up? I want you to really really dial in to get to a MVP in 100 passes or less over the next 45 days or so"
+- `last updated`: 2026-05-18
+
 ### HD-2026-05-18-002
 
 - `status`: accepted

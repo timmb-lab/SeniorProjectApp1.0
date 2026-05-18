@@ -4,6 +4,10 @@ Date: 2026-05-18
 
 These milestones keep the automation lanes pointed at the revised MVP: a secure database-backed Senior Capstone app, designed heavily in Figma, supported by polished Canva imagery, and hosted from GitHub to Cloudflare.
 
+## Delivery Constraint
+
+Bryan's current target is to reach MVP in 100 automation passes or fewer over roughly 45 days. This does not change automation cadence or ownership. It tightens the definition of a useful pass: each run should ship a concrete artifact, code slice, test, verified design spec, blocker closure, or implementation-ready handoff that reduces secure-hosted-MVP ambiguity.
+
 ## M0 - Operating Base
 
 Goal:

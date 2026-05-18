@@ -1,7 +1,7 @@
 ﻿---
 automation_id: "senior-capstone-weekly-deep-audit-rebuilt"
 name: "Senior Capstone Weekly Deep Audit Rebuilt"
-snapshot_generated_utc: "2026-05-18T16:06:58Z"
+snapshot_generated_utc: "2026-05-18T16:19:44Z"
 rrule: "FREQ=WEEKLY;BYDAY=SU;BYHOUR=23;BYMINUTE=45"
 model: "gpt-5.2"
 reasoning_effort: "xhigh"

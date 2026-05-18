@@ -377,3 +377,73 @@ Self-improvement:
 
 Next Figma slice:
 - When Figma MCP quota resets, run screenshot/metadata verification on file `z4t4tFPAKrMDh6pIYOeEw6`, then continue deepening page `03 Product Preview + State Variants` with richer component variants, route annotations, and rebuild-ready component mapping.
+
+## 2026-05-18 Professional-Plan Verification And 100-Pass MVP Map
+
+Automation:
+- `senior-capstone-figma-product-design-rebuilt`
+
+Master-plan section:
+- Product Destination
+- MVP 1.0 Vertical Slice
+- 100-Pass Delivery Constraint
+- Lane Responsibilities
+- Logging Requirements
+
+Logs referenced:
+- `docs/master-plan.md`
+- `docs/automation-runbook.md`
+- `docs/automation-self-improvement.md`
+- `docs/automation-cadence.md`
+- `docs/automation-milestones.md`
+- `docs/automation-memory.md`
+- `docs/progress/run-log.md`
+- `docs/progress/runs/`
+- `docs/progress/handoffs.md`
+- `docs/progress/decision-log.md`
+- `docs/automation-backlog.md`
+- `docs/artifacts.json`
+- `docs/human-decisions.md`
+- `docs/progress/figma.md`
+
+Active Figma artifact:
+- File: `Senior Capstone App - Product UI System Recreated`
+- File key: `z4t4tFPAKrMDh6pIYOeEw6`
+- URL: `https://www.figma.com/design/z4t4tFPAKrMDh6pIYOeEw6`
+- Team id: `1638213362346160913`
+- Plan key: `team::1638213362346160913`
+
+What changed:
+- Retried the Figma MCP calls after Bryan upgraded Figma to a professional plan.
+- Verified metadata for `03 Product Preview + State Variants`, node `6:2`.
+- Captured screenshots for node `6:2`, review drawer `6:198`, admin override modal `6:219`, rebuild mapping `6:257`, and new node `18:2`.
+- Ran read-only file inspection: the active file has four pages, 9 status-pill components on `01 Components + App Screens`, and no local variables/styles.
+- Discovered linked libraries, including Material 3 Design Kit and Simple Design System, and confirmed a focused button design-system search returns usable library candidates for future component cleanup.
+- Added `Section / 100-Pass MVP Execution Map`, node `18:2`, to `03 Product Preview + State Variants`.
+
+100-pass content added:
+- Constraint pills: `Pass cap 100`, `Runway 45 days`, `No student messaging`, and `Database first`.
+- Pass lanes: `01-15` operating backbone, `16-35` secure records, `36-55` admin progress slice, `56-75` proposal workflow, `76-90` pilot hardening, and `91-100` launch polish.
+- Route/data contract nodes `18:44` through `18:47` for `/student/progress`, `/teacher/review`, `/mentor/assigned`, `/admin/users`, and `/admin/audit`.
+- Acceptance rule: every route must name persisted data, server authorization, loading/error/permission states, audit events, and tests before it counts as implemented.
+
+Verification:
+- `get_metadata` succeeded for node `6:2`.
+- `get_screenshot` succeeded for nodes `6:2`, `6:198`, `6:219`, `6:257`, and `18:2`.
+- `use_figma` read-only inspection succeeded for pages/components.
+- Library discovery and design-system search succeeded.
+- `use_figma` write succeeded and created nodes `18:2` through `18:47`.
+- Follow-up metadata succeeded for node `18:2`.
+- Parent board `6:2` expanded to height `3843.800048828125` so the new section is visible.
+
+Handoff packet:
+- Consumer lane: rebuild.
+- Artifact/spec: active Figma file `z4t4tFPAKrMDh6pIYOeEw6`, state-variant board `6:2`, 100-pass MVP map `18:2`, route/data contract nodes `18:44` through `18:47`.
+- Exact next action: consume the route/data/permission contract while resolving `SC-005` and scaffolding the accepted Cloudflare database/auth/progress foundation.
+- Acceptance check: rebuild references the active Figma file and maps `/student/progress`, `/teacher/review`, `/mentor/assigned`, `/admin/users`, and `/admin/audit` to persisted data, server authorization, audit events, and loading/error/permission states.
+
+Self-improvement:
+- none; no live automation prompt/config change was needed.
+
+Next Figma slice:
+- Deepen review drawer and admin override modal variants: default, invalid/missing reason, submitting, success, permission denied, audit event preview, rollback/error states.

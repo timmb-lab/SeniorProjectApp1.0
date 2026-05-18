@@ -149,3 +149,13 @@ Decision status values:
 - `applies to`: rebuild lane, stack ADR, master plan, automation memory, backlog item `SC-005`, and future Cloudflare scaffold work
 - `source`: user request on 2026-05-18: "Make the changes necessary to correct to get to the gold standard"
 - `last updated`: 2026-05-18 09:01 PT
+
+### D-2026-05-18-015
+
+- `status`: accepted
+- `area`: Figma verification, product design source of truth, and delivery constraint
+- `decision`: Bryan's professional-plan Figma upgrade unblocked active-file verification and writing. Continue treating `z4t4tFPAKrMDh6pIYOeEw6` as the active Figma product UI source, with new node `18:2` as the 100-pass MVP execution map and route/data/permission contract. Use Bryan's 100-pass-or-less, roughly 45-day MVP target as a delivery constraint without changing the gold-standard orchestrator cadence, workspace, model, reasoning effort, or status.
+- `reason`: Metadata, screenshots, library discovery, design-system search, read-only inspection, and canvas writing all succeeded against the active file after the plan upgrade.
+- `applies to`: active Figma file, Figma specs, rebuild handoffs, artifact registry, master plan, milestones, run manifests, and gold-standard orchestrator work selection
+- `source`: user request on 2026-05-18: "I updated the pklan to a professional one so can we try all the figma calls again and get it caught up? I want you to really really dial in to get to a MVP in 100 passes or less over the next 45 days or so"
+- `last updated`: 2026-05-18 09:06 PT

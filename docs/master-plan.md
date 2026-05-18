@@ -156,6 +156,19 @@ Use `docs/automation-milestones.md` for the detailed milestone checklist. The st
 
 Earlier incomplete milestones beat later polish unless a P0/P1 risk says otherwise.
 
+## 100-Pass Delivery Constraint
+
+Bryan's current delivery pressure is to reach an MVP in 100 automation passes or fewer over roughly the next 45 days. This does not change the automation cadence, schedule, workspace, model, reasoning effort, or active status.
+
+The pass budget should bias every lane toward reducing implementation ambiguity:
+
+- Figma slices should name routes, data fields, permission scopes, states, interactions, and acceptance checks.
+- Core rebuild slices should prioritize shipped scaffold, schema, auth/permission tests, progress/audit persistence, and Cloudflare preview evidence.
+- Audit slices should turn gaps into owner-specific findings with acceptance checks, not broad restatements.
+- Canva slices should support app placement and live-text discipline, not decorative drift.
+
+The target is not "100 design passes." It is 100 total compounding passes toward a secure hosted MVP.
+
 ## Stack And Deployment Direction
 
 The accepted deployment direction is GitHub-connected Cloudflare hosting. Bryan expects to purchase a domain after the hosted path is ready.
