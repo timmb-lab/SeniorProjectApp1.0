@@ -1026,3 +1026,85 @@ Self-improvement:
 
 Next Figma slice:
 - Daily refresh should update the same page after each day's last orchestrator run, keeping Figma aligned to real repo/backend progress without putting real student data or credentials into the design file.
+
+## 2026-05-18 Mentor Meeting And Presentation Scheduling Contract
+
+Automation:
+- `senior-capstone-figma-product-design-rebuilt`
+
+Master-plan section:
+- Product Destination
+- MVP 1.0 Vertical Slice
+- 100-Pass Delivery Constraint
+- Lane Responsibilities
+- Logging Requirements
+
+Logs referenced:
+- `C:\Users\bryan\.codex\automations\senior-capstone-figma-product-design-rebuilt\memory.md`
+- `docs/master-plan.md`
+- `docs/automation-runbook.md`
+- `docs/automation-self-improvement.md`
+- `docs/automation-cadence.md`
+- `docs/automation-milestones.md`
+- `docs/automation-memory.md`
+- `docs/progress/run-log.md`
+- `docs/progress/runs/`
+- `docs/progress/handoffs.md`
+- `docs/progress/decision-log.md`
+- `docs/automation-backlog.md`
+- `docs/artifacts.json`
+- `docs/human-decisions.md`
+- `docs/progress/figma.md`
+- adjacent rebuild/audit/Canva lane logs
+- `docs/domain-model.md`
+- `docs/curriculum-framework-integration.md`
+- `data/capstone-framework.json`
+
+Active Figma artifact:
+- File: `Senior Capstone App - Product UI System Recreated`
+- File key: `z4t4tFPAKrMDh6pIYOeEw6`
+- URL: `https://www.figma.com/design/z4t4tFPAKrMDh6pIYOeEw6`
+- Team id: `1638213362346160913`
+- Plan key: `team::1638213362346160913`
+
+What changed:
+- Added `Section / Mentor Meeting + Presentation Scheduling Contract`, node `78:2`, to `03 Product Preview + State Variants` board `6:2`.
+- Added six meeting/presentation states:
+  - `Meeting Prep Ready`
+  - `Attendance Recorded`
+  - `Make-up Required`
+  - `Outline Approval Gate`
+  - `Presentation Slot Conflict`
+  - `Check-out Check-in Ready`
+- Added meeting attendance and presentation scheduling panels for prep evidence, attendance capture, make-up linkage, outline approval, slot conflicts, and day-of check-out/check-in state.
+- Added six pipeline steps: seed checkpoint requirement, collect prep evidence, record attendance or make-up, approve outline gate, schedule presentation slot, and audit check-out/check-in.
+- Added `Developer Handoff / Mentor Presentation Route Data Contract`, node `78:166`.
+- Stored shared Figma plugin data on node `78:2` for routes `/mentor/meetings`, `/mentor/assigned`, `/api/meetings/:id/attendance`, `/student/mentor-meetings`, `/student/presentation`, `/api/presentation-slots`, `/api/presentation-slots/:id/check-in`, `/teacher/dashboard`, and `/admin/audit`.
+- Stored shared contract records `Meeting`, `MeetingAttendance`, `MentorAssignment`, `PresentationSlot`, `Submission`, `SubmissionVersion`, `EvidenceArtifact`, `Review`, `Requirement`, `Deadline`, `AuditEvent`, `StudentProfile`, and `UserGroupRole`, plus permission scopes and acceptance checks.
+
+Verification:
+- No Code Connect files were present in the repo for this slice.
+- `get_design_context` for board `6:2` succeeded and confirmed no existing mentor meeting/presentation scheduling contract.
+- `get_libraries` succeeded for active file `z4t4tFPAKrMDh6pIYOeEw6`.
+- `search_design_system` for mentor meeting/presentation scheduling terms returned only the local status pill primitive and no richer reusable component, so the section matched local conventions.
+- `use_figma` read-only inspection confirmed board `6:2` height `13078.8`, 13 existing children, local component sets, and no duplicate mentor presentation scheduling contract.
+- `use_figma` write created node `78:2`, handoff node `78:166`, 6 states, 6 pipeline steps, 9 routes, 13 records, 5 permissions, 7 guardrails, and 7 acceptance checks.
+- First metadata verification found new pill frames collapsed to 15px height.
+- Follow-up `use_figma` pill-height and autosizing correction adjusted 21 pill frames, 38 horizontal rows, and 31 vertical frames in place.
+- Final `get_screenshot`, `get_design_context`, and metadata succeeded for node `78:2`.
+- Follow-up readback confirmed board `6:2` height `15006.8`, node `78:2` height `1900`, handoff node `78:166`, 6 meeting/presentation states, 6 pipeline steps, 9 routes, 13 records, 5 permission scopes, 7 guardrails, 7 acceptance checks, zero clipped text nodes, zero collapsed pills, and zero clipped horizontal rows.
+- Repo validation parsed `docs/artifacts.json` and the run manifest, `git diff --check` passed with CRLF normalization warnings only, and the conflict-marker scan found no matches.
+- Automation prompt snapshots were refreshed after rebasing onto the daily guided prototype source-of-truth; no live Figma automation prompt/config changed.
+- Automation contract checker passed after the rebase because `senior-capstone-daily-guided-prototype-refresh` is now represented in the repo source-of-truth automation set.
+
+Handoff packet:
+- Consumer lane: rebuild.
+- Artifact/spec: active Figma file `z4t4tFPAKrMDh6pIYOeEw6`, state-variant board `6:2`, mentor meeting/presentation scheduling contract `78:2`, and handoff contract `78:166`.
+- Exact next action: implement `Meeting`, `MeetingAttendance`, `MentorAssignment`, `PresentationSlot`, outline approval review gates, slot conflict checks, and audited check-out/check-in while scaffolding the accepted Cloudflare database/auth/private-storage foundation.
+- Acceptance check: rebuild maps the meeting/presentation routes and records to persisted data, server-side authorization, assigned-mentor scope, program/cohort teacher scope, make-up linkage, slot conflict blocking, audit events, dashboard-derived state, and tests for unassigned mentor denial, student own-record access, and duplicate presentation slot denial.
+
+Self-improvement:
+- none for live `senior-capstone-figma-product-design-rebuilt` prompt/config; prompt snapshots were refreshed, preserving schedule, workspace, model, reasoning effort, and ACTIVE status.
+
+Next Figma slice:
+- Stop broad Figma deepening while `SC-005` needs tests and vertical slices. The next accepted MVP pass should be rebuild-heavy: bootstrap key/root folder, first-admin setup, CI/tests, private evidence access, `ProgressUpdate`/`DashboardAggregate`, audit/export primitives, meeting/presentation records, and tests consuming nodes `18:2`, `37:2`, `43:2`, `48:2`, `56:2`, `61:2`, `69:2`, and `78:2`.

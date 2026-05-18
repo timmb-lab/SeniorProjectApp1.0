@@ -543,6 +543,25 @@ Developer contract:
 - Guardrails: audit events are append-only, export requires reason/scope/explicit permission, signed downloads expire, storage keys never render, view/export/download/denied actions write audit events, misc-admin access stays explicitly scoped, retention values are configurable, and no student messaging is introduced.
 - Acceptance checks: audit stream filtering by actor/entity/student/program/cohort/date/event type, sensitive detail redaction, denied export without reason/scope/permission, expiring signed archive download, student own-archive-only access, misc-admin scoped export limits, and audit events for request/download/view/denied access.
 
+## Mentor Meeting And Presentation Scheduling Contract
+
+Node `78:2` deepens `SC-004` by specifying how Mentor Meeting One, Mentor Meeting Two, outline approval, presentation scheduling, and presentation day logistics become database-backed, permission-scoped records. It is implementation-facing: meeting prep remains private evidence, attendance and make-up are persisted, outline approval is a review gate, slot conflicts block saves, check-out/check-in changes are audited, and mentor visibility stays assigned-student only.
+
+Meeting/presentation states:
+- `Meeting Prep Ready`
+- `Attendance Recorded`
+- `Make-up Required`
+- `Outline Approval Gate`
+- `Presentation Slot Conflict`
+- `Check-out Check-in Ready`
+
+Developer contract:
+- Handoff node: `78:166`
+- Routes/API: `/mentor/meetings`, `/mentor/assigned`, `/api/meetings/:id/attendance`, `/student/mentor-meetings`, `/student/presentation`, `/api/presentation-slots`, `/api/presentation-slots/:id/check-in`, `/teacher/dashboard`, and `/admin/audit`.
+- Records: `Meeting`, `MeetingAttendance`, `MentorAssignment`, `PresentationSlot`, `Submission`, `SubmissionVersion`, `EvidenceArtifact`, `Review`, `Requirement`, `Deadline`, `AuditEvent`, `StudentProfile`, and `UserGroupRole`.
+- Guardrails: mentors see assigned students only, attendance and slot changes write audit events, make-up records preserve the original missed meeting, outline approval is a review gate rather than a checkbox, slot conflicts block duplicate saves, check-out/check-in ties to the presentation slot, and no student messaging is introduced.
+- Acceptance checks: unassigned mentor denial, missed meeting creates make-up requirement, outline approval persists review/status history, duplicate slot save is blocked, day-of check-out/check-in writes audit events, students see only their own meeting/presentation records, and dashboards derive state from persisted rows.
+
 ## Acceptance Checks For Next Figma Run
 
 - Continue active writable file `z4t4tFPAKrMDh6pIYOeEw6` in `team::1638213362346160913`.
@@ -576,12 +595,13 @@ Artifact:
 - Mobile evidence/revision workflow contract: node `56:2` in the active Figma file.
 - Progress update/dashboard aggregate contract: node `61:2` in the active Figma file.
 - Audit log/export controls contract: node `69:2` in the active Figma file.
+- Mentor meeting/presentation scheduling contract: node `78:2` in the active Figma file.
 
 Exact next action:
-- Rebuild should consume nodes `18:2`, `31:2`, `37:2`, `43:2`, `48:2`, `56:2`, `61:2`, and `69:2` while scaffolding the accepted Cloudflare database/auth/progress/audit/export foundation. Figma should only add more broad design detail if rebuild hits a specific UI ambiguity.
+- Rebuild should consume nodes `18:2`, `31:2`, `37:2`, `43:2`, `48:2`, `56:2`, `61:2`, `69:2`, and `78:2` while scaffolding the accepted Cloudflare database/auth/progress/audit/export/meeting/presentation foundation. Figma should only add more broad design detail if rebuild hits a specific UI ambiguity.
 
 Acceptance check:
 - Figma progress log records page/frame IDs, screenshot or metadata verification, route/data fields, permission scopes, and the next UI slice.
 
 Known limits:
-- The original historical file hit the Starter MCP tool-call limit. The regenerated reference file was successfully written through the updated Figma connection, but the 2026-05-18 follow-up pass hit the Education-plan MCP tool-call limit with rate-limit links pointing at old team `1601310068697743794`. The recreated file was then created and written in `team::1638213362346160913`. Bryan's professional-plan upgrade later unblocked the active-file metadata/screenshot verification and the `18:2`, `31:2`, `37:2`, `43:2`, `48:2`, `56:2`, `61:2`, and `69:2` canvas writes.
+- The original historical file hit the Starter MCP tool-call limit. The regenerated reference file was successfully written through the updated Figma connection, but the 2026-05-18 follow-up pass hit the Education-plan MCP tool-call limit with rate-limit links pointing at old team `1601310068697743794`. The recreated file was then created and written in `team::1638213362346160913`. Bryan's professional-plan upgrade later unblocked the active-file metadata/screenshot verification and the `18:2`, `31:2`, `37:2`, `43:2`, `48:2`, `56:2`, `61:2`, `69:2`, and `78:2` canvas writes.

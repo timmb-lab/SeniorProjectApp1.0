@@ -469,6 +469,10 @@ Created/updated frames:
   - Five audit/export states: audit stream filtered, sensitive event detail, export request draft, export queued and ready, and permission denied plus retention review.
   - Six audit/export pipeline steps: filter event stream, open redacted event detail, request scoped export, authorize reason and scope, generate signed archive, and record download acknowledgement.
   - `Developer Handoff / Audit Export Route Data Contract`, node `69:180`
+- `Section / Mentor Meeting + Presentation Scheduling Contract`, node `78:2` on `03 Product Preview + State Variants`
+  - Six meeting/presentation states: meeting prep ready, attendance recorded, make-up required, outline approval gate, presentation slot conflict, and check-out/check-in ready.
+  - Six mentor presentation pipeline steps: seed checkpoint requirement, collect prep evidence, record attendance or make-up, approve outline gate, schedule presentation slot, and audit check-out/check-in.
+  - `Developer Handoff / Mentor Presentation Route Data Contract`, node `78:166`
 
 Verification status:
 - Canvas write succeeded and returned the frame IDs above.
@@ -506,3 +510,10 @@ Verification status:
 - Follow-up `use_figma` text-height and autosizing correction adjusted 66 text nodes, 50 horizontal rows, and 28 vertical frames in place, expanded node `69:2` to `1584x1819`, and expanded board `6:2` to height `13078.8`.
 - Final `get_screenshot`, `get_design_context`, and metadata succeeded for node `69:2`.
 - Follow-up readback confirmed shared contract data on `69:2`, handoff node `69:180`, 5 audit/export states, 6 pipeline steps, 7 routes, 12 records, 5 permission scopes, 7 guardrails, 7 acceptance checks, zero clipped text nodes, and zero clipped horizontal rows.
+- `get_design_context`, `get_libraries`, and `search_design_system` succeeded before adding node `78:2`; search returned only the local status pill primitive and no richer mentor/scheduling component, so the section matched local conventions.
+- `use_figma` readback confirmed board `6:2` had no existing mentor meeting/presentation scheduling contract before the write.
+- `use_figma` write created node `78:2`, six meeting/presentation states, six pipeline steps, meeting attendance and presentation scheduling panels, route/data/permission matrix, and handoff node `78:166`.
+- Initial metadata verification found new pill frames collapsed to 15px height even though text was not clipped.
+- Follow-up `use_figma` pill-height correction adjusted 21 pill frames plus row/container autosizing, expanded node `78:2` to `1584x1900`, and expanded board `6:2` to height `15006.8`.
+- Final `get_screenshot`, `get_design_context`, and metadata succeeded for node `78:2`.
+- Follow-up readback confirmed shared contract data on `78:2`, handoff node `78:166`, 6 states, 6 pipeline steps, 9 routes, 13 records, 5 permission scopes, 7 guardrails, 7 acceptance checks, zero clipped text nodes, zero collapsed pills, and zero clipped horizontal rows.

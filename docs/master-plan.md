@@ -282,6 +282,7 @@ Today's work materially improved the implementation runway, but it did not yet c
   - `56:2`: mobile student evidence/revision states for revision checklist, upload/link, submit-blocked, and access-denied recovery, with mobile overflow, private evidence, and audit acceptance checks.
   - `61:2`: progress-update to dashboard-aggregate contract with server-owned transitions, stale-write conflict handling, audit-first sensitive changes, and database-derived dashboard counts.
   - `69:2`: audit-log and export-controls contract with immutable audit stream filters, redacted event detail, scoped export request, signed archive/download states, permission denial, retention-policy cues, and no-storage-key exposure.
+  - `78:2`: mentor meeting and presentation scheduling contract with prep evidence, attendance/make-up tracking, outline approval gate, presentation slot conflict handling, check-out/check-in state, scoped permissions, and audit events.
 - The critical gap is unchanged: no production app scaffold, managed auth, database schema, private file storage, migrations, API layer, tests, CI, or GitHub-to-Cloudflare deployment pipeline exists yet.
 
 Because of that gap, the next useful 100-pass plan must prioritize implementation over additional design polish unless the design work is directly blocking rebuild.
@@ -305,7 +306,7 @@ Immediate next five passes should be alpha-flow implementation:
 1. Create the alpha app shell, route map, role/persona switcher, seed/demo data loader, and local run command.
 2. Implement the student dashboard and guided proposal/research flow with save, draft, submit, evidence metadata, and blocked-submit states.
 3. Implement the teacher review queue, submission detail, comment, revision request, approval, resubmission, and status-history loop.
-4. Implement mentor/admin/misc-admin alpha views, dashboard aggregates, audit/activity timeline, deadlines/templates, and export/archive control surfaces.
+4. Implement mentor/admin/misc-admin alpha views, dashboard aggregates, audit/activity timeline, deadlines/templates, export/archive control surfaces, and meeting/presentation signals from Figma node `78:2`.
 5. Add mobile student QA, empty/error/permission states, alpha runbook, known-gaps file, tests/smoke checks, and Cloudflare preview attempt.
 
 Do not spend the next several non-audit passes on additional broad Figma polish or production account hardening while the Day 7 alpha flow is incomplete, unless rebuild hits a specific UI/security ambiguity that blocks the alpha. The design side is currently ahead of the hosted app; the app now needs working routes, forms, transitions, demo data, tests/smoke checks, and preview evidence.
