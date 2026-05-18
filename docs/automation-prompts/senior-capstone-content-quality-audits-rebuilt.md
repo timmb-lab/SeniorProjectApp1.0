@@ -1,7 +1,7 @@
 ﻿---
 automation_id: "senior-capstone-content-quality-audits-rebuilt"
 name: "Senior Capstone Content Quality Audit Standby"
-snapshot_generated_utc: "2026-05-18T17:02:59Z"
+snapshot_generated_utc: "2026-05-18T17:27:42Z"
 rrule: "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=3,9,15,21;BYMINUTE=45"
 model: "gpt-5.2"
 reasoning_effort: "xhigh"

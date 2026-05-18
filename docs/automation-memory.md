@@ -44,6 +44,8 @@ The 100-pass master plan was refreshed on 2026-05-18 after the professional-plan
 
 Immediate next five useful passes: Cloudflare/TypeScript scaffold, database/storage/migration layout, users/groups/programs/cohorts/roles schema and seeds, permission/audit primitives with tests, and private `EvidenceArtifact` storage/link/review-history tests.
 
+Real daily MVP goal: minimum 2 accepted MVP passes per calendar day, stretch 3 when unblocked, and at least 14 accepted MVP passes per week until the 100-pass target is met or recalibrated. While `SC-005` is open, the first two accepted passes each day should usually be implementation-heavy. The active weekly deep audit must review the prior seven days of committed run evidence and adjust only this project's next-week daily goal/allocation in `docs/master-plan.md` and this memory file when evidence requires it; schedules, workspace, model, reasoning effort, and status stay unchanged unless Bryan explicitly asks.
+
 ## Canonical Programs
 
 - IT

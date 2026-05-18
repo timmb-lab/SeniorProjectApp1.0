@@ -169,6 +169,28 @@ The pass budget should bias every lane toward reducing implementation ambiguity:
 
 The target is not "100 design passes." It is 100 total compounding passes toward a secure hosted MVP.
 
+### Real Daily MVP Goal
+
+The schedule provides five orchestration opportunities per day, but the real delivery goal is evidence-based accepted MVP progress, not five perfect changesets every day.
+
+For the current 45-day / 100-pass target, use this daily goal:
+
+- Minimum: 2 accepted MVP passes per calendar day.
+- Stretch: 3 accepted MVP passes per calendar day when the repo is unblocked.
+- Weekly minimum: 14 accepted MVP passes.
+- Weekly stretch: 16-18 accepted MVP passes.
+- Cap discipline: do not count more than 100 accepted passes before the MVP is honestly assessed as pilot-ready or not.
+
+An accepted MVP pass must leave durable evidence: a pushed commit or published external artifact with committed repo records, plus validation or an explicit blocker that reduces ambiguity. Routine log repair, prompt snapshot repair, external quota retries, or repeated broad design polish do not count unless they unblock a P0/P1 MVP path.
+
+Daily priority order:
+
+1. First accepted pass of the day should move implementation: scaffold, schema, auth, permissions, storage, tests, CI, deployment, or database-backed workflow.
+2. Second accepted pass should deepen or verify the same MVP path: tests, migration coverage, audit events, protected evidence, dashboard aggregate correctness, or deployment proof.
+3. Stretch pass can be Figma, Canva, audit, or docs only when it directly unblocks implementation or closes a concrete P0/P1 handoff.
+
+Weekly adjustment rule for this project only: the Sunday weekly deep audit reviews the last seven days of run manifests, run log entries, commits, backlog movement, handoffs, and audit findings. It then updates this master plan and `docs/automation-memory.md` with the next week's daily goal/allocation if evidence shows the plan is too loose, too aggressive, or pointed at the wrong lane. This weekly calibration may adjust goals and pass allocation, but it must not change automation schedules, workspace, model, reasoning effort, or status unless Bryan explicitly asks.
+
 ### 2026-05-18 Baseline After Figma And Automation Catch-Up
 
 Today's work materially improved the implementation runway, but it did not yet create the hosted database-backed app. Treat the repo state through commit `08660f3` as the 100-pass baseline:
@@ -320,6 +342,8 @@ Do not:
 
 Each week, Bryan should be able to answer:
 
+- Did the project hit at least 14 accepted MVP passes this week, and were they mostly implementation-heavy while `SC-005` remained open?
+- Did the weekly deep audit adjust the next week's daily goal/allocation from evidence instead of vibes?
 - Did the repo move closer to a real hosted app?
 - Did the repo move closer to the secure database/account/group/progress MVP?
 - Did the GitHub-to-Cloudflare deployment path move forward?

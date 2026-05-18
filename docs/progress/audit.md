@@ -89,3 +89,16 @@ Each audit run should append a dated entry with:
 - `self-improvement`: none; no live automation prompt/config change was needed.
 - `commit/push status`: pending in this pass.
 - `next action`: Rebuild should start the Cloudflare/TypeScript scaffold and database/storage/migration layout before additional broad Figma polish.
+
+### 2026-05-18 10:27 PT - Real Daily Goal Calibration
+
+- `automation`: manual user-requested audit/plan pass
+- `master-plan section`: 100-Pass Delivery Constraint; Weekly Human Check-In Questions; Logging Requirements
+- `scope`: Convert the 100-pass target into a real daily delivery goal and wire the weekly deep audit to review, audit, and adjust those goals only for this project.
+- `live automation changed`: Added weekly 100-pass goal calibration to `senior-capstone-weekly-deep-audit-rebuilt`; preserved schedule Sundays at `23:45 PT`, workspace, model, reasoning effort, and ACTIVE status.
+- `files changed`: `docs/master-plan.md`, `docs/automation-cadence.md`, `docs/automation-runbook.md`, `docs/automation-self-improvement.md`, `docs/automation-memory.md`, `docs/progress/decision-log.md`, `docs/progress/audit.md`, `docs/progress/run-log.md`, `docs/progress/weekly-deep-audit.md`, `docs/progress/runs/2026-05-18-1027-audit-daily-goal-weekly-calibration.json`, regenerated `docs/automation-prompts/`, and `scripts/check-automation-contract.ps1`.
+- `goal update`: Minimum 2 accepted MVP passes per calendar day, stretch 3/day when unblocked, weekly minimum 14 accepted MVP passes, weekly stretch 16-18, with only durable committed or published evidence counted.
+- `validation`: Regenerated prompt snapshots with `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\snapshot-automation-prompts.ps1`; `scripts/check-automation-contract.ps1` passed for 6 automations and now enforces the weekly calibration language.
+- `self-improvement`: updated the weekly audit live prompt and contract checker because Bryan explicitly requested weekly review/audit/adjustment of the 100-pass daily goals.
+- `commit/push status`: pending in this pass.
+- `next action`: Weekly deep audit should report the accepted-pass count every Sunday and update only this project's master plan/memory when evidence says the next-week allocation should change.

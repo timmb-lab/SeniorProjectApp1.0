@@ -6,6 +6,8 @@ The Senior Capstone rebuild now uses a primary 5x/day gold-standard orchestrator
 
 Specialist lane automations still exist for Figma, Canva, content audit, and daily reporting, but they are intentionally `PAUSED` standby records so the Senior Capstone daily cadence is one reliable 5x/day orchestrator rather than overlapping lane jobs. Weekly deep audit remains `ACTIVE` as the separate severe weekly review.
 
+The real daily delivery goal for this project is not five accepted changes every day. The current 100-pass / 45-day target requires at least 2 accepted MVP passes per calendar day, with 3 as the stretch goal when the repo is unblocked. The weekly deep audit recalibrates this project-only daily goal every Sunday from committed evidence and may update `docs/master-plan.md` and `docs/automation-memory.md`; it must not change schedules, workspace, model, reasoning effort, or status unless Bryan explicitly asks.
+
 End goal: a GitHub-to-Cloudflare hosted app whose MVP is a secure database-backed Senior Capstone operating system: users, groups, roles, programs, cohorts, progress updates, submissions, private evidence, reviews, approvals, dashboards, announcements, admin controls, audit logs, exports, and protected student records.
 
 Master plan: `docs/master-plan.md`.
@@ -261,6 +263,7 @@ Weekly audit job:
 - Automation: `senior-capstone-weekly-deep-audit-rebuilt`
 - Schedule: Sundays at `23:45`.
 - Purpose: run a long, severe, piece-by-piece audit of the whole Senior Capstone product, repo, source-framework coverage, app-readiness, security/privacy posture, dashboard usefulness, Figma/Canva usefulness, backlog health, log quality, automation health, and weekly human check-in readiness.
+- Weekly 100-pass goal calibration: review the last seven days of run manifests, run log entries, commits, backlog movement, and handoffs; count accepted MVP passes against the minimum 2/day and 14/week goal; update only this project's master plan and memory with the next week's daily goal/allocation when evidence requires it.
 
 Required outputs:
 - Create or update `docs/audits/weekly-deep-audit.md` with severity-ranked findings, evidence, owner lane, acceptance checks, and next actions.

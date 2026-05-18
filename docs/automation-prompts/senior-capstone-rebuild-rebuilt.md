@@ -1,7 +1,7 @@
 ﻿---
 automation_id: "senior-capstone-rebuild-rebuilt"
 name: "Senior Capstone Gold Standard Orchestrator"
-snapshot_generated_utc: "2026-05-18T17:02:59Z"
+snapshot_generated_utc: "2026-05-18T17:27:42Z"
 rrule: "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=0,5,10,15,20;BYMINUTE=20"
 model: "gpt-5.2"
 reasoning_effort: "high"

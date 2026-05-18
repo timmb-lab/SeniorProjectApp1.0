@@ -84,3 +84,7 @@ Durable decisions belong in `docs/progress/decision-log.md`. Routine per-run not
 ## Balance Rule
 
 The default work of each run is still product progress. Self-improvement is a closeout discipline and a repair path, not the main product. A prompt/config update may be the primary slice only when the user requested it, the automation is blocked by its own instructions, or a P0/P1 automation failure prevents productive work.
+
+## Weekly Goal Calibration
+
+For this Senior Capstone project only, the weekly deep audit automation owns the 100-pass goal calibration loop. It should compare the last seven days of committed run evidence against the real daily target in `docs/master-plan.md`: minimum 2 accepted MVP passes per day, 3 stretch, and 14 accepted MVP passes per week. When evidence shows the next week's target or allocation should change, update only this project's `docs/master-plan.md` and `docs/automation-memory.md`, log the rationale, validate, commit, and push. This calibration may adjust goals and allocations, but it must not change automation schedules, workspace, model, reasoning effort, or status unless Bryan explicitly asks.

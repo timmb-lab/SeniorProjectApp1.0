@@ -45,6 +45,15 @@ $requiredPromptFragments = @(
     "LLucMgAPscRa9020iHHigB"
 )
 
+$weeklyDeepAuditPromptFragments = @(
+    "Weekly 100-pass goal calibration",
+    "only for this Senior Capstone project",
+    "minimum 2 accepted MVP passes per day",
+    "14 accepted MVP passes per week",
+    "Update only this project's",
+    "Do not change schedule, workspace, model, reasoning effort, or status while adjusting goals"
+)
+
 $expectedAutomationConfig = @{
     "senior-capstone-rebuild-rebuilt" = @{
         Name = "Senior Capstone Gold Standard Orchestrator"
@@ -225,6 +234,14 @@ foreach ($id in $automationIds) {
         }
     }
 
+    if ($id -eq "senior-capstone-weekly-deep-audit-rebuilt") {
+        foreach ($fragment in $weeklyDeepAuditPromptFragments) {
+            if ($prompt -notlike "*$fragment*") {
+                $failures.Add("$id prompt is missing weekly goal calibration fragment: $fragment")
+            }
+        }
+    }
+
     $snapshotPath = Join-Path $RepoRoot "docs\automation-prompts\$id.md"
     if (-not (Test-Path -LiteralPath $snapshotPath)) {
         $failures.Add("$id is missing prompt snapshot: $snapshotPath")
@@ -357,6 +374,19 @@ if (Test-Path -LiteralPath $runbookPath) {
 }
 else {
     $failures.Add("Missing runbook: $runbookPath")
+}
+
+$masterPlanPath = Join-Path $RepoRoot "docs\master-plan.md"
+if (Test-Path -LiteralPath $masterPlanPath) {
+    $masterPlan = Get-Content -Raw -LiteralPath $masterPlanPath
+    foreach ($fragment in @("Real Daily MVP Goal", "Minimum: 2 accepted MVP passes per calendar day", "Weekly minimum: 14 accepted MVP passes", "Weekly adjustment rule for this project only")) {
+        if ($masterPlan -notlike "*$fragment*") {
+            $failures.Add("Master plan is missing daily goal calibration reference: $fragment")
+        }
+    }
+}
+else {
+    $failures.Add("Missing master plan: $masterPlanPath")
 }
 
 if ($failures.Count -gt 0) {

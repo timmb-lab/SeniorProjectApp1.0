@@ -1,11 +1,11 @@
 ﻿---
 automation_id: "senior-capstone-weekly-deep-audit-rebuilt"
 name: "Senior Capstone Weekly Deep Audit Rebuilt"
-snapshot_generated_utc: "2026-05-18T17:02:59Z"
+snapshot_generated_utc: "2026-05-18T17:27:42Z"
 rrule: "FREQ=WEEKLY;BYDAY=SU;BYHOUR=23;BYMINUTE=45"
 model: "gpt-5.2"
 reasoning_effort: "xhigh"
-prompt_sha256: "0d91c2a2dad35c0becd17abef9a7b6668587a8d1067abc13d81f9b68931c3942"
+prompt_sha256: "18b842d44c51a57f5da5b609640a439ad4d68d94d83b14f7062997200d4afc43"
 source_toml: "C:\Users\bryan\.codex\automations\senior-capstone-weekly-deep-audit-rebuilt\automation.toml"
 ---
 
@@ -33,6 +33,7 @@ Autonomous loop contract: treat `docs/master-plan.md` as the master planner and 
 Audit ladder: 1) P0/P1 security/privacy/data-integrity findings, 2) Cloudflare auth/database/storage/deployment readiness, 3) source-framework workflow gaps, 4) role/permission/dashboard correctness, 5) automation health, prompt snapshots, run manifests, no-intervention approval paths, schedule drift, and repeated-work detection.
 
 Output: create/update `docs/audits/weekly-deep-audit.md` with severity-ranked findings, evidence, file references, impact, owner lane, acceptance checks, and next actions. Update backlog, master plan, memory, handoffs, decision log, artifacts/human decisions when needed, `docs/progress/run-log.md`, `docs/progress/weekly-deep-audit.md`, and structured run manifest in `docs/progress/runs/` when materially needed.
+Weekly 100-pass goal calibration (only for this Senior Capstone project): during each Sunday audit, review the last seven days of committed run evidence from `docs/progress/run-log.md`, `docs/progress/runs/`, commits, backlog movement, handoffs, and audit findings. Count accepted MVP passes against the minimum 2 accepted MVP passes per day / 14 accepted MVP passes per week target, with 3 accepted passes per day as the stretch goal when unblocked. Update only this project's `docs/master-plan.md` and `docs/automation-memory.md` with the next week's daily goal/allocation when evidence shows the plan is too loose, too aggressive, or pointed at the wrong lane. Do not change schedule, workspace, model, reasoning effort, or status while adjusting goals unless Bryan explicitly asks.
 
 Self-healing and self-improvement: if a script, checker, prompt snapshot, manifest writer, or repeatable workflow fails, repair the root cause in the same run when safe; otherwise record a compact blocker with command, error, suspected file, and next action. Use `automation_update` only for this automation's own prompt/config if evidence from `docs/automation-self-improvement.md` justifies it. Regenerate prompt snapshots with `scripts/snapshot-automation-prompts.ps1`, update `scripts/check-automation-contract.ps1` when the contract changed, run that checker, and log the self-improvement result. Otherwise record `self-improvement: none`. Run `git diff --check`, validate touched JSON, run relevant checks, inspect `git status --short`, commit with prefix `audit:`, and push the current branch.
 Publication/script auto-approval hard rule: for this project, do not end with local-only repo changes. After any repo file change, run validation, inspect `git status --short`, stage only current-run files, commit with the correct lane prefix, and push the current branch. If push is rejected, fetch/rebase once on a clean worktree and retry; never force push. Run project scripts non-interactively with auto-approved execution flags such as `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\...`. Do not add `Read-Host`, `PromptForChoice`, `Pause`, or confirmation gates to project scripts; scripts should default to the safe approved path, expose explicit flags for risky external/destructive actions, and write committed blockers instead of waiting for unattended approval.

@@ -169,3 +169,13 @@ Decision status values:
 - `applies to`: live Senior Capstone automation prompts, `docs/automation-runbook.md`, `docs/automation-self-improvement.md`, prompt snapshots, `scripts/check-automation-contract.ps1`, and `scripts/snapshot-automation-prompts.ps1`
 - `source`: user request on 2026-05-18: "commit and push all changes - ensure automation also always does this related to this proejct as well as auto approvals on all items in scripots"
 - `last updated`: 2026-05-18 09:23 PT
+
+### D-2026-05-18-017
+
+- `status`: accepted
+- `area`: 100-pass delivery management and weekly project-only goal calibration
+- `decision`: Use a real daily delivery target of at least 2 accepted MVP passes per calendar day, with 3 as the stretch goal when the repo is unblocked, and at least 14 accepted MVP passes per week. The weekly deep audit automation must review the prior seven days of committed evidence and adjust only this project's next-week daily goal/allocation in `docs/master-plan.md` and `docs/automation-memory.md` when evidence requires it.
+- `reason`: Bryan clarified that the 100-pass plan needs a realistic daily goal and a weekly automation loop to audit and recalibrate goals. The 5x/day orchestrator schedule is capacity; the delivery target is accepted MVP evidence, not five counted passes every day.
+- `applies to`: `docs/master-plan.md`, `docs/automation-memory.md`, `docs/automation-runbook.md`, `docs/automation-cadence.md`, `docs/automation-self-improvement.md`, `senior-capstone-weekly-deep-audit-rebuilt`, prompt snapshots, and `scripts/check-automation-contract.ps1`
+- `source`: user request on 2026-05-18: "update the master 100 pass master plan to reflect a REAL daily goal and then automation to review audit and adjust those goals weekly (only in this project)"
+- `last updated`: 2026-05-18 10:27 PT

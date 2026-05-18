@@ -14,3 +14,14 @@ This log tracks the weekly whole-system audit automation. Detailed audit finding
 - `expected log updates`: master plan when materially needed, automation memory, run log, handoffs, decision log, backlog, weekly progress log, and short automation-progress rollup.
 - `self-improvement`: weekly audit prompt includes the guarded self-improvement closeout and may update only its own live prompt/config from evidence.
 - `next`: first Sunday run should produce the initial whole-system audit and feed findings into backlog, handoffs, memory, and master plan as needed.
+
+### 2026-05-18 Daily Goal Calibration Added
+
+- `scope`: add project-only weekly calibration for the 100-pass daily goal.
+- `automation`: `senior-capstone-weekly-deep-audit-rebuilt`
+- `master-plan section`: 100-Pass Delivery Constraint; Weekly Human Check-In Questions; Logging Requirements
+- `live automation changed`: weekly deep audit prompt now explicitly reviews the last seven days of committed evidence, counts accepted MVP passes against the minimum 2/day and 14/week target, and updates only this project's `docs/master-plan.md` and `docs/automation-memory.md` when the next week's goal/allocation needs adjustment.
+- `preserved`: schedule Sundays at `23:45 PT`, workspace, model, reasoning effort, and ACTIVE status.
+- `expected audit behavior`: weekly audit may adjust goals and pass allocation, but it must not change schedules, workspace, model, reasoning effort, or status unless Bryan explicitly asks.
+- `validation`: prompt snapshots regenerated; automation contract checker passed for 6 automations and now requires the weekly calibration fragments.
+- `next`: first Sunday audit should produce a weekly accepted-pass count, note whether the project hit 14 accepted MVP passes, and revise the next-week allocation only from evidence.

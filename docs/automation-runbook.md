@@ -137,6 +137,14 @@ Every lane must keep these programs explicit:
 
 Each run chooses exactly one bounded scope.
 
+## Daily Goal And Weekly Calibration
+
+For this Senior Capstone project only, the current 100-pass / roughly 45-day MVP target translates to a real daily goal of at least 2 accepted MVP passes per calendar day, with 3 accepted passes as the stretch goal when the repo is unblocked. The 5x/day orchestrator schedule is execution capacity, not a requirement to count five accepted passes every day.
+
+An accepted MVP pass must leave durable evidence: a pushed commit or published external artifact recorded in the repo, plus validation or a concrete blocker that reduces MVP ambiguity. The first two accepted passes each day should usually be implementation-heavy while `SC-005` remains open.
+
+The weekly deep audit automation must review the last seven days of run manifests, run-log entries, commits, backlog movement, handoffs, and audit findings. It should count accepted MVP passes against the minimum 2/day and 14/week goal, then update only this project's `docs/master-plan.md` and `docs/automation-memory.md` with the next week's daily goal/allocation when evidence requires adjustment. Weekly goal calibration must not change schedules, workspace, model, reasoning effort, or status unless Bryan explicitly asks.
+
 Priority order:
 
 1. P0/P1 items from `docs/automation-backlog.md`.
