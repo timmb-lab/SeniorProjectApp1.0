@@ -40,3 +40,13 @@ Decision status values:
 - `applies to`: `senior-capstone-daily-automation-report`, reporting docs, fallback report logs
 - `source`: user request: "google drive/all automation summaries should be bryan.timm89@gmail.com"
 - `last updated`: 2026-05-18
+
+### D-2026-05-18-004
+
+- `status`: accepted
+- `area`: automation operations and self-improvement
+- `decision`: Each Senior Capstone automation may review and improve its own live prompt/config from evidence, using `docs/automation-self-improvement.md`, while preserving schedule, workspace, model, reasoning effort, active status, log requirements, commit/push requirements, and the hosted-app goal unless the user explicitly asks for a change.
+- `reason`: The automation loop is expected to run over months. To scale, each lane needs a safe repair mechanism for stale instructions, missing required reads, weak logs, publication blockers, and repeated work without devolving into prompt churn.
+- `applies to`: all Senior Capstone automations, including daily reporting
+- `source`: user request: "the goal is self improverment as it goes... they should also update their own scripts as they go if they see room for improvement"
+- `last updated`: 2026-05-18

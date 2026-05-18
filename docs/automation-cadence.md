@@ -15,6 +15,7 @@ Decision log: `docs/progress/decision-log.md`.
 Shared milestones: `docs/automation-milestones.md`.
 Shared curriculum framework: `data/capstone-framework.json` and `docs/curriculum-framework-integration.md`.
 Daily reporting notes: `docs/daily-automation-reporting.md`.
+Self-improvement protocol: `docs/automation-self-improvement.md`.
 
 ## Shared Operating Contract
 
@@ -28,6 +29,7 @@ Every automation should:
 - Read its lane-specific progress log and the other lane logs before choosing work.
 - Read `docs/automation-memory.md`, `docs/progress/run-log.md`, `docs/progress/handoffs.md`, and `docs/progress/decision-log.md` before choosing work.
 - Read `docs/automation-runbook.md` before selecting work.
+- Read `docs/automation-self-improvement.md` before selecting work and again during closeout.
 - Read `docs/automation-milestones.md` before selecting work.
 - Read `data/capstone-framework.json` and `docs/curriculum-framework-integration.md` before changing requirement, workflow, dashboard, or source-material behavior.
 - Read `docs/automation-backlog.md` when present and choose work from the highest-priority relevant item.
@@ -43,6 +45,7 @@ Every automation should:
 - Update `docs/progress/handoffs.md` for every cross-lane ask and close handoffs only with evidence.
 - Update `docs/progress/decision-log.md` for durable decisions future runs should respect.
 - Update `docs/automation-progress.md` with only a short rollup when it is safe to do so.
+- Run the self-improvement closeout: log `self-improvement: none` when no prompt/config change is justified, or update only its own live automation prompt/config with evidence while preserving schedule, workspace, model, reasoning effort, and active status.
 - Satisfy the publication/commit gate in `docs/automation-runbook.md`: pushed repo commit, published external artifact with committed repo handoff, or committed blocker entry.
 - Record every external artifact link or ID in a committed lane log, design spec, asset registry, or audit handoff before ending the run.
 - If it changes repository files, stage only its own changes, commit with a lane-prefixed message, and push the current branch.
@@ -87,6 +90,7 @@ Lane-specific progress logs:
 Scaling logs:
 
 - Master plan: `docs/master-plan.md`
+- Self-improvement protocol: `docs/automation-self-improvement.md`
 - Compact current memory: `docs/automation-memory.md`
 - Cross-lane run index: `docs/progress/run-log.md`
 - Handoff ledger: `docs/progress/handoffs.md`

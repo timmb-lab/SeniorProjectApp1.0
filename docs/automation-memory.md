@@ -23,6 +23,7 @@ This is not a static guide, brochure, or visual-only project.
 - Every main lane prompt now requires a lane log entry, compact run-log entry, relevant memory/handoff/decision updates, verification, commit, and push.
 - Every main lane and the daily reporting automation now reference `docs/master-plan.md` along with the logs.
 - Daily automation summaries and the Google Drive/Doc target should use `bryan.timm89@gmail.com`.
+- Every main lane and the daily reporting automation now use `docs/automation-self-improvement.md` to self-review, log whether prompt/config changes were needed, and update only their own live automation prompt/config when evidence justifies it.
 
 ## Current Priority
 
@@ -74,6 +75,7 @@ Read `docs/progress/decision-log.md` for accepted or superseded decisions.
 - `D-2026-05-18-001`: automations use the log-first scaling protocol.
 - `D-2026-05-18-002`: `docs/master-plan.md` is the top-level product plan.
 - `D-2026-05-18-003`: daily automation summaries and Google Drive/Doc target account use `bryan.timm89@gmail.com`.
+- `D-2026-05-18-004`: automations may improve their own prompt/config from evidence using the guarded self-improvement protocol, while preserving schedule/workspace/model/status unless the user explicitly asks otherwise.
 
 ## Handoff Rules
 
@@ -98,3 +100,5 @@ Every productive automation run should update:
 - Any changed handoff, decision, backlog, or memory file.
 
 Every run should end with a pushed commit or a committed blocker entry explaining why that could not happen.
+
+Every run should also record `self-improvement: none` or a specific self-improvement change with evidence.

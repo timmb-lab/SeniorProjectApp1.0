@@ -12,6 +12,8 @@ The top-level product anchor is `docs/master-plan.md`. Every automation must rea
 
 Milestones live in `docs/automation-milestones.md`. Product work should advance the earliest incomplete milestone unless a higher-severity backlog item demands attention.
 
+Self-improvement rules live in `docs/automation-self-improvement.md`. Every automation may tune its own prompt/config from evidence, but product progress remains the default work.
+
 ## Required Source Materials
 
 The app framework now includes the four source PDFs the school uses to run the Senior Project cycle.
@@ -96,6 +98,7 @@ At the start of every run, read these logs before selecting work:
 - `docs/progress/handoffs.md`: cross-lane handoff ledger. Prioritize open handoffs assigned to your lane when they outrank ordinary milestone work.
 - `docs/progress/decision-log.md`: durable product, architecture, security, data, and workflow decisions. Do not relitigate accepted decisions unless new evidence requires a superseding decision.
 - `docs/automation-backlog.md`: unresolved quality/security/product issues.
+- `docs/automation-self-improvement.md`: the guarded protocol for improving each automation's own prompt/config without drifting from the app goal.
 
 Use this source-of-truth order when logs conflict:
 
@@ -117,6 +120,7 @@ At the end of every run, leave enough memory for the next lane to continue witho
 - Update `docs/progress/handoffs.md` for every cross-lane ask, with a stable handoff ID, owner lane, status, exact next action, acceptance check, and evidence needed to close.
 - Update `docs/progress/decision-log.md` only for real product, architecture, data, security, workflow, or visual-system decisions that future runs should respect.
 - Update `docs/automation-backlog.md` for unresolved P0/P1/P2 issues.
+- Run the self-improvement closeout from `docs/automation-self-improvement.md`: record `self-improvement: none` when no prompt/config change is justified, or update only the automation's own prompt/config with evidence and a log entry when a narrow change is justified.
 
 Do not make vague log entries such as "made improvements." Every log entry should name files, artifacts, checks, decisions, blockers, and the next specific action.
 
@@ -210,7 +214,8 @@ No silent outputs:
 Avoid:
 
 - Placeholder-only docs.
-- Improving automation prompts or cadence files unless a human explicitly requested it or a P0 automation failure blocks productive work.
+- Prompt/config churn without evidence or outside `docs/automation-self-improvement.md`.
+- Editing another lane's live prompt/config without an explicit human request.
 - Repeating the same broad audit without closing a finding.
 - Inventing dashboards from client state.
 - Creating visual assets with no app placement.

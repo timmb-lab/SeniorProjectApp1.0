@@ -642,3 +642,29 @@ Files changed:
 Recommended next slice:
 - Figma should populate the created three-page Figma file when MCP quota allows.
 - Canva should refine the proposal dashboard empty-state family from the new workflow infographic and visual-system report.
+
+## 2026-05-18 Automation Self-Improvement Protocol
+
+Intent:
+- Make the long-running automation loop capable of improving itself from evidence while preserving the hosted-app goal, lane boundaries, logs, and commit/push discipline.
+
+Decision:
+- `D-2026-05-18-004`: each automation may update only its own live prompt/config when recent evidence shows missing reads, weak logs, unclear handoffs, publication blockers, repeated work, connector/account issues, or stale instructions.
+
+Files changed:
+- `docs/automation-self-improvement.md`
+- `docs/automation-runbook.md`
+- `docs/automation-cadence.md`
+- `docs/master-plan.md`
+- `docs/automation-memory.md`
+- `docs/progress/decision-log.md`
+- `docs/progress/run-log.md`
+- `docs/automation-progress.md`
+
+What changed:
+- Added a required closeout loop that logs `self-improvement: none` or records a narrow prompt/config change with evidence.
+- Allowed own-prompt fixes for missing source docs, log failures, handoff ambiguity, commit/push gaps, connector fallback issues, repeated work, or stale instructions.
+- Forbid weakening the hosted-app/security/privacy goal, removing logs or commit/push, changing cadence/workspace/model/status without a user request, or editing other lanes' prompts.
+
+Recommended next slice:
+- Each live automation should read `docs/automation-self-improvement.md`, run the closeout check every time, and preserve product progress as the default work.

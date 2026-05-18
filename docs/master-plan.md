@@ -181,6 +181,7 @@ If the master plan is wrong or stale, update it with evidence and log the decisi
 Every productive automation run must reference:
 
 - This master plan.
+- `docs/automation-self-improvement.md`
 - `docs/automation-memory.md`
 - `docs/progress/run-log.md`
 - `docs/progress/handoffs.md`
@@ -196,6 +197,7 @@ Each run must log:
 - What was verified.
 - What remains blocked.
 - What the next lane should do.
+- Whether self-improvement was unnecessary or what narrow prompt/config improvement was made with evidence.
 
 ## Anti-Drift Rules
 
@@ -210,6 +212,7 @@ Do not:
 - Prioritize decorative visuals before workflow, permission, upload, and review foundations.
 - Repeat the same broad audit or design slice without closing a handoff/backlog item.
 - Create new plans when the next milestone needs implementation.
+- Edit automation prompts/configs without evidence, logs, and preservation of cadence/workspace/model/status unless Bryan explicitly asked.
 
 ## Weekly Human Check-In Questions
 
