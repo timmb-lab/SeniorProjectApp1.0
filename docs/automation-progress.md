@@ -604,3 +604,41 @@ What changed:
 
 Known blocker:
 - Google Drive write/create previously returned `403 Forbidden`; the next daily run should still email/draft to `bryan.timm89@gmail.com` and include an action-required note if Drive cannot append/create under that account.
+
+## 2026-05-18 Figma And Canva First-Pass Kickoff
+
+Intent:
+- Create a large first-pass product/design/visual foundation so the Figma and Canva automations can continue from concrete artifacts instead of a blank slate.
+
+Master-plan sections:
+- Product Destination
+- North Star Workflow
+- First Real Vertical Slice
+- Lane Responsibilities
+
+Figma:
+- Created file `Senior Capstone App - Product UI First Pass`.
+- File key: `fkfNI9JNy0A3Rm8KnoxJLj`.
+- URL: `https://www.figma.com/design/fkfNI9JNy0A3Rm8KnoxJLj`.
+- Canvas write was blocked by Figma Starter MCP tool-call limit, so `docs/design/figma-first-pass-product-system.md` now holds the canonical first-pass Figma spec and the next build plan.
+
+Canva:
+- Created folder `FAHJ-8DxQyk`: `https://www.canva.com/folder/FAHJ-8DxQyk`.
+- Created workflow infographic `DAHJ-3dKnPU`: edit `https://www.canva.com/d/C-dVNnTDKRODcKi`, view `https://www.canva.com/d/tfRo2Sq_1JHu0zu`.
+- Created visual-system report `DAHJ-xaMuj8`: edit `https://www.canva.com/d/NXZGwxgXRKYnTPc`, view `https://www.canva.com/d/MA6S4b_xAC69y1C`.
+- Created program identity poster `DAHJ-6LVuME`: edit `https://www.canva.com/d/J9nRXQPXi0O-_hM`, view `https://www.canva.com/d/2FoRYnzFDrZAHqc`.
+
+Files changed:
+- `docs/design/figma-first-pass-product-system.md`
+- `docs/visual-assets/canva-first-pass.md`
+- `docs/visual-assets/canva-asset-specs.md`
+- `docs/progress/figma.md`
+- `docs/progress/canva.md`
+- `docs/progress/handoffs.md`
+- `docs/automation-memory.md`
+- `docs/progress/run-log.md`
+- `docs/automation-progress.md`
+
+Recommended next slice:
+- Figma should populate the created three-page Figma file when MCP quota allows.
+- Canva should refine the proposal dashboard empty-state family from the new workflow infographic and visual-system report.

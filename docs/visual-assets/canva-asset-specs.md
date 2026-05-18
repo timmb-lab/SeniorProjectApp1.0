@@ -51,3 +51,24 @@ Next asset family:
   - Filtered out.
   - Waiting on review.
   - Revision requested.
+
+## First-Pass Visual System Folder
+
+Folder:
+- `FAHJ-8DxQyk`
+- `https://www.canva.com/folder/FAHJ-8DxQyk`
+
+Source:
+- Manual first-pass request: "Use Canva & Figma to make a huge first pass at everything so the automations can pick up from there."
+
+Designs:
+- Workflow infographic: `DAHJ-3dKnPU`, edit `https://www.canva.com/d/C-dVNnTDKRODcKi`, view `https://www.canva.com/d/tfRo2Sq_1JHu0zu`, 1 page, `800x2000`.
+- Visual-system report: `DAHJ-xaMuj8`, edit `https://www.canva.com/d/NXZGwxgXRKYnTPc`, view `https://www.canva.com/d/MA6S4b_xAC69y1C`, 7 pages, `794x1123`.
+- Program identity poster: `DAHJ-6LVuME`, edit `https://www.canva.com/d/J9nRXQPXi0O-_hM`, view `https://www.canva.com/d/2FoRYnzFDrZAHqc`, 1 page, `1588x2246`.
+
+Detailed spec:
+- `docs/visual-assets/canva-first-pass.md`
+
+Primary handoff:
+- Canva automation should inspect these three editable designs, choose one follow-up asset family, and refine from there.
+- Figma/rebuild should consume only app-appropriate support visuals and keep functional UI text live.

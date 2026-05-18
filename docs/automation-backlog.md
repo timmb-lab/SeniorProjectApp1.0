@@ -36,8 +36,8 @@ This file tracks unresolved cross-lane issues for the Senior Capstone rebuild. T
 - `status`: open
 - `source`: Research Proposal Challenge PDF
 - `affected area`: student proposal/research workflow
-- `evidence`: The source assignment is a guided quality engine, but the app has no screen spec for section-level problem, solution, sources, quote, counterclaim, AI feedback, final version, and why-it-matters review.
-- `next action`: Design the guided Research Proposal Challenge form, section-level completeness states, revision feedback, and teacher intervention queue.
+- `evidence`: The source assignment is a guided quality engine. `docs/design/figma-first-pass-product-system.md` now defines the target sections and states, but the actual Figma canvas screen was not built because the Figma Starter MCP tool-call limit blocked writes after file creation.
+- `next action`: Build the guided Research Proposal Challenge form in Figma when quota allows, including section-level completeness states, revision feedback, private evidence attachments, and teacher intervention queue.
 - `last updated`: 2026-05-18
 
 ### SC-003
