@@ -1,6 +1,6 @@
 # Senior Capstone Automation Progress
 
-This log is the handoff surface for the hourly rebuild automation. Add a new entry after each run with concrete changes, verification, risks, and the recommended next slice.
+This log is the handoff surface for the recurring Senior Capstone automations. Add a new entry after each run with concrete changes, verification, risks, and the recommended next slice.
 
 ## 2026-05-18 Manual Kickoff Pass
 
@@ -396,3 +396,27 @@ Recommended next slice:
 - Core rebuild should add a framework seed loader and minimal requirement/section/evidence schema.
 - Figma should design the Research Proposal Challenge guided form plus teacher intervention queue.
 - Audit should verify every PDF requirement has a matching app requirement and dashboard signal.
+
+## 2026-05-18 Three-Hour Cadence Adjustment
+
+Intent:
+- Reduce the four active Senior Capstone automation prompts from hourly execution to once every 3 hours each.
+
+Automations updated:
+- `senior-capstone-figma-product-design`: every 3 hours at `:00`.
+- `senior-capstone-rebuild-hourly`: every 3 hours at `:05`.
+- `senior-capstone-content-quality-audits`: every 3 hours at `:15`.
+- `senior-capstone-canva-visual-system`: every 3 hours at `:30`.
+
+What changed:
+- Updated all four live automation RRULEs from `INTERVAL=1` to `INTERVAL=3`.
+- Removed the extra `:45` content-audit run so that audit also runs once every 3 hours.
+- Updated the prompt headers so they say "Run every 3 hours" instead of hourly.
+- Updated `docs/automation-cadence.md` to match the live schedule.
+
+Verification:
+- Automation tool confirmed updates for all four automations.
+- Persisted automation TOML files show `FREQ=HOURLY;INTERVAL=3` and the expected `BYMINUTE` values.
+
+Recommended next slice:
+- Let the next 3-hour cycle continue from the current backlog: framework seed loader, guided Research Proposal Challenge UI, private evidence model, and mentor/presentation/celebration/archive workflows.
