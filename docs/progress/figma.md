@@ -522,3 +522,77 @@ Self-improvement:
 
 Next Figma slice:
 - Add route/data-field annotations for private evidence upload/review history and mobile student refinements, or promote repeated status/action patterns into richer component variants.
+
+## 2026-05-18 Private Evidence And Review History Contract
+
+Automation:
+- `senior-capstone-figma-product-design-rebuilt`
+
+Master-plan section:
+- Product Destination
+- MVP 1.0 Vertical Slice
+- 100-Pass Delivery Constraint
+- Lane Responsibilities
+- Logging Requirements
+
+Logs referenced:
+- `docs/master-plan.md`
+- `docs/automation-runbook.md`
+- `docs/automation-self-improvement.md`
+- `docs/automation-cadence.md`
+- `docs/automation-milestones.md`
+- `docs/automation-memory.md`
+- `docs/progress/run-log.md`
+- `docs/progress/runs/`
+- `docs/progress/handoffs.md`
+- `docs/progress/decision-log.md`
+- `docs/automation-backlog.md`
+- `docs/artifacts.json`
+- `docs/human-decisions.md`
+- `docs/progress/figma.md`
+- adjacent rebuild/audit lane logs
+- `docs/domain-model.md`
+- `docs/curriculum-framework-integration.md`
+
+Active Figma artifact:
+- File: `Senior Capstone App - Product UI System Recreated`
+- File key: `z4t4tFPAKrMDh6pIYOeEw6`
+- URL: `https://www.figma.com/design/z4t4tFPAKrMDh6pIYOeEw6`
+- Team id: `1638213362346160913`
+- Plan key: `team::1638213362346160913`
+
+What changed:
+- Added `Section / Private Evidence + Review History Contract`, node `37:2`, to `03 Product Preview + State Variants` board `6:2`.
+- Added six private evidence lifecycle states:
+  - `Draft Attached`, node `37:21`
+  - `Upload Scanning`, node `37:34`
+  - `External Link Check`, node `37:45`
+  - `Submitted Locked`, node `37:56`
+  - `Reviewer Redacted`, node `37:69`
+  - `Approved For Archive`, node `37:82`
+- Added `Permission Matrix / Evidence Access`, node `37:94`, with student, assigned mentor, program teacher, admin, and misc admin access cards.
+- Added `Review History Timeline`, node `37:132`, with created, submitted, reviewed, revision, approved, and access-denied history states.
+- Added `Developer Handoff / Evidence Data Route Contract`, node `37:177`, and acceptance checks node `37:201`.
+- Stored shared Figma plugin data on node `37:2` for routes `/student/evidence`, `/api/submissions/:id/evidence`, `/api/evidence/:id/check-access`, `/api/reviews/:id/history`, and `/admin/audit`; records `SubmissionVersion`, `EvidenceArtifact`, `Review`, `Comment`, `AuditEvent`, and `StudentArchiveExport`; and guardrails for hidden storage keys, time-boxed signed URLs, link access checks, immutable review history, and audited denial.
+
+Verification:
+- No Code Connect files were present in the repo for this slice.
+- `get_libraries` succeeded and confirmed linked libraries.
+- `search_design_system` succeeded; evidence/upload search returned no reusable primitive and focused status search found the file's own status pill component.
+- `use_figma` inspection confirmed board `6:2` had no component instances to reuse and was ready for a new section.
+- `use_figma` write created node `37:2` plus lifecycle, permission, timeline, and handoff nodes.
+- First `get_screenshot` surfaced a lifecycle-row clipping issue; a follow-up `use_figma` layout fix created rows `38:2` and `38:3` and expanded board `6:2` to height `7054`.
+- Final `get_screenshot` succeeded for node `37:2` at original size `1584x1633`.
+- Follow-up `use_figma` readback confirmed node `37:2` is visible at `y=5373`, lifecycle rows each contain 3 cards, timeline rows are `716px`, and shared contract data is readable.
+
+Handoff packet:
+- Consumer lane: rebuild.
+- Artifact/spec: active Figma file `z4t4tFPAKrMDh6pIYOeEw6`, state-variant board `6:2`, private evidence/review-history contract `37:2`, handoff contract `37:177`, lifecycle rows `38:2` and `38:3`, permission matrix `37:94`, review timeline `37:132`.
+- Exact next action: implement the private `EvidenceArtifact` model, upload/link access checks, immutable review history, and audit denial path while scaffolding the accepted Cloudflare database/auth/private-storage foundation.
+- Acceptance check: rebuild maps private evidence to persisted records, server-side authorization, signed URL expiry, external-link access checks, immutable history rows, unauthorized access audit events, and permission tests.
+
+Self-improvement:
+- none; no live automation prompt/config change was needed.
+
+Next Figma slice:
+- Promote repeated status/action patterns into richer component variants or refine the mobile student evidence/revision states.

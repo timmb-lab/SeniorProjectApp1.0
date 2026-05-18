@@ -430,6 +430,17 @@ Created/updated frames:
   - `State / Admin Override / Audit Event Preview`, node `31:120`
   - `State / Admin Override / Rollback Error`, node `31:131`
   - `Developer Handoff / Route Data Permission Contract`, node `31:144`
+- `Section / Private Evidence + Review History Contract`, node `37:2`
+  - `Lifecycle / Draft Attached`, node `37:21`
+  - `Lifecycle / Upload Scanning`, node `37:34`
+  - `Lifecycle / External Link Check`, node `37:45`
+  - `Lifecycle / Submitted Locked`, node `37:56`
+  - `Lifecycle / Reviewer Redacted`, node `37:69`
+  - `Lifecycle / Approved For Archive`, node `37:82`
+  - `Permission Matrix / Evidence Access`, node `37:94`
+  - `Review History Timeline`, node `37:132`
+  - `Developer Handoff / Evidence Data Route Contract`, node `37:177`
+  - `Evidence Acceptance Checks`, node `37:201`
 
 Verification status:
 - Canvas write succeeded and returned the frame IDs above.
@@ -437,3 +448,6 @@ Verification status:
 - `get_screenshot` succeeded for nodes `6:2`, `6:198`, `6:219`, `6:257`, `18:2`, and `31:2`.
 - `get_design_context` succeeded for node `31:2`.
 - Follow-up readback confirmed board `6:2` includes node `31:2`, board height expanded to `5393`, and shared contract data on `31:2` names review/override routes, data records, and security guardrails.
+- `get_screenshot` succeeded for node `37:2`; visual QA found lifecycle cards clipping on the first screenshot.
+- Follow-up `use_figma` layout fix created lifecycle rows `38:2` and `38:3`, expanded board `6:2` to height `7054`, and final `get_screenshot` succeeded for node `37:2` at `1584x1633`.
+- Follow-up readback confirmed shared contract data on `37:2` names private evidence routes, data records, and security guardrails.

@@ -375,6 +375,8 @@ Active file structure from successful write calls:
   - Route/data contract nodes: `/student/progress`, `/teacher/review`, `/mentor/assigned`, `/admin/users`, and `/admin/audit`, nodes `18:44` through `18:47`
   - Review and admin override interaction variants: `Section / Review + Override Interaction Variants`, node `31:2`
   - Review/override developer handoff contract: node `31:144`
+  - Private evidence and review-history contract: `Section / Private Evidence + Review History Contract`, node `37:2`
+  - Private evidence developer handoff contract: node `37:177`
 
 ## 100-Pass MVP Execution Map
 
@@ -421,6 +423,30 @@ Developer contract:
 - Guardrails: private evidence remains role-scoped, no student-to-student messaging, override reason is required, and audit is captured before status transition.
 - Acceptance checks: audit-first state changes, required admin reason, private-evidence authorization, and default/invalid/loading/success/permission/error state coverage.
 
+## Private Evidence And Review History Contract
+
+Node `37:2` deepens `SC-003` and the secure records pass lane with implementation-facing states for upload/link evidence, access checks, permission handling, immutable review history, and archive readiness.
+
+Evidence lifecycle states:
+- `Draft Attached`, node `37:21`
+- `Upload Scanning`, node `37:34`
+- `External Link Check`, node `37:45`
+- `Submitted Locked`, node `37:56`
+- `Reviewer Redacted`, node `37:69`
+- `Approved For Archive`, node `37:82`
+
+Permission and history structures:
+- `Permission Matrix / Evidence Access`, node `37:94`
+- `Review History Timeline`, node `37:132`
+- `Developer Handoff / Evidence Data Route Contract`, node `37:177`
+- `Evidence Acceptance Checks`, node `37:201`
+
+Developer contract:
+- Routes: `/student/evidence`, `/api/submissions/:id/evidence`, `/api/evidence/:id/check-access`, `/api/reviews/:id/history`, `/admin/audit`
+- Records: `SubmissionVersion`, `EvidenceArtifact`, `Review`, `Comment`, `AuditEvent`, `StudentArchiveExport`
+- Guardrails: `storage_key` is never rendered to clients, signed URLs are time boxed, external links get access checks, review history is immutable, and unauthorized evidence access logs an audit denial.
+- Acceptance checks: no public storage keys, signed URL expiry, link access check, immutable history, and unauthorized audit event tests.
+
 ## Acceptance Checks For Next Figma Run
 
 - Continue active writable file `z4t4tFPAKrMDh6pIYOeEw6` in `team::1638213362346160913`.
@@ -450,10 +476,10 @@ Artifact:
 - 100-pass MVP execution map: node `18:2` in the active Figma file.
 
 Exact next action:
-- Continue `z4t4tFPAKrMDh6pIYOeEw6` by adding route/data-field annotations for private evidence upload and review history, or by promoting repeated status/action patterns into richer component variants.
+- Continue `z4t4tFPAKrMDh6pIYOeEw6` by promoting repeated status/action patterns into richer component variants or refining the mobile student evidence/revision states.
 
 Acceptance check:
 - Figma progress log records page/frame IDs, screenshot or metadata verification, route/data fields, permission scopes, and the next UI slice.
 
 Known limits:
-- The original historical file hit the Starter MCP tool-call limit. The regenerated reference file was successfully written through the updated Figma connection, but the 2026-05-18 follow-up pass hit the Education-plan MCP tool-call limit with rate-limit links pointing at old team `1601310068697743794`. The recreated file was then created and written in `team::1638213362346160913`. Bryan's professional-plan upgrade later unblocked the active-file metadata/screenshot verification and the `18:2` and `31:2` canvas writes.
+- The original historical file hit the Starter MCP tool-call limit. The regenerated reference file was successfully written through the updated Figma connection, but the 2026-05-18 follow-up pass hit the Education-plan MCP tool-call limit with rate-limit links pointing at old team `1601310068697743794`. The recreated file was then created and written in `team::1638213362346160913`. Bryan's professional-plan upgrade later unblocked the active-file metadata/screenshot verification and the `18:2`, `31:2`, and `37:2` canvas writes.
