@@ -13,7 +13,10 @@ Schedule:
 - Daily at `07:30`.
 
 Email recipient:
-- `timmb@nv.ccsd.net`
+- `bryan.timm89@gmail.com`
+
+Google Drive target account:
+- `bryan.timm89@gmail.com` wherever connector permissions allow.
 
 Google Doc target:
 - `Senior Capstone Daily Automation Log`
@@ -40,7 +43,7 @@ Google Drive write access returned `403 Forbidden` when attempting to create/imp
 Until the Google Drive connector is reauthorized with write access, the automation should:
 
 - Still email the daily report.
-- Include an `ACTION REQUIRED` note about Google Drive write access.
+- Include an `ACTION REQUIRED` note about Google Drive write access for `bryan.timm89@gmail.com`.
 - Write the same report to `docs/daily-automation-reports.md` as a fallback.
 - Commit and push only that fallback file if it changes.
 

@@ -22,6 +22,7 @@ This is not a static guide, brochure, or visual-only project.
 - The four main automation lanes and the daily reporting automation now read the shared memory, run log, handoff ledger, and decision log before choosing work or summarizing progress.
 - Every main lane prompt now requires a lane log entry, compact run-log entry, relevant memory/handoff/decision updates, verification, commit, and push.
 - Every main lane and the daily reporting automation now reference `docs/master-plan.md` along with the logs.
+- Daily automation summaries and the Google Drive/Doc target should use `bryan.timm89@gmail.com`.
 
 ## Current Priority
 
@@ -66,6 +67,7 @@ Read `docs/progress/decision-log.md` for accepted or superseded decisions.
 - As of initialization, no final app stack has been accepted in-repo.
 - `D-2026-05-18-001`: automations use the log-first scaling protocol.
 - `D-2026-05-18-002`: `docs/master-plan.md` is the top-level product plan.
+- `D-2026-05-18-003`: daily automation summaries and Google Drive/Doc target account use `bryan.timm89@gmail.com`.
 
 ## Handoff Rules
 

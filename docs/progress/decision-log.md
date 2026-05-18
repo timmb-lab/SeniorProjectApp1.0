@@ -30,3 +30,13 @@ Decision status values:
 - `applies to`: all Senior Capstone automations
 - `source`: user request to edit automations to reference the master plan and logs
 - `last updated`: 2026-05-18
+
+### D-2026-05-18-003
+
+- `status`: accepted
+- `area`: automation reporting
+- `decision`: Send Senior Capstone daily automation summary email to `bryan.timm89@gmail.com` and target the Google Drive/Doc reporting path for `bryan.timm89@gmail.com` wherever connector permissions allow.
+- `reason`: The user explicitly changed the desired Google Drive/all automation summary destination from the school email to `bryan.timm89@gmail.com`.
+- `applies to`: `senior-capstone-daily-automation-report`, reporting docs, fallback report logs
+- `source`: user request: "google drive/all automation summaries should be bryan.timm89@gmail.com"
+- `last updated`: 2026-05-18

@@ -478,7 +478,8 @@ Schedule:
 - Daily at `07:30`.
 
 Destinations:
-- Email: `timmb@nv.ccsd.net`
+- Email: `bryan.timm89@gmail.com`
+- Google Drive target account: `bryan.timm89@gmail.com`
 - Google Doc target title: `Senior Capstone Daily Automation Log`
 
 What changed:
@@ -587,3 +588,19 @@ Live prompt update:
 - Each main lane now reads `docs/master-plan.md` before the scaling logs and must name the master-plan section that justifies its selected slice.
 - Each main lane now logs the master-plan section referenced in its lane log and compact run-log entry.
 - The daily report now includes master-plan alignment, first-vertical-slice progress, log health, and next priorities tied to the master plan.
+
+## 2026-05-18 Reporting Destination Update
+
+Intent:
+- Change Google Drive/all automation summary destinations to `bryan.timm89@gmail.com`.
+
+Automation updated:
+- `senior-capstone-daily-automation-report`
+
+What changed:
+- Daily summary email recipient is now `bryan.timm89@gmail.com`.
+- Google Drive/Google Doc target account is now `bryan.timm89@gmail.com` wherever connector permissions allow.
+- Repo reporting docs, fallback report notes, automation memory, run log, and decision log now reflect the new destination.
+
+Known blocker:
+- Google Drive write/create previously returned `403 Forbidden`; the next daily run should still email/draft to `bryan.timm89@gmail.com` and include an action-required note if Drive cannot append/create under that account.

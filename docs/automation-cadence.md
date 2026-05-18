@@ -202,8 +202,8 @@ Every automation must keep these programs explicit:
 Reporting job:
 - Automation: `senior-capstone-daily-automation-report`
 - Schedule: daily at `07:30`.
-- Purpose: summarize the previous 24 hours of automation changes, email the summary to `timmb@nv.ccsd.net`, and append the same summary to the Google Doc titled `Senior Capstone Daily Automation Log`.
+- Purpose: summarize the previous 24 hours of automation changes, email the summary to `bryan.timm89@gmail.com`, and append the same summary to the Google Doc titled `Senior Capstone Daily Automation Log` under the `bryan.timm89@gmail.com` Google Drive target when connector permissions allow.
 
 Fallback:
 - If Google Drive write access is blocked, the report should still be emailed and should also be written to `docs/daily-automation-reports.md`.
-- Google Drive create/import returned `403 Forbidden` during setup on 2026-05-18, so Drive reauthorization with write access may be required before the Google Doc append path succeeds.
+- Google Drive create/import returned `403 Forbidden` during setup on 2026-05-18, so Drive reauthorization with write access for `bryan.timm89@gmail.com` may be required before the Google Doc append path succeeds.
