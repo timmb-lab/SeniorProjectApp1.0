@@ -1,11 +1,11 @@
 ﻿---
 automation_id: "senior-capstone-daily-automation-report"
 name: "Senior Capstone Daily Automation Report"
-snapshot_generated_utc: "2026-05-18T04:14:43Z"
+snapshot_generated_utc: "2026-05-18T06:32:17Z"
 rrule: "FREQ=DAILY;BYHOUR=7;BYMINUTE=30"
 model: "gpt-5.2"
 reasoning_effort: "high"
-prompt_sha256: "5b16dca007f0b839b5bbaa171f685a25514a95281111523fb3b11b3322b2535a"
+prompt_sha256: "f70f1c8513e8070fbb000d47682216cff2b2216ec9899ad8eb881b15c85a63d8"
 source_toml: "C:\Users\bryan\.codex\automations\senior-capstone-daily-automation-report\automation.toml"
 ---
 
@@ -29,7 +29,14 @@ Active design artifact to mention when relevant:
 - Superseded historical Figma file `fkfNI9JNy0A3Rm8KnoxJLj` should be described only as the prior blocked file.
 
 Non-negotiable product destination to evaluate:
-The automation loop is building a hosted Senior Capstone app with secure users, roles, permissions, private upload/evidence spaces, submissions, mentor/program-teacher review, revision requests, approvals, dashboards, admin controls, audit logs, exports, and protected student records. The daily report should judge progress against that end goal, not just count activity.
+The automation loop is building a GitHub-to-Cloudflare hosted Senior Capstone app whose MVP is a secure database-backed system with users, groups, roles, progress updates, private upload/evidence spaces, submissions, mentor/program-teacher review, revision requests, approvals, announcements, dashboards, admin controls, audit logs, exports, and protected student records. The daily report should judge progress against that end goal, not just count activity.
+
+Revised MVP target:
+MVP 1.0 is a fully functional, security-focused, database-backed Senior Capstone app. Users, groups, roles, program/cohort assignments, progress updates, private evidence, submissions, reviews, approvals, announcements, dashboards, audit logs, exports, and protected student records must persist in trusted server/database state before polish is counted as product progress.
+Deployment target: GitHub-connected Cloudflare Workers/Pages, with Cloudflare-managed environments and a future Bryan-purchased custom domain.
+Figma is a heavy product-design source for functional UI, role-aware screens, database-backed states, admin preview, responsive/mobile-aware patterns, and implementation-ready specs.
+Canva is a heavy supporting-visual source for stunning app images, onboarding, empty states, announcements, recognition, and program/phase visuals, but it must not bake important live text, statuses, student data, or private records into images.
+2.0 horizon: future iOS and Android apps may add push notifications and an announcement section for seniors/staff. Do not add student-to-student messaging, chat, or social feeds.
 
 Required programs to watch for coverage:
 IT; Culinary; Hospitality & Marketing; Mechanical Technology; Construction; Sports Medicine; Teaching & Training; Early Childhood Education; Medical Professions.
@@ -45,8 +52,8 @@ Reporting scope:
 Cover the previous 24 hours of automation work. Include:
 - Commits and pushed branches.
 - Lane-by-lane activity for Figma, rebuild, audit, Canva, and reporting.
-- Product progress toward the hosted app and first vertical slice.
-- Auth/database/upload/permissions/security gaps.
+- Product progress toward the secure database/account/group/progress MVP, GitHub-to-Cloudflare deployment, and first workflow slices.
+- Auth/database/user-group/progress/upload/permissions/security/Cloudflare deployment gaps.
 - Figma/Canva artifact links/IDs and whether they are recorded in repo logs/specs.
 - Backlog changes, open P0/P1 items, stale blockers, stale handoffs, and new decisions.
 - Repeated work, missing logs, missing commits, failed pushes, connector blockers, or weak handoffs.

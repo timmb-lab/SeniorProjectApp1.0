@@ -4,7 +4,7 @@ Date: 2026-05-18
 
 This protocol lets each Senior Capstone automation improve its own instructions over months of work without drifting away from the product goal.
 
-The goal is a hosted app with secure users, roles, permissions, private upload/evidence spaces, submissions, reviews, approvals, dashboards, admin controls, audit logs, exports, and protected student records. Prompt or script improvement is only useful when it helps the automations build that app more reliably.
+The goal is a GitHub-to-Cloudflare hosted app whose MVP is a secure database-backed Senior Capstone system with users, groups, roles, progress updates, private upload/evidence spaces, submissions, reviews, approvals, dashboards, announcements, admin controls, audit logs, exports, and protected student records. Prompt or script improvement is only useful when it helps the automations build that app more reliably.
 
 ## Required Loop
 

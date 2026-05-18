@@ -6,7 +6,7 @@ This runbook is the shared operating manual for the Senior Capstone automation l
 
 ## Purpose
 
-The automations should steadily turn the current static guide into a hosted, role-based Senior Capstone platform without duplicating work, trampling each other's files, or producing vague planning artifacts that no one can implement.
+The automations should steadily turn the current static guide into a GitHub-to-Cloudflare hosted, role-based Senior Capstone platform without duplicating work, trampling each other's files, or producing vague planning artifacts that no one can implement.
 
 The top-level product anchor is `docs/master-plan.md`. Every automation must read it before selecting work and should be able to name the master-plan section its chosen slice advances.
 
@@ -43,25 +43,29 @@ The key translation is: old instructions to copy, link, email, or save documents
 
 ## App End Goal
 
-The final product is a hosted application, not a static website, loose documentation set, or collection of visuals.
+The final product is a hosted application, not a static website, loose documentation set, or collection of visuals. The revised MVP is a secure database-backed app with account/group management, progress updates, role-aware dashboards, private evidence, audit logs, and Cloudflare deployment.
 
 The app must support:
 
 - Secure user accounts with usernames/passwords or a managed-auth equivalent.
+- User groups, cohorts, and admin-managed role assignments.
 - Role-based permissions for students, mentors, program teachers, administrators, and miscellaneous admin/support users.
 - Private student upload/evidence spaces for documents, images, links, reflections, artifacts, forms, and phase deliverables.
 - Student submissions, revisions, resubmissions, comments, and status history.
+- Database-backed progress updates that students and staff can trust.
 - Mentor and teacher review flows for approving or rejecting phase progress.
 - Mentor meeting attendance, make-up, outline approval, and presentation scheduling flows.
 - Presentation day check-out/check-in, rubric scoring, and celebration day evidence flows.
 - Final student archive/export before district account access ends.
 - Admin override and escalation flows with audit records.
+- Announcement publishing for staff/admin updates.
 - Dashboards for students, mentors, teachers, program leads, and administrators.
 - Filters and reporting by program, cohort, phase, mentor, teacher, status, overdue state, and risk.
 - Program-specific requirements for IT, Culinary, Hospitality & Marketing, Mechanical Technology, Construction, Sports Medicine, Teaching & Training, Early Childhood Education, and Medical Professions.
 - Privacy-conscious handling of student records, uploads, exports, audit logs, and staff-only notes.
+- GitHub-connected Cloudflare Workers/Pages hosting with a future custom domain purchased by Bryan.
 
-Static content, Canva assets, Figma files, templates, and printable materials are supporting assets only. They must make the app clearer and more useful, but they are not the product by themselves.
+Static content, Canva assets, Figma files, templates, and printable materials are supporting assets only. They must make the app clearer and more useful, but they are not the product by themselves. Figma should heavily drive functional design and state coverage; Canva should heavily support stunning imagery with clear placement, live-text discipline, and no private data baked into images.
 
 ## Required Programs
 
@@ -84,10 +88,11 @@ Each run chooses exactly one bounded scope.
 Priority order:
 
 1. P0/P1 items from `docs/automation-backlog.md`.
-2. Earliest incomplete milestone from `docs/automation-milestones.md`.
-3. The lane's previous explicit next step.
-4. Handoffs from the adjacent lane in the cadence.
-5. The smallest useful new slice in that lane.
+2. Secure database/auth/account-group/progress foundation and GitHub-to-Cloudflare deployment work.
+3. Earliest incomplete milestone from `docs/automation-milestones.md`.
+4. The lane's previous explicit next step.
+5. Handoffs from the adjacent lane in the cadence.
+6. The smallest useful new slice in that lane.
 
 Do not start broad new work when a precise blocker exists.
 
@@ -244,6 +249,8 @@ Avoid:
 - Skipping structured run manifests, which makes automation health impossible to measure.
 - Repeating the same broad audit without closing a finding.
 - Inventing dashboards from client state.
+- Claiming the MVP exists before users, groups, permissions, progress, and audit events persist in a secure database.
+- Treating a Cloudflare static deploy as sufficient without the database/security foundation.
 - Creating visual assets with no app placement.
 - Creating UI specs with no data or permission mapping.
 - Treating `localStorage`, static files, or public assets as final storage for student records, submissions, approvals, uploads, or staff notes.
@@ -251,6 +258,8 @@ Avoid:
 - Rebuilding the PDF linked-document workflow as a static checklist instead of turning it into app-native submissions, evidence, review gates, and dashboards.
 - Creating code without tests when behavior changes.
 - Writing important app text only inside images.
+- Adding student-to-student messaging, chat, or social feeds. Version 2.0 may include notifications and announcements, but no student messaging.
+- Starting iOS/Android implementation before MVP 1.0 database, security, deployment, and admin-preview foundations are real.
 - Creating external Figma/Canva/Google artifacts without committing the link or ID into the repo handoff/progress records.
 - Ending with untracked or unstaged files from the automation's own work.
 - Staging unrelated dirty files.
@@ -280,10 +289,13 @@ Examples:
 Figma:
 - App shell specs.
 - Screen specs.
+- Admin preview and account/group management specs.
 - Component inventory.
 - State and interaction specs.
 - Upload/evidence flow specs.
 - Permission and role-state specs.
+- Database-backed progress/update state specs.
+- Announcement and mobile-aware pattern specs for future 2.0 planning.
 - Guided research challenge and mentor-meeting flow specs.
 - Figma links when tools create actual artifacts.
 
@@ -292,11 +304,12 @@ Core rebuild:
 - App scaffold.
 - Schema and workflow logic.
 - Auth, user, role, and permission foundations.
+- User groups, cohorts, account provisioning, and progress update foundations.
 - Private upload/evidence storage model.
 - Requirement seed loader for `data/capstone-framework.json`.
 - Meeting, presentation, celebration, reflection, and archive/export workflow foundations.
 - Tests.
-- CI/deployment readiness.
+- GitHub-to-Cloudflare CI/deployment readiness.
 
 Audit:
 - Severity-ranked findings.
@@ -309,6 +322,7 @@ Canva:
 - Program identity visuals.
 - Phase/process visuals.
 - Upload, permission, evidence, review, and revision support visuals.
+- Announcement, onboarding, and dashboard empty-state image families.
 - Research challenge, mentor meeting, presentation, celebration, reflection, and archive support visuals.
 - Empty states, onboarding, recognition, and print/export visuals.
 

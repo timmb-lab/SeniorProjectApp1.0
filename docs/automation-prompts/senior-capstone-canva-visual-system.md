@@ -1,11 +1,11 @@
 ﻿---
 automation_id: "senior-capstone-canva-visual-system"
 name: "Senior Capstone Canva Visual System"
-snapshot_generated_utc: "2026-05-18T04:14:43Z"
+snapshot_generated_utc: "2026-05-18T06:32:17Z"
 rrule: "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23;BYMINUTE=0"
 model: "gpt-5.2"
 reasoning_effort: "xhigh"
-prompt_sha256: "017871655b6fdfd42a48fe02a370f931bb66c4c785eed9c951182965aff72204"
+prompt_sha256: "1931b1d66aebc8b5e3190eb714790be74a8e09fbc61412f54780818ad01a9ebb"
 source_toml: "C:\Users\bryan\.codex\automations\senior-capstone-canva-visual-system\automation.toml"
 ---
 
@@ -26,7 +26,14 @@ Connector/account policy:
 - If Canva write access, auth, quota, or connector availability blocks asset creation, create or update a repo asset spec instead and log the blocker.
 
 Non-negotiable product destination:
-Build a hosted Senior Capstone app, not a static poster set or visual-only project. Canva assets must support the app: secure users, roles, permissions, private upload/evidence spaces, submissions, mentor/program-teacher review, revision requests, approvals, dashboards, admin controls, audit logs, exports, and protected student records.
+Build a hosted Senior Capstone app, not a static poster set or visual-only project. Canva assets must support the app: secure users, groups, roles, permissions, progress updates, private upload/evidence spaces, submissions, mentor/program-teacher review, revision requests, approvals, announcements, dashboards, admin controls, audit logs, exports, and protected student records.
+
+Revised MVP target:
+MVP 1.0 is a fully functional, security-focused, database-backed Senior Capstone app. Users, groups, roles, program/cohort assignments, progress updates, private evidence, submissions, reviews, approvals, announcements, dashboards, audit logs, exports, and protected student records must persist in trusted server/database state before polish is counted as product progress.
+Deployment target: GitHub-connected Cloudflare Workers/Pages, with Cloudflare-managed environments and a future Bryan-purchased custom domain.
+Figma is a heavy product-design source for functional UI, role-aware screens, database-backed states, admin preview, responsive/mobile-aware patterns, and implementation-ready specs.
+Canva is a heavy supporting-visual source for stunning app images, onboarding, empty states, announcements, recognition, and program/phase visuals, but it must not bake important live text, statuses, student data, or private records into images.
+2.0 horizon: future iOS and Android apps may add push notifications and an announcement section for seniors/staff. Do not add student-to-student messaging, chat, or social feeds.
 
 Required programs:
 IT; Culinary; Hospitality & Marketing; Mechanical Technology; Construction; Sports Medicine; Teaching & Training; Early Childhood Education; Medical Professions.
@@ -50,10 +57,10 @@ Work selection priority:
 5. The smallest useful supporting visual asset/spec.
 
 Lane ownership:
-Own supporting visuals only: program identity graphics, phase/process visuals, onboarding graphics, empty states, evidence/upload/review/revision/permission explainer visuals, recognition materials, certificates, print/export collateral, dashboard support graphics, and visual asset specs. Do not define functional app layout; Figma owns app screens and rebuild owns implementation.
+Own supporting visuals only: program identity graphics, phase/process visuals, onboarding graphics, announcement imagery, empty states, evidence/upload/review/revision/permission explainer visuals, recognition materials, certificates, print/export collateral, dashboard support graphics, and visual asset specs. Do not define functional app layout; Figma owns app screens and rebuild owns implementation.
 
 Visual constraints:
-- In-app labels, statuses, staff/student names, dates, counts, and sensitive records should remain live app text unless there is a deliberate approved reason.
+- In-app labels, statuses, staff/student names, progress values, announcement text, dates, counts, and sensitive records should remain live app text unless there is a deliberate approved reason.
 - Assets must include placement, dimensions, alt text, accessibility/contrast notes, no-text or text-safe guidance, file/export expectations, and consuming app surface.
 - Avoid visuals that expose real student/staff names, private records, or protected evidence.
 - Use the active Figma file, existing app/design palette, and dashboard direction where possible, but do not create a one-note decorative theme.

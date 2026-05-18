@@ -4,7 +4,7 @@ Date: 2026-05-18
 
 The Senior Capstone rebuild now uses an hourly non-overlap quarter-hour cadence. The four core automation lanes run every hour at different minute offsets: Canva at `:00`, Figma at `:15`, core rebuild at `:30`, and content audit at `:45`. Each automation should read the shared anchor docs, update `docs/automation-progress.md`, and avoid duplicating the prior job's work.
 
-End goal: a hosted app with secure users, roles, permissions, private upload/evidence spaces, submissions, reviews, approvals, dashboards, admin controls, audit logs, and protected student records.
+End goal: a GitHub-to-Cloudflare hosted app whose MVP is a secure database-backed Senior Capstone operating system: users, groups, roles, programs, cohorts, progress updates, submissions, private evidence, reviews, approvals, dashboards, announcements, admin controls, audit logs, exports, and protected student records.
 
 Master plan: `docs/master-plan.md`.
 Shared runbook: `docs/automation-runbook.md`.
@@ -69,9 +69,9 @@ Every automation should:
 
 Lane boundaries:
 
-- Figma may create product UI specs and app-component direction, but should not own backend implementation.
-- Core rebuild may implement app architecture, auth, permissions, private upload/evidence storage, and workflows, but should consume Figma/Canva/content outputs instead of inventing visual direction from scratch.
-- Canva may create or specify supporting visuals for upload/evidence/review/revision/permission concepts, but should not define functional app layout.
+- Figma should be used heavily for product UI specs, app-component direction, role-aware dashboard/admin-preview design, mobile-aware patterns, and database-backed state coverage, but should not own backend implementation.
+- Core rebuild owns Cloudflare/GitHub architecture, auth, permissions, database schema, user groups, progress updates, private upload/evidence storage, workflows, and deployment; it should consume Figma/Canva/content outputs instead of inventing visual direction from scratch.
+- Canva should be used heavily for stunning supporting images and visual asset families for upload/evidence/review/revision/permission/announcement concepts, but should not define functional app layout or bake live/private data into images.
 - Content audits may critique and patch content/specs, but should clearly hand larger work to Figma, Canva, or core rebuild.
 - Content audits own unresolved issue triage in `docs/automation-backlog.md`.
 - No lane should recreate the source PDFs as static checklist pages when the app can make the same requirement a submission, evidence artifact, review gate, dashboard signal, or export task.
@@ -79,10 +79,11 @@ Lane boundaries:
 Work priority:
 
 1. P0/P1 issues from audits or `docs/automation-backlog.md`.
-2. Earliest incomplete milestone from `docs/automation-milestones.md`.
-3. Continuation of the previous lane's explicitly recommended next step.
-4. Handoffs from the adjacent lane in the automation cadence.
-5. The smallest useful vertical slice or reusable asset/spec in that lane.
+2. Secure database/auth/account-group/progress foundation and GitHub-to-Cloudflare deployment work.
+3. Earliest incomplete milestone from `docs/automation-milestones.md`.
+4. Continuation of the previous lane's explicitly recommended next step.
+5. Handoffs from the adjacent lane in the automation cadence.
+6. The smallest useful vertical slice or reusable asset/spec in that lane.
 
 Commit message prefixes:
 
@@ -138,27 +139,28 @@ Minute `:00` - Canva Visual System
 - Automation: `senior-capstone-canva-visual-system`
 - Schedule: every hour at `:00`.
 - Purpose: supporting visual assets, program identity graphics, phase/process visuals, onboarding graphics, report visuals, recognition assets, certificates, and printable/exportable collateral.
+- MVP emphasis: create polished app-supporting image families while preserving live UI text, privacy, accessibility, and Figma/rebuild placement.
 - Primary anchors: `docs/dashboard-ux-direction.md`, `data/programs.json`, `data/capstone-framework.json`, templates, and progress log.
 - Primary log: `docs/progress/canva.md`.
 
 Minute `:15` - Figma Product Design
 - Automation: `senior-capstone-figma-product-design`
 - Schedule: every hour at `:15`.
-- Purpose: app UI source of truth, dashboard layouts, admin-preview readiness, design system, components, responsive states, accessibility states, and implementation-ready product specs.
+- Purpose: app UI source of truth, database-backed state design, dashboard layouts, admin-preview readiness, design system, components, responsive states, accessibility states, and implementation-ready product specs.
 - Primary anchors: `docs/dashboard-ux-direction.md`, `docs/domain-model.md`, `data/programs.json`, `data/capstone-framework.json`, `docs/curriculum-framework-integration.md`.
 - Primary log: `docs/progress/figma.md`.
 
 Minute `:30` - Core Hosted-App Rebuild
 - Automation: `senior-capstone-rebuild-hourly`
 - Schedule: every hour at `:30`.
-- Purpose: architecture, app scaffolding, backend, auth, database/schema, tests, deployment readiness, and integration of the design/content direction into a working hosted app.
+- Purpose: Cloudflare/GitHub architecture, app scaffolding, backend, auth, database/schema, user groups, progress updates, tests, deployment readiness, and integration of the design/content direction into a working hosted app.
 - Primary anchors: `docs/rebuild-gameplan.md`, `docs/domain-model.md`, `docs/dashboard-ux-direction.md`, `data/programs.json`, `data/capstone-framework.json`, `docs/curriculum-framework-integration.md`.
 - Primary log: `docs/progress/rebuild.md`.
 
 Minute `:45` - Content Quality Audit
 - Automation: `senior-capstone-content-quality-audits`
 - Schedule: every hour at `:45`.
-- Purpose: critical audit of curriculum, product requirements, roles, dashboards, program specificity, accessibility, privacy, workflow clarity, and implementation readiness.
+- Purpose: critical audit of MVP database/security readiness, curriculum, product requirements, roles, dashboards, program specificity, accessibility, privacy, workflow clarity, Cloudflare deployment readiness, and implementation readiness.
 - Primary anchors: all docs, `app.js`, templates, teacher companion guide, program seed data, and `data/capstone-framework.json`.
 - Primary log: `docs/progress/audit.md`.
 
@@ -167,17 +169,21 @@ Minute `:45` - Content Quality Audit
 Figma owns:
 - Functional app screens.
 - Dashboard layout.
+- Admin preview and account/group management surfaces.
 - Components.
 - Design tokens.
 - Interactive states.
 - Upload/evidence UI states.
 - Permission-aware UI states.
+- Database-backed progress/update states.
+- Announcement and notification surfaces for future 2.0 planning.
 - Dev-ready UI specs.
 
 Canva owns:
 - Supporting visual assets.
 - Program and phase graphics.
 - Upload, evidence, review, revision, and permission support visuals.
+- Announcement, empty-state, and onboarding image families.
 - Print/export visuals.
 - Recognition materials.
 - Student-facing explanatory visuals.
@@ -186,10 +192,13 @@ Core rebuild owns:
 - Real app implementation.
 - Auth and authorization.
 - User, role, and permission enforcement.
+- User groups, cohorts, and admin assignment workflows.
+- Secure database schema and migrations.
+- Progress update workflow and audit logging.
 - Private upload/evidence storage.
 - Database-backed workflows.
 - Tests.
-- Deployment readiness.
+- GitHub-to-Cloudflare deployment readiness.
 
 Content audits own:
 - Quality control.

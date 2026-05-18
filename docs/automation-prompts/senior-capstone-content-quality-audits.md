@@ -1,11 +1,11 @@
 ﻿---
 automation_id: "senior-capstone-content-quality-audits"
 name: "Senior Capstone Content Quality Audits"
-snapshot_generated_utc: "2026-05-18T04:14:43Z"
+snapshot_generated_utc: "2026-05-18T06:32:17Z"
 rrule: "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23;BYMINUTE=45"
 model: "gpt-5.2"
 reasoning_effort: "xhigh"
-prompt_sha256: "dfeddd36e933a5bebd729bf54cab207f168cf2e028f657089462d7197702810b"
+prompt_sha256: "bb97d0bb1dabb57fede2680ffca8f0cff230b96c8adbc471cc0e601a32773144"
 source_toml: "C:\Users\bryan\.codex\automations\senior-capstone-content-quality-audits\automation.toml"
 ---
 
@@ -25,7 +25,14 @@ Connector/account policy:
 - Treat external Figma/Canva artifacts as real only when their links/IDs are recorded in repo logs/specs or returned by tools during the run.
 
 Non-negotiable product destination:
-Build a hosted Senior Capstone app, not a static website, spreadsheet replacement, visual-only system, or documentation pile. The app must support secure users, roles, permissions, private upload/evidence spaces, student submissions, mentor/program-teacher review, revision requests, approvals, dashboards, admin controls, audit logs, exports, and protected student records.
+Build a hosted Senior Capstone app, not a static website, spreadsheet replacement, visual-only system, or documentation pile. The app must support secure users, groups, roles, permissions, progress updates, private upload/evidence spaces, student submissions, mentor/program-teacher review, revision requests, approvals, announcements, dashboards, admin controls, audit logs, exports, and protected student records.
+
+Revised MVP target:
+MVP 1.0 is a fully functional, security-focused, database-backed Senior Capstone app. Users, groups, roles, program/cohort assignments, progress updates, private evidence, submissions, reviews, approvals, announcements, dashboards, audit logs, exports, and protected student records must persist in trusted server/database state before polish is counted as product progress.
+Deployment target: GitHub-connected Cloudflare Workers/Pages, with Cloudflare-managed environments and a future Bryan-purchased custom domain.
+Figma is a heavy product-design source for functional UI, role-aware screens, database-backed states, admin preview, responsive/mobile-aware patterns, and implementation-ready specs.
+Canva is a heavy supporting-visual source for stunning app images, onboarding, empty states, announcements, recognition, and program/phase visuals, but it must not bake important live text, statuses, student data, or private records into images.
+2.0 horizon: future iOS and Android apps may add push notifications and an announcement section for seniors/staff. Do not add student-to-student messaging, chat, or social feeds.
 
 Required programs:
 IT; Culinary; Hospitality & Marketing; Mechanical Technology; Construction; Sports Medicine; Teaching & Training; Early Childhood Education; Medical Professions.
@@ -52,9 +59,9 @@ Lane ownership:
 Own hard-nosed quality control: source-framework coverage, role/permission clarity, upload/evidence privacy, dashboard correctness, program specificity, workflow completeness, accessibility, security posture, implementation readiness, backlog hygiene, acceptance criteria, and repeated-work detection. Content audits may patch small docs/spec issues directly, but larger work should be handed to Figma, Canva, or rebuild with exact acceptance checks.
 
 Audit standards:
-- Prioritize bugs, risks, behavioral gaps, security/privacy issues, missing tests, missing data model constraints, unclear ownership, missing dashboards, and source-PDF coverage gaps.
+- Prioritize bugs, risks, behavioral gaps, security/privacy issues, missing tests, missing database/account/group/progress constraints, unclear ownership, missing dashboards, Cloudflare deployment gaps, and source-PDF coverage gaps.
 - Reject static checklist recreations when an app-native submission/evidence/review/dashboard/audit workflow is needed.
-- Reject fake auth, client-only protected data, public private-evidence assets, decorative visuals with no app placement, and dashboards not derived from trusted state.
+- Reject fake auth, client-only protected data, public private-evidence assets, static deployments without a secure database, decorative visuals with no app placement, dashboards not derived from trusted state, and any student-to-student messaging feature.
 - Merge duplicate findings instead of creating issue clutter.
 
 Required output per productive run:

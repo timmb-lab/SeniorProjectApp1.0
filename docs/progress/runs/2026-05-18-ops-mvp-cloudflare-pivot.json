@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-05-18-ops-mvp-cloudflare-pivot",
+  "timestampLocal": "2026-05-18T00:00:00-07:00",
+  "lane": "ops",
+  "scope": "Update the master plan, operating docs, live automation prompts, and prompt snapshots for the revised MVP: secure database, accounts/groups, progress updates, Figma-heavy design, Canva-heavy visuals, GitHub-to-Cloudflare hosting, and 2.0 mobile horizon with no student messaging.",
+  "masterPlanSections": [
+    "Product Destination",
+    "2.0 Product Horizon",
+    "MVP 1.0 Vertical Slice",
+    "Stack And Deployment Direction",
+    "Anti-Drift Rules"
+  ],
+  "filesChanged": [
+    "docs/master-plan.md",
+    "docs/automation-cadence.md",
+    "docs/automation-milestones.md",
+    "docs/automation-runbook.md",
+    "docs/automation-self-improvement.md",
+    "docs/daily-automation-reporting.md",
+    "docs/automation-memory.md",
+    "docs/automation-backlog.md",
+    "docs/human-decisions.md",
+    "docs/architecture/adr-0001-stack-auth-database-upload.md",
+    "docs/progress/decision-log.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-18-ops-mvp-cloudflare-pivot.json",
+    "docs/automation-prompts/README.md",
+    "docs/automation-prompts/senior-capstone-canva-visual-system.md",
+    "docs/automation-prompts/senior-capstone-content-quality-audits.md",
+    "docs/automation-prompts/senior-capstone-daily-automation-report.md",
+    "docs/automation-prompts/senior-capstone-figma-product-design.md",
+    "docs/automation-prompts/senior-capstone-rebuild-hourly.md",
+    "docs/automation-prompts/senior-capstone-weekly-deep-audit.md"
+  ],
+  "liveAutomationsUpdated": [
+    "senior-capstone-figma-product-design",
+    "senior-capstone-rebuild-hourly",
+    "senior-capstone-content-quality-audits",
+    "senior-capstone-canva-visual-system",
+    "senior-capstone-daily-automation-report",
+    "senior-capstone-weekly-deep-audit"
+  ],
+  "decisions": [
+    "D-2026-05-18-008",
+    "HD-2026-05-18-002"
+  ],
+  "backlogAnchors": [
+    "SC-005"
+  ],
+  "validation": [
+    "scripts/snapshot-automation-prompts.ps1",
+    "scripts/check-automation-contract.ps1"
+  ],
+  "nextActions": [
+    "Rebuild should accept or supersede the Cloudflare-oriented ADR and scaffold the secure database/account/group/progress foundation.",
+    "Figma should deepen admin account/group/progress and database-backed dashboard states.",
+    "Canva should create polished visuals only where placement, live-text discipline, privacy, and accessibility are clear.",
+    "Audit should reject static deployments, fake auth, client-only protected data, and any student messaging feature."
+  ]
+}

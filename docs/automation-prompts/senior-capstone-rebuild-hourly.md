@@ -1,11 +1,11 @@
 ﻿---
 automation_id: "senior-capstone-rebuild-hourly"
 name: "Senior Capstone Rebuild"
-snapshot_generated_utc: "2026-05-18T04:14:43Z"
+snapshot_generated_utc: "2026-05-18T06:32:17Z"
 rrule: "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23;BYMINUTE=30"
 model: "gpt-5.2"
 reasoning_effort: "xhigh"
-prompt_sha256: "62edff963c19610e7e664abb1b932c0a78681d0ad7eb9a71f85c060c3ee55c38"
+prompt_sha256: "25f812b10affdb75cdc54a8e4d24d163ceb5054626a88024068a155501aadf45"
 source_toml: "C:\Users\bryan\.codex\automations\senior-capstone-rebuild-hourly\automation.toml"
 ---
 
@@ -25,10 +25,17 @@ Connector/account policy:
 - If external design/artifact links from Figma or Canva are needed, consume only links/IDs recorded in repo specs/logs, `docs/artifacts.json`, or returned by tools during the run.
 
 Non-negotiable product destination:
-Build a real hosted Senior Capstone app, not a static guide, fake login screen, localStorage prototype, or documentation-only plan. The app must support secure users, roles, permissions, private upload/evidence spaces, student submissions, mentor/program-teacher review, revision requests, approvals, dashboards, admin controls, audit logs, exports, and protected student records.
+Build a real hosted Senior Capstone app, not a static guide, fake login screen, localStorage prototype, or documentation-only plan. The app must support secure users, groups, roles, permissions, progress updates, private upload/evidence spaces, student submissions, mentor/program-teacher review, revision requests, approvals, announcements, dashboards, admin controls, audit logs, exports, and protected student records.
+
+Revised MVP target:
+MVP 1.0 is a fully functional, security-focused, database-backed Senior Capstone app. Users, groups, roles, program/cohort assignments, progress updates, private evidence, submissions, reviews, approvals, announcements, dashboards, audit logs, exports, and protected student records must persist in trusted server/database state before polish is counted as product progress.
+Deployment target: GitHub-connected Cloudflare Workers/Pages, with Cloudflare-managed environments and a future Bryan-purchased custom domain.
+Figma is a heavy product-design source for functional UI, role-aware screens, database-backed states, admin preview, responsive/mobile-aware patterns, and implementation-ready specs.
+Canva is a heavy supporting-visual source for stunning app images, onboarding, empty states, announcements, recognition, and program/phase visuals, but it must not bake important live text, statuses, student data, or private records into images.
+2.0 horizon: future iOS and Android apps may add push notifications and an announcement section for seniors/staff. Do not add student-to-student messaging, chat, or social feeds.
 
 Current P0 rebuild pressure:
-- `SC-005` is the active P0 blocker until accepted or superseded: production stack, auth, database, private uploads, deployment, secrets, tests, and hosted-app foundation.
+- `SC-005` is the active P0 blocker until accepted or superseded: Cloudflare production stack, auth, database, user groups, progress updates, private uploads, deployment, secrets, tests, and hosted-app foundation.
 - `HD-2026-05-18-001` is the human decision queue item for this stack choice.
 - `docs/architecture/adr-0001-stack-auth-database-upload.md` is the proposed default stack ADR.
 - Do not spend broad rebuild runs on lower-priority feature work while this decision is open unless a higher emergency exists or the run is producing evidence needed to close this decision.
@@ -49,7 +56,7 @@ Source-of-truth order:
 Current repo code/data and source materials; `docs/master-plan.md`; accepted decisions; P0/P1 backlog; open handoffs; `docs/automation-memory.md`; lane logs/run log/run manifests; older rollups.
 
 Work selection priority:
-1. `SC-005` / `HD-2026-05-18-001` stack/auth/database/private-upload decision until accepted, superseded, or precisely blocked.
+1. `SC-005` / `HD-2026-05-18-001` Cloudflare stack/auth/database/user-group/progress/private-upload decision until accepted, superseded, or precisely blocked.
 2. Other P0/P1 rebuild-owned or rebuild-blocking backlog items.
 3. Earliest incomplete milestone needing architecture, code, data, tests, or deployment work.
 4. Open handoffs assigned to rebuild.
@@ -57,13 +64,13 @@ Work selection priority:
 6. The smallest useful vertical slice toward the first real app workflow.
 
 Lane ownership:
-Own the real implementation: app scaffold, package scripts, TypeScript/project structure, auth/provider decision, authorization, user/role/permission model, database/schema/migrations, private upload/evidence storage model, source-framework seed loader, submissions/reviews/approvals/status history/audit events, dashboard aggregates, tests, CI, deployment readiness, backups/exports, and environment/secrets posture. Consume Figma/Canva/content outputs instead of inventing visual direction from scratch.
+Own the real implementation: Cloudflare/GitHub app scaffold, package scripts, TypeScript/project structure, auth/provider decision, authorization, user/group/role/permission model, database/schema/migrations, progress update model, private upload/evidence storage model, source-framework seed loader, submissions/reviews/approvals/status history/audit events, dashboard aggregates, tests, CI, deployment readiness, backups/exports, and environment/secrets posture. Consume Figma/Canva/content outputs instead of inventing visual direction from scratch.
 
 First vertical slice priority:
-Student proposal/research submission -> private evidence upload/link -> program teacher review -> revision request or approval -> status history -> audit event -> dashboard aggregate. Build toward this first once the stack/auth/database/private-upload foundation is accepted or scaffolded.
+Student proposal/research submission -> private evidence upload/link -> program teacher review -> revision request or approval -> status history -> audit event -> dashboard aggregate. Build toward this first once the Cloudflare stack/auth/database/user-group/progress/private-upload foundation is accepted or scaffolded.
 
 Security and data constraints:
-- Do not store student records, submissions, approvals, evidence, staff notes, or private uploads in `localStorage`, public static assets, or unauthenticated client-only state as a final architecture.
+- Do not store student records, groups, progress updates, submissions, approvals, evidence, staff notes, announcements, or private uploads in `localStorage`, public static assets, or unauthenticated client-only state as a final architecture.
 - Permission tests must cover student-own access, assigned mentor access, program/cohort teacher access, admin access, misc-admin narrowing, and unauthorized denial whenever behavior changes.
 - Sensitive transitions must create audit records.
 

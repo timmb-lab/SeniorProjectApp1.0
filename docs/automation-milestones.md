@@ -2,7 +2,7 @@
 
 Date: 2026-05-18
 
-These milestones keep the four automation lanes pointed at the same product outcome.
+These milestones keep the automation lanes pointed at the revised MVP: a secure database-backed Senior Capstone app, designed heavily in Figma, supported by polished Canva imagery, and hosted from GitHub to Cloudflare.
 
 ## M0 - Operating Base
 
@@ -24,17 +24,20 @@ Definition of done:
 Status:
 - In progress until these files are committed and pushed.
 
-## M1 - Architecture And Scaffold
+## M1 - Cloudflare Architecture And Scaffold
 
 Goal:
-- Choose the hosted app architecture and create the minimal project scaffold.
+- Choose the Cloudflare-compatible hosted app architecture and create the minimal project scaffold.
 
 Required outputs:
-- Architecture decision record.
+- Architecture decision record oriented around GitHub-to-Cloudflare deployment.
 - Package/build/test commands.
 - TypeScript or equivalent typed foundation.
 - Test runner.
 - Initial CI/build notes.
+- Cloudflare Workers/Pages project structure and local development notes.
+- Cloudflare environment/secrets plan.
+- Custom domain readiness notes for Bryan's future domain purchase.
 - Explicit public-guide preservation strategy.
 - Explicit source-PDF framework preservation strategy.
 
@@ -45,24 +48,30 @@ Support:
 - Audit validates assumptions.
 - Figma identifies app-shell requirements.
 
-## M2 - Domain And Security Foundation
+## M2 - Secure Database, Accounts, Groups, And Progress Foundation
 
 Goal:
-- Create implementation-ready auth, user, upload/evidence, domain, status, role, and permission foundations.
+- Create the database-centered MVP foundation: auth, users, groups, roles, programs, cohorts, progress updates, upload/evidence, domain, status, permissions, and audit logging.
 
 Required outputs:
 - User/account model or managed-auth strategy.
+- User group/cohort model.
 - Role and permission model.
+- Admin assignment/provisioning model for users, groups, programs, cohorts, mentors, and teachers.
+- Database schema for users, groups, memberships, programs, cohorts, requirements, progress records, submissions, evidence artifacts, review decisions, comments, status history, audit events, announcements, exports, and deadlines.
 - Program seed loader or seed strategy.
 - Senior Project framework seed loader for `data/capstone-framework.json`.
 - Private upload/evidence artifact model.
 - Requirement section and quality-check model.
 - Submission status transition rules.
 - Mentor meeting attendance and presentation slot models.
+- Progress update workflow with audit events and role-aware visibility.
+- Announcement data model with staff/admin posting controls.
 - Permission matrix.
 - Audit event model.
-- Tests for permissions and status transitions.
+- Tests for permissions, account/group scoping, progress updates, and status transitions.
 - Privacy/security notes for auth, uploads, file storage, exports, retention, and audit logs.
+- Cloudflare database/storage security notes, including secrets, migrations, backup/export, and least-privilege access assumptions.
 
 Primary owner:
 - Core rebuild.
@@ -70,7 +79,40 @@ Primary owner:
 Support:
 - Audit checks FERPA-conscious handling and consistency.
 
-## M3 - First Vertical Slice
+## M3 - Admin Preview And Progress Vertical Slice
+
+Goal:
+- Prove the revised MVP backbone in an admin-preview-worthy flow before broader workflow depth.
+
+Workflow:
+- Admin creates or imports users, groups, programs, cohorts, mentor assignments, and teacher assignments.
+- Student, mentor, teacher, and admin accounts see only their permitted records.
+- Student or staff updates capstone progress.
+- Progress update persists in the database.
+- Audit event records the change.
+- Dashboard aggregate updates from trusted database state.
+- App can be deployed from GitHub to Cloudflare for preview.
+
+Required outputs:
+- Figma admin preview screens and database-backed state specs.
+- Canva-supported empty/onboarding/announcement visuals where useful.
+- User/group/program/cohort schema.
+- Progress record schema.
+- Role-aware progress update implementation.
+- Audit event implementation.
+- Dashboard aggregate implementation.
+- GitHub-to-Cloudflare preview deployment notes or config.
+- Tests for group scoping, role permissions, progress changes, audit events, and unauthorized access.
+- Empty/loading/error/permission states.
+
+Primary owners:
+- Core rebuild and Figma.
+
+Support:
+- Audit validates security and permission coverage.
+- Canva supports polished non-text visuals that have a clear app placement.
+
+## M4 - First Proposal/Research Workflow Slice
 
 Goal:
 - Prove the first real workflow end to end.
@@ -91,14 +133,22 @@ Required outputs:
 - Evidence upload/link UI/spec.
 - Research challenge guided-section UI/spec.
 - Teacher review queue UI/spec.
-- Server/database-style workflow implementation.
+- Server/database-backed workflow implementation.
 - Tests for valid transitions and unauthorized access.
 - Tests for protected evidence access.
 - Tests for section-level revision and review status.
 - Program-level aggregate.
 - Upload-failure, empty/loading/error, and permission states.
 
-## M3B - Source Cycle Completion Slice
+Primary owner:
+- Core rebuild.
+
+Support:
+- Figma designs the student and teacher surfaces.
+- Audit validates acceptance criteria.
+- Canva supports onboarding/status visuals only if useful.
+
+## M5 - Source Cycle Completion Slice
 
 Goal:
 - Implement the remaining source-PDF workflow structure after the first proposal/research slice is reliable.
@@ -130,15 +180,7 @@ Support:
 - Audit validates source-PDF coverage.
 - Canva supports student-facing visuals where they reduce confusion.
 
-Primary owner:
-- Core rebuild.
-
-Support:
-- Figma designs the student and teacher surfaces.
-- Audit validates acceptance criteria.
-- Canva supports onboarding/status visuals only if useful.
-
-## M4 - Role Dashboards
+## M6 - Role Dashboards
 
 Goal:
 - Build trustworthy dashboards for repeated staff use and calm student next-action views.
@@ -158,16 +200,17 @@ Support:
 - Audit checks dashboard actionability.
 - Canva supports empty states and program visuals.
 
-## M5 - Visual System And Collateral
+## M7 - Visual System And Collateral
 
 Goal:
-- Add supporting visuals without compromising operational clarity.
+- Add stunning supporting visuals without compromising operational clarity, privacy, accessibility, or database-backed live state.
 
 Required outputs:
 - Program identity visual system.
 - Phase/process visual system.
 - Empty-state asset family.
 - Student onboarding visuals.
+- Announcement image family.
 - Recognition/export collateral.
 
 Primary owner:
@@ -177,14 +220,16 @@ Support:
 - Figma determines UI placement.
 - Audit checks accessibility and usefulness.
 
-## M6 - Production Hardening
+## M8 - Production Hardening And Cloudflare Launch
 
 Goal:
 - Make the app pilot-ready.
 
 Required outputs:
 - Auth hardening.
-- Deployment environment docs.
+- Cloudflare deployment environment docs.
+- GitHub-to-Cloudflare deployment verification.
+- Custom domain setup checklist for Bryan's purchased domain.
 - Backup/restore posture.
 - Export controls.
 - Accessibility checks.
@@ -198,3 +243,22 @@ Primary owner:
 Support:
 - Audit verifies readiness.
 - Figma/Canva polish high-friction areas.
+
+## M9 - 2.0 Mobile Horizon
+
+Goal:
+- Preserve a clear post-MVP path for iOS and Android without letting mobile work derail MVP 1.0.
+
+Required outputs:
+- Mobile architecture recommendation after the web MVP is real.
+- Notification model for seniors/staff.
+- Announcement section requirements.
+- Privacy/security notes for mobile access and push notifications.
+- Explicit exclusion of student-to-student messaging.
+
+Primary owner:
+- Future planning after MVP 1.0.
+
+Support:
+- Figma may maintain mobile-aware patterns.
+- Rebuild may keep APIs clean enough for future mobile clients.

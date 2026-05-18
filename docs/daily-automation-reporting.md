@@ -28,7 +28,7 @@ Each daily report should include:
 - Top summary of what changed.
 - Activity by lane: Figma, rebuild, audit, Canva, reporting/ops.
 - Commits from the previous 24 hours.
-- Product progress toward the hosted app goal: users/auth, permissions, upload/evidence spaces, submissions, reviews, dashboards, admin controls, audit logs.
+- Product progress toward the revised MVP: secure database, users/auth, groups, permissions, progress updates, upload/evidence spaces, submissions, reviews, dashboards, announcements, admin controls, audit logs, and GitHub-to-Cloudflare deployment.
 - Visual/design progress and IDs/links when available.
 - Quality/audit progress.
 - Risks and blockers.

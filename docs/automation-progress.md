@@ -759,3 +759,23 @@ What changed:
 
 Recommended next slice:
 - Rebuild lane should accept or supersede `docs/architecture/adr-0001-stack-auth-database-upload.md`, then scaffold the selected stack with auth/database/private-upload assumptions explicit.
+
+## 2026-05-18 Revised MVP And Cloudflare Direction
+
+Intent:
+- Pivot the automation system and master plan to Bryan's revised MVP: a secure database-backed app with users, groups, progress updates, Figma-heavy design, Canva-heavy visuals, GitHub-to-Cloudflare hosting, and a 2.0 mobile horizon.
+
+What changed:
+- Updated `docs/master-plan.md`, `docs/automation-cadence.md`, `docs/automation-milestones.md`, `docs/automation-runbook.md`, `docs/automation-memory.md`, `docs/human-decisions.md`, `docs/architecture/adr-0001-stack-auth-database-upload.md`, backlog, handoffs, and decision log.
+- Updated all six live Senior Capstone automation prompts and regenerated `docs/automation-prompts/`.
+- Added run manifest `docs/progress/runs/2026-05-18-ops-mvp-cloudflare-pivot.json`.
+
+Key direction:
+- MVP 1.0 is database/security/account/group/progress first.
+- Deployment target is GitHub to Cloudflare Workers/Pages with future custom domain.
+- Figma drives functional product design and database-backed states.
+- Canva creates polished supporting imagery with live-text and privacy discipline.
+- 2.0 may include iOS/Android notifications and announcements, but no student-to-student messaging.
+
+Recommended next slice:
+- Rebuild should accept or supersede the Cloudflare-oriented ADR and scaffold the secure database/account/group/progress foundation.

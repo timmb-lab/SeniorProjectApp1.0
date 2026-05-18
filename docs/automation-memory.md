@@ -8,17 +8,19 @@ Top-level product plan: `docs/master-plan.md`.
 
 ## Product Target
 
-Build a hosted Senior Capstone app with secure accounts, role-based permissions, private upload/evidence spaces, student submissions, mentor/teacher review, revision requests, approvals, dashboards, admin controls, audit logs, exports, and protected student records.
+Build a GitHub-to-Cloudflare hosted Senior Capstone app whose MVP is a secure database-backed operating system for users, groups, roles, programs, cohorts, progress updates, private upload/evidence spaces, student submissions, mentor/teacher review, revision requests, approvals, dashboards, announcements, admin controls, audit logs, exports, and protected student records.
 
 This is not a static guide, brochure, or visual-only project.
+
+Figma is the heavy product-design source for functional app screens, database-backed states, admin preview, dashboards, and mobile-aware patterns. Canva is the heavy supporting-image source for polished visuals with clear app placement and no baked-in private/live data. Version 2.0 may explore iOS/Android apps with push notifications and announcements, but no student-to-student messaging.
 
 ## Current State
 
 - Repository still contains the original static guide shell.
 - No production app scaffold has been committed yet.
-- No managed auth, database, private upload storage, migrations, API layer, tests, CI, or deployment pipeline has been implemented yet.
+- No managed auth, database, user/group model, private upload storage, migrations, API layer, tests, CI, or GitHub-to-Cloudflare deployment pipeline has been implemented yet.
 - Source PDFs have been extracted and converted into app-native requirements in `data/capstone-framework.json`.
-- The four main automation lanes are staggered in a four-hour rotation and must commit/push their durable outputs.
+- The four main automation lanes are staggered hourly at `:00`, `:15`, `:30`, and `:45` and must commit/push their durable outputs.
 - The four main automation lanes and the daily reporting automation now read the shared memory, run log, handoff ledger, and decision log before choosing work or summarizing progress.
 - Every main lane prompt now requires a lane log entry, compact run-log entry, relevant memory/handoff/decision updates, verification, commit, and push.
 - Every main lane and the daily reporting automation now reference `docs/master-plan.md` along with the logs.
@@ -29,10 +31,11 @@ This is not a static guide, brochure, or visual-only project.
 
 ## Current Priority
 
-1. Resolve `SC-005` / `HD-2026-05-18-001`: choose and document the app stack/hosting/auth/database/private-upload architecture.
-2. Scaffold the real app foundation with TypeScript, package scripts, tests, and a protected app structure.
-3. Model users, roles, permissions, programs, requirements, submissions, evidence artifacts, reviews, approvals, and audit events.
-4. Build the first vertical slice: student proposal submission -> evidence upload/link -> teacher review -> revision/approval -> audit log -> dashboard aggregate.
+1. Resolve `SC-005` / `HD-2026-05-18-001`: choose and document the Cloudflare-compatible app stack/hosting/auth/database/private-upload architecture.
+2. Scaffold the real app foundation with TypeScript, package scripts, tests, and GitHub-to-Cloudflare deployment structure.
+3. Model users, groups, roles, permissions, programs, cohorts, requirements, progress records, submissions, evidence artifacts, reviews, approvals, announcements, and audit events.
+4. Build the MVP admin/progress vertical slice: admin creates/imports users/groups/programs/cohorts -> role-aware progress update -> audit log -> dashboard aggregate -> Cloudflare preview.
+5. Build the proposal workflow slice: student proposal submission -> evidence upload/link -> teacher review -> revision/approval -> audit log -> dashboard aggregate.
 
 ## Canonical Programs
 
@@ -56,7 +59,7 @@ Current backlog anchors:
 - `SC-002`: guided Research Proposal Challenge UI and review queue spec.
 - `SC-003`: private EvidenceArtifact model and permission tests.
 - `SC-004`: mentor meetings, presentation scheduling, celebration evidence, archive/export workflows.
-- `SC-005`: P0 stack/auth/database/private-upload decision and scaffold pressure.
+- `SC-005`: P0 Cloudflare stack/auth/database/user-group/progress/private-upload decision and scaffold pressure.
 
 ## Known External Artifact Memory
 
@@ -75,13 +78,14 @@ Current backlog anchors:
 
 Read `docs/progress/decision-log.md` for accepted or superseded decisions.
 
-- As of initialization, no final app stack has been accepted in-repo.
+- As of this update, the deployment direction is GitHub-to-Cloudflare Workers/Pages; the exact Cloudflare-compatible auth/database/storage/security implementation is still open under `HD-2026-05-18-001`.
 - `D-2026-05-18-001`: automations use the log-first scaling protocol.
 - `D-2026-05-18-002`: `docs/master-plan.md` is the top-level product plan.
 - `D-2026-05-18-003`: daily automation summaries and Google Drive/Doc target account use `bryan.timm89@gmail.com`.
 - `D-2026-05-18-004`: automations may improve their own prompt/config from evidence using the guarded self-improvement protocol, while preserving schedule/workspace/model/status unless the user explicitly asks otherwise.
 - `D-2026-05-18-005`: run a weekly deep audit automation to perform a long piece-by-piece whole-system review and feed findings back into the master plan and logs.
 - `D-2026-05-18-007`: automations use prompt snapshots, structured run manifests, human decisions, artifact registry, and a contract checker as core operating infrastructure.
+- `D-2026-05-18-008`: MVP 1.0 is a secure database/account/group/progress foundation hosted through GitHub to Cloudflare; Figma and Canva are heavy product/visual inputs; 2.0 may add iOS/Android notifications and announcements, with no student messaging.
 
 ## Handoff Rules
 

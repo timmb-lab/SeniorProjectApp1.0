@@ -8,19 +8,41 @@ This is the top-level product plan for the Senior Capstone rebuild. Every automa
 
 Build a hosted Senior Capstone application for students, mentors, program teachers, administrators, and miscellaneous support/admin users.
 
-The app must support:
+The revised MVP is a secure, database-centered web app. It is not a static guide, a Figma-only prototype, a Canva asset library, or a fake dashboard. The database, account model, permissions, progress updates, audit logs, and deployment path are the product backbone.
 
+MVP 1.0 must support:
+
+- A fully functional database that holds operational Senior Capstone data, including users, groups, roles, programs, cohorts, requirements, deadlines, submissions, evidence metadata, review decisions, progress/status history, audit events, announcements, and exports.
 - Secure user accounts with managed auth or hardened username/password login.
-- Role-based permissions for student, mentor, program teacher, admin, and misc admin users.
+- User groups and role-based permissions for student, mentor, program teacher, admin, and misc admin users.
+- Admin-managed user/group/program/cohort assignment workflows.
+- Student and staff progress updates backed by trusted server/database state.
 - Private upload/evidence spaces for student documents, links, images, reflections, rubrics, presentation materials, and archive exports.
 - Student submissions, revisions, comments, resubmissions, approvals, and phase progress.
 - Mentor and program teacher review flows with revision requests and approvals.
-- Admin controls for users, programs, cohorts, assignments, deadlines, templates, exports, and audited overrides.
+- Admin controls for users, groups, programs, cohorts, assignments, deadlines, templates, announcements, exports, and audited overrides.
 - Dashboards for students, mentors, program teachers, and admins.
 - Audit logs for sensitive actions.
 - Privacy-conscious handling of student records, uploads, exports, staff notes, and access control.
+- GitHub-connected deployment to Cloudflare Workers/Pages, with Cloudflare-managed production environments and a future Bryan-purchased custom domain.
 
-This project is not finished when it looks good. It is finished when the hosted app can safely manage real student workflow and staff visibility.
+Figma and Canva are major first-class inputs to the product experience. Figma should drive functional UI design, role-aware screens, implementation-ready specs, and state coverage. Canva should create stunning supporting images and visual assets that make the app feel polished without baking important live text or private data into images.
+
+This project is not finished when it looks good. It is finished when the hosted app can safely manage real student workflow and staff visibility from a secure database-backed foundation.
+
+## 2.0 Product Horizon
+
+After MVP 1.0 is real, version 2.0 should explore native or cross-platform iOS and Android apps.
+
+2.0 goals:
+
+- Mobile student/staff access to core dashboards and progress state.
+- Push notifications for seniors and staff when deadlines, revision requests, approvals, announcements, or schedule changes matter.
+- Announcement section for school/program/capstone updates.
+- Mobile-friendly evidence capture and upload if privacy and storage controls are ready.
+- No student-to-student messaging. Messaging is not a product requirement and should not be added as a hidden chat feature, comment workaround, or social feed.
+
+Mobile work must not displace MVP 1.0 database, security, account/group, workflow, deployment, and admin-preview priorities.
 
 ## North Star Workflow
 
@@ -92,14 +114,19 @@ The source PDFs and extracted framework are product requirements, not reference 
 
 Old instructions to copy, link, email, or save documents should become app-native submissions, evidence artifacts, review gates, dashboard signals, and archive/export workflows.
 
-## First Real Vertical Slice
+## MVP 1.0 Vertical Slice
 
-The first production slice is:
+The first production slice is now database/security first:
+
+Admin creates or imports users, groups, programs, cohorts, and role assignments -> student record is created -> student or staff updates capstone progress -> status history persists -> audit event records the change -> role-aware dashboard aggregate updates from trusted database state -> app deploys through GitHub to Cloudflare.
+
+The first workflow slice after that foundation is:
 
 Student proposal/research submission -> private evidence upload/link -> program teacher review -> revision request or approval -> status history -> audit event -> dashboard aggregate.
 
 Acceptance criteria:
 
+- User, group, role, program, cohort, requirement, progress, and audit data persist in the database.
 - Student can only access their own records.
 - Mentor can only access assigned students unless explicitly scoped otherwise.
 - Program teacher can access assigned program/cohort students.
@@ -112,58 +139,62 @@ Acceptance criteria:
 - Status transitions are auditable.
 - Dashboard counts derive from trusted server/database-style state.
 - Tests cover permissions, protected evidence access, valid transitions, and unauthorized access.
+- A GitHub-to-Cloudflare deployment path exists before the app is described as hosted.
 
 ## Milestone Path
 
 Use `docs/automation-milestones.md` for the detailed milestone checklist. The strategic order is:
 
 1. Operating base and shared memory.
-2. Architecture and scaffold.
-3. Domain, auth, permissions, uploads, and audit foundations.
-4. First proposal/research vertical slice.
-5. Remaining source-cycle workflows: mentor meetings, presentation, celebration, reflections, archive/export.
-6. Role dashboards.
-7. Visual system and collateral.
-8. Production hardening and pilot readiness.
+2. Cloudflare/GitHub architecture and scaffold.
+3. Secure database, auth, account/group, permission, progress, upload, and audit foundations.
+4. Admin preview and role-aware dashboard foundation.
+5. First proposal/research vertical slice.
+6. Remaining source-cycle workflows: mentor meetings, presentation, celebration, reflections, archive/export.
+7. Visual system, Canva image families, and Figma implementation coverage.
+8. Production hardening, custom domain readiness, and pilot readiness.
 
 Earlier incomplete milestones beat later polish unless a P0/P1 risk says otherwise.
 
-## Stack Decision Priority
+## Stack And Deployment Direction
 
-The next major rebuild decision is the production stack:
+The accepted deployment direction is GitHub-connected Cloudflare hosting. Bryan expects to purchase a domain after the hosted path is ready.
 
-- App framework.
-- Auth provider.
-- Database.
-- Private upload/file storage.
+The next major rebuild decision is the detailed Cloudflare-compatible production stack:
+
+- App framework and Workers/Pages structure.
+- Auth provider and account/group provisioning model.
+- Database, likely Cloudflare D1 or another Cloudflare-compatible secure database path.
+- Private upload/file storage, likely Cloudflare R2 or another access-controlled storage path.
 - ORM/migrations.
-- Deployment host.
+- GitHub-to-Cloudflare deployment workflow.
 - Environment/secrets strategy.
 - Test runner and CI.
 - Backup/export posture.
+- Custom domain cutover checklist.
 
 No automation should pretend the app is functional until this foundation exists in the repo and is tested.
 
 Current stack pressure:
 
 - `HD-2026-05-18-001` is the active human decision queue item for the production stack.
-- `docs/architecture/adr-0001-stack-auth-database-upload.md` is the proposed default ADR.
+- `docs/architecture/adr-0001-stack-auth-database-upload.md` is the Cloudflare-oriented proposed ADR.
 - `SC-005` is the P0 rebuild backlog item that keeps this decision in front of the automation loop.
-- Until accepted or superseded, rebuild should prioritize the stack/auth/database/private-upload foundation before broad app feature work.
+- Until accepted or superseded with implementation evidence, rebuild should prioritize the Cloudflare stack/auth/database/user-group/progress/private-upload foundation before broad app feature work.
 
 ## Lane Responsibilities
 
 Figma:
-- Functional app screens, app shell, dashboards, components, responsive states, accessibility, permission-aware UI states, upload/evidence states, developer-ready specs.
+- Heavy product-design ownership for functional app screens, app shell, dashboards, admin preview, components, responsive states, accessibility, permission-aware UI states, upload/evidence states, database-backed states, announcement surfaces, mobile-aware patterns, and developer-ready specs.
 
 Core rebuild:
-- Architecture, scaffold, auth, authorization, database/schema, private upload/evidence storage, workflow logic, dashboard aggregates, tests, CI/deployment readiness.
+- Cloudflare/GitHub architecture, scaffold, auth, authorization, database/schema, user groups, progress updates, private upload/evidence storage, workflow logic, dashboard aggregates, tests, CI/deployment readiness, custom-domain readiness, and security posture.
 
 Audit:
 - Quality gate, backlog hygiene, privacy/security critique, source-framework coverage, app-readiness findings, acceptance criteria, repeated-work detection.
 
 Canva:
-- Supporting visuals only: program identity, phase/process visuals, empty states, onboarding, recognition, export/print collateral. Canva does not define functional app layout.
+- Stunning supporting visuals only: program identity, phase/process visuals, dashboard empty states, onboarding, announcement imagery, recognition, export/print collateral, and app-supporting image families. Canva does not define functional app layout or store live app text/data.
 
 Daily report:
 - Executive memory, last-24-hour summary, log health, stale handoffs, decisions, blockers, and next priorities.
@@ -219,8 +250,12 @@ Do not:
 - Build dashboards from client-only state.
 - Treat Figma, Canva, or docs as the product.
 - Put private evidence in public static assets.
+- Treat a static Cloudflare deployment as the MVP if the secure database/account/group foundation is missing.
 - Skip audit logs for approvals, overrides, exports, role changes, or sensitive access.
 - Prioritize decorative visuals before workflow, permission, upload, and review foundations.
+- Let Canva imagery replace live app text, database-backed statuses, accessibility labels, or private data.
+- Build chat or student-to-student messaging. Version 2.0 may include announcements and notifications, but no student messaging.
+- Start iOS/Android app implementation before MVP 1.0 database, security, deployment, and admin-preview foundations are real.
 - Repeat the same broad audit or design slice without closing a handoff/backlog item.
 - Create new plans when the next milestone needs implementation.
 - Edit automation prompts/configs without evidence, logs, and preservation of cadence/workspace/model/status unless Bryan explicitly asked.
@@ -230,9 +265,12 @@ Do not:
 Each week, Bryan should be able to answer:
 
 - Did the repo move closer to a real hosted app?
+- Did the repo move closer to the secure database/account/group/progress MVP?
+- Did the GitHub-to-Cloudflare deployment path move forward?
 - What shipped as code, schema, tests, UI specs, or durable external artifacts?
 - What new risks or blockers appeared?
 - Which handoffs are stale?
 - Are automations repeating work?
 - Is the first vertical slice closer to done?
+- Are Figma and Canva outputs feeding actual implementation instead of drifting into visual-only work?
 - What needs a human decision before the next week?

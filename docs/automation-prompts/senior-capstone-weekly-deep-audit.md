@@ -1,11 +1,11 @@
 ﻿---
 automation_id: "senior-capstone-weekly-deep-audit"
 name: "Senior Capstone Weekly Deep Audit"
-snapshot_generated_utc: "2026-05-18T04:14:43Z"
+snapshot_generated_utc: "2026-05-18T06:32:17Z"
 rrule: "FREQ=WEEKLY;BYDAY=SU;BYHOUR=23;BYMINUTE=30"
 model: "gpt-5.2"
 reasoning_effort: "xhigh"
-prompt_sha256: "1df227430daf499c143a6c65b885f0760fba70582ea5d9a4f5424c25e826d893"
+prompt_sha256: "a35fc5bfe7e32ea3d32843691f1386017282da1ff8d8becc7d038a6b4b9c9291"
 source_toml: "C:\Users\bryan\.codex\automations\senior-capstone-weekly-deep-audit\automation.toml"
 ---
 
@@ -26,7 +26,14 @@ Active design artifact to audit:
 - Superseded historical Figma file `fkfNI9JNy0A3Rm8KnoxJLj` should be described only as the prior blocked file.
 
 Non-negotiable product destination:
-The end goal is a hosted Senior Capstone application with secure users, roles, permissions, private upload/evidence spaces, student submissions, mentor/program-teacher review, revision requests, approvals, dashboards, admin controls, audit logs, exports, and protected student records. Do not mistake docs, Figma files, Canva assets, static pages, fake login screens, localStorage prototypes, or visual polish for a functional app.
+The end goal is a GitHub-to-Cloudflare hosted Senior Capstone application whose MVP is a secure database-backed system with users, groups, roles, progress updates, private upload/evidence spaces, student submissions, mentor/program-teacher review, revision requests, approvals, announcements, dashboards, admin controls, audit logs, exports, and protected student records. Do not mistake docs, Figma files, Canva assets, static pages, fake login screens, localStorage prototypes, visual polish, or static deployments for a functional app.
+
+Revised MVP target:
+MVP 1.0 is a fully functional, security-focused, database-backed Senior Capstone app. Users, groups, roles, program/cohort assignments, progress updates, private evidence, submissions, reviews, approvals, announcements, dashboards, audit logs, exports, and protected student records must persist in trusted server/database state before polish is counted as product progress.
+Deployment target: GitHub-connected Cloudflare Workers/Pages, with Cloudflare-managed environments and a future Bryan-purchased custom domain.
+Figma is a heavy product-design source for functional UI, role-aware screens, database-backed states, admin preview, responsive/mobile-aware patterns, and implementation-ready specs.
+Canva is a heavy supporting-visual source for stunning app images, onboarding, empty states, announcements, recognition, and program/phase visuals, but it must not bake important live text, statuses, student data, or private records into images.
+2.0 horizon: future iOS and Android apps may add push notifications and an announcement section for seniors/staff. Do not add student-to-student messaging, chat, or social feeds.
 
 Required programs:
 IT; Culinary; Hospitality & Marketing; Mechanical Technology; Construction; Sports Medicine; Teaching & Training; Early Childhood Education; Medical Professions.
@@ -66,16 +73,16 @@ Required reads before auditing:
 - app code, scripts, package/config files, tests, templates, styles, data files, and deployment/config files currently in the repo
 
 Audit scope. Go piece by piece and produce findings for every area below:
-1. Product direction: Does the repo still clearly aim at a hosted app with real users, permissions, uploads, approvals, dashboards, and audit logs?
+1. Product direction: Does the repo still clearly aim at the revised MVP: secure database, real users/groups, permissions, progress updates, uploads, approvals, announcements, dashboards, audit logs, and GitHub-to-Cloudflare hosting?
 2. Source-framework coverage: Are all source PDF requirements represented as app-native records, submission sections, review gates, dashboard signals, or exports?
 3. Program coverage: Are all nine programs explicit in data, UI/specs, dashboards, requirements, filters, and reports?
 4. Roles and permissions: Are student, mentor, program teacher, admin, and misc admin permissions precise, tested, and least-privilege?
-5. Auth/security: Is there a real auth/database/storage plan or implementation? Are secrets, sessions, password posture, invitations, password resets, and access revocation addressed?
+5. Auth/security: Is there a real Cloudflare-compatible auth/database/storage plan or implementation? Are users, groups, secrets, sessions, password posture, invitations, password resets, access revocation, backups, and deployment controls addressed?
 6. Private upload/evidence model: Are ownership, metadata, file type/size limits, scanning/security posture, access control, retention, deletion, download, archive/export, and failure states addressed?
 7. Workflow fidelity: Proposal/research, mentor meetings, presentation scheduling, check-in/out, rubric scoring, celebration evidence, reflections, and final archive/export.
 8. First vertical slice: student proposal submission -> evidence upload/link -> teacher review -> revision/approval -> status history -> audit event -> dashboard aggregate.
-9. Data model/schema: Users, roles, profiles, programs, requirements, submissions, evidence artifacts, reviews, approvals, comments, status history, audit events, exports, deadlines, cohorts, mentor assignments.
-10. Implementation quality: package scripts, app scaffold, tests, type checks, CI, migrations, seed loaders, deployment readiness, environment variables, backups.
+9. Data model/schema: Users, groups, memberships, roles, profiles, programs, requirements, progress records, submissions, evidence artifacts, reviews, approvals, comments, announcements, status history, audit events, exports, deadlines, cohorts, mentor assignments.
+10. Implementation quality: package scripts, Cloudflare/GitHub app scaffold, tests, type checks, CI, migrations, seed loaders, deployment readiness, environment variables, backups, custom domain readiness.
 11. Dashboard usefulness: student, mentor, program teacher, admin, misc admin dashboards; filters by program/cohort/phase/mentor/teacher/status/overdue/risk; trusted server/database-backed metrics.
 12. Figma readiness: active file `LLucMgAPscRa9020iHHigB`, design tokens, app shell, role-aware screens, responsive states, interaction states, error/loading/empty/success states, implementation handoffs, and whether new Figma work is feeding rebuild.
 13. Canva usefulness: supporting visuals, no-text/live-text discipline, alt text, placement, program identity, process visuals, onboarding, export/print, recognition, and asset registry completeness.

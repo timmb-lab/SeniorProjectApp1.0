@@ -80,3 +80,13 @@ Decision status values:
 - `applies to`: all Senior Capstone automations, weekly deep audit, daily reporting, prompt self-improvement, external artifact creation, and rebuild stack governance
 - `source`: user accepted the recommendation: "prompt snapshots, structured run manifests, human decision queue, artifact registry, and the contract-check script"
 - `last updated`: 2026-05-18
+
+### D-2026-05-18-008
+
+- `status`: accepted
+- `area`: MVP scope, deployment direction, and 2.0 roadmap
+- `decision`: Revise MVP 1.0 around a fully functional secure database-backed app with users, groups, roles, progress updates, private evidence, audit logs, dashboards, admin controls, announcements, and GitHub-to-Cloudflare Workers/Pages hosting. Treat Figma as the heavy product-design source and Canva as the heavy supporting-image source. Preserve iOS/Android apps with notifications and announcements as a 2.0 horizon, with no student-to-student messaging.
+- `reason`: Bryan explicitly revised the minimum viable product to prioritize the secure database/account/group/progress foundation, Cloudflare hosting, Figma/Canva-heavy visuals, and a future mobile app direction.
+- `applies to`: all Senior Capstone automations, master plan, milestones, backlog, stack ADR, human decisions, Figma specs, Canva specs, rebuild plans, daily reports, weekly deep audits
+- `source`: user request on 2026-05-18: "A fully functional database (with a security focus) that holds all of the data, user accounts/groups, the ability to update progress... HUGE focus on using figma... canva... host this via github to cloudflare workers... 2.0 having an iOS and Android App... no messaging ever needed between students"
+- `last updated`: 2026-05-18

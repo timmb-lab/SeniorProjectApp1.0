@@ -1,4 +1,4 @@
-# ADR-0001: Stack, Auth, Database, And Private Upload Foundation
+# ADR-0001: Cloudflare Stack, Auth, Database, And Private Upload Foundation
 
 Status: proposed
 
@@ -13,42 +13,48 @@ Human decision link: `HD-2026-05-18-001`
 The project cannot become a functional hosted Senior Capstone app until the foundation exists for:
 
 - Secure usernames/passwords or managed auth.
+- User groups, cohorts, and role assignments.
 - Student, mentor, program teacher, admin, and misc admin roles.
 - Least-privilege authorization.
 - Private upload/evidence storage.
-- Database-backed submissions, reviews, approvals, comments, status history, deadlines, exports, and audit events.
+- Database-backed progress updates, submissions, reviews, approvals, comments, status history, announcements, deadlines, exports, and audit events.
 - Server-trusted dashboard aggregates.
-- Environment variables, secrets, deployment, backup/export, and local development.
+- GitHub-connected Cloudflare deployment, environment variables, secrets, backup/export, custom domain readiness, and local development.
 
 The current repo still contains the original static guide shell. It has no production app scaffold, managed auth, database, private file storage, migrations, API layer, tests, CI, or deployment pipeline.
 
 ## Proposed Decision
 
-Use this as the default implementation path unless Bryan rejects or supersedes it:
+Use this as the revised default implementation path unless Bryan rejects or supersedes it:
 
-- App framework: Next.js with TypeScript.
-- Auth: Supabase Auth with email/password or school-approved managed login strategy.
-- Database: Supabase Postgres.
-- Private upload storage: Supabase Storage with bucket policies and signed access patterns.
-- Authorization: database-backed roles plus row-level security policies for student-own records, assigned mentor records, program/cohort teacher records, admin records, and narrow misc admin permissions.
-- ORM/migrations: Drizzle or Prisma after the rebuild lane compares fit with Supabase/RLS workflows.
-- Deployment: Vercel or another approved host compatible with Next.js and school account/secrets requirements.
+- App framework: TypeScript app deployable through GitHub to Cloudflare Workers/Pages.
+- Runtime/API: Cloudflare Workers.
+- Database: Cloudflare D1 or another Cloudflare-compatible database path, chosen with explicit security and migration tradeoffs.
+- Private upload storage: Cloudflare R2 or another access-controlled storage path with private evidence access patterns.
+- Auth: Workers-compatible managed auth, school-approved SSO, or hardened username/password flow. The exact provider remains an explicit security decision.
+- Authorization: server-enforced roles, groups, cohort/program assignments, and least-privilege permission checks for student-own records, assigned mentor records, program/cohort teacher records, admin records, and narrow misc admin permissions.
+- ORM/migrations: Drizzle, Prisma, or Cloudflare-native migration tooling after the rebuild lane compares fit with D1/R2 and permission workflows.
+- Deployment: GitHub-connected Cloudflare Workers/Pages with preview and production environments.
+- Custom domain: Bryan will purchase a domain; rebuild should document DNS/cutover steps when the Cloudflare deployment is ready.
 - Testing: unit tests for permissions and workflow transitions, integration tests for submission/review/evidence access, and smoke tests for role dashboards.
 
 ## Why This Direction
 
-Supabase gives one coherent managed path for auth, Postgres, private storage, policies, and audit-friendly data modeling. That directly maps to the app's hardest requirements: protected student records, role-scoped access, private evidence artifacts, and trusted dashboard metrics.
+Bryan has stated the hosting goal is GitHub to Cloudflare Workers with a future purchased domain. The MVP should align the architecture with that target instead of treating Cloudflare as a later migration.
 
-The alternative is stitching together separate auth, database, object storage, policy, and deployment services before any student workflow can be real. That can work, but it slows the first vertical slice and increases integration risk.
+The core risk is security and data integrity. The app needs a real database, account/group model, role-scoped access, private evidence artifacts, progress updates, audit logging, and trusted dashboard metrics before visual polish can be called product progress.
+
+The alternative is keeping the earlier Supabase/Vercel recommendation. That may still be technically easier for auth/database/storage, but it conflicts with the revised Cloudflare deployment goal and should now be treated as a fallback or superseding decision only if Cloudflare security/account requirements prove unsuitable.
 
 ## Open Questions
 
-- Which account/organization should own Supabase and deployment resources?
+- Which Cloudflare account/organization should own Workers/Pages, D1, R2, secrets, logs, and the production domain?
 - Is school Google/Microsoft SSO required, or is username/password acceptable for the first pilot?
 - Are student emails available and allowed for account identity?
 - What file types and maximum upload sizes should the pilot allow?
 - Are there district restrictions on third-party storage for student records?
 - Who can provision secrets and production environment variables?
+- What D1/R2 backup, export, retention, and incident-response process is acceptable for student records?
 
 ## Acceptance Criteria
 
@@ -56,9 +62,10 @@ This ADR can move from proposed to accepted when:
 
 - Bryan accepts the default stack or selects a replacement.
 - The rebuild lane records local setup, environment variables, and deployment assumptions.
-- The schema plan includes users, roles, programs, mentor assignments, requirements, submissions, evidence artifacts, reviews, comments, status history, audit events, exports, and deadlines.
+- The schema plan includes users, groups, memberships, roles, programs, cohorts, mentor assignments, requirements, progress records, submissions, evidence artifacts, reviews, comments, announcements, status history, audit events, exports, and deadlines.
 - Permission tests are planned for student-own access, assigned mentor access, program/cohort teacher access, admin access, misc admin narrowing, and unauthorized denial.
 - Private upload access, deletion/replacement rules, signed URLs, retention, archive/export, and audit events are explicitly addressed.
+- GitHub-to-Cloudflare preview and production deployment steps are documented.
 
 ## Consequences
 
