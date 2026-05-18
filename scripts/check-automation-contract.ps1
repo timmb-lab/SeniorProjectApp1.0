@@ -26,44 +26,52 @@ $legacyAutomationIds = @(
     "senior-capstone-weekly-deep-audit-rebuilt"
 )
 
-$allHoursRRule = (0..23) -join ","
-
 $expectedAutomationConfig = @{
     "senior-capstone-mvp-requirements-audit" = @{
-        Name = "Senior Capstone Hourly MVP Requirements + Audit"
+        Name = "Senior Capstone 20x System - Requirements + Audit"
         Status = "ACTIVE"
-        RRule = "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=$allHoursRRule;BYMINUTE=03"
+        RRule = "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=0,12,23;BYMINUTE=03"
     }
     "senior-capstone-backend-security-data" = @{
-        Name = "Senior Capstone Hourly Backend Security + Data"
+        Name = "Senior Capstone 20x System - Backend Security + Data"
         Status = "ACTIVE"
-        RRule = "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=$allHoursRRule;BYMINUTE=11"
+        RRule = "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=1,7,13,19;BYMINUTE=15"
     }
     "senior-capstone-student-workflow-evidence" = @{
-        Name = "Senior Capstone Hourly Student Workflow + Evidence"
+        Name = "Senior Capstone 20x System - Student Workflow + Evidence"
         Status = "ACTIVE"
-        RRule = "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=$allHoursRRule;BYMINUTE=19"
+        RRule = "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=2,8,14,20;BYMINUTE=27"
     }
     "senior-capstone-staff-review-mentor" = @{
-        Name = "Senior Capstone Hourly Staff Review + Mentor"
+        Name = "Senior Capstone 20x System - Staff Review + Mentor"
         Status = "ACTIVE"
-        RRule = "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=$allHoursRRule;BYMINUTE=27"
+        RRule = "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=3,10,18;BYMINUTE=39"
     }
     "senior-capstone-admin-ops-reporting" = @{
-        Name = "Senior Capstone Hourly Admin Ops + Reporting"
+        Name = "Senior Capstone 20x System - Admin Ops + Reporting"
         Status = "ACTIVE"
-        RRule = "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=$allHoursRRule;BYMINUTE=35"
+        RRule = "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=4,15;BYMINUTE=51"
     }
     "senior-capstone-deployment-qa" = @{
-        Name = "Senior Capstone Hourly Deployment QA + CI"
+        Name = "Senior Capstone 20x System - Deployment QA + CI"
         Status = "ACTIVE"
-        RRule = "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=$allHoursRRule;BYMINUTE=43"
+        RRule = "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=6,17;BYMINUTE=03"
     }
     "senior-capstone-design-assets-handoff" = @{
-        Name = "Senior Capstone Hourly Design Assets + Handoff"
+        Name = "Senior Capstone 20x System - Design Assets + Handoff"
         Status = "ACTIVE"
-        RRule = "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=$allHoursRRule;BYMINUTE=51"
+        RRule = "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=9,21;BYMINUTE=39"
     }
+}
+
+$expectedRunsPerDayByAutomation = @{
+    "senior-capstone-mvp-requirements-audit" = 3
+    "senior-capstone-backend-security-data" = 4
+    "senior-capstone-student-workflow-evidence" = 4
+    "senior-capstone-staff-review-mentor" = 3
+    "senior-capstone-admin-ops-reporting" = 2
+    "senior-capstone-deployment-qa" = 2
+    "senior-capstone-design-assets-handoff" = 2
 }
 
 $requiredPromptFragments = @(
@@ -85,9 +93,12 @@ $requiredPromptFragments = @(
     "requirement IDs",
     "commit",
     "push the current branch",
+    "20x/day Senior Capstone system",
+    "A-material quality bar",
     "No-human-approval rule",
     "auto-approved execution flags",
     "Self-improvement to scripts as you go",
+    "Only touch automation related to this project",
     "scripts/snapshot-automation-prompts.ps1",
     "scripts/check-automation-contract.ps1",
     "real auth",
@@ -107,13 +118,8 @@ $categoryFragments = @{
 }
 
 $allWeekDays = @("MO", "TU", "WE", "TH", "FR", "SA", "SU")
-$expectedMinuteOffsets = @(3, 11, 19, 27, 35, 43, 51)
-$expectedDailyTimes = foreach ($hour in 0..23) {
-    foreach ($minute in $expectedMinuteOffsets) {
-        "{0:D2}:{1:D2}" -f $hour, $minute
-    }
-}
-$minimumStartSpacingMinutes = 7
+$expectedDailyTimes = @("00:03", "01:15", "02:27", "03:39", "04:51", "06:03", "07:15", "08:27", "09:39", "10:39", "12:03", "13:15", "14:27", "15:51", "17:03", "18:39", "19:15", "20:27", "21:39", "23:03")
+$minimumStartSpacingMinutes = 30
 
 function Get-TomlStringValue {
     param(
@@ -225,8 +231,9 @@ foreach ($id in $automationIds) {
     $days = @(Get-RRulePart -RRule $rrule -Key "BYDAY")
     $hours = @(Get-RRulePart -RRule $rrule -Key "BYHOUR")
     $minutes = @(Get-RRulePart -RRule $rrule -Key "BYMINUTE")
-    if ($days.Count -ne 7 -or $hours.Count -ne 24 -or $minutes.Count -ne 1) {
-        $failures.Add("$id must run hourly across all seven days; got RRULE $rrule")
+    $expectedRunsPerDay = $expectedRunsPerDayByAutomation[$id]
+    if ($days.Count -ne 7 -or $hours.Count -ne $expectedRunsPerDay -or $minutes.Count -ne 1) {
+        $failures.Add("$id must run $expectedRunsPerDay times per day across all seven days; got RRULE $rrule")
     }
     else {
         foreach ($day in $days) {
@@ -270,8 +277,8 @@ foreach ($slot in $scheduleSlots.Keys) {
 foreach ($day in $allWeekDays) {
     $times = @($activeSlotsByDay[$day] | Sort-Object)
     $expected = @($expectedDailyTimes | Sort-Object)
-    if ($times.Count -ne 168) {
-        $failures.Add("$day has $($times.Count) active Senior Capstone category starts; expected 168")
+    if ($times.Count -ne 20) {
+        $failures.Add("$day has $($times.Count) active Senior Capstone category starts; expected 20")
     }
     elseif (($times -join ",") -ne ($expected -join ",")) {
         $failures.Add("$day active category starts are $($times -join ', '); expected $($expected -join ', ')")
@@ -403,7 +410,7 @@ if (Test-Path -LiteralPath $runbookPath) {
 $masterPlanPath = Join-Path $RepoRoot "docs\master-plan.md"
 if (Test-Path -LiteralPath $masterPlanPath) {
     $masterPlan = Get-Content -Raw -LiteralPath $masterPlanPath
-    foreach ($fragment in @("docs/mvp-requirements-catalog.md", "Real Daily MVP Goal", "Minimum: 2 accepted MVP passes per calendar day", "Hourly Category Automation Escalation")) {
+    foreach ($fragment in @("docs/mvp-requirements-catalog.md", "Real Daily MVP Goal", "Minimum: 2 accepted MVP passes per calendar day", "20x Automation Readiness")) {
         if ($masterPlan -notlike "*$fragment*") {
             $failures.Add("Master plan is missing category/daily goal reference: $fragment")
         }

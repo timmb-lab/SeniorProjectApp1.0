@@ -824,6 +824,7 @@ Recommended next slice:
 
 Intent:
 - Increase the Senior Capstone automation cadence as much as practical while keeping seven clear GUI-visible category cards, required logging, laddering, and no project-script human approvals.
+- Superseded by the 20x/day A-material cadence below.
 
 What changed:
 - Updated all seven local Codex automation TOMLs to GUI-facing `Senior Capstone Hourly ...` names.
@@ -838,3 +839,22 @@ Verification:
 
 Recommended next slice:
 - Let the hourly category runs attack the highest-risk MVP gaps: protected evidence permissions, Drive upload/OAuth, source-framework seed loader, production workflow endpoints/history, account lifecycle, and deployment verification.
+
+## 2026-05-18 20x A-Material Automation Readiness
+
+Intent:
+- Tune the Senior Capstone automation system to 20 total starts/day, A-material closeout quality, no project-script human approvals, and project-only automation maintenance scope.
+
+What changed:
+- Updated all seven local Codex automation TOMLs to GUI-facing `Senior Capstone 20x System - ...` names.
+- Rebalanced the schedule to 20 total project starts/day: requirements/audit 3x, backend security/data 4x, student workflow/evidence 4x, staff review/mentor 3x, admin ops/reporting 2x, deployment QA/CI 2x, and design assets/handoff 2x.
+- Added an A-material quality bar to live prompts: each productive run must land verified MVP progress, repair a repeatable automation/script/checker failure, or commit an exact blocker with requirement IDs, validation, and next action.
+- Preserved no-human-approval rules for project-owned files/scripts/commits and script/checker self-improvement when evidence justifies it.
+- Updated cadence, runbook, master plan, memory, decision log, prompt snapshots, artifact registry, and contract checker.
+
+Verification:
+- `scripts/check-automation-contract.ps1 -RepoRoot .` passed for all 7 category automations after the 20x schedule change.
+- The checker now enforces GUI-facing 20x names, exact RRULEs, 20 daily starts, at least 30 minutes between starts, full `MVP-001` through `MVP-030` prompt coverage, A-material prompt language, and interactive-prompt bans across PowerShell and JavaScript scripts.
+
+Recommended next slice:
+- Keep the next automation work scoped to this project and let the 20x runners prioritize protected evidence permissions, Drive upload/OAuth, source-framework seed loader, production workflow endpoints/history, account lifecycle, and deployment verification.

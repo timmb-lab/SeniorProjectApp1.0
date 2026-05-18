@@ -68,7 +68,7 @@ If those account/provisioning pieces are missing, rebuild should still scaffold 
 
 ## Category Runner No-Intervention Contract
 
-The Senior Capstone automation system now uses seven active MVP requirement category runners. Each category runs hourly on a staggered schedule recorded in `docs/automation-cadence.md`, with no shared scheduled start slots. The older orchestrator, standby lanes, daily prototype job, and separate weekly audit job are superseded by these category runners.
+The Senior Capstone automation system now uses seven active MVP requirement category runners. Together they run 20 times per day on a staggered schedule recorded in `docs/automation-cadence.md`, with no shared scheduled start slots. The older orchestrator, standby lanes, daily prototype job, separate weekly audit job, and brief hourly escalation are superseded by these category runners.
 
 Each category runner should resolve everything it can resolve from accepted docs, repo evidence, saved connector approvals, and safe fallbacks. It should not stop for a human when it can:
 
@@ -79,6 +79,16 @@ Each category runner should resolve everything it can resolve from accepted docs
 - Convert an external OAuth/scope failure into a committed blocker with exact account-level action required.
 
 Human-decision entries are reserved for account ownership, legal/privacy policy, school operations, budget, credentials, and production provisioning decisions that cannot be inferred from accepted docs.
+
+## A-Material Automation Quality Bar
+
+Every productive run should produce A-material evidence. It must do one of three things:
+
+- Land verified MVP progress for a named requirement ID from `docs/mvp-requirements-catalog.md`.
+- Repair a repeatable project automation, script, checker, snapshot, or manifest failure so the same miss is less likely to recur.
+- Commit an exact blocker with the requirement ID, command or tool that failed, suspected account/tool cause, and next action.
+
+For automation maintenance, only touch automation related to this project: local Senior Capstone automation TOMLs, prompt snapshots, automation docs/logs/manifests, project automation scripts/checkers, and project automation memory.
 
 ## Autonomous Loop Contract
 

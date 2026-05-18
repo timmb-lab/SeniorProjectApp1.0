@@ -322,6 +322,20 @@ Bryan explicitly asked for the automation to run as many times per day as practi
 
 This cadence is the Codex GUI-facing source of truth. It is intentionally aggressive, but the accepted-pass goal remains evidence-based rather than schedule-count based: hourly runs should move, verify, or log one bounded requirement slice, and they should write a committed blocker instead of waiting for human approval when external account/tool authorization is missing.
 
+### 2026-05-18 20x Automation Readiness
+
+Bryan then asked to make the automation A-material and ready to run 20x/day while touching only this project's automation. The current Codex GUI-facing source of truth is now the 20x/day Senior Capstone system: 20 total project starts per day, distributed across seven category runners by MVP risk.
+
+- `requirements-audit`: `00:03`, `12:03`, `23:03`.
+- `backend-security-data`: `01:15`, `07:15`, `13:15`, `19:15`.
+- `student-workflow-evidence`: `02:27`, `08:27`, `14:27`, `20:27`.
+- `staff-review-mentor`: `03:39`, `10:39`, `18:39`.
+- `admin-ops-reporting`: `04:51`, `15:51`.
+- `deployment-qa`: `06:03`, `17:03`.
+- `design-assets-handoff`: `09:39`, `21:39`.
+
+A-material automation means each productive run must do one of three things: land verified MVP progress, repair a repeatable project automation/script/checker failure, or commit an exact blocker that makes the next account/tool action clear. It must name requirement IDs, log durable evidence, run relevant checks, commit, push, and avoid waiting for human approval on project-owned files/scripts/commits.
+
 ### Updated 100-Pass Allocation From Current State
 
 Use this allocation as the working budget until a committed implementation pass proves it should change:

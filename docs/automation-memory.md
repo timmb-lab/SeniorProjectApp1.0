@@ -27,7 +27,7 @@ Figma is the heavy product-design source for functional app screens, database-ba
 - Google Drive evidence repository root folder `1XPgYKbIMqv332DAJZJNJetHppFB670e7` and index sheet `1b446rp3oyx9G4LpKYE47qXxpU41EOW-2Ota2fGum49c` exist and are wired into Pages config and D1 metadata. Server-side Drive upload credential/OAuth flow remains pending.
 - Alpha state-machine tests, alpha contract checks, and GitHub Actions CI workflows now exist (`tests/alpha-flow.test.mjs`, `scripts/check-alpha-contract.mjs`, `npm run check`, `.github/workflows/ci.yml`, and `.github/workflows/alpha-ci.yml`); broader auth/permission/Drive-upload tests remain incomplete.
 - Source PDFs have been extracted and converted into app-native requirements in `data/capstone-framework.json`.
-- Bryan reset the Senior Capstone automation setup on 2026-05-18. The old active/standby automation set was deleted from the active local automation registry and replaced with seven active MVP requirement category runners. Bryan then escalated the cadence to hourly per category, creating 168 scheduled starts/day with staggered GUI-visible minute offsets.
+- Bryan reset the Senior Capstone automation setup on 2026-05-18. The old active/standby automation set was deleted from the active local automation registry and replaced with seven active MVP requirement category runners. Bryan later tuned the cadence to a 20x/day Senior Capstone system, creating 20 total scheduled starts/day distributed by MVP risk across the seven categories.
 - The category source of truth is `docs/mvp-requirements-catalog.md`. Every category run must ladder from `docs/master-plan.md` into that catalog, name requirement IDs advanced, and update catalog status/evidence/blockers when material progress happens.
 - Design/guided-prototype upkeep is now part of `senior-capstone-design-assets-handoff`, not a separate daily automation.
 - Daily reporting and weekly audit work are now category responsibilities rather than separate active automation records.
@@ -52,7 +52,7 @@ The 100-pass master plan was refreshed on 2026-05-18 after the professional-plan
 
 Immediate next five useful passes: broaden auth/permission/evidence tests, extend alpha data into real workflow endpoints, add Google Drive upload credential/OAuth implementation, implement account provisioning/invitation/password-reset lifecycle, then deepen mobile/error/empty/permission alpha QA. The D1-backed alpha flow, persona switcher, student/teacher/mentor/admin/misc-admin views, fake login-capable role accounts, audit timeline, runbook, alpha-week framework, alpha contract checker, preview deploy command, CI workflows, production deployment, and first-admin bootstrap verification now exist.
 
-Real daily MVP goal: minimum 2 accepted MVP passes per calendar day, stretch 3 when unblocked, and at least 14 accepted MVP passes per week until the 100-pass target is met or recalibrated. Until the Day 7 alpha is accepted, the first two accepted passes each day should usually be app-flow implementation or alpha verification, not broad design polish or production account hardening. The 168 daily category starts are capacity, not a goal to count scheduled starts as accepted passes. The `requirements-audit` category must review the prior seven days of committed run evidence and adjust only this project's next-week daily goal/allocation in `docs/master-plan.md`, `docs/automation-memory.md`, and `docs/mvp-requirements-catalog.md` when evidence requires it.
+Real daily MVP goal: minimum 2 accepted MVP passes per calendar day, stretch 3 when unblocked, and at least 14 accepted MVP passes per week until the 100-pass target is met or recalibrated. Until the Day 7 alpha is accepted, the first two accepted passes each day should usually be app-flow implementation or alpha verification, not broad design polish or production account hardening. The 20 daily category starts are capacity, not a goal to count scheduled starts as accepted passes. The `requirements-audit` category must review the prior seven days of committed run evidence and adjust only this project's next-week daily goal/allocation in `docs/master-plan.md`, `docs/automation-memory.md`, and `docs/mvp-requirements-catalog.md` when evidence requires it.
 
 Current account/provisioning watchpoint: Cloudflare Pages/D1 setup is done for the first foundation, district SSO is explicitly unavailable for MVP, and the Google Drive evidence root folder is now selected/configured. First-admin credentials and fake test-account credentials were generated into ignored local `.secrets/` storage; bootstrap is complete, production setup key is removed, and four fake `.test` role accounts can log in. Remaining account/config-owned work is server-side Drive upload credentials/OAuth, invitation/import/password-reset flows, credential rotation, broader permission tests, and any district/privacy approval before real student records are entered.
 
@@ -140,15 +140,16 @@ Read `docs/progress/decision-log.md` for accepted or superseded decisions.
 - `D-2026-05-18-023`: use `docs/alpha-week-framework.md`, `npm run check`, `scripts/check-alpha-contract.mjs`, `.github/workflows/alpha-ci.yml`, and `npm run deploy:preview` as the Day 7 alpha execution/verification rail.
 - `D-2026-05-18-024`: delete the prior Senior Capstone active/standby automation setup and replace it with seven active MVP requirement category runners, laddering from `docs/mvp-requirements-catalog.md`.
 - `D-2026-05-18-025`: escalate the seven category runners to hourly execution, 168 scheduled starts/day total, with no human approvals inside project scripts, GUI-facing hourly names, and self-improvement to scripts/checkers as evidence requires.
+- `D-2026-05-18-026`: tune the seven category runners into a 20x/day A-material automation system with no shared start slots, no human approvals inside project scripts, explicit GUI-facing `20x System` names, requirement laddering, and script/checker self-improvement.
 
 Current category automation IDs:
-- `senior-capstone-mvp-requirements-audit` (`ACTIVE`; hourly at `:03` PT; GUI name `Senior Capstone Hourly MVP Requirements + Audit`)
-- `senior-capstone-backend-security-data` (`ACTIVE`; hourly at `:11` PT; GUI name `Senior Capstone Hourly Backend Security + Data`)
-- `senior-capstone-student-workflow-evidence` (`ACTIVE`; hourly at `:19` PT; GUI name `Senior Capstone Hourly Student Workflow + Evidence`)
-- `senior-capstone-staff-review-mentor` (`ACTIVE`; hourly at `:27` PT; GUI name `Senior Capstone Hourly Staff Review + Mentor`)
-- `senior-capstone-admin-ops-reporting` (`ACTIVE`; hourly at `:35` PT; GUI name `Senior Capstone Hourly Admin Ops + Reporting`)
-- `senior-capstone-deployment-qa` (`ACTIVE`; hourly at `:43` PT; GUI name `Senior Capstone Hourly Deployment QA + CI`)
-- `senior-capstone-design-assets-handoff` (`ACTIVE`; hourly at `:51` PT; GUI name `Senior Capstone Hourly Design Assets + Handoff`)
+- `senior-capstone-mvp-requirements-audit` (`ACTIVE`; `00:03`, `12:03`, `23:03` PT; GUI name `Senior Capstone 20x System - Requirements + Audit`)
+- `senior-capstone-backend-security-data` (`ACTIVE`; `01:15`, `07:15`, `13:15`, `19:15` PT; GUI name `Senior Capstone 20x System - Backend Security + Data`)
+- `senior-capstone-student-workflow-evidence` (`ACTIVE`; `02:27`, `08:27`, `14:27`, `20:27` PT; GUI name `Senior Capstone 20x System - Student Workflow + Evidence`)
+- `senior-capstone-staff-review-mentor` (`ACTIVE`; `03:39`, `10:39`, `18:39` PT; GUI name `Senior Capstone 20x System - Staff Review + Mentor`)
+- `senior-capstone-admin-ops-reporting` (`ACTIVE`; `04:51`, `15:51` PT; GUI name `Senior Capstone 20x System - Admin Ops + Reporting`)
+- `senior-capstone-deployment-qa` (`ACTIVE`; `06:03`, `17:03` PT; GUI name `Senior Capstone 20x System - Deployment QA + CI`)
+- `senior-capstone-design-assets-handoff` (`ACTIVE`; `09:39`, `21:39` PT; GUI name `Senior Capstone 20x System - Design Assets + Handoff`)
 
 ## Handoff Rules
 
@@ -191,7 +192,15 @@ Every run should also record `self-improvement: none` or a specific self-improve
 ## 2026-05-18 12:55 PT - Hourly Automation Escalation
 
 - Bryan asked to ensure the Senior Capstone automation runs as many times per day as possible with no human approvals, logging, laddering, and self-improvement to scripts as it goes.
+- Superseded by the 20x/day A-material tuning below.
 - Updated all seven local Codex automation TOMLs to GUI-facing hourly names and hourly RRULEs: `:03`, `:11`, `:19`, `:27`, `:35`, `:43`, and `:51` every hour in America/Los_Angeles.
 - The resulting cadence is 168 scheduled starts/day and 24 starts/category/day, with no exact start overlap.
 - The live prompts now include a no-human-approval rule and a self-improvement-to-scripts rule.
 - `scripts/check-automation-contract.ps1` now enforces hourly names/RRULEs, 168 daily starts, prompt coverage, prompt no-human-approval/self-improvement fragments, and interactive-prompt bans across PowerShell and JavaScript project scripts.
+
+## 2026-05-18 13:07 PT - 20x A-Material Automation Readiness
+
+- Bryan asked to make any needed changes to get this A-material and ready to run 20x/day while only touching automation related to this project.
+- Updated all seven local Codex automation TOMLs to GUI-facing `Senior Capstone 20x System - ...` names and a 20 total starts/day schedule weighted toward backend/security and student workflow.
+- A-material prompt rules now require verified MVP progress, a repeatable automation/script/checker repair, or an exact committed blocker with requirement IDs, validation, and next action.
+- The checker now enforces the 20x/day schedule, no shared start slots, at least 30 minutes between starts, no-human-approval language, self-improvement-to-scripts language, and the project-only automation maintenance scope.

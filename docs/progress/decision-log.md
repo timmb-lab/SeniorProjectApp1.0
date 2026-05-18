@@ -263,7 +263,7 @@ Decision status values:
 
 ### D-2026-05-18-025
 
-- `status`: accepted
+- `status`: superseded by `D-2026-05-18-026`
 - `area`: hourly automation escalation, no-human-approval scripts, Codex GUI visibility
 - `decision`: Escalate the seven active Senior Capstone MVP category runners to hourly execution with GUI-facing hourly names, staggered minute offsets, no project-script human approval gates, required logging/laddering, and self-improvement to scripts/checkers as evidence requires.
 - `schedule`: `requirements-audit` at `:03`, `backend-security-data` at `:11`, `student-workflow-evidence` at `:19`, `staff-review-mentor` at `:27`, `admin-ops-reporting` at `:35`, `deployment-qa` at `:43`, and `design-assets-handoff` at `:51` every hour in America/Los_Angeles.
@@ -272,3 +272,16 @@ Decision status values:
 - `applies to`: local Senior Capstone automation TOMLs, `docs/automation-cadence.md`, `docs/automation-runbook.md`, `docs/automation-memory.md`, `docs/master-plan.md`, prompt snapshots, `scripts/check-automation-contract.ps1`, and future run manifests.
 - `source`: User request on 2026-05-18: "Ensure this is running as many times a day as possible with no human approvals, logging, laddering, and self improvement to script as you go -- ensure that it's showing coirrectly in the Codex GUI too"
 - `last updated`: 2026-05-18 12:55 PT
+
+### D-2026-05-18-026
+
+- `status`: accepted
+- `area`: 20x/day A-material automation readiness and project-only automation scope
+- `decision`: Tune the seven active Senior Capstone category runners into a 20x/day project automation system with no shared start slots, GUI-facing `Senior Capstone 20x System - ...` names, no project-script human approval gates, required logging/laddering, and self-improvement to scripts/checkers when evidence justifies it.
+- `schedule`: `requirements-audit` at `00:03`, `12:03`, `23:03`; `backend-security-data` at `01:15`, `07:15`, `13:15`, `19:15`; `student-workflow-evidence` at `02:27`, `08:27`, `14:27`, `20:27`; `staff-review-mentor` at `03:39`, `10:39`, `18:39`; `admin-ops-reporting` at `04:51`, `15:51`; `deployment-qa` at `06:03`, `17:03`; and `design-assets-handoff` at `09:39`, `21:39`.
+- `A-material quality bar`: Each productive run must land verified MVP progress, repair a repeatable project automation/script/checker failure, or commit an exact blocker with requirement IDs, validation, and next action.
+- `guardrail`: Only touch automation related to this project during automation maintenance. Product implementation remains allowed only when a category run selects a bounded MVP requirement slice from the master plan/catalog.
+- `reason`: Bryan explicitly asked to make any needed changes to get the automation A-material and ready to run 20x/day while only touching automation related to this project.
+- `applies to`: local Senior Capstone automation TOMLs, `docs/automation-cadence.md`, `docs/automation-runbook.md`, `docs/automation-memory.md`, `docs/master-plan.md`, prompt snapshots, `scripts/check-automation-contract.ps1`, and future run manifests.
+- `source`: User request on 2026-05-18: "Make any and all changes you need to get this A material and ready to run 20x a day ... only touch automation related to this project"
+- `last updated`: 2026-05-18 13:07 PT

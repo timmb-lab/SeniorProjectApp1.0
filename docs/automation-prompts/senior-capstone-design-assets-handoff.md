@@ -1,22 +1,22 @@
 ﻿---
 automation_id: "senior-capstone-design-assets-handoff"
-name: "Senior Capstone Hourly Design Assets + Handoff"
-snapshot_generated_utc: "2026-05-18T19:57:36Z"
-rrule: "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23;BYMINUTE=51"
+name: "Senior Capstone 20x System - Design Assets + Handoff"
+snapshot_generated_utc: "2026-05-18T20:07:43Z"
+rrule: "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=9,21;BYMINUTE=39"
 model: "gpt-5.2"
 reasoning_effort: "high"
-prompt_sha256: "8c1aebc71cf11e1f51489809bc660a69254f43549035e8583cdf95cb7e26358a"
+prompt_sha256: "0d26086d6c48a817b2065b12a63ed610faa88c21cccfde078efdd1206b5f3f9b"
 source_toml: "C:\Users\bryan\.codex\automations\senior-capstone-design-assets-handoff\automation.toml"
 ---
 
-# Senior Capstone Hourly Design Assets + Handoff
+# Senior Capstone 20x System - Design Assets + Handoff
 
 ## Prompt
 
 ~~~~text
 Role: Senior Capstone Design Assets + Handoff.
 Automation category: design-assets-handoff.
-Schedule intent: run hourly in America/Los_Angeles at minute :51 every hour (24x/day). This is the Codex GUI-facing cadence for maximum sustainable automation: keep this category ACTIVE and do not reduce schedule, workspace, model, reasoning effort, or status unless Bryan explicitly asks.
+Schedule intent: this runner is one slice of the 20x/day Senior Capstone system. Run 2x/day in America/Los_Angeles at 09:39 and 21:39. Keep this category ACTIVE and do not change schedule, workspace, model, reasoning effort, or status unless Bryan explicitly asks.
 
 Category ownership: Figma route/data/permission specs, active file z4t4tFPAKrMDh6pIYOeEw6, guided prototype/page annotations, shared components, mobile/accessibility states, Canva supporting image families, app-placement specs, alt text, privacy/live-text discipline, and rebuild-ready handoffs.
 
@@ -27,6 +27,8 @@ Mission: build the Senior Capstone MVP as a GitHub-to-Cloudflare hosted, securit
 Start every run by inspecting git status --short --branch. Then read docs/master-plan.md, docs/mvp-requirements-catalog.md, docs/automation-runbook.md, docs/automation-self-improvement.md, docs/automation-cadence.md, docs/automation-milestones.md, docs/automation-memory.md, docs/progress/run-log.md, recent docs/progress/runs/, docs/progress/handoffs.md, docs/progress/decision-log.md, docs/automation-backlog.md, docs/artifacts.json, docs/human-decisions.md, and relevant progress logs before selecting work.
 
 Laddering rule: name the master-plan section and requirement IDs from docs/mvp-requirements-catalog.md that justify the slice. Pick one bounded highest-risk incomplete requirement in this category, prefer implementation/tests/deployment evidence over planning, update the catalog when status/evidence/blockers change, and avoid repeating recent work. While the Day 7 alpha is incomplete, prioritize alpha flow, verification, permissions, private evidence, Cloudflare proof, and exact blockers over broad polish.
+
+A-material quality bar: every productive run must either land a verified MVP implementation slice, improve a project automation/script/checker that prevents repeat failure, or commit an exact blocker. Avoid vague planning; include acceptance evidence, requirement IDs, validation commands, and next action. Only touch automation related to this project when doing automation maintenance.
 
 Self-improvement to scripts as you go: use docs/automation-self-improvement.md as the guardrail. If no prompt/config/script repair is justified, log self-improvement: none. If this automation's own prompt/config must change and the tool is available, update only this automation. If a repeatable repo check can prevent the miss next time, update scripts/check-automation-contract.ps1 or the smallest relevant project script, regenerate snapshots with scripts/snapshot-automation-prompts.ps1, run the checker, log the evidence, commit, and push.
 

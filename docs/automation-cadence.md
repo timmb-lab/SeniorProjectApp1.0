@@ -2,7 +2,7 @@
 
 Date: 2026-05-18
 
-Bryan explicitly reset the Senior Capstone automation setup on 2026-05-18, then explicitly escalated the cadence the same day. The prior project automations were deleted from the active local automation set and replaced with seven MVP requirement category runners. Each category now runs hourly in America/Los_Angeles, with distinct minute offsets so no two Senior Capstone category automations share a scheduled start.
+Bryan explicitly reset the Senior Capstone automation setup on 2026-05-18, then explicitly tuned the cadence the same day. The prior project automations were deleted from the active local automation set and replaced with seven MVP requirement category runners. The current production cadence is a 20x/day Senior Capstone system in America/Los_Angeles, distributed across the seven categories by risk with no shared scheduled start.
 
 End goal: a GitHub-to-Cloudflare hosted Senior Capstone app whose MVP is a secure database-backed operating system with users, groups, roles, programs, cohorts, progress updates, submissions, private evidence, reviews, approvals, dashboards, announcements, admin controls, audit logs, exports, and protected student records.
 
@@ -25,15 +25,15 @@ Contract checker: `scripts/check-automation-contract.ps1`.
 
 | Category | Automation ID | Schedule PT | RRULE | Primary output |
 | --- | --- | --- | --- | --- |
-| Requirements + Audit | `senior-capstone-mvp-requirements-audit` | hourly at `:03` | `FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23;BYMINUTE=03` | Requirement catalog, backlog hygiene, accepted-pass count, weekly calibration. |
-| Backend Security + Data | `senior-capstone-backend-security-data` | hourly at `:11` | `FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23;BYMINUTE=11` | Auth, users, groups, roles, permissions, D1 schema, server authorization. |
-| Student Workflow + Evidence | `senior-capstone-student-workflow-evidence` | hourly at `:19` | `FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23;BYMINUTE=19` | Student dashboard, proposal/research, progress, evidence metadata, mobile student path. |
-| Staff Review + Mentor | `senior-capstone-staff-review-mentor` | hourly at `:27` | `FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23;BYMINUTE=27` | Teacher review, revision, approval, comments, mentor meetings, presentation scheduling. |
-| Admin Ops + Reporting | `senior-capstone-admin-ops-reporting` | hourly at `:35` | `FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23;BYMINUTE=35` | Admin provisioning, deadlines/templates, announcements, exports, audit views, misc-admin narrowing. |
-| Deployment QA + CI | `senior-capstone-deployment-qa` | hourly at `:43` | `FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23;BYMINUTE=43` | Cloudflare preview/prod proof, CI, smoke tests, secrets/env checks, backup/readiness notes. |
-| Design Assets + Handoff | `senior-capstone-design-assets-handoff` | hourly at `:51` | `FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23;BYMINUTE=51` | Figma implementation specs, Canva supporting imagery, component/state handoffs, guided prototype. |
+| Requirements + Audit | `senior-capstone-mvp-requirements-audit` | `00:03`, `12:03`, `23:03` | `FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=0,12,23;BYMINUTE=03` | Requirement catalog, backlog hygiene, accepted-pass count, weekly calibration. |
+| Backend Security + Data | `senior-capstone-backend-security-data` | `01:15`, `07:15`, `13:15`, `19:15` | `FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=1,7,13,19;BYMINUTE=15` | Auth, users, groups, roles, permissions, D1 schema, server authorization. |
+| Student Workflow + Evidence | `senior-capstone-student-workflow-evidence` | `02:27`, `08:27`, `14:27`, `20:27` | `FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=2,8,14,20;BYMINUTE=27` | Student dashboard, proposal/research, progress, evidence metadata, mobile student path. |
+| Staff Review + Mentor | `senior-capstone-staff-review-mentor` | `03:39`, `10:39`, `18:39` | `FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=3,10,18;BYMINUTE=39` | Teacher review, revision, approval, comments, mentor meetings, presentation scheduling. |
+| Admin Ops + Reporting | `senior-capstone-admin-ops-reporting` | `04:51`, `15:51` | `FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=4,15;BYMINUTE=51` | Admin provisioning, deadlines/templates, announcements, exports, audit views, misc-admin narrowing. |
+| Deployment QA + CI | `senior-capstone-deployment-qa` | `06:03`, `17:03` | `FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=6,17;BYMINUTE=03` | Cloudflare preview/prod proof, CI, smoke tests, secrets/env checks, backup/readiness notes. |
+| Design Assets + Handoff | `senior-capstone-design-assets-handoff` | `09:39`, `21:39` | `FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=9,21;BYMINUTE=39` | Figma implementation specs, Canva supporting imagery, component/state handoffs, guided prototype. |
 
-This creates 168 Senior Capstone starts per day, 24 per category. The GUI-visible minute offsets are staggered across each hour so there are no exact scheduled start overlaps. Each runner must keep its own slice bounded, favor implementation or verification evidence, and must not overwrite unrelated dirty work. If the worktree is dirty because another category run is still closing, the runner should classify the dirty files, avoid staging unrelated changes, and either pick a non-conflicting read-only/verification slice or record a compact committed blocker.
+This creates 20 Senior Capstone starts per day across the project, weighted toward backend/security and student workflow while preserving all seven categories. The start slots are staggered with no exact overlaps and at least 30 minutes between starts. Each runner must keep its own slice bounded, favor implementation or verification evidence, and must not overwrite unrelated dirty work. If the worktree is dirty because another category run is still closing, the runner should classify the dirty files, avoid staging unrelated changes, and either pick a non-conflicting read-only/verification slice or record a compact committed blocker.
 
 ## Shared Operating Contract
 
@@ -44,6 +44,7 @@ Every category automation must:
 - Read `docs/automation-runbook.md`, `docs/automation-self-improvement.md`, `docs/automation-cadence.md`, `docs/automation-milestones.md`, `docs/automation-memory.md`, `docs/progress/run-log.md`, recent `docs/progress/runs/`, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, and the relevant lane/category logs.
 - Name the master-plan section and requirement IDs that justify the slice.
 - Choose one bounded slice from its category, preferring P0/P1 MVP gaps and Day 7 alpha work while the alpha is incomplete.
+- Meet the A-material quality bar: land verified MVP progress, repair a repeatable automation/script/checker failure, or commit an exact blocker with requirement IDs, validation, and next action.
 - Update `docs/mvp-requirements-catalog.md` when status, evidence, blocker, or acceptance checks materially change.
 - Update the relevant progress log, `docs/progress/run-log.md`, and one structured manifest in `docs/progress/runs/`.
 - Update `docs/automation-memory.md`, handoffs, decisions, backlog, artifacts, or human decisions when materially needed.
