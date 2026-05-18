@@ -1696,6 +1696,7 @@ const vocabularyTerms = [
 
 const navItems = [
   { page: "home", label: "Home", href: "index.html" },
+  { page: "alpha", label: "Day 7 Alpha", href: "alpha.html" },
   { page: "app-preview", label: "Product App Preview", href: "app-preview.html" },
   { page: "process", label: "Process", href: "process.html" },
   { page: "pacing", label: "Pacing", href: "pacing.html" },
@@ -2554,6 +2555,7 @@ function supportCardHtml([title, body, href]) {
 
 function supportCardsHtml() {
   return [
+    ["Day 7 Alpha", "Walk the working seeded app flow with server-owned demo state.", "alpha.html"],
     ["Product App Preview", "See the Figma-aligned student, teacher, mentor, and admin app surface.", "app-preview.html"],
     ["Pacing", "See what should happen now, next, and later.", "pacing.html"],
     ["Examples", "Look at weak, better, and strongest samples.", "examples.html"],

@@ -5,16 +5,45 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta
       name="description"
-      content="Day 7 alpha workspace for the Senior Capstone MVP app with seeded personas and role-aware workflow state."
+      content="Day 7 alpha flow for the East Career and Technical Academy Senior Capstone app."
     >
     <title>Day 7 Alpha | Senior Capstone App</title>
-    <link rel="stylesheet" href="alpha.css?v=20260518-alpha-shell">
+    <link rel="stylesheet" href="styles.css?v=20260518-alpha">
+    <link rel="stylesheet" href="alpha.css?v=20260518-alpha">
   </head>
-  <body>
-    <a class="skip-link" href="#alpha-main">Skip to alpha workspace</a>
-    <main id="alpha-main" class="alpha-root" aria-live="polite">
-      <div id="alphaRoot" class="alpha-loading">Loading alpha workspace...</div>
+  <body data-page="alpha">
+    <a class="skip-link" href="#alphaMain">Skip to alpha workspace</a>
+    <main id="alphaMain" class="alpha-shell" aria-live="polite">
+      <aside class="alpha-sidebar" aria-label="Alpha personas">
+        <a class="alpha-brand" href="index.html">
+          <span class="alpha-brand-mark">SC</span>
+          <span>Senior Capstone</span>
+        </a>
+        <div>
+          <p class="alpha-kicker">Day 7 Alpha</p>
+          <h1>App Flow Console</h1>
+          <p class="alpha-boundary">Seeded demo personas only. No production accounts or real student records.</p>
+        </div>
+        <div id="personaTabs" class="alpha-persona-tabs"></div>
+      </aside>
+
+      <section class="alpha-workspace">
+        <header class="alpha-topbar">
+          <div>
+            <p class="alpha-kicker">Working alpha loop</p>
+            <h2 id="workspaceTitle">Loading alpha state</h2>
+          </div>
+          <div class="alpha-topbar-actions">
+            <button class="alpha-button" data-action="run_readiness_report" type="button">Run Report</button>
+            <button class="alpha-button alpha-button-danger" data-action="reset_alpha" type="button">Reset</button>
+          </div>
+        </header>
+
+        <div id="alphaStatus" class="alpha-status-line">Loading server-owned alpha state...</div>
+        <div id="alphaRoot" class="alpha-grid"></div>
+      </section>
     </main>
-    <script type="module" src="alpha.js?v=20260518-alpha-shell"></script>
+
+    <script type="module" src="alpha.js?v=20260518-alpha"></script>
   </body>
 </html>

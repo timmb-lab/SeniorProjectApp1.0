@@ -68,3 +68,17 @@ Each rebuild run should append a dated entry with:
 - `self-improvement`: none; no live automation prompt/config change was made.
 - `commit/push status`: pending in this run.
 - `next action`: Persist alpha proposal/review/evidence/audit transitions through D1 or a server-owned demo-state API, add tests/CI, verify mobile no-overflow, and attempt Cloudflare preview deployment.
+
+### 2026-05-18 11:58 PT - Day 7 Alpha Flow Blocks
+
+- `automation`: interactive rebuild pass from Bryan's "list next step blocks and solve them" request
+- `master-plan section`: Day 7 Alpha Gate; MVP 1.0 Vertical Slice; Stack And Deployment Direction; Logging Requirements
+- `source docs/logs read`: `docs/automation-memory.md`, `docs/automation-backlog.md`, `docs/progress/handoffs.md`, `docs/progress/run-log.md`, `docs/artifacts.json`, `functions/`, `migrations/0001_foundation.sql`, `package.json`, and Cloudflare Pages/D1 state.
+- `backlog or handoff IDs selected`: `SC-005`, `SC-006`, `SC-003`, `H-2026-05-18-006`.
+- `bounded scope`: Solve the immediate alpha-flow/test/CI block by adding a D1-backed seeded alpha state API, the Day 7 alpha app surface, state-machine tests, CI workflow, and alpha runbook; stage first-admin bootstrap credentials in ignored local secret storage.
+- `files changed`: `.gitignore`, `.github/workflows/ci.yml`, `README.md`, `app.js`, `alpha.html`, `alpha.css`, `alpha.js`, `functions/_lib/alpha-flow-model.js`, `functions/api/alpha/state.js`, `tests/alpha-flow.test.mjs`, `docs/alpha-runbook.md`, `docs/artifacts.json`, `docs/automation-memory.md`, `docs/automation-backlog.md`, `docs/progress/handoffs.md`, `docs/progress/rebuild.md`, `docs/progress/run-log.md`, and structured run manifest.
+- `external/config changes`: Cloudflare Pages production `APP_ENV` patched to `production`; one-time bootstrap setup key staged in Pages config pending production deployment and bootstrap call; first-admin credentials generated into ignored `.secrets/first-admin-bootstrap-2026-05-18.json`.
+- `validation`: Node alpha state-machine tests passed; Node syntax checks passed for `app.js`, `alpha.js`, `functions/_lib/alpha-flow-model.js`, and `functions/api/alpha/state.js`; local smoke API returned seeded alpha state; Edge headless DOM check rendered the mobile alpha workspace with metrics, evidence, and audit content.
+- `self-improvement`: none.
+- `commit/push status`: pending in this interactive pass.
+- `next action`: Commit/push, wait for Cloudflare Pages production deployment, verify `/alpha.html` and `/api/alpha/state`, complete first-admin bootstrap, then remove `BOOTSTRAP_SETUP_KEY` from Pages config.

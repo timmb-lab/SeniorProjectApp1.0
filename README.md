@@ -36,6 +36,10 @@ Then open `http://localhost:8788/alpha.html`. This requires Node/npm plus Wrangl
 
 The first Cloudflare MVP foundation is scaffolded with Pages Functions, D1, hardened username/password auth endpoints, and Google Drive evidence-repository metadata. Setup notes and live resource IDs are tracked in `docs/backend-setup.md`.
 
+## Day 7 Alpha
+
+The working alpha flow lives at `alpha.html` and uses `/api/alpha/state` for D1-backed seeded demo state. The runbook is `docs/alpha-runbook.md`.
+
 ## Teacher Companion
 
 Teacher planning notes live in `teacher-companion/implementation-guide.md`. They are not linked from the student guide.

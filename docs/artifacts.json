@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-05-18T11:32:00-07:00",
+  "updated_at": "2026-05-18T11:58:00-07:00",
   "artifacts": [
     {
       "id": "cloudflare-pages-senior-capstone-app",
@@ -30,6 +30,40 @@
       "verification": [
         "Cloudflare API returned project id 45041fa7-82ad-489d-a928-962d53c3b95a on 2026-05-18.",
         "Preview and production deployment configs include DB D1 binding, hardened username/password auth mode, Google Drive evidence provider, evidence root folder id, evidence index sheet id, PASSWORD_PEPPER and SESSION_PEPPER secret_text vars, and fail_open=false."
+      ],
+      "last_updated": "2026-05-18"
+    },
+    {
+      "id": "day-7-alpha-flow-app",
+      "type": "web_app_flow",
+      "status": "active_alpha",
+      "owner_lane": "rebuild",
+      "title": "Day 7 Alpha App Flow",
+      "url": "https://senior-capstone-app.pages.dev/alpha.html",
+      "local_entry": "alpha.html",
+      "api_route": "/api/alpha/state",
+      "purpose": "D1-backed seeded alpha walkthrough for student, program teacher, mentor, admin, and misc-admin app flow without production user accounts.",
+      "app_placement": "Primary Day 7 alpha surface; backed by app_settings key alpha.demo_state.v1 and alpha audit records.",
+      "consuming_lanes": [
+        "rebuild",
+        "audit",
+        "daily-report",
+        "weekly-deep-audit",
+        "figma"
+      ],
+      "repo_records": [
+        "alpha.html",
+        "alpha.css",
+        "alpha.js",
+        "functions/api/alpha/state.js",
+        "functions/_lib/alpha-flow-model.js",
+        "tests/alpha-flow.test.mjs",
+        "docs/alpha-runbook.md"
+      ],
+      "verification": [
+        "Node test suite passed 5 alpha state-machine tests on 2026-05-18.",
+        "Node syntax checks passed for alpha client, alpha Pages Function, alpha model, and existing app.js on 2026-05-18.",
+        "Local HTTP smoke API returned seeded alpha state; Edge headless DOM check rendered Student workspace, metrics, evidence, and audit content on mobile viewport."
       ],
       "last_updated": "2026-05-18"
     },

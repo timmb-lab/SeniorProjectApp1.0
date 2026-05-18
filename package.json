@@ -11,7 +11,8 @@
     "db:migrate:remote": "wrangler d1 migrations apply senior-capstone-db --remote",
     "check:alpha": "node --check alpha.js",
     "check:cloudflare": "wrangler check",
-    "types": "wrangler types functions/worker-configuration.d.ts"
+    "types": "wrangler types functions/worker-configuration.d.ts",
+    "test": "node --test tests/*.test.mjs"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20260518.1",
