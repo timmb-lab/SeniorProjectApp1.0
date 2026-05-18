@@ -43,9 +43,9 @@ export const onRequest: PagesFunction<Env> = async ({ request, env }) => {
 
   const userId = randomId("user");
   const emailNorm = normalizeEmail(email);
-  const credential = await hashPassword(password, env.PASSWORD_PEPPER || "");
 
   try {
+    const credential = await hashPassword(password, env.PASSWORD_PEPPER || "");
     await env.DB.prepare(
       `INSERT INTO user_accounts (id, email, email_norm, display_name, status)
        VALUES (?, ?, ?, ?, 'active')`,
