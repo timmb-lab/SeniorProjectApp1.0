@@ -60,3 +60,13 @@ Decision status values:
 - `applies to`: all Senior Capstone automation lanes, weekly reporting/audit flow, master-plan upkeep, backlog and handoff governance
 - `source`: user request: "A weekly automation that does a LONG LONG LONG HUGE HUGE HUGE PIECE BY PIECE BIT BY BIT AUDIT ON WHERE AND HOW IT CAN BE IMPROVED FED INTO MSATER PLAN AND THE LOGS"
 - `last updated`: 2026-05-18
+
+### D-2026-05-18-006
+
+- `status`: accepted
+- `area`: product design source of truth
+- `decision`: Treat Figma file `LLucMgAPscRa9020iHHigB` (`https://www.figma.com/design/LLucMgAPscRa9020iHHigB`) as the active Senior Capstone product UI source. The previous Figma file `fkfNI9JNy0A3Rm8KnoxJLj` is superseded historical context because canvas writing was blocked by the old Figma Starter MCP tool-call limit.
+- `reason`: Bryan updated the connected Figma account and requested the Figma work be regenerated. The regenerated file was created and populated successfully under the updated Figma connection, with three pages, 9 components, core app screens, metadata verification, and screenshot verification.
+- `applies to`: Figma automation, rebuild automation, audit automation, Canva automation, daily report, weekly deep audit, Figma specs and handoffs
+- `source`: user request: "I updated my Figma account so it's using a new one - regenerate all the Figma stuff in the new account - it has higher limits now -- and then adjust all automations accordingly"
+- `last updated`: 2026-05-18

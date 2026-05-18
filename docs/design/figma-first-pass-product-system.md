@@ -10,14 +10,16 @@ Master-plan sections referenced:
 - Logging Requirements
 
 Figma artifact:
-- File: `Senior Capstone App - Product UI First Pass`
-- File key: `fkfNI9JNy0A3Rm8KnoxJLj`
-- URL: `https://www.figma.com/design/fkfNI9JNy0A3Rm8KnoxJLj`
+- Active file: `Senior Capstone App - Product UI System Regenerated`
+- Active file key: `LLucMgAPscRa9020iHHigB`
+- Active URL: `https://www.figma.com/design/LLucMgAPscRa9020iHHigB`
+- Authenticated Figma account reported during regeneration: `timmb@nv.ccsd.net`
 
 Status:
-- File creation succeeded under `bryan.timm89@gmail.com`.
-- Direct canvas writing was blocked by the Figma Starter MCP tool-call limit before frames could be created.
-- This repo spec is therefore the canonical first-pass Figma handoff until the Figma automation can resume with available MCP quota or an upgraded plan.
+- Regenerated file creation succeeded under the updated Figma connection.
+- Direct canvas writing succeeded.
+- The file now contains the planned three-page structure, reusable component examples, desktop screens, mobile screen, and automation handoff board.
+- Prior historical file `fkfNI9JNy0A3Rm8KnoxJLj` is superseded. That file was created under the earlier Figma setup but canvas writing was blocked by the Starter MCP tool-call limit.
 
 ## Product UI Thesis
 
@@ -300,7 +302,7 @@ Required error states:
 
 ## Figma Artifact Plan
 
-When Figma MCP quota allows, build the created file as three dense pages because the Starter plan allows only three pages:
+The active regenerated file is built as three dense pages:
 
 1. `00 Master Plan + Foundations`
    - Product control center.
@@ -325,13 +327,33 @@ When Figma MCP quota allows, build the created file as three dense pages because
    - Known limits.
    - Acceptance checks.
 
+Verified active file structure:
+
+- `00 Master Plan + Foundations`
+  - Page ID: `0:1`
+  - Primary frame: `Senior Capstone Product Control Center`, node `1:4`
+  - Frame count: 50
+- `01 Components + App Screens`
+  - Page ID: `1:2`
+  - Component count: 9
+  - Primary frames:
+    - `Screen / Student Home / Desktop`, node `2:40`
+    - `Screen / Guided Proposal Form`, node `2:111`
+    - `Screen / Program Teacher Review Queue`, node `2:163`
+    - `Screens / Mentor + Admin Snapshots`, node `2:229`
+    - `Screen / Student Home / Mobile`, node `2:292`
+- `02 Automation Handoff`
+  - Page ID: `1:3`
+  - Primary frame: `Handoff Control Board`, node `3:4`
+  - Lane handoff frame: `Lane Handoff Cards`, node `3:32`
+
 ## Acceptance Checks For Next Figma Run
 
-- File contains all three planned pages.
-- At least one desktop student screen exists.
-- At least one teacher review queue screen exists.
-- At least one mobile student screen exists.
-- Components are named consistently with this spec.
+- Maintain all three planned pages unless a future accepted decision expands the file.
+- Deepen the existing desktop student screen rather than recreating it from scratch.
+- Deepen the existing teacher review queue screen rather than recreating it from scratch.
+- Deepen the existing mobile student screen rather than recreating it from scratch.
+- Components are named consistently with this spec and should become richer variants over time.
 - Every screen names role, permission scope, data source, status behavior, upload/evidence implications, and audit implications.
 - No screen uses real student data.
 - No critical app text is baked into Canva imagery.
@@ -344,15 +366,15 @@ Consumer lane:
 - Figma
 
 Artifact:
-- `https://www.figma.com/design/fkfNI9JNy0A3Rm8KnoxJLj`
+- Active: `https://www.figma.com/design/LLucMgAPscRa9020iHHigB`
+- Superseded historical: `https://www.figma.com/design/fkfNI9JNy0A3Rm8KnoxJLj`
 - This spec file.
 
 Exact next action:
-- Use Figma MCP when quota allows to build the three-page Figma file from this spec.
+- Continue from the active regenerated file. Add deeper component variants, modal states, review drawer states, permission-denied variants, upload failure/resubmission variants, and rebuild-ready data-field annotations.
 
 Acceptance check:
 - Figma progress log records page/frame IDs, screenshot or metadata verification, and next UI slice.
 
 Known limits:
-- Figma canvas write was blocked by Starter MCP tool-call limit in this manual first pass.
-- The file exists but may remain blank until the next successful Figma write.
+- The old file hit the Starter MCP tool-call limit. The active regenerated file was successfully written through the updated Figma connection.

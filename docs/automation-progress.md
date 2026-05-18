@@ -700,3 +700,37 @@ Verification:
 
 Recommended next slice:
 - Let the first Sunday run generate the initial whole-system audit, then use the Monday daily report and weekly human check-in to decide which P0/P1 items need immediate attention.
+
+## 2026-05-18 Figma Account Regeneration
+
+Intent:
+- Regenerate the Figma product UI system in the updated Figma account with higher limits and point automations at the new active design source.
+
+Active Figma artifact:
+- File: `Senior Capstone App - Product UI System Regenerated`
+- File key: `LLucMgAPscRa9020iHHigB`
+- URL: `https://www.figma.com/design/LLucMgAPscRa9020iHHigB`
+- Figma `whoami` during regeneration: `timmb@nv.ccsd.net`
+
+Superseded artifact:
+- `fkfNI9JNy0A3Rm8KnoxJLj` remains historical only. It was created successfully but canvas writing was blocked by the old Starter MCP tool-call limit.
+
+What changed:
+- Created the new Figma file.
+- Built all three planned pages:
+  - `00 Master Plan + Foundations`
+  - `01 Components + App Screens`
+  - `02 Automation Handoff`
+- Added 9 reusable component examples.
+- Added desktop student home, guided proposal form, program teacher review queue, mentor/admin snapshots, and mobile student home.
+- Added automation handoff board, permission matrix, first vertical slice flow, and acceptance checks.
+- Updated the Figma spec, Figma progress log, automation memory, backlog, handoff ledger, run log, and decision log.
+- Updated all six active Senior Capstone automations to reference active Figma file `LLucMgAPscRa9020iHHigB`.
+
+Verification:
+- Figma metadata check returned 3 pages, 212 frames total, and 9 components.
+- Screenshot verification was generated for `Screen / Student Home / Desktop` and `Handoff Control Board`.
+
+Recommended next slice:
+- Rebuild should consume `LLucMgAPscRa9020iHHigB` after the stack/scaffold decision.
+- Figma should deepen component variants and states: review drawer, upload failure, permission denied, resubmission, version history, admin override reason modal, and teacher intervention flags.

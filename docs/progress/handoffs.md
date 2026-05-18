@@ -35,18 +35,6 @@ Status values:
 - `evidence to close`: Committed ADR plus follow-up scaffold or backlog update.
 - `last updated`: 2026-05-18
 
-### H-2026-05-18-003
-
-- `source lane`: figma
-- `owner lane`: figma
-- `status`: open
-- `source`: manual Figma first-pass kickoff
-- `artifact`: Figma file `fkfNI9JNy0A3Rm8KnoxJLj`, spec `docs/design/figma-first-pass-product-system.md`
-- `next action`: Build the three-page Figma file when MCP quota allows: `00 Master Plan + Foundations`, `01 Components + App Screens`, `02 Automation Handoff`.
-- `acceptance check`: Figma progress log includes page/frame IDs plus metadata or screenshot verification.
-- `evidence to close`: Figma frame IDs committed in `docs/progress/figma.md` and the Figma file populated with the specified screens/components.
-- `last updated`: 2026-05-18
-
 ### H-2026-05-18-004
 
 - `source lane`: canva
@@ -59,6 +47,28 @@ Status values:
 - `evidence to close`: Canva design IDs or committed specs for the empty-state family plus lane progress entry.
 - `last updated`: 2026-05-18
 
+### H-2026-05-18-005
+
+- `source lane`: figma
+- `owner lane`: rebuild
+- `status`: open
+- `source`: regenerated Figma product UI system
+- `artifact`: active Figma file `LLucMgAPscRa9020iHHigB`, spec `docs/design/figma-first-pass-product-system.md`
+- `next action`: After the stack/scaffold decision, map the active Figma screens to app routes/components/data fields for the first vertical slice.
+- `acceptance check`: Rebuild plan or implementation references the active Figma frame IDs for student home, guided proposal form, evidence/review states, teacher review queue, mentor/admin dashboards, and mobile student home.
+- `evidence to close`: Committed implementation plan or code scaffold consuming the active Figma file and naming routes/components/data fields.
+- `last updated`: 2026-05-18
+
 ## Resolved Handoffs
 
-No resolved handoffs yet.
+### H-2026-05-18-003
+
+- `source lane`: figma
+- `owner lane`: figma
+- `status`: resolved
+- `source`: manual Figma first-pass kickoff
+- `artifact`: superseded Figma file `fkfNI9JNy0A3Rm8KnoxJLj`, active Figma file `LLucMgAPscRa9020iHHigB`, spec `docs/design/figma-first-pass-product-system.md`
+- `next action`: Build the three-page Figma file when MCP quota allows: `00 Master Plan + Foundations`, `01 Components + App Screens`, `02 Automation Handoff`.
+- `acceptance check`: Figma progress log includes page/frame IDs plus metadata or screenshot verification.
+- `evidence to close`: `docs/progress/figma.md` records active file `LLucMgAPscRa9020iHHigB`, all three pages, key frame IDs, 9 components, metadata verification, and screenshot verification.
+- `last updated`: 2026-05-18
