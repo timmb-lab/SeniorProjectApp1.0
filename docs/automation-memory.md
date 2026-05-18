@@ -176,3 +176,12 @@ Every productive automation run should update:
 Every run should end with a pushed commit or a committed blocker entry explaining why that could not happen.
 
 Every run should also record `self-improvement: none` or a specific self-improvement change with evidence.
+
+## 2026-05-18 12:47 PT - Automation Coverage Audit
+
+- Seven active category automations remain the live source of truth: requirements-audit, backend-security-data, student-workflow-evidence, staff-review-mentor, admin-ops-reporting, deployment-qa, and design-assets-handoff.
+- The live registry has 28 starts/day, four per category, with no overlapping category starts and at least 45 minutes between category starts.
+- A custom prompt coverage audit verified every `MVP-001` through `MVP-030` is explicitly targeted by at least one active automation prompt.
+- `scripts/check-automation-contract.ps1` now enforces all 30 catalog IDs and all 30 active-prompt coverage IDs instead of only checking representative samples.
+- Validation passed: `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\check-automation-contract.ps1 -RepoRoot .`.
+- Current implementation priorities remain protected-evidence/permission tests, Drive upload credentials/OAuth, source-framework seed loader, production workflow endpoints/history, account lifecycle hardening, and deployment verification.

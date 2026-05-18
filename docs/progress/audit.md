@@ -130,3 +130,13 @@ Each audit run should append a dated entry with:
 - `validation`: Local automation registry lists only the seven new Senior Capstone automation TOMLs; prompt snapshots regenerated; `scripts/check-automation-contract.ps1` passed for 7 category automations; `docs/artifacts.json` and run manifests parsed; conflict-marker scan passed; `git diff --check` passed with CRLF normalization warnings only.
 - `self-improvement`: updated prompt snapshot generation and contract checker because Bryan explicitly changed the automation operating contract.
 - `next action`: Category runners should now start with the highest-risk items in the catalog: broader permission/protected-evidence tests (`MVP-006`, `MVP-014`), Drive upload credential/OAuth path (`MVP-013`), framework seed loader (`MVP-009`), production workflow endpoints/history (`MVP-015` through `MVP-018`), account lifecycle hardening (`MVP-004`), and post-reset deployment verification (`MVP-026`).
+
+### 2026-05-18 12:47 PT - Automation Coverage Audit
+
+- `automation`: interactive follow-up audit from Bryan's explicit "double check all automation" request.
+- `master-plan section`: Category Automation Reset; 100-Pass Delivery Constraint; Logging Requirements; Anti-Drift Rules.
+- `scope`: Verify whether the reset automation system is aggressive, non-overlapping, self-improving, laddered, and covering the full core MVP catalog.
+- `findings`: The local registry contains exactly seven active Senior Capstone category TOMLs and no legacy active TOMLs. The old `senior-capstone-figma-product-design-rebuilt` directory is memory-only. The live category schedules create 28 starts/day, four per category, with no shared scheduled starts and at least 45 minutes between category starts. A custom prompt audit showed every `MVP-001` through `MVP-030` is explicitly named in at least one active automation prompt.
+- `self-improvement`: strengthened `scripts/check-automation-contract.ps1` because the checker previously spot-checked selected MVP IDs instead of enforcing all 30 catalog IDs and active prompt coverage.
+- `validation`: `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\check-automation-contract.ps1 -RepoRoot .` passed for 7 category automations after the checker hardening.
+- `next action`: Continue category runs against the highest-risk implementation requirements: protected evidence/permission tests, Google Drive upload credentials/OAuth, framework seed loader, production workflow endpoints/history, account lifecycle hardening, and post-reset deployment verification.

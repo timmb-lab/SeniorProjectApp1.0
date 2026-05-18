@@ -171,6 +171,7 @@ else {
 
 $scheduleSlots = @{}
 $activeSlotsByDay = @{}
+$combinedPromptText = ""
 foreach ($day in $allWeekDays) {
     $activeSlotsByDay[$day] = New-Object System.Collections.Generic.List[string]
 }
@@ -188,6 +189,7 @@ foreach ($id in $automationIds) {
     $status = Get-TomlStringValue -Content $raw -Key "status"
     $rrule = Get-TomlStringValue -Content $raw -Key "rrule"
     $promptHash = Get-StringSha256 -Value $prompt
+    $combinedPromptText += [Environment]::NewLine + $prompt
 
     $expected = $expectedAutomationConfig[$id]
     if ($name -ne $expected.Name) {
@@ -385,14 +387,18 @@ if (Test-Path -LiteralPath $masterPlanPath) {
 $catalogPath = Join-Path $RepoRoot "docs\mvp-requirements-catalog.md"
 if (Test-Path -LiteralPath $catalogPath) {
     $catalog = Get-Content -Raw -LiteralPath $catalogPath
+    $allMvpRequirementIds = 1..30 | ForEach-Object { "MVP-{0:D3}" -f $_ }
     foreach ($category in @("requirements-audit", "backend-security-data", "student-workflow-evidence", "staff-review-mentor", "admin-ops-reporting", "deployment-qa", "design-assets-handoff")) {
         if ($catalog -notlike "*$category*") {
             $failures.Add("MVP requirements catalog is missing category: $category")
         }
     }
-    foreach ($requirementId in @("MVP-001", "MVP-010", "MVP-014", "MVP-026", "MVP-030")) {
+    foreach ($requirementId in $allMvpRequirementIds) {
         if ($catalog -notlike "*$requirementId*") {
             $failures.Add("MVP requirements catalog is missing requirement: $requirementId")
+        }
+        if ($combinedPromptText -notlike "*$requirementId*") {
+            $failures.Add("No active category automation prompt explicitly targets requirement: $requirementId")
         }
     }
 }
