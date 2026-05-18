@@ -9,6 +9,7 @@ The ECTA Senior Capstone public companion site is published separately from the 
 - Public companion site: `senior-capstone-public`
 - Web app and backend: `senior-capstone-app`
 - App URL used by public-site redirects: `https://senior-capstone-app.pages.dev`
+- Cloudflare Pages project created: 2026-05-18
 
 ## Local Build
 
