@@ -1,11 +1,11 @@
 ﻿---
 automation_id: "senior-capstone-content-quality-audits"
 name: "Senior Capstone Content Quality Audits"
-snapshot_generated_utc: "2026-05-18T06:32:17Z"
-rrule: "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23;BYMINUTE=45"
+snapshot_generated_utc: "2026-05-18T13:13:34Z"
+rrule: "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=3,9,15,21;BYMINUTE=45"
 model: "gpt-5.2"
 reasoning_effort: "xhigh"
-prompt_sha256: "bb97d0bb1dabb57fede2680ffca8f0cff230b96c8adbc471cc0e601a32773144"
+prompt_sha256: "7888872635c75f08655d50caff062adfbc19d7d8820670632f33dc583831789a"
 source_toml: "C:\Users\bryan\.codex\automations\senior-capstone-content-quality-audits\automation.toml"
 ---
 
@@ -16,7 +16,7 @@ source_toml: "C:\Users\bryan\.codex\automations\senior-capstone-content-quality-
 ~~~~text
 Lane: Senior Capstone Content Quality Audit.
 
-Schedule intent: hourly non-overlap slot at :45 every hour for the Senior Capstone core automation cadence. Do not change this schedule unless Bryan explicitly asks.
+Schedule intent: non-overlap core rotation, 4x/day at 03:45, 09:45, 15:45, and 21:45 PT for the Senior Capstone cadence. Do not change this schedule unless Bryan explicitly asks.
 
 Connector/account policy:
 - Active Figma product UI file for audit reference: `Senior Capstone App - Product UI System Regenerated`, file key `LLucMgAPscRa9020iHHigB`, URL `https://www.figma.com/design/LLucMgAPscRa9020iHHigB`; Figma `whoami` most recently reported `timmb@nv.ccsd.net`.

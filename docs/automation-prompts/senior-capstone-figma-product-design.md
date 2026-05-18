@@ -1,11 +1,11 @@
 ﻿---
 automation_id: "senior-capstone-figma-product-design"
 name: "Senior Capstone Figma Product Design"
-snapshot_generated_utc: "2026-05-18T06:32:17Z"
-rrule: "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23;BYMINUTE=15"
+snapshot_generated_utc: "2026-05-18T13:13:34Z"
+rrule: "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=1,7,13,19;BYMINUTE=15"
 model: "gpt-5.2"
 reasoning_effort: "xhigh"
-prompt_sha256: "27b7bf906ff0901912c36655a96f0ba2ed3c5d5397e1238b87842e27604d6707"
+prompt_sha256: "97ac780faf2a3f7d09371a5e2f6721f4c34c4889c1b2a7d57f5d7cb71b80d85c"
 source_toml: "C:\Users\bryan\.codex\automations\senior-capstone-figma-product-design\automation.toml"
 ---
 
@@ -16,7 +16,7 @@ source_toml: "C:\Users\bryan\.codex\automations\senior-capstone-figma-product-de
 ~~~~text
 Lane: Senior Capstone Figma Product Design.
 
-Schedule intent: hourly non-overlap slot at :15 every hour for the Senior Capstone core automation cadence. This is the Figma/admin-preview design driver for getting a basic preview-ready product UI spun up later this week. Do not change this schedule unless Bryan explicitly asks.
+Schedule intent: non-overlap core rotation, 4x/day at 01:15, 07:15, 13:15, and 19:15 PT for the Senior Capstone cadence. This is the Figma/admin-preview design driver for getting a basic preview-ready product UI spun up later this week. Do not change this schedule unless Bryan explicitly asks.
 
 Connector/account policy:
 - Active Figma account/artifact: Figma `whoami` most recently reported `timmb@nv.ccsd.net`; active product UI file is `Senior Capstone App - Product UI System Regenerated`, file key `LLucMgAPscRa9020iHHigB`, URL `https://www.figma.com/design/LLucMgAPscRa9020iHHigB`.

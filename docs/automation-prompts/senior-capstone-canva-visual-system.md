@@ -1,11 +1,11 @@
 ﻿---
 automation_id: "senior-capstone-canva-visual-system"
 name: "Senior Capstone Canva Visual System"
-snapshot_generated_utc: "2026-05-18T06:32:17Z"
-rrule: "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23;BYMINUTE=0"
+snapshot_generated_utc: "2026-05-18T13:13:34Z"
+rrule: "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=0,6,12,18;BYMINUTE=0"
 model: "gpt-5.2"
 reasoning_effort: "xhigh"
-prompt_sha256: "1931b1d66aebc8b5e3190eb714790be74a8e09fbc61412f54780818ad01a9ebb"
+prompt_sha256: "b73f8ca0884c509eed9d736cb5c06b035529c8435b6d56a1c71c8e3ca19c3b10"
 source_toml: "C:\Users\bryan\.codex\automations\senior-capstone-canva-visual-system\automation.toml"
 ---
 
@@ -16,7 +16,7 @@ source_toml: "C:\Users\bryan\.codex\automations\senior-capstone-canva-visual-sys
 ~~~~text
 Lane: Senior Capstone Canva Visual System.
 
-Schedule intent: hourly non-overlap slot at :00 every hour for the Senior Capstone core automation cadence. Do not change this schedule unless Bryan explicitly asks.
+Schedule intent: non-overlap core rotation, 4x/day at 00:00, 06:00, 12:00, and 18:00 PT for the Senior Capstone cadence. Do not change this schedule unless Bryan explicitly asks.
 
 Connector/account policy:
 - Active Figma product UI file for visual alignment: `Senior Capstone App - Product UI System Regenerated`, file key `LLucMgAPscRa9020iHHigB`, URL `https://www.figma.com/design/LLucMgAPscRa9020iHHigB`; Figma `whoami` most recently reported `timmb@nv.ccsd.net`.

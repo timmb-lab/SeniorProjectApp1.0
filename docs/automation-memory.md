@@ -20,7 +20,7 @@ Figma is the heavy product-design source for functional app screens, database-ba
 - No production app scaffold has been committed yet.
 - No managed auth, database, user/group model, private upload storage, migrations, API layer, tests, CI, or GitHub-to-Cloudflare deployment pipeline has been implemented yet.
 - Source PDFs have been extracted and converted into app-native requirements in `data/capstone-framework.json`.
-- The four main automation lanes are staggered hourly at `:00`, `:15`, `:30`, and `:45` and must commit/push their durable outputs.
+- The four main automation lanes run 4x/day each and are staggered to avoid overlap: Canva `00:00/06:00/12:00/18:00`, Figma `01:15/07:15/13:15/19:15`, rebuild `02:30/08:30/14:30/20:30`, and audit `03:45/09:45/15:45/21:45`.
 - The four main automation lanes and the daily reporting automation now read the shared memory, run log, handoff ledger, and decision log before choosing work or summarizing progress.
 - Every main lane prompt now requires a lane log entry, compact run-log entry, relevant memory/handoff/decision updates, verification, commit, and push.
 - Every main lane and the daily reporting automation now reference `docs/master-plan.md` along with the logs.

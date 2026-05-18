@@ -2,7 +2,7 @@
 
 Date: 2026-05-18
 
-The Senior Capstone rebuild now uses an hourly non-overlap quarter-hour cadence. The four core automation lanes run every hour at different minute offsets: Canva at `:00`, Figma at `:15`, core rebuild at `:30`, and content audit at `:45`. Each automation should read the shared anchor docs, update `docs/automation-progress.md`, and avoid duplicating the prior job's work.
+The Senior Capstone rebuild now uses a non-overlap core rotation. Each core lane runs 4x/day, staggered so no two core jobs start together: Canva at `00:00/06:00/12:00/18:00`, Figma at `01:15/07:15/13:15/19:15`, core rebuild at `02:30/08:30/14:30/20:30`, and content audit at `03:45/09:45/15:45/21:45`. Each automation should read the shared anchor docs, update `docs/automation-progress.md`, and avoid duplicating the prior job's work.
 
 End goal: a GitHub-to-Cloudflare hosted app whose MVP is a secure database-backed Senior Capstone operating system: users, groups, roles, programs, cohorts, progress updates, submissions, private evidence, reviews, approvals, dashboards, announcements, admin controls, audit logs, exports, and protected student records.
 
@@ -133,33 +133,33 @@ Definition of done for every run:
 - Lane-prefixed commit created when repo files changed.
 - Current branch pushed, or blocker logged precisely.
 
-## Hourly Non-Overlap Cadence
+## Four-Times-Daily Non-Overlap Cadence
 
-Minute `:00` - Canva Visual System
+Canva Visual System
 - Automation: `senior-capstone-canva-visual-system`
-- Schedule: every hour at `:00`.
+- Schedule: `00:00`, `06:00`, `12:00`, and `18:00`.
 - Purpose: supporting visual assets, program identity graphics, phase/process visuals, onboarding graphics, report visuals, recognition assets, certificates, and printable/exportable collateral.
 - MVP emphasis: create polished app-supporting image families while preserving live UI text, privacy, accessibility, and Figma/rebuild placement.
 - Primary anchors: `docs/dashboard-ux-direction.md`, `data/programs.json`, `data/capstone-framework.json`, templates, and progress log.
 - Primary log: `docs/progress/canva.md`.
 
-Minute `:15` - Figma Product Design
+Figma Product Design
 - Automation: `senior-capstone-figma-product-design`
-- Schedule: every hour at `:15`.
+- Schedule: `01:15`, `07:15`, `13:15`, and `19:15`.
 - Purpose: app UI source of truth, database-backed state design, dashboard layouts, admin-preview readiness, design system, components, responsive states, accessibility states, and implementation-ready product specs.
 - Primary anchors: `docs/dashboard-ux-direction.md`, `docs/domain-model.md`, `data/programs.json`, `data/capstone-framework.json`, `docs/curriculum-framework-integration.md`.
 - Primary log: `docs/progress/figma.md`.
 
-Minute `:30` - Core Hosted-App Rebuild
+Core Hosted-App Rebuild
 - Automation: `senior-capstone-rebuild-hourly`
-- Schedule: every hour at `:30`.
+- Schedule: `02:30`, `08:30`, `14:30`, and `20:30`.
 - Purpose: Cloudflare/GitHub architecture, app scaffolding, backend, auth, database/schema, user groups, progress updates, tests, deployment readiness, and integration of the design/content direction into a working hosted app.
 - Primary anchors: `docs/rebuild-gameplan.md`, `docs/domain-model.md`, `docs/dashboard-ux-direction.md`, `data/programs.json`, `data/capstone-framework.json`, `docs/curriculum-framework-integration.md`.
 - Primary log: `docs/progress/rebuild.md`.
 
-Minute `:45` - Content Quality Audit
+Content Quality Audit
 - Automation: `senior-capstone-content-quality-audits`
-- Schedule: every hour at `:45`.
+- Schedule: `03:45`, `09:45`, `15:45`, and `21:45`.
 - Purpose: critical audit of MVP database/security readiness, curriculum, product requirements, roles, dashboards, program specificity, accessibility, privacy, workflow clarity, Cloudflare deployment readiness, and implementation readiness.
 - Primary anchors: all docs, `app.js`, templates, teacher companion guide, program seed data, and `data/capstone-framework.json`.
 - Primary log: `docs/progress/audit.md`.
