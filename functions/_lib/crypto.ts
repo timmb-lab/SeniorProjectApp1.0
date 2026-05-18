@@ -19,6 +19,12 @@ function base64UrlToBytes(value: string): Uint8Array {
   return bytes;
 }
 
+function toArrayBuffer(bytes: Uint8Array): ArrayBuffer {
+  const buffer = new ArrayBuffer(bytes.byteLength);
+  new Uint8Array(buffer).set(bytes);
+  return buffer;
+}
+
 function equalBytes(left: Uint8Array, right: Uint8Array): boolean {
   if (left.length !== right.length) {
     return false;
@@ -52,9 +58,10 @@ export async function sha256Hex(value: string): Promise<string> {
 }
 
 async function derivePasswordBits(password: string, salt: Uint8Array, pepper = ""): Promise<ArrayBuffer> {
+  const passwordBytes = new TextEncoder().encode(`${pepper}${password}`);
   const key = await crypto.subtle.importKey(
     "raw",
-    new TextEncoder().encode(`${pepper}${password}`),
+    toArrayBuffer(passwordBytes),
     "PBKDF2",
     false,
     ["deriveBits"],
@@ -63,7 +70,7 @@ async function derivePasswordBits(password: string, salt: Uint8Array, pepper = "
     {
       name: "PBKDF2",
       hash: "SHA-256",
-      salt,
+      salt: toArrayBuffer(salt),
       iterations: PASSWORD_ITERATIONS,
     },
     key,
