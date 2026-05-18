@@ -24,7 +24,8 @@ Automation operating infrastructure now includes:
 - `docs/artifacts.json`: structured external artifact registry.
 - `docs/mvp-requirements-catalog.md`: category-owned MVP requirements, statuses, blockers, and acceptance evidence.
 - `scripts/snapshot-automation-prompts.ps1`: regenerates prompt snapshots from live automation TOML files.
-- `scripts/check-automation-contract.ps1`: validates live prompts, snapshots, registry files, and required automation contract references.
+- `scripts/check-automation-contract.ps1`: validates live prompts when present, repo prompt snapshots when live TOMLs are unavailable, registry files, and required automation contract references. Use `-RequireLive` when the goal is to fail on local Codex registry drift instead of accepting snapshot fallback.
+- `scripts/run-powershell-script.mjs`: lets npm/CI run project PowerShell scripts with non-interactive flags on the available PowerShell runtime.
 
 ## Connector Approval Preflight
 

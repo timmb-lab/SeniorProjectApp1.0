@@ -1,9 +1,14 @@
 param(
     [string]$AutomationRoot = "$HOME\.codex\automations",
-    [string]$OutputDir = "docs\automation-prompts"
+    [string]$OutputDir = "docs\automation-prompts",
+    [string]$RepoRoot = (Join-Path $PSScriptRoot "..")
 )
 
 $ErrorActionPreference = "Stop"
+$RepoRoot = (Resolve-Path -LiteralPath $RepoRoot).Path
+if (-not [System.IO.Path]::IsPathRooted($OutputDir)) {
+    $OutputDir = Join-Path $RepoRoot $OutputDir
+}
 
 $automationIds = @(
     "senior-capstone-qol-source-framework-seed",

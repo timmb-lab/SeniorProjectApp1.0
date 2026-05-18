@@ -241,9 +241,9 @@ Decision status values:
 
 - `status`: accepted
 - `area`: Day 7 alpha execution framework, CI, and deployment rail
-- `decision`: Use `docs/alpha-week-framework.md` as the working daily build framework for the alpha due Sunday, 2026-05-24 PT, and require alpha work to move through the new repo-side rail: `npm run check`, `scripts/check-alpha-contract.mjs`, `.github/workflows/alpha-ci.yml`, and `npm run deploy:preview`.
+- `decision`: Use `docs/alpha-week-framework.md` as the working daily build framework for the alpha due Sunday, 2026-05-24 PT, and require alpha work to move through the repo-side rail: `npm run check`, `scripts/check-alpha-contract.mjs`, `.github/workflows/ci.yml`, and `npm run deploy:preview`. The original alpha-only workflow path was superseded by `D-2026-05-18-029`.
 - `reason`: Bryan asked to set up every accessible piece and provide a framework for building the alpha throughout the week. The project needs concrete daily work targets plus automated checks so the next passes build D1/server-owned persistence, tests, mobile proof, and preview evidence instead of reopening scope.
-- `applies to`: `docs/master-plan.md`, `docs/alpha-week-framework.md`, `docs/alpha-runbook.md`, `package.json`, `.github/workflows/alpha-ci.yml`, `scripts/check-alpha-contract.mjs`, `SC-005`, `SC-006`, `H-2026-05-18-006`, and `H-2026-05-18-008`.
+- `applies to`: `docs/master-plan.md`, `docs/alpha-week-framework.md`, `docs/alpha-runbook.md`, `package.json`, `.github/workflows/ci.yml`, `scripts/check-alpha-contract.mjs`, `SC-005`, `SC-006`, `H-2026-05-18-006`, and `H-2026-05-18-008`.
 - `guardrail`: This does not change automation schedule, workspace, model, reasoning effort, or status. The alpha remains unsafe for real student records until production accounts, Drive upload credentials, hardened authorization tests, and pilot security review are complete.
 - `implementation evidence`: Day 1 framework/check/CI/deploy rails were added on 2026-05-18. Cloudflare MCP remote mutation was attempted but returned `Auth required`; remote deploy/mutation still needs connector reauthorization or working Wrangler.
 - `source`: User request on 2026-05-18: "Set up any and all pieces you need that you have access to - and really give me a framework for the alpha to be built throughout the week"
@@ -310,3 +310,13 @@ Decision status values:
 - `applies to`: `docs/master-plan.md`, `docs/automation-cadence.md`, `docs/automation-runbook.md`, `docs/automation-self-improvement.md`, `docs/automation-memory.md`, `docs/progress/runs/README.md`, `scripts/measure-automation-efficiency.ps1`, `scripts/check-automation-contract.ps1`, and future QoL run manifests.
 - `source`: User request on 2026-05-18: "big massive giant audit on efficiency for it auto-scaling itself over the next 30 days"
 - `last updated`: 2026-05-18 14:47 PT
+
+### D-2026-05-18-029
+
+- `status`: accepted
+- `area`: automation contract checker, npm check rail, and CI consolidation
+- `decision`: Use one primary GitHub Actions workflow, `.github/workflows/ci.yml`, for the full project check rail. `npm run check` now includes alpha syntax, alpha contract, automation contract, tests, and typecheck. The automation contract checker validates live Codex QoL automation TOMLs when they exist, falls back to repo prompt snapshots when they do not, and exposes `-RequireLive` / `npm run check:automation:live` for audits that must fail on local live-registry drift.
+- `reason`: A script automation audit found overlapping CI workflows and a brittle live-only checker path. The checker now preserves live enforcement as an explicit mode while keeping repo snapshot validation runnable for CI and repo-only audits.
+- `applies to`: `.github/workflows/ci.yml`, `package.json`, `scripts/check-automation-contract.ps1`, `scripts/snapshot-automation-prompts.ps1`, `scripts/run-powershell-script.mjs`, alpha framework docs, automation runbook, backlog `SC-006`, and future CI/run manifests.
+- `guardrail`: Snapshot fallback is not proof that the Codex GUI has the expected active automations. Use `npm run check:automation:live` or `scripts/check-automation-contract.ps1 -RequireLive` before claiming live local automation registry health.
+- `last updated`: 2026-05-18 15:17 PT

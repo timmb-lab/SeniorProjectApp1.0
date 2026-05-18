@@ -5,10 +5,11 @@ on:
     branches:
       - main
   pull_request:
+  workflow_dispatch:
 
 jobs:
-  alpha-tests:
-    runs-on: ubuntu-latest
+  checks:
+    runs-on: windows-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -18,5 +19,8 @@ jobs:
         with:
           node-version: "24"
 
-      - name: Run alpha state tests
-        run: npm test
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Run full project checks
+        run: npm run check

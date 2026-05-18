@@ -207,3 +207,14 @@ Each audit run should append a dated entry with:
 - `validation`: scorecard script ran normally, scorecard `-OutputPath` write/readback succeeded, and automation contract checker passed for 10 QoL automations.
 - `self-improvement`: script/checker hardening only; no live automation TOML, schedule, workspace, model, reasoning effort, or status changed.
 - `next action`: Future QoL runs should fail fast if their manifests omit the efficiency telemetry needed for weekly retargeting.
+
+### 2026-05-18 15:17 PT - Script Automation Hardening Audit
+
+- `automation`: interactive audit from Bryan's explicit request for a massive script automation audit with permission to make improvements.
+- `master-plan section`: Logging Requirements; Anti-Drift Rules; QoL Automation Rebuild.
+- `scope`: Repair brittle repo automation checks and CI drift while preserving the ten-QoL automation contract and without changing live automation schedules, prompts, models, reasoning effort, or status.
+- `findings`: The fast-forwarded source of truth is the ten-runner QoL automation system. `scripts/check-automation-contract.ps1` needed to stay strict for live QoL TOMLs but also remain usable in CI/repo-only contexts through prompt snapshot fallback. The repo also had overlapping CI workflows, with the primary workflow running only tests while the alpha workflow ran the broader check.
+- `files changed`: `.github/workflows/ci.yml`, deleted `.github/workflows/alpha-ci.yml`, `package.json`, `scripts/check-automation-contract.ps1`, `scripts/snapshot-automation-prompts.ps1`, `scripts/run-powershell-script.mjs`, `docs/automation-runbook.md`, `docs/alpha-week-framework.md`, `docs/automation-milestones.md`, `docs/automation-backlog.md`, `docs/automation-memory.md`, `docs/progress/decision-log.md`, `docs/progress/audit.md`, `docs/progress/run-log.md`, and `docs/progress/runs/2026-05-18-1517-audit-script-automation-hardening.json`.
+- `self-improvement`: updated the checker and npm/CI rails because the audit found a reproducible automation-script failure and duplicate check surface.
+- `validation`: bundled Node parsed `package.json`; bundled Node `--check` passed for `alpha.js` and `scripts/run-powershell-script.mjs`; `scripts/check-alpha-contract.mjs` passed; `node --test tests\*.test.mjs` passed 7 tests; `node scripts/run-powershell-script.mjs scripts\check-automation-contract.ps1` passed for 10 QoL automations from live TOMLs. Full `npm run check` was not runnable in this local shell because `npm` is not on PATH.
+- `next action`: Use `npm run check:automation:live` when live Codex GUI/local registry health is the audit target; default checker behavior should keep CI/repo snapshot validation useful when live TOMLs are absent.

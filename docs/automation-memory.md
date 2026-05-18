@@ -25,7 +25,7 @@ Figma is the heavy product-design source for functional app screens, database-ba
 - Hardened username/password auth endpoints now exist for bootstrap, login, logout, and session lookup. `PASSWORD_PEPPER` and `SESSION_PEPPER` are set as Cloudflare Pages secrets. First-admin bootstrap is complete for `bryan.timm89@gmail.com`; D1 has the active global admin role and `bootstrap_admin_created` audit event, and the production `BOOTSTRAP_SETUP_KEY` has been removed.
 - Production D1 auth is live enough for test flow work: `/api/health` returns `userCount=5`, and four fake `.test` alpha accounts have been seeded for student, program teacher, mentor, and misc-admin roles. Credentials are only in ignored `.secrets/test-accounts-2026-05-18.json`; do not expose them in docs, commits, or chat.
 - Google Drive evidence repository root folder `1XPgYKbIMqv332DAJZJNJetHppFB670e7` and index sheet `1b446rp3oyx9G4LpKYE47qXxpU41EOW-2Ota2fGum49c` exist and are wired into Pages config and D1 metadata. Server-side Drive upload credential/OAuth flow remains pending.
-- Alpha state-machine tests, alpha contract checks, and GitHub Actions CI workflows now exist (`tests/alpha-flow.test.mjs`, `scripts/check-alpha-contract.mjs`, `npm run check`, `.github/workflows/ci.yml`, and `.github/workflows/alpha-ci.yml`); broader auth/permission/Drive-upload tests remain incomplete.
+- Alpha state-machine tests, alpha contract checks, automation contract checks, and a consolidated GitHub Actions CI workflow now exist (`tests/alpha-flow.test.mjs`, `scripts/check-alpha-contract.mjs`, `scripts/check-automation-contract.ps1`, `npm run check`, and `.github/workflows/ci.yml`); broader auth/permission/Drive-upload tests remain incomplete.
 - Source PDFs have been extracted and converted into app-native requirements in `data/capstone-framework.json`.
 - Bryan reset the Senior Capstone automation setup on 2026-05-18, then rebuilt it again as ten active QoL automations. All prior active/standby, daily prototype, weekly audit, seven-category, hourly, and 20x project automation TOMLs are superseded by the QoL set.
 - The QoL source of truth is `docs/automation-cadence.md`, and the requirements source of truth remains `docs/mvp-requirements-catalog.md`. Every QoL run must ladder from `docs/master-plan.md` into that catalog, name requirement IDs advanced, and update catalog status/evidence/blockers when material progress happens.
@@ -136,11 +136,13 @@ Read `docs/progress/decision-log.md` for accepted or superseded decisions.
 - `D-2026-05-18-020`: keep a daily guided multi-frame Figma prototype refresh active at `22:10 PT` so Bryan can see that day's actual progress and next ladder position without turning Figma into the production data source.
 - `D-2026-05-18-021`: Day 7 alpha is due 2026-05-24 PT with all app flow working through seeded/demo personas; production user accounts are explicitly post-alpha hardening, not an alpha blocker.
 - `D-2026-05-18-022`: use Google Drive folder `1XPgYKbIMqv332DAJZJNJetHppFB670e7` (`Senior Project App`) as the MVP evidence repository root.
-- `D-2026-05-18-023`: use `docs/alpha-week-framework.md`, `npm run check`, `scripts/check-alpha-contract.mjs`, `.github/workflows/alpha-ci.yml`, and `npm run deploy:preview` as the Day 7 alpha execution/verification rail.
+- `D-2026-05-18-023`: use `docs/alpha-week-framework.md`, `npm run check`, `scripts/check-alpha-contract.mjs`, and `npm run deploy:preview` as the Day 7 alpha execution/verification rail; CI details are superseded by `D-2026-05-18-026`.
 - `D-2026-05-18-024`: delete the prior Senior Capstone active/standby automation setup and replace it with seven active MVP requirement category runners, laddering from `docs/mvp-requirements-catalog.md`.
 - `D-2026-05-18-025`: escalate the seven category runners to hourly execution, 168 scheduled starts/day total, with no human approvals inside project scripts, GUI-facing hourly names, and self-improvement to scripts/checkers as evidence requires.
 - `D-2026-05-18-026`: superseded by `D-2026-05-18-027`; the seven category runners were tuned into a 20x/day A-material automation system.
 - `D-2026-05-18-027`: delete all Senior Capstone project automation again and rebuild from scratch as ten focused QoL automations, each running exactly 3x/day, with no shared start slots, at least 45 minutes between starts, no human approvals inside project scripts, requirement laddering, token budget guardrails, surface expansion, and script/checker self-improvement.
+- `D-2026-05-18-028`: use `scripts/measure-automation-efficiency.ps1` for explicit automation audits and Sunday calibration before recommending schedule changes.
+- `D-2026-05-18-029`: consolidate CI to `.github/workflows/ci.yml`, include the automation contract checker in `npm run check`, and let `scripts/check-automation-contract.ps1` use repo prompt snapshots by default when live local TOMLs are absent; use `-RequireLive` for live registry audits.
 
 Current QoL automation IDs:
 - `senior-capstone-qol-source-framework-seed` (`ACTIVE`; `00:03`, `08:03`, `16:03` PT; GUI name `Senior Capstone QoL - Source Framework Seed`)
@@ -240,3 +242,10 @@ Every run should also record `self-improvement: none` or a specific self-improve
 - Added future manifest telemetry requirements: `requirement_ids`, `accepted_mvp_pass`, `duration_minutes`, `output_kind`, and `automation_efficiency.scale_signal`.
 - Durable audit: `docs/audits/automation-30-day-efficiency-audit-2026-05-18.md`.
 - Decision: keep cadence stable and scale by retargeting QoL focus, blockers, prompt clarity, and acceptance checks before recommending schedule changes.
+
+## 2026-05-18 15:17 PT - Script Automation Audit
+
+- The repo now has one full CI rail at `.github/workflows/ci.yml`; the duplicate alpha-only workflow was removed.
+- `npm run check` now includes `check:automation`, which runs `scripts/check-automation-contract.ps1` through `scripts/run-powershell-script.mjs` with non-interactive PowerShell flags.
+- Default automation contract checks pass from repo snapshots when live Codex TOMLs are absent, while `check:automation:live` / `-RequireLive` remains the strict live-registry audit.
+- Current local validation found the ten expected Senior Capstone QoL TOMLs under `C:\Users\bryan\.codex\automations`; snapshot fallback remains available for CI and repo-only audits.

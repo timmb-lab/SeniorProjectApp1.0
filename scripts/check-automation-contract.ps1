@@ -1,10 +1,15 @@
 param(
     [string]$AutomationRoot = "$HOME\.codex\automations",
-    [string]$RepoRoot = "."
+    [string]$RepoRoot = ".",
+    [switch]$RequireLive
 )
 
 $ErrorActionPreference = "Stop"
+$RepoRoot = (Resolve-Path -LiteralPath $RepoRoot).Path
 $failures = New-Object System.Collections.Generic.List[string]
+$warnings = New-Object System.Collections.Generic.List[string]
+$liveAutomationsValidated = 0
+$snapshotFallbacks = 0
 
 $automationIds = @(
     "senior-capstone-qol-source-framework-seed",
@@ -216,15 +221,61 @@ function Get-ManifestTimestamp {
     return $null
 }
 
+function Get-SnapshotStringValue {
+    param(
+        [Parameter(Mandatory = $true)][string]$Content,
+        [Parameter(Mandatory = $true)][string]$Key
+    )
+
+    $pattern = "(?m)^" + [regex]::Escape($Key) + ': "([^"]*)"'
+    $match = [regex]::Match($Content, $pattern)
+    if (-not $match.Success) {
+        throw "Could not find snapshot frontmatter key '$Key'."
+    }
+
+    return $match.Groups[1].Value -replace "`r`n", "`n"
+}
+
+function Get-SnapshotPrompt {
+    param([Parameter(Mandatory = $true)][string]$Content)
+
+    $match = [regex]::Match($Content, "(?s)## Prompt\s*(?:\r?\n)+~~~~text(?:\r?\n)(.*?)(?:\r?\n)~~~~")
+    if (-not $match.Success) {
+        throw "Could not find prompt code fence in snapshot."
+    }
+
+    return $match.Groups[1].Value -replace "`r`n", "`n"
+}
+
+$hasAnyExpectedLiveAutomation = $false
+if (Test-Path -LiteralPath $AutomationRoot) {
+    foreach ($id in $automationIds) {
+        if (Test-Path -LiteralPath (Join-Path $AutomationRoot "$id\automation.toml")) {
+            $hasAnyExpectedLiveAutomation = $true
+            break
+        }
+    }
+}
+
 if (-not (Test-Path -LiteralPath $AutomationRoot)) {
-    $failures.Add("Missing automation root: $AutomationRoot")
+    if ($RequireLive) {
+        $failures.Add("Missing automation root: $AutomationRoot")
+    }
+    else {
+        $warnings.Add("Missing automation root '$AutomationRoot'; validating repo prompt snapshots instead. Use -RequireLive to fail this condition.")
+    }
 }
 else {
     $projectTomls = @(Get-ChildItem -LiteralPath $AutomationRoot -Recurse -Filter "automation.toml" | Where-Object { $_.FullName -like "*senior-capstone*" })
     foreach ($toml in $projectTomls) {
         $id = $toml.Directory.Name
         if ($automationIds -notcontains $id) {
-            $failures.Add("Unexpected Senior Capstone automation TOML exists after reset: $($toml.FullName)")
+            if ($RequireLive -or $hasAnyExpectedLiveAutomation) {
+                $failures.Add("Unexpected Senior Capstone automation TOML exists after reset: $($toml.FullName)")
+            }
+            else {
+                $warnings.Add("Unexpected Senior Capstone automation TOML found outside the expected live set: $($toml.FullName)")
+            }
         }
     }
 }
@@ -238,28 +289,56 @@ foreach ($day in $allWeekDays) {
 
 foreach ($id in $automationIds) {
     $tomlPath = Join-Path $AutomationRoot "$id\automation.toml"
+    $snapshotPath = Join-Path $RepoRoot "docs\automation-prompts\$id.md"
+    $sourceKind = "live"
+    $expected = $expectedAutomationConfig[$id]
+
     if (-not (Test-Path -LiteralPath $tomlPath)) {
-        $failures.Add("Missing live automation TOML: $tomlPath")
-        continue
+        if ($RequireLive) {
+            $failures.Add("Missing live automation TOML: $tomlPath")
+        }
+
+        if (-not (Test-Path -LiteralPath $snapshotPath)) {
+            $failures.Add("$id is missing both live TOML and repo prompt snapshot: $snapshotPath")
+            continue
+        }
+
+        $snapshot = Get-Content -Raw -LiteralPath $snapshotPath
+        try {
+            $name = Get-SnapshotStringValue -Content $snapshot -Key "name"
+            $prompt = Get-SnapshotPrompt -Content $snapshot
+            $status = $expected.Status
+            $rrule = Get-SnapshotStringValue -Content $snapshot -Key "rrule"
+            $sourceKind = "snapshot"
+            $snapshotFallbacks += 1
+        }
+        catch {
+            $failures.Add("$id snapshot could not be parsed: $($_.Exception.Message)")
+            continue
+        }
+
+        $warnings.Add("$id live TOML was not found; validated repo snapshot $snapshotPath instead.")
+    }
+    else {
+        $raw = Get-Content -Raw -LiteralPath $tomlPath
+        $name = Get-TomlStringValue -Content $raw -Key "name"
+        $prompt = Get-TomlStringValue -Content $raw -Key "prompt"
+        $status = Get-TomlStringValue -Content $raw -Key "status"
+        $rrule = Get-TomlStringValue -Content $raw -Key "rrule"
+        $liveAutomationsValidated += 1
     }
 
-    $raw = Get-Content -Raw -LiteralPath $tomlPath
-    $name = Get-TomlStringValue -Content $raw -Key "name"
-    $prompt = Get-TomlStringValue -Content $raw -Key "prompt"
-    $status = Get-TomlStringValue -Content $raw -Key "status"
-    $rrule = Get-TomlStringValue -Content $raw -Key "rrule"
     $promptHash = Get-StringSha256 -Value $prompt
     $combinedPromptText += [Environment]::NewLine + $prompt
 
-    $expected = $expectedAutomationConfig[$id]
     if ($name -ne $expected.Name) {
-        $failures.Add("$id has unexpected name '$name'; expected '$($expected.Name)'")
+        $failures.Add("$id $sourceKind config has unexpected name '$name'; expected '$($expected.Name)'")
     }
     if ($status -ne $expected.Status) {
-        $failures.Add("$id has unexpected status '$status'; expected '$($expected.Status)'")
+        $failures.Add("$id $sourceKind config has unexpected status '$status'; expected '$($expected.Status)'")
     }
     if ($rrule -ne $expected.RRule) {
-        $failures.Add("$id has unexpected RRULE '$rrule'; expected '$($expected.RRule)'")
+        $failures.Add("$id $sourceKind config has unexpected RRULE '$rrule'; expected '$($expected.RRule)'")
     }
 
     foreach ($fragment in $requiredPromptFragments) {
@@ -297,18 +376,28 @@ foreach ($id in $automationIds) {
         }
     }
 
-    $snapshotPath = Join-Path $RepoRoot "docs\automation-prompts\$id.md"
     if (-not (Test-Path -LiteralPath $snapshotPath)) {
         $failures.Add("$id is missing prompt snapshot: $snapshotPath")
     }
     else {
         $snapshot = Get-Content -Raw -LiteralPath $snapshotPath
+        try {
+            $snapshotPrompt = Get-SnapshotPrompt -Content $snapshot
+            $snapshotPromptHash = Get-StringSha256 -Value $snapshotPrompt
+            if ($snapshotPromptHash -ne $promptHash) {
+                $failures.Add("$id snapshot prompt hash does not match $sourceKind prompt hash")
+            }
+        }
+        catch {
+            $failures.Add("$id snapshot prompt body could not be parsed: $($_.Exception.Message)")
+        }
+
         $hashMatch = [regex]::Match($snapshot, 'prompt_sha256: "([a-f0-9]{64})"')
         if (-not $hashMatch.Success) {
             $failures.Add("$id snapshot is missing prompt_sha256 frontmatter")
         }
         elseif ($hashMatch.Groups[1].Value -ne $promptHash) {
-            $failures.Add("$id snapshot hash does not match live prompt")
+            $failures.Add("$id snapshot hash does not match $sourceKind prompt")
         }
     }
 }
@@ -369,6 +458,7 @@ $requiredFiles = @(
     "docs\architecture\adr-0001-stack-auth-database-upload.md",
     "scripts\snapshot-automation-prompts.ps1",
     "scripts\check-automation-contract.ps1",
+    "scripts\run-powershell-script.mjs",
     "scripts\measure-automation-efficiency.ps1"
 )
 
@@ -544,9 +634,14 @@ if (Test-Path -LiteralPath $catalogPath) {
     }
 }
 
+foreach ($warning in $warnings) {
+    Write-Warning $warning
+}
+
 if ($failures.Count -gt 0) {
-    Write-Error ("Automation contract check failed:" + [Environment]::NewLine + ($failures | ForEach-Object { "- $_" }) -join [Environment]::NewLine)
+    $failureText = ($failures | ForEach-Object { "- $_" }) -join [Environment]::NewLine
+    Write-Error ("Automation contract check failed:" + [Environment]::NewLine + $failureText)
     exit 1
 }
 
-Write-Output "Automation contract check passed for $($automationIds.Count) QoL automations."
+Write-Output "Automation contract check passed for $($automationIds.Count) QoL automations ($liveAutomationsValidated live, $snapshotFallbacks snapshot fallback)."

@@ -121,7 +121,7 @@ Required outputs:
 Current setup evidence:
 - `alpha.html`, `alpha.js`, `alpha.css`, `/api/alpha/state`, `functions/_lib/alpha-flow-model.js`, and D1 `app_settings` provide the first D1-backed route/persona alpha flow.
 - `docs/alpha-runbook.md` and `docs/alpha-week-framework.md` define the Day 7 walkthrough, daily build goals, known gaps, and no-real-student-data guardrails.
-- `tests/alpha-flow.test.mjs`, `scripts/check-alpha-contract.mjs`, `npm run check`, `npm run deploy:preview`, `.github/workflows/ci.yml`, and `.github/workflows/alpha-ci.yml` add the initial alpha verification and preview rails.
+- `tests/alpha-flow.test.mjs`, `scripts/check-alpha-contract.mjs`, `scripts/check-automation-contract.ps1`, `npm run check`, `npm run deploy:preview`, and `.github/workflows/ci.yml` add the alpha verification and preview rails.
 - Remaining priority is Cloudflare Pages deployment verification, first-admin bootstrap verification, broader auth/permission/protected-evidence tests, mobile proof, Drive upload credentials, and real workflow endpoint hardening.
 
 Primary owner:
