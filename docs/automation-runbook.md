@@ -115,6 +115,8 @@ Use this command for explicit automation audits and Sunday calibration:
 powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\measure-automation-efficiency.ps1 -RepoRoot . -Days 30
 ```
 
+Use `-OutputPath <path>` when a scheduled run should save the JSON scorecard as a durable artifact before logging or summarizing it.
+
 The efficiency scorecard measures active QoL count, daily start capacity, 30-day start capacity, minimum spacing, observed run manifests, accepted-pass telemetry, requirement IDs seen, and QoL automations with no observed manifest.
 
 Scaling rules:
@@ -127,7 +129,7 @@ Scaling rules:
 - If blockers dominate a QoL area, the automation should commit one precise blocker with the account/tool/policy action required and then move to adjacent non-blocked evidence in its scope.
 - If the project exceeds the stretch target with low collision risk, keep cadence stable and tighten acceptance quality; do not chase more starts for its own sake.
 
-New run manifests should include `accepted_mvp_pass`, `requirement_ids`, `duration_minutes`, `output_kind`, and `automation_efficiency.scale_signal` so the weekly source-framework/catalog runner can retarget from evidence instead of guessing.
+New run manifests should include `accepted_mvp_pass`, `requirement_ids`, `duration_minutes`, `output_kind`, and `automation_efficiency.scale_signal` so the weekly source-framework/catalog runner can retarget from evidence instead of guessing. `scripts/check-automation-contract.ps1` enforces those fields for manifests at or after the 2026-05-18 14:47 PT efficiency-audit cutoff.
 
 ## Surface Expansion Rule
 

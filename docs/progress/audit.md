@@ -195,3 +195,15 @@ Each audit run should append a dated entry with:
 - `self-improvement`: added a reusable non-interactive 30-day efficiency scorecard and checker-enforced operating-doc references. No live automation TOML or schedule changed.
 - `validation`: `scripts/measure-automation-efficiency.ps1` ran successfully and reported 10 active QoL automations, 30 daily starts, 900 starts/30 days, 48-minute minimum spacing, 60/90 accepted-pass targets, and 6.67/10 percent conversion thresholds. Closeout validation must parse JSON, run the automation contract checker, scan conflict markers, and run `git diff --check`.
 - `next action`: Sunday calibration should run the scorecard, verify each QoL runner has observed accepted evidence or an exact blocker, and retarget next-week QoL focus before recommending any cadence change.
+
+### 2026-05-18 15:06 PT - Automation Script Hardening
+
+- `automation`: manual user-requested follow-up to the 30-day efficiency audit.
+- `master-plan section`: 100-Pass Delivery Constraint; Logging Requirements; Anti-Drift Rules.
+- `scope`: Improve automation scripts without touching automation schedules.
+- `files changed`: `scripts/measure-automation-efficiency.ps1`, `scripts/check-automation-contract.ps1`, `docs/automation-runbook.md`, `docs/progress/audit.md`, `docs/progress/run-log.md`, and `docs/progress/runs/2026-05-18-1506-audit-automation-script-hardening.json`.
+- `script changes`: Added `-OutputPath` to `measure-automation-efficiency.ps1` so scheduled audits can save the scorecard JSON directly. Tightened `check-automation-contract.ps1` so every run manifest at or after the 2026-05-18 14:47 PT efficiency-audit cutoff must include `requirement_ids`, boolean `accepted_mvp_pass`, non-negative `duration_minutes`, valid `output_kind`, and `automation_efficiency.scale_signal` / `duplicate_scope_checked`.
+- `schedule`: unchanged.
+- `validation`: scorecard script ran normally, scorecard `-OutputPath` write/readback succeeded, and automation contract checker passed for 10 QoL automations.
+- `self-improvement`: script/checker hardening only; no live automation TOML, schedule, workspace, model, reasoning effort, or status changed.
+- `next action`: Future QoL runs should fail fast if their manifests omit the efficiency telemetry needed for weekly retargeting.

@@ -1,7 +1,8 @@
 param(
     [string]$RepoRoot = ".",
     [string]$AutomationRoot = "$HOME\.codex\automations",
-    [int]$Days = 30
+    [int]$Days = 30,
+    [string]$OutputPath = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -264,4 +265,20 @@ $result = [pscustomobject]@{
     recommendations = $recommendations
 }
 
-$result | ConvertTo-Json -Depth 8
+$json = $result | ConvertTo-Json -Depth 8
+
+if ($OutputPath) {
+    $resolvedOutputPath = if ([System.IO.Path]::IsPathRooted($OutputPath)) {
+        $OutputPath
+    }
+    else {
+        Join-Path $RepoRoot $OutputPath
+    }
+    $outputDirectory = Split-Path -Parent $resolvedOutputPath
+    if ($outputDirectory -and -not (Test-Path -LiteralPath $outputDirectory)) {
+        New-Item -ItemType Directory -Path $outputDirectory | Out-Null
+    }
+    Set-Content -LiteralPath $resolvedOutputPath -Value $json -Encoding UTF8
+}
+
+$json

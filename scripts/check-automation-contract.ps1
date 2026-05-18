@@ -185,6 +185,37 @@ function Assert-File {
     }
 }
 
+function Get-JsonProperty {
+    param(
+        [Parameter(Mandatory = $true)]$Object,
+        [Parameter(Mandatory = $true)][string]$Name
+    )
+
+    if ($Object.PSObject.Properties.Name -contains $Name) {
+        return $Object.$Name
+    }
+
+    return $null
+}
+
+function Get-ManifestTimestamp {
+    param([Parameter(Mandatory = $true)]$Manifest)
+
+    foreach ($field in @("timestamp", "timestamp_local")) {
+        $value = Get-JsonProperty -Object $Manifest -Name $field
+        if ($value) {
+            try {
+                return [DateTimeOffset]::Parse([string]$value)
+            }
+            catch {
+                return $null
+            }
+        }
+    }
+
+    return $null
+}
+
 if (-not (Test-Path -LiteralPath $AutomationRoot)) {
     $failures.Add("Missing automation root: $AutomationRoot")
 }
@@ -402,7 +433,58 @@ foreach ($relative in $jsonFiles) {
     $path = Join-Path $RepoRoot $relative
     if (Test-Path -LiteralPath $path) {
         try {
-            Get-Content -Raw -LiteralPath $path | ConvertFrom-Json | Out-Null
+            $jsonObject = Get-Content -Raw -LiteralPath $path | ConvertFrom-Json
+            $normalizedPath = ($relative -replace "\\", "/")
+            if ($normalizedPath -like "*docs/progress/runs/*.json") {
+                $timestamp = Get-ManifestTimestamp -Manifest $jsonObject
+                $telemetryCutoff = [DateTimeOffset]::Parse("2026-05-18T14:47:00-07:00")
+                if ($timestamp -and $timestamp -ge $telemetryCutoff) {
+                    $requirementIds = Get-JsonProperty -Object $jsonObject -Name "requirement_ids"
+                    if ($null -eq $requirementIds -or @($requirementIds).Count -eq 0) {
+                        $failures.Add("Run manifest $relative is missing non-empty requirement_ids telemetry")
+                    }
+
+                    if ($jsonObject.PSObject.Properties.Name -notcontains "accepted_mvp_pass") {
+                        $failures.Add("Run manifest $relative is missing accepted_mvp_pass telemetry")
+                    }
+                    elseif ($jsonObject.accepted_mvp_pass -isnot [bool]) {
+                        $failures.Add("Run manifest $relative accepted_mvp_pass must be a boolean")
+                    }
+
+                    $durationMinutes = Get-JsonProperty -Object $jsonObject -Name "duration_minutes"
+                    if ($null -eq $durationMinutes) {
+                        $failures.Add("Run manifest $relative is missing duration_minutes telemetry")
+                    }
+                    elseif (-not ($durationMinutes -is [int] -or $durationMinutes -is [long] -or $durationMinutes -is [double] -or $durationMinutes -is [decimal]) -or [double]$durationMinutes -lt 0) {
+                        $failures.Add("Run manifest $relative duration_minutes must be a non-negative number")
+                    }
+
+                    $allowedOutputKinds = @("implementation", "test", "deployment-proof", "figma", "canva", "audit", "script-repair", "blocker")
+                    $outputKind = [string](Get-JsonProperty -Object $jsonObject -Name "output_kind")
+                    if (-not $outputKind -or $allowedOutputKinds -notcontains $outputKind) {
+                        $failures.Add("Run manifest $relative output_kind must be one of: $($allowedOutputKinds -join ', ')")
+                    }
+
+                    $automationEfficiency = Get-JsonProperty -Object $jsonObject -Name "automation_efficiency"
+                    if ($null -eq $automationEfficiency) {
+                        $failures.Add("Run manifest $relative is missing automation_efficiency telemetry")
+                    }
+                    else {
+                        $scaleSignal = [string](Get-JsonProperty -Object $automationEfficiency -Name "scale_signal")
+                        $allowedScaleSignals = @("keep", "retarget", "reduce-collisions", "needs-human-blocker")
+                        if (-not $scaleSignal -or $allowedScaleSignals -notcontains $scaleSignal) {
+                            $failures.Add("Run manifest $relative automation_efficiency.scale_signal must be one of: $($allowedScaleSignals -join ', ')")
+                        }
+
+                        if ($automationEfficiency.PSObject.Properties.Name -notcontains "duplicate_scope_checked") {
+                            $failures.Add("Run manifest $relative automation_efficiency is missing duplicate_scope_checked")
+                        }
+                        elseif ($automationEfficiency.duplicate_scope_checked -isnot [bool]) {
+                            $failures.Add("Run manifest $relative automation_efficiency.duplicate_scope_checked must be a boolean")
+                        }
+                    }
+                }
+            }
         }
         catch {
             $failures.Add("Invalid JSON in $relative`: $($_.Exception.Message)")
