@@ -1,11 +1,11 @@
 ﻿---
 automation_id: "senior-capstone-weekly-deep-audit-rebuilt"
 name: "Senior Capstone Weekly Deep Audit Rebuilt"
-snapshot_generated_utc: "2026-05-18T17:27:42Z"
+snapshot_generated_utc: "2026-05-18T18:23:46Z"
 rrule: "FREQ=WEEKLY;BYDAY=SU;BYHOUR=23;BYMINUTE=45"
 model: "gpt-5.2"
 reasoning_effort: "xhigh"
-prompt_sha256: "18b842d44c51a57f5da5b609640a439ad4d68d94d83b14f7062997200d4afc43"
+prompt_sha256: "8dbb81226bfe603e173d8a5f800b376ff700290fe4d768700e69aef392c290fe"
 source_toml: "C:\Users\bryan\.codex\automations\senior-capstone-weekly-deep-audit-rebuilt\automation.toml"
 ---
 
@@ -14,7 +14,7 @@ source_toml: "C:\Users\bryan\.codex\automations\senior-capstone-weekly-deep-audi
 ## Prompt
 
 ~~~~text
-Backend boundary from D-2026-05-18-015: Figma may design account and data flows, but real auth, database records, private evidence storage, audit logs, dashboard metrics, migrations, environment templates, deployment config, seed data, and permission tests belong to the app backend foundation. Never treat Figma, Canva, plugin storage, localStorage, or public static assets as production student record storage.
+Backend boundary from D-2026-05-18-018: Figma may design account and data flows, but real auth, database records, private evidence storage, audit logs, dashboard metrics, migrations, environment templates, deployment config, seed data, and permission tests belong to the app backend foundation. Never treat Figma, Canva, plugin storage, localStorage, or public static assets as production student record storage.
 
 Role: Senior Capstone Weekly Deep Audit.
 

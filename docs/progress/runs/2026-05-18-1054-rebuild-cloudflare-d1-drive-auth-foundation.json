@@ -1,0 +1,91 @@
+{
+  "schema_version": 1,
+  "run_id": "2026-05-18-1054-rebuild-cloudflare-d1-drive-auth-foundation",
+  "timestamp": "2026-05-18T10:54:00-07:00",
+  "lane": "rebuild",
+  "automation": "interactive-cloudflare-drive-foundation",
+  "master_plan_sections": [
+    "MVP 1.0 Vertical Slice",
+    "Stack And Deployment Direction",
+    "Anti-Drift Rules",
+    "Logging Requirements"
+  ],
+  "selected_backlog": [
+    "SC-003",
+    "SC-005"
+  ],
+  "selected_handoffs": [
+    "H-2026-05-18-002",
+    "H-2026-05-18-006"
+  ],
+  "selected_decisions": [
+    "HD-2026-05-18-003",
+    "D-2026-05-18-019"
+  ],
+  "scope": "Provision and record the first safe MVP backend foundation using Cloudflare Pages, D1, hardened username/password auth, and a Google Drive evidence repository index.",
+  "files_changed": [
+    "README.md",
+    ".gitignore",
+    ".dev.vars.example",
+    "package.json",
+    "tsconfig.json",
+    "wrangler.jsonc",
+    "functions/_types.ts",
+    "functions/_lib/http.ts",
+    "functions/_lib/crypto.ts",
+    "functions/_lib/auth.ts",
+    "functions/_lib/permissions.ts",
+    "functions/api/health.ts",
+    "functions/api/auth/bootstrap.ts",
+    "functions/api/auth/login.ts",
+    "functions/api/auth/logout.ts",
+    "functions/api/auth/me.ts",
+    "functions/api/evidence/repository.ts",
+    "migrations/0001_foundation.sql",
+    "docs/backend-setup.md",
+    "docs/master-plan.md",
+    "docs/architecture/adr-0001-stack-auth-database-upload.md",
+    "docs/progress/decision-log.md",
+    "docs/human-decisions.md",
+    "docs/automation-backlog.md",
+    "docs/automation-memory.md",
+    "docs/progress/handoffs.md",
+    "docs/artifacts.json",
+    "docs/progress/rebuild.md",
+    "docs/progress/run-log.md"
+  ],
+  "external_artifacts": [
+    {
+      "type": "cloudflare_pages_project",
+      "id": "45041fa7-82ad-489d-a928-962d53c3b95a",
+      "name": "senior-capstone-app",
+      "url": "https://senior-capstone-app.pages.dev"
+    },
+    {
+      "type": "cloudflare_d1_database",
+      "id": "3141d9ac-08b7-49c1-92ba-bbf50c1a611f",
+      "name": "senior-capstone-db",
+      "region": "WNAM"
+    },
+    {
+      "type": "google_sheet",
+      "id": "1b446rp3oyx9G4LpKYE47qXxpU41EOW-2Ota2fGum49c",
+      "name": "Senior Capstone Evidence Repository Index",
+      "url": "https://docs.google.com/spreadsheets/d/1b446rp3oyx9G4LpKYE47qXxpU41EOW-2Ota2fGum49c"
+    }
+  ],
+  "verification": [
+    "Local Python sqlite3 executed migrations/0001_foundation.sql successfully.",
+    "Cloudflare Pages project senior-capstone-app exists and has DB binding, hardened auth mode, Google Drive evidence env vars, PASSWORD_PEPPER / SESSION_PEPPER secret_text values, and fail_open=false for preview and production.",
+    "Cloudflare D1 raw query applied migration 0001 successfully.",
+    "Cloudflare D1 query verified foundation tables, 5 roles, 9 programs, and the default Google Drive evidence repository row.",
+    "Google Drive spreadsheet metadata verified title, timezone, and tabs Evidence Index, Folder Policy, and Upload Intake Fields."
+  ],
+  "blocked": [
+    "Generic Google Drive folder creation is not exposed by the available Drive connector, so GOOGLE_DRIVE_EVIDENCE_ROOT_ID remains pending.",
+    "Local npm/npx are not on PATH, so dependency install and TypeScript/Wrangler checks were not run.",
+    "BOOTSTRAP_SETUP_KEY and first admin credentials are not set yet."
+  ],
+  "self_improvement": "none",
+  "commit_push_status": "not committed or pushed during this interactive pass"
+}

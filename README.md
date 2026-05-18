@@ -20,6 +20,10 @@ Students should always follow the current directions, deadlines, and links share
 
 Open `index.html` or the GitHub Pages URL for the student guide.
 
+## MVP Backend Foundation
+
+The first Cloudflare MVP foundation is scaffolded with Pages Functions, D1, hardened username/password auth endpoints, and Google Drive evidence-repository metadata. Setup notes and live resource IDs are tracked in `docs/backend-setup.md`.
+
 ## Teacher Companion
 
 Teacher planning notes live in `teacher-companion/implementation-guide.md`. They are not linked from the student guide.

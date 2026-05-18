@@ -1,11 +1,11 @@
 ﻿---
 automation_id: "senior-capstone-canva-visual-system-rebuilt"
 name: "Senior Capstone Canva Visual System Standby"
-snapshot_generated_utc: "2026-05-18T17:27:42Z"
+snapshot_generated_utc: "2026-05-18T18:23:46Z"
 rrule: "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=0,6,12,18;BYMINUTE=10"
 model: "gpt-5.2"
 reasoning_effort: "xhigh"
-prompt_sha256: "efca28ffa48e5ff3caf645ea8127a7b4e306235ba867c4baccf8f501e5618c1e"
+prompt_sha256: "0e363961e975032e84bd11c37319fe00faee44b5b974bc6ce5e040f7cbdadc2e"
 source_toml: "C:\Users\bryan\.codex\automations\senior-capstone-canva-visual-system-rebuilt\automation.toml"
 ---
 
@@ -14,7 +14,7 @@ source_toml: "C:\Users\bryan\.codex\automations\senior-capstone-canva-visual-sys
 ## Prompt
 
 ~~~~text
-Backend boundary from D-2026-05-18-015: Figma may design account and data flows, but real auth, database records, private evidence storage, audit logs, dashboard metrics, migrations, environment templates, deployment config, seed data, and permission tests belong to the app backend foundation. Never treat Figma, Canva, plugin storage, localStorage, or public static assets as production student record storage.
+Backend boundary from D-2026-05-18-018: Figma may design account and data flows, but real auth, database records, private evidence storage, audit logs, dashboard metrics, migrations, environment templates, deployment config, seed data, and permission tests belong to the app backend foundation. Never treat Figma, Canva, plugin storage, localStorage, or public static assets as production student record storage.
 
 Lane: Senior Capstone Canva Visual System Standby.
 

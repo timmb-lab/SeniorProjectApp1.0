@@ -10,14 +10,16 @@ Build a hosted Senior Capstone application for students, mentors, program teache
 
 The revised MVP is a secure, database-centered web app. It is not a static guide, a Figma-only prototype, a Canva asset library, or a fake dashboard. The database, account model, permissions, progress updates, audit logs, and deployment path are the product backbone.
 
+Figma can prototype account flows, data-backed states, role-aware dashboards, and handoff specs, but it must not be treated as the production account system, database, file store, or source of truth. MVP 1.0 requires a real application/backend foundation for identity, authorization, persistent records, private evidence, and audited workflow changes.
+
 MVP 1.0 must support:
 
 - A fully functional database that holds operational Senior Capstone data, including users, groups, roles, programs, cohorts, requirements, deadlines, submissions, evidence metadata, review decisions, progress/status history, audit events, announcements, and exports.
-- Secure user accounts with managed auth or hardened username/password login.
+- Secure user accounts with hardened username/password login for the MVP pilot because district SSO is not available yet. Keep the auth boundary narrow enough to swap in managed SSO later.
 - User groups and role-based permissions for student, mentor, program teacher, admin, and misc admin users.
 - Admin-managed user/group/program/cohort assignment workflows.
 - Student and staff progress updates backed by trusted server/database state.
-- Private upload/evidence spaces for student documents, links, images, reflections, rubrics, presentation materials, and archive exports.
+- Private upload/evidence spaces for student documents, links, images, reflections, rubrics, presentation materials, and archive exports, using a Google Drive evidence repository as the MVP storage path while D1 stores metadata, review state, and audit history.
 - Student submissions, revisions, comments, resubmissions, approvals, and phase progress.
 - Mentor and program teacher review flows with revision requests and approvals.
 - Admin controls for users, groups, programs, cohorts, assignments, deadlines, templates, announcements, exports, and audited overrides.
@@ -26,7 +28,7 @@ MVP 1.0 must support:
 - Privacy-conscious handling of student records, uploads, exports, staff notes, and access control.
 - GitHub-connected deployment to Cloudflare Workers/Pages, with Cloudflare-managed production environments and a future Bryan-purchased custom domain.
 
-Figma and Canva are major first-class inputs to the product experience. Figma should drive functional UI design, role-aware screens, implementation-ready specs, and state coverage. Canva should create stunning supporting images and visual assets that make the app feel polished without baking important live text or private data into images.
+Figma and Canva are major first-class inputs to the product experience. Figma should drive functional UI design, role-aware screens, implementation-ready specs, state coverage, and the daily guided prototype page that explains what today's real app progress means for users and the next ladder step. Canva should create stunning supporting images and visual assets that make the app feel polished without baking important live text or private data into images.
 
 This project is not finished when it looks good. It is finished when the hosted app can safely manage real student workflow and staff visibility from a secure database-backed foundation.
 
@@ -120,6 +122,17 @@ The first production slice is now database/security first:
 
 Admin creates or imports users, groups, programs, cohorts, and role assignments -> student record is created -> student or staff updates capstone progress -> status history persists -> audit event records the change -> role-aware dashboard aggregate updates from trusted database state -> app deploys through GitHub to Cloudflare.
 
+Before that slice can count as started, the repo needs a concrete MVP foundation setup:
+
+- App scaffold that can run locally and deploy through GitHub to Cloudflare Workers/Pages.
+- Auth/session boundary using the hardened username/password pilot path until school SSO is available.
+- Database schema and migrations for users, groups, roles, memberships, programs, cohorts, requirements, progress, submissions, reviews, comments, evidence metadata, announcements, exports, deadlines, and audit events.
+- Private evidence storage plan using Google Drive as the MVP repository path, with server-side authorization, deletion/replacement rules, retention, archive/export, and audit events.
+- Server-side authorization helpers for student-own records, assigned mentor records, program/cohort teacher records, admin records, and narrow misc admin permissions.
+- Seed/dev data for at least one admin, program teacher, mentor, student, program, cohort, assignment, progress record, and audit event.
+- Test runner and first permission/workflow tests before any dashboard metric is trusted.
+- Environment/secrets template for local, preview, and production deployment assumptions.
+
 The first workflow slice after that foundation is:
 
 Student proposal/research submission -> private evidence upload/link -> program teacher review -> revision request or approval -> status history -> audit event -> dashboard aggregate.
@@ -140,6 +153,7 @@ Acceptance criteria:
 - Dashboard counts derive from trusted server/database-style state.
 - Tests cover permissions, protected evidence access, valid transitions, and unauthorized access.
 - A GitHub-to-Cloudflare deployment path exists before the app is described as hosted.
+- Figma frames, variables, or plugin storage are not used as the production account, database, or evidence layer.
 
 ## Milestone Path
 
@@ -244,7 +258,7 @@ The accepted rebuild stack direction is the Cloudflare-compatible production sta
 - App framework and Workers/Pages structure.
 - Auth provider and account/group provisioning model.
 - Database, likely Cloudflare D1 or another Cloudflare-compatible secure database path.
-- Private upload/file storage, likely Cloudflare R2 or another access-controlled storage path.
+- Private upload/file storage through a Google Drive evidence repository for MVP, with Cloudflare R2 treated as a future fallback only if enabled and approved.
 - ORM/migrations.
 - GitHub-to-Cloudflare deployment workflow.
 - Environment/secrets strategy.
@@ -254,17 +268,29 @@ The accepted rebuild stack direction is the Cloudflare-compatible production sta
 
 No automation should pretend the app is functional until this foundation exists in the repo and is tested.
 
+Immediate setup order:
+
+1. Scaffold the TypeScript app/runtime, package scripts, local dev command, test runner, and deployment config.
+2. Add schema/migration tooling and the first database tables for users, groups, memberships, roles, programs, cohorts, progress, and audit events.
+3. Add hardened username/password auth/session integration behind a narrow app-owned interface so the exact provider can be swapped if school SSO later becomes available.
+4. Add server-side permission checks and tests before adding broad UI workflows.
+5. Add Google Drive evidence metadata and storage access patterns before accepting real uploads.
+6. Wire the first admin/student/teacher dashboard metrics only from server/database state.
+7. Connect Figma implementation specs to the real routes/components after the secure data boundary exists.
+
 Current stack pressure:
 
 - `HD-2026-05-18-001` is accepted for the production stack.
 - `docs/architecture/adr-0001-stack-auth-database-upload.md` is the accepted Cloudflare-oriented ADR.
+- `D-2026-05-18-019` accepts the no-district-SSO hardened username/password pilot and Google Drive evidence repository path.
+- Cloudflare Pages project `senior-capstone-app`, D1 database `senior-capstone-db`, migration `0001_foundation`, and Google Drive evidence index sheet are now provisioned and recorded in `docs/backend-setup.md`.
 - `SC-005` is now in-progress and keeps the scaffold in front of the automation loop.
 - Rebuild should prioritize the Cloudflare stack/auth/database/user-group/progress/private-upload foundation before broad app feature work.
 
 ## Lane Responsibilities
 
 Figma:
-- Heavy product-design ownership for functional app screens, app shell, dashboards, admin preview, components, responsive states, accessibility, permission-aware UI states, upload/evidence states, database-backed states, announcement surfaces, mobile-aware patterns, and developer-ready specs.
+- Heavy product-design ownership for functional app screens, app shell, dashboards, admin preview, components, responsive states, accessibility, permission-aware UI states, upload/evidence states, database-backed states, announcement surfaces, mobile-aware patterns, developer-ready specs, and the daily guided multi-page prototype that ladders from actual progress into the next MVP slice.
 
 Core rebuild:
 - Cloudflare/GitHub architecture, scaffold, auth, authorization, database/schema, user groups, progress updates, private upload/evidence storage, workflow logic, dashboard aggregates, tests, CI/deployment readiness, custom-domain readiness, and security posture.
@@ -327,9 +353,11 @@ Each run must log:
 Do not:
 
 - Build fake login screens and call that auth.
+- Use Figma variables, prototype state, plugins, or plugin storage as the app's production auth, database, evidence storage, or audit log.
 - Store student records in `localStorage`.
 - Build dashboards from client-only state.
 - Treat Figma, Canva, or docs as the product.
+- Treat the daily Figma prototype as production data, a working backend, or evidence that an app feature is implemented when the repo/backend does not yet support it.
 - Put private evidence in public static assets.
 - Treat a static Cloudflare deployment as the MVP if the secure database/account/group foundation is missing.
 - Skip audit logs for approvals, overrides, exports, role changes, or sensitive access.

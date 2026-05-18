@@ -23,18 +23,6 @@ Status values:
 - `evidence to close`: Canva link/ID or committed asset spec entry plus lane progress entry.
 - `last updated`: 2026-05-18
 
-### H-2026-05-18-002
-
-- `source lane`: audit
-- `owner lane`: rebuild
-- `status`: open
-- `source`: security/app-readiness discussion
-- `artifact`: `SC-001` and `SC-003`
-- `next action`: Document the Cloudflare-compatible stack decision and begin the real app scaffold with auth/database/user-group/progress/private evidence storage assumptions explicit.
-- `acceptance check`: ADR names app framework, auth provider, database, storage, GitHub-to-Cloudflare deployment target, environment variables, local development path, backup/export posture, and security tradeoffs.
-- `evidence to close`: Committed ADR plus follow-up scaffold or backlog update.
-- `last updated`: 2026-05-18
-
 ### H-2026-05-18-004
 
 - `source lane`: canva
@@ -63,13 +51,13 @@ Status values:
 
 - `source lane`: ops
 - `owner lane`: rebuild
-- `status`: open
+- `status`: in-progress
 - `source`: automation operating-infrastructure pass plus revised MVP direction
 - `artifact`: `SC-005`, `HD-2026-05-18-001`, `docs/architecture/adr-0001-stack-auth-database-upload.md`
-- `next action`: Scaffold the accepted Cloudflare stack path with auth/database/user-group/progress/private-upload assumptions explicit.
-- `acceptance check`: Rebuild commits starter app/package/deployment structure or a precise provisioning blocker that names app framework, auth provider, database, user/group model, progress model, private upload storage, ORM/migrations approach, GitHub-to-Cloudflare deployment path, environment/secrets path, local development setup, tests, backup/export posture, and security tradeoffs.
-- `evidence to close`: Committed scaffold work or a precisely blocked provisioning note.
-- `last updated`: 2026-05-18 09:01 PT
+- `next action`: Finish the scaffold by adding tests/CI, first-admin bootstrap, Drive root folder ID, server-side Drive upload credentials, and first admin/progress workflow endpoints.
+- `acceptance check`: Tests cover hardened auth, student-own access, assigned mentor access, program/cohort teacher access, admin access, misc-admin narrowing, protected evidence access, unauthorized denial, valid status transitions, and audit events.
+- `evidence to close`: Passing tests plus first vertical-slice endpoints that use the D1 schema and Google Drive evidence repository metadata without real student data.
+- `last updated`: 2026-05-18 10:54 PT
 
 ### H-2026-05-18-008
 
@@ -84,6 +72,18 @@ Status values:
 - `last updated`: 2026-05-18 11:03 PT
 
 ## Resolved Handoffs
+
+### H-2026-05-18-002
+
+- `source lane`: audit
+- `owner lane`: rebuild
+- `status`: resolved
+- `source`: security/app-readiness discussion
+- `artifact`: `SC-001` and `SC-003`
+- `next action`: Closed by ADR-0001, `D-2026-05-18-019`, local scaffold, Cloudflare Pages project `senior-capstone-app`, D1 database `senior-capstone-db`, migration `0001_foundation`, and `docs/backend-setup.md`.
+- `acceptance check`: Satisfied for the initial scaffold. Follow-on implementation continues under `H-2026-05-18-006`, `SC-003`, and `SC-005`.
+- `evidence to close`: `docs/architecture/adr-0001-stack-auth-database-upload.md`, `docs/backend-setup.md`, `package.json`, `wrangler.jsonc`, `functions/`, `migrations/0001_foundation.sql`, and remote D1 table verification on 2026-05-18.
+- `last updated`: 2026-05-18 10:54 PT
 
 ### H-2026-05-18-003
 

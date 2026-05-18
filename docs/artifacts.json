@@ -1,7 +1,95 @@
 {
   "version": 1,
-  "updated_at": "2026-05-18T11:03:00-07:00",
+  "updated_at": "2026-05-18T11:11:00-07:00",
   "artifacts": [
+    {
+      "id": "cloudflare-pages-senior-capstone-app",
+      "type": "cloudflare_pages_project",
+      "status": "active",
+      "owner_lane": "rebuild",
+      "title": "senior-capstone-app",
+      "account_id": "539e8f7c55e7b1472013626ad72f4c7f",
+      "project_id": "45041fa7-82ad-489d-a928-962d53c3b95a",
+      "url": "https://senior-capstone-app.pages.dev",
+      "repo": "timmb-lab/SeniorProjectApp1.0",
+      "production_branch": "main",
+      "purpose": "GitHub-connected Cloudflare Pages host for the Senior Capstone MVP app.",
+      "app_placement": "Production/preview deployment target for static guide pages and Pages Functions under functions/.",
+      "consuming_lanes": [
+        "rebuild",
+        "audit",
+        "daily-report",
+        "weekly-deep-audit"
+      ],
+      "repo_records": [
+        "docs/backend-setup.md",
+        "wrangler.jsonc",
+        "docs/progress/decision-log.md",
+        "docs/progress/rebuild.md"
+      ],
+      "verification": [
+        "Cloudflare API returned project id 45041fa7-82ad-489d-a928-962d53c3b95a on 2026-05-18.",
+        "Preview and production deployment configs include DB D1 binding, hardened username/password auth mode, Google Drive evidence provider, evidence index sheet id, PASSWORD_PEPPER and SESSION_PEPPER secret_text vars, and fail_open=false."
+      ],
+      "last_updated": "2026-05-18"
+    },
+    {
+      "id": "cloudflare-d1-senior-capstone-db",
+      "type": "cloudflare_d1_database",
+      "status": "active",
+      "owner_lane": "rebuild",
+      "title": "senior-capstone-db",
+      "account_id": "539e8f7c55e7b1472013626ad72f4c7f",
+      "database_id": "3141d9ac-08b7-49c1-92ba-bbf50c1a611f",
+      "region": "WNAM",
+      "purpose": "Relational database for MVP users, auth credentials, sessions, roles, groups, programs, progress, submissions, evidence metadata, review workflow, deadlines, announcements, exports, and audit events.",
+      "app_placement": "Bound to Cloudflare Pages Functions as DB.",
+      "consuming_lanes": [
+        "rebuild",
+        "audit",
+        "daily-report",
+        "weekly-deep-audit"
+      ],
+      "repo_records": [
+        "migrations/0001_foundation.sql",
+        "docs/backend-setup.md",
+        "wrangler.jsonc",
+        "docs/progress/rebuild.md"
+      ],
+      "verification": [
+        "Migration 0001 applied successfully through Cloudflare D1 raw query API on 2026-05-18.",
+        "Remote query verified 5 roles, 9 programs, default Google Drive evidence repository row, and expected foundation tables."
+      ],
+      "last_updated": "2026-05-18"
+    },
+    {
+      "id": "google-drive-evidence-repository-index",
+      "type": "google_sheet",
+      "status": "active_index_pending_root_folder",
+      "owner_lane": "rebuild",
+      "title": "Senior Capstone Evidence Repository Index",
+      "file_id": "1b446rp3oyx9G4LpKYE47qXxpU41EOW-2Ota2fGum49c",
+      "url": "https://docs.google.com/spreadsheets/d/1b446rp3oyx9G4LpKYE47qXxpU41EOW-2Ota2fGum49c",
+      "purpose": "Google Drive-native evidence repository index for MVP uploads and evidence metadata reconciliation.",
+      "app_placement": "Referenced by Cloudflare Pages env var GOOGLE_DRIVE_EVIDENCE_INDEX_SHEET_ID and D1 evidence_repositories.index_sheet_id.",
+      "consuming_lanes": [
+        "rebuild",
+        "audit",
+        "daily-report",
+        "weekly-deep-audit"
+      ],
+      "repo_records": [
+        "docs/backend-setup.md",
+        "docs/progress/decision-log.md",
+        "docs/progress/rebuild.md",
+        "wrangler.jsonc"
+      ],
+      "verification": [
+        "Google Drive metadata returned native spreadsheet title and sheets Evidence Index, Folder Policy, and Upload Intake Fields on 2026-05-18.",
+        "Root folder ID is still pending because the available Drive connector does not expose generic folder creation."
+      ],
+      "last_updated": "2026-05-18"
+    },
     {
       "id": "figma-senior-project-app-team-target",
       "type": "figma_team_project",
@@ -83,6 +171,11 @@
           "name": "03 Product Preview + State Variants",
           "id": "2:4",
           "primary_frame": "6:2"
+        },
+        {
+          "name": "04 Guided Daily Prototype",
+          "id": "75:2",
+          "primary_frame": "75:3"
         }
       ],
       "key_frames": {
@@ -121,7 +214,13 @@
         "progress_dashboard_aggregate_contract": "61:2",
         "progress_dashboard_aggregate_handoff_contract": "61:113",
         "audit_export_controls_contract": "69:2",
-        "audit_export_controls_handoff_contract": "69:180"
+        "audit_export_controls_handoff_contract": "69:180",
+        "guided_daily_start": "75:3",
+        "guided_daily_progress": "75:34",
+        "guided_daily_student_path": "75:65",
+        "guided_daily_staff_path": "75:96",
+        "guided_daily_security_boundary": "75:127",
+        "guided_daily_next_ladder": "75:158"
       },
       "verification": [
         "File creation succeeded in plan team::1638213362346160913.",
@@ -143,7 +242,8 @@
         "Figma write on 2026-05-18 added Progress Update + Dashboard Aggregate Contract node 61:2 to board 6:2, with five progress/dashboard states, six server-side transition steps, and developer handoff contract node 61:113.",
         "Screenshot, design-context, metadata, and readback verification returned for node 61:2 after row autosizing correction; readback confirmed board 6:2 height 11231.8, 5 states, 6 pipeline steps, 7 routes, 12 records, 5 permission scopes, 7 acceptance checks, no clipped text nodes, and no clipped horizontal rows.",
         "Figma write on 2026-05-18 added Audit Log + Export Controls Contract node 69:2 to board 6:2, with five audit/export states, six pipeline steps, an audit stream/export request panel, and developer handoff contract node 69:180.",
-        "Screenshot, design-context, metadata, and readback verification returned for node 69:2 after text-height correction; readback confirmed board 6:2 height 13078.8, 5 states, 6 pipeline steps, 7 routes, 12 records, 5 permission scopes, 7 guardrails, 7 acceptance checks, no clipped text nodes, and no clipped horizontal rows."
+        "Screenshot, design-context, metadata, and readback verification returned for node 69:2 after text-height correction; readback confirmed board 6:2 height 13078.8, 5 states, 6 pipeline steps, 7 routes, 12 records, 5 permission scopes, 7 guardrails, 7 acceptance checks, no clipped text nodes, and no clipped horizontal rows.",
+        "Page 04 Guided Daily Prototype was created on 2026-05-18 with 6 clickable frames and 5 prototype links: 75:3, 75:34, 75:65, 75:96, 75:127, and 75:158."
       ],
       "supersedes": [
         "figma-product-ui-system-reference-old-team",

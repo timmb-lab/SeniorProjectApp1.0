@@ -102,3 +102,17 @@ Each audit run should append a dated entry with:
 - `self-improvement`: updated the weekly audit live prompt and contract checker because Bryan explicitly requested weekly review/audit/adjustment of the 100-pass daily goals.
 - `commit/push status`: pending in this pass.
 - `next action`: Weekly deep audit should report the accepted-pass count every Sunday and update only this project's master plan/memory when evidence says the next-week allocation should change.
+
+### 2026-05-18 10:04 PT - MVP Backend Boundary Automation Update
+
+- `automation`: manual user-requested automation review/update pass
+- `master-plan section`: MVP 1.0 Vertical Slice; Stack And Deployment Direction; Anti-Drift Rules
+- `scope`: Update Senior Capstone automation instructions around `D-2026-05-18-018`, making real auth/database/private evidence/storage/permission setup explicit MVP foundation work and preventing Figma/prototype state from being treated as production data.
+- `findings`: The active orchestrator already prioritized the Cloudflare database/auth foundation, but the live prompts did not explicitly carry the new Figma/backend boundary or Bryan-owned Cloudflare/GitHub account provisioning watchpoint.
+- `live automations changed`: Updated local records and regenerated snapshots for `senior-capstone-rebuild-rebuilt`, `senior-capstone-figma-product-design-rebuilt`, `senior-capstone-canva-visual-system-rebuilt`, `senior-capstone-content-quality-audits-rebuilt`, `senior-capstone-daily-automation-report-rebuilt`, and `senior-capstone-weekly-deep-audit-rebuilt`. Direct `automation_update` rendered the automation card but misreported the active orchestrator as not found on mutation, so the repo/local prompt path was used and recorded.
+- `account readiness`: Cloudflare API connector can read Bryan's account `539e8f7c55e7b1472013626ad72f4c7f`; D1 and Pages are reachable but empty, Workers has existing `it-networking-curriculum`, R2 returned error `10042` and must be enabled in the dashboard, GitHub app access is installed for `timmb-lab`, and local `wrangler`/`npx` are not on PATH.
+- `files changed`: `docs/automation-memory.md`, `docs/automation-prompts/`, `docs/automation-runbook.md`, `docs/human-decisions.md`, `docs/progress/handoffs.md`, `docs/progress/audit.md`, `docs/progress/run-log.md`, `docs/progress/runs/2026-05-18-1004-ops-mvp-backend-boundary-automation-update.json`, and `scripts/check-automation-contract.ps1`.
+- `validation`: Regenerated prompt snapshots; `scripts/check-automation-contract.ps1` passed for 6 automations.
+- `self-improvement`: added backend-boundary and `real auth` checks to the automation contract checker so future prompt drift fails fast.
+- `commit/push status`: pending in this interactive pass.
+- `next action`: Rebuild should start `SC-005` with local app/runtime, schema/migrations, auth/session interface, permission helpers/tests, and Cloudflare/GitHub provisioning blockers only where Bryan-owned account authorization is actually required.

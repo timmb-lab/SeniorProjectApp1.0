@@ -12,6 +12,7 @@ $automationIds = @(
     "senior-capstone-content-quality-audits-rebuilt",
     "senior-capstone-canva-visual-system-rebuilt",
     "senior-capstone-daily-automation-report-rebuilt",
+    "senior-capstone-daily-guided-prototype-refresh",
     "senior-capstone-weekly-deep-audit-rebuilt"
 )
 
@@ -40,6 +41,7 @@ $requiredPromptFragments = @(
     "automation_update",
     "scripts/snapshot-automation-prompts.ps1",
     "scripts/check-automation-contract.ps1",
+    "real auth",
     "z4t4tFPAKrMDh6pIYOeEw6",
     "team::1638213362346160913",
     "LLucMgAPscRa9020iHHigB"
@@ -79,6 +81,11 @@ $expectedAutomationConfig = @{
         Name = "Senior Capstone Daily Report Standby"
         Status = "PAUSED"
         RRule = "FREQ=DAILY;BYHOUR=7;BYMINUTE=40"
+    }
+    "senior-capstone-daily-guided-prototype-refresh" = @{
+        Name = "Senior Capstone Daily Guided Prototype Refresh"
+        Status = "ACTIVE"
+        RRule = "FREQ=DAILY;BYHOUR=22;BYMINUTE=10"
     }
     "senior-capstone-weekly-deep-audit-rebuilt" = @{
         Name = "Senior Capstone Weekly Deep Audit Rebuilt"
@@ -139,7 +146,15 @@ function Assert-File {
 
 $scheduleSlots = @{}
 $activeEverydaySeniorSlots = @{}
-$expectedDailyTimes = @("00:20", "05:20", "10:20", "15:20", "20:20")
+$expectedDailyTimes = @("00:20", "05:20", "10:20", "15:20", "20:20", "22:10")
+$expectedDailyOwnerByTime = @{
+    "00:20" = "senior-capstone-rebuild-rebuilt"
+    "05:20" = "senior-capstone-rebuild-rebuilt"
+    "10:20" = "senior-capstone-rebuild-rebuilt"
+    "15:20" = "senior-capstone-rebuild-rebuilt"
+    "20:20" = "senior-capstone-rebuild-rebuilt"
+    "22:10" = "senior-capstone-daily-guided-prototype-refresh"
+}
 $allWeekDays = @("MO", "TU", "WE", "TH", "FR", "SA", "SU")
 
 foreach ($day in $allWeekDays) {
@@ -268,17 +283,30 @@ foreach ($day in $allWeekDays) {
     $slots = @($activeEverydaySeniorSlots[$day])
     $times = @($slots | ForEach-Object { ($_ -split " ")[0] } | Sort-Object)
     $expected = @($expectedDailyTimes | Sort-Object)
-    $unexpectedOwners = @($slots | Where-Object { $_ -notlike "* senior-capstone-rebuild-rebuilt" })
+    $unexpectedOwners = @()
+    foreach ($slot in $slots) {
+        $parts = $slot -split " "
+        if ($parts.Count -lt 2) {
+            $unexpectedOwners += $slot
+            continue
+        }
 
-    if ($slots.Count -ne 5) {
-        $failures.Add("$day has $($slots.Count) active everyday Senior Capstone starts; expected exactly 5: $($expectedDailyTimes -join ', ')")
+        $time = $parts[0]
+        $owner = $parts[1]
+        if (-not $expectedDailyOwnerByTime.ContainsKey($time) -or $expectedDailyOwnerByTime[$time] -ne $owner) {
+            $unexpectedOwners += $slot
+        }
+    }
+
+    if ($slots.Count -ne 6) {
+        $failures.Add("$day has $($slots.Count) active everyday Senior Capstone starts; expected exactly 6: $($expectedDailyTimes -join ', ')")
     }
     elseif (($times -join ",") -ne ($expected -join ",")) {
         $failures.Add("$day active everyday Senior Capstone starts are $($times -join ', '); expected exactly $($expectedDailyTimes -join ', ')")
     }
 
     if ($unexpectedOwners.Count -gt 0) {
-        $failures.Add("$day has active daily Senior starts outside the gold orchestrator: $($unexpectedOwners -join ', ')")
+        $failures.Add("$day has active daily Senior starts outside the expected owner map: $($unexpectedOwners -join ', ')")
     }
 }
 

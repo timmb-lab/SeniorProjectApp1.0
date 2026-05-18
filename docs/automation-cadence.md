@@ -2,9 +2,9 @@
 
 Date: 2026-05-18
 
-The Senior Capstone rebuild now uses a primary 5x/day gold-standard orchestrator. The live app automation `senior-capstone-rebuild-rebuilt` is named `Senior Capstone Gold Standard Orchestrator` and runs every day at `00:20`, `05:20`, `10:20`, `15:20`, and `20:20` PT. It reads the master plan and logs, follows the work ladder, chooses one bounded beta-advancing slice, updates the repo or external artifact, verifies, logs, commits, pushes, and repairs its own prompt/scripts when evidence shows drift.
+The Senior Capstone rebuild now uses a primary 5x/day gold-standard orchestrator plus one daily guided-prototype refresh. The live app automation `senior-capstone-rebuild-rebuilt` is named `Senior Capstone Gold Standard Orchestrator` and runs every day at `00:20`, `05:20`, `10:20`, `15:20`, and `20:20` PT. It reads the master plan and logs, follows the work ladder, chooses one bounded beta-advancing slice, updates the repo or external artifact, verifies, logs, commits, pushes, and repairs its own prompt/scripts when evidence shows drift.
 
-Specialist lane automations still exist for Figma, Canva, content audit, and daily reporting, but they are intentionally `PAUSED` standby records so the Senior Capstone daily cadence is one reliable 5x/day orchestrator rather than overlapping lane jobs. Weekly deep audit remains `ACTIVE` as the separate severe weekly review.
+Specialist lane automations still exist for Figma, Canva, content audit, and daily reporting, but they are intentionally `PAUSED` standby records so the Senior Capstone daily cadence is not a pileup of overlapping lane jobs. Weekly deep audit remains `ACTIVE` as the separate severe weekly review. `senior-capstone-daily-guided-prototype-refresh` is also `ACTIVE` and runs once daily at `22:10` PT to update the multi-frame guided prototype from that day's actual progress and ladder position.
 
 The real daily delivery goal for this project is not five accepted changes every day. The current 100-pass / 45-day target requires at least 2 accepted MVP passes per calendar day, with 3 as the stretch goal when the repo is unblocked. The weekly deep audit recalibrates this project-only daily goal every Sunday from committed evidence and may update `docs/master-plan.md` and `docs/automation-memory.md`; it must not change schedules, workspace, model, reasoning effort, or status unless Bryan explicitly asks.
 
@@ -147,6 +147,18 @@ Senior Capstone Gold Standard Orchestrator
 - Beta target: hosted GitHub-to-Cloudflare app with secure database-backed users/groups/roles/programs/cohorts, trusted progress state, private evidence/upload metadata, submissions, review/revision/approval, audit events, dashboards, admin controls, tests, and deployment path.
 - Run shape: one bounded deliverable per run, with verification, lane log, run log, structured run manifest, material memory/handoff/backlog/decision/artifact updates, self-improvement closeout, commit, and push.
 - No-intervention rule: use saved connector approvals when already present, avoid tool calls that would pause for approval, use repo fallbacks for connector/OAuth blockers, and record `ACTION REQUIRED` only for account/legal/budget/school-policy issues that cannot be resolved from the repo.
+
+## Daily Guided Prototype Refresh
+
+Senior Capstone Daily Guided Prototype Refresh
+- Automation: `senior-capstone-daily-guided-prototype-refresh`
+- Schedule: daily at `22:10` PT, after the `20:20` gold-standard orchestrator pass.
+- RRULE: `FREQ=DAILY;BYHOUR=22;BYMINUTE=10`
+- Purpose: keep the active Figma page `04 Guided Daily Prototype` current as a clickable guided walkthrough of the day's real repo/app/design progress, current blockers, and next ladder step.
+- Active Figma target: `Senior Capstone App - Product UI System Recreated`, file key `z4t4tFPAKrMDh6pIYOeEw6`, in team `team::1638213362346160913`.
+- Required frames: start/overview, today's progress, student guided path, staff guided path, security/data boundary, and next ladder.
+- Guardrail: the prototype explains and guides the MVP; it never stores production accounts, student records, real credentials, private evidence, or the source of truth for dashboard data.
+- Fallback: if Figma quota/auth blocks a write, the job must record a repo-side blocker or guided-prototype update note, validate, commit, and push.
 
 ## Specialist Lane Cadence
 

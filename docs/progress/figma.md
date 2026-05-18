@@ -1,4 +1,4 @@
-# Figma Progress
+﻿# Figma Progress
 
 This lane log preserves Figma product design work, file IDs, screen specs, verification notes, blockers, and next UI slices. The Figma automation should append here after each run.
 
@@ -974,3 +974,55 @@ Self-improvement:
 
 Next Figma slice:
 - Stop broad Figma deepening while `SC-005` lacks scaffold/code. The next accepted MVP pass should be rebuild-heavy: Cloudflare/TypeScript scaffold, D1/R2/migration layout, auth/users/groups, private evidence, `ProgressUpdate`/`DashboardAggregate`, audit/export primitives, and tests consuming nodes `18:2`, `37:2`, `43:2`, `48:2`, `56:2`, `61:2`, and `69:2`.
+
+## 2026-05-18 Daily Guided Prototype Page Added
+
+Automation:
+- Manual Figma update requested by Bryan, plus new daily automation `senior-capstone-daily-guided-prototype-refresh`.
+
+Master-plan section:
+- Product Destination
+- MVP 1.0 Vertical Slice
+- Lane Responsibilities
+- Logging Requirements
+
+Logs referenced:
+- `docs/master-plan.md`
+- `docs/automation-memory.md`
+- `docs/automation-cadence.md`
+- `docs/progress/run-log.md`
+- `docs/progress/runs/`
+- `docs/progress/handoffs.md`
+- `docs/progress/decision-log.md`
+- `docs/automation-backlog.md`
+- `docs/artifacts.json`
+
+Active Figma artifact:
+- File: `Senior Capstone App - Product UI System Recreated`
+- File key: `z4t4tFPAKrMDh6pIYOeEw6`
+- URL: `https://www.figma.com/design/z4t4tFPAKrMDh6pIYOeEw6`
+- Team id: `1638213362346160913`
+- Plan key: `team::1638213362346160913`
+
+What changed:
+- Created page `04 Guided Daily Prototype`, page id `75:2`.
+- Built six guided click-through frames:
+  - `Prototype / 00 Start / 2026-05-18`, node `75:3`
+  - `Prototype / 01 Today Progress`, node `75:34`
+  - `Prototype / 02 Student Guided Path`, node `75:65`
+  - `Prototype / 03 Staff Guided Path`, node `75:96`
+  - `Prototype / 04 Security Boundary`, node `75:127`
+  - `Prototype / 05 Next Ladder`, node `75:158`
+- Added Back/Next/Loop prototype button reactions so Bryan can walk through the current story of the MVP: today's real progress, student journey, staff journey, security boundary, and next ladder.
+- Created active automation `senior-capstone-daily-guided-prototype-refresh` to refresh the page once per day at `22:10 PT` from that day's progress, blockers, and laddering.
+
+Verification:
+- Figma page inspection found `04 Guided Daily Prototype` with 6 frames.
+- Prototype reaction verification found one reaction on each navigation button and 5 forward prototype links.
+- Automation TOML exists locally with status `ACTIVE`, model `gpt-5.5`, reasoning `xhigh`, workspace `C:\SeniorProjectApp1.0`, and RRULE `FREQ=DAILY;BYHOUR=22;BYMINUTE=10`.
+
+Self-improvement:
+- Added the new daily prototype automation to prompt snapshots and the automation contract checker.
+
+Next Figma slice:
+- Daily refresh should update the same page after each day's last orchestrator run, keeping Figma aligned to real repo/backend progress without putting real student data or credentials into the design file.

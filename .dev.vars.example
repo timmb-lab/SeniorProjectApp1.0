@@ -1,0 +1,8 @@
+# Copy to .dev.vars for local development. Do not commit .dev.vars.
+BOOTSTRAP_SETUP_KEY=replace-with-long-random-setup-key
+SESSION_PEPPER=replace-with-long-random-session-pepper
+PASSWORD_PEPPER=replace-with-long-random-password-pepper
+GOOGLE_DRIVE_CLIENT_EMAIL=pending-service-account-or-oauth-client
+GOOGLE_DRIVE_PRIVATE_KEY=pending-secret
+GOOGLE_DRIVE_EVIDENCE_ROOT_ID=pending-folder-id
+GOOGLE_DRIVE_EVIDENCE_INDEX_SHEET_ID=1b446rp3oyx9G4LpKYE47qXxpU41EOW-2Ota2fGum49c

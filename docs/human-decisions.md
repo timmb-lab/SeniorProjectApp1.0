@@ -12,9 +12,23 @@ Status values:
 
 ## Open Decisions
 
-No open decisions currently block automation execution. New entries should be reserved for account ownership, legal/privacy policy, school operations, budget, credentials, or production provisioning decisions that cannot be inferred from accepted docs.
+No open human decisions are blocking the current scaffold. The remaining setup work is configuration: create/select a Google Drive evidence root folder, set production secrets, choose first-admin credentials, and implement Drive upload credentials before real student data is entered.
 
 ## Accepted Decisions
+
+### HD-2026-05-18-003
+
+- `status`: accepted
+- `area`: Cloudflare/GitHub account authorization, MVP auth mode, and evidence storage
+- `owner`: Bryan
+- `severity`: P0
+- `decision`: Use Bryan's authorized Cloudflare account for the first remote MVP foundation, use hardened username/password auth because district SSO is not available, and use Google Drive as the MVP upload/evidence repository path.
+- `accepted implementation`: Cloudflare Pages project `senior-capstone-app` is configured for GitHub-connected deployment; D1 database `senior-capstone-db` is created and migrated; Pages preview/production environment variables point to hardened username/password auth and Google Drive evidence storage; Google Drive evidence index sheet `1b446rp3oyx9G4LpKYE47qXxpU41EOW-2Ota2fGum49c` exists.
+- `remaining configuration`: create/select the Google Drive root folder ID, set the one-time Pages bootstrap secret `BOOTSTRAP_SETUP_KEY`, choose first admin credentials, and add server-side Google Drive upload credentials/OAuth before accepting real student uploads. `PASSWORD_PEPPER` and `SESSION_PEPPER` are already set as Cloudflare Pages secrets.
+- `current account evidence`: Cloudflare account `539e8f7c55e7b1472013626ad72f4c7f` is reachable; D1 and Pages provisioning succeeded; Workers has existing Worker `it-networking-curriculum`; R2 remains disabled with Cloudflare error `10042` but is no longer an MVP blocker because Google Drive is the accepted evidence repository path. GitHub app access is installed for `timmb-lab`. Local `wrangler` and `npx` are not on PATH.
+- `safe automation behavior`: Continue local scaffold, tests, and Cloudflare Pages/D1 configuration. Do not enter real student data or claim pilot readiness until the bootstrap secret, Drive root folder, upload credentials, and permission tests are complete.
+- `source`: User confirmed on 2026-05-18: "You are authorized in cloudflare... We need hardned Un?pw as we can't connect to district SSO -- uploads need to have google drive repo"
+- `last updated`: 2026-05-18
 
 ### HD-2026-05-18-001
 
@@ -23,7 +37,7 @@ No open decisions currently block automation execution. New entries should be re
 - `owner`: Bryan with rebuild lane recommendation
 - `severity`: P0
 - `decision`: Proceed with the default Cloudflare-compatible stack unless later evidence forces a superseding ADR.
-- `accepted stack`: TypeScript app deployed from GitHub to Cloudflare Workers/Pages + Cloudflare D1 or another Cloudflare-compatible secure database + Cloudflare R2 or another private evidence storage path + Workers-compatible managed auth or school-approved SSO + server-side authorization and audit logging.
+- `accepted stack`: TypeScript app deployed from GitHub to Cloudflare Workers/Pages + Cloudflare D1 + Google Drive evidence repository for MVP uploads + hardened username/password pilot auth until school SSO becomes available + server-side authorization and audit logging. Cloudflare R2 remains a future fallback only if enabled and approved.
 - `why this is recommended`: Bryan has stated the hosting goal is GitHub to Cloudflare Workers with a future purchased domain. The revised MVP needs a fully functional secure database for users, groups, roles, progress, submissions, reviews, approvals, private evidence, announcements, dashboards, and audit logs. The stack decision should now optimize for Cloudflare deployment without weakening auth, authorization, backups, or private evidence controls.
 - `options`:
   - `A`: Cloudflare Workers/Pages + D1 + R2 + Workers-compatible managed auth or school-approved SSO. Aligns with the revised hosting goal; auth/security design must be made explicit.

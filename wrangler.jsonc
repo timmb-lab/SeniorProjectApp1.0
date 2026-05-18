@@ -1,0 +1,22 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "senior-capstone-app",
+  "compatibility_date": "2026-05-18",
+  "pages_build_output_dir": ".",
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "senior-capstone-db",
+      "database_id": "3141d9ac-08b7-49c1-92ba-bbf50c1a611f",
+      "migrations_dir": "./migrations"
+    }
+  ],
+  "vars": {
+    "APP_ENV": "local",
+    "AUTH_MODE": "hardened_username_password",
+    "EVIDENCE_STORAGE_PROVIDER": "google_drive",
+    "GOOGLE_DRIVE_EVIDENCE_ROOT_ID": "pending",
+    "GOOGLE_DRIVE_EVIDENCE_INDEX_SHEET_ID": "1b446rp3oyx9G4LpKYE47qXxpU41EOW-2Ota2fGum49c",
+    "SESSION_COOKIE_NAME": "sc_session"
+  }
+}

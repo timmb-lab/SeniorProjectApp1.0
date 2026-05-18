@@ -1,0 +1,19 @@
+{
+  "name": "senior-capstone-app",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler pages dev . --compatibility-date=2026-05-18",
+    "deploy": "wrangler pages deploy . --project-name=senior-capstone-app",
+    "db:migrate:local": "wrangler d1 migrations apply senior-capstone-db --local",
+    "db:migrate:remote": "wrangler d1 migrations apply senior-capstone-db --remote",
+    "check:cloudflare": "wrangler check",
+    "types": "wrangler types functions/worker-configuration.d.ts"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260518.1",
+    "typescript": "^6.0.3",
+    "wrangler": "^4.92.0"
+  }
+}

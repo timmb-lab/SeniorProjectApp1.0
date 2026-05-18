@@ -12,16 +12,20 @@ Build a GitHub-to-Cloudflare hosted Senior Capstone app whose MVP is a secure da
 
 This is not a static guide, brochure, or visual-only project.
 
-Figma is the heavy product-design source for functional app screens, database-backed states, admin preview, dashboards, and mobile-aware patterns. Canva is the heavy supporting-image source for polished visuals with clear app placement and no baked-in private/live data. Version 2.0 may explore iOS/Android apps with push notifications and announcements, but no student-to-student messaging.
+Figma is the heavy product-design source for functional app screens, database-backed states, admin preview, dashboards, and mobile-aware patterns. It can prototype account/data flows and specify fields/states, but it is not the production account system, database, evidence store, audit log, or dashboard source of truth. Canva is the heavy supporting-image source for polished visuals with clear app placement and no baked-in private/live data. Version 2.0 may explore iOS/Android apps with push notifications and announcements, but no student-to-student messaging.
 
 ## Current State
 
-- Repository still contains the original static guide shell.
-- No production app scaffold has been committed yet.
-- No managed auth, database, user/group model, private upload storage, migrations, API layer, tests, CI, or GitHub-to-Cloudflare deployment pipeline has been implemented yet.
+- Repository still contains the original static guide shell, now with a first Cloudflare Pages Functions/D1 scaffold added under `functions/`, `migrations/`, `package.json`, `wrangler.jsonc`, and `.dev.vars.example`.
+- Cloudflare Pages project `senior-capstone-app` is provisioned against `timmb-lab/SeniorProjectApp1.0`; the public Pages URL is `https://senior-capstone-app.pages.dev`.
+- Cloudflare D1 database `senior-capstone-db` (`3141d9ac-08b7-49c1-92ba-bbf50c1a611f`) is provisioned and migration `migrations/0001_foundation.sql` has been applied remotely.
+- Hardened username/password auth endpoints now exist for bootstrap, login, logout, and session lookup. `PASSWORD_PEPPER` and `SESSION_PEPPER` are set as Cloudflare Pages secrets; `BOOTSTRAP_SETUP_KEY` and first-admin bootstrap are not complete.
+- Google Drive evidence repository index sheet `1b446rp3oyx9G4LpKYE47qXxpU41EOW-2Ota2fGum49c` exists and is wired into Pages config and D1 metadata. The Drive root folder ID and server-side Drive upload credential/OAuth flow remain pending.
+- Tests and CI are not implemented yet.
 - Source PDFs have been extracted and converted into app-native requirements in `data/capstone-framework.json`.
 - The primary beta-build automation is now `senior-capstone-rebuild-rebuilt`, renamed in the app as `Senior Capstone Gold Standard Orchestrator`, running exactly 5x/day at `00:20`, `05:20`, `10:20`, `15:20`, and `20:20` PT. It uses the master plan, logs, and work ladder to choose one bounded beta-advancing slice per run until the app reaches a real beta.
-- Specialist lane jobs still exist for Figma, Canva, content audit, and daily report, but they are intentionally `PAUSED` standby prompts so the Senior Capstone system has one reliable 5x/day daily runner. Weekly deep audit remains `ACTIVE` and separate for long severe review.
+- Specialist lane jobs still exist for Figma, Canva, content audit, and daily report, but they are intentionally `PAUSED` standby prompts so the Senior Capstone system is not running overlapping specialist jobs all day. Weekly deep audit remains `ACTIVE` and separate for long severe review.
+- Daily guided prototype refresh automation `senior-capstone-daily-guided-prototype-refresh` is `ACTIVE` at `22:10 PT` and updates the active Figma page `04 Guided Daily Prototype` from that day's progress, blockers, and next ladder step.
 - The four main automation lanes and the daily reporting automation now read the shared memory, run log, handoff ledger, and decision log before choosing work or summarizing progress.
 - Every main lane prompt now requires a lane log entry, compact run-log entry, relevant memory/handoff/decision updates, verification, commit, and push.
 - Every main lane and the daily reporting automation now reference `docs/master-plan.md` along with the logs.
@@ -46,6 +50,8 @@ Immediate next five useful passes: Cloudflare/TypeScript scaffold, database/stor
 
 Real daily MVP goal: minimum 2 accepted MVP passes per calendar day, stretch 3 when unblocked, and at least 14 accepted MVP passes per week until the 100-pass target is met or recalibrated. While `SC-005` is open, the first two accepted passes each day should usually be implementation-heavy. The active weekly deep audit must review the prior seven days of committed run evidence and adjust only this project's next-week daily goal/allocation in `docs/master-plan.md` and this memory file when evidence requires it; schedules, workspace, model, reasoning effort, and status stay unchanged unless Bryan explicitly asks.
 
+Current account/provisioning watchpoint: Cloudflare Pages/D1 setup is done for the first foundation, and district SSO is explicitly unavailable for MVP. Remaining Bryan/config-owned work is the Google Drive evidence root folder ID, `BOOTSTRAP_SETUP_KEY`, first-admin credentials, and any district/privacy approval before real student records are entered.
+
 ## Canonical Programs
 
 - IT
@@ -66,9 +72,9 @@ Current backlog anchors:
 
 - `SC-001`: framework seed loader and minimal requirement schema.
 - `SC-002`: guided Research Proposal Challenge UI and review queue spec.
-- `SC-003`: private EvidenceArtifact model and permission tests.
+- `SC-003`: Google Drive EvidenceArtifact model is in-progress; metadata tables exist, but root folder, upload credentials, and permission tests are still needed.
 - `SC-004`: mentor meetings, presentation scheduling, celebration evidence, archive/export workflows.
-- `SC-005`: P0 Cloudflare stack/auth/database/user-group/progress/private-upload decision and scaffold pressure.
+- `SC-005`: P0 Cloudflare stack/auth/database/user-group/progress/private-upload scaffold is in-progress with Pages/D1/migrations/auth endpoints and password/session pepper secrets created; tests, CI, Drive root folder, upload credentials, bootstrap key, and first-admin bootstrap remain.
 
 ## Known External Artifact Memory
 
@@ -76,7 +82,7 @@ Current backlog anchors:
 - Canva asset: `DAHJ-v7TOM8`, proposal approval process strip, no-text 1600x500, palette from `styles.css`.
 - Next Canva priority: proposal dashboard empty-state family.
 - Active Figma product UI file: `https://www.figma.com/design/z4t4tFPAKrMDh6pIYOeEw6` (`z4t4tFPAKrMDh6pIYOeEw6`). Created and populated in Bryan's `Senior Project App` Figma team/project, team id `1638213362346160913`, plan key `team::1638213362346160913`.
-- Active Figma file contains four pages: `00 Master Plan + Foundations`, `01 Components + App Screens`, `02 Automation Handoff`, and `03 Product Preview + State Variants`. Key frames include foundations board `2:5`, components board `3:2`, student desktop `3:66`, guided proposal `3:154`, teacher queue `3:190`, mentor/admin snapshots `3:246`, mobile student `3:301`, handoff board `5:2`, state variants board `6:2`, review drawer `6:198`, admin override modal `6:219`, rebuild mapping `6:257`, 100-pass MVP execution map `18:2`, admin account/group provisioning contract `48:2`, mobile evidence/revision contract `56:2`, progress dashboard aggregate contract `61:2`, and audit log/export controls contract `69:2`.
+- Active Figma file contains five pages: `00 Master Plan + Foundations`, `01 Components + App Screens`, `02 Automation Handoff`, `03 Product Preview + State Variants`, and `04 Guided Daily Prototype`. Key frames include foundations board `2:5`, components board `3:2`, student desktop `3:66`, guided proposal `3:154`, teacher queue `3:190`, mentor/admin snapshots `3:246`, mobile student `3:301`, handoff board `5:2`, state variants board `6:2`, review drawer `6:198`, admin override modal `6:219`, rebuild mapping `6:257`, 100-pass MVP execution map `18:2`, admin account/group provisioning contract `48:2`, mobile evidence/revision contract `56:2`, progress dashboard aggregate contract `61:2`, audit log/export controls contract `69:2`, guided prototype start `75:3`, guided prototype progress `75:34`, guided prototype student path `75:65`, guided prototype staff path `75:96`, guided prototype security boundary `75:127`, and guided prototype next ladder `75:158`.
 - Professional-plan verification succeeded on 2026-05-18 after Bryan upgraded Figma: metadata and screenshots returned for the active file, and Figma write added `100-Pass MVP Execution Map` node `18:2` with route/data/permission contract for rebuild.
 - Figma review/override deepening succeeded on 2026-05-18: active file node `31:2` adds teacher review drawer states, admin override modal states, and developer handoff contract node `31:144` covering `ReviewDecision`, `OverrideRequest`, `AuditEvent`, `Submission`, `EvidenceArtifact`, and `UserGroupRole`.
 - Figma private evidence/review-history deepening succeeded on 2026-05-18: active file node `37:2` adds private upload/link states, evidence permission matrix, immutable review history timeline, and developer handoff contract node `37:177` for `SubmissionVersion`, `EvidenceArtifact`, `Review`, `Comment`, `AuditEvent`, and `StudentArchiveExport`.
@@ -93,6 +99,9 @@ Current backlog anchors:
 - Canva first-pass workflow infographic: `DAHJ-3dKnPU`, edit `https://www.canva.com/d/C-dVNnTDKRODcKi`, view `https://www.canva.com/d/tfRo2Sq_1JHu0zu`.
 - Canva first-pass visual-system report: `DAHJ-xaMuj8`, edit `https://www.canva.com/d/NXZGwxgXRKYnTPc`, view `https://www.canva.com/d/MA6S4b_xAC69y1C`.
 - Canva first-pass program identity poster: `DAHJ-6LVuME`, edit `https://www.canva.com/d/J9nRXQPXi0O-_hM`, view `https://www.canva.com/d/2FoRYnzFDrZAHqc`.
+- Cloudflare Pages app: `https://senior-capstone-app.pages.dev`, project `senior-capstone-app`, project id `45041fa7-82ad-489d-a928-962d53c3b95a`.
+- Cloudflare D1 database: `senior-capstone-db`, database id `3141d9ac-08b7-49c1-92ba-bbf50c1a611f`, region `WNAM`.
+- Google Drive evidence repository index: `https://docs.google.com/spreadsheets/d/1b446rp3oyx9G4LpKYE47qXxpU41EOW-2Ota2fGum49c`, sheets `Evidence Index`, `Folder Policy`, and `Upload Intake Fields`; root folder pending.
 
 ## Decisions To Respect
 
@@ -114,6 +123,10 @@ Read `docs/progress/decision-log.md` for accepted or superseded decisions.
 - `D-2026-05-18-014`: `HD-2026-05-18-001` and ADR-0001 are accepted as the default Cloudflare stack path.
 - `D-2026-05-18-015`: Bryan's professional-plan Figma upgrade unblocked verification/write calls; use the 100-pass-or-less, roughly 45-day MVP target as a delivery constraint without changing the gold-standard orchestrator cadence/status.
 - `D-2026-05-18-016`: automations must validate, commit, and push project repo changes; project scripts must run non-interactively with safe auto-approval defaults and no prompt/confirmation gates.
+- `D-2026-05-18-017`: real daily delivery target is at least 2 accepted MVP passes per calendar day, stretch 3 when unblocked, and at least 14 accepted MVP passes per week.
+- `D-2026-05-18-018`: real accounts, persistent data, private evidence storage, server-side authorization, migrations, deployment config, and permission tests are MVP foundation setup work; Figma is design/prototype/spec only and must not own production records.
+- `D-2026-05-18-019`: use hardened app-owned username/password auth for the MVP pilot because district SSO is unavailable, provision the first Cloudflare Pages + D1 foundation in Bryan's authorized Cloudflare account, and use Google Drive as the MVP evidence repository path.
+- `D-2026-05-18-020`: keep a daily guided multi-frame Figma prototype refresh active at `22:10 PT` so Bryan can see that day's actual progress and next ladder position without turning Figma into the production data source.
 
 Current rebuilt automation IDs:
 - `senior-capstone-canva-visual-system-rebuilt` (`PAUSED` standby)
@@ -121,6 +134,7 @@ Current rebuilt automation IDs:
 - `senior-capstone-rebuild-rebuilt` (`Senior Capstone Gold Standard Orchestrator`, primary 5x/day runner)
 - `senior-capstone-content-quality-audits-rebuilt` (`PAUSED` standby)
 - `senior-capstone-daily-automation-report-rebuilt` (`PAUSED` standby; reporting handled by orchestrator)
+- `senior-capstone-daily-guided-prototype-refresh` (`ACTIVE`; daily `04 Guided Daily Prototype` refresh at `22:10 PT`)
 - `senior-capstone-weekly-deep-audit-rebuilt`
 
 ## Handoff Rules

@@ -11,6 +11,7 @@ $automationIds = @(
     "senior-capstone-content-quality-audits-rebuilt",
     "senior-capstone-canva-visual-system-rebuilt",
     "senior-capstone-daily-automation-report-rebuilt",
+    "senior-capstone-daily-guided-prototype-refresh",
     "senior-capstone-weekly-deep-audit-rebuilt"
 )
 

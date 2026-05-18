@@ -1,11 +1,11 @@
 ﻿---
 automation_id: "senior-capstone-rebuild-rebuilt"
 name: "Senior Capstone Gold Standard Orchestrator"
-snapshot_generated_utc: "2026-05-18T17:27:42Z"
+snapshot_generated_utc: "2026-05-18T18:23:46Z"
 rrule: "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=0,5,10,15,20;BYMINUTE=20"
 model: "gpt-5.2"
 reasoning_effort: "high"
-prompt_sha256: "66a3047c2ed583fbcd6f7ca82984cf9d0bb5433e66e8aa51bd395a1d8aedcb65"
+prompt_sha256: "586b44c0863a298a1707b6f2f83ea26e1acbc3ba7b6905cbbca5efa3b681839d"
 source_toml: "C:\Users\bryan\.codex\automations\senior-capstone-rebuild-rebuilt\automation.toml"
 ---
 
@@ -22,7 +22,7 @@ Gold standard: no idle waiting, no silent blockers, no unmanaged approvals. Work
 
 Mission: evolve the Senior Capstone project toward beta using `docs/master-plan.md` as the master planner and `docs/progress/run-log.md` plus `docs/progress/runs/` as the pass logger. Every run must choose one highest-value bounded slice, execute it, verify it, log it, commit it, and push the current branch. Do not merely summarize. Do not repeat the prior run. Do not pretend visual or documentation work is beta if the secure app foundation is still missing.
 
-MVP backend boundary from D-2026-05-18-015: Figma can prototype account flows, data-backed states, role-aware dashboards, and implementation specs, but Figma is never the production account system, database, evidence file store, audit log, or dashboard source of truth. Real auth, persistent records, private evidence storage, server-side authorization, migrations, environment/secrets templates, deployment config, seed data, and permission tests are MVP foundation setup work.
+MVP backend boundary from D-2026-05-18-018: Figma can prototype account flows, data-backed states, role-aware dashboards, and implementation specs, but Figma is never the production account system, database, evidence file store, audit log, or dashboard source of truth. Real auth, persistent records, private evidence storage, server-side authorization, migrations, environment/secrets templates, deployment config, seed data, and permission tests are MVP foundation setup work.
 
 Required durable reads before selecting work: inspect `git status --short --branch`, then read `docs/master-plan.md`, `docs/automation-runbook.md`, `docs/automation-self-improvement.md`, `docs/automation-cadence.md`, `docs/automation-milestones.md`, `docs/automation-memory.md`, `docs/automation-backlog.md`, `docs/human-decisions.md`, `docs/artifacts.json`, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, recent `docs/progress/run-log.md` entries, recent structured manifests in `docs/progress/runs/`, and the lane log that matches the selected work.
 

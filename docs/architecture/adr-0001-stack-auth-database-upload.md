@@ -1,6 +1,6 @@
 # ADR-0001: Cloudflare Stack, Auth, Database, And Private Upload Foundation
 
-Status: accepted
+Status: accepted; partially refined by `D-2026-05-18-019`
 
 Date: 2026-05-18
 
@@ -12,11 +12,11 @@ Human decision link: `HD-2026-05-18-001`
 
 The project cannot become a functional hosted Senior Capstone app until the foundation exists for:
 
-- Secure usernames/passwords or managed auth.
+- Hardened usernames/passwords for the MVP pilot because district SSO is not available yet.
 - User groups, cohorts, and role assignments.
 - Student, mentor, program teacher, admin, and misc admin roles.
 - Least-privilege authorization.
-- Private upload/evidence storage.
+- Private upload/evidence storage through Google Drive for the MVP pilot.
 - Database-backed progress updates, submissions, reviews, approvals, comments, status history, announcements, deadlines, exports, and audit events.
 - Server-trusted dashboard aggregates.
 - GitHub-connected Cloudflare deployment, environment variables, secrets, backup/export, custom domain readiness, and local development.
@@ -29,9 +29,9 @@ Use this as the revised default implementation path unless later implementation 
 
 - App framework: TypeScript app deployable through GitHub to Cloudflare Workers/Pages.
 - Runtime/API: Cloudflare Workers.
-- Database: Cloudflare D1 or another Cloudflare-compatible database path, chosen with explicit security and migration tradeoffs.
-- Private upload storage: Cloudflare R2 or another access-controlled storage path with private evidence access patterns.
-- Auth: Workers-compatible managed auth, school-approved SSO, or hardened username/password flow. The exact provider remains an explicit security decision.
+- Database: Cloudflare D1. The first remote database is `senior-capstone-db` (`3141d9ac-08b7-49c1-92ba-bbf50c1a611f`).
+- Private upload storage: Google Drive evidence repository for MVP, with D1 metadata and access state. R2 is a future fallback only if enabled and approved.
+- Auth: hardened username/password flow behind an app-owned interface. School SSO remains a future swap-in if it becomes available.
 - Authorization: server-enforced roles, groups, cohort/program assignments, and least-privilege permission checks for student-own records, assigned mentor records, program/cohort teacher records, admin records, and narrow misc admin permissions.
 - ORM/migrations: Drizzle, Prisma, or Cloudflare-native migration tooling after the rebuild lane compares fit with D1/R2 and permission workflows.
 - Deployment: GitHub-connected Cloudflare Workers/Pages with preview and production environments.
@@ -48,13 +48,13 @@ The alternative is keeping the earlier Supabase/Vercel recommendation. That may 
 
 ## Open Questions
 
-- Which Cloudflare account/organization should own Workers/Pages, D1, R2, secrets, logs, and the production domain?
-- Is school Google/Microsoft SSO required, or is username/password acceptable for the first pilot?
+- Which Google Drive folder ID should be the evidence repository root?
+- Which bootstrap secret and first admin credentials should be used for the first admin account?
 - Are student emails available and allowed for account identity?
 - What file types and maximum upload sizes should the pilot allow?
 - Are there district restrictions on third-party storage for student records?
 - Who can provision secrets and production environment variables?
-- What D1/R2 backup, export, retention, and incident-response process is acceptable for student records?
+- What D1/Google Drive backup, export, retention, and incident-response process is acceptable for student records?
 
 ## Implementation Acceptance Criteria
 

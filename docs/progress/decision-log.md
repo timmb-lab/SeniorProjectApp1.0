@@ -179,3 +179,37 @@ Decision status values:
 - `applies to`: `docs/master-plan.md`, `docs/automation-memory.md`, `docs/automation-runbook.md`, `docs/automation-cadence.md`, `docs/automation-self-improvement.md`, `senior-capstone-weekly-deep-audit-rebuilt`, prompt snapshots, and `scripts/check-automation-contract.ps1`
 - `source`: user request on 2026-05-18: "update the master 100 pass master plan to reflect a REAL daily goal and then automation to review audit and adjust those goals weekly (only in this project)"
 - `last updated`: 2026-05-18 10:27 PT
+
+### D-2026-05-18-018
+
+- `status`: accepted
+- `area`: MVP backend boundary, Figma scope, and foundation setup
+- `decision`: Treat real user accounts, persistent data, private evidence storage, server-side authorization, migrations, deployment config, and permission tests as MVP foundation setup work. Figma may design and prototype those flows, but it must not own production accounts, records, evidence files, audit logs, or dashboard source data.
+- `reason`: Bryan confirmed that the account/data pieces belong in the MVP after asking whether Figma could handle accounts and data. The product needs a separate application/backend foundation before it can safely manage student records.
+- `applies to`: master plan, rebuild lane, Figma lane, backlog item `SC-005`, ADR-0001, future app scaffold work, dashboards, evidence uploads, and automation audits
+- `source`: user request on 2026-05-18: "Okay, let's start getting those pieces set up - as that would be part of the MVP. Updat the MVP master plan accordingly."
+- `last updated`: 2026-05-18
+
+### D-2026-05-18-019
+
+- `status`: accepted
+- `area`: MVP auth, Cloudflare provisioning, and evidence storage
+- `decision`: Use hardened app-owned username/password auth for the MVP pilot because district SSO is not available, provision the first Cloudflare Pages + D1 foundation in Bryan's authorized Cloudflare account, and use Google Drive as the MVP evidence repository path.
+- `reason`: Bryan authorized the Cloudflare account work and clarified that the app cannot connect to district SSO; uploads must use a Google Drive repository. R2 is not enabled in the Cloudflare account and is no longer the MVP upload blocker.
+- `applies to`: master plan, ADR-0001, `SC-005`, auth/session scaffold, D1 migrations, Google Drive evidence repository, deployment config, human decision queue, and future permission/upload tests
+- `implementation evidence`: Cloudflare Pages project `senior-capstone-app`, D1 database `senior-capstone-db` (`3141d9ac-08b7-49c1-92ba-bbf50c1a611f`), migration `migrations/0001_foundation.sql`, and Google Drive evidence index sheet `1b446rp3oyx9G4LpKYE47qXxpU41EOW-2Ota2fGum49c` were created or configured on 2026-05-18.
+- `remaining setup`: create/select the Google Drive root folder ID, set `BOOTSTRAP_SETUP_KEY`, bootstrap the first admin, implement Drive upload credentials, and add permission/workflow tests before real student data is entered. `PASSWORD_PEPPER` and `SESSION_PEPPER` are already set as Cloudflare Pages secrets.
+- `source`: user request on 2026-05-18: "You are authorized in cloudflare, can you do all this for me? We need hardned Un?pw as we can't connect to district SSO -- uploads need to have google drive repo"
+- `last updated`: 2026-05-18
+
+### D-2026-05-18-020
+
+- `status`: accepted
+- `area`: Figma prototype operations and automation cadence
+- `decision`: Keep an active once-daily automation, `senior-capstone-daily-guided-prototype-refresh`, that updates the active Figma file page `04 Guided Daily Prototype` at `22:10 PT` from that day's actual progress, blockers, and next ladder position.
+- `reason`: Bryan asked for a multi-page guided prototype updated now and baked into automation once per day so the prototype keeps reflecting daily project progress and laddering.
+- `applies to`: Figma artifact `z4t4tFPAKrMDh6pIYOeEw6`, automation cadence docs, automation memory, prompt snapshots, contract checker, Figma lane log, and future rebuild handoffs that consume daily prototype annotations.
+- `guardrail`: The guided prototype may explain account, data, evidence, and workflow states, but it must not contain real credentials, private student records, production evidence files, or be treated as the production account/data source.
+- `implementation evidence`: Figma page `04 Guided Daily Prototype` was created in file `z4t4tFPAKrMDh6pIYOeEw6` with frames `75:3`, `75:34`, `75:65`, `75:96`, `75:127`, and `75:158`; the live automation was created with RRULE `FREQ=DAILY;BYHOUR=22;BYMINUTE=10`.
+- `source`: user request on 2026-05-18: "I want a multip page guided protto type updated now and then bake into automation that it is running once per day to update prototype from that days' progress and laddering"
+- `last updated`: 2026-05-18

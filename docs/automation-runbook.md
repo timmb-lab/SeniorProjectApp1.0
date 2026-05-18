@@ -53,9 +53,21 @@ powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\<s
 
 Scripts in `scripts/` must not use `Read-Host`, `PromptForChoice`, `Pause`, or ad hoc confirmation gates. If a script needs a risky external or destructive action, it should require an explicit command-line flag and otherwise choose the safe repo-only path. Unattended automations should not wait for approvals inside scripts; they should use saved approval grants, safe defaults, or committed blocker records with exact next action.
 
+## Backend Account/Provisioning Rule
+
+For the Senior Capstone app backend foundation, local scaffolding, schema design, migration files, permission helpers, and tests can proceed without a live Cloudflare account. Remote setup requires Bryan-owned authorization before an unattended run can safely create or bind production resources:
+
+- Cloudflare account/organization selected for Workers/Pages, D1, R2, secrets, logs, and the future custom domain.
+- Wrangler or Cloudflare API access authorized for that account.
+- GitHub repository access granted to Cloudflare Workers & Pages, scoped to this repo when possible.
+- A decision on school Google/Microsoft SSO versus a hardened username/password pilot path.
+- Confirmation that student emails and private evidence storage are allowed under school/district policy.
+
+If those account/provisioning pieces are missing, rebuild should still scaffold local code and migrations, then log a precise `ACTION REQUIRED` item instead of blocking all work.
+
 ## Gold Standard No-Intervention Contract
 
-The Senior Capstone automation system now uses one active 5x/day orchestrator plus the active weekly deep audit. Specialist Figma, Canva, content-audit, and daily-report records are standby prompts, not concurrent daily runners.
+The Senior Capstone automation system now uses one active 5x/day orchestrator, one active daily guided-prototype refresh, and the active weekly deep audit. Specialist Figma, Canva, content-audit, and daily-report records are standby prompts, not concurrent all-day lane runners.
 
 The orchestrator should resolve everything it can resolve from accepted docs, repo evidence, saved connector approvals, and safe fallbacks. It should not stop for a human when it can:
 
@@ -117,7 +129,7 @@ The app must support:
 - Privacy-conscious handling of student records, uploads, exports, audit logs, and staff-only notes.
 - GitHub-connected Cloudflare Workers/Pages hosting with a future custom domain purchased by Bryan.
 
-Static content, Canva assets, Figma files, templates, and printable materials are supporting assets only. They must make the app clearer and more useful, but they are not the product by themselves. Figma should heavily drive functional design and state coverage; Canva should heavily support stunning imagery with clear placement, live-text discipline, and no private data baked into images.
+Static content, Canva assets, Figma files, templates, and printable materials are supporting assets only. They must make the app clearer and more useful, but they are not the product by themselves. Figma should heavily drive functional design and state coverage, but must not be treated as the production account system, database, evidence store, audit log, or dashboard source of truth. Canva should heavily support stunning imagery with clear placement, live-text discipline, and no private data baked into images.
 
 ## Required Programs
 
@@ -315,6 +327,7 @@ Avoid:
 - Inventing dashboards from client state.
 - Claiming the MVP exists before users, groups, permissions, progress, and audit events persist in a secure database.
 - Treating a Cloudflare static deploy as sufficient without the database/security foundation.
+- Treating Figma prototype state, Figma variables, plugin storage, or local browser state as production accounts, records, private evidence, audit logs, or dashboard data.
 - Creating visual assets with no app placement.
 - Creating UI specs with no data or permission mapping.
 - Treating `localStorage`, static files, or public assets as final storage for student records, submissions, approvals, uploads, or staff notes.
