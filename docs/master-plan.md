@@ -205,6 +205,7 @@ Today's work materially improved the implementation runway, but it did not yet c
   - `43:2`: shared `StatusPill`, `ActionButton`, `EvidenceArtifactRow`, `PermissionGate`, and `ReviewHistoryItem` component contract.
   - `48:2`: admin account/group/role/program/cohort provisioning, scoped misc-admin permissions, duplicate import handling, and audit-event contract.
   - `56:2`: mobile student evidence/revision states for revision checklist, upload/link, submit-blocked, and access-denied recovery, with mobile overflow, private evidence, and audit acceptance checks.
+  - `61:2`: progress-update to dashboard-aggregate contract with server-owned transitions, stale-write conflict handling, audit-first sensitive changes, and database-derived dashboard counts.
 - The critical gap is unchanged: no production app scaffold, managed auth, database schema, private file storage, migrations, API layer, tests, CI, or GitHub-to-Cloudflare deployment pipeline exists yet.
 
 Because of that gap, the next useful 100-pass plan must prioritize implementation over additional design polish unless the design work is directly blocking rebuild.
@@ -228,7 +229,7 @@ Immediate next five passes should be implementation-heavy:
 1. Scaffold the accepted Cloudflare/TypeScript app with build/test/dev commands.
 2. Add database/storage configuration stubs, migration layout, and domain model types.
 3. Add users/groups/programs/cohorts/roles schema and seed loading for canonical programs, consuming Figma node `48:2` for provisioning states and permission guardrails.
-4. Add permission and audit-event primitives with focused tests.
+4. Add permission, `ProgressUpdate`, `StatusHistory`, `DashboardAggregate`, and audit-event primitives with focused tests, consuming Figma node `61:2` for transition/aggregate guardrails.
 5. Add private `EvidenceArtifact` storage/link metadata model with signed URL/link-check/review-history tests.
 
 Do not spend the next several non-audit passes on additional broad Figma polish while `SC-005` remains in progress, unless rebuild hits a specific UI ambiguity that only Figma can resolve. The design side is currently ahead of the hosted-app foundation; the app now needs code, schema, tests, and Cloudflare deployment evidence.

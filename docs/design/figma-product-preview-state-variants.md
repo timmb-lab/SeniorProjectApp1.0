@@ -461,6 +461,10 @@ Created/updated frames:
   - `Mobile State / Submit Blocked`, node `56:66`
   - `Mobile State / Access Recovery`, node `56:91`
   - `Developer Handoff / Mobile Evidence Revision Route Data Contract`, node `56:114`
+- `Section / Progress Update + Dashboard Aggregate Contract`, node `61:2` on `03 Product Preview + State Variants`
+  - Five progress/dashboard states: student progress update draft, staff progress adjustment, status history persisted, dashboard aggregate recalculated, and conflict plus audit visible.
+  - Six server transition pipeline steps: receive update, authorize scope, validate transition, persist records, write audit, and recompute dashboard.
+  - `Developer Handoff / Progress Dashboard Aggregate Route Data Contract`, node `61:113`
 
 Verification status:
 - Canvas write succeeded and returned the frame IDs above.
@@ -485,3 +489,9 @@ Verification status:
 - Follow-up `use_figma` layout correction tightened 21 pill labels and 4 mobile bottom-nav groups.
 - Final `get_screenshot` and `get_design_context` succeeded for node `56:2`.
 - Follow-up readback confirmed board `6:2` height `9858.8`, 4 mobile states, zero direct-child overflow inside 360px phone frames, 7 routes, 9 records, 5 permission scopes, and 6 acceptance checks in shared contract data.
+- `get_design_context`, `get_libraries`, and `search_design_system` succeeded before adding node `61:2`; search returned no richer dashboard/progress primitive, so the section matched local conventions.
+- `use_figma` write created node `61:2`, five progress/dashboard states, six pipeline steps, and handoff node `61:113`.
+- First screenshot/metadata verification found horizontal rows with fixed 100px heights while children were taller.
+- Follow-up `use_figma` autosizing correction adjusted 31 horizontal rows and 22 vertical frames in place, expanded node `61:2` to `1584x1345`, and expanded board `6:2` to height `11231.8`.
+- Final `get_screenshot`, `get_design_context`, and metadata succeeded for node `61:2`.
+- Follow-up readback confirmed shared contract data on `61:2`, handoff node `61:113`, 5 progress/dashboard states, 6 pipeline steps, 7 routes, 12 records, 5 permission scopes, 6 guardrails, 7 acceptance checks, zero clipped text nodes, and zero clipped horizontal rows.

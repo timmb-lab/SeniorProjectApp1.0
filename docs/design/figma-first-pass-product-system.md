@@ -507,6 +507,24 @@ Developer contract:
 - Guardrails: mobile UI is a thin view over trusted server/database state, submit remains disabled while evidence is blocked/scanning/link-check-needed, storage keys are never exposed, denied evidence access is audited, and offline draft behavior cannot become the source of truth for protected records.
 - Acceptance checks: 390px mobile layout has no horizontal overflow, revision checklist is derived from persisted review/comment data, upload/link actions require server authorization, access denied creates an audit event, and no student messaging is introduced.
 
+## Progress Update And Dashboard Aggregate Contract
+
+Node `61:2` closes a first-MVP implementation gap by specifying how progress changes become trusted role-dashboard counts. It is intentionally code-facing: the server validates scope, persists progress/status history, writes audit records, handles stale conflicts, and recalculates dashboard aggregates from saved rows.
+
+Progress/dashboard states:
+- `Student Progress Update Draft`
+- `Staff Progress Adjustment`
+- `Status History Persisted`
+- `Dashboard Aggregate Recalculated`
+- `Conflict + Audit Visible`
+
+Developer contract:
+- Handoff node: `61:113`
+- Routes/API: `/student/progress`, `/api/progress-updates`, `/api/submissions/:id/status`, `/teacher/dashboard`, `/mentor/dashboard`, `/admin/dashboard`, and `/admin/audit`.
+- Records: `ProgressUpdate`, `StatusHistory`, `RequirementProgress`, `Submission`, `SubmissionVersion`, `EvidenceArtifact`, `DashboardAggregate`, `DashboardSnapshot`, `AuditEvent`, `UserGroupRole`, `Requirement`, and `Deadline`.
+- Guardrails: status transitions are server-owned, no `localStorage` source of truth, dashboard counts derive from persisted rows, stale writes return conflict states, audit writes precede visible sensitive state changes, and no student messaging is introduced.
+- Acceptance checks: allowed self-update persists progress/history, unauthorized update is denied and audited, stale writes do not change aggregates, aggregates link to source records, private evidence storage keys never render in dashboards, and audit events persist for status/staff/override/export-sensitive reads.
+
 ## Acceptance Checks For Next Figma Run
 
 - Continue active writable file `z4t4tFPAKrMDh6pIYOeEw6` in `team::1638213362346160913`.
@@ -538,12 +556,13 @@ Artifact:
 - MVP component variant implementation matrix: node `43:2` in the active Figma file.
 - Admin account/group provisioning contract: node `48:2` in the active Figma file.
 - Mobile evidence/revision workflow contract: node `56:2` in the active Figma file.
+- Progress update/dashboard aggregate contract: node `61:2` in the active Figma file.
 
 Exact next action:
-- Rebuild should consume nodes `18:2`, `31:2`, `37:2`, `43:2`, `48:2`, and `56:2` while scaffolding the accepted Cloudflare database/auth/progress foundation. Figma should only add more broad design detail if rebuild hits a specific UI ambiguity.
+- Rebuild should consume nodes `18:2`, `31:2`, `37:2`, `43:2`, `48:2`, `56:2`, and `61:2` while scaffolding the accepted Cloudflare database/auth/progress foundation. Figma should only add more broad design detail if rebuild hits a specific UI ambiguity.
 
 Acceptance check:
 - Figma progress log records page/frame IDs, screenshot or metadata verification, route/data fields, permission scopes, and the next UI slice.
 
 Known limits:
-- The original historical file hit the Starter MCP tool-call limit. The regenerated reference file was successfully written through the updated Figma connection, but the 2026-05-18 follow-up pass hit the Education-plan MCP tool-call limit with rate-limit links pointing at old team `1601310068697743794`. The recreated file was then created and written in `team::1638213362346160913`. Bryan's professional-plan upgrade later unblocked the active-file metadata/screenshot verification and the `18:2`, `31:2`, `37:2`, `43:2`, `48:2`, and `56:2` canvas writes.
+- The original historical file hit the Starter MCP tool-call limit. The regenerated reference file was successfully written through the updated Figma connection, but the 2026-05-18 follow-up pass hit the Education-plan MCP tool-call limit with rate-limit links pointing at old team `1601310068697743794`. The recreated file was then created and written in `team::1638213362346160913`. Bryan's professional-plan upgrade later unblocked the active-file metadata/screenshot verification and the `18:2`, `31:2`, `37:2`, `43:2`, `48:2`, `56:2`, and `61:2` canvas writes.

@@ -820,3 +820,80 @@ Self-improvement:
 
 Next Figma slice:
 - Stop broad Figma deepening until rebuild consumes the active route/data contracts or reports a specific UI ambiguity. The next accepted MVP pass should be rebuild-heavy: Cloudflare/TypeScript scaffold, database/storage/migration layout, permission/audit primitives, and private evidence tests.
+
+## 2026-05-18 Progress Update And Dashboard Aggregate Contract
+
+Automation:
+- `senior-capstone-figma-product-design-rebuilt`
+
+Master-plan section:
+- Product Destination
+- MVP 1.0 Vertical Slice
+- 100-Pass Delivery Constraint
+- Lane Responsibilities
+- Logging Requirements
+
+Logs referenced:
+- `C:\Users\bryan\.codex\automations\senior-capstone-figma-product-design-rebuilt\memory.md`
+- `docs/master-plan.md`
+- `docs/automation-runbook.md`
+- `docs/automation-self-improvement.md`
+- `docs/automation-cadence.md`
+- `docs/automation-milestones.md`
+- `docs/automation-memory.md`
+- `docs/progress/run-log.md`
+- `docs/progress/runs/`
+- `docs/progress/handoffs.md`
+- `docs/progress/decision-log.md`
+- `docs/automation-backlog.md`
+- `docs/artifacts.json`
+- `docs/human-decisions.md`
+- `docs/progress/figma.md`
+- adjacent rebuild/audit/Canva lane logs
+- `docs/domain-model.md`
+- `docs/curriculum-framework-integration.md`
+- `data/capstone-framework.json`
+
+Active Figma artifact:
+- File: `Senior Capstone App - Product UI System Recreated`
+- File key: `z4t4tFPAKrMDh6pIYOeEw6`
+- URL: `https://www.figma.com/design/z4t4tFPAKrMDh6pIYOeEw6`
+- Team id: `1638213362346160913`
+- Plan key: `team::1638213362346160913`
+
+What changed:
+- Added `Section / Progress Update + Dashboard Aggregate Contract`, node `61:2`, to `03 Product Preview + State Variants` board `6:2`.
+- Added five progress/dashboard states:
+  - `Student Progress Update Draft`
+  - `Staff Progress Adjustment`
+  - `Status History Persisted`
+  - `Dashboard Aggregate Recalculated`
+  - `Conflict + Audit Visible`
+- Added six server transition pipeline steps: receive update, authorize scope, validate transition, persist records, write audit, and recompute dashboard.
+- Added `Developer Handoff / Progress Dashboard Aggregate Route Data Contract`, node `61:113`.
+- Stored shared Figma plugin data on node `61:2` for routes `/student/progress`, `/api/progress-updates`, `/api/submissions/:id/status`, `/teacher/dashboard`, `/mentor/dashboard`, `/admin/dashboard`, and `/admin/audit`.
+- Stored shared contract records `ProgressUpdate`, `StatusHistory`, `RequirementProgress`, `Submission`, `SubmissionVersion`, `EvidenceArtifact`, `DashboardAggregate`, `DashboardSnapshot`, `AuditEvent`, `UserGroupRole`, `Requirement`, and `Deadline`, plus permission scopes and acceptance checks.
+
+Verification:
+- No Code Connect files were present in the repo for this slice.
+- `get_design_context` for board `6:2` succeeded and confirmed the active state-variant board did not yet contain a progress/dashboard aggregate contract.
+- `get_libraries` succeeded for active file `z4t4tFPAKrMDh6pIYOeEw6`.
+- `search_design_system` for dashboard/progress/status aggregate terms returned no richer reusable primitive, so the section matched local conventions.
+- `use_figma` read-only inspection confirmed board `6:2` height `9858.8`, 11 existing children, local component sets, and no local variable collections.
+- `use_figma` write created node `61:2`, handoff node `61:113`, 5 states, 6 pipeline steps, 7 routes, 12 records, 5 permissions, and 7 acceptance checks.
+- First `get_screenshot`/metadata verification surfaced row autosizing issues where fixed 100px horizontal rows clipped taller children.
+- Follow-up `use_figma` autosizing correction adjusted 31 horizontal rows and 22 vertical frames in place.
+- Final `get_screenshot`, `get_design_context`, and metadata succeeded for node `61:2`.
+- Follow-up readback confirmed board `6:2` height `11231.8`, 5 states, 6 pipeline steps, 7 routes, 12 records, 5 permission scopes, 6 guardrails, 7 acceptance checks, zero clipped text nodes, and zero clipped horizontal rows.
+
+Handoff packet:
+- Consumer lane: rebuild.
+- Artifact/spec: active Figma file `z4t4tFPAKrMDh6pIYOeEw6`, state-variant board `6:2`, progress dashboard aggregate contract `61:2`, and handoff contract `61:113`.
+- Exact next action: implement the Cloudflare scaffold's `ProgressUpdate`, `StatusHistory`, permission guard, audit event, and `DashboardAggregate` primitives from node `61:2` alongside existing admin/user/evidence contracts.
+- Acceptance check: rebuild maps progress updates to persisted database records, server-side authorization, stale-write conflict handling, audit events, role-aware dashboard aggregates from saved rows, source-record drilldowns, private evidence redaction, and permission/audit tests.
+
+Self-improvement:
+- none; no live automation prompt/config change was needed.
+
+Next Figma slice:
+- Stop broad Figma deepening while `SC-005` lacks scaffold/code. The next accepted MVP pass should be rebuild-heavy: Cloudflare/TypeScript scaffold, D1/R2/migration layout, auth/users/groups, `ProgressUpdate`/`DashboardAggregate`, permission/audit primitives, and tests.
