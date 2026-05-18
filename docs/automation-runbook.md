@@ -76,6 +76,46 @@ Priority order:
 
 Do not start broad new work when a precise blocker exists.
 
+## Log-First Scaling Protocol
+
+The automation loop is expected to run for months, so every lane must work from durable memory instead of rediscovering context or relying on final chat text.
+
+At the start of every run, read these logs before selecting work:
+
+- `docs/automation-memory.md`: compact current-state snapshot and source-of-truth index.
+- `docs/progress/run-log.md`: cross-lane chronological run index. Read the most recent 20 entries when the file grows large.
+- Your lane log:
+  - Figma: `docs/progress/figma.md`
+  - Core rebuild: `docs/progress/rebuild.md`
+  - Audit: `docs/progress/audit.md`
+  - Canva: `docs/progress/canva.md`
+- Adjacent/consumer lane logs needed for handoff context.
+- `docs/progress/handoffs.md`: cross-lane handoff ledger. Prioritize open handoffs assigned to your lane when they outrank ordinary milestone work.
+- `docs/progress/decision-log.md`: durable product, architecture, security, data, and workflow decisions. Do not relitigate accepted decisions unless new evidence requires a superseding decision.
+- `docs/automation-backlog.md`: unresolved quality/security/product issues.
+
+Use this source-of-truth order when logs conflict:
+
+1. Current repository code/data and source materials.
+2. Accepted architecture/product decisions in `docs/progress/decision-log.md`.
+3. Open P0/P1 backlog items.
+4. Open handoffs assigned to the lane.
+5. Lane progress logs and run log.
+6. Older rollup notes in `docs/automation-progress.md`.
+
+At the end of every run, leave enough memory for the next lane to continue without guessing:
+
+- Append a detailed entry to the lane progress log.
+- Append a compact one-entry summary to `docs/progress/run-log.md`.
+- Update `docs/automation-memory.md` when current milestone, active stack choice, artifact IDs, open blockers, or next-lane priorities changed.
+- Update `docs/progress/handoffs.md` for every cross-lane ask, with a stable handoff ID, owner lane, status, exact next action, acceptance check, and evidence needed to close.
+- Update `docs/progress/decision-log.md` only for real product, architecture, data, security, workflow, or visual-system decisions that future runs should respect.
+- Update `docs/automation-backlog.md` for unresolved P0/P1/P2 issues.
+
+Do not make vague log entries such as "made improvements." Every log entry should name files, artifacts, checks, decisions, blockers, and the next specific action.
+
+When logs become large, do not delete history. Add or refresh a concise summary in `docs/automation-memory.md`, then continue appending detailed entries to the lane logs.
+
 Loop prevention:
 
 - Read the last two entries in your lane log before selecting work.

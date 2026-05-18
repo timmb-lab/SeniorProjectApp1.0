@@ -30,6 +30,8 @@ Each daily report should include:
 - Quality/audit progress.
 - Risks and blockers.
 - Next 24-hour priorities.
+- Changes to the shared memory, handoff ledger, and decision log.
+- Open handoffs that are aging, blocked, or repeatedly skipped.
 
 ## Current Connector Note
 
@@ -43,3 +45,19 @@ Until the Google Drive connector is reauthorized with write access, the automati
 - Commit and push only that fallback file if it changes.
 
 After Google Drive write access is fixed, the automation should create or append to the Google Doc titled `Senior Capstone Daily Automation Log` and include the document URL in its daily email.
+
+## Logs To Reference
+
+The report should read these logs before writing the daily summary:
+
+- `docs/automation-memory.md`
+- `docs/progress/run-log.md`
+- `docs/progress/handoffs.md`
+- `docs/progress/decision-log.md`
+- `docs/progress/figma.md`
+- `docs/progress/rebuild.md`
+- `docs/progress/audit.md`
+- `docs/progress/canva.md`
+- `docs/automation-backlog.md`
+
+The Google Doc and fallback repo log should become the long-term executive record, while the files above remain the operational memory used by the automations.

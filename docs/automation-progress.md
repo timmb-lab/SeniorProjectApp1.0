@@ -526,3 +526,35 @@ What changed:
 
 Recommended next slice:
 - Weekly check-ins should verify lane-prefixed commits, lane progress entries, and external artifact IDs in repo records.
+
+## 2026-05-18 Log-First Scaling Pass
+
+Intent:
+- Make the long-running automations scale by forcing every lane to read durable logs before choosing work and write durable logs before commit/push.
+
+Files changed:
+- `docs/automation-runbook.md`
+- `docs/automation-cadence.md`
+- `docs/daily-automation-reporting.md`
+- `docs/automation-memory.md`
+- `docs/progress/run-log.md`
+- `docs/progress/handoffs.md`
+- `docs/progress/decision-log.md`
+- `docs/automation-progress.md`
+
+What changed:
+- Added a log-first scaling protocol to the shared runbook.
+- Added a compact shared memory file for current state, priorities, backlog anchors, artifact IDs, and logging expectations.
+- Added a cross-lane run log so future automations can scan recent activity quickly.
+- Added a handoff ledger with stable IDs and acceptance checks.
+- Added a decision log so accepted product/architecture/operation decisions are not relitigated every run.
+- Updated the cadence and daily reporting docs to reference the new logs.
+
+Recommended next slice:
+- Update all five live Senior Capstone automation prompts so they read and write these logs every run.
+
+Live prompt update:
+- Updated `senior-capstone-figma-product-design`, `senior-capstone-rebuild-hourly`, `senior-capstone-content-quality-audits`, `senior-capstone-canva-visual-system`, and `senior-capstone-daily-automation-report`.
+- Each main lane now reads `docs/automation-memory.md`, `docs/progress/run-log.md`, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, lane logs, backlog, milestones, and source docs before work selection.
+- Each main lane now records the specific logs referenced, appends a detailed lane log, appends one compact run-log entry, updates memory/handoff/decision files when relevant, verifies changes, commits with the lane prefix, and pushes.
+- The daily report now audits log health, stale handoffs, repeated work, memory drift, and decision/backlog changes in addition to emailing the 24-hour summary.

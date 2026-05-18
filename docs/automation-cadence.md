@@ -7,6 +7,10 @@ The Senior Capstone rebuild now uses a four-hour non-overlap automation rotation
 End goal: a hosted app with secure users, roles, permissions, private upload/evidence spaces, submissions, reviews, approvals, dashboards, admin controls, audit logs, and protected student records.
 
 Shared runbook: `docs/automation-runbook.md`.
+Shared memory: `docs/automation-memory.md`.
+Cross-lane run log: `docs/progress/run-log.md`.
+Cross-lane handoffs: `docs/progress/handoffs.md`.
+Decision log: `docs/progress/decision-log.md`.
 Shared milestones: `docs/automation-milestones.md`.
 Shared curriculum framework: `data/capstone-framework.json` and `docs/curriculum-framework-integration.md`.
 Daily reporting notes: `docs/daily-automation-reporting.md`.
@@ -20,6 +24,7 @@ Every automation should:
 - If the worktree is clean and an upstream exists, sync with a safe fast-forward pull before editing.
 - If the worktree is dirty, do not pull; classify the dirty files and avoid overwriting unrelated work.
 - Read its lane-specific progress log and the other lane logs before choosing work.
+- Read `docs/automation-memory.md`, `docs/progress/run-log.md`, `docs/progress/handoffs.md`, and `docs/progress/decision-log.md` before choosing work.
 - Read `docs/automation-runbook.md` before selecting work.
 - Read `docs/automation-milestones.md` before selecting work.
 - Read `data/capstone-framework.json` and `docs/curriculum-framework-integration.md` before changing requirement, workflow, dashboard, or source-material behavior.
@@ -30,6 +35,10 @@ Every automation should:
 - Preserve user and automation changes from other jobs.
 - Validate any files it changes.
 - Update its lane-specific progress log with timestamp, scope, changes, verification, risks, and next action.
+- Update `docs/progress/run-log.md` with one compact entry each run.
+- Update `docs/automation-memory.md` when active priorities, stack decisions, artifact IDs, blockers, or next-lane priorities changed.
+- Update `docs/progress/handoffs.md` for every cross-lane ask and close handoffs only with evidence.
+- Update `docs/progress/decision-log.md` for durable decisions future runs should respect.
 - Update `docs/automation-progress.md` with only a short rollup when it is safe to do so.
 - Satisfy the publication/commit gate in `docs/automation-runbook.md`: pushed repo commit, published external artifact with committed repo handoff, or committed blocker entry.
 - Record every external artifact link or ID in a committed lane log, design spec, asset registry, or audit handoff before ending the run.
@@ -71,6 +80,13 @@ Lane-specific progress logs:
 - Core rebuild: `docs/progress/rebuild.md`
 - Content audits: `docs/progress/audit.md`
 - Canva: `docs/progress/canva.md`
+
+Scaling logs:
+
+- Compact current memory: `docs/automation-memory.md`
+- Cross-lane run index: `docs/progress/run-log.md`
+- Handoff ledger: `docs/progress/handoffs.md`
+- Durable decision log: `docs/progress/decision-log.md`
 
 The shared `docs/automation-progress.md` is now a rollup file, not the primary scratchpad. This reduces merge conflicts when multiple automations run in the same hour.
 
