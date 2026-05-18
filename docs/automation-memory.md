@@ -204,3 +204,11 @@ Every run should also record `self-improvement: none` or a specific self-improve
 - Updated all seven local Codex automation TOMLs to GUI-facing `Senior Capstone 20x System - ...` names and a 20 total starts/day schedule weighted toward backend/security and student workflow.
 - A-material prompt rules now require verified MVP progress, a repeatable automation/script/checker repair, or an exact committed blocker with requirement IDs, validation, and next action.
 - The checker now enforces the 20x/day schedule, no shared start slots, at least 30 minutes between starts, no-human-approval language, self-improvement-to-scripts language, and the project-only automation maintenance scope.
+
+## 2026-05-18 13:12 PT - MVP And Surface Expansion Audit
+
+- Reviewed all seven active 20x prompts against `docs/mvp-requirements-catalog.md`.
+- Every `MVP-001` through `MVP-030` is explicitly covered by at least one active automation prompt.
+- Added a surface expansion rule to all seven live local prompts so each selected requirement slice must identify required work/proof in app code/routes/schema, Cloudflare Pages/D1/env/deploy, Figma route-data-permission handoff, Canva support assets, tests/CI, docs/artifacts/handoffs, and exact blockers.
+- `scripts/check-automation-contract.ps1` now enforces that surface expansion rule in prompt snapshots.
+- Validation passed: prompt snapshots regenerated, automation contract passed, and a custom coverage audit confirmed all 30 MVP IDs remain covered.

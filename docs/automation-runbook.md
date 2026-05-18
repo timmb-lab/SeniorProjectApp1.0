@@ -90,6 +90,19 @@ Every productive run should produce A-material evidence. It must do one of three
 
 For automation maintenance, only touch automation related to this project: local Senior Capstone automation TOMLs, prompt snapshots, automation docs/logs/manifests, project automation scripts/checkers, and project automation memory.
 
+## Surface Expansion Rule
+
+Every category run should treat the selected requirement as a cross-surface product slice. Before closeout, decide which of these surfaces need work or proof:
+
+- App code, routes, D1 schema, data models, and server-side authorization.
+- Cloudflare Pages, D1 bindings, environment/secrets, deploy proof, and exact Cloudflare/Wrangler blockers.
+- Figma route/data/permission handoff and state/component annotations.
+- Canva support assets only when they serve a real app placement and preserve privacy/live-text discipline.
+- Tests, CI, browser/mobile smoke checks, and no-secret/no-real-student-data checks.
+- Docs, artifacts, handoffs, requirement catalog status, and run manifests.
+
+Do not mark a requirement as complete because one surface improved. A requirement should move toward `mvp ready` only when all required surfaces have evidence or a precise committed blocker.
+
 ## Autonomous Loop Contract
 
 The automation system has three durable control surfaces:

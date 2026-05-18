@@ -162,3 +162,14 @@ Each audit run should append a dated entry with:
 - `self-improvement`: updated live prompts and `scripts/check-automation-contract.ps1` so the contract now enforces the exact 20x schedule, 30-minute minimum spacing, A-material quality language, no-human-approval prompt language, self-improvement-to-scripts prompt language, project-only automation-maintenance language, full MVP requirement coverage, and interactive-prompt bans across PowerShell and JavaScript scripts.
 - `validation`: regenerated prompt snapshots with `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\snapshot-automation-prompts.ps1`; `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\check-automation-contract.ps1 -RepoRoot .` passed for 7 category automations.
 - `next action`: Keep subsequent automation work scoped to this project and let the 20x runners advance the highest-risk MVP gaps without waiting on human approvals.
+
+### 2026-05-18 13:12 PT - MVP And Surface Expansion Audit
+
+- `automation`: interactive follow-up from Bryan's explicit review question about whether automation is building all MVP requirements and expanding into Figma, Cloudflare, and other needed surfaces.
+- `master-plan section`: 20x Automation Readiness; MVP 1.0 Vertical Slice; Logging Requirements; Anti-Drift Rules.
+- `scope`: Audit all seven active 20x automation prompts for MVP requirement coverage and cross-surface expansion behavior.
+- `findings`: Every `MVP-001` through `MVP-030` is explicitly targeted by at least one active automation prompt. The category split covers requirements-audit, backend/security/data, student workflow/evidence, staff review/mentor, admin ops/reporting, deployment QA/CI, and design assets/handoff. Existing prompts already referenced the GitHub-to-Cloudflare app goal, active Figma source, Canva support source, protected student records, tests, logging, and exact blockers.
+- `gap found`: The checker proved requirement coverage, but did not explicitly require each run to reason across all needed project surfaces for the selected requirement.
+- `self-improvement`: Added a surface expansion rule to all seven local automation prompts and required it in `scripts/check-automation-contract.ps1`. The rule forces each selected slice to identify work/proof needed in app code/routes/schema, Cloudflare Pages/D1/env/deploy, Figma route-data-permission handoff, Canva support assets, tests/CI, docs/artifacts/handoffs, and exact blockers.
+- `validation`: regenerated prompt snapshots; `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\check-automation-contract.ps1 -RepoRoot .` passed; custom prompt audit confirmed all 30 MVP IDs are covered.
+- `next action`: Let the 20x runners build all requirement categories while preserving cross-surface evidence instead of letting any single surface masquerade as done.

@@ -1,11 +1,11 @@
 ﻿---
 automation_id: "senior-capstone-admin-ops-reporting"
 name: "Senior Capstone 20x System - Admin Ops + Reporting"
-snapshot_generated_utc: "2026-05-18T20:07:43Z"
+snapshot_generated_utc: "2026-05-18T20:12:03Z"
 rrule: "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=4,15;BYMINUTE=51"
 model: "gpt-5.2"
 reasoning_effort: "high"
-prompt_sha256: "c1552abfd0d3813aa2ce1a9a3797189ae4f48da568b31bd7929bed00fa8242cc"
+prompt_sha256: "eb9a2c0b3a7f72f9fa650f0cc6a3854e612ee888c174aede38fdb9590e66a8c6"
 source_toml: "C:\Users\bryan\.codex\automations\senior-capstone-admin-ops-reporting\automation.toml"
 ---
 
@@ -29,6 +29,8 @@ Start every run by inspecting git status --short --branch. Then read docs/master
 Laddering rule: name the master-plan section and requirement IDs from docs/mvp-requirements-catalog.md that justify the slice. Pick one bounded highest-risk incomplete requirement in this category, prefer implementation/tests/deployment evidence over planning, update the catalog when status/evidence/blockers change, and avoid repeating recent work. While the Day 7 alpha is incomplete, prioritize alpha flow, verification, permissions, private evidence, Cloudflare proof, and exact blockers over broad polish.
 
 A-material quality bar: every productive run must either land a verified MVP implementation slice, improve a project automation/script/checker that prevents repeat failure, or commit an exact blocker. Avoid vague planning; include acceptance evidence, requirement IDs, validation commands, and next action. Only touch automation related to this project when doing automation maintenance.
+
+Surface expansion rule: for the selected requirement slice, explicitly decide which project surfaces need work or proof: app code/routes/schema, Cloudflare Pages/D1/env/deploy, Figma route-data-permission handoff, Canva support assets, tests/CI, docs/artifacts/handoffs, and exact blockers. Do not treat a requirement as complete because one surface improved; advance or verify every required surface until the catalog acceptance evidence is met.
 
 Self-improvement to scripts as you go: use docs/automation-self-improvement.md as the guardrail. If no prompt/config/script repair is justified, log self-improvement: none. If this automation's own prompt/config must change and the tool is available, update only this automation. If a repeatable repo check can prevent the miss next time, update scripts/check-automation-contract.ps1 or the smallest relevant project script, regenerate snapshots with scripts/snapshot-automation-prompts.ps1, run the checker, log the evidence, commit, and push.
 
