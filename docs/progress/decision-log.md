@@ -236,3 +236,15 @@ Decision status values:
 - `remaining setup`: Add the server-side Google Drive upload credential/OAuth path, protected retrieval/access behavior, permission tests, `BOOTSTRAP_SETUP_KEY`, and first-admin bootstrap before real student evidence or records are entered.
 - `source`: Bryan provided `https://drive.google.com/drive/folders/1XPgYKbIMqv332DAJZJNJetHppFB670e7?usp=drive_link` on 2026-05-18.
 - `last updated`: 2026-05-18 11:32 PT
+
+### D-2026-05-18-023
+
+- `status`: accepted
+- `area`: Day 7 alpha execution framework, CI, and deployment rail
+- `decision`: Use `docs/alpha-week-framework.md` as the working daily build framework for the alpha due Sunday, 2026-05-24 PT, and require alpha work to move through the new repo-side rail: `npm run check`, `scripts/check-alpha-contract.mjs`, `.github/workflows/alpha-ci.yml`, and `npm run deploy:preview`.
+- `reason`: Bryan asked to set up every accessible piece and provide a framework for building the alpha throughout the week. The project needs concrete daily work targets plus automated checks so the next passes build D1/server-owned persistence, tests, mobile proof, and preview evidence instead of reopening scope.
+- `applies to`: `docs/master-plan.md`, `docs/alpha-week-framework.md`, `docs/alpha-runbook.md`, `package.json`, `.github/workflows/alpha-ci.yml`, `scripts/check-alpha-contract.mjs`, `SC-005`, `SC-006`, `H-2026-05-18-006`, and `H-2026-05-18-008`.
+- `guardrail`: This does not change automation schedule, workspace, model, reasoning effort, or status. The alpha remains unsafe for real student records until production accounts, Drive upload credentials, hardened authorization tests, and pilot security review are complete.
+- `implementation evidence`: Day 1 framework/check/CI/deploy rails were added on 2026-05-18. Cloudflare MCP remote mutation was attempted but returned `Auth required`; remote deploy/mutation still needs connector reauthorization or working Wrangler.
+- `source`: User request on 2026-05-18: "Set up any and all pieces you need that you have access to - and really give me a framework for the alpha to be built throughout the week"
+- `last updated`: 2026-05-18 12:02 PT

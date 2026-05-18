@@ -24,7 +24,7 @@ Figma is the heavy product-design source for functional app screens, database-ba
 - Cloudflare D1 database `senior-capstone-db` (`3141d9ac-08b7-49c1-92ba-bbf50c1a611f`) is provisioned and migration `migrations/0001_foundation.sql` has been applied remotely.
 - Hardened username/password auth endpoints now exist for bootstrap, login, logout, and session lookup. `PASSWORD_PEPPER` and `SESSION_PEPPER` are set as Cloudflare Pages secrets; first-admin bootstrap is staged but not yet verified complete in D1.
 - Google Drive evidence repository root folder `1XPgYKbIMqv332DAJZJNJetHppFB670e7` and index sheet `1b446rp3oyx9G4LpKYE47qXxpU41EOW-2Ota2fGum49c` exist and are wired into Pages config and D1 metadata. Server-side Drive upload credential/OAuth flow remains pending.
-- Alpha state-machine tests and a GitHub Actions CI workflow now exist; broader auth/permission/Drive-upload tests remain incomplete.
+- Alpha state-machine tests, alpha contract checks, and GitHub Actions CI workflows now exist (`tests/alpha-flow.test.mjs`, `scripts/check-alpha-contract.mjs`, `npm run check`, `.github/workflows/ci.yml`, and `.github/workflows/alpha-ci.yml`); broader auth/permission/Drive-upload tests remain incomplete.
 - Source PDFs have been extracted and converted into app-native requirements in `data/capstone-framework.json`.
 - The primary beta-build automation is now `senior-capstone-rebuild-rebuilt`, renamed in the app as `Senior Capstone Gold Standard Orchestrator`, running exactly 5x/day at `00:20`, `05:20`, `10:20`, `15:20`, and `20:20` PT. It uses the master plan, logs, and work ladder to choose one bounded beta-advancing slice per run until the app reaches a real beta.
 - Specialist lane jobs still exist for Figma, Canva, content audit, and daily report, but they are intentionally `PAUSED` standby prompts so the Senior Capstone system is not running overlapping specialist jobs all day. Weekly deep audit remains `ACTIVE` and separate for long severe review.
@@ -49,11 +49,11 @@ The 100-pass master plan was refreshed on 2026-05-18 after the professional-plan
 4. Model users, groups, roles, permissions, programs, cohorts, requirements, progress records, submissions, evidence artifacts, reviews, approvals, announcements, audit events, export records, meeting attendance, and presentation slots, consuming Figma node `48:2` for admin provisioning states, node `61:2` for progress-update/dashboard-aggregate rules, node `69:2` for audit-log/export controls, and node `78:2` for meeting/presentation scheduling rules.
 5. Build the alpha proposal/progress flow: student dashboard -> proposal/research -> evidence metadata/link -> teacher review -> revision/approval -> dashboard/audit update -> mentor/admin/misc-admin views, including meeting/presentation signals where they affect alpha dashboards.
 
-Immediate next five useful passes: deploy/verify the alpha route on Cloudflare, complete first-admin bootstrap verification, broaden auth/permission/evidence tests, extend alpha data into real workflow endpoints, then add Drive upload credential/OAuth implementation.
+Immediate next five useful passes: deploy/verify the alpha route on Cloudflare, complete first-admin bootstrap verification, broaden auth/permission/evidence tests, extend alpha data into real workflow endpoints, then add Drive upload credential/OAuth implementation. The D1-backed alpha flow, persona switcher, student/teacher/mentor/admin/misc-admin views, audit timeline, runbook, alpha-week framework, alpha contract checker, preview deploy command, and CI workflows now exist.
 
 Real daily MVP goal: minimum 2 accepted MVP passes per calendar day, stretch 3 when unblocked, and at least 14 accepted MVP passes per week until the 100-pass target is met or recalibrated. Until the Day 7 alpha is accepted, the first two accepted passes each day should usually be app-flow implementation or alpha verification, not broad design polish or production account hardening. The active weekly deep audit must review the prior seven days of committed run evidence and adjust only this project's next-week daily goal/allocation in `docs/master-plan.md` and this memory file when evidence requires it; schedules, workspace, model, reasoning effort, and status stay unchanged unless Bryan explicitly asks.
 
-Current account/provisioning watchpoint: Cloudflare Pages/D1 setup is done for the first foundation, district SSO is explicitly unavailable for MVP, and the Google Drive evidence root folder is now selected/configured. First-admin credentials were generated into ignored local `.secrets/` storage for bootstrap; verify D1 user creation after the next production deployment. Remaining account/config-owned work is server-side Drive upload credentials/OAuth and any district/privacy approval before real student records are entered.
+Current account/provisioning watchpoint: Cloudflare Pages/D1 setup is done for the first foundation, district SSO is explicitly unavailable for MVP, and the Google Drive evidence root folder is now selected/configured. First-admin credentials were generated into ignored local `.secrets/` storage for bootstrap; verify D1 user creation after the next production deployment. Remaining account/config-owned work is server-side Drive upload credentials/OAuth and any district/privacy approval before real student records are entered. Cloudflare plugin discovery works in Codex, but current Cloudflare API calls return `Auth required`, so the next remote mutation or preview proof needs connector reauthorization or a working local Wrangler environment.
 
 ## Canonical Programs
 
@@ -77,8 +77,8 @@ Current backlog anchors:
 - `SC-002`: guided Research Proposal Challenge UI and review queue spec.
 - `SC-003`: Google Drive EvidenceArtifact model is in-progress; metadata tables and root folder exist, but upload credentials and permission tests are still needed.
 - `SC-004`: mentor meetings, presentation scheduling, celebration evidence, archive/export workflows.
-- `SC-005`: P0 Cloudflare stack/auth/database/user-group/progress/private-upload scaffold is in-progress with Pages/D1/migrations/auth endpoints, password/session pepper secrets, Drive root folder configured, alpha state-machine tests, and CI; broader permission tests, Drive upload credentials, and first-admin verification remain.
-- `SC-006`: P0 Day 7 full app-flow alpha due 2026-05-24 PT; production user accounts may be incomplete, and the first D1-backed seeded alpha flow now exists at `alpha.html`.
+- `SC-005`: P0 Cloudflare stack/auth/database/user-group/progress/private-upload scaffold is in-progress with Pages/D1/migrations/auth endpoints, password/session pepper secrets, Drive root folder, D1-backed alpha flow, state-machine tests, alpha contract checks, CI, and Day 7 framework configured; broader permission tests, Drive upload credentials, and first-admin verification remain.
+- `SC-006`: P0 Day 7 full app-flow alpha due 2026-05-24 PT; production user accounts may be incomplete, and the first D1-backed seeded alpha flow now exists at `alpha.html`. Framework/check/CI exist; deployment verification, mobile proof, broader workflow tests, and Cloudflare preview proof remain.
 
 ## Known External Artifact Memory
 
@@ -136,6 +136,7 @@ Read `docs/progress/decision-log.md` for accepted or superseded decisions.
 - `D-2026-05-18-020`: keep a daily guided multi-frame Figma prototype refresh active at `22:10 PT` so Bryan can see that day's actual progress and next ladder position without turning Figma into the production data source.
 - `D-2026-05-18-021`: Day 7 alpha is due 2026-05-24 PT with all app flow working through seeded/demo personas; production user accounts are explicitly post-alpha hardening, not an alpha blocker.
 - `D-2026-05-18-022`: use Google Drive folder `1XPgYKbIMqv332DAJZJNJetHppFB670e7` (`Senior Project App`) as the MVP evidence repository root.
+- `D-2026-05-18-023`: use `docs/alpha-week-framework.md`, `npm run check`, `scripts/check-alpha-contract.mjs`, `.github/workflows/alpha-ci.yml`, and `npm run deploy:preview` as the Day 7 alpha execution/verification rail.
 
 Current rebuilt automation IDs:
 - `senior-capstone-canva-visual-system-rebuilt` (`PAUSED` standby)

@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-05-18-1202-rebuild-alpha-week-framework",
+  "timestampLocal": "2026-05-18T12:02:00-07:00",
+  "lane": "rebuild",
+  "automationId": "interactive-alpha-framework-setup",
+  "scope": "Set up repo-side Day 7 alpha rails and a daily framework so the next week of passes can build the full app-flow alpha without reopening scope.",
+  "masterPlanSections": [
+    "Day 7 Alpha Gate",
+    "100-Pass Delivery Constraint",
+    "Stack And Deployment Direction",
+    "Logging Requirements"
+  ],
+  "logsRead": [
+    "C:/Users/bryan/.codex/automations/senior-capstone-figma-product-design-rebuilt/memory.md",
+    "docs/master-plan.md",
+    "docs/automation-runbook.md",
+    "docs/automation-self-improvement.md",
+    "docs/automation-cadence.md",
+    "docs/automation-milestones.md",
+    "docs/automation-memory.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-18-1145-rebuild-alpha-shell-personas.json",
+    "docs/progress/handoffs.md",
+    "docs/progress/decision-log.md",
+    "docs/automation-backlog.md",
+    "docs/artifacts.json",
+    "docs/human-decisions.md",
+    "docs/progress/figma.md",
+    "docs/progress/rebuild.md",
+    "docs/backend-setup.md",
+    "docs/alpha-runbook.md"
+  ],
+  "backlogUpdated": [
+    "SC-005",
+    "SC-006"
+  ],
+  "handoffsUpdated": [
+    "H-2026-05-18-006",
+    "H-2026-05-18-008"
+  ],
+  "decisionsUpdated": [
+    "D-2026-05-18-023"
+  ],
+  "filesChanged": [
+    "package.json",
+    "scripts/check-alpha-contract.mjs",
+    ".github/workflows/alpha-ci.yml",
+    "docs/alpha-week-framework.md",
+    "docs/alpha-runbook.md",
+    "docs/master-plan.md",
+    "docs/automation-milestones.md",
+    "docs/backend-setup.md",
+    "docs/automation-backlog.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/decision-log.md",
+    "docs/automation-memory.md",
+    "docs/human-decisions.md",
+    "docs/artifacts.json",
+    "docs/progress/rebuild.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-18-1202-rebuild-alpha-week-framework.json"
+  ],
+  "implementation": {
+    "packageScripts": [
+      "check",
+      "check:alpha-contract",
+      "typecheck",
+      "deploy:preview"
+    ],
+    "ci": ".github/workflows/alpha-ci.yml",
+    "checker": "scripts/check-alpha-contract.mjs",
+    "framework": "docs/alpha-week-framework.md",
+    "nextDayTarget": "Cloudflare Pages alpha deployment verification, first-admin bootstrap verification, broader permission tests, and Drive upload credential planning"
+  },
+  "externalToolResults": [
+    {
+      "tool": "Cloudflare MCP",
+      "result": "blocked",
+      "detail": "Cloudflare plugin discovery succeeded, but the first Cloudflare OpenAPI search call returned Auth required. No remote Cloudflare mutation or preview deploy was performed."
+    }
+  ],
+  "validation": [
+    "package.json parsed as JSON.",
+    "docs/artifacts.json parsed as JSON.",
+    "Run manifest parsed as JSON.",
+    "Node REPL imported scripts/check-alpha-contract.mjs and passed the alpha contract check: 5 personas, 12 workflow actions, and 1 seed evidence item.",
+    "Node REPL exercised the alpha state-machine smoke path for submit, revision, resubmit, approval, permission denial, evidence URL validation, mentor meeting, admin export, and misc-admin report.",
+    "Node REPL parsed alpha.js syntax with Function.",
+    "Conflict-marker scan found no matches.",
+    "git diff --check passed with CRLF normalization warnings only.",
+    "scripts/check-automation-contract.ps1 passed for 7 automations."
+  ],
+  "validationBlockers": [
+    "PowerShell cannot execute the packaged node.exe: Access is denied.",
+    "npm, wrangler, and tsc are missing from PATH in this shell, so npm run check and npm run deploy:preview could not run locally.",
+    "Cloudflare MCP API calls currently return Auth required, so remote preview deploy/mutation was not attempted."
+  ],
+  "selfImprovement": "none; no live automation prompt/config change was made.",
+  "nextActions": [
+    "Verify the pushed D1-backed alpha on Cloudflare Pages, including /alpha.html and /api/alpha/state.",
+    "Complete first-admin bootstrap verification, then remove or rotate the one-time setup key.",
+    "Add broader auth/permission/protected-evidence tests and implement Drive upload credential/OAuth."
+  ],
+  "result": "completed_with_cloudflare_connector_auth_blocker"
+}

@@ -12,7 +12,7 @@ Status values:
 
 ## Open Decisions
 
-No open human decisions are blocking the current scaffold. The Google Drive evidence root folder is selected and configured. Remaining setup work is configuration: set production bootstrap secret, choose first-admin credentials, and implement Drive upload credentials before real student data is entered.
+No open product decisions are blocking the current scaffold. The Google Drive evidence root folder is selected and configured. Remaining setup work is configuration: set production bootstrap secret, choose first-admin credentials, implement Drive upload credentials before real student data is entered, and reauthorize or otherwise restore Cloudflare MCP/Wrangler access before the next remote mutation/deploy proof.
 
 ## Accepted Decisions
 

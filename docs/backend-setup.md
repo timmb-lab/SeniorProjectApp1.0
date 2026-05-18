@@ -47,10 +47,10 @@ The pilot auth flow uses:
 
 ## Remaining Required Config
 
-- Set the one-time Cloudflare Pages bootstrap secret `BOOTSTRAP_SETUP_KEY` before creating the first admin account.
-- Choose the first admin email/display name/password and bootstrap it through `/api/auth/bootstrap`.
+- Verify the one-time Cloudflare Pages bootstrap secret `BOOTSTRAP_SETUP_KEY` and first-admin bootstrap after the next production deployment. A prior rebuild pass staged bootstrap credentials in ignored local `.secrets/` storage; do not commit those credentials.
 - Add Google Drive server-side credential/OAuth implementation before accepting file bytes from students.
 - Add permission tests and workflow tests before real student data is entered.
+- Current Codex Cloudflare MCP status: the Cloudflare plugin is discoverable, but API calls in this session return `Auth required`. Continue repo-side setup and use connector reauthorization or a working Wrangler environment for the next remote mutation/deploy.
 
 Completed on 2026-05-18:
 

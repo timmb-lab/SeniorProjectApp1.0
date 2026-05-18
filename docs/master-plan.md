@@ -185,6 +185,10 @@ Required alpha flows:
 - The student path works on a mobile viewport without horizontal overflow.
 - The app can run locally from documented commands and should have Cloudflare preview/deployment evidence if the deployment path is not blocked.
 
+Execution framework:
+- Use `docs/alpha-week-framework.md` as the day-by-day alpha build rail for 2026-05-18 through 2026-05-24. It does not change the schedule, workspace, model, reasoning effort, or active automation status.
+- Day 1 evidence now includes the D1-backed alpha route/persona flow, Cloudflare/D1/Drive setup records, the alpha runbook, alpha week framework, alpha state-machine tests, alpha contract checker, preview deployment command, and GitHub Actions CI workflows.
+
 Account exception for alpha:
 - Production login, password reset, invitations, account import, first-admin bootstrap, credential lifecycle, district SSO, and full server-side account hardening are not required for Day 7 alpha.
 - Do not delete or abandon the real auth scaffold. Keep it behind the alpha flow as the post-alpha hardening path.
@@ -198,12 +202,12 @@ Day 7 acceptance checks:
 - Real student data is not entered into alpha.
 
 Seven-day implementation ladder:
-1. Day 1, 2026-05-18: lock alpha scope, preserve Cloudflare/D1 scaffold, record the alpha exception for production accounts, and prioritize working flows over more broad design polish.
-2. Day 2, 2026-05-19: app shell, routing, role/persona switcher, seed/demo data, canonical programs, and local run path.
-3. Day 3, 2026-05-20: student dashboard, guided proposal/research form, save/draft/submit states, and evidence link/upload metadata flow.
-4. Day 4, 2026-05-21: program teacher review queue, comments, revision request, approval, resubmission loop, and status history.
-5. Day 5, 2026-05-22: mentor dashboard, admin overview, program/cohort/deadline/template surfaces, dashboard aggregates, and audit/activity timeline.
-6. Day 6, 2026-05-23: export/archive controls, announcements or admin notices, mobile student path, error/empty/permission states, and Cloudflare preview attempt.
+1. Day 1, 2026-05-18: lock alpha scope, preserve Cloudflare/D1/Drive setup records, create the alpha route/persona shell, add the runbook/framework/check/CI rails, and prioritize working flows over more broad design polish.
+2. Day 2, 2026-05-19: verify the D1-backed alpha on Cloudflare Pages, complete first-admin bootstrap verification, and turn any deploy/bootstrap blocker into a committed exact next action.
+3. Day 3, 2026-05-20: deepen student dashboard, guided proposal/research form, save/draft/submit states, evidence metadata validation, blocked-submit/access states, and mobile no-overflow proof.
+4. Day 4, 2026-05-21: complete program teacher review queue, comments, revision request, approval, resubmission loop, immutable history, status history, and broader permission tests.
+5. Day 5, 2026-05-22: deepen mentor dashboard, meeting/presentation cues, admin overview, misc-admin narrowing, program/cohort/deadline/template surfaces, dashboard aggregates, and audit/activity timeline into real workflow endpoints.
+6. Day 6, 2026-05-23: add export/archive controls, announcements or admin notices, mobile student no-overflow proof, error/empty/permission states, and Cloudflare preview attempt or exact blocker.
 7. Day 7, 2026-05-24: alpha QA, bug fixes, runbook, known gaps, acceptance walk-through, and final alpha status commit.
 
 Post-alpha hardening starts after the Day 7 gate:
@@ -301,13 +305,13 @@ Use this allocation as the working budget until a committed implementation pass 
 8. Passes 91-97: harden deployment and operations: Cloudflare preview evidence, environment/secrets checklist, backup/export posture, accessibility/security QA, retention notes, and no-student-messaging verification.
 9. Passes 98-100: finish pilot readiness: staff provisioning checklist, seed/demo data posture without real student records, custom-domain readiness, final audit review, and Bryan-facing pilot checklist.
 
-Immediate next five passes should be alpha-flow implementation:
+Immediate next five passes should be alpha-flow verification and hardening from the new framework:
 
-1. Create the alpha app shell, route map, role/persona switcher, seed/demo data loader, and local run command.
-2. Implement the student dashboard and guided proposal/research flow with save, draft, submit, evidence metadata, and blocked-submit states.
-3. Implement the teacher review queue, submission detail, comment, revision request, approval, resubmission, and status-history loop.
-4. Implement mentor/admin/misc-admin alpha views, dashboard aggregates, audit/activity timeline, deadlines/templates, export/archive control surfaces, and meeting/presentation signals from Figma node `78:2`.
-5. Add mobile student QA, empty/error/permission states, alpha runbook, known-gaps file, tests/smoke checks, and Cloudflare preview attempt.
+1. Verify the pushed D1-backed alpha on Cloudflare Pages, including `/alpha.html` and `/api/alpha/state`, or commit the exact connector/deploy blocker.
+2. Complete first-admin bootstrap verification, then remove or rotate the one-time setup key from Pages config.
+3. Add broader auth/permission/protected-evidence tests around the current alpha state-machine and contract checks.
+4. Deepen the student dashboard and guided proposal/evidence path with validation, blocked-submit recovery, link-check/provider-unavailable states, and mobile no-overflow proof.
+5. Extend alpha data into real workflow endpoints for teacher review, mentor meeting/presentation, admin export/audit, and misc-admin reporting while consuming Figma nodes `69:2` and `78:2`.
 
 Do not spend the next several non-audit passes on additional broad Figma polish or production account hardening while the Day 7 alpha flow is incomplete, unless rebuild hits a specific UI/security ambiguity that blocks the alpha. The design side is currently ahead of the hosted app; the app now needs working routes, forms, transitions, demo data, tests/smoke checks, and preview evidence.
 

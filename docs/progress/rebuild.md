@@ -82,3 +82,17 @@ Each rebuild run should append a dated entry with:
 - `self-improvement`: none.
 - `commit/push status`: pending in this interactive pass.
 - `next action`: Commit/push, wait for Cloudflare Pages production deployment, verify `/alpha.html` and `/api/alpha/state`, complete first-admin bootstrap, then remove `BOOTSTRAP_SETUP_KEY` from Pages config.
+
+### 2026-05-18 12:02 PT - Alpha Week Framework + CI Rail
+
+- `automation`: interactive rebuild setup pass from Bryan's alpha-framework request.
+- `master-plan section`: Day 7 Alpha Gate; 100-Pass Delivery Constraint; Stack And Deployment Direction; Logging Requirements.
+- `source docs/logs read`: external automation memory path, `docs/master-plan.md`, `docs/automation-runbook.md`, `docs/automation-self-improvement.md`, `docs/automation-cadence.md`, `docs/automation-milestones.md`, `docs/automation-memory.md`, `docs/progress/run-log.md`, recent `docs/progress/runs/`, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, `docs/progress/figma.md`, `docs/progress/rebuild.md`, `docs/backend-setup.md`, and `docs/alpha-runbook.md`.
+- `backlog or handoff IDs selected`: `SC-005`, `SC-006`, `H-2026-05-18-006`, and `H-2026-05-18-008`.
+- `bounded scope`: Set up repo-side alpha rails and a daily framework so the next week of passes can build the alpha without reopening scope.
+- `files changed`: `package.json`, `scripts/check-alpha-contract.mjs`, `.github/workflows/alpha-ci.yml`, `docs/alpha-week-framework.md`, `docs/alpha-runbook.md`, `docs/master-plan.md`, `docs/automation-milestones.md`, `docs/backend-setup.md`, `docs/automation-backlog.md`, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-memory.md`, `docs/human-decisions.md`, `docs/artifacts.json`, `docs/progress/rebuild.md`, `docs/progress/run-log.md`, and structured run manifest.
+- `external artifact check`: Cloudflare plugin discovery succeeded, but the Cloudflare MCP API call returned `Auth required`, so no remote Cloudflare mutation or preview deploy was performed in this pass.
+- `validation`: `package.json`, `docs/artifacts.json`, and the structured run manifest parsed successfully; Node REPL imported `scripts/check-alpha-contract.mjs` and passed the alpha contract check; Node REPL exercised submit, revision, resubmit, approval, permission denial, evidence URL validation, mentor, admin, and misc-admin state-machine smoke paths; Node REPL parsed `alpha.js` syntax; conflict-marker scan found no matches; `git diff --check` passed with CRLF normalization warnings only; `scripts/check-automation-contract.ps1` passed for 7 automations. Local PowerShell still cannot execute the packaged `node.exe` (`Access is denied`), and `npm`, `wrangler`, and `tsc` are missing from PATH, so `npm run check` and preview deploy were not runnable in this shell.
+- `self-improvement`: none; no live automation prompt/config change was justified.
+- `commit/push status`: pending in this run.
+- `next action`: Verify the pushed D1-backed alpha deployment, complete first-admin bootstrap verification, broaden auth/permission/evidence tests, and retry Cloudflare mutation/deploy proof when connector auth or Wrangler access works.
