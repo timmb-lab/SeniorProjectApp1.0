@@ -32,7 +32,7 @@ MVP 1.0 must support:
 - Privacy-conscious handling of student records, uploads, exports, staff notes, and access control.
 - GitHub-connected deployment to Cloudflare Workers/Pages, with Cloudflare-managed production environments and a future Bryan-purchased custom domain.
 
-Day 7 alpha may temporarily defer production user-account readiness. It must still prove the whole user journey through seeded/demo personas, route guards, working forms, persisted or server-owned demo state where practical, dashboard updates, review/status transitions, and clear audit/activity history. First-admin bootstrap is now complete, but do not let password reset, invitation, account import, district SSO, or remaining account hardening block the Day 7 alpha.
+Day 7 alpha may temporarily defer production user-account readiness. It must still prove the whole user journey through seeded/demo personas, route guards, working forms, persisted or server-owned demo state where practical, dashboard updates, review/status transitions, and clear audit/activity history. First-admin bootstrap is now complete, and four fake `.test` role accounts are seeded and login-verified in production D1 for alpha walkthrough/testing. Do not let password reset, invitation, account import, district SSO, or remaining account hardening block the Day 7 alpha.
 
 Figma and Canva are major first-class inputs to the product experience. Figma should drive functional UI design, role-aware screens, implementation-ready specs, state coverage, and guided prototype/page annotations that explain real app progress and the next ladder step. Canva should create stunning supporting images and visual assets that make the app feel polished without baking important live text or private data into images.
 
@@ -189,10 +189,11 @@ Required alpha flows:
 
 Execution framework:
 - Use `docs/alpha-week-framework.md` as the day-by-day alpha build rail for 2026-05-18 through 2026-05-24. It does not change the schedule, workspace, model, reasoning effort, or active automation status.
-- Day 1 evidence now includes the D1-backed alpha route/persona flow, Cloudflare/D1/Drive setup records, the alpha runbook, alpha week framework, alpha state-machine tests, alpha contract checker, preview deployment command, and GitHub Actions CI workflows.
+- Day 1 evidence now includes the D1-backed alpha route/persona flow, Cloudflare/D1/Drive setup records, first-admin bootstrap, fake login-capable role accounts, the alpha runbook, alpha week framework, alpha state-machine tests, alpha contract checker, preview deployment command, and GitHub Actions CI workflows.
 
 Account exception for alpha:
 - Production login, password reset, invitations, account import, credential lifecycle, district SSO, and full server-side account hardening are not required for Day 7 alpha. First-admin bootstrap has been completed and should stay behind the alpha flow as production hardening, not as a Day 7 walkthrough dependency.
+- Fake `.test` accounts now exist for the alpha roles and can be used for login/session smoke checks. Their passwords live only in ignored local `.secrets/` files and must not be copied into docs, commits, screenshots, Figma, or Canva.
 - Do not delete or abandon the real auth scaffold. Keep it behind the alpha flow as the post-alpha hardening path.
 - Permission behavior in alpha should be represented through route/persona scoping and tests where practical, but must be labeled as alpha-scoped until hardened accounts work.
 
@@ -204,8 +205,8 @@ Day 7 acceptance checks:
 - Real student data is not entered into alpha.
 
 Seven-day implementation ladder:
-1. Day 1, 2026-05-18: lock alpha scope, preserve Cloudflare/D1/Drive setup records, create the alpha route/persona shell, add the runbook/framework/check/CI rails, and prioritize working flows over more broad design polish.
-2. Day 2, 2026-05-19: preserve the verified D1-backed alpha/first-admin bootstrap proof, verify any new deployment after subsequent commits, and turn any new deploy/config blocker into a committed exact next action.
+1. Day 1, 2026-05-18: lock alpha scope, preserve Cloudflare/D1/Drive setup records, create the alpha route/persona shell, add the runbook/framework/check/CI rails, seed fake role test accounts, and prioritize working flows over more broad design polish.
+2. Day 2, 2026-05-19: preserve the verified D1-backed alpha/first-admin/test-account proof, verify any new deployment after subsequent commits, and turn any new deploy/config blocker into a committed exact next action.
 3. Day 3, 2026-05-20: deepen student dashboard, guided proposal/research form, save/draft/submit states, evidence metadata validation, blocked-submit/access states, and mobile no-overflow proof.
 4. Day 4, 2026-05-21: complete program teacher review queue, comments, revision request, approval, resubmission loop, immutable history, status history, and broader permission tests.
 5. Day 5, 2026-05-22: deepen mentor dashboard, meeting/presentation cues, admin overview, misc-admin narrowing, program/cohort/deadline/template surfaces, dashboard aggregates, and audit/activity timeline into real workflow endpoints.
@@ -289,7 +290,7 @@ Today's work materially improved the implementation runway, but it did not yet c
   - `61:2`: progress-update to dashboard-aggregate contract with server-owned transitions, stale-write conflict handling, audit-first sensitive changes, and database-derived dashboard counts.
   - `69:2`: audit-log and export-controls contract with immutable audit stream filters, redacted event detail, scoped export request, signed archive/download states, permission denial, retention-policy cues, and no-storage-key exposure.
   - `78:2`: mentor meeting and presentation scheduling contract with prep evidence, attendance/make-up tracking, outline approval gate, presentation slot conflict handling, check-out/check-in state, scoped permissions, and audit events.
-- The critical gap has shifted: the Cloudflare Pages/D1 scaffold, auth endpoints, production alpha route, first-admin bootstrap, alpha tests, and CI rails now exist, but Drive upload credentials, broad permission/protected-evidence tests, account lifecycle, post-reset deployment verification, and production workflow endpoints remain incomplete.
+- The critical gap has shifted: the Cloudflare Pages/D1 scaffold, auth endpoints, production alpha route, first-admin bootstrap, fake role test accounts, alpha tests, and CI rails now exist, but Drive upload credentials, broad permission/protected-evidence tests, account lifecycle, post-reset deployment verification, and production workflow endpoints remain incomplete.
 
 Because of that gap, the next useful 100-pass plan must prioritize implementation, deployment proof, and tests over additional design polish unless design work is directly blocking a concrete route/data/permission implementation.
 
@@ -327,7 +328,7 @@ Immediate next five passes should deepen the shipped alpha into the real MVP spi
 2. Extend alpha proposal/review/evidence/audit records into real workflow endpoints instead of one demo-state endpoint.
 3. Implement shared `StatusPill`, `ActionButton`, `EvidenceArtifactRow`, `PermissionGate`, and `ReviewHistoryItem` primitives against the current alpha states.
 4. Add Google Drive server-side credential/OAuth implementation plus access-controlled evidence upload/retrieval assumptions before real uploads.
-5. Add account provisioning/import, invitation, password reset, credential rotation, and known-gaps QA while keeping seeded personas available for the Day 7 walkthrough.
+5. Add account provisioning/import, invitation, password reset, credential rotation, and known-gaps QA while keeping seeded personas and fake login-capable test accounts available for the Day 7 walkthrough.
 
 Do not spend the next several non-audit passes on additional broad Figma polish while the Day 7 alpha still needs deeper workflow endpoints and QA, unless rebuild hits a specific UI/security ambiguity that blocks the alpha. The design side is currently ahead of the hosted app; the app now needs real routes, forms, transitions, demo data, tests/smoke checks, and preview evidence.
 
@@ -367,7 +368,7 @@ Current stack pressure:
 - `HD-2026-05-18-001` is accepted for the production stack.
 - `docs/architecture/adr-0001-stack-auth-database-upload.md` is the accepted Cloudflare-oriented ADR.
 - `D-2026-05-18-019` accepts the no-district-SSO hardened username/password pilot and Google Drive evidence repository path.
-- Cloudflare Pages project `senior-capstone-app`, D1 database `senior-capstone-db`, migration `0001_foundation`, Google Drive evidence root folder, and Google Drive evidence index sheet are now provisioned and recorded in `docs/backend-setup.md`.
+- Cloudflare Pages project `senior-capstone-app`, D1 database `senior-capstone-db`, migration `0001_foundation`, Google Drive evidence root folder, Google Drive evidence index sheet, first admin, and four fake `.test` alpha role accounts are now provisioned and recorded in `docs/backend-setup.md`.
 - `SC-005` is now in-progress and keeps the scaffold in front of the automation loop.
 - Rebuild should prioritize the Cloudflare stack/auth/database/user-group/progress/private-upload foundation before broad app feature work.
 

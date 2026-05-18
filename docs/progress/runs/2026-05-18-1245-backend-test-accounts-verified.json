@@ -1,0 +1,107 @@
+{
+  "id": "2026-05-18-1245-backend-test-accounts-verified",
+  "timestamp": "2026-05-18T12:45:00-07:00",
+  "lane": "backend-security-data",
+  "trigger": "Bryan asked whether the database works and whether test accounts can be added.",
+  "master_plan_sections": [
+    "MVP 1.0 Vertical Slice",
+    "Day 7 Alpha Gate",
+    "Stack And Deployment Direction",
+    "Logging Requirements"
+  ],
+  "requirements_catalog_ids": [
+    "MVP-004",
+    "MVP-005",
+    "MVP-006",
+    "MVP-007",
+    "MVP-025",
+    "MVP-026"
+  ],
+  "backlog_ids": [
+    "SC-005",
+    "SC-006"
+  ],
+  "source_docs_read": [
+    "docs/master-plan.md",
+    "docs/backend-setup.md",
+    "docs/automation-memory.md",
+    "docs/automation-backlog.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/progress/rebuild.md",
+    "docs/progress/run-log.md",
+    "docs/artifacts.json",
+    "functions/api/admin/test-accounts.ts",
+    "tests/test-account-seed.test.mjs"
+  ],
+  "prior_code_change": {
+    "commit": "dc2f82a",
+    "title": "feat: add admin test account seeding",
+    "deployment": "c7908d04",
+    "endpoint": "POST /api/admin/test-accounts"
+  },
+  "production_state": {
+    "app_url": "https://senior-capstone-app.pages.dev",
+    "database": "senior-capstone-db",
+    "database_id": "3141d9ac-08b7-49c1-92ba-bbf50c1a611f",
+    "health_user_count": 5,
+    "real_admin_count": 1,
+    "fake_test_account_count": 4,
+    "credential_storage": ".secrets/test-accounts-2026-05-18.json"
+  },
+  "seeded_accounts": [
+    {
+      "email": "maya.student@senior-capstone.test",
+      "role": "student"
+    },
+    {
+      "email": "chen.teacher@senior-capstone.test",
+      "role": "program_teacher",
+      "scope": "program:it"
+    },
+    {
+      "email": "rivera.mentor@senior-capstone.test",
+      "role": "mentor"
+    },
+    {
+      "email": "reporting.miscadmin@senior-capstone.test",
+      "role": "misc_admin",
+      "scope": "reporting:alpha-readiness"
+    }
+  ],
+  "fixtures": [
+    "alpha-2026",
+    "group-alpha-it-2026",
+    "mentor-alpha-rivera-maya",
+    "req-alpha-proposal",
+    "progress-alpha-maya-proposal",
+    "submission-alpha-maya-proposal",
+    "evidence-alpha-maya-category-map"
+  ],
+  "changes": [
+    "Recorded that production D1 auth is working for the first admin and four fake alpha role accounts.",
+    "Documented the credential boundary: passwords stay only in ignored local .secrets storage.",
+    "Updated backend setup, master plan, memory, backlog, requirements catalog, artifact registry, rebuild lane log, run log, and this structured manifest."
+  ],
+  "validation": [
+    "GET /api/health returned ok=true, environment=production, authMode=hardened_username_password, Google Drive evidence config, and userCount=5.",
+    "All four fake .test accounts logged in through /api/auth/login and returned expected roles through /api/auth/me.",
+    "Unauthenticated POST /api/admin/test-accounts returned 401.",
+    "Logged-in student POST /api/admin/test-accounts returned 403.",
+    "No test-account passwords were written into committed docs."
+  ],
+  "remaining_gaps": [
+    "Production account lifecycle is not complete: invitation/import, password reset, credential rotation, disabled/reset-required states, and role-management UI remain.",
+    "Broader permission/protected-evidence tests are still needed before real student records.",
+    "Google Drive server-side upload credential/OAuth is still missing before accepting real file bytes."
+  ],
+  "next_actions": [
+    "Add permission/protected-evidence tests for student-own, mentor-assigned, teacher program/cohort, admin, misc-admin, and unauthorized denial.",
+    "Implement Drive upload credential/OAuth path and access-controlled evidence retrieval assumptions.",
+    "Build account provisioning/import, invitation, password reset, and credential rotation flows.",
+    "Extend alpha proposal/review/evidence/audit records into real workflow endpoints."
+  ],
+  "self_improvement": {
+    "result": "none",
+    "reason": "No automation prompt or config change was needed; this pass clarified and documented live backend state."
+  }
+}

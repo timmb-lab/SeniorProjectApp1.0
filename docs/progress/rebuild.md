@@ -110,3 +110,17 @@ Each rebuild run should append a dated entry with:
 - `self-improvement`: none.
 - `commit/push status`: code fixes pushed in commits `992354a` and `17a04f3`; documentation/status commit pending in this entry.
 - `next action`: Broaden auth/permission/evidence tests, build account provisioning and password-reset lifecycle, add Drive upload credentials/OAuth, and deepen alpha demo-state transitions into real workflow endpoints.
+
+### 2026-05-18 12:45 PT - Production D1 Test Accounts Verified
+
+- `automation`: interactive backend-security-data pass from Bryan's database/test-account clarification.
+- `master-plan section`: MVP 1.0 Vertical Slice; Day 7 Alpha Gate; Stack And Deployment Direction; Logging Requirements.
+- `source docs/logs read`: `docs/master-plan.md`, `docs/backend-setup.md`, `docs/automation-memory.md`, `docs/automation-backlog.md`, `docs/mvp-requirements-catalog.md`, `docs/progress/rebuild.md`, `docs/progress/run-log.md`, and current production health/login state.
+- `backlog or requirement IDs selected`: `SC-005`, `SC-006`, `MVP-004`, `MVP-005`, `MVP-006`, `MVP-007`, `MVP-025`, and `MVP-026`.
+- `bounded scope`: Answer whether the database works by verifying production D1 health and fake role-account login, then record the test-account posture without exposing passwords.
+- `files changed`: `docs/backend-setup.md`, `docs/master-plan.md`, `docs/automation-memory.md`, `docs/automation-backlog.md`, `docs/mvp-requirements-catalog.md`, `docs/progress/rebuild.md`, `docs/progress/run-log.md`, `docs/artifacts.json`, and structured run manifest.
+- `external/config changes`: No new remote mutation in this docs pass; production D1 had already been seeded through `POST /api/admin/test-accounts` after deployment `c7908d04` for commit `dc2f82a`.
+- `validation`: `/api/health` returned `environment=production`, `authMode=hardened_username_password`, Google Drive evidence configuration, and `userCount=5`; all four fake `.test` accounts logged in and returned expected roles through `/api/auth/me`; unauthenticated seed call returned 401 and logged-in student seed call returned 403.
+- `self-improvement`: none.
+- `commit/push status`: pending in this run.
+- `next action`: Build broader permission/protected-evidence tests, add Drive upload credential/OAuth, and implement account lifecycle flows while keeping fake alpha test accounts available for walkthroughs.

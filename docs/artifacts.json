@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-05-18T12:35:00-07:00",
+  "updated_at": "2026-05-18T12:45:00-07:00",
   "artifacts": [
     {
       "id": "cloudflare-pages-senior-capstone-app",
@@ -31,7 +31,8 @@
         "Cloudflare API returned project id 45041fa7-82ad-489d-a928-962d53c3b95a on 2026-05-18.",
         "Preview and production deployment configs include DB D1 binding, hardened username/password auth mode, Google Drive evidence provider, evidence root folder id, evidence index sheet id, PASSWORD_PEPPER and SESSION_PEPPER secret_text vars, and fail_open=false.",
         "Production deployment 2aadfa71 for commit 17a04f3 succeeded on 2026-05-18; /api/health returned APP_ENV production and userCount 1 after first-admin bootstrap.",
-        "Production BOOTSTRAP_SETUP_KEY was removed after first-admin bootstrap and redeploy; live bootstrap endpoint returned 403."
+        "Production BOOTSTRAP_SETUP_KEY was removed after first-admin bootstrap and redeploy; live bootstrap endpoint returned 403.",
+        "Production deployment c7908d04 for commit dc2f82a succeeded on 2026-05-18; /api/health later returned APP_ENV production, hardened_username_password auth mode, Google Drive evidence config, and userCount 5 after fake alpha account seeding."
       ],
       "last_updated": "2026-05-18"
     },
@@ -96,7 +97,59 @@
       "verification": [
         "Migration 0001 applied successfully through Cloudflare D1 raw query API on 2026-05-18.",
         "Remote query verified 5 roles, 9 programs, default Google Drive evidence repository row, and expected foundation tables.",
-        "Remote query verified first admin user bryan.timm89@gmail.com, global admin role, bootstrap_admin_created audit event, and session creation on 2026-05-18."
+        "Remote query verified first admin user bryan.timm89@gmail.com, global admin role, bootstrap_admin_created audit event, and session creation on 2026-05-18.",
+        "Production health verified userCount 5 after fake .test account seeding; login checks verified student, program_teacher, mentor, and misc_admin roles through /api/auth/me on 2026-05-18."
+      ],
+      "last_updated": "2026-05-18"
+    },
+    {
+      "id": "alpha-fake-test-accounts",
+      "type": "seed_data",
+      "status": "active_alpha",
+      "owner_lane": "backend-security-data",
+      "title": "Alpha Fake Test Accounts",
+      "app_placement": "Production D1 fake role-account fixtures for Day 7 alpha login and permission smoke checks.",
+      "repo_records": [
+        "functions/api/admin/test-accounts.ts",
+        "tests/test-account-seed.test.mjs",
+        "docs/backend-setup.md",
+        "docs/progress/rebuild.md"
+      ],
+      "accounts": [
+        {
+          "email": "maya.student@senior-capstone.test",
+          "role": "student"
+        },
+        {
+          "email": "chen.teacher@senior-capstone.test",
+          "role": "program_teacher",
+          "scope": "program:it"
+        },
+        {
+          "email": "rivera.mentor@senior-capstone.test",
+          "role": "mentor"
+        },
+        {
+          "email": "reporting.miscadmin@senior-capstone.test",
+          "role": "misc_admin",
+          "scope": "reporting:alpha-readiness"
+        }
+      ],
+      "credential_storage": "Ignored local file .secrets/test-accounts-2026-05-18.json; never commit or expose passwords.",
+      "fixtures": [
+        "alpha-2026",
+        "group-alpha-it-2026",
+        "mentor-alpha-rivera-maya",
+        "req-alpha-proposal",
+        "progress-alpha-maya-proposal",
+        "submission-alpha-maya-proposal",
+        "evidence-alpha-maya-category-map"
+      ],
+      "verification": [
+        "Admin-only seed endpoint deployed in commit dc2f82a and production deployment c7908d04.",
+        "All four fake role accounts logged in successfully and returned the expected roles through /api/auth/me on 2026-05-18.",
+        "Unauthenticated POST /api/admin/test-accounts returned 401 and logged-in student POST returned 403.",
+        "The endpoint writes test_accounts_seeded audit events and does not return passwords."
       ],
       "last_updated": "2026-05-18"
     },

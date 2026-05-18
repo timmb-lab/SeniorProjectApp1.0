@@ -31,6 +31,8 @@ Seeded records:
 - 5 roles: student, mentor, program teacher, admin, misc admin.
 - 9 CTE programs.
 - Default Google Drive evidence repository row pointing at the evidence root folder and index sheet.
+- First real admin account: `bryan.timm89@gmail.com`.
+- 4 fake `.test` alpha accounts: one student, one program teacher, one mentor, and one misc-admin reporting account, with cohort/group/mentor/proposal/progress/submission/evidence fixtures.
 
 ## Auth Boundary
 
@@ -44,6 +46,19 @@ The pilot auth flow uses:
 - Hashed session tokens, optional `SESSION_PEPPER`, logout revocation, and audit events.
 - One-time admin bootstrap endpoint gated by `BOOTSTRAP_SETUP_KEY`; production setup key is removed after first-admin creation.
 - Cloudflare Pages preview/production now have `PASSWORD_PEPPER` and `SESSION_PEPPER` stored as `secret_text` environment variables.
+
+## Production Test Accounts
+
+The production D1 database is working and currently has 5 active users: Bryan's real admin account plus 4 fake alpha test accounts. Test credentials were generated into ignored local storage at `.secrets/test-accounts-2026-05-18.json`; do not commit, paste, or expose those passwords.
+
+Seeded test accounts:
+
+- `maya.student@senior-capstone.test` - student.
+- `chen.teacher@senior-capstone.test` - program teacher scoped to IT.
+- `rivera.mentor@senior-capstone.test` - mentor assigned to the test student.
+- `reporting.miscadmin@senior-capstone.test` - misc admin scoped to alpha-readiness reporting.
+
+These accounts are fake alpha data only. They are safe for role-flow testing but are not the final account lifecycle, import, password-reset, or district SSO replacement.
 
 ## Remaining Required Config
 
@@ -59,5 +74,8 @@ Completed on 2026-05-18:
 - Production deployment `17a04f3` verified `APP_ENV=production`, `userCount=1`, and live Day 7 alpha routes.
 - First admin bootstrap completed for `bryan.timm89@gmail.com`; D1 verified active global admin role plus `bootstrap_admin_created` audit event.
 - Login and `/api/auth/me` verified with the first admin account; `BOOTSTRAP_SETUP_KEY` was removed from Cloudflare Pages production and a redeploy made the live bootstrap endpoint return 403.
+- Production deployment `c7908d04` for commit `dc2f82a` added the admin-only test-account seed endpoint; `/api/health` now verifies `APP_ENV=production`, `authMode=hardened_username_password`, Google Drive evidence config, and `userCount=5`.
+- `POST /api/admin/test-accounts` seeded the four fake `.test` accounts plus alpha cohort, group membership, mentor assignment, requirement, progress, submission, and evidence fixtures; the endpoint returns 401 unauthenticated and 403 for a logged-in student.
+- Login and `/api/auth/me` verified all four fake role accounts; D1 verification confirmed their roles/scopes plus `test_accounts_seeded` audit evidence.
 
 R2 is no longer the MVP upload blocker because the accepted upload repository is Google Drive. R2 can remain a future fallback if enabled in the Cloudflare dashboard.

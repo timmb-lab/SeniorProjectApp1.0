@@ -42,6 +42,15 @@ Expected result:
 - Audit/activity entries record the alpha actions.
 - The UI labels that seeded personas are not production accounts.
 
+## Optional Login Smoke Accounts
+
+Four fake `.test` accounts now exist in production D1 for alpha login/session checks. Passwords are stored only in ignored local `.secrets/test-accounts-2026-05-18.json` and must not be copied into docs or screenshots.
+
+- `maya.student@senior-capstone.test` - student.
+- `chen.teacher@senior-capstone.test` - program teacher.
+- `rivera.mentor@senior-capstone.test` - mentor.
+- `reporting.miscadmin@senior-capstone.test` - misc admin.
+
 ## Validation
 
 ```bash
@@ -65,6 +74,7 @@ npm run deploy:preview
 ## Current Alpha Coverage
 
 - D1-backed seeded alpha state through `/api/alpha/state`.
+- Login-verified fake `.test` role accounts for student, program teacher, mentor, and misc admin.
 - App shell with route controls for student workspace, teacher review, mentor meetings, admin overview, and audit activity.
 - Seeded personas for student, program teacher, mentor, admin, and misc admin.
 - Persona-scoped route availability with explicit misc-admin narrowing.
@@ -77,7 +87,7 @@ npm run deploy:preview
 
 ## Known Alpha Gaps
 
-- Production login, first-admin bootstrap verification, password reset, invitations, and account import remain post-alpha hardening.
+- Password reset, invitations, account import, credential lifecycle, and full production account-management UI remain post-alpha hardening.
 - Google Drive upload credentials, real file-byte upload, and signed retrieval remain incomplete; the root folder is selected and configured.
 - Broader auth/permission/protected-evidence tests are still needed beyond the current alpha state-machine and contract checks.
-- Cloudflare preview/production proof needs a fresh deployment verification after connector auth or local Wrangler access works.
+- Cloudflare production proof exists for the current D1-backed alpha and fake account seed; each later commit still needs fresh deployment verification or an exact blocker.

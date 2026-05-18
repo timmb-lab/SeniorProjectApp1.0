@@ -7,7 +7,7 @@ This is the working framework for the alpha due Sunday, 2026-05-24 PT. Count Mon
 ## Alpha Principles
 
 - No real student records, credentials, private evidence, or staff-only notes go into alpha.
-- Production login, password reset, invitations, imports, first-admin bootstrap, district SSO, and full account hardening stay post-alpha unless they stop the alpha walkthrough.
+- Password reset, invitations, imports, district SSO, and full account hardening stay post-alpha unless they stop the alpha walkthrough. First-admin bootstrap and fake role-account seeding are already complete, but they do not make the alpha pilot-ready for real student records.
 - The alpha must clearly label seeded/demo personas and account shortcuts.
 - Dashboard, review, progress, evidence metadata, audit, and export states must come from app state, API routes, D1, or another documented server-owned demo-state layer, not static copy.
 - Private evidence file bytes can remain incomplete for alpha, but evidence metadata, access states, validation, review linkage, and audit history must work.
@@ -21,6 +21,7 @@ As of 2026-05-18, the repo has:
 - Cloudflare Pages project `senior-capstone-app` recorded in `docs/backend-setup.md`.
 - D1 database `senior-capstone-db` with migration `migrations/0001_foundation.sql` already applied remotely.
 - Google Drive evidence root folder and index sheet recorded in `docs/backend-setup.md` and `docs/artifacts.json`.
+- First admin `bryan.timm89@gmail.com` plus four fake `.test` role accounts are seeded in production D1; fake account credentials live only in ignored local `.secrets/`.
 - Alpha route `alpha.html`, client state/actions in `alpha.js`, styling in `alpha.css`, D1-backed endpoint `/api/alpha/state`, and state model `functions/_lib/alpha-flow-model.js`.
 - Seeded personas for student, program teacher, mentor, admin, and misc admin.
 - First runbook in `docs/alpha-runbook.md`.
@@ -48,27 +49,29 @@ Goal:
 - Lock alpha scope and account exception.
 - Preserve Cloudflare/D1/Google Drive setup records.
 - Create the first role/persona alpha shell.
+- Seed fake login-capable alpha role accounts without exposing credentials.
 - Add the alpha framework, CI/check rail, and closeout discipline.
 
 Done when:
 - `alpha.html` can represent student, teacher, mentor, admin, misc-admin, proposal, evidence, review, meeting/presentation, dashboard, and audit states.
+- Fake student, teacher, mentor, and misc-admin accounts can log in for smoke checks.
 - `npm run check` exists and includes syntax, alpha-contract, and type checks.
 - The next pass has a specific D1/server-owned persistence task.
 
 ### Day 2 - Tuesday, 2026-05-19
 
 Goal:
-- Verify the D1-backed alpha on Cloudflare Pages and complete first-admin bootstrap verification.
+- Preserve and re-verify the D1-backed alpha, first-admin bootstrap, and fake account proof on Cloudflare Pages after new commits.
 - Stop any deploy/bootstrap ambiguity from leaking into the rest of the week.
 
 Build:
 - Pages deployment check for `/alpha.html` and `/api/alpha/state`.
-- Bootstrap verification for the first admin account, then setup-key removal or rotation.
+- Bootstrap verification for the first admin account, setup-key removal, and fake role-account login checks.
 - Exact blocker record if Cloudflare MCP auth, Wrangler, or Pages deployment is unavailable.
 
 Done when:
 - Public or preview alpha route returns the app and API state.
-- First-admin bootstrap state is known and documented.
+- First-admin bootstrap and fake role-account state are known and documented.
 
 ### Day 3 - Wednesday, 2026-05-20
 
