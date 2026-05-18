@@ -72,3 +72,15 @@ This file tracks unresolved cross-lane issues for the Senior Capstone rebuild. T
 - `evidence`: `docs/master-plan.md` now defines the revised MVP as a secure database-backed app with users, groups, roles, progress updates, private evidence, audit logs, dashboards, announcements, exports, and GitHub-to-Cloudflare hosting. `docs/architecture/adr-0001-stack-auth-database-upload.md` is accepted and refined by `D-2026-05-18-019`. Active Figma nodes `18:2`, `37:2`, `43:2`, `48:2`, `56:2`, `61:2`, and `69:2` specify route/data/permission contracts for execution map, evidence history, component variants, admin provisioning, mobile revision, progress dashboards, audit logs, and exports. Local scaffold now includes `package.json`, `wrangler.jsonc`, `functions/`, `.dev.vars.example`, and `migrations/0001_foundation.sql`. Cloudflare Pages project `senior-capstone-app` and D1 database `senior-capstone-db` are provisioned; the migration has been applied remotely; Pages preview/production config includes the D1 binding, Google Drive evidence index sheet, and `PASSWORD_PEPPER` / `SESSION_PEPPER` secrets. Tests, CI, Drive upload credentials, first-admin bootstrap key/account, and the Drive root folder ID remain incomplete.
 - `next action`: Add tests/CI for auth, permission helpers, protected evidence access, and status transitions; set `BOOTSTRAP_SETUP_KEY`; create/select the Drive root folder ID; bootstrap first admin; then implement the first admin/progress vertical slice while consuming active Figma contracts.
 - `last updated`: 2026-05-18 11:11 PT
+
+### SC-006
+
+- `severity`: P0
+- `owner`: rebuild
+- `status`: open
+- `source`: Bryan Day 7 alpha deadline request
+- `affected area`: full app-flow alpha without production user accounts
+- `evidence`: Bryan needs a full-fledged alpha by Day 7. For planning, Day 1 is Monday, 2026-05-18 and the alpha gate is end of day Sunday, 2026-05-24 PT. Production user accounts may remain incomplete, but the whole app flow must work through seeded/demo personas or a clearly labeled role switcher.
+- `next action`: Build alpha app shell, role/persona switcher, seed/demo data, student dashboard, guided proposal/research, evidence metadata/link flow, teacher review/revision/approval loop, mentor/admin/misc-admin views, dashboard aggregates, audit/activity timeline, mobile student path, error/empty/permission states, alpha runbook, known-gaps list, and Cloudflare preview attempt.
+- `acceptance check`: A reviewer can run the app and complete student -> teacher review -> revision/resubmission -> approval -> dashboard/audit update without real accounts or code edits, while the UI clearly labels alpha account/security shortcuts and avoids real student data.
+- `last updated`: 2026-05-18 11:26 PT

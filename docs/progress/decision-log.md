@@ -213,3 +213,14 @@ Decision status values:
 - `implementation evidence`: Figma page `04 Guided Daily Prototype` was created in file `z4t4tFPAKrMDh6pIYOeEw6` with frames `75:3`, `75:34`, `75:65`, `75:96`, `75:127`, and `75:158`; the live automation was created with RRULE `FREQ=DAILY;BYHOUR=22;BYMINUTE=10`.
 - `source`: user request on 2026-05-18: "I want a multip page guided protto type updated now and then bake into automation that it is running once per day to update prototype from that days' progress and laddering"
 - `last updated`: 2026-05-18
+
+### D-2026-05-18-021
+
+- `status`: accepted
+- `area`: alpha scope, deadline, and account exception
+- `decision`: Treat the Day 7 target as a full app-flow alpha due end of day Sunday, 2026-05-24 PT, counting Monday, 2026-05-18 as Day 1. Production user accounts do not need to work for this alpha; use seeded/demo personas or a clearly labeled role switcher so all student, teacher, mentor, admin, misc-admin, proposal, evidence, review, revision, dashboard, audit/activity, export/archive, mobile, and error/permission flows can be walked through.
+- `reason`: Bryan explicitly clarified that by Day 7 he needs a full-fledged alpha without working user accounts, but all app flow should work.
+- `applies to`: `docs/master-plan.md`, `docs/automation-milestones.md`, `docs/automation-memory.md`, `SC-006`, rebuild lane work selection, daily guided prototype refresh, and future alpha QA/runbook work.
+- `guardrail`: Do not call the alpha pilot-ready or safe for real student records while production login, first-admin bootstrap, account lifecycle, Google Drive upload credentials, and hardened authorization tests are incomplete.
+- `source`: user request on 2026-05-18: "by day 7 I need a full flredged alpha (w/o user accounts working)_ but all app flow should work"
+- `last updated`: 2026-05-18 11:26 PT

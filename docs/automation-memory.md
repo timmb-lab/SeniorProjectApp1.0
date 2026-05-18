@@ -10,6 +10,8 @@ Top-level product plan: `docs/master-plan.md`.
 
 Build a GitHub-to-Cloudflare hosted Senior Capstone app whose MVP is a secure database-backed operating system for users, groups, roles, programs, cohorts, progress updates, private upload/evidence spaces, student submissions, mentor/teacher review, revision requests, approvals, dashboards, announcements, admin controls, audit logs, exports, and protected student records.
 
+Urgent alpha gate: count 2026-05-18 as Day 1; by end of day Sunday, 2026-05-24 PT, Bryan needs a full-fledged alpha where the whole app flow works through seeded/demo personas or a clearly labeled role switcher. Production user accounts may remain incomplete for alpha, but student, teacher, mentor, admin, misc-admin, proposal, evidence metadata, review/revision/approval, dashboard, audit/activity, export/archive, mobile student, error/empty/permission flows should work well enough to walk through.
+
 This is not a static guide, brochure, or visual-only project.
 
 Figma is the heavy product-design source for functional app screens, database-backed states, admin preview, dashboards, and mobile-aware patterns. It can prototype account/data flows and specify fields/states, but it is not the production account system, database, evidence store, audit log, or dashboard source of truth. Canva is the heavy supporting-image source for polished visuals with clear app placement and no baked-in private/live data. Version 2.0 may explore iOS/Android apps with push notifications and announcements, but no student-to-student messaging.
@@ -40,15 +42,15 @@ Figma is the heavy product-design source for functional app screens, database-ba
 
 The 100-pass master plan was refreshed on 2026-05-18 after the professional-plan Figma catch-up and automation hardening work. Repo state through commit `08660f3` is the baseline, with later Figma admin provisioning contract node `48:2`, mobile evidence/revision contract node `56:2`, progress update/dashboard aggregate contract node `61:2`, and audit log/export controls contract node `69:2`: Figma implementation contracts are now ahead of the hosted app, while the production scaffold/auth/database/storage/test/deployment foundation is still missing.
 
-1. Execute accepted `SC-005` / `HD-2026-05-18-001` / ADR-0001: Cloudflare Workers/Pages + D1 + R2 + Workers-compatible managed auth or school-approved SSO, with explicit auth/security assumptions.
-2. Scaffold the real app foundation with TypeScript, package scripts, tests, and GitHub-to-Cloudflare deployment structure.
-3. Model users, groups, roles, permissions, programs, cohorts, requirements, progress records, submissions, evidence artifacts, reviews, approvals, announcements, audit events, and export records, consuming Figma node `48:2` for admin provisioning states and scoped misc-admin rules, node `61:2` for progress-update/dashboard-aggregate rules, and node `69:2` for audit-log/export controls.
-4. Build the MVP admin/progress vertical slice: admin creates/imports users/groups/programs/cohorts -> role-aware progress update -> audit log -> dashboard aggregate -> Cloudflare preview.
-5. Build the proposal workflow slice: student proposal submission -> evidence upload/link -> teacher review -> revision/approval -> audit log -> dashboard aggregate.
+1. Hit the Day 7 alpha gate by 2026-05-24 PT: full app flow working through seeded/demo personas, without production user accounts blocking progress.
+2. Execute accepted `SC-005` / `SC-006` / `HD-2026-05-18-001` / ADR-0001: Cloudflare Workers/Pages + D1 + app-flow alpha + later hardened auth/security assumptions.
+3. Scaffold the real app foundation with TypeScript, package scripts, tests, route shell, role/persona switcher, seed/demo data, and GitHub-to-Cloudflare deployment structure.
+4. Model users, groups, roles, permissions, programs, cohorts, requirements, progress records, submissions, evidence artifacts, reviews, approvals, announcements, audit events, and export records, consuming Figma node `48:2` for admin provisioning states and scoped misc-admin rules, node `61:2` for progress-update/dashboard-aggregate rules, and node `69:2` for audit-log/export controls.
+5. Build the alpha proposal/progress flow: student dashboard -> proposal/research -> evidence metadata/link -> teacher review -> revision/approval -> dashboard/audit update -> mentor/admin/misc-admin views.
 
-Immediate next five useful passes: Cloudflare/TypeScript scaffold, database/storage/migration layout, users/groups/programs/cohorts/roles schema and seeds, permission/audit primitives with tests, and `ProgressUpdate`/`DashboardAggregate`/private `EvidenceArtifact` storage-link tests.
+Immediate next five useful passes: alpha app shell/role switcher/seed data, student proposal/evidence flow, teacher review/revision loop, mentor/admin/misc-admin dashboard and audit/activity surfaces, then mobile/error-state/alpha runbook/Cloudflare preview proof.
 
-Real daily MVP goal: minimum 2 accepted MVP passes per calendar day, stretch 3 when unblocked, and at least 14 accepted MVP passes per week until the 100-pass target is met or recalibrated. While `SC-005` is open, the first two accepted passes each day should usually be implementation-heavy. The active weekly deep audit must review the prior seven days of committed run evidence and adjust only this project's next-week daily goal/allocation in `docs/master-plan.md` and this memory file when evidence requires it; schedules, workspace, model, reasoning effort, and status stay unchanged unless Bryan explicitly asks.
+Real daily MVP goal: minimum 2 accepted MVP passes per calendar day, stretch 3 when unblocked, and at least 14 accepted MVP passes per week until the 100-pass target is met or recalibrated. Until the Day 7 alpha is accepted, the first two accepted passes each day should usually be app-flow implementation or alpha verification, not broad design polish or production account hardening. The active weekly deep audit must review the prior seven days of committed run evidence and adjust only this project's next-week daily goal/allocation in `docs/master-plan.md` and this memory file when evidence requires it; schedules, workspace, model, reasoning effort, and status stay unchanged unless Bryan explicitly asks.
 
 Current account/provisioning watchpoint: Cloudflare Pages/D1 setup is done for the first foundation, and district SSO is explicitly unavailable for MVP. Remaining Bryan/config-owned work is the Google Drive evidence root folder ID, `BOOTSTRAP_SETUP_KEY`, first-admin credentials, and any district/privacy approval before real student records are entered.
 
@@ -75,6 +77,7 @@ Current backlog anchors:
 - `SC-003`: Google Drive EvidenceArtifact model is in-progress; metadata tables exist, but root folder, upload credentials, and permission tests are still needed.
 - `SC-004`: mentor meetings, presentation scheduling, celebration evidence, archive/export workflows.
 - `SC-005`: P0 Cloudflare stack/auth/database/user-group/progress/private-upload scaffold is in-progress with Pages/D1/migrations/auth endpoints and password/session pepper secrets created; tests, CI, Drive root folder, upload credentials, bootstrap key, and first-admin bootstrap remain.
+- `SC-006`: P0 Day 7 full app-flow alpha due 2026-05-24 PT; production user accounts may be incomplete, but every core role/workflow must work through seeded/demo personas.
 
 ## Known External Artifact Memory
 
@@ -127,6 +130,7 @@ Read `docs/progress/decision-log.md` for accepted or superseded decisions.
 - `D-2026-05-18-018`: real accounts, persistent data, private evidence storage, server-side authorization, migrations, deployment config, and permission tests are MVP foundation setup work; Figma is design/prototype/spec only and must not own production records.
 - `D-2026-05-18-019`: use hardened app-owned username/password auth for the MVP pilot because district SSO is unavailable, provision the first Cloudflare Pages + D1 foundation in Bryan's authorized Cloudflare account, and use Google Drive as the MVP evidence repository path.
 - `D-2026-05-18-020`: keep a daily guided multi-frame Figma prototype refresh active at `22:10 PT` so Bryan can see that day's actual progress and next ladder position without turning Figma into the production data source.
+- `D-2026-05-18-021`: Day 7 alpha is due 2026-05-24 PT with all app flow working through seeded/demo personas; production user accounts are explicitly post-alpha hardening, not an alpha blocker.
 
 Current rebuilt automation IDs:
 - `senior-capstone-canva-visual-system-rebuilt` (`PAUSED` standby)

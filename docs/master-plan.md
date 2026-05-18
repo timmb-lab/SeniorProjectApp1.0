@@ -10,6 +10,8 @@ Build a hosted Senior Capstone application for students, mentors, program teache
 
 The revised MVP is a secure, database-centered web app. It is not a static guide, a Figma-only prototype, a Canva asset library, or a fake dashboard. The database, account model, permissions, progress updates, audit logs, and deployment path are the product backbone.
 
+The immediate delivery target is sharper than the full MVP: by Day 7, the project needs a full-fledged alpha where the complete app flow works end to end even though production user accounts do not work yet. Count Monday, 2026-05-18 as Day 1 for this plan; the Day 7 alpha gate is end of day Sunday, 2026-05-24 PT. If a later run uses "seven days from now" language, 2026-05-25 is a buffer day, not the target.
+
 Figma can prototype account flows, data-backed states, role-aware dashboards, and handoff specs, but it must not be treated as the production account system, database, file store, or source of truth. MVP 1.0 requires a real application/backend foundation for identity, authorization, persistent records, private evidence, and audited workflow changes.
 
 MVP 1.0 must support:
@@ -27,6 +29,8 @@ MVP 1.0 must support:
 - Audit logs for sensitive actions.
 - Privacy-conscious handling of student records, uploads, exports, staff notes, and access control.
 - GitHub-connected deployment to Cloudflare Workers/Pages, with Cloudflare-managed production environments and a future Bryan-purchased custom domain.
+
+Day 7 alpha may temporarily defer production user-account readiness. It must still prove the whole user journey through seeded/demo personas, route guards, working forms, persisted or server-owned demo state where practical, dashboard updates, review/status transitions, and clear audit/activity history. Do not let login, password reset, invitation, account import, district SSO, or first-admin bootstrap hardening block the Day 7 alpha.
 
 Figma and Canva are major first-class inputs to the product experience. Figma should drive functional UI design, role-aware screens, implementation-ready specs, state coverage, and the daily guided prototype page that explains what today's real app progress means for users and the next ladder step. Canva should create stunning supporting images and visual assets that make the app feel polished without baking important live text or private data into images.
 
@@ -155,18 +159,75 @@ Acceptance criteria:
 - A GitHub-to-Cloudflare deployment path exists before the app is described as hosted.
 - Figma frames, variables, or plugin storage are not used as the production account, database, or evidence layer.
 
+## Day 7 Alpha Gate
+
+Target date:
+- Day 1: Monday, 2026-05-18.
+- Day 7 alpha due: Sunday, 2026-05-24 PT.
+
+Definition:
+- A full-fledged alpha is a working web app flow, not a visual prototype.
+- Production user accounts may be incomplete or disabled.
+- The app may use a role/persona switcher, seeded demo users, or a single local/preview bypass to represent student, mentor, program teacher, admin, and misc admin roles.
+- The alpha must make it obvious which account/security pieces are mocked, stubbed, or bypassed so nobody mistakes it for a safe pilot with real student records.
+
+Required alpha flows:
+- Student opens a dashboard, sees current phase, next action, due items, evidence needs, revision state, and program context.
+- Student completes and saves a guided proposal/research form, including section completeness and draft/revision status.
+- Student attaches evidence as links or upload metadata; real Google Drive file-byte upload can remain incomplete if the evidence flow, metadata, validation, and access states work.
+- Student submits, receives teacher feedback, revises, and resubmits.
+- Program teacher reviews a queue, opens submission detail, comments, requests revision, approves, and sees dashboard counts update.
+- Mentor sees assigned-student context, meeting/presentation risk cues, and scoped notes/actions.
+- Admin sees program/cohort overview, seeded user/group/program/cohort assignment surfaces, deadlines/templates, audit/activity history, export/archive controls, and override/reason states.
+- Misc admin has a narrow read/reporting-style view, not broad default admin access.
+- Status history, audit/activity timeline, and dashboard aggregates update when alpha actions happen.
+- Empty, loading, error, permission-denied, upload/evidence failure, revision-needed, approved, and blocked-submit states exist for the core flow.
+- The student path works on a mobile viewport without horizontal overflow.
+- The app can run locally from documented commands and should have Cloudflare preview/deployment evidence if the deployment path is not blocked.
+
+Account exception for alpha:
+- Production login, password reset, invitations, account import, first-admin bootstrap, credential lifecycle, district SSO, and full server-side account hardening are not required for Day 7 alpha.
+- Do not delete or abandon the real auth scaffold. Keep it behind the alpha flow as the post-alpha hardening path.
+- Permission behavior in alpha should be represented through route/persona scoping and tests where practical, but must be labeled as alpha-scoped until hardened accounts work.
+
+Day 7 acceptance checks:
+- A reviewer can run the app and complete the student -> teacher review -> revision/resubmission -> approval -> dashboard/audit update loop without editing code.
+- A reviewer can switch to staff/admin personas and inspect the same underlying seeded/demo records from role-appropriate views.
+- Core records and transitions are represented through app state, API routes, D1/local database, or a documented server-owned demo-state layer; they are not just static HTML.
+- The repo contains a Day 7 alpha runbook, known gaps, and exact post-alpha account/security tasks.
+- Real student data is not entered into alpha.
+
+Seven-day implementation ladder:
+1. Day 1, 2026-05-18: lock alpha scope, preserve Cloudflare/D1 scaffold, record the alpha exception for production accounts, and prioritize working flows over more broad design polish.
+2. Day 2, 2026-05-19: app shell, routing, role/persona switcher, seed/demo data, canonical programs, and local run path.
+3. Day 3, 2026-05-20: student dashboard, guided proposal/research form, save/draft/submit states, and evidence link/upload metadata flow.
+4. Day 4, 2026-05-21: program teacher review queue, comments, revision request, approval, resubmission loop, and status history.
+5. Day 5, 2026-05-22: mentor dashboard, admin overview, program/cohort/deadline/template surfaces, dashboard aggregates, and audit/activity timeline.
+6. Day 6, 2026-05-23: export/archive controls, announcements or admin notices, mobile student path, error/empty/permission states, and Cloudflare preview attempt.
+7. Day 7, 2026-05-24: alpha QA, bug fixes, runbook, known gaps, acceptance walk-through, and final alpha status commit.
+
+Post-alpha hardening starts after the Day 7 gate:
+- Hardened username/password account lifecycle.
+- First-admin bootstrap and credential rotation.
+- Import/invitation/provisioning flows.
+- Full server-side authorization tests.
+- Google Drive root folder and upload credentials.
+- Real private evidence access and retention controls.
+- Pilot-readiness security/privacy review.
+
 ## Milestone Path
 
 Use `docs/automation-milestones.md` for the detailed milestone checklist. The strategic order is:
 
 1. Operating base and shared memory.
 2. Cloudflare/GitHub architecture and scaffold.
-3. Secure database, auth, account/group, permission, progress, upload, and audit foundations.
-4. Admin preview and role-aware dashboard foundation.
-5. First proposal/research vertical slice.
-6. Remaining source-cycle workflows: mentor meetings, presentation, celebration, reflections, archive/export.
-7. Visual system, Canva image families, and Figma implementation coverage.
-8. Production hardening, custom domain readiness, and pilot readiness.
+3. Day 7 alpha flow completeness with seeded/demo personas and no production account requirement.
+4. Secure database, auth, account/group, permission, progress, upload, and audit foundations.
+5. Admin preview and role-aware dashboard foundation.
+6. First proposal/research vertical slice.
+7. Remaining source-cycle workflows: mentor meetings, presentation, celebration, reflections, archive/export.
+8. Visual system, Canva image families, and Figma implementation coverage.
+9. Production hardening, custom domain readiness, and pilot readiness.
 
 Earlier incomplete milestones beat later polish unless a P0/P1 risk says otherwise.
 
@@ -199,9 +260,9 @@ An accepted MVP pass must leave durable evidence: a pushed commit or published e
 
 Daily priority order:
 
-1. First accepted pass of the day should move implementation: scaffold, schema, auth, permissions, storage, tests, CI, deployment, or database-backed workflow.
-2. Second accepted pass should deepen or verify the same MVP path: tests, migration coverage, audit events, protected evidence, dashboard aggregate correctness, or deployment proof.
-3. Stretch pass can be Figma, Canva, audit, or docs only when it directly unblocks implementation or closes a concrete P0/P1 handoff.
+1. Until the Day 7 alpha gate is met, first accepted pass of the day should move a visible app flow: routing, role/persona switching, student workflow, teacher review, mentor/admin views, dashboard updates, evidence metadata, audit/activity history, mobile path, or alpha runbook.
+2. Second accepted pass should deepen or verify the same alpha path: working transitions, seeded/demo data, tests, local run proof, Cloudflare preview proof, error/empty/permission states, or bug fixes.
+3. Stretch pass can be Figma, Canva, audit, or docs only when it directly unblocks the Day 7 alpha or closes a concrete P0/P1 handoff.
 
 Weekly adjustment rule for this project only: the Sunday weekly deep audit reviews the last seven days of run manifests, run log entries, commits, backlog movement, handoffs, and audit findings. It then updates this master plan and `docs/automation-memory.md` with the next week's daily goal/allocation if evidence shows the plan is too loose, too aggressive, or pointed at the wrong lane. This weekly calibration may adjust goals and pass allocation, but it must not change automation schedules, workspace, model, reasoning effort, or status unless Bryan explicitly asks.
 
@@ -239,15 +300,15 @@ Use this allocation as the working budget until a committed implementation pass 
 8. Passes 91-97: harden deployment and operations: Cloudflare preview evidence, environment/secrets checklist, backup/export posture, accessibility/security QA, retention notes, and no-student-messaging verification.
 9. Passes 98-100: finish pilot readiness: staff provisioning checklist, seed/demo data posture without real student records, custom-domain readiness, final audit review, and Bryan-facing pilot checklist.
 
-Immediate next five passes should be implementation-heavy:
+Immediate next five passes should be alpha-flow implementation:
 
-1. Scaffold the accepted Cloudflare/TypeScript app with build/test/dev commands.
-2. Add database/storage configuration stubs, migration layout, and domain model types.
-3. Add users/groups/programs/cohorts/roles schema and seed loading for canonical programs, consuming Figma node `48:2` for provisioning states and permission guardrails.
-4. Add permission, `ProgressUpdate`, `StatusHistory`, `DashboardAggregate`, audit-event, and export-request primitives with focused tests, consuming Figma nodes `61:2` and `69:2` for transition/aggregate/audit/export guardrails.
-5. Add private `EvidenceArtifact` storage/link metadata model with signed URL/link-check/review-history tests.
+1. Create the alpha app shell, route map, role/persona switcher, seed/demo data loader, and local run command.
+2. Implement the student dashboard and guided proposal/research flow with save, draft, submit, evidence metadata, and blocked-submit states.
+3. Implement the teacher review queue, submission detail, comment, revision request, approval, resubmission, and status-history loop.
+4. Implement mentor/admin/misc-admin alpha views, dashboard aggregates, audit/activity timeline, deadlines/templates, and export/archive control surfaces.
+5. Add mobile student QA, empty/error/permission states, alpha runbook, known-gaps file, tests/smoke checks, and Cloudflare preview attempt.
 
-Do not spend the next several non-audit passes on additional broad Figma polish while `SC-005` remains in progress, unless rebuild hits a specific UI ambiguity that only Figma can resolve. The design side is currently ahead of the hosted-app foundation; the app now needs code, schema, tests, and Cloudflare deployment evidence.
+Do not spend the next several non-audit passes on additional broad Figma polish or production account hardening while the Day 7 alpha flow is incomplete, unless rebuild hits a specific UI/security ambiguity that blocks the alpha. The design side is currently ahead of the hosted app; the app now needs working routes, forms, transitions, demo data, tests/smoke checks, and preview evidence.
 
 ## Stack And Deployment Direction
 
@@ -272,11 +333,13 @@ Immediate setup order:
 
 1. Scaffold the TypeScript app/runtime, package scripts, local dev command, test runner, and deployment config.
 2. Add schema/migration tooling and the first database tables for users, groups, memberships, roles, programs, cohorts, progress, and audit events.
-3. Add hardened username/password auth/session integration behind a narrow app-owned interface so the exact provider can be swapped if school SSO later becomes available.
-4. Add server-side permission checks and tests before adding broad UI workflows.
-5. Add Google Drive evidence metadata and storage access patterns before accepting real uploads.
-6. Wire the first admin/student/teacher dashboard metrics only from server/database state.
-7. Connect Figma implementation specs to the real routes/components after the secure data boundary exists.
+3. Add an alpha persona/role switcher and seeded/demo users so every core app flow can work without production accounts by 2026-05-24.
+4. Wire student, teacher, mentor, admin, and misc-admin alpha routes to shared demo/server-owned state and status transitions.
+5. Add hardened username/password auth/session integration behind a narrow app-owned interface so the exact provider can be swapped if school SSO later becomes available.
+6. Add server-side permission checks and tests before using the alpha for real records.
+7. Add Google Drive evidence metadata and storage access patterns before accepting real uploads.
+8. Wire the first admin/student/teacher dashboard metrics only from server/database or explicit alpha demo state.
+9. Connect Figma implementation specs to the real routes/components after the secure data boundary exists.
 
 Current stack pressure:
 
@@ -353,6 +416,8 @@ Each run must log:
 Do not:
 
 - Build fake login screens and call that auth.
+- Let production account/login hardening block the Day 7 alpha; use clearly labeled seeded/demo personas for alpha instead.
+- Call the Day 7 alpha pilot-ready or safe for real student records while production accounts and hardened permissions are incomplete.
 - Use Figma variables, prototype state, plugins, or plugin storage as the app's production auth, database, evidence storage, or audit log.
 - Store student records in `localStorage`.
 - Build dashboards from client-only state.

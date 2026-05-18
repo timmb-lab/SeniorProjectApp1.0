@@ -8,6 +8,16 @@ These milestones keep the automation lanes pointed at the revised MVP: a secure 
 
 Bryan's current target is to reach MVP in 100 automation passes or fewer over roughly 45 days. This does not change automation cadence or ownership. It tightens the definition of a useful pass: each run should ship a concrete artifact, code slice, test, verified design spec, blocker closure, or implementation-ready handoff that reduces secure-hosted-MVP ambiguity.
 
+The urgent alpha target is earlier: count Monday, 2026-05-18 as Day 1, with a full app-flow alpha due by end of day Sunday, 2026-05-24 PT. Production user accounts do not have to work for that alpha, but the whole app flow must work through seeded/demo personas or a clearly labeled role switcher.
+
+Day 7 alpha must prove:
+- Student dashboard, guided proposal/research, evidence metadata/link flow, submit, revise, and resubmit.
+- Program teacher review queue, comments, revision request, approval, and status history.
+- Mentor, admin, and misc-admin role views with scoped demo visibility.
+- Dashboard aggregates and audit/activity history updating from app state, API routes, D1/local database, or another documented server-owned demo-state layer.
+- Mobile-safe student path, error/empty/permission states, alpha runbook, known gaps, and no real student data.
+- Clear labeling that production login/account lifecycle, first-admin bootstrap, password reset, imports/invitations, district SSO, and hardened permission tests are post-alpha hardening tasks.
+
 ## M0 - Operating Base
 
 Goal:
@@ -82,6 +92,36 @@ Primary owner:
 
 Support:
 - Audit checks FERPA-conscious handling and consistency.
+
+## M2A - Day 7 Full App-Flow Alpha
+
+Goal:
+- By Sunday, 2026-05-24 PT, create a full-fledged alpha where every core Senior Capstone flow works without production user accounts.
+
+Allowed alpha shortcut:
+- Use seeded/demo personas or a role switcher for student, mentor, program teacher, admin, and misc admin.
+- Keep production username/password login, first-admin bootstrap, account import/invitation, password reset, and district SSO out of the Day 7 critical path.
+
+Required outputs:
+- App shell and route map.
+- Role/persona switcher or alpha bypass clearly labeled as not production auth.
+- Seed/demo data for the canonical programs and representative student/staff records.
+- Student dashboard and guided proposal/research workflow.
+- Evidence link/upload metadata flow with failure and permission states.
+- Teacher review queue, comments, revision request, approval, resubmission, and status history.
+- Mentor dashboard and scoped assigned-student view.
+- Admin program/cohort/deadline/template/dashboard/audit/export surfaces.
+- Misc-admin narrow reporting/read view.
+- Dashboard aggregates and audit/activity timeline that update after alpha actions.
+- Mobile student path without horizontal overflow.
+- Alpha runbook, known gaps, and post-alpha account/security hardening list.
+
+Primary owner:
+- Core rebuild.
+
+Support:
+- Figma supplies route/state/handoff references only when implementation hits ambiguity.
+- Audit verifies alpha truthfulness, known gaps, and no-real-student-data handling.
 
 ## M3 - Admin Preview And Progress Vertical Slice
 
