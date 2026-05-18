@@ -50,3 +50,13 @@ Decision status values:
 - `applies to`: all Senior Capstone automations, including daily reporting
 - `source`: user request: "the goal is self improverment as it goes... they should also update their own scripts as they go if they see room for improvement"
 - `last updated`: 2026-05-18
+
+### D-2026-05-18-005
+
+- `status`: accepted
+- `area`: automation operations and quality governance
+- `decision`: Add `senior-capstone-weekly-deep-audit`, a Sunday `23:30 PT` automation that performs a long, severe, piece-by-piece audit of the whole Senior Capstone product and feeds durable findings into `docs/master-plan.md`, `docs/audits/weekly-deep-audit.md`, `docs/progress/weekly-deep-audit.md`, `docs/automation-memory.md`, `docs/automation-backlog.md`, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, and `docs/progress/run-log.md`.
+- `reason`: Weekly human check-ins need a deeper synthesis than the rotating lane jobs and daily summaries provide. The project needs an explicit quality-governance loop that finds weak spots, stale plans, fake progress, missing app foundations, and automation drift.
+- `applies to`: all Senior Capstone automation lanes, weekly reporting/audit flow, master-plan upkeep, backlog and handoff governance
+- `source`: user request: "A weekly automation that does a LONG LONG LONG HUGE HUGE HUGE PIECE BY PIECE BIT BY BIT AUDIT ON WHERE AND HOW IT CAN BE IMPROVED FED INTO MSATER PLAN AND THE LOGS"
+- `last updated`: 2026-05-18

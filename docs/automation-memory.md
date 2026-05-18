@@ -24,6 +24,7 @@ This is not a static guide, brochure, or visual-only project.
 - Every main lane and the daily reporting automation now reference `docs/master-plan.md` along with the logs.
 - Daily automation summaries and the Google Drive/Doc target should use `bryan.timm89@gmail.com`.
 - Every main lane and the daily reporting automation now use `docs/automation-self-improvement.md` to self-review, log whether prompt/config changes were needed, and update only their own live automation prompt/config when evidence justifies it.
+- A weekly deep audit automation, `senior-capstone-weekly-deep-audit`, now runs Sundays at `23:30 PT` to produce a severe whole-system audit and feed durable findings into the master plan, memory, backlog, handoffs, decision log, and run logs.
 
 ## Current Priority
 
@@ -76,6 +77,7 @@ Read `docs/progress/decision-log.md` for accepted or superseded decisions.
 - `D-2026-05-18-002`: `docs/master-plan.md` is the top-level product plan.
 - `D-2026-05-18-003`: daily automation summaries and Google Drive/Doc target account use `bryan.timm89@gmail.com`.
 - `D-2026-05-18-004`: automations may improve their own prompt/config from evidence using the guarded self-improvement protocol, while preserving schedule/workspace/model/status unless the user explicitly asks otherwise.
+- `D-2026-05-18-005`: run a weekly deep audit automation to perform a long piece-by-piece whole-system review and feed findings back into the master plan and logs.
 
 ## Handoff Rules
 

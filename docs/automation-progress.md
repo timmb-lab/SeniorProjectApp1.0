@@ -668,3 +668,35 @@ What changed:
 
 Recommended next slice:
 - Each live automation should read `docs/automation-self-improvement.md`, run the closeout check every time, and preserve product progress as the default work.
+
+## 2026-05-18 Weekly Deep Audit Automation
+
+Intent:
+- Add a weekly whole-system audit that goes piece by piece through the product, repo, automation logs, source-framework coverage, design assets, implementation reality, backlog, and master plan.
+
+Automation created:
+- `senior-capstone-weekly-deep-audit`
+
+Schedule:
+- Sundays at `23:30 PT`.
+
+What it audits:
+- Hosted-app reality versus static/docs/visual-only progress.
+- Source PDF and `data/capstone-framework.json` coverage.
+- All nine programs.
+- Roles, permissions, auth, private upload/evidence storage, audit logs, exports, dashboards, and first vertical slice.
+- Data model, implementation quality, tests, CI/deployment readiness, Figma readiness, Canva usefulness, accessibility, privacy/compliance posture, automation health, log quality, backlog health, and weekly human check-in readiness.
+
+Required outputs:
+- `docs/audits/weekly-deep-audit.md`
+- `docs/progress/weekly-deep-audit.md`
+- Updates to master plan, memory, run log, handoffs, decision log, and backlog when materially needed.
+- Lane/human handoffs with exact acceptance checks.
+- `audit:` commit and push.
+
+Verification:
+- Automation tool confirmed creation.
+- Repo docs now record the job, schedule, expected outputs, and decision `D-2026-05-18-005`.
+
+Recommended next slice:
+- Let the first Sunday run generate the initial whole-system audit, then use the Monday daily report and weekly human check-in to decide which P0/P1 items need immediate attention.

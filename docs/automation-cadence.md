@@ -16,6 +16,7 @@ Shared milestones: `docs/automation-milestones.md`.
 Shared curriculum framework: `data/capstone-framework.json` and `docs/curriculum-framework-integration.md`.
 Daily reporting notes: `docs/daily-automation-reporting.md`.
 Self-improvement protocol: `docs/automation-self-improvement.md`.
+Weekly deep audit log: `docs/progress/weekly-deep-audit.md`.
 
 ## Shared Operating Contract
 
@@ -211,3 +212,17 @@ Reporting job:
 Fallback:
 - If Google Drive write access is blocked, the report should still be emailed and should also be written to `docs/daily-automation-reports.md`.
 - Google Drive create/import returned `403 Forbidden` during setup on 2026-05-18, so Drive reauthorization with write access for `bryan.timm89@gmail.com` may be required before the Google Doc append path succeeds.
+
+## Weekly Deep Audit Automation
+
+Weekly audit job:
+- Automation: `senior-capstone-weekly-deep-audit`
+- Schedule: Sundays at `23:30`.
+- Purpose: run a long, severe, piece-by-piece audit of the whole Senior Capstone product, repo, source-framework coverage, app-readiness, security/privacy posture, dashboard usefulness, Figma/Canva usefulness, backlog health, log quality, automation health, and weekly human check-in readiness.
+
+Required outputs:
+- Create or update `docs/audits/weekly-deep-audit.md` with severity-ranked findings, evidence, owner lane, acceptance checks, and next actions.
+- Append a detailed entry to `docs/progress/weekly-deep-audit.md`.
+- Update `docs/automation-backlog.md`, `docs/progress/handoffs.md`, `docs/automation-memory.md`, `docs/progress/decision-log.md`, and `docs/progress/run-log.md` when the audit discovers durable findings, blockers, handoffs, or decisions.
+- Update `docs/master-plan.md` only when the product destination, source-of-truth order, milestone path, anti-drift rules, or weekly check-in questions materially need correction.
+- Commit with prefix `audit:` and push the current branch.
