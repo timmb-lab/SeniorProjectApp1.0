@@ -296,7 +296,7 @@ Because of that gap, the next useful 100-pass plan must prioritize implementatio
 
 ### 2026-05-18 Category Automation Reset
 
-Bryan explicitly reset the Senior Capstone automation setup on 2026-05-18. The prior active/standby automation model is superseded by seven active MVP category runners, each scheduled four times per day with staggered non-overlapping start slots:
+Bryan explicitly reset the Senior Capstone automation setup on 2026-05-18. The prior active/standby automation model is superseded by seven active MVP category runners:
 
 - `requirements-audit`
 - `backend-security-data`
@@ -306,7 +306,21 @@ Bryan explicitly reset the Senior Capstone automation setup on 2026-05-18. The p
 - `deployment-qa`
 - `design-assets-handoff`
 
-The requirement catalog in `docs/mvp-requirements-catalog.md` is now the pass ladder between this master plan and individual run work. The schedule is execution capacity, not a target to count 28 accepted passes per day. Keep the daily accepted-pass goal at 2 minimum, 3 stretch, until the weekly evidence review changes it.
+The requirement catalog in `docs/mvp-requirements-catalog.md` is now the pass ladder between this master plan and individual run work. The schedule is execution capacity, not a target to count scheduled starts as accepted passes. Keep the daily accepted-pass goal at 2 minimum, 3 stretch, until the weekly evidence review changes it.
+
+### 2026-05-18 Hourly Category Automation Escalation
+
+Bryan explicitly asked for the automation to run as many times per day as practical with no human approvals, logging, laddering, and self-improvement to scripts as it goes. The seven active category runners now run hourly with distinct minute offsets, producing 168 scheduled starts per day and 24 starts per category per day:
+
+- `requirements-audit`: hourly at `:03`.
+- `backend-security-data`: hourly at `:11`.
+- `student-workflow-evidence`: hourly at `:19`.
+- `staff-review-mentor`: hourly at `:27`.
+- `admin-ops-reporting`: hourly at `:35`.
+- `deployment-qa`: hourly at `:43`.
+- `design-assets-handoff`: hourly at `:51`.
+
+This cadence is the Codex GUI-facing source of truth. It is intentionally aggressive, but the accepted-pass goal remains evidence-based rather than schedule-count based: hourly runs should move, verify, or log one bounded requirement slice, and they should write a committed blocker instead of waiting for human approval when external account/tool authorization is missing.
 
 ### Updated 100-Pass Allocation From Current State
 

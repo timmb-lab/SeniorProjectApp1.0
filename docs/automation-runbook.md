@@ -44,7 +44,7 @@ approval_mode = "approve"
 
 If a grant is missing, Bryan must run the action once while present and choose `Always allow`, or the automation must skip that connector write and use its committed repo fallback. Do not rely on a future unattended run to click approval. For email reporting, prefer drafts over direct sends unless Bryan has explicitly approved unattended sending.
 
-## Project Script Auto-Approval Rule
+## No-Human-Approval Script Rule
 
 Senior Capstone project scripts must be safe for unattended automation. Automations should run repo scripts with explicit non-interactive execution flags:
 
@@ -52,7 +52,7 @@ Senior Capstone project scripts must be safe for unattended automation. Automati
 powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\<script-name>.ps1
 ```
 
-Scripts in `scripts/` must not use `Read-Host`, `PromptForChoice`, `Pause`, or ad hoc confirmation gates. If a script needs a risky external or destructive action, it should require an explicit command-line flag and otherwise choose the safe repo-only path. Unattended automations should not wait for approvals inside scripts; they should use saved approval grants, safe defaults, or committed blocker records with exact next action.
+Scripts in `scripts/` must not use `Read-Host`, `PromptForChoice`, `Pause`, `prompt()`, `confirm()`, `readline`, `inquirer`, stdin waits, or ad hoc confirmation gates. If a script needs a risky external or destructive action, it should require an explicit command-line flag and otherwise choose the safe repo-only path. Unattended automations should not wait for approvals inside scripts; they should use saved approval grants, safe defaults, or committed blocker records with exact next action.
 
 ## Backend Account/Provisioning Rule
 
@@ -68,7 +68,7 @@ If those account/provisioning pieces are missing, rebuild should still scaffold 
 
 ## Category Runner No-Intervention Contract
 
-The Senior Capstone automation system now uses seven active MVP requirement category runners. Each category runs four times per day on a staggered schedule recorded in `docs/automation-cadence.md`, with no shared scheduled start slots. The older orchestrator, standby lanes, daily prototype job, and separate weekly audit job are superseded by these category runners.
+The Senior Capstone automation system now uses seven active MVP requirement category runners. Each category runs hourly on a staggered schedule recorded in `docs/automation-cadence.md`, with no shared scheduled start slots. The older orchestrator, standby lanes, daily prototype job, and separate weekly audit job are superseded by these category runners.
 
 Each category runner should resolve everything it can resolve from accepted docs, repo evidence, saved connector approvals, and safe fallbacks. It should not stop for a human when it can:
 
@@ -217,7 +217,7 @@ At the end of every run, leave enough memory for the next lane to continue witho
 - Create a structured run manifest in `docs/progress/runs/` for every productive run.
 - Update `docs/artifacts.json` whenever creating, superseding, verifying, or consuming a durable external artifact.
 - Update `docs/human-decisions.md` when a decision needs Bryan's judgment, account access, provisioning, budget, privacy approval, or school-operation confirmation.
-- Run the self-improvement closeout from `docs/automation-self-improvement.md`: record `self-improvement: none` when no prompt/config change is justified, or update only the automation's own prompt/config with evidence and a log entry when a narrow change is justified.
+- Run the self-improvement closeout from `docs/automation-self-improvement.md`: record `self-improvement: none` when no prompt/config/script change is justified, or update only the automation's own prompt/config plus the smallest relevant project script with evidence and a log entry when a narrow change is justified.
 - If a script/checker/snapshot/manifest failure is reproducible and repairable inside the repo, patch it before ordinary product work or record a compact blocker with the exact command, error, suspected file, and next action.
 - If a live automation prompt/config changed, run `scripts/snapshot-automation-prompts.ps1`, then run `scripts/check-automation-contract.ps1`, and commit the updated prompt snapshots.
 - If the master planner, pass logger, or self-patching contract changed, update `scripts/check-automation-contract.ps1` in the same pass when the checker needs to enforce the new rule.

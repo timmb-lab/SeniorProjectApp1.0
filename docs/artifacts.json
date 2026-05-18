@@ -548,9 +548,9 @@
         "scripts/snapshot-automation-prompts.ps1"
       ],
       "verification": [
-        "Category schedules are staggered with no shared Senior Capstone start slots.",
-        "Each category runs 4x/day and ladders from docs/master-plan.md plus docs/mvp-requirements-catalog.md.",
-        "Contract checker validates category automation IDs, snapshots, schedules, required prompt fragments, JSON manifests, and non-interactive project scripts."
+        "Category schedules are hourly with staggered GUI-visible minute offsets and no shared Senior Capstone start slots.",
+        "Each category runs 24x/day and ladders from docs/master-plan.md plus docs/mvp-requirements-catalog.md.",
+        "Contract checker validates category automation IDs, GUI-facing names, snapshots, hourly schedules, required prompt fragments, all MVP requirement coverage, JSON manifests, and non-interactive project scripts."
       ],
       "last_updated": "2026-05-18"
     }

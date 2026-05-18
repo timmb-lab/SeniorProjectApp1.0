@@ -2,7 +2,7 @@
 
 Date: 2026-05-18
 
-Bryan explicitly reset the Senior Capstone automation setup on 2026-05-18. The prior project automations were deleted from the active local automation set and replaced with seven MVP requirement category runners. Each category runs four times per day in America/Los_Angeles, with staggered start slots so no two Senior Capstone category automations share a scheduled start.
+Bryan explicitly reset the Senior Capstone automation setup on 2026-05-18, then explicitly escalated the cadence the same day. The prior project automations were deleted from the active local automation set and replaced with seven MVP requirement category runners. Each category now runs hourly in America/Los_Angeles, with distinct minute offsets so no two Senior Capstone category automations share a scheduled start.
 
 End goal: a GitHub-to-Cloudflare hosted Senior Capstone app whose MVP is a secure database-backed operating system with users, groups, roles, programs, cohorts, progress updates, submissions, private evidence, reviews, approvals, dashboards, announcements, admin controls, audit logs, exports, and protected student records.
 
@@ -25,15 +25,15 @@ Contract checker: `scripts/check-automation-contract.ps1`.
 
 | Category | Automation ID | Schedule PT | RRULE | Primary output |
 | --- | --- | --- | --- | --- |
-| Requirements + Audit | `senior-capstone-mvp-requirements-audit` | `00:05`, `06:05`, `12:05`, `18:05` | `FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=0,6,12,18;BYMINUTE=5` | Requirement catalog, backlog hygiene, accepted-pass count, weekly calibration. |
-| Backend Security + Data | `senior-capstone-backend-security-data` | `00:55`, `06:55`, `12:55`, `18:55` | `FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=0,6,12,18;BYMINUTE=55` | Auth, users, groups, roles, permissions, D1 schema, server authorization. |
-| Student Workflow + Evidence | `senior-capstone-student-workflow-evidence` | `01:45`, `07:45`, `13:45`, `19:45` | `FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=1,7,13,19;BYMINUTE=45` | Student dashboard, proposal/research, progress, evidence metadata, mobile student path. |
-| Staff Review + Mentor | `senior-capstone-staff-review-mentor` | `02:35`, `08:35`, `14:35`, `20:35` | `FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=2,8,14,20;BYMINUTE=35` | Teacher review, revision, approval, comments, mentor meetings, presentation scheduling. |
-| Admin Ops + Reporting | `senior-capstone-admin-ops-reporting` | `03:25`, `09:25`, `15:25`, `21:25` | `FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=3,9,15,21;BYMINUTE=25` | Admin provisioning, deadlines/templates, announcements, exports, audit views, misc-admin narrowing. |
-| Deployment QA + CI | `senior-capstone-deployment-qa` | `04:15`, `10:15`, `16:15`, `22:15` | `FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=4,10,16,22;BYMINUTE=15` | Cloudflare preview/prod proof, CI, smoke tests, secrets/env checks, backup/readiness notes. |
-| Design Assets + Handoff | `senior-capstone-design-assets-handoff` | `05:05`, `11:05`, `17:05`, `23:05` | `FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=5,11,17,23;BYMINUTE=5` | Figma implementation specs, Canva supporting imagery, component/state handoffs, guided prototype. |
+| Requirements + Audit | `senior-capstone-mvp-requirements-audit` | hourly at `:03` | `FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23;BYMINUTE=03` | Requirement catalog, backlog hygiene, accepted-pass count, weekly calibration. |
+| Backend Security + Data | `senior-capstone-backend-security-data` | hourly at `:11` | `FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23;BYMINUTE=11` | Auth, users, groups, roles, permissions, D1 schema, server authorization. |
+| Student Workflow + Evidence | `senior-capstone-student-workflow-evidence` | hourly at `:19` | `FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23;BYMINUTE=19` | Student dashboard, proposal/research, progress, evidence metadata, mobile student path. |
+| Staff Review + Mentor | `senior-capstone-staff-review-mentor` | hourly at `:27` | `FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23;BYMINUTE=27` | Teacher review, revision, approval, comments, mentor meetings, presentation scheduling. |
+| Admin Ops + Reporting | `senior-capstone-admin-ops-reporting` | hourly at `:35` | `FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23;BYMINUTE=35` | Admin provisioning, deadlines/templates, announcements, exports, audit views, misc-admin narrowing. |
+| Deployment QA + CI | `senior-capstone-deployment-qa` | hourly at `:43` | `FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23;BYMINUTE=43` | Cloudflare preview/prod proof, CI, smoke tests, secrets/env checks, backup/readiness notes. |
+| Design Assets + Handoff | `senior-capstone-design-assets-handoff` | hourly at `:51` | `FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23;BYMINUTE=51` | Figma implementation specs, Canva supporting imagery, component/state handoffs, guided prototype. |
 
-This creates 28 Senior Capstone starts per day, four per category. The start slots are about 50 minutes apart inside each six-hour cycle. Each runner must keep its own slice bounded and must not overwrite unrelated dirty work. If the worktree is dirty because another category run is still closing, the runner should classify the dirty files, avoid staging unrelated changes, and either pick a non-conflicting read-only/verification slice or record a compact blocker.
+This creates 168 Senior Capstone starts per day, 24 per category. The GUI-visible minute offsets are staggered across each hour so there are no exact scheduled start overlaps. Each runner must keep its own slice bounded, favor implementation or verification evidence, and must not overwrite unrelated dirty work. If the worktree is dirty because another category run is still closing, the runner should classify the dirty files, avoid staging unrelated changes, and either pick a non-conflicting read-only/verification slice or record a compact committed blocker.
 
 ## Shared Operating Contract
 
@@ -47,16 +47,16 @@ Every category automation must:
 - Update `docs/mvp-requirements-catalog.md` when status, evidence, blocker, or acceptance checks materially change.
 - Update the relevant progress log, `docs/progress/run-log.md`, and one structured manifest in `docs/progress/runs/`.
 - Update `docs/automation-memory.md`, handoffs, decisions, backlog, artifacts, or human decisions when materially needed.
-- Run the self-improvement closeout: record `self-improvement: none` when no prompt/config change is justified, or update only its own prompt/config when evidence and tool availability justify it.
+- Run the self-improvement closeout: record `self-improvement: none` when no prompt/config/script change is justified, or update only its own prompt/config and the smallest relevant project script when evidence and tool availability justify it.
 - If automation prompts/configs changed, regenerate `docs/automation-prompts/` with `scripts/snapshot-automation-prompts.ps1`, update `scripts/check-automation-contract.ps1` when the contract changed, and run the checker.
 - Validate touched files with the strongest available checks.
 - Commit and push repo changes with a category-appropriate prefix, staging only files touched by the current run.
 
-Publication/script auto-approval hard rule:
+No-Human-Approval Script Rule:
 
 - Do not end with local-only repo changes.
 - Run project scripts non-interactively with `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\<script-name>.ps1`.
-- Project scripts in `scripts/` must not use `Read-Host`, `PromptForChoice`, `Pause`, or ad hoc confirmation gates.
+- Project scripts in `scripts/` must not use `Read-Host`, `PromptForChoice`, `Pause`, `prompt()`, `confirm()`, `readline`, `inquirer`, stdin waits, or ad hoc confirmation gates.
 - If a connector, OAuth scope, Cloudflare auth, Wrangler, or external policy blocks the task, write a committed blocker with the exact next account/tool action instead of waiting silently.
 
 ## Category Ownership

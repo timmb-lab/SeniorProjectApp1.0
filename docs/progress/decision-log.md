@@ -253,10 +253,22 @@ Decision status values:
 
 - `status`: accepted
 - `area`: automation reset, MVP requirement categories, and 100-pass laddering
-- `decision`: Delete the prior Senior Capstone active/standby automation setup and replace it with seven active MVP requirement category runners. Each category runs 4x/day with staggered non-overlapping start slots and ladders from `docs/master-plan.md` into `docs/mvp-requirements-catalog.md`.
+- `decision`: Delete the prior Senior Capstone active/standby automation setup and replace it with seven active MVP requirement category runners. The original reset used 4x/day per category; this schedule is superseded by `D-2026-05-18-025`.
 - `categories`: `requirements-audit`, `backend-security-data`, `student-workflow-evidence`, `staff-review-mentor`, `admin-ops-reporting`, `deployment-qa`, and `design-assets-handoff`.
 - `reason`: Bryan explicitly asked to categorize all core MVP requirements, delete all project automation setup, start from scratch, and create thorough self-evolving automation that runs 4x/day per category without overlapping the others.
 - `applies to`: local Senior Capstone automation TOMLs, `docs/automation-cadence.md`, `docs/mvp-requirements-catalog.md`, prompt snapshots, `scripts/check-automation-contract.ps1`, `scripts/snapshot-automation-prompts.ps1`, master plan, memory, backlog, handoffs, and future run manifests.
-- `guardrail`: The 28 daily category starts are capacity, not a requirement to count 28 accepted MVP passes per day. The real daily target remains minimum 2 accepted MVP passes, stretch 3 when unblocked, and at least 14 accepted passes per week.
+- `guardrail`: The original 28 daily category starts were capacity, not accepted-pass count; current capacity is superseded by `D-2026-05-18-025`. The real daily target remains minimum 2 accepted MVP passes, stretch 3 when unblocked, and at least 14 accepted passes per week.
 - `source`: User request on 2026-05-18: "Figure out and categorize all vcore MVP requiremennts for the app - then delete ALL automation set up for this project ... start from scratch and give me automation that runs 4x per day per category without overlapping the otehrs"
 - `last updated`: 2026-05-18 12:35 PT
+
+### D-2026-05-18-025
+
+- `status`: accepted
+- `area`: hourly automation escalation, no-human-approval scripts, Codex GUI visibility
+- `decision`: Escalate the seven active Senior Capstone MVP category runners to hourly execution with GUI-facing hourly names, staggered minute offsets, no project-script human approval gates, required logging/laddering, and self-improvement to scripts/checkers as evidence requires.
+- `schedule`: `requirements-audit` at `:03`, `backend-security-data` at `:11`, `student-workflow-evidence` at `:19`, `staff-review-mentor` at `:27`, `admin-ops-reporting` at `:35`, `deployment-qa` at `:43`, and `design-assets-handoff` at `:51` every hour in America/Los_Angeles.
+- `guardrail`: The 168 daily category starts are capacity, not accepted-pass count. Each run should move, verify, log, or commit a precise blocker for one bounded requirement slice rather than waiting for human approval.
+- `reason`: Bryan explicitly asked to ensure this automation runs as many times per day as possible with no human approvals, logging, laddering, self-improvement to script as it goes, and correct Codex GUI presentation.
+- `applies to`: local Senior Capstone automation TOMLs, `docs/automation-cadence.md`, `docs/automation-runbook.md`, `docs/automation-memory.md`, `docs/master-plan.md`, prompt snapshots, `scripts/check-automation-contract.ps1`, and future run manifests.
+- `source`: User request on 2026-05-18: "Ensure this is running as many times a day as possible with no human approvals, logging, laddering, and self improvement to script as you go -- ensure that it's showing coirrectly in the Codex GUI too"
+- `last updated`: 2026-05-18 12:55 PT

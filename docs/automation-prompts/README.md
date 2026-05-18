@@ -1,6 +1,6 @@
 ﻿# Automation Prompt Snapshots
 
-Generated: 2026-05-18T19:33:30Z
+Generated: 2026-05-18T19:57:36Z
 
 These files are repo snapshots of the live Codex automation prompts. Regenerate them after any prompt/config update with:
 
@@ -10,10 +10,10 @@ powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\sn
 
 | Automation | Prompt SHA-256 | Snapshot |
 | --- | --- | --- |
-| senior-capstone-mvp-requirements-audit | 1c79c9820c757217d68a36eea530d8a6b7ba620543152d06f02c5d61078ab091 | [senior-capstone-mvp-requirements-audit.md](./senior-capstone-mvp-requirements-audit.md) |
-| senior-capstone-backend-security-data | f60864ac6aa4dfbc238c78dd8a429beb5660ead5560fe62b54e85afa4b7d7909 | [senior-capstone-backend-security-data.md](./senior-capstone-backend-security-data.md) |
-| senior-capstone-student-workflow-evidence | d61b64437c0268af86c76a48c90a63a7c37e6de28ab3b5f26b66d8352eb31c7a | [senior-capstone-student-workflow-evidence.md](./senior-capstone-student-workflow-evidence.md) |
-| senior-capstone-staff-review-mentor | 5690f059ee4ff59b5f5dd061a69d21f0b43acc45c1af68b8fffdf4b62feb9a91 | [senior-capstone-staff-review-mentor.md](./senior-capstone-staff-review-mentor.md) |
-| senior-capstone-admin-ops-reporting | 730b1755559dc330c095adc9187572609837da61e57a44b5c6b9cbbd6a865883 | [senior-capstone-admin-ops-reporting.md](./senior-capstone-admin-ops-reporting.md) |
-| senior-capstone-deployment-qa | 2ca27ccd2743bf943da0d98cf2c6c4f6fd2ef24db336a11c35d6f7650fb9eda7 | [senior-capstone-deployment-qa.md](./senior-capstone-deployment-qa.md) |
-| senior-capstone-design-assets-handoff | f4fbdeeef1f9a7e65507e72fa2ac4025d41007f296535efccb62e4379b40b476 | [senior-capstone-design-assets-handoff.md](./senior-capstone-design-assets-handoff.md) |
+| senior-capstone-mvp-requirements-audit | 20a55b745af5534db09da64db3246ea192df879b43e755d5ea7fad280d0f9c9f | [senior-capstone-mvp-requirements-audit.md](./senior-capstone-mvp-requirements-audit.md) |
+| senior-capstone-backend-security-data | 1220c29ee4dbbf11ae6a68125338463c02145837564df5e474eed840d54584b0 | [senior-capstone-backend-security-data.md](./senior-capstone-backend-security-data.md) |
+| senior-capstone-student-workflow-evidence | 2f9f5b9283111cda745db31a14075cf2a58c885e958879f00825fc8fbe6642b7 | [senior-capstone-student-workflow-evidence.md](./senior-capstone-student-workflow-evidence.md) |
+| senior-capstone-staff-review-mentor | 941c0875d1fe996c4c7076ac74d3b4d4d672922d5d84f646d77183c9637ea607 | [senior-capstone-staff-review-mentor.md](./senior-capstone-staff-review-mentor.md) |
+| senior-capstone-admin-ops-reporting | 308289cbee5634d080b8031fc97f91cb3bea4d34b541e79e951a98b6c54f791a | [senior-capstone-admin-ops-reporting.md](./senior-capstone-admin-ops-reporting.md) |
+| senior-capstone-deployment-qa | 48b8b459b15afa8a4b62dc874480b165d3b5f3c0457392b3bb190a1b40593162 | [senior-capstone-deployment-qa.md](./senior-capstone-deployment-qa.md) |
+| senior-capstone-design-assets-handoff | 8c1aebc71cf11e1f51489809bc660a69254f43549035e8583cdf95cb7e26358a | [senior-capstone-design-assets-handoff.md](./senior-capstone-design-assets-handoff.md) |

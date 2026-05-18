@@ -810,7 +810,7 @@ Intent:
 What changed:
 - Added `docs/mvp-requirements-catalog.md` with 30 categorized core MVP requirements, owner categories, current evidence, statuses, and acceptance evidence.
 - Replaced the old local Senior Capstone automation TOMLs with seven active category runners: requirements/audit, backend security/data, student workflow/evidence, staff review/mentor, admin ops/reporting, deployment QA/CI, and design assets/handoff.
-- Each category now runs 4x/day with staggered non-overlapping start slots, about 50 minutes apart inside each six-hour cycle.
+- Each category originally ran 4x/day with staggered non-overlapping start slots, about 50 minutes apart inside each six-hour cycle. This schedule is superseded by the hourly escalation below.
 - Updated prompt snapshots, snapshot generation, contract checker, cadence, master plan, memory, runbook, backlog, handoffs, decisions, artifact registry, weekly audit notes, and daily reporting notes.
 
 Verification:
@@ -819,3 +819,22 @@ Verification:
 
 Recommended next slice:
 - Deployment QA should verify the Cloudflare alpha route/API or commit the exact auth/Wrangler blocker; backend should verify first-admin bootstrap and broaden permission/protected-evidence tests.
+
+## 2026-05-18 Hourly Category Automation Escalation
+
+Intent:
+- Increase the Senior Capstone automation cadence as much as practical while keeping seven clear GUI-visible category cards, required logging, laddering, and no project-script human approvals.
+
+What changed:
+- Updated all seven local Codex automation TOMLs to GUI-facing `Senior Capstone Hourly ...` names.
+- Escalated each category to hourly execution: requirements/audit `:03`, backend security/data `:11`, student workflow/evidence `:19`, staff review/mentor `:27`, admin ops/reporting `:35`, deployment QA/CI `:43`, and design assets/handoff `:51`.
+- The active schedule now creates 168 Senior Capstone starts/day and 24 starts/category/day.
+- Live prompts now require no human approvals inside project scripts and self-improvement to prompts/config/scripts/checkers when evidence justifies it.
+- Updated prompt snapshots, cadence, master plan, runbook, memory, decisions, artifact registry, logs, and contract checker.
+
+Verification:
+- `scripts/check-automation-contract.ps1 -RepoRoot .` passed for all 7 hourly category automations.
+- The checker now enforces GUI-facing names, hourly RRULEs, 168 daily starts, full `MVP-001` through `MVP-030` prompt coverage, and interactive-prompt bans across PowerShell and JavaScript project scripts.
+
+Recommended next slice:
+- Let the hourly category runs attack the highest-risk MVP gaps: protected evidence permissions, Drive upload/OAuth, source-framework seed loader, production workflow endpoints/history, account lifecycle, and deployment verification.

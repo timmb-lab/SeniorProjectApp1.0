@@ -26,41 +26,43 @@ $legacyAutomationIds = @(
     "senior-capstone-weekly-deep-audit-rebuilt"
 )
 
+$allHoursRRule = (0..23) -join ","
+
 $expectedAutomationConfig = @{
     "senior-capstone-mvp-requirements-audit" = @{
-        Name = "Senior Capstone MVP Requirements + Audit"
+        Name = "Senior Capstone Hourly MVP Requirements + Audit"
         Status = "ACTIVE"
-        RRule = "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=0,6,12,18;BYMINUTE=5"
+        RRule = "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=$allHoursRRule;BYMINUTE=03"
     }
     "senior-capstone-backend-security-data" = @{
-        Name = "Senior Capstone Backend Security + Data"
+        Name = "Senior Capstone Hourly Backend Security + Data"
         Status = "ACTIVE"
-        RRule = "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=0,6,12,18;BYMINUTE=55"
+        RRule = "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=$allHoursRRule;BYMINUTE=11"
     }
     "senior-capstone-student-workflow-evidence" = @{
-        Name = "Senior Capstone Student Workflow + Evidence"
+        Name = "Senior Capstone Hourly Student Workflow + Evidence"
         Status = "ACTIVE"
-        RRule = "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=1,7,13,19;BYMINUTE=45"
+        RRule = "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=$allHoursRRule;BYMINUTE=19"
     }
     "senior-capstone-staff-review-mentor" = @{
-        Name = "Senior Capstone Staff Review + Mentor"
+        Name = "Senior Capstone Hourly Staff Review + Mentor"
         Status = "ACTIVE"
-        RRule = "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=2,8,14,20;BYMINUTE=35"
+        RRule = "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=$allHoursRRule;BYMINUTE=27"
     }
     "senior-capstone-admin-ops-reporting" = @{
-        Name = "Senior Capstone Admin Ops + Reporting"
+        Name = "Senior Capstone Hourly Admin Ops + Reporting"
         Status = "ACTIVE"
-        RRule = "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=3,9,15,21;BYMINUTE=25"
+        RRule = "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=$allHoursRRule;BYMINUTE=35"
     }
     "senior-capstone-deployment-qa" = @{
-        Name = "Senior Capstone Deployment QA + CI"
+        Name = "Senior Capstone Hourly Deployment QA + CI"
         Status = "ACTIVE"
-        RRule = "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=4,10,16,22;BYMINUTE=15"
+        RRule = "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=$allHoursRRule;BYMINUTE=43"
     }
     "senior-capstone-design-assets-handoff" = @{
-        Name = "Senior Capstone Design Assets + Handoff"
+        Name = "Senior Capstone Hourly Design Assets + Handoff"
         Status = "ACTIVE"
-        RRule = "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=5,11,17,23;BYMINUTE=5"
+        RRule = "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=$allHoursRRule;BYMINUTE=51"
     }
 }
 
@@ -83,9 +85,9 @@ $requiredPromptFragments = @(
     "requirement IDs",
     "commit",
     "push the current branch",
-    "Publication/script auto-approval hard rule",
+    "No-human-approval rule",
     "auto-approved execution flags",
-    "self-improvement",
+    "Self-improvement to scripts as you go",
     "scripts/snapshot-automation-prompts.ps1",
     "scripts/check-automation-contract.ps1",
     "real auth",
@@ -105,7 +107,13 @@ $categoryFragments = @{
 }
 
 $allWeekDays = @("MO", "TU", "WE", "TH", "FR", "SA", "SU")
-$expectedDailyTimes = @("00:05", "00:55", "01:45", "02:35", "03:25", "04:15", "05:05", "06:05", "06:55", "07:45", "08:35", "09:25", "10:15", "11:05", "12:05", "12:55", "13:45", "14:35", "15:25", "16:15", "17:05", "18:05", "18:55", "19:45", "20:35", "21:25", "22:15", "23:05")
+$expectedMinuteOffsets = @(3, 11, 19, 27, 35, 43, 51)
+$expectedDailyTimes = foreach ($hour in 0..23) {
+    foreach ($minute in $expectedMinuteOffsets) {
+        "{0:D2}:{1:D2}" -f $hour, $minute
+    }
+}
+$minimumStartSpacingMinutes = 7
 
 function Get-TomlStringValue {
     param(
@@ -217,8 +225,8 @@ foreach ($id in $automationIds) {
     $days = @(Get-RRulePart -RRule $rrule -Key "BYDAY")
     $hours = @(Get-RRulePart -RRule $rrule -Key "BYHOUR")
     $minutes = @(Get-RRulePart -RRule $rrule -Key "BYMINUTE")
-    if ($days.Count -ne 7 -or $hours.Count -ne 4 -or $minutes.Count -ne 1) {
-        $failures.Add("$id must run four times per day across all seven days; got RRULE $rrule")
+    if ($days.Count -ne 7 -or $hours.Count -ne 24 -or $minutes.Count -ne 1) {
+        $failures.Add("$id must run hourly across all seven days; got RRULE $rrule")
     }
     else {
         foreach ($day in $days) {
@@ -262,8 +270,8 @@ foreach ($slot in $scheduleSlots.Keys) {
 foreach ($day in $allWeekDays) {
     $times = @($activeSlotsByDay[$day] | Sort-Object)
     $expected = @($expectedDailyTimes | Sort-Object)
-    if ($times.Count -ne 28) {
-        $failures.Add("$day has $($times.Count) active Senior Capstone category starts; expected 28")
+    if ($times.Count -ne 168) {
+        $failures.Add("$day has $($times.Count) active Senior Capstone category starts; expected 168")
     }
     elseif (($times -join ",") -ne ($expected -join ",")) {
         $failures.Add("$day active category starts are $($times -join ', '); expected $($expected -join ', ')")
@@ -276,8 +284,8 @@ foreach ($day in $allWeekDays) {
     for ($i = 0; $i -lt $minutesOfDay.Count; $i++) {
         $current = $minutesOfDay[$i]
         $next = if ($i -eq $minutesOfDay.Count - 1) { $minutesOfDay[0] + 1440 } else { $minutesOfDay[$i + 1] }
-        if (($next - $current) -lt 45) {
-            $failures.Add("$day has category starts less than 45 minutes apart around minute $current")
+        if (($next - $current) -lt $minimumStartSpacingMinutes) {
+            $failures.Add("$day has category starts less than $minimumStartSpacingMinutes minutes apart around minute $current")
         }
     }
 }
@@ -316,7 +324,7 @@ foreach ($relative in $requiredFiles) {
 
 $scriptDir = Join-Path $RepoRoot "scripts"
 if (Test-Path -LiteralPath $scriptDir) {
-    $forbiddenScriptPatterns = @(
+    $forbiddenPowerShellPatterns = @(
         ("Read" + "-Host"),
         ("Prompt" + "ForChoice"),
         ("(?m)^\s*" + "Pause\b"),
@@ -325,7 +333,25 @@ if (Test-Path -LiteralPath $scriptDir) {
 
     Get-ChildItem -LiteralPath $scriptDir -Filter "*.ps1" -File | ForEach-Object {
         $scriptContent = Get-Content -Raw -LiteralPath $_.FullName
-        foreach ($pattern in $forbiddenScriptPatterns) {
+        foreach ($pattern in $forbiddenPowerShellPatterns) {
+            if ($scriptContent -match $pattern) {
+                $failures.Add("Project script $($_.Name) contains interactive approval/prompt pattern: $pattern")
+            }
+        }
+    }
+
+    $forbiddenGeneralScriptPatterns = @(
+        "readline\.createInterface",
+        "\binquirer\b",
+        "\bprompts\(",
+        "\bprompt\(",
+        "\bconfirm\(",
+        "process\.stdin\.resume\("
+    )
+
+    Get-ChildItem -LiteralPath $scriptDir -Include "*.js", "*.mjs", "*.cjs", "*.ts" -File -Recurse | ForEach-Object {
+        $scriptContent = Get-Content -Raw -LiteralPath $_.FullName
+        foreach ($pattern in $forbiddenGeneralScriptPatterns) {
             if ($scriptContent -match $pattern) {
                 $failures.Add("Project script $($_.Name) contains interactive approval/prompt pattern: $pattern")
             }
@@ -367,7 +393,7 @@ foreach ($relative in $jsonFiles) {
 $runbookPath = Join-Path $RepoRoot "docs\automation-runbook.md"
 if (Test-Path -LiteralPath $runbookPath) {
     $runbook = Get-Content -Raw -LiteralPath $runbookPath
-    foreach ($fragment in @("docs/mvp-requirements-catalog.md", "Category Runner No-Intervention Contract", "Project Script Auto-Approval Rule", "-NonInteractive", "local-only repo changes are not an acceptable closeout")) {
+    foreach ($fragment in @("docs/mvp-requirements-catalog.md", "Category Runner No-Intervention Contract", "No-Human-Approval Script Rule", "-NonInteractive", "local-only repo changes are not an acceptable closeout")) {
         if ($runbook -notlike "*$fragment*") {
             $failures.Add("Runbook is missing infrastructure reference: $fragment")
         }
@@ -377,7 +403,7 @@ if (Test-Path -LiteralPath $runbookPath) {
 $masterPlanPath = Join-Path $RepoRoot "docs\master-plan.md"
 if (Test-Path -LiteralPath $masterPlanPath) {
     $masterPlan = Get-Content -Raw -LiteralPath $masterPlanPath
-    foreach ($fragment in @("docs/mvp-requirements-catalog.md", "Real Daily MVP Goal", "Minimum: 2 accepted MVP passes per calendar day", "Category Automation Reset")) {
+    foreach ($fragment in @("docs/mvp-requirements-catalog.md", "Real Daily MVP Goal", "Minimum: 2 accepted MVP passes per calendar day", "Hourly Category Automation Escalation")) {
         if ($masterPlan -notlike "*$fragment*") {
             $failures.Add("Master plan is missing category/daily goal reference: $fragment")
         }
