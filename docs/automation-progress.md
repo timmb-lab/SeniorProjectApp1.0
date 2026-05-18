@@ -420,3 +420,25 @@ Verification:
 
 Recommended next slice:
 - Let the next 3-hour cycle continue from the current backlog: framework seed loader, guided Research Proposal Challenge UI, private evidence model, and mentor/presentation/celebration/archive workflows.
+
+## 2026-05-18 Canva Memory Capture
+
+Intent:
+- Preserve a Canva automation handoff that was visible in the UI but reported "Memory File (Could Not Write; Paste This)".
+
+Captured memory:
+- `2026-05-17 | senior-capstone-canva-visual-system | visual slice: proposal approval process strip | Canva folder FAHJ-n-VqFE | primary asset: DAHJ-v7TOM8 (no-text 1600x500) | palette from styles.css | next: proposal empty-state family`
+
+Files changed:
+- `docs/progress/canva.md`
+- `docs/visual-assets/canva-asset-specs.md`
+- `docs/automation-progress.md`
+
+What changed:
+- Created the Canva lane progress log expected by `docs/automation-cadence.md`.
+- Added a durable asset registry entry for Canva asset `DAHJ-v7TOM8`.
+- Preserved the handoff, acceptance checks, unresolved design question, and next Canva slice.
+
+Recommended next slice:
+- Canva should create the proposal dashboard empty-state family: no proposals yet, filtered out, waiting on review, and revision requested.
+- Figma/rebuild should keep all labels and statuses as live app text when using the no-text visual.
