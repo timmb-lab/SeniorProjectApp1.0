@@ -31,9 +31,12 @@ Every automation should:
 - Validate any files it changes.
 - Update its lane-specific progress log with timestamp, scope, changes, verification, risks, and next action.
 - Update `docs/automation-progress.md` with only a short rollup when it is safe to do so.
+- Satisfy the publication/commit gate in `docs/automation-runbook.md`: pushed repo commit, published external artifact with committed repo handoff, or committed blocker entry.
+- Record every external artifact link or ID in a committed lane log, design spec, asset registry, or audit handoff before ending the run.
 - If it changes repository files, stage only its own changes, commit with a lane-prefixed message, and push the current branch.
 - Never stage unrelated dirty files from the user or another automation.
 - If commit or push fails, log the exact blocker and next action instead of silently leaving work behind.
+- Inspect `git status --short` before ending and do not leave the automation's own changes untracked or unstaged.
 - Hand off work to the right lane instead of crossing ownership boundaries.
 - Include a handoff packet whenever another lane needs to act.
 - Never force push. If push is rejected, attempt one safe fast-forward sync only after a successful commit and only when the post-commit worktree is clean.
@@ -86,6 +89,7 @@ Definition of done for every run:
 - Lane progress log updated.
 - Backlog updated when relevant.
 - Handoff packet added when another lane must act.
+- External artifact links/IDs logged in repo when external tools are used.
 - Only own files staged.
 - Lane-prefixed commit created when repo files changed.
 - Current branch pushed, or blocker logged precisely.

@@ -495,3 +495,34 @@ Verification:
 
 Recommended next slice:
 - Reauthorize or reconnect Google Drive with write access, then let the next reporting run create/append the Google Doc.
+
+## 2026-05-18 Automation Publish/Commit Audit
+
+Intent:
+- Audit the four main automation lanes to ensure they publish durable artifacts and commit/push their work, instead of only creating invisible local or external outputs.
+
+Automations audited:
+- `senior-capstone-figma-product-design`
+- `senior-capstone-rebuild-hourly`
+- `senior-capstone-content-quality-audits`
+- `senior-capstone-canva-visual-system`
+
+Findings:
+- All four prompts already had baseline git closeout requirements: stage only own files, lane-prefixed commit, push current branch, never force push, and log commit/push blockers.
+- Main gap: Figma/Canva external artifacts needed a harder requirement to commit the returned link/ID into repo handoff records.
+- Secondary gap: the shared docs needed an explicit rule against leaving the automation's own generated files untracked or relying on final-chat text as the only record.
+
+Files changed:
+- `docs/automation-runbook.md`
+- `docs/automation-cadence.md`
+- `docs/audits/automation-publish-commit-audit.md`
+- `docs/automation-progress.md`
+
+What changed:
+- Added a `Publication And Commit Gate` to the shared runbook.
+- Required every run to end with a pushed repo commit, a published external artifact with committed repo handoff, or a committed blocker entry.
+- Required every external artifact link/ID to be recorded in a committed lane log, design spec, asset registry, or audit handoff.
+- Required end-of-run `git status --short` inspection and classification of any remaining dirty files.
+
+Recommended next slice:
+- Weekly check-ins should verify lane-prefixed commits, lane progress entries, and external artifact IDs in repo records.

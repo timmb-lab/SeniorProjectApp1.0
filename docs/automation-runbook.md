@@ -121,9 +121,43 @@ Every run should end with:
 - A lane progress entry.
 - A handoff packet when another lane needs to act.
 - Backlog updated when relevant.
+- Publication/commit gate satisfied.
 - Only own files staged.
 - Lane-prefixed commit when repo files changed.
 - Current branch pushed, or exact blocker logged.
+
+## Publication And Commit Gate
+
+Every automation run must leave durable, discoverable evidence of what happened. A run is not done just because it created something in memory, generated a local file, or received a tool response.
+
+Each run must end in exactly one of these durable outcomes:
+
+1. A pushed repo commit containing the code, docs, data, tests, specs, logs, or assets changed by that run.
+2. A published external artifact, such as a Figma or Canva artifact, with its returned link or ID recorded in a committed and pushed repo handoff file.
+3. A committed and pushed blocker entry that explains why publication, artifact creation, commit, or push could not be completed.
+
+External artifacts count only when:
+
+- The tool returned a stable link or ID.
+- The lane progress log records that link or ID.
+- Any implementation handoff is committed to the repo, such as a Figma spec, Canva asset registry entry, audit finding, or rebuild integration note.
+- The final response names the artifact/link/ID and commit/push status.
+
+Repo changes count only when:
+
+- The automation staged only files it created or intentionally modified.
+- The commit message uses the correct lane prefix.
+- The branch was pushed successfully, or a precise push blocker was committed/logged.
+
+Before ending, each automation must run or otherwise inspect `git status --short`. The worktree should be clean for the automation's own work. If dirty files remain, the run must classify them as unrelated user/other-automation changes or log exactly why its own changes could not be committed.
+
+No silent outputs:
+
+- Do not leave generated files untracked.
+- Do not leave local-only specs, screenshots, exports, or reports outside the repo unless they are explicitly temporary and logged.
+- Do not claim a Figma, Canva, Google Doc, deployed preview, or exported asset exists unless a tool returned a link/ID or the repo contains the artifact.
+- Do not rely on final-chat text as the only record of a lane's work.
+- If no repo files changed, say why. This should be rare because every productive run should at least update its lane progress log.
 
 ## Anti-Patterns
 
@@ -140,6 +174,8 @@ Avoid:
 - Rebuilding the PDF linked-document workflow as a static checklist instead of turning it into app-native submissions, evidence, review gates, and dashboards.
 - Creating code without tests when behavior changes.
 - Writing important app text only inside images.
+- Creating external Figma/Canva/Google artifacts without committing the link or ID into the repo handoff/progress records.
+- Ending with untracked or unstaged files from the automation's own work.
 - Staging unrelated dirty files.
 - Force pushing.
 
@@ -211,4 +247,4 @@ Canva:
 - Push the current branch after committing.
 - If push is rejected, attempt one safe fast-forward sync only if the post-commit worktree is clean.
 - Never force push.
-- If blocked, log the exact blocker in the lane progress file.
+- If blocked, log the exact blocker in the lane progress file and commit/push that blocker log when possible.
