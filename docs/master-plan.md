@@ -271,7 +271,7 @@ Daily priority order:
 2. Second accepted pass should deepen or verify the same alpha path: working transitions, seeded/demo data, tests, local run proof, Cloudflare preview proof, error/empty/permission states, or bug fixes.
 3. Stretch pass can be Figma, Canva, audit, or docs only when it directly unblocks the Day 7 alpha or closes a concrete P0/P1 handoff.
 
-Weekly adjustment rule for this project only: `senior-capstone-qol-source-framework-seed` reviews the last seven days of run manifests, run log entries, commits, backlog movement, handoffs, and audit findings on Sundays. It then updates this master plan, `docs/automation-memory.md`, and `docs/mvp-requirements-catalog.md` with the next week's daily goal/allocation if evidence shows the plan is too loose, too aggressive, or pointed at the wrong QoL target.
+Weekly adjustment rule for this project only: `senior-capstone-qol-source-framework-seed-2` reviews the last seven days of run manifests, run log entries, commits, backlog movement, handoffs, and audit findings on Sundays. It then updates this master plan, `docs/automation-memory.md`, and `docs/mvp-requirements-catalog.md` with the next week's daily goal/allocation if evidence shows the plan is too loose, too aggressive, or pointed at the wrong QoL target.
 
 30-day efficiency rule: use `scripts/measure-automation-efficiency.ps1` to audit the active automation system before changing cadence. The current 30-start/day QoL system creates 900 scheduled starts in 30 days; it needs 60 accepted MVP passes for the minimum target and 90 for the stretch target. That means conversion quality matters more than more starts. Auto-scaling should retarget QoL focus, blockers, prompt clarity, and acceptance checks from evidence before recommending schedule changes.
 
@@ -343,16 +343,16 @@ A-material automation means each productive run must do one of three things: lan
 
 Bryan then requested deleting all project automation and rebuilding from scratch so every listed unfinished QoL item gets at least three passes per day without concentrating token use in a few broad runners. The current Codex GUI-facing source of truth is ten individual QoL automations, each running 3x/day:
 
-- `senior-capstone-qol-source-framework-seed`: `00:03`, `08:03`, `16:03`.
-- `senior-capstone-qol-drive-upload-oauth`: `00:51`, `08:51`, `16:51`.
-- `senior-capstone-qol-protected-evidence-tests`: `01:39`, `09:39`, `17:39`.
-- `senior-capstone-qol-teacher-review-endpoints`: `02:27`, `10:27`, `18:27`.
-- `senior-capstone-qol-immutable-review-history`: `03:15`, `11:15`, `19:15`.
-- `senior-capstone-qol-mentor-presentation-flow`: `04:03`, `12:03`, `20:03`.
-- `senior-capstone-qol-admin-ops-endpoints`: `04:51`, `12:51`, `20:51`.
-- `senior-capstone-qol-announcements`: `05:39`, `13:39`, `21:39`.
-- `senior-capstone-qol-account-lifecycle`: `06:27`, `14:27`, `22:27`.
-- `senior-capstone-qol-cloudflare-verification`: `07:15`, `15:15`, `23:15`.
+- `senior-capstone-qol-source-framework-seed-2`: `00:03`, `08:03`, `16:03`.
+- `senior-capstone-qol-drive-upload-oauth-2`: `00:51`, `08:51`, `16:51`.
+- `senior-capstone-qol-protected-evidence-tests-2`: `01:39`, `09:39`, `17:39`.
+- `senior-capstone-qol-teacher-review-endpoints-2`: `02:27`, `10:27`, `18:27`.
+- `senior-capstone-qol-immutable-review-history-2`: `03:15`, `11:15`, `19:15`.
+- `senior-capstone-qol-mentor-presentation-flow-2`: `04:03`, `12:03`, `20:03`.
+- `senior-capstone-qol-admin-ops-endpoints-2`: `04:51`, `12:51`, `20:51`.
+- `senior-capstone-qol-announcements-2`: `05:39`, `13:39`, `21:39`.
+- `senior-capstone-qol-account-lifecycle-2`: `06:27`, `14:27`, `22:27`.
+- `senior-capstone-qol-cloudflare-verification-2`: `07:15`, `15:15`, `23:15`.
 
 Each QoL automation stays narrow, names requirement IDs, respects the token budget guardrail, applies the surface expansion rule, validates, logs, commits, and pushes. The schedule is execution capacity, not an accepted-pass count.
 
@@ -509,7 +509,7 @@ Do not:
 Each week, Bryan should be able to answer:
 
 - Did the project hit at least 14 accepted MVP passes this week, and were they mostly implementation-heavy while `SC-005` remained open?
-- Did `senior-capstone-qol-source-framework-seed` adjust the next week's daily goal/allocation from evidence instead of vibes?
+- Did `senior-capstone-qol-source-framework-seed-2` adjust the next week's daily goal/allocation from evidence instead of vibes?
 - Did the repo move closer to a real hosted app?
 - Did the repo move closer to the secure database/account/group/progress MVP?
 - Did the GitHub-to-Cloudflare deployment path move forward?

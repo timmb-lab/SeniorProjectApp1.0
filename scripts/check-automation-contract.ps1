@@ -12,65 +12,65 @@ $liveAutomationsValidated = 0
 $snapshotFallbacks = 0
 
 $automationIds = @(
-    "senior-capstone-qol-source-framework-seed",
-    "senior-capstone-qol-drive-upload-oauth",
-    "senior-capstone-qol-protected-evidence-tests",
-    "senior-capstone-qol-teacher-review-endpoints",
-    "senior-capstone-qol-immutable-review-history",
-    "senior-capstone-qol-mentor-presentation-flow",
-    "senior-capstone-qol-admin-ops-endpoints",
-    "senior-capstone-qol-announcements",
-    "senior-capstone-qol-account-lifecycle",
-    "senior-capstone-qol-cloudflare-verification"
+    "senior-capstone-qol-source-framework-seed-2",
+    "senior-capstone-qol-drive-upload-oauth-2",
+    "senior-capstone-qol-protected-evidence-tests-2",
+    "senior-capstone-qol-teacher-review-endpoints-2",
+    "senior-capstone-qol-immutable-review-history-2",
+    "senior-capstone-qol-mentor-presentation-flow-2",
+    "senior-capstone-qol-admin-ops-endpoints-2",
+    "senior-capstone-qol-announcements-2",
+    "senior-capstone-qol-account-lifecycle-2",
+    "senior-capstone-qol-cloudflare-verification-2"
 )
 
 $expectedAutomationConfig = @{
-    "senior-capstone-qol-source-framework-seed" = @{
+    "senior-capstone-qol-source-framework-seed-2" = @{
         Name = "Senior Capstone QoL - Source Framework Seed"
         Status = "ACTIVE"
         RRule = "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=0,8,16;BYMINUTE=03"
     }
-    "senior-capstone-qol-drive-upload-oauth" = @{
+    "senior-capstone-qol-drive-upload-oauth-2" = @{
         Name = "Senior Capstone QoL - Drive Upload OAuth"
         Status = "ACTIVE"
         RRule = "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=0,8,16;BYMINUTE=51"
     }
-    "senior-capstone-qol-protected-evidence-tests" = @{
+    "senior-capstone-qol-protected-evidence-tests-2" = @{
         Name = "Senior Capstone QoL - Protected Evidence Tests"
         Status = "ACTIVE"
         RRule = "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=1,9,17;BYMINUTE=39"
     }
-    "senior-capstone-qol-teacher-review-endpoints" = @{
+    "senior-capstone-qol-teacher-review-endpoints-2" = @{
         Name = "Senior Capstone QoL - Teacher Review Endpoints"
         Status = "ACTIVE"
         RRule = "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=2,10,18;BYMINUTE=27"
     }
-    "senior-capstone-qol-immutable-review-history" = @{
+    "senior-capstone-qol-immutable-review-history-2" = @{
         Name = "Senior Capstone QoL - Immutable Review History"
         Status = "ACTIVE"
         RRule = "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=3,11,19;BYMINUTE=15"
     }
-    "senior-capstone-qol-mentor-presentation-flow" = @{
+    "senior-capstone-qol-mentor-presentation-flow-2" = @{
         Name = "Senior Capstone QoL - Mentor Presentation Flow"
         Status = "ACTIVE"
         RRule = "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=4,12,20;BYMINUTE=03"
     }
-    "senior-capstone-qol-admin-ops-endpoints" = @{
+    "senior-capstone-qol-admin-ops-endpoints-2" = @{
         Name = "Senior Capstone QoL - Admin Ops Endpoints"
         Status = "ACTIVE"
         RRule = "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=4,12,20;BYMINUTE=51"
     }
-    "senior-capstone-qol-announcements" = @{
+    "senior-capstone-qol-announcements-2" = @{
         Name = "Senior Capstone QoL - Announcements"
         Status = "ACTIVE"
         RRule = "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=5,13,21;BYMINUTE=39"
     }
-    "senior-capstone-qol-account-lifecycle" = @{
+    "senior-capstone-qol-account-lifecycle-2" = @{
         Name = "Senior Capstone QoL - Account Lifecycle"
         Status = "ACTIVE"
         RRule = "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=6,14,22;BYMINUTE=27"
     }
-    "senior-capstone-qol-cloudflare-verification" = @{
+    "senior-capstone-qol-cloudflare-verification-2" = @{
         Name = "Senior Capstone QoL - Cloudflare Verification"
         Status = "ACTIVE"
         RRule = "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=7,15,23;BYMINUTE=15"
@@ -106,7 +106,7 @@ $requiredPromptFragments = @(
     "tests/CI",
     "docs/artifacts/handoffs",
     "No-human-approval rule",
-    "auto-approved execution flags",
+    "Run project scripts non-interactively",
     "Self-improvement to scripts as you go",
     "Only touch automation related to this project",
     "commit",
@@ -132,16 +132,16 @@ $requiredPromptFragments = @(
 )
 
 $targetFragments = @{
-    "senior-capstone-qol-source-framework-seed" = @("source-framework seed loader", "MVP-009", "data/capstone-framework.json")
-    "senior-capstone-qol-drive-upload-oauth" = @("Google Drive upload credential/OAuth", "MVP-013", "evidence metadata")
-    "senior-capstone-qol-protected-evidence-tests" = @("protected evidence access checks", "MVP-014", "permission")
-    "senior-capstone-qol-teacher-review-endpoints" = @("teacher review", "MVP-015", "revision")
-    "senior-capstone-qol-immutable-review-history" = @("immutable review history", "MVP-016", "submission versioning")
-    "senior-capstone-qol-mentor-presentation-flow" = @("mentor assigned-student", "MVP-017", "presentation")
-    "senior-capstone-qol-admin-ops-endpoints" = @("admin operations endpoints", "MVP-018", "export")
-    "senior-capstone-qol-announcements" = @("announcement", "MVP-023", "No student-to-student messaging")
-    "senior-capstone-qol-account-lifecycle" = @("account lifecycle", "MVP-004", "session expiry")
-    "senior-capstone-qol-cloudflare-verification" = @("Cloudflare", "MVP-026", "D1 binding")
+    "senior-capstone-qol-source-framework-seed-2" = @("source-framework seed loader", "MVP-009", "data/capstone-framework.json")
+    "senior-capstone-qol-drive-upload-oauth-2" = @("Google Drive upload credential/OAuth", "MVP-013", "evidence metadata")
+    "senior-capstone-qol-protected-evidence-tests-2" = @("protected evidence access checks", "MVP-014", "permission")
+    "senior-capstone-qol-teacher-review-endpoints-2" = @("teacher review", "MVP-015", "revision")
+    "senior-capstone-qol-immutable-review-history-2" = @("immutable review history", "MVP-016", "submission versioning")
+    "senior-capstone-qol-mentor-presentation-flow-2" = @("mentor assigned-student", "MVP-017", "presentation")
+    "senior-capstone-qol-admin-ops-endpoints-2" = @("admin operations endpoints", "MVP-018", "export")
+    "senior-capstone-qol-announcements-2" = @("announcement", "MVP-023", "No student-to-student messaging")
+    "senior-capstone-qol-account-lifecycle-2" = @("account lifecycle", "MVP-004", "session expiry")
+    "senior-capstone-qol-cloudflare-verification-2" = @("Cloudflare", "MVP-026", "D1 binding")
 }
 
 $allWeekDays = @("MO", "TU", "WE", "TH", "FR", "SA", "SU")

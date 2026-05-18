@@ -231,3 +231,16 @@ Each audit run should append a dated entry with:
 - `validation`: prompt inspection confirmed all ten live QoL prompts include `scripts/run-powershell-script.mjs`, `npm run check:automation`, `-RequireLive`, `-OutputPath`, `accepted_mvp_pass`, `duration_minutes`, and `automation_efficiency.scale_signal`; prompt snapshots regenerated; `node scripts/run-powershell-script.mjs scripts\check-automation-contract.ps1` passed for 10 live QoL automations; `measure-automation-efficiency.ps1 -RepoRoot . -Days 30` passed; JSON parse checks passed.
 - `self-improvement`: prompt/script-usage refresh only; no schedule, model, reasoning, status, or workspace changes.
 - `next action`: Future QoL runs should create manifests with full telemetry and use the wrapper scripts for snapshot/check/efficiency work, while keeping cadence unchanged unless Bryan explicitly requests a schedule change.
+
+### 2026-05-18 16:11 PT - GUI Automation Registration Repair
+
+- `automation`: manual repair after Bryan showed that the previous automation card rendered as unavailable in the GUI.
+- `master-plan section`: QoL Automation Rebuild; Anti-Drift Rules; Logging Requirements.
+- `finding`: The unsuffixed Senior Capstone QoL TOMLs existed on disk, but `automation_update` reported `senior-capstone-qol-source-framework-seed` did not exist in the app. The GUI-visible source of truth was therefore not actually registered.
+- `live automations created`: `senior-capstone-qol-source-framework-seed-2`, `senior-capstone-qol-drive-upload-oauth-2`, `senior-capstone-qol-protected-evidence-tests-2`, `senior-capstone-qol-teacher-review-endpoints-2`, `senior-capstone-qol-immutable-review-history-2`, `senior-capstone-qol-mentor-presentation-flow-2`, `senior-capstone-qol-admin-ops-endpoints-2`, `senior-capstone-qol-announcements-2`, `senior-capstone-qol-account-lifecycle-2`, and `senior-capstone-qol-cloudflare-verification-2`.
+- `cleanup`: Removed the ten stale unsuffixed local Senior Capstone QoL TOML folders after path verification inside `C:\Users\bryan\.codex\automations`.
+- `preserved fields`: Names, ACTIVE status, RRULE schedules, `C:\SeniorProjectApp1.0` worktree workspace, model `gpt-5.2`, reasoning effort `high`, and 30 starts/day were preserved.
+- `files changed`: `scripts/check-automation-contract.ps1`, `scripts/snapshot-automation-prompts.ps1`, `scripts/measure-automation-efficiency.ps1`, `docs/automation-prompts/`, `docs/automation-cadence.md`, `docs/automation-memory.md`, `docs/master-plan.md`, daily reporting docs, automation backlog, decision log, audit log, run log, and the new repair manifest.
+- `validation`: `automation_update` created all ten app-managed automations; `automation_update view` rendered `senior-capstone-qol-source-framework-seed-2`; prompt snapshots regenerated; strict live checker passed for 10 live QoL automations; efficiency scorecard passed with 10 active automations, 30 starts/day, and 48-minute minimum spacing.
+- `self-improvement`: checker/snapshot/scorecard scripts now target the GUI-managed `-2` IDs so future live checks fail if the app-visible registry drifts again.
+- `next action`: If the GUI still shows stale data, refresh the automations panel; the active app IDs now carry the `-2` suffix.

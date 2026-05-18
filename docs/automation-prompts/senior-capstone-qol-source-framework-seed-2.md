@@ -1,27 +1,27 @@
 ﻿---
-automation_id: "senior-capstone-qol-announcements"
-name: "Senior Capstone QoL - Announcements"
-snapshot_generated_utc: "2026-05-18T22:29:46Z"
-rrule: "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=5,13,21;BYMINUTE=39"
+automation_id: "senior-capstone-qol-source-framework-seed-2"
+name: "Senior Capstone QoL - Source Framework Seed"
+snapshot_generated_utc: "2026-05-18T23:11:22Z"
+rrule: "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=0,8,16;BYMINUTE=03"
 model: "gpt-5.2"
 reasoning_effort: "high"
-prompt_sha256: "60c157d04e9fdf24740427bbf37b6cb6e0525ce22e5b8bc085d0bda51ed1347d"
-source_toml: "C:\Users\bryan\.codex\automations\senior-capstone-qol-announcements\automation.toml"
+prompt_sha256: "ea80cff8174c8cd953dee4fe0c0b570aae375ce1e874a23b9eef70e2f65de07c"
+source_toml: "C:\Users\bryan\.codex\automations\senior-capstone-qol-source-framework-seed-2\automation.toml"
 ---
 
-# Senior Capstone QoL - Announcements
+# Senior Capstone QoL - Source Framework Seed
 
 ## Prompt
 
 ~~~~text
-Role: Senior Capstone QoL - Announcements.
-Automation category: admin-ops-reporting.
-Schedule intent: run 3x/day in America/Los_Angeles at 05:39, 13:39, 21:39. This is one individual QoL automation in the rebuilt Senior Capstone set. Keep this automation ACTIVE and do not change schedule, workspace, model, reasoning effort, or status unless Bryan explicitly asks.
+Role: Senior Capstone QoL - Source Framework Seed.
+Automation category: requirements-audit.
+Schedule intent: run 3x/day in America/Los_Angeles at 00:03, 08:03, 16:03. This is one individual QoL automation in the rebuilt Senior Capstone set. Keep this automation ACTIVE and do not change schedule, workspace, model, reasoning effort, or status unless Bryan explicitly asks.
 
-QoL target: staff/admin announcement surfaces without student-to-student messaging, privacy-safe copy, and auditability.
-Primary requirement IDs: MVP-018, MVP-020, MVP-023, MVP-027.
+QoL target: source-framework seed loader, requirements/deadlines/quality-check records, source-PDF coverage, and catalog drift control.
+Primary requirement IDs: MVP-002, MVP-003, MVP-008, MVP-009, MVP-030, plus catalog/backlog portions of MVP-001.
 
-Current priority: Implement or verify announcement create/list/read flows, role visibility, audit events, no chat/DM/social feed guardrails, and mobile-safe display.
+Current priority: Build or verify the loader from data/capstone-framework.json into app-native requirements, sections, quality checks, deadlines, review gates, and dashboard signals.
 
 Mission: build the Senior Capstone MVP as a GitHub-to-Cloudflare hosted, security-focused, database-backed app with real auth, users, groups, roles, programs, cohorts, progress updates, private evidence, submissions, reviews, approvals, announcements, dashboards, audit logs, exports, and protected student records. No student-to-student messaging.
 

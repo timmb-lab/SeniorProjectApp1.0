@@ -34,7 +34,7 @@ Figma is the heavy product-design source for functional app screens, database-ba
 - Every QoL prompt references `docs/master-plan.md` and `docs/mvp-requirements-catalog.md` along with the durable logs.
 - Daily automation summaries, when produced as part of category work, should use `bryan.timm89@gmail.com` for the Google Drive/Doc target if connector permissions allow.
 - Every QoL automation now uses `docs/automation-self-improvement.md` to self-review, log whether prompt/config/script changes were needed, and update only its own live automation prompt/config plus the smallest relevant project script when evidence and tool availability justify it.
-- Weekly 100-pass goal calibration is now owned by `senior-capstone-qol-source-framework-seed` on Sunday source-framework/catalog runs. It reviews committed evidence, counts accepted MVP passes, and updates only this project's master plan, memory, and requirements catalog when evidence requires a goal/allocation adjustment.
+- Weekly 100-pass goal calibration is now owned by `senior-capstone-qol-source-framework-seed-2` on Sunday source-framework/catalog runs. It reviews committed evidence, counts accepted MVP passes, and updates only this project's master plan, memory, and requirements catalog when evidence requires a goal/allocation adjustment.
 - Automation operating infrastructure now includes prompt snapshots in `docs/automation-prompts/`, structured run manifests in `docs/progress/runs/`, human decisions in `docs/human-decisions.md`, external artifact registry in `docs/artifacts.json`, and contract scripts in `scripts/`.
 - Rebuild and content audit lane logs now exist at `docs/progress/rebuild.md` and `docs/progress/audit.md`; `scripts/check-automation-contract.ps1` requires both so future automation reviews catch missing lane-log anchors.
 - The automation contract now explicitly forbids local-only repo closeout and interactive project-script prompts: live prompts include the no-human-approval rule, and `scripts/check-automation-contract.ps1` fails if project scripts use PowerShell or JavaScript prompt/confirmation patterns.
@@ -51,7 +51,7 @@ The 100-pass master plan was refreshed on 2026-05-18 after the professional-plan
 
 Immediate next five useful passes: broaden auth/permission/evidence tests, extend alpha data into real workflow endpoints, add Google Drive upload credential/OAuth implementation, implement account provisioning/invitation/password-reset lifecycle, then deepen mobile/error/empty/permission alpha QA. The D1-backed alpha flow, persona switcher, student/teacher/mentor/admin/misc-admin views, fake login-capable role accounts, audit timeline, runbook, alpha-week framework, alpha contract checker, preview deploy command, CI workflows, production deployment, and first-admin bootstrap verification now exist.
 
-Real daily MVP goal: minimum 2 accepted MVP passes per calendar day, stretch 3 when unblocked, and at least 14 accepted MVP passes per week until the 100-pass target is met or recalibrated. Until the Day 7 alpha is accepted, the first two accepted passes each day should usually be app-flow implementation or alpha verification, not broad design polish or production account hardening. The 30 daily QoL starts are capacity, not a goal to count scheduled starts as accepted passes. `senior-capstone-qol-source-framework-seed` must review the prior seven days of committed run evidence and adjust only this project's next-week daily goal/allocation in `docs/master-plan.md`, `docs/automation-memory.md`, and `docs/mvp-requirements-catalog.md` when evidence requires it.
+Real daily MVP goal: minimum 2 accepted MVP passes per calendar day, stretch 3 when unblocked, and at least 14 accepted MVP passes per week until the 100-pass target is met or recalibrated. Until the Day 7 alpha is accepted, the first two accepted passes each day should usually be app-flow implementation or alpha verification, not broad design polish or production account hardening. The 30 daily QoL starts are capacity, not a goal to count scheduled starts as accepted passes. `senior-capstone-qol-source-framework-seed-2` must review the prior seven days of committed run evidence and adjust only this project's next-week daily goal/allocation in `docs/master-plan.md`, `docs/automation-memory.md`, and `docs/mvp-requirements-catalog.md` when evidence requires it.
 
 Current account/provisioning watchpoint: Cloudflare Pages/D1 setup is done for the first foundation, district SSO is explicitly unavailable for MVP, and the Google Drive evidence root folder is now selected/configured. First-admin credentials and fake test-account credentials were generated into ignored local `.secrets/` storage; bootstrap is complete, production setup key is removed, and four fake `.test` role accounts can log in. Remaining account/config-owned work is server-side Drive upload credentials/OAuth, invitation/import/password-reset flows, credential rotation, broader permission tests, and any district/privacy approval before real student records are entered.
 
@@ -144,18 +144,19 @@ Read `docs/progress/decision-log.md` for accepted or superseded decisions.
 - `D-2026-05-18-028`: use `scripts/measure-automation-efficiency.ps1` for explicit automation audits and Sunday calibration before recommending schedule changes.
 - `D-2026-05-18-029`: consolidate CI to `.github/workflows/ci.yml`, include the automation contract checker in `npm run check`, and let `scripts/check-automation-contract.ps1` use repo prompt snapshots by default when live local TOMLs are absent; use `-RequireLive` for live registry audits.
 - `D-2026-05-18-030`: all ten QoL automation prompts carry the audit-recommended script usage rules: npm wrappers when available, `scripts/run-powershell-script.mjs` fallback, `-RequireLive` only for live registry audits, manifest telemetry, and `measure-automation-efficiency.ps1 -OutputPath` guidance without any cadence changes.
+- `D-2026-05-18-031`: the GUI-managed QoL automation IDs are the suffixed `senior-capstone-qol-*-2` IDs; the earlier unsuffixed TOML folders were orphaned from the Codex automation app and were removed from the local registry.
 
 Current QoL automation IDs:
-- `senior-capstone-qol-source-framework-seed` (`ACTIVE`; `00:03`, `08:03`, `16:03` PT; GUI name `Senior Capstone QoL - Source Framework Seed`)
-- `senior-capstone-qol-drive-upload-oauth` (`ACTIVE`; `00:51`, `08:51`, `16:51` PT; GUI name `Senior Capstone QoL - Drive Upload OAuth`)
-- `senior-capstone-qol-protected-evidence-tests` (`ACTIVE`; `01:39`, `09:39`, `17:39` PT; GUI name `Senior Capstone QoL - Protected Evidence Tests`)
-- `senior-capstone-qol-teacher-review-endpoints` (`ACTIVE`; `02:27`, `10:27`, `18:27` PT; GUI name `Senior Capstone QoL - Teacher Review Endpoints`)
-- `senior-capstone-qol-immutable-review-history` (`ACTIVE`; `03:15`, `11:15`, `19:15` PT; GUI name `Senior Capstone QoL - Immutable Review History`)
-- `senior-capstone-qol-mentor-presentation-flow` (`ACTIVE`; `04:03`, `12:03`, `20:03` PT; GUI name `Senior Capstone QoL - Mentor Presentation Flow`)
-- `senior-capstone-qol-admin-ops-endpoints` (`ACTIVE`; `04:51`, `12:51`, `20:51` PT; GUI name `Senior Capstone QoL - Admin Ops Endpoints`)
-- `senior-capstone-qol-announcements` (`ACTIVE`; `05:39`, `13:39`, `21:39` PT; GUI name `Senior Capstone QoL - Announcements`)
-- `senior-capstone-qol-account-lifecycle` (`ACTIVE`; `06:27`, `14:27`, `22:27` PT; GUI name `Senior Capstone QoL - Account Lifecycle`)
-- `senior-capstone-qol-cloudflare-verification` (`ACTIVE`; `07:15`, `15:15`, `23:15` PT; GUI name `Senior Capstone QoL - Cloudflare Verification`)
+- `senior-capstone-qol-source-framework-seed-2` (`ACTIVE`; `00:03`, `08:03`, `16:03` PT; GUI name `Senior Capstone QoL - Source Framework Seed`)
+- `senior-capstone-qol-drive-upload-oauth-2` (`ACTIVE`; `00:51`, `08:51`, `16:51` PT; GUI name `Senior Capstone QoL - Drive Upload OAuth`)
+- `senior-capstone-qol-protected-evidence-tests-2` (`ACTIVE`; `01:39`, `09:39`, `17:39` PT; GUI name `Senior Capstone QoL - Protected Evidence Tests`)
+- `senior-capstone-qol-teacher-review-endpoints-2` (`ACTIVE`; `02:27`, `10:27`, `18:27` PT; GUI name `Senior Capstone QoL - Teacher Review Endpoints`)
+- `senior-capstone-qol-immutable-review-history-2` (`ACTIVE`; `03:15`, `11:15`, `19:15` PT; GUI name `Senior Capstone QoL - Immutable Review History`)
+- `senior-capstone-qol-mentor-presentation-flow-2` (`ACTIVE`; `04:03`, `12:03`, `20:03` PT; GUI name `Senior Capstone QoL - Mentor Presentation Flow`)
+- `senior-capstone-qol-admin-ops-endpoints-2` (`ACTIVE`; `04:51`, `12:51`, `20:51` PT; GUI name `Senior Capstone QoL - Admin Ops Endpoints`)
+- `senior-capstone-qol-announcements-2` (`ACTIVE`; `05:39`, `13:39`, `21:39` PT; GUI name `Senior Capstone QoL - Announcements`)
+- `senior-capstone-qol-account-lifecycle-2` (`ACTIVE`; `06:27`, `14:27`, `22:27` PT; GUI name `Senior Capstone QoL - Account Lifecycle`)
+- `senior-capstone-qol-cloudflare-verification-2` (`ACTIVE`; `07:15`, `15:15`, `23:15` PT; GUI name `Senior Capstone QoL - Cloudflare Verification`)
 
 ## Handoff Rules
 
@@ -257,3 +258,11 @@ Every run should also record `self-improvement: none` or a specific self-improve
 - Prompts now require structured manifests with `requirement_ids`, `accepted_mvp_pass`, `duration_minutes`, `output_kind`, `automation_efficiency.duplicate_scope_checked`, and `automation_efficiency.scale_signal`.
 - Prompt guidance says to save reusable 30-day scorecards with `measure-automation-efficiency.ps1 -OutputPath docs/audits/<scorecard>.json`, not as non-manifest JSON under `docs/progress/runs/`.
 - No automation IDs, names, RRULE schedules, statuses, workspace paths, models, or reasoning effort were changed.
+
+## 2026-05-18 16:11 PT - GUI Automation Registration Repair
+
+- Bryan's screenshot showed the prior automation card as `Untitled automation` and unavailable. `automation_update` then confirmed the unsuffixed `senior-capstone-qol-source-framework-seed` did not exist in the app, despite a local TOML being present.
+- Created ten app-managed cron automations through the Codex automation app. Current GUI IDs are the `-2` suffixed QoL IDs listed above.
+- Removed the ten stale unsuffixed Senior Capstone QoL TOML folders from `C:\Users\bryan\.codex\automations` after verifying each path was inside the automation root and matched the orphan ID list.
+- No RRULE schedule, status, workspace, model, reasoning effort, or daily start count changed.
+- Regenerated prompt snapshots and updated the checker, snapshotter, and efficiency scorecard script to validate the GUI-managed `-2` automation IDs.

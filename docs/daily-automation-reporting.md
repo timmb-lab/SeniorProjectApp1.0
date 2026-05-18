@@ -7,7 +7,7 @@ Date: 2026-05-18
 Daily reporting is now a QoL-runner responsibility after the 2026-05-18 automation reset and later QoL rebuild. The standalone daily-report automation was deleted with the old project automation setup.
 
 Primary owner:
-- `senior-capstone-qol-source-framework-seed`
+- `senior-capstone-qol-source-framework-seed-2`
 
 Schedule:
 - Primary path: at most once per local day during a source-framework/catalog QoL pass.

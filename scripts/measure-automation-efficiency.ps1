@@ -78,16 +78,16 @@ $now = Get-Date
 $windowStart = $now.AddDays(-1 * $Days)
 
 $automationIds = @(
-    "senior-capstone-qol-source-framework-seed",
-    "senior-capstone-qol-drive-upload-oauth",
-    "senior-capstone-qol-protected-evidence-tests",
-    "senior-capstone-qol-teacher-review-endpoints",
-    "senior-capstone-qol-immutable-review-history",
-    "senior-capstone-qol-mentor-presentation-flow",
-    "senior-capstone-qol-admin-ops-endpoints",
-    "senior-capstone-qol-announcements",
-    "senior-capstone-qol-account-lifecycle",
-    "senior-capstone-qol-cloudflare-verification"
+    "senior-capstone-qol-source-framework-seed-2",
+    "senior-capstone-qol-drive-upload-oauth-2",
+    "senior-capstone-qol-protected-evidence-tests-2",
+    "senior-capstone-qol-teacher-review-endpoints-2",
+    "senior-capstone-qol-immutable-review-history-2",
+    "senior-capstone-qol-mentor-presentation-flow-2",
+    "senior-capstone-qol-admin-ops-endpoints-2",
+    "senior-capstone-qol-announcements-2",
+    "senior-capstone-qol-account-lifecycle-2",
+    "senior-capstone-qol-cloudflare-verification-2"
 )
 
 $automations = @()

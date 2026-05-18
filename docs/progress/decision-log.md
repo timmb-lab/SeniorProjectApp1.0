@@ -330,3 +330,13 @@ Decision status values:
 - `applies to`: local Senior Capstone QoL automation TOMLs, `docs/automation-prompts/`, `docs/automation-runbook.md`, `docs/automation-cadence.md`, `docs/automation-self-improvement.md`, `docs/automation-memory.md`, `docs/progress/audit.md`, `docs/progress/run-log.md`, `scripts/check-automation-contract.ps1`, and future QoL run manifests.
 - `guardrail`: This decision changes prompt/script guidance only. It does not alter RRULEs, start counts, active status, workspace, model, reasoning effort, or QoL ownership.
 - `last updated`: 2026-05-18 15:30 PT
+
+### D-2026-05-18-031
+
+- `status`: accepted
+- `area`: GUI automation registration repair
+- `decision`: Treat the Codex app-created `senior-capstone-qol-*-2` automations as the active Senior Capstone QoL source of truth, and remove the stale unsuffixed TOML-only folders that the app reported as nonexistent.
+- `reason`: Bryan's GUI showed `Untitled automation` / unavailable for the prior automation card. A direct `automation_update` call confirmed the unsuffixed ID did not exist in the app even though local TOMLs were present.
+- `applies to`: Codex app automations, `docs/automation-cadence.md`, `docs/automation-memory.md`, `docs/master-plan.md`, `docs/automation-prompts/`, `scripts/check-automation-contract.ps1`, `scripts/snapshot-automation-prompts.ps1`, and `scripts/measure-automation-efficiency.ps1`.
+- `guardrail`: This repair changes only the app-visible automation IDs and stale local registry folders. Names, RRULE schedules, active status, workspace, model, reasoning effort, and the 30-start/day cadence remain unchanged.
+- `last updated`: 2026-05-18 16:11 PT
