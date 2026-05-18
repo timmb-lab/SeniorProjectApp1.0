@@ -6,12 +6,12 @@ param(
 $ErrorActionPreference = "Stop"
 
 $automationIds = @(
-    "senior-capstone-figma-product-design",
-    "senior-capstone-rebuild-hourly",
-    "senior-capstone-content-quality-audits",
-    "senior-capstone-canva-visual-system",
-    "senior-capstone-daily-automation-report",
-    "senior-capstone-weekly-deep-audit"
+    "senior-capstone-figma-product-design-rebuilt",
+    "senior-capstone-rebuild-rebuilt",
+    "senior-capstone-content-quality-audits-rebuilt",
+    "senior-capstone-canva-visual-system-rebuilt",
+    "senior-capstone-daily-automation-report-rebuilt",
+    "senior-capstone-weekly-deep-audit-rebuilt"
 )
 
 function Get-TomlStringValue {

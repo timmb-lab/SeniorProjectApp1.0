@@ -136,7 +136,7 @@ Definition of done for every run:
 ## Four-Times-Daily Non-Overlap Cadence
 
 Canva Visual System
-- Automation: `senior-capstone-canva-visual-system`
+- Automation: `senior-capstone-canva-visual-system-rebuilt`
 - Schedule: `00:00`, `06:00`, `12:00`, and `18:00`.
 - Purpose: supporting visual assets, program identity graphics, phase/process visuals, onboarding graphics, report visuals, recognition assets, certificates, and printable/exportable collateral.
 - MVP emphasis: create polished app-supporting image families while preserving live UI text, privacy, accessibility, and Figma/rebuild placement.
@@ -144,21 +144,21 @@ Canva Visual System
 - Primary log: `docs/progress/canva.md`.
 
 Figma Product Design
-- Automation: `senior-capstone-figma-product-design`
+- Automation: `senior-capstone-figma-product-design-rebuilt`
 - Schedule: `01:15`, `07:15`, `13:15`, and `19:15`.
 - Purpose: app UI source of truth, database-backed state design, dashboard layouts, admin-preview readiness, design system, components, responsive states, accessibility states, and implementation-ready product specs.
 - Primary anchors: `docs/dashboard-ux-direction.md`, `docs/domain-model.md`, `data/programs.json`, `data/capstone-framework.json`, `docs/curriculum-framework-integration.md`.
 - Primary log: `docs/progress/figma.md`.
 
 Core Hosted-App Rebuild
-- Automation: `senior-capstone-rebuild-hourly`
+- Automation: `senior-capstone-rebuild-rebuilt`
 - Schedule: `02:30`, `08:30`, `14:30`, and `20:30`.
 - Purpose: Cloudflare/GitHub architecture, app scaffolding, backend, auth, database/schema, user groups, progress updates, tests, deployment readiness, and integration of the design/content direction into a working hosted app.
 - Primary anchors: `docs/rebuild-gameplan.md`, `docs/domain-model.md`, `docs/dashboard-ux-direction.md`, `data/programs.json`, `data/capstone-framework.json`, `docs/curriculum-framework-integration.md`.
 - Primary log: `docs/progress/rebuild.md`.
 
 Content Quality Audit
-- Automation: `senior-capstone-content-quality-audits`
+- Automation: `senior-capstone-content-quality-audits-rebuilt`
 - Schedule: `03:45`, `09:45`, `15:45`, and `21:45`.
 - Purpose: critical audit of MVP database/security readiness, curriculum, product requirements, roles, dashboards, program specificity, accessibility, privacy, workflow clarity, Cloudflare deployment readiness, and implementation readiness.
 - Primary anchors: all docs, `app.js`, templates, teacher companion guide, program seed data, and `data/capstone-framework.json`.
@@ -227,7 +227,7 @@ Every automation must keep these programs explicit:
 ## Daily Reporting Automation
 
 Reporting job:
-- Automation: `senior-capstone-daily-automation-report`
+- Automation: `senior-capstone-daily-automation-report-rebuilt`
 - Schedule: daily at `07:30`.
 - Purpose: summarize the previous 24 hours of automation changes, email the summary to `bryan.timm89@gmail.com`, and append the same summary to the Google Doc titled `Senior Capstone Daily Automation Log` under the `bryan.timm89@gmail.com` Google Drive target when connector permissions allow.
 
@@ -238,7 +238,7 @@ Fallback:
 ## Weekly Deep Audit Automation
 
 Weekly audit job:
-- Automation: `senior-capstone-weekly-deep-audit`
+- Automation: `senior-capstone-weekly-deep-audit-rebuilt`
 - Schedule: Sundays at `23:30`.
 - Purpose: run a long, severe, piece-by-piece audit of the whole Senior Capstone product, repo, source-framework coverage, app-readiness, security/privacy posture, dashboard usefulness, Figma/Canva usefulness, backlog health, log quality, automation health, and weekly human check-in readiness.
 

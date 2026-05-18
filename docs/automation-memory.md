@@ -26,7 +26,7 @@ Figma is the heavy product-design source for functional app screens, database-ba
 - Every main lane and the daily reporting automation now reference `docs/master-plan.md` along with the logs.
 - Daily automation summaries and the Google Drive/Doc target should use `bryan.timm89@gmail.com`.
 - Every main lane and the daily reporting automation now use `docs/automation-self-improvement.md` to self-review, log whether prompt/config changes were needed, and update only their own live automation prompt/config when evidence justifies it.
-- A weekly deep audit automation, `senior-capstone-weekly-deep-audit`, now runs Sundays at `23:30 PT` to produce a severe whole-system audit and feed durable findings into the master plan, memory, backlog, handoffs, decision log, and run logs.
+- A weekly deep audit automation, `senior-capstone-weekly-deep-audit-rebuilt`, now runs Sundays at `23:30 PT` to produce a severe whole-system audit and feed durable findings into the master plan, memory, backlog, handoffs, decision log, and run logs.
 - Automation operating infrastructure now includes prompt snapshots in `docs/automation-prompts/`, structured run manifests in `docs/progress/runs/`, human decisions in `docs/human-decisions.md`, external artifact registry in `docs/artifacts.json`, and contract scripts in `scripts/`.
 
 ## Current Priority
@@ -86,6 +86,14 @@ Read `docs/progress/decision-log.md` for accepted or superseded decisions.
 - `D-2026-05-18-005`: run a weekly deep audit automation to perform a long piece-by-piece whole-system review and feed findings back into the master plan and logs.
 - `D-2026-05-18-007`: automations use prompt snapshots, structured run manifests, human decisions, artifact registry, and a contract checker as core operating infrastructure.
 - `D-2026-05-18-008`: MVP 1.0 is a secure database/account/group/progress foundation hosted through GitHub to Cloudflare; Figma and Canva are heavy product/visual inputs; 2.0 may add iOS/Android notifications and announcements, with no student messaging.
+
+Current rebuilt automation IDs:
+- `senior-capstone-canva-visual-system-rebuilt`
+- `senior-capstone-figma-product-design-rebuilt`
+- `senior-capstone-rebuild-rebuilt`
+- `senior-capstone-content-quality-audits-rebuilt`
+- `senior-capstone-daily-automation-report-rebuilt`
+- `senior-capstone-weekly-deep-audit-rebuilt`
 
 ## Handoff Rules
 
