@@ -465,3 +465,33 @@ Verification:
 
 Recommended next slice:
 - Keep the lane order intact unless the user explicitly asks for a different owner sequence.
+
+## 2026-05-18 Daily Reporting Automation Setup
+
+Intent:
+- Add a daily email and Google Doc reporting loop for the previous 24 hours of automation work.
+
+Automation created:
+- `senior-capstone-daily-automation-report`
+
+Schedule:
+- Daily at `07:30`.
+
+Destinations:
+- Email: `timmb@nv.ccsd.net`
+- Google Doc target title: `Senior Capstone Daily Automation Log`
+
+What changed:
+- Created a reporting automation that inspects git history, lane logs, backlog, cadence, milestones, and changed files from the previous 24 hours.
+- The report emails Bryan a concise summary of commits, lane activity, product progress, visual/design progress, audit findings, risks, blockers, and next priorities.
+- The report attempts to create or append to the Google Doc target.
+- If Google Drive write access remains blocked, the automation writes the same summary to `docs/daily-automation-reports.md` and includes an action-required note in the email.
+- Added `docs/daily-automation-reporting.md` to document the setup.
+
+Verification:
+- Automation tool confirmed creation of `senior-capstone-daily-automation-report`.
+- Gmail and Google Drive connector tools are available in this session.
+- Google Drive create/import attempts returned `403 Forbidden`, so Drive write reauthorization is currently required for the Google Doc path.
+
+Recommended next slice:
+- Reauthorize or reconnect Google Drive with write access, then let the next reporting run create/append the Google Doc.

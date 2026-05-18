@@ -9,6 +9,7 @@ End goal: a hosted app with secure users, roles, permissions, private upload/evi
 Shared runbook: `docs/automation-runbook.md`.
 Shared milestones: `docs/automation-milestones.md`.
 Shared curriculum framework: `data/capstone-framework.json` and `docs/curriculum-framework-integration.md`.
+Daily reporting notes: `docs/daily-automation-reporting.md`.
 
 ## Shared Operating Contract
 
@@ -171,3 +172,14 @@ Every automation must keep these programs explicit:
 - Teaching & Training
 - Early Childhood Education
 - Medical Professions
+
+## Daily Reporting Automation
+
+Reporting job:
+- Automation: `senior-capstone-daily-automation-report`
+- Schedule: daily at `07:30`.
+- Purpose: summarize the previous 24 hours of automation changes, email the summary to `timmb@nv.ccsd.net`, and append the same summary to the Google Doc titled `Senior Capstone Daily Automation Log`.
+
+Fallback:
+- If Google Drive write access is blocked, the report should still be emailed and should also be written to `docs/daily-automation-reports.md`.
+- Google Drive create/import returned `403 Forbidden` during setup on 2026-05-18, so Drive reauthorization with write access may be required before the Google Doc append path succeeds.
