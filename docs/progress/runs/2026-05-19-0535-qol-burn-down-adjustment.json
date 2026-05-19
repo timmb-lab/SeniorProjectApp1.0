@@ -1,0 +1,79 @@
+{
+  "run_id": "2026-05-19-0535-qol-burn-down-adjustment",
+  "timestamp_local": "2026-05-19T05:35:00-07:00",
+  "lane": "audit/automation",
+  "automation_id": "manual-codex-thread",
+  "trigger": "user-requested",
+  "status": "completed",
+  "requirement_ids": [
+    "MVP-001",
+    "MVP-014",
+    "MVP-026"
+  ],
+  "accepted_mvp_pass": true,
+  "duration_minutes": 58,
+  "output_kind": "script-repair",
+  "master_plan_sections": [
+    "Real Daily MVP Goal",
+    "QoL Automation Rebuild",
+    "30-day efficiency rule"
+  ],
+  "scope": "Audit overnight QoL automation runs and adjust the Senior Capstone QoL cadence to reduce duplicate blocked runs while preserving the single-slot registry.",
+  "files_changed": [
+    "scripts/automation-config.json",
+    "scripts/check-automation-contract.ps1",
+    "scripts/measure-automation-efficiency.ps1",
+    "docs/automation-cadence.md",
+    "docs/automation-runbook.md",
+    "docs/automation-self-improvement.md",
+    "docs/automation-memory.md",
+    "docs/master-plan.md",
+    "docs/progress/decision-log.md",
+    "docs/progress/audit.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-19-0535-qol-burn-down-adjustment.json"
+  ],
+  "external_artifacts": [
+    "C:/Users/bryan/.codex/automations/senior-capstone-qol-*/automation.toml",
+    "overnight automation logs in C:/Users/bryan/.codex/"
+  ],
+  "validation": [
+    "Local registry verification reported 10 ACTIVE Slot 1 Senior Capstone QoL automations and 20 PAUSED Slot 2/3 reserve companions.",
+    "C:/Users/bryan/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe scripts/run-powershell-script.mjs scripts/check-automation-contract.ps1 -RepoRoot . -RequireLive passed for 30 QoL automations and 2 support automations.",
+    "C:/Users/bryan/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe scripts/run-powershell-script.mjs scripts/measure-automation-efficiency.ps1 -RepoRoot . -Days 30 reported 10 active QoL automations, 10 active starts/day, 300 starts/30 days, 48-minute minimum spacing, and 20/30 percent conversion thresholds.",
+    "git diff --check passed with line-ending normalization warnings only."
+  ],
+  "backlog_updates": [],
+  "handoffs_opened": [],
+  "handoffs_closed": [],
+  "decisions_added": [
+    "D-2026-05-19-001"
+  ],
+  "human_decisions_added": [],
+  "evidence": [
+    "The May 18 17:30 PT to May 19 05:30 PT audit found reliable scheduling but 53 of 54 blocked or partially useful runs.",
+    "Repeated blockers were read/write policy limits, apply-patch failures, $CODEX_HOME access limits, Node/npm execution limits, and commit/push closeout failures.",
+    "One Senior run landed protected evidence access commit 2b552bc, proving the QoL ladder can produce durable work when writable execution is available.",
+    "The live/local Senior Capstone QoL registry now has 10 ACTIVE Slot 1 automations and 20 PAUSED Slot 2/3 reserve automations."
+  ],
+  "self_improvement": {
+    "result": "none",
+    "evidence": "Adjusted the QoL cadence contract, checker, scorecard guidance, and operating docs based on observed overnight blocker patterns.",
+    "automation_updated": "senior-capstone-qol-* Slot 2/3 statuses paused; Slot 1 statuses preserved active"
+  },
+  "commit": {
+    "message": "",
+    "hash": null,
+    "pushed": false
+  },
+  "automation_efficiency": {
+    "duplicate_scope_checked": true,
+    "scale_signal": "pause-duplicates",
+    "notes": "Burn-down mode keeps one active daily pass per QoL target and pauses duplicate Slot 2/3 starts until writable execution and accepted-pass conversion recover."
+  },
+  "next": [
+    "Run strict live automation validation.",
+    "Keep burn-down mode until active Slot 1 runs can write, validate, commit, and push durable changes.",
+    "Reactivate Slot 2 first only after a live audit shows Slot 1 productivity has recovered."
+  ]
+}

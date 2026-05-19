@@ -270,3 +270,16 @@ Each audit run should append a dated entry with:
 - `validation`: bundled Node wrapper regenerated snapshots; `scripts/check-automation-contract.ps1 -RequireLive` passed for 30 QoL automations and 2 support automations.
 - `self-improvement`: corrected the retargeted source-framework and immutable-review-history prompts so contract-required fragments remained present after the focus shift.
 - `next action`: keep the Drive school-account change out of the current QoL ladder and let the remaining lanes push tests, endpoints, shared primitives, and account lifecycle toward the Day 7 alpha gate.
+
+### 2026-05-19 05:35 PT - QoL Overnight Audit And Burn-Down Adjustment
+
+- `automation`: manual project-only audit and adjustment after Bryan asked how the overnight QoL automations did and asked to adjust them based on the runs.
+- `master-plan section`: QoL Automation Rebuild; Real Daily MVP Goal; 30-Day Efficiency Auto-Scaling Audit.
+- `scope`: Review overnight scheduler/log output and reduce duplicate unproductive starts while preserving the single-slot QoL registry.
+- `finding`: The scheduler fired reliably from 2026-05-18 17:30 PT through 2026-05-19 05:30 PT, but 53 of 54 runs were blocked or only partially useful. The repeated blockers were write/apply-patch access, `$CODEX_HOME` access, Node/npm execution, and commit/push closeout. One Senior run succeeded and landed protected evidence access commit `2b552bc`.
+- `live automations changed`: Slot 1 remains ACTIVE for all ten QoL targets. Slot 2 and Slot 3 companions are PAUSED reserve capacity, leaving 10 active starts/day and 20 paused reserve starts/day.
+- `script changes`: `scripts/automation-config.json` now records expected active daily times and `expectedActiveQoLStartsPerDay = 10`; `scripts/check-automation-contract.ps1` validates active starts separately from the full single-slot registry; `scripts/measure-automation-efficiency.ps1` now emits burn-down-specific conversion/reactivation guidance.
+- `files changed`: live/local Codex QoL automation TOMLs, `scripts/automation-config.json`, `scripts/check-automation-contract.ps1`, `scripts/measure-automation-efficiency.ps1`, `docs/automation-cadence.md`, `docs/automation-runbook.md`, `docs/automation-self-improvement.md`, `docs/automation-memory.md`, `docs/master-plan.md`, `docs/progress/decision-log.md`, `docs/progress/audit.md`, `docs/progress/run-log.md`, and the burn-down run manifest.
+- `validation`: local registry verification reported 10 ACTIVE Slot 1 automations and 20 PAUSED Slot 2/3 automations. Strict live automation contract passed for 30 QoL automations and 2 support automations. The efficiency scorecard reported 10 active QoL automations, 10 starts/day, 300 starts/30 days, 48-minute minimum spacing, and 20/30 percent minimum/stretch conversion thresholds.
+- `self-improvement`: added a writable preflight rule and burn-down cadence contract so future runs stop early with exact blockers instead of spending duplicate runs against the same read-only/policy limits.
+- `next action`: keep burn-down mode until active Slot 1 runs demonstrate durable write/validation/commit/push closeout; reactivate Slot 2 first only when that evidence exists.

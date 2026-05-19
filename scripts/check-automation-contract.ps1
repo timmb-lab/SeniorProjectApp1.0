@@ -53,6 +53,18 @@ foreach ($automation in $trackedAutomations) {
 $requiredPromptFragments = @($config.requiredPromptFragments)
 $allWeekDays = @($config.weekDays)
 $expectedDailyTimes = @($config.expectedDailyTimes)
+$expectedActiveDailyTimes = if ($config.PSObject.Properties.Name -contains "expectedActiveDailyTimes") {
+    @($config.expectedActiveDailyTimes)
+}
+else {
+    @($config.expectedDailyTimes)
+}
+$expectedActiveQoLStartsPerDay = if ($config.PSObject.Properties.Name -contains "expectedActiveQoLStartsPerDay") {
+    [int]$config.expectedActiveQoLStartsPerDay
+}
+else {
+    $expectedActiveDailyTimes.Count
+}
 $minimumStartSpacingMinutes = [int]$config.minimumStartSpacingMinutes
 $telemetryCutoff = [DateTimeOffset]::Parse([string]$config.telemetryCutoff)
 $strictManifestCutoff = [DateTimeOffset]::Parse([string]$config.strictManifestCutoff)
@@ -388,9 +400,9 @@ foreach ($slot in $scheduleSlots.Keys) {
 
 foreach ($day in $allWeekDays) {
     $times = @($activeSlotsByDay[$day] | Sort-Object)
-    $expected = @($expectedDailyTimes | Sort-Object)
-    if ($times.Count -ne 30) {
-        $failures.Add("$day has $($times.Count) active Senior Capstone QoL starts; expected 30")
+    $expected = @($expectedActiveDailyTimes | Sort-Object)
+    if ($times.Count -ne $expectedActiveQoLStartsPerDay) {
+        $failures.Add("$day has $($times.Count) active Senior Capstone QoL starts; expected $expectedActiveQoLStartsPerDay")
     }
     elseif (($times -join ",") -ne ($expected -join ",")) {
         $failures.Add("$day active QoL starts are $($times -join ', '); expected $($expected -join ', ')")

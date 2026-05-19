@@ -15,7 +15,7 @@ The ten active Senior Capstone QoL automations should run this loop:
 3. During closeout, compare the run against its own prompt, the shared docs, and recent logs.
 4. If no prompt/config improvement is justified, write `self-improvement: none` in the lane/report log.
 5. If a small improvement is justified by evidence, update only that automation's own live prompt/config with `automation_update`, then log what changed and why.
-6. Preserve the existing automation `id`, `kind`, `name`, schedule, workspace, model, reasoning effort, and status unless the user explicitly asked to change one of those fields. Bryan explicitly rebuilt the Senior Capstone project automations on 2026-05-18; future QoL runners should preserve the new QoL IDs and schedules until he asks again.
+6. Preserve the existing automation `id`, `kind`, `name`, schedule, workspace, model, reasoning effort, and status unless the user explicitly asked to change one of those fields. Bryan explicitly rebuilt the Senior Capstone project automations on 2026-05-18, then asked on 2026-05-19 to adjust the QoL automation based on overnight results; the resulting burn-down mode keeps Slot 1 active and Slot 2/3 paused until write access and accepted-pass conversion recover.
 7. Regenerate prompt snapshots with `scripts/snapshot-automation-prompts.ps1` after any live prompt/config change.
 8. Update `scripts/check-automation-contract.ps1` when the master planner, pass logger, prompt snapshot, manifest, or self-patching contract changed and the checker needs to enforce the new requirement.
 9. Run project scripts non-interactively with `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File ...`, `npm run check:automation`, `npm run automation:snapshot`, or `node scripts/run-powershell-script.mjs ...` so scheduled runs do not pause for shell-level prompts.
@@ -59,7 +59,7 @@ Do not:
 
 - Weaken the hosted-app goal, role/permission requirements, upload/evidence privacy, audit logging, or protected student-record posture.
 - Remove the requirement to log, commit, and push.
-- Change cadence, schedule, workspace, model, reasoning effort, status, or other automations unless the user explicitly asked.
+- Change cadence, schedule, workspace, model, reasoning effort, status, or other automations unless the user explicitly asked. The May 19 burn-down adjustment is the current explicit exception: Slot 2 and Slot 3 companions are paused reserve capacity.
 - Rewrite another lane's prompt. Create a handoff for that lane instead.
 - Spend a run on broad prompt polishing without evidence.
 - Delete historical logs, handoffs, decisions, or backlog items to make the state look cleaner.
@@ -89,4 +89,4 @@ The default work of each run is still product progress. Self-improvement is a cl
 
 For this Senior Capstone project only, the `senior-capstone-qol-source-framework-seed-2` automation owns the 100-pass goal calibration loop because it is the current source-framework/catalog/requirements runner. It should compare the last seven days of committed run evidence against the real daily target in `docs/master-plan.md`: minimum 2 accepted MVP passes per day, 3 stretch, and 14 accepted MVP passes per week. When evidence shows the next week's target or allocation should change, update only this project's `docs/master-plan.md`, `docs/automation-memory.md`, and `docs/mvp-requirements-catalog.md`, log the rationale, validate, commit, and push.
 
-For 30-day auto-scaling audits, run `scripts/measure-automation-efficiency.ps1` non-interactively and use the output to decide whether the system should keep cadence, retarget QoL focus, reduce collision risk, sharpen blockers, or ask Bryan for a schedule change. Use `-OutputPath docs/audits/<scorecard-name>.json` for durable scorecards, not `docs/progress/runs/` unless the JSON is a full run manifest. Do not increase starts merely because capacity exists; the current system needs only 6.67 percent accepted-pass conversion to hit the 2/day minimum over 30 days.
+For 30-day auto-scaling audits, run `scripts/measure-automation-efficiency.ps1` non-interactively and use the output to decide whether the system should keep cadence, retarget QoL focus, reduce collision risk, sharpen blockers, or ask Bryan for a schedule change. Use `-OutputPath docs/audits/<scorecard-name>.json` for durable scorecards, not `docs/progress/runs/` unless the JSON is a full run manifest. Do not increase starts merely because capacity exists; in burn-down mode the system needs 20 percent accepted-pass conversion to hit the 2/day minimum over 30 days, so reactivation should depend on write access and real accepted-pass evidence rather than schedule appetite.

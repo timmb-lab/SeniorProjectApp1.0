@@ -274,7 +274,10 @@ if ($qolAutomationsWithoutObservedManifest.Count -gt 0) {
     $recommendations.Add("The current QoL system is new; require the next weekly calibration to verify each QoL automation has at least one observed manifest or exact blocker.")
 }
 if ($dailyStartCapacity -ge 30) {
-    $recommendations.Add("Do not add more starts before proving conversion; 30 starts/day only needs 6.67 percent accepted-pass conversion for the 2/day minimum and 10 percent for the 3/day stretch.")
+    $recommendations.Add("Do not add more starts before proving conversion; $dailyStartCapacity starts/day needs $minimumConversionPercent percent accepted-pass conversion for the 2/day minimum and $stretchConversionPercent percent for the 3/day stretch.")
+}
+elseif ($dailyStartCapacity -eq 10) {
+    $recommendations.Add("Burn-down mode is active; keep Slot 2 and Slot 3 paused until Slot 1 runners can write, validate, commit, and push durable changes. At 10 starts/day, the 2/day minimum needs $minimumConversionPercent percent conversion and the 3/day stretch needs $stretchConversionPercent percent.")
 }
 $recommendations.Add("Auto-scaling should retarget QoL focus, acceptance criteria, and blockers from evidence before changing schedules.")
 

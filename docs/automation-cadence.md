@@ -2,7 +2,7 @@
 
 Date: 2026-05-18
 
-Bryan explicitly reset the Senior Capstone automation setup on 2026-05-18, then explicitly rebuilt it again as a focused QoL system. All prior project automation TOMLs are deleted. The current production cadence is thirty GUI-managed Senior Capstone QoL automations, each with one daily start in America/Los_Angeles. They are grouped into ten QoL targets with three single-slot automations per target, so the project still gets 30 small targeted starts/day without relying on one automation to honor multiple daily times.
+Bryan explicitly reset the Senior Capstone automation setup on 2026-05-18, then explicitly rebuilt it again as a focused QoL system. All prior project automation TOMLs are deleted. After the overnight May 18-19 audit showed 53 of 54 runs were read-only or policy-blocked, the current production cadence is burn-down mode: ten GUI-managed Slot 1 Senior Capstone QoL automations remain active, each with one daily start in America/Los_Angeles, while the Slot 2 and Slot 3 companion automations are paused reserve capacity.
 
 End goal: a GitHub-to-Cloudflare hosted Senior Capstone app whose MVP is a secure database-backed operating system with users, groups, roles, programs, cohorts, progress updates, submissions, private evidence, reviews, approvals, dashboards, announcements, admin controls, audit logs, exports, and protected student records.
 
@@ -22,7 +22,9 @@ Artifact registry: `docs/artifacts.json`.
 Contract checker: `scripts/check-automation-contract.ps1`.
 Npm/CI wrapper: `scripts/run-powershell-script.mjs`.
 
-## Active QoL Automations
+## QoL Automation Registry
+
+Current active starts are the Slot 1 rows at `00:03` through `07:15` PT. Slot 2 and Slot 3 rows are intentionally paused until a live audit shows writable runs can land and push changes again.
 
 | QoL target | Automation ID | Schedule PT | Primary output |
 | --- | --- | --- | --- |
@@ -57,9 +59,9 @@ Npm/CI wrapper: `scripts/run-powershell-script.mjs`.
 | Account lifecycle | `senior-capstone-qol-account-lifecycle-slot-3` | `22:27` | Invitations/imports, password reset, credential rotation, sessions, role scopes. |
 | Cloudflare verification | `senior-capstone-qol-cloudflare-verification-slot-3` | `23:15` | Post-push Pages/D1/env verification, CI, smoke checks, secrets, blockers. |
 
-This creates 30 Senior Capstone starts per day across the project. Each unfinished QoL target still runs at least 3x/day, but each app automation has exactly one daily RRULE slot. The start slots are staggered with no exact overlaps and at least 45 minutes between starts. Each runner must keep its own slice bounded, favor implementation or verification evidence, and must not overwrite unrelated dirty work. If the worktree is dirty because another QoL run is still closing, the runner should classify the dirty files, avoid staging unrelated changes, and either pick a non-conflicting read-only/verification slice or record a compact committed blocker.
+This now creates 10 active Senior Capstone starts per day across the project, one per QoL target. The paused companions preserve the single-slot pattern that fixed multi-BYHOUR reliability, but they should not be reactivated until accepted-pass conversion and write access recover. The active start slots are staggered with no exact overlaps and at least 45 minutes between starts. Each runner must keep its own slice bounded, favor implementation or verification evidence, and must not overwrite unrelated dirty work. If the worktree is dirty because another QoL run is still closing, the runner should classify the dirty files, avoid staging unrelated changes, and either pick a non-conflicting read-only/verification slice or record a compact committed blocker.
 
-The original `-2` suffixes are the app-managed GUI Slot 1 automation IDs created after the original direct-file TOMLs were found to be orphaned from the Codex automation app. The `slot-2` and `slot-3` IDs are app-managed single-slot companions added on 2026-05-18 because a single automation with multiple daily BYHOUR values was not reliably firing.
+The original `-2` suffixes are the app-managed GUI Slot 1 automation IDs created after the original direct-file TOMLs were found to be orphaned from the Codex automation app. The `slot-2` and `slot-3` IDs are app-managed single-slot companions added on 2026-05-18 because a single automation with multiple daily BYHOUR values was not reliably firing; they are now paused reserve slots after the May 18-19 overnight audit showed duplicate runs mostly reproduced read-only blockers.
 
 ## Shared Operating Contract
 
@@ -131,15 +133,15 @@ Run this scorecard during explicit automation audits and Sunday calibration:
 powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\measure-automation-efficiency.ps1 -RepoRoot . -Days 30
 ```
 
-Current scale math:
+Current burn-down scale math:
 
-- 30 scheduled starts/day.
-- 900 scheduled starts per 30 days.
+- 10 active scheduled starts/day.
+- 300 active scheduled starts per 30 days.
 - Minimum target: 60 accepted MVP passes per 30 days.
 - Stretch target: 90 accepted MVP passes per 30 days.
-- Required conversion: 6.67 percent for minimum, 10 percent for stretch.
+- Required conversion: 20 percent for minimum, 30 percent for stretch while burn-down mode is active.
 
-Auto-scaling means retargeting the next week's QoL focus and acceptance checks from evidence before changing the schedule. Schedule changes should be recommended only when accepted-pass conversion, run duration, dirty-worktree collisions, connector limits, or repeated blockers prove the current 30-start/day shape is harming output.
+Auto-scaling means retargeting the next week's QoL focus and acceptance checks from evidence before changing the schedule. The May 18-19 overnight audit is the current evidence for reducing duplicate starts: most runs were blocked before write/verification/commit, so the immediate goal is to prove the 10 active Slot 1 runners can land durable changes before reactivating Slot 2 or Slot 3.
 
 ## Commit Prefixes
 
