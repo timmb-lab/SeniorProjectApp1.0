@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "runId": "20260519T171241Z-5e48dd74",
+  "timestamp": "2026-05-19T17:12:41.776Z",
+  "scriptVersion": "1.0.0",
+  "commands": [],
+  "events": [],
+  "selection": {
+    "taskId": "SC-005",
+    "title": "SC-005: backlog item",
+    "category": "requirements-audit",
+    "score": 200,
+    "reason": [
+      "priority 115",
+      "category staleness 9999h",
+      "section staleness 9999h",
+      "category rotation eligible",
+      "dirty worktree favors automation-only checks"
+    ]
+  },
+  "execution": {
+    "status": "completed",
+    "summary": "SC-005: SC-005: backlog item",
+    "validation": [
+      "All parsed plan tasks include status and acceptance or next action text."
+    ],
+    "workPerformed": [
+      "Checked parsed master-plan/catalog task completeness."
+    ],
+    "commands": []
+  },
+  "changedFiles": [
+    "automation/qol/logs/20260519T171241Z-5e48dd74.json",
+    "automation/qol/reports/20260519T171241Z-5e48dd74.md",
+    "automation/qol/reports/latest.md",
+    "automation/qol/state/plan-index.json",
+    "automation/qol/state/state.json",
+    "automation/qol/state/state.json.2026-05-19T17-12-41-944Z.bak"
+  ]
+}

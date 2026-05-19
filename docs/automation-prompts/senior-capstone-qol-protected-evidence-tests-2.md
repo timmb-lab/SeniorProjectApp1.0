@@ -1,11 +1,11 @@
 ﻿---
 automation_id: "senior-capstone-qol-protected-evidence-tests-2"
 name: "Senior Capstone QoL - Protected Evidence Tests Slot 1"
-snapshot_generated_utc: "2026-05-19T14:17:34Z"
+snapshot_generated_utc: "2026-05-19T15:53:04Z"
 rrule: "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=1;BYMINUTE=39"
 model: "gpt-5.4"
 reasoning_effort: "high"
-prompt_sha256: "452969faabfa3b2c6fa1b12a453e9484d049670c2c4f11b2f410f7c7543ac10c"
+prompt_sha256: "3236fdb7b98343ada8de062d35f65816f9f093a8be3ce2dc6bfb21e649480b58"
 source_toml: "C:\Users\bryan\.codex\automations\senior-capstone-qol-protected-evidence-tests-2\automation.toml"
 ---
 
@@ -33,11 +33,11 @@ High-signal repo surfaces for this lane: functions/_lib/permissions.ts, function
 
 Surface expansion rule: decide which surfaces need work or proof: app code/routes/schema, Cloudflare Pages/D1/env/deploy, Figma route-data-permission handoff, Canva support assets, tests/CI, docs/artifacts/handoffs, and exact blockers.
 
-Self-improvement to scripts as you go: if prompt/config/script repair is justified, update only this project automation area and the smallest relevant project script; otherwise log self-improvement: none. Only touch automation related to this project when doing automation maintenance. Use scripts/snapshot-automation-prompts.ps1, scripts/check-automation-contract.ps1, scripts/run-powershell-script.mjs, npm run automation:snapshot, npm run check:automation, npm run check:automation:live, -RequireLive, and measure-automation-efficiency.ps1 as appropriate.
+Self-improvement to scripts as you go: if prompt/config/script repair is justified, update only this project automation area and the smallest relevant project script; otherwise log self-improvement: none. Only touch automation related to this project when doing automation maintenance. Use scripts/snapshot-automation-prompts.ps1, scripts/check-automation-contract.ps1, scripts/run-node-script.ps1, scripts/run-npm-script.ps1, npm run automation:snapshot, npm run check:automation, npm run check:automation:live, -RequireLive, and measure-automation-efficiency.ps1 as appropriate.
 
-No-human-approval rule: do not wait for approvals on project-owned files, scripts, commits, or pushes. Run project scripts non-interactively. Validate touched files, inspect git status, commit with the correct prefix, push the current branch, never force push, and never stage unrelated dirty files. If git status shows detached HEAD, identify the containing branch with a non-interactive git command before closeout; if no branch can be resolved safely, commit the bounded change and record the exact push blocker rather than skipping product or automation work.
+No-human-approval rule: do not wait for approvals on project-owned files, scripts, commits, or pushes. Run project scripts non-interactively with scripts/run-node-script.ps1 or scripts/run-npm-script.ps1 when node/npm are unreliable. Validate touched files, inspect git status, commit with the correct prefix, push the current branch, never force push, and never stage unrelated dirty files. If git status shows detached HEAD, identify the containing branch with a non-interactive git command before closeout; if no branch can be resolved safely, commit the bounded change and record the exact push blocker rather than skipping product or automation work.
 
-Required closeout: update the relevant lane/category log, docs/progress/run-log.md, and one structured manifest in docs/progress/runs/. The manifest must include requirement_ids, accepted_mvp_pass, duration_minutes, output_kind, automation_efficiency.duplicate_scope_checked, and automation_efficiency.scale_signal. Update the automation memory file with a 3-6 line summary, current focus, exact blocker/next action, and the local run timestamp. For explicit automation audits, Sunday calibration, repeated blockers, or collision/yield concerns, run node scripts/run-powershell-script.mjs scripts/measure-automation-efficiency.ps1 -RepoRoot . -Days 30; when saving a durable scorecard, add -OutputPath docs/audits/<scorecard-name>.json.
+Required closeout: update the relevant lane/category log, docs/progress/run-log.md, and one structured manifest in docs/progress/runs/. The manifest must include requirement_ids, accepted_mvp_pass, duration_minutes, output_kind, automation_efficiency.duplicate_scope_checked, and automation_efficiency.scale_signal. Update the automation memory file with a 3-6 line summary, current focus, exact blocker/next action, and the local run timestamp. For explicit automation audits, Sunday calibration, repeated blockers, or collision/yield concerns, run powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\measure-automation-efficiency.ps1 -RepoRoot . -Days 30; when saving a durable scorecard, add -OutputPath docs/audits/<scorecard-name>.json.
 
 Active Figma source: Senior Capstone App - Product UI System Recreated, file key z4t4tFPAKrMDh6pIYOeEw6, team::1638213362346160913. Figma and Canva are not production auth, database, private evidence storage, audit log, or dashboard source of truth.
 

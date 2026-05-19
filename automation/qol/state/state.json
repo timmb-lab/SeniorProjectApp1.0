@@ -1,0 +1,1728 @@
+{
+  "schemaVersion": 1,
+  "projectIdentity": {
+    "projectSlug": "senior-capstone-app",
+    "automationId": "senior-capstone-hourly-master-plan-orchestrator",
+    "uniqueProjectMarker": "senior-capstone-app-qol-master-orchestrator:3e4fe790-f11e-4a48-ab14-49867715d3eb"
+  },
+  "masterPlanChecksum": "410d4840d79519d58406a97be9cbac5eef90c7d65094ad9cfae8be0fc090f968",
+  "requirementCatalogChecksum": "bd9d813a0ebfa227d4c0f8f107753b35941faf5c8ec6908fd9858fe79b391db3",
+  "knownTasks": {
+    "MVP-001": {
+      "id": "MVP-001",
+      "title": "Build a GitHub-to-Cloudflare hosted Senior Capstone app, not a static guide or Figma-only prototype.",
+      "category": "deployment-qa",
+      "section": "deployment-qa",
+      "source": "docs/mvp-requirements-catalog.md",
+      "planStatus": "foundation started",
+      "status": "recurring",
+      "recurring": true,
+      "cadence": "recurring",
+      "priority": 75,
+      "firstSeenAt": "2026-05-19T17:09:35.539Z",
+      "lastSeenAt": "2026-05-19T21:51:23.412Z",
+      "lastAttemptAt": "2026-05-19T19:03:42.309Z",
+      "lastSuccessAt": "2026-05-19T19:03:42.309Z",
+      "failureCount": 0,
+      "blockerReason": null,
+      "cooldownUntil": null,
+      "lastSelectionReason": "priority 75; category staleness 0h; section staleness 0h; category rotation eligible; dirty worktree favors automation-only checks",
+      "dependencies": []
+    },
+    "MVP-002": {
+      "id": "MVP-002",
+      "title": "Preserve the Day 7 alpha account exception while clearly labeling seeded/demo personas as not production auth.",
+      "category": "requirements-audit",
+      "section": "requirements-audit",
+      "source": "docs/mvp-requirements-catalog.md",
+      "planStatus": "alpha active",
+      "status": "completed",
+      "recurring": false,
+      "cadence": "one-shot",
+      "priority": 65,
+      "firstSeenAt": "2026-05-19T17:09:35.539Z",
+      "lastSeenAt": "2026-05-19T21:51:23.412Z",
+      "lastAttemptAt": "2026-05-19T21:30:32.013Z",
+      "lastSuccessAt": "2026-05-19T21:30:32.013Z",
+      "failureCount": 0,
+      "blockerReason": null,
+      "cooldownUntil": null,
+      "lastSelectionReason": "priority 65; category staleness 0h; section staleness 0h; category rotation eligible; dirty worktree favors automation-only checks",
+      "dependencies": []
+    },
+    "MVP-003": {
+      "id": "MVP-003",
+      "title": "Exclude real student data from alpha and prevent private records from entering public/static assets.",
+      "category": "requirements-audit",
+      "section": "requirements-audit",
+      "source": "docs/mvp-requirements-catalog.md",
+      "planStatus": "foundation started",
+      "status": "recurring",
+      "recurring": true,
+      "cadence": "recurring",
+      "priority": 65,
+      "firstSeenAt": "2026-05-19T17:09:35.539Z",
+      "lastSeenAt": "2026-05-19T21:51:23.412Z",
+      "lastAttemptAt": "2026-05-19T21:30:26.271Z",
+      "lastSuccessAt": "2026-05-19T21:30:26.271Z",
+      "failureCount": 0,
+      "blockerReason": null,
+      "cooldownUntil": null,
+      "lastSelectionReason": "priority 65; category staleness 2h; section staleness 2h; category rotation eligible; dirty worktree favors automation-only checks",
+      "dependencies": []
+    },
+    "MVP-004": {
+      "id": "MVP-004",
+      "title": "Provide hardened username/password pilot auth behind a narrow boundary that can later swap to SSO.",
+      "category": "backend-security-data",
+      "section": "backend-security-data",
+      "source": "docs/mvp-requirements-catalog.md",
+      "planStatus": "foundation started",
+      "status": "completed",
+      "recurring": false,
+      "cadence": "one-shot",
+      "priority": 90,
+      "firstSeenAt": "2026-05-19T17:09:35.539Z",
+      "lastSeenAt": "2026-05-19T21:51:23.412Z",
+      "lastAttemptAt": "2026-05-19T19:02:36.442Z",
+      "lastSuccessAt": "2026-05-19T19:02:36.442Z",
+      "failureCount": 0,
+      "blockerReason": null,
+      "cooldownUntil": null,
+      "lastSelectionReason": "priority 90; category staleness 0h; section staleness 0h; category rotation eligible; dirty worktree favors automation-only checks",
+      "dependencies": []
+    },
+    "MVP-005": {
+      "id": "MVP-005",
+      "title": "Store users, credentials, sessions, login attempts, roles, and role assignments in D1.",
+      "category": "backend-security-data",
+      "section": "backend-security-data",
+      "source": "docs/mvp-requirements-catalog.md",
+      "planStatus": "foundation started",
+      "status": "completed",
+      "recurring": false,
+      "cadence": "one-shot",
+      "priority": 65,
+      "firstSeenAt": "2026-05-19T17:09:35.539Z",
+      "lastSeenAt": "2026-05-19T21:51:23.412Z",
+      "lastAttemptAt": "2026-05-19T19:27:41.861Z",
+      "lastSuccessAt": "2026-05-19T19:27:41.861Z",
+      "failureCount": 0,
+      "blockerReason": null,
+      "cooldownUntil": null,
+      "lastSelectionReason": "priority 65; category staleness 0h; section staleness 0h; category rotation eligible; dirty worktree favors automation-only checks",
+      "dependencies": []
+    },
+    "MVP-006": {
+      "id": "MVP-006",
+      "title": "Support student, mentor, program teacher, admin, and misc admin roles with default-deny permissions.",
+      "category": "backend-security-data",
+      "section": "backend-security-data",
+      "source": "docs/mvp-requirements-catalog.md",
+      "planStatus": "foundation started",
+      "status": "completed",
+      "recurring": false,
+      "cadence": "one-shot",
+      "priority": 120,
+      "firstSeenAt": "2026-05-19T17:09:35.539Z",
+      "lastSeenAt": "2026-05-19T21:51:23.412Z",
+      "lastAttemptAt": "2026-05-19T17:09:35.646Z",
+      "lastSuccessAt": "2026-05-19T17:09:35.646Z",
+      "failureCount": 0,
+      "blockerReason": null,
+      "cooldownUntil": null,
+      "lastSelectionReason": "priority 120; category staleness 9999h; section staleness 9999h; category rotation eligible; dirty worktree favors automation-only checks",
+      "dependencies": []
+    },
+    "MVP-007": {
+      "id": "MVP-007",
+      "title": "Let admins manage users, groups, programs, cohorts, mentor assignments, teacher assignments, and role scopes.",
+      "category": "admin-ops-reporting",
+      "section": "admin-ops-reporting",
+      "source": "docs/mvp-requirements-catalog.md",
+      "planStatus": "foundation started",
+      "status": "completed",
+      "recurring": false,
+      "cadence": "one-shot",
+      "priority": 65,
+      "firstSeenAt": "2026-05-19T17:09:35.539Z",
+      "lastSeenAt": "2026-05-19T21:51:23.412Z",
+      "lastAttemptAt": "2026-05-19T19:28:17.841Z",
+      "lastSuccessAt": "2026-05-19T19:28:17.841Z",
+      "failureCount": 0,
+      "blockerReason": null,
+      "cooldownUntil": null,
+      "lastSelectionReason": "priority 65; category staleness 0h; section staleness 0h; category rotation eligible; dirty worktree favors automation-only checks",
+      "dependencies": []
+    },
+    "MVP-008": {
+      "id": "MVP-008",
+      "title": "Represent all nine required CTE programs as first-class records and filters.",
+      "category": "backend-security-data",
+      "section": "backend-security-data",
+      "source": "docs/mvp-requirements-catalog.md",
+      "planStatus": "foundation started",
+      "status": "completed",
+      "recurring": false,
+      "cadence": "one-shot",
+      "priority": 50,
+      "firstSeenAt": "2026-05-19T17:09:35.539Z",
+      "lastSeenAt": "2026-05-19T21:51:23.412Z",
+      "lastAttemptAt": "2026-05-19T21:30:30.690Z",
+      "lastSuccessAt": "2026-05-19T21:30:30.690Z",
+      "failureCount": 0,
+      "blockerReason": null,
+      "cooldownUntil": null,
+      "lastSelectionReason": "priority 50; category staleness 2h; section staleness 2h; category rotation eligible; dirty worktree favors automation-only checks",
+      "dependencies": []
+    },
+    "MVP-009": {
+      "id": "MVP-009",
+      "title": "Convert source-PDF workflow into app-native requirements, sections, quality checks, deadlines, review gates, and dashboard signals.",
+      "category": "requirements-audit",
+      "section": "requirements-audit",
+      "source": "docs/mvp-requirements-catalog.md",
+      "planStatus": "not started",
+      "status": "completed",
+      "recurring": false,
+      "cadence": "one-shot",
+      "priority": 105,
+      "firstSeenAt": "2026-05-19T17:09:35.539Z",
+      "lastSeenAt": "2026-05-19T21:51:23.412Z",
+      "lastAttemptAt": "2026-05-19T19:03:38.717Z",
+      "lastSuccessAt": "2026-05-19T19:03:38.717Z",
+      "failureCount": 0,
+      "blockerReason": null,
+      "cooldownUntil": null,
+      "lastSelectionReason": "priority 105; category staleness 0h; section staleness 9999h; same category penalty; dirty worktree favors automation-only checks",
+      "dependencies": [
+        "SC-001"
+      ]
+    },
+    "MVP-010": {
+      "id": "MVP-010",
+      "title": "Track student progress records and status history from trusted server/database state.",
+      "category": "student-workflow-evidence",
+      "section": "student-workflow-evidence",
+      "source": "docs/mvp-requirements-catalog.md",
+      "planStatus": "foundation started",
+      "status": "completed",
+      "recurring": false,
+      "cadence": "one-shot",
+      "priority": 65,
+      "firstSeenAt": "2026-05-19T17:09:35.539Z",
+      "lastSeenAt": "2026-05-19T21:51:23.412Z",
+      "lastAttemptAt": "2026-05-19T19:27:36.467Z",
+      "lastSuccessAt": "2026-05-19T19:27:36.467Z",
+      "failureCount": 0,
+      "blockerReason": null,
+      "cooldownUntil": null,
+      "lastSelectionReason": "priority 65; category staleness 2h; section staleness 2h; category rotation eligible; dirty worktree favors automation-only checks",
+      "dependencies": []
+    },
+    "MVP-011": {
+      "id": "MVP-011",
+      "title": "Provide student dashboard with phase, next action, due items, evidence needs, revision state, and program context.",
+      "category": "student-workflow-evidence",
+      "section": "student-workflow-evidence",
+      "source": "docs/mvp-requirements-catalog.md",
+      "planStatus": "alpha active",
+      "status": "completed",
+      "recurring": false,
+      "cadence": "one-shot",
+      "priority": 65,
+      "firstSeenAt": "2026-05-19T17:09:35.539Z",
+      "lastSeenAt": "2026-05-19T21:51:23.412Z",
+      "lastAttemptAt": "2026-05-19T19:38:15.616Z",
+      "lastSuccessAt": "2026-05-19T19:38:15.616Z",
+      "failureCount": 0,
+      "blockerReason": null,
+      "cooldownUntil": null,
+      "lastSelectionReason": "priority 65; category staleness 0h; section staleness 0h; category rotation eligible; dirty worktree favors automation-only checks",
+      "dependencies": []
+    },
+    "MVP-012": {
+      "id": "MVP-012",
+      "title": "Provide guided proposal/research workflow with sections, evidence requirements, draft, submit, revise, and resubmit.",
+      "category": "student-workflow-evidence",
+      "section": "student-workflow-evidence",
+      "source": "docs/mvp-requirements-catalog.md",
+      "planStatus": "alpha active",
+      "status": "completed",
+      "recurring": false,
+      "cadence": "one-shot",
+      "priority": 65,
+      "firstSeenAt": "2026-05-19T17:09:35.539Z",
+      "lastSeenAt": "2026-05-19T21:51:23.412Z",
+      "lastAttemptAt": "2026-05-19T20:02:43.808Z",
+      "lastSuccessAt": "2026-05-19T20:02:43.808Z",
+      "failureCount": 0,
+      "blockerReason": null,
+      "cooldownUntil": null,
+      "lastSelectionReason": "priority 65; category staleness 0h; section staleness 0h; category rotation eligible; dirty worktree favors automation-only checks",
+      "dependencies": []
+    },
+    "MVP-013": {
+      "id": "MVP-013",
+      "title": "Validate evidence metadata and support private evidence links/uploads through Google Drive repository path.",
+      "category": "student-workflow-evidence",
+      "section": "student-workflow-evidence",
+      "source": "docs/mvp-requirements-catalog.md",
+      "planStatus": "foundation started",
+      "status": "completed",
+      "recurring": false,
+      "cadence": "one-shot",
+      "priority": 110,
+      "firstSeenAt": "2026-05-19T17:09:35.539Z",
+      "lastSeenAt": "2026-05-19T21:51:23.412Z",
+      "lastAttemptAt": "2026-05-19T17:10:21.431Z",
+      "lastSuccessAt": "2026-05-19T17:10:21.431Z",
+      "failureCount": 0,
+      "blockerReason": null,
+      "cooldownUntil": null,
+      "lastSelectionReason": "priority 110; category staleness 9999h; section staleness 9999h; category rotation eligible; dirty worktree favors automation-only checks",
+      "dependencies": []
+    },
+    "MVP-014": {
+      "id": "MVP-014",
+      "title": "Keep evidence artifacts access-controlled and auditable, including denied-access events.",
+      "category": "backend-security-data",
+      "section": "backend-security-data",
+      "source": "docs/mvp-requirements-catalog.md",
+      "planStatus": "foundation started",
+      "status": "completed",
+      "recurring": false,
+      "cadence": "one-shot",
+      "priority": 120,
+      "firstSeenAt": "2026-05-19T17:09:35.539Z",
+      "lastSeenAt": "2026-05-19T21:51:23.412Z",
+      "lastAttemptAt": "2026-05-19T18:44:07.371Z",
+      "lastSuccessAt": "2026-05-19T18:44:07.371Z",
+      "failureCount": 0,
+      "blockerReason": null,
+      "cooldownUntil": null,
+      "lastSelectionReason": "priority 120; category staleness 2h; section staleness 2h; category rotation eligible; dirty worktree favors automation-only checks",
+      "dependencies": []
+    },
+    "MVP-015": {
+      "id": "MVP-015",
+      "title": "Provide program teacher review queue, detail, comments, revision request, approval, status history, and dashboard count updates.",
+      "category": "staff-review-mentor",
+      "section": "staff-review-mentor",
+      "source": "docs/mvp-requirements-catalog.md",
+      "planStatus": "alpha active",
+      "status": "completed",
+      "recurring": false,
+      "cadence": "one-shot",
+      "priority": 95,
+      "firstSeenAt": "2026-05-19T17:09:35.539Z",
+      "lastSeenAt": "2026-05-19T21:51:23.412Z",
+      "lastAttemptAt": "2026-05-19T17:13:51.311Z",
+      "lastSuccessAt": "2026-05-19T17:13:51.311Z",
+      "failureCount": 0,
+      "blockerReason": null,
+      "cooldownUntil": null,
+      "lastSelectionReason": "priority 95; category staleness 9999h; section staleness 9999h; category rotation eligible; dirty worktree favors automation-only checks",
+      "dependencies": []
+    },
+    "MVP-016": {
+      "id": "MVP-016",
+      "title": "Preserve immutable review history and prior submission versions.",
+      "category": "staff-review-mentor",
+      "section": "staff-review-mentor",
+      "source": "docs/mvp-requirements-catalog.md",
+      "planStatus": "foundation started",
+      "status": "completed",
+      "recurring": false,
+      "cadence": "one-shot",
+      "priority": 95,
+      "firstSeenAt": "2026-05-19T17:09:35.539Z",
+      "lastSeenAt": "2026-05-19T21:51:23.412Z",
+      "lastAttemptAt": "2026-05-19T19:02:24.991Z",
+      "lastSuccessAt": "2026-05-19T19:02:24.991Z",
+      "failureCount": 0,
+      "blockerReason": null,
+      "cooldownUntil": null,
+      "lastSelectionReason": "priority 95; category staleness 2h; section staleness 2h; category rotation eligible; dirty worktree favors automation-only checks",
+      "dependencies": []
+    },
+    "MVP-017": {
+      "id": "MVP-017",
+      "title": "Support mentor assigned-student visibility, meeting attendance, make-up requirements, outline approval cues, presentation slot risk, and scoped actions.",
+      "category": "staff-review-mentor",
+      "section": "staff-review-mentor",
+      "source": "docs/mvp-requirements-catalog.md",
+      "planStatus": "alpha active",
+      "status": "completed",
+      "recurring": false,
+      "cadence": "one-shot",
+      "priority": 95,
+      "firstSeenAt": "2026-05-19T17:09:35.539Z",
+      "lastSeenAt": "2026-05-19T21:51:23.412Z",
+      "lastAttemptAt": "2026-05-19T19:04:03.854Z",
+      "lastSuccessAt": "2026-05-19T19:04:03.854Z",
+      "failureCount": 0,
+      "blockerReason": null,
+      "cooldownUntil": null,
+      "lastSelectionReason": "priority 95; category staleness 0h; section staleness 0h; category rotation eligible; dirty worktree favors automation-only checks",
+      "dependencies": [
+        "SC-004"
+      ]
+    },
+    "MVP-018": {
+      "id": "MVP-018",
+      "title": "Support admin overview, deadlines, templates, announcements, overrides, audit/activity, exports, and archive controls.",
+      "category": "admin-ops-reporting",
+      "section": "admin-ops-reporting",
+      "source": "docs/mvp-requirements-catalog.md",
+      "planStatus": "foundation started",
+      "status": "completed",
+      "recurring": false,
+      "cadence": "one-shot",
+      "priority": 95,
+      "firstSeenAt": "2026-05-19T17:09:35.539Z",
+      "lastSeenAt": "2026-05-19T21:51:23.412Z",
+      "lastAttemptAt": "2026-05-19T18:20:27.350Z",
+      "lastSuccessAt": "2026-05-19T18:20:27.350Z",
+      "failureCount": 0,
+      "blockerReason": null,
+      "cooldownUntil": null,
+      "lastSelectionReason": "priority 95; category staleness 9999h; section staleness 9999h; category rotation eligible; dirty worktree favors automation-only checks",
+      "dependencies": []
+    },
+    "MVP-019": {
+      "id": "MVP-019",
+      "title": "Provide misc-admin narrow read/reporting view without broad admin powers.",
+      "category": "admin-ops-reporting",
+      "section": "admin-ops-reporting",
+      "source": "docs/mvp-requirements-catalog.md",
+      "planStatus": "alpha active",
+      "status": "completed",
+      "recurring": false,
+      "cadence": "one-shot",
+      "priority": 65,
+      "firstSeenAt": "2026-05-19T17:09:35.539Z",
+      "lastSeenAt": "2026-05-19T21:51:23.412Z",
+      "lastAttemptAt": "2026-05-19T19:39:27.331Z",
+      "lastSuccessAt": "2026-05-19T19:39:27.331Z",
+      "failureCount": 0,
+      "blockerReason": null,
+      "cooldownUntil": null,
+      "lastSelectionReason": "priority 65; category staleness 0h; section staleness 0h; category rotation eligible; dirty worktree favors automation-only checks",
+      "dependencies": []
+    },
+    "MVP-020": {
+      "id": "MVP-020",
+      "title": "Maintain audit logs for sensitive actions: login, role changes, progress/status changes, evidence access, review decisions, overrides, exports, and permission denials.",
+      "category": "admin-ops-reporting",
+      "section": "admin-ops-reporting",
+      "source": "docs/mvp-requirements-catalog.md",
+      "planStatus": "foundation started",
+      "status": "completed",
+      "recurring": false,
+      "cadence": "one-shot",
+      "priority": 65,
+      "firstSeenAt": "2026-05-19T17:09:35.539Z",
+      "lastSeenAt": "2026-05-19T21:51:23.412Z",
+      "lastAttemptAt": "2026-05-19T21:30:20.501Z",
+      "lastSuccessAt": "2026-05-19T21:30:20.501Z",
+      "failureCount": 0,
+      "blockerReason": null,
+      "cooldownUntil": null,
+      "lastSelectionReason": "priority 65; category staleness 2h; section staleness 2h; category rotation eligible; dirty worktree favors automation-only checks",
+      "dependencies": []
+    },
+    "MVP-021": {
+      "id": "MVP-021",
+      "title": "Generate dashboard aggregates from trusted state for students, mentors, teachers, admins, and misc admins.",
+      "category": "student-workflow-evidence",
+      "section": "student-workflow-evidence",
+      "source": "docs/mvp-requirements-catalog.md",
+      "planStatus": "alpha active",
+      "status": "completed",
+      "recurring": false,
+      "cadence": "one-shot",
+      "priority": 65,
+      "firstSeenAt": "2026-05-19T17:09:35.539Z",
+      "lastSeenAt": "2026-05-19T21:51:23.412Z",
+      "lastAttemptAt": "2026-05-19T21:30:21.995Z",
+      "lastSuccessAt": "2026-05-19T21:30:21.995Z",
+      "failureCount": 0,
+      "blockerReason": null,
+      "cooldownUntil": null,
+      "lastSelectionReason": "priority 65; category staleness 1h; section staleness 1h; category rotation eligible; dirty worktree favors automation-only checks",
+      "dependencies": []
+    },
+    "MVP-022": {
+      "id": "MVP-022",
+      "title": "Support exports/archives, including May 5 student archive package and scoped signed download behavior.",
+      "category": "admin-ops-reporting",
+      "section": "admin-ops-reporting",
+      "source": "docs/mvp-requirements-catalog.md",
+      "planStatus": "foundation started",
+      "status": "completed",
+      "recurring": false,
+      "cadence": "one-shot",
+      "priority": 65,
+      "firstSeenAt": "2026-05-19T17:09:35.539Z",
+      "lastSeenAt": "2026-05-19T21:51:23.412Z",
+      "lastAttemptAt": "2026-05-19T21:30:23.406Z",
+      "lastSuccessAt": "2026-05-19T21:30:23.406Z",
+      "failureCount": 0,
+      "blockerReason": null,
+      "cooldownUntil": null,
+      "lastSelectionReason": "priority 65; category staleness 0h; section staleness 0h; category rotation eligible; dirty worktree favors automation-only checks",
+      "dependencies": []
+    },
+    "MVP-023": {
+      "id": "MVP-023",
+      "title": "Provide announcement surfaces for staff/admin updates without adding student-to-student messaging.",
+      "category": "admin-ops-reporting",
+      "section": "admin-ops-reporting",
+      "source": "docs/mvp-requirements-catalog.md",
+      "planStatus": "not started",
+      "status": "completed",
+      "recurring": false,
+      "cadence": "one-shot",
+      "priority": 85,
+      "firstSeenAt": "2026-05-19T17:09:35.539Z",
+      "lastSeenAt": "2026-05-19T21:51:23.412Z",
+      "lastAttemptAt": "2026-05-19T19:02:51.594Z",
+      "lastSuccessAt": "2026-05-19T19:02:51.594Z",
+      "failureCount": 0,
+      "blockerReason": null,
+      "cooldownUntil": null,
+      "lastSelectionReason": "priority 85; category staleness 1h; section staleness 1h; category rotation eligible; dirty worktree favors automation-only checks",
+      "dependencies": []
+    },
+    "MVP-024": {
+      "id": "MVP-024",
+      "title": "Preserve mobile-safe student path with no horizontal overflow.",
+      "category": "student-workflow-evidence",
+      "section": "student-workflow-evidence",
+      "source": "docs/mvp-requirements-catalog.md",
+      "planStatus": "foundation started",
+      "status": "completed",
+      "recurring": false,
+      "cadence": "one-shot",
+      "priority": 65,
+      "firstSeenAt": "2026-05-19T17:09:35.539Z",
+      "lastSeenAt": "2026-05-19T21:51:23.412Z",
+      "lastAttemptAt": "2026-05-19T21:30:24.930Z",
+      "lastSuccessAt": "2026-05-19T21:30:24.930Z",
+      "failureCount": 0,
+      "blockerReason": null,
+      "cooldownUntil": null,
+      "lastSelectionReason": "priority 65; category staleness 0h; section staleness 0h; category rotation eligible; dirty worktree favors automation-only checks",
+      "dependencies": []
+    },
+    "MVP-025": {
+      "id": "MVP-025",
+      "title": "Maintain CI and local validation for alpha contract, state machine, syntax, type checks, and future permission tests.",
+      "category": "deployment-qa",
+      "section": "deployment-qa",
+      "source": "docs/mvp-requirements-catalog.md",
+      "planStatus": "foundation started",
+      "status": "recurring",
+      "recurring": true,
+      "cadence": "recurring",
+      "priority": 75,
+      "firstSeenAt": "2026-05-19T17:09:35.539Z",
+      "lastSeenAt": "2026-05-19T21:51:23.412Z",
+      "lastAttemptAt": "2026-05-19T19:03:50.876Z",
+      "lastSuccessAt": "2026-05-19T19:03:50.876Z",
+      "failureCount": 0,
+      "blockerReason": null,
+      "cooldownUntil": null,
+      "lastSelectionReason": "priority 75; category staleness 0h; section staleness 0h; category rotation eligible; dirty worktree favors automation-only checks",
+      "dependencies": []
+    },
+    "MVP-026": {
+      "id": "MVP-026",
+      "title": "Verify Cloudflare Pages deployment, D1 binding, env vars/secrets, and `/api/alpha/state` after pushes.",
+      "category": "deployment-qa",
+      "section": "deployment-qa",
+      "source": "docs/mvp-requirements-catalog.md",
+      "planStatus": "foundation started",
+      "status": "recurring",
+      "recurring": true,
+      "cadence": "recurring",
+      "priority": 85,
+      "firstSeenAt": "2026-05-19T17:09:35.539Z",
+      "lastSeenAt": "2026-05-19T21:51:23.412Z",
+      "lastAttemptAt": "2026-05-19T18:43:37.670Z",
+      "lastSuccessAt": "2026-05-19T18:43:37.670Z",
+      "failureCount": 0,
+      "blockerReason": null,
+      "cooldownUntil": null,
+      "lastSelectionReason": "priority 85; category staleness 9999h; section staleness 9999h; category rotation eligible; dirty worktree favors automation-only checks",
+      "dependencies": []
+    },
+    "MVP-027": {
+      "id": "MVP-027",
+      "title": "Maintain backup/export posture, retention notes, secrets discipline, and no credential commits.",
+      "category": "deployment-qa",
+      "section": "deployment-qa",
+      "source": "docs/mvp-requirements-catalog.md",
+      "planStatus": "foundation started",
+      "status": "recurring",
+      "recurring": true,
+      "cadence": "recurring",
+      "priority": 75,
+      "firstSeenAt": "2026-05-19T17:09:35.539Z",
+      "lastSeenAt": "2026-05-19T21:51:23.412Z",
+      "lastAttemptAt": "2026-05-19T19:27:36.142Z",
+      "lastSuccessAt": "2026-05-19T19:27:36.142Z",
+      "failureCount": 0,
+      "blockerReason": null,
+      "cooldownUntil": null,
+      "lastSelectionReason": "priority 75; category staleness 0h; section staleness 0h; category rotation eligible; dirty worktree favors automation-only checks",
+      "dependencies": []
+    },
+    "MVP-028": {
+      "id": "MVP-028",
+      "title": "Keep Figma as functional product-design source for route/data/permission/states, not production data.",
+      "category": "design-assets-handoff",
+      "section": "design-assets-handoff",
+      "source": "docs/mvp-requirements-catalog.md",
+      "planStatus": "designed",
+      "status": "completed",
+      "recurring": false,
+      "cadence": "one-shot",
+      "priority": 65,
+      "firstSeenAt": "2026-05-19T17:09:35.539Z",
+      "lastSeenAt": "2026-05-19T21:51:23.412Z",
+      "lastAttemptAt": "2026-05-19T19:01:40.950Z",
+      "lastSuccessAt": "2026-05-19T19:01:40.950Z",
+      "failureCount": 0,
+      "blockerReason": null,
+      "cooldownUntil": null,
+      "lastSelectionReason": "priority 65; category staleness 9999h; section staleness 9999h; category rotation eligible; dirty worktree favors automation-only checks",
+      "dependencies": []
+    },
+    "MVP-029": {
+      "id": "MVP-029",
+      "title": "Keep Canva as supporting-image source with live-text and privacy discipline.",
+      "category": "design-assets-handoff",
+      "section": "design-assets-handoff",
+      "source": "docs/mvp-requirements-catalog.md",
+      "planStatus": "designed",
+      "status": "completed",
+      "recurring": false,
+      "cadence": "one-shot",
+      "priority": 65,
+      "firstSeenAt": "2026-05-19T17:09:35.539Z",
+      "lastSeenAt": "2026-05-19T21:51:23.412Z",
+      "lastAttemptAt": "2026-05-19T21:30:27.609Z",
+      "lastSuccessAt": "2026-05-19T21:30:27.609Z",
+      "failureCount": 0,
+      "blockerReason": null,
+      "cooldownUntil": null,
+      "lastSelectionReason": "priority 65; category staleness 2h; section staleness 2h; category rotation eligible; dirty worktree favors automation-only checks",
+      "dependencies": []
+    },
+    "MVP-030": {
+      "id": "MVP-030",
+      "title": "Keep the 100-pass target honest with weekly evidence-based calibration.",
+      "category": "requirements-audit",
+      "section": "requirements-audit",
+      "source": "docs/mvp-requirements-catalog.md",
+      "planStatus": "foundation started",
+      "status": "recurring",
+      "recurring": true,
+      "cadence": "recurring",
+      "priority": 65,
+      "firstSeenAt": "2026-05-19T17:09:35.539Z",
+      "lastSeenAt": "2026-05-19T21:51:23.412Z",
+      "lastAttemptAt": "2026-05-19T21:30:29.196Z",
+      "lastSuccessAt": "2026-05-19T21:30:29.196Z",
+      "failureCount": 0,
+      "blockerReason": null,
+      "cooldownUntil": null,
+      "lastSelectionReason": "priority 65; category staleness 0h; section staleness 0h; category rotation eligible; dirty worktree favors automation-only checks",
+      "dependencies": []
+    },
+    "SC-001": {
+      "id": "SC-001",
+      "title": "SC-001: framework seed loading",
+      "category": "requirements-audit",
+      "section": "automation-backlog",
+      "source": "docs/automation-backlog.md",
+      "planStatus": "open",
+      "status": "completed",
+      "recurring": false,
+      "cadence": "one-shot",
+      "priority": 90,
+      "firstSeenAt": "2026-05-19T17:09:35.539Z",
+      "lastSeenAt": "2026-05-19T21:51:23.412Z",
+      "lastAttemptAt": "2026-05-19T19:03:35.970Z",
+      "lastSuccessAt": "2026-05-19T19:03:35.970Z",
+      "failureCount": 0,
+      "blockerReason": null,
+      "cooldownUntil": null,
+      "lastSelectionReason": "priority 90; category staleness 0h; section staleness 0h; category rotation eligible; dirty worktree favors automation-only checks",
+      "dependencies": []
+    },
+    "SC-002": {
+      "id": "SC-002",
+      "title": "SC-002: student proposal/research workflow",
+      "category": "requirements-audit",
+      "section": "automation-backlog",
+      "source": "docs/automation-backlog.md",
+      "planStatus": "resolved",
+      "status": "completed",
+      "recurring": false,
+      "cadence": "one-shot",
+      "priority": 90,
+      "firstSeenAt": "2026-05-19T17:09:35.539Z",
+      "lastSeenAt": "2026-05-19T21:51:23.412Z",
+      "lastAttemptAt": null,
+      "lastSuccessAt": null,
+      "failureCount": 0,
+      "blockerReason": null,
+      "cooldownUntil": null,
+      "lastSelectionReason": null,
+      "dependencies": []
+    },
+    "SC-003": {
+      "id": "SC-003",
+      "title": "SC-003: private evidence/upload/link model",
+      "category": "requirements-audit",
+      "section": "automation-backlog",
+      "source": "docs/automation-backlog.md",
+      "planStatus": "in-progress",
+      "status": "completed",
+      "recurring": false,
+      "cadence": "one-shot",
+      "priority": 90,
+      "firstSeenAt": "2026-05-19T17:09:35.539Z",
+      "lastSeenAt": "2026-05-19T21:51:23.412Z",
+      "lastAttemptAt": "2026-05-19T19:03:50.283Z",
+      "lastSuccessAt": "2026-05-19T19:03:50.283Z",
+      "failureCount": 0,
+      "blockerReason": null,
+      "cooldownUntil": null,
+      "lastSelectionReason": "priority 90; category staleness 0h; section staleness 0h; category rotation eligible; dirty worktree favors automation-only checks",
+      "dependencies": []
+    },
+    "SC-004": {
+      "id": "SC-004",
+      "title": "SC-004: mentor meetings, presentation scheduling, celebration evidence, and archive/export",
+      "category": "requirements-audit",
+      "section": "automation-backlog",
+      "source": "docs/automation-backlog.md",
+      "planStatus": "open",
+      "status": "completed",
+      "recurring": false,
+      "cadence": "one-shot",
+      "priority": 90,
+      "firstSeenAt": "2026-05-19T17:09:35.539Z",
+      "lastSeenAt": "2026-05-19T21:51:23.412Z",
+      "lastAttemptAt": "2026-05-19T19:03:52.907Z",
+      "lastSuccessAt": "2026-05-19T19:03:52.907Z",
+      "failureCount": 0,
+      "blockerReason": null,
+      "cooldownUntil": null,
+      "lastSelectionReason": "priority 90; category staleness 0h; section staleness 0h; category rotation eligible; dirty worktree favors automation-only checks",
+      "dependencies": []
+    },
+    "SC-005": {
+      "id": "SC-005",
+      "title": "SC-005: backlog item",
+      "category": "requirements-audit",
+      "section": "automation-backlog",
+      "source": "docs/automation-backlog.md",
+      "planStatus": "in-progress",
+      "status": "completed",
+      "recurring": false,
+      "cadence": "one-shot",
+      "priority": 115,
+      "firstSeenAt": "2026-05-19T17:09:35.539Z",
+      "lastSeenAt": "2026-05-19T21:51:23.412Z",
+      "lastAttemptAt": "2026-05-19T17:12:41.943Z",
+      "lastSuccessAt": "2026-05-19T17:12:41.943Z",
+      "failureCount": 0,
+      "blockerReason": null,
+      "cooldownUntil": null,
+      "lastSelectionReason": "priority 115; category staleness 9999h; section staleness 9999h; category rotation eligible; dirty worktree favors automation-only checks",
+      "dependencies": []
+    },
+    "SC-006": {
+      "id": "SC-006",
+      "title": "SC-006: full app-flow alpha without production user accounts",
+      "category": "requirements-audit",
+      "section": "automation-backlog",
+      "source": "docs/automation-backlog.md",
+      "planStatus": "in-progress",
+      "status": "completed",
+      "recurring": false,
+      "cadence": "one-shot",
+      "priority": 115,
+      "firstSeenAt": "2026-05-19T17:09:35.539Z",
+      "lastSeenAt": "2026-05-19T21:51:23.412Z",
+      "lastAttemptAt": "2026-05-19T19:01:56.477Z",
+      "lastSuccessAt": "2026-05-19T19:01:56.477Z",
+      "failureCount": 0,
+      "blockerReason": null,
+      "cooldownUntil": null,
+      "lastSelectionReason": "priority 115; category staleness 2h; section staleness 2h; category rotation eligible; dirty worktree favors automation-only checks",
+      "dependencies": []
+    },
+    "QOL-LOGGING-REQUIREMENTS": {
+      "id": "QOL-LOGGING-REQUIREMENTS",
+      "title": "Maintain Logging Requirements",
+      "category": "qol-automation",
+      "section": "Logging Requirements",
+      "source": "docs/master-plan.md",
+      "planStatus": "recurring",
+      "status": "recurring",
+      "recurring": true,
+      "cadence": "daily",
+      "priority": 80,
+      "firstSeenAt": "2026-05-19T17:09:35.539Z",
+      "lastSeenAt": "2026-05-19T21:51:23.412Z",
+      "lastAttemptAt": "2026-05-19T18:43:59.456Z",
+      "lastSuccessAt": "2026-05-19T18:43:59.456Z",
+      "failureCount": 0,
+      "blockerReason": null,
+      "cooldownUntil": null,
+      "lastSelectionReason": "priority 80; category staleness 2h; section staleness 9999h; category rotation eligible; dirty worktree favors automation-only checks",
+      "dependencies": []
+    },
+    "QOL-ANTI-DRIFT-RULES": {
+      "id": "QOL-ANTI-DRIFT-RULES",
+      "title": "Maintain Anti-Drift Rules",
+      "category": "qol-automation",
+      "section": "Anti-Drift Rules",
+      "source": "docs/master-plan.md",
+      "planStatus": "recurring",
+      "status": "recurring",
+      "recurring": true,
+      "cadence": "daily",
+      "priority": 80,
+      "firstSeenAt": "2026-05-19T17:09:35.539Z",
+      "lastSeenAt": "2026-05-19T21:51:23.412Z",
+      "lastAttemptAt": "2026-05-19T17:11:24.551Z",
+      "lastSuccessAt": "2026-05-19T17:11:24.551Z",
+      "failureCount": 0,
+      "blockerReason": null,
+      "cooldownUntil": null,
+      "lastSelectionReason": "priority 80; category staleness 9999h; section staleness 9999h; category rotation eligible; dirty worktree favors automation-only checks",
+      "dependencies": []
+    },
+    "QOL-MASTER-SOURCE-ORDER": {
+      "id": "QOL-MASTER-SOURCE-ORDER",
+      "title": "Maintain Master Source Order",
+      "category": "qol-automation",
+      "section": "Master Source Order",
+      "source": "docs/master-plan.md",
+      "planStatus": "recurring",
+      "status": "recurring",
+      "recurring": true,
+      "cadence": "daily",
+      "priority": 80,
+      "firstSeenAt": "2026-05-19T17:09:35.539Z",
+      "lastSeenAt": "2026-05-19T21:51:23.412Z",
+      "lastAttemptAt": "2026-05-19T18:44:17.114Z",
+      "lastSuccessAt": "2026-05-19T18:44:17.114Z",
+      "failureCount": 0,
+      "blockerReason": null,
+      "cooldownUntil": null,
+      "lastSelectionReason": "priority 80; category staleness 0h; section staleness 9999h; category rotation eligible; dirty worktree favors automation-only checks",
+      "dependencies": []
+    }
+  },
+  "lastRunId": "20260519T215123Z-644356f9",
+  "runHistory": [
+    {
+      "runId": "20260519T190350Z-b32a7027",
+      "timestamp": "2026-05-19T19:03:50.876Z",
+      "selectedTaskId": "MVP-025",
+      "selectedCategory": "deployment-qa",
+      "status": "recurring",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T190352Z-40a80801",
+      "timestamp": "2026-05-19T19:03:52.907Z",
+      "selectedTaskId": "SC-004",
+      "selectedCategory": "requirements-audit",
+      "status": "completed",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T190403Z-605c9b99",
+      "timestamp": "2026-05-19T19:04:03.854Z",
+      "selectedTaskId": "MVP-017",
+      "selectedCategory": "staff-review-mentor",
+      "status": "completed",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T192735Z-1a80cfb3",
+      "timestamp": "2026-05-19T19:27:36.142Z",
+      "selectedTaskId": "MVP-027",
+      "selectedCategory": "deployment-qa",
+      "status": "recurring",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T192736Z-84cd47b4",
+      "timestamp": "2026-05-19T19:27:36.467Z",
+      "selectedTaskId": "MVP-010",
+      "selectedCategory": "student-workflow-evidence",
+      "status": "completed",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T192741Z-fb5c7708",
+      "timestamp": "2026-05-19T19:27:41.861Z",
+      "selectedTaskId": "MVP-005",
+      "selectedCategory": "backend-security-data",
+      "status": "completed",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T192817Z-beeaab13",
+      "timestamp": "2026-05-19T19:28:17.841Z",
+      "selectedTaskId": "MVP-007",
+      "selectedCategory": "admin-ops-reporting",
+      "status": "completed",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T193815Z-6d426bf8",
+      "timestamp": "2026-05-19T19:38:15.616Z",
+      "selectedTaskId": "MVP-011",
+      "selectedCategory": "student-workflow-evidence",
+      "status": "completed",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T193927Z-dcbf178f",
+      "timestamp": "2026-05-19T19:39:27.331Z",
+      "selectedTaskId": "MVP-019",
+      "selectedCategory": "admin-ops-reporting",
+      "status": "completed",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T200243Z-b88046dd",
+      "timestamp": "2026-05-19T20:02:43.808Z",
+      "selectedTaskId": "MVP-012",
+      "selectedCategory": "student-workflow-evidence",
+      "status": "completed",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T213020Z-25f072bf",
+      "timestamp": "2026-05-19T21:30:20.501Z",
+      "selectedTaskId": "MVP-020",
+      "selectedCategory": "admin-ops-reporting",
+      "status": "completed",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T213021Z-95c3be77",
+      "timestamp": "2026-05-19T21:30:21.995Z",
+      "selectedTaskId": "MVP-021",
+      "selectedCategory": "student-workflow-evidence",
+      "status": "completed",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T213023Z-93d76503",
+      "timestamp": "2026-05-19T21:30:23.406Z",
+      "selectedTaskId": "MVP-022",
+      "selectedCategory": "admin-ops-reporting",
+      "status": "completed",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T213024Z-bdb7a401",
+      "timestamp": "2026-05-19T21:30:24.930Z",
+      "selectedTaskId": "MVP-024",
+      "selectedCategory": "student-workflow-evidence",
+      "status": "completed",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T213026Z-8436cab2",
+      "timestamp": "2026-05-19T21:30:26.271Z",
+      "selectedTaskId": "MVP-003",
+      "selectedCategory": "requirements-audit",
+      "status": "recurring",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T213027Z-15162efd",
+      "timestamp": "2026-05-19T21:30:27.609Z",
+      "selectedTaskId": "MVP-029",
+      "selectedCategory": "design-assets-handoff",
+      "status": "completed",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T213028Z-ab8ba9e4",
+      "timestamp": "2026-05-19T21:30:29.196Z",
+      "selectedTaskId": "MVP-030",
+      "selectedCategory": "requirements-audit",
+      "status": "recurring",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T213030Z-02d8719e",
+      "timestamp": "2026-05-19T21:30:30.690Z",
+      "selectedTaskId": "MVP-008",
+      "selectedCategory": "backend-security-data",
+      "status": "completed",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T213031Z-7b7fb006",
+      "timestamp": "2026-05-19T21:30:32.013Z",
+      "selectedTaskId": "MVP-002",
+      "selectedCategory": "requirements-audit",
+      "status": "completed",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T213033Z-bca18ee7",
+      "timestamp": "2026-05-19T21:30:33.344Z",
+      "selectedTaskId": null,
+      "selectedCategory": null,
+      "status": "skipped",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T213419Z-d8a4def1",
+      "timestamp": "2026-05-19T21:34:19.675Z",
+      "selectedTaskId": null,
+      "selectedCategory": null,
+      "status": "skipped",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T213420Z-e93c640f",
+      "timestamp": "2026-05-19T21:34:21.013Z",
+      "selectedTaskId": null,
+      "selectedCategory": null,
+      "status": "skipped",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T213422Z-0b4230b9",
+      "timestamp": "2026-05-19T21:34:22.322Z",
+      "selectedTaskId": null,
+      "selectedCategory": null,
+      "status": "skipped",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T213423Z-cc30eeae",
+      "timestamp": "2026-05-19T21:34:23.649Z",
+      "selectedTaskId": null,
+      "selectedCategory": null,
+      "status": "skipped",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T213424Z-0f6e1a5a",
+      "timestamp": "2026-05-19T21:34:24.942Z",
+      "selectedTaskId": null,
+      "selectedCategory": null,
+      "status": "skipped",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T213426Z-a05ae41f",
+      "timestamp": "2026-05-19T21:34:26.275Z",
+      "selectedTaskId": null,
+      "selectedCategory": null,
+      "status": "skipped",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T213427Z-166de91d",
+      "timestamp": "2026-05-19T21:34:27.580Z",
+      "selectedTaskId": null,
+      "selectedCategory": null,
+      "status": "skipped",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T213428Z-33560957",
+      "timestamp": "2026-05-19T21:34:28.916Z",
+      "selectedTaskId": null,
+      "selectedCategory": null,
+      "status": "skipped",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T213430Z-1dca4b6a",
+      "timestamp": "2026-05-19T21:34:30.218Z",
+      "selectedTaskId": null,
+      "selectedCategory": null,
+      "status": "skipped",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T213431Z-e42f5757",
+      "timestamp": "2026-05-19T21:34:31.749Z",
+      "selectedTaskId": null,
+      "selectedCategory": null,
+      "status": "skipped",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T213516Z-be343714",
+      "timestamp": "2026-05-19T21:35:16.631Z",
+      "selectedTaskId": null,
+      "selectedCategory": null,
+      "status": "skipped",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T213517Z-d3504848",
+      "timestamp": "2026-05-19T21:35:17.947Z",
+      "selectedTaskId": null,
+      "selectedCategory": null,
+      "status": "skipped",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T213519Z-f19d0b78",
+      "timestamp": "2026-05-19T21:35:19.276Z",
+      "selectedTaskId": null,
+      "selectedCategory": null,
+      "status": "skipped",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T213520Z-8abbbdbd",
+      "timestamp": "2026-05-19T21:35:20.649Z",
+      "selectedTaskId": null,
+      "selectedCategory": null,
+      "status": "skipped",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T213521Z-0add62f1",
+      "timestamp": "2026-05-19T21:35:21.961Z",
+      "selectedTaskId": null,
+      "selectedCategory": null,
+      "status": "skipped",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T213523Z-ab291916",
+      "timestamp": "2026-05-19T21:35:23.296Z",
+      "selectedTaskId": null,
+      "selectedCategory": null,
+      "status": "skipped",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T213524Z-0259423d",
+      "timestamp": "2026-05-19T21:35:24.617Z",
+      "selectedTaskId": null,
+      "selectedCategory": null,
+      "status": "skipped",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T213525Z-c74df5b8",
+      "timestamp": "2026-05-19T21:35:25.957Z",
+      "selectedTaskId": null,
+      "selectedCategory": null,
+      "status": "skipped",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T213527Z-c3bb085f",
+      "timestamp": "2026-05-19T21:35:27.281Z",
+      "selectedTaskId": null,
+      "selectedCategory": null,
+      "status": "skipped",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T213528Z-2ff84c18",
+      "timestamp": "2026-05-19T21:35:28.577Z",
+      "selectedTaskId": null,
+      "selectedCategory": null,
+      "status": "skipped",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T213612Z-89f6efd8",
+      "timestamp": "2026-05-19T21:36:12.308Z",
+      "selectedTaskId": null,
+      "selectedCategory": null,
+      "status": "skipped",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T213613Z-86497624",
+      "timestamp": "2026-05-19T21:36:13.627Z",
+      "selectedTaskId": null,
+      "selectedCategory": null,
+      "status": "skipped",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T213614Z-75126398",
+      "timestamp": "2026-05-19T21:36:14.937Z",
+      "selectedTaskId": null,
+      "selectedCategory": null,
+      "status": "skipped",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T213616Z-ca585f5f",
+      "timestamp": "2026-05-19T21:36:16.263Z",
+      "selectedTaskId": null,
+      "selectedCategory": null,
+      "status": "skipped",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T213617Z-74aa3187",
+      "timestamp": "2026-05-19T21:36:17.692Z",
+      "selectedTaskId": null,
+      "selectedCategory": null,
+      "status": "skipped",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T213618Z-525bc570",
+      "timestamp": "2026-05-19T21:36:19.012Z",
+      "selectedTaskId": null,
+      "selectedCategory": null,
+      "status": "skipped",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T213620Z-a805a49e",
+      "timestamp": "2026-05-19T21:36:20.348Z",
+      "selectedTaskId": null,
+      "selectedCategory": null,
+      "status": "skipped",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T213621Z-15b0797f",
+      "timestamp": "2026-05-19T21:36:21.674Z",
+      "selectedTaskId": null,
+      "selectedCategory": null,
+      "status": "skipped",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T213622Z-2e69060f",
+      "timestamp": "2026-05-19T21:36:22.981Z",
+      "selectedTaskId": null,
+      "selectedCategory": null,
+      "status": "skipped",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T213624Z-38e65add",
+      "timestamp": "2026-05-19T21:36:24.299Z",
+      "selectedTaskId": null,
+      "selectedCategory": null,
+      "status": "skipped",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T213914Z-a09c94d1",
+      "timestamp": "2026-05-19T21:39:14.668Z",
+      "selectedTaskId": null,
+      "selectedCategory": null,
+      "status": "skipped",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T213915Z-3de2634e",
+      "timestamp": "2026-05-19T21:39:16.006Z",
+      "selectedTaskId": null,
+      "selectedCategory": null,
+      "status": "skipped",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T213917Z-eeec2d1f",
+      "timestamp": "2026-05-19T21:39:17.386Z",
+      "selectedTaskId": null,
+      "selectedCategory": null,
+      "status": "skipped",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T213918Z-e1bae2a0",
+      "timestamp": "2026-05-19T21:39:18.687Z",
+      "selectedTaskId": null,
+      "selectedCategory": null,
+      "status": "skipped",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T213919Z-d3b41898",
+      "timestamp": "2026-05-19T21:39:20.117Z",
+      "selectedTaskId": null,
+      "selectedCategory": null,
+      "status": "skipped",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T213921Z-4e600284",
+      "timestamp": "2026-05-19T21:39:21.477Z",
+      "selectedTaskId": null,
+      "selectedCategory": null,
+      "status": "skipped",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T213922Z-1219629d",
+      "timestamp": "2026-05-19T21:39:22.820Z",
+      "selectedTaskId": null,
+      "selectedCategory": null,
+      "status": "skipped",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T213923Z-ac0cfe91",
+      "timestamp": "2026-05-19T21:39:24.120Z",
+      "selectedTaskId": null,
+      "selectedCategory": null,
+      "status": "skipped",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T213925Z-692ef830",
+      "timestamp": "2026-05-19T21:39:25.418Z",
+      "selectedTaskId": null,
+      "selectedCategory": null,
+      "status": "skipped",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T213926Z-b8c999a7",
+      "timestamp": "2026-05-19T21:39:26.758Z",
+      "selectedTaskId": null,
+      "selectedCategory": null,
+      "status": "skipped",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T214428Z-f7e6e04b",
+      "timestamp": "2026-05-19T21:44:28.510Z",
+      "selectedTaskId": null,
+      "selectedCategory": null,
+      "status": "skipped",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T214429Z-7a3e6925",
+      "timestamp": "2026-05-19T21:44:29.829Z",
+      "selectedTaskId": null,
+      "selectedCategory": null,
+      "status": "skipped",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T214430Z-6f59e47b",
+      "timestamp": "2026-05-19T21:44:31.146Z",
+      "selectedTaskId": null,
+      "selectedCategory": null,
+      "status": "skipped",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T214432Z-62911466",
+      "timestamp": "2026-05-19T21:44:32.486Z",
+      "selectedTaskId": null,
+      "selectedCategory": null,
+      "status": "skipped",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T214433Z-1d38cab8",
+      "timestamp": "2026-05-19T21:44:33.838Z",
+      "selectedTaskId": null,
+      "selectedCategory": null,
+      "status": "skipped",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T214434Z-b3781e5b",
+      "timestamp": "2026-05-19T21:44:35.152Z",
+      "selectedTaskId": null,
+      "selectedCategory": null,
+      "status": "skipped",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T214436Z-bcc6998f",
+      "timestamp": "2026-05-19T21:44:36.463Z",
+      "selectedTaskId": null,
+      "selectedCategory": null,
+      "status": "skipped",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T214437Z-8df8afa7",
+      "timestamp": "2026-05-19T21:44:37.784Z",
+      "selectedTaskId": null,
+      "selectedCategory": null,
+      "status": "skipped",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T214438Z-d521b8f7",
+      "timestamp": "2026-05-19T21:44:39.129Z",
+      "selectedTaskId": null,
+      "selectedCategory": null,
+      "status": "skipped",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T214440Z-ff7500e0",
+      "timestamp": "2026-05-19T21:44:40.427Z",
+      "selectedTaskId": null,
+      "selectedCategory": null,
+      "status": "skipped",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T215054Z-c8ba5df0",
+      "timestamp": "2026-05-19T21:50:54.809Z",
+      "selectedTaskId": null,
+      "selectedCategory": null,
+      "status": "skipped",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T215112Z-9c6b2273",
+      "timestamp": "2026-05-19T21:51:12.318Z",
+      "selectedTaskId": null,
+      "selectedCategory": null,
+      "status": "skipped",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T215113Z-d4d33c85",
+      "timestamp": "2026-05-19T21:51:13.669Z",
+      "selectedTaskId": null,
+      "selectedCategory": null,
+      "status": "skipped",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T215114Z-0d4665a0",
+      "timestamp": "2026-05-19T21:51:15.031Z",
+      "selectedTaskId": null,
+      "selectedCategory": null,
+      "status": "skipped",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T215116Z-ad95918c",
+      "timestamp": "2026-05-19T21:51:16.553Z",
+      "selectedTaskId": null,
+      "selectedCategory": null,
+      "status": "skipped",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T215117Z-740f0374",
+      "timestamp": "2026-05-19T21:51:17.899Z",
+      "selectedTaskId": null,
+      "selectedCategory": null,
+      "status": "skipped",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T215119Z-4c5be7f8",
+      "timestamp": "2026-05-19T21:51:19.269Z",
+      "selectedTaskId": null,
+      "selectedCategory": null,
+      "status": "skipped",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T215120Z-abe5d239",
+      "timestamp": "2026-05-19T21:51:20.659Z",
+      "selectedTaskId": null,
+      "selectedCategory": null,
+      "status": "skipped",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T215121Z-e2ee629a",
+      "timestamp": "2026-05-19T21:51:22.068Z",
+      "selectedTaskId": null,
+      "selectedCategory": null,
+      "status": "skipped",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T215123Z-644356f9",
+      "timestamp": "2026-05-19T21:51:23.416Z",
+      "selectedTaskId": null,
+      "selectedCategory": null,
+      "status": "skipped",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    }
+  ],
+  "coverage": {
+    "bySection": {
+      "backend-security-data": {
+        "lastTouchedAt": "2026-05-19T21:30:30.690Z",
+        "count": 5
+      },
+      "student-workflow-evidence": {
+        "lastTouchedAt": "2026-05-19T21:30:24.930Z",
+        "count": 6
+      },
+      "Anti-Drift Rules": {
+        "lastTouchedAt": "2026-05-19T17:11:24.551Z",
+        "count": 1
+      },
+      "automation-backlog": {
+        "lastTouchedAt": "2026-05-19T19:03:52.907Z",
+        "count": 5
+      },
+      "staff-review-mentor": {
+        "lastTouchedAt": "2026-05-19T19:04:03.854Z",
+        "count": 3
+      },
+      "admin-ops-reporting": {
+        "lastTouchedAt": "2026-05-19T21:30:23.406Z",
+        "count": 6
+      },
+      "deployment-qa": {
+        "lastTouchedAt": "2026-05-19T19:27:36.142Z",
+        "count": 4
+      },
+      "Logging Requirements": {
+        "lastTouchedAt": "2026-05-19T18:43:59.456Z",
+        "count": 1
+      },
+      "Master Source Order": {
+        "lastTouchedAt": "2026-05-19T18:44:17.114Z",
+        "count": 1
+      },
+      "design-assets-handoff": {
+        "lastTouchedAt": "2026-05-19T21:30:27.609Z",
+        "count": 2
+      },
+      "requirements-audit": {
+        "lastTouchedAt": "2026-05-19T21:30:32.013Z",
+        "count": 4
+      }
+    },
+    "byCategory": {
+      "backend-security-data": {
+        "lastTouchedAt": "2026-05-19T21:30:30.690Z",
+        "count": 5
+      },
+      "student-workflow-evidence": {
+        "lastTouchedAt": "2026-05-19T21:30:24.930Z",
+        "count": 6
+      },
+      "qol-automation": {
+        "lastTouchedAt": "2026-05-19T18:44:17.114Z",
+        "count": 3
+      },
+      "requirements-audit": {
+        "lastTouchedAt": "2026-05-19T21:30:32.013Z",
+        "count": 9
+      },
+      "staff-review-mentor": {
+        "lastTouchedAt": "2026-05-19T19:04:03.854Z",
+        "count": 3
+      },
+      "admin-ops-reporting": {
+        "lastTouchedAt": "2026-05-19T21:30:23.406Z",
+        "count": 6
+      },
+      "deployment-qa": {
+        "lastTouchedAt": "2026-05-19T19:27:36.142Z",
+        "count": 4
+      },
+      "design-assets-handoff": {
+        "lastTouchedAt": "2026-05-19T21:30:27.609Z",
+        "count": 2
+      }
+    }
+  },
+  "lastSelectedTaskId": "MVP-002",
+  "lastSelectedCategory": "requirements-audit",
+  "pendingContinuation": null,
+  "lastValidationResults": [
+    "No task selected."
+  ],
+  "createdAt": "2026-05-19T17:09:35.539Z",
+  "updatedAt": "2026-05-19T21:51:23.416Z"
+}

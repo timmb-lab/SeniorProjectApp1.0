@@ -4,7 +4,7 @@ import { hashPassword, normalizeEmail } from "../../_lib/crypto";
 import { badRequest, json, readJson, requirePost } from "../../_lib/http";
 import { isAdmin } from "../../_lib/permissions";
 
-type TestAccountKey = "student" | "program_teacher" | "mentor" | "misc_admin";
+type TestAccountKey = "student" | "program_teacher" | "mentor" | "admin" | "misc_admin";
 
 interface SeedTestAccountsBody {
   passwords?: Partial<Record<TestAccountKey, string>>;
@@ -45,6 +45,15 @@ const TEST_ACCOUNTS: TestAccountSeed[] = [
     email: "rivera.mentor@senior-capstone.test",
     displayName: "Test Mentor Rivera",
     roleId: "mentor",
+    scopeType: "global",
+    scopeId: "",
+  },
+  {
+    key: "admin",
+    id: "test_user_admin_lee",
+    email: "lee.admin@senior-capstone.test",
+    displayName: "Test Admin Lee",
+    roleId: "admin",
     scopeType: "global",
     scopeId: "",
   },

@@ -7,6 +7,8 @@ export interface Env {
   SESSION_PEPPER?: string;
   PASSWORD_PEPPER?: string;
   EVIDENCE_STORAGE_PROVIDER: "google_drive";
+  GOOGLE_DRIVE_CLIENT_EMAIL?: string;
+  GOOGLE_DRIVE_PRIVATE_KEY?: string;
   GOOGLE_DRIVE_EVIDENCE_ROOT_ID?: string;
   GOOGLE_DRIVE_EVIDENCE_INDEX_SHEET_ID?: string;
 }

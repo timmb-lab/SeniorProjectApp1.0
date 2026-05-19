@@ -1,11 +1,11 @@
 ﻿---
 automation_id: "senior-capstone-qol-account-lifecycle-slot-2"
 name: "Senior Capstone QoL - Account Lifecycle Slot 2"
-snapshot_generated_utc: "2026-05-19T14:17:34Z"
+snapshot_generated_utc: "2026-05-19T15:53:04Z"
 rrule: "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=14;BYMINUTE=27"
 model: "gpt-5.4"
 reasoning_effort: "high"
-prompt_sha256: "3cc0823f65418b23818da2441f4ac8a943d3fb8246d122a4d547fb201ddfe482"
+prompt_sha256: "0a2ddaf25d2c9220b4ba5a33f64d3c9eaf9a4d2c5869eea4747ae49366266ff5"
 source_toml: "C:\Users\bryan\.codex\automations\senior-capstone-qol-account-lifecycle-slot-2\automation.toml"
 ---
 
@@ -37,13 +37,13 @@ Surface expansion rule: decide which surfaces need work or proof: app code/route
 
 Repo-first fallback rule: if automation memory, Google Sheets, or any connector/non-repo write is blocked, missing, or asks for approval, do not stop the run. Continue the repo slice, use repo logs/manifests as the durable fallback, and record the exact external blocker.
 
-Self-improvement to scripts as you go: if prompt/config/script repair is justified, update only this project automation area and the smallest relevant project script; otherwise log self-improvement: none. Only touch automation related to this project when doing automation maintenance. Use scripts/snapshot-automation-prompts.ps1, scripts/check-automation-contract.ps1, scripts/run-powershell-script.mjs, npm run automation:snapshot, npm run check:automation, npm run check:automation:live, -RequireLive, and measure-automation-efficiency.ps1 as appropriate.
+Self-improvement to scripts as you go: if prompt/config/script repair is justified, update only this project automation area and the smallest relevant project script; otherwise log self-improvement: none. Only touch automation related to this project when doing automation maintenance. Use scripts/snapshot-automation-prompts.ps1, scripts/check-automation-contract.ps1, scripts/run-node-script.ps1, scripts/run-npm-script.ps1, npm run automation:snapshot, npm run check:automation, npm run check:automation:live, -RequireLive, and measure-automation-efficiency.ps1 as appropriate.
 
-No-human-approval rule: do not wait for approvals on project-owned files, scripts, commits, or pushes. Run project scripts non-interactively. Validate touched files, inspect git status, commit with the correct prefix, push the current branch, never force push, and never stage unrelated dirty files.
+No-human-approval rule: do not wait for approvals on project-owned files, scripts, commits, or pushes. Run project scripts non-interactively with scripts/run-node-script.ps1 or scripts/run-npm-script.ps1 when node/npm are unreliable. Validate touched files, inspect git status, commit with the correct prefix, push the current branch, never force push, and never stage unrelated dirty files.
 
 Detached worktree rule: if git status shows HEAD (no branch) or the push target is unclear, inspect git branch --contains HEAD, git worktree list --porcelain, and git remote -v before substantive edits. If a safe branch/push target is still unclear, do not silently skip closeout; keep the run to repo-safe automation maintenance or commit an exact blocker that explains the git state and next action.
 
-Required closeout: update the relevant lane/category log, docs/progress/run-log.md, and one structured manifest in docs/progress/runs/. The manifest must include requirement_ids, accepted_mvp_pass, duration_minutes, output_kind, automation_efficiency.duplicate_scope_checked, and automation_efficiency.scale_signal. For explicit automation audits, Sunday calibration, repeated blockers, or collision/yield concerns, run node scripts/run-powershell-script.mjs scripts/measure-automation-efficiency.ps1 -RepoRoot . -Days 30; when saving a durable scorecard, add -OutputPath docs/audits/<scorecard-name>.json.
+Required closeout: update the relevant lane/category log, docs/progress/run-log.md, and one structured manifest in docs/progress/runs/. The manifest must include requirement_ids, accepted_mvp_pass, duration_minutes, output_kind, automation_efficiency.duplicate_scope_checked, and automation_efficiency.scale_signal. For explicit automation audits, Sunday calibration, repeated blockers, or collision/yield concerns, run powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\measure-automation-efficiency.ps1 -RepoRoot . -Days 30; when saving a durable scorecard, add -OutputPath docs/audits/<scorecard-name>.json.
 
 Active Figma source: Senior Capstone App - Product UI System Recreated, file key z4t4tFPAKrMDh6pIYOeEw6, team::1638213362346160913. Figma and Canva are not production auth, database, private evidence storage, audit log, or dashboard source of truth.
 

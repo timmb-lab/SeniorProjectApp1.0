@@ -1,10 +1,11 @@
 # Senior Capstone Master Plan
 
 Date: 2026-05-18
+Last accuracy audit: 2026-05-19 PT
 
 This is the top-level product plan for the Senior Capstone rebuild. Every automation lane must read this before choosing work. If a run cannot explain how its slice advances this plan, it should pick a different slice.
 
-The category-owned MVP requirement source is `docs/mvp-requirements-catalog.md`. Every automation run must ladder from this master plan into that catalog, name the requirement IDs it advances, and update the catalog when status, evidence, blockers, owner category, or acceptance checks materially change.
+The MVP requirement source is `docs/mvp-requirements-catalog.md`. Every automation run must ladder from this master plan into that catalog, name the requirement IDs it advances, and update the catalog when status, evidence, blockers, owner category, or acceptance checks materially change. Active work ownership is the hourly master-plan orchestrator in the Hourly Master-Plan Orchestrator section; older category-runner and QoL-fleet sections are historical only.
 
 ## Product Destination
 
@@ -128,16 +129,16 @@ The first production slice is now database/security first:
 
 Admin creates or imports users, groups, programs, cohorts, and role assignments -> student record is created -> student or staff updates capstone progress -> status history persists -> audit event records the change -> role-aware dashboard aggregate updates from trusted database state -> app deploys through GitHub to Cloudflare.
 
-Before that slice can count as started, the repo needs a concrete MVP foundation setup:
+The foundation is started but not complete. Current verified state:
 
-- App scaffold that can run locally and deploy through GitHub to Cloudflare Workers/Pages.
-- Auth/session boundary using the hardened username/password pilot path until school SSO is available.
-- Database schema and migrations for users, groups, roles, memberships, programs, cohorts, requirements, progress, submissions, reviews, comments, evidence metadata, announcements, exports, deadlines, and audit events.
-- Private evidence storage plan using Google Drive as the MVP repository path, with server-side authorization, deletion/replacement rules, retention, archive/export, and audit events.
-- Server-side authorization helpers for student-own records, assigned mentor records, program/cohort teacher records, admin records, and narrow misc admin permissions.
-- Seed/dev data for at least one admin, program teacher, mentor, student, program, cohort, assignment, progress record, and audit event.
-- Test runner and first permission/workflow tests before any dashboard metric is trusted.
-- Environment/secrets template for local, preview, and production deployment assumptions.
+- Exists: Cloudflare Pages/Functions scaffold, `wrangler.jsonc`, package scripts, local dev path, CI check rail, and production Pages deployment evidence.
+- Exists: hardened username/password pilot auth endpoints for bootstrap, login, logout, session lookup, session cookies, and audit events.
+- Exists: D1 migration `0001_foundation` for users, credentials, sessions, roles, assignments, programs, cohorts, groups, requirements, progress, submissions, reviews, comments, evidence metadata, announcements, exports, deadlines, audit events, and app settings.
+- Exists: Google Drive evidence repository choice, evidence root/index records, and environment configuration. Missing: server-side Drive credential/OAuth implementation, real file-byte upload, access-controlled retrieval, deletion/replacement rules, and broader evidence-access tests.
+- Exists: permission helpers and alpha persona scoping. Missing: broad production-grade permission tests for student-own, mentor-assigned, program/cohort teacher, admin, and narrow misc admin access.
+- Exists: first admin, fake `.test` alpha role accounts, seeded cohort/group/mentor/proposal/progress/submission/evidence fixtures, and audit evidence in production D1.
+- Exists: Node test runner, alpha state-machine tests, alpha contract checker, automation contract checker, and test-account seed tests. Missing: broader auth, workflow, permission, evidence, export, meeting, and presentation-slot tests.
+- Exists: local/preview/production environment templates and Cloudflare secret setup notes. Missing: verification after each new post-push deployment and backup/restore/retention hardening before pilot use.
 
 The first workflow slice after that foundation is:
 
@@ -240,7 +241,7 @@ Earlier incomplete milestones beat later polish unless a P0/P1 risk says otherwi
 
 ## 100-Pass Delivery Constraint
 
-Bryan's current delivery pressure is to reach an MVP in 100 automation passes or fewer over roughly the next 45 days. This does not change the automation cadence, schedule, workspace, model, reasoning effort, or active status.
+Bryan's current delivery pressure is to reach an MVP in 100 automation passes or fewer over roughly the next 45 days. The current active cadence is one hourly master-plan orchestrator, running 24 times per day in this workspace with xhigh reasoning.
 
 The pass budget should bias every lane toward reducing implementation ambiguity:
 
@@ -253,7 +254,7 @@ The target is not "100 design passes." It is 100 total compounding passes toward
 
 ### Real Daily MVP Goal
 
-The current QoL schedule provides 30 active targeted starts per day, three per QoL target. The real delivery goal is evidence-based accepted MVP progress, not counted scheduled starts every day.
+The current hourly orchestrator provides 24 active starts per day. The real delivery goal is evidence-based accepted MVP progress, not counted scheduled starts every day.
 
 For the current 45-day / 100-pass target, use this daily goal:
 
@@ -271,16 +272,16 @@ Daily priority order:
 2. Second accepted pass should deepen or verify the same alpha path: working transitions, seeded/demo data, tests, local run proof, Cloudflare preview proof, error/empty/permission states, or bug fixes.
 3. Stretch pass can be Figma, Canva, audit, or docs only when it directly unblocks the Day 7 alpha or closes a concrete P0/P1 handoff.
 
-Weekly adjustment rule for this project only: `senior-capstone-qol-source-framework-seed-2` reviews the last seven days of run manifests, run log entries, commits, backlog movement, handoffs, and audit findings on Sundays. It then updates this master plan, `docs/automation-memory.md`, and `docs/mvp-requirements-catalog.md` with the next week's daily goal/allocation if evidence shows the plan is too loose, too aggressive, or pointed at the wrong QoL target.
+Weekly adjustment rule for this project only: `senior-capstone-hourly-master-plan-orchestrator` reviews the last seven days of run manifests, run log entries, commits, backlog movement, handoffs, and audit findings on Sundays. It then updates this master plan, `docs/automation-memory.md`, and `docs/mvp-requirements-catalog.md` with the next week's daily goal/allocation if evidence shows the plan is too loose, too aggressive, or pointed at the wrong requirement area.
 
-30-day efficiency rule: use `scripts/measure-automation-efficiency.ps1` to audit the active automation system before changing cadence. The current 30-start/day QoL system creates 900 active scheduled starts in 30 days; it needs 60 accepted MVP passes for the minimum target and 90 for the stretch target, so it needs 6.67 percent conversion for minimum and 10 percent for stretch. Auto-scaling should retarget QoL focus, blockers, prompt clarity, and acceptance checks from evidence before recommending schedule changes.
+30-day efficiency rule: use `scripts/measure-automation-efficiency.ps1` to audit the active automation system before changing cadence. The current 24-start/day hourly orchestrator creates 720 active scheduled starts in 30 days; it needs 60 accepted MVP passes for the minimum target and 90 for the stretch target, so it needs 8.34 percent conversion for minimum and 12.5 percent for stretch. Auto-scaling should retarget requirement focus, blockers, prompt clarity, and acceptance checks from evidence before recommending schedule changes.
 
-### 2026-05-18 Baseline After Figma And Automation Catch-Up
+### 2026-05-18 Historical Baseline After Figma And Automation Catch-Up
 
-Today's work materially improved the implementation runway, but it did not yet create the hosted database-backed app. Treat the repo state through commit `08660f3` as the 100-pass baseline:
+The 2026-05-18 morning work materially improved the implementation runway, but at that point it had not yet created the hosted database-backed app. Treat the repo state through commit `08660f3` as the historical 100-pass baseline; later bullets in this plan record the current shipped scaffold, D1, auth, alpha, and automation state:
 
-- Operating base is stronger: the project now has category-owned MVP requirements, prompt snapshots, structured run manifests, a human-decision queue, artifact registry, contract checker, publication/commit-push requirements, and non-interactive project-script rules.
-- Stack direction is accepted: `HD-2026-05-18-001` and ADR-0001 select the default GitHub-to-Cloudflare path with TypeScript, Cloudflare Workers/Pages, D1-compatible database, R2-compatible private evidence storage, Workers-compatible managed auth or school-approved SSO, server authorization, and audit logging.
+- Operating base was stronger by that baseline: the project had category-owned MVP requirements, prompt snapshots, structured run manifests, a human-decision queue, artifact registry, contract checker, publication/commit-push requirements, and non-interactive project-script rules. Current ownership is the hourly master-plan orchestrator in the Hourly Master-Plan Orchestrator section.
+- Stack direction is accepted and later refined: `HD-2026-05-18-001`, ADR-0001, and `D-2026-05-18-019` select the GitHub-to-Cloudflare path with Cloudflare Workers/Pages, D1, hardened username/password pilot auth until school SSO is available, Google Drive as the MVP evidence repository, server authorization, and audit logging. R2 is only a future fallback if enabled and approved.
 - Active Figma source is usable: professional-plan calls verified and updated file `z4t4tFPAKrMDh6pIYOeEw6` in team `1638213362346160913`.
 - Figma implementation handoffs now exist for the first MVP spine:
   - `18:2`: 100-pass route/data/permission execution map.
@@ -297,9 +298,9 @@ Today's work materially improved the implementation runway, but it did not yet c
 
 Because of that gap, the next useful 100-pass plan must prioritize implementation, deployment proof, and tests over additional design polish unless design work is directly blocking a concrete route/data/permission implementation. The full Figma prototype now exists; future Figma work should be targeted QA/handoff refinement, not another broad prototype pass, until the hosted alpha catches up.
 
-### 2026-05-18 Category Automation Reset
+### 2026-05-18 Historical Category Automation Reset
 
-Bryan explicitly reset the Senior Capstone automation setup on 2026-05-18. The prior active/standby automation model is superseded by seven active MVP category runners:
+Bryan explicitly reset the Senior Capstone automation setup on 2026-05-18. During that phase, the prior active/standby automation model was superseded by seven MVP category runners:
 
 - `requirements-audit`
 - `backend-security-data`
@@ -309,11 +310,11 @@ Bryan explicitly reset the Senior Capstone automation setup on 2026-05-18. The p
 - `deployment-qa`
 - `design-assets-handoff`
 
-The requirement catalog in `docs/mvp-requirements-catalog.md` is now the pass ladder between this master plan and individual run work. The schedule is execution capacity, not a target to count scheduled starts as accepted passes. Keep the daily accepted-pass goal at 2 minimum, 3 stretch, until the weekly evidence review changes it.
+That category-runner phase is superseded by the QoL Automation Rebuild. The requirement catalog in `docs/mvp-requirements-catalog.md` remains the pass ladder between this master plan and individual run work. The schedule is execution capacity, not a target to count scheduled starts as accepted passes. Keep the daily accepted-pass goal at 2 minimum, 3 stretch, until the weekly evidence review changes it.
 
-### 2026-05-18 Hourly Category Automation Escalation
+### 2026-05-18 Historical Hourly Category Automation Escalation
 
-Bryan explicitly asked for the automation to run as many times per day as practical with no human approvals, logging, laddering, and self-improvement to scripts as it goes. The seven active category runners now run hourly with distinct minute offsets, producing 168 scheduled starts per day and 24 starts per category per day:
+Bryan explicitly asked for the automation to run as many times per day as practical with no human approvals, logging, laddering, and self-improvement to scripts as it goes. During that superseded phase, the seven category runners ran hourly with distinct minute offsets, producing 168 scheduled starts per day and 24 starts per category per day:
 
 - `requirements-audit`: hourly at `:03`.
 - `backend-security-data`: hourly at `:11`.
@@ -325,7 +326,7 @@ Bryan explicitly asked for the automation to run as many times per day as practi
 
 This cadence was briefly the Codex GUI-facing source of truth before the later 20x tuning and QoL rebuild. It is intentionally preserved as historical context, but the active source of truth is now the QoL Automation Rebuild section below.
 
-### 2026-05-18 20x Automation Readiness
+### 2026-05-18 Historical 20x Automation Readiness
 
 Bryan then asked to make the automation A-material and ready to run 20x/day while touching only this project's automation. This 20x/day system was the Codex GUI-facing source of truth before the later QoL rebuild: 20 total project starts per day, distributed across seven category runners by MVP risk.
 
@@ -339,36 +340,26 @@ Bryan then asked to make the automation A-material and ready to run 20x/day whil
 
 A-material automation means each productive run must do one of three things: land verified MVP progress, repair a repeatable project automation/script/checker failure, or commit an exact blocker that makes the next account/tool action clear. It must name requirement IDs, log durable evidence, run relevant checks, commit, push, and avoid waiting for human approval on project-owned files/scripts/commits.
 
-### 2026-05-18 QoL Automation Rebuild
+### 2026-05-19 Hourly Master-Plan Orchestrator
 
-Bryan then requested deleting all project automation and rebuilding from scratch so every listed unfinished QoL item gets at least three passes per day without concentrating token use in a few broad runners. On 2026-05-18, Bryan reported that multiple daily times inside one automation were not reliably firing, so the Codex GUI-facing source of truth became thirty single-slot QoL automations grouped into ten targets. After Bryan's 2026-05-19 review, all thirty single-slot QoL automations are active again:
+Bryan requested deleting all Senior Capstone project automations and replacing the fleet with one large master-plan-driven automation that runs once per hour all day. The active automation is `senior-capstone-hourly-master-plan-orchestrator`; it runs 24 times per day from this workspace, reads the master plan and requirements catalog every run, and varies its selected work from repo evidence rather than from separate lane-specific prompts.
 
-- Source framework seed: `senior-capstone-qol-source-framework-seed-2` at `00:03`, `senior-capstone-qol-source-framework-seed-slot-2` at `08:03`, and `senior-capstone-qol-source-framework-seed-slot-3` at `16:03`.
-- Drive upload OAuth: `senior-capstone-qol-drive-upload-oauth-2` at `00:51`, `senior-capstone-qol-drive-upload-oauth-slot-2` at `08:51`, and `senior-capstone-qol-drive-upload-oauth-slot-3` at `16:51`.
-- Protected evidence tests: `senior-capstone-qol-protected-evidence-tests-2` at `01:39`, `senior-capstone-qol-protected-evidence-tests-slot-2` at `09:39`, and `senior-capstone-qol-protected-evidence-tests-slot-3` at `17:39`.
-- Teacher review endpoints: `senior-capstone-qol-teacher-review-endpoints-2` at `02:27`, `senior-capstone-qol-teacher-review-endpoints-slot-2` at `10:27`, and `senior-capstone-qol-teacher-review-endpoints-slot-3` at `18:27`.
-- Immutable review history: `senior-capstone-qol-immutable-review-history-2` at `03:15`, `senior-capstone-qol-immutable-review-history-slot-2` at `11:15`, and `senior-capstone-qol-immutable-review-history-slot-3` at `19:15`.
-- Mentor presentation flow: `senior-capstone-qol-mentor-presentation-flow-2` at `04:03`, `senior-capstone-qol-mentor-presentation-flow-slot-2` at `12:03`, and `senior-capstone-qol-mentor-presentation-flow-slot-3` at `20:03`.
-- Admin ops endpoints: `senior-capstone-qol-admin-ops-endpoints-2` at `04:51`, `senior-capstone-qol-admin-ops-endpoints-slot-2` at `12:51`, and `senior-capstone-qol-admin-ops-endpoints-slot-3` at `20:51`.
-- Announcements: `senior-capstone-qol-announcements-2` at `05:39`, `senior-capstone-qol-announcements-slot-2` at `13:39`, and `senior-capstone-qol-announcements-slot-3` at `21:39`.
-- Account lifecycle: `senior-capstone-qol-account-lifecycle-2` at `06:27`, `senior-capstone-qol-account-lifecycle-slot-2` at `14:27`, and `senior-capstone-qol-account-lifecycle-slot-3` at `22:27`.
-- Cloudflare verification: `senior-capstone-qol-cloudflare-verification-2` at `07:15`, `senior-capstone-qol-cloudflare-verification-slot-2` at `15:15`, and `senior-capstone-qol-cloudflare-verification-slot-3` at `23:15`.
+The orchestrator must cover the full master plan over time, not attempt every requirement in one run. Each hourly pass picks exactly one bounded slice, names the master-plan section and MVP requirement IDs it advances, checks recent manifests to avoid repeating stale work, and prefers the highest-risk incomplete requirement that can be advanced from the current repo/tool state. The hourly prompt explicitly covers `MVP-001` through `MVP-030`, the seven functional categories, the Day 7 alpha gate, post-alpha hardening, Cloudflare deployment proof, Figma/Canva handoff discipline, no-real-student-data guardrails, and the phone tracker fallback.
 
-Each QoL automation stays narrow, names requirement IDs, respects the token budget guardrail, applies the surface expansion rule, validates, logs, commits, and pushes. The schedule is 30 active starts/day and 3 starts/day per QoL target. The schedule is execution capacity, not an accepted-pass count.
+The schedule is 24 active starts/day. It is execution capacity, not an accepted-pass count. The accepted-pass goal remains 2 per day minimum and 3 per day stretch while the repo is unblocked.
 
 ### Updated 100-Pass Allocation From Current State
 
-Use this allocation as the working budget until a committed implementation pass proves it should change:
+Early foundation work is no longer hypothetical: the repo already has the Cloudflare Pages/Functions scaffold, D1 migration, hardened auth bootstrap/login/session endpoints, D1-backed alpha state API, fake login-capable alpha accounts, first-admin proof, CI, and alpha tests. Use the remaining 100-pass budget in this order until weekly evidence recalibrates it:
 
-1. Passes 1-10: create the Cloudflare-compatible TypeScript app scaffold, package scripts, local dev path, test runner, CI/build notes, Wrangler/Pages structure, environment template, and public-guide/source-framework preservation path.
-2. Passes 11-25: create D1-compatible schema/migrations and seed strategy for programs, cohorts, requirements, requirement sections, quality checks, deadlines, submissions, evidence artifacts, reviews, comments, status history, audit events, announcements, and exports.
-3. Passes 26-40: implement auth/account identity, user groups, roles, role scopes, mentor/teacher assignments, admin provisioning surfaces, permission helpers, and tests for student/mentor/teacher/admin/misc-admin boundaries.
-4. Passes 41-55: implement trusted progress updates, status transitions, audit-event persistence, dashboard aggregates from server/database state, and tests for valid/invalid transitions and unauthorized access.
-5. Passes 56-70: implement private evidence upload/link metadata, Google Drive repository upload/retrieval assumptions, access-controlled download or redirect behavior, external-link access checks, immutable review history, denied-access audit events, and protected-evidence tests.
-6. Passes 71-82: implement the proposal/research workflow slice: guided sections, source/quote/counterclaim quality checks, submit/resubmit, teacher review queue, revision request, approval, comments, and dashboard update.
-7. Passes 83-90: implement admin override, export/archive, announcement, misc-admin scoped reporting, audit-log views, and source-cycle extensions needed for mentor meetings, presentation, celebration, reflections, and May 5 archive readiness.
-8. Passes 91-97: harden deployment and operations: Cloudflare preview evidence, environment/secrets checklist, backup/export posture, accessibility/security QA, retention notes, and no-student-messaging verification.
-9. Passes 98-100: finish pilot readiness: staff provisioning checklist, seed/demo data posture without real student records, custom-domain readiness, final audit review, and Bryan-facing pilot checklist.
+1. Permission and evidence safety: broaden auth, permission helper, protected evidence, denied-access audit, export, meeting, and presentation-slot tests.
+2. Source framework seed: implement the seed loader for `data/capstone-framework.json`, requirements, sections, quality checks, deadlines, credit owners, and review gates.
+3. Real workflow endpoints: move proposal/research, evidence metadata, teacher review, revision, approval, status history, dashboard aggregate, and audit changes beyond the single alpha demo-state endpoint.
+4. Google Drive evidence implementation: add server-side credential/OAuth handling, upload/retrieval assumptions, access-controlled redirects/downloads, provider-unavailable states, deletion/replacement rules, and retention/audit behavior.
+5. Account lifecycle and admin provisioning: implement invitation/import, password reset, credential rotation, disabled/reset-required states, user/group/program/cohort assignment flows, and misc-admin denial tests.
+6. Mentor, presentation, admin ops, announcements, and exports: implement meeting attendance, make-up linkage, outline gates, presentation-slot conflicts, audited check-out/check-in, one-way announcements, export/archive lifecycle, and audit redaction.
+7. Deployment and operations: verify each post-push Cloudflare deployment, broaden CI, document backup/restore posture, scan for secrets/private data, and keep mobile/accessibility QA current.
+8. Pilot readiness: staff provisioning checklist, seed/demo data posture without real student records, custom-domain readiness, final security/privacy audit, and Bryan-facing pilot checklist.
 
 Immediate next five passes should deepen the shipped alpha into the real MVP spine:
 
@@ -386,30 +377,30 @@ The accepted deployment direction is GitHub-connected Cloudflare hosting. Bryan 
 
 The accepted rebuild stack direction is the Cloudflare-compatible production stack:
 
-- App framework and Workers/Pages structure.
-- Auth provider and account/group provisioning model.
-- Database, likely Cloudflare D1 or another Cloudflare-compatible secure database path.
+- Cloudflare Pages/Functions app framework and runtime structure.
+- Hardened username/password pilot auth with a narrow boundary for later school SSO replacement.
+- Cloudflare D1 database with SQL migrations.
 - Private upload/file storage through a Google Drive evidence repository for MVP, with Cloudflare R2 treated as a future fallback only if enabled and approved.
-- ORM/migrations.
+- Migration-first schema management; do not introduce an ORM unless it removes real complexity.
 - GitHub-to-Cloudflare deployment workflow.
 - Environment/secrets strategy.
 - Test runner and CI.
 - Backup/export posture.
 - Custom domain cutover checklist.
 
-No automation should pretend the app is functional until this foundation exists in the repo and is tested.
+No automation should call the app pilot-ready or safe for real student records until the remaining permission, evidence, account-lifecycle, deployment, backup, and privacy gaps are tested.
 
-Immediate setup order:
+Verified setup and remaining order:
 
-1. Scaffold the TypeScript app/runtime, package scripts, local dev command, test runner, and deployment config.
-2. Add schema/migration tooling and the first database tables for users, groups, memberships, roles, programs, cohorts, progress, and audit events.
-3. Add an alpha persona/role switcher and seeded/demo users so every core app flow can work without production accounts by 2026-05-24.
-4. Wire student, teacher, mentor, admin, and misc-admin alpha routes to shared demo/server-owned state and status transitions.
-5. Add hardened username/password auth/session integration behind a narrow app-owned interface so the exact provider can be swapped if school SSO later becomes available.
-6. Add server-side permission checks and tests before using the alpha for real records.
-7. Add Google Drive upload credential/OAuth and storage access patterns before accepting real uploads.
-8. Wire the first admin/student/teacher dashboard metrics only from server/database or explicit alpha demo state.
-9. Connect Figma implementation specs to the real routes/components after the secure data boundary exists.
+1. Done: scaffold Pages/Functions runtime, package scripts, local dev command, test runner, CI workflow, deployment config, and environment templates.
+2. Done: add D1 migration tooling and first database tables for users, groups, memberships, roles, programs, cohorts, progress, submissions, reviews, evidence metadata, announcements, exports, deadlines, and audit events.
+3. Done for alpha: add persona/role switching plus seeded/demo state for student, teacher, mentor, admin, and misc admin.
+4. Done for alpha: wire student, teacher, mentor, admin, and misc-admin alpha routes to D1-backed server-owned demo state and status transitions.
+5. Done for foundation: add hardened username/password auth/session integration for bootstrap, login, logout, and session lookup. Remaining: account lifecycle, credential rotation, reset-required/disabled states, import/invitation, and broader tests.
+6. In progress: add server-side permission helpers. Remaining: broad permission and protected-record tests before real records.
+7. Remaining: add Google Drive upload credential/OAuth and storage access patterns before accepting real uploads.
+8. In progress for alpha: dashboard metrics derive from alpha/server-owned state. Remaining: production dashboard aggregates from D1 workflow records.
+9. Remaining: consume Figma implementation specs in real routes/components as each workflow endpoint is implemented.
 
 Current stack pressure:
 
@@ -417,8 +408,8 @@ Current stack pressure:
 - `docs/architecture/adr-0001-stack-auth-database-upload.md` is the accepted Cloudflare-oriented ADR.
 - `D-2026-05-18-019` accepts the no-district-SSO hardened username/password pilot and Google Drive evidence repository path.
 - Cloudflare Pages project `senior-capstone-app`, D1 database `senior-capstone-db`, migration `0001_foundation`, Google Drive evidence root folder, Google Drive evidence index sheet, first admin, and four fake `.test` alpha role accounts are now provisioned and recorded in `docs/backend-setup.md`.
-- `SC-005` is now in-progress and keeps the scaffold in front of the automation loop.
-- Rebuild should prioritize the Cloudflare stack/auth/database/user-group/progress/private-upload foundation before broad app feature work.
+- `SC-005` remains in progress: scaffold, D1, auth foundation, alpha state, first admin, fake role accounts, and CI exist; Drive upload credentials/OAuth, broad permission/protected-evidence tests, account lifecycle, and production workflow endpoints remain incomplete.
+- Rebuild should prioritize tests, real workflow endpoints, Drive evidence implementation, account lifecycle, and deployment verification over broad new design or static-site polish.
 
 ## Lane Responsibilities
 
@@ -509,7 +500,7 @@ Do not:
 Each week, Bryan should be able to answer:
 
 - Did the project hit at least 14 accepted MVP passes this week, and were they mostly implementation-heavy while `SC-005` remained open?
-- Did `senior-capstone-qol-source-framework-seed-2` adjust the next week's daily goal/allocation from evidence instead of vibes?
+- Did `senior-capstone-hourly-master-plan-orchestrator` adjust the next week's daily goal/allocation from evidence instead of vibes?
 - Did the repo move closer to a real hosted app?
 - Did the repo move closer to the secure database/account/group/progress MVP?
 - Did the GitHub-to-Cloudflare deployment path move forward?

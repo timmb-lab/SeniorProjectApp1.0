@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "runId": "20260519T171120Z-f00474c8",
+  "timestamp": "2026-05-19T17:11:20.736Z",
+  "scriptVersion": "1.0.0",
+  "commands": [],
+  "events": [],
+  "selection": {
+    "taskId": "QOL-ANTI-DRIFT-RULES",
+    "title": "Maintain Anti-Drift Rules",
+    "category": "qol-automation",
+    "score": 200,
+    "reason": [
+      "priority 80",
+      "category staleness 9999h",
+      "section staleness 9999h",
+      "category rotation eligible",
+      "dirty worktree favors automation-only checks"
+    ]
+  },
+  "execution": {
+    "status": "recurring",
+    "summary": "QOL-ANTI-DRIFT-RULES: Maintain Anti-Drift Rules",
+    "validation": [
+      "Project-local QoL paths and lock metadata stayed inside this project."
+    ],
+    "workPerformed": [
+      "Audited project-only QoL automation guard paths."
+    ],
+    "commands": []
+  },
+  "changedFiles": [
+    "automation/qol/logs/20260519T171120Z-f00474c8.json",
+    "automation/qol/reports/20260519T171120Z-f00474c8.md",
+    "automation/qol/reports/latest.md",
+    "automation/qol/state/plan-index.json",
+    "automation/qol/state/state.json",
+    "automation/qol/state/state.json.2026-05-19T17-11-24-552Z.bak"
+  ]
+}

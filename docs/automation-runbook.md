@@ -60,20 +60,26 @@ Senior Capstone project scripts must be safe for unattended automation. Automati
 powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\<script-name>.ps1
 ```
 
-When npm is available, use the repo wrappers for common automation script actions:
+On this Windows Codex desktop environment, plain `node` may resolve to the packaged WindowsApps runtime and fail with `Access is denied`, and `npm` may be absent from PATH. Prefer the direct PowerShell wrappers for unattended automation support:
+
+```powershell
+powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 automation:snapshot
+powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 check
+powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 check:automation
+powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 check:automation:live
+powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\measure-automation-efficiency.ps1 -RepoRoot . -Days 30
+powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-node-script.ps1 scripts\check-alpha-contract.mjs
+powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 build:site-options
+```
+
+`scripts/run-node-script.ps1` resolves a working Codex bundled Node runtime before falling back to system Node. `scripts/run-npm-script.ps1` uses `npm.cmd` when available and otherwise handles the project's known local Node/PowerShell scripts without depending on global npm. Its aggregate `check` fallback runs alpha syntax, alpha contract, automation contract, site-options validation, Node tests, and TypeScript when installed; missing TypeScript tooling is a warning for aggregate QoL closeout, while the direct `typecheck` script remains strict.
+
+If a shell already has working `npm`, these remain acceptable convenience commands:
 
 ```powershell
 npm run automation:snapshot
 npm run check:automation
 npm run check:automation:live
-```
-
-When npm is unavailable but Node is available, use the wrapper directly:
-
-```powershell
-node scripts/run-powershell-script.mjs scripts/check-automation-contract.ps1
-node scripts/run-powershell-script.mjs scripts/check-automation-contract.ps1 -RequireLive
-node scripts/run-powershell-script.mjs scripts/measure-automation-efficiency.ps1 -RepoRoot . -Days 30
 ```
 
 Use `-RequireLive` / `npm run check:automation:live` only when auditing the live Codex GUI/local automation registry. The default automation check may validate repo prompt snapshots when live TOMLs are unavailable, which keeps CI and repo-only audits useful.
@@ -92,17 +98,17 @@ For the Senior Capstone app backend foundation, local scaffolding, schema design
 
 If those account/provisioning pieces are missing, rebuild should still scaffold local code and migrations, then log a precise `ACTION REQUIRED` item instead of blocking all work.
 
-## QoL Automation Rebuild
+## Hourly Master-Plan Orchestrator
 
-Bryan explicitly rebuilt the project automation from scratch into ten focused QoL target groups: source framework seed, Drive upload/OAuth, protected evidence tests, teacher review endpoints, immutable review history, mentor presentation flow, admin ops endpoints, announcements, account lifecycle, and Cloudflare verification. The live registry represents that as thirty single-slot automations, three per QoL target, because a single automation with multiple daily BYHOUR values was not reliably firing.
+Bryan explicitly deleted the previous Senior Capstone project automation fleet on 2026-05-19 and replaced it with one large hourly automation: `senior-capstone-hourly-master-plan-orchestrator`.
 
-After Bryan's 2026-05-19 review, all three slots are active again so the project receives the intended three daily QoL passes per target. The overnight May 18-19 audit still matters as a preflight lesson: runs should fail fast with exact blockers when write/tool access is unavailable, but Slot 2 and Slot 3 should not be paused again without a fresh user request.
+The orchestrator runs once per hour all day from `C:\SeniorProjectApp1.0`. It reads the master plan and requirements catalog every run, selects one bounded slice from `MVP-001` through `MVP-030`, and rotates work from evidence rather than from separate lane-specific prompts. It must cover the full master plan over time while keeping each individual run narrow enough to validate, log, commit, and push.
 
-## Category Runner No-Intervention Contract
+## Orchestrator No-Intervention Contract
 
-The Senior Capstone automation system now uses thirty active single-slot QoL runners. Together, they run 30 times per day on a staggered schedule recorded in `docs/automation-cadence.md`, with no shared scheduled start slots. The older orchestrator, standby lanes, daily prototype job, separate weekly audit job, broad seven-category runners, brief hourly escalation, and 20x category system are superseded by these QoL runners.
+The older QoL fleet, support refresh jobs, standby lanes, daily prototype job, broad seven-category runners, brief hourly escalation, and 20x category system are superseded by the hourly orchestrator recorded in `docs/automation-cadence.md`.
 
-Each QoL runner should resolve everything it can resolve from accepted docs, repo evidence, saved connector approvals, and safe fallbacks. It should not stop for a human when it can:
+The orchestrator should resolve everything it can resolve from accepted docs, repo evidence, saved connector approvals, and safe fallbacks. It should not stop for a human when it can:
 
 - Accept an already documented default decision that Bryan has explicitly or implicitly authorized in this project.
 - Patch a script, prompt, checker, snapshot, manifest, log, or fallback path that is clearly failing.
@@ -124,10 +130,10 @@ For automation maintenance, only touch automation related to this project: local
 
 ## Writable Preflight
 
-Every QoL run must spend the first minute proving it can do useful work before it opens large context:
+Every hourly run must spend the first minute proving it can do useful work before it opens large context:
 
 - Run `git status --short --branch`.
-- Confirm the current automation is one of the thirty active Senior Capstone QoL runners.
+- Confirm the current automation is `senior-capstone-hourly-master-plan-orchestrator`.
 - Confirm repo writes are available by planning a tiny repo-owned log/manifest update before broad inspection. Do not make throwaway files.
 - Confirm command execution can run the bundled or PATH Node/PowerShell path needed for repo checks.
 - If `apply_patch`, shell execution, `$CODEX_HOME` reads, Git LFS, Node/npm, or commit/push is blocked by policy, stop the product slice immediately and leave the shortest possible blocker closeout with the exact command/error and next action. Do not spend a full run rediscovering the same read-only state.
@@ -135,7 +141,7 @@ Every QoL run must spend the first minute proving it can do useful work before i
 
 ## Phone Tracker Closeout
 
-Every active QoL run should append one row to Bryan's phone-friendly Google Sheet at closeout:
+Every active hourly run should append one row to Bryan's phone-friendly Google Sheet at closeout:
 
 - Title: `Senior Capstone QoL Run Tracker`
 - URL: `https://docs.google.com/spreadsheets/d/1J8jQMn85wJwo9Rh6LjQUVv_WfLS1YJWsbpcLBCojjjs/edit`
@@ -147,16 +153,16 @@ Keep the row compact enough to scan on a phone. If the Google Sheets connector i
 
 ## Token Budget Guardrail
 
-QoL automations should avoid giant context loads. Every run reads the required anchors, then stays narrow:
+The hourly orchestrator may use a large prompt, but each run should avoid uncontrolled context loads. Every run reads the required anchors, then stays narrow:
 
 - Prefer `rg`, recent run manifests, and relevant log sections before opening long files.
 - Read the specific source files, tests, docs, Figma/Canva handoffs, or Cloudflare setup notes needed for the selected QoL target.
 - Avoid broad repo scans unless the selected acceptance check requires it.
-- Pick one bounded QoL slice per run and leave unrelated MVP work for its own automation.
+- Pick one bounded master-plan slice per run and leave unrelated MVP work for a later hourly pass.
 
 ## 30-Day Efficiency Auto-Scaling Protocol
 
-The current full-QoL cadence is 30 active starts/day. Scaling should first improve conversion, target selection, and blocker burn-down, not add more starts.
+The current hourly orchestrator cadence is 24 active starts/day. Scaling should first improve conversion, target selection, and blocker burn-down, not add more starts.
 
 Use this command for explicit automation audits and Sunday calibration:
 
@@ -166,16 +172,16 @@ powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\me
 
 Use `-OutputPath <path>` when a scheduled run should save the JSON scorecard as a durable artifact before logging or summarizing it.
 
-The efficiency scorecard measures active QoL automation count, daily start capacity, 30-day start capacity, minimum spacing, observed run manifests, accepted-pass telemetry, requirement IDs seen, and QoL automations with no observed manifest. Since the May 19 full-QoL reactivation, active QoL automation count should be 30 while daily active start capacity remains 30.
+The efficiency scorecard measures active automation count, daily start capacity, 30-day start capacity, minimum spacing, observed run manifests, accepted-pass telemetry, requirement IDs seen, elapsed scheduled sessions, and expected automations with no observed manifest. Under the hourly orchestrator contract, the active project automation count is 1 and daily active start capacity is 24.
 
 Scaling rules:
 
-- Keep the 30-start/day full-QoL schedule unless Bryan explicitly asks to change it or evidence shows this project-specific cadence is harming output.
-- Minimum 30-day target is 60 accepted MVP passes; stretch is 90. With 900 active scheduled starts in 30 days, the system needs 6.67 percent accepted-pass conversion for minimum and 10 percent for stretch.
+- Keep the 24-start/day hourly schedule unless Bryan explicitly asks to change it or evidence shows this project-specific cadence is harming output.
+- Minimum 30-day target is 60 accepted MVP passes; stretch is 90. With 720 active scheduled starts in 30 days, the system needs 8.34 percent accepted-pass conversion for minimum and 12.5 percent for stretch.
 - If accepted-pass conversion is below target, retarget the next week toward implementation, tests, deployment proof, exact blockers, and high-risk requirements before adding more runs.
-- If a QoL automation has no accepted evidence or exact blocker after seven days, sharpen its backlog item, prompt instructions, or handoff before changing cadence.
-- If run duration or dirty-worktree collisions repeatedly exceed the 48-minute start spacing, reduce collision risk by selecting non-conflicting verification slices, narrowing prompts, or recommending a schedule adjustment for Bryan.
-- If blockers dominate a QoL area, the automation should commit one precise blocker with the account/tool/policy action required and then move to adjacent non-blocked evidence in its scope.
+- If the orchestrator has no accepted evidence or exact blocker after seven days, sharpen its backlog selection, prompt instructions, or handoff rules before changing cadence.
+- If run duration or dirty-worktree collisions repeatedly exceed the hourly spacing, reduce collision risk by selecting non-conflicting verification slices, narrowing prompt execution, or recommending a schedule adjustment for Bryan.
+- If blockers dominate a requirement area, the automation should commit one precise blocker with the account/tool/policy action required and then move to adjacent non-blocked evidence in its scope.
 - If the project exceeds the stretch target with low collision risk, keep cadence stable and tighten acceptance quality; do not chase more starts for its own sake.
 
 New run manifests should include `accepted_mvp_pass`, `requirement_ids`, `duration_minutes`, `output_kind`, and `automation_efficiency.scale_signal` so the weekly source-framework/catalog runner can retarget from evidence instead of guessing. `scripts/check-automation-contract.ps1` enforces those fields for manifests at or after the 2026-05-18 14:47 PT efficiency-audit cutoff.
@@ -265,11 +271,11 @@ Each run chooses exactly one bounded scope.
 
 ## Daily Goal And Weekly Calibration
 
-For this Senior Capstone project only, the current 100-pass / roughly 45-day MVP target translates to a real daily goal of at least 2 accepted MVP passes per calendar day, with 3 accepted passes as the stretch goal when the repo is unblocked. The current 30 active QoL starts are execution capacity; scheduled starts are not accepted passes.
+For this Senior Capstone project only, the current 100-pass / roughly 45-day MVP target translates to a real daily goal of at least 2 accepted MVP passes per calendar day, with 3 accepted passes as the stretch goal when the repo is unblocked. The current 24 hourly starts are execution capacity; scheduled starts are not accepted passes.
 
 An accepted MVP pass must leave durable evidence: a pushed commit or published external artifact recorded in the repo, plus validation or a concrete blocker that reduces MVP ambiguity. The first two accepted passes each day should usually be implementation-heavy while `SC-005` remains open.
 
-`senior-capstone-qol-source-framework-seed` owns weekly calibration. On Sundays it must review the last seven days of run manifests, run-log entries, commits, backlog movement, handoffs, and audit findings. It should count accepted MVP passes against the minimum 2/day and 14/week goal, then update only this project's `docs/master-plan.md`, `docs/automation-memory.md`, and `docs/mvp-requirements-catalog.md` with the next week's daily goal/allocation when evidence requires adjustment.
+`senior-capstone-hourly-master-plan-orchestrator` owns weekly calibration. On Sundays it must review the last seven days of run manifests, run-log entries, commits, backlog movement, handoffs, and audit findings. It should count accepted MVP passes against the minimum 2/day and 14/week goal, then update only this project's `docs/master-plan.md`, `docs/automation-memory.md`, and `docs/mvp-requirements-catalog.md` with the next week's daily goal/allocation when evidence requires adjustment.
 
 Priority order:
 

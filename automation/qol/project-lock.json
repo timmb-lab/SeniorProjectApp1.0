@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "projectDisplayName": "Senior Capstone App",
+  "projectSlug": "senior-capstone-app",
+  "automationId": "senior-capstone-hourly-qol-orchestrator",
+  "allowedActiveAutomationIds": [
+    "senior-capstone-hourly-qol-orchestrator"
+  ],
+  "expectedAutomationRegistryEvidencePath": "automation/qol/state/automation-registry-evidence.json",
+  "expectedRepositoryRootBasename": "SeniorProjectApp1.0",
+  "expectedPackageName": "senior-capstone-app",
+  "expectedWranglerName": "senior-capstone-app",
+  "expectedGitRemoteSubstring": "github.com/timmb-lab/SeniorProjectApp1.0.git",
+  "expectedGitRemoteSha256": "41d3ffb146f7bbd9fc88ba5ccb02659aa4021f5a1e7912377d76ebecd9fe4fc0",
+  "expectedMasterPlanPath": "docs/master-plan.md",
+  "expectedRequirementCatalogPath": "docs/mvp-requirements-catalog.md",
+  "expectedAutomationStateDir": "automation/qol/state",
+  "expectedAutomationLogDir": "automation/qol/logs",
+  "expectedAutomationReportDir": "automation/qol/reports",
+  "normalEntrypoint": "automation/qol/hourly-orchestrator.mjs",
+  "doctorEntrypoint": "automation/qol/doctor.mjs",
+  "uniqueProjectMarker": "senior-capstone-app-qol-master-orchestrator:3e4fe790-f11e-4a48-ab14-49867715d3eb",
+  "safeExternalProjectOwnedLocations": [],
+  "createdDate": "2026-05-19"
+}

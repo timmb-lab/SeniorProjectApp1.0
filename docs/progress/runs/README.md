@@ -56,7 +56,7 @@ Examples:
   },
   "automation_efficiency": {
     "duplicate_scope_checked": true,
-    "scale_signal": "keep | retarget | reduce-collisions | needs-human-blocker",
+    "scale_signal": "keep | retarget | reduce-collisions | needs-human-blocker | pause-duplicates | preflight-blocked",
     "notes": ""
   },
   "next": []
@@ -70,6 +70,7 @@ Examples:
 - New manifests must use canonical `timestamp_local`, `automation_id`, and `status` fields. Legacy aliases may remain in old files, but audits should not depend on them going forward.
 - `accepted_mvp_pass` should be `true` only when the run lands verified MVP progress, publishes a durable artifact that directly unblocks an MVP requirement, repairs a repeatable automation/checker/script failure, or commits an exact blocker that reduces MVP ambiguity.
 - `duration_minutes`, `output_kind`, and `automation_efficiency.scale_signal` are required for new manifests after 2026-05-18 so 30-day audits can measure conversion, overlap risk, and retargeting needs.
+- Efficiency audits should separate legacy manifests from post-cutoff telemetry and should only classify QoL automations as missing observed sessions/manifests after their scheduled slot has elapsed in the measured window.
 - Use stable IDs for backlog, handoffs, artifacts, decisions, and human decisions.
 - Treat this folder as the machine-readable pass logger paired with `docs/progress/run-log.md`.
 - If the run changes a live automation prompt, regenerate `docs/automation-prompts/` and run `scripts/check-automation-contract.ps1`.

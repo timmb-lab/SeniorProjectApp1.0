@@ -13,9 +13,11 @@ test("test account seed endpoint is admin-only and fake-data only", () => {
 });
 
 test("test account seed endpoint covers the alpha roles and fixtures", () => {
-  for (const role of ["student", "program_teacher", "mentor", "misc_admin"]) {
+  for (const role of ["student", "program_teacher", "mentor", "admin", "misc_admin"]) {
     assert.match(source, new RegExp(`key: "${role}"`));
   }
+  assert.match(source, /lee\.admin@senior-capstone\.test/);
+  assert.match(source, /roleId: "admin"/);
   for (const fixture of [
     "alpha-2026",
     "group-alpha-it-2026",
