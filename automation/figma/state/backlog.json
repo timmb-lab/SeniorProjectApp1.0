@@ -1,0 +1,126 @@
+{
+  "schemaVersion": 1,
+  "description": "Bounded safe backlog for repo-local hourly Figma evolution. The lane selects at most one task per run.",
+  "tasks": [
+    {
+      "id": "FIGMA-001",
+      "title": "Create Senior Capstone Automation Lab page/frame.",
+      "template": "automation_lab_frame",
+      "allowed_actions": [
+        "create_or_update_sandbox_page",
+        "create_or_update_lab_frame"
+      ],
+      "status": "ready"
+    },
+    {
+      "id": "FIGMA-002",
+      "title": "Add Account Seed screen concept.",
+      "template": "account_seed_screen",
+      "allowed_actions": [
+        "add_screen_from_template",
+        "create_test_account_scenario"
+      ],
+      "status": "ready"
+    },
+    {
+      "id": "FIGMA-003",
+      "title": "Add Dashboard empty-state concept.",
+      "template": "dashboard_empty_state",
+      "allowed_actions": [
+        "add_error_empty_loading_state",
+        "add_design_note"
+      ],
+      "status": "ready"
+    },
+    {
+      "id": "FIGMA-004",
+      "title": "Add Onboarding checklist concept.",
+      "template": "onboarding_checklist",
+      "allowed_actions": [
+        "add_screen_from_template",
+        "add_design_note"
+      ],
+      "status": "ready"
+    },
+    {
+      "id": "FIGMA-005",
+      "title": "Add QoL automation status panel.",
+      "template": "qol_status_panel",
+      "allowed_actions": [
+        "add_status_panel",
+        "add_design_note"
+      ],
+      "status": "ready"
+    },
+    {
+      "id": "FIGMA-006",
+      "title": "Add latest run report panel.",
+      "template": "latest_run_report_panel",
+      "allowed_actions": [
+        "add_status_panel",
+        "add_design_note"
+      ],
+      "status": "ready"
+    },
+    {
+      "id": "FIGMA-007",
+      "title": "Add lock/failure state visualization.",
+      "template": "lock_failure_state",
+      "allowed_actions": [
+        "add_error_empty_loading_state",
+        "add_design_note"
+      ],
+      "status": "ready"
+    },
+    {
+      "id": "FIGMA-008",
+      "title": "Add test-account scenario annotations.",
+      "template": "test_account_annotations",
+      "allowed_actions": [
+        "create_test_account_scenario",
+        "add_design_note"
+      ],
+      "status": "ready"
+    },
+    {
+      "id": "FIGMA-009",
+      "title": "Add accessibility checklist annotations.",
+      "template": "accessibility_checklist",
+      "allowed_actions": [
+        "add_accessibility_annotation",
+        "add_design_note"
+      ],
+      "status": "ready"
+    },
+    {
+      "id": "FIGMA-010",
+      "title": "Add responsive layout checklist annotations.",
+      "template": "responsive_layout_checklist",
+      "allowed_actions": [
+        "add_responsive_annotation",
+        "add_design_note"
+      ],
+      "status": "ready"
+    },
+    {
+      "id": "FIGMA-011",
+      "title": "Add MVP progress timeline frame.",
+      "template": "mvp_progress_timeline",
+      "allowed_actions": [
+        "add_screen_from_template",
+        "add_status_panel"
+      ],
+      "status": "ready"
+    },
+    {
+      "id": "FIGMA-012",
+      "title": "Add error recovery state screen.",
+      "template": "error_recovery_state",
+      "allowed_actions": [
+        "add_error_empty_loading_state",
+        "add_design_note"
+      ],
+      "status": "ready"
+    }
+  ]
+}

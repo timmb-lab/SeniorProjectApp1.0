@@ -27,6 +27,13 @@
     "check:site-options": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-npm-script.ps1 check:site-options",
     "check:cloudflare": "wrangler check",
     "automation:snapshot": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-npm-script.ps1 automation:snapshot",
+    "qol:hourly": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-node-script.ps1 automation/qol/hourly-orchestrator.mjs",
+    "qol:hourly:dry-run": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-node-script.ps1 automation/qol/hourly-orchestrator.mjs --dry-run",
+    "qol:hourly:explain": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-node-script.ps1 automation/qol/hourly-orchestrator.mjs --explain",
+    "qol:doctor": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-node-script.ps1 automation/qol/doctor.mjs",
+    "qol:smoke": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-node-script.ps1 automation/qol/hourly-orchestrator.mjs --smoke",
+    "figma:doctor": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-node-script.ps1 automation/figma/doctor.mjs",
+    "figma:hourly": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-node-script.ps1 automation/figma/hourly-figma-orchestrator.mjs",
     "typecheck": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-npm-script.ps1 typecheck",
     "types": "wrangler types functions/worker-configuration.d.ts",
     "test": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-npm-script.ps1 test"

@@ -201,6 +201,31 @@ function Invoke-KnownProjectScript {
             Invoke-Node "scripts\check-site-options.mjs" @ScriptArgs
             return
         }
+        "qol:hourly" {
+            $script:KnownProjectScriptHandled = $true
+            Invoke-Node "automation\qol\hourly-orchestrator.mjs" @ScriptArgs
+            return
+        }
+        "qol:hourly:dry-run" {
+            $script:KnownProjectScriptHandled = $true
+            Invoke-Node "automation\qol\hourly-orchestrator.mjs" "--dry-run" @ScriptArgs
+            return
+        }
+        "qol:hourly:explain" {
+            $script:KnownProjectScriptHandled = $true
+            Invoke-Node "automation\qol\hourly-orchestrator.mjs" "--explain" @ScriptArgs
+            return
+        }
+        "qol:doctor" {
+            $script:KnownProjectScriptHandled = $true
+            Invoke-Node "automation\qol\doctor.mjs" @ScriptArgs
+            return
+        }
+        "qol:smoke" {
+            $script:KnownProjectScriptHandled = $true
+            Invoke-Node "automation\qol\hourly-orchestrator.mjs" "--smoke" @ScriptArgs
+            return
+        }
         "typecheck" {
             $script:KnownProjectScriptHandled = $true
             Invoke-TypeScriptCheck -Args $ScriptArgs
