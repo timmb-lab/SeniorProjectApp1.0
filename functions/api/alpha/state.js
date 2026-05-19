@@ -1,4 +1,4 @@
-import { ALPHA_STATE_KEY, applyAlphaAction, createAlphaSeedState, deriveMetrics } from "../../_lib/alpha-flow-model.js";
+import { ALPHA_STATE_KEY, applyAlphaAction, createAlphaSeedState, deriveAlphaNextStep, deriveAlphaWalkthroughSteps, deriveMetrics } from "../../_lib/alpha-flow-model.js";
 
 const JSON_HEADERS = {
   "content-type": "application/json; charset=utf-8",
@@ -8,6 +8,8 @@ const JSON_HEADERS = {
 export async function onRequestGet({ env }) {
   const state = await loadAlphaState(env);
   state.metrics = deriveMetrics(state);
+  state.walkthrough = deriveAlphaWalkthroughSteps(state);
+  state.nextStep = deriveAlphaNextStep(state);
   return json({ state });
 }
 

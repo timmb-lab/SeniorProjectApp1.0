@@ -107,6 +107,11 @@ body[data-page="alpha"] {
   background: rgba(255, 255, 255, 0.14);
 }
 
+.alpha-persona-tab.is-next-persona {
+  border-color: rgba(155, 217, 213, 0.5);
+  border-left-color: #9bd9d5;
+}
+
 .alpha-persona-tab strong {
   font-size: 0.96rem;
 }
@@ -114,6 +119,18 @@ body[data-page="alpha"] {
 .alpha-persona-tab span {
   color: #d9e7e5;
   font-size: 0.78rem;
+}
+
+.alpha-persona-next {
+  width: fit-content;
+  border: 1px solid rgba(155, 217, 213, 0.62);
+  border-radius: 999px;
+  color: #eafffd;
+  padding: 0.18rem 0.42rem;
+  font-size: 0.72rem;
+  font-style: normal;
+  font-weight: 900;
+  text-transform: uppercase;
 }
 
 .alpha-workspace {
@@ -147,6 +164,13 @@ body[data-page="alpha"] {
   gap: 0.5rem;
 }
 
+.alpha-card-heading-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.65rem;
+}
+
 .alpha-button {
   min-height: 42px;
   border: 1px solid #becbca;
@@ -178,6 +202,13 @@ body[data-page="alpha"] {
 .alpha-button:disabled {
   cursor: not-allowed;
   opacity: 0.55;
+}
+
+.alpha-action-hint {
+  margin-top: 0.2rem;
+  color: var(--alpha-muted);
+  font-size: 0.84rem;
+  font-weight: 800;
 }
 
 .alpha-status-line {
@@ -224,6 +255,29 @@ body[data-page="alpha"] {
   border-radius: 8px;
   background: var(--alpha-surface);
   padding: 1rem;
+}
+
+.alpha-next-card {
+  border-left: 6px solid var(--alpha-blue);
+  background: #f9fcff;
+}
+
+.alpha-next-card.is-complete {
+  border-left-color: var(--alpha-green);
+  background: #f4fbf6;
+}
+
+.alpha-next-meta,
+.alpha-next-actions,
+.alpha-check-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.alpha-check-list {
+  display: grid;
 }
 
 .alpha-metrics {
@@ -314,7 +368,8 @@ body[data-page="alpha"] {
 .alpha-section-list,
 .alpha-evidence-list,
 .alpha-audit-list,
-.alpha-review-list {
+.alpha-review-list,
+.alpha-walkthrough-list {
   display: grid;
   gap: 0.55rem;
 }
@@ -330,6 +385,54 @@ body[data-page="alpha"] {
   padding: 0.7rem;
 }
 
+.alpha-check {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.65rem;
+  align-items: center;
+  border: 1px solid var(--alpha-line);
+  border-radius: 8px;
+  background: #fbfdfd;
+  padding: 0.7rem;
+}
+
+.alpha-check p {
+  margin: 0;
+  color: var(--alpha-muted);
+}
+
+.alpha-check-dot {
+  width: 0.72rem;
+  height: 0.72rem;
+  border: 2px solid #9cadab;
+  border-radius: 999px;
+  background: #fff;
+}
+
+.alpha-check.check-pass {
+  border-color: rgba(34, 115, 77, 0.28);
+  background: #f2faf5;
+}
+
+.alpha-check.check-pass .alpha-check-dot {
+  border-color: var(--alpha-green);
+  background: var(--alpha-green);
+}
+
+.alpha-check.check-fail {
+  border-color: rgba(170, 48, 48, 0.32);
+  background: #fff7f5;
+}
+
+.alpha-check.check-fail .alpha-check-dot {
+  border-color: var(--alpha-red);
+  background: var(--alpha-red);
+}
+
+.alpha-check.check-waiting {
+  border-color: #dce4e3;
+}
+
 .alpha-row p,
 .alpha-card p,
 .alpha-form-panel p {
@@ -339,6 +442,68 @@ body[data-page="alpha"] {
 
 .alpha-row strong {
   display: block;
+}
+
+.alpha-provider-card {
+  display: grid;
+  gap: 0.65rem;
+  border: 1px solid var(--alpha-line);
+  border-left: 6px solid var(--alpha-teal);
+  border-radius: 8px;
+  background: #f8fbfb;
+  padding: 0.75rem;
+}
+
+.alpha-provider-card strong {
+  display: block;
+  text-transform: capitalize;
+}
+
+.alpha-provider-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.alpha-walkthrough-step {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 0.65rem;
+  align-items: center;
+  border: 1px solid var(--alpha-line);
+  border-left: 6px solid #b7c5c4;
+  border-radius: 8px;
+  background: #fbfdfd;
+  padding: 0.65rem;
+}
+
+.alpha-walkthrough-step.status-done {
+  border-left-color: var(--alpha-green);
+}
+
+.alpha-walkthrough-step.status-ready {
+  border-left-color: var(--alpha-blue);
+}
+
+.alpha-walkthrough-step.is-next {
+  background: #edf5ff;
+  box-shadow: inset 0 0 0 1px rgba(36, 99, 166, 0.18);
+}
+
+.alpha-walkthrough-step p {
+  margin: 0;
+  color: var(--alpha-muted);
+}
+
+.alpha-walkthrough-number {
+  display: inline-grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border-radius: 999px;
+  background: #edf4f3;
+  color: var(--alpha-ink);
+  font-weight: 900;
 }
 
 .alpha-audit-list .alpha-row {
@@ -408,7 +573,9 @@ body[data-page="alpha"] {
   }
 
   .alpha-topbar,
-  .alpha-row {
+  .alpha-row,
+  .alpha-check,
+  .alpha-walkthrough-step {
     grid-template-columns: 1fr;
   }
 

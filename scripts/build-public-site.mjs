@@ -94,7 +94,9 @@ async function copyFileWithTransforms(file) {
 
   if (file === "app.js" || file.endsWith(".html")) {
     text = text.replaceAll('"alpha.html"', `"${appUrl}/alpha.html"`);
+    text = text.replaceAll('"account.html"', `"${appUrl}/account.html"`);
     text = text.replaceAll('href="alpha.html"', `href="${appUrl}/alpha.html"`);
+    text = text.replaceAll('href="account.html"', `href="${appUrl}/account.html"`);
   }
 
   await mkdir(dirname(destination), { recursive: true });

@@ -22,7 +22,7 @@ Open `index.html` or the Cloudflare/GitHub Pages URL for the public ECTA Senior 
 
 ## Day 7 Alpha
 
-The working MVP alpha shell is `alpha.html`. It uses seeded personas for student, program teacher, mentor, admin, and misc admin roles while production accounts are still hardening.
+The working MVP alpha shell is `alpha.html`. It uses seeded personas for student, program teacher, mentor, admin, and misc admin roles while production accounts are still hardening. The alpha console shows the next ready reviewer step, lets testers switch to the required persona from the walkthrough, includes reviewer checks, and can copy a concise walkthrough summary.
 
 Run it locally with:
 
@@ -30,7 +30,11 @@ Run it locally with:
 npm run dev:alpha
 ```
 
-Then open `http://localhost:8788/alpha.html`. This requires Node/npm plus Wrangler from the project dev dependencies. The alpha loads `/api/alpha/state` from a Cloudflare Pages Function when available and falls back to `data/alpha-demo-state.json` for static review. Do not enter real student records.
+Then open `http://localhost:8788/alpha.html`. This requires Node/npm plus Wrangler from the project dev dependencies. The alpha loads `/api/alpha/state` from a Cloudflare Pages Function, so run it through Pages dev or deployment when reviewing workflow state. Do not enter real student records.
+
+## Account Smoke Test
+
+Use `account.html` through Cloudflare Pages dev or deployment to verify fake `.test` account login, `/api/auth/me`, logout, role scopes, and protected evidence access checks. The smoke page compares evidence allow/deny results against the active fake account, checks the expected role scope, shows backend readiness as a checklist, and includes a one-click smoke sequence. Passwords stay only in ignored local `.secrets/` files; do not paste them into docs, screenshots, Figma, or Canva.
 
 ## MVP Backend Foundation
 

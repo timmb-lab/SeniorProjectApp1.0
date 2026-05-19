@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta
+      name="description"
+      content="Account smoke test page for the Senior Capstone app fake alpha accounts."
+    >
+    <title>Account Smoke Test | Senior Capstone App</title>
+    <link rel="stylesheet" href="styles.css?v=20260518-polish10">
+    <link rel="stylesheet" href="account.css?v=20260519-qol40">
+  </head>
+  <body data-page="account">
+    <a class="skip-link" href="#accountMain">Skip to account smoke test</a>
+    <main id="accountMain" class="account-shell" aria-live="polite">
+      <section class="account-hero" aria-labelledby="accountTitle">
+        <a class="account-brand" href="index.html">
+          <span class="account-brand-mark">SC</span>
+          <span>Senior Capstone</span>
+        </a>
+        <p class="account-kicker">MVP account check</p>
+        <h1 id="accountTitle">Fake Test Account Smoke Page</h1>
+        <p>
+          Use this page to verify the hardened username/password endpoints, session lookup,
+          logout, role scopes, and protected evidence access checks. These are fake
+          <code>.test</code> accounts only.
+        </p>
+        <div class="account-link-row" aria-label="Related app surfaces">
+          <a href="alpha.html">Open Alpha Console</a>
+          <a href="app-preview.html">Open Product Preview</a>
+        </div>
+      </section>
+
+      <section class="account-panel" aria-labelledby="loginTitle">
+        <div class="account-panel-head">
+          <div>
+            <p class="account-kicker">No real records</p>
+            <h2 id="loginTitle">Sign In With A Fake Account</h2>
+          </div>
+          <span class="account-pill">Passwords stay out of the repo</span>
+        </div>
+
+        <form id="loginForm" class="account-form">
+          <label>
+            Test account
+            <select id="accountSelect" name="account"></select>
+          </label>
+          <label>
+            Email
+            <input id="emailInput" name="email" type="email" autocomplete="username" required>
+          </label>
+          <label>
+            Password
+            <input id="passwordInput" name="password" type="password" autocomplete="current-password" required>
+          </label>
+          <div class="account-actions">
+            <button class="account-button account-button-primary" type="submit">Sign In</button>
+            <button class="account-button" id="refreshSession" type="button">Check Session</button>
+            <button class="account-button" id="runSmokeSequence" type="button">Run Smoke Sequence</button>
+            <button class="account-button account-button-danger" id="logoutButton" type="button">Sign Out</button>
+          </div>
+        </form>
+
+        <div id="selectedExpectation" class="account-expectation"></div>
+        <div id="accountStatus" class="account-status">Checking session...</div>
+      </section>
+
+      <section class="account-grid" aria-label="Account verification panels">
+        <article class="account-card">
+          <div class="account-card-head">
+            <p class="account-kicker">Current session</p>
+            <button class="account-button" id="copyUserSummary" type="button">Copy Summary</button>
+          </div>
+          <div id="sessionPanel" class="account-empty">No session loaded yet.</div>
+        </article>
+
+        <article class="account-card">
+          <p class="account-kicker">Smoke checklist</p>
+          <div id="smokeChecklist" class="account-checklist"></div>
+        </article>
+
+        <article class="account-card">
+          <div class="account-card-head">
+            <p class="account-kicker">Protected evidence</p>
+            <button class="account-button" id="checkEvidence" type="button">Check Access</button>
+          </div>
+          <p>
+            This calls the alpha evidence fixture access route. Student, assigned mentor,
+            program teacher, and admin scopes should pass; misc admin should be denied.
+          </p>
+          <div id="evidencePanel" class="account-empty">Sign in, then run the access check.</div>
+        </article>
+
+        <article class="account-card">
+          <div class="account-card-head">
+            <p class="account-kicker">Backend health</p>
+            <button class="account-button" id="checkHealth" type="button">Check Health</button>
+          </div>
+          <p>
+            Confirms the page is talking to Cloudflare Pages Functions, D1, auth mode,
+            and the configured evidence provider.
+          </p>
+          <div id="healthPanel" class="account-empty">Health has not been checked yet.</div>
+        </article>
+
+        <article class="account-card">
+          <p class="account-kicker">Available fake accounts</p>
+          <div id="testAccountList" class="account-list"></div>
+        </article>
+
+        <article class="account-card account-warning">
+          <p class="account-kicker">Alpha boundary</p>
+          <h2>Not Pilot-Ready Auth Yet</h2>
+          <p>
+            This smoke page proves login/session basics and role visibility for seeded fake
+            accounts. Invitation/import, password reset, credential rotation, and full
+            production account-management UI are still post-alpha work.
+          </p>
+        </article>
+      </section>
+    </main>
+
+    <script type="module" src="account.js?v=20260519-qol40"></script>
+  </body>
+</html>

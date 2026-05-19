@@ -24,6 +24,14 @@ Open:
 http://localhost:8788/alpha.html
 ```
 
+Optional account smoke page:
+
+```text
+http://localhost:8788/account.html
+```
+
+Use it to verify fake `.test` account login, session lookup, logout, returned role scopes, backend readiness, and the protected alpha evidence access check. The protected evidence result should match the signed-in fake account's expected allow/deny outcome. The smoke checklist should show the session, selected-account match, expected role scope, evidence outcome, and health readiness.
+
 ## Walkthrough
 
 1. Student: save the proposal draft, attach an HTTPS evidence link, then submit.
@@ -37,9 +45,13 @@ http://localhost:8788/alpha.html
 Expected result:
 
 - Dashboard aggregates update after each action.
+- Walkthrough progress shows done, ready, and locked steps for the reviewer path.
+- The Act Next card names the next required persona/action and can switch testers to that persona.
+- Persona tabs mark the next responsible reviewer, reviewer checks summarize alpha readiness, and Copy Summary produces a quick walkthrough receipt.
 - Review history records revision and approval decisions.
 - Evidence metadata is visible without treating file-byte upload as complete.
 - Audit/activity entries record the alpha actions.
+- Out-of-order workflow actions are disabled in the UI or return a clear blocked-transition message.
 - The UI labels that seeded personas are not production accounts.
 
 ## Optional Login Smoke Accounts
@@ -75,11 +87,18 @@ npm run deploy:preview
 
 - D1-backed seeded alpha state through `/api/alpha/state`.
 - Login-verified fake `.test` role accounts for student, program teacher, mentor, and misc admin.
+- Account smoke page for fake account login/session/logout and protected evidence access checks.
+- Account smoke page compares protected-evidence allow/deny results against the active fake account and flags unexpected scope behavior.
+- Account smoke page includes a role-scope checklist, readable health readiness summary, copyable session summary, and one-click smoke sequence.
+- Account smoke backend health check reports auth mode, D1 user count, evidence root/index readiness, and Google Drive credential readiness without exposing secret values.
 - App shell with route controls for student workspace, teacher review, mentor meetings, admin overview, and audit activity.
 - Seeded personas for student, program teacher, mentor, admin, and misc admin.
 - Persona-scoped route availability with explicit misc-admin narrowing.
 - Student dashboard, guided proposal sections, blocked-submit reasons, and evidence metadata entry.
 - Teacher review queue actions for revision request and approval.
+- State-machine guards prevent approving drafts, resubmitting before revision, moving approved proposals backward, and duplicating meeting/export actions.
+- Reset is guarded by a confirmation prompt so reviewers do not accidentally clear the walkthrough state.
+- Mentor meeting and archive export actions unlock only after proposal approval.
 - Mentor meeting, presentation slot risk, and scoped mentor actions.
 - Admin export/deadline actions, misc-admin report action, and denied approval action.
 - Dashboard aggregates, review history, evidence validation, and audit/activity timeline updates.
