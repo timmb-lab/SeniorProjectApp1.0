@@ -34,7 +34,9 @@ Then open `http://localhost:8788/alpha.html`. This requires Node/npm plus Wrangl
 
 ## Account Smoke Test
 
-Use `account.html` through Cloudflare Pages dev or deployment to verify fake `.test` account login, `/api/auth/me`, logout, role scopes, and protected evidence access checks. The smoke page compares evidence allow/deny results against the active fake account, checks the expected role scope, shows backend readiness as a checklist, and includes a one-click smoke sequence. Passwords stay only in ignored local `.secrets/` files; do not paste them into docs, screenshots, Figma, or Canva.
+Use `account.html` through Cloudflare Pages dev or deployment to verify fake `.test` account login, `/api/auth/me`, logout, role scopes, and protected evidence access checks. The smoke page covers student, program teacher, mentor, admin, and misc admin test accounts; compares evidence allow/deny results against the active fake account; checks the expected role scope; shows backend readiness as a checklist; and includes a one-click smoke sequence. Passwords stay only in ignored local `.secrets/` files; do not paste them into docs, screenshots, Figma, or Canva.
+
+Initial D1-backed workflow routes now exist for `/api/student/dashboard`, `/api/submissions/:id/submit`, and `/api/reviews/:submissionId/decision` so the test-account MVP path can move beyond alpha-only state.
 
 ## MVP Backend Foundation
 
