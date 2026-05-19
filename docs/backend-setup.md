@@ -67,6 +67,16 @@ These accounts are fake alpha data only. They are safe for role-flow testing but
 - Add permission tests and workflow tests before real student data is entered.
 - Add account lifecycle flows for invitation/import, password reset, credential rotation, and role/group management before pilot use.
 
+Current test-account workflow route coverage:
+
+- `/api/student/dashboard` reads D1 progress, submissions, and evidence for an authorized student record.
+- `/api/submissions/:id/evidence` attaches scoped HTTPS evidence-link metadata while file-byte upload remains pending.
+- `/api/submissions/:id/submit` moves draft/revision-requested submissions into submitted review state.
+- `/api/teacher/review-queue` lists submitted/revision-needed work for program-scoped teachers or admins.
+- `/api/reviews/:submissionId/decision` persists approval/revision decisions with review, status-history, progress, and audit writes.
+- `/api/reviews/:submissionId/history` returns scoped review/status history.
+- `/api/admin/audit-events` returns admin-only, redacted audit entries.
+
 Completed on 2026-05-18:
 
 - `GOOGLE_DRIVE_EVIDENCE_ROOT_ID` is set to `1XPgYKbIMqv332DAJZJNJetHppFB670e7` in Cloudflare Pages preview and production.
