@@ -88,7 +88,7 @@ npm run deploy:preview
 
 - D1-backed seeded alpha state through `/api/alpha/state`.
 - Login-verified fake `.test` role accounts for student, program teacher, mentor, admin, and misc admin.
-- Initial D1-backed workflow endpoints exist for student dashboard reads, evidence-link attachment, student submission, teacher/admin review decisions, review history, teacher review queue, and admin audit-event readout.
+- Initial D1-backed workflow endpoints exist for student dashboard reads, evidence-link attachment, student submission, teacher/admin review decisions, review history, teacher review queue, mentor assigned-student readout, scoped announcements, student archive export queue/status, misc-admin aggregate readiness reports, and admin audit-event readout.
 - Account smoke page for fake account login/session/logout and protected evidence access checks.
 - Account smoke page compares protected-evidence allow/deny results against the active fake account and flags unexpected scope behavior.
 - Account smoke page includes a role-scope checklist, readable health readiness summary, copyable session summary, and one-click smoke sequence.

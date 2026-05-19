@@ -73,8 +73,14 @@ Current test-account workflow route coverage:
 - `/api/submissions/:id/evidence` attaches scoped HTTPS evidence-link metadata while file-byte upload remains pending.
 - `/api/submissions/:id/submit` moves draft/revision-requested submissions into submitted review state.
 - `/api/teacher/review-queue` lists submitted/revision-needed work for program-scoped teachers or admins.
+- `/api/mentor/assigned` lists active mentor assignments with submission status and evidence counts.
 - `/api/reviews/:submissionId/decision` persists approval/revision decisions with review, status-history, progress, and audit writes.
 - `/api/reviews/:submissionId/history` returns scoped review/status history.
+- `/api/admin/announcements` lets admins create scoped announcements for all users, roles, programs, or cohorts.
+- `/api/announcements` returns only currently visible announcements for the signed-in user's role/program/cohort scope.
+- `/api/admin/exports/student-archive` queues admin-only student archive export records without generating real files yet.
+- `/api/exports/:id/download` checks admin or student-scope access and reports pending signed-download state.
+- `/api/reports/readiness` returns aggregate-only admin/misc-admin readiness counts without names, emails, or student-level rows.
 - `/api/admin/audit-events` returns admin-only, redacted audit entries.
 
 Completed on 2026-05-18:
