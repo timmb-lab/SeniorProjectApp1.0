@@ -54,9 +54,9 @@
     "automation_updated": "senior-capstone-qol-protected-evidence-tests-2 and sibling slot prompts"
   },
   "commit": {
-    "message": "",
-    "hash": null,
-    "pushed": false
+    "message": "audit: repair protected evidence QoL prompts",
+    "hash": "30f82fa40bfb4d97546bb0ae68ba3c717f9818b1",
+    "pushed": true
   },
   "automation_efficiency": {
     "duplicate_scope_checked": true,

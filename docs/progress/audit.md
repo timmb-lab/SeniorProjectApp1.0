@@ -26,6 +26,7 @@ Each audit run should append a dated entry with:
 - `preserved fields`: automation IDs, ACTIVE status, RRULE schedules, worktree workspace, model `gpt-5.4`, and reasoning effort `high`.
 - `files changed`: protected-evidence live automation TOMLs, protected-evidence automation memory files, `scripts/automation-config.json`, regenerated `docs/automation-prompts/`, `docs/progress/audit.md`, `docs/progress/run-log.md`, and the structured run manifest.
 - `validation`: prompt grep confirmed memory-path, backend-ladder, detached-`HEAD`, and memory-closeout fragments in all three live TOMLs; prompt snapshots were regenerated; the direct live checker still reported unrelated snapshot-path false negatives for `senior-capstone-qol-protected-evidence-tests-slot-3`, teacher-review, and immutable-review-history snapshots even though those files existed on disk; `git diff --check` passed.
+- `commit/push status`: committed as `30f82fa` (`audit: repair protected evidence QoL prompts`) and pushed to `origin/main` after rebasing onto the newer remote `main` tip without force-push.
 - `self-improvement`: updated only the protected-evidence automation prompts plus the smallest checker-config surface that now enforces the new prompt fragments.
 - `next action`: the next protected-evidence run should land one bounded backend slice from the ladder, preferably permission-helper coverage or a real evidence-access endpoint plus denied-audit tests.
 
