@@ -17,6 +17,7 @@ test("account smoke page exercises real auth endpoints without storing credentia
   assert.match(accountJs, /\/api\/auth\/logout/);
   assert.match(accountJs, /\/api\/health/);
   assert.match(accountJs, /maya\.student@senior-capstone\.test/);
+  assert.match(accountJs, /lee\.admin@senior-capstone\.test/);
   assert.match(accountJs, /reporting\.miscadmin@senior-capstone\.test/);
   assert.match(accountHtml, /id="selectedExpectation"/);
   assert.match(accountHtml, /id="smokeChecklist"/);
@@ -26,6 +27,7 @@ test("account smoke page exercises real auth endpoints without storing credentia
   assert.match(accountJs, /runAccountSmokeSequence/);
   assert.match(accountJs, /expectedEvidenceAccess: "denied"/);
   assert.match(accountJs, /expectedRole: "program_teacher"/);
+  assert.match(accountJs, /expectedRole: "admin"/);
   assert.match(accountJs, /expectedScopeId: "alpha-readiness"/);
   assert.match(accountJs, /getAccountForCurrentSession/);
   assert.match(accountJs, /hasExpectedRole/);
