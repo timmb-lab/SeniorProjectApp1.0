@@ -26,7 +26,7 @@ function runWrapper(args, env) {
 }
 
 test("guardrail wrapper dry-run succeeds with required env", () => {
-  const result = runWrapper(["qol:hourly", "-DryRun", "-AllowDirtyStart"], {
+  const result = runWrapper(["figma:hourly", "-DryRun", "-AllowDirtyStart"], {
     AUTOMATION_SHEETS_SPREADSHEET_ID: "TEST_SPREADSHEET",
     AUTOMATION_SHEETS_TAB_NAME: "Automation Runs",
     GOOGLE_SHEETS_CLIENT_EMAIL: "test@example.com",
@@ -38,7 +38,7 @@ test("guardrail wrapper dry-run succeeds with required env", () => {
 });
 
 test("guardrail wrapper dry-run fails fast when sheet config is missing", () => {
-  const result = runWrapper(["qol:hourly", "-DryRun", "-AllowDirtyStart"], {
+  const result = runWrapper(["figma:hourly", "-DryRun", "-AllowDirtyStart"], {
     AUTOMATION_SHEETS_SPREADSHEET_ID: "",
     AUTOMATION_SHEETS_TAB_NAME: "",
     GOOGLE_SHEETS_CLIENT_EMAIL: "",
@@ -49,3 +49,14 @@ test("guardrail wrapper dry-run fails fast when sheet config is missing", () => 
   assert.match(result.stderr + result.stdout, /Missing env var: AUTOMATION_SHEETS_SPREADSHEET_ID/);
 });
 
+test("guardrail wrapper refuses bounded QoL hourly runner", () => {
+  const result = runWrapper(["qol:hourly", "-DryRun", "-AllowDirtyStart"], {
+    AUTOMATION_SHEETS_SPREADSHEET_ID: "TEST_SPREADSHEET",
+    AUTOMATION_SHEETS_TAB_NAME: "Automation Runs",
+    GOOGLE_SHEETS_CLIENT_EMAIL: "test@example.com",
+    GOOGLE_SHEETS_PRIVATE_KEY: "TEST_KEY",
+  });
+
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr + result.stdout, /qol:hourly is intentionally not supported/);
+});

@@ -1,6 +1,6 @@
 # Automation Guardrails
 
-This repo standardizes reusable automation runs behind a single guardrail wrapper.
+This repo standardizes broad reusable automation runs behind a guardrail wrapper. The bounded Senior Capstone QoL hourly GUI runner is a special narrow path and uses `automation/qol/GUI_ALLOWED_COMMANDS.md` instead.
 
 ## Why
 
@@ -26,11 +26,17 @@ Shell (macOS/Linux, requires `pwsh` or `powershell` available):
 ./scripts/run_automation.sh <automation-name> [args...]
 ```
 
-Examples:
+Examples for broad guarded automations:
 
 ```powershell
-powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-automation.ps1 qol:hourly
 powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-automation.ps1 figma:hourly
+```
+
+The QoL hourly GUI runner must not use this wrapper; `scripts/run-automation.ps1` refuses `qol:hourly` so it cannot commit, push, or log to Sheets from the bounded hourly path. Its allowed sequence is:
+
+```powershell
+powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-node-script.ps1 automation\qol\doctor.mjs
+powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-node-script.ps1 automation\qol\hourly-orchestrator.mjs
 ```
 
 ## Required Environment Variables
@@ -65,7 +71,7 @@ powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\sy
 `-DryRun` performs preflight checks only (no run/commit/push/sheet write).
 
 ```powershell
-powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-automation.ps1 qol:hourly -DryRun
+powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-automation.ps1 figma:hourly -DryRun
 ```
 
 ## Intentional Exclusions

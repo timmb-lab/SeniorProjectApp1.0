@@ -203,27 +203,32 @@ function Invoke-KnownProjectScript {
         }
         "qol:hourly" {
             $script:KnownProjectScriptHandled = $true
-            Invoke-Node "automation\qol\hourly-orchestrator.mjs" @ScriptArgs
+            Invoke-ProjectPowerShell "scripts\run-node-script.ps1" (@("automation\qol\hourly-orchestrator.mjs") + @($ScriptArgs))
             return
         }
         "qol:hourly:dry-run" {
             $script:KnownProjectScriptHandled = $true
-            Invoke-Node "automation\qol\hourly-orchestrator.mjs" "--dry-run" @ScriptArgs
+            Invoke-ProjectPowerShell "scripts\run-node-script.ps1" (@("automation\qol\hourly-orchestrator.mjs", "--dry-run") + @($ScriptArgs))
             return
         }
         "qol:hourly:explain" {
             $script:KnownProjectScriptHandled = $true
-            Invoke-Node "automation\qol\hourly-orchestrator.mjs" "--explain" @ScriptArgs
+            Invoke-ProjectPowerShell "scripts\run-node-script.ps1" (@("automation\qol\hourly-orchestrator.mjs", "--explain") + @($ScriptArgs))
             return
         }
         "qol:doctor" {
             $script:KnownProjectScriptHandled = $true
-            Invoke-Node "automation\qol\doctor.mjs" @ScriptArgs
+            Invoke-ProjectPowerShell "scripts\run-node-script.ps1" (@("automation\qol\doctor.mjs") + @($ScriptArgs))
             return
         }
         "qol:smoke" {
             $script:KnownProjectScriptHandled = $true
-            Invoke-Node "automation\qol\hourly-orchestrator.mjs" "--smoke" @ScriptArgs
+            Invoke-ProjectPowerShell "scripts\run-node-script.ps1" (@("automation\qol\hourly-orchestrator.mjs", "--smoke") + @($ScriptArgs))
+            return
+        }
+        "verify:qol-automation" {
+            $script:KnownProjectScriptHandled = $true
+            Invoke-ProjectPowerShell "scripts\run-node-script.ps1" (@("automation\qol\hourly-orchestrator.mjs", "--smoke") + @($ScriptArgs))
             return
         }
         "typecheck" {

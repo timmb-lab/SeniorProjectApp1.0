@@ -1,42 +1,47 @@
 # Project-Local QoL Hourly Orchestrator
 
-This directory contains the one project-local QoL automation entrypoint for the Senior Capstone app. It is scoped to this repository only and fails closed when the selected Codex project does not match `automation/qol/project-lock.json`.
+This directory contains the bounded project-local QoL automation path for the Senior Capstone app. It is scoped to this repository only and fails closed when the selected Codex project does not match `automation/qol/project-lock.json`.
+
+## Authoritative Files
+
+- Runner prompt and allowed action contract: `automation/qol/GUI_ALLOWED_COMMANDS.md`
+- Project identity lock: `automation/qol/project-lock.json`
+- Doctor: `automation/qol/doctor.mjs`
+- Hourly orchestrator: `automation/qol/hourly-orchestrator.mjs`
+- Report schema: `automation/qol/REPORT_SCHEMA.md`
+- Canary criteria: `automation/qol/SCHEDULED_GUI_CANARY.md`
+- Approved Node wrapper: `scripts/run-node-script.ps1`
+- Latest evidence report: `automation/qol/reports/latest.md`
+
+## Allowed Scheduled Runner Actions
+
+The scheduled Codex GUI runner is intentionally narrow. It may only:
+
+1. Run the doctor through the approved wrapper.
+2. Run the hourly orchestrator through the approved wrapper if the doctor exits successfully.
+3. Read and summarize `automation/qol/reports/latest.md`.
+
+The exact commands are:
+
+```powershell
+powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-node-script.ps1 automation\qol\doctor.mjs
+powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-node-script.ps1 automation\qol\hourly-orchestrator.mjs
+```
+
+The runner must not use `scripts/run-automation.ps1`, package-manager shortcuts, direct `node.exe`, fallback scripts, altered arguments, alternate shells, dependency installs, git commands, network access, or manual edits. `scripts/run-automation.ps1` intentionally refuses `qol:hourly` so the bounded path cannot commit, push, or log to external services. The only file changes allowed during the scheduled run are those produced by the approved repo-local scripts.
+
+## Why Wrapper-Only
+
+`scripts/run-node-script.ps1` resolves a working Node runtime for Codex desktop environments where PATH can be sparse or `node.exe` can point at the WindowsApps shim. The scheduled runner must use this wrapper so invocation is explicit, repo-local, and repeatable. Direct Node execution is forbidden for the scheduled runner because it bypasses that adapter and makes failures harder to distinguish from project failures.
 
 ## What It Reads
 
 - Master plan: `docs/master-plan.md`
 - Structured requirement overlay: `docs/mvp-requirements-catalog.md`
 - Backlog overlay: `docs/automation-backlog.md`
+- Optional repo-local registry evidence: `automation/qol/state/automation-registry-evidence.json`
 
-The orchestrator parses MVP table rows, backlog `SC-*` items, and the QoL sections in the master plan. It does not use another project, parent directory, sibling checkout, or global Codex state as its source of truth.
-
-## How Work Is Chosen
-
-Each hourly run scores ready tasks by priority, dependency state, category freshness, last attempt, failure cooldown, recurring cadence, and dirty-worktree risk. It selects one bounded slice, runs at most one safe project-local validation command, records state, writes a report, and exits.
-
-Recurring safety tasks remain recurring. Product-facing MVP tasks are not rewritten by the script; the script only performs bounded QoL validation, scope auditing, plan indexing, and reporting unless a future project-local plan item adds a safe command.
-
-## Commands
-
-Use the project wrappers so the Codex bundled Node runtime is used when PATH is sparse:
-
-```powershell
-powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-node-script.ps1 automation\qol\doctor.mjs
-powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-node-script.ps1 automation\qol\hourly-orchestrator.mjs
-powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-node-script.ps1 automation\qol\hourly-orchestrator.mjs --dry-run
-powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-node-script.ps1 automation\qol\hourly-orchestrator.mjs --explain
-powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-node-script.ps1 automation\qol\hourly-orchestrator.mjs --smoke
-```
-
-Package scripts are also available:
-
-```powershell
-npm run qol:doctor
-npm run qol:hourly
-npm run qol:hourly:dry-run
-npm run qol:hourly:explain
-npm run qol:smoke
-```
+The orchestrator does not use another project, parent directory, sibling checkout, temp clone, global Codex state, or external automation registry as its source of truth. If repo-local registry evidence is absent, the report must say `UNKNOWN_REGISTRY_UNINSPECTABLE`.
 
 ## State, Lock, Logs, And Reports
 
@@ -47,42 +52,60 @@ npm run qol:smoke
 - Reports: `automation/qol/reports/`
 - Latest report: `automation/qol/reports/latest.md`
 
-State saves are atomic. Previous state files are backed up before replacement. A fresh lock causes the run to exit cleanly. A stale lock older than 90 minutes is moved aside with metadata preserved before a new lock is acquired.
+State saves are atomic. Previous state files are backed up before replacement. A fresh lock blocks overlap. A stale lock older than 90 minutes is moved aside inside `automation/qol/state/` with metadata preserved before a new lock is acquired. If lock freshness or ownership is unclear, treat the run as blocked instead of deleting user work.
 
-## Project Identity Guard
+## Report Freshness
 
-The lock file checks the repo basename, package name, Wrangler project name, Git top-level, Git remote substring/hash, unique project marker, and expected plan/state/log/report paths. All project paths are resolved and rejected if they escape this repo. If the wrong Codex project is selected, the script exits before acquiring a lock or writing state.
+`latest.md` is fresh when its `run_id`, `run_started_at`, `run_finished_at`, and matching per-run report filename all describe the just-completed orchestrator run. If the doctor fails, the orchestrator must not run and no fresh orchestrator report should be assumed. If the orchestrator fails before writing a new report, read `latest.md` only to state that it is stale or unverifiable.
 
-## Codex Automation Setup
+For the current canary, compare against the baseline in `automation/qol/SCHEDULED_GUI_CANARY.md`. After a canary succeeds, do not keep using an old hardcoded run_id as the only freshness baseline; compare against the latest repo-local run evidence and timestamps.
 
-Create one Codex desktop automation and select only this project in the project picker. Recommended schedule: hourly, cron `0 * * * *`.
+## Failure Handling
 
-Recommended execution mode: worktree, because this repo often has active local docs edits and the guard is worktree-compatible. Local mode is also supported when you intentionally want state and reports written in the current checkout.
+If `doctor.mjs` fails:
 
-The canonical GUI command contract is `automation/qol/GUI_ALLOWED_COMMANDS.md`. Because local direct `node.exe` execution can be blocked by the WindowsApps shim, the scheduled GUI path must use the central guardrail wrapper `scripts/run-automation.ps1` (which runs the repo-local doctor + orchestrator via the approved node wrapper). The GUI automation should not run legacy Senior Capstone scripts, edit external automation registry entries, or continue after doctor fails.
+- stop immediately
+- do not run `hourly-orchestrator.mjs`
+- report the doctor failure
+- do not retry
+- do not run fallback scripts
+- do not rely on stale reports except to state no fresh report was produced
 
-Recurring prompt:
+If `hourly-orchestrator.mjs` fails:
 
-> Run the project-local QoL hourly orchestrator for THIS selected project only. First verify that the selected Codex project matches the project lock. Do not inspect or modify any other project. Run the QoL doctor/preflight if available, then run the hourly orchestrator. Follow the master plan, perform only the bounded selected work slice, write the run report, and summarize results. If the project identity guard fails, stop immediately and report the mismatch.
+- read `automation/qol/reports/latest.md` if available
+- state whether it appears fresh or stale
+- report the failure clearly
+- do not retry
+- do not run fallback scripts
 
-The prompt should run:
+Failure recovery must stay repo-local. Do not inspect, edit, pause, unpause, create, delete, revive, or modify external/global Codex automation registry entries.
+
+## Developer Verification
+
+These commands are for a human-maintenance pass, not for broadening the scheduled runner:
 
 ```powershell
-powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-automation.ps1 qol:hourly
+powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-node-script.ps1 automation\qol\doctor.mjs
+powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-node-script.ps1 automation\qol\hourly-orchestrator.mjs
+powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-node-script.ps1 automation\qol\hourly-orchestrator.mjs --smoke
 ```
 
-## Common Failures
+Package scripts are available for local convenience, but the scheduled runner prompt forbids package-manager shortcuts:
 
-- Wrong project selected: choose `SeniorProjectApp1.0` in Codex and rerun. Do not point this automation at another project.
-- Missing master plan: restore `docs/master-plan.md` or update `automation/qol/project-lock.json` in the same repo with a reviewed plan path.
-- Active lock: inspect `automation/qol/reports/latest.md`; a fresh lock means another hourly run is still active.
-- Stale lock: the script preserves stale metadata and continues after the 90-minute threshold.
-- Missing Node: run through `scripts/run-node-script.ps1`, which resolves the Codex bundled Node runtime.
+```powershell
+npm run qol:doctor
+npm run qol:hourly
+npm run verify:qol-automation
+```
 
-## Resetting State Safely
+## Repo-Local Codex Rules
 
-Pause the Codex automation first. Move `automation/qol/state/state.json` to a timestamped backup inside `automation/qol/state/`, then run `qol:doctor` and `qol:hourly --dry-run`. Do not delete logs or reports outside `automation/qol/`.
+No repo-local `.codex/config.toml` exists at this time. If one is added later, it should forbid direct execution of:
 
-## Adding Tasks
+- `node automation/qol/doctor.mjs`
+- `node automation/qol/hourly-orchestrator.mjs`
+- `node.exe automation/qol/doctor.mjs`
+- `node.exe automation/qol/hourly-orchestrator.mjs`
 
-Add or update rows in `docs/mvp-requirements-catalog.md`, backlog items in `docs/automation-backlog.md`, or relevant sections in `docs/master-plan.md`. Include status and acceptance or next-action text so the parser can score the task without guessing.
+It should require or prefer the two exact `scripts/run-node-script.ps1` commands listed above. Do not edit global Codex config for this policy.

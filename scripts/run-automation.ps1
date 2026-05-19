@@ -28,6 +28,10 @@ param(
 
 $ErrorActionPreference = "Stop"
 
+if ($AutomationName -eq "qol:hourly") {
+  throw "qol:hourly is intentionally not supported by scripts/run-automation.ps1. Use the bounded QoL sequence in automation/qol/GUI_ALLOWED_COMMANDS.md with scripts/run-node-script.ps1 for doctor.mjs and hourly-orchestrator.mjs."
+}
+
 function Get-CurrentPowerShellExe {
   try {
     $path = (Get-Process -Id $PID).Path
