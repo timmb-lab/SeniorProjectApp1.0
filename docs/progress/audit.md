@@ -17,6 +17,18 @@ Each audit run should append a dated entry with:
 
 ## Entries
 
+### 2026-05-19 07:05 PT - Protected Evidence QoL Prompt Repair
+
+- `automation`: manual user-requested repair for the protected-evidence QoL trio.
+- `master-plan section`: `MVP 1.0 Vertical Slice`; `Day 7 Alpha Gate`; `Anti-Drift Rules`.
+- `scope`: Sharpen the three protected-evidence automations so future runs read automation memory first, choose a real backend permission/evidence ladder, handle detached `HEAD` cleanly, and keep the phone-tracker closeout tied to snapshots and live prompt checks.
+- `live automations changed`: `senior-capstone-qol-protected-evidence-tests-2`, `senior-capstone-qol-protected-evidence-tests-slot-2`, and `senior-capstone-qol-protected-evidence-tests-slot-3`.
+- `preserved fields`: automation IDs, ACTIVE status, RRULE schedules, worktree workspace, model `gpt-5.4`, and reasoning effort `high`.
+- `files changed`: protected-evidence live automation TOMLs, protected-evidence automation memory files, `scripts/automation-config.json`, regenerated `docs/automation-prompts/`, `docs/progress/audit.md`, `docs/progress/run-log.md`, and the structured run manifest.
+- `validation`: prompt grep confirmed memory-path, backend-ladder, detached-`HEAD`, and memory-closeout fragments in all three live TOMLs; prompt snapshots were regenerated; the direct live checker still reported unrelated snapshot-path false negatives for `senior-capstone-qol-protected-evidence-tests-slot-3`, teacher-review, and immutable-review-history snapshots even though those files existed on disk; `git diff --check` passed.
+- `self-improvement`: updated only the protected-evidence automation prompts plus the smallest checker-config surface that now enforces the new prompt fragments.
+- `next action`: the next protected-evidence run should land one bounded backend slice from the ladder, preferably permission-helper coverage or a real evidence-access endpoint plus denied-audit tests.
+
 ### 2026-05-18 07:14 PT - Lane Log Created
 
 - `automation`: ops review of `senior-capstone-content-quality-audits-rebuilt`

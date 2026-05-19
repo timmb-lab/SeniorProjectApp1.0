@@ -1,11 +1,11 @@
 ﻿---
 automation_id: "senior-capstone-qol-drive-upload-oauth-slot-2"
 name: "Senior Capstone QoL - Drive Upload OAuth Slot 2"
-snapshot_generated_utc: "2026-05-19T13:01:29Z"
+snapshot_generated_utc: "2026-05-19T14:17:34Z"
 rrule: "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=8;BYMINUTE=51"
 model: "gpt-5.4"
 reasoning_effort: "high"
-prompt_sha256: "eee16b5f6662603327df849b1f58ac62beb8acbb8aae21fe5138523bac5a431c"
+prompt_sha256: "8356d3a23b1372cba79454a1d7ea5cd12d7f26464de93a055de29d3ac136ced5"
 source_toml: "C:\Users\bryan\.codex\automations\senior-capstone-qol-drive-upload-oauth-slot-2\automation.toml"
 ---
 
@@ -20,6 +20,9 @@ QoL target: Google Drive upload credential/OAuth path, evidence metadata, provid
 Primary requirement IDs: MVP-013, plus Drive-facing portions of MVP-014, MVP-022, and MVP-027.
 Current priority: Treat the Google Drive school-account cutover as deferred. Only preserve safe evidence metadata, provider error states, retrieval assumptions, and exact blockers that affect the immediate alpha ladder.
 Targeted goal alignment: prioritize 1) broader tests, 2) real workflow endpoints, 3) shared alpha primitives, and 5) account-lifecycle and known-gaps hardening. This lane should stay narrow and mostly produce safe metadata/path assumptions or an exact blocker until Bryan handles the school-account move.
+Known narrow-focus drift to resolve before reopening broad audits: .dev.vars.example already references GOOGLE_DRIVE_CLIENT_EMAIL and GOOGLE_DRIVE_PRIVATE_KEY, but functions/_types.ts, functions/api/health.ts, and functions/api/evidence/repository.ts do not consume a server-side Drive credential path yet. docs/alpha-week-framework.md requires upload/provider-unavailable, but alpha.js and functions/_lib/alpha-flow-model.js do not yet implement that provider-unavailable state.
+Lane memory rule: read C:\Users\bryan\.codex\automations\senior-capstone-qol-drive-upload-oauth-slot-2\memory.md before choosing work; if it is missing, create it during closeout with the latest lane-specific blocker/progress summary and current runtime so the other Drive slots do not repeat the same audit.
+Preferred slice order for this lane: 1) implement or test the missing upload/provider-unavailable state, 2) wire or document the exact GOOGLE_DRIVE_CLIENT_EMAIL / GOOGLE_DRIVE_PRIVATE_KEY runtime gap without attempting the deferred school-account cutover, 3) if neither is safely possible, commit one exact blocker tied to the missing credential path or connector/tool access.
 
 Mission: build the Senior Capstone MVP with real auth, users, groups, roles, programs, cohorts, progress updates, private evidence, submissions, reviews, approvals, announcements, dashboards, audit logs, exports, and protected student records. No student-to-student messaging.
 

@@ -195,6 +195,17 @@
       "name": "Senior Capstone QoL - Protected Evidence Tests Slot 1",
       "status": "ACTIVE",
       "rrule": "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=1;BYMINUTE=39",
+      "requiredPromptFragments": [
+        "Read C:\\Users\\bryan\\.codex\\automations\\senior-capstone-qol-protected-evidence-tests-2\\memory.md first if it exists",
+        "Protected-evidence default ladder",
+        "functions/_lib/permissions.ts",
+        "functions/_lib/auth.ts",
+        "functions/api/evidence/",
+        "functions/api/admin/test-accounts.ts",
+        "If git status shows detached HEAD",
+        "Update the automation memory file",
+        "Senior Capstone QoL Run Tracker"
+      ],
       "targetFragments": [
         "protected evidence access checks",
         "MVP-014",
@@ -206,6 +217,17 @@
       "name": "Senior Capstone QoL - Protected Evidence Tests Slot 2",
       "status": "ACTIVE",
       "rrule": "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=9;BYMINUTE=39",
+      "requiredPromptFragments": [
+        "Read C:\\Users\\bryan\\.codex\\automations\\senior-capstone-qol-protected-evidence-tests-slot-2\\memory.md first if it exists",
+        "Protected-evidence default ladder",
+        "functions/_lib/permissions.ts",
+        "functions/_lib/auth.ts",
+        "functions/api/evidence/",
+        "functions/api/admin/test-accounts.ts",
+        "If git status shows detached HEAD",
+        "Update the automation memory file",
+        "Senior Capstone QoL Run Tracker"
+      ],
       "targetFragments": [
         "protected evidence access checks",
         "MVP-014",
@@ -217,6 +239,17 @@
       "name": "Senior Capstone QoL - Protected Evidence Tests Slot 3",
       "status": "ACTIVE",
       "rrule": "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=17;BYMINUTE=39",
+      "requiredPromptFragments": [
+        "Read C:\\Users\\bryan\\.codex\\automations\\senior-capstone-qol-protected-evidence-tests-slot-3\\memory.md first if it exists",
+        "Protected-evidence default ladder",
+        "functions/_lib/permissions.ts",
+        "functions/_lib/auth.ts",
+        "functions/api/evidence/",
+        "functions/api/admin/test-accounts.ts",
+        "If git status shows detached HEAD",
+        "Update the automation memory file",
+        "Senior Capstone QoL Run Tracker"
+      ],
       "targetFragments": [
         "protected evidence access checks",
         "MVP-014",

@@ -1,11 +1,11 @@
 ﻿---
 automation_id: "senior-capstone-qol-source-framework-seed-slot-2"
 name: "Senior Capstone QoL - Source Framework Seed Slot 2"
-snapshot_generated_utc: "2026-05-19T13:01:29Z"
+snapshot_generated_utc: "2026-05-19T14:17:34Z"
 rrule: "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=8;BYMINUTE=03"
 model: "gpt-5.4"
 reasoning_effort: "high"
-prompt_sha256: "c9e2b48f38cb47c27d5d69947d293a6e3a81ed43d9522dcd7f747296dfda9b1a"
+prompt_sha256: "1ebedc6c40353d8aa9c3eb525966d197582931bf2211b1821dc44048ad40fe23"
 source_toml: "C:\Users\bryan\.codex\automations\senior-capstone-qol-source-framework-seed-slot-2\automation.toml"
 ---
 
@@ -23,11 +23,15 @@ Targeted goal alignment: prioritize 1) broader tests, 2) real workflow endpoints
 
 Mission: build the Senior Capstone MVP as a GitHub-to-Cloudflare hosted, security-focused, database-backed app with real auth, users, groups, roles, programs, cohorts, progress updates, private evidence, submissions, reviews, approvals, announcements, dashboards, audit logs, exports, and protected student records. No student-to-student messaging.
 
-Start every run by inspecting git status --short --branch. Read docs/master-plan.md, docs/mvp-requirements-catalog.md, docs/automation-runbook.md, docs/automation-self-improvement.md, docs/automation-cadence.md, docs/automation-milestones.md, docs/automation-memory.md, docs/progress/run-log.md, recent docs/progress/runs/, docs/progress/handoffs.md, docs/progress/decision-log.md, docs/automation-backlog.md, docs/artifacts.json, docs/human-decisions.md, and the relevant progress log before selecting work.
+Start every run by inspecting git status --short --branch, then immediately inspect git branch --show-current. If git status shows detached HEAD or the branch name is blank, treat that as an immediate repo-state blocker or repair target before deep implementation work. Do not spend a long run on product changes if there is no pushable branch; first log the exact branch state, use only non-destructive git inspection to identify the intended branch, and record the blocker in the manifest/run log if the branch cannot be safely recovered without rewriting someone else's work. Read docs/master-plan.md, docs/mvp-requirements-catalog.md, docs/automation-runbook.md, docs/automation-self-improvement.md, docs/automation-cadence.md, docs/automation-milestones.md, docs/automation-memory.md, docs/progress/run-log.md, recent docs/progress/runs/, docs/progress/handoffs.md, docs/progress/decision-log.md, docs/automation-backlog.md, docs/artifacts.json, docs/human-decisions.md, and the relevant progress log before selecting work.
+
+Automation memory: read and maintain C:\Users\bryan\.codex\automations\senior-capstone-qol-source-framework-seed-slot-2\memory.md at the start and end of every run. If it does not exist, create it with a compact note of recent requirement-slice decisions, repeated blockers, last useful validation evidence, and the next recommended source-framework action so the next slot can continue without repeating stale analysis.
 
 Token budget guardrail: stay narrow. Read only relevant sections, prefer rg and recent/tail log reads, and avoid broad repo scans unless validating a concrete acceptance check. Pick one bounded QoL slice for this automation's target.
 
 Laddering rule: name the master-plan section and requirement IDs from docs/mvp-requirements-catalog.md that justify the slice. Pick the highest-risk incomplete sub-slice, prefer implementation/tests/deployment evidence over planning, update the catalog when status/evidence/blockers change, and avoid repeating recent work.
+
+Duplicate-scope guardrail: before selecting the slice, compare the repo state, recent manifests, and this automation memory file. If the same blocker-only diagnosis was already logged recently and no new evidence changed it, do not spend another run restating it. Either repair the prompt/checker/script path that caused the repeat, land the next implementation or test step, or record a materially new blocker.
 
 A-material quality bar: every productive run must either land a verified MVP implementation slice, improve a project automation/script/checker that prevents repeat failure, or commit an exact blocker. Include acceptance evidence, requirement IDs, validation commands, and next action. Only touch automation related to this project when doing automation maintenance.
 

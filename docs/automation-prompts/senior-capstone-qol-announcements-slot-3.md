@@ -1,11 +1,11 @@
 ﻿---
 automation_id: "senior-capstone-qol-announcements-slot-3"
 name: "Senior Capstone QoL - Announcements Slot 3"
-snapshot_generated_utc: "2026-05-19T13:01:29Z"
+snapshot_generated_utc: "2026-05-19T14:17:34Z"
 rrule: "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=21;BYMINUTE=39"
 model: "gpt-5.4"
 reasoning_effort: "high"
-prompt_sha256: "73a11403eeb520b6708b397c8e476300e76900f68a1a43f023987d831700042c"
+prompt_sha256: "2215ac0dcb347bdaf5cdf5d95125314b828b938022b79e39c233ec469d0bc7bf"
 source_toml: "C:\Users\bryan\.codex\automations\senior-capstone-qol-announcements-slot-3\automation.toml"
 ---
 
@@ -23,9 +23,15 @@ Targeted goal alignment: prioritize 1) broader tests, 2) real workflow endpoints
 
 Mission: build the Senior Capstone MVP with real auth, users, groups, roles, programs, cohorts, progress updates, private evidence, submissions, reviews, approvals, announcements, dashboards, audit logs, exports, and protected student records. No student-to-student messaging.
 
-Start every run by inspecting git status --short --branch. Read docs/master-plan.md, docs/mvp-requirements-catalog.md, docs/automation-runbook.md, docs/automation-self-improvement.md, docs/automation-cadence.md, docs/automation-milestones.md, docs/automation-memory.md, docs/progress/run-log.md, recent docs/progress/runs/, docs/progress/handoffs.md, docs/progress/decision-log.md, docs/automation-backlog.md, docs/artifacts.json, docs/human-decisions.md, and the relevant progress log before selecting work.
+Start every run by inspecting git status --short --branch. Read docs/master-plan.md, docs/mvp-requirements-catalog.md, docs/automation-runbook.md, docs/automation-self-improvement.md, docs/automation-cadence.md, docs/automation-milestones.md, docs/automation-memory.md, docs/progress/run-log.md, recent docs/progress/runs/, docs/progress/handoffs.md, docs/progress/decision-log.md, docs/automation-backlog.md, docs/artifacts.json, docs/human-decisions.md, and docs/progress/admin-ops-reporting.md before selecting work. Use docs/progress/audit.md only when the run is automation-maintenance-only.
+
+Announcement operating note: read the explicit Automation memory path from the run header first. If the run header does not provide one, use $CODEX_HOME/automations/<automation_id>/memory.md; if CODEX_HOME is unset in the shell, fall back to C:\Users\bryan\.codex\automations\<automation_id>\memory.md.
 
 Token budget guardrail: stay narrow, prefer rg and recent/tail log reads, and pick one bounded QoL slice. Laddering rule: name the master-plan section and requirement IDs from docs/mvp-requirements-catalog.md that justify the slice, avoid repeating recent work, and update catalog evidence when it changes. A-material quality bar: every productive run must land verified MVP implementation, improve a project automation/script/checker, or commit an exact blocker with evidence and next action.
+
+Announcement slice selection rule: treat the D1 announcements table in migrations/0001_foundation.sql plus the alpha-only notice state in alpha.js and functions/_lib/alpha-flow-model.js as already-known baseline evidence, not as finished implementation. Do not spend a pass only rediscovering that baseline. Prefer, in order: 1) D1-backed functions/api announcement create/list/read endpoints and tests, 2) wiring admin/staff announcement surfaces to those endpoints with audit-safe copy, or 3) a committed exact blocker that names the failed command/tool and next action.
+
+Announcement scope guardrail: keep this strictly one-way staff/admin publishing. Do not add replies, reactions, comments, peer feeds, direct messages, student-authored posts, or unread-chat style UI.
 
 Surface expansion rule: decide which surfaces need work or proof: app code/routes/schema, Cloudflare Pages/D1/env/deploy, Figma route-data-permission handoff, Canva support assets, tests/CI, docs/artifacts/handoffs, and exact blockers.
 
