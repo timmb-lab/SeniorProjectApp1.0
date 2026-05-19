@@ -19,6 +19,18 @@ export function cleanWorkflowText(value: unknown, fallback: string, maxLength = 
   return trimmed ? trimmed.slice(0, maxLength) : fallback;
 }
 
+export function cleanHttpsUrl(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+  const trimmed = value.trim();
+  try {
+    const url = new URL(trimmed);
+    if (url.protocol !== "https:" || !url.hostname.includes(".")) return null;
+    return url.toString();
+  } catch {
+    return null;
+  }
+}
+
 export async function getSubmission(env: Env, submissionId: string): Promise<SubmissionRow | null> {
   return env.DB.prepare(
     `SELECT id, student_id, requirement_id, status, version
@@ -31,6 +43,10 @@ export async function canReviewSubmission(env: Env, reviewer: UserAccount, submi
   if (await isAdmin(env, reviewer.id)) return true;
   if (!await hasRole(env, reviewer.id, "program_teacher")) return false;
   return canAccessStudent(env, reviewer, submission.student_id);
+}
+
+export async function canViewSubmission(env: Env, viewer: UserAccount, submission: SubmissionRow): Promise<boolean> {
+  return canAccessStudent(env, viewer, submission.student_id);
 }
 
 export function workflowError(error: string, status: number): Response {
@@ -63,4 +79,3 @@ export async function writeStatusHistory(
     input.reason,
   ).run();
 }
-
