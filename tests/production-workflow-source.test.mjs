@@ -4,7 +4,13 @@ import test from "node:test";
 
 const dashboardRoute = await readFile("functions/api/student/dashboard.ts", "utf8");
 const auditEventsRoute = await readFile("functions/api/admin/audit-events.ts", "utf8");
+const adminAnnouncementRoute = await readFile("functions/api/admin/announcements.ts", "utf8");
+const announcementListRoute = await readFile("functions/api/announcements.ts", "utf8");
+const archiveQueueRoute = await readFile("functions/api/admin/exports/student-archive.ts", "utf8");
 const evidenceRoute = await readFile("functions/api/submissions/[id]/evidence.ts", "utf8");
+const exportDownloadRoute = await readFile("functions/api/exports/[id]/download.ts", "utf8");
+const mentorAssignedRoute = await readFile("functions/api/mentor/assigned.ts", "utf8");
+const readinessRoute = await readFile("functions/api/reports/readiness.ts", "utf8");
 const reviewHistoryRoute = await readFile("functions/api/reviews/[submissionId]/history.ts", "utf8");
 const reviewQueueRoute = await readFile("functions/api/teacher/review-queue.ts", "utf8");
 const submitRoute = await readFile("functions/api/submissions/[id]/submit.ts", "utf8");
@@ -79,4 +85,36 @@ test("admin audit endpoint is admin-only and redacts sensitive metadata", () => 
   assert.match(auditEventsRoute, /\[redacted\]/);
   assert.match(auditEventsRoute, /entityType/);
   assert.match(auditEventsRoute, /action/);
+});
+
+test("announcement endpoints support admin create and scoped authenticated reads", () => {
+  assert.match(adminAnnouncementRoute, /isAdmin/);
+  assert.match(adminAnnouncementRoute, /INSERT INTO announcements/);
+  assert.match(adminAnnouncementRoute, /announcement_created/);
+  assert.match(adminAnnouncementRoute, /missing_audience_id/);
+  assert.match(announcementListRoute, /getCurrentUser/);
+  assert.match(announcementListRoute, /audience_scope = 'all'/);
+  assert.match(announcementListRoute, /audience_scope = 'role'/);
+  assert.match(announcementListRoute, /group_memberships/);
+});
+
+test("archive export endpoints queue admin requests and expose pending signed download state", () => {
+  assert.match(archiveQueueRoute, /isAdmin/);
+  assert.match(archiveQueueRoute, /INSERT INTO exports/);
+  assert.match(archiveQueueRoute, /student_archive_export_queued/);
+  assert.match(archiveQueueRoute, /signedDownloadReady: false/);
+  assert.match(exportDownloadRoute, /canAccessStudent/);
+  assert.match(exportDownloadRoute, /export_download_denied/);
+  assert.match(exportDownloadRoute, /export_download_checked/);
+  assert.match(exportDownloadRoute, /url: null/);
+});
+
+test("mentor and misc-admin reporting endpoints stay scoped and aggregate-only", () => {
+  assert.match(mentorAssignedRoute, /hasRole\(env, user\.id, "mentor"\)/);
+  assert.match(mentorAssignedRoute, /mentor_assignments/);
+  assert.match(mentorAssignedRoute, /assignedStudents/);
+  assert.match(readinessRoute, /hasRole\(env, user\.id, "misc_admin"\)/);
+  assert.match(readinessRoute, /aggregate_only/);
+  assert.match(readinessRoute, /readiness_report_viewed/);
+  assert.doesNotMatch(readinessRoute, /student_name|display_name|email/);
 });
