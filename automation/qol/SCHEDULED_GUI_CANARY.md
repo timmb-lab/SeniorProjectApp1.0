@@ -4,7 +4,7 @@ The next scheduled top-of-hour GUI run succeeds only if `automation/qol/reports/
 
 - `run_id` is newer than `20260519T184416Z-84c7f2ca`.
 - `orchestrator_path` is `automation/qol/hourly-orchestrator.mjs`.
-- `invocation_adapter` is `scripts/run-node-script.ps1`.
+- `invocation_adapter` is `scripts/run-automation.ps1`.
 - `wrapper_required` is `true`.
 - `direct_node_execution_allowed` is `false`.
 - `lock_acquired` is `true`.

@@ -60,6 +60,12 @@ Senior Capstone project scripts must be safe for unattended automation. Automati
 powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\<script-name>.ps1
 ```
 
+For reusable automations that must **commit, push, and log to Google Sheets**, run through the central guardrail wrapper documented in `docs/automation.md`:
+
+```powershell
+powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-automation.ps1 <automation-name>
+```
+
 On this Windows Codex desktop environment, plain `node` may resolve to the packaged WindowsApps runtime and fail with `Access is denied`, and `npm` may be absent from PATH. Prefer the direct PowerShell wrappers for unattended automation support:
 
 ```powershell

@@ -7,18 +7,21 @@
     "FIGMA-003",
     "FIGMA-004",
     "FIGMA-005",
-    "FIGMA-006"
+    "FIGMA-006",
+    "FIGMA-007",
+    "FIGMA-008",
+    "FIGMA-009"
   ],
-  "last_selected_task": "FIGMA-006",
+  "last_selected_task": "FIGMA-009",
   "last_successful_run_id": null,
-  "last_dry_run_id": "20260519T193815Z-b413ce0e",
-  "current_design_focus": "FIGMA-006: Add one bounded sandbox design note for Add latest run report panel.",
+  "last_dry_run_id": "20260519T224212Z-8d948855",
+  "current_design_focus": "FIGMA-009: Add one bounded sandbox design note for Add accessibility checklist annotations.",
   "known_figma_target_label": "Senior Capstone Automation Lab / Hourly Figma Evolution",
   "last_report_path": "automation/figma/reports/latest.md",
   "total_figma_mutations_attempted": 0,
   "total_figma_mutations_applied": 0,
-  "total_dry_runs": 6,
+  "total_dry_runs": 9,
   "last_integration_status": "FIGMA_AUTHORIZED_BUT_TOOL_UNREACHABLE",
   "last_safety_status": "FIGMA_AUTHORIZED_BUT_TOOL_UNREACHABLE",
-  "updated_at": "2026-05-19T19:38:15.680Z"
+  "updated_at": "2026-05-19T22:42:12.207Z"
 }

@@ -1,5 +1,5 @@
 param(
-    [string]$AutomationRoot = "$HOME\.codex\automations",
+    [string]$AutomationRoot = "",
     [string]$RepoRoot = ".",
     [switch]$RequireLive,
     [string]$ConfigPath = (Join-Path $PSScriptRoot "automation-config.json")
@@ -11,6 +11,42 @@ $failures = New-Object System.Collections.Generic.List[string]
 $warnings = New-Object System.Collections.Generic.List[string]
 $liveAutomationsValidated = 0
 $snapshotFallbacks = 0
+
+function Test-PathWithinDirectory {
+    param(
+        [Parameter(Mandatory = $true)][string]$Path,
+        [Parameter(Mandatory = $true)][string]$Directory
+    )
+
+    $fullPath = [System.IO.Path]::GetFullPath($Path).TrimEnd(
+        [System.IO.Path]::DirectorySeparatorChar,
+        [System.IO.Path]::AltDirectorySeparatorChar
+    )
+    $fullDirectory = [System.IO.Path]::GetFullPath($Directory).TrimEnd(
+        [System.IO.Path]::DirectorySeparatorChar,
+        [System.IO.Path]::AltDirectorySeparatorChar
+    )
+
+    return $fullPath.Equals($fullDirectory, [System.StringComparison]::OrdinalIgnoreCase) -or
+        $fullPath.StartsWith($fullDirectory + [System.IO.Path]::DirectorySeparatorChar, [System.StringComparison]::OrdinalIgnoreCase)
+}
+
+if ($AutomationRoot) {
+    $resolvedAutomationRoot = if ([System.IO.Path]::IsPathRooted($AutomationRoot)) {
+        $AutomationRoot
+    }
+    else {
+        Join-Path $RepoRoot $AutomationRoot
+    }
+    $resolvedAutomationRoot = [System.IO.Path]::GetFullPath($resolvedAutomationRoot)
+    if (-not (Test-PathWithinDirectory -Path $resolvedAutomationRoot -Directory $RepoRoot)) {
+        $failures.Add("AutomationRoot must be inside this repo root. Refusing external path: $resolvedAutomationRoot")
+        $AutomationRoot = ""
+    }
+    else {
+        $AutomationRoot = $resolvedAutomationRoot
+    }
+}
 
 function Read-AutomationConfig {
     param([Parameter(Mandatory = $true)][string]$Path)
@@ -253,8 +289,9 @@ function Get-SnapshotPrompt {
     return $match.Groups[1].Value -replace "`r`n", "`n"
 }
 
+$liveRootPresent = ($AutomationRoot -and (Test-Path -LiteralPath $AutomationRoot))
 $hasAnyExpectedLiveAutomation = $false
-if (Test-Path -LiteralPath $AutomationRoot) {
+if ($liveRootPresent) {
     foreach ($id in $automationIds) {
         if (Test-Path -LiteralPath (Join-Path $AutomationRoot "$id\automation.toml")) {
             $hasAnyExpectedLiveAutomation = $true
@@ -263,7 +300,7 @@ if (Test-Path -LiteralPath $AutomationRoot) {
     }
 }
 
-if (-not (Test-Path -LiteralPath $AutomationRoot)) {
+if (-not $liveRootPresent) {
     if ($RequireLive) {
         $failures.Add("Missing automation root: $AutomationRoot")
     }
@@ -296,12 +333,12 @@ foreach ($day in $allWeekDays) {
 }
 
 foreach ($id in $automationIds) {
-    $tomlPath = Join-Path $AutomationRoot "$id\automation.toml"
+    $tomlPath = if ($liveRootPresent) { Join-Path $AutomationRoot "$id\automation.toml" } else { "" }
     $snapshotPath = Join-Path $RepoRoot "docs\automation-prompts\$id.md"
     $sourceKind = "live"
     $expected = $expectedAutomationConfig[$id]
 
-    if (-not (Test-Path -LiteralPath $tomlPath)) {
+    if (-not $tomlPath -or -not (Test-Path -LiteralPath $tomlPath)) {
         if ($RequireLive) {
             $failures.Add("Missing live automation TOML: $tomlPath")
         }
@@ -336,7 +373,7 @@ foreach ($id in $automationIds) {
         $liveAutomationsValidated += 1
     }
 
-    if (($qolAutomationIds -contains $id) -and $sourceKind -eq "live") {
+    if ($liveRootPresent -and ($qolAutomationIds -contains $id) -and $sourceKind -eq "live") {
         $memoryPath = Join-Path $AutomationRoot "$id\memory.md"
         if (-not (Test-Path -LiteralPath $memoryPath)) {
             $failures.Add("$id is missing automation memory file: $memoryPath")

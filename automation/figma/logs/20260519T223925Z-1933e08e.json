@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "runId": "20260519T223925Z-1933e08e",
+  "startedAt": "2026-05-19T22:39:25.954Z",
+  "events": [],
+  "changedFiles": [
+    "automation/figma/patches/20260519T223925Z-1933e08e-FIGMA-007.json",
+    "automation/figma/state/state.json"
+  ],
+  "result": {
+    "figma_lane_enabled": true,
+    "figma_run_id": "20260519T223925Z-1933e08e",
+    "figma_report_path": "automation/figma/reports/latest.md",
+    "figma_integration_status": "FIGMA_AUTHORIZED_BUT_TOOL_UNREACHABLE",
+    "figma_safety_status": "FIGMA_AUTHORIZED_BUT_TOOL_UNREACHABLE",
+    "figma_selected_design_task": "FIGMA-007",
+    "figma_patch_proposal_path": "automation/figma/patches/20260519T223925Z-1933e08e-FIGMA-007.json",
+    "figma_applied_change_summary": "No Figma canvas mutation was applied.",
+    "figma_dry_run": true,
+    "figma_lock_released": true
+  },
+  "audit": {
+    "run_id": "20260519T223925Z-1933e08e",
+    "selected_design_task": "FIGMA-007",
+    "dry_run": true,
+    "safety_status": "FIGMA_AUTHORIZED_BUT_TOOL_UNREACHABLE",
+    "integration_status": "FIGMA_AUTHORIZED_BUT_TOOL_UNREACHABLE",
+    "lock_released": true
+  }
+}

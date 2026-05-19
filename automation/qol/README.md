@@ -59,7 +59,7 @@ Create one Codex desktop automation and select only this project in the project 
 
 Recommended execution mode: worktree, because this repo often has active local docs edits and the guard is worktree-compatible. Local mode is also supported when you intentionally want state and reports written in the current checkout.
 
-The canonical GUI command contract is `automation/qol/GUI_ALLOWED_COMMANDS.md`. Because local direct `node.exe` execution can be blocked by the WindowsApps shim, the scheduled GUI path must use `scripts/run-node-script.ps1` for both doctor and hourly orchestrator execution. The GUI automation should not run legacy Senior Capstone scripts, edit external automation registry entries, or continue after doctor fails.
+The canonical GUI command contract is `automation/qol/GUI_ALLOWED_COMMANDS.md`. Because local direct `node.exe` execution can be blocked by the WindowsApps shim, the scheduled GUI path must use the central guardrail wrapper `scripts/run-automation.ps1` (which runs the repo-local doctor + orchestrator via the approved node wrapper). The GUI automation should not run legacy Senior Capstone scripts, edit external automation registry entries, or continue after doctor fails.
 
 Recurring prompt:
 
@@ -68,8 +68,7 @@ Recurring prompt:
 The prompt should run:
 
 ```powershell
-powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-node-script.ps1 automation\qol\doctor.mjs
-powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-node-script.ps1 automation\qol\hourly-orchestrator.mjs
+powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-automation.ps1 qol:hourly
 ```
 
 ## Common Failures

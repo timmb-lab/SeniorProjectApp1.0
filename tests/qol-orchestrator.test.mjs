@@ -34,7 +34,7 @@ test("doctor reports UNKNOWN_REGISTRY_UNINSPECTABLE when repo-local registry evi
   assert.equal(json.guiInvocationContract.status, "pass");
   assert.match(
     json.guiInvocationContract.expectedOrchestratorCommand,
-    /scripts\\run-node-script\.ps1 automation\\qol\\hourly-orchestrator\.mjs/,
+    /scripts\\run-automation\.ps1 qol:hourly/,
   );
 });
 
@@ -112,7 +112,7 @@ test("orchestrator writes latest report with lock release and orchestrator path 
   assert.ok(afterMtime >= beforeMtime, "latest.md mtime should be preserved or advanced");
   const latest = await readFile(latestPath, "utf8");
   assert.match(latest, /- orchestrator_path: `automation\/qol\/hourly-orchestrator\.mjs`/);
-  assert.match(latest, /- invocation_adapter: `scripts\/run-node-script\.ps1`/);
+  assert.match(latest, /- invocation_adapter: `scripts\/run-automation\.ps1`/);
   assert.match(latest, /- wrapper_required: `true`/);
   assert.match(latest, /- direct_node_execution_allowed: `false`/);
   assert.match(latest, /- scheduled_gui_canary_status: `PENDING_NEXT_TOP_OF_HOUR`/);

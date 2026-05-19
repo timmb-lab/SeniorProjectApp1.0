@@ -3,9 +3,7 @@
 The scheduled Codex GUI automation for this project is allowed to use only this operational sequence:
 
 ```powershell
-powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-node-script.ps1 automation\qol\doctor.mjs
-
-powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-node-script.ps1 automation\qol\hourly-orchestrator.mjs
+powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-automation.ps1 qol:hourly
 
 read automation/qol/reports/latest.md
 ```

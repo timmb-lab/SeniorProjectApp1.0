@@ -17,7 +17,7 @@ const SCRIPT_VERSION = "1.0.0";
 const STATE_SCHEMA_VERSION = 1;
 const PROJECT_LOCK_RELATIVE = "automation/qol/project-lock.json";
 const ORCHESTRATOR_RELATIVE_PATH = "automation/qol/hourly-orchestrator.mjs";
-const INVOCATION_ADAPTER_RELATIVE_PATH = "scripts/run-node-script.ps1";
+const INVOCATION_ADAPTER_RELATIVE_PATH = "scripts/run-automation.ps1";
 const NPM_ADAPTER_RELATIVE_PATH = "scripts/run-npm-script.ps1";
 const GUI_ALLOWED_COMMAND_DOC_RELATIVE = "automation/qol/GUI_ALLOWED_COMMANDS.md";
 const SCHEDULED_GUI_CANARY_RELATIVE = "automation/qol/SCHEDULED_GUI_CANARY.md";
@@ -25,9 +25,9 @@ const FIGMA_ORCHESTRATOR_RELATIVE_PATH = "automation/figma/hourly-figma-orchestr
 const FIGMA_REPORT_RELATIVE_PATH = "automation/figma/reports/latest.md";
 const DEFAULT_REGISTRY_EVIDENCE_RELATIVE = "automation/qol/state/automation-registry-evidence.json";
 const EXPECTED_GUI_DOCTOR_COMMAND =
-  "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 automation\\qol\\doctor.mjs";
+  "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-automation.ps1 qol:hourly";
 const EXPECTED_GUI_ORCHESTRATOR_COMMAND =
-  "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 automation\\qol\\hourly-orchestrator.mjs";
+  "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-automation.ps1 qol:hourly";
 const SCHEDULED_GUI_CANARY_PENDING = "PENDING_NEXT_TOP_OF_HOUR";
 const DEFAULT_MAX_TOTAL_RUNTIME_MS = 8 * 60 * 1000;
 const DEFAULT_COMMAND_TIMEOUT_MS = 60 * 1000;
@@ -485,7 +485,7 @@ async function inspectGuiInvocationContract(projectRoot, options = {}) {
 
   const wrapperPath = assertInsideProjectRoot(projectRoot, INVOCATION_ADAPTER_RELATIVE_PATH);
   addCheck(
-    "run-node-wrapper",
+    "run-automation-wrapper",
     existsSync(wrapperPath) ? "pass" : "fail",
     existsSync(wrapperPath)
       ? INVOCATION_ADAPTER_RELATIVE_PATH

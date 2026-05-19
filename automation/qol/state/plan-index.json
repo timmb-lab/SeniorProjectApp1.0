@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-05-19T21:51:23.413Z",
+  "generatedAt": "2026-05-19T22:42:12.402Z",
   "masterPlanPath": "docs/master-plan.md",
   "masterPlanChecksum": "410d4840d79519d58406a97be9cbac5eef90c7d65094ad9cfae8be0fc090f968",
   "requirementCatalogPath": "docs/mvp-requirements-catalog.md",
-  "requirementCatalogChecksum": "bd9d813a0ebfa227d4c0f8f107753b35941faf5c8ec6908fd9858fe79b391db3",
+  "requirementCatalogChecksum": "e7e25810d59cc5504213877fd34bfe35758a51844f2f6a402d76d3208065c23f",
   "taskCount": 39,
   "tasks": [
     {
@@ -232,8 +232,8 @@
       "title": "Provide announcement surfaces for staff/admin updates without adding student-to-student messaging.",
       "category": "admin-ops-reporting",
       "section": "admin-ops-reporting",
-      "state": "pending",
-      "priority": 85,
+      "state": "ready",
+      "priority": 65,
       "cadence": "one-shot",
       "source": "docs/mvp-requirements-catalog.md"
     },
