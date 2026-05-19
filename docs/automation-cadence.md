@@ -2,7 +2,7 @@
 
 Date: 2026-05-18
 
-Bryan explicitly reset the Senior Capstone automation setup on 2026-05-18, then explicitly rebuilt it again as a focused QoL system. All prior project automation TOMLs are deleted. The current production cadence is ten individual Senior Capstone QoL automations, each running 3x/day in America/Los_Angeles, spread out so the project gets 30 small targeted starts/day without one giant token-heavy runner.
+Bryan explicitly reset the Senior Capstone automation setup on 2026-05-18, then explicitly rebuilt it again as a focused QoL system. All prior project automation TOMLs are deleted. The current production cadence is thirty GUI-managed Senior Capstone QoL automations, each with one daily start in America/Los_Angeles. They are grouped into ten QoL targets with three single-slot automations per target, so the project still gets 30 small targeted starts/day without relying on one automation to honor multiple daily times.
 
 End goal: a GitHub-to-Cloudflare hosted Senior Capstone app whose MVP is a secure database-backed operating system with users, groups, roles, programs, cohorts, progress updates, submissions, private evidence, reviews, approvals, dashboards, announcements, admin controls, audit logs, exports, and protected student records.
 
@@ -24,22 +24,42 @@ Npm/CI wrapper: `scripts/run-powershell-script.mjs`.
 
 ## Active QoL Automations
 
-| QoL target | Automation ID | Schedule PT | RRULE | Primary output |
-| --- | --- | --- | --- | --- |
-| Source framework seed | `senior-capstone-qol-source-framework-seed-2` | `00:03`, `08:03`, `16:03` | `FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=0,8,16;BYMINUTE=03` | Source-framework loader, requirement/deadline/check records, catalog drift control. |
-| Drive upload OAuth | `senior-capstone-qol-drive-upload-oauth-2` | `00:51`, `08:51`, `16:51` | `FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=0,8,16;BYMINUTE=51` | Google Drive upload credentials/OAuth, evidence metadata, provider states. |
-| Protected evidence tests | `senior-capstone-qol-protected-evidence-tests-2` | `01:39`, `09:39`, `17:39` | `FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=1,9,17;BYMINUTE=39` | Private evidence permissions, denied-access audit events, protected-record tests. |
-| Teacher review endpoints | `senior-capstone-qol-teacher-review-endpoints-2` | `02:27`, `10:27`, `18:27` | `FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=2,10,18;BYMINUTE=27` | Teacher queue/detail endpoints, comments, revision, approval, status history. |
-| Immutable review history | `senior-capstone-qol-immutable-review-history-2` | `03:15`, `11:15`, `19:15` | `FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=3,11,19;BYMINUTE=15` | Submission versions, immutable reviews/comments, destructive-overwrite prevention. |
-| Mentor presentation flow | `senior-capstone-qol-mentor-presentation-flow-2` | `04:03`, `12:03`, `20:03` | `FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=4,12,20;BYMINUTE=03` | Mentor scope, meeting attendance, outline gates, presentation slots, conflicts. |
-| Admin ops endpoints | `senior-capstone-qol-admin-ops-endpoints-2` | `04:51`, `12:51`, `20:51` | `FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=4,12,20;BYMINUTE=51` | Admin operations, overrides, deadlines/templates, exports, audit redaction. |
-| Announcements | `senior-capstone-qol-announcements-2` | `05:39`, `13:39`, `21:39` | `FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=5,13,21;BYMINUTE=39` | Staff/admin announcements without student messaging. |
-| Account lifecycle | `senior-capstone-qol-account-lifecycle-2` | `06:27`, `14:27`, `22:27` | `FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=6,14,22;BYMINUTE=27` | Invitations/imports, password reset, credential rotation, sessions, role scopes. |
-| Cloudflare verification | `senior-capstone-qol-cloudflare-verification-2` | `07:15`, `15:15`, `23:15` | `FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=7,15,23;BYMINUTE=15` | Post-push Pages/D1/env verification, CI, smoke checks, secrets, blockers. |
+| QoL target | Automation ID | Schedule PT | Primary output |
+| --- | --- | --- | --- |
+| Source framework seed | `senior-capstone-qol-source-framework-seed-2` | `00:03` | Source-framework loader, requirement/deadline/check records, catalog drift control. |
+| Drive upload OAuth | `senior-capstone-qol-drive-upload-oauth-2` | `00:51` | Google Drive upload credentials/OAuth, evidence metadata, provider states. |
+| Protected evidence tests | `senior-capstone-qol-protected-evidence-tests-2` | `01:39` | Private evidence permissions, denied-access audit events, protected-record tests. |
+| Teacher review endpoints | `senior-capstone-qol-teacher-review-endpoints-2` | `02:27` | Teacher queue/detail endpoints, comments, revision, approval, status history. |
+| Immutable review history | `senior-capstone-qol-immutable-review-history-2` | `03:15` | Submission versions, immutable reviews/comments, destructive-overwrite prevention. |
+| Mentor presentation flow | `senior-capstone-qol-mentor-presentation-flow-2` | `04:03` | Mentor scope, meeting attendance, outline gates, presentation slots, conflicts. |
+| Admin ops endpoints | `senior-capstone-qol-admin-ops-endpoints-2` | `04:51` | Admin operations, overrides, deadlines/templates, exports, audit redaction. |
+| Announcements | `senior-capstone-qol-announcements-2` | `05:39` | Staff/admin announcements without student messaging. |
+| Account lifecycle | `senior-capstone-qol-account-lifecycle-2` | `06:27` | Invitations/imports, password reset, credential rotation, sessions, role scopes. |
+| Cloudflare verification | `senior-capstone-qol-cloudflare-verification-2` | `07:15` | Post-push Pages/D1/env verification, CI, smoke checks, secrets, blockers. |
+| Source framework seed | `senior-capstone-qol-source-framework-seed-slot-2` | `08:03` | Source-framework loader, requirement/deadline/check records, catalog drift control. |
+| Drive upload OAuth | `senior-capstone-qol-drive-upload-oauth-slot-2` | `08:51` | Google Drive upload credentials/OAuth, evidence metadata, provider states. |
+| Protected evidence tests | `senior-capstone-qol-protected-evidence-tests-slot-2` | `09:39` | Private evidence permissions, denied-access audit events, protected-record tests. |
+| Teacher review endpoints | `senior-capstone-qol-teacher-review-endpoints-slot-2` | `10:27` | Teacher queue/detail endpoints, comments, revision, approval, status history. |
+| Immutable review history | `senior-capstone-qol-immutable-review-history-slot-2` | `11:15` | Submission versions, immutable reviews/comments, destructive-overwrite prevention. |
+| Mentor presentation flow | `senior-capstone-qol-mentor-presentation-flow-slot-2` | `12:03` | Mentor scope, meeting attendance, outline gates, presentation slots, conflicts. |
+| Admin ops endpoints | `senior-capstone-qol-admin-ops-endpoints-slot-2` | `12:51` | Admin operations, overrides, deadlines/templates, exports, audit redaction. |
+| Announcements | `senior-capstone-qol-announcements-slot-2` | `13:39` | Staff/admin announcements without student messaging. |
+| Account lifecycle | `senior-capstone-qol-account-lifecycle-slot-2` | `14:27` | Invitations/imports, password reset, credential rotation, sessions, role scopes. |
+| Cloudflare verification | `senior-capstone-qol-cloudflare-verification-slot-2` | `15:15` | Post-push Pages/D1/env verification, CI, smoke checks, secrets, blockers. |
+| Source framework seed | `senior-capstone-qol-source-framework-seed-slot-3` | `16:03` | Source-framework loader, requirement/deadline/check records, catalog drift control. |
+| Drive upload OAuth | `senior-capstone-qol-drive-upload-oauth-slot-3` | `16:51` | Google Drive upload credentials/OAuth, evidence metadata, provider states. |
+| Protected evidence tests | `senior-capstone-qol-protected-evidence-tests-slot-3` | `17:39` | Private evidence permissions, denied-access audit events, protected-record tests. |
+| Teacher review endpoints | `senior-capstone-qol-teacher-review-endpoints-slot-3` | `18:27` | Teacher queue/detail endpoints, comments, revision, approval, status history. |
+| Immutable review history | `senior-capstone-qol-immutable-review-history-slot-3` | `19:15` | Submission versions, immutable reviews/comments, destructive-overwrite prevention. |
+| Mentor presentation flow | `senior-capstone-qol-mentor-presentation-flow-slot-3` | `20:03` | Mentor scope, meeting attendance, outline gates, presentation slots, conflicts. |
+| Admin ops endpoints | `senior-capstone-qol-admin-ops-endpoints-slot-3` | `20:51` | Admin operations, overrides, deadlines/templates, exports, audit redaction. |
+| Announcements | `senior-capstone-qol-announcements-slot-3` | `21:39` | Staff/admin announcements without student messaging. |
+| Account lifecycle | `senior-capstone-qol-account-lifecycle-slot-3` | `22:27` | Invitations/imports, password reset, credential rotation, sessions, role scopes. |
+| Cloudflare verification | `senior-capstone-qol-cloudflare-verification-slot-3` | `23:15` | Post-push Pages/D1/env verification, CI, smoke checks, secrets, blockers. |
 
-This creates 30 Senior Capstone starts per day across the project. Each unfinished QoL item runs at least 3x/day. The start slots are staggered with no exact overlaps and at least 45 minutes between starts. Each runner must keep its own slice bounded, favor implementation or verification evidence, and must not overwrite unrelated dirty work. If the worktree is dirty because another QoL run is still closing, the runner should classify the dirty files, avoid staging unrelated changes, and either pick a non-conflicting read-only/verification slice or record a compact committed blocker.
+This creates 30 Senior Capstone starts per day across the project. Each unfinished QoL target still runs at least 3x/day, but each app automation has exactly one daily RRULE slot. The start slots are staggered with no exact overlaps and at least 45 minutes between starts. Each runner must keep its own slice bounded, favor implementation or verification evidence, and must not overwrite unrelated dirty work. If the worktree is dirty because another QoL run is still closing, the runner should classify the dirty files, avoid staging unrelated changes, and either pick a non-conflicting read-only/verification slice or record a compact committed blocker.
 
-The `-2` suffixes are intentional: they are the app-managed GUI automation IDs created after the original direct-file TOMLs were found to be orphaned from the Codex automation app. The older unsuffixed local TOML folders were removed from the local registry on 2026-05-18 after `automation_update` reported that the unsuffixed app automation did not exist.
+The original `-2` suffixes are the app-managed GUI Slot 1 automation IDs created after the original direct-file TOMLs were found to be orphaned from the Codex automation app. The `slot-2` and `slot-3` IDs are app-managed single-slot companions added on 2026-05-18 because a single automation with multiple daily BYHOUR values was not reliably firing.
 
 ## Shared Operating Contract
 
@@ -150,4 +170,4 @@ The QoL rebuild supersedes these prior local automation TOMLs:
 - `senior-capstone-deployment-qa`
 - `senior-capstone-design-assets-handoff`
 
-The old concepts are not lost; they are absorbed into the ten QoL runners above.
+The old concepts are not lost; they are absorbed into the ten QoL target groups above.

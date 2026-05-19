@@ -244,3 +244,29 @@ Each audit run should append a dated entry with:
 - `validation`: `automation_update` created all ten app-managed automations; `automation_update view` rendered `senior-capstone-qol-source-framework-seed-2`; prompt snapshots regenerated; strict live checker passed for 10 live QoL automations; efficiency scorecard passed with 10 active automations, 30 starts/day, and 48-minute minimum spacing.
 - `self-improvement`: checker/snapshot/scorecard scripts now target the GUI-managed `-2` IDs so future live checks fail if the app-visible registry drifts again.
 - `next action`: If the GUI still shows stale data, refresh the automations panel; the active app IDs now carry the `-2` suffix.
+
+### 2026-05-18 17:33 PT - QoL Single-Slot Split
+
+- `automation`: manual project-only repair after Bryan reported that one automation with multiple daily times was not reliably working.
+- `master-plan section`: QoL Automation Rebuild; Anti-Drift Rules; Logging Requirements.
+- `scope`: Preserve the 30-start/day Senior Capstone QoL cadence while representing it as thirty app-managed single-slot automations instead of ten compound RRULE automations.
+- `live automations changed`: Updated the ten existing `senior-capstone-qol-*-2` automations to Slot 1 names and one BYHOUR each. Created twenty new app-managed companions with `slot-2` and `slot-3` IDs.
+- `preserved fields`: ACTIVE status, `C:\SeniorProjectApp1.0` worktree workspace, model `gpt-5.4`, reasoning effort `high`, target ownership, 30 starts/day, and three daily starts per QoL target.
+- `script changes`: `scripts/automation-config.json` now lists all thirty QoL automation IDs. `scripts/check-automation-contract.ps1` now enforces one daily BYHOUR per active QoL automation while still enforcing the same 30 expected daily start times.
+- `files changed`: Codex app automations, `scripts/automation-config.json`, `scripts/check-automation-contract.ps1`, `docs/automation-cadence.md`, `docs/automation-runbook.md`, `docs/automation-memory.md`, `docs/master-plan.md`, `docs/mvp-requirements-catalog.md`, `docs/progress/decision-log.md`, `docs/progress/audit.md`, `docs/progress/run-log.md`, prompt snapshots, and the single-slot split manifest.
+- `validation`: local live registry listed 30 active Senior Capstone QoL automations with one BYHOUR each; prompt snapshots regenerated 32 files; strict live automation checker passed for 30 QoL automations and 2 support automations; efficiency scorecard reported 30 active QoL automations, 30 starts/day, 900 starts/30 days, and 48-minute minimum spacing.
+- `self-improvement`: the checker now matches the app reliability workaround so future automation audits do not collapse the 30 single-slot jobs back into ten compound schedules.
+- `next action`: Keep 30 starts/day stable. If more cadence changes are needed later, use the efficiency scorecard and accepted-pass telemetry before adding starts.
+
+### 2026-05-18 18:10 PT - QoL Target Retargeting
+
+- `automation`: manual project-only QoL prompt retargeting after Bryan clarified that the Google Drive school-account switch will be handled later.
+- `master-plan section`: Real Daily MVP Goal; Immediate next five passes; QoL Automation Rebuild.
+- `scope`: Retarget all 30 app-managed Senior Capstone QoL prompts around the immediate alpha ladder without changing cadence, workspace, model, reasoning effort, or ACTIVE status.
+- `live automations changed`: all 30 `senior-capstone-qol-*` app-managed cron automations.
+- `prompt change`: every QoL lane now explicitly prioritizes broader tests, real workflow endpoints, shared alpha primitives, and account-lifecycle/known-gaps hardening; the Drive Upload OAuth lane now treats the Google Drive school-account cutover as deferred and stays in safe blocker/metadata mode until Bryan handles it.
+- `preserved fields`: 30 starts/day, one BYHOUR per automation, three daily starts per QoL target, `C:\SeniorProjectApp1.0` worktree workspace, model `gpt-5.4`, reasoning effort `high`, and ACTIVE status.
+- `files changed`: live Codex app automations, regenerated `docs/automation-prompts/` snapshots, `docs/progress/run-log.md`, and `docs/progress/runs/2026-05-18-1810-qol-target-retarget.json`.
+- `validation`: bundled Node wrapper regenerated snapshots; `scripts/check-automation-contract.ps1 -RequireLive` passed for 30 QoL automations and 2 support automations.
+- `self-improvement`: corrected the retargeted source-framework and immutable-review-history prompts so contract-required fragments remained present after the focus shift.
+- `next action`: keep the Drive school-account change out of the current QoL ladder and let the remaining lanes push tests, endpoints, shared primitives, and account lifecycle toward the Day 7 alpha gate.

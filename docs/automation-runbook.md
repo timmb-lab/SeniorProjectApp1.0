@@ -87,13 +87,13 @@ If those account/provisioning pieces are missing, rebuild should still scaffold 
 
 ## QoL Automation Rebuild
 
-Bryan explicitly rebuilt the project automation from scratch into ten focused QoL automations. Each runs 3x/day and owns one unfinished MVP item or item cluster: source framework seed, Drive upload/OAuth, protected evidence tests, teacher review endpoints, immutable review history, mentor presentation flow, admin ops endpoints, announcements, account lifecycle, and Cloudflare verification.
+Bryan explicitly rebuilt the project automation from scratch into ten focused QoL target groups: source framework seed, Drive upload/OAuth, protected evidence tests, teacher review endpoints, immutable review history, mentor presentation flow, admin ops endpoints, announcements, account lifecycle, and Cloudflare verification. The live registry now represents that as thirty active single-slot automations, three per QoL target, because a single automation with multiple daily BYHOUR values was not reliably firing.
 
 This shape is intentionally more granular than the prior seven-category 20x system. It keeps each run narrow, lowers token pressure, and still gives every listed QoL target at least three daily chances to move or log a precise blocker.
 
 ## Category Runner No-Intervention Contract
 
-The Senior Capstone automation system now uses ten active QoL runners. Together they run 30 times per day on a staggered schedule recorded in `docs/automation-cadence.md`, with no shared scheduled start slots. The older orchestrator, standby lanes, daily prototype job, separate weekly audit job, broad seven-category runners, brief hourly escalation, and 20x category system are superseded by these QoL runners.
+The Senior Capstone automation system now uses thirty active single-slot QoL runners. Together they run 30 times per day on a staggered schedule recorded in `docs/automation-cadence.md`, with no shared scheduled start slots. The older orchestrator, standby lanes, daily prototype job, separate weekly audit job, broad seven-category runners, brief hourly escalation, and 20x category system are superseded by these QoL runners.
 
 Each QoL runner should resolve everything it can resolve from accepted docs, repo evidence, saved connector approvals, and safe fallbacks. It should not stop for a human when it can:
 
@@ -136,7 +136,7 @@ powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\me
 
 Use `-OutputPath <path>` when a scheduled run should save the JSON scorecard as a durable artifact before logging or summarizing it.
 
-The efficiency scorecard measures active QoL count, daily start capacity, 30-day start capacity, minimum spacing, observed run manifests, accepted-pass telemetry, requirement IDs seen, and QoL automations with no observed manifest.
+The efficiency scorecard measures active QoL automation count, daily start capacity, 30-day start capacity, minimum spacing, observed run manifests, accepted-pass telemetry, requirement IDs seen, and QoL automations with no observed manifest. Since 2026-05-18 17:30 PT, active QoL automation count should be 30 while daily start capacity remains 30.
 
 Scaling rules:
 

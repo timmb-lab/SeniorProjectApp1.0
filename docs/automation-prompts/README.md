@@ -1,6 +1,6 @@
 ﻿# Automation Prompt Snapshots
 
-Generated: 2026-05-18T23:49:47Z
+Generated: 2026-05-19T01:09:46Z
 
 These files are repo snapshots of the live Codex automation prompts. Regenerate them after any prompt/config update with:
 
@@ -10,15 +10,35 @@ powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\sn
 
 | Automation | Prompt SHA-256 | Snapshot |
 | --- | --- | --- |
-| senior-capstone-qol-source-framework-seed-2 | ea80cff8174c8cd953dee4fe0c0b570aae375ce1e874a23b9eef70e2f65de07c | [senior-capstone-qol-source-framework-seed-2.md](./senior-capstone-qol-source-framework-seed-2.md) |
-| senior-capstone-qol-drive-upload-oauth-2 | a0de2b59834ba5c2f25a79b4217770d6f193020c1f225262ec210cc9efd1d230 | [senior-capstone-qol-drive-upload-oauth-2.md](./senior-capstone-qol-drive-upload-oauth-2.md) |
-| senior-capstone-qol-protected-evidence-tests-2 | d0aafeb92436653cd9abe89bdf7507461f6724a9aba3a0e5c9d3b4e36fccd5ad | [senior-capstone-qol-protected-evidence-tests-2.md](./senior-capstone-qol-protected-evidence-tests-2.md) |
-| senior-capstone-qol-teacher-review-endpoints-2 | c1e1bb1871524e7f061765549aedd6315a38418203b5bc4e44598fb4132bf340 | [senior-capstone-qol-teacher-review-endpoints-2.md](./senior-capstone-qol-teacher-review-endpoints-2.md) |
-| senior-capstone-qol-immutable-review-history-2 | f733cff288feef9bc6fa84ffe0f572abfcea8e67162f62e07bc229377bff3fdd | [senior-capstone-qol-immutable-review-history-2.md](./senior-capstone-qol-immutable-review-history-2.md) |
-| senior-capstone-qol-mentor-presentation-flow-2 | 4210ae2c261d461be7a8e71b23a7dafcfe52c006283ac81ce820d274ebced5f6 | [senior-capstone-qol-mentor-presentation-flow-2.md](./senior-capstone-qol-mentor-presentation-flow-2.md) |
-| senior-capstone-qol-admin-ops-endpoints-2 | 9a96b3140a6b5c6d7b1cfd139df8f224552d8f01a76fcc868c217d806006fe0a | [senior-capstone-qol-admin-ops-endpoints-2.md](./senior-capstone-qol-admin-ops-endpoints-2.md) |
-| senior-capstone-qol-announcements-2 | ec31e25799709d5ceb9a5306c5f62d9394738b6503000fbd7b516c0c8fd482a2 | [senior-capstone-qol-announcements-2.md](./senior-capstone-qol-announcements-2.md) |
-| senior-capstone-qol-account-lifecycle-2 | f89cdec02d48663b964c6fabfb7c25f072b753b2eeddc2d03b71ed624706d462 | [senior-capstone-qol-account-lifecycle-2.md](./senior-capstone-qol-account-lifecycle-2.md) |
-| senior-capstone-qol-cloudflare-verification-2 | 60c50e32e6a4d68e9fd9cbe56acb7bf16abe15c83d00c22f4fb6a5206057af89 | [senior-capstone-qol-cloudflare-verification-2.md](./senior-capstone-qol-cloudflare-verification-2.md) |
+| senior-capstone-qol-source-framework-seed-2 | 88ec58213df8da6c31cc5cf69b3f3fb6616d8c2083a9f7b84e42db75cd615c2c | [senior-capstone-qol-source-framework-seed-2.md](./senior-capstone-qol-source-framework-seed-2.md) |
+| senior-capstone-qol-source-framework-seed-slot-2 | 88ec58213df8da6c31cc5cf69b3f3fb6616d8c2083a9f7b84e42db75cd615c2c | [senior-capstone-qol-source-framework-seed-slot-2.md](./senior-capstone-qol-source-framework-seed-slot-2.md) |
+| senior-capstone-qol-source-framework-seed-slot-3 | 88ec58213df8da6c31cc5cf69b3f3fb6616d8c2083a9f7b84e42db75cd615c2c | [senior-capstone-qol-source-framework-seed-slot-3.md](./senior-capstone-qol-source-framework-seed-slot-3.md) |
+| senior-capstone-qol-drive-upload-oauth-2 | bf4f63fc7738921412746bb0550a99858539a153f779d13eb50cd68726f749c4 | [senior-capstone-qol-drive-upload-oauth-2.md](./senior-capstone-qol-drive-upload-oauth-2.md) |
+| senior-capstone-qol-drive-upload-oauth-slot-2 | bf4f63fc7738921412746bb0550a99858539a153f779d13eb50cd68726f749c4 | [senior-capstone-qol-drive-upload-oauth-slot-2.md](./senior-capstone-qol-drive-upload-oauth-slot-2.md) |
+| senior-capstone-qol-drive-upload-oauth-slot-3 | bf4f63fc7738921412746bb0550a99858539a153f779d13eb50cd68726f749c4 | [senior-capstone-qol-drive-upload-oauth-slot-3.md](./senior-capstone-qol-drive-upload-oauth-slot-3.md) |
+| senior-capstone-qol-protected-evidence-tests-2 | e16732192e1ddce7e70aa194c67d41245e551905ea225313cb9e3e812aef7560 | [senior-capstone-qol-protected-evidence-tests-2.md](./senior-capstone-qol-protected-evidence-tests-2.md) |
+| senior-capstone-qol-protected-evidence-tests-slot-2 | e16732192e1ddce7e70aa194c67d41245e551905ea225313cb9e3e812aef7560 | [senior-capstone-qol-protected-evidence-tests-slot-2.md](./senior-capstone-qol-protected-evidence-tests-slot-2.md) |
+| senior-capstone-qol-protected-evidence-tests-slot-3 | e16732192e1ddce7e70aa194c67d41245e551905ea225313cb9e3e812aef7560 | [senior-capstone-qol-protected-evidence-tests-slot-3.md](./senior-capstone-qol-protected-evidence-tests-slot-3.md) |
+| senior-capstone-qol-teacher-review-endpoints-2 | 92ef0cffd474f9fa2f4bbde33918ff9465d67eb78ae1b6fb6a8466007776c700 | [senior-capstone-qol-teacher-review-endpoints-2.md](./senior-capstone-qol-teacher-review-endpoints-2.md) |
+| senior-capstone-qol-teacher-review-endpoints-slot-2 | 92ef0cffd474f9fa2f4bbde33918ff9465d67eb78ae1b6fb6a8466007776c700 | [senior-capstone-qol-teacher-review-endpoints-slot-2.md](./senior-capstone-qol-teacher-review-endpoints-slot-2.md) |
+| senior-capstone-qol-teacher-review-endpoints-slot-3 | 92ef0cffd474f9fa2f4bbde33918ff9465d67eb78ae1b6fb6a8466007776c700 | [senior-capstone-qol-teacher-review-endpoints-slot-3.md](./senior-capstone-qol-teacher-review-endpoints-slot-3.md) |
+| senior-capstone-qol-immutable-review-history-2 | 2f8d8deca882dee66f8aa5201e46c384d5cb2c8390b043a9be293083ad21a34e | [senior-capstone-qol-immutable-review-history-2.md](./senior-capstone-qol-immutable-review-history-2.md) |
+| senior-capstone-qol-immutable-review-history-slot-2 | 2f8d8deca882dee66f8aa5201e46c384d5cb2c8390b043a9be293083ad21a34e | [senior-capstone-qol-immutable-review-history-slot-2.md](./senior-capstone-qol-immutable-review-history-slot-2.md) |
+| senior-capstone-qol-immutable-review-history-slot-3 | 2f8d8deca882dee66f8aa5201e46c384d5cb2c8390b043a9be293083ad21a34e | [senior-capstone-qol-immutable-review-history-slot-3.md](./senior-capstone-qol-immutable-review-history-slot-3.md) |
+| senior-capstone-qol-mentor-presentation-flow-2 | 931eb71abf6254d9c52f20c1861cb0c735a26d3509251d9437cc3c400437e976 | [senior-capstone-qol-mentor-presentation-flow-2.md](./senior-capstone-qol-mentor-presentation-flow-2.md) |
+| senior-capstone-qol-mentor-presentation-flow-slot-2 | 931eb71abf6254d9c52f20c1861cb0c735a26d3509251d9437cc3c400437e976 | [senior-capstone-qol-mentor-presentation-flow-slot-2.md](./senior-capstone-qol-mentor-presentation-flow-slot-2.md) |
+| senior-capstone-qol-mentor-presentation-flow-slot-3 | 931eb71abf6254d9c52f20c1861cb0c735a26d3509251d9437cc3c400437e976 | [senior-capstone-qol-mentor-presentation-flow-slot-3.md](./senior-capstone-qol-mentor-presentation-flow-slot-3.md) |
+| senior-capstone-qol-admin-ops-endpoints-2 | c6997f35924bc9636b175a78bc3c7d3ed32288a82e5236c112d7639cbb3b6e68 | [senior-capstone-qol-admin-ops-endpoints-2.md](./senior-capstone-qol-admin-ops-endpoints-2.md) |
+| senior-capstone-qol-admin-ops-endpoints-slot-2 | c6997f35924bc9636b175a78bc3c7d3ed32288a82e5236c112d7639cbb3b6e68 | [senior-capstone-qol-admin-ops-endpoints-slot-2.md](./senior-capstone-qol-admin-ops-endpoints-slot-2.md) |
+| senior-capstone-qol-admin-ops-endpoints-slot-3 | c6997f35924bc9636b175a78bc3c7d3ed32288a82e5236c112d7639cbb3b6e68 | [senior-capstone-qol-admin-ops-endpoints-slot-3.md](./senior-capstone-qol-admin-ops-endpoints-slot-3.md) |
+| senior-capstone-qol-announcements-2 | edefe9a1d6830e56352804f2ccaa8a474a0f28ef5f2014a503260cc144ac2329 | [senior-capstone-qol-announcements-2.md](./senior-capstone-qol-announcements-2.md) |
+| senior-capstone-qol-announcements-slot-2 | edefe9a1d6830e56352804f2ccaa8a474a0f28ef5f2014a503260cc144ac2329 | [senior-capstone-qol-announcements-slot-2.md](./senior-capstone-qol-announcements-slot-2.md) |
+| senior-capstone-qol-announcements-slot-3 | edefe9a1d6830e56352804f2ccaa8a474a0f28ef5f2014a503260cc144ac2329 | [senior-capstone-qol-announcements-slot-3.md](./senior-capstone-qol-announcements-slot-3.md) |
+| senior-capstone-qol-account-lifecycle-2 | 1b26fa4a2479513cf6abe1641f52b19cd0ade6229322adfdfdcf5ce1d1c3fa17 | [senior-capstone-qol-account-lifecycle-2.md](./senior-capstone-qol-account-lifecycle-2.md) |
+| senior-capstone-qol-account-lifecycle-slot-2 | 1b26fa4a2479513cf6abe1641f52b19cd0ade6229322adfdfdcf5ce1d1c3fa17 | [senior-capstone-qol-account-lifecycle-slot-2.md](./senior-capstone-qol-account-lifecycle-slot-2.md) |
+| senior-capstone-qol-account-lifecycle-slot-3 | 1b26fa4a2479513cf6abe1641f52b19cd0ade6229322adfdfdcf5ce1d1c3fa17 | [senior-capstone-qol-account-lifecycle-slot-3.md](./senior-capstone-qol-account-lifecycle-slot-3.md) |
+| senior-capstone-qol-cloudflare-verification-2 | 60b3b701743d1d0a1bac444893e943f8a1146c8adde3c3aa8fad01f74425b10a | [senior-capstone-qol-cloudflare-verification-2.md](./senior-capstone-qol-cloudflare-verification-2.md) |
+| senior-capstone-qol-cloudflare-verification-slot-2 | 60b3b701743d1d0a1bac444893e943f8a1146c8adde3c3aa8fad01f74425b10a | [senior-capstone-qol-cloudflare-verification-slot-2.md](./senior-capstone-qol-cloudflare-verification-slot-2.md) |
+| senior-capstone-qol-cloudflare-verification-slot-3 | 60b3b701743d1d0a1bac444893e943f8a1146c8adde3c3aa8fad01f74425b10a | [senior-capstone-qol-cloudflare-verification-slot-3.md](./senior-capstone-qol-cloudflare-verification-slot-3.md) |
 | senior-capstone-public-site-refresh | 59d9d0c637a6a850c09f7b92e6f50746c09c308a9eaafd4270a50e15cfc841f2 | [senior-capstone-public-site-refresh.md](./senior-capstone-public-site-refresh.md) |
 | senior-capstone-weekly-script-audit | bfe9759683bc396ac56283c48dd128446a5d57c9011eda6395947b158f5ad16d | [senior-capstone-weekly-script-audit.md](./senior-capstone-weekly-script-audit.md) |

@@ -1,5 +1,13 @@
 {
-  "weekDays": ["MO", "TU", "WE", "TH", "FR", "SA", "SU"],
+  "weekDays": [
+    "MO",
+    "TU",
+    "WE",
+    "TH",
+    "FR",
+    "SA",
+    "SU"
+  ],
   "expectedDailyTimes": [
     "00:03",
     "00:51",
@@ -52,7 +60,11 @@
     "reduce-collisions",
     "needs-human-blocker"
   ],
-  "allowedManifestStatuses": ["completed", "blocked", "failed"],
+  "allowedManifestStatuses": [
+    "completed",
+    "blocked",
+    "failed"
+  ],
   "requiredPromptFragments": [
     "docs/master-plan.md",
     "docs/mvp-requirements-catalog.md",
@@ -109,73 +121,333 @@
   "automations": [
     {
       "id": "senior-capstone-qol-source-framework-seed-2",
-      "name": "Senior Capstone QoL - Source Framework Seed",
+      "name": "Senior Capstone QoL - Source Framework Seed Slot 1",
       "status": "ACTIVE",
-      "rrule": "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=0,8,16;BYMINUTE=03",
-      "targetFragments": ["source-framework seed loader", "MVP-009", "data/capstone-framework.json"]
+      "rrule": "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=0;BYMINUTE=03",
+      "targetFragments": [
+        "source-framework seed loader",
+        "MVP-009",
+        "data/capstone-framework.json"
+      ]
+    },
+    {
+      "id": "senior-capstone-qol-source-framework-seed-slot-2",
+      "name": "Senior Capstone QoL - Source Framework Seed Slot 2",
+      "status": "ACTIVE",
+      "rrule": "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=8;BYMINUTE=03",
+      "targetFragments": [
+        "source-framework seed loader",
+        "MVP-009",
+        "data/capstone-framework.json"
+      ]
+    },
+    {
+      "id": "senior-capstone-qol-source-framework-seed-slot-3",
+      "name": "Senior Capstone QoL - Source Framework Seed Slot 3",
+      "status": "ACTIVE",
+      "rrule": "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=16;BYMINUTE=03",
+      "targetFragments": [
+        "source-framework seed loader",
+        "MVP-009",
+        "data/capstone-framework.json"
+      ]
     },
     {
       "id": "senior-capstone-qol-drive-upload-oauth-2",
-      "name": "Senior Capstone QoL - Drive Upload OAuth",
+      "name": "Senior Capstone QoL - Drive Upload OAuth Slot 1",
       "status": "ACTIVE",
-      "rrule": "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=0,8,16;BYMINUTE=51",
-      "targetFragments": ["Google Drive upload credential/OAuth", "MVP-013", "evidence metadata"]
+      "rrule": "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=0;BYMINUTE=51",
+      "targetFragments": [
+        "Google Drive upload credential/OAuth",
+        "MVP-013",
+        "evidence metadata"
+      ]
+    },
+    {
+      "id": "senior-capstone-qol-drive-upload-oauth-slot-2",
+      "name": "Senior Capstone QoL - Drive Upload OAuth Slot 2",
+      "status": "ACTIVE",
+      "rrule": "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=8;BYMINUTE=51",
+      "targetFragments": [
+        "Google Drive upload credential/OAuth",
+        "MVP-013",
+        "evidence metadata"
+      ]
+    },
+    {
+      "id": "senior-capstone-qol-drive-upload-oauth-slot-3",
+      "name": "Senior Capstone QoL - Drive Upload OAuth Slot 3",
+      "status": "ACTIVE",
+      "rrule": "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=16;BYMINUTE=51",
+      "targetFragments": [
+        "Google Drive upload credential/OAuth",
+        "MVP-013",
+        "evidence metadata"
+      ]
     },
     {
       "id": "senior-capstone-qol-protected-evidence-tests-2",
-      "name": "Senior Capstone QoL - Protected Evidence Tests",
+      "name": "Senior Capstone QoL - Protected Evidence Tests Slot 1",
       "status": "ACTIVE",
-      "rrule": "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=1,9,17;BYMINUTE=39",
-      "targetFragments": ["protected evidence access checks", "MVP-014", "permission"]
+      "rrule": "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=1;BYMINUTE=39",
+      "targetFragments": [
+        "protected evidence access checks",
+        "MVP-014",
+        "permission"
+      ]
+    },
+    {
+      "id": "senior-capstone-qol-protected-evidence-tests-slot-2",
+      "name": "Senior Capstone QoL - Protected Evidence Tests Slot 2",
+      "status": "ACTIVE",
+      "rrule": "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=9;BYMINUTE=39",
+      "targetFragments": [
+        "protected evidence access checks",
+        "MVP-014",
+        "permission"
+      ]
+    },
+    {
+      "id": "senior-capstone-qol-protected-evidence-tests-slot-3",
+      "name": "Senior Capstone QoL - Protected Evidence Tests Slot 3",
+      "status": "ACTIVE",
+      "rrule": "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=17;BYMINUTE=39",
+      "targetFragments": [
+        "protected evidence access checks",
+        "MVP-014",
+        "permission"
+      ]
     },
     {
       "id": "senior-capstone-qol-teacher-review-endpoints-2",
-      "name": "Senior Capstone QoL - Teacher Review Endpoints",
+      "name": "Senior Capstone QoL - Teacher Review Endpoints Slot 1",
       "status": "ACTIVE",
-      "rrule": "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=2,10,18;BYMINUTE=27",
-      "targetFragments": ["teacher review", "MVP-015", "revision"]
+      "rrule": "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=2;BYMINUTE=27",
+      "targetFragments": [
+        "teacher review",
+        "MVP-015",
+        "revision"
+      ]
+    },
+    {
+      "id": "senior-capstone-qol-teacher-review-endpoints-slot-2",
+      "name": "Senior Capstone QoL - Teacher Review Endpoints Slot 2",
+      "status": "ACTIVE",
+      "rrule": "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=10;BYMINUTE=27",
+      "targetFragments": [
+        "teacher review",
+        "MVP-015",
+        "revision"
+      ]
+    },
+    {
+      "id": "senior-capstone-qol-teacher-review-endpoints-slot-3",
+      "name": "Senior Capstone QoL - Teacher Review Endpoints Slot 3",
+      "status": "ACTIVE",
+      "rrule": "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=18;BYMINUTE=27",
+      "targetFragments": [
+        "teacher review",
+        "MVP-015",
+        "revision"
+      ]
     },
     {
       "id": "senior-capstone-qol-immutable-review-history-2",
-      "name": "Senior Capstone QoL - Immutable Review History",
+      "name": "Senior Capstone QoL - Immutable Review History Slot 1",
       "status": "ACTIVE",
-      "rrule": "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=3,11,19;BYMINUTE=15",
-      "targetFragments": ["immutable review history", "MVP-016", "submission versioning"]
+      "rrule": "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=3;BYMINUTE=15",
+      "targetFragments": [
+        "immutable review history",
+        "MVP-016",
+        "submission versioning"
+      ]
+    },
+    {
+      "id": "senior-capstone-qol-immutable-review-history-slot-2",
+      "name": "Senior Capstone QoL - Immutable Review History Slot 2",
+      "status": "ACTIVE",
+      "rrule": "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=11;BYMINUTE=15",
+      "targetFragments": [
+        "immutable review history",
+        "MVP-016",
+        "submission versioning"
+      ]
+    },
+    {
+      "id": "senior-capstone-qol-immutable-review-history-slot-3",
+      "name": "Senior Capstone QoL - Immutable Review History Slot 3",
+      "status": "ACTIVE",
+      "rrule": "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=19;BYMINUTE=15",
+      "targetFragments": [
+        "immutable review history",
+        "MVP-016",
+        "submission versioning"
+      ]
     },
     {
       "id": "senior-capstone-qol-mentor-presentation-flow-2",
-      "name": "Senior Capstone QoL - Mentor Presentation Flow",
+      "name": "Senior Capstone QoL - Mentor Presentation Flow Slot 1",
       "status": "ACTIVE",
-      "rrule": "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=4,12,20;BYMINUTE=03",
-      "targetFragments": ["mentor assigned-student", "MVP-017", "presentation"]
+      "rrule": "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=4;BYMINUTE=03",
+      "targetFragments": [
+        "mentor assigned-student",
+        "MVP-017",
+        "presentation"
+      ]
+    },
+    {
+      "id": "senior-capstone-qol-mentor-presentation-flow-slot-2",
+      "name": "Senior Capstone QoL - Mentor Presentation Flow Slot 2",
+      "status": "ACTIVE",
+      "rrule": "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=12;BYMINUTE=03",
+      "targetFragments": [
+        "mentor assigned-student",
+        "MVP-017",
+        "presentation"
+      ]
+    },
+    {
+      "id": "senior-capstone-qol-mentor-presentation-flow-slot-3",
+      "name": "Senior Capstone QoL - Mentor Presentation Flow Slot 3",
+      "status": "ACTIVE",
+      "rrule": "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=20;BYMINUTE=03",
+      "targetFragments": [
+        "mentor assigned-student",
+        "MVP-017",
+        "presentation"
+      ]
     },
     {
       "id": "senior-capstone-qol-admin-ops-endpoints-2",
-      "name": "Senior Capstone QoL - Admin Ops Endpoints",
+      "name": "Senior Capstone QoL - Admin Ops Endpoints Slot 1",
       "status": "ACTIVE",
-      "rrule": "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=4,12,20;BYMINUTE=51",
-      "targetFragments": ["admin operations endpoints", "MVP-018", "export"]
+      "rrule": "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=4;BYMINUTE=51",
+      "targetFragments": [
+        "admin operations endpoints",
+        "MVP-018",
+        "export"
+      ]
+    },
+    {
+      "id": "senior-capstone-qol-admin-ops-endpoints-slot-2",
+      "name": "Senior Capstone QoL - Admin Ops Endpoints Slot 2",
+      "status": "ACTIVE",
+      "rrule": "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=12;BYMINUTE=51",
+      "targetFragments": [
+        "admin operations endpoints",
+        "MVP-018",
+        "export"
+      ]
+    },
+    {
+      "id": "senior-capstone-qol-admin-ops-endpoints-slot-3",
+      "name": "Senior Capstone QoL - Admin Ops Endpoints Slot 3",
+      "status": "ACTIVE",
+      "rrule": "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=20;BYMINUTE=51",
+      "targetFragments": [
+        "admin operations endpoints",
+        "MVP-018",
+        "export"
+      ]
     },
     {
       "id": "senior-capstone-qol-announcements-2",
-      "name": "Senior Capstone QoL - Announcements",
+      "name": "Senior Capstone QoL - Announcements Slot 1",
       "status": "ACTIVE",
-      "rrule": "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=5,13,21;BYMINUTE=39",
-      "targetFragments": ["announcement", "MVP-023", "No student-to-student messaging"]
+      "rrule": "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=5;BYMINUTE=39",
+      "targetFragments": [
+        "announcement",
+        "MVP-023",
+        "No student-to-student messaging"
+      ]
+    },
+    {
+      "id": "senior-capstone-qol-announcements-slot-2",
+      "name": "Senior Capstone QoL - Announcements Slot 2",
+      "status": "ACTIVE",
+      "rrule": "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=13;BYMINUTE=39",
+      "targetFragments": [
+        "announcement",
+        "MVP-023",
+        "No student-to-student messaging"
+      ]
+    },
+    {
+      "id": "senior-capstone-qol-announcements-slot-3",
+      "name": "Senior Capstone QoL - Announcements Slot 3",
+      "status": "ACTIVE",
+      "rrule": "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=21;BYMINUTE=39",
+      "targetFragments": [
+        "announcement",
+        "MVP-023",
+        "No student-to-student messaging"
+      ]
     },
     {
       "id": "senior-capstone-qol-account-lifecycle-2",
-      "name": "Senior Capstone QoL - Account Lifecycle",
+      "name": "Senior Capstone QoL - Account Lifecycle Slot 1",
       "status": "ACTIVE",
-      "rrule": "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=6,14,22;BYMINUTE=27",
-      "targetFragments": ["account lifecycle", "MVP-004", "session expiry"]
+      "rrule": "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=6;BYMINUTE=27",
+      "targetFragments": [
+        "account lifecycle",
+        "MVP-004",
+        "session expiry"
+      ]
+    },
+    {
+      "id": "senior-capstone-qol-account-lifecycle-slot-2",
+      "name": "Senior Capstone QoL - Account Lifecycle Slot 2",
+      "status": "ACTIVE",
+      "rrule": "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=14;BYMINUTE=27",
+      "targetFragments": [
+        "account lifecycle",
+        "MVP-004",
+        "session expiry"
+      ]
+    },
+    {
+      "id": "senior-capstone-qol-account-lifecycle-slot-3",
+      "name": "Senior Capstone QoL - Account Lifecycle Slot 3",
+      "status": "ACTIVE",
+      "rrule": "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=22;BYMINUTE=27",
+      "targetFragments": [
+        "account lifecycle",
+        "MVP-004",
+        "session expiry"
+      ]
     },
     {
       "id": "senior-capstone-qol-cloudflare-verification-2",
-      "name": "Senior Capstone QoL - Cloudflare Verification",
+      "name": "Senior Capstone QoL - Cloudflare Verification Slot 1",
       "status": "ACTIVE",
-      "rrule": "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=7,15,23;BYMINUTE=15",
-      "targetFragments": ["Cloudflare", "MVP-026", "D1 binding"]
+      "rrule": "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=7;BYMINUTE=15",
+      "targetFragments": [
+        "Cloudflare",
+        "MVP-026",
+        "D1 binding"
+      ]
+    },
+    {
+      "id": "senior-capstone-qol-cloudflare-verification-slot-2",
+      "name": "Senior Capstone QoL - Cloudflare Verification Slot 2",
+      "status": "ACTIVE",
+      "rrule": "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=15;BYMINUTE=15",
+      "targetFragments": [
+        "Cloudflare",
+        "MVP-026",
+        "D1 binding"
+      ]
+    },
+    {
+      "id": "senior-capstone-qol-cloudflare-verification-slot-3",
+      "name": "Senior Capstone QoL - Cloudflare Verification Slot 3",
+      "status": "ACTIVE",
+      "rrule": "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=23;BYMINUTE=15",
+      "targetFragments": [
+        "Cloudflare",
+        "MVP-026",
+        "D1 binding"
+      ]
     }
   ],
   "supportAutomations": [

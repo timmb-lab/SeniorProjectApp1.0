@@ -878,3 +878,23 @@ Verification:
 
 Recommended next slice:
 - Let the QoL runners start with the highest-risk implementation gaps: source-framework seed loader, Drive upload/OAuth, permission/protected-evidence tests, production review/history endpoints, account lifecycle, announcements, and post-push Cloudflare verification.
+
+## 2026-05-18 QoL Single-Slot Split
+
+Intent:
+- Preserve the same 30-start/day QoL cadence while avoiding compound schedules that require one automation to run at multiple daily times.
+
+What changed:
+- Updated the ten existing app-managed `senior-capstone-qol-*-2` automations into Slot 1 single-time runners.
+- Created twenty additional app-managed `slot-2` and `slot-3` QoL automations.
+- Kept three daily starts per QoL target, but every live QoL automation now has exactly one BYHOUR value.
+- Updated cadence docs, master plan, memory, decision log, artifact registry, prompt snapshots, automation config, and the contract checker for the thirty-automation shape.
+
+Verification:
+- Local registry listed 30 active Senior Capstone QoL automations after app-managed update/create calls.
+- `scripts/snapshot-automation-prompts.ps1` regenerated 32 prompt snapshots.
+- `scripts/check-automation-contract.ps1 -RepoRoot . -RequireLive` passed for 30 QoL automations and 2 support automations.
+- `scripts/measure-automation-efficiency.ps1 -RepoRoot . -Days 30` reported 30 active QoL automations, 30 starts/day, 900 starts/30 days, and 48-minute minimum spacing.
+
+Recommended next slice:
+- Keep 30 starts/day stable and let the efficiency scorecard decide future retargeting from accepted-pass evidence, duration, blockers, and collision signals.

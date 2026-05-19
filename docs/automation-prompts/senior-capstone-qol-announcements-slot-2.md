@@ -1,24 +1,24 @@
 ﻿---
-automation_id: "senior-capstone-qol-admin-ops-endpoints-2"
-name: "Senior Capstone QoL - Admin Ops Endpoints Slot 1"
+automation_id: "senior-capstone-qol-announcements-slot-2"
+name: "Senior Capstone QoL - Announcements Slot 2"
 snapshot_generated_utc: "2026-05-19T01:09:46Z"
-rrule: "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=4;BYMINUTE=51"
+rrule: "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=13;BYMINUTE=39"
 model: "gpt-5.4"
 reasoning_effort: "high"
-prompt_sha256: "c6997f35924bc9636b175a78bc3c7d3ed32288a82e5236c112d7639cbb3b6e68"
-source_toml: "C:\Users\bryan\.codex\automations\senior-capstone-qol-admin-ops-endpoints-2\automation.toml"
+prompt_sha256: "edefe9a1d6830e56352804f2ccaa8a474a0f28ef5f2014a503260cc144ac2329"
+source_toml: "C:\Users\bryan\.codex\automations\senior-capstone-qol-announcements-slot-2\automation.toml"
 ---
 
-# Senior Capstone QoL - Admin Ops Endpoints Slot 1
+# Senior Capstone QoL - Announcements Slot 2
 
 ## Prompt
 
 ~~~~text
-Role: Senior Capstone QoL - Admin Ops Endpoints.
+Role: Senior Capstone QoL - Announcements.
 Automation category: admin-ops-reporting.
-QoL target: admin operations endpoints, deadlines/templates, overrides, audit/activity, exports/archive controls, and redaction.
-Primary requirement IDs: MVP-007, MVP-018, MVP-019, MVP-020, MVP-022, MVP-027.
-Current priority: Implement shared admin and dashboard primitives plus real admin endpoints for users, groups, programs, cohorts, dashboard aggregates, audit/export controls, and override reasons that unblock the Day 7 alpha spine.
+QoL target: staff/admin announcement surfaces without student-to-student messaging, privacy-safe copy, and auditability.
+Primary requirement IDs: MVP-018, MVP-020, MVP-023, MVP-027.
+Current priority: Keep announcements narrow to role-scoped alpha notices and audit-safe display states that support the seeded walkthrough without expanding into messaging or broad polish.
 Targeted goal alignment: prioritize 1) broader tests, 2) real workflow endpoints, 3) shared alpha primitives, and 5) account-lifecycle and known-gaps hardening. Treat the Google Drive school-account cutover as deferred unless it becomes the exact blocker for the selected slice.
 
 Mission: build the Senior Capstone MVP with real auth, users, groups, roles, programs, cohorts, progress updates, private evidence, submissions, reviews, approvals, announcements, dashboards, audit logs, exports, and protected student records. No student-to-student messaging.

@@ -4,9 +4,11 @@ Date: 2026-05-18
 
 Scope: audit the current Senior Capstone QoL automation system for efficient self-scaling over the next 30 days.
 
+Update 2026-05-18 17:38 PT: the live registry was later split from 10 compound QoL automations into 30 single-slot QoL automations because compound multiple-BYHOUR schedules were not reliably firing. Daily start capacity remains 30, 30-day capacity remains 900, and minimum spacing remains 48 minutes.
+
 ## Executive Finding
 
-The current system is aggressive enough. It has 10 active QoL automations, 30 scheduled starts per day, no shared start slots, and 48 minutes of minimum spacing. Over 30 days that is 900 scheduled starts.
+The audited system was already aggressive enough. At audit time, it had 10 active QoL automations, 30 scheduled starts per day, no shared start slots, and 48 minutes of minimum spacing. Over 30 days that is 900 scheduled starts.
 
 The efficiency problem is not start volume. The system only needs:
 
@@ -19,12 +21,12 @@ Adding more starts before measuring conversion would create churn risk. The righ
 
 ## What Is Strong
 
-- Live local registry contains exactly the 10 expected Senior Capstone QoL automation TOMLs.
-- All 10 are `ACTIVE`.
-- Each runs exactly 3x/day.
+- At audit time, the live local registry contained exactly the 10 expected Senior Capstone QoL automation TOMLs.
+- At audit time, all 10 were `ACTIVE`.
+- At audit time, each target ran exactly 3x/day through one compound automation.
 - The schedule creates 30 starts/day with no exact overlaps.
 - Minimum start spacing is 48 minutes.
-- `scripts/check-automation-contract.ps1` enforces the exact 10 IDs, names, schedules, status, prompt fragments, prompt snapshot hashes, full `MVP-001` through `MVP-030` coverage, JSON parsing, and non-interactive script rules.
+- At audit time, `scripts/check-automation-contract.ps1` enforced the exact 10 IDs, names, schedules, status, prompt fragments, prompt snapshot hashes, full `MVP-001` through `MVP-030` coverage, JSON parsing, and non-interactive script rules. It now enforces the exact 30 single-slot QoL IDs while preserving the same 30-start/day capacity.
 - The QoL split is efficient: each runner owns a concrete unfinished MVP gap instead of one giant all-purpose prompt.
 - The full Figma prototype now exists, so design should no longer consume broad capacity unless implementation hits a specific route/data/permission ambiguity.
 
@@ -73,7 +75,7 @@ Scale decisions:
 
 ## Current Recommendation
 
-Keep the 10 QoL automations and 30 starts/day. Do not add more starts now.
+Keep 30 starts/day. After the 2026-05-18 17:38 PT single-slot split, that means 30 active single-slot QoL automations rather than 10 compound automations. Do not add more starts now.
 
 For the next 30 days, scale by evidence:
 
@@ -85,5 +87,5 @@ For the next 30 days, scale by evidence:
 ## Validation
 
 - `scripts/measure-automation-efficiency.ps1` ran successfully.
-- It reported 10 active QoL automations, 30 daily starts, 900 starts per 30 days, 48-minute minimum spacing, 60-pass minimum target, 90-pass stretch target, and 6.67/10 percent conversion thresholds.
+- At audit time, it reported 10 active QoL automations, 30 daily starts, 900 starts per 30 days, 48-minute minimum spacing, 60-pass minimum target, 90-pass stretch target, and 6.67/10 percent conversion thresholds. After the single-slot split, the same scorecard reports 30 active QoL automations, 30 daily starts, 900 starts per 30 days, and 48-minute minimum spacing.
 - Follow-up validation should run `scripts/check-automation-contract.ps1`, JSON parse checks, conflict-marker scan, and `git diff --check`.

@@ -1,15 +1,15 @@
 ﻿---
-automation_id: "senior-capstone-qol-admin-ops-endpoints-2"
-name: "Senior Capstone QoL - Admin Ops Endpoints Slot 1"
+automation_id: "senior-capstone-qol-admin-ops-endpoints-slot-2"
+name: "Senior Capstone QoL - Admin Ops Endpoints Slot 2"
 snapshot_generated_utc: "2026-05-19T01:09:46Z"
-rrule: "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=4;BYMINUTE=51"
+rrule: "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=12;BYMINUTE=51"
 model: "gpt-5.4"
 reasoning_effort: "high"
 prompt_sha256: "c6997f35924bc9636b175a78bc3c7d3ed32288a82e5236c112d7639cbb3b6e68"
-source_toml: "C:\Users\bryan\.codex\automations\senior-capstone-qol-admin-ops-endpoints-2\automation.toml"
+source_toml: "C:\Users\bryan\.codex\automations\senior-capstone-qol-admin-ops-endpoints-slot-2\automation.toml"
 ---
 
-# Senior Capstone QoL - Admin Ops Endpoints Slot 1
+# Senior Capstone QoL - Admin Ops Endpoints Slot 2
 
 ## Prompt
 

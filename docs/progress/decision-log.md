@@ -340,3 +340,13 @@ Decision status values:
 - `applies to`: Codex app automations, `docs/automation-cadence.md`, `docs/automation-memory.md`, `docs/master-plan.md`, `docs/automation-prompts/`, `scripts/check-automation-contract.ps1`, `scripts/snapshot-automation-prompts.ps1`, and `scripts/measure-automation-efficiency.ps1`.
 - `guardrail`: This repair changes only the app-visible automation IDs and stale local registry folders. Names, RRULE schedules, active status, workspace, model, reasoning effort, and the 30-start/day cadence remain unchanged.
 - `last updated`: 2026-05-18 16:11 PT
+
+### D-2026-05-18-032
+
+- `status`: accepted
+- `area`: QoL automation single-slot split
+- `decision`: Split the Senior Capstone QoL cadence into thirty app-managed single-slot automations: three active automations per QoL target, each with exactly one BYHOUR value. Keep the same 30 starts/day, the same 3 starts/day per QoL target, the same workspace, model, reasoning effort, status, and project-only automation maintenance scope.
+- `reason`: Bryan reported that multiple daily starts inside one automation setup were not reliably working and explicitly asked for "3 of everything" for the Senior Capstone project QoL 3x/day automations.
+- `applies to`: Codex app automations, `docs/automation-cadence.md`, `docs/automation-runbook.md`, `docs/automation-memory.md`, `docs/master-plan.md`, `docs/mvp-requirements-catalog.md`, `docs/automation-prompts/`, `scripts/automation-config.json`, `scripts/check-automation-contract.ps1`, `scripts/snapshot-automation-prompts.ps1`, and `scripts/measure-automation-efficiency.ps1`.
+- `guardrail`: This is not a scale-up beyond 30 starts/day. It is a reliability split from compound RRULEs into one simple daily schedule per automation.
+- `last updated`: 2026-05-18 17:33 PT

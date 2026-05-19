@@ -23,7 +23,7 @@ Functional requirement groupings:
 - `deployment-qa`: GitHub-to-Cloudflare deployment, CI, test coverage, smoke checks, environment/secrets, backup/restore posture.
 - `design-assets-handoff`: Figma product specs, Canva supporting imagery, component/state handoffs, guided prototype, implementation annotations.
 
-Current active QoL automations are recorded in `docs/automation-cadence.md`. The owner category column below remains a functional grouping; active run ownership now comes from the ten QoL targets: source-framework seed, Drive upload/OAuth, protected evidence tests, teacher review endpoints, immutable review history, mentor presentation flow, admin ops endpoints, announcements, account lifecycle, and Cloudflare verification.
+Current active QoL automations are recorded in `docs/automation-cadence.md`. The owner category column below remains a functional grouping; active run ownership now comes from thirty single-slot automations grouped into ten QoL targets: source-framework seed, Drive upload/OAuth, protected evidence tests, teacher review endpoints, immutable review history, mentor presentation flow, admin ops endpoints, announcements, account lifecycle, and Cloudflare verification.
 
 ## Category Summary
 

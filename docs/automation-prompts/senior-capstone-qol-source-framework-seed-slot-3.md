@@ -1,15 +1,15 @@
 ﻿---
-automation_id: "senior-capstone-qol-source-framework-seed-2"
-name: "Senior Capstone QoL - Source Framework Seed Slot 1"
+automation_id: "senior-capstone-qol-source-framework-seed-slot-3"
+name: "Senior Capstone QoL - Source Framework Seed Slot 3"
 snapshot_generated_utc: "2026-05-19T01:09:46Z"
-rrule: "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=0;BYMINUTE=03"
+rrule: "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=16;BYMINUTE=03"
 model: "gpt-5.4"
 reasoning_effort: "high"
 prompt_sha256: "88ec58213df8da6c31cc5cf69b3f3fb6616d8c2083a9f7b84e42db75cd615c2c"
-source_toml: "C:\Users\bryan\.codex\automations\senior-capstone-qol-source-framework-seed-2\automation.toml"
+source_toml: "C:\Users\bryan\.codex\automations\senior-capstone-qol-source-framework-seed-slot-3\automation.toml"
 ---
 
-# Senior Capstone QoL - Source Framework Seed Slot 1
+# Senior Capstone QoL - Source Framework Seed Slot 3
 
 ## Prompt
 

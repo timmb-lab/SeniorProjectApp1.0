@@ -45,3 +45,12 @@ This log tracks the weekly whole-system audit automation. Detailed audit finding
 - `expected audit behavior`: review the last seven days of committed run evidence, backlog movement, handoffs, blockers, and requirement status; update only this project's master plan, automation memory, and MVP requirements catalog when the next week's goal/allocation needs adjustment.
 - `validation`: contract checker enforces the ten QoL automations, exact 30-start/day schedule, no shared start slots, at least 45 minutes between starts, prompt snapshots, non-interactive scripts, A-material prompt rules, token budget guardrails, surface expansion rules, and full MVP requirement coverage.
 - `next`: the source-framework QoL runner should keep `docs/mvp-requirements-catalog.md` as the weekly calibration ledger and should not revive the old standalone weekly automation.
+
+### 2026-05-18 QoL Source-Framework Single-Slot Split
+
+- `scope`: preserve weekly calibration ownership while splitting the source-framework QoL target into three app-managed single-slot automations.
+- `reason`: Bryan reported that multiple daily times inside one automation were not reliably firing.
+- `new owner`: source-framework seed QoL target group: `senior-capstone-qol-source-framework-seed-2`, `senior-capstone-qol-source-framework-seed-slot-2`, and `senior-capstone-qol-source-framework-seed-slot-3`.
+- `schedule`: `00:03`, `08:03`, and `16:03` PT through three separate automations.
+- `validation`: strict live checker now enforces 30 single-slot QoL automations, exact 30-start/day schedule, no shared start slots, prompt snapshots, non-interactive scripts, A-material prompt rules, token budget guardrails, surface expansion rules, and full MVP requirement coverage.
+- `next`: any Sunday source-framework slot may perform the weekly calibration; do not revive the old standalone weekly automation.

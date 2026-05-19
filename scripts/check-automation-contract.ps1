@@ -112,8 +112,8 @@ foreach ($id in $duplicateAutomationIds) {
     $failures.Add("Automation config has duplicate automation id: $id")
 }
 
-if ($expectedDailyTimes.Count -ne ($qolAutomationIds.Count * 3)) {
-    $failures.Add("Automation config expectedDailyTimes has $($expectedDailyTimes.Count) entries; expected $($qolAutomationIds.Count * 3) for three starts per QoL automation.")
+if ($expectedDailyTimes.Count -ne $qolAutomationIds.Count) {
+    $failures.Add("Automation config expectedDailyTimes has $($expectedDailyTimes.Count) entries; expected $($qolAutomationIds.Count) for one start per single-slot QoL automation.")
 }
 
 if ($requiredPromptFragments.Count -eq 0) {
@@ -333,8 +333,8 @@ foreach ($id in $automationIds) {
         $days = @(Get-RRulePart -RRule $rrule -Key "BYDAY")
         $hours = @(Get-RRulePart -RRule $rrule -Key "BYHOUR")
         $minutes = @(Get-RRulePart -RRule $rrule -Key "BYMINUTE")
-        if ($days.Count -ne 7 -or $hours.Count -ne 3 -or $minutes.Count -ne 1) {
-            $failures.Add("$id must run exactly 3x/day across all seven days; got RRULE $rrule")
+        if ($days.Count -ne 7 -or $hours.Count -ne 1 -or $minutes.Count -ne 1) {
+            $failures.Add("$id must run exactly once per day across all seven days; got RRULE $rrule")
         }
         else {
             foreach ($day in $days) {

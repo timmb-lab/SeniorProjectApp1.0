@@ -341,20 +341,20 @@ A-material automation means each productive run must do one of three things: lan
 
 ### 2026-05-18 QoL Automation Rebuild
 
-Bryan then requested deleting all project automation and rebuilding from scratch so every listed unfinished QoL item gets at least three passes per day without concentrating token use in a few broad runners. The current Codex GUI-facing source of truth is ten individual QoL automations, each running 3x/day:
+Bryan then requested deleting all project automation and rebuilding from scratch so every listed unfinished QoL item gets at least three passes per day without concentrating token use in a few broad runners. On 2026-05-18, Bryan reported that multiple daily times inside one automation were not reliably firing, so the current Codex GUI-facing source of truth is thirty single-slot QoL automations grouped into ten targets:
 
-- `senior-capstone-qol-source-framework-seed-2`: `00:03`, `08:03`, `16:03`.
-- `senior-capstone-qol-drive-upload-oauth-2`: `00:51`, `08:51`, `16:51`.
-- `senior-capstone-qol-protected-evidence-tests-2`: `01:39`, `09:39`, `17:39`.
-- `senior-capstone-qol-teacher-review-endpoints-2`: `02:27`, `10:27`, `18:27`.
-- `senior-capstone-qol-immutable-review-history-2`: `03:15`, `11:15`, `19:15`.
-- `senior-capstone-qol-mentor-presentation-flow-2`: `04:03`, `12:03`, `20:03`.
-- `senior-capstone-qol-admin-ops-endpoints-2`: `04:51`, `12:51`, `20:51`.
-- `senior-capstone-qol-announcements-2`: `05:39`, `13:39`, `21:39`.
-- `senior-capstone-qol-account-lifecycle-2`: `06:27`, `14:27`, `22:27`.
-- `senior-capstone-qol-cloudflare-verification-2`: `07:15`, `15:15`, `23:15`.
+- Source framework seed: `senior-capstone-qol-source-framework-seed-2` at `00:03`, `senior-capstone-qol-source-framework-seed-slot-2` at `08:03`, and `senior-capstone-qol-source-framework-seed-slot-3` at `16:03`.
+- Drive upload OAuth: `senior-capstone-qol-drive-upload-oauth-2` at `00:51`, `senior-capstone-qol-drive-upload-oauth-slot-2` at `08:51`, and `senior-capstone-qol-drive-upload-oauth-slot-3` at `16:51`.
+- Protected evidence tests: `senior-capstone-qol-protected-evidence-tests-2` at `01:39`, `senior-capstone-qol-protected-evidence-tests-slot-2` at `09:39`, and `senior-capstone-qol-protected-evidence-tests-slot-3` at `17:39`.
+- Teacher review endpoints: `senior-capstone-qol-teacher-review-endpoints-2` at `02:27`, `senior-capstone-qol-teacher-review-endpoints-slot-2` at `10:27`, and `senior-capstone-qol-teacher-review-endpoints-slot-3` at `18:27`.
+- Immutable review history: `senior-capstone-qol-immutable-review-history-2` at `03:15`, `senior-capstone-qol-immutable-review-history-slot-2` at `11:15`, and `senior-capstone-qol-immutable-review-history-slot-3` at `19:15`.
+- Mentor presentation flow: `senior-capstone-qol-mentor-presentation-flow-2` at `04:03`, `senior-capstone-qol-mentor-presentation-flow-slot-2` at `12:03`, and `senior-capstone-qol-mentor-presentation-flow-slot-3` at `20:03`.
+- Admin ops endpoints: `senior-capstone-qol-admin-ops-endpoints-2` at `04:51`, `senior-capstone-qol-admin-ops-endpoints-slot-2` at `12:51`, and `senior-capstone-qol-admin-ops-endpoints-slot-3` at `20:51`.
+- Announcements: `senior-capstone-qol-announcements-2` at `05:39`, `senior-capstone-qol-announcements-slot-2` at `13:39`, and `senior-capstone-qol-announcements-slot-3` at `21:39`.
+- Account lifecycle: `senior-capstone-qol-account-lifecycle-2` at `06:27`, `senior-capstone-qol-account-lifecycle-slot-2` at `14:27`, and `senior-capstone-qol-account-lifecycle-slot-3` at `22:27`.
+- Cloudflare verification: `senior-capstone-qol-cloudflare-verification-2` at `07:15`, `senior-capstone-qol-cloudflare-verification-slot-2` at `15:15`, and `senior-capstone-qol-cloudflare-verification-slot-3` at `23:15`.
 
-Each QoL automation stays narrow, names requirement IDs, respects the token budget guardrail, applies the surface expansion rule, validates, logs, commits, and pushes. The schedule is execution capacity, not an accepted-pass count.
+Each QoL automation stays narrow, names requirement IDs, respects the token budget guardrail, applies the surface expansion rule, validates, logs, commits, and pushes. The schedule is still 30 starts/day and 3 starts/day per QoL target; the change is that every app automation now has one simple daily schedule. The schedule is execution capacity, not an accepted-pass count.
 
 ### Updated 100-Pass Allocation From Current State
 

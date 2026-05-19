@@ -1,24 +1,24 @@
 ﻿---
-automation_id: "senior-capstone-qol-admin-ops-endpoints-2"
-name: "Senior Capstone QoL - Admin Ops Endpoints Slot 1"
+automation_id: "senior-capstone-qol-immutable-review-history-slot-3"
+name: "Senior Capstone QoL - Immutable Review History Slot 3"
 snapshot_generated_utc: "2026-05-19T01:09:46Z"
-rrule: "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=4;BYMINUTE=51"
+rrule: "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=19;BYMINUTE=15"
 model: "gpt-5.4"
 reasoning_effort: "high"
-prompt_sha256: "c6997f35924bc9636b175a78bc3c7d3ed32288a82e5236c112d7639cbb3b6e68"
-source_toml: "C:\Users\bryan\.codex\automations\senior-capstone-qol-admin-ops-endpoints-2\automation.toml"
+prompt_sha256: "2f8d8deca882dee66f8aa5201e46c384d5cb2c8390b043a9be293083ad21a34e"
+source_toml: "C:\Users\bryan\.codex\automations\senior-capstone-qol-immutable-review-history-slot-3\automation.toml"
 ---
 
-# Senior Capstone QoL - Admin Ops Endpoints Slot 1
+# Senior Capstone QoL - Immutable Review History Slot 3
 
 ## Prompt
 
 ~~~~text
-Role: Senior Capstone QoL - Admin Ops Endpoints.
-Automation category: admin-ops-reporting.
-QoL target: admin operations endpoints, deadlines/templates, overrides, audit/activity, exports/archive controls, and redaction.
-Primary requirement IDs: MVP-007, MVP-018, MVP-019, MVP-020, MVP-022, MVP-027.
-Current priority: Implement shared admin and dashboard primitives plus real admin endpoints for users, groups, programs, cohorts, dashboard aggregates, audit/export controls, and override reasons that unblock the Day 7 alpha spine.
+Role: Senior Capstone QoL - Immutable Review History.
+Automation category: staff-review-mentor.
+QoL target: immutable review history, prior submission versions, comments, decision records, and destructive-overwrite prevention.
+Primary requirement IDs: MVP-012, MVP-015, MVP-016, MVP-020, MVP-022.
+Current priority: Implement submission versioning, immutable history persistence, and shared review-history and status primitives that back the current alpha student revision and teacher review states.
 Targeted goal alignment: prioritize 1) broader tests, 2) real workflow endpoints, 3) shared alpha primitives, and 5) account-lifecycle and known-gaps hardening. Treat the Google Drive school-account cutover as deferred unless it becomes the exact blocker for the selected slice.
 
 Mission: build the Senior Capstone MVP with real auth, users, groups, roles, programs, cohorts, progress updates, private evidence, submissions, reviews, approvals, announcements, dashboards, audit logs, exports, and protected student records. No student-to-student messaging.

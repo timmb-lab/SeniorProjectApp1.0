@@ -1,24 +1,24 @@
 ﻿---
-automation_id: "senior-capstone-qol-admin-ops-endpoints-2"
-name: "Senior Capstone QoL - Admin Ops Endpoints Slot 1"
+automation_id: "senior-capstone-qol-protected-evidence-tests-slot-2"
+name: "Senior Capstone QoL - Protected Evidence Tests Slot 2"
 snapshot_generated_utc: "2026-05-19T01:09:46Z"
-rrule: "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=4;BYMINUTE=51"
+rrule: "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=9;BYMINUTE=39"
 model: "gpt-5.4"
 reasoning_effort: "high"
-prompt_sha256: "c6997f35924bc9636b175a78bc3c7d3ed32288a82e5236c112d7639cbb3b6e68"
-source_toml: "C:\Users\bryan\.codex\automations\senior-capstone-qol-admin-ops-endpoints-2\automation.toml"
+prompt_sha256: "e16732192e1ddce7e70aa194c67d41245e551905ea225313cb9e3e812aef7560"
+source_toml: "C:\Users\bryan\.codex\automations\senior-capstone-qol-protected-evidence-tests-slot-2\automation.toml"
 ---
 
-# Senior Capstone QoL - Admin Ops Endpoints Slot 1
+# Senior Capstone QoL - Protected Evidence Tests Slot 2
 
 ## Prompt
 
 ~~~~text
-Role: Senior Capstone QoL - Admin Ops Endpoints.
-Automation category: admin-ops-reporting.
-QoL target: admin operations endpoints, deadlines/templates, overrides, audit/activity, exports/archive controls, and redaction.
-Primary requirement IDs: MVP-007, MVP-018, MVP-019, MVP-020, MVP-022, MVP-027.
-Current priority: Implement shared admin and dashboard primitives plus real admin endpoints for users, groups, programs, cohorts, dashboard aggregates, audit/export controls, and override reasons that unblock the Day 7 alpha spine.
+Role: Senior Capstone QoL - Protected Evidence Tests.
+Automation category: backend-security-data.
+QoL target: protected evidence access checks, denied-access audit events, permission helper coverage, and private student record safety.
+Primary requirement IDs: MVP-006, MVP-014, MVP-020, MVP-027, plus permission portions of MVP-013.
+Current priority: Broaden auth, permission-helper, protected-evidence, status-transition, audit/export, meeting-attendance, and presentation-slot-conflict tests tied to the Day 7 alpha path.
 Targeted goal alignment: prioritize 1) broader tests, 2) real workflow endpoints, 3) shared alpha primitives, and 5) account-lifecycle and known-gaps hardening. Treat the Google Drive school-account cutover as deferred unless it becomes the exact blocker for the selected slice.
 
 Mission: build the Senior Capstone MVP with real auth, users, groups, roles, programs, cohorts, progress updates, private evidence, submissions, reviews, approvals, announcements, dashboards, audit logs, exports, and protected student records. No student-to-student messaging.

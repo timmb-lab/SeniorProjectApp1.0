@@ -1,0 +1,54 @@
+{
+  "timestamp_local": "2026-05-18 18:10 PT",
+  "automation_id": "manual-codex-thread",
+  "status": "completed",
+  "lane": "audit/automation",
+  "summary": "Retarget the 30 Senior Capstone QoL automations around the immediate alpha ladder and defer the Google Drive school-account cutover.",
+  "scope": "Live automation prompt maintenance for the app-managed Senior Capstone QoL set only.",
+  "requirement_ids": [
+    "MVP-004",
+    "MVP-006",
+    "MVP-010",
+    "MVP-012",
+    "MVP-014",
+    "MVP-015",
+    "MVP-017",
+    "MVP-018",
+    "MVP-020",
+    "MVP-026",
+    "MVP-027"
+  ],
+  "accepted_mvp_pass": true,
+  "duration_minutes": 33,
+  "output_kind": "audit",
+  "artifacts": [
+    "docs/automation-prompts/",
+    "C:/Users/bryan/.codex/automations/senior-capstone-qol-source-framework-seed-2/automation.toml",
+    "C:/Users/bryan/.codex/automations/senior-capstone-qol-drive-upload-oauth-2/automation.toml",
+    "C:/Users/bryan/.codex/automations/senior-capstone-qol-protected-evidence-tests-2/automation.toml",
+    "C:/Users/bryan/.codex/automations/senior-capstone-qol-teacher-review-endpoints-2/automation.toml",
+    "C:/Users/bryan/.codex/automations/senior-capstone-qol-immutable-review-history-2/automation.toml",
+    "C:/Users/bryan/.codex/automations/senior-capstone-qol-mentor-presentation-flow-2/automation.toml",
+    "C:/Users/bryan/.codex/automations/senior-capstone-qol-admin-ops-endpoints-2/automation.toml",
+    "C:/Users/bryan/.codex/automations/senior-capstone-qol-announcements-2/automation.toml",
+    "C:/Users/bryan/.codex/automations/senior-capstone-qol-account-lifecycle-2/automation.toml",
+    "C:/Users/bryan/.codex/automations/senior-capstone-qol-cloudflare-verification-2/automation.toml"
+  ],
+  "evidence": [
+    "automation_update succeeded across all 30 QoL automation ids after setting localEnvironmentConfigPath to null during update calls.",
+    "Prompt text now explicitly prioritizes broader tests, real workflow endpoints, shared alpha primitives, and account-lifecycle/known-gaps hardening.",
+    "The Drive Upload OAuth lane now treats the Google Drive school-account cutover as deferred and stays in blocker/metadata mode until Bryan handles it.",
+    "Snapshot regeneration completed through the bundled Node runtime wrapper.",
+    "Strict live automation contract check passed for 30 QoL automations and 2 support automations."
+  ],
+  "validation": [
+    "C:/Users/bryan/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe scripts/run-powershell-script.mjs scripts/snapshot-automation-prompts.ps1",
+    "C:/Users/bryan/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe scripts/run-powershell-script.mjs scripts/check-automation-contract.ps1 -RequireLive"
+  ],
+  "self_improvement": "Retargeted live QoL prompts to the immediate alpha ladder and corrected contract-required fragments before rerunning strict live validation.",
+  "automation_efficiency": {
+    "duplicate_scope_checked": true,
+    "scale_signal": "retarget"
+  },
+  "next_action": "Let the updated QoL runners advance the Day 7 alpha spine while keeping the Drive school-account switch out of the near-term automation focus."
+}
