@@ -307,3 +307,11 @@ Every run should also record `self-improvement: none` or a specific self-improve
 - Reproducible blockers found in logs: stale prompt snapshots after live prompt changes, missing admin-ops lane logs, missing per-slot memory files in earlier runs, plain `node.exe` access denied, missing `npm`, and worktree closeout/manifest gaps.
 - Current fixes: seeded missing `docs/progress/admin-ops-endpoints.md` and `docs/progress/admin-ops-reporting.md`; added `scripts/resolve-node.ps1`, `scripts/run-node-script.ps1`, and `scripts/run-npm-script.ps1`; direct PowerShell package scripts now avoid the fragile Node wrapper for automation checks; all 30 live QoL prompts now point scheduled runs at the PowerShell wrappers before npm/plain node fallbacks; the contract checker now enforces QoL memory files and prompt-referenced progress logs; the efficiency scorecard now reads Codex `session_index.jsonl` so it can tell scheduled sessions apart from repo manifest closeout.
 - Next automation audit should treat "session fired but no manifest/tracker row" as a closeout failure, not a scheduler failure.
+
+## 2026-05-19 08:09 PT - Master Plan Accuracy Audit
+
+- `docs/master-plan.md` has been re-audited against the current repo, MVP catalog, backend setup, automation cadence/config, backlog, and recent QoL evidence.
+- The plan now clearly separates historical category/hourly/20x automation phases from the active 30 single-slot QoL automation system.
+- The plan now records the verified current foundation: Cloudflare Pages/Functions scaffold, D1 migration, auth endpoints, first admin, fake `.test` alpha accounts, D1-backed alpha state, CI, alpha contract, and tests exist.
+- Remaining priorities are unchanged and should stay in front of the QoL ladder: broad permission/protected-evidence tests, source framework seed loader, real workflow endpoints, Google Drive evidence implementation, account lifecycle/admin provisioning, and deployment verification.
+- Validation passed: strict live automation checker, alpha contract, site-options check, and Node tests.
