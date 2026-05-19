@@ -43,6 +43,13 @@ approval_mode = "approve"
 approval_mode = "approve"
 ```
 
+For the Senior Capstone QoL phone tracker append, the required Google Sheets write grant is:
+
+```toml
+[apps.connector_5f3c8c41a1e54ad7a76272c89e2554fa.tools."google drive_batch_update_spreadsheet"]
+approval_mode = "approve"
+```
+
 If a grant is missing, Bryan must run the action once while present and choose `Always allow`, or the automation must skip that connector write and use its committed repo fallback. Do not rely on a future unattended run to click approval. For email reporting, prefer drafts over direct sends unless Bryan has explicitly approved unattended sending.
 
 ## No-Human-Approval Script Rule
