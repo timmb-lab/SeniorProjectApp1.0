@@ -56,7 +56,7 @@ Examples:
   },
   "automation_efficiency": {
     "duplicate_scope_checked": true,
-    "scale_signal": "keep | retarget | reduce-collisions | needs-human-blocker",
+    "scale_signal": "keep | retarget | reduce-collisions | needs-human-blocker | pause-duplicates | preflight-blocked",
     "notes": ""
   },
   "next": []

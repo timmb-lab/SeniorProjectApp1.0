@@ -309,6 +309,13 @@ foreach ($id in $automationIds) {
         $liveAutomationsValidated += 1
     }
 
+    if (($qolAutomationIds -contains $id) -and $sourceKind -eq "live") {
+        $memoryPath = Join-Path $AutomationRoot "$id\memory.md"
+        if (-not (Test-Path -LiteralPath $memoryPath)) {
+            $failures.Add("$id is missing automation memory file: $memoryPath")
+        }
+    }
+
     $promptHash = Get-StringSha256 -Value $prompt
     $combinedPromptText += [Environment]::NewLine + $prompt
 
@@ -449,12 +456,49 @@ $requiredFiles = @(
     "scripts\automation-config.json",
     "scripts\snapshot-automation-prompts.ps1",
     "scripts\check-automation-contract.ps1",
+    "scripts\check-site-options.mjs",
     "scripts\run-powershell-script.mjs",
+    "scripts\resolve-node.ps1",
+    "scripts\run-node-script.ps1",
+    "scripts\run-npm-script.ps1",
     "scripts\measure-automation-efficiency.ps1"
 )
 
 foreach ($relative in $requiredFiles) {
     Assert-File -Path (Join-Path $RepoRoot $relative)
+}
+
+$promptProgressRefs = New-Object System.Collections.Generic.HashSet[string]
+foreach ($match in [regex]::Matches($combinedPromptText, "docs/progress/[A-Za-z0-9_.\-/]+\.md")) {
+    $relative = $match.Value -replace "/", "\"
+    [void]$promptProgressRefs.Add($relative)
+}
+
+foreach ($relative in @($promptProgressRefs | Sort-Object)) {
+    Assert-File -Path (Join-Path $RepoRoot $relative)
+}
+
+$packageJsonPath = Join-Path $RepoRoot "package.json"
+if (Test-Path -LiteralPath $packageJsonPath) {
+    try {
+        $packageJson = Get-Content -Raw -LiteralPath $packageJsonPath | ConvertFrom-Json
+        $packageScriptNames = New-Object System.Collections.Generic.HashSet[string]
+        if ($packageJson.PSObject.Properties.Name -contains "scripts") {
+            foreach ($property in $packageJson.scripts.PSObject.Properties) {
+                [void]$packageScriptNames.Add($property.Name)
+            }
+        }
+
+        foreach ($match in [regex]::Matches($combinedPromptText, "\bnpm\s+run\s+([A-Za-z0-9:_-]+)")) {
+            $scriptName = $match.Groups[1].Value
+            if (-not $packageScriptNames.Contains($scriptName)) {
+                $failures.Add("Automation prompt references undefined package script: npm run $scriptName")
+            }
+        }
+    }
+    catch {
+        $failures.Add("Could not parse package.json while validating npm script references: $($_.Exception.Message)")
+    }
 }
 
 $scriptDir = Join-Path $RepoRoot "scripts"

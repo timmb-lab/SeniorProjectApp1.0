@@ -300,3 +300,10 @@ Every run should also record `self-improvement: none` or a specific self-improve
 - Tracker URL: `https://docs.google.com/spreadsheets/d/1J8jQMn85wJwo9Rh6LjQUVv_WfLS1YJWsbpcLBCojjjs/edit`.
 - The `QoL Runs` tab is the append target for every active QoL run. The required row columns are timestamp, automation ID, QoL target, slot, status, accepted MVP pass, requirement IDs, output kind, summary, validation, commit/PR, blocker/next action, duration, run manifest, and notes.
 - Updated all 30 live QoL prompts and prompt snapshots so the tracker append is part of required closeout.
+
+## 2026-05-19 07:29 PT - QoL Automation Deep Audit Repairs
+
+- Strict live schedule is healthy after snapshot refresh: 30 ACTIVE Senior Capstone QoL automations, 30 starts/day, 3 starts/day per QoL target, one BYHOUR per automation, and 48-minute minimum spacing.
+- Reproducible blockers found in logs: stale prompt snapshots after live prompt changes, missing admin-ops lane logs, missing per-slot memory files in earlier runs, plain `node.exe` access denied, missing `npm`, and worktree closeout/manifest gaps.
+- Current fixes: seeded missing `docs/progress/admin-ops-endpoints.md` and `docs/progress/admin-ops-reporting.md`; added `scripts/resolve-node.ps1`, `scripts/run-node-script.ps1`, and `scripts/run-npm-script.ps1`; direct PowerShell package scripts now avoid the fragile Node wrapper for automation checks; all 30 live QoL prompts now point scheduled runs at the PowerShell wrappers before npm/plain node fallbacks; the contract checker now enforces QoL memory files and prompt-referenced progress logs; the efficiency scorecard now reads Codex `session_index.jsonl` so it can tell scheduled sessions apart from repo manifest closeout.
+- Next automation audit should treat "session fired but no manifest/tracker row" as a closeout failure, not a scheduler failure.

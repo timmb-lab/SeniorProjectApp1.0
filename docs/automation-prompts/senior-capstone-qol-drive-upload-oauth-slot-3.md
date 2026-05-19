@@ -1,11 +1,11 @@
 ﻿---
 automation_id: "senior-capstone-qol-drive-upload-oauth-slot-3"
 name: "Senior Capstone QoL - Drive Upload OAuth Slot 3"
-snapshot_generated_utc: "2026-05-19T13:01:29Z"
+snapshot_generated_utc: "2026-05-19T14:47:39Z"
 rrule: "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=16;BYMINUTE=51"
 model: "gpt-5.4"
 reasoning_effort: "high"
-prompt_sha256: "eee16b5f6662603327df849b1f58ac62beb8acbb8aae21fe5138523bac5a431c"
+prompt_sha256: "ed5d0015ea64dc264cda1a8969ce4b5af2cb6ef0d234b6186a35234195f6ba77"
 source_toml: "C:\Users\bryan\.codex\automations\senior-capstone-qol-drive-upload-oauth-slot-3\automation.toml"
 ---
 
@@ -20,6 +20,9 @@ QoL target: Google Drive upload credential/OAuth path, evidence metadata, provid
 Primary requirement IDs: MVP-013, plus Drive-facing portions of MVP-014, MVP-022, and MVP-027.
 Current priority: Treat the Google Drive school-account cutover as deferred. Only preserve safe evidence metadata, provider error states, retrieval assumptions, and exact blockers that affect the immediate alpha ladder.
 Targeted goal alignment: prioritize 1) broader tests, 2) real workflow endpoints, 3) shared alpha primitives, and 5) account-lifecycle and known-gaps hardening. This lane should stay narrow and mostly produce safe metadata/path assumptions or an exact blocker until Bryan handles the school-account move.
+Known narrow-focus drift to resolve before reopening broad audits: .dev.vars.example already references GOOGLE_DRIVE_CLIENT_EMAIL and GOOGLE_DRIVE_PRIVATE_KEY, but functions/_types.ts, functions/api/health.ts, and functions/api/evidence/repository.ts do not consume a server-side Drive credential path yet. docs/alpha-week-framework.md requires upload/provider-unavailable, but alpha.js and functions/_lib/alpha-flow-model.js do not yet implement that provider-unavailable state.
+Lane memory rule: read C:\Users\bryan\.codex\automations\senior-capstone-qol-drive-upload-oauth-slot-3\memory.md before choosing work; if it is missing, create it during closeout with the latest lane-specific blocker/progress summary and current runtime so the other Drive slots do not repeat the same audit.
+Preferred slice order for this lane: 1) implement or test the missing upload/provider-unavailable state, 2) wire or document the exact GOOGLE_DRIVE_CLIENT_EMAIL / GOOGLE_DRIVE_PRIVATE_KEY runtime gap without attempting the deferred school-account cutover, 3) if neither is safely possible, commit one exact blocker tied to the missing credential path or connector/tool access.
 
 Mission: build the Senior Capstone MVP with real auth, users, groups, roles, programs, cohorts, progress updates, private evidence, submissions, reviews, approvals, announcements, dashboards, audit logs, exports, and protected student records. No student-to-student messaging.
 
@@ -29,11 +32,11 @@ Token budget guardrail: stay narrow, prefer rg and recent/tail log reads, and pi
 
 Surface expansion rule: decide which surfaces need work or proof: app code/routes/schema, Cloudflare Pages/D1/env/deploy, Figma route-data-permission handoff, Canva support assets, tests/CI, docs/artifacts/handoffs, and exact blockers.
 
-Self-improvement to scripts as you go: if prompt/config/script repair is justified, update only this project automation area and the smallest relevant project script; otherwise log self-improvement: none. Only touch automation related to this project when doing automation maintenance. Use scripts/snapshot-automation-prompts.ps1, scripts/check-automation-contract.ps1, scripts/run-powershell-script.mjs, npm run automation:snapshot, npm run check:automation, npm run check:automation:live, -RequireLive, and measure-automation-efficiency.ps1 as appropriate.
+Self-improvement to scripts as you go: if prompt/config/script repair is justified, update only this project automation area and the smallest relevant project script; otherwise log self-improvement: none. Only touch automation related to this project when doing automation maintenance. Use scripts/snapshot-automation-prompts.ps1, scripts/check-automation-contract.ps1, scripts/run-node-script.ps1, scripts/run-npm-script.ps1, npm run automation:snapshot, npm run check:automation, npm run check:automation:live, -RequireLive, and measure-automation-efficiency.ps1 as appropriate.
 
-No-human-approval rule: do not wait for approvals on project-owned files, scripts, commits, or pushes. Run project scripts non-interactively. Validate touched files, inspect git status, commit with the correct prefix, push the current branch, never force push, and never stage unrelated dirty files.
+No-human-approval rule: do not wait for approvals on project-owned files, scripts, commits, or pushes. Run project scripts non-interactively with scripts/run-node-script.ps1 or scripts/run-npm-script.ps1 when node/npm are unreliable. Validate touched files, inspect git status, commit with the correct prefix, push the current branch, never force push, and never stage unrelated dirty files.
 
-Required closeout: update the relevant lane/category log, docs/progress/run-log.md, and one structured manifest in docs/progress/runs/. The manifest must include requirement_ids, accepted_mvp_pass, duration_minutes, output_kind, automation_efficiency.duplicate_scope_checked, and automation_efficiency.scale_signal. For explicit automation audits, Sunday calibration, repeated blockers, or collision/yield concerns, run node scripts/run-powershell-script.mjs scripts/measure-automation-efficiency.ps1 -RepoRoot . -Days 30; when saving a durable scorecard, add -OutputPath docs/audits/<scorecard-name>.json.
+Required closeout: update the relevant lane/category log, docs/progress/run-log.md, and one structured manifest in docs/progress/runs/. The manifest must include requirement_ids, accepted_mvp_pass, duration_minutes, output_kind, automation_efficiency.duplicate_scope_checked, and automation_efficiency.scale_signal. For explicit automation audits, Sunday calibration, repeated blockers, or collision/yield concerns, run powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\measure-automation-efficiency.ps1 -RepoRoot . -Days 30; when saving a durable scorecard, add -OutputPath docs/audits/<scorecard-name>.json.
 
 Active Figma source: Senior Capstone App - Product UI System Recreated, file key z4t4tFPAKrMDh6pIYOeEw6, team::1638213362346160913. Figma and Canva are not production auth, database, private evidence storage, audit log, or dashboard source of truth.
 

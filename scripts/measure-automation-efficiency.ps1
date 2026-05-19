@@ -1,6 +1,7 @@
 param(
     [string]$RepoRoot = ".",
     [string]$AutomationRoot = "$HOME\.codex\automations",
+    [string]$CodexHome = "$HOME\.codex",
     [int]$Days = 30,
     [string]$OutputPath = "",
     [string]$ConfigPath = (Join-Path $PSScriptRoot "automation-config.json")
@@ -126,6 +127,7 @@ function Group-PropertyCount {
 
 $now = Get-Date
 $windowStart = $now.AddDays(-1 * $Days)
+$windowStartOffset = [DateTimeOffset]$windowStart
 $config = Read-AutomationConfig -Path $ConfigPath
 $automationIds = @($config.automations | ForEach-Object { $_.id })
 $strictManifestCutoff = [DateTimeOffset]::Parse([string]$config.strictManifestCutoff)
@@ -168,6 +170,13 @@ foreach ($id in $automationIds) {
         name = $name
         rrule = $rrule
         daily_starts = $starts
+    }
+}
+
+$automationIdByName = @{}
+foreach ($automation in $automations) {
+    if ($automation.name) {
+        $automationIdByName[[string]$automation.name] = [string]$automation.id
     }
 }
 
@@ -246,10 +255,62 @@ foreach ($record in $manifestRecords) {
     }
 }
 
+$sessionRecords = @()
+$sessionIndexPath = Join-Path $CodexHome "session_index.jsonl"
+$sessionIndexPresent = Test-Path -LiteralPath $sessionIndexPath
+if ($sessionIndexPresent) {
+    Get-Content -LiteralPath $sessionIndexPath -ErrorAction SilentlyContinue | ForEach-Object {
+        if (-not $_) {
+            return
+        }
+
+        try {
+            $session = $_ | ConvertFrom-Json
+            $threadName = [string](Get-JsonProperty -Object $session -Names @("thread_name"))
+            if (-not $threadName -or -not $automationIdByName.ContainsKey($threadName)) {
+                return
+            }
+
+            $updatedAtValue = [string](Get-JsonProperty -Object $session -Names @("updated_at"))
+            if (-not $updatedAtValue) {
+                return
+            }
+
+            $updatedAt = [DateTimeOffset]::Parse($updatedAtValue)
+            if ($updatedAt -lt $windowStartOffset) {
+                return
+            }
+
+            $sessionRecords += [pscustomobject]@{
+                session_id = Get-JsonProperty -Object $session -Names @("id")
+                automation_id = $automationIdByName[$threadName]
+                thread_name = $threadName
+                updated_at = $updatedAt.ToString("o")
+            }
+        }
+        catch {
+        }
+    }
+}
+
+$sessionAutomationIds = New-Object System.Collections.Generic.HashSet[string]
+foreach ($record in $sessionRecords) {
+    if ($record.automation_id) {
+        [void]$sessionAutomationIds.Add([string]$record.automation_id)
+    }
+}
+
 $qolAutomationsWithoutObservedManifest = @()
 foreach ($id in $automationIds) {
     if (-not $manifestAutomationIds.Contains($id)) {
         $qolAutomationsWithoutObservedManifest += $id
+    }
+}
+
+$qolAutomationsWithoutObservedSession = @()
+foreach ($id in $automationIds) {
+    if (-not $sessionAutomationIds.Contains($id)) {
+        $qolAutomationsWithoutObservedSession += $id
     }
 }
 
@@ -271,7 +332,18 @@ if ($missingAutomationIdField.Count -gt 0 -or $missingStatusField.Count -gt 0 -o
     $recommendations.Add("Use canonical timestamp_local, automation_id, and status fields in new run manifests so audits can attribute QoL output reliably.")
 }
 if ($qolAutomationsWithoutObservedManifest.Count -gt 0) {
-    $recommendations.Add("The current QoL system is new; require the next weekly calibration to verify each QoL automation has at least one observed manifest or exact blocker.")
+    if ($sessionRecords.Count -gt 0) {
+        $recommendations.Add("Scheduled QoL sessions are visible in the Codex session index, but not every automation has a repo manifest yet; require closeout manifests or exact blockers for scheduled worktree runs.")
+    }
+    else {
+        $recommendations.Add("The current QoL system is new; require the next weekly calibration to verify each QoL automation has at least one observed manifest or exact blocker.")
+    }
+}
+if (-not $sessionIndexPresent) {
+    $recommendations.Add("Codex session_index.jsonl was not found, so this scorecard could not verify whether scheduled sessions fired.")
+}
+elseif ($qolAutomationsWithoutObservedSession.Count -gt 0) {
+    $recommendations.Add("Some QoL automations have no observed Codex session in this window; verify whether their slots have elapsed before treating them as scheduler failures.")
 }
 if ($dailyStartCapacity -ge 30) {
     $recommendations.Add("Do not add more starts before proving conversion; $dailyStartCapacity starts/day needs $minimumConversionPercent percent accepted-pass conversion for the 2/day minimum and $stretchConversionPercent percent for the 3/day stretch.")
@@ -317,6 +389,14 @@ $result = [pscustomobject]@{
         automation_counts = Group-PropertyCount -Items $manifestRecords -PropertyName "automation_id"
         requirement_ids_seen = @($requirementMatches | Sort-Object)
         qol_automations_without_observed_manifest = $qolAutomationsWithoutObservedManifest
+    }
+    observed_sessions = [pscustomobject]@{
+        codex_home = $CodexHome
+        session_index_present = $sessionIndexPresent
+        count = $sessionRecords.Count
+        automation_counts = Group-PropertyCount -Items $sessionRecords -PropertyName "automation_id"
+        recent_sessions = @($sessionRecords | Sort-Object updated_at -Descending | Select-Object -First 30)
+        qol_automations_without_observed_session = $qolAutomationsWithoutObservedSession
     }
     recommendations = $recommendations
 }

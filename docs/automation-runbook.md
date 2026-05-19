@@ -60,20 +60,25 @@ Senior Capstone project scripts must be safe for unattended automation. Automati
 powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\<script-name>.ps1
 ```
 
-When npm is available, use the repo wrappers for common automation script actions:
+On this Windows Codex desktop environment, plain `node` may resolve to the packaged WindowsApps runtime and fail with `Access is denied`, and `npm` may be absent from PATH. Prefer the direct PowerShell wrappers for unattended automation support:
+
+```powershell
+powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 automation:snapshot
+powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 check:automation
+powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 check:automation:live
+powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\measure-automation-efficiency.ps1 -RepoRoot . -Days 30
+powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-node-script.ps1 scripts\check-alpha-contract.mjs
+powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 build:site-options
+```
+
+`scripts/run-node-script.ps1` resolves a working Codex bundled Node runtime before falling back to system Node. `scripts/run-npm-script.ps1` uses `npm.cmd` when available and otherwise handles the project's known local Node/PowerShell scripts without depending on global npm.
+
+If a shell already has working `npm`, these remain acceptable convenience commands:
 
 ```powershell
 npm run automation:snapshot
 npm run check:automation
 npm run check:automation:live
-```
-
-When npm is unavailable but Node is available, use the wrapper directly:
-
-```powershell
-node scripts/run-powershell-script.mjs scripts/check-automation-contract.ps1
-node scripts/run-powershell-script.mjs scripts/check-automation-contract.ps1 -RequireLive
-node scripts/run-powershell-script.mjs scripts/measure-automation-efficiency.ps1 -RepoRoot . -Days 30
 ```
 
 Use `-RequireLive` / `npm run check:automation:live` only when auditing the live Codex GUI/local automation registry. The default automation check may validate repo prompt snapshots when live TOMLs are unavailable, which keeps CI and repo-only audits useful.
