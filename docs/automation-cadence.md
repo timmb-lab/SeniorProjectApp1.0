@@ -25,7 +25,7 @@ Npm/CI wrapper: `scripts/run-powershell-script.mjs`.
 
 ## QoL Automation Registry
 
-Current active starts are all rows from `00:03` through `23:15` PT. Slot 1, Slot 2, and Slot 3 are all active so every QoL target gets three daily passes.
+Current active QoL starts are all rows from `00:03` through `23:15` PT. Slot 1, Slot 2, and Slot 3 are all active so every QoL target gets three daily passes. The two support automations are intentionally outside the 30-start QoL grid and are checked against a separate 20-minute support spacing budget: public-site refresh runs at `06:03` PT every three days, and weekly script audit runs Sundays at `23:39` PT.
 
 | QoL target | Automation ID | Schedule PT | Primary output |
 | --- | --- | --- | --- |
@@ -60,7 +60,7 @@ Current active starts are all rows from `00:03` through `23:15` PT. Slot 1, Slot
 | Account lifecycle | `senior-capstone-qol-account-lifecycle-slot-3` | `22:27` | Invitations/imports, password reset, credential rotation, sessions, role scopes. |
 | Cloudflare verification | `senior-capstone-qol-cloudflare-verification-slot-3` | `23:15` | Post-push Pages/D1/env verification, CI, smoke checks, secrets, blockers. |
 
-This now creates 30 active Senior Capstone starts per day across the project, three per QoL target. The single-slot pattern preserves the reliability fix for multi-BYHOUR scheduling while keeping the intended QoL timeline active. The active start slots are staggered with no exact overlaps and at least 45 minutes between starts. Each runner must keep its own slice bounded, favor implementation or verification evidence, and must not overwrite unrelated dirty work. If the worktree is dirty because another QoL run is still closing, the runner should classify the dirty files, avoid staging unrelated changes, and either pick a non-conflicting verification slice or record a compact committed blocker.
+This now creates 30 active Senior Capstone QoL starts per day across the project, three per QoL target. The single-slot pattern preserves the reliability fix for multi-BYHOUR scheduling while keeping the intended QoL timeline active. The active QoL start slots are staggered with no exact overlaps and at least 45 minutes between QoL starts. Support jobs are audited separately so they cannot sit directly on top of a QoL start. Each runner must keep its own slice bounded, favor implementation or verification evidence, and must not overwrite unrelated dirty work. If the worktree is dirty because another QoL run is still closing, the runner should classify the dirty files, avoid staging unrelated changes, and either pick a non-conflicting verification slice or record a compact committed blocker.
 
 The original `-2` suffixes are the app-managed GUI Slot 1 automation IDs created after the original direct-file TOMLs were found to be orphaned from the Codex automation app. The `slot-2` and `slot-3` IDs are app-managed single-slot companions added on 2026-05-18 because a single automation with multiple daily BYHOUR values was not reliably firing; they are active again after Bryan clarified on 2026-05-19 that the QoL timeline needs multiple daily runs.
 

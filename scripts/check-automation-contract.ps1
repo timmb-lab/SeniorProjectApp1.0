@@ -35,6 +35,7 @@ $supportAutomations = @($config.supportAutomations | Where-Object { $null -ne $_
 $trackedAutomations = @($qolAutomations + $supportAutomations)
 $automationIds = @($trackedAutomations | ForEach-Object { $_.id })
 $qolAutomationIds = @($qolAutomations | ForEach-Object { $_.id })
+$supportAutomationIds = @($supportAutomations | ForEach-Object { $_.id })
 $expectedAutomationConfig = @{}
 $automationRequiredPromptFragments = @{}
 $targetFragments = @{}
@@ -66,6 +67,12 @@ else {
     $expectedActiveDailyTimes.Count
 }
 $minimumStartSpacingMinutes = [int]$config.minimumStartSpacingMinutes
+$minimumSupportStartSpacingMinutes = if ($config.PSObject.Properties.Name -contains "minimumSupportStartSpacingMinutes") {
+    [int]$config.minimumSupportStartSpacingMinutes
+}
+else {
+    20
+}
 $telemetryCutoff = [DateTimeOffset]::Parse([string]$config.telemetryCutoff)
 $strictManifestCutoff = [DateTimeOffset]::Parse([string]$config.strictManifestCutoff)
 $allowedOutputKinds = @($config.allowedOutputKinds)
@@ -113,6 +120,24 @@ function Get-RRulePart {
     }
 
     return $match.Groups[2].Value.Split(",") | ForEach-Object { $_.Trim() }
+}
+
+function Convert-TimeToMinute {
+    param([Parameter(Mandatory = $true)][string]$Time)
+
+    $parts = $Time.Split(":")
+    return ([int]$parts[0] * 60) + [int]$parts[1]
+}
+
+function Get-RRuleDays {
+    param([Parameter(Mandatory = $true)][string]$RRule)
+
+    $days = @(Get-RRulePart -RRule $RRule -Key "BYDAY")
+    if ($days.Count -eq 0 -and $RRule -like "FREQ=DAILY*") {
+        return $allWeekDays
+    }
+
+    return $days
 }
 
 if ($automationIds.Count -eq 0) {
@@ -263,9 +288,11 @@ else {
 
 $scheduleSlots = @{}
 $activeSlotsByDay = @{}
+$activeSupportSlotsByDay = @{}
 $combinedPromptText = ""
 foreach ($day in $allWeekDays) {
     $activeSlotsByDay[$day] = New-Object System.Collections.Generic.List[string]
+    $activeSupportSlotsByDay[$day] = New-Object System.Collections.Generic.List[object]
 }
 
 foreach ($id in $automationIds) {
@@ -349,7 +376,7 @@ foreach ($id in $automationIds) {
     }
 
     if ($qolAutomationIds -contains $id) {
-        $days = @(Get-RRulePart -RRule $rrule -Key "BYDAY")
+        $days = @(Get-RRuleDays -RRule $rrule)
         $hours = @(Get-RRulePart -RRule $rrule -Key "BYHOUR")
         $minutes = @(Get-RRulePart -RRule $rrule -Key "BYMINUTE")
         if ($days.Count -ne 7 -or $hours.Count -ne 1 -or $minutes.Count -ne 1) {
@@ -367,6 +394,33 @@ foreach ($id in $automationIds) {
                     $scheduleSlots[$slot].Add($id)
                     if ($status -eq "ACTIVE") {
                         $activeSlotsByDay[$day].Add($time)
+                    }
+                }
+            }
+        }
+    }
+    elseif ($supportAutomationIds -contains $id) {
+        $days = @(Get-RRuleDays -RRule $rrule)
+        $hours = @(Get-RRulePart -RRule $rrule -Key "BYHOUR")
+        $minutes = @(Get-RRulePart -RRule $rrule -Key "BYMINUTE")
+        if ($days.Count -eq 0 -or $hours.Count -eq 0 -or $minutes.Count -eq 0) {
+            $failures.Add("$id support automation must declare an auditable RRULE day/hour/minute; got RRULE $rrule")
+        }
+        else {
+            foreach ($day in $days) {
+                foreach ($hour in $hours) {
+                    $minuteValue = [int]($minutes[0])
+                    $time = "{0:D2}:{1:D2}" -f [int]$hour, $minuteValue
+                    $slot = "{0} {1}" -f $day, $time
+                    if (-not $scheduleSlots.ContainsKey($slot)) {
+                        $scheduleSlots[$slot] = New-Object System.Collections.Generic.List[string]
+                    }
+                    $scheduleSlots[$slot].Add($id)
+                    if ($status -eq "ACTIVE") {
+                        $activeSupportSlotsByDay[$day].Add([pscustomobject]@{
+                            id = $id
+                            time = $time
+                        })
                     }
                 }
             }
@@ -415,15 +469,28 @@ foreach ($day in $allWeekDays) {
         $failures.Add("$day active QoL starts are $($times -join ', '); expected $($expected -join ', ')")
     }
 
-    $minutesOfDay = @($times | ForEach-Object {
-        $parts = $_.Split(":")
-        ([int]$parts[0] * 60) + [int]$parts[1]
-    } | Sort-Object)
+    $minutesOfDay = @($times | ForEach-Object { Convert-TimeToMinute -Time $_ } | Sort-Object)
     for ($i = 0; $i -lt $minutesOfDay.Count; $i++) {
         $current = $minutesOfDay[$i]
         $next = if ($i -eq $minutesOfDay.Count - 1) { $minutesOfDay[0] + 1440 } else { $minutesOfDay[$i + 1] }
         if (($next - $current) -lt $minimumStartSpacingMinutes) {
             $failures.Add("$day has QoL starts less than $minimumStartSpacingMinutes minutes apart around minute $current")
+        }
+    }
+
+    foreach ($supportSlot in $activeSupportSlotsByDay[$day].ToArray()) {
+        $supportMinute = Convert-TimeToMinute -Time ([string]$supportSlot.time)
+        $nearestGap = $null
+        foreach ($qolMinute in $minutesOfDay) {
+            $gap = [math]::Abs($supportMinute - $qolMinute)
+            $gap = [math]::Min($gap, 1440 - $gap)
+            if ($null -eq $nearestGap -or $gap -lt $nearestGap) {
+                $nearestGap = $gap
+            }
+        }
+
+        if ($null -ne $nearestGap -and $nearestGap -lt $minimumSupportStartSpacingMinutes) {
+            $failures.Add("$day support automation $($supportSlot.id) starts at $($supportSlot.time), only $nearestGap minutes from a QoL start; expected at least $minimumSupportStartSpacingMinutes minutes")
         }
     }
 }

@@ -41,6 +41,7 @@
     "23:15"
   ],
   "minimumStartSpacingMinutes": 45,
+  "minimumSupportStartSpacingMinutes": 20,
   "telemetryCutoff": "2026-05-18T14:47:00-07:00",
   "strictManifestCutoff": "2026-05-18T16:15:00-07:00",
   "mvpRequirementCount": 30,
@@ -462,7 +463,7 @@
       "id": "senior-capstone-public-site-refresh",
       "name": "Senior Capstone Public Site Refresh",
       "status": "ACTIVE",
-      "rrule": "FREQ=DAILY;INTERVAL=3;BYHOUR=6;BYMINUTE=20",
+      "rrule": "FREQ=DAILY;INTERVAL=3;BYHOUR=6;BYMINUTE=03",
       "requiredPromptFragments": [
         "commit and push only relevant public-site/source changes",
         "npm run build:site-options",
@@ -485,7 +486,7 @@
       "id": "senior-capstone-weekly-script-audit",
       "name": "Senior Capstone Weekly Script Audit",
       "status": "ACTIVE",
-      "rrule": "FREQ=WEEKLY;BYDAY=SU;BYHOUR=23;BYMINUTE=45",
+      "rrule": "FREQ=WEEKLY;BYDAY=SU;BYHOUR=23;BYMINUTE=39",
       "requiredPromptFragments": [
         "automation-support script layer",
         "scripts/automation-config.json",

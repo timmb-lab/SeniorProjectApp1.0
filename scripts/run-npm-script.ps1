@@ -81,11 +81,80 @@ function Invoke-ProjectPowerShell {
     }
 }
 
+function Invoke-TypeScriptCheck {
+    param(
+        [string[]]$Args = @(),
+        [switch]$Optional
+    )
+
+    $localTsc = Join-Path $RepoRoot "node_modules\typescript\bin\tsc"
+    if (Test-Path -LiteralPath $localTsc) {
+        Invoke-Node $localTsc "--noEmit" @Args
+        return
+    }
+
+    $tscCandidates = New-Object System.Collections.Generic.List[string]
+    foreach ($envPath in @($env:TSC_CMD, $env:TSC)) {
+        if ($envPath) {
+            $tscCandidates.Add($envPath)
+        }
+    }
+
+    $localTscCmd = Join-Path $RepoRoot "node_modules\.bin\tsc.cmd"
+    $tscCandidates.Add($localTscCmd)
+
+    try {
+        $whereResults = @(where.exe tsc.cmd 2>$null)
+        foreach ($result in $whereResults) {
+            if ($result) {
+                $tscCandidates.Add($result.Trim())
+            }
+        }
+    }
+    catch {
+    }
+
+    foreach ($candidate in @($tscCandidates | Where-Object { $_ } | Select-Object -Unique)) {
+        if (Test-Path -LiteralPath $candidate) {
+            & $candidate "--noEmit" @Args
+            $exitCode = if ($null -ne $LASTEXITCODE) { [int]$LASTEXITCODE } else { 0 }
+            if ($exitCode -ne 0) {
+                exit $exitCode
+            }
+            return
+        }
+    }
+
+    $message = "TypeScript compiler not found. Run npm install, or set TSC_CMD to a working tsc.cmd path."
+    if ($Optional) {
+        Write-Warning "$message Skipping optional aggregate typecheck; run the typecheck script directly when strict TypeScript validation is required."
+        return
+    }
+
+    [Console]::Error.WriteLine($message)
+    exit 1
+}
+
 function Invoke-KnownProjectScript {
     param([switch]$AllowUnknown)
 
     $script:KnownProjectScriptHandled = $false
     switch ($ScriptName) {
+        "check" {
+            $script:KnownProjectScriptHandled = $true
+            Invoke-Node "--check" "alpha.js"
+            Invoke-Node "scripts\check-alpha-contract.mjs"
+            Invoke-ProjectPowerShell "scripts\check-automation-contract.ps1"
+            Invoke-Node "scripts\check-site-options.mjs"
+
+            $testFiles = @(Get-ChildItem -LiteralPath (Join-Path $RepoRoot "tests") -Filter "*.test.mjs" -File | ForEach-Object { $_.FullName })
+            if ($testFiles.Count -eq 0) {
+                throw "No test files found in tests\*.test.mjs"
+            }
+            Invoke-Node "--test" @testFiles
+            Invoke-TypeScriptCheck -Optional
+            return
+        }
         "automation:snapshot" {
             $script:KnownProjectScriptHandled = $true
             Invoke-ProjectPowerShell "scripts\snapshot-automation-prompts.ps1" $ScriptArgs
@@ -130,6 +199,11 @@ function Invoke-KnownProjectScript {
         "check:site-options" {
             $script:KnownProjectScriptHandled = $true
             Invoke-Node "scripts\check-site-options.mjs" @ScriptArgs
+            return
+        }
+        "typecheck" {
+            $script:KnownProjectScriptHandled = $true
+            Invoke-TypeScriptCheck -Args $ScriptArgs
             return
         }
         "test" {

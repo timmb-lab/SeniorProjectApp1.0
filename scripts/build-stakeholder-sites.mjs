@@ -434,6 +434,30 @@ async function exists(path) {
   }
 }
 
+async function readJsonIfPresent(path) {
+  try {
+    return JSON.parse(await readFile(path, "utf8"));
+  } catch {
+    return null;
+  }
+}
+
+function withoutGeneratedAt(manifest) {
+  const { generatedAt, ...rest } = manifest ?? {};
+  return rest;
+}
+
+function resolveGeneratedAt(baseManifest, previousManifest) {
+  if (
+    previousManifest?.generatedAt &&
+    JSON.stringify(withoutGeneratedAt(previousManifest)) === JSON.stringify(baseManifest)
+  ) {
+    return previousManifest.generatedAt;
+  }
+
+  return new Date().toISOString();
+}
+
 function escapeHtml(value) {
   return String(value)
     .replaceAll("&", "&amp;")
@@ -1842,7 +1866,7 @@ main {
 }`;
 }
 
-async function writeCommonFiles(outDir, option) {
+async function writeCommonFiles(outDir, option, previousManifest) {
   await writeFile(join(outDir, "styles.css"), option.css(), "utf8");
   await writeFile(join(outDir, "option.js"), optionJs(), "utf8");
   await writeFile(join(outDir, ".nojekyll"), "", "utf8");
@@ -1874,19 +1898,19 @@ async function writeCommonFiles(outDir, option) {
     ) + "\n",
     "utf8"
   );
+  const baseManifest = {
+    option: option.name,
+    projectName: option.projectName,
+    appUrl,
+    pages: pages.map((page) => page.file)
+  };
+  const manifest = {
+    generatedAt: resolveGeneratedAt(baseManifest, previousManifest),
+    ...baseManifest
+  };
   await writeFile(
     join(outDir, "site-manifest.json"),
-    JSON.stringify(
-      {
-        generatedAt: new Date().toISOString(),
-        option: option.name,
-        projectName: option.projectName,
-        appUrl,
-        pages: pages.map((page) => page.file)
-      },
-      null,
-      2
-    ) + "\n",
+    JSON.stringify(manifest, null, 2) + "\n",
     "utf8"
   );
 }
@@ -1903,10 +1927,11 @@ async function copyAssets(outDir) {
 async function buildOption(option) {
   const outDir = join(outRoot, option.slug);
   assertInsideRepo(outDir);
+  const previousManifest = await readJsonIfPresent(join(outDir, "site-manifest.json"));
   await rm(outDir, { recursive: true, force: true });
   await mkdir(outDir, { recursive: true });
   await copyAssets(outDir);
-  await writeCommonFiles(outDir, option);
+  await writeCommonFiles(outDir, option, previousManifest);
   await writeFile(join(outDir, "index.html"), indexHtml(option), "utf8");
   for (const page of pages) {
     await writeFile(join(outDir, page.file), detailHtml(option, page), "utf8");

@@ -19,7 +19,7 @@
     "deploy:preview": "wrangler pages deploy . --project-name=senior-capstone-app --branch alpha",
     "db:migrate:local": "wrangler d1 migrations apply senior-capstone-db --local",
     "db:migrate:remote": "wrangler d1 migrations apply senior-capstone-db --remote",
-    "check": "npm run check:alpha && npm run check:alpha-contract && npm run check:automation && npm test && npm run typecheck",
+    "check": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-npm-script.ps1 check",
     "check:alpha": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-npm-script.ps1 check:alpha",
     "check:alpha-contract": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-npm-script.ps1 check:alpha-contract",
     "check:automation": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-npm-script.ps1 check:automation",
@@ -27,7 +27,7 @@
     "check:site-options": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-npm-script.ps1 check:site-options",
     "check:cloudflare": "wrangler check",
     "automation:snapshot": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-npm-script.ps1 automation:snapshot",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-npm-script.ps1 typecheck",
     "types": "wrangler types functions/worker-configuration.d.ts",
     "test": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-npm-script.ps1 test"
   },

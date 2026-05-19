@@ -42,6 +42,21 @@ function Get-TomlStringValue {
     return ('"' + $match.Groups[1].Value + '"') | ConvertFrom-Json
 }
 
+function Get-TomlNumberValue {
+    param(
+        [Parameter(Mandatory = $true)][string]$Content,
+        [Parameter(Mandatory = $true)][string]$Key
+    )
+
+    $pattern = "(?m)^" + [regex]::Escape($Key) + " = (\d+)"
+    $match = [regex]::Match($Content, $pattern)
+    if (-not $match.Success) {
+        return $null
+    }
+
+    return [int64]$match.Groups[1].Value
+}
+
 function Get-RRulePart {
     param(
         [Parameter(Mandatory = $true)][string]$RRule,
@@ -125,11 +140,75 @@ function Group-PropertyCount {
     return $counts
 }
 
+function Get-DayCode {
+    param([Parameter(Mandatory = $true)][datetime]$Date)
+
+    switch ($Date.DayOfWeek) {
+        "Monday" { return "MO" }
+        "Tuesday" { return "TU" }
+        "Wednesday" { return "WE" }
+        "Thursday" { return "TH" }
+        "Friday" { return "FR" }
+        "Saturday" { return "SA" }
+        "Sunday" { return "SU" }
+    }
+}
+
+function Get-RRuleDays {
+    param([Parameter(Mandatory = $true)][string]$RRule)
+
+    $days = @(Get-RRulePart -RRule $RRule -Key "BYDAY")
+    if ($days.Count -eq 0 -and $RRule -like "FREQ=DAILY*") {
+        return @("MO", "TU", "WE", "TH", "FR", "SA", "SU")
+    }
+
+    return $days
+}
+
+function Test-ElapsedScheduledStart {
+    param(
+        [Parameter(Mandatory = $true)][string]$RRule,
+        [Parameter(Mandatory = $true)][DateTimeOffset]$StartsAt,
+        [Parameter(Mandatory = $true)][DateTimeOffset]$EndsAt
+    )
+
+    $days = @(Get-RRuleDays -RRule $RRule)
+    $hours = @(Get-RRulePart -RRule $RRule -Key "BYHOUR")
+    $minutes = @(Get-RRulePart -RRule $RRule -Key "BYMINUTE")
+    if ($days.Count -eq 0 -or $hours.Count -eq 0 -or $minutes.Count -eq 0) {
+        return $false
+    }
+
+    for ($date = $StartsAt.Date; $date -le $EndsAt.Date; $date = $date.AddDays(1)) {
+        if ($days -notcontains (Get-DayCode -Date $date)) {
+            continue
+        }
+
+        foreach ($hour in $hours) {
+            $candidate = [DateTimeOffset]::new(
+                $date.Year,
+                $date.Month,
+                $date.Day,
+                [int]$hour,
+                [int]$minutes[0],
+                0,
+                $EndsAt.Offset
+            )
+            if ($candidate -ge $StartsAt -and $candidate -le $EndsAt) {
+                return $true
+            }
+        }
+    }
+
+    return $false
+}
+
 $now = Get-Date
 $windowStart = $now.AddDays(-1 * $Days)
 $windowStartOffset = [DateTimeOffset]$windowStart
 $config = Read-AutomationConfig -Path $ConfigPath
 $automationIds = @($config.automations | ForEach-Object { $_.id })
+$telemetryCutoff = [DateTimeOffset]::Parse([string]$config.telemetryCutoff)
 $strictManifestCutoff = [DateTimeOffset]::Parse([string]$config.strictManifestCutoff)
 
 $automations = @()
@@ -144,6 +223,8 @@ foreach ($id in $automationIds) {
             name = $null
             rrule = $null
             daily_starts = 0
+            created_at = $null
+            elapsed_in_window = $false
         }
         continue
     }
@@ -152,6 +233,8 @@ foreach ($id in $automationIds) {
     $name = Get-TomlStringValue -Content $raw -Key "name"
     $status = Get-TomlStringValue -Content $raw -Key "status"
     $rrule = Get-TomlStringValue -Content $raw -Key "rrule"
+    $createdAtMs = Get-TomlNumberValue -Content $raw -Key "created_at"
+    $createdAt = if ($null -ne $createdAtMs) { [DateTimeOffset]::FromUnixTimeMilliseconds($createdAtMs).ToLocalTime() } else { $null }
     $hours = @(Get-RRulePart -RRule $rrule -Key "BYHOUR")
     $minutes = @(Get-RRulePart -RRule $rrule -Key "BYMINUTE")
     $starts = 0
@@ -163,6 +246,12 @@ foreach ($id in $automationIds) {
         }
     }
 
+    $elapsedStartsAt = $windowStartOffset
+    if ($createdAt -and $createdAt -gt $elapsedStartsAt) {
+        $elapsedStartsAt = $createdAt
+    }
+    $elapsedInWindow = ($status -eq "ACTIVE" -and (Test-ElapsedScheduledStart -RRule $rrule -StartsAt $elapsedStartsAt -EndsAt ([DateTimeOffset]$now)))
+
     $automations += [pscustomobject]@{
         id = $id
         present = $true
@@ -170,6 +259,8 @@ foreach ($id in $automationIds) {
         name = $name
         rrule = $rrule
         daily_starts = $starts
+        created_at = if ($createdAt) { $createdAt.ToString("o") } else { $null }
+        elapsed_in_window = $elapsedInWindow
     }
 }
 
@@ -211,6 +302,7 @@ if (Test-Path -LiteralPath $manifestDir) {
                     manifest = $manifest
                     timestamp = $timestamp.ToString("o")
                     timestamp_offset = $timestamp
+                    telemetry_eligible = ($timestamp -ge $telemetryCutoff)
                     has_timestamp_local = ($manifest.PSObject.Properties.Name -contains "timestamp_local")
                     lane = Get-JsonProperty -Object $manifest -Names @("lane", "category")
                     automation_id = Get-JsonProperty -Object $manifest -Names @("automation_id", "automation")
@@ -234,8 +326,10 @@ if (Test-Path -LiteralPath $manifestDir) {
 
 $explicitAccepted = @($manifestRecords | Where-Object { $_.accepted_mvp_pass -eq $true })
 $completed = @($manifestRecords | Where-Object { $_.status -eq "completed" })
-$missingAcceptedField = @($manifestRecords | Where-Object { $null -eq $_.accepted_mvp_pass })
-$missingDurationField = @($manifestRecords | Where-Object { $null -eq $_.duration_minutes })
+$telemetryManifestRecords = @($manifestRecords | Where-Object { $_.telemetry_eligible -eq $true })
+$legacyManifestRecords = @($manifestRecords | Where-Object { $_.timestamp_offset -and $_.timestamp_offset -lt $telemetryCutoff })
+$missingAcceptedField = @($telemetryManifestRecords | Where-Object { $null -eq $_.accepted_mvp_pass })
+$missingDurationField = @($telemetryManifestRecords | Where-Object { $null -eq $_.duration_minutes })
 $strictManifestRecords = @($manifestRecords | Where-Object { $_.timestamp_offset -and $_.timestamp_offset -ge $strictManifestCutoff })
 $missingAutomationIdField = @($strictManifestRecords | Where-Object { -not $_.automation_id })
 $missingStatusField = @($strictManifestRecords | Where-Object { -not $_.status })
@@ -300,17 +394,31 @@ foreach ($record in $sessionRecords) {
     }
 }
 
+$elapsedAutomationIds = New-Object System.Collections.Generic.HashSet[string]
+foreach ($automation in $automations) {
+    if ($automation.elapsed_in_window) {
+        [void]$elapsedAutomationIds.Add([string]$automation.id)
+    }
+}
+
 $qolAutomationsWithoutObservedManifest = @()
 foreach ($id in $automationIds) {
-    if (-not $manifestAutomationIds.Contains($id)) {
+    if ($elapsedAutomationIds.Contains($id) -and -not $manifestAutomationIds.Contains($id)) {
         $qolAutomationsWithoutObservedManifest += $id
     }
 }
 
 $qolAutomationsWithoutObservedSession = @()
 foreach ($id in $automationIds) {
-    if (-not $sessionAutomationIds.Contains($id)) {
+    if ($elapsedAutomationIds.Contains($id) -and -not $sessionAutomationIds.Contains($id)) {
         $qolAutomationsWithoutObservedSession += $id
+    }
+}
+
+$qolAutomationsNotYetElapsed = @()
+foreach ($id in $automationIds) {
+    if (-not $elapsedAutomationIds.Contains($id)) {
+        $qolAutomationsNotYetElapsed += $id
     }
 }
 
@@ -323,10 +431,10 @@ $stretchConversionPercent = if ($periodStartCapacity -gt 0) { [math]::Round(($st
 
 $recommendations = New-Object System.Collections.Generic.List[string]
 if ($missingAcceptedField.Count -gt 0) {
-    $recommendations.Add("Add accepted_mvp_pass to future run manifests so weekly audits can distinguish real MVP progress from routine logging.")
+    $recommendations.Add("Add accepted_mvp_pass to post-cutoff run manifests so weekly audits can distinguish real MVP progress from routine logging.")
 }
 if ($missingDurationField.Count -gt 0) {
-    $recommendations.Add("Add duration_minutes to future run manifests so overlap risk can be measured against the 45-minute spacing.")
+    $recommendations.Add("Add duration_minutes to post-cutoff run manifests so overlap risk can be measured against the 45-minute spacing.")
 }
 if ($missingAutomationIdField.Count -gt 0 -or $missingStatusField.Count -gt 0 -or $missingCanonicalTimestampField.Count -gt 0) {
     $recommendations.Add("Use canonical timestamp_local, automation_id, and status fields in new run manifests so audits can attribute QoL output reliably.")
@@ -343,7 +451,7 @@ if (-not $sessionIndexPresent) {
     $recommendations.Add("Codex session_index.jsonl was not found, so this scorecard could not verify whether scheduled sessions fired.")
 }
 elseif ($qolAutomationsWithoutObservedSession.Count -gt 0) {
-    $recommendations.Add("Some QoL automations have no observed Codex session in this window; verify whether their slots have elapsed before treating them as scheduler failures.")
+    $recommendations.Add("Some elapsed QoL automation slots have no observed Codex session in this window; verify scheduler health or closeout blockers for those IDs.")
 }
 if ($dailyStartCapacity -ge 30) {
     $recommendations.Add("Do not add more starts before proving conversion; $dailyStartCapacity starts/day needs $minimumConversionPercent percent accepted-pass conversion for the 2/day minimum and $stretchConversionPercent percent for the 3/day stretch.")
@@ -376,6 +484,8 @@ $result = [pscustomobject]@{
     }
     observed_manifests = [pscustomobject]@{
         count = $manifestRecords.Count
+        telemetry_eligible_count = $telemetryManifestRecords.Count
+        legacy_pre_telemetry_cutoff_count = $legacyManifestRecords.Count
         completed_count = $completed.Count
         explicit_accepted_mvp_pass_count = $explicitAccepted.Count
         missing_accepted_mvp_pass_field_count = $missingAcceptedField.Count
@@ -389,6 +499,7 @@ $result = [pscustomobject]@{
         automation_counts = Group-PropertyCount -Items $manifestRecords -PropertyName "automation_id"
         requirement_ids_seen = @($requirementMatches | Sort-Object)
         qol_automations_without_observed_manifest = $qolAutomationsWithoutObservedManifest
+        qol_automations_not_yet_elapsed = $qolAutomationsNotYetElapsed
     }
     observed_sessions = [pscustomobject]@{
         codex_home = $CodexHome
@@ -397,6 +508,7 @@ $result = [pscustomobject]@{
         automation_counts = Group-PropertyCount -Items $sessionRecords -PropertyName "automation_id"
         recent_sessions = @($sessionRecords | Sort-Object updated_at -Descending | Select-Object -First 30)
         qol_automations_without_observed_session = $qolAutomationsWithoutObservedSession
+        qol_automations_not_yet_elapsed = $qolAutomationsNotYetElapsed
     }
     recommendations = $recommendations
 }

@@ -63,6 +63,30 @@ async function exists(path) {
   }
 }
 
+async function readJsonIfPresent(path) {
+  try {
+    return JSON.parse(await readFile(path, "utf8"));
+  } catch {
+    return null;
+  }
+}
+
+function withoutGeneratedAt(manifest) {
+  const { generatedAt, ...rest } = manifest ?? {};
+  return rest;
+}
+
+function resolveGeneratedAt(baseManifest, previousManifest) {
+  if (
+    previousManifest?.generatedAt &&
+    JSON.stringify(withoutGeneratedAt(previousManifest)) === JSON.stringify(baseManifest)
+  ) {
+    return previousManifest.generatedAt;
+  }
+
+  return new Date().toISOString();
+}
+
 async function copyFileWithTransforms(file) {
   const source = join(repoRoot, file);
   const destination = join(outDir, file);
@@ -98,12 +122,15 @@ async function writeHeaders() {
   await writeFile(join(outDir, "_headers"), `${headers}\n`, "utf8");
 }
 
-async function writeManifest() {
-  const manifest = {
-    generatedAt: new Date().toISOString(),
+async function writeManifest(previousManifest) {
+  const baseManifest = {
     source: "SeniorProjectApp1.0 public companion site",
     appUrl,
     pages
+  };
+  const manifest = {
+    generatedAt: resolveGeneratedAt(baseManifest, previousManifest),
+    ...baseManifest
   };
   await writeFile(join(outDir, "site-manifest.json"), `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
 }
@@ -120,6 +147,7 @@ async function writeWranglerConfig() {
 
 async function main() {
   assertInsideRepo(outDir);
+  const previousManifest = await readJsonIfPresent(join(outDir, "site-manifest.json"));
   await rm(outDir, { recursive: true, force: true });
   await mkdir(outDir, { recursive: true });
 
@@ -140,7 +168,7 @@ async function main() {
 
   await writeRedirects();
   await writeHeaders();
-  await writeManifest();
+  await writeManifest(previousManifest);
   await writeWranglerConfig();
 
   const outputFiles = await readdir(outDir);

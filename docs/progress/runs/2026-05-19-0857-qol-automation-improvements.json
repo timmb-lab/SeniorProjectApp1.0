@@ -1,0 +1,66 @@
+{
+  "run_id": "2026-05-19-0857-qol-automation-improvements",
+  "timestamp_local": "2026-05-19T08:57:18-07:00",
+  "automation_id": "manual-codex-thread",
+  "trigger": "user-requested",
+  "lane": "audit/automation",
+  "status": "completed",
+  "accepted_mvp_pass": true,
+  "requirement_ids": [
+    "MVP-026"
+  ],
+  "duration_minutes": 25,
+  "output_kind": "script-repair",
+  "scope": "Implement QoL automation audit improvements for support timing, wrapper-safe checks, site-options coverage, elapsed-slot efficiency scoring, and timestamp churn reduction.",
+  "files_changed": [
+    "docs/automation-cadence.md",
+    "docs/automation-memory.md",
+    "docs/automation-prompts/",
+    "docs/automation-runbook.md",
+    "docs/automation-self-improvement.md",
+    "docs/progress/audit.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-19-0857-qol-automation-improvements.json",
+    "docs/progress/runs/README.md",
+    "package.json",
+    "scripts/automation-config.json",
+    "scripts/build-public-site.mjs",
+    "scripts/build-stakeholder-sites.mjs",
+    "scripts/check-automation-contract.ps1",
+    "scripts/measure-automation-efficiency.ps1",
+    "scripts/run-npm-script.ps1"
+  ],
+  "live_automation_updates": [
+    {
+      "automation_id": "senior-capstone-public-site-refresh",
+      "change": "Moved support start from 06:20 PT to 06:03 PT through automation_update."
+    },
+    {
+      "automation_id": "senior-capstone-weekly-script-audit",
+      "change": "Moved support start from Sunday 23:45 PT to Sunday 23:39 PT in local TOML because automation_update reported the app automation ID was missing."
+    }
+  ],
+  "validation": [
+    "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-npm-script.ps1 automation:snapshot passed.",
+    "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-npm-script.ps1 check:automation:live passed for 30 QoL automations and 2 support automations.",
+    "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-npm-script.ps1 check:automation passed.",
+    "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/measure-automation-efficiency.ps1 -RepoRoot . -Days 30 ran and reported elapsed-slot attribution.",
+    "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-npm-script.ps1 build:site-options passed.",
+    "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-npm-script.ps1 check:site-options passed.",
+    "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-npm-script.ps1 check:alpha-contract passed.",
+    "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-npm-script.ps1 test passed with 7 tests.",
+    "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-npm-script.ps1 check reached typecheck and then reported the local blocker: TypeScript compiler not found."
+  ],
+  "blockers": [
+    {
+      "blocker": "Local aggregate typecheck cannot pass until dependencies or a compiler path are available.",
+      "next_action": "Run npm install in an environment with npm, or set TSC_CMD to a working tsc.cmd path."
+    }
+  ],
+  "automation_efficiency": {
+    "duplicate_scope_checked": true,
+    "scale_signal": "reduce-collisions",
+    "notes": "Cadence remains 30 QoL starts/day. Support jobs now use midpoint slots with explicit spacing validation; scorecard now ignores future/not-yet-elapsed QoL slots when reporting missing sessions."
+  },
+  "self_improvement": "Implemented the script/checker improvements directly and documented the support timing and scorecard behavior."
+}

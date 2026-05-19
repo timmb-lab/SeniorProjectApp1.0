@@ -1,7 +1,7 @@
 ﻿---
 automation_id: "senior-capstone-qol-source-framework-seed-slot-3"
 name: "Senior Capstone QoL - Source Framework Seed Slot 3"
-snapshot_generated_utc: "2026-05-19T14:47:39Z"
+snapshot_generated_utc: "2026-05-19T15:53:04Z"
 rrule: "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=16;BYMINUTE=03"
 model: "gpt-5.4"
 reasoning_effort: "high"

@@ -64,6 +64,7 @@ On this Windows Codex desktop environment, plain `node` may resolve to the packa
 
 ```powershell
 powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 automation:snapshot
+powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 check
 powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 check:automation
 powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 check:automation:live
 powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\measure-automation-efficiency.ps1 -RepoRoot . -Days 30
@@ -71,7 +72,7 @@ powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\ru
 powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 build:site-options
 ```
 
-`scripts/run-node-script.ps1` resolves a working Codex bundled Node runtime before falling back to system Node. `scripts/run-npm-script.ps1` uses `npm.cmd` when available and otherwise handles the project's known local Node/PowerShell scripts without depending on global npm.
+`scripts/run-node-script.ps1` resolves a working Codex bundled Node runtime before falling back to system Node. `scripts/run-npm-script.ps1` uses `npm.cmd` when available and otherwise handles the project's known local Node/PowerShell scripts without depending on global npm. Its aggregate `check` fallback runs alpha syntax, alpha contract, automation contract, site-options validation, Node tests, and TypeScript when installed; missing TypeScript tooling is a warning for aggregate QoL closeout, while the direct `typecheck` script remains strict.
 
 If a shell already has working `npm`, these remain acceptable convenience commands:
 
@@ -105,7 +106,7 @@ After Bryan's 2026-05-19 review, all three slots are active again so the project
 
 ## Category Runner No-Intervention Contract
 
-The Senior Capstone automation system now uses thirty active single-slot QoL runners. Together, they run 30 times per day on a staggered schedule recorded in `docs/automation-cadence.md`, with no shared scheduled start slots. The older orchestrator, standby lanes, daily prototype job, separate weekly audit job, broad seven-category runners, brief hourly escalation, and 20x category system are superseded by these QoL runners.
+The Senior Capstone automation system now uses thirty active single-slot QoL runners. Together, they run 30 times per day on a staggered schedule recorded in `docs/automation-cadence.md`, with no shared QoL scheduled start slots. Support jobs use their own audited midpoint slots so they do not sit directly on top of QoL starts. The older orchestrator, standby lanes, daily prototype job, broad seven-category runners, brief hourly escalation, and 20x category system are superseded by these QoL runners.
 
 Each QoL runner should resolve everything it can resolve from accepted docs, repo evidence, saved connector approvals, and safe fallbacks. It should not stop for a human when it can:
 
@@ -171,7 +172,7 @@ powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\me
 
 Use `-OutputPath <path>` when a scheduled run should save the JSON scorecard as a durable artifact before logging or summarizing it.
 
-The efficiency scorecard measures active QoL automation count, daily start capacity, 30-day start capacity, minimum spacing, observed run manifests, accepted-pass telemetry, requirement IDs seen, and QoL automations with no observed manifest. Since the May 19 full-QoL reactivation, active QoL automation count should be 30 while daily active start capacity remains 30.
+The efficiency scorecard measures active QoL automation count, daily start capacity, 30-day start capacity, minimum spacing, observed run manifests, accepted-pass telemetry, requirement IDs seen, elapsed scheduled sessions, and QoL automations with no observed manifest. Since the May 19 full-QoL reactivation, active QoL automation count should be 30 while daily active start capacity remains 30.
 
 Scaling rules:
 

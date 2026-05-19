@@ -1,8 +1,8 @@
 ﻿---
 automation_id: "senior-capstone-weekly-script-audit"
 name: "Senior Capstone Weekly Script Audit"
-snapshot_generated_utc: "2026-05-19T14:47:39Z"
-rrule: "FREQ=WEEKLY;BYDAY=SU;BYHOUR=23;BYMINUTE=45"
+snapshot_generated_utc: "2026-05-19T15:53:04Z"
+rrule: "FREQ=WEEKLY;BYDAY=SU;BYHOUR=23;BYMINUTE=39"
 model: "gpt-5.4"
 reasoning_effort: "high"
 prompt_sha256: "60617b498aa4861964749bb949a5bd1e5cdf9c28e6da8e02b0cb6b5fae2d9dbe"
