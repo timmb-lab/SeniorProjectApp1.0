@@ -1,5 +1,9 @@
 .dev.vars
 .secrets/
+.env
+.env.*
 node_modules/
 .wrangler/
 public-site/
+.automation-log-outbox/
+automation/qol/state/*.bak
