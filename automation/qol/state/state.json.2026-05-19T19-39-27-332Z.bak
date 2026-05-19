@@ -20,7 +20,7 @@
       "cadence": "recurring",
       "priority": 75,
       "firstSeenAt": "2026-05-19T17:09:35.539Z",
-      "lastSeenAt": "2026-05-19T19:03:52.896Z",
+      "lastSeenAt": "2026-05-19T19:38:15.507Z",
       "lastAttemptAt": "2026-05-19T19:03:42.309Z",
       "lastSuccessAt": "2026-05-19T19:03:42.309Z",
       "failureCount": 0,
@@ -41,7 +41,7 @@
       "cadence": "one-shot",
       "priority": 65,
       "firstSeenAt": "2026-05-19T17:09:35.539Z",
-      "lastSeenAt": "2026-05-19T19:03:52.896Z",
+      "lastSeenAt": "2026-05-19T19:38:15.507Z",
       "lastAttemptAt": null,
       "lastSuccessAt": null,
       "failureCount": 0,
@@ -62,7 +62,7 @@
       "cadence": "recurring",
       "priority": 65,
       "firstSeenAt": "2026-05-19T17:09:35.539Z",
-      "lastSeenAt": "2026-05-19T19:03:52.896Z",
+      "lastSeenAt": "2026-05-19T19:38:15.507Z",
       "lastAttemptAt": null,
       "lastSuccessAt": null,
       "failureCount": 0,
@@ -83,7 +83,7 @@
       "cadence": "one-shot",
       "priority": 90,
       "firstSeenAt": "2026-05-19T17:09:35.539Z",
-      "lastSeenAt": "2026-05-19T19:03:52.896Z",
+      "lastSeenAt": "2026-05-19T19:38:15.507Z",
       "lastAttemptAt": "2026-05-19T19:02:36.442Z",
       "lastSuccessAt": "2026-05-19T19:02:36.442Z",
       "failureCount": 0,
@@ -99,18 +99,18 @@
       "section": "backend-security-data",
       "source": "docs/mvp-requirements-catalog.md",
       "planStatus": "foundation started",
-      "status": "ready",
+      "status": "completed",
       "recurring": false,
       "cadence": "one-shot",
       "priority": 65,
       "firstSeenAt": "2026-05-19T17:09:35.539Z",
-      "lastSeenAt": "2026-05-19T19:03:52.896Z",
-      "lastAttemptAt": null,
-      "lastSuccessAt": null,
+      "lastSeenAt": "2026-05-19T19:38:15.507Z",
+      "lastAttemptAt": "2026-05-19T19:27:41.861Z",
+      "lastSuccessAt": "2026-05-19T19:27:41.861Z",
       "failureCount": 0,
       "blockerReason": null,
       "cooldownUntil": null,
-      "lastSelectionReason": null,
+      "lastSelectionReason": "priority 65; category staleness 0h; section staleness 0h; category rotation eligible; dirty worktree favors automation-only checks",
       "dependencies": []
     },
     "MVP-006": {
@@ -125,7 +125,7 @@
       "cadence": "one-shot",
       "priority": 120,
       "firstSeenAt": "2026-05-19T17:09:35.539Z",
-      "lastSeenAt": "2026-05-19T19:03:52.896Z",
+      "lastSeenAt": "2026-05-19T19:38:15.507Z",
       "lastAttemptAt": "2026-05-19T17:09:35.646Z",
       "lastSuccessAt": "2026-05-19T17:09:35.646Z",
       "failureCount": 0,
@@ -141,18 +141,18 @@
       "section": "admin-ops-reporting",
       "source": "docs/mvp-requirements-catalog.md",
       "planStatus": "foundation started",
-      "status": "ready",
+      "status": "completed",
       "recurring": false,
       "cadence": "one-shot",
       "priority": 65,
       "firstSeenAt": "2026-05-19T17:09:35.539Z",
-      "lastSeenAt": "2026-05-19T19:03:52.896Z",
-      "lastAttemptAt": null,
-      "lastSuccessAt": null,
+      "lastSeenAt": "2026-05-19T19:38:15.507Z",
+      "lastAttemptAt": "2026-05-19T19:28:17.841Z",
+      "lastSuccessAt": "2026-05-19T19:28:17.841Z",
       "failureCount": 0,
       "blockerReason": null,
       "cooldownUntil": null,
-      "lastSelectionReason": null,
+      "lastSelectionReason": "priority 65; category staleness 0h; section staleness 0h; category rotation eligible; dirty worktree favors automation-only checks",
       "dependencies": []
     },
     "MVP-008": {
@@ -167,7 +167,7 @@
       "cadence": "one-shot",
       "priority": 50,
       "firstSeenAt": "2026-05-19T17:09:35.539Z",
-      "lastSeenAt": "2026-05-19T19:03:52.896Z",
+      "lastSeenAt": "2026-05-19T19:38:15.507Z",
       "lastAttemptAt": null,
       "lastSuccessAt": null,
       "failureCount": 0,
@@ -188,7 +188,7 @@
       "cadence": "one-shot",
       "priority": 105,
       "firstSeenAt": "2026-05-19T17:09:35.539Z",
-      "lastSeenAt": "2026-05-19T19:03:52.896Z",
+      "lastSeenAt": "2026-05-19T19:38:15.507Z",
       "lastAttemptAt": "2026-05-19T19:03:38.717Z",
       "lastSuccessAt": "2026-05-19T19:03:38.717Z",
       "failureCount": 0,
@@ -206,18 +206,18 @@
       "section": "student-workflow-evidence",
       "source": "docs/mvp-requirements-catalog.md",
       "planStatus": "foundation started",
-      "status": "ready",
+      "status": "completed",
       "recurring": false,
       "cadence": "one-shot",
       "priority": 65,
       "firstSeenAt": "2026-05-19T17:09:35.539Z",
-      "lastSeenAt": "2026-05-19T19:03:52.896Z",
-      "lastAttemptAt": null,
-      "lastSuccessAt": null,
+      "lastSeenAt": "2026-05-19T19:38:15.507Z",
+      "lastAttemptAt": "2026-05-19T19:27:36.467Z",
+      "lastSuccessAt": "2026-05-19T19:27:36.467Z",
       "failureCount": 0,
       "blockerReason": null,
       "cooldownUntil": null,
-      "lastSelectionReason": null,
+      "lastSelectionReason": "priority 65; category staleness 2h; section staleness 2h; category rotation eligible; dirty worktree favors automation-only checks",
       "dependencies": []
     },
     "MVP-011": {
@@ -227,18 +227,18 @@
       "section": "student-workflow-evidence",
       "source": "docs/mvp-requirements-catalog.md",
       "planStatus": "alpha active",
-      "status": "ready",
+      "status": "completed",
       "recurring": false,
       "cadence": "one-shot",
       "priority": 65,
       "firstSeenAt": "2026-05-19T17:09:35.539Z",
-      "lastSeenAt": "2026-05-19T19:03:52.896Z",
-      "lastAttemptAt": null,
-      "lastSuccessAt": null,
+      "lastSeenAt": "2026-05-19T19:38:15.507Z",
+      "lastAttemptAt": "2026-05-19T19:38:15.616Z",
+      "lastSuccessAt": "2026-05-19T19:38:15.616Z",
       "failureCount": 0,
       "blockerReason": null,
       "cooldownUntil": null,
-      "lastSelectionReason": null,
+      "lastSelectionReason": "priority 65; category staleness 0h; section staleness 0h; category rotation eligible; dirty worktree favors automation-only checks",
       "dependencies": []
     },
     "MVP-012": {
@@ -253,7 +253,7 @@
       "cadence": "one-shot",
       "priority": 65,
       "firstSeenAt": "2026-05-19T17:09:35.539Z",
-      "lastSeenAt": "2026-05-19T19:03:52.896Z",
+      "lastSeenAt": "2026-05-19T19:38:15.507Z",
       "lastAttemptAt": null,
       "lastSuccessAt": null,
       "failureCount": 0,
@@ -274,7 +274,7 @@
       "cadence": "one-shot",
       "priority": 110,
       "firstSeenAt": "2026-05-19T17:09:35.539Z",
-      "lastSeenAt": "2026-05-19T19:03:52.896Z",
+      "lastSeenAt": "2026-05-19T19:38:15.507Z",
       "lastAttemptAt": "2026-05-19T17:10:21.431Z",
       "lastSuccessAt": "2026-05-19T17:10:21.431Z",
       "failureCount": 0,
@@ -295,7 +295,7 @@
       "cadence": "one-shot",
       "priority": 120,
       "firstSeenAt": "2026-05-19T17:09:35.539Z",
-      "lastSeenAt": "2026-05-19T19:03:52.896Z",
+      "lastSeenAt": "2026-05-19T19:38:15.507Z",
       "lastAttemptAt": "2026-05-19T18:44:07.371Z",
       "lastSuccessAt": "2026-05-19T18:44:07.371Z",
       "failureCount": 0,
@@ -316,7 +316,7 @@
       "cadence": "one-shot",
       "priority": 95,
       "firstSeenAt": "2026-05-19T17:09:35.539Z",
-      "lastSeenAt": "2026-05-19T19:03:52.896Z",
+      "lastSeenAt": "2026-05-19T19:38:15.507Z",
       "lastAttemptAt": "2026-05-19T17:13:51.311Z",
       "lastSuccessAt": "2026-05-19T17:13:51.311Z",
       "failureCount": 0,
@@ -337,7 +337,7 @@
       "cadence": "one-shot",
       "priority": 95,
       "firstSeenAt": "2026-05-19T17:09:35.539Z",
-      "lastSeenAt": "2026-05-19T19:03:52.896Z",
+      "lastSeenAt": "2026-05-19T19:38:15.507Z",
       "lastAttemptAt": "2026-05-19T19:02:24.991Z",
       "lastSuccessAt": "2026-05-19T19:02:24.991Z",
       "failureCount": 0,
@@ -353,18 +353,18 @@
       "section": "staff-review-mentor",
       "source": "docs/mvp-requirements-catalog.md",
       "planStatus": "alpha active",
-      "status": "ready",
+      "status": "completed",
       "recurring": false,
       "cadence": "one-shot",
       "priority": 95,
       "firstSeenAt": "2026-05-19T17:09:35.539Z",
-      "lastSeenAt": "2026-05-19T19:03:52.896Z",
-      "lastAttemptAt": null,
-      "lastSuccessAt": null,
+      "lastSeenAt": "2026-05-19T19:38:15.507Z",
+      "lastAttemptAt": "2026-05-19T19:04:03.854Z",
+      "lastSuccessAt": "2026-05-19T19:04:03.854Z",
       "failureCount": 0,
       "blockerReason": null,
       "cooldownUntil": null,
-      "lastSelectionReason": null,
+      "lastSelectionReason": "priority 95; category staleness 0h; section staleness 0h; category rotation eligible; dirty worktree favors automation-only checks",
       "dependencies": [
         "SC-004"
       ]
@@ -381,7 +381,7 @@
       "cadence": "one-shot",
       "priority": 95,
       "firstSeenAt": "2026-05-19T17:09:35.539Z",
-      "lastSeenAt": "2026-05-19T19:03:52.896Z",
+      "lastSeenAt": "2026-05-19T19:38:15.507Z",
       "lastAttemptAt": "2026-05-19T18:20:27.350Z",
       "lastSuccessAt": "2026-05-19T18:20:27.350Z",
       "failureCount": 0,
@@ -402,7 +402,7 @@
       "cadence": "one-shot",
       "priority": 65,
       "firstSeenAt": "2026-05-19T17:09:35.539Z",
-      "lastSeenAt": "2026-05-19T19:03:52.896Z",
+      "lastSeenAt": "2026-05-19T19:38:15.507Z",
       "lastAttemptAt": null,
       "lastSuccessAt": null,
       "failureCount": 0,
@@ -423,7 +423,7 @@
       "cadence": "one-shot",
       "priority": 65,
       "firstSeenAt": "2026-05-19T17:09:35.539Z",
-      "lastSeenAt": "2026-05-19T19:03:52.896Z",
+      "lastSeenAt": "2026-05-19T19:38:15.507Z",
       "lastAttemptAt": null,
       "lastSuccessAt": null,
       "failureCount": 0,
@@ -444,7 +444,7 @@
       "cadence": "one-shot",
       "priority": 65,
       "firstSeenAt": "2026-05-19T17:09:35.539Z",
-      "lastSeenAt": "2026-05-19T19:03:52.896Z",
+      "lastSeenAt": "2026-05-19T19:38:15.507Z",
       "lastAttemptAt": null,
       "lastSuccessAt": null,
       "failureCount": 0,
@@ -465,7 +465,7 @@
       "cadence": "one-shot",
       "priority": 65,
       "firstSeenAt": "2026-05-19T17:09:35.539Z",
-      "lastSeenAt": "2026-05-19T19:03:52.896Z",
+      "lastSeenAt": "2026-05-19T19:38:15.507Z",
       "lastAttemptAt": null,
       "lastSuccessAt": null,
       "failureCount": 0,
@@ -486,7 +486,7 @@
       "cadence": "one-shot",
       "priority": 85,
       "firstSeenAt": "2026-05-19T17:09:35.539Z",
-      "lastSeenAt": "2026-05-19T19:03:52.896Z",
+      "lastSeenAt": "2026-05-19T19:38:15.507Z",
       "lastAttemptAt": "2026-05-19T19:02:51.594Z",
       "lastSuccessAt": "2026-05-19T19:02:51.594Z",
       "failureCount": 0,
@@ -507,7 +507,7 @@
       "cadence": "one-shot",
       "priority": 65,
       "firstSeenAt": "2026-05-19T17:09:35.539Z",
-      "lastSeenAt": "2026-05-19T19:03:52.896Z",
+      "lastSeenAt": "2026-05-19T19:38:15.507Z",
       "lastAttemptAt": null,
       "lastSuccessAt": null,
       "failureCount": 0,
@@ -528,7 +528,7 @@
       "cadence": "recurring",
       "priority": 75,
       "firstSeenAt": "2026-05-19T17:09:35.539Z",
-      "lastSeenAt": "2026-05-19T19:03:52.896Z",
+      "lastSeenAt": "2026-05-19T19:38:15.507Z",
       "lastAttemptAt": "2026-05-19T19:03:50.876Z",
       "lastSuccessAt": "2026-05-19T19:03:50.876Z",
       "failureCount": 0,
@@ -549,7 +549,7 @@
       "cadence": "recurring",
       "priority": 85,
       "firstSeenAt": "2026-05-19T17:09:35.539Z",
-      "lastSeenAt": "2026-05-19T19:03:52.896Z",
+      "lastSeenAt": "2026-05-19T19:38:15.507Z",
       "lastAttemptAt": "2026-05-19T18:43:37.670Z",
       "lastSuccessAt": "2026-05-19T18:43:37.670Z",
       "failureCount": 0,
@@ -570,13 +570,13 @@
       "cadence": "recurring",
       "priority": 75,
       "firstSeenAt": "2026-05-19T17:09:35.539Z",
-      "lastSeenAt": "2026-05-19T19:03:52.896Z",
-      "lastAttemptAt": null,
-      "lastSuccessAt": null,
+      "lastSeenAt": "2026-05-19T19:38:15.507Z",
+      "lastAttemptAt": "2026-05-19T19:27:36.142Z",
+      "lastSuccessAt": "2026-05-19T19:27:36.142Z",
       "failureCount": 0,
       "blockerReason": null,
       "cooldownUntil": null,
-      "lastSelectionReason": null,
+      "lastSelectionReason": "priority 75; category staleness 0h; section staleness 0h; category rotation eligible; dirty worktree favors automation-only checks",
       "dependencies": []
     },
     "MVP-028": {
@@ -591,7 +591,7 @@
       "cadence": "one-shot",
       "priority": 65,
       "firstSeenAt": "2026-05-19T17:09:35.539Z",
-      "lastSeenAt": "2026-05-19T19:03:52.896Z",
+      "lastSeenAt": "2026-05-19T19:38:15.507Z",
       "lastAttemptAt": "2026-05-19T19:01:40.950Z",
       "lastSuccessAt": "2026-05-19T19:01:40.950Z",
       "failureCount": 0,
@@ -612,7 +612,7 @@
       "cadence": "one-shot",
       "priority": 65,
       "firstSeenAt": "2026-05-19T17:09:35.539Z",
-      "lastSeenAt": "2026-05-19T19:03:52.896Z",
+      "lastSeenAt": "2026-05-19T19:38:15.507Z",
       "lastAttemptAt": null,
       "lastSuccessAt": null,
       "failureCount": 0,
@@ -633,7 +633,7 @@
       "cadence": "recurring",
       "priority": 65,
       "firstSeenAt": "2026-05-19T17:09:35.539Z",
-      "lastSeenAt": "2026-05-19T19:03:52.896Z",
+      "lastSeenAt": "2026-05-19T19:38:15.507Z",
       "lastAttemptAt": null,
       "lastSuccessAt": null,
       "failureCount": 0,
@@ -654,7 +654,7 @@
       "cadence": "one-shot",
       "priority": 90,
       "firstSeenAt": "2026-05-19T17:09:35.539Z",
-      "lastSeenAt": "2026-05-19T19:03:52.896Z",
+      "lastSeenAt": "2026-05-19T19:38:15.507Z",
       "lastAttemptAt": "2026-05-19T19:03:35.970Z",
       "lastSuccessAt": "2026-05-19T19:03:35.970Z",
       "failureCount": 0,
@@ -675,7 +675,7 @@
       "cadence": "one-shot",
       "priority": 90,
       "firstSeenAt": "2026-05-19T17:09:35.539Z",
-      "lastSeenAt": "2026-05-19T19:03:52.896Z",
+      "lastSeenAt": "2026-05-19T19:38:15.507Z",
       "lastAttemptAt": null,
       "lastSuccessAt": null,
       "failureCount": 0,
@@ -696,7 +696,7 @@
       "cadence": "one-shot",
       "priority": 90,
       "firstSeenAt": "2026-05-19T17:09:35.539Z",
-      "lastSeenAt": "2026-05-19T19:03:52.896Z",
+      "lastSeenAt": "2026-05-19T19:38:15.507Z",
       "lastAttemptAt": "2026-05-19T19:03:50.283Z",
       "lastSuccessAt": "2026-05-19T19:03:50.283Z",
       "failureCount": 0,
@@ -717,7 +717,7 @@
       "cadence": "one-shot",
       "priority": 90,
       "firstSeenAt": "2026-05-19T17:09:35.539Z",
-      "lastSeenAt": "2026-05-19T19:03:52.896Z",
+      "lastSeenAt": "2026-05-19T19:38:15.507Z",
       "lastAttemptAt": "2026-05-19T19:03:52.907Z",
       "lastSuccessAt": "2026-05-19T19:03:52.907Z",
       "failureCount": 0,
@@ -738,7 +738,7 @@
       "cadence": "one-shot",
       "priority": 115,
       "firstSeenAt": "2026-05-19T17:09:35.539Z",
-      "lastSeenAt": "2026-05-19T19:03:52.896Z",
+      "lastSeenAt": "2026-05-19T19:38:15.507Z",
       "lastAttemptAt": "2026-05-19T17:12:41.943Z",
       "lastSuccessAt": "2026-05-19T17:12:41.943Z",
       "failureCount": 0,
@@ -759,7 +759,7 @@
       "cadence": "one-shot",
       "priority": 115,
       "firstSeenAt": "2026-05-19T17:09:35.539Z",
-      "lastSeenAt": "2026-05-19T19:03:52.896Z",
+      "lastSeenAt": "2026-05-19T19:38:15.507Z",
       "lastAttemptAt": "2026-05-19T19:01:56.477Z",
       "lastSuccessAt": "2026-05-19T19:01:56.477Z",
       "failureCount": 0,
@@ -780,7 +780,7 @@
       "cadence": "daily",
       "priority": 80,
       "firstSeenAt": "2026-05-19T17:09:35.539Z",
-      "lastSeenAt": "2026-05-19T19:03:52.896Z",
+      "lastSeenAt": "2026-05-19T19:38:15.507Z",
       "lastAttemptAt": "2026-05-19T18:43:59.456Z",
       "lastSuccessAt": "2026-05-19T18:43:59.456Z",
       "failureCount": 0,
@@ -801,7 +801,7 @@
       "cadence": "daily",
       "priority": 80,
       "firstSeenAt": "2026-05-19T17:09:35.539Z",
-      "lastSeenAt": "2026-05-19T19:03:52.896Z",
+      "lastSeenAt": "2026-05-19T19:38:15.507Z",
       "lastAttemptAt": "2026-05-19T17:11:24.551Z",
       "lastSuccessAt": "2026-05-19T17:11:24.551Z",
       "failureCount": 0,
@@ -822,7 +822,7 @@
       "cadence": "daily",
       "priority": 80,
       "firstSeenAt": "2026-05-19T17:09:35.539Z",
-      "lastSeenAt": "2026-05-19T19:03:52.896Z",
+      "lastSeenAt": "2026-05-19T19:38:15.507Z",
       "lastAttemptAt": "2026-05-19T18:44:17.114Z",
       "lastSuccessAt": "2026-05-19T18:44:17.114Z",
       "failureCount": 0,
@@ -832,7 +832,7 @@
       "dependencies": []
     }
   },
-  "lastRunId": "20260519T190352Z-40a80801",
+  "lastRunId": "20260519T193815Z-6d426bf8",
   "runHistory": [
     {
       "runId": "20260519T170935Z-c4bbe2d2",
@@ -1043,17 +1043,77 @@
       "changedFiles": [
         "automation/qol/state/plan-index.json"
       ]
+    },
+    {
+      "runId": "20260519T190403Z-605c9b99",
+      "timestamp": "2026-05-19T19:04:03.854Z",
+      "selectedTaskId": "MVP-017",
+      "selectedCategory": "staff-review-mentor",
+      "status": "completed",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T192735Z-1a80cfb3",
+      "timestamp": "2026-05-19T19:27:36.142Z",
+      "selectedTaskId": "MVP-027",
+      "selectedCategory": "deployment-qa",
+      "status": "recurring",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T192736Z-84cd47b4",
+      "timestamp": "2026-05-19T19:27:36.467Z",
+      "selectedTaskId": "MVP-010",
+      "selectedCategory": "student-workflow-evidence",
+      "status": "completed",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T192741Z-fb5c7708",
+      "timestamp": "2026-05-19T19:27:41.861Z",
+      "selectedTaskId": "MVP-005",
+      "selectedCategory": "backend-security-data",
+      "status": "completed",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T192817Z-beeaab13",
+      "timestamp": "2026-05-19T19:28:17.841Z",
+      "selectedTaskId": "MVP-007",
+      "selectedCategory": "admin-ops-reporting",
+      "status": "completed",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
+    },
+    {
+      "runId": "20260519T193815Z-6d426bf8",
+      "timestamp": "2026-05-19T19:38:15.616Z",
+      "selectedTaskId": "MVP-011",
+      "selectedCategory": "student-workflow-evidence",
+      "status": "completed",
+      "changedFiles": [
+        "automation/qol/state/plan-index.json"
+      ]
     }
   ],
   "coverage": {
     "bySection": {
       "backend-security-data": {
-        "lastTouchedAt": "2026-05-19T19:02:36.442Z",
-        "count": 3
+        "lastTouchedAt": "2026-05-19T19:27:41.861Z",
+        "count": 4
       },
       "student-workflow-evidence": {
-        "lastTouchedAt": "2026-05-19T17:10:21.431Z",
-        "count": 1
+        "lastTouchedAt": "2026-05-19T19:38:15.616Z",
+        "count": 3
       },
       "Anti-Drift Rules": {
         "lastTouchedAt": "2026-05-19T17:11:24.551Z",
@@ -1064,16 +1124,16 @@
         "count": 5
       },
       "staff-review-mentor": {
-        "lastTouchedAt": "2026-05-19T19:02:24.991Z",
-        "count": 2
+        "lastTouchedAt": "2026-05-19T19:04:03.854Z",
+        "count": 3
       },
       "admin-ops-reporting": {
-        "lastTouchedAt": "2026-05-19T19:02:51.594Z",
-        "count": 2
+        "lastTouchedAt": "2026-05-19T19:28:17.841Z",
+        "count": 3
       },
       "deployment-qa": {
-        "lastTouchedAt": "2026-05-19T19:03:50.876Z",
-        "count": 3
+        "lastTouchedAt": "2026-05-19T19:27:36.142Z",
+        "count": 4
       },
       "Logging Requirements": {
         "lastTouchedAt": "2026-05-19T18:43:59.456Z",
@@ -1094,12 +1154,12 @@
     },
     "byCategory": {
       "backend-security-data": {
-        "lastTouchedAt": "2026-05-19T19:02:36.442Z",
-        "count": 3
+        "lastTouchedAt": "2026-05-19T19:27:41.861Z",
+        "count": 4
       },
       "student-workflow-evidence": {
-        "lastTouchedAt": "2026-05-19T17:10:21.431Z",
-        "count": 1
+        "lastTouchedAt": "2026-05-19T19:38:15.616Z",
+        "count": 3
       },
       "qol-automation": {
         "lastTouchedAt": "2026-05-19T18:44:17.114Z",
@@ -1110,16 +1170,16 @@
         "count": 6
       },
       "staff-review-mentor": {
-        "lastTouchedAt": "2026-05-19T19:02:24.991Z",
-        "count": 2
+        "lastTouchedAt": "2026-05-19T19:04:03.854Z",
+        "count": 3
       },
       "admin-ops-reporting": {
-        "lastTouchedAt": "2026-05-19T19:02:51.594Z",
-        "count": 2
+        "lastTouchedAt": "2026-05-19T19:28:17.841Z",
+        "count": 3
       },
       "deployment-qa": {
-        "lastTouchedAt": "2026-05-19T19:03:50.876Z",
-        "count": 3
+        "lastTouchedAt": "2026-05-19T19:27:36.142Z",
+        "count": 4
       },
       "design-assets-handoff": {
         "lastTouchedAt": "2026-05-19T19:01:40.950Z",
@@ -1127,12 +1187,12 @@
       }
     }
   },
-  "lastSelectedTaskId": "SC-004",
-  "lastSelectedCategory": "requirements-audit",
+  "lastSelectedTaskId": "MVP-011",
+  "lastSelectedCategory": "student-workflow-evidence",
   "pendingContinuation": null,
   "lastValidationResults": [
-    "All parsed plan tasks include status and acceptance or next action text."
+    "alpha flow test passed."
   ],
   "createdAt": "2026-05-19T17:09:35.539Z",
-  "updatedAt": "2026-05-19T19:03:52.907Z"
+  "updatedAt": "2026-05-19T19:38:15.616Z"
 }
