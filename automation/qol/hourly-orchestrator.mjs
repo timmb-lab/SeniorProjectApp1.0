@@ -1182,6 +1182,10 @@ function skippedFigmaLaneSummary(env = process.env) {
     figma_integration_status: enabled ? "FIGMA_PLUGIN_PAYLOAD_ONLY" : "FIGMA_UNAVAILABLE_DRY_RUN",
     figma_safety_status: enabled ? "DRY_RUN_ONLY" : "SKIPPED_DISABLED",
     figma_selected_design_task: null,
+    figma_patch_proposal_path: null,
+    figma_applied_change_summary: enabled
+      ? "Figma lane was not run by this QoL invocation."
+      : "Figma lane skipped because FIGMA_EVOLUTION_ENABLED is not true.",
     figma_dry_run: true,
     figma_lock_released: true,
   };
@@ -1569,6 +1573,8 @@ function buildRunReport({
     "figma_integration_status",
     "figma_safety_status",
     "figma_selected_design_task",
+    "figma_patch_proposal_path",
+    "figma_applied_change_summary",
     "figma_dry_run",
     "figma_lock_released",
   ];

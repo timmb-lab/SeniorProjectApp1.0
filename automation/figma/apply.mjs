@@ -31,6 +31,17 @@ export function detectFigmaIntegration(projectRoot, config, env = process.env) {
     };
   }
 
+  if (config.fileKeyRequired && !config.fileKeyPresent) {
+    return {
+      status: INTEGRATION_STATUSES.unavailableDryRun,
+      reachable: false,
+      toolReachable: false,
+      adapter: null,
+      safetyStatus: SAFETY_STATUSES.unknownUnconfigured,
+      detail: "FIGMA_FILE_KEY is required when FIGMA_EVOLUTION_ENABLED=true and FIGMA_MODE is not mock.",
+    };
+  }
+
   if (config.writerPath) {
     const absoluteWriter = assertInsideProjectRoot(projectRoot, config.writerPath, { mustExist: true });
     const health = spawnSync(process.execPath, [absoluteWriter, "--health"], {

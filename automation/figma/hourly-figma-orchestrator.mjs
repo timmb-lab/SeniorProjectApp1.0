@@ -216,6 +216,8 @@ export async function runHourly(options = {}) {
               result.safety_status =
                 integration.status === "FIGMA_AUTHORIZED_BUT_TOOL_UNREACHABLE"
                   ? SAFETY_STATUSES.authorizedButUnreachable
+                  : integration.safetyStatus === SAFETY_STATUSES.unknownUnconfigured
+                    ? SAFETY_STATUSES.unknownUnconfigured
                   : SAFETY_STATUSES.dryRunOnly;
             } else {
               applyOutcome = applyPlan(projectRoot, plan, config, integration, runContext);

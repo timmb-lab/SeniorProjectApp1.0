@@ -57,6 +57,8 @@ export function publicSummary(result) {
     figma_integration_status: result.figma_integration_status,
     figma_safety_status: result.safety_status,
     figma_selected_design_task: result.selected_design_task,
+    figma_patch_proposal_path: result.patch_proposal_path,
+    figma_applied_change_summary: result.applied_change_summary,
     figma_dry_run: result.dry_run,
     figma_lock_released: result.lock_released,
   };

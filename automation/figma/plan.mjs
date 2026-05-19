@@ -9,7 +9,6 @@ export const SCRIPT_VERSION = "0.1.0";
 export const ORCHESTRATOR_RELATIVE_PATH = "automation/figma/hourly-figma-orchestrator.mjs";
 export const DEFAULT_TARGET_PAGE = "Senior Capstone Automation Lab";
 export const DEFAULT_TARGET_FRAME = "Hourly Figma Evolution";
-export const DEFAULT_ACTIVE_FIGMA_FILE_KEY = "z4t4tFPAKrMDh6pIYOeEw6";
 export const DEFAULT_ACTIVE_FIGMA_LABEL = "Senior Capstone App - Product UI System Recreated";
 export const DEFAULT_STALE_LOCK_MS = 60 * 60 * 1000;
 
@@ -284,7 +283,8 @@ export function loadConfig(projectRoot, env = process.env) {
   const reportDir = env.FIGMA_REPORT_DIR || "automation/figma/reports";
   const patchDir = env.FIGMA_PATCH_DIR || "automation/figma/patches";
   const fixtureDir = env.FIGMA_FIXTURE_DIR || "automation/figma/fixtures";
-  const fileKey = env.FIGMA_FILE_KEY || DEFAULT_ACTIVE_FIGMA_FILE_KEY;
+  const mode = String(env.FIGMA_MODE || "mcp").trim().toLowerCase();
+  const fileKey = env.FIGMA_FILE_KEY || "";
   const maxTasksPerRun = Math.min(1, positiveInt(env.FIGMA_MAX_TASKS_PER_RUN, 1));
 
   for (const relativeDir of [stateDir, logDir, reportDir, patchDir, fixtureDir]) {
@@ -296,10 +296,11 @@ export function loadConfig(projectRoot, env = process.env) {
 
   return {
     enabled: envBool(env, "FIGMA_EVOLUTION_ENABLED"),
-    mode: String(env.FIGMA_MODE || "mcp").trim().toLowerCase(),
+    mode,
     fileKey,
     fileKeyPresent: Boolean(fileKey),
-    fileKeySource: env.FIGMA_FILE_KEY ? "env" : "repo-default",
+    fileKeyRequired: envBool(env, "FIGMA_EVOLUTION_ENABLED") && mode !== "mock",
+    fileKeySource: env.FIGMA_FILE_KEY ? "env" : "missing",
     targetPage: env.FIGMA_TARGET_PAGE || DEFAULT_TARGET_PAGE,
     targetFrame: env.FIGMA_TARGET_FRAME || DEFAULT_TARGET_FRAME,
     allowProductionMutation: envBool(env, "FIGMA_ALLOW_PRODUCTION_MUTATION"),

@@ -74,12 +74,26 @@ test("Figma doctor reports reachable and unreachable integration honestly", () =
   const unreachable = runNode(["automation/figma/doctor.mjs"], {
     FIGMA_EVOLUTION_ENABLED: "true",
     FIGMA_MODE: "mcp",
+    FIGMA_FILE_KEY: "test-file-key",
     FIGMA_MCP_WRITER_PATH: null,
   });
   assert.equal(unreachable.status, 0, unreachable.stderr);
   const unreachableJson = parseJson(unreachable.stdout);
   assert.equal(unreachableJson.figma_tool_reachable, false);
   assert.equal(unreachableJson.figma_integration_status, "FIGMA_AUTHORIZED_BUT_TOOL_UNREACHABLE");
+});
+
+test("Figma doctor requires explicit FIGMA_FILE_KEY for enabled non-mock mode", () => {
+  const result = runNode(["automation/figma/doctor.mjs"], {
+    FIGMA_EVOLUTION_ENABLED: "true",
+    FIGMA_MODE: "mcp",
+    FIGMA_FILE_KEY: null,
+  });
+  assert.equal(result.status, 0, result.stderr);
+  const json = parseJson(result.stdout);
+  assert.equal(json.figma_file_key_present, false);
+  assert.equal(json.safety_status, "UNKNOWN_FIGMA_UNCONFIGURED");
+  assert.equal(json.figma_integration_status, "FIGMA_UNAVAILABLE_DRY_RUN");
 });
 
 test("Figma hourly orchestrator writes automation/figma/reports/latest.md", async () => {
@@ -123,6 +137,7 @@ test("Dry-run mode never claims that Figma was mutated", async () => {
   const { base, env } = await caseEnv("dry-run", {
     FIGMA_EVOLUTION_ENABLED: "true",
     FIGMA_MODE: "mcp",
+    FIGMA_FILE_KEY: "test-file-key",
   });
   const result = runNode(["automation/figma/hourly-figma-orchestrator.mjs"], env);
   assert.equal(result.status, 0, result.stderr);
@@ -137,6 +152,7 @@ test("Selected design task advances state", async () => {
   const { base, env } = await caseEnv("state-advances", {
     FIGMA_EVOLUTION_ENABLED: "true",
     FIGMA_MODE: "mcp",
+    FIGMA_FILE_KEY: "test-file-key",
   });
   const result = runNode(["automation/figma/hourly-figma-orchestrator.mjs"], env);
   assert.equal(result.status, 0, result.stderr);
@@ -160,6 +176,29 @@ test("The main QoL latest report includes Figma lane status", async () => {
   assert.match(report, /## Figma Lane/);
   assert.match(report, /- figma_lane_enabled: `false`/);
   assert.match(report, /- figma_safety_status: `SKIPPED_DISABLED`/);
+});
+
+test("The main QoL report includes enabled Figma dry-run proposal status", async () => {
+  const result = runNode([
+    "automation/qol/hourly-orchestrator.mjs",
+    "--registry-evidence",
+    "tests/fixtures/qol-registry-single-active.json",
+  ], {
+    FIGMA_EVOLUTION_ENABLED: "true",
+    FIGMA_MODE: "mcp",
+    FIGMA_FILE_KEY: "test-file-key",
+  });
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+  const report = await readFile("automation/qol/reports/latest.md", "utf8");
+  assert.match(report, /## Figma Lane/);
+  assert.match(report, /- figma_lane_enabled: `true`/);
+  assert.match(report, /- figma_run_id: `20\d{6}T\d{6}Z-[a-f0-9]+`/);
+  assert.match(report, /- figma_integration_status: `FIGMA_AUTHORIZED_BUT_TOOL_UNREACHABLE`/);
+  assert.match(report, /- figma_safety_status: `FIGMA_AUTHORIZED_BUT_TOOL_UNREACHABLE`/);
+  assert.match(report, /- figma_patch_proposal_path: `automation\/figma\/patches\/.+\.json`/);
+  assert.match(report, /- figma_applied_change_summary: `No Figma canvas mutation was applied\.`/);
+  assert.match(report, /- figma_dry_run: `true`/);
+  assert.match(report, /- figma_lock_released: `true`/);
 });
 
 test("Secrets are never printed in Figma reports or logs", async () => {
@@ -232,6 +271,7 @@ test("Disallowed destructive actions are rejected by the planner layer", () => {
   const config = loadConfig(projectRoot, {
     FIGMA_EVOLUTION_ENABLED: "true",
     FIGMA_MODE: "mcp",
+    FIGMA_FILE_KEY: "test-file-key",
   });
   assert.throws(
     () =>

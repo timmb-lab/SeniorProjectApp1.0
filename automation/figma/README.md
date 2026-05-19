@@ -12,10 +12,11 @@ Default behavior is safe:
 Manual dry-run/canary command:
 
 ```powershell
-$env:FIGMA_EVOLUTION_ENABLED="true"; $env:FIGMA_MODE="mcp"; node automation/figma/hourly-figma-orchestrator.mjs
+$env:FIGMA_EVOLUTION_ENABLED="true"; $env:FIGMA_MODE="mcp"; $env:FIGMA_FILE_KEY="<target file key>"; node automation/figma/hourly-figma-orchestrator.mjs
 ```
 
 That command creates or updates only `automation/figma/state`, `automation/figma/logs`, `automation/figma/reports`, and `automation/figma/patches` unless a reachable writer adapter is explicitly configured.
+Enabled non-mock modes require `FIGMA_FILE_KEY` from the environment so a live Figma target is never selected by repo default.
 
 Local mock command for tests only:
 
