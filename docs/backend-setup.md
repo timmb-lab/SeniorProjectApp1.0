@@ -32,7 +32,7 @@ Seeded records:
 - 9 CTE programs.
 - Default Google Drive evidence repository row pointing at the evidence root folder and index sheet.
 - First real admin account: `bryan.timm89@gmail.com`.
-- 4 fake `.test` alpha accounts: one student, one program teacher, one mentor, and one misc-admin reporting account, with cohort/group/mentor/proposal/progress/submission/evidence fixtures.
+- 5 fake `.test` alpha accounts: one student, one program teacher, one mentor, one admin, and one misc-admin reporting account, with cohort/group/mentor/proposal/progress/submission/evidence fixtures.
 
 ## Auth Boundary
 
@@ -49,13 +49,14 @@ The pilot auth flow uses:
 
 ## Production Test Accounts
 
-The production D1 database is working and currently has 5 active users: Bryan's real admin account plus 4 fake alpha test accounts. Test credentials were generated into ignored local storage at `.secrets/test-accounts-2026-05-18.json`; do not commit, paste, or expose those passwords.
+The production D1 database has been verified with Bryan's real admin account plus fake alpha test accounts. After reseeding with the current endpoint, the fake account set includes 5 `.test` users. Test credentials are generated into ignored local storage at `.secrets/test-accounts-2026-05-18.json`; do not commit, paste, or expose those passwords.
 
 Seeded test accounts:
 
 - `maya.student@senior-capstone.test` - student.
 - `chen.teacher@senior-capstone.test` - program teacher scoped to IT.
 - `rivera.mentor@senior-capstone.test` - mentor assigned to the test student.
+- `lee.admin@senior-capstone.test` - admin.
 - `reporting.miscadmin@senior-capstone.test` - misc admin scoped to alpha-readiness reporting.
 
 These accounts are fake alpha data only. They are safe for role-flow testing but are not the final account lifecycle, import, password-reset, or district SSO replacement.

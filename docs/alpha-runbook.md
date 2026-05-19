@@ -56,11 +56,12 @@ Expected result:
 
 ## Optional Login Smoke Accounts
 
-Four fake `.test` accounts now exist in production D1 for alpha login/session checks. Passwords are stored only in ignored local `.secrets/test-accounts-2026-05-18.json` and must not be copied into docs or screenshots.
+Five fake `.test` accounts exist for alpha login/session checks. Passwords are stored only in ignored local `.secrets/test-accounts-2026-05-18.json` and must not be copied into docs or screenshots.
 
 - `maya.student@senior-capstone.test` - student.
 - `chen.teacher@senior-capstone.test` - program teacher.
 - `rivera.mentor@senior-capstone.test` - mentor.
+- `lee.admin@senior-capstone.test` - admin.
 - `reporting.miscadmin@senior-capstone.test` - misc admin.
 
 ## Validation
@@ -86,7 +87,8 @@ npm run deploy:preview
 ## Current Alpha Coverage
 
 - D1-backed seeded alpha state through `/api/alpha/state`.
-- Login-verified fake `.test` role accounts for student, program teacher, mentor, and misc admin.
+- Login-verified fake `.test` role accounts for student, program teacher, mentor, admin, and misc admin.
+- Initial D1-backed workflow endpoints exist for student dashboard reads, student submission, and teacher/admin review decisions.
 - Account smoke page for fake account login/session/logout and protected evidence access checks.
 - Account smoke page compares protected-evidence allow/deny results against the active fake account and flags unexpected scope behavior.
 - Account smoke page includes a role-scope checklist, readable health readiness summary, copyable session summary, and one-click smoke sequence.
