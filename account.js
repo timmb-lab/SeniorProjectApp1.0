@@ -33,6 +33,17 @@ const TEST_ACCOUNTS = [
     expectation: "Should pass because this mentor is assigned to Maya's alpha project.",
   },
   {
+    key: "admin",
+    label: "Admin",
+    email: "lee.admin@senior-capstone.test",
+    expected: "Can sign in and access protected alpha evidence through global admin scope.",
+    expectedRole: "admin",
+    expectedScopeType: "global",
+    expectedScopeId: "",
+    expectedEvidenceAccess: "allowed",
+    expectation: "Should pass protected evidence checks through the fake global admin role.",
+  },
+  {
     key: "misc_admin",
     label: "Misc Admin",
     email: "reporting.miscadmin@senior-capstone.test",
