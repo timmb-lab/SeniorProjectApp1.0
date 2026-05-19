@@ -89,11 +89,11 @@ If those account/provisioning pieces are missing, rebuild should still scaffold 
 
 Bryan explicitly rebuilt the project automation from scratch into ten focused QoL target groups: source framework seed, Drive upload/OAuth, protected evidence tests, teacher review endpoints, immutable review history, mentor presentation flow, admin ops endpoints, announcements, account lifecycle, and Cloudflare verification. The live registry represents that as thirty single-slot automations, three per QoL target, because a single automation with multiple daily BYHOUR values was not reliably firing.
 
-After the overnight May 18-19 audit, Slot 2 and Slot 3 are paused reserve capacity. Slot 1 remains active for all ten QoL targets, giving the project one daily burn-down pass per target while write access and policy blockers are repaired. Do not reactivate the paused companions until a live audit shows the active Slot 1 runners can write, validate, commit, and push again.
+After Bryan's 2026-05-19 review, all three slots are active again so the project receives the intended three daily QoL passes per target. The overnight May 18-19 audit still matters as a preflight lesson: runs should fail fast with exact blockers when write/tool access is unavailable, but Slot 2 and Slot 3 should not be paused again without a fresh user request.
 
 ## Category Runner No-Intervention Contract
 
-The Senior Capstone automation system now uses ten active Slot 1 QoL runners plus twenty paused reserve companions. Together, the active runners run 10 times per day on a staggered schedule recorded in `docs/automation-cadence.md`, with no shared scheduled start slots. The older orchestrator, standby lanes, daily prototype job, separate weekly audit job, broad seven-category runners, brief hourly escalation, and 20x category system are superseded by these QoL runners.
+The Senior Capstone automation system now uses thirty active single-slot QoL runners. Together, they run 30 times per day on a staggered schedule recorded in `docs/automation-cadence.md`, with no shared scheduled start slots. The older orchestrator, standby lanes, daily prototype job, separate weekly audit job, broad seven-category runners, brief hourly escalation, and 20x category system are superseded by these QoL runners.
 
 Each QoL runner should resolve everything it can resolve from accepted docs, repo evidence, saved connector approvals, and safe fallbacks. It should not stop for a human when it can:
 
@@ -120,7 +120,7 @@ For automation maintenance, only touch automation related to this project: local
 Every QoL run must spend the first minute proving it can do useful work before it opens large context:
 
 - Run `git status --short --branch`.
-- Confirm the current automation is not a paused reserve Slot 2 or Slot 3 runner.
+- Confirm the current automation is one of the thirty active Senior Capstone QoL runners.
 - Confirm repo writes are available by planning a tiny repo-owned log/manifest update before broad inspection. Do not make throwaway files.
 - Confirm command execution can run the bundled or PATH Node/PowerShell path needed for repo checks.
 - If `apply_patch`, shell execution, `$CODEX_HOME` reads, Git LFS, Node/npm, or commit/push is blocked by policy, stop the product slice immediately and leave the shortest possible blocker closeout with the exact command/error and next action. Do not spend a full run rediscovering the same read-only state.
@@ -137,7 +137,7 @@ QoL automations should avoid giant context loads. Every run reads the required a
 
 ## 30-Day Efficiency Auto-Scaling Protocol
 
-The current burn-down cadence is 10 active starts/day, with twenty paused reserve starts/day available only after write access and accepted-pass conversion improve. Scaling should first improve conversion, target selection, and blocker burn-down, not simply add starts.
+The current full-QoL cadence is 30 active starts/day. Scaling should first improve conversion, target selection, and blocker burn-down, not add more starts.
 
 Use this command for explicit automation audits and Sunday calibration:
 
@@ -147,18 +147,17 @@ powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\me
 
 Use `-OutputPath <path>` when a scheduled run should save the JSON scorecard as a durable artifact before logging or summarizing it.
 
-The efficiency scorecard measures active QoL automation count, daily start capacity, 30-day start capacity, minimum spacing, observed run manifests, accepted-pass telemetry, requirement IDs seen, and QoL automations with no observed manifest. Since the May 19 burn-down adjustment, active QoL automation count should be 10 while daily active start capacity remains 10.
+The efficiency scorecard measures active QoL automation count, daily start capacity, 30-day start capacity, minimum spacing, observed run manifests, accepted-pass telemetry, requirement IDs seen, and QoL automations with no observed manifest. Since the May 19 full-QoL reactivation, active QoL automation count should be 30 while daily active start capacity remains 30.
 
 Scaling rules:
 
-- Keep the 10-start/day burn-down schedule until a live audit shows the active runners can produce durable commits or exact committed blockers.
-- Minimum 30-day target is 60 accepted MVP passes; stretch is 90. With 300 active scheduled starts in 30 days during burn-down mode, the system needs 20 percent accepted-pass conversion for minimum and 30 percent for stretch.
-- While burn-down mode is active, the effective conversion target is higher: 60 accepted MVP passes from 300 active starts requires 20 percent conversion, and 90 requires 30 percent. If that is unrealistic, weekly calibration should lower the accepted-pass target or explicitly reactivate reserve slots after write access is fixed.
+- Keep the 30-start/day full-QoL schedule unless Bryan explicitly asks to change it or evidence shows this project-specific cadence is harming output.
+- Minimum 30-day target is 60 accepted MVP passes; stretch is 90. With 900 active scheduled starts in 30 days, the system needs 6.67 percent accepted-pass conversion for minimum and 10 percent for stretch.
 - If accepted-pass conversion is below target, retarget the next week toward implementation, tests, deployment proof, exact blockers, and high-risk requirements before adding more runs.
 - If a QoL automation has no accepted evidence or exact blocker after seven days, sharpen its backlog item, prompt instructions, or handoff before changing cadence.
 - If run duration or dirty-worktree collisions repeatedly exceed the 48-minute start spacing, reduce collision risk by selecting non-conflicting verification slices, narrowing prompts, or recommending a schedule adjustment for Bryan.
 - If blockers dominate a QoL area, the automation should commit one precise blocker with the account/tool/policy action required and then move to adjacent non-blocked evidence in its scope.
-- If the project exceeds the stretch target with low collision risk, keep cadence stable and tighten acceptance quality; do not chase more starts for its own sake. Reactivate Slot 2 first, then Slot 3, only when duplicate capacity is likely to land real work.
+- If the project exceeds the stretch target with low collision risk, keep cadence stable and tighten acceptance quality; do not chase more starts for its own sake.
 
 New run manifests should include `accepted_mvp_pass`, `requirement_ids`, `duration_minutes`, `output_kind`, and `automation_efficiency.scale_signal` so the weekly source-framework/catalog runner can retarget from evidence instead of guessing. `scripts/check-automation-contract.ps1` enforces those fields for manifests at or after the 2026-05-18 14:47 PT efficiency-audit cutoff.
 
@@ -247,7 +246,7 @@ Each run chooses exactly one bounded scope.
 
 ## Daily Goal And Weekly Calibration
 
-For this Senior Capstone project only, the current 100-pass / roughly 45-day MVP target translates to a real daily goal of at least 2 accepted MVP passes per calendar day, with 3 accepted passes as the stretch goal when the repo is unblocked. The current 10 active QoL starts are burn-down execution capacity, with 20 paused reserve starts available only after write access and conversion recover; scheduled starts are not accepted passes.
+For this Senior Capstone project only, the current 100-pass / roughly 45-day MVP target translates to a real daily goal of at least 2 accepted MVP passes per calendar day, with 3 accepted passes as the stretch goal when the repo is unblocked. The current 30 active QoL starts are execution capacity; scheduled starts are not accepted passes.
 
 An accepted MVP pass must leave durable evidence: a pushed commit or published external artifact recorded in the repo, plus validation or a concrete blocker that reduces MVP ambiguity. The first two accepted passes each day should usually be implementation-heavy while `SC-005` remains open.
 

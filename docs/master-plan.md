@@ -253,7 +253,7 @@ The target is not "100 design passes." It is 100 total compounding passes toward
 
 ### Real Daily MVP Goal
 
-The current QoL burn-down schedule provides 10 active targeted starts per day, with 20 paused reserve starts preserved for later reactivation. The real delivery goal is evidence-based accepted MVP progress, not counted scheduled starts every day.
+The current QoL schedule provides 30 active targeted starts per day, three per QoL target. The real delivery goal is evidence-based accepted MVP progress, not counted scheduled starts every day.
 
 For the current 45-day / 100-pass target, use this daily goal:
 
@@ -273,7 +273,7 @@ Daily priority order:
 
 Weekly adjustment rule for this project only: `senior-capstone-qol-source-framework-seed-2` reviews the last seven days of run manifests, run log entries, commits, backlog movement, handoffs, and audit findings on Sundays. It then updates this master plan, `docs/automation-memory.md`, and `docs/mvp-requirements-catalog.md` with the next week's daily goal/allocation if evidence shows the plan is too loose, too aggressive, or pointed at the wrong QoL target.
 
-30-day efficiency rule: use `scripts/measure-automation-efficiency.ps1` to audit the active automation system before changing cadence. The current burn-down system creates 300 active scheduled starts in 30 days; it needs 60 accepted MVP passes for the minimum target and 90 for the stretch target, so it needs 20 percent conversion for minimum and 30 percent for stretch while Slot 2/3 remain paused. Auto-scaling should retarget QoL focus, blockers, prompt clarity, and acceptance checks from evidence before recommending schedule reactivation.
+30-day efficiency rule: use `scripts/measure-automation-efficiency.ps1` to audit the active automation system before changing cadence. The current 30-start/day QoL system creates 900 active scheduled starts in 30 days; it needs 60 accepted MVP passes for the minimum target and 90 for the stretch target, so it needs 6.67 percent conversion for minimum and 10 percent for stretch. Auto-scaling should retarget QoL focus, blockers, prompt clarity, and acceptance checks from evidence before recommending schedule changes.
 
 ### 2026-05-18 Baseline After Figma And Automation Catch-Up
 
@@ -341,20 +341,20 @@ A-material automation means each productive run must do one of three things: lan
 
 ### 2026-05-18 QoL Automation Rebuild
 
-Bryan then requested deleting all project automation and rebuilding from scratch so every listed unfinished QoL item gets at least three passes per day without concentrating token use in a few broad runners. On 2026-05-18, Bryan reported that multiple daily times inside one automation were not reliably firing, so the Codex GUI-facing source of truth became thirty single-slot QoL automations grouped into ten targets. After the May 18-19 overnight audit showed most runs were blocked before durable writes, current burn-down mode keeps the Slot 1 automation in each group active and pauses the Slot 2/3 companions as reserve capacity:
+Bryan then requested deleting all project automation and rebuilding from scratch so every listed unfinished QoL item gets at least three passes per day without concentrating token use in a few broad runners. On 2026-05-18, Bryan reported that multiple daily times inside one automation were not reliably firing, so the Codex GUI-facing source of truth became thirty single-slot QoL automations grouped into ten targets. After Bryan's 2026-05-19 review, all thirty single-slot QoL automations are active again:
 
-- Source framework seed: ACTIVE `senior-capstone-qol-source-framework-seed-2` at `00:03`; PAUSED `senior-capstone-qol-source-framework-seed-slot-2` at `08:03` and `senior-capstone-qol-source-framework-seed-slot-3` at `16:03`.
-- Drive upload OAuth: ACTIVE `senior-capstone-qol-drive-upload-oauth-2` at `00:51`; PAUSED `senior-capstone-qol-drive-upload-oauth-slot-2` at `08:51` and `senior-capstone-qol-drive-upload-oauth-slot-3` at `16:51`.
-- Protected evidence tests: ACTIVE `senior-capstone-qol-protected-evidence-tests-2` at `01:39`; PAUSED `senior-capstone-qol-protected-evidence-tests-slot-2` at `09:39` and `senior-capstone-qol-protected-evidence-tests-slot-3` at `17:39`.
-- Teacher review endpoints: ACTIVE `senior-capstone-qol-teacher-review-endpoints-2` at `02:27`; PAUSED `senior-capstone-qol-teacher-review-endpoints-slot-2` at `10:27` and `senior-capstone-qol-teacher-review-endpoints-slot-3` at `18:27`.
-- Immutable review history: ACTIVE `senior-capstone-qol-immutable-review-history-2` at `03:15`; PAUSED `senior-capstone-qol-immutable-review-history-slot-2` at `11:15` and `senior-capstone-qol-immutable-review-history-slot-3` at `19:15`.
-- Mentor presentation flow: ACTIVE `senior-capstone-qol-mentor-presentation-flow-2` at `04:03`; PAUSED `senior-capstone-qol-mentor-presentation-flow-slot-2` at `12:03` and `senior-capstone-qol-mentor-presentation-flow-slot-3` at `20:03`.
-- Admin ops endpoints: ACTIVE `senior-capstone-qol-admin-ops-endpoints-2` at `04:51`; PAUSED `senior-capstone-qol-admin-ops-endpoints-slot-2` at `12:51` and `senior-capstone-qol-admin-ops-endpoints-slot-3` at `20:51`.
-- Announcements: ACTIVE `senior-capstone-qol-announcements-2` at `05:39`; PAUSED `senior-capstone-qol-announcements-slot-2` at `13:39` and `senior-capstone-qol-announcements-slot-3` at `21:39`.
-- Account lifecycle: ACTIVE `senior-capstone-qol-account-lifecycle-2` at `06:27`; PAUSED `senior-capstone-qol-account-lifecycle-slot-2` at `14:27` and `senior-capstone-qol-account-lifecycle-slot-3` at `22:27`.
-- Cloudflare verification: ACTIVE `senior-capstone-qol-cloudflare-verification-2` at `07:15`; PAUSED `senior-capstone-qol-cloudflare-verification-slot-2` at `15:15` and `senior-capstone-qol-cloudflare-verification-slot-3` at `23:15`.
+- Source framework seed: `senior-capstone-qol-source-framework-seed-2` at `00:03`, `senior-capstone-qol-source-framework-seed-slot-2` at `08:03`, and `senior-capstone-qol-source-framework-seed-slot-3` at `16:03`.
+- Drive upload OAuth: `senior-capstone-qol-drive-upload-oauth-2` at `00:51`, `senior-capstone-qol-drive-upload-oauth-slot-2` at `08:51`, and `senior-capstone-qol-drive-upload-oauth-slot-3` at `16:51`.
+- Protected evidence tests: `senior-capstone-qol-protected-evidence-tests-2` at `01:39`, `senior-capstone-qol-protected-evidence-tests-slot-2` at `09:39`, and `senior-capstone-qol-protected-evidence-tests-slot-3` at `17:39`.
+- Teacher review endpoints: `senior-capstone-qol-teacher-review-endpoints-2` at `02:27`, `senior-capstone-qol-teacher-review-endpoints-slot-2` at `10:27`, and `senior-capstone-qol-teacher-review-endpoints-slot-3` at `18:27`.
+- Immutable review history: `senior-capstone-qol-immutable-review-history-2` at `03:15`, `senior-capstone-qol-immutable-review-history-slot-2` at `11:15`, and `senior-capstone-qol-immutable-review-history-slot-3` at `19:15`.
+- Mentor presentation flow: `senior-capstone-qol-mentor-presentation-flow-2` at `04:03`, `senior-capstone-qol-mentor-presentation-flow-slot-2` at `12:03`, and `senior-capstone-qol-mentor-presentation-flow-slot-3` at `20:03`.
+- Admin ops endpoints: `senior-capstone-qol-admin-ops-endpoints-2` at `04:51`, `senior-capstone-qol-admin-ops-endpoints-slot-2` at `12:51`, and `senior-capstone-qol-admin-ops-endpoints-slot-3` at `20:51`.
+- Announcements: `senior-capstone-qol-announcements-2` at `05:39`, `senior-capstone-qol-announcements-slot-2` at `13:39`, and `senior-capstone-qol-announcements-slot-3` at `21:39`.
+- Account lifecycle: `senior-capstone-qol-account-lifecycle-2` at `06:27`, `senior-capstone-qol-account-lifecycle-slot-2` at `14:27`, and `senior-capstone-qol-account-lifecycle-slot-3` at `22:27`.
+- Cloudflare verification: `senior-capstone-qol-cloudflare-verification-2` at `07:15`, `senior-capstone-qol-cloudflare-verification-slot-2` at `15:15`, and `senior-capstone-qol-cloudflare-verification-slot-3` at `23:15`.
 
-Each QoL automation stays narrow, names requirement IDs, respects the token budget guardrail, applies the surface expansion rule, validates, logs, commits, and pushes. The schedule is currently 10 active starts/day, one per QoL target, while the paused Slot 2/3 jobs preserve the single-slot registry shape for future reactivation. The schedule is execution capacity, not an accepted-pass count.
+Each QoL automation stays narrow, names requirement IDs, respects the token budget guardrail, applies the surface expansion rule, validates, logs, commits, and pushes. The schedule is 30 active starts/day and 3 starts/day per QoL target. The schedule is execution capacity, not an accepted-pass count.
 
 ### Updated 100-Pass Allocation From Current State
 

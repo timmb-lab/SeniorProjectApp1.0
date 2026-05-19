@@ -2,7 +2,7 @@
 
 Date: 2026-05-18
 
-Bryan explicitly reset the Senior Capstone automation setup on 2026-05-18, then explicitly rebuilt it again as a focused QoL system. All prior project automation TOMLs are deleted. After the overnight May 18-19 audit showed 53 of 54 runs were read-only or policy-blocked, the current production cadence is burn-down mode: ten GUI-managed Slot 1 Senior Capstone QoL automations remain active, each with one daily start in America/Los_Angeles, while the Slot 2 and Slot 3 companion automations are paused reserve capacity.
+Bryan explicitly reset the Senior Capstone automation setup on 2026-05-18, then explicitly rebuilt it again as a focused QoL system. All prior project automation TOMLs are deleted. The current production cadence is the full QoL timeline: thirty GUI-managed single-slot Senior Capstone QoL automations are active, three per QoL target, each with one daily start in America/Los_Angeles. The brief May 19 burn-down pause is superseded because Bryan clarified that the QoL timeline should keep multiple daily passes active.
 
 End goal: a GitHub-to-Cloudflare hosted Senior Capstone app whose MVP is a secure database-backed operating system with users, groups, roles, programs, cohorts, progress updates, submissions, private evidence, reviews, approvals, dashboards, announcements, admin controls, audit logs, exports, and protected student records.
 
@@ -24,7 +24,7 @@ Npm/CI wrapper: `scripts/run-powershell-script.mjs`.
 
 ## QoL Automation Registry
 
-Current active starts are the Slot 1 rows at `00:03` through `07:15` PT. Slot 2 and Slot 3 rows are intentionally paused until a live audit shows writable runs can land and push changes again.
+Current active starts are all rows from `00:03` through `23:15` PT. Slot 1, Slot 2, and Slot 3 are all active so every QoL target gets three daily passes.
 
 | QoL target | Automation ID | Schedule PT | Primary output |
 | --- | --- | --- | --- |
@@ -59,9 +59,9 @@ Current active starts are the Slot 1 rows at `00:03` through `07:15` PT. Slot 2 
 | Account lifecycle | `senior-capstone-qol-account-lifecycle-slot-3` | `22:27` | Invitations/imports, password reset, credential rotation, sessions, role scopes. |
 | Cloudflare verification | `senior-capstone-qol-cloudflare-verification-slot-3` | `23:15` | Post-push Pages/D1/env verification, CI, smoke checks, secrets, blockers. |
 
-This now creates 10 active Senior Capstone starts per day across the project, one per QoL target. The paused companions preserve the single-slot pattern that fixed multi-BYHOUR reliability, but they should not be reactivated until accepted-pass conversion and write access recover. The active start slots are staggered with no exact overlaps and at least 45 minutes between starts. Each runner must keep its own slice bounded, favor implementation or verification evidence, and must not overwrite unrelated dirty work. If the worktree is dirty because another QoL run is still closing, the runner should classify the dirty files, avoid staging unrelated changes, and either pick a non-conflicting read-only/verification slice or record a compact committed blocker.
+This now creates 30 active Senior Capstone starts per day across the project, three per QoL target. The single-slot pattern preserves the reliability fix for multi-BYHOUR scheduling while keeping the intended QoL timeline active. The active start slots are staggered with no exact overlaps and at least 45 minutes between starts. Each runner must keep its own slice bounded, favor implementation or verification evidence, and must not overwrite unrelated dirty work. If the worktree is dirty because another QoL run is still closing, the runner should classify the dirty files, avoid staging unrelated changes, and either pick a non-conflicting verification slice or record a compact committed blocker.
 
-The original `-2` suffixes are the app-managed GUI Slot 1 automation IDs created after the original direct-file TOMLs were found to be orphaned from the Codex automation app. The `slot-2` and `slot-3` IDs are app-managed single-slot companions added on 2026-05-18 because a single automation with multiple daily BYHOUR values was not reliably firing; they are now paused reserve slots after the May 18-19 overnight audit showed duplicate runs mostly reproduced read-only blockers.
+The original `-2` suffixes are the app-managed GUI Slot 1 automation IDs created after the original direct-file TOMLs were found to be orphaned from the Codex automation app. The `slot-2` and `slot-3` IDs are app-managed single-slot companions added on 2026-05-18 because a single automation with multiple daily BYHOUR values was not reliably firing; they are active again after Bryan clarified on 2026-05-19 that the QoL timeline needs multiple daily runs.
 
 ## Shared Operating Contract
 
@@ -133,15 +133,15 @@ Run this scorecard during explicit automation audits and Sunday calibration:
 powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\measure-automation-efficiency.ps1 -RepoRoot . -Days 30
 ```
 
-Current burn-down scale math:
+Current full-QoL scale math:
 
-- 10 active scheduled starts/day.
-- 300 active scheduled starts per 30 days.
+- 30 active scheduled starts/day.
+- 900 active scheduled starts per 30 days.
 - Minimum target: 60 accepted MVP passes per 30 days.
 - Stretch target: 90 accepted MVP passes per 30 days.
-- Required conversion: 20 percent for minimum, 30 percent for stretch while burn-down mode is active.
+- Required conversion: 6.67 percent for minimum, 10 percent for stretch.
 
-Auto-scaling means retargeting the next week's QoL focus and acceptance checks from evidence before changing the schedule. The May 18-19 overnight audit is the current evidence for reducing duplicate starts: most runs were blocked before write/verification/commit, so the immediate goal is to prove the 10 active Slot 1 runners can land durable changes before reactivating Slot 2 or Slot 3.
+Auto-scaling means retargeting the next week's QoL focus and acceptance checks from evidence before changing the schedule. The May 18-19 overnight audit still justifies the writable preflight and exact blocker rule, but it no longer justifies pausing Slot 2 or Slot 3 without a fresh user request.
 
 ## Commit Prefixes
 

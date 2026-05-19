@@ -282,4 +282,17 @@ Each audit run should append a dated entry with:
 - `files changed`: live/local Codex QoL automation TOMLs, `scripts/automation-config.json`, `scripts/check-automation-contract.ps1`, `scripts/measure-automation-efficiency.ps1`, `docs/automation-cadence.md`, `docs/automation-runbook.md`, `docs/automation-self-improvement.md`, `docs/automation-memory.md`, `docs/master-plan.md`, `docs/progress/decision-log.md`, `docs/progress/audit.md`, `docs/progress/run-log.md`, and the burn-down run manifest.
 - `validation`: local registry verification reported 10 ACTIVE Slot 1 automations and 20 PAUSED Slot 2/3 automations. Strict live automation contract passed for 30 QoL automations and 2 support automations. The efficiency scorecard reported 10 active QoL automations, 10 starts/day, 300 starts/30 days, 48-minute minimum spacing, and 20/30 percent minimum/stretch conversion thresholds.
 - `self-improvement`: added a writable preflight rule and burn-down cadence contract so future runs stop early with exact blockers instead of spending duplicate runs against the same read-only/policy limits.
-- `next action`: keep burn-down mode until active Slot 1 runs demonstrate durable write/validation/commit/push closeout; reactivate Slot 2 first only when that evidence exists.
+- `next action`: superseded at 05:55 PT by full QoL cadence reactivation; keep the writable preflight lesson, but do not keep burn-down mode.
+
+### 2026-05-19 05:55 PT - Full QoL Cadence Reactivation
+
+- `automation`: manual project-only correction after Bryan clarified that 10 active runs was too little for the QoL timeline.
+- `master-plan section`: QoL Automation Rebuild; Real Daily MVP Goal; 30-Day Efficiency Auto-Scaling Audit.
+- `scope`: Review all Senior Capstone QoL automations only and restore the intended three daily passes per QoL target.
+- `finding`: The burn-down pause protected against duplicate blocked runs but conflicted with Bryan's expected QoL cadence. The right fix is to keep the writable preflight/exact-blocker guardrails while restoring the full active schedule.
+- `live automations changed`: All twenty Slot 2/3 companion automations were changed from PAUSED to ACTIVE. Slot 1 stayed ACTIVE. The live registry now has 30 ACTIVE QoL automations and 0 PAUSED QoL automations.
+- `script changes`: `scripts/automation-config.json` now expects every QoL automation to be ACTIVE, records all 30 expected active daily times, and sets `expectedActiveQoLStartsPerDay = 30`.
+- `files changed`: live/local Codex QoL automation TOMLs, `scripts/automation-config.json`, automation docs, master plan, decision log, audit log, run log, and the full-cadence run manifest.
+- `validation`: strict live automation contract passed for 30 QoL automations and 2 support automations. The efficiency scorecard reported 30 active QoL automations, 30 starts/day, 900 starts/30 days, 48-minute minimum spacing, and 6.67/10 percent minimum/stretch conversion thresholds. JSON parse and `git diff --check` passed, with only normal CRLF warnings.
+- `self-improvement`: superseded the burn-down decision so future automation audits do not pause Slot 2/3 again without a fresh user request.
+- `next action`: leave all 30 QoL starts active and use preflight/blocker quality to control waste.

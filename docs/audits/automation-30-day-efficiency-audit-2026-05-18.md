@@ -6,7 +6,9 @@ Scope: audit the current Senior Capstone QoL automation system for efficient sel
 
 Update 2026-05-18 17:38 PT: the live registry was later split from 10 compound QoL automations into 30 single-slot QoL automations because compound multiple-BYHOUR schedules were not reliably firing. Daily start capacity remained 30, 30-day capacity remained 900, and minimum spacing remained 48 minutes at that point.
 
-Update 2026-05-19 05:35 PT: Bryan asked to audit the overnight runs and adjust the QoL automation. The scheduler fired reliably, but 53 of 54 runs were blocked or only partially useful, mostly because scheduled sessions could not write/apply patches, read `$CODEX_HOME`, run Node/npm, or complete commit/push closeout. The current operating mode is burn-down: 10 active Slot 1 QoL starts/day, 20 paused Slot 2/3 reserve starts/day, 300 active starts per 30 days, 20 percent conversion needed for the 2/day minimum, and 30 percent conversion needed for the 3/day stretch.
+Update 2026-05-19 05:35 PT: Bryan asked to audit the overnight runs and adjust the QoL automation. The scheduler fired reliably, but 53 of 54 runs were blocked or only partially useful, mostly because scheduled sessions could not write/apply patches, read `$CODEX_HOME`, run Node/npm, or complete commit/push closeout. The temporary operating mode became burn-down: 10 active Slot 1 QoL starts/day, 20 paused Slot 2/3 reserve starts/day, 300 active starts per 30 days, 20 percent conversion needed for the 2/day minimum, and 30 percent conversion needed for the 3/day stretch. This was superseded later the same morning.
+
+Update 2026-05-19 05:55 PT: Bryan clarified that burn-down mode was too little for the QoL timeline. The current operating mode is full QoL cadence again: 30 active single-slot QoL starts/day, 0 paused QoL starts, 900 active starts per 30 days, 6.67 percent conversion needed for the 2/day minimum, and 10 percent conversion needed for the 3/day stretch. Keep writable preflight and exact-blocker closeout; do not pause Slot 2/3 again without a fresh user request.
 
 ## Executive Finding
 
@@ -28,7 +30,7 @@ Adding more starts before measuring conversion would create churn risk. The righ
 - At audit time, each target ran exactly 3x/day through one compound automation.
 - The schedule creates 30 starts/day with no exact overlaps.
 - Minimum start spacing is 48 minutes.
-- At audit time, `scripts/check-automation-contract.ps1` enforced the exact 10 IDs, names, schedules, status, prompt fragments, prompt snapshot hashes, full `MVP-001` through `MVP-030` coverage, JSON parsing, and non-interactive script rules. It now enforces the exact 30 single-slot QoL registry while checking the May 19 burn-down active set separately.
+- At audit time, `scripts/check-automation-contract.ps1` enforced the exact 10 IDs, names, schedules, status, prompt fragments, prompt snapshot hashes, full `MVP-001` through `MVP-030` coverage, JSON parsing, and non-interactive script rules. It now enforces the exact 30 single-slot QoL registry and the full 30-active-start cadence.
 - The QoL split is efficient: each runner owns a concrete unfinished MVP gap instead of one giant all-purpose prompt.
 - The full Figma prototype now exists, so design should no longer consume broad capacity unless implementation hits a specific route/data/permission ambiguity.
 
@@ -68,7 +70,7 @@ powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\me
 
 Scale decisions:
 
-- Superseded by the May 19 burn-down adjustment: keep 10 active Slot 1 starts/day and 20 paused reserve starts/day until writable runs recover.
+- Superseded by the later May 19 full-cadence reactivation: keep all 30 QoL starts/day active unless Bryan explicitly asks to change cadence again.
 - If conversion is below target, retarget toward implementation, tests, deployment proof, exact blockers, and high-risk requirements.
 - If a QoL runner has no accepted evidence or exact blocker after seven days, sharpen its backlog item, handoff, or prompt instructions.
 - If duration or dirty-worktree collisions repeatedly exceed the 48-minute spacing, reduce collision risk before adding starts.
@@ -77,7 +79,7 @@ Scale decisions:
 
 ## Current Recommendation
 
-Superseded recommendation after the May 19 overnight audit: keep the single-slot registry, but operate in burn-down mode with 10 active Slot 1 starts/day and 20 paused Slot 2/3 reserve starts/day. Do not add or reactivate starts until active runners can land durable writes or exact committed blockers.
+Current recommendation after Bryan's May 19 correction: keep the single-slot registry fully active with 30 starts/day. Do not add more starts now, and do not pause Slot 2/3 again without a fresh user request. Use writable preflight and exact blockers to reduce waste from blocked runs.
 
 For the next 30 days, scale by evidence:
 
@@ -89,5 +91,5 @@ For the next 30 days, scale by evidence:
 ## Validation
 
 - `scripts/measure-automation-efficiency.ps1` ran successfully.
-- At audit time, it reported 10 active QoL automations, 30 daily starts, 900 starts per 30 days, 48-minute minimum spacing, 60-pass minimum target, 90-pass stretch target, and 6.67/10 percent conversion thresholds. After the single-slot split, the scorecard reported 30 active QoL automations, 30 daily starts, 900 starts per 30 days, and 48-minute minimum spacing. After the May 19 burn-down adjustment, it should report 10 active QoL automations, 10 daily starts, 300 starts per 30 days, and 20/30 percent minimum/stretch conversion thresholds.
+- At audit time, it reported 10 active QoL automations, 30 daily starts, 900 starts per 30 days, 48-minute minimum spacing, 60-pass minimum target, 90-pass stretch target, and 6.67/10 percent conversion thresholds. After the single-slot split, the scorecard reported 30 active QoL automations, 30 daily starts, 900 starts per 30 days, and 48-minute minimum spacing. After the May 19 full-cadence reactivation, it should again report 30 active QoL automations, 30 daily starts, 900 starts per 30 days, and 6.67/10 percent minimum/stretch conversion thresholds.
 - Follow-up validation should run `scripts/check-automation-contract.ps1`, JSON parse checks, conflict-marker scan, and `git diff --check`.

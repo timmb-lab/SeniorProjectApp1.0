@@ -348,12 +348,12 @@ Decision status values:
 - `decision`: Split the Senior Capstone QoL cadence into thirty app-managed single-slot automations: three active automations per QoL target, each with exactly one BYHOUR value. Keep the same 30 starts/day, the same 3 starts/day per QoL target, the same workspace, model, reasoning effort, status, and project-only automation maintenance scope.
 - `reason`: Bryan reported that multiple daily starts inside one automation setup were not reliably working and explicitly asked for "3 of everything" for the Senior Capstone project QoL 3x/day automations.
 - `applies to`: Codex app automations, `docs/automation-cadence.md`, `docs/automation-runbook.md`, `docs/automation-memory.md`, `docs/master-plan.md`, `docs/mvp-requirements-catalog.md`, `docs/automation-prompts/`, `scripts/automation-config.json`, `scripts/check-automation-contract.ps1`, `scripts/snapshot-automation-prompts.ps1`, and `scripts/measure-automation-efficiency.ps1`.
-- `guardrail`: This was not a scale-up beyond 30 starts/day. It was a reliability split from compound RRULEs into one simple daily schedule per automation. Current burn-down status is superseded by `D-2026-05-19-001`.
+- `guardrail`: This was not a scale-up beyond 30 starts/day. It was a reliability split from compound RRULEs into one simple daily schedule per automation. The later temporary burn-down status is superseded by `D-2026-05-19-002`.
 - `last updated`: 2026-05-18 17:33 PT
 
 ### D-2026-05-19-001
 
-- `status`: accepted
+- `status`: superseded by `D-2026-05-19-002`
 - `area`: QoL automation burn-down mode after overnight run audit
 - `decision`: Keep the thirty single-slot Senior Capstone QoL automation registry, but run only the ten Slot 1 automations as ACTIVE. Pause all twenty Slot 2 and Slot 3 companions as reserve capacity until live Slot 1 runs prove they can write, validate, commit, and push durable changes or exact committed blockers.
 - `reason`: The May 18 17:30 PT through May 19 05:30 PT overnight audit found scheduler reliability but poor productive yield: 53 of 54 automation runs were blocked or only partially useful because sessions often could not write, apply patches, read `$CODEX_HOME`, run Node/npm, or complete commit/push closeout. The one clearly productive Senior run landed protected evidence access commit `2b552bc`, so the right next move is fewer duplicate starts plus better writable preflight, not more schedule volume.
@@ -362,3 +362,15 @@ Decision status values:
 - `guardrail`: Do not reactivate Slot 2 or Slot 3 merely to restore 30 starts/day. Reactivation requires evidence that active Slot 1 runs can produce durable writes or exact committed blockers without repeating policy/read-only failures.
 - `source`: User request on 2026-05-19: "Review and adjust the automation so it works better based on these runs for the QoL automation for this project."
 - `last updated`: 2026-05-19 05:35 PT
+
+### D-2026-05-19-002
+
+- `status`: accepted
+- `area`: full QoL cadence reactivation
+- `decision`: Restore all thirty Senior Capstone QoL single-slot automations to ACTIVE so the project receives three daily passes per QoL target. Keep the single-slot reliability split and the writable preflight/exact-blocker closeout rules, but do not pause Slot 2 or Slot 3 again without a fresh user request.
+- `reason`: Bryan clarified that the 10-run burn-down setting was too little for the QoL timeline and that the project should be running multiple times per day for QoL automations. The intended QoL system is 30 starts/day, not one pass per target.
+- `schedule`: ACTIVE starts at `00:03`, `00:51`, `01:39`, `02:27`, `03:15`, `04:03`, `04:51`, `05:39`, `06:27`, `07:15`, `08:03`, `08:51`, `09:39`, `10:27`, `11:15`, `12:03`, `12:51`, `13:39`, `14:27`, `15:15`, `16:03`, `16:51`, `17:39`, `18:27`, `19:15`, `20:03`, `20:51`, `21:39`, `22:27`, and `23:15` PT.
+- `applies to`: Codex app automations, local automation TOMLs, `scripts/automation-config.json`, `scripts/check-automation-contract.ps1`, `scripts/measure-automation-efficiency.ps1`, `docs/automation-cadence.md`, `docs/automation-runbook.md`, `docs/automation-self-improvement.md`, `docs/automation-memory.md`, `docs/master-plan.md`, `docs/progress/audit.md`, `docs/progress/run-log.md`, and future QoL run manifests.
+- `guardrail`: The May 18-19 blocker audit should improve preflight and blocker quality, not reduce this project's active QoL cadence unless Bryan explicitly asks again.
+- `source`: User request on 2026-05-19: "This seems like too little runs based on our QoL timeline? ... Fix what you need to w/o approval."
+- `last updated`: 2026-05-19 05:55 PT

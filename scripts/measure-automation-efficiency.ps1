@@ -277,7 +277,7 @@ if ($dailyStartCapacity -ge 30) {
     $recommendations.Add("Do not add more starts before proving conversion; $dailyStartCapacity starts/day needs $minimumConversionPercent percent accepted-pass conversion for the 2/day minimum and $stretchConversionPercent percent for the 3/day stretch.")
 }
 elseif ($dailyStartCapacity -eq 10) {
-    $recommendations.Add("Burn-down mode is active; keep Slot 2 and Slot 3 paused until Slot 1 runners can write, validate, commit, and push durable changes. At 10 starts/day, the 2/day minimum needs $minimumConversionPercent percent conversion and the 3/day stretch needs $stretchConversionPercent percent.")
+    $recommendations.Add("Reduced 10-start/day mode is active; verify this was explicitly requested because the current QoL timeline normally expects 30 starts/day. At 10 starts/day, the 2/day minimum needs $minimumConversionPercent percent conversion and the 3/day stretch needs $stretchConversionPercent percent.")
 }
 $recommendations.Add("Auto-scaling should retarget QoL focus, acceptance criteria, and blockers from evidence before changing schedules.")
 
