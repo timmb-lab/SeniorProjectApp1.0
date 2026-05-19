@@ -656,6 +656,33 @@ const templates = [
   }
 ];
 
+const templateCollections = [
+  {
+    title: "Start Strong",
+    tone: "gold",
+    summary: "Idea capture, pathway rules, proposal drafting, and approval checks.",
+    templates: ["Project Idea Notes", "Program Requirement Notes", "Core Concept Proposal", "Proposal Rubric"]
+  },
+  {
+    title: "Build With Direction",
+    tone: "teal",
+    summary: "Planning, mentor conversations, and evidence habits that keep the project moving.",
+    templates: ["Build Plan", "Mentor Meeting Notes"]
+  },
+  {
+    title: "Present And Showcase",
+    tone: "red",
+    summary: "Story structure, presentation quality, and display planning before the public share-out.",
+    templates: ["Presentation Outline", "Presentation Rubric", "Celebration Display Plan", "Display Rubric"]
+  },
+  {
+    title: "Reflect And Launch",
+    tone: "charcoal",
+    summary: "Gratitude, portfolio evidence, reflection language, resume bullets, and recognition prep.",
+    templates: ["Thank-You Letter", "Portfolio Checklist", "Reflection Drafts", "Resume Highlights", "Recognition Prep"]
+  }
+];
+
 const portfolioFeatures = [
   {
     feature: "Format",
@@ -738,6 +765,113 @@ const officialLinks = [
     useFor: "Final portfolio evidence and Quarter 4 grading.",
     currentLink: "Use the official Google Form on the Senior Project Website."
   }
+];
+
+const homeAudienceRoutes = [
+  {
+    label: "Students",
+    title: "Find Your Next Move",
+    body: "Use the chooser when you know the problem you are stuck on, but not the page name yet.",
+    href: "process.html",
+    action: "Use The Chooser",
+    tone: "gold"
+  },
+  {
+    label: "Teachers",
+    title: "Share The Right Page",
+    body: "Program rules, pacing, rubrics, and support pages stay readable without exposing private records.",
+    href: "program.html",
+    action: "Open Requirements",
+    tone: "red"
+  },
+  {
+    label: "Mentors",
+    title: "Coach The Project",
+    body: "Meeting prep, presentation guidance, and showcase expectations live in a clean public path.",
+    href: "mentor-meeting-1.html",
+    action: "Open Mentor Supports",
+    tone: "teal"
+  },
+  {
+    label: "Families + Sponsors",
+    title: "Help The Right Way",
+    body: "Use calendar and sponsorship guidance to support the project without taking over the work.",
+    href: "sponsorship-support.html",
+    action: "See Family Guide",
+    tone: "charcoal"
+  }
+];
+
+const homeEssentials = [
+  {
+    title: "Requirements Before Ideas",
+    body: "Every pathway has different rules, evidence, and display expectations. Start here before the proposal.",
+    href: "program.html",
+    action: "Check Requirements",
+    tone: "gold"
+  },
+  {
+    title: "Phases In Plain Language",
+    body: "The process page turns the booklet into one readable roadmap with student-first phase names.",
+    href: "process.html",
+    action: "Open Phases",
+    tone: "teal"
+  },
+  {
+    title: "Templates By Task",
+    body: "Proposal, build, mentor, presentation, showcase, gratitude, and portfolio files are grouped so students can grab the right starter fast.",
+    href: "templates.html",
+    action: "Browse Templates",
+    tone: "red"
+  },
+  {
+    title: "App Preview",
+    body: "The public site explains the work; the secure app tracks evidence, review loops, permissions, and dashboards.",
+    href: "app-preview.html",
+    action: "Preview The App",
+    tone: "charcoal"
+  }
+];
+
+const homeCadenceHighlights = [
+  {
+    label: "Kickoff",
+    window: "Before + September",
+    body: "Clarify pathway rules, choose the idea, and get the Core Concept Proposal approved."
+  },
+  {
+    label: "Build",
+    window: "October through February",
+    body: "Gather supplies, make visible progress, meet mentors, and shape the presentation story."
+  },
+  {
+    label: "Show",
+    window: "Presentation + Celebration",
+    body: "Present the project, answer questions, and build a display visitors can understand quickly."
+  },
+  {
+    label: "Launch",
+    window: "Portfolio week",
+    body: "Finish gratitude, reflections, resume language, and the final professional record."
+  }
+];
+
+const siteMenuPreviewNotes = {
+  "Program Requirements": "Front-load the rules, support expectations, and calendar windows.",
+  Phases: "Guide students through the real sequence instead of making them guess the right page.",
+  "Web App": "Keep public instruction separate from the secure workflow and review surfaces."
+};
+
+const resourceFallbackSaveNow = [
+  "Teacher or mentor feedback that changes the next step.",
+  "Approvals, screenshots, photos, receipts, or notes tied to this task.",
+  "One sentence explaining what changed after you used this page."
+];
+
+const resourceFallbackWhoHelps = [
+  "Student project owner",
+  "Senior program teacher",
+  "Mentor, family member, or sponsor when this task touches their support"
 ];
 
 const programRequirements = [
@@ -2902,6 +3036,147 @@ function supportCardsHtml() {
     .join("");
 }
 
+function homeAudienceCardsHtml() {
+  return `
+    <div class="hero-role-grid" aria-label="Audience quick starts">
+      ${homeAudienceRoutes
+        .map(
+          (item) => `
+            <article class="hero-role-card hero-tone-${item.tone}">
+              <p class="eyebrow">${item.label}</p>
+              <h2>${item.title}</h2>
+              <p>${item.body}</p>
+              <a class="button" href="${item.href}">${item.action}</a>
+            </article>
+          `
+        )
+        .join("")}
+    </div>
+  `;
+}
+
+function homeEssentialCardsHtml() {
+  return `
+    <div class="essential-grid">
+      ${homeEssentials
+        .map(
+          (item) => `
+            <article class="essential-card tone-${item.tone}">
+              <h3>${item.title}</h3>
+              <p>${item.body}</p>
+              <a class="button" href="${item.href}">${item.action}</a>
+            </article>
+          `
+        )
+        .join("")}
+    </div>
+  `;
+}
+
+function cadenceHighlightsHtml() {
+  return `
+    <div class="cadence-grid" aria-label="Year rhythm">
+      ${homeCadenceHighlights
+        .map(
+          (item) => `
+            <article class="cadence-card">
+              <span class="cadence-label">${item.label}</span>
+              <strong>${item.window}</strong>
+              <p>${item.body}</p>
+            </article>
+          `
+        )
+        .join("")}
+    </div>
+  `;
+}
+
+function syncBlueprintHtml() {
+  return `
+    <div class="sync-blueprint">
+      <article class="sync-column">
+        <p class="eyebrow">Public companion site</p>
+        <h2>Explain The Work</h2>
+        ${listHtml([
+          "Phase explanations in plain language.",
+          "Requirements, pacing, resource pages, templates, and rubrics.",
+          "Family-, mentor-, and stakeholder-friendly pages that stay safe to share."
+        ])}
+      </article>
+      <article class="sync-column sync-column-app">
+        <p class="eyebrow">Secure app</p>
+        <h2>Track The Work</h2>
+        ${listHtml([
+          "Private evidence, uploads, revision history, and status changes.",
+          "Teacher review queues, mentor assignments, and role-aware dashboards.",
+          "Audit-sensitive actions, permissions, and operational reporting."
+        ])}
+      </article>
+      <div class="sync-note">
+        Together, the site stays readable and public while the app stays operational, role-aware, and private where it needs to be.
+      </div>
+    </div>
+  `;
+}
+
+function templateGroupHtml(group) {
+  const groupTemplates = group.templates
+    .map((templateTitle) => templates.find((template) => template.title === templateTitle))
+    .filter(Boolean);
+
+  return `
+    <article class="template-group tone-${group.tone}">
+      <div class="stack">
+        <p class="eyebrow">Template set</p>
+        <h2>${group.title}</h2>
+        <p>${group.summary}</p>
+      </div>
+      <div class="large-link-list">
+        ${groupTemplates
+          .map(
+            (template) => `
+              <a class="large-link" href="${template.href}">
+                <span>${template.title}</span>
+                ${pagePill(template.pages)}
+              </a>
+            `
+          )
+          .join("")}
+      </div>
+    </article>
+  `;
+}
+
+function templateCollectionsHtml() {
+  return `<div class="template-group-grid">${templateCollections.map(templateGroupHtml).join("")}</div>`;
+}
+
+function resourceLeadCardsHtml(page) {
+  const signals = page.signals ?? page.actions.slice(0, 3);
+  const saveNow = page.saveNow ?? resourceFallbackSaveNow;
+  const whoHelps = page.whoHelps ?? resourceFallbackWhoHelps;
+
+  return `
+    <div class="resource-lead-grid">
+      <article class="content-card resource-signal-card">
+        <p class="eyebrow">Open this when</p>
+        <h2>Use It At The Right Moment</h2>
+        ${listHtml(signals)}
+      </article>
+      <article class="content-card resource-signal-card">
+        <p class="eyebrow">Save as you go</p>
+        <h2>Do Not Lose The Evidence</h2>
+        ${listHtml(saveNow)}
+      </article>
+      <article class="content-card resource-signal-card">
+        <p class="eyebrow">Keep in the loop</p>
+        <h2>Adults Who Can Help</h2>
+        ${listHtml(whoHelps)}
+      </article>
+    </div>
+  `;
+}
+
 function productStatusClass(status) {
   return slug(status).replace("locked", "blocked");
 }
@@ -3553,6 +3828,10 @@ function phaseSummaryRowsHtml() {
   return `<div class="phase-summary-list">${phases.map(phaseSummaryCardHtml).join("")}</div>`;
 }
 
+function siteMenuEntryCount(items) {
+  return items.reduce((count, item) => count + 1 + (item.items?.length ?? 0), 0);
+}
+
 function menuPreviewHtml() {
   return `
     <div class="site-map-showcase">
@@ -3560,7 +3839,13 @@ function menuPreviewHtml() {
         .map(
           (group) => `
             <article class="site-map-card">
-              <a class="site-map-heading" href="${group.href}">${group.title}</a>
+              <div class="site-map-card-header">
+                <div>
+                  <a class="site-map-heading" href="${group.href}">${group.title}</a>
+                  <p class="site-map-note">${siteMenuPreviewNotes[group.title] ?? "Open the section that matches the current stage of the work."}</p>
+                </div>
+                <span class="tree-count">${siteMenuEntryCount(group.items)} pages</span>
+              </div>
               <div class="site-map-list">
                 ${group.items
                   .map(
@@ -3610,11 +3895,14 @@ function renderResourcePage(root) {
       breadcrumb: `<nav class="breadcrumb" aria-label="Breadcrumb"><a href="index.html">Home</a><span aria-hidden="true">/</span><span>${page.title}</span></nav>`
     })}
     <section class="section section-tight">
+      ${resourceLeadCardsHtml(page)}
+    </section>
+    <section class="section section-tight">
       <div class="resource-layout">
         <div class="stack-lg">
           <section class="content-card student-section titan-panel">
             <p class="eyebrow">Student moves</p>
-            <h2>What To Do</h2>
+            <h2>What To Do First</h2>
             ${numberListHtml(page.actions)}
           </section>
           <section class="section-card-grid" aria-label="${page.title} supports">
@@ -3672,33 +3960,6 @@ function phaseButtonPagePillHtml(phase) {
 }
 
 function renderHomePage(root) {
-  const websitePillars = [
-    {
-      title: "Readable Roadmap",
-      body: "Students can find the exact phase, support page, or template they need without digging through a long document.",
-      href: "process.html",
-      action: "Open Phases"
-    },
-    {
-      title: "Program Requirements",
-      body: "Pathway rules, sponsorship support, and calendar planning stay visible before students build the wrong thing.",
-      href: "program.html",
-      action: "Open Requirements"
-    },
-    {
-      title: "App Companion",
-      body: "The website explains the work. The app tracks evidence, review, feedback, status, and dashboards.",
-      href: "app-preview.html",
-      action: "Preview The App"
-    },
-    {
-      title: "Titan Finish",
-      body: "Presentation, showcase, gratitude, portfolio, rubrics, and recognition all point toward a professional close.",
-      href: "launch.html",
-      action: "Finish Strong"
-    }
-  ];
-
   document.title = "ECTA Senior Capstone";
   root.innerHTML = `
     <section class="home-hero" aria-labelledby="hero-title">
@@ -3715,21 +3976,20 @@ function renderHomePage(root) {
             <a class="button button-secondary" href="app-preview.html">Web App Preview</a>
           </div>
         </div>
-        <dl class="hero-stats hero-promises" aria-label="Project support">
-          <div>
-            <dt>Plan</dt>
-            <dd>requirements and calendar</dd>
-          </div>
-          <div>
-            <dt>Build</dt>
-            <dd>supplies, vision, mentor checks</dd>
-          </div>
-          <div>
-            <dt>Launch</dt>
-            <dd>present, showcase, portfolio</dd>
-          </div>
-        </dl>
+        ${homeAudienceCardsHtml()}
       </div>
+    </section>
+    <section class="section section-tight" aria-labelledby="home-essentials-title">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Start with the essentials</p>
+          <h2 id="home-essentials-title">The Fastest Helpful Entry Points</h2>
+        </div>
+        <p class="section-note">
+          The strongest education layouts put the most important choices first. This keeps requirements, timing, and support from getting buried.
+        </p>
+      </div>
+      ${homeEssentialCardsHtml()}
     </section>
     <section class="section" aria-labelledby="site-menu-title">
       <div class="section-head">
@@ -3746,26 +4006,14 @@ function renderHomePage(root) {
     <section class="section" aria-labelledby="hand-in-hand-title">
       <div class="section-head">
         <div>
-          <p class="eyebrow">Website + app</p>
-          <h2 id="hand-in-hand-title">Hand In Hand</h2>
+          <p class="eyebrow">Year rhythm</p>
+          <h2 id="hand-in-hand-title">See The Project In Four Clear Windows</h2>
         </div>
         <p class="section-note">
-          Public guidance stays readable here; operational workflow lives in the secure app.
+          The public site should make the year feel finite and doable, not like one giant wall of instructions.
         </p>
       </div>
-      <div class="page-grid">
-        ${websitePillars
-          .map(
-            (item) => `
-              <article class="support-card compact-support-card">
-                <h3>${item.title}</h3>
-                <p>${item.body}</p>
-                <a class="button" href="${item.href}">${item.action}</a>
-              </article>
-            `
-          )
-          .join("")}
-      </div>
+      ${cadenceHighlightsHtml()}
     </section>
     <section class="section section-tight" id="where-am-i" aria-labelledby="home-process-title">
       ${stepChooserHtml()}
@@ -3773,6 +4021,18 @@ function renderHomePage(root) {
     </section>
     <section class="section section-tight">
       ${calmUseCardHtml()}
+    </section>
+    <section class="section" aria-labelledby="sync-title">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Website + app</p>
+          <h2 id="sync-title">Hand In Hand</h2>
+        </div>
+        <p class="section-note">
+          Public guidance stays readable here. Operational workflow, evidence, and review history belong in the secure app.
+        </p>
+      </div>
+      ${syncBlueprintHtml()}
     </section>
     <section class="section" aria-labelledby="home-support-title">
       <div class="section-head">
@@ -4155,23 +4415,22 @@ function renderTemplatesPage(root) {
         "Use these as starter files while you work. When your teacher provides an official Google Doc, Form, PDF, or class website link, use the official version."
     })}
     <section class="section section-tight">
-      <div class="resource-grid">
-        ${templates
-          .map(
-            (template) => `
-              <article class="resource-card">
-                <div class="resource-meta">
-                  <span class="tag">${template.audience}</span>
-                  ${pagePill(template.pages)}
-                </div>
-                <h2>${template.title}</h2>
-                <p>${template.description}</p>
-                <a class="button" href="${template.href}">Open File</a>
-              </article>
-            `
-          )
-          .join("")}
+      <div class="plain-card stack">
+        <h2>Grab The Starter, Then Use The Official Version</h2>
+        <p class="measure">
+          These files are here to reduce blank-page friction. They are especially useful when students need a clean first draft before they move into the official classroom link, form, or teacher-owned document.
+        </p>
       </div>
+    </section>
+    <section class="section" aria-labelledby="template-groups-title">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Grouped by milestone</p>
+          <h2 id="template-groups-title">Find The Right Starter Faster</h2>
+        </div>
+        <p class="section-note">Education templates work best when students can scan by task, not hunt through one long file library.</p>
+      </div>
+      ${templateCollectionsHtml()}
     </section>
   `;
 }

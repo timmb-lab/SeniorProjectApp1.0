@@ -341,6 +341,36 @@ const options = [
     audience: "Stakeholder review direction",
     filePrefix: "titan",
     heroTone: "Confident, layered, pathway-focused",
+    panelTitle: "Professional, calm, and stakeholder-ready.",
+    panelBody:
+      "This direction borrows from current education templates: a clear phase spine, fewer competing decisions up top, and stronger visual separation between public guidance and app workflow.",
+    panelBullets: [
+      "Best for leadership, district, and community review.",
+      "Feels closest to a modern pathway or academy microsite.",
+      "Makes the website-to-app bridge feel deliberate instead of improvised."
+    ],
+    focusCards: [
+      {
+        label: "Students",
+        title: "Find The Next Phase Fast",
+        body: "Use the phase map and support cards to move from idea to portfolio without guessing where to click."
+      },
+      {
+        label: "Teachers",
+        title: "Point To The Right Public Page",
+        body: "Requirements, pacing, rubrics, and templates stay easy to share with a class or cohort."
+      },
+      {
+        label: "Mentors",
+        title: "Step Into The Work Quickly",
+        body: "Meeting pages and presentation supports make it easier to coach without reading the whole guide."
+      },
+      {
+        label: "Stakeholders",
+        title: "See The Whole System",
+        body: "The site frames the public pathway while the app preview hints at the operational layer behind it."
+      }
+    ],
     css: titanCss
   },
   {
@@ -352,6 +382,36 @@ const options = [
     audience: "Student and family friendly direction",
     filePrefix: "primary",
     heroTone: "Bright, simple, classroom-ready",
+    panelTitle: "Friendly, direct, and easy to scan.",
+    panelBody:
+      "This direction leans into big blocks, primary colors, and quick comprehension so students and families can understand the project flow at a glance.",
+    panelBullets: [
+      "Best for younger audiences, family nights, and student-first walkthroughs.",
+      "Feels approachable without turning into a childish landing page.",
+      "Keeps the app relationship clear while making the public guide less intimidating."
+    ],
+    focusCards: [
+      {
+        label: "Students",
+        title: "Know What To Do Today",
+        body: "Big, readable sections help students jump straight to the page that matches the current problem."
+      },
+      {
+        label: "Families",
+        title: "Understand The Project Quickly",
+        body: "The structure is simple enough for supporters to follow without needing internal school context."
+      },
+      {
+        label: "Mentors",
+        title: "Coach Without The Jargon",
+        body: "Meeting prep, showcase guidance, and timeline cues feel straightforward and welcoming."
+      },
+      {
+        label: "Staff",
+        title: "Keep It Classroom-Friendly",
+        body: "The visuals stay upbeat while the content still maps cleanly to the real capstone milestones."
+      }
+    ],
     css: primaryCss
   }
 ];
@@ -451,6 +511,73 @@ function resourceCardsHtml() {
     .join("\n");
 }
 
+function heroMetricsHtml() {
+  return `<div class="hero-metrics" aria-label="Site shape">
+    <div><strong>6</strong><span>core phases</span></div>
+    <div><strong>11</strong><span>support pages</span></div>
+    <div><strong>1</strong><span>secure app bridge</span></div>
+  </div>`;
+}
+
+function focusCardsHtml(option) {
+  return `<div class="focus-grid">
+    ${option.focusCards
+      .map(
+        (item) => `<article class="focus-card">
+          <span>${escapeHtml(item.label)}</span>
+          <strong>${escapeHtml(item.title)}</strong>
+          <p>${escapeHtml(item.body)}</p>
+        </article>`
+      )
+      .join("\n")}
+  </div>`;
+}
+
+function cadenceCardsHtml() {
+  return `<div class="cadence-grid">
+    <article class="cadence-card">
+      <span>Kickoff</span>
+      <strong>Requirements + Proposal</strong>
+      <p>Clarify pathway rules, choose the idea, and secure a realistic approval path.</p>
+    </article>
+    <article class="cadence-card">
+      <span>Build</span>
+      <strong>Gather + Make Progress</strong>
+      <p>Use the support pages for supplies, scope control, mentor prep, and visible evidence.</p>
+    </article>
+    <article class="cadence-card">
+      <span>Present</span>
+      <strong>Tell The Story Clearly</strong>
+      <p>Move from build work to outline, presentation rehearsal, and a public showcase people can understand.</p>
+    </article>
+    <article class="cadence-card">
+      <span>Launch</span>
+      <strong>Portfolio + Reflection</strong>
+      <p>Close with gratitude, resume language, portfolio evidence, and a professional finish.</p>
+    </article>
+  </div>`;
+}
+
+function quickFactsHtml(page) {
+  return `<section class="quick-facts" aria-label="${escapeHtml(page.title)} quick facts">
+    <article class="fact-card accent-${page.accent}">
+      <p class="section-kicker">Open this when</p>
+      <h2>Why this page matters</h2>
+      <p>${escapeHtml(page.summary)}</p>
+    </article>
+    <article class="fact-card">
+      <p class="section-kicker">First move</p>
+      <h2>Start here</h2>
+      <p>${escapeHtml(page.moves[0])}</p>
+    </article>
+    <article class="fact-card">
+      <p class="section-kicker">App handoff</p>
+      <h2>What happens next</h2>
+      <p>Keep the public explanation here, then move workflow actions, evidence, and review into the secure app when needed.</p>
+    </article>
+  </section>`;
+}
+
 function indexHtml(option) {
   return layout(option, {
     currentSlug: "home",
@@ -458,13 +585,24 @@ function indexHtml(option) {
     body: `<header class="hero home-hero">
       <div class="hero-bg" role="img" aria-label="Senior Capstone planning workspace"></div>
       <div class="hero-content">
-        <p class="kicker">${escapeHtml(option.optionLabel)} / ${escapeHtml(option.audience)}</p>
-        <h1>${escapeHtml(option.name)} Senior Capstone</h1>
-        <p class="hero-copy">${escapeHtml(option.tagline)}</p>
-        <div class="hero-actions" aria-label="Key actions">
-          <a class="primary-action" href="program.html">Start With Requirements</a>
-          <a class="secondary-action" href="phase-1.html">View Phase Flow</a>
-          <a class="secondary-action" href="${appUrl}/alpha.html">Open App Alpha</a>
+        <div class="hero-layout">
+          <div class="hero-main">
+            <p class="kicker">${escapeHtml(option.optionLabel)} / ${escapeHtml(option.audience)}</p>
+            <h1>${escapeHtml(option.name)} Senior Capstone</h1>
+            <p class="hero-copy">${escapeHtml(option.tagline)}</p>
+            <div class="hero-actions" aria-label="Key actions">
+              <a class="primary-action" href="program.html">Start With Requirements</a>
+              <a class="secondary-action" href="phase-1.html">View Phase Flow</a>
+              <a class="secondary-action" href="${appUrl}/alpha.html">Open App Alpha</a>
+            </div>
+            ${heroMetricsHtml()}
+          </div>
+          <aside class="hero-panel">
+            <p class="section-kicker">Why this direction</p>
+            <h2>${escapeHtml(option.panelTitle)}</h2>
+            <p>${escapeHtml(option.panelBody)}</p>
+            <ul>${listItems(option.panelBullets)}</ul>
+          </aside>
         </div>
       </div>
     </header>
@@ -478,8 +616,24 @@ function indexHtml(option) {
         <p>Students can move from requirements to proposal, build, presentation, showcase, and portfolio while stakeholders can quickly see how the web guide supports the app.</p>
       </section>
 
+      <section class="focus-section">
+        <div class="section-heading">
+          <p class="section-kicker">Who this helps first</p>
+          <h2>Four quick ways into the site.</h2>
+        </div>
+        ${focusCardsHtml(option)}
+      </section>
+
       <section class="stage-grid" aria-label="Capstone phase map">
         ${stageCardsHtml(option)}
+      </section>
+
+      <section class="cadence-section">
+        <div class="section-heading">
+          <p class="section-kicker">Project cadence</p>
+          <h2>Make the year feel manageable.</h2>
+        </div>
+        ${cadenceCardsHtml()}
       </section>
 
       <section class="split-section">
@@ -487,6 +641,11 @@ function indexHtml(option) {
           <p class="section-kicker">Menu structure</p>
           <h2>The Google Site menu becomes a guided public path.</h2>
           <p>Program requirements, phase supports, mentor meetings, and app resources stay visible without exposing protected app data.</p>
+          <ul class="sync-list">
+            <li>Website: public instructions, templates, rubrics, and stakeholder context.</li>
+            <li>App: evidence, review decisions, assignments, notes, and dashboards.</li>
+            <li>Together: easier to manage than the current Google Site workflow.</li>
+          </ul>
         </div>
         <div class="menu-panel">
           ${navHtml("home")}
@@ -531,6 +690,7 @@ function detailHtml(option, page) {
         ${navHtml(page.slug)}
       </aside>
       <article class="page-content">
+        ${quickFactsHtml(page)}
         <section class="action-layout">
           <div class="action-block accent-${page.accent}">
             <p class="section-kicker">Student moves</p>
@@ -805,6 +965,60 @@ h2 {
   gap: 12px;
   margin-top: 28px;
 }
+.hero-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) 360px;
+  gap: 32px;
+  align-items: end;
+}
+.hero-main { min-width: 0; }
+.hero-panel {
+  display: grid;
+  gap: 14px;
+  padding: 20px;
+  border: 1px solid rgba(255,255,255,0.16);
+  border-top: 4px solid var(--gold);
+  border-radius: 8px;
+  background: rgba(14, 23, 39, 0.55);
+  box-shadow: 0 18px 40px rgba(0,0,0,0.16);
+  backdrop-filter: blur(14px);
+}
+.hero-panel h2 {
+  font-size: 1.65rem;
+  line-height: 1.08;
+}
+.hero-panel p,
+.hero-panel li {
+  color: rgba(255,255,255,0.82);
+}
+.hero-panel ul {
+  margin: 0;
+  padding-left: 20px;
+}
+.hero-metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 24px;
+}
+.hero-metrics div {
+  display: grid;
+  gap: 3px;
+  min-width: 116px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(255,255,255,0.11);
+}
+.hero-metrics strong {
+  font-size: 1.4rem;
+  line-height: 1;
+}
+.hero-metrics span {
+  color: rgba(255,255,255,0.8);
+  font-size: 0.82rem;
+  text-transform: uppercase;
+}
 .primary-action {
   background: var(--gold);
   color: #141414;
@@ -848,9 +1062,28 @@ main {
   gap: 16px;
   margin: 46px 0;
 }
+.focus-section,
+.cadence-section {
+  margin: 56px 0;
+}
+.focus-grid,
+.cadence-grid,
+.quick-facts {
+  display: grid;
+  gap: 16px;
+}
+.focus-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.cadence-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
 .stage-card,
 .resource-card,
-.action-block {
+.action-block,
+.focus-card,
+.cadence-card,
+.fact-card {
   border-radius: 8px;
   border: 1px solid var(--line);
   background: var(--panel);
@@ -880,14 +1113,43 @@ main {
   font-weight: 900;
 }
 .stage-card strong,
-.resource-card strong {
+.resource-card strong,
+.focus-card strong,
+.cadence-card strong,
+.fact-card h2 {
   font-size: 1.15rem;
   line-height: 1.2;
 }
 .stage-card span:last-child,
-.resource-card em {
+.resource-card em,
+.focus-card p,
+.cadence-card p,
+.fact-card p {
   color: var(--muted);
   font-style: normal;
+}
+.focus-card,
+.cadence-card,
+.fact-card {
+  padding: 18px;
+}
+.focus-card {
+  min-height: 184px;
+  display: grid;
+  gap: 10px;
+}
+.focus-card span,
+.cadence-card span {
+  font-size: 0.78rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+.cadence-card {
+  display: grid;
+  gap: 10px;
+  min-height: 176px;
+  background: linear-gradient(180deg, rgba(215, 169, 40, 0.1), rgba(255,255,255,0));
 }
 .split-section,
 .resource-section,
@@ -895,6 +1157,12 @@ main {
 .app-bridge {
   margin: 56px 0;
 }
+.sync-list {
+  margin: 18px 0 0;
+  padding-left: 20px;
+  color: var(--muted);
+}
+.sync-list li + li { margin-top: 10px; }
 .menu-panel,
 .side-menu {
   background: #172a48;
@@ -957,6 +1225,10 @@ main {
   gap: 28px;
   margin-top: 42px;
 }
+.quick-facts {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-bottom: 24px;
+}
 .side-menu {
   align-self: start;
   position: sticky;
@@ -1011,6 +1283,7 @@ main {
   .top-links { display: none; }
   .menu-toggle { display: inline-flex; }
   h1 { font-size: 3rem; }
+  .hero-layout,
   .intro-band,
   .split-section,
   .app-bridge,
@@ -1020,6 +1293,9 @@ main {
   }
   .side-menu { position: static; }
   .stage-grid,
+  .focus-grid,
+  .cadence-grid,
+  .quick-facts,
   .resource-grid,
   .resource-grid.compact,
   .action-layout {
@@ -1216,6 +1492,61 @@ h2 {
   gap: 12px;
   margin-top: 28px;
 }
+.hero-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) 350px;
+  gap: 28px;
+  align-items: end;
+}
+.hero-main { min-width: 0; }
+.hero-panel {
+  display: grid;
+  gap: 14px;
+  padding: 20px;
+  border: 3px solid var(--ink);
+  border-radius: 8px;
+  background: rgba(255,255,255,0.92);
+  color: var(--ink);
+  box-shadow: var(--shadow);
+}
+.hero-panel h2 {
+  font-size: 1.6rem;
+  line-height: 1.08;
+}
+.hero-panel p,
+.hero-panel li {
+  color: var(--ink);
+}
+.hero-panel ul {
+  margin: 0;
+  padding-left: 20px;
+}
+.hero-metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 24px;
+}
+.hero-metrics div {
+  display: grid;
+  gap: 3px;
+  min-width: 112px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  border: 2px solid var(--ink);
+  background: #fff;
+  color: var(--ink);
+  box-shadow: 4px 4px 0 var(--ink);
+}
+.hero-metrics strong {
+  font-size: 1.4rem;
+  line-height: 1;
+}
+.hero-metrics span {
+  color: var(--muted);
+  font-size: 0.82rem;
+  text-transform: uppercase;
+}
 .primary-action {
   background: var(--yellow);
   color: var(--ink);
@@ -1257,11 +1588,30 @@ main {
   gap: 18px;
   margin: 42px 0;
 }
+.focus-section,
+.cadence-section {
+  margin: 54px 0;
+}
+.focus-grid,
+.cadence-grid,
+.quick-facts {
+  display: grid;
+  gap: 18px;
+}
+.focus-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.cadence-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
 .stage-card,
 .resource-card,
 .action-block,
 .menu-panel,
-.side-menu {
+.side-menu,
+.focus-card,
+.cadence-card,
+.fact-card {
   border: 3px solid var(--ink);
   border-radius: 8px;
   background: #fff;
@@ -1292,14 +1642,43 @@ main {
   font-weight: 900;
 }
 .stage-card strong,
-.resource-card strong {
+.resource-card strong,
+.focus-card strong,
+.cadence-card strong,
+.fact-card h2 {
   font-size: 1.15rem;
   line-height: 1.2;
 }
 .stage-card span:last-child,
-.resource-card em {
+.resource-card em,
+.focus-card p,
+.cadence-card p,
+.fact-card p {
   color: var(--muted);
   font-style: normal;
+}
+.focus-card,
+.cadence-card,
+.fact-card {
+  padding: 18px;
+}
+.focus-card {
+  min-height: 184px;
+  display: grid;
+  gap: 10px;
+}
+.focus-card span,
+.cadence-card span {
+  font-size: 0.78rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+.cadence-card {
+  display: grid;
+  gap: 10px;
+  min-height: 176px;
+  background: linear-gradient(180deg, rgba(247,201,72,0.24), rgba(255,255,255,0));
 }
 .split-section,
 .resource-section,
@@ -1307,6 +1686,12 @@ main {
 .app-bridge {
   margin: 54px 0;
 }
+.sync-list {
+  margin: 18px 0 0;
+  padding-left: 20px;
+  color: var(--muted);
+}
+.sync-list li + li { margin-top: 10px; }
 .menu-panel,
 .side-menu {
   padding: 18px;
@@ -1366,6 +1751,10 @@ main {
   gap: 28px;
   margin-top: 40px;
 }
+.quick-facts {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-bottom: 24px;
+}
 .side-menu {
   align-self: start;
   position: sticky;
@@ -1423,6 +1812,7 @@ main {
   .top-links { display: none; }
   .menu-toggle { display: inline-flex; }
   h1 { font-size: 3rem; }
+  .hero-layout,
   .intro-band,
   .split-section,
   .app-bridge,
@@ -1432,6 +1822,9 @@ main {
   }
   .side-menu { position: static; }
   .stage-grid,
+  .focus-grid,
+  .cadence-grid,
+  .quick-facts,
   .resource-grid,
   .resource-grid.compact,
   .action-layout {
