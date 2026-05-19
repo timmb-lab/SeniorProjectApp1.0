@@ -39,7 +39,7 @@
   "external_artifacts": [],
   "validation": [
     "Prompt fragment grep confirmed memory-path, backend-ladder, detached-HEAD, and automation-memory-closeout language in all three live protected-evidence TOMLs.",
-    "node scripts/run-powershell-script.mjs scripts/snapshot-automation-prompts.ps1 completed successfully.",
+    "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\snapshot-automation-prompts.ps1 completed successfully after node.exe access was denied in this shell.",
     "The direct live checker still reported unrelated snapshot-path false negatives for protected-evidence slot 3, teacher-review, and immutable-review-history snapshots even though those files existed on disk.",
     "git diff --check passed."
   ],
