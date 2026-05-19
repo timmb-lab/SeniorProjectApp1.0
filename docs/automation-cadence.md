@@ -17,6 +17,7 @@ Milestones: `docs/automation-milestones.md`.
 Self-improvement protocol: `docs/automation-self-improvement.md`.
 Prompt snapshots: `docs/automation-prompts/`.
 Structured run manifests: `docs/progress/runs/`.
+Phone tracker: `Senior Capstone QoL Run Tracker` (`https://docs.google.com/spreadsheets/d/1J8jQMn85wJwo9Rh6LjQUVv_WfLS1YJWsbpcLBCojjjs/edit`).
 Human decision queue: `docs/human-decisions.md`.
 Artifact registry: `docs/artifacts.json`.
 Contract checker: `scripts/check-automation-contract.ps1`.
@@ -77,6 +78,7 @@ Every QoL automation must:
 - Apply the surface expansion rule: for the selected requirement, decide which surfaces need work or proof across app code/routes/schema, Cloudflare Pages/D1/env/deploy, Figma route-data-permission handoff, Canva support assets, tests/CI, docs/artifacts/handoffs, and exact blockers.
 - Update `docs/mvp-requirements-catalog.md` when status, evidence, blocker, or acceptance checks materially change.
 - Update the relevant progress log, `docs/progress/run-log.md`, and one structured manifest in `docs/progress/runs/`.
+- Append one compact phone-readable row to the `QoL Runs` tab in the Google Sheet tracker at closeout when the Google Sheets connector is available.
 - Update `docs/automation-memory.md`, handoffs, decisions, backlog, artifacts, or human decisions when materially needed.
 - Run the self-improvement closeout: record `self-improvement: none` when no prompt/config/script change is justified, or update only its own prompt/config and the smallest relevant project script when evidence and tool availability justify it.
 - If automation prompts/configs changed, regenerate `docs/automation-prompts/` with `npm run automation:snapshot` or `scripts/snapshot-automation-prompts.ps1`, update `scripts/check-automation-contract.ps1` when the contract changed, and run `npm run check:automation` or the checker directly. Use `npm run check:automation:live` only when live registry health is the audit target.

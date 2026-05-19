@@ -36,6 +36,7 @@ Figma is the heavy product-design source for functional app screens, database-ba
 - Every QoL automation now uses `docs/automation-self-improvement.md` to self-review, log whether prompt/config/script changes were needed, and update only its own live automation prompt/config plus the smallest relevant project script when evidence and tool availability justify it.
 - Weekly 100-pass goal calibration is owned by the source-framework seed QoL target group. Slot 1 is `senior-capstone-qol-source-framework-seed-2`; slots 2 and 3 are `senior-capstone-qol-source-framework-seed-slot-2` and `senior-capstone-qol-source-framework-seed-slot-3`. It reviews committed evidence, counts accepted MVP passes, and updates only this project's master plan, memory, and requirements catalog when evidence requires a goal/allocation adjustment.
 - Automation operating infrastructure now includes prompt snapshots in `docs/automation-prompts/`, structured run manifests in `docs/progress/runs/`, human decisions in `docs/human-decisions.md`, external artifact registry in `docs/artifacts.json`, and contract scripts in `scripts/`.
+- Bryan's phone-friendly live QoL tracker is the native Google Sheet `Senior Capstone QoL Run Tracker`, spreadsheet id `1J8jQMn85wJwo9Rh6LjQUVv_WfLS1YJWsbpcLBCojjjs`, URL `https://docs.google.com/spreadsheets/d/1J8jQMn85wJwo9Rh6LjQUVv_WfLS1YJWsbpcLBCojjjs/edit`. Every active QoL run should append one compact row to the `QoL Runs` tab at closeout when the Google Sheets connector is available.
 - Rebuild and content audit lane logs now exist at `docs/progress/rebuild.md` and `docs/progress/audit.md`; `scripts/check-automation-contract.ps1` requires both so future automation reviews catch missing lane-log anchors.
 - The automation contract now explicitly forbids local-only repo closeout and interactive project-script prompts: live prompts include the no-human-approval rule, and `scripts/check-automation-contract.ps1` fails if project scripts use PowerShell or JavaScript prompt/confirmation patterns.
 
@@ -292,3 +293,10 @@ Every run should also record `self-improvement: none` or a specific self-improve
 - All twenty Slot 2/3 companion automations were restored to ACTIVE, so the live contract is again 30 active single-slot QoL automations, 30 starts/day, and 3 starts/day per QoL target.
 - The writable preflight and exact-blocker rule remain in force so blocked runs close quickly with evidence instead of wasting the cadence.
 - `D-2026-05-19-001` is superseded by `D-2026-05-19-002`.
+
+## 2026-05-19 06:05 PT - QoL Phone Tracker
+
+- Created the native Google Sheet `Senior Capstone QoL Run Tracker` so Bryan can review QoL run closeouts from his phone throughout the day.
+- Tracker URL: `https://docs.google.com/spreadsheets/d/1J8jQMn85wJwo9Rh6LjQUVv_WfLS1YJWsbpcLBCojjjs/edit`.
+- The `QoL Runs` tab is the append target for every active QoL run. The required row columns are timestamp, automation ID, QoL target, slot, status, accepted MVP pass, requirement IDs, output kind, summary, validation, commit/PR, blocker/next action, duration, run manifest, and notes.
+- Updated all 30 live QoL prompts and prompt snapshots so the tracker append is part of required closeout.

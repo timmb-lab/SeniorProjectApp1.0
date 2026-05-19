@@ -296,3 +296,15 @@ Each audit run should append a dated entry with:
 - `validation`: strict live automation contract passed for 30 QoL automations and 2 support automations. The efficiency scorecard reported 30 active QoL automations, 30 starts/day, 900 starts/30 days, 48-minute minimum spacing, and 6.67/10 percent minimum/stretch conversion thresholds. JSON parse and `git diff --check` passed, with only normal CRLF warnings.
 - `self-improvement`: superseded the burn-down decision so future automation audits do not pause Slot 2/3 again without a fresh user request.
 - `next action`: leave all 30 QoL starts active and use preflight/blocker quality to control waste.
+
+### 2026-05-19 06:05 PT - QoL Google Sheet Tracker Setup
+
+- `automation`: manual project-only QoL observability setup before Bryan leaves the system unattended.
+- `master-plan section`: QoL Automation Rebuild; Logging Requirements; 30-Day Efficiency Auto-Scaling Audit.
+- `scope`: Create a phone-friendly Google Sheet and update all active QoL automations so each run appends an end-of-run row.
+- `external artifact`: Native Google Sheet `Senior Capstone QoL Run Tracker`, spreadsheet id `1J8jQMn85wJwo9Rh6LjQUVv_WfLS1YJWsbpcLBCojjjs`, URL `https://docs.google.com/spreadsheets/d/1J8jQMn85wJwo9Rh6LjQUVv_WfLS1YJWsbpcLBCojjjs/edit`.
+- `live automations changed`: all 30 `senior-capstone-qol-*` prompts now include the tracker closeout requirement.
+- `script changes`: `scripts/automation-config.json` now requires tracker fragments in QoL prompts.
+- `files changed`: live/local Codex QoL automation TOMLs, prompt snapshots, `scripts/automation-config.json`, automation docs, artifact registry, audit log, run log, and tracker setup manifest.
+- `validation`: Google Drive import returned `converted=true`; metadata verified native spreadsheet tabs `QoL Runs` and `Summary`; seed row read back from `QoL Runs!A1:O2`; tracker tab has frozen header, filter, wrapped text, and phone-friendly widths.
+- `next action`: each QoL run should append one compact row to `QoL Runs` at closeout when the Google Sheets connector is available.

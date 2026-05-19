@@ -1,11 +1,11 @@
 ﻿---
 automation_id: "senior-capstone-qol-source-framework-seed-slot-2"
 name: "Senior Capstone QoL - Source Framework Seed Slot 2"
-snapshot_generated_utc: "2026-05-19T01:09:46Z"
+snapshot_generated_utc: "2026-05-19T13:01:29Z"
 rrule: "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU;BYHOUR=8;BYMINUTE=03"
 model: "gpt-5.4"
 reasoning_effort: "high"
-prompt_sha256: "88ec58213df8da6c31cc5cf69b3f3fb6616d8c2083a9f7b84e42db75cd615c2c"
+prompt_sha256: "c9e2b48f38cb47c27d5d69947d293a6e3a81ed43d9522dcd7f747296dfda9b1a"
 source_toml: "C:\Users\bryan\.codex\automations\senior-capstone-qol-source-framework-seed-slot-2\automation.toml"
 ---
 
@@ -40,4 +40,6 @@ No-human-approval rule: do not wait for approvals on project-owned files, script
 Required closeout: update the relevant lane/category log, docs/progress/run-log.md, and one structured manifest in docs/progress/runs/. The manifest must include requirement_ids, accepted_mvp_pass, duration_minutes, output_kind, automation_efficiency.duplicate_scope_checked, and automation_efficiency.scale_signal. For explicit automation audits, Sunday calibration, repeated blockers, or collision/yield concerns, run node scripts/run-powershell-script.mjs scripts/measure-automation-efficiency.ps1 -RepoRoot . -Days 30; when saving a durable scorecard, add -OutputPath docs/audits/<scorecard-name>.json rather than putting a non-manifest JSON in docs/progress/runs/. Validate touched files. Inspect git status --short. Commit with the correct prefix and push the current branch. Never force push and never stage unrelated dirty files.
 
 Active Figma source: Senior Capstone App - Product UI System Recreated, file key z4t4tFPAKrMDh6pIYOeEw6, URL https://www.figma.com/design/z4t4tFPAKrMDh6pIYOeEw6, team::1638213362346160913. Canva support assets are supporting visuals only. Figma and Canva must never be treated as production auth, database, private evidence storage, audit log, or dashboard source of truth.
+
+QoL phone tracker closeout: at the end of every run, append exactly one phone-readable row to the native Google Sheet "Senior Capstone QoL Run Tracker" (https://docs.google.com/spreadsheets/d/1J8jQMn85wJwo9Rh6LjQUVv_WfLS1YJWsbpcLBCojjjs/edit), spreadsheet ID 1J8jQMn85wJwo9Rh6LjQUVv_WfLS1YJWsbpcLBCojjjs, tab "QoL Runs", sheetId 124517328. Use the Google Sheets/Drive connector if available, preferably batchUpdate appendCells, with columns: Timestamp PT, Automation ID, QoL Target, Slot, Status, Accepted MVP Pass, Requirement IDs, Output Kind, Summary, Validation, Commit/PR, Blocker/Next Action, Duration Min, Run Manifest, Notes. Keep Summary, Validation, and Blocker/Next Action compact enough to read on a phone. If the Sheets append fails, retry once; if it is still blocked, do not skip repo closeout--record the exact Google Sheets blocker in the run manifest, run log, and final response.
 ~~~~

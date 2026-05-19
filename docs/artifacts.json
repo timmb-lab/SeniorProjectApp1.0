@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-05-18T13:58:00-07:00",
+  "updated_at": "2026-05-19T06:05:00-07:00",
   "artifacts": [
     {
       "id": "cloudflare-pages-senior-capstone-app",
@@ -600,6 +600,44 @@
         "Contract checker validates the exact thirty automation IDs, GUI-facing names, snapshots, 30x/day schedule, required prompt fragments, all MVP requirement coverage, JSON manifests, and non-interactive project scripts."
       ],
       "last_updated": "2026-05-18"
+    },
+    {
+      "id": "google-sheet-qol-run-tracker",
+      "type": "google_sheet",
+      "status": "active",
+      "owner_lane": "audit/automation",
+      "title": "Senior Capstone QoL Run Tracker",
+      "file_id": "1J8jQMn85wJwo9Rh6LjQUVv_WfLS1YJWsbpcLBCojjjs",
+      "spreadsheet_id": "1J8jQMn85wJwo9Rh6LjQUVv_WfLS1YJWsbpcLBCojjjs",
+      "url": "https://docs.google.com/spreadsheets/d/1J8jQMn85wJwo9Rh6LjQUVv_WfLS1YJWsbpcLBCojjjs/edit",
+      "tab": "QoL Runs",
+      "sheet_id": 124517328,
+      "purpose": "Phone-friendly live tracker for end-of-run Senior Capstone QoL automation closeout rows.",
+      "app_placement": "Every active Senior Capstone QoL automation appends one row at closeout when the Google Sheets connector is available.",
+      "consuming_lanes": [
+        "audit/automation",
+        "requirements-audit",
+        "backend-security-data",
+        "student-workflow-evidence",
+        "staff-review-mentor",
+        "admin-ops-reporting",
+        "deployment-qa",
+        "design-assets-handoff"
+      ],
+      "repo_records": [
+        "docs/automation-cadence.md",
+        "docs/automation-runbook.md",
+        "docs/automation-memory.md",
+        "docs/progress/run-log.md",
+        "docs/progress/runs/2026-05-19-0605-qol-google-sheet-tracker.json"
+      ],
+      "verification": [
+        "Imported from local XLSX as native Google Sheets with converted=true on 2026-05-19.",
+        "Metadata verified title Senior Capstone QoL Run Tracker with tabs QoL Runs and Summary.",
+        "Seed row verified in QoL Runs!A1:O2.",
+        "QoL Runs tab formatted with frozen header, filter, wrapped text, and phone-friendly widths."
+      ],
+      "last_updated": "2026-05-19"
     }
   ]
 }

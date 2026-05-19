@@ -126,6 +126,18 @@ Every QoL run must spend the first minute proving it can do useful work before i
 - If `apply_patch`, shell execution, `$CODEX_HOME` reads, Git LFS, Node/npm, or commit/push is blocked by policy, stop the product slice immediately and leave the shortest possible blocker closeout with the exact command/error and next action. Do not spend a full run rediscovering the same read-only state.
 - If only external deployment/connector access is blocked, keep working on local code/tests/docs that can be committed; log the external blocker as a narrow follow-up.
 
+## Phone Tracker Closeout
+
+Every active QoL run should append one row to Bryan's phone-friendly Google Sheet at closeout:
+
+- Title: `Senior Capstone QoL Run Tracker`
+- URL: `https://docs.google.com/spreadsheets/d/1J8jQMn85wJwo9Rh6LjQUVv_WfLS1YJWsbpcLBCojjjs/edit`
+- Spreadsheet ID: `1J8jQMn85wJwo9Rh6LjQUVv_WfLS1YJWsbpcLBCojjjs`
+- Tab: `QoL Runs`
+- Columns: `Timestamp PT`, `Automation ID`, `QoL Target`, `Slot`, `Status`, `Accepted MVP Pass`, `Requirement IDs`, `Output Kind`, `Summary`, `Validation`, `Commit/PR`, `Blocker/Next Action`, `Duration Min`, `Run Manifest`, `Notes`.
+
+Keep the row compact enough to scan on a phone. If the Google Sheets connector is unavailable or the append fails after one retry, do not abandon repo closeout; record the exact Sheets blocker in the run manifest, run log, and final response.
+
 ## Token Budget Guardrail
 
 QoL automations should avoid giant context loads. Every run reads the required anchors, then stays narrow:
