@@ -26,6 +26,17 @@ This is the compact run log for the current split-builder automation contract.
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-05-20 PT - Production Surface Classification And Fencing
+
+- `master-plan sections`: Product Destination; Stack And Deployment Direction; Anti-Drift Rules; Logging Requirements.
+- `requirement IDs`: `MVP-001`, `MVP-002`, `MVP-003`, `MVP-025`, `MVP-026`, `MVP-030`.
+- `purpose`: Classify every deployable/public surface, fence alpha/account QA and stakeholder-review output away from canonical production, add production leakage validation, and rebuild generated public/review output.
+- `files changed`: production surface policy/registry/report, route inventory, README/deploy docs, app preview/nav copy, alpha/account labels, generated public companion and stakeholder option output, production-surface checker, route-inventory generator, package/wrapper validation, and the account/navigation regression test.
+- `verification`: `check:production-surfaces` passed with 87 production text surfaces scanned; `check:route-inventory` passed; `check:site-options` passed; `check:cloudflare` passed static config and reported live verification blocked without `CLOUDFLARE_API_TOKEN`; `test` passed with 115 tests; aggregate `check` passed; `git diff --check` passed.
+- `blockers`: Live Cloudflare verification still needs `CLOUDFLARE_API_TOKEN`; Bryan decisions are now queued for final custom-domain mapping, pre-pilot alpha/account exposure, and stakeholder option retention/promotion.
+- `commit`: pending until closeout commit is created and pushed.
+- `self-improvement`: Added durable checker and inventory scripts so future production-surface drift fails locally and in CI.
+
 ## 2026-05-20 PT - Typecheck And Cloudflare Verification Repair
 
 - `master-plan sections`: Day 7 Alpha Gate; Deployment QA; Logging Requirements.

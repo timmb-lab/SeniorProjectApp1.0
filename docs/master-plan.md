@@ -39,6 +39,8 @@ Figma and Canva are major first-class inputs to the product experience. Figma sh
 
 This project is not finished when it looks good. It is finished when the hosted app can safely manage real student workflow and staff visibility from a secure database-backed foundation.
 
+Production surfaces must stay classified and enforced. The canonical production app/backend, generated public companion, internal alpha/QA pages, stakeholder review options, generated mirrors, and legacy redirects must not blur together. Production-classified routes must not expose dev/test language, fake-account UX, alpha/smoke panels, stakeholder option labels, or claims that unfinished backend features are complete. The production-surface checker must block those leaks before deployment.
+
 ## 2.0 Product Horizon
 
 After MVP 1.0 is real, version 2.0 should explore native or cross-platform iOS and Android apps.
@@ -448,6 +450,8 @@ Do not:
 - Treat the daily Figma prototype as production data, a working backend, or evidence that an app feature is implemented when the repo/backend does not yet support it.
 - Put private evidence in public static assets.
 - Treat a static Cloudflare deployment as the MVP if the secure database/account/group foundation is missing.
+- Let alpha, smoke, stakeholder review, generated output, or legacy routes appear to be the canonical production app.
+- Link normal production navigation to fake-account, alpha reset/report, internal smoke, or stakeholder option pages.
 - Skip audit logs for approvals, overrides, exports, role changes, or sensitive access.
 - Prioritize decorative visuals before workflow, permission, upload, and review foundations.
 - Let Canva imagery replace live app text, database-backed statuses, accessibility labels, or private data.

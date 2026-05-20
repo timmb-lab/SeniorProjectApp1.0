@@ -823,13 +823,6 @@ const homeEssentials = [
     href: "templates.html",
     action: "Browse Templates",
     tone: "red"
-  },
-  {
-    title: "Account Smoke Test",
-    body: "Check fake account login, session lookup, logout, role scopes, and protected evidence access without real student records.",
-    href: "account.html",
-    action: "Test Accounts",
-    tone: "charcoal"
   }
 ];
 
@@ -1830,9 +1823,7 @@ const vocabularyTerms = [
 
 const navItems = [
   { page: "home", label: "Home", href: "index.html" },
-  { page: "alpha", label: "Day 7 Alpha", href: "alpha.html" },
-  { page: "account", label: "Account Smoke Test", href: "account.html" },
-  { page: "app-preview", label: "Product App Preview", href: "app-preview.html" },
+  { page: "app-preview", label: "App Workflow Preview", href: "app-preview.html" },
   { page: "process", label: "Process", href: "process.html" },
   { page: "pacing", label: "Pacing", href: "pacing.html" },
   { page: "examples", label: "Examples", href: "examples.html" },
@@ -2890,9 +2881,7 @@ function siteMenuHtml() {
     <section class="project-menu-section menu-tree-section">
       <a class="menu-tree-heading" href="app-preview.html">Web App</a>
       <div class="menu-app-links">
-        <a class="menu-resource-link" href="app-preview.html">Product App Preview</a>
-        <a class="menu-resource-link" href="account.html">Account Smoke Test</a>
-        <a class="menu-resource-link" href="alpha.html">Alpha Console</a>
+        <a class="menu-resource-link" href="app-preview.html">App Workflow Preview</a>
         <a class="menu-resource-link" href="templates.html">Templates</a>
         <a class="menu-resource-link" href="rubrics.html">Rubrics</a>
         <a class="menu-resource-link" href="grades.html">Grades</a>
@@ -3079,8 +3068,7 @@ function supportCardsHtml() {
     ["Sprint To The Finish", "Close build gaps before presentation prep takes over.", "sprint-to-finish.html"],
     ["Mentor Meeting 2", "Check final progress, presentation structure, and logistics.", "mentor-meeting-2.html"],
     ["Project Showcase", "Prepare a clean public display that visitors can understand quickly.", "project-showcase.html"],
-    ["Product App Preview", "See how the secure app will track evidence, review, status, and dashboards.", "app-preview.html"],
-    ["Account Smoke Test", "Verify fake account login, session lookup, logout, and protected evidence access.", "account.html"]
+    ["App Workflow Preview", "See the planned app workflow boundary for evidence, review, status, and dashboards.", "app-preview.html"]
   ]
     .map(supportCardHtml)
     .join("");
@@ -3747,13 +3735,13 @@ function setupProductPreviewInteractions(root) {
 }
 
 function renderAppPreviewPage(root) {
-  document.title = "Product App Preview | Senior Capstone Project";
+  document.title = "App Workflow Preview | Senior Capstone Project";
   root.innerHTML = `
     ${pageHeroHtml({
-      eyebrow: "Figma-driven product upgrade",
-      title: "Role-Aware Capstone App Preview",
+      eyebrow: "Non-production workflow preview",
+      title: "Role-Aware App Workflow Preview",
       summary:
-        "A rebuild-ready product surface for students, mentors, program teachers, and admins. This preview uses sample data only, but it models the real workflows the hosted app needs: private evidence, review decisions, revision loops, dashboards, and audit-safe operations."
+        "A public preview of the intended secure workflow for students, mentors, program teachers, and admins. It is not the live student-record system; it shows how private evidence, review decisions, revision loops, dashboards, and audit-safe operations should behave when the backend is ready."
     })}
     <section class="section section-tight">
       <div class="product-preview-shell">
@@ -3798,12 +3786,12 @@ function renderAppPreviewPage(root) {
     <section class="section" aria-labelledby="implementation-notes-title">
       <div class="plain-card stack product-implementation-note">
         <p class="eyebrow">Implementation guardrail</p>
-        <h2 id="implementation-notes-title">This Is A Preview, Not Fake Production State</h2>
+        <h2 id="implementation-notes-title">This Is A Preview, Not The Live Student System</h2>
         <p>
           The final hosted app still needs database-backed accounts, roles, permissions, private uploads, status history, review decisions, audit logs, tests, and Cloudflare deployment before it should manage real student records.
         </p>
         <p>
-          Use <a href="account.html">Account Smoke Test</a> to verify the current fake account/session flow before reviewing protected app data.
+          Internal alpha and account-check pages are reserved for Bryan and QA testers and are intentionally kept out of the normal student navigation.
         </p>
       </div>
     </section>
@@ -4030,7 +4018,7 @@ function renderResourcePage(root) {
             <p class="eyebrow">Hand in hand with the app</p>
             <h2>App Connection</h2>
             <p>${page.appTie}</p>
-            <a class="button button-primary" href="app-preview.html">Preview The App</a>
+            <a class="button button-primary" href="app-preview.html">View App Boundary</a>
           </section>
           <section class="content-card">
             <h2>More Supports</h2>
@@ -4080,7 +4068,7 @@ function renderHomePage(root) {
           <div class="hero-actions" aria-label="Primary actions">
             <a class="button button-primary" href="program.html">Program Requirements</a>
             <a class="button button-secondary" href="process.html">Open Phases</a>
-            <a class="button button-secondary" href="app-preview.html">Web App Preview</a>
+            <a class="button button-secondary" href="app-preview.html">App Boundary</a>
           </div>
         </div>
         ${homeAudienceCardsHtml()}

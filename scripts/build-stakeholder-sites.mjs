@@ -249,16 +249,16 @@ const pages = [
     slug: "app-preview",
     file: "app-preview.html",
     group: "Web App",
-    title: "Product App Preview",
+    title: "App Workflow Preview",
     eyebrow: "Digital workflow",
     summary:
-      "A stakeholder-friendly bridge into the app direction: student evidence, teacher review, mentor feedback, and admin visibility.",
+      "A stakeholder-friendly bridge into the planned app direction: student evidence, teacher review, mentor feedback, and admin visibility.",
     moves: [
-      "Preview how students move through the capstone flow.",
+      "Review how students should move through the capstone flow.",
       "Keep public copy separate from protected app data.",
-      "Use the alpha only with seeded demo records."
+      "Use internal alpha routes only for Bryan and QA review."
     ],
-    evidence: ["App preview notes", "Workflow questions", "Stakeholder feedback"],
+    evidence: ["App workflow notes", "Boundary questions", "Stakeholder feedback"],
     adultRoles: ["Admin", "Teacher", "Mentor"],
     accent: "red",
     appLink: true
@@ -368,7 +368,7 @@ const options = [
       {
         label: "Stakeholders",
         title: "See The Whole System",
-        body: "The site frames the public pathway while the app preview hints at the operational layer behind it."
+        body: "The site frames the public pathway while the workflow preview hints at the operational layer behind it."
       }
     ],
     css: titanCss
@@ -617,7 +617,7 @@ function indexHtml(option) {
             <div class="hero-actions" aria-label="Key actions">
               <a class="primary-action" href="program.html">Start With Requirements</a>
               <a class="secondary-action" href="phase-1.html">View Phase Flow</a>
-              <a class="secondary-action" href="${appUrl}/alpha.html">Open App Alpha</a>
+              <a class="secondary-action" href="${appUrl}/alpha.html">Internal Alpha QA</a>
             </div>
             ${heroMetricsHtml()}
           </div>
@@ -704,7 +704,7 @@ function detailHtml(option, page) {
         <p class="hero-copy">${escapeHtml(page.summary)}</p>
         <div class="hero-actions">
           <a class="primary-action" href="index.html">Back To Option Home</a>
-          ${page.appLink ? `<a class="secondary-action" href="${appUrl}/alpha.html">Open App Alpha</a>` : `<a class="secondary-action" href="templates.html">Find Templates</a>`}
+          ${page.appLink ? `<a class="secondary-action" href="${appUrl}/alpha.html">Internal Alpha QA</a>` : `<a class="secondary-action" href="templates.html">Find Templates</a>`}
         </div>
       </div>
     </header>
@@ -739,7 +739,7 @@ function detailHtml(option, page) {
             <h2>Public guide outside, protected workflow inside.</h2>
             <p>This option keeps public-facing instructions on the site and sends workflow actions to the separate app project when needed.</p>
           </div>
-          <a class="primary-action" href="${appUrl}/alpha.html">Preview App Flow</a>
+          <a class="primary-action" href="${appUrl}/alpha.html">Internal Alpha QA</a>
         </section>
 
         <section class="related-section">
@@ -786,6 +786,7 @@ function layout(option, { currentSlug, title, body }) {
     <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-menu">Menu</button>
     ${topNavHtml(currentSlug)}
   </header>
+  <div class="review-banner" role="note">Stakeholder review option. Not the canonical production site or app.</div>
   <div class="mobile-menu" id="site-menu" hidden>
     ${navHtml(currentSlug)}
   </div>
@@ -798,7 +799,7 @@ function layout(option, { currentSlug, title, body }) {
     <div class="footer-links">
       <a href="program.html">Requirements</a>
       <a href="present.html">Presentation</a>
-      <a href="${appUrl}/alpha.html">App Alpha</a>
+      <a href="${appUrl}/alpha.html">Internal Alpha QA</a>
     </div>
   </footer>
 </body>
@@ -855,6 +856,14 @@ a { color: inherit; }
   transform: translateY(-160%);
 }
 .skip-link:focus { transform: translateY(0); }
+.review-banner {
+  padding: 9px 32px;
+  background: #fff7d6;
+  border-bottom: 1px solid var(--line);
+  color: var(--ink);
+  font-size: 0.88rem;
+  font-weight: 700;
+}
 .site-header {
   position: sticky;
   top: 0;
@@ -1377,6 +1386,14 @@ a { color: inherit; }
   transform: translateY(-160%);
 }
 .skip-link:focus { transform: translateY(0); }
+.review-banner {
+  padding: 9px 28px;
+  background: var(--yellow);
+  border-bottom: 3px solid var(--ink);
+  color: var(--ink);
+  font-size: 0.88rem;
+  font-weight: 900;
+}
 .site-header {
   position: sticky;
   top: 0;
@@ -1870,7 +1887,11 @@ async function writeCommonFiles(outDir, option, previousManifest) {
   await writeFile(join(outDir, "styles.css"), option.css(), "utf8");
   await writeFile(join(outDir, "option.js"), optionJs(), "utf8");
   await writeFile(join(outDir, ".nojekyll"), "", "utf8");
-  await writeFile(join(outDir, "_redirects"), `/alpha.html ${appUrl}/alpha.html 302\n/api/* ${appUrl}/api/:splat 302\n`, "utf8");
+  await writeFile(
+    join(outDir, "_redirects"),
+    "# Stakeholder option output does not proxy app API or internal alpha routes.\n",
+    "utf8"
+  );
   await writeFile(
     join(outDir, "_headers"),
     [

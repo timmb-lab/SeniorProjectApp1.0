@@ -7,10 +7,7 @@ The ECTA Senior Capstone public companion site is published separately from the 
 ## Cloudflare Projects
 
 - Public companion site: `senior-capstone-public`
-- Stakeholder option 2, Titan Blend: `senior-capstone-option-titan`
-- Stakeholder option 3, Back To Basics: `senior-capstone-option-primary`
 - Web app and backend: `senior-capstone-app`
-- App URL used by public-site redirects: `https://senior-capstone-app.pages.dev`
 - Cloudflare Pages project created: 2026-05-18
 
 Review URLs:
@@ -27,7 +24,7 @@ npm run build:public-site
 
 The build writes static output to `public-companion/`, which is tracked so Cloudflare can deploy it from a separate project root without reading the app's root Wrangler configuration.
 
-The public build includes student-facing site pages, assets, templates, `styles.css`, and `app.js`. It does not include Cloudflare Pages Functions, D1 bindings, migrations, or backend app routes. The alpha console link redirects to the app project.
+The public build includes student-facing site pages, assets, templates, `styles.css`, and `app.js`. It does not include Cloudflare Pages Functions, D1 bindings, migrations, backend app routes, internal alpha routes, or account QA routes.
 
 ## Deploy
 
@@ -36,6 +33,10 @@ npm run deploy:public-site
 ```
 
 That deploys `public-companion/` to the Cloudflare Pages project `senior-capstone-public`.
+
+`deploy:public-site` is production for the public guide only. It is not the secure app/backend deploy target, and it must not proxy internal alpha, account smoke, or app API routes.
+
+Stakeholder option deploy targets are documented separately in `docs/stakeholder-site-options.md` and remain review-only.
 
 ## Update Cadence
 

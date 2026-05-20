@@ -12,6 +12,14 @@ This records the first MVP backend foundation now configured for the Senior Caps
 - Auth for MVP pilot: hardened username/password, because district SSO is not available.
 - Evidence uploads: Google Drive repository path, with D1 storing metadata and access state.
 
+## Production Surface Boundary
+
+`senior-capstone-app` is the canonical app/backend project. It may contain internal QA files in the repo, but normal production navigation must not route students, families, staff, or mentors into `alpha.html`, `account.html`, fake `.test` account flows, reset/report panels, or stakeholder option pages.
+
+`senior-capstone-public` is a separate generated public companion guide project. It is production-safe public guidance, not the secure workflow app, and it must not proxy internal alpha/account/API routes.
+
+`senior-capstone-option-titan` and `senior-capstone-option-primary` are stakeholder review projects only. Do not promote either as canonical production without updating `docs/production-deployment-policy.md` and `docs/production-surface-registry.md`.
+
 ## Live Resources
 
 - Cloudflare account: `539e8f7c55e7b1472013626ad72f4c7f`.

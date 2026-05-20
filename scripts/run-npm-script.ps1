@@ -145,6 +145,8 @@ function Invoke-KnownProjectScript {
             Invoke-Node "--check" "alpha.js"
             Invoke-Node "scripts\check-alpha-contract.mjs"
             Invoke-ProjectPowerShell "scripts\verify-cadence-30min.ps1"
+            Invoke-Node "scripts\check-production-surfaces.mjs"
+            Invoke-Node "scripts\inventory-production-routes.mjs" "--check"
             Invoke-Node "scripts\check-site-options.mjs"
             Invoke-Node "scripts\check-cloudflare.mjs"
 
@@ -159,6 +161,16 @@ function Invoke-KnownProjectScript {
         "check:automation" {
             $script:KnownProjectScriptHandled = $true
             Invoke-ProjectPowerShell "scripts\verify-cadence-30min.ps1" $ScriptArgs
+            return
+        }
+        "check:production-surfaces" {
+            $script:KnownProjectScriptHandled = $true
+            Invoke-Node "scripts\check-production-surfaces.mjs" @ScriptArgs
+            return
+        }
+        "check:route-inventory" {
+            $script:KnownProjectScriptHandled = $true
+            Invoke-Node "scripts\inventory-production-routes.mjs" "--check" @ScriptArgs
             return
         }
         "check:alpha" {
@@ -190,6 +202,11 @@ function Invoke-KnownProjectScript {
         "check:site-options" {
             $script:KnownProjectScriptHandled = $true
             Invoke-Node "scripts\check-site-options.mjs" @ScriptArgs
+            return
+        }
+        "inventory:production-routes" {
+            $script:KnownProjectScriptHandled = $true
+            Invoke-Node "scripts\inventory-production-routes.mjs" "--write" @ScriptArgs
             return
         }
         "check:cloudflare" {

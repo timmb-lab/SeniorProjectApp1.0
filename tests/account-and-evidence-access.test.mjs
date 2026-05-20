@@ -48,11 +48,14 @@ test("account smoke page exercises real auth endpoints without storing credentia
   assert.doesNotThrow(() => new Function(accountJs));
 });
 
-test("account smoke route is reachable from the app navigation but public builds point back to the app host", () => {
-  assert.match(appJs, /href="account\.html"/);
-  assert.match(appJs, /Account Smoke Test/);
-  assert.match(buildPublicSite, /href="account\.html"/);
-  assert.match(buildPublicSite, /account\.html/);
+test("account smoke and alpha routes stay out of production public navigation", () => {
+  assert.doesNotMatch(appJs, /href="account\.html"/);
+  assert.doesNotMatch(appJs, /href="alpha\.html"/);
+  assert.doesNotMatch(appJs, /Account Smoke Test/);
+  assert.doesNotMatch(appJs, /Alpha Console/);
+  assert.doesNotMatch(buildPublicSite, /account\.html/);
+  assert.doesNotMatch(buildPublicSite, /alpha\.html/);
+  assert.match(appJs, /Internal alpha and account-check pages are reserved for Bryan and QA testers/);
 });
 
 test("protected evidence access route is scoped, audited, and avoids storage id exposure", () => {

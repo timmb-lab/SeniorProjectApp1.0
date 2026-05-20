@@ -14,6 +14,36 @@ Status values:
 
 No open external automation scheduler decisions are blocking the current scaffold. The Google Drive evidence root folder is selected and configured, first-admin bootstrap is complete for `bryan.timm89@gmail.com`, and the production setup key has been removed. Remaining setup work is configuration/implementation: add server-side Drive upload credentials before real student data is entered, add account lifecycle flows, broaden permission tests, and provide `CLOUDFLARE_API_TOKEN` before the next live read-only Pages/D1 verification or remote mutation/deploy proof.
 
+### HD-2026-05-20-002
+
+- `status`: open
+- `area`: canonical URL and production surface cutover
+- `owner`: Bryan
+- `severity`: P1
+- `decision needed`: Choose the final public URL/domain mapping before pilot: whether the future custom domain points to `senior-capstone-app`, `senior-capstone-public`, or a split such as public guide on the root domain and app/backend on an app subdomain.
+- `current recommendation`: Keep `senior-capstone-app` as the canonical secure app/backend and `senior-capstone-public` as a production-safe generated public guide until the custom domain plan is chosen.
+- `created`: 2026-05-20
+
+### HD-2026-05-20-003
+
+- `status`: open
+- `area`: internal QA route exposure before pilot
+- `owner`: Bryan
+- `severity`: P1
+- `decision needed`: Decide whether `alpha.html` and `account.html` should remain deployed but unlinked for Bryan/internal QA, move behind an additional access gate, or be removed from production deployment before real pilot users enter the app.
+- `current recommendation`: Keep them unlinked and clearly labeled through the Day 7 alpha, then gate or remove them before pilot use with real records.
+- `created`: 2026-05-20
+
+### HD-2026-05-20-004
+
+- `status`: open
+- `area`: stakeholder option retention
+- `owner`: Bryan
+- `severity`: P2
+- `decision needed`: Decide whether to keep both stakeholder option Pages projects after review, retire one or both, or promote one direction into the canonical public guide.
+- `current recommendation`: Keep both as labeled review artifacts until Bryan selects a visual direction; do not promote either without updating the production-surface policy and registry.
+- `created`: 2026-05-20
+
 ## Accepted Decisions
 
 ### HD-2026-05-20-001

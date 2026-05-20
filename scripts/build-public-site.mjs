@@ -92,23 +92,16 @@ async function copyFileWithTransforms(file) {
   const destination = join(outDir, file);
   let text = await readFile(source, "utf8");
 
-  if (file === "app.js" || file.endsWith(".html")) {
-    text = text.replaceAll('"alpha.html"', `"${appUrl}/alpha.html"`);
-    text = text.replaceAll('"account.html"', `"${appUrl}/account.html"`);
-    text = text.replaceAll('href="alpha.html"', `href="${appUrl}/alpha.html"`);
-    text = text.replaceAll('href="account.html"', `href="${appUrl}/account.html"`);
-  }
-
   await mkdir(dirname(destination), { recursive: true });
   await writeFile(destination, text, "utf8");
 }
 
 async function writeRedirects() {
-  const redirects = [
-    `/alpha.html ${appUrl}/alpha.html 302`,
-    `/api/* ${appUrl}/api/:splat 302`
-  ].join("\n");
-  await writeFile(join(outDir, "_redirects"), `${redirects}\n`, "utf8");
+  await writeFile(
+    join(outDir, "_redirects"),
+    "# Public companion does not proxy internal alpha, account QA, or app API routes.\n",
+    "utf8"
+  );
 }
 
 async function writeHeaders() {

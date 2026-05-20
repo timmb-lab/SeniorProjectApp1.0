@@ -37,6 +37,14 @@ a { color: inherit; }
   transform: translateY(-160%);
 }
 .skip-link:focus { transform: translateY(0); }
+.review-banner {
+  padding: 9px 28px;
+  background: var(--yellow);
+  border-bottom: 3px solid var(--ink);
+  color: var(--ink);
+  font-size: 0.88rem;
+  font-weight: 900;
+}
 .site-header {
   position: sticky;
   top: 0;

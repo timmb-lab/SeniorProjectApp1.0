@@ -1,2 +1,1 @@
-/alpha.html https://senior-capstone-app.pages.dev/alpha.html 302
-/api/* https://senior-capstone-app.pages.dev/api/:splat 302
+# Public companion does not proxy internal alpha, account QA, or app API routes.
