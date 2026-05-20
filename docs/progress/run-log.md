@@ -22,3 +22,11 @@ This is the compact run log for the current single-runner automation contract.
 - Remaining priority: broader permission/protected-evidence tests, real workflow endpoints, Drive upload credential/OAuth, account lifecycle, mobile/error/empty QA, and deployment verification.
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
+
+## 2026-05-19 20:30 PT - MVP-009 Framework Seed Loader Foundation
+
+- `master-plan sections`: 30-Minute Master-Plan Orchestrator; Updated 100-Pass Allocation From Current State; Logging Requirements.
+- `requirement IDs`: `MVP-009`; `backlog IDs`: `SC-001`.
+- `files changed`: `migrations/0002_framework_seed.sql`, `scripts/framework-seed.mjs`, `tests/framework-seed.test.mjs`, `docs/mvp-requirements-catalog.md`, `docs/automation-backlog.md`, `docs/automation-memory.md`, `docs/master-plan.md`, and `docs/progress/runs/2026-05-19-2030-framework-seed-mvp-009.json`.
+- `verification`: `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 test` (pass).
+- `blockers`: none (remote D1 apply/verification deferred to follow-on pass with Wrangler).

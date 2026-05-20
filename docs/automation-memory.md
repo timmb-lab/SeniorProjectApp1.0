@@ -25,6 +25,7 @@ This is not a static guide, brochure, or visual-only project.
 - Google Drive evidence repository root folder `1XPgYKbIMqv332DAJZJNJetHppFB670e7` and index sheet `1b446rp3oyx9G4LpKYE47qXxpU41EOW-2Ota2fGum49c` exist and are wired into Pages config and D1 metadata. Server-side Drive upload credential/OAuth work remains pending.
 - Alpha state-machine tests, alpha contract checks, the cadence verifier, and consolidated GitHub Actions CI exist.
 - Source PDFs have been extracted and converted into app-native requirements in `data/capstone-framework.json`.
+- Framework seed loader scaffolding now exists: `migrations/0002_framework_seed.sql` adds minimal framework tables (sections, checks, credit owners, review gates, evidence signals), `scripts/framework-seed.mjs` generates idempotent seed SQL for D1, and `tests/framework-seed.test.mjs` guards counts and prevents leaking local source paths into SQL output.
 
 ## Active Automation Contract
 

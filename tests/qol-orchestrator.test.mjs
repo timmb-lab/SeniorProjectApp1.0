@@ -124,7 +124,7 @@ test("orchestrator writes latest report with lock release and orchestrator path 
   assert.match(latest, /- run_finished_at: `[^`]+`/);
   assert.match(latest, /- project_identity_status: `PASS`/);
   assert.match(latest, /- doctor_status: `NOT_RECORDED_BY_ORCHESTRATOR`/);
-  assert.match(latest, /- orchestrator_status: `(?:skipped|completed|needs-review|failed)`/);
+  assert.match(latest, /- orchestrator_status: `(?:skipped|completed|needs-review|failed|recurring)`/);
   assert.match(latest, /- lock_released: `true`/);
   assert.match(latest, /- report_written: `true`/);
   assert.match(latest, /- automation_registry_inspectable: `true`/);

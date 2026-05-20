@@ -298,6 +298,8 @@ The 2026-05-18 morning work materially improved the implementation runway, but a
 
 Because of that gap, the next useful 100-pass plan must prioritize implementation, deployment proof, and tests over additional design polish unless design work is directly blocking a concrete route/data/permission implementation. The full Figma prototype now exists; future Figma work should be targeted QA/handoff refinement, not another broad prototype pass, until the hosted alpha catches up.
 
+## 30-Minute Master-Plan Orchestrator
+
 ### 2026-05-20 30-Minute MVP Builder And Oversight
 
 Bryan requested that the active automation produce real MVP results instead of report-only churn, plus daily and weekly oversight. The active builder automation is `senior-capstone-hourly-qol-orchestrator`; it runs every 30 minutes, 48 times per day, from this workspace, reads the master plan and requirements catalog every run, and must leave either a verified commit/push that moves the MVP forward or a specific blocker artifact that reduces uncertainty.
