@@ -85,3 +85,15 @@ Active automation ownership is tracked in `docs/automation-cadence.md`. The `own
 - `next action`: Deepen the alpha into real workflow endpoints and add the known-gaps file, broader auth/permission tests, mobile/error/empty QA, and Drive upload credential/OAuth implementation.
 - `acceptance check`: A reviewer can run the app and complete student -> teacher review -> revision/resubmission -> approval -> dashboard/audit update without real accounts or code edits, while the UI clearly labels alpha account/security shortcuts and avoids real student data.
 - `last updated`: 2026-05-18 12:45 PT
+
+### SC-007
+
+- `severity`: P0
+- `owner`: rebuild
+- `status`: in-progress
+- `source`: 2026-05-20 P0 production app/website gate
+- `affected area`: canonical production app route and public Student/Teacher website modes
+- `evidence`: `docs/master-plan.md` now defines the P0 Production Experience Gate with two production deliverables: a role-aware secure app and a public website with Student Guide / Teacher Guide modes. `docs/mvp-requirements-catalog.md` adds `MVP-031` through `MVP-040`; `docs/production-surface-registry.md` marks the canonical production app route as required/TBD and classifies `app-preview.html` as preview, not production. `docs/source-materials/production-content-crosswalk.md` maps the Senior booklet, Senior Guide, Mentor Teacher Guide, Research Proposal Challenge, and Cycle Linked Document into website/app/evidence gaps. `scripts/check-production-surfaces.mjs` now flags stronger production-copy and normal-nav leaks while recording the Student/Teacher toggle as P0 pending.
+- `next action`: Implement the public Student Guide / Teacher Guide top-banner toggle in the source public site, rebuild generated public output with repo scripts, and keep `check:production-surfaces`, `check:generated-output-drift`, and `check` passing. Then designate/build the canonical authenticated role-aware app entry.
+- `acceptance check`: Public website exposes Student Guide and Teacher Guide modes with visible source-aligned content; canonical app route renders from authenticated role/scope rather than alpha/smoke/preview/persona switching; production-copy checks pass.
+- `last updated`: 2026-05-20 13:27 PT

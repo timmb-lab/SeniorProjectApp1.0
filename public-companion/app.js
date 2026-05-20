@@ -3791,7 +3791,7 @@ function renderAppPreviewPage(root) {
           The final hosted app still needs database-backed accounts, roles, permissions, private uploads, status history, review decisions, audit logs, tests, and Cloudflare deployment before it should manage real student records.
         </p>
         <p>
-          Internal alpha and account-check pages are reserved for Bryan and QA testers and are intentionally kept out of the normal student navigation.
+          Separate account-check pages are reserved for Bryan and testers and are intentionally kept out of the normal student navigation.
         </p>
       </div>
     </section>
@@ -4018,7 +4018,7 @@ function renderResourcePage(root) {
             <p class="eyebrow">Hand in hand with the app</p>
             <h2>App Connection</h2>
             <p>${page.appTie}</p>
-            <a class="button button-primary" href="app-preview.html">View App Boundary</a>
+            <a class="button button-primary" href="app-preview.html">View Future App Workflow</a>
           </section>
           <section class="content-card">
             <h2>More Supports</h2>
@@ -4068,7 +4068,7 @@ function renderHomePage(root) {
           <div class="hero-actions" aria-label="Primary actions">
             <a class="button button-primary" href="program.html">Program Requirements</a>
             <a class="button button-secondary" href="process.html">Open Phases</a>
-            <a class="button button-secondary" href="app-preview.html">App Boundary</a>
+            <a class="button button-secondary" href="app-preview.html">Future App Workflow</a>
           </div>
         </div>
         ${homeAudienceCardsHtml()}

@@ -7,6 +7,287 @@ This is the top-level product plan for the Senior Capstone rebuild. The split bu
 
 The MVP requirement source is `docs/mvp-requirements-catalog.md`. Every builder run must ladder from this master plan into that catalog, name the requirement IDs it advances, and update the catalog when status, evidence, blockers, owner category, or acceptance checks materially change. Active work ownership is split between the top-of-hour non-Figma MVP builder and the bottom-of-hour Figma-only product builder in `docs/automation-cadence.md`.
 
+## P0 Production Experience Gate
+
+The repo has two production deliverables:
+
+1. Production Senior Capstone App.
+2. Production Senior Capstone Website.
+
+The project is not production-ready, pilot-ready, or ready for broad non-dev review until both deliverables pass this P0 gate. Alpha, smoke, preview, stakeholder-option, generated-mirror, Figma, Canva, and automation artifacts can support the work, but they do not substitute for the real production app or the real public website.
+
+Production content must stay mapped to source materials through `docs/source-materials/production-content-crosswalk.md`.
+
+The production app:
+
+- Is the secure operational system.
+- Is not `alpha.html`.
+- Is not `account.html`.
+- Is not `app-preview.html` unless app-preview is deliberately converted, renamed, routed, and validated as the canonical production app.
+- Is not a public persona switcher.
+- Is not a fake `.test` seeded account walkthrough.
+- Is not a Figma prototype.
+- Is not a Canva visual asset.
+- Must choose screens from authenticated session plus D1-backed user plus role plus permission scope.
+- Must support student, mentor, program teacher, admin, and misc admin experiences.
+- Must use server/database-backed status, submissions, review, evidence, permissions, and audit state.
+- Must not show alpha, QA, smoke, fake account, prompt, Codex, or builder language on canonical production routes.
+
+The production website:
+
+- Is the public information companion.
+- Must have a small top banner or segmented control to switch between Student Guide and Teacher Guide.
+- Treats the Student/Teacher toggle as public content organization, not login, auth, or permissions.
+- Must provide lots of visible, source-aligned information.
+- Must not hide required content only inside collapsed details panels.
+- Must use visible sections, cards, timelines, checklists, tables, rubric summaries, anchor links, and clear "what to do next" blocks.
+- Must align with the Your Senior booklet and the other Senior Project PDF/source documents.
+- Must not expose dev, alpha, QA, prompt, or preview-only copy as the normal public experience.
+
+### Forbidden Production-Surface Copy
+
+The following copy is forbidden on canonical production app, website, and generated public surfaces unless explicitly allowlisted as internal docs, tests, alpha, or smoke:
+
+- internal alpha
+- QA only
+- QA console
+- smoke test
+- seeded demo
+- seeded persona
+- fake `.test`
+- non-production preview
+- preview-only
+- app boundary
+- reset alpha
+- run report
+- prompt leftover
+- Codex
+- builder
+- automation prompt
+- TODO
+- FIXME
+- dev note
+- developer note
+- placeholder
+- lorem ipsum
+- dummy data
+- fake data
+- not production
+- do not enter real student records
+- setup key
+- token
+- API secret
+- test account
+- alpha route
+- internal only
+- stakeholder option as a normal production mode
+- titan blend as a normal production mode
+- back to basics as a normal production mode
+- raw Drive storage IDs
+- stack traces
+- debug output
+- instructions written to Codex/developers instead of students/teachers/mentors/admins
+
+### Production App Acceptance Criteria
+
+- Canonical production app route is identified in `docs/production-surface-registry.md`.
+- Authenticated session is required.
+- Screen selection comes from role/scope, not a public persona toggle.
+- Student sees only own records.
+- Mentor sees only assigned students.
+- Program teacher sees assigned program/cohort students.
+- Admin sees operational admin tools.
+- Misc admin sees only explicitly scoped reporting/support.
+- Unauthorized access returns a production-safe denial.
+- Dashboard counts come from server/D1 state.
+- Sensitive actions are audit logged.
+- Fake, test, and internal tools are unlinked from normal app navigation.
+- Production-copy checker passes.
+
+### Production Website Acceptance Criteria
+
+- Student Guide / Teacher Guide top-banner toggle exists.
+- Current mode label is visible.
+- Student mode front-loads student tasks.
+- Teacher mode front-loads teacher/mentor responsibilities.
+- Core content is visible or clearly summarized.
+- Source documents are mapped.
+- Public copy is production-safe.
+- Generated output stays production-safe.
+- Stakeholder options are not confused with Student/Teacher guide modes.
+- Normal public navigation has no alpha/account/internal QA links.
+
+## Role-Aware Production App Contract
+
+The production app must choose visible screens from the authenticated session, D1-backed user identity, role, and permission scope. Future work must add tests proving role/scope screen selection and denial behavior.
+
+Student must see:
+
+- Current phase.
+- Next required action.
+- Due dates.
+- Program context.
+- Proposal/research status.
+- Evidence requirements.
+- Evidence upload/link status.
+- Teacher comments.
+- Revision requests.
+- Resubmission path.
+- Approval status.
+- Mentor Meeting 1 status.
+- Mentor Meeting 2 status.
+- Presentation outline status.
+- Presentation day status.
+- Celebration Day display status.
+- Thank-you letter status.
+- Required mentor handwritten note reminder.
+- Portfolio minimum/maximum path.
+- Reflection task status.
+- May 5 archive/download reminder.
+- Own safe activity history.
+
+Student must not see:
+
+- Other student records.
+- Teacher queues.
+- Admin tools.
+- Broad reports.
+- Raw storage IDs.
+- Internal QA tools.
+
+Mentor must see:
+
+- Assigned students only.
+- Mentor meeting prep/status.
+- Missed meeting/make-up flags.
+- Presentation outline cues.
+- Assigned student project/evidence overview where permitted.
+- Scoped notes/actions only.
+
+Program teacher must see:
+
+- Assigned program/cohort students.
+- Proposal/research review queue.
+- Submission detail.
+- Evidence metadata/access where permitted.
+- Rubric-aligned criteria.
+- Comments.
+- Revision request.
+- Approval.
+- Resubmission history.
+- Presentation/Celebration readiness.
+- Intervention signals.
+
+Admin must see:
+
+- All-program dashboard.
+- User/group/program/cohort management.
+- Mentor assignments.
+- Role assignments.
+- Deadlines/templates.
+- Announcements.
+- Audits.
+- Reports.
+- Exports/archive.
+- Override tools with required reasons.
+
+Misc admin must see:
+
+- Narrow reporting/support only.
+- Aggregate readiness if allowed.
+- No broad student access by default.
+- No approval/export/role-change power by default.
+
+Required states:
+
+- loading
+- empty
+- error
+- permission denied
+- no assignment
+- revision needed
+- approved
+- blocked submit
+- upload failed
+- evidence provider unavailable
+- export unavailable
+- deadline passed
+- make-up needed
+- role missing
+- account disabled/reset required where relevant
+
+## Student And Teacher Website Contract
+
+The production website must expose a public top banner toggle with these visible labels:
+
+- Viewing: Student Guide
+- Viewing: Teacher Guide
+- Switch to Student Guide
+- Switch to Teacher Guide
+
+Rules:
+
+- This is not authentication.
+- This is not private permissions.
+- It may use `localStorage` because it is only public display preference.
+- It must not hide core content from either audience.
+- It changes emphasis, ordering, quick actions, and language.
+
+Student Guide must visibly include:
+
+- What Senior Capstone is.
+- Why it matters.
+- Where to start.
+- Senior Remind/class website reminder.
+- Program-specific expectations.
+- Individual/group path.
+- Required components.
+- Core Concept Proposal.
+- Research Proposal Challenge.
+- Senior Project Folder and Linked Document.
+- Resume.
+- Major due dates.
+- Mentor Meeting 1.
+- Mentor Meeting 2.
+- Presentation outline.
+- Presentation Day.
+- Celebration Day.
+- Ingredients list reminder for food items.
+- Thank-you letter.
+- Handwritten notes including mentor note.
+- Reflections.
+- Portfolio minimum/maximum paths.
+- Rubrics.
+- Grade locations.
+- Special recognition.
+- May 5 archive/download reminder.
+
+Teacher Guide must visibly include:
+
+- What teachers/mentors need to know.
+- Program-specific expectation guidance.
+- Proposal review/approval checks.
+- Grading responsibilities by class.
+- Mentor Meeting 1 duties.
+- Missed meeting form reminders.
+- Mentor Meeting 2 outline approval.
+- Presentation scheduling.
+- Presentation Day grading workflow.
+- Google Form grading reminder.
+- Senior check-out/check-in.
+- First 10 minutes in class rule.
+- Celebration Day schedule/rubric/audience expectations.
+- Paper rubric option.
+- Ingredients list reminder for food items.
+- Reflection/portfolio week expectations.
+- Intervention signals.
+- Rubric evidence to look for.
+
+No-hidden-core-content rule:
+
+- Required directions, due dates, rubrics, responsibilities, and actions must be visible or summarized without needing to expand details panels.
+- Details panels can remain for deeper examples or optional extra help.
+
 ## Product Destination
 
 Build a hosted Senior Capstone application for students, mentors, program teachers, administrators, and miscellaneous support/admin users.

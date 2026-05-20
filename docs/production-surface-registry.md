@@ -2,28 +2,35 @@
 
 Date: 2026-05-20
 
-Classification values: `production`, `internal-alpha`, `internal-smoke`, `stakeholder-review`, `generated-output`, `legacy`, `unknown`.
+Classification values: `production`, `internal-alpha`, `internal-smoke`, `stakeholder-review`, `generated-output`, `preview`, `legacy`, `unknown`.
 
 Production-safe means the surface is safe to present in its intended context. A review artifact can be production-safe for review while still not being canonical production.
+
+## P0 Production Experience Targets
+
+| Surface | Path | Deploy project | Classification | Audience | Production-safe | Reason | Action needed | Owner lane | Validation |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Canonical production app | Required/TBD; not `alpha.html`, `account.html`, or `app-preview.html` | `senior-capstone-app` | `production` | Authenticated students, mentors, program teachers, admins, misc admins | No, route is not designated yet | The real production app must render from authenticated session, D1 user, role, and permission scope. Current alpha/smoke/preview surfaces are not the canonical app. | Designate/build the role-aware app entry and add tests for screen selection and denial states. | backend-security-data | `npm run test`; `npm run check:production-surfaces` |
+| Public production website | `index.html` plus public guide routes; generated mirror in `public-companion/` | `senior-capstone-app`; `senior-capstone-public` | `production` / `generated-output` | Students, families, staff, mentors | Partial | Public guide content exists, but the Student Guide / Teacher Guide top-banner toggle is still pending. | Add Student/Teacher guide toggle, visible mode label, no-hidden-core-content coverage, and source-mapped sections. | requirements-audit | `npm run check:production-surfaces`; `npm run check:generated-output-drift`; `npm run check:site-options` |
 
 ## Deploy Targets
 
 | Surface | Path | Deploy project | Classification | Audience | Production-safe | Reason | Action needed | Owner lane | Validation |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Root app/backend host | `.` | `senior-capstone-app` | `production` | Students, staff, mentors, admins, stakeholders | Yes, with internal QA routes fenced | Canonical app/backend project with Cloudflare Pages Functions and D1 binding. | Keep `alpha.html` and `account.html` out of normal public navigation; keep production checker passing. | deployment-qa | `npm run check:production-surfaces`; `npm run check:cloudflare` |
-| Public companion output | `public-companion/` | `senior-capstone-public` | `generated-output` | Students, families, staff, mentors | Yes | Generated public guide output, safe only as a static guide. | Rebuild only from root source; do not proxy internal alpha/account/API routes. | requirements-audit | `npm run build:public-site`; `npm run check:generated-output-drift`; `npm run check:site-options`; `npm run check:production-surfaces` |
+| Root app/backend host | `.` | `senior-capstone-app` | `production` | Students, staff, mentors, admins, stakeholders | Partial | Canonical app/backend project with Cloudflare Pages Functions and D1 binding, but canonical role-aware app route is still TBD. | Keep `alpha.html` and `account.html` out of normal public navigation; designate/build the real role-aware app route; keep production checker passing. | deployment-qa | `npm run check:production-surfaces`; `npm run check:cloudflare` |
+| Public companion output | `public-companion/` | `senior-capstone-public` | `generated-output` | Students, families, staff, mentors | Partial | Generated public guide output, safe only as a static guide; Student/Teacher guide mode is pending. | Rebuild only from root source; add Student/Teacher toggle in source; do not proxy internal alpha/account/API routes. | requirements-audit | `npm run build:public-site`; `npm run check:generated-output-drift`; `npm run check:site-options`; `npm run check:production-surfaces` |
 | Titan Blend option | `stakeholder-options/titan-blend/` | `senior-capstone-option-titan` | `stakeholder-review` | Bryan, leadership, stakeholders reviewing visual direction | Yes for review, no as canonical production | Generated visual direction artifact. | Keep review banner and internal alpha labels; do not promote without Bryan decision. | design-assets-handoff | `npm run build:stakeholder-sites`; `npm run check:generated-output-drift`; `npm run check:site-options` |
 | Back To Basics option | `stakeholder-options/back-to-basics/` | `senior-capstone-option-primary` | `stakeholder-review` | Bryan, leadership, stakeholders reviewing visual direction | Yes for review, no as canonical production | Generated visual direction artifact. | Keep review banner and internal alpha labels; do not promote without Bryan decision. | design-assets-handoff | `npm run build:stakeholder-sites`; `npm run check:generated-output-drift`; `npm run check:site-options` |
 | Root alpha page | `alpha.html` | `senior-capstone-app` | `internal-alpha` | Bryan and QA testers | No for public production navigation | Internal seeded alpha walkthrough. | Keep internal QA labels; no real student records; no passwords. | student-workflow-evidence | `npm run check:alpha-contract`; `npm run test` |
 | Root account page | `account.html` | `senior-capstone-app` | `internal-smoke` | Bryan and QA testers | No for public production navigation | Internal account/session/evidence smoke workflow for fake `.test` accounts. | Keep internal QA labels; do not expose passwords; do not link from public nav. | backend-security-data | `npm run test`; `npm run check:production-surfaces` |
-| App workflow preview | `app-preview.html` | `senior-capstone-app`, copied to `public-companion/`, generated into stakeholder options | `production` | Public stakeholders and staff | Yes if labeled as non-production preview | Public app-boundary preview, not the live student-record system. | Avoid finished-app claims; keep internal QA links out of normal flow. | requirements-audit | `npm run check:production-surfaces` |
+| App workflow preview | `app-preview.html` | `senior-capstone-app`, copied to `public-companion/`, generated into stakeholder options | `preview` | Public stakeholders and staff | No as canonical app; yes only as clearly labeled preview | Public app-boundary preview, not the live student-record system and not the canonical production app unless deliberately converted, renamed, routed, and validated. | Avoid finished-app claims; keep internal QA links out of normal flow; do not count as production app completion. | requirements-audit | `npm run check:production-surfaces` |
 | Preview branch deploy | `npm run deploy:preview` | `senior-capstone-app` branch `alpha` | `internal-alpha` | Bryan and QA testers | No as canonical production | Preview/alpha deploy branch only. | Do not describe as production; verify live only when auth/token is available. | deployment-qa | `npm run check:cloudflare` |
 
 ## Root Public HTML Entry Points
 
 | Path | Deploy project | Classification | Intended audience | Production-safe | Reason | Action needed | Owner lane | Validation |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `index.html` | `senior-capstone-app` | `production` | Students, families, staff, mentors | Yes | Canonical public guide home on the app host. | Keep nav free of internal QA links. | requirements-audit | `npm run check:production-surfaces` |
+| `index.html` | `senior-capstone-app` | `production` | Students, families, staff, mentors | Partial | Canonical public guide home on the app host. | Add Student Guide / Teacher Guide top-banner toggle and keep nav free of internal QA links. | requirements-audit | `npm run check:production-surfaces` |
 | `program.html` | `senior-capstone-app` | `production` | Students and staff | Yes | Program requirement guide page. | None beyond checker. | student-workflow-evidence | `npm run check:production-surfaces` |
 | `sponsorship-support.html` | `senior-capstone-app` | `production` | Students, families, sponsors | Yes | Public support guidance. | None beyond checker. | requirements-audit | `npm run check:production-surfaces` |
 | `calendar.html` | `senior-capstone-app` | `production` | Students, families, staff | Yes | Public milestone guide. | None beyond checker. | student-workflow-evidence | `npm run check:production-surfaces` |
@@ -52,11 +59,15 @@ Production-safe means the surface is safe to present in its intended context. A 
 | `audit.html` | `senior-capstone-app` | `legacy` | Existing bookmarks | Yes | Redirects to `index.html`. | Keep only as legacy redirect or remove after decision. | requirements-audit | `npm run check:production-surfaces` |
 | `roadmap.html` | `senior-capstone-app` | `legacy` | Existing bookmarks | Yes | Redirects to `index.html`. | Keep only as legacy redirect or remove after decision. | requirements-audit | `npm run check:production-surfaces` |
 
+## Normal Production Navigation Rule
+
+Normal production navigation must not link to `alpha.html`, `account.html`, internal smoke/fake account pages, alpha reset/report tools, seeded walkthroughs, or internal QA routes. Such surfaces may remain in the repo only as clearly labeled internal QA/smoke/preview artifacts and must not be presented as the normal student, family, mentor, teacher, or admin path.
+
 ## Generated Output
 
 | Path | Deploy project | Classification | Intended audience | Production-safe | Reason | Action needed | Owner lane | Validation |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `public-companion/*.html` | `senior-capstone-public` | `generated-output` | Students, families, staff, mentors | Yes | Generated public guide mirror. | Rebuild from root source only; keep production and generated-output checkers passing. | requirements-audit | `npm run build:public-site`; `npm run check:generated-output-drift`; `npm run check:site-options`; `npm run check:production-surfaces` |
+| `public-companion/*.html` | `senior-capstone-public` | `generated-output` | Students, families, staff, mentors | Partial | Generated public guide mirror; Student/Teacher guide mode is pending until source implements it. | Rebuild from root source only; keep production and generated-output checkers passing. | requirements-audit | `npm run build:public-site`; `npm run check:generated-output-drift`; `npm run check:site-options`; `npm run check:production-surfaces` |
 | `public-companion/app.js` | `senior-capstone-public` | `generated-output` | Browser asset for public guide | Yes | Generated JS mirror of public guide logic. | Do not add internal QA labels or fake/test account copy. | requirements-audit | `npm run check:generated-output-drift`; `npm run check:production-surfaces` |
 | `public-companion/styles.css` | `senior-capstone-public` | `generated-output` | Browser asset for public guide | Yes | Generated CSS mirror. | Rebuild from source. | requirements-audit | `npm run check:site-options` |
 | `public-companion/templates/**` | `senior-capstone-public` | `generated-output` | Students | Yes | Generated starter files. | Rebuild from source templates. | student-workflow-evidence | `npm run check:site-options` |

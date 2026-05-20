@@ -53,9 +53,11 @@ test("account smoke and alpha routes stay out of production public navigation", 
   assert.doesNotMatch(appJs, /href="alpha\.html"/);
   assert.doesNotMatch(appJs, /Account Smoke Test/);
   assert.doesNotMatch(appJs, /Alpha Console/);
+  assert.doesNotMatch(appJs, /Internal alpha/);
+  assert.doesNotMatch(appJs, /App Boundary/);
   assert.doesNotMatch(buildPublicSite, /account\.html/);
   assert.doesNotMatch(buildPublicSite, /alpha\.html/);
-  assert.match(appJs, /Internal alpha and account-check pages are reserved for Bryan and QA testers/);
+  assert.match(appJs, /Separate account-check pages are reserved for Bryan and testers/);
 });
 
 test("protected evidence access route is scoped, audited, and avoids storage id exposure", () => {

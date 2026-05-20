@@ -33,7 +33,6 @@ const productionRootHtml = new Set([
   "start.html",
   "audit.html",
   "roadmap.html",
-  "app-preview.html",
 ]);
 
 const productionAssetFiles = new Set([
@@ -43,6 +42,9 @@ const productionAssetFiles = new Set([
 const textExtensions = new Set([".html", ".js", ".md"]);
 
 const forbiddenPhrases = [
+  ["internal alpha", /\binternal\s+alpha\b/i],
+  ["QA only", /\bqa\s+only\b/i],
+  ["QA console", /\bqa\s+console\b/i],
   ["fake account", /\bfake\s+account\b/i],
   ["smoke test", /\bsmoke\s+test\b/i],
   ["seeded demo", /\bseeded\s+demo\b/i],
@@ -54,6 +56,9 @@ const forbiddenPhrases = [
   [".test account", /\.test\s+account\b/i],
   ["localhost", /\blocalhost\b/i],
   ["not pilot-ready", /\bnot\s+pilot-ready\b/i],
+  ["non-production preview", /\bnon-production\s+preview\b/i],
+  ["preview-only", /\bpreview-only\b/i],
+  ["app boundary", /\bapp[-\s]+boundary\b/i],
   ["prototype only", /\bprototype\s+only\b/i],
   ["stakeholder review direction", /\bstakeholder\s+review\s+direction\b/i],
   ["Option 1", /\boption\s+1\b/i],
@@ -62,12 +67,40 @@ const forbiddenPhrases = [
   ["Product App Preview", /\bproduct\s+app\s+preview\b/i],
   ["demo persona", /\bdemo\s+persona\b/i],
   ["seeded persona", /\bseeded\s+persona\b/i],
+  ["prompt leftover", /\bprompt\s+leftover\b/i],
+  ["Codex", /\bcodex\b/i],
+  ["builder", /\bbuilder\b/i],
+  ["automation prompt", /\bautomation\s+prompt\b/i],
+  ["TODO", /\btodo\b/i],
+  ["FIXME", /\bfixme\b/i],
+  ["dev note", /\bdev\s+note\b/i],
+  ["developer note", /\bdeveloper\s+note\b/i],
+  ["lorem ipsum", /\blorem\s+ipsum\b/i],
+  ["dummy data", /\bdummy\s+data\b/i],
+  ["fake data", /\bfake\s+data\b/i],
+  ["not production", /\bnot\s+production\b/i],
   ["no production accounts", /\bno\s+production\s+accounts\b/i],
   ["do not enter real student records", /\bdo\s+not\s+enter\s+real\s+student\s+records\b/i],
+  ["setup key", /\bsetup\s+key\b/i],
+  ["API secret", /\bapi\s+secret\b/i],
   ["MVP account check", /\bmvp\s+account\s+check\b/i],
   ["Open App Alpha", /\bopen\s+app\s+alpha\b/i],
   ["App Alpha", /\bapp\s+alpha\b/i],
   ["Account Smoke Test", /\baccount\s+smoke\s+test\b/i],
+  ["alpha route", /\balpha\s+route\b/i],
+  ["internal only", /\binternal\s+only\b/i],
+  ["Titan Blend", /\btitan\s+blend\b/i],
+  ["Back To Basics", /\bback\s+to\s+basics\b/i],
+  ["raw Drive storage IDs", /\braw\s+drive\s+storage\s+ids?\b/i],
+  ["stack traces", /\bstack\s+traces?\b/i],
+  ["debug output", /\bdebug\s+output\b/i],
+];
+
+const normalNavLinkPatterns = [
+  ["alpha.html link", /\bhref=["'][^"']*alpha\.html\b/i],
+  ["account.html link", /\bhref=["'][^"']*account\.html\b/i],
+  ["internal alpha route text", /\bopen\s+app\s+alpha\b/i],
+  ["account smoke route text", /\baccount\s+smoke\s+test\b/i],
 ];
 
 // Allowlist rules are intentionally path-based so a new production file cannot
@@ -145,6 +178,26 @@ function isProductionTextSurface(relativePath) {
   return false;
 }
 
+function isPreviewSurface(relativePath) {
+  return relativePath === "app-preview.html" || relativePath.endsWith("/app-preview.html");
+}
+
+function isAllowedPreviewPhrase(relativePath, phrase) {
+  if (!isPreviewSurface(relativePath)) return false;
+  return new Set([
+    "non-production preview",
+    "app boundary",
+  ]).has(phrase);
+}
+
+function shouldCheckNormalNavigation(relativePath) {
+  return (
+    productionRootHtml.has(relativePath)
+    || productionAssetFiles.has(relativePath)
+    || relativePath.startsWith("public-companion/")
+  );
+}
+
 function findLineAndColumn(text, index) {
   const before = text.slice(0, index);
   const lines = before.split(/\r?\n/);
@@ -157,6 +210,7 @@ function findLineAndColumn(text, index) {
 const allFiles = await listFiles(repoRoot);
 const scannedFiles = [];
 const findings = [];
+const navFindings = [];
 
 for (const fullPath of allFiles) {
   const relativePath = normalizePath(path.relative(repoRoot, fullPath));
@@ -165,17 +219,45 @@ for (const fullPath of allFiles) {
 
   const text = await readFile(fullPath, "utf8");
   for (const [phrase, pattern] of forbiddenPhrases) {
+    if (isAllowedPreviewPhrase(relativePath, phrase)) continue;
     const match = pattern.exec(text);
     if (!match) continue;
     const { line, column } = findLineAndColumn(text, match.index);
     findings.push({ relativePath, phrase, line, column });
   }
+  if (shouldCheckNormalNavigation(relativePath)) {
+    for (const [label, pattern] of normalNavLinkPatterns) {
+      const match = pattern.exec(text);
+      if (!match) continue;
+      const { line, column } = findLineAndColumn(text, match.index);
+      navFindings.push({ relativePath, label, line, column });
+    }
+  }
 }
 
-if (findings.length > 0) {
+const appShellText = await Promise.all(
+  ["index.html", "app.js"].map(async (relativePath) => {
+    try {
+      return await readFile(path.join(repoRoot, relativePath), "utf8");
+    } catch {
+      return "";
+    }
+  }),
+);
+const hasStudentTeacherGuideMarkers = /Student\s+Guide/i.test(appShellText.join("\n"))
+  && /Teacher\s+Guide/i.test(appShellText.join("\n"));
+
+if (!hasStudentTeacherGuideMarkers) {
+  console.warn("P0 pending: public production website is missing Student Guide / Teacher Guide toggle markers.");
+}
+
+if (findings.length > 0 || navFindings.length > 0) {
   console.error("Production surface leak check failed.");
   for (const finding of findings) {
     console.error(`${finding.relativePath}:${finding.line}:${finding.column} -> ${finding.phrase}`);
+  }
+  for (const finding of navFindings) {
+    console.error(`${finding.relativePath}:${finding.line}:${finding.column} -> normal nav leak: ${finding.label}`);
   }
   console.error(`Scanned ${scannedFiles.length} production text surface(s).`);
   process.exit(1);

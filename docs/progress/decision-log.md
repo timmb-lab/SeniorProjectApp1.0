@@ -17,3 +17,12 @@ Last refreshed: 2026-05-20
 - Hardened username/password pilot auth is the MVP path until school SSO is available.
 - Google Drive is the MVP evidence repository path while D1 stores metadata, review state, and audit history.
 - Real student data must not be entered into alpha or committed to the repo.
+
+## D-2026-05-20-020 - Production app/site split and Student/Teacher website mode
+
+- `area`: production experience
+- `decision`: The Senior Capstone production experience has two deliverables: a role-aware production app and a public website with Student Guide / Teacher Guide modes.
+- `applies to`: `docs/master-plan.md`, `docs/mvp-requirements-catalog.md`, `docs/production-surface-registry.md`, `docs/source-materials/production-content-crosswalk.md`, public guide source, canonical production app route, and generated public output.
+- `reason`: Alpha, account smoke, app preview, stakeholder options, and generated mirrors support review/testing, but they are not the canonical production experience Bryan wants.
+- `implementation rule`: The app must choose screens from authenticated session, D1-backed user, role, and permission scope. The website Student/Teacher toggle is public content organization only, not auth or permissions.
+- `validation`: Production-copy and generated-output checks must keep alpha/smoke/preview/dev/prompt copy out of canonical public/app surfaces, and normal public navigation must not link to internal QA/account surfaces.

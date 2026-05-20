@@ -22,6 +22,13 @@ Accepted pass criteria:
 - A run log and structured manifest that name the MVP requirement IDs, files changed, validation, commit SHA, push result, and next action.
 - No direct Figma connector/tool/file/node/screenshot work.
 
+P0 production experience guardrails:
+
+- Prioritize the P0 production app/site gate when it is the highest-risk incomplete work: a role-aware production app and a public website with Student Guide / Teacher Guide modes.
+- Do not count alpha-only, smoke-only, preview-only, stakeholder-option, fake-account, or dev-copy work as accepted production-experience progress.
+- Do not confuse stakeholder options with the Student/Teacher guide modes.
+- When public/app surfaces are touched, run production-surface/copy validation and generated-output drift checks when applicable.
+
 Blocked or needs-review criteria:
 
 - Wrong project, wrong branch, wrong remote, or dirty worktree at start.

@@ -1,0 +1,143 @@
+{
+  "run_id": "2026-05-20-1327-production-app-website-gate",
+  "date": "2026-05-20",
+  "repo_identity": {
+    "root": "C:/SeniorProjectApp1.0",
+    "branch": "main",
+    "remote": "https://github.com/timmb-lab/SeniorProjectApp1.0.git",
+    "package": "senior-capstone-app"
+  },
+  "start_commit": "96e5e8a8233c9821339833a45817ae442b224bff",
+  "end_commit": "pending final commit; exact SHA is reported in the final response because a Git commit cannot contain its own hash",
+  "scope": "Create the P0 production experience gate for a role-aware production app and a Student/Teacher public website, strengthen production-copy validation, and record source crosswalk/tracker evidence.",
+  "files_read": [
+    "package.json",
+    "README.md",
+    "docs/master-plan.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/automation-cadence.md",
+    "docs/production-surface-registry.md",
+    "docs/production-predeploy-checklist.md",
+    "docs/production-deployment-policy.md",
+    "docs/backend-setup.md",
+    "docs/curriculum-framework-integration.md",
+    "docs/generated/production-route-inventory.md",
+    "docs/automation-backlog.md",
+    "docs/progress/run-log.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/decision-log.md",
+    "docs/human-decisions.md",
+    "docs/artifacts.json",
+    "data/capstone-framework.json",
+    "docs/source-materials/research-proposal-challenge.txt",
+    "docs/source-materials/senior-project-cycle-linked-document.txt",
+    "docs/source-materials/senior-guide.txt",
+    "docs/source-materials/mentor-teacher-guide.txt",
+    "index.html",
+    "app.js",
+    "styles.css",
+    "app-preview.html",
+    "alpha.html",
+    "alpha.js",
+    "account.html",
+    "account.js",
+    "scripts/check-production-surfaces.mjs",
+    "scripts/check-predeploy-gate.mjs",
+    "scripts/run-npm-script.ps1",
+    "scripts/check-generated-output-drift.mjs",
+    "scripts/check-site-options.mjs",
+    "automation/prompts/senior-capstone-nonfigma-mvp-builder.md",
+    "automation/prompts/senior-capstone-figma-product-builder.md"
+  ],
+  "files_changed": [
+    "docs/master-plan.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/production-surface-registry.md",
+    "docs/source-materials/production-content-crosswalk.md",
+    "scripts/check-production-surfaces.mjs",
+    "app.js",
+    "public-companion/app.js",
+    "tests/account-and-evidence-access.test.mjs",
+    "automation/prompts/senior-capstone-nonfigma-mvp-builder.md",
+    "automation/prompts/senior-capstone-figma-product-builder.md",
+    "docs/automation-backlog.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/decision-log.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-20-1327-production-app-website-gate.json"
+  ],
+  "sections_updated": [
+    "P0 Production Experience Gate",
+    "Forbidden Production-Surface Copy",
+    "Production App Acceptance Criteria",
+    "Production Website Acceptance Criteria",
+    "Role-Aware Production App Contract",
+    "Student And Teacher Website Contract",
+    "P0 Production Experience Gate Requirements",
+    "P0 Production Experience Targets",
+    "Normal Production Navigation Rule"
+  ],
+  "mvp_ids_touched": [
+    "MVP-001",
+    "MVP-003",
+    "MVP-025",
+    "MVP-030",
+    "MVP-031",
+    "MVP-032",
+    "MVP-033",
+    "MVP-034",
+    "MVP-035",
+    "MVP-036",
+    "MVP-037",
+    "MVP-038",
+    "MVP-039",
+    "MVP-040"
+  ],
+  "classification_findings": {
+    "canonical_production_app": "TBD; alpha.html, account.html, and app-preview.html are not canonical production app routes.",
+    "public_site_student_teacher_toggle": "P0 pending; current public site lacks Student Guide / Teacher Guide toggle markers.",
+    "app_preview": "preview, not production",
+    "production_copy_risks_fixed": [
+      "Removed internal alpha wording from shared app.js copy.",
+      "Renamed App Boundary public labels to Future App Workflow."
+    ]
+  },
+  "validation_commands": [
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 check:predeploy-gate",
+      "result": "pass"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 check:production-surfaces",
+      "result": "pass; reports P0 pending Student Guide / Teacher Guide toggle markers"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 tests\\account-and-evidence-access.test.mjs",
+      "result": "pass; 4/4 tests"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 check:site-options",
+      "result": "pass"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 check:generated-output-drift",
+      "result": "pass"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 check",
+      "result": "pass; 117/117 tests; static Cloudflare checks passed; live Cloudflare reported LIVE_CLOUDFLARE_BLOCKED_NO_TOKEN"
+    },
+    {
+      "command": "git diff --check",
+      "result": "pass with line-ending warnings only"
+    }
+  ],
+  "remaining_blockers": [
+    "Canonical authenticated role-aware production app route is still TBD.",
+    "Student Guide / Teacher Guide website top-banner toggle is still pending.",
+    "Broader role/scope screen-selection tests remain future work.",
+    "Live Cloudflare Pages/D1 verification still requires CLOUDFLARE_API_TOKEN."
+  ],
+  "next_non_figma_slice": "Implement the Student Guide / Teacher Guide top-banner toggle in the public site source, rebuild public-companion with repo scripts, and keep production/generation checks passing.",
+  "next_figma_slice": "Create or update Figma handoffs for the role-aware production app shell and Student/Teacher public website modes, with route/data/permission/state annotations only."
+}

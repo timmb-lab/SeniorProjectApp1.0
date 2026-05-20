@@ -358,3 +358,15 @@ Future productive runs should append compact entries that name the master-plan s
 - `blockers`: remote D1 apply/verification for `0006_presentation_slots.sql` still requires `CLOUDFLARE_API_TOKEN`; this run did not perform live Cloudflare mutation.
 - `phone tracker`: appended to `Senior Capstone QoL Run Tracker` at 2026-05-20 13:13 PT.
 - `self-improvement`: none.
+
+## 2026-05-20 13:27 PT - P0 Production App And Website Gate
+
+- `lane`: requirements-audit / deployment-qa.
+- `master-plan sections`: P0 Production Experience Gate; Role-Aware Production App Contract; Student And Teacher Website Contract; Product Destination.
+- `requirement IDs`: `MVP-001`, `MVP-003`, `MVP-025`, `MVP-030`, `MVP-031` through `MVP-040`; `backlog IDs`: `SC-007`.
+- `selected slice`: Force the repo toward two real production deliverables: a role-aware Senior Capstone App and a public Senior Capstone Website with Student Guide / Teacher Guide modes.
+- `files changed`: `docs/master-plan.md`, `docs/mvp-requirements-catalog.md`, `docs/production-surface-registry.md`, `docs/source-materials/production-content-crosswalk.md`, `scripts/check-production-surfaces.mjs`, `app.js`, `public-companion/app.js`, `tests/account-and-evidence-access.test.mjs`, automation prompt guardrails, backlog, handoff, decision log, this run log, and the structured run manifest.
+- `validation`: `check:predeploy-gate` passed; `check:production-surfaces` passed and records Student/Teacher toggle as P0 pending; `check:site-options` passed; `check:generated-output-drift` passed; focused account/evidence access test passed; aggregate `check` passed with 117/117 tests and `LIVE_CLOUDFLARE_BLOCKED_NO_TOKEN`; `git diff --check` passed with line-ending warnings only.
+- `commit`: pending closeout commit.
+- `blockers`: canonical production app route is still TBD; Student/Teacher website toggle is still pending; live Cloudflare verification still requires `CLOUDFLARE_API_TOKEN`.
+- `self-improvement`: production-copy checker now records the missing Student/Teacher website toggle as an explicit P0 pending signal and flags stronger public/app copy leaks.

@@ -37,6 +37,30 @@ Status values:
 - `evidence to close`: Accepted human-decision entries plus passing `check:production-surfaces`, `check:route-inventory`, and `check`.
 - `last updated`: 2026-05-20
 
+### H-2026-05-20-007
+
+- `source lane`: requirements-audit
+- `owner lane`: non-figma / requirements-audit and backend-security-data
+- `status`: open
+- `source`: P0 production app/website gate
+- `artifact`: `docs/master-plan.md`, `docs/mvp-requirements-catalog.md`, `docs/production-surface-registry.md`, `docs/source-materials/production-content-crosswalk.md`, `scripts/check-production-surfaces.mjs`, `SC-007`
+- `next action`: Implement the Student Guide / Teacher Guide top-banner toggle in the public site source, rebuild generated public output, and then designate/build the canonical authenticated role-aware production app route.
+- `acceptance check`: Public website mode toggle exists with visible source-aligned content; normal public nav stays free of alpha/account/internal QA links; canonical app route requires auth and chooses screens from D1-backed role/scope.
+- `evidence to close`: Passing `check:production-surfaces`, `check:generated-output-drift`, and `check`, plus source/generator changes for the website toggle and route/test evidence for the canonical app.
+- `last updated`: 2026-05-20 13:27 PT
+
+### H-2026-05-20-008
+
+- `source lane`: requirements-audit
+- `owner lane`: figma-only / design-assets-handoff
+- `status`: open
+- `source`: P0 production app/website gate
+- `artifact`: `docs/master-plan.md`, `docs/source-materials/production-content-crosswalk.md`, `MVP-031` through `MVP-040`
+- `next action`: Create or update Figma handoffs for the role-aware production app shell and the Student/Teacher public website modes, using route/data/permission/state annotations only.
+- `acceptance check`: Figma handoff distinguishes app roles from public website guide modes, includes student/mentor/program-teacher/admin/misc-admin state variants, and does not treat stakeholder options as Student/Teacher guide modes.
+- `evidence to close`: Verified Figma node IDs/screenshots/metadata and repo-local handoff notes that implementation can consume without broad visual-only polish.
+- `last updated`: 2026-05-20 13:27 PT
+
 ### H-2026-05-18-001
 
 - `source lane`: canva

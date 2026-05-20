@@ -22,6 +22,13 @@ Accepted pass criteria:
 - Repo-local notes, artifacts, run log, and structured manifest updated when they materially record the design evidence or blocker.
 - No backend implementation, broad app code implementation, broad unrelated repo rewrite, Canva work, or unverified Figma claim.
 
+P0 production experience guardrails:
+
+- Support the role-aware production app and Student Guide / Teacher Guide public website through route, data, permission, and state handoffs only.
+- Do not count alpha-only, smoke-only, preview-only, stakeholder-option, or dev-copy design work as accepted production-experience progress.
+- Do not confuse stakeholder options with Student/Teacher guide modes.
+- If a Figma slice touches public/app production surfaces conceptually, record the production-copy and route-boundary checks implementation must run.
+
 Blocked or needs-review criteria:
 
 - Wrong project, wrong branch, wrong remote, or dirty worktree at start.
