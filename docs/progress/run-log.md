@@ -134,3 +134,11 @@ Future productive runs should append compact entries that name the master-plan s
 - `files changed`: `tests/auth-login.integration.test.mjs`, `functions/api/auth/login.ts`, `functions/api/auth/me.ts`, `functions/api/auth/logout.ts`, `functions/api/auth/bootstrap.ts`, `docs/mvp-requirements-catalog.md`, `docs/automation-memory.md`, `docs/progress/rebuild.md`, `docs/progress/run-log.md`, and `docs/progress/runs/2026-05-20-0247-auth-edge-tests-mvp-004-005.json`.
 - `verification`: `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 test` (pass).
 - `blockers`: none.
+
+## 2026-05-20 03:20 PT - MVP-017 Mentor Meeting Persistence Route + Tests
+
+- `master-plan sections`: Day 7 Alpha Gate; Immediate next five passes should deepen the shipped alpha; Logging Requirements.
+- `requirement IDs`: `MVP-017`; `backlog IDs`: `SC-004`.
+- `files changed`: `migrations/0004_mentor_meetings.sql`, `functions/api/mentor/meetings.ts`, `tests/mentor-meetings.integration.test.mjs`, `docs/mvp-requirements-catalog.md`, `docs/automation-memory.md`, `docs/progress/run-log.md`, and `docs/progress/runs/2026-05-20-0320-mentor-meetings-mvp-017.json`.
+- `verification`: `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 test` (pass).
+- `blockers`: none.
