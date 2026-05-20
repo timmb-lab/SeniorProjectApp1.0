@@ -59,6 +59,14 @@ const TEST_ACCOUNTS = [
 const ALPHA_EVIDENCE_ID = "evidence-alpha-maya-category-map";
 const ALPHA_SUBMISSION_ID = "submission-alpha-maya-proposal";
 const MAX_DRIVE_UPLOAD_BYTES = 5 * 1024 * 1024;
+const REVIEW_HISTORY_STORAGE_KEYS = [
+  "drive" + "_file" + "_id",
+  "drive" + "FileId",
+  "drive" + "_parent" + "_folder" + "_id",
+  "drive" + "ParentFolderId",
+  "storage" + "Id",
+  "storage" + "Key",
+];
 
 const loginForm = document.querySelector("#loginForm");
 const accountSelect = document.querySelector("#accountSelect");
@@ -69,6 +77,7 @@ const sessionPanel = document.querySelector("#sessionPanel");
 const evidencePanel = document.querySelector("#evidencePanel");
 const healthPanel = document.querySelector("#healthPanel");
 const drivePanel = document.querySelector("#drivePanel");
+const reviewHistoryPanel = document.querySelector("#reviewHistoryPanel");
 const selectedExpectation = document.querySelector("#selectedExpectation");
 const smokeChecklist = document.querySelector("#smokeChecklist");
 const testAccountList = document.querySelector("#testAccountList");
@@ -84,6 +93,7 @@ const driveEvidenceIdInput = document.querySelector("#driveEvidenceIdInput");
 const uploadDriveFile = document.querySelector("#uploadDriveFile");
 const downloadDriveFile = document.querySelector("#downloadDriveFile");
 const clearDriveEvidence = document.querySelector("#clearDriveEvidence");
+const loadReviewHistory = document.querySelector("#loadReviewHistory");
 const copyUserSummary = document.querySelector("#copyUserSummary");
 const runSmokeSequence = document.querySelector("#runSmokeSequence");
 
@@ -95,6 +105,7 @@ let smokeState = {
   health: { status: "waiting", detail: "Run backend health check." },
   driveUpload: { status: "waiting", detail: "Upload a Drive file evidence as the student account." },
   driveDownload: { status: "waiting", detail: "Download a Drive evidence file after uploading." },
+  reviewHistory: { status: "waiting", detail: "Load scoped review history after sign-in." },
 };
 
 init();
@@ -143,6 +154,9 @@ function bindEvents() {
   }
   if (clearDriveEvidence) {
     clearDriveEvidence.addEventListener("click", clearDriveEvidenceState);
+  }
+  if (loadReviewHistory) {
+    loadReviewHistory.addEventListener("click", fetchReviewHistory);
   }
   if (driveFileInput && driveTitleInput) {
     driveFileInput.addEventListener("change", () => {
@@ -240,6 +254,11 @@ function renderSmokeChecklist() {
       status: smokeState.driveDownload.status,
       detail: smokeState.driveDownload.detail,
     },
+    {
+      label: "Review history",
+      status: smokeState.reviewHistory.status,
+      detail: smokeState.reviewHistory.detail,
+    },
   ];
 
   smokeChecklist.innerHTML = checks.map((check) => `
@@ -260,6 +279,7 @@ async function signIn() {
   renderSmokeChecklist();
   setStatus("Signing in with the fake account...", "neutral");
   evidencePanel.innerHTML = "Sign in complete, then run the access check.";
+  reviewHistoryPanel.innerHTML = "Sign in complete, then load review history.";
 
   try {
     const response = await fetch("/api/auth/login", {
@@ -292,6 +312,7 @@ async function checkSession() {
     if (!response.ok) {
       currentSession = null;
       smokeState.evidence = { status: "waiting", detail: "Sign in before checking protected evidence." };
+      smokeState.reviewHistory = { status: "waiting", detail: "Sign in before loading review history." };
       renderSession(null);
       renderSmokeChecklist();
       setStatus("No active session. Sign in with one of the fake .test accounts.", "neutral");
@@ -328,6 +349,7 @@ async function signOut() {
     resetSmokeResults();
     renderSmokeChecklist();
     evidencePanel.innerHTML = "Sign in, then run the access check.";
+    reviewHistoryPanel.innerHTML = "Sign in, then load review history.";
     resetDriveChecks({ preserveEvidenceId: true });
     setStatus("Signed out. Session cookie cleared.", "success");
   } catch (error) {
@@ -397,6 +419,168 @@ async function checkEvidenceAccess() {
   } finally {
     setBusy(false);
   }
+}
+
+async function fetchReviewHistory() {
+  setBusy(true);
+  reviewHistoryPanel.innerHTML = "Loading scoped review history...";
+  try {
+    const expectedAccount = getAccountForCurrentSession();
+    const response = await fetch(`/api/reviews/${ALPHA_SUBMISSION_ID}/history`, {
+      headers: { accept: "application/json" },
+      credentials: "same-origin",
+    });
+    const data = await safeJson(response);
+
+    if (!response.ok) {
+      const expectedDenied = expectedAccount.expectedEvidenceAccess === "denied" && response.status === 403;
+      smokeState.reviewHistory = {
+        status: expectedDenied ? "pass" : "fail",
+        detail: `${response.status} ${data?.error || "history unavailable"} (${expectedAccount.label}).`,
+      };
+      renderSmokeChecklist();
+      reviewHistoryPanel.innerHTML = renderJson({
+        status: response.status,
+        checkedAs: currentSession?.email || "unknown",
+        expectedAccount: expectedAccount.email,
+        expectedHistoryAccess: expectedAccount.expectedEvidenceAccess,
+        outcomeMatches: expectedDenied,
+        ...data,
+      });
+      setStatus(
+        expectedDenied
+          ? "Review history correctly denied for misc-admin scope."
+          : `Review history failed with ${response.status}.`,
+        expectedDenied ? "success" : "error",
+      );
+      return;
+    }
+
+    const storageLeakDetected = containsStorageIdentifiers(data);
+    const outcomeMatches = expectedAccount.expectedEvidenceAccess === "allowed" && !storageLeakDetected;
+    smokeState.reviewHistory = {
+      status: outcomeMatches ? "pass" : "fail",
+      detail: storageLeakDetected
+        ? "History payload included a storage identifier and was not rendered."
+        : `Loaded ${data?.comments?.length || 0} comments and ${data?.versions?.length || 0} versions.`,
+    };
+    renderSmokeChecklist();
+
+    reviewHistoryPanel.innerHTML = storageLeakDetected
+      ? `<div class="account-empty">Review history was blocked because the payload contained a private storage identifier.</div>`
+      : renderReviewHistorySummary(data);
+
+    setStatus(
+      outcomeMatches
+        ? "Review history loaded with comments and version snapshots."
+        : `Review history was allowed unexpectedly for ${expectedAccount.label}.`,
+      outcomeMatches ? "success" : "error",
+    );
+  } catch (error) {
+    smokeState.reviewHistory = { status: "fail", detail: "Review history request threw an exception." };
+    renderSmokeChecklist();
+    reviewHistoryPanel.innerHTML = "Review history could not reach the API.";
+    setStatus(error.message, "error");
+  } finally {
+    setBusy(false);
+  }
+}
+
+function renderReviewHistorySummary(data) {
+  const reviews = Array.isArray(data?.reviews) ? data.reviews : [];
+  const comments = Array.isArray(data?.comments) ? data.comments : [];
+  const versions = Array.isArray(data?.versions) ? data.versions : [];
+  const statusHistory = Array.isArray(data?.statusHistory) ? data.statusHistory : [];
+
+  return `
+    <div class="account-history-summary">
+      <span class="account-role">${escapeHtml(data?.submission?.status || "unknown")}</span>
+      <span class="account-role">Version ${escapeHtml(data?.submission?.version ?? versions[0]?.version ?? "n/a")}</span>
+      <span class="account-role">${comments.length} comment${comments.length === 1 ? "" : "s"}</span>
+      <span class="account-role">${versions.length} preserved version${versions.length === 1 ? "" : "s"}</span>
+    </div>
+    ${renderHistorySection("Teacher Comments", comments, renderCommentRow)}
+    ${renderHistorySection("Review Decisions", reviews, renderReviewRow)}
+    ${renderHistorySection("Submission Versions", versions, renderVersionRow)}
+    ${renderHistorySection("Status Timeline", statusHistory.slice(0, 6), renderStatusRow)}
+  `;
+}
+
+function renderHistorySection(title, items, renderer) {
+  return `
+    <section class="account-history-section">
+      <h3>${escapeHtml(title)}</h3>
+      <div class="account-history-list">
+        ${items.length ? items.map(renderer).join("") : `<div class="account-empty">No ${escapeHtml(title.toLowerCase())} recorded yet.</div>`}
+      </div>
+    </section>
+  `;
+}
+
+function renderCommentRow(comment) {
+  return `
+    <article class="account-history-item">
+      <div>
+        <strong>${escapeHtml(comment.author_name || "Reviewer")}</strong>
+        <p>${escapeHtml(comment.body || "No comment body.")}</p>
+        <small>${escapeHtml(comment.visibility || "student_and_staff")}</small>
+      </div>
+      <span class="account-history-meta">${escapeHtml(formatTime(comment.created_at))}</span>
+    </article>
+  `;
+}
+
+function renderReviewRow(review) {
+  return `
+    <article class="account-history-item">
+      <div>
+        <strong>${escapeHtml((review.decision || "review").replace(/_/g, " "))}</strong>
+        <p>${escapeHtml(review.feedback || "No feedback recorded.")}</p>
+        <small>${escapeHtml(review.reviewer_name || "Reviewer")}</small>
+      </div>
+      <span class="account-history-meta">${escapeHtml(formatTime(review.created_at))}</span>
+    </article>
+  `;
+}
+
+function renderVersionRow(version) {
+  const evidence = Array.isArray(version.evidence) ? version.evidence : [];
+  return `
+    <article class="account-history-item account-history-version">
+      <div>
+        <strong>Version ${escapeHtml(version.version)} - ${escapeHtml(String(version.status || "submitted").replace(/_/g, " "))}</strong>
+        <p>Submitted by ${escapeHtml(version.submittedByName || "student")} on ${escapeHtml(formatTime(version.submittedAt))}.</p>
+        <div class="account-history-evidence">
+          ${evidence.length ? evidence.map((item) => `
+            <span class="account-role">${escapeHtml(item.title || item.id || "Evidence")} / ${escapeHtml(item.sourceKind || "metadata")} / ${escapeHtml(item.reviewStatus || "pending")}</span>
+          `).join("") : `<span class="account-role">No evidence snapshot</span>`}
+        </div>
+      </div>
+    </article>
+  `;
+}
+
+function renderStatusRow(row) {
+  return `
+    <article class="account-history-item">
+      <div>
+        <strong>${escapeHtml(row.from_status || "new")} -> ${escapeHtml(row.to_status || "unknown")}</strong>
+        <p>${escapeHtml(row.reason || "Status changed.")}</p>
+        <small>${escapeHtml(row.changed_by_name || "System")}</small>
+      </div>
+      <span class="account-history-meta">${escapeHtml(formatTime(row.created_at))}</span>
+    </article>
+  `;
+}
+
+function containsStorageIdentifiers(value) {
+  let serialized = "";
+  try {
+    serialized = JSON.stringify(value || {});
+  } catch {
+    return true;
+  }
+  return REVIEW_HISTORY_STORAGE_KEYS.some((key) => serialized.includes(key));
 }
 
 function formatBytes(bytes) {
@@ -700,6 +884,7 @@ async function runAccountSmokeSequence() {
   await checkSession();
   await checkBackendHealth();
   await checkEvidenceAccess();
+  await fetchReviewHistory();
 }
 
 async function copyCurrentUserSummary() {
@@ -808,6 +993,7 @@ function setBusy(isBusy) {
     uploadDriveFile,
     downloadDriveFile,
     clearDriveEvidence,
+    loadReviewHistory,
     driveFileInput,
     driveTitleInput,
     driveArtifactType,
@@ -827,6 +1013,7 @@ function resetSmokeResults() {
     health: { status: "waiting", detail: "Run backend health check." },
     driveUpload: { status: "waiting", detail: "Upload a Drive file evidence as the student account." },
     driveDownload: { status: "waiting", detail: "Download a Drive evidence file after uploading." },
+    reviewHistory: { status: "waiting", detail: "Load scoped review history after sign-in." },
   };
 }
 

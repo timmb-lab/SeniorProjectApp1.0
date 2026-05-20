@@ -271,3 +271,13 @@ Future productive runs should append compact entries that name the master-plan s
 - `commit`: `3c4a692` (`rebuild: persist review comments (MVP-015)`), pushed to `origin main`.
 - `blockers`: none.
 - `self-improvement`: none.
+
+## 2026-05-20 10:18 PT - MVP-015/MVP-016 Review History UI
+
+- `master-plan sections`: Day 7 Alpha Gate; Seven-day implementation ladder Day 4; Logging Requirements.
+- `requirement IDs`: `MVP-015`, `MVP-016`; `backlog IDs`: `SC-005`, `SC-006`.
+- `files changed`: `account.html`, `account.js`, `account.css`, `tests/account-and-evidence-access.test.mjs`, `docs/mvp-requirements-catalog.md`, `docs/automation-memory.md`, `docs/progress/handoffs.md`, this run log, `docs/progress/rebuild.md`, and `docs/progress/runs/2026-05-20-1018-review-history-ui-mvp-015-016.json`.
+- `verification`: `typecheck` passed; focused account/evidence source test passed; full test suite passed with 115 tests; `verify:qol-automation` passed 14 checks; `check:cloudflare` passed static Wrangler/D1 checks and skipped live verification because `CLOUDFLARE_API_TOKEN` is not set; `check:automation` passed; aggregate `check` passed.
+- `commit`: pending until closeout commit is created and pushed.
+- `blockers`: remote D1 apply/verification for `0005_submission_versions.sql` still requires `CLOUDFLARE_API_TOKEN`; this run did not require live Cloudflare mutation.
+- `self-improvement`: none.

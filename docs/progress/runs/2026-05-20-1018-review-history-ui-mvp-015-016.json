@@ -1,0 +1,130 @@
+{
+  "run_id": "2026-05-20-1018-review-history-ui-mvp-015-016",
+  "timestamp_local": "2026-05-20T10:18:46-07:00",
+  "automation_id": "senior-capstone-nonfigma-mvp-builder",
+  "trigger": "Top-of-hour non-Figma MVP builder pass: expose the existing scoped review-history API in the visible app smoke workflow.",
+  "lane": "staff-review-mentor",
+  "status": "completed",
+  "accepted_mvp_pass": true,
+  "requirement_ids": [
+    "MVP-015",
+    "MVP-016"
+  ],
+  "backlog_ids": [
+    "SC-005",
+    "SC-006"
+  ],
+  "duration_minutes": 40,
+  "output_kind": "ui+tests+docs",
+  "scope": "Add an account smoke review-history panel that fetches /api/reviews/:submissionId/history for the seeded Maya submission and renders teacher comments, review decisions, status changes, and immutable submission versions without rendering Drive storage identifiers.",
+  "source_docs_read": [
+    "automation/qol/project-lock.json",
+    "automation/qol/reports/latest.md",
+    "automation/qol/state/state.json",
+    "automation/qol/state/plan-index.json",
+    "automation/prompts/senior-capstone-nonfigma-mvp-builder.md",
+    "docs/master-plan.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/automation-cadence.md",
+    "docs/automation-runbook.md",
+    "docs/automation-self-improvement.md",
+    "docs/automation-memory.md",
+    "docs/automation-milestones.md",
+    "docs/progress/run-log.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/decision-log.md",
+    "docs/automation-backlog.md",
+    "docs/artifacts.json",
+    "docs/human-decisions.md",
+    "README.md",
+    "package.json",
+    "docs/progress/runs/2026-05-20-0905-review-history-comments-mvp-015-016.json",
+    "docs/progress/runs/2026-05-20-0832-submission-version-history-mvp-016.json",
+    "account.html",
+    "account.js",
+    "account.css",
+    "functions/api/reviews/[submissionId]/history.ts",
+    "tests/account-and-evidence-access.test.mjs"
+  ],
+  "changes": [
+    "Added a Review history card to account.html with a Load History action for the seeded alpha submission.",
+    "Added account.js review-history fetch/render logic for comments, review decisions, status timeline rows, and immutable submission versions.",
+    "Added a storage-identifier guard so the smoke UI refuses to render history payloads that include private Drive storage identifiers.",
+    "Added account.css history layout styles that preserve compact responsive rows.",
+    "Extended tests/account-and-evidence-access.test.mjs to assert the review-history UI, endpoint call, renderer, storage guard, and account.js syntax.",
+    "Updated MVP catalog, automation memory, run log, rebuild lane log, and handoff evidence."
+  ],
+  "validation": [
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 tests\\account-and-evidence-access.test.mjs",
+      "result": "passed",
+      "summary": "Focused account/evidence source test passed: 4/4."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 typecheck",
+      "result": "passed",
+      "summary": "Strict TypeScript validation passed with no output."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 test",
+      "result": "passed",
+      "summary": "Full Node test suite passed: 115/115."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 verify:qol-automation",
+      "result": "passed",
+      "summary": "QoL smoke passed 14 checks."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 check:cloudflare",
+      "result": "passed",
+      "summary": "Static Wrangler/D1 verification passed; live Pages/D1 verification was skipped because CLOUDFLARE_API_TOKEN is not set."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 check:automation",
+      "result": "passed",
+      "summary": "Split cadence verification passed."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 check",
+      "result": "passed",
+      "summary": "Aggregate check passed, including alpha contract, cadence, site options, Cloudflare static checks, tests, and typecheck."
+    }
+  ],
+  "changed_files": [
+    "account.html",
+    "account.js",
+    "account.css",
+    "tests/account-and-evidence-access.test.mjs",
+    "docs/mvp-requirements-catalog.md",
+    "docs/automation-memory.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/run-log.md",
+    "docs/progress/rebuild.md",
+    "docs/progress/runs/2026-05-20-1018-review-history-ui-mvp-015-016.json"
+  ],
+  "generated_output": {
+    "appeared": [],
+    "kept": [],
+    "restored": [],
+    "notes": "No build command was required and no generated public-companion or stakeholder output was produced."
+  },
+  "blockers": [
+    "Remote D1 apply/verification for migrations/0005_submission_versions.sql still requires CLOUDFLARE_API_TOKEN for non-interactive Wrangler; this UI handles unavailable history gracefully and does not require live mutation."
+  ],
+  "known_limits": [
+    "The primary alpha console still uses server-owned alpha state for its review history card; this run wires the API-backed review history into the account smoke path.",
+    "Hosted review-history success depends on remote D1 having the submission_versions migration applied."
+  ],
+  "next_actions": [
+    "Apply and verify migrations/0005_submission_versions.sql against remote D1 once CLOUDFLARE_API_TOKEN is available.",
+    "Move the same API-backed review-history renderer into the primary alpha/student-teacher workflow view when the Day 7 walkthrough needs the history on the main console."
+  ],
+  "commit_sha": "pending closeout commit",
+  "push_result": "pending closeout push",
+  "automation_efficiency": {
+    "scale_signal": "accepted implementation pass; no cadence change recommended"
+  },
+  "self_improvement": "none",
+  "figma_work_avoided": true
+}

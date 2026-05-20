@@ -249,13 +249,16 @@ body[data-page="account"] {
 
 .account-list,
 .account-checklist,
-.account-health-grid {
+.account-health-grid,
+.account-history-list,
+.account-history-section {
   display: grid;
   gap: 0.55rem;
 }
 
 .account-row,
-.account-check {
+.account-check,
+.account-history-item {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 0.65rem;
@@ -268,6 +271,46 @@ body[data-page="account"] {
 
 .account-check {
   grid-template-columns: auto minmax(0, 1fr) auto;
+}
+
+.account-history-section h3 {
+  margin: 0.2rem 0 0;
+  font-size: 1rem;
+  letter-spacing: 0;
+}
+
+.account-history-summary,
+.account-history-evidence {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.account-history-item {
+  align-items: start;
+}
+
+.account-history-item p,
+.account-history-item small {
+  display: block;
+  margin: 0.18rem 0 0;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+
+.account-history-meta {
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.account-history-version {
+  grid-template-columns: 1fr;
+}
+
+.account-history-evidence {
+  margin-top: 0.55rem;
 }
 
 .account-check div span {
@@ -368,7 +411,8 @@ body[data-page="account"] {
   }
 
   .account-row,
-  .account-check {
+  .account-check,
+  .account-history-item {
     grid-template-columns: 1fr;
   }
 

@@ -9,7 +9,7 @@
     >
     <title>Account Smoke Test | Senior Capstone App</title>
     <link rel="stylesheet" href="styles.css?v=20260518-polish10">
-    <link rel="stylesheet" href="account.css?v=20260520-qol41">
+    <link rel="stylesheet" href="account.css?v=20260520-qol42">
   </head>
   <body data-page="account">
     <a class="skip-link" href="#accountMain">Skip to account smoke test</a>
@@ -143,6 +143,19 @@
 
         <article class="account-card">
           <div class="account-card-head">
+            <p class="account-kicker">Review history</p>
+            <button class="account-button" id="loadReviewHistory" type="button">Load History</button>
+          </div>
+          <p>
+            This calls the scoped review-history endpoint for the seeded Maya submission and
+            renders teacher comments, review decisions, status changes, and preserved submission
+            versions without exposing Drive storage IDs.
+          </p>
+          <div id="reviewHistoryPanel" class="account-empty">Sign in, then load review history.</div>
+        </article>
+
+        <article class="account-card">
+          <div class="account-card-head">
             <p class="account-kicker">Backend health</p>
             <button class="account-button" id="checkHealth" type="button">Check Health</button>
           </div>
@@ -170,6 +183,6 @@
       </section>
     </main>
 
-    <script type="module" src="account.js?v=20260520-qol41"></script>
+    <script type="module" src="account.js?v=20260520-qol42"></script>
   </body>
 </html>

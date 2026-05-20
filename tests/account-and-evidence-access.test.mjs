@@ -22,9 +22,17 @@ test("account smoke page exercises real auth endpoints without storing credentia
   assert.match(accountHtml, /id="selectedExpectation"/);
   assert.match(accountHtml, /id="smokeChecklist"/);
   assert.match(accountHtml, /id="runSmokeSequence"/);
+  assert.match(accountHtml, /id="loadReviewHistory"/);
+  assert.match(accountHtml, /id="reviewHistoryPanel"/);
   assert.match(accountJs, /renderSelectedExpectation/);
   assert.match(accountJs, /renderSmokeChecklist/);
   assert.match(accountJs, /runAccountSmokeSequence/);
+  assert.match(accountJs, /fetchReviewHistory/);
+  assert.match(accountJs, /\/api\/reviews\/\$\{ALPHA_SUBMISSION_ID\}\/history/);
+  assert.match(accountJs, /renderReviewHistorySummary/);
+  assert.match(accountJs, /renderVersionRow/);
+  assert.match(accountJs, /containsStorageIdentifiers/);
+  assert.match(accountJs, /REVIEW_HISTORY_STORAGE_KEYS/);
   assert.match(accountJs, /expectedEvidenceAccess: "denied"/);
   assert.match(accountJs, /expectedRole: "program_teacher"/);
   assert.match(accountJs, /expectedRole: "admin"/);
@@ -35,7 +43,9 @@ test("account smoke page exercises real auth endpoints without storing credentia
   assert.match(accountJs, /outcomeMatches/);
   assert.match(accountJs, /Selected expectation updated/);
   assert.doesNotMatch(accountJs, /localStorage|sessionStorage|indexedDB/);
+  assert.doesNotMatch(accountJs, /drive_file_id|drive_parent_folder_id|driveFileId|driveParentFolderId/);
   assert.doesNotMatch(accountJs, /\.secrets|test-accounts-2026-05-18|passwords\s*:/);
+  assert.doesNotThrow(() => new Function(accountJs));
 });
 
 test("account smoke route is reachable from the app navigation but public builds point back to the app host", () => {
