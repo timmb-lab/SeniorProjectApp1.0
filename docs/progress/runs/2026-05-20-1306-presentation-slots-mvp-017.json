@@ -117,6 +117,13 @@
   "structured_manifest_created": true,
   "artifacts_json_updated": true,
   "mvp_catalog_changed": true,
+  "phone_tracker": {
+    "spreadsheet_id": "1J8jQMn85wJwo9Rh6LjQUVv_WfLS1YJWsbpcLBCojjjs",
+    "tab": "QoL Runs",
+    "result": "appended",
+    "timestamp_local": "2026-05-20T13:13:21-07:00",
+    "summary": "Recorded MVP-017 presentation slot scheduling pass for phone-friendly tracking."
+  },
   "implementation_commit_sha": "d1dfb69b98b98850342d7d8c97b08929e3938641",
   "commit_sha": "d1dfb69b98b98850342d7d8c97b08929e3938641",
   "push_result": "pushed to origin main: d74967e..d1dfb69"
