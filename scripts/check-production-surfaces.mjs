@@ -244,11 +244,24 @@ const appShellText = await Promise.all(
     }
   }),
 );
-const hasStudentTeacherGuideMarkers = /Student\s+Guide/i.test(appShellText.join("\n"))
-  && /Teacher\s+Guide/i.test(appShellText.join("\n"));
+const publicGuideToggleRequirements = [
+  ["Student Guide", /Student\s+Guide/i],
+  ["Teacher Guide", /Teacher\s+Guide/i],
+  ["Viewing: Student Guide", /Viewing:\s*Student\s+Guide/i],
+  ["Viewing: Teacher Guide", /Viewing:\s*Teacher\s+Guide/i],
+  ["Switch to Student Guide", /Switch\s+to\s+Student\s+Guide/i],
+  ["Switch to Teacher Guide", /Switch\s+to\s+Teacher\s+Guide/i],
+  ["guide preference storage", /senior-capstone-guide-mode/],
+  ["aria-pressed segmented control", /aria-pressed/],
+];
+const missingPublicGuideToggleRequirements = publicGuideToggleRequirements
+  .filter(([, pattern]) => !pattern.test(appShellText.join("\n")))
+  .map(([label]) => label);
 
-if (!hasStudentTeacherGuideMarkers) {
-  console.warn("P0 pending: public production website is missing Student Guide / Teacher Guide toggle markers.");
+if (missingPublicGuideToggleRequirements.length > 0) {
+  console.warn(
+    `P0 pending: public production website is missing Student Guide / Teacher Guide toggle markers: ${missingPublicGuideToggleRequirements.join(", ")}.`,
+  );
 }
 
 if (findings.length > 0 || navFindings.length > 0) {

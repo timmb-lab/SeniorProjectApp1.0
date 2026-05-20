@@ -105,6 +105,67 @@ textarea {
   border-color: rgba(179, 38, 53, 0.34);
 }
 
+.guide-mode-banner {
+  display: flex;
+  flex: 1 1 430px;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  min-width: min(100%, 420px);
+}
+
+.guide-mode-current {
+  margin: 0;
+  color: var(--charcoal);
+  font-size: 0.84rem;
+  font-weight: 950;
+  white-space: nowrap;
+}
+
+.guide-segment {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid #ccd7d7;
+  border-radius: var(--radius);
+  background: #fff;
+  padding: 0.18rem;
+}
+
+.guide-segment-button,
+.guide-switch-button {
+  min-height: 38px;
+  border-radius: calc(var(--radius) - 2px);
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.guide-segment-button {
+  border: 0;
+  background: transparent;
+  color: var(--charcoal);
+  padding: 0.45rem 0.65rem;
+}
+
+.guide-segment-button[aria-pressed="true"] {
+  background: var(--titan-black);
+  color: #fff;
+}
+
+.guide-switch-button {
+  border: 1px solid rgba(4, 123, 131, 0.34);
+  background: #f3fbfa;
+  color: var(--teal-dark);
+  padding: 0.45rem 0.7rem;
+}
+
+.guide-segment-button:hover,
+.guide-segment-button:focus-visible,
+.guide-switch-button:hover,
+.guide-switch-button:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(4, 123, 131, 0.18);
+}
+
 .menu-toggle,
 .menu-close {
   display: inline-flex;
@@ -756,6 +817,86 @@ summary:focus-visible {
 
 .cadence-card {
   background: linear-gradient(180deg, #fffaf0, #fff);
+}
+
+.guide-mode-section {
+  padding-top: 2.8rem;
+}
+
+.guide-mode-intro {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.guide-card-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.guide-card {
+  display: grid;
+  gap: 1rem;
+  align-content: start;
+  min-height: 100%;
+  border: 1px solid var(--line);
+  border-left: 7px solid var(--gold);
+  border-radius: var(--radius);
+  background: var(--surface);
+  padding: 1rem;
+  box-shadow: 0 8px 24px rgba(26, 42, 48, 0.05);
+}
+
+.guide-card-teacher {
+  border-left-color: var(--teal);
+}
+
+body[data-guide-mode="student"] .guide-card-student,
+body[data-guide-mode="teacher"] .guide-card-teacher {
+  background:
+    linear-gradient(180deg, rgba(255, 241, 196, 0.56), rgba(255, 255, 255, 0) 180px),
+    var(--surface);
+  box-shadow: var(--shadow);
+}
+
+body[data-guide-mode="student"] .guide-card-student,
+body[data-guide-mode="teacher"] .guide-card-teacher {
+  order: -1;
+}
+
+.guide-card-head {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.guide-card h3 {
+  font-size: clamp(1.55rem, 3vw, 2.2rem);
+}
+
+.guide-card h4 {
+  margin: 0 0 0.45rem;
+  color: var(--charcoal);
+  font-size: 0.9rem;
+  font-weight: 950;
+  text-transform: uppercase;
+}
+
+.guide-card p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.guide-card-sections {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.guide-topic {
+  border-top: 1px solid var(--line);
+  padding-top: 0.75rem;
 }
 
 .cadence-label {
@@ -2955,7 +3096,14 @@ li + li {
 
 @media (max-width: 900px) {
   .app-header {
+    flex-wrap: wrap;
     min-height: 66px;
+  }
+
+  .guide-mode-banner {
+    order: 3;
+    justify-content: flex-start;
+    width: 100%;
   }
 
   .site-header {
@@ -2964,6 +3112,7 @@ li + li {
 
   .topbar,
   .section-head,
+  .guide-mode-intro,
   .hero {
     align-items: start;
   }
@@ -3035,6 +3184,10 @@ li + li {
   }
 
   .chooser-card {
+    grid-template-columns: 1fr;
+  }
+
+  .guide-card-grid {
     grid-template-columns: 1fr;
   }
 
@@ -3119,6 +3272,22 @@ li + li {
   .menu-toggle {
     min-height: 42px;
     padding: 0.62rem 0.72rem;
+  }
+
+  .guide-mode-banner {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.48rem;
+  }
+
+  .guide-mode-current,
+  .guide-switch-button,
+  .guide-segment {
+    width: 100%;
+  }
+
+  .guide-segment-button {
+    flex: 1;
   }
 
   .project-menu {

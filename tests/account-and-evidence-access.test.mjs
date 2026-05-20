@@ -60,6 +60,27 @@ test("account smoke and alpha routes stay out of production public navigation", 
   assert.match(appJs, /Separate account-check pages are reserved for Bryan and testers/);
 });
 
+test("public site exposes Student and Teacher guide modes without treating them as auth", () => {
+  assert.match(accountHtml, /Fake Test Account Smoke Page/);
+  assert.match(appJs, /senior-capstone-guide-mode/);
+  assert.match(appJs, /Viewing: Student Guide/);
+  assert.match(appJs, /Viewing: Teacher Guide/);
+  assert.match(appJs, /Switch to Student Guide/);
+  assert.match(appJs, /Switch to Teacher Guide/);
+  assert.match(appJs, /data-guide-mode-option="student"/);
+  assert.match(appJs, /data-guide-mode-option="teacher"/);
+  assert.match(appJs, /aria-pressed="\$\{currentGuideMode === "student"\}"/);
+  assert.match(appJs, /The top banner changes emphasis and quick actions only/);
+  assert.match(appJs, /Senior Remind and the class website/);
+  assert.match(appJs, /Core Concept Proposal and Research Proposal Challenge/);
+  assert.match(appJs, /Google Form grading workflow/);
+  assert.match(appJs, /student check-out\/check-in/);
+  assert.match(appJs, /first 10 minutes in class rule/);
+  assert.match(appJs, /paper rubric option/);
+  assert.match(appJs, /May 5 archive\/download copy/);
+  assert.match(appJs, /not login, permission, or a private workflow/);
+});
+
 test("protected evidence access route is scoped, audited, and avoids storage id exposure", () => {
   assert.match(evidenceRoute, /getCurrentUser/);
   assert.match(evidenceRoute, /canAccessStudent/);

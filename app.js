@@ -802,6 +802,86 @@ const homeAudienceRoutes = [
   }
 ];
 
+const guideModes = {
+  student: {
+    id: "student",
+    label: "Student Guide",
+    viewingLabel: "Viewing: Student Guide",
+    switchLabel: "Switch to Teacher Guide",
+    alternate: "teacher",
+    title: "Student Guide Starts Here",
+    summary:
+      "Use this mode when you need the next student action: what to do, what to save, where the rubric applies, and how to keep the project moving.",
+    primaryHref: "process.html",
+    primaryAction: "Open Student Roadmap",
+    sections: [
+      {
+        title: "Start And Plan",
+        items: [
+          "Follow Senior Remind and the class website for current directions.",
+          "Confirm program-specific expectations before choosing the project.",
+          "Decide the individual or group path with the senior program teacher.",
+          "Draft the Core Concept Proposal and Research Proposal Challenge sections."
+        ]
+      },
+      {
+        title: "Build And Prove",
+        items: [
+          "Keep the Senior Project Folder, linked document, resume, due dates, and evidence artifacts current.",
+          "Prepare Mentor Meeting 1, Mentor Meeting 2, and the presentation outline before the due windows.",
+          "Track Presentation Day, Celebration Day, ingredient lists for food items, and required audience/display evidence."
+        ]
+      },
+      {
+        title: "Finish And Archive",
+        items: [
+          "Complete thank-you work, including handwritten notes and the required mentor note.",
+          "Finish reflections, portfolio minimum or maximum path, rubric checks, grade-location reminders, and special recognition evidence.",
+          "Save the May 5 archive/download copy before school account access changes."
+        ]
+      }
+    ]
+  },
+  teacher: {
+    id: "teacher",
+    label: "Teacher Guide",
+    viewingLabel: "Viewing: Teacher Guide",
+    switchLabel: "Switch to Student Guide",
+    alternate: "student",
+    title: "Teacher Guide Starts Here",
+    summary:
+      "Use this mode when you are coaching, reviewing, grading, or checking readiness across students while the secure app continues to own private records.",
+    primaryHref: "rubrics.html",
+    primaryAction: "Open Review Rubrics",
+    sections: [
+      {
+        title: "Coach And Review",
+        items: [
+          "Clarify program-specific expectations, collaboration rules, and proposal approval criteria.",
+          "Review Core Concept Proposal and Research Proposal Challenge evidence against rubric language.",
+          "Use intervention signals when a project is too vague, too small, late, or weakly connected to the CTE pathway."
+        ]
+      },
+      {
+        title: "Mentor And Present",
+        items: [
+          "Track Mentor Meeting 1 duties, missed-meeting form needs, Mentor Meeting 2 outline approval, and presentation scheduling.",
+          "On Presentation Day, remember the Google Form grading workflow, student check-out/check-in, and the first 10 minutes in class rule.",
+          "For Celebration Day, keep the schedule, rubric, audience expectations, paper rubric option, and ingredient-list reminder visible."
+        ]
+      },
+      {
+        title: "Portfolio And Evidence",
+        items: [
+          "Support reflection and portfolio week by checking the five reflection expectations and required final artifacts.",
+          "Use rubric evidence to decide what is approved, what needs revision, and what is ready for recognition.",
+          "Help students preserve final work for archive/export without moving private evidence into public pages."
+        ]
+      }
+    ]
+  }
+};
+
 const homeEssentials = [
   {
     title: "Requirements Before Ideas",
@@ -2334,10 +2414,28 @@ const rubricGrid = document.querySelector("#rubricGrid");
 const gradeGrid = document.querySelector("#gradeGrid");
 const recognitionGrid = document.querySelector("#recognitionGrid");
 
+const guideModeKey = "senior-capstone-guide-mode";
 const progressKey = "senior-capstone-progress";
 const notesKey = "senior-capstone-notes";
+let currentGuideMode = readGuideMode();
 const progress = readJson(progressKey, {});
 const notes = readJson(notesKey, {});
+
+function readGuideMode() {
+  try {
+    return localStorage.getItem(guideModeKey) === "teacher" ? "teacher" : "student";
+  } catch {
+    return "student";
+  }
+}
+
+function writeGuideMode(mode) {
+  try {
+    localStorage.setItem(guideModeKey, mode);
+  } catch {
+    // The guide preference is public display state; the site still works without storage.
+  }
+}
 
 function readJson(key, fallback) {
   try {
@@ -2900,6 +2998,7 @@ function renderSiteChrome() {
         <span class="brand-mark" aria-hidden="true">TT</span>
         <span>ECTA Senior Capstone</span>
       </a>
+      ${guideModeControlHtml()}
       <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="projectMenu" data-menu-toggle>
         <span class="menu-bars" aria-hidden="true"><span></span><span></span><span></span></span>
         <span>Capstone Menu</span>
@@ -2923,7 +3022,57 @@ function renderSiteChrome() {
     </aside>
   `;
 
+  setupGuideModeControls(chrome);
   setupProjectMenu(chrome);
+}
+
+function guideModeControlHtml() {
+  const mode = guideModes[currentGuideMode] ?? guideModes.student;
+  return `
+    <section class="guide-mode-banner" aria-label="Public guide mode" data-guide-mode-control>
+      <p class="guide-mode-current" data-guide-mode-label aria-live="polite">${mode.viewingLabel}</p>
+      <div class="guide-segment" role="group" aria-label="Choose public guide view">
+        <button class="guide-segment-button" type="button" data-guide-mode-option="student" aria-pressed="${currentGuideMode === "student"}">
+          Student Guide
+        </button>
+        <button class="guide-segment-button" type="button" data-guide-mode-option="teacher" aria-pressed="${currentGuideMode === "teacher"}">
+          Teacher Guide
+        </button>
+      </div>
+      <button class="guide-switch-button" type="button" data-guide-mode-switch>${mode.switchLabel}</button>
+    </section>
+  `;
+}
+
+function updateGuideModeControls() {
+  const mode = guideModes[currentGuideMode] ?? guideModes.student;
+  document.body.dataset.guideMode = mode.id;
+  document.querySelectorAll("[data-guide-mode-label]").forEach((label) => {
+    label.textContent = mode.viewingLabel;
+  });
+  document.querySelectorAll("[data-guide-mode-switch]").forEach((button) => {
+    button.textContent = mode.switchLabel;
+  });
+  document.querySelectorAll("[data-guide-mode-option]").forEach((button) => {
+    button.setAttribute("aria-pressed", String(button.dataset.guideModeOption === mode.id));
+  });
+}
+
+function setGuideMode(mode) {
+  if (!guideModes[mode] || mode === currentGuideMode) return;
+  currentGuideMode = mode;
+  writeGuideMode(mode);
+  updateGuideModeControls();
+}
+
+function setupGuideModeControls(chrome) {
+  updateGuideModeControls();
+  chrome.querySelectorAll("[data-guide-mode-option]").forEach((button) => {
+    button.addEventListener("click", () => setGuideMode(button.dataset.guideModeOption));
+  });
+  chrome.querySelectorAll("[data-guide-mode-switch]").forEach((button) => {
+    button.addEventListener("click", () => setGuideMode(guideModes[currentGuideMode].alternate));
+  });
 }
 
 function setupProjectMenu(chrome) {
@@ -3072,6 +3221,50 @@ function supportCardsHtml() {
   ]
     .map(supportCardHtml)
     .join("");
+}
+
+function guideModeCardHtml(modeId) {
+  const mode = guideModes[modeId];
+  return `
+    <article class="guide-card guide-card-${modeId}">
+      <div class="guide-card-head">
+        <p class="eyebrow">${mode.label}</p>
+        <h3>${mode.title}</h3>
+        <p>${mode.summary}</p>
+      </div>
+      <div class="guide-card-sections">
+        ${mode.sections
+          .map(
+            (section) => `
+              <section class="guide-topic">
+                <h4>${section.title}</h4>
+                ${listHtml(section.items)}
+              </section>
+            `
+          )
+          .join("")}
+      </div>
+      <a class="button button-primary" href="${mode.primaryHref}">${mode.primaryAction}</a>
+    </article>
+  `;
+}
+
+function guideModeHomeHtml() {
+  return `
+    <div class="guide-mode-intro">
+      <div>
+        <p class="eyebrow">Public guide modes</p>
+        <h2 id="guide-mode-title">Student And Teacher Guides Stay Visible</h2>
+      </div>
+      <p class="section-note">
+        The top banner changes emphasis and quick actions only. It is not login, permission, or a private workflow; both guide summaries stay visible for families, mentors, students, and staff.
+      </p>
+    </div>
+    <div class="guide-card-grid" aria-label="Student Guide and Teacher Guide coverage">
+      ${guideModeCardHtml("student")}
+      ${guideModeCardHtml("teacher")}
+    </div>
+  `;
 }
 
 function homeAudienceCardsHtml() {
@@ -4074,6 +4267,9 @@ function renderHomePage(root) {
         ${homeAudienceCardsHtml()}
       </div>
     </section>
+    <section class="section section-tight guide-mode-section" aria-labelledby="guide-mode-title">
+      ${guideModeHomeHtml()}
+    </section>
     <section class="section section-tight" aria-labelledby="home-essentials-title">
       <div class="section-head">
         <div>
@@ -4688,6 +4884,7 @@ function renderGradesPage(root) {
 }
 
 function initPageApp() {
+  document.body.dataset.guideMode = currentGuideMode;
   renderSiteChrome();
   renderFooter();
 
