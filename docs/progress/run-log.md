@@ -102,3 +102,11 @@ Future productive runs should append compact entries that name the master-plan s
 - `files changed`: `scripts/verify-framework-seed-d1.ps1`, `docs/mvp-requirements-catalog.md`, `docs/automation-backlog.md`, `docs/automation-memory.md`, `docs/progress/run-log.md`, and `docs/progress/runs/2026-05-20-0046-framework-seed-d1-verify-mvp-009.json`.
 - `verification`: `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\verify-framework-seed-d1.ps1 -InstallDeps` (local apply + counts verified), `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 test` (pass).
 - `blockers`: Remote D1 apply/verification requires `CLOUDFLARE_API_TOKEN` for non-interactive Wrangler; remote migration remains pending.
+
+## 2026-05-20 01:13 PT - MVP-014 Evidence Download Access Tests
+
+- `master-plan sections`: Day 7 Alpha Gate; Logging Requirements.
+- `requirement IDs`: `MVP-014`; `backlog IDs`: `SC-003`, `SC-005`.
+- `files changed`: `tests/evidence-drive-file.integration.test.mjs`, `docs/mvp-requirements-catalog.md`, `docs/progress/run-log.md`, and `docs/progress/runs/2026-05-20-0113-evidence-download-tests-mvp-014.json`.
+- `verification`: `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 test` (pass).
+- `blockers`: none.

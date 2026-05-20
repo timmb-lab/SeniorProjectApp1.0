@@ -169,6 +169,125 @@ test("evidence download returns 401 and audits when session is missing", async (
   assert.equal(fixture.db.data.auditEvents[0].action, "evidence_download_unauthorized");
 });
 
+test("evidence download returns 404 and audits when evidence is missing", async () => {
+  const fixture = await createFixtureWithSession({ userId: "student-a", roleId: "student" });
+
+  const response = await onDownloadEvidenceFile({
+    request: new Request("https://example.test/api/evidence/evidence-missing/download", {
+      headers: {
+        cookie: `sc_session=${fixture.token}`,
+        "cf-connecting-ip": "203.0.113.63",
+        "user-agent": "integration-test",
+      },
+    }),
+    env: fixture.env,
+    params: { id: "evidence-missing" },
+  });
+
+  assert.equal(response.status, 404);
+  assert.deepEqual(await response.json(), { error: "not_found", ok: false });
+
+  assert.equal(fixture.db.data.auditEvents.length, 1);
+  const [event] = fixture.db.data.auditEvents;
+  assert.equal(event.action, "evidence_download_missing");
+  assert.deepEqual(event.metadata, {
+    reason: "not_found_or_deleted",
+    actorRoleScopes: [{ roleId: "student", scopeType: "global", scopeId: "" }],
+  });
+});
+
+test("evidence download returns 403 and audits when scope is denied", async () => {
+  const fixture = await createFixtureWithSession({ userId: "student-b", roleId: "student" });
+  fixture.db.data.evidenceArtifacts.push({
+    id: "evidence-1",
+    student_id: "student-a",
+    source_kind: "google_drive_file",
+    drive_file_id: "drive-file-123",
+    mime_type: "application/pdf",
+    title: "Evidence PDF",
+    deleted_at: null,
+  });
+
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async () => {
+    throw new Error("fetch should not be called when access is denied");
+  };
+
+  try {
+    const response = await onDownloadEvidenceFile({
+      request: new Request("https://example.test/api/evidence/evidence-1/download", {
+        headers: {
+          cookie: `sc_session=${fixture.token}`,
+          "cf-connecting-ip": "203.0.113.64",
+          "user-agent": "integration-test",
+        },
+      }),
+      env: fixture.env,
+      params: { id: "evidence-1" },
+    });
+
+    assert.equal(response.status, 403);
+    assert.deepEqual(await response.json(), { error: "forbidden", ok: false });
+
+    assert.equal(fixture.db.data.auditEvents.length, 1);
+    const [event] = fixture.db.data.auditEvents;
+    assert.equal(event.action, "evidence_download_denied");
+    assert.deepEqual(event.metadata, {
+      studentId: "student-a",
+      reason: "student_scope_denied",
+      actorRoleScopes: [{ roleId: "student", scopeType: "global", scopeId: "" }],
+    });
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("evidence download returns 409 and audits when artifact is not a Drive file", async () => {
+  const fixture = await createFixtureWithSession({ userId: "student-a", roleId: "student" });
+  fixture.db.data.evidenceArtifacts.push({
+    id: "evidence-1",
+    student_id: "student-a",
+    source_kind: "external_link",
+    drive_file_id: null,
+    mime_type: "text/plain",
+    title: "Not a Drive file",
+    deleted_at: null,
+  });
+
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async () => {
+    throw new Error("fetch should not be called for non-drive evidence artifacts");
+  };
+
+  try {
+    const response = await onDownloadEvidenceFile({
+      request: new Request("https://example.test/api/evidence/evidence-1/download", {
+        headers: {
+          cookie: `sc_session=${fixture.token}`,
+          "cf-connecting-ip": "203.0.113.65",
+          "user-agent": "integration-test",
+        },
+      }),
+      env: fixture.env,
+      params: { id: "evidence-1" },
+    });
+
+    assert.equal(response.status, 409);
+    assert.deepEqual(await response.json(), { error: "not_a_drive_file", ok: false });
+
+    assert.equal(fixture.db.data.auditEvents.length, 1);
+    const [event] = fixture.db.data.auditEvents;
+    assert.equal(event.action, "evidence_download_invalid_source");
+    assert.deepEqual(event.metadata, {
+      studentId: "student-a",
+      sourceKind: "external_link",
+      actorRoleScopes: [{ roleId: "student", scopeType: "global", scopeId: "" }],
+    });
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
 test("evidence download returns 502 and audits when Drive download fails", async () => {
   const fixture = await createFixtureWithSession({ userId: "student-a", roleId: "student" });
   fixture.db.data.evidenceArtifacts.push({
@@ -503,4 +622,3 @@ class MockPreparedStatement {
     throw new Error(`Unmocked D1 run() query: ${this.sql}`);
   }
 }
-

@@ -124,3 +124,16 @@ Each rebuild run should append a dated entry with:
 - `self-improvement`: none.
 - `commit/push status`: pending in this run.
 - `next action`: Build broader permission/protected-evidence tests, add Drive upload credential/OAuth, and implement account lifecycle flows while keeping fake alpha test accounts available for walkthroughs.
+
+### 2026-05-20 01:13 PT - MVP-014 Evidence Download Access Tests
+
+- `automation`: `senior-capstone-hourly-qol-orchestrator`
+- `master-plan section`: Day 7 Alpha Gate; Logging Requirements.
+- `source docs/logs read`: `docs/master-plan.md`, `docs/mvp-requirements-catalog.md`, `docs/automation-runbook.md`, `docs/automation-self-improvement.md`, `docs/automation-cadence.md`, `docs/automation-milestones.md`, `docs/automation-memory.md`, `docs/progress/run-log.md`, recent `docs/progress/runs/`, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, and `automation/qol/reports/latest.md`.
+- `backlog or requirement IDs selected`: `MVP-014`, `SC-003`, `SC-005`.
+- `bounded scope`: Add missing integration coverage for `/api/evidence/:id/download` across 404/403/409 flows while asserting audit-event metadata and short-circuit behavior (no provider fetch on denied/non-Drive artifacts).
+- `files changed`: `tests/evidence-drive-file.integration.test.mjs`, `docs/mvp-requirements-catalog.md`, `docs/progress/run-log.md`, and `docs/progress/runs/2026-05-20-0113-evidence-download-tests-mvp-014.json`.
+- `validation`: `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 test` (pass).
+- `self-improvement`: none.
+- `commit/push status`: committed + pushed in this run.
+- `next action`: Extend download access tests for mentor/program-teacher/admin allow paths and verify real Drive uploads/downloads once Cloudflare Pages Drive secrets are configured.
