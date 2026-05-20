@@ -3,6 +3,8 @@ import test from "node:test";
 
 import { sha256Hex } from "../functions/_lib/crypto.ts";
 import { onRequestGet as onPresentationSlotsGet, onRequestPost as onPresentationSlotsPost } from "../functions/api/presentation-slots.ts";
+import { onRequestPost as onPresentationSlotCheckInPost } from "../functions/api/presentation-slots/[id]/check-in.ts";
+import { onRequestPost as onPresentationSlotCheckOutPost } from "../functions/api/presentation-slots/[id]/check-out.ts";
 
 test("presentation slots enforce scoped visibility, conflict checks, and audit events", async () => {
   const fixture = await createFixture();
@@ -122,6 +124,123 @@ test("presentation slots enforce scoped visibility, conflict checks, and audit e
     assert.equal(body.ok, true);
     assert.equal(body.slot.studentId, "student-b");
     assert.equal(fixture.db.data.auditEvents.at(-1).action, "presentation_slot_scheduled");
+  }
+
+  // Check-out requires auth.
+  {
+    const response = await onPresentationSlotCheckOutPost({
+      request: new Request("https://example.test/api/presentation-slots/slot-existing-a/check-out", { method: "POST" }),
+      env: fixture.env,
+      params: { id: "slot-existing-a" },
+    });
+    assert.equal(response.status, 401);
+  }
+
+  // Mentors can view assigned slots, but cannot perform day-of check-out.
+  {
+    const response = await onPresentationSlotCheckOutPost({
+      request: buildAuthedRequest("https://example.test/api/presentation-slots/slot-existing-a/check-out", fixture.mentorToken, {
+        method: "POST",
+      }),
+      env: fixture.env,
+      params: { id: "slot-existing-a" },
+    });
+    assert.equal(response.status, 403);
+    assert.equal(fixture.db.data.presentationSlots.find((slot) => slot.id === "slot-existing-a").status, "scheduled");
+    assert.equal(fixture.db.data.auditEvents.at(-1).action, "presentation_slot_check_out_denied");
+    assert.deepEqual(JSON.parse(fixture.db.data.auditEvents.at(-1).metadata_json).reason, "role_not_allowed");
+  }
+
+  // Program teachers cannot check out an out-of-scope student's slot.
+  {
+    const response = await onPresentationSlotCheckOutPost({
+      request: buildAuthedRequest("https://example.test/api/presentation-slots/slot-existing-b/check-out", fixture.teacherToken, {
+        method: "POST",
+      }),
+      env: fixture.env,
+      params: { id: "slot-existing-b" },
+    });
+    assert.equal(response.status, 403);
+    assert.equal(fixture.db.data.presentationSlots.find((slot) => slot.id === "slot-existing-b").status, "scheduled");
+    assert.equal(fixture.db.data.auditEvents.at(-1).action, "presentation_slot_check_out_denied");
+    assert.deepEqual(JSON.parse(fixture.db.data.auditEvents.at(-1).metadata_json).reason, "student_scope");
+  }
+
+  // Check-in cannot happen before check-out.
+  {
+    const response = await onPresentationSlotCheckInPost({
+      request: buildAuthedRequest("https://example.test/api/presentation-slots/slot-existing-a/check-in", fixture.teacherToken, {
+        method: "POST",
+      }),
+      env: fixture.env,
+      params: { id: "slot-existing-a" },
+    });
+    assert.equal(response.status, 409);
+    const body = await response.json();
+    assert.equal(body.error, "presentation_slot_invalid_status");
+    assert.equal(body.status, "scheduled");
+    assert.equal(fixture.db.data.auditEvents.at(-1).action, "presentation_slot_check_in_denied");
+  }
+
+  // Scoped teacher can check a scheduled student out and gets an audited timestamp.
+  {
+    const response = await onPresentationSlotCheckOutPost({
+      request: buildAuthedRequest("https://example.test/api/presentation-slots/slot-existing-a/check-out", fixture.teacherToken, {
+        method: "POST",
+      }),
+      env: fixture.env,
+      params: { id: "slot-existing-a" },
+    });
+    assert.equal(response.status, 200);
+    const body = await response.json();
+    assert.equal(body.ok, true);
+    assert.equal(body.slot.id, "slot-existing-a");
+    assert.equal(body.slot.status, "checked_out");
+    assert.match(body.slot.checkedOutAt, /^\d{4}-\d{2}-\d{2}T/);
+    const slot = fixture.db.data.presentationSlots.find((row) => row.id === "slot-existing-a");
+    assert.equal(slot.status, "checked_out");
+    assert.equal(slot.checked_out_at, body.slot.checkedOutAt);
+    assert.equal(fixture.db.data.auditEvents.at(-1).action, "presentation_slot_checked_out");
+  }
+
+  // Duplicate check-out is blocked instead of overwriting the original timestamp.
+  {
+    const originalCheckedOutAt = fixture.db.data.presentationSlots.find((row) => row.id === "slot-existing-a").checked_out_at;
+    const response = await onPresentationSlotCheckOutPost({
+      request: buildAuthedRequest("https://example.test/api/presentation-slots/slot-existing-a/check-out", fixture.teacherToken, {
+        method: "POST",
+      }),
+      env: fixture.env,
+      params: { id: "slot-existing-a" },
+    });
+    assert.equal(response.status, 409);
+    const body = await response.json();
+    assert.equal(body.error, "presentation_slot_invalid_status");
+    assert.equal(body.status, "checked_out");
+    assert.equal(fixture.db.data.presentationSlots.find((row) => row.id === "slot-existing-a").checked_out_at, originalCheckedOutAt);
+    assert.equal(fixture.db.data.auditEvents.at(-1).action, "presentation_slot_check_out_denied");
+  }
+
+  // Scoped teacher can check the presentation back in and preserve both timestamps.
+  {
+    const response = await onPresentationSlotCheckInPost({
+      request: buildAuthedRequest("https://example.test/api/presentation-slots/slot-existing-a/check-in", fixture.teacherToken, {
+        method: "POST",
+      }),
+      env: fixture.env,
+      params: { id: "slot-existing-a" },
+    });
+    assert.equal(response.status, 200);
+    const body = await response.json();
+    assert.equal(body.ok, true);
+    assert.equal(body.slot.id, "slot-existing-a");
+    assert.equal(body.slot.status, "checked_in");
+    assert.match(body.slot.checkedInAt, /^\d{4}-\d{2}-\d{2}T/);
+    const slot = fixture.db.data.presentationSlots.find((row) => row.id === "slot-existing-a");
+    assert.equal(slot.status, "checked_in");
+    assert.equal(slot.checked_out_at, body.slot.checkedOutAt);
+    assert.equal(slot.checked_in_at, body.slot.checkedInAt);
+    assert.equal(fixture.db.data.auditEvents.at(-1).action, "presentation_slot_checked_in");
   }
 });
 
@@ -384,6 +503,33 @@ class MockD1PreparedStatement {
         : null;
     }
 
+    if (
+      sql.includes("from presentation_slots")
+      && sql.includes("join user_accounts student")
+      && sql.includes("where presentation_slots.id = ?")
+    ) {
+      const [slotId] = this.params;
+      const slot = this.db.data.presentationSlots.find((row) => row.id === slotId && row.status !== "cancelled");
+      if (!slot) return null;
+      const student = this.db.data.userAccounts.find((user) => user.id === slot.student_user_id);
+      return {
+        id: slot.id,
+        student_id: slot.student_user_id,
+        student_name: student?.display_name || "Unknown",
+        submission_id: slot.submission_id ?? null,
+        requirement_id: slot.requirement_id ?? null,
+        scheduled_for: slot.scheduled_for,
+        duration_minutes: slot.duration_minutes,
+        location: slot.location,
+        status: slot.status,
+        outline_status: slot.outline_status,
+        checked_out_at: slot.checked_out_at ?? null,
+        checked_in_at: slot.checked_in_at ?? null,
+        notes: slot.notes ?? null,
+        created_at: slot.created_at,
+      };
+    }
+
     throw new Error(`Unmocked D1 first() query: ${this.sql}`);
   }
 
@@ -483,6 +629,28 @@ class MockD1PreparedStatement {
         metadata_json: metadataJson,
         created_at: this.db.nowIso(),
       });
+      return { success: true, results: [] };
+    }
+
+    if (sql.startsWith("update presentation_slots set status = ?") && sql.includes("checked_out_at = ?")) {
+      const [status, checkedOutAt, slotId] = this.params;
+      const slot = this.db.data.presentationSlots.find((row) => row.id === slotId);
+      if (slot) {
+        slot.status = status;
+        slot.checked_out_at = checkedOutAt;
+        slot.updated_at = this.db.nowIso();
+      }
+      return { success: true, results: [] };
+    }
+
+    if (sql.startsWith("update presentation_slots set status = ?") && sql.includes("checked_in_at = ?")) {
+      const [status, checkedInAt, slotId] = this.params;
+      const slot = this.db.data.presentationSlots.find((row) => row.id === slotId);
+      if (slot) {
+        slot.status = status;
+        slot.checked_in_at = checkedInAt;
+        slot.updated_at = this.db.nowIso();
+      }
       return { success: true, results: [] };
     }
 
