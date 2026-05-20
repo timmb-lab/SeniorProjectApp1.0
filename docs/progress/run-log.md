@@ -26,6 +26,17 @@ This is the compact run log for the current split-builder automation contract.
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-05-20 PT - Typecheck And Cloudflare Verification Repair
+
+- `master-plan sections`: Day 7 Alpha Gate; Deployment QA; Logging Requirements.
+- `requirement IDs`: `MVP-001`, `MVP-013`, `MVP-030`.
+- `purpose`: Repair strict TypeScript validation, make aggregate `check` pass, and replace ambiguous `wrangler check` output with real static Cloudflare config proof plus explicit live-verification status.
+- `files changed`: `tsconfig.json`, `functions/_lib/google-drive.ts`, `functions/api/submissions/[id]/evidence/upload.ts`, `scripts/check-cloudflare.mjs`, `scripts/run-npm-script.ps1`, `package.json`, `README.md`, `docs/human-decisions.md`, and this run log.
+- `verification`: `typecheck` passed; `test` passed with 115 tests; `check:automation`, `verify:automation-cadence`, `check:alpha-contract`, `check:alpha`, `check:cloudflare`, and aggregate `check` passed. `check:cloudflare` proved static Wrangler/D1 config and local Wrangler 4.93.0, then reported live Pages/D1 verification blocked because `CLOUDFLARE_API_TOKEN` was not set. Dedicated `check:cloudflare:live` exits nonzero without the token.
+- `safety`: No scheduler redesign, hidden Codex automation changes, Cloudflare login, deployment, migration, or student-data query was performed.
+- `blockers`: Live Cloudflare Pages/D1 existence verification still requires `CLOUDFLARE_API_TOKEN`.
+- `commit`: see Git history for this repair pass.
+
 ## 2026-05-20 PT - Live Scheduler Registry Audit
 
 - `master-plan sections`: Split Builder Master-Plan Orchestrator; Logging Requirements; Anti-Drift Rules.

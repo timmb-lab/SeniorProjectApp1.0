@@ -14,6 +14,22 @@ import { cleanWorkflowText, getSubmission, workflowError } from "../../../../_li
 const MULTIPART_UPLOAD_MAX_BYTES = 5 * 1024 * 1024;
 const MAX_UPLOAD_BYTES = 20 * 1024 * 1024;
 
+type UploadedFile = {
+  name: string;
+  type: string;
+  size: number;
+  arrayBuffer(): Promise<ArrayBuffer>;
+};
+
+function isUploadedFile(value: unknown): value is UploadedFile {
+  if (typeof value !== "object" || value === null) return false;
+  const record = value as Record<string, unknown>;
+  return typeof record.name === "string"
+    && typeof record.type === "string"
+    && typeof record.size === "number"
+    && typeof record.arrayBuffer === "function";
+}
+
 export const onRequestPost: PagesFunction<Env> = async ({ request, env, params }) => {
   const methodError = requirePost(request);
   if (methodError) return methodError;
@@ -47,7 +63,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, params }
   }
 
   const fileField = formData.get("file");
-  const file = (typeof File !== "undefined" && fileField instanceof File) ? fileField : null;
+  const file = isUploadedFile(fileField) ? fileField : null;
   if (!file) return badRequest("missing_file");
 
   if (!Number.isFinite(file.size) || file.size <= 0) {

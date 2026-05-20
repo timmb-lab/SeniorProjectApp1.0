@@ -146,6 +146,7 @@ function Invoke-KnownProjectScript {
             Invoke-Node "scripts\check-alpha-contract.mjs"
             Invoke-ProjectPowerShell "scripts\verify-cadence-30min.ps1"
             Invoke-Node "scripts\check-site-options.mjs"
+            Invoke-Node "scripts\check-cloudflare.mjs"
 
             $testFiles = @(Get-ChildItem -LiteralPath (Join-Path $RepoRoot "tests") -Filter "*.test.mjs" -File | ForEach-Object { $_.FullName })
             if ($testFiles.Count -eq 0) {
@@ -189,6 +190,16 @@ function Invoke-KnownProjectScript {
         "check:site-options" {
             $script:KnownProjectScriptHandled = $true
             Invoke-Node "scripts\check-site-options.mjs" @ScriptArgs
+            return
+        }
+        "check:cloudflare" {
+            $script:KnownProjectScriptHandled = $true
+            Invoke-Node "scripts\check-cloudflare.mjs" @ScriptArgs
+            return
+        }
+        "check:cloudflare:live" {
+            $script:KnownProjectScriptHandled = $true
+            Invoke-Node "scripts\check-cloudflare.mjs" "--live-required" @ScriptArgs
             return
         }
         "qol:hourly" {

@@ -18,6 +18,53 @@ function normalizePrivateKey(value: string): string {
   return String(value || "").replace(/\\n/g, "\n").trim();
 }
 
+type GoogleDriveTokenResponse = {
+  accessToken: string;
+  expiresIn: number;
+  tokenType: string;
+};
+
+type GoogleDriveFileResponse = {
+  id: string | null;
+  mimeType: string | null;
+  name: string | null;
+};
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function getString(value: Record<string, unknown>, key: string): string | null {
+  const property = value[key];
+  return typeof property === "string" && property ? property : null;
+}
+
+function getPositiveNumber(value: Record<string, unknown>, key: string): number {
+  const property = value[key];
+  const numberValue = typeof property === "number"
+    ? property
+    : typeof property === "string" && property ? Number(property) : 0;
+  return Number.isFinite(numberValue) && numberValue > 0 ? numberValue : 0;
+}
+
+function parseGoogleDriveTokenResponse(value: unknown): GoogleDriveTokenResponse {
+  const record = isRecord(value) ? value : {};
+  return {
+    accessToken: getString(record, "access_token") || "",
+    expiresIn: getPositiveNumber(record, "expires_in"),
+    tokenType: getString(record, "token_type") || "Bearer",
+  };
+}
+
+function parseGoogleDriveFileResponse(value: unknown): GoogleDriveFileResponse {
+  const record = isRecord(value) ? value : {};
+  return {
+    id: getString(record, "id"),
+    mimeType: getString(record, "mimeType"),
+    name: getString(record, "name"),
+  };
+}
+
 function bytesToBase64Url(bytes: Uint8Array): string {
   let binary = "";
   for (const byte of bytes) {
@@ -123,17 +170,16 @@ export async function getGoogleDriveAccessToken(
     throw new Error(`google_drive_token_exchange_failed:${response.status}:${text || response.statusText}`);
   }
 
-  const json = await response.json().catch(() => null);
-  const accessToken = json?.access_token ? String(json.access_token) : "";
-  if (!accessToken) {
+  const json = await response.json().catch((): unknown => null);
+  const tokenResponse = parseGoogleDriveTokenResponse(json);
+  if (!tokenResponse.accessToken) {
     throw new Error("google_drive_token_exchange_missing_access_token");
   }
 
-  const expiresIn = Number(json?.expires_in || 0);
   return {
-    accessToken,
-    expiresIn: Number.isFinite(expiresIn) && expiresIn > 0 ? expiresIn : 0,
-    tokenType: json?.token_type ? String(json.token_type) : "Bearer",
+    accessToken: tokenResponse.accessToken,
+    expiresIn: tokenResponse.expiresIn,
+    tokenType: tokenResponse.tokenType,
   };
 }
 
@@ -163,12 +209,13 @@ export async function probeGoogleDriveFile(
     return { ok: false, status: response.status, mimeType: null, name: null };
   }
 
-  const json = await response.json().catch(() => null);
+  const json = await response.json().catch((): unknown => null);
+  const file = parseGoogleDriveFileResponse(json);
   return {
     ok: true,
     status: response.status,
-    mimeType: json?.mimeType ? String(json.mimeType) : null,
-    name: json?.name ? String(json.name) : null,
+    mimeType: file.mimeType,
+    name: file.name,
   };
 }
 
@@ -231,14 +278,15 @@ export async function uploadGoogleDriveFile(
     return { ok: false, status: response.status, fileId: null, mimeType: null, name: null };
   }
 
-  const json = await response.json().catch(() => null);
-  const fileId = json?.id ? String(json.id) : "";
+  const json = await response.json().catch((): unknown => null);
+  const file = parseGoogleDriveFileResponse(json);
+  const fileId = file.id || "";
   return {
     ok: Boolean(fileId),
     status: response.status,
     fileId: fileId || null,
-    mimeType: json?.mimeType ? String(json.mimeType) : null,
-    name: json?.name ? String(json.name) : null,
+    mimeType: file.mimeType,
+    name: file.name,
   };
 }
 
@@ -299,14 +347,15 @@ export async function uploadGoogleDriveFileResumable(
     return { ok: false, status: putResponse.status, fileId: null, mimeType: null, name: null };
   }
 
-  const json = await putResponse.json().catch(() => null);
-  const fileId = json?.id ? String(json.id) : "";
+  const json = await putResponse.json().catch((): unknown => null);
+  const file = parseGoogleDriveFileResponse(json);
+  const fileId = file.id || "";
   return {
     ok: Boolean(fileId),
     status: putResponse.status,
     fileId: fileId || null,
-    mimeType: json?.mimeType ? String(json.mimeType) : null,
-    name: json?.name ? String(json.name) : null,
+    mimeType: file.mimeType,
+    name: file.name,
   };
 }
 

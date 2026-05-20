@@ -42,6 +42,15 @@ Initial D1-backed workflow routes now exist for `/api/student/dashboard`, `/api/
 
 The first Cloudflare MVP foundation is scaffolded with Pages Functions, D1, hardened username/password auth endpoints, and Google Drive evidence-repository metadata. Setup notes and live resource IDs are tracked in `docs/backend-setup.md`.
 
+Cloudflare verification is split between local static proof and optional live read-only checks:
+
+```powershell
+npm run check:cloudflare
+npm run check:cloudflare:live
+```
+
+`check:cloudflare` verifies `wrangler.jsonc`, the expected Pages project name, D1 binding, migrations, and local Wrangler CLI. If `CLOUDFLARE_API_TOKEN` is absent, it reports live Pages/D1 verification as blocked rather than passed. `check:cloudflare:live` requires `CLOUDFLARE_API_TOKEN` and exits nonzero when live verification cannot run. These checks do not perform login, deployment, migration, or student-data queries.
+
 ## Day 7 Alpha
 
 The working alpha flow lives at `alpha.html` and uses `/api/alpha/state` for D1-backed seeded demo state. The runbook is `docs/alpha-runbook.md`.
