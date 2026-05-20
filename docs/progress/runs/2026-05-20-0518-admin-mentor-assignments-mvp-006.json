@@ -1,0 +1,58 @@
+{
+  "run_id": "2026-05-20-0518-admin-mentor-assignments-mvp-006",
+  "timestamp_local": "2026-05-20T05:18:00-07:00",
+  "automation_id": "senior-capstone-hourly-qol-orchestrator",
+  "trigger": "30-minute MVP builder run: add an admin mentor-assignment provisioning endpoint that enforces role guards and writes audit events for both denied and successful assignment upserts.",
+  "lane": "backend-security-data",
+  "status": "completed",
+  "accepted_mvp_pass": true,
+  "requirement_ids": [
+    "MVP-006",
+    "MVP-007",
+    "MVP-020"
+  ],
+  "backlog_ids": [
+    "SC-005"
+  ],
+  "duration_minutes": 30,
+  "output_kind": "code+tests+docs",
+  "scope": "Implement `/api/admin/mentor-assignments` to upsert active mentor assignments while requiring admin access plus role validation (mentor must have `mentor`, student must have `student`); add integration coverage and update MVP evidence logs/manifests.",
+  "source_docs_read": [
+    "docs/master-plan.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/automation-runbook.md",
+    "docs/automation-self-improvement.md",
+    "docs/automation-cadence.md",
+    "docs/automation-milestones.md",
+    "docs/automation-memory.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-20-0448-mentor-role-guard-mvp-006.json",
+    "docs/progress/handoffs.md",
+    "docs/progress/decision-log.md",
+    "docs/automation-backlog.md",
+    "docs/artifacts.json",
+    "docs/human-decisions.md",
+    "automation/qol/reports/latest.md",
+    "functions/api/admin/mentor-assignments.ts",
+    "tests/admin-mentor-assignments.integration.test.mjs"
+  ],
+  "changes": [
+    "Added `/api/admin/mentor-assignments` (admin-only) to create/reactivate mentor assignments while enforcing mentor/student role guards and writing audit events for denied and successful requests.",
+    "Added deterministic integration coverage for mentor assignment provisioning covering 401/403/404/409/200 behavior plus audit-event assertions.",
+    "Updated MVP requirement evidence and added this structured run manifest."
+  ],
+  "validation": [
+    "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\\\scripts\\\\run-npm-script.ps1 test"
+  ],
+  "blockers": [],
+  "known_limits": [
+    "Mentor assignment provisioning currently supports upsert/activation only; there is no admin endpoint yet for deactivation or listing assignments.",
+    "Schema-level constraints do not prevent direct SQL insertion of mentor assignments for non-mentor accounts; the new admin route enforces the role guard at write time."
+  ],
+  "next_actions": [
+    "Add admin endpoints for listing and deactivating mentor assignments, including audit events for deactivation/reactivation.",
+    "Expand admin provisioning endpoints for teacher assignments and role changes with matching audit coverage."
+  ],
+  "self_improvement": "none"
+}
+

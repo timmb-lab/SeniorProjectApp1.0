@@ -176,3 +176,16 @@ Each rebuild run should append a dated entry with:
 - `self-improvement`: none.
 - `commit/push status`: committed + pushed in this run.
 - `next action`: Add admin provisioning guards so mentor assignments cannot be created unless the mentor role is present (and audit the role/assignment change together).
+
+### 2026-05-20 05:18 PT - MVP-006/MVP-007 Admin Mentor Assignment Provisioning Guard
+
+- `automation`: `senior-capstone-hourly-qol-orchestrator`
+- `master-plan section`: Day 7 Alpha Gate; Anti-Drift Rules; Logging Requirements.
+- `source docs/logs read`: `docs/master-plan.md`, `docs/mvp-requirements-catalog.md`, `docs/automation-runbook.md`, `docs/automation-self-improvement.md`, `docs/automation-cadence.md`, `docs/automation-milestones.md`, `docs/automation-memory.md`, `docs/progress/run-log.md`, recent `docs/progress/runs/`, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, and `automation/qol/reports/latest.md`.
+- `backlog or requirement IDs selected`: `SC-005`, `MVP-006`, `MVP-007`, `MVP-020`.
+- `bounded scope`: Add an admin-only mentor assignment provisioning endpoint that blocks invalid role combinations (mentor must have `mentor`, student must have `student`) and audits both denied attempts and successful upserts.
+- `files changed`: `functions/api/admin/mentor-assignments.ts`, `tests/admin-mentor-assignments.integration.test.mjs`, `docs/mvp-requirements-catalog.md`, `docs/automation-memory.md`, `docs/progress/rebuild.md`, `docs/progress/run-log.md`, and structured run manifest `docs/progress/runs/2026-05-20-0518-admin-mentor-assignments-mvp-006.json`.
+- `validation`: `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 test` (pass; 89 tests).
+- `self-improvement`: none.
+- `commit/push status`: pending in this run.
+- `next action`: Add a deactivation/list path for mentor assignments, then expand admin provisioning for teacher assignments + role changes with end-to-end UI surfaces.
