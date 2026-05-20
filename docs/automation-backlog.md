@@ -57,12 +57,12 @@ Active automation ownership is tracked in `docs/automation-cadence.md`. The `own
 
 - `severity`: P1
 - `owner`: rebuild
-- `status`: open
+- `status`: in-progress
 - `source`: Senior guide and mentor teacher guide PDFs
 - `affected area`: mentor meetings, presentation scheduling, celebration evidence, and archive/export
-- `evidence`: The PDFs require mentor meeting attendance/make-up tracking, outline approval, presentation time scheduling, presentation check-out/check-in, celebration setup photo, ingredient lists for food, and May 5 personal archive/export. Figma now specifies archive/export controls in active file `z4t4tFPAKrMDh6pIYOeEw6`, node `69:2`, and meeting/presentation scheduling in node `78:2`, including prep evidence, attendance capture, make-up linkage, outline approval gates, slot conflicts, audited check-out/check-in, scoped permissions, and route/data contracts. None of the meeting/presentation/celebration/archive workflows are implemented yet.
-- `next action`: Create implementation slices after SC-001/SC-003 for `Meeting`, `MeetingAttendance`, `PresentationSlot`, celebration evidence, and archive/export workflow; consume Figma node `78:2` when implementing meeting attendance, outline approval, presentation slots, conflict checks, and audited check-out/check-in, and consume node `69:2` when implementing `StudentArchiveExport`, `ExportRequest`, `ExportArtifact`, signed downloads, and archive/export audit events.
-- `last updated`: 2026-05-18 11:18 PT
+- `evidence`: The PDFs require mentor meeting attendance/make-up tracking, outline approval, presentation time scheduling, presentation check-out/check-in, celebration setup photo, ingredient lists for food, and May 5 personal archive/export. Figma now specifies archive/export controls in active file `z4t4tFPAKrMDh6pIYOeEw6`, node `69:2`, and meeting/presentation scheduling in node `78:2`, including prep evidence, attendance capture, make-up linkage, outline approval gates, slot conflicts, audited check-out/check-in, scoped permissions, and route/data contracts. Meeting persistence exists in `migrations/0004_mentor_meetings.sql`, `/api/mentor/meetings`, and `tests/mentor-meetings.integration.test.mjs`. Presentation slot persistence now exists in `migrations/0006_presentation_slots.sql`, `/api/presentation-slots`, and `tests/presentation-slots.integration.test.mjs`, with scoped visibility, admin/program-teacher scheduling, same-location conflict blocking, and audit events for denied/conflict/scheduled outcomes.
+- `next action`: Apply/verify `0006_presentation_slots.sql` remotely when `CLOUDFLARE_API_TOKEN` is available, then add presentation check-out/check-in endpoints, outline approval gate persistence, mentor/student dashboard presentation-risk surfaces, celebration evidence, and archive/export workflow depth; consume node `78:2` for check-out/check-in and node `69:2` for `StudentArchiveExport`, `ExportRequest`, `ExportArtifact`, signed downloads, and archive/export audit events.
+- `last updated`: 2026-05-20 13:06 PT
 
 ### SC-005
 

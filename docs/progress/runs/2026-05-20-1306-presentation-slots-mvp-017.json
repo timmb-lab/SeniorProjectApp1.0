@@ -1,0 +1,123 @@
+{
+  "run_id": "2026-05-20-1306-presentation-slots-mvp-017",
+  "timestamp_local": "2026-05-20T13:06:29-07:00",
+  "automation_id": "senior-capstone-nonfigma-mvp-builder",
+  "lane": "staff-review-mentor",
+  "status": "completed",
+  "accepted_mvp_pass": true,
+  "requirement_ids": [
+    "MVP-017",
+    "MVP-020"
+  ],
+  "backlog_ids": [
+    "SC-004",
+    "SC-005",
+    "SC-006"
+  ],
+  "duration_minutes": 8,
+  "output_kind": "schema+api+tests+docs",
+  "scope": "Add D1-backed presentation slot scheduling with role-scoped visibility, admin/program-teacher scheduling, same-location conflict blocking, and audit events.",
+  "source_docs_read": [
+    "C:\\Users\\bryan\\.codex\\automations\\senior-capstone-nonfigma-mvp-builder\\memory.md",
+    "docs/master-plan.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/automation-cadence.md",
+    "docs/automation-runbook.md",
+    "docs/automation-self-improvement.md",
+    "docs/automation-memory.md",
+    "docs/automation-milestones.md",
+    "docs/progress/run-log.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/decision-log.md",
+    "docs/automation-backlog.md",
+    "docs/artifacts.json",
+    "docs/human-decisions.md",
+    "docs/progress/rebuild.md",
+    "docs/progress/figma.md",
+    "docs/progress/audit.md",
+    "docs/progress/runs/2026-05-20-1235-figma-alpha-handoff-consumption.json",
+    "docs/progress/runs/2026-05-20-1206-alpha-review-history-main-console-mvp-015-016.json",
+    "docs/progress/runs/2026-05-20-1103-production-predeploy-gate.json",
+    "docs/progress/runs/2026-05-20-1135-figma-review-history-prototype-alignment.json",
+    "docs/progress/runs/2026-05-20-1018-review-history-ui-mvp-015-016.json",
+    "functions/api/mentor/meetings.ts",
+    "tests/mentor-meetings.integration.test.mjs",
+    "functions/_lib/permissions.ts",
+    "functions/_lib/workflow.ts"
+  ],
+  "changes": [
+    "Added migrations/0006_presentation_slots.sql with presentation slot status, outline status, location, duration, check-out/check-in, and audit-ready ownership fields.",
+    "Added /api/presentation-slots GET to return only slots the current user can access through canAccessStudent.",
+    "Added /api/presentation-slots POST to allow admin/program-teacher scheduling for in-scope active students.",
+    "Blocked same-location overlapping presentation slots with a 409 presentation_slot_conflict response.",
+    "Wrote audit events for denied scheduling attempts, conflict blocks, and successful presentation slot scheduling.",
+    "Added tests/presentation-slots.integration.test.mjs covering unauthenticated access, mentor-scoped visibility, mentor write denial, teacher out-of-scope denial, conflict blocking, teacher success, and admin cross-program scheduling.",
+    "Updated MVP catalog, backlog, automation memory, artifact registry, handoff ledger, rebuild log, run log, and this manifest."
+  ],
+  "validation": [
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 tests\\presentation-slots.integration.test.mjs",
+      "result": "passed",
+      "summary": "Focused presentation-slot integration test passed: 1/1."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 typecheck",
+      "result": "passed",
+      "summary": "Strict TypeScript validation passed."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 test",
+      "result": "passed",
+      "summary": "Full Node test suite passed: 117/117."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\verify-framework-seed-d1.ps1",
+      "result": "passed",
+      "summary": "Local D1 applied 0006_presentation_slots.sql and preserved framework seed counts: requirements=16, deadlines=24, review_gates=4, quality_checks=20."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 inventory:production-routes",
+      "result": "passed",
+      "summary": "Regenerated docs/generated/production-route-inventory.md with /api/presentation-slots."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 check",
+      "result": "passed-static-live-blocked",
+      "summary": "Aggregate check passed, including alpha contract, cadence, predeploy gate, production surfaces, route inventory, generated-output drift, site options, Cloudflare static checks, 117 tests, and optional typecheck; live Cloudflare verification remained blocked without CLOUDFLARE_API_TOKEN."
+    }
+  ],
+  "changed_files": [
+    "functions/api/presentation-slots.ts",
+    "migrations/0006_presentation_slots.sql",
+    "tests/presentation-slots.integration.test.mjs",
+    "docs/generated/production-route-inventory.md",
+    "docs/artifacts.json",
+    "docs/automation-backlog.md",
+    "docs/automation-memory.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/rebuild.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-20-1306-presentation-slots-mvp-017.json"
+  ],
+  "blockers": [
+    "Remote D1 apply/verification for migrations/0006_presentation_slots.sql requires CLOUDFLARE_API_TOKEN for non-interactive Wrangler; live Cloudflare mutation was not attempted."
+  ],
+  "next_actions": [
+    "Apply and verify migrations/0006_presentation_slots.sql against remote D1 once CLOUDFLARE_API_TOKEN is available.",
+    "Add presentation check-out/check-in endpoints with scoped authorization and audit events.",
+    "Surface presentation slot status and conflict/risk cues in mentor/student dashboard flows."
+  ],
+  "automation_efficiency": {
+    "scale_signal": "accepted implementation pass; no cadence change recommended"
+  },
+  "self_improvement": "none",
+  "figma_work_avoided": true,
+  "run_log_updated": true,
+  "structured_manifest_created": true,
+  "artifacts_json_updated": true,
+  "mvp_catalog_changed": true,
+  "implementation_commit_sha": "d1dfb69b98b98850342d7d8c97b08929e3938641",
+  "commit_sha": "d1dfb69b98b98850342d7d8c97b08929e3938641",
+  "push_result": "pushed to origin main: d74967e..d1dfb69"
+}

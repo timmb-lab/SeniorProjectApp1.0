@@ -344,3 +344,16 @@ Future productive runs should append compact entries that name the master-plan s
 - `files changed`: Figma docs, artifact registry, automation memory, Figma lane log, handoff ledger, MVP catalog, this run log, and `docs/progress/runs/2026-05-20-1235-figma-alpha-handoff-consumption.json`.
 - `blockers`: none.
 - `self-improvement`: none.
+
+## 2026-05-20 13:06 PT - MVP-017 Presentation Slot Scheduling
+
+- `automation ID`: `senior-capstone-nonfigma-mvp-builder`
+- `lane`: non-Figma MVP builder / staff-review-mentor.
+- `master-plan sections`: Day 7 Alpha Gate; Seven-day implementation ladder Day 4/Day 5; Logging Requirements.
+- `requirement IDs`: `MVP-017`, supporting `MVP-020`; `backlog IDs`: `SC-004`, `SC-005`, `SC-006`.
+- `selected slice`: Add D1-backed presentation slot scheduling with scoped visibility, staff-only scheduling, same-location conflict blocking, and audit events.
+- `files changed`: `migrations/0006_presentation_slots.sql`, `functions/api/presentation-slots.ts`, `tests/presentation-slots.integration.test.mjs`, `docs/generated/production-route-inventory.md`, `docs/mvp-requirements-catalog.md`, `docs/automation-backlog.md`, `docs/automation-memory.md`, `docs/artifacts.json`, `docs/progress/handoffs.md`, `docs/progress/rebuild.md`, this run log, and `docs/progress/runs/2026-05-20-1306-presentation-slots-mvp-017.json`.
+- `validation`: `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-node-script.ps1 tests\presentation-slots.integration.test.mjs` (pass); `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 typecheck` (pass); `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 test` (pass, 117 tests); `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\verify-framework-seed-d1.ps1` (pass, local D1 applied `0006_presentation_slots.sql` and preserved seed counts); `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 inventory:production-routes` updated `/api/presentation-slots`; aggregate `check` passed.
+- `commit`: implementation commit `d1dfb69b98b98850342d7d8c97b08929e3938641` (`rebuild: add presentation slot scheduling (MVP-017)`), pushed to `origin main`; closeout evidence commit pending.
+- `blockers`: remote D1 apply/verification for `0006_presentation_slots.sql` still requires `CLOUDFLARE_API_TOKEN`; this run did not perform live Cloudflare mutation.
+- `self-improvement`: none.

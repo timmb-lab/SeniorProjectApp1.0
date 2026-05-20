@@ -267,3 +267,16 @@ Each rebuild run should append a dated entry with:
 - `self-improvement`: Strengthened `scripts/check-alpha-contract.mjs` so primary alpha review-history comments, versions, and storage-identifier blocking stay covered.
 - `commit/push status`: implementation commit `50fd6403520793e3b61576bcebc36378f20bad52` pushed to `origin main` (`958adfe..50fd640`); closeout evidence commit pending.
 - `next action`: After deploy, smoke `/alpha.html` and `/api/alpha/state`; if live verification remains blocked by missing token, continue the Day 7 ladder with mentor/presentation/admin workflow depth.
+
+### 2026-05-20 13:06 PT - MVP-017 Presentation Slot Scheduling
+
+- `automation`: `senior-capstone-nonfigma-mvp-builder`
+- `master-plan section`: Day 7 Alpha Gate; Seven-day implementation ladder Day 4/Day 5 mentor and presentation depth; Logging Requirements.
+- `source docs/logs read`: automation memory fallback at `C:\Users\bryan\.codex\automations\senior-capstone-nonfigma-mvp-builder\memory.md`, `docs/master-plan.md`, `docs/mvp-requirements-catalog.md`, `docs/automation-cadence.md`, `docs/automation-runbook.md`, `docs/automation-self-improvement.md`, `docs/automation-memory.md`, `docs/automation-milestones.md`, `docs/progress/run-log.md`, recent run manifests, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, `docs/progress/rebuild.md`, `docs/progress/figma.md`, and the mentor meeting route/test patterns.
+- `backlog or requirement IDs selected`: `SC-004`, `SC-005`, `SC-006`, `MVP-017`, and supporting `MVP-020`.
+- `bounded scope`: Add D1-backed presentation slot scheduling with role-scoped visibility, admin/program-teacher scheduling, same-location conflict blocking, and audit events.
+- `files changed`: `migrations/0006_presentation_slots.sql`, `functions/api/presentation-slots.ts`, `tests/presentation-slots.integration.test.mjs`, `docs/generated/production-route-inventory.md`, `docs/mvp-requirements-catalog.md`, `docs/automation-backlog.md`, `docs/automation-memory.md`, `docs/artifacts.json`, `docs/progress/handoffs.md`, this rebuild log, `docs/progress/run-log.md`, and structured run manifest.
+- `validation`: focused presentation-slot integration test passed; strict `typecheck` passed; full test suite passed with 117 tests; local D1 migration verification applied `0006_presentation_slots.sql` and preserved framework seed counts; production route inventory was regenerated for `/api/presentation-slots`; aggregate `check` passed with Cloudflare live verification blocked only by missing `CLOUDFLARE_API_TOKEN`.
+- `self-improvement`: none.
+- `commit/push status`: implementation commit `d1dfb69b98b98850342d7d8c97b08929e3938641` pushed to `origin main` (`d74967e..d1dfb69`); closeout docs commit pending.
+- `next action`: Apply/verify `0006_presentation_slots.sql` remotely when `CLOUDFLARE_API_TOKEN` is available, then add `/api/presentation-slots/:id/check-in` or equivalent check-out/check-in state changes with audit coverage.

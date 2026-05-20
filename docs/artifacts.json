@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-05-20T12:35:00-07:00",
+  "updated_at": "2026-05-20T13:06:00-07:00",
   "artifacts": [
     {
       "id": "cloudflare-pages-senior-capstone-app",
@@ -98,9 +98,10 @@
         "Migration 0001 applied successfully through Cloudflare D1 raw query API on 2026-05-18.",
         "Remote query verified 5 roles, 9 programs, default Google Drive evidence repository row, and expected foundation tables.",
         "Remote query verified first admin user bryan.timm89@gmail.com, global admin role, bootstrap_admin_created audit event, and session creation on 2026-05-18.",
-        "Production health verified userCount 5 after fake .test account seeding; login checks verified student, program_teacher, mentor, and misc_admin roles through /api/auth/me on 2026-05-18."
+        "Production health verified userCount 5 after fake .test account seeding; login checks verified student, program_teacher, mentor, and misc_admin roles through /api/auth/me on 2026-05-18.",
+        "Local D1 migration verification applied 0006_presentation_slots.sql on 2026-05-20 and preserved seeded framework counts: requirements=16, deadlines=24, review_gates=4, quality_checks=20."
       ],
-      "last_updated": "2026-05-18"
+      "last_updated": "2026-05-20"
     },
     {
       "id": "alpha-fake-test-accounts",

@@ -39,6 +39,7 @@ This is not a static guide, brochure, or visual-only project.
 - The account smoke UI now has a review-history panel that calls `/api/reviews/submission-alpha-maya-proposal/history`, renders teacher comments, review decisions, status timeline rows, and immutable version snapshots, and blocks rendering if private Drive storage identifiers ever appear in the payload. Source coverage lives in `tests/account-and-evidence-access.test.mjs`.
 - Student submissions now block on missing evidence: `/api/submissions/:id/submit` returns 409 `submission_missing_evidence` (audited) until at least one `evidence_artifacts` row is attached; coverage lives in `tests/review-loop.integration.test.mjs`.
 - Mentor meeting persistence foundation now exists: migration `migrations/0004_mentor_meetings.sql` plus authenticated mentor meeting record/list route `/api/mentor/meetings` with assignment-scope enforcement, audit events, and integration coverage in `tests/mentor-meetings.integration.test.mjs`.
+- Presentation slot persistence foundation now exists: migration `migrations/0006_presentation_slots.sql` plus authenticated `/api/presentation-slots` list/create route. The route exposes only slots the viewer can access, limits scheduling to admin/program-teacher staff, blocks same-location overlapping slots, and audits denied/conflict/scheduled outcomes. Integration coverage lives in `tests/presentation-slots.integration.test.mjs`, and local D1 migration verification applied the migration successfully.
 
 ## Active Automation Contract
 
@@ -79,11 +80,18 @@ Every builder run must ladder from `docs/master-plan.md` into `docs/mvp-requirem
 - `alpha.js` renders comments, decisions, submission versions, and status events with storage-identifier blocking; `tests/alpha-flow.test.mjs` and `scripts/check-alpha-contract.mjs` now guard this behavior.
 - Next best non-Figma slices should rotate away from repeated review-history UI unless hosted alpha smoke finds a regression; mentor/presentation/admin depth and remote D1/Cloudflare verification remain higher-value follow-ups.
 
+### 2026-05-20 - Presentation Slot Scheduling Foundation
+
+- Non-Figma builder added D1-backed presentation slot scheduling under `MVP-017`.
+- `migrations/0006_presentation_slots.sql` creates persisted presentation slots with status, outline status, location, duration, and check-out/check-in columns for the next slice.
+- `/api/presentation-slots` now supports scoped list/create behavior: mentors can see assigned-student slots, admin/program-teacher staff can schedule in-scope students, and overlapping same-location slots return `presentation_slot_conflict`.
+- `tests/presentation-slots.integration.test.mjs`, full test suite, typecheck, and local D1 migration verification passed. Remote D1 apply/verification still requires `CLOUDFLARE_API_TOKEN`.
+
 ## Current Priority
 
 Immediate next useful passes:
 
-1. Broaden auth, permission, protected-evidence, status-transition, audit/export, meeting, and presentation-slot tests.
+1. Broaden auth, permission, protected-evidence, status-transition, audit/export, meeting, and presentation check-out/check-in tests.
 2. Extend alpha proposal/review/evidence/audit records into real workflow endpoints.
 3. Add Google Drive server-side credential/OAuth implementation plus access-controlled evidence upload/retrieval assumptions.
 4. Implement account provisioning/import, invitation, password reset, credential rotation, and known-gaps QA.
