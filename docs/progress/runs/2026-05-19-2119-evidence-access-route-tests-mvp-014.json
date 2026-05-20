@@ -1,0 +1,51 @@
+{
+  "run_id": "2026-05-19-2119-evidence-access-route-tests-mvp-014",
+  "timestamp_local": "2026-05-19T21:19:00-07:00",
+  "automation_id": "senior-capstone-hourly-qol-orchestrator",
+  "trigger": "30-minute MVP builder run: add route-level test coverage for /api/evidence/:id/check-access with audit assertions.",
+  "lane": "backend-security-data",
+  "status": "completed",
+  "accepted_mvp_pass": true,
+  "requirement_ids": [
+    "MVP-014"
+  ],
+  "backlog_ids": [
+    "SC-003",
+    "SC-005"
+  ],
+  "duration_minutes": 30,
+  "output_kind": "tests",
+  "scope": "Exercise the protected evidence access check route across 401/403/404/200 flows, asserting audit-event writes and storage-id redaction, using a deterministic mocked D1 interface.",
+  "source_docs_read": [
+    "docs/master-plan.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/automation-cadence.md",
+    "docs/automation-backlog.md",
+    "docs/automation-progress.md",
+    "docs/automation-memory.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-19-2049-permission-tests-mvp-006-014.json",
+    "functions/api/evidence/[id]/check-access.ts",
+    "functions/_lib/auth.ts",
+    "functions/_lib/permissions.ts"
+  ],
+  "changes": [
+    "Added tests/evidence-check-access.integration.test.mjs executing the evidence access check route with a mocked D1, validating response codes (401/403/404/200), audit-event inserts, and Drive storage-id redaction.",
+    "Updated TypeScript module specifiers in the evidence check route and auth/permissions libs to use explicit .ts imports so Node-based tests can import Pages Functions directly.",
+    "Updated docs/mvp-requirements-catalog.md and docs/automation-memory.md to record the new evidence coverage."
+  ],
+  "validation": [
+    "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\\\scripts\\\\run-npm-script.ps1 test"
+  ],
+  "blockers": [],
+  "known_limits": [
+    "The new evidence access tests use a mocked D1 interface; follow-on work should validate behavior against a real D1 instance (Wrangler/Miniflare) when local tooling is available.",
+    "Route-level tests currently validate student-own allow, misc-admin deny, missing-session 401, and not-found 404; follow-on should add mentor/teacher/admin allow-path checks."
+  ],
+  "next_actions": [
+    "Extend tests/evidence-check-access.integration.test.mjs to cover mentor-assigned access, program-teacher scoped access, and admin access for /api/evidence/:id/check-access.",
+    "Implement MVP-013 Drive credential/OAuth path for uploads/retrieval and expand protected-evidence tests around storage provider behavior."
+  ],
+  "self_improvement": "none"
+}
+

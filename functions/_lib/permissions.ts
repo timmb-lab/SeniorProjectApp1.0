@@ -1,4 +1,4 @@
-import type { Env, RoleAssignment, RoleId, UserAccount } from "../_types";
+import type { Env, RoleAssignment, RoleId, UserAccount } from "../_types.ts";
 
 export async function getRoleAssignments(env: Env, userId: string): Promise<RoleAssignment[]> {
   const rows = await env.DB.prepare(

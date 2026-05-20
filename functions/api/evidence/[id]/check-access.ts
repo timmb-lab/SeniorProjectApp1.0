@@ -1,7 +1,7 @@
-import type { Env, RoleAssignment, UserAccount } from "../../../_types";
-import { getCurrentUser, writeAudit } from "../../../_lib/auth";
-import { badRequest, json } from "../../../_lib/http";
-import { canAccessStudent, getRoleAssignments } from "../../../_lib/permissions";
+import type { Env, RoleAssignment, UserAccount } from "../../../_types.ts";
+import { getCurrentUser, writeAudit } from "../../../_lib/auth.ts";
+import { badRequest, json } from "../../../_lib/http.ts";
+import { canAccessStudent, getRoleAssignments } from "../../../_lib/permissions.ts";
 
 interface EvidenceRow {
   id: string;

@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
 import { existsSync, statSync } from "node:fs";
-import { readFile } from "node:fs/promises";
+import { readFile, readdir, rm, writeFile } from "node:fs/promises";
 import { spawnSync } from "node:child_process";
+import path from "node:path";
 import test from "node:test";
 import {
   buildRunReport,
@@ -104,35 +105,75 @@ test("doctor fails when mock evidence has an unexpected active Senior Capstone a
 
 test("orchestrator writes latest report with lock release and orchestrator path audit fields", async () => {
   const latestPath = "automation/qol/reports/latest.md";
+  const planIndexPath = "automation/qol/state/plan-index.json";
+  const statePath = "automation/qol/state/state.json";
+  const restoreTargets = [latestPath, planIndexPath, statePath];
+
+  const snapshots = new Map(
+    await Promise.all(
+      restoreTargets.map(async (target) => [
+        target,
+        existsSync(target) ? await readFile(target, "utf8") : null,
+      ]),
+    ),
+  );
+  const beforeLogs = new Set(await readdir("automation/qol/logs"));
+  const beforeReports = new Set(await readdir("automation/qol/reports"));
+  const beforeState = new Set(await readdir("automation/qol/state"));
   const beforeMtime = existsSync(latestPath) ? statSync(latestPath).mtimeMs : 0;
-  const result = runQolWrapper([
-    "automation/qol/hourly-orchestrator.mjs",
-    "--registry-evidence",
-    "tests/fixtures/qol-registry-single-active.json",
-  ]);
-  assert.equal(result.status, 0, result.stderr || result.stdout);
-  assert.ok(existsSync(latestPath), "latest.md should exist after orchestrator run");
-  const afterMtime = statSync(latestPath).mtimeMs;
-  assert.ok(afterMtime >= beforeMtime, "latest.md mtime should be preserved or advanced");
-  const latest = await readFile(latestPath, "utf8");
-  assert.match(latest, /- orchestrator_path: `automation\/qol\/hourly-orchestrator\.mjs`/);
-  assert.match(latest, /- invocation_adapter: `scripts\/run-node-script\.ps1`/);
-  assert.match(latest, /- wrapper_required: `true`/);
-  assert.match(latest, /- direct_node_execution_allowed: `false`/);
-  assert.match(latest, /- scheduled_gui_canary_status: `PENDING_NEXT_30_MINUTE_RUN`/);
-  assert.match(latest, /- run_started_at: `[^`]+`/);
-  assert.match(latest, /- run_finished_at: `[^`]+`/);
-  assert.match(latest, /- project_identity_status: `PASS`/);
-  assert.match(latest, /- doctor_status: `NOT_RECORDED_BY_ORCHESTRATOR`/);
-  assert.match(latest, /- orchestrator_status: `(?:skipped|completed|needs-review|failed|recurring)`/);
-  assert.match(latest, /- lock_released: `true`/);
-  assert.match(latest, /- report_written: `true`/);
-  assert.match(latest, /- automation_registry_inspectable: `true`/);
-  assert.match(latest, /- safety_status: `PASS`/);
-  assert.match(latest, /- registry_status: `VERIFIED_REPO_LOCAL`/);
-  assert.match(latest, /- registry_health_verified: `true`/);
-  assert.match(latest, /- unexpected_project_automation_detected: `false`/);
-  assert.match(latest, /- active_senior_capstone_automation_count: `1`/);
+
+  try {
+    const result = runQolWrapper([
+      "automation/qol/hourly-orchestrator.mjs",
+      "--registry-evidence",
+      "tests/fixtures/qol-registry-single-active.json",
+    ]);
+    assert.equal(result.status, 0, result.stderr || result.stdout);
+    assert.ok(existsSync(latestPath), "latest.md should exist after orchestrator run");
+    const afterMtime = statSync(latestPath).mtimeMs;
+    assert.ok(afterMtime >= beforeMtime, "latest.md mtime should be preserved or advanced");
+    const latest = await readFile(latestPath, "utf8");
+    assert.match(latest, /- orchestrator_path: `automation\/qol\/hourly-orchestrator\.mjs`/);
+    assert.match(latest, /- invocation_adapter: `scripts\/run-node-script\.ps1`/);
+    assert.match(latest, /- wrapper_required: `true`/);
+    assert.match(latest, /- direct_node_execution_allowed: `false`/);
+    assert.match(latest, /- scheduled_gui_canary_status: `PENDING_NEXT_30_MINUTE_RUN`/);
+    assert.match(latest, /- run_started_at: `[^`]+`/);
+    assert.match(latest, /- run_finished_at: `[^`]+`/);
+    assert.match(latest, /- project_identity_status: `PASS`/);
+    assert.match(latest, /- doctor_status: `NOT_RECORDED_BY_ORCHESTRATOR`/);
+    assert.match(latest, /- orchestrator_status: `(?:skipped|completed|needs-review|failed|recurring)`/);
+    assert.match(latest, /- lock_released: `true`/);
+    assert.match(latest, /- report_written: `true`/);
+    assert.match(latest, /- automation_registry_inspectable: `true`/);
+    assert.match(latest, /- safety_status: `PASS`/);
+    assert.match(latest, /- registry_status: `VERIFIED_REPO_LOCAL`/);
+    assert.match(latest, /- registry_health_verified: `true`/);
+    assert.match(latest, /- unexpected_project_automation_detected: `false`/);
+    assert.match(latest, /- active_senior_capstone_automation_count: `1`/);
+  } finally {
+    for (const target of restoreTargets) {
+      const snapshot = snapshots.get(target);
+      if (snapshot == null) {
+        await rm(target, { force: true });
+        continue;
+      }
+      await writeFile(target, snapshot, "utf8");
+    }
+
+    for (const [dir, beforeSet, preserve] of [
+      ["automation/qol/logs", beforeLogs, new Set([".gitkeep"])],
+      ["automation/qol/reports", beforeReports, new Set([".gitkeep", "latest.md"])],
+      ["automation/qol/state", beforeState, new Set()],
+    ]) {
+      const after = await readdir(dir);
+      await Promise.all(
+        after
+          .filter((name) => !beforeSet.has(name) && !preserve.has(name))
+          .map((name) => rm(path.join(dir, name), { force: true, recursive: true })),
+      );
+    }
+  }
 });
 
 test("stored 30-minute runner prompt stays bounded and wrapper-only", async () => {

@@ -1,6 +1,6 @@
-import type { Env, SessionRecord, UserAccount } from "../_types";
-import { getClientIp, getUserAgent } from "./http";
-import { newRandomToken, randomId, sha256Hex } from "./crypto";
+import type { Env, SessionRecord, UserAccount } from "../_types.ts";
+import { getClientIp, getUserAgent } from "./http.ts";
+import { newRandomToken, randomId, sha256Hex } from "./crypto.ts";
 
 const SESSION_HOURS = 12;
 
