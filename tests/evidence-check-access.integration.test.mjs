@@ -174,6 +174,184 @@ test("evidence access check returns 200, omits storage ids, and audits when allo
   });
 });
 
+test("evidence access check returns 200 and audits when mentor assignment is active", async () => {
+  const fixture = await createFixtureWithSession({
+    userId: "mentor-a",
+    roleId: "mentor",
+  });
+  fixture.db.data.userAccounts.push(buildUser("student-a"));
+  fixture.db.data.mentorAssignments.push({
+    mentor_user_id: "mentor-a",
+    student_user_id: "student-a",
+    active: 1,
+  });
+  fixture.db.data.evidenceArtifacts.push({
+    id: fixture.evidenceId,
+    student_id: "student-a",
+    submission_id: "submission-1",
+    artifact_type: "reflection",
+    source_kind: "external_link",
+    external_url: "https://example.com/mentor-visible",
+    title: "Mentor allowed artifact",
+    review_status: "pending",
+    created_at: new Date("2026-05-20T00:00:00.000Z").toISOString(),
+    deleted_at: null,
+  });
+
+  const request = new Request(`https://example.test/api/evidence/${fixture.evidenceId}/check-access`, {
+    headers: {
+      cookie: `sc_session=${fixture.token}`,
+      "cf-connecting-ip": "203.0.113.14",
+      "user-agent": "integration-test",
+    },
+  });
+
+  const response = await onRequestGet({
+    request,
+    env: fixture.env,
+    params: { id: fixture.evidenceId },
+  });
+
+  assert.equal(response.status, 200);
+  const body = await response.json();
+  assert.equal(body.canAccess, true);
+  assert.equal(body.artifact.id, fixture.evidenceId);
+  assert.equal(body.artifact.studentId, "student-a");
+  assert.equal(body.artifact.externalUrl, "https://example.com/mentor-visible");
+  assert.doesNotMatch(JSON.stringify(body), /drive_file_id|drive_parent_folder_id/);
+
+  const [event] = fixture.db.data.auditEvents;
+  assert.equal(fixture.db.data.auditEvents.length, 1);
+  assert.equal(event.actor_user_id, "mentor-a");
+  assert.equal(event.action, "evidence_access_checked");
+  assert.equal(event.entity_type, "evidence_artifact");
+  assert.equal(event.entity_id, fixture.evidenceId);
+  assert.deepEqual(event.metadata, {
+    studentId: "student-a",
+    sourceKind: "external_link",
+    actorRoleScopes: [{ roleId: "mentor", scopeType: "global", scopeId: "" }],
+  });
+});
+
+test("evidence access check returns 200 and audits when program teacher scope matches student program", async () => {
+  const fixture = await createFixtureWithSession({
+    userId: "teacher-it",
+    roleId: "program_teacher",
+    scopeType: "program",
+    scopeId: "it",
+  });
+  fixture.db.data.userAccounts.push(buildUser("student-a"));
+  fixture.db.data.groups.push({
+    id: "group-it",
+    program_id: "it",
+    cohort_id: "cohort-a",
+  });
+  fixture.db.data.groupMemberships.push({
+    user_id: "student-a",
+    group_id: "group-it",
+  });
+  fixture.db.data.evidenceArtifacts.push({
+    id: fixture.evidenceId,
+    student_id: "student-a",
+    submission_id: "submission-1",
+    artifact_type: "reflection",
+    source_kind: "external_link",
+    external_url: "https://example.com/teacher-visible",
+    title: "Teacher allowed artifact",
+    review_status: "pending",
+    created_at: new Date("2026-05-20T00:00:00.000Z").toISOString(),
+    deleted_at: null,
+  });
+
+  const request = new Request(`https://example.test/api/evidence/${fixture.evidenceId}/check-access`, {
+    headers: {
+      cookie: `sc_session=${fixture.token}`,
+      "cf-connecting-ip": "203.0.113.15",
+      "user-agent": "integration-test",
+    },
+  });
+
+  const response = await onRequestGet({
+    request,
+    env: fixture.env,
+    params: { id: fixture.evidenceId },
+  });
+
+  assert.equal(response.status, 200);
+  const body = await response.json();
+  assert.equal(body.canAccess, true);
+  assert.equal(body.artifact.id, fixture.evidenceId);
+  assert.equal(body.artifact.studentId, "student-a");
+  assert.equal(body.artifact.externalUrl, "https://example.com/teacher-visible");
+  assert.doesNotMatch(JSON.stringify(body), /drive_file_id|drive_parent_folder_id/);
+
+  const [event] = fixture.db.data.auditEvents;
+  assert.equal(fixture.db.data.auditEvents.length, 1);
+  assert.equal(event.actor_user_id, "teacher-it");
+  assert.equal(event.action, "evidence_access_checked");
+  assert.equal(event.entity_type, "evidence_artifact");
+  assert.equal(event.entity_id, fixture.evidenceId);
+  assert.deepEqual(event.metadata, {
+    studentId: "student-a",
+    sourceKind: "external_link",
+    actorRoleScopes: [{ roleId: "program_teacher", scopeType: "program", scopeId: "it" }],
+  });
+});
+
+test("evidence access check returns 200 and audits when admin checks evidence access", async () => {
+  const fixture = await createFixtureWithSession({
+    userId: "admin-a",
+    roleId: "admin",
+  });
+  fixture.db.data.userAccounts.push(buildUser("student-a"));
+  fixture.db.data.evidenceArtifacts.push({
+    id: fixture.evidenceId,
+    student_id: "student-a",
+    submission_id: "submission-1",
+    artifact_type: "reflection",
+    source_kind: "external_link",
+    external_url: "https://example.com/admin-visible",
+    title: "Admin allowed artifact",
+    review_status: "pending",
+    created_at: new Date("2026-05-20T00:00:00.000Z").toISOString(),
+    deleted_at: null,
+  });
+
+  const request = new Request(`https://example.test/api/evidence/${fixture.evidenceId}/check-access`, {
+    headers: {
+      cookie: `sc_session=${fixture.token}`,
+      "cf-connecting-ip": "203.0.113.16",
+      "user-agent": "integration-test",
+    },
+  });
+
+  const response = await onRequestGet({
+    request,
+    env: fixture.env,
+    params: { id: fixture.evidenceId },
+  });
+
+  assert.equal(response.status, 200);
+  const body = await response.json();
+  assert.equal(body.canAccess, true);
+  assert.equal(body.artifact.id, fixture.evidenceId);
+  assert.equal(body.artifact.studentId, "student-a");
+  assert.equal(body.artifact.externalUrl, "https://example.com/admin-visible");
+  assert.doesNotMatch(JSON.stringify(body), /drive_file_id|drive_parent_folder_id/);
+
+  const [event] = fixture.db.data.auditEvents;
+  assert.equal(fixture.db.data.auditEvents.length, 1);
+  assert.equal(event.actor_user_id, "admin-a");
+  assert.equal(event.action, "evidence_access_checked");
+  assert.equal(event.entity_type, "evidence_artifact");
+  assert.equal(event.entity_id, fixture.evidenceId);
+  assert.deepEqual(event.metadata, {
+    studentId: "student-a",
+    sourceKind: "external_link",
+    actorRoleScopes: [{ roleId: "admin", scopeType: "global", scopeId: "" }],
+  });
+});
+
 function createFixture() {
   const db = new MockD1Database({
     userAccounts: [],
@@ -193,7 +371,7 @@ function createFixture() {
   };
 }
 
-async function createFixtureWithSession({ userId, roleId }) {
+async function createFixtureWithSession({ userId, roleId, scopeType = "global", scopeId = "" }) {
   const base = createFixture();
   const token = `token-${userId}`;
   const tokenHash = await sha256Hex(token);
@@ -209,8 +387,8 @@ async function createFixtureWithSession({ userId, roleId }) {
   base.db.data.userRoles.push({
     user_id: userId,
     role_id: roleId,
-    scope_type: "global",
-    scope_id: "",
+    scope_type: scopeType,
+    scope_id: scopeId,
   });
 
   return { ...base, token };

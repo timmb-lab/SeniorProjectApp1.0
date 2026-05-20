@@ -1,0 +1,54 @@
+{
+  "run_id": "2026-05-19-2142-evidence-access-role-coverage-mvp-014",
+  "timestamp_local": "2026-05-19T21:42:00-07:00",
+  "automation_id": "senior-capstone-hourly-qol-orchestrator",
+  "trigger": "30-minute MVP builder run: extend /api/evidence/:id/check-access integration coverage to include mentor, program teacher, and admin allow paths with audit assertions.",
+  "lane": "backend-security-data",
+  "status": "completed",
+  "accepted_mvp_pass": true,
+  "requirement_ids": [
+    "MVP-014"
+  ],
+  "backlog_ids": [
+    "SC-003",
+    "SC-005"
+  ],
+  "duration_minutes": 30,
+  "output_kind": "tests",
+  "scope": "Add route-level integration tests for /api/evidence/:id/check-access covering mentor-assigned access, program-teacher program-scope access, and admin access, asserting audited role scopes and storage-id redaction via a deterministic mocked D1.",
+  "source_docs_read": [
+    "docs/master-plan.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/automation-cadence.md",
+    "docs/automation-backlog.md",
+    "docs/automation-memory.md",
+    "docs/progress/run-log.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/decision-log.md",
+    "docs/human-decisions.md",
+    "docs/artifacts.json",
+    "automation/qol/reports/latest.md",
+    "docs/progress/runs/2026-05-19-2119-evidence-access-route-tests-mvp-014.json",
+    "tests/evidence-check-access.integration.test.mjs",
+    "functions/api/evidence/[id]/check-access.ts",
+    "functions/_lib/permissions.ts"
+  ],
+  "changes": [
+    "Extended tests/evidence-check-access.integration.test.mjs with 200-path coverage for mentor-assigned access, program-teacher program-scope access, and admin access for /api/evidence/:id/check-access, including audit metadata assertions for actor role scopes and storage-id redaction.",
+    "Updated docs/automation-memory.md to reflect the expanded protected-evidence access route coverage."
+  ],
+  "validation": [
+    "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\\\scripts\\\\run-npm-script.ps1 test"
+  ],
+  "blockers": [],
+  "known_limits": [
+    "Evidence access route tests still use a deterministic mocked D1 interface; follow-on work should validate behavior against a real local D1 instance (Wrangler/Miniflare) when available.",
+    "Program-teacher coverage in the evidence access route tests currently exercises program scope; consider adding cohort-scope coverage in a follow-on pass."
+  ],
+  "next_actions": [
+    "Add cohort-scope program-teacher allow-path coverage for /api/evidence/:id/check-access and extend tests to assert consistent audit metadata for all allow/deny paths.",
+    "Advance MVP-013 by implementing Google Drive server-side credential/OAuth for uploads/retrieval and expand protected-evidence tests around storage provider behavior."
+  ],
+  "self_improvement": "none"
+}
+

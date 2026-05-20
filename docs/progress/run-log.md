@@ -46,3 +46,11 @@ Future productive runs should append compact entries that name the master-plan s
 - `files changed`: `tests/evidence-check-access.integration.test.mjs`, `functions/api/evidence/[id]/check-access.ts`, `functions/_lib/auth.ts`, `functions/_lib/permissions.ts`, `docs/mvp-requirements-catalog.md`, `docs/automation-memory.md`, and `docs/progress/runs/2026-05-19-2119-evidence-access-route-tests-mvp-014.json`.
 - `verification`: `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 test` (pass).
 - `blockers`: none.
+
+## 2026-05-19 21:42 PT - MVP-014 Evidence Access Role Coverage Tests
+
+- `master-plan sections`: Day 7 Alpha Gate; Logging Requirements.
+- `requirement IDs`: `MVP-014`; `backlog IDs`: `SC-003`, `SC-005`.
+- `files changed`: `tests/evidence-check-access.integration.test.mjs`, `docs/automation-memory.md`, and `docs/progress/runs/2026-05-19-2142-evidence-access-role-coverage-mvp-014.json`.
+- `verification`: `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 test` (pass).
+- `blockers`: none.
