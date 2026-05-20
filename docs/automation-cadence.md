@@ -2,12 +2,14 @@
 
 Date: 2026-05-20
 
-The Senior Capstone project now uses two alternating hourly builder lanes, plus daily and weekly oversight. The single undifferentiated 30-minute builder model has been replaced by:
+Current active model name: split-builder cadence.
+
+The Senior Capstone project now uses two alternating hourly builder lanes, plus daily and weekly oversight. Old single-builder cadence is retired. The single undifferentiated 30-minute builder model has been replaced by:
 
 - Minute 0 PT: top-of-hour non-Figma MVP builder.
 - Minute 30 PT: bottom-of-hour Figma-only product builder.
 
-Combined builder capacity remains 48 scheduled starts per day and 1,440 scheduled starts per 30 days. Oversight automations report and recalibrate from evidence; they are not builder capacity.
+Combined builder capacity is scheduled capacity, not guaranteed successful completed changes: 24 + 24 = 48 scheduled builder runs per day, and 720 + 720 = 1,440 scheduled builder runs per 30 days. Oversight automations report and recalibrate from evidence; they are not builder capacity.
 
 End goal: a GitHub-to-Cloudflare hosted Senior Capstone app whose MVP is a secure database-backed operating system with users, groups, roles, programs, cohorts, progress updates, submissions, private evidence, reviews, approvals, dashboards, announcements, admin controls, audit logs, exports, and protected student records.
 
@@ -50,6 +52,10 @@ The legacy `senior-capstone-hourly-qol-orchestrator` ID is replaced as the activ
 - Broad Figma polish does not count.
 - Broad docs churn does not count.
 - Reports alone do not count.
+- Wrong-lane work does not count.
+- No-verification work does not count.
+- Uncommitted file changes do not count.
+- Unproven scheduler claims do not count.
 - Each builder must commit/push when possible.
 
 Each builder must:
@@ -114,14 +120,29 @@ Current split-builder scale math:
 - 24 non-Figma starts/day.
 - 24 Figma starts/day.
 - 48 combined starts/day.
+- 24 + 24 = 48 scheduled builder runs per day.
 - 720 non-Figma starts/30 days.
 - 720 Figma starts/30 days.
 - 1,440 combined starts/30 days.
+- 720 + 720 = 1,440 scheduled builder runs per 30 days.
 - Minimum target: 60 accepted MVP passes per 30 days.
 - Stretch target: 90 accepted MVP passes per 30 days.
 - Required conversion: 4.17 percent for minimum, 6.25 percent for stretch.
 
 Auto-scaling means retargeting requirement focus, lane separation, blockers, and acceptance checks from evidence before changing the schedule. If minute-0/minute-30 collisions, dirty-worktree contention, or low accepted-pass conversion appear, first sharpen slice selection, blockers, validation, and handoffs before adding more automations.
+
+## External Scheduler Handling
+
+Repo validation enforces prompt, lock, docs, and verifier truth. It does not prove the external Codex scheduler has been changed unless a repo-local scheduler config exists and was updated, or direct scheduler evidence is inspected in the current run.
+
+No repo-local scheduler manifest currently controls the external scheduler. Bryan must keep the external scheduler aligned with this repo-local truth:
+
+1. Create or update `senior-capstone-nonfigma-mvp-builder` to run hourly at minute 0 PT.
+2. Paste the full contents of `automation/prompts/senior-capstone-nonfigma-mvp-builder.md`.
+3. Create or update `senior-capstone-figma-product-builder` to run hourly at minute 30 PT.
+4. Paste the full contents of `automation/prompts/senior-capstone-figma-product-builder.md`.
+5. Disable `senior-capstone-hourly-qol-orchestrator` as recurring or convert it to manual diagnostic only.
+6. Keep daily and weekly oversight active.
 
 ## Commit Prefixes
 

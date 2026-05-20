@@ -24,6 +24,14 @@ const GUI_ALLOWED_COMMAND_DOC_RELATIVE = "automation/qol/GUI_ALLOWED_COMMANDS.md
 const SCHEDULED_GUI_CANARY_RELATIVE = "automation/qol/SCHEDULED_GUI_CANARY.md";
 const REPORT_SCHEMA_DOC_RELATIVE = "automation/qol/REPORT_SCHEMA.md";
 const DEFAULT_REGISTRY_EVIDENCE_RELATIVE = "automation/qol/state/automation-registry-evidence.json";
+const NON_FIGMA_BUILDER_ID = "senior-capstone-nonfigma-mvp-builder";
+const FIGMA_BUILDER_ID = "senior-capstone-figma-product-builder";
+const DAILY_OVERSIGHT_ID = "senior-capstone-daily-mvp-summary";
+const WEEKLY_OVERSIGHT_ID = "senior-capstone-weekly-script-audit";
+const LEGACY_DIAGNOSTIC_ID = "senior-capstone-hourly-qol-orchestrator";
+const NON_FIGMA_PROMPT_RELATIVE = "automation/prompts/senior-capstone-nonfigma-mvp-builder.md";
+const FIGMA_PROMPT_RELATIVE = "automation/prompts/senior-capstone-figma-product-builder.md";
+const EXPECTED_REPOSITORY_ROOT_WINDOWS_PATH = "C:\\SeniorProjectApp1.0";
 const EXPECTED_GUI_DOCTOR_COMMAND =
   "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 automation\\qol\\doctor.mjs";
 const EXPECTED_GUI_ORCHESTRATOR_COMMAND =
@@ -795,6 +803,8 @@ function inspectRequiredPathContract(projectRoot, projectLock) {
 
   const requiredFiles = [
     PROJECT_LOCK_RELATIVE,
+    NON_FIGMA_PROMPT_RELATIVE,
+    FIGMA_PROMPT_RELATIVE,
     DOCTOR_RELATIVE_PATH,
     ORCHESTRATOR_RELATIVE_PATH,
     INVOCATION_ADAPTER_RELATIVE_PATH,
@@ -866,9 +876,103 @@ function inspectLockContract(projectRoot, projectLock) {
     checks.push({ name, status, detail });
     if (status === "fail") findings.push(detail);
   };
+  const hasOwn = (name) => Object.prototype.hasOwnProperty.call(projectLock, name);
+  const includes = (values, id) => asStringArray(values).includes(id);
 
   const lockDir = assertInsideProjectRoot(projectRoot, path.join(projectLock.expectedAutomationStateDir, "lock"));
+  const allowedActiveIds = asStringArray(projectLock.allowedActiveAutomationIds);
+  const expectedBuilderIds = asStringArray(projectLock.expectedBuilderAutomationIds);
+  const allowedOversightIds = asStringArray(projectLock.allowedOversightAutomationIds);
+  const legacyDiagnosticIds = asStringArray(projectLock.legacyDiagnosticAutomationIds);
   addCheck("lock-path-inside-project", "pass", path.relative(projectRoot, lockDir).replaceAll("\\", "/"));
+  addCheck(
+    "lock-root-windows-path",
+    projectLock.expectedRepositoryRootWindowsPath === EXPECTED_REPOSITORY_ROOT_WINDOWS_PATH ? "pass" : "fail",
+    projectLock.expectedRepositoryRootWindowsPath === EXPECTED_REPOSITORY_ROOT_WINDOWS_PATH
+      ? `expected root is ${EXPECTED_REPOSITORY_ROOT_WINDOWS_PATH}`
+      : `expectedRepositoryRootWindowsPath must be ${EXPECTED_REPOSITORY_ROOT_WINDOWS_PATH}`,
+  );
+  addCheck(
+    "lock-active-nonfigma-builder",
+    includes(allowedActiveIds, NON_FIGMA_BUILDER_ID) ? "pass" : "fail",
+    includes(allowedActiveIds, NON_FIGMA_BUILDER_ID)
+      ? `${NON_FIGMA_BUILDER_ID} is allowed active`
+      : `${NON_FIGMA_BUILDER_ID} must be allowed active`,
+  );
+  addCheck(
+    "lock-active-figma-builder",
+    includes(allowedActiveIds, FIGMA_BUILDER_ID) ? "pass" : "fail",
+    includes(allowedActiveIds, FIGMA_BUILDER_ID)
+      ? `${FIGMA_BUILDER_ID} is allowed active`
+      : `${FIGMA_BUILDER_ID} must be allowed active`,
+  );
+  addCheck(
+    "lock-legacy-not-active",
+    includes(allowedActiveIds, LEGACY_DIAGNOSTIC_ID) ? "fail" : "pass",
+    includes(allowedActiveIds, LEGACY_DIAGNOSTIC_ID)
+      ? `${LEGACY_DIAGNOSTIC_ID} must not be allowed as an active recurring automation`
+      : `${LEGACY_DIAGNOSTIC_ID} is not allowed active`,
+  );
+  addCheck(
+    "lock-expected-builder-count",
+    expectedBuilderIds.length === 2 &&
+      includes(expectedBuilderIds, NON_FIGMA_BUILDER_ID) &&
+      includes(expectedBuilderIds, FIGMA_BUILDER_ID) &&
+      !includes(expectedBuilderIds, LEGACY_DIAGNOSTIC_ID)
+      ? "pass"
+      : "fail",
+    expectedBuilderIds.length === 2 &&
+      includes(expectedBuilderIds, NON_FIGMA_BUILDER_ID) &&
+      includes(expectedBuilderIds, FIGMA_BUILDER_ID) &&
+      !includes(expectedBuilderIds, LEGACY_DIAGNOSTIC_ID)
+      ? "expected builder IDs are exactly the two split builders"
+      : "expectedBuilderAutomationIds must contain exactly the non-Figma and Figma split builders",
+  );
+  addCheck(
+    "lock-oversight-ids",
+    includes(allowedOversightIds, DAILY_OVERSIGHT_ID) && includes(allowedOversightIds, WEEKLY_OVERSIGHT_ID)
+      ? "pass"
+      : "fail",
+    includes(allowedOversightIds, DAILY_OVERSIGHT_ID) && includes(allowedOversightIds, WEEKLY_OVERSIGHT_ID)
+      ? "daily and weekly oversight IDs are separate from builders"
+      : "allowedOversightAutomationIds must include daily and weekly oversight IDs",
+  );
+  addCheck(
+    "lock-legacy-diagnostic-id",
+    includes(legacyDiagnosticIds, LEGACY_DIAGNOSTIC_ID) ? "pass" : "fail",
+    includes(legacyDiagnosticIds, LEGACY_DIAGNOSTIC_ID)
+      ? `${LEGACY_DIAGNOSTIC_ID} is marked legacy diagnostic`
+      : `${LEGACY_DIAGNOSTIC_ID} must be listed in legacyDiagnosticAutomationIds`,
+  );
+  addCheck(
+    "lock-no-singular-30-minute-cadence",
+    hasOwn("expectedAutomationCadenceRRule") ? "fail" : "pass",
+    hasOwn("expectedAutomationCadenceRRule")
+      ? "Remove singular expectedAutomationCadenceRRule; split builders must use expectedBuilderCadences."
+      : "No singular old-builder cadence field remains",
+  );
+  addCheck(
+    "lock-nonfigma-cadence",
+    projectLock.expectedBuilderCadences?.nonFigma?.id === NON_FIGMA_BUILDER_ID &&
+      projectLock.expectedBuilderCadences?.nonFigma?.rrule === "FREQ=HOURLY;BYMINUTE=0;BYSECOND=0"
+      ? "pass"
+      : "fail",
+    projectLock.expectedBuilderCadences?.nonFigma?.id === NON_FIGMA_BUILDER_ID &&
+      projectLock.expectedBuilderCadences?.nonFigma?.rrule === "FREQ=HOURLY;BYMINUTE=0;BYSECOND=0"
+      ? "non-Figma builder cadence is hourly at minute 0"
+      : "expectedBuilderCadences.nonFigma must be the non-Figma builder at minute 0",
+  );
+  addCheck(
+    "lock-figma-cadence",
+    projectLock.expectedBuilderCadences?.figma?.id === FIGMA_BUILDER_ID &&
+      projectLock.expectedBuilderCadences?.figma?.rrule === "FREQ=HOURLY;BYMINUTE=30;BYSECOND=0"
+      ? "pass"
+      : "fail",
+    projectLock.expectedBuilderCadences?.figma?.id === FIGMA_BUILDER_ID &&
+      projectLock.expectedBuilderCadences?.figma?.rrule === "FREQ=HOURLY;BYMINUTE=30;BYSECOND=0"
+      ? "Figma builder cadence is hourly at minute 30"
+      : "expectedBuilderCadences.figma must be the Figma builder at minute 30",
+  );
   addCheck(
     "stale-lock-threshold",
     DEFAULT_STALE_LOCK_MS >= 30 * 60 * 1000 ? "pass" : "fail",
@@ -1779,7 +1883,12 @@ async function projectScopeAudit(projectRoot, projectLock) {
     }
   }
   const lockText = await readText(projectRoot, PROJECT_LOCK_RELATIVE);
-  if (/C:\\|\/Users\//i.test(lockText)) {
+  const allowedRootLiteral = EXPECTED_REPOSITORY_ROOT_WINDOWS_PATH.replaceAll("\\", "\\\\");
+  const lockTextWithoutAllowedRoot = lockText.replaceAll(
+    allowedRootLiteral,
+    "EXPECTED_REPOSITORY_ROOT_WINDOWS_PATH",
+  );
+  if (/C:\\|\/Users\//i.test(lockTextWithoutAllowedRoot)) {
     findings.push("Project lock contains an absolute machine path.");
   }
   return findings;

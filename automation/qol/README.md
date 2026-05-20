@@ -11,7 +11,7 @@ As of 2026-05-20, this path is not an active MVP builder prompt. The active buil
 - Active Figma-only builder prompt: `automation/prompts/senior-capstone-figma-product-builder.md`
 - Project identity lock: `automation/qol/project-lock.json`
 - Doctor: `automation/qol/doctor.mjs`
-- 30-minute orchestrator: `automation/qol/hourly-orchestrator.mjs`
+- Legacy diagnostic orchestrator: `automation/qol/hourly-orchestrator.mjs`
 - Report schema: `automation/qol/REPORT_SCHEMA.md`
 - Canary criteria: `automation/qol/SCHEDULED_GUI_CANARY.md`
 - Approved Node wrapper: `scripts/run-node-script.ps1`
@@ -22,7 +22,7 @@ As of 2026-05-20, this path is not an active MVP builder prompt. The active buil
 The older scheduled Codex GUI runner was intentionally narrow. If this diagnostic path is invoked manually, keep its action set narrow:
 
 1. Run the doctor through the approved wrapper.
-2. Run the 30-minute orchestrator through the approved wrapper if the doctor exits successfully.
+2. Run the legacy diagnostic orchestrator through the approved wrapper if the doctor exits successfully.
 3. Read and summarize `automation/qol/reports/latest.md`.
 
 The exact commands are:
@@ -36,7 +36,7 @@ This diagnostic runner must not use `scripts/run-automation.ps1`, package-manage
 
 ## Why Wrapper-Only
 
-`scripts/run-node-script.ps1` resolves a working Node runtime for Codex desktop environments where PATH can be sparse or `node.exe` can point at the WindowsApps shim. The scheduled runner must use this wrapper so invocation is explicit, repo-local, and repeatable. Direct Node execution is forbidden for the scheduled runner because it bypasses that adapter and makes failures harder to distinguish from project failures.
+`scripts/run-node-script.ps1` resolves a working Node runtime for Codex desktop environments where PATH can be sparse or `node.exe` can point at the WindowsApps shim. The legacy diagnostic runner must use this wrapper so invocation is explicit, repo-local, and repeatable. Direct Node execution is forbidden for the diagnostic runner because it bypasses that adapter and makes failures harder to distinguish from project failures.
 
 ## What It Reads
 

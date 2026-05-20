@@ -104,6 +104,8 @@ The active Senior Capstone delivery automation is split into two alternating bui
 - Top-of-hour non-Figma MVP builder: `senior-capstone-nonfigma-mvp-builder`, hourly at minute 0 PT.
 - Bottom-of-hour Figma-only product builder: `senior-capstone-figma-product-builder`, hourly at minute 30 PT.
 
+Old single-builder cadence is retired. The legacy `senior-capstone-hourly-qol-orchestrator` may remain only as a manual diagnostic runner and must not be scheduled as an active recurring builder.
+
 Oversight automations are also active: `senior-capstone-daily-mvp-summary` reports the last 24 hours without adding builder capacity, and `senior-capstone-weekly-script-audit` performs the seven-day strategy review and plan adjustment.
 
 Manual verification:
@@ -149,6 +151,28 @@ Accepted pass counting:
 - Broad docs churn does not equal accepted pass.
 - Exact blockers can count only if they reduce uncertainty and are recorded with next action.
 
+Post-run checks Bryan or Codex can use after scheduled runs:
+
+```powershell
+git status --short --branch
+powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\verify-cadence-30min.ps1 -RepoRoot .
+```
+
+Then inspect the latest run entries in `docs/progress/run-log.md`, the newest file in `docs/progress/runs/`, and any fresh `automation/qol/reports/latest.md` diagnostic output. Verify old builder is not recurring by checking repo-local registry evidence if present at `automation/qol/state/automation-registry-evidence.json`; if no repo-local registry evidence exists, report scheduler state as unknown instead of guessing.
+
+Failure modes and recovery:
+
+- Wrong project: stop, report `WRONG_PROJECT`, and do not navigate to sibling repos or parent folders.
+- Dirty worktree: stop, report dirty files, and do not stage or overwrite them.
+- Old recurring builder still active: record a human action to disable `senior-capstone-hourly-qol-orchestrator` or convert it to manual diagnostic only.
+- Figma connector blocked: the Figma builder records attempted file key/page/node, exact error, next action, and Bryan action; it does not claim Figma changes.
+- npm missing from PATH: use `scripts/run-npm-script.ps1`; if the wrapper works, record global npm unavailable and wrapper verification passed.
+- Wrapper failure: record the exact wrapper command and error, then repair the wrapper only if the cause is repo-local and safe.
+- Lane violation: stop the slice, record the violation, and hand it to the correct builder lane.
+- Report-only run: reject as an accepted pass unless it is daily/weekly oversight.
+- No commit after file changes: finish validation, stage only current-run files, commit on `main`, and push; if push is blocked, commit/push a precise blocker when possible.
+- No push after commit: fetch `origin/main`; if a clean fast-forward is safe, sync and retry once. Never force push.
+
 ## Orchestrator No-Intervention Contract
 
 No other project delivery automation should be created, invoked, or maintained for Senior Capstone unless Bryan explicitly asks for it. The two split builders are the only delivery lanes. Reporting and strategy-review automations may exist only as oversight, not competing implementation lanes.
@@ -186,7 +210,7 @@ Every split-builder run must spend the first minute proving it can do useful wor
 
 ## Phone Tracker Closeout
 
-Every active 30-minute run should append one row to Bryan's phone-friendly Google Sheet at closeout:
+Every active split-builder run should append one row to Bryan's phone-friendly Google Sheet at closeout when the Google Sheets connector is available:
 
 - Title: `Senior Capstone QoL Run Tracker`
 - URL: `https://docs.google.com/spreadsheets/d/1J8jQMn85wJwo9Rh6LjQUVv_WfLS1YJWsbpcLBCojjjs/edit`
@@ -198,7 +222,7 @@ Keep the row compact enough to scan on a phone. If the Google Sheets connector i
 
 ## Token Budget Guardrail
 
-The 30-minute orchestrator may use a large prompt, but each run should avoid uncontrolled context loads. Every run reads the required anchors, then stays narrow:
+Each split-builder run may use a large prompt, but it should avoid uncontrolled context loads. Every run reads the required anchors, then stays narrow:
 
 - Prefer `rg`, recent run manifests, and relevant log sections before opening long files.
 - Read the specific source files, tests, docs, Figma/Canva handoffs, or Cloudflare setup notes needed for the selected QoL target.

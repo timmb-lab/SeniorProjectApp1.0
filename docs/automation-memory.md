@@ -62,10 +62,13 @@ Every builder run must ladder from `docs/master-plan.md` into `docs/mvp-requirem
 - Builder cadence split into two lanes.
 - Non-Figma builder runs at minute 0 PT.
 - Figma-only builder runs at minute 30 PT.
+- Active Figma file key: `z4t4tFPAKrMDh6pIYOeEw6`.
+- Old builder `senior-capstone-hourly-qol-orchestrator` is legacy/manual/diagnostic only.
 - Combined capacity remains 48 starts/day.
 - Figma-only lane owns `MVP-028` and functional design handoffs.
 - Non-Figma lane owns implementation, tests, deployment, data, docs, Canva-only work, automation safety, and blockers.
 - Daily and weekly automations remain oversight, not builder capacity.
+- External scheduler may still require manual configuration unless a repo-local scheduler config exists and is changed with evidence.
 
 ## Current Priority
 

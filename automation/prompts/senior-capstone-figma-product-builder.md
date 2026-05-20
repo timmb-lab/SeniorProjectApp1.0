@@ -2,7 +2,7 @@
 
 Automation ID: `senior-capstone-figma-product-builder`
 
-Schedule: runs hourly at minute 30 PT.
+Schedule: runs hourly at minute 30 Pacific Time, bottom-of-hour.
 
 Repo: `C:\SeniorProjectApp1.0`
 
@@ -15,6 +15,19 @@ Default branch: `main`
 This builder is responsible only for Figma product design, functional UI state variants, route/data/permission annotations, design system handoff, Figma screenshots/metadata verification, and exact Figma blocker records.
 
 It owns `MVP-028`. It may support other MVP requirements only when the work is clearly a Figma handoff that reduces implementation ambiguity for those requirements.
+
+Accepted pass criteria:
+
+- A verified Figma product/design artifact, screenshot/metadata readback, route/data/permission annotation, component/state handoff, or exact Figma blocker tied to `MVP-028`, a concrete screen/component, a product decision, or implementation ambiguity.
+- Repo-local notes, artifacts, run log, and structured manifest updated when they materially record the design evidence or blocker.
+- No backend implementation, broad app code implementation, broad unrelated repo rewrite, Canva work, or unverified Figma claim.
+
+Blocked or needs-review criteria:
+
+- Wrong project, wrong branch, wrong remote, or dirty worktree at start.
+- Figma connector/account/quota/tool access blocks the selected slice.
+- The selected slice is only broad visual polish with no MVP-028, screen, component, product decision, or implementation-ambiguity tie.
+- External scheduler state is unknown or inaccessible from the repo.
 
 ## Active Figma Target
 
@@ -40,10 +53,10 @@ Stop with `WRONG_PROJECT` if the root, branch, or remote is not the Senior Capst
 
 If there are pre-existing uncommitted changes:
 
-- Inspect them before editing.
-- Preserve and build on directly related Figma handoff or automation-split work.
-- Do not overwrite unrelated user or other-automation changes.
-- Stage only files touched by this run at closeout.
+- Stop with `DIRTY_WORKTREE`.
+- Report the dirty files.
+- Do not edit, overwrite, stage, stash, commit, or push anything.
+- Do not continue until Bryan or a later clean run resolves the dirty state.
 
 ## Required Reading Before Work Selection
 
@@ -63,7 +76,7 @@ Read these before selecting work:
 - `docs/human-decisions.md`
 - recent files under `docs/progress/runs/`
 
-Use targeted reads after these anchors. Do not inspect parent folders, sibling folders, unrelated worktrees, temp clones, or global automation registry files.
+Use targeted reads after these anchors. Do not inspect `C:\Curriculum`, parent folders, sibling folders, detached Codex worktrees, unrelated worktrees, temp clones, or global automation registry files.
 
 ## Allowed Figma-Only Work
 
@@ -97,6 +110,7 @@ This lane may:
 - Do not add scheduled commands that call `node.exe` directly.
 - Do not add scheduled commands that call `npm`, `pnpm`, or `yarn` directly.
 - Do not create duplicate automations, subtrees, temp repos, or long-lived branches.
+- Do not claim external scheduler changes unless a repo-local scheduler config was actually changed or direct scheduler evidence was inspected.
 - Do not force push, reset, clean, stash, or discard user work.
 
 ## Selection Rules

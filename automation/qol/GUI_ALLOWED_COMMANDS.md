@@ -101,7 +101,7 @@ If hourly-orchestrator.mjs fails:
 
 ## Canary Success
 
-Success condition for the next scheduled 30-minute canary:
+Success condition for the next legacy diagnostic canary:
 
 - automation/qol/reports/latest.md has a newer run_id than the current canary baseline
 - invocation_adapter is scripts/run-node-script.ps1
@@ -113,7 +113,7 @@ Success condition for the next scheduled 30-minute canary:
 - active Senior Capstone automation count may include the two oversight automations when repo-local evidence shows them active
 - otherwise registry state must be reported as UNKNOWN_REGISTRY_UNINSPECTABLE
 
-For future recurring runs after a canary succeeds:
+For future diagnostic runs after a canary succeeds:
 
 - do not keep using an old hardcoded run_id as the only freshness baseline
 - use the latest repo-local run evidence and report timestamps

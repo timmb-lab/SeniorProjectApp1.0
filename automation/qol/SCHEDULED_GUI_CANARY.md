@@ -1,8 +1,10 @@
-# Scheduled GUI Canary
+# Legacy Diagnostic GUI Canary
 
 The current canary baseline run_id is `20260519T190403Z-605c9b99`.
 
-The next scheduled 30-minute GUI run succeeds only if `automation/qol/reports/latest.md` is fresh and shows all of these:
+This canary is for the legacy diagnostic/manual QoL runner only. It is not an active recurring builder and does not replace either split builder.
+
+The next legacy diagnostic GUI canary succeeds only if `automation/qol/reports/latest.md` is fresh and shows all of these:
 
 - `run_id` is newer than the current canary baseline.
 - `run_started_at` and `run_finished_at` belong to the same fresh run.
@@ -21,4 +23,4 @@ The next scheduled 30-minute GUI run succeeds only if `automation/qol/reports/la
 - Active Senior Capstone automation count may include the two oversight automations when repo-local evidence shows them active.
 - Otherwise, registry state must be reported as `UNKNOWN_REGISTRY_UNINSPECTABLE`.
 
-After this canary succeeds, future recurring runs must not keep using this baseline as their only freshness check. Use the latest repo-local run evidence and report timestamps. If freshness cannot be established from repo-local evidence, report that honestly.
+After this canary succeeds, future diagnostic runs must not keep using this baseline as their only freshness check. Use the latest repo-local run evidence and report timestamps. If freshness cannot be established from repo-local evidence, report that honestly.

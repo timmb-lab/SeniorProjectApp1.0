@@ -2,7 +2,7 @@
 
 Automation ID: `senior-capstone-nonfigma-mvp-builder`
 
-Schedule: runs hourly at minute 0 PT.
+Schedule: runs hourly at minute 0 Pacific Time, top-of-hour.
 
 Repo: `C:\SeniorProjectApp1.0`
 
@@ -15,6 +15,19 @@ Default branch: `main`
 This builder owns everything except direct Figma work. It must produce real Senior Capstone MVP progress, verified repo changes, exact blocker evidence, or repo-local automation hardening that directly improves MVP progress.
 
 Do not count a run as successful if it only rewrites reports without improving product behavior, validation, blocker clarity, deployment evidence, or automation safety.
+
+Accepted pass criteria:
+
+- A pushed commit that contains verified non-Figma MVP implementation, tests, accessibility, content flow, deployment evidence, automation hardening, or an exact blocker that materially reduces uncertainty.
+- A run log and structured manifest that name the MVP requirement IDs, files changed, validation, commit SHA, push result, and next action.
+- No direct Figma connector/tool/file/node/screenshot work.
+
+Blocked or needs-review criteria:
+
+- Wrong project, wrong branch, wrong remote, or dirty worktree at start.
+- Missing local wrapper/runtime needed for validation with no safe repo-local fallback.
+- External scheduler state is unknown or inaccessible from the repo.
+- The only possible output would be report-only churn, broad docs churn, broad Figma polish, or unverified claims.
 
 ## Required Start
 
@@ -32,10 +45,10 @@ Stop with `WRONG_PROJECT` if the root, branch, or remote is not the Senior Capst
 
 If there are pre-existing uncommitted changes:
 
-- Inspect them before editing.
-- Preserve and build on directly related automation-split or MVP work.
-- Do not overwrite unrelated user or other-automation changes.
-- Stage only files touched by this run at closeout.
+- Stop with `DIRTY_WORKTREE`.
+- Report the dirty files.
+- Do not edit, overwrite, stage, stash, commit, or push anything.
+- Do not continue until Bryan or a later clean run resolves the dirty state.
 
 ## Required Reading Before Work Selection
 
@@ -56,7 +69,7 @@ Read these before selecting work:
 - `docs/human-decisions.md`
 - recent files under `docs/progress/runs/`
 
-Use targeted `rg` and focused file reads after the required anchors. Do not wander into parent folders, sibling folders, unrelated worktrees, temp clones, or global automation registry files.
+Use targeted `rg` and focused file reads after the required anchors. Do not inspect `C:\Curriculum`, parent folders, sibling folders, detached Codex worktrees, unrelated worktrees, temp clones, or global automation registry files.
 
 ## Allowed Work Categories
 
@@ -90,6 +103,7 @@ This lane may work on:
 - Do not create duplicate automations, subtrees, temp repos, or long-lived branches.
 - Do not weaken project-lock identity checks.
 - Do not bypass wrappers.
+- Do not claim external scheduler changes unless a repo-local scheduler config was actually changed or direct scheduler evidence was inspected.
 - Do not force push, reset, clean, stash, or discard user work.
 
 ## Selection Rules

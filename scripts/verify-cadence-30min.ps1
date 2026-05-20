@@ -14,6 +14,13 @@ $weeklyId = "senior-capstone-weekly-script-audit"
 $legacyId = "senior-capstone-hourly-qol-orchestrator"
 $figmaFileKey = "z4t4tFPAKrMDh6pIYOeEw6"
 $figmaPlanKey = "team::1638213362346160913"
+$expectedRoot = "C:\SeniorProjectApp1.0"
+
+function Normalize-LocalPath {
+    param([Parameter(Mandatory = $true)][string]$Path)
+
+    return ([System.IO.Path]::GetFullPath($Path).TrimEnd('\', '/') -replace '/', '\').ToLowerInvariant()
+}
 
 function Read-Text {
     param([Parameter(Mandatory = $true)][string]$RelativePath)
@@ -40,6 +47,18 @@ function Assert-Contains {
     }
 }
 
+function Assert-NotContains {
+    param(
+        [Parameter(Mandatory = $true)][string]$Text,
+        [Parameter(Mandatory = $true)][string]$Needle,
+        [Parameter(Mandatory = $true)][string]$Context
+    )
+
+    if ($Text.Contains($Needle)) {
+        $failures.Add("$Context contains forbidden text: $Needle")
+    }
+}
+
 function Assert-Match {
     param(
         [Parameter(Mandatory = $true)][string]$Text,
@@ -61,6 +80,18 @@ function Assert-ArrayContains {
 
     if (@($Array | Where-Object { $_ -eq $Needle }).Count -eq 0) {
         $failures.Add("$Context does not include $Needle")
+    }
+}
+
+function Assert-ArrayNotContains {
+    param(
+        [Parameter(Mandatory = $true)]$Array,
+        [Parameter(Mandatory = $true)][string]$Needle,
+        [Parameter(Mandatory = $true)][string]$Context
+    )
+
+    if (@($Array | Where-Object { $_ -eq $Needle }).Count -ne 0) {
+        $failures.Add("$Context must not include $Needle")
     }
 }
 
@@ -111,7 +142,25 @@ function Assert-PackageQolScriptsUseWrappers {
     }
 }
 
+if ((Normalize-LocalPath $RepoRoot) -ne (Normalize-LocalPath $expectedRoot)) {
+    $failures.Add("RepoRoot must resolve to $expectedRoot; got $RepoRoot")
+}
+
+try {
+    $gitTopLevel = (& git -C $RepoRoot rev-parse --show-toplevel 2>$null).Trim()
+    if (-not $gitTopLevel) {
+        $failures.Add("git rev-parse --show-toplevel returned empty output")
+    }
+    elseif ((Normalize-LocalPath $gitTopLevel) -ne (Normalize-LocalPath $RepoRoot)) {
+        $failures.Add("RepoRoot does not match git top-level. RepoRoot=$RepoRoot gitTopLevel=$gitTopLevel")
+    }
+}
+catch {
+    $failures.Add("Unable to verify git top-level for RepoRoot: $($_.Exception.Message)")
+}
+
 $cadenceDoc = Read-Text "docs\automation-cadence.md"
+Assert-Contains $cadenceDoc "split-builder cadence" "Automation cadence doc"
 Assert-Contains $cadenceDoc $nonFigmaId "Automation cadence doc"
 Assert-Contains $cadenceDoc $figmaId "Automation cadence doc"
 Assert-Contains $cadenceDoc $dailyId "Automation cadence doc"
@@ -121,10 +170,15 @@ Assert-Match $cadenceDoc "minute 30|Hourly at minute 30|bottom-of-hour" "Automat
 Assert-Contains $cadenceDoc "24 non-Figma starts/day" "Automation cadence doc"
 Assert-Contains $cadenceDoc "24 Figma starts/day" "Automation cadence doc"
 Assert-Contains $cadenceDoc "48 combined starts/day" "Automation cadence doc"
+Assert-Contains $cadenceDoc "24 + 24 = 48 scheduled builder runs per day" "Automation cadence doc"
 Assert-Contains $cadenceDoc "720 non-Figma starts/30 days" "Automation cadence doc"
 Assert-Contains $cadenceDoc "720 Figma starts/30 days" "Automation cadence doc"
 Assert-Contains $cadenceDoc "1,440 combined starts/30 days" "Automation cadence doc"
+Assert-Contains $cadenceDoc "720 + 720 = 1,440 scheduled builder runs per 30 days" "Automation cadence doc"
 Assert-Contains $cadenceDoc "Daily summary and weekly review are oversight, not builder capacity" "Automation cadence doc"
+Assert-Match $cadenceDoc "External scheduler handling" "Automation cadence doc"
+Assert-Match $cadenceDoc "unproven scheduler claims" "Automation cadence doc"
+Assert-Contains $cadenceDoc "Old single-builder cadence is retired" "Automation cadence doc"
 Assert-NoForbiddenScheduledCommandLines $cadenceDoc "Automation cadence doc"
 
 $projectLockText = Read-Text "automation\qol\project-lock.json"
@@ -135,9 +189,27 @@ if ($projectLockText) {
         Assert-ArrayContains $projectLock.allowedActiveAutomationIds $figmaId "project-lock allowedActiveAutomationIds"
         Assert-ArrayContains $projectLock.allowedActiveAutomationIds $dailyId "project-lock allowedActiveAutomationIds"
         Assert-ArrayContains $projectLock.allowedActiveAutomationIds $weeklyId "project-lock allowedActiveAutomationIds"
+        Assert-ArrayNotContains $projectLock.allowedActiveAutomationIds $legacyId "project-lock allowedActiveAutomationIds"
         Assert-ArrayContains $projectLock.expectedBuilderAutomationIds $nonFigmaId "project-lock expectedBuilderAutomationIds"
         Assert-ArrayContains $projectLock.expectedBuilderAutomationIds $figmaId "project-lock expectedBuilderAutomationIds"
         Assert-ArrayContains $projectLock.legacyDiagnosticAutomationIds $legacyId "project-lock legacyDiagnosticAutomationIds"
+        Assert-ArrayNotContains $projectLock.expectedBuilderAutomationIds $legacyId "project-lock expectedBuilderAutomationIds"
+
+        if (@($projectLock.expectedBuilderAutomationIds).Count -ne 2) {
+            $failures.Add("project-lock expectedBuilderAutomationIds must contain exactly the two split builder IDs")
+        }
+        if ($projectLock.PSObject.Properties["expectedAutomationCadenceRRule"]) {
+            $failures.Add("project-lock must not retain singular expectedAutomationCadenceRRule from the old 30-minute builder")
+        }
+        if ($projectLock.expectedRepositoryRootWindowsPath -ne $expectedRoot) {
+            $failures.Add("project-lock expectedRepositoryRootWindowsPath is incorrect")
+        }
+        if ([string]$projectLock.automationIdStatus -notmatch "legacy|diagnostic") {
+            $failures.Add("project-lock automationIdStatus must mark the old automation ID as legacy/diagnostic")
+        }
+        if ([string]$projectLock.legacyDiagnosticAutomationStatus -notmatch "manual|diagnostic|non-recurring") {
+            $failures.Add("project-lock legacyDiagnosticAutomationStatus must mark the old automation ID manual/diagnostic/non-recurring")
+        }
 
         if ($projectLock.expectedAutomationCadenceDescription -ne "split hourly builders: non-Figma at minute 0 PT and Figma-only at minute 30 PT") {
             $failures.Add("project-lock expectedAutomationCadenceDescription does not describe the split hourly builders")
@@ -167,6 +239,10 @@ $figmaPrompt = Read-Text $figmaPromptPath
 
 Assert-Contains $nonFigmaPrompt $nonFigmaId "Non-Figma prompt"
 Assert-Contains $nonFigmaPrompt "minute 0" "Non-Figma prompt"
+Assert-Contains $nonFigmaPrompt "top-of-hour" "Non-Figma prompt"
+Assert-Contains $nonFigmaPrompt $expectedRoot "Non-Figma prompt"
+Assert-Contains $nonFigmaPrompt "DIRTY_WORKTREE" "Non-Figma prompt"
+Assert-Contains $nonFigmaPrompt "C:\Curriculum" "Non-Figma prompt"
 Assert-Contains $nonFigmaPrompt "Do not call Figma tools." "Non-Figma prompt"
 Assert-Contains $nonFigmaPrompt "Do not use Figma MCP." "Non-Figma prompt"
 Assert-Contains $nonFigmaPrompt "Do not create Figma files." "Non-Figma prompt"
@@ -177,10 +253,21 @@ Assert-Contains $nonFigmaPrompt "docs/progress/run-log.md" "Non-Figma prompt"
 Assert-Contains $nonFigmaPrompt "docs/progress/runs/" "Non-Figma prompt"
 Assert-Contains $nonFigmaPrompt "docs/mvp-requirements-catalog.md" "Non-Figma prompt"
 Assert-Contains $nonFigmaPrompt "exact blocker" "Non-Figma prompt"
+Assert-Contains $nonFigmaPrompt "Accepted pass criteria" "Non-Figma prompt"
+Assert-Contains $nonFigmaPrompt "Blocked or needs-review criteria" "Non-Figma prompt"
+Assert-Contains $nonFigmaPrompt "report-only churn" "Non-Figma prompt"
+Assert-Contains $nonFigmaPrompt "broad docs churn" "Non-Figma prompt"
+Assert-Contains $nonFigmaPrompt "broad Figma polish" "Non-Figma prompt"
+Assert-Contains $nonFigmaPrompt "Do not claim external scheduler changes" "Non-Figma prompt"
+Assert-NotContains $nonFigmaPrompt "runs every 30 minutes" "Non-Figma prompt"
 Assert-NoForbiddenScheduledCommandLines $nonFigmaPrompt "Non-Figma prompt"
 
 Assert-Contains $figmaPrompt $figmaId "Figma prompt"
 Assert-Contains $figmaPrompt "minute 30" "Figma prompt"
+Assert-Contains $figmaPrompt "bottom-of-hour" "Figma prompt"
+Assert-Contains $figmaPrompt $expectedRoot "Figma prompt"
+Assert-Contains $figmaPrompt "DIRTY_WORKTREE" "Figma prompt"
+Assert-Contains $figmaPrompt "C:\Curriculum" "Figma prompt"
 Assert-Contains $figmaPrompt "Figma-only" "Figma prompt"
 Assert-Contains $figmaPrompt $figmaFileKey "Figma prompt"
 Assert-Contains $figmaPrompt $figmaPlanKey "Figma prompt"
@@ -195,6 +282,13 @@ Assert-Contains $figmaPrompt 'Push to `origin main`' "Figma prompt"
 Assert-Contains $figmaPrompt "docs/artifacts.json" "Figma prompt"
 Assert-Contains $figmaPrompt "docs/progress/run-log.md" "Figma prompt"
 Assert-Contains $figmaPrompt "docs/progress/runs/" "Figma prompt"
+Assert-Contains $figmaPrompt "Accepted pass criteria" "Figma prompt"
+Assert-Contains $figmaPrompt "Blocked or needs-review criteria" "Figma prompt"
+Assert-Contains $figmaPrompt "concrete screen/component" "Figma prompt"
+Assert-Contains $figmaPrompt "implementation ambiguity" "Figma prompt"
+Assert-Contains $figmaPrompt "broad visual polish" "Figma prompt"
+Assert-Contains $figmaPrompt "Do not claim external scheduler changes" "Figma prompt"
+Assert-NotContains $figmaPrompt "runs every 30 minutes" "Figma prompt"
 Assert-NoForbiddenScheduledCommandLines $figmaPrompt "Figma prompt"
 
 $runbook = Read-Text "docs\automation-runbook.md"
@@ -205,12 +299,17 @@ Assert-Contains $runbook "Figma prompt blocks backend implementation" "Automatio
 Assert-Contains $runbook "non-Figma prompt blocks direct Figma work" "Automation runbook"
 Assert-Contains $runbook "Registry drift prevention" "Automation runbook"
 Assert-Contains $runbook "Scheduled start does not equal accepted pass" "Automation runbook"
+Assert-Contains $runbook "Old single-builder cadence is retired" "Automation runbook"
+Assert-Contains $runbook "Figma connector blocked" "Automation runbook"
+Assert-Contains $runbook "npm missing from PATH" "Automation runbook"
 
 $memory = Read-Text "docs\automation-memory.md"
 Assert-Contains $memory "2026-05-20 - Split Builder Cadence" "Automation memory"
 Assert-Contains $memory "Non-Figma builder runs at minute 0 PT" "Automation memory"
 Assert-Contains $memory "Figma-only builder runs at minute 30 PT" "Automation memory"
 Assert-Contains $memory "Combined capacity remains 48 starts/day" "Automation memory"
+Assert-Contains $memory $figmaFileKey "Automation memory"
+Assert-Contains $memory "External scheduler may still require manual configuration" "Automation memory"
 
 $catalog = Read-Text "docs\mvp-requirements-catalog.md"
 Assert-Contains $catalog 'bottom-of-hour Figma-only builder owns `MVP-028`' "MVP requirements catalog"
@@ -244,6 +343,9 @@ if ($artifactsText) {
         $splitArtifact = @($artifacts.artifacts | Where-Object { $_.id -eq "senior-capstone-split-builder-cadence" })
         if ($splitArtifact.Count -ne 1) {
             $failures.Add("docs/artifacts.json must contain exactly one senior-capstone-split-builder-cadence artifact")
+        }
+        elseif ($splitArtifact[0].capacity.non_figma_starts_per_30_days -ne 720 -or $splitArtifact[0].capacity.figma_starts_per_30_days -ne 720) {
+            $failures.Add("docs/artifacts.json split builder artifact must record 720 non-Figma and 720 Figma starts per 30 days")
         }
     }
     catch {

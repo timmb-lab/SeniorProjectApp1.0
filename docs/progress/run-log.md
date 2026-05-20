@@ -25,6 +25,17 @@ This is the compact run log for the current split-builder automation contract.
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-05-20 PT - Split Builder Cadence Hardening
+
+- `master-plan sections`: Split Builder Master-Plan Orchestrator; Logging Requirements; Anti-Drift Rules.
+- `requirement IDs`: `MVP-028`, `MVP-030`.
+- `purpose`: Verify and harden the repo-local split-builder model so the active builders are `senior-capstone-nonfigma-mvp-builder` at minute 0 PT and `senior-capstone-figma-product-builder` at minute 30 PT, while `senior-capstone-hourly-qol-orchestrator` remains legacy/manual/diagnostic only.
+- `verified`: repo root, branch, remote, clean start, prompt files, project lock, cadence docs, runbook, memory, artifacts registry, registry fixtures, package script wrapper path, and repo-local scheduler evidence search.
+- `files changed`: active builder prompts, project lock, cadence verifier, QoL doctor/orchestrator validation, QoL diagnostic docs, tests/fixtures, cadence/runbook/memory/master-plan/artifact docs, this run log, and `docs/progress/runs/2026-05-20-split-builder-cadence-hardening.md`.
+- `validation`: cadence verifier, wrapper cadence verifier, QoL automation smoke, check:automation, full test suite, JSON parse checks, and `git diff --check` passed. Optional `typecheck` was attempted and failed in pre-existing untouched TypeScript app files.
+- `scheduler status`: no repo-local scheduler config was found; external scheduler update remains a Bryan action.
+- `commit`: pending until commit/push completes.
+
 ## 2026-05-20 PT - Split Builder Cadence Contract
 
 - `master-plan sections`: 100-Pass Delivery Constraint; 30-Minute Master-Plan Orchestrator; Logging Requirements; Anti-Drift Rules.
