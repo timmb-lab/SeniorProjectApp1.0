@@ -198,3 +198,11 @@ Future productive runs should append compact entries that name the master-plan s
 - `files changed`: `functions/_lib/permissions.ts`, `tests/permissions-access.test.mjs`, `tests/evidence-check-access.integration.test.mjs`, `docs/mvp-requirements-catalog.md`, `docs/automation-memory.md`, `docs/progress/rebuild.md`, `docs/progress/run-log.md`, and `docs/progress/runs/2026-05-20-0649-teacher-scope-null-guard-mvp-006-014.json`.
 - `verification`: `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 test` (pass; 101 tests).
 - `blockers`: none.
+
+## 2026-05-20 07:19 PT - MVP-006/MVP-007 Admin Role Assignments Endpoint + Tests
+
+- `master-plan sections`: Day 7 Alpha Gate; Anti-Drift Rules; Logging Requirements.
+- `requirement IDs`: `MVP-006`, `MVP-007`, `MVP-020`; `backlog IDs`: `SC-005`.
+- `files changed`: `functions/api/admin/role-assignments.ts`, `tests/admin-role-assignments.integration.test.mjs`, `docs/mvp-requirements-catalog.md`, `docs/automation-memory.md`, `docs/progress/run-log.md`, and `docs/progress/runs/2026-05-20-0719-admin-role-assignments-mvp-007.json`.
+- `verification`: `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 test` (pass; 113 tests).
+- `blockers`: none.

@@ -1,0 +1,58 @@
+{
+  "run_id": "2026-05-20-0719-admin-role-assignments-mvp-007",
+  "timestamp_local": "2026-05-20T07:19:00-07:00",
+  "automation_id": "senior-capstone-hourly-qol-orchestrator",
+  "trigger": "30-minute MVP builder run: add an admin role-assignment endpoint to manage user_roles (including validated program/cohort teacher scopes) with audit events, then add deterministic integration coverage.",
+  "lane": "admin-ops-reporting",
+  "status": "completed",
+  "accepted_mvp_pass": true,
+  "requirement_ids": [
+    "MVP-006",
+    "MVP-007",
+    "MVP-020"
+  ],
+  "backlog_ids": [
+    "SC-005"
+  ],
+  "duration_minutes": 30,
+  "output_kind": "code+tests+docs",
+  "scope": "Implement `/api/admin/role-assignments` (admin-only) to list/create/remove role assignments in `user_roles` while validating role IDs and program/cohort teacher scope IDs, writing audit events for create/duplicate/remove, then add integration tests proving 401/403/400/404/200 behavior and audit metadata.",
+  "source_docs_read": [
+    "docs/master-plan.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/automation-runbook.md",
+    "docs/automation-self-improvement.md",
+    "docs/automation-cadence.md",
+    "docs/automation-milestones.md",
+    "docs/automation-memory.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-20-0649-teacher-scope-null-guard-mvp-006-014.json",
+    "docs/progress/handoffs.md",
+    "docs/progress/decision-log.md",
+    "docs/automation-backlog.md",
+    "docs/artifacts.json",
+    "docs/human-decisions.md",
+    "automation/qol/reports/latest.md",
+    "functions/api/admin/role-assignments.ts",
+    "tests/admin-role-assignments.integration.test.mjs"
+  ],
+  "changes": [
+    "Added `/api/admin/role-assignments` (admin-only) to list/create/remove `user_roles` entries, including role/scope validation and program/cohort existence checks for scoped `program_teacher` roles.",
+    "Wrote audit events for role-assignment creates, duplicates, and removals with stable metadata fields (userId, roleId, scopeType, scopeId).",
+    "Added deterministic integration coverage proving authorization, validation, and audit behavior for the new endpoint."
+  ],
+  "validation": [
+    "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\\\scripts\\\\run-npm-script.ps1 test"
+  ],
+  "blockers": [],
+  "known_limits": [
+    "Role assignment writes currently require the target user to be `active`, matching other admin write endpoints; pre-provisioning roles for disabled/pending users is follow-on if needed.",
+    "This endpoint manages `user_roles` only; higher-level admin UX for user import/provisioning remains separate work."
+  ],
+  "next_actions": [
+    "Wire the admin provisioning UI (or account smoke admin panel) to call `/api/admin/role-assignments` for program-teacher scope management and misc-admin narrowing.",
+    "Add complementary admin endpoints for user provisioning/import and group membership changes, keeping audits and deterministic tests."
+  ],
+  "self_improvement": "none"
+}
+
