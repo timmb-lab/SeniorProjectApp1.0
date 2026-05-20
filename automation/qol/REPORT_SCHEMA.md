@@ -45,7 +45,7 @@ Accepted `safety_status` values are:
 - `UNKNOWN_REGISTRY_UNINSPECTABLE`
 - `FAIL`
 
-`PASS` may only be used when repo-local checks passed and any registry claim is backed by explicit repo-local evidence. `UNKNOWN_REGISTRY_UNINSPECTABLE` means no repo-local registry evidence was available, so external/global automation registry health was not inspected and must not be claimed. `FAIL` means the repo-local run or explicit repo-local registry evidence found a failure.
+`PASS` may only be used when repo-local checks passed and any live scheduler claim is backed by sanitized evidence generated from the hidden Codex registry and mirrored to `automation/qol/state/automation-registry-evidence.json`. Test fixtures under `tests/fixtures/` are useful for regression tests, but they are not live hidden scheduler proof. `UNKNOWN_REGISTRY_UNINSPECTABLE` means no live registry evidence was available, so external/global automation registry health was not inspected and must not be claimed. `FAIL` means the repo-local run or explicit repo-local registry evidence found a failure.
 
 Freshness is established by comparing `run_id`, `run_started_at`, `run_finished_at`, and the matching per-run report filename `automation/qol/reports/<run_id>.md`. A report is stale when those fields cannot be tied to the just-completed command or when the command failed before producing a new report.
 

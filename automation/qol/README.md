@@ -43,9 +43,9 @@ This diagnostic runner must not use `scripts/run-automation.ps1`, package-manage
 - Master plan: `docs/master-plan.md`
 - Structured requirement overlay: `docs/mvp-requirements-catalog.md`
 - Backlog overlay: `docs/automation-backlog.md`
-- Optional repo-local registry evidence: `automation/qol/state/automation-registry-evidence.json`
+- Sanitized live hidden-registry evidence: `automation/qol/state/automation-registry-evidence.json`
 
-The orchestrator does not use another project, parent directory, sibling checkout, temp clone, global Codex state, or external automation registry as its source of truth. If repo-local registry evidence is absent, the report must say `UNKNOWN_REGISTRY_UNINSPECTABLE`.
+The orchestrator does not use another project, parent directory, sibling checkout, temp clone, global Codex state, or external automation registry as its source of truth. If live hidden-registry evidence is absent, the report must say `UNKNOWN_REGISTRY_UNINSPECTABLE`. Test fixtures under `tests/fixtures/` are regression inputs only and must not be cited as live scheduler proof.
 
 ## State, Lock, Logs, And Reports
 

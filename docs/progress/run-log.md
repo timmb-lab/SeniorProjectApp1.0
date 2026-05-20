@@ -12,6 +12,7 @@ This is the compact run log for the current split-builder automation contract.
 - Figma RRULE: `FREQ=HOURLY;BYMINUTE=30;BYSECOND=0`.
 - Combined capacity: 48 scheduled builder starts/day and 1,440 scheduled builder starts/30 days.
 - Source of truth: `automation/qol/project-lock.json`.
+- Latest live hidden scheduler evidence: `automation/qol/state/automation-registry-evidence.json`.
 - Verifier: `scripts/verify-cadence-30min.ps1`.
 - Rule: no other Senior Capstone builder automation should be created, invoked, revived, or maintained from this repo. `senior-capstone-hourly-qol-orchestrator` is legacy diagnostic/manual only.
 
@@ -25,6 +26,18 @@ This is the compact run log for the current split-builder automation contract.
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-05-20 PT - Live Scheduler Registry Audit
+
+- `master-plan sections`: Split Builder Master-Plan Orchestrator; Logging Requirements; Anti-Drift Rules.
+- `requirement IDs`: `MVP-030`.
+- `purpose`: Inspect the live hidden Codex automation registry and replace fixture-based scheduler assumptions with sanitized repo-local evidence.
+- `verified`: `%USERPROFILE%\\.codex\\automations` contained 10 `automation.toml` files, 5 matching Senior Capstone. The two expected split builders were ACTIVE with the expected minute-0 and minute-30 RRULEs; daily and weekly oversight were ACTIVE; the legacy QoL runner was PAUSED.
+- `files changed`: `automation/qol/state/automation-registry-evidence.json`, `automation/qol/README.md`, `automation/qol/REPORT_SCHEMA.md`, `automation/qol/SCHEDULED_GUI_CANARY.md`, `docs/human-decisions.md`, and this run log.
+- `validation`: `qol` doctor passed; QoL smoke passed; `check:automation` passed; `verify:automation-cadence` passed; `check:alpha-contract` passed; `check:alpha` passed; `test` passed with 115 tests; secret scan found only expected placeholders/docs/tests/code references and `.secrets/` remains ignored. `typecheck` failed on pre-existing TypeScript import-extension and Google Drive response typing errors; aggregate `check` failed at the same typecheck step. `check:cloudflare` exited 0 but only printed Wrangler 4.93.0 `check` help, so it was not treated as config proof.
+- `blockers`: strict TypeScript validation still needs a focused follow-up for `TS5097` import-extension settings and typed Google Drive JSON responses. Live Cloudflare read-only checks are blocked because Wrangler reports the local session is not authenticated and non-interactive Pages/D1 listing requires `CLOUDFLARE_API_TOKEN`.
+- `scheduler status`: live hidden scheduler evidence now satisfies `HD-2026-05-20-001`; no scheduler human action remains open from the split-builder migration.
+- `commit`: audit closeout commit records this entry.
+
 ## 2026-05-20 PT - Split Builder Cadence Hardening
 
 - `master-plan sections`: Split Builder Master-Plan Orchestrator; Logging Requirements; Anti-Drift Rules.
@@ -33,7 +46,7 @@ Future productive runs should append compact entries that name the master-plan s
 - `verified`: repo root, branch, remote, clean start, prompt files, project lock, cadence docs, runbook, memory, artifacts registry, registry fixtures, package script wrapper path, and repo-local scheduler evidence search.
 - `files changed`: active builder prompts, project lock, cadence verifier, QoL doctor/orchestrator validation, QoL diagnostic docs, tests/fixtures, cadence/runbook/memory/master-plan/artifact docs, this run log, and `docs/progress/runs/2026-05-20-split-builder-cadence-hardening.md`.
 - `validation`: cadence verifier, wrapper cadence verifier, QoL automation smoke, check:automation, full test suite, JSON parse checks, and `git diff --check` passed. Optional `typecheck` was attempted and failed in pre-existing untouched TypeScript app files.
-- `scheduler status`: no repo-local scheduler config was found; external scheduler update remains a Bryan action.
+- `scheduler status`: no repo-local scheduler config was found during that pass; superseded by the 2026-05-20 live hidden registry audit.
 - `commit`: pending until commit/push completes.
 
 ## 2026-05-20 PT - Split Builder Cadence Contract
@@ -43,7 +56,7 @@ Future productive runs should append compact entries that name the master-plan s
 - `files changed`: `automation/prompts/senior-capstone-nonfigma-mvp-builder.md`, `automation/prompts/senior-capstone-figma-product-builder.md`, `docs/automation-cadence.md`, `automation/qol/project-lock.json`, `automation/qol/GUI_ALLOWED_COMMANDS.md`, `automation/qol/hourly-orchestrator.mjs`, `scripts/verify-cadence-30min.ps1`, `docs/automation-runbook.md`, `docs/automation-memory.md`, `docs/mvp-requirements-catalog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, and related project-local automation/progress records.
 - `why`: Bryan requested replacing the single undifferentiated 30-minute builder with two safe, auditable, alternating builder lanes: non-Figma implementation at minute 0 PT and Figma-only product design at minute 30 PT, while preserving 48 combined starts/day.
 - `verification`: `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\verify-cadence-30min.ps1 -RepoRoot .` (pass); `npm run verify:automation-cadence` blocked because `npm` is not on PATH; wrapper equivalents passed for `verify:automation-cadence`, `verify:qol-automation`, and `check:automation`; JSON parse checks passed for `package.json`, `automation/qol/project-lock.json`, and `docs/artifacts.json`; full project test fallback passed with 113 tests.
-- `blockers`: global `npm` is unavailable in this shell, so package scripts were validated through `scripts/run-npm-script.ps1`. Bryan must still update the external Codex automation scheduler.
+- `blockers`: global `npm` was unavailable in that shell, so package scripts were validated through `scripts/run-npm-script.ps1`. The scheduler action was later satisfied by live hidden registry evidence on 2026-05-20.
 - `commit`: pending until commit is created.
 
 ## 2026-05-19 20:30 PT - MVP-009 Framework Seed Loader Foundation

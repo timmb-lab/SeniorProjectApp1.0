@@ -12,20 +12,21 @@ Status values:
 
 ## Open Decisions
 
+No open external automation scheduler decisions are blocking the current scaffold. The Google Drive evidence root folder is selected and configured, first-admin bootstrap is complete for `bryan.timm89@gmail.com`, and the production setup key has been removed. Remaining setup work is configuration/implementation: add server-side Drive upload credentials before real student data is entered, add account lifecycle flows, broaden permission tests, and reauthorize or otherwise restore Cloudflare MCP/Wrangler access before the next remote mutation/deploy proof.
+
+## Accepted Decisions
+
 ### HD-2026-05-20-001
 
-- `status`: open
+- `status`: accepted
 - `area`: external Codex automation scheduler
 - `owner`: Bryan
 - `severity`: P0
-- `decision/action needed`: Update the external Codex automation scheduler so `senior-capstone-nonfigma-mvp-builder` runs hourly at minute 0 PT and `senior-capstone-figma-product-builder` runs hourly at minute 30 PT. Disable old `senior-capstone-hourly-qol-orchestrator` as an active builder or convert it to diagnostic/manual only. Keep `senior-capstone-daily-mvp-summary` and `senior-capstone-weekly-script-audit` active as oversight/reporting automations, not builder capacity.
-- `why`: Repo-local cadence, prompts, project lock, and verifier now define two alternating builder lanes. The external scheduler must match or the project could accidentally keep the old single builder active alongside the split builders.
-- `acceptance check`: External scheduler shows exactly the two builder lanes with the requested minute-0/minute-30 PT cadence; daily and weekly oversight remain active; the old single builder is not active as a recurring delivery builder.
+- `decision`: Use the split external Codex scheduler with `senior-capstone-nonfigma-mvp-builder` hourly at minute 0 PT and `senior-capstone-figma-product-builder` hourly at minute 30 PT. Keep `senior-capstone-daily-mvp-summary` and `senior-capstone-weekly-script-audit` active as oversight/reporting automations, not builder capacity. Keep `senior-capstone-hourly-qol-orchestrator` paused or manual diagnostic only.
+- `accepted implementation`: Live hidden Codex registry audit on 2026-05-20 found the two expected builders ACTIVE with `FREQ=HOURLY;BYMINUTE=0;BYSECOND=0` and `FREQ=HOURLY;BYMINUTE=30;BYSECOND=0`, daily/weekly oversight ACTIVE, and `senior-capstone-hourly-qol-orchestrator` PAUSED.
+- `evidence`: `automation/qol/state/automation-registry-evidence.json`
 - `created`: 2026-05-20
-
-No open product decisions are blocking the current scaffold. The Google Drive evidence root folder is selected and configured, first-admin bootstrap is complete for `bryan.timm89@gmail.com`, and the production setup key has been removed. Remaining setup work is configuration/implementation: add server-side Drive upload credentials before real student data is entered, add account lifecycle flows, broaden permission tests, and reauthorize or otherwise restore Cloudflare MCP/Wrangler access before the next remote mutation/deploy proof.
-
-## Accepted Decisions
+- `accepted`: 2026-05-20
 
 ### HD-2026-05-18-003
 
