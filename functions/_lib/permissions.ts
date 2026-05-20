@@ -28,10 +28,13 @@ export async function canAccessStudent(env: Env, viewer: UserAccount, studentId:
 
   const mentorRow = await env.DB.prepare(
     `SELECT 1
-     FROM mentor_assignments
-     WHERE mentor_user_id = ?
-       AND student_user_id = ?
-       AND active = 1
+     FROM mentor_assignments ma
+     JOIN user_roles mentor_role
+       ON mentor_role.user_id = ma.mentor_user_id
+      AND mentor_role.role_id = 'mentor'
+     WHERE ma.mentor_user_id = ?
+       AND ma.student_user_id = ?
+       AND ma.active = 1
      LIMIT 1`,
   ).bind(viewer.id, studentId).first();
   if (mentorRow) {

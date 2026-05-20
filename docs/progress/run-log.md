@@ -158,3 +158,11 @@ Future productive runs should append compact entries that name the master-plan s
 - `files changed`: `functions/api/submissions/[id]/submit.ts`, `tests/review-loop.integration.test.mjs`, `docs/mvp-requirements-catalog.md`, `docs/automation-memory.md`, `docs/progress/rebuild.md`, `docs/progress/run-log.md`, and `docs/progress/runs/2026-05-20-0416-submit-evidence-gate-mvp-012.json`.
 - `verification`: `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 test` (pass).
 - `blockers`: none.
+
+## 2026-05-20 04:48 PT - MVP-006 Mentor Role Required for Mentor Assignments
+
+- `master-plan sections`: Day 7 Alpha Gate; Anti-Drift Rules; Logging Requirements.
+- `requirement IDs`: `MVP-006`; `backlog IDs`: `SC-005`.
+- `files changed`: `functions/_lib/permissions.ts`, `tests/permissions-access.test.mjs`, `docs/mvp-requirements-catalog.md`, `docs/automation-memory.md`, `docs/progress/rebuild.md`, `docs/progress/run-log.md`, and `docs/progress/runs/2026-05-20-0448-mentor-role-guard-mvp-006.json`.
+- `verification`: `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 test` (pass; 83 tests).
+- `blockers`: none.

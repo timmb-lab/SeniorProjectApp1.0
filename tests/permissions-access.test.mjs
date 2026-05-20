@@ -29,6 +29,11 @@ test("permission helpers allow mentors only when the assignment is active", asyn
   assert.equal(await canAccessStudent(env, users.mentorInactive, users.studentA.id), false);
 });
 
+test("permission helpers deny mentor assignments when the mentor role is missing", async () => {
+  const { env, users } = createFixture();
+  assert.equal(await canAccessStudent(env, users.mentorNoRole, users.studentA.id), false);
+});
+
 test("permission helpers allow program teachers with global scope", async () => {
   const { env, users } = createFixture();
   assert.equal(await canAccessStudent(env, users.teacherGlobal, users.studentA.id), true);
@@ -88,6 +93,7 @@ function createFixture() {
   const mentorAssignments = [
     { mentor_user_id: "mentor-active", student_user_id: "student-a", active: 1 },
     { mentor_user_id: "mentor-inactive", student_user_id: "student-a", active: 0 },
+    { mentor_user_id: "mentor-no-role", student_user_id: "student-a", active: 1 },
   ];
 
   const env = {
@@ -101,6 +107,7 @@ function createFixture() {
     miscAdmin: buildUser("misc-admin"),
     mentorActive: buildUser("mentor-active"),
     mentorInactive: buildUser("mentor-inactive"),
+    mentorNoRole: buildUser("mentor-no-role"),
     teacherGlobal: buildUser("teacher-global"),
     teacherProgramIT: buildUser("teacher-program-it"),
     teacherCohortA: buildUser("teacher-cohort-a"),
@@ -156,6 +163,10 @@ class MockPreparedStatement {
 
     if (this.sql.includes("from mentor_assignments")) {
       const [mentorId, studentId] = this.params;
+      const hasMentorRole = this.data.userRoles.some(
+        (row) => row.user_id === mentorId && row.role_id === "mentor",
+      );
+      if (!hasMentorRole) return null;
       const exists = this.data.mentorAssignments.some(
         (row) =>
           row.mentor_user_id === mentorId &&
@@ -225,4 +236,3 @@ function resolveTeacherScopeRow(data, { studentId, teacherId }) {
 
   return allowed ? { ok: 1 } : null;
 }
-

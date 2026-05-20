@@ -1,0 +1,55 @@
+{
+  "run_id": "2026-05-20-0448-mentor-role-guard-mvp-006",
+  "timestamp_local": "2026-05-20T04:48:00-07:00",
+  "automation_id": "senior-capstone-hourly-qol-orchestrator",
+  "trigger": "30-minute MVP builder run: tighten default-deny permissions by requiring the `mentor` role for mentor-assignment-based student access.",
+  "lane": "backend-security-data",
+  "status": "completed",
+  "accepted_mvp_pass": true,
+  "requirement_ids": [
+    "MVP-006"
+  ],
+  "backlog_ids": [
+    "SC-005"
+  ],
+  "duration_minutes": 30,
+  "output_kind": "code+tests+docs",
+  "scope": "Update `canAccessStudent` so mentor access requires both an active mentor assignment and the `mentor` role; add regression coverage and update MVP evidence logs/manifests.",
+  "source_docs_read": [
+    "docs/master-plan.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/automation-runbook.md",
+    "docs/automation-self-improvement.md",
+    "docs/automation-cadence.md",
+    "docs/automation-milestones.md",
+    "docs/automation-memory.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-20-0416-submit-evidence-gate-mvp-012.json",
+    "docs/progress/handoffs.md",
+    "docs/progress/decision-log.md",
+    "docs/automation-backlog.md",
+    "docs/artifacts.json",
+    "docs/human-decisions.md",
+    "automation/qol/reports/latest.md",
+    "functions/_lib/permissions.ts",
+    "tests/permissions-access.test.mjs"
+  ],
+  "changes": [
+    "Updated `canAccessStudent` to require the `mentor` role in addition to an active `mentor_assignments` row before granting access to a student record.",
+    "Added a permission-helper regression test proving mentor assignments do not grant access when the `mentor` role is missing.",
+    "Updated MVP requirement evidence and added this structured run manifest."
+  ],
+  "validation": [
+    "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\\\scripts\\\\run-npm-script.ps1 test"
+  ],
+  "blockers": [],
+  "known_limits": [
+    "This run tightens application-level access checks; the schema does not enforce that `mentor_assignments.mentor_user_id` must also have a `mentor` role row."
+  ],
+  "next_actions": [
+    "Add admin provisioning guards so mentor assignments cannot be created unless the mentor role is present (and audit the role/assignment change together).",
+    "Continue broadening protected-evidence and permission-edge test coverage (program/cohort scoping, inactive accounts, deleted records)."
+  ],
+  "self_improvement": "none"
+}
+
