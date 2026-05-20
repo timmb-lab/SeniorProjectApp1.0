@@ -1,8 +1,8 @@
-import type { Env } from "../../../_types";
-import { getCurrentUser, writeAudit } from "../../../_lib/auth";
-import { badRequest, json, requirePost } from "../../../_lib/http";
-import { hasRole } from "../../../_lib/permissions";
-import { getSubmission, workflowError, writeStatusHistory } from "../../../_lib/workflow";
+import type { Env } from "../../../_types.ts";
+import { getCurrentUser, writeAudit } from "../../../_lib/auth.ts";
+import { badRequest, json, requirePost } from "../../../_lib/http.ts";
+import { hasRole } from "../../../_lib/permissions.ts";
+import { getSubmission, workflowError, writeStatusHistory } from "../../../_lib/workflow.ts";
 
 export const onRequestPost: PagesFunction<Env> = async ({ request, env, params }) => {
   const methodError = requirePost(request);

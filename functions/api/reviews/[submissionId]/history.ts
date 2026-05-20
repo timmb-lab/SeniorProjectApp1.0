@@ -1,7 +1,7 @@
-import type { Env } from "../../../_types";
-import { getCurrentUser, writeAudit } from "../../../_lib/auth";
-import { json } from "../../../_lib/http";
-import { canViewSubmission, getSubmission, workflowError } from "../../../_lib/workflow";
+import type { Env } from "../../../_types.ts";
+import { getCurrentUser, writeAudit } from "../../../_lib/auth.ts";
+import { json } from "../../../_lib/http.ts";
+import { canViewSubmission, getSubmission, workflowError } from "../../../_lib/workflow.ts";
 
 interface ReviewHistoryRow {
   id: string;

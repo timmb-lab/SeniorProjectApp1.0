@@ -1,7 +1,7 @@
-import type { Env } from "../../../_types";
-import { getCurrentUser, writeAudit } from "../../../_lib/auth";
-import { randomId } from "../../../_lib/crypto";
-import { badRequest, json, readJson, requirePost } from "../../../_lib/http";
+import type { Env } from "../../../_types.ts";
+import { getCurrentUser, writeAudit } from "../../../_lib/auth.ts";
+import { randomId } from "../../../_lib/crypto.ts";
+import { badRequest, json, readJson, requirePost } from "../../../_lib/http.ts";
 import {
   canReviewSubmission,
   cleanWorkflowText,
@@ -9,7 +9,7 @@ import {
   type SubmissionDecision,
   workflowError,
   writeStatusHistory,
-} from "../../../_lib/workflow";
+} from "../../../_lib/workflow.ts";
 
 interface ReviewDecisionBody {
   decision?: SubmissionDecision;

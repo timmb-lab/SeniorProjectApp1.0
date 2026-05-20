@@ -1,0 +1,62 @@
+{
+  "run_id": "2026-05-20-0221-review-loop-integration-mvp-015",
+  "timestamp_local": "2026-05-20T02:21:00-07:00",
+  "automation_id": "senior-capstone-hourly-qol-orchestrator",
+  "trigger": "30-minute MVP builder run: add an end-to-end integration test proving the student submit -> teacher revision -> student resubmit -> teacher approval loop persists review/status history and updates the teacher queue.",
+  "lane": "staff-review-mentor",
+  "status": "completed",
+  "accepted_mvp_pass": true,
+  "requirement_ids": [
+    "MVP-015"
+  ],
+  "backlog_ids": [
+    "SC-005",
+    "SC-006"
+  ],
+  "duration_minutes": 30,
+  "output_kind": "tests+docs",
+  "scope": "Prove the Day 7 alpha teacher review loop at the API layer by adding an integration test that submits a draft, requests revision, resubmits with a version bump, approves, and asserts queue membership plus persisted reviews + status history. Update docs to record the new evidence and keep the run verifiable via the standard test runner.",
+  "source_docs_read": [
+    "docs/master-plan.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/automation-cadence.md",
+    "docs/automation-backlog.md",
+    "docs/automation-runbook.md",
+    "docs/automation-self-improvement.md",
+    "docs/automation-milestones.md",
+    "docs/automation-memory.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/README.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/decision-log.md",
+    "docs/artifacts.json",
+    "docs/human-decisions.md",
+    "functions/api/submissions/[id]/submit.ts",
+    "functions/api/reviews/[submissionId]/decision.ts",
+    "functions/api/reviews/[submissionId]/history.ts",
+    "functions/api/teacher/review-queue.ts",
+    "functions/_lib/auth.ts",
+    "functions/_lib/workflow.ts",
+    "functions/_lib/permissions.ts",
+    "scripts/run-npm-script.ps1",
+    "tests/review-loop.integration.test.mjs"
+  ],
+  "changes": [
+    "Added tests/review-loop.integration.test.mjs to exercise an end-to-end teacher review loop: student submit -> teacher revision request -> student resubmit (version++) -> teacher approval, asserting teacher queue membership and persisted reviews + status_history records.",
+    "Updated review-related Pages Functions to use explicit .ts import specifiers so Node can import route handlers during integration tests.",
+    "Updated docs/mvp-requirements-catalog.md, docs/automation-memory.md, and docs/progress/run-log.md to record the new MVP-015 evidence."
+  ],
+  "validation": [
+    "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\\\scripts\\\\run-npm-script.ps1 test"
+  ],
+  "blockers": [],
+  "known_limits": [
+    "The hosted alpha walkthrough still needs manual verification that the UI can complete the review loop without code edits using the seeded/demo personas or fake .test accounts."
+  ],
+  "next_actions": [
+    "Add integration coverage for review denial (out-of-scope teacher, misc-admin) and out-of-order transitions once the core loop is stable.",
+    "Verify the hosted alpha walkthrough completes the review loop and that dashboard counts are derived from DB state (not client-only)."
+  ],
+  "self_improvement": "none"
+}
+

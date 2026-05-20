@@ -118,3 +118,11 @@ Future productive runs should append compact entries that name the master-plan s
 - `files changed`: `tests/evidence-drive-file.integration.test.mjs`, `docs/mvp-requirements-catalog.md`, `docs/progress/run-log.md`, and `docs/progress/runs/2026-05-20-0143-evidence-download-role-coverage-mvp-014.json`.
 - `verification`: `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 test` (pass).
 - `blockers`: none.
+
+## 2026-05-20 02:21 PT - MVP-015 Teacher Review Loop Integration Test
+
+- `master-plan sections`: Day 7 Alpha Gate; Logging Requirements.
+- `requirement IDs`: `MVP-015`; `backlog IDs`: `SC-005`, `SC-006`.
+- `files changed`: `tests/review-loop.integration.test.mjs`, `functions/api/submissions/[id]/submit.ts`, `functions/api/reviews/[submissionId]/decision.ts`, `functions/api/reviews/[submissionId]/history.ts`, `functions/api/teacher/review-queue.ts`, `docs/mvp-requirements-catalog.md`, `docs/automation-memory.md`, `docs/progress/run-log.md`, and `docs/progress/runs/2026-05-20-0221-review-loop-integration-mvp-015.json`.
+- `verification`: `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 test` (pass).
+- `blockers`: none.
