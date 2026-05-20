@@ -329,3 +329,18 @@ Future productive runs should append compact entries that name the master-plan s
 - `files changed`: Figma docs, artifact registry, automation memory, Figma lane log, handoff ledger, MVP catalog, this run log, and `docs/progress/runs/2026-05-20-1135-figma-review-history-prototype-alignment.json`.
 - `blockers`: none.
 - `self-improvement`: none.
+
+## 2026-05-20 12:35 PT - MVP-028 Full Alpha Handoff Consumption Update
+
+- `automation ID`: `senior-capstone-figma-product-builder`
+- `lane`: Figma-only product builder.
+- `master-plan sections`: Product Destination; Day 7 Alpha Gate; Lane Responsibilities; Logging Requirements.
+- `requirement IDs`: `MVP-028`, supporting `MVP-015`, `MVP-016`, `MVP-017`, and `MVP-018`.
+- `selected slice`: Update and verify the full MVP alpha prototype route/implementation handoff after review history was consumed in the primary alpha console.
+- `active Figma file`: `z4t4tFPAKrMDh6pIYOeEw6`.
+- `Figma page/node touched`: `05 Full MVP Alpha Prototype`; node `98:17`; text nodes `98:1079`, `98:1087`, `98:1088`, `98:1073`, `98:1074`, `98:1119`, and `98:1123` through `98:1127`.
+- `what changed`: Figma handoff now records `review_history_consumed_at`, states that review history is consumed in the primary alpha console, redirects the next rebuild focus to mentor/presentation/admin depth, preserves API/D1/audit/storage-redaction boundaries, and corrects compact handoff text widths.
+- `verification`: `use_figma` returned mutated nodes, shared plugin data key `senior_capstone/handoff_status_2026_05_20`, and zero suspicious clipped text nodes; `get_design_context` and `get_screenshot` succeeded for node `98:17` with screenshot size `1024x648`.
+- `files changed`: Figma docs, artifact registry, automation memory, Figma lane log, handoff ledger, MVP catalog, this run log, and `docs/progress/runs/2026-05-20-1235-figma-alpha-handoff-consumption.json`.
+- `blockers`: none.
+- `self-improvement`: none.

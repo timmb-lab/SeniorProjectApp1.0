@@ -1,0 +1,150 @@
+{
+  "run_id": "2026-05-20-1235-figma-alpha-handoff-consumption",
+  "timestamp_local": "2026-05-20T12:35:00-07:00",
+  "automation_id": "senior-capstone-figma-product-builder",
+  "lane": "figma-only product builder",
+  "status": "completed",
+  "accepted_mvp_pass": true,
+  "requirement_ids": [
+    "MVP-028",
+    "MVP-015",
+    "MVP-016",
+    "MVP-017",
+    "MVP-018"
+  ],
+  "output_kind": "figma-handoff+metadata+screenshot-verification",
+  "scope": "Update and verify the full MVP alpha prototype route/implementation handoff after rebuild consumed review history in the primary alpha console.",
+  "selected_figma_slice": "Full alpha prototype route handoff consumption update for node 98:17.",
+  "figma": {
+    "file_key": "z4t4tFPAKrMDh6pIYOeEw6",
+    "url": "https://www.figma.com/design/z4t4tFPAKrMDh6pIYOeEw6",
+    "page": "05 Full MVP Alpha Prototype",
+    "node_touched": {
+      "node_id": "98:17",
+      "name": "Prototype / 14 / Route and implementation handoff",
+      "changes": [
+        "Updated header and records text to reflect review-history consumption by the primary alpha console.",
+        "Added review_history_consumed_at to the handoff records row.",
+        "Clarified that production permissions remain in API middleware, D1 policy checks, audit events, and storage-ID redaction.",
+        "Redirected the acceptance checklist toward mentor, presentation, and admin rebuild depth.",
+        "Corrected compact no-student-messaging card and acceptance-check text widths."
+      ]
+    },
+    "mutated_node_ids": [
+      "98:1079",
+      "98:1087",
+      "98:1088",
+      "98:1073",
+      "98:1074",
+      "98:1119",
+      "98:1123",
+      "98:1124",
+      "98:1125",
+      "98:1126",
+      "98:1127"
+    ],
+    "shared_plugin_data_key": "senior_capstone/handoff_status_2026_05_20",
+    "readback": {
+      "suspicious_clipped_text_count": 0
+    },
+    "metadata_verification": [
+      {
+        "node_id": "98:17",
+        "tool": "get_design_context",
+        "result": "passed",
+        "confirmed_annotations": [
+          "review_history_consumed_at",
+          "primary alpha console",
+          "mentor, presentation, admin depth",
+          "API middleware",
+          "D1 policy checks",
+          "audit events",
+          "storage-ID redaction"
+        ]
+      }
+    ],
+    "screenshot_verification": [
+      {
+        "node_id": "98:17",
+        "tool": "get_screenshot",
+        "result": "passed",
+        "returned_size": "1024x648",
+        "original_size": "1360x860",
+        "short_lived_asset_url_recorded": false
+      }
+    ]
+  },
+  "source_docs_read": [
+    "C:\\Users\\bryan\\.codex\\automations\\senior-capstone-figma-product-builder\\memory.md",
+    "docs/design/figma-first-pass-product-system.md",
+    "docs/design/figma-product-preview-state-variants.md",
+    "docs/master-plan.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/automation-cadence.md",
+    "docs/automation-runbook.md",
+    "docs/automation-memory.md",
+    "docs/progress/run-log.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/decision-log.md",
+    "docs/artifacts.json",
+    "docs/human-decisions.md",
+    "docs/progress/figma.md",
+    "docs/progress/runs/2026-05-20-1206-alpha-review-history-main-console-mvp-015-016.json",
+    "docs/progress/runs/2026-05-20-1135-figma-review-history-prototype-alignment.json",
+    "docs/progress/runs/2026-05-20-1103-production-predeploy-gate.json",
+    "docs/progress/runs/2026-05-20-1018-review-history-ui-mvp-015-016.json"
+  ],
+  "repo_files_changed": [
+    "docs/design/figma-first-pass-product-system.md",
+    "docs/design/figma-product-preview-state-variants.md",
+    "docs/artifacts.json",
+    "docs/automation-memory.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/progress/figma.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-20-1235-figma-alpha-handoff-consumption.json"
+  ],
+  "implementation_handoff": "Rebuild should stop repeating review-history UI work unless hosted smoke finds a regression; next implementation depth should target mentor/presentation and admin operations flows using nodes 78:2, 48:2, 69:2, and 98:17.",
+  "validation": [
+    {
+      "command": "Figma use_figma mutation readback",
+      "result": "passed",
+      "summary": "Returned mutated node IDs, set shared plugin data key senior_capstone/handoff_status_2026_05_20, and found zero suspicious clipped text nodes."
+    },
+    {
+      "command": "Figma get_design_context for node 98:17",
+      "result": "passed",
+      "summary": "Confirmed the updated handoff text names review_history_consumed_at, primary alpha-console consumption, next mentor/presentation/admin focus, and API/D1/audit/storage-redaction boundaries."
+    },
+    {
+      "command": "Figma get_screenshot for node 98:17",
+      "result": "passed",
+      "summary": "Returned a 1024x648 screenshot from the original 1360x860 frame."
+    },
+    {
+      "command": "Get-Content docs/artifacts.json and manifest | ConvertFrom-Json",
+      "result": "passed",
+      "summary": "Artifact registry and structured run manifest parsed as JSON."
+    },
+    {
+      "command": "git diff --check",
+      "result": "passed",
+      "summary": "Whitespace check passed with line-ending warnings only."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\verify-cadence-30min.ps1 -RepoRoot .",
+      "result": "passed",
+      "summary": "Split cadence verifier passed."
+    }
+  ],
+  "backend_code_work_avoided": true,
+  "figma_blocker": null,
+  "run_log_updated": true,
+  "structured_manifest_created": true,
+  "artifacts_json_updated": true,
+  "mvp_catalog_changed": true,
+  "self_improvement": "none",
+  "commit_sha": "pending closeout commit",
+  "push_result": "pending closeout push"
+}

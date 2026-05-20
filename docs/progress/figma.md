@@ -33,3 +33,16 @@ Figma work is owned by `senior-capstone-figma-product-builder`, running hourly a
 - `verification`: `use_figma` returned mutated nodes `98:533`, `98:534`, `98:535`, `98:520`, `98:521`, `98:539`, `98:550`, `98:602`, `98:603`, `98:604`, `98:589`, `98:590`, `98:608`, and `98:611`; readback found zero suspicious clipped text nodes in both frames. `get_design_context` and `get_screenshot` succeeded for nodes `98:9` and `98:10`.
 - `implementation handoff`: Rebuild should treat node `98:9` as the teacher review/detail handoff and node `98:10` as the student revision/history handoff when carrying the account smoke review-history UI into the main alpha workflow.
 - `self-improvement`: none
+
+## 2026-05-20 12:35 PT - MVP-028 Full Alpha Handoff Consumption Update
+
+- `automation ID`: `senior-capstone-figma-product-builder`
+- `selected requirement IDs`: `MVP-028`, supporting `MVP-015`, `MVP-016`, `MVP-017`, and `MVP-018`
+- `selected slice`: Update and verify the full MVP alpha prototype route/implementation handoff after rebuild consumed review history in the primary alpha console.
+- `active file`: `z4t4tFPAKrMDh6pIYOeEw6`
+- `page`: `05 Full MVP Alpha Prototype`
+- `nodes touched`: `98:17` (`Prototype / 14 / Route and implementation handoff`); text nodes `98:1079`, `98:1087`, `98:1088`, `98:1073`, `98:1074`, `98:1119`, and `98:1123` through `98:1127`.
+- `changed in Figma`: Added `review_history_consumed_at` to the records row, clarified that review history is consumed in the primary alpha console, redirected the next rebuild focus to mentor/presentation/admin depth, preserved the API/D1/audit/storage-redaction permission boundary, and fixed compact handoff text widths.
+- `verification`: `use_figma` returned the mutated node IDs, set shared plugin data key `senior_capstone/handoff_status_2026_05_20`, and found zero suspicious clipped text nodes; `get_design_context` confirmed the updated route/data/permission handoff text; `get_screenshot` succeeded for node `98:17` at `1024x648` from original `1360x860`.
+- `implementation handoff`: Rebuild should stop repeating review-history UI work unless hosted smoke finds a regression; next implementation depth should target mentor/presentation and admin operations flows using nodes `78:2`, `48:2`, `69:2`, and `98:17`.
+- `self-improvement`: none

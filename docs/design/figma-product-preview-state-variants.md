@@ -477,6 +477,10 @@ Created/updated frames:
   - `Prototype / 06 / Review detail and decision drawer`, node `98:9`
   - `Prototype / 07 / Student revision loop`, node `98:10`
   - Route/data/permission text nodes updated: `98:533`, `98:534`, `98:535`, `98:602`, `98:603`, and `98:604`.
+- 2026-05-20 route handoff consumption update on `05 Full MVP Alpha Prototype`
+  - `Prototype / 14 / Route and implementation handoff`, node `98:17`
+  - Handoff text nodes updated: `98:1079`, `98:1087`, `98:1088`, `98:1073`, `98:1074`, `98:1119`, and `98:1123` through `98:1127`.
+  - Shared plugin data key `senior_capstone/handoff_status_2026_05_20` records that review history is consumed in the primary alpha console and that the next rebuild focus is mentor, presentation, admin depth, and hosted alpha smoke.
 
 Verification status:
 - Canvas write succeeded and returned the frame IDs above.
@@ -524,3 +528,5 @@ Verification status:
 - 2026-05-20 `use_figma` write updated node `98:9` to map `/teacher/reviews/:id` and `/api/reviews/:submissionId/history` to `submissions`, `reviews`, `comments`, `status_history`, `submission_versions`, and `evidence_artifacts`; sidebar and header text widths were corrected.
 - 2026-05-20 `use_figma` write updated node `98:10` to map `/student/submissions/:id/revision` and `/api/reviews/:submissionId/history` to `reviews`, `comments`, `status_history`, `submission_versions`, `evidence_artifacts`, and `requirement_sections`; sidebar and revision-card text widths were corrected.
 - `get_design_context` and `get_screenshot` succeeded for nodes `98:9` and `98:10` after the correction; screenshot sizes returned `1024x623` for node `98:9` and `1024x648` for node `98:10`, and readback found zero suspicious clipped text nodes in both frames.
+- 2026-05-20 `use_figma` write updated node `98:17` to record `review_history_consumed_at`, the primary alpha-console review-history consumption state, and the next rebuild focus on mentor, presentation, and admin depth; it also corrected compact handoff text widths.
+- `get_design_context` and `get_screenshot` succeeded for node `98:17` after the correction; screenshot verification returned `1024x648` from original `1360x860`, and readback found zero suspicious clipped text nodes.

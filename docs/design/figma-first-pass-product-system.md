@@ -571,6 +571,16 @@ The 2026-05-20 Figma pass aligned the full MVP alpha prototype with the implemen
 - Both frames preserve the protected-record rule: students see only their own feedback/history, reviewer/admin decisions stay scoped, storage IDs remain redacted, and audit events persist for review-sensitive changes.
 - `get_design_context` and `get_screenshot` succeeded for nodes `98:9` and `98:10` after the annotation and layout corrections; the `use_figma` readback found zero suspicious clipped text nodes in both frames.
 
+## Full Alpha Handoff Consumption Update
+
+The 2026-05-20 12:35 PT Figma pass updated the full MVP alpha prototype handoff frame after rebuild consumed the review-history alignment in the primary alpha console.
+
+- `Prototype / 14 / Route and implementation handoff`, node `98:17`, now records `review_history_consumed_at` in the handoff records row and states that review history is consumed in the primary alpha console.
+- The acceptance checklist now points the next rebuild focus at mentor, presentation, and admin depth instead of repeating review-history UI work.
+- The handoff frame preserves the route/data/permission boundary: Figma is design handoff only; production permissions stay in API middleware, D1 policy checks, audit events, and storage-ID redaction.
+- Layout QA corrected the compact no-student-messaging sidebar card and acceptance-check header widths; `use_figma` readback found zero suspicious clipped text nodes.
+- `get_design_context` and `get_screenshot` succeeded for node `98:17`; screenshot verification returned `1024x648` from original `1360x860`.
+
 ## Acceptance Checks For Next Figma Run
 
 - Continue active writable file `z4t4tFPAKrMDh6pIYOeEw6` in `team::1638213362346160913`.
@@ -605,10 +615,10 @@ Artifact:
 - Progress update/dashboard aggregate contract: node `61:2` in the active Figma file.
 - Audit log/export controls contract: node `69:2` in the active Figma file.
 - Mentor meeting/presentation scheduling contract: node `78:2` in the active Figma file.
-- Full MVP alpha prototype page: node `98:2`, with review detail node `98:9` and student revision node `98:10` aligned to the implemented review-history endpoint.
+- Full MVP alpha prototype page: node `98:2`, with review detail node `98:9` and student revision node `98:10` aligned to the implemented review-history endpoint, plus handoff frame `98:17` updated after primary alpha-console consumption.
 
 Exact next action:
-- Rebuild should consume nodes `18:2`, `31:2`, `37:2`, `43:2`, `48:2`, `56:2`, `61:2`, `69:2`, `78:2`, `98:9`, and `98:10` while scaffolding the accepted Cloudflare database/auth/progress/audit/export/meeting/presentation foundation and the implemented review-history UI. Figma should only add more broad design detail if rebuild hits a specific UI ambiguity.
+- Rebuild should consume nodes `18:2`, `31:2`, `37:2`, `43:2`, `48:2`, `56:2`, `61:2`, `69:2`, `78:2`, `98:9`, `98:10`, and `98:17` while scaffolding the accepted Cloudflare database/auth/progress/audit/export/meeting/presentation foundation. Review history is already consumed in the primary alpha console; next rebuild focus should move to mentor, presentation, and admin workflow depth unless hosted alpha smoke finds a regression.
 
 Acceptance check:
 - Figma progress log records page/frame IDs, screenshot or metadata verification, route/data fields, permission scopes, and the next UI slice.

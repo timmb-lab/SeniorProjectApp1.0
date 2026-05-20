@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-05-20T11:35:35-07:00",
+  "updated_at": "2026-05-20T12:35:00-07:00",
   "artifacts": [
     {
       "id": "cloudflare-pages-senior-capstone-app",
@@ -369,7 +369,9 @@
         "Readback verification confirmed page 98:2 has 16 top-level nodes, 15 prototype screens, 176 click-through reactions, 600 text nodes, zero suspicious clipped text nodes, zero detected top-level frame overflow, and shared full-alpha prototype contract data with 15 route entries.",
         "Screenshot verification returned for launch node 98:3 after launch-frame fit correction and student dashboard node 98:4; the prototype covers student, proposal, evidence, submit, teacher review, revision, mentor, admin ops, audit/export, announcements, mobile, protected boundary, and handoff states.",
         "Figma write on 2026-05-20 aligned full-alpha prototype review-history nodes 98:9 and 98:10 with the implemented /api/reviews/:submissionId/history path, comments, status_history, submission_versions, scoped permissions, and storage-ID redaction.",
-        "get_design_context and get_screenshot succeeded for nodes 98:9 and 98:10 after the 2026-05-20 annotation and layout corrections; use_figma readback found zero suspicious clipped text nodes in both frames."
+        "get_design_context and get_screenshot succeeded for nodes 98:9 and 98:10 after the 2026-05-20 annotation and layout corrections; use_figma readback found zero suspicious clipped text nodes in both frames.",
+        "Figma write on 2026-05-20 updated full-alpha handoff node 98:17 with review_history_consumed_at, primary alpha-console consumption guidance, next mentor/presentation/admin rebuild focus, and corrected compact handoff text widths.",
+        "get_design_context and get_screenshot succeeded for node 98:17 after the 2026-05-20 handoff update; screenshot verification returned 1024x648 from original 1360x860, and use_figma readback found zero suspicious clipped text nodes."
       ],
       "supersedes": [
         "figma-product-ui-system-reference-old-team",
