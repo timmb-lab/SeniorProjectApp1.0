@@ -94,3 +94,11 @@ Future productive runs should append compact entries that name the master-plan s
 - `files changed`: `functions/api/admin/test-accounts.ts`, `tests/test-account-seed.test.mjs`, `docs/artifacts.json`, `docs/mvp-requirements-catalog.md`, `docs/automation-backlog.md`, `docs/automation-memory.md`, `docs/progress/run-log.md`, and `docs/progress/runs/2026-05-20-0012-seeded-requirement-fixtures-mvp-009.json`.
 - `verification`: `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 test` (pass).
 - `blockers`: none (still need to apply migrations to local/remote D1 and verify seeded counts by query).
+
+## 2026-05-20 00:46 PT - MVP-009 D1 Framework Seed Migration Verification
+
+- `master-plan sections`: Day 7 Alpha Gate; Logging Requirements.
+- `requirement IDs`: `MVP-009`; `backlog IDs`: `SC-001`.
+- `files changed`: `scripts/verify-framework-seed-d1.ps1`, `docs/mvp-requirements-catalog.md`, `docs/automation-backlog.md`, `docs/automation-memory.md`, `docs/progress/run-log.md`, and `docs/progress/runs/2026-05-20-0046-framework-seed-d1-verify-mvp-009.json`.
+- `verification`: `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\verify-framework-seed-d1.ps1 -InstallDeps` (local apply + counts verified), `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 test` (pass).
+- `blockers`: Remote D1 apply/verification requires `CLOUDFLARE_API_TOKEN` for non-interactive Wrangler; remote migration remains pending.

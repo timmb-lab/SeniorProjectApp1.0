@@ -1,0 +1,67 @@
+{
+  "run_id": "2026-05-20-0046-framework-seed-d1-verify-mvp-009",
+  "timestamp_local": "2026-05-20T00:46:00-07:00",
+  "automation_id": "senior-capstone-hourly-qol-orchestrator",
+  "trigger": "30-minute MVP builder run: apply the framework seed migrations to local D1 and verify seeded counts by query; add a durable script wrapper and record the remote Wrangler token blocker.",
+  "lane": "requirements-audit",
+  "status": "completed",
+  "accepted_mvp_pass": true,
+  "requirement_ids": [
+    "MVP-009"
+  ],
+  "backlog_ids": [
+    "SC-001"
+  ],
+  "duration_minutes": 30,
+  "output_kind": "d1-migration-script+verification+docs",
+  "scope": "Add a repo-local script that can install Wrangler dependencies, apply D1 migrations locally, and verify the seeded framework counts. Skip remote migration attempts when CLOUDFLARE_API_TOKEN is missing to avoid Wrangler non-interactive crashes, and refresh catalog/backlog/memory/log evidence.",
+  "source_docs_read": [
+    "docs/master-plan.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/automation-runbook.md",
+    "docs/automation-self-improvement.md",
+    "docs/automation-cadence.md",
+    "docs/automation-milestones.md",
+    "docs/automation-memory.md",
+    "docs/progress/run-log.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/decision-log.md",
+    "docs/automation-backlog.md",
+    "docs/artifacts.json",
+    "docs/human-decisions.md",
+    "package.json",
+    "migrations/0001_foundation.sql",
+    "migrations/0002_framework_seed.sql",
+    "migrations/0003_framework_seed_data.sql",
+    "data/capstone-framework.json",
+    "scripts/verify-framework-seed-d1.ps1",
+    "scripts/run-npm-script.ps1",
+    "tests/framework-seed.test.mjs",
+    "tests/framework-seed-migration.test.mjs"
+  ],
+  "changes": [
+    "Added scripts/verify-framework-seed-d1.ps1 to apply D1 migrations locally and verify seeded framework counts by query (requirements=16, deadlines=24, review_gates=4, quality_checks=20; req-alpha-proposal absent).",
+    "Updated the script to prefer a real Node/npm PATH order so npm postinstall scripts do not trip over the WindowsApps node shim.",
+    "Updated the script to skip remote D1 work when CLOUDFLARE_API_TOKEN is missing (Wrangler requires an API token in non-interactive runs).",
+    "Updated docs/mvp-requirements-catalog.md, docs/automation-backlog.md, docs/automation-memory.md, and docs/progress/run-log.md with the new local D1 verification evidence and remote blocker."
+  ],
+  "validation": [
+    "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\verify-framework-seed-d1.ps1 -InstallDeps",
+    "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\verify-framework-seed-d1.ps1 -Remote",
+    "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 test"
+  ],
+  "blockers": [
+    "Remote D1 migrations and verification are blocked in this non-interactive environment until CLOUDFLARE_API_TOKEN is provided for Wrangler."
+  ],
+  "known_limits": [
+    "Remote D1 instances may still be missing migrations 0002 + 0003 until CLOUDFLARE_API_TOKEN is configured and the remote apply succeeds.",
+    "Preview/production alpha fixtures still need a reseed pass after remote migrations are applied to confirm no flows reference req-alpha-proposal."
+  ],
+  "next_actions": [
+    "Provide a CLOUDFLARE_API_TOKEN with D1 migration/execute permissions in the environment where wrangler runs non-interactively.",
+    "Re-run: powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\verify-framework-seed-d1.ps1 -Remote",
+    "Re-run POST /api/admin/test-accounts in preview/production to migrate any existing alpha fixtures onto seeded requirement IDs (starting with req-proposal-draft) and confirm req-alpha-proposal is not referenced."
+  ],
+  "self_improvement": "none"
+}
+
