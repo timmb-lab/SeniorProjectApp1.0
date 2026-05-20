@@ -213,5 +213,5 @@ Each rebuild run should append a dated entry with:
 - `files changed`: `functions/_lib/permissions.ts`, `tests/permissions-access.test.mjs`, `tests/evidence-check-access.integration.test.mjs`, `docs/mvp-requirements-catalog.md`, `docs/automation-memory.md`, `docs/progress/rebuild.md`, `docs/progress/run-log.md`, and `docs/progress/runs/2026-05-20-0649-teacher-scope-null-guard-mvp-006-014.json`.
 - `validation`: `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 test` (pass; 101 tests).
 - `self-improvement`: none.
-- `commit/push status`: pending in this run.
+- `commit/push status`: committed + pushed in this run.
 - `next action`: Keep laddering protected-evidence + role-scope tests, then return to Drive secret configuration and real upload/download verification in Cloudflare Pages preview/production.
