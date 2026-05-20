@@ -143,6 +143,114 @@ test("evidence file upload returns 200, writes DB rows, and omits storage ids", 
   }
 });
 
+test("evidence file upload returns 502 and audits when Drive upload is forbidden", async () => {
+  const fixture = await createFixtureWithSession({ userId: "student-a", roleId: "student" });
+  fixture.db.data.submissions.push({
+    id: "submission-1",
+    student_id: "student-a",
+    requirement_id: null,
+    status: "draft",
+    version: 1,
+  });
+
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async (input) => {
+    const url = resolveFetchUrl(input);
+    if (url === "https://oauth2.googleapis.com/token") {
+      return jsonResponse({ access_token: "test-token", expires_in: 3600, token_type: "Bearer" });
+    }
+    if (url.startsWith("https://www.googleapis.com/upload/drive/v3/files")) {
+      return new Response("forbidden", { status: 403, headers: { "content-type": "text/plain" } });
+    }
+    throw new Error(`Unexpected fetch URL in test: ${url}`);
+  };
+
+  try {
+    const response = await onUploadEvidenceFile({
+      request: buildUploadRequest({
+        url: "https://example.test/api/submissions/submission-1/evidence/upload",
+        token: fixture.token,
+      }),
+      env: fixture.env,
+      params: { id: "submission-1" },
+    });
+
+    assert.equal(response.status, 502);
+    assert.deepEqual(await response.json(), { error: "drive_upload_failed", ok: false });
+    assert.equal(fixture.db.data.evidenceArtifacts.length, 0);
+    assert.equal(fixture.db.data.auditEvents.length, 1);
+    assert.equal(fixture.db.data.auditEvents[0].action, "google_drive_upload_failed");
+    assert.deepEqual(fixture.db.data.auditEvents[0].metadata, { status: 403 });
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("evidence file upload uses resumable Drive upload for large files", async () => {
+  const fixture = await createFixtureWithSession({ userId: "student-a", roleId: "student" });
+  fixture.db.data.submissions.push({
+    id: "submission-1",
+    student_id: "student-a",
+    requirement_id: null,
+    status: "draft",
+    version: 1,
+  });
+
+  const largeFileBytes = new Uint8Array(5 * 1024 * 1024 + 1);
+  let sawResumableInit = false;
+  let sawResumablePut = false;
+  const sessionUrl = "https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable&upload_id=test-session";
+
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async (input, init) => {
+    const url = resolveFetchUrl(input);
+    if (url === "https://oauth2.googleapis.com/token") {
+      return jsonResponse({ access_token: "test-token", expires_in: 3600, token_type: "Bearer" });
+    }
+
+    if (url === sessionUrl) {
+      sawResumablePut = true;
+      assert.equal(init?.method, "PUT");
+      return jsonResponse({ id: "drive-file-456", name: "uploaded.bin", mimeType: "application/octet-stream", size: String(largeFileBytes.length) });
+    }
+
+    if (url.startsWith("https://www.googleapis.com/upload/drive/v3/files") && url.includes("uploadType=resumable")) {
+      sawResumableInit = true;
+      assert.equal(init?.method, "POST");
+      return new Response(null, { status: 200, headers: { location: sessionUrl } });
+    }
+
+    throw new Error(`Unexpected fetch URL in test: ${url}`);
+  };
+
+  try {
+    const response = await onUploadEvidenceFile({
+      request: buildUploadRequest({
+        url: "https://example.test/api/submissions/submission-1/evidence/upload",
+        token: fixture.token,
+        title: "Big upload",
+        fileName: "big.bin",
+        fileType: "application/octet-stream",
+        fileBytes: largeFileBytes,
+      }),
+      env: fixture.env,
+      params: { id: "submission-1" },
+    });
+
+    assert.equal(response.status, 200);
+    const body = await response.json();
+    assert.equal(body.ok, true);
+    assert.equal(sawResumableInit, true);
+    assert.equal(sawResumablePut, true);
+    assert.equal(fixture.db.data.evidenceArtifacts.length, 1);
+    assert.equal(fixture.db.data.auditEvents.length, 1);
+    assert.equal(fixture.db.data.auditEvents[0].action, "evidence_file_uploaded");
+    assert.doesNotMatch(JSON.stringify(body), /drive_file_id|driveFileId|access_token|PRIVATE KEY/i);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
 test("evidence download returns 401 and audits when session is missing", async () => {
   const fixture = createFixture();
   fixture.db.data.evidenceArtifacts.push({
@@ -615,12 +723,24 @@ function resolveFetchUrl(input) {
   return String(input);
 }
 
-function buildUploadRequest({ url, token, title = "Evidence Upload" }) {
+function buildUploadRequest({
+  url,
+  token,
+  title = "Evidence Upload",
+  artifactType = "reflection",
+  fileName = "hello.txt",
+  fileType = "text/plain",
+  fileBytes = "hello",
+  fileSizeBytes = null,
+}) {
   const form = new FormData();
-  const file = new File(["hello"], "hello.txt", { type: "text/plain" });
+  const bytes = Number.isFinite(fileSizeBytes) && fileSizeBytes > 0
+    ? new Uint8Array(fileSizeBytes)
+    : fileBytes;
+  const file = new File([bytes], fileName, { type: fileType });
   form.set("file", file);
   form.set("title", title);
-  form.set("artifactType", "reflection");
+  form.set("artifactType", artifactType);
 
   const headers = {
     "cf-connecting-ip": "203.0.113.50",

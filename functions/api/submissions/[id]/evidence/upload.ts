@@ -2,11 +2,17 @@ import type { Env } from "../../../../_types.ts";
 import { getCurrentUser, writeAudit } from "../../../../_lib/auth.ts";
 import { randomId } from "../../../../_lib/crypto.ts";
 import { badRequest, json, requirePost } from "../../../../_lib/http.ts";
-import { getGoogleDriveAccessToken, googleDriveCredentialParts, uploadGoogleDriveFile } from "../../../../_lib/google-drive.ts";
+import {
+  getGoogleDriveAccessToken,
+  googleDriveCredentialParts,
+  uploadGoogleDriveFile,
+  uploadGoogleDriveFileResumable,
+} from "../../../../_lib/google-drive.ts";
 import { hasRole } from "../../../../_lib/permissions.ts";
 import { cleanWorkflowText, getSubmission, workflowError } from "../../../../_lib/workflow.ts";
 
-const MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
+const MULTIPART_UPLOAD_MAX_BYTES = 5 * 1024 * 1024;
+const MAX_UPLOAD_BYTES = 20 * 1024 * 1024;
 
 export const onRequestPost: PagesFunction<Env> = async ({ request, env, params }) => {
   const methodError = requirePost(request);
@@ -103,11 +109,17 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, params }
 
   let uploadResult;
   try {
-    uploadResult = await uploadGoogleDriveFile(accessToken, {
-      name: driveFileName,
-      mimeType,
-      parentFolderId: rootFolderId,
-    }, bytes);
+    uploadResult = file.size > MULTIPART_UPLOAD_MAX_BYTES
+      ? await uploadGoogleDriveFileResumable(accessToken, {
+        name: driveFileName,
+        mimeType,
+        parentFolderId: rootFolderId,
+      }, bytes)
+      : await uploadGoogleDriveFile(accessToken, {
+        name: driveFileName,
+        mimeType,
+        parentFolderId: rootFolderId,
+      }, bytes);
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     await writeAudit(env, {

@@ -1,0 +1,57 @@
+{
+  "run_id": "2026-05-20-0620-drive-resumable-upload-mvp-013",
+  "timestamp_local": "2026-05-20T06:20:00-07:00",
+  "automation_id": "senior-capstone-hourly-qol-orchestrator",
+  "trigger": "30-minute MVP builder run: extend `/api/submissions/:id/evidence/upload` with resumable Google Drive uploads for files >5MB (Drive multipart limit), increase max upload cap to 20MB, and add integration coverage for Drive forbidden + resumable paths.",
+  "lane": "student-workflow-evidence",
+  "status": "completed",
+  "accepted_mvp_pass": true,
+  "requirement_ids": [
+    "MVP-013"
+  ],
+  "backlog_ids": [
+    "SC-003",
+    "SC-005"
+  ],
+  "duration_minutes": 30,
+  "output_kind": "code+tests+docs",
+  "scope": "Add resumable Drive upload support in `functions/_lib/google-drive.ts` and route selection in `/api/submissions/:id/evidence/upload` so evidence uploads work beyond the 5MB multipart threshold, then add integration tests proving forbidden + resumable behavior and update catalog/memory/log evidence.",
+  "source_docs_read": [
+    "docs/master-plan.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/automation-runbook.md",
+    "docs/automation-self-improvement.md",
+    "docs/automation-cadence.md",
+    "docs/automation-milestones.md",
+    "docs/automation-memory.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-20-0544-admin-mentor-assignment-list-deactivate-mvp-007.json",
+    "docs/progress/handoffs.md",
+    "docs/progress/decision-log.md",
+    "docs/automation-backlog.md",
+    "docs/artifacts.json",
+    "docs/human-decisions.md",
+    "automation/qol/reports/latest.md",
+    "functions/_lib/google-drive.ts",
+    "functions/api/submissions/[id]/evidence/upload.ts",
+    "tests/evidence-drive-file.integration.test.mjs"
+  ],
+  "changes": [
+    "Implemented resumable Google Drive upload helper (`uploadGoogleDriveFileResumable`) that initiates an upload session (Location header) and completes the upload via PUT, returning file metadata consistently with multipart uploads.",
+    "Updated `/api/submissions/:id/evidence/upload` to choose multipart for ≤5MB and resumable for >5MB, raising the route cap to 20MB while preserving existing auth/audit behavior.",
+    "Added integration tests for Drive upload forbidden (403) handling and for the resumable upload path (large file) while continuing to assert no storage-id / secret leaks."
+  ],
+  "validation": [
+    "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\\\scripts\\\\run-npm-script.ps1 test"
+  ],
+  "blockers": [],
+  "known_limits": [
+    "Cloudflare Pages Drive secrets still need configuration/verification to prove end-to-end real uploads/downloads against the configured evidence root folder.",
+    "Resumable uploads are currently single-shot PUT after session initiation; chunked resume/retry/backoff remains follow-on if Drive/network errors surface."
+  ],
+  "next_actions": [
+    "Configure Cloudflare Pages `GOOGLE_DRIVE_CLIENT_EMAIL` + `GOOGLE_DRIVE_PRIVATE_KEY` and verify `/api/health` shows Drive credentials configured, then use the account smoke page Drive panel to upload/download both a small file and a >5MB file to exercise resumable uploads.",
+    "If Drive provider errors occur in real verification, implement chunked resumable uploads with 308 handling plus retry/backoff for 403 rate-limit style errors."
+  ],
+  "self_improvement": "none"
+}

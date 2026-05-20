@@ -242,6 +242,74 @@ export async function uploadGoogleDriveFile(
   };
 }
 
+export async function uploadGoogleDriveFileResumable(
+  accessToken: string,
+  input: {
+    name: string;
+    mimeType: string;
+    parentFolderId?: string | null;
+  },
+  fileBytes: Uint8Array,
+  options: { fetchFn?: typeof fetch } = {},
+): Promise<{ ok: boolean; status: number; fileId: string | null; mimeType: string | null; name: string | null }> {
+  const mimeType = input.mimeType || "application/octet-stream";
+  const metadata: Record<string, unknown> = {
+    name: cleanDriveFileName(input.name, "evidence-upload"),
+    mimeType,
+  };
+  if (input.parentFolderId) {
+    metadata.parents = [input.parentFolderId];
+  }
+
+  const url = new URL(DRIVE_UPLOAD_URL);
+  url.searchParams.set("uploadType", "resumable");
+  url.searchParams.set("supportsAllDrives", "true");
+  url.searchParams.set("fields", "id,name,mimeType,size");
+
+  const fetchFn = options.fetchFn || fetch;
+  const initResponse = await fetchFn(url, {
+    method: "POST",
+    headers: {
+      authorization: `Bearer ${accessToken}`,
+      "content-type": "application/json; charset=UTF-8",
+      accept: "application/json",
+      "x-upload-content-type": mimeType,
+      "x-upload-content-length": String(fileBytes.length),
+    },
+    body: JSON.stringify(metadata),
+  });
+
+  const resumableUri = initResponse.headers.get("location") || initResponse.headers.get("Location");
+  if (!initResponse.ok || !resumableUri) {
+    return { ok: false, status: initResponse.status, fileId: null, mimeType: null, name: null };
+  }
+
+  const putResponse = await fetchFn(resumableUri, {
+    method: "PUT",
+    headers: {
+      authorization: `Bearer ${accessToken}`,
+      "content-type": mimeType,
+      "content-range": fileBytes.length > 0 ? `bytes 0-${fileBytes.length - 1}/${fileBytes.length}` : "bytes */0",
+      accept: "application/json",
+    },
+    body: fileBytes,
+  });
+
+  if (!putResponse.ok) {
+    return { ok: false, status: putResponse.status, fileId: null, mimeType: null, name: null };
+  }
+
+  const json = await putResponse.json().catch(() => null);
+  const fileId = json?.id ? String(json.id) : "";
+  return {
+    ok: Boolean(fileId),
+    status: putResponse.status,
+    fileId: fileId || null,
+    mimeType: json?.mimeType ? String(json.mimeType) : null,
+    name: json?.name ? String(json.name) : null,
+  };
+}
+
 export async function downloadGoogleDriveFileMedia(
   accessToken: string,
   fileId: string,

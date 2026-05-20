@@ -182,3 +182,11 @@ Future productive runs should append compact entries that name the master-plan s
 - `files changed`: `functions/api/admin/mentor-assignments.ts`, `tests/admin-mentor-assignments.integration.test.mjs`, `docs/mvp-requirements-catalog.md`, `docs/automation-memory.md`, `docs/progress/rebuild.md`, `docs/progress/run-log.md`, and `docs/progress/runs/2026-05-20-0544-admin-mentor-assignment-list-deactivate-mvp-007.json`.
 - `verification`: `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 test` (pass; 97 tests).
 - `blockers`: none.
+
+## 2026-05-20 06:20 PT - MVP-013 Resumable Drive Evidence Upload
+
+- `master-plan sections`: Day 7 Alpha Gate; Logging Requirements.
+- `requirement IDs`: `MVP-013`; `backlog IDs`: `SC-003`, `SC-005`.
+- `files changed`: `functions/_lib/google-drive.ts`, `functions/api/submissions/[id]/evidence/upload.ts`, `tests/evidence-drive-file.integration.test.mjs`, `docs/mvp-requirements-catalog.md`, `docs/automation-memory.md`, `docs/progress/run-log.md`, and `docs/progress/runs/2026-05-20-0620-drive-resumable-upload-mvp-013.json`.
+- `verification`: `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 test` (pass; 99 tests).
+- `blockers`: none.
