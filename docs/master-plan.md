@@ -1,11 +1,11 @@
 # Senior Capstone Master Plan
 
 Date: 2026-05-18
-Last accuracy audit: 2026-05-19 PT
+Last accuracy audit: 2026-05-20 PT
 
-This is the top-level product plan for the Senior Capstone rebuild. The single GUI-available 30-minute master-plan orchestrator must read this before choosing work. If a run cannot explain how its slice advances this plan, it should pick a different slice.
+This is the top-level product plan for the Senior Capstone rebuild. The 30-minute MVP builder must read this before choosing work. If a run cannot explain how its slice advances this plan and leave durable evidence, it should pick a different slice.
 
-The MVP requirement source is `docs/mvp-requirements-catalog.md`. Every automation run must ladder from this master plan into that catalog, name the requirement IDs it advances, and update the catalog when status, evidence, blockers, owner category, or acceptance checks materially change. Active work ownership is the single 30-minute master-plan orchestrator in the 30-Minute Master-Plan Orchestrator section.
+The MVP requirement source is `docs/mvp-requirements-catalog.md`. Every builder run must ladder from this master plan into that catalog, name the requirement IDs it advances, and update the catalog when status, evidence, blockers, owner category, or acceptance checks materially change. Active work ownership is the 30-minute MVP builder in the 30-Minute MVP Builder section.
 
 ## Product Destination
 
@@ -241,7 +241,7 @@ Earlier incomplete milestones beat later polish unless a P0/P1 risk says otherwi
 
 ## 100-Pass Delivery Constraint
 
-Bryan's current delivery pressure is to reach an MVP in 100 automation passes or fewer over roughly the next 45 days. The current active cadence is one GUI-available 30-minute master-plan orchestrator, running 48 times per day in this workspace with xhigh reasoning.
+Bryan's current delivery pressure is to reach an MVP in 100 automation passes or fewer over roughly the next 45 days. The current active delivery cadence is one GUI-available 30-minute MVP builder, running 48 times per day in this workspace with xhigh reasoning, plus daily and weekly oversight automations.
 
 The pass budget should bias every lane toward reducing implementation ambiguity:
 
@@ -254,7 +254,7 @@ The target is not "100 design passes." It is 100 total compounding passes toward
 
 ### Real Daily MVP Goal
 
-The current 30-minute orchestrator provides 48 active starts per day. The real delivery goal is evidence-based accepted MVP progress, not counted scheduled starts every day.
+The current 30-minute MVP builder provides 48 active starts per day. The real delivery goal is evidence-based accepted MVP progress, not counted scheduled starts every day.
 
 For the current 45-day / 100-pass target, use this daily goal:
 
@@ -272,7 +272,7 @@ Daily priority order:
 2. Second accepted pass should deepen or verify the same alpha path: working transitions, seeded/demo data, tests, local run proof, Cloudflare preview proof, error/empty/permission states, or bug fixes.
 3. Stretch pass can be Figma, Canva, audit, or docs only when it directly unblocks the Day 7 alpha or closes a concrete P0/P1 handoff.
 
-Weekly adjustment rule for this project only: `senior-capstone-hourly-qol-orchestrator` reviews the last seven days of run manifests, run log entries, commits, backlog movement, handoffs, and audit findings on Sundays. It then updates this master plan, `docs/automation-memory.md`, and `docs/mvp-requirements-catalog.md` with the next week's daily goal/allocation if evidence shows the plan is too loose, too aggressive, or pointed at the wrong requirement area.
+Weekly adjustment rule for this project only: `senior-capstone-weekly-script-audit` reviews the last seven days of run manifests, run log entries, commits, backlog movement, handoffs, and audit findings on Sundays. It then updates this master plan, `docs/automation-memory.md`, `docs/mvp-requirements-catalog.md`, and related backlog/cadence records with the next week's daily goal/allocation if evidence shows the plan is too loose, too aggressive, or pointed at the wrong requirement area.
 
 30-day efficiency rule: use `scripts/verify-cadence-30min.ps1` to confirm the active automation system remains the single 30-minute GUI runner before changing cadence. The current 48-start/day 30-minute orchestrator creates 1,440 active scheduled starts in 30 days; it needs 60 accepted MVP passes for the minimum target and 90 for the stretch target, so it needs 4.17 percent conversion for minimum and 6.25 percent for stretch. Auto-scaling should retarget requirement focus, blockers, prompt clarity, and acceptance checks from evidence before recommending schedule changes.
 
@@ -298,13 +298,15 @@ The 2026-05-18 morning work materially improved the implementation runway, but a
 
 Because of that gap, the next useful 100-pass plan must prioritize implementation, deployment proof, and tests over additional design polish unless design work is directly blocking a concrete route/data/permission implementation. The full Figma prototype now exists; future Figma work should be targeted QA/handoff refinement, not another broad prototype pass, until the hosted alpha catches up.
 
-### 2026-05-19 30-Minute Master-Plan Orchestrator
+### 2026-05-20 30-Minute MVP Builder And Oversight
 
-Bryan requested deleting all Senior Capstone project automations and replacing the fleet with one large master-plan-driven automation. The active automation is `senior-capstone-hourly-qol-orchestrator`; it runs every 30 minutes, 48 times per day, from this workspace, reads the master plan and requirements catalog every run, and varies its selected work from repo evidence rather than from separate lane-specific prompts.
+Bryan requested that the active automation produce real MVP results instead of report-only churn, plus daily and weekly oversight. The active builder automation is `senior-capstone-hourly-qol-orchestrator`; it runs every 30 minutes, 48 times per day, from this workspace, reads the master plan and requirements catalog every run, and must leave either a verified commit/push that moves the MVP forward or a specific blocker artifact that reduces uncertainty.
 
-The orchestrator must cover the full master plan over time, not attempt every requirement in one run. Each 30-minute pass picks exactly one bounded slice, names the master-plan section and MVP requirement IDs it advances, checks recent manifests to avoid repeating stale work, and prefers the highest-risk incomplete requirement that can be advanced from the current repo/tool state. The prompt explicitly covers `MVP-001` through `MVP-030`, the seven functional categories, the Day 7 alpha gate, post-alpha hardening, Cloudflare deployment proof, Figma/Canva handoff discipline, no-real-student-data guardrails, and the phone tracker fallback.
+The builder must cover the full master plan over time, not attempt every requirement in one run. Each 30-minute pass picks exactly one bounded slice, names the master-plan section and MVP requirement IDs it advances, checks recent manifests to avoid repeating stale work, and prefers the highest-risk incomplete requirement that can be advanced from the current repo/tool state. The prompt explicitly covers real code/test/docs/deployment work, no-real-student-data guardrails, validation, commit/push expectations, and exact blocker recording.
 
-The schedule is 48 active starts/day. It is execution capacity, not an accepted-pass count. The accepted-pass goal remains 2 per day minimum and 3 per day stretch while the repo is unblocked.
+The daily summary automation is `senior-capstone-daily-mvp-summary`; it reports the last 24 hours of evidence-backed upgrades, commits, checks, failures, blockers, and accepted-progress math without changing the repo. The weekly strategy automation is `senior-capstone-weekly-script-audit`; it performs the seven-day review and adjusts this plan, the MVP catalog, memory, cadence, and backlog only when evidence justifies it.
+
+The builder schedule is 48 active starts/day. It is execution capacity, not an accepted-pass count. The accepted-pass goal remains 2 per day minimum and 3 per day stretch while the repo is unblocked.
 
 ### Updated 100-Pass Allocation From Current State
 
@@ -458,7 +460,7 @@ Do not:
 Each week, Bryan should be able to answer:
 
 - Did the project hit at least 14 accepted MVP passes this week, and were they mostly implementation-heavy while `SC-005` remained open?
-- Did `senior-capstone-hourly-qol-orchestrator` adjust the next week's daily goal/allocation from evidence instead of vibes?
+- Did `senior-capstone-weekly-script-audit` adjust the next week's daily goal/allocation from evidence instead of vibes?
 - Did the repo move closer to a real hosted app?
 - Did the repo move closer to the secure database/account/group/progress MVP?
 - Did the GitHub-to-Cloudflare deployment path move forward?

@@ -1,8 +1,8 @@
 # Weekly Deep Audit
 
-Last refreshed: 2026-05-19
+Last refreshed: 2026-05-20
 
-Weekly calibration is owned by the single GUI-available 30-minute runner, `senior-capstone-hourly-qol-orchestrator`.
+Weekly calibration is owned by `senior-capstone-weekly-script-audit`, the active weekly strategy review automation.
 
 The weekly audit should review:
 
@@ -10,6 +10,6 @@ The weekly audit should review:
 - Requirement status movement in `docs/mvp-requirements-catalog.md`.
 - Open blockers in `docs/automation-backlog.md`.
 - Handoffs in `docs/progress/handoffs.md`.
-- Evidence that the active cadence remains every 30 minutes.
+- Evidence that the active builder cadence remains every 30 minutes.
 
-The weekly audit must not create, revive, or maintain any other Senior Capstone project automation.
+The weekly audit must not implement product features. It should adjust the master plan, requirements catalog, memory, cadence notes, backlog, and related strategy records only when seven-day evidence justifies it.

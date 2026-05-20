@@ -1,17 +1,17 @@
 # Daily Automation Reporting
 
 Date: 2026-05-18
-Last refreshed: 2026-05-19
+Last refreshed: 2026-05-20
 
 ## Purpose
 
-Daily reporting is a responsibility of the single GUI-available 30-minute QoL runner. There is no separate daily reporting automation for this project.
+Daily reporting is owned by a separate report-only automation so the 30-minute MVP builder can stay focused on implementation.
 
 Primary owner:
-- `senior-capstone-hourly-qol-orchestrator`
+- `senior-capstone-daily-mvp-summary`
 
 Schedule:
-- At most once per local day when the single runner selects a reporting slice.
+- Daily morning summary of the prior 24 hours.
 
 Email recipient:
 - `bryan.timm89@gmail.com`
@@ -41,12 +41,11 @@ Each daily report should include:
 
 Google Drive write access returned `403 Forbidden` when attempting to create/import the initial Google Doc on 2026-05-18.
 
-Until the Google Drive connector is reauthorized with write access, the runner should:
+Until the Google Drive connector is reauthorized with write access, the daily summary automation should:
 
-- Send the daily email if Gmail access works.
+- Send the daily report through the available Codex automation output, and email it if Gmail access works in that automation context.
 - Include an action-required note about Google Drive write access for `bryan.timm89@gmail.com`.
-- Write the same report to `docs/daily-automation-reports.md` as a fallback only when the runner chooses a daily reporting slice.
-- Commit and push only that fallback file if it changes.
+- Avoid repo writes by default. Use `docs/daily-automation-reports.md` as a fallback only if Bryan explicitly asks for committed daily report history.
 
 ## Logs To Reference
 
@@ -64,4 +63,4 @@ The report should read these logs before writing the daily summary:
 - `docs/progress/canva.md`
 - `docs/automation-backlog.md`
 
-The Google Doc and fallback repo log should become the long-term executive record, while the files above remain the operational memory used by the single runner.
+The daily automation output is the near-term executive record. The files above remain the operational memory used by the builder and weekly strategy review.

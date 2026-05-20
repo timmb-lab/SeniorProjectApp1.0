@@ -1,6 +1,8 @@
 # Project-Local QoL 30-Minute Orchestrator
 
-This directory contains the bounded project-local QoL automation path for the Senior Capstone app. It is scoped to this repository only and fails closed when the selected Codex project does not match `automation/qol/project-lock.json`.
+This directory contains the bounded project-local QoL diagnostic path for the Senior Capstone app. It is scoped to this repository only and fails closed when the selected Codex project does not match `automation/qol/project-lock.json`.
+
+As of 2026-05-20, this path is not the active MVP builder prompt. The active builder automation is allowed to make bounded implementation changes, validate them, and commit/push when possible. These scripts remain useful for project identity checks, automation health reports, lock/state diagnostics, and safety audits.
 
 ## Authoritative Files
 
@@ -13,9 +15,9 @@ This directory contains the bounded project-local QoL automation path for the Se
 - Approved Node wrapper: `scripts/run-node-script.ps1`
 - Latest evidence report: `automation/qol/reports/latest.md`
 
-## Allowed Scheduled Runner Actions
+## Legacy Bounded Runner Actions
 
-The scheduled Codex GUI runner is intentionally narrow. It may only:
+The older scheduled Codex GUI runner was intentionally narrow. If this diagnostic path is invoked directly, keep its action set narrow:
 
 1. Run the doctor through the approved wrapper.
 2. Run the 30-minute orchestrator through the approved wrapper if the doctor exits successfully.
@@ -28,7 +30,7 @@ powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\ru
 powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-node-script.ps1 automation\qol\hourly-orchestrator.mjs
 ```
 
-The runner must not use `scripts/run-automation.ps1`, package-manager shortcuts, direct `node.exe`, fallback scripts, altered arguments, alternate shells, dependency installs, git commands, network access, or manual edits. `scripts/run-automation.ps1` intentionally refuses `qol:hourly` so the bounded path cannot commit, push, or log to external services. The only file changes allowed during the scheduled run are those produced by the approved repo-local scripts.
+This diagnostic runner must not use `scripts/run-automation.ps1`, package-manager shortcuts, direct `node.exe`, fallback scripts, altered arguments, alternate shells, dependency installs, git commands, network access, or manual edits. `scripts/run-automation.ps1` intentionally refuses `qol:hourly` so the bounded diagnostic path cannot commit, push, or log to external services. The only file changes allowed during a diagnostic run are those produced by the approved repo-local scripts.
 
 ## Why Wrapper-Only
 

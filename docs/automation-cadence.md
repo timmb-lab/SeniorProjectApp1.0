@@ -1,8 +1,8 @@
 # Automation Cadence
 
-Date: 2026-05-19
+Date: 2026-05-20
 
-The Senior Capstone project has one GUI-available, master-plan-driven orchestrator. The single active project automation runs every 30 minutes.
+The Senior Capstone project has one GUI-available MVP builder, one daily report-only summary, and one weekly strategy reviewer. The builder runs every 30 minutes and is expected to produce real MVP progress, not just automation health reports.
 
 End goal: a GitHub-to-Cloudflare hosted Senior Capstone app whose MVP is a secure database-backed operating system with users, groups, roles, programs, cohorts, progress updates, submissions, private evidence, reviews, approvals, dashboards, announcements, admin controls, audit logs, exports, and protected student records.
 
@@ -26,13 +26,15 @@ Node/npm wrappers: `scripts/run-node-script.ps1` and `scripts/run-npm-script.ps1
 
 | Automation | ID | Schedule PT | Primary output |
 | --- | --- | --- | --- |
-| 30-minute master-plan orchestrator | `senior-capstone-hourly-qol-orchestrator` | Every 30 minutes, all day, every day | One bounded master-plan slice per run, selected from `MVP-001` through `MVP-030` by current risk, recent evidence, blockers, and Day 7 alpha priority. |
+| 30-minute MVP builder | `senior-capstone-hourly-qol-orchestrator` | Every 30 minutes, all day, every day | One bounded MVP implementation slice, verified commit/push when possible, or an exact blocker artifact that reduces uncertainty. |
+| Daily MVP summary | `senior-capstone-daily-mvp-summary` | Daily morning report | Report-only last-24-hours summary of upgrades, commits, checks, failures, blockers, and accepted progress. |
+| Weekly strategy review | `senior-capstone-weekly-script-audit` | Sunday evening review | Detailed seven-day evidence review that adjusts the master plan, requirements catalog, memory, backlog, and next-week allocation when warranted. |
 
-The orchestrator runs 48 times per day. It is the only active project automation.
+The builder runs 48 times per day. The daily summary and weekly strategy review are active oversight automations; they should not be counted as builder capacity.
 
-## 30-Minute Selection Contract
+## 30-Minute Builder Contract
 
-Every 30-minute run must:
+Every 30-minute builder run must:
 
 - Inspect `git status --short --branch` before reading or editing.
 - Read `docs/master-plan.md` and `docs/mvp-requirements-catalog.md` before selecting work.
@@ -43,6 +45,7 @@ Every 30-minute run must:
 - Cover every functional category over time: `requirements-audit`, `backend-security-data`, `student-workflow-evidence`, `staff-review-mentor`, `admin-ops-reporting`, `deployment-qa`, and `design-assets-handoff`.
 - Respect the token budget guardrail: read required anchors, then use targeted `rg`, recent manifests, and specific source files instead of broad full-repo wandering.
 - Meet the A-material quality bar: land verified MVP progress, repair a repeatable automation/script/checker failure, or commit an exact blocker with requirement IDs, validation, and next action.
+- Avoid pure report churn. Re-running an already-passing check without changing product code, tests, deployment evidence, or blocker clarity is not a successful builder pass.
 - Apply the surface expansion rule: for the selected requirement, decide which surfaces need work or proof across app code/routes/schema, Cloudflare Pages/D1/env/deploy, Figma route-data-permission handoff, Canva support assets, tests/CI, docs/artifacts/handoffs, and exact blockers.
 - Update `docs/mvp-requirements-catalog.md` when status, evidence, blocker, or acceptance checks materially change.
 - Update the relevant progress log, `docs/progress/run-log.md`, and one structured manifest in `docs/progress/runs/`.
@@ -50,7 +53,7 @@ Every 30-minute run must:
 - Update `docs/automation-memory.md`, handoffs, decisions, backlog, artifacts, or human decisions when materially needed.
 - Run the self-improvement closeout: record `self-improvement: none` when no prompt/config/script change is justified, or update only this orchestrator prompt/config and the smallest relevant project script when evidence and tool availability justify it.
 - Validate touched files with the strongest available checks.
-- Commit and push repo changes with a category-appropriate prefix, staging only files touched by the current run.
+- Commit and push repo changes with a category-appropriate prefix, staging only files touched by the current run. If push is unavailable, leave a local commit and record the exact blocker.
 
 ## Requirement Rotation
 
@@ -78,7 +81,7 @@ The 100-pass target remains evidence-based:
 
 Scheduled starts are not accepted passes. An accepted MVP pass must leave durable evidence: a pushed commit or published external artifact recorded in the repo, plus validation or a concrete blocker that reduces MVP ambiguity.
 
-On Sundays, `senior-capstone-hourly-qol-orchestrator` reviews the prior seven days of commits, run manifests, run-log entries, backlog movement, handoffs, blockers, accepted-pass count, and requirement coverage, then updates only this project's master plan, memory, and requirements catalog when evidence shows the next week's daily goal or allocation should change.
+Each morning, `senior-capstone-daily-mvp-summary` reports what actually changed in the prior 24 hours. On Sundays, `senior-capstone-weekly-script-audit` reviews the prior seven days of commits, run manifests, run-log entries, backlog movement, handoffs, blockers, accepted-pass count, and requirement coverage, then updates only this project's plan/memory/catalog/backlog records when evidence shows the next week's daily goal or allocation should change.
 
 ## Cadence Verification
 

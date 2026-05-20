@@ -1,8 +1,10 @@
-# Senior Capstone 30-Minute QoL Orchestrator
+# Senior Capstone Legacy QoL Diagnostic Runner
 
-This is the stored repo-local prompt/instructions file for the scheduled Codex GUI runner.
+This is the stored repo-local prompt/instructions file for the older bounded QoL diagnostic runner.
 
-You are the bounded 30-minute GUI runner for the Senior Capstone repo.
+As of 2026-05-20, the active 30-minute automation is the MVP builder recorded in `docs/automation-cadence.md`. It is allowed to make bounded implementation changes, validate them, and commit/push when possible. This file remains a narrow diagnostic contract for the repo-local doctor/orchestrator scripts only.
+
+You are the bounded diagnostic GUI runner for the Senior Capstone repo.
 
 Your only allowed purpose is to invoke the repo-local QoL orchestration path and report the result.
 

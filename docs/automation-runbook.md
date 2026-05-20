@@ -22,7 +22,7 @@ Automation operating infrastructure now includes:
 - `docs/human-decisions.md`: Bryan-level decision queue.
 - `docs/artifacts.json`: structured external artifact registry.
 - `docs/mvp-requirements-catalog.md`: category-owned MVP requirements, statuses, blockers, and acceptance evidence.
-- `scripts/verify-cadence-30min.ps1`: validates the single GUI runner cadence and current automation contract.
+- `scripts/verify-cadence-30min.ps1`: validates the 30-minute builder cadence, oversight automations, and current automation contract.
 - `scripts/run-powershell-script.mjs`: lets npm/CI run project PowerShell scripts with non-interactive flags on the available PowerShell runtime.
 
 ## Connector Approval Preflight
@@ -97,15 +97,17 @@ For the Senior Capstone app backend foundation, local scaffolding, schema design
 
 If those account/provisioning pieces are missing, rebuild should still scaffold local code and migrations, then log a precise `ACTION REQUIRED` item instead of blocking all work.
 
-## 30-Minute Master-Plan Orchestrator
+## 30-Minute MVP Builder
 
-The active Senior Capstone project automation is the GUI-available runner `senior-capstone-hourly-qol-orchestrator`.
+The active Senior Capstone delivery automation is the GUI-available builder `senior-capstone-hourly-qol-orchestrator`.
 
-The orchestrator runs every 30 minutes all day from `C:\SeniorProjectApp1.0`. It reads the master plan and requirements catalog every run, selects one bounded slice from `MVP-001` through `MVP-030`, and rotates work from evidence rather than from separate lane-specific prompts. It must cover the full master plan over time while keeping each individual run narrow enough to validate, log, commit, and push.
+The builder runs every 30 minutes all day from `C:\SeniorProjectApp1.0`. It reads the master plan and requirements catalog every run, selects one bounded slice from `MVP-001` through `MVP-030`, and rotates work from evidence rather than from separate lane-specific prompts. It must cover the full master plan over time while keeping each individual run narrow enough to validate, log, commit, and push.
+
+Oversight automations are also active: `senior-capstone-daily-mvp-summary` reports the last 24 hours without repo writes, and `senior-capstone-weekly-script-audit` performs the seven-day strategy review and plan adjustment.
 
 ## Orchestrator No-Intervention Contract
 
-No other project automation should be created, invoked, or maintained for Senior Capstone.
+No other project delivery automation should be created, invoked, or maintained for Senior Capstone unless Bryan explicitly asks for it. Reporting and strategy-review automations may exist only as oversight, not competing implementation lanes.
 
 The orchestrator should resolve everything it can resolve from accepted docs, repo evidence, saved connector approvals, and safe fallbacks. It should not stop for a human when it can:
 
@@ -125,7 +127,7 @@ Every productive run should produce A-material evidence. It must do one of three
 - Repair a repeatable project automation, script, verifier, or manifest failure so the same miss is less likely to recur.
 - Commit an exact blocker with the requirement ID, command or tool that failed, suspected account/tool cause, and next action.
 
-For automation maintenance, only touch automation related to this project: the single GUI runner contract, automation docs/logs/manifests, project automation scripts/verifiers, and project automation memory.
+For automation maintenance, only touch automation related to this project: the 30-minute builder contract, oversight automation records, automation docs/logs/manifests, project automation scripts/verifiers, and project automation memory.
 
 ## Writable Preflight
 
@@ -202,7 +204,7 @@ The automation system has three durable control surfaces:
 
 - Master planner: `docs/master-plan.md`. Every run reads it first, names the section that justifies the selected slice, and updates it only when evidence shows the destination, source order, milestone path, or anti-drift rules are stale.
 - Pass logger: `docs/progress/run-log.md` plus one structured JSON manifest in `docs/progress/runs/` and the relevant lane/report log. Every productive run writes all three layers so the next run can continue without relying on chat history.
-- Self-patching contract: the single GUI runner prompt, `automation/qol/GUI_ALLOWED_COMMANDS.md`, `automation/qol/project-lock.json`, and `scripts/verify-cadence-30min.ps1`. When a run changes the automation operating contract, it must update the relevant project-local doc or support script in the same pass, run the verifier, log the evidence, commit, and push.
+- Self-patching contract: the 30-minute builder prompt, oversight automation prompts, `automation/qol/GUI_ALLOWED_COMMANDS.md`, `automation/qol/project-lock.json`, and `scripts/verify-cadence-30min.ps1`. When a run changes the automation operating contract, it must update the relevant project-local doc or support script in the same pass, run the verifier, log the evidence, commit, and push.
 
 The loop should be able to run repeatedly: planner -> bounded work -> pass logger -> self-review -> narrow prompt/script patch when evidence justifies it -> validation -> commit/push.
 
@@ -335,7 +337,7 @@ At the end of every run, leave enough memory for the next lane to continue witho
 - Update `docs/human-decisions.md` when a decision needs Bryan's judgment, account access, provisioning, budget, privacy approval, or school-operation confirmation.
 - Run the self-improvement closeout from `docs/automation-self-improvement.md`: record `self-improvement: none` when no prompt/config/script change is justified, or update only the automation's own prompt/config plus the smallest relevant project script with evidence and a log entry when a narrow change is justified.
 - If a script/checker/snapshot/manifest failure is reproducible and repairable inside the repo, patch it before ordinary product work or record a compact blocker with the exact command, error, suspected file, and next action.
-- If the single GUI runner contract changed, run `scripts/verify-cadence-30min.ps1` and commit the updated project lock, docs, runner, or verifier files.
+- If the builder or oversight automation contract changed, run `scripts/verify-cadence-30min.ps1` and commit the updated project lock, docs, runner, or verifier files.
 - If the master planner, pass logger, or self-patching contract changed, update the project-local verifier in the same pass when it needs to enforce the new rule.
 
 Do not make vague log entries such as "made improvements." Every log entry should name files, artifacts, checks, decisions, blockers, and the next specific action.
@@ -368,7 +370,7 @@ Each unresolved item should include:
 - `next action`
 - `last updated`
 
-The single GUI runner owns backlog hygiene. Product groupings may update items they resolve, but should not casually reprioritize unrelated items.
+The 30-minute builder owns ordinary backlog hygiene for selected work. The weekly strategy review may reprioritize backlog items from seven-day evidence, but should not casually churn unrelated items.
 
 When selecting a backlog item:
 

@@ -1,6 +1,6 @@
 # Automation Backlog
 
-This file tracks unresolved cross-category issues for the Senior Capstone rebuild. Backlog hygiene is owned by the single GUI-available 30-minute master-plan orchestrator through the current QoL system.
+This file tracks unresolved cross-category issues for the Senior Capstone rebuild. Ordinary backlog hygiene is owned by the 30-minute MVP builder, while the weekly strategy review may reprioritize backlog items from seven-day evidence.
 
 Active automation ownership is tracked in `docs/automation-cadence.md`. The `owner` values in backlog items remain functional product groupings; they are not separate project automations.
 

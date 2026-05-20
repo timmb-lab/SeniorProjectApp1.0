@@ -1,11 +1,11 @@
 # Senior Capstone Automation Memory
 
 Date initialized: 2026-05-18
-Last refreshed: 2026-05-19
+Last refreshed: 2026-05-20
 
-This is the compact working memory for the Senior Capstone project-local automation loop. The project has one GUI-available automation only: `senior-capstone-hourly-qol-orchestrator`. It runs every 30 minutes from this repo and is governed by `automation/qol/project-lock.json`, `automation/qol/GUI_ALLOWED_COMMANDS.md`, and `docs/automation-cadence.md`.
+This is the compact working memory for the Senior Capstone project-local automation loop. The project has one GUI-available delivery automation, `senior-capstone-hourly-qol-orchestrator`, plus two oversight automations: `senior-capstone-daily-mvp-summary` and `senior-capstone-weekly-script-audit`. The builder runs every 30 minutes from this repo and is governed by `automation/qol/project-lock.json`, `docs/automation-cadence.md`, and the active Codex automation prompt.
 
-No other Senior Capstone project automation should be created, invoked, revived, or maintained from this repo.
+No other Senior Capstone project delivery automation should be created, invoked, revived, or maintained from this repo unless Bryan explicitly asks for it.
 
 ## Product Target
 
@@ -28,15 +28,17 @@ This is not a static guide, brochure, or visual-only project.
 
 ## Active Automation Contract
 
-- Only active project automation: `senior-capstone-hourly-qol-orchestrator`.
+- Active delivery automation: `senior-capstone-hourly-qol-orchestrator`.
+- Active report-only daily summary: `senior-capstone-daily-mvp-summary`.
+- Active weekly strategy review: `senior-capstone-weekly-script-audit`.
 - Cadence: `FREQ=MINUTELY;INTERVAL=30`.
 - Capacity: 48 active starts per day, 1,440 active scheduled starts in 30 days.
 - The stable `hourly` name remains only as a compatibility ID; the actual cadence is every 30 minutes.
 - Verification command: `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\verify-cadence-30min.ps1 -RepoRoot .`.
-- Active runner command path: `automation/qol/hourly-orchestrator.mjs`.
-- Doctor command path: `automation/qol/doctor.mjs`.
+- Diagnostic runner command path: `automation/qol/hourly-orchestrator.mjs`.
+- Diagnostic doctor command path: `automation/qol/doctor.mjs`.
 
-Every run must ladder from `docs/master-plan.md` into `docs/mvp-requirements-catalog.md`, select one bounded requirement slice, name the requirement IDs advanced, update the catalog when material progress happens, and leave durable verification or an exact blocker.
+Every builder run must ladder from `docs/master-plan.md` into `docs/mvp-requirements-catalog.md`, select one bounded requirement slice, name the requirement IDs advanced, update the catalog when material progress happens, and leave durable verification or an exact blocker.
 
 ## Current Priority
 

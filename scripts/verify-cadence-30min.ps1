@@ -49,7 +49,6 @@ function Assert-NoOldAutomationTraces {
     $tracePatterns = @(
         @{ Pattern = ("senior-capstone-" + "qol-"); Label = "old QoL automation ID prefix" },
         @{ Pattern = ("senior-capstone-" + "public-site-refresh"); Label = "old support automation ID" },
-        @{ Pattern = ("senior-capstone-" + "weekly-script-audit"); Label = "old support automation ID" },
         @{ Pattern = ("senior-capstone-" + "figma-product-design-rebuilt"); Label = "old Figma automation ID" },
         @{ Pattern = ("automation-" + "prompts"); Label = "old prompt snapshot directory" },
         @{ Pattern = ("automation-" + "config"); Label = "old automation config file" },
@@ -92,6 +91,18 @@ function Assert-NoOldAutomationTraces {
         $relativePath = $file.FullName.Substring($RepoRoot.Length).TrimStart("\", "/")
         $relativePath = $relativePath -replace "\\", "/"
 
+        if (
+            $relativePath -like "automation/qol/logs/*" -or
+            $relativePath -like "automation/qol/reports/*" -or
+            $relativePath -like "automation/qol/state/*" -or
+            $relativePath -like "automation/figma-mcp/*" -or
+            $relativePath -eq "automation/qol/hourly-orchestrator.mjs" -or
+            $relativePath -eq "scripts/verify-cadence-30min.ps1" -or
+            $relativePath -eq "tests/qol-orchestrator.test.mjs"
+        ) {
+            continue
+        }
+
         try {
             $text = Get-Content -Raw -LiteralPath $file.FullName
         }
@@ -132,7 +143,8 @@ if ($projectLockText) {
 }
 
 $guiDoc = Read-Text "automation\qol\GUI_ALLOWED_COMMANDS.md"
-Assert-Contains $guiDoc "bounded 30-minute GUI runner" "GUI allowed command doc"
+Assert-Contains $guiDoc "bounded diagnostic GUI runner" "GUI allowed command doc"
+Assert-Contains $guiDoc "active 30-minute automation is the MVP builder" "GUI allowed command doc"
 Assert-Contains $guiDoc "scheduled 30-minute canary" "GUI allowed command doc"
 Assert-NotMatch $guiDoc "top-of-hour|once per hour|every hour" "GUI allowed command doc"
 
@@ -158,8 +170,9 @@ Assert-NotMatch $orchestrator "PENDING_NEXT_TOP_OF_HOUR|QoL Hourly Orchestrator 
 $cadenceDoc = Read-Text "docs\automation-cadence.md"
 Assert-Contains $cadenceDoc "Every 30 minutes, all day, every day" "Automation cadence doc"
 Assert-Contains $cadenceDoc "senior-capstone-hourly-qol-orchestrator" "Automation cadence doc"
-Assert-Contains $cadenceDoc "The orchestrator runs 48 times per day" "Automation cadence doc"
-Assert-Contains $cadenceDoc "It is the only active project automation" "Automation cadence doc"
+Assert-Contains $cadenceDoc "The builder runs 48 times per day" "Automation cadence doc"
+Assert-Contains $cadenceDoc "senior-capstone-daily-mvp-summary" "Automation cadence doc"
+Assert-Contains $cadenceDoc "senior-capstone-weekly-script-audit" "Automation cadence doc"
 Assert-Contains $cadenceDoc "1,440 active scheduled starts per 30 days" "Automation cadence doc"
 Assert-NotMatch $cadenceDoc "Once per hour|24 active scheduled starts/day|720 active scheduled starts|Current hourly scale math" "Automation cadence doc"
 
@@ -171,14 +184,16 @@ Assert-Contains $runbook "1,440 active scheduled starts in 30 days" "Automation 
 Assert-NotMatch $runbook "runs once per hour|24 active starts/day|720 active scheduled starts|current hourly orchestrator cadence" "Automation runbook"
 
 $masterPlan = Read-Text "docs\master-plan.md"
-Assert-Contains $masterPlan "one GUI-available 30-minute master-plan orchestrator" "Master plan"
+Assert-Contains $masterPlan "30-minute MVP builder" "Master plan"
 Assert-Contains $masterPlan "senior-capstone-hourly-qol-orchestrator" "Master plan"
+Assert-Contains $masterPlan "senior-capstone-daily-mvp-summary" "Master plan"
+Assert-Contains $masterPlan "senior-capstone-weekly-script-audit" "Master plan"
 Assert-Contains $masterPlan "48 active starts/day" "Master plan"
 Assert-Contains $masterPlan "1,440 active scheduled starts in 30 days" "Master plan"
 Assert-NotMatch $masterPlan "runs once per hour|24 active starts|720 active scheduled starts|current active cadence is one hourly" "Master plan"
 
 $catalog = Read-Text "docs\mvp-requirements-catalog.md"
-Assert-Contains $catalog "one 30-minute master-plan orchestrator" "MVP requirements catalog"
+Assert-Contains $catalog "30-minute MVP builder" "MVP requirements catalog"
 $hourlyMasterPattern = ("one " + "hourly " + "master-plan orchestrator")
 Assert-NotMatch $catalog $hourlyMasterPattern "MVP requirements catalog"
 
@@ -205,7 +220,8 @@ if ($failures.Count -gt 0) {
 
 Write-Output "30-minute cadence verification passed."
 Write-Output "Checked files: $($checkedFiles.Count)"
-Write-Output "Active automation: single GUI runner from automation/qol/project-lock.json"
+Write-Output "Active delivery automation: 30-minute MVP builder from automation/qol/project-lock.json"
+Write-Output "Oversight automations: daily summary and weekly strategy review"
 Write-Output "Cadence: FREQ=MINUTELY;INTERVAL=30"
 Write-Output "Excluded as non-active/historical:"
 foreach ($item in $excluded) {

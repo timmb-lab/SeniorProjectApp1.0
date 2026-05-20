@@ -13,7 +13,7 @@ The project-local automation contract is singular:
 - Allowed commands: `automation/qol/GUI_ALLOWED_COMMANDS.md`.
 - Cadence verifier: `scripts/verify-cadence-30min.ps1`.
 
-No other Senior Capstone project automation should be created, invoked, revived, or maintained from this repo.
+No other Senior Capstone project delivery automation should be created, invoked, revived, or maintained from this repo unless Bryan explicitly asks for it. The daily summary and weekly strategy review are oversight automations, not competing delivery lanes.
 
 For current product progress, use:
 
