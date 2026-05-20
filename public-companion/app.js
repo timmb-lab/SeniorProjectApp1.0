@@ -1317,27 +1317,27 @@ const phaseStudentGuides = {
 
 const stepChooserCards = [
   {
-    prompt: "I do not know what this project is yet.",
+    cue: "I do not know what this project is yet.",
     answer: "Start with the purpose and program rules.",
     href: "start.html"
   },
   {
-    prompt: "I have an idea, but it is not approved.",
+    cue: "I have an idea, but it is not approved.",
     answer: "Go to Phase 1 and work on the proposal.",
     href: "phase-1.html"
   },
   {
-    prompt: "My idea is approved, but I need to make progress.",
+    cue: "My idea is approved, but I need to make progress.",
     answer: "Go to Phase 2A and create evidence.",
     href: "phase-2a.html"
   },
   {
-    prompt: "I built something and need to explain it.",
+    cue: "I built something and need to explain it.",
     answer: "Go to Phase 2B or Phase 3A.",
     href: "phase-2b.html"
   },
   {
-    prompt: "I already presented and need to finish.",
+    cue: "I already presented and need to finish.",
     answer: "Go to Celebration, portfolio, grades, or final reflection.",
     href: "celebrate.html"
   }
@@ -1901,8 +1901,14 @@ const vocabularyTerms = [
   { term: "Revision", meaning: "A change made because of feedback, testing, failure, or new information." }
 ];
 
+const workspaceHref =
+  typeof location !== "undefined" && location.hostname.includes("senior-capstone-public")
+    ? "https://senior-capstone-app.pages.dev/workspace.html"
+    : "workspace.html";
+
 const navItems = [
   { page: "home", label: "Home", href: "index.html" },
+  { page: "workspace", label: "Workspace", href: workspaceHref },
   { page: "app-preview", label: "App Workflow Preview", href: "app-preview.html" },
   { page: "process", label: "Process", href: "process.html" },
   { page: "pacing", label: "Pacing", href: "pacing.html" },
@@ -2354,18 +2360,18 @@ const evidenceArtifacts = [
 ];
 
 const teacherQueueRows = [
-  { student: "Sample Student A", program: "IT", requirement: "Research Challenge", status: "Revision requested", evidence: 3, sources: 2, revisions: 2, last: "Today", due: "Nov 18", action: "Review" },
-  { student: "Sample Student B", program: "Culinary", requirement: "Core Concept Proposal", status: "Submitted", evidence: 1, sources: 0, revisions: 0, last: "Yesterday", due: "Nov 14", action: "Open" },
-  { student: "Sample Student C", program: "Medical Professions", requirement: "Safety Scope", status: "Blocked", evidence: 2, sources: 3, revisions: 1, last: "2 days ago", due: "Nov 14", action: "Escalate" },
-  { student: "Sample Student D", program: "Construction", requirement: "Materials Plan", status: "Under review", evidence: 5, sources: 1, revisions: 0, last: "3 days ago", due: "Nov 21", action: "Approve" },
-  { student: "Sample Student E", program: "Teaching & Training", requirement: "Proposal", status: "Approved", evidence: 4, sources: 3, revisions: 1, last: "This week", due: "Complete", action: "Archive" }
+  { student: "IT senior", program: "IT", requirement: "Research Challenge", status: "Revision requested", evidence: 3, sources: 2, revisions: 2, last: "Today", due: "Nov 18", action: "Review" },
+  { student: "Culinary senior", program: "Culinary", requirement: "Core Concept Proposal", status: "Submitted", evidence: 1, sources: 0, revisions: 0, last: "Yesterday", due: "Nov 14", action: "Open" },
+  { student: "Medical Professions senior", program: "Medical Professions", requirement: "Safety Scope", status: "Blocked", evidence: 2, sources: 3, revisions: 1, last: "2 days ago", due: "Nov 14", action: "Escalate" },
+  { student: "Construction senior", program: "Construction", requirement: "Materials Plan", status: "Under review", evidence: 5, sources: 1, revisions: 0, last: "3 days ago", due: "Nov 21", action: "Approve" },
+  { student: "Teaching & Training senior", program: "Teaching & Training", requirement: "Proposal", status: "Approved", evidence: 4, sources: 3, revisions: 1, last: "This week", due: "Complete", action: "Archive" }
 ];
 
 const mentorRows = [
-  { student: "Sample Student A", meeting: "Needs make-up", readiness: "Outline missing", evidence: "No new artifact in 9 days", status: "Blocked" },
-  { student: "Sample Student F", meeting: "Scheduled", readiness: "Draft outline ready", evidence: "2 fresh uploads", status: "Submitted" },
-  { student: "Sample Student G", meeting: "Complete", readiness: "Needs practice questions", evidence: "Prototype photos added", status: "Under review" },
-  { student: "Sample Student H", meeting: "Not scheduled", readiness: "Presentation slot missing", evidence: "Research approved", status: "Revision requested" }
+  { student: "IT senior", meeting: "Needs make-up", readiness: "Outline missing", evidence: "No new artifact in 9 days", status: "Blocked" },
+  { student: "Culinary senior", meeting: "Scheduled", readiness: "Draft outline ready", evidence: "2 fresh uploads", status: "Submitted" },
+  { student: "Medical Professions senior", meeting: "Complete", readiness: "Needs practice questions", evidence: "Project photos added", status: "Under review" },
+  { student: "Construction senior", meeting: "Not scheduled", readiness: "Presentation slot missing", evidence: "Research approved", status: "Revision requested" }
 ];
 
 const programHealthRows = [
@@ -2579,7 +2585,7 @@ function renderPhaseDetail() {
       </section>
       <section class="note-panel">
         <h4>Draft Notes</h4>
-        <textarea id="${noteId}" data-note-id="${phase.id}" placeholder="Questions, mentor feedback, next actions">${notes[phase.id] ?? ""}</textarea>
+        <textarea id="${noteId}" data-note-id="${phase.id}">${notes[phase.id] ?? ""}</textarea>
         <div class="save-row">
           <button class="small-button" type="button" data-save-note="${phase.id}">Save Note</button>
           <span class="saved-state" id="saved-${phase.id}">Saved on this device</span>
@@ -2977,8 +2983,9 @@ function siteMenuHtml() {
   return `
     ${groups}
     <section class="project-menu-section menu-tree-section">
-      <a class="menu-tree-heading" href="app-preview.html">Web App</a>
+      <a class="menu-tree-heading" href="${workspaceHref}">Web App</a>
       <div class="menu-app-links">
+        <a class="menu-resource-link" href="${workspaceHref}">Senior Project Workspace</a>
         <a class="menu-resource-link" href="app-preview.html">App Workflow Preview</a>
         <a class="menu-resource-link" href="templates.html">Templates</a>
         <a class="menu-resource-link" href="rubrics.html">Rubrics</a>
@@ -3209,6 +3216,7 @@ function supportCardHtml([title, body, href]) {
 
 function supportCardsHtml() {
   return [
+    ["Senior Project Workspace", "Sign in to review project status, submit evidence, and follow feedback.", workspaceHref],
     ["Sponsorship Support", "Plan donations, outside help, approvals, and thank-you evidence.", "sponsorship-support.html"],
     ["Calendar", "See the year as proposal, build, mentor, presentation, showcase, and portfolio windows.", "calendar.html"],
     ["Gathering Supplies", "Make materials, tools, safety, cost, and fallback plans visible.", "gathering-supplies.html"],
@@ -4006,7 +4014,7 @@ function stepChooserHtml() {
           .map(
             (card) => `
               <a class="chooser-option" href="${card.href}">
-                <strong>${card.prompt}</strong>
+                <strong>${card.cue}</strong>
                 <span>${card.answer}</span>
               </a>
             `
@@ -4070,7 +4078,7 @@ function phaseQuickLayerHtml(phase, relatedTemplates) {
 function phaseNoteCardHtml(phase) {
   return sectionCard(
     "Draft Notes",
-    `<label class="search-box"><span>Notes saved on this device only</span><textarea id="phaseNote" data-note-id="${phase.id}" placeholder="Questions, mentor feedback, next actions"></textarea></label><div class="save-row"><button class="small-button" type="button" data-save-note="${phase.id}">Save Note</button><span class="saved-state" id="saved-${phase.id}">Saved on this device</span></div>`
+    `<label class="search-box"><span>Notes saved on this device only</span><textarea id="phaseNote" data-note-id="${phase.id}"></textarea></label><div class="save-row"><button class="small-button" type="button" data-save-note="${phase.id}">Save Note</button><span class="saved-state" id="saved-${phase.id}">Saved on this device</span></div>`
   );
 }
 
@@ -4211,7 +4219,7 @@ function renderResourcePage(root) {
             <p class="eyebrow">Hand in hand with the app</p>
             <h2>App Connection</h2>
             <p>${page.appTie}</p>
-            <a class="button button-primary" href="app-preview.html">View Future App Workflow</a>
+            <a class="button button-primary" href="${workspaceHref}">Open Workspace</a>
           </section>
           <section class="content-card">
             <h2>More Supports</h2>
@@ -4259,6 +4267,7 @@ function renderHomePage(root) {
             A polished website companion for the Senior Capstone app: clear steps, Titan-ready supports, practical resources, and a calm path from idea to portfolio.
           </p>
           <div class="hero-actions" aria-label="Primary actions">
+            <a class="button button-primary" href="${workspaceHref}">Open Workspace</a>
             <a class="button button-primary" href="program.html">Program Requirements</a>
             <a class="button button-secondary" href="process.html">Open Phases</a>
             <a class="button button-secondary" href="app-preview.html">Future App Workflow</a>

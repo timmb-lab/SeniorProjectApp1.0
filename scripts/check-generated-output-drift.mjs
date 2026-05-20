@@ -63,8 +63,8 @@ const publicSourceFiles = [
   ".nojekyll",
 ];
 
-const expectedPublicRedirects = "# Public companion does not proxy internal alpha, account QA, or app API routes.\n";
-const expectedStakeholderRedirects = "# Stakeholder option output does not proxy app API or internal alpha routes.\n";
+const expectedPublicRedirects = "# Public companion serves static guide pages only.\n";
+const expectedStakeholderRedirects = "# Stakeholder option output serves static review pages only.\n";
 
 const expectedPublicHeaders = [
   "/*",
@@ -97,8 +97,8 @@ const stakeholderOptions = [
 ];
 
 // These are forbidden in the generated public companion because that surface is
-// a production-safe public guide. Internal QA and stakeholder-review output are
-// checked by their own explicit labels instead of this public-copy list.
+// a production-safe public guide. Stakeholder-review output is checked by its
+// own explicit review banner plus route/link restrictions.
 const publicCompanionForbidden = [
   ["fake account", /\bfake\s+account\b/i],
   ["test account", /\btest\s+account\b/i],
@@ -328,8 +328,8 @@ async function checkStakeholderOption(option) {
     if (/\bOpen App Alpha\b/i.test(html) || /\bApp Alpha\b/i.test(html) || /\bAccount Smoke Test\b/i.test(html)) {
       report(relativeFile, "contains unlabeled internal QA link copy");
     }
-    if (html.includes(`${appUrl}/alpha.html`) && !html.includes("Internal Alpha QA")) {
-      report(relativeFile, "links to alpha.html without the Internal Alpha QA label");
+    if (html.includes(`${appUrl}/alpha.html`) || /href=["'][^"']*alpha\.html/i.test(html)) {
+      report(relativeFile, "links to the internal alpha route from stakeholder review output");
     }
     if (/href=["'][^"']*account\.html/i.test(html)) {
       report(relativeFile, "links to account.html from stakeholder review output");

@@ -99,7 +99,7 @@ async function copyFileWithTransforms(file) {
 async function writeRedirects() {
   await writeFile(
     join(outDir, "_redirects"),
-    "# Public companion does not proxy internal alpha, account QA, or app API routes.\n",
+    "# Public companion serves static guide pages only.\n",
     "utf8"
   );
 }

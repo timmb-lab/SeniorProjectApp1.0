@@ -4,6 +4,8 @@ This directory contains the bounded project-local QoL diagnostic path for the Se
 
 As of 2026-05-20, this path is not an active MVP builder prompt. The active builder prompts are `automation/prompts/senior-capstone-nonfigma-mvp-builder.md` and `automation/prompts/senior-capstone-figma-product-builder.md`. These scripts remain useful for project identity checks, automation health reports, lock/state diagnostics, and safety audits.
 
+The non-Figma builder lane is the functional MVP acceleration lane. It should use the maximum practical session budget, run repeated inspect-implement-validate-record passes, and keep prioritizing login, upload, canonical app routing, and user-facing copy safety until those master-planner requirements are verified complete. The Figma prompt remains the product-design-only lane.
+
 ## Authoritative Files
 
 - Runner prompt and allowed action contract: `automation/qol/GUI_ALLOWED_COMMANDS.md`

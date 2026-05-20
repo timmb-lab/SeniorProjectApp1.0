@@ -1,0 +1,162 @@
+{
+  "run_id": "2026-05-20-1445-authenticated-workspace-upload-mvp-004-013-032",
+  "run_started_at": "2026-05-20T14:19:00-07:00",
+  "run_finished_at": "2026-05-20T14:45:00-07:00",
+  "project_root": "C:\\SeniorProjectApp1.0",
+  "branch": "main",
+  "requirements": [
+    "MVP-004",
+    "MVP-013",
+    "MVP-032",
+    "MVP-033",
+    "MVP-034",
+    "MVP-039",
+    "MVP-040"
+  ],
+  "pass_count_completed": 4,
+  "selected_planner_requirements": [
+    {
+      "id": "MVP-032",
+      "status_after": "foundation started",
+      "evidence": "workspace.html, workspace.js, and workspace.css now provide the canonical authenticated app route foundation."
+    },
+    {
+      "id": "MVP-004",
+      "status_after": "foundation started",
+      "evidence": "Workspace sign-in, session restore, role-aware dashboard load, and sign-out call the real auth APIs."
+    },
+    {
+      "id": "MVP-013",
+      "status_after": "foundation started",
+      "evidence": "Workspace evidence link/file forms call the real evidence APIs; upload route rejects unsupported file types before provider calls."
+    },
+    {
+      "id": "MVP-039",
+      "status_after": "foundation started",
+      "evidence": "Generated public/stakeholder output was rebuilt and stakeholder CTAs now point to workspace.html instead of internal alpha QA."
+    }
+  ],
+  "login_status": {
+    "starting_status": "Auth APIs and internal account smoke existed, but no canonical protected workspace route was designated for users.",
+    "ending_status": "Canonical workspace route can sign in through /api/auth/login, restore session through /api/auth/me, render role-aware sections, and sign out through /api/auth/logout.",
+    "remaining_blockers": [
+      "Route-level browser smoke against a running Pages dev/server target still needed.",
+      "Pilot account lifecycle, invitation/import, password reset, credential rotation, and broader denial-state tests remain incomplete."
+    ]
+  },
+  "upload_status": {
+    "starting_status": "Drive upload/download APIs and internal account smoke existed, but the canonical student-facing workspace was not wired to upload.",
+    "ending_status": "Workspace can submit evidence links and file uploads through the real submission evidence APIs; unsupported file types are rejected server-side before provider calls.",
+    "remaining_blockers": [
+      "Real Google Drive upload/download requires configured Cloudflare Pages Drive secrets.",
+      "Live hosted verification requires CLOUDFLARE_API_TOKEN for this local non-interactive session."
+    ]
+  },
+  "dev_language_cleanup_status": {
+    "surfaces_cleaned": [
+      "app.js public preview data",
+      "public-companion generated output",
+      "stakeholder-options generated output",
+      "workspace.html",
+      "workspace.js",
+      "workspace.css"
+    ],
+    "allowed_remaining_references": [
+      "Internal-only alpha.html/account.html/account.js QA and smoke language",
+      "Legitimate curriculum terms such as debugging and wireframes"
+    ]
+  },
+  "validation": [
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 tests\\workspace-app.test.mjs",
+      "result": "pass",
+      "notes": "3/3 workspace tests passed after removing a placeholder attribute caught by the first attempt."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 tests\\evidence-drive-file.integration.test.mjs",
+      "result": "pass",
+      "notes": "17/17 upload/download tests passed after updating the large-upload fixture to an allowed PDF type."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 build:public-site",
+      "result": "pass",
+      "notes": "Rebuilt public-companion output from root source."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 build:stakeholder-sites",
+      "result": "pass",
+      "notes": "Rebuilt both stakeholder review outputs from source."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 check:generated-output-drift",
+      "result": "pass",
+      "notes": "Public companion and stakeholder outputs match deterministic source expectations."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 check:site-options",
+      "result": "pass",
+      "notes": "3 site roots and manifest pages are present."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 check:production-surfaces",
+      "result": "pass",
+      "notes": "91 production text surfaces scanned after adding workspace/public CSS assets to the checker."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 inventory:production-routes",
+      "result": "pass",
+      "notes": "Regenerated docs/generated/production-route-inventory.md so workspace.html is recorded."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 check:route-inventory",
+      "result": "pass",
+      "notes": "Production route inventory is up to date after regeneration."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 check:cloudflare",
+      "result": "pass_static_live_blocked",
+      "notes": "Static Wrangler/D1 config passed; live Cloudflare verification reported LIVE_CLOUDFLARE_BLOCKED_NO_TOKEN."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 automation\\qol\\doctor.mjs",
+      "result": "pass",
+      "notes": "QoL identity/safety doctor passed."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 automation\\qol\\hourly-orchestrator.mjs --smoke",
+      "result": "pass",
+      "notes": "14 smoke checks passed."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 check",
+      "result": "pass",
+      "notes": "Aggregate check passed with 122 tests, production/generated checks, typecheck, production-surface CSS coverage, and static Cloudflare verification; live Cloudflare remained blocked by missing token."
+    }
+  ],
+  "live_cloudflare_status": {
+    "local_static_checks": "passed",
+    "live_checks": "blocked",
+    "blocked_by_missing_token": true,
+    "blocker_message": "LIVE_CLOUDFLARE_BLOCKED_NO_TOKEN: Cloudflare live verification blocked because CLOUDFLARE_API_TOKEN is not set."
+  },
+  "files_changed_summary": [
+    "canonical workspace route",
+    "upload API validation and tests",
+    "public/stakeholder source generators and generated output",
+    "production/generated-output validators",
+    "non-Figma max-pass automation prompt and QoL selector/report docs",
+    "planner/progress/artifact records"
+  ],
+  "commit": {
+    "sha": "pending",
+    "pushed": "pending"
+  },
+  "figma_lane_untouched": true,
+  "next_best_passes": [
+    "Run browser smoke against workspace.html through a local Pages dev target and verify sign-in, role sections, link evidence, file upload blocked state, and sign-out.",
+    "Broaden workspace role/scope tests for student-own, mentor-assigned, program teacher, admin, misc-admin, disabled/reset-required, missing assignment, and permission denied states.",
+    "Configure/verify Drive secrets in Cloudflare and run real workspace upload/download against the evidence root folder.",
+    "Deepen teacher review and mentor presentation states inside workspace.html instead of app-preview/alpha surfaces.",
+    "Expand public guide no-hidden-core-content coverage across every route."
+  ]
+}

@@ -6,6 +6,7 @@ const repoRoot = process.cwd();
 
 const productionRootHtml = new Set([
   "index.html",
+  "workspace.html",
   "program.html",
   "sponsorship-support.html",
   "calendar.html",
@@ -37,9 +38,12 @@ const productionRootHtml = new Set([
 
 const productionAssetFiles = new Set([
   "app.js",
+  "styles.css",
+  "workspace.js",
+  "workspace.css",
 ]);
 
-const textExtensions = new Set([".html", ".js", ".md"]);
+const textExtensions = new Set([".html", ".js", ".css", ".md"]);
 
 const forbiddenPhrases = [
   ["internal alpha", /\binternal\s+alpha\b/i],

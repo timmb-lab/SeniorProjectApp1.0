@@ -44,10 +44,10 @@ Status values:
 - `status`: open
 - `source`: P0 production app/website gate
 - `artifact`: `docs/master-plan.md`, `docs/mvp-requirements-catalog.md`, `docs/production-surface-registry.md`, `docs/source-materials/production-content-crosswalk.md`, `scripts/check-production-surfaces.mjs`, `SC-007`
-- `next action`: Broaden no-hidden-core-content coverage proof across every public guide route, then designate/build the canonical authenticated role-aware production app route.
-- `acceptance check`: Public website mode toggle stays visible with source-aligned Student/Teacher content; normal public nav stays free of alpha/account/internal QA links; canonical app route requires auth and chooses screens from D1-backed role/scope.
-- `evidence to close`: Passing `check:production-surfaces`, `check:generated-output-drift`, and `check`, plus route-level no-hidden-core-content evidence and route/test evidence for the canonical role-aware app.
-- `last updated`: 2026-05-20 14:09 PT
+- `next action`: Broaden no-hidden-core-content coverage proof across every public guide route, add browser smoke and denial-state tests for `workspace.html`, and verify hosted workspace login/upload once live secrets are available.
+- `acceptance check`: Public website mode toggle stays visible with source-aligned Student/Teacher content; normal public nav stays free of alpha/account/internal QA links; canonical `workspace.html` route requires auth and chooses screens from D1-backed role/scope.
+- `evidence to close`: Passing `check:production-surfaces`, `check:generated-output-drift`, `check`, `tests/workspace-app.test.mjs`, route-level no-hidden-core-content evidence, browser smoke proof, and live verification for hosted workspace auth/upload when Cloudflare/Drive secrets are available.
+- `last updated`: 2026-05-20 14:45 PT
 
 ### H-2026-05-20-008
 

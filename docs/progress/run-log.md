@@ -26,6 +26,21 @@ This is the compact run log for the current split-builder automation contract.
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-05-20 14:45 PT - Authenticated Workspace And Upload MVP Pass
+
+- `master-plan sections`: P0 Production Experience Gate; Product Destination; Day 7 Alpha Gate; Logging Requirements; Automation Orchestration.
+- `requirement IDs`: `MVP-004`, `MVP-013`, `MVP-032`, `MVP-033`, `MVP-034`, `MVP-039`, `MVP-040`.
+- `pass count`: 4 implementation/documentation passes: canonical workspace login shell, workspace upload/API validation, public/stakeholder dev-language cleanup, max-pass automation hardening.
+- `purpose`: Move the app from preview/internal-alpha surfaces toward a real protected workspace where an alpha user can sign in, land in role-aware UI, submit evidence links/files through the intended APIs, and avoid dev/prompt/test/stub language on student/stakeholder-facing routes.
+- `files changed`: `workspace.html`, `workspace.css`, `workspace.js`, `app.js`, `functions/api/submissions/[id]/evidence/upload.ts`, `tests/workspace-app.test.mjs`, `tests/evidence-drive-file.integration.test.mjs`, production/generated-output checkers and builders, public/stakeholder generated output, automation prompt/QoL docs/orchestrator, MVP catalog, production surface registry, backlog, handoff ledger, and structured run manifest.
+- `verification`: focused workspace route test passed; evidence Drive file integration test passed with unsupported-file coverage; public/stakeholder generated output rebuilt; generated-output drift, site-option, route-inventory, QoL doctor/smoke, production-surface check, and aggregate `check` passed. Aggregate `check` included 122 tests, typecheck, static Cloudflare verification, and explicit live Cloudflare token blocker reporting.
+- `login status`: Workspace now uses `/api/auth/login`, `/api/auth/me`, and `/api/auth/logout` for sign-in, session restore, role-aware dashboard load, and sign-out. Pilot account lifecycle/password reset/import remains incomplete.
+- `upload status`: Workspace now posts evidence links to `/api/submissions/:id/evidence` and file uploads to `/api/submissions/:id/evidence/upload`; server rejects unsupported file types before provider calls; live Drive upload/download still requires configured Cloudflare secrets.
+- `copy cleanup`: Removed sample-student/prompt/placeholder source language from public app JS, moved stakeholder CTAs from internal alpha QA to workspace, and kept remaining fake/smoke/fixture language limited to internal `alpha.html`/`account.html`.
+- `blockers`: Live Cloudflare and real Google Drive upload/download verification remain blocked without `CLOUDFLARE_API_TOKEN` plus Drive credential secrets in the target environment.
+- `commit`: pending until validation, commit, and push complete.
+- `self-improvement`: Non-Figma builder prompt now requires maximum practical session budget, repeated MVP passes, login/upload/copy priority, static-vs-live Cloudflare distinction, validation evidence, and commit/push closeout.
+
 ## 2026-05-20 12:06 PT - Primary Alpha Review History
 
 - `master-plan sections`: Day 7 Alpha Gate; Seven-day implementation ladder Day 4; Logging Requirements.

@@ -256,7 +256,7 @@ const pages = [
     moves: [
       "Review how students should move through the capstone flow.",
       "Keep public copy separate from protected app data.",
-      "Use internal alpha routes only for Bryan and QA review."
+      "Use the signed-in workspace for protected project records."
     ],
     evidence: ["App workflow notes", "Boundary questions", "Stakeholder feedback"],
     adultRoles: ["Admin", "Teacher", "Mentor"],
@@ -617,7 +617,7 @@ function indexHtml(option) {
             <div class="hero-actions" aria-label="Key actions">
               <a class="primary-action" href="program.html">Start With Requirements</a>
               <a class="secondary-action" href="phase-1.html">View Phase Flow</a>
-              <a class="secondary-action" href="${appUrl}/alpha.html">Internal Alpha QA</a>
+              <a class="secondary-action" href="${appUrl}/workspace.html">Open Workspace</a>
             </div>
             ${heroMetricsHtml()}
           </div>
@@ -704,7 +704,7 @@ function detailHtml(option, page) {
         <p class="hero-copy">${escapeHtml(page.summary)}</p>
         <div class="hero-actions">
           <a class="primary-action" href="index.html">Back To Option Home</a>
-          ${page.appLink ? `<a class="secondary-action" href="${appUrl}/alpha.html">Internal Alpha QA</a>` : `<a class="secondary-action" href="templates.html">Find Templates</a>`}
+          ${page.appLink ? `<a class="secondary-action" href="${appUrl}/workspace.html">Open Workspace</a>` : `<a class="secondary-action" href="templates.html">Find Templates</a>`}
         </div>
       </div>
     </header>
@@ -739,7 +739,7 @@ function detailHtml(option, page) {
             <h2>Public guide outside, protected workflow inside.</h2>
             <p>This option keeps public-facing instructions on the site and sends workflow actions to the separate app project when needed.</p>
           </div>
-          <a class="primary-action" href="${appUrl}/alpha.html">Internal Alpha QA</a>
+          <a class="primary-action" href="${appUrl}/workspace.html">Open Workspace</a>
         </section>
 
         <section class="related-section">
@@ -799,7 +799,7 @@ function layout(option, { currentSlug, title, body }) {
     <div class="footer-links">
       <a href="program.html">Requirements</a>
       <a href="present.html">Presentation</a>
-      <a href="${appUrl}/alpha.html">Internal Alpha QA</a>
+      <a href="${appUrl}/workspace.html">Workspace</a>
     </div>
   </footer>
 </body>
@@ -1889,7 +1889,7 @@ async function writeCommonFiles(outDir, option, previousManifest) {
   await writeFile(join(outDir, ".nojekyll"), "", "utf8");
   await writeFile(
     join(outDir, "_redirects"),
-    "# Stakeholder option output does not proxy app API or internal alpha routes.\n",
+    "# Stakeholder option output serves static review pages only.\n",
     "utf8"
   );
   await writeFile(

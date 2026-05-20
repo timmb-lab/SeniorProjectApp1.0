@@ -156,25 +156,36 @@ const PLAN_DERIVED_QOL_SECTIONS = [
 ];
 
 const HIGH_RISK_IDS = new Map([
+  ["MVP-032", 135],
+  ["MVP-004", 130],
+  ["MVP-013", 130],
+  ["MVP-033", 125],
   ["MVP-006", 120],
   ["MVP-014", 120],
-  ["MVP-013", 110],
+  ["MVP-034", 120],
+  ["MVP-039", 115],
+  ["MVP-040", 110],
   ["MVP-009", 105],
   ["MVP-015", 95],
   ["MVP-016", 95],
   ["MVP-017", 95],
   ["MVP-018", 95],
-  ["MVP-004", 90],
   ["MVP-026", 85],
 ]);
 
 const RECURRING_IDS = new Set([
   "MVP-001",
   "MVP-003",
+  "MVP-004",
+  "MVP-013",
   "MVP-025",
   "MVP-026",
   "MVP-027",
   "MVP-030",
+  "MVP-032",
+  "MVP-033",
+  "MVP-034",
+  "MVP-039",
   "QOL-HOURLY-MASTER-PLAN-ORCHESTRATOR",
   "QOL-30-MINUTE-MASTER-PLAN-ORCHESTRATOR",
   "QOL-LOGGING-REQUIREMENTS",

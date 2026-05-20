@@ -1,1 +1,1 @@
-# Public companion does not proxy internal alpha, account QA, or app API routes.
+# Public companion serves static guide pages only.

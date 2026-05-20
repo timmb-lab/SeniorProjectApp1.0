@@ -12,22 +12,25 @@ Default branch: `main`
 
 ## Purpose
 
-This builder owns everything except direct Figma work. It must produce real Senior Capstone MVP progress, verified repo changes, exact blocker evidence, or repo-local automation hardening that directly improves MVP progress.
+This builder owns everything except direct Figma work. It must use the maximum practical Codex session budget to produce real Senior Capstone MVP progress, verified repo changes, exact blocker evidence, or repo-local automation hardening that directly improves MVP progress.
 
-Do not count a run as successful if it only rewrites reports without improving product behavior, validation, blocker clarity, deployment evidence, or automation safety.
+Do not count a run as successful if it only rewrites reports without improving product behavior, validation, blocker clarity, deployment evidence, or automation safety. Do not stop after one shallow cleanup or one tiny fix when additional safe MVP passes remain.
 
 Accepted pass criteria:
 
 - A pushed commit that contains verified non-Figma MVP implementation, tests, accessibility, content flow, deployment evidence, automation hardening, or an exact blocker that materially reduces uncertainty.
-- A run log and structured manifest that name the MVP requirement IDs, files changed, validation, commit SHA, push result, and next action.
+- A run log and structured manifest that name the selected MVP requirement IDs, pass count, login status, upload status, user-facing dev-language cleanup status, files changed, validation, live Cloudflare status, blocked items, commit SHA, push result, and next action.
 - No direct Figma connector/tool/file/node/screenshot work.
 
 P0 production experience guardrails:
 
 - Prioritize the P0 production app/site gate when it is the highest-risk incomplete work: a role-aware production app and a public website with Student Guide / Teacher Guide modes.
+- Prioritize login and upload until a signed-in alpha user can reach the correct workspace, stay signed in long enough to submit evidence, and either store through the repo-supported backend path or receive a clear honest integration-blocked message.
+- Remove user-facing dev, prompt, scaffold, fake, fixture, test, TODO, mock, Codex, generator, placeholder, and QA language from production, alpha, public, and stakeholder-visible surfaces unless the master planner explicitly classifies the route as an internal-only admin/debug/QA surface.
 - Do not count alpha-only, smoke-only, preview-only, stakeholder-option, fake-account, or dev-copy work as accepted production-experience progress.
 - Do not confuse stakeholder options with the Student/Teacher guide modes.
 - When public/app surfaces are touched, run production-surface/copy validation and generated-output drift checks when applicable.
+- Never fake live Cloudflare checks. Distinguish static/local verification from live Cloudflare verification, and record `LIVE_CLOUDFLARE_BLOCKED_NO_TOKEN` or the repo's current equivalent when credentials are missing.
 
 Blocked or needs-review criteria:
 
@@ -115,10 +118,12 @@ This lane may work on:
 
 ## Selection Rules
 
-Pick exactly one bounded non-Figma slice.
+Run as many bounded non-Figma passes as the practical session budget safely supports. Each pass must select a specific planner requirement or current MVP gap, inspect the relevant files, implement the smallest safe improvement, remove related visible dev/scaffold language, validate, and record evidence before moving to the next pass.
 
 Prefer:
 
+- `MVP-032`, `MVP-033`, `MVP-034`, and `MVP-039` until the canonical authenticated app route, role-aware app selection, production copy safety, and public/app copy boundary are verified complete.
+- `MVP-004` login/session flow and `MVP-013`/`MVP-014` upload/protected evidence flow until they work through the real alpha surface.
 - The highest-risk incomplete MVP requirement that can be advanced safely.
 - Implementation, tests, deployment evidence, security hardening, route/data/schema work, or exact blocker reduction.
 - Day 7 alpha blockers, P0/P1 backlog items, and high-risk MVP items.
@@ -141,16 +146,20 @@ Functional areas this lane should rotate through over time:
 - `MVP-024` through `MVP-027`: mobile student path, CI, Cloudflare verification, backup/retention/secrets.
 - `MVP-029`: Canva supporting assets, only when it does not require Figma.
 - `MVP-030`: accepted-pass calibration, daily/weekly evidence discipline.
+- `MVP-031` through `MVP-040`: P0 production experience gate, canonical app route, role/scope selection, production copy safety, Student/Teacher guide modes, website/app boundary, stakeholder-safe review, and canonical route documentation.
+
+Stop only when a real blocker, ambiguous dirty state, unsafe state, validation blocker that cannot be fixed safely, or practical session limit is reached.
 
 ## Validation Rules
 
-Run the strongest safe validation related to touched files.
+Run the strongest safe validation related to touched files in every implementation pass, then run broader checks before closeout when the surface changed.
 
 - Prefer focused tests before broad tests.
 - If code changed, run syntax/type/test commands as available.
 - If docs only changed, run automation/cadence checks as available.
 - If deployment-related work changed, run the strongest safe Cloudflare or deployment verification available.
 - If a required command is blocked by missing local Node/npm/Wrangler/Cloudflare auth, record the exact blocker.
+- Do not claim Google Drive, R2, D1, Cloudflare deployment, or live auth passed unless the command actually verified it.
 - Use project wrappers for Node/npm validation when available:
 
 ```powershell
@@ -200,7 +209,7 @@ Do not switch to generic docs polish when a precise blocker is the honest output
 
 - Confirm branch is `main`.
 - Stage only files touched by this run.
-- Commit on `main`.
+- Commit validated source/config/docs changes on `main`.
 - Push to `origin main`.
 - Do not create a branch unless the environment absolutely requires it.
 - If a branch is created by Codex automatically, merge/sync cleanly back to `main` only if safe, then return to `main`.
@@ -208,6 +217,8 @@ Do not switch to generic docs polish when a precise blocker is the honest output
 
 Allowed commit prefixes:
 
+- `mvp:`
+- `automation:`
 - `audit:`
 - `rebuild:`
 - `fix:`

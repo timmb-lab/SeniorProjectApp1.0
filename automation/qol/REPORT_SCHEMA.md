@@ -56,3 +56,22 @@ Freshness is established by comparing `run_id`, `run_started_at`, `run_finished_
 - `STARVED_BY_COOLDOWN`
 - `STARVED_NO_ELIGIBLE_TASKS`
 - `NO_PLAN_TASKS`
+
+## Max-Pass MVP Builder Evidence
+
+The active non-Figma MVP builder prompt is not this legacy diagnostic report, but future max-pass builder run manifests and human-readable run logs should record these fields when they are relevant:
+
+- selected planner requirement IDs
+- pass count completed
+- login status before and after the run
+- upload status before and after the run
+- user-facing dev-language cleanup status
+- validation commands and results
+- local/static Cloudflare verification status
+- live Cloudflare verification status
+- blocked items and exact blocker messages
+- files changed
+- commit SHA
+- push status
+
+Live Cloudflare verification must be labeled separately from static/local checks. If `CLOUDFLARE_API_TOKEN` or another required secret is missing, record the blocked state instead of converting static checks into a live verification claim.

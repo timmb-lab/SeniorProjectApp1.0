@@ -94,6 +94,42 @@ test("evidence file upload returns 502 and audits when token exchange fails", as
   }
 });
 
+test("evidence file upload rejects unsupported file types before provider calls", async () => {
+  const fixture = await createFixtureWithSession({ userId: "student-a", roleId: "student" });
+  fixture.db.data.submissions.push({
+    id: "submission-1",
+    student_id: "student-a",
+    requirement_id: null,
+    status: "draft",
+    version: 1,
+  });
+
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async () => {
+    throw new Error("fetch should not be called for unsupported upload types");
+  };
+
+  try {
+    const response = await onUploadEvidenceFile({
+      request: buildUploadRequest({
+        url: "https://example.test/api/submissions/submission-1/evidence/upload",
+        token: fixture.token,
+        fileName: "program.exe",
+        fileType: "application/x-msdownload",
+      }),
+      env: fixture.env,
+      params: { id: "submission-1" },
+    });
+
+    assert.equal(response.status, 400);
+    assert.deepEqual(await response.json(), { error: "unsupported_file_type" });
+    assert.equal(fixture.db.data.evidenceArtifacts.length, 0);
+    assert.equal(fixture.db.data.auditEvents.length, 0);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
 test("evidence file upload returns 200, writes DB rows, and omits storage ids", async () => {
   const fixture = await createFixtureWithSession({ userId: "student-a", roleId: "student" });
   fixture.db.data.submissions.push({
@@ -229,8 +265,8 @@ test("evidence file upload uses resumable Drive upload for large files", async (
         url: "https://example.test/api/submissions/submission-1/evidence/upload",
         token: fixture.token,
         title: "Big upload",
-        fileName: "big.bin",
-        fileType: "application/octet-stream",
+        fileName: "big.pdf",
+        fileType: "application/pdf",
         fileBytes: largeFileBytes,
       }),
       env: fixture.env,

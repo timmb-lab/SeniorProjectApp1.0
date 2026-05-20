@@ -13,6 +13,31 @@ import { cleanWorkflowText, getSubmission, workflowError } from "../../../../_li
 
 const MULTIPART_UPLOAD_MAX_BYTES = 5 * 1024 * 1024;
 const MAX_UPLOAD_BYTES = 20 * 1024 * 1024;
+const ALLOWED_UPLOAD_MIME_TYPES = new Set([
+  "application/pdf",
+  "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  "image/gif",
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "text/csv",
+  "text/plain",
+]);
+const ALLOWED_UPLOAD_EXTENSIONS = new Set([
+  ".csv",
+  ".docx",
+  ".gif",
+  ".jpeg",
+  ".jpg",
+  ".pdf",
+  ".png",
+  ".pptx",
+  ".txt",
+  ".webp",
+  ".xlsx",
+]);
 
 type UploadedFile = {
   name: string;
@@ -28,6 +53,16 @@ function isUploadedFile(value: unknown): value is UploadedFile {
     && typeof record.type === "string"
     && typeof record.size === "number"
     && typeof record.arrayBuffer === "function";
+}
+
+function fileExtension(name: string): string {
+  const match = /\.[a-z0-9]+$/i.exec(String(name || "").trim());
+  return match ? match[0].toLowerCase() : "";
+}
+
+function isAllowedUploadFile(file: UploadedFile): boolean {
+  const type = String(file.type || "").trim().toLowerCase();
+  return ALLOWED_UPLOAD_MIME_TYPES.has(type) || ALLOWED_UPLOAD_EXTENSIONS.has(fileExtension(file.name));
 }
 
 export const onRequestPost: PagesFunction<Env> = async ({ request, env, params }) => {
@@ -71,6 +106,9 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, params }
   }
   if (file.size > MAX_UPLOAD_BYTES) {
     return badRequest("file_too_large");
+  }
+  if (!isAllowedUploadFile(file)) {
+    return badRequest("unsupported_file_type");
   }
 
   const rootFolderId = String(env.GOOGLE_DRIVE_EVIDENCE_ROOT_ID || "").trim();
