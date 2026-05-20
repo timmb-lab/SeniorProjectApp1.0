@@ -243,6 +243,7 @@ Future productive runs should append compact entries that name the master-plan s
 - `master-plan sections`: Day 7 Alpha Gate; Seven-day implementation ladder Day 4; Logging Requirements.
 - `requirement IDs`: `MVP-015`, `MVP-016`; `backlog IDs`: `SC-005`, `SC-006`.
 - `files changed`: `functions/api/reviews/[submissionId]/decision.ts`, `functions/api/reviews/[submissionId]/history.ts`, `functions/_lib/workflow.ts`, `tests/review-loop.integration.test.mjs`, `tests/production-workflow-source.test.mjs`, `docs/mvp-requirements-catalog.md`, `docs/automation-memory.md`, this run log, `docs/progress/rebuild.md`, `docs/progress/runs/2026-05-20-0905-review-history-comments-mvp-015-016.json`, and the automation memory file.
-- `verification`: focused review-loop integration test passed; production workflow source test passed; full test suite passed with 115 tests.
+- `verification`: focused review-loop integration test passed; production workflow source test passed; full test suite passed with 115 tests; manifest JSON parsed; `git diff --check` passed; post-push production `/api/health` and `/api/alpha/state` returned 200.
+- `commit`: `3c4a692` (`rebuild: persist review comments (MVP-015)`), pushed to `origin main`.
 - `blockers`: none.
 - `self-improvement`: none.

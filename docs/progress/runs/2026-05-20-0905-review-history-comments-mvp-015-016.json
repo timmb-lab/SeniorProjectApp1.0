@@ -50,8 +50,18 @@
   "validation": [
     "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\\\scripts\\\\run-node-script.ps1 tests\\\\review-loop.integration.test.mjs",
     "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\\\scripts\\\\run-node-script.ps1 tests\\\\production-workflow-source.test.mjs",
-    "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\\\scripts\\\\run-npm-script.ps1 test"
+    "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\\\scripts\\\\run-npm-script.ps1 test",
+    "Get-Content -LiteralPath docs\\\\progress\\\\runs\\\\2026-05-20-0905-review-history-comments-mvp-015-016.json -Raw | ConvertFrom-Json | Out-Null",
+    "git diff --check",
+    "Invoke-WebRequest -UseBasicParsing -Uri https://senior-capstone-app.pages.dev/api/health",
+    "Invoke-WebRequest -UseBasicParsing -Uri https://senior-capstone-app.pages.dev/api/alpha/state"
   ],
+  "commit_sha": "3c4a692",
+  "push_result": "pushed to origin main: c9811e3..3c4a692",
+  "post_push_smoke": {
+    "production_health": "200 OK; environment=production; authMode=hardened_username_password; evidenceRootConfigured=true; googleDriveCredentialsConfigured=false; userCount=5",
+    "alpha_state": "200 OK from https://senior-capstone-app.pages.dev/api/alpha/state"
+  },
   "blockers": [],
   "known_limits": [
     "The alpha/app review-history UI still needs to render the returned `comments` and `versions` arrays.",
