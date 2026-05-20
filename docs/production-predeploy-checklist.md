@@ -9,6 +9,7 @@ Use this checklist before any pilot-facing deploy, preview promotion, or custom-
 Run from `C:\SeniorProjectApp1.0`:
 
 ```powershell
+powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 check:predeploy-gate
 powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 check:production-surfaces
 powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 check:route-inventory
 powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 check:generated-output-drift
@@ -20,6 +21,7 @@ powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\ru
 
 Required result:
 
+- Predeploy gate checker confirms package scripts, checklist commands, README commands, and static/live Cloudflare wording stay aligned.
 - Production-surface checker passes with no dev/test copy on production-classified surfaces.
 - Route inventory checker confirms `docs/generated/production-route-inventory.md` is current.
 - Generated-output drift checker passes for `public-companion/` and `stakeholder-options/**`.

@@ -145,6 +145,7 @@ function Invoke-KnownProjectScript {
             Invoke-Node "--check" "alpha.js"
             Invoke-Node "scripts\check-alpha-contract.mjs"
             Invoke-ProjectPowerShell "scripts\verify-cadence-30min.ps1"
+            Invoke-Node "scripts\check-predeploy-gate.mjs"
             Invoke-Node "scripts\check-production-surfaces.mjs"
             Invoke-Node "scripts\inventory-production-routes.mjs" "--check"
             Invoke-Node "scripts\check-generated-output-drift.mjs"
@@ -162,6 +163,11 @@ function Invoke-KnownProjectScript {
         "check:automation" {
             $script:KnownProjectScriptHandled = $true
             Invoke-ProjectPowerShell "scripts\verify-cadence-30min.ps1" $ScriptArgs
+            return
+        }
+        "check:predeploy-gate" {
+            $script:KnownProjectScriptHandled = $true
+            Invoke-Node "scripts\check-predeploy-gate.mjs" @ScriptArgs
             return
         }
         "check:production-surfaces" {

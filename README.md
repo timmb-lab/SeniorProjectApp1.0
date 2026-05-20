@@ -61,6 +61,7 @@ npm run inventory:production-routes
 Before a pilot-facing deploy or custom-domain cutover, run the predeploy gate:
 
 ```powershell
+npm run check:predeploy-gate
 npm run check:production-surfaces
 npm run check:route-inventory
 npm run check:generated-output-drift
