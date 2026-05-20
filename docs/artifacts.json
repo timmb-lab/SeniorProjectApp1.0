@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-05-20T14:09:00-07:00",
+  "updated_at": "2026-05-20T14:14:00-07:00",
   "artifacts": [
     {
       "id": "cloudflare-pages-senior-capstone-app",
@@ -678,7 +678,8 @@
         "Metadata verified title Senior Capstone QoL Run Tracker with tabs QoL Runs and Summary.",
         "Seed row verified in QoL Runs!A1:O2.",
         "QoL Runs tab formatted with frozen header, filter, wrapped text, and phone-friendly widths.",
-        "2026-05-20 13:13 PT: non-Figma builder appended the MVP-017 presentation slot scheduling closeout row with implementation commit d1dfb69."
+        "2026-05-20 13:13 PT: non-Figma builder appended the MVP-017 presentation slot scheduling closeout row with implementation commit d1dfb69.",
+        "2026-05-20 14:14 PT: non-Figma builder appended the MVP-035 Student/Teacher guide mode closeout row with implementation commit c2477ec and closeout commit a9e0a1d."
       ],
       "last_updated": "2026-05-20"
     }

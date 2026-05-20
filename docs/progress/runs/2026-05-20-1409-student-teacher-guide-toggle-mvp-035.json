@@ -144,7 +144,14 @@
   "structured_manifest_created": true,
   "artifacts_json_updated": true,
   "mvp_catalog_changed": true,
+  "phone_tracker": {
+    "spreadsheet_id": "1J8jQMn85wJwo9Rh6LjQUVv_WfLS1YJWsbpcLBCojjjs",
+    "tab": "QoL Runs",
+    "result": "appended",
+    "timestamp_local": "2026-05-20T14:14:00-07:00",
+    "summary": "Recorded MVP-035 Student/Teacher guide mode pass for phone-friendly tracking."
+  },
   "implementation_commit_sha": "c2477ec9febae91893fb3b12c2ebd1e67393336e",
-  "closeout_commit_sha": "pending final docs commit",
-  "push_result": "pending final push"
+  "closeout_commit_sha": "a9e0a1d",
+  "push_result": "pushed to origin main: b6b24ac..a9e0a1d; phone tracker evidence commit pending"
 }
