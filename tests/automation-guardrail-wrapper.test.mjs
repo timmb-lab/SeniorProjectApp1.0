@@ -26,7 +26,7 @@ function runWrapper(args, env) {
 }
 
 test("guardrail wrapper dry-run succeeds with required env", () => {
-  const result = runWrapper(["figma:hourly", "-DryRun", "-AllowDirtyStart"], {
+  const result = runWrapper(["check:alpha", "-DryRun", "-AllowDirtyStart"], {
     AUTOMATION_SHEETS_SPREADSHEET_ID: "TEST_SPREADSHEET",
     AUTOMATION_SHEETS_TAB_NAME: "Automation Runs",
     GOOGLE_SHEETS_CLIENT_EMAIL: "test@example.com",
@@ -38,7 +38,7 @@ test("guardrail wrapper dry-run succeeds with required env", () => {
 });
 
 test("guardrail wrapper dry-run fails fast when sheet config is missing", () => {
-  const result = runWrapper(["figma:hourly", "-DryRun", "-AllowDirtyStart"], {
+  const result = runWrapper(["check:alpha", "-DryRun", "-AllowDirtyStart"], {
     AUTOMATION_SHEETS_SPREADSHEET_ID: "",
     AUTOMATION_SHEETS_TAB_NAME: "",
     GOOGLE_SHEETS_CLIENT_EMAIL: "",

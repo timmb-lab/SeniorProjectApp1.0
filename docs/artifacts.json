@@ -548,58 +548,29 @@
       "last_updated": "2026-05-18"
     },
     {
-      "id": "senior-capstone-qol-automation-system",
+      "id": "senior-capstone-single-gui-runner",
       "type": "automation_system",
       "status": "active",
       "owner_lane": "requirements-audit",
-      "title": "Senior Capstone QoL Automation System",
-      "purpose": "Thirty single-slot QoL automations replacing all prior Senior Capstone project automation setup.",
-      "app_placement": "Automation operating layer for the 100-pass MVP plan, Day 7 alpha ladder, and three-daily-pass QoL coverage.",
+      "title": "Senior Capstone Single GUI Runner",
+      "purpose": "Project-local automation operating layer for the 100-pass MVP plan and Day 7 alpha ladder.",
+      "app_placement": "Single GUI-available automation for project-local recurring work.",
       "automation_ids": [
-        "senior-capstone-qol-source-framework-seed-2",
-        "senior-capstone-qol-source-framework-seed-slot-2",
-        "senior-capstone-qol-source-framework-seed-slot-3",
-        "senior-capstone-qol-drive-upload-oauth-2",
-        "senior-capstone-qol-drive-upload-oauth-slot-2",
-        "senior-capstone-qol-drive-upload-oauth-slot-3",
-        "senior-capstone-qol-protected-evidence-tests-2",
-        "senior-capstone-qol-protected-evidence-tests-slot-2",
-        "senior-capstone-qol-protected-evidence-tests-slot-3",
-        "senior-capstone-qol-teacher-review-endpoints-2",
-        "senior-capstone-qol-teacher-review-endpoints-slot-2",
-        "senior-capstone-qol-teacher-review-endpoints-slot-3",
-        "senior-capstone-qol-immutable-review-history-2",
-        "senior-capstone-qol-immutable-review-history-slot-2",
-        "senior-capstone-qol-immutable-review-history-slot-3",
-        "senior-capstone-qol-mentor-presentation-flow-2",
-        "senior-capstone-qol-mentor-presentation-flow-slot-2",
-        "senior-capstone-qol-mentor-presentation-flow-slot-3",
-        "senior-capstone-qol-admin-ops-endpoints-2",
-        "senior-capstone-qol-admin-ops-endpoints-slot-2",
-        "senior-capstone-qol-admin-ops-endpoints-slot-3",
-        "senior-capstone-qol-announcements-2",
-        "senior-capstone-qol-announcements-slot-2",
-        "senior-capstone-qol-announcements-slot-3",
-        "senior-capstone-qol-account-lifecycle-2",
-        "senior-capstone-qol-account-lifecycle-slot-2",
-        "senior-capstone-qol-account-lifecycle-slot-3",
-        "senior-capstone-qol-cloudflare-verification-2",
-        "senior-capstone-qol-cloudflare-verification-slot-2",
-        "senior-capstone-qol-cloudflare-verification-slot-3"
+        "senior-capstone-hourly-qol-orchestrator"
       ],
       "repo_records": [
+        "automation/qol/project-lock.json",
+        "automation/qol/GUI_ALLOWED_COMMANDS.md",
         "docs/automation-cadence.md",
         "docs/mvp-requirements-catalog.md",
-        "docs/automation-prompts/README.md",
-        "scripts/check-automation-contract.ps1",
-        "scripts/snapshot-automation-prompts.ps1"
+        "scripts/verify-cadence-30min.ps1"
       ],
       "verification": [
-        "QoL schedules create 30 total Senior Capstone starts/day with no shared start slots and at least 45 minutes between starts.",
-        "Each QoL target runs exactly 3x/day through three single-slot automations, ladders from docs/master-plan.md plus docs/mvp-requirements-catalog.md, respects the token budget guardrail, and carries an A-material quality bar.",
-        "Contract checker validates the exact thirty automation IDs, GUI-facing names, snapshots, 30x/day schedule, required prompt fragments, all MVP requirement coverage, JSON manifests, and non-interactive project scripts."
+        "The project-local active automation list contains only senior-capstone-hourly-qol-orchestrator.",
+        "The active runner cadence is every 30 minutes using FREQ=MINUTELY;INTERVAL=30.",
+        "The cadence verifier fails if active project automation reintroduces hourly or 60-minute cadence language."
       ],
-      "last_updated": "2026-05-18"
+      "last_updated": "2026-05-19"
     },
     {
       "id": "google-sheet-qol-run-tracker",

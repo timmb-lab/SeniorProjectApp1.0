@@ -1,92 +1,42 @@
 # Automation Self-Improvement Protocol
 
-Date: 2026-05-18
+Date: 2026-05-19
 
-This protocol lets each Senior Capstone automation improve its own instructions over months of work without drifting away from the product goal.
+This protocol applies only to the single Senior Capstone GUI runner, `senior-capstone-hourly-qol-orchestrator`.
 
-The goal is a GitHub-to-Cloudflare hosted app whose MVP is a secure database-backed Senior Capstone system with users, groups, roles, progress updates, private upload/evidence spaces, submissions, reviews, approvals, dashboards, announcements, admin controls, audit logs, exports, and protected student records. Prompt or script improvement is only useful when it helps the automations build that app more reliably.
+The goal is a GitHub-to-Cloudflare hosted app whose MVP is a secure database-backed Senior Capstone system with users, groups, roles, progress updates, private upload/evidence spaces, submissions, reviews, approvals, dashboards, announcements, admin controls, audit logs, exports, and protected student records. Prompt or script improvement is useful only when it helps the runner build that app more reliably.
 
 ## Required Loop
 
-The thirty active Senior Capstone QoL automations should run this loop:
+The 30-minute GUI runner should:
 
 1. Read `docs/master-plan.md`, `docs/mvp-requirements-catalog.md`, `docs/automation-runbook.md`, this protocol, `docs/automation-cadence.md`, `docs/automation-milestones.md`, `docs/automation-memory.md`, `docs/progress/run-log.md`, recent `docs/progress/runs/`, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, and the relevant lane/reporting logs before selecting work.
-2. Do the highest-value bounded product, audit, visual, or reporting slice unless the automation itself is blocked or the user explicitly requested automation improvement.
-3. During closeout, compare the run against its own prompt, the shared docs, and recent logs.
+2. Do the highest-value bounded product, audit, visual, or reporting slice unless the runner itself is blocked or the user explicitly requested automation maintenance.
+3. During closeout, compare the run against the single GUI contract, the shared docs, and recent logs.
 4. If no prompt/config improvement is justified, write `self-improvement: none` in the lane/report log.
-5. If a small improvement is justified by evidence, update only that automation's own live prompt/config with `automation_update`, then log what changed and why.
-6. Preserve the existing automation `id`, `kind`, `name`, schedule, workspace, model, reasoning effort, and status unless the user explicitly asked to change one of those fields. Bryan explicitly rebuilt the Senior Capstone project automations on 2026-05-18, then clarified on 2026-05-19 that the QoL timeline should run multiple times per day; the current contract keeps all thirty single-slot QoL automations active.
-7. Regenerate prompt snapshots with `scripts/snapshot-automation-prompts.ps1` after any live prompt/config change.
-8. Update `scripts/check-automation-contract.ps1` when the master planner, pass logger, prompt snapshot, manifest, or self-patching contract changed and the checker needs to enforce the new requirement.
-9. Run project scripts non-interactively with `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File ...`, `scripts/run-node-script.ps1`, or `scripts/run-npm-script.ps1` so scheduled runs do not pause for shell-level prompts. If `npm` is already available, `npm run check:automation` and `npm run automation:snapshot` are fine convenience commands; if plain `node` or `npm` fails in the Codex automation shell, use the wrapper scripts and do not spend a full run rediscovering the same WindowsApps `node.exe` or missing-npm blocker.
-10. Run `scripts/check-automation-contract.ps1` after any prompt/config, support-script, or automation-operating-doc change; use `-RequireLive` / `npm run check:automation:live` only when the live Codex registry itself is under audit.
-11. Commit and push any repo documentation, log, manifest, prompt snapshot, spec, or script changes created during the run; local-only repo changes are not an acceptable closeout.
+5. If a small improvement is justified by evidence, update only this project's GUI runner contract, project-local automation docs, or the smallest relevant project script, then log what changed and why.
+6. Preserve the single automation ID, workspace, model, reasoning effort, and 30-minute cadence unless the user explicitly asks to change one of those fields.
+7. Run project scripts non-interactively with `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File ...`, `scripts/run-node-script.ps1`, or `scripts/run-npm-script.ps1`.
+8. Validate automation contract changes with `scripts/verify-cadence-30min.ps1` or `npm run check:automation`.
+9. Commit and push repo documentation, log, manifest, spec, or script changes created during the run; local-only repo changes are not an acceptable closeout.
 
 ## Valid Self-Improvement Triggers
 
-An automation may improve its own prompt/config when recent evidence shows one of these problems:
+The runner may improve its own contract when recent evidence shows it:
 
-- It repeatedly missed a required source doc, master-plan section, log, handoff, decision, backlog item, or lane output.
-- It produced vague logs, missing next actions, missing artifact links/IDs, or non-actionable handoffs.
-- It failed to preserve commit/push evidence, external artifact records, or blocker records.
-- It found a reproducible script, checker, prompt snapshot, manifest, verifier, or fallback failure that blocks unattended runs.
-- It repeated the same scope without closing a backlog item, handoff, or concrete acceptance check.
-- It confused lane ownership, created work for the wrong lane, or needed a clearer handoff boundary.
-- It missed a security, privacy, role/permission, upload/evidence, audit-log, or hosted-app constraint.
-- It used the wrong destination account for Gmail, Google Drive, Canva, Figma, or daily summaries.
-- It hit a connector, quota, auth, or publication blocker that needs a clearer fallback path.
-- It discovered stale or contradictory prompt language compared with accepted decisions and current docs.
+- Repeatedly missed a required source doc, master-plan section, log, handoff, decision, backlog item, or lane output.
+- Produced vague logs, missing next actions, missing artifact links/IDs, or non-actionable handoffs.
+- Failed to preserve commit/push evidence, external artifact records, or blocker records.
+- Found a reproducible script, verifier, manifest, or fallback failure that blocks unattended runs.
+- Repeated the same scope without closing a backlog item, handoff, or concrete acceptance check.
+- Missed a security, privacy, role/permission, upload/evidence, audit-log, or hosted-app constraint.
+- Hit a connector, quota, auth, or publication blocker that needs a clearer fallback path.
+- Discovered stale or contradictory language compared with accepted decisions and current docs.
 
-## Allowed Changes
+## Boundaries
 
-Allowed self-improvement changes are narrow:
-
-- Add or clarify required reads.
-- Add missing log, handoff, backlog, decision, verification, commit, or push instructions.
-- Add missing structured run manifest, artifact registry, human decision queue, or prompt snapshot instructions.
-- Add or repair a script/checker/snapshot/manifest/fallback path that lets future runs resolve the same issue without human intervention.
-- Add or repair non-interactive script execution, auto-approval defaults, and checker coverage when scripts could otherwise wait for unattended approval.
-- Tighten lane ownership and acceptance checks.
-- Improve fallback behavior for Figma, Canva, Gmail, Google Drive, git, or deployment blockers.
-- Add a missing source-of-truth reference.
-- Improve final-response requirements so the human can see what changed.
-- Update repo docs that describe the automation operating contract.
-- Update `scripts/check-automation-contract.ps1` or `scripts/snapshot-automation-prompts.ps1` when the automation contract or snapshot format changed.
-
-## Forbidden Changes
-
-Do not:
-
-- Weaken the hosted-app goal, role/permission requirements, upload/evidence privacy, audit logging, or protected student-record posture.
-- Remove the requirement to log, commit, and push.
-- Change cadence, schedule, workspace, model, reasoning effort, status, or other automations unless the user explicitly asked. The current explicit exception is Bryan's 2026-05-19 request to fix the too-low QoL cadence: all Slot 1/2/3 companions are active again.
-- Rewrite another lane's prompt. Create a handoff for that lane instead.
-- Spend a run on broad prompt polishing without evidence.
-- Delete historical logs, handoffs, decisions, or backlog items to make the state look cleaner.
-- Stage unrelated dirty files.
-- Force push.
-
-## Documentation Requirements
-
-When an automation improves itself, it must record:
-
-- The evidence that triggered the change.
-- The exact automation ID updated.
-- The prompt/config area changed.
-- The fields intentionally preserved, especially schedule, workspace, model, reasoning effort, and status.
-- Verification that the live automation file or tool response now includes the intended rule.
-- Verification that prompt snapshots and the automation contract checker are current when prompt/config changed.
-- Verification that support scripts were updated when the master planner, pass logger, prompt snapshot, or self-patching contract changed.
-- The commit hash for repo documentation/log updates, or the blocker if commit/push could not complete.
-
-Durable decisions belong in `docs/progress/decision-log.md`. Routine per-run notes belong in the lane log and `docs/progress/run-log.md`.
-
-## Balance Rule
-
-The default work of each run is still product progress. Self-improvement is a closeout discipline and a repair path, not the main product. A prompt/config update may be the primary slice only when the user requested it, the automation is blocked by its own instructions, or a P0/P1 automation failure prevents productive work.
+Do not weaken the hosted-app goal, role/permission requirements, upload/evidence privacy, audit logging, or protected student-record posture. Do not change cadence, workspace, model, reasoning effort, or status unless the user explicitly asks. Do not stage unrelated dirty files, force push, or wait on interactive script prompts.
 
 ## Weekly Goal Calibration
 
-For this Senior Capstone project only, the `senior-capstone-qol-source-framework-seed-2` automation owns the 100-pass goal calibration loop because it is the current source-framework/catalog/requirements runner. It should compare the last seven days of committed run evidence against the real daily target in `docs/master-plan.md`: minimum 2 accepted MVP passes per day, 3 stretch, and 14 accepted MVP passes per week. When evidence shows the next week's target or allocation should change, update only this project's `docs/master-plan.md`, `docs/automation-memory.md`, and `docs/mvp-requirements-catalog.md`, log the rationale, validate, commit, and push.
-
-For 30-day auto-scaling audits, run `scripts/measure-automation-efficiency.ps1` non-interactively and use the output to decide whether the system should keep cadence, retarget QoL focus, reduce collision risk, sharpen blockers, or ask Bryan for a schedule change. Use `-OutputPath docs/audits/<scorecard-name>.json` for durable scorecards, not `docs/progress/runs/` unless the JSON is a full run manifest. The scorecard separates legacy pre-telemetry manifests from post-cutoff telemetry and only treats scheduled QoL starts as missing after their slots have actually elapsed. Do not increase beyond 30 starts/day merely because capacity exists; the current 30-start/day system needs 6.67 percent accepted-pass conversion to hit the 2/day minimum over 30 days and 10 percent for the 3/day stretch.
+The single GUI runner owns 100-pass goal calibration for this project. It should compare the last seven days of committed run evidence against the real daily target in `docs/master-plan.md`: minimum 2 accepted MVP passes per day, 3 stretch, and 14 accepted MVP passes per week. When evidence shows the next week's target or allocation should change, update only this project's `docs/master-plan.md`, `docs/automation-memory.md`, and `docs/mvp-requirements-catalog.md`, log the rationale, validate, commit, and push.

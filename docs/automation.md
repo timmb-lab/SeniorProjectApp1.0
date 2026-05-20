@@ -26,12 +26,6 @@ Shell (macOS/Linux, requires `pwsh` or `powershell` available):
 ./scripts/run_automation.sh <automation-name> [args...]
 ```
 
-Examples for broad guarded automations:
-
-```powershell
-powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-automation.ps1 figma:hourly
-```
-
 The QoL 30-minute GUI runner must not use this wrapper; `scripts/run-automation.ps1` refuses the stable `qol:hourly` compatibility alias so it cannot commit, push, or log to Sheets from the bounded GUI path. Its allowed sequence is:
 
 ```powershell
@@ -70,9 +64,7 @@ powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\sy
 
 `-DryRun` performs preflight checks only (no run/commit/push/sheet write).
 
-```powershell
-powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-automation.ps1 figma:hourly -DryRun
-```
+Use `-DryRun` only with a current, explicitly supported wrapper target.
 
 ## Intentional Exclusions
 

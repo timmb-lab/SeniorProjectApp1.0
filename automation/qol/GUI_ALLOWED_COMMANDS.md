@@ -33,11 +33,11 @@ automation/qol/reports/latest.md
 - Do not call node.exe directly.
 - Do not run `node automation/qol/doctor.mjs`.
 - Do not run `node automation/qol/hourly-orchestrator.mjs`.
-- Do not run legacy Senior Capstone scripts.
+- Do not run any other Senior Capstone automation scripts.
 - Do not inspect broad old automation script directories unless explicitly required by automation/qol/doctor.mjs as part of its own execution.
 - Do not edit, create, pause, unpause, register, clone, delete, or modify external/global automation registry entries.
 - Do not independently inspect external/global automation registry entries.
-- Do not revive any legacy Senior Capstone automations.
+- Do not create, revive, or invoke any other Senior Capstone automations.
 - Do not broaden this action set.
 - Do not make the system freely self-building.
 - Do not continue to the 30-minute orchestrator if doctor.mjs fails.
@@ -99,7 +99,7 @@ Success condition for the next scheduled 30-minute canary:
 - direct_node_execution_allowed is false
 - wrapper_required is true
 - lock_released is true
-- no legacy Senior Capstone automations are reported as reactivated by the repo-local report
+- no extra Senior Capstone automations are reported by the repo-local report
 - active Senior Capstone automation count is exactly 1 only if the repo-local report explicitly verifies it
 - otherwise registry state must be reported as UNKNOWN_REGISTRY_UNINSPECTABLE
 

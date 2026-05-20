@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "source": "test fixture: unexpected Senior Capstone automation active",
+  "automations": [
+    {
+      "id": "senior-capstone-extra-runner",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "senior-capstone-hourly-qol-orchestrator",
+      "status": "PAUSED"
+    }
+  ]
+}

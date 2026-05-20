@@ -3,9 +3,9 @@
 Date: 2026-05-18
 Last accuracy audit: 2026-05-19 PT
 
-This is the top-level product plan for the Senior Capstone rebuild. Every automation lane must read this before choosing work. If a run cannot explain how its slice advances this plan, it should pick a different slice.
+This is the top-level product plan for the Senior Capstone rebuild. The single GUI-available 30-minute master-plan orchestrator must read this before choosing work. If a run cannot explain how its slice advances this plan, it should pick a different slice.
 
-The MVP requirement source is `docs/mvp-requirements-catalog.md`. Every automation run must ladder from this master plan into that catalog, name the requirement IDs it advances, and update the catalog when status, evidence, blockers, owner category, or acceptance checks materially change. Active work ownership is the single 30-minute master-plan orchestrator in the 30-Minute Master-Plan Orchestrator section; older category-runner and QoL-fleet sections are historical only.
+The MVP requirement source is `docs/mvp-requirements-catalog.md`. Every automation run must ladder from this master plan into that catalog, name the requirement IDs it advances, and update the catalog when status, evidence, blockers, owner category, or acceptance checks materially change. Active work ownership is the single 30-minute master-plan orchestrator in the 30-Minute Master-Plan Orchestrator section.
 
 ## Product Destination
 
@@ -274,13 +274,13 @@ Daily priority order:
 
 Weekly adjustment rule for this project only: `senior-capstone-hourly-qol-orchestrator` reviews the last seven days of run manifests, run log entries, commits, backlog movement, handoffs, and audit findings on Sundays. It then updates this master plan, `docs/automation-memory.md`, and `docs/mvp-requirements-catalog.md` with the next week's daily goal/allocation if evidence shows the plan is too loose, too aggressive, or pointed at the wrong requirement area.
 
-30-day efficiency rule: use `scripts/measure-automation-efficiency.ps1` to audit the active automation system before changing cadence. The current 48-start/day 30-minute orchestrator creates 1,440 active scheduled starts in 30 days; it needs 60 accepted MVP passes for the minimum target and 90 for the stretch target, so it needs 4.17 percent conversion for minimum and 6.25 percent for stretch. Auto-scaling should retarget requirement focus, blockers, prompt clarity, and acceptance checks from evidence before recommending schedule changes.
+30-day efficiency rule: use `scripts/verify-cadence-30min.ps1` to confirm the active automation system remains the single 30-minute GUI runner before changing cadence. The current 48-start/day 30-minute orchestrator creates 1,440 active scheduled starts in 30 days; it needs 60 accepted MVP passes for the minimum target and 90 for the stretch target, so it needs 4.17 percent conversion for minimum and 6.25 percent for stretch. Auto-scaling should retarget requirement focus, blockers, prompt clarity, and acceptance checks from evidence before recommending schedule changes.
 
 ### 2026-05-18 Historical Baseline After Figma And Automation Catch-Up
 
 The 2026-05-18 morning work materially improved the implementation runway, but at that point it had not yet created the hosted database-backed app. Treat the repo state through commit `08660f3` as the historical 100-pass baseline; later bullets in this plan record the current shipped scaffold, D1, auth, alpha, and automation state:
 
-- Operating base was stronger by that baseline: the project had category-owned MVP requirements, prompt snapshots, structured run manifests, a human-decision queue, artifact registry, contract checker, publication/commit-push requirements, and non-interactive project-script rules. Current ownership is the single 30-minute master-plan orchestrator in the 30-Minute Master-Plan Orchestrator section.
+- Operating base was stronger by that baseline: the project had MVP requirements, structured run manifests, a human-decision queue, artifact registry, publication/commit-push requirements, and non-interactive project-script rules. Current ownership is the single 30-minute master-plan orchestrator in the 30-Minute Master-Plan Orchestrator section.
 - Stack direction is accepted and later refined: `HD-2026-05-18-001`, ADR-0001, and `D-2026-05-18-019` select the GitHub-to-Cloudflare path with Cloudflare Workers/Pages, D1, hardened username/password pilot auth until school SSO is available, Google Drive as the MVP evidence repository, server authorization, and audit logging. R2 is only a future fallback if enabled and approved.
 - Active Figma source is usable: professional-plan calls verified and updated file `z4t4tFPAKrMDh6pIYOeEw6` in team `1638213362346160913`.
 - Figma implementation handoffs now exist for the first MVP spine:
@@ -297,48 +297,6 @@ The 2026-05-18 morning work materially improved the implementation runway, but a
 - The critical gap has shifted: the Cloudflare Pages/D1 scaffold, auth endpoints, production alpha route, first-admin bootstrap, fake role test accounts, alpha tests, and CI rails now exist, but Drive upload credentials, broad permission/protected-evidence tests, account lifecycle, post-reset deployment verification, and production workflow endpoints remain incomplete.
 
 Because of that gap, the next useful 100-pass plan must prioritize implementation, deployment proof, and tests over additional design polish unless design work is directly blocking a concrete route/data/permission implementation. The full Figma prototype now exists; future Figma work should be targeted QA/handoff refinement, not another broad prototype pass, until the hosted alpha catches up.
-
-### 2026-05-18 Historical Category Automation Reset
-
-Bryan explicitly reset the Senior Capstone automation setup on 2026-05-18. During that phase, the prior active/standby automation model was superseded by seven MVP category runners:
-
-- `requirements-audit`
-- `backend-security-data`
-- `student-workflow-evidence`
-- `staff-review-mentor`
-- `admin-ops-reporting`
-- `deployment-qa`
-- `design-assets-handoff`
-
-That category-runner phase is superseded by the QoL Automation Rebuild. The requirement catalog in `docs/mvp-requirements-catalog.md` remains the pass ladder between this master plan and individual run work. The schedule is execution capacity, not a target to count scheduled starts as accepted passes. Keep the daily accepted-pass goal at 2 minimum, 3 stretch, until the weekly evidence review changes it.
-
-### 2026-05-18 Historical Hourly Category Automation Escalation
-
-Bryan explicitly asked for the automation to run as many times per day as practical with no human approvals, logging, laddering, and self-improvement to scripts as it goes. During that superseded phase, the seven category runners ran hourly with distinct minute offsets, producing 168 scheduled starts per day and 24 starts per category per day:
-
-- `requirements-audit`: hourly at `:03`.
-- `backend-security-data`: hourly at `:11`.
-- `student-workflow-evidence`: hourly at `:19`.
-- `staff-review-mentor`: hourly at `:27`.
-- `admin-ops-reporting`: hourly at `:35`.
-- `deployment-qa`: hourly at `:43`.
-- `design-assets-handoff`: hourly at `:51`.
-
-This cadence was briefly the Codex GUI-facing source of truth before the later 20x tuning and QoL rebuild. It is intentionally preserved as historical context, but the active source of truth is now the QoL Automation Rebuild section below.
-
-### 2026-05-18 Historical 20x Automation Readiness
-
-Bryan then asked to make the automation A-material and ready to run 20x/day while touching only this project's automation. This 20x/day system was the Codex GUI-facing source of truth before the later QoL rebuild: 20 total project starts per day, distributed across seven category runners by MVP risk.
-
-- `requirements-audit`: `00:03`, `12:03`, `23:03`.
-- `backend-security-data`: `01:15`, `07:15`, `13:15`, `19:15`.
-- `student-workflow-evidence`: `02:27`, `08:27`, `14:27`, `20:27`.
-- `staff-review-mentor`: `03:39`, `10:39`, `18:39`.
-- `admin-ops-reporting`: `04:51`, `15:51`.
-- `deployment-qa`: `06:03`, `17:03`.
-- `design-assets-handoff`: `09:39`, `21:39`.
-
-A-material automation means each productive run must do one of three things: land verified MVP progress, repair a repeatable project automation/script/checker failure, or commit an exact blocker that makes the next account/tool action clear. It must name requirement IDs, log durable evidence, run relevant checks, commit, push, and avoid waiting for human approval on project-owned files/scripts/commits.
 
 ### 2026-05-19 30-Minute Master-Plan Orchestrator
 
@@ -459,7 +417,7 @@ Every productive automation run must reference:
 - `docs/artifacts.json` when external artifacts are created, consumed, superseded, or verified.
 - `docs/human-decisions.md` when a human-level decision is needed or changed.
 
-For automation control, this file is the master planner. The pass logger is `docs/progress/run-log.md` plus the structured manifest written to `docs/progress/runs/` and the lane/report log. If an automation changes those operating rules, it must update the relevant live prompt or support script, especially `scripts/check-automation-contract.ps1`, in the same pass.
+For automation control, this file is the master planner. The pass logger is `docs/progress/run-log.md` plus the structured manifest written to `docs/progress/runs/` and the lane/report log. If the single GUI runner changes those operating rules, it must update the relevant project lock, runner doc, or verifier script in the same pass.
 
 Each run must log:
 

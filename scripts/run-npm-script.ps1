@@ -144,7 +144,7 @@ function Invoke-KnownProjectScript {
             $script:KnownProjectScriptHandled = $true
             Invoke-Node "--check" "alpha.js"
             Invoke-Node "scripts\check-alpha-contract.mjs"
-            Invoke-ProjectPowerShell "scripts\check-automation-contract.ps1"
+            Invoke-ProjectPowerShell "scripts\verify-cadence-30min.ps1"
             Invoke-Node "scripts\check-site-options.mjs"
 
             $testFiles = @(Get-ChildItem -LiteralPath (Join-Path $RepoRoot "tests") -Filter "*.test.mjs" -File | ForEach-Object { $_.FullName })
@@ -155,19 +155,9 @@ function Invoke-KnownProjectScript {
             Invoke-TypeScriptCheck -Optional
             return
         }
-        "automation:snapshot" {
-            $script:KnownProjectScriptHandled = $true
-            Invoke-ProjectPowerShell "scripts\snapshot-automation-prompts.ps1" $ScriptArgs
-            return
-        }
         "check:automation" {
             $script:KnownProjectScriptHandled = $true
-            Invoke-ProjectPowerShell "scripts\check-automation-contract.ps1" $ScriptArgs
-            return
-        }
-        "check:automation:live" {
-            $script:KnownProjectScriptHandled = $true
-            Invoke-ProjectPowerShell "scripts\check-automation-contract.ps1" (@("-RequireLive") + $ScriptArgs)
+            Invoke-ProjectPowerShell "scripts\verify-cadence-30min.ps1" $ScriptArgs
             return
         }
         "check:alpha" {

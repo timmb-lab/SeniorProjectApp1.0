@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-05-19T23:26:33.849Z",
+  "generatedAt": "2026-05-20T00:36:46.268Z",
   "masterPlanPath": "docs/master-plan.md",
-  "masterPlanChecksum": "410d4840d79519d58406a97be9cbac5eef90c7d65094ad9cfae8be0fc090f968",
+  "masterPlanChecksum": "04802650fc63b7e1706372f956ad674ec67862769dfef15746a1200ba8d2dc12",
   "requirementCatalogPath": "docs/mvp-requirements-catalog.md",
-  "requirementCatalogChecksum": "e7e25810d59cc5504213877fd34bfe35758a51844f2f6a402d76d3208065c23f",
+  "requirementCatalogChecksum": "debbf278914022d0833a0ec7368818f445d35a06cb5185daa341a42cac661dba",
   "taskCount": 39,
   "tasks": [
     {

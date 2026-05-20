@@ -45,6 +45,69 @@ function Assert-NotMatch {
     }
 }
 
+function Assert-NoOldAutomationTraces {
+    $tracePatterns = @(
+        @{ Pattern = ("senior-capstone-" + "qol-"); Label = "old QoL automation ID prefix" },
+        @{ Pattern = ("senior-capstone-" + "public-site-refresh"); Label = "old support automation ID" },
+        @{ Pattern = ("senior-capstone-" + "weekly-script-audit"); Label = "old support automation ID" },
+        @{ Pattern = ("senior-capstone-" + "figma-product-design-rebuilt"); Label = "old Figma automation ID" },
+        @{ Pattern = ("automation-" + "prompts"); Label = "old prompt snapshot directory" },
+        @{ Pattern = ("automation-" + "config"); Label = "old automation config file" },
+        @{ Pattern = ("snapshot-" + "automation"); Label = "old snapshot script" },
+        @{ Pattern = ("check-" + "automation-contract"); Label = "old contract checker" },
+        @{ Pattern = ("measure-" + "automation-efficiency"); Label = "old efficiency script" },
+        @{ Pattern = ("QOL-" + "HOURLY"); Label = "old hourly section ID" },
+        @{ Pattern = ("Hourly " + "Master"); Label = "old hourly display text" },
+        @{ Pattern = ("automation/" + "figma"); Label = "removed Figma automation path" },
+        @{ Pattern = ("automation\" + "figma"); Label = "removed Figma automation path" },
+        @{ Pattern = ("figma" + ":hourly"); Label = "removed Figma automation script" }
+    )
+
+    $textExtensions = @(
+        ".css", ".html", ".js", ".json", ".md", ".mjs", ".ps1", ".sql", ".toml", ".ts", ".txt", ".yaml", ".yml"
+    )
+    $rootEntries = @("automation", "docs", "scripts", "tests", "package.json")
+    $files = New-Object System.Collections.Generic.List[System.IO.FileInfo]
+
+    foreach ($entry in $rootEntries) {
+        $absolute = Join-Path $RepoRoot $entry
+        if (-not (Test-Path -LiteralPath $absolute)) {
+            continue
+        }
+
+        $item = Get-Item -LiteralPath $absolute
+        if ($item.PSIsContainer) {
+            Get-ChildItem -LiteralPath $absolute -Recurse -File | ForEach-Object { $files.Add($_) }
+        }
+        else {
+            $files.Add($item)
+        }
+    }
+
+    foreach ($file in $files) {
+        if ($textExtensions -notcontains $file.Extension.ToLowerInvariant()) {
+            continue
+        }
+
+        $relativePath = $file.FullName.Substring($RepoRoot.Length).TrimStart("\", "/")
+        $relativePath = $relativePath -replace "\\", "/"
+
+        try {
+            $text = Get-Content -Raw -LiteralPath $file.FullName
+        }
+        catch {
+            $failures.Add("Could not scan $relativePath for old automation traces: $($_.Exception.Message)")
+            continue
+        }
+
+        foreach ($trace in $tracePatterns) {
+            if ($text -like "*$($trace.Pattern)*") {
+                $failures.Add("$relativePath contains $($trace.Label)")
+            }
+        }
+    }
+}
+
 $projectLockText = Read-Text "automation\qol\project-lock.json"
 if ($projectLockText) {
     try {
@@ -65,25 +128,6 @@ if ($projectLockText) {
     }
     catch {
         $failures.Add("project-lock is not valid JSON: $($_.Exception.Message)")
-    }
-}
-
-$legacyConfigText = Read-Text "scripts\automation-config.json"
-if ($legacyConfigText) {
-    try {
-        $legacyConfig = $legacyConfigText | ConvertFrom-Json
-        $superseded = $legacyConfig.supersededBySingleGuiAutomation
-        if ($null -eq $superseded) {
-            $failures.Add("scripts/automation-config.json must mark the old prompt snapshot inventory as superseded by the single GUI automation")
-        }
-        elseif ($superseded.automationId -ne "senior-capstone-hourly-qol-orchestrator" -or
-            $superseded.cadenceRRule -ne "FREQ=MINUTELY;INTERVAL=30" -or
-            $superseded.sourceOfTruth -ne "automation/qol/project-lock.json") {
-            $failures.Add("scripts/automation-config.json supersededBySingleGuiAutomation must point to the 30-minute project lock source of truth")
-        }
-    }
-    catch {
-        $failures.Add("scripts/automation-config.json is not valid JSON: $($_.Exception.Message)")
     }
 }
 
@@ -135,7 +179,8 @@ Assert-NotMatch $masterPlan "runs once per hour|24 active starts|720 active sche
 
 $catalog = Read-Text "docs\mvp-requirements-catalog.md"
 Assert-Contains $catalog "one 30-minute master-plan orchestrator" "MVP requirements catalog"
-Assert-NotMatch $catalog "one hourly master-plan orchestrator" "MVP requirements catalog"
+$hourlyMasterPattern = ("one " + "hourly " + "master-plan orchestrator")
+Assert-NotMatch $catalog $hourlyMasterPattern "MVP requirements catalog"
 
 $automationDoc = Read-Text "docs\automation.md"
 Assert-Contains $automationDoc "QoL 30-minute GUI runner" "Automation wrapper doc"
@@ -145,11 +190,9 @@ $testFile = Read-Text "tests\qol-orchestrator.test.mjs"
 Assert-Contains $testFile "PENDING_NEXT_30_MINUTE_RUN" "QoL orchestrator tests"
 Assert-NotMatch $testFile "PENDING_NEXT_TOP_OF_HOUR" "QoL orchestrator tests"
 
-$excluded.Add("scripts/automation-config.json: superseded prompt snapshot config for old QoL fleet; current source of truth is automation/qol/project-lock.json")
-$excluded.Add("docs/automation-prompts/**: repo snapshots for superseded non-GUI automation shapes")
-$excluded.Add("automation/qol/logs/** and timestamped automation/qol/reports/*.md: historical run evidence")
-$excluded.Add("automation/backups/**: safety backup created for this cadence update")
-$excluded.Add("docs/progress/**, docs/audits/**, docs/automation-progress.md: historical progress and audit records")
+Assert-NoOldAutomationTraces
+
+$excluded.Add("none")
 
 if ($failures.Count -gt 0) {
     Write-Output "30-minute cadence verification failed."

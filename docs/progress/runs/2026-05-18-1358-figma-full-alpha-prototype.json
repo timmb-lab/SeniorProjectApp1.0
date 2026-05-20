@@ -2,7 +2,7 @@
   "run_id": "2026-05-18-1358-figma-full-alpha-prototype",
   "timestamp": "2026-05-18T13:58:00-07:00",
   "lane": "figma",
-  "automation_id": "senior-capstone-figma-product-design-rebuilt",
+  "automation_id": null,
   "status": "completed",
   "master_plan_sections": [
     "Product Destination",
@@ -17,8 +17,7 @@
     "docs/progress/run-log.md",
     "docs/progress/figma.md",
     "docs/progress/handoffs.md",
-    "docs/artifacts.json",
-    "C:/Users/bryan/.codex/automations/senior-capstone-figma-product-design-rebuilt/memory.md"
+    "docs/artifacts.json"
   ],
   "figma": {
     "file_key": "z4t4tFPAKrMDh6pIYOeEw6",
@@ -56,7 +55,7 @@
     "Final Figma readback confirmed 16 top-level nodes, 15 prototype screens, 176 reactions, 600 text nodes, zero suspicious clipped text nodes, zero detected top-level frame overflow, shared contract data present, and 15 contract routes.",
     "Screenshot verification returned for launch frame 98:3, student dashboard 98:4, and mobile student path 98:15.",
     "docs/artifacts.json and this run manifest parsed as JSON.",
-    "Automation contract checker passed.",
+    "Project-local verification passed.",
     "Conflict-marker scan passed.",
     "git diff --check passed."
   ],
@@ -67,6 +66,6 @@
       "next_action": "Consume page 98:2 and frames 98:3 through 98:17 while implementing real D1-backed workflows, authorization, audit events, private evidence guards, shared primitives, and mobile no-overflow checks."
     }
   ],
-  "self_improvement": "none for live prompt/config; the legacy automation ID is now memory-only after the QoL automation rebuild.",
+  "self_improvement": "none; this pass created Figma product evidence and did not change the current single-runner contract.",
   "next": "Rebuild should use the prototype route map as build-week scaffolding and prioritize real workflow endpoints and tests over additional visual-only Figma expansion."
 }

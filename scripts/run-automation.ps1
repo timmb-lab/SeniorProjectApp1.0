@@ -256,12 +256,6 @@ try {
       $steps.Add((Invoke-LoggedNode -Label "orchestrator" -NodeScriptRelativePath "automation\\qol\\hourly-orchestrator.mjs" -Args @() -RunId $runId))
     }
   }
-  elseif ($AutomationName -eq "figma:hourly") {
-    $steps.Add((Invoke-LoggedNode -Label "doctor" -NodeScriptRelativePath "automation\\figma\\doctor.mjs" -Args @() -RunId $runId))
-    if ($steps[$steps.Count - 1].ExitCode -eq 0) {
-      $steps.Add((Invoke-LoggedNode -Label "orchestrator" -NodeScriptRelativePath "automation\\figma\\hourly-figma-orchestrator.mjs" -Args @() -RunId $runId))
-    }
-  }
   else {
     $steps.Add((Invoke-RepoPowerShell -Label "run" -ScriptRelativePath "scripts\\run-npm-script.ps1" -Args (@($AutomationName) + @($AutomationArgs)) -RunId $runId))
   }

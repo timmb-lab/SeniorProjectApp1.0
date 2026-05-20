@@ -5,14 +5,6 @@
     {
       "id": "senior-capstone-hourly-qol-orchestrator",
       "status": "ACTIVE"
-    },
-    {
-      "id": "senior-capstone-qol-source-framework-seed-2",
-      "status": "PAUSED"
-    },
-    {
-      "id": "senior-capstone-weekly-script-audit",
-      "status": "PAUSED"
     }
   ]
 }

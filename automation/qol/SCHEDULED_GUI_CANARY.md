@@ -16,7 +16,7 @@ The next scheduled 30-minute GUI run succeeds only if `automation/qol/reports/la
 - `log_written` is `true`.
 - `report_written` is `true`.
 - `safety_status` is `PASS` or `UNKNOWN_REGISTRY_UNINSPECTABLE`.
-- `legacy_automation_reactivated` is not `true`.
+- `unexpected_project_automation_detected` is not `true`.
 - Active Senior Capstone automation count is exactly `1` only when `registry_health_verified` is `true` and `registry_evidence_source` is repo-local.
 - Otherwise, registry state must be reported as `UNKNOWN_REGISTRY_UNINSPECTABLE`.
 

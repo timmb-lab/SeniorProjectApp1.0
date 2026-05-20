@@ -1,56 +1,15 @@
-# Weekly Deep Audit Progress
+# Weekly Deep Audit
 
-This log tracks the weekly whole-system audit automation. Detailed audit findings belong in `docs/audits/weekly-deep-audit.md`; this file records each weekly run's scope, sources read, master-plan/log updates, self-improvement result, validation, commit, and next priorities.
+Last refreshed: 2026-05-19
 
-## Entries
+Weekly calibration is owned by the single GUI-available 30-minute runner, `senior-capstone-hourly-qol-orchestrator`.
 
-### 2026-05-18 Setup
+The weekly audit should review:
 
-- `scope`: created weekly deep audit automation.
-- `automation`: `senior-capstone-weekly-deep-audit`
-- `schedule`: Sundays at `23:45 PT`, separate from the active 5x/day gold-standard orchestrator.
-- `purpose`: long-form piece-by-piece audit of product quality, implementation reality, source-framework coverage, roles/permissions, uploads/evidence, dashboards, Figma/Canva usefulness, automation health, backlog quality, master-plan accuracy, and weekly human check-in readiness.
-- `expected audit file`: `docs/audits/weekly-deep-audit.md`
-- `expected log updates`: master plan when materially needed, automation memory, run log, handoffs, decision log, backlog, weekly progress log, and short automation-progress rollup.
-- `self-improvement`: weekly audit prompt includes the guarded self-improvement closeout and may update only its own live prompt/config from evidence.
-- `next`: first Sunday run should produce the initial whole-system audit and feed findings into backlog, handoffs, memory, and master plan as needed.
+- Accepted MVP passes in the prior seven days.
+- Requirement status movement in `docs/mvp-requirements-catalog.md`.
+- Open blockers in `docs/automation-backlog.md`.
+- Handoffs in `docs/progress/handoffs.md`.
+- Evidence that the active cadence remains every 30 minutes.
 
-### 2026-05-18 Daily Goal Calibration Added
-
-- `scope`: add project-only weekly calibration for the 100-pass daily goal.
-- `automation`: `senior-capstone-weekly-deep-audit-rebuilt`
-- `master-plan section`: 100-Pass Delivery Constraint; Weekly Human Check-In Questions; Logging Requirements
-- `live automation changed`: weekly deep audit prompt now explicitly reviews the last seven days of committed evidence, counts accepted MVP passes against the minimum 2/day and 14/week target, and updates only this project's `docs/master-plan.md` and `docs/automation-memory.md` when the next week's goal/allocation needs adjustment.
-- `preserved`: schedule Sundays at `23:45 PT`, workspace, model, reasoning effort, and ACTIVE status.
-- `expected audit behavior`: weekly audit may adjust goals and pass allocation, but it must not change schedules, workspace, model, reasoning effort, or status unless Bryan explicitly asks.
-- `validation`: prompt snapshots regenerated; automation contract checker passed for 6 automations and now requires the weekly calibration fragments.
-- `next`: first Sunday audit should produce a weekly accepted-pass count, note whether the project hit 14 accepted MVP passes, and revise the next-week allocation only from evidence.
-
-### 2026-05-18 Weekly Audit Folded Into Requirements Category
-
-- `scope`: supersede the separate weekly deep audit automation with the new `requirements-audit` category runner.
-- `reason`: Bryan explicitly requested deletion of all project automation setup and a fresh category schedule; the original 4x/day reset and brief hourly escalation are now superseded by the 20x/day category system.
-- `new owner`: `senior-capstone-mvp-requirements-audit`.
-- `schedule`: `00:03`, `12:03`, and `23:03` PT; Sunday runs own the weekly accepted-pass count and goal calibration.
-- `expected audit behavior`: review the last seven days of committed run evidence, backlog movement, handoffs, blockers, and requirement status; update only this project's master plan, automation memory, and MVP requirements catalog when the next week's goal/allocation needs adjustment.
-- `validation`: contract checker enforces the seven category automations, 20x/day category schedule, no shared start slots, prompt snapshots, non-interactive scripts, A-material prompt rules, and MVP requirements catalog references.
-- `next`: requirements-audit should use `docs/mvp-requirements-catalog.md` as the weekly calibration ledger instead of reviving the old standalone weekly automation.
-
-### 2026-05-18 Weekly Audit Folded Into QoL Source-Framework Runner
-
-- `scope`: supersede the 20x requirements-audit category owner with the ten-runner QoL automation system.
-- `reason`: Bryan explicitly requested deleting all project automation again and rebuilding from scratch so every listed QoL item gets at least three daily passes while reducing broad-runner token pressure.
-- `new owner`: `senior-capstone-qol-source-framework-seed`.
-- `schedule`: `00:03`, `08:03`, and `16:03` PT; Sunday source-framework/catalog runs own the weekly accepted-pass count and goal calibration.
-- `expected audit behavior`: review the last seven days of committed run evidence, backlog movement, handoffs, blockers, and requirement status; update only this project's master plan, automation memory, and MVP requirements catalog when the next week's goal/allocation needs adjustment.
-- `validation`: contract checker enforces the ten QoL automations, exact 30-start/day schedule, no shared start slots, at least 45 minutes between starts, prompt snapshots, non-interactive scripts, A-material prompt rules, token budget guardrails, surface expansion rules, and full MVP requirement coverage.
-- `next`: the source-framework QoL runner should keep `docs/mvp-requirements-catalog.md` as the weekly calibration ledger and should not revive the old standalone weekly automation.
-
-### 2026-05-18 QoL Source-Framework Single-Slot Split
-
-- `scope`: preserve weekly calibration ownership while splitting the source-framework QoL target into three app-managed single-slot automations.
-- `reason`: Bryan reported that multiple daily times inside one automation were not reliably firing.
-- `new owner`: source-framework seed QoL target group: `senior-capstone-qol-source-framework-seed-2`, `senior-capstone-qol-source-framework-seed-slot-2`, and `senior-capstone-qol-source-framework-seed-slot-3`.
-- `schedule`: `00:03`, `08:03`, and `16:03` PT through three separate automations.
-- `validation`: strict live checker now enforces 30 single-slot QoL automations, exact 30-start/day schedule, no shared start slots, prompt snapshots, non-interactive scripts, A-material prompt rules, token budget guardrails, surface expansion rules, and full MVP requirement coverage.
-- `next`: any Sunday source-framework slot may perform the weekly calibration; do not revive the old standalone weekly automation.
+The weekly audit must not create, revive, or maintain any other Senior Capstone project automation.

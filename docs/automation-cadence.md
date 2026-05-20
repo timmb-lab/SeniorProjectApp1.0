@@ -2,7 +2,7 @@
 
 Date: 2026-05-19
 
-Bryan deleted the previous Senior Capstone project automation fleet on 2026-05-19 and replaced it with one GUI-available, master-plan-driven orchestrator. The single active project automation now runs every 30 minutes.
+The Senior Capstone project has one GUI-available, master-plan-driven orchestrator. The single active project automation runs every 30 minutes.
 
 End goal: a GitHub-to-Cloudflare hosted Senior Capstone app whose MVP is a secure database-backed operating system with users, groups, roles, programs, cohorts, progress updates, submissions, private evidence, reviews, approvals, dashboards, announcements, admin controls, audit logs, exports, and protected student records.
 
@@ -15,12 +15,11 @@ Cross-lane handoffs: `docs/progress/handoffs.md`.
 Decision log: `docs/progress/decision-log.md`.
 Milestones: `docs/automation-milestones.md`.
 Self-improvement protocol: `docs/automation-self-improvement.md`.
-Prompt snapshots: `docs/automation-prompts/`.
 Structured run manifests: `docs/progress/runs/`.
 Phone tracker: `Senior Capstone QoL Run Tracker` (`https://docs.google.com/spreadsheets/d/1J8jQMn85wJwo9Rh6LjQUVv_WfLS1YJWsbpcLBCojjjs/edit`).
 Human decision queue: `docs/human-decisions.md`.
 Artifact registry: `docs/artifacts.json`.
-Contract checker: `scripts/check-automation-contract.ps1`.
+Cadence verifier: `scripts/verify-cadence-30min.ps1`.
 Node/npm wrappers: `scripts/run-node-script.ps1` and `scripts/run-npm-script.ps1`.
 
 ## Active Automation
@@ -29,7 +28,7 @@ Node/npm wrappers: `scripts/run-node-script.ps1` and `scripts/run-npm-script.ps1
 | --- | --- | --- | --- |
 | 30-minute master-plan orchestrator | `senior-capstone-hourly-qol-orchestrator` | Every 30 minutes, all day, every day | One bounded master-plan slice per run, selected from `MVP-001` through `MVP-030` by current risk, recent evidence, blockers, and Day 7 alpha priority. |
 
-The orchestrator runs 48 times per day. It is the only active project automation. It replaces the previous thirty single-slot QoL automations, support refresh jobs, seven-category runners, 20x cadence, prototype refresh, and older broad orchestrators for this project.
+The orchestrator runs 48 times per day. It is the only active project automation.
 
 ## 30-Minute Selection Contract
 
@@ -81,12 +80,12 @@ Scheduled starts are not accepted passes. An accepted MVP pass must leave durabl
 
 On Sundays, `senior-capstone-hourly-qol-orchestrator` reviews the prior seven days of commits, run manifests, run-log entries, backlog movement, handoffs, blockers, accepted-pass count, and requirement coverage, then updates only this project's master plan, memory, and requirements catalog when evidence shows the next week's daily goal or allocation should change.
 
-## 30-Day Efficiency Audit
+## Cadence Verification
 
-Run this scorecard during explicit automation audits and Sunday calibration:
+Run this verifier during explicit automation audits and Sunday calibration:
 
 ```powershell
-powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\measure-automation-efficiency.ps1 -RepoRoot . -Days 30
+powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\verify-cadence-30min.ps1 -RepoRoot .
 ```
 
 Current 30-minute scale math:
@@ -108,14 +107,3 @@ Auto-scaling means retargeting requirement focus and acceptance checks from evid
 - Admin Ops + Reporting: `rebuild:`
 - Deployment QA + CI: `rebuild:`
 - Design Assets + Handoff: `figma:` when Figma-heavy, `canva:` when Canva-heavy, otherwise `rebuild:` for repo-only handoff alignment.
-
-## Superseded Project Automations
-
-The single GUI orchestrator supersedes all prior Senior Capstone project automation TOMLs, including:
-
-- Thirty `senior-capstone-qol-*` single-slot automations.
-- `senior-capstone-public-site-refresh`.
-- `senior-capstone-weekly-script-audit`.
-- Earlier category runners, standby lanes, daily prototype jobs, and broad orchestrators.
-
-The old concepts are not lost; they are absorbed into the 30-minute master-plan selection rules above.

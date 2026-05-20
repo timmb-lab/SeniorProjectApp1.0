@@ -22,7 +22,7 @@ function runQolWrapper(args) {
       cwd: projectRoot,
       encoding: "utf8",
       windowsHide: true,
-      env: { ...process.env, FIGMA_EVOLUTION_ENABLED: "" },
+      env: { ...process.env },
     },
   );
 }
@@ -71,23 +71,6 @@ test("doctor fails when GUI command doc schedules direct node execution", () => 
   );
 });
 
-test("doctor fails when GUI command doc references legacy Senior Capstone automations", () => {
-  const result = runQolWrapper([
-    "automation/qol/doctor.mjs",
-    "--registry-evidence",
-    "tests/fixtures/not-present-registry-evidence.json",
-    "--gui-allowed-commands",
-    "tests/fixtures/qol-gui-allowed-commands-legacy.md",
-  ]);
-  assert.equal(result.status, 21, result.stdout);
-  const json = parseDoctorJson(result.stdout);
-  assert.equal(json.guiInvocationContract.status, "fail");
-  assert.match(
-    json.guiInvocationContract.findings.join("\n"),
-    /senior-capstone-qol-source-framework-seed-2/,
-  );
-});
-
 test("doctor fails when mock evidence has more than one active Senior Capstone automation", () => {
   const result = runQolWrapper([
     "automation/qol/doctor.mjs",
@@ -101,17 +84,17 @@ test("doctor fails when mock evidence has more than one active Senior Capstone a
   assert.match(json.automationRegistry.failure_reason, /Expected exactly one active/);
 });
 
-test("doctor fails when mock evidence has an active legacy Senior Capstone automation", () => {
+test("doctor fails when mock evidence has an unexpected active Senior Capstone automation", () => {
   const result = runQolWrapper([
     "automation/qol/doctor.mjs",
     "--registry-evidence",
-    "tests/fixtures/qol-registry-legacy-active.json",
+    "tests/fixtures/qol-registry-unexpected-active.json",
   ]);
   assert.equal(result.status, 21, result.stdout);
   const json = parseDoctorJson(result.stdout);
   assert.equal(json.safety_status, "FAIL");
-  assert.equal(json.automationRegistry.legacy_automation_count_active, 1);
-  assert.match(json.automationRegistry.failure_reason, /Legacy Senior Capstone automations are active/);
+  assert.equal(json.automationRegistry.unexpected_project_automation_count, 1);
+  assert.match(json.automationRegistry.failure_reason, /Unexpected active Senior Capstone automations/);
 });
 
 test("orchestrator writes latest report with lock release and orchestrator path audit fields", async () => {
@@ -143,7 +126,7 @@ test("orchestrator writes latest report with lock release and orchestrator path 
   assert.match(latest, /- safety_status: `PASS`/);
   assert.match(latest, /- registry_status: `VERIFIED_REPO_LOCAL`/);
   assert.match(latest, /- registry_health_verified: `true`/);
-  assert.match(latest, /- legacy_automation_reactivated: `false`/);
+  assert.match(latest, /- unexpected_project_automation_detected: `false`/);
   assert.match(latest, /- active_senior_capstone_automation_count: `1`/);
 });
 
@@ -180,7 +163,7 @@ test("latest report schema doc includes required audit keys", async () => {
     "safety_status",
     "registry_status",
     "registry_evidence_source",
-    "legacy_automation_reactivated",
+    "unexpected_project_automation_detected",
     "freshness_notes",
     "failure_notes",
     "verification_summary",

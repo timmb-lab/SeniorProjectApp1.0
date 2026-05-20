@@ -23,8 +23,6 @@ const NPM_ADAPTER_RELATIVE_PATH = "scripts/run-npm-script.ps1";
 const GUI_ALLOWED_COMMAND_DOC_RELATIVE = "automation/qol/GUI_ALLOWED_COMMANDS.md";
 const SCHEDULED_GUI_CANARY_RELATIVE = "automation/qol/SCHEDULED_GUI_CANARY.md";
 const REPORT_SCHEMA_DOC_RELATIVE = "automation/qol/REPORT_SCHEMA.md";
-const FIGMA_ORCHESTRATOR_RELATIVE_PATH = "automation/figma/hourly-figma-orchestrator.mjs";
-const FIGMA_REPORT_RELATIVE_PATH = "automation/figma/reports/latest.md";
 const DEFAULT_REGISTRY_EVIDENCE_RELATIVE = "automation/qol/state/automation-registry-evidence.json";
 const EXPECTED_GUI_DOCTOR_COMMAND =
   "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 automation\\qol\\doctor.mjs";
@@ -59,7 +57,7 @@ const REQUIRED_REPORT_FIELDS = [
   "safety_status",
   "registry_status",
   "registry_evidence_source",
-  "legacy_automation_reactivated",
+  "unexpected_project_automation_detected",
   "freshness_notes",
   "failure_notes",
   "verification_summary",
@@ -135,10 +133,8 @@ const CATEGORY_COMMANDS = new Map([
 ]);
 
 const MASTER_PLAN_ORCHESTRATOR_SECTION = "30-Minute Master-Plan Orchestrator";
-const LEGACY_MASTER_PLAN_ORCHESTRATOR_SECTION = "Hourly Master-Plan Orchestrator";
 const PLAN_DERIVED_QOL_SECTIONS = [
   MASTER_PLAN_ORCHESTRATOR_SECTION,
-  LEGACY_MASTER_PLAN_ORCHESTRATOR_SECTION,
   "Logging Requirements",
   "Anti-Drift Rules",
   "Master Source Order",
@@ -164,45 +160,10 @@ const RECURRING_IDS = new Set([
   "MVP-026",
   "MVP-027",
   "MVP-030",
-  "QOL-HOURLY-MASTER-PLAN-ORCHESTRATOR",
+  "QOL-30-MINUTE-MASTER-PLAN-ORCHESTRATOR",
   "QOL-LOGGING-REQUIREMENTS",
   "QOL-ANTI-DRIFT-RULES",
   "QOL-MASTER-SOURCE-ORDER",
-]);
-
-const LEGACY_SENIOR_CAPSTONE_AUTOMATION_IDS = new Set([
-  "senior-capstone-public-site-refresh",
-  "senior-capstone-weekly-script-audit",
-  "senior-capstone-qol-source-framework-seed-2",
-  "senior-capstone-qol-source-framework-seed-slot-2",
-  "senior-capstone-qol-source-framework-seed-slot-3",
-  "senior-capstone-qol-drive-upload-oauth-2",
-  "senior-capstone-qol-drive-upload-oauth-slot-2",
-  "senior-capstone-qol-drive-upload-oauth-slot-3",
-  "senior-capstone-qol-protected-evidence-tests-2",
-  "senior-capstone-qol-protected-evidence-tests-slot-2",
-  "senior-capstone-qol-protected-evidence-tests-slot-3",
-  "senior-capstone-qol-teacher-review-endpoints-2",
-  "senior-capstone-qol-teacher-review-endpoints-slot-2",
-  "senior-capstone-qol-teacher-review-endpoints-slot-3",
-  "senior-capstone-qol-immutable-review-history-2",
-  "senior-capstone-qol-immutable-review-history-slot-2",
-  "senior-capstone-qol-immutable-review-history-slot-3",
-  "senior-capstone-qol-mentor-presentation-flow-2",
-  "senior-capstone-qol-mentor-presentation-flow-slot-2",
-  "senior-capstone-qol-mentor-presentation-flow-slot-3",
-  "senior-capstone-qol-admin-ops-endpoints-2",
-  "senior-capstone-qol-admin-ops-endpoints-slot-2",
-  "senior-capstone-qol-admin-ops-endpoints-slot-3",
-  "senior-capstone-qol-announcements-2",
-  "senior-capstone-qol-announcements-slot-2",
-  "senior-capstone-qol-announcements-slot-3",
-  "senior-capstone-qol-account-lifecycle-2",
-  "senior-capstone-qol-account-lifecycle-slot-2",
-  "senior-capstone-qol-account-lifecycle-slot-3",
-  "senior-capstone-qol-cloudflare-verification-2",
-  "senior-capstone-qol-cloudflare-verification-slot-2",
-  "senior-capstone-qol-cloudflare-verification-slot-3",
 ]);
 
 function getProjectRootFromScript() {
@@ -415,9 +376,6 @@ function evaluateAutomationRegistryEvidence(rawEvidence, source, projectLock) {
   const activeSeniorCapstone = seniorCapstoneEntries.filter(
     (entry) => normalizeAutomationStatus(entry.status) === "ACTIVE",
   );
-  const activeLegacy = activeSeniorCapstone.filter((entry) =>
-    LEGACY_SENIOR_CAPSTONE_AUTOMATION_IDS.has(String(entry.id)),
-  );
   const unexpectedActive = activeSeniorCapstone.filter(
     (entry) => !allowedActiveIds.has(String(entry.id)),
   );
@@ -425,11 +383,6 @@ function evaluateAutomationRegistryEvidence(rawEvidence, source, projectLock) {
   if (activeSeniorCapstone.length > 1) {
     failureReasons.push(
       `Expected exactly one active Senior Capstone automation, found ${activeSeniorCapstone.length}.`,
-    );
-  }
-  if (activeLegacy.length > 0) {
-    failureReasons.push(
-      `Legacy Senior Capstone automations are active: ${activeLegacy.map((entry) => entry.id).join(", ")}.`,
     );
   }
   if (unexpectedActive.length > 0) {
@@ -445,9 +398,9 @@ function evaluateAutomationRegistryEvidence(rawEvidence, source, projectLock) {
     registry_evidence_repo_local: true,
     active_senior_capstone_automation_count: activeSeniorCapstone.length,
     active_senior_capstone_automation_ids: activeSeniorCapstone.map((entry) => entry.id),
-    legacy_automation_count_active: activeLegacy.length,
-    legacy_automation_ids_active: activeLegacy.map((entry) => entry.id),
-    legacy_automation_reactivated: activeLegacy.length > 0,
+    unexpected_project_automation_count: unexpectedActive.length,
+    unexpected_project_automation_ids: unexpectedActive.map((entry) => entry.id),
+    unexpected_project_automation_detected: unexpectedActive.length > 0,
     safety_status: failureReasons.length === 0 ? "PASS" : "FAIL",
     failure_reason: failureReasons.join(" "),
   };
@@ -468,9 +421,9 @@ async function inspectAutomationRegistry(projectRoot, projectLock, options = {})
       registry_evidence_repo_local: false,
       active_senior_capstone_automation_count: null,
       active_senior_capstone_automation_ids: [],
-      legacy_automation_count_active: null,
-      legacy_automation_ids_active: [],
-      legacy_automation_reactivated: null,
+      unexpected_project_automation_count: null,
+      unexpected_project_automation_ids: [],
+      unexpected_project_automation_detected: null,
       safety_status: "UNKNOWN_REGISTRY_UNINSPECTABLE",
       failure_reason:
         `No repo-local automation registry evidence found at ${relativePath}; external GUI registry health was not verified.`,
@@ -522,16 +475,6 @@ function containsAmbiguousRegistryInspectionPhrase(text) {
   return /\bif independently inspectable\b|\bindependently checked\b|\bindependently inspectable\b/i.test(
     text,
   );
-}
-
-function findLegacyAutomationReferences(text) {
-  const references = new Set();
-  for (const legacyId of LEGACY_SENIOR_CAPSTONE_AUTOMATION_IDS) {
-    if (text.includes(legacyId)) references.add(legacyId);
-  }
-  const legacyPromptPathMatches = text.match(/docs[\\/]+automation-prompts[\\/]+senior-capstone-[\w.-]+/gi) ?? [];
-  for (const match of legacyPromptPathMatches) references.add(match);
-  return Array.from(references).sort();
 }
 
 async function inspectGuiInvocationContract(projectRoot, options = {}) {
@@ -660,15 +603,6 @@ async function inspectGuiInvocationContract(projectRoot, options = {}) {
         : `Missing required prompt fragment: ${fragment}`,
     );
   }
-
-  const legacyReferences = findLegacyAutomationReferences(text);
-  addCheck(
-    "no-legacy-fleet-references",
-    legacyReferences.length === 0 ? "pass" : "fail",
-    legacyReferences.length === 0
-      ? "no legacy Senior Capstone automation IDs or prompt paths referenced"
-      : `Legacy Senior Capstone automation references found: ${legacyReferences.join(", ")}`,
-  );
 
   return {
     status: findings.length === 0 ? "pass" : "fail",
@@ -1183,9 +1117,7 @@ function parseQolSectionTasks(masterPlanText) {
   for (const section of PLAN_DERIVED_QOL_SECTIONS) {
     const heading = headings.find((item) => item.title === section);
     if (!heading) continue;
-    const isMasterPlanOrchestrator =
-      section === MASTER_PLAN_ORCHESTRATOR_SECTION ||
-      section === LEGACY_MASTER_PLAN_ORCHESTRATOR_SECTION;
+    const isMasterPlanOrchestrator = section === MASTER_PLAN_ORCHESTRATOR_SECTION;
     const id = `QOL-${slugify(section)}`;
     tasks.push({
       id,
@@ -1391,8 +1323,7 @@ function scoreTasks(plan, state, preflight) {
     if (taskState.status === "failed") score -= 15;
     if (preflight.gitDirty) score += task.category === "qol-automation" ? 20 : -10;
     if (
-      (planById.has("QOL-30-MINUTE-MASTER-PLAN-ORCHESTRATOR") ||
-        planById.has("QOL-HOURLY-MASTER-PLAN-ORCHESTRATOR")) &&
+      planById.has("QOL-30-MINUTE-MASTER-PLAN-ORCHESTRATOR") &&
       task.category === "qol-automation"
     ) {
       score += 4;
@@ -1486,12 +1417,14 @@ function createRunAudit(projectRoot, runContext, registryInspection, options = {
     lock_released: false,
     active_senior_capstone_automation_count:
       registryInspection.active_senior_capstone_automation_count,
-    legacy_automation_count_active: registryInspection.legacy_automation_count_active,
+    unexpected_project_automation_count:
+      registryInspection.unexpected_project_automation_count,
     automation_registry_inspectable: registryInspection.automation_registry_inspectable,
     registry_status: registryInspection.registry_status,
     registry_health_verified: registryInspection.registry_health_verified,
     registry_evidence_repo_local: registryInspection.registry_evidence_repo_local,
-    legacy_automation_reactivated: registryInspection.legacy_automation_reactivated,
+    unexpected_project_automation_detected:
+      registryInspection.unexpected_project_automation_detected,
     safety_status: registryInspection.safety_status,
     failure_reason: registryInspection.failure_reason || null,
     registry_evidence_source: registryInspection.registryEvidenceSource,
@@ -1502,90 +1435,6 @@ function createRunAudit(projectRoot, runContext, registryInspection, options = {
     verification_summary: "Verification not finalized yet.",
     next_action: "REPORT_ONLY",
   };
-}
-
-function figmaLaneEnabled(env = process.env) {
-  return String(env.FIGMA_EVOLUTION_ENABLED ?? "").trim().toLowerCase() === "true";
-}
-
-function skippedFigmaLaneSummary(env = process.env) {
-  const enabled = figmaLaneEnabled(env);
-  return {
-    figma_lane_enabled: enabled,
-    figma_run_id: null,
-    figma_report_path: FIGMA_REPORT_RELATIVE_PATH,
-    figma_integration_status: enabled ? "FIGMA_PLUGIN_PAYLOAD_ONLY" : "FIGMA_UNAVAILABLE_DRY_RUN",
-    figma_safety_status: enabled ? "DRY_RUN_ONLY" : "SKIPPED_DISABLED",
-    figma_selected_design_task: null,
-    figma_patch_proposal_path: null,
-    figma_applied_change_summary: enabled
-      ? "Figma lane was not run by this QoL invocation."
-      : "Figma lane skipped because FIGMA_EVOLUTION_ENABLED is not true.",
-    figma_dry_run: true,
-    figma_lock_released: true,
-  };
-}
-
-function runFigmaLane(projectRoot, runLog) {
-  if (!figmaLaneEnabled()) return skippedFigmaLaneSummary();
-  const scriptPath = assertInsideProjectRoot(projectRoot, FIGMA_ORCHESTRATOR_RELATIVE_PATH, {
-    mustExist: true,
-  });
-  const startedAt = new Date().toISOString();
-  const result = spawnSync(
-    process.execPath,
-    [
-      scriptPath,
-      "--quiet",
-      "--summary-json",
-      "--invoked-by",
-      ORCHESTRATOR_RELATIVE_PATH,
-    ],
-    {
-      cwd: projectRoot,
-      encoding: "utf8",
-      timeout: DEFAULT_COMMAND_TIMEOUT_MS,
-      windowsHide: true,
-      env: process.env,
-    },
-  );
-  const finishedAt = new Date().toISOString();
-  const commandRecord = {
-    label: "figma sub-lane",
-    command: toLogText(
-      `${process.execPath} ${FIGMA_ORCHESTRATOR_RELATIVE_PATH} --quiet --summary-json --invoked-by ${ORCHESTRATOR_RELATIVE_PATH}`,
-      4000,
-    ),
-    startedAt,
-    finishedAt,
-    status: result.status ?? (result.error ? 1 : 0),
-    stdout: toLogText(result.stdout ?? ""),
-    stderr: toLogText(result.stderr ?? result.error?.message ?? ""),
-  };
-  runLog.commands.push(commandRecord);
-
-  let summary = {
-    ...skippedFigmaLaneSummary(),
-    figma_lane_enabled: true,
-    figma_integration_status: "FIGMA_UNAVAILABLE_DRY_RUN",
-    figma_safety_status: commandRecord.status === 0 ? "DRY_RUN_ONLY" : "FAIL",
-    figma_lock_released: false,
-  };
-  try {
-    const jsonStart = commandRecord.stdout.lastIndexOf("{");
-    if (jsonStart !== -1) {
-      summary = { ...summary, ...JSON.parse(commandRecord.stdout.slice(jsonStart)) };
-    }
-  } catch (error) {
-    summary.figma_safety_status = "FAIL";
-    summary.figma_failure_reason = redactSensitiveValues(error.message);
-  }
-  if (commandRecord.status !== 0 && summary.figma_safety_status !== "FAIL") {
-    summary.figma_safety_status = "FAIL";
-    summary.figma_failure_reason =
-      commandRecord.stderr || `Figma lane exited ${commandRecord.status}.`;
-  }
-  return summary;
 }
 
 function commandLooksLikeTest(command) {
@@ -1863,7 +1712,6 @@ function buildRunReport({
   state,
   audit,
   alreadyRunning,
-  figmaLane,
 }) {
   const selected = selection?.task;
   const lines = [];
@@ -1909,13 +1757,13 @@ function buildRunReport({
     "lock_acquired",
     "lock_released",
     "active_senior_capstone_automation_count",
-    "legacy_automation_count_active",
+    "unexpected_project_automation_count",
     "automation_registry_inspectable",
     "registry_status",
     "registry_health_verified",
     "registry_evidence_repo_local",
     "registry_evidence_source",
-    "legacy_automation_reactivated",
+    "unexpected_project_automation_detected",
     "safety_status",
     "failure_reason",
     "freshness_notes",
@@ -1934,27 +1782,6 @@ function buildRunReport({
   lines.push(`- registry_health_verified: \`${audit?.registry_health_verified ?? false}\``);
   lines.push(`- external_gui_registry_health: \`${audit?.external_gui_registry_health ?? "NOT_CLAIMED_REPO_LOCAL_EVIDENCE_ONLY"}\``);
   lines.push(`- registry_evidence_source: \`${audit?.registry_evidence_source ?? "none"}\``);
-  lines.push("");
-  lines.push("## Figma Lane");
-  const figma = figmaLane ?? skippedFigmaLaneSummary();
-  const figmaFields = [
-    "figma_lane_enabled",
-    "figma_run_id",
-    "figma_report_path",
-    "figma_integration_status",
-    "figma_safety_status",
-    "figma_selected_design_task",
-    "figma_patch_proposal_path",
-    "figma_applied_change_summary",
-    "figma_dry_run",
-    "figma_lock_released",
-  ];
-  for (const field of figmaFields) {
-    lines.push(`- ${field}: \`${redactSensitiveValues(figma[field] ?? null)}\``);
-  }
-  if (figma.figma_failure_reason) {
-    lines.push(`- figma_failure_reason: \`${redactSensitiveValues(figma.figma_failure_reason)}\``);
-  }
   lines.push("");
   lines.push("## Summary");
   lines.push(
@@ -2382,7 +2209,6 @@ async function runHourly(projectRoot, projectLock, options = {}) {
   let scoredTasks = [];
   let audit = null;
   let registryInspection = null;
-  let figmaLane = skippedFigmaLaneSummary();
   let execution = {
     status: "failed",
     summary: "Run did not complete.",
@@ -2421,7 +2247,6 @@ async function runHourly(projectRoot, projectLock, options = {}) {
           state,
           audit,
           alreadyRunning: lockHandle,
-          figmaLane,
         });
         if (!options.quiet) console.log(report);
         return EXIT_CODES.alreadyRunning;
@@ -2452,7 +2277,6 @@ async function runHourly(projectRoot, projectLock, options = {}) {
         changedFiles,
         state,
         audit,
-        figmaLane,
       });
       if (!options.quiet) console.log(report);
       return EXIT_CODES.ok;
@@ -2473,10 +2297,6 @@ async function runHourly(projectRoot, projectLock, options = {}) {
     changedFiles.add(`${projectLock.expectedAutomationLogDir}/${runContext.runId}.json`);
     audit.lock_released = await releaseLock(projectRoot, lockHandle);
     lockHandle = null;
-    figmaLane = runFigmaLane(projectRoot, runLog);
-    if (figmaLane.figma_lane_enabled && figmaLane.figma_report_path) {
-      changedFiles.add(figmaLane.figma_report_path);
-    }
     updateRunAuditFromExecution(audit, selection, execution, changedFiles);
     const report = buildRunReport({
       runContext,
@@ -2490,7 +2310,6 @@ async function runHourly(projectRoot, projectLock, options = {}) {
       changedFiles,
       state,
       audit,
-      figmaLane,
     });
     runLog.selection = selection
       ? {
@@ -2502,7 +2321,6 @@ async function runHourly(projectRoot, projectLock, options = {}) {
         }
       : null;
     runLog.execution = execution;
-    runLog.figmaLane = figmaLane;
     runLog.audit = audit;
     runLog.changedFiles = Array.from(changedFiles).sort();
     await writeRunOutputs(projectRoot, projectLock, runContext, report, runLog, changedFiles);
@@ -2547,7 +2365,6 @@ async function runHourly(projectRoot, projectLock, options = {}) {
         changedFiles,
         state,
         audit,
-        figmaLane,
       });
       runLog.execution = execution;
       runLog.audit = audit;

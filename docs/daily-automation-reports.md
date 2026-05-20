@@ -1,12 +1,12 @@
 # Daily Automation Reports
 
-This file is the fallback daily report log for the Senior Capstone category automation system.
+This file is the fallback daily report log for the Senior Capstone single GUI runner.
 
 The intended permanent destination is the Google Doc titled `Senior Capstone Daily Automation Log`. This repo fallback should only be used when Google Drive write access is blocked or unavailable.
 
-## 2026-05-18 Setup Note
+## Current Setup Note
 
-The standalone daily reporting automation was originally created and scheduled for 07:30 daily, then moved to 07:40, then paused as a standby prompt. On 2026-05-18 Bryan reset all project automation setup and later rebuilt it as QoL runners; daily reporting is now owned by `senior-capstone-qol-source-framework-seed-2` and should happen at most once per local day when needed.
+Daily reporting is owned by `senior-capstone-hourly-qol-orchestrator` and should happen at most once per local day when needed.
 
 Destinations:
 - Email: `bryan.timm89@gmail.com`

@@ -10,7 +10,7 @@ This lane log exists because the live admin-ops QoL prompts read it before selec
 
 ## 2026-05-19 07:29 PT - Seeded Lane Log
 
-- `scope`: Created this missing log so live `senior-capstone-qol-admin-ops-endpoints-*` runs do not fail their required-read step.
+- `scope`: Created this product-group log so admin operations endpoint work has a stable project-local progress file.
 - `latest evidence`: Recent scheduled admin-ops runs reported prompt/memory hardening in worktrees, but the main repo had no `docs/progress/admin-ops-endpoints.md` file for future runs to read.
 - `next action`: The next admin-ops endpoint pass should choose one implementation or test slice from the admin operations backlog, then update this file, `docs/progress/run-log.md`, and its structured manifest.
 - `self-improvement`: This file should stay compact; use `docs/progress/run-log.md` for chronological index entries and structured manifests for machine-readable telemetry.

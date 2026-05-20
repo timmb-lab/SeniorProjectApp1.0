@@ -18,13 +18,11 @@ Improvement-request default: when Bryan asks for ways to improve, treat that as 
 
 Automation operating infrastructure now includes:
 
-- `docs/automation-prompts/`: repo snapshots of live automation prompts.
 - `docs/progress/runs/`: structured JSON run manifests.
 - `docs/human-decisions.md`: Bryan-level decision queue.
 - `docs/artifacts.json`: structured external artifact registry.
 - `docs/mvp-requirements-catalog.md`: category-owned MVP requirements, statuses, blockers, and acceptance evidence.
-- `scripts/snapshot-automation-prompts.ps1`: regenerates prompt snapshots from live automation TOML files.
-- `scripts/check-automation-contract.ps1`: validates live prompts when present, repo prompt snapshots when live TOMLs are unavailable, registry files, and required automation contract references. Use `-RequireLive` when the goal is to fail on local Codex registry drift instead of accepting snapshot fallback.
+- `scripts/verify-cadence-30min.ps1`: validates the single GUI runner cadence and current automation contract.
 - `scripts/run-powershell-script.mjs`: lets npm/CI run project PowerShell scripts with non-interactive flags on the available PowerShell runtime.
 
 ## Connector Approval Preflight
@@ -69,11 +67,9 @@ powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\ru
 On this Windows Codex desktop environment, plain `node` may resolve to the packaged WindowsApps runtime and fail with `Access is denied`, and `npm` may be absent from PATH. Prefer the direct PowerShell wrappers for unattended automation support:
 
 ```powershell
-powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 automation:snapshot
 powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 check
 powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 check:automation
-powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 check:automation:live
-powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\measure-automation-efficiency.ps1 -RepoRoot . -Days 30
+powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\verify-cadence-30min.ps1 -RepoRoot .
 powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-node-script.ps1 scripts\check-alpha-contract.mjs
 powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 build:site-options
 ```
@@ -83,12 +79,9 @@ powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\ru
 If a shell already has working `npm`, these remain acceptable convenience commands:
 
 ```powershell
-npm run automation:snapshot
+npm run check
 npm run check:automation
-npm run check:automation:live
 ```
-
-Use `-RequireLive` / `npm run check:automation:live` only when auditing the live Codex GUI/local automation registry. The default automation check may validate repo prompt snapshots when live TOMLs are unavailable, which keeps CI and repo-only audits useful.
 
 Scripts in `scripts/` must not use `Read-Host`, `PromptForChoice`, `Pause`, `prompt()`, `confirm()`, `readline`, `inquirer`, stdin waits, or ad hoc confirmation gates. If a script needs a risky external or destructive action, it should require an explicit command-line flag and otherwise choose the safe repo-only path. Unattended automations should not wait for approvals inside scripts; they should use saved approval grants, safe defaults, or committed blocker records with exact next action.
 
@@ -106,13 +99,13 @@ If those account/provisioning pieces are missing, rebuild should still scaffold 
 
 ## 30-Minute Master-Plan Orchestrator
 
-Bryan explicitly deleted the previous Senior Capstone project automation fleet on 2026-05-19 and replaced it with one large GUI-available automation: `senior-capstone-hourly-qol-orchestrator`.
+The active Senior Capstone project automation is the GUI-available runner `senior-capstone-hourly-qol-orchestrator`.
 
 The orchestrator runs every 30 minutes all day from `C:\SeniorProjectApp1.0`. It reads the master plan and requirements catalog every run, selects one bounded slice from `MVP-001` through `MVP-030`, and rotates work from evidence rather than from separate lane-specific prompts. It must cover the full master plan over time while keeping each individual run narrow enough to validate, log, commit, and push.
 
 ## Orchestrator No-Intervention Contract
 
-The older QoL fleet, support refresh jobs, standby lanes, daily prototype job, broad seven-category runners, brief hourly escalation, and 20x category system are superseded by the 30-minute orchestrator recorded in `docs/automation-cadence.md`.
+No other project automation should be created, invoked, or maintained for Senior Capstone.
 
 The orchestrator should resolve everything it can resolve from accepted docs, repo evidence, saved connector approvals, and safe fallbacks. It should not stop for a human when it can:
 
@@ -129,10 +122,10 @@ Human-decision entries are reserved for account ownership, legal/privacy policy,
 Every productive run should produce A-material evidence. It must do one of three things:
 
 - Land verified MVP progress for a named requirement ID from `docs/mvp-requirements-catalog.md`.
-- Repair a repeatable project automation, script, checker, snapshot, or manifest failure so the same miss is less likely to recur.
+- Repair a repeatable project automation, script, verifier, or manifest failure so the same miss is less likely to recur.
 - Commit an exact blocker with the requirement ID, command or tool that failed, suspected account/tool cause, and next action.
 
-For automation maintenance, only touch automation related to this project: local Senior Capstone automation TOMLs, prompt snapshots, automation docs/logs/manifests, project automation scripts/checkers, and project automation memory.
+For automation maintenance, only touch automation related to this project: the single GUI runner contract, automation docs/logs/manifests, project automation scripts/verifiers, and project automation memory.
 
 ## Writable Preflight
 
@@ -173,12 +166,10 @@ The current 30-minute orchestrator cadence is 48 active starts/day. Scaling shou
 Use this command for explicit automation audits and Sunday calibration:
 
 ```powershell
-powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\measure-automation-efficiency.ps1 -RepoRoot . -Days 30
+powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\verify-cadence-30min.ps1 -RepoRoot .
 ```
 
-Use `-OutputPath <path>` when a scheduled run should save the JSON scorecard as a durable artifact before logging or summarizing it.
-
-The efficiency scorecard measures active automation count, daily start capacity, 30-day start capacity, minimum spacing, observed run manifests, accepted-pass telemetry, requirement IDs seen, elapsed scheduled sessions, and expected automations with no observed manifest. Under the 30-minute orchestrator contract, the active project automation count is 1 and daily active start capacity is 48.
+Under the 30-minute orchestrator contract, the active project automation count is 1 and daily active start capacity is 48.
 
 Scaling rules:
 
@@ -190,7 +181,7 @@ Scaling rules:
 - If blockers dominate a requirement area, the automation should commit one precise blocker with the account/tool/policy action required and then move to adjacent non-blocked evidence in its scope.
 - If the project exceeds the stretch target with low collision risk, keep cadence stable and tighten acceptance quality; do not chase more starts for its own sake.
 
-New run manifests should include `accepted_mvp_pass`, `requirement_ids`, `duration_minutes`, `output_kind`, and `automation_efficiency.scale_signal` so the weekly source-framework/catalog runner can retarget from evidence instead of guessing. `scripts/check-automation-contract.ps1` enforces those fields for manifests at or after the 2026-05-18 14:47 PT efficiency-audit cutoff.
+New run manifests should include `accepted_mvp_pass`, `requirement_ids`, `duration_minutes`, `output_kind`, and `automation_efficiency.scale_signal` so the weekly calibration step can retarget from evidence instead of guessing.
 
 ## Surface Expansion Rule
 
@@ -211,7 +202,7 @@ The automation system has three durable control surfaces:
 
 - Master planner: `docs/master-plan.md`. Every run reads it first, names the section that justifies the selected slice, and updates it only when evidence shows the destination, source order, milestone path, or anti-drift rules are stale.
 - Pass logger: `docs/progress/run-log.md` plus one structured JSON manifest in `docs/progress/runs/` and the relevant lane/report log. Every productive run writes all three layers so the next run can continue without relying on chat history.
-- Self-patching contract: the live automation prompt, `docs/automation-prompts/`, `scripts/snapshot-automation-prompts.ps1`, and `scripts/check-automation-contract.ps1`. When a run changes the automation operating contract, it must update the relevant prompt or support script in the same pass, regenerate snapshots when live prompts changed, run the checker, log the evidence, commit, and push.
+- Self-patching contract: the single GUI runner prompt, `automation/qol/GUI_ALLOWED_COMMANDS.md`, `automation/qol/project-lock.json`, and `scripts/verify-cadence-30min.ps1`. When a run changes the automation operating contract, it must update the relevant project-local doc or support script in the same pass, run the verifier, log the evidence, commit, and push.
 
 The loop should be able to run repeatedly: planner -> bounded work -> pass logger -> self-review -> narrow prompt/script patch when evidence justifies it -> validation -> commit/push.
 
@@ -344,8 +335,8 @@ At the end of every run, leave enough memory for the next lane to continue witho
 - Update `docs/human-decisions.md` when a decision needs Bryan's judgment, account access, provisioning, budget, privacy approval, or school-operation confirmation.
 - Run the self-improvement closeout from `docs/automation-self-improvement.md`: record `self-improvement: none` when no prompt/config/script change is justified, or update only the automation's own prompt/config plus the smallest relevant project script with evidence and a log entry when a narrow change is justified.
 - If a script/checker/snapshot/manifest failure is reproducible and repairable inside the repo, patch it before ordinary product work or record a compact blocker with the exact command, error, suspected file, and next action.
-- If a live automation prompt/config changed, run `scripts/snapshot-automation-prompts.ps1`, then run `scripts/check-automation-contract.ps1`, and commit the updated prompt snapshots.
-- If the master planner, pass logger, or self-patching contract changed, update `scripts/check-automation-contract.ps1` in the same pass when the checker needs to enforce the new rule.
+- If the single GUI runner contract changed, run `scripts/verify-cadence-30min.ps1` and commit the updated project lock, docs, runner, or verifier files.
+- If the master planner, pass logger, or self-patching contract changed, update the project-local verifier in the same pass when it needs to enforce the new rule.
 
 Do not make vague log entries such as "made improvements." Every log entry should name files, artifacts, checks, decisions, blockers, and the next specific action.
 
@@ -377,7 +368,7 @@ Each unresolved item should include:
 - `next action`
 - `last updated`
 
-The audit automation owns backlog hygiene. Other lanes may update items they resolve, but should not casually reprioritize unrelated items.
+The single GUI runner owns backlog hygiene. Product groupings may update items they resolve, but should not casually reprioritize unrelated items.
 
 When selecting a backlog item:
 
@@ -447,7 +438,7 @@ Avoid:
 - Placeholder-only docs.
 - Prompt/config churn without evidence or outside `docs/automation-self-improvement.md`.
 - Editing another lane's live prompt/config without an explicit human request.
-- Changing live prompts without updating `docs/automation-prompts/` snapshots.
+- Changing the GUI runner contract without updating `automation/qol/project-lock.json`, `automation/qol/GUI_ALLOWED_COMMANDS.md`, and the cadence verifier.
 - Creating external artifacts without updating `docs/artifacts.json`.
 - Burying account, budget, privacy, or stack decisions in narrative logs instead of `docs/human-decisions.md`.
 - Skipping structured run manifests, which makes automation health impossible to measure.

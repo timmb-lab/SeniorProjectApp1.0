@@ -23,7 +23,7 @@ The latest report must be readable on its own after a normal orchestrator run. I
 - `safety_status`
 - `registry_status`
 - `registry_evidence_source`
-- `legacy_automation_reactivated`
+- `unexpected_project_automation_detected`
 - `freshness_notes`
 - `failure_notes`
 - `verification_summary`

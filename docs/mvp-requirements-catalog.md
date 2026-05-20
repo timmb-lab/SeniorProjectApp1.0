@@ -2,7 +2,7 @@
 
 Date: 2026-05-18
 
-This catalog converts the master plan into MVP requirements. It is the operating map for the rebuilt QoL automation system. Every QoL automation must read this file after `docs/master-plan.md`, choose one bounded requirement slice, update the status/evidence here when material progress happens, and ladder the next pass from the highest-risk incomplete requirement in its target area.
+This catalog converts the master plan into MVP requirements. It is the operating map for the single GUI-available 30-minute QoL automation runner. The runner must read this file after `docs/master-plan.md`, choose one bounded requirement slice, update the status/evidence here when material progress happens, and ladder the next pass from the highest-risk incomplete requirement in its target area.
 
 Status values:
 
@@ -73,7 +73,7 @@ Current active automation is recorded in `docs/automation-cadence.md`. The owner
 | MVP-027 | Maintain backup/export posture, retention notes, secrets discipline, and no credential commits. | `deployment-qa` | `.gitignore`, backend setup notes, artifact registry, alpha runbook. | Backup/restore and secret rotation checklist exists; scan confirms no secrets or real records committed. | `foundation started` |
 | MVP-028 | Keep Figma as functional product-design source for route/data/permission/states, not production data. | `design-assets-handoff` | Active file `z4t4tFPAKrMDh6pIYOeEw6`, nodes `18:2`, `31:2`, `37:2`, `43:2`, `48:2`, `56:2`, `61:2`, `69:2`, `78:2`. | Design handoffs are consumed by code/tests; no new broad Figma polish while Day 7 alpha gaps are open unless a specific implementation ambiguity exists. | `designed` |
 | MVP-029 | Keep Canva as supporting-image source with live-text and privacy discipline. | `design-assets-handoff` | Canva folder/artifacts and open empty-state handoffs. | Asset specs include placement, dimensions, alt text, no private data, and live-text guidance; assets are used only where helpful. | `designed` |
-| MVP-030 | Keep the 100-pass target honest with weekly evidence-based calibration. | `requirements-audit` | Prior daily goal docs; new category automation reset. | Requirements-audit category counts accepted passes weekly and updates only this project master plan/memory/catalog from evidence. | `foundation started` |
+| MVP-030 | Keep the 100-pass target honest with weekly evidence-based calibration. | `requirements-audit` | Current daily goal docs and single-runner cadence contract. | The single GUI runner counts accepted passes weekly and updates only this project master plan/memory/catalog from evidence. | `foundation started` |
 
 ## Current Highest-Risk Requirements
 
@@ -86,7 +86,7 @@ Current active automation is recorded in `docs/automation-cadence.md`. The owner
 
 ## Laddering Rule
 
-Each QoL automation must:
+The single QoL automation runner must:
 
 1. Pick the highest-risk incomplete requirement in its target area.
 2. Prefer implementation, tests, deployment evidence, or a verified external artifact over planning.
