@@ -112,6 +112,8 @@
     "static_config": "passed",
     "production_branch": "main in docs/artifacts; remote read blocked",
     "latest_deployment": "unknown/no token",
+    "post_push_live_asset_update_observed": false,
+    "post_push_live_asset_poll": "After implementation commit 06d477017050a85a72cd9008bd37a69285998306 was pushed, eight polls of https://senior-capstone-app.pages.dev/workspace.js still returned the previous asset without the form-data ordering fix.",
     "workspace_html": "308 redirect to /workspace",
     "workspace": "200 live-signed-out-tested"
   },
@@ -232,11 +234,13 @@
   "Bryan_action_required": true,
   "human_action_email_path": "docs/progress/human-action-email-draft-2026-05-20-cloudflare-drive.md",
   "commit": {
-    "closeout_commit_sha": "recorded in final report after commit; a commit cannot contain its own hash",
+    "implementation_commit_sha": "06d477017050a85a72cd9008bd37a69285998306",
+    "closeout_commit_sha": "recorded in final report after closeout commit; a commit cannot contain its own hash",
     "contains_self_hash": false
   },
   "pushed": {
-    "status": "recorded in final report after push",
+    "implementation_commit_pushed": true,
+    "closeout_push_status": "recorded in final report after closeout commit push",
     "contains_self_push_result": false
   },
   "next_best_passes": [
