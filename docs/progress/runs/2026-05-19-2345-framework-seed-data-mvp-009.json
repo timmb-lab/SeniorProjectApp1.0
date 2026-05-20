@@ -1,0 +1,58 @@
+{
+  "run_id": "2026-05-19-2345-framework-seed-data-mvp-009",
+  "timestamp_local": "2026-05-19T23:45:00-07:00",
+  "automation_id": "senior-capstone-hourly-qol-orchestrator",
+  "trigger": "30-minute MVP builder run: capture MVP-009 / SC-001 framework seed SQL as a first-class D1 migration + keep it in sync with tests.",
+  "lane": "requirements-audit",
+  "status": "completed",
+  "accepted_mvp_pass": true,
+  "requirement_ids": [
+    "MVP-009"
+  ],
+  "backlog_ids": [
+    "SC-001"
+  ],
+  "duration_minutes": 30,
+  "output_kind": "migration+tests+docs",
+  "scope": "Generate the capstone-framework seed SQL into migrations/0003_framework_seed_data.sql so D1 seed data can be applied via normal migrations, and add a guardrail test to prevent drift between the seed generator and the committed migration file.",
+  "source_docs_read": [
+    "docs/master-plan.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/automation-runbook.md",
+    "docs/automation-self-improvement.md",
+    "docs/automation-cadence.md",
+    "docs/automation-milestones.md",
+    "docs/automation-memory.md",
+    "docs/progress/run-log.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/decision-log.md",
+    "docs/automation-backlog.md",
+    "docs/artifacts.json",
+    "docs/human-decisions.md",
+    "data/capstone-framework.json",
+    "scripts/framework-seed.mjs",
+    "migrations/0002_framework_seed.sql"
+  ],
+  "changes": [
+    "Added migrations/0003_framework_seed_data.sql containing idempotent INSERT statements for requirements, deadlines, requirement_sections, credit owners, evidence prompts, dashboard signals, review gates, and quality checks generated from data/capstone-framework.json.",
+    "Added tests/framework-seed-migration.test.mjs to assert migrations/0003_framework_seed_data.sql exactly matches scripts/framework-seed.mjs output (normalized for newlines/BOM).",
+    "Updated docs/mvp-requirements-catalog.md and docs/automation-backlog.md to reference the new seed-data migration and the sync test.",
+    "Updated docs/automation-memory.md and docs/progress/run-log.md with the new MVP-009 seed-data evidence."
+  ],
+  "validation": [
+    "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 test"
+  ],
+  "blockers": [],
+  "known_limits": [
+    "Cloudflare Pages deploys do not auto-apply D1 migrations; a follow-on pass still needs Wrangler to apply migrations (including 0002 + 0003) to local/remote D1 and verify row counts by query.",
+    "Alpha fixtures still reference the alpha-only placeholder requirement (req-alpha-proposal) until a follow-on pass switches fixtures/endpoints to seeded requirement IDs."
+  ],
+  "next_actions": [
+    "Apply migrations locally: npm run db:migrate:local (or npx wrangler d1 migrations apply senior-capstone-db --local).",
+    "Apply migrations remotely: npm run db:migrate:remote (or npx wrangler d1 migrations apply senior-capstone-db --remote).",
+    "Verify seeded counts by query (requirements, deadlines, quality_checks, requirement_sections).",
+    "Replace alpha-only placeholder requirement fixtures with seeded framework requirement IDs (e.g. req-proposal-draft) in the test-account seed and workflow endpoints."
+  ],
+  "self_improvement": "none"
+}
+

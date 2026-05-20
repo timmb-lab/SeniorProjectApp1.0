@@ -78,3 +78,11 @@ Future productive runs should append compact entries that name the master-plan s
 - `files changed`: `account.html`, `account.css`, `account.js`, `docs/mvp-requirements-catalog.md`, `docs/progress/run-log.md`, and `docs/progress/runs/2026-05-19-2324-account-drive-smoke-mvp-013.json`.
 - `verification`: `node --check account.js` (via `scripts/resolve-node.ps1`), `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 test` (pass).
 - `blockers`: none (Cloudflare Pages Drive secrets still need configuration to verify real uploads/downloads).
+
+## 2026-05-19 23:45 PT - MVP-009 Framework Seed Data Migration
+
+- `master-plan sections`: Day 7 Alpha Gate; Logging Requirements.
+- `requirement IDs`: `MVP-009`; `backlog IDs`: `SC-001`.
+- `files changed`: `migrations/0003_framework_seed_data.sql`, `tests/framework-seed-migration.test.mjs`, `docs/mvp-requirements-catalog.md`, `docs/automation-backlog.md`, `docs/automation-memory.md`, `docs/progress/run-log.md`, and `docs/progress/runs/2026-05-19-2345-framework-seed-data-mvp-009.json`.
+- `verification`: `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 test` (pass).
+- `blockers`: none (still need to apply migrations to local/remote D1 and verify seeded counts by query).
