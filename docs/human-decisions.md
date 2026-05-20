@@ -22,6 +22,7 @@ No open external automation scheduler decisions are blocking the current scaffol
 - `severity`: P1
 - `decision needed`: Choose the final public URL/domain mapping before pilot: whether the future custom domain points to `senior-capstone-app`, `senior-capstone-public`, or a split such as public guide on the root domain and app/backend on an app subdomain.
 - `current recommendation`: Keep `senior-capstone-app` as the canonical secure app/backend and `senior-capstone-public` as a production-safe generated public guide until the custom domain plan is chosen.
+- `decision workflow`: `docs/custom-domain-cutover-checklist.md`
 - `created`: 2026-05-20
 
 ### HD-2026-05-20-003
@@ -32,6 +33,7 @@ No open external automation scheduler decisions are blocking the current scaffol
 - `severity`: P1
 - `decision needed`: Decide whether `alpha.html` and `account.html` should remain deployed but unlinked for Bryan/internal QA, move behind an additional access gate, or be removed from production deployment before real pilot users enter the app.
 - `current recommendation`: Keep them unlinked and clearly labeled through the Day 7 alpha, then gate or remove them before pilot use with real records.
+- `decision workflow`: `docs/alpha-account-deployment-decision.md`
 - `created`: 2026-05-20
 
 ### HD-2026-05-20-004
@@ -42,6 +44,18 @@ No open external automation scheduler decisions are blocking the current scaffol
 - `severity`: P2
 - `decision needed`: Decide whether to keep both stakeholder option Pages projects after review, retire one or both, or promote one direction into the canonical public guide.
 - `current recommendation`: Keep both as labeled review artifacts until Bryan selects a visual direction; do not promote either without updating the production-surface policy and registry.
+- `decision workflow`: `docs/stakeholder-option-lifecycle.md`
+- `created`: 2026-05-20
+
+### HD-2026-05-20-005
+
+- `status`: open
+- `area`: live Cloudflare verification token
+- `owner`: Bryan
+- `severity`: P1
+- `decision needed`: Decide whether to provide `CLOUDFLARE_API_TOKEN` for read-only non-interactive Pages/D1 verification before the next deploy or custom-domain cutover.
+- `current recommendation`: Provide a scoped token for verification runs when possible; if unavailable, record `LIVE_CLOUDFLARE_BLOCKED_NO_TOKEN` and treat only static Cloudflare checks as passed.
+- `decision workflow`: `docs/production-predeploy-checklist.md`
 - `created`: 2026-05-20
 
 ## Accepted Decisions

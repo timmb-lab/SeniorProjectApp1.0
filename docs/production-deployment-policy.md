@@ -113,7 +113,7 @@ Source of truth:
 
 Generated directories are tracked because each Cloudflare Pages project can deploy from its own root. Do not manually edit generated output as the source of truth. Change the source/build script, rebuild with `npm run build:site-options`, run `npm run check:site-options`, and commit source plus generated output together.
 
-Generated public companion output must not proxy unlabeled internal alpha, account QA, or app API routes. Stakeholder option output may link to the internal alpha only with an explicit QA/internal label and must display that it is not canonical production.
+Generated public companion output must not proxy unlabeled internal alpha, account QA, or app API routes. `scripts/check-generated-output-drift.mjs` enforces that `public-companion/` still matches source expectations and that review option output keeps its stakeholder-only labels. Stakeholder option output may link to the internal alpha only with an explicit QA/internal label and must display that it is not canonical production.
 
 ## Stakeholder Options
 
@@ -134,8 +134,12 @@ Required local validation for production-surface work:
 
 ```powershell
 powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 check:production-surfaces
+powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 check:route-inventory
+powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 check:generated-output-drift
 powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 check:site-options
 powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 check
 ```
 
 Run `npm run inventory:production-routes` after route/deploy changes and commit the generated inventory when it changes.
+
+Use `docs/production-predeploy-checklist.md` before pilot-facing deploys, custom-domain cutover, or any change that might expose internal QA surfaces.

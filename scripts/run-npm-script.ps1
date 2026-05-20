@@ -147,6 +147,7 @@ function Invoke-KnownProjectScript {
             Invoke-ProjectPowerShell "scripts\verify-cadence-30min.ps1"
             Invoke-Node "scripts\check-production-surfaces.mjs"
             Invoke-Node "scripts\inventory-production-routes.mjs" "--check"
+            Invoke-Node "scripts\check-generated-output-drift.mjs"
             Invoke-Node "scripts\check-site-options.mjs"
             Invoke-Node "scripts\check-cloudflare.mjs"
 
@@ -171,6 +172,11 @@ function Invoke-KnownProjectScript {
         "check:route-inventory" {
             $script:KnownProjectScriptHandled = $true
             Invoke-Node "scripts\inventory-production-routes.mjs" "--check" @ScriptArgs
+            return
+        }
+        "check:generated-output-drift" {
+            $script:KnownProjectScriptHandled = $true
+            Invoke-Node "scripts\check-generated-output-drift.mjs" @ScriptArgs
             return
         }
         "check:alpha" {

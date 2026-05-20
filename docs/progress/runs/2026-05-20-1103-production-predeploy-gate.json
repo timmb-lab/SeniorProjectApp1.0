@@ -1,0 +1,122 @@
+{
+  "run_id": "2026-05-20-1103-production-predeploy-gate",
+  "timestamp_local": "2026-05-20T11:03:21-07:00",
+  "automation_id": "manual-codex-predeploy-gate-followup",
+  "trigger": "Bryan requested one coherent follow-up batch to turn the production-surface cleanup ending at commit 82dd90b into a pilot/deploy readiness gate.",
+  "lane": "deployment-qa",
+  "status": "completed",
+  "accepted_mvp_pass": true,
+  "requirement_ids": [
+    "MVP-001",
+    "MVP-002",
+    "MVP-003",
+    "MVP-025",
+    "MVP-026",
+    "MVP-027",
+    "MVP-030"
+  ],
+  "output_kind": "docs+validation+gate",
+  "scope": "Add predeploy, generated-output drift, alpha/account deployment, stakeholder option lifecycle, custom-domain cutover, and live Cloudflare token decision gates without repeating the prior production-surface classification campaign.",
+  "source_docs_read": [
+    "docs/production-deployment-policy.md",
+    "docs/production-surface-registry.md",
+    "docs/generated/production-route-inventory.md",
+    "scripts/check-production-surfaces.mjs",
+    "scripts/inventory-production-routes.mjs",
+    "package.json",
+    "wrangler.jsonc",
+    "README.md",
+    "docs/master-plan.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/backend-setup.md",
+    "docs/human-decisions.md",
+    "docs/progress/run-log.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/decision-log.md",
+    "docs/progress/production-surface-100-pass-report.md"
+  ],
+  "changes": [
+    "Added docs/production-predeploy-checklist.md as the pilot/deploy readiness gate.",
+    "Added scripts/check-generated-output-drift.mjs and wired check:generated-output-drift into package.json and the aggregate check rail.",
+    "Added docs/alpha-account-deployment-decision.md with keep-unlinked, gate, and remove options for Bryan.",
+    "Added docs/stakeholder-option-lifecycle.md with retain, retire, and promote workflows.",
+    "Added docs/custom-domain-cutover-checklist.md with project mapping, DNS/CNAME, TLS, health, smoke, and rollback steps.",
+    "Updated human decisions, production-surface docs, README, backend setup, MVP catalog, handoff ledger, and run log with the predeploy gate and live-token blocker."
+  ],
+  "validation": [
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 check:production-surfaces",
+      "result": "passed",
+      "summary": "Production surface leak check passed: 87 production text surfaces scanned."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 check:route-inventory",
+      "result": "passed",
+      "summary": "Production route inventory is up to date."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 check:generated-output-drift",
+      "result": "passed",
+      "summary": "Public companion and stakeholder review outputs match deterministic source expectations."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 check",
+      "result": "passed",
+      "summary": "Aggregate check passed, including production surfaces, route inventory, generated-output drift, site options, Cloudflare static checks, 115 tests, and typecheck."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 test",
+      "result": "passed",
+      "summary": "Full Node test suite passed: 115/115."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 check:cloudflare",
+      "result": "passed-static-live-blocked",
+      "summary": "Static Wrangler/D1 verification passed; live Pages/D1 verification was blocked because CLOUDFLARE_API_TOKEN is not set."
+    }
+  ],
+  "changed_files": [
+    "README.md",
+    "docs/alpha-account-deployment-decision.md",
+    "docs/backend-setup.md",
+    "docs/custom-domain-cutover-checklist.md",
+    "docs/human-decisions.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/production-deployment-policy.md",
+    "docs/production-predeploy-checklist.md",
+    "docs/production-surface-registry.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-20-1103-production-predeploy-gate.json",
+    "docs/stakeholder-option-lifecycle.md",
+    "package.json",
+    "scripts/check-generated-output-drift.mjs",
+    "scripts/run-npm-script.ps1"
+  ],
+  "generated_output": {
+    "appeared": [],
+    "kept": [
+      "public-companion/",
+      "stakeholder-options/titan-blend/",
+      "stakeholder-options/back-to-basics/"
+    ],
+    "restored": [],
+    "notes": "No generated output was rebuilt; the new drift checker compared committed output against deterministic source expectations."
+  },
+  "blockers": [
+    "LIVE_CLOUDFLARE_BLOCKED_NO_TOKEN",
+    "Bryan must choose final custom-domain mapping.",
+    "Bryan must choose alpha/account deployment policy before pilot.",
+    "Bryan must choose stakeholder option retain, retire, or promote lifecycle before final production positioning."
+  ],
+  "next_actions": [
+    "Bryan chooses the alpha/account deployment option from docs/alpha-account-deployment-decision.md.",
+    "Bryan chooses stakeholder option retain, retire, or promote workflow from docs/stakeholder-option-lifecycle.md.",
+    "Bryan chooses final custom-domain mapping from docs/custom-domain-cutover-checklist.md.",
+    "Provide CLOUDFLARE_API_TOKEN when ready to run check:cloudflare:live."
+  ],
+  "commit_sha": "pending closeout commit",
+  "push_result": "pending closeout push",
+  "self_improvement": "Generated-output drift is now a first-class check in the aggregate validation rail.",
+  "figma_work_avoided": true
+}

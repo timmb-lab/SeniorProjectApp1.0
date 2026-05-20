@@ -26,6 +26,7 @@ Production-surface policy lives in:
 
 - `docs/production-deployment-policy.md`
 - `docs/production-surface-registry.md`
+- `docs/production-predeploy-checklist.md`
 
 Canonical production targets:
 
@@ -55,6 +56,15 @@ Regenerate the deterministic route/deploy inventory after route or deploy-script
 
 ```powershell
 npm run inventory:production-routes
+```
+
+Before a pilot-facing deploy or custom-domain cutover, run the predeploy gate:
+
+```powershell
+npm run check:production-surfaces
+npm run check:route-inventory
+npm run check:generated-output-drift
+npm run check
 ```
 
 ## Internal Alpha QA

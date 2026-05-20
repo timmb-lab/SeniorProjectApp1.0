@@ -20,6 +20,8 @@ This records the first MVP backend foundation now configured for the Senior Caps
 
 `senior-capstone-option-titan` and `senior-capstone-option-primary` are stakeholder review projects only. Do not promote either as canonical production without updating `docs/production-deployment-policy.md` and `docs/production-surface-registry.md`.
 
+Before a pilot-facing deploy, custom-domain cutover, or stakeholder option promotion/retirement, use `docs/production-predeploy-checklist.md`. Live Pages/D1 verification remains incomplete until `CLOUDFLARE_API_TOKEN` is available and `check:cloudflare:live` passes.
+
 ## Live Resources
 
 - Cloudflare account: `539e8f7c55e7b1472013626ad72f4c7f`.

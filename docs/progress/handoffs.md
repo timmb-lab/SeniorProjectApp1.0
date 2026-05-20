@@ -19,7 +19,7 @@ Status values:
 - `owner lane`: deployment-qa
 - `status`: open
 - `source`: production surface classification and fencing pass
-- `artifact`: `docs/production-deployment-policy.md`, `docs/production-surface-registry.md`, `docs/generated/production-route-inventory.md`, `scripts/check-production-surfaces.mjs`
+- `artifact`: `docs/production-deployment-policy.md`, `docs/production-surface-registry.md`, `docs/generated/production-route-inventory.md`, `docs/production-predeploy-checklist.md`, `scripts/check-production-surfaces.mjs`, `scripts/check-generated-output-drift.mjs`
 - `next action`: When `CLOUDFLARE_API_TOKEN` is available, run live Cloudflare verification after the pushed commit and record whether `senior-capstone-app`, `senior-capstone-public`, and review-only option deploy targets match the documented production-surface policy.
 - `acceptance check`: Live verification records current Pages projects, confirms canonical `senior-capstone-app` and `senior-capstone-public` intent, and does not claim alpha/account routes are pilot-ready.
 - `evidence to close`: `check:cloudflare:live` or equivalent read-only Wrangler proof plus a run-log entry and updated production-surface report or follow-up note.
@@ -30,8 +30,8 @@ Status values:
 - `source lane`: requirements-audit
 - `owner lane`: requirements-audit
 - `status`: open
-- `source`: production surface classification and human decision queue
-- `artifact`: `HD-2026-05-20-002`, `HD-2026-05-20-003`, `HD-2026-05-20-004`
+- `source`: production surface classification, predeploy gate, and human decision queue
+- `artifact`: `HD-2026-05-20-002`, `HD-2026-05-20-003`, `HD-2026-05-20-004`, `HD-2026-05-20-005`, `docs/alpha-account-deployment-decision.md`, `docs/stakeholder-option-lifecycle.md`, `docs/custom-domain-cutover-checklist.md`
 - `next action`: After Bryan decides custom-domain mapping, pre-pilot alpha/account exposure, and stakeholder option retention, update the deployment policy, surface registry, public/stakeholder docs, and validation allowlists.
 - `acceptance check`: The chosen production URL/domain and stakeholder option status are reflected in docs, scripts, checker policy, and route inventory with no ambiguous deploy targets.
 - `evidence to close`: Accepted human-decision entries plus passing `check:production-surfaces`, `check:route-inventory`, and `check`.

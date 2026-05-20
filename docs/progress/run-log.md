@@ -26,6 +26,17 @@ This is the compact run log for the current split-builder automation contract.
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-05-20 11:03 PT - Production Predeploy Gate
+
+- `master-plan sections`: Product Destination; Stack And Deployment Direction; Anti-Drift Rules; Logging Requirements.
+- `requirement IDs`: `MVP-001`, `MVP-002`, `MVP-003`, `MVP-025`, `MVP-026`, `MVP-027`, `MVP-030`.
+- `purpose`: Convert the production-surface cleanup into a pilot/deploy readiness gate with predeploy, generated-output drift, alpha/account, stakeholder option, custom-domain, and live-token decision workflows.
+- `files changed`: predeploy checklist, alpha/account decision workflow, stakeholder option lifecycle, custom-domain cutover checklist, generated-output drift checker, package/wrapper validation rail, production-surface docs, README/backend setup, human decisions, MVP catalog, handoff ledger, and this run note.
+- `verification`: `check:production-surfaces` passed with 87 production text surfaces scanned; `check:route-inventory` passed; `check:generated-output-drift` passed; aggregate `check` passed including generated-output drift, site options, Cloudflare static checks, 115 tests, and typecheck; explicit `test` passed with 115 tests; explicit `check:cloudflare` passed static config and reported live verification blocked without `CLOUDFLARE_API_TOKEN`.
+- `blockers`: `LIVE_CLOUDFLARE_BLOCKED_NO_TOKEN`; Bryan decisions remain open for custom-domain mapping, pre-pilot alpha/account exposure, stakeholder option retain/retire/promote choice, and whether to provide a scoped live verification token.
+- `commit`: pending until closeout commit is created and pushed.
+- `self-improvement`: Added generated-output drift validation to the aggregate check rail so public-companion redirects and stakeholder option labels cannot silently drift before deploy.
+
 ## 2026-05-20 PT - Production Surface Classification And Fencing
 
 - `master-plan sections`: Product Destination; Stack And Deployment Direction; Anti-Drift Rules; Logging Requirements.
