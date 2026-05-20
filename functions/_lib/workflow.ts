@@ -3,7 +3,7 @@ import { randomId } from "./crypto.ts";
 import { json } from "./http.ts";
 import { canAccessStudent, hasRole, isAdmin } from "./permissions.ts";
 
-export type SubmissionDecision = "approved" | "revision_requested";
+export type SubmissionDecision = "approved" | "revision_requested" | "comment_only";
 
 export interface SubmissionRow {
   id: string;

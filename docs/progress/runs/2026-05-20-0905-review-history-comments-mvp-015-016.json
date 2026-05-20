@@ -1,0 +1,69 @@
+{
+  "run_id": "2026-05-20-0905-review-history-comments-mvp-015-016",
+  "timestamp_local": "2026-05-20T09:05:00-07:00",
+  "automation_id": "senior-capstone-nonfigma-mvp-builder",
+  "trigger": "Top-of-hour non-Figma MVP builder run: add persisted teacher comments into the scoped review-history flow after immutable submission version snapshots landed.",
+  "lane": "staff-review-mentor",
+  "status": "completed",
+  "accepted_mvp_pass": true,
+  "requirement_ids": [
+    "MVP-015",
+    "MVP-016"
+  ],
+  "backlog_ids": [
+    "SC-005",
+    "SC-006"
+  ],
+  "duration_minutes": 30,
+  "output_kind": "code+tests+docs",
+  "scope": "Persist review feedback into the existing comments table, support comment-only review records without status changes, and return scoped comments from the review-history endpoint alongside reviews, status history, and immutable version snapshots.",
+  "source_docs_read": [
+    "C:\\\\Users\\\\bryan\\\\.codex\\\\automations\\\\senior-capstone-nonfigma-mvp-builder\\\\memory.md",
+    "docs/master-plan.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/automation-cadence.md",
+    "docs/automation-runbook.md",
+    "docs/automation-self-improvement.md",
+    "docs/automation-memory.md",
+    "docs/automation-milestones.md",
+    "docs/progress/run-log.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/decision-log.md",
+    "docs/automation-backlog.md",
+    "docs/artifacts.json",
+    "docs/human-decisions.md",
+    "docs/progress/rebuild.md",
+    "docs/progress/runs/2026-05-20-0832-submission-version-history-mvp-016.json",
+    "docs/progress/runs/2026-05-20-0719-admin-role-assignments-mvp-007.json",
+    "functions/api/reviews/[submissionId]/decision.ts",
+    "functions/api/reviews/[submissionId]/history.ts",
+    "functions/_lib/workflow.ts",
+    "tests/review-loop.integration.test.mjs",
+    "tests/production-workflow-source.test.mjs"
+  ],
+  "changes": [
+    "Extended the review decision endpoint to accept `comment_only`, write a `reviews` row, write a student-and-staff-visible `comments` row, and leave submission/progress/status history unchanged for comment-only feedback.",
+    "Updated revision-request and approval decisions to also persist their feedback into the existing `comments` table and include comment IDs in audit metadata.",
+    "Updated the scoped review-history endpoint to return non-deleted submission comments with author names alongside reviews, status history, and immutable version snapshots.",
+    "Extended the review-loop integration test to prove student submit -> teacher comment -> teacher revision -> student resubmit -> teacher approval preserves comments, reviews, status history, and version snapshots."
+  ],
+  "validation": [
+    "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\\\scripts\\\\run-node-script.ps1 tests\\\\review-loop.integration.test.mjs",
+    "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\\\scripts\\\\run-node-script.ps1 tests\\\\production-workflow-source.test.mjs",
+    "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\\\scripts\\\\run-npm-script.ps1 test"
+  ],
+  "blockers": [],
+  "known_limits": [
+    "The alpha/app review-history UI still needs to render the returned `comments` and `versions` arrays.",
+    "Remote D1 migration apply/verification remains blocked until `CLOUDFLARE_API_TOKEN` is available for prior `submission_versions` schema work; this run used the existing comments table and did not add a new migration."
+  ],
+  "next_actions": [
+    "Wire the review-history UI to show returned comments and version snapshots without exposing Drive storage IDs.",
+    "Add review-history UI smoke coverage once the visible timeline is wired into the alpha/app surface."
+  ],
+  "automation_efficiency": {
+    "scale_signal": "accepted implementation pass; no cadence change recommended"
+  },
+  "self_improvement": "none",
+  "figma_work_avoided": true
+}

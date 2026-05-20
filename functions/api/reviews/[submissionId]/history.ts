@@ -30,6 +30,14 @@ interface SubmissionVersionRow {
   notes: string | null;
 }
 
+interface CommentHistoryRow {
+  id: string;
+  body: string;
+  visibility: string;
+  created_at: string;
+  author_name: string | null;
+}
+
 export const onRequestGet: PagesFunction<Env> = async ({ request, env, params }) => {
   const submissionId = String(params?.submissionId || "").trim();
   if (!submissionId) return workflowError("missing_submission_id", 400);
@@ -97,6 +105,22 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env, params })
      LIMIT 20`,
   ).bind(submission.id).all<SubmissionVersionRow>();
 
+  const comments = await env.DB.prepare(
+    `SELECT
+       comments.id,
+       comments.body,
+       comments.visibility,
+       comments.created_at,
+       author.display_name AS author_name
+     FROM comments
+     LEFT JOIN user_accounts author ON author.id = comments.author_user_id
+     WHERE comments.entity_type = 'submission'
+       AND comments.entity_id = ?
+       AND comments.deleted_at IS NULL
+     ORDER BY comments.created_at DESC
+     LIMIT 30`,
+  ).bind(submission.id).all<CommentHistoryRow>();
+
   return json({
     ok: true,
     submission: {
@@ -108,6 +132,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env, params })
     reviews: reviews.results || [],
     statusHistory: statusHistory.results || [],
     versions: (versions.results || []).map(formatVersion),
+    comments: comments.results || [],
   });
 };
 

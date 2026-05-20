@@ -228,3 +228,16 @@ Each rebuild run should append a dated entry with:
 - `self-improvement`: none.
 - `commit/push status`: pending closeout.
 - `next action`: Apply `0005_submission_versions.sql` to remote D1 once `CLOUDFLARE_API_TOKEN` is available, then wire review-history UI to render version snapshots plus comments.
+
+### 2026-05-20 09:05 PT - MVP-015/MVP-016 Review History Comments
+
+- `automation`: `senior-capstone-nonfigma-mvp-builder`
+- `master-plan section`: Day 7 Alpha Gate; Seven-day implementation ladder Day 4; Logging Requirements.
+- `source docs/logs read`: automation memory fallback at `C:\\Users\\bryan\\.codex\\automations\\senior-capstone-nonfigma-mvp-builder\\memory.md` (missing at start), `docs/master-plan.md`, `docs/mvp-requirements-catalog.md`, `docs/automation-cadence.md`, `docs/automation-runbook.md`, `docs/automation-self-improvement.md`, `docs/automation-memory.md`, `docs/automation-milestones.md`, `docs/progress/run-log.md`, recent run manifests, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, and `docs/progress/rebuild.md`.
+- `backlog or requirement IDs selected`: `SC-005`, `SC-006`, `MVP-015`, `MVP-016`.
+- `bounded scope`: Persist teacher review comments into the existing `comments` table, support `comment_only` review records without changing submission status, and return scoped comments from the review-history endpoint alongside reviews/status/version history.
+- `files changed`: `functions/api/reviews/[submissionId]/decision.ts`, `functions/api/reviews/[submissionId]/history.ts`, `functions/_lib/workflow.ts`, `tests/review-loop.integration.test.mjs`, `tests/production-workflow-source.test.mjs`, `docs/mvp-requirements-catalog.md`, `docs/automation-memory.md`, `docs/progress/run-log.md`, and structured run manifest `docs/progress/runs/2026-05-20-0905-review-history-comments-mvp-015-016.json`.
+- `validation`: `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 tests\\review-loop.integration.test.mjs` (pass); `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 tests\\production-workflow-source.test.mjs` (pass); `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 test` (pass; 115 tests).
+- `self-improvement`: none.
+- `commit/push status`: pending closeout.
+- `next action`: Wire the alpha/app review-history UI to render returned comments and version snapshots without exposing Drive storage IDs.

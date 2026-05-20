@@ -46,6 +46,26 @@ test("end-to-end teacher review loop persists history and updates queue", async 
     assert.equal(body.queue[0].evidence_count, 1);
   }
 
+  // teacher can leave a persisted comment without changing review status
+  {
+    const response = await onReviewSubmission({
+      request: buildAuthedJsonRequest(
+        "https://example.test/api/reviews/submission-1/decision",
+        fixture.teacherToken,
+        { decision: "comment_only", feedback: "This is promising; add source context before final review." },
+      ),
+      env: fixture.env,
+      params: { submissionId: "submission-1" },
+    });
+
+    assert.equal(response.status, 200);
+    const body = await response.json();
+    assert.equal(body.ok, true);
+    assert.equal(body.review.decision, "comment_only");
+    assert.equal(body.submission.status, "submitted");
+    assert.equal(body.comment.visibility, "student_and_staff");
+  }
+
   // teacher requests revision
   {
     const response = await onReviewSubmission({
@@ -128,10 +148,10 @@ test("end-to-end teacher review loop persists history and updates queue", async 
     assert.equal(body.ok, true);
     assert.equal(body.submission.status, "approved");
 
-    assert.equal(body.reviews.length, 2);
+    assert.equal(body.reviews.length, 3);
     assert.deepEqual(
       body.reviews.map((row) => row.decision),
-      ["approved", "revision_requested"],
+      ["approved", "revision_requested", "comment_only"],
     );
 
     const toStatuses = body.statusHistory.map((row) => row.to_status);
@@ -155,6 +175,20 @@ test("end-to-end teacher review loop persists history and updates queue", async 
       reviewStatus: "pending_review",
       createdAt: "2026-05-20T00:00:00.000Z",
     });
+
+    assert.equal(body.comments.length, 3);
+    assert.deepEqual(
+      body.comments.map((row) => row.body),
+      [
+        "Approved for the next capstone phase.",
+        "Please add more detail.",
+        "This is promising; add source context before final review.",
+      ],
+    );
+    assert.deepEqual(
+      [...new Set(body.comments.map((row) => row.visibility))],
+      ["student_and_staff"],
+    );
   }
 });
 
@@ -188,6 +222,7 @@ async function createFixture(options = {}) {
     progressRecords: [],
     evidenceArtifacts: [],
     reviews: [],
+    comments: [],
     statusHistory: [],
     submissionVersions: [],
     auditEvents: [],
@@ -476,6 +511,25 @@ class MockPreparedStatement {
       return { results };
     }
 
+    if (this.sql.includes("from comments")) {
+      const [entityId] = this.params;
+      const results = this.data.comments
+        .filter((row) => row.entity_type === "submission" && row.entity_id === entityId && !row.deleted_at)
+        .map((row) => {
+          const author = this.data.userAccounts.find((account) => account.id === row.author_user_id);
+          return {
+            id: row.id,
+            body: row.body,
+            visibility: row.visibility,
+            created_at: row.created_at,
+            author_name: author?.display_name ?? null,
+          };
+        })
+        .sort((left, right) => String(right.created_at).localeCompare(String(left.created_at)));
+
+      return { results };
+    }
+
     if (this.sql.includes("from status_history")) {
       const [entityId] = this.params;
       const results = this.data.statusHistory
@@ -615,6 +669,21 @@ class MockPreparedStatement {
         decision,
         feedback,
         created_at: this.db.nowIso(),
+      });
+      return { success: true };
+    }
+
+    if (this.sql.startsWith("insert into comments")) {
+      const [id, entityId, authorUserId, body] = this.params;
+      this.data.comments.push({
+        id,
+        entity_type: "submission",
+        entity_id: entityId,
+        author_user_id: authorUserId,
+        visibility: "student_and_staff",
+        body,
+        created_at: this.db.nowIso(),
+        deleted_at: null,
       });
       return { success: true };
     }

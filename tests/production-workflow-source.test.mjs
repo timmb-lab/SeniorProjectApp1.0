@@ -49,12 +49,15 @@ test("student evidence endpoint validates HTTPS metadata and keeps file upload p
 
 test("review decision endpoint enforces teacher or admin scope and immutable review records", () => {
   assert.match(reviewRoute, /canReviewSubmission/);
+  assert.match(reviewRoute, /comment_only/);
   assert.match(reviewRoute, /INSERT INTO reviews/);
+  assert.match(reviewRoute, /INSERT INTO comments/);
   assert.match(reviewRoute, /UPDATE submissions/);
   assert.match(reviewRoute, /UPDATE progress_records/);
   assert.match(reviewRoute, /writeStatusHistory/);
   assert.match(reviewRoute, /submission_approved/);
   assert.match(reviewRoute, /submission_revision_requested/);
+  assert.match(reviewRoute, /submission_review_comment_added/);
   assert.match(reviewRoute, /review_decision_denied/);
   assert.match(workflowLib, /hasRole\(env, reviewer\.id, "program_teacher"\)/);
   assert.match(workflowLib, /isAdmin\(env, reviewer\.id\)/);
@@ -67,8 +70,10 @@ test("review history endpoint is scoped and includes status and version history"
   assert.match(reviewHistoryRoute, /FROM reviews/);
   assert.match(reviewHistoryRoute, /FROM status_history/);
   assert.match(reviewHistoryRoute, /FROM submission_versions/);
+  assert.match(reviewHistoryRoute, /FROM comments/);
   assert.match(reviewHistoryRoute, /reviewer_name/);
   assert.match(reviewHistoryRoute, /changed_by_name/);
+  assert.match(reviewHistoryRoute, /author_name/);
   assert.match(reviewHistoryRoute, /evidence_snapshot_json/);
 });
 
