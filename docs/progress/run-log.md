@@ -174,3 +174,11 @@ Future productive runs should append compact entries that name the master-plan s
 - `files changed`: `functions/api/admin/mentor-assignments.ts`, `tests/admin-mentor-assignments.integration.test.mjs`, `docs/mvp-requirements-catalog.md`, `docs/automation-memory.md`, `docs/progress/rebuild.md`, `docs/progress/run-log.md`, and `docs/progress/runs/2026-05-20-0518-admin-mentor-assignments-mvp-006.json`.
 - `verification`: `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 test` (pass; 89 tests).
 - `blockers`: none.
+
+## 2026-05-20 05:44 PT - MVP-007 Admin Mentor Assignment List + Deactivation
+
+- `master-plan sections`: Day 7 Alpha Gate; Logging Requirements.
+- `requirement IDs`: `MVP-007`, `MVP-020`; `backlog IDs`: `SC-005`.
+- `files changed`: `functions/api/admin/mentor-assignments.ts`, `tests/admin-mentor-assignments.integration.test.mjs`, `docs/mvp-requirements-catalog.md`, `docs/automation-memory.md`, `docs/progress/rebuild.md`, `docs/progress/run-log.md`, and `docs/progress/runs/2026-05-20-0544-admin-mentor-assignment-list-deactivate-mvp-007.json`.
+- `verification`: `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 test` (pass; 97 tests).
+- `blockers`: none.

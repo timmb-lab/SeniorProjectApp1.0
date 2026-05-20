@@ -1,0 +1,57 @@
+{
+  "run_id": "2026-05-20-0544-admin-mentor-assignment-list-deactivate-mvp-007",
+  "timestamp_local": "2026-05-20T05:44:00-07:00",
+  "automation_id": "senior-capstone-hourly-qol-orchestrator",
+  "trigger": "30-minute MVP builder run: extend `/api/admin/mentor-assignments` with admin-only listing and audited deactivation so admin provisioning can manage mentor assignment lifecycle without direct DB edits.",
+  "lane": "admin-ops-reporting",
+  "status": "completed",
+  "accepted_mvp_pass": true,
+  "requirement_ids": [
+    "MVP-007",
+    "MVP-020"
+  ],
+  "backlog_ids": [
+    "SC-005"
+  ],
+  "duration_minutes": 30,
+  "output_kind": "code+tests+docs",
+  "scope": "Implement GET list and DELETE deactivate handlers for `/api/admin/mentor-assignments` (admin-only) and add deterministic integration coverage for the full assignment lifecycle (list + activate/upsert + deactivate), including audit-event assertions.",
+  "source_docs_read": [
+    "docs/master-plan.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/automation-runbook.md",
+    "docs/automation-self-improvement.md",
+    "docs/automation-cadence.md",
+    "docs/automation-milestones.md",
+    "docs/automation-memory.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-20-0518-admin-mentor-assignments-mvp-006.json",
+    "docs/progress/handoffs.md",
+    "docs/progress/decision-log.md",
+    "docs/automation-backlog.md",
+    "docs/artifacts.json",
+    "docs/human-decisions.md",
+    "automation/qol/reports/latest.md",
+    "functions/api/admin/mentor-assignments.ts",
+    "tests/admin-mentor-assignments.integration.test.mjs"
+  ],
+  "changes": [
+    "Extended `/api/admin/mentor-assignments` with admin-only listing (GET) for active assignments by default, optional includeInactive support, and stable payload fields suitable for an admin UI.",
+    "Added `/api/admin/mentor-assignments` deactivation (DELETE) that flips the active flag, is idempotent, and writes audit events for successful and duplicate deactivation attempts.",
+    "Expanded deterministic integration coverage for list and deactivation behavior plus audit-event assertions."
+  ],
+  "validation": [
+    "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\\\scripts\\\\run-npm-script.ps1 test"
+  ],
+  "blockers": [],
+  "known_limits": [
+    "Admin mentor assignment list currently returns ids + display names only; follow-on work should define the minimal admin UI surface that consumes this endpoint.",
+    "Teacher assignment and role assignment management endpoints remain separate follow-on slices."
+  ],
+  "next_actions": [
+    "Add admin endpoints for teacher assignments and role-scope changes with audit coverage.",
+    "Build a minimal admin UI surface for viewing and managing mentor/teacher assignments without exposing misc-admin broad access."
+  ],
+  "self_improvement": "none"
+}
+

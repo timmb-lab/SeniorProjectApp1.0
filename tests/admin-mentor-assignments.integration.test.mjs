@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { sha256Hex } from "../functions/_lib/crypto.ts";
-import { onRequestPost } from "../functions/api/admin/mentor-assignments.ts";
+import { onRequestDelete, onRequestGet, onRequestPost } from "../functions/api/admin/mentor-assignments.ts";
 
 test("admin mentor assignments returns 401 when session is missing", async () => {
   const { env } = createFixture();
@@ -33,6 +33,209 @@ test("admin mentor assignments returns 403 when caller is not admin", async () =
 
   assert.equal(response.status, 403);
   assert.deepEqual(await response.json(), { error: "forbidden", ok: false });
+});
+
+test("admin mentor assignments list returns 401 when session is missing", async () => {
+  const { env } = createFixture();
+
+  const request = new Request("https://example.test/api/admin/mentor-assignments", {
+    method: "GET",
+  });
+
+  const response = await onRequestGet({ request, env, params: {} });
+
+  assert.equal(response.status, 401);
+  assert.deepEqual(await response.json(), { error: "unauthorized", ok: false });
+});
+
+test("admin mentor assignments list returns 403 when caller is not admin", async () => {
+  const { env, token } = await createFixtureWithSession({ userId: "mentor-a", roleId: "mentor" });
+
+  const request = new Request("https://example.test/api/admin/mentor-assignments", {
+    method: "GET",
+    headers: { cookie: `sc_session=${token}` },
+  });
+
+  const response = await onRequestGet({ request, env, params: {} });
+
+  assert.equal(response.status, 403);
+  assert.deepEqual(await response.json(), { error: "forbidden", ok: false });
+});
+
+test("admin mentor assignments list returns active assignments by default", async () => {
+  const fixture = await createFixtureWithSession({ userId: "admin-a", roleId: "admin" });
+  fixture.db.data.userAccounts.push(
+    buildUser("mentor-a"),
+    buildUser("student-a"),
+    buildUser("mentor-b"),
+    buildUser("student-b"),
+  );
+  fixture.db.data.mentorAssignments.push(
+    {
+      id: "assignment-active",
+      mentor_user_id: "mentor-a",
+      student_user_id: "student-a",
+      assigned_by: "admin-a",
+      active: 1,
+      created_at: "2026-05-20T00:00:00.000Z",
+    },
+    {
+      id: "assignment-inactive",
+      mentor_user_id: "mentor-b",
+      student_user_id: "student-b",
+      assigned_by: "admin-a",
+      active: 0,
+      created_at: "2026-05-19T00:00:00.000Z",
+    },
+  );
+
+  const request = new Request("https://example.test/api/admin/mentor-assignments?limit=100", {
+    method: "GET",
+    headers: { cookie: `sc_session=${fixture.token}` },
+  });
+
+  const response = await onRequestGet({ request, env: fixture.env, params: {} });
+
+  assert.equal(response.status, 200);
+  const body = await response.json();
+  assert.equal(body.ok, true);
+  assert.equal(body.assignments.length, 1);
+  assert.equal(body.assignments[0].id, "assignment-active");
+  assert.equal(body.assignments[0].active, true);
+});
+
+test("admin mentor assignments list includes inactive when requested", async () => {
+  const fixture = await createFixtureWithSession({ userId: "admin-a", roleId: "admin" });
+  fixture.db.data.userAccounts.push(
+    buildUser("mentor-a"),
+    buildUser("student-a"),
+    buildUser("mentor-b"),
+    buildUser("student-b"),
+  );
+  fixture.db.data.mentorAssignments.push(
+    {
+      id: "assignment-active",
+      mentor_user_id: "mentor-a",
+      student_user_id: "student-a",
+      assigned_by: "admin-a",
+      active: 1,
+      created_at: "2026-05-20T00:00:00.000Z",
+    },
+    {
+      id: "assignment-inactive",
+      mentor_user_id: "mentor-b",
+      student_user_id: "student-b",
+      assigned_by: "admin-a",
+      active: 0,
+      created_at: "2026-05-19T00:00:00.000Z",
+    },
+  );
+
+  const request = new Request("https://example.test/api/admin/mentor-assignments?includeInactive=1&limit=100", {
+    method: "GET",
+    headers: { cookie: `sc_session=${fixture.token}` },
+  });
+
+  const response = await onRequestGet({ request, env: fixture.env, params: {} });
+
+  assert.equal(response.status, 200);
+  const body = await response.json();
+  assert.equal(body.ok, true);
+  assert.equal(body.assignments.length, 2);
+  assert.deepEqual(body.assignments.map((assignment) => assignment.id), ["assignment-active", "assignment-inactive"]);
+});
+
+test("admin mentor assignments deactivation returns 401 when session is missing", async () => {
+  const { env } = createFixture();
+
+  const request = new Request("https://example.test/api/admin/mentor-assignments", {
+    method: "DELETE",
+  });
+
+  const response = await onRequestDelete({ request, env, params: {} });
+
+  assert.equal(response.status, 401);
+  assert.deepEqual(await response.json(), { error: "unauthorized", ok: false });
+});
+
+test("admin mentor assignments deactivation returns 403 when caller is not admin", async () => {
+  const fixture = await createFixtureWithSession({ userId: "mentor-a", roleId: "mentor" });
+
+  const request = new Request("https://example.test/api/admin/mentor-assignments", {
+    method: "DELETE",
+    headers: {
+      cookie: `sc_session=${fixture.token}`,
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({ mentorUserId: "mentor-a", studentUserId: "student-a" }),
+  });
+
+  const response = await onRequestDelete({ request, env: fixture.env, params: {} });
+
+  assert.equal(response.status, 403);
+  assert.deepEqual(await response.json(), { error: "forbidden", ok: false });
+});
+
+test("admin mentor assignments deactivation returns 404 when assignment is missing", async () => {
+  const fixture = await createFixtureWithSession({ userId: "admin-a", roleId: "admin" });
+
+  const request = new Request("https://example.test/api/admin/mentor-assignments", {
+    method: "DELETE",
+    headers: {
+      cookie: `sc_session=${fixture.token}`,
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({ mentorUserId: "mentor-a", studentUserId: "student-a" }),
+  });
+
+  const response = await onRequestDelete({ request, env: fixture.env, params: {} });
+
+  assert.equal(response.status, 404);
+  assert.deepEqual(await response.json(), { error: "assignment_not_found", ok: false });
+});
+
+test("admin mentor assignments deactivation updates active flag and audits", async () => {
+  const fixture = await createFixtureWithSession({ userId: "admin-a", roleId: "admin" });
+  fixture.db.data.mentorAssignments.push({
+    id: "assignment-active",
+    mentor_user_id: "mentor-a",
+    student_user_id: "student-a",
+    assigned_by: "admin-a",
+    active: 1,
+    created_at: "2026-05-20T00:00:00.000Z",
+  });
+
+  const request = new Request("https://example.test/api/admin/mentor-assignments", {
+    method: "DELETE",
+    headers: {
+      cookie: `sc_session=${fixture.token}`,
+      "content-type": "application/json",
+      "cf-connecting-ip": "203.0.113.24",
+      "user-agent": "integration-test",
+    },
+    body: JSON.stringify({ mentorUserId: "mentor-a", studentUserId: "student-a" }),
+  });
+
+  const response = await onRequestDelete({ request, env: fixture.env, params: {} });
+
+  assert.equal(response.status, 200);
+  const body = await response.json();
+  assert.equal(body.ok, true);
+  assert.equal(body.assignment.id, "assignment-active");
+  assert.equal(body.assignment.active, false);
+
+  assert.equal(Number(fixture.db.data.mentorAssignments[0].active), 0);
+
+  const [event] = fixture.db.data.auditEvents;
+  assert.equal(fixture.db.data.auditEvents.length, 1);
+  assert.equal(event.actor_user_id, "admin-a");
+  assert.equal(event.action, "mentor_assignment_deactivated");
+  assert.equal(event.entity_type, "mentor_assignment");
+  assert.equal(event.entity_id, "assignment-active");
+  assert.deepEqual(event.metadata, {
+    mentorUserId: "mentor-a",
+    studentUserId: "student-a",
+  });
 });
 
 test("admin mentor assignments returns 409 and audits when mentor role is missing", async () => {
@@ -296,6 +499,47 @@ class MockPreparedStatement {
     throw new Error(`Unmocked D1 first() query: ${this.sql}`);
   }
 
+  async all() {
+    if (this.sql.includes("from mentor_assignments join user_accounts mentor")) {
+      const limit = Number(this.params[this.params.length - 1] ?? 50);
+      const binds = this.params.slice(0, -1);
+
+      const hasActiveFilter = this.sql.includes("mentor_assignments.active = 1");
+      const mentorFilter = this.sql.includes("mentor_assignments.mentor_user_id = ?");
+      const studentFilter = this.sql.includes("mentor_assignments.student_user_id = ?");
+
+      let mentorUserId = "";
+      let studentUserId = "";
+      if (mentorFilter && studentFilter) {
+        [mentorUserId, studentUserId] = binds.map(String);
+      } else if (mentorFilter) {
+        mentorUserId = String(binds[0] ?? "");
+      } else if (studentFilter) {
+        studentUserId = String(binds[0] ?? "");
+      }
+
+      const results = this.data.mentorAssignments
+        .filter((assignment) => !hasActiveFilter || Number(assignment.active) === 1)
+        .filter((assignment) => !mentorUserId || assignment.mentor_user_id === mentorUserId)
+        .filter((assignment) => !studentUserId || assignment.student_user_id === studentUserId)
+        .sort((left, right) => String(right.created_at || "").localeCompare(String(left.created_at || "")))
+        .slice(0, limit)
+        .map((assignment) => ({
+          id: assignment.id,
+          mentor_user_id: assignment.mentor_user_id,
+          mentor_name: resolveUserName(this.data, assignment.mentor_user_id),
+          student_user_id: assignment.student_user_id,
+          student_name: resolveUserName(this.data, assignment.student_user_id),
+          active: assignment.active,
+          created_at: assignment.created_at,
+        }));
+
+      return { results };
+    }
+
+    throw new Error(`Unmocked D1 all() query: ${this.sql}`);
+  }
+
   async run() {
     if (this.sql.startsWith("update sessions set last_seen_at = strftime(")) {
       return { success: true };
@@ -319,6 +563,15 @@ class MockPreparedStatement {
       if (row) {
         row.active = 1;
         row.assigned_by = assignedBy;
+      }
+      return { success: true };
+    }
+
+    if (this.sql.startsWith("update mentor_assignments set active = 0 where id = ?")) {
+      const [id] = this.params;
+      const row = this.data.mentorAssignments.find((assignment) => assignment.id === id);
+      if (row) {
+        row.active = 0;
       }
       return { success: true };
     }
@@ -348,3 +601,7 @@ class MockPreparedStatement {
   }
 }
 
+function resolveUserName(data, userId) {
+  const user = data.userAccounts.find((account) => account.id === userId);
+  return user ? user.display_name : null;
+}

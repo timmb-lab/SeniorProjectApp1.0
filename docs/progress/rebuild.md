@@ -189,3 +189,16 @@ Each rebuild run should append a dated entry with:
 - `self-improvement`: none.
 - `commit/push status`: pending in this run.
 - `next action`: Add a deactivation/list path for mentor assignments, then expand admin provisioning for teacher assignments + role changes with end-to-end UI surfaces.
+
+### 2026-05-20 05:44 PT - MVP-007 Admin Mentor Assignment List + Deactivation
+
+- `automation`: `senior-capstone-hourly-qol-orchestrator`
+- `master-plan section`: Day 7 Alpha Gate; Logging Requirements.
+- `source docs/logs read`: `docs/master-plan.md`, `docs/mvp-requirements-catalog.md`, `docs/automation-runbook.md`, `docs/automation-self-improvement.md`, `docs/automation-cadence.md`, `docs/automation-milestones.md`, `docs/automation-memory.md`, `docs/progress/run-log.md`, recent `docs/progress/runs/`, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, and `automation/qol/reports/latest.md`.
+- `backlog or requirement IDs selected`: `SC-005`, `MVP-007`, `MVP-020`.
+- `bounded scope`: Extend `/api/admin/mentor-assignments` with an admin-only list endpoint (GET) and an audited deactivation endpoint (DELETE) so admin provisioning can manage the full assignment lifecycle without direct DB edits.
+- `files changed`: `functions/api/admin/mentor-assignments.ts`, `tests/admin-mentor-assignments.integration.test.mjs`, `docs/mvp-requirements-catalog.md`, and structured run manifest `docs/progress/runs/2026-05-20-0544-admin-mentor-assignment-list-deactivate-mvp-007.json`.
+- `validation`: `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 test` (pass; 97 tests).
+- `self-improvement`: none.
+- `commit/push status`: pending in this run.
+- `next action`: Add admin endpoints for teacher assignments + role changes with audit coverage and a minimal admin UI surface to view and manage assignments.
