@@ -71,7 +71,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env, params })
     },
     storage: {
       provider: "google_drive",
-      fileBytesReady: false,
+      fileBytesReady: artifact.source_kind === "google_drive_file",
       signedRetrievalReady: false,
     },
   });

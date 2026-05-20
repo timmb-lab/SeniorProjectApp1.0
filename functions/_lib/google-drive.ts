@@ -1,6 +1,7 @@
 const TOKEN_URL = "https://oauth2.googleapis.com/token";
 const TOKEN_AUDIENCE = "https://oauth2.googleapis.com/token";
 const DRIVE_SCOPE = "https://www.googleapis.com/auth/drive";
+const DRIVE_UPLOAD_URL = "https://www.googleapis.com/upload/drive/v3/files";
 
 function isConfiguredSecret(value?: string): boolean {
   const normalized = String(value || "").trim().toLowerCase();
@@ -171,3 +172,90 @@ export async function probeGoogleDriveFile(
   };
 }
 
+function cleanDriveFileName(value: unknown, fallback: string): string {
+  if (typeof value !== "string") return fallback;
+  const trimmed = value.trim().replace(/[\r\n]+/g, " ");
+  return trimmed ? trimmed.slice(0, 200) : fallback;
+}
+
+export async function uploadGoogleDriveFile(
+  accessToken: string,
+  input: {
+    name: string;
+    mimeType: string;
+    parentFolderId?: string | null;
+  },
+  fileBytes: Uint8Array,
+  options: { fetchFn?: typeof fetch } = {},
+): Promise<{ ok: boolean; status: number; fileId: string | null; mimeType: string | null; name: string | null }> {
+  const boundary = `sc_${crypto.randomUUID()}`;
+  const mimeType = input.mimeType || "application/octet-stream";
+  const metadata: Record<string, unknown> = {
+    name: cleanDriveFileName(input.name, "evidence-upload"),
+    mimeType,
+  };
+  if (input.parentFolderId) {
+    metadata.parents = [input.parentFolderId];
+  }
+
+  const delimiter = `--${boundary}\r\n`;
+  const closeDelimiter = `\r\n--${boundary}--`;
+  const body = new Blob([
+    delimiter,
+    "Content-Type: application/json; charset=UTF-8\r\n\r\n",
+    JSON.stringify(metadata),
+    "\r\n",
+    delimiter,
+    `Content-Type: ${mimeType}\r\n\r\n`,
+    fileBytes,
+    closeDelimiter,
+  ]);
+
+  const url = new URL(DRIVE_UPLOAD_URL);
+  url.searchParams.set("uploadType", "multipart");
+  url.searchParams.set("supportsAllDrives", "true");
+  url.searchParams.set("fields", "id,name,mimeType,size");
+
+  const fetchFn = options.fetchFn || fetch;
+  const response = await fetchFn(url, {
+    method: "POST",
+    headers: {
+      authorization: `Bearer ${accessToken}`,
+      "content-type": `multipart/related; boundary=${boundary}`,
+      accept: "application/json",
+    },
+    body,
+  });
+
+  if (!response.ok) {
+    return { ok: false, status: response.status, fileId: null, mimeType: null, name: null };
+  }
+
+  const json = await response.json().catch(() => null);
+  const fileId = json?.id ? String(json.id) : "";
+  return {
+    ok: Boolean(fileId),
+    status: response.status,
+    fileId: fileId || null,
+    mimeType: json?.mimeType ? String(json.mimeType) : null,
+    name: json?.name ? String(json.name) : null,
+  };
+}
+
+export async function downloadGoogleDriveFileMedia(
+  accessToken: string,
+  fileId: string,
+  options: { fetchFn?: typeof fetch } = {},
+): Promise<Response> {
+  const url = new URL(`https://www.googleapis.com/drive/v3/files/${encodeURIComponent(fileId)}`);
+  url.searchParams.set("alt", "media");
+  url.searchParams.set("supportsAllDrives", "true");
+
+  const fetchFn = options.fetchFn || fetch;
+  return fetchFn(url, {
+    method: "GET",
+    headers: {
+      authorization: `Bearer ${accessToken}`,
+    },
+  });
+}

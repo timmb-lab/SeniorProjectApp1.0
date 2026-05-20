@@ -1,0 +1,58 @@
+{
+  "run_id": "2026-05-19-2258-drive-evidence-upload-download-mvp-013",
+  "timestamp_local": "2026-05-19T22:58:00-07:00",
+  "automation_id": "senior-capstone-hourly-qol-orchestrator",
+  "trigger": "30-minute MVP builder run: add Google Drive-backed evidence file upload + access-controlled streaming download routes with integration tests and audit coverage.",
+  "lane": "student-workflow-evidence",
+  "status": "completed",
+  "accepted_mvp_pass": true,
+  "requirement_ids": [
+    "MVP-013"
+  ],
+  "backlog_ids": [
+    "SC-003",
+    "SC-005"
+  ],
+  "duration_minutes": 30,
+  "output_kind": "lib+routes+tests",
+  "scope": "Implement a multipart evidence file upload endpoint that writes evidence_artifacts.drive_file_id via the Google Drive API, plus an access-controlled streaming download endpoint that proxies Drive alt=media responses without exposing storage IDs; cover missing config/creds, token exchange failure, provider failure, and success via integration tests with fetch stubs.",
+  "source_docs_read": [
+    "docs/master-plan.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/automation-cadence.md",
+    "docs/automation-backlog.md",
+    "docs/automation-memory.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-19-2224-drive-oauth-probe-mvp-013.json",
+    "functions/_lib/google-drive.ts",
+    "functions/api/submissions/[id]/evidence.ts",
+    "functions/api/evidence/[id]/check-access.ts",
+    "migrations/0001_foundation.sql",
+    "scripts/run-npm-script.ps1"
+  ],
+  "changes": [
+    "Extended functions/_lib/google-drive.ts with Drive multipart upload and alt=media download helpers built on the service-account JWT token exchange access token.",
+    "Added functions/api/submissions/[id]/evidence/upload.ts implementing a student-scoped multipart upload flow that enforces max size, uploads bytes to Drive under the evidence root folder, writes evidence_artifacts.drive_file_id, and audits success and failure states without leaking storage IDs.",
+    "Added functions/api/evidence/[id]/download.ts implementing an access-controlled streaming download that enforces canAccessStudent, audits download attempts/failures, and proxies Drive content bytes with no-store headers.",
+    "Updated functions/_lib/workflow.ts to use explicit .ts import specifiers so the Node test runner can execute integration tests against code paths using workflow helpers.",
+    "Kept functions/api/evidence/[id]/check-access.ts free of storage-id fields while reporting fileBytesReady for google_drive_file artifacts.",
+    "Added tests/evidence-drive-file.integration.test.mjs covering missing session/config, token exchange failure, Drive provider failures, and upload/download success behavior with audit assertions.",
+    "Updated docs/mvp-requirements-catalog.md, docs/automation-backlog.md, docs/automation-memory.md, and docs/progress/run-log.md to reflect MVP-013 Drive file upload/download progress."
+  ],
+  "validation": [
+    "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\\\scripts\\\\run-npm-script.ps1 test"
+  ],
+  "blockers": [],
+  "known_limits": [
+    "Upload endpoint enforces a 5MB limit for multipart uploads; larger files will require resumable Drive uploads.",
+    "Download endpoint uses files.get?alt=media which only applies to binary Drive files; Google Docs/Sheets exports require files.export handling.",
+    "Integration tests stub fetch() responses; a follow-on pass should verify upload/download against real Cloudflare Pages secrets and the configured Drive evidence root."
+  ],
+  "next_actions": [
+    "Configure Cloudflare Pages secrets GOOGLE_DRIVE_CLIENT_EMAIL and GOOGLE_DRIVE_PRIVATE_KEY and verify /api/health shows googleDriveCredentialsConfigured=true.",
+    "Verify real Drive upload + download via the new endpoints in preview/production, then wire the alpha/student UI to call the upload endpoint.",
+    "Add resumable uploads for larger evidence and add export handling for Google Docs types when needed."
+  ],
+  "self_improvement": "none"
+}
+

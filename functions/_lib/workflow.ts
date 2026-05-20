@@ -1,7 +1,7 @@
-import type { Env, UserAccount } from "../_types";
-import { randomId } from "./crypto";
-import { json } from "./http";
-import { canAccessStudent, hasRole, isAdmin } from "./permissions";
+import type { Env, UserAccount } from "../_types.ts";
+import { randomId } from "./crypto.ts";
+import { json } from "./http.ts";
+import { canAccessStudent, hasRole, isAdmin } from "./permissions.ts";
 
 export type SubmissionDecision = "approved" | "revision_requested";
 
