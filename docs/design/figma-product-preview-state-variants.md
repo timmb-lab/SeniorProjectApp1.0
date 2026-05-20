@@ -473,6 +473,10 @@ Created/updated frames:
   - Six meeting/presentation states: meeting prep ready, attendance recorded, make-up required, outline approval gate, presentation slot conflict, and check-out/check-in ready.
   - Six mentor presentation pipeline steps: seed checkpoint requirement, collect prep evidence, record attendance or make-up, approve outline gate, schedule presentation slot, and audit check-out/check-in.
   - `Developer Handoff / Mentor Presentation Route Data Contract`, node `78:166`
+- 2026-05-20 review-history prototype alignment on `05 Full MVP Alpha Prototype`
+  - `Prototype / 06 / Review detail and decision drawer`, node `98:9`
+  - `Prototype / 07 / Student revision loop`, node `98:10`
+  - Route/data/permission text nodes updated: `98:533`, `98:534`, `98:535`, `98:602`, `98:603`, and `98:604`.
 
 Verification status:
 - Canvas write succeeded and returned the frame IDs above.
@@ -517,3 +521,6 @@ Verification status:
 - Follow-up `use_figma` pill-height correction adjusted 21 pill frames plus row/container autosizing, expanded node `78:2` to `1584x1900`, and expanded board `6:2` to height `15006.8`.
 - Final `get_screenshot`, `get_design_context`, and metadata succeeded for node `78:2`.
 - Follow-up readback confirmed shared contract data on `78:2`, handoff node `78:166`, 6 states, 6 pipeline steps, 9 routes, 13 records, 5 permission scopes, 7 guardrails, 7 acceptance checks, zero clipped text nodes, zero collapsed pills, and zero clipped horizontal rows.
+- 2026-05-20 `use_figma` write updated node `98:9` to map `/teacher/reviews/:id` and `/api/reviews/:submissionId/history` to `submissions`, `reviews`, `comments`, `status_history`, `submission_versions`, and `evidence_artifacts`; sidebar and header text widths were corrected.
+- 2026-05-20 `use_figma` write updated node `98:10` to map `/student/submissions/:id/revision` and `/api/reviews/:submissionId/history` to `reviews`, `comments`, `status_history`, `submission_versions`, `evidence_artifacts`, and `requirement_sections`; sidebar and revision-card text widths were corrected.
+- `get_design_context` and `get_screenshot` succeeded for nodes `98:9` and `98:10` after the correction; screenshot sizes returned `1024x623` for node `98:9` and `1024x648` for node `98:10`, and readback found zero suspicious clipped text nodes in both frames.

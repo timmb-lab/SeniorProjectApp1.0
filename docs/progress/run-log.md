@@ -303,3 +303,18 @@ Future productive runs should append compact entries that name the master-plan s
 - `commit`: pending until closeout commit is created and pushed.
 - `blockers`: remote D1 apply/verification for `0005_submission_versions.sql` still requires `CLOUDFLARE_API_TOKEN`; this run did not require live Cloudflare mutation.
 - `self-improvement`: none.
+
+## 2026-05-20 11:35 PT - MVP-028 Review History Prototype Alignment
+
+- `automation ID`: `senior-capstone-figma-product-builder`
+- `lane`: Figma-only product builder.
+- `master-plan sections`: Product Destination; Day 7 Alpha Gate; Lane Responsibilities; Logging Requirements.
+- `requirement IDs`: `MVP-028`, supporting `MVP-015` and `MVP-016`.
+- `selected slice`: Align full MVP alpha prototype teacher review/detail and student revision history annotations with the implemented review-history API and immutable-version records.
+- `active Figma file`: `z4t4tFPAKrMDh6pIYOeEw6`.
+- `Figma page/node touched`: `05 Full MVP Alpha Prototype`; nodes `98:9` and `98:10`; annotation nodes `98:533`, `98:534`, `98:535`, `98:602`, `98:603`, and `98:604`.
+- `what changed`: Figma annotations now name `/api/reviews/:submissionId/history`, `reviews`, `comments`, `status_history`, `submission_versions`, scoped student/reviewer permissions, and storage-ID redaction; small sidebar/header text overflows were corrected.
+- `verification`: `use_figma` returned the mutated node IDs and zero suspicious clipped text nodes in both frames; `get_design_context` and `get_screenshot` succeeded for nodes `98:9` and `98:10` with screenshots returned.
+- `files changed`: Figma docs, artifact registry, automation memory, Figma lane log, handoff ledger, MVP catalog, this run log, and `docs/progress/runs/2026-05-20-1135-figma-review-history-prototype-alignment.json`.
+- `blockers`: none.
+- `self-improvement`: none.

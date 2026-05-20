@@ -1,0 +1,164 @@
+{
+  "run_id": "2026-05-20-1135-figma-review-history-prototype-alignment",
+  "timestamp_local": "2026-05-20T11:35:35-07:00",
+  "automation_id": "senior-capstone-figma-product-builder",
+  "lane": "figma-only product builder",
+  "status": "completed",
+  "accepted_mvp_pass": true,
+  "requirement_ids": [
+    "MVP-028",
+    "MVP-015",
+    "MVP-016"
+  ],
+  "output_kind": "figma-handoff+metadata+screenshot-verification",
+  "scope": "Align and verify the full MVP alpha prototype teacher review/detail and student revision-history states after rebuild added persisted review comments and immutable submission versions.",
+  "selected_figma_slice": "Review history prototype alignment for nodes 98:9 and 98:10.",
+  "figma": {
+    "file_key": "z4t4tFPAKrMDh6pIYOeEw6",
+    "url": "https://www.figma.com/design/z4t4tFPAKrMDh6pIYOeEw6",
+    "page": "05 Full MVP Alpha Prototype",
+    "nodes_touched": [
+      {
+        "node_id": "98:9",
+        "name": "Prototype / 06 / Review detail and decision drawer",
+        "changes": [
+          "Updated route annotation to /teacher/reviews/:id + /api/reviews/:submissionId/history.",
+          "Updated records annotation to submissions, reviews, comments, status_history, submission_versions, and evidence_artifacts.",
+          "Updated permission annotation to reviewer/admin scoped decisions, student-visible own feedback/history, storage-ID redaction, and persisted audit events.",
+          "Corrected sidebar and review-header text widths."
+        ]
+      },
+      {
+        "node_id": "98:10",
+        "name": "Prototype / 07 / Student revision loop",
+        "changes": [
+          "Updated route annotation to /student/submissions/:id/revision + /api/reviews/:submissionId/history.",
+          "Updated records annotation to reviews, comments, status_history, submission_versions, evidence_artifacts, and requirement_sections.",
+          "Updated permission annotation to student-own feedback/history, immutable prior versions, and storage-ID redaction.",
+          "Corrected sidebar and revision-card text widths."
+        ]
+      }
+    ],
+    "mutated_node_ids": [
+      "98:533",
+      "98:534",
+      "98:535",
+      "98:520",
+      "98:521",
+      "98:539",
+      "98:550",
+      "98:602",
+      "98:603",
+      "98:604",
+      "98:589",
+      "98:590",
+      "98:608",
+      "98:611"
+    ],
+    "screenshot_verification": [
+      {
+        "node_id": "98:9",
+        "tool": "get_screenshot",
+        "result": "passed",
+        "returned_size": "1024x623",
+        "original_size": "1415x860"
+      },
+      {
+        "node_id": "98:10",
+        "tool": "get_screenshot",
+        "result": "passed",
+        "returned_size": "1024x648",
+        "original_size": "1360x860"
+      }
+    ],
+    "metadata_verification": [
+      {
+        "node_id": "98:9",
+        "tool": "get_design_context",
+        "result": "passed",
+        "confirmed_annotations": [
+          "/api/reviews/:submissionId/history",
+          "reviews",
+          "comments",
+          "status_history",
+          "submission_versions",
+          "storage IDs redacted"
+        ]
+      },
+      {
+        "node_id": "98:10",
+        "tool": "get_design_context",
+        "result": "passed",
+        "confirmed_annotations": [
+          "/api/reviews/:submissionId/history",
+          "reviews",
+          "comments",
+          "status_history",
+          "submission_versions",
+          "storage IDs remain redacted"
+        ]
+      }
+    ],
+    "readback": {
+      "node_98_9_suspicious_clipped_text_count": 0,
+      "node_98_10_suspicious_clipped_text_count": 0
+    }
+  },
+  "source_docs_read": [
+    "docs/design/figma-first-pass-product-system.md",
+    "docs/design/figma-product-preview-state-variants.md",
+    "docs/master-plan.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/automation-cadence.md",
+    "docs/automation-runbook.md",
+    "docs/automation-memory.md",
+    "docs/progress/run-log.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/decision-log.md",
+    "docs/artifacts.json",
+    "docs/human-decisions.md",
+    "docs/progress/figma.md",
+    "docs/progress/runs/2026-05-20-1103-production-predeploy-gate.json",
+    "docs/progress/runs/2026-05-20-1018-review-history-ui-mvp-015-016.json",
+    "docs/progress/runs/2026-05-20-0905-review-history-comments-mvp-015-016.json",
+    "docs/progress/runs/2026-05-20-0832-submission-version-history-mvp-016.json"
+  ],
+  "repo_files_changed": [
+    "docs/design/figma-first-pass-product-system.md",
+    "docs/design/figma-product-preview-state-variants.md",
+    "docs/artifacts.json",
+    "docs/automation-memory.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/progress/figma.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-20-1135-figma-review-history-prototype-alignment.json"
+  ],
+  "implementation_handoff": "Rebuild should use node 98:9 for the teacher review/detail handoff and node 98:10 for the student revision/history handoff when carrying the account smoke review-history UI into the primary alpha workflow.",
+  "validation": [
+    {
+      "command": "Figma use_figma mutation readback",
+      "result": "passed",
+      "summary": "Returned the expected mutated node IDs and zero suspicious clipped text nodes for nodes 98:9 and 98:10."
+    },
+    {
+      "command": "Figma get_design_context for nodes 98:9 and 98:10",
+      "result": "passed",
+      "summary": "Confirmed route/data/permission annotations now match the implemented review-history API and records."
+    },
+    {
+      "command": "Figma get_screenshot for nodes 98:9 and 98:10",
+      "result": "passed",
+      "summary": "Returned screenshots for both corrected frames."
+    }
+  ],
+  "backend_code_work_avoided": true,
+  "figma_blocker": null,
+  "run_log_updated": true,
+  "structured_manifest_created": true,
+  "artifacts_json_updated": true,
+  "mvp_catalog_changed": true,
+  "self_improvement": "none",
+  "commit_sha": "pending closeout commit",
+  "push_result": "pending closeout push"
+}

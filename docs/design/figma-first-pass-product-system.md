@@ -562,6 +562,15 @@ Developer contract:
 - Guardrails: mentors see assigned students only, attendance and slot changes write audit events, make-up records preserve the original missed meeting, outline approval is a review gate rather than a checkbox, slot conflicts block duplicate saves, check-out/check-in ties to the presentation slot, and no student messaging is introduced.
 - Acceptance checks: unassigned mentor denial, missed meeting creates make-up requirement, outline approval persists review/status history, duplicate slot save is blocked, day-of check-out/check-in writes audit events, students see only their own meeting/presentation records, and dashboards derive state from persisted rows.
 
+## Review History Prototype Alignment
+
+The 2026-05-20 Figma pass aligned the full MVP alpha prototype with the implemented review-history path after rebuild added comments and immutable submission versions.
+
+- `Prototype / 06 / Review detail and decision drawer`, node `98:9`, now annotates `/teacher/reviews/:id` plus `/api/reviews/:submissionId/history` and records `submissions`, `reviews`, `comments`, `status_history`, `submission_versions`, and `evidence_artifacts`.
+- `Prototype / 07 / Student revision loop`, node `98:10`, now annotates `/student/submissions/:id/revision` plus `/api/reviews/:submissionId/history` and records `reviews`, `comments`, `status_history`, `submission_versions`, `evidence_artifacts`, and `requirement_sections`.
+- Both frames preserve the protected-record rule: students see only their own feedback/history, reviewer/admin decisions stay scoped, storage IDs remain redacted, and audit events persist for review-sensitive changes.
+- `get_design_context` and `get_screenshot` succeeded for nodes `98:9` and `98:10` after the annotation and layout corrections; the `use_figma` readback found zero suspicious clipped text nodes in both frames.
+
 ## Acceptance Checks For Next Figma Run
 
 - Continue active writable file `z4t4tFPAKrMDh6pIYOeEw6` in `team::1638213362346160913`.
@@ -596,9 +605,10 @@ Artifact:
 - Progress update/dashboard aggregate contract: node `61:2` in the active Figma file.
 - Audit log/export controls contract: node `69:2` in the active Figma file.
 - Mentor meeting/presentation scheduling contract: node `78:2` in the active Figma file.
+- Full MVP alpha prototype page: node `98:2`, with review detail node `98:9` and student revision node `98:10` aligned to the implemented review-history endpoint.
 
 Exact next action:
-- Rebuild should consume nodes `18:2`, `31:2`, `37:2`, `43:2`, `48:2`, `56:2`, `61:2`, `69:2`, and `78:2` while scaffolding the accepted Cloudflare database/auth/progress/audit/export/meeting/presentation foundation. Figma should only add more broad design detail if rebuild hits a specific UI ambiguity.
+- Rebuild should consume nodes `18:2`, `31:2`, `37:2`, `43:2`, `48:2`, `56:2`, `61:2`, `69:2`, `78:2`, `98:9`, and `98:10` while scaffolding the accepted Cloudflare database/auth/progress/audit/export/meeting/presentation foundation and the implemented review-history UI. Figma should only add more broad design detail if rebuild hits a specific UI ambiguity.
 
 Acceptance check:
 - Figma progress log records page/frame IDs, screenshot or metadata verification, route/data fields, permission scopes, and the next UI slice.
