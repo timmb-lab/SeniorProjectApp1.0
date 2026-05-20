@@ -26,6 +26,7 @@ This is not a static guide, brochure, or visual-only project.
 - Alpha state-machine tests, alpha contract checks, the cadence verifier, and consolidated GitHub Actions CI exist.
 - Source PDFs have been extracted and converted into app-native requirements in `data/capstone-framework.json`.
 - Framework seed loader scaffolding now exists: `migrations/0002_framework_seed.sql` adds minimal framework tables (sections, checks, credit owners, review gates, evidence signals), `scripts/framework-seed.mjs` generates idempotent seed SQL for D1, and `tests/framework-seed.test.mjs` guards counts and prevents leaking local source paths into SQL output.
+- Executable permission-helper tests now cover the default-deny `canAccessStudent` role matrix used by protected evidence access checks: `tests/permissions-access.test.mjs`.
 
 ## Active Automation Contract
 

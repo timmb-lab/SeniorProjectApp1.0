@@ -30,3 +30,11 @@ Future productive runs should append compact entries that name the master-plan s
 - `files changed`: `migrations/0002_framework_seed.sql`, `scripts/framework-seed.mjs`, `tests/framework-seed.test.mjs`, `docs/mvp-requirements-catalog.md`, `docs/automation-backlog.md`, `docs/automation-memory.md`, `docs/master-plan.md`, and `docs/progress/runs/2026-05-19-2030-framework-seed-mvp-009.json`.
 - `verification`: `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 test` (pass).
 - `blockers`: none (remote D1 apply/verification deferred to follow-on pass with Wrangler).
+
+## 2026-05-19 20:49 PT - MVP-006/MVP-014 Permission Helper Tests
+
+- `master-plan sections`: Day 7 Alpha Gate; Immediate next five passes should deepen the shipped alpha; Logging Requirements.
+- `requirement IDs`: `MVP-006`, `MVP-014`; `backlog IDs`: `SC-003`, `SC-005`.
+- `files changed`: `tests/permissions-access.test.mjs`, `docs/mvp-requirements-catalog.md`, `docs/automation-memory.md`, and `docs/progress/runs/2026-05-19-2049-permission-tests-mvp-006-014.json`.
+- `verification`: `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 test` (pass).
+- `blockers`: none.

@@ -1,0 +1,54 @@
+{
+  "run_id": "2026-05-19-2049-permission-tests-mvp-006-014",
+  "timestamp_local": "2026-05-19T20:49:00-07:00",
+  "automation_id": "senior-capstone-hourly-qol-orchestrator",
+  "trigger": "30-minute MVP builder run: add executable permission helper tests for MVP-006 + MVP-014.",
+  "lane": "backend-security-data",
+  "status": "completed",
+  "accepted_mvp_pass": true,
+  "requirement_ids": [
+    "MVP-006",
+    "MVP-014"
+  ],
+  "backlog_ids": [
+    "SC-003",
+    "SC-005"
+  ],
+  "duration_minutes": 30,
+  "output_kind": "tests",
+  "scope": "Prove the default-deny role matrix (student-own, mentor-assigned, teacher program/cohort/global, admin allow, misc-admin deny) through executable unit tests exercising canAccessStudent (used by protected evidence access checks).",
+  "source_docs_read": [
+    "docs/master-plan.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/automation-cadence.md",
+    "docs/automation-backlog.md",
+    "docs/automation-memory.md",
+    "docs/automation-runbook.md",
+    "docs/automation-self-improvement.md",
+    "docs/automation-milestones.md",
+    "docs/progress/run-log.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/decision-log.md",
+    "docs/artifacts.json",
+    "docs/human-decisions.md",
+    "automation/qol/reports/latest.md",
+    "functions/_lib/permissions.ts"
+  ],
+  "changes": [
+    "Added tests/permissions-access.test.mjs to execute the canAccessStudent access matrix against a deterministic D1 mock.",
+    "Updated docs/mvp-requirements-catalog.md evidence for MVP-006 + MVP-014 to reference the new executable permission tests."
+  ],
+  "validation": [
+    "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\\\scripts\\\\run-npm-script.ps1 test"
+  ],
+  "blockers": [],
+  "known_limits": [
+    "Permission tests exercise canAccessStudent through a mocked D1 interface; follow-on integration tests should validate audit-event writes and evidence-access route behavior against a real D1 instance."
+  ],
+  "next_actions": [
+    "Add integration coverage for /api/evidence/:id/check-access: 401/403/404 paths plus audit-event assertions.",
+    "Add permission regression tests for export download checks and review history endpoints to ensure misc-admin narrowing is enforced consistently."
+  ],
+  "self_improvement": "none"
+}
+
