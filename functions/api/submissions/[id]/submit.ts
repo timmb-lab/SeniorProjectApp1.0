@@ -2,7 +2,7 @@ import type { Env } from "../../../_types.ts";
 import { getCurrentUser, writeAudit } from "../../../_lib/auth.ts";
 import { badRequest, json, requirePost } from "../../../_lib/http.ts";
 import { hasRole } from "../../../_lib/permissions.ts";
-import { getSubmission, workflowError, writeStatusHistory } from "../../../_lib/workflow.ts";
+import { getSubmission, workflowError, writeStatusHistory, writeSubmissionVersionSnapshot } from "../../../_lib/workflow.ts";
 
 export const onRequestPost: PagesFunction<Env> = async ({ request, env, params }) => {
   const methodError = requirePost(request);
@@ -66,6 +66,15 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, params }
          updated_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now')
      WHERE id = ?`,
   ).bind(nextVersion, submission.id).run();
+
+  await writeSubmissionVersionSnapshot(env, {
+    submission,
+    version: nextVersion,
+    submittedBy: user.id,
+    notes: submission.status === "revision_requested"
+      ? "Revision resubmitted for teacher review."
+      : "Initial submission for teacher review.",
+  });
 
   await env.DB.prepare(
     `UPDATE progress_records

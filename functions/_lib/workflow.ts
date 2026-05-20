@@ -13,6 +13,15 @@ export interface SubmissionRow {
   version: number;
 }
 
+interface EvidenceSnapshotRow {
+  id: string;
+  title: string;
+  artifact_type: string;
+  source_kind: string;
+  review_status: string;
+  created_at: string;
+}
+
 export function cleanWorkflowText(value: unknown, fallback: string, maxLength = 800): string {
   if (typeof value !== "string") return fallback;
   const trimmed = value.trim().replace(/\s+/g, " ");
@@ -77,5 +86,57 @@ export async function writeStatusHistory(
     input.toStatus,
     input.changedBy,
     input.reason,
+  ).run();
+}
+
+export async function writeSubmissionVersionSnapshot(
+  env: Env,
+  input: {
+    submission: SubmissionRow;
+    version: number;
+    submittedBy: string;
+    notes: string;
+  },
+): Promise<void> {
+  const evidence = await env.DB.prepare(
+    `SELECT id, title, artifact_type, source_kind, review_status, created_at
+     FROM evidence_artifacts
+     WHERE submission_id = ?
+       AND deleted_at IS NULL
+       AND review_status != 'archived'
+     ORDER BY created_at ASC`,
+  ).bind(input.submission.id).all<EvidenceSnapshotRow>();
+
+  const evidenceSnapshot = (evidence.results || []).map((artifact) => ({
+    id: artifact.id,
+    title: artifact.title,
+    artifactType: artifact.artifact_type,
+    sourceKind: artifact.source_kind,
+    reviewStatus: artifact.review_status,
+    createdAt: artifact.created_at,
+  }));
+
+  await env.DB.prepare(
+    `INSERT OR IGNORE INTO submission_versions (
+       id,
+       submission_id,
+       student_id,
+       requirement_id,
+       version,
+       status,
+       submitted_by,
+       evidence_snapshot_json,
+       notes
+     )
+     VALUES (?, ?, ?, ?, ?, 'submitted', ?, ?, ?)`,
+  ).bind(
+    randomId("submission-version"),
+    input.submission.id,
+    input.submission.student_id,
+    input.submission.requirement_id,
+    input.version,
+    input.submittedBy,
+    JSON.stringify(evidenceSnapshot),
+    input.notes,
   ).run();
 }

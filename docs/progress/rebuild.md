@@ -215,3 +215,16 @@ Each rebuild run should append a dated entry with:
 - `self-improvement`: none.
 - `commit/push status`: committed + pushed in this run.
 - `next action`: Keep laddering protected-evidence + role-scope tests, then return to Drive secret configuration and real upload/download verification in Cloudflare Pages preview/production.
+
+### 2026-05-20 08:32 PT - MVP-016 Submission Version History
+
+- `automation`: `senior-capstone-hourly-qol-orchestrator`
+- `master-plan section`: Day 7 Alpha Gate; Seven-day implementation ladder Day 4; Logging Requirements.
+- `source docs/logs read`: `docs/master-plan.md`, `docs/mvp-requirements-catalog.md`, `docs/automation-cadence.md`, `docs/automation-backlog.md`, `docs/automation-self-improvement.md`, `docs/automation-memory.md`, `docs/progress/run-log.md`, recent run manifests, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/daily-automation-reports.md`, `docs/alpha-week-framework.md`, and the automation memory file at `C:\\Users\\bryan\\.codex\\automations\\senior-capstone-hourly-qol-orchestrator\\memory.md`.
+- `backlog or requirement IDs selected`: `SC-005`, `SC-006`, `MVP-012`, `MVP-015`, `MVP-016`.
+- `bounded scope`: Add D1-backed immutable submission version snapshots so resubmissions preserve prior versions in the review-history API.
+- `files changed`: `migrations/0005_submission_versions.sql`, `functions/_lib/workflow.ts`, `functions/api/submissions/[id]/submit.ts`, `functions/api/reviews/[submissionId]/history.ts`, `tests/review-loop.integration.test.mjs`, `tests/production-workflow-source.test.mjs`, `docs/mvp-requirements-catalog.md`, `docs/automation-memory.md`, `docs/progress/run-log.md`, and structured run manifest `docs/progress/runs/2026-05-20-0832-submission-version-history-mvp-016.json`.
+- `validation`: `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 tests\\review-loop.integration.test.mjs` (pass); `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 test` (pass; 115 tests); `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\verify-framework-seed-d1.ps1` (pass; local D1 applied `0005_submission_versions.sql` and seed counts remained requirements=16, deadlines=24, review_gates=4, quality_checks=20).
+- `self-improvement`: none.
+- `commit/push status`: pending closeout.
+- `next action`: Apply `0005_submission_versions.sql` to remote D1 once `CLOUDFLARE_API_TOKEN` is available, then wire review-history UI to render version snapshots plus comments.

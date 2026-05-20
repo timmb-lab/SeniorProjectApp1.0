@@ -229,3 +229,11 @@ Future productive runs should append compact entries that name the master-plan s
 - `files changed`: `functions/api/admin/role-assignments.ts`, `tests/admin-role-assignments.integration.test.mjs`, `docs/mvp-requirements-catalog.md`, `docs/automation-memory.md`, `docs/progress/run-log.md`, and `docs/progress/runs/2026-05-20-0719-admin-role-assignments-mvp-007.json`.
 - `verification`: `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 test` (pass; 113 tests).
 - `blockers`: none.
+
+## 2026-05-20 08:32 PT - MVP-016 Submission Version History
+
+- `master-plan sections`: Day 7 Alpha Gate; Seven-day implementation ladder Day 4; Logging Requirements.
+- `requirement IDs`: `MVP-012`, `MVP-015`, `MVP-016`; `backlog IDs`: `SC-005`, `SC-006`.
+- `files changed`: `migrations/0005_submission_versions.sql`, `functions/_lib/workflow.ts`, `functions/api/submissions/[id]/submit.ts`, `functions/api/reviews/[submissionId]/history.ts`, `tests/review-loop.integration.test.mjs`, `tests/production-workflow-source.test.mjs`, `docs/mvp-requirements-catalog.md`, `docs/automation-memory.md`, this run log, `docs/progress/rebuild.md`, and `docs/progress/runs/2026-05-20-0832-submission-version-history-mvp-016.json`.
+- `verification`: focused review-loop integration test passed; full test suite passed with 115 tests; local D1 migration verification applied `0005_submission_versions.sql` and preserved framework seed counts.
+- `blockers`: remote D1 apply/verification for `0005_submission_versions.sql` still requires `CLOUDFLARE_API_TOKEN` for non-interactive Wrangler.

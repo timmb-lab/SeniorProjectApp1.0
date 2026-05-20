@@ -1,0 +1,66 @@
+{
+  "run_id": "2026-05-20-0832-submission-version-history-mvp-016",
+  "timestamp_local": "2026-05-20T08:32:00-07:00",
+  "automation_id": "senior-capstone-hourly-qol-orchestrator",
+  "trigger": "30-minute MVP builder run: preserve prior submission versions for the teacher review loop by adding a D1 version-history table, submit-time snapshots, review-history output, and integration coverage.",
+  "lane": "staff-review-mentor",
+  "status": "completed",
+  "accepted_mvp_pass": true,
+  "requirement_ids": [
+    "MVP-012",
+    "MVP-015",
+    "MVP-016"
+  ],
+  "backlog_ids": [
+    "SC-005",
+    "SC-006"
+  ],
+  "duration_minutes": 30,
+  "output_kind": "schema+code+tests+docs",
+  "scope": "Add immutable submission version snapshots for student submit/resubmit actions and expose them through the scoped review-history endpoint without leaking Drive storage IDs.",
+  "source_docs_read": [
+    "docs/master-plan.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/automation-cadence.md",
+    "docs/automation-backlog.md",
+    "docs/automation-self-improvement.md",
+    "docs/automation-memory.md",
+    "docs/progress/run-log.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/decision-log.md",
+    "docs/daily-automation-reports.md",
+    "docs/alpha-week-framework.md",
+    "docs/progress/rebuild.md",
+    "docs/progress/runs/2026-05-20-0719-admin-role-assignments-mvp-007.json",
+    "docs/progress/runs/2026-05-20-0649-teacher-scope-null-guard-mvp-006-014.json",
+    "functions/api/submissions/[id]/submit.ts",
+    "functions/api/reviews/[submissionId]/history.ts",
+    "functions/_lib/workflow.ts",
+    "tests/review-loop.integration.test.mjs",
+    "tests/production-workflow-source.test.mjs"
+  ],
+  "changes": [
+    "Added `migrations/0005_submission_versions.sql` with an immutable `submission_versions` table keyed by submission/version.",
+    "Added `writeSubmissionVersionSnapshot` to record submitted/resubmitted versions with evidence metadata only, excluding Drive storage identifiers.",
+    "Updated `/api/submissions/:id/submit` to write a version snapshot after successful submit/resubmit.",
+    "Updated `/api/reviews/:submissionId/history` to return formatted version snapshots alongside review decisions and status history.",
+    "Extended the review-loop integration test to prove version 1 and version 2 remain visible after revision, resubmission, and approval."
+  ],
+  "validation": [
+    "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\\\scripts\\\\run-node-script.ps1 tests\\\\review-loop.integration.test.mjs",
+    "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\\\scripts\\\\run-npm-script.ps1 test",
+    "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\\\scripts\\\\verify-framework-seed-d1.ps1"
+  ],
+  "blockers": [
+    "Remote D1 still needs a non-interactive `CLOUDFLARE_API_TOKEN` before `0005_submission_versions.sql` can be applied/verified remotely."
+  ],
+  "known_limits": [
+    "Version snapshots currently preserve submit-time status and evidence metadata, not guided proposal section-body content; guided section drafts remain a follow-on for MVP-012.",
+    "Review-history UI still needs to render the returned `versions` array."
+  ],
+  "next_actions": [
+    "Apply D1 migrations remotely once Wrangler has `CLOUDFLARE_API_TOKEN`, then re-run the alpha seed/workflow smoke against preview or production.",
+    "Wire the app review-history UI to show submission version snapshots and add comment history into the same surface."
+  ],
+  "self_improvement": "none"
+}

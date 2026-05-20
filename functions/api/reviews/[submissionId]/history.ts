@@ -20,6 +20,16 @@ interface StatusHistoryRow {
   changed_by_name: string | null;
 }
 
+interface SubmissionVersionRow {
+  id: string;
+  version: number;
+  status: string;
+  submitted_at: string;
+  submitted_by_name: string | null;
+  evidence_snapshot_json: string;
+  notes: string | null;
+}
+
 export const onRequestGet: PagesFunction<Env> = async ({ request, env, params }) => {
   const submissionId = String(params?.submissionId || "").trim();
   if (!submissionId) return workflowError("missing_submission_id", 400);
@@ -71,6 +81,22 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env, params })
      LIMIT 30`,
   ).bind(submission.id).all<StatusHistoryRow>();
 
+  const versions = await env.DB.prepare(
+    `SELECT
+       submission_versions.id,
+       submission_versions.version,
+       submission_versions.status,
+       submission_versions.submitted_at,
+       submitted_by.display_name AS submitted_by_name,
+       submission_versions.evidence_snapshot_json,
+       submission_versions.notes
+     FROM submission_versions
+     LEFT JOIN user_accounts submitted_by ON submitted_by.id = submission_versions.submitted_by
+     WHERE submission_versions.submission_id = ?
+     ORDER BY submission_versions.version DESC
+     LIMIT 20`,
+  ).bind(submission.id).all<SubmissionVersionRow>();
+
   return json({
     ok: true,
     submission: {
@@ -81,5 +107,27 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env, params })
     },
     reviews: reviews.results || [],
     statusHistory: statusHistory.results || [],
+    versions: (versions.results || []).map(formatVersion),
   });
 };
+
+function formatVersion(row: SubmissionVersionRow) {
+  return {
+    id: row.id,
+    version: row.version,
+    status: row.status,
+    submittedAt: row.submitted_at,
+    submittedByName: row.submitted_by_name,
+    notes: row.notes,
+    evidence: parseEvidenceSnapshot(row.evidence_snapshot_json),
+  };
+}
+
+function parseEvidenceSnapshot(value: string): unknown[] {
+  try {
+    const parsed = JSON.parse(value || "[]");
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}

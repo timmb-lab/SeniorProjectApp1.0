@@ -138,6 +138,23 @@ test("end-to-end teacher review loop persists history and updates queue", async 
     assert.equal(toStatuses.includes("submitted"), true);
     assert.equal(toStatuses.includes("revision_requested"), true);
     assert.equal(toStatuses.includes("approved"), true);
+
+    assert.equal(body.versions.length, 2);
+    assert.deepEqual(
+      body.versions.map((row) => row.version),
+      [2, 1],
+    );
+    assert.equal(body.versions[0].status, "submitted");
+    assert.equal(body.versions[0].submittedByName, "Student A");
+    assert.equal(body.versions[0].evidence.length, 1);
+    assert.deepEqual(body.versions[0].evidence[0], {
+      id: "evidence-1",
+      title: "First evidence link",
+      artifactType: "planning_document",
+      sourceKind: "external_link",
+      reviewStatus: "pending_review",
+      createdAt: "2026-05-20T00:00:00.000Z",
+    });
   }
 });
 
@@ -172,6 +189,7 @@ async function createFixture(options = {}) {
     evidenceArtifacts: [],
     reviews: [],
     statusHistory: [],
+    submissionVersions: [],
     auditEvents: [],
   });
 
@@ -368,6 +386,22 @@ class MockPreparedStatement {
   }
 
   async all() {
+    if (this.sql.startsWith("select id, title, artifact_type, source_kind, review_status, created_at from evidence_artifacts where submission_id = ?")) {
+      const [submissionId] = this.params;
+      const results = this.data.evidenceArtifacts
+        .filter((artifact) => artifact.submission_id === submissionId && !artifact.deleted_at && artifact.review_status !== "archived")
+        .sort((left, right) => String(left.created_at).localeCompare(String(right.created_at)))
+        .map((artifact) => ({
+          id: artifact.id,
+          title: artifact.title,
+          artifact_type: artifact.artifact_type,
+          source_kind: artifact.source_kind,
+          review_status: artifact.review_status,
+          created_at: artifact.created_at,
+        }));
+      return { results };
+    }
+
     if (this.sql.includes("from submissions") && this.sql.includes("count(evidence.id) as evidence_count")) {
       const teacherUserId = this.params[0] ? String(this.params[0]) : null;
       const submissions = this.data.submissions.filter((submission) =>
@@ -400,6 +434,26 @@ class MockPreparedStatement {
         })
         .sort((left, right) => String(right.updated_at).localeCompare(String(left.updated_at)));
 
+      return { results };
+    }
+
+    if (this.sql.includes("from submission_versions")) {
+      const [submissionId] = this.params;
+      const results = this.data.submissionVersions
+        .filter((row) => row.submission_id === submissionId)
+        .map((row) => {
+          const submittedBy = this.data.userAccounts.find((account) => account.id === row.submitted_by);
+          return {
+            id: row.id,
+            version: row.version,
+            status: row.status,
+            submitted_at: row.submitted_at,
+            submitted_by_name: submittedBy?.display_name ?? null,
+            evidence_snapshot_json: row.evidence_snapshot_json,
+            notes: row.notes ?? null,
+          };
+        })
+        .sort((left, right) => Number(right.version) - Number(left.version));
       return { results };
     }
 
@@ -518,6 +572,37 @@ class MockPreparedStatement {
         reason,
         created_at: this.db.nowIso(),
       });
+      return { success: true };
+    }
+
+    if (this.sql.startsWith("insert or ignore into submission_versions")) {
+      const [
+        id,
+        submissionId,
+        studentId,
+        requirementId,
+        version,
+        submittedBy,
+        evidenceSnapshotJson,
+        notes,
+      ] = this.params;
+      const exists = this.data.submissionVersions.some(
+        (row) => row.submission_id === submissionId && Number(row.version) === Number(version),
+      );
+      if (!exists) {
+        this.data.submissionVersions.push({
+          id,
+          submission_id: submissionId,
+          student_id: studentId,
+          requirement_id: requirementId,
+          version: Number(version),
+          status: "submitted",
+          submitted_by: submittedBy,
+          submitted_at: this.db.nowIso(),
+          evidence_snapshot_json: evidenceSnapshotJson,
+          notes,
+        });
+      }
       return { success: true };
     }
 
