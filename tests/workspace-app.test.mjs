@@ -61,3 +61,14 @@ test("production surface checker includes the authenticated workspace", () => {
   assert.match(productionSurfaceCheck, /"workspace\.js"/);
   assert.match(productionSurfaceCheck, /"workspace\.css"/);
 });
+
+test("workspace evidence forms capture values before disabling controls", () => {
+  assert.match(
+    workspaceJs,
+    /const values = Object\.fromEntries\(new FormData\(form\)\.entries\(\)\);\s+setFormBusy\(form, true\);/,
+  );
+  assert.match(
+    workspaceJs,
+    /const formData = new FormData\(form\);\s+const file = formData\.get\("file"\);\s+const submissionId = String\(formData\.get\("submissionId"\) \|\| ""\);\s+setFormBusy\(form, true\);/,
+  );
+});

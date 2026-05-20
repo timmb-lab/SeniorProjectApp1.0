@@ -71,9 +71,48 @@ Seeded test accounts:
 
 These accounts are fake alpha data only. They are safe for role-flow testing but are not the final account lifecycle, import, password-reset, or district SSO replacement.
 
+## Local Workspace Smoke Seed
+
+2026-05-20 local verification found the previous `invalid_credentials` blocker was caused by local D1 containing the migrated schema but no fake `.test` user rows, while the ignored credential file already existed from a previous seed. The local Pages dev server was reading `.wrangler/state/v3/d1`, and safe `.test` row queries returned no fake users before the new seed ran.
+
+Use the local-only seed before credential-backed workspace smoke:
+
+```powershell
+powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-node-script.ps1 scripts\seed-local-workspace-smoke.mjs
+```
+
+The script:
+
+- applies local D1 migrations only with Wrangler `--local`;
+- refuses `--remote`;
+- creates or updates only fake `.test` users;
+- writes passwords only to ignored `.secrets/local-workspace-smoke-accounts.json`;
+- seeds student, program teacher, mentor, admin, misc admin, and no-role local accounts;
+- seeds one student submission and evidence fixture for workspace evidence-link/upload checks;
+- prints only redacted account/fixture metadata.
+
+Run credential-backed local smoke with:
+
+```powershell
+$env:WORKSPACE_SMOKE_BASE_URL='http://127.0.0.1:8788'
+$env:WORKSPACE_SMOKE_CREDENTIALS_FILE='.secrets\local-workspace-smoke-accounts.json'
+powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-node-script.ps1 tests\workspace-browser-smoke.test.mjs
+```
+
+The credential file is intentionally ignored by git through `.secrets/`. Never paste, commit, or print the passwords.
+
+## 2026-05-20 Workspace/Live Verification Notes
+
+- Local credential-backed workspace smoke now passes against `http://127.0.0.1:8788`: fake student login, session restore, dashboard, evidence link, Drive-missing upload blocker, unsupported upload denial, logout, and role-route coverage for `program_teacher`, `mentor`, `admin`, `misc_admin`, and no-role.
+- In-app browser verification found and fixed a real workspace UI bug: `workspace.js` disabled evidence forms before reading `FormData`, causing the visible link form to post an undefined submission ID. The form data is now captured before controls are disabled.
+- Live signed-out `https://senior-capstone-app.pages.dev/workspace.html` redirects to `/workspace`; the canonical route loads with the Senior Project Workspace title/assets/sign-in UI, `/api/auth/me` returns 401 `{ "authenticated": false }`, and signed-out logout returns `{ "ok": true }`.
+- Live fake student login succeeds with the ignored `.test` credential file; the hosted browser renders the Student Workspace with no console errors, and the live credential-backed smoke verifies dashboard, evidence link, Drive-missing upload blocker, unsupported upload denial, and logout. Role-wide live coverage was not run because the local no-role account is local-only.
+- Live `/api/health` reports `GOOGLE_DRIVE_EVIDENCE_ROOT_ID` and the evidence index configured, but `GOOGLE_DRIVE_CLIENT_EMAIL` and `GOOGLE_DRIVE_PRIVATE_KEY` are not configured. Real Drive upload/download remains blocked.
+- Repo static Cloudflare checks pass, but non-interactive Wrangler/connector live Pages/D1 management remains blocked in this shell because `CLOUDFLARE_API_TOKEN` is not set and no Cloudflare connector tool is exposed.
+
 ## Remaining Required Config
 
-- Add Google Drive server-side credential/OAuth implementation before accepting file bytes from students.
+- Add Cloudflare Pages secrets `GOOGLE_DRIVE_CLIENT_EMAIL` and `GOOGLE_DRIVE_PRIVATE_KEY` for production and preview before accepting file bytes from students. `GOOGLE_DRIVE_EVIDENCE_ROOT_ID` is already present in `wrangler.jsonc` and live health reports it configured.
 - Add permission tests and workflow tests before real student data is entered.
 - Add account lifecycle flows for invitation/import, password reset, credential rotation, and role/group management before pilot use.
 

@@ -1,0 +1,250 @@
+{
+  "run_id": "2026-05-20-1542-workspace-auth-cloudflare-live",
+  "run_started_at": "2026-05-20T15:14:20-07:00",
+  "run_finished_at": "2026-05-20T15:42:33-07:00",
+  "project_root": "C:\\SeniorProjectApp1.0",
+  "branch": "main",
+  "start_head": "bbfe41b291b610f49464254ad6c6be3b86133362",
+  "end_head": "bbfe41b291b610f49464254ad6c6be3b86133362",
+  "selected_requirement_ids": [
+    "MVP-004",
+    "MVP-006",
+    "MVP-013",
+    "MVP-014",
+    "MVP-026",
+    "MVP-027",
+    "MVP-032",
+    "MVP-033",
+    "MVP-034",
+    "MVP-039",
+    "MVP-040"
+  ],
+  "pass_count_completed": 12,
+  "files_changed": [
+    "docs/artifacts.json",
+    "docs/backend-setup.md",
+    "docs/human-decisions.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/production-surface-registry.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/human-action-email-draft-2026-05-20-cloudflare-drive.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-20-1542-workspace-auth-cloudflare-live.json",
+    "scripts/seed-local-workspace-smoke.mjs",
+    "tests/workspace-app.test.mjs",
+    "tests/workspace-browser-smoke.test.mjs",
+    "workspace.js"
+  ],
+  "local_D1_status": {
+    "status": "local-D1-tested",
+    "database": "senior-capstone-db",
+    "binding": "DB",
+    "state": ".wrangler/state/v3/d1",
+    "schema": "present",
+    "fake_test_rows_before_seed": 0,
+    "fake_test_rows_after_seed": 6,
+    "fixtures_after_seed": [
+      "alpha-2026",
+      "group-alpha-it-2026",
+      "mentor-alpha-rivera-maya",
+      "req-proposal-draft",
+      "progress-alpha-maya-proposal",
+      "submission-alpha-maya-proposal",
+      "evidence-alpha-maya-category-map"
+    ]
+  },
+  "local_seed_status": {
+    "status": "passed",
+    "script": "scripts/seed-local-workspace-smoke.mjs",
+    "local_only": true,
+    "remote_refusal": "script refuses --remote",
+    "credential_file": ".secrets/local-workspace-smoke-accounts.json",
+    "passwords_printed": false
+  },
+  "ignored_credential_file_status_redacted": {
+    "legacy_file": ".secrets/test-accounts-2026-05-18.json",
+    "local_file": ".secrets/local-workspace-smoke-accounts.json",
+    "gitignore_status": ".secrets/ is ignored by git",
+    "accounts_visible_without_passwords": [
+      "maya.student@senior-capstone.test",
+      "chen.teacher@senior-capstone.test",
+      "rivera.mentor@senior-capstone.test",
+      "lee.admin@senior-capstone.test",
+      "reporting.miscadmin@senior-capstone.test",
+      "norole.pending@senior-capstone.test"
+    ],
+    "secret_values_printed": false
+  },
+  "prior_invalid_credentials_cause": "The ignored fake .test credential file existed, but local Pages dev D1 contained the migrated schema with no fake .test user rows. Login returned invalid_credentials because there was no matching local user/password_credential row, not because an existing local hash mismatched.",
+  "prior_invalid_credentials_fixed": true,
+  "signed_out_browser_status": "local-browser-tested and live-signed-out-tested",
+  "credential_backed_browser_login_status": "credential-backed-browser-tested locally; live-signed-in-tested with fake student",
+  "session_restore_status": "credential-backed-browser-tested locally; live-signed-in-tested through /api/auth/me",
+  "student_workspace_status": "credential-backed-browser-tested locally and live-signed-in-tested for fake student",
+  "evidence_link_browser_status": "local-browser-tested through visible form; live-signed-in-tested through credential-backed smoke/API",
+  "file_upload_browser_status": "source-tested and credential-backed HTTP-tested for truthful Drive-missing blocker; Drive-live-tested blocked by missing Drive credentials",
+  "unsupported_upload_browser_status": "credential-backed local/live smoke verified unsupported_file_type rejection before provider calls",
+  "logout_browser_status": "credential-backed-browser-tested locally; live-signed-in-tested with fake student",
+  "role_browser_coverage": {
+    "student": "credential-backed-browser-tested locally and live fake student signed-in tested",
+    "program_teacher": "credential-backed local route-tested",
+    "mentor": "credential-backed local route-tested",
+    "admin": "credential-backed local route-tested",
+    "misc_admin": "credential-backed local route-tested",
+    "no_role": "credential-backed local route-tested with student dashboard forbidden"
+  },
+  "Cloudflare_access_path": {
+    "repo_script": "check:cloudflare passed static config; check:cloudflare:live blocked without token",
+    "Wrangler_session": "wrangler whoami --json attempted; reported loggedIn=false",
+    "Cloudflare_connector": "tool discovery did not expose a Cloudflare connector tool",
+    "env_token": "CLOUDFLARE_API_TOKEN missing",
+    "direct_live_https": "used for live signed-out and fake signed-in endpoint checks",
+    "browser": "used for live signed-out and fake student signed-in workspace UI checks"
+  },
+  "Cloudflare_projects_inspected": [
+    {
+      "project": "senior-capstone-app",
+      "method": "static wrangler.jsonc plus direct live HTTPS endpoints",
+      "remote_project_settings": "blocked by missing token/connector"
+    }
+  ],
+  "Cloudflare_pages_status": {
+    "static_config": "passed",
+    "production_branch": "main in docs/artifacts; remote read blocked",
+    "latest_deployment": "unknown/no token",
+    "workspace_html": "308 redirect to /workspace",
+    "workspace": "200 live-signed-out-tested"
+  },
+  "Cloudflare_D1_status": {
+    "static_binding": "DB -> senior-capstone-db / 3141d9ac-08b7-49c1-92ba-bbf50c1a611f passed",
+    "remote_read": "blocked by missing CLOUDFLARE_API_TOKEN",
+    "live_health_user_count": 5
+  },
+  "Cloudflare_secret_presence_redacted": {
+    "GOOGLE_DRIVE_EVIDENCE_ROOT_ID": "present via wrangler.jsonc and live /api/health",
+    "GOOGLE_DRIVE_EVIDENCE_INDEX_SHEET_ID": "present via wrangler.jsonc and live /api/health",
+    "GOOGLE_DRIVE_CLIENT_EMAIL": "missing via live /api/health credentialParts.clientEmail=false",
+    "GOOGLE_DRIVE_PRIVATE_KEY": "missing via live /api/health credentialParts.privateKey=false",
+    "PASSWORD_PEPPER": "unknown/no remote secret access",
+    "SESSION_PEPPER": "unknown/no remote secret access"
+  },
+  "live_workspace_signed_out_status": "live-signed-out-tested: /workspace returned 200, assets loaded, /api/auth/me returned 401 authenticated=false, signed-out logout returned ok=true, browser sign-in UI visible with zero console errors",
+  "live_workspace_signed_in_status": "live-signed-in-tested with fake student: login/session/dashboard/evidence link/upload blocker/unsupported upload/logout passed; browser rendered Student Workspace with zero console errors",
+  "Drive_secret_status_redacted": {
+    "GOOGLE_DRIVE_EVIDENCE_ROOT_ID": "present",
+    "GOOGLE_DRIVE_CLIENT_EMAIL": "missing",
+    "GOOGLE_DRIVE_PRIVATE_KEY": "missing"
+  },
+  "Drive_probe_status": "source/integration-tested; live probe not attempted because live health shows credential parts missing",
+  "Drive_upload_status": "blocked for real Drive-live-tested upload/download; local/live fake student upload smoke verified drive_credentials_missing or storage-not-configured blocker without fake success",
+  "Drive_download_status": "blocked for Drive-live-tested download because no real Drive upload could be created without credentials",
+  "validation_commands": [
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 tests\\workspace-app.test.mjs",
+      "result": "pass",
+      "summary": "4/4 workspace source tests passed."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 tests\\workspace-browser-smoke.test.mjs",
+      "result": "pass_with_expected_skips",
+      "summary": "3/3 skipped without opt-in base URL/credentials."
+    },
+    {
+      "command": "$env:WORKSPACE_SMOKE_BASE_URL='http://127.0.0.1:8788'; powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 tests\\workspace-browser-smoke.test.mjs",
+      "result": "pass",
+      "summary": "Signed-out local workspace smoke passed; credentialed tests skipped without credential file."
+    },
+    {
+      "command": "$env:WORKSPACE_SMOKE_BASE_URL='http://127.0.0.1:8788'; $env:WORKSPACE_SMOKE_CREDENTIALS_FILE='.secrets\\local-workspace-smoke-accounts.json'; powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 tests\\workspace-browser-smoke.test.mjs",
+      "result": "pass",
+      "summary": "Signed-out, credential-backed student, upload blocker, unsupported upload, logout, and role-route coverage passed."
+    },
+    {
+      "command": "$env:WORKSPACE_SMOKE_BASE_URL='https://senior-capstone-app.pages.dev'; $env:WORKSPACE_SMOKE_CREDENTIALS_FILE='.secrets\\local-workspace-smoke-accounts.json'; $env:WORKSPACE_SMOKE_SKIP_ROLE_COVERAGE='1'; powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 tests\\workspace-browser-smoke.test.mjs",
+      "result": "pass",
+      "summary": "Live signed-out and fake student credential-backed smoke passed; optional local-only role coverage skipped."
+    },
+    {
+      "command": "In-app browser at http://127.0.0.1:8788/workspace.html",
+      "result": "pass",
+      "summary": "Student login, workspace section, evidence link through visible form, logout, and zero console errors verified. Screenshot saved to ignored .secrets/browser-workspace-student-proof.png."
+    },
+    {
+      "command": "In-app browser at https://senior-capstone-app.pages.dev/workspace.html",
+      "result": "pass",
+      "summary": "Live signed-out UI and live fake student Student Workspace rendered with zero console errors."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 tests\\evidence-drive-file.integration.test.mjs",
+      "result": "pass",
+      "summary": "24/24 upload/download integration tests passed."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 check:production-surfaces",
+      "result": "pass",
+      "summary": "91 production text surfaces scanned."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 check:generated-output-drift",
+      "result": "pass",
+      "summary": "Generated output matches deterministic source expectations."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 check:cloudflare",
+      "result": "pass_static_live_blocked",
+      "summary": "Wrangler config, D1 binding, migrations, and local CLI passed; live remote inspection blocked by missing token."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 check:cloudflare:live",
+      "result": "blocked",
+      "summary": "LIVE_CLOUDFLARE_BLOCKED_NO_TOKEN."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 check",
+      "result": "pass",
+      "summary": "Aggregate check passed with 130 passing tests and 3 expected opt-in workspace smoke skips."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 automation\\qol\\doctor.mjs",
+      "result": "pass",
+      "summary": "Doctor passed; dirty worktree was the current in-progress run."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 automation\\qol\\hourly-orchestrator.mjs --smoke",
+      "result": "pass",
+      "summary": "14 smoke checks passed."
+    }
+  ],
+  "blockers": [
+    {
+      "id": "LIVE_CLOUDFLARE_BLOCKED_NO_TOKEN",
+      "message": "Cloudflare remote Pages/D1 project, deployment, and secret inspection is blocked because CLOUDFLARE_API_TOKEN is not set and Wrangler is not logged in.",
+      "owner": "Bryan",
+      "next_action": "Provide a scoped Cloudflare API token or reconnect a Cloudflare connector that exposes Pages/D1 read tools."
+    },
+    {
+      "id": "DRIVE_LIVE_BLOCKED_MISSING_CREDENTIAL_SECRETS",
+      "message": "Live /api/health reports Google Drive client email and private key credential parts missing, so real Drive upload/download cannot be verified.",
+      "owner": "Bryan",
+      "next_action": "Add GOOGLE_DRIVE_CLIENT_EMAIL and GOOGLE_DRIVE_PRIVATE_KEY in Cloudflare Pages production, then rerun Drive probe/upload/download."
+    }
+  ],
+  "Bryan_action_required": true,
+  "human_action_email_path": "docs/progress/human-action-email-draft-2026-05-20-cloudflare-drive.md",
+  "commit": {
+    "closeout_commit_sha": "recorded in final report after commit; a commit cannot contain its own hash",
+    "contains_self_hash": false
+  },
+  "pushed": {
+    "status": "recorded in final report after push",
+    "contains_self_push_result": false
+  },
+  "next_best_passes": [
+    "After Cloudflare deploys this commit, re-run live workspace browser evidence-link UI proof to confirm the form-data fix is live.",
+    "After Bryan adds Drive credential secrets, run live Drive probe plus small and >5MB upload/download through fake student workspace.",
+    "Use a Cloudflare token/connector to inspect Pages production deployment commit, D1 binding, and secret presence by name only.",
+    "Add browser-visible role-pending and permission-denied states for no-role/no-assignment/disabled/reset-required accounts.",
+    "Broaden no-hidden-core-content route coverage across every public Student/Teacher guide route."
+  ],
+  "figma_lane_untouched": true
+}

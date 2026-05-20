@@ -489,8 +489,8 @@ async function attachEvidenceLink(event) {
   if (busy) return;
   busy = true;
   const form = event.currentTarget;
-  setFormBusy(form, true);
   const values = Object.fromEntries(new FormData(form).entries());
+  setFormBusy(form, true);
 
   try {
     const response = await fetch(`/api/submissions/${encodeURIComponent(values.submissionId)}/evidence`, {
@@ -520,10 +520,10 @@ async function uploadEvidenceFile(event) {
   if (busy) return;
   busy = true;
   const form = event.currentTarget;
-  setFormBusy(form, true);
   const formData = new FormData(form);
   const file = formData.get("file");
   const submissionId = String(formData.get("submissionId") || "");
+  setFormBusy(form, true);
 
   if (!file || typeof file !== "object" || !Number.isFinite(file.size)) {
     busy = false;

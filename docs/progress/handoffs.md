@@ -44,10 +44,10 @@ Status values:
 - `status`: open
 - `source`: P0 production app/website gate
 - `artifact`: `docs/master-plan.md`, `docs/mvp-requirements-catalog.md`, `docs/production-surface-registry.md`, `docs/source-materials/production-content-crosswalk.md`, `scripts/check-production-surfaces.mjs`, `SC-007`
-- `next action`: Broaden no-hidden-core-content coverage proof across every public guide route, align local fake `.test` credentials with local D1 state, then run credential-backed browser smoke for `workspace.html` login/session restore, role sections, evidence link, upload blocked state, and logout; verify hosted workspace login/upload once live secrets are available.
-- `acceptance check`: Public website mode toggle stays visible with source-aligned Student/Teacher content; normal public nav stays free of alpha/account/internal QA links; canonical `workspace.html` route requires auth and chooses screens from D1-backed role/scope, with signed-in browser proof for every seeded role.
-- `evidence to close`: Passing `check:production-surfaces`, `check:generated-output-drift`, `check`, `tests/workspace-app.test.mjs`, `tests/workspace-browser-smoke.test.mjs` against a local Pages dev target, route-level no-hidden-core-content evidence, credential-backed browser role/upload/logout proof, and live verification for hosted workspace auth/upload when Cloudflare/Drive secrets are available.
-- `last updated`: 2026-05-20 15:09 PT
+- `next action`: Broaden no-hidden-core-content coverage proof across every public guide route, then complete live Drive upload/download once Bryan adds the missing Google Drive credential secrets. Keep expanding canonical workspace UI coverage for role-pending and permission-denied states, but local fake `.test` credentials are now aligned with local D1.
+- `acceptance check`: Public website mode toggle stays visible with source-aligned Student/Teacher content; normal public nav stays free of alpha/account/internal QA links; canonical `workspace.html` route requires auth and chooses screens from D1-backed role/scope, with credential-backed proof for local student login/session/evidence/upload-block/logout and local role routes. Live Drive upload/download remains required before pilot uploads.
+- `evidence to close`: Passing `check:production-surfaces`, `check:generated-output-drift`, `check`, `tests/workspace-app.test.mjs`, credential-backed `tests/workspace-browser-smoke.test.mjs` against local Pages dev, in-app browser signed-in workspace/evidence/logout proof, direct live signed-out/signed-in workspace proof, and live Drive upload/download after Cloudflare Drive secrets are configured.
+- `last updated`: 2026-05-20 15:42 PT
 
 ### H-2026-05-20-008
 

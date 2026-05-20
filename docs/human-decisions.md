@@ -12,7 +12,7 @@ Status values:
 
 ## Open Decisions
 
-No open external automation scheduler decisions are blocking the current scaffold. The Google Drive evidence root folder is selected and configured, first-admin bootstrap is complete for `bryan.timm89@gmail.com`, and the production setup key has been removed. Remaining setup work is configuration/implementation: add server-side Drive upload credentials before real student data is entered, add account lifecycle flows, broaden permission tests, and provide `CLOUDFLARE_API_TOKEN` before the next live read-only Pages/D1 verification or remote mutation/deploy proof.
+No open external automation scheduler decisions are blocking the current scaffold. The Google Drive evidence root folder is selected and configured, first-admin bootstrap is complete for `bryan.timm89@gmail.com`, and the production setup key has been removed. Remaining setup work is configuration/implementation: add Cloudflare Pages Google Drive credential secrets before real student uploads, add account lifecycle flows, broaden permission tests, and provide `CLOUDFLARE_API_TOKEN` before the next non-interactive Pages/D1 project/deployment/secret verification or remote mutation/deploy proof.
 
 ### HD-2026-05-20-002
 
@@ -54,8 +54,19 @@ No open external automation scheduler decisions are blocking the current scaffol
 - `owner`: Bryan
 - `severity`: P1
 - `decision needed`: Decide whether to provide `CLOUDFLARE_API_TOKEN` for read-only non-interactive Pages/D1 verification before the next deploy or custom-domain cutover.
-- `current recommendation`: Provide a scoped token for verification runs when possible; if unavailable, record `LIVE_CLOUDFLARE_BLOCKED_NO_TOKEN` and treat only static Cloudflare checks as passed.
+- `current recommendation`: Provide a scoped token for verification runs when possible; if unavailable, record `LIVE_CLOUDFLARE_BLOCKED_NO_TOKEN` for remote Pages/D1 management and treat only static Cloudflare checks plus direct live endpoint checks as passed. On 2026-05-20, repo `check:cloudflare` passed static config, `check:cloudflare:live` failed because no token was exported, Wrangler `whoami --json` reported `loggedIn:false`, tool discovery did not expose a Cloudflare connector, and direct live signed-out/signed-in endpoint checks for `senior-capstone-app` passed.
 - `decision workflow`: `docs/production-predeploy-checklist.md`
+- `created`: 2026-05-20
+
+### HD-2026-05-20-006
+
+- `status`: open
+- `area`: Google Drive service-account secrets for live uploads
+- `owner`: Bryan
+- `severity`: P1
+- `decision needed`: Add or verify the Cloudflare Pages secret values for `GOOGLE_DRIVE_CLIENT_EMAIL` and `GOOGLE_DRIVE_PRIVATE_KEY` in `senior-capstone-app` production, and preview if preview upload testing is desired.
+- `current recommendation`: Add both Drive credential secrets in Cloudflare Pages without exposing values in repo or chat, then rerun live Drive probe/upload/download verification with fake `.test` accounts only. Live `/api/health` on 2026-05-20 reports `GOOGLE_DRIVE_EVIDENCE_ROOT_ID` and the index configured, but `googleDriveCredentialParts.clientEmail=false` and `googleDriveCredentialParts.privateKey=false`, so real Drive upload/download is blocked.
+- `decision workflow`: `docs/progress/human-action-email-draft-2026-05-20-cloudflare-drive.md`
 - `created`: 2026-05-20
 
 ## Accepted Decisions

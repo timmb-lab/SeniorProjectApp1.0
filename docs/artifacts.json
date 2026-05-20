@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-05-20T14:45:00-07:00",
+  "updated_at": "2026-05-20T15:42:00-07:00",
   "artifacts": [
     {
       "id": "cloudflare-pages-senior-capstone-app",
@@ -139,8 +139,12 @@
         "2026-05-20: in-app browser smoke confirmed the visible Senior Project Workspace H1, sign-in prompt, email/password fields, return-to-guide link, no forbidden visible dev-copy terms, and no console errors.",
         "2026-05-20: production-surface checker includes workspace.html, workspace.js, and workspace.css and passed locally.",
         "2026-05-20: evidence upload integration test passed with missing-session, missing-submission, cross-student denial, non-student denial, invalid file, missing Drive config/credential, token/provider failure, success, and resumable coverage.",
-        "2026-05-20: credential-backed local browser login with the ignored fake .test account file was attempted, but the local Pages/D1 target returned invalid credentials; signed-in browser role/upload/logout proof remains blocked until local seeded credentials and D1 state are aligned.",
-        "Live hosted workspace auth/upload verification remains blocked until Cloudflare and Google Drive secrets are available in the target environment."
+        "2026-05-20: local D1 investigation proved the prior invalid_credentials blocker was no fake .test rows in the local Pages dev D1 state, while ignored credentials existed from an older seed.",
+        "2026-05-20: scripts/seed-local-workspace-smoke.mjs now seeds local-only fake .test accounts, roles/scopes, a student submission, and evidence fixture, writing passwords only to ignored .secrets/local-workspace-smoke-accounts.json.",
+        "2026-05-20: credential-backed local smoke passed for fake student login, /api/auth/me session restore, dashboard, evidence link, truthful Drive-missing upload blocker, unsupported upload denial, logout, and role-route coverage for program_teacher, mentor, admin, misc_admin, and no-role.",
+        "2026-05-20: in-app browser signed-in smoke found and verified the workspace form-data fix; student evidence-link submission succeeded through the visible UI, logout returned sign-in UI, and console errors were empty.",
+        "2026-05-20: live hosted signed-out workspace passed at https://senior-capstone-app.pages.dev/workspace after /workspace.html redirected; live fake student signed-in API/browser smoke passed for login, student workspace, dashboard, evidence link, Drive-missing upload blocker, unsupported upload denial, and logout.",
+        "2026-05-20: live /api/health reports evidence root/index configured but Google Drive client email and private key credential parts missing, so real Drive upload/download remains blocked."
       ],
       "last_updated": "2026-05-20"
     },
@@ -204,6 +208,10 @@
           "role": "mentor"
         },
         {
+          "email": "lee.admin@senior-capstone.test",
+          "role": "admin"
+        },
+        {
           "email": "reporting.miscadmin@senior-capstone.test",
           "role": "misc_admin",
           "scope": "reporting:alpha-readiness"
@@ -221,7 +229,7 @@
       ],
       "verification": [
         "Admin-only seed endpoint deployed in commit dc2f82a and production deployment c7908d04.",
-        "All four fake role accounts logged in successfully and returned the expected roles through /api/auth/me on 2026-05-18.",
+        "Four fake role accounts logged in successfully and returned the expected roles through /api/auth/me on 2026-05-18; 2026-05-20 live fake student login/session/dashboard was reverified from the ignored credential file.",
         "Unauthenticated POST /api/admin/test-accounts returned 401 and logged-in student POST returned 403.",
         "The endpoint writes test_accounts_seeded audit events and does not return passwords."
       ],

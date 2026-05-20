@@ -415,3 +415,17 @@ Future productive runs should append compact entries that name the master-plan s
 - `blockers`: canonical authenticated role-aware production app route is still TBD; fuller no-hidden-core-content route coverage remains; live Cloudflare verification still requires `CLOUDFLARE_API_TOKEN`.
 - `phone tracker`: appended to `Senior Capstone QoL Run Tracker` at 2026-05-20 14:14 PT.
 - `self-improvement`: none.
+
+## 2026-05-20 15:42 PT - MVP Workspace Auth + Cloudflare Live Verification
+
+- `automation ID`: `senior-capstone-nonfigma-mvp-builder`
+- `lane`: backend-security-data / student-workflow-evidence / deployment-qa.
+- `master-plan sections`: P0 Production Experience Gate; Role-Aware Production App Contract; Day 7 Alpha Gate; Logging Requirements.
+- `requirement IDs`: `MVP-004`, `MVP-006`, `MVP-013`, `MVP-014`, `MVP-026`, `MVP-027`, `MVP-032`, `MVP-033`, `MVP-034`, `MVP-039`, `MVP-040`.
+- `selected slice`: Repair local fake `.test` account seeding, prove credential-backed canonical workspace behavior, attempt Cloudflare-connected checks, verify hosted workspace signed-out/signed-in paths, and record exact Drive/Cloudflare blockers.
+- `what changed`: Added `scripts/seed-local-workspace-smoke.mjs`; expanded `tests/workspace-browser-smoke.test.mjs` for credential-backed student/role/live smoke; fixed `workspace.js` evidence forms to capture `FormData` before disabling controls; added a source regression test; updated backend/setup, catalog, registry, artifacts, handoffs, human decisions, human-action email draft, and structured run manifest.
+- `verification`: local D1 seeded six fake `.test` users and fixtures; local credential-backed smoke passed against `http://127.0.0.1:8788`; in-app browser signed-in student evidence-link/logout proof passed with no console errors; live signed-out workspace passed; live fake student signed-in smoke passed with Drive upload truthfully blocked by missing Drive credentials; `check:cloudflare` passed static config while `check:cloudflare:live` remained blocked by missing `CLOUDFLARE_API_TOKEN`.
+- `blockers`: non-interactive Cloudflare Pages/D1 project/deployment/secret inspection still requires `CLOUDFLARE_API_TOKEN`; live Drive upload/download still requires `GOOGLE_DRIVE_CLIENT_EMAIL` and `GOOGLE_DRIVE_PRIVATE_KEY` in Cloudflare Pages.
+- `human action`: email-ready draft saved at `docs/progress/human-action-email-draft-2026-05-20-cloudflare-drive.md`.
+- `commit`: final commit SHA recorded in final response because a commit cannot contain its own hash.
+- `self-improvement`: canonical workspace smoke now catches disabled-form-control data loss before it can silently break evidence submission again.
