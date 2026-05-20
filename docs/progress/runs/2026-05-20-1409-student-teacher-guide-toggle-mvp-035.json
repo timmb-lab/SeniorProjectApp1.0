@@ -153,5 +153,6 @@
   },
   "implementation_commit_sha": "c2477ec9febae91893fb3b12c2ebd1e67393336e",
   "closeout_commit_sha": "a9e0a1d",
-  "push_result": "pushed to origin main: b6b24ac..a9e0a1d; phone tracker evidence commit pending"
+  "tracker_evidence_commit_sha": "c1bc4071e9a5cc697189e22321ab1e69080fe45d",
+  "push_result": "pushed to origin main through tracker evidence commit c1bc4071e9a5cc697189e22321ab1e69080fe45d"
 }
