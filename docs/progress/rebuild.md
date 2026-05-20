@@ -161,5 +161,5 @@ Each rebuild run should append a dated entry with:
 - `files changed`: `functions/api/submissions/[id]/submit.ts`, `tests/review-loop.integration.test.mjs`, `docs/mvp-requirements-catalog.md`, `docs/automation-memory.md`, `docs/progress/rebuild.md`, `docs/progress/run-log.md`, and `docs/progress/runs/2026-05-20-0416-submit-evidence-gate-mvp-012.json`.
 - `validation`: `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 test` (pass).
 - `self-improvement`: none.
-- `commit/push status`: pending in this run.
+- `commit/push status`: committed + pushed `40ab48e` (`rebuild: block submit without evidence (MVP-012)`).
 - `next action`: Extend the student workflow by persisting guided section drafts/version history and wiring the submit gate into the UI so students see the specific missing-evidence requirement before a submit attempt.
