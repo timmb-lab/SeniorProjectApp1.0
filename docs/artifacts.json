@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-05-20T13:13:00-07:00",
+  "updated_at": "2026-05-20T14:09:00-07:00",
   "artifacts": [
     {
       "id": "cloudflare-pages-senior-capstone-app",
@@ -70,6 +70,43 @@
         "Cloudflare Pages production served alpha.html and /api/alpha/state for commit 17a04f3 on 2026-05-18."
       ],
       "last_updated": "2026-05-18"
+    },
+    {
+      "id": "public-student-teacher-guide-mode",
+      "type": "public_website_mode",
+      "status": "active",
+      "owner_lane": "student-workflow-evidence",
+      "title": "Public Student/Teacher Guide Mode",
+      "url": "https://senior-capstone-app.pages.dev/",
+      "generated_url": "https://senior-capstone-public.pages.dev/",
+      "local_entry": "index.html",
+      "generated_entry": "public-companion/index.html",
+      "purpose": "Public website top-banner mode that switches emphasis between Student Guide and Teacher Guide without acting as login or permissions.",
+      "app_placement": "Production public guide and generated public companion mirror.",
+      "consuming_lanes": [
+        "requirements-audit",
+        "student-workflow-evidence",
+        "deployment-qa",
+        "daily-report",
+        "weekly-deep-audit"
+      ],
+      "repo_records": [
+        "app.js",
+        "styles.css",
+        "public-companion/app.js",
+        "public-companion/styles.css",
+        "scripts/check-production-surfaces.mjs",
+        "tests/account-and-evidence-access.test.mjs",
+        "docs/source-materials/production-content-crosswalk.md"
+      ],
+      "verification": [
+        "2026-05-20: focused account/evidence/public-site source test passed with 5/5 tests.",
+        "2026-05-20: production-surface checker passed with 86 production text surfaces scanned and no Student/Teacher toggle pending warning.",
+        "2026-05-20: public-companion generated output rebuilt from source; generated-output drift and site-option checks passed.",
+        "2026-05-20: aggregate check passed with static Cloudflare checks and live Cloudflare verification blocked only by missing CLOUDFLARE_API_TOKEN.",
+        "2026-05-20: in-app browser verification was attempted but blocked because no active Codex browser pane was available."
+      ],
+      "last_updated": "2026-05-20"
     },
     {
       "id": "cloudflare-d1-senior-capstone-db",

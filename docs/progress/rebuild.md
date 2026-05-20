@@ -280,3 +280,16 @@ Each rebuild run should append a dated entry with:
 - `self-improvement`: none.
 - `commit/push status`: implementation commit `d1dfb69b98b98850342d7d8c97b08929e3938641` pushed to `origin main` (`d74967e..d1dfb69`); closeout docs commit pending.
 - `next action`: Apply/verify `0006_presentation_slots.sql` remotely when `CLOUDFLARE_API_TOKEN` is available, then add `/api/presentation-slots/:id/check-in` or equivalent check-out/check-in state changes with audit coverage.
+
+### 2026-05-20 14:09 PT - MVP-035 Student/Teacher Public Guide Mode
+
+- `automation`: `senior-capstone-nonfigma-mvp-builder`
+- `master-plan section`: P0 Production Experience Gate; Student And Teacher Website Contract; Logging Requirements.
+- `source docs/logs read`: automation memory fallback at `C:\Users\bryan\.codex\automations\senior-capstone-nonfigma-mvp-builder\memory.md`, required master plan/catalog/cadence/runbook/self-improvement/memory/milestones/progress docs, recent run manifests, `docs/source-materials/production-content-crosswalk.md`, `docs/production-surface-registry.md`, public site source, generator, production-surface checker, and public-surface source tests.
+- `backlog or requirement IDs selected`: `SC-007`, `MVP-031`, `MVP-035`, `MVP-036`, `MVP-037`, `MVP-038`, `MVP-039`.
+- `bounded scope`: Implement the public Student Guide / Teacher Guide top-banner toggle in the public site source, keep both guide summaries visible, rebuild generated public output, and strengthen source validation for exact guide-toggle markers.
+- `files changed`: `app.js`, `styles.css`, `public-companion/app.js`, `public-companion/styles.css`, `scripts/check-production-surfaces.mjs`, `tests/account-and-evidence-access.test.mjs`, `docs/mvp-requirements-catalog.md`, `docs/production-surface-registry.md`, `docs/source-materials/production-content-crosswalk.md`, `docs/automation-backlog.md`, `docs/automation-memory.md`, `docs/artifacts.json`, `docs/progress/handoffs.md`, `docs/progress/run-log.md`, and structured run manifest.
+- `validation`: `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-node-script.ps1 tests\account-and-evidence-access.test.mjs` passed with 5/5 tests; `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-node-script.ps1 scripts\check-production-surfaces.mjs` passed with 86 surfaces; `build:public-site`, `check:generated-output-drift`, `check:site-options`, and aggregate `check` passed. Browser verification was attempted through the in-app Browser plugin and blocked with no active Codex browser pane available.
+- `self-improvement`: none.
+- `commit/push status`: implementation commit `c2477ec9febae91893fb3b12c2ebd1e67393336e` created; closeout docs commit and push pending.
+- `next action`: Broaden public route-level no-hidden-core-content proof, then designate/build the canonical authenticated role-aware production app route.

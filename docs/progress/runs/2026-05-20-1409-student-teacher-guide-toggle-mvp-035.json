@@ -1,0 +1,150 @@
+{
+  "run_id": "2026-05-20-1409-student-teacher-guide-toggle-mvp-035",
+  "timestamp_local": "2026-05-20T14:09:10-07:00",
+  "automation_id": "senior-capstone-nonfigma-mvp-builder",
+  "lane": "student-workflow-evidence",
+  "status": "completed",
+  "accepted_mvp_pass": true,
+  "requirement_ids": [
+    "MVP-031",
+    "MVP-035",
+    "MVP-036",
+    "MVP-037",
+    "MVP-038",
+    "MVP-039"
+  ],
+  "backlog_ids": [
+    "SC-007"
+  ],
+  "duration_minutes": 9,
+  "output_kind": "public-site-ui+generated-output+tests+docs",
+  "scope": "Implement the public Student Guide / Teacher Guide top-banner mode in the public site source, rebuild generated public-companion output, and strengthen production-surface validation around exact guide-toggle markers.",
+  "repo_identity": {
+    "root": "C:/SeniorProjectApp1.0",
+    "branch_before": "main",
+    "branch_after": "main",
+    "remote": "https://github.com/timmb-lab/SeniorProjectApp1.0.git",
+    "start_commit": "b6b24ac audit: enforce production app and website experience gate"
+  },
+  "source_docs_read": [
+    "C:\\Users\\bryan\\.codex\\automations\\senior-capstone-nonfigma-mvp-builder\\memory.md",
+    "docs/master-plan.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/automation-cadence.md",
+    "docs/automation-runbook.md",
+    "docs/automation-self-improvement.md",
+    "docs/automation-memory.md",
+    "docs/automation-milestones.md",
+    "docs/progress/run-log.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/decision-log.md",
+    "docs/automation-backlog.md",
+    "docs/artifacts.json",
+    "docs/human-decisions.md",
+    "docs/progress/runs/2026-05-20-1327-production-app-website-gate.json",
+    "docs/progress/runs/2026-05-20-1306-presentation-slots-mvp-017.json",
+    "docs/progress/runs/2026-05-20-1235-figma-alpha-handoff-consumption.json",
+    "docs/progress/runs/2026-05-20-1206-alpha-review-history-main-console-mvp-015-016.json",
+    "docs/progress/runs/2026-05-20-1018-review-history-ui-mvp-015-016.json",
+    "docs/source-materials/production-content-crosswalk.md",
+    "docs/production-surface-registry.md",
+    "app.js",
+    "styles.css",
+    "index.html",
+    "scripts/build-public-site.mjs",
+    "scripts/check-production-surfaces.mjs",
+    "tests/account-and-evidence-access.test.mjs"
+  ],
+  "changes": [
+    "Added a sticky-header Student Guide / Teacher Guide segmented mode control with visible Viewing labels, Switch labels, aria-pressed state, and public localStorage preference key senior-capstone-guide-mode.",
+    "Added visible home-page Student Guide and Teacher Guide summary cards that keep core source-aligned student and teacher responsibilities visible at the same time.",
+    "Added responsive styling for the guide control and guide cards.",
+    "Rebuilt generated public-companion app.js/styles.css from source.",
+    "Strengthened scripts/check-production-surfaces.mjs so future checks look for exact guide-toggle markers.",
+    "Extended tests/account-and-evidence-access.test.mjs to cover the public guide mode markers and no-auth boundary.",
+    "Updated MVP catalog, production surface registry, source crosswalk, backlog, automation memory, artifact registry, handoff ledger, rebuild log, run log, and this manifest."
+  ],
+  "changed_files": [
+    "app.js",
+    "styles.css",
+    "public-companion/app.js",
+    "public-companion/styles.css",
+    "scripts/check-production-surfaces.mjs",
+    "tests/account-and-evidence-access.test.mjs",
+    "docs/artifacts.json",
+    "docs/automation-backlog.md",
+    "docs/automation-memory.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/production-surface-registry.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/rebuild.md",
+    "docs/progress/run-log.md",
+    "docs/source-materials/production-content-crosswalk.md",
+    "docs/progress/runs/2026-05-20-1409-student-teacher-guide-toggle-mvp-035.json"
+  ],
+  "validation": [
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 tests\\account-and-evidence-access.test.mjs",
+      "result": "passed",
+      "summary": "Focused account/evidence/public-site source test passed: 5/5."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 scripts\\check-production-surfaces.mjs",
+      "result": "passed",
+      "summary": "Production surface leak check passed: 86 production text surfaces scanned; no guide-toggle pending warning."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 build:public-site",
+      "result": "passed",
+      "summary": "Built public-companion with 35 top-level entries."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 check:generated-output-drift",
+      "result": "passed",
+      "summary": "Public companion and stakeholder review outputs match deterministic source expectations."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 check:site-options",
+      "result": "passed",
+      "summary": "Three site roots and manifest pages are present."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 check",
+      "result": "passed-static-live-blocked",
+      "summary": "Aggregate check passed: 118/118 tests, production checks, generated-output drift, route inventory, static Cloudflare checks, and live Cloudflare blocked only by missing CLOUDFLARE_API_TOKEN."
+    },
+    {
+      "command": "Browser plugin in-app verification of file:///C:/SeniorProjectApp1.0/index.html",
+      "result": "blocked",
+      "summary": "Attempted after frontend changes; blocked because no active Codex browser pane was available."
+    },
+    {
+      "command": "Get-Content docs/artifacts.json | ConvertFrom-Json; manifest JSON parse; git diff --check",
+      "result": "passed",
+      "summary": "Artifact registry and structured run manifest parsed as JSON; whitespace check passed with line-ending warnings only."
+    }
+  ],
+  "blockers": [
+    "Canonical authenticated role-aware production app route is still TBD.",
+    "Full public-route no-hidden-core-content proof remains incomplete beyond the home guide summary cards.",
+    "Live Cloudflare Pages/D1 verification still requires CLOUDFLARE_API_TOKEN.",
+    "In-app browser visual verification could not run because no active Codex browser pane was available."
+  ],
+  "next_actions": [
+    "Broaden no-hidden-core-content coverage proof across every public guide route.",
+    "Designate and build the canonical authenticated role-aware production app route.",
+    "Run live Cloudflare verification when CLOUDFLARE_API_TOKEN is available."
+  ],
+  "automation_efficiency": {
+    "scale_signal": "accepted implementation pass; no cadence change recommended"
+  },
+  "self_improvement": "none",
+  "figma_work_avoided": true,
+  "run_log_updated": true,
+  "structured_manifest_created": true,
+  "artifacts_json_updated": true,
+  "mvp_catalog_changed": true,
+  "implementation_commit_sha": "c2477ec9febae91893fb3b12c2ebd1e67393336e",
+  "closeout_commit_sha": "pending final docs commit",
+  "push_result": "pending final push"
+}

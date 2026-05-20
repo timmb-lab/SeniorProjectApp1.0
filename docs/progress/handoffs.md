@@ -44,10 +44,10 @@ Status values:
 - `status`: open
 - `source`: P0 production app/website gate
 - `artifact`: `docs/master-plan.md`, `docs/mvp-requirements-catalog.md`, `docs/production-surface-registry.md`, `docs/source-materials/production-content-crosswalk.md`, `scripts/check-production-surfaces.mjs`, `SC-007`
-- `next action`: Implement the Student Guide / Teacher Guide top-banner toggle in the public site source, rebuild generated public output, and then designate/build the canonical authenticated role-aware production app route.
-- `acceptance check`: Public website mode toggle exists with visible source-aligned content; normal public nav stays free of alpha/account/internal QA links; canonical app route requires auth and chooses screens from D1-backed role/scope.
-- `evidence to close`: Passing `check:production-surfaces`, `check:generated-output-drift`, and `check`, plus source/generator changes for the website toggle and route/test evidence for the canonical app.
-- `last updated`: 2026-05-20 13:27 PT
+- `next action`: Broaden no-hidden-core-content coverage proof across every public guide route, then designate/build the canonical authenticated role-aware production app route.
+- `acceptance check`: Public website mode toggle stays visible with source-aligned Student/Teacher content; normal public nav stays free of alpha/account/internal QA links; canonical app route requires auth and chooses screens from D1-backed role/scope.
+- `evidence to close`: Passing `check:production-surfaces`, `check:generated-output-drift`, and `check`, plus route-level no-hidden-core-content evidence and route/test evidence for the canonical role-aware app.
+- `last updated`: 2026-05-20 14:09 PT
 
 ### H-2026-05-20-008
 
