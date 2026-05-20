@@ -48,8 +48,8 @@ function Assert-NotMatch {
 function Assert-NoOldAutomationTraces {
     $tracePatterns = @(
         @{ Pattern = ("senior-capstone-" + "qol-"); Label = "old QoL automation ID prefix" },
-        @{ Pattern = ("senior-capstone-" + "public-site-refresh"); Label = "old support automation ID" },
-        @{ Pattern = ("senior-capstone-" + "figma-product-design-rebuilt"); Label = "old Figma automation ID" },
+        @{ Pattern = ("senior" + "-capstone-" + "public" + "-site" + "-refresh"); Label = "retired support ID" },
+        @{ Pattern = ("senior" + "-capstone-" + "figma" + "-product" + "-design" + "-rebuilt"); Label = "old Figma automation ID" },
         @{ Pattern = ("automation-" + "prompts"); Label = "old prompt snapshot directory" },
         @{ Pattern = ("automation-" + "config"); Label = "old automation config file" },
         @{ Pattern = ("snapshot-" + "automation"); Label = "old snapshot script" },

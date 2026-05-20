@@ -1,6 +1,0 @@
-﻿ M app.js
- M automation/qol/state/plan-index.json
- M automation/qol/state/state.json
- M styles.css
-?? automation/figma-mcp/
-?? cleanup-evidence/
