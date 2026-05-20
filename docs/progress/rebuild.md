@@ -122,7 +122,7 @@ Each rebuild run should append a dated entry with:
 - `external/config changes`: No new remote mutation in this docs pass; production D1 had already been seeded through `POST /api/admin/test-accounts` after deployment `c7908d04` for commit `dc2f82a`.
 - `validation`: `/api/health` returned `environment=production`, `authMode=hardened_username_password`, Google Drive evidence configuration, and `userCount=5`; all four fake `.test` accounts logged in and returned expected roles through `/api/auth/me`; unauthenticated seed call returned 401 and logged-in student seed call returned 403.
 - `self-improvement`: none.
-- `commit/push status`: pending in this run.
+- `commit/push status`: committed + pushed in this run.
 - `next action`: Build broader permission/protected-evidence tests, add Drive upload credential/OAuth, and implement account lifecycle flows while keeping fake alpha test accounts available for walkthroughs.
 
 ### 2026-05-20 01:13 PT - MVP-014 Evidence Download Access Tests
