@@ -1,0 +1,110 @@
+{
+  "run_id": "2026-05-20-1206-alpha-review-history-main-console-mvp-015-016",
+  "timestamp_local": "2026-05-20T12:06:53-07:00",
+  "automation_id": "senior-capstone-nonfigma-mvp-builder",
+  "lane": "staff-review-mentor",
+  "status": "completed",
+  "accepted_mvp_pass": true,
+  "requirement_ids": [
+    "MVP-015",
+    "MVP-016"
+  ],
+  "backlog_ids": [
+    "SC-005",
+    "SC-006"
+  ],
+  "output_kind": "alpha-ui+state-model+tests+docs",
+  "scope": "Preserve teacher comments, status timeline events, and immutable submission version snapshots in the primary server-owned alpha state, then render them in the main alpha console with storage-identifier blocking.",
+  "source_docs_read": [
+    "C:\\Users\\bryan\\.codex\\automations\\senior-capstone-nonfigma-mvp-builder\\memory.md",
+    "docs/master-plan.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/automation-cadence.md",
+    "docs/automation-runbook.md",
+    "docs/automation-self-improvement.md",
+    "docs/automation-memory.md",
+    "docs/automation-milestones.md",
+    "docs/progress/run-log.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/decision-log.md",
+    "docs/automation-backlog.md",
+    "docs/artifacts.json",
+    "docs/human-decisions.md",
+    "docs/progress/runs/2026-05-20-1135-figma-review-history-prototype-alignment.json",
+    "docs/progress/runs/2026-05-20-1018-review-history-ui-mvp-015-016.json",
+    "docs/progress/runs/2026-05-20-0905-review-history-comments-mvp-015-016.json",
+    "alpha.html",
+    "alpha.js",
+    "alpha.css",
+    "functions/_lib/alpha-flow-model.js",
+    "functions/api/alpha/state.js",
+    "functions/api/reviews/[submissionId]/history.ts",
+    "tests/alpha-flow.test.mjs",
+    "tests/account-and-evidence-access.test.mjs",
+    "scripts/check-alpha-contract.mjs"
+  ],
+  "changes": [
+    "Added comments, versions, and statusHistory arrays to the alpha seed/state normalization path.",
+    "Recorded status timeline events and submission version snapshots during alpha submit and resubmit actions.",
+    "Recorded student-and-staff-visible alpha review comments during revision request and approval actions.",
+    "Replaced the primary alpha console's flat review list with sections for teacher comments, review decisions, submission versions, and status timeline events.",
+    "Added a review-history storage-identifier guard to the primary alpha console so private Drive/storage identifiers are blocked from rendering.",
+    "Extended alpha state-machine tests and alpha contract checks to cover comments, versions, status history, and renderer guardrails.",
+    "Updated MVP catalog, handoff ledger, rebuild lane log, run log, automation memory, and this manifest."
+  ],
+  "validation": [
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 tests\\alpha-flow.test.mjs",
+      "result": "passed",
+      "summary": "Focused alpha state-machine tests passed: 12/12."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 check:alpha-contract",
+      "result": "passed",
+      "summary": "Alpha contract check passed with 5 personas, 12 workflow actions, and seeded evidence."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 tests\\account-and-evidence-access.test.mjs",
+      "result": "passed",
+      "summary": "Account/evidence smoke source tests passed: 4/4."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 check",
+      "result": "passed-static-live-blocked",
+      "summary": "Aggregate check passed, including alpha contract, split cadence, production surfaces, generated-output drift, Cloudflare static verification, 116 tests, and typecheck; live Cloudflare verification remained blocked without CLOUDFLARE_API_TOKEN."
+    },
+    {
+      "command": "Get-Content -LiteralPath 'docs/progress/runs/2026-05-20-1206-alpha-review-history-main-console-mvp-015-016.json' -Raw | ConvertFrom-Json | Out-Null; git diff --check",
+      "result": "passed",
+      "summary": "Structured manifest parsed as JSON and whitespace check passed."
+    }
+  ],
+  "changed_files": [
+    "alpha.css",
+    "alpha.js",
+    "functions/_lib/alpha-flow-model.js",
+    "scripts/check-alpha-contract.mjs",
+    "tests/alpha-flow.test.mjs",
+    "docs/automation-memory.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/rebuild.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-20-1206-alpha-review-history-main-console-mvp-015-016.json"
+  ],
+  "blockers": [
+    "Live Cloudflare verification and remote D1 migration verification still require CLOUDFLARE_API_TOKEN; this run did not perform remote mutation or live deploy proof."
+  ],
+  "next_actions": [
+    "After deploy, smoke /alpha.html and /api/alpha/state to confirm the primary alpha console renders review history in the hosted environment.",
+    "Apply and verify migrations/0005_submission_versions.sql against remote D1 once CLOUDFLARE_API_TOKEN is available.",
+    "Continue Day 7 alpha depth with mentor/presentation/admin workflow surfaces if review-history hosted smoke is clean."
+  ],
+  "self_improvement": "Strengthened scripts/check-alpha-contract.mjs so primary alpha review-history comments, immutable versions, and storage-identifier blocking stay covered.",
+  "figma_work_avoided": true,
+  "run_log_updated": true,
+  "structured_manifest_created": true,
+  "mvp_catalog_changed": true,
+  "commit_sha": "pending closeout commit",
+  "push_result": "pending closeout push"
+}

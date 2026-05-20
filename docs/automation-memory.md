@@ -72,6 +72,13 @@ Every builder run must ladder from `docs/master-plan.md` into `docs/mvp-requirem
 - Daily and weekly automations remain oversight, not builder capacity.
 - External scheduler may still require manual configuration unless a repo-local scheduler config exists and is changed with evidence.
 
+### 2026-05-20 - Primary Alpha Review History
+
+- Non-Figma builder moved review-history visibility into the primary alpha console after the account smoke path and Figma handoff were aligned.
+- `functions/_lib/alpha-flow-model.js` now preserves alpha comments, status timeline entries, and immutable submission version snapshots for submit, revision request, resubmit, and approval.
+- `alpha.js` renders comments, decisions, submission versions, and status events with storage-identifier blocking; `tests/alpha-flow.test.mjs` and `scripts/check-alpha-contract.mjs` now guard this behavior.
+- Next best non-Figma slices should rotate away from repeated review-history UI unless hosted alpha smoke finds a regression; mentor/presentation/admin depth and remote D1/Cloudflare verification remain higher-value follow-ups.
+
 ## Current Priority
 
 Immediate next useful passes:

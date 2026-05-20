@@ -254,3 +254,16 @@ Each rebuild run should append a dated entry with:
 - `self-improvement`: none.
 - `commit/push status`: pending closeout commit and push.
 - `next action`: Apply/verify `0005_submission_versions.sql` remotely once `CLOUDFLARE_API_TOKEN` is available, then move the same review-history rendering from the smoke surface into the primary alpha/student-teacher workflow view if the Day 7 walkthrough needs it there.
+
+### 2026-05-20 12:06 PT - MVP-015/MVP-016 Primary Alpha Review History
+
+- `automation`: `senior-capstone-nonfigma-mvp-builder`
+- `master-plan section`: Day 7 Alpha Gate; Seven-day implementation ladder Day 4; Logging Requirements.
+- `source docs/logs read`: automation memory fallback at `C:\Users\bryan\.codex\automations\senior-capstone-nonfigma-mvp-builder\memory.md`, required master plan/catalog/cadence/runbook/self-improvement/memory/milestones/progress docs, recent run manifests, the review-history account smoke code, alpha console code, and review-history API implementation.
+- `backlog or requirement IDs selected`: `SC-005`, `SC-006`, `MVP-015`, `MVP-016`.
+- `bounded scope`: Preserve teacher comments, status timeline entries, and immutable submission version snapshots in the primary server-owned alpha state, then render those review-history sections in `alpha.html`/`alpha.js` without exposing storage identifiers.
+- `files changed`: `functions/_lib/alpha-flow-model.js`, `alpha.js`, `alpha.css`, `tests/alpha-flow.test.mjs`, `scripts/check-alpha-contract.mjs`, `docs/mvp-requirements-catalog.md`, `docs/progress/handoffs.md`, `docs/progress/run-log.md`, `docs/automation-memory.md`, `docs/progress/rebuild.md`, and structured run manifest `docs/progress/runs/2026-05-20-1206-alpha-review-history-main-console-mvp-015-016.json`.
+- `validation`: `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-node-script.ps1 tests\alpha-flow.test.mjs` (pass; 12 tests); `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 check:alpha-contract` (pass); `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-node-script.ps1 tests\account-and-evidence-access.test.mjs` (pass; 4 tests); aggregate `check` passed with Cloudflare static verification, 116 tests, and typecheck; live Cloudflare verification remained blocked without `CLOUDFLARE_API_TOKEN`; manifest JSON parse and `git diff --check` passed.
+- `self-improvement`: Strengthened `scripts/check-alpha-contract.mjs` so primary alpha review-history comments, versions, and storage-identifier blocking stay covered.
+- `commit/push status`: pending closeout commit and push.
+- `next action`: After deploy, smoke `/alpha.html` and `/api/alpha/state`; if live verification remains blocked by missing token, continue the Day 7 ladder with mentor/presentation/admin workflow depth.

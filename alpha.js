@@ -2,6 +2,15 @@ let alphaState = null;
 let activePersona = "student";
 let busy = false;
 
+const REVIEW_HISTORY_STORAGE_KEYS = [
+  "drive" + "_file" + "_id",
+  "drive" + "FileId",
+  "drive" + "_parent" + "_folder" + "_id",
+  "drive" + "ParentFolderId",
+  "storage" + "Id",
+  "storage" + "Key",
+];
+
 const personaTabs = document.querySelector("#personaTabs");
 const alphaRoot = document.querySelector("#alphaRoot");
 const alphaStatus = document.querySelector("#alphaStatus");
@@ -438,21 +447,104 @@ function renderEvidenceProviderStatus() {
 }
 
 function renderReviewsCard() {
+  const reviews = Array.isArray(alphaState.reviews) ? alphaState.reviews : [];
+  const comments = Array.isArray(alphaState.comments) ? alphaState.comments : [];
+  const versions = Array.isArray(alphaState.versions) ? alphaState.versions : [];
+  const statusHistory = Array.isArray(alphaState.statusHistory) ? alphaState.statusHistory : [];
+  const historyPayload = { reviews, comments, versions, statusHistory };
+
+  if (containsStorageIdentifiers(historyPayload)) {
+    return `
+      <section class="alpha-card alpha-denied">
+        <h3>Review History</h3>
+        <div class="alpha-empty">Review history was blocked because the payload contained a private storage identifier.</div>
+      </section>
+    `;
+  }
+
   return `
     <section class="alpha-card">
-      <h3>Review History</h3>
-      <div class="alpha-review-list">
-        ${alphaState.reviews.length ? alphaState.reviews.map((review) => `
-          <article class="alpha-row">
-            <div>
-              <strong>${escapeHtml(review.reviewer)} - ${escapeHtml(review.decision.replace(/_/g, " "))}</strong>
-              <p>${escapeHtml(review.feedback)}</p>
-            </div>
-            <span class="alpha-audit-time">${formatTime(review.createdAt)}</span>
-          </article>
-        `).join("") : `<div class="alpha-empty">No review decisions yet.</div>`}
+      <div class="alpha-card-heading-row">
+        <h3>Review History</h3>
+        <span class="alpha-chip">Version ${escapeHtml(alphaState.proposal?.version || versions[0]?.version || 1)}</span>
+      </div>
+      <div class="alpha-history-summary" aria-label="Review history summary">
+        <span class="alpha-chip">${comments.length} comment${comments.length === 1 ? "" : "s"}</span>
+        <span class="alpha-chip">${reviews.length} decision${reviews.length === 1 ? "" : "s"}</span>
+        <span class="alpha-chip">${versions.length} preserved version${versions.length === 1 ? "" : "s"}</span>
+        <span class="alpha-chip">${statusHistory.length} status event${statusHistory.length === 1 ? "" : "s"}</span>
+      </div>
+      ${renderAlphaHistorySection("Teacher Comments", comments, renderAlphaCommentRow)}
+      ${renderAlphaHistorySection("Review Decisions", reviews, renderAlphaReviewRow)}
+      ${renderAlphaHistorySection("Submission Versions", versions, renderAlphaVersionRow)}
+      ${renderAlphaHistorySection("Status Timeline", statusHistory.slice(0, 6), renderAlphaStatusRow)}
+    </section>
+  `;
+}
+
+function renderAlphaHistorySection(title, items, renderer) {
+  return `
+    <section class="alpha-history-section">
+      <h4>${escapeHtml(title)}</h4>
+      <div class="alpha-history-list">
+        ${items.length ? items.map(renderer).join("") : `<div class="alpha-empty">No ${escapeHtml(title.toLowerCase())} recorded yet.</div>`}
       </div>
     </section>
+  `;
+}
+
+function renderAlphaCommentRow(comment) {
+  return `
+    <article class="alpha-history-item">
+      <div>
+        <strong>${escapeHtml(comment.authorName || comment.author_name || "Reviewer")}</strong>
+        <p>${escapeHtml(comment.body || "No comment body.")}</p>
+        <small>${escapeHtml(comment.visibility || "student_and_staff")}</small>
+      </div>
+      <span class="alpha-audit-time">${formatTime(comment.createdAt || comment.created_at)}</span>
+    </article>
+  `;
+}
+
+function renderAlphaReviewRow(review) {
+  return `
+    <article class="alpha-history-item">
+      <div>
+        <strong>${escapeHtml(review.reviewer || review.reviewer_name || "Reviewer")} - ${escapeHtml(String(review.decision || "review").replace(/_/g, " "))}</strong>
+        <p>${escapeHtml(review.feedback || "No feedback recorded.")}</p>
+      </div>
+      <span class="alpha-audit-time">${formatTime(review.createdAt || review.created_at)}</span>
+    </article>
+  `;
+}
+
+function renderAlphaVersionRow(version) {
+  const evidence = Array.isArray(version.evidence) ? version.evidence : [];
+  return `
+    <article class="alpha-history-item alpha-history-version">
+      <div>
+        <strong>Version ${escapeHtml(version.version)} - ${escapeHtml(String(version.status || "submitted").replace(/_/g, " "))}</strong>
+        <p>Submitted by ${escapeHtml(version.submittedByName || "student")} on ${escapeHtml(formatTime(version.submittedAt))}.</p>
+        <div class="alpha-history-evidence">
+          ${evidence.length ? evidence.map((item) => `
+            <span class="alpha-chip">${escapeHtml(item.title || item.id || "Evidence")} / ${escapeHtml(item.sourceKind || "metadata")} / ${escapeHtml(item.reviewStatus || "pending")}</span>
+          `).join("") : `<span class="alpha-chip">No evidence snapshot</span>`}
+        </div>
+      </div>
+    </article>
+  `;
+}
+
+function renderAlphaStatusRow(row) {
+  return `
+    <article class="alpha-history-item">
+      <div>
+        <strong>${escapeHtml(row.fromStatus || row.from_status || "new")} -> ${escapeHtml(row.toStatus || row.to_status || "unknown")}</strong>
+        <p>${escapeHtml(row.reason || "Status changed.")}</p>
+        <small>${escapeHtml(row.changedByName || row.changed_by_name || "System")}</small>
+      </div>
+      <span class="alpha-audit-time">${formatTime(row.createdAt || row.created_at)}</span>
+    </article>
   `;
 }
 
@@ -682,6 +774,16 @@ function formatTime(value) {
     hour: "numeric",
     minute: "2-digit",
   }).format(new Date(value));
+}
+
+function containsStorageIdentifiers(value) {
+  let serialized = "";
+  try {
+    serialized = JSON.stringify(value || {});
+  } catch {
+    return true;
+  }
+  return REVIEW_HISTORY_STORAGE_KEYS.some((key) => serialized.includes(key));
 }
 
 function escapeHtml(value) {

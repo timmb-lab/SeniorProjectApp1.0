@@ -171,6 +171,9 @@ export function createAlphaSeedState(now = DEFAULT_NOW) {
     ],
     evidenceProvider: DEFAULT_EVIDENCE_PROVIDER,
     reviews: [],
+    comments: [],
+    versions: [],
+    statusHistory: [],
     meeting: {
       id: "alpha-meeting-1",
       status: "scheduled",
@@ -305,10 +308,13 @@ export function applyAlphaAction(inputState, input, now = new Date().toISOString
   }
 
   if (action === "submit_proposal") {
+    const fromStatus = state.proposal.status;
     state.proposal.status = "submitted";
     state.proposal.lastSubmittedAt = now;
     state.proposal.completeness = Math.max(state.proposal.completeness, 90);
     state.student.nextAction = "Wait for program-teacher feedback or approval.";
+    appendStatusHistory(state, now, personaId, fromStatus, state.proposal.status, "Student submitted proposal for teacher review.");
+    appendSubmissionVersionSnapshot(state, now, personaId, "Initial proposal submission for teacher review.");
     appendAudit(state, now, personaId, action, "submission", state.proposal.id, "Student submitted proposal for teacher review.");
     return withResult(state, {
       ok: true,
@@ -318,6 +324,7 @@ export function applyAlphaAction(inputState, input, now = new Date().toISOString
   }
 
   if (action === "request_revision") {
+    const fromStatus = state.proposal.status;
     state.proposal.status = "revision_requested";
     state.proposal.teacherFeedback = "Add one stronger research source and clarify how the ticket categories will be tested.";
     state.student.nextAction = "Revise research source notes, then resubmit.";
@@ -328,6 +335,8 @@ export function applyAlphaAction(inputState, input, now = new Date().toISOString
       reviewer: "Ms. Chen",
       createdAt: now,
     });
+    appendReviewComment(state, now, personaId, state.proposal.teacherFeedback);
+    appendStatusHistory(state, now, personaId, fromStatus, state.proposal.status, state.proposal.teacherFeedback);
     appendAudit(state, now, personaId, action, "review", state.reviews[0].id, "Teacher requested a revision.");
     return withResult(state, {
       ok: true,
@@ -337,6 +346,7 @@ export function applyAlphaAction(inputState, input, now = new Date().toISOString
   }
 
   if (action === "resubmit_revision") {
+    const fromStatus = state.proposal.status;
     state.proposal.status = "submitted";
     state.proposal.version += 1;
     state.proposal.lastSubmittedAt = now;
@@ -344,6 +354,8 @@ export function applyAlphaAction(inputState, input, now = new Date().toISOString
     markSectionComplete(state, "research");
     markSectionComplete(state, "timeline");
     state.student.nextAction = "Teacher can approve the revised proposal.";
+    appendStatusHistory(state, now, personaId, fromStatus, state.proposal.status, "Student resubmitted the revised proposal.");
+    appendSubmissionVersionSnapshot(state, now, personaId, "Revised proposal resubmitted after teacher feedback.");
     appendAudit(state, now, personaId, action, "submission", state.proposal.id, "Student resubmitted the revised proposal.");
     return withResult(state, {
       ok: true,
@@ -353,6 +365,7 @@ export function applyAlphaAction(inputState, input, now = new Date().toISOString
   }
 
   if (action === "approve_submission") {
+    const fromStatus = state.proposal.status;
     state.proposal.status = "approved";
     state.proposal.completeness = 100;
     state.student.currentPhase = "Build + mentor preparation";
@@ -364,6 +377,8 @@ export function applyAlphaAction(inputState, input, now = new Date().toISOString
       reviewer: "Ms. Chen",
       createdAt: now,
     });
+    appendReviewComment(state, now, personaId, "Approved for alpha walkthrough. Continue capturing build evidence.");
+    appendStatusHistory(state, now, personaId, fromStatus, state.proposal.status, "Approved for alpha walkthrough. Continue capturing build evidence.");
     appendAudit(state, now, personaId, action, "review", state.reviews[0].id, "Teacher approved the revised proposal.");
     return withResult(state, {
       ok: true,
@@ -561,6 +576,9 @@ function normalizeState(inputState, now) {
   state.personas = Array.isArray(state.personas) ? state.personas : PERSONAS;
   state.evidence = Array.isArray(state.evidence) ? state.evidence : [];
   state.reviews = Array.isArray(state.reviews) ? state.reviews : [];
+  state.comments = Array.isArray(state.comments) ? state.comments : [];
+  state.versions = Array.isArray(state.versions) ? state.versions : [];
+  state.statusHistory = Array.isArray(state.statusHistory) ? state.statusHistory : [];
   state.announcements = Array.isArray(state.announcements) ? state.announcements : [];
   state.reportRuns = Array.isArray(state.reportRuns) ? state.reportRuns : [];
   state.audit = Array.isArray(state.audit) ? state.audit : [];
@@ -599,6 +617,48 @@ function markSectionComplete(state, sectionId) {
   if (section) {
     section.status = "complete";
   }
+}
+
+function appendStatusHistory(state, at, personaId, fromStatus, toStatus, reason) {
+  state.statusHistory.unshift({
+    id: makeId("alpha-status", at, `${state.statusHistory.length + 1}`),
+    fromStatus,
+    toStatus,
+    reason,
+    changedByName: labelForPersona(personaId),
+    createdAt: at,
+  });
+}
+
+function appendReviewComment(state, at, personaId, body) {
+  state.comments.unshift({
+    id: makeId("alpha-comment", at, `${state.comments.length + 1}`),
+    authorName: labelForPersona(personaId),
+    body,
+    visibility: "student_and_staff",
+    createdAt: at,
+  });
+}
+
+function appendSubmissionVersionSnapshot(state, at, personaId, notes) {
+  state.versions.unshift({
+    id: makeId("alpha-version", at, `${state.versions.length + 1}`),
+    version: state.proposal.version,
+    status: state.proposal.status,
+    submittedAt: at,
+    submittedByName: labelForPersona(personaId),
+    notes,
+    evidence: state.evidence.map(evidenceSnapshot),
+  });
+}
+
+function evidenceSnapshot(item) {
+  return {
+    id: item.id,
+    title: item.title,
+    sourceKind: item.kind || item.sourceKind || "metadata",
+    reviewStatus: item.status || item.reviewStatus || "pending_review",
+  };
 }
 
 function labelForPersona(personaId) {

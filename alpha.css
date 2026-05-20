@@ -369,9 +369,58 @@ body[data-page="alpha"] {
 .alpha-evidence-list,
 .alpha-audit-list,
 .alpha-review-list,
+.alpha-history-list,
 .alpha-walkthrough-list {
   display: grid;
   gap: 0.55rem;
+}
+
+.alpha-history-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.alpha-history-section {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.alpha-history-section h4 {
+  margin: 0;
+  color: var(--alpha-muted);
+  font-size: 0.86rem;
+  font-weight: 900;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.alpha-history-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.65rem;
+  align-items: start;
+  border: 1px solid var(--alpha-line);
+  border-radius: 8px;
+  background: #fbfdfd;
+  padding: 0.7rem;
+}
+
+.alpha-history-item p,
+.alpha-history-item small {
+  margin: 0.2rem 0 0;
+  color: var(--alpha-muted);
+}
+
+.alpha-history-version {
+  border-left: 5px solid var(--alpha-violet);
+}
+
+.alpha-history-evidence {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 0.5rem;
 }
 
 .alpha-row {
@@ -575,6 +624,7 @@ body[data-page="alpha"] {
   .alpha-topbar,
   .alpha-row,
   .alpha-check,
+  .alpha-history-item,
   .alpha-walkthrough-step {
     grid-template-columns: 1fr;
   }

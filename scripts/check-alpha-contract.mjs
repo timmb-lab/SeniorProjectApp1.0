@@ -53,6 +53,9 @@ assert(/seeded demo personas/i.test(seed.alphaBoundary || ""), "Alpha seed must 
 assert(/real student data/i.test(seed.alphaBoundary || ""), "Alpha seed must warn against real student data.");
 assert(Array.isArray(seed.personas) && seed.personas.length >= 5, "Alpha seed needs at least five personas.");
 assert(deriveMetrics(seed).evidenceCount >= 1, "Alpha seed needs evidence metadata for the walkthrough.");
+assert(Array.isArray(seed.comments), "Alpha seed must expose a comments array for review-history rendering.");
+assert(Array.isArray(seed.versions), "Alpha seed must expose a versions array for immutable review-history rendering.");
+assert(Array.isArray(seed.statusHistory), "Alpha seed must expose a statusHistory array for review-history rendering.");
 
 const personaIds = new Set((seed.personas || []).map((persona) => persona.id));
 for (const persona of requiredPersonas) {
@@ -70,6 +73,10 @@ for (const storageApi of ["localStorage", "sessionStorage", "indexedDB"]) {
 assert(alphaHtml.includes('id="alphaRoot"'), "alpha.html must include #alphaRoot.");
 assert(/skip-link/i.test(alphaHtml), "alpha.html must include a skip link.");
 assert(/aria-live="polite"/i.test(alphaHtml), "alpha.html must include polite live region semantics.");
+assert(alphaJs.includes("renderAlphaVersionRow"), "alpha.js must render immutable submission versions in the alpha console.");
+assert(alphaJs.includes("containsStorageIdentifiers"), "alpha.js must block review-history payloads that contain private storage identifiers.");
+assert(alphaModel.includes("appendSubmissionVersionSnapshot"), "Alpha model must preserve submission version snapshots.");
+assert(alphaModel.includes("appendReviewComment"), "Alpha model must preserve teacher comments.");
 assert((alphaCss.match(/@media \(max-width:/g) || []).length >= 2, "alpha.css must include responsive media queries.");
 assert(/Do not enter real student records/i.test(alphaRunbook), "Alpha runbook must warn against real student records.");
 assert(/node:test/.test(alphaTests), "Alpha state-machine tests must use the Node test runner.");

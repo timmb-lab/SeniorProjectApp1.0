@@ -33,6 +33,7 @@ test("student to teacher revision to approval loop updates state and audit", () 
     action: "submit_proposal",
   }, "2026-05-18T12:01:00.000Z"));
   assert.equal(state.proposal.status, "submitted");
+  assert.equal(state.versions.length, 1);
 
   ({ state } = applyAlphaAction(state, {
     personaId: "program_teacher",
@@ -40,6 +41,7 @@ test("student to teacher revision to approval loop updates state and audit", () 
   }, "2026-05-18T12:02:00.000Z"));
   assert.equal(state.proposal.status, "revision_requested");
   assert.equal(deriveMetrics(state).revisionCount, 1);
+  assert.equal(state.comments.length, 1);
 
   ({ state } = applyAlphaAction(state, {
     personaId: "student",
@@ -47,6 +49,7 @@ test("student to teacher revision to approval loop updates state and audit", () 
   }, "2026-05-18T12:03:00.000Z"));
   assert.equal(state.proposal.status, "submitted");
   assert.equal(state.proposal.version, 2);
+  assert.equal(state.versions.length, 2);
 
   ({ state } = applyAlphaAction(state, {
     personaId: "program_teacher",
@@ -55,6 +58,46 @@ test("student to teacher revision to approval loop updates state and audit", () 
   assert.equal(state.proposal.status, "approved");
   assert.equal(deriveMetrics(state).approvedCount, 1);
   assert.ok(state.audit.some((event) => event.action === "approve_submission"));
+  assert.equal(state.statusHistory.length, 4);
+});
+
+test("alpha review history preserves comments, status timeline, and versions without storage identifiers", () => {
+  let state = createAlphaSeedState();
+
+  ({ state } = applyAlphaAction(state, {
+    personaId: "student",
+    action: "submit_proposal",
+  }, "2026-05-18T12:01:00.000Z"));
+  ({ state } = applyAlphaAction(state, {
+    personaId: "program_teacher",
+    action: "request_revision",
+  }, "2026-05-18T12:02:00.000Z"));
+  ({ state } = applyAlphaAction(state, {
+    personaId: "student",
+    action: "resubmit_revision",
+  }, "2026-05-18T12:03:00.000Z"));
+  ({ state } = applyAlphaAction(state, {
+    personaId: "program_teacher",
+    action: "approve_submission",
+  }, "2026-05-18T12:04:00.000Z"));
+
+  assert.deepEqual(state.versions.map((version) => version.version), [2, 1]);
+  assert.equal(state.comments.length, 2);
+  assert.match(state.comments[0].body, /Approved/);
+  assert.deepEqual(state.statusHistory.map((entry) => entry.toStatus), [
+    "approved",
+    "submitted",
+    "revision_requested",
+    "submitted",
+  ]);
+  assert.ok(state.versions.every((version) => version.evidence.every((item) => item.title && item.sourceKind && item.reviewStatus)));
+
+  const serializedHistory = JSON.stringify({
+    comments: state.comments,
+    versions: state.versions,
+    statusHistory: state.statusHistory,
+  });
+  assert.doesNotMatch(serializedHistory, /drive[_A-Za-z]*id|storage(Key|Id)/i);
 });
 
 test("permission denial is explicit and audited", () => {
