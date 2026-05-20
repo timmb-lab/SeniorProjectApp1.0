@@ -1,0 +1,60 @@
+{
+  "run_id": "2026-05-19-2224-drive-oauth-probe-mvp-013",
+  "timestamp_local": "2026-05-19T22:24:00-07:00",
+  "automation_id": "senior-capstone-hourly-qol-orchestrator",
+  "trigger": "30-minute MVP builder run: implement Google Drive service-account JWT token exchange helper plus an authenticated/audited probe route with provider failure coverage.",
+  "lane": "student-workflow-evidence",
+  "status": "completed",
+  "accepted_mvp_pass": true,
+  "requirement_ids": [
+    "MVP-013"
+  ],
+  "backlog_ids": [
+    "SC-003",
+    "SC-005"
+  ],
+  "duration_minutes": 30,
+  "output_kind": "lib+route+tests",
+  "scope": "Add a server-side Google Drive OAuth credential path (service-account JWT -> access token) and a probe route that validates root folder + index sheet access without exposing secrets, with integration tests covering missing config/creds, token exchange failure, and Drive access-denied responses.",
+  "source_docs_read": [
+    "docs/master-plan.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/automation-runbook.md",
+    "docs/automation-self-improvement.md",
+    "docs/automation-cadence.md",
+    "docs/automation-milestones.md",
+    "docs/automation-memory.md",
+    "docs/progress/run-log.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/decision-log.md",
+    "docs/automation-backlog.md",
+    "docs/artifacts.json",
+    "docs/human-decisions.md",
+    "docs/backend-setup.md",
+    "docs/progress/runs/2026-05-19-2142-evidence-access-role-coverage-mvp-014.json",
+    "functions/api/health.ts",
+    "functions/api/evidence/repository.ts",
+    "functions/_lib/auth.ts",
+    "migrations/0001_foundation.sql"
+  ],
+  "changes": [
+    "Added functions/_lib/google-drive.ts implementing service-account JWT signing (RS256) and token exchange against https://oauth2.googleapis.com/token, plus a small Drive file-metadata probe helper using the access token.",
+    "Added functions/api/evidence/drive-probe.ts, an authenticated + audited route that exchanges for a Drive token and probes the configured evidence root folder + index sheet, returning safe metadata and clear error states without exposing secrets.",
+    "Added tests/google-drive-probe.integration.test.mjs covering missing session, missing Drive config, missing Drive credentials, token exchange failure, Drive access denied, and success cases (including audit-event assertions and secret redaction checks).",
+    "Updated docs/mvp-requirements-catalog.md, docs/automation-backlog.md, docs/automation-memory.md, and docs/progress/run-log.md to reflect the new Drive OAuth probe evidence for MVP-013/SC-003."
+  ],
+  "validation": [
+    "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\\\scripts\\\\run-npm-script.ps1 test"
+  ],
+  "blockers": [],
+  "known_limits": [
+    "This pass implements the server-side Drive OAuth credential path and probe coverage; student evidence file-byte upload and access-controlled retrieval endpoints remain pending.",
+    "Probe tests stub fetch() responses; follow-on work should validate the probe route against a real Drive-enabled environment once secrets are configured in Cloudflare Pages."
+  ],
+  "next_actions": [
+    "Configure Cloudflare Pages secrets GOOGLE_DRIVE_CLIENT_EMAIL and GOOGLE_DRIVE_PRIVATE_KEY and verify /api/health reports googleDriveCredentialsConfigured=true.",
+    "Implement evidence file upload + retrieval (streaming proxy) routes that write evidence_artifacts.drive_file_id, enforce canAccessStudent, and avoid exposing Drive storage IDs; extend tests for provider errors and forbidden access."
+  ],
+  "self_improvement": "none"
+}
+

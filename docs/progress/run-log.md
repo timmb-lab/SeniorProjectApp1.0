@@ -54,3 +54,11 @@ Future productive runs should append compact entries that name the master-plan s
 - `files changed`: `tests/evidence-check-access.integration.test.mjs`, `docs/automation-memory.md`, and `docs/progress/runs/2026-05-19-2142-evidence-access-role-coverage-mvp-014.json`.
 - `verification`: `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 test` (pass).
 - `blockers`: none.
+
+## 2026-05-19 22:24 PT - MVP-013 Google Drive OAuth Probe Route + Tests
+
+- `master-plan sections`: Day 7 Alpha Gate; The critical gap has shifted; Immediate next five passes should deepen the shipped alpha; Logging Requirements.
+- `requirement IDs`: `MVP-013`; `backlog IDs`: `SC-003`, `SC-005`.
+- `files changed`: `functions/_lib/google-drive.ts`, `functions/api/evidence/drive-probe.ts`, `tests/google-drive-probe.integration.test.mjs`, `docs/mvp-requirements-catalog.md`, `docs/automation-backlog.md`, `docs/automation-memory.md`, and `docs/progress/runs/2026-05-19-2224-drive-oauth-probe-mvp-013.json`.
+- `verification`: `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 test` (pass).
+- `blockers`: none (Drive secrets + upload/retrieval wiring still pending).
