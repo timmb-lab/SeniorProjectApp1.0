@@ -2201,6 +2201,53 @@ const productMetrics = {
   ]
 };
 
+const productProgressStateContracts = [
+  {
+    title: "Student Progress Update Draft",
+    label: "draft update",
+    tone: "blue",
+    detail: "Student changes stay local until the server accepts the update.",
+    meta: "Fields: requirement, phase, percent, note, evidence refs."
+  },
+  {
+    title: "Staff Progress Adjustment",
+    label: "scoped staff",
+    tone: "green",
+    detail: "Mentors and teachers adjust only assigned or program-scoped records.",
+    meta: "Guards: actor role, program scope, assigned students, reason."
+  },
+  {
+    title: "Status History Persisted",
+    label: "append-only",
+    tone: "violet",
+    detail: "Every accepted transition appends history before counts change.",
+    meta: "Records: ProgressUpdate, StatusHistory, Submission status."
+  },
+  {
+    title: "Dashboard Aggregate Recalculated",
+    label: "server count",
+    tone: "amber",
+    detail: "Dashboard totals are derived from saved rows by role and cohort.",
+    meta: "Rules: no client truth, source records link back to detail rows."
+  },
+  {
+    title: "Conflict + Audit Visible",
+    label: "stale guard",
+    tone: "red",
+    detail: "Stale writes show a refresh-required state and preserve audit context.",
+    meta: "Events: progress.updated, status.changed, unauthorized.denied."
+  }
+];
+
+const productProgressPipeline = [
+  { step: "01", title: "Receive update", detail: "Validate body and signed-in actor." },
+  { step: "02", title: "Authorize scope", detail: "Apply student, mentor, teacher, or admin boundaries." },
+  { step: "03", title: "Validate transition", detail: "Check status move, deadline, and evidence readiness." },
+  { step: "04", title: "Persist records", detail: "Write progress and status history together." },
+  { step: "05", title: "Write audit", detail: "Store actor, scope, before/after, reason, and request metadata." },
+  { step: "06", title: "Recompute dashboard", detail: "Refresh counts from saved records only." }
+];
+
 const productPhaseProgress = [
   { label: "Setup", status: "Approved", detail: "Workspace, program, cohort, and role scope created." },
   { label: "Proposal", status: "Revision requested", detail: "Teacher asked for clearer CTE evidence." },
@@ -3202,6 +3249,59 @@ function productMetricsHtml(roleId) {
   return `<div class="product-metric-grid">${productMetrics[roleId].map(productMetricCardHtml).join("")}</div>`;
 }
 
+function productContractPillHtml(item) {
+  return `<span class="product-contract-pill product-contract-pill-${item.tone}"><span aria-hidden="true"></span>${item.label}</span>`;
+}
+
+function productTrustContractHtml() {
+  return `
+    <section class="product-contract-panel" aria-labelledby="product-contract-title">
+      <div class="product-contract-header">
+        <div>
+          <p class="eyebrow">Trusted progress state</p>
+          <h2 id="product-contract-title">Dashboard Counts Come From Persisted Records</h2>
+          <p>
+            The preview now separates draft UI, scoped staff adjustments, status history, aggregate counts, and stale-write recovery so reviewers can see which state is safe to trust.
+          </p>
+        </div>
+        <div class="product-contract-proof" aria-label="Current aggregate rule">
+          <strong>Server-owned</strong>
+          <span>No localStorage source of truth</span>
+        </div>
+      </div>
+      <div class="product-contract-grid" aria-label="Progress state contracts">
+        ${productProgressStateContracts
+          .map(
+            (item) => `
+              <article class="product-contract-card product-tone-${item.tone}">
+                ${productContractPillHtml(item)}
+                <h3>${item.title}</h3>
+                <p>${item.detail}</p>
+                <small>${item.meta}</small>
+              </article>
+            `
+          )
+          .join("")}
+      </div>
+      <ol class="product-pipeline-list" aria-label="Server-side progress update pipeline">
+        ${productProgressPipeline
+          .map(
+            (item) => `
+              <li class="product-pipeline-step">
+                <span aria-hidden="true">${item.step}</span>
+                <div>
+                  <strong>${item.title}</strong>
+                  <p>${item.detail}</p>
+                </div>
+              </li>
+            `
+          )
+          .join("")}
+      </ol>
+    </section>
+  `;
+}
+
 function productRoleTabsHtml() {
   return `
     <div class="product-role-tabs" role="tablist" aria-label="Preview role">
@@ -3674,12 +3774,13 @@ function renderAppPreviewPage(root) {
               <span>Search students, submissions, evidence</span>
               <input type="search" value="proposal evidence risks" aria-label="Search preview data">
             </label>
-            <div class="product-control-chips" aria-label="Active filters">
+          <div class="product-control-chips" aria-label="Active filters">
               <span>Class of 2026</span>
               <span>All programs</span>
               <span>Action needed</span>
             </div>
           </div>
+          ${productTrustContractHtml()}
           ${productRolePanelsHtml()}
         </div>
       </div>

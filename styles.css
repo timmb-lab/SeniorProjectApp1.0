@@ -2302,6 +2302,13 @@ li + li {
   background: #fff8e8;
 }
 
+.product-role-tab:focus-visible,
+.product-mini-nav a:focus-visible,
+.product-search input:focus-visible {
+  outline: 3px solid rgba(4, 123, 131, 0.32);
+  outline-offset: 2px;
+}
+
 .product-sidebar-note {
   border-top: 1px solid var(--line);
   padding-top: 1rem;
@@ -2353,6 +2360,162 @@ li + li {
 
 .product-control-chips {
   justify-content: flex-end;
+}
+
+.product-contract-panel {
+  display: grid;
+  gap: 0.9rem;
+  margin: 1rem 1rem 0;
+  border: 1px solid #d4dce6;
+  border-radius: var(--radius);
+  background: #f6f9fc;
+  padding: 1rem;
+}
+
+.product-contract-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(190px, 260px);
+  gap: 1rem;
+  align-items: start;
+}
+
+.product-contract-header h2 {
+  margin: 0;
+  font-size: clamp(1.35rem, 2.4vw, 2rem);
+}
+
+.product-contract-header p,
+.product-contract-card p,
+.product-contract-card small,
+.product-pipeline-step p,
+.product-contract-proof span {
+  margin: 0;
+  color: var(--muted);
+}
+
+.product-contract-proof {
+  display: grid;
+  gap: 0.22rem;
+  border: 1px solid #cbd7e3;
+  border-left: 5px solid var(--teal);
+  border-radius: var(--radius);
+  background: #fff;
+  padding: 0.75rem;
+}
+
+.product-contract-proof strong {
+  font-size: 1rem;
+}
+
+.product-contract-grid,
+.product-pipeline-list {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.product-contract-grid {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.product-contract-card {
+  display: grid;
+  gap: 0.55rem;
+  min-width: 0;
+  border: 1px solid #d4dce6;
+  border-left: 5px solid var(--blue);
+  border-radius: var(--radius);
+  background: #fff;
+  padding: 0.8rem;
+}
+
+.product-contract-card h3 {
+  margin: 0;
+  font-size: 0.98rem;
+  line-height: 1.25;
+}
+
+.product-contract-card small {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.product-contract-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.38rem;
+  width: fit-content;
+  min-height: 27px;
+  border-radius: 999px;
+  background: #eef3f8;
+  color: var(--blue);
+  padding: 0.24rem 0.52rem;
+  font-size: 0.74rem;
+  font-weight: 900;
+  line-height: 1.1;
+}
+
+.product-contract-pill span {
+  width: 0.42rem;
+  height: 0.42rem;
+  border-radius: 999px;
+  background: currentColor;
+}
+
+.product-contract-pill-green {
+  background: #e7f7ed;
+  color: var(--green);
+}
+
+.product-contract-pill-violet {
+  background: #f2ecff;
+  color: var(--violet);
+}
+
+.product-contract-pill-amber {
+  background: #fff1d8;
+  color: var(--amber);
+}
+
+.product-contract-pill-red {
+  background: #ffe8e9;
+  color: var(--red-dark);
+}
+
+.product-pipeline-list {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.product-pipeline-step {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.5rem;
+  align-items: start;
+  border: 1px solid #d4dce6;
+  border-radius: var(--radius);
+  background: #fff;
+  padding: 0.68rem;
+}
+
+.product-pipeline-step > span {
+  display: inline-grid;
+  min-width: 2rem;
+  min-height: 1.7rem;
+  place-items: center;
+  border-radius: 999px;
+  background: #edf2f7;
+  color: var(--charcoal);
+  font-size: 0.74rem;
+  font-weight: 900;
+}
+
+.product-pipeline-step strong {
+  display: block;
+  margin-bottom: 0.1rem;
+  font-size: 0.84rem;
 }
 
 .product-control-chips span,
@@ -2458,6 +2621,10 @@ li + li {
   border-left-color: var(--red);
 }
 
+.product-tone-violet {
+  border-left-color: var(--violet);
+}
+
 .product-tone-teal {
   border-left-color: var(--teal);
 }
@@ -2558,6 +2725,7 @@ li + li {
 .product-status {
   display: inline-flex;
   align-items: center;
+  gap: 0.38rem;
   width: fit-content;
   min-height: 28px;
   border: 1px solid transparent;
@@ -2567,6 +2735,15 @@ li + li {
   font-weight: 900;
   line-height: 1.1;
   white-space: nowrap;
+}
+
+.product-status::before {
+  content: "";
+  flex: 0 0 0.42rem;
+  width: 0.42rem;
+  height: 0.42rem;
+  border-radius: 999px;
+  background: currentColor;
 }
 
 .product-status-draft,
@@ -2875,6 +3052,7 @@ li + li {
   }
 
   .product-preview-shell,
+  .product-contract-header,
   .product-panel-header,
   .product-two-column,
   .product-two-column-rail {
@@ -2897,9 +3075,14 @@ li + li {
   }
 
   .product-metric-grid,
+  .product-contract-grid,
   .product-progress-strip,
   .component-variant-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .product-pipeline-list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .product-state-grid,
@@ -3046,6 +3229,8 @@ li + li {
   }
 
   .product-metric-grid,
+  .product-contract-grid,
+  .product-pipeline-list,
   .product-card-grid,
   .product-progress-strip,
   .product-state-grid,
