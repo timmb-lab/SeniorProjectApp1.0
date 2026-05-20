@@ -142,3 +142,11 @@ Future productive runs should append compact entries that name the master-plan s
 - `files changed`: `migrations/0004_mentor_meetings.sql`, `functions/api/mentor/meetings.ts`, `tests/mentor-meetings.integration.test.mjs`, `docs/mvp-requirements-catalog.md`, `docs/automation-memory.md`, `docs/progress/run-log.md`, and `docs/progress/runs/2026-05-20-0320-mentor-meetings-mvp-017.json`.
 - `verification`: `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 test` (pass).
 - `blockers`: none.
+
+## 2026-05-20 03:40 PT - MVP-014 Evidence Download Misc-Admin Denial Test
+
+- `master-plan sections`: Day 7 Alpha Gate; Logging Requirements.
+- `requirement IDs`: `MVP-014`; `backlog IDs`: `SC-003`, `SC-005`.
+- `files changed`: `tests/evidence-drive-file.integration.test.mjs`, `docs/mvp-requirements-catalog.md`, `docs/automation-memory.md`, `docs/progress/run-log.md`, and `docs/progress/runs/2026-05-20-0340-evidence-download-misc-admin-mvp-014.json`.
+- `verification`: `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 test` (pass).
+- `blockers`: none.

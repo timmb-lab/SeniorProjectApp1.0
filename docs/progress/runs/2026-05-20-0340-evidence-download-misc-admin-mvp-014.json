@@ -1,0 +1,54 @@
+{
+  "run_id": "2026-05-20-0340-evidence-download-misc-admin-mvp-014",
+  "timestamp_local": "2026-05-20T03:40:00-07:00",
+  "automation_id": "senior-capstone-hourly-qol-orchestrator",
+  "trigger": "30-minute MVP builder run: deepen protected evidence access tests by proving misc-admin cannot download student evidence and denied attempts are audited with role-scope metadata.",
+  "lane": "backend-security-data",
+  "status": "completed",
+  "accepted_mvp_pass": true,
+  "requirement_ids": [
+    "MVP-014"
+  ],
+  "backlog_ids": [
+    "SC-003",
+    "SC-005"
+  ],
+  "duration_minutes": 30,
+  "output_kind": "tests+docs",
+  "scope": "Add a focused integration test ensuring `misc_admin` sessions cannot access `/api/evidence/:id/download`, that Drive fetch is not called on denied access, and that audit metadata captures role scopes; update requirement catalog/memory/run log with the new evidence.",
+  "source_docs_read": [
+    "docs/master-plan.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/automation-runbook.md",
+    "docs/automation-self-improvement.md",
+    "docs/automation-cadence.md",
+    "docs/automation-milestones.md",
+    "docs/automation-memory.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/README.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/decision-log.md",
+    "docs/automation-backlog.md",
+    "docs/artifacts.json",
+    "docs/human-decisions.md",
+    "tests/evidence-drive-file.integration.test.mjs",
+    "functions/api/evidence/[id]/download.ts"
+  ],
+  "changes": [
+    "Updated tests/evidence-drive-file.integration.test.mjs to assert misc-admin evidence download is denied (403), no Drive fetch occurs, and the denial is audited with role-scope metadata.",
+    "Updated docs/mvp-requirements-catalog.md to reflect misc-admin denial coverage for evidence downloads under MVP-014.",
+    "Updated docs/automation-memory.md and docs/progress/run-log.md to record the new MVP-014 evidence plus this structured run manifest."
+  ],
+  "validation": [
+    "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\\\scripts\\\\run-npm-script.ps1 test"
+  ],
+  "blockers": [],
+  "known_limits": [
+    "This run improves proof of denied-access behavior; it does not add new evidence endpoints or expand Google Drive credential verification in Cloudflare."
+  ],
+  "next_actions": [
+    "Add misc-admin denial coverage for other protected endpoints (exports, announcements admin routes) to harden the narrow misc-admin posture across the app."
+  ],
+  "self_improvement": "none"
+}
+
