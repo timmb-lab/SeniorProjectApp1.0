@@ -34,7 +34,7 @@ Future productive runs should append compact entries that name the master-plan s
 - `files changed`: `functions/_lib/alpha-flow-model.js`, `alpha.js`, `alpha.css`, `tests/alpha-flow.test.mjs`, `scripts/check-alpha-contract.mjs`, MVP catalog, handoff ledger, rebuild lane log, this run log, automation memory, and structured run manifest.
 - `verification`: focused alpha state-machine test passed with 12 tests; alpha contract check passed; account/evidence access smoke source test passed; aggregate `check` passed with Cloudflare static verification, 116 tests, and typecheck, while live Cloudflare verification remained blocked without `CLOUDFLARE_API_TOKEN`; manifest JSON parse and `git diff --check` passed.
 - `blockers`: Live Cloudflare and remote D1 verification still require `CLOUDFLARE_API_TOKEN`; no new blocker introduced.
-- `commit`: pending until closeout commit is created and pushed.
+- `commit`: `50fd6403520793e3b61576bcebc36378f20bad52` pushed to `origin main` (`958adfe..50fd640`); closeout evidence commit pending.
 - `self-improvement`: Strengthened the alpha contract checker so future alpha changes must keep review-history comments, immutable versions, and storage-identifier blocking visible in the primary console.
 
 ## 2026-05-20 11:03 PT - Production Predeploy Gate
