@@ -1,0 +1,48 @@
+﻿===== audit/admin-ops-qol-prompt-recovery (1 commits not on origin/main) =====
+e7c01c4 (origin/audit/admin-ops-qol-prompt-recovery, audit/admin-ops-qol-prompt-recovery) audit: harden admin ops qol prompts
+
+===== audit/allow-hourly-orchestrator-contract-20260519 (1 commits not on origin/main) =====
+a9016f1 (origin/audit/allow-hourly-orchestrator-contract-20260519, audit/allow-hourly-orchestrator-contract-20260519) audit: allow hourly orchestrator in contract checker
+
+===== automation/cloudflare-verification-hardening-20260519 (1 commits not on origin/main) =====
+eef5d04 (origin/automation/cloudflare-verification-hardening-20260519, automation/cloudflare-verification-hardening-20260519) audit: harden cloudflare verification prompts
+
+===== automation/drive-upload-oauth-hardening-20260519 (1 commits not on origin/main) =====
+f1dde56 (origin/automation/drive-upload-oauth-hardening-20260519, automation/drive-upload-oauth-hardening-20260519) audit: harden drive upload qol prompts
+
+===== automation/mentor-presentation-qol-hardening-20260519 (1 commits not on origin/main) =====
+ff53bab (origin/automation/mentor-presentation-qol-hardening-20260519, automation/mentor-presentation-qol-hardening-20260519) audit: harden mentor presentation QoL prompts
+
+===== automation/qol-admin-prompt-recovery-20260519 (1 commits not on origin/main) =====
+e966c89 (origin/automation/qol-admin-prompt-recovery-20260519, automation/qol-admin-prompt-recovery-20260519) automation: recover QoL prompt parity
+
+===== automation/source-framework-seed-hardening-20260519 (2 commits not on origin/main) =====
+1ebb634 (origin/automation/source-framework-seed-hardening-20260519, automation/source-framework-seed-hardening-20260519) audit: finalize source-framework automation closeout
+463043b audit: harden source-framework QoL automation
+
+===== codex/account-lifecycle-qol-hardening (1 commits not on origin/main) =====
+e76dc96 (origin/codex/account-lifecycle-qol-hardening, codex/account-lifecycle-qol-hardening) audit: harden account lifecycle QoL prompts
+
+===== codex/admin-ops-qol-hardening-20260519 (1 commits not on origin/main) =====
+478d9c1 (origin/codex/admin-ops-qol-hardening-20260519, codex/admin-ops-qol-hardening-20260519) audit: harden admin ops qol automations
+
+===== codex/fix-alpha-ci-typecheck (2 commits not on origin/main) =====
+593f739 (origin/codex/fix-alpha-ci-typecheck, codex/fix-alpha-ci-typecheck) fix: normalize Web Crypto byte inputs
+88d1eb3 fix: align Cloudflare typecheck libs
+
+===== codex/immutable-review-history-prompt-hardening (1 commits not on origin/main) =====
+324d5c2 (origin/codex/immutable-review-history-prompt-hardening, codex/immutable-review-history-prompt-hardening) audit: harden immutable review history prompts
+
+===== codex/immutable-review-history-qol-hardening-20260519 (1 commits not on origin/main) =====
+7092582 (origin/codex/immutable-review-history-qol-hardening-20260519, codex/immutable-review-history-qol-hardening-20260519) audit: harden immutable review history automation
+
+===== codex/protected-evidence-access (1 commits not on origin/main) =====
+2b552bc (origin/codex/protected-evidence-access, codex/protected-evidence-access) rebuild: add protected evidence access coverage
+
+===== codex/teacher-review-qol-hardening-20260519 (2 commits not on origin/main) =====
+56c817e (origin/codex/teacher-review-qol-hardening-20260519, codex/teacher-review-qol-hardening-20260519) audit: record teacher review automation push
+dfed6a9 audit: harden teacher review QoL automations
+
+===== preserve/branch-cleanup-work-20260519 (1 commits not on origin/main) =====
+06e6f6a (preserve/branch-cleanup-work-20260519) preserve branch cleanup work before typecheck audit
+

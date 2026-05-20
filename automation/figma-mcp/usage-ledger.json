@@ -1,0 +1,90 @@
+{
+  "schemaVersion": 1,
+  "timezone": "America/Los_Angeles",
+  "runs": [
+    {
+      "date": "2026-05-19",
+      "utcTimestamp": "2026-05-20T01:02:46.6735487Z",
+      "runId": "2026-05-19-1802-data-display-status-visuals",
+      "figmaAccountEmail": "timmb@nv.ccsd.net",
+      "figmaPlanSeat": {
+        "selectedPlanName": "Senior Project App",
+        "selectedPlanKey": "team::1638213362346160913",
+        "tier": "pro",
+        "seat": "Full",
+        "seatType": "expert",
+        "allPlansObserved": [
+          {
+            "name": "Bryan Timm [East CTA]'s team",
+            "tier": "student",
+            "seat": "View",
+            "seatType": "view"
+          },
+          {
+            "name": "Senior Project App",
+            "tier": "pro",
+            "seat": "Full",
+            "seatType": "expert"
+          }
+        ]
+      },
+      "assumedDailyBudget": 200,
+      "readCallsUsedThisRun": 1,
+      "exemptCallsUsedThisRun": [
+        "whoami"
+      ],
+      "cumulativeReadCallsUsedToday": 1,
+      "estimatedReadCallsRemainingToday": 199,
+      "rateLimit429Occurred": false,
+      "retryAfterSeconds": null,
+      "figmaFileKey": "z4t4tFPAKrMDh6pIYOeEw6",
+      "figmaNodeIdsUsed": [
+        "61:2"
+      ],
+      "figmaCalls": [
+        {
+          "tool": "whoami",
+          "budgetClass": "exempt",
+          "result": "ok"
+        },
+        {
+          "tool": "get_design_context",
+          "budgetClass": "read",
+          "fileKey": "z4t4tFPAKrMDh6pIYOeEw6",
+          "nodeId": "61:2",
+          "result": "ok"
+        }
+      ],
+      "laneSelected": "Data display and status visuals",
+      "pagesScreensComponentsTouched": [
+        "Product App Preview",
+        "Trusted progress state contract",
+        "Status pills",
+        "Product role navigation focus states"
+      ],
+      "repoFilesChanged": [
+        "app.js",
+        "styles.css",
+        "automation/figma-mcp/usage-ledger.json"
+      ],
+      "verification": {
+        "primaryCommand": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts\\run-npm-script.ps1 check:site-options",
+        "primaryResult": "pass: Site option check passed: 3 site roots and their manifest pages are present.",
+        "additionalChecks": [
+          {
+            "command": "node_repl vm.Script parse of C:/SeniorProjectApp1.0/app.js",
+            "result": "pass: app.js syntax OK after UI update"
+          },
+          {
+            "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts\\run-npm-script.ps1 check",
+            "result": "blocked: broader repo check failed on existing QoL cadence gate strings outside this UI lane"
+          }
+        ],
+        "visualBrowserCheck": "not-run: in-app Browser tools were not exposed and Playwright was not available in node_repl"
+      },
+      "commitHash": null,
+      "pushResult": "not-pushed: changes left uncommitted because the broader repo check is blocked by existing QoL cadence failures",
+      "notes": "Ledger was missing at run start, so previous local Figma read usage could not be inferred; conservative 8-read cap was used."
+    }
+  ]
+}

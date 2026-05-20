@@ -1,7 +1,7 @@
-import type { Env, UserAccount } from "../../../_types";
+import type { Env, RoleAssignment, UserAccount } from "../../../_types";
 import { getCurrentUser, writeAudit } from "../../../_lib/auth";
 import { badRequest, json } from "../../../_lib/http";
-import { canAccessStudent } from "../../../_lib/permissions";
+import { canAccessStudent, getRoleAssignments } from "../../../_lib/permissions";
 
 interface EvidenceRow {
   id: string;
@@ -85,12 +85,31 @@ async function auditEvidenceAccess(
   evidenceId: string,
   metadata: Record<string, unknown>,
 ): Promise<void> {
+  const auditMetadata = user
+    ? {
+        ...metadata,
+        actorRoleScopes: serializeRoleScopes(await getRoleAssignments(env, user.id)),
+      }
+    : metadata;
+
   await writeAudit(env, {
     actorUserId: user?.id || null,
     action,
     entityType: "evidence_artifact",
     entityId: evidenceId,
     request,
-    metadata,
+    metadata: auditMetadata,
   });
+}
+
+function serializeRoleScopes(assignments: RoleAssignment[]): Array<{
+  roleId: string;
+  scopeType: string;
+  scopeId: string;
+}> {
+  return assignments.map((assignment) => ({
+    roleId: assignment.role_id,
+    scopeType: assignment.scope_type,
+    scopeId: assignment.scope_id,
+  }));
 }

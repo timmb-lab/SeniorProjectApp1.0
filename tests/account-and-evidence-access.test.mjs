@@ -48,10 +48,15 @@ test("account smoke route is reachable from the app navigation but public builds
 test("protected evidence access route is scoped, audited, and avoids storage id exposure", () => {
   assert.match(evidenceRoute, /getCurrentUser/);
   assert.match(evidenceRoute, /canAccessStudent/);
+  assert.match(evidenceRoute, /getRoleAssignments/);
   assert.match(evidenceRoute, /evidence_artifacts/);
   assert.match(evidenceRoute, /evidence_access_unauthorized/);
   assert.match(evidenceRoute, /evidence_access_denied/);
   assert.match(evidenceRoute, /evidence_access_checked/);
+  assert.match(evidenceRoute, /actorRoleScopes/);
+  assert.match(evidenceRoute, /roleId: assignment\.role_id/);
+  assert.match(evidenceRoute, /scopeType: assignment\.scope_type/);
+  assert.match(evidenceRoute, /scopeId: assignment\.scope_id/);
   assert.match(evidenceRoute, /source_kind === "external_link"/);
   assert.doesNotMatch(evidenceRoute, /drive_file_id|drive_parent_folder_id/);
 });

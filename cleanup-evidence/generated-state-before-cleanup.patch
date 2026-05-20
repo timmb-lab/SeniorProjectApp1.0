@@ -1,0 +1,468 @@
+﻿diff --git a/automation/qol/state/plan-index.json b/automation/qol/state/plan-index.json
+index 65aab41..e3dce8e 100644
+--- a/automation/qol/state/plan-index.json
++++ b/automation/qol/state/plan-index.json
+@@ -1,6 +1,6 @@
+ {
+   "schemaVersion": 1,
+-  "generatedAt": "2026-05-20T00:53:15.227Z",
++  "generatedAt": "2026-05-20T01:03:17.503Z",
+   "masterPlanPath": "docs/master-plan.md",
+   "masterPlanChecksum": "04802650fc63b7e1706372f956ad674ec67862769dfef15746a1200ba8d2dc12",
+   "requirementCatalogPath": "docs/mvp-requirements-catalog.md",
+diff --git a/automation/qol/state/state.json b/automation/qol/state/state.json
+index f5c0ea7..6c4822c 100644
+--- a/automation/qol/state/state.json
++++ b/automation/qol/state/state.json
+@@ -20,7 +20,7 @@
+       "cadence": "recurring",
+       "priority": 75,
+       "firstSeenAt": "2026-05-19T17:09:35.539Z",
+-      "lastSeenAt": "2026-05-20T00:53:15.174Z",
++      "lastSeenAt": "2026-05-20T01:03:17.392Z",
+       "lastAttemptAt": "2026-05-19T19:03:42.309Z",
+       "lastSuccessAt": "2026-05-19T19:03:42.309Z",
+       "failureCount": 0,
+@@ -41,7 +41,7 @@
+       "cadence": "one-shot",
+       "priority": 65,
+       "firstSeenAt": "2026-05-19T17:09:35.539Z",
+-      "lastSeenAt": "2026-05-20T00:53:15.174Z",
++      "lastSeenAt": "2026-05-20T01:03:17.392Z",
+       "lastAttemptAt": "2026-05-19T21:30:32.013Z",
+       "lastSuccessAt": "2026-05-19T21:30:32.013Z",
+       "failureCount": 0,
+@@ -62,7 +62,7 @@
+       "cadence": "recurring",
+       "priority": 65,
+       "firstSeenAt": "2026-05-19T17:09:35.539Z",
+-      "lastSeenAt": "2026-05-20T00:53:15.174Z",
++      "lastSeenAt": "2026-05-20T01:03:17.392Z",
+       "lastAttemptAt": "2026-05-19T21:30:26.271Z",
+       "lastSuccessAt": "2026-05-19T21:30:26.271Z",
+       "failureCount": 0,
+@@ -83,7 +83,7 @@
+       "cadence": "one-shot",
+       "priority": 90,
+       "firstSeenAt": "2026-05-19T17:09:35.539Z",
+-      "lastSeenAt": "2026-05-20T00:53:15.174Z",
++      "lastSeenAt": "2026-05-20T01:03:17.392Z",
+       "lastAttemptAt": "2026-05-19T19:02:36.442Z",
+       "lastSuccessAt": "2026-05-19T19:02:36.442Z",
+       "failureCount": 0,
+@@ -104,7 +104,7 @@
+       "cadence": "one-shot",
+       "priority": 65,
+       "firstSeenAt": "2026-05-19T17:09:35.539Z",
+-      "lastSeenAt": "2026-05-20T00:53:15.174Z",
++      "lastSeenAt": "2026-05-20T01:03:17.392Z",
+       "lastAttemptAt": "2026-05-19T19:27:41.861Z",
+       "lastSuccessAt": "2026-05-19T19:27:41.861Z",
+       "failureCount": 0,
+@@ -125,7 +125,7 @@
+       "cadence": "one-shot",
+       "priority": 120,
+       "firstSeenAt": "2026-05-19T17:09:35.539Z",
+-      "lastSeenAt": "2026-05-20T00:53:15.174Z",
++      "lastSeenAt": "2026-05-20T01:03:17.392Z",
+       "lastAttemptAt": "2026-05-20T00:53:15.239Z",
+       "lastSuccessAt": "2026-05-20T00:53:15.239Z",
+       "failureCount": 0,
+@@ -146,7 +146,7 @@
+       "cadence": "one-shot",
+       "priority": 65,
+       "firstSeenAt": "2026-05-19T17:09:35.539Z",
+-      "lastSeenAt": "2026-05-20T00:53:15.174Z",
++      "lastSeenAt": "2026-05-20T01:03:17.392Z",
+       "lastAttemptAt": "2026-05-19T19:28:17.841Z",
+       "lastSuccessAt": "2026-05-19T19:28:17.841Z",
+       "failureCount": 0,
+@@ -167,7 +167,7 @@
+       "cadence": "one-shot",
+       "priority": 50,
+       "firstSeenAt": "2026-05-19T17:09:35.539Z",
+-      "lastSeenAt": "2026-05-20T00:53:15.174Z",
++      "lastSeenAt": "2026-05-20T01:03:17.392Z",
+       "lastAttemptAt": "2026-05-19T21:30:30.690Z",
+       "lastSuccessAt": "2026-05-19T21:30:30.690Z",
+       "failureCount": 0,
+@@ -188,7 +188,7 @@
+       "cadence": "one-shot",
+       "priority": 105,
+       "firstSeenAt": "2026-05-19T17:09:35.539Z",
+-      "lastSeenAt": "2026-05-20T00:53:15.174Z",
++      "lastSeenAt": "2026-05-20T01:03:17.392Z",
+       "lastAttemptAt": "2026-05-19T19:03:38.717Z",
+       "lastSuccessAt": "2026-05-19T19:03:38.717Z",
+       "failureCount": 0,
+@@ -211,7 +211,7 @@
+       "cadence": "one-shot",
+       "priority": 65,
+       "firstSeenAt": "2026-05-19T17:09:35.539Z",
+-      "lastSeenAt": "2026-05-20T00:53:15.174Z",
++      "lastSeenAt": "2026-05-20T01:03:17.392Z",
+       "lastAttemptAt": "2026-05-19T19:27:36.467Z",
+       "lastSuccessAt": "2026-05-19T19:27:36.467Z",
+       "failureCount": 0,
+@@ -232,7 +232,7 @@
+       "cadence": "one-shot",
+       "priority": 65,
+       "firstSeenAt": "2026-05-19T17:09:35.539Z",
+-      "lastSeenAt": "2026-05-20T00:53:15.174Z",
++      "lastSeenAt": "2026-05-20T01:03:17.392Z",
+       "lastAttemptAt": "2026-05-19T19:38:15.616Z",
+       "lastSuccessAt": "2026-05-19T19:38:15.616Z",
+       "failureCount": 0,
+@@ -253,7 +253,7 @@
+       "cadence": "one-shot",
+       "priority": 65,
+       "firstSeenAt": "2026-05-19T17:09:35.539Z",
+-      "lastSeenAt": "2026-05-20T00:53:15.174Z",
++      "lastSeenAt": "2026-05-20T01:03:17.392Z",
+       "lastAttemptAt": "2026-05-19T20:02:43.808Z",
+       "lastSuccessAt": "2026-05-19T20:02:43.808Z",
+       "failureCount": 0,
+@@ -269,18 +269,18 @@
+       "section": "student-workflow-evidence",
+       "source": "docs/mvp-requirements-catalog.md",
+       "planStatus": "foundation started",
+-      "status": "ready",
++      "status": "needs-review",
+       "recurring": false,
+       "cadence": "one-shot",
+       "priority": 110,
+       "firstSeenAt": "2026-05-19T17:09:35.539Z",
+-      "lastSeenAt": "2026-05-20T00:53:15.174Z",
+-      "lastAttemptAt": "2026-05-19T17:10:21.431Z",
+-      "lastSuccessAt": "2026-05-19T17:10:21.431Z",
++      "lastSeenAt": "2026-05-20T01:03:17.392Z",
++      "lastAttemptAt": "2026-05-20T01:03:17.517Z",
++      "lastSuccessAt": "2026-05-20T01:03:17.517Z",
+       "failureCount": 0,
+-      "blockerReason": null,
++      "blockerReason": "alpha flow test passed.",
+       "cooldownUntil": null,
+-      "lastSelectionReason": "priority 110; category staleness 9999h; section staleness 9999h; category rotation eligible; dirty worktree favors automation-only checks",
++      "lastSelectionReason": "priority 110; category staleness 4h; section staleness 4h; category rotation eligible; dirty worktree favors automation-only checks",
+       "dependencies": []
+     },
+     "MVP-014": {
+@@ -295,7 +295,7 @@
+       "cadence": "one-shot",
+       "priority": 120,
+       "firstSeenAt": "2026-05-19T17:09:35.539Z",
+-      "lastSeenAt": "2026-05-20T00:53:15.174Z",
++      "lastSeenAt": "2026-05-20T01:03:17.392Z",
+       "lastAttemptAt": "2026-05-19T18:44:07.371Z",
+       "lastSuccessAt": "2026-05-19T18:44:07.371Z",
+       "failureCount": 0,
+@@ -316,7 +316,7 @@
+       "cadence": "one-shot",
+       "priority": 95,
+       "firstSeenAt": "2026-05-19T17:09:35.539Z",
+-      "lastSeenAt": "2026-05-20T00:53:15.174Z",
++      "lastSeenAt": "2026-05-20T01:03:17.392Z",
+       "lastAttemptAt": "2026-05-19T17:13:51.311Z",
+       "lastSuccessAt": "2026-05-19T17:13:51.311Z",
+       "failureCount": 0,
+@@ -337,7 +337,7 @@
+       "cadence": "one-shot",
+       "priority": 95,
+       "firstSeenAt": "2026-05-19T17:09:35.539Z",
+-      "lastSeenAt": "2026-05-20T00:53:15.174Z",
++      "lastSeenAt": "2026-05-20T01:03:17.392Z",
+       "lastAttemptAt": "2026-05-19T19:02:24.991Z",
+       "lastSuccessAt": "2026-05-19T19:02:24.991Z",
+       "failureCount": 0,
+@@ -358,7 +358,7 @@
+       "cadence": "one-shot",
+       "priority": 95,
+       "firstSeenAt": "2026-05-19T17:09:35.539Z",
+-      "lastSeenAt": "2026-05-20T00:53:15.174Z",
++      "lastSeenAt": "2026-05-20T01:03:17.392Z",
+       "lastAttemptAt": "2026-05-19T19:04:03.854Z",
+       "lastSuccessAt": "2026-05-19T19:04:03.854Z",
+       "failureCount": 0,
+@@ -381,7 +381,7 @@
+       "cadence": "one-shot",
+       "priority": 95,
+       "firstSeenAt": "2026-05-19T17:09:35.539Z",
+-      "lastSeenAt": "2026-05-20T00:53:15.174Z",
++      "lastSeenAt": "2026-05-20T01:03:17.392Z",
+       "lastAttemptAt": "2026-05-19T18:20:27.350Z",
+       "lastSuccessAt": "2026-05-19T18:20:27.350Z",
+       "failureCount": 0,
+@@ -402,7 +402,7 @@
+       "cadence": "one-shot",
+       "priority": 65,
+       "firstSeenAt": "2026-05-19T17:09:35.539Z",
+-      "lastSeenAt": "2026-05-20T00:53:15.174Z",
++      "lastSeenAt": "2026-05-20T01:03:17.392Z",
+       "lastAttemptAt": "2026-05-19T19:39:27.331Z",
+       "lastSuccessAt": "2026-05-19T19:39:27.331Z",
+       "failureCount": 0,
+@@ -423,7 +423,7 @@
+       "cadence": "one-shot",
+       "priority": 65,
+       "firstSeenAt": "2026-05-19T17:09:35.539Z",
+-      "lastSeenAt": "2026-05-20T00:53:15.174Z",
++      "lastSeenAt": "2026-05-20T01:03:17.392Z",
+       "lastAttemptAt": "2026-05-19T21:30:20.501Z",
+       "lastSuccessAt": "2026-05-19T21:30:20.501Z",
+       "failureCount": 0,
+@@ -444,7 +444,7 @@
+       "cadence": "one-shot",
+       "priority": 65,
+       "firstSeenAt": "2026-05-19T17:09:35.539Z",
+-      "lastSeenAt": "2026-05-20T00:53:15.174Z",
++      "lastSeenAt": "2026-05-20T01:03:17.392Z",
+       "lastAttemptAt": "2026-05-19T21:30:21.995Z",
+       "lastSuccessAt": "2026-05-19T21:30:21.995Z",
+       "failureCount": 0,
+@@ -465,7 +465,7 @@
+       "cadence": "one-shot",
+       "priority": 65,
+       "firstSeenAt": "2026-05-19T17:09:35.539Z",
+-      "lastSeenAt": "2026-05-20T00:53:15.174Z",
++      "lastSeenAt": "2026-05-20T01:03:17.392Z",
+       "lastAttemptAt": "2026-05-19T21:30:23.406Z",
+       "lastSuccessAt": "2026-05-19T21:30:23.406Z",
+       "failureCount": 0,
+@@ -486,7 +486,7 @@
+       "cadence": "one-shot",
+       "priority": 65,
+       "firstSeenAt": "2026-05-19T17:09:35.539Z",
+-      "lastSeenAt": "2026-05-20T00:53:15.174Z",
++      "lastSeenAt": "2026-05-20T01:03:17.392Z",
+       "lastAttemptAt": "2026-05-19T19:02:51.594Z",
+       "lastSuccessAt": "2026-05-19T19:02:51.594Z",
+       "failureCount": 0,
+@@ -507,7 +507,7 @@
+       "cadence": "one-shot",
+       "priority": 65,
+       "firstSeenAt": "2026-05-19T17:09:35.539Z",
+-      "lastSeenAt": "2026-05-20T00:53:15.174Z",
++      "lastSeenAt": "2026-05-20T01:03:17.392Z",
+       "lastAttemptAt": "2026-05-19T21:30:24.930Z",
+       "lastSuccessAt": "2026-05-19T21:30:24.930Z",
+       "failureCount": 0,
+@@ -528,7 +528,7 @@
+       "cadence": "recurring",
+       "priority": 75,
+       "firstSeenAt": "2026-05-19T17:09:35.539Z",
+-      "lastSeenAt": "2026-05-20T00:53:15.174Z",
++      "lastSeenAt": "2026-05-20T01:03:17.392Z",
+       "lastAttemptAt": "2026-05-19T19:03:50.876Z",
+       "lastSuccessAt": "2026-05-19T19:03:50.876Z",
+       "failureCount": 0,
+@@ -549,7 +549,7 @@
+       "cadence": "recurring",
+       "priority": 85,
+       "firstSeenAt": "2026-05-19T17:09:35.539Z",
+-      "lastSeenAt": "2026-05-20T00:53:15.174Z",
++      "lastSeenAt": "2026-05-20T01:03:17.392Z",
+       "lastAttemptAt": "2026-05-19T18:43:37.670Z",
+       "lastSuccessAt": "2026-05-19T18:43:37.670Z",
+       "failureCount": 0,
+@@ -570,7 +570,7 @@
+       "cadence": "recurring",
+       "priority": 75,
+       "firstSeenAt": "2026-05-19T17:09:35.539Z",
+-      "lastSeenAt": "2026-05-20T00:53:15.174Z",
++      "lastSeenAt": "2026-05-20T01:03:17.392Z",
+       "lastAttemptAt": "2026-05-19T19:27:36.142Z",
+       "lastSuccessAt": "2026-05-19T19:27:36.142Z",
+       "failureCount": 0,
+@@ -591,7 +591,7 @@
+       "cadence": "one-shot",
+       "priority": 65,
+       "firstSeenAt": "2026-05-19T17:09:35.539Z",
+-      "lastSeenAt": "2026-05-20T00:53:15.174Z",
++      "lastSeenAt": "2026-05-20T01:03:17.392Z",
+       "lastAttemptAt": "2026-05-19T19:01:40.950Z",
+       "lastSuccessAt": "2026-05-19T19:01:40.950Z",
+       "failureCount": 0,
+@@ -612,7 +612,7 @@
+       "cadence": "one-shot",
+       "priority": 65,
+       "firstSeenAt": "2026-05-19T17:09:35.539Z",
+-      "lastSeenAt": "2026-05-20T00:53:15.174Z",
++      "lastSeenAt": "2026-05-20T01:03:17.392Z",
+       "lastAttemptAt": "2026-05-19T21:30:27.609Z",
+       "lastSuccessAt": "2026-05-19T21:30:27.609Z",
+       "failureCount": 0,
+@@ -633,7 +633,7 @@
+       "cadence": "recurring",
+       "priority": 65,
+       "firstSeenAt": "2026-05-19T17:09:35.539Z",
+-      "lastSeenAt": "2026-05-20T00:53:15.174Z",
++      "lastSeenAt": "2026-05-20T01:03:17.392Z",
+       "lastAttemptAt": "2026-05-19T21:30:29.196Z",
+       "lastSuccessAt": "2026-05-19T21:30:29.196Z",
+       "failureCount": 0,
+@@ -654,7 +654,7 @@
+       "cadence": "one-shot",
+       "priority": 90,
+       "firstSeenAt": "2026-05-19T17:09:35.539Z",
+-      "lastSeenAt": "2026-05-20T00:53:15.174Z",
++      "lastSeenAt": "2026-05-20T01:03:17.392Z",
+       "lastAttemptAt": "2026-05-19T19:03:35.970Z",
+       "lastSuccessAt": "2026-05-19T19:03:35.970Z",
+       "failureCount": 0,
+@@ -675,7 +675,7 @@
+       "cadence": "one-shot",
+       "priority": 90,
+       "firstSeenAt": "2026-05-19T17:09:35.539Z",
+-      "lastSeenAt": "2026-05-20T00:53:15.174Z",
++      "lastSeenAt": "2026-05-20T01:03:17.392Z",
+       "lastAttemptAt": null,
+       "lastSuccessAt": null,
+       "failureCount": 0,
+@@ -696,7 +696,7 @@
+       "cadence": "one-shot",
+       "priority": 90,
+       "firstSeenAt": "2026-05-19T17:09:35.539Z",
+-      "lastSeenAt": "2026-05-20T00:53:15.174Z",
++      "lastSeenAt": "2026-05-20T01:03:17.392Z",
+       "lastAttemptAt": "2026-05-19T19:03:50.283Z",
+       "lastSuccessAt": "2026-05-19T19:03:50.283Z",
+       "failureCount": 0,
+@@ -717,7 +717,7 @@
+       "cadence": "one-shot",
+       "priority": 90,
+       "firstSeenAt": "2026-05-19T17:09:35.539Z",
+-      "lastSeenAt": "2026-05-20T00:53:15.174Z",
++      "lastSeenAt": "2026-05-20T01:03:17.392Z",
+       "lastAttemptAt": "2026-05-19T19:03:52.907Z",
+       "lastSuccessAt": "2026-05-19T19:03:52.907Z",
+       "failureCount": 0,
+@@ -738,7 +738,7 @@
+       "cadence": "one-shot",
+       "priority": 115,
+       "firstSeenAt": "2026-05-19T17:09:35.539Z",
+-      "lastSeenAt": "2026-05-20T00:53:15.174Z",
++      "lastSeenAt": "2026-05-20T01:03:17.392Z",
+       "lastAttemptAt": "2026-05-19T17:12:41.943Z",
+       "lastSuccessAt": "2026-05-19T17:12:41.943Z",
+       "failureCount": 0,
+@@ -759,7 +759,7 @@
+       "cadence": "one-shot",
+       "priority": 115,
+       "firstSeenAt": "2026-05-19T17:09:35.539Z",
+-      "lastSeenAt": "2026-05-20T00:53:15.174Z",
++      "lastSeenAt": "2026-05-20T01:03:17.392Z",
+       "lastAttemptAt": "2026-05-19T19:01:56.477Z",
+       "lastSuccessAt": "2026-05-19T19:01:56.477Z",
+       "failureCount": 0,
+@@ -780,7 +780,7 @@
+       "cadence": "daily",
+       "priority": 80,
+       "firstSeenAt": "2026-05-19T17:09:35.539Z",
+-      "lastSeenAt": "2026-05-20T00:53:15.174Z",
++      "lastSeenAt": "2026-05-20T01:03:17.392Z",
+       "lastAttemptAt": "2026-05-19T18:43:59.456Z",
+       "lastSuccessAt": "2026-05-19T18:43:59.456Z",
+       "failureCount": 0,
+@@ -801,7 +801,7 @@
+       "cadence": "daily",
+       "priority": 80,
+       "firstSeenAt": "2026-05-19T17:09:35.539Z",
+-      "lastSeenAt": "2026-05-20T00:53:15.174Z",
++      "lastSeenAt": "2026-05-20T01:03:17.392Z",
+       "lastAttemptAt": "2026-05-19T17:11:24.551Z",
+       "lastSuccessAt": "2026-05-19T17:11:24.551Z",
+       "failureCount": 0,
+@@ -822,7 +822,7 @@
+       "cadence": "daily",
+       "priority": 80,
+       "firstSeenAt": "2026-05-19T17:09:35.539Z",
+-      "lastSeenAt": "2026-05-20T00:53:15.174Z",
++      "lastSeenAt": "2026-05-20T01:03:17.392Z",
+       "lastAttemptAt": "2026-05-19T18:44:17.114Z",
+       "lastSuccessAt": "2026-05-19T18:44:17.114Z",
+       "failureCount": 0,
+@@ -843,7 +843,7 @@
+       "cadence": "every_30_minutes",
+       "priority": 125,
+       "firstSeenAt": "2026-05-20T00:52:57.357Z",
+-      "lastSeenAt": "2026-05-20T00:53:15.174Z",
++      "lastSeenAt": "2026-05-20T01:03:17.392Z",
+       "lastAttemptAt": "2026-05-20T00:52:57.368Z",
+       "lastSuccessAt": "2026-05-20T00:52:57.368Z",
+       "failureCount": 0,
+@@ -853,18 +853,8 @@
+       "dependencies": []
+     }
+   },
+-  "lastRunId": "20260520T005315Z-a34ef6b9",
++  "lastRunId": "20260520T010317Z-d32ed93a",
+   "runHistory": [
+-    {
+-      "runId": "20260519T213033Z-bca18ee7",
+-      "timestamp": "2026-05-19T21:30:33.344Z",
+-      "selectedTaskId": null,
+-      "selectedCategory": null,
+-      "status": "skipped",
+-      "changedFiles": [
+-        "automation/qol/state/plan-index.json"
+-      ]
+-    },
+     {
+       "runId": "20260519T213419Z-d8a4def1",
+       "timestamp": "2026-05-19T21:34:19.675Z",
+@@ -1654,6 +1644,16 @@
+       "changedFiles": [
+         "automation/qol/state/plan-index.json"
+       ]
++    },
++    {
++      "runId": "20260520T010317Z-d32ed93a",
++      "timestamp": "2026-05-20T01:03:17.517Z",
++      "selectedTaskId": "MVP-013",
++      "selectedCategory": "student-workflow-evidence",
++      "status": "needs-review",
++      "changedFiles": [
++        "automation/qol/state/plan-index.json"
++      ]
+     }
+   ],
+   "coverage": {
+@@ -1663,8 +1663,8 @@
+         "count": 6
+       },
+       "student-workflow-evidence": {
+-        "lastTouchedAt": "2026-05-19T21:30:24.930Z",
+-        "count": 6
++        "lastTouchedAt": "2026-05-20T01:03:17.517Z",
++        "count": 7
+       },
+       "Anti-Drift Rules": {
+         "lastTouchedAt": "2026-05-19T17:11:24.551Z",
+@@ -1713,8 +1713,8 @@
+         "count": 6
+       },
+       "student-workflow-evidence": {
+-        "lastTouchedAt": "2026-05-19T21:30:24.930Z",
+-        "count": 6
++        "lastTouchedAt": "2026-05-20T01:03:17.517Z",
++        "count": 7
+       },
+       "qol-automation": {
+         "lastTouchedAt": "2026-05-20T00:52:57.368Z",
+@@ -1742,12 +1742,12 @@
+       }
+     }
+   },
+-  "lastSelectedTaskId": "MVP-006",
+-  "lastSelectedCategory": "backend-security-data",
++  "lastSelectedTaskId": "MVP-013",
++  "lastSelectedCategory": "student-workflow-evidence",
+   "pendingContinuation": null,
+   "lastValidationResults": [
+-    "account seed test passed."
++    "alpha flow test passed."
+   ],
+   "createdAt": "2026-05-19T17:09:35.539Z",
+-  "updatedAt": "2026-05-20T00:53:15.239Z"
++  "updatedAt": "2026-05-20T01:03:17.517Z"
+ }

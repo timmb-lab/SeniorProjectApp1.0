@@ -1,0 +1,383 @@
+﻿diff --git a/app.js b/app.js
+index 81e8340..ef26eb3 100644
+--- a/app.js
++++ b/app.js
+@@ -2201,6 +2201,53 @@ const productMetrics = {
+   ]
+ };
+ 
++const productProgressStateContracts = [
++  {
++    title: "Student Progress Update Draft",
++    label: "draft update",
++    tone: "blue",
++    detail: "Student changes stay local until the server accepts the update.",
++    meta: "Fields: requirement, phase, percent, note, evidence refs."
++  },
++  {
++    title: "Staff Progress Adjustment",
++    label: "scoped staff",
++    tone: "green",
++    detail: "Mentors and teachers adjust only assigned or program-scoped records.",
++    meta: "Guards: actor role, program scope, assigned students, reason."
++  },
++  {
++    title: "Status History Persisted",
++    label: "append-only",
++    tone: "violet",
++    detail: "Every accepted transition appends history before counts change.",
++    meta: "Records: ProgressUpdate, StatusHistory, Submission status."
++  },
++  {
++    title: "Dashboard Aggregate Recalculated",
++    label: "server count",
++    tone: "amber",
++    detail: "Dashboard totals are derived from saved rows by role and cohort.",
++    meta: "Rules: no client truth, source records link back to detail rows."
++  },
++  {
++    title: "Conflict + Audit Visible",
++    label: "stale guard",
++    tone: "red",
++    detail: "Stale writes show a refresh-required state and preserve audit context.",
++    meta: "Events: progress.updated, status.changed, unauthorized.denied."
++  }
++];
++
++const productProgressPipeline = [
++  { step: "01", title: "Receive update", detail: "Validate body and signed-in actor." },
++  { step: "02", title: "Authorize scope", detail: "Apply student, mentor, teacher, or admin boundaries." },
++  { step: "03", title: "Validate transition", detail: "Check status move, deadline, and evidence readiness." },
++  { step: "04", title: "Persist records", detail: "Write progress and status history together." },
++  { step: "05", title: "Write audit", detail: "Store actor, scope, before/after, reason, and request metadata." },
++  { step: "06", title: "Recompute dashboard", detail: "Refresh counts from saved records only." }
++];
++
+ const productPhaseProgress = [
+   { label: "Setup", status: "Approved", detail: "Workspace, program, cohort, and role scope created." },
+   { label: "Proposal", status: "Revision requested", detail: "Teacher asked for clearer CTE evidence." },
+@@ -3202,6 +3249,59 @@ function productMetricsHtml(roleId) {
+   return `<div class="product-metric-grid">${productMetrics[roleId].map(productMetricCardHtml).join("")}</div>`;
+ }
+ 
++function productContractPillHtml(item) {
++  return `<span class="product-contract-pill product-contract-pill-${item.tone}"><span aria-hidden="true"></span>${item.label}</span>`;
++}
++
++function productTrustContractHtml() {
++  return `
++    <section class="product-contract-panel" aria-labelledby="product-contract-title">
++      <div class="product-contract-header">
++        <div>
++          <p class="eyebrow">Trusted progress state</p>
++          <h2 id="product-contract-title">Dashboard Counts Come From Persisted Records</h2>
++          <p>
++            The preview now separates draft UI, scoped staff adjustments, status history, aggregate counts, and stale-write recovery so reviewers can see which state is safe to trust.
++          </p>
++        </div>
++        <div class="product-contract-proof" aria-label="Current aggregate rule">
++          <strong>Server-owned</strong>
++          <span>No localStorage source of truth</span>
++        </div>
++      </div>
++      <div class="product-contract-grid" aria-label="Progress state contracts">
++        ${productProgressStateContracts
++          .map(
++            (item) => `
++              <article class="product-contract-card product-tone-${item.tone}">
++                ${productContractPillHtml(item)}
++                <h3>${item.title}</h3>
++                <p>${item.detail}</p>
++                <small>${item.meta}</small>
++              </article>
++            `
++          )
++          .join("")}
++      </div>
++      <ol class="product-pipeline-list" aria-label="Server-side progress update pipeline">
++        ${productProgressPipeline
++          .map(
++            (item) => `
++              <li class="product-pipeline-step">
++                <span aria-hidden="true">${item.step}</span>
++                <div>
++                  <strong>${item.title}</strong>
++                  <p>${item.detail}</p>
++                </div>
++              </li>
++            `
++          )
++          .join("")}
++      </ol>
++    </section>
++  `;
++}
++
+ function productRoleTabsHtml() {
+   return `
+     <div class="product-role-tabs" role="tablist" aria-label="Preview role">
+@@ -3674,12 +3774,13 @@ function renderAppPreviewPage(root) {
+               <span>Search students, submissions, evidence</span>
+               <input type="search" value="proposal evidence risks" aria-label="Search preview data">
+             </label>
+-            <div class="product-control-chips" aria-label="Active filters">
++          <div class="product-control-chips" aria-label="Active filters">
+               <span>Class of 2026</span>
+               <span>All programs</span>
+               <span>Action needed</span>
+             </div>
+           </div>
++          ${productTrustContractHtml()}
+           ${productRolePanelsHtml()}
+         </div>
+       </div>
+diff --git a/styles.css b/styles.css
+index 5e3d074..4bc6924 100644
+--- a/styles.css
++++ b/styles.css
+@@ -2302,6 +2302,13 @@ li + li {
+   background: #fff8e8;
+ }
+ 
++.product-role-tab:focus-visible,
++.product-mini-nav a:focus-visible,
++.product-search input:focus-visible {
++  outline: 3px solid rgba(4, 123, 131, 0.32);
++  outline-offset: 2px;
++}
++
+ .product-sidebar-note {
+   border-top: 1px solid var(--line);
+   padding-top: 1rem;
+@@ -2355,6 +2362,162 @@ li + li {
+   justify-content: flex-end;
+ }
+ 
++.product-contract-panel {
++  display: grid;
++  gap: 0.9rem;
++  margin: 1rem 1rem 0;
++  border: 1px solid #d4dce6;
++  border-radius: var(--radius);
++  background: #f6f9fc;
++  padding: 1rem;
++}
++
++.product-contract-header {
++  display: grid;
++  grid-template-columns: minmax(0, 1fr) minmax(190px, 260px);
++  gap: 1rem;
++  align-items: start;
++}
++
++.product-contract-header h2 {
++  margin: 0;
++  font-size: clamp(1.35rem, 2.4vw, 2rem);
++}
++
++.product-contract-header p,
++.product-contract-card p,
++.product-contract-card small,
++.product-pipeline-step p,
++.product-contract-proof span {
++  margin: 0;
++  color: var(--muted);
++}
++
++.product-contract-proof {
++  display: grid;
++  gap: 0.22rem;
++  border: 1px solid #cbd7e3;
++  border-left: 5px solid var(--teal);
++  border-radius: var(--radius);
++  background: #fff;
++  padding: 0.75rem;
++}
++
++.product-contract-proof strong {
++  font-size: 1rem;
++}
++
++.product-contract-grid,
++.product-pipeline-list {
++  display: grid;
++  gap: 0.65rem;
++}
++
++.product-contract-grid {
++  grid-template-columns: repeat(5, minmax(0, 1fr));
++}
++
++.product-contract-card {
++  display: grid;
++  gap: 0.55rem;
++  min-width: 0;
++  border: 1px solid #d4dce6;
++  border-left: 5px solid var(--blue);
++  border-radius: var(--radius);
++  background: #fff;
++  padding: 0.8rem;
++}
++
++.product-contract-card h3 {
++  margin: 0;
++  font-size: 0.98rem;
++  line-height: 1.25;
++}
++
++.product-contract-card small {
++  display: block;
++  font-size: 0.78rem;
++  font-weight: 800;
++}
++
++.product-contract-pill {
++  display: inline-flex;
++  align-items: center;
++  gap: 0.38rem;
++  width: fit-content;
++  min-height: 27px;
++  border-radius: 999px;
++  background: #eef3f8;
++  color: var(--blue);
++  padding: 0.24rem 0.52rem;
++  font-size: 0.74rem;
++  font-weight: 900;
++  line-height: 1.1;
++}
++
++.product-contract-pill span {
++  width: 0.42rem;
++  height: 0.42rem;
++  border-radius: 999px;
++  background: currentColor;
++}
++
++.product-contract-pill-green {
++  background: #e7f7ed;
++  color: var(--green);
++}
++
++.product-contract-pill-violet {
++  background: #f2ecff;
++  color: var(--violet);
++}
++
++.product-contract-pill-amber {
++  background: #fff1d8;
++  color: var(--amber);
++}
++
++.product-contract-pill-red {
++  background: #ffe8e9;
++  color: var(--red-dark);
++}
++
++.product-pipeline-list {
++  grid-template-columns: repeat(6, minmax(0, 1fr));
++  margin: 0;
++  padding: 0;
++  list-style: none;
++}
++
++.product-pipeline-step {
++  display: grid;
++  grid-template-columns: auto minmax(0, 1fr);
++  gap: 0.5rem;
++  align-items: start;
++  border: 1px solid #d4dce6;
++  border-radius: var(--radius);
++  background: #fff;
++  padding: 0.68rem;
++}
++
++.product-pipeline-step > span {
++  display: inline-grid;
++  min-width: 2rem;
++  min-height: 1.7rem;
++  place-items: center;
++  border-radius: 999px;
++  background: #edf2f7;
++  color: var(--charcoal);
++  font-size: 0.74rem;
++  font-weight: 900;
++}
++
++.product-pipeline-step strong {
++  display: block;
++  margin-bottom: 0.1rem;
++  font-size: 0.84rem;
++}
++
+ .product-control-chips span,
+ .component-chip-list span,
+ .product-due {
+@@ -2458,6 +2621,10 @@ li + li {
+   border-left-color: var(--red);
+ }
+ 
++.product-tone-violet {
++  border-left-color: var(--violet);
++}
++
+ .product-tone-teal {
+   border-left-color: var(--teal);
+ }
+@@ -2558,6 +2725,7 @@ li + li {
+ .product-status {
+   display: inline-flex;
+   align-items: center;
++  gap: 0.38rem;
+   width: fit-content;
+   min-height: 28px;
+   border: 1px solid transparent;
+@@ -2569,6 +2737,15 @@ li + li {
+   white-space: nowrap;
+ }
+ 
++.product-status::before {
++  content: "";
++  flex: 0 0 0.42rem;
++  width: 0.42rem;
++  height: 0.42rem;
++  border-radius: 999px;
++  background: currentColor;
++}
++
+ .product-status-draft,
+ .product-status-not-started,
+ .product-status-archived {
+@@ -2875,6 +3052,7 @@ li + li {
+   }
+ 
+   .product-preview-shell,
++  .product-contract-header,
+   .product-panel-header,
+   .product-two-column,
+   .product-two-column-rail {
+@@ -2897,11 +3075,16 @@ li + li {
+   }
+ 
+   .product-metric-grid,
++  .product-contract-grid,
+   .product-progress-strip,
+   .component-variant-grid {
+     grid-template-columns: repeat(2, minmax(0, 1fr));
+   }
+ 
++  .product-pipeline-list {
++    grid-template-columns: repeat(3, minmax(0, 1fr));
++  }
++
+   .product-state-grid,
+   .mentor-card-list,
+   .section-card-grid,
+@@ -3046,6 +3229,8 @@ li + li {
+   }
+ 
+   .product-metric-grid,
++  .product-contract-grid,
++  .product-pipeline-list,
+   .product-card-grid,
+   .product-progress-strip,
+   .product-state-grid,

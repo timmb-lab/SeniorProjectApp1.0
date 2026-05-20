@@ -1,0 +1,101 @@
+﻿* d6835b7 (HEAD -> main, origin/main, origin/HEAD) fix qol orchestrator stale-state starvation
+* 565cca7 chore: remove superseded project automation traces
+* 124670a chore: run project automations every 30 minutes
+| * 06e6f6a (preserve/branch-cleanup-work-20260519) preserve branch cleanup work before typecheck audit
+|/  
+* ce4c20d harden hourly qol automation runner
+* ab98bfb qol: add automation guardrail wrapper
+| *   daf0873 (refs/stash) On main: preserve untracked automation sheet sync helper before main push
+|/|\  
+| | * 025f4bb untracked files on main: b6059d9 Merge MVP workflow updates into main
+| * 36015c8 index on main: b6059d9 Merge MVP workflow updates into main
+|/  
+*   b6059d9 Merge MVP workflow updates into main
+|\  
+| * 09cd24a (origin/codex/qol-automation-deep-audit, codex/qol-automation-deep-audit) docs: align MVP route coverage
+| * 1e266db chore(qol): 10 passes + announcements/exports/report APIs (20260519T215123Z-644356f9)
+| * 8472063 docs: summarize test-account workflow routes
+| * c5f1a90 docs: link MVPs to workflow APIs
+| * a96b90e docs: list new workflow endpoints
+| * 8c65750 test: extend workflow source coverage
+| * 74c79bb feat(admin): add audit events endpoint
+| * 765db20 chore(qol): record 10 QoL passes (20260519T214440Z-ff7500e0)
+| * 1cec1e1 docs: mention admin smoke + workflow routes
+| * f4f4755 docs: update MVP catalog for workflow endpoints
+| * 6547ca0 docs: include admin seed + workflow endpoints
+| * 410eecb test: cover production workflow sources
+| * fcdcfb0 test: include admin test seed
+| * 2d9f2d5 chore(qol): 10 passes + API seeds (20260519T213926Z-b8c999a7)
+| * 1d24a9c chore(qol): record 10 QoL passes (20260519T213624Z-38e65add)
+| * 4e47b69 chore(qol): record 10 QoL passes (20260519T213528Z-2ff84c18)
+| * ace8349 chore(qol): record 10 QoL passes (20260519T213431Z-e42f5757)
+| * ea2a3cf chore(qol): record 10 QoL passes (20260519T213033Z-bca18ee7)
+| * 1c046a8 Improve alpha and account smoke QA
+| * d32f708 3214534215
+| * 66e4bc4 Record manual Figma dry-run canary evidence
+| * 704653a Harden Figma lane promotion evidence
+| * 1733340 Add bounded repo-local Figma evolution lane
+| * e373bdc fix: harden qol automation checks
+| * 7908bf8 audit: refresh master plan accuracy
+| * 256cf49 Harden QoL automation self-run checks
+* | 108bb6a chore: ignore local env and automation noise
+| | * a9016f1 (origin/audit/allow-hourly-orchestrator-contract-20260519, audit/allow-hourly-orchestrator-contract-20260519) audit: allow hourly orchestrator in contract checker
+| |/  
+|/|   
+* | a2c0a02 audit: correct protected evidence manifest validation
+* | 98d8370 audit: finalize protected evidence repair log
+* | 30f82fa audit: repair protected evidence QoL prompts
+|/  
+* ce6e9da audit: document QoL spreadsheet approval grant
+| * 7092582 (origin/codex/immutable-review-history-qol-hardening-20260519, codex/immutable-review-history-qol-hardening-20260519) audit: harden immutable review history automation
+| | * e966c89 (origin/automation/qol-admin-prompt-recovery-20260519, automation/qol-admin-prompt-recovery-20260519) automation: recover QoL prompt parity
+| |/  
+| | * e76dc96 (origin/codex/account-lifecycle-qol-hardening, codex/account-lifecycle-qol-hardening) audit: harden account lifecycle QoL prompts
+| |/  
+| | * 478d9c1 (origin/codex/admin-ops-qol-hardening-20260519, codex/admin-ops-qol-hardening-20260519) audit: harden admin ops qol automations
+| |/  
+| | * 324d5c2 (origin/codex/immutable-review-history-prompt-hardening, codex/immutable-review-history-prompt-hardening) audit: harden immutable review history prompts
+| |/  
+| | * 56c817e (origin/codex/teacher-review-qol-hardening-20260519, codex/teacher-review-qol-hardening-20260519) audit: record teacher review automation push
+| | * dfed6a9 audit: harden teacher review QoL automations
+| |/  
+| | * ff53bab (origin/automation/mentor-presentation-qol-hardening-20260519, automation/mentor-presentation-qol-hardening-20260519) audit: harden mentor presentation QoL prompts
+| |/  
+| | * eef5d04 (origin/automation/cloudflare-verification-hardening-20260519, automation/cloudflare-verification-hardening-20260519) audit: harden cloudflare verification prompts
+| |/  
+| | * 1ebb634 (origin/automation/source-framework-seed-hardening-20260519, automation/source-framework-seed-hardening-20260519) audit: finalize source-framework automation closeout
+| | * 463043b audit: harden source-framework QoL automation
+| |/  
+| | * e7c01c4 (origin/audit/admin-ops-qol-prompt-recovery, audit/admin-ops-qol-prompt-recovery) audit: harden admin ops qol prompts
+| |/  
+| | * f1dde56 (origin/automation/drive-upload-oauth-hardening-20260519, automation/drive-upload-oauth-hardening-20260519) audit: harden drive upload qol prompts
+| |/  
+| | * edaf333 Fix public-site automation script fallbacks
+| |/  
+|/|   
+* | 0fd1bb1 Add QoL Google Sheet tracker
+* | e3fc1bc Reactivate full QoL cadence
+* | ac4e5be Tune QoL automation burn-down mode
+|/  
+* 481bea0 +5+59
+| * 2b552bc (origin/codex/protected-evidence-access, codex/protected-evidence-access) rebuild: add protected evidence access coverage
+|/  
+* 8a738a1 site: polish public and stakeholder site concepts
+* f6eadd2 audit: harden project automation contract
+* 08df913 site: add stakeholder option concepts
+* 2793667 fix: isolate public pages wrangler config
+* 094e795 fix: deploy public companion from static root
+* 02d2a43 fix: point public alpha links to app project
+* a78add0 docs: note public site cloudflare project
+* 8ce75a8 site: add public companion site build
+* 5d5e92c audit: register GUI QoL automations
+* 6f45178 audit: refresh QoL automation script guidance
+* c48a734 audit: harden QoL automation checks
+* f62ad48 audit: harden automation efficiency scripts
+* f645fc3 audit: add automation efficiency scaling
+* fdc0c77 figma: correct prototype run timestamp
+* 48907f3 figma: add full alpha prototype
+* 8d48cb9 audit: rebuild qol automation cadence
+* bc9e527 audit: enforce mvp surface expansion
+* c01e88b audit: tune automations to 20x cadence
+* aba173f audit: escalate category automations hourly

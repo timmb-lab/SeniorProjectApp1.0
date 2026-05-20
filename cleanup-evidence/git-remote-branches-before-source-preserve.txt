@@ -1,0 +1,17 @@
+﻿  origin/HEAD                                                  -> origin/main
+  origin/audit/admin-ops-qol-prompt-recovery                   e7c01c4 audit: harden admin ops qol prompts
+  origin/audit/allow-hourly-orchestrator-contract-20260519     a9016f1 audit: allow hourly orchestrator in contract checker
+  origin/automation/cloudflare-verification-hardening-20260519 eef5d04 audit: harden cloudflare verification prompts
+  origin/automation/drive-upload-oauth-hardening-20260519      f1dde56 audit: harden drive upload qol prompts
+  origin/automation/mentor-presentation-qol-hardening-20260519 ff53bab audit: harden mentor presentation QoL prompts
+  origin/automation/qol-admin-prompt-recovery-20260519         e966c89 automation: recover QoL prompt parity
+  origin/automation/source-framework-seed-hardening-20260519   1ebb634 audit: finalize source-framework automation closeout
+  origin/codex/account-lifecycle-qol-hardening                 e76dc96 audit: harden account lifecycle QoL prompts
+  origin/codex/admin-ops-qol-hardening-20260519                478d9c1 audit: harden admin ops qol automations
+  origin/codex/fix-alpha-ci-typecheck                          593f739 fix: normalize Web Crypto byte inputs
+  origin/codex/immutable-review-history-prompt-hardening       324d5c2 audit: harden immutable review history prompts
+  origin/codex/immutable-review-history-qol-hardening-20260519 7092582 audit: harden immutable review history automation
+  origin/codex/protected-evidence-access                       2b552bc rebuild: add protected evidence access coverage
+  origin/codex/qol-automation-deep-audit                       09cd24a docs: align MVP route coverage
+  origin/codex/teacher-review-qol-hardening-20260519           56c817e audit: record teacher review automation push
+  origin/main                                                  d6835b7 fix qol orchestrator stale-state starvation
