@@ -104,15 +104,15 @@ For the Senior Capstone app backend foundation, local scaffolding, schema design
 
 If those account/provisioning pieces are missing, rebuild should still scaffold local code and migrations, then log a precise `ACTION REQUIRED` item instead of blocking all work.
 
-## 30-Minute Master-Plan Orchestrator
+## Hourly Master-Plan Orchestrator
 
-Bryan explicitly deleted the previous Senior Capstone project automation fleet on 2026-05-19 and replaced it with one large GUI-available automation: `senior-capstone-hourly-qol-orchestrator`.
+Bryan explicitly deleted the previous Senior Capstone project automation fleet on 2026-05-19 and replaced it with one large hourly automation: `senior-capstone-hourly-master-plan-orchestrator`.
 
-The orchestrator runs every 30 minutes all day from `C:\SeniorProjectApp1.0`. It reads the master plan and requirements catalog every run, selects one bounded slice from `MVP-001` through `MVP-030`, and rotates work from evidence rather than from separate lane-specific prompts. It must cover the full master plan over time while keeping each individual run narrow enough to validate, log, commit, and push.
+The orchestrator runs once per hour all day from `C:\SeniorProjectApp1.0`. It reads the master plan and requirements catalog every run, selects one bounded slice from `MVP-001` through `MVP-030`, and rotates work from evidence rather than from separate lane-specific prompts. It must cover the full master plan over time while keeping each individual run narrow enough to validate, log, commit, and push.
 
 ## Orchestrator No-Intervention Contract
 
-The older QoL fleet, support refresh jobs, standby lanes, daily prototype job, broad seven-category runners, brief hourly escalation, and 20x category system are superseded by the 30-minute orchestrator recorded in `docs/automation-cadence.md`.
+The older QoL fleet, support refresh jobs, standby lanes, daily prototype job, broad seven-category runners, brief hourly escalation, and 20x category system are superseded by the hourly orchestrator recorded in `docs/automation-cadence.md`.
 
 The orchestrator should resolve everything it can resolve from accepted docs, repo evidence, saved connector approvals, and safe fallbacks. It should not stop for a human when it can:
 
@@ -136,10 +136,10 @@ For automation maintenance, only touch automation related to this project: local
 
 ## Writable Preflight
 
-Every 30-minute run must spend the first minute proving it can do useful work before it opens large context:
+Every hourly run must spend the first minute proving it can do useful work before it opens large context:
 
 - Run `git status --short --branch`.
-- Confirm the current automation is `senior-capstone-hourly-qol-orchestrator`.
+- Confirm the current automation is `senior-capstone-hourly-master-plan-orchestrator`.
 - Confirm repo writes are available by planning a tiny repo-owned log/manifest update before broad inspection. Do not make throwaway files.
 - Confirm command execution can run the bundled or PATH Node/PowerShell path needed for repo checks.
 - If `apply_patch`, shell execution, `$CODEX_HOME` reads, Git LFS, Node/npm, or commit/push is blocked by policy, stop the product slice immediately and leave the shortest possible blocker closeout with the exact command/error and next action. Do not spend a full run rediscovering the same read-only state.
@@ -147,7 +147,7 @@ Every 30-minute run must spend the first minute proving it can do useful work be
 
 ## Phone Tracker Closeout
 
-Every active 30-minute run should append one row to Bryan's phone-friendly Google Sheet at closeout:
+Every active hourly run should append one row to Bryan's phone-friendly Google Sheet at closeout:
 
 - Title: `Senior Capstone QoL Run Tracker`
 - URL: `https://docs.google.com/spreadsheets/d/1J8jQMn85wJwo9Rh6LjQUVv_WfLS1YJWsbpcLBCojjjs/edit`
@@ -159,16 +159,16 @@ Keep the row compact enough to scan on a phone. If the Google Sheets connector i
 
 ## Token Budget Guardrail
 
-The 30-minute orchestrator may use a large prompt, but each run should avoid uncontrolled context loads. Every run reads the required anchors, then stays narrow:
+The hourly orchestrator may use a large prompt, but each run should avoid uncontrolled context loads. Every run reads the required anchors, then stays narrow:
 
 - Prefer `rg`, recent run manifests, and relevant log sections before opening long files.
 - Read the specific source files, tests, docs, Figma/Canva handoffs, or Cloudflare setup notes needed for the selected QoL target.
 - Avoid broad repo scans unless the selected acceptance check requires it.
-- Pick one bounded master-plan slice per run and leave unrelated MVP work for a later 30-minute pass.
+- Pick one bounded master-plan slice per run and leave unrelated MVP work for a later hourly pass.
 
 ## 30-Day Efficiency Auto-Scaling Protocol
 
-The current 30-minute orchestrator cadence is 48 active starts/day. Scaling should first improve conversion, target selection, and blocker burn-down, not add more starts.
+The current hourly orchestrator cadence is 24 active starts/day. Scaling should first improve conversion, target selection, and blocker burn-down, not add more starts.
 
 Use this command for explicit automation audits and Sunday calibration:
 
@@ -178,15 +178,15 @@ powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\me
 
 Use `-OutputPath <path>` when a scheduled run should save the JSON scorecard as a durable artifact before logging or summarizing it.
 
-The efficiency scorecard measures active automation count, daily start capacity, 30-day start capacity, minimum spacing, observed run manifests, accepted-pass telemetry, requirement IDs seen, elapsed scheduled sessions, and expected automations with no observed manifest. Under the 30-minute orchestrator contract, the active project automation count is 1 and daily active start capacity is 48.
+The efficiency scorecard measures active automation count, daily start capacity, 30-day start capacity, minimum spacing, observed run manifests, accepted-pass telemetry, requirement IDs seen, elapsed scheduled sessions, and expected automations with no observed manifest. Under the hourly orchestrator contract, the active project automation count is 1 and daily active start capacity is 24.
 
 Scaling rules:
 
-- Keep the 48-start/day 30-minute schedule unless Bryan explicitly asks to change it or evidence shows this project-specific cadence is harming output.
-- Minimum 30-day target is 60 accepted MVP passes; stretch is 90. With 1,440 active scheduled starts in 30 days, the system needs 4.17 percent accepted-pass conversion for minimum and 6.25 percent for stretch.
+- Keep the 24-start/day hourly schedule unless Bryan explicitly asks to change it or evidence shows this project-specific cadence is harming output.
+- Minimum 30-day target is 60 accepted MVP passes; stretch is 90. With 720 active scheduled starts in 30 days, the system needs 8.34 percent accepted-pass conversion for minimum and 12.5 percent for stretch.
 - If accepted-pass conversion is below target, retarget the next week toward implementation, tests, deployment proof, exact blockers, and high-risk requirements before adding more runs.
 - If the orchestrator has no accepted evidence or exact blocker after seven days, sharpen its backlog selection, prompt instructions, or handoff rules before changing cadence.
-- If run duration or dirty-worktree collisions repeatedly exceed the 30-minute spacing, reduce collision risk by selecting non-conflicting verification slices, narrowing prompt execution, or recommending a schedule adjustment for Bryan.
+- If run duration or dirty-worktree collisions repeatedly exceed the hourly spacing, reduce collision risk by selecting non-conflicting verification slices, narrowing prompt execution, or recommending a schedule adjustment for Bryan.
 - If blockers dominate a requirement area, the automation should commit one precise blocker with the account/tool/policy action required and then move to adjacent non-blocked evidence in its scope.
 - If the project exceeds the stretch target with low collision risk, keep cadence stable and tighten acceptance quality; do not chase more starts for its own sake.
 
@@ -277,11 +277,11 @@ Each run chooses exactly one bounded scope.
 
 ## Daily Goal And Weekly Calibration
 
-For this Senior Capstone project only, the current 100-pass / roughly 45-day MVP target translates to a real daily goal of at least 2 accepted MVP passes per calendar day, with 3 accepted passes as the stretch goal when the repo is unblocked. The current 48 starts/day are execution capacity; scheduled starts are not accepted passes.
+For this Senior Capstone project only, the current 100-pass / roughly 45-day MVP target translates to a real daily goal of at least 2 accepted MVP passes per calendar day, with 3 accepted passes as the stretch goal when the repo is unblocked. The current 24 hourly starts are execution capacity; scheduled starts are not accepted passes.
 
 An accepted MVP pass must leave durable evidence: a pushed commit or published external artifact recorded in the repo, plus validation or a concrete blocker that reduces MVP ambiguity. The first two accepted passes each day should usually be implementation-heavy while `SC-005` remains open.
 
-`senior-capstone-hourly-qol-orchestrator` owns weekly calibration. On Sundays it must review the last seven days of run manifests, run-log entries, commits, backlog movement, handoffs, and audit findings. It should count accepted MVP passes against the minimum 2/day and 14/week goal, then update only this project's `docs/master-plan.md`, `docs/automation-memory.md`, and `docs/mvp-requirements-catalog.md` with the next week's daily goal/allocation when evidence requires adjustment.
+`senior-capstone-hourly-master-plan-orchestrator` owns weekly calibration. On Sundays it must review the last seven days of run manifests, run-log entries, commits, backlog movement, handoffs, and audit findings. It should count accepted MVP passes against the minimum 2/day and 14/week goal, then update only this project's `docs/master-plan.md`, `docs/automation-memory.md`, and `docs/mvp-requirements-catalog.md` with the next week's daily goal/allocation when evidence requires adjustment.
 
 Priority order:
 

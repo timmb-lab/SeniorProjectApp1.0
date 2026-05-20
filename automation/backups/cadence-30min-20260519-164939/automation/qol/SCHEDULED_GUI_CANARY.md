@@ -2,7 +2,7 @@
 
 The current canary baseline run_id is `20260519T190403Z-605c9b99`.
 
-The next scheduled 30-minute GUI run succeeds only if `automation/qol/reports/latest.md` is fresh and shows all of these:
+The next scheduled top-of-hour GUI run succeeds only if `automation/qol/reports/latest.md` is fresh and shows all of these:
 
 - `run_id` is newer than the current canary baseline.
 - `run_started_at` and `run_finished_at` belong to the same fresh run.

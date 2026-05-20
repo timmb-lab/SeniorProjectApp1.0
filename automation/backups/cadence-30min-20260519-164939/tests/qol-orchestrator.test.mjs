@@ -131,7 +131,7 @@ test("orchestrator writes latest report with lock release and orchestrator path 
   assert.match(latest, /- invocation_adapter: `scripts\/run-node-script\.ps1`/);
   assert.match(latest, /- wrapper_required: `true`/);
   assert.match(latest, /- direct_node_execution_allowed: `false`/);
-  assert.match(latest, /- scheduled_gui_canary_status: `PENDING_NEXT_30_MINUTE_RUN`/);
+  assert.match(latest, /- scheduled_gui_canary_status: `PENDING_NEXT_TOP_OF_HOUR`/);
   assert.match(latest, /- run_started_at: `[^`]+`/);
   assert.match(latest, /- run_finished_at: `[^`]+`/);
   assert.match(latest, /- project_identity_status: `PASS`/);
@@ -147,7 +147,7 @@ test("orchestrator writes latest report with lock release and orchestrator path 
   assert.match(latest, /- active_senior_capstone_automation_count: `1`/);
 });
 
-test("stored 30-minute runner prompt stays bounded and wrapper-only", async () => {
+test("stored hourly runner prompt stays bounded and wrapper-only", async () => {
   const prompt = await readFile("automation/qol/GUI_ALLOWED_COMMANDS.md", "utf8");
   assert.doesNotMatch(prompt, /if independently inspectable|independently checked/i);
   assert.match(prompt, /scripts\\run-node-script\.ps1 automation\\qol\\doctor\.mjs/);

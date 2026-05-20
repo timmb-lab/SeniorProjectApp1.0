@@ -2,7 +2,7 @@
 
 Date: 2026-05-19
 
-Bryan deleted the previous Senior Capstone project automation fleet on 2026-05-19 and replaced it with one GUI-available, master-plan-driven orchestrator. The single active project automation now runs every 30 minutes.
+Bryan deleted the previous Senior Capstone project automation fleet on 2026-05-19 and replaced it with one hourly master-plan-driven orchestrator.
 
 End goal: a GitHub-to-Cloudflare hosted Senior Capstone app whose MVP is a secure database-backed operating system with users, groups, roles, programs, cohorts, progress updates, submissions, private evidence, reviews, approvals, dashboards, announcements, admin controls, audit logs, exports, and protected student records.
 
@@ -27,13 +27,13 @@ Node/npm wrappers: `scripts/run-node-script.ps1` and `scripts/run-npm-script.ps1
 
 | Automation | ID | Schedule PT | Primary output |
 | --- | --- | --- | --- |
-| 30-minute master-plan orchestrator | `senior-capstone-hourly-qol-orchestrator` | Every 30 minutes, all day, every day | One bounded master-plan slice per run, selected from `MVP-001` through `MVP-030` by current risk, recent evidence, blockers, and Day 7 alpha priority. |
+| Hourly master-plan orchestrator | `senior-capstone-hourly-master-plan-orchestrator` | Once per hour, all day, every day | One bounded master-plan slice per run, selected from `MVP-001` through `MVP-030` by current risk, recent evidence, blockers, and Day 7 alpha priority. |
 
-The orchestrator runs 48 times per day. It is the only active project automation. It replaces the previous thirty single-slot QoL automations, support refresh jobs, seven-category runners, 20x cadence, prototype refresh, and older broad orchestrators for this project.
+The orchestrator runs 24 times per day. It replaces the previous thirty single-slot QoL automations, support refresh jobs, seven-category runners, 20x cadence, prototype refresh, and older broad orchestrators for this project.
 
-## 30-Minute Selection Contract
+## Hourly Selection Contract
 
-Every 30-minute run must:
+Every hourly run must:
 
 - Inspect `git status --short --branch` before reading or editing.
 - Read `docs/master-plan.md` and `docs/mvp-requirements-catalog.md` before selecting work.
@@ -79,7 +79,7 @@ The 100-pass target remains evidence-based:
 
 Scheduled starts are not accepted passes. An accepted MVP pass must leave durable evidence: a pushed commit or published external artifact recorded in the repo, plus validation or a concrete blocker that reduces MVP ambiguity.
 
-On Sundays, `senior-capstone-hourly-qol-orchestrator` reviews the prior seven days of commits, run manifests, run-log entries, backlog movement, handoffs, blockers, accepted-pass count, and requirement coverage, then updates only this project's master plan, memory, and requirements catalog when evidence shows the next week's daily goal or allocation should change.
+On Sundays, `senior-capstone-hourly-master-plan-orchestrator` reviews the prior seven days of commits, run manifests, run-log entries, backlog movement, handoffs, blockers, accepted-pass count, and requirement coverage, then updates only this project's master plan, memory, and requirements catalog when evidence shows the next week's daily goal or allocation should change.
 
 ## 30-Day Efficiency Audit
 
@@ -89,15 +89,15 @@ Run this scorecard during explicit automation audits and Sunday calibration:
 powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\measure-automation-efficiency.ps1 -RepoRoot . -Days 30
 ```
 
-Current 30-minute scale math:
+Current hourly scale math:
 
-- 48 active scheduled starts/day.
-- 1,440 active scheduled starts per 30 days.
+- 24 active scheduled starts/day.
+- 720 active scheduled starts per 30 days.
 - Minimum target: 60 accepted MVP passes per 30 days.
 - Stretch target: 90 accepted MVP passes per 30 days.
-- Required conversion: 4.17 percent for minimum, 6.25 percent for stretch.
+- Required conversion: 8.34 percent for minimum, 12.5 percent for stretch.
 
-Auto-scaling means retargeting requirement focus and acceptance checks from evidence before changing the schedule. If 30-minute collisions, dirty-worktree contention, or low accepted-pass conversion appear, first sharpen slice selection, blockers, and validation before adding more automations.
+Auto-scaling means retargeting requirement focus and acceptance checks from evidence before changing the schedule. If hourly collisions, dirty-worktree contention, or low accepted-pass conversion appear, first sharpen slice selection, blockers, and validation before adding more automations.
 
 ## Commit Prefixes
 
@@ -111,11 +111,11 @@ Auto-scaling means retargeting requirement focus and acceptance checks from evid
 
 ## Superseded Project Automations
 
-The single GUI orchestrator supersedes all prior Senior Capstone project automation TOMLs, including:
+The hourly orchestrator supersedes all prior Senior Capstone project automation TOMLs, including:
 
 - Thirty `senior-capstone-qol-*` single-slot automations.
 - `senior-capstone-public-site-refresh`.
 - `senior-capstone-weekly-script-audit`.
 - Earlier category runners, standby lanes, daily prototype jobs, and broad orchestrators.
 
-The old concepts are not lost; they are absorbed into the 30-minute master-plan selection rules above.
+The old concepts are not lost; they are absorbed into the hourly master-plan selection rules above.

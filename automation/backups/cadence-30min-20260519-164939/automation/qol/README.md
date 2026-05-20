@@ -1,4 +1,4 @@
-# Project-Local QoL 30-Minute Orchestrator
+# Project-Local QoL Hourly Orchestrator
 
 This directory contains the bounded project-local QoL automation path for the Senior Capstone app. It is scoped to this repository only and fails closed when the selected Codex project does not match `automation/qol/project-lock.json`.
 
@@ -7,7 +7,7 @@ This directory contains the bounded project-local QoL automation path for the Se
 - Runner prompt and allowed action contract: `automation/qol/GUI_ALLOWED_COMMANDS.md`
 - Project identity lock: `automation/qol/project-lock.json`
 - Doctor: `automation/qol/doctor.mjs`
-- 30-minute orchestrator: `automation/qol/hourly-orchestrator.mjs`
+- Hourly orchestrator: `automation/qol/hourly-orchestrator.mjs`
 - Report schema: `automation/qol/REPORT_SCHEMA.md`
 - Canary criteria: `automation/qol/SCHEDULED_GUI_CANARY.md`
 - Approved Node wrapper: `scripts/run-node-script.ps1`
@@ -18,7 +18,7 @@ This directory contains the bounded project-local QoL automation path for the Se
 The scheduled Codex GUI runner is intentionally narrow. It may only:
 
 1. Run the doctor through the approved wrapper.
-2. Run the 30-minute orchestrator through the approved wrapper if the doctor exits successfully.
+2. Run the hourly orchestrator through the approved wrapper if the doctor exits successfully.
 3. Read and summarize `automation/qol/reports/latest.md`.
 
 The exact commands are:

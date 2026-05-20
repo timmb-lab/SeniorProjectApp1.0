@@ -44,13 +44,6 @@
   "minimumSupportStartSpacingMinutes": 20,
   "telemetryCutoff": "2026-05-18T14:47:00-07:00",
   "strictManifestCutoff": "2026-05-18T16:15:00-07:00",
-  "supersededBySingleGuiAutomation": {
-    "automationId": "senior-capstone-hourly-qol-orchestrator",
-    "cadenceRRule": "FREQ=MINUTELY;INTERVAL=30",
-    "cadenceDescription": "every 30 minutes",
-    "sourceOfTruth": "automation/qol/project-lock.json",
-    "note": "Entries below are retained as superseded prompt snapshot inventory and are not current active project automations."
-  },
   "mvpRequirementCount": 30,
   "allowedOutputKinds": [
     "implementation",

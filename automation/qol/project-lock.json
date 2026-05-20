@@ -6,6 +6,8 @@
   "allowedActiveAutomationIds": [
     "senior-capstone-hourly-qol-orchestrator"
   ],
+  "expectedAutomationCadenceRRule": "FREQ=MINUTELY;INTERVAL=30",
+  "expectedAutomationCadenceDescription": "every 30 minutes",
   "expectedAutomationRegistryEvidencePath": "automation/qol/state/automation-registry-evidence.json",
   "expectedRepositoryRootBasename": "SeniorProjectApp1.0",
   "expectedPackageName": "senior-capstone-app",

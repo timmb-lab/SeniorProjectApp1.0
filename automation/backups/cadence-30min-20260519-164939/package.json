@@ -33,7 +33,6 @@
     "qol:doctor": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-node-script.ps1 automation/qol/doctor.mjs",
     "qol:smoke": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-node-script.ps1 automation/qol/hourly-orchestrator.mjs --smoke",
     "verify:qol-automation": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-node-script.ps1 automation/qol/hourly-orchestrator.mjs --smoke",
-    "verify:automation-cadence": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-npm-script.ps1 verify:automation-cadence",
     "figma:doctor": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-node-script.ps1 automation/figma/doctor.mjs",
     "figma:hourly": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-automation.ps1 figma:hourly",
     "typecheck": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-npm-script.ps1 typecheck",

@@ -32,10 +32,10 @@ const EXPECTED_GUI_ORCHESTRATOR_COMMAND =
   "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 automation\\qol\\hourly-orchestrator.mjs";
 const EXPECTED_GUI_REPORT_PATH = "automation/qol/reports/latest.md";
 const CANARY_BASELINE_RUN_ID = "20260519T190403Z-605c9b99";
-const SCHEDULED_GUI_CANARY_PENDING = "PENDING_NEXT_30_MINUTE_RUN";
+const SCHEDULED_GUI_CANARY_PENDING = "PENDING_NEXT_TOP_OF_HOUR";
 const DEFAULT_MAX_TOTAL_RUNTIME_MS = 8 * 60 * 1000;
 const DEFAULT_COMMAND_TIMEOUT_MS = 60 * 1000;
-const DEFAULT_STALE_LOCK_MS = 3 * 30 * 60 * 1000;
+const DEFAULT_STALE_LOCK_MS = 90 * 60 * 1000;
 const DEFAULT_RUN_HISTORY_LIMIT = 80;
 const DEFAULT_REPORT_LIMIT = 120;
 const DEFAULT_LOG_LIMIT = 120;
@@ -134,11 +134,8 @@ const CATEGORY_COMMANDS = new Map([
   ],
 ]);
 
-const MASTER_PLAN_ORCHESTRATOR_SECTION = "30-Minute Master-Plan Orchestrator";
-const LEGACY_MASTER_PLAN_ORCHESTRATOR_SECTION = "Hourly Master-Plan Orchestrator";
 const PLAN_DERIVED_QOL_SECTIONS = [
-  MASTER_PLAN_ORCHESTRATOR_SECTION,
-  LEGACY_MASTER_PLAN_ORCHESTRATOR_SECTION,
+  "Hourly Master-Plan Orchestrator",
   "Logging Requirements",
   "Anti-Drift Rules",
   "Master Source Order",
@@ -567,7 +564,7 @@ async function inspectGuiInvocationContract(projectRoot, options = {}) {
     existsSync(orchestratorPath) ? "pass" : "fail",
     existsSync(orchestratorPath)
       ? ORCHESTRATOR_RELATIVE_PATH
-      : `Missing 30-minute orchestrator entrypoint: ${ORCHESTRATOR_RELATIVE_PATH}`,
+      : `Missing hourly orchestrator entrypoint: ${ORCHESTRATOR_RELATIVE_PATH}`,
   );
 
   const docPath = assertInsideProjectRoot(projectRoot, docRelative);
@@ -596,11 +593,11 @@ async function inspectGuiInvocationContract(projectRoot, options = {}) {
       : `Missing exact approved wrapper doctor command: ${EXPECTED_GUI_DOCTOR_COMMAND}`,
   );
   addCheck(
-    "gui-30-minute-wrapper-command",
+    "gui-hourly-wrapper-command",
     hasExpectedCommandLine(text, EXPECTED_GUI_ORCHESTRATOR_COMMAND) ? "pass" : "fail",
     hasExpectedCommandLine(text, EXPECTED_GUI_ORCHESTRATOR_COMMAND)
-      ? "approved wrapper 30-minute command present"
-      : `Missing exact approved wrapper 30-minute command: ${EXPECTED_GUI_ORCHESTRATOR_COMMAND}`,
+      ? "approved wrapper hourly command present"
+      : `Missing exact approved wrapper hourly command: ${EXPECTED_GUI_ORCHESTRATOR_COMMAND}`,
   );
   addCheck(
     "latest-report-read-step",
@@ -860,13 +857,13 @@ function inspectLockContract(projectRoot, projectLock) {
   addCheck("lock-path-inside-project", "pass", path.relative(projectRoot, lockDir).replaceAll("\\", "/"));
   addCheck(
     "stale-lock-threshold",
-    DEFAULT_STALE_LOCK_MS >= 30 * 60 * 1000 ? "pass" : "fail",
+    DEFAULT_STALE_LOCK_MS >= 60 * 60 * 1000 ? "pass" : "fail",
     `stale lock threshold is ${Math.round(DEFAULT_STALE_LOCK_MS / 60000)} minutes`,
   );
   addCheck(
     "stale-lock-policy",
-    DEFAULT_STALE_LOCK_MS === 3 * 30 * 60 * 1000 ? "pass" : "fail",
-    "stale lock recovery is conservative: 90 minutes / three 30-minute slots, metadata preserved under automation/qol/state",
+    DEFAULT_STALE_LOCK_MS === 90 * 60 * 1000 ? "pass" : "fail",
+    "stale lock recovery is conservative: 90 minutes, metadata preserved under automation/qol/state",
   );
 
   return {
@@ -1183,20 +1180,17 @@ function parseQolSectionTasks(masterPlanText) {
   for (const section of PLAN_DERIVED_QOL_SECTIONS) {
     const heading = headings.find((item) => item.title === section);
     if (!heading) continue;
-    const isMasterPlanOrchestrator =
-      section === MASTER_PLAN_ORCHESTRATOR_SECTION ||
-      section === LEGACY_MASTER_PLAN_ORCHESTRATOR_SECTION;
     const id = `QOL-${slugify(section)}`;
     tasks.push({
       id,
       title: `Maintain ${section}`,
       section,
       category: "qol-automation",
-      priority: isMasterPlanOrchestrator ? 125 : 80,
+      priority: section === "Hourly Master-Plan Orchestrator" ? 125 : 80,
       planStatus: "recurring",
       state: "recurring",
       dependencies: [],
-      cadence: isMasterPlanOrchestrator ? "every_30_minutes" : "daily",
+      cadence: section === "Hourly Master-Plan Orchestrator" ? "hourly" : "daily",
       riskLevel: "automation-safety",
       commands: [],
       acceptanceCriteria: `Keep ${section} enforceable inside project-local automation.`,
@@ -1346,9 +1340,7 @@ function isRecurringDue(taskState, nowMs) {
   if (!taskState.recurring) return true;
   const sinceSuccess = hoursSince(taskState.lastSuccessAt, nowMs);
   const sinceAttempt = hoursSince(taskState.lastAttemptAt, nowMs);
-  if (taskState.cadence === "every_30_minutes" || taskState.cadence === "hourly") {
-    return sinceAttempt >= 0.5;
-  }
+  if (taskState.cadence === "hourly") return sinceAttempt >= 0.75;
   if (taskState.cadence === "daily") return sinceSuccess >= 20;
   return sinceSuccess >= 6 || sinceAttempt >= 6;
 }
@@ -1390,11 +1382,7 @@ function scoreTasks(plan, state, preflight) {
     if (task.recurring) score += 5;
     if (taskState.status === "failed") score -= 15;
     if (preflight.gitDirty) score += task.category === "qol-automation" ? 20 : -10;
-    if (
-      (planById.has("QOL-30-MINUTE-MASTER-PLAN-ORCHESTRATOR") ||
-        planById.has("QOL-HOURLY-MASTER-PLAN-ORCHESTRATOR")) &&
-      task.category === "qol-automation"
-    ) {
+    if (planById.has("QOL-HOURLY-MASTER-PLAN-ORCHESTRATOR") && task.category === "qol-automation") {
       score += 4;
     }
     scored.push({
@@ -1551,7 +1539,7 @@ function runFigmaLane(projectRoot, runLog) {
   );
   const finishedAt = new Date().toISOString();
   const commandRecord = {
-    label: "figma sub-lane",
+    label: "figma hourly lane",
     command: toLogText(
       `${process.execPath} ${FIGMA_ORCHESTRATOR_RELATIVE_PATH} --quiet --summary-json --invoked-by ${ORCHESTRATOR_RELATIVE_PATH}`,
       4000,
@@ -1867,7 +1855,7 @@ function buildRunReport({
 }) {
   const selected = selection?.task;
   const lines = [];
-  lines.push(`# QoL 30-Minute Orchestrator Report`);
+  lines.push(`# QoL Hourly Orchestrator Report`);
   lines.push("");
   lines.push(`- Run ID: \`${runContext.runId}\``);
   lines.push(`- Run started at: \`${audit?.run_started_at ?? runContext.startedAt}\``);
@@ -2345,7 +2333,7 @@ async function runSelfTests(projectRoot, projectLock) {
       changedFiles: new Set(),
       state,
     });
-    if (!text.includes("QoL 30-Minute Orchestrator Report")) throw new Error("report missing title");
+    if (!text.includes("QoL Hourly Orchestrator Report")) throw new Error("report missing title");
   });
 
   if (failures.length > 0) {
@@ -2599,7 +2587,7 @@ function printHelp() {
   console.log(`Usage: powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 automation\\qol\\hourly-orchestrator.mjs [--dry-run|--explain|--doctor|--smoke] [--registry-evidence <project-local-json>] [--gui-allowed-commands <project-local-md>]
 
 Modes:
-  default     Run the bounded 30-minute QoL orchestration slice.
+  default     Run the bounded hourly QoL orchestration slice.
   --dry-run   Verify identity, parse plan, select work, and print a report without writes.
   --explain   Print selected task and scoring reasons without writes.
   --doctor    Verify project identity, plan, state, and preflight health.

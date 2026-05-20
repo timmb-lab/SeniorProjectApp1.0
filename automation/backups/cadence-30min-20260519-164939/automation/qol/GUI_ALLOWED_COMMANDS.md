@@ -1,8 +1,8 @@
-# Senior Capstone 30-Minute QoL Orchestrator
+# Senior Capstone Hourly QoL Orchestrator
 
 This is the stored repo-local prompt/instructions file for the scheduled Codex GUI runner.
 
-You are the bounded 30-minute GUI runner for the Senior Capstone repo.
+You are the bounded hourly GUI runner for the Senior Capstone repo.
 
 Your only allowed purpose is to invoke the repo-local QoL orchestration path and report the result.
 
@@ -16,7 +16,7 @@ Only allowed actions, in this exact order:
 powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-node-script.ps1 automation\qol\doctor.mjs
 ```
 
-2. If and only if doctor.mjs exits successfully, run the repo-local 30-minute orchestrator through the approved wrapper:
+2. If and only if doctor.mjs exits successfully, run the repo-local hourly orchestrator through the approved wrapper:
 
 ```powershell
 powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-node-script.ps1 automation\qol\hourly-orchestrator.mjs
@@ -40,7 +40,7 @@ automation/qol/reports/latest.md
 - Do not revive any legacy Senior Capstone automations.
 - Do not broaden this action set.
 - Do not make the system freely self-building.
-- Do not continue to the 30-minute orchestrator if doctor.mjs fails.
+- Do not continue to the hourly orchestrator if doctor.mjs fails.
 - Do not claim registry health is verified unless the repo-local report explicitly says it was verified.
 - Do not retry failed commands.
 - Do not alter command arguments, shell, working directory, environment variables, execution policy, or wrapper path.
@@ -92,7 +92,7 @@ If hourly-orchestrator.mjs fails:
 
 ## Canary Success
 
-Success condition for the next scheduled 30-minute canary:
+Success condition for the next scheduled top-of-hour canary:
 
 - automation/qol/reports/latest.md has a newer run_id than the current canary baseline
 - invocation_adapter is scripts/run-node-script.ps1
