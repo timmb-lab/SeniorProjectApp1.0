@@ -1,0 +1,56 @@
+{
+  "run_id": "2026-05-20-0649-teacher-scope-null-guard-mvp-006-014",
+  "timestamp_local": "2026-05-20T06:49:00-07:00",
+  "automation_id": "senior-capstone-hourly-qol-orchestrator",
+  "trigger": "30-minute MVP builder run: tighten `canAccessStudent` teacher scope checks to default-deny empty scope IDs and prevent null/empty program/cohort matches, then add regression coverage for permission helpers and evidence access checks.",
+  "lane": "backend-security-data",
+  "status": "completed",
+  "accepted_mvp_pass": true,
+  "requirement_ids": [
+    "MVP-006",
+    "MVP-014"
+  ],
+  "backlog_ids": [
+    "SC-003",
+    "SC-005"
+  ],
+  "duration_minutes": 30,
+  "output_kind": "code+tests+docs",
+  "scope": "Harden program-teacher scope matching in `functions/_lib/permissions.ts` so misconfigured/empty teacher scope IDs cannot accidentally match null program/cohort IDs, then add regression tests in `tests/permissions-access.test.mjs` and `tests/evidence-check-access.integration.test.mjs` to protect protected-evidence routes from permission drift.",
+  "source_docs_read": [
+    "docs/master-plan.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/automation-runbook.md",
+    "docs/automation-self-improvement.md",
+    "docs/automation-cadence.md",
+    "docs/automation-milestones.md",
+    "docs/automation-memory.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-20-0620-drive-resumable-upload-mvp-013.json",
+    "docs/progress/handoffs.md",
+    "docs/progress/decision-log.md",
+    "docs/automation-backlog.md",
+    "docs/artifacts.json",
+    "docs/human-decisions.md",
+    "automation/qol/reports/latest.md",
+    "functions/_lib/permissions.ts",
+    "tests/permissions-access.test.mjs",
+    "tests/evidence-check-access.integration.test.mjs"
+  ],
+  "changes": [
+    "Hardened `canAccessStudent` teacher-scope SQL to require non-empty teacher scope IDs and non-null/non-empty group program/cohort IDs before matching, preventing empty scope IDs from accidentally matching null group fields.",
+    "Added permission-helper regression coverage proving an empty-scope program teacher cannot access a student in a cohort-only group (null program id).",
+    "Extended evidence access check integration coverage to assert 403 + audit metadata when a program teacher role exists but has an empty program scope id, preventing protected-evidence access drift."
+  ],
+  "validation": [
+    "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\\\scripts\\\\run-npm-script.ps1 test"
+  ],
+  "blockers": [],
+  "known_limits": [],
+  "next_actions": [
+    "Continue broadening protected-evidence and permission tests for additional role/scope edge cases (teacher cohort/global, missing group membership, disabled users) as they become relevant to real workflow endpoints.",
+    "Return to Drive secret configuration and verify real upload/download behavior in Cloudflare Pages preview/production once credentials are available."
+  ],
+  "self_improvement": "none"
+}
+

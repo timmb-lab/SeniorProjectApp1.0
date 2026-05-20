@@ -54,6 +54,11 @@ test("permission helpers allow program teachers scoped to student cohort", async
   assert.equal(await canAccessStudent(env, users.teacherCohortA, users.studentB.id), false);
 });
 
+test("permission helpers deny program teachers with empty scope ids (no null/empty matching)", async () => {
+  const { env, users } = createFixture();
+  assert.equal(await canAccessStudent(env, users.teacherProgramEmpty, users.studentCohortOnly.id), false);
+});
+
 test("role assignment helpers return stable role/scope records", async () => {
   const { env, users } = createFixture();
 
@@ -71,16 +76,19 @@ function createFixture() {
   const groups = [
     { id: "group-a", program_id: "it", cohort_id: "cohort-a" },
     { id: "group-b", program_id: "culinary", cohort_id: "cohort-b" },
+    { id: "group-cohort-only", program_id: null, cohort_id: "cohort-a" },
   ];
 
   const groupMemberships = [
     { user_id: "student-a", group_id: "group-a" },
     { user_id: "student-b", group_id: "group-b" },
+    { user_id: "student-cohort-only", group_id: "group-cohort-only" },
   ];
 
   const userRoles = [
     { user_id: "student-a", role_id: "student", scope_type: "global", scope_id: "" },
     { user_id: "student-b", role_id: "student", scope_type: "global", scope_id: "" },
+    { user_id: "student-cohort-only", role_id: "student", scope_type: "global", scope_id: "" },
     { user_id: "admin", role_id: "admin", scope_type: "global", scope_id: "" },
     { user_id: "misc-admin", role_id: "misc_admin", scope_type: "global", scope_id: "" },
     { user_id: "mentor-active", role_id: "mentor", scope_type: "global", scope_id: "" },
@@ -88,6 +96,7 @@ function createFixture() {
     { user_id: "teacher-global", role_id: "program_teacher", scope_type: "global", scope_id: "" },
     { user_id: "teacher-program-it", role_id: "program_teacher", scope_type: "program", scope_id: "it" },
     { user_id: "teacher-cohort-a", role_id: "program_teacher", scope_type: "cohort", scope_id: "cohort-a" },
+    { user_id: "teacher-program-empty", role_id: "program_teacher", scope_type: "program", scope_id: "" },
   ];
 
   const mentorAssignments = [
@@ -103,6 +112,7 @@ function createFixture() {
   const users = {
     studentA: buildUser("student-a"),
     studentB: buildUser("student-b"),
+    studentCohortOnly: buildUser("student-cohort-only"),
     admin: buildUser("admin"),
     miscAdmin: buildUser("misc-admin"),
     mentorActive: buildUser("mentor-active"),
@@ -111,6 +121,7 @@ function createFixture() {
     teacherGlobal: buildUser("teacher-global"),
     teacherProgramIT: buildUser("teacher-program-it"),
     teacherCohortA: buildUser("teacher-cohort-a"),
+    teacherProgramEmpty: buildUser("teacher-program-empty"),
   };
 
   return { env, users };
@@ -220,16 +231,27 @@ function resolveTeacherScopeRow(data, { studentId, teacherId }) {
     return null;
   }
 
-  const studentProgramIds = studentGroups.map((group) => group.program_id ?? "");
-  const studentCohortIds = studentGroups.map((group) => group.cohort_id ?? "");
+  const studentProgramIds = studentGroups
+    .map((group) => group.program_id)
+    .filter((value) => typeof value === "string" && value.trim() !== "")
+    .map((value) => String(value));
+
+  const studentCohortIds = studentGroups
+    .map((group) => group.cohort_id)
+    .filter((value) => typeof value === "string" && value.trim() !== "")
+    .map((value) => String(value));
 
   const allowed = teacherAssignments.some((assignment) => {
     if (assignment.scope_type === "global") return true;
+
+    const scopeId = String(assignment.scope_id ?? "").trim();
+    if (!scopeId) return false;
+
     if (assignment.scope_type === "program") {
-      return studentProgramIds.includes(String(assignment.scope_id ?? ""));
+      return studentProgramIds.includes(scopeId);
     }
     if (assignment.scope_type === "cohort") {
-      return studentCohortIds.includes(String(assignment.scope_id ?? ""));
+      return studentCohortIds.includes(scopeId);
     }
     return false;
   });

@@ -202,3 +202,16 @@ Each rebuild run should append a dated entry with:
 - `self-improvement`: none.
 - `commit/push status`: pending in this run.
 - `next action`: Add admin endpoints for teacher assignments + role changes with audit coverage and a minimal admin UI surface to view and manage assignments.
+
+### 2026-05-20 06:49 PT - MVP-006/MVP-014 Teacher Scope Default-Deny Hardening
+
+- `automation`: `senior-capstone-hourly-qol-orchestrator`
+- `master-plan section`: Day 7 Alpha Gate; Anti-Drift Rules; Logging Requirements.
+- `source docs/logs read`: `docs/master-plan.md`, `docs/mvp-requirements-catalog.md`, `docs/automation-runbook.md`, `docs/automation-self-improvement.md`, `docs/automation-cadence.md`, `docs/automation-milestones.md`, `docs/automation-memory.md`, `docs/progress/run-log.md`, recent `docs/progress/runs/`, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, and the automation memory file at `C:\\Users\\bryan\\.codex\\automations\\senior-capstone-hourly-qol-orchestrator\\memory.md`.
+- `backlog or requirement IDs selected`: `SC-003`, `SC-005`, `MVP-006`, `MVP-014`.
+- `bounded scope`: Tighten `canAccessStudent` teacher scope matching to default-deny empty `program_teacher` scope IDs and avoid null/empty program/cohort matches; add regression coverage in the permission-helper unit tests and evidence access integration suite.
+- `files changed`: `functions/_lib/permissions.ts`, `tests/permissions-access.test.mjs`, `tests/evidence-check-access.integration.test.mjs`, `docs/mvp-requirements-catalog.md`, `docs/automation-memory.md`, `docs/progress/rebuild.md`, `docs/progress/run-log.md`, and `docs/progress/runs/2026-05-20-0649-teacher-scope-null-guard-mvp-006-014.json`.
+- `validation`: `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 test` (pass; 101 tests).
+- `self-improvement`: none.
+- `commit/push status`: pending in this run.
+- `next action`: Keep laddering protected-evidence + role-scope tests, then return to Drive secret configuration and real upload/download verification in Cloudflare Pages preview/production.

@@ -298,6 +298,66 @@ test("evidence access check returns 200 and audits when program teacher scope ma
   });
 });
 
+test("evidence access check returns 403 when program teacher scope id is empty (no null program matching)", async () => {
+  const fixture = await createFixtureWithSession({
+    userId: "teacher-empty",
+    roleId: "program_teacher",
+    scopeType: "program",
+    scopeId: "",
+  });
+  fixture.db.data.userAccounts.push(buildUser("student-a"));
+  fixture.db.data.groups.push({
+    id: "group-cohort-only",
+    program_id: null,
+    cohort_id: "cohort-a",
+  });
+  fixture.db.data.groupMemberships.push({
+    user_id: "student-a",
+    group_id: "group-cohort-only",
+  });
+  fixture.db.data.evidenceArtifacts.push({
+    id: fixture.evidenceId,
+    student_id: "student-a",
+    submission_id: "submission-1",
+    artifact_type: "reflection",
+    source_kind: "external_link",
+    external_url: "https://example.com/teacher-empty",
+    title: "Teacher misconfigured artifact",
+    review_status: "pending",
+    created_at: new Date("2026-05-20T00:00:00.000Z").toISOString(),
+    deleted_at: null,
+  });
+
+  const request = new Request(`https://example.test/api/evidence/${fixture.evidenceId}/check-access`, {
+    headers: {
+      cookie: `sc_session=${fixture.token}`,
+      "cf-connecting-ip": "203.0.113.17",
+      "user-agent": "integration-test",
+    },
+  });
+
+  const response = await onRequestGet({
+    request,
+    env: fixture.env,
+    params: { id: fixture.evidenceId },
+  });
+
+  assert.equal(response.status, 403);
+  assert.deepEqual(await response.json(), { error: "forbidden", canAccess: false });
+
+  const [event] = fixture.db.data.auditEvents;
+  assert.equal(fixture.db.data.auditEvents.length, 1);
+  assert.equal(event.actor_user_id, "teacher-empty");
+  assert.equal(event.action, "evidence_access_denied");
+  assert.equal(event.entity_type, "evidence_artifact");
+  assert.equal(event.entity_id, fixture.evidenceId);
+  assert.deepEqual(event.metadata, {
+    studentId: "student-a",
+    reason: "student_scope_denied",
+    actorRoleScopes: [{ roleId: "program_teacher", scopeType: "program", scopeId: "" }],
+  });
+});
+
 test("evidence access check returns 200 and audits when admin checks evidence access", async () => {
   const fixture = await createFixtureWithSession({
     userId: "admin-a",
@@ -533,16 +593,27 @@ function resolveTeacherScopeRow(data, { studentId, teacherId }) {
     return null;
   }
 
-  const studentProgramIds = studentGroups.map((group) => group.program_id ?? "");
-  const studentCohortIds = studentGroups.map((group) => group.cohort_id ?? "");
+  const studentProgramIds = studentGroups
+    .map((group) => group.program_id)
+    .filter((value) => typeof value === "string" && value.trim() !== "")
+    .map((value) => String(value));
+
+  const studentCohortIds = studentGroups
+    .map((group) => group.cohort_id)
+    .filter((value) => typeof value === "string" && value.trim() !== "")
+    .map((value) => String(value));
 
   const allowed = teacherAssignments.some((assignment) => {
     if (assignment.scope_type === "global") return true;
+
+    const scopeId = String(assignment.scope_id ?? "").trim();
+    if (!scopeId) return false;
+
     if (assignment.scope_type === "program") {
-      return studentProgramIds.includes(String(assignment.scope_id ?? ""));
+      return studentProgramIds.includes(scopeId);
     }
     if (assignment.scope_type === "cohort") {
-      return studentCohortIds.includes(String(assignment.scope_id ?? ""));
+      return studentCohortIds.includes(scopeId);
     }
     return false;
   });

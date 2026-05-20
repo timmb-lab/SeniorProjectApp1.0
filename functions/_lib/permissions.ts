@@ -50,8 +50,20 @@ export async function canAccessStudent(env: Env, viewer: UserAccount, studentId:
        AND teacher_role.role_id = 'program_teacher'
        AND (
          teacher_role.scope_type = 'global'
-         OR (teacher_role.scope_type = 'program' AND teacher_role.scope_id = COALESCE(g.program_id, ''))
-         OR (teacher_role.scope_type = 'cohort' AND teacher_role.scope_id = COALESCE(g.cohort_id, ''))
+         OR (
+           teacher_role.scope_type = 'program'
+           AND teacher_role.scope_id <> ''
+           AND g.program_id IS NOT NULL
+           AND g.program_id <> ''
+           AND teacher_role.scope_id = g.program_id
+         )
+         OR (
+           teacher_role.scope_type = 'cohort'
+           AND teacher_role.scope_id <> ''
+           AND g.cohort_id IS NOT NULL
+           AND g.cohort_id <> ''
+           AND teacher_role.scope_id = g.cohort_id
+         )
        )
      LIMIT 1`,
   ).bind(studentId, viewer.id).first();
