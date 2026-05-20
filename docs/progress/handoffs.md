@@ -49,18 +49,6 @@ Status values:
 - `evidence to close`: Passing `check:production-surfaces`, `check:generated-output-drift`, `check`, `tests/workspace-app.test.mjs`, credential-backed `tests/workspace-browser-smoke.test.mjs` against local Pages dev, in-app browser signed-in workspace/evidence/logout proof, direct live signed-out/signed-in workspace proof, and live Drive upload/download after Cloudflare Drive secrets are configured.
 - `last updated`: 2026-05-20 15:42 PT
 
-### H-2026-05-20-008
-
-- `source lane`: requirements-audit
-- `owner lane`: figma-only / design-assets-handoff
-- `status`: open
-- `source`: P0 production app/website gate
-- `artifact`: `docs/master-plan.md`, `docs/source-materials/production-content-crosswalk.md`, `MVP-031` through `MVP-040`
-- `next action`: Create or update Figma handoffs for the role-aware production app shell and the Student/Teacher public website modes, using route/data/permission/state annotations only.
-- `acceptance check`: Figma handoff distinguishes app roles from public website guide modes, includes student/mentor/program-teacher/admin/misc-admin state variants, and does not treat stakeholder options as Student/Teacher guide modes.
-- `evidence to close`: Verified Figma node IDs/screenshots/metadata and repo-local handoff notes that implementation can consume without broad visual-only polish.
-- `last updated`: 2026-05-20 13:27 PT
-
 ### H-2026-05-18-001
 
 - `source lane`: canva
@@ -119,9 +107,22 @@ Status values:
 - `next action`: Continue consuming the route/data/permission contract and page `98:2` by deepening the D1-backed alpha route into real workflow endpoints and shared `StatusPill`, `ActionButton`, `EvidenceArtifactRow`, `PermissionGate`, and `ReviewHistoryItem` primitives before hardening teacher review decisions, admin override paths, private evidence upload/link access checks, immutable review history, admin user/group/role/cohort provisioning, mobile student evidence/revision states, progress-update/dashboard-aggregate persistence, immutable audit-log filters, export-request authorization, signed archive downloads, meeting attendance, make-up linkage, outline approval gates, presentation dashboard/UI states, announcements without peer messaging, protected-record boundary checks, and mobile no-overflow behavior from nodes `31:2`, `37:2`, `43:2`, `48:2`, `56:2`, `61:2`, `69:2`, `78:2`, and prototype frames `98:3` through `98:17`. Immediate review-history UI consumption is now present in both the account smoke path and the primary alpha console; presentation slot scheduling plus check-out/check-in endpoints now exist. Next rebuild work should either verify the hosted walkthrough after deploy or move to admin workflow depth, outline approval persistence, or dashboard surfacing.
 - `acceptance check`: Rebuild commits a stack/scaffold or implementation plan that maps `/student/progress`, `/api/progress-updates`, `/api/submissions/:id/status`, `/teacher/review`, `/teacher/dashboard`, `/mentor/assigned`, `/mentor/dashboard`, `/mentor/meetings`, `/api/meetings/:id/attendance`, `/student/mentor-meetings`, `/student/presentation`, `/api/presentation-slots`, `/api/presentation-slots/:id/check-in`, `/admin/users`, `/admin/groups`, `/admin/programs`, `/admin/cohorts`, `/admin/dashboard`, `/admin/audit`, `/api/audit-events`, `/api/audit-events/:id`, `/admin/exports`, `/api/exports/student-archive`, `/api/exports/:id/download`, `/student/archive`, `/student/evidence`, `/student/submissions/:submissionId/revise`, `/api/submissions/:id/evidence`, `/api/evidence/:id/check-access`, `/api/reviews/:id/history`, `/api/admin/users/import`, `/api/admin/role-assignments`, `/api/admin/mentor-assignments`, review decisions, admin overrides, evidence upload/link checks, review history, shared component variants, admin provisioning states, mobile revision/blocked-submit/access-denied states, progress/dashboard aggregate states, audit-event filters, export-request records, signed download expiry, meeting attendance, make-up requirements, outline approval, presentation slot records, check-out/check-in, and retention-policy controls to persisted data, server authorization, audit events, private-evidence guards, signed URL expiry, stable loading/disabled states, accessible text-plus-color status, duplicate import handling, narrow misc-admin scope, mobile no-overflow behavior, stale-write conflict handling, server-derived dashboard counts, no storage-key exposure, and loading/error/permission tests.
 - `evidence to close`: Committed rebuild plan or code scaffold referencing `z4t4tFPAKrMDh6pIYOeEw6`, node `18:2`, node `31:2`, node `37:2`, node `43:2`, node `48:2`, node `56:2`, node `61:2`, node `69:2`, node `78:2`, and full prototype page `98:2`. First D1-backed alpha flow evidence now exists in `alpha.html`, `alpha.js`, `alpha.css`, `/api/alpha/state`, `functions/_lib/alpha-flow-model.js`, `tests/alpha-flow.test.mjs`, `docs/alpha-runbook.md`, `docs/alpha-week-framework.md`, `scripts/check-alpha-contract.mjs`, and CI workflows; production alpha, first-admin bootstrap, fake role-account login, and admin-only seed guard are verified; the review-history API now returns comments plus immutable submission version snapshots; `account.html`/`account.js` render those comments/version snapshots without exposing Drive storage IDs; and the primary alpha console now preserves/renders teacher comments, review decisions, status events, and version snapshots from server-owned alpha state with storage-identifier blocking. Figma verification on 2026-05-20 updated `98:9` and `98:10` so the prototype names `/api/reviews/:submissionId/history`, `reviews`, `comments`, `status_history`, `submission_versions`, scoped permissions, and storage-ID redaction; `get_design_context` and `get_screenshot` succeeded for both nodes after the correction. The 12:35 PT Figma pass updated and verified handoff node `98:17` with `review_history_consumed_at`, a primary alpha-console consumption note, and next rebuild focus on mentor/presentation/admin depth. The 13:06 PT non-Figma pass added `migrations/0006_presentation_slots.sql`, `/api/presentation-slots`, and `tests/presentation-slots.integration.test.mjs` for scoped presentation-slot visibility, admin/program-teacher scheduling, same-location conflict blocking, and audit events. The 16:08 PT non-Figma pass added `/api/presentation-slots/:id/check-out`, `/api/presentation-slots/:id/check-in`, and shared transition logic with scoped admin/program-teacher authorization, invalid-status guards, status/timestamp persistence, and audit coverage in the same integration test. Real workflow endpoints, shared primitives, Drive upload credentials, broader permission tests, dashboard/UI surfacing, and implementation references to prototype frames `98:3` through `98:17` remain before close.
-- `last updated`: 2026-05-20 13:06 PT
+- `latest Figma handoff`: 2026-05-20 node `124:2` now distinguishes public Student/Teacher guide mode from authenticated `/workspace` behavior and records route/data/permission guardrails for role-pending and permission-denied workspace implementation.
+- `last updated`: 2026-05-20 16:41 PT
 
 ## Resolved Handoffs
+
+### H-2026-05-20-008
+
+- `source lane`: requirements-audit
+- `owner lane`: figma-only / design-assets-handoff
+- `status`: resolved
+- `source`: P0 production app/website gate
+- `artifact`: active Figma file `z4t4tFPAKrMDh6pIYOeEw6`, page `05 Full MVP Alpha Prototype`, node `124:2` (`Prototype / 15 / Production app and public guide boundary`), and repo notes in `docs/progress/figma.md`.
+- `next action`: Closed by the verified Figma production-boundary handoff. Rebuild should consume node `124:2` when adding browser-visible role-pending and permission-denied workspace states.
+- `acceptance check`: Satisfied. The handoff distinguishes public website guide modes from authenticated app roles, includes student, mentor, program-teacher, admin, misc-admin, no-role pending, permission denied, Drive-missing, and unsupported-upload states, and does not treat stakeholder options as Student/Teacher guide modes.
+- `evidence to close`: `use_figma` created and corrected node `124:2`; `get_design_context` and `get_screenshot` succeeded; final readback found zero suspicious clipped text nodes, zero child overflow, 7 route/API entries, 9 records, 6 permission scopes, 6 guardrails, and 3 external setup blocker notes.
+- `last updated`: 2026-05-20 16:41 PT
 
 ### H-2026-05-18-002
 

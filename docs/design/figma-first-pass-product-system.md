@@ -581,6 +581,17 @@ The 2026-05-20 12:35 PT Figma pass updated the full MVP alpha prototype handoff 
 - Layout QA corrected the compact no-student-messaging sidebar card and acceptance-check header widths; `use_figma` readback found zero suspicious clipped text nodes.
 - `get_design_context` and `get_screenshot` succeeded for node `98:17`; screenshot verification returned `1024x648` from original `1360x860`.
 
+## Production App And Public Guide Boundary Handoff
+
+The 2026-05-20 16:41 PT Figma pass added a production-boundary handoff after rebuild created the canonical authenticated workspace and public Student/Teacher guide mode.
+
+- `Prototype / 15 / Production app and public guide boundary`, node `124:2`, distinguishes public guide-mode content from authenticated workspace app behavior.
+- Public website annotations name `/` and generated `public-companion/` as public content surfaces: the Student/Teacher toggle changes emphasis only, may use localStorage only as a display preference, and must not imply auth, account state, private records, or stakeholder-option guide modes.
+- Authenticated workspace annotations name `/workspace`, `/workspace.html`, `/api/auth/me`, `/api/student/dashboard`, `/api/submissions/:id/evidence`, and `/api/submissions/:id/evidence/upload` with records `User`, `UserRole`, `StudentProfile`, `Submission`, `EvidenceArtifact`, `Review`, `AuditEvent`, `Program`, and `Cohort`.
+- Permission annotations cover signed-out, student own workspace, mentor assigned scope, program-teacher scope, admin ops, misc-admin explicit scope, no-role pending, permission denied, Drive-missing, and unsupported-upload states.
+- Shared plugin data key `senior_capstone/production_boundary_contract_2026_05_20` records 7 routes, 9 records, 6 permission scopes, 6 guardrails, and the current Drive/Cloudflare setup blockers.
+- `get_design_context` and `get_screenshot` succeeded for node `124:2`; screenshot verification returned `800x1024` from original `1360x1742`, and final `use_figma` readback found zero suspicious clipped text nodes and zero child overflow.
+
 ## Acceptance Checks For Next Figma Run
 
 - Continue active writable file `z4t4tFPAKrMDh6pIYOeEw6` in `team::1638213362346160913`.
@@ -615,10 +626,10 @@ Artifact:
 - Progress update/dashboard aggregate contract: node `61:2` in the active Figma file.
 - Audit log/export controls contract: node `69:2` in the active Figma file.
 - Mentor meeting/presentation scheduling contract: node `78:2` in the active Figma file.
-- Full MVP alpha prototype page: node `98:2`, with review detail node `98:9` and student revision node `98:10` aligned to the implemented review-history endpoint, plus handoff frame `98:17` updated after primary alpha-console consumption.
+- Full MVP alpha prototype page: node `98:2`, with review detail node `98:9` and student revision node `98:10` aligned to the implemented review-history endpoint, handoff frame `98:17` updated after primary alpha-console consumption, and production boundary handoff node `124:2` distinguishing the public guide mode from the authenticated workspace route.
 
 Exact next action:
-- Rebuild should consume nodes `18:2`, `31:2`, `37:2`, `43:2`, `48:2`, `56:2`, `61:2`, `69:2`, `78:2`, `98:9`, `98:10`, and `98:17` while scaffolding the accepted Cloudflare database/auth/progress/audit/export/meeting/presentation foundation. Review history is already consumed in the primary alpha console; next rebuild focus should move to mentor, presentation, and admin workflow depth unless hosted alpha smoke finds a regression.
+- Rebuild should consume nodes `18:2`, `31:2`, `37:2`, `43:2`, `48:2`, `56:2`, `61:2`, `69:2`, `78:2`, `98:9`, `98:10`, `98:17`, and `124:2` while scaffolding the accepted Cloudflare database/auth/progress/audit/export/meeting/presentation foundation. Review history is already consumed in the primary alpha console; next rebuild focus should move to role-pending and permission-denied workspace states, mentor/presentation, and admin workflow depth unless hosted alpha smoke finds a regression.
 
 Acceptance check:
 - Figma progress log records page/frame IDs, screenshot or metadata verification, route/data fields, permission scopes, and the next UI slice.

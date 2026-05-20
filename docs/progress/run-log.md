@@ -444,3 +444,19 @@ Future productive runs should append compact entries that name the master-plan s
 - `blockers`: remote D1 apply/verification for `0006_presentation_slots.sql` still requires `CLOUDFLARE_API_TOKEN`.
 - `phone tracker`: appended to `Senior Capstone QoL Run Tracker` at 2026-05-20 16:08 PT.
 - `self-improvement`: none.
+
+## 2026-05-20 16:41 PT - MVP-028 Production App/Public Guide Boundary Handoff
+
+- `automation ID`: `senior-capstone-figma-product-builder`
+- `lane`: Figma-only product builder / design-assets-handoff.
+- `master-plan sections`: P0 Production Experience Gate; Role-Aware Production App Contract; Student And Teacher Website Contract; Lane Responsibilities; Logging Requirements.
+- `requirement IDs`: `MVP-028`, supporting `MVP-031`, `MVP-032`, `MVP-033`, `MVP-034`, `MVP-035`, `MVP-036`, `MVP-037`, `MVP-039`, and `MVP-040`.
+- `selected slice`: Add and verify a Figma production-boundary handoff that distinguishes public Student/Teacher guide mode from the authenticated role-aware workspace app.
+- `active Figma file`: `z4t4tFPAKrMDh6pIYOeEw6`.
+- `Figma page/node touched`: `05 Full MVP Alpha Prototype`; node `124:2` (`Prototype / 15 / Production app and public guide boundary`).
+- `what changed`: Added route/data/permission/state annotations for public routes `/` and `public-companion/`, authenticated routes `/workspace` and `/workspace.html`, APIs `/api/auth/me`, `/api/student/dashboard`, `/api/submissions/:id/evidence`, and `/api/submissions/:id/evidence/upload`, records `User`, `UserRole`, `StudentProfile`, `Submission`, `EvidenceArtifact`, `Review`, `AuditEvent`, `Program`, and `Cohort`, permission scopes for public content, student-own, mentor-assigned, program-teacher program/cohort, admin, and misc-admin explicit scope, and guardrails that Student/Teacher guide mode is not auth.
+- `verification`: `use_figma` created node `124:2`, then corrected collapsed text heights and acceptance-card bullet overflow; final readback found zero suspicious clipped text nodes, zero child overflow, 7 contract route/API entries, 9 records, 6 permission scopes, 6 guardrails, and 3 external setup blockers. `get_design_context` and `get_screenshot` succeeded; final screenshot returned `800x1024` from original `1360x1742`.
+- `files changed`: Figma docs, artifact registry, automation memory, Figma lane log, handoff ledger, MVP catalog, this run log, and `docs/progress/runs/2026-05-20-1641-figma-production-boundary-handoff.json`.
+- `implementation handoff`: Rebuild should consume node `124:2` when adding browser-visible role-pending and permission-denied workspace states; keep public guide mode separate from session, D1 role/scope, API, evidence-redaction, and audit logic.
+- `blockers`: none for Figma; existing Drive and Cloudflare setup blockers are recorded as implementation/deployment setup context only.
+- `self-improvement`: none.

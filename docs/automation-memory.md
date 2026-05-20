@@ -89,6 +89,14 @@ Every builder run must ladder from `docs/master-plan.md` into `docs/mvp-requirem
 - `tests/presentation-slots.integration.test.mjs`, full test suite, typecheck, and local D1 migration verification passed. Remote D1 apply/verification still requires `CLOUDFLARE_API_TOKEN`.
 - `/api/presentation-slots/:id/check-out` and `/api/presentation-slots/:id/check-in` now persist day-of presentation status/timestamps for in-scope admin/program-teacher staff, block mentor/out-of-scope/invalid-status attempts, and audit both denials and successful transitions.
 
+### 2026-05-20 - Figma Production Boundary Handoff
+
+- Figma-only builder added node `124:2`, `Prototype / 15 / Production app and public guide boundary`, to the active file `z4t4tFPAKrMDh6pIYOeEw6` on page `05 Full MVP Alpha Prototype`.
+- The handoff separates public Student/Teacher guide mode (`/` and generated `public-companion/`) from the authenticated role-aware workspace (`/workspace`, `/workspace.html`, auth/session APIs, student dashboard, evidence link/upload APIs).
+- Shared plugin data key `senior_capstone/production_boundary_contract_2026_05_20` records 7 routes, 9 records, 6 permission scopes, 6 guardrails, and the current Drive/Cloudflare setup blockers.
+- Final Figma verification succeeded: `get_design_context` and `get_screenshot` passed for node `124:2`, with screenshot `800x1024` from original `1360x1742`; readback found zero suspicious clipped text nodes and zero child overflow.
+- Next best rebuild slice from this handoff: add browser-visible role-pending and permission-denied workspace states, then verify live Drive upload/download after Bryan configures `GOOGLE_DRIVE_CLIENT_EMAIL` and `GOOGLE_DRIVE_PRIVATE_KEY`.
+
 ## Current Priority
 
 Immediate next useful passes:
@@ -135,6 +143,7 @@ Current backlog anchors:
 - Key Figma implementation contract nodes: `18:2`, `31:2`, `37:2`, `43:2`, `48:2`, `56:2`, `61:2`, `69:2`, `78:2`, and full MVP alpha prototype page `98:2`.
 - 2026-05-20 Figma review-history alignment updated full MVP alpha prototype nodes `98:9` and `98:10` to match `/api/reviews/:submissionId/history`, `reviews`, `comments`, `status_history`, `submission_versions`, scoped permissions, and storage-ID redaction; `get_design_context` and `get_screenshot` succeeded for both nodes.
 - 2026-05-20 Figma handoff update verified node `98:17` after primary alpha-console review-history consumption; it records `review_history_consumed_at`, redirects next rebuild focus to mentor/presentation/admin depth, preserves API/D1/audit/storage-redaction boundaries, and passed `get_design_context` plus `get_screenshot`.
+- 2026-05-20 Figma production-boundary handoff verified node `124:2`; it distinguishes public Student/Teacher guide mode from authenticated `/workspace` state, records route/data/permission contract data, and passed screenshot/metadata/readback QA.
 - Bryan's phone-friendly live QoL tracker is the native Google Sheet `Senior Capstone QoL Run Tracker`, spreadsheet id `1J8jQMn85wJwo9Rh6LjQUVv_WfLS1YJWsbpcLBCojjjs`.
 
 ## Handoff And Logging Rules

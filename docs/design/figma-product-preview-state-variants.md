@@ -481,6 +481,10 @@ Created/updated frames:
   - `Prototype / 14 / Route and implementation handoff`, node `98:17`
   - Handoff text nodes updated: `98:1079`, `98:1087`, `98:1088`, `98:1073`, `98:1074`, `98:1119`, and `98:1123` through `98:1127`.
   - Shared plugin data key `senior_capstone/handoff_status_2026_05_20` records that review history is consumed in the primary alpha console and that the next rebuild focus is mentor, presentation, admin depth, and hosted alpha smoke.
+- 2026-05-20 production app/public guide boundary handoff on `05 Full MVP Alpha Prototype`
+  - `Prototype / 15 / Production app and public guide boundary`, node `124:2`
+  - Created route/data/permission/state annotations that separate public Student/Teacher guide mode from the authenticated `/workspace` app route.
+  - Shared plugin data key `senior_capstone/production_boundary_contract_2026_05_20` records 7 routes, 9 records, 6 permission scopes, 6 guardrails, 3 external setup blockers, and the next rebuild action for role-pending and permission-denied workspace states.
 
 Verification status:
 - Canvas write succeeded and returned the frame IDs above.
@@ -530,3 +534,7 @@ Verification status:
 - `get_design_context` and `get_screenshot` succeeded for nodes `98:9` and `98:10` after the correction; screenshot sizes returned `1024x623` for node `98:9` and `1024x648` for node `98:10`, and readback found zero suspicious clipped text nodes in both frames.
 - 2026-05-20 `use_figma` write updated node `98:17` to record `review_history_consumed_at`, the primary alpha-console review-history consumption state, and the next rebuild focus on mentor, presentation, and admin depth; it also corrected compact handoff text widths.
 - `get_design_context` and `get_screenshot` succeeded for node `98:17` after the correction; screenshot verification returned `1024x648` from original `1360x860`, and readback found zero suspicious clipped text nodes.
+- 2026-05-20 `use_figma` write created node `124:2` to map `/`, `public-companion/`, `/workspace`, `/workspace.html`, `/api/auth/me`, `/api/student/dashboard`, `/api/submissions/:id/evidence`, and `/api/submissions/:id/evidence/upload` to public guide state versus authenticated role/scope state.
+- First screenshot/metadata verification found text nodes collapsed to 1px height and lower acceptance-card bullet rows overflowing their cards.
+- Follow-up `use_figma` layout corrections expanded all text heights and fixed bullet-row widths in place, expanding node `124:2` to `1360x1742`.
+- Final `get_design_context` and `get_screenshot` succeeded for node `124:2`; screenshot verification returned `800x1024` from original `1360x1742`, and readback confirmed zero suspicious clipped text nodes, zero child overflow, 7 contract routes, 9 records, 6 permission scopes, 6 guardrails, and 3 blocker notes.

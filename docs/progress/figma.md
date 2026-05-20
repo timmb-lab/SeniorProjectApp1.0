@@ -46,3 +46,16 @@ Figma work is owned by `senior-capstone-figma-product-builder`, running hourly a
 - `verification`: `use_figma` returned the mutated node IDs, set shared plugin data key `senior_capstone/handoff_status_2026_05_20`, and found zero suspicious clipped text nodes; `get_design_context` confirmed the updated route/data/permission handoff text; `get_screenshot` succeeded for node `98:17` at `1024x648` from original `1360x860`.
 - `implementation handoff`: Rebuild should stop repeating review-history UI work unless hosted smoke finds a regression; next implementation depth should target mentor/presentation and admin operations flows using nodes `78:2`, `48:2`, `69:2`, and `98:17`.
 - `self-improvement`: none
+
+## 2026-05-20 16:41 PT - MVP-028 Production App/Public Guide Boundary Handoff
+
+- `automation ID`: `senior-capstone-figma-product-builder`
+- `selected requirement IDs`: `MVP-028`, supporting `MVP-031` through `MVP-040`
+- `selected slice`: Create and verify a production-boundary handoff that distinguishes public Student/Teacher guide mode from the authenticated role-aware workspace route.
+- `active file`: `z4t4tFPAKrMDh6pIYOeEw6`
+- `page`: `05 Full MVP Alpha Prototype`
+- `nodes touched`: `124:2` (`Prototype / 15 / Production app and public guide boundary`)
+- `changed in Figma`: Added public guide annotations for `/` and generated `public-companion/`; added authenticated workspace annotations for `/workspace`, `/workspace.html`, `/api/auth/me`, `/api/student/dashboard`, `/api/submissions/:id/evidence`, and `/api/submissions/:id/evidence/upload`; mapped role states for signed-out, student, mentor, program teacher, admin, misc admin, no-role pending, permission denied, Drive-missing, and unsupported upload; recorded current Drive/Cloudflare setup blockers without treating them as Figma blockers.
+- `verification`: `use_figma` created node `124:2`, then corrected collapsed text heights and acceptance-card bullet overflow; final readback found zero suspicious clipped text nodes, zero child overflow, 7 contract routes, 9 records, 6 permission scopes, 6 guardrails, and 3 blocker notes. `get_design_context` and `get_screenshot` succeeded for node `124:2`; final screenshot returned `800x1024` from original `1360x1742`.
+- `implementation handoff`: Rebuild should consume node `124:2` before adding browser-visible role-pending and permission-denied workspace states; public guide mode stays public content organization, while workspace state stays behind session, D1 role/scope, API checks, evidence redaction, and audit logging.
+- `self-improvement`: none

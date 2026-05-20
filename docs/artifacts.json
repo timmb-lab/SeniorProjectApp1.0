@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-05-20T15:42:00-07:00",
+  "updated_at": "2026-05-20T16:41:00-07:00",
   "artifacts": [
     {
       "id": "cloudflare-pages-senior-capstone-app",
@@ -313,7 +313,7 @@
       "plan_key": "team::1638213362346160913",
       "account_observed": "timmb@nv.ccsd.net",
       "purpose": "Active product UI source for the hosted Senior Capstone app, recreated in Bryan's Senior Project App Figma team/project.",
-      "app_placement": "Design source for app shell, visual foundations, shared component variants, student workspace, guided proposal form, teacher review queue, mentor/admin dashboards, mobile student view, automation handoff board, product preview state variants, the 100-pass MVP route/data contract, review/override interaction variants, private evidence/review-history contract, admin account/group/role provisioning contract, progress update/dashboard aggregate contract, audit log/export controls contract, mentor meeting/presentation scheduling contract, and full 15-screen clickable MVP alpha prototype.",
+      "app_placement": "Design source for app shell, visual foundations, shared component variants, student workspace, guided proposal form, teacher review queue, mentor/admin dashboards, mobile student view, automation handoff board, product preview state variants, the 100-pass MVP route/data contract, review/override interaction variants, private evidence/review-history contract, admin account/group/role provisioning contract, progress update/dashboard aggregate contract, audit log/export controls contract, mentor meeting/presentation scheduling contract, full MVP alpha prototype, and production app/public guide boundary handoff.",
       "consuming_lanes": [
         "figma",
         "rebuild",
@@ -421,6 +421,7 @@
         "full_alpha_prototype_mobile_student": "98:15",
         "full_alpha_prototype_access_boundary": "98:16",
         "full_alpha_prototype_handoff": "98:17",
+        "full_alpha_prototype_production_boundary": "124:2",
         "full_alpha_prototype_map_rail": "98:1130"
       },
       "verification": [
@@ -453,7 +454,9 @@
         "Figma write on 2026-05-20 aligned full-alpha prototype review-history nodes 98:9 and 98:10 with the implemented /api/reviews/:submissionId/history path, comments, status_history, submission_versions, scoped permissions, and storage-ID redaction.",
         "get_design_context and get_screenshot succeeded for nodes 98:9 and 98:10 after the 2026-05-20 annotation and layout corrections; use_figma readback found zero suspicious clipped text nodes in both frames.",
         "Figma write on 2026-05-20 updated full-alpha handoff node 98:17 with review_history_consumed_at, primary alpha-console consumption guidance, next mentor/presentation/admin rebuild focus, and corrected compact handoff text widths.",
-        "get_design_context and get_screenshot succeeded for node 98:17 after the 2026-05-20 handoff update; screenshot verification returned 1024x648 from original 1360x860, and use_figma readback found zero suspicious clipped text nodes."
+        "get_design_context and get_screenshot succeeded for node 98:17 after the 2026-05-20 handoff update; screenshot verification returned 1024x648 from original 1360x860, and use_figma readback found zero suspicious clipped text nodes.",
+        "Figma write on 2026-05-20 added full-alpha production boundary node 124:2, distinguishing public Student/Teacher guide mode from authenticated /workspace behavior and storing shared plugin data key senior_capstone/production_boundary_contract_2026_05_20.",
+        "get_design_context and get_screenshot succeeded for node 124:2 after text-height and bullet-width corrections; screenshot verification returned 800x1024 from original 1360x1742, and final use_figma readback found zero suspicious clipped text nodes, zero child overflow, 7 route entries, 9 records, 6 permission scopes, 6 guardrails, and 3 external setup blockers."
       ],
       "supersedes": [
         "figma-product-ui-system-reference-old-team",

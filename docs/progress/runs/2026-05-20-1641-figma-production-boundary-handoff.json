@@ -1,0 +1,202 @@
+{
+  "run_id": "2026-05-20-1641-figma-production-boundary-handoff",
+  "timestamp_local": "2026-05-20T16:41:00-07:00",
+  "automation_id": "senior-capstone-figma-product-builder",
+  "lane": "figma-only product builder",
+  "status": "completed",
+  "accepted_mvp_pass": true,
+  "requirement_ids": [
+    "MVP-028",
+    "MVP-031",
+    "MVP-032",
+    "MVP-033",
+    "MVP-034",
+    "MVP-035",
+    "MVP-036",
+    "MVP-037",
+    "MVP-039",
+    "MVP-040"
+  ],
+  "output_kind": "figma-handoff+metadata+screenshot-verification",
+  "scope": "Add and verify a production app/public guide boundary handoff after the repo established the canonical workspace route and public Student/Teacher guide mode.",
+  "selected_figma_slice": "Production app and public guide route/data/permission/state boundary handoff.",
+  "figma": {
+    "file_key": "z4t4tFPAKrMDh6pIYOeEw6",
+    "url": "https://www.figma.com/design/z4t4tFPAKrMDh6pIYOeEw6",
+    "page": "05 Full MVP Alpha Prototype",
+    "page_id": "98:2",
+    "node_touched": {
+      "node_id": "124:2",
+      "name": "Prototype / 15 / Production app and public guide boundary",
+      "frame_size": "1360x1742",
+      "changes": [
+        "Added a public website guide-mode card for / and generated public-companion/.",
+        "Added an authenticated workspace card for /workspace, /workspace.html, /api/auth/me, /api/student/dashboard, /api/submissions/:id/evidence, and /api/submissions/:id/evidence/upload.",
+        "Added a surface boundary matrix distinguishing public guide content, workspace app state, internal alpha/account pages, and stakeholder option artifacts.",
+        "Added an implementation acceptance contract for guide toggle checks, workspace role checks, and the next rebuild target.",
+        "Corrected collapsed text heights and lower acceptance-card bullet-row overflow after initial screenshot/readback verification."
+      ]
+    },
+    "shared_plugin_data": {
+      "namespace": "senior_capstone",
+      "key": "production_boundary_contract_2026_05_20",
+      "route_count": 7,
+      "record_count": 9,
+      "permission_scope_count": 6,
+      "guardrail_count": 6,
+      "blocker_count": 3,
+      "routes": [
+        "/",
+        "/workspace",
+        "/workspace.html",
+        "/api/auth/me",
+        "/api/student/dashboard",
+        "/api/submissions/:id/evidence",
+        "/api/submissions/:id/evidence/upload"
+      ],
+      "records": [
+        "User",
+        "UserRole",
+        "StudentProfile",
+        "Submission",
+        "EvidenceArtifact",
+        "Review",
+        "AuditEvent",
+        "Program",
+        "Cohort"
+      ],
+      "permission_scopes": [
+        "public guide content only",
+        "student-own",
+        "mentor-assigned",
+        "program-teacher program/cohort",
+        "admin",
+        "misc-admin explicit scope"
+      ],
+      "guardrails": [
+        "Student/Teacher guide toggle is not authentication.",
+        "Workspace requires a session and D1 role scope.",
+        "Workspace must not expose raw storage IDs.",
+        "Alpha/account pages are not normal public navigation.",
+        "Stakeholder options are not guide modes.",
+        "Drive-missing state must be truthful until credentials are configured."
+      ],
+      "blockers": [
+        "GOOGLE_DRIVE_CLIENT_EMAIL",
+        "GOOGLE_DRIVE_PRIVATE_KEY",
+        "CLOUDFLARE_API_TOKEN"
+      ],
+      "next_rebuild_action": "Add browser-visible role-pending and permission-denied states in workspace, then verify live Drive upload/download after secrets are configured."
+    },
+    "readback": {
+      "text_node_count": 79,
+      "suspicious_clipped_text_count": 0,
+      "overflow_count": 0,
+      "confirms_public_guide_not_auth": true,
+      "confirms_workspace_role_scope": true
+    },
+    "metadata_verification": [
+      {
+        "node_id": "124:2",
+        "tool": "get_design_context",
+        "result": "passed",
+        "summary": "Returned the final frame context after text-height and bullet-row corrections."
+      }
+    ],
+    "screenshot_verification": [
+      {
+        "node_id": "124:2",
+        "tool": "get_screenshot",
+        "result": "passed",
+        "returned_size": "800x1024",
+        "original_size": "1360x1742",
+        "short_lived_asset_url_recorded": false
+      }
+    ],
+    "library_and_search_verification": [
+      {
+        "tool": "get_libraries",
+        "result": "passed",
+        "summary": "Confirmed library access for the active file and available design system libraries."
+      },
+      {
+        "tool": "search_design_system",
+        "query": "button card status navigation guide",
+        "result": "passed",
+        "summary": "Found only the local Component / Status Pill / Overridden as directly relevant; no reusable variables or styles were required for this annotation board."
+      }
+    ]
+  },
+  "source_docs_read": [
+    "C:\\Users\\bryan\\.codex\\automations\\senior-capstone-figma-product-builder\\memory.md",
+    "docs/design/figma-first-pass-product-system.md",
+    "docs/design/figma-product-preview-state-variants.md",
+    "docs/master-plan.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/automation-cadence.md",
+    "docs/automation-runbook.md",
+    "docs/automation-memory.md",
+    "docs/progress/run-log.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/decision-log.md",
+    "docs/artifacts.json",
+    "docs/human-decisions.md",
+    "docs/progress/figma.md",
+    "docs/automation-backlog.md",
+    "docs/automation-self-improvement.md",
+    "recent docs/progress/runs/*.json"
+  ],
+  "repo_files_changed": [
+    "docs/design/figma-first-pass-product-system.md",
+    "docs/design/figma-product-preview-state-variants.md",
+    "docs/artifacts.json",
+    "docs/automation-memory.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/progress/figma.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-20-1641-figma-production-boundary-handoff.json"
+  ],
+  "implementation_handoff": "Rebuild should use node 124:2 when adding browser-visible role-pending and permission-denied workspace states, keeping public guide mode separate from app auth, permission, API, evidence-redaction, and audit logic.",
+  "validation": [
+    {
+      "command": "Figma use_figma mutation/readback",
+      "result": "passed",
+      "summary": "Created node 124:2, fixed collapsed text heights and bullet-row overflow, and read back zero suspicious clipped text nodes plus zero child overflow."
+    },
+    {
+      "command": "Figma get_design_context for node 124:2",
+      "result": "passed",
+      "summary": "Confirmed the final production app/public guide boundary handoff context."
+    },
+    {
+      "command": "Figma get_screenshot for node 124:2",
+      "result": "passed",
+      "summary": "Returned 800x1024 from the original 1360x1742 frame."
+    },
+    {
+      "command": "Get-Content docs/artifacts.json and manifest | ConvertFrom-Json",
+      "result": "passed",
+      "summary": "Artifact registry and structured run manifest parsed as JSON."
+    },
+    {
+      "command": "git diff --check",
+      "result": "passed",
+      "summary": "Whitespace check passed with line-ending warnings only."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\verify-cadence-30min.ps1 -RepoRoot .",
+      "result": "passed",
+      "summary": "Split cadence verifier passed with the two expected builder automations and oversight lanes."
+    }
+  ],
+  "backend_code_work_avoided": true,
+  "figma_blocker": null,
+  "run_log_updated": true,
+  "structured_manifest_created": true,
+  "artifacts_json_updated": true,
+  "mvp_catalog_changed": true,
+  "self_improvement": "none",
+  "commit_sha": "pending closeout commit",
+  "push_result": "pending closeout push"
+}
