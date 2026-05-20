@@ -5,7 +5,7 @@ Last refreshed: 2026-05-20
 
 ## Purpose
 
-Daily reporting is owned by a separate report-only automation so the 30-minute MVP builder can stay focused on implementation.
+Daily reporting is owned by a separate report-only automation so the split builders can stay focused on implementation and Figma-only product handoffs.
 
 Primary owner:
 - `senior-capstone-daily-mvp-summary`
@@ -63,4 +63,4 @@ The report should read these logs before writing the daily summary:
 - `docs/progress/canva.md`
 - `docs/automation-backlog.md`
 
-The daily automation output is the near-term executive record. The files above remain the operational memory used by the builder and weekly strategy review.
+The daily automation output is the near-term executive record. The files above remain the operational memory used by the split builders and weekly strategy review.

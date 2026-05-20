@@ -1,13 +1,25 @@
 {
   "schemaVersion": 1,
-  "source": "test fixture: more than one active Senior Capstone automation",
+  "source": "test fixture: duplicate split builder automation",
   "automations": [
     {
-      "id": "senior-capstone-hourly-qol-orchestrator",
+      "id": "senior-capstone-nonfigma-mvp-builder",
       "status": "ACTIVE"
     },
     {
-      "id": "senior-capstone-extra-runner",
+      "id": "senior-capstone-nonfigma-mvp-builder",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "senior-capstone-figma-product-builder",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "senior-capstone-daily-mvp-summary",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "senior-capstone-weekly-script-audit",
       "status": "ACTIVE"
     }
   ]

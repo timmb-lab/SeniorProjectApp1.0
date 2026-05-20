@@ -22,7 +22,7 @@ Automation operating infrastructure now includes:
 - `docs/human-decisions.md`: Bryan-level decision queue.
 - `docs/artifacts.json`: structured external artifact registry.
 - `docs/mvp-requirements-catalog.md`: category-owned MVP requirements, statuses, blockers, and acceptance evidence.
-- `scripts/verify-cadence-30min.ps1`: validates the 30-minute builder cadence, oversight automations, and current automation contract.
+- `scripts/verify-cadence-30min.ps1`: validates the split builder cadence, oversight automations, prompt files, and current automation contract.
 - `scripts/run-powershell-script.mjs`: lets npm/CI run project PowerShell scripts with non-interactive flags on the available PowerShell runtime.
 
 ## Connector Approval Preflight
@@ -97,17 +97,61 @@ For the Senior Capstone app backend foundation, local scaffolding, schema design
 
 If those account/provisioning pieces are missing, rebuild should still scaffold local code and migrations, then log a precise `ACTION REQUIRED` item instead of blocking all work.
 
-## 30-Minute MVP Builder
+## Split Builder Cadence
 
-The active Senior Capstone delivery automation is the GUI-available builder `senior-capstone-hourly-qol-orchestrator`.
+The active Senior Capstone delivery automation is split into two alternating builder lanes:
 
-The builder runs every 30 minutes all day from `C:\SeniorProjectApp1.0`. It reads the master plan and requirements catalog every run, selects one bounded slice from `MVP-001` through `MVP-030`, and rotates work from evidence rather than from separate lane-specific prompts. It must cover the full master plan over time while keeping each individual run narrow enough to validate, log, commit, and push.
+- Top-of-hour non-Figma MVP builder: `senior-capstone-nonfigma-mvp-builder`, hourly at minute 0 PT.
+- Bottom-of-hour Figma-only product builder: `senior-capstone-figma-product-builder`, hourly at minute 30 PT.
 
-Oversight automations are also active: `senior-capstone-daily-mvp-summary` reports the last 24 hours without repo writes, and `senior-capstone-weekly-script-audit` performs the seven-day strategy review and plan adjustment.
+Oversight automations are also active: `senior-capstone-daily-mvp-summary` reports the last 24 hours without adding builder capacity, and `senior-capstone-weekly-script-audit` performs the seven-day strategy review and plan adjustment.
+
+Manual verification:
+
+- Confirm the repo is on `main` with `git branch --show-current`.
+- Confirm the project lock includes both split builder IDs in `automation/qol/project-lock.json`.
+- Confirm `docs/automation-cadence.md` documents minute 0 for non-Figma and minute 30 for Figma.
+- Confirm both prompts exist in `automation/prompts/`.
+- Confirm the Figma prompt blocks backend implementation and production route changes.
+- Confirm the non-Figma prompt blocks direct Figma work, Figma MCP calls, Figma file edits, and Figma screenshots.
+
+Non-Figma builder run expectations:
+
+- Read the master plan, requirements catalog, cadence, runbook, self-improvement protocol, memory, milestones, run log, handoffs, decision log, backlog, artifact registry, human decisions, and recent run manifests before selecting work.
+- Pick exactly one bounded non-Figma slice from implementation, tests, backend/security/data, student workflow, staff workflow, admin workflow, deployment QA, Canva-only work, automation hardening, or an exact blocker.
+- Do not call Figma tools, use Figma MCP, create/edit Figma files, inspect live Figma nodes, or generate Figma screenshots.
+- Validate touched files with the strongest safe focused check.
+- Update repo progress records, create a structured manifest, commit on `main`, and push to `origin main` when possible.
+- If blocked, record the exact blocker with requirement IDs, command/tool/error, suspected cause, next safe action, and whether Bryan must act.
+
+Figma builder run expectations:
+
+- Read both Figma design docs, the master plan, requirements catalog, cadence, runbook, memory, run log, handoffs, decision log, artifact registry, human decisions, and recent run manifests before selecting work.
+- Use active Figma file key `z4t4tFPAKrMDh6pIYOeEw6` in `team::1638213362346160913`.
+- Pick exactly one bounded Figma-only slice tied to `MVP-028`, `design-assets-handoff`, concrete implementation ambiguity, a missing route/data/permission annotation, a needed state variant, screenshot/metadata verification, or an exact Figma blocker.
+- Do not implement backend code, change production route behavior, perform Cloudflare deployment work, or do Canva work.
+- If Figma quota/account/tool access blocks the slice, do not pretend success; record attempted file/page/node, intended change, exact error text, account/team/plan context if visible, next action, and Bryan action if needed.
+- Update repo Figma docs, artifact registry, run log, structured manifest, and handoffs as needed; commit with `figma:` and push to `origin main` when possible.
+
+Registry drift prevention:
+
+- Expected builder IDs: `senior-capstone-nonfigma-mvp-builder` and `senior-capstone-figma-product-builder`.
+- Expected oversight IDs: `senior-capstone-daily-mvp-summary` and `senior-capstone-weekly-script-audit`.
+- If old `senior-capstone-hourly-qol-orchestrator` appears active externally, record a human action to disable it or convert it to diagnostic/manual only. Do not count it as a third builder.
+- If duplicate split builders appear, stop and record registry drift instead of normalizing it away.
+- If repo-local registry evidence is unavailable, report `UNKNOWN_REGISTRY_UNINSPECTABLE` honestly.
+
+Accepted pass counting:
+
+- Scheduled start does not equal accepted pass.
+- Report-only output does not equal accepted pass.
+- Broad Figma polish does not equal accepted pass.
+- Broad docs churn does not equal accepted pass.
+- Exact blockers can count only if they reduce uncertainty and are recorded with next action.
 
 ## Orchestrator No-Intervention Contract
 
-No other project delivery automation should be created, invoked, or maintained for Senior Capstone unless Bryan explicitly asks for it. Reporting and strategy-review automations may exist only as oversight, not competing implementation lanes.
+No other project delivery automation should be created, invoked, or maintained for Senior Capstone unless Bryan explicitly asks for it. The two split builders are the only delivery lanes. Reporting and strategy-review automations may exist only as oversight, not competing implementation lanes.
 
 The orchestrator should resolve everything it can resolve from accepted docs, repo evidence, saved connector approvals, and safe fallbacks. It should not stop for a human when it can:
 
@@ -127,14 +171,14 @@ Every productive run should produce A-material evidence. It must do one of three
 - Repair a repeatable project automation, script, verifier, or manifest failure so the same miss is less likely to recur.
 - Commit an exact blocker with the requirement ID, command or tool that failed, suspected account/tool cause, and next action.
 
-For automation maintenance, only touch automation related to this project: the 30-minute builder contract, oversight automation records, automation docs/logs/manifests, project automation scripts/verifiers, and project automation memory.
+For automation maintenance, only touch automation related to this project: the two split builder prompt contracts, oversight automation records, automation docs/logs/manifests, project automation scripts/verifiers, and project automation memory.
 
 ## Writable Preflight
 
-Every 30-minute run must spend the first minute proving it can do useful work before it opens large context:
+Every split-builder run must spend the first minute proving it can do useful work before it opens large context:
 
 - Run `git status --short --branch`.
-- Confirm the current automation is `senior-capstone-hourly-qol-orchestrator`.
+- Confirm the current automation is either `senior-capstone-nonfigma-mvp-builder` or `senior-capstone-figma-product-builder`.
 - Confirm repo writes are available by planning a tiny repo-owned log/manifest update before broad inspection. Do not make throwaway files.
 - Confirm command execution can run the bundled or PATH Node/PowerShell path needed for repo checks.
 - If `apply_patch`, shell execution, `$CODEX_HOME` reads, Git LFS, Node/npm, or commit/push is blocked by policy, stop the product slice immediately and leave the shortest possible blocker closeout with the exact command/error and next action. Do not spend a full run rediscovering the same read-only state.
@@ -163,7 +207,7 @@ The 30-minute orchestrator may use a large prompt, but each run should avoid unc
 
 ## 30-Day Efficiency Auto-Scaling Protocol
 
-The current 30-minute orchestrator cadence is 48 active starts/day. Scaling should first improve conversion, target selection, and blocker burn-down, not add more starts.
+The current split-builder cadence is 48 combined builder starts/day: 24 non-Figma starts/day and 24 Figma-only starts/day. Scaling should first improve conversion, lane separation, target selection, and blocker burn-down, not add more starts.
 
 Use this command for explicit automation audits and Sunday calibration:
 
@@ -171,14 +215,14 @@ Use this command for explicit automation audits and Sunday calibration:
 powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\verify-cadence-30min.ps1 -RepoRoot .
 ```
 
-Under the 30-minute orchestrator contract, the active project automation count is 1 and daily active start capacity is 48.
+Under the split-builder contract, active builder automation count is 2 and daily active builder start capacity is 48. Daily summary and weekly strategy review are oversight and do not add builder capacity.
 
 Scaling rules:
 
-- Keep the 48-start/day 30-minute schedule unless Bryan explicitly asks to change it or evidence shows this project-specific cadence is harming output.
-- Minimum 30-day target is 60 accepted MVP passes; stretch is 90. With 1,440 active scheduled starts in 30 days, the system needs 4.17 percent accepted-pass conversion for minimum and 6.25 percent for stretch.
+- Keep the 48-start/day split schedule unless Bryan explicitly asks to change it or evidence shows this project-specific cadence is harming output.
+- Minimum 30-day target is 60 accepted MVP passes; stretch is 90. With 720 non-Figma starts, 720 Figma starts, and 1,440 combined builder starts in 30 days, the system needs 4.17 percent accepted-pass conversion for minimum and 6.25 percent for stretch.
 - If accepted-pass conversion is below target, retarget the next week toward implementation, tests, deployment proof, exact blockers, and high-risk requirements before adding more runs.
-- If the orchestrator has no accepted evidence or exact blocker after seven days, sharpen its backlog selection, prompt instructions, or handoff rules before changing cadence.
+- If either builder has no accepted evidence or exact blocker after seven days, sharpen its backlog selection, prompt instructions, or handoff rules before changing cadence.
 - If run duration or dirty-worktree collisions repeatedly exceed the 30-minute spacing, reduce collision risk by selecting non-conflicting verification slices, narrowing prompt execution, or recommending a schedule adjustment for Bryan.
 - If blockers dominate a requirement area, the automation should commit one precise blocker with the account/tool/policy action required and then move to adjacent non-blocked evidence in its scope.
 - If the project exceeds the stretch target with low collision risk, keep cadence stable and tighten acceptance quality; do not chase more starts for its own sake.
@@ -204,7 +248,7 @@ The automation system has three durable control surfaces:
 
 - Master planner: `docs/master-plan.md`. Every run reads it first, names the section that justifies the selected slice, and updates it only when evidence shows the destination, source order, milestone path, or anti-drift rules are stale.
 - Pass logger: `docs/progress/run-log.md` plus one structured JSON manifest in `docs/progress/runs/` and the relevant lane/report log. Every productive run writes all three layers so the next run can continue without relying on chat history.
-- Self-patching contract: the 30-minute builder prompt, oversight automation prompts, `automation/qol/GUI_ALLOWED_COMMANDS.md`, `automation/qol/project-lock.json`, and `scripts/verify-cadence-30min.ps1`. When a run changes the automation operating contract, it must update the relevant project-local doc or support script in the same pass, run the verifier, log the evidence, commit, and push.
+- Self-patching contract: the split builder prompts in `automation/prompts/`, oversight automation records, the legacy diagnostic runner contract in `automation/qol/GUI_ALLOWED_COMMANDS.md`, `automation/qol/project-lock.json`, and `scripts/verify-cadence-30min.ps1`. When a run changes the automation operating contract, it must update the relevant project-local doc or support script in the same pass, run the verifier, log the evidence, commit, and push.
 
 The loop should be able to run repeatedly: planner -> bounded work -> pass logger -> self-review -> narrow prompt/script patch when evidence justifies it -> validation -> commit/push.
 
@@ -274,7 +318,7 @@ For this Senior Capstone project only, the current 100-pass / roughly 45-day MVP
 
 An accepted MVP pass must leave durable evidence: a pushed commit or published external artifact recorded in the repo, plus validation or a concrete blocker that reduces MVP ambiguity. The first two accepted passes each day should usually be implementation-heavy while `SC-005` remains open.
 
-`senior-capstone-hourly-qol-orchestrator` owns weekly calibration. On Sundays it must review the last seven days of run manifests, run-log entries, commits, backlog movement, handoffs, and audit findings. It should count accepted MVP passes against the minimum 2/day and 14/week goal, then update only this project's `docs/master-plan.md`, `docs/automation-memory.md`, and `docs/mvp-requirements-catalog.md` with the next week's daily goal/allocation when evidence requires adjustment.
+`senior-capstone-weekly-script-audit` owns weekly calibration. On Sundays it must review the last seven days of run manifests, run-log entries, commits, backlog movement, handoffs, and audit findings. It should count accepted MVP passes against the minimum 2/day and 14/week goal, then update only this project's `docs/master-plan.md`, `docs/automation-memory.md`, and `docs/mvp-requirements-catalog.md` with the next week's daily goal/allocation when evidence requires adjustment.
 
 Priority order:
 
@@ -337,7 +381,7 @@ At the end of every run, leave enough memory for the next lane to continue witho
 - Update `docs/human-decisions.md` when a decision needs Bryan's judgment, account access, provisioning, budget, privacy approval, or school-operation confirmation.
 - Run the self-improvement closeout from `docs/automation-self-improvement.md`: record `self-improvement: none` when no prompt/config/script change is justified, or update only the automation's own prompt/config plus the smallest relevant project script with evidence and a log entry when a narrow change is justified.
 - If a script/checker/snapshot/manifest failure is reproducible and repairable inside the repo, patch it before ordinary product work or record a compact blocker with the exact command, error, suspected file, and next action.
-- If the builder or oversight automation contract changed, run `scripts/verify-cadence-30min.ps1` and commit the updated project lock, docs, runner, or verifier files.
+- If the builder or oversight automation contract changed, run `scripts/verify-cadence-30min.ps1` and commit the updated project lock, prompts, docs, runner, or verifier files.
 - If the master planner, pass logger, or self-patching contract changed, update the project-local verifier in the same pass when it needs to enforce the new rule.
 
 Do not make vague log entries such as "made improvements." Every log entry should name files, artifacts, checks, decisions, blockers, and the next specific action.
@@ -440,7 +484,7 @@ Avoid:
 - Placeholder-only docs.
 - Prompt/config churn without evidence or outside `docs/automation-self-improvement.md`.
 - Editing another lane's live prompt/config without an explicit human request.
-- Changing the GUI runner contract without updating `automation/qol/project-lock.json`, `automation/qol/GUI_ALLOWED_COMMANDS.md`, and the cadence verifier.
+- Changing the split builder or legacy diagnostic runner contract without updating `automation/qol/project-lock.json`, `automation/qol/GUI_ALLOWED_COMMANDS.md`, `automation/prompts/`, and the cadence verifier as applicable.
 - Creating external artifacts without updating `docs/artifacts.json`.
 - Burying account, budget, privacy, or stack decisions in narrative logs instead of `docs/human-decisions.md`.
 - Skipping structured run manifests, which makes automation health impossible to measure.

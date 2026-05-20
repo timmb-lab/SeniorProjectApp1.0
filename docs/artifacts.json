@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-05-19T06:05:00-07:00",
+  "updated_at": "2026-05-20T00:00:00-07:00",
   "artifacts": [
     {
       "id": "cloudflare-pages-senior-capstone-app",
@@ -548,29 +548,56 @@
       "last_updated": "2026-05-18"
     },
     {
-      "id": "senior-capstone-single-gui-runner",
+      "id": "senior-capstone-split-builder-cadence",
       "type": "automation_system",
       "status": "active",
       "owner_lane": "requirements-audit",
-      "title": "Senior Capstone Single GUI Runner",
-      "purpose": "Project-local automation operating layer for the 100-pass MVP plan and Day 7 alpha ladder.",
-      "app_placement": "Single GUI-available automation for project-local recurring work.",
-      "automation_ids": [
+      "title": "Senior Capstone Split Builder Cadence",
+      "purpose": "Project-local automation operating layer for the 100-pass MVP plan and Day 7 alpha ladder, split into non-Figma and Figma-only recurring builder lanes.",
+      "app_placement": "Two alternating GUI-available builder automations for project-local recurring work; daily and weekly automations remain oversight only.",
+      "builder_automation_ids": [
+        "senior-capstone-nonfigma-mvp-builder",
+        "senior-capstone-figma-product-builder"
+      ],
+      "oversight_automation_ids": [
+        "senior-capstone-daily-mvp-summary",
+        "senior-capstone-weekly-script-audit"
+      ],
+      "legacy_diagnostic_ids": [
         "senior-capstone-hourly-qol-orchestrator"
       ],
+      "prompt_files": {
+        "non_figma": "automation/prompts/senior-capstone-nonfigma-mvp-builder.md",
+        "figma": "automation/prompts/senior-capstone-figma-product-builder.md"
+      },
+      "figma_target": {
+        "file_key": "z4t4tFPAKrMDh6pIYOeEw6",
+        "url": "https://www.figma.com/design/z4t4tFPAKrMDh6pIYOeEw6",
+        "plan_key": "team::1638213362346160913"
+      },
+      "capacity": {
+        "non_figma_starts_per_day": 24,
+        "figma_starts_per_day": 24,
+        "combined_starts_per_day": 48,
+        "combined_starts_per_30_days": 1440
+      },
       "repo_records": [
+        "automation/prompts/senior-capstone-nonfigma-mvp-builder.md",
+        "automation/prompts/senior-capstone-figma-product-builder.md",
         "automation/qol/project-lock.json",
         "automation/qol/GUI_ALLOWED_COMMANDS.md",
         "docs/automation-cadence.md",
+        "docs/automation-runbook.md",
+        "docs/automation-memory.md",
         "docs/mvp-requirements-catalog.md",
         "scripts/verify-cadence-30min.ps1"
       ],
       "verification": [
-        "The project-local active automation list contains only senior-capstone-hourly-qol-orchestrator.",
-        "The active runner cadence is every 30 minutes using FREQ=MINUTELY;INTERVAL=30.",
-        "The cadence verifier fails if active project automation reintroduces hourly or 60-minute cadence language."
+        "Project-local cadence docs list non-Figma minute 0 PT and Figma-only minute 30 PT builder lanes.",
+        "Project lock allows the two split builder IDs plus daily/weekly oversight IDs and marks senior-capstone-hourly-qol-orchestrator as legacy diagnostic-only.",
+        "Cadence verifier checks both prompt files, lane separation, active Figma file key, split capacity math, and wrapper-only scheduled command guidance."
       ],
-      "last_updated": "2026-05-19"
+      "last_updated": "2026-05-20"
     },
     {
       "id": "google-sheet-qol-run-tracker",

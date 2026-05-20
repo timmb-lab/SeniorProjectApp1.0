@@ -1,6 +1,6 @@
 # Figma Progress
 
-Last refreshed: 2026-05-19
+Last refreshed: 2026-05-20
 
 Figma remains a product-design source for route, state, data, and permission handoffs. It is not an automation source of truth and it does not define project automation cadence.
 
@@ -19,4 +19,4 @@ Figma remains a product-design source for route, state, data, and permission han
 
 ## Current Automation Contract
 
-The only project automation is `senior-capstone-hourly-qol-orchestrator`, running every 30 minutes. Figma work happens only when that runner selects a bounded Figma-relevant slice.
+Figma work is owned by `senior-capstone-figma-product-builder`, running hourly at minute 30 PT. It must stay Figma-only and produce route/data/permission handoffs, functional state variants, screenshot/metadata verification, or exact Figma blockers. The non-Figma builder may consume existing Figma evidence but must not call Figma tools.

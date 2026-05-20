@@ -18,6 +18,8 @@ The latest report must be readable on its own after a normal orchestrator run. I
 - `direct_node_execution_allowed`
 - `lock_acquired`
 - `lock_released`
+- `active_builder_automation_count`
+- `missing_builder_automation_ids`
 - `state_written`
 - `log_written`
 - `report_written`

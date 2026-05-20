@@ -3,11 +3,36 @@
   "projectDisplayName": "Senior Capstone App",
   "projectSlug": "senior-capstone-app",
   "automationId": "senior-capstone-hourly-qol-orchestrator",
+  "automationIdStatus": "legacy-diagnostic-only-replaced-by-split-builders",
   "allowedActiveAutomationIds": [
+    "senior-capstone-nonfigma-mvp-builder",
+    "senior-capstone-figma-product-builder",
+    "senior-capstone-daily-mvp-summary",
+    "senior-capstone-weekly-script-audit"
+  ],
+  "expectedBuilderAutomationIds": [
+    "senior-capstone-nonfigma-mvp-builder",
+    "senior-capstone-figma-product-builder"
+  ],
+  "allowedOversightAutomationIds": [
+    "senior-capstone-daily-mvp-summary",
+    "senior-capstone-weekly-script-audit"
+  ],
+  "legacyDiagnosticAutomationIds": [
     "senior-capstone-hourly-qol-orchestrator"
   ],
   "expectedAutomationCadenceRRule": "FREQ=MINUTELY;INTERVAL=30",
-  "expectedAutomationCadenceDescription": "every 30 minutes",
+  "expectedAutomationCadenceDescription": "split hourly builders: non-Figma at minute 0 PT and Figma-only at minute 30 PT",
+  "expectedBuilderCadences": {
+    "nonFigma": {
+      "id": "senior-capstone-nonfigma-mvp-builder",
+      "rrule": "FREQ=HOURLY;BYMINUTE=0;BYSECOND=0"
+    },
+    "figma": {
+      "id": "senior-capstone-figma-product-builder",
+      "rrule": "FREQ=HOURLY;BYMINUTE=30;BYSECOND=0"
+    }
+  },
   "expectedAutomationRegistryEvidencePath": "automation/qol/state/automation-registry-evidence.json",
   "expectedRepositoryRootBasename": "SeniorProjectApp1.0",
   "expectedPackageName": "senior-capstone-app",

@@ -17,7 +17,8 @@ The next scheduled 30-minute GUI run succeeds only if `automation/qol/reports/la
 - `report_written` is `true`.
 - `safety_status` is `PASS` or `UNKNOWN_REGISTRY_UNINSPECTABLE`.
 - `unexpected_project_automation_detected` is not `true`.
-- Active Senior Capstone automation count is exactly `1` only when `registry_health_verified` is `true` and `registry_evidence_source` is repo-local.
+- Active builder automation count is exactly `2` only when `registry_health_verified` is `true` and `registry_evidence_source` is repo-local.
+- Active Senior Capstone automation count may include the two oversight automations when repo-local evidence shows them active.
 - Otherwise, registry state must be reported as `UNKNOWN_REGISTRY_UNINSPECTABLE`.
 
 After this canary succeeds, future recurring runs must not keep using this baseline as their only freshness check. Use the latest repo-local run evidence and report timestamps. If freshness cannot be established from repo-local evidence, report that honestly.

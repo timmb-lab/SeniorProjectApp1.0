@@ -2,11 +2,13 @@
 
 This directory contains the bounded project-local QoL diagnostic path for the Senior Capstone app. It is scoped to this repository only and fails closed when the selected Codex project does not match `automation/qol/project-lock.json`.
 
-As of 2026-05-20, this path is not the active MVP builder prompt. The active builder automation is allowed to make bounded implementation changes, validate them, and commit/push when possible. These scripts remain useful for project identity checks, automation health reports, lock/state diagnostics, and safety audits.
+As of 2026-05-20, this path is not an active MVP builder prompt. The active builder prompts are `automation/prompts/senior-capstone-nonfigma-mvp-builder.md` and `automation/prompts/senior-capstone-figma-product-builder.md`. These scripts remain useful for project identity checks, automation health reports, lock/state diagnostics, and safety audits.
 
 ## Authoritative Files
 
 - Runner prompt and allowed action contract: `automation/qol/GUI_ALLOWED_COMMANDS.md`
+- Active non-Figma builder prompt: `automation/prompts/senior-capstone-nonfigma-mvp-builder.md`
+- Active Figma-only builder prompt: `automation/prompts/senior-capstone-figma-product-builder.md`
 - Project identity lock: `automation/qol/project-lock.json`
 - Doctor: `automation/qol/doctor.mjs`
 - 30-minute orchestrator: `automation/qol/hourly-orchestrator.mjs`
@@ -17,7 +19,7 @@ As of 2026-05-20, this path is not the active MVP builder prompt. The active bui
 
 ## Legacy Bounded Runner Actions
 
-The older scheduled Codex GUI runner was intentionally narrow. If this diagnostic path is invoked directly, keep its action set narrow:
+The older scheduled Codex GUI runner was intentionally narrow. If this diagnostic path is invoked manually, keep its action set narrow:
 
 1. Run the doctor through the approved wrapper.
 2. Run the 30-minute orchestrator through the approved wrapper if the doctor exits successfully.

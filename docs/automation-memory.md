@@ -3,9 +3,9 @@
 Date initialized: 2026-05-18
 Last refreshed: 2026-05-20
 
-This is the compact working memory for the Senior Capstone project-local automation loop. The project has one GUI-available delivery automation, `senior-capstone-hourly-qol-orchestrator`, plus two oversight automations: `senior-capstone-daily-mvp-summary` and `senior-capstone-weekly-script-audit`. The builder runs every 30 minutes from this repo and is governed by `automation/qol/project-lock.json`, `docs/automation-cadence.md`, and the active Codex automation prompt.
+This is the compact working memory for the Senior Capstone project-local automation loop. The project now has two alternating GUI-available delivery automations, `senior-capstone-nonfigma-mvp-builder` and `senior-capstone-figma-product-builder`, plus two oversight automations: `senior-capstone-daily-mvp-summary` and `senior-capstone-weekly-script-audit`. The non-Figma builder runs hourly at minute 0 PT, the Figma-only builder runs hourly at minute 30 PT, and both are governed by `automation/qol/project-lock.json`, `docs/automation-cadence.md`, and the active prompt files in `automation/prompts/`.
 
-No other Senior Capstone project delivery automation should be created, invoked, revived, or maintained from this repo unless Bryan explicitly asks for it.
+The legacy `senior-capstone-hourly-qol-orchestrator` ID is diagnostic/manual only and must not be counted as active builder capacity. No other Senior Capstone project delivery automation should be created, invoked, revived, or maintained from this repo unless Bryan explicitly asks for it.
 
 ## Product Target
 
@@ -40,17 +40,32 @@ This is not a static guide, brochure, or visual-only project.
 
 ## Active Automation Contract
 
-- Active delivery automation: `senior-capstone-hourly-qol-orchestrator`.
+- Active top-of-hour non-Figma MVP builder: `senior-capstone-nonfigma-mvp-builder`.
+- Active bottom-of-hour Figma-only product builder: `senior-capstone-figma-product-builder`.
 - Active report-only daily summary: `senior-capstone-daily-mvp-summary`.
 - Active weekly strategy review: `senior-capstone-weekly-script-audit`.
-- Cadence: `FREQ=MINUTELY;INTERVAL=30`.
-- Capacity: 48 active starts per day, 1,440 active scheduled starts in 30 days.
-- The stable `hourly` name remains only as a compatibility ID; the actual cadence is every 30 minutes.
+- Non-Figma cadence: `FREQ=HOURLY;BYMINUTE=0;BYSECOND=0`.
+- Figma cadence: `FREQ=HOURLY;BYMINUTE=30;BYSECOND=0`.
+- Capacity: 24 non-Figma starts/day, 24 Figma starts/day, 48 combined starts/day, and 1,440 combined scheduled starts in 30 days.
+- Daily and weekly automations remain oversight, not builder capacity.
+- The stable `hourly` name remains only as a legacy diagnostic/manual ID; the actual builder cadence is split by lane.
 - Verification command: `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\verify-cadence-30min.ps1 -RepoRoot .`.
 - Diagnostic runner command path: `automation/qol/hourly-orchestrator.mjs`.
 - Diagnostic doctor command path: `automation/qol/doctor.mjs`.
 
-Every builder run must ladder from `docs/master-plan.md` into `docs/mvp-requirements-catalog.md`, select one bounded requirement slice, name the requirement IDs advanced, update the catalog when material progress happens, and leave durable verification or an exact blocker.
+Every builder run must ladder from `docs/master-plan.md` into `docs/mvp-requirements-catalog.md`, select one bounded requirement slice in its lane, name the requirement IDs advanced, update the catalog when material progress happens, and leave durable verification, a Figma handoff, or an exact blocker.
+
+## Dated Memory
+
+### 2026-05-20 - Split Builder Cadence
+
+- Builder cadence split into two lanes.
+- Non-Figma builder runs at minute 0 PT.
+- Figma-only builder runs at minute 30 PT.
+- Combined capacity remains 48 starts/day.
+- Figma-only lane owns `MVP-028` and functional design handoffs.
+- Non-Figma lane owns implementation, tests, deployment, data, docs, Canva-only work, automation safety, and blockers.
+- Daily and weekly automations remain oversight, not builder capacity.
 
 ## Current Priority
 

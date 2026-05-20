@@ -1,6 +1,6 @@
 # Automation Guardrails
 
-This repo standardizes broad reusable automation runs behind a guardrail wrapper. The bounded Senior Capstone QoL 30-minute GUI runner is a special narrow path and uses `automation/qol/GUI_ALLOWED_COMMANDS.md` instead.
+This repo standardizes broad reusable automation runs behind a guardrail wrapper. The bounded Senior Capstone QoL 30-minute GUI runner is now a legacy diagnostic path and uses `automation/qol/GUI_ALLOWED_COMMANDS.md` instead of the active split builder prompts in `automation/prompts/`.
 
 ## Why
 
@@ -26,7 +26,7 @@ Shell (macOS/Linux, requires `pwsh` or `powershell` available):
 ./scripts/run_automation.sh <automation-name> [args...]
 ```
 
-The QoL 30-minute GUI runner must not use this wrapper; `scripts/run-automation.ps1` refuses the stable `qol:hourly` compatibility alias so it cannot commit, push, or log to Sheets from the bounded GUI path. Its allowed sequence is:
+The legacy QoL 30-minute GUI diagnostic runner must not use this wrapper; `scripts/run-automation.ps1` refuses the stable `qol:hourly` compatibility alias so it cannot commit, push, or log to Sheets from the bounded diagnostic path. Its allowed sequence is:
 
 ```powershell
 powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-node-script.ps1 automation\qol\doctor.mjs

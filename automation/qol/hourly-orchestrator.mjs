@@ -137,6 +137,7 @@ const MASTER_PLAN_ORCHESTRATOR_SECTION = "Hourly Master-Plan Orchestrator";
 const MASTER_PLAN_ORCHESTRATOR_HEADING_TOKENS = [
   MASTER_PLAN_ORCHESTRATOR_SECTION,
   "30-Minute Master-Plan Orchestrator",
+  "Split Builder Master-Plan Orchestrator",
 ];
 const MASTER_PLAN_ORCHESTRATOR_TASK_ID = "QOL-HOURLY-MASTER-PLAN-ORCHESTRATOR";
 const PLAN_DERIVED_QOL_SECTIONS = [
@@ -356,11 +357,34 @@ function normalizeAutomationStatus(status) {
   return String(status ?? "").trim().replace(/^"|"$/g, "").toUpperCase();
 }
 
-function getAllowedActiveAutomationIds(projectLock) {
-  const fromLock = Array.isArray(projectLock.allowedActiveAutomationIds)
-    ? projectLock.allowedActiveAutomationIds
+function asStringArray(value) {
+  return Array.isArray(value)
+    ? value.map((item) => String(item ?? "").trim()).filter(Boolean)
     : [];
-  return new Set([projectLock.automationId, ...fromLock].filter(Boolean));
+}
+
+function getAllowedActiveAutomationIds(projectLock) {
+  const fromLock = asStringArray(projectLock.allowedActiveAutomationIds);
+  if (fromLock.length > 0) return new Set(fromLock);
+  return new Set([projectLock.automationId].filter(Boolean));
+}
+
+function getExpectedBuilderAutomationIds(projectLock) {
+  const explicit = asStringArray(projectLock.expectedBuilderAutomationIds);
+  if (explicit.length > 0) return new Set(explicit);
+
+  const fromCadence = Object.values(projectLock.expectedBuilderCadences ?? {})
+    .map((item) => String(item?.id ?? "").trim())
+    .filter(Boolean);
+  return new Set(fromCadence);
+}
+
+function getAllowedOversightAutomationIds(projectLock) {
+  return new Set(asStringArray(projectLock.allowedOversightAutomationIds));
+}
+
+function getLegacyDiagnosticAutomationIds(projectLock) {
+  return new Set(asStringArray(projectLock.legacyDiagnosticAutomationIds));
 }
 
 function normalizeRegistryAutomationEntries(rawEvidence) {
@@ -376,6 +400,9 @@ function normalizeRegistryAutomationEntries(rawEvidence) {
 
 function evaluateAutomationRegistryEvidence(rawEvidence, source, projectLock) {
   const allowedActiveIds = getAllowedActiveAutomationIds(projectLock);
+  const expectedBuilderIds = getExpectedBuilderAutomationIds(projectLock);
+  const allowedOversightIds = getAllowedOversightAutomationIds(projectLock);
+  const legacyDiagnosticIds = getLegacyDiagnosticAutomationIds(projectLock);
   const entries = normalizeRegistryAutomationEntries(rawEvidence);
   const seniorCapstoneEntries = entries.filter((entry) =>
     String(entry.id ?? "").startsWith("senior-capstone"),
@@ -383,13 +410,38 @@ function evaluateAutomationRegistryEvidence(rawEvidence, source, projectLock) {
   const activeSeniorCapstone = seniorCapstoneEntries.filter(
     (entry) => normalizeAutomationStatus(entry.status) === "ACTIVE",
   );
+  const activeSeniorCapstoneIds = activeSeniorCapstone.map((entry) => String(entry.id));
+  const activeSeniorCapstoneIdSet = new Set(activeSeniorCapstoneIds);
+  const activeIdCounts = new Map();
+  for (const id of activeSeniorCapstoneIds) {
+    activeIdCounts.set(id, (activeIdCounts.get(id) ?? 0) + 1);
+  }
+  const duplicateActiveIds = Array.from(activeIdCounts.entries())
+    .filter(([, count]) => count > 1)
+    .map(([id]) => id);
+  const activeBuilderIds = activeSeniorCapstoneIds.filter((id) => expectedBuilderIds.has(id));
+  const missingBuilderIds = Array.from(expectedBuilderIds).filter(
+    (id) => !activeSeniorCapstoneIdSet.has(id),
+  );
+  const activeOversightIds = activeSeniorCapstoneIds.filter((id) => allowedOversightIds.has(id));
+  const legacyDiagnosticActiveIds = activeSeniorCapstoneIds.filter((id) =>
+    legacyDiagnosticIds.has(id),
+  );
   const unexpectedActive = activeSeniorCapstone.filter(
     (entry) => !allowedActiveIds.has(String(entry.id)),
   );
   const failureReasons = [];
-  if (activeSeniorCapstone.length > 1) {
+  if (missingBuilderIds.length > 0) {
     failureReasons.push(
-      `Expected exactly one active Senior Capstone automation, found ${activeSeniorCapstone.length}.`,
+      `Missing expected active builder automations: ${missingBuilderIds.join(", ")}.`,
+    );
+  }
+  if (duplicateActiveIds.length > 0) {
+    failureReasons.push(`Duplicate active Senior Capstone automation IDs: ${duplicateActiveIds.join(", ")}.`);
+  }
+  if (legacyDiagnosticActiveIds.length > 0) {
+    failureReasons.push(
+      `Legacy diagnostic automation is active and must be disabled or converted to manual diagnostic-only: ${legacyDiagnosticActiveIds.join(", ")}.`,
     );
   }
   if (unexpectedActive.length > 0) {
@@ -404,7 +456,16 @@ function evaluateAutomationRegistryEvidence(rawEvidence, source, projectLock) {
     registry_health_verified: failureReasons.length === 0,
     registry_evidence_repo_local: true,
     active_senior_capstone_automation_count: activeSeniorCapstone.length,
-    active_senior_capstone_automation_ids: activeSeniorCapstone.map((entry) => entry.id),
+    active_senior_capstone_automation_ids: activeSeniorCapstoneIds,
+    expected_builder_automation_ids: Array.from(expectedBuilderIds),
+    active_builder_automation_count: activeBuilderIds.length,
+    active_builder_automation_ids: activeBuilderIds,
+    missing_builder_automation_ids: missingBuilderIds,
+    allowed_oversight_automation_ids: Array.from(allowedOversightIds),
+    active_oversight_automation_ids: activeOversightIds,
+    legacy_diagnostic_automation_ids: Array.from(legacyDiagnosticIds),
+    legacy_diagnostic_active_automation_ids: legacyDiagnosticActiveIds,
+    duplicate_active_senior_capstone_automation_ids: duplicateActiveIds,
     unexpected_project_automation_count: unexpectedActive.length,
     unexpected_project_automation_ids: unexpectedActive.map((entry) => entry.id),
     unexpected_project_automation_detected: unexpectedActive.length > 0,
@@ -428,6 +489,15 @@ async function inspectAutomationRegistry(projectRoot, projectLock, options = {})
       registry_evidence_repo_local: false,
       active_senior_capstone_automation_count: null,
       active_senior_capstone_automation_ids: [],
+      expected_builder_automation_ids: Array.from(getExpectedBuilderAutomationIds(projectLock)),
+      active_builder_automation_count: null,
+      active_builder_automation_ids: [],
+      missing_builder_automation_ids: [],
+      allowed_oversight_automation_ids: Array.from(getAllowedOversightAutomationIds(projectLock)),
+      active_oversight_automation_ids: [],
+      legacy_diagnostic_automation_ids: Array.from(getLegacyDiagnosticAutomationIds(projectLock)),
+      legacy_diagnostic_active_automation_ids: [],
+      duplicate_active_senior_capstone_automation_ids: [],
       unexpected_project_automation_count: null,
       unexpected_project_automation_ids: [],
       unexpected_project_automation_detected: null,
@@ -1597,6 +1667,24 @@ function createRunAudit(projectRoot, runContext, registryInspection, options = {
     lock_released: false,
     active_senior_capstone_automation_count:
       registryInspection.active_senior_capstone_automation_count,
+    expected_builder_automation_ids:
+      registryInspection.expected_builder_automation_ids ?? [],
+    active_builder_automation_count:
+      registryInspection.active_builder_automation_count,
+    active_builder_automation_ids:
+      registryInspection.active_builder_automation_ids ?? [],
+    missing_builder_automation_ids:
+      registryInspection.missing_builder_automation_ids ?? [],
+    allowed_oversight_automation_ids:
+      registryInspection.allowed_oversight_automation_ids ?? [],
+    active_oversight_automation_ids:
+      registryInspection.active_oversight_automation_ids ?? [],
+    legacy_diagnostic_automation_ids:
+      registryInspection.legacy_diagnostic_automation_ids ?? [],
+    legacy_diagnostic_active_automation_ids:
+      registryInspection.legacy_diagnostic_active_automation_ids ?? [],
+    duplicate_active_senior_capstone_automation_ids:
+      registryInspection.duplicate_active_senior_capstone_automation_ids ?? [],
     unexpected_project_automation_count:
       registryInspection.unexpected_project_automation_count,
     automation_registry_inspectable: registryInspection.automation_registry_inspectable,
@@ -1947,6 +2035,15 @@ function buildRunReport({
     "lock_acquired",
     "lock_released",
     "active_senior_capstone_automation_count",
+    "expected_builder_automation_ids",
+    "active_builder_automation_count",
+    "active_builder_automation_ids",
+    "missing_builder_automation_ids",
+    "allowed_oversight_automation_ids",
+    "active_oversight_automation_ids",
+    "legacy_diagnostic_automation_ids",
+    "legacy_diagnostic_active_automation_ids",
+    "duplicate_active_senior_capstone_automation_ids",
     "unexpected_project_automation_count",
     "automation_registry_inspectable",
     "registry_status",
@@ -1977,7 +2074,7 @@ function buildRunReport({
   lines.push(
     alreadyRunning
       ? alreadyRunning.reason
-      : execution.summary ?? "Hourly QoL run completed without a selected task.",
+      : execution.summary ?? "Diagnostic QoL run completed without a selected task.",
   );
   lines.push("");
   lines.push("## Project Identity Result");

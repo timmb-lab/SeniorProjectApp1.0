@@ -4,8 +4,9 @@ This directory holds structured manifests for productive Senior Capstone runs.
 
 Current automation contract:
 
-- Active GUI automation: `senior-capstone-hourly-qol-orchestrator`.
-- Cadence: every 30 minutes.
+- Active top-of-hour non-Figma builder: `senior-capstone-nonfigma-mvp-builder`.
+- Active bottom-of-hour Figma-only builder: `senior-capstone-figma-product-builder`.
+- Combined cadence: minute 0 and minute 30 PT, 48 scheduled builder starts/day.
 - Verifier: `scripts/verify-cadence-30min.ps1`.
 
 Future manifests should name:
@@ -22,4 +23,4 @@ Future manifests should name:
 - `commit`
 - `self_improvement`
 
-Do not add manifests for any other Senior Capstone project automation.
+Do not add manifests for any other Senior Capstone builder automation. Daily and weekly oversight may create report/audit records, but they do not add builder capacity.

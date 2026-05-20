@@ -2,16 +2,18 @@
 
 Last refreshed: 2026-05-20
 
-This is the compact run log for the current single-runner automation contract.
+This is the compact run log for the current split-builder automation contract.
 
 ## Current Automation Contract
 
-- Active GUI automation: `senior-capstone-hourly-qol-orchestrator`.
-- Cadence: every 30 minutes.
-- RRULE: `FREQ=MINUTELY;INTERVAL=30`.
+- Active top-of-hour non-Figma MVP builder: `senior-capstone-nonfigma-mvp-builder`.
+- Active bottom-of-hour Figma-only product builder: `senior-capstone-figma-product-builder`.
+- Non-Figma RRULE: `FREQ=HOURLY;BYMINUTE=0;BYSECOND=0`.
+- Figma RRULE: `FREQ=HOURLY;BYMINUTE=30;BYSECOND=0`.
+- Combined capacity: 48 scheduled builder starts/day and 1,440 scheduled builder starts/30 days.
 - Source of truth: `automation/qol/project-lock.json`.
 - Verifier: `scripts/verify-cadence-30min.ps1`.
-- Rule: no other Senior Capstone project automation should be created, invoked, revived, or maintained from this repo.
+- Rule: no other Senior Capstone builder automation should be created, invoked, revived, or maintained from this repo. `senior-capstone-hourly-qol-orchestrator` is legacy diagnostic/manual only.
 
 ## Current Product Baseline
 
@@ -22,6 +24,16 @@ This is the compact run log for the current single-runner automation contract.
 - Remaining priority: broader permission/protected-evidence tests, real workflow endpoints, Drive upload credential/OAuth, account lifecycle, mobile/error/empty QA, and deployment verification.
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
+
+## 2026-05-20 PT - Split Builder Cadence Contract
+
+- `master-plan sections`: 100-Pass Delivery Constraint; 30-Minute Master-Plan Orchestrator; Logging Requirements; Anti-Drift Rules.
+- `requirement IDs`: `MVP-028`, `MVP-030`.
+- `files changed`: `automation/prompts/senior-capstone-nonfigma-mvp-builder.md`, `automation/prompts/senior-capstone-figma-product-builder.md`, `docs/automation-cadence.md`, `automation/qol/project-lock.json`, `automation/qol/GUI_ALLOWED_COMMANDS.md`, `automation/qol/hourly-orchestrator.mjs`, `scripts/verify-cadence-30min.ps1`, `docs/automation-runbook.md`, `docs/automation-memory.md`, `docs/mvp-requirements-catalog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, and related project-local automation/progress records.
+- `why`: Bryan requested replacing the single undifferentiated 30-minute builder with two safe, auditable, alternating builder lanes: non-Figma implementation at minute 0 PT and Figma-only product design at minute 30 PT, while preserving 48 combined starts/day.
+- `verification`: `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\verify-cadence-30min.ps1 -RepoRoot .` (pass); `npm run verify:automation-cadence` blocked because `npm` is not on PATH; wrapper equivalents passed for `verify:automation-cadence`, `verify:qol-automation`, and `check:automation`; JSON parse checks passed for `package.json`, `automation/qol/project-lock.json`, and `docs/artifacts.json`; full project test fallback passed with 113 tests.
+- `blockers`: global `npm` is unavailable in this shell, so package scripts were validated through `scripts/run-npm-script.ps1`. Bryan must still update the external Codex automation scheduler.
+- `commit`: pending until commit is created.
 
 ## 2026-05-19 20:30 PT - MVP-009 Framework Seed Loader Foundation
 

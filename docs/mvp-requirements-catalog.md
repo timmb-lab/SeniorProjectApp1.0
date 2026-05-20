@@ -2,7 +2,7 @@
 
 Date: 2026-05-18
 
-This catalog converts the master plan into MVP requirements. It is the operating map for the 30-minute MVP builder. The builder must read this file after `docs/master-plan.md`, choose one bounded requirement slice, update the status/evidence here when material progress happens, and ladder the next pass from the highest-risk incomplete requirement in its target area. The daily summary is report-only, and the weekly strategy review adjusts this catalog from seven-day evidence when statuses, blockers, or priorities drift.
+This catalog converts the master plan into MVP requirements. It is the operating map for the split Senior Capstone builders. The top-of-hour non-Figma builder must read this file after `docs/master-plan.md`, choose one bounded non-Figma requirement slice, update the status/evidence here when material progress happens, and ladder the next pass from the highest-risk incomplete requirement in its target area. The bottom-of-hour Figma-only builder owns `MVP-028` and may support other requirements only through concrete Figma handoffs that reduce implementation ambiguity. The daily summary is report-only, and the weekly strategy review adjusts this catalog from seven-day evidence when statuses, blockers, or priorities drift.
 
 Status values:
 
@@ -23,7 +23,13 @@ Functional requirement groupings:
 - `deployment-qa`: GitHub-to-Cloudflare deployment, CI, test coverage, smoke checks, environment/secrets, backup/restore posture.
 - `design-assets-handoff`: Figma product specs, Canva supporting imagery, component/state handoffs, guided prototype, implementation annotations.
 
-Current active automation is recorded in `docs/automation-cadence.md`. The owner category column below remains a functional grouping; active delivery ownership now comes from the 30-minute MVP builder that selects a bounded slice from the full catalog on each run.
+Current active automation is recorded in `docs/automation-cadence.md`. The owner category column below remains a functional grouping; active delivery ownership now comes from the split builders:
+
+- `senior-capstone-nonfigma-mvp-builder` owns implementation, tests, deployment, data/security, student/staff/admin workflows, repo-local docs/automation hardening, Canva-only support work, and exact blockers for `MVP-001` through `MVP-027`, `MVP-029`, and `MVP-030`.
+- `senior-capstone-figma-product-builder` owns `MVP-028` and may support `MVP-004` through `MVP-027` only through route/data/permission annotations, functional state variants, screenshots, metadata verification, component/state handoffs, or exact Figma blockers.
+- The non-Figma builder may consume existing Figma evidence but may not spend runs doing direct Figma work.
+- `MVP-029` Canva work stays outside the Figma lane except where design placement or relationship to a Figma handoff needs to be recorded.
+- Figma is not production data and is not the source of truth for secure student records, accounts, evidence, audit logs, or dashboards.
 
 ## Category Summary
 
@@ -71,9 +77,9 @@ Current active automation is recorded in `docs/automation-cadence.md`. The owner
 | MVP-025 | Maintain CI and local validation for alpha contract, state machine, syntax, type checks, and future permission tests. | `deployment-qa` | `npm run check`, `scripts/check-alpha-contract.mjs`, `tests/alpha-flow.test.mjs`, `tests/test-account-seed.test.mjs`, `.github/workflows/*.yml`. | CI green on GitHub and local/Node REPL fallback documented when local shell lacks Node/npm/Wrangler. | `foundation started` |
 | MVP-026 | Verify Cloudflare Pages deployment, D1 binding, env vars/secrets, and `/api/alpha/state` after pushes. | `deployment-qa` | Production deployment `2aadfa71` verified `/alpha.html`, `/api/alpha/state`, `/api/health`, D1 first-admin state, login/session, and bootstrap 403 after setup-key removal. Production deployment `c7908d04` for commit `dc2f82a` verified the admin-only test-account seed endpoint; `/api/health` now reports `userCount=5`, all four fake role accounts log in, unauthenticated seed calls return 401, and student seed calls return 403. Health route now reports evidence root/index and Drive credential readiness booleans for smoke checks. Cloudflare MCP still returned `Auth required` in a later Codex session, so future remote mutation may need reauthorization or Wrangler. | After this category-reset/docs commit lands, verify the new production/preview deployment or record the exact connector/Wrangler blocker. | `foundation started` |
 | MVP-027 | Maintain backup/export posture, retention notes, secrets discipline, and no credential commits. | `deployment-qa` | `.gitignore`, backend setup notes, artifact registry, alpha runbook. | Backup/restore and secret rotation checklist exists; scan confirms no secrets or real records committed. | `foundation started` |
-| MVP-028 | Keep Figma as functional product-design source for route/data/permission/states, not production data. | `design-assets-handoff` | Active file `z4t4tFPAKrMDh6pIYOeEw6`, nodes `18:2`, `31:2`, `37:2`, `43:2`, `48:2`, `56:2`, `61:2`, `69:2`, `78:2`. | Design handoffs are consumed by code/tests; no new broad Figma polish while Day 7 alpha gaps are open unless a specific implementation ambiguity exists. | `designed` |
-| MVP-029 | Keep Canva as supporting-image source with live-text and privacy discipline. | `design-assets-handoff` | Canva folder/artifacts and open empty-state handoffs. | Asset specs include placement, dimensions, alt text, no private data, and live-text guidance; assets are used only where helpful. | `designed` |
-| MVP-030 | Keep the 100-pass target honest with daily summaries and weekly evidence-based calibration. | `requirements-audit` | Current daily goal docs, 30-minute builder contract, daily summary automation, and weekly strategy review automation. | Daily summary reports last-24-hour accepted progress; weekly strategy review counts accepted passes and updates only this project master plan/memory/catalog/backlog/cadence records from evidence. | `foundation started` |
+| MVP-028 | Keep Figma as functional product-design source for route/data/permission/states, not production data. | `design-assets-handoff` | Owned by the bottom-of-hour Figma-only product builder. Active file `z4t4tFPAKrMDh6pIYOeEw6`, nodes `18:2`, `31:2`, `37:2`, `43:2`, `48:2`, `56:2`, `61:2`, `69:2`, `78:2`, and prototype page `98:2`. | Figma-only runs produce functional handoffs, route/data/permission annotations, state variants, screenshots/metadata, or exact blockers; non-Figma runs consume existing Figma evidence but do not call Figma tools. No broad Figma polish while Day 7 alpha gaps are open unless a specific implementation ambiguity exists. | `designed` |
+| MVP-029 | Keep Canva as supporting-image source with live-text and privacy discipline. | `design-assets-handoff` | Canva folder/artifacts and open empty-state handoffs. Canva is owned by the non-Figma builder when it does not require direct Figma work. | Asset specs include placement, dimensions, alt text, no private data, and live-text guidance; assets are used only where helpful. The Figma-only lane may only document Canva placement/relationship to a Figma handoff, not perform Canva work. | `designed` |
+| MVP-030 | Keep the 100-pass target honest with daily summaries and weekly evidence-based calibration. | `requirements-audit` | Split cadence docs, top-of-hour non-Figma builder prompt, bottom-of-hour Figma-only builder prompt, daily summary automation, and weekly strategy review automation. | Daily summary reports last-24-hour accepted progress; weekly strategy review counts accepted passes and updates only this project master plan/memory/catalog/backlog/cadence records from evidence. Split-builder accepted passes require durable implementation, design handoff, validation, artifact, or exact blocker evidence. | `foundation started` |
 
 ## Current Highest-Risk Requirements
 
@@ -86,10 +92,10 @@ Current active automation is recorded in `docs/automation-cadence.md`. The owner
 
 ## Laddering Rule
 
-The single QoL automation runner must:
+The split builders must:
 
-1. Pick the highest-risk incomplete requirement in its target area.
-2. Prefer implementation, tests, deployment evidence, or a verified external artifact over planning.
+1. Pick the highest-risk incomplete requirement in the lane's target area.
+2. Prefer implementation, tests, deployment evidence, a verified Figma handoff, or an exact blocker over planning.
 3. Update this catalog only when a requirement's status, evidence, blocker, or next acceptance check materially changes.
 4. Write the structured run manifest with the requirement IDs touched.
 5. Commit and push every repo change, or commit a blocker record that names the exact unavailable account/tool/policy step.

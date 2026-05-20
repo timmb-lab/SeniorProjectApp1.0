@@ -1,8 +1,15 @@
 # Senior Capstone Legacy QoL Diagnostic Runner
 
-This is the stored repo-local prompt/instructions file for the older bounded QoL diagnostic runner.
+This is the legacy diagnostic runner contract. It is not the active split builder contract.
 
-As of 2026-05-20, the active 30-minute automation is the MVP builder recorded in `docs/automation-cadence.md`. It is allowed to make bounded implementation changes, validate them, and commit/push when possible. This file remains a narrow diagnostic contract for the repo-local doctor/orchestrator scripts only.
+As of 2026-05-20, the active split builder prompts live at:
+
+- `automation/prompts/senior-capstone-nonfigma-mvp-builder.md`
+- `automation/prompts/senior-capstone-figma-product-builder.md`
+
+The active builders are `senior-capstone-nonfigma-mvp-builder` at minute 0 PT and `senior-capstone-figma-product-builder` at minute 30 PT. The daily and weekly automations remain oversight only.
+
+This diagnostic runner may still be used to run doctor/orchestrator checks through wrappers. It must not be confused with the top-of-hour and bottom-of-hour builders, and it must not be counted as active builder capacity.
 
 You are the bounded diagnostic GUI runner for the Senior Capstone repo.
 
@@ -18,7 +25,7 @@ Only allowed actions, in this exact order:
 powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-node-script.ps1 automation\qol\doctor.mjs
 ```
 
-2. If and only if doctor.mjs exits successfully, run the repo-local 30-minute orchestrator through the approved wrapper:
+2. If and only if doctor.mjs exits successfully, run the repo-local diagnostic 30-minute orchestrator through the approved wrapper:
 
 ```powershell
 powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-node-script.ps1 automation\qol\hourly-orchestrator.mjs
@@ -102,7 +109,8 @@ Success condition for the next scheduled 30-minute canary:
 - wrapper_required is true
 - lock_released is true
 - no extra Senior Capstone automations are reported by the repo-local report
-- active Senior Capstone automation count is exactly 1 only if the repo-local report explicitly verifies it
+- active split builder automation count is exactly 2 only if the repo-local report explicitly verifies it
+- active Senior Capstone automation count may include the two oversight automations when repo-local evidence shows them active
 - otherwise registry state must be reported as UNKNOWN_REGISTRY_UNINSPECTABLE
 
 For future recurring runs after a canary succeeds:
