@@ -26,6 +26,22 @@ This is the compact run log for the current split-builder automation contract.
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-05-20 15:14 PT - Workspace Browser, Denial, And Evidence Integrity Pass
+
+- `master-plan sections`: P0 Production Experience Gate; Role-Aware Production App Contract; Day 7 Alpha Gate; Logging Requirements; Automation Orchestration.
+- `requirement IDs`: `MVP-004`, `MVP-013`, `MVP-014`, `MVP-032`, `MVP-033`, `MVP-034`, `MVP-039`, `MVP-040`.
+- `pass count`: 4 focused passes: prior-manifest evidence repair, signed-out workspace HTTP/browser smoke, upload role/scope denial hardening, production/automation evidence closeout.
+- `purpose`: Harden the prior authenticated workspace/upload MVP commit without broad cleanup by making evidence records truthful, proving the canonical workspace route loads locally, widening upload denial tests, and documenting exactly what remains credential/live blocked.
+- `files changed`: `workspace.js`, `tests/workspace-browser-smoke.test.mjs`, `tests/workspace-app.test.mjs`, `tests/evidence-drive-file.integration.test.mjs`, `automation/qol/REPORT_SCHEMA.md`, `docs/artifacts.json`, `docs/mvp-requirements-catalog.md`, `docs/production-surface-registry.md`, `docs/progress/handoffs.md`, `docs/progress/run-log.md`, and structured run manifests.
+- `verification`: focused workspace source test passed; local HTTP workspace smoke passed against `http://127.0.0.1:8788`; in-app browser smoke confirmed the visible H1/title/sign-in fields/guide link/no console errors; evidence Drive file integration passed with 24 tests; generated-output drift, site-option, production-surface, route-inventory, Cloudflare static/live-blocked, QoL doctor/smoke, JSON parse, `git diff --check`, and aggregate `check` passed. Aggregate `check` reported 129 passing tests and 1 skipped opt-in local-server smoke; the opt-in smoke was run separately with `WORKSPACE_SMOKE_BASE_URL`.
+- `login status`: Signed-out workspace route is browser-tested locally. Credential-backed browser login was attempted using the ignored fake `.test` account file without printing passwords, but the local Pages/D1 target returned invalid credentials; signed-in browser role sections and logout remain unverified in browser until local seeded credentials and D1 state align.
+- `upload status`: Upload route is source/integration-tested for missing session, missing submission, cross-student denial, non-student denial, unsupported/empty/oversized files before provider calls, missing Drive config/credentials, token failure, provider exception/failure, safe success metadata, and resumable upload. Real Drive upload/download remains blocked without configured target secrets.
+- `copy/surface status`: Workspace signed-out copy now has a visible `Senior Project Workspace` H1, keeps `Sign in to continue`, and production-surface checks still scan `workspace.html`, `workspace.js`, and `workspace.css`; normal public/stakeholder CTAs still point to `workspace.html` rather than internal alpha/account routes.
+- `evidence integrity`: Prior run manifest `2026-05-20-1445-authenticated-workspace-upload-mvp-004-013-032.json` now records commit `233e7506180b9ab3c24c8578eeff687d29233a48` and `pushed: true`; run log matches that pushed state.
+- `blockers`: `LIVE_CLOUDFLARE_BLOCKED_NO_TOKEN`; Drive live upload/download blocked by missing configured Drive secrets in the target environment; local credential-backed browser login blocked by local fake-account credential/D1 mismatch.
+- `commit`: implementation/evidence-repair commit `488e0c09f84d8e39b3ac786a2039bd1fc4fdf99a` (`mvp: verify workspace smoke and upload denials`) pushed to `origin main`; closeout manifest commit follows this entry.
+- `self-improvement`: `automation/qol/REPORT_SCHEMA.md` now says closeout manifests must reconcile post-commit SHA/push evidence or explicitly create a post-commit closeout record instead of leaving `pending` commit fields.
+
 ## 2026-05-20 14:45 PT - Authenticated Workspace And Upload MVP Pass
 
 - `master-plan sections`: P0 Production Experience Gate; Product Destination; Day 7 Alpha Gate; Logging Requirements; Automation Orchestration.

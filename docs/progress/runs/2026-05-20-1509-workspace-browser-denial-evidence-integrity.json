@@ -1,0 +1,249 @@
+{
+  "run_id": "2026-05-20-1509-workspace-browser-denial-evidence-integrity",
+  "run_started_at": "2026-05-20T14:47:00-07:00",
+  "run_finished_at": "2026-05-20T15:14:19-07:00",
+  "project_root": "C:\\SeniorProjectApp1.0",
+  "branch": "main",
+  "start_head": "233e7506180b9ab3c24c8578eeff687d29233a48",
+  "end_head": "488e0c09f84d8e39b3ac786a2039bd1fc4fdf99a",
+  "selected_requirement_ids": [
+    "MVP-004",
+    "MVP-013",
+    "MVP-014",
+    "MVP-032",
+    "MVP-033",
+    "MVP-034",
+    "MVP-039",
+    "MVP-040"
+  ],
+  "pass_count_completed": 4,
+  "passes": [
+    {
+      "name": "evidence_integrity_repair",
+      "result": "completed",
+      "evidence": "Prior 14:45 structured manifest and run log now record pushed commit 233e7506180b9ab3c24c8578eeff687d29233a48 instead of pending commit fields."
+    },
+    {
+      "name": "canonical_workspace_local_smoke",
+      "result": "completed",
+      "evidence": "tests/workspace-browser-smoke.test.mjs passed against WORKSPACE_SMOKE_BASE_URL=http://127.0.0.1:8788; in-app browser smoke confirmed visible title/H1/sign-in fields/guide link with no console errors."
+    },
+    {
+      "name": "upload_denial_hardening",
+      "result": "completed",
+      "evidence": "tests/evidence-drive-file.integration.test.mjs now covers missing submission, cross-student denial, non-student role denial, empty/oversized files, missing credentials, provider exception, and no evidence-row insertion on failures."
+    },
+    {
+      "name": "production_and_automation_closeout",
+      "result": "completed",
+      "evidence": "Production-surface, generated-output, route-inventory, Cloudflare static, QoL doctor/smoke, aggregate check, JSON parse, and git diff checks passed; report schema now warns against stale pending commit fields."
+    }
+  ],
+  "files_changed": [
+    "automation/qol/REPORT_SCHEMA.md",
+    "docs/artifacts.json",
+    "docs/mvp-requirements-catalog.md",
+    "docs/production-surface-registry.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-20-1445-authenticated-workspace-upload-mvp-004-013-032.json",
+    "docs/progress/runs/2026-05-20-1509-workspace-browser-denial-evidence-integrity.json",
+    "tests/evidence-drive-file.integration.test.mjs",
+    "tests/workspace-app.test.mjs",
+    "tests/workspace-browser-smoke.test.mjs",
+    "workspace.js"
+  ],
+  "login_status": {
+    "before": "Canonical workspace source and signed-out UI existed, but no local browser smoke was committed and prior evidence asked for browser proof.",
+    "after": "Signed-out canonical workspace is source-tested, local-HTTP-tested, and in-app-browser-tested with visible Senior Project Workspace H1, email/password fields, return-to-guide link, no forbidden visible dev copy, and no console errors.",
+    "browser_signed_out": "verified",
+    "browser_login": "blocked",
+    "browser_login_blocker": "Ignored fake .test credential file exists, but the local Pages/D1 target returned invalid_credentials for the student account. Passwords were not printed.",
+    "session_restore": "source-tested through /api/auth/me and local signed-out /api/auth/me 401; credential-backed restore not browser-verified",
+    "role_aware_rendering": "source-tested in workspace.js and backend route tests; signed-in browser role sections still blocked by local credential/D1 mismatch",
+    "logout": "local signed-out POST /api/auth/logout verified harmless; signed-in browser logout still blocked by local credential/D1 mismatch"
+  },
+  "upload_status": {
+    "before": "Upload route had success, unsupported-file, provider-failure, resumable, and missing-session coverage, but several denial and no-provider-call cases were missing.",
+    "after": "Upload route has integration coverage for missing session, missing submission, student-other-submission denial, non-student role denial, unsupported file, empty file, oversized file, missing Drive config, missing Drive credentials, token exchange failure, provider exception, provider upload failure, successful redacted metadata, and resumable upload.",
+    "evidence_link_status": "workspace source posts to /api/submissions/:id/evidence; browser evidence-link submission remains credential-blocked",
+    "file_upload_status": "source/integration-tested; real Drive upload not live-verified",
+    "unsupported_file_type_status": "verified no token exchange/provider call/evidence row/audit noise",
+    "empty_file_status": "verified no provider call",
+    "oversized_file_status": "verified no token exchange/provider call",
+    "missing_config_secrets_status": "verified 503 for missing Drive root config and missing Drive credentials with safe audit metadata",
+    "resumable_upload_status": "verified source/integration path for >5MB and pre-provider rejection over 20MB",
+    "drive_live_verification_status": "blocked"
+  },
+  "browser_smoke_status": {
+    "repo_local_test": "tests/workspace-browser-smoke.test.mjs",
+    "signed_out_http": "passed against http://127.0.0.1:8788",
+    "in_app_browser": "passed signed-out visible UI and console-error check",
+    "signed_in_browser": "blocked by local invalid_credentials from ignored fake .test account file",
+    "console_errors": 0,
+    "forbidden_visible_copy_terms": []
+  },
+  "role_scope_denial_test_status": {
+    "missing_session": "verified 401",
+    "student_owns_submission": "verified success path with safe metadata",
+    "student_other_submission": "verified 403 with evidence_upload_denied audit and no evidence row",
+    "non_student_upload": "verified mentor, program_teacher, admin, and misc_admin receive 403 before provider calls",
+    "missing_submission": "verified 404 with no provider call and no evidence row",
+    "unsupported_file_type": "verified unsupported_file_type before provider calls",
+    "empty_file": "verified empty_file before provider calls",
+    "oversized_file": "verified file_too_large before provider calls",
+    "drive_config_missing": "verified 503 with audit and no evidence row",
+    "drive_credentials_missing": "verified 503 with safe credentialParts audit and no evidence row",
+    "token_exchange_failure": "verified 502 with safe audit and no evidence row",
+    "provider_upload_failure": "verified 502 with safe status audit and no evidence row",
+    "provider_exception": "verified 502 with safe message audit and no evidence row",
+    "successful_upload": "verified evidence row + audit + response redaction",
+    "resumable_upload": "verified >5MB uses resumable path"
+  },
+  "production_copy_surface_status": {
+    "public_navigation": "normal public app navigation points to workspace.html for the actual workspace; alpha/account remain out of normal public navigation",
+    "stakeholder_cta": "generated stakeholder CTAs point to https://senior-capstone-app.pages.dev/workspace.html",
+    "alpha_account_preview_classification": "alpha.html is internal-alpha, account.html is internal-smoke, app-preview.html is preview/non-canonical",
+    "dev_language_cleanup": "workspace source/static/browser checks found no Codex/prompt/mock/fake/sample/placeholder/TODO/FIXME/scaffold/internal QA visible copy",
+    "generated_output": "build and drift checks passed"
+  },
+  "generated_output_status": {
+    "build_public_site": "passed",
+    "build_stakeholder_sites": "passed",
+    "generated_output_drift": "passed",
+    "site_options": "passed",
+    "route_inventory": "passed and up to date"
+  },
+  "cloudflare_static_status": "passed",
+  "cloudflare_live_status": "blocked",
+  "drive_live_status": "blocked",
+  "validation_commands": [
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 tests\\evidence-drive-file.integration.test.mjs",
+      "result": "pass",
+      "notes": "24/24 upload/download integration tests passed."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 tests\\workspace-app.test.mjs",
+      "result": "pass",
+      "notes": "3/3 workspace source tests passed."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 tests\\workspace-browser-smoke.test.mjs",
+      "result": "pass_with_skip_expected",
+      "notes": "Skipped when WORKSPACE_SMOKE_BASE_URL was not set; this keeps aggregate check portable."
+    },
+    {
+      "command": "$env:WORKSPACE_SMOKE_BASE_URL='http://127.0.0.1:8788'; powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 tests\\workspace-browser-smoke.test.mjs",
+      "result": "pass",
+      "notes": "1/1 local HTTP workspace smoke passed against a running Pages dev target."
+    },
+    {
+      "command": "In-app browser smoke at http://127.0.0.1:8788/workspace.html",
+      "result": "pass_signed_out",
+      "notes": "Title/H1/sign-in prompt/email/password/return-to-guide present; forbidden visible dev-copy list empty; consoleErrors empty."
+    },
+    {
+      "command": "In-app browser credential-backed student login using ignored .secrets/test-accounts-2026-05-18.json",
+      "result": "blocked",
+      "notes": "The local Pages/D1 target returned invalid_credentials; password was not printed."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 build:public-site",
+      "result": "pass",
+      "notes": "Built public-companion with 35 top-level entries."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 build:stakeholder-sites",
+      "result": "pass",
+      "notes": "Built titan-blend and back-to-basics outputs with 27 top-level entries each."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 inventory:production-routes",
+      "result": "pass",
+      "notes": "Route inventory regenerated; rerun after builds left generated inventory unchanged."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 check:generated-output-drift",
+      "result": "pass",
+      "notes": "Public companion and stakeholder review outputs match deterministic source expectations."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 check:site-options",
+      "result": "pass",
+      "notes": "3 site roots and manifest pages present."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 check:production-surfaces",
+      "result": "pass",
+      "notes": "91 production text surfaces scanned."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 check:route-inventory",
+      "result": "pass",
+      "notes": "Production route inventory up to date."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 check:cloudflare",
+      "result": "pass_static_live_blocked",
+      "notes": "Static Wrangler/D1 config passed; live Cloudflare verification blocked by missing token."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 automation\\qol\\doctor.mjs",
+      "result": "pass",
+      "notes": "Doctor passed while reporting the expected dirty state from this in-progress run."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 automation\\qol\\hourly-orchestrator.mjs --smoke",
+      "result": "pass",
+      "notes": "14 smoke checks passed."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 check",
+      "result": "pass",
+      "notes": "Aggregate check passed with 129 tests passing and 1 opt-in local-server smoke skipped; Cloudflare live remained blocked by missing token."
+    },
+    {
+      "command": "git diff --check",
+      "result": "pass",
+      "notes": "No whitespace errors; Git printed line-ending normalization warnings only."
+    },
+    {
+      "command": "Get-Content -Raw docs\\artifacts.json | ConvertFrom-Json; Get-Content -Raw docs\\progress\\runs\\2026-05-20-1445-authenticated-workspace-upload-mvp-004-013-032.json | ConvertFrom-Json",
+      "result": "pass",
+      "notes": "Changed JSON parsed before first commit."
+    }
+  ],
+  "blockers": [
+    {
+      "id": "LIVE_CLOUDFLARE_BLOCKED_NO_TOKEN",
+      "message": "LIVE_CLOUDFLARE_BLOCKED_NO_TOKEN: Cloudflare live verification blocked because CLOUDFLARE_API_TOKEN is not set. Static Wrangler configuration passed; live Pages/D1 existence was not verified.",
+      "bryan_action_required": true
+    },
+    {
+      "id": "DRIVE_LIVE_BLOCKED_NO_TARGET_SECRETS",
+      "message": "Real workspace upload/download through Google Drive remains blocked until GOOGLE_DRIVE_CLIENT_EMAIL and GOOGLE_DRIVE_PRIVATE_KEY are configured in the target Cloudflare environment and verified through /api/health or drive probe.",
+      "bryan_action_required": true
+    },
+    {
+      "id": "LOCAL_BROWSER_LOGIN_BLOCKED_INVALID_TEST_CREDENTIAL_STATE",
+      "message": "Ignored fake .test credential file exists, but the local Pages/D1 target returned invalid_credentials for the student account; align local D1 test account seed state before signed-in browser role/upload/logout smoke.",
+      "bryan_action_required": false
+    }
+  ],
+  "commit": {
+    "implementation_sha": "488e0c09f84d8e39b3ac786a2039bd1fc4fdf99a",
+    "implementation_pushed": true,
+    "push_target": "origin/main",
+    "pending_fields_left": false,
+    "closeout_manifest_note": "This structured manifest is committed after the implementation/evidence-repair commit; the final closeout commit SHA is reported in the run log/final response because a commit cannot contain its own hash."
+  },
+  "next_best_passes": [
+    "Align local fake .test account credentials with local D1, then browser-test workspace login, session restore, role sections, evidence link submission, truthful upload-blocked state, and logout.",
+    "Configure Cloudflare Pages Drive secrets and verify real workspace upload/download against the evidence root, including one >5MB resumable upload.",
+    "Add canonical workspace browser coverage for program_teacher, mentor, admin, misc_admin, and no-role users once credentialed local state is aligned.",
+    "Broaden no-hidden-core-content route coverage across every public Student/Teacher guide page.",
+    "Add browser-level unsupported-file and storage-not-configured UI checks once signed-in workspace smoke is unblocked."
+  ],
+  "figma_lane_untouched": true
+}
