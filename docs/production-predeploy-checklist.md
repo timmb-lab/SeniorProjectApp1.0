@@ -30,6 +30,17 @@ Required result:
 - Tests pass.
 - Aggregate `check` passes.
 
+## Cloudflare Credential Model
+
+- Cloudflare GitHub integration may automatically deploy after pushes to `main`.
+- That integration is Cloudflare-side and does not give the local Codex/Wrangler shell Cloudflare API credentials.
+- The repo's static checks do not require `CLOUDFLARE_API_TOKEN`.
+- Remote Pages/D1 verification requires `CLOUDFLARE_API_TOKEN` in the environment, plus any required account/project identifiers, or a repo-supported authenticated Cloudflare connector if a script is explicitly written to use one.
+- If no local token/auth path is present, live verification must report `LIVE_CLOUDFLARE_BLOCKED_NO_TOKEN`.
+- Git push success is not the same as live Cloudflare verification success.
+- Cloudflare GitHub auto-deploy success is not the same as Codex local live verification success unless the script verifies the live URL/API/D1 state.
+- Do not commit credentials.
+
 ## Data And Credential Gate
 
 Before pilot deploy:

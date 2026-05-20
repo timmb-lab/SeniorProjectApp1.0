@@ -360,7 +360,7 @@ if (staticOnly) {
 }
 
 if (!hasToken) {
-  const message = "Cloudflare live verification blocked: CLOUDFLARE_API_TOKEN is not set. Static Wrangler configuration passed; live Pages/D1 existence was not verified.";
+  const message = "LIVE_CLOUDFLARE_BLOCKED_NO_TOKEN: Cloudflare live verification blocked because CLOUDFLARE_API_TOKEN is not set. GitHub-connected Pages deployment may still run after pushes, but this local Codex/Wrangler session cannot inspect remote Pages/D1 state without Cloudflare API auth. Static Wrangler configuration passed; live Pages/D1 existence was not verified.";
   if (liveRequired) {
     console.error(message);
     process.exit(1);

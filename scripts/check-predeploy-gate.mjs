@@ -86,6 +86,13 @@ for (const scriptName of liveOnlyScripts) {
 
 const staticLivePhrases = [
   "static checks may pass locally, but live Cloudflare checks are not complete unless `CLOUDFLARE_API_TOKEN` is available",
+  "Cloudflare GitHub integration may automatically deploy after pushes to `main`.",
+  "That integration is Cloudflare-side and does not give the local Codex/Wrangler shell Cloudflare API credentials.",
+  "The repo's static checks do not require `CLOUDFLARE_API_TOKEN`.",
+  "Remote Pages/D1 verification requires `CLOUDFLARE_API_TOKEN` in the environment, plus any required account/project identifiers, or a repo-supported authenticated Cloudflare connector if a script is explicitly written to use one.",
+  "If no local token/auth path is present, live verification must report `LIVE_CLOUDFLARE_BLOCKED_NO_TOKEN`.",
+  "Git push success is not the same as live Cloudflare verification success.",
+  "Cloudflare GitHub auto-deploy success is not the same as Codex local live verification success unless the script verifies the live URL/API/D1 state.",
   "This is static proof only. It does not prove the live Pages project",
   "If the token is missing, record `LIVE_CLOUDFLARE_BLOCKED_NO_TOKEN`. Do not claim live verification passed.",
   "Do not treat static local checks as API health proof.",
@@ -98,13 +105,35 @@ for (const phrase of staticLivePhrases) {
   );
 }
 
+const readmeCredentialPhrases = [
+  "Cloudflare GitHub integration may automatically deploy after pushes to `main`.",
+  "That integration is Cloudflare-side and does not give the local Codex/Wrangler shell Cloudflare API credentials.",
+  "`check:cloudflare:live` requires `CLOUDFLARE_API_TOKEN`",
+  "Git push success is not live Cloudflare verification success.",
+];
+
+for (const phrase of readmeCredentialPhrases) {
+  assert(
+    readme.includes(phrase),
+    `README.md is missing Cloudflare credential-model phrase: ${phrase}`,
+  );
+}
+
 assert(
   /const hasToken = Boolean\(process\.env\.CLOUDFLARE_API_TOKEN\)/.test(checkCloudflare),
   "check-cloudflare.mjs must gate live verification on CLOUDFLARE_API_TOKEN",
 );
 assert(
-  /Cloudflare live verification blocked: CLOUDFLARE_API_TOKEN is not set/.test(checkCloudflare),
-  "check-cloudflare.mjs must print the missing-token live blocker",
+  /LIVE_CLOUDFLARE_BLOCKED_NO_TOKEN/.test(checkCloudflare),
+  "check-cloudflare.mjs must print the missing-token live blocker code",
+);
+assert(
+  /GitHub-connected Pages deployment may still run after pushes/.test(checkCloudflare),
+  "check-cloudflare.mjs must explain GitHub-connected deployment is separate from local live verification",
+);
+assert(
+  /local Codex\/Wrangler session cannot inspect remote Pages\/D1 state without Cloudflare API auth/.test(checkCloudflare),
+  "check-cloudflare.mjs must explain local live verification needs Cloudflare API auth",
 );
 assert(
   /Static Wrangler configuration passed; live Pages\/D1 existence was not verified/.test(checkCloudflare),
