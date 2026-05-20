@@ -1,6 +1,6 @@
-import type { Env } from "../../_types";
-import { clearSessionCookie, getCurrentUser, revokeSession, writeAudit } from "../../_lib/auth";
-import { json, requirePost } from "../../_lib/http";
+import type { Env } from "../../_types.ts";
+import { clearSessionCookie, getCurrentUser, revokeSession, writeAudit } from "../../_lib/auth.ts";
+import { json, requirePost } from "../../_lib/http.ts";
 
 export const onRequest: PagesFunction<Env> = async ({ request, env }) => {
   const methodError = requirePost(request);

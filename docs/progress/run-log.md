@@ -126,3 +126,11 @@ Future productive runs should append compact entries that name the master-plan s
 - `files changed`: `tests/review-loop.integration.test.mjs`, `functions/api/submissions/[id]/submit.ts`, `functions/api/reviews/[submissionId]/decision.ts`, `functions/api/reviews/[submissionId]/history.ts`, `functions/api/teacher/review-queue.ts`, `docs/mvp-requirements-catalog.md`, `docs/automation-memory.md`, `docs/progress/run-log.md`, and `docs/progress/runs/2026-05-20-0221-review-loop-integration-mvp-015.json`.
 - `verification`: `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 test` (pass).
 - `blockers`: none.
+
+## 2026-05-20 02:47 PT - MVP-004/MVP-005 Auth Edge-State Integration Tests
+
+- `master-plan sections`: Day 7 Alpha Gate; 2026-05-20 30-Minute MVP Builder And Oversight; Logging Requirements.
+- `requirement IDs`: `MVP-004`, `MVP-005`; `backlog IDs`: `SC-005`.
+- `files changed`: `tests/auth-login.integration.test.mjs`, `functions/api/auth/login.ts`, `functions/api/auth/me.ts`, `functions/api/auth/logout.ts`, `functions/api/auth/bootstrap.ts`, `docs/mvp-requirements-catalog.md`, `docs/automation-memory.md`, `docs/progress/rebuild.md`, `docs/progress/run-log.md`, and `docs/progress/runs/2026-05-20-0247-auth-edge-tests-mvp-004-005.json`.
+- `verification`: `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 test` (pass).
+- `blockers`: none.

@@ -1,7 +1,7 @@
-import type { Env } from "../../_types";
-import { createSession, sessionCookie, writeAudit } from "../../_lib/auth";
-import { normalizeEmail, randomId, sha256Hex, verifyPassword } from "../../_lib/crypto";
-import { badRequest, getClientIp, json, readJson, requirePost } from "../../_lib/http";
+import type { Env } from "../../_types.ts";
+import { createSession, sessionCookie, writeAudit } from "../../_lib/auth.ts";
+import { normalizeEmail, randomId, sha256Hex, verifyPassword } from "../../_lib/crypto.ts";
+import { badRequest, getClientIp, json, readJson, requirePost } from "../../_lib/http.ts";
 
 interface LoginBody {
   email?: string;
@@ -16,6 +16,7 @@ interface CredentialRow {
   status: string;
   password_hash: string;
   password_salt: string;
+  requires_reset: number;
 }
 
 const WINDOW_MINUTES = 15;
@@ -50,17 +51,27 @@ export const onRequest: PagesFunction<Env> = async ({ request, env }) => {
   }
 
   const row = await env.DB.prepare(
-    `SELECT u.id AS user_id, u.email, u.email_norm, u.display_name, u.status, c.password_hash, c.password_salt
+    `SELECT u.id AS user_id, u.email, u.email_norm, u.display_name, u.status, c.password_hash, c.password_salt, c.requires_reset
      FROM user_accounts u
      JOIN password_credentials c ON c.user_id = u.id
      WHERE u.email_norm = ?`,
   ).bind(emailNorm).first<CredentialRow>();
 
-  const valid = row && row.status === "active"
+  const valid = row
     ? await verifyPassword(password, row.password_hash, row.password_salt, env.PASSWORD_PEPPER || "")
     : false;
 
   if (!row || !valid) {
+    await recordAttempt(env, identifierHash, ipHash, false, "invalid_credentials");
+    return json({ error: "invalid_credentials" }, { status: 401 });
+  }
+
+  if (row.status === "pending_reset" || Number(row.requires_reset || 0) === 1) {
+    await recordAttempt(env, identifierHash, ipHash, false, "password_reset_required");
+    return json({ error: "password_reset_required" }, { status: 403 });
+  }
+
+  if (row.status !== "active") {
     await recordAttempt(env, identifierHash, ipHash, false, "invalid_credentials");
     return json({ error: "invalid_credentials" }, { status: 401 });
   }

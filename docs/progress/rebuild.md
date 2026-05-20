@@ -137,3 +137,16 @@ Each rebuild run should append a dated entry with:
 - `self-improvement`: none.
 - `commit/push status`: committed + pushed in this run.
 - `next action`: Extend download access tests for mentor/program-teacher/admin allow paths and verify real Drive uploads/downloads once Cloudflare Pages Drive secrets are configured.
+
+### 2026-05-20 02:47 PT - MVP-004/MVP-005 Auth Edge-State Integration Tests
+
+- `automation`: `senior-capstone-hourly-qol-orchestrator`
+- `master-plan section`: Day 7 Alpha Gate; 2026-05-20 30-Minute MVP Builder And Oversight; Logging Requirements.
+- `source docs/logs read`: `docs/master-plan.md`, `docs/mvp-requirements-catalog.md`, `docs/automation-runbook.md`, `docs/automation-self-improvement.md`, `docs/automation-cadence.md`, `docs/automation-milestones.md`, `docs/automation-memory.md`, `docs/progress/run-log.md`, recent `docs/progress/runs/`, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, and `docs/human-decisions.md`.
+- `backlog or requirement IDs selected`: `SC-005`, `MVP-004`, `MVP-005`.
+- `bounded scope`: Add auth edge-state integration coverage so the hardened username/password foundation is test-backed for disabled/reset-required accounts, session expiry, and logout revocation without leaking secrets or storing credentials.
+- `files changed`: `tests/auth-login.integration.test.mjs`, `functions/api/auth/login.ts`, `functions/api/auth/me.ts`, `functions/api/auth/logout.ts`, `functions/api/auth/bootstrap.ts`, `docs/mvp-requirements-catalog.md`, `docs/automation-memory.md`, `docs/progress/rebuild.md`, `docs/progress/run-log.md`, and `docs/progress/runs/2026-05-20-0247-auth-edge-tests-mvp-004-005.json`.
+- `validation`: `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 test` (pass).
+- `self-improvement`: none.
+- `commit/push status`: committed + pushed in this run.
+- `next action`: Implement password reset endpoints and account lifecycle flows (disable/reactivate, credential rotation) while keeping alpha fake `.test` accounts available for walkthrough QA.

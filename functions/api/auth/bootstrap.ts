@@ -1,7 +1,7 @@
-import type { Env } from "../../_types";
-import { hashPassword, normalizeEmail, randomId, validatePassword } from "../../_lib/crypto";
-import { badRequest, json, readJson, requirePost } from "../../_lib/http";
-import { writeAudit } from "../../_lib/auth";
+import type { Env } from "../../_types.ts";
+import { hashPassword, normalizeEmail, randomId, validatePassword } from "../../_lib/crypto.ts";
+import { badRequest, json, readJson, requirePost } from "../../_lib/http.ts";
+import { writeAudit } from "../../_lib/auth.ts";
 
 interface BootstrapBody {
   setupKey?: string;

@@ -1,6 +1,6 @@
-import type { Env } from "../../_types";
-import { getCurrentUser } from "../../_lib/auth";
-import { json } from "../../_lib/http";
+import type { Env } from "../../_types.ts";
+import { getCurrentUser } from "../../_lib/auth.ts";
+import { json } from "../../_lib/http.ts";
 
 export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
   const user = await getCurrentUser(request, env);

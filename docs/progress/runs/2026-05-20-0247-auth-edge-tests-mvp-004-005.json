@@ -1,0 +1,58 @@
+{
+  "run_id": "2026-05-20-0247-auth-edge-tests-mvp-004-005",
+  "timestamp_local": "2026-05-20T02:47:00-07:00",
+  "automation_id": "senior-capstone-hourly-qol-orchestrator",
+  "trigger": "30-minute MVP builder run: add D1-backed integration coverage for auth edge states (disabled/reset-required/session expiry) and align auth routes with the Node integration harness.",
+  "lane": "backend-security-data",
+  "status": "completed",
+  "accepted_mvp_pass": true,
+  "requirement_ids": [
+    "MVP-004",
+    "MVP-005"
+  ],
+  "backlog_ids": [
+    "SC-005"
+  ],
+  "duration_minutes": 30,
+  "output_kind": "tests+routes+docs",
+  "scope": "Add integration tests for /api/auth/login + /api/auth/me + /api/auth/logout covering active, disabled, reset-required, invalid login, and expired sessions; implement reset-required handling in the login route; update progress logs and the requirements catalog with the new evidence.",
+  "source_docs_read": [
+    "docs/master-plan.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/automation-runbook.md",
+    "docs/automation-self-improvement.md",
+    "docs/automation-cadence.md",
+    "docs/automation-milestones.md",
+    "docs/automation-memory.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/README.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/decision-log.md",
+    "docs/automation-backlog.md",
+    "docs/artifacts.json",
+    "docs/human-decisions.md",
+    "functions/api/auth/login.ts",
+    "functions/api/auth/me.ts",
+    "functions/api/auth/logout.ts",
+    "functions/_lib/auth.ts",
+    "scripts/run-npm-script.ps1"
+  ],
+  "changes": [
+    "Added tests/auth-login.integration.test.mjs to execute auth login/me/logout behavior against a deterministic D1 mock, covering active login, invalid credentials, disabled accounts, reset-required accounts (user status and credential flag), expired sessions, and logout revocation.",
+    "Updated functions/api/auth/login.ts to treat pending-reset and requires-reset credentials as password_reset_required, and updated auth route imports to use explicit .ts specifiers so Node can import route handlers during integration tests.",
+    "Updated docs/mvp-requirements-catalog.md, docs/automation-memory.md, docs/progress/rebuild.md, and docs/progress/run-log.md to record the new MVP-004/MVP-005 evidence."
+  ],
+  "validation": [
+    "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\\\scripts\\\\run-npm-script.ps1 test"
+  ],
+  "blockers": [],
+  "known_limits": [
+    "Password reset endpoints and admin/user account lifecycle flows are still incomplete; this run only adds edge-state coverage and minimal login handling for reset-required accounts."
+  ],
+  "next_actions": [
+    "Implement password reset endpoints (request, confirm, and enforce reset) plus credential rotation and session invalidation rules.",
+    "Add account disable/reactivate flows and tests, including revoking active sessions when an account is disabled."
+  ],
+  "self_improvement": "none"
+}
+
