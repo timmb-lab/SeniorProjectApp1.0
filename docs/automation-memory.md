@@ -87,12 +87,13 @@ Every builder run must ladder from `docs/master-plan.md` into `docs/mvp-requirem
 - `migrations/0006_presentation_slots.sql` creates persisted presentation slots with status, outline status, location, duration, and check-out/check-in columns for the next slice.
 - `/api/presentation-slots` now supports scoped list/create behavior: mentors can see assigned-student slots, admin/program-teacher staff can schedule in-scope students, and overlapping same-location slots return `presentation_slot_conflict`.
 - `tests/presentation-slots.integration.test.mjs`, full test suite, typecheck, and local D1 migration verification passed. Remote D1 apply/verification still requires `CLOUDFLARE_API_TOKEN`.
+- `/api/presentation-slots/:id/check-out` and `/api/presentation-slots/:id/check-in` now persist day-of presentation status/timestamps for in-scope admin/program-teacher staff, block mentor/out-of-scope/invalid-status attempts, and audit both denials and successful transitions.
 
 ## Current Priority
 
 Immediate next useful passes:
 
-1. Broaden auth, permission, protected-evidence, status-transition, audit/export, meeting, and presentation check-out/check-in tests.
+1. Broaden auth, permission, protected-evidence, status-transition, audit/export, meeting, and presentation dashboard/UI proof.
 2. Broaden public-site no-hidden-core-content proof across every guide route, then designate/build the canonical authenticated role-aware production app entry.
 3. Extend alpha proposal/review/evidence/audit records into real workflow endpoints.
 4. Add Google Drive server-side credential/OAuth implementation plus access-controlled evidence upload/retrieval assumptions.

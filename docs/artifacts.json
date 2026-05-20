@@ -723,7 +723,8 @@
         "Seed row verified in QoL Runs!A1:O2.",
         "QoL Runs tab formatted with frozen header, filter, wrapped text, and phone-friendly widths.",
         "2026-05-20 13:13 PT: non-Figma builder appended the MVP-017 presentation slot scheduling closeout row with implementation commit d1dfb69.",
-        "2026-05-20 14:14 PT: non-Figma builder appended the MVP-035 Student/Teacher guide mode closeout row with implementation commit c2477ec, closeout commit a9e0a1d, and tracker evidence commit c1bc407."
+        "2026-05-20 14:14 PT: non-Figma builder appended the MVP-035 Student/Teacher guide mode closeout row with implementation commit c2477ec, closeout commit a9e0a1d, and tracker evidence commit c1bc407.",
+        "2026-05-20 16:08 PT: non-Figma builder appended the MVP-017 presentation check-out/check-in closeout row with implementation commit c363889."
       ],
       "last_updated": "2026-05-20"
     }

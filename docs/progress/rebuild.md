@@ -294,3 +294,18 @@ Each rebuild run should append a dated entry with:
 - `commit/push status`: implementation commit `c2477ec9febae91893fb3b12c2ebd1e67393336e`, closeout evidence commit `a9e0a1d`, and tracker evidence commit `c1bc4071e9a5cc697189e22321ab1e69080fe45d` pushed to `origin main`.
 - `phone tracker`: appended to `Senior Capstone QoL Run Tracker` at 2026-05-20 14:14 PT.
 - `next action`: Broaden public route-level no-hidden-core-content proof, then designate/build the canonical authenticated role-aware production app route.
+
+### 2026-05-20 16:08 PT - MVP-017 Presentation Check-Out/Check-In
+
+- `automation`: `senior-capstone-nonfigma-mvp-builder`
+- `master-plan section`: Day 7 Alpha Gate; Seven-day implementation ladder Day 5 mentor and presentation depth; Logging Requirements.
+- `source docs/logs read`: automation memory fallback at `C:\Users\bryan\.codex\automations\senior-capstone-nonfigma-mvp-builder\memory.md`, required master plan/catalog/cadence/runbook/self-improvement/memory/milestones/progress docs, recent run manifests, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, and the existing presentation slot route/test patterns.
+- `backlog or requirement IDs selected`: `SC-004`, `SC-005`, `SC-006`, `MVP-017`, and supporting `MVP-020`.
+- `bounded scope`: Add scoped presentation day check-out/check-in state transitions on top of the existing D1-backed presentation slot schedule.
+- `files changed`: `functions/_lib/presentation-slots.ts`, `functions/api/presentation-slots/[id]/check-out.ts`, `functions/api/presentation-slots/[id]/check-in.ts`, `tests/presentation-slots.integration.test.mjs`, `docs/generated/production-route-inventory.md`, `docs/mvp-requirements-catalog.md`, `docs/automation-backlog.md`, `docs/automation-memory.md`, `docs/progress/handoffs.md`, `docs/source-materials/production-content-crosswalk.md`, `docs/production-surface-registry.md`, this rebuild log, `docs/progress/run-log.md`, and structured run manifest.
+- `validation`: focused presentation-slot integration test passed; strict `typecheck` passed; production route inventory regenerated for `/api/presentation-slots/:id/check-out` and `/api/presentation-slots/:id/check-in`; full test suite passed with 130 passing tests and 3 expected opt-in workspace smoke skips; aggregate `check` passed with production surfaces, route inventory, generated-output drift, site options, static Cloudflare verification, and live Cloudflare verification blocked only by missing `CLOUDFLARE_API_TOKEN`.
+- `commit/push status`: implementation commit `c36388973b60802ca7f0acc21e8cf81792c4a48b` pushed to `origin main`; closeout docs commit pending.
+- `blockers`: remote D1 apply/verification for `0006_presentation_slots.sql` still requires `CLOUDFLARE_API_TOKEN`; this run did not perform live Cloudflare mutation.
+- `phone tracker`: appended to `Senior Capstone QoL Run Tracker` at 2026-05-20 16:08 PT.
+- `self-improvement`: none.
+- `next action`: Surface presentation slot status/check-out/check-in in mentor/student/staff dashboards, then persist outline approval gates or continue admin workflow depth.

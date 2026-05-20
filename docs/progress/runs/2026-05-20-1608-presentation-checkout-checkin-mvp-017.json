@@ -1,0 +1,124 @@
+{
+  "run_id": "2026-05-20-1608-presentation-checkout-checkin-mvp-017",
+  "timestamp_local": "2026-05-20T16:08:42-07:00",
+  "automation_id": "senior-capstone-nonfigma-mvp-builder",
+  "lane": "staff-review-mentor",
+  "status": "completed",
+  "accepted_mvp_pass": true,
+  "requirement_ids": [
+    "MVP-017",
+    "MVP-020"
+  ],
+  "backlog_ids": [
+    "SC-004",
+    "SC-005",
+    "SC-006"
+  ],
+  "duration_minutes": 18,
+  "output_kind": "api+tests+docs",
+  "scope": "Add scoped presentation day check-out/check-in transitions to the existing D1-backed presentation slot workflow.",
+  "source_docs_read": [
+    "C:\\Users\\bryan\\.codex\\automations\\senior-capstone-nonfigma-mvp-builder\\memory.md",
+    "docs/master-plan.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/automation-cadence.md",
+    "docs/automation-runbook.md",
+    "docs/automation-self-improvement.md",
+    "docs/automation-memory.md",
+    "docs/automation-milestones.md",
+    "docs/progress/run-log.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/decision-log.md",
+    "docs/automation-backlog.md",
+    "docs/artifacts.json",
+    "docs/human-decisions.md",
+    "recent docs/progress/runs/*.json",
+    "functions/api/presentation-slots.ts",
+    "tests/presentation-slots.integration.test.mjs",
+    "migrations/0006_presentation_slots.sql",
+    "functions/_lib/permissions.ts",
+    "functions/_lib/auth.ts",
+    "functions/_lib/workflow.ts"
+  ],
+  "changes": [
+    "Added functions/_lib/presentation-slots.ts to centralize presentation slot transition authorization, status validation, timestamp persistence, response formatting, and audit logging.",
+    "Added POST /api/presentation-slots/:id/check-out for in-scope admin/program-teacher staff to move scheduled slots to checked_out with checked_out_at.",
+    "Added POST /api/presentation-slots/:id/check-in for in-scope admin/program-teacher staff to move checked_out slots to checked_in with checked_in_at.",
+    "Blocked unauthenticated, mentor, out-of-scope teacher, check-in-before-check-out, and duplicate check-out attempts with audited denial events.",
+    "Expanded tests/presentation-slots.integration.test.mjs to cover check-out/check-in permissions, invalid status guards, timestamp preservation, and audit events.",
+    "Regenerated docs/generated/production-route-inventory.md so the new API routes are classified as protected production API surfaces.",
+    "Updated MVP catalog, backlog, source crosswalk, production surface registry, handoff ledger, rebuild log, run log, and this manifest."
+  ],
+  "validation": [
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 tests\\presentation-slots.integration.test.mjs",
+      "result": "passed",
+      "summary": "Focused presentation-slot integration test passed: 1/1."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 typecheck",
+      "result": "passed",
+      "summary": "Strict TypeScript validation passed."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 inventory:production-routes",
+      "result": "passed",
+      "summary": "Regenerated production route inventory with /api/presentation-slots/:id/check-out and /api/presentation-slots/:id/check-in."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 test",
+      "result": "passed",
+      "summary": "Full Node test suite passed: 130 passing tests and 3 expected opt-in workspace smoke skips."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 check",
+      "result": "passed-static-live-blocked",
+      "summary": "Aggregate check passed, including alpha contract, cadence, predeploy gate, production surfaces, route inventory, generated-output drift, site options, static Cloudflare verification, 130 passing tests, and typecheck; live Cloudflare verification remained blocked without CLOUDFLARE_API_TOKEN."
+    }
+  ],
+  "changed_files": [
+    "functions/_lib/presentation-slots.ts",
+    "functions/api/presentation-slots/[id]/check-out.ts",
+    "functions/api/presentation-slots/[id]/check-in.ts",
+    "tests/presentation-slots.integration.test.mjs",
+    "docs/generated/production-route-inventory.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/automation-backlog.md",
+    "docs/automation-memory.md",
+    "docs/progress/handoffs.md",
+    "docs/source-materials/production-content-crosswalk.md",
+    "docs/production-surface-registry.md",
+    "docs/progress/rebuild.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-20-1608-presentation-checkout-checkin-mvp-017.json"
+  ],
+  "blockers": [
+    "Remote D1 apply/verification for migrations/0006_presentation_slots.sql requires CLOUDFLARE_API_TOKEN for non-interactive Wrangler; live Cloudflare mutation was not attempted."
+  ],
+  "next_actions": [
+    "Surface presentation slot status, check-out, and check-in state in mentor/student/staff dashboard flows.",
+    "Persist outline approval gates for Mentor Meeting 2/presentation readiness.",
+    "Apply and verify migrations/0006_presentation_slots.sql against remote D1 once CLOUDFLARE_API_TOKEN is available."
+  ],
+  "automation_efficiency": {
+    "scale_signal": "accepted implementation pass; no cadence change recommended"
+  },
+  "self_improvement": "none",
+  "figma_work_avoided": true,
+  "run_log_updated": true,
+  "structured_manifest_created": true,
+  "artifacts_json_updated": true,
+  "mvp_catalog_changed": true,
+  "phone_tracker": {
+    "spreadsheet_id": "1J8jQMn85wJwo9Rh6LjQUVv_WfLS1YJWsbpcLBCojjjs",
+    "tab": "QoL Runs",
+    "result": "appended",
+    "timestamp_local": "2026-05-20T16:08:42-07:00",
+    "summary": "Recorded MVP-017 presentation check-out/check-in endpoint pass for phone-friendly tracking."
+  },
+  "implementation_commit_sha": "c36388973b60802ca7f0acc21e8cf81792c4a48b",
+  "commit_sha": "c36388973b60802ca7f0acc21e8cf81792c4a48b",
+  "push_result": "pushed to origin main: 78f0293..c363889",
+  "closeout_commit_sha": "pending",
+  "closeout_push_result": "pending"
+}

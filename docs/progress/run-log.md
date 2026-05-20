@@ -429,3 +429,18 @@ Future productive runs should append compact entries that name the master-plan s
 - `human action`: email-ready draft saved at `docs/progress/human-action-email-draft-2026-05-20-cloudflare-drive.md`.
 - `commit`: implementation/evidence commit `06d477017050a85a72cd9008bd37a69285998306` pushed to `origin/main`; closeout evidence commit recorded in final response because a commit cannot contain its own hash.
 - `self-improvement`: canonical workspace smoke now catches disabled-form-control data loss before it can silently break evidence submission again.
+
+## 2026-05-20 16:08 PT - MVP-017 Presentation Check-Out/Check-In
+
+- `automation ID`: `senior-capstone-nonfigma-mvp-builder`
+- `lane`: non-Figma MVP builder / staff-review-mentor.
+- `master-plan sections`: Day 7 Alpha Gate; Role-Aware Production App Contract; Logging Requirements.
+- `requirement IDs`: `MVP-017`, supporting `MVP-020`; `backlog IDs`: `SC-004`, `SC-005`, `SC-006`.
+- `selected slice`: Add audited presentation day check-out and check-in transitions to the D1-backed presentation-slot workflow.
+- `what changed`: Added shared presentation-slot transition helper plus `/api/presentation-slots/:id/check-out` and `/api/presentation-slots/:id/check-in`; the endpoints require admin or in-scope program-teacher staff, reject mentor/out-of-scope/invalid-status attempts, persist `checked_out`/`checked_in` status and timestamps, and write audit events for denials and successful transitions.
+- `files changed`: `functions/_lib/presentation-slots.ts`, `functions/api/presentation-slots/[id]/check-out.ts`, `functions/api/presentation-slots/[id]/check-in.ts`, `tests/presentation-slots.integration.test.mjs`, `docs/generated/production-route-inventory.md`, MVP/backlog/source/registry/handoff/progress docs, and `docs/progress/runs/2026-05-20-1608-presentation-checkout-checkin-mvp-017.json`.
+- `validation`: focused presentation-slot test passed; strict `typecheck` passed; route inventory regenerated; full `test` passed with 130 passing tests and 3 expected opt-in workspace smoke skips; aggregate `check` passed with static Cloudflare verification and `LIVE_CLOUDFLARE_BLOCKED_NO_TOKEN`.
+- `commit`: implementation commit `c36388973b60802ca7f0acc21e8cf81792c4a48b` (`rebuild: add presentation check-in endpoints (MVP-017)`) pushed to `origin main`; closeout docs commit follows this entry.
+- `blockers`: remote D1 apply/verification for `0006_presentation_slots.sql` still requires `CLOUDFLARE_API_TOKEN`.
+- `phone tracker`: appended to `Senior Capstone QoL Run Tracker` at 2026-05-20 16:08 PT.
+- `self-improvement`: none.
