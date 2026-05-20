@@ -9,7 +9,7 @@
     >
     <title>Account Smoke Test | Senior Capstone App</title>
     <link rel="stylesheet" href="styles.css?v=20260518-polish10">
-    <link rel="stylesheet" href="account.css?v=20260519-qol40">
+    <link rel="stylesheet" href="account.css?v=20260520-qol41">
   </head>
   <body data-page="account">
     <a class="skip-link" href="#accountMain">Skip to account smoke test</a>
@@ -94,6 +94,55 @@
 
         <article class="account-card">
           <div class="account-card-head">
+            <p class="account-kicker">Drive file bytes</p>
+            <button class="account-button" id="downloadDriveFile" type="button">Download File</button>
+          </div>
+          <p>
+            Upload a small file (max 5MB) as evidence for the seeded Maya submission fixture.
+            Sign in as the Student account to upload, then switch accounts to confirm scoped
+            download behavior. Drive secrets must be configured in Cloudflare Pages for this
+            to succeed.
+          </p>
+          <form id="driveUploadForm" class="account-drive-form">
+            <label>
+              Evidence title
+              <input id="driveTitleInput" name="title" value="Alpha Drive upload smoke" autocomplete="off">
+            </label>
+            <label>
+              Artifact type
+              <select id="driveArtifactType" name="artifactType">
+                <option value="planning_document">planning_document</option>
+                <option value="reflection">reflection</option>
+                <option value="rubric">rubric</option>
+                <option value="photo">photo</option>
+                <option value="presentation">presentation</option>
+                <option value="other">other</option>
+              </select>
+            </label>
+            <label>
+              File (max 5MB)
+              <input
+                id="driveFileInput"
+                name="file"
+                type="file"
+                accept="image/*,.pdf,.txt,.csv,application/pdf,text/plain,text/csv"
+                required
+              >
+            </label>
+            <label>
+              Evidence ID for download
+              <input id="driveEvidenceIdInput" name="evidenceId" autocomplete="off" placeholder="evidence-...">
+            </label>
+            <div class="account-actions">
+              <button class="account-button account-button-primary" id="uploadDriveFile" type="submit">Upload File</button>
+              <button class="account-button" id="clearDriveEvidence" type="button">Clear</button>
+            </div>
+          </form>
+          <div id="drivePanel" class="account-empty">Sign in and upload a small file to begin.</div>
+        </article>
+
+        <article class="account-card">
+          <div class="account-card-head">
             <p class="account-kicker">Backend health</p>
             <button class="account-button" id="checkHealth" type="button">Check Health</button>
           </div>
@@ -121,6 +170,6 @@
       </section>
     </main>
 
-    <script type="module" src="account.js?v=20260519-qol40"></script>
+    <script type="module" src="account.js?v=20260520-qol41"></script>
   </body>
 </html>

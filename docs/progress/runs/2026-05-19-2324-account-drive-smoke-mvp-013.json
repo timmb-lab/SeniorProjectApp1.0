@@ -1,0 +1,59 @@
+{
+  "run_id": "2026-05-19-2324-account-drive-smoke-mvp-013",
+  "timestamp_local": "2026-05-19T23:24:00-07:00",
+  "automation_id": "senior-capstone-hourly-qol-orchestrator",
+  "trigger": "30-minute MVP builder run: add an account smoke page panel to exercise Drive file-byte upload + download via the authenticated evidence endpoints (no passwords committed).",
+  "lane": "student-workflow-evidence",
+  "status": "completed",
+  "accepted_mvp_pass": true,
+  "requirement_ids": [
+    "MVP-013"
+  ],
+  "backlog_ids": [
+    "SC-003",
+    "SC-005"
+  ],
+  "duration_minutes": 30,
+  "output_kind": "smoke-ui+docs",
+  "scope": "Extend the fake-account smoke page with a Drive file upload/download panel that calls /api/submissions/:id/evidence/upload and /api/evidence/:id/download against the seeded Maya submission fixture, while showing expected allow/deny outcomes across roles and keeping evidence ids in-memory (no localStorage / no committed credentials).",
+  "source_docs_read": [
+    "docs/master-plan.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/automation-cadence.md",
+    "docs/automation-backlog.md",
+    "docs/automation-memory.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-19-2258-drive-evidence-upload-download-mvp-013.json",
+    "account.html",
+    "account.js",
+    "functions/api/submissions/[id]/evidence/upload.ts",
+    "functions/api/evidence/[id]/download.ts",
+    "functions/api/admin/test-accounts.ts",
+    "scripts/resolve-node.ps1",
+    "scripts/run-npm-script.ps1"
+  ],
+  "changes": [
+    "Updated account.html with a Drive file bytes panel (upload + download controls), plus cache-busting version bumps for account.css/account.js.",
+    "Updated account.css with account-drive-form styling consistent with existing account-form controls.",
+    "Updated account.js to upload a <=5MB file as evidence for the seeded submission-alpha-maya-proposal fixture, record the new evidence id, and download bytes back through the scoped /api/evidence/:id/download endpoint using a temporary object URL (revoked on reset).",
+    "Extended the smoke checklist to track Drive upload/download outcomes alongside protected evidence + health checks.",
+    "Updated docs/mvp-requirements-catalog.md and docs/progress/run-log.md with the new MVP-013 manual verification surface."
+  ],
+  "validation": [
+    "node --check account.js (via scripts/resolve-node.ps1)",
+    "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\\\scripts\\\\run-npm-script.ps1 test"
+  ],
+  "blockers": [],
+  "known_limits": [
+    "Drive file upload/download requires GOOGLE_DRIVE_EVIDENCE_ROOT_ID plus GOOGLE_DRIVE_CLIENT_EMAIL/GOOGLE_DRIVE_PRIVATE_KEY to be configured in Cloudflare Pages; otherwise the upload/download routes return 503.",
+    "The upload endpoint enforces a 5MB limit; larger evidence requires resumable Drive uploads.",
+    "The smoke page uses Response.blob() + URL.createObjectURL() for the download button, which buffers bytes in the browser and is intended for small verification files."
+  ],
+  "next_actions": [
+    "Configure Cloudflare Pages secrets GOOGLE_DRIVE_CLIENT_EMAIL and GOOGLE_DRIVE_PRIVATE_KEY and confirm /api/health reports googleDriveCredentialsConfigured=true.",
+    "Use account.html Drive file bytes panel to verify a real upload (student) and cross-role download (mentor/teacher/admin) in preview/production.",
+    "Implement resumable uploads for larger evidence artifacts and consider wiring file upload into the alpha console/student UI once verified."
+  ],
+  "self_improvement": "none"
+}
+

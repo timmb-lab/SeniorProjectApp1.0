@@ -70,3 +70,11 @@ Future productive runs should append compact entries that name the master-plan s
 - `files changed`: `functions/_lib/google-drive.ts`, `functions/_lib/workflow.ts`, `functions/api/submissions/[id]/evidence/upload.ts`, `functions/api/evidence/[id]/download.ts`, `functions/api/evidence/[id]/check-access.ts`, `tests/evidence-drive-file.integration.test.mjs`, `docs/mvp-requirements-catalog.md`, `docs/automation-backlog.md`, `docs/automation-memory.md`, `docs/progress/run-log.md`, and `docs/progress/runs/2026-05-19-2258-drive-evidence-upload-download-mvp-013.json`.
 - `verification`: `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 test` (pass).
 - `blockers`: none (Cloudflare Pages Drive secrets still need configuration to verify real uploads/downloads).
+
+## 2026-05-19 23:24 PT - MVP-013 Drive Evidence Smoke UI
+
+- `master-plan sections`: Day 7 Alpha Gate; Immediate next five passes should deepen the shipped alpha; Logging Requirements.
+- `requirement IDs`: `MVP-013`; `backlog IDs`: `SC-003`, `SC-005`.
+- `files changed`: `account.html`, `account.css`, `account.js`, `docs/mvp-requirements-catalog.md`, `docs/progress/run-log.md`, and `docs/progress/runs/2026-05-19-2324-account-drive-smoke-mvp-013.json`.
+- `verification`: `node --check account.js` (via `scripts/resolve-node.ps1`), `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 test` (pass).
+- `blockers`: none (Cloudflare Pages Drive secrets still need configuration to verify real uploads/downloads).

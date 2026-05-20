@@ -129,14 +129,23 @@ body[data-page="account"] {
   font-weight: 900;
 }
 
-.account-form {
+.account-form,
+.account-drive-form {
   display: grid;
-  grid-template-columns: minmax(220px, 1fr) minmax(240px, 1fr) minmax(220px, 1fr);
   gap: 0.75rem;
   align-items: end;
 }
 
-.account-form label {
+.account-form {
+  grid-template-columns: minmax(220px, 1fr) minmax(240px, 1fr) minmax(220px, 1fr);
+}
+
+.account-drive-form {
+  grid-template-columns: 1fr;
+}
+
+.account-form label,
+.account-drive-form label {
   display: grid;
   gap: 0.3rem;
   color: var(--muted);
@@ -145,7 +154,9 @@ body[data-page="account"] {
 }
 
 .account-form input,
-.account-form select {
+.account-form select,
+.account-drive-form input,
+.account-drive-form select {
   min-width: 0;
   min-height: 42px;
   border: 1px solid #c7d3d2;

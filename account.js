@@ -57,6 +57,8 @@ const TEST_ACCOUNTS = [
 ];
 
 const ALPHA_EVIDENCE_ID = "evidence-alpha-maya-category-map";
+const ALPHA_SUBMISSION_ID = "submission-alpha-maya-proposal";
+const MAX_DRIVE_UPLOAD_BYTES = 5 * 1024 * 1024;
 
 const loginForm = document.querySelector("#loginForm");
 const accountSelect = document.querySelector("#accountSelect");
@@ -66,6 +68,7 @@ const accountStatus = document.querySelector("#accountStatus");
 const sessionPanel = document.querySelector("#sessionPanel");
 const evidencePanel = document.querySelector("#evidencePanel");
 const healthPanel = document.querySelector("#healthPanel");
+const drivePanel = document.querySelector("#drivePanel");
 const selectedExpectation = document.querySelector("#selectedExpectation");
 const smokeChecklist = document.querySelector("#smokeChecklist");
 const testAccountList = document.querySelector("#testAccountList");
@@ -73,13 +76,25 @@ const refreshSession = document.querySelector("#refreshSession");
 const logoutButton = document.querySelector("#logoutButton");
 const checkEvidence = document.querySelector("#checkEvidence");
 const checkHealth = document.querySelector("#checkHealth");
+const driveUploadForm = document.querySelector("#driveUploadForm");
+const driveFileInput = document.querySelector("#driveFileInput");
+const driveTitleInput = document.querySelector("#driveTitleInput");
+const driveArtifactType = document.querySelector("#driveArtifactType");
+const driveEvidenceIdInput = document.querySelector("#driveEvidenceIdInput");
+const uploadDriveFile = document.querySelector("#uploadDriveFile");
+const downloadDriveFile = document.querySelector("#downloadDriveFile");
+const clearDriveEvidence = document.querySelector("#clearDriveEvidence");
 const copyUserSummary = document.querySelector("#copyUserSummary");
 const runSmokeSequence = document.querySelector("#runSmokeSequence");
 
 let currentSession = null;
+let lastDriveEvidenceId = "";
+let driveObjectUrl = "";
 let smokeState = {
   evidence: { status: "waiting", detail: "Run protected evidence access after sign-in." },
   health: { status: "waiting", detail: "Run backend health check." },
+  driveUpload: { status: "waiting", detail: "Upload a Drive file evidence as the student account." },
+  driveDownload: { status: "waiting", detail: "Download a Drive evidence file after uploading." },
 };
 
 init();
@@ -89,6 +104,7 @@ function init() {
   renderTestAccountList();
   renderSelectedExpectation();
   renderSmokeChecklist();
+  renderDrivePanel();
   bindEvents();
   checkSession();
 }
@@ -115,6 +131,28 @@ function bindEvents() {
   logoutButton.addEventListener("click", signOut);
   checkEvidence.addEventListener("click", checkEvidenceAccess);
   checkHealth.addEventListener("click", checkBackendHealth);
+
+  if (driveUploadForm) {
+    driveUploadForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      await uploadDriveEvidenceFile();
+    });
+  }
+  if (downloadDriveFile) {
+    downloadDriveFile.addEventListener("click", downloadDriveEvidenceFile);
+  }
+  if (clearDriveEvidence) {
+    clearDriveEvidence.addEventListener("click", clearDriveEvidenceState);
+  }
+  if (driveFileInput && driveTitleInput) {
+    driveFileInput.addEventListener("change", () => {
+      const file = driveFileInput.files?.[0];
+      if (file && !driveTitleInput.value.trim()) {
+        driveTitleInput.value = file.name.slice(0, 160);
+      }
+    });
+  }
+
   copyUserSummary.addEventListener("click", copyCurrentUserSummary);
   runSmokeSequence.addEventListener("click", runAccountSmokeSequence);
 }
@@ -191,6 +229,16 @@ function renderSmokeChecklist() {
       label: "Backend readiness",
       status: smokeState.health.status,
       detail: smokeState.health.detail,
+    },
+    {
+      label: "Drive file upload",
+      status: smokeState.driveUpload.status,
+      detail: smokeState.driveUpload.detail,
+    },
+    {
+      label: "Drive file download",
+      status: smokeState.driveDownload.status,
+      detail: smokeState.driveDownload.detail,
     },
   ];
 
@@ -280,6 +328,7 @@ async function signOut() {
     resetSmokeResults();
     renderSmokeChecklist();
     evidencePanel.innerHTML = "Sign in, then run the access check.";
+    resetDriveChecks({ preserveEvidenceId: true });
     setStatus("Signed out. Session cookie cleared.", "success");
   } catch (error) {
     setStatus(error.message, "error");
@@ -344,6 +393,266 @@ async function checkEvidenceAccess() {
       detail: "Evidence API could not be reached.",
     };
     renderSmokeChecklist();
+    setStatus(error.message, "error");
+  } finally {
+    setBusy(false);
+  }
+}
+
+function formatBytes(bytes) {
+  if (!Number.isFinite(bytes)) return `${bytes}`;
+  if (bytes >= 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
+  if (bytes >= 1024) return `${Math.round(bytes / 1024)} KB`;
+  return `${bytes} B`;
+}
+
+function expectedDriveUploadOutcome(account) {
+  return account.key === "student" ? "allowed" : "denied";
+}
+
+function renderDrivePanel(content) {
+  if (!drivePanel) return;
+  if (typeof content === "string") {
+    drivePanel.innerHTML = content;
+    return;
+  }
+
+  const evidenceId = String(driveEvidenceIdInput?.value || lastDriveEvidenceId || "").trim();
+  drivePanel.innerHTML = evidenceId
+    ? `Ready to download Drive evidence <code>${escapeHtml(evidenceId)}</code>.`
+    : "Sign in and upload a small file to begin.";
+}
+
+function resetDriveChecks(options = {}) {
+  const preserveEvidenceId = options.preserveEvidenceId !== false;
+
+  if (driveObjectUrl) {
+    try {
+      URL.revokeObjectURL(driveObjectUrl);
+    } catch {
+      // Ignore revoke errors.
+    }
+    driveObjectUrl = "";
+  }
+
+  if (!preserveEvidenceId) {
+    lastDriveEvidenceId = "";
+    if (driveEvidenceIdInput) driveEvidenceIdInput.value = "";
+  }
+
+  smokeState.driveUpload = { status: "waiting", detail: "Upload a Drive file evidence as the student account." };
+  smokeState.driveDownload = { status: "waiting", detail: "Download a Drive evidence file after uploading." };
+  renderSmokeChecklist();
+  renderDrivePanel();
+}
+
+function clearDriveEvidenceState() {
+  resetDriveChecks({ preserveEvidenceId: false });
+  renderDrivePanel("Drive file check cleared. Upload a new file to continue.");
+}
+
+async function uploadDriveEvidenceFile() {
+  setBusy(true);
+  renderDrivePanel("Uploading file evidence to Google Drive...");
+  try {
+    const expectedAccount = getAccountForCurrentSession();
+    const file = driveFileInput?.files?.[0] || null;
+    if (!file) {
+      smokeState.driveUpload = { status: "fail", detail: "Select a file before uploading." };
+      renderSmokeChecklist();
+      renderDrivePanel("No file selected yet.");
+      setStatus("Select a file before uploading evidence.", "error");
+      return;
+    }
+
+    if (!Number.isFinite(file.size) || file.size <= 0) {
+      smokeState.driveUpload = { status: "fail", detail: "Selected file is empty." };
+      renderSmokeChecklist();
+      renderDrivePanel("Selected file was empty.");
+      setStatus("Selected file was empty.", "error");
+      return;
+    }
+
+    if (file.size > MAX_DRIVE_UPLOAD_BYTES) {
+      smokeState.driveUpload = { status: "fail", detail: `Selected file exceeds ${formatBytes(MAX_DRIVE_UPLOAD_BYTES)}.` };
+      renderSmokeChecklist();
+      renderDrivePanel(`File too large for current MVP limit. Choose a file under ${formatBytes(MAX_DRIVE_UPLOAD_BYTES)}.`);
+      setStatus("File exceeds the current 5MB upload limit.", "error");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.set("file", file);
+    formData.set("title", driveTitleInput?.value || file.name);
+    formData.set("artifactType", driveArtifactType?.value || "planning_document");
+
+    const response = await fetch(`/api/submissions/${ALPHA_SUBMISSION_ID}/evidence/upload`, {
+      method: "POST",
+      headers: { accept: "application/json" },
+      credentials: "same-origin",
+      body: formData,
+    });
+    const data = await safeJson(response);
+
+    if (!response.ok) {
+      const expectedOutcome = expectedDriveUploadOutcome(expectedAccount);
+      const deniedOk = expectedOutcome === "denied" && response.status === 403;
+      const drivePending = expectedOutcome === "allowed" && response.status === 503;
+      const status = deniedOk ? "pass" : drivePending ? "waiting" : "fail";
+
+      smokeState.driveUpload = {
+        status,
+        detail: `${response.status} ${data?.error || "upload failed"} (${expectedAccount.label}).`,
+      };
+      renderSmokeChecklist();
+      renderDrivePanel(renderJson({
+        status: response.status,
+        checkedAs: currentSession?.email || "unknown",
+        expectedAccount: expectedAccount.email,
+        expectedDriveUpload: expectedOutcome,
+        outcomeMatches: deniedOk,
+        ...data,
+      }));
+
+      setStatus(
+        deniedOk
+          ? "Drive upload correctly denied for non-student scope."
+          : drivePending
+            ? "Drive upload is blocked until Drive secrets are configured."
+            : `Drive upload failed with ${response.status}.`,
+        deniedOk || drivePending ? "success" : "error",
+      );
+      return;
+    }
+
+    lastDriveEvidenceId = data?.evidence?.id || "";
+    if (driveEvidenceIdInput && lastDriveEvidenceId) driveEvidenceIdInput.value = lastDriveEvidenceId;
+
+    const outcomeMatches = expectedDriveUploadOutcome(expectedAccount) === "allowed";
+    smokeState.driveUpload = {
+      status: outcomeMatches ? "pass" : "fail",
+      detail: outcomeMatches ? `Uploaded ${file.name} (${formatBytes(file.size)}).` : "Upload succeeded unexpectedly for non-student account.",
+    };
+    smokeState.driveDownload = { status: "waiting", detail: "Ready to download the uploaded Drive evidence file." };
+    renderSmokeChecklist();
+
+    renderDrivePanel(renderJson({
+      checkedAs: currentSession?.email || "unknown",
+      submissionId: ALPHA_SUBMISSION_ID,
+      uploadedEvidenceId: lastDriveEvidenceId,
+      file: {
+        name: file.name,
+        size: file.size,
+        type: file.type,
+      },
+      ...data,
+    }));
+
+    setStatus("Drive evidence upload completed. Use Download File to verify retrieval.", "success");
+  } catch (error) {
+    smokeState.driveUpload = { status: "fail", detail: "Drive upload request threw an exception." };
+    renderSmokeChecklist();
+    renderDrivePanel("Drive upload could not reach the API.");
+    setStatus(error.message, "error");
+  } finally {
+    setBusy(false);
+  }
+}
+
+async function downloadDriveEvidenceFile() {
+  setBusy(true);
+  renderDrivePanel("Downloading evidence bytes...");
+  try {
+    const evidenceId = String(driveEvidenceIdInput?.value || lastDriveEvidenceId || "").trim();
+    if (!evidenceId) {
+      smokeState.driveDownload = { status: "fail", detail: "Provide an evidence ID before downloading." };
+      renderSmokeChecklist();
+      renderDrivePanel("No evidence ID is set yet. Upload first or paste an evidence ID.");
+      setStatus("Provide an evidence ID before downloading.", "error");
+      return;
+    }
+
+    const expectedAccount = getAccountForCurrentSession();
+    const response = await fetch(`/api/evidence/${encodeURIComponent(evidenceId)}/download`, {
+      headers: { accept: "*/*" },
+      credentials: "same-origin",
+    });
+
+    if (!response.ok) {
+      const data = await safeJson(response);
+      const statusOk = expectedAccount.expectedEvidenceAccess === "denied" && response.status === 403;
+      smokeState.driveDownload = {
+        status: statusOk ? "pass" : response.status === 503 ? "waiting" : "fail",
+        detail: `${response.status} ${data?.error || "download failed"} (${expectedAccount.label}).`,
+      };
+      renderSmokeChecklist();
+      renderDrivePanel(renderJson({
+        status: response.status,
+        checkedAs: currentSession?.email || "unknown",
+        expectedAccount: expectedAccount.email,
+        expectedEvidenceAccess: expectedAccount.expectedEvidenceAccess,
+        outcomeMatches: statusOk,
+        ...data,
+      }));
+
+      setStatus(
+        statusOk
+          ? "Drive download correctly denied for misc-admin scope."
+          : response.status === 503
+            ? "Drive download is blocked until Drive secrets are configured."
+            : `Drive download failed with ${response.status}.`,
+        statusOk || response.status === 503 ? "success" : "error",
+      );
+      return;
+    }
+
+    if (driveObjectUrl) {
+      try {
+        URL.revokeObjectURL(driveObjectUrl);
+      } catch {
+        // Ignore revoke errors.
+      }
+      driveObjectUrl = "";
+    }
+
+    const blob = await response.blob();
+    const contentDisposition = response.headers.get("content-disposition") || "";
+    const fileName = contentDisposition.match(/filename=\"([^\"]+)\"/i)?.[1] || `evidence-${evidenceId}`;
+    driveObjectUrl = URL.createObjectURL(blob);
+
+    smokeState.driveDownload = {
+      status: expectedAccount.expectedEvidenceAccess === "allowed" ? "pass" : "fail",
+      detail: `Downloaded ${formatBytes(blob.size)} for ${expectedAccount.label}.`,
+    };
+    renderSmokeChecklist();
+
+    renderDrivePanel(`
+      <div class="account-row">
+        <div>
+          <strong>${escapeHtml(fileName)}</strong>
+          <span>${escapeHtml(`${formatBytes(blob.size)} · ${response.headers.get("content-type") || "application/octet-stream"}`)}</span>
+          <small>${escapeHtml(evidenceId)}</small>
+        </div>
+        <span class="account-role">ready</span>
+      </div>
+      <div class="account-actions">
+        <a class="account-button account-button-primary" href="${escapeHtml(driveObjectUrl)}" download="${escapeHtml(fileName)}">Save download</a>
+      </div>
+      <details class="account-details">
+        <summary>Raw download headers</summary>
+        ${renderJson({
+          contentType: response.headers.get("content-type"),
+          contentDisposition: response.headers.get("content-disposition"),
+          cacheControl: response.headers.get("cache-control"),
+        })}
+      </details>
+    `);
+
+    setStatus("Drive evidence download ready. Use the Save download button.", "success");
+  } catch (error) {
+    smokeState.driveDownload = { status: "fail", detail: "Drive download request threw an exception." };
+    renderSmokeChecklist();
+    renderDrivePanel("Drive download could not reach the API.");
     setStatus(error.message, "error");
   } finally {
     setBusy(false);
@@ -488,16 +797,36 @@ function setStatus(message, tone) {
 }
 
 function setBusy(isBusy) {
-  for (const control of [accountSelect, emailInput, passwordInput, refreshSession, logoutButton, checkEvidence, checkHealth, copyUserSummary, runSmokeSequence]) {
+  for (const control of [
+    accountSelect,
+    emailInput,
+    passwordInput,
+    refreshSession,
+    logoutButton,
+    checkEvidence,
+    checkHealth,
+    uploadDriveFile,
+    downloadDriveFile,
+    clearDriveEvidence,
+    driveFileInput,
+    driveTitleInput,
+    driveArtifactType,
+    driveEvidenceIdInput,
+    copyUserSummary,
+    runSmokeSequence,
+  ]) {
+    if (!control) continue;
     control.disabled = isBusy;
   }
-  loginForm.querySelector("button[type='submit']").disabled = isBusy;
+  loginForm?.querySelector("button[type='submit']")?.toggleAttribute("disabled", isBusy);
 }
 
 function resetSmokeResults() {
   smokeState = {
     evidence: { status: "waiting", detail: "Run protected evidence access after sign-in." },
     health: { status: "waiting", detail: "Run backend health check." },
+    driveUpload: { status: "waiting", detail: "Upload a Drive file evidence as the student account." },
+    driveDownload: { status: "waiting", detail: "Download a Drive evidence file after uploading." },
   };
 }
 
