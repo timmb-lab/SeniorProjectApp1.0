@@ -1,6 +1,6 @@
 # Senior Capstone Run Log
 
-Last refreshed: 2026-05-19
+Last refreshed: 2026-05-20
 
 This is the compact run log for the current single-runner automation contract.
 
@@ -84,5 +84,13 @@ Future productive runs should append compact entries that name the master-plan s
 - `master-plan sections`: Day 7 Alpha Gate; Logging Requirements.
 - `requirement IDs`: `MVP-009`; `backlog IDs`: `SC-001`.
 - `files changed`: `migrations/0003_framework_seed_data.sql`, `tests/framework-seed-migration.test.mjs`, `docs/mvp-requirements-catalog.md`, `docs/automation-backlog.md`, `docs/automation-memory.md`, `docs/progress/run-log.md`, and `docs/progress/runs/2026-05-19-2345-framework-seed-data-mvp-009.json`.
+- `verification`: `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 test` (pass).
+- `blockers`: none (still need to apply migrations to local/remote D1 and verify seeded counts by query).
+
+## 2026-05-20 00:12 PT - MVP-009 Seeded Requirement Fixtures
+
+- `master-plan sections`: Day 7 Alpha Gate; Logging Requirements.
+- `requirement IDs`: `MVP-009`; `backlog IDs`: `SC-001`.
+- `files changed`: `functions/api/admin/test-accounts.ts`, `tests/test-account-seed.test.mjs`, `docs/artifacts.json`, `docs/mvp-requirements-catalog.md`, `docs/automation-backlog.md`, `docs/automation-memory.md`, `docs/progress/run-log.md`, and `docs/progress/runs/2026-05-20-0012-seeded-requirement-fixtures-mvp-009.json`.
 - `verification`: `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 test` (pass).
 - `blockers`: none (still need to apply migrations to local/remote D1 and verify seeded counts by query).

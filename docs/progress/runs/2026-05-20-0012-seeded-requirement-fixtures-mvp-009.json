@@ -1,0 +1,58 @@
+{
+  "run_id": "2026-05-20-0012-seeded-requirement-fixtures-mvp-009",
+  "timestamp_local": "2026-05-20T00:12:00-07:00",
+  "automation_id": "senior-capstone-hourly-qol-orchestrator",
+  "trigger": "30-minute MVP builder run: switch the admin test-account workflow fixtures from the alpha-only placeholder requirement (req-alpha-proposal) to the seeded framework requirement ID (req-proposal-draft).",
+  "lane": "requirements-audit",
+  "status": "completed",
+  "accepted_mvp_pass": true,
+  "requirement_ids": [
+    "MVP-009"
+  ],
+  "backlog_ids": [
+    "SC-001"
+  ],
+  "duration_minutes": 30,
+  "output_kind": "seed-fixture+tests+docs",
+  "scope": "Replace the alpha-only placeholder requirement fixture with the seeded framework requirement ID in the admin test-account seed endpoint, update conflict-upsert behavior so reseeding migrates existing alpha submission/progress rows, and refresh catalog/backlog/log evidence.",
+  "source_docs_read": [
+    "docs/master-plan.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/automation-runbook.md",
+    "docs/automation-self-improvement.md",
+    "docs/automation-cadence.md",
+    "docs/automation-milestones.md",
+    "docs/automation-memory.md",
+    "docs/progress/run-log.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/decision-log.md",
+    "docs/automation-backlog.md",
+    "docs/artifacts.json",
+    "docs/human-decisions.md",
+    "migrations/0003_framework_seed_data.sql",
+    "data/capstone-framework.json",
+    "functions/api/admin/test-accounts.ts",
+    "tests/test-account-seed.test.mjs"
+  ],
+  "changes": [
+    "Updated functions/api/admin/test-accounts.ts to seed requirements/progress/submission fixtures using req-proposal-draft and proposal-and-research instead of req-alpha-proposal.",
+    "Updated the test-account fixture upserts so reseeding updates requirement_id and phase on existing alpha progress/submission rows.",
+    "Updated tests/test-account-seed.test.mjs and docs/artifacts.json to match the seeded requirement fixture id.",
+    "Updated docs/mvp-requirements-catalog.md, docs/automation-backlog.md, docs/automation-memory.md, and docs/progress/run-log.md with the new MVP-009 fixture evidence."
+  ],
+  "validation": [
+    "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 test"
+  ],
+  "blockers": [],
+  "known_limits": [
+    "Cloudflare Pages deploys do not auto-apply D1 migrations; a follow-on pass still needs Wrangler to apply migrations (including 0002 + 0003) to local/remote D1 and verify row counts by query.",
+    "Remote D1 instances that were seeded earlier may still contain the req-alpha-proposal placeholder rows until a reseed/migration pass is completed."
+  ],
+  "next_actions": [
+    "Apply migrations locally: npm run db:migrate:local (or npx wrangler d1 migrations apply senior-capstone-db --local).",
+    "Apply migrations remotely: npm run db:migrate:remote (or npx wrangler d1 migrations apply senior-capstone-db --remote).",
+    "Verify seeded counts by query (requirements, deadlines, quality_checks, requirement_sections).",
+    "Re-run POST /api/admin/test-accounts in preview/production to migrate the existing alpha fixtures to req-proposal-draft and confirm no flows still reference req-alpha-proposal."
+  ],
+  "self_improvement": "none"
+}

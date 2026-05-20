@@ -142,13 +142,13 @@ async function seedAlphaAssignments(env: Env): Promise<void> {
   await env.DB.prepare(
     `INSERT INTO requirements (id, program_id, phase, title, description, required, sort_order)
      VALUES (
-       'req-alpha-proposal',
-       'it',
-       'proposal',
-       'Alpha proposal/research submission',
-       'Fake alpha requirement for testing database-backed student workflow only.',
+       'req-proposal-draft',
+       NULL,
+       'proposal-and-research',
+       'Senior Project Proposal Draft',
+       'Student drafts proposal in the app or uploads a proposal document.',
        1,
-       10
+       3
      )
      ON CONFLICT(id) DO UPDATE SET
        program_id = excluded.program_id,
@@ -164,12 +164,15 @@ async function seedAlphaAssignments(env: Env): Promise<void> {
      VALUES (
        'progress-alpha-maya-proposal',
        'test_user_student_maya',
-       'req-alpha-proposal',
-       'proposal',
+       'req-proposal-draft',
+       'proposal-and-research',
        'in_progress',
        'test_user_student_maya'
      )
      ON CONFLICT(id) DO UPDATE SET
+       student_id = excluded.student_id,
+       requirement_id = excluded.requirement_id,
+       phase = excluded.phase,
        status = excluded.status,
        updated_by = excluded.updated_by,
        updated_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now')`,
@@ -177,8 +180,10 @@ async function seedAlphaAssignments(env: Env): Promise<void> {
 
   await env.DB.prepare(
     `INSERT INTO submissions (id, student_id, requirement_id, status, version)
-     VALUES ('submission-alpha-maya-proposal', 'test_user_student_maya', 'req-alpha-proposal', 'draft', 1)
+     VALUES ('submission-alpha-maya-proposal', 'test_user_student_maya', 'req-proposal-draft', 'draft', 1)
      ON CONFLICT(id) DO UPDATE SET
+       student_id = excluded.student_id,
+       requirement_id = excluded.requirement_id,
        status = excluded.status,
        version = excluded.version,
        updated_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now')`,
@@ -287,7 +292,7 @@ export const onRequest: PagesFunction<Env> = async ({ request, env }) => {
       groupId: "group-alpha-it-2026",
       studentId: "test_user_student_maya",
       mentorAssignmentId: "mentor-alpha-rivera-maya",
-      requirementId: "req-alpha-proposal",
+      requirementId: "req-proposal-draft",
       progressRecordId: "progress-alpha-maya-proposal",
       submissionId: "submission-alpha-maya-proposal",
       evidenceArtifactId: "evidence-alpha-maya-category-map",

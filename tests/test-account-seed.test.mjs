@@ -22,7 +22,7 @@ test("test account seed endpoint covers the alpha roles and fixtures", () => {
     "alpha-2026",
     "group-alpha-it-2026",
     "mentor-alpha-rivera-maya",
-    "req-alpha-proposal",
+    "req-proposal-draft",
     "submission-alpha-maya-proposal",
     "evidence-alpha-maya-category-map",
   ]) {

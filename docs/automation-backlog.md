@@ -28,7 +28,7 @@ Active automation ownership is tracked in `docs/automation-cadence.md`. The `own
 - `source`: 2026 source-PDF curriculum ingestion
 - `affected area`: framework seed loading
 - `evidence`: `data/capstone-framework.json` defines 16 requirements with due labels, credit owners, review gates, quality nudges, evidence expectations, and dashboard signals. Migration `migrations/0002_framework_seed.sql` adds minimal tables for sections, quality checks, credit owners, review gates, student evidence, and dashboard signals. `scripts/framework-seed.mjs` generates idempotent seed SQL for requirements/deadlines/checks and related framework tables; migration `migrations/0003_framework_seed_data.sql` captures the generated seed data; tests `tests/framework-seed.test.mjs` + `tests/framework-seed-migration.test.mjs` guard counts and prevent leaking local source paths into SQL output.
-- `next action`: Apply migrations (including `0003_framework_seed_data.sql`) to local/remote D1 (wrangler), verify seeded counts by query, then wire student/staff endpoints to use seeded requirements instead of the alpha-only placeholder requirement.
+- `next action`: Apply migrations (including `0003_framework_seed_data.sql`) to local/remote D1 (wrangler) and verify seeded counts by query; then re-run the admin test-account seed endpoint to migrate the alpha submission/progress fixtures onto the seeded requirement IDs (starting with `req-proposal-draft`).
 - `last updated`: 2026-05-19
 
 ### SC-002
