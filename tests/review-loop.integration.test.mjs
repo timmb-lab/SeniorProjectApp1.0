@@ -43,7 +43,7 @@ test("end-to-end teacher review loop persists history and updates queue", async 
     assert.equal(body.queue.length, 1);
     assert.equal(body.queue[0].submission_id, "submission-1");
     assert.equal(body.queue[0].status, "submitted");
-    assert.equal(body.queue[0].evidence_count, 0);
+    assert.equal(body.queue[0].evidence_count, 1);
   }
 
   // teacher requests revision
@@ -141,7 +141,24 @@ test("end-to-end teacher review loop persists history and updates queue", async 
   }
 });
 
-async function createFixture() {
+test("student submission blocks when no evidence artifacts exist", async () => {
+  const fixture = await createFixture({ includeEvidence: false });
+
+  const response = await onSubmitSubmission({
+    request: buildAuthedRequest("https://example.test/api/submissions/submission-1/submit", fixture.studentToken, {
+      method: "POST",
+    }),
+    env: fixture.env,
+    params: { id: "submission-1" },
+  });
+
+  assert.equal(response.status, 409);
+  const body = await response.json();
+  assert.deepEqual(body, { error: "submission_missing_evidence", ok: false });
+});
+
+async function createFixture(options = {}) {
+  const includeEvidence = options.includeEvidence !== false;
   const db = new MockD1Database({
     userAccounts: [],
     sessions: [],
@@ -210,6 +227,21 @@ async function createFixture() {
     updated_by: null,
     updated_at: "2026-05-20T00:00:00.000Z",
   });
+
+  if (includeEvidence) {
+    db.data.evidenceArtifacts.push({
+      id: "evidence-1",
+      student_id: "student-a",
+      submission_id: "submission-1",
+      artifact_type: "planning_document",
+      source_kind: "external_link",
+      external_url: "https://example.test/evidence",
+      title: "First evidence link",
+      review_status: "pending_review",
+      created_at: "2026-05-20T00:00:00.000Z",
+      deleted_at: null,
+    });
+  }
 
   return { env, db, studentToken, teacherToken };
 }
@@ -303,6 +335,17 @@ class MockPreparedStatement {
         status: row.status,
         version: row.version,
       };
+    }
+
+    if (this.sql.startsWith("select count(id) as evidence_count from evidence_artifacts where submission_id = ?")) {
+      const [submissionId] = this.params;
+      const evidenceCount = this.data.evidenceArtifacts.filter((artifact) => {
+        if (artifact.submission_id !== submissionId) return false;
+        if (artifact.deleted_at) return false;
+        if (artifact.review_status === "archived") return false;
+        return true;
+      }).length;
+      return { evidence_count: evidenceCount };
     }
 
     if (this.sql.includes("from mentor_assignments")) {
@@ -545,4 +588,3 @@ function teacherScopeAllows(data, { studentId, teacherUserId }) {
   }
   return false;
 }
-

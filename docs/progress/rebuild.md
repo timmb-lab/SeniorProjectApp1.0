@@ -150,3 +150,16 @@ Each rebuild run should append a dated entry with:
 - `self-improvement`: none.
 - `commit/push status`: committed + pushed in this run.
 - `next action`: Implement password reset endpoints and account lifecycle flows (disable/reactivate, credential rotation) while keeping alpha fake `.test` accounts available for walkthrough QA.
+
+### 2026-05-20 04:16 PT - MVP-012 Block Submissions Without Evidence
+
+- `automation`: `senior-capstone-hourly-qol-orchestrator`
+- `master-plan section`: Day 7 Alpha Gate; Seven-day implementation ladder (Day 3: evidence metadata validation + blocked-submit states); Logging Requirements.
+- `source docs/logs read`: `docs/master-plan.md`, `docs/mvp-requirements-catalog.md`, `docs/automation-runbook.md`, `docs/automation-self-improvement.md`, `docs/automation-cadence.md`, `docs/automation-milestones.md`, `docs/automation-memory.md`, `docs/progress/run-log.md`, recent `docs/progress/runs/`, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, and `automation/qol/reports/latest.md`.
+- `backlog or requirement IDs selected`: `SC-005`, `SC-006`, `MVP-012`.
+- `bounded scope`: Implement a real blocked-submit state by requiring at least one attached evidence artifact before a student can submit a proposal for review.
+- `files changed`: `functions/api/submissions/[id]/submit.ts`, `tests/review-loop.integration.test.mjs`, `docs/mvp-requirements-catalog.md`, `docs/automation-memory.md`, `docs/progress/rebuild.md`, `docs/progress/run-log.md`, and `docs/progress/runs/2026-05-20-0416-submit-evidence-gate-mvp-012.json`.
+- `validation`: `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 test` (pass).
+- `self-improvement`: none.
+- `commit/push status`: pending in this run.
+- `next action`: Extend the student workflow by persisting guided section drafts/version history and wiring the submit gate into the UI so students see the specific missing-evidence requirement before a submit attempt.

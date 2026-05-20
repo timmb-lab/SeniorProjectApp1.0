@@ -1,0 +1,57 @@
+{
+  "run_id": "2026-05-20-0416-submit-evidence-gate-mvp-012",
+  "timestamp_local": "2026-05-20T04:16:00-07:00",
+  "automation_id": "senior-capstone-hourly-qol-orchestrator",
+  "trigger": "30-minute MVP builder run: implement a real blocked-submit state by requiring attached evidence before a student can submit a proposal for review.",
+  "lane": "student-workflow-evidence",
+  "status": "completed",
+  "accepted_mvp_pass": true,
+  "requirement_ids": [
+    "MVP-012"
+  ],
+  "backlog_ids": [
+    "SC-005",
+    "SC-006"
+  ],
+  "duration_minutes": 30,
+  "output_kind": "code+tests+docs",
+  "scope": "Update `/api/submissions/:id/submit` to enforce a minimum evidence-artifact gate (409 + audit) so the proposal workflow has a concrete blocked-submit state; extend integration coverage and update MVP docs/logs/manifests.",
+  "source_docs_read": [
+    "docs/master-plan.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/automation-runbook.md",
+    "docs/automation-self-improvement.md",
+    "docs/automation-cadence.md",
+    "docs/automation-milestones.md",
+    "docs/automation-memory.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-20-0340-evidence-download-misc-admin-mvp-014.json",
+    "docs/progress/handoffs.md",
+    "docs/progress/decision-log.md",
+    "docs/automation-backlog.md",
+    "docs/artifacts.json",
+    "docs/human-decisions.md",
+    "automation/qol/reports/latest.md",
+    "functions/api/submissions/[id]/submit.ts",
+    "tests/review-loop.integration.test.mjs"
+  ],
+  "changes": [
+    "Added evidence-artifact gating to `/api/submissions/:id/submit`: returns 409 `submission_missing_evidence` (audited) when no non-archived evidence artifacts are attached.",
+    "Updated the teacher review-loop integration fixture to attach one evidence artifact and assert the review queue reflects `evidence_count=1`.",
+    "Added an integration test proving the blocked-submit behavior when evidence is missing.",
+    "Updated MVP catalog + automation memory + run logs with this new blocked-submit evidence and added this structured run manifest."
+  ],
+  "validation": [
+    "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\\\scripts\\\\run-npm-script.ps1 test"
+  ],
+  "blockers": [],
+  "known_limits": [
+    "This run enforces evidence presence but does not yet persist guided section drafts/versions for the proposal workflow."
+  ],
+  "next_actions": [
+    "Add a D1-backed draft/sections persistence table for guided proposal content and preserve prior versions on resubmission.",
+    "Wire the submit gate into the student UI with a friendly missing-evidence callout before the submit attempt."
+  ],
+  "self_improvement": "none"
+}
+

@@ -31,6 +31,32 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, params }
     return workflowError("submission_not_submittable", 409);
   }
 
+  const evidenceCountRow = await env.DB.prepare(
+    `SELECT COUNT(id) AS evidence_count
+     FROM evidence_artifacts
+     WHERE submission_id = ?
+       AND deleted_at IS NULL
+       AND review_status != 'archived'`,
+  ).bind(submission.id).first<{ evidence_count: number }>();
+
+  const evidenceCount = Number(evidenceCountRow?.evidence_count || 0);
+  if (!Number.isFinite(evidenceCount) || evidenceCount <= 0) {
+    await writeAudit(env, {
+      actorUserId: user.id,
+      action: "submission_submit_blocked_missing_evidence",
+      entityType: "submission",
+      entityId: submission.id,
+      request,
+      metadata: {
+        submissionId: submission.id,
+        studentId: submission.student_id,
+        status: submission.status,
+        evidenceCount,
+      },
+    });
+    return workflowError("submission_missing_evidence", 409);
+  }
+
   const nextVersion = submission.status === "revision_requested" ? submission.version + 1 : submission.version;
   await env.DB.prepare(
     `UPDATE submissions

@@ -33,6 +33,7 @@ This is not a static guide, brochure, or visual-only project.
 - Executable permission-helper tests now cover the default-deny `canAccessStudent` role matrix used by protected evidence access checks: `tests/permissions-access.test.mjs`.
 - Evidence access route integration tests now execute `/api/evidence/:id/check-access` against a deterministic D1 mock and assert 401/403/404/200 behavior for student own access, mentor-assigned access, program-teacher program scope, admin access, misc-admin narrowing, plus audit events and storage-id redaction: `tests/evidence-check-access.integration.test.mjs`.
 - Teacher review loop integration tests now exercise student submit -> teacher revision request -> student resubmit (version++) -> teacher approval, asserting review queue membership plus persisted `reviews` + `status_history`: `tests/review-loop.integration.test.mjs`.
+- Student submissions now block on missing evidence: `/api/submissions/:id/submit` returns 409 `submission_missing_evidence` (audited) until at least one `evidence_artifacts` row is attached; coverage lives in `tests/review-loop.integration.test.mjs`.
 - Mentor meeting persistence foundation now exists: migration `migrations/0004_mentor_meetings.sql` plus authenticated mentor meeting record/list route `/api/mentor/meetings` with assignment-scope enforcement, audit events, and integration coverage in `tests/mentor-meetings.integration.test.mjs`.
 
 ## Active Automation Contract

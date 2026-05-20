@@ -150,3 +150,11 @@ Future productive runs should append compact entries that name the master-plan s
 - `files changed`: `tests/evidence-drive-file.integration.test.mjs`, `docs/mvp-requirements-catalog.md`, `docs/automation-memory.md`, `docs/progress/run-log.md`, and `docs/progress/runs/2026-05-20-0340-evidence-download-misc-admin-mvp-014.json`.
 - `verification`: `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 test` (pass).
 - `blockers`: none.
+
+## 2026-05-20 04:16 PT - MVP-012 Block Submissions Without Evidence
+
+- `master-plan sections`: Day 7 Alpha Gate; Seven-day implementation ladder (Day 3: evidence metadata validation + blocked-submit states); Logging Requirements.
+- `requirement IDs`: `MVP-012`; `backlog IDs`: `SC-005`, `SC-006`.
+- `files changed`: `functions/api/submissions/[id]/submit.ts`, `tests/review-loop.integration.test.mjs`, `docs/mvp-requirements-catalog.md`, `docs/automation-memory.md`, `docs/progress/rebuild.md`, `docs/progress/run-log.md`, and `docs/progress/runs/2026-05-20-0416-submit-evidence-gate-mvp-012.json`.
+- `verification`: `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 test` (pass).
+- `blockers`: none.
