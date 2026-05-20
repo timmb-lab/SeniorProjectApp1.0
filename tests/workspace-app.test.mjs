@@ -59,4 +59,5 @@ test("workspace production text avoids internal build language", () => {
 test("production surface checker includes the authenticated workspace", () => {
   assert.match(productionSurfaceCheck, /"workspace\.html"/);
   assert.match(productionSurfaceCheck, /"workspace\.js"/);
+  assert.match(productionSurfaceCheck, /"workspace\.css"/);
 });

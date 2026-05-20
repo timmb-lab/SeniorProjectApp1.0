@@ -91,7 +91,7 @@ function renderSignIn(message = "", tone = "neutral") {
         </a>
         <div>
           <p class="workspace-kicker">Senior Project Workspace</p>
-          <h1 id="signInTitle">Sign in to continue</h1>
+          <h1 id="signInTitle">Senior Project Workspace</h1>
           <p>
             Review your project status, attach evidence, follow teacher feedback, and keep the
             required Senior Project artifacts in one place.
@@ -101,7 +101,7 @@ function renderSignIn(message = "", tone = "neutral") {
       <div class="workspace-auth-panel">
         <div>
           <p class="workspace-kicker">Account access</p>
-          <h2>Welcome back</h2>
+          <h2>Sign in to continue</h2>
         </div>
         ${message ? statusHtml(message, tone) : ""}
         <form id="workspaceLoginForm" class="workspace-form">

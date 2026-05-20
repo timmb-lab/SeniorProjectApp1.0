@@ -75,3 +75,5 @@ The active non-Figma MVP builder prompt is not this legacy diagnostic report, bu
 - push status
 
 Live Cloudflare verification must be labeled separately from static/local checks. If `CLOUDFLARE_API_TOKEN` or another required secret is missing, record the blocked state instead of converting static checks into a live verification claim.
+
+Closeout manifests must not keep `commit` or `pushed` fields as `pending` after a run has produced and pushed a source commit. If a manifest is written before the final commit SHA exists, either update the manifest with the implementation commit SHA after commit/push, or record a post-commit closeout entry in the run log and handoff ledger so the next evidence-integrity pass can reconcile the structured manifest without inventing self-referential commit data.

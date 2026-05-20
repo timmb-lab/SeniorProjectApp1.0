@@ -52,8 +52,48 @@ test("evidence file upload returns 503 and audits when Drive root config is miss
   assert.equal(response.status, 503);
   assert.deepEqual(await response.json(), { error: "drive_config_missing", ok: false });
 
+  assert.equal(fixture.db.data.evidenceArtifacts.length, 0);
   assert.equal(fixture.db.data.auditEvents.length, 1);
   assert.equal(fixture.db.data.auditEvents[0].action, "google_drive_upload_missing_config");
+});
+
+test("evidence file upload returns 503 and audits when Drive credentials are missing", async () => {
+  const fixture = await createFixtureWithSession({ userId: "student-a", roleId: "student" });
+  fixture.env.GOOGLE_DRIVE_PRIVATE_KEY = "";
+  fixture.db.data.submissions.push({
+    id: "submission-1",
+    student_id: "student-a",
+    requirement_id: null,
+    status: "draft",
+    version: 1,
+  });
+
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async () => {
+    throw new Error("fetch should not be called when Drive credentials are missing");
+  };
+
+  try {
+    const response = await onUploadEvidenceFile({
+      request: buildUploadRequest({
+        url: "https://example.test/api/submissions/submission-1/evidence/upload",
+        token: fixture.token,
+      }),
+      env: fixture.env,
+      params: { id: "submission-1" },
+    });
+
+    assert.equal(response.status, 503);
+    assert.deepEqual(await response.json(), { error: "drive_credentials_missing", ok: false });
+    assert.equal(fixture.db.data.evidenceArtifacts.length, 0);
+    assert.equal(fixture.db.data.auditEvents.length, 1);
+    assert.equal(fixture.db.data.auditEvents[0].action, "google_drive_upload_missing_credentials");
+    assert.deepEqual(fixture.db.data.auditEvents[0].metadata, {
+      credentialParts: { clientEmail: true, privateKey: false },
+    });
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
 });
 
 test("evidence file upload returns 502 and audits when token exchange fails", async () => {
@@ -87,10 +127,112 @@ test("evidence file upload returns 502 and audits when token exchange fails", as
 
     assert.equal(response.status, 502);
     assert.deepEqual(await response.json(), { error: "drive_token_exchange_failed", ok: false });
+    assert.equal(fixture.db.data.evidenceArtifacts.length, 0);
     assert.equal(fixture.db.data.auditEvents.length, 1);
     assert.equal(fixture.db.data.auditEvents[0].action, "google_drive_upload_token_exchange_failed");
+    assert.doesNotMatch(JSON.stringify(fixture.db.data.auditEvents[0].metadata), /PRIVATE KEY|access_token|test-token/i);
   } finally {
     globalThis.fetch = originalFetch;
+  }
+});
+
+test("evidence file upload returns 404 without provider calls when submission is missing", async () => {
+  const fixture = await createFixtureWithSession({ userId: "student-a", roleId: "student" });
+
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async () => {
+    throw new Error("fetch should not be called when submission is missing");
+  };
+
+  try {
+    const response = await onUploadEvidenceFile({
+      request: buildUploadRequest({
+        url: "https://example.test/api/submissions/submission-missing/evidence/upload",
+        token: fixture.token,
+      }),
+      env: fixture.env,
+      params: { id: "submission-missing" },
+    });
+
+    assert.equal(response.status, 404);
+    assert.deepEqual(await response.json(), { error: "not_found", ok: false });
+    assert.equal(fixture.db.data.evidenceArtifacts.length, 0);
+    assert.equal(fixture.db.data.auditEvents.length, 0);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("evidence file upload denies a student uploading to another student's submission", async () => {
+  const fixture = await createFixtureWithSession({ userId: "student-b", roleId: "student" });
+  fixture.db.data.submissions.push({
+    id: "submission-1",
+    student_id: "student-a",
+    requirement_id: null,
+    status: "draft",
+    version: 1,
+  });
+
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async () => {
+    throw new Error("fetch should not be called when upload scope is denied");
+  };
+
+  try {
+    const response = await onUploadEvidenceFile({
+      request: buildUploadRequest({
+        url: "https://example.test/api/submissions/submission-1/evidence/upload",
+        token: fixture.token,
+      }),
+      env: fixture.env,
+      params: { id: "submission-1" },
+    });
+
+    assert.equal(response.status, 403);
+    assert.deepEqual(await response.json(), { error: "forbidden", ok: false });
+    assert.equal(fixture.db.data.evidenceArtifacts.length, 0);
+    assert.equal(fixture.db.data.auditEvents.length, 1);
+    assert.equal(fixture.db.data.auditEvents[0].action, "evidence_upload_denied");
+    assert.deepEqual(fixture.db.data.auditEvents[0].metadata, { studentId: "student-a" });
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("evidence file upload denies non-student roles before provider calls", async () => {
+  for (const roleId of ["mentor", "program_teacher", "admin", "misc_admin"]) {
+    const fixture = await createFixtureWithSession({ userId: `${roleId}-a`, roleId });
+    fixture.db.data.submissions.push({
+      id: "submission-1",
+      student_id: "student-a",
+      requirement_id: null,
+      status: "draft",
+      version: 1,
+    });
+
+    const originalFetch = globalThis.fetch;
+    globalThis.fetch = async () => {
+      throw new Error(`fetch should not be called when ${roleId} upload is denied`);
+    };
+
+    try {
+      const response = await onUploadEvidenceFile({
+        request: buildUploadRequest({
+          url: "https://example.test/api/submissions/submission-1/evidence/upload",
+          token: fixture.token,
+        }),
+        env: fixture.env,
+        params: { id: "submission-1" },
+      });
+
+      assert.equal(response.status, 403, roleId);
+      assert.deepEqual(await response.json(), { error: "forbidden", ok: false }, roleId);
+      assert.equal(fixture.db.data.evidenceArtifacts.length, 0, roleId);
+      assert.equal(fixture.db.data.auditEvents.length, 1, roleId);
+      assert.equal(fixture.db.data.auditEvents[0].action, "evidence_upload_denied", roleId);
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
   }
 });
 
@@ -123,6 +265,80 @@ test("evidence file upload rejects unsupported file types before provider calls"
 
     assert.equal(response.status, 400);
     assert.deepEqual(await response.json(), { error: "unsupported_file_type" });
+    assert.equal(fixture.db.data.evidenceArtifacts.length, 0);
+    assert.equal(fixture.db.data.auditEvents.length, 0);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("evidence file upload rejects empty files before provider calls", async () => {
+  const fixture = await createFixtureWithSession({ userId: "student-a", roleId: "student" });
+  fixture.db.data.submissions.push({
+    id: "submission-1",
+    student_id: "student-a",
+    requirement_id: null,
+    status: "draft",
+    version: 1,
+  });
+
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async () => {
+    throw new Error("fetch should not be called for empty files");
+  };
+
+  try {
+    const response = await onUploadEvidenceFile({
+      request: buildUploadRequest({
+        url: "https://example.test/api/submissions/submission-1/evidence/upload",
+        token: fixture.token,
+        fileName: "empty.txt",
+        fileType: "text/plain",
+        fileBytes: "",
+      }),
+      env: fixture.env,
+      params: { id: "submission-1" },
+    });
+
+    assert.equal(response.status, 400);
+    assert.deepEqual(await response.json(), { error: "empty_file" });
+    assert.equal(fixture.db.data.evidenceArtifacts.length, 0);
+    assert.equal(fixture.db.data.auditEvents.length, 0);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("evidence file upload rejects oversized files before token exchange or provider calls", async () => {
+  const fixture = await createFixtureWithSession({ userId: "student-a", roleId: "student" });
+  fixture.db.data.submissions.push({
+    id: "submission-1",
+    student_id: "student-a",
+    requirement_id: null,
+    status: "draft",
+    version: 1,
+  });
+
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async () => {
+    throw new Error("fetch should not be called for oversized files");
+  };
+
+  try {
+    const response = await onUploadEvidenceFile({
+      request: buildUploadRequest({
+        url: "https://example.test/api/submissions/submission-1/evidence/upload",
+        token: fixture.token,
+        fileName: "too-large.pdf",
+        fileType: "application/pdf",
+        fileSizeBytes: 20 * 1024 * 1024 + 1,
+      }),
+      env: fixture.env,
+      params: { id: "submission-1" },
+    });
+
+    assert.equal(response.status, 400);
+    assert.deepEqual(await response.json(), { error: "file_too_large" });
     assert.equal(fixture.db.data.evidenceArtifacts.length, 0);
     assert.equal(fixture.db.data.auditEvents.length, 0);
   } finally {
@@ -174,6 +390,49 @@ test("evidence file upload returns 200, writes DB rows, and omits storage ids", 
     assert.equal(fixture.db.data.auditEvents.length, 1);
     assert.equal(fixture.db.data.auditEvents[0].action, "evidence_file_uploaded");
     assert.doesNotMatch(JSON.stringify(body), /drive_file_id|driveFileId|access_token|PRIVATE KEY/i);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("evidence file upload returns 502 and audits when Drive provider request throws", async () => {
+  const fixture = await createFixtureWithSession({ userId: "student-a", roleId: "student" });
+  fixture.db.data.submissions.push({
+    id: "submission-1",
+    student_id: "student-a",
+    requirement_id: null,
+    status: "draft",
+    version: 1,
+  });
+
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async (input) => {
+    const url = resolveFetchUrl(input);
+    if (url === "https://oauth2.googleapis.com/token") {
+      return jsonResponse({ access_token: "test-token", expires_in: 3600, token_type: "Bearer" });
+    }
+    if (url.startsWith("https://www.googleapis.com/upload/drive/v3/files")) {
+      throw new Error("provider connection failed");
+    }
+    throw new Error(`Unexpected fetch URL in test: ${url}`);
+  };
+
+  try {
+    const response = await onUploadEvidenceFile({
+      request: buildUploadRequest({
+        url: "https://example.test/api/submissions/submission-1/evidence/upload",
+        token: fixture.token,
+      }),
+      env: fixture.env,
+      params: { id: "submission-1" },
+    });
+
+    assert.equal(response.status, 502);
+    assert.deepEqual(await response.json(), { error: "drive_provider_error", ok: false });
+    assert.equal(fixture.db.data.evidenceArtifacts.length, 0);
+    assert.equal(fixture.db.data.auditEvents.length, 1);
+    assert.equal(fixture.db.data.auditEvents[0].action, "google_drive_upload_request_failed");
+    assert.deepEqual(fixture.db.data.auditEvents[0].metadata, { message: "provider connection failed" });
   } finally {
     globalThis.fetch = originalFetch;
   }

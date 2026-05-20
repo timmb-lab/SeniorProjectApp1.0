@@ -44,10 +44,10 @@ Status values:
 - `status`: open
 - `source`: P0 production app/website gate
 - `artifact`: `docs/master-plan.md`, `docs/mvp-requirements-catalog.md`, `docs/production-surface-registry.md`, `docs/source-materials/production-content-crosswalk.md`, `scripts/check-production-surfaces.mjs`, `SC-007`
-- `next action`: Broaden no-hidden-core-content coverage proof across every public guide route, add browser smoke and denial-state tests for `workspace.html`, and verify hosted workspace login/upload once live secrets are available.
-- `acceptance check`: Public website mode toggle stays visible with source-aligned Student/Teacher content; normal public nav stays free of alpha/account/internal QA links; canonical `workspace.html` route requires auth and chooses screens from D1-backed role/scope.
-- `evidence to close`: Passing `check:production-surfaces`, `check:generated-output-drift`, `check`, `tests/workspace-app.test.mjs`, route-level no-hidden-core-content evidence, browser smoke proof, and live verification for hosted workspace auth/upload when Cloudflare/Drive secrets are available.
-- `last updated`: 2026-05-20 14:45 PT
+- `next action`: Broaden no-hidden-core-content coverage proof across every public guide route, align local fake `.test` credentials with local D1 state, then run credential-backed browser smoke for `workspace.html` login/session restore, role sections, evidence link, upload blocked state, and logout; verify hosted workspace login/upload once live secrets are available.
+- `acceptance check`: Public website mode toggle stays visible with source-aligned Student/Teacher content; normal public nav stays free of alpha/account/internal QA links; canonical `workspace.html` route requires auth and chooses screens from D1-backed role/scope, with signed-in browser proof for every seeded role.
+- `evidence to close`: Passing `check:production-surfaces`, `check:generated-output-drift`, `check`, `tests/workspace-app.test.mjs`, `tests/workspace-browser-smoke.test.mjs` against a local Pages dev target, route-level no-hidden-core-content evidence, credential-backed browser role/upload/logout proof, and live verification for hosted workspace auth/upload when Cloudflare/Drive secrets are available.
+- `last updated`: 2026-05-20 15:09 PT
 
 ### H-2026-05-20-008
 

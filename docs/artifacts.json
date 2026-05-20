@@ -130,12 +130,16 @@
         "workspace.css",
         "workspace.js",
         "tests/workspace-app.test.mjs",
+        "tests/workspace-browser-smoke.test.mjs",
         "docs/production-surface-registry.md"
       ],
       "verification": [
         "2026-05-20: focused workspace source test passed with 3/3 tests.",
+        "2026-05-20: local HTTP workspace smoke passed against http://127.0.0.1:8788, proving /workspace.html redirects/serves the canonical route, static assets load, signed-out /api/auth/me returns 401 with authenticated=false, and logout is harmless.",
+        "2026-05-20: in-app browser smoke confirmed the visible Senior Project Workspace H1, sign-in prompt, email/password fields, return-to-guide link, no forbidden visible dev-copy terms, and no console errors.",
         "2026-05-20: production-surface checker includes workspace.html, workspace.js, and workspace.css and passed locally.",
-        "2026-05-20: evidence upload integration test passed with unsupported-file rejection coverage.",
+        "2026-05-20: evidence upload integration test passed with missing-session, missing-submission, cross-student denial, non-student denial, invalid file, missing Drive config/credential, token/provider failure, success, and resumable coverage.",
+        "2026-05-20: credential-backed local browser login with the ignored fake .test account file was attempted, but the local Pages/D1 target returned invalid credentials; signed-in browser role/upload/logout proof remains blocked until local seeded credentials and D1 state are aligned.",
         "Live hosted workspace auth/upload verification remains blocked until Cloudflare and Google Drive secrets are available in the target environment."
       ],
       "last_updated": "2026-05-20"

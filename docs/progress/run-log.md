@@ -38,7 +38,7 @@ Future productive runs should append compact entries that name the master-plan s
 - `upload status`: Workspace now posts evidence links to `/api/submissions/:id/evidence` and file uploads to `/api/submissions/:id/evidence/upload`; server rejects unsupported file types before provider calls; live Drive upload/download still requires configured Cloudflare secrets.
 - `copy cleanup`: Removed sample-student/prompt/placeholder source language from public app JS, moved stakeholder CTAs from internal alpha QA to workspace, and kept remaining fake/smoke/fixture language limited to internal `alpha.html`/`account.html`.
 - `blockers`: Live Cloudflare and real Google Drive upload/download verification remain blocked without `CLOUDFLARE_API_TOKEN` plus Drive credential secrets in the target environment.
-- `commit`: pending until validation, commit, and push complete.
+- `commit`: `233e7506180b9ab3c24c8578eeff687d29233a48` (`mvp: add authenticated workspace and upload validation`), pushed to `origin main`.
 - `self-improvement`: Non-Figma builder prompt now requires maximum practical session budget, repeated MVP passes, login/upload/copy priority, static-vs-live Cloudflare distinction, validation evidence, and commit/push closeout.
 
 ## 2026-05-20 12:06 PT - Primary Alpha Review History
