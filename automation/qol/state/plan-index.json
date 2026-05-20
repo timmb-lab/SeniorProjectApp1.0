@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-05-20T00:36:46.268Z",
+  "generatedAt": "2026-05-20T00:53:15.227Z",
   "masterPlanPath": "docs/master-plan.md",
   "masterPlanChecksum": "04802650fc63b7e1706372f956ad674ec67862769dfef15746a1200ba8d2dc12",
   "requirementCatalogPath": "docs/mvp-requirements-catalog.md",
   "requirementCatalogChecksum": "debbf278914022d0833a0ec7368818f445d35a06cb5185daa341a42cac661dba",
-  "taskCount": 39,
+  "taskCount": 40,
   "tasks": [
     {
       "id": "MVP-001",
@@ -366,6 +366,16 @@
       "priority": 115,
       "cadence": "one-shot",
       "source": "docs/automation-backlog.md"
+    },
+    {
+      "id": "QOL-HOURLY-MASTER-PLAN-ORCHESTRATOR",
+      "title": "Maintain Hourly Master-Plan Orchestrator",
+      "category": "qol-automation",
+      "section": "Hourly Master-Plan Orchestrator",
+      "state": "recurring",
+      "priority": 125,
+      "cadence": "every_30_minutes",
+      "source": "docs/master-plan.md"
     },
     {
       "id": "QOL-LOGGING-REQUIREMENTS",

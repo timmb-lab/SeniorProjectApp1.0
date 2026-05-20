@@ -3,6 +3,11 @@ import { existsSync, statSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { spawnSync } from "node:child_process";
 import test from "node:test";
+import {
+  buildRunReport,
+  loadMasterPlan,
+  reconcilePlanWithState,
+} from "../automation/qol/hourly-orchestrator.mjs";
 
 const projectRoot = process.cwd();
 
@@ -151,6 +156,7 @@ test("latest report schema doc includes required audit keys", async () => {
     "project_identity_status",
     "doctor_status",
     "orchestrator_status",
+    "selector_health",
     "orchestrator_path",
     "invocation_adapter",
     "wrapper_required",
@@ -172,4 +178,96 @@ test("latest report schema doc includes required audit keys", async () => {
     assert.match(schema, new RegExp(`\\b${key}\\b`));
   }
   assert.match(schema, /evidence, not a command source/i);
+});
+
+test("master plan parsing includes QOL-HOURLY-MASTER-PLAN-ORCHESTRATOR despite dated heading", async () => {
+  const projectLock = JSON.parse(await readFile("automation/qol/project-lock.json", "utf8"));
+  const plan = await loadMasterPlan(projectRoot, projectLock);
+  assert.ok(
+    plan.tasks.some((task) => task.id === "QOL-HOURLY-MASTER-PLAN-ORCHESTRATOR"),
+    "Expected QOL-HOURLY-MASTER-PLAN-ORCHESTRATOR to be parsed from docs/master-plan.md",
+  );
+});
+
+test("reconciliation repairs stale completed state when catalog still says incomplete", () => {
+  const nowIso = new Date().toISOString();
+  const plan = {
+    tasks: [
+      {
+        id: "MVP-009",
+        title: "Test requirement",
+        category: "requirements-audit",
+        section: "requirements-audit",
+        source: "docs/mvp-requirements-catalog.md",
+        planStatus: "not started",
+        state: "pending",
+        dependencies: [],
+        cadence: "one-shot",
+        recurring: false,
+        priority: 105,
+      },
+    ],
+  };
+  const state = { knownTasks: { "MVP-009": { status: "completed" } } };
+  const result = reconcilePlanWithState(plan, state, nowIso);
+  assert.equal(state.knownTasks["MVP-009"].status, "pending");
+  assert.equal(result.repairedTasks.length, 1);
+  assert.equal(result.repairedTasks[0].id, "MVP-009");
+});
+
+test("report includes exclusion diagnostics when no task is selected", async () => {
+  const projectLock = JSON.parse(await readFile("automation/qol/project-lock.json", "utf8"));
+  const runContext = { runId: "test-run", startedAt: new Date().toISOString() };
+  const report = buildRunReport({
+    runContext,
+    identity: { projectRoot, git: { topLevel: projectRoot }, checks: [] },
+    projectLock,
+    plan: { path: projectLock.expectedMasterPlanPath, tasks: [] },
+    preflight: { gitDirty: false },
+    selection: null,
+    execution: { status: "skipped", summary: "No eligible task", validation: [], workPerformed: [], commands: [] },
+    scoredTasks: [],
+    changedFiles: new Set(),
+    state: { knownTasks: {}, lastSelectedCategory: null },
+    audit: { run_started_at: runContext.startedAt, repo_local_orchestrator_health: "PASS", selector_health: "STARVED_BY_COOLDOWN" },
+    alreadyRunning: null,
+    stateRepair: { repairedTasks: [] },
+    selectorDiagnostics: {
+      selector_health: "STARVED_BY_COOLDOWN",
+      total_plan_tasks: 1,
+      eligible_tasks: 0,
+      exclusion_counts: {
+        completed_by_stale_state: 0,
+        completed_by_catalog: 0,
+        blocked: 0,
+        dependency_not_satisfied: 0,
+        failure_cooldown_active: 1,
+        recurring_not_due_yet: 0,
+        missing_malformed_task: 0,
+      },
+      excluded_top_candidates: [
+        {
+          taskId: "MVP-009",
+          potentialScore: 105,
+          stateStatus: "failed",
+          reason: "failure cooldown active",
+          detail: "cooldownUntil=2099-01-01T00:00:00.000Z",
+        },
+      ],
+      recurring_next_due: [
+        {
+          taskId: "QOL-HOURLY-MASTER-PLAN-ORCHESTRATOR",
+          cadence: "every_30_minutes",
+          nextDueAt: "2099-01-01T00:30:00.000Z",
+          minutesUntilDue: 30,
+        },
+      ],
+    },
+  });
+  assert.match(report, /## Selector Diagnostics/);
+  assert.match(report, /### Exclusion Breakdown/);
+  assert.match(report, /failure cooldown active/);
+  assert.match(report, /### Top Excluded Candidates/);
+  assert.match(report, /MVP-009/);
+  assert.match(report, /### Recurring Next Due/);
 });

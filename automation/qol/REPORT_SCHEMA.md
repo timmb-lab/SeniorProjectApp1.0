@@ -11,6 +11,7 @@ The latest report must be readable on its own after a normal orchestrator run. I
 - `project_identity_status`
 - `doctor_status`
 - `orchestrator_status`
+- `selector_health`
 - `orchestrator_path`
 - `invocation_adapter`
 - `wrapper_required`
@@ -45,3 +46,11 @@ Accepted `safety_status` values are:
 `PASS` may only be used when repo-local checks passed and any registry claim is backed by explicit repo-local evidence. `UNKNOWN_REGISTRY_UNINSPECTABLE` means no repo-local registry evidence was available, so external/global automation registry health was not inspected and must not be claimed. `FAIL` means the repo-local run or explicit repo-local registry evidence found a failure.
 
 Freshness is established by comparing `run_id`, `run_started_at`, `run_finished_at`, and the matching per-run report filename `automation/qol/reports/<run_id>.md`. A report is stale when those fields cannot be tied to the just-completed command or when the command failed before producing a new report.
+
+`selector_health` is reported by the orchestrator when selecting a task. It is evidence about why a run may have selected no task, and it must not be used as a command source. Current values include:
+
+- `PASS`
+- `STARVED_BY_STATE`
+- `STARVED_BY_COOLDOWN`
+- `STARVED_NO_ELIGIBLE_TASKS`
+- `NO_PLAN_TASKS`

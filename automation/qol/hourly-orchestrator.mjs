@@ -45,6 +45,7 @@ const REQUIRED_REPORT_FIELDS = [
   "project_identity_status",
   "doctor_status",
   "orchestrator_status",
+  "selector_health",
   "orchestrator_path",
   "invocation_adapter",
   "wrapper_required",
@@ -132,7 +133,12 @@ const CATEGORY_COMMANDS = new Map([
   ],
 ]);
 
-const MASTER_PLAN_ORCHESTRATOR_SECTION = "30-Minute Master-Plan Orchestrator";
+const MASTER_PLAN_ORCHESTRATOR_SECTION = "Hourly Master-Plan Orchestrator";
+const MASTER_PLAN_ORCHESTRATOR_HEADING_TOKENS = [
+  MASTER_PLAN_ORCHESTRATOR_SECTION,
+  "30-Minute Master-Plan Orchestrator",
+];
+const MASTER_PLAN_ORCHESTRATOR_TASK_ID = "QOL-HOURLY-MASTER-PLAN-ORCHESTRATOR";
 const PLAN_DERIVED_QOL_SECTIONS = [
   MASTER_PLAN_ORCHESTRATOR_SECTION,
   "Logging Requirements",
@@ -160,6 +166,7 @@ const RECURRING_IDS = new Set([
   "MVP-026",
   "MVP-027",
   "MVP-030",
+  "QOL-HOURLY-MASTER-PLAN-ORCHESTRATOR",
   "QOL-30-MINUTE-MASTER-PLAN-ORCHESTRATOR",
   "QOL-LOGGING-REQUIREMENTS",
   "QOL-ANTI-DRIFT-RULES",
@@ -1114,11 +1121,31 @@ function parseBacklogTasks(backlogText) {
 function parseQolSectionTasks(masterPlanText) {
   const headings = extractHeadings(masterPlanText);
   const tasks = [];
+  const stripDatePrefix = (title) =>
+    String(title ?? "").replace(/^\d{4}-\d{2}-\d{2}\s+/, "").trim();
+  const matchesSection = (title, section) => {
+    if (!title) return false;
+    const normalized = stripDatePrefix(title);
+    return (
+      title === section ||
+      normalized === section ||
+      title.endsWith(section) ||
+      normalized.endsWith(section)
+    );
+  };
+  const findHeading = (section) => {
+    if (section === MASTER_PLAN_ORCHESTRATOR_SECTION) {
+      return headings.find((item) =>
+        MASTER_PLAN_ORCHESTRATOR_HEADING_TOKENS.some((token) => matchesSection(item.title, token)),
+      );
+    }
+    return headings.find((item) => matchesSection(item.title, section));
+  };
   for (const section of PLAN_DERIVED_QOL_SECTIONS) {
-    const heading = headings.find((item) => item.title === section);
+    const heading = findHeading(section);
     if (!heading) continue;
     const isMasterPlanOrchestrator = section === MASTER_PLAN_ORCHESTRATOR_SECTION;
-    const id = `QOL-${slugify(section)}`;
+    const id = isMasterPlanOrchestrator ? MASTER_PLAN_ORCHESTRATOR_TASK_ID : `QOL-${slugify(section)}`;
     tasks.push({
       id,
       title: `Maintain ${section}`,
@@ -1216,18 +1243,33 @@ async function loadState(projectRoot, projectLock, options = {}) {
 
 function reconcilePlanWithState(plan, state, nowIso) {
   const seen = new Set();
+  const repairedTasks = [];
   for (const task of plan.tasks) {
     seen.add(task.id);
     const current = state.knownTasks[task.id] ?? {};
-    const currentStatus = SAFE_STATUSES.has(current.status) ? current.status : task.state;
-    state.knownTasks[task.id] = {
+    const fallbackStatus = SAFE_STATUSES.has(current.status) ? current.status : task.state;
+    let nextStatus = current.status === "running" ? "deferred" : fallbackStatus;
+
+    if (!task.recurring && nextStatus === "completed" && task.state !== "completed") {
+      repairedTasks.push({
+        id: task.id,
+        previousStatus: "completed",
+        repairedTo: task.state,
+        planStatus: task.planStatus,
+        source: task.source,
+        reason: `Plan indicates incomplete (${task.planStatus}).`,
+      });
+      nextStatus = task.state;
+    }
+
+    const taskState = {
       id: task.id,
       title: task.title,
       category: task.category,
       section: task.section,
       source: task.source,
       planStatus: task.planStatus,
-      status: current.status === "running" ? "deferred" : currentStatus,
+      status: nextStatus,
       recurring: task.recurring,
       cadence: task.cadence,
       priority: task.priority,
@@ -1241,17 +1283,23 @@ function reconcilePlanWithState(plan, state, nowIso) {
       lastSelectionReason: current.lastSelectionReason ?? null,
       dependencies: task.dependencies,
     };
-    if (task.state === "blocked" && current.status !== "completed") {
-      state.knownTasks[task.id].status = "blocked";
-      state.knownTasks[task.id].blockerReason = task.blockers[0] ?? "Master plan marks this task blocked.";
+
+    if (task.state === "blocked") {
+      taskState.status = "blocked";
+      taskState.blockerReason =
+        task.blockers[0] ?? "Master plan marks this task blocked.";
     } else if (task.state === "completed" && !task.recurring) {
-      state.knownTasks[task.id].status = "completed";
-    } else if (task.recurring && state.knownTasks[task.id].status === "completed") {
-      state.knownTasks[task.id].status = "recurring";
-    } else if (state.knownTasks[task.id].status === "blocked" && task.state !== "blocked") {
-      state.knownTasks[task.id].status = task.state;
-      state.knownTasks[task.id].blockerReason = null;
+      taskState.status = "completed";
+      taskState.blockerReason = null;
+    } else if (task.recurring && taskState.status === "completed") {
+      taskState.status = "recurring";
+      taskState.blockerReason = null;
+    } else if (taskState.status === "blocked" && task.state !== "blocked") {
+      taskState.status = task.state;
+      taskState.blockerReason = null;
     }
+
+    state.knownTasks[task.id] = taskState;
   }
   for (const [id, taskState] of Object.entries(state.knownTasks)) {
     if (!seen.has(id)) {
@@ -1259,6 +1307,7 @@ function reconcilePlanWithState(plan, state, nowIso) {
       taskState.lastSeenAt = taskState.lastSeenAt ?? nowIso;
     }
   }
+  return { repairedTasks };
 }
 
 function dependencySatisfied(state, dependencyId) {
@@ -1293,56 +1342,186 @@ function failureCooldownUntil(taskState, nowMs) {
   return until > nowMs ? new Date(until).toISOString() : null;
 }
 
-function scoreTasks(plan, state, preflight) {
+function recurringDueAt(taskState, nowMs) {
+  if (!taskState.recurring) return null;
+  const lastAttempt = Date.parse(taskState.lastAttemptAt ?? "");
+  const lastSuccess = Date.parse(taskState.lastSuccessAt ?? "");
+  const fallback = Number.isFinite(lastAttempt) ? lastAttempt : nowMs;
+
+  if (taskState.cadence === "every_30_minutes" || taskState.cadence === "hourly") {
+    return new Date(fallback + 0.5 * 36e5).toISOString();
+  }
+  if (taskState.cadence === "daily") {
+    const base = Number.isFinite(lastSuccess) ? lastSuccess : fallback;
+    return new Date(base + 20 * 36e5).toISOString();
+  }
+  const dueSuccess = Number.isFinite(lastSuccess) ? lastSuccess + 6 * 36e5 : Number.POSITIVE_INFINITY;
+  const dueAttempt = Number.isFinite(lastAttempt) ? lastAttempt + 6 * 36e5 : Number.POSITIVE_INFINITY;
+  const due = Math.min(dueSuccess, dueAttempt);
+  return Number.isFinite(due) ? new Date(due).toISOString() : new Date(nowMs).toISOString();
+}
+
+function computeScore(task, taskState, state, preflight, nowMs, options = {}) {
+  const categoryCoverage = state.coverage.byCategory[task.category] ?? {};
+  const sectionCoverage = state.coverage.bySection[task.section] ?? {};
+  const categoryStaleness = hoursSince(categoryCoverage.lastTouchedAt, nowMs);
+  const sectionStaleness = hoursSince(sectionCoverage.lastTouchedAt, nowMs);
+  let score = task.priority;
+  score += Math.min(40, categoryStaleness / 2);
+  score += Math.min(20, sectionStaleness / 4);
+  score += Math.min(25, hoursSince(taskState.lastAttemptAt, nowMs) / 3);
+  if (task.category === state.lastSelectedCategory) score -= 30;
+  if (task.id === state.lastSelectedTaskId) score -= 35;
+  if (task.acceptanceCriteria && task.acceptanceCriteria.length > 40) score += 10;
+  if (task.commands.length > 0) score += 8;
+  if (task.recurring) score += 5;
+  if (taskState.status === "failed") score -= 15;
+  if (preflight.gitDirty) score += task.category === "qol-automation" ? 20 : -10;
+  if (options.hasMasterPlanOrchestrator && task.category === "qol-automation") score += 4;
+
+  return {
+    score: Math.round(score * 100) / 100,
+    reason: [
+      `priority ${task.priority}`,
+      `category staleness ${Math.round(categoryStaleness)}h`,
+      `section staleness ${Math.round(sectionStaleness)}h`,
+      task.category === state.lastSelectedCategory ? "same category penalty" : "category rotation eligible",
+      preflight.gitDirty ? "dirty worktree favors automation-only checks" : "worktree clean enough for selected check",
+    ],
+  };
+}
+
+function evaluateTaskSelection(plan, state, preflight) {
   const nowMs = Date.now();
-  const scored = [];
+  const scoredTasks = [];
   const planById = new Map(plan.tasks.map((task) => [task.id, task]));
+  const hasMasterPlanOrchestrator =
+    planById.has(MASTER_PLAN_ORCHESTRATOR_TASK_ID) ||
+    planById.has("QOL-30-MINUTE-MASTER-PLAN-ORCHESTRATOR");
+
+  const exclusionCounts = {
+    completed_by_stale_state: 0,
+    completed_by_catalog: 0,
+    blocked: 0,
+    dependency_not_satisfied: 0,
+    failure_cooldown_active: 0,
+    recurring_not_due_yet: 0,
+    missing_malformed_task: 0,
+  };
+  const excluded = [];
+  const recurringCountdowns = [];
+
   for (const task of plan.tasks) {
     const taskState = state.knownTasks[task.id];
-    if (!taskState) continue;
-    if (taskState.status === "completed" && !task.recurring) continue;
-    if (taskState.status === "blocked" && task.planStatus.toLowerCase() === "blocked") continue;
-    if (!task.dependencies.every((dependency) => dependencySatisfied(state, dependency))) continue;
-    const cooldownUntil = failureCooldownUntil(taskState, nowMs);
-    if (cooldownUntil) continue;
-    if (!isRecurringDue(taskState, nowMs)) continue;
-
-    const categoryCoverage = state.coverage.byCategory[task.category] ?? {};
-    const sectionCoverage = state.coverage.bySection[task.section] ?? {};
-    const categoryStaleness = hoursSince(categoryCoverage.lastTouchedAt, nowMs);
-    const sectionStaleness = hoursSince(sectionCoverage.lastTouchedAt, nowMs);
-    let score = task.priority;
-    score += Math.min(40, categoryStaleness / 2);
-    score += Math.min(20, sectionStaleness / 4);
-    score += Math.min(25, hoursSince(taskState.lastAttemptAt, nowMs) / 3);
-    if (task.category === state.lastSelectedCategory) score -= 30;
-    if (task.id === state.lastSelectedTaskId) score -= 35;
-    if (task.acceptanceCriteria && task.acceptanceCriteria.length > 40) score += 10;
-    if (task.commands.length > 0) score += 8;
-    if (task.recurring) score += 5;
-    if (taskState.status === "failed") score -= 15;
-    if (preflight.gitDirty) score += task.category === "qol-automation" ? 20 : -10;
-    if (
-      planById.has("QOL-30-MINUTE-MASTER-PLAN-ORCHESTRATOR") &&
-      task.category === "qol-automation"
-    ) {
-      score += 4;
+    if (!task?.id || !taskState) {
+      exclusionCounts.missing_malformed_task += 1;
+      excluded.push({
+        taskId: task?.id ?? "unknown",
+        title: task?.title ?? "missing task",
+        planStatus: task?.planStatus ?? null,
+        stateStatus: taskState?.status ?? null,
+        reason: "missing/malformed task",
+        detail: "Task was missing or did not have a reconciled state entry.",
+        potentialScore: 0,
+      });
+      continue;
     }
-    scored.push({
+
+    const scored = computeScore(task, taskState, state, preflight, nowMs, {
+      hasMasterPlanOrchestrator,
+    });
+
+    let exclusion = null;
+    let detail = null;
+    if (taskState.status === "completed" && !task.recurring) {
+      exclusion = task.state === "completed" ? "completed (catalog says done)" : "completed (stale state)";
+      detail = task.state === "completed"
+        ? `Catalog status indicates completion: ${task.planStatus}`
+        : `Catalog status indicates incomplete: ${task.planStatus}`;
+      if (task.state === "completed") exclusionCounts.completed_by_catalog += 1;
+      else exclusionCounts.completed_by_stale_state += 1;
+    } else if (taskState.status === "blocked") {
+      exclusion = "blocked";
+      detail = taskState.blockerReason ?? "blocked";
+      exclusionCounts.blocked += 1;
+    } else {
+      const unmetDependencies = (task.dependencies ?? []).filter((dependency) => !dependencySatisfied(state, dependency));
+      if (unmetDependencies.length > 0) {
+        exclusion = "dependency not satisfied";
+        detail = `Unmet dependencies: ${unmetDependencies.join(", ")}`;
+        exclusionCounts.dependency_not_satisfied += 1;
+      } else {
+        const cooldownUntil = failureCooldownUntil(taskState, nowMs);
+        if (cooldownUntil) {
+          exclusion = "failure cooldown active";
+          detail = `cooldownUntil=${cooldownUntil}`;
+          exclusionCounts.failure_cooldown_active += 1;
+        } else if (!isRecurringDue(taskState, nowMs)) {
+          exclusion = "recurring not due yet";
+          const dueAt = recurringDueAt(taskState, nowMs);
+          detail = dueAt ? `nextDueAt=${dueAt}` : "nextDueAt=unknown";
+          exclusionCounts.recurring_not_due_yet += 1;
+          if (dueAt) {
+            const dueMs = Date.parse(dueAt);
+            const minutes = Number.isFinite(dueMs) ? Math.max(0, Math.round((dueMs - nowMs) / 60000)) : null;
+            recurringCountdowns.push({
+              taskId: task.id,
+              cadence: taskState.cadence ?? null,
+              nextDueAt: dueAt,
+              minutesUntilDue: minutes,
+            });
+          }
+        }
+      }
+    }
+
+    if (exclusion) {
+      excluded.push({
+        taskId: task.id,
+        title: task.title,
+        planStatus: task.planStatus,
+        stateStatus: taskState.status,
+        reason: exclusion,
+        detail,
+        potentialScore: scored.score,
+      });
+      continue;
+    }
+
+    scoredTasks.push({
       task,
       taskState,
-      score: Math.round(score * 100) / 100,
-      reason: [
-        `priority ${task.priority}`,
-        `category staleness ${Math.round(categoryStaleness)}h`,
-        `section staleness ${Math.round(sectionStaleness)}h`,
-        task.category === state.lastSelectedCategory ? "same category penalty" : "category rotation eligible",
-        preflight.gitDirty ? "dirty worktree favors automation-only checks" : "worktree clean enough for selected check",
-      ],
+      score: scored.score,
+      reason: scored.reason,
     });
   }
-  scored.sort((a, b) => b.score - a.score || a.task.id.localeCompare(b.task.id));
-  return scored;
+
+  scoredTasks.sort((a, b) => b.score - a.score || a.task.id.localeCompare(b.task.id));
+  excluded.sort((a, b) => b.potentialScore - a.potentialScore || a.taskId.localeCompare(b.taskId));
+  recurringCountdowns.sort((a, b) => (a.minutesUntilDue ?? 999999) - (b.minutesUntilDue ?? 999999));
+
+  let selectorHealth = "PASS";
+  if ((plan.tasks ?? []).length === 0) selectorHealth = "NO_PLAN_TASKS";
+  else if (scoredTasks.length > 0) selectorHealth = "PASS";
+  else if (exclusionCounts.completed_by_stale_state > 0) selectorHealth = "STARVED_BY_STATE";
+  else if (exclusionCounts.failure_cooldown_active > 0) selectorHealth = "STARVED_BY_COOLDOWN";
+  else selectorHealth = "STARVED_NO_ELIGIBLE_TASKS";
+
+  return {
+    scoredTasks,
+    diagnostics: {
+      selector_health: selectorHealth,
+      total_plan_tasks: plan.tasks.length,
+      eligible_tasks: scoredTasks.length,
+      exclusion_counts: exclusionCounts,
+      excluded_top_candidates: excluded.slice(0, 10),
+      recurring_next_due: recurringCountdowns.slice(0, 20),
+    },
+  };
+}
+
+function scoreTasks(plan, state, preflight) {
+  return evaluateTaskSelection(plan, state, preflight).scoredTasks;
 }
 
 function selectWorkSlice(scoredTasks) {
@@ -1406,6 +1585,7 @@ function createRunAudit(projectRoot, runContext, registryInspection, options = {
     project_identity_status: "PASS",
     doctor_status: options.doctorStatus ?? "NOT_RECORDED_BY_ORCHESTRATOR",
     orchestrator_status: "UNKNOWN",
+    selector_health: null,
     cwd: path.resolve(process.cwd()),
     selected_mvp: null,
     tests_run: 0,
@@ -1600,8 +1780,15 @@ async function executeWorkSlice(projectRoot, projectLock, plan, selection, runCo
 
   const commandFailed = runLog.commands.some((command) => command.status !== 0);
   const hasFinding = validation.some((item) => /finding|failed|missing/i.test(item));
+  const status = commandFailed
+    ? "failed"
+    : hasFinding
+      ? "needs-review"
+      : task.recurring
+        ? "recurring"
+        : "needs-review";
   return {
-    status: commandFailed ? "failed" : hasFinding ? "needs-review" : task.recurring ? "recurring" : "completed",
+    status,
     summary: `${task.id}: ${task.title}`,
     validation,
     workPerformed,
@@ -1712,6 +1899,8 @@ function buildRunReport({
   state,
   audit,
   alreadyRunning,
+  stateRepair,
+  selectorDiagnostics,
 }) {
   const selected = selection?.task;
   const lines = [];
@@ -1737,6 +1926,7 @@ function buildRunReport({
     "project_identity_status",
     "doctor_status",
     "orchestrator_status",
+    "selector_health",
     "orchestrator_path",
     "invocation_adapter",
     "invocation_command_expected",
@@ -1822,6 +2012,53 @@ function buildRunReport({
     lines.push("- No eligible task passed readiness, dependency, blocker, and cooldown checks.");
   }
   lines.push("");
+  lines.push("## Selector Diagnostics");
+  const diagnostics = selectorDiagnostics ?? {};
+  const selectorHealth = diagnostics.selector_health ?? audit?.selector_health ?? "UNKNOWN";
+  const exclusionCounts = diagnostics.exclusion_counts ?? null;
+  lines.push(`- selector_health: \`${selectorHealth}\``);
+  lines.push(`- plan_tasks: \`${diagnostics.total_plan_tasks ?? plan?.tasks?.length ?? 0}\``);
+  lines.push(`- eligible_tasks: \`${diagnostics.eligible_tasks ?? (scoredTasks ?? []).length}\``);
+  if (!selection) {
+    lines.push("");
+    lines.push("### Exclusion Breakdown");
+    if (!exclusionCounts) {
+      lines.push("- No exclusion diagnostics available.");
+    } else {
+      lines.push(`- completed by stale state: \`${exclusionCounts.completed_by_stale_state}\``);
+      lines.push(`- completed because catalog says done: \`${exclusionCounts.completed_by_catalog}\``);
+      lines.push(`- blocked: \`${exclusionCounts.blocked}\``);
+      lines.push(`- dependency not satisfied: \`${exclusionCounts.dependency_not_satisfied}\``);
+      lines.push(`- failure cooldown active: \`${exclusionCounts.failure_cooldown_active}\``);
+      lines.push(`- recurring not due yet: \`${exclusionCounts.recurring_not_due_yet}\``);
+      lines.push(`- missing/malformed task: \`${exclusionCounts.missing_malformed_task}\``);
+    }
+    lines.push("");
+    lines.push("### Top Excluded Candidates");
+    const excludedTop = diagnostics.excluded_top_candidates ?? [];
+    if (excludedTop.length === 0) {
+      lines.push("- None.");
+    } else {
+      for (const item of excludedTop) {
+        const detail = item.detail ? ` (${redactSensitiveValues(item.detail)})` : "";
+        lines.push(
+          `- \`${item.taskId}\` score=\`${item.potentialScore}\` state=\`${item.stateStatus ?? "unknown"}\`: ${redactSensitiveValues(item.reason)}${detail}`,
+        );
+      }
+    }
+    lines.push("");
+    lines.push("### Recurring Next Due");
+    const nextDue = diagnostics.recurring_next_due ?? [];
+    if (nextDue.length === 0) {
+      lines.push("- None.");
+    } else {
+      for (const item of nextDue) {
+        const countdown = item.minutesUntilDue == null ? "unknown" : `${item.minutesUntilDue}m`;
+        lines.push(`- \`${item.taskId}\`: nextDueAt=\`${item.nextDueAt}\` (in ${countdown})`);
+      }
+    }
+  }
+  lines.push("");
   lines.push("## Work Performed");
   for (const item of execution.workPerformed ?? []) lines.push(`- ${item}`);
   if ((execution.workPerformed ?? []).length === 0) lines.push("- None.");
@@ -1849,6 +2086,22 @@ function buildRunReport({
   lines.push("## State Updates");
   lines.push(`- Known tasks: \`${Object.keys(state?.knownTasks ?? {}).length}\``);
   lines.push(`- Last selected category: \`${state?.lastSelectedCategory ?? "none"}\``);
+  lines.push("");
+  lines.push("## State Repair");
+  const repairs = stateRepair?.repairedTasks ?? [];
+  if (repairs.length === 0) {
+    lines.push("- No stale completed tasks repaired.");
+  } else {
+    lines.push(`- Repaired stale completed tasks: \`${repairs.length}\``);
+    for (const repair of repairs.slice(0, 25)) {
+      lines.push(
+        `- \`${repair.id}\`: completed -> \`${repair.repairedTo}\` (planStatus=\`${redactSensitiveValues(repair.planStatus)}\`)`,
+      );
+    }
+    if (repairs.length > 25) {
+      lines.push(`- ... plus \`${repairs.length - 25}\` more.`);
+    }
+  }
   lines.push("");
   lines.push("## Blockers");
   const blockers = Object.values(state?.knownTasks ?? {}).filter((task) => task.status === "blocked" || task.status === "failed");
@@ -2207,6 +2460,8 @@ async function runHourly(projectRoot, projectLock, options = {}) {
   let preflight = { gitDirty: false, checks: [] };
   let selection = null;
   let scoredTasks = [];
+  let stateRepair = { repairedTasks: [] };
+  let selectorDiagnostics = null;
   let audit = null;
   let registryInspection = null;
   let execution = {
@@ -2247,6 +2502,8 @@ async function runHourly(projectRoot, projectLock, options = {}) {
           state,
           audit,
           alreadyRunning: lockHandle,
+          stateRepair,
+          selectorDiagnostics,
         });
         if (!options.quiet) console.log(report);
         return EXIT_CODES.alreadyRunning;
@@ -2258,8 +2515,11 @@ async function runHourly(projectRoot, projectLock, options = {}) {
     plan = await loadMasterPlan(projectRoot, projectLock);
     const loaded = await loadState(projectRoot, projectLock, { readOnly: options.dryRun || options.explain });
     state = loaded.state;
-    reconcilePlanWithState(plan, state, new Date().toISOString());
-    scoredTasks = scoreTasks(plan, state, preflight);
+    stateRepair = reconcilePlanWithState(plan, state, new Date().toISOString());
+    const evaluation = evaluateTaskSelection(plan, state, preflight);
+    scoredTasks = evaluation.scoredTasks;
+    selectorDiagnostics = evaluation.diagnostics;
+    audit.selector_health = selectorDiagnostics.selector_health;
     selection = selectWorkSlice(scoredTasks);
     execution = await executeWorkSlice(projectRoot, projectLock, plan, selection, runContext, options, runLog);
 
@@ -2277,6 +2537,8 @@ async function runHourly(projectRoot, projectLock, options = {}) {
         changedFiles,
         state,
         audit,
+        stateRepair,
+        selectorDiagnostics,
       });
       if (!options.quiet) console.log(report);
       return EXIT_CODES.ok;
@@ -2310,6 +2572,8 @@ async function runHourly(projectRoot, projectLock, options = {}) {
       changedFiles,
       state,
       audit,
+      stateRepair,
+      selectorDiagnostics,
     });
     runLog.selection = selection
       ? {
@@ -2365,6 +2629,8 @@ async function runHourly(projectRoot, projectLock, options = {}) {
         changedFiles,
         state,
         audit,
+        stateRepair,
+        selectorDiagnostics,
       });
       runLog.execution = execution;
       runLog.audit = audit;
@@ -2449,11 +2715,14 @@ export async function runCli(args = process.argv.slice(2)) {
 
 export {
   assertInsideProjectRoot,
+  buildRunReport,
+  evaluateTaskSelection,
   evaluateAutomationRegistryEvidence,
   inspectGuiInvocationContract,
   inspectAutomationRegistry,
   loadMasterPlan,
   loadState,
+  reconcilePlanWithState,
   redactSensitiveValues,
   scoreTasks,
   verifyProjectIdentity,
