@@ -334,7 +334,7 @@ test("evidence download returns 502 and audits when Drive download fails", async
   }
 });
 
-test("evidence download returns 200 and streams bytes when allowed", async () => {
+test("evidence download returns 200 and streams bytes for owning student", async () => {
   const fixture = await createFixtureWithSession({ userId: "student-a", roleId: "student" });
   fixture.db.data.evidenceArtifacts.push({
     id: "evidence-1",
@@ -375,7 +375,181 @@ test("evidence download returns 200 and streams bytes when allowed", async () =>
     assert.equal(response.headers.get("content-type"), "application/pdf");
     assert.equal(await response.text(), "pdf-bytes");
     assert.equal(fixture.db.data.auditEvents.length, 1);
-    assert.equal(fixture.db.data.auditEvents[0].action, "evidence_downloaded");
+    const [event] = fixture.db.data.auditEvents;
+    assert.equal(event.action, "evidence_downloaded");
+    assert.deepEqual(event.metadata, {
+      studentId: "student-a",
+      sourceKind: "google_drive_file",
+      actorRoleScopes: [{ roleId: "student", scopeType: "global", scopeId: "" }],
+    });
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("evidence download returns 200 and streams bytes for assigned mentor", async () => {
+  const fixture = await createFixtureWithSession({ userId: "mentor-a", roleId: "mentor" });
+  fixture.db.data.mentorAssignments.push({
+    mentor_user_id: "mentor-a",
+    student_user_id: "student-a",
+    active: 1,
+  });
+  fixture.db.data.evidenceArtifacts.push({
+    id: "evidence-1",
+    student_id: "student-a",
+    source_kind: "google_drive_file",
+    drive_file_id: "drive-file-123",
+    mime_type: "application/pdf",
+    title: "Evidence PDF",
+    deleted_at: null,
+  });
+
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async (input) => {
+    const url = resolveFetchUrl(input);
+    if (url === "https://oauth2.googleapis.com/token") {
+      return jsonResponse({ access_token: "test-token", expires_in: 3600, token_type: "Bearer" });
+    }
+    if (url.includes("https://www.googleapis.com/drive/v3/files/") && url.includes("alt=media")) {
+      return new Response("pdf-bytes", { status: 200, headers: { "content-type": "application/pdf" } });
+    }
+    throw new Error(`Unexpected fetch URL in test: ${url}`);
+  };
+
+  try {
+    const response = await onDownloadEvidenceFile({
+      request: new Request("https://example.test/api/evidence/evidence-1/download", {
+        headers: {
+          cookie: `sc_session=${fixture.token}`,
+          "cf-connecting-ip": "203.0.113.66",
+          "user-agent": "integration-test",
+        },
+      }),
+      env: fixture.env,
+      params: { id: "evidence-1" },
+    });
+
+    assert.equal(response.status, 200);
+    assert.equal(response.headers.get("content-type"), "application/pdf");
+    assert.equal(await response.text(), "pdf-bytes");
+    assert.equal(fixture.db.data.auditEvents.length, 1);
+    const [event] = fixture.db.data.auditEvents;
+    assert.equal(event.action, "evidence_downloaded");
+    assert.deepEqual(event.metadata, {
+      studentId: "student-a",
+      sourceKind: "google_drive_file",
+      actorRoleScopes: [{ roleId: "mentor", scopeType: "global", scopeId: "" }],
+    });
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("evidence download returns 200 and streams bytes for scoped program teacher", async () => {
+  const fixture = await createFixtureWithSession({ userId: "teacher-a", roleId: "program_teacher" });
+  fixture.db.data.userRoles[0].scope_type = "cohort";
+  fixture.db.data.userRoles[0].scope_id = "cohort-1";
+  fixture.db.data.groups.push({ id: "group-1", program_id: "program-1", cohort_id: "cohort-1" });
+  fixture.db.data.groupMemberships.push({ user_id: "student-a", group_id: "group-1" });
+  fixture.db.data.evidenceArtifacts.push({
+    id: "evidence-1",
+    student_id: "student-a",
+    source_kind: "google_drive_file",
+    drive_file_id: "drive-file-123",
+    mime_type: "application/pdf",
+    title: "Evidence PDF",
+    deleted_at: null,
+  });
+
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async (input) => {
+    const url = resolveFetchUrl(input);
+    if (url === "https://oauth2.googleapis.com/token") {
+      return jsonResponse({ access_token: "test-token", expires_in: 3600, token_type: "Bearer" });
+    }
+    if (url.includes("https://www.googleapis.com/drive/v3/files/") && url.includes("alt=media")) {
+      return new Response("pdf-bytes", { status: 200, headers: { "content-type": "application/pdf" } });
+    }
+    throw new Error(`Unexpected fetch URL in test: ${url}`);
+  };
+
+  try {
+    const response = await onDownloadEvidenceFile({
+      request: new Request("https://example.test/api/evidence/evidence-1/download", {
+        headers: {
+          cookie: `sc_session=${fixture.token}`,
+          "cf-connecting-ip": "203.0.113.67",
+          "user-agent": "integration-test",
+        },
+      }),
+      env: fixture.env,
+      params: { id: "evidence-1" },
+    });
+
+    assert.equal(response.status, 200);
+    assert.equal(response.headers.get("content-type"), "application/pdf");
+    assert.equal(await response.text(), "pdf-bytes");
+    assert.equal(fixture.db.data.auditEvents.length, 1);
+    const [event] = fixture.db.data.auditEvents;
+    assert.equal(event.action, "evidence_downloaded");
+    assert.deepEqual(event.metadata, {
+      studentId: "student-a",
+      sourceKind: "google_drive_file",
+      actorRoleScopes: [{ roleId: "program_teacher", scopeType: "cohort", scopeId: "cohort-1" }],
+    });
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("evidence download returns 200 and streams bytes for admin", async () => {
+  const fixture = await createFixtureWithSession({ userId: "admin-a", roleId: "admin" });
+  fixture.db.data.evidenceArtifacts.push({
+    id: "evidence-1",
+    student_id: "student-a",
+    source_kind: "google_drive_file",
+    drive_file_id: "drive-file-123",
+    mime_type: "application/pdf",
+    title: "Evidence PDF",
+    deleted_at: null,
+  });
+
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async (input) => {
+    const url = resolveFetchUrl(input);
+    if (url === "https://oauth2.googleapis.com/token") {
+      return jsonResponse({ access_token: "test-token", expires_in: 3600, token_type: "Bearer" });
+    }
+    if (url.includes("https://www.googleapis.com/drive/v3/files/") && url.includes("alt=media")) {
+      return new Response("pdf-bytes", { status: 200, headers: { "content-type": "application/pdf" } });
+    }
+    throw new Error(`Unexpected fetch URL in test: ${url}`);
+  };
+
+  try {
+    const response = await onDownloadEvidenceFile({
+      request: new Request("https://example.test/api/evidence/evidence-1/download", {
+        headers: {
+          cookie: `sc_session=${fixture.token}`,
+          "cf-connecting-ip": "203.0.113.68",
+          "user-agent": "integration-test",
+        },
+      }),
+      env: fixture.env,
+      params: { id: "evidence-1" },
+    });
+
+    assert.equal(response.status, 200);
+    assert.equal(response.headers.get("content-type"), "application/pdf");
+    assert.equal(await response.text(), "pdf-bytes");
+    assert.equal(fixture.db.data.auditEvents.length, 1);
+    const [event] = fixture.db.data.auditEvents;
+    assert.equal(event.action, "evidence_downloaded");
+    assert.deepEqual(event.metadata, {
+      studentId: "student-a",
+      sourceKind: "google_drive_file",
+      actorRoleScopes: [{ roleId: "admin", scopeType: "global", scopeId: "" }],
+    });
   } finally {
     globalThis.fetch = originalFetch;
   }
@@ -540,6 +714,29 @@ class MockPreparedStatement {
     }
 
     if (this.sql.includes("from user_roles teacher_role")) {
+      const [studentId, teacherUserId] = this.params;
+      const teacherRoles = this.data.userRoles.filter(
+        (row) => row.user_id === teacherUserId && row.role_id === "program_teacher",
+      );
+      if (!teacherRoles.length) return null;
+
+      const memberships = this.data.groupMemberships.filter((row) => row.user_id === studentId);
+      if (!memberships.length) return null;
+
+      const groupsById = new Map(this.data.groups.map((row) => [row.id, row]));
+      for (const membership of memberships) {
+        const group = groupsById.get(membership.group_id);
+        if (!group) continue;
+
+        const groupProgramId = group.program_id ?? "";
+        const groupCohortId = group.cohort_id ?? "";
+        for (const role of teacherRoles) {
+          if (role.scope_type === "global") return { ok: 1 };
+          if (role.scope_type === "program" && (role.scope_id ?? "") === groupProgramId) return { ok: 1 };
+          if (role.scope_type === "cohort" && (role.scope_id ?? "") === groupCohortId) return { ok: 1 };
+        }
+      }
+
       return null;
     }
 
