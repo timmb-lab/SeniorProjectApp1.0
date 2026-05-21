@@ -28,6 +28,20 @@ This is the compact run log for the current quarter-hour split-builder automatio
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-05-21 04:39 PT - MVP-013/MVP-014 Evidence Link Access Audit
+
+- `automation ID`: `senior-capstone-nonfigma-mvp-builder-30`.
+- `lane`: non-Figma MVP builder / student-workflow-evidence.
+- `master-plan sections`: Role-Aware Production App Contract; North Star Workflow; Logging Requirements.
+- `requirement IDs`: `MVP-006`, `MVP-013`, `MVP-014`, `MVP-020`, `MVP-025`; `backlog IDs`: `SC-003`, `SC-005`, `SC-006`; `handoffs`: `H-2026-05-21-003`, `H-2026-05-18-006`.
+- `selected slice`: Add protected evidence-link metadata access auditing and route-level tests for `/api/submissions/:id/evidence` without direct Figma work.
+- `changed`: `functions/api/submissions/[id]/evidence.ts` now audits missing-session evidence attach attempts as `evidence_attach_unauthorized` and includes redacted actor role scopes on denied and successful evidence-link audits; `tests/evidence-link.integration.test.mjs` covers signed-out, cross-student denial, non-student role denial, successful metadata insert, and no Drive storage-ID response leakage; `tests/production-workflow-source.test.mjs` locks the new audit markers.
+- `validation`: focused evidence-link integration passed (3/3); production-workflow source test passed (11/11); strict typecheck passed; production-surface check passed with 91 surfaces; full test suite passed (178 pass / 4 expected opt-in skips); aggregate `check` passed with live Cloudflare read-only verification.
+- `blockers`: live Drive upload still fails with redacted Google Drive HTTP 403 after token/root/index probes pass; real-user setup credential delivery remains Bryan decision `HD-2026-05-21-001`; hosted browser no-assignment and section-level permission-denied proof remains open.
+- `phone tracker`: not appended; Google Sheets connector was not used.
+- `self-improvement`: none.
+- `commit/push status`: implementation commit `7dd04d67039c0473a62d9a95b3ff05298bb36c72` created on `main`; closeout docs commit and push pending.
+
 ## 2026-05-21 03:06 PT - MVP-006/MVP-011 Student Dashboard Access Audit
 
 - `automation ID`: `senior-capstone-nonfigma-mvp-builder`.

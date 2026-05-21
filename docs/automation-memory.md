@@ -23,7 +23,7 @@ This is not a static guide, brochure, or visual-only project.
 - Hardened username/password bootstrap, login, logout, and session lookup endpoints exist. First-admin bootstrap is complete for `bryan.timm89@gmail.com`.
 - Auth edge-state and account-lifecycle integration coverage now exists for `/api/auth/login`, `/api/auth/complete-reset`, `/api/auth/change-password`, `/api/auth/me`, and `/api/auth/logout`, including disabled login, reset-required login, invalid login, expired-session `/me`, disabled-account `/me`, reset-required `/me`, logout revocation, reset-required credential rotation, active-user self credential rotation, password-version increment, stale-session revocation, fresh-session issuance, and new-password login: `tests/auth-login.integration.test.mjs`.
 - Four fake `.test` alpha accounts are seeded for walkthrough testing. Credentials are only in ignored `.secrets/` files and must not be copied into docs, commits, screenshots, Figma, Canva, or chat.
-- Google Drive evidence repository root folder `1pfEhlrU1fax9N8LfaoA1Cyo5nUIXetG2` and index sheet `1BCrBQ-5AKLmhvZr7tjJf3o1tibg13p_U21BiuN_ivN0` exist and are wired into Pages config and D1 metadata. Service-account JWT token exchange helper exists (`functions/_lib/google-drive.ts`) plus authenticated/audited `/api/evidence/drive-probe` integration tests, and Drive-backed evidence file upload + streaming download routes (`/api/submissions/:id/evidence/upload`, `/api/evidence/:id/download`) with local integration tests covering token exchange/provider failures, redaction, denied-access (including misc-admin), and the >5MB resumable upload path (upload cap now 20MB); real Cloudflare-secret verification is still pending.
+- Google Drive evidence repository root folder `1pfEhlrU1fax9N8LfaoA1Cyo5nUIXetG2` and index sheet `1BCrBQ-5AKLmhvZr7tjJf3o1tibg13p_U21BiuN_ivN0` exist and are wired into Pages config and D1 metadata. Service-account JWT token exchange helper exists (`functions/_lib/google-drive.ts`) plus authenticated/audited `/api/evidence/drive-probe` integration tests, evidence-link metadata route `/api/submissions/:id/evidence` now has route-level audit tests for missing session, denied cross-student/staff attempts, success, actor role scopes, and no Drive storage-ID leakage, and Drive-backed evidence file upload + streaming download routes (`/api/submissions/:id/evidence/upload`, `/api/evidence/:id/download`) have local integration tests covering token exchange/provider failures, redaction, denied-access (including misc-admin), and the >5MB resumable upload path (upload cap now 20MB); live Drive upload still fails with redacted Google Drive HTTP 403 after token/root/index probes pass.
 - Account smoke test page (`account.html`) now includes a Drive file upload/download panel to manually verify file-byte evidence behavior against the seeded submission fixtures without committing passwords.
 - Alpha state-machine tests, alpha contract checks, the cadence verifier, and consolidated GitHub Actions CI exist.
 - Source PDFs have been extracted and converted into app-native requirements in `data/capstone-framework.json`.
@@ -364,6 +364,15 @@ Every builder run must ladder from `docs/master-plan.md` into `docs/mvp-requirem
 - Next best non-Figma slice from this handoff: broaden the audited role/scope matrix to submission submit/detail, evidence link/upload/download, mentor meetings, presentation slots, archive/export, and hosted permission UI proof.
 - self-improvement: none
 
+### 2026-05-21 - Evidence Link Access Audit
+
+- Non-Figma builder `senior-capstone-nonfigma-mvp-builder-30` advanced `MVP-006`, `MVP-013`, `MVP-014`, `MVP-020`, and `MVP-025` without direct Figma work.
+- `/api/submissions/:id/evidence` now writes `evidence_attach_unauthorized` for missing sessions and includes redacted actor role scopes on `evidence_attach_denied` and `evidence_link_attached` audit metadata.
+- `tests/evidence-link.integration.test.mjs` covers signed-out 401 audit, cross-student denial, non-student role denial for mentor/program-teacher/admin/misc-admin, successful external-link metadata insert, and no Drive storage identifier exposure in responses.
+- Validation passed: focused evidence-link test (3/3), production workflow source test (11/11), strict typecheck, production-surface check, full test suite (178 passing / 4 expected opt-in skips), and aggregate `check` with live Cloudflare read-only verification.
+- Remaining protected-record depth: submission submit/detail, evidence file upload/download browser/live proof, mentor meetings, presentation slots, archive/export, hosted no-assignment/section-denied UI proof, and the Drive upload HTTP 403.
+- self-improvement: none
+
 ## Current Priority
 
 Immediate next useful passes:
@@ -373,7 +382,7 @@ Immediate next useful passes:
 3. Extend alpha proposal/review/evidence/audit records into real workflow endpoints.
 4. Add Google Drive server-side credential/OAuth implementation plus access-controlled evidence upload/retrieval assumptions.
 5. Decide or implement the invitation/email/approved manual delivery policy before real pilot users receive setup credentials; local fake-account import/reset proof now covers validation, no-store refresh clearing, reset-first login, denied-role behavior, stale-session safety, and credential-leak prevention.
-6. Continue broadening route-level protected-record tests after the dashboard, teacher review queue, and review history/decision access audits by covering submissions, evidence upload/download/link, mentor meetings, presentation slots, archive/export, and live/browser permission-denied states, using Figma nodes `173:2`, `178:2`, and `180:2` as the protected-access contracts.
+6. Continue broadening route-level protected-record tests after the dashboard, teacher review queue, review history/decision, and evidence-link access audits by covering submission submit/detail, evidence upload/download proof, mentor meetings, presentation slots, archive/export, and live/browser permission-denied states, using Figma nodes `173:2`, `178:2`, and `180:2` as the protected-access contracts.
 7. Keep mobile/error/empty/permission alpha QA current while the Day 7 walkthrough hardens.
 
 Real daily MVP goal: minimum 2 accepted MVP passes per calendar day, stretch 3 when unblocked, and at least 14 accepted MVP passes per week until the 100-pass target is met or recalibrated.

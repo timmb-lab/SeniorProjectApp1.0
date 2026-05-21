@@ -1,0 +1,139 @@
+{
+  "run_id": "2026-05-21-0439-evidence-link-access-audit-mvp-013",
+  "timestamp_local": "2026-05-21T04:39:00-07:00",
+  "automation_id": "senior-capstone-nonfigma-mvp-builder-30",
+  "lane": "non-figma MVP builder",
+  "selected_category": "student-workflow-evidence",
+  "status": "completed",
+  "accepted_mvp_pass": true,
+  "requirement_ids": [
+    "MVP-006",
+    "MVP-013",
+    "MVP-014",
+    "MVP-020",
+    "MVP-025"
+  ],
+  "backlog_ids": [
+    "SC-003",
+    "SC-005",
+    "SC-006"
+  ],
+  "handoff_ids": [
+    "H-2026-05-21-003",
+    "H-2026-05-18-006"
+  ],
+  "output_kind": "evidence-link-access-audit-and-route-tests",
+  "bounded_scope": "Add route-level protected evidence-link metadata audit coverage for /api/submissions/:id/evidence without direct Figma work.",
+  "source_docs_read": [
+    "C:\\Users\\bryan\\.codex\\automations\\senior-capstone-nonfigma-mvp-builder-30\\memory.md",
+    "docs/master-plan.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/automation-cadence.md",
+    "docs/automation-runbook.md",
+    "docs/automation-self-improvement.md",
+    "docs/automation-memory.md",
+    "docs/automation-milestones.md",
+    "docs/progress/run-log.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/decision-log.md",
+    "docs/automation-backlog.md",
+    "docs/artifacts.json",
+    "docs/human-decisions.md",
+    "recent docs/progress/runs/*.json",
+    "docs/progress/rebuild.md",
+    "functions/api/submissions/[id]/evidence.ts",
+    "tests/production-workflow-source.test.mjs",
+    "tests/evidence-drive-file.integration.test.mjs",
+    "tests/review-loop.integration.test.mjs"
+  ],
+  "figma_work_avoided": true,
+  "direct_figma_tools_called": false,
+  "changes": [
+    "/api/submissions/:id/evidence now audits missing-session attach attempts as evidence_attach_unauthorized.",
+    "Denied evidence-link attach attempts now include reason student_scope_denied plus redacted actor role scopes.",
+    "Successful evidence-link attach audit metadata now includes redacted actor role scopes without Drive storage identifiers.",
+    "tests/evidence-link.integration.test.mjs covers missing-session 401 audit, cross-student denial, non-student role denial for mentor/program-teacher/admin/misc-admin, successful external-link metadata insert, and no Drive storage-ID response leakage.",
+    "tests/production-workflow-source.test.mjs now locks the new evidence-link audit markers."
+  ],
+  "files_changed": [
+    "functions/api/submissions/[id]/evidence.ts",
+    "tests/evidence-link.integration.test.mjs",
+    "tests/production-workflow-source.test.mjs",
+    "docs/mvp-requirements-catalog.md",
+    "docs/automation-backlog.md",
+    "docs/automation-memory.md",
+    "docs/artifacts.json",
+    "docs/progress/handoffs.md",
+    "docs/progress/rebuild.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-21-0439-evidence-link-access-audit-mvp-013.json"
+  ],
+  "validation": [
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 tests\\evidence-link.integration.test.mjs",
+      "result": "passed; 3/3 evidence-link route access tests"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 tests\\production-workflow-source.test.mjs",
+      "result": "passed; 11/11 production workflow source tests"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 typecheck",
+      "result": "passed"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 check:production-surfaces",
+      "result": "passed; 91 production text surfaces scanned"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 test",
+      "result": "passed; 178 passing tests and 4 expected opt-in skips"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 check",
+      "result": "passed; cadence, predeploy gate, production surfaces, route inventory, generated output, site options, static/live Cloudflare verification, and 178 passing tests / 4 expected opt-in skips"
+    }
+  ],
+  "blockers": [
+    {
+      "code": "DRIVE_UPLOAD_FAILED_HTTP_403",
+      "cause": "Existing live Drive check reaches token exchange, root folder, and index sheet, but Google Drive create/upload returns redacted HTTP 403.",
+      "bryan_must_act": true,
+      "next_safe_action": "Confirm service-account file-create permission/quota/Workspace policy for the configured root folder, then rerun npm run check:drive:live."
+    },
+    {
+      "code": "TEMP_CREDENTIAL_DELIVERY_POLICY_OPEN",
+      "cause": "The admin UI can display setup passwords once for fake .test proof, but Bryan has not approved a real-user manual distribution procedure or invitation/email delivery policy.",
+      "bryan_must_act": true,
+      "next_safe_action": "Decide HD-2026-05-21-001 before importing real pilot users."
+    },
+    {
+      "code": "LIVE_BROWSER_PERMISSION_PROOF_PENDING",
+      "cause": "Route-level protected evidence-link proof landed; hosted/browser workspace account-state and section-level permission-denied proof remain open.",
+      "bryan_must_act": false,
+      "next_safe_action": "Use fake .test accounts to capture hosted workspace account-state/no-assignment and section-level permission-denied UI evidence."
+    }
+  ],
+  "next_actions": [
+    "Extend the route-level permission/audit matrix to submission submit/detail, evidence upload/download proof, mentor-meeting, presentation-slot, and archive/export endpoints.",
+    "Capture hosted workspace account-state/no-assignment and section-level permission-denied proof.",
+    "Resolve the Drive upload HTTP 403 before accepting real student evidence uploads.",
+    "Decide or implement real-user credential delivery before pilot imports."
+  ],
+  "self_improvement": "none",
+  "run_log_updated": true,
+  "structured_manifest_created": true,
+  "artifacts_json_updated": true,
+  "mvp_catalog_changed": true,
+  "human_decisions_changed": false,
+  "phone_tracker": {
+    "updated": false,
+    "reason": "Google Sheets connector was not used in this run; repo-local closeout evidence was preserved."
+  },
+  "branch_before": "main",
+  "branch_after": "main",
+  "implementation_commit_sha": "7dd04d67039c0473a62d9a95b3ff05298bb36c72",
+  "closeout_commit_sha": "pending-before-closeout-commit",
+  "commit_sha": "7dd04d67039c0473a62d9a95b3ff05298bb36c72",
+  "push_result": "pending-before-closeout-commit"
+}

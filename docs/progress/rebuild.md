@@ -392,7 +392,7 @@ Each rebuild run should append a dated entry with:
 - `bounded scope`: Surface persisted presentation slot status and check-out/check-in actions in the canonical workspace without direct Figma work.
 - `files changed`: `workspace.js`, `workspace.css`, `scripts/seed-local-workspace-smoke.mjs`, `tests/workspace-app.test.mjs`, `tests/workspace-browser-smoke.test.mjs`, `docs/mvp-requirements-catalog.md`, `docs/automation-backlog.md`, `docs/automation-memory.md`, `docs/artifacts.json`, `docs/progress/handoffs.md`, this rebuild log, `docs/progress/run-log.md`, and structured run manifest.
 - `validation`: focused workspace source/VM test passed; focused presentation-slot integration test passed; portable workspace smoke skipped HTTP checks as expected; local D1 seed passed; credential-backed local HTTP workspace smoke passed against `http://127.0.0.1:8792`; in-app browser verified the program-teacher Presentation tab rendered a scheduled Room 101 slot with one check-out button and zero console errors; strict typecheck passed; production-surface checker passed; full test suite passed with 132 passing tests and 3 expected opt-in skips; aggregate `check` passed with static Cloudflare verification and `LIVE_CLOUDFLARE_BLOCKED_NO_TOKEN`; direct hosted `workspace.js` returned HTTP 200 and contained the new `/api/presentation-slots` and `data-presentation-action="check-out"` markers on the first post-push poll.
-- `commit/push status`: pending closeout commit and push.
+- `commit/push status`: implementation commit `7dd04d67039c0473a62d9a95b3ff05298bb36c72` created on `main`; closeout docs commit and push pending.
 - `blockers`: remote D1 verification for `0006_presentation_slots.sql` and non-interactive Pages/D1 inspection still require `CLOUDFLARE_API_TOKEN`; live Drive upload/download still requires Cloudflare Pages Drive secrets.
 - `phone tracker`: not appended; Google Sheets connector was not used in this run.
 - `self-improvement`: none.
@@ -558,3 +558,18 @@ Each rebuild run should append a dated entry with:
 - `self-improvement`: none.
 - `commit/push status`: implementation commit `d083100cd9cc501643217d627948026be4753f24` created on `main`; closeout docs commit and push pending.
 - `next action`: Continue the same protected-record matrix through submission/evidence/mentor-meeting/presentation/archive endpoints, then capture hosted no-assignment and section-level permission-denied UI proof.
+
+### 2026-05-21 04:39 PT - MVP-013/MVP-014 Evidence Link Access Audit
+
+- `automation`: `senior-capstone-nonfigma-mvp-builder-30`
+- `master-plan section`: Role-Aware Production App Contract; North Star Workflow; Logging Requirements.
+- `source docs/logs read`: automation memory at `C:\Users\bryan\.codex\automations\senior-capstone-nonfigma-mvp-builder-30\memory.md`, required master plan/catalog/cadence/runbook/self-improvement/memory/milestones/progress docs, recent run manifests, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, `docs/progress/rebuild.md`, evidence route/test files, and production workflow source tests.
+- `backlog or requirement IDs selected`: `SC-003`, `SC-005`, `SC-006`, `MVP-006`, `MVP-013`, `MVP-014`, `MVP-020`, and `MVP-025`.
+- `bounded scope`: Add route-level protected evidence-link metadata audit coverage for `/api/submissions/:id/evidence` without direct Figma work.
+- `files changed`: `functions/api/submissions/[id]/evidence.ts`, `tests/evidence-link.integration.test.mjs`, `tests/production-workflow-source.test.mjs`, `docs/mvp-requirements-catalog.md`, `docs/automation-backlog.md`, `docs/automation-memory.md`, `docs/artifacts.json`, `docs/progress/handoffs.md`, this rebuild log, `docs/progress/run-log.md`, and structured run manifest `docs/progress/runs/2026-05-21-0439-evidence-link-access-audit-mvp-013.json`.
+- `validation`: focused evidence-link integration passed with 3/3 tests; production-workflow source test passed with 11/11 tests; strict typecheck passed; production-surface checker passed with 91 surfaces; full `test` passed with 178 passing tests and 4 expected opt-in skips; aggregate `check` passed with cadence/predeploy/static-live Cloudflare verification and 178 passing tests / 4 expected skips.
+- `blockers`: live Drive upload still fails with redacted Google Drive HTTP 403 after token/root/index probes pass; real-user setup credential delivery remains Bryan decision `HD-2026-05-21-001`; hosted browser no-assignment and section-level permission-denied proof remains open.
+- `phone tracker`: not appended; Google Sheets connector was not used.
+- `self-improvement`: none.
+- `commit/push status`: pending closeout commit and push.
+- `next action`: Continue protected-record depth through submission submit/detail, evidence upload/download proof, mentor meetings, presentation slots, archive/export, and hosted permission UI proof.
