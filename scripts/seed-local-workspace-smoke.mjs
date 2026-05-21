@@ -84,9 +84,11 @@ const FIXTURES = {
   groupId: "group-alpha-it-2026",
   mentorAssignmentId: "mentor-alpha-rivera-maya",
   requirementId: "req-proposal-draft",
+  presentationRequirementId: "req-presentation-day",
   progressRecordId: "progress-alpha-maya-proposal",
   submissionId: "submission-alpha-maya-proposal",
   evidenceArtifactId: "evidence-alpha-maya-category-map",
+  presentationSlotId: "presentation-alpha-maya-slot",
 };
 
 const args = parseArgs(process.argv.slice(2));
@@ -271,6 +273,23 @@ async function buildSeedSql(accounts) {
        description = excluded.description,
        required = excluded.required,
        sort_order = excluded.sort_order;`,
+    `INSERT INTO requirements (id, program_id, phase, title, description, required, sort_order)
+     VALUES (
+       ${sql(FIXTURES.presentationRequirementId)},
+       NULL,
+       'presentation',
+       'Presentation Day',
+       'Student completes presentation day schedule, check-out, and check-in workflow.',
+       1,
+       11
+     )
+     ON CONFLICT(id) DO UPDATE SET
+       program_id = excluded.program_id,
+       phase = excluded.phase,
+       title = excluded.title,
+       description = excluded.description,
+       required = excluded.required,
+       sort_order = excluded.sort_order;`,
     `INSERT INTO progress_records (id, student_id, requirement_id, phase, status, updated_by)
      VALUES (
        ${sql(FIXTURES.progressRecordId)},
@@ -325,6 +344,46 @@ async function buildSeedSql(accounts) {
        external_url = excluded.external_url,
        title = excluded.title,
        review_status = excluded.review_status;`,
+    `INSERT INTO presentation_slots (
+       id,
+       student_user_id,
+       submission_id,
+       requirement_id,
+       scheduled_for,
+       duration_minutes,
+       location,
+       status,
+       outline_status,
+       notes,
+       created_by
+     )
+     VALUES (
+       ${sql(FIXTURES.presentationSlotId)},
+       'test_user_student_maya',
+       ${sql(FIXTURES.submissionId)},
+       ${sql(FIXTURES.presentationRequirementId)},
+       '2026-03-26T16:00:00.000Z',
+       20,
+       'Room 101',
+       'scheduled',
+       'approved',
+       'Local workspace presentation readiness slot.',
+       'test_user_teacher_chen'
+     )
+     ON CONFLICT(id) DO UPDATE SET
+       student_user_id = excluded.student_user_id,
+       submission_id = excluded.submission_id,
+       requirement_id = excluded.requirement_id,
+       scheduled_for = excluded.scheduled_for,
+       duration_minutes = excluded.duration_minutes,
+       location = excluded.location,
+       status = excluded.status,
+       outline_status = excluded.outline_status,
+       checked_out_at = NULL,
+       checked_in_at = NULL,
+       notes = excluded.notes,
+       created_by = excluded.created_by,
+       updated_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now');`,
     `INSERT OR IGNORE INTO announcements (id, title, body, audience_scope, audience_id, created_by)
      VALUES (
        'announcement-local-workspace-smoke',

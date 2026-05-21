@@ -18,6 +18,8 @@ test("workspace route is a real authenticated app surface", () => {
   assert.match(workspaceJs, /\/api\/student\/dashboard/);
   assert.match(workspaceJs, /\/api\/teacher\/review-queue/);
   assert.match(workspaceJs, /\/api\/mentor\/assigned/);
+  assert.match(workspaceJs, /\/api\/presentation-slots/);
+  assert.match(workspaceJs, /\/api\/presentation-slots\/\$\{encodeURIComponent\(slotId\)\}\/\$\{actionPath\}/);
   assert.match(workspaceJs, /\/api\/reports\/readiness/);
   assert.match(workspaceJs, /\/api\/submissions\/\$\{encodeURIComponent\(values\.submissionId\)\}\/evidence/);
   assert.match(workspaceJs, /\/api\/submissions\/\$\{encodeURIComponent\(submissionId\)\}\/evidence\/upload/);
@@ -29,6 +31,9 @@ test("workspace route is a real authenticated app surface", () => {
   assert.match(workspaceJs, /"account-disabled"/);
   assert.match(workspaceJs, /"reset-required"/);
   assert.match(workspaceJs, /data-workspace-state="no-active-assignment"/);
+  assert.match(workspaceJs, /data-presentation-state="\$\{escapeHtml\(status\)\}"/);
+  assert.match(workspaceJs, /data-presentation-action="check-out"/);
+  assert.match(workspaceJs, /data-presentation-action="check-in"/);
   assert.doesNotMatch(workspaceJs, /localStorage|sessionStorage|indexedDB/);
   assert.doesNotThrow(() => new Function(workspaceJs));
 });
@@ -150,6 +155,10 @@ test("workspace renders role-pending and permission-denied access states", async
       status: 403,
       body: { error: "forbidden" },
     },
+    "/api/presentation-slots": {
+      status: 200,
+      body: { ok: true, slots: [] },
+    },
   });
   assert.match(denied, /data-workspace-state="permission-denied"/);
   assert.match(denied, /Some workspace sections need different access/);
@@ -176,13 +185,80 @@ test("workspace renders role-pending and permission-denied access states", async
       status: 200,
       body: { ok: true, assignedStudents: [] },
     },
+    "/api/presentation-slots": {
+      status: 200,
+      body: { ok: true, slots: [] },
+    },
   });
   assert.match(noAssignment, /data-workspace-state="no-active-assignment"/);
   assert.match(noAssignment, /Workspace assignment is not active yet/);
   assert.match(noAssignment, /Mentor students/);
 });
 
-async function renderWorkspaceWithFetch(routes) {
+test("workspace renders presentation schedule and day-of actions", async () => {
+  const presentation = await renderWorkspaceWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "teacher-a",
+          email: "teacher.presentation@example.edu",
+          displayName: "Presentation Teacher",
+          roles: [{ role_id: "program_teacher", scope_type: "program", scope_id: "it" }],
+        },
+      },
+    },
+    "/api/announcements": {
+      status: 200,
+      body: { ok: true, announcements: [] },
+    },
+    "/api/teacher/review-queue": {
+      status: 200,
+      body: { ok: true, queue: [] },
+    },
+    "/api/presentation-slots": {
+      status: 200,
+      body: {
+        ok: true,
+        slots: [
+          {
+            id: "slot-scheduled",
+            studentName: "Maya Student",
+            scheduledFor: "2026-03-26T16:00:00.000Z",
+            durationMinutes: 20,
+            location: "Room 101",
+            status: "scheduled",
+            outlineStatus: "approved",
+            checkedOutAt: null,
+            checkedInAt: null,
+          },
+          {
+            id: "slot-checked-out",
+            studentName: "Jordan Student",
+            scheduledFor: "2026-03-26T16:30:00.000Z",
+            durationMinutes: 15,
+            location: "Room 102",
+            status: "checked_out",
+            outlineStatus: "approved",
+            checkedOutAt: "2026-03-26T16:28:00.000Z",
+            checkedInAt: null,
+          },
+        ],
+      },
+    },
+  }, "presentation");
+
+  assert.match(presentation, /data-presentation-state="scheduled"/);
+  assert.match(presentation, /data-presentation-state="checked_out"/);
+  assert.match(presentation, /Maya Student/);
+  assert.match(presentation, /Room 101/);
+  assert.match(presentation, /Outline approved/);
+  assert.match(presentation, /data-presentation-action="check-out"/);
+  assert.match(presentation, /data-presentation-action="check-in"/);
+});
+
+async function renderWorkspaceWithFetch(routes, section = "") {
   const workspaceRoot = {
     innerHTML: "",
     querySelectorAll: () => [],
@@ -224,6 +300,9 @@ async function renderWorkspaceWithFetch(routes) {
   vm.runInContext(workspaceJs, context);
   for (let index = 0; index < 8; index += 1) {
     await new Promise((resolve) => setTimeout(resolve, 0));
+  }
+  if (section) {
+    vm.runInContext(`activeSection = ${JSON.stringify(section)}; renderAppShell();`, context);
   }
   return workspaceRoot.innerHTML;
 }

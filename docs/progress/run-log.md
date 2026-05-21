@@ -26,6 +26,21 @@ This is the compact run log for the current split-builder automation contract.
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-05-20 19:10 PT - MVP-017 Workspace Presentation Dashboard
+
+- `automation ID`: `senior-capstone-nonfigma-mvp-builder`
+- `lane`: non-Figma MVP builder / staff-review-mentor.
+- `master-plan sections`: Day 7 Alpha Gate; Role-Aware Production App Contract; North Star Workflow; Logging Requirements.
+- `requirement IDs`: `MVP-017`, supporting `MVP-020`, `MVP-021`, `MVP-032`, and `MVP-033`; `backlog IDs`: `SC-004`, `SC-005`, `SC-006`.
+- `selected slice`: Consume the repo-recorded presentation dashboard handoff by surfacing persisted presentation slot status and check-out/check-in controls in the canonical workspace, without direct Figma work.
+- `what changed`: `workspace.js` now loads `/api/presentation-slots` for student, mentor, program-teacher, and admin roles; adds a Presentation tab; renders schedule, location, outline, empty, checked-out, and checked-in states; and shows check-out/check-in buttons only to program-teacher/admin staff. `workspace.css` adds responsive presentation action layout. `scripts/seed-local-workspace-smoke.mjs` seeds a local-only presentation requirement and scheduled Room 101 slot for credential-backed proof. Workspace tests and local smoke now cover presentation slot visibility.
+- `files changed`: `workspace.js`, `workspace.css`, `scripts/seed-local-workspace-smoke.mjs`, `tests/workspace-app.test.mjs`, `tests/workspace-browser-smoke.test.mjs`, MVP/backlog/artifact/memory/handoff/progress docs, and `docs/progress/runs/2026-05-20-1910-workspace-presentation-dashboard-mvp-017.json`.
+- `validation`: focused workspace source/VM test passed; presentation-slot integration test passed; portable workspace smoke passed with expected skips; local D1 seed passed; credential-backed local HTTP workspace smoke passed against `http://127.0.0.1:8792`; in-app browser verified program-teacher Presentation tab with one scheduled slot, Room 101, one check-out button, and zero console errors; typecheck, production-surface check, full test suite, aggregate `check`, manifest/artifacts JSON parse, and `git diff --check` passed. Aggregate `check` still reports `LIVE_CLOUDFLARE_BLOCKED_NO_TOKEN`.
+- `blockers`: hosted presentation-dashboard proof and remote D1 verification for `0006_presentation_slots.sql` still require `CLOUDFLARE_API_TOKEN`; live Drive upload/download still requires Cloudflare Pages `GOOGLE_DRIVE_CLIENT_EMAIL` and `GOOGLE_DRIVE_PRIVATE_KEY`.
+- `phone tracker`: not appended; Google Sheets connector was not used in this run.
+- `self-improvement`: none.
+- `commit`: pending closeout.
+
 ## 2026-05-20 18:33 PT - MVP-028 Presentation Dashboard State Handoff
 
 - `automation ID`: `senior-capstone-figma-product-builder`

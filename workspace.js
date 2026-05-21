@@ -6,6 +6,7 @@ let currentData = {
   dashboard: null,
   reviewQueue: null,
   mentorAssigned: null,
+  presentationSlots: null,
   readiness: null,
 };
 let activeSection = "overview";
@@ -54,6 +55,9 @@ async function loadWorkspaceData(statusMessage = "") {
   if (roles.has("student")) loaders.push(["dashboard", apiJson("/api/student/dashboard")]);
   if (roles.has("program_teacher") || roles.has("admin")) loaders.push(["reviewQueue", apiJson("/api/teacher/review-queue")]);
   if (roles.has("mentor")) loaders.push(["mentorAssigned", apiJson("/api/mentor/assigned")]);
+  if (roles.has("student") || roles.has("mentor") || roles.has("program_teacher") || roles.has("admin")) {
+    loaders.push(["presentationSlots", apiJson("/api/presentation-slots")]);
+  }
   if (roles.has("admin") || roles.has("misc_admin")) loaders.push(["readiness", apiJson("/api/reports/readiness")]);
 
   const results = await Promise.all(loaders.map(async ([key, promise]) => [key, await settleApi(promise)]));
@@ -62,6 +66,7 @@ async function loadWorkspaceData(statusMessage = "") {
     dashboard: null,
     reviewQueue: null,
     mentorAssigned: null,
+    presentationSlots: null,
     readiness: null,
   };
 
@@ -225,6 +230,9 @@ function availableSections() {
   if (roles.has("student")) sections.push({ id: "student", label: "Student Workspace", detail: "Progress, submissions, and evidence" });
   if (roles.has("program_teacher") || roles.has("admin")) sections.push({ id: "teacher", label: "Teacher Review", detail: "Review queue and submitted work" });
   if (roles.has("mentor")) sections.push({ id: "mentor", label: "Mentor Students", detail: "Assigned students and evidence counts" });
+  if (roles.has("student") || roles.has("mentor") || roles.has("program_teacher") || roles.has("admin")) {
+    sections.push({ id: "presentation", label: "Presentation", detail: "Schedule, outline, and day-of status" });
+  }
   if (roles.has("admin") || roles.has("misc_admin")) sections.push({ id: "readiness", label: "Readiness", detail: "Aggregate project readiness" });
   return sections;
 }
@@ -233,6 +241,7 @@ function renderActiveSection() {
   if (activeSection === "student") return renderStudentSection();
   if (activeSection === "teacher") return renderTeacherSection();
   if (activeSection === "mentor") return renderMentorSection();
+  if (activeSection === "presentation") return renderPresentationSection();
   if (activeSection === "readiness") return renderReadinessSection();
   return renderOverviewSection();
 }
@@ -320,6 +329,7 @@ function deniedWorkspaceSections() {
     ["dashboard", "Student workspace"],
     ["reviewQueue", "Teacher review"],
     ["mentorAssigned", "Mentor students"],
+    ["presentationSlots", "Presentation schedule"],
     ["readiness", "Readiness report"],
   ]
     .filter(([key]) => currentData[key]?.status === 403)
@@ -566,6 +576,74 @@ function renderReadinessSection() {
 function bindWorkspaceForms() {
   document.querySelector("#workspaceEvidenceLinkForm")?.addEventListener("submit", attachEvidenceLink);
   document.querySelector("#workspaceFileUploadForm")?.addEventListener("submit", uploadEvidenceFile);
+  document.querySelectorAll("[data-presentation-action]").forEach((button) => {
+    button.addEventListener("click", updatePresentationSlot);
+  });
+}
+
+function renderPresentationSection() {
+  const result = currentData.presentationSlots;
+  if (result?.status === 403) {
+    return renderPermissionDeniedSection("Presentation schedule", "presentation day records");
+  }
+  const body = unwrap(result);
+  const slots = body?.slots || [];
+  const roles = roleIds(currentUser);
+  const canManage = roles.has("program_teacher") || roles.has("admin");
+  return `
+    <section class="workspace-card">
+      <div class="workspace-card-head">
+        <div>
+          <p class="workspace-kicker">Presentation day</p>
+          <h2>Schedule And Check-In</h2>
+        </div>
+        <span class="workspace-chip">${slots.length} slot${slots.length === 1 ? "" : "s"}</span>
+      </div>
+      ${renderApiNotice(result)}
+      <div class="workspace-list">
+        ${slots.length ? slots.map((slot) => renderPresentationSlotRow(slot, canManage)).join("") : `
+          <div class="workspace-empty" data-presentation-state="empty">
+            Presentation slots will appear here after they are scheduled.
+          </div>
+        `}
+      </div>
+    </section>
+  `;
+}
+
+function renderPresentationSlotRow(slot, canManage) {
+  const status = String(slot.status || "unknown");
+  return `
+    <article class="workspace-row workspace-presentation-row" data-presentation-state="${escapeHtml(status)}">
+      <div>
+        <strong>${escapeHtml(slot.studentName || "Your presentation")}</strong>
+        <p>${escapeHtml(formatDate(slot.scheduledFor))} / ${escapeHtml(slot.durationMinutes || 15)} min / ${escapeHtml(slot.location || "Location pending")}</p>
+        <p class="workspace-muted">Outline ${escapeHtml(statusText(slot.outlineStatus || "pending"))}${presentationTimestampSummary(slot)}</p>
+      </div>
+      <div class="workspace-presentation-actions">
+        ${statusPill(status)}
+        ${renderPresentationAction(slot, canManage)}
+      </div>
+    </article>
+  `;
+}
+
+function presentationTimestampSummary(slot) {
+  const parts = [];
+  if (slot.checkedOutAt) parts.push(`checked out ${formatDate(slot.checkedOutAt)}`);
+  if (slot.checkedInAt) parts.push(`checked in ${formatDate(slot.checkedInAt)}`);
+  return parts.length ? ` / ${parts.join(" / ")}` : "";
+}
+
+function renderPresentationAction(slot, canManage) {
+  if (!canManage) return "";
+  if (slot.status === "scheduled") {
+    return `<button class="workspace-button workspace-button-primary" type="button" data-presentation-action="check-out" data-slot-id="${escapeHtml(slot.id)}">Check out</button>`;
+  }
+  if (slot.status === "checked_out") {
+    return `<button class="workspace-button workspace-button-secondary" type="button" data-presentation-action="check-in" data-slot-id="${escapeHtml(slot.id)}">Check in</button>`;
+  }
+  return "";
 }
 
 function renderPermissionDeniedSection(title, detail) {
@@ -650,6 +728,33 @@ async function uploadEvidenceFile(event) {
       return;
     }
     await loadWorkspaceData("Your file was received and added to your Senior Project evidence.");
+  } catch (error) {
+    renderAppShell(messageForNetworkError(error), "error");
+  } finally {
+    busy = false;
+  }
+}
+
+async function updatePresentationSlot(event) {
+  if (busy) return;
+  busy = true;
+  const button = event.currentTarget;
+  const slotId = button.dataset.slotId || "";
+  const action = button.dataset.presentationAction || "";
+  const actionPath = action === "check-in" ? "check-in" : "check-out";
+  button.disabled = true;
+
+  try {
+    const response = await fetch(`/api/presentation-slots/${encodeURIComponent(slotId)}/${actionPath}`, {
+      method: "POST",
+      headers: { accept: "application/json" },
+    });
+    const body = await safeJson(response);
+    if (!response.ok) {
+      renderAppShell(messageForPresentationActionError(body?.error, response.status), "error");
+      return;
+    }
+    await loadWorkspaceData(actionPath === "check-in" ? "Presentation check-in recorded." : "Presentation check-out recorded.");
   } catch (error) {
     renderAppShell(messageForNetworkError(error), "error");
   } finally {
@@ -840,6 +945,16 @@ function messageForUploadError(error, status) {
   if (status === 403) return "This account does not have permission to upload for that submission.";
   if (status === 401) return "Sign in again before uploading evidence.";
   return "We could not upload this file. Try again or contact your instructor.";
+}
+
+function messageForPresentationActionError(error, status) {
+  if (status === 401) return "Sign in again before updating a presentation slot.";
+  if (status === 403) return "This account cannot update that presentation slot.";
+  if (status === 404) return "That presentation slot is no longer available.";
+  if (error === "presentation_slot_invalid_status" || status === 409) {
+    return "This presentation slot is not in the right status for that action.";
+  }
+  return "We could not update the presentation slot. Try again or contact your instructor.";
 }
 
 function messageForApiError(error, status) {

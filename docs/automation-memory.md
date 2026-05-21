@@ -42,6 +42,7 @@ This is not a static guide, brochure, or visual-only project.
 - Presentation slot persistence foundation now exists: migration `migrations/0006_presentation_slots.sql` plus authenticated `/api/presentation-slots` list/create route. The route exposes only slots the viewer can access, limits scheduling to admin/program-teacher staff, blocks same-location overlapping slots, and audits denied/conflict/scheduled outcomes. Integration coverage lives in `tests/presentation-slots.integration.test.mjs`, and local D1 migration verification applied the migration successfully.
 - Public Student/Teacher guide mode now exists for the production website gate: `app.js` renders the top-banner mode control with `Viewing: Student Guide`, `Viewing: Teacher Guide`, `Switch to Student Guide`, `Switch to Teacher Guide`, `aria-pressed`, and public `senior-capstone-guide-mode` preference storage. The home page keeps both Student Guide and Teacher Guide source summaries visible, `public-companion/` was rebuilt from source, `scripts/check-production-surfaces.mjs` checks exact guide-toggle markers, and `tests/account-and-evidence-access.test.mjs` covers the source behavior. In-app browser visual verification was attempted but blocked because no active Codex browser pane was available.
 - The canonical `workspace.html` route now renders explicit access-boundary UI states: expired sessions see `data-workspace-state="session-expired"`, disabled accounts see `data-workspace-state="account-disabled"`, reset-required accounts see `data-workspace-state="reset-required"`, signed-in users with no assigned roles see `data-workspace-state="role-pending"`, role-scoped 403 API responses render `data-workspace-state="permission-denied"`, and mentors with no active students see `data-workspace-state="no-active-assignment"`. `tests/workspace-app.test.mjs` executes those states with stubbed API responses; local Pages dev credential smoke still passes with the local-only unassigned mentor account; the in-app browser verified the seeded no-role role-pending card and unassigned mentor no-assignment UI with zero console errors.
+- The canonical `workspace.html` route now consumes `/api/presentation-slots` for student, mentor, program-teacher, and admin roles and renders a Presentation tab with schedule, location, outline status, empty state, and staff-only check-out/check-in controls. Local seed `scripts/seed-local-workspace-smoke.mjs` includes a presentation slot fixture. Validation passed in `tests/workspace-app.test.mjs`, `tests/workspace-browser-smoke.test.mjs` with local Pages/D1, aggregate `check`, and in-app browser proof for the program-teacher Presentation tab with zero console errors.
 
 ## Active Automation Contract
 
@@ -112,13 +113,21 @@ Every builder run must ladder from `docs/master-plan.md` into `docs/mvp-requirem
 - The handoff maps implemented `/api/presentation-slots`, `/api/presentation-slots/:id/check-out`, and `/api/presentation-slots/:id/check-in` behavior into student, mentor, teacher, admin, denied-action, empty, and loading dashboard states.
 - Shared plugin data key `senior_capstone/presentation_dashboard_state_contract_2026_05_20` records 6 states, 7 routes, 8 records, 6 guardrails, and the next rebuild action for canonical dashboard presentation-state browser proof.
 - Final Figma verification succeeded: `get_design_context` and `get_screenshot` passed for node `139:2`, with screenshot `717x1024` from original `1360x1943`; final readback found zero suspicious clipped text nodes and zero child overflow after a compact-row layout correction.
-- Next best non-Figma slice from this handoff: surface presentation slot/check-out/check-in dashboard UI states from persisted `PresentationSlot` and `AuditEvent` rows without using client-only workflow state.
+- This handoff has now been consumed in the canonical workspace for presentation slot visibility and staff check-out/check-in controls from persisted `/api/presentation-slots` rows without using client-only workflow state.
+
+### 2026-05-20 - Workspace Presentation Dashboard Consumption
+
+- Non-Figma builder consumed the repo-recorded Figma presentation dashboard handoff node `139:2` without calling Figma tools.
+- `workspace.js` now loads `/api/presentation-slots` for student, mentor, program-teacher, and admin users, adds a Presentation tab, renders scheduled/checked-out/checked-in/empty states, and shows check-out/check-in buttons only to program-teacher/admin staff.
+- `scripts/seed-local-workspace-smoke.mjs` now seeds a local-only presentation requirement and scheduled Room 101 slot for credential-backed workspace smoke without printing passwords.
+- Validation passed: focused workspace source/VM test, presentation-slot integration test, local D1 seed, credential-backed local HTTP workspace smoke, in-app browser program-teacher Presentation tab proof with zero console errors, typecheck, production-surface check, full test suite, and aggregate `check`.
+- Next best non-Figma slices: hosted presentation-dashboard proof after deployment, outline approval gate persistence, celebration evidence, archive/export depth, or public no-hidden-core-content proof while Cloudflare/Drive secrets remain blocked.
 
 ## Current Priority
 
 Immediate next useful passes:
 
-1. Broaden auth, permission, protected-evidence, status-transition, audit/export, meeting, and presentation dashboard/UI proof.
+1. Broaden auth, permission, protected-evidence, status-transition, audit/export, and meeting proof; hosted presentation-dashboard proof remains useful after deployment.
 2. Broaden public-site no-hidden-core-content proof across every guide route, then verify the newest workspace account-state/no-assignment markers after hosted deployment and add a live section-level permission-denied proof.
 3. Extend alpha proposal/review/evidence/audit records into real workflow endpoints.
 4. Add Google Drive server-side credential/OAuth implementation plus access-controlled evidence upload/retrieval assumptions.

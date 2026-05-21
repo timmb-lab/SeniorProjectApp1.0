@@ -336,6 +336,18 @@
   min-width: 0;
 }
 
+.workspace-presentation-row {
+  align-items: center;
+}
+
+.workspace-presentation-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
 .workspace-row p,
 .workspace-card p,
 .workspace-panel p,
@@ -516,6 +528,7 @@
   .workspace-user,
   .workspace-card-head,
   .workspace-row,
+  .workspace-presentation-actions,
   .workspace-table-row {
     display: grid;
     justify-content: stretch;

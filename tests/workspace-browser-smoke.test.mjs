@@ -56,6 +56,10 @@ test("workspace route signed-out smoke over local HTTP", { skip: !baseUrl }, asy
   assert.match(script, /\/api\/auth\/login/);
   assert.match(script, /\/api\/auth\/me/);
   assert.match(script, /\/api\/auth\/logout/);
+  assert.match(script, /\/api\/presentation-slots/);
+  assert.match(script, /data-presentation-state/);
+  assert.match(script, /data-presentation-action="check-out"/);
+  assert.match(script, /data-presentation-action="check-in"/);
   assert.match(script, /\/api\/submissions\/\$\{encodeURIComponent\(values\.submissionId\)\}\/evidence/);
   assert.match(script, /\/api\/submissions\/\$\{encodeURIComponent\(submissionId\)\}\/evidence\/upload/);
   assert.match(script, /storage is not configured for this environment/);
@@ -155,6 +159,15 @@ test("workspace route credential-backed student smoke over local HTTP", {
     "evidence link appears after refresh",
   );
 
+  const presentationSlots = await client.fetchJson("/api/presentation-slots");
+  assert.equal(presentationSlots.response.status, 200, "student presentation slot status");
+  assert.equal(presentationSlots.body.ok, true);
+  assert.ok(Array.isArray(presentationSlots.body.slots));
+  assert.ok(
+    presentationSlots.body.slots.some((slot) => slot.studentId === login.body.user.id),
+    "student can see own presentation slot",
+  );
+
   const allowedFile = new FormData();
   allowedFile.set("title", "Local credential-backed smoke upload");
   allowedFile.set("artifactType", "planning_document");
@@ -205,10 +218,22 @@ test("workspace route credential-backed role route coverage over local HTTP", {
     assert.ok(Array.isArray(body.queue));
   });
 
+  await assertRoleRoute("program_teacher", ["program_teacher"], "/api/presentation-slots", (body) => {
+    assert.equal(body.ok, true);
+    assert.ok(Array.isArray(body.slots));
+    assert.ok(body.slots.some((slot) => slot.location === "Room 101"));
+  });
+
   await assertRoleRoute("mentor", ["mentor"], "/api/mentor/assigned", (body) => {
     assert.equal(body.ok, true);
     assert.ok(Array.isArray(body.assignedStudents));
     assert.ok(body.assignedStudents.some((student) => student.submissionId));
+  });
+
+  await assertRoleRoute("mentor", ["mentor"], "/api/presentation-slots", (body) => {
+    assert.equal(body.ok, true);
+    assert.ok(Array.isArray(body.slots));
+    assert.ok(body.slots.some((slot) => slot.studentName));
   });
 
   if (smokeCredentials.mentor_no_assignment) {

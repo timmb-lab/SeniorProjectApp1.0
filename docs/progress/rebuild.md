@@ -339,3 +339,18 @@ Each rebuild run should append a dated entry with:
 - `phone tracker`: not appended; Google Sheets connector was not used in this run.
 - `self-improvement`: none.
 - `next action`: After deployment, prove hosted workspace session-expired, disabled-account, reset-required, and no-active-assignment states; otherwise continue MVP-017 dashboard surfacing while Cloudflare/Drive secrets remain blocked.
+
+### 2026-05-20 19:10 PT - MVP-017 Workspace Presentation Dashboard
+
+- `automation`: `senior-capstone-nonfigma-mvp-builder`
+- `master-plan section`: Day 7 Alpha Gate; Role-Aware Production App Contract; North Star Workflow; Logging Requirements.
+- `source docs/logs read`: automation memory fallback at `C:\Users\bryan\.codex\automations\senior-capstone-nonfigma-mvp-builder\memory.md`, required master plan/catalog/cadence/runbook/self-improvement/memory/milestones/progress docs, recent run manifests, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, the latest Figma presentation-dashboard manifest, and the existing workspace/presentation route/test patterns.
+- `backlog or requirement IDs selected`: `SC-004`, `SC-005`, `SC-006`, `MVP-017`, supporting `MVP-020`, `MVP-021`, `MVP-032`, and `MVP-033`.
+- `bounded scope`: Surface persisted presentation slot status and check-out/check-in actions in the canonical workspace without direct Figma work.
+- `files changed`: `workspace.js`, `workspace.css`, `scripts/seed-local-workspace-smoke.mjs`, `tests/workspace-app.test.mjs`, `tests/workspace-browser-smoke.test.mjs`, `docs/mvp-requirements-catalog.md`, `docs/automation-backlog.md`, `docs/automation-memory.md`, `docs/artifacts.json`, `docs/progress/handoffs.md`, this rebuild log, `docs/progress/run-log.md`, and structured run manifest.
+- `validation`: focused workspace source/VM test passed; focused presentation-slot integration test passed; portable workspace smoke skipped HTTP checks as expected; local D1 seed passed; credential-backed local HTTP workspace smoke passed against `http://127.0.0.1:8792`; in-app browser verified the program-teacher Presentation tab rendered a scheduled Room 101 slot with one check-out button and zero console errors; strict typecheck passed; production-surface checker passed; full test suite passed with 132 passing tests and 3 expected opt-in skips; aggregate `check` passed with static Cloudflare verification and `LIVE_CLOUDFLARE_BLOCKED_NO_TOKEN`.
+- `commit/push status`: pending closeout commit and push.
+- `blockers`: hosted presentation-dashboard proof and remote D1 verification for `0006_presentation_slots.sql` still require `CLOUDFLARE_API_TOKEN`; live Drive upload/download still requires Cloudflare Pages Drive secrets.
+- `phone tracker`: not appended; Google Sheets connector was not used in this run.
+- `self-improvement`: none.
+- `next action`: Verify hosted presentation-dashboard states after deployment when Cloudflare token/proof is available; otherwise persist outline approval gates or continue celebration/archive workflow depth.

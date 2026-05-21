@@ -1,0 +1,182 @@
+{
+  "run_id": "2026-05-20-1910-workspace-presentation-dashboard-mvp-017",
+  "timestamp_local": "2026-05-20T19:10:00-07:00",
+  "automation_id": "senior-capstone-nonfigma-mvp-builder",
+  "lane": "non-figma MVP builder / staff-review-mentor",
+  "status": "completed",
+  "accepted_mvp_pass": true,
+  "requirement_ids": [
+    "MVP-017",
+    "MVP-020",
+    "MVP-021",
+    "MVP-032",
+    "MVP-033"
+  ],
+  "backlog_ids": [
+    "SC-004",
+    "SC-005",
+    "SC-006"
+  ],
+  "output_kind": "workspace-ui+tests+browser-proof+docs",
+  "selected_category": "staff-review-mentor",
+  "scope": "Consume the repo-recorded presentation dashboard handoff by surfacing persisted presentation slot status and check-out/check-in actions in the canonical workspace.",
+  "source_docs_read": [
+    "C:\\Users\\bryan\\.codex\\automations\\senior-capstone-nonfigma-mvp-builder\\memory.md",
+    "docs/master-plan.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/automation-cadence.md",
+    "docs/automation-runbook.md",
+    "docs/automation-self-improvement.md",
+    "docs/automation-memory.md",
+    "docs/automation-milestones.md",
+    "docs/progress/run-log.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/decision-log.md",
+    "docs/automation-backlog.md",
+    "docs/artifacts.json",
+    "docs/human-decisions.md",
+    "recent docs/progress/runs/*.json",
+    "docs/progress/runs/2026-05-20-1833-figma-presentation-dashboard-state-handoff.json",
+    "docs/progress/rebuild.md",
+    "workspace.js",
+    "workspace.css",
+    "functions/api/presentation-slots.ts",
+    "functions/_lib/presentation-slots.ts",
+    "tests/workspace-app.test.mjs",
+    "tests/workspace-browser-smoke.test.mjs",
+    "tests/presentation-slots.integration.test.mjs"
+  ],
+  "figma_work_avoided": true,
+  "direct_figma_tools_called": false,
+  "repo_recorded_figma_handoff_consumed": {
+    "file_key": "z4t4tFPAKrMDh6pIYOeEw6",
+    "node_id": "139:2",
+    "source_manifest": "docs/progress/runs/2026-05-20-1833-figma-presentation-dashboard-state-handoff.json",
+    "consumption": "Implemented canonical workspace Presentation tab from persisted /api/presentation-slots rows without direct Figma calls."
+  },
+  "changes": [
+    "workspace.js now requests /api/presentation-slots for student, mentor, program-teacher, and admin roles.",
+    "workspace.js adds a Presentation tab that renders schedule, location, outline status, empty state, checked-out timestamps, checked-in timestamps, and status pills.",
+    "workspace.js shows check-out and check-in buttons only for program-teacher/admin roles and posts to the existing /api/presentation-slots/:id/check-out and /api/presentation-slots/:id/check-in endpoints.",
+    "workspace.css adds responsive presentation row/action layout.",
+    "scripts/seed-local-workspace-smoke.mjs now seeds a local-only presentation requirement and scheduled Room 101 presentation slot for credential-backed workspace smoke.",
+    "tests/workspace-app.test.mjs and tests/workspace-browser-smoke.test.mjs cover the new route markers, UI state markers, local role visibility, and staff action affordances."
+  ],
+  "files_changed": [
+    "workspace.js",
+    "workspace.css",
+    "scripts/seed-local-workspace-smoke.mjs",
+    "tests/workspace-app.test.mjs",
+    "tests/workspace-browser-smoke.test.mjs",
+    "docs/mvp-requirements-catalog.md",
+    "docs/automation-backlog.md",
+    "docs/automation-memory.md",
+    "docs/artifacts.json",
+    "docs/progress/handoffs.md",
+    "docs/progress/rebuild.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-20-1910-workspace-presentation-dashboard-mvp-017.json"
+  ],
+  "validation": [
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 tests\\workspace-app.test.mjs",
+      "result": "passed",
+      "summary": "Workspace source/VM coverage passed with presentation route markers and rendered scheduled/checked-out action states."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 tests\\presentation-slots.integration.test.mjs",
+      "result": "passed",
+      "summary": "Presentation slot API scope, conflict, check-out, check-in, invalid-status, and audit coverage still passed."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 tests\\workspace-browser-smoke.test.mjs",
+      "result": "passed-with-expected-skips",
+      "summary": "Portable smoke source checks passed; HTTP checks skipped before a base URL was provided."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 scripts\\seed-local-workspace-smoke.mjs",
+      "result": "passed",
+      "summary": "Seeded seven local-only fake .test accounts plus the local presentation slot fixture without printing passwords."
+    },
+    {
+      "command": "$env:WORKSPACE_SMOKE_BASE_URL='http://127.0.0.1:8792'; $env:WORKSPACE_SMOKE_CREDENTIALS_FILE='.secrets\\local-workspace-smoke-accounts.json'; powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 tests\\workspace-browser-smoke.test.mjs",
+      "result": "passed",
+      "summary": "Credential-backed local HTTP smoke passed for student, program-teacher, and mentor /api/presentation-slots visibility."
+    },
+    {
+      "command": "Codex in-app browser at http://127.0.0.1:8792/workspace",
+      "result": "passed",
+      "summary": "Signed in as the local program-teacher account and verified the Presentation tab rendered one scheduled Room 101 slot, one check-out button, and zero console errors."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 typecheck",
+      "result": "passed",
+      "summary": "Strict TypeScript typecheck exited 0."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 check:production-surfaces",
+      "result": "passed",
+      "summary": "Production surface leak check passed with 91 production text surfaces scanned."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 test",
+      "result": "passed",
+      "summary": "Full test suite passed: 135 tests, 132 passing and 3 expected opt-in workspace smoke skips."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 check",
+      "result": "passed-static-live-blocked",
+      "summary": "Aggregate check passed with alpha/cadence/predeploy/production/route/generated/site/static Cloudflare checks and full tests; live Cloudflare verification remained blocked without CLOUDFLARE_API_TOKEN."
+    },
+    {
+      "command": "git diff --check",
+      "result": "passed",
+      "summary": "Whitespace check passed with line-ending warnings only."
+    }
+  ],
+  "browser_verification": {
+    "local_url": "http://127.0.0.1:8792/workspace",
+    "account_used": "program_teacher",
+    "presentation_tab_visible": true,
+    "scheduled_rows": 1,
+    "check_out_buttons": 1,
+    "check_in_buttons": 0,
+    "room_text_visible": true,
+    "console_error_count": 0,
+    "local_server_stopped": true
+  },
+  "blockers": [
+    {
+      "id": "LIVE_CLOUDFLARE_BLOCKED_NO_TOKEN",
+      "message": "Hosted presentation-dashboard proof, remote Pages/D1 deployment inspection, and remote D1 verification remain blocked because CLOUDFLARE_API_TOKEN is not set.",
+      "owner": "Bryan",
+      "next_action": "Provide a scoped Cloudflare API token or use an approved Cloudflare connector for read-only remote inspection and remote D1 verification."
+    },
+    {
+      "id": "DRIVE_LIVE_BLOCKED_MISSING_CREDENTIAL_SECRETS",
+      "message": "Live Drive upload/download remains blocked because Cloudflare Pages is missing GOOGLE_DRIVE_CLIENT_EMAIL and GOOGLE_DRIVE_PRIVATE_KEY.",
+      "owner": "Bryan",
+      "next_action": "Add the Drive credential secrets in Cloudflare Pages, then rerun Drive probe plus small and >5MB upload/download through a fake .test account."
+    }
+  ],
+  "next_actions": [
+    "Verify hosted workspace presentation-dashboard states after deployment when live proof is available.",
+    "Persist outline approval gates beyond the current presentation slot outline_status field.",
+    "Continue celebration evidence and archive/export workflow depth while Cloudflare/Drive secrets remain blocked."
+  ],
+  "automation_efficiency": {
+    "scale_signal": "accepted implementation pass; no cadence change recommended"
+  },
+  "self_improvement": "none",
+  "run_log_updated": true,
+  "structured_manifest_created": true,
+  "artifacts_json_updated": true,
+  "mvp_catalog_changed": true,
+  "human_decisions_changed": false,
+  "phone_tracker": {
+    "result": "not_appended",
+    "reason": "Google Sheets connector was not used in this run; repo-local closeout evidence was preserved."
+  },
+  "commit_sha": "pending",
+  "push_result": "pending"
+}
