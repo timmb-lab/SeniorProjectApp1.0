@@ -28,6 +28,20 @@ This is the compact run log for the current quarter-hour split-builder automatio
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-05-21 03:06 PT - MVP-006/MVP-011 Student Dashboard Access Audit
+
+- `automation ID`: `senior-capstone-nonfigma-mvp-builder`.
+- `lane`: non-Figma MVP builder / backend-security-data.
+- `master-plan sections`: Role-Aware Production App Contract; North Star Workflow; Logging Requirements.
+- `requirement IDs`: `MVP-006`, `MVP-011`, `MVP-014`, `MVP-020`, `MVP-025`; `backlog IDs`: `SC-005`, `SC-006`; `handoff`: `H-2026-05-18-006`.
+- `selected slice`: Add protected-record audit events and route-level role/scope coverage for `/api/student/dashboard` without direct Figma work.
+- `changed`: `functions/api/student/dashboard.ts` now writes `student_dashboard_unauthorized`, `student_dashboard_denied`, and `student_dashboard_viewed` audit events with redacted role/scope metadata; `tests/student-dashboard-access.integration.test.mjs` executes student-own, student-other denial, active/inactive mentor, matching/empty program-teacher, admin, and misc-admin broad-access denial paths and verifies dashboard evidence summaries omit Drive storage IDs.
+- `validation`: focused dashboard integration passed (6/6); strict typecheck passed; production-surface check passed with 91 surfaces; full test suite passed (171 pass / 4 expected opt-in skips); aggregate `check` passed with live Cloudflare read-only verification; targeted `git diff --check` passed with CRLF warnings only.
+- `commit`: implementation commit `d8eb8c95b56406c0c8c051ea0d55876986112567` (`rebuild: audit student dashboard access (MVP-006)`) created on `main`; closeout docs commit follows this entry.
+- `blockers`: live Drive upload still fails with redacted Google Drive HTTP 403 after token/root/index probes pass; real-user setup credential delivery remains Bryan decision `HD-2026-05-21-001`; live/browser workspace permission-denied proof remains open.
+- `phone tracker`: not appended; Google Sheets connector was not used in this run.
+- `self-improvement`: none.
+
 ## 2026-05-21 02:10 PT - MVP-004/MVP-007 Admin Import Local Proof
 
 - `automation ID`: `senior-capstone-nonfigma-mvp-builder`.

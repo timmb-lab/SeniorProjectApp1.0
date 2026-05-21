@@ -17,6 +17,21 @@ Each rebuild run should append a dated entry with:
 
 ## Entries
 
+### 2026-05-21 03:06 PT - MVP-006/MVP-011 Student Dashboard Access Audit
+
+- `automation`: `senior-capstone-nonfigma-mvp-builder`
+- `master-plan section`: Role-Aware Production App Contract; North Star Workflow; Logging Requirements.
+- `source docs/logs read`: automation memory at `C:\Users\bryan\.codex\automations\senior-capstone-nonfigma-mvp-builder\memory.md`, required master plan/catalog/cadence/runbook/self-improvement/memory/milestones/progress docs, recent run manifests, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, `docs/progress/rebuild.md`, permission/evidence route tests, and `functions/api/student/dashboard.ts`.
+- `backlog or requirement IDs selected`: `SC-005`, `SC-006`, `MVP-006`, `MVP-011`, `MVP-014`, `MVP-020`, and `MVP-025`.
+- `bounded scope`: Broaden protected-record permission evidence by auditing `/api/student/dashboard` access and adding deterministic route-level role/scope tests without direct Figma work.
+- `files changed`: `functions/api/student/dashboard.ts`, `tests/student-dashboard-access.integration.test.mjs`, MVP/backlog/artifact/memory/handoff/progress docs, and structured run manifest `docs/progress/runs/2026-05-21-0306-student-dashboard-access-audit-mvp-006.json`.
+- `validation`: focused dashboard integration passed with 6/6 tests; strict `typecheck` passed; `check:production-surfaces` passed with 91 surfaces; full `test` passed with 171 passing tests and 4 expected opt-in skips; aggregate `check` passed with live Cloudflare read-only verification and 171 passing tests / 4 expected skips; targeted `git diff --check` passed with CRLF warnings only.
+- `commit/push status`: implementation commit `d8eb8c95b56406c0c8c051ea0d55876986112567` created on `main`; closeout docs commit and push follows this entry.
+- `blockers`: Drive upload remains blocked by redacted Google Drive HTTP 403; real-user setup credential delivery remains Bryan decision `HD-2026-05-21-001`; live/browser workspace permission-denied proof remains a follow-up.
+- `phone tracker`: not appended; Google Sheets connector was not used in this run.
+- `self-improvement`: none.
+- `next action`: Extend the same role/scope audit matrix to remaining workflow endpoints and capture live workspace permission-denied/account-state proof while Drive upload 403 is resolved.
+
 ### 2026-05-21 00:37 PT - MVP-004/MVP-007 Admin User Import
 
 - `automation`: `senior-capstone-nonfigma-mvp-builder-30`
