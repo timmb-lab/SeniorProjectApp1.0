@@ -180,6 +180,14 @@ function classifyPath(relativePath) {
       reason: "Legacy redirect to the public guide home.",
     };
   }
+  if (relativePath === "workspace.html") {
+    return {
+      classification: "production",
+      deployProject: "senior-capstone-app",
+      productionSafe: "conditional",
+      reason: "Canonical protected app route; production-safe only behind authenticated role/scope checks.",
+    };
+  }
   if (rootProductionPages.has(relativePath)) {
     return {
       classification: "production",

@@ -498,3 +498,18 @@ Each rebuild run should append a dated entry with:
 - `phone tracker`: not appended; Google Sheets connector was not used in this run.
 - `self-improvement`: `scripts/seed-local-workspace-smoke.mjs` now verifies the known seven seed account IDs because local import proof creates additional fake `.test` users.
 - `next action`: Decide or implement the real-user credential delivery policy before pilot imports, then broaden role-scope/protected-record tests and resolve the Drive upload HTTP 403.
+
+### 2026-05-21 02:33 PT - MVP-032 Workspace Route Inventory Classification
+
+- `automation`: `senior-capstone-nonfigma-mvp-builder-30`
+- `master-plan section`: P0 Production Experience Gate; Role-Aware Production App Contract; Logging Requirements.
+- `source docs/logs read`: automation memory at `C:\Users\bryan\.codex\automations\senior-capstone-nonfigma-mvp-builder-30\memory.md`, required master plan/catalog/cadence/runbook/self-improvement/memory/milestones/progress docs, recent run manifests, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, `docs/progress/rebuild.md`, route inventory generator/output, and production workflow source tests.
+- `backlog or requirement IDs selected`: `SC-007`, `MVP-025`, `MVP-032`, `MVP-034`, and `MVP-039`.
+- `bounded scope`: Fix the production route inventory mismatch where `workspace.html` was still generated as `unknown` even though the registry/catalog name it as the canonical protected production app route.
+- `files changed`: `scripts/inventory-production-routes.mjs`, `docs/generated/production-route-inventory.md`, `tests/production-workflow-source.test.mjs`, `docs/mvp-requirements-catalog.md`, `docs/automation-backlog.md`, `docs/automation-memory.md`, `docs/artifacts.json`, `docs/progress/handoffs.md`, this rebuild log, `docs/progress/run-log.md`, and structured run manifest `docs/progress/runs/2026-05-21-0233-workspace-route-inventory-mvp-032.json`.
+- `validation`: `tests/production-workflow-source.test.mjs` passed with 11/11 tests; `check:route-inventory` passed; `check:production-surfaces` passed with 91 production text surfaces scanned.
+- `commit/push status`: pending closeout commit and push.
+- `blockers`: Drive upload still fails with redacted Google Drive HTTP 403; real-user setup credential delivery remains Bryan decision `HD-2026-05-21-001`.
+- `phone tracker`: not appended; Google Sheets connector was not used in this run.
+- `self-improvement`: none.
+- `next action`: Broaden role-scope/protected-record tests, verify hosted account-state/permission-denied workspace states, and resolve the Drive upload HTTP 403.

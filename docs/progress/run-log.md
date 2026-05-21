@@ -844,3 +844,18 @@ Future productive runs should append compact entries that name the master-plan s
 - `phone tracker`: not appended; Google Sheets connector was not used in this run.
 - `self-improvement`: none.
 - `commit`: implementation/run-record commit `f9f6ea8db24b064a821571c4b731236ed386b5f4` pushed to `origin main`; closeout evidence commit follows this entry.
+
+## 2026-05-21 02:33 PT - MVP-032 Workspace Route Inventory Classification
+
+- `automation ID`: `senior-capstone-nonfigma-mvp-builder-30`.
+- `lane`: non-Figma MVP builder / deployment-qa.
+- `master-plan sections`: P0 Production Experience Gate; Role-Aware Production App Contract; Logging Requirements.
+- `requirement IDs`: `MVP-025`, `MVP-032`, `MVP-034`, `MVP-039`; `backlog IDs`: `SC-007`; `handoff`: `H-2026-05-20-007`.
+- `selected slice`: Align generated production route inventory with the canonical protected workspace route without direct Figma work.
+- `what changed`: `scripts/inventory-production-routes.mjs` now classifies `workspace.html` as `senior-capstone-app` / `production` / `conditional` with canonical protected app route wording; `docs/generated/production-route-inventory.md` was regenerated; `tests/production-workflow-source.test.mjs` asserts the generated row and rejects the old unknown classification.
+- `files changed`: `scripts/inventory-production-routes.mjs`, `docs/generated/production-route-inventory.md`, `tests/production-workflow-source.test.mjs`, MVP/backlog/artifact/memory/handoff/progress docs, and `docs/progress/runs/2026-05-21-0233-workspace-route-inventory-mvp-032.json`.
+- `validation`: focused production workflow source test passed with 11/11; `check:route-inventory` passed; `check:production-surfaces` passed with 91 production text surfaces scanned.
+- `blockers`: live Drive upload remains blocked by redacted Google Drive HTTP 403 after token/root/index probes pass; real-user setup credential delivery remains Bryan decision `HD-2026-05-21-001`.
+- `phone tracker`: not appended; Google Sheets connector was not used.
+- `self-improvement`: none.
+- `commit/push status`: pending closeout commit and push.

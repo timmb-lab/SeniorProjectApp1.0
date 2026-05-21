@@ -11,6 +11,7 @@ const archiveReadinessRoute = await readFile("functions/api/student/archive/read
 const archiveExportLib = await readFile("functions/_lib/archive-export.ts", "utf8");
 const evidenceRoute = await readFile("functions/api/submissions/[id]/evidence.ts", "utf8");
 const exportDownloadRoute = await readFile("functions/api/exports/[id]/download.ts", "utf8");
+const productionRouteInventory = await readFile("docs/generated/production-route-inventory.md", "utf8");
 const mentorAssignedRoute = await readFile("functions/api/mentor/assigned.ts", "utf8");
 const readinessRoute = await readFile("functions/api/reports/readiness.ts", "utf8");
 const reviewHistoryRoute = await readFile("functions/api/reviews/[submissionId]/history.ts", "utf8");
@@ -47,6 +48,12 @@ test("student evidence endpoint validates HTTPS metadata and keeps file upload p
   assert.match(evidenceRoute, /evidence_link_attached/);
   assert.match(evidenceRoute, /evidence_attach_denied/);
   assert.match(evidenceRoute, /fileBytesReady: false/);
+});
+
+test("production route inventory classifies the canonical workspace route", () => {
+  assert.match(productionRouteInventory, /\| workspace\.html \| senior-capstone-app \| production \| conditional \|/);
+  assert.match(productionRouteInventory, /Canonical protected app route/);
+  assert.doesNotMatch(productionRouteInventory, /\| workspace\.html \|  \| unknown \| unknown \|/);
 });
 
 test("review decision endpoint enforces teacher or admin scope and immutable review records", () => {
