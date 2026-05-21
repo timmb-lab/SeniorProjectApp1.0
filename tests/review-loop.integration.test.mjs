@@ -208,8 +208,76 @@ test("student submission blocks when no evidence artifacts exist", async () => {
   assert.deepEqual(body, { error: "submission_missing_evidence", ok: false });
 });
 
+test("teacher review queue audits unauthorized and denied staff access", async () => {
+  const fixture = await createFixture();
+
+  const missingSession = await onTeacherReviewQueue({
+    request: buildAuthedRequest("https://example.test/api/teacher/review-queue", null),
+    env: fixture.env,
+  });
+
+  assert.equal(missingSession.status, 401);
+  assert.deepEqual(await missingSession.json(), { error: "unauthorized" });
+  assert.equal(fixture.db.data.auditEvents[0].action, "review_queue_unauthorized");
+  assert.equal(fixture.db.data.auditEvents[0].entity_type, "teacher_review_queue");
+  assert.deepEqual(fixture.db.data.auditEvents[0].metadata, { reason: "missing_session" });
+
+  const miscToken = await addAuthedUser(fixture.db, {
+    userId: "misc-a",
+    displayName: "Misc Admin",
+    roleId: "misc_admin",
+    scopeType: "reporting",
+    scopeId: "alpha-readiness",
+  });
+
+  const denied = await onTeacherReviewQueue({
+    request: buildAuthedRequest("https://example.test/api/teacher/review-queue", miscToken),
+    env: fixture.env,
+  });
+
+  assert.equal(denied.status, 403);
+  assert.deepEqual(await denied.json(), { error: "forbidden" });
+  assert.equal(fixture.db.data.auditEvents[1].action, "review_queue_denied");
+  assert.deepEqual(fixture.db.data.auditEvents[1].metadata, {
+    reason: "missing_staff_role",
+    actorRoleScopes: [{ roleId: "misc_admin", scopeType: "reporting", scopeId: "alpha-readiness" }],
+  });
+});
+
+test("teacher review queue default-denies empty program scopes and audits the empty view", async () => {
+  const fixture = await createFixture({
+    teacherScopeType: "program",
+    teacherScopeId: "",
+    studentProgramId: null,
+  });
+  fixture.db.data.submissions[0].status = "submitted";
+
+  const response = await onTeacherReviewQueue({
+    request: buildAuthedRequest("https://example.test/api/teacher/review-queue", fixture.teacherToken),
+    env: fixture.env,
+  });
+
+  assert.equal(response.status, 200);
+  const body = await response.json();
+  assert.equal(body.ok, true);
+  assert.equal(body.queue.length, 0);
+
+  const event = fixture.db.data.auditEvents[0];
+  assert.equal(event.action, "review_queue_viewed");
+  assert.equal(event.entity_type, "teacher_review_queue");
+  assert.deepEqual(event.metadata, {
+    admin: false,
+    queueCount: 0,
+    actorRoleScopes: [{ roleId: "program_teacher", scopeType: "program", scopeId: "" }],
+  });
+});
+
 async function createFixture(options = {}) {
   const includeEvidence = options.includeEvidence !== false;
+  const teacherScopeType = options.teacherScopeType || "global";
+  const teacherScopeId = options.teacherScopeId || "";
+  const studentProgramId = Object.hasOwn(options, "studentProgramId") ? options.studentProgramId : "it";
+  const studentCohortId = Object.hasOwn(options, "studentCohortId") ? options.studentCohortId : "cohort-a";
   const db = new MockD1Database({
     userAccounts: [],
     sessions: [],
@@ -235,14 +303,19 @@ async function createFixture(options = {}) {
 
   db.data.requirements.push({ id: "req-proposal-draft", title: "Proposal draft" });
 
-  db.data.groups.push({ id: "group-a", program_id: "it", cohort_id: "cohort-a" });
+  db.data.groups.push({ id: "group-a", program_id: studentProgramId, cohort_id: studentCohortId });
   db.data.groupMemberships.push({ user_id: "student-a", group_id: "group-a" });
 
   db.data.userAccounts.push(buildUser("student-a", "Student A"));
   db.data.userAccounts.push(buildUser("teacher-a", "Teacher A"));
 
   db.data.userRoles.push({ user_id: "student-a", role_id: "student", scope_type: "global", scope_id: "" });
-  db.data.userRoles.push({ user_id: "teacher-a", role_id: "program_teacher", scope_type: "global", scope_id: "" });
+  db.data.userRoles.push({
+    user_id: "teacher-a",
+    role_id: "program_teacher",
+    scope_type: teacherScopeType,
+    scope_id: teacherScopeId,
+  });
 
   const studentToken = "token-student-a";
   const teacherToken = "token-teacher-a";
@@ -297,6 +370,20 @@ async function createFixture(options = {}) {
   }
 
   return { env, db, studentToken, teacherToken };
+}
+
+async function addAuthedUser(db, { userId, displayName, roleId, scopeType = "global", scopeId = "" }) {
+  const token = `token-${userId}`;
+  db.data.userAccounts.push(buildUser(userId, displayName));
+  db.data.sessions.push({
+    id: `sess-${userId}`,
+    user_id: userId,
+    token_hash: await sha256Hex(token),
+    revoked_at: null,
+    expires_at: new Date("2099-01-01T00:00:00.000Z").toISOString(),
+  });
+  db.data.userRoles.push({ user_id: userId, role_id: roleId, scope_type: scopeType, scope_id: scopeId });
+  return token;
 }
 
 function buildUser(id, displayName) {
@@ -421,6 +508,19 @@ class MockPreparedStatement {
   }
 
   async all() {
+    if (this.sql.startsWith("select role_id, scope_type, scope_id from user_roles where user_id = ?")) {
+      const [userId] = this.params;
+      return {
+        results: this.data.userRoles
+          .filter((row) => row.user_id === userId)
+          .map((row) => ({
+            role_id: row.role_id,
+            scope_type: row.scope_type,
+            scope_id: row.scope_id,
+          })),
+      };
+    }
+
     if (this.sql.startsWith("select id, title, artifact_type, source_kind, review_status, created_at from evidence_artifacts where submission_id = ?")) {
       const [submissionId] = this.params;
       const results = this.data.evidenceArtifacts
@@ -439,6 +539,9 @@ class MockPreparedStatement {
 
     if (this.sql.includes("from submissions") && this.sql.includes("count(evidence.id) as evidence_count")) {
       const teacherUserId = this.params[0] ? String(this.params[0]) : null;
+      const strictTeacherScope = this.sql.includes("teacher_role.scope_id <> ''") &&
+        this.sql.includes("g.program_id is not null") &&
+        this.sql.includes("g.cohort_id is not null");
       const submissions = this.data.submissions.filter((submission) =>
         ["submitted", "revision_requested"].includes(submission.status),
       );
@@ -446,7 +549,11 @@ class MockPreparedStatement {
       const results = submissions
         .filter((submission) => {
           if (!teacherUserId) return true;
-          return teacherScopeAllows(this.data, { studentId: submission.student_id, teacherUserId });
+          return teacherScopeAllows(this.data, {
+            studentId: submission.student_id,
+            teacherUserId,
+            strictTeacherScope,
+          });
         })
         .map((submission) => {
           const student = this.data.userAccounts.find((row) => row.id === submission.student_id);
@@ -713,7 +820,7 @@ class MockPreparedStatement {
   }
 }
 
-function teacherScopeAllows(data, { studentId, teacherUserId }) {
+function teacherScopeAllows(data, { studentId, teacherUserId, strictTeacherScope = true }) {
   const teacherAssignments = data.userRoles.filter(
     (row) => row.user_id === teacherUserId && row.role_id === "program_teacher",
   );
@@ -728,13 +835,23 @@ function teacherScopeAllows(data, { studentId, teacherUserId }) {
   for (const assignment of teacherAssignments) {
     if (assignment.scope_type === "global") return true;
     if (assignment.scope_type === "program") {
-      if (studentGroups.some((group) => String(group.program_id ?? "") === String(assignment.scope_id ?? ""))) {
+      const scopeId = String(assignment.scope_id ?? "");
+      if (strictTeacherScope && !scopeId) continue;
+      if (studentGroups.some((group) => {
+        const programId = String(group.program_id ?? "");
+        return (!strictTeacherScope || programId) && programId === scopeId;
+      })) {
         return true;
       }
       continue;
     }
     if (assignment.scope_type === "cohort") {
-      if (studentGroups.some((group) => String(group.cohort_id ?? "") === String(assignment.scope_id ?? ""))) {
+      const scopeId = String(assignment.scope_id ?? "");
+      if (strictTeacherScope && !scopeId) continue;
+      if (studentGroups.some((group) => {
+        const cohortId = String(group.cohort_id ?? "");
+        return (!strictTeacherScope || cohortId) && cohortId === scopeId;
+      })) {
         return true;
       }
       continue;

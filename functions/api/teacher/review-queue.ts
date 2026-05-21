@@ -1,7 +1,7 @@
-import type { Env } from "../../_types.ts";
-import { getCurrentUser } from "../../_lib/auth.ts";
+import type { Env, RoleAssignment, UserAccount } from "../../_types.ts";
+import { getCurrentUser, writeAudit } from "../../_lib/auth.ts";
 import { json } from "../../_lib/http.ts";
-import { hasRole, isAdmin } from "../../_lib/permissions.ts";
+import { getRoleAssignments, hasRole, isAdmin } from "../../_lib/permissions.ts";
 
 interface ReviewQueueRow {
   submission_id: string;
@@ -17,17 +17,31 @@ interface ReviewQueueRow {
 
 export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
   const user = await getCurrentUser(request, env);
-  if (!user) return json({ error: "unauthorized" }, { status: 401 });
+  if (!user) {
+    await auditReviewQueueAccess(env, request, null, "review_queue_unauthorized", {
+      reason: "missing_session",
+    });
+    return json({ error: "unauthorized" }, { status: 401 });
+  }
 
   const admin = await isAdmin(env, user.id);
   const programTeacher = await hasRole(env, user.id, "program_teacher");
   if (!admin && !programTeacher) {
+    await auditReviewQueueAccess(env, request, user, "review_queue_denied", {
+      reason: "missing_staff_role",
+    });
     return json({ error: "forbidden" }, { status: 403 });
   }
 
   const queue = admin
     ? await env.DB.prepare(baseQueueSql("1 = 1")).all<ReviewQueueRow>()
     : await env.DB.prepare(baseQueueSql(teacherScopePredicate())).bind(user.id).all<ReviewQueueRow>();
+  const queueRows = queue.results || [];
+
+  await auditReviewQueueAccess(env, request, user, "review_queue_viewed", {
+    admin,
+    queueCount: queueRows.length,
+  });
 
   return json({
     ok: true,
@@ -36,7 +50,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
       email: user.email,
       admin,
     },
-    queue: queue.results || [],
+    queue: queueRows,
   });
 };
 
@@ -75,9 +89,57 @@ function teacherScopePredicate(): string {
       WHERE teacher_role.user_id = ?
         AND teacher_role.role_id = 'program_teacher'
         AND (
-          teacher_role.scope_type = 'global'
-          OR (teacher_role.scope_type = 'program' AND teacher_role.scope_id = COALESCE(g.program_id, ''))
-          OR (teacher_role.scope_type = 'cohort' AND teacher_role.scope_id = COALESCE(g.cohort_id, ''))
+        teacher_role.scope_type = 'global'
+        OR (
+          teacher_role.scope_type = 'program'
+          AND teacher_role.scope_id <> ''
+          AND g.program_id IS NOT NULL
+          AND g.program_id <> ''
+          AND teacher_role.scope_id = g.program_id
         )
+        OR (
+          teacher_role.scope_type = 'cohort'
+          AND teacher_role.scope_id <> ''
+          AND g.cohort_id IS NOT NULL
+          AND g.cohort_id <> ''
+          AND teacher_role.scope_id = g.cohort_id
+        )
+      )
     )`;
+}
+
+async function auditReviewQueueAccess(
+  env: Env,
+  request: Request,
+  user: UserAccount | null,
+  action: string,
+  metadata: Record<string, unknown>,
+): Promise<void> {
+  const auditMetadata = user
+    ? {
+        ...metadata,
+        actorRoleScopes: serializeRoleScopes(await getRoleAssignments(env, user.id)),
+      }
+    : metadata;
+
+  await writeAudit(env, {
+    actorUserId: user?.id || null,
+    action,
+    entityType: "teacher_review_queue",
+    entityId: null,
+    request,
+    metadata: auditMetadata,
+  });
+}
+
+function serializeRoleScopes(assignments: RoleAssignment[]): Array<{
+  roleId: string;
+  scopeType: string;
+  scopeId: string;
+}> {
+  return assignments.map((assignment) => ({
+    roleId: assignment.role_id,
+    scopeType: assignment.scope_type,
+    scopeId: assignment.scope_id,
+  }));
 }
