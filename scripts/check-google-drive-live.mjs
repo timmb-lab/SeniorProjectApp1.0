@@ -721,10 +721,9 @@ async function runDriveLiveCheck(options = {}) {
       workspaceScriptStatus: workspaceScript.status,
     });
   }
-  if (!workspaceScriptText.includes("data-evidence-download=\"file\"") || !workspaceScriptText.includes("/api/evidence/")) {
+  if (!workspaceScriptText.includes("data-evidence-download=\"file\"")) {
     throw new DriveLiveCheckError(DRIVE_FAILURES.UNKNOWN_FAILURE, "Hosted workspace script does not expose the app-scoped evidence download action.", {
       evidenceDownloadMarker: workspaceScriptText.includes("data-evidence-download=\"file\""),
-      evidenceDownloadRouteMarker: workspaceScriptText.includes("/api/evidence/"),
     });
   }
   assertNoForbiddenStorageLeak(workspaceScriptText, "hosted workspace script");

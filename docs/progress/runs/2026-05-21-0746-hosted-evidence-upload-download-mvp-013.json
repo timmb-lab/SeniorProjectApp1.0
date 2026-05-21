@@ -1,0 +1,199 @@
+{
+  "run_id": "2026-05-21-0746-hosted-evidence-upload-download-mvp-013",
+  "timestamp_local": "2026-05-21T07:46:00-07:00",
+  "automation_id": "senior-capstone-nonfigma-mvp-builder-30",
+  "lane": "non-figma MVP builder",
+  "selected_category": "student-workflow-evidence",
+  "secondary_category": "deployment-qa",
+  "status": "completed",
+  "accepted_mvp_pass": true,
+  "requirement_ids": [
+    "MVP-013",
+    "MVP-014",
+    "MVP-026",
+    "MVP-032",
+    "MVP-033"
+  ],
+  "supporting_requirement_ids": [
+    "MVP-006",
+    "MVP-025"
+  ],
+  "backlog_ids": [
+    "SC-003",
+    "SC-005",
+    "SC-007"
+  ],
+  "handoff_ids": [
+    "H-2026-05-20-012",
+    "H-2026-05-20-007",
+    "H-2026-05-21-003",
+    "H-2026-05-18-006",
+    "H-2026-05-18-008"
+  ],
+  "output_kind": "hosted-evidence-upload-download-proof",
+  "bounded_scope": "Prove hosted fake .test file-byte upload/download through the app-scoped Drive route, including a >5MB resumable path, without direct Figma work.",
+  "source_docs_read": [
+    "C:\\Users\\bryan\\.codex\\automations\\senior-capstone-nonfigma-mvp-builder-30\\memory.md",
+    "docs/master-plan.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/automation-cadence.md",
+    "docs/automation-runbook.md",
+    "docs/automation-self-improvement.md",
+    "docs/automation-memory.md",
+    "docs/automation-milestones.md",
+    "docs/progress/run-log.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/decision-log.md",
+    "docs/automation-backlog.md",
+    "docs/artifacts.json",
+    "docs/human-decisions.md",
+    "recent docs/progress/runs/*.json",
+    "docs/progress/rebuild.md",
+    "docs/progress/runs/2026-05-21-0638-mentor-meetings-access-audit-mvp-017.json",
+    "docs/progress/runs/2026-05-21-0616-figma-protected-record-acceptance-board.json",
+    "docs/progress/runs/2026-05-21-0535-submission-detail-access-audit-mvp-012.json",
+    "functions/api/student/dashboard.ts",
+    "workspace.js",
+    "workspace.css",
+    "scripts/check-google-drive-live.mjs",
+    "tests/student-dashboard-access.integration.test.mjs",
+    "tests/workspace-app.test.mjs",
+    "tests/workspace-browser-smoke.test.mjs",
+    "tests/evidence-drive-file.integration.test.mjs",
+    "tests/production-workflow-source.test.mjs"
+  ],
+  "figma_work_avoided": true,
+  "direct_figma_tools_called": false,
+  "changes": [
+    "/api/student/dashboard now returns storage-ID-redacted evidence summaries with safe app-scoped downloadUrl values for Drive-backed evidence.",
+    "/api/student/dashboard preserves externalUrl values for external-link evidence while marking summaries storageIdentifiersRedacted.",
+    "workspace.js now renders data-evidence-download=\"file\" file download actions and data-evidence-link=\"external\" open-link actions without raw Drive storage identifiers.",
+    "workspace.css now gives compact evidence row action links stable styling.",
+    "tests/student-dashboard-access.integration.test.mjs covers dashboard download URL redaction and external-link summaries.",
+    "tests/workspace-app.test.mjs executes the evidence download/external-link rendering path and asserts no Drive storage IDs render.",
+    "tests/workspace-browser-smoke.test.mjs and production source tests lock the hosted workspace download markers.",
+    "scripts/check-google-drive-live.mjs now verifies hosted workspace evidence-download marker proof, fake .test text upload/download byte matching, >5MB resumable upload/download, remote D1 upload/download audit rows, denial guards, dashboard download URL redaction, and storage-ID leak checks."
+  ],
+  "files_changed": [
+    "functions/api/student/dashboard.ts",
+    "workspace.js",
+    "workspace.css",
+    "tests/student-dashboard-access.integration.test.mjs",
+    "tests/workspace-app.test.mjs",
+    "tests/workspace-browser-smoke.test.mjs",
+    "scripts/check-google-drive-live.mjs",
+    "docs/mvp-requirements-catalog.md",
+    "docs/automation-backlog.md",
+    "docs/automation-memory.md",
+    "docs/artifacts.json",
+    "docs/progress/handoffs.md",
+    "docs/progress/rebuild.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-21-0746-hosted-evidence-upload-download-mvp-013.json"
+  ],
+  "validation": [
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 tests\\student-dashboard-access.integration.test.mjs",
+      "result": "passed; 6/6 student dashboard access and evidence summary tests"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 tests\\workspace-app.test.mjs",
+      "result": "passed; 11/11 workspace VM/source tests"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 tests\\workspace-browser-smoke.test.mjs",
+      "result": "passed with 4 expected opt-in skips because no local smoke base URL was requested"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 tests\\evidence-drive-file.integration.test.mjs",
+      "result": "passed; 24/24 evidence upload/download tests"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 tests\\production-workflow-source.test.mjs",
+      "result": "passed; 13/13 production workflow source tests"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 typecheck",
+      "result": "passed"
+    },
+    {
+      "command": "node --check scripts/check-google-drive-live.mjs",
+      "result": "passed using the wrapper-resolved Node runtime"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 test",
+      "result": "passed; 184 passing tests and 4 expected opt-in skips"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 check:production-surfaces",
+      "result": "passed; 91 production text surfaces scanned"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 check:route-inventory",
+      "result": "passed; production route inventory is up to date"
+    },
+    {
+      "command": "JSON.parse docs/artifacts.json and docs/progress/runs/2026-05-21-0746-hosted-evidence-upload-download-mvp-013.json",
+      "result": "passed"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 verify:automation-cadence",
+      "result": "passed; quarter-hour cadence still has only the two non-Figma and two Figma builder lanes plus oversight automations"
+    },
+    {
+      "command": "hosted workspace.js poll after implementation commit d0fe1f6",
+      "result": "passed on poll 3; https://senior-capstone-app.pages.dev/workspace.js returned HTTP 200 and contained data-evidence-download=\"file\""
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 check:drive:live",
+      "result": "passed; hosted workspace marker, fake .test text upload/download byte match, >5MB resumable upload/download, remote D1 upload/download audit rows, denial guards, dashboard redaction, and storage-ID leak checks"
+    }
+  ],
+  "blockers": [
+    {
+      "code": "TEMP_CREDENTIAL_DELIVERY_POLICY_OPEN",
+      "cause": "The admin UI can display setup passwords once for fake .test proof, but Bryan has not approved a real-user manual distribution procedure or invitation/email delivery policy.",
+      "bryan_must_act": true,
+      "next_safe_action": "Decide HD-2026-05-21-001 before importing real pilot users."
+    },
+    {
+      "code": "LIVE_BROWSER_PERMISSION_PROOF_PENDING",
+      "cause": "Hosted fake .test file upload/download proof now passes, but hosted account-state/no-assignment markers and a live section-level permission-denied UI state remain open.",
+      "bryan_must_act": false,
+      "next_safe_action": "Use fake .test accounts to capture hosted workspace account-state/no-assignment and section-level permission-denied UI evidence."
+    },
+    {
+      "code": "ARCHIVE_HOSTED_PROOF_PENDING",
+      "cause": "General Drive file-byte proof now passes, but archive export/package UI/API proof still needs hosted fake-account coverage.",
+      "bryan_must_act": false,
+      "next_safe_action": "Capture hosted archive generation, package-ready, scoped download, expired retry, and denial evidence."
+    }
+  ],
+  "resolved_blockers": [
+    {
+      "code": "DRIVE_UPLOAD_FAILED_HTTP_403",
+      "evidence": "Resolved for the fake .test live gate by the Shared Drive root update and commit d0fe1f6; check:drive:live now passes fake text upload/download plus >5MB resumable upload/download."
+    }
+  ],
+  "next_actions": [
+    "Capture hosted archive UI/API proof for the Drive-backed package path.",
+    "Capture hosted account-state/no-assignment and live section-level permission-denied UI proof.",
+    "Add browser-level upload progress/retry handling and Google Docs export-case proof before accepting real student uploads.",
+    "Decide or implement real-user credential delivery before pilot imports."
+  ],
+  "self_improvement": "none",
+  "run_log_updated": true,
+  "structured_manifest_created": true,
+  "artifacts_json_updated": true,
+  "mvp_catalog_changed": true,
+  "human_decisions_changed": false,
+  "phone_tracker": {
+    "updated": false,
+    "reason": "Google Sheets connector was not used in this run; repo-local closeout evidence was preserved."
+  },
+  "branch_before": "main",
+  "branch_after": "main",
+  "implementation_commit_sha": "d0fe1f6",
+  "closeout_commit_sha": "pending_closeout_commit",
+  "push_result": "implementation commit d0fe1f6 pushed to origin main; closeout docs/script commit pending at manifest creation"
+}

@@ -24,9 +24,25 @@ This is the compact run log for the current quarter-hour split-builder automatio
 - Day 7 alpha flow exists at `alpha.html` with `/api/alpha/state`.
 - First-admin bootstrap is complete.
 - Fake `.test` role accounts are seeded for walkthrough testing, with credentials kept only in ignored `.secrets/`.
-- Remaining priority: broader permission/protected-evidence tests, real workflow endpoints, Drive upload credential/OAuth, account lifecycle, mobile/error/empty QA, and deployment verification.
+- Remaining priority: broader permission/protected-evidence tests, real workflow endpoints, evidence upload progress/retry UX, Google Docs export cases, account lifecycle, mobile/error/empty QA, archive/presentation proof, and deployment verification.
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
+
+## 2026-05-21 07:46 PT - MVP-013/MVP-014 Hosted Evidence Upload/Download Proof
+
+- `automation ID`: `senior-capstone-nonfigma-mvp-builder-30`.
+- `lane`: non-Figma MVP builder / student-workflow-evidence and deployment-qa.
+- `master-plan sections`: Role-Aware Production App Contract; North Star Workflow; Stack And Deployment Direction; Logging Requirements.
+- `requirement IDs`: `MVP-013`, `MVP-014`, `MVP-026`, `MVP-032`, and `MVP-033`; supporting `MVP-006` and `MVP-025`; `backlog IDs`: `SC-003`, `SC-005`, and `SC-007`; `handoffs`: closes general Drive live handoff `H-2026-05-20-012`, advances `H-2026-05-20-007`, `H-2026-05-21-003`, `H-2026-05-18-006`, and `H-2026-05-18-008`.
+- `selected slice`: Prove hosted fake `.test` evidence file upload/download through the app-scoped Drive route, including a >5MB resumable path, without direct Figma work.
+- `what changed`: `/api/student/dashboard` now returns storage-ID-redacted evidence summaries with safe app-scoped `downloadUrl` values for Drive-backed evidence and `externalUrl` values for external links. `workspace.js` renders evidence file download and external-link actions without raw Drive IDs. `scripts/check-google-drive-live.mjs` now verifies hosted workspace evidence-download markers, fake `.test` upload/download byte match, >5MB resumable upload/download, remote D1 upload/download audits, denial guards, dashboard download URL redaction, and storage-ID leak checks.
+- `files changed`: `functions/api/student/dashboard.ts`, `workspace.js`, `workspace.css`, `tests/student-dashboard-access.integration.test.mjs`, `tests/workspace-app.test.mjs`, `tests/workspace-browser-smoke.test.mjs`, `scripts/check-google-drive-live.mjs`, MVP/backlog/artifact/memory/handoff/progress docs, and structured run manifest `docs/progress/runs/2026-05-21-0746-hosted-evidence-upload-download-mvp-013.json`.
+- `validation`: focused dashboard/workspace/evidence/source tests passed; strict typecheck passed; full `test` passed with 184 passing tests and 4 expected opt-in skips; manifest/artifact JSON parsed; cadence verifier passed; production-surface checker passed with 91 surfaces; route inventory passed; direct hosted `workspace.js` poll found `data-evidence-download="file"` after commit `d0fe1f6`; final `npm run check:drive:live` passed hosted marker proof, fake text upload/download, >5MB resumable upload/download, D1 metadata/audit, denial, dashboard redaction, and leak checks.
+- `blockers`: no Drive upload/download blocker remains for the fake `.test` live gate. `HD-2026-05-21-001` remains open for real-user setup credential delivery; browser-level upload progress/retry, Google Docs export cases, archive-specific hosted proof, hosted account-state/no-assignment proof, and live section-level permission-denied UI proof remain.
+- `phone tracker`: not appended; Google Sheets connector was not used.
+- `self-improvement`: none.
+- `commit/push status`: implementation commit `d0fe1f6` pushed to `origin main`; closeout docs/script commit and push pending.
+- `next action`: Capture hosted archive UI/API proof or hosted permission-state proof, then add upload progress/retry and Google Docs export-case coverage before real student uploads.
 
 ## 2026-05-21 06:53 PT - Shared Drive Root Applied
 

@@ -629,3 +629,18 @@ Each rebuild run should append a dated entry with:
 - `self-improvement`: none.
 - `commit/push status`: implementation commit `cb89a3a47ca498c1d0ea7d9c3368e51c064b019b` and closeout commit `9146a8d79236007751736dfc8200d14f6ef5d683` pushed to `origin main` (`f4fa9bb..9146a8d`); push-evidence update follows.
 - `next action`: Continue protected-record depth through presentation slots, archive/export, dashboard aggregate readbacks, and hosted permission UI proof; resolve the Drive upload HTTP 403 before real evidence uploads.
+
+### 2026-05-21 07:46 PT - MVP-013/MVP-014 Hosted Evidence Upload/Download Proof
+
+- `automation`: `senior-capstone-nonfigma-mvp-builder-30`
+- `master-plan section`: Role-Aware Production App Contract; North Star Workflow; Stack And Deployment Direction; Logging Requirements.
+- `source docs/logs read`: automation memory at `C:\Users\bryan\.codex\automations\senior-capstone-nonfigma-mvp-builder-30\memory.md`, required master plan/catalog/cadence/runbook/self-improvement/memory/milestones/progress docs, recent run manifests, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, `docs/progress/rebuild.md`, dashboard/workspace/evidence route tests, and the live Drive checker.
+- `backlog or requirement IDs selected`: `SC-003`, `SC-005`, `SC-007`, `MVP-006`, `MVP-013`, `MVP-014`, `MVP-025`, `MVP-026`, `MVP-032`, and `MVP-033`.
+- `bounded scope`: Prove hosted fake `.test` file-byte upload/download through the app-scoped Drive route, including a >5MB resumable path, without direct Figma work.
+- `files changed`: `functions/api/student/dashboard.ts`, `workspace.js`, `workspace.css`, `tests/student-dashboard-access.integration.test.mjs`, `tests/workspace-app.test.mjs`, `tests/workspace-browser-smoke.test.mjs`, `scripts/check-google-drive-live.mjs`, `docs/mvp-requirements-catalog.md`, `docs/automation-backlog.md`, `docs/automation-memory.md`, `docs/artifacts.json`, `docs/progress/handoffs.md`, this rebuild log, `docs/progress/run-log.md`, and structured run manifest `docs/progress/runs/2026-05-21-0746-hosted-evidence-upload-download-mvp-013.json`.
+- `validation`: focused dashboard/workspace/evidence/source tests passed; strict typecheck passed; full `test` passed with 184 passing tests and 4 expected opt-in skips; manifest/artifact JSON parsed; cadence verifier passed; `check:production-surfaces` passed with 91 production text surfaces scanned; `check:route-inventory` passed; direct hosted `workspace.js` poll found `data-evidence-download="file"` after commit `d0fe1f6`; final `check:drive:live` passed hosted marker proof, fake text upload/download, >5MB resumable upload/download, D1 metadata/audit, denial, dashboard redaction, and leak checks.
+- `commit/push status`: implementation commit `d0fe1f6` pushed to `origin main`; closeout docs/script commit and push pending.
+- `blockers`: no Drive upload/download blocker remains for the fake `.test` live gate. `HD-2026-05-21-001` remains open for real-user setup credential delivery; browser-level upload progress/retry, Google Docs export cases, archive-specific hosted proof, hosted account-state/no-assignment proof, and live section-level permission-denied UI proof remain.
+- `phone tracker`: not appended; Google Sheets connector was not used in this run.
+- `self-improvement`: none.
+- `next action`: Capture hosted archive UI/API proof or hosted permission-state proof, then add upload progress/retry and Google Docs export-case coverage before real student uploads.
