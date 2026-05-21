@@ -76,6 +76,18 @@
     {
       "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 check:production-surfaces",
       "result": "passed; 91 production text surfaces scanned"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 check",
+      "result": "passed; live Cloudflare read-only verification, 165 passing tests, and 4 expected opt-in skips"
+    },
+    {
+      "command": "Get-Content docs/artifacts.json and manifest through ConvertFrom-Json",
+      "result": "passed; JSON parsed"
+    },
+    {
+      "command": "git diff --check -- current-run files",
+      "result": "passed; CRLF warnings only"
     }
   ],
   "blockers": [
@@ -109,6 +121,6 @@
   },
   "branch_before": "main",
   "branch_after": "main",
-  "commit_sha": "pending",
-  "push_result": "pending"
+  "commit_sha": "b318eb146c8be4aac41fec3cca2adc817a01ec91",
+  "push_result": "pushed to origin main"
 }

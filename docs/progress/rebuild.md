@@ -507,8 +507,8 @@ Each rebuild run should append a dated entry with:
 - `backlog or requirement IDs selected`: `SC-007`, `MVP-025`, `MVP-032`, `MVP-034`, and `MVP-039`.
 - `bounded scope`: Fix the production route inventory mismatch where `workspace.html` was still generated as `unknown` even though the registry/catalog name it as the canonical protected production app route.
 - `files changed`: `scripts/inventory-production-routes.mjs`, `docs/generated/production-route-inventory.md`, `tests/production-workflow-source.test.mjs`, `docs/mvp-requirements-catalog.md`, `docs/automation-backlog.md`, `docs/automation-memory.md`, `docs/artifacts.json`, `docs/progress/handoffs.md`, this rebuild log, `docs/progress/run-log.md`, and structured run manifest `docs/progress/runs/2026-05-21-0233-workspace-route-inventory-mvp-032.json`.
-- `validation`: `tests/production-workflow-source.test.mjs` passed with 11/11 tests; `check:route-inventory` passed; `check:production-surfaces` passed with 91 production text surfaces scanned.
-- `commit/push status`: pending closeout commit and push.
+- `validation`: `tests/production-workflow-source.test.mjs` passed with 11/11 tests; `check:route-inventory` passed; `check:production-surfaces` passed with 91 production text surfaces scanned; aggregate `check` passed with live Cloudflare read-only verification, 165 passing tests, and 4 expected opt-in skips; manifest/artifact JSON parsed; targeted `git diff --check` passed with CRLF warnings only.
+- `commit/push status`: implementation/run-record commit `b318eb146c8be4aac41fec3cca2adc817a01ec91` pushed to `origin main`; closeout evidence commit follows this entry.
 - `blockers`: Drive upload still fails with redacted Google Drive HTTP 403; real-user setup credential delivery remains Bryan decision `HD-2026-05-21-001`.
 - `phone tracker`: not appended; Google Sheets connector was not used in this run.
 - `self-improvement`: none.

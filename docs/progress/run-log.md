@@ -854,8 +854,8 @@ Future productive runs should append compact entries that name the master-plan s
 - `selected slice`: Align generated production route inventory with the canonical protected workspace route without direct Figma work.
 - `what changed`: `scripts/inventory-production-routes.mjs` now classifies `workspace.html` as `senior-capstone-app` / `production` / `conditional` with canonical protected app route wording; `docs/generated/production-route-inventory.md` was regenerated; `tests/production-workflow-source.test.mjs` asserts the generated row and rejects the old unknown classification.
 - `files changed`: `scripts/inventory-production-routes.mjs`, `docs/generated/production-route-inventory.md`, `tests/production-workflow-source.test.mjs`, MVP/backlog/artifact/memory/handoff/progress docs, and `docs/progress/runs/2026-05-21-0233-workspace-route-inventory-mvp-032.json`.
-- `validation`: focused production workflow source test passed with 11/11; `check:route-inventory` passed; `check:production-surfaces` passed with 91 production text surfaces scanned.
+- `validation`: focused production workflow source test passed with 11/11; `check:route-inventory` passed; `check:production-surfaces` passed with 91 production text surfaces scanned; aggregate `check` passed with live Cloudflare read-only verification, 165 passing tests, and 4 expected opt-in skips; manifest/artifact JSON parsed; targeted `git diff --check` passed with CRLF warnings only.
 - `blockers`: live Drive upload remains blocked by redacted Google Drive HTTP 403 after token/root/index probes pass; real-user setup credential delivery remains Bryan decision `HD-2026-05-21-001`.
 - `phone tracker`: not appended; Google Sheets connector was not used.
 - `self-improvement`: none.
-- `commit/push status`: pending closeout commit and push.
+- `commit/push status`: implementation/run-record commit `b318eb146c8be4aac41fec3cca2adc817a01ec91` pushed to `origin main`; closeout evidence commit follows this entry.
