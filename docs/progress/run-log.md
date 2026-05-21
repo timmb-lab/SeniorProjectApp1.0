@@ -957,3 +957,21 @@ Future productive runs should append compact entries that name the master-plan s
 - `phone tracker`: not appended; Google Sheets connector was not used.
 - `self-improvement`: none.
 - `commit/push status`: implementation commit `d083100cd9cc501643217d627948026be4753f24` created on `main`; closeout docs commit and push pending.
+
+## 2026-05-21 04:22 PT - MVP-028 Review History And Decision Access Audit Handoff
+
+- `automation ID`: `senior-capstone-figma-product-builder-15`.
+- `lane`: Figma-only product builder / design-assets-handoff.
+- `master-plan sections`: Role-Aware Production App Contract; Lane Responsibilities; Logging Requirements.
+- `requirement IDs`: `MVP-028`, supporting `MVP-006`, `MVP-015`, `MVP-016`, `MVP-020`, and `MVP-025`; `handoff`: `H-2026-05-21-003`.
+- `selected slice`: Create and verify a Figma handoff that consumes `/api/reviews/:submissionId/history` and `/api/reviews/:submissionId/decision` protected access audit proof.
+- `active Figma file`: `z4t4tFPAKrMDh6pIYOeEw6`.
+- `Figma page/node touched`: `05 Full MVP Alpha Prototype`; node `180:2` (`Prototype / 26 / Review history and decision access audit handoff`).
+- `what changed`: Added route/data/permission/audit states for history signed-out request, history scope denied, history viewed counts, decision signed-out reviewer, decision scope denied, and decision success audited. The handoff maps review endpoint access to `/api/reviews/:submissionId/history`, `/api/reviews/:submissionId/decision`, `/api/teacher/review-queue`, `/workspace`, `/admin/audit`, `/api/audit-events`, protected review records, and audit events `review_history_unauthorized`, `review_history_denied`, `review_history_viewed`, `review_decision_unauthorized`, `review_decision_denied`, `submission_approved`, `submission_revision_requested`, and `submission_review_comment_added`.
+- `verification`: `use_figma` created node `180:2` and shared plugin data key `senior_capstone/review_history_decision_access_audit_contract_2026_05_21`. Initial readback found collapsed text heights and wrapper frame height; targeted layout correction expanded the frame to `1360x1463`. Final readback found 50 text nodes, zero suspicious clipped text nodes, zero child overflow, 6 states, 6 routes, and 8 audit events. `get_design_context` and `get_screenshot` succeeded for node `180:2`; screenshot returned `952x1024` from original `1360x1463`. Artifact registry and manifest JSON parsed; cadence verifier passed; targeted `git diff --check` passed with CRLF warnings only.
+- `files changed`: Figma design docs, artifact registry, automation memory, Figma lane log, handoff ledger, MVP catalog, this run log, and `docs/progress/runs/2026-05-21-0422-figma-review-history-decision-access-audit.json`.
+- `implementation handoff`: Rebuild should treat review history and review decision access auditing as consumed, then broaden the same audited role/scope matrix to submission, evidence, mentor-meeting, presentation-slot, archive/export, and hosted permission UI proof.
+- `blockers`: none for Figma; Drive upload remains blocked by redacted Google Drive HTTP 403, and `HD-2026-05-21-001` remains open for real-user setup credential delivery policy.
+- `phone tracker`: not appended; Google Sheets connector was not used.
+- `self-improvement`: none.
+- `commit/push status`: pending closeout commit.

@@ -535,6 +535,11 @@ Created/updated frames:
   - Created route/data/permission/audit annotations after `/api/teacher/review-queue` gained unauthorized, denied, viewed, and empty-scope no-leak proof in run `2026-05-21-0336-teacher-review-queue-scope-audit-mvp-015`.
   - State annotations cover signed-out queue request, misc-admin denied role, empty program-scope no-leak behavior, scoped program-teacher queue visibility, admin inspection, and queue-row privacy.
   - Shared plugin data key `senior_capstone/teacher_review_queue_scope_audit_contract_2026_05_21` records consumed commits `0920bf2d33af753817700439bf44374655c57958` and `2e0ac3262c9252bd1d98358ac97d6c420ab30df9`, 6 states, 7 routes, 13 records, 5 permission scopes, 5 guardrails, 4 acceptance checks, and the next rebuild action for broadening the same audited permission matrix to review detail/history/decision endpoints plus hosted permission UI proof.
+- 2026-05-21 review history and decision access audit handoff on `05 Full MVP Alpha Prototype`
+  - `Prototype / 26 / Review history and decision access audit handoff`, node `180:2`
+  - Created route/data/permission/audit annotations after `/api/reviews/:submissionId/history` gained unauthorized, denied, and viewed read audits and `/api/reviews/:submissionId/decision` gained unauthorized/denied reviewer audits in run `2026-05-21-0405-review-history-decision-audit-mvp-015`.
+  - State annotations cover history signed-out, history scope denied, history viewed counts, decision signed-out, decision scope denied, and decision success audited behavior.
+  - Shared plugin data key `senior_capstone/review_history_decision_access_audit_contract_2026_05_21` records consumed commits `d083100cd9cc501643217d627948026be4753f24` and `737fbc1`, 6 states, 6 routes, 12 records, 5 guardrails, 4 acceptance checks, and the next rebuild action for broadening the protected-record audit matrix to submissions, evidence, mentor meetings, presentation slots, archive/export, and hosted permission UI proof.
 
 Verification status:
 - Canvas write succeeded and returned the frame IDs above.
@@ -624,3 +629,7 @@ Verification status:
 - Initial write failed atomically on an invalid divider `HUG` sizing assignment before creating canvas nodes; corrected write created node `178:2`.
 - Final readback found 49 text nodes, zero suspicious clipped text nodes, zero direct-child overflow, zero collapsed frames, 6 states, 7 routes, 13 records, 5 permission scopes, 5 guardrails, and 4 acceptance checks in shared contract data.
 - `get_design_context` and `get_screenshot` succeeded for node `178:2`; screenshot verification returned `1010x1024` from original `1360x1379`.
+- 2026-05-21 `use_figma` write created node `180:2` to map review history and decision protected-access audit states after `/api/reviews/:submissionId/history` and `/api/reviews/:submissionId/decision` proof landed.
+- Initial readback found collapsed 1px text heights and collapsed auto-layout frame height; a targeted text-height and auto-layout correction expanded node `180:2` to `1360x1463`.
+- Final readback found 50 text nodes, zero suspicious clipped text nodes, zero child overflow, 6 states, 6 routes, and 8 audit events in shared contract data.
+- `get_design_context` and `get_screenshot` succeeded for node `180:2`; screenshot verification returned `952x1024` from original `1360x1463`.

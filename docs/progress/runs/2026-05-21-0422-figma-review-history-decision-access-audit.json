@@ -1,0 +1,195 @@
+{
+  "run_id": "2026-05-21-0422-figma-review-history-decision-access-audit",
+  "timestamp_local": "2026-05-21T04:22:00-07:00",
+  "automation_id": "senior-capstone-figma-product-builder-15",
+  "lane": "figma-only product builder",
+  "status": "completed",
+  "accepted_mvp_pass": true,
+  "requirement_ids": [
+    "MVP-028",
+    "MVP-006",
+    "MVP-015",
+    "MVP-016",
+    "MVP-020",
+    "MVP-025"
+  ],
+  "backlog_ids": [
+    "SC-005",
+    "SC-006"
+  ],
+  "handoff_ids": [
+    "H-2026-05-21-003",
+    "H-2026-05-18-008"
+  ],
+  "output_kind": "figma-review-history-decision-access-audit-handoff",
+  "scope": "Create and verify a Figma handoff that consumes /api/reviews/:submissionId/history and /api/reviews/:submissionId/decision protected-access audit proof.",
+  "selected_figma_slice": "Review history and decision access audit handoff after route-level rebuild proof.",
+  "figma": {
+    "file_key": "z4t4tFPAKrMDh6pIYOeEw6",
+    "url": "https://www.figma.com/design/z4t4tFPAKrMDh6pIYOeEw6",
+    "page": "05 Full MVP Alpha Prototype",
+    "page_id": "98:2",
+    "node_touched": {
+      "node_id": "180:2",
+      "name": "Prototype / 26 / Review history and decision access audit handoff",
+      "frame_size": "1360x1463",
+      "mutation_performed": true,
+      "shared_plugin_data_key": "senior_capstone/review_history_decision_access_audit_contract_2026_05_21"
+    },
+    "consumed_run": "2026-05-21-0405-review-history-decision-audit-mvp-015",
+    "consumed_manifest": "docs/progress/runs/2026-05-21-0405-review-history-decision-audit-mvp-015.json",
+    "consumed_commits": [
+      "d083100cd9cc501643217d627948026be4753f24",
+      "737fbc1"
+    ],
+    "states": [
+      "history signed-out request",
+      "history scope denied",
+      "history viewed counts",
+      "decision signed-out reviewer",
+      "decision scope denied",
+      "decision success audited"
+    ],
+    "routes": [
+      "/api/reviews/:submissionId/history",
+      "/api/reviews/:submissionId/decision",
+      "/api/teacher/review-queue",
+      "/workspace",
+      "/admin/audit",
+      "/api/audit-events"
+    ],
+    "records": [
+      "User",
+      "UserRole",
+      "StaffProfile",
+      "StaffProgramAssignment",
+      "StudentProfile",
+      "Submission",
+      "SubmissionVersion",
+      "Review",
+      "Comment",
+      "RequirementProgress",
+      "EvidenceArtifact",
+      "AuditEvent"
+    ],
+    "audit_events": [
+      "review_history_unauthorized",
+      "review_history_denied",
+      "review_history_viewed",
+      "review_decision_unauthorized",
+      "review_decision_denied",
+      "submission_approved",
+      "submission_revision_requested",
+      "submission_review_comment_added"
+    ],
+    "permission_scopes": [
+      "missing session 401",
+      "scope denied 403",
+      "allowed reviewer history read",
+      "allowed reviewer decision write",
+      "admin inspection"
+    ],
+    "guardrails": [
+      "redacted actor role scopes",
+      "no private evidence bodies",
+      "no raw Drive IDs or storage keys",
+      "result counts only in history audit",
+      "fake .test proof only"
+    ],
+    "verification": [
+      {
+        "tool": "use_figma initial write",
+        "result": "created node 180:2 but readback found collapsed text heights and wrapper height"
+      },
+      {
+        "tool": "use_figma layout correction",
+        "result": "passed; expanded node 180:2 to 1360x1463 with 50 text nodes, zero suspicious clipped text nodes, zero child overflow, 6 states, 6 routes, and 8 audit events"
+      },
+      {
+        "tool": "get_design_context",
+        "node_id": "180:2",
+        "result": "passed; returned route/data/permission/audit handoff context"
+      },
+      {
+        "tool": "get_screenshot",
+        "node_id": "180:2",
+        "result": "passed; returned 952x1024 from original 1360x1463"
+      }
+    ]
+  },
+  "source_docs_read": [
+    "C:\\Users\\bryan\\.codex\\automations\\senior-capstone-figma-product-builder-15\\memory.md",
+    "docs/design/figma-first-pass-product-system.md",
+    "docs/design/figma-product-preview-state-variants.md",
+    "docs/master-plan.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/automation-cadence.md",
+    "docs/automation-runbook.md",
+    "docs/automation-memory.md",
+    "docs/progress/run-log.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/decision-log.md",
+    "docs/artifacts.json",
+    "docs/human-decisions.md",
+    "docs/progress/figma.md",
+    "recent docs/progress/runs/*.json",
+    "docs/progress/runs/2026-05-21-0405-review-history-decision-audit-mvp-015.json",
+    "docs/progress/runs/2026-05-21-0352-figma-teacher-review-queue-access-audit.json"
+  ],
+  "repo_files_changed": [
+    "docs/design/figma-first-pass-product-system.md",
+    "docs/design/figma-product-preview-state-variants.md",
+    "docs/artifacts.json",
+    "docs/automation-memory.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/progress/figma.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-21-0422-figma-review-history-decision-access-audit.json"
+  ],
+  "implementation_handoff": "Rebuild should treat review history and review decision access auditing as consumed, then broaden the same audited role/scope matrix to submission, evidence, mentor-meeting, presentation-slot, archive/export, and hosted permission UI proof.",
+  "validation": [
+    {
+      "command": "Figma use_figma corrected write/readback for node 180:2",
+      "result": "passed"
+    },
+    {
+      "command": "Figma get_design_context for node 180:2",
+      "result": "passed"
+    },
+    {
+      "command": "Figma get_screenshot for node 180:2",
+      "result": "passed; returned 952x1024 from original 1360x1463"
+    },
+    {
+      "command": "Get-Content docs/artifacts.json and this manifest through ConvertFrom-Json",
+      "result": "passed; JSON parsed"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\verify-cadence-30min.ps1 -RepoRoot .",
+      "result": "passed; quarter-hour cadence verification passed"
+    },
+    {
+      "command": "git diff --check -- current-run files",
+      "result": "passed with CRLF warnings only"
+    }
+  ],
+  "backend_code_work_avoided": true,
+  "forbidden_files_touched": false,
+  "figma_blocker": null,
+  "run_log_updated": true,
+  "structured_manifest_created": true,
+  "artifacts_json_updated": true,
+  "mvp_catalog_changed": true,
+  "human_decisions_changed": false,
+  "decision_log_changed": false,
+  "self_improvement": "none",
+  "phone_tracker": {
+    "result": "not_appended",
+    "reason": "Google Sheets connector was not used in this run; repo-local closeout evidence was preserved."
+  },
+  "branch_before": "main",
+  "branch_after": "main",
+  "commit_sha": "pending-before-closeout-commit",
+  "push_result": "pending-before-closeout-commit"
+}
