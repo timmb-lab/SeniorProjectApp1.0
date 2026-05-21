@@ -26,6 +26,22 @@ This is the compact run log for the current split-builder automation contract.
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-05-20 17:37 PT - MVP-028 Workspace Account Edge-State Handoff
+
+- `automation ID`: `senior-capstone-figma-product-builder`
+- `lane`: Figma-only product builder / design-assets-handoff.
+- `master-plan sections`: Role-Aware Production App Contract; P0 Production Experience Gate; Lane Responsibilities; Logging Requirements.
+- `requirement IDs`: `MVP-028`, supporting `MVP-004`, `MVP-032`, `MVP-033`, `MVP-034`, and `MVP-039`.
+- `selected slice`: Add and verify a Figma workspace account edge-state handoff for disabled, reset-required, no-assignment, session-expired, role-pending, and section-level permission-denied behavior in the canonical `/workspace` route.
+- `active Figma file`: `z4t4tFPAKrMDh6pIYOeEw6`.
+- `Figma page/node touched`: `05 Full MVP Alpha Prototype`; node `133:2` (`Prototype / 16 / Workspace account edge-state handoff`).
+- `what changed`: Added six account/scope state cards, route/API annotations, record and audit-event annotations, and shared plugin data key `senior_capstone/workspace_account_edge_contract_2026_05_20` with 6 states, 9 routes, 9 records, 6 guardrails, and a rebuild action for disabled/reset-required/no-assignment/session-expired workspace proof.
+- `verification`: `use_figma` created node `133:2`; first readback found zero-width text and an oversized `41066px` auto-layout height, then follow-up layout correction fixed text widths and frame autosizing to `1360x1568`. Final readback found 58 text nodes, zero suspicious clipped text nodes, and zero child overflow. `get_design_context` and `get_screenshot` succeeded; screenshot returned `889x1024` from original `1360x1568`.
+- `files changed`: Figma docs, artifact registry, automation memory, Figma lane log, handoff ledger, MVP catalog, this run log, and `docs/progress/runs/2026-05-20-1737-figma-workspace-account-edge-states.json`.
+- `implementation handoff`: Rebuild should consume node `133:2` when adding browser/UI proof for disabled, reset-required, no-assignment, session-expired, and live section-level permission-denied workspace states using fake `.test` accounts only.
+- `blockers`: none for Figma; existing Drive and Cloudflare setup blockers remain implementation/deployment context only.
+- `self-improvement`: none.
+
 ## 2026-05-20 17:10 PT - Workspace Access Boundary States
 
 - `automation ID`: `senior-capstone-nonfigma-mvp-builder`

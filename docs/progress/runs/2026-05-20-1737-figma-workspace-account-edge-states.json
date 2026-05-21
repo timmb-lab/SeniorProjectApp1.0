@@ -1,0 +1,195 @@
+{
+  "run_id": "2026-05-20-1737-figma-workspace-account-edge-states",
+  "timestamp_local": "2026-05-20T17:37:00-07:00",
+  "automation_id": "senior-capstone-figma-product-builder",
+  "lane": "figma-only product builder",
+  "status": "completed",
+  "accepted_mvp_pass": true,
+  "requirement_ids": [
+    "MVP-028",
+    "MVP-004",
+    "MVP-032",
+    "MVP-033",
+    "MVP-034",
+    "MVP-039"
+  ],
+  "output_kind": "figma-handoff+metadata+screenshot-verification",
+  "scope": "Add and verify a workspace account edge-state handoff for the canonical authenticated workspace route.",
+  "selected_figma_slice": "Workspace account lifecycle, assignment, and permission edge-state handoff.",
+  "figma": {
+    "file_key": "z4t4tFPAKrMDh6pIYOeEw6",
+    "url": "https://www.figma.com/design/z4t4tFPAKrMDh6pIYOeEw6",
+    "page": "05 Full MVP Alpha Prototype",
+    "page_id": "98:2",
+    "node_touched": {
+      "node_id": "133:2",
+      "name": "Prototype / 16 / Workspace account edge-state handoff",
+      "frame_size": "1360x1568",
+      "changes": [
+        "Added state cards for session expired, account disabled, password reset required, role pending, no active assignment, and section permission denied.",
+        "Added route annotations for /workspace, /workspace.html, /api/auth/login, /api/auth/me, /api/auth/logout, /api/student/dashboard, /api/mentor/assigned, /api/teacher/review-queue, and /api/reports/readiness.",
+        "Added record and audit annotations for User, UserCredential, Session, UserRole, StudentProfile, StaffProfile, MentorAssignment, StaffProgramAssignment, and AuditEvent.",
+        "Stored shared plugin data key senior_capstone/workspace_account_edge_contract_2026_05_20.",
+        "Corrected zero-width text and oversized auto-layout height after first readback."
+      ]
+    },
+    "shared_plugin_data": {
+      "namespace": "senior_capstone",
+      "key": "workspace_account_edge_contract_2026_05_20",
+      "state_count": 6,
+      "route_count": 9,
+      "record_count": 9,
+      "guardrail_count": 6,
+      "states": [
+        "session_expired",
+        "account_disabled",
+        "reset_required",
+        "role_pending",
+        "no_active_assignment",
+        "section_permission_denied"
+      ],
+      "routes": [
+        "/workspace",
+        "/workspace.html",
+        "/api/auth/login",
+        "/api/auth/me",
+        "/api/auth/logout",
+        "/api/student/dashboard",
+        "/api/mentor/assigned",
+        "/api/teacher/review-queue",
+        "/api/reports/readiness"
+      ],
+      "records": [
+        "User",
+        "UserCredential",
+        "Session",
+        "UserRole",
+        "StudentProfile",
+        "StaffProfile",
+        "MentorAssignment",
+        "StaffProgramAssignment",
+        "AuditEvent"
+      ],
+      "guardrails": [
+        "account blockers do not render dashboards",
+        "missing role is not default student access",
+        "missing assignment is not broad staff access",
+        "section 403 stays signed in but denies that panel",
+        "raw Drive storage identifiers never render",
+        "fake account shortcuts stay out of canonical workspace"
+      ],
+      "next_rebuild_action": "Add disabled/reset-required/no-assignment/session-expired workspace UI proof and browser smoke coverage using fake .test accounts only."
+    },
+    "readback": {
+      "text_node_count": 58,
+      "suspicious_clipped_text_count": 0,
+      "overflow_count": 0,
+      "first_readback_issue": "Zero-width text caused the root frame to autosize to 1360x41066 before correction.",
+      "final_frame_size": "1360x1568"
+    },
+    "metadata_verification": [
+      {
+        "node_id": "133:2",
+        "tool": "get_design_context",
+        "result": "passed",
+        "summary": "Returned the final workspace account edge-state handoff context after text-width and autosizing corrections."
+      }
+    ],
+    "screenshot_verification": [
+      {
+        "node_id": "133:2",
+        "tool": "get_screenshot",
+        "result": "passed",
+        "returned_size": "889x1024",
+        "original_size": "1360x1568",
+        "short_lived_asset_url_recorded": false
+      }
+    ],
+    "code_connect_check": {
+      "command": "rg --files -g '*.figma.ts' -g '*.figma.tsx' -g '*.figma.js' -g '*.figma.jsx'",
+      "result": "no Code Connect files found in repo",
+      "notes": "The Figma frame reused local visual conventions from the existing prototype handoff cards rather than importing unavailable code-connected components."
+    }
+  },
+  "source_docs_read": [
+    "C:\\Users\\bryan\\.codex\\automations\\senior-capstone-figma-product-builder\\memory.md",
+    "docs/design/figma-first-pass-product-system.md",
+    "docs/design/figma-product-preview-state-variants.md",
+    "docs/master-plan.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/automation-cadence.md",
+    "docs/automation-runbook.md",
+    "docs/automation-memory.md",
+    "docs/progress/run-log.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/decision-log.md",
+    "docs/artifacts.json",
+    "docs/human-decisions.md",
+    "docs/progress/figma.md",
+    "recent docs/progress/runs/*.json",
+    "figma-use skill",
+    "figma-generate-design skill",
+    "google-sheets skill"
+  ],
+  "repo_files_changed": [
+    "docs/design/figma-first-pass-product-system.md",
+    "docs/design/figma-product-preview-state-variants.md",
+    "docs/artifacts.json",
+    "docs/automation-memory.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/progress/figma.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-20-1737-figma-workspace-account-edge-states.json"
+  ],
+  "implementation_handoff": "Rebuild should consume node 133:2 when adding disabled, reset-required, no-assignment, session-expired, and live section-level permission-denied workspace UI proof using fake .test accounts only.",
+  "validation": [
+    {
+      "command": "Figma use_figma mutation and layout correction",
+      "result": "passed",
+      "summary": "Created node 133:2, fixed zero-width text and oversized autosizing, and read back zero suspicious clipped text nodes plus zero child overflow."
+    },
+    {
+      "command": "Figma get_design_context for node 133:2",
+      "result": "passed",
+      "summary": "Confirmed the final workspace account edge-state handoff context."
+    },
+    {
+      "command": "Figma get_screenshot for node 133:2",
+      "result": "passed",
+      "summary": "Returned 889x1024 from the original 1360x1568 frame."
+    },
+    {
+      "command": "Get-Content docs/artifacts.json and manifest | ConvertFrom-Json",
+      "result": "passed",
+      "summary": "Artifact registry and structured run manifest parsed as JSON."
+    },
+    {
+      "command": "git diff --check",
+      "result": "passed",
+      "summary": "Whitespace check passed with line-ending warnings only."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\verify-cadence-30min.ps1 -RepoRoot .",
+      "result": "passed",
+      "summary": "Split cadence verifier passed with the two expected builder automations and oversight lanes."
+    }
+  ],
+  "backend_code_work_avoided": true,
+  "figma_blocker": null,
+  "run_log_updated": true,
+  "structured_manifest_created": true,
+  "artifacts_json_updated": true,
+  "mvp_catalog_changed": true,
+  "human_decisions_changed": false,
+  "self_improvement": "none",
+  "phone_tracker": {
+    "spreadsheet_id": "1J8jQMn85wJwo9Rh6LjQUVv_WfLS1YJWsbpcLBCojjjs",
+    "tab": "QoL Runs",
+    "result": "appended",
+    "timestamp_local": "2026-05-20T17:37:00-07:00",
+    "summary": "Recorded MVP-028 workspace account edge-state Figma handoff for phone-friendly tracking."
+  },
+  "commit_sha": "pending closeout commit",
+  "push_result": "pending closeout push"
+}

@@ -592,6 +592,18 @@ The 2026-05-20 16:41 PT Figma pass added a production-boundary handoff after reb
 - Shared plugin data key `senior_capstone/production_boundary_contract_2026_05_20` records 7 routes, 9 records, 6 permission scopes, 6 guardrails, and the current Drive/Cloudflare setup blockers.
 - `get_design_context` and `get_screenshot` succeeded for node `124:2`; screenshot verification returned `800x1024` from original `1360x1742`, and final `use_figma` readback found zero suspicious clipped text nodes and zero child overflow.
 
+## Workspace Account Edge-State Handoff
+
+The 2026-05-20 17:37 PT Figma pass added a workspace account edge-state handoff after rebuild consumed the production-boundary handoff for role-pending and permission-denied workspace states.
+
+- `Prototype / 16 / Workspace account edge-state handoff`, node `133:2`, covers account and scope states that still need browser/UI proof in the canonical `/workspace` route.
+- State annotations cover `session_expired`, `account_disabled`, `reset_required`, `role_pending`, `no_active_assignment`, and `section_permission_denied`.
+- Route annotations name `/workspace`, `/workspace.html`, `/api/auth/login`, `/api/auth/me`, `/api/auth/logout`, `/api/student/dashboard`, `/api/mentor/assigned`, `/api/teacher/review-queue`, and `/api/reports/readiness`.
+- Record annotations name `User`, `UserCredential`, `Session`, `UserRole`, `StudentProfile`, `StaffProfile`, `MentorAssignment`, `StaffProgramAssignment`, and `AuditEvent`.
+- Shared plugin data key `senior_capstone/workspace_account_edge_contract_2026_05_20` records 6 states, 9 routes, 9 records, 6 guardrails, and the next rebuild action for disabled/reset-required/no-assignment/session-expired workspace UI proof.
+- The first readback found zero-width text and an oversized `41066px` auto-layout height; a layout correction fixed text widths and reduced the frame to `1360x1568`.
+- Final `use_figma` readback found 58 text nodes, zero suspicious clipped text nodes, zero child overflow, 6 states, 9 routes, 9 records, and 6 guardrails. `get_design_context` and `get_screenshot` succeeded for node `133:2`; screenshot verification returned `889x1024` from original `1360x1568`.
+
 ## Acceptance Checks For Next Figma Run
 
 - Continue active writable file `z4t4tFPAKrMDh6pIYOeEw6` in `team::1638213362346160913`.
@@ -626,10 +638,10 @@ Artifact:
 - Progress update/dashboard aggregate contract: node `61:2` in the active Figma file.
 - Audit log/export controls contract: node `69:2` in the active Figma file.
 - Mentor meeting/presentation scheduling contract: node `78:2` in the active Figma file.
-- Full MVP alpha prototype page: node `98:2`, with review detail node `98:9` and student revision node `98:10` aligned to the implemented review-history endpoint, handoff frame `98:17` updated after primary alpha-console consumption, and production boundary handoff node `124:2` distinguishing the public guide mode from the authenticated workspace route.
+- Full MVP alpha prototype page: node `98:2`, with review detail node `98:9` and student revision node `98:10` aligned to the implemented review-history endpoint, handoff frame `98:17` updated after primary alpha-console consumption, production boundary handoff node `124:2` distinguishing the public guide mode from the authenticated workspace route, and workspace account edge-state handoff node `133:2`.
 
 Exact next action:
-- Rebuild should consume nodes `18:2`, `31:2`, `37:2`, `43:2`, `48:2`, `56:2`, `61:2`, `69:2`, `78:2`, `98:9`, `98:10`, `98:17`, and `124:2` while scaffolding the accepted Cloudflare database/auth/progress/audit/export/meeting/presentation foundation. Review history is already consumed in the primary alpha console; next rebuild focus should move to role-pending and permission-denied workspace states, mentor/presentation, and admin workflow depth unless hosted alpha smoke finds a regression.
+- Rebuild should consume nodes `18:2`, `31:2`, `37:2`, `43:2`, `48:2`, `56:2`, `61:2`, `69:2`, `78:2`, `98:9`, `98:10`, `98:17`, `124:2`, and `133:2` while scaffolding the accepted Cloudflare database/auth/progress/audit/export/meeting/presentation foundation. Review history is already consumed in the primary alpha console, and role-pending plus source-level permission-denied workspace states now have proof; next rebuild focus should add disabled, reset-required, no-assignment, session-expired, and live section-level permission-denied workspace proof, then move to mentor/presentation and admin workflow depth unless hosted alpha smoke finds a regression.
 
 Acceptance check:
 - Figma progress log records page/frame IDs, screenshot or metadata verification, route/data fields, permission scopes, and the next UI slice.

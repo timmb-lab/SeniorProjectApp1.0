@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-05-20T17:12:00-07:00",
+  "updated_at": "2026-05-20T17:37:00-07:00",
   "artifacts": [
     {
       "id": "cloudflare-pages-senior-capstone-app",
@@ -425,6 +425,7 @@
         "full_alpha_prototype_access_boundary": "98:16",
         "full_alpha_prototype_handoff": "98:17",
         "full_alpha_prototype_production_boundary": "124:2",
+        "full_alpha_prototype_workspace_account_edge": "133:2",
         "full_alpha_prototype_map_rail": "98:1130"
       },
       "verification": [
@@ -459,7 +460,9 @@
         "Figma write on 2026-05-20 updated full-alpha handoff node 98:17 with review_history_consumed_at, primary alpha-console consumption guidance, next mentor/presentation/admin rebuild focus, and corrected compact handoff text widths.",
         "get_design_context and get_screenshot succeeded for node 98:17 after the 2026-05-20 handoff update; screenshot verification returned 1024x648 from original 1360x860, and use_figma readback found zero suspicious clipped text nodes.",
         "Figma write on 2026-05-20 added full-alpha production boundary node 124:2, distinguishing public Student/Teacher guide mode from authenticated /workspace behavior and storing shared plugin data key senior_capstone/production_boundary_contract_2026_05_20.",
-        "get_design_context and get_screenshot succeeded for node 124:2 after text-height and bullet-width corrections; screenshot verification returned 800x1024 from original 1360x1742, and final use_figma readback found zero suspicious clipped text nodes, zero child overflow, 7 route entries, 9 records, 6 permission scopes, 6 guardrails, and 3 external setup blockers."
+        "get_design_context and get_screenshot succeeded for node 124:2 after text-height and bullet-width corrections; screenshot verification returned 800x1024 from original 1360x1742, and final use_figma readback found zero suspicious clipped text nodes, zero child overflow, 7 route entries, 9 records, 6 permission scopes, 6 guardrails, and 3 external setup blockers.",
+        "Figma write on 2026-05-20 added full-alpha workspace account edge-state node 133:2, distinguishing session expired, account disabled, reset required, role pending, no active assignment, and section permission denied states for the canonical /workspace route.",
+        "get_design_context and get_screenshot succeeded for node 133:2 after text-width and autosizing correction; screenshot verification returned 889x1024 from original 1360x1568, and final use_figma readback found zero suspicious clipped text nodes, zero child overflow, 6 account/scope states, 9 routes, 9 records, and 6 guardrails."
       ],
       "supersedes": [
         "figma-product-ui-system-reference-old-team",

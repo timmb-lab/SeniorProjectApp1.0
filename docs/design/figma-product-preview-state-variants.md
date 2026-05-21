@@ -485,6 +485,10 @@ Created/updated frames:
   - `Prototype / 15 / Production app and public guide boundary`, node `124:2`
   - Created route/data/permission/state annotations that separate public Student/Teacher guide mode from the authenticated `/workspace` app route.
   - Shared plugin data key `senior_capstone/production_boundary_contract_2026_05_20` records 7 routes, 9 records, 6 permission scopes, 6 guardrails, 3 external setup blockers, and the next rebuild action for role-pending and permission-denied workspace states.
+- 2026-05-20 workspace account edge-state handoff on `05 Full MVP Alpha Prototype`
+  - `Prototype / 16 / Workspace account edge-state handoff`, node `133:2`
+  - Created route/data/permission/state annotations for session expired, disabled account, password reset required, role pending, no active assignment, and section-level permission denied.
+  - Shared plugin data key `senior_capstone/workspace_account_edge_contract_2026_05_20` records 6 states, 9 routes, 9 records, 6 guardrails, and the next rebuild action for disabled/reset-required/no-assignment/session-expired workspace UI proof.
 
 Verification status:
 - Canvas write succeeded and returned the frame IDs above.
@@ -538,3 +542,6 @@ Verification status:
 - First screenshot/metadata verification found text nodes collapsed to 1px height and lower acceptance-card bullet rows overflowing their cards.
 - Follow-up `use_figma` layout corrections expanded all text heights and fixed bullet-row widths in place, expanding node `124:2` to `1360x1742`.
 - Final `get_design_context` and `get_screenshot` succeeded for node `124:2`; screenshot verification returned `800x1024` from original `1360x1742`, and readback confirmed zero suspicious clipped text nodes, zero child overflow, 7 contract routes, 9 records, 6 permission scopes, 6 guardrails, and 3 blocker notes.
+- 2026-05-20 `use_figma` write created node `133:2` to map `/workspace`, `/workspace.html`, `/api/auth/login`, `/api/auth/me`, `/api/auth/logout`, `/api/student/dashboard`, `/api/mentor/assigned`, `/api/teacher/review-queue`, and `/api/reports/readiness` to account lifecycle and assignment/scope edge states.
+- First readback found zero-width text and an oversized `41066px` auto-layout height; follow-up `use_figma` layout correction fixed text widths, frame autosizing, and reduced node `133:2` to `1360x1568`.
+- Final `get_design_context` and `get_screenshot` succeeded for node `133:2`; screenshot verification returned `889x1024` from original `1360x1568`, and readback confirmed 58 text nodes, zero suspicious clipped text nodes, zero child overflow, 6 states, 9 routes, 9 records, and 6 guardrails.

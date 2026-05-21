@@ -9,7 +9,7 @@ Figma remains a product-design source for route, state, data, and permission han
 - Active Figma file: `https://www.figma.com/design/z4t4tFPAKrMDh6pIYOeEw6`
 - File key: `z4t4tFPAKrMDh6pIYOeEw6`
 - Team id: `1638213362346160913`
-- Key implementation nodes: `18:2`, `31:2`, `37:2`, `43:2`, `48:2`, `56:2`, `61:2`, `69:2`, `78:2`, and full MVP alpha prototype page `98:2`.
+- Key implementation nodes: `18:2`, `31:2`, `37:2`, `43:2`, `48:2`, `56:2`, `61:2`, `69:2`, `78:2`, full MVP alpha prototype page `98:2`, production boundary node `124:2`, and workspace account edge-state node `133:2`.
 
 ## Current Guidance
 
@@ -58,4 +58,17 @@ Figma work is owned by `senior-capstone-figma-product-builder`, running hourly a
 - `changed in Figma`: Added public guide annotations for `/` and generated `public-companion/`; added authenticated workspace annotations for `/workspace`, `/workspace.html`, `/api/auth/me`, `/api/student/dashboard`, `/api/submissions/:id/evidence`, and `/api/submissions/:id/evidence/upload`; mapped role states for signed-out, student, mentor, program teacher, admin, misc admin, no-role pending, permission denied, Drive-missing, and unsupported upload; recorded current Drive/Cloudflare setup blockers without treating them as Figma blockers.
 - `verification`: `use_figma` created node `124:2`, then corrected collapsed text heights and acceptance-card bullet overflow; final readback found zero suspicious clipped text nodes, zero child overflow, 7 contract routes, 9 records, 6 permission scopes, 6 guardrails, and 3 blocker notes. `get_design_context` and `get_screenshot` succeeded for node `124:2`; final screenshot returned `800x1024` from original `1360x1742`.
 - `implementation handoff`: Rebuild should consume node `124:2` before adding browser-visible role-pending and permission-denied workspace states; public guide mode stays public content organization, while workspace state stays behind session, D1 role/scope, API checks, evidence redaction, and audit logging.
+- `self-improvement`: none
+
+## 2026-05-20 17:37 PT - MVP-028 Workspace Account Edge-State Handoff
+
+- `automation ID`: `senior-capstone-figma-product-builder`
+- `selected requirement IDs`: `MVP-028`, supporting `MVP-004`, `MVP-032`, `MVP-033`, `MVP-034`, and `MVP-039`
+- `selected slice`: Create and verify a workspace account edge-state handoff for disabled, reset-required, no-assignment, session-expired, role-pending, and section-level permission-denied UI behavior.
+- `active file`: `z4t4tFPAKrMDh6pIYOeEw6`
+- `page`: `05 Full MVP Alpha Prototype`
+- `nodes touched`: `133:2` (`Prototype / 16 / Workspace account edge-state handoff`)
+- `changed in Figma`: Added state cards for `session_expired`, `account_disabled`, `reset_required`, `role_pending`, `no_active_assignment`, and `section_permission_denied`; added route/record/audit annotations for `/workspace`, auth/session APIs, role dashboard APIs, `User`, `UserCredential`, `Session`, `UserRole`, `MentorAssignment`, `StaffProgramAssignment`, and `AuditEvent`; stored shared plugin data key `senior_capstone/workspace_account_edge_contract_2026_05_20`.
+- `verification`: First readback found zero-width text and an oversized `41066px` auto-layout height; a follow-up layout correction fixed text widths and reduced the frame to `1360x1568`. Final readback found 58 text nodes, zero suspicious clipped text nodes, zero child overflow, 6 states, 9 routes, 9 records, and 6 guardrails. `get_design_context` and `get_screenshot` succeeded for node `133:2`; screenshot returned `889x1024` from original `1360x1568`.
+- `implementation handoff`: Rebuild should consume node `133:2` when adding disabled/reset-required/no-assignment/session-expired workspace UI proof and browser smoke coverage through fake `.test` accounts only. Role-pending and source-level permission-denied are already proven but should remain covered.
 - `self-improvement`: none
