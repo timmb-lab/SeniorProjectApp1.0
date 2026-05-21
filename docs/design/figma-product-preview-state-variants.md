@@ -485,6 +485,10 @@ Created/updated frames:
   - `Prototype / 15 / Production app and public guide boundary`, node `124:2`
   - Created route/data/permission/state annotations that separate public Student/Teacher guide mode from the authenticated `/workspace` app route.
   - Shared plugin data key `senior_capstone/production_boundary_contract_2026_05_20` records 7 routes, 9 records, 6 permission scopes, 6 guardrails, 3 external setup blockers, and the next rebuild action for role-pending and permission-denied workspace states.
+- 2026-05-21 route inventory consumption update on `05 Full MVP Alpha Prototype`
+  - Updated `Prototype / 15 / Production app and public guide boundary`, node `124:2`, after generated production route inventory classified `workspace.html` as `senior-capstone-app` / `production` / `conditional`.
+  - Updated text nodes `124:5`, `124:12`, `124:52`, `124:71`, `124:140`, `124:146`, `124:147`, and `124:150` to mark route inventory proof consumed and remove stale Cloudflare-token blocker language.
+  - Shared plugin data key `senior_capstone/production_route_inventory_consumption_2026_05_21` records consumed commit `b318eb146c8be4aac41fec3cca2adc817a01ec91`, consumed manifest `docs/progress/runs/2026-05-21-0233-workspace-route-inventory-mvp-032.json`, and remaining hosted account-state, section-denied, Drive upload, and credential-delivery proof.
 - 2026-05-20 workspace account edge-state handoff on `05 Full MVP Alpha Prototype`
   - `Prototype / 16 / Workspace account edge-state handoff`, node `133:2`
   - Created route/data/permission/state annotations for session expired, disabled account, password reset required, role pending, no active assignment, and section-level permission denied.

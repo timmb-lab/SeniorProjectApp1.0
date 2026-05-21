@@ -859,3 +859,21 @@ Future productive runs should append compact entries that name the master-plan s
 - `phone tracker`: not appended; Google Sheets connector was not used.
 - `self-improvement`: none.
 - `commit/push status`: implementation/run-record commit `b318eb146c8be4aac41fec3cca2adc817a01ec91` pushed to `origin main`; closeout evidence commit follows this entry.
+
+## 2026-05-21 02:50 PT - MVP-028 Production Route Inventory Consumption Update
+
+- `automation ID`: `senior-capstone-figma-product-builder`.
+- `lane`: Figma-only product builder / design-assets-handoff.
+- `master-plan sections`: P0 Production Experience Gate; Role-Aware Production App Contract; Lane Responsibilities; Logging Requirements.
+- `requirement IDs`: `MVP-028`, supporting `MVP-031`, `MVP-032`, `MVP-033`, `MVP-034`, and `MVP-039`; `handoff`: `H-2026-05-20-007`.
+- `selected slice`: Update and verify existing Figma production-boundary node `124:2` after generated route inventory classified `workspace.html` as the canonical protected production app route.
+- `active Figma file`: `z4t4tFPAKrMDh6pIYOeEw6`.
+- `Figma page/node touched`: `05 Full MVP Alpha Prototype`; node `124:2` (`Prototype / 15 / Production app and public guide boundary`).
+- `what changed`: Updated route/data/permission handoff text to mark route inventory proof consumed, remove stale Cloudflare-token blocker language, and narrow rebuild to hosted account-state/no-assignment proof, live section-level permission-denied proof, Drive upload/download after the Google Drive HTTP 403 is fixed, and real-user setup credential delivery policy.
+- `verification`: `use_figma` updated text and shared plugin data key `senior_capstone/production_route_inventory_consumption_2026_05_21`; final readback found 79 text nodes, zero collapsed text, zero suspicious clipped text, zero direct-child overflow, consumed commit `b318eb146c8be4aac41fec3cca2adc817a01ec91`, and 4 remaining implementation proof items. `get_design_context` and `get_screenshot` succeeded for node `124:2`; screenshot returned `783x1024` from original `1360x1779`. Artifact registry and manifest JSON parsed; cadence verifier passed; targeted `git diff --check` passed with CRLF warnings only.
+- `files changed`: Figma design docs, artifact registry, automation memory, Figma lane log, handoff ledger, MVP catalog, this run log, and `docs/progress/runs/2026-05-21-0250-figma-production-route-inventory-consumed.json`.
+- `implementation handoff`: Rebuild should stop treating route-inventory classification as open for `workspace.html`; next production-gate proof is hosted account-state/no-assignment markers, live section-level permission-denied browser proof, Drive upload/download after HTTP 403 resolution, and credential-delivery policy before real pilot imports.
+- `blockers`: none for Figma; Drive upload remains blocked by redacted Google Drive HTTP 403, and `HD-2026-05-21-001` remains open for real-user setup credential delivery policy.
+- `phone tracker`: not appended; Google Sheets connector was not used.
+- `self-improvement`: none.
+- `commit/push status`: pending closeout commit.

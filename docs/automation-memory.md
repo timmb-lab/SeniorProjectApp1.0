@@ -306,6 +306,14 @@ Every builder run must ladder from `docs/master-plan.md` into `docs/mvp-requirem
 - Remaining P0 production-gate proof: live hosted account-state/no-assignment and section-level permission-denied browser coverage, plus real Drive upload/download after the Google Drive upload HTTP 403 is fixed.
 - self-improvement: none
 
+### 2026-05-21 - Figma Production Route Inventory Consumption Update
+
+- Figma-only builder `senior-capstone-figma-product-builder` updated existing node `124:2`, `Prototype / 15 / Production app and public guide boundary`, after non-Figma run `2026-05-21-0233-workspace-route-inventory-mvp-032` classified `workspace.html` as `senior-capstone-app` / `production` / `conditional`.
+- Shared plugin data key `senior_capstone/production_route_inventory_consumption_2026_05_21` records consumed commit `b318eb146c8be4aac41fec3cca2adc817a01ec91`, consumed manifest `docs/progress/runs/2026-05-21-0233-workspace-route-inventory-mvp-032.json`, three consumed route-inventory proof points, and four remaining implementation proof items.
+- Final Figma verification succeeded after a footer-width correction: readback found 79 text nodes, zero collapsed text nodes, zero suspicious clipped text nodes, and zero direct-child overflow; `get_design_context` and `get_screenshot` passed for node `124:2`, with screenshot `783x1024` from original `1360x1779`.
+- Next best non-Figma slice from this handoff: stop treating route-inventory classification as open, and focus on hosted account-state/no-assignment marker proof, live section-level permission-denied browser proof, Drive upload/download after the Google Drive HTTP 403 is fixed, and real-user setup credential delivery policy before pilot imports.
+- self-improvement: none
+
 ## Current Priority
 
 Immediate next useful passes:
@@ -352,7 +360,7 @@ Current backlog anchors:
 - Key Figma implementation contract nodes: `18:2`, `31:2`, `37:2`, `43:2`, `48:2`, `56:2`, `61:2`, `69:2`, `78:2`, and full MVP alpha prototype page `98:2` with implementation nodes through `163:2`.
 - 2026-05-20 Figma review-history alignment updated full MVP alpha prototype nodes `98:9` and `98:10` to match `/api/reviews/:submissionId/history`, `reviews`, `comments`, `status_history`, `submission_versions`, scoped permissions, and storage-ID redaction; `get_design_context` and `get_screenshot` succeeded for both nodes.
 - 2026-05-20 Figma handoff update verified node `98:17` after primary alpha-console review-history consumption; it records `review_history_consumed_at`, redirects next rebuild focus to mentor/presentation/admin depth, preserves API/D1/audit/storage-redaction boundaries, and passed `get_design_context` plus `get_screenshot`.
-- 2026-05-20 Figma production-boundary handoff verified node `124:2`; it distinguishes public Student/Teacher guide mode from authenticated `/workspace` state, records route/data/permission contract data, and passed screenshot/metadata/readback QA.
+- 2026-05-20 Figma production-boundary handoff verified node `124:2`; it distinguishes public Student/Teacher guide mode from authenticated `/workspace` state, records route/data/permission contract data, and passed screenshot/metadata/readback QA. The 2026-05-21 Figma update on the same node marks canonical `workspace.html` route-inventory proof consumed with shared plugin data key `senior_capstone/production_route_inventory_consumption_2026_05_21`.
 - 2026-05-20 Figma workspace account edge-state handoff verified node `133:2`; it distinguishes session expired, disabled account, reset required, role pending, no active assignment, and section permission denied states for `/workspace`, records route/data/audit contract data, and passed screenshot/metadata/readback QA after a text-width autosizing correction.
 - 2026-05-20 Figma presentation dashboard state handoff verified node `139:2`; it maps presentation slot, conflict, check-out, check-in, denied-action, empty, and loading states to persisted dashboard consumption with 6 states, 7 routes, 8 records, and 6 guardrails.
 - 2026-05-20 Figma celebration archive readiness handoff verified node `144:2`; it maps closeout, Celebration Day evidence, reflection/portfolio, thank-you/mentor note, archive request, signed download, and archive permission states to persisted evidence/export/audit records with 7 states, 8 routes, 14 records, 5 permission scopes, 7 guardrails, and 7 acceptance checks.

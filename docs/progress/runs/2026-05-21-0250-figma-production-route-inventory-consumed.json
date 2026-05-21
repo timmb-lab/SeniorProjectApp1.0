@@ -1,0 +1,155 @@
+{
+  "run_id": "2026-05-21-0250-figma-production-route-inventory-consumed",
+  "timestamp_local": "2026-05-21T02:50:00-07:00",
+  "automation_id": "senior-capstone-figma-product-builder",
+  "lane": "figma-only product builder",
+  "status": "completed",
+  "accepted_mvp_pass": true,
+  "requirement_ids": [
+    "MVP-028",
+    "MVP-031",
+    "MVP-032",
+    "MVP-033",
+    "MVP-034",
+    "MVP-039"
+  ],
+  "backlog_ids": [
+    "SC-007"
+  ],
+  "handoff_ids": [
+    "H-2026-05-20-007"
+  ],
+  "output_kind": "figma-existing-node-route-inventory-consumption-update",
+  "scope": "Update existing production-boundary handoff after generated production route inventory classified workspace.html as the canonical protected production app route.",
+  "selected_figma_slice": "Production app/public guide boundary route-inventory proof consumption update for node 124:2.",
+  "figma": {
+    "file_key": "z4t4tFPAKrMDh6pIYOeEw6",
+    "url": "https://www.figma.com/design/z4t4tFPAKrMDh6pIYOeEw6",
+    "page": "05 Full MVP Alpha Prototype",
+    "page_id": "98:2",
+    "node_touched": {
+      "node_id": "124:2",
+      "name": "Prototype / 15 / Production app and public guide boundary",
+      "frame_size": "1360x1779",
+      "mutation_performed": true,
+      "shared_plugin_data_key": "senior_capstone/production_route_inventory_consumption_2026_05_21"
+    },
+    "text_nodes_mutated": [
+      "124:5",
+      "124:12",
+      "124:52",
+      "124:71",
+      "124:140",
+      "124:146",
+      "124:147",
+      "124:150"
+    ],
+    "route_inventory_consumed_at": "2026-05-21T02:33:00-07:00",
+    "route_inventory_manifest": "docs/progress/runs/2026-05-21-0233-workspace-route-inventory-mvp-032.json",
+    "route_inventory_commit": "b318eb146c8be4aac41fec3cca2adc817a01ec91",
+    "consumed_proof": [
+      "docs/generated/production-route-inventory.md classifies workspace.html as senior-capstone-app / production / conditional",
+      "tests/production-workflow-source.test.mjs rejects the prior unknown workspace route classification",
+      "check:route-inventory and check:production-surfaces passed after regeneration"
+    ],
+    "remaining_implementation_proof": [
+      "hosted account-state/no-assignment marker proof",
+      "live section-level permission-denied browser proof",
+      "Drive upload/download after redacted Google Drive HTTP 403 is fixed",
+      "real-user setup credential delivery policy before pilot imports"
+    ],
+    "verification": [
+      {
+        "tool": "use_figma update/readback",
+        "result": "passed after footer correction; 79 text nodes, zero collapsed text nodes, zero suspicious clipped text nodes, zero direct-child overflow, shared plugin data status ready_for_rebuild_followup, and 4 remaining implementation proof items"
+      },
+      {
+        "tool": "get_design_context",
+        "node_id": "124:2",
+        "result": "passed; returned updated route-inventory consumed language"
+      },
+      {
+        "tool": "get_screenshot",
+        "node_id": "124:2",
+        "result": "passed; returned 783x1024 from original 1360x1779"
+      }
+    ]
+  },
+  "source_docs_read": [
+    "C:\\Users\\bryan\\.codex\\automations\\senior-capstone-figma-product-builder\\memory.md",
+    "docs/design/figma-first-pass-product-system.md",
+    "docs/design/figma-product-preview-state-variants.md",
+    "docs/master-plan.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/automation-cadence.md",
+    "docs/automation-runbook.md",
+    "docs/automation-memory.md",
+    "docs/progress/run-log.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/decision-log.md",
+    "docs/artifacts.json",
+    "docs/human-decisions.md",
+    "docs/progress/figma.md",
+    "docs/automation-backlog.md",
+    "docs/automation-self-improvement.md",
+    "recent docs/progress/runs/*.json",
+    "docs/progress/runs/2026-05-21-0233-workspace-route-inventory-mvp-032.json",
+    "docs/progress/runs/2026-05-21-0149-figma-admin-import-api-proof-consumed.json"
+  ],
+  "repo_files_changed": [
+    "docs/design/figma-first-pass-product-system.md",
+    "docs/design/figma-product-preview-state-variants.md",
+    "docs/artifacts.json",
+    "docs/automation-memory.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/progress/figma.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-21-0250-figma-production-route-inventory-consumed.json"
+  ],
+  "implementation_handoff": "Rebuild should stop treating workspace.html route-inventory classification as open and focus next production-gate proof on hosted account-state/no-assignment markers, live section-level permission-denied browser proof, Drive upload/download after the HTTP 403 is fixed, and credential-delivery policy before real pilot imports.",
+  "validation": [
+    {
+      "command": "Figma use_figma update/readback for node 124:2",
+      "result": "passed"
+    },
+    {
+      "command": "Figma get_design_context for node 124:2",
+      "result": "passed"
+    },
+    {
+      "command": "Figma get_screenshot for node 124:2",
+      "result": "passed; returned 783x1024 from original 1360x1779"
+    },
+    {
+      "command": "Get-Content docs/artifacts.json and this manifest through ConvertFrom-Json",
+      "result": "passed"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\verify-cadence-30min.ps1 -RepoRoot .",
+      "result": "passed"
+    },
+    {
+      "command": "git diff --check -- current-run files",
+      "result": "passed with CRLF warnings only"
+    }
+  ],
+  "backend_code_work_avoided": true,
+  "forbidden_files_touched": false,
+  "figma_blocker": null,
+  "run_log_updated": true,
+  "structured_manifest_created": true,
+  "artifacts_json_updated": true,
+  "mvp_catalog_changed": true,
+  "human_decisions_changed": false,
+  "decision_log_changed": false,
+  "self_improvement": "none",
+  "phone_tracker": {
+    "result": "not_appended",
+    "reason": "Google Sheets connector was not used in this run; repo-local closeout evidence was preserved."
+  },
+  "branch_before": "main",
+  "branch_after": "main",
+  "commit_sha": "pending",
+  "push_result": "pending"
+}

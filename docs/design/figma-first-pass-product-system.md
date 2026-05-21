@@ -592,6 +592,16 @@ The 2026-05-20 16:41 PT Figma pass added a production-boundary handoff after reb
 - Shared plugin data key `senior_capstone/production_boundary_contract_2026_05_20` records 7 routes, 9 records, 6 permission scopes, 6 guardrails, and the current Drive/Cloudflare setup blockers.
 - `get_design_context` and `get_screenshot` succeeded for node `124:2`; screenshot verification returned `800x1024` from original `1360x1742`, and final `use_figma` readback found zero suspicious clipped text nodes and zero child overflow.
 
+## Production Route Inventory Consumption Update
+
+The 2026-05-21 02:50 PT Figma pass updated the existing production-boundary handoff after non-Figma generated route inventory proof landed for the canonical workspace route.
+
+- `Prototype / 15 / Production app and public guide boundary`, node `124:2`, now states that `workspace.html` is repo-classified as `senior-capstone-app` / `production` / `conditional` and is the protected production app route.
+- Updated text nodes: `124:5`, `124:12`, `124:52`, `124:71`, `124:140`, `124:146`, `124:147`, and `124:150`.
+- Shared plugin data key `senior_capstone/production_route_inventory_consumption_2026_05_21` records consumed commit `b318eb146c8be4aac41fec3cca2adc817a01ec91`, manifest `docs/progress/runs/2026-05-21-0233-workspace-route-inventory-mvp-032.json`, three consumed route-inventory proof points, and four remaining implementation proof items.
+- Remaining rebuild focus is hosted account-state/no-assignment marker proof, live section-level permission-denied browser proof, Drive upload/download after the redacted Google Drive HTTP 403 is fixed, and real-user setup credential delivery policy before pilot imports.
+- Final `use_figma` readback found 79 text nodes, zero collapsed text nodes, zero suspicious clipped text nodes, and zero direct-child overflow. `get_design_context` and `get_screenshot` succeeded for node `124:2`; screenshot verification returned `783x1024` from original `1360x1779`.
+
 ## Workspace Account Edge-State Handoff
 
 The 2026-05-20 17:37 PT Figma pass added a workspace account edge-state handoff after rebuild consumed the production-boundary handoff for role-pending and permission-denied workspace states.

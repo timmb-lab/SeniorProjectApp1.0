@@ -192,3 +192,16 @@ Figma work is owned by `senior-capstone-figma-product-builder-15` and `senior-ca
 - `verification`: `use_figma` updated 11 text nodes and returned 49 text nodes, zero collapsed text nodes, zero child overflow, 7 consumed API proof points, and 7 remaining browser proof checks. `get_design_context` confirmed the updated API-consumed language, and `get_screenshot` succeeded for node `163:2` at `1007x1024` from original `1360x1384`.
 - `implementation handoff`: Rebuild should now treat API proof as consumed and use node `163:2` for browser-level fake-account proof only: validation UI, one-time setup output clearing after refresh, reset-first login panel before dashboards, denied-role UI behavior, stale-session safety, and no credential leakage.
 - `self-improvement`: none
+
+## 2026-05-21 02:50 PT - MVP-028 Production Route Inventory Consumption Update
+
+- `automation ID`: `senior-capstone-figma-product-builder`
+- `selected requirement IDs`: `MVP-028`, supporting `MVP-031`, `MVP-032`, `MVP-033`, `MVP-034`, and `MVP-039`
+- `selected slice`: Update and verify the existing production-boundary Figma handoff after non-Figma route inventory classified `workspace.html` as the canonical protected production app route.
+- `active file`: `z4t4tFPAKrMDh6pIYOeEw6`
+- `page`: `05 Full MVP Alpha Prototype`
+- `nodes touched`: `124:2` (`Prototype / 15 / Production app and public guide boundary`); text nodes `124:5`, `124:12`, `124:52`, `124:71`, `124:140`, `124:146`, `124:147`, and `124:150`.
+- `changed in Figma`: Marked generated route-inventory proof consumed after run `2026-05-21-0233-workspace-route-inventory-mvp-032`; removed stale Cloudflare-token blocker language; narrowed the rebuild handoff to hosted account-state/no-assignment proof, live section-level permission-denied proof, Drive upload/download after the Google Drive HTTP 403 is fixed, and real-user setup credential delivery policy before pilot imports.
+- `verification`: `use_figma` updated text and shared plugin data key `senior_capstone/production_route_inventory_consumption_2026_05_21`; initial readback found a footer overflow, then a targeted footer/chip correction fixed it. Final readback found 79 text nodes, zero collapsed text nodes, zero suspicious clipped text nodes, zero direct-child overflow, shared plugin data status `ready_for_rebuild_followup`, consumed commit `b318eb146c8be4aac41fec3cca2adc817a01ec91`, and 4 remaining implementation proof items. `get_design_context` confirmed the updated route-inventory language, and `get_screenshot` succeeded for node `124:2` at `783x1024` from original `1360x1779`.
+- `implementation handoff`: Rebuild should stop treating route-inventory classification as open for `workspace.html`; next production-gate proof should focus on hosted account-state/no-assignment markers, live section-level permission-denied browser proof, Drive upload/download after the HTTP 403 is fixed, and credential-delivery policy before real pilot imports.
+- `self-improvement`: none
