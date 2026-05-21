@@ -1247,3 +1247,18 @@ Future productive runs should append compact entries that name the master-plan s
 - `phone tracker`: not appended; Google Sheets connector was not used.
 - `self-improvement`: none.
 - `commit/push status`: safe evidence queued for closeout commit and push.
+
+## 2026-05-21 16:13 PT - Capstone Project Part 1 Final Consolidation Audit
+
+- `automation ID`: manual Codex Part 1 audit/planning pass.
+- `lane`: audit / decision lock / implementation planning only.
+- `starting HEAD`: `6c9e8a4a4d42893699a5ce268767b8805c208bff`.
+- `selected slice`: Verify repo identity and protected baseline, check official Cloudflare/GitHub/OpenAI documentation, audit product naming/domain/surface/script state, lock Bryan's final decisions into repo-local evidence, and prepare the Part 2 implementation/validation plan without broad product rename or behavior changes.
+- `what changed`: Added current-target matrix `docs/progress/runs/2026-05-21-capstone-project-part-1-current-target-matrix.md` and audit plan `docs/progress/runs/2026-05-21-capstone-project-part-1-audit-and-plan.md`.
+- `decision lock`: official product title is `Capstone Project`; official `The Capstone Project` is disallowed; target product/app domain is `thecapstoneproject.com`; East Tech future guide domain is TBD; `Titan Blend` and `Back To Basics` are retired as active options; product/app remains school-agnostic while the public East Tech guide remains Titans-specific.
+- `Part 2 readiness`: ready for Part 2 implementation after this audit commit/push if validation passes.
+- `validation`: `git diff --check` passed with the existing CRLF normalization warning; `npm run check:production-surfaces`, `npm run check:route-inventory`, `npm run check:cloudflare`, and aggregate `npm run check` passed.
+- `blockers`: `thecapstoneproject.com` live status is unknown/pending until Cloudflare custom-domain/DNS/TLS verification; East Tech guide domain is TBD; Google Workspace SSO still needs Bryan's tenant-domain, auto-provisioning, break-glass login, OAuth client owner, redirect URI, Cloudflare env/secrets, and remote D1 migration 0010 decisions/actions.
+- `phone tracker`: not appended; Google Sheets connector was not used.
+- `self-improvement`: none.
+- `commit/push status`: pending Part 1 audit commit and push.
