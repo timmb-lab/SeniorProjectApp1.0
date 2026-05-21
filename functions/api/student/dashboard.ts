@@ -27,8 +27,26 @@ interface EvidenceSummaryRow {
   title: string;
   artifact_type: string;
   source_kind: string;
+  external_url: string | null;
+  mime_type: string | null;
+  size_bytes: number | null;
   review_status: string;
   created_at: string;
+}
+
+interface EvidenceSummary {
+  id: string;
+  title: string;
+  artifact_type: string;
+  source_kind: string;
+  mime_type: string | null;
+  size_bytes: number | null;
+  review_status: string;
+  created_at: string;
+  fileBytesReady: boolean;
+  downloadUrl: string | null;
+  externalUrl: string | null;
+  storageIdentifiersRedacted: true;
 }
 
 export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
@@ -83,7 +101,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
   ).bind(studentId).all<SubmissionSummaryRow>();
 
   const evidence = await env.DB.prepare(
-    `SELECT id, title, artifact_type, source_kind, review_status, created_at
+    `SELECT id, title, artifact_type, source_kind, external_url, mime_type, size_bytes, review_status, created_at
      FROM evidence_artifacts
      WHERE student_id = ? AND deleted_at IS NULL
      ORDER BY created_at DESC
@@ -112,7 +130,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
     nextAction: deriveNextAction(submissionRows, evidenceRows),
     progress: progressRows,
     submissions: submissionRows,
-    evidence: evidenceRows,
+    evidence: evidenceRows.map(summarizeEvidence),
   });
 };
 
@@ -125,6 +143,26 @@ function deriveNextAction(submissions: SubmissionSummaryRow[], evidence: Evidenc
   if (current.status === "submitted") return "Wait for teacher review.";
   if (current.status === "approved") return "Move into build evidence and mentor preparation.";
   return "Review the current capstone status.";
+}
+
+function summarizeEvidence(row: EvidenceSummaryRow): EvidenceSummary {
+  const isDriveFile = row.source_kind === "google_drive_file";
+  const isExternalLink = row.source_kind === "external_link";
+
+  return {
+    id: row.id,
+    title: row.title,
+    artifact_type: row.artifact_type,
+    source_kind: row.source_kind,
+    mime_type: row.mime_type,
+    size_bytes: row.size_bytes,
+    review_status: row.review_status,
+    created_at: row.created_at,
+    fileBytesReady: isDriveFile,
+    downloadUrl: isDriveFile ? `/api/evidence/${encodeURIComponent(row.id)}/download` : null,
+    externalUrl: isExternalLink ? row.external_url : null,
+    storageIdentifiersRedacted: true,
+  };
 }
 
 async function auditDashboardAccess(

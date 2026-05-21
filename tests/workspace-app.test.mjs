@@ -27,6 +27,8 @@ test("workspace route is a real authenticated app surface", () => {
   assert.match(workspaceJs, /\/api\/reports\/readiness/);
   assert.match(workspaceJs, /\/api\/submissions\/\$\{encodeURIComponent\(values\.submissionId\)\}\/evidence/);
   assert.match(workspaceJs, /\/api\/submissions\/\$\{encodeURIComponent\(submissionId\)\}\/evidence\/upload/);
+  assert.match(workspaceJs, /\/api\/evidence\/\$\{encodeURIComponent\(row\.id\)\}\/download|data-evidence-download="file"/);
+  assert.match(workspaceJs, /data-evidence-link="external"/);
   assert.match(workspaceJs, /Sign in to continue/);
   assert.match(workspaceJs, /data-auth-action="complete-reset"/);
   assert.match(workspaceJs, /data-auth-action="change-password"/);
@@ -247,6 +249,74 @@ test("workspace renders self-service password rotation controls", async () => {
   assert.match(security, /data-auth-action="change-password"/);
   assert.match(security, /\/api\/auth\/change-password/);
   assert.match(security, /other active sessions for this account are closed/);
+});
+
+test("workspace renders evidence download and external-link actions without storage ids", async () => {
+  const student = await renderWorkspaceWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "student-evidence",
+          email: "student.evidence@example.edu",
+          displayName: "Evidence Student",
+          roles: [{ role_id: "student", scope_type: "global", scope_id: "" }],
+        },
+      },
+    },
+    "/api/announcements": {
+      status: 200,
+      body: { ok: true, announcements: [] },
+    },
+    "/api/student/dashboard": {
+      status: 200,
+      body: {
+        ok: true,
+        viewer: { self: true },
+        progress: [],
+        submissions: [],
+        evidence: [
+          {
+            id: "evidence-drive",
+            title: "Uploaded proposal PDF",
+            artifact_type: "planning_document",
+            source_kind: "google_drive_file",
+            review_status: "pending_review",
+            downloadUrl: "/api/evidence/evidence-drive/download",
+            fileBytesReady: true,
+            storageIdentifiersRedacted: true,
+          },
+          {
+            id: "evidence-link",
+            title: "Research link",
+            artifact_type: "research_source",
+            source_kind: "external_link",
+            review_status: "pending_review",
+            externalUrl: "https://example.edu/research",
+            fileBytesReady: false,
+            storageIdentifiersRedacted: true,
+          },
+        ],
+      },
+    },
+    "/api/student/archive/readiness": {
+      status: 200,
+      body: { ok: true, checks: [], summary: {}, archive: {}, storage: {}, retention: {} },
+    },
+    "/api/presentation-slots": {
+      status: 200,
+      body: { ok: true, slots: [] },
+    },
+  }, "student");
+
+  assert.match(student, /data-evidence-download="file"/);
+  assert.match(student, /href="\/api\/evidence\/evidence-drive\/download"/);
+  assert.match(student, /Download file/);
+  assert.match(student, /data-evidence-link="external"/);
+  assert.match(student, /href="https:\/\/example\.edu\/research"/);
+  assert.match(student, /Open link/);
+  assert.doesNotMatch(student, /drive_file_id|driveFileId|drive-secret/i);
 });
 
 test("workspace renders admin import controls and one-time setup output", async () => {

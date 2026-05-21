@@ -1266,13 +1266,24 @@ function renderSubmissionRow(submission) {
 }
 
 function renderEvidenceRow(item) {
+  const actions = [];
+  if (item.source_kind === "google_drive_file" && item.downloadUrl) {
+    actions.push(`<a class="workspace-link-button workspace-link-button-small" data-evidence-download="file" href="${escapeHtml(item.downloadUrl)}">Download file</a>`);
+  }
+  if (item.source_kind === "external_link" && item.externalUrl) {
+    actions.push(`<a class="workspace-link-button workspace-link-button-small" data-evidence-link="external" href="${escapeHtml(item.externalUrl)}" target="_blank" rel="noreferrer">Open link</a>`);
+  }
+
   return `
     <article class="workspace-row">
       <div>
         <strong>${escapeHtml(item.title || "Evidence")}</strong>
         <p>${escapeHtml(statusText(item.source_kind || "evidence"))} / ${escapeHtml(item.artifact_type || "artifact")}</p>
       </div>
-      ${statusPill(item.review_status || "pending_review")}
+      <div class="workspace-row-actions">
+        ${actions.join("")}
+        ${statusPill(item.review_status || "pending_review")}
+      </div>
     </article>
   `;
 }

@@ -33,6 +33,7 @@ const EXPECTED = {
 const DEFAULT_BASE_URL = "https://senior-capstone-app.pages.dev";
 const DEFAULT_CREDENTIALS_FILE = ".secrets/test-accounts-2026-05-18.json";
 const PROOF_CONTENT = "SeniorProjectApp fake .test Google Drive live proof. No student data.";
+const LARGE_PROOF_BYTES = 5 * 1024 * 1024 + 64 * 1024;
 const MAX_UPLOAD_BYTES = 20 * 1024 * 1024;
 
 class DriveLiveCheckError extends Error {
@@ -239,6 +240,16 @@ function uploadForm({ title, artifactType = "live_readiness", fileName, mimeType
   form.set("artifactType", artifactType);
   form.set("file", new Blob([content], { type: mimeType }), fileName);
   return form;
+}
+
+function largeProofBytes() {
+  const bytes = new Uint8Array(LARGE_PROOF_BYTES);
+  for (let index = 0; index < bytes.length; index += 1) {
+    bytes[index] = (index * 31 + 17) % 251;
+  }
+  const prefix = new TextEncoder().encode("SeniorProjectApp fake .test resumable upload proof. No student data.\n");
+  bytes.set(prefix, 0);
+  return bytes;
 }
 
 export function classifyDriveHttpFailure(responseStatus, body) {
@@ -509,6 +520,121 @@ function verifyD1EvidenceMetadata({ evidenceId, studentId, submissionId, sizeByt
   return checks;
 }
 
+function verifyD1DownloadAudit({ evidenceId }) {
+  const sql = `
+    SELECT COUNT(*) AS download_audit_count
+    FROM audit_events
+    WHERE action = 'evidence_downloaded' AND entity_id = ${sqlString(evidenceId)};
+  `;
+
+  const payload = runWranglerD1Json(sql);
+  const row = payload?.[0]?.results?.[0] || {};
+  const checks = {
+    auditEventPresent: Number(row.download_audit_count) >= 1,
+  };
+
+  if (!checks.auditEventPresent) {
+    throw new DriveLiveCheckError(
+      DRIVE_FAILURES.UPLOAD_METADATA_MISSING,
+      "Downloaded evidence audit row is missing in remote D1.",
+      checks,
+    );
+  }
+
+  return checks;
+}
+
+async function uploadLiveEvidence({ client, submissionId, title, fileName, mimeType, content, label }) {
+  const upload = await client.fetchJson(`/api/submissions/${encodeURIComponent(submissionId)}/evidence/upload`, {
+    method: "POST",
+    body: uploadForm({
+      title,
+      fileName,
+      mimeType,
+      content,
+    }),
+  });
+
+  if (upload.response.status !== 200 || upload.body?.ok !== true) {
+    const classification = classifyDriveHttpFailure(upload.response.status, upload.body);
+    throw new DriveLiveCheckError(classification, `${label} Drive upload failed.`, {
+      status: upload.response.status,
+      error: upload.body?.error || null,
+    });
+  }
+
+  assertNoForbiddenStorageLeak(upload.body, `${label} upload response`);
+  const evidence = upload.body.evidence || {};
+  const storage = upload.body.storage || {};
+  const uploadChecks = {
+    sourceKind: evidence.sourceKind === "google_drive_file",
+    reviewStatus: evidence.reviewStatus === "pending_review",
+    storageProvider: storage.provider === EXPECTED.provider,
+    metadataReady: storage.metadataReady === true,
+    fileBytesReady: storage.fileBytesReady === true,
+    signedRetrievalReady: storage.signedRetrievalReady === false,
+  };
+  if (!Object.values(uploadChecks).every(Boolean)) {
+    throw new DriveLiveCheckError(DRIVE_FAILURES.UPLOAD_METADATA_MISSING, `${label} upload response did not match expected storage contract.`, uploadChecks);
+  }
+
+  return { evidence, storage };
+}
+
+async function downloadLiveEvidence({ client, evidenceId, expectedBytes, expectedContentType, label }) {
+  const response = await client.fetch(`/api/evidence/${encodeURIComponent(evidenceId)}/download`, {
+    headers: { accept: expectedContentType },
+  });
+
+  if (response.status !== 200) {
+    const body = await response.json().catch(async () => ({ raw: await response.text().catch(() => "") }));
+    const classification = classifyDriveHttpFailure(response.status, body);
+    throw new DriveLiveCheckError(classification, `${label} evidence download failed.`, {
+      status: response.status,
+      error: body?.error || null,
+    });
+  }
+
+  assertNoForbiddenStorageLeak({
+    contentType: response.headers.get("content-type") || "",
+    contentDisposition: response.headers.get("content-disposition") || "",
+  }, `${label} download headers`);
+
+  const contentType = response.headers.get("content-type") || "";
+  if (!contentType.toLowerCase().includes(expectedContentType.toLowerCase())) {
+    throw new DriveLiveCheckError(
+      DRIVE_FAILURES.UNKNOWN_FAILURE,
+      `${label} download returned an unexpected content type.`,
+      { contentType, expectedContentType },
+    );
+  }
+
+  const actual = new Uint8Array(await response.arrayBuffer());
+  if (actual.byteLength !== expectedBytes.byteLength) {
+    throw new DriveLiveCheckError(
+      DRIVE_FAILURES.UNKNOWN_FAILURE,
+      `${label} download size did not match uploaded bytes.`,
+      { actualBytes: actual.byteLength, expectedBytes: expectedBytes.byteLength },
+    );
+  }
+  for (let index = 0; index < actual.byteLength; index += 1) {
+    if (actual[index] !== expectedBytes[index]) {
+      throw new DriveLiveCheckError(
+        DRIVE_FAILURES.UNKNOWN_FAILURE,
+        `${label} download bytes did not match uploaded bytes.`,
+        { mismatchIndex: index },
+      );
+    }
+  }
+
+  return {
+    status: response.status,
+    contentType,
+    bytes: actual.byteLength,
+    cacheControl: response.headers.get("cache-control") || null,
+  };
+}
+
 async function runDriveLiveCheck(options = {}) {
   const baseUrl = new URL(options.baseUrl || process.env.DRIVE_LIVE_BASE_URL || DEFAULT_BASE_URL);
   const credentialsFile = options.credentialsFile || process.env.DRIVE_LIVE_CREDENTIALS_FILE || DEFAULT_CREDENTIALS_FILE;
@@ -585,6 +711,24 @@ async function runDriveLiveCheck(options = {}) {
   const submissionId = dashboard.body.submissions[0].id;
   const studentId = loginBody.user.id;
   log("PASS dashboard: fake student submission discovered.");
+
+  const workspaceHtml = await fetch(new URL("/workspace.html", baseUrl));
+  const workspaceScript = await fetch(new URL("/workspace.js", baseUrl));
+  const workspaceScriptText = await workspaceScript.text();
+  if (workspaceHtml.status !== 200 || workspaceScript.status !== 200) {
+    throw new DriveLiveCheckError(DRIVE_FAILURES.UNKNOWN_FAILURE, "Hosted canonical workspace assets did not load.", {
+      workspaceHtmlStatus: workspaceHtml.status,
+      workspaceScriptStatus: workspaceScript.status,
+    });
+  }
+  if (!workspaceScriptText.includes("data-evidence-download=\"file\"") || !workspaceScriptText.includes("/api/evidence/")) {
+    throw new DriveLiveCheckError(DRIVE_FAILURES.UNKNOWN_FAILURE, "Hosted workspace script does not expose the app-scoped evidence download action.", {
+      evidenceDownloadMarker: workspaceScriptText.includes("data-evidence-download=\"file\""),
+      evidenceDownloadRouteMarker: workspaceScriptText.includes("/api/evidence/"),
+    });
+  }
+  assertNoForbiddenStorageLeak(workspaceScriptText, "hosted workspace script");
+  log("PASS workspace: hosted canonical workspace serves the evidence upload and app-scoped download markers.");
 
   const denials = {};
   const signedOut = new SessionClient(baseUrl);
@@ -694,40 +838,17 @@ async function runDriveLiveCheck(options = {}) {
   validateDriveProbeMimes(probe.body);
   log("PASS drive: token exchange succeeded, root folder is visible, and index sheet is visible.");
 
-  const fileName = proofFileName();
   const fileBytes = new TextEncoder().encode(PROOF_CONTENT);
-  const upload = await studentClient.fetchJson(`/api/submissions/${encodeURIComponent(submissionId)}/evidence/upload`, {
-    method: "POST",
-    body: uploadForm({
-      title: "Codex Drive live proof",
-      fileName,
-      mimeType: "text/plain",
-      content: fileBytes,
-    }),
+  const fileName = proofFileName();
+  const { evidence } = await uploadLiveEvidence({
+    client: studentClient,
+    submissionId,
+    title: "Codex Drive live proof",
+    fileName,
+    mimeType: "text/plain",
+    content: fileBytes,
+    label: "small text",
   });
-
-  if (upload.response.status !== 200 || upload.body?.ok !== true) {
-    const classification = classifyDriveHttpFailure(upload.response.status, upload.body);
-    throw new DriveLiveCheckError(classification, "Fake student Drive upload failed.", {
-      status: upload.response.status,
-      error: upload.body?.error || null,
-    });
-  }
-
-  assertNoForbiddenStorageLeak(upload.body, "upload response");
-  const evidence = upload.body.evidence || {};
-  const storage = upload.body.storage || {};
-  const uploadChecks = {
-    sourceKind: evidence.sourceKind === "google_drive_file",
-    reviewStatus: evidence.reviewStatus === "pending_review",
-    storageProvider: storage.provider === EXPECTED.provider,
-    metadataReady: storage.metadataReady === true,
-    fileBytesReady: storage.fileBytesReady === true,
-    signedRetrievalReady: storage.signedRetrievalReady === false,
-  };
-  if (!Object.values(uploadChecks).every(Boolean)) {
-    throw new DriveLiveCheckError(DRIVE_FAILURES.UPLOAD_METADATA_MISSING, "Upload response did not match expected storage contract.", uploadChecks);
-  }
   log("PASS upload: fake .test text file uploaded through the app path with no raw Drive ID in the response.");
 
   const d1Checks = verifyD1EvidenceMetadata({
@@ -738,6 +859,16 @@ async function runDriveLiveCheck(options = {}) {
   });
   log("PASS D1: evidence metadata and evidence_file_uploaded audit row verified without selecting raw Drive IDs.");
 
+  const smallDownload = await downloadLiveEvidence({
+    client: studentClient,
+    evidenceId: evidence.id,
+    expectedBytes: fileBytes,
+    expectedContentType: "text/plain",
+    label: "small text",
+  });
+  const smallDownloadD1Checks = verifyD1DownloadAudit({ evidenceId: evidence.id });
+  log("PASS download: fake .test text file downloaded through the app-scoped evidence route and matched uploaded bytes.");
+
   const dashboardAfter = await studentClient.fetchJson("/api/student/dashboard");
   if (dashboardAfter.response.status !== 200 || dashboardAfter.body?.ok !== true) {
     throw new DriveLiveCheckError(DRIVE_FAILURES.UPLOAD_BROWSER_LEAK_RISK, "Dashboard refresh after upload failed.", {
@@ -745,7 +876,45 @@ async function runDriveLiveCheck(options = {}) {
     });
   }
   assertNoForbiddenStorageLeak(dashboardAfter.body, "/api/student/dashboard after upload");
-  log("PASS leak-check: upload response and dashboard output omit raw Drive storage identifiers.");
+  const uploadedEvidenceSummary = (dashboardAfter.body.evidence || []).find((item) => item.id === evidence.id);
+  if (!uploadedEvidenceSummary?.downloadUrl || uploadedEvidenceSummary.fileBytesReady !== true || uploadedEvidenceSummary.storageIdentifiersRedacted !== true) {
+    throw new DriveLiveCheckError(DRIVE_FAILURES.UPLOAD_METADATA_MISSING, "Dashboard evidence summary did not expose the safe app-scoped download marker after upload.", {
+      evidenceId: evidence.id,
+      hasDownloadUrl: Boolean(uploadedEvidenceSummary?.downloadUrl),
+      fileBytesReady: uploadedEvidenceSummary?.fileBytesReady,
+      storageIdentifiersRedacted: uploadedEvidenceSummary?.storageIdentifiersRedacted,
+    });
+  }
+  log("PASS leak-check: upload response, download headers, and dashboard output omit raw Drive storage identifiers.");
+
+  const largeBytes = largeProofBytes();
+  const largeFileName = proofFileName().replace(".txt", "-resumable.txt");
+  const largeUpload = await uploadLiveEvidence({
+    client: studentClient,
+    submissionId,
+    title: "Codex Drive live resumable proof",
+    fileName: largeFileName,
+    mimeType: "text/plain",
+    content: largeBytes,
+    label: "resumable >5MB",
+  });
+  log("PASS upload: fake .test >5MB file uploaded through the resumable Drive path.");
+
+  const largeD1Checks = verifyD1EvidenceMetadata({
+    evidenceId: largeUpload.evidence.id,
+    studentId,
+    submissionId,
+    sizeBytes: largeBytes.length,
+  });
+  const largeDownload = await downloadLiveEvidence({
+    client: studentClient,
+    evidenceId: largeUpload.evidence.id,
+    expectedBytes: largeBytes,
+    expectedContentType: "text/plain",
+    label: "resumable >5MB",
+  });
+  const largeDownloadD1Checks = verifyD1DownloadAudit({ evidenceId: largeUpload.evidence.id });
+  log("PASS resumable: >5MB fake .test upload, D1 metadata, app-scoped download, and download audit all passed.");
 
   const summary = {
     ok: true,
@@ -768,13 +937,33 @@ async function runDriveLiveCheck(options = {}) {
         fileIdPresent: true,
         rawFileIdExposed: false,
       },
+      appScopedDownload: "passed",
+      resumableUploadOver5MB: "passed",
     },
     fakeUpload: {
       studentLogin: true,
       submissionDiscovered: true,
       evidenceId: evidence.id,
       d1Metadata: d1Checks,
+      download: {
+        smallText: {
+          evidenceId: evidence.id,
+          response: smallDownload,
+          d1Audit: smallDownloadD1Checks,
+        },
+        largeResumable: {
+          evidenceId: largeUpload.evidence.id,
+          response: largeDownload,
+          d1Metadata: largeD1Checks,
+          d1Audit: largeDownloadD1Checks,
+        },
+      },
       denialCases: denials,
+    },
+    workspace: {
+      canonicalRouteLoaded: true,
+      uploadMarkerPresent: workspaceScriptText.includes("/evidence/upload"),
+      downloadMarkerPresent: true,
     },
     security: {
       noSecretValuesPrinted: true,
@@ -784,7 +973,7 @@ async function runDriveLiveCheck(options = {}) {
     logs,
   };
 
-  log("Drive live verification passed: provider, runtime credentials, Drive probes, fake upload, D1 metadata, denials, and leak checks passed.");
+  log("Drive live verification passed: provider, runtime credentials, Drive probes, fake upload/download, >5MB resumable proof, D1 metadata/audits, denials, and leak checks passed.");
   return summary;
 }
 

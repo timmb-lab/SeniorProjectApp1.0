@@ -40,6 +40,10 @@ test("student dashboard returns own rows without storage ids and audits the view
   assert.equal(body.progress.length, 1);
   assert.equal(body.submissions.length, 1);
   assert.equal(body.evidence.length, 1);
+  assert.equal(body.evidence[0].fileBytesReady, true);
+  assert.equal(body.evidence[0].downloadUrl, "/api/evidence/evidence-student-a/download");
+  assert.equal(body.evidence[0].externalUrl, null);
+  assert.equal(body.evidence[0].storageIdentifiersRedacted, true);
   assert.doesNotMatch(JSON.stringify(body), /drive_file_id|driveFileId|drive-secret/i);
 
   const [event] = fixture.db.data.auditEvents;
@@ -279,6 +283,9 @@ function seedStudentRecord(db, studentId, { programId = "it", cohortId = "cohort
     title: "Protected build log",
     artifact_type: "reflection",
     source_kind: "google_drive_file",
+    external_url: null,
+    mime_type: "text/plain",
+    size_bytes: 4096,
     drive_file_id: "drive-secret",
     review_status: "pending",
     created_at: "2026-05-20T08:15:00.000Z",
@@ -417,7 +424,7 @@ class MockPreparedStatement {
       };
     }
 
-    if (this.sql.startsWith("select id, title, artifact_type, source_kind, review_status, created_at from evidence_artifacts")) {
+    if (this.sql.startsWith("select id, title, artifact_type, source_kind, external_url, mime_type, size_bytes, review_status, created_at from evidence_artifacts")) {
       const [studentId] = this.params;
       return {
         results: this.data.evidenceArtifacts
@@ -427,6 +434,9 @@ class MockPreparedStatement {
             title: row.title,
             artifact_type: row.artifact_type,
             source_kind: row.source_kind,
+            external_url: row.external_url,
+            mime_type: row.mime_type,
+            size_bytes: row.size_bytes,
             review_status: row.review_status,
             created_at: row.created_at,
           })),
