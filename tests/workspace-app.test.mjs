@@ -17,6 +17,7 @@ test("workspace route is a real authenticated app surface", () => {
   assert.match(workspaceJs, /\/api\/auth\/change-password/);
   assert.match(workspaceJs, /\/api\/auth\/complete-reset/);
   assert.match(workspaceJs, /\/api\/auth\/logout/);
+  assert.match(workspaceJs, /\/api\/admin\/users\/import/);
   assert.match(workspaceJs, /\/api\/student\/dashboard/);
   assert.match(workspaceJs, /\/api\/student\/archive\/readiness/);
   assert.match(workspaceJs, /\/api\/teacher\/review-queue/);
@@ -29,6 +30,8 @@ test("workspace route is a real authenticated app surface", () => {
   assert.match(workspaceJs, /Sign in to continue/);
   assert.match(workspaceJs, /data-auth-action="complete-reset"/);
   assert.match(workspaceJs, /data-auth-action="change-password"/);
+  assert.match(workspaceJs, /data-admin-action="import-users"/);
+  assert.match(workspaceJs, /data-admin-import-result="one-time-setup-passwords"/);
   assert.match(workspaceJs, /Create a new password/);
   assert.match(workspaceJs, /Password And Sessions/);
   assert.match(workspaceJs, /Your file was received/);
@@ -246,6 +249,62 @@ test("workspace renders self-service password rotation controls", async () => {
   assert.match(security, /other active sessions for this account are closed/);
 });
 
+test("workspace renders admin import controls and one-time setup output", async () => {
+  const adminUsers = await renderWorkspaceWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "admin-users",
+          email: "admin.users@example.edu",
+          displayName: "Admin User",
+          roles: [{ role_id: "admin", scope_type: "global", scope_id: "" }],
+        },
+      },
+    },
+    "/api/announcements": {
+      status: 200,
+      body: { ok: true, announcements: [] },
+    },
+    "/api/teacher/review-queue": {
+      status: 200,
+      body: { ok: true, queue: [] },
+    },
+    "/api/presentation-slots": {
+      status: 200,
+      body: { ok: true, slots: [] },
+    },
+    "/api/reports/readiness": {
+      status: 200,
+      body: { ok: true, scope: "all-programs", metrics: {} },
+    },
+  }, "adminUsers", `
+    lastAdminImportResult = {
+      users: [
+        {
+          email: "new.student@example.edu",
+          displayName: "New Student",
+          status: "pending_reset",
+          temporaryPassword: "N9!aA-setup-zZ",
+          role: { roleId: "student", scopeType: "global", scopeId: "" }
+        }
+      ]
+    };
+  `);
+
+  assert.match(adminUsers, /data-admin-section="users"/);
+  assert.match(adminUsers, /data-admin-action="import-users"/);
+  assert.match(adminUsers, /data-admin-endpoint="\/api\/admin\/users\/import"/);
+  assert.match(adminUsers, /data-admin-cache="no-store-response"/);
+  assert.match(adminUsers, /Import Account/);
+  assert.match(adminUsers, /Import reason/);
+  assert.match(adminUsers, /data-admin-import-result="one-time-setup-passwords"/);
+  assert.match(adminUsers, /N9!aA-setup-zZ/);
+  assert.match(adminUsers, /pending reset/i);
+  assert.match(adminUsers, /must create a new password at first sign-in/i);
+});
+
 test("workspace renders presentation schedule and day-of actions", async () => {
   const presentation = await renderWorkspaceWithFetch({
     "/api/auth/me": {
@@ -409,7 +468,7 @@ test("workspace renders archive readiness from persisted rows", async () => {
   assert.match(archive, /expiring soon/i);
 });
 
-async function renderWorkspaceWithFetch(routes, section = "") {
+async function renderWorkspaceWithFetch(routes, section = "", beforeSectionScript = "") {
   const workspaceRoot = {
     innerHTML: "",
     querySelectorAll: () => [],
@@ -452,8 +511,8 @@ async function renderWorkspaceWithFetch(routes, section = "") {
   for (let index = 0; index < 8; index += 1) {
     await new Promise((resolve) => setTimeout(resolve, 0));
   }
-  if (section) {
-    vm.runInContext(`activeSection = ${JSON.stringify(section)}; renderAppShell();`, context);
+  if (section || beforeSectionScript) {
+    vm.runInContext(`${beforeSectionScript}\nactiveSection = ${JSON.stringify(section || "overview")}; renderAppShell();`, context);
   }
   return workspaceRoot.innerHTML;
 }

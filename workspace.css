@@ -364,6 +364,21 @@
   margin: 0;
 }
 
+.workspace-secret-output {
+  display: block;
+  width: 100%;
+  margin: 0.55rem 0;
+  border: 1px solid #cbd7d7;
+  border-radius: var(--radius);
+  background: #f6fbfa;
+  color: var(--charcoal);
+  padding: 0.65rem 0.75rem;
+  font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+  font-size: 0.92rem;
+  font-weight: 850;
+  overflow-wrap: anywhere;
+}
+
 .workspace-kicker {
   margin: 0;
   color: var(--red);

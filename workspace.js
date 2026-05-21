@@ -12,6 +12,7 @@ let currentData = {
 };
 let activeSection = "overview";
 let busy = false;
+let lastAdminImportResult = null;
 
 init();
 
@@ -309,6 +310,7 @@ function availableSections() {
   if (roles.has("student") || roles.has("mentor") || roles.has("program_teacher") || roles.has("admin")) {
     sections.push({ id: "presentation", label: "Presentation", detail: "Schedule, outline, and day-of status" });
   }
+  if (roles.has("admin")) sections.push({ id: "adminUsers", label: "Users", detail: "Import accounts and setup access" });
   if (roles.has("admin") || roles.has("misc_admin")) sections.push({ id: "readiness", label: "Readiness", detail: "Aggregate project readiness" });
   return sections;
 }
@@ -320,6 +322,7 @@ function renderActiveSection() {
   if (activeSection === "mentor") return renderMentorSection();
   if (activeSection === "presentation") return renderPresentationSection();
   if (activeSection === "archive") return renderArchiveSection();
+  if (activeSection === "adminUsers") return renderAdminUsersSection();
   if (activeSection === "readiness") return renderReadinessSection();
   return renderOverviewSection();
 }
@@ -687,8 +690,105 @@ function renderSecuritySection() {
   `;
 }
 
+function renderAdminUsersSection() {
+  if (!roleIds(currentUser).has("admin")) {
+    return renderPermissionDeniedSection("User import", "account provisioning records");
+  }
+
+  return `
+    <section class="workspace-card" data-admin-section="users">
+      <div class="workspace-card-head">
+        <div>
+          <p class="workspace-kicker">Admin users</p>
+          <h2>Import Account</h2>
+        </div>
+        <span class="workspace-chip">Admin only</span>
+      </div>
+      <form id="workspaceAdminImportForm" class="workspace-form" data-admin-action="import-users" data-admin-endpoint="/api/admin/users/import" data-admin-cache="no-store-response">
+        <label class="workspace-label">
+          Import reason
+          <textarea class="workspace-textarea" name="reason" maxlength="500" required></textarea>
+        </label>
+        <div class="workspace-form-grid">
+          <label class="workspace-label">
+            Email
+            <input class="workspace-input" name="email" type="email" autocomplete="off" required>
+          </label>
+          <label class="workspace-label">
+            Display name
+            <input class="workspace-input" name="displayName" autocomplete="off" maxlength="120" required>
+          </label>
+          <label class="workspace-label">
+            Role
+            <select class="workspace-select" name="roleId" required>
+              <option value="student">Student</option>
+              <option value="mentor">Mentor</option>
+              <option value="program_teacher">Program teacher</option>
+              <option value="admin">Admin</option>
+              <option value="misc_admin">Misc admin</option>
+            </select>
+          </label>
+          <label class="workspace-label">
+            Scope type
+            <select class="workspace-select" name="scopeType">
+              <option value="global">Global</option>
+              <option value="program">Program</option>
+              <option value="cohort">Cohort</option>
+            </select>
+          </label>
+          <label class="workspace-label workspace-label-wide">
+            Scope id
+            <input class="workspace-input" name="scopeId" autocomplete="off" pattern="[A-Za-z0-9_-]*">
+          </label>
+        </div>
+        <p class="workspace-muted">Imported accounts must create a new password at first sign-in. Setup passwords are shown once.</p>
+        <div class="workspace-form-actions">
+          <button class="workspace-button workspace-button-primary" type="submit">Import account</button>
+        </div>
+      </form>
+    </section>
+    ${renderAdminImportResult()}
+  `;
+}
+
+function renderAdminImportResult() {
+  const users = Array.isArray(lastAdminImportResult?.users) ? lastAdminImportResult.users : [];
+  if (!users.length) return "";
+
+  return `
+    <section class="workspace-card" data-admin-import-result="one-time-setup-passwords">
+      <div class="workspace-card-head">
+        <div>
+          <p class="workspace-kicker">Imported accounts</p>
+          <h2>Setup Access</h2>
+        </div>
+        <span class="workspace-chip">${users.length} account${users.length === 1 ? "" : "s"}</span>
+      </div>
+      <div class="workspace-list">
+        ${users.map((user) => `
+          <article class="workspace-row">
+            <div>
+              <strong>${escapeHtml(user.displayName || user.email || "Imported account")}</strong>
+              <p>${escapeHtml(user.email || "")}</p>
+              <p class="workspace-muted">${escapeHtml(statusText(user.role?.roleId || "role"))} / ${escapeHtml(scopeLabel(user.role))}</p>
+              <span class="workspace-secret-output" data-admin-import-credential="setup-password">${escapeHtml(user.temporaryPassword || "")}</span>
+              <p class="workspace-muted">Share through the approved school process. This person must create a new password at first sign-in.</p>
+            </div>
+            ${statusPill(user.status || "pending_reset")}
+          </article>
+        `).join("")}
+      </div>
+    </section>
+  `;
+}
+
 function bindWorkspaceForms() {
   document.querySelector("#workspaceChangePasswordForm")?.addEventListener("submit", changeOwnPassword);
+  const adminImportForm = document.querySelector("#workspaceAdminImportForm");
+  adminImportForm?.addEventListener("submit", submitAdminUserImport);
+  adminImportForm?.querySelector?.('[name="roleId"]')?.addEventListener("change", updateAdminImportScopeFields);
+  adminImportForm?.querySelector?.('[name="scopeType"]')?.addEventListener("change", updateAdminImportScopeFields);
+  updateAdminImportScopeFields();
   document.querySelector("#workspaceEvidenceLinkForm")?.addEventListener("submit", attachEvidenceLink);
   document.querySelector("#workspaceFileUploadForm")?.addEventListener("submit", uploadEvidenceFile);
   document.querySelectorAll("[data-presentation-action]").forEach((button) => {
@@ -1028,6 +1128,47 @@ async function changeOwnPassword(event) {
   }
 }
 
+async function submitAdminUserImport(event) {
+  event.preventDefault();
+  if (busy) return;
+  busy = true;
+  const form = event.currentTarget;
+  const importBody = buildAdminImportBody(form);
+
+  if (!importBody.ok) {
+    busy = false;
+    lastAdminImportResult = null;
+    activeSection = "adminUsers";
+    renderAppShell(importBody.message, "error");
+    return;
+  }
+
+  setFormBusy(form, true);
+  try {
+    const response = await fetch("/api/admin/users/import", {
+      method: "POST",
+      headers: { "content-type": "application/json", accept: "application/json" },
+      body: JSON.stringify(importBody.body),
+    });
+    const body = await safeJson(response);
+    if (!response.ok) {
+      lastAdminImportResult = null;
+      activeSection = "adminUsers";
+      renderAppShell(messageForAdminImportError(body?.error, response.status), "error");
+      return;
+    }
+    lastAdminImportResult = body;
+    activeSection = "adminUsers";
+    await loadWorkspaceData("Imported account setup is ready.");
+  } catch (error) {
+    lastAdminImportResult = null;
+    activeSection = "adminUsers";
+    renderAppShell(messageForNetworkError(error), "error");
+  } finally {
+    busy = false;
+  }
+}
+
 async function signOut() {
   renderAppShell("Signing out...");
   try {
@@ -1035,6 +1176,7 @@ async function signOut() {
   } finally {
     currentUser = null;
     currentData = {};
+    lastAdminImportResult = null;
     renderSignIn("You have signed out.", "success");
   }
 }
@@ -1157,6 +1299,63 @@ function roleChips(user) {
   }).join("");
 }
 
+function scopeLabel(role) {
+  if (!role) return "global";
+  return role.scopeId ? `${role.scopeType || "global"}:${role.scopeId}` : role.scopeType || "global";
+}
+
+function updateAdminImportScopeFields() {
+  const form = document.querySelector("#workspaceAdminImportForm");
+  const roleSelect = form?.querySelector?.('[name="roleId"]');
+  const scopeType = form?.querySelector?.('[name="scopeType"]');
+  const scopeId = form?.querySelector?.('[name="scopeId"]');
+  if (!roleSelect || !scopeType || !scopeId) return;
+
+  const scopedTeacher = roleSelect.value === "program_teacher";
+  scopeType.disabled = !scopedTeacher;
+  if (!scopedTeacher) {
+    scopeType.value = "global";
+    scopeId.value = "";
+    scopeId.disabled = true;
+    return;
+  }
+
+  scopeId.disabled = scopeType.value === "global";
+  if (scopeType.value === "global") scopeId.value = "";
+}
+
+function buildAdminImportBody(form) {
+  const values = Object.fromEntries(new FormData(form).entries());
+  const reason = String(values.reason || "").trim();
+  const email = String(values.email || "").trim();
+  const displayName = String(values.displayName || "").trim();
+  const roleId = String(values.roleId || "").trim();
+  let scopeType = roleId === "program_teacher" ? String(values.scopeType || "global").trim() : "global";
+  let scopeId = roleId === "program_teacher" ? String(values.scopeId || "").trim() : "";
+
+  if (!reason) return { ok: false, message: "Add the reason for this account import." };
+  if (!email || !displayName || !roleId) return { ok: false, message: "Add the person's email, name, and role." };
+  if (!["student", "mentor", "program_teacher", "admin", "misc_admin"].includes(roleId)) {
+    return { ok: false, message: "Choose a supported workspace role." };
+  }
+  if (!["global", "program", "cohort"].includes(scopeType)) scopeType = "global";
+  if (roleId === "program_teacher" && scopeType !== "global" && !scopeId) {
+    return { ok: false, message: "Add the program or cohort id for that teacher scope." };
+  }
+  if (roleId !== "program_teacher") {
+    scopeType = "global";
+    scopeId = "";
+  }
+
+  return {
+    ok: true,
+    body: {
+      reason,
+      users: [{ email, displayName, roleId, scopeType, scopeId }],
+    },
+  };
+}
+
 function artifactTypeOptions() {
   return [
     ["planning_document", "Planning document"],
@@ -1196,6 +1395,19 @@ function messageForChangePasswordError(error, status) {
   if (error === "password_reset_required") return "Complete the required password reset before using the workspace.";
   if (status === 401) return "Sign in again before changing your password.";
   return "Password change is unavailable right now. Try again or contact your instructor.";
+}
+
+function messageForAdminImportError(error, status) {
+  if (status === 401) return "Sign in again before importing accounts.";
+  if (status === 403) return "This account cannot import users.";
+  if (error === "missing_reason") return "Add the reason for this account import.";
+  if (error === "invalid_user") return "Check the email, name, role, and scope before importing.";
+  if (error === "duplicate_email" || error === "email_already_exists") return "That email is already included or already has an account.";
+  if (error === "invalid_role_scope") return "That role and scope combination is not available.";
+  if (error === "program_not_found") return "That program scope was not found.";
+  if (error === "cohort_not_found") return "That cohort scope was not found.";
+  if (error === "too_many_users") return "Import fewer accounts in one request.";
+  return "Account import is unavailable right now. Check the details and try again.";
 }
 
 function messageForSessionStateError(error, status) {

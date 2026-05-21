@@ -54,11 +54,14 @@ test("workspace route signed-out smoke over local HTTP", { skip: !baseUrl }, asy
   assert.match(script, /workspacePassword/);
   assert.match(script, /data-auth-action="change-password"/);
   assert.match(script, /data-auth-action="complete-reset"/);
+  assert.match(script, /data-admin-action="import-users"/);
+  assert.match(script, /data-admin-import-result="one-time-setup-passwords"/);
   assert.match(script, /Create a new password/);
   assert.match(script, /Return to the guide/);
   assert.match(script, /\/api\/auth\/login/);
   assert.match(script, /\/api\/auth\/change-password/);
   assert.match(script, /\/api\/auth\/complete-reset/);
+  assert.match(script, /\/api\/admin\/users\/import/);
   assert.match(script, /\/api\/auth\/me/);
   assert.match(script, /\/api\/auth\/logout/);
   assert.match(script, /\/api\/student\/archive\/readiness/);
