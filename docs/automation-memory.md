@@ -43,6 +43,7 @@ This is not a static guide, brochure, or visual-only project.
 - Public Student/Teacher guide mode now exists for the production website gate: `app.js` renders the top-banner mode control with `Viewing: Student Guide`, `Viewing: Teacher Guide`, `Switch to Student Guide`, `Switch to Teacher Guide`, `aria-pressed`, and public `senior-capstone-guide-mode` preference storage. The home page keeps both Student Guide and Teacher Guide source summaries visible, `public-companion/` was rebuilt from source, `scripts/check-production-surfaces.mjs` checks exact guide-toggle markers, and `tests/account-and-evidence-access.test.mjs` covers the source behavior. In-app browser visual verification was attempted but blocked because no active Codex browser pane was available.
 - The canonical `workspace.html` route now renders explicit access-boundary UI states: expired sessions see `data-workspace-state="session-expired"`, disabled accounts see `data-workspace-state="account-disabled"`, reset-required accounts see `data-workspace-state="reset-required"`, signed-in users with no assigned roles see `data-workspace-state="role-pending"`, role-scoped 403 API responses render `data-workspace-state="permission-denied"`, and mentors with no active students see `data-workspace-state="no-active-assignment"`. `tests/workspace-app.test.mjs` executes those states with stubbed API responses; local Pages dev credential smoke still passes with the local-only unassigned mentor account; the in-app browser verified the seeded no-role role-pending card and unassigned mentor no-assignment UI with zero console errors.
 - The canonical `workspace.html` route now consumes `/api/presentation-slots` for student, mentor, program-teacher, and admin roles and renders a Presentation tab with schedule, location, outline status, empty state, and staff-only check-out/check-in controls. Local seed `scripts/seed-local-workspace-smoke.mjs` includes a presentation slot fixture. Validation passed in `tests/workspace-app.test.mjs`, `tests/workspace-browser-smoke.test.mjs` with local Pages/D1, aggregate `check`, and in-app browser proof for the program-teacher Presentation tab with zero console errors.
+- Archive export delivery now uploads the storage-ID-redacted archive manifest JSON into the configured Drive evidence root before marking an export complete. The Drive file ID is stored only server-side in `exports.drive_file_id`; `/api/student/archive/readiness`, `/api/exports/:id/download`, and `workspace.js` expose only Drive-package-ready booleans/headers and keep raw Drive IDs out of client responses. Coverage lives in `tests/archive-readiness.integration.test.mjs`, `tests/workspace-app.test.mjs`, and `tests/production-workflow-source.test.mjs`.
 
 ## Active Automation Contract
 
@@ -199,11 +200,20 @@ Every builder run must ladder from `docs/master-plan.md` into `docs/mvp-requirem
 - Final Figma verification succeeded: `use_figma` returned 102 text nodes, zero suspicious clipped text nodes, and zero child overflow; `get_design_context` and `get_screenshot` passed for node `151:2`, with screenshot `684x1024` from original `1360x2038`.
 - Next best non-Figma slice from this handoff: consume node `151:2` for Drive-backed package files or signed-link delivery, remote migration `0007` readback, hosted fake-account archive proof, expired retry, permission denial, and no raw Drive ID rendering after Cloudflare/Drive secrets are available.
 
+### 2026-05-20 - Drive Archive Package Delivery
+
+- Non-Figma builder `senior-capstone-nonfigma-mvp-builder` partially consumed repo-recorded Figma node `151:2` without direct Figma work.
+- `functions/_lib/archive-export.ts` now uploads the redacted archive manifest JSON to the configured Drive root through the existing service-account helper after provider probes pass.
+- `/api/admin/exports/student-archive` records Drive upload failures as failed exports, stores successful Drive package IDs only server-side in `exports.drive_file_id`, keeps app-scoped manifest body/hash/expiry in `export_artifacts`, and audits package-ready state without raw Drive IDs.
+- `/api/student/archive/readiness`, `/api/exports/:id/download`, and `workspace.js` now surface `drivePackageReady` / `data-archive-drive-package` / `x-archive-drive-package-ready` without exposing Drive storage IDs.
+- Validation passed: focused archive-readiness test (11), workspace source/VM test (7), production workflow source test (10), strict typecheck, full test suite (144 passing tests plus 3 expected opt-in skips), production-surface check, and `git diff --check` with CRLF warnings only.
+- Remaining archive/export blockers: remote migration `0007` and Pages/D1 inspection still require `CLOUDFLARE_API_TOKEN`; live Drive package proof still requires `GOOGLE_DRIVE_CLIENT_EMAIL` and `GOOGLE_DRIVE_PRIVATE_KEY`; Bryan still needs to confirm archive retention policy.
+
 ## Current Priority
 
 Immediate next useful passes:
 
-1. Finish archive/export delivery depth by consuming Figma node `151:2`: apply/verify migration `0007`, add Drive-backed package files or signed-link delivery after Drive credentials, capture hosted fake-account archive UI proof, and verify no raw Drive IDs render in package/download states.
+1. Finish archive/export delivery depth after the repo-side Drive package path: apply/verify migration `0007`, configure Drive credential secrets, capture hosted fake-account archive UI proof for Drive package upload/app-scoped download markers, decide whether signed Drive links are needed beyond scoped app downloads, and verify no raw Drive IDs render.
 2. Broaden public-site no-hidden-core-content proof across every guide route, then verify the newest workspace account-state/no-assignment markers after hosted deployment and add a live section-level permission-denied proof.
 3. Extend alpha proposal/review/evidence/audit records into real workflow endpoints.
 4. Add Google Drive server-side credential/OAuth implementation plus access-controlled evidence upload/retrieval assumptions.
@@ -233,7 +243,7 @@ Current backlog anchors:
 - `SC-001`: framework seed loader and minimal requirement schema.
 - `SC-002`: guided Research Proposal Challenge UI and review queue spec.
 - `SC-003`: Google Drive EvidenceArtifact model is in progress; metadata tables and root folder exist, but upload credentials and permission tests are still needed.
-- `SC-004`: mentor meetings, presentation scheduling, celebration evidence, archive/export workflows.
+- `SC-004`: mentor meetings, presentation scheduling, celebration evidence, archive/export workflows; Drive-backed archive package upload now exists locally, while hosted proof needs Cloudflare token plus Drive secrets.
 - `SC-005`: P0 Cloudflare stack/auth/database/user-group/progress/private-upload scaffold is in progress with Pages/D1/migrations/auth endpoints, password/session pepper secrets, Drive root folder configured, D1-backed alpha flow, state-machine tests, alpha contract checks, CI, production alpha deployment, verified first-admin bootstrap, and login-verified fake role test accounts; broader permission tests, account lifecycle, and Drive upload credentials remain.
 - `SC-006`: P0 Day 7 full app-flow alpha due 2026-05-24 PT; production user accounts may be incomplete, and the first D1-backed seeded alpha flow plus fake login-capable role accounts now exist.
 

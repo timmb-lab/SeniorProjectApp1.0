@@ -1,0 +1,176 @@
+{
+  "run_id": "2026-05-20-2209-drive-archive-package-mvp-022",
+  "timestamp_local": "2026-05-20T22:09:00-07:00",
+  "automation_id": "senior-capstone-nonfigma-mvp-builder",
+  "lane": "non-figma MVP builder",
+  "selected_category": "admin-ops-reporting",
+  "status": "completed",
+  "accepted_mvp_pass": true,
+  "requirement_ids": [
+    "MVP-018",
+    "MVP-020",
+    "MVP-022",
+    "MVP-027",
+    "MVP-032"
+  ],
+  "backlog_ids": [
+    "SC-004",
+    "SC-005",
+    "SC-006"
+  ],
+  "handoff_ids": [
+    "H-2026-05-20-011",
+    "H-2026-05-20-010",
+    "H-2026-05-20-009"
+  ],
+  "output_kind": "drive-archive-package-upload-tests-docs",
+  "bounded_scope": "Partially consume repo-recorded Figma node 151:2 without direct Figma work by uploading the redacted archive manifest JSON into Drive before completing an export and exposing only package-ready markers.",
+  "source_docs_read": [
+    "C:\\Users\\bryan\\.codex\\automations\\senior-capstone-nonfigma-mvp-builder\\memory.md",
+    "docs/master-plan.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/automation-cadence.md",
+    "docs/automation-runbook.md",
+    "docs/automation-self-improvement.md",
+    "docs/automation-memory.md",
+    "docs/automation-milestones.md",
+    "docs/progress/run-log.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/decision-log.md",
+    "docs/automation-backlog.md",
+    "docs/artifacts.json",
+    "docs/human-decisions.md",
+    "docs/progress/rebuild.md",
+    "docs/progress/figma.md",
+    "docs/progress/runs/2026-05-20-2148-figma-drive-archive-delivery.json",
+    "docs/progress/runs/2026-05-20-2138-archive-provider-retention-mvp-022.json",
+    "docs/progress/runs/2026-05-20-2110-scoped-archive-manifests-mvp-022.json",
+    "docs/progress/runs/2026-05-20-2043-workspace-archive-readiness-mvp-022.json",
+    "functions/_lib/google-drive.ts",
+    "functions/_lib/archive-export.ts",
+    "functions/api/admin/exports/student-archive.ts",
+    "functions/api/exports/[id]/download.ts",
+    "functions/api/student/archive/readiness.ts",
+    "workspace.js",
+    "tests/archive-readiness.integration.test.mjs",
+    "tests/workspace-app.test.mjs",
+    "tests/production-workflow-source.test.mjs"
+  ],
+  "figma_work_avoided": true,
+  "direct_figma_tools_called": false,
+  "repo_recorded_figma_handoff_consumed": {
+    "file_key": "z4t4tFPAKrMDh6pIYOeEw6",
+    "page": "05 Full MVP Alpha Prototype",
+    "node_id": "151:2",
+    "node_name": "Prototype / 20 / Drive archive delivery handoff",
+    "consumption_level": "partial repo-only implementation"
+  },
+  "changes": [
+    "Added uploadStudentArchiveDrivePackage to upload the redacted archive manifest JSON to the configured Drive evidence root through the existing service-account helper.",
+    "Updated /api/admin/exports/student-archive so complete exports require Drive package upload success; upload failures create failed exports and student_archive_export_drive_upload_failed audit events.",
+    "Stored successful Drive package file IDs only server-side in exports.drive_file_id while keeping export_artifacts as the app-scoped manifest body/hash/expiry record.",
+    "Updated /api/student/archive/readiness and /api/exports/:id/download to expose drivePackageReady booleans/headers without raw Drive storage identifiers.",
+    "Updated the canonical workspace Archive tab with a data-archive-drive-package row that distinguishes stored package files from pending package generation.",
+    "Expanded archive integration, workspace source/VM, and production source tests for Drive package upload success/failure and redaction."
+  ],
+  "files_changed": [
+    "functions/_lib/archive-export.ts",
+    "functions/api/admin/exports/student-archive.ts",
+    "functions/api/exports/[id]/download.ts",
+    "functions/api/student/archive/readiness.ts",
+    "workspace.js",
+    "tests/archive-readiness.integration.test.mjs",
+    "tests/workspace-app.test.mjs",
+    "tests/production-workflow-source.test.mjs",
+    "docs/backend-setup.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/automation-backlog.md",
+    "docs/automation-memory.md",
+    "docs/artifacts.json",
+    "docs/progress/handoffs.md",
+    "docs/progress/rebuild.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-20-2209-drive-archive-package-mvp-022.json"
+  ],
+  "validation": [
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 tests\\archive-readiness.integration.test.mjs",
+      "result": "pass; 11/11 archive/export tests"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 tests\\workspace-app.test.mjs",
+      "result": "pass; 7/7 workspace source/VM tests"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 tests\\production-workflow-source.test.mjs",
+      "result": "pass; 10/10 source tests"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 typecheck",
+      "result": "pass"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 test",
+      "result": "pass; 144 passing tests and 3 expected opt-in local-server skips"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 check:production-surfaces",
+      "result": "pass; 91 production text surfaces scanned"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 check",
+      "result": "pass; static Cloudflare verification passed and live verification blocked only by missing CLOUDFLARE_API_TOKEN"
+    },
+    {
+      "command": "git diff --check",
+      "result": "pass; CRLF conversion warnings only"
+    }
+  ],
+  "blockers": [
+    {
+      "code": "LIVE_CLOUDFLARE_BLOCKED_NO_TOKEN",
+      "cause": "CLOUDFLARE_API_TOKEN is not set for non-interactive Pages/D1 deployment, secret inspection, and remote migration verification.",
+      "bryan_must_act": true,
+      "next_safe_action": "Provide a scoped Cloudflare API token or run remote migration/deployment verification manually."
+    },
+    {
+      "code": "REMOTE_D1_MIGRATION_0007_PENDING",
+      "cause": "Migration 0007_archive_export_artifacts.sql is validated locally but still needs remote D1 apply/verification.",
+      "bryan_must_act": true,
+      "next_safe_action": "Apply/verify migration 0007 remotely once Cloudflare token access is available."
+    },
+    {
+      "code": "LIVE_DRIVE_PACKAGE_PROOF_PENDING",
+      "cause": "The repo-side Drive package upload path is implemented and mocked in tests, but hosted proof requires Cloudflare Pages Google Drive credential secrets.",
+      "bryan_must_act": true,
+      "next_safe_action": "Configure GOOGLE_DRIVE_CLIENT_EMAIL and GOOGLE_DRIVE_PRIVATE_KEY, then verify archive package generation/download with fake .test accounts only."
+    },
+    {
+      "code": "ARCHIVE_RETENTION_POLICY_PENDING",
+      "cause": "The repo exposes configurable archive retention defaults, but school retention policy has not been confirmed.",
+      "bryan_must_act": true,
+      "next_safe_action": "Confirm whether the default 14-day archive download window is acceptable before real student archives."
+    }
+  ],
+  "next_actions": [
+    "Apply and verify migration 0007_archive_export_artifacts.sql remotely when CLOUDFLARE_API_TOKEN is available.",
+    "Configure Drive credential secrets and capture hosted fake-account archive generation/download proof.",
+    "Decide whether a separate signed Drive-link flow is required beyond scoped app downloads.",
+    "Confirm the archive retention policy before using real student records."
+  ],
+  "self_improvement": "none",
+  "run_log_updated": true,
+  "structured_manifest_created": true,
+  "artifacts_json_updated": true,
+  "mvp_catalog_changed": true,
+  "human_decisions_changed": false,
+  "phone_tracker": {
+    "updated": false,
+    "reason": "Google Sheets connector was not used in this run; repo-local closeout evidence was preserved."
+  },
+  "branch_before": "main",
+  "branch_after": "main",
+  "implementation_commit_sha": "39c04b051f2d63eb81e513b679c656b4294d1586",
+  "commit_sha": "39c04b051f2d63eb81e513b679c656b4294d1586",
+  "push_result": "pending push for implementation and closeout commits"
+}

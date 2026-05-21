@@ -397,3 +397,17 @@ Each rebuild run should append a dated entry with:
 - `phone tracker`: not appended; Google Sheets connector was not used in this run.
 - `self-improvement`: none.
 - `commit/push status`: implementation commit `2eeed9a00dee643ac84a8755a78dbe7c1f0bf8b8` and closeout commit `f94654d` pushed to `origin main`; hosted marker proof commit pending.
+
+### 2026-05-20 22:09 PT - MVP-022 Drive Archive Package Delivery
+
+- `automation`: `senior-capstone-nonfigma-mvp-builder`
+- `master-plan section`: Day 7 Alpha Gate; Role-Aware Production App Contract; North Star Workflow; Logging Requirements.
+- `source docs/logs read`: automation memory fallback at `C:\Users\bryan\.codex\automations\senior-capstone-nonfigma-mvp-builder\memory.md`, required master plan/catalog/cadence/runbook/self-improvement/memory/milestones/progress docs, recent run manifests, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, `docs/progress/rebuild.md`, the latest Drive archive delivery handoff manifest, and the existing archive/export route/test patterns.
+- `backlog or requirement IDs selected`: `SC-004`, `SC-005`, `SC-006`, `MVP-018`, `MVP-020`, `MVP-022`, `MVP-027`, supporting `MVP-032`.
+- `bounded scope`: Partially consume repo-recorded Figma node `151:2` without direct Figma work by uploading the redacted archive manifest JSON into Drive before completing an export and by exposing only package-ready markers to the workspace.
+- `files changed`: `functions/_lib/archive-export.ts`, `functions/api/admin/exports/student-archive.ts`, `functions/api/exports/[id]/download.ts`, `functions/api/student/archive/readiness.ts`, `workspace.js`, `tests/archive-readiness.integration.test.mjs`, `tests/workspace-app.test.mjs`, `tests/production-workflow-source.test.mjs`, `docs/backend-setup.md`, `docs/mvp-requirements-catalog.md`, `docs/automation-backlog.md`, `docs/automation-memory.md`, `docs/artifacts.json`, `docs/progress/handoffs.md`, this rebuild log, `docs/progress/run-log.md`, and structured run manifest.
+- `validation`: focused archive-readiness integration passed with 11 tests; workspace source/VM test passed with 7 tests; production-workflow source test passed with 10 tests; strict `typecheck` passed; full `test` passed with 144 passing tests and 3 expected opt-in skips; `check:production-surfaces` passed with 91 surfaces; aggregate `check` passed with static Cloudflare verification and `LIVE_CLOUDFLARE_BLOCKED_NO_TOKEN`; `git diff --check` passed with CRLF warnings only.
+- `blockers`: remote Pages/D1 management verification and remote migration `0007` still require `CLOUDFLARE_API_TOKEN`; live Drive package proof still requires Cloudflare Pages Drive credential secrets; Bryan must confirm archive retention policy before real student archives.
+- `phone tracker`: not appended; Google Sheets connector was not used in this run.
+- `self-improvement`: none.
+- `commit/push status`: implementation commit `39c04b051f2d63eb81e513b679c656b4294d1586` created on `main`; closeout docs commit and push pending.

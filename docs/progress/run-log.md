@@ -645,3 +645,18 @@ Future productive runs should append compact entries that name the master-plan s
 - `blockers`: none for Figma; existing Cloudflare token, Google Drive credential, remote migration, and retention-policy blockers remain implementation/deployment context only.
 - `phone tracker`: not appended; Google Sheets connector was not used in this run.
 - `self-improvement`: none.
+
+## 2026-05-20 22:09 PT - MVP-022 Drive Archive Package Delivery
+
+- `automation ID`: `senior-capstone-nonfigma-mvp-builder`.
+- `lane`: non-Figma MVP builder / admin-ops-reporting.
+- `master-plan sections`: Day 7 Alpha Gate; Role-Aware Production App Contract; North Star Workflow; Logging Requirements.
+- `requirement IDs`: `MVP-018`, `MVP-020`, `MVP-022`, `MVP-027`, supporting `MVP-032`; `backlog IDs`: `SC-004`, `SC-005`, `SC-006`; `handoff`: partial repo-only consumption of `H-2026-05-20-011`.
+- `selected slice`: Add repo-side Drive package delivery for student archive exports without direct Figma work or live secret claims.
+- `what changed`: `functions/_lib/archive-export.ts` now uploads the storage-ID-redacted archive manifest JSON to the configured Drive root after provider probes pass; `/api/admin/exports/student-archive` records Drive upload failures as failed exports, stores successful Drive package IDs only in `exports.drive_file_id`, and keeps client responses to boolean package-ready markers; `/api/student/archive/readiness`, `/api/exports/:id/download`, and `workspace.js` expose safe Drive package readiness without raw Drive IDs.
+- `files changed`: `functions/_lib/archive-export.ts`, `functions/api/admin/exports/student-archive.ts`, `functions/api/exports/[id]/download.ts`, `functions/api/student/archive/readiness.ts`, `workspace.js`, `tests/archive-readiness.integration.test.mjs`, `tests/workspace-app.test.mjs`, `tests/production-workflow-source.test.mjs`, MVP/backlog/artifact/memory/handoff/setup/progress docs, and `docs/progress/runs/2026-05-20-2209-drive-archive-package-mvp-022.json`.
+- `validation`: focused archive-readiness integration passed with 11 tests; workspace source/VM test passed with 7 tests; production-workflow source test passed with 10 tests; strict typecheck passed; full `test` passed with 144 passing tests and 3 expected opt-in skips; `check:production-surfaces` passed with 91 surfaces; aggregate `check` passed with static Cloudflare verification and `LIVE_CLOUDFLARE_BLOCKED_NO_TOKEN`; `git diff --check` passed with CRLF warnings only.
+- `blockers`: remote D1 migration `0007` and non-interactive Pages/D1 inspection still require `CLOUDFLARE_API_TOKEN`; live Drive package proof still requires Cloudflare Pages `GOOGLE_DRIVE_CLIENT_EMAIL` and `GOOGLE_DRIVE_PRIVATE_KEY`; Bryan must confirm archive retention policy before real student archives.
+- `phone tracker`: not appended; Google Sheets connector was not used in this run.
+- `self-improvement`: none.
+- `commit`: implementation commit `39c04b051f2d63eb81e513b679c656b4294d1586` (`rebuild: add drive archive package delivery (MVP-022)`) created on `main`; closeout evidence commit follows this entry.
