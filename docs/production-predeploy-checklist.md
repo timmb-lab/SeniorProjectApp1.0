@@ -70,7 +70,7 @@ These must be decided before pilot users or real records enter the app:
 - Alpha/account deployment policy: choose Option A, B, or C from `docs/alpha-account-deployment-decision.md`.
 - Stakeholder option lifecycle: retain, retire, or promote from `docs/stakeholder-option-lifecycle.md`.
 - Custom-domain mapping: choose final hostnames using `docs/custom-domain-cutover-checklist.md`.
-- Google Drive service-account sharing: ensure the configured service account can see the configured evidence root folder and index sheet.
+- Google Drive upload permission/policy: ensure the configured service account can create files in the configured evidence root folder, not only read the folder and index sheet.
 
 ## Cloudflare Static Gate
 
@@ -132,8 +132,8 @@ Required result before real student file bytes:
 Current 2026-05-20 PT status:
 
 - Cloudflare Pages runtime credential parts are configured.
-- Drive live check fails as `DRIVE_ROOT_NOT_VISIBLE`: the service account receives HTTP 404 for both the configured root folder and index sheet, and the fake allowed-upload path fails truthfully with `drive_upload_failed` / Drive status 404.
-- Human Google Drive connector visibility is not equivalent to service-account visibility. Fix sharing for the configured service account, confirm the configured IDs, then rerun `npm run check:drive:live`.
+- The stale/wrong Drive root and index IDs were corrected to the verified sandbox Workspace resources. After a Pages redeploy, `npm run check:drive:live` passes token exchange, root folder visibility, and index sheet visibility.
+- Drive live check now fails later as `DRIVE_UPLOAD_FAILED`: the fake allowed-upload path returns `drive_upload_failed` with redacted Google Drive HTTP status 403. Fix the service-account file-create permission/quota/policy issue, then rerun `npm run check:drive:live`.
 
 ## D1 Binding Gate
 

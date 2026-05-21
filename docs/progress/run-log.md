@@ -41,6 +41,16 @@ Future productive runs should append compact entries that name the master-plan s
 - `blockers`: none for this slice; concurrent Drive-resource changes from another automation were left unstaged.
 - `self-improvement`: none.
 
+## 2026-05-20 23:36 PT - Drive Resource IDs Corrected
+
+- `automation ID`: manual Codex follow-up run.
+- `lane`: non-Figma / deployment-qa and drive-upload-oauth.
+- `identity`: repo root `C:\SeniorProjectApp1.0`, branch `main`, origin `https://github.com/timmb-lab/SeniorProjectApp1.0.git`, start commit `f68567d1685aa9a6f4154b526d54820ee617f2aa`.
+- `Drive config`: replaced stale/wrong Google Drive resource IDs with verified sandbox Workspace resources: root folder `Senior Capstone App` and index sheet `Evidence Index`. Cloudflare Pages production/preview env vars now match `wrangler.jsonc`.
+- `D1`: added and applied `0008_update_drive_resource_ids.sql`; remote `evidence_repositories.default-google-drive` now points to the corrected root folder and index sheet.
+- `validation`: `npm run check:cloudflare` and `npm run check:cloudflare:live` passed. After a Pages redeploy refreshed runtime vars, `npm run check:drive:live` advanced past the old `DRIVE_ROOT_NOT_VISIBLE` blocker: token exchange passed, root folder probe passed, and index sheet probe passed.
+- `remaining blocker`: fake `.test` upload now fails at the Drive create/upload call with `DRIVE_UPLOAD_FAILED` and redacted Google Drive HTTP status 403. This is no longer a stale-ID or root/index visibility blocker; next action is to resolve the Drive upload permission/quota/policy issue for the configured service account, then rerun `npm run check:drive:live`.
+
 ## 2026-05-20 23:11 PT - Cloudflare/D1 Resolved, Drive Live Classified
 
 - `automation ID`: manual Codex real-change run.

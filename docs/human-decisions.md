@@ -12,7 +12,7 @@ Status values:
 
 ## Open Decisions
 
-No open external automation scheduler decisions are blocking the current scaffold. The Google Drive evidence root folder is selected and configured, first-admin bootstrap is complete for `bryan.timm89@gmail.com`, the production setup key has been removed, and the Cloudflare live verification token decision is resolved. Remaining setup work is configuration/implementation: fix Google Drive service-account folder/index sharing before real student uploads, add account lifecycle flows, and broaden permission tests.
+No open external automation scheduler decisions are blocking the current scaffold. The Google Drive evidence root folder is selected and configured, first-admin bootstrap is complete for `bryan.timm89@gmail.com`, the production setup key has been removed, and the Cloudflare live verification token decision is resolved. Remaining setup work is configuration/implementation: fix the Google Drive upload HTTP 403 before real student uploads, add account lifecycle flows, and broaden permission tests.
 
 ### HD-2026-05-20-002
 
@@ -53,8 +53,8 @@ No open external automation scheduler decisions are blocking the current scaffol
 - `area`: Google Drive service-account secrets for live uploads
 - `owner`: Bryan
 - `severity`: P1
-- `decision needed`: Fix the sandbox Google Drive sharing/visibility for the configured Cloudflare Pages service account.
-- `current recommendation`: Keep the existing Cloudflare token and Drive credential secrets. Live `/api/health` now reports the Drive client email and private key parts configured, but `npm run check:drive:live` classifies the app as `DRIVE_ROOT_NOT_VISIBLE`: the service account gets HTTP 404 for both the configured root folder and index sheet, and the fake upload route fails truthfully with `drive_upload_failed` / Drive status 404. Share the root folder with the service-account email as editor/content manager, share the index sheet with that service account as editor if index writes are expected or viewer if read-only probe is enough, confirm the IDs in `wrangler.jsonc`, then rerun `npm run check:drive:live`.
+- `decision needed`: Resolve the Google Drive upload HTTP 403 after the corrected sandbox root/index IDs.
+- `current recommendation`: Keep the existing Cloudflare token and Drive credential secrets. Bryan verified the sandbox root folder and index sheet IDs were stale/wrong; `wrangler.jsonc`, Cloudflare Pages env vars, and D1 metadata now point to the verified `Senior Capstone App` folder and `Evidence Index` sheet. `npm run check:drive:live` now passes token exchange plus root/index probes, but the fake upload route still fails truthfully with `drive_upload_failed` and redacted Google Drive status 403. Confirm the service account can create files in that folder under Workspace policy; if the 403 is quota/ownership related, move the root to a Shared Drive or use an approved delegated Workspace identity, then rerun `npm run check:drive:live`.
 - `decision workflow`: `docs/progress/human-action-email-draft-2026-05-20-cloudflare-drive.md`
 - `created`: 2026-05-20
 
@@ -103,7 +103,7 @@ No open external automation scheduler decisions are blocking the current scaffol
 - `owner`: Bryan
 - `severity`: P0
 - `decision`: Use Bryan's authorized Cloudflare account for the first remote MVP foundation, use hardened username/password auth because district SSO is not available, and use Google Drive as the MVP upload/evidence repository path.
-- `accepted implementation`: Cloudflare Pages project `senior-capstone-app` is configured for GitHub-connected deployment; D1 database `senior-capstone-db` is created and migrated; Pages preview/production environment variables point to hardened username/password auth and Google Drive evidence storage; Google Drive evidence root folder `1XPgYKbIMqv332DAJZJNJetHppFB670e7` and index sheet `1b446rp3oyx9G4LpKYE47qXxpU41EOW-2Ota2fGum49c` exist.
+- `accepted implementation`: Cloudflare Pages project `senior-capstone-app` is configured for GitHub-connected deployment; D1 database `senior-capstone-db` is created and migrated; Pages preview/production environment variables point to hardened username/password auth and Google Drive evidence storage; Google Drive evidence root folder `1pfEhlrU1fax9N8LfaoA1Cyo5nUIXetG2` and index sheet `1BCrBQ-5AKLmhvZr7tjJf3o1tibg13p_U21BiuN_ivN0` exist.
 - `remaining configuration`: add server-side Google Drive upload credentials/OAuth, account lifecycle flows, and broader permission tests before accepting real student uploads. First-admin bootstrap is complete, the production `BOOTSTRAP_SETUP_KEY` has been removed, and `PASSWORD_PEPPER`, `SESSION_PEPPER`, and `GOOGLE_DRIVE_EVIDENCE_ROOT_ID` are already set in Cloudflare Pages.
 - `current account evidence`: Cloudflare account `539e8f7c55e7b1472013626ad72f4c7f` is reachable from prior proof; D1 and Pages provisioning succeeded; Workers has existing Worker `it-networking-curriculum`; R2 remains disabled with Cloudflare error `10042` but is no longer an MVP blocker because Google Drive is the accepted evidence repository path. GitHub app access is installed for `timmb-lab`. Local Wrangler 4.93.0 is available through the repo dependency and wrapper; global `npm`, `npx`, and live read-only Pages/D1 verification remain blocked in this shell until `CLOUDFLARE_API_TOKEN` is provided.
 - `safe automation behavior`: Continue local scaffold, tests, and Cloudflare Pages/D1 configuration. Do not enter real student data or claim pilot readiness until Drive upload credentials, account lifecycle, and permission tests are complete.

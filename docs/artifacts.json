@@ -272,11 +272,11 @@
       "status": "active",
       "owner_lane": "rebuild",
       "title": "Senior Capstone Evidence Repository Index",
-      "file_id": "1b446rp3oyx9G4LpKYE47qXxpU41EOW-2Ota2fGum49c",
-      "url": "https://docs.google.com/spreadsheets/d/1b446rp3oyx9G4LpKYE47qXxpU41EOW-2Ota2fGum49c",
-      "root_folder_id": "1XPgYKbIMqv332DAJZJNJetHppFB670e7",
-      "root_folder_url": "https://drive.google.com/drive/folders/1XPgYKbIMqv332DAJZJNJetHppFB670e7",
-      "root_folder_title": "Senior Project App",
+      "file_id": "1BCrBQ-5AKLmhvZr7tjJf3o1tibg13p_U21BiuN_ivN0",
+      "url": "https://docs.google.com/spreadsheets/d/1BCrBQ-5AKLmhvZr7tjJf3o1tibg13p_U21BiuN_ivN0",
+      "root_folder_id": "1pfEhlrU1fax9N8LfaoA1Cyo5nUIXetG2",
+      "root_folder_url": "https://drive.google.com/drive/folders/1pfEhlrU1fax9N8LfaoA1Cyo5nUIXetG2",
+      "root_folder_title": "Senior Capstone App",
       "purpose": "Google Drive-native evidence repository root and index for MVP uploads and evidence metadata reconciliation.",
       "app_placement": "Referenced by Cloudflare Pages env vars GOOGLE_DRIVE_EVIDENCE_ROOT_ID and GOOGLE_DRIVE_EVIDENCE_INDEX_SHEET_ID, plus D1 evidence_repositories.root_folder_id and index_sheet_id.",
       "consuming_lanes": [
@@ -294,18 +294,16 @@
         "docs/progress/runs/2026-05-20-2311-drive-live-cloudflare-cleanup.json"
       ],
       "verification": [
-        "Google Drive metadata returned native spreadsheet title and sheets Evidence Index, Folder Policy, and Upload Intake Fields on 2026-05-18.",
-        "Bryan provided root folder https://drive.google.com/drive/folders/1XPgYKbIMqv332DAJZJNJetHppFB670e7 on 2026-05-18.",
-        "Google Drive metadata verified folder id 1XPgYKbIMqv332DAJZJNJetHppFB670e7 as folder title Senior Project App; folder listing returned successfully and was empty at verification time.",
-        "Cloudflare Pages preview/production env vars and D1 evidence_repositories row were updated to the root folder id on 2026-05-18.",
-        "2026-05-20 23:11 PT: live runtime health reported Drive credential parts configured, but npm run check:drive:live failed as DRIVE_ROOT_NOT_VISIBLE because the service account received 404 for both configured root folder and index sheet; blocked fake upload returned drive_upload_failed with Drive status 404."
+        "Bryan provided verified sandbox Workspace resources on 2026-05-20: folder title Senior Capstone App, folder MIME type application/vnd.google-apps.folder, index sheet title Evidence Index, sheet MIME type application/vnd.google-apps.spreadsheet, and service-account writer permission on both resources.",
+        "Cloudflare Pages production/preview env vars and remote D1 evidence_repositories row were updated to the corrected root folder and index sheet ids on 2026-05-20.",
+        "After the corrected ids and a Pages redeploy, npm run check:drive:live passed token exchange, root folder probe, and index sheet probe; the remaining blocker moved to fake upload drive_upload_failed with redacted Google Drive HTTP status 403."
       ],
       "last_updated": "2026-05-20"
     },
     {
       "id": "drive-live-readiness-checker",
       "type": "repo_script",
-      "status": "active_blocked_on_drive_sharing",
+      "status": "active_blocked_on_drive_upload_403",
       "owner_lane": "deployment-qa",
       "title": "Google Drive Live Readiness Checker",
       "local_entry": "scripts/check-google-drive-live.mjs",
@@ -328,7 +326,7 @@
       "verification": [
         "Focused script classification tests passed on 2026-05-20.",
         "Live run loaded ignored fake .test credentials without printing passwords, verified signed-out/unsupported/empty/oversized/non-student upload denials, and did not expose raw Drive IDs.",
-        "Live run classified current Drive blocker as DRIVE_ROOT_NOT_VISIBLE with redacted statuses rootStatus=404 and indexStatus=404; allowed fake upload failed truthfully with drive_upload_failed."
+        "2026-05-20 23:36 PT: after corrected Drive ids and a Pages redeploy, live run passed token exchange, root folder probe, and index sheet probe, then failed fake upload truthfully with DRIVE_UPLOAD_FAILED and redacted Google Drive HTTP status 403."
       ],
       "last_updated": "2026-05-20"
     },

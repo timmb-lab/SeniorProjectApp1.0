@@ -29,8 +29,8 @@ Before a pilot-facing deploy, custom-domain cutover, or stakeholder option promo
 - Pages URL: `https://senior-capstone-app.pages.dev`.
 - D1 database id: `3141d9ac-08b7-49c1-92ba-bbf50c1a611f`.
 - D1 region: `WNAM`.
-- Google Drive evidence root folder: `https://drive.google.com/drive/folders/1XPgYKbIMqv332DAJZJNJetHppFB670e7`.
-- Google Drive evidence index: `https://docs.google.com/spreadsheets/d/1b446rp3oyx9G4LpKYE47qXxpU41EOW-2Ota2fGum49c`.
+- Google Drive evidence root folder: `https://drive.google.com/drive/folders/1pfEhlrU1fax9N8LfaoA1Cyo5nUIXetG2`.
+- Google Drive evidence index: `https://docs.google.com/spreadsheets/d/1BCrBQ-5AKLmhvZr7tjJf3o1tibg13p_U21BiuN_ivN0`.
 
 ## Current Schema
 
@@ -43,6 +43,7 @@ Remote D1 migration state was corrected on 2026-05-20 PT. Wrangler initially rep
 - `0005_submission_versions.sql` - immutable submission version snapshots.
 - `0006_presentation_slots.sql` - presentation scheduling and check-out/check-in state.
 - `0007_archive_export_artifacts.sql` - scoped archive manifest artifacts.
+- `0008_update_drive_resource_ids.sql` - corrected the default Google Drive repository row to the verified sandbox Workspace root folder and index sheet.
 
 After apply, `wrangler d1 migrations list senior-capstone-db --remote` reported no pending migrations. Remote schema probes verified `user_accounts`, `sessions`, `user_roles`, `submissions`, `evidence_repositories`, `evidence_artifacts`, `audit_events`, `exports`, `export_artifacts`, and `presentation_slots`.
 
@@ -140,14 +141,26 @@ Results:
 - `check:cloudflare:live` passed token verify, Pages project lookup, D1 database lookup, and D1 id match; `wrangler whoami` warned but was acceptable for this scoped token.
 - Remote D1 migrations `0001` through `0007` are applied and recorded by Wrangler; required MVP tables were verified remotely without selecting student rows.
 - `check:drive:live` is now the first-class Drive live gate. It logs in with ignored fake `.test` credentials, verifies pre-provider upload denials, checks live health, calls the deployed Drive probe, and, when Drive is ready, uploads one tiny fake proof file and verifies D1 metadata without selecting raw Drive file IDs.
-- Current Drive classification is `DRIVE_ROOT_NOT_VISIBLE`: runtime credentials are configured and token exchange reaches Drive, but the service account receives HTTP 404 for both the configured root folder and index sheet. The blocked allowed-upload proof returns `drive_upload_failed` with Drive status 404.
+- Historical 23:11 PT Drive classification was `DRIVE_ROOT_NOT_VISIBLE`: runtime credentials were configured and token exchange reached Drive, but the stale configured resource IDs returned HTTP 404. That root/index visibility blocker is now resolved by the corrected IDs recorded below.
 
 The Google Drive human connector account visibility is not the app readiness proof. A human Google Drive connector not seeing the folder can be a warning, but the app is ready only when the Cloudflare Pages runtime service account can exchange a token, read the root folder, read the index sheet, upload a fake file, persist D1 metadata, and keep raw Drive IDs out of browser/API output.
 
+## 2026-05-20 Drive Resource ID Correction
+
+Bryan verified the original Drive blocker was caused by stale/wrong resource IDs, not missing service-account sharing. The active sandbox Workspace resources are now:
+
+- Root folder: `Senior Capstone App`, MIME type `application/vnd.google-apps.folder`, service-account permission `writer`.
+- Index sheet: `Evidence Index`, MIME type `application/vnd.google-apps.spreadsheet`, service-account permission `writer`.
+- Service account: `senior-project-app-drive@senior-capstone-app.iam.gserviceaccount.com`.
+
+`wrangler.jsonc`, Cloudflare Pages production/preview environment variables, and remote D1 `evidence_repositories.default-google-drive` now point to those corrected resources. `npm run check:drive:live` now passes token exchange plus root/index probes, so `DRIVE_ROOT_NOT_VISIBLE` is resolved.
+
+The remaining Drive live blocker is later in the path: the fake `.test` upload create call returns `drive_upload_failed` with redacted Google Drive HTTP status 403. Do not re-open the Cloudflare token or root/index sharing blocker for this state.
+
 ## Remaining Required Config
 
-- Share the configured Google Drive root folder with the configured service-account email as editor/content manager, and share the configured index sheet with the same service account as editor if index writes are expected or viewer if read-only index checks are enough. The Cloudflare Pages credential secret parts are present; the current blocker is Drive resource visibility/permissions, not a new Cloudflare token.
-- Confirm the root folder and index sheet ids in `wrangler.jsonc` still point to the sandbox Workspace resources intended for this app, then rerun `npm run check:drive:live`.
+- Resolve the Google Drive upload HTTP 403 for the configured service account. Confirm the service account can create files in the configured root folder under the sandbox Workspace policy; if Google Drive reports service-account quota or ownership constraints, move the evidence root to a Shared Drive or use an approved delegated Workspace identity.
+- After the upload permission/quota/policy fix, rerun `npm run check:drive:live`.
 - Add permission tests and workflow tests before real student data is entered.
 - Add account lifecycle flows for invitation/import, admin reset initiation, active-user credential rotation, and role/group management before pilot use.
 
@@ -169,11 +182,14 @@ Current test-account workflow route coverage:
 - `/api/reports/readiness` returns aggregate-only admin/misc-admin readiness counts without names, emails, or student-level rows.
 - `/api/admin/audit-events` returns admin-only, redacted audit entries.
 
+Current Drive repository wiring:
+
+- `GOOGLE_DRIVE_EVIDENCE_ROOT_ID` is set to `1pfEhlrU1fax9N8LfaoA1Cyo5nUIXetG2` in Cloudflare Pages preview and production.
+- D1 `evidence_repositories.root_folder_id` for `default-google-drive` is set to `1pfEhlrU1fax9N8LfaoA1Cyo5nUIXetG2` and status is `active`.
+- Google Drive connector metadata verified the folder as a Drive folder titled `Senior Capstone App`.
+
 Completed on 2026-05-18:
 
-- `GOOGLE_DRIVE_EVIDENCE_ROOT_ID` is set to `1XPgYKbIMqv332DAJZJNJetHppFB670e7` in Cloudflare Pages preview and production.
-- D1 `evidence_repositories.root_folder_id` for `default-google-drive` is set to `1XPgYKbIMqv332DAJZJNJetHppFB670e7` and status is `active`.
-- Google Drive connector metadata verified the folder as a Drive folder titled `Senior Project App`.
 - Production deployment `17a04f3` verified `APP_ENV=production`, `userCount=1`, and live Day 7 alpha routes.
 - First admin bootstrap completed for `bryan.timm89@gmail.com`; D1 verified active global admin role plus `bootstrap_admin_created` audit event.
 - Login and `/api/auth/me` verified with the first admin account; `BOOTSTRAP_SETUP_KEY` was removed from Cloudflare Pages production and a redeploy made the live bootstrap endpoint return 403.
