@@ -1,7 +1,7 @@
-import type { Env } from "../../_types";
-import { getCurrentUser } from "../../_lib/auth";
-import { json } from "../../_lib/http";
-import { canAccessStudent, hasRole } from "../../_lib/permissions";
+import type { Env, RoleAssignment, UserAccount } from "../../_types.ts";
+import { getCurrentUser, writeAudit } from "../../_lib/auth.ts";
+import { json } from "../../_lib/http.ts";
+import { canAccessStudent, getRoleAssignments, hasRole } from "../../_lib/permissions.ts";
 
 interface ProgressRow {
   id: string;
@@ -32,18 +32,25 @@ interface EvidenceSummaryRow {
 }
 
 export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
+  const url = new URL(request.url);
+  const requestedStudentId = url.searchParams.get("studentId") || null;
   const user = await getCurrentUser(request, env);
   if (!user) {
+    await auditDashboardAccess(env, request, null, "student_dashboard_unauthorized", requestedStudentId, {
+      reason: "missing_session",
+    });
     return json({ error: "unauthorized" }, { status: 401 });
   }
 
-  const url = new URL(request.url);
-  const requestedStudentId = url.searchParams.get("studentId") || user.id;
-  if (!await canAccessStudent(env, user, requestedStudentId)) {
+  const studentId = requestedStudentId || user.id;
+  if (!await canAccessStudent(env, user, studentId)) {
+    await auditDashboardAccess(env, request, user, "student_dashboard_denied", studentId, {
+      reason: "student_scope_denied",
+    });
     return json({ error: "forbidden" }, { status: 403 });
   }
 
-  const isStudentSelf = user.id === requestedStudentId && await hasRole(env, user.id, "student");
+  const isStudentSelf = user.id === studentId && await hasRole(env, user.id, "student");
   const progress = await env.DB.prepare(
     `SELECT
        progress.id,
@@ -57,7 +64,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
      WHERE progress.student_id = ?
      ORDER BY progress.updated_at DESC
      LIMIT 20`,
-  ).bind(requestedStudentId).all<ProgressRow>();
+  ).bind(studentId).all<ProgressRow>();
 
   const submissions = await env.DB.prepare(
     `SELECT
@@ -73,7 +80,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
      WHERE submissions.student_id = ?
      ORDER BY submissions.updated_at DESC
      LIMIT 20`,
-  ).bind(requestedStudentId).all<SubmissionSummaryRow>();
+  ).bind(studentId).all<SubmissionSummaryRow>();
 
   const evidence = await env.DB.prepare(
     `SELECT id, title, artifact_type, source_kind, review_status, created_at
@@ -81,20 +88,31 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
      WHERE student_id = ? AND deleted_at IS NULL
      ORDER BY created_at DESC
      LIMIT 20`,
-  ).bind(requestedStudentId).all<EvidenceSummaryRow>();
+  ).bind(studentId).all<EvidenceSummaryRow>();
+
+  const progressRows = progress.results || [];
+  const submissionRows = submissions.results || [];
+  const evidenceRows = evidence.results || [];
+
+  await auditDashboardAccess(env, request, user, "student_dashboard_viewed", studentId, {
+    self: isStudentSelf,
+    progressCount: progressRows.length,
+    submissionCount: submissionRows.length,
+    evidenceCount: evidenceRows.length,
+  });
 
   return json({
     ok: true,
-    studentId: requestedStudentId,
+    studentId,
     viewer: {
       id: user.id,
       email: user.email,
       self: isStudentSelf,
     },
-    nextAction: deriveNextAction(submissions.results || [], evidence.results || []),
-    progress: progress.results || [],
-    submissions: submissions.results || [],
-    evidence: evidence.results || [],
+    nextAction: deriveNextAction(submissionRows, evidenceRows),
+    progress: progressRows,
+    submissions: submissionRows,
+    evidence: evidenceRows,
   });
 };
 
@@ -107,4 +125,41 @@ function deriveNextAction(submissions: SubmissionSummaryRow[], evidence: Evidenc
   if (current.status === "submitted") return "Wait for teacher review.";
   if (current.status === "approved") return "Move into build evidence and mentor preparation.";
   return "Review the current capstone status.";
+}
+
+async function auditDashboardAccess(
+  env: Env,
+  request: Request,
+  user: UserAccount | null,
+  action: string,
+  studentId: string | null,
+  metadata: Record<string, unknown>,
+): Promise<void> {
+  const auditMetadata = user
+    ? {
+        ...metadata,
+        actorRoleScopes: serializeRoleScopes(await getRoleAssignments(env, user.id)),
+      }
+    : metadata;
+
+  await writeAudit(env, {
+    actorUserId: user?.id || null,
+    action,
+    entityType: "student_dashboard",
+    entityId: studentId,
+    request,
+    metadata: auditMetadata,
+  });
+}
+
+function serializeRoleScopes(assignments: RoleAssignment[]): Array<{
+  roleId: string;
+  scopeType: string;
+  scopeId: string;
+}> {
+  return assignments.map((assignment) => ({
+    roleId: assignment.role_id,
+    scopeType: assignment.scope_type,
+    scopeId: assignment.scope_id,
+  }));
 }
