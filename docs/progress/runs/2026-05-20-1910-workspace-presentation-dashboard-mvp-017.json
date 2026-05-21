@@ -177,6 +177,9 @@
     "result": "not_appended",
     "reason": "Google Sheets connector was not used in this run; repo-local closeout evidence was preserved."
   },
-  "commit_sha": "pending",
-  "push_result": "pending"
+  "implementation_commit_sha": "0ebbcb54a909cf9d8d8f0d722cc466d4551a5f10",
+  "commit_sha": "0ebbcb54a909cf9d8d8f0d722cc466d4551a5f10",
+  "push_result": "pushed to origin main: 12b16b8..0ebbcb5",
+  "closeout_commit_sha": "pending",
+  "closeout_push_result": "pending"
 }

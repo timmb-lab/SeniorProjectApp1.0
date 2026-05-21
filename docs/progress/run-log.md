@@ -39,7 +39,7 @@ Future productive runs should append compact entries that name the master-plan s
 - `blockers`: hosted presentation-dashboard proof and remote D1 verification for `0006_presentation_slots.sql` still require `CLOUDFLARE_API_TOKEN`; live Drive upload/download still requires Cloudflare Pages `GOOGLE_DRIVE_CLIENT_EMAIL` and `GOOGLE_DRIVE_PRIVATE_KEY`.
 - `phone tracker`: not appended; Google Sheets connector was not used in this run.
 - `self-improvement`: none.
-- `commit`: pending closeout.
+- `commit`: implementation commit `0ebbcb54a909cf9d8d8f0d722cc466d4551a5f10` (`rebuild: surface presentation dashboard states (MVP-017)`) pushed to `origin main` (`12b16b8..0ebbcb5`); closeout evidence commit follows this entry.
 
 ## 2026-05-20 18:33 PT - MVP-028 Presentation Dashboard State Handoff
 
