@@ -1,6 +1,6 @@
 # Senior Capstone Run Log
 
-Last refreshed: 2026-05-20
+Last refreshed: 2026-05-21
 
 This is the compact run log for the current quarter-hour split-builder automation contract.
 
@@ -27,6 +27,20 @@ This is the compact run log for the current quarter-hour split-builder automatio
 - Remaining priority: broader permission/protected-evidence tests, real workflow endpoints, Drive upload credential/OAuth, account lifecycle, mobile/error/empty QA, and deployment verification.
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
+
+## 2026-05-21 01:08 PT - MVP-004/MVP-007 Admin Import Workspace UI
+
+- `automation ID`: `senior-capstone-nonfigma-mvp-builder`.
+- `lane`: non-Figma MVP builder / backend-security-data.
+- `master-plan sections`: Role-Aware Production App Contract; Stack And Deployment Direction; Logging Requirements.
+- `requirement IDs`: `MVP-004`, `MVP-005`, `MVP-007`, supporting `MVP-020`, `MVP-025`, `MVP-032`, and `MVP-033`; `backlog IDs`: `SC-005`, `SC-006`; `handoff`: partial consumption of `H-2026-05-21-002`.
+- `selected slice`: Add the canonical workspace admin import panel for `/api/admin/users/import` and one-time setup password display without direct Figma work.
+- `changed`: `workspace.js` now renders an admin-only Users tab with reason/email/name/role/scope fields, posts to `/api/admin/users/import`, maps validation/permission errors, and shows returned setup passwords only from the immediate no-store response. `workspace.css` adds wrapping output styling, and workspace source tests cover the admin panel plus hosted markers.
+- `validation`: focused workspace VM/source test passed (9/9); focused admin import integration passed (5/5); workspace browser smoke command passed with 3 expected opt-in local-server skips; strict typecheck passed; production-surface check passed with 91 surfaces; full test suite passed (162 pass / 3 expected skips); aggregate `check` passed with cadence/predeploy/static-live Cloudflare checks and 162 passing tests / 3 expected skips; targeted `git diff --check` passed with CRLF warnings only; hosted `workspace.js` contained the admin import markers on poll 2 after push.
+- `commit`: implementation commit `5b23d15e49bc47e76d7a16cc8fb01115e909021e` (`rebuild: add admin import workspace UI (MVP-004)`) pushed to `origin main`; closeout evidence commit follows this entry.
+- `blockers`: Drive live upload remains blocked by Google Drive HTTP 403 after token/root/index probes pass; Bryan still needs to decide real-user setup credential delivery policy before pilot account imports.
+- `phone tracker`: not appended; Google Sheets connector was not used in this run.
+- `self-improvement`: none.
 
 ## 2026-05-21 00:54 PT - MVP-028 Admin Import Temporary Credential Handoff
 

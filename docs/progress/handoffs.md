@@ -17,13 +17,13 @@ Status values:
 
 - `source lane`: figma-only / design-assets-handoff
 - `owner lane`: non-figma / account-lifecycle and backend-security-data
-- `status`: open
+- `status`: in-progress
 - `source`: MVP-028 admin import temporary credential handoff
 - `artifact`: active Figma file `z4t4tFPAKrMDh6pIYOeEw6`, page `05 Full MVP Alpha Prototype`, node `158:2` (`Prototype / 22 / Admin import temporary credential handoff`), shared plugin data key `senior_capstone/admin_import_temp_credential_contract_2026_05_21`, and repo notes in `docs/progress/figma.md`.
-- `next action`: Add hosted/admin UI proof for `/api/admin/users/import`, no-store one-time temporary credential display, duplicate/scope validation states, denied-role audit proof, and a Bryan-approved delivery policy before real pilot users receive credentials.
+- `next action`: Admin import UI and hosted source-marker proof now exist in the canonical workspace. Next, capture browser/API proof with fake `.test` users for duplicate/scope validation, reset-required first login, and denied-role audit behavior, then get a Bryan-approved delivery policy before real pilot users receive credentials.
 - `acceptance check`: Import requires admin `users.manage` and a reason; duplicate emails and invalid program/cohort scopes block submit; created users remain `pending_reset` and must complete reset before role dashboards; one-time credentials are visible only in the immediate admin response; temporary credential values never appear in audit metadata, Figma, docs, screenshots, logs, or chat; fake `.test` accounts are the only proof accounts.
-- `evidence to close`: Hosted fake-account browser or direct marker proof for the admin import UI, validation errors, one-time credential display redaction boundaries, reset-required first login, permission-denied role attempts, and accepted decision `HD-2026-05-21-001` or an implemented invitation/email delivery alternative.
-- `last updated`: 2026-05-21 00:54 PT
+- `evidence to close`: Partial consumption landed on 2026-05-21: `workspace.js` renders an admin-only Users tab with `data-admin-action="import-users"`, posts to `/api/admin/users/import`, keeps the response marked as no-store, and renders one-time setup passwords only from the immediate response; `tests/workspace-app.test.mjs` covers the panel and returned setup output; hosted `workspace.js` marker proof passed on poll 2 after implementation commit `5b23d15`. Remaining evidence: fake-account browser/API proof for validation errors, reset-required first login, permission-denied role attempts, and accepted decision `HD-2026-05-21-001` or an implemented invitation/email delivery alternative.
+- `last updated`: 2026-05-21 01:08 PT
 
 ### H-2026-05-21-001
 
@@ -34,8 +34,8 @@ Status values:
 - `artifact`: active Figma file `z4t4tFPAKrMDh6pIYOeEw6`, page `05 Full MVP Alpha Prototype`, node `153:2` (`Prototype / 21 / Credential lifecycle handoff`), deeper import node `158:2` (`Prototype / 22 / Admin import temporary credential handoff`), shared plugin data keys `senior_capstone/credential_lifecycle_contract_2026_05_21` and `senior_capstone/admin_import_temp_credential_contract_2026_05_21`, and repo notes in `docs/progress/figma.md`.
 - `next action`: Consume the remaining node `153:2` and `158:2` proof needs by adding hosted/import UI proof, reset-panel proof, signed-in password-change proof, admin reset-required initiation proof, stale-session fallback proof, temporary credential display policy, and redacted audit coverage.
 - `acceptance check`: Credential lifecycle blockers stay distinct from role-pending, no-assignment, and section-denied workspace states; reset-required users do not enter role dashboards first; admin reset requires reason and cannot target self; password changes require current password and never log secrets; successful credential rotation closes stale sessions; denied attempts write redacted audit events; fake `.test` accounts are used for proof.
-- `evidence to close`: `/api/admin/users/import` now covers admin-only import, generated reset-required temporary credentials, initial role assignment, duplicate/scope validation, and redacted audit metadata with `tests/admin-users-import.integration.test.mjs`; Figma node `158:2` now names the missing hosted UI, one-time display, and delivery-policy states. Remaining evidence: hosted marker or browser proof for import, reset completion, active-user password change, admin reset initiation, stale-session fallback, invalid-current denial, weak/reused-password guidance, and no credential leakage; no passwords, temporary credentials, or real student records appear in docs, Figma, screenshots, logs, or chat.
-- `last updated`: 2026-05-21 00:54 PT
+- `evidence to close`: `/api/admin/users/import` now covers admin-only import, generated reset-required temporary credentials, initial role assignment, duplicate/scope validation, and redacted audit metadata with `tests/admin-users-import.integration.test.mjs`; Figma node `158:2` named the hosted UI, one-time display, and delivery-policy states; the 2026-05-21 non-Figma pass added the admin-only workspace import panel, one-time setup password response rendering, source/VM coverage, and hosted marker proof. Remaining evidence: browser proof for import/reset completion, active-user password change, admin reset initiation, stale-session fallback, invalid-current denial, weak/reused-password guidance, and no credential leakage; no passwords, temporary credentials, or real student records appear in docs, Figma, screenshots, logs, or chat.
+- `last updated`: 2026-05-21 01:08 PT
 
 ### H-2026-05-20-005
 
@@ -164,10 +164,10 @@ Status values:
 - `status`: in-progress
 - `source`: automation operating-infrastructure pass plus revised MVP direction
 - `artifact`: `SC-005`, `HD-2026-05-18-001`, `docs/architecture/adr-0001-stack-auth-database-upload.md`
-- `next action`: Finish the scaffold by broadening permission tests, resolving the Drive upload HTTP 403, adding hosted/admin UI proof for import/provisioning, deciding whether email delivery or invitations are needed beyond one-time admin display credentials, and implementing first admin/progress workflow endpoints.
+- `next action`: Finish the scaffold by broadening permission tests, resolving the Drive upload HTTP 403, adding browser/API proof for import/provisioning, deciding whether email delivery or invitations are needed beyond one-time admin display credentials, and implementing first admin/progress workflow endpoints.
 - `acceptance check`: Tests cover hardened auth, student-own access, assigned mentor access, program/cohort teacher access, admin access, misc-admin narrowing, protected evidence access, unauthorized denial, valid status transitions, and audit events.
-- `evidence to close`: Passing tests plus first vertical-slice endpoints that use the D1 schema and Google Drive evidence repository metadata without real student data. D1-backed alpha flow, state-machine tests, alpha framework/check/CI, deployment verification, first-admin bootstrap, fake role-account seeding, login proof, admin-only seed endpoint guard evidence, reset-required `/api/auth/complete-reset` credential rotation, admin reset initiation, active-user `/api/auth/change-password` credential rotation, and admin `/api/admin/users/import` provisioning with generated reset-required temporary credentials and redacted audit tests now exist; broader permission tests, hosted/import UI proof or email-delivery policy, and Drive upload credentials remain before close.
-- `last updated`: 2026-05-21 00:37 PT
+- `evidence to close`: Passing tests plus first vertical-slice endpoints that use the D1 schema and Google Drive evidence repository metadata without real student data. D1-backed alpha flow, state-machine tests, alpha framework/check/CI, deployment verification, first-admin bootstrap, fake role-account seeding, login proof, admin-only seed endpoint guard evidence, reset-required `/api/auth/complete-reset` credential rotation, admin reset initiation, active-user `/api/auth/change-password` credential rotation, admin `/api/admin/users/import` provisioning with generated reset-required temporary credentials and redacted audit tests, and canonical workspace admin import UI marker proof now exist; broader permission tests, browser/API import proof or email-delivery policy, and Drive upload credentials remain before close.
+- `last updated`: 2026-05-21 01:08 PT
 
 ### H-2026-05-18-008
 

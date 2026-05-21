@@ -453,3 +453,18 @@ Each rebuild run should append a dated entry with:
 - `phone tracker`: not appended; Google Sheets connector was not used in this run.
 - `self-improvement`: none.
 - `commit/push status`: implementation commit `032a6eb862ebc793d8dd5a3f570b85d34c3f99c1` pushed to `origin main` (`d554dab..032a6eb`); closeout evidence commit follows this entry.
+
+### 2026-05-21 01:08 PT - MVP-004/MVP-007 Admin Import Workspace UI
+
+- `automation`: `senior-capstone-nonfigma-mvp-builder`
+- `master-plan section`: Role-Aware Production App Contract; Stack And Deployment Direction; Logging Requirements.
+- `source docs/logs read`: automation memory fallback at `C:\Users\bryan\.codex\automations\senior-capstone-nonfigma-mvp-builder\memory.md`, required master plan/catalog/cadence/runbook/self-improvement/memory/milestones/progress docs, recent run manifests, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, `docs/progress/rebuild.md`, latest Figma node `158:2` run manifest, `workspace.js`, `workspace.css`, `tests/workspace-app.test.mjs`, `tests/workspace-browser-smoke.test.mjs`, and `functions/api/admin/users/import.ts`.
+- `backlog or requirement IDs selected`: `SC-005`, `SC-006`, `MVP-004`, `MVP-005`, `MVP-007`, supporting `MVP-020`, `MVP-025`, `MVP-032`, and `MVP-033`.
+- `bounded scope`: Consume part of Figma node `158:2` without direct Figma work by adding the canonical workspace admin import panel and one-time setup password output for `/api/admin/users/import`.
+- `files changed`: `workspace.js`, `workspace.css`, `tests/workspace-app.test.mjs`, `tests/workspace-browser-smoke.test.mjs`, `docs/mvp-requirements-catalog.md`, `docs/automation-memory.md`, `docs/artifacts.json`, `docs/human-decisions.md`, `docs/progress/handoffs.md`, this rebuild log, `docs/progress/run-log.md`, and structured run manifest `docs/progress/runs/2026-05-21-0108-admin-import-workspace-ui-mvp-004.json`.
+- `validation`: `tests/workspace-app.test.mjs` passed with 9/9 workspace VM/source tests; `tests/admin-users-import.integration.test.mjs` passed with 5/5 tests; `tests/workspace-browser-smoke.test.mjs` passed with 3 expected opt-in local-server skips; strict `typecheck` passed; `check:production-surfaces` passed with 91 surfaces; full `test` passed with 162 passing tests and 3 expected skips; aggregate `check` passed with cadence/predeploy/static-live Cloudflare checks and 162 passing tests / 3 expected skips; targeted `git diff --check` passed with CRLF warnings only; hosted `workspace.js` returned HTTP 200 with `data-admin-action="import-users"`, `/api/admin/users/import`, and `data-admin-import-result="one-time-setup-passwords"` on poll 2 after push.
+- `commit/push status`: implementation commit `5b23d15e49bc47e76d7a16cc8fb01115e909021e` pushed to `origin main`; closeout docs commit follows this entry.
+- `blockers`: live Drive upload still fails with redacted Google Drive HTTP 403 after token/root/index probes pass; real-user setup credential delivery remains Bryan decision `HD-2026-05-21-001`.
+- `phone tracker`: not appended; Google Sheets connector was not used in this run.
+- `self-improvement`: none.
+- `next action`: Run fake-account browser/API proof for admin import validation states, reset-required first login, denied role attempts, and no credential leakage, or implement the approved invitation/email delivery path after Bryan decides.

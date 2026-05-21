@@ -1,0 +1,153 @@
+{
+  "run_id": "2026-05-21-0108-admin-import-workspace-ui-mvp-004",
+  "timestamp_local": "2026-05-21T01:08:00-07:00",
+  "automation_id": "senior-capstone-nonfigma-mvp-builder",
+  "lane": "non-figma MVP builder",
+  "selected_category": "backend-security-data",
+  "status": "completed",
+  "accepted_mvp_pass": true,
+  "requirement_ids": [
+    "MVP-004",
+    "MVP-005",
+    "MVP-007",
+    "MVP-020",
+    "MVP-025",
+    "MVP-032",
+    "MVP-033"
+  ],
+  "backlog_ids": [
+    "SC-005",
+    "SC-006"
+  ],
+  "handoff_ids": [
+    "H-2026-05-21-002",
+    "H-2026-05-21-001",
+    "H-2026-05-18-006"
+  ],
+  "output_kind": "workspace-admin-import-ui-tests-hosted-marker-proof",
+  "bounded_scope": "Add the canonical workspace admin import panel for /api/admin/users/import and one-time setup password display without direct Figma work.",
+  "source_docs_read": [
+    "C:\\Users\\bryan\\.codex\\automations\\senior-capstone-nonfigma-mvp-builder\\memory.md",
+    "docs/master-plan.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/automation-cadence.md",
+    "docs/automation-runbook.md",
+    "docs/automation-self-improvement.md",
+    "docs/automation-memory.md",
+    "docs/automation-milestones.md",
+    "docs/progress/run-log.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/decision-log.md",
+    "docs/automation-backlog.md",
+    "docs/artifacts.json",
+    "docs/human-decisions.md",
+    "docs/progress/rebuild.md",
+    "recent docs/progress/runs/*.json",
+    "docs/progress/runs/2026-05-21-0037-admin-users-import-mvp-004-007.json",
+    "docs/progress/runs/2026-05-21-0054-figma-admin-import-temp-credential.json",
+    "workspace.js",
+    "workspace.css",
+    "tests/workspace-app.test.mjs",
+    "tests/workspace-browser-smoke.test.mjs",
+    "functions/api/admin/users/import.ts"
+  ],
+  "figma_work_avoided": true,
+  "direct_figma_tools_called": false,
+  "changes": [
+    "Added an admin-only Users tab to the canonical workspace for importing one account through /api/admin/users/import.",
+    "The panel collects an import reason plus email, display name, role, and scope fields, and normalizes non-teacher imports to global scope before submit.",
+    "The workspace maps import validation and permission errors to user-visible production-safe messages.",
+    "Successful imports render returned setup passwords only from the immediate no-store response with data-admin-import-result=\"one-time-setup-passwords\".",
+    "Added workspace VM/source coverage for the admin import panel, one-time setup output, route marker, and no-store marker.",
+    "Added workspace-browser-smoke source marker checks for optional local HTTP smoke runs."
+  ],
+  "files_changed": [
+    "workspace.js",
+    "workspace.css",
+    "tests/workspace-app.test.mjs",
+    "tests/workspace-browser-smoke.test.mjs",
+    "docs/mvp-requirements-catalog.md",
+    "docs/automation-backlog.md",
+    "docs/automation-memory.md",
+    "docs/artifacts.json",
+    "docs/human-decisions.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/rebuild.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-21-0108-admin-import-workspace-ui-mvp-004.json"
+  ],
+  "validation": [
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 tests\\workspace-app.test.mjs",
+      "result": "pass; 9/9 workspace VM/source tests"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 tests\\admin-users-import.integration.test.mjs",
+      "result": "pass; 5/5 admin user import tests"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 tests\\workspace-browser-smoke.test.mjs",
+      "result": "pass with expected skips; 3 optional local-server checks skipped because no base URL was provided"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 typecheck",
+      "result": "pass"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 check:production-surfaces",
+      "result": "pass; 91 production text surfaces scanned"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 test",
+      "result": "pass; 162 passing tests and 3 expected opt-in local-server skips"
+    },
+    {
+      "command": "git diff --check -- workspace.js workspace.css tests/workspace-app.test.mjs tests/workspace-browser-smoke.test.mjs",
+      "result": "pass; CRLF normalization warnings only"
+    },
+    {
+      "command": "Invoke-WebRequest https://senior-capstone-app.pages.dev/workspace.js marker poll",
+      "result": "pass; HTTP 200 contained data-admin-action=\"import-users\", /api/admin/users/import, and data-admin-import-result=\"one-time-setup-passwords\" on poll 2 after push"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 check",
+      "result": "pass; cadence, predeploy gate, production surfaces, route inventory, generated output, site options, static/live Cloudflare verification, and 162 passing tests / 3 expected opt-in skips"
+    }
+  ],
+  "blockers": [
+    {
+      "code": "DRIVE_UPLOAD_FAILED_HTTP_403",
+      "cause": "Existing live Drive check reaches token exchange, root folder, and index sheet, but Google Drive create/upload returns redacted HTTP 403.",
+      "bryan_must_act": true,
+      "next_safe_action": "Confirm service-account file-create permission/quota/Workspace policy for the configured root folder, then rerun npm run check:drive:live."
+    },
+    {
+      "code": "TEMP_CREDENTIAL_DELIVERY_POLICY_OPEN",
+      "cause": "The admin UI can display setup passwords once for fake .test proof, but Bryan has not approved a real-user manual distribution procedure or invitation/email delivery policy.",
+      "bryan_must_act": true,
+      "next_safe_action": "Decide HD-2026-05-21-001 before importing real pilot users."
+    }
+  ],
+  "next_actions": [
+    "Run fake-account browser/API proof for admin import validation states and reset-required first login.",
+    "Prove denied-role import attempts audit safely without exposing credential details.",
+    "Decide or implement real-user credential delivery policy before pilot imports.",
+    "Continue broader role-scope and protected-record tests before pilot use.",
+    "Resolve Drive upload HTTP 403 before accepting real student uploads."
+  ],
+  "self_improvement": "none",
+  "run_log_updated": true,
+  "structured_manifest_created": true,
+  "artifacts_json_updated": true,
+  "mvp_catalog_changed": true,
+  "human_decisions_changed": true,
+  "phone_tracker": {
+    "updated": false,
+    "reason": "Google Sheets connector was not used in this run; repo-local closeout evidence was preserved."
+  },
+  "branch_before": "main",
+  "branch_after": "main",
+  "implementation_commit_sha": "5b23d15e49bc47e76d7a16cc8fb01115e909021e",
+  "push_result": "implementation commit pushed to origin main; hosted workspace.js marker proof passed on poll 2",
+  "closeout_commit_sha": "pending"
+}
