@@ -1,0 +1,141 @@
+{
+  "run_id": "2026-05-21-0405-review-history-decision-audit-mvp-015",
+  "timestamp_local": "2026-05-21T04:05:00-07:00",
+  "automation_id": "senior-capstone-nonfigma-mvp-builder",
+  "lane": "non-figma MVP builder",
+  "selected_category": "staff-review-mentor",
+  "status": "completed",
+  "accepted_mvp_pass": true,
+  "requirement_ids": [
+    "MVP-006",
+    "MVP-015",
+    "MVP-016",
+    "MVP-020",
+    "MVP-025"
+  ],
+  "backlog_ids": [
+    "SC-005",
+    "SC-006"
+  ],
+  "handoff_ids": [
+    "H-2026-05-21-003",
+    "H-2026-05-18-006"
+  ],
+  "output_kind": "review-history-decision-access-audit-and-tests",
+  "bounded_scope": "Extend the protected-record access audit matrix from the teacher review queue to /api/reviews/:submissionId/history and /api/reviews/:submissionId/decision without direct Figma work.",
+  "source_docs_read": [
+    "C:\\Users\\bryan\\.codex\\automations\\senior-capstone-nonfigma-mvp-builder\\memory.md",
+    "docs/master-plan.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/automation-cadence.md",
+    "docs/automation-runbook.md",
+    "docs/automation-self-improvement.md",
+    "docs/automation-memory.md",
+    "docs/automation-milestones.md",
+    "docs/progress/run-log.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/decision-log.md",
+    "docs/automation-backlog.md",
+    "docs/artifacts.json",
+    "docs/human-decisions.md",
+    "recent docs/progress/runs/*.json",
+    "docs/progress/rebuild.md",
+    "functions/api/reviews/[submissionId]/history.ts",
+    "functions/api/reviews/[submissionId]/decision.ts",
+    "functions/_lib/workflow.ts",
+    "functions/_lib/permissions.ts",
+    "tests/review-loop.integration.test.mjs",
+    "tests/production-workflow-source.test.mjs"
+  ],
+  "figma_work_avoided": true,
+  "direct_figma_tools_called": false,
+  "changes": [
+    "/api/reviews/:submissionId/history now audits missing-session, scope-denied, and successful review-history reads as review_history_unauthorized, review_history_denied, and review_history_viewed.",
+    "Review-history audit metadata now includes redacted actor role scopes for authenticated users plus review/status/version/comment result counts for successful reads.",
+    "/api/reviews/:submissionId/decision now audits missing-session reviewer attempts as review_decision_unauthorized.",
+    "Review-decision denied and successful action audit metadata now includes redacted actor role scopes.",
+    "tests/review-loop.integration.test.mjs now covers history unauthorized/denied/viewed access and decision unauthorized/denied access alongside the existing review loop and queue scope tests.",
+    "tests/production-workflow-source.test.mjs now locks the new review access audit markers."
+  ],
+  "files_changed": [
+    "functions/api/reviews/[submissionId]/history.ts",
+    "functions/api/reviews/[submissionId]/decision.ts",
+    "tests/review-loop.integration.test.mjs",
+    "tests/production-workflow-source.test.mjs",
+    "docs/mvp-requirements-catalog.md",
+    "docs/automation-backlog.md",
+    "docs/automation-memory.md",
+    "docs/artifacts.json",
+    "docs/progress/handoffs.md",
+    "docs/progress/rebuild.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-21-0405-review-history-decision-audit-mvp-015.json"
+  ],
+  "validation": [
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 tests\\review-loop.integration.test.mjs",
+      "result": "passed; 6/6 review-loop, queue, history, and decision access tests"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 tests\\production-workflow-source.test.mjs",
+      "result": "passed; 11/11 production workflow source tests"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 typecheck",
+      "result": "passed"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 check:production-surfaces",
+      "result": "passed; 91 production text surfaces scanned"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 test",
+      "result": "passed; 175 passing tests and 4 expected opt-in skips"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 check",
+      "result": "passed; cadence, predeploy gate, production surfaces, route inventory, generated output, site options, static/live Cloudflare verification, and 175 passing tests / 4 expected opt-in skips"
+    }
+  ],
+  "blockers": [
+    {
+      "code": "DRIVE_UPLOAD_FAILED_HTTP_403",
+      "cause": "Existing live Drive check reaches token exchange, root folder, and index sheet, but Google Drive create/upload returns redacted HTTP 403.",
+      "bryan_must_act": true,
+      "next_safe_action": "Confirm service-account file-create permission/quota/Workspace policy for the configured root folder, then rerun npm run check:drive:live."
+    },
+    {
+      "code": "TEMP_CREDENTIAL_DELIVERY_POLICY_OPEN",
+      "cause": "The admin UI can display setup passwords once for fake .test proof, but Bryan has not approved a real-user manual distribution procedure or invitation/email delivery policy.",
+      "bryan_must_act": true,
+      "next_safe_action": "Decide HD-2026-05-21-001 before importing real pilot users."
+    },
+    {
+      "code": "LIVE_BROWSER_PERMISSION_PROOF_PENDING",
+      "cause": "Route-level protected review history/decision proof landed; hosted/browser workspace account-state and section-level permission-denied proof remain open.",
+      "bryan_must_act": false,
+      "next_safe_action": "Use fake .test accounts to capture hosted workspace account-state/no-assignment and section-level permission-denied UI evidence."
+    }
+  ],
+  "next_actions": [
+    "Extend the route-level permission/audit matrix to submission, evidence, mentor-meeting, presentation-slot, and archive/export endpoints.",
+    "Capture hosted workspace account-state/no-assignment and section-level permission-denied proof.",
+    "Resolve the Drive upload HTTP 403 before accepting real student evidence uploads.",
+    "Decide or implement real-user credential delivery before pilot imports."
+  ],
+  "self_improvement": "none",
+  "run_log_updated": true,
+  "structured_manifest_created": true,
+  "artifacts_json_updated": true,
+  "mvp_catalog_changed": true,
+  "human_decisions_changed": false,
+  "phone_tracker": {
+    "updated": false,
+    "reason": "Google Sheets connector was not used in this run; repo-local closeout evidence was preserved."
+  },
+  "branch_before": "main",
+  "branch_after": "main",
+  "implementation_commit_sha": "d083100cd9cc501643217d627948026be4753f24",
+  "closeout_commit_sha": "pending-before-closeout-commit",
+  "push_result": "pending-before-closeout-commit"
+}

@@ -942,3 +942,18 @@ Future productive runs should append compact entries that name the master-plan s
 - `phone tracker`: not appended; Google Sheets connector was not used.
 - `self-improvement`: none.
 - `commit/push status`: pending closeout commit.
+
+## 2026-05-21 04:05 PT - MVP-015/MVP-016 Review History And Decision Access Audit
+
+- `automation ID`: `senior-capstone-nonfigma-mvp-builder`.
+- `lane`: non-Figma MVP builder / staff-review-mentor.
+- `master-plan sections`: Role-Aware Production App Contract; North Star Workflow; Logging Requirements.
+- `requirement IDs`: `MVP-006`, `MVP-015`, `MVP-016`, `MVP-020`, and `MVP-025`; `backlog IDs`: `SC-005`, `SC-006`; `handoffs`: partial consumption of `H-2026-05-21-003` and progress on `H-2026-05-18-006`.
+- `selected slice`: Extend the protected-record access audit matrix from the teacher review queue to review history and review decision endpoints without direct Figma work.
+- `what changed`: `/api/reviews/:submissionId/history` now audits missing-session, denied, and successful history reads as `review_history_unauthorized`, `review_history_denied`, and `review_history_viewed`, including redacted role scopes and result counts. `/api/reviews/:submissionId/decision` now audits missing-session reviewer attempts as `review_decision_unauthorized` and adds redacted role scopes to denied and successful decision audit metadata.
+- `files changed`: `functions/api/reviews/[submissionId]/history.ts`, `functions/api/reviews/[submissionId]/decision.ts`, `tests/review-loop.integration.test.mjs`, `tests/production-workflow-source.test.mjs`, MVP/backlog/artifact/memory/handoff/progress docs, and structured run manifest `docs/progress/runs/2026-05-21-0405-review-history-decision-audit-mvp-015.json`.
+- `validation`: focused review-loop integration passed with 6/6 tests; production-workflow source test passed with 11/11 tests; strict typecheck passed; production-surface checker passed with 91 surfaces; full `test` passed with 175 passing tests and 4 expected opt-in skips; aggregate `check` passed with cadence/predeploy/static-live Cloudflare verification and 175 passing tests / 4 expected skips.
+- `blockers`: live Drive upload still fails with redacted Google Drive HTTP 403 after token/root/index probes pass; real-user setup credential delivery remains Bryan decision `HD-2026-05-21-001`; hosted browser no-assignment and section-level permission-denied proof remains open.
+- `phone tracker`: not appended; Google Sheets connector was not used.
+- `self-improvement`: none.
+- `commit/push status`: implementation commit `d083100cd9cc501643217d627948026be4753f24` created on `main`; closeout docs commit and push pending.

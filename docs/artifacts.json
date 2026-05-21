@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-05-21T03:36:00-07:00",
+  "updated_at": "2026-05-21T04:05:00-07:00",
   "artifacts": [
     {
       "id": "cloudflare-pages-senior-capstone-app",
@@ -130,6 +130,8 @@
         "workspace.css",
         "workspace.js",
         "functions/api/teacher/review-queue.ts",
+        "functions/api/reviews/[submissionId]/decision.ts",
+        "functions/api/reviews/[submissionId]/history.ts",
         "functions/api/admin/users/import.ts",
         "functions/api/auth/change-password.ts",
         "functions/api/auth/complete-reset.ts",
@@ -188,7 +190,8 @@
         "2026-05-21 02:10 PT: tests/workspace-app.test.mjs proves admin import setup output is memory-only and clears after refresh, and non-admin import UI renders permission-denied without import controls; credential-backed local Pages/D1 smoke proves admin import validation, misc-admin denial, no-store setup output, reset-required first login, complete-reset activation, imported student role readback, old setup credential rejection, replacement-password login, and redacted audit readback. scripts/seed-local-workspace-smoke.mjs now verifies the seven known seed account IDs so repeated local import proof can add extra fake .test accounts without breaking reseed verification.",
         "2026-05-21 02:33 PT: docs/generated/production-route-inventory.md now classifies workspace.html as senior-capstone-app / production / conditional with canonical protected app route wording; tests/production-workflow-source.test.mjs asserts that row and rejects the prior unknown classification.",
         "2026-05-21 03:06 PT: /api/student/dashboard now audits unauthorized, denied, and allowed protected dashboard views; tests/student-dashboard-access.integration.test.mjs covers student, mentor, program-teacher, admin, and misc-admin access boundaries and confirms dashboard evidence summaries do not expose Drive storage IDs.",
-        "2026-05-21 03:36 PT: /api/teacher/review-queue now audits unauthorized, denied, and viewed queue access with redacted role scopes, and its SQL default-denies empty program/cohort scope IDs instead of matching null/empty group values. tests/review-loop.integration.test.mjs covers missing-session audit, misc-admin denial audit, empty program-scope no-leak behavior, and the end-to-end teacher review loop."
+        "2026-05-21 03:36 PT: /api/teacher/review-queue now audits unauthorized, denied, and viewed queue access with redacted role scopes, and its SQL default-denies empty program/cohort scope IDs instead of matching null/empty group values. tests/review-loop.integration.test.mjs covers missing-session audit, misc-admin denial audit, empty program-scope no-leak behavior, and the end-to-end teacher review loop.",
+        "2026-05-21 04:05 PT: /api/reviews/:submissionId/history now audits unauthorized, denied, and successful history reads with redacted role scopes and result counts; /api/reviews/:submissionId/decision now audits missing-session reviewer attempts and includes role scopes in denied/success audit metadata. tests/review-loop.integration.test.mjs passed with 6/6 review workflow tests, and tests/production-workflow-source.test.mjs passed with 11/11 source checks."
       ],
       "last_updated": "2026-05-21"
     },

@@ -543,3 +543,18 @@ Each rebuild run should append a dated entry with:
 - `phone tracker`: not appended; Google Sheets connector was not used in this run.
 - `self-improvement`: none.
 - `next action`: Extend the same route-level permission/audit depth to review history/decision and submission endpoints, then capture hosted no-assignment and section-level permission-denied UI proof with fake `.test` accounts.
+
+### 2026-05-21 04:05 PT - MVP-015/MVP-016 Review History And Decision Access Audit
+
+- `automation`: `senior-capstone-nonfigma-mvp-builder`
+- `master-plan section`: Role-Aware Production App Contract; North Star Workflow; Logging Requirements.
+- `source docs/logs read`: automation memory fallback at `C:\Users\bryan\.codex\automations\senior-capstone-nonfigma-mvp-builder\memory.md`, required master plan/catalog/cadence/runbook/self-improvement/memory/milestones/progress docs, recent run manifests, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, `docs/progress/rebuild.md`, review history/decision route files, workflow/permission helpers, and review-loop/source tests.
+- `backlog or requirement IDs selected`: `SC-005`, `SC-006`, `MVP-006`, `MVP-015`, `MVP-016`, `MVP-020`, and `MVP-025`.
+- `bounded scope`: Extend the protected-record access audit matrix from the teacher review queue to `/api/reviews/:submissionId/history` and `/api/reviews/:submissionId/decision` without direct Figma work.
+- `files changed`: `functions/api/reviews/[submissionId]/history.ts`, `functions/api/reviews/[submissionId]/decision.ts`, `tests/review-loop.integration.test.mjs`, `tests/production-workflow-source.test.mjs`, `docs/mvp-requirements-catalog.md`, `docs/automation-backlog.md`, `docs/automation-memory.md`, `docs/artifacts.json`, `docs/progress/handoffs.md`, this rebuild log, `docs/progress/run-log.md`, and structured run manifest `docs/progress/runs/2026-05-21-0405-review-history-decision-audit-mvp-015.json`.
+- `validation`: focused review-loop integration passed with 6/6 tests; production-workflow source test passed with 11/11 tests; strict typecheck passed; production-surface checker passed with 91 surfaces; full `test` passed with 175 passing tests and 4 expected opt-in skips; aggregate `check` passed with cadence/predeploy/static-live Cloudflare verification and 175 passing tests / 4 expected skips.
+- `blockers`: live Drive upload still fails with redacted Google Drive HTTP 403 after token/root/index probes pass; real-user setup credential delivery remains Bryan decision `HD-2026-05-21-001`; hosted browser no-assignment and section-level permission-denied proof remains open.
+- `phone tracker`: not appended; Google Sheets connector was not used in this run.
+- `self-improvement`: none.
+- `commit/push status`: implementation commit `d083100cd9cc501643217d627948026be4753f24` created on `main`; closeout docs commit and push pending.
+- `next action`: Continue the same protected-record matrix through submission/evidence/mentor-meeting/presentation/archive endpoints, then capture hosted no-assignment and section-level permission-denied UI proof.
