@@ -501,6 +501,10 @@ Created/updated frames:
   - `Prototype / 19 / Archive provider and retention handoff`, node `149:2`
   - Created route/data/permission/state annotations for missing Drive credentials, provider-unavailable retry, queued generation, scoped package readiness, expiring retention windows, and retention policy review.
   - Shared plugin data key `senior_capstone/archive_provider_retention_contract_2026_05_20` records 6 states, 6 routes, 10 records, 5 permission scopes, 6 guardrails, 7 acceptance checks, and the current Cloudflare token plus Drive credential blockers.
+- 2026-05-20 Drive archive delivery handoff on `05 Full MVP Alpha Prototype`
+  - `Prototype / 20 / Drive archive delivery handoff`, node `151:2`
+  - Created route/data/permission/state annotations for Drive credentials configured, package assembly to Drive, signed link issued, student download started, expired link retry, and hosted proof required.
+  - Shared plugin data key `senior_capstone/drive_archive_delivery_contract_2026_05_20` records 6 states, 5 routes, 10 records, 5 permission scopes, 6 guardrails, 6 acceptance checks, and the next rebuild action for Drive-backed package or signed-link delivery plus hosted fake-account proof after Cloudflare/Drive secrets are available.
 
 Verification status:
 - Canvas write succeeded and returned the frame IDs above.
@@ -566,3 +570,6 @@ Verification status:
 - 2026-05-20 `use_figma` write created node `149:2` to map archive provider failures, remote migration pending setup, scoped package readiness, signed/scoped download expiry, and retention-policy review to persisted export/evidence/audit records.
 - Final readback found 108 text nodes, zero suspicious clipped text nodes, zero child overflow, 6 states, 6 routes, 10 records, 5 permission scopes, 6 guardrails, and 7 acceptance checks in shared contract data.
 - `get_design_context` and `get_screenshot` succeeded for node `149:2`; screenshot verification returned `706x1024` from original `1360x1975`.
+- 2026-05-20 `use_figma` write created node `151:2` to map the remaining Drive-backed archive package or signed-link delivery states after provider-gated archive generation was partially implemented.
+- Final readback found 102 text nodes, zero suspicious clipped text nodes, zero child overflow, 6 states, 5 routes, 10 records, 5 permission scopes, 6 guardrails, and 6 acceptance checks in shared contract data.
+- `get_design_context` and `get_screenshot` succeeded for node `151:2`; screenshot verification returned `684x1024` from original `1360x2038`.

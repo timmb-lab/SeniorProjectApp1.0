@@ -191,11 +191,19 @@ Every builder run must ladder from `docs/master-plan.md` into `docs/mvp-requirem
 - Validation passed: `tests/archive-readiness.integration.test.mjs` (10 tests), `tests/workspace-app.test.mjs` (7 tests), `tests/production-workflow-source.test.mjs` (10 tests), and strict `typecheck`.
 - Remaining archive/export depth: apply/verify migration `0007` remotely when `CLOUDFLARE_API_TOKEN` is available, add Drive-backed package files or signed-link delivery after Drive secrets, and capture hosted archive UI proof after deployment/credentials.
 
+### 2026-05-20 - Figma Drive Archive Delivery Handoff
+
+- Figma-only builder `senior-capstone-figma-product-builder` added node `151:2`, `Prototype / 20 / Drive archive delivery handoff`, to active file `z4t4tFPAKrMDh6pIYOeEw6` on page `05 Full MVP Alpha Prototype`.
+- The handoff deepens the remaining archive/export gap after node `149:2` was partially consumed by provider-gating archive generation and rendering retention state.
+- Shared plugin data key `senior_capstone/drive_archive_delivery_contract_2026_05_20` records 6 states, 5 routes, 10 records, 5 permission scopes, 6 guardrails, and 6 acceptance checks for Drive credentials configured, package assembly to Drive, signed link issued, student download started, expired link retry, and hosted proof required states.
+- Final Figma verification succeeded: `use_figma` returned 102 text nodes, zero suspicious clipped text nodes, and zero child overflow; `get_design_context` and `get_screenshot` passed for node `151:2`, with screenshot `684x1024` from original `1360x2038`.
+- Next best non-Figma slice from this handoff: consume node `151:2` for Drive-backed package files or signed-link delivery, remote migration `0007` readback, hosted fake-account archive proof, expired retry, permission denial, and no raw Drive ID rendering after Cloudflare/Drive secrets are available.
+
 ## Current Priority
 
 Immediate next useful passes:
 
-1. Finish archive/export delivery depth by consuming the remaining parts of Figma node `149:2`: apply/verify migration `0007`, add Drive-backed package files or signed-link delivery after Drive credentials, and capture hosted archive UI proof after deployment/credentials.
+1. Finish archive/export delivery depth by consuming Figma node `151:2`: apply/verify migration `0007`, add Drive-backed package files or signed-link delivery after Drive credentials, capture hosted fake-account archive UI proof, and verify no raw Drive IDs render in package/download states.
 2. Broaden public-site no-hidden-core-content proof across every guide route, then verify the newest workspace account-state/no-assignment markers after hosted deployment and add a live section-level permission-denied proof.
 3. Extend alpha proposal/review/evidence/audit records into real workflow endpoints.
 4. Add Google Drive server-side credential/OAuth implementation plus access-controlled evidence upload/retrieval assumptions.
@@ -234,7 +242,7 @@ Current backlog anchors:
 - Canva folder: `FAHJ-n-VqFE`.
 - Canva asset: `DAHJ-v7TOM8`, proposal approval process strip, no-text 1600x500.
 - Active Figma product UI file: `https://www.figma.com/design/z4t4tFPAKrMDh6pIYOeEw6` (`z4t4tFPAKrMDh6pIYOeEw6`), team id `1638213362346160913`.
-- Key Figma implementation contract nodes: `18:2`, `31:2`, `37:2`, `43:2`, `48:2`, `56:2`, `61:2`, `69:2`, `78:2`, and full MVP alpha prototype page `98:2` with implementation nodes through `149:2`.
+- Key Figma implementation contract nodes: `18:2`, `31:2`, `37:2`, `43:2`, `48:2`, `56:2`, `61:2`, `69:2`, `78:2`, and full MVP alpha prototype page `98:2` with implementation nodes through `151:2`.
 - 2026-05-20 Figma review-history alignment updated full MVP alpha prototype nodes `98:9` and `98:10` to match `/api/reviews/:submissionId/history`, `reviews`, `comments`, `status_history`, `submission_versions`, scoped permissions, and storage-ID redaction; `get_design_context` and `get_screenshot` succeeded for both nodes.
 - 2026-05-20 Figma handoff update verified node `98:17` after primary alpha-console review-history consumption; it records `review_history_consumed_at`, redirects next rebuild focus to mentor/presentation/admin depth, preserves API/D1/audit/storage-redaction boundaries, and passed `get_design_context` plus `get_screenshot`.
 - 2026-05-20 Figma production-boundary handoff verified node `124:2`; it distinguishes public Student/Teacher guide mode from authenticated `/workspace` state, records route/data/permission contract data, and passed screenshot/metadata/readback QA.
@@ -242,6 +250,7 @@ Current backlog anchors:
 - 2026-05-20 Figma presentation dashboard state handoff verified node `139:2`; it maps presentation slot, conflict, check-out, check-in, denied-action, empty, and loading states to persisted dashboard consumption with 6 states, 7 routes, 8 records, and 6 guardrails.
 - 2026-05-20 Figma celebration archive readiness handoff verified node `144:2`; it maps closeout, Celebration Day evidence, reflection/portfolio, thank-you/mentor note, archive request, signed download, and archive permission states to persisted evidence/export/audit records with 7 states, 8 routes, 14 records, 5 permission scopes, 7 guardrails, and 7 acceptance checks.
 - 2026-05-20 Figma archive provider and retention handoff verified node `149:2`; it maps Drive credential missing, provider-unavailable retry, queued generation, scoped package readiness, retention-window expiry, and policy review states to persisted export/evidence/audit records with 6 states, 6 routes, 10 records, 5 permission scopes, 6 guardrails, and 7 acceptance checks.
+- 2026-05-20 Figma Drive archive delivery handoff verified node `151:2`; it maps credentials configured, package assembly to Drive, signed link issued, student download started, expired link retry, and hosted proof required states to persisted export/evidence/audit records with 6 states, 5 routes, 10 records, 5 permission scopes, 6 guardrails, and 6 acceptance checks.
 - 2026-05-20 non-Figma workspace archive readiness pass partially consumed node `144:2` in repo code only by adding `/api/student/archive/readiness`, a student Archive workspace tab, explicit admin export reason enforcement, truthful signed-download-disabled output, focused integration/source/smoke/browser proof, and route inventory coverage.
 - 2026-05-20 non-Figma archive manifest pass added `export_artifacts`, scoped JSON archive manifest generation/download, content hash/expiry metadata, expired-package retry state, storage-ID redaction tests, and a workspace manifest download marker.
 - 2026-05-20 non-Figma archive provider/retention pass partially consumed node `149:2` by making archive generation provider-gated, auditing missing-credential/access failure states as failed exports, exposing configurable retention policy/window metadata, and rendering retention state in the canonical workspace.

@@ -639,6 +639,17 @@ The 2026-05-20 21:17 PT Figma pass added an archive provider, signed-link, and r
 - Shared plugin data key `senior_capstone/archive_provider_retention_contract_2026_05_20` records 6 states, 6 routes, 10 records, 5 permission scopes, 6 guardrails, 7 acceptance checks, and the current Cloudflare/Drive blockers.
 - `use_figma` created node `149:2` and returned 108 text nodes, zero suspicious clipped text nodes, and zero overflow. `get_design_context` and `get_screenshot` succeeded for node `149:2`; screenshot verification returned `706x1024` from original `1360x1975`.
 
+## Drive Archive Delivery Handoff
+
+The 2026-05-20 21:48 PT Figma pass added a Drive-backed archive delivery and hosted-proof handoff after rebuild partially consumed node `149:2` by provider-gating archive generation and rendering retention state.
+
+- `Prototype / 20 / Drive archive delivery handoff`, node `151:2`, deepens the remaining package-delivery gap after node `149:2`.
+- State annotations cover `credentials_configured`, `package_assembly_to_drive`, `signed_link_issued`, `student_download_started`, `expired_link_retry`, and `hosted_proof_required`.
+- Route annotations name `/api/admin/exports/student-archive`, `/api/exports/:id/download`, `/api/student/archive/readiness`, `/api/evidence/drive-probe`, and `/admin/audit`.
+- Record annotations name `ExportRequest`, `StudentArchiveExport`, `ExportArtifact`, `EvidenceArtifact`, `EvidenceRepository`, `AuditEvent`, `RetentionPolicy`, `UserGroupRole`, `RequirementProgress`, and `Deadline`.
+- Shared plugin data key `senior_capstone/drive_archive_delivery_contract_2026_05_20` records 6 states, 5 routes, 10 records, 5 permission scopes, 6 guardrails, and 6 acceptance checks.
+- `use_figma` created node `151:2` and returned 102 text nodes, zero suspicious clipped text nodes, and zero child overflow. `get_design_context` and `get_screenshot` succeeded for node `151:2`; screenshot verification returned `684x1024` from original `1360x2038`.
+
 ## Acceptance Checks For Next Figma Run
 
 - Continue active writable file `z4t4tFPAKrMDh6pIYOeEw6` in `team::1638213362346160913`.
@@ -673,10 +684,10 @@ Artifact:
 - Progress update/dashboard aggregate contract: node `61:2` in the active Figma file.
 - Audit log/export controls contract: node `69:2` in the active Figma file.
 - Mentor meeting/presentation scheduling contract: node `78:2` in the active Figma file.
-- Full MVP alpha prototype page: node `98:2`, with review detail node `98:9` and student revision node `98:10` aligned to the implemented review-history endpoint, handoff frame `98:17` updated after primary alpha-console consumption, production boundary handoff node `124:2` distinguishing the public guide mode from the authenticated workspace route, workspace account edge-state handoff node `133:2`, presentation dashboard state handoff node `139:2`, celebration archive readiness handoff node `144:2`, and archive provider/retention handoff node `149:2`.
+- Full MVP alpha prototype page: node `98:2`, with review detail node `98:9` and student revision node `98:10` aligned to the implemented review-history endpoint, handoff frame `98:17` updated after primary alpha-console consumption, production boundary handoff node `124:2` distinguishing the public guide mode from the authenticated workspace route, workspace account edge-state handoff node `133:2`, presentation dashboard state handoff node `139:2`, celebration archive readiness handoff node `144:2`, archive provider/retention handoff node `149:2`, and Drive archive delivery handoff node `151:2`.
 
 Exact next action:
-- Rebuild should consume nodes `18:2`, `31:2`, `37:2`, `43:2`, `48:2`, `56:2`, `61:2`, `69:2`, `78:2`, `98:9`, `98:10`, `98:17`, `124:2`, `133:2`, `139:2`, `144:2`, and `149:2` while scaffolding the accepted Cloudflare database/auth/progress/audit/export/meeting/presentation foundation. Review history, workspace account states, presentation dashboard states, and initial archive manifests are already consumed locally; next rebuild focus should add provider-unavailable archive generation states, retention-policy handling, Drive-backed package or signed-link delivery, and hosted archive proof after Cloudflare/Drive secrets are available.
+- Rebuild should consume nodes `18:2`, `31:2`, `37:2`, `43:2`, `48:2`, `56:2`, `61:2`, `69:2`, `78:2`, `98:9`, `98:10`, `98:17`, `124:2`, `133:2`, `139:2`, `144:2`, `149:2`, and `151:2` while scaffolding the accepted Cloudflare database/auth/progress/audit/export/meeting/presentation foundation. Review history, workspace account states, presentation dashboard states, and initial archive manifests are already consumed locally; next rebuild focus should use node `151:2` for Drive-backed package or signed-link delivery, hosted fake-account archive UI proof, remote migration `0007` readback, and no-storage-ID package/download states after Cloudflare/Drive secrets are available.
 
 Acceptance check:
 - Figma progress log records page/frame IDs, screenshot or metadata verification, route/data fields, permission scopes, and the next UI slice.

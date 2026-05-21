@@ -73,6 +73,18 @@ Status values:
 - `evidence to close`: Rebuild commit and hosted/fake-account proof for Drive-backed archive package or signed-link delivery. Partial consumption now exists: `/api/admin/exports/student-archive` verifies Drive provider readiness before success, writes failed exports plus `student_archive_export_provider_unavailable` for missing credentials or Drive access failures, archive manifests include configurable retention metadata, `/api/student/archive/readiness` reports provider/retention/download-expiring state, `workspace.js` renders `data-archive-retention-status`, and focused archive/workspace/source/type checks passed.
 - `last updated`: 2026-05-20 21:38 PT
 
+### H-2026-05-20-011
+
+- `source lane`: figma-only / design-assets-handoff
+- `owner lane`: non-figma / admin-ops-reporting, deployment-qa, and student-workflow-evidence
+- `status`: open
+- `source`: MVP-028 Drive archive delivery handoff
+- `artifact`: active Figma file `z4t4tFPAKrMDh6pIYOeEw6`, page `05 Full MVP Alpha Prototype`, node `151:2` (`Prototype / 20 / Drive archive delivery handoff`), shared plugin data key `senior_capstone/drive_archive_delivery_contract_2026_05_20`, and repo notes in `docs/progress/figma.md`.
+- `next action`: After `CLOUDFLARE_API_TOKEN` and Google Drive credential secrets are available, add Drive-backed package files or signed-link delivery, apply/read back remote migration `0007`, and capture hosted fake-account proof for admin export queue and student archive download states.
+- `acceptance check`: Drive credential probe passes before package success; remote D1 `export_artifacts` exists before hosted package success; generated package or signed link has `expires_at`, content hash/package id, and student scope without raw Drive IDs; download, expired, denied, missing artifact, and retry paths write audit events; retention values stay configurable until Bryan confirms school policy.
+- `evidence to close`: Rebuild commit plus hosted fake `.test` proof for admin queue, student archive card, scoped download, expired retry, and permission denial using node `151:2` as the design contract.
+- `last updated`: 2026-05-20 21:48 PT
+
 ### H-2026-05-18-001
 
 - `source lane`: canva

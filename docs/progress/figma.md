@@ -112,3 +112,17 @@ Figma work is owned by `senior-capstone-figma-product-builder-15` and `senior-ca
 - `implementation handoff`: Rebuild should consume node `149:2` when adding provider-unavailable archive generation states, retention-policy handling, Drive-backed package or signed-link delivery, and hosted archive UI proof after Cloudflare/Drive secrets are available.
 - `phone tracker`: not appended; Google Sheets connector metadata call returned `Unknown tool: google drive_get_spreadsheet_metadata`, so repo-local closeout evidence was preserved.
 - `self-improvement`: none
+
+## 2026-05-20 21:48 PT - MVP-028 Drive Archive Delivery Handoff
+
+- `automation ID`: `senior-capstone-figma-product-builder`
+- `selected requirement IDs`: `MVP-028`, supporting `MVP-018`, `MVP-020`, `MVP-022`, `MVP-026`, and `MVP-027`
+- `selected slice`: Create and verify a Drive-backed archive delivery, signed-link, and hosted-proof handoff after rebuild partially consumed node `149:2` with provider-gated archive generation and retention state.
+- `active file`: `z4t4tFPAKrMDh6pIYOeEw6`
+- `page`: `05 Full MVP Alpha Prototype`
+- `nodes touched`: `151:2` (`Prototype / 20 / Drive archive delivery handoff`)
+- `changed in Figma`: Added state cards for `credentials_configured`, `package_assembly_to_drive`, `signed_link_issued`, `student_download_started`, `expired_link_retry`, and `hosted_proof_required`; mapped routes `/api/admin/exports/student-archive`, `/api/exports/:id/download`, `/api/student/archive/readiness`, `/api/evidence/drive-probe`, and `/admin/audit`; mapped records `ExportRequest`, `StudentArchiveExport`, `ExportArtifact`, `EvidenceArtifact`, `EvidenceRepository`, `AuditEvent`, `RetentionPolicy`, `UserGroupRole`, `RequirementProgress`, and `Deadline`; stored shared plugin data key `senior_capstone/drive_archive_delivery_contract_2026_05_20`.
+- `verification`: Existing page inspection found only archive nodes `144:2` and `149:2`; Code Connect search found no repo files and design-system search only found the local archived status pill, so the frame reused local prototype conventions. `use_figma` created node `151:2` and returned 102 text nodes, zero suspicious clipped text nodes, zero child overflow, 6 states, 5 routes, 10 records, and 6 acceptance checks. `get_design_context` and `get_screenshot` succeeded for node `151:2`; screenshot returned `684x1024` from original `1360x2038`.
+- `implementation handoff`: Rebuild should use node `151:2` after node `149:2` when adding Drive-backed package files or signed-link delivery, hosted fake-account archive UI proof, remote D1 migration `0007` readback, scoped download/expired retry states, and no raw Drive ID rendering.
+- `phone tracker`: not appended; Google Sheets connector was not used in this run, and repo-local closeout evidence was preserved.
+- `self-improvement`: none

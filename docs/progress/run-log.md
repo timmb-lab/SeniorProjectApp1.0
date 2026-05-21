@@ -628,3 +628,20 @@ Future productive runs should append compact entries that name the master-plan s
 - `phone tracker`: not appended; Google Sheets connector was not used in this run.
 - `self-improvement`: none.
 - `commit/push status`: implementation commit `2eeed9a00dee643ac84a8755a78dbe7c1f0bf8b8` and closeout commit `f94654d` pushed to `origin main`; hosted marker proof commit follows this entry.
+
+## 2026-05-20 21:48 PT - MVP-028 Drive Archive Delivery Handoff
+
+- `automation ID`: `senior-capstone-figma-product-builder`
+- `lane`: Figma-only product builder / design-assets-handoff.
+- `master-plan sections`: Product Destination; P0 Production Experience Gate; Lane Responsibilities; Logging Requirements.
+- `requirement IDs`: `MVP-028`, supporting `MVP-018`, `MVP-020`, `MVP-022`, `MVP-026`, and `MVP-027`; `handoff`: `H-2026-05-20-011`.
+- `selected slice`: Add and verify a Figma Drive-backed archive delivery, signed-link, and hosted-proof handoff after rebuild partially consumed node `149:2` by provider-gating archive generation and rendering retention state.
+- `active Figma file`: `z4t4tFPAKrMDh6pIYOeEw6`.
+- `Figma page/node touched`: `05 Full MVP Alpha Prototype`; node `151:2` (`Prototype / 20 / Drive archive delivery handoff`).
+- `what changed`: Added Figma state/route/data/permission annotations for Drive credentials configured, package assembly to Drive, signed link issued, student download started, expired link retry, and hosted proof required; stored shared plugin data key `senior_capstone/drive_archive_delivery_contract_2026_05_20`.
+- `verification`: `use_figma` created node `151:2` and returned 102 text nodes, zero suspicious clipped text nodes, zero child overflow, 6 states, 5 routes, 10 records, and 6 acceptance checks. `get_design_context` and `get_screenshot` succeeded; screenshot returned `684x1024` from original `1360x2038`. Artifact registry and manifest JSON parsed, cadence verifier passed, and `git diff --check` passed with CRLF warnings only.
+- `files changed`: Figma design docs, artifact registry, automation memory, Figma lane log, handoff ledger, MVP catalog, this run log, and `docs/progress/runs/2026-05-20-2148-figma-drive-archive-delivery.json`.
+- `implementation handoff`: Rebuild should use node `151:2` when adding Drive-backed package files or signed-link delivery and hosted fake-account archive proof after `CLOUDFLARE_API_TOKEN` plus Google Drive credential secrets are available.
+- `blockers`: none for Figma; existing Cloudflare token, Google Drive credential, remote migration, and retention-policy blockers remain implementation/deployment context only.
+- `phone tracker`: not appended; Google Sheets connector was not used in this run.
+- `self-improvement`: none.
