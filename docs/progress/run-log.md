@@ -28,6 +28,20 @@ This is the compact run log for the current quarter-hour split-builder automatio
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-05-21 15:48 PT - Tenant SSO And Role Dashboard Implementation
+
+- `automation ID`: manual Codex implementation pass from Bryan's final production workspace prompt.
+- `lane`: non-Figma MVP builder / backend-security-data, admin-ops-reporting, deployment-qa, and design-assets-handoff consumption.
+- `master-plan sections`: Product Destination; Tenant-Based School Subscription And Google Workspace SSO Direction; Role-Aware Production App Contract; Stack And Deployment Direction; Logging Requirements.
+- `requirement IDs`: `MVP-004`, `MVP-006`, `MVP-025`, `MVP-026`, `MVP-032`, `MVP-033`, `MVP-039`, and new `MVP-041` through `MVP-047`; `handoffs`: `H-2026-05-18-008` and `H-2026-05-21-003`; `human decisions`: `HD-2026-05-21-010`, `HD-2026-05-21-001`, `HD-2026-05-20-003`, `HD-2026-05-20-004`, and `HD-2026-05-20-007`.
+- `selected slice`: Consume Figma nodes `61:2` and `196:2` into the canonical workspace by adding D1-backed role dashboards, primary-color role-aware UI, a tenant/Google Workspace SSO foundation, safe auth config/sign-in behavior, and permission/route tests without direct Figma edits.
+- `what changed`: Added tenant/SSO migration `0010`, auth-config/OAuth-state/Google-OIDC helpers, `/api/auth/config`, Google SSO start/callback routes, admin/program-teacher/mentor dashboard routes, role hierarchy permission helpers, workspace data loading/renderers, ABC-inspired CSS tokens, admin command center, scoped program teacher and assigned-only mentor dashboards, safe SSO/local sign-in UI, focused integration tests, backend docs, ADR-0002, and the tenant SSO human-decision queue.
+- `Figma consumption`: Node `61:2` is consumed by server-derived dashboard counts and workspace dashboard cards for admin, program teacher, and mentor roles. Node `196:2` is consumed by explicit 401/403/default-deny tests, misc-admin narrow reporting behavior, admin-only dashboard route, scoped teacher route, assigned-only mentor route, audit writes, and no raw Drive/storage/secret exposure assertions.
+- `validation`: Production-surface, route-inventory, generated-output drift, focused role-dashboard/permission/workspace/SSO tests, local D1 migrations, local migration list, aggregate `check` (231 pass / 4 expected opt-in local HTTP skips), typecheck, Cloudflare static/live, Drive live, hosted permissions/dashboard/evidence aliases, and secret scan passed. Hosted aliases were pre-push checks against the currently deployed app; post-deploy proof is still needed for the new dashboard/SSO routes after this commit lands.
+- `blockers`: Live Google Workspace SSO cannot be claimed until Bryan decides tenant domains/auto-provision/local fallback policy and configures the Google Cloud OAuth web client plus Cloudflare Pages secrets/env vars. Remote D1 migration `0010` must be applied through Wrangler before hosted SSO routes depend on tenant records. Full tenant-owned Drive switching and tenant offboarding routes remain future work.
+- `security`: No real student data, OAuth secret, Drive private key, setup password, cookie, token value, or raw Drive storage ID is intentionally added to repo output.
+- `commit/push status`: pending final validation.
+
 ## 2026-05-21 11:02 PT - TheCapstoneApp Pages Domain Attach Pending
 
 - `automation ID`: manual Codex live custom-domain cutover completion pass.

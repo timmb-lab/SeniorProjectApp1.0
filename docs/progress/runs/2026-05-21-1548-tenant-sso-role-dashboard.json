@@ -1,0 +1,216 @@
+{
+  "repoRoot": "C:/SeniorProjectApp1.0",
+  "branchBefore": "main",
+  "branchAfter": "main",
+  "origin": "https://github.com/timmb-lab/SeniorProjectApp1.0.git",
+  "startSha": "c340cf0ae890d802d9d9bbb5ece46eedfcba8da9",
+  "endSha": "final commit SHA is self-referential and recorded in the final closeout response",
+  "changedFiles": [
+    "docs/architecture/adr-0002-tenant-google-workspace-sso-and-storage.md",
+    "docs/backend-setup.md",
+    "docs/generated/production-route-inventory.md",
+    "docs/human-decisions.md",
+    "docs/master-plan.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-21-1548-tenant-sso-role-dashboard.json",
+    "functions/_lib/auth-config.ts",
+    "functions/_lib/google-oauth.ts",
+    "functions/_lib/oauth-state.ts",
+    "functions/_lib/permissions.ts",
+    "functions/_types.ts",
+    "functions/api/admin/dashboard.ts",
+    "functions/api/auth/config.ts",
+    "functions/api/auth/google/callback.ts",
+    "functions/api/auth/google/start.ts",
+    "functions/api/mentor/dashboard.ts",
+    "functions/api/program-teacher/dashboard.ts",
+    "migrations/0010_tenant_google_sso.sql",
+    "tests/admin-dashboard.integration.test.mjs",
+    "tests/google-sso.integration.test.mjs",
+    "tests/helpers/auth-fixtures.mjs",
+    "tests/helpers/d1-sqlite.mjs",
+    "tests/mentor-dashboard.integration.test.mjs",
+    "tests/permissions-access.test.mjs",
+    "tests/program-teacher-dashboard.integration.test.mjs",
+    "tests/workspace-app.test.mjs",
+    "workspace.css",
+    "workspace.js"
+  ],
+  "migrationsAdded": [
+    "migrations/0010_tenant_google_sso.sql"
+  ],
+  "routesAdded": [
+    "/api/admin/dashboard",
+    "/api/auth/config",
+    "/api/auth/google/start",
+    "/api/auth/google/callback",
+    "/api/mentor/dashboard",
+    "/api/program-teacher/dashboard"
+  ],
+  "routesChanged": [],
+  "figmaContractsConsumed": [
+    "61:2",
+    "196:2"
+  ],
+  "authChanges": [
+    "Added safe client auth config route",
+    "Added tenant-aware Google Workspace SSO start/callback scaffold behind fail-closed env flags",
+    "Added hashed OAuth state/nonce storage and HttpOnly state-binding cookie",
+    "Kept local username/password login enabled by default for fake .test, local, fallback, and break-glass use",
+    "Added Google ID-token validation for issuer, audience, expiration, iat, nonce, email verification, subject, and hosted-domain policy"
+  ],
+  "permissionChanges": [
+    "Added viewer role context helper and role ID helper",
+    "Added admin/program-teacher/mentor/readiness dashboard permission helpers",
+    "Added student detail/evidence/review/manage/tenant helper scaffolds",
+    "Added scoped program-teacher student-ID resolution with valid global/program/cohort scopes only",
+    "Preserved existing canAccessStudent default-deny behavior"
+  ],
+  "uiChanges": [
+    "Added primary-color ABC design tokens and role-aware workspace theme modifiers",
+    "Added SSO/local sign-in panels driven by /api/auth/config",
+    "Added admin command center backed by /api/admin/dashboard",
+    "Added scoped program teacher dashboard renderer",
+    "Added assigned-only mentor dashboard renderer",
+    "Added reusable metric, dashboard-card, quick-action, attention, breakdown, and audit summary helpers"
+  ],
+  "testsAdded": [
+    "tests/admin-dashboard.integration.test.mjs",
+    "tests/program-teacher-dashboard.integration.test.mjs",
+    "tests/mentor-dashboard.integration.test.mjs",
+    "tests/google-sso.integration.test.mjs",
+    "tests/helpers/auth-fixtures.mjs",
+    "tests/helpers/d1-sqlite.mjs"
+  ],
+  "testsChanged": [
+    "tests/permissions-access.test.mjs",
+    "tests/workspace-app.test.mjs"
+  ],
+  "validation": [
+    {
+      "command": "npm run check:production-surfaces",
+      "result": "pass",
+      "notes": "91 production text surfaces scanned"
+    },
+    {
+      "command": "npm run check:route-inventory",
+      "result": "pass",
+      "notes": "Route inventory is up to date after regenerating docs/generated/production-route-inventory.md"
+    },
+    {
+      "command": "npm run check:generated-output-drift",
+      "result": "pass",
+      "notes": "Public companion and stakeholder review outputs match deterministic source expectations"
+    },
+    {
+      "command": "node --test tests\\admin-dashboard.integration.test.mjs tests\\program-teacher-dashboard.integration.test.mjs tests\\mentor-dashboard.integration.test.mjs tests\\permissions-access.test.mjs tests\\workspace-app.test.mjs tests\\google-sso.integration.test.mjs",
+      "result": "pass",
+      "notes": "29 focused tests passed"
+    },
+    {
+      "command": "npm run db:migrate:local",
+      "result": "pass",
+      "notes": "Applied local 0009 and 0010 migrations; 0010 executed 14 commands successfully"
+    },
+    {
+      "command": "npx wrangler d1 migrations list senior-capstone-db --local",
+      "result": "pass",
+      "notes": "No local migrations pending"
+    },
+    {
+      "command": "npm run check",
+      "result": "pass",
+      "notes": "231 passed, 4 expected opt-in local HTTP skips"
+    },
+    {
+      "command": "npm run check:cloudflare",
+      "result": "pass",
+      "notes": "Static Wrangler/D1 config verification passed"
+    },
+    {
+      "command": "npm run check:cloudflare:live",
+      "result": "pass",
+      "notes": "Cloudflare token, Pages project, and D1 database verified read-only"
+    },
+    {
+      "command": "npm run check:drive:live",
+      "result": "pass",
+      "notes": "Fake .test Drive upload/download, >5MB resumable path, D1 metadata/audit, denials, and leak checks passed"
+    },
+    {
+      "command": "npm run check:workspace:hosted-permissions",
+      "result": "pass",
+      "notes": "Hosted fake .test role permission proof passed against currently deployed app"
+    },
+    {
+      "command": "npm run check:workspace:hosted-dashboard",
+      "result": "pass",
+      "notes": "Hosted fake .test dashboard proof passed against currently deployed app"
+    },
+    {
+      "command": "npm run check:workspace:hosted-evidence",
+      "result": "pass",
+      "notes": "Hosted fake .test evidence proof passed through Drive live verifier"
+    },
+    {
+      "command": "npm run typecheck",
+      "result": "pass",
+      "notes": "TypeScript compile check passed"
+    },
+    {
+      "command": "git diff --check",
+      "result": "pass",
+      "notes": "Whitespace check passed with CRLF normalization warnings only"
+    },
+    {
+      "command": "Select-String -Path .\\workspace.js,.\\workspace.css,.\\functions\\**\\*.ts,.\\docs\\**\\*.md -Pattern \"client_secret|GOOGLE_OAUTH_CLIENT_SECRET|PRIVATE KEY|BEGIN PRIVATE KEY|password|temporaryPassword|token|drive_file_id|drive_parent_folder_id|storage_key\" -CaseSensitive:$false",
+      "result": "pass",
+      "notes": "Matches are expected variable names, route error identifiers, existing password UI copy, and docs guardrails; no secret values, private keys, cookies, OAuth tokens, setup passwords, or raw Drive IDs were found"
+    }
+  ],
+  "liveChecks": [
+    {
+      "command": "npm run check:cloudflare:live",
+      "result": "pass",
+      "notes": "Read-only Pages/D1 live verification passed"
+    },
+    {
+      "command": "npm run check:drive:live",
+      "result": "pass",
+      "notes": "Fake .test Drive live proof passed"
+    },
+    {
+      "command": "npm run check:workspace:hosted-permissions",
+      "result": "pass",
+      "notes": "Pre-push hosted proof passed; new dashboard/SSO routes require post-deploy verification after push"
+    },
+    {
+      "command": "npm run check:workspace:hosted-dashboard",
+      "result": "pass",
+      "notes": "Pre-push hosted proof passed; new D1-backed dashboard routes require post-deploy verification after push"
+    },
+    {
+      "command": "npm run check:workspace:hosted-evidence",
+      "result": "pass",
+      "notes": "Pre-push hosted proof passed for existing evidence route"
+    }
+  ],
+  "secretsExposed": false,
+  "studentDataUsed": false,
+  "remainingBlockers": [
+    "Production Google Workspace SSO requires Bryan to choose tenant domain(s), auto-provisioning policy, break-glass local-login policy, and Google Cloud OAuth client owner",
+    "Cloudflare Pages must be configured with GOOGLE_OAUTH_CLIENT_ID, GOOGLE_OAUTH_CLIENT_SECRET, GOOGLE_OAUTH_REDIRECT_URI, AUTH_GOOGLE_SSO_ENABLED, and GOOGLE_OAUTH_ALLOWED_HOSTED_DOMAINS before live SSO can be enabled",
+    "Remote D1 migration 0010 must be applied through Wrangler before hosted tenant/SSO records are available",
+    "Hosted post-deploy proof is still needed for the newly added admin/program-teacher/mentor dashboard routes and auth config route",
+    "Tenant-owned Drive storage switching and tenant offboarding/export implementation remain future work"
+  ],
+  "nextSteps": [
+    "After push/deploy, run npm run db:migrate:remote if Bryan approves applying migration 0010 to remote D1",
+    "After deploy, run npm run check:workspace:hosted-permissions and npm run check:workspace:hosted-dashboard again against the deployed commit",
+    "Configure Google Cloud OAuth web client redirect URI https://app.thecapstoneapp.com/api/auth/google/callback and set Cloudflare Pages SSO env vars/secrets",
+    "Add hosted smoke proof for /api/auth/config, /api/admin/dashboard, /api/program-teacher/dashboard, and /api/mentor/dashboard once the deployment contains this commit",
+    "Implement tenant-owned Drive repository selection and tenant offboarding/export routes after Bryan resolves HD-2026-05-21-010"
+  ]
+}

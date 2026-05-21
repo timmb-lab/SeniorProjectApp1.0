@@ -9,8 +9,8 @@ This records the first MVP backend foundation now configured for the Senior Caps
 - Hosting: GitHub-connected Cloudflare Pages project `senior-capstone-app`.
 - Backend runtime: Cloudflare Pages Functions in `functions/`.
 - Database: Cloudflare D1 database `senior-capstone-db`.
-- Auth for MVP pilot: hardened username/password, because district SSO is not available.
-- Evidence uploads: Google Drive repository path, with D1 storing metadata and access state.
+- Auth direction: hardened username/password remains for fake `.test` accounts, local smoke tests, approved fallback, and break-glass access; Google Workspace SSO is the preferred production target once tenant domains and OAuth client settings are configured and tested.
+- Evidence uploads: Google Drive repository path, with D1 storing metadata and access state. The Drive service account/repository is separate from Google Workspace SSO login.
 
 ## Production Surface Boundary
 
@@ -45,10 +45,16 @@ Remote D1 migration state was corrected on 2026-05-20 PT. Wrangler initially rep
 - `0006_presentation_slots.sql` - presentation scheduling and check-out/check-in state.
 - `0007_archive_export_artifacts.sql` - scoped archive manifest artifacts.
 - `0008_update_drive_resource_ids.sql` - corrected the default Google Drive repository row to the verified sandbox Workspace root folder and index sheet.
+- `0009_update_drive_shared_drive_root.sql` - moved the default evidence repository to the accepted Shared Drive root.
+- `0010_tenant_google_sso.sql` - tenant/subscription, tenant-domain, Google Workspace identity-provider, tenant-user membership, auth-identity, and OAuth state tables for the tenant-aware SSO direction.
 
 After apply, `wrangler d1 migrations list senior-capstone-db --remote` reported no pending migrations. Remote schema probes verified `user_accounts`, `sessions`, `user_roles`, `submissions`, `evidence_repositories`, `evidence_artifacts`, `audit_events`, `exports`, `export_artifacts`, and `presentation_slots`.
 
 Migration `migrations/0001_foundation.sql` creates users, password credentials, sessions, login attempts, roles, role assignments, programs, cohorts, groups, mentor assignments, requirements, progress records, status history, submissions, reviews, comments, evidence repositories, evidence artifacts, deadlines, announcements, exports, audit events, and app settings.
+
+Migration `migrations/0010_tenant_google_sso.sql` is additive and preserves the existing global `user_accounts.email_norm` uniqueness. True duplicate email support across tenants is a future migration if the product later needs it. For this pass, tenant membership is represented through `tenant_users` rather than a destructive `user_accounts` rewrite.
+
+As of the tenant/SSO implementation pass, migration `0010` is repo-managed and locally validated first. Apply it to remote D1 through Wrangler migrations after the code deploy is ready; do not hand-edit remote D1 outside migrations.
 
 Seeded records:
 
@@ -72,6 +78,44 @@ The pilot auth flow uses:
 - One-time admin bootstrap endpoint gated by `BOOTSTRAP_SETUP_KEY`; production setup key is removed after first-admin creation.
 - Cloudflare Pages preview/production now have `PASSWORD_PEPPER` and `SESSION_PEPPER` stored as `secret_text` environment variables.
 
+Google Workspace SSO is scaffolded behind safe config:
+
+- `/api/auth/config` returns only client-safe flags and labels.
+- `/api/auth/google/start` creates a hashed state/nonce record, sets an HttpOnly state-binding cookie, and redirects to Google only when SSO is fully configured.
+- `/api/auth/google/callback` exchanges the authorization code server-side, validates the ID token, resolves the tenant/domain, links or provisionally creates the user according to tenant policy, then creates the same app session cookie/session row as password login.
+- If SSO is disabled or partially configured, start/callback fail closed with safe error codes. The workspace UI shows local login when enabled and does not render a broken Google button.
+- The OAuth `hd` request parameter is only a Google login-screen hint. Authorization must validate the returned ID-token hosted-domain claim and tenant-domain policy.
+- Login scopes stay minimal: `openid email profile`. Do not request Drive scopes for login.
+
+SSO environment variables:
+
+```text
+AUTH_MODE=hybrid_google_workspace_local
+AUTH_GOOGLE_SSO_ENABLED=true
+AUTH_LOCAL_LOGIN_ENABLED=true
+GOOGLE_OAUTH_CLIENT_ID=<Google web OAuth client id>
+GOOGLE_OAUTH_CLIENT_SECRET=<Cloudflare Pages secret>
+GOOGLE_OAUTH_REDIRECT_URI=https://app.thecapstoneapp.com/api/auth/google/callback
+GOOGLE_OAUTH_ALLOWED_HOSTED_DOMAINS=<comma-separated Workspace domains>
+GOOGLE_OAUTH_ISSUER_ALLOWLIST=https://accounts.google.com,accounts.google.com
+TENANT_AUTO_PROVISION_DEFAULT=false
+```
+
+Store `GOOGLE_OAUTH_CLIENT_SECRET`, `PASSWORD_PEPPER`, `SESSION_PEPPER`, and Drive service-account private-key material only as Cloudflare secrets or ignored local dev secrets. Docs/code may name variables, but must not contain secret values.
+
+Google Cloud Console setup:
+
+1. Create an OAuth client for a web application.
+2. Add the production redirect URI `https://app.thecapstoneapp.com/api/auth/google/callback`.
+3. Add preview or Pages-dev redirect URIs only when explicitly needed for a safe test environment.
+4. Store the client ID as a Cloudflare Pages environment variable.
+5. Store the client secret as a Cloudflare Pages secret.
+6. Set allowed hosted domain(s) in `GOOGLE_OAUTH_ALLOWED_HOSTED_DOMAINS` and in tenant/domain records.
+7. Redeploy Pages.
+8. Run the SSO config/start/callback tests and hosted auth smoke checks before inviting real users.
+
+The Google Drive evidence service account is independent of Google Workspace SSO. Do not mix Drive repository service-account credentials, OAuth login client secrets, or user ID tokens.
+
 Custom-domain app health checks after activation:
 
 - `https://app.thecapstoneapp.com/api/health`
@@ -92,7 +136,7 @@ Seeded test accounts:
 - `lee.admin@senior-capstone.test` - admin.
 - `reporting.miscadmin@senior-capstone.test` - misc admin scoped to alpha-readiness reporting.
 
-These accounts are fake alpha data only. They are safe for role-flow testing but are not the final account lifecycle, import, password-reset, or district SSO replacement.
+These accounts are fake alpha data only. They are safe for role-flow testing but are not the final account lifecycle, import, password-reset, or Google Workspace SSO replacement.
 
 ## Owner/Admin Exception
 

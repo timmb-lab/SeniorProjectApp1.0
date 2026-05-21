@@ -3,6 +3,12 @@ import test from "node:test";
 
 import {
   canAccessStudent,
+  canViewAdminDashboard,
+  canViewAggregateReadiness,
+  canViewMentorDashboard,
+  canViewProgramTeacherDashboard,
+  canViewStudentDetail,
+  getViewerRoleContext,
   getRoleAssignments,
   hasRole,
   isAdmin,
@@ -72,6 +78,33 @@ test("role assignment helpers return stable role/scope records", async () => {
   ]);
 });
 
+test("role hierarchy helpers expose primary context and protected dashboard access", async () => {
+  const { env, users } = createFixture();
+
+  const adminContext = await getViewerRoleContext(env, users.admin);
+  assert.equal(adminContext.primaryRole, "admin");
+  assert.equal(adminContext.isAdmin, true);
+  assert.equal(await canViewAdminDashboard(env, users.admin), true);
+  assert.equal(await canViewAggregateReadiness(env, users.admin), true);
+
+  assert.equal(await canViewProgramTeacherDashboard(env, users.teacherProgramIT), true);
+  assert.equal(await canViewProgramTeacherDashboard(env, users.teacherProgramEmpty), false);
+  assert.equal(await canViewMentorDashboard(env, users.mentorActive), true);
+  assert.equal(await canViewStudentDetail(env, users.mentorActive, users.studentA.id), true);
+  assert.equal(await canViewStudentDetail(env, users.mentorInactive, users.studentA.id), false);
+  assert.equal(await canViewStudentDetail(env, users.studentA, users.studentA.id), true);
+  assert.equal(await canViewStudentDetail(env, users.studentA, users.studentB.id), false);
+  assert.equal(await canViewStudentDetail(env, users.miscAdmin, users.studentA.id), false);
+  assert.equal(await canViewAggregateReadiness(env, users.miscAdmin), true);
+
+  const pendingContext = await getViewerRoleContext(env, users.rolePending);
+  assert.equal(pendingContext.primaryRole, "role_pending");
+  assert.equal(await canViewAdminDashboard(env, users.rolePending), false);
+  assert.equal(await canViewAggregateReadiness(env, users.rolePending), false);
+  assert.equal(await canViewProgramTeacherDashboard(env, users.rolePending), false);
+  assert.equal(await canViewMentorDashboard(env, users.rolePending), false);
+});
+
 function createFixture() {
   const groups = [
     { id: "group-a", program_id: "it", cohort_id: "cohort-a" },
@@ -122,6 +155,7 @@ function createFixture() {
     teacherProgramIT: buildUser("teacher-program-it"),
     teacherCohortA: buildUser("teacher-cohort-a"),
     teacherProgramEmpty: buildUser("teacher-program-empty"),
+    rolePending: buildUser("role-pending"),
   };
 
   return { env, users };

@@ -13,11 +13,16 @@ test("workspace route is a real authenticated app surface", () => {
   assert.match(workspaceHtml, /workspace\.js/);
   assert.match(workspaceHtml, /workspace\.css/);
   assert.match(workspaceJs, /\/api\/auth\/me/);
+  assert.match(workspaceJs, /\/api\/auth\/config/);
+  assert.match(workspaceJs, /\/api\/auth\/google\/start\?returnTo=\/workspace\.html/);
   assert.match(workspaceJs, /\/api\/auth\/login/);
   assert.match(workspaceJs, /\/api\/auth\/change-password/);
   assert.match(workspaceJs, /\/api\/auth\/complete-reset/);
   assert.match(workspaceJs, /\/api\/auth\/logout/);
   assert.match(workspaceJs, /\/api\/admin\/users\/import/);
+  assert.match(workspaceJs, /\/api\/admin\/dashboard/);
+  assert.match(workspaceJs, /\/api\/program-teacher\/dashboard/);
+  assert.match(workspaceJs, /\/api\/mentor\/dashboard/);
   assert.match(workspaceJs, /\/api\/student\/dashboard/);
   assert.match(workspaceJs, /\/api\/student\/archive\/readiness/);
   assert.match(workspaceJs, /\/api\/teacher\/review-queue/);
@@ -57,6 +62,18 @@ test("workspace route is a real authenticated app surface", () => {
   assert.match(workspaceJs, /data-archive-check-status/);
   assert.match(workspaceJs, /data-archive-download="manifest"/);
   assert.match(workspaceJs, /data-archive-drive-package/);
+  assert.match(workspaceJs, /function renderAdminOverviewSection/);
+  assert.match(workspaceJs, /function renderProgramTeacherDashboardSection/);
+  assert.match(workspaceJs, /function renderMentorDashboardSection/);
+  assert.match(workspaceJs, /Continue with Google Workspace/);
+  assert.match(workspaceJs, /Google Workspace sign-in is not configured for this environment yet/);
+  assert.match(workspaceJs, /Local account sign in/);
+  assert.match(workspaceCss, /--abc-red/);
+  assert.match(workspaceCss, /--abc-blue/);
+  assert.match(workspaceCss, /\.workspace-app\[data-primary-role="admin"\]/);
+  assert.match(workspaceCss, /\.workspace-command-center/);
+  assert.match(workspaceCss, /\.workspace-metric-tile/);
+  assert.match(workspaceCss, /\.workspace-abc-motif/);
   assert.doesNotMatch(workspaceJs, /localStorage|sessionStorage|indexedDB/);
   assert.doesNotThrow(() => new Function(workspaceJs));
 });
@@ -322,6 +339,52 @@ test("workspace renders role-pending and permission-denied access states", async
   assert.match(noAssignment, /data-workspace-state="no-active-assignment"/);
   assert.match(noAssignment, /Workspace assignment is not active yet/);
   assert.match(noAssignment, /Mentor students/);
+});
+
+test("workspace renders safe Google Workspace SSO and local sign-in states", async () => {
+  const disabled = await renderWorkspaceWithFetch({
+    "/api/auth/config": {
+      status: 200,
+      body: {
+        ok: true,
+        authMode: "hardened_username_password",
+        googleSsoEnabled: false,
+        googleSsoConfigured: false,
+        localLoginEnabled: true,
+        googleWorkspaceLabel: "Use your school Google Workspace account",
+      },
+    },
+    "/api/auth/me": {
+      status: 401,
+      body: { authenticated: false },
+    },
+  });
+  assert.match(disabled, /Google Workspace sign-in is not configured for this environment yet/);
+  assert.match(disabled, /Local account sign in/);
+  assert.match(disabled, /Approved fallback access/);
+  assert.doesNotMatch(disabled, /Continue with Google Workspace/);
+
+  const enabled = await renderWorkspaceWithFetch({
+    "/api/auth/config": {
+      status: 200,
+      body: {
+        ok: true,
+        authMode: "hybrid_google_workspace_local",
+        googleSsoEnabled: true,
+        googleSsoConfigured: true,
+        localLoginEnabled: true,
+        googleWorkspaceLabel: "Use your school Google Workspace account",
+      },
+    },
+    "/api/auth/me": {
+      status: 401,
+      body: { authenticated: false },
+    },
+  });
+  assert.match(enabled, /Continue with Google Workspace/);
+  assert.match(enabled, /href="\/api\/auth\/google\/start\?returnTo=\/workspace\.html"/);
+  assert.match(enabled, /Local account sign in/);
+  assert.doesNotMatch(enabled, /client_secret|access_token|refresh_token|id_token/i);
 });
 
 test("workspace renders self-service password rotation controls", async () => {

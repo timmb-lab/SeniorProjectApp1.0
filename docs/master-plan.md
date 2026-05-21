@@ -301,7 +301,7 @@ Figma can prototype account flows, data-backed states, role-aware dashboards, an
 MVP 1.0 must support:
 
 - A fully functional database that holds operational Senior Capstone data, including users, groups, roles, programs, cohorts, requirements, deadlines, submissions, evidence metadata, review decisions, progress/status history, audit events, announcements, and exports.
-- Secure user accounts with hardened username/password login for the MVP pilot because district SSO is not available yet. Keep the auth boundary narrow enough to swap in managed SSO later.
+- Secure user accounts with hardened username/password login preserved for fake `.test` accounts, local smoke tests, approved fallback/break-glass access, and current alpha proof, while Google Workspace SSO becomes the preferred production identity target.
 - User groups and role-based permissions for student, mentor, program teacher, admin, and misc admin users.
 - Admin-managed user/group/program/cohort assignment workflows.
 - Student and staff progress updates backed by trusted server/database state.
@@ -314,13 +314,27 @@ MVP 1.0 must support:
 - Privacy-conscious handling of student records, uploads, exports, staff notes, and access control.
 - GitHub-connected deployment to Cloudflare Workers/Pages, with Cloudflare-managed production environments and a future Bryan-purchased custom domain.
 
-Day 7 alpha may temporarily defer production user-account readiness. It must still prove the whole user journey through seeded/demo personas, route guards, working forms, persisted or server-owned demo state where practical, dashboard updates, review/status transitions, and clear audit/activity history. First-admin bootstrap is now complete, and four fake `.test` role accounts are seeded and login-verified in production D1 for alpha walkthrough/testing. Do not let password reset, invitation, account import, district SSO, or remaining account hardening block the Day 7 alpha.
+Day 7 alpha may temporarily defer production user-account readiness. It must still prove the whole user journey through seeded/demo personas, route guards, working forms, persisted or server-owned demo state where practical, dashboard updates, review/status transitions, and clear audit/activity history. First-admin bootstrap is now complete, and fake `.test` role accounts are seeded and login-verified in production D1 for alpha walkthrough/testing. Do not let password reset, invitation, account import, Google Workspace SSO configuration, or remaining account hardening block the Day 7 alpha.
 
 Figma and Canva are major first-class inputs to the product experience. Figma should drive functional UI design, role-aware screens, implementation-ready specs, state coverage, and guided prototype/page annotations that explain real app progress and the next ladder step. Canva should create stunning supporting images and visual assets that make the app feel polished without baking important live text or private data into images.
 
 This project is not finished when it looks good. It is finished when the hosted app can safely manage real student workflow and staff visibility from a secure database-backed foundation.
 
 Production surfaces must stay classified and enforced. The canonical production app/backend, generated public companion, internal alpha/QA pages, stakeholder review options, generated mirrors, and legacy redirects must not blur together. Production-classified routes must not expose dev/test language, fake-account UX, alpha/smoke panels, stakeholder option labels, or claims that unfinished backend features are complete. The production-surface checker must block those leaks before deployment.
+
+## Tenant-Based School Subscription And Google Workspace SSO Direction
+
+The long-term product direction is a school-subscribed, tenant-aware SaaS application. Each school tenant needs explicit tenant status, subscription status, verified domains, identity-provider configuration, role/scope assignments, evidence storage mode, export/offboarding posture, and audit/retention policy.
+
+Preferred production identity is Google Workspace SSO through a backend OpenID Connect authorization-code flow. Local username/password remains available for fake `.test` accounts, local smoke tests, development, approved break-glass admin access, and explicit fallback while SSO is being configured and proven. SSO must not block current fake-account testing.
+
+The Google OAuth `hd` request parameter is only a login-screen hint. It is not an access-control boundary. Tenant access must be enforced from the returned and verified ID-token claims, including issuer, audience, expiration, verified email, subject, nonce/state, and hosted-domain policy when a Workspace domain restriction is configured. Login scopes stay minimal: `openid email profile`; Drive scopes are not part of login.
+
+No SSO route is pilot-ready until the Cloudflare Pages environment variables, Google Cloud OAuth web-client redirect URI, tenant domain records, ID-token verification, local/mock tests, and hosted fake-account regression checks pass. This plan describes a FERPA-aligned implementation direction only; it does not claim FERPA compliance.
+
+Evidence storage direction stays separate from login identity. The current MVP uses the app-managed Google Drive evidence repository and D1 stores workflow metadata, review state, access state, and audit rows rather than private file bytes. The target direction supports tenant/school-owned Google Workspace Drive or service-account resources once Bryan approves ownership, folder policy, and offboarding mechanics.
+
+Tenant offboarding must disable tenant access, preserve and export tenant data, provide a school-owned copy when policy allows, keep audit/retention requirements explicit, and avoid destructive deletion by default.
 
 ## 2.0 Product Horizon
 
@@ -476,7 +490,7 @@ Execution framework:
 - Day 1 evidence now includes the D1-backed alpha route/persona flow, Cloudflare/D1/Drive setup records, first-admin bootstrap, fake login-capable role accounts, the alpha runbook, alpha week framework, alpha state-machine tests, alpha contract checker, preview deployment command, and GitHub Actions CI workflows.
 
 Account exception for alpha:
-- Production login, password reset, invitations, account import, credential lifecycle, district SSO, and full server-side account hardening are not required for Day 7 alpha. First-admin bootstrap has been completed and should stay behind the alpha flow as production hardening, not as a Day 7 walkthrough dependency.
+- Production login, password reset, invitations, account import, credential lifecycle, Google Workspace SSO configuration, and full server-side account hardening are not required for Day 7 alpha. First-admin bootstrap has been completed and should stay behind the alpha flow as production hardening, not as a Day 7 walkthrough dependency.
 - Fake `.test` accounts now exist for the alpha roles and can be used for login/session smoke checks. Their passwords live only in ignored local `.secrets/` files and must not be copied into docs, commits, screenshots, Figma, or Canva.
 - Do not delete or abandon the real auth scaffold. Keep it behind the alpha flow as the post-alpha hardening path.
 - Permission behavior in alpha should be represented through route/persona scoping and tests where practical, but must be labeled as alpha-scoped until hardened accounts work.
@@ -623,7 +637,7 @@ The accepted deployment direction is GitHub-connected Cloudflare hosting. Bryan 
 The accepted rebuild stack direction is the Cloudflare-compatible production stack:
 
 - Cloudflare Pages/Functions app framework and runtime structure.
-- Hardened username/password pilot auth with a narrow boundary for later school SSO replacement.
+- Hybrid auth boundary: hardened username/password remains for fake `.test`, local, development, approved fallback, and break-glass use while Google Workspace SSO is the preferred production target.
 - Cloudflare D1 database with SQL migrations.
 - Private upload/file storage through a Google Drive evidence repository for MVP, with Cloudflare R2 treated as a future fallback only if enabled and approved.
 - Migration-first schema management; do not introduce an ORM unless it removes real complexity.
@@ -651,7 +665,7 @@ Current stack pressure:
 
 - `HD-2026-05-18-001` is accepted for the production stack.
 - `docs/architecture/adr-0001-stack-auth-database-upload.md` is the accepted Cloudflare-oriented ADR.
-- `D-2026-05-18-019` accepts the no-district-SSO hardened username/password pilot and Google Drive evidence repository path.
+- `D-2026-05-18-019` accepted the initial no-district-SSO hardened username/password pilot and Google Drive evidence repository path; this is now superseded as the permanent direction by the tenant-based Google Workspace SSO target while local auth remains as a bounded fallback.
 - Cloudflare Pages project `senior-capstone-app`, D1 database `senior-capstone-db`, migration `0001_foundation`, Google Drive evidence root folder, Google Drive evidence index sheet, first admin, and four fake `.test` alpha role accounts are now provisioned and recorded in `docs/backend-setup.md`.
 - `SC-005` remains in progress: scaffold, D1, auth foundation, alpha state, first admin, fake role accounts, and CI exist; Drive upload credentials/OAuth, broad permission/protected-evidence tests, account lifecycle, and production workflow endpoints remain incomplete.
 - Rebuild should prioritize tests, real workflow endpoints, Drive evidence implementation, account lifecycle, and deployment verification over broad new design or static-site polish.

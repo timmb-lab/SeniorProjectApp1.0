@@ -12,7 +12,28 @@ Status values:
 
 ## Open Decisions
 
-No open external automation scheduler decisions are blocking the current scaffold. The Google Drive Shared Drive evidence root is selected, configured, and passes the live fake-upload gate; first-admin bootstrap is complete for `bryan.timm89@gmail.com`; the production setup key has been removed; Cloudflare live verification token decision is resolved; hosted fake `.test` role permission proof now covers student, program teacher, mentor, misc-admin denial, and admin allowed paths; and the production domain/root-mode decision is resolved as `thecapstoneapp.com` with root mode `guide-root-app-subdomain`. Live custom-domain cutover remains separate and must not be claimed until Pages custom domains, DNS/TLS, app health, public guide health, and alpha/account exposure checks pass. Remaining setup work is configuration/implementation: keep the broader temporary credential delivery policy open beyond the narrow Bryan-approved five-account staff/admin handoff, live-prove Google Docs export with a fake native Docs fixture if approved, keep hosted upload/dashboard proof passing after deployment, and broaden remaining permission tests.
+No open external automation scheduler decisions are blocking the current scaffold. The Google Drive Shared Drive evidence root is selected, configured, and passes the live fake-upload gate; first-admin bootstrap is complete for `bryan.timm89@gmail.com`; the production setup key has been removed; Cloudflare live verification token decision is resolved; hosted fake `.test` role permission proof now covers student, program teacher, mentor, misc-admin denial, and admin allowed paths; and the production domain/root-mode decision is resolved as `thecapstoneapp.com` with root mode `guide-root-app-subdomain`. Live custom-domain cutover remains separate and must not be claimed until Pages custom domains, DNS/TLS, app health, public guide health, and alpha/account exposure checks pass. Remaining setup work is configuration/implementation and policy: keep the broader temporary credential delivery policy open beyond the narrow Bryan-approved five-account staff/admin handoff, resolve the new tenant Google Workspace SSO decisions, live-prove Google Docs export with a fake native Docs fixture if approved, keep hosted upload/dashboard proof passing after deployment, and broaden remaining permission tests.
+
+### HD-2026-05-21-010
+
+- `status`: open
+- `area`: tenant Google Workspace SSO, local fallback, and school-owned storage policy
+- `owner`: Bryan
+- `severity`: P1
+- `decision needed`: Decide the production tenant/identity/storage policy before live Google Workspace SSO or real school tenant onboarding is enabled.
+- `specific decisions`:
+  - Which production tenant domain(s) should be allowed for Google Workspace SSO?
+  - Should auto-provisioning create role-pending users, or should SSO require pre-provisioned users only?
+  - Should local password login remain enabled for real users after SSO is live?
+  - Who can use break-glass local login?
+  - Should tenant evidence storage stay app-managed Google Drive for MVP or move to school-owned Drive before pilot?
+  - What is the tenant offboarding policy for exports, retention, disabled accounts, and archive handoff?
+  - Which Google Cloud project/OAuth client owns the production app?
+  - Which redirect URIs are approved beyond `https://app.thecapstoneapp.com/api/auth/google/callback`?
+  - Should `thecapstoneapp.com` app-owned accounts be treated as internal admin identities or normal tenant identities?
+- `current recommendation`: Keep Google Workspace SSO disabled in production until the Google Cloud OAuth client, Cloudflare Pages secrets/env vars, tenant-domain records, and hosted fake-account regression checks are complete. Keep local auth enabled for fake `.test`, local smoke, development, and explicit break-glass use until Bryan approves a narrower policy.
+- `implementation status`: Schema, safe auth config, SSO start/callback routes, workspace sign-in behavior, mocked integration tests, backend setup notes, and ADR-0002 are implemented as a fail-closed foundation. No production tenant domain has been added to the repo seed data.
+- `created`: 2026-05-21
 
 ### HD-2026-05-21-001
 
