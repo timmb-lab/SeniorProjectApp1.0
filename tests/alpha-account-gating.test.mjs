@@ -5,7 +5,7 @@ import { evaluateAlphaAccountGatingFixture } from "../scripts/check-alpha-accoun
 const validFixture = {
   productionFiles: {
     "index.html": '<a href="workspace.html">Open Workspace</a>',
-    "workspace.html": '<main>Senior Project Workspace</main>',
+    "workspace.html": '<main>Capstone Project Workspace</main>',
   },
   publicCompanionFiles: {
     "public-companion/index.html": '<a href="phase-1.html">Phase 1</a>',

@@ -1,6 +1,6 @@
 # Decision Log
 
-Last refreshed: 2026-05-20
+Last refreshed: 2026-05-21
 
 ## Current Automation Decision
 
@@ -12,11 +12,25 @@ Last refreshed: 2026-05-20
 
 ## Current Product Decisions
 
-- The app target is a secure, database-backed Senior Capstone application, not a static guide or visual-only prototype.
+- Official product title is Capstone Project, not "The Capstone Project".
+- The app target is a secure, database-backed Capstone Project application, not a static guide or visual-only prototype.
+- Product/app target domain is `thecapstoneproject.com`; `www.thecapstoneproject.com` may be an alias; `app.thecapstoneproject.com` is optional only if a split remains required.
+- East Tech guide future custom domain is TBD.
+- East Tech/Titan branding belongs only in the East Tech guide.
+- Titan Blend and Back To Basics are retired as active stakeholder options.
 - The accepted deployment direction is GitHub-connected Cloudflare Pages/Functions with D1.
 - Hardened username/password pilot auth is the MVP path until school SSO is available.
 - Google Drive is the MVP evidence repository path while D1 stores metadata, review state, and audit history.
 - Real student data must not be entered into alpha or committed to the repo.
+
+## D-2026-05-21-021 - Capstone Project final name, domain, and surface split
+
+- `area`: product naming, domain, and production surfaces
+- `decision`: Official product title is Capstone Project; target product/app domain is `thecapstoneproject.com`; East Tech guide future custom domain is TBD; the app is school-agnostic and tenant-ready; East Tech/Titan branding belongs only to the guide; Titan Blend and Back To Basics are retired as active options.
+- `applies to`: `README.md`, `docs/master-plan.md`, `docs/mvp-requirements-catalog.md`, `docs/production-surface-registry.md`, `docs/production-deployment-policy.md`, `docs/production-predeploy-checklist.md`, `docs/stakeholder-option-lifecycle.md`, `docs/public-site.md`, `config/production-domains.json`, package scripts, checkers, route inventory, public guide output, and workspace copy.
+- `reason`: Bryan ended the stakeholder option comparison and locked the reusable product/app identity separately from the East Tech school-specific guide.
+- `implementation rule`: Do not rewrite auth, D1, evidence, role permissions, API architecture, Google Workspace SSO, or automation cadence. Keep `https://app.thecapstoneapp.com/api/auth/google/callback` as the current SSO redirect until a later Google OAuth and Cloudflare env cutover is verified.
+- `validation`: Target-domain checks may report pending/initializing live state unless Cloudflare Pages custom-domain association, DNS/TLS, workspace/API health, and signed-out auth checks pass.
 
 ## D-2026-05-20-020 - Production app/site split and Student/Teacher website mode
 

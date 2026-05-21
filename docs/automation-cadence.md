@@ -1,6 +1,6 @@
 # Automation Cadence
 
-Date: 2026-05-20
+Date: 2026-05-21
 
 Current active model name: quarter-hour split-builder cadence.
 
@@ -13,7 +13,9 @@ The Senior Capstone project now uses four active hourly builder instances across
 
 Combined builder capacity is scheduled capacity, not guaranteed successful completed changes: 48 + 48 = 96 scheduled builder runs per day, and 1,440 + 1,440 = 2,880 scheduled builder runs per 30 days. Oversight automations report and recalibrate from evidence; they are not builder capacity.
 
-End goal: a GitHub-to-Cloudflare hosted Senior Capstone app whose MVP is a secure database-backed operating system with users, groups, roles, programs, cohorts, progress updates, submissions, private evidence, reviews, approvals, dashboards, announcements, admin controls, audit logs, exports, and protected student records.
+End goal: a GitHub-to-Cloudflare hosted Capstone Project app whose MVP is a secure database-backed operating system with users, groups, roles, programs, cohorts, progress updates, submissions, private evidence, reviews, approvals, dashboards, announcements, admin controls, audit logs, exports, and protected student records.
+
+Naming note: the official product title is now Capstone Project. Existing automation IDs and file names that contain `senior-capstone` are legacy technical identifiers and do not change the cadence. Builders should use Capstone Project product naming, keep the app school-agnostic, and avoid reviving retired stakeholder option deploy targets.
 
 Master plan: `docs/master-plan.md`.
 MVP requirements catalog: `docs/mvp-requirements-catalog.md`.

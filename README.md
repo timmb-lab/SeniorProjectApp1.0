@@ -1,24 +1,34 @@
-# Senior Capstone Project Guide
+# Capstone Project
 
-Public companion site for the East Career and Technical Academy Senior Capstone Project.
+Capstone Project is the reusable, tenant-ready product for capstone workflow: the authenticated workspace, Cloudflare Pages Functions, D1 data model, role dashboards, evidence handling, and deployment/check rails.
 
-The site is written for students. It maps the physical `Your Senior` booklet into separate pages with:
+This repo also contains the East Tech Senior Capstone Guide. That guide is school-specific public content for East Career and Technical Academy students and teachers. It is not the long-term Capstone Project product root.
 
-- one page for each project stop;
-- page references back to the booklet;
-- official-link reminders;
-- program requirement checks;
-- pacing guidance;
-- weak/better/strongest examples;
-- vocabulary and reflection supports;
-- templates for planning and evidence;
-- portfolio, rubric, grade, and recognition guidance.
+## Product And Guide Boundary
 
-Students should always follow the current directions, deadlines, and links shared through Senior Remind, the class website, and their senior project team.
+Capstone Project product/app:
 
-## Public Website
+- Official title: Capstone Project.
+- Official title is not "The Capstone Project".
+- Target product/app domain: `thecapstoneproject.com`.
+- Optional product alias: `www.thecapstoneproject.com`.
+- Optional split app hostname only if needed later: `app.thecapstoneproject.com`.
+- Canonical workspace route: `workspace.html`, currently deployed from the Cloudflare Pages project `senior-capstone-app`.
+- School-agnostic product copy and behavior: school, program, cohort, student, mentor, program teacher, administrator, organization, and tenant where technical context fits.
 
-Open `index.html` or the Cloudflare/GitHub Pages URL for the public ECTA Senior Capstone website. The root page links into program requirements, the phase menu, focused student supports, templates, and the clearly labeled app workflow preview.
+East Tech guide:
+
+- Source pages: `index.html`, route HTML files, `app.js`, `styles.css`, `assets/`, and `templates/`.
+- Generated deploy root: `public-companion/`.
+- Current guide project: `senior-capstone-public`.
+- Future East Tech guide custom domain: TBD. Bryan will buy/configure it later.
+- East Tech/Titans branding belongs here, not inside reusable Capstone Project app internals.
+
+Current legacy domain state:
+
+- `thecapstoneapp.com` and `www.thecapstoneapp.com` are legacy/current guide hostnames pending migration.
+- `app.thecapstoneapp.com` remains the current legacy app hostname and current Google OAuth redirect host.
+- Google Workspace SSO redirect examples must keep `https://app.thecapstoneapp.com/api/auth/google/callback` until a later Cloudflare plus Google OAuth redirect URI cutover is performed and verified.
 
 ## Production Surface Boundary
 
@@ -28,15 +38,11 @@ Production-surface policy lives in:
 - `docs/production-surface-registry.md`
 - `docs/production-predeploy-checklist.md`
 
-Canonical production targets:
+Retired stakeholder options:
 
-- `thecapstoneapp.com` and `www.thecapstoneapp.com`: public guide on `senior-capstone-public`, deployed by `npm run deploy:public-site`.
-- `app.thecapstoneapp.com`: secure app/backend on `senior-capstone-app`, deployed by `npm run deploy`.
-
-Review-only targets:
-
-- `senior-capstone-option-titan`: generated Titan Blend stakeholder option.
-- `senior-capstone-option-primary`: generated Back To Basics stakeholder option.
+- `Titan Blend` and `Back To Basics` are retired as active stakeholder options.
+- The historical roots `stakeholder-options/titan-blend/` and `stakeholder-options/back-to-basics/` may remain as non-deployed review history until a cleanup pass removes or archives them.
+- Active option dev/deploy/build scripts are intentionally removed. `check:site-options` now validates retirement and guide-output state.
 
 Internal QA only:
 
@@ -71,7 +77,31 @@ npm run check:production-cutover
 npm run check
 ```
 
-`check:custom-domain-cutover` is the static/read-only domain mapping gate. Live cutover still requires active Cloudflare Pages custom-domain association, DNS/TLS, public guide health, and `app.thecapstoneapp.com` app/API health.
+`check:custom-domain-cutover` is the static/read-only target-domain gate. Live cutover still requires active Cloudflare Pages custom-domain association, DNS/TLS, product workspace/API health, and alpha/account exposure checks. Repo edits and git pushes do not equal Cloudflare live verification.
+
+## East Tech Guide
+
+Open `index.html` or the generated `public-companion/` output for the East Tech Senior Capstone Guide. The guide maps the physical `Your Senior` booklet into separate pages with:
+
+- one page for each project stop;
+- page references back to the booklet;
+- official-link reminders;
+- program requirement checks;
+- pacing guidance;
+- weak/better/strongest examples;
+- vocabulary and reflection supports;
+- templates for planning and evidence;
+- portfolio, rubric, grade, and recognition guidance;
+- Student Guide / Teacher Guide public mode controls.
+
+Students should always follow the current directions, deadlines, and links shared through Senior Remind, the class website, and their senior project team.
+
+Build and deploy the guide with:
+
+```powershell
+npm run build:public-site
+npm run deploy:public-site
+```
 
 ## Internal Alpha QA
 
@@ -95,7 +125,7 @@ Initial D1-backed workflow routes now exist for `/api/student/dashboard`, `/api/
 
 ## MVP Backend Foundation
 
-The first Cloudflare MVP foundation is scaffolded with Pages Functions, D1, hardened username/password auth endpoints, and Google Drive evidence-repository metadata. Setup notes and live resource IDs are tracked in `docs/backend-setup.md`.
+The first Cloudflare MVP foundation is scaffolded with Pages Functions, D1, hardened username/password auth endpoints, Google Workspace SSO fail-closed scaffold, and Google Drive evidence-repository metadata. Setup notes and live resource IDs are tracked in `docs/backend-setup.md`.
 
 Cloudflare verification is split between local static proof and optional live read-only checks:
 
@@ -130,7 +160,7 @@ npm run check:workspace:hosted-permissions
 npm run check:workspace:hosted-dashboard
 ```
 
-The canonical workspace now includes browser upload selected/progress/verifying/complete/failure states with a retry action for retryable upload failures. The hosted dashboard proof strengthens the fake-account presentation/archive checks without using Bryan's real admin account.
+The canonical workspace includes role-aware admin, program teacher, mentor, student, and misc-admin behavior plus browser upload selected/progress/verifying/complete/failure states. The hosted dashboard proof strengthens the fake-account presentation/archive checks without using Bryan's real admin account.
 
 Google Docs evidence downloads have provider-safe coverage for native Google Docs MIME classification and PDF export through the app-scoped download route. Live Google Docs export still needs a fake native Docs fixture/policy decision before it should be claimed as live-proven.
 

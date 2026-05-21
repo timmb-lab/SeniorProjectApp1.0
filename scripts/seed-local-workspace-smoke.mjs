@@ -402,7 +402,7 @@ function writeCredentialsFile(file, accounts) {
   mkdirSync(path.dirname(file), { recursive: true });
   const payload = {
     created_at: new Date().toISOString(),
-    purpose: "Local-only credential-backed workspace smoke accounts for Senior Project App.",
+    purpose: "Local-only credential-backed workspace smoke accounts for Capstone Project.",
     local_only: true,
     app_url: "http://127.0.0.1:8788",
     accounts: accounts.map((account) => ({

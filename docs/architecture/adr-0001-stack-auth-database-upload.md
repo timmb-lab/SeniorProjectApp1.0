@@ -10,7 +10,7 @@ Human decision link: `HD-2026-05-18-001`
 
 ## Context
 
-The project cannot become a functional hosted Senior Capstone app until the foundation exists for:
+The project cannot become a functional hosted Capstone Project app until the foundation exists for:
 
 - Hardened usernames/passwords for the MVP pilot because district SSO is not available yet.
 - User groups, cohorts, and role assignments.

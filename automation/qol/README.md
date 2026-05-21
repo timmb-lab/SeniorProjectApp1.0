@@ -1,6 +1,6 @@
 # Project-Local QoL 30-Minute Orchestrator
 
-This directory contains the bounded project-local QoL diagnostic path for the Senior Capstone app. It is scoped to this repository only and fails closed when the selected Codex project does not match `automation/qol/project-lock.json`.
+This directory contains the bounded project-local QoL diagnostic path for the Capstone Project app. It is scoped to this repository only and fails closed when the selected Codex project does not match `automation/qol/project-lock.json`.
 
 As of 2026-05-20, this path is not an active MVP builder prompt. Bryan explicitly approved the quarter-hour builder setup so the active GUI-visible builder instances are `senior-capstone-nonfigma-mvp-builder`, `senior-capstone-figma-product-builder-15`, `senior-capstone-nonfigma-mvp-builder-30`, and `senior-capstone-figma-product-builder`. The active builder prompt bodies still come from the working non-Figma and Figma prompt contracts; the minute-15 and minute-30 duplicate rows are exact prompt-body copies of their source lane. These scripts remain useful for project identity checks, automation health reports, lock/state diagnostics, and safety audits.
 

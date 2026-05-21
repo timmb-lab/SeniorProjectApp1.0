@@ -2,41 +2,70 @@
 
 Date: 2026-05-21
 
-This policy defines which Senior Capstone surfaces are real production, which are internal QA, which are stakeholder review artifacts, and how generated output must be handled.
+This policy defines how Capstone Project product surfaces, the East Tech guide, internal QA, and retired stakeholder outputs are deployed and validated.
 
-## Canonical Production
+## Canonical Product
 
-Canonical production app and backend:
+Capstone Project is the official product title. Do not use "The Capstone Project" as the official title.
+
+Canonical product app and backend:
 
 - Cloudflare Pages project: `senior-capstone-app`
 - Repo root deployed by `npm run deploy`
 - Source root: `.`
 - Backend: `functions/api/**`
 - Config: `wrangler.jsonc`
-- Purpose: secure hosted app/backend foundation for Senior Capstone workflows.
+- Canonical workspace route: `workspace.html`
+- Product/app target domain: `thecapstoneproject.com`
+- Product alias if configured: `www.thecapstoneproject.com`
+- Optional app split hostname only if needed: `app.thecapstoneproject.com`
 
-Canonical public companion site:
+The repo root includes public guide source files, but the product target root redirects to the authenticated workspace through root `_redirects`. Product copy must stay school-agnostic. East Tech, ECTA, Titans, Las Vegas, and CCSD references belong in the guide/public content, not reusable app internals.
+
+## East Tech Guide
+
+Canonical public guide:
 
 - Cloudflare Pages project: `senior-capstone-public`
 - Generated output root: `public-companion/`
 - Deploy script: `npm run deploy:public-site`
-- Purpose: public student/family/staff guide only.
+- Purpose: East Tech/Titans-specific Student Guide / Teacher Guide content only.
+- East Tech guide future custom domain is `TBD`; Bryan will buy/configure it later.
 
-The app/backend project is the canonical operational product. The public companion is production-safe public guidance, but it is generated output and not the secure workflow app.
+The guide is production-safe public guidance for East Tech, but it is not the long-term Capstone Project product root.
 
 ## Custom Domain Policy
 
-The production domain is resolved as `thecapstoneapp.com`, purchased through Cloudflare and added to Cloudflare by Bryan. Root mode is `guide-root-app-subdomain`:
+Product/app target:
 
-- `thecapstoneapp.com` serves the public guide from `senior-capstone-public`.
-- `www.thecapstoneapp.com` serves the same public guide or a Cloudflare Redirect Rule to the same public guide.
-- `app.thecapstoneapp.com` serves the secure app/backend from `senior-capstone-app`.
+- `thecapstoneproject.com` -> `senior-capstone-app`
+- `www.thecapstoneproject.com` -> `senior-capstone-app` if alias is configured
+- `app.thecapstoneproject.com` -> optional only if a later split remains required
+
+Current legacy state:
+
+- `thecapstoneapp.com` and `www.thecapstoneapp.com` are legacy/current public guide hostnames pending migration.
+- `app.thecapstoneapp.com` is the current legacy app hostname and current Google Workspace SSO redirect host.
+- Current Google OAuth redirect URI remains `https://app.thecapstoneapp.com/api/auth/google/callback` until a later Cloudflare plus Google OAuth redirect URI cutover adds the exact new URI in Google Cloud and Cloudflare env/secrets.
 
 Cloudflare Pages custom-domain association is required before any hostname is considered cut over. DNS or CNAME evidence alone is not enough. Verify with the Pages Domains API or the Cloudflare dashboard Custom domains page before claiming live production-domain success.
 
-`senior-capstone-option-titan` and `senior-capstone-option-primary` must not be mapped to `thecapstoneapp.com`, `www.thecapstoneapp.com`, or `app.thecapstoneapp.com`. They remain review-only until Bryan makes a separate stakeholder lifecycle decision.
-
 Do not use `_redirects` as a domain-level redirect mechanism and do not use `_redirects` as a security boundary for `/api/*`, `alpha.html`, `account.html`, or internal QA API routes. `_redirects` applies to static asset responses, while Pages Functions routing is controlled by file routes plus `_routes.json`; `_routes.json` `exclude` rules have priority over `include` rules.
+
+## Retired Stakeholder Options
+
+`Titan Blend` and `Back To Basics` are retired as active stakeholder options. Titan visual direction is absorbed into the East Tech guide theme.
+
+Retired technical artifacts:
+
+- `stakeholder-options/titan-blend/`
+- `stakeholder-options/back-to-basics/`
+- `senior-capstone-option-titan`
+- `senior-capstone-option-primary`
+
+The historical directories may remain temporarily as non-deployed review history. The active package scripts `build:stakeholder-sites`, `build:site-options`, `dev:option:titan`, `dev:option:primary`, `deploy:option:titan`, and `deploy:option:primary` must not exist. `check:site-options` validates that retired options are not active deploy targets.
+
+Cloudflare cleanup for `senior-capstone-option-titan` and `senior-capstone-option-primary` is manual follow-up unless live tooling verifies deletion/disablement.
 
 ## Production Deploy Scripts
 
@@ -45,19 +74,12 @@ Production scripts:
 - `npm run deploy`: deploys repo root to `senior-capstone-app`.
 - `npm run deploy:public-site`: rebuilds and deploys `public-companion/` to `senior-capstone-public`.
 
-Preview or review-only scripts:
+Preview/internal scripts:
 
 - `npm run deploy:preview`: deploys the root app project to branch `alpha`; this is not the canonical production branch.
-- `npm run deploy:option:titan`: deploys `stakeholder-options/titan-blend/` to `senior-capstone-option-titan`; review only.
-- `npm run deploy:option:primary`: deploys `stakeholder-options/back-to-basics/` to `senior-capstone-option-primary`; review only.
-
-Local dev scripts:
-
 - `npm run dev`: root app/backend local Pages dev.
 - `npm run dev:alpha`: internal alpha/QA local Pages dev.
-- `npm run dev:public-site`: generated public companion local Pages dev.
-- `npm run dev:option:titan`: stakeholder review local Pages dev.
-- `npm run dev:option:primary`: stakeholder review local Pages dev.
+- `npm run dev:public-site`: generated East Tech guide local Pages dev.
 
 ## Pages Not Linked From Production Navigation
 
@@ -67,9 +89,9 @@ These pages must not be part of normal student/family production navigation:
 - `account.html`
 - Any route with alpha reset/report controls
 - Any fake account, `.test` account, seeded-persona, smoke-test, or internal run-report UI
-- Any `stakeholder-options/**` page unless a stakeholder is intentionally reviewing a design direction
+- Any `stakeholder-options/**` page
 
-`app-preview.html` may remain linked only as a clearly labeled non-production workflow preview. It must not claim the secure app is finished or pilot-ready.
+`app-preview.html` may remain linked only as a clearly labeled workflow preview. It must not claim the secure app is finished or pilot-ready.
 
 ## Internal QA Only
 
@@ -85,64 +107,17 @@ Internal QA pages may include alpha, smoke, fake-account, seeded-record, and no-
 
 Current enforceable alpha/account deployment policy is Option A safety from `docs/alpha-account-deployment-decision.md`: deployed from the app project, unlinked from normal production navigation, internal-labeled, and fake `.test` only. Option B or C remains open before broader pilot unless Bryan explicitly accepts direct URL exposure.
 
-## Forbidden Production Copy
-
-Production-classified public surfaces must not include visible copy or labels that suggest dev/test leakage, including:
-
-- fake account
-- smoke test
-- seeded demo
-- Day 7 Alpha
-- alpha console
-- reset alpha
-- run report
-- test account
-- `.test account`
-- localhost
-- not pilot-ready
-- prototype only
-- stakeholder review direction
-- Option 1
-- Option 2
-- product preview
-- demo persona
-- seeded persona
-- no production accounts
-- do not enter real student records
-- MVP account check
-- Open App Alpha
-
-The production checker enforces these phrases only against production/public generated surfaces. Docs, tests, internal QA pages, stakeholder option artifacts, and fixtures may mention them when explaining boundaries.
-
 ## Generated Output
 
-Generated output roots:
+Generated output root:
 
 - `public-companion/`
-- `stakeholder-options/titan-blend/`
-- `stakeholder-options/back-to-basics/`
 
 Source of truth:
 
 - Root public pages, `app.js`, `styles.css`, `assets/`, and `templates/` feed `public-companion/` through `scripts/build-public-site.mjs`.
-- `scripts/build-stakeholder-sites.mjs` is the source of truth for both stakeholder option directories.
 
-Generated directories are tracked because each Cloudflare Pages project can deploy from its own root. Do not manually edit generated output as the source of truth. Change the source/build script, rebuild with `npm run build:site-options`, run `npm run check:site-options`, and commit source plus generated output together.
-
-Generated public companion output must not proxy unlabeled internal alpha, account QA, or app API routes. `scripts/check-generated-output-drift.mjs` enforces that `public-companion/` still matches source expectations and that review option output keeps its stakeholder-only labels. Stakeholder option output may link to the internal alpha only with an explicit QA/internal label and must display that it is not canonical production.
-
-## Stakeholder Options
-
-`stakeholder-options/**` are review artifacts only. They are allowed to show visual-direction language such as Option 2 or Option 3 because that is the point of the artifact, but they are not canonical production and must be labeled as review options.
-
-Do not deploy a stakeholder option as canonical production without a new Bryan decision and a follow-up pass that updates:
-
-- this policy
-- `docs/production-surface-registry.md`
-- `docs/public-site.md`
-- `docs/stakeholder-site-options.md`
-- package deploy script descriptions if needed
-- production-surface validation allowlists
+Generated public guide output must not proxy unlabeled internal alpha, account QA, or app API routes. `scripts/check-generated-output-drift.mjs` enforces that `public-companion/` still matches source expectations. Retired stakeholder output is checked by `scripts/check-site-options.mjs` as historical only, not as deterministic active deploy output.
 
 ## Validation
 

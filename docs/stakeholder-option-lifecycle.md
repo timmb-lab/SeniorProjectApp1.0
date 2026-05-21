@@ -1,102 +1,74 @@
 # Stakeholder Option Lifecycle
 
-Date: 2026-05-20
+Date: 2026-05-21
 
-The stakeholder option sites are generated review artifacts, not canonical production. They may stay in the repo only when their lifecycle is clear and validation keeps them from being mistaken for the production app or public companion.
+Final decision: stakeholder option comparison is over.
 
-Current option sites:
+## Locked Outcome
 
-- `stakeholder-options/titan-blend/` deploys to `senior-capstone-option-titan`.
-- `stakeholder-options/back-to-basics/` deploys to `senior-capstone-option-primary`.
-- Source of truth is `scripts/build-stakeholder-sites.mjs`.
-- Both must display the stakeholder review banner.
-- Alpha links must be labeled `Internal Alpha QA`.
+- Official product title is Capstone Project.
+- `Titan Blend` is retired as an active option.
+- `Back To Basics` is retired as an active option.
+- Titan visual direction is absorbed into the East Tech Senior Capstone Guide.
+- The East Tech guide remains school-specific public content.
+- Capstone Project product/app remains school-agnostic and tenant-ready.
 
-## Lifecycle 1: Retain As Review Artifact
+## Repo State
 
-Use this when Bryan still wants stakeholders to compare visual directions.
+Retired historical roots:
 
-Required repo state:
+- `stakeholder-options/titan-blend/`
+- `stakeholder-options/back-to-basics/`
 
-- Keep both generated option roots committed.
-- Keep deploy scripts named as review-only targets.
-- Keep `docs/production-deployment-policy.md` and `docs/production-surface-registry.md` classifying them as `stakeholder-review`.
-- Keep `scripts/check-generated-output-drift.mjs` and `scripts/check-site-options.mjs` passing.
+Retired Cloudflare Pages project names:
 
-Validation:
+- `senior-capstone-option-titan`
+- `senior-capstone-option-primary`
 
-```powershell
-powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 check:generated-output-drift
-powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 check:site-options
-```
+The directories may remain temporarily as historical review output, but they are not active deploy targets and must not be linked from normal product or guide navigation.
 
-Do not:
+Removed active package scripts:
 
-- Link option pages from normal production navigation.
-- Describe either option as canonical production.
-- Deploy an option to the final production custom domain.
+- `build:stakeholder-sites`
+- `build:site-options`
+- `dev:option:titan`
+- `dev:option:primary`
+- `deploy:option:titan`
+- `deploy:option:primary`
 
-## Lifecycle 2: Retire
-
-Use this when Bryan is done comparing one or both option sites.
-
-Required repo changes:
-
-- Remove or archive the retired generated output root.
-- Remove or disable the corresponding deploy script if the target will no longer be maintained.
-- Update `docs/production-surface-registry.md`, `docs/production-deployment-policy.md`, `docs/stakeholder-site-options.md`, README, and route inventory.
-- Update `scripts/check-generated-output-drift.mjs` and `scripts/check-site-options.mjs` so they no longer require the retired output.
-- Add a run-log note with the retirement reason and date.
-
-Required Cloudflare changes:
-
-- Disable, delete, or clearly mark the retired Pages project as non-production.
-- Remove any custom domains or stakeholder links pointing to the retired target.
-
-Validation:
+Retained validation:
 
 ```powershell
-powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 check:route-inventory
-powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 check
+npm run check:site-options
 ```
 
-Cleanup steps:
+That checker now validates retirement state, not active option generation.
 
-- Confirm no production page links to the retired option.
-- Confirm no package script suggests retired output is canonical.
-- Confirm docs no longer ask reviewers to use a retired site.
+## Cloudflare Follow-Up
 
-## Lifecycle 3: Promote To Canonical Public Companion
+Cloudflare option project cleanup is a manual follow-up unless live tooling verifies it in a dedicated pass. Safe cleanup choices are:
 
-Use this only if Bryan chooses one option as the public companion design direction.
+- disable the retired Pages projects;
+- delete them after confirming no needed historical artifact is lost;
+- leave them unlinked and unmapped while documenting them as historical only.
 
-Required repo changes:
+Do not map retired option projects to:
 
-- Move the chosen direction into the public companion source/build path.
-- Remove stakeholder-review wording from the promoted production output.
-- Remove alpha/internal QA links from the promoted production output.
-- Update `scripts/build-public-site.mjs` or the source public pages so `public-companion/` is generated from the promoted direction.
-- Update package scripts only if the canonical public companion deploy command changes.
-- Update `docs/production-deployment-policy.md`, `docs/production-surface-registry.md`, README, `docs/public-site.md`, and route inventory.
-- Update `scripts/check-production-surfaces.mjs` and `scripts/check-generated-output-drift.mjs` so the promoted surface is scanned as production-safe public output.
+- `thecapstoneproject.com`
+- `www.thecapstoneproject.com`
+- `app.thecapstoneproject.com`
+- any future East Tech guide custom domain
 
-Required Cloudflare changes:
+## Future Design Work
 
-- Keep or migrate canonical public companion deployment to `senior-capstone-public` unless Bryan chooses a new project.
-- Remove review-only Pages project mapping if it becomes obsolete.
-- Verify custom-domain mapping after promotion.
+Future East Tech guide design work should happen in the canonical guide source:
 
-Validation:
+- `index.html`
+- public route HTML files
+- `app.js`
+- `styles.css`
+- `assets/`
+- `templates/`
+- generated `public-companion/`
 
-```powershell
-powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 check:production-surfaces
-powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 check:generated-output-drift
-powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 check:route-inventory
-powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 check
-```
-
-Promotion is not complete until production-surface validation passes and the route inventory shows the promoted output as canonical public companion, not stakeholder review.
-
-## Current Recommendation
-
-No final lifecycle decision is recorded yet. Keep both option sites as labeled review artifacts until Bryan chooses retain, retire, or promote.
+Do not revive stakeholder option labels as normal production modes.

@@ -8,38 +8,45 @@ const configPath = path.join(repoRoot, "config", "production-domains.json");
 
 const EXPECTED = {
   accountId: "539e8f7c55e7b1472013626ad72f4c7f",
-  domain: "thecapstoneapp.com",
-  rootMode: "guide-root-app-subdomain",
-  hostnames: {
+  productDomain: "thecapstoneproject.com",
+  rootMode: "product-root-target-guide-temporary",
+  targetHostnames: {
+    productApex: "thecapstoneproject.com",
+    productWwwAlias: "www.thecapstoneproject.com",
+    appSubdomainIfNeeded: "app.thecapstoneproject.com",
+  },
+  currentLegacyHostnames: {
     publicApex: "thecapstoneapp.com",
     publicWww: "www.thecapstoneapp.com",
     app: "app.thecapstoneapp.com",
   },
+  currentSsoRedirectUri: "https://app.thecapstoneapp.com/api/auth/google/callback",
+  guideFutureCustomDomain: "TBD",
   pagesProjects: {
     publicGuide: "senior-capstone-public",
     appBackend: "senior-capstone-app",
+  },
+  retiredPagesProjects: {
     stakeholderTitan: "senior-capstone-option-titan",
     stakeholderPrimary: "senior-capstone-option-primary",
   },
   pagesDevFallbacks: {
     publicGuide: "https://senior-capstone-public.pages.dev",
     appBackend: "https://senior-capstone-app.pages.dev",
+  },
+  retiredPagesDevFallbacks: {
     stakeholderTitan: "https://senior-capstone-option-titan.pages.dev",
     stakeholderPrimary: "https://senior-capstone-option-primary.pages.dev",
   },
 };
 
-const REQUIRED_PRODUCTION_HOSTNAMES = new Set(Object.values(EXPECTED.hostnames));
+const REQUIRED_TARGET_HOSTNAMES = new Set(Object.values(EXPECTED.targetHostnames));
 const ACTIVE_STATUS = new Set(["active"]);
 const PENDING_STATUS = new Set(["initializing", "pending"]);
 const FAIL_STATUS = new Set(["blocked", "deactivated", "error"]);
 
 function isRecord(value) {
   return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-function normalizePath(value) {
-  return String(value || "").replace(/\\/g, "/");
 }
 
 function normalizeStatus(value) {
@@ -89,6 +96,12 @@ function assertEqual(result, actual, expected, label) {
   addFailure(result, `${label}: expected ${JSON.stringify(expected)}, got ${JSON.stringify(actual)}`);
 }
 
+function assertNested(result, object, expected, label) {
+  for (const [key, value] of Object.entries(expected)) {
+    assertEqual(result, object?.[key], value, `${label}.${key}`);
+  }
+}
+
 export function validateProductionDomainConfig(config) {
   const result = { ok: true, failures: [], warnings: [] };
 
@@ -98,36 +111,38 @@ export function validateProductionDomainConfig(config) {
     return result;
   }
 
-  assertEqual(result, config.schemaVersion, 1, "schemaVersion");
-  assertEqual(result, config.domain, EXPECTED.domain, "domain");
+  assertEqual(result, config.schemaVersion, 2, "schemaVersion");
+  assertEqual(result, config.productDomain, EXPECTED.productDomain, "productDomain");
   assertEqual(result, config.rootMode, EXPECTED.rootMode, "rootMode");
-
-  for (const [key, expected] of Object.entries(EXPECTED.hostnames)) {
-    assertEqual(result, config.hostnames?.[key], expected, `hostnames.${key}`);
-  }
-  for (const [key, expected] of Object.entries(EXPECTED.pagesProjects)) {
-    assertEqual(result, config.pagesProjects?.[key], expected, `pagesProjects.${key}`);
-  }
-  for (const [key, expected] of Object.entries(EXPECTED.pagesDevFallbacks)) {
-    assertEqual(result, config.pagesDevFallbacks?.[key], expected, `pagesDevFallbacks.${key}`);
-  }
+  assertNested(result, config.targetHostnames, EXPECTED.targetHostnames, "targetHostnames");
+  assertNested(result, config.currentLegacyHostnames, EXPECTED.currentLegacyHostnames, "currentLegacyHostnames");
+  assertEqual(result, config.currentSsoRedirectUri, EXPECTED.currentSsoRedirectUri, "currentSsoRedirectUri");
+  assertEqual(result, config.guide?.futureCustomDomain, EXPECTED.guideFutureCustomDomain, "guide.futureCustomDomain");
+  assertEqual(result, config.guide?.currentDeploySource, "public-companion/", "guide.currentDeploySource");
+  assertEqual(result, config.guide?.currentPagesProject, EXPECTED.pagesProjects.publicGuide, "guide.currentPagesProject");
+  assertEqual(result, config.guide?.currentPagesDevFallback, EXPECTED.pagesDevFallbacks.publicGuide, "guide.currentPagesDevFallback");
+  assertNested(result, config.pagesProjects, EXPECTED.pagesProjects, "pagesProjects");
+  assertNested(result, config.retiredPagesProjects, EXPECTED.retiredPagesProjects, "retiredPagesProjects");
+  assertNested(result, config.pagesDevFallbacks, EXPECTED.pagesDevFallbacks, "pagesDevFallbacks");
+  assertNested(result, config.retiredPagesDevFallbacks, EXPECTED.retiredPagesDevFallbacks, "retiredPagesDevFallbacks");
 
   const policy = config.policy || {};
-  assertEqual(result, policy.stakeholderOptionsMayUseProductionDomain, false, "policy.stakeholderOptionsMayUseProductionDomain");
+  assertEqual(result, policy.stakeholderOptionsMayUseProductDomain, false, "policy.stakeholderOptionsMayUseProductDomain");
+  assertEqual(result, policy.retiredStakeholderOptionsMayDeploy, false, "policy.retiredStakeholderOptionsMayDeploy");
   assertEqual(result, policy.realUserOnboardingPolicyChangeAllowed, false, "policy.realUserOnboardingPolicyChangeAllowed");
-  assertEqual(result, policy.disablePagesDevFallbackAfterCutover, false, "policy.disablePagesDevFallbackAfterCutover");
-  assertEqual(result, policy.publicWwwBehavior, "serve-same-public-guide-or-cloudflare-redirect-rule", "policy.publicWwwBehavior");
+  assertEqual(result, policy.disablePagesDevFallbackBeforeCutover, false, "policy.disablePagesDevFallbackBeforeCutover");
+  assertEqual(result, policy.guideFutureDomainMustRemainTbd, true, "policy.guideFutureDomainMustRemainTbd");
   assertEqual(result, policy.doNotUseRedirectsFileForDomainLevelRedirects, true, "policy.doNotUseRedirectsFileForDomainLevelRedirects");
+  assertEqual(result, policy.targetDomainLiveStatus, "pending-cloudflare-dns-tls-verification", "policy.targetDomainLiveStatus");
 
-  const stakeholderStrings = [
-    ...collectStrings(config.pagesProjects?.stakeholderTitan),
-    ...collectStrings(config.pagesProjects?.stakeholderPrimary),
+  const retiredStrings = [
+    ...collectStrings(config.retiredPagesProjects),
     ...collectStrings(config.customDomains?.stakeholderTitan),
     ...collectStrings(config.customDomains?.stakeholderPrimary),
   ];
-  for (const value of stakeholderStrings) {
-    if (REQUIRED_PRODUCTION_HOSTNAMES.has(value)) {
-      addFailure(result, `stakeholder project is mapped to production hostname ${value}`);
+  for (const value of retiredStrings) {
+    if (REQUIRED_TARGET_HOSTNAMES.has(value)) {
+      addFailure(result, `retired stakeholder project is mapped to target product hostname ${value}`);
     }
   }
 
@@ -141,27 +156,13 @@ export function validateCutoverDocs(files) {
   const registry = files["docs/production-surface-registry.md"] || "";
   const policy = files["docs/production-deployment-policy.md"] || "";
 
-  const stalePatterns = [
-    /Hostnames are placeholders/i,
-    /Placeholders until Bryan decides/i,
-    /future Bryan-owned custom domain/i,
-    /Choose whether the root domain should serve/i,
-    /Bryan chooses final custom-domain mapping/i,
-  ];
-  for (const pattern of stalePatterns) {
-    if (pattern.test(cutover)) {
-      result.failures.push(`stale placeholder custom-domain language remains: ${pattern.source}`);
-    }
-  }
-
   const requiredCutoverPhrases = [
-    "Domain selected: `thecapstoneapp.com`",
-    "Purchased through Cloudflare: confirmed by Bryan",
-    "Added to Cloudflare: confirmed by Bryan",
-    "Root mode: `guide-root-app-subdomain`",
-    "`thecapstoneapp.com`",
-    "`www.thecapstoneapp.com`",
-    "`app.thecapstoneapp.com`",
+    "Product/app target domain: `thecapstoneproject.com`",
+    "Target product alias: `www.thecapstoneproject.com`",
+    "Optional app split hostname: `app.thecapstoneproject.com`",
+    "East Tech guide future custom domain: `TBD`",
+    "Current legacy hostnames pending migration: `thecapstoneapp.com`, `www.thecapstoneapp.com`, `app.thecapstoneapp.com`",
+    "Current Google OAuth redirect URI remains `https://app.thecapstoneapp.com/api/auth/google/callback`",
     "GET /accounts/{account_id}/pages/projects/{project_name}/domains",
     "POST /accounts/{account_id}/pages/projects/{project_name}/domains",
     "CNAME-only",
@@ -173,9 +174,14 @@ export function validateCutoverDocs(files) {
     }
   }
 
-  for (const hostname of Object.values(EXPECTED.hostnames)) {
+  for (const hostname of Object.values(EXPECTED.targetHostnames)) {
     if (!registry.includes(hostname)) {
-      result.failures.push(`production surface registry missing hostname ${hostname}`);
+      result.failures.push(`production surface registry missing target hostname ${hostname}`);
+    }
+  }
+  for (const hostname of Object.values(EXPECTED.currentLegacyHostnames)) {
+    if (!registry.includes(hostname)) {
+      result.failures.push(`production surface registry missing legacy hostname ${hostname}`);
     }
   }
 
@@ -191,7 +197,9 @@ export function validateCutoverDocs(files) {
   }
 
   const policyPhrases = [
-    "guide-root-app-subdomain",
+    "Capstone Project",
+    "thecapstoneproject.com",
+    "East Tech guide future custom domain is `TBD`",
     "Cloudflare Pages custom-domain association",
     "senior-capstone-option-titan",
     "senior-capstone-option-primary",
@@ -255,15 +263,13 @@ export function evaluatePagesDomainAssociations({
   const findings = [];
   const summaries = [];
   const expectedMappings = [
-    { hostname: expected.hostnames.publicApex, project: expected.pagesProjects.publicGuide, role: "public apex" },
-    { hostname: expected.hostnames.publicWww, project: expected.pagesProjects.publicGuide, role: "public www" },
-    { hostname: expected.hostnames.app, project: expected.pagesProjects.appBackend, role: "app" },
+    { hostname: expected.targetHostnames.productApex, project: expected.pagesProjects.appBackend, role: "product apex" },
+    { hostname: expected.targetHostnames.productWwwAlias, project: expected.pagesProjects.appBackend, role: "product www alias" },
   ];
-  const stakeholderProjects = [
-    expected.pagesProjects.stakeholderTitan,
-    expected.pagesProjects.stakeholderPrimary,
+  const optionalMappings = [
+    { hostname: expected.targetHostnames.appSubdomainIfNeeded, project: expected.pagesProjects.appBackend, role: "optional app split" },
   ];
-
+  const retiredProjects = Object.values(expected.retiredPagesProjects || {});
   const domainsByProject = projectDomains || {};
 
   for (const [project, entries] of Object.entries(domainsByProject)) {
@@ -272,7 +278,7 @@ export function evaluatePagesDomainAssociations({
     }
   }
 
-  for (const mapping of expectedMappings) {
+  for (const mapping of [...expectedMappings, ...optionalMappings]) {
     const record = (domainsByProject[mapping.project] || []).find((entry) => domainRecordName(entry) === mapping.hostname);
     if (!record) {
       const cnameOnly = dnsRecords.some((entry) => (
@@ -283,9 +289,10 @@ export function evaluatePagesDomainAssociations({
       ));
       findings.push({
         code: cnameOnly ? "CNAME_ONLY_WITHOUT_PAGES_ASSOCIATION" : "PAGES_DOMAIN_ASSOCIATION_MISSING",
-        label: "PAGES_DOMAIN_ASSOCIATION_MISSING",
+        label: mapping.role === "optional app split" ? "OPTIONAL_APP_DOMAIN_NOT_CONFIGURED" : "PAGES_DOMAIN_ASSOCIATION_MISSING",
         project: mapping.project,
         hostname: mapping.hostname,
+        optional: mapping.role === "optional app split",
         message: cnameOnly
           ? `${mapping.hostname} has CNAME-looking evidence but no Pages custom-domain association on ${mapping.project}`
           : `${mapping.hostname} is missing from ${mapping.project}`,
@@ -300,6 +307,7 @@ export function evaluatePagesDomainAssociations({
         label: "PAGES_DOMAIN_ASSOCIATION_ACTIVE",
         project: mapping.project,
         hostname: mapping.hostname,
+        optional: mapping.role === "optional app split",
         message: `${mapping.hostname} is active on ${mapping.project}`,
       });
     } else if (bucket === "pending") {
@@ -308,6 +316,7 @@ export function evaluatePagesDomainAssociations({
         label: "PAGES_DOMAIN_ASSOCIATION_PENDING",
         project: mapping.project,
         hostname: mapping.hostname,
+        optional: mapping.role === "optional app split",
         message: `${mapping.hostname} is pending on ${mapping.project}`,
       });
     } else {
@@ -316,33 +325,32 @@ export function evaluatePagesDomainAssociations({
         label: bucket === "fail" ? "PAGES_DOMAIN_ASSOCIATION_FAILED" : "PAGES_DOMAIN_ASSOCIATION_PENDING",
         project: mapping.project,
         hostname: mapping.hostname,
+        optional: mapping.role === "optional app split",
         message: `${mapping.hostname} is not active on ${mapping.project}`,
       });
     }
   }
 
-  for (const project of stakeholderProjects) {
+  for (const project of retiredProjects) {
     for (const entry of domainsByProject[project] || []) {
       const hostname = domainRecordName(entry);
-      if (REQUIRED_PRODUCTION_HOSTNAMES.has(hostname)) {
+      if (REQUIRED_TARGET_HOSTNAMES.has(hostname)) {
         findings.push({
-          code: "STAKEHOLDER_PROJECT_HAS_PRODUCTION_HOSTNAME",
+          code: "RETIRED_STAKEHOLDER_PROJECT_HAS_TARGET_HOSTNAME",
           label: "CUSTOM_DOMAIN_CUTOVER_NOT_VERIFIED",
           project,
           hostname,
-          message: `${hostname} must not be attached to stakeholder review project ${project}`,
+          message: `${hostname} must not be attached to retired stakeholder project ${project}`,
         });
       }
     }
   }
 
-  const requiredFindings = findings.filter((finding) => (
-    expectedMappings.some((mapping) => mapping.hostname === finding.hostname && mapping.project === finding.project)
-  ));
+  const requiredFindings = findings.filter((finding) => !finding.optional);
   const activeCount = requiredFindings.filter((finding) => finding.code === "PAGES_DOMAIN_ASSOCIATION_ACTIVE").length;
   const pendingCount = requiredFindings.filter((finding) => finding.code === "PAGES_DOMAIN_ASSOCIATION_PENDING" || finding.label === "PAGES_DOMAIN_ASSOCIATION_PENDING").length;
   const missingCount = requiredFindings.filter((finding) => finding.code === "PAGES_DOMAIN_ASSOCIATION_MISSING" || finding.code === "CNAME_ONLY_WITHOUT_PAGES_ASSOCIATION").length;
-  const failCount = findings.filter((finding) => /FAILED|STAKEHOLDER|NOT_ACTIVE/.test(finding.code)).length;
+  const failCount = findings.filter((finding) => /FAILED|STAKEHOLDER|NOT_ACTIVE/.test(finding.code) && !finding.optional).length;
 
   return {
     ok: activeCount === expectedMappings.length && failCount === 0,
@@ -392,7 +400,10 @@ async function cloudflareRequest(fetchImpl, apiPath, token) {
 export async function fetchPagesDomainAssociations({ token, accountId, fetchImpl = fetch }) {
   await cloudflareRequest(fetchImpl, "/user/tokens/verify", token);
 
-  const projectNames = Object.values(EXPECTED.pagesProjects);
+  const projectNames = [
+    ...Object.values(EXPECTED.pagesProjects),
+    ...Object.values(EXPECTED.retiredPagesProjects),
+  ];
   const projectDomains = {};
   for (const projectName of projectNames) {
     const data = await cloudflareRequest(
@@ -417,7 +428,7 @@ async function fetchWithRedirects(url, { fetchImpl = fetch, timeoutMs = 8000, ma
         redirect: "manual",
         signal: controller.signal,
         headers: {
-          "user-agent": "SeniorProjectAppDomainCutoverChecker/1.0",
+          "user-agent": "CapstoneProjectDomainCutoverChecker/1.0",
         },
       });
       const location = response.headers.get("location");
@@ -444,45 +455,25 @@ function responseLooksUnsafe(response) {
   return /senior-capstone-option-(titan|primary)|alpha\.html|account\.html/i.test(`${urls}\n${text}`);
 }
 
-export async function runHttpsLiveChecks({ fetchImpl = fetch, hostnames = EXPECTED.hostnames } = {}) {
+export async function runHttpsLiveChecks({ fetchImpl = fetch, hostnames = EXPECTED.targetHostnames } = {}) {
   const checks = [];
-  const publicTargets = [
-    { label: "root public guide", url: `https://${hostnames.publicApex}/` },
-    { label: "www public guide", url: `https://${hostnames.publicWww}/` },
+  const productTargets = [
+    { label: "product root", url: `https://${hostnames.productApex}/` },
+    { label: "product workspace", url: `https://${hostnames.productApex}/workspace.html` },
+    { label: "product api health", url: `https://${hostnames.productApex}/api/health` },
+    { label: "product api auth me", url: `https://${hostnames.productApex}/api/auth/me` },
   ];
-  for (const target of publicTargets) {
-    try {
-      const response = await fetchWithRedirects(target.url, { fetchImpl });
-      const hasGuide = /Senior Capstone|Capstone App|Student Guide|Teacher Guide/i.test(response.text || "");
-      checks.push({
-        ...target,
-        ok: Boolean(response.ok && hasGuide && !responseLooksUnsafe(response)),
-        status: response.status || null,
-        finalUrl: response.finalUrl || "",
-        reason: response.reason || (hasGuide ? "" : "public guide marker not found"),
-      });
-    } catch (error) {
-      checks.push({ ...target, ok: false, status: null, finalUrl: "", reason: error instanceof Error ? error.message : String(error) });
-    }
-  }
-
-  const appTargets = [
-    { label: "app host", url: `https://${hostnames.app}/` },
-    { label: "workspace", url: `https://${hostnames.app}/workspace.html` },
-    { label: "api health", url: `https://${hostnames.app}/api/health` },
-    { label: "api auth me", url: `https://${hostnames.app}/api/auth/me` },
-  ];
-  for (const target of appTargets) {
+  for (const target of productTargets) {
     try {
       const response = await fetchWithRedirects(target.url, { fetchImpl });
       let ok = Boolean(response.ok && !responseLooksUnsafe(response));
-      if (target.label === "api auth me") {
+      if (target.label === "product api auth me") {
         ok = [200, 401].includes(response.status) && /authenticated|unauthorized|not_authenticated/i.test(response.text || "");
       }
-      if (target.label === "api health") {
+      if (target.label === "product api health") {
         ok = response.status === 200 && /environment|ok|healthy|authMode/i.test(response.text || "");
       }
-      if (target.label === "workspace") {
+      if (target.label === "product workspace") {
         ok = [200, 301, 302, 307, 308].includes(response.status) && !responseLooksUnsafe(response);
       }
       checks.push({
@@ -509,16 +500,18 @@ async function loadDocsForValidation() {
     "docs/production-surface-registry.md",
     "docs/production-deployment-policy.md",
   ];
-  const entries = await Promise.all(paths.map(async (relativePath) => [normalizePath(relativePath), await readTextIfExists(relativePath)]));
+  const entries = await Promise.all(paths.map(async (relativePath) => [relativePath.replace(/\\/g, "/"), await readTextIfExists(relativePath)]));
   return Object.fromEntries(entries);
 }
 
 function printStaticLabels(config) {
-  console.log(`DOMAIN_SELECTION_RESOLVED ${config.domain}`);
-  console.log(`ROOT_MODE_GUIDE_ROOT_APP_SUBDOMAIN ${config.rootMode}`);
-  console.log(`PUBLIC_APEX_HOSTNAME ${config.hostnames.publicApex}`);
-  console.log(`PUBLIC_WWW_HOSTNAME ${config.hostnames.publicWww}`);
-  console.log(`APP_HOSTNAME ${config.hostnames.app}`);
+  console.log(`PRODUCT_DOMAIN_TARGET ${config.productDomain}`);
+  console.log(`ROOT_MODE_TARGET ${config.rootMode}`);
+  console.log(`TARGET_PRODUCT_APEX ${config.targetHostnames.productApex}`);
+  console.log(`TARGET_PRODUCT_WWW_ALIAS ${config.targetHostnames.productWwwAlias}`);
+  console.log(`TARGET_APP_SUBDOMAIN_IF_NEEDED ${config.targetHostnames.appSubdomainIfNeeded}`);
+  console.log(`GUIDE_FUTURE_DOMAIN ${config.guide.futureCustomDomain}`);
+  console.log(`CURRENT_LEGACY_APP_HOSTNAME ${config.currentLegacyHostnames.app}`);
 }
 
 async function main() {
@@ -547,7 +540,7 @@ async function main() {
     console.error("CUSTOM_DOMAIN_CUTOVER_NOT_VERIFIED static config/docs failed.");
     process.exit(1);
   }
-  console.log("PASS static: production domain config and docs are aligned.");
+  console.log("PASS static: target domain config and docs are aligned without claiming live Cloudflare cutover.");
 
   if (staticOnly) {
     console.log("CUSTOM_DOMAIN_CUTOVER_NOT_VERIFIED live custom-domain checks skipped by --static-only.");
@@ -562,7 +555,7 @@ async function main() {
       const projectDomains = await fetchPagesDomainAssociations({ token, accountId });
       const association = evaluatePagesDomainAssociations({ projectDomains });
       for (const finding of association.findings) {
-        const method = finding.code === "PAGES_DOMAIN_ASSOCIATION_ACTIVE" ? "log" : "error";
+        const method = finding.code === "PAGES_DOMAIN_ASSOCIATION_ACTIVE" || finding.optional ? "log" : "error";
         console[method](`${finding.label} ${finding.hostname} ${finding.project}: ${finding.message}`);
       }
       for (const summary of association.summaries) {
@@ -583,22 +576,22 @@ async function main() {
 
   let httpsVerified = false;
   if (liveHttp) {
-    const checks = await runHttpsLiveChecks({ hostnames: config.hostnames });
+    const checks = await runHttpsLiveChecks({ hostnames: config.targetHostnames });
     httpsVerified = checks.every((check) => check.ok);
     for (const check of checks) {
       const label = check.ok ? "PASS live" : "FAIL live";
       console.log(`${label}: ${check.label} ${check.url} status=${check.status ?? "n/a"}${check.finalUrl ? ` final=${check.finalUrl}` : ""}${check.reason ? ` reason=${redactKnownSecrets(check.reason)}` : ""}`);
     }
     if (!httpsVerified) {
-      console.log("DNS_OR_TLS_PENDING one or more HTTPS custom-domain checks did not pass.");
+      console.log("DNS_OR_TLS_PENDING one or more HTTPS target-domain checks did not pass.");
       if (liveRequired) exitCode = 1;
     }
   }
 
   if (associationsVerified && (!liveHttp || httpsVerified)) {
-    console.log("CUSTOM_DOMAIN_CUTOVER_VERIFIED Pages custom-domain associations and requested HTTPS checks passed.");
+    console.log("CUSTOM_DOMAIN_CUTOVER_VERIFIED target product domain Pages custom-domain associations and requested HTTPS checks passed.");
   } else {
-    console.log("CUSTOM_DOMAIN_CUTOVER_NOT_VERIFIED live custom-domain cutover is pending, blocked, or not requested.");
+    console.log("CUSTOM_DOMAIN_CUTOVER_NOT_VERIFIED target product domain cutover is pending, blocked, or not requested.");
   }
 
   process.exit(exitCode);

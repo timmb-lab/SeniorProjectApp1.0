@@ -2,7 +2,7 @@
 
 Date: 2026-05-18
 
-These milestones keep the automation lanes pointed at the revised MVP: a secure database-backed Senior Capstone app, designed heavily in Figma, supported by polished Canva imagery, and hosted from GitHub to Cloudflare.
+These milestones keep the automation lanes pointed at the revised MVP: a secure database-backed Capstone Project app, designed heavily in Figma, supported by polished Canva imagery, and hosted from GitHub to Cloudflare.
 
 The detailed category-owned MVP requirements live in `docs/mvp-requirements-catalog.md`. Milestone work should update that catalog whenever status, evidence, blockers, or acceptance checks materially change.
 

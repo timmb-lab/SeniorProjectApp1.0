@@ -268,6 +268,34 @@ if (missingPublicGuideToggleRequirements.length > 0) {
   );
 }
 
+const workspaceText = await Promise.all(
+  ["workspace.html", "workspace.js", "workspace.css"].map(async (relativePath) => {
+    try {
+      return [relativePath, await readFile(path.join(repoRoot, relativePath), "utf8")];
+    } catch {
+      return [relativePath, ""];
+    }
+  }),
+);
+const schoolSpecificWorkspacePatterns = [
+  ["East Tech", /\bEast\s+Tech\b/i],
+  ["East Career", /\bEast\s+Career\b/i],
+  ["ECTA", /\bECTA\b/i],
+  ["Titans", /\bTitans?\b/i],
+  ["Las Vegas", /\bLas\s+Vegas\b/i],
+  ["CCSD", /\bCCSD\b/i],
+  ["titan-blue token", /--titan-blue\b/i],
+  ["titan-silver token", /--titan-silver\b/i],
+];
+for (const [relativePath, text] of workspaceText) {
+  for (const [label, pattern] of schoolSpecificWorkspacePatterns) {
+    const match = pattern.exec(text);
+    if (!match) continue;
+    const { line, column } = findLineAndColumn(text, match.index);
+    findings.push({ relativePath, phrase: `school-specific workspace leakage: ${label}`, line, column });
+  }
+}
+
 if (findings.length > 0 || navFindings.length > 0) {
   console.error("Production surface leak check failed.");
   for (const finding of findings) {

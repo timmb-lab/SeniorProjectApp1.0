@@ -155,14 +155,14 @@ function renderSignIn(message = "", tone = "neutral", workspaceState = "signed-o
         <a class="workspace-brand" href="index.html">
           <span class="workspace-mark">SC</span>
           <span class="workspace-abc-motif" aria-hidden="true"><span></span><span></span><span></span></span>
-          <span>Senior Capstone</span>
+          <span>Capstone Project</span>
         </a>
         <div>
-          <p class="workspace-kicker">Senior Project Workspace</p>
-          <h1 id="signInTitle">Senior Project Workspace</h1>
+          <p class="workspace-kicker">Capstone Project workspace</p>
+          <h1 id="signInTitle">Capstone Project Workspace</h1>
           <p>
             Review your project status, attach evidence, follow teacher feedback, and keep the
-            required Senior Project artifacts in one place.
+            required Capstone Project artifacts in one place.
           </p>
         </div>
       </div>
@@ -236,7 +236,7 @@ function renderSignIn(message = "", tone = "neutral", workspaceState = "signed-o
         </div>
         ` : ""}
         <p class="workspace-muted">
-          Need access or a password reset? Contact your instructor or Senior Project coordinator.
+          Need access or a password reset? Contact your instructor or project coordinator.
         </p>
         <a class="workspace-link-button" href="index.html">Return to the guide</a>
       </div>
@@ -327,7 +327,7 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
         <a class="workspace-brand" href="index.html">
           <span class="workspace-mark">SC</span>
           <span class="workspace-abc-motif" aria-hidden="true"><span></span><span></span><span></span></span>
-          <span>Senior Project Workspace</span>
+          <span>Capstone Project Workspace</span>
         </a>
         <div class="workspace-user">
           <div class="workspace-user-text">
@@ -467,7 +467,7 @@ function renderAccessBoundarySummary() {
         <h2>Workspace access is pending</h2>
         <p>
           Your account is signed in, but no workspace role is assigned yet. Ask your instructor
-          or Senior Project coordinator to assign the right access before using protected project sections.
+          or project coordinator to assign the right access before using protected project sections.
         </p>
       </section>
     `;
@@ -484,7 +484,7 @@ function renderAccessBoundarySummary() {
       <h2>Workspace assignment is not active yet</h2>
       <p>
         Your account has a workspace role, but there are no active student assignments for
-        ${escapeHtml(noAssignmentSections.join(", "))}. Ask the Senior Project coordinator to confirm the assignment.
+        ${escapeHtml(noAssignmentSections.join(", "))}. Ask the project coordinator to confirm the assignment.
       </p>
     </section>
     ` : ""}
@@ -809,7 +809,7 @@ function renderStudentSection() {
         </div>
         <span class="workspace-chip">${escapeHtml(dashboard.viewer?.self ? "Own record" : "Scoped view")}</span>
       </div>
-      <p>${escapeHtml(dashboard.nextAction || "Review your current Senior Project status.")}</p>
+      <p>${escapeHtml(dashboard.nextAction || "Review your current Capstone Project status.")}</p>
       <div class="workspace-grid">
         ${metric("Submissions", submissions.length)}
         ${metric("Evidence", evidence.length)}
@@ -852,7 +852,7 @@ function renderStudentSection() {
 
 function renderEvidenceForms(submissions) {
   const options = submissions.map((submission) => `
-    <option value="${escapeHtml(submission.id)}">${escapeHtml(submission.requirement_title || "Senior Project submission")} - ${escapeHtml(statusText(submission.status))}</option>
+    <option value="${escapeHtml(submission.id)}">${escapeHtml(submission.requirement_title || "Capstone Project submission")} - ${escapeHtml(statusText(submission.status))}</option>
   `).join("");
 
   return `
@@ -1000,7 +1000,7 @@ function renderTeacherSection() {
           <article class="workspace-table-row">
             <div>
               <strong>${escapeHtml(item.student_name || "Student")}</strong>
-              <span class="workspace-muted">${escapeHtml(item.requirement_title || "Senior Project submission")}</span>
+              <span class="workspace-muted">${escapeHtml(item.requirement_title || "Capstone Project submission")}</span>
             </div>
             <span>${escapeHtml(item.evidence_count || 0)} evidence item${Number(item.evidence_count || 0) === 1 ? "" : "s"}</span>
             ${statusPill(item.status)}
@@ -1404,7 +1404,7 @@ function renderPermissionDeniedSection(title, detail) {
       <p>
         Some workspace sections need different access.
         This signed-in account does not have the role or scope required for ${escapeHtml(detail)}.
-        Use another assigned account or ask the Senior Project coordinator to adjust access.
+        Use another assigned account or ask the project coordinator to adjust access.
       </p>
     </section>
   `;
@@ -1563,7 +1563,7 @@ async function runEvidenceUploadAttempt(attempt, form) {
       fileSize: attempt.file.size || 0,
       retryReady: false,
     });
-    await loadWorkspaceData("Your file was received and added to your Senior Project evidence.");
+    await loadWorkspaceData("Your file was received and added to your Capstone Project evidence.");
   } catch (error) {
     updateUploadState({
       state: "failed",
@@ -1975,7 +1975,7 @@ function renderReviewQueueSummary(rows = []) {
         <article class="workspace-row">
           <div>
             <strong>${escapeHtml(item.studentName || item.student_name || "Student")}</strong>
-            <p>${escapeHtml(item.requirementTitle || item.requirement_title || "Senior Project submission")} / ${safeNumber(item.evidenceCount ?? item.evidence_count)} evidence</p>
+            <p>${escapeHtml(item.requirementTitle || item.requirement_title || "Capstone Project submission")} / ${safeNumber(item.evidenceCount ?? item.evidence_count)} evidence</p>
           </div>
           ${statusPill(item.status)}
         </article>
@@ -2094,7 +2094,7 @@ function renderSubmissionRow(submission) {
   return `
     <article class="workspace-row">
       <div>
-        <strong>${escapeHtml(submission.requirement_title || "Senior Project submission")}</strong>
+        <strong>${escapeHtml(submission.requirement_title || "Capstone Project submission")}</strong>
         <p>Version ${escapeHtml(submission.version || 1)}. Updated ${escapeHtml(formatDate(submission.updated_at))}.</p>
       </div>
       ${statusPill(submission.status)}
@@ -2268,8 +2268,8 @@ function messageForSsoError(error) {
   if (error === "sso_invalid_state") return "The Google Workspace sign-in session expired. Start sign-in again.";
   if (error === "sso_email_not_verified") return "This Google account does not have a verified email address.";
   if (error === "sso_domain_not_allowed") return "This Google Workspace domain is not allowed for this workspace.";
-  if (error === "sso_tenant_inactive") return "This school workspace is not active. Contact the Senior Project coordinator.";
-  if (error === "sso_account_not_provisioned") return "This Google account is not provisioned for the Senior Project Workspace yet.";
+  if (error === "sso_tenant_inactive") return "This school workspace is not active. Contact the project coordinator.";
+  if (error === "sso_account_not_provisioned") return "This Google account is not provisioned for the Capstone Project workspace yet.";
   return "Google Workspace sign-in could not be completed. Try again or use approved fallback access.";
 }
 
@@ -2309,8 +2309,8 @@ function messageForAdminImportError(error, status) {
 
 function messageForSessionStateError(error, status) {
   if (error === "session_expired") return "Your session has ended. Sign in again to continue.";
-  if (error === "account_disabled") return "This account is not active. Contact your instructor or Senior Project coordinator.";
-  if (error === "password_reset_required") return "This account needs a password reset. Contact your instructor or Senior Project coordinator.";
+  if (error === "account_disabled") return "This account is not active. Contact your instructor or project coordinator.";
+  if (error === "password_reset_required") return "This account needs a password reset. Contact your instructor or project coordinator.";
   return "";
 }
 

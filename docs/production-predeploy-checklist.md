@@ -31,10 +31,10 @@ Required result:
 - Predeploy gate checker confirms package scripts, checklist commands, README commands, and static/live Cloudflare wording stay aligned.
 - Production-surface checker passes with no dev/test copy on production-classified surfaces.
 - Route inventory checker confirms `docs/generated/production-route-inventory.md` is current.
-- Generated-output drift checker passes for `public-companion/` and `stakeholder-options/**`.
-- Site option checker confirms generated manifests/pages exist.
+- Generated-output drift checker passes for `public-companion/`.
+- Site option checker confirms East Tech guide generated output exists and retired stakeholder options are not active deploy targets.
 - Cloudflare static check passes for `wrangler.jsonc`, local Wrangler, D1 binding, and migrations.
-- Custom-domain cutover static check passes for `thecapstoneapp.com`, root mode `guide-root-app-subdomain`, and the app/public/stakeholder project mapping.
+- Custom-domain cutover static check passes for target product domain `thecapstoneproject.com`, guide future domain `TBD`, current legacy hostnames, and retired stakeholder project exclusion.
 - Alpha/account gating check passes for internal labels, no normal production navigation links, and no public companion proxying.
 - Cloudflare live check passes token verify plus Pages/D1 lookup. Scoped-token `wrangler whoami` warnings are acceptable only when token verify, Pages project lookup, D1 database lookup, and D1 id match all pass.
 - Production cutover aggregate passes only when live-only checks are not blocked and the domain/API/app proof succeeds.
@@ -79,8 +79,8 @@ powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\ru
 These must be decided before pilot users or real records enter the app:
 
 - Alpha/account deployment policy: choose Option A, B, or C from `docs/alpha-account-deployment-decision.md`.
-- Stakeholder option lifecycle: retain, retire, or promote from `docs/stakeholder-option-lifecycle.md`.
-- Custom-domain live cutover: domain selection is resolved as `thecapstoneapp.com` with root mode `guide-root-app-subdomain`; live activation remains separate until Pages domains, DNS/TLS, and app/public health pass.
+- Stakeholder option lifecycle: final decision is retire active options; Titan direction is absorbed into the East Tech guide.
+- Custom-domain live cutover: product/app target is `thecapstoneproject.com`; East Tech guide future custom domain is `TBD`; live activation remains separate until Pages domains, DNS/TLS, and product workspace/API health pass.
 - Real-user temporary credential delivery policy: choose HD-2026-05-21-001 before importing real pilot users.
 - Google Drive upload permission/policy: keep `npm run check:drive:live` passing against the configured Shared Drive evidence root.
 
@@ -171,12 +171,12 @@ Pilot blocker:
 After a deploy or cutover, verify:
 
 - `GET /api/health` returns 200 on the app hostname.
-- `GET https://app.thecapstoneapp.com/api/health` returns 200 after custom-domain activation.
+- `GET https://thecapstoneproject.com/api/health` returns 200 after target product custom-domain activation.
 - Health output does not expose secret values.
 - D1 and evidence configuration fields report expected readiness state.
 - `GET /api/auth/me` returns an unauthenticated response without leaking user records when no session is present.
-- `GET https://app.thecapstoneapp.com/api/auth/me` signed out returns the expected unauthenticated response.
-- `https://app.thecapstoneapp.com/workspace.html` reaches the canonical workspace or app navigation points there.
+- `GET https://thecapstoneproject.com/api/auth/me` signed out returns the expected unauthenticated response.
+- `https://thecapstoneproject.com/workspace.html` reaches the canonical workspace or app navigation points there.
 - Internal alpha/account API routes remain internal QA only.
 
 Do not treat static local checks as API health proof.
@@ -194,17 +194,19 @@ Required result:
 - `public-companion/` HTML, `app.js`, `styles.css`, `assets/`, and `templates/` match source expectations.
 - `public-companion/_redirects` does not proxy `alpha.html`, `account.html`, or `/api/`.
 - `public-companion/` contains no fake account, test account, smoke, seeded persona, or internal QA copy.
-- Stakeholder options retain the review banner and label alpha links as `Internal Alpha QA`.
-- Stakeholder options do not link to `account.html`.
+- Retired stakeholder options are not part of active deterministic generated output.
+- `check:site-options` confirms retired stakeholder options are not active deploy targets and do not link to `account.html`.
 
 ## Custom-Domain Cutover Checklist
 
-Domain selection is resolved:
+Domain direction is resolved:
 
-- Public guide: `thecapstoneapp.com` and `www.thecapstoneapp.com` -> `senior-capstone-public`.
-- Secure app/backend: `app.thecapstoneapp.com` -> `senior-capstone-app`.
-- Root mode: `guide-root-app-subdomain`.
-- Stakeholder options: no production hostname mapping.
+- Product/app target: `thecapstoneproject.com` -> `senior-capstone-app`.
+- Product alias if configured: `www.thecapstoneproject.com` -> `senior-capstone-app`.
+- Optional split app hostname only if needed: `app.thecapstoneproject.com`.
+- East Tech guide future custom domain: `TBD`.
+- Current legacy hostnames pending migration: `thecapstoneapp.com`, `www.thecapstoneapp.com`, and `app.thecapstoneapp.com`.
+- Retired stakeholder options: no product hostname mapping and no active deploy scripts.
 
 Before claiming live cutover:
 
@@ -216,11 +218,11 @@ powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\ru
 
 Required live checks:
 
-- `https://thecapstoneapp.com` loads the public guide.
-- `https://www.thecapstoneapp.com` loads or redirects safely to the public guide.
-- `https://app.thecapstoneapp.com/api/health` returns 200.
-- `https://app.thecapstoneapp.com/api/auth/me` signed out returns unauthenticated/no-record output.
-- `https://app.thecapstoneapp.com/workspace.html` is reachable or app navigation points there.
+- `https://thecapstoneproject.com` reaches the product root/workspace safely.
+- `https://www.thecapstoneproject.com` loads or redirects safely if the alias is configured.
+- `https://thecapstoneproject.com/api/health` returns 200.
+- `https://thecapstoneproject.com/api/auth/me` signed out returns unauthenticated/no-record output.
+- `https://thecapstoneproject.com/workspace.html` is reachable.
 
 Use `docs/custom-domain-cutover-checklist.md` for the detailed steps and rollback path.
 

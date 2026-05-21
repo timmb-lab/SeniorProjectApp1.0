@@ -2,7 +2,7 @@
 
 Date: 2026-05-21
 
-Bryan still needs to choose how `alpha.html` and `account.html` should be handled before pilot users or real student records enter the app. These pages are useful internal QA surfaces, but they are not canonical production navigation. The app/backend custom hostname is `app.thecapstoneapp.com`.
+Bryan still needs to choose how `alpha.html` and `account.html` should be handled before pilot users or real student records enter the app. These pages are useful internal QA surfaces, but they are not canonical production navigation. The current legacy app/backend custom hostname is `app.thecapstoneapp.com`; the target product domain is `thecapstoneproject.com`.
 
 Current state:
 

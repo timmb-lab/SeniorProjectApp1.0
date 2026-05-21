@@ -71,10 +71,10 @@ powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\ru
 powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 check:automation
 powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\verify-cadence-30min.ps1 -RepoRoot .
 powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-node-script.ps1 scripts\check-alpha-contract.mjs
-powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 build:site-options
+powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 build:public-site
 ```
 
-`scripts/run-node-script.ps1` resolves a working Codex bundled Node runtime before falling back to system Node. `scripts/run-npm-script.ps1` uses `npm.cmd` when available and otherwise handles the project's known local Node/PowerShell scripts without depending on global npm. Its aggregate `check` fallback runs alpha syntax, alpha contract, automation contract, site-options validation, Node tests, and TypeScript when installed; missing TypeScript tooling is a warning for aggregate QoL closeout, while the direct `typecheck` script remains strict.
+`scripts/run-node-script.ps1` resolves a working Codex bundled Node runtime before falling back to system Node. `scripts/run-npm-script.ps1` uses `npm.cmd` when available and otherwise handles the project's known local Node/PowerShell scripts without depending on global npm. Its aggregate `check` fallback runs alpha syntax, alpha contract, automation contract, retired site-options validation, Node tests, and TypeScript when installed; missing TypeScript tooling is a warning for aggregate QoL closeout, while the direct `typecheck` script remains strict.
 
 If a shell already has working `npm`, these remain acceptable convenience commands:
 
@@ -87,7 +87,7 @@ Scripts in `scripts/` must not use `Read-Host`, `PromptForChoice`, `Pause`, `pro
 
 ## Backend Account/Provisioning Rule
 
-For the Senior Capstone app backend foundation, local scaffolding, schema design, migration files, permission helpers, and tests can proceed without a live Cloudflare account. Remote setup requires Bryan-owned authorization before an unattended run can safely create or bind production resources:
+For the Capstone Project app backend foundation, local scaffolding, schema design, migration files, permission helpers, and tests can proceed without a live Cloudflare account. Remote setup requires Bryan-owned authorization before an unattended run can safely create or bind production resources:
 
 - Cloudflare account/organization selected for Workers/Pages, D1, R2, secrets, logs, and the future custom domain.
 - Wrangler or Cloudflare API access authorized for that account.

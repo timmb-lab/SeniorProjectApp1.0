@@ -4,7 +4,7 @@ Date: 2026-05-18
 
 ## Purpose
 
-This document defines the first serious product model for the hosted Senior Capstone app. It is intentionally more complete than the current static guide because the hosted version must manage real users, student records, reviews, approvals, revisions, dashboards, and audit history.
+This document defines the first serious product model for the hosted Capstone Project app. It is intentionally more complete than the current static guide because the hosted version must manage real users, student records, reviews, approvals, revisions, dashboards, and audit history.
 
 ## Program Catalog
 

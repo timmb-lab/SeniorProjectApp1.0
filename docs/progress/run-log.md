@@ -1262,3 +1262,18 @@ Future productive runs should append compact entries that name the master-plan s
 - `phone tracker`: not appended; Google Sheets connector was not used.
 - `self-improvement`: none.
 - `commit/push status`: pending Part 1 audit commit and push.
+
+## 2026-05-21 16:51 PT - Capstone Project Part 2 Final Consolidation Implementation
+
+- `automation ID`: manual Codex Part 2 implementation pass.
+- `lane`: product rename / domain target / surface split / retired option validation.
+- `starting HEAD`: `1459df6d0e43f96e1c4aa394d2dde825ecd24ca7`.
+- `selected slice`: Implement Bryan's locked decisions from Part 1: official product title `Capstone Project`, product target domain `thecapstoneproject.com`, school-agnostic workspace/product copy, East Tech guide as a separate Titans-specific surface, and retired active stakeholder options.
+- `what changed`: Updated product and guide copy, Titan guide tokens, target/current domain config, custom-domain and production-surface checks, retired-option validation, package scripts, generated public companion output, route inventory, master planning docs, MVP catalog, human decisions, and structured manifest `docs/progress/runs/2026-05-21-capstone-project-part-2-implementation.json`.
+- `Cloudflare domain action`: Bryan registered `thecapstoneproject.com`; this pass added `thecapstoneproject.com` and `www.thecapstoneproject.com` to the `senior-capstone-app` Pages project. Both remain pending validation/verification at closeout; repo edits and Pages associations do not prove live DNS/TLS cutover.
+- `SSO preservation`: Google Workspace SSO redirect examples remain on `https://app.thecapstoneapp.com/api/auth/google/callback`; no SSO/OAuth/D1 migration behavior was rewritten, and remote migration 0010 was not applied.
+- `validation`: `git diff --check` passed with CRLF normalization warnings only; `npm run check`, `npm run test`, `npm run typecheck`, `npm run check:production-surfaces`, `npm run check:route-inventory`, `npm run check:generated-output-drift`, `npm run check:site-options`, `npm run check:cloudflare`, `npm run check:custom-domain-cutover`, and `npm run check:cloudflare:live` passed. Focused dashboard/permissions/workspace/SSO tests passed. `npm run check:production-cutover` is blocked only by pending target-domain DNS/TLS/Pages verification; hosted workspace/dashboard/evidence proofs inside that rail passed.
+- `blockers`: target-domain live cutover pending; East Tech guide future domain TBD; Google Workspace SSO still needs Bryan's tenant-domain, auto-provisioning, break-glass login, OAuth client owner, redirect URI, Cloudflare env/secrets, and remote D1 migration 0010 decisions/actions.
+- `phone tracker`: not appended; Google Sheets connector was not used.
+- `self-improvement`: none.
+- `commit/push status`: pending Part 2 implementation commit and push.

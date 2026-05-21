@@ -1,29 +1,47 @@
 {
-  "schemaVersion": 1,
-  "domain": "thecapstoneapp.com",
-  "rootMode": "guide-root-app-subdomain",
-  "hostnames": {
+  "schemaVersion": 2,
+  "productDomain": "thecapstoneproject.com",
+  "rootMode": "product-root-target-guide-temporary",
+  "targetHostnames": {
+    "productApex": "thecapstoneproject.com",
+    "productWwwAlias": "www.thecapstoneproject.com",
+    "appSubdomainIfNeeded": "app.thecapstoneproject.com"
+  },
+  "currentLegacyHostnames": {
     "publicApex": "thecapstoneapp.com",
     "publicWww": "www.thecapstoneapp.com",
     "app": "app.thecapstoneapp.com"
   },
+  "currentSsoRedirectUri": "https://app.thecapstoneapp.com/api/auth/google/callback",
+  "guide": {
+    "futureCustomDomain": "TBD",
+    "currentDeploySource": "public-companion/",
+    "currentPagesProject": "senior-capstone-public",
+    "currentPagesDevFallback": "https://senior-capstone-public.pages.dev"
+  },
   "pagesProjects": {
     "publicGuide": "senior-capstone-public",
-    "appBackend": "senior-capstone-app",
+    "appBackend": "senior-capstone-app"
+  },
+  "retiredPagesProjects": {
     "stakeholderTitan": "senior-capstone-option-titan",
     "stakeholderPrimary": "senior-capstone-option-primary"
   },
   "pagesDevFallbacks": {
     "publicGuide": "https://senior-capstone-public.pages.dev",
-    "appBackend": "https://senior-capstone-app.pages.dev",
+    "appBackend": "https://senior-capstone-app.pages.dev"
+  },
+  "retiredPagesDevFallbacks": {
     "stakeholderTitan": "https://senior-capstone-option-titan.pages.dev",
     "stakeholderPrimary": "https://senior-capstone-option-primary.pages.dev"
   },
   "policy": {
-    "stakeholderOptionsMayUseProductionDomain": false,
+    "stakeholderOptionsMayUseProductDomain": false,
+    "retiredStakeholderOptionsMayDeploy": false,
     "realUserOnboardingPolicyChangeAllowed": false,
-    "disablePagesDevFallbackAfterCutover": false,
-    "publicWwwBehavior": "serve-same-public-guide-or-cloudflare-redirect-rule",
-    "doNotUseRedirectsFileForDomainLevelRedirects": true
+    "disablePagesDevFallbackBeforeCutover": false,
+    "guideFutureDomainMustRemainTbd": true,
+    "doNotUseRedirectsFileForDomainLevelRedirects": true,
+    "targetDomainLiveStatus": "pending-cloudflare-dns-tls-verification"
   }
 }

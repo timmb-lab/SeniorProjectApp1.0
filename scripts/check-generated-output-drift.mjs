@@ -64,8 +64,6 @@ const publicSourceFiles = [
 ];
 
 const expectedPublicRedirects = "# Public companion serves static guide pages only.\n";
-const expectedStakeholderRedirects = "# Stakeholder option output serves static review pages only.\n";
-
 const expectedPublicHeaders = [
   "/*",
   "  X-Content-Type-Options: nosniff",
@@ -82,19 +80,6 @@ const expectedPublicWrangler = {
   compatibility_date: "2026-05-18",
   pages_build_output_dir: ".",
 };
-
-const stakeholderOptions = [
-  {
-    dir: "stakeholder-options/titan-blend",
-    option: "Titan Blend",
-    projectName: "senior-capstone-option-titan",
-  },
-  {
-    dir: "stakeholder-options/back-to-basics",
-    option: "Back To Basics",
-    projectName: "senior-capstone-option-primary",
-  },
-];
 
 // These are forbidden in the generated public companion because that surface is
 // a production-safe public guide. Stakeholder-review output is checked by its
@@ -293,54 +278,7 @@ async function checkPublicCompanion() {
   await scanPublicCompanionText();
 }
 
-async function checkStakeholderOption(option) {
-  const manifest = await readJson(`${option.dir}/site-manifest.json`);
-  assertManifest(`${option.dir}/site-manifest.json`, manifest, {
-    option: option.option,
-    projectName: option.projectName,
-    appUrl,
-    pages: stakeholderPages,
-  });
-
-  const expectedWrangler = {
-    "$schema": "../../node_modules/wrangler/config-schema.json",
-    name: option.projectName,
-    compatibility_date: "2026-05-18",
-    pages_build_output_dir: ".",
-  };
-
-  await assertFileExists(`${option.dir}/index.html`);
-  await assertFileExists(`${option.dir}/styles.css`);
-  await assertFileExists(`${option.dir}/option.js`);
-  await assertCopiedFile("assets/app-hero.jpg", `${option.dir}/assets/app-hero.jpg`);
-  await assertTextEquals(`${option.dir}/_redirects`, expectedStakeholderRedirects);
-  await assertTextEquals(`${option.dir}/wrangler.jsonc`, `${JSON.stringify(expectedWrangler, null, 2)}\n`);
-
-  const htmlFiles = ["index.html", ...stakeholderPages];
-  for (const file of htmlFiles) {
-    const relativeFile = `${option.dir}/${file}`;
-    if (!(await assertFileExists(relativeFile))) continue;
-    const html = await readText(relativeFile);
-
-    if (!html.includes("Stakeholder review option. Not the canonical production site or app.")) {
-      report(relativeFile, "missing stakeholder review banner");
-    }
-    if (/\bOpen App Alpha\b/i.test(html) || /\bApp Alpha\b/i.test(html) || /\bAccount Smoke Test\b/i.test(html)) {
-      report(relativeFile, "contains unlabeled internal QA link copy");
-    }
-    if (html.includes(`${appUrl}/alpha.html`) || /href=["'][^"']*alpha\.html/i.test(html)) {
-      report(relativeFile, "links to the internal alpha route from stakeholder review output");
-    }
-    if (/href=["'][^"']*account\.html/i.test(html)) {
-      report(relativeFile, "links to account.html from stakeholder review output");
-    }
-  }
-}
-
 await checkPublicCompanion();
-for (const option of stakeholderOptions) {
-  await checkStakeholderOption(option);
-}
 
 if (findings.length > 0) {
   console.error("Generated output drift check failed.");
@@ -350,4 +288,4 @@ if (findings.length > 0) {
   process.exit(1);
 }
 
-console.log("Generated output drift check passed: public companion and stakeholder review outputs match deterministic source expectations.");
+console.log("Generated output drift check passed: public companion output matches deterministic source expectations; retired stakeholder options are checked by check:site-options.");

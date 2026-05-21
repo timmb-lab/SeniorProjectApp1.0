@@ -2985,7 +2985,7 @@ function siteMenuHtml() {
     <section class="project-menu-section menu-tree-section">
       <a class="menu-tree-heading" href="${workspaceHref}">Web App</a>
       <div class="menu-app-links">
-        <a class="menu-resource-link" href="${workspaceHref}">Senior Project Workspace</a>
+        <a class="menu-resource-link" href="${workspaceHref}">Capstone Project Workspace</a>
         <a class="menu-resource-link" href="app-preview.html">App Workflow Preview</a>
         <a class="menu-resource-link" href="templates.html">Templates</a>
         <a class="menu-resource-link" href="rubrics.html">Rubrics</a>
@@ -3001,7 +3001,7 @@ function renderSiteChrome() {
 
   chrome.innerHTML = `
     <header class="app-header">
-      <a class="brand app-brand" href="index.html" aria-label="Senior Capstone Project home">
+      <a class="brand app-brand" href="index.html" aria-label="East Tech Senior Capstone Guide home">
         <span class="brand-mark" aria-hidden="true">TT</span>
         <span>ECTA Senior Capstone</span>
       </a>
@@ -3216,7 +3216,7 @@ function supportCardHtml([title, body, href]) {
 
 function supportCardsHtml() {
   return [
-    ["Senior Project Workspace", "Sign in to review project status, submit evidence, and follow feedback.", workspaceHref],
+    ["Capstone Project Workspace", "Sign in to review project status, submit evidence, and follow feedback.", workspaceHref],
     ["Sponsorship Support", "Plan donations, outside help, approvals, and thank-you evidence.", "sponsorship-support.html"],
     ["Calendar", "See the year as proposal, build, mentor, presentation, showcase, and portfolio windows.", "calendar.html"],
     ["Gathering Supplies", "Make materials, tools, safety, cost, and fallback plans visible.", "gathering-supplies.html"],
@@ -3936,7 +3936,7 @@ function setupProductPreviewInteractions(root) {
 }
 
 function renderAppPreviewPage(root) {
-  document.title = "App Workflow Preview | Senior Capstone Project";
+  document.title = "App Workflow Preview | East Tech Senior Capstone Guide";
   root.innerHTML = `
     ${pageHeroHtml({
       eyebrow: "Non-production workflow preview",
@@ -4182,7 +4182,7 @@ function renderResourcePage(root) {
   const resourceId = document.body.dataset.resourceId;
   const page = resourcePages[resourceId] ?? resourcePages.calendar;
 
-  document.title = `${page.title} | Senior Capstone Project`;
+  document.title = `${page.title} | East Tech Senior Capstone Guide`;
   root.innerHTML = `
     ${pageHeroHtml({
       eyebrow: page.eyebrow,
@@ -4256,15 +4256,15 @@ function phaseButtonPagePillHtml(phase) {
 }
 
 function renderHomePage(root) {
-  document.title = "ECTA Senior Capstone";
+  document.title = "East Tech Senior Capstone Guide";
   root.innerHTML = `
     <section class="home-hero" aria-labelledby="hero-title">
       <div class="hero">
         <div class="hero-copy">
           <p class="eyebrow">ECTA Titan senior project</p>
-          <h1 id="hero-title">Senior Capstone Project</h1>
+          <h1 id="hero-title">East Tech Senior Capstone Guide</h1>
           <p class="hero-text">
-            A polished website companion for the Senior Capstone app: clear steps, Titan-ready supports, practical resources, and a calm path from idea to portfolio.
+            A polished East Tech guide with clear steps, Titan-ready supports, practical resources, and a calm path from idea to portfolio.
           </p>
           <div class="hero-actions" aria-label="Primary actions">
             <a class="button button-primary" href="${workspaceHref}">Open Workspace</a>
@@ -4350,7 +4350,7 @@ function renderHomePage(root) {
 }
 
 function renderProcessPage(root) {
-  document.title = "Process | Senior Capstone Project";
+  document.title = "Process | East Tech Senior Capstone Guide";
   root.innerHTML = `
     ${pageHeroHtml({
       eyebrow: "One step at a time",
@@ -4374,7 +4374,7 @@ function renderProcessPage(root) {
 }
 
 function renderPacingPage(root) {
-  document.title = "Pacing | Senior Capstone Project";
+  document.title = "Pacing | East Tech Senior Capstone Guide";
   root.innerHTML = `
     ${pageHeroHtml({
       eyebrow: "Suggested timeline",
@@ -4417,7 +4417,7 @@ function renderPacingPage(root) {
 }
 
 function renderExamplesPage(root) {
-  document.title = "Examples And Supports | Senior Capstone Project";
+  document.title = "Examples And Supports | East Tech Senior Capstone Guide";
   root.innerHTML = `
     ${pageHeroHtml({
       eyebrow: "Exemplars, sentence frames, and vocabulary",
@@ -4484,7 +4484,7 @@ function renderExamplesPage(root) {
 }
 
 function renderLinksPage(root) {
-  document.title = "Official Links | Senior Capstone Project";
+  document.title = "Official Links | East Tech Senior Capstone Guide";
   root.innerHTML = `
     ${pageHeroHtml({
       eyebrow: "Book p. 1 and major checkpoints",
@@ -4527,7 +4527,7 @@ function renderLinksPage(root) {
 }
 
 function renderProgramPage(root) {
-  document.title = "Program Requirements | Senior Capstone Project";
+  document.title = "Program Requirements | East Tech Senior Capstone Guide";
   root.innerHTML = `
     ${pageHeroHtml({
       eyebrow: "Book p. 3",
@@ -4650,7 +4650,7 @@ function renderPhasePage(root) {
     .map((templateName) => templates.find((template) => template.title === templateName))
     .filter(Boolean);
 
-  document.title = `${phase.title} | Senior Capstone Project`;
+  document.title = `${phase.title} | East Tech Senior Capstone Guide`;
 
   root.innerHTML = `
     ${pageHeroHtml({
@@ -4706,7 +4706,7 @@ function renderPhasePage(root) {
 }
 
 function renderTemplatesPage(root) {
-  document.title = "Templates | Senior Capstone Project";
+  document.title = "Templates | East Tech Senior Capstone Guide";
   root.innerHTML = `
     ${pageHeroHtml({
       eyebrow: "Student files",
@@ -4736,7 +4736,7 @@ function renderTemplatesPage(root) {
 }
 
 function renderPortfolioPage(root) {
-  document.title = "Portfolio | Senior Capstone Project";
+  document.title = "Portfolio | East Tech Senior Capstone Guide";
   root.innerHTML = `
     ${pageHeroHtml({
       eyebrow: "Book pp. 10-11 and 17",
@@ -4796,7 +4796,7 @@ function renderPortfolioPage(root) {
 }
 
 function renderRubricsPage(root) {
-  document.title = "Rubrics | Senior Capstone Project";
+  document.title = "Rubrics | East Tech Senior Capstone Guide";
   root.innerHTML = `
     ${pageHeroHtml({
       eyebrow: "Book pp. 14-17",
@@ -4850,7 +4850,7 @@ function renderRubricsPage(root) {
 }
 
 function renderGradesPage(root) {
-  document.title = "Grades And Recognition | Senior Capstone Project";
+  document.title = "Grades And Recognition | East Tech Senior Capstone Guide";
   root.innerHTML = `
     ${pageHeroHtml({
       eyebrow: "Book pp. 12-13",

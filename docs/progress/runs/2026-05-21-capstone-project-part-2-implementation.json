@@ -1,0 +1,201 @@
+{
+  "repoRoot": "C:/SeniorProjectApp1.0",
+  "branch": "main",
+  "remote": "https://github.com/timmb-lab/SeniorProjectApp1.0.git",
+  "startingHead": "1459df6d0e43f96e1c4aa394d2dde825ecd24ca7",
+  "endingHead": "pending: commit containing this manifest",
+  "productNameBefore": [
+    "Senior Capstone App",
+    "Capstone App",
+    "The Capstone App",
+    "Senior Project App"
+  ],
+  "productNameAfter": "Capstone Project",
+  "oldDomains": [
+    "thecapstoneapp.com",
+    "www.thecapstoneapp.com",
+    "app.thecapstoneapp.com"
+  ],
+  "targetDomains": [
+    "thecapstoneproject.com",
+    "www.thecapstoneproject.com",
+    "app.thecapstoneproject.com if a future split is required"
+  ],
+  "currentCloudflareState": {
+    "appProject": "senior-capstone-app",
+    "guideProject": "senior-capstone-public",
+    "legacyProductHostnames": [
+      "app.thecapstoneapp.com"
+    ],
+    "legacyGuideHostnames": [
+      "thecapstoneapp.com",
+      "www.thecapstoneapp.com"
+    ],
+    "legacyHostnameStatus": "active",
+    "d1Binding": "DB",
+    "d1DatabaseName": "senior-capstone-db",
+    "d1DatabaseId": "3141d9ac-08b7-49c1-92ba-bbf50c1a611f",
+    "wranglerChanged": false
+  },
+  "targetCloudflareState": {
+    "productDomain": "thecapstoneproject.com",
+    "wwwAlias": "www.thecapstoneproject.com",
+    "optionalAppSubdomain": "app.thecapstoneproject.com",
+    "associatedToProject": "senior-capstone-app",
+    "associationResult": "thecapstoneproject.com and www.thecapstoneproject.com were added to the app Pages project; both remain pending validation/verification at closeout",
+    "liveStatus": "pending"
+  },
+  "guideDomainState": {
+    "surface": "East Tech Senior Capstone Guide",
+    "futureCustomDomain": "TBD",
+    "currentTemporaryDeployment": "senior-capstone-public / existing legacy guide hostnames until Bryan buys and configures a guide URL"
+  },
+  "retiredStakeholderSurfaces": [
+    "stakeholder-options/titan-blend/",
+    "stakeholder-options/back-to-basics/",
+    "senior-capstone-option-titan",
+    "senior-capstone-option-primary"
+  ],
+  "archivedSurfaces": [
+    "historical stakeholder option directories retained as non-active review history"
+  ],
+  "changedScripts": {
+    "removedActiveOptionScripts": [
+      "build:stakeholder-sites",
+      "build:site-options",
+      "dev:option:titan",
+      "dev:option:primary",
+      "deploy:option:titan",
+      "deploy:option:primary"
+    ],
+    "repurposedValidation": [
+      "check:site-options",
+      "check:generated-output-drift",
+      "check:production-surfaces",
+      "check:custom-domain-cutover",
+      "inventory:production-routes"
+    ],
+    "preservedCoreScripts": [
+      "dev",
+      "deploy",
+      "deploy:public-site",
+      "build:public-site",
+      "check",
+      "test",
+      "typecheck",
+      "check:cloudflare",
+      "check:cloudflare:live",
+      "check:custom-domain-cutover",
+      "check:production-cutover"
+    ]
+  },
+  "changedDocs": [
+    "README.md",
+    "docs/master-plan.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/production-surface-registry.md",
+    "docs/production-deployment-policy.md",
+    "docs/production-predeploy-checklist.md",
+    "docs/stakeholder-option-lifecycle.md",
+    "docs/public-site.md",
+    "docs/custom-domain-cutover-checklist.md",
+    "docs/human-decisions.md",
+    "docs/progress/decision-log.md",
+    "docs/automation-cadence.md",
+    "docs/automation-runbook.md",
+    "docs/backend-setup.md",
+    "docs/architecture/adr-0001-stack-auth-database-upload.md",
+    "docs/architecture/adr-0002-tenant-google-workspace-sso-and-storage.md"
+  ],
+  "changedSourceFiles": [
+    "workspace.html",
+    "workspace.js",
+    "index.html",
+    "app.js",
+    "styles.css",
+    "app-preview.html",
+    "alpha.html",
+    "account.html",
+    "_redirects",
+    "config/production-domains.json"
+  ],
+  "generatedOutputs": [
+    "public-companion/",
+    "docs/generated/production-route-inventory.md"
+  ],
+  "validations": [
+    {
+      "command": "git diff --check",
+      "result": "passed with CRLF normalization warnings only"
+    },
+    {
+      "command": "npm run check",
+      "result": "passed"
+    },
+    {
+      "command": "npm run test",
+      "result": "passed: 233 pass, 0 fail, 4 expected skips"
+    },
+    {
+      "command": "npm run typecheck",
+      "result": "passed"
+    },
+    {
+      "command": "npm run check:production-surfaces",
+      "result": "passed: 91 production text surfaces scanned"
+    },
+    {
+      "command": "npm run check:route-inventory",
+      "result": "passed"
+    },
+    {
+      "command": "npm run check:generated-output-drift",
+      "result": "passed"
+    },
+    {
+      "command": "npm run check:site-options",
+      "result": "passed"
+    },
+    {
+      "command": "npm run check:cloudflare",
+      "result": "passed static"
+    },
+    {
+      "command": "npm run check:custom-domain-cutover",
+      "result": "passed static; target domains pending live verification"
+    },
+    {
+      "command": "npm run check:cloudflare:live",
+      "result": "passed read-only Pages/D1 verification"
+    },
+    {
+      "command": "npm run check:production-cutover",
+      "result": "blocked only by target-domain pending DNS/TLS/Pages verification; hosted dashboard/evidence proofs passed"
+    },
+    {
+      "command": "node --test tests/admin-dashboard.integration.test.mjs tests/program-teacher-dashboard.integration.test.mjs tests/mentor-dashboard.integration.test.mjs tests/permissions-access.test.mjs tests/workspace-app.test.mjs tests/google-sso.integration.test.mjs",
+      "result": "passed: 29 pass, 0 fail"
+    },
+    {
+      "command": "direct hosted fetch /api/admin/dashboard and /api/auth/config",
+      "result": "/api/admin/dashboard returned 401 signed out; /api/auth/config returned 200 with Google SSO disabled and local login enabled"
+    }
+  ],
+  "liveChecks": {
+    "cloudflareToken": "present and active",
+    "pagesDomainAssociations": {
+      "thecapstoneproject.com": "pending",
+      "www.thecapstoneproject.com": "pending",
+      "app.thecapstoneproject.com": "not configured; optional only"
+    },
+    "httpsTargetChecks": "failed/pending for thecapstoneproject.com because DNS/TLS/Pages verification is not active yet",
+    "legacyHostedChecks": "senior-capstone-app.pages.dev dashboard, permissions, evidence, and signed-out checks passed"
+  },
+  "blockers": [
+    "thecapstoneproject.com and www.thecapstoneproject.com are associated in Cloudflare Pages but still pending validation/verification; DNS/TLS/live HTTPS is not verified yet",
+    "East Tech guide future custom domain is TBD",
+    "Google Workspace SSO still needs tenant-domain, auto-provisioning, break-glass login, OAuth client owner, redirect URI, Cloudflare env/secrets, and remote D1 migration 0010 decisions/actions before live SSO enablement",
+    "Current Google OAuth redirect remains https://app.thecapstoneapp.com/api/auth/google/callback until a later verified Cloudflare and Google OAuth cutover"
+  ],
+  "nextTask": "Wait for Cloudflare custom-domain validation, then rerun production cutover verification."
+}

@@ -135,18 +135,18 @@ function stripJsonComments(text) {
 function classifyPath(relativePath) {
   if (relativePath.startsWith("stakeholder-options/titan-blend/")) {
     return {
-      classification: "stakeholder-review",
+      classification: "retired-stakeholder-option",
       deployProject: "senior-capstone-option-titan",
-      productionSafe: "review-only",
-      reason: "Generated stakeholder option, not canonical production.",
+      productionSafe: "historical-only",
+      reason: "Retired stakeholder option kept only as historical review output; not an active deploy target.",
     };
   }
   if (relativePath.startsWith("stakeholder-options/back-to-basics/")) {
     return {
-      classification: "stakeholder-review",
+      classification: "retired-stakeholder-option",
       deployProject: "senior-capstone-option-primary",
-      productionSafe: "review-only",
-      reason: "Generated stakeholder option, not canonical production.",
+      productionSafe: "historical-only",
+      reason: "Retired stakeholder option kept only as historical review output; not an active deploy target.",
     };
   }
   if (relativePath.startsWith("public-companion/")) {
@@ -312,24 +312,48 @@ const productionDomains = JSON.parse(await readFile(productionDomainsPath, "utf8
 
 const customDomainRows = [
   [
-    productionDomains.hostnames.publicApex,
-    "public landing / student guide",
+    productionDomains.targetHostnames.productApex,
+    "target Capstone Project product/app root",
+    productionDomains.pagesProjects.appBackend,
+    ".",
+    "npm run deploy",
+    productionDomains.pagesDevFallbacks.appBackend,
+  ],
+  [
+    productionDomains.targetHostnames.productWwwAlias,
+    "optional product alias",
+    productionDomains.pagesProjects.appBackend,
+    ".",
+    "npm run deploy",
+    productionDomains.pagesDevFallbacks.appBackend,
+  ],
+  [
+    productionDomains.targetHostnames.appSubdomainIfNeeded,
+    "optional app split if the implementation requires it",
+    productionDomains.pagesProjects.appBackend,
+    ".",
+    "npm run deploy",
+    productionDomains.pagesDevFallbacks.appBackend,
+  ],
+  [
+    productionDomains.currentLegacyHostnames.publicApex,
+    "current legacy public guide hostname pending migration",
     productionDomains.pagesProjects.publicGuide,
     "public-companion/",
     "npm run deploy:public-site",
     productionDomains.pagesDevFallbacks.publicGuide,
   ],
   [
-    productionDomains.hostnames.publicWww,
-    "public guide alias / same guide / optional Cloudflare redirect rule",
+    productionDomains.currentLegacyHostnames.publicWww,
+    "current legacy public guide alias pending migration",
     productionDomains.pagesProjects.publicGuide,
     "public-companion/",
     "npm run deploy:public-site",
     productionDomains.pagesDevFallbacks.publicGuide,
   ],
   [
-    productionDomains.hostnames.app,
-    "secure app/backend",
+    productionDomains.currentLegacyHostnames.app,
+    "current legacy app/backend hostname and SSO redirect host",
     productionDomains.pagesProjects.appBackend,
     ".",
     "npm run deploy",
@@ -338,10 +362,12 @@ const customDomainRows = [
 ];
 
 const customDomainPolicyRows = [
-  ["Domain", productionDomains.domain],
+  ["Product/app target domain", productionDomains.productDomain],
   ["Root mode", productionDomains.rootMode],
+  ["East Tech guide future custom domain", productionDomains.guide.futureCustomDomain],
+  ["Current Google OAuth redirect URI", productionDomains.currentSsoRedirectUri],
   ["Pages custom-domain association", "Required before live cutover is verified; CNAME-only evidence is not enough."],
-  ["Stakeholder option exclusion", `${productionDomains.pagesProjects.stakeholderTitan} and ${productionDomains.pagesProjects.stakeholderPrimary} must not use production hostnames.`],
+  ["Retired stakeholder option exclusion", `${productionDomains.retiredPagesProjects.stakeholderTitan} and ${productionDomains.retiredPagesProjects.stakeholderPrimary} must not use product hostnames or active deploy scripts.`],
   ["Alpha/account policy", "Option A safety remains current: deployed from app project but unlinked, internal-labeled, and not pilot-safe final production without Bryan accepting direct URL exposure or choosing Option B/C."],
 ];
 
@@ -376,9 +402,9 @@ for (const file of allFiles.filter((entry) => entry.endsWith("wrangler.jsonc")))
 }
 
 const generatedRows = [
-  ["public-companion/", "scripts/build-public-site.mjs", "generated-output", "senior-capstone-public", "production public guide mirror"],
-  ["stakeholder-options/titan-blend/", "scripts/build-stakeholder-sites.mjs", "stakeholder-review", "senior-capstone-option-titan", "review artifact"],
-  ["stakeholder-options/back-to-basics/", "scripts/build-stakeholder-sites.mjs", "stakeholder-review", "senior-capstone-option-primary", "review artifact"],
+  ["public-companion/", "scripts/build-public-site.mjs", "generated-output", "senior-capstone-public", "East Tech guide mirror"],
+  ["stakeholder-options/titan-blend/", "historical output retained; active build/deploy scripts retired", "retired-stakeholder-option", "senior-capstone-option-titan", "historical Titan direction source"],
+  ["stakeholder-options/back-to-basics/", "historical output retained; active build/deploy scripts retired", "retired-stakeholder-option", "senior-capstone-option-primary", "historical retired option"],
 ];
 
 const output = `# Production Route Inventory

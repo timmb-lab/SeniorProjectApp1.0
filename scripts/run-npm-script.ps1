@@ -202,17 +202,6 @@ function Invoke-KnownProjectScript {
             Invoke-Node "scripts\build-public-site.mjs" @ScriptArgs
             return
         }
-        "build:stakeholder-sites" {
-            $script:KnownProjectScriptHandled = $true
-            Invoke-Node "scripts\build-stakeholder-sites.mjs" @ScriptArgs
-            return
-        }
-        "build:site-options" {
-            $script:KnownProjectScriptHandled = $true
-            Invoke-Node "scripts\build-public-site.mjs"
-            Invoke-Node "scripts\build-stakeholder-sites.mjs"
-            return
-        }
         "check:site-options" {
             $script:KnownProjectScriptHandled = $true
             Invoke-Node "scripts\check-site-options.mjs" @ScriptArgs

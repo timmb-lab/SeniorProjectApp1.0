@@ -1,82 +1,161 @@
-import { readFile, stat } from "node:fs/promises";
+import { readFile, readdir, stat } from "node:fs/promises";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const repoRoot = fileURLToPath(new URL("..", import.meta.url));
+const failures = [];
 
-const sites = [
+const retiredOptionScripts = [
+  "build:stakeholder-sites",
+  "build:site-options",
+  "dev:option:titan",
+  "dev:option:primary",
+  "deploy:option:titan",
+  "deploy:option:primary",
+];
+
+const publicCompanion = {
+  label: "East Tech guide generated output",
+  dir: "public-companion",
+  requiredFiles: ["index.html", "styles.css", "app.js", "wrangler.jsonc", "_headers", "_redirects"],
+  requiredManifest: { source: "SeniorProjectApp1.0 public companion site" },
+};
+
+const retiredOptions = [
   {
-    label: "public companion",
-    dir: "public-companion",
-    requiredFiles: ["index.html", "styles.css", "app.js", "wrangler.jsonc", "_headers", "_redirects"],
-    requiredManifest: { source: "SeniorProjectApp1.0 public companion site" },
-  },
-  {
-    label: "stakeholder option titan",
+    label: "retired Titan Blend option",
     dir: "stakeholder-options/titan-blend",
-    requiredFiles: ["index.html", "styles.css", "option.js", "wrangler.jsonc", "_headers", "_redirects"],
-    requiredManifest: { projectName: "senior-capstone-option-titan" },
+    bannerPattern: /Stakeholder review option\. Not the canonical production site or app\./i,
   },
   {
-    label: "stakeholder option primary",
+    label: "retired Back To Basics option",
     dir: "stakeholder-options/back-to-basics",
-    requiredFiles: ["index.html", "styles.css", "option.js", "wrangler.jsonc", "_headers", "_redirects"],
-    requiredManifest: { projectName: "senior-capstone-option-primary" },
+    bannerPattern: /Stakeholder review option\. Not the canonical production site or app\./i,
   },
 ];
 
-async function assertFile(path, label) {
+function fail(message) {
+  failures.push(message);
+}
+
+async function fileExists(path) {
   const info = await stat(path).catch(() => null);
-  if (!info?.isFile()) {
-    throw new Error(`${label} is missing required file: ${path}`);
+  return Boolean(info?.isFile());
+}
+
+async function dirExists(path) {
+  const info = await stat(path).catch(() => null);
+  return Boolean(info?.isDirectory());
+}
+
+async function assertFile(path, label) {
+  if (!(await fileExists(path))) {
+    fail(`${label} is missing required file: ${path}`);
   }
 }
 
 async function readJson(path, label) {
-  const raw = await readFile(path, "utf8");
+  const raw = await readFile(path, "utf8").catch((error) => {
+    fail(`${label} cannot read JSON file ${path}: ${error.message}`);
+    return "";
+  });
+  if (!raw) return null;
   try {
     return JSON.parse(raw);
   } catch (error) {
-    throw new Error(`${label} has invalid JSON in ${path}: ${error.message}`);
+    fail(`${label} has invalid JSON in ${path}: ${error.message}`);
+    return null;
   }
 }
 
-for (const site of sites) {
-  const rootPath = join(repoRoot, site.dir);
+async function listHtmlFiles(dir) {
+  const entries = await readdir(dir, { withFileTypes: true }).catch(() => []);
+  return entries.filter((entry) => entry.isFile() && entry.name.endsWith(".html")).map((entry) => entry.name).sort();
+}
+
+async function checkPublicCompanion() {
+  const rootPath = join(repoRoot, publicCompanion.dir);
   const manifestPath = join(rootPath, "site-manifest.json");
-  await assertFile(manifestPath, site.label);
-
-  for (const file of site.requiredFiles) {
-    await assertFile(join(rootPath, file), site.label);
+  await assertFile(manifestPath, publicCompanion.label);
+  for (const file of publicCompanion.requiredFiles) {
+    await assertFile(join(rootPath, file), publicCompanion.label);
   }
 
-  const manifest = await readJson(manifestPath, site.label);
+  const manifest = await readJson(manifestPath, publicCompanion.label);
+  if (!manifest) return;
   if (!manifest.generatedAt || Number.isNaN(Date.parse(manifest.generatedAt))) {
-    throw new Error(`${site.label} manifest is missing a valid generatedAt timestamp`);
+    fail(`${publicCompanion.label} manifest is missing a valid generatedAt timestamp`);
   }
-
-  for (const [key, expected] of Object.entries(site.requiredManifest)) {
+  for (const [key, expected] of Object.entries(publicCompanion.requiredManifest)) {
     if (manifest[key] !== expected) {
-      throw new Error(`${site.label} manifest ${key} is ${JSON.stringify(manifest[key])}; expected ${JSON.stringify(expected)}`);
+      fail(`${publicCompanion.label} manifest ${key} is ${JSON.stringify(manifest[key])}; expected ${JSON.stringify(expected)}`);
     }
   }
-
   if (!Array.isArray(manifest.pages) || manifest.pages.length === 0) {
-    throw new Error(`${site.label} manifest must include a non-empty pages array`);
+    fail(`${publicCompanion.label} manifest must include a non-empty pages array`);
+  }
+}
+
+async function checkRetiredOption(option) {
+  const rootPath = join(repoRoot, option.dir);
+  if (!(await dirExists(rootPath))) return;
+
+  const htmlFiles = await listHtmlFiles(rootPath);
+  if (htmlFiles.length === 0) {
+    fail(`${option.label} exists but has no HTML files; delete/archive it completely or keep it as readable history`);
+    return;
   }
 
-  for (const page of manifest.pages) {
-    if (!page.endsWith(".html")) {
-      throw new Error(`${site.label} manifest page is not an HTML file: ${page}`);
+  for (const file of htmlFiles) {
+    const relative = `${option.dir}/${file}`;
+    const html = await readFile(join(rootPath, file), "utf8");
+    if (!option.bannerPattern.test(html)) {
+      fail(`${relative} is retained as history but missing the review-artifact boundary banner`);
     }
-
-    const pagePath = join(rootPath, page);
-    await assertFile(pagePath, site.label);
-    const html = await readFile(pagePath, "utf8");
-    if (!/<html[\s>]/i.test(html)) {
-      throw new Error(`${site.label} page does not look like HTML: ${page}`);
+    if (/href=["'][^"']*account\.html/i.test(html)) {
+      fail(`${relative} links to account.html`);
+    }
+    if (/href=["'][^"']*alpha\.html/i.test(html) && !/Internal Alpha QA|internal QA/i.test(html)) {
+      fail(`${relative} links to alpha.html without an internal QA label`);
     }
   }
 }
 
-console.log(`Site option check passed: ${sites.length} site roots and their manifest pages are present.`);
+const packageJson = JSON.parse(await readFile(join(repoRoot, "package.json"), "utf8"));
+for (const scriptName of retiredOptionScripts) {
+  if (packageJson.scripts?.[scriptName]) {
+    fail(`package.json still exposes active retired stakeholder option script: ${scriptName}`);
+  }
+}
+
+const docsText = await Promise.all([
+  "docs/stakeholder-option-lifecycle.md",
+  "docs/production-deployment-policy.md",
+  "docs/production-surface-registry.md",
+  "README.md",
+].map((relativePath) => readFile(join(repoRoot, relativePath), "utf8").catch(() => "")));
+const joinedDocs = docsText.join("\n");
+for (const stalePattern of [
+  /No final lifecycle decision is recorded yet/i,
+  /Bryan still wants stakeholders to compare visual directions/i,
+  /deploy scripts named as review-only targets/i,
+]) {
+  if (stalePattern.test(joinedDocs)) {
+    fail(`stale active stakeholder option lifecycle language remains: ${stalePattern.source}`);
+  }
+}
+
+await checkPublicCompanion();
+for (const option of retiredOptions) {
+  await checkRetiredOption(option);
+}
+
+if (failures.length > 0) {
+  console.error("Site option retirement check failed.");
+  for (const failure of failures) {
+    console.error(`- ${failure}`);
+  }
+  process.exit(1);
+}
+
+console.log("Site option retirement check passed: East Tech guide output is present and retired stakeholder options are not active deploy targets.");

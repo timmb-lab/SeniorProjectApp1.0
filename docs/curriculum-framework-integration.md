@@ -4,7 +4,7 @@ Date: 2026-05-18
 
 ## Purpose
 
-This document records how the four source PDFs were absorbed into the hosted Senior Capstone app framework. The goal is not to recreate the old folder-and-link workflow inside a prettier shell. The goal is to turn the real Senior Project cycle into guided app workflows, private evidence spaces, role-based reviews, dashboards, alerts, exports, and better student work.
+This document records how the four source PDFs were absorbed into the hosted Capstone Project app framework. The goal is not to recreate the old folder-and-link workflow inside a prettier shell. The goal is to turn the real Senior Project cycle into guided app workflows, private evidence spaces, role-based reviews, dashboards, alerts, exports, and better student work.
 
 The app should make the right action obvious enough that students are led to the next useful step, while staff spend less time hunting links and more time pushing students toward stronger projects.
 

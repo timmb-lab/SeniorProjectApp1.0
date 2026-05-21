@@ -9,7 +9,7 @@ const workspaceCss = await readFile("workspace.css", "utf8");
 const productionSurfaceCheck = await readFile("scripts/check-production-surfaces.mjs", "utf8");
 
 test("workspace route is a real authenticated app surface", () => {
-  assert.match(workspaceHtml, /Senior Project Workspace/);
+  assert.match(workspaceHtml, /Capstone Project Workspace/);
   assert.match(workspaceHtml, /workspace\.js/);
   assert.match(workspaceHtml, /workspace\.css/);
   assert.match(workspaceJs, /\/api\/auth\/me/);

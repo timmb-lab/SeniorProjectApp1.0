@@ -56,4 +56,4 @@ Add an additive tenant/SSO foundation without weakening existing local auth:
 - What is the tenant offboarding policy for exports, retention, disabled accounts, and archive handoff?
 - Which Google Cloud project/OAuth client owns the production app?
 - Which redirect URIs are approved?
-- Should `thecapstoneapp.com` app-owned accounts be treated as internal admin identities or normal tenant identities?
+- Should legacy app-owned accounts on the current `app.thecapstoneapp.com` SSO redirect be treated as internal admin identities or normal tenant identities after the product domain target moves to `thecapstoneproject.com`?

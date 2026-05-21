@@ -4,7 +4,7 @@ Date: 2026-05-20
 
 This crosswalk maps the Senior Project source documents into the two required production deliverables:
 
-1. A role-aware Senior Capstone App.
+1. A role-aware Capstone Project app.
 2. A public Senior Capstone Website with Student Guide and Teacher Guide modes.
 
 Status values: `source-mapped`, `website implemented`, `app implemented`, `partial`, `blocked`, `pending`.

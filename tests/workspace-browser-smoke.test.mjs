@@ -40,14 +40,14 @@ test("workspace route signed-out smoke over local HTTP", { skip: !baseUrl }, asy
   assert.equal(htmlResponse.headers.get("content-type")?.includes("text/html"), true);
 
   const html = await htmlResponse.text();
-  assert.match(html, /<title>Senior Project Workspace<\/title>/);
+  assert.match(html, /<title>Capstone Project Workspace<\/title>/);
   assert.match(html, /workspaceMain/);
   assert.match(html, /workspace\.css/);
   assert.match(html, /workspace\.js/);
   assertSafeProductionCopy("workspace.html", html);
 
   const script = await fetchTextAsset("/workspace.js");
-  assert.match(script, /<h1 id="signInTitle">Senior Project Workspace<\/h1>/);
+  assert.match(script, /<h1 id="signInTitle">Capstone Project Workspace<\/h1>/);
   assert.match(script, /<h2>Sign in to continue<\/h2>/);
   assert.match(script, /Sign in to continue/);
   assert.match(script, /workspaceEmail/);
@@ -138,7 +138,7 @@ test("workspace route credential-backed student smoke over local HTTP", {
 
   const htmlResponse = await client.fetch("/workspace.html");
   assert.equal(htmlResponse.status, 200, "authenticated workspace reload status");
-  assert.match(await htmlResponse.text(), /Senior Project Workspace/);
+  assert.match(await htmlResponse.text(), /Capstone Project Workspace/);
 
   const restored = await client.fetchJson("/api/auth/me");
   assert.equal(restored.response.status, 200, "student session restore status");

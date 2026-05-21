@@ -1,9 +1,9 @@
-# Senior Capstone Master Plan
+# Capstone Project Master Plan
 
 Date: 2026-05-18
-Last accuracy audit: 2026-05-20 PT
+Last accuracy audit: 2026-05-21 PT
 
-This is the top-level product plan for the Senior Capstone rebuild. The split builders must read this before choosing work. If a run cannot explain how its slice advances this plan and leave durable evidence, it should pick a different slice.
+This is the top-level product plan for Capstone Project. The split builders must read this before choosing work. If a run cannot explain how its slice advances this plan and leave durable evidence, it should pick a different slice.
 
 The MVP requirement source is `docs/mvp-requirements-catalog.md`. Every builder run must ladder from this master plan into that catalog, name the requirement IDs it advances, and update the catalog when status, evidence, blockers, owner category, or acceptance checks materially change. Active work ownership is split between the top-of-hour non-Figma MVP builder and the bottom-of-hour Figma-only product builder in `docs/automation-cadence.md`.
 
@@ -11,8 +11,8 @@ The MVP requirement source is `docs/mvp-requirements-catalog.md`. Every builder 
 
 The repo has two production deliverables:
 
-1. Production Senior Capstone App.
-2. Production Senior Capstone Website.
+1. Capstone Project product/app.
+2. East Tech Senior Capstone Guide.
 
 The project is not production-ready, pilot-ready, or ready for broad non-dev review until both deliverables pass this P0 gate. Alpha, smoke, preview, stakeholder-option, generated-mirror, Figma, Canva, and automation artifacts can support the work, but they do not substitute for the real production app or the real public website.
 
@@ -288,9 +288,25 @@ No-hidden-core-content rule:
 - Required directions, due dates, rubrics, responsibilities, and actions must be visible or summarized without needing to expand details panels.
 - Details panels can remain for deeper examples or optional extra help.
 
+## Naming And Domain Direction
+
+Locked decisions for this pass:
+
+- Official product title: Capstone Project.
+- Do not use "The Capstone Project" as the official product title.
+- Product/app target domain: `thecapstoneproject.com`.
+- `www.thecapstoneproject.com` may be an alias if configured.
+- `app.thecapstoneproject.com` is optional only if the implementation still requires an app split.
+- East Tech guide future custom domain: TBD.
+- Product/app is school-agnostic, reusable, multi-school, nonprofit/SaaS-style, and tenant-ready.
+- East Tech/Titan branding belongs only to the East Tech public guide/school-specific surface.
+- `Titan Blend` and `Back To Basics` are retired as active options; Titan direction is absorbed into the East Tech guide.
+
+Repo-local technical identifiers such as `SeniorProjectApp1.0`, `senior-capstone-app`, `senior-capstone-public`, `senior-capstone-db`, and D1 IDs may remain legacy technical identifiers until a separate low-risk infrastructure rename/cutover is planned and verified.
+
 ## Product Destination
 
-Build a hosted Senior Capstone application for students, mentors, program teachers, administrators, and miscellaneous support/admin users.
+Build a hosted Capstone Project application for students, mentors, program teachers, administrators, and miscellaneous support/admin users.
 
 The revised MVP is a secure, database-centered web app. It is not a static guide, a Figma-only prototype, a Canva asset library, or a fake dashboard. The database, account model, permissions, progress updates, audit logs, and deployment path are the product backbone.
 
@@ -300,7 +316,7 @@ Figma can prototype account flows, data-backed states, role-aware dashboards, an
 
 MVP 1.0 must support:
 
-- A fully functional database that holds operational Senior Capstone data, including users, groups, roles, programs, cohorts, requirements, deadlines, submissions, evidence metadata, review decisions, progress/status history, audit events, announcements, and exports.
+- A fully functional database that holds operational capstone data, including users, groups, roles, programs, cohorts, requirements, deadlines, submissions, evidence metadata, review decisions, progress/status history, audit events, announcements, and exports.
 - Secure user accounts with hardened username/password login preserved for fake `.test` accounts, local smoke tests, approved fallback/break-glass access, and current alpha proof, while Google Workspace SSO becomes the preferred production identity target.
 - User groups and role-based permissions for student, mentor, program teacher, admin, and misc admin users.
 - Admin-managed user/group/program/cohort assignment workflows.

@@ -12,7 +12,7 @@ Status values:
 
 ## Open Decisions
 
-No open external automation scheduler decisions are blocking the current scaffold. The Google Drive Shared Drive evidence root is selected, configured, and passes the live fake-upload gate; first-admin bootstrap is complete for `bryan.timm89@gmail.com`; the production setup key has been removed; Cloudflare live verification token decision is resolved; hosted fake `.test` role permission proof now covers student, program teacher, mentor, misc-admin denial, and admin allowed paths; and the production domain/root-mode decision is resolved as `thecapstoneapp.com` with root mode `guide-root-app-subdomain`. Live custom-domain cutover remains separate and must not be claimed until Pages custom domains, DNS/TLS, app health, public guide health, and alpha/account exposure checks pass. Remaining setup work is configuration/implementation and policy: keep the broader temporary credential delivery policy open beyond the narrow Bryan-approved five-account staff/admin handoff, resolve the new tenant Google Workspace SSO decisions, live-prove Google Docs export with a fake native Docs fixture if approved, keep hosted upload/dashboard proof passing after deployment, and broaden remaining permission tests.
+No open external automation scheduler decisions are blocking the current scaffold. The Google Drive Shared Drive evidence root is selected, configured, and passes the live fake-upload gate; first-admin bootstrap is complete for `bryan.timm89@gmail.com`; the production setup key has been removed; Cloudflare live verification token decision is resolved; hosted fake `.test` role permission proof now covers student, program teacher, mentor, misc-admin denial, and admin allowed paths; the official product/domain decision is now Capstone Project at target `thecapstoneproject.com`; the East Tech guide future domain is TBD; and stakeholder option comparison is retired. Live custom-domain cutover remains separate and must not be claimed until Pages custom domains, DNS/TLS, product workspace/API health, and alpha/account exposure checks pass. Remaining setup work is configuration/implementation and policy: keep the broader temporary credential delivery policy open beyond the narrow Bryan-approved five-account staff/admin handoff, resolve the new tenant Google Workspace SSO decisions, live-prove Google Docs export with a fake native Docs fixture if approved, keep hosted upload/dashboard proof passing after deployment, and broaden remaining permission tests.
 
 ### HD-2026-05-21-010
 
@@ -29,8 +29,8 @@ No open external automation scheduler decisions are blocking the current scaffol
   - Should tenant evidence storage stay app-managed Google Drive for MVP or move to school-owned Drive before pilot?
   - What is the tenant offboarding policy for exports, retention, disabled accounts, and archive handoff?
   - Which Google Cloud project/OAuth client owns the production app?
-  - Which redirect URIs are approved beyond `https://app.thecapstoneapp.com/api/auth/google/callback`?
-  - Should `thecapstoneapp.com` app-owned accounts be treated as internal admin identities or normal tenant identities?
+  - Which redirect URIs are approved beyond the current legacy `https://app.thecapstoneapp.com/api/auth/google/callback`?
+  - Should product-domain app-owned accounts be treated as internal admin identities or normal tenant identities?
 - `current recommendation`: Keep Google Workspace SSO disabled in production until the Google Cloud OAuth client, Cloudflare Pages secrets/env vars, tenant-domain records, and hosted fake-account regression checks are complete. Keep local auth enabled for fake `.test`, local smoke, development, and explicit break-glass use until Bryan approves a narrower policy.
 - `implementation status`: Schema, safe auth config, SSO start/callback routes, workspace sign-in behavior, mocked integration tests, backend setup notes, and ADR-0002 are implemented as a fail-closed foundation. No production tenant domain has been added to the repo seed data.
 - `created`: 2026-05-21
@@ -61,14 +61,15 @@ No open external automation scheduler decisions are blocking the current scaffol
 
 ### HD-2026-05-20-004
 
-- `status`: open
+- `status`: accepted
 - `area`: stakeholder option retention
 - `owner`: Bryan
 - `severity`: P2
-- `decision needed`: Decide whether to keep both stakeholder option Pages projects after review, retire one or both, or promote one direction into the canonical public guide.
-- `current recommendation`: Keep both as labeled review artifacts until Bryan selects a visual direction; do not promote either without updating the production-surface policy and registry.
+- `decision`: Retire Titan Blend and Back To Basics as active options. Absorb Titan direction into the East Tech guide.
+- `implementation status`: Active option build/dev/deploy package scripts are removed; `check:site-options` validates retirement state; Cloudflare project cleanup remains manual follow-up unless verified live.
 - `decision workflow`: `docs/stakeholder-option-lifecycle.md`
 - `created`: 2026-05-20
+- `accepted`: 2026-05-21
 
 ### HD-2026-05-20-007
 
@@ -97,7 +98,7 @@ No open external automation scheduler decisions are blocking the current scaffol
 
 ### HD-2026-05-20-002
 
-- `status`: accepted
+- `status`: superseded
 - `area`: canonical URL and production surface cutover
 - `owner`: Bryan
 - `severity`: P1
@@ -107,6 +108,19 @@ No open external automation scheduler decisions are blocking the current scaffol
 - `stakeholder exclusion`: `senior-capstone-option-titan` and `senior-capstone-option-primary` remain review-only and must not be mapped to the production hostnames.
 - `decision workflow`: `docs/custom-domain-cutover-checklist.md`
 - `created`: 2026-05-20
+- `accepted`: 2026-05-21
+- `superseded by`: Capstone Project target-domain decision on 2026-05-21: product/app target is `thecapstoneproject.com`, East Tech guide future domain is TBD, and old `thecapstoneapp.com` hostnames are legacy/current pending migration.
+
+### HD-2026-05-21-011
+
+- `status`: accepted
+- `area`: final product naming, domain, and surface split
+- `owner`: Bryan
+- `severity`: P1
+- `decision`: Official product title is Capstone Project, not "The Capstone Project"; product/app target domain is `thecapstoneproject.com`; `www.thecapstoneproject.com` may be an alias; `app.thecapstoneproject.com` is optional only if a split is required; East Tech guide future custom domain is TBD; the app is school-agnostic and tenant-ready; East Tech/Titan branding belongs only to the East Tech guide.
+- `stakeholder outcome`: Titan Blend and Back To Basics are retired as active options; Titan direction is absorbed into the East Tech guide.
+- `live cutover state`: Bryan registered `thecapstoneproject.com` in Cloudflare during the Part 2 run and authorized live target-domain work. Live success must still be based on Pages custom-domain association, DNS/TLS, workspace/API health, and final verification output.
+- `decision workflow`: `docs/custom-domain-cutover-checklist.md`, `docs/production-surface-registry.md`, `docs/stakeholder-option-lifecycle.md`
 - `accepted`: 2026-05-21
 
 ### HD-2026-05-20-006

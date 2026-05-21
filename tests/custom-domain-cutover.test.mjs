@@ -8,50 +8,70 @@ import {
 } from "../scripts/check-custom-domain-cutover.mjs";
 
 const validConfig = {
-  schemaVersion: 1,
-  domain: "thecapstoneapp.com",
-  rootMode: "guide-root-app-subdomain",
-  hostnames: {
+  schemaVersion: 2,
+  productDomain: "thecapstoneproject.com",
+  rootMode: "product-root-target-guide-temporary",
+  targetHostnames: {
+    productApex: "thecapstoneproject.com",
+    productWwwAlias: "www.thecapstoneproject.com",
+    appSubdomainIfNeeded: "app.thecapstoneproject.com",
+  },
+  currentLegacyHostnames: {
     publicApex: "thecapstoneapp.com",
     publicWww: "www.thecapstoneapp.com",
     app: "app.thecapstoneapp.com",
   },
+  currentSsoRedirectUri: "https://app.thecapstoneapp.com/api/auth/google/callback",
+  guide: {
+    futureCustomDomain: "TBD",
+    currentDeploySource: "public-companion/",
+    currentPagesProject: "senior-capstone-public",
+    currentPagesDevFallback: "https://senior-capstone-public.pages.dev",
+  },
   pagesProjects: {
     publicGuide: "senior-capstone-public",
     appBackend: "senior-capstone-app",
+  },
+  retiredPagesProjects: {
     stakeholderTitan: "senior-capstone-option-titan",
     stakeholderPrimary: "senior-capstone-option-primary",
   },
   pagesDevFallbacks: {
     publicGuide: "https://senior-capstone-public.pages.dev",
     appBackend: "https://senior-capstone-app.pages.dev",
+  },
+  retiredPagesDevFallbacks: {
     stakeholderTitan: "https://senior-capstone-option-titan.pages.dev",
     stakeholderPrimary: "https://senior-capstone-option-primary.pages.dev",
   },
   policy: {
-    stakeholderOptionsMayUseProductionDomain: false,
+    stakeholderOptionsMayUseProductDomain: false,
+    retiredStakeholderOptionsMayDeploy: false,
     realUserOnboardingPolicyChangeAllowed: false,
-    disablePagesDevFallbackAfterCutover: false,
-    publicWwwBehavior: "serve-same-public-guide-or-cloudflare-redirect-rule",
+    disablePagesDevFallbackBeforeCutover: false,
+    guideFutureDomainMustRemainTbd: true,
     doNotUseRedirectsFileForDomainLevelRedirects: true,
+    targetDomainLiveStatus: "pending-cloudflare-dns-tls-verification",
   },
 };
 
 const currentDocs = {
   "docs/custom-domain-cutover-checklist.md": [
-    "Domain selected: `thecapstoneapp.com`",
-    "Purchased through Cloudflare: confirmed by Bryan",
-    "Added to Cloudflare: confirmed by Bryan",
-    "Root mode: `guide-root-app-subdomain`",
-    "`thecapstoneapp.com`",
-    "`www.thecapstoneapp.com`",
-    "`app.thecapstoneapp.com`",
+    "Product/app target domain: `thecapstoneproject.com`",
+    "Target product alias: `www.thecapstoneproject.com`",
+    "Optional app split hostname: `app.thecapstoneproject.com`",
+    "East Tech guide future custom domain: `TBD`",
+    "Current legacy hostnames pending migration: `thecapstoneapp.com`, `www.thecapstoneapp.com`, `app.thecapstoneapp.com`",
+    "Current Google OAuth redirect URI remains `https://app.thecapstoneapp.com/api/auth/google/callback`",
     "GET /accounts/{account_id}/pages/projects/{project_name}/domains",
     "POST /accounts/{account_id}/pages/projects/{project_name}/domains",
     "CNAME-only warning",
     "`_redirects` limitations",
   ].join("\n"),
   "docs/production-surface-registry.md": [
+    "thecapstoneproject.com",
+    "www.thecapstoneproject.com",
+    "app.thecapstoneproject.com",
     "thecapstoneapp.com",
     "www.thecapstoneapp.com",
     "app.thecapstoneapp.com",
@@ -60,7 +80,9 @@ const currentDocs = {
     "npm run check:production-cutover",
   ].join("\n"),
   "docs/production-deployment-policy.md": [
-    "guide-root-app-subdomain",
+    "Capstone Project",
+    "thecapstoneproject.com",
+    "East Tech guide future custom domain is `TBD`",
     "Cloudflare Pages custom-domain association",
     "senior-capstone-option-titan",
     "senior-capstone-option-primary",
@@ -69,72 +91,95 @@ const currentDocs = {
   ].join("\n"),
 };
 
-test("valid thecapstoneapp.com config passes", () => {
+test("valid Capstone Project target-domain config passes", () => {
   assert.equal(validateProductionDomainConfig(validConfig).ok, true);
 });
 
-test("stale placeholder docs fail", () => {
+test("guide domain invented value fails", () => {
+  const config = structuredClone(validConfig);
+  config.guide.futureCustomDomain = "easttechcapstone.example";
+  const result = validateProductionDomainConfig(config);
+  assert.equal(result.ok, false);
+  assert.match(result.failures.join("\n"), /guide\.futureCustomDomain/);
+});
+
+test("retired stakeholder project mapped to target product hostname fails", () => {
+  const config = structuredClone(validConfig);
+  config.customDomains = {
+    stakeholderTitan: ["thecapstoneproject.com"],
+  };
+  const result = validateProductionDomainConfig(config);
+  assert.equal(result.ok, false);
+  assert.match(result.failures.join("\n"), /retired stakeholder project/);
+});
+
+test("missing target product hostname fails", () => {
+  const config = structuredClone(validConfig);
+  config.targetHostnames.productApex = "";
+  const result = validateProductionDomainConfig(config);
+  assert.equal(result.ok, false);
+  assert.match(result.failures.join("\n"), /targetHostnames\.productApex/);
+});
+
+test("docs must include target, legacy, and SSO redirect state", () => {
+  const result = validateCutoverDocs(currentDocs);
+  assert.equal(result.ok, true);
+});
+
+test("docs missing target domain fail", () => {
   const docs = {
     ...currentDocs,
-    "docs/custom-domain-cutover-checklist.md": "Hostnames are placeholders until Bryan chooses the final mapping.",
+    "docs/custom-domain-cutover-checklist.md": "Current legacy hostnames pending migration: `thecapstoneapp.com`",
   };
   const result = validateCutoverDocs(docs);
   assert.equal(result.ok, false);
-  assert.match(result.failures.join("\n"), /placeholder/i);
-});
-
-test("stakeholder project mapped to production hostname fails", () => {
-  const config = structuredClone(validConfig);
-  config.customDomains = {
-    stakeholderTitan: ["thecapstoneapp.com"],
-  };
-  const result = validateProductionDomainConfig(config);
-  assert.equal(result.ok, false);
-  assert.match(result.failures.join("\n"), /stakeholder project/);
-});
-
-test("missing app hostname fails", () => {
-  const config = structuredClone(validConfig);
-  config.hostnames.app = "";
-  const result = validateProductionDomainConfig(config);
-  assert.equal(result.ok, false);
-  assert.match(result.failures.join("\n"), /hostnames\.app/);
+  assert.match(result.failures.join("\n"), /thecapstoneproject\.com/);
 });
 
 test("no token can be reported as static pass plus live blocked by caller", () => {
   assert.equal(validateProductionDomainConfig(validConfig).ok, true);
   const association = evaluatePagesDomainAssociations({ projectDomains: {} });
   assert.equal(association.ok, false);
-  assert.equal(association.missing, 3);
+  assert.equal(association.missing, 2);
 });
 
-test("Pages API active statuses pass", () => {
+test("Pages API active target product statuses pass", () => {
   const association = evaluatePagesDomainAssociations({
     projectDomains: {
-      "senior-capstone-public": [
-        { name: "thecapstoneapp.com", status: "active", validation_data: { status: "active" }, verification_data: { status: "active" } },
-        { name: "www.thecapstoneapp.com", status: "active", validation_data: { status: "active" }, verification_data: { status: "active" } },
-      ],
       "senior-capstone-app": [
-        { name: "app.thecapstoneapp.com", status: "active", validation_data: { status: "active" }, verification_data: { status: "active" } },
+        { name: "thecapstoneproject.com", status: "active", validation_data: { status: "active" }, verification_data: { status: "active" } },
+        { name: "www.thecapstoneproject.com", status: "active", validation_data: { status: "active" }, verification_data: { status: "active" } },
+      ],
+      "senior-capstone-public": [],
+      "senior-capstone-option-titan": [],
+      "senior-capstone-option-primary": [],
+    },
+  });
+  assert.equal(association.ok, true);
+  assert.equal(association.active, 2);
+});
+
+test("optional app subdomain can remain unconfigured", () => {
+  const association = evaluatePagesDomainAssociations({
+    projectDomains: {
+      "senior-capstone-app": [
+        { name: "thecapstoneproject.com", status: "active" },
+        { name: "www.thecapstoneproject.com", status: "active" },
       ],
       "senior-capstone-option-titan": [],
       "senior-capstone-option-primary": [],
     },
   });
   assert.equal(association.ok, true);
-  assert.equal(association.active, 3);
+  assert.match(association.findings.map((finding) => finding.label).join("\n"), /OPTIONAL_APP_DOMAIN_NOT_CONFIGURED/);
 });
 
 test("Pages API pending statuses produce pending", () => {
   const association = evaluatePagesDomainAssociations({
     projectDomains: {
-      "senior-capstone-public": [
-        { name: "thecapstoneapp.com", status: "pending" },
-        { name: "www.thecapstoneapp.com", status: "initializing" },
-      ],
       "senior-capstone-app": [
-        { name: "app.thecapstoneapp.com", status: "active" },
+        { name: "thecapstoneproject.com", status: "pending" },
+        { name: "www.thecapstoneproject.com", status: "initializing" },
       ],
       "senior-capstone-option-titan": [],
       "senior-capstone-option-primary": [],
@@ -154,19 +199,18 @@ test("Pages API missing association fails", () => {
     },
   });
   assert.equal(association.ok, false);
-  assert.equal(association.missing, 3);
+  assert.equal(association.missing, 2);
 });
 
 test("CNAME-only fixture fails", () => {
   const association = evaluatePagesDomainAssociations({
     projectDomains: {
-      "senior-capstone-public": [],
       "senior-capstone-app": [],
       "senior-capstone-option-titan": [],
       "senior-capstone-option-primary": [],
     },
     dnsRecords: [
-      { type: "CNAME", name: "app.thecapstoneapp.com", content: "senior-capstone-app.pages.dev" },
+      { type: "CNAME", name: "www.thecapstoneproject.com", content: "senior-capstone-app.pages.dev" },
     ],
   });
   assert.equal(association.ok, false);
@@ -177,9 +221,4 @@ test("output redacts token-like values", () => {
   const redacted = redactKnownSecrets("Authorization: Bearer TOKEN_CANARY_1234567890", ["TOKEN_CANARY_1234567890"]);
   assert.match(redacted, /\[REDACTED\]/);
   assert.doesNotMatch(redacted, /TOKEN_CANARY/);
-});
-
-test("domain-level redirect is not required from _redirects", () => {
-  const result = validateCutoverDocs(currentDocs);
-  assert.equal(result.ok, true);
 });

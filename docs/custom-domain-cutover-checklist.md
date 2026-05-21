@@ -2,27 +2,35 @@
 
 Date: 2026-05-21 PT
 
-Domain selected: `thecapstoneapp.com`
-Purchased through Cloudflare: confirmed by Bryan
-Added to Cloudflare: confirmed by Bryan
-Root mode: `guide-root-app-subdomain`
+Product/app target domain: `thecapstoneproject.com`
+Target product alias: `www.thecapstoneproject.com`
+Optional app split hostname: `app.thecapstoneproject.com`
+East Tech guide future custom domain: `TBD`
+Current legacy hostnames pending migration: `thecapstoneapp.com`, `www.thecapstoneapp.com`, `app.thecapstoneapp.com`
+Current Google OAuth redirect URI remains `https://app.thecapstoneapp.com/api/auth/google/callback`
 
-Live cutover is not complete until Cloudflare Pages custom-domain association, DNS/Cloudflare activation, HTTPS/TLS, app health, public guide health, and alpha/account exposure checks pass. Git push success, Pages project existence, DNS record existence, and Pages auto-deploy success are not enough.
+Live cutover is not complete until Cloudflare Pages custom-domain association, DNS/Cloudflare activation, HTTPS/TLS, product app health, workspace health, and alpha/account exposure checks pass. Git push success, Pages project existence, DNS record existence, and Pages auto-deploy success are not enough.
 
-## Canonical Mapping
+## Target Product Mapping
 
 | Hostname | Purpose | Pages project | Deploy source | Deploy command | Required live proof |
 | --- | --- | --- | --- | --- | --- |
-| `thecapstoneapp.com` | public landing / student guide | `senior-capstone-public` | `public-companion/` | `npm run deploy:public-site` | HTTPS loads public guide |
-| `www.thecapstoneapp.com` | public guide alias / same guide / optional Cloudflare redirect rule | `senior-capstone-public` | `public-companion/` | `npm run deploy:public-site` | HTTPS loads or redirects safely |
-| `app.thecapstoneapp.com` | secure app/backend | `senior-capstone-app` | `.` | `npm run deploy` | `/api/health`, `/api/auth/me`, workspace |
+| `thecapstoneproject.com` | Capstone Project product/app root | `senior-capstone-app` | `.` | `npm run deploy` | HTTPS reaches product root/workspace safely |
+| `www.thecapstoneproject.com` | Optional product alias | `senior-capstone-app` | `.` | `npm run deploy` | HTTPS loads or redirects safely |
+| `app.thecapstoneproject.com` | Optional app split only if required | `senior-capstone-app` | `.` | `npm run deploy` | Only add if split is needed and Google OAuth/envs are updated |
 
 Fallback Pages URLs remain:
 
-- `https://senior-capstone-public.pages.dev`
 - `https://senior-capstone-app.pages.dev`
+- `https://senior-capstone-public.pages.dev`
 
-Review-only Pages projects stay excluded from production hostnames:
+Current legacy hostnames remain documented until a later migration/redirect pass:
+
+- `thecapstoneapp.com`
+- `www.thecapstoneapp.com`
+- `app.thecapstoneapp.com`
+
+Retired stakeholder option projects stay excluded from product hostnames:
 
 - `senior-capstone-option-titan`
 - `senior-capstone-option-primary`
@@ -44,7 +52,8 @@ Required:
 
 - Production navigation stays free of alpha/account routes.
 - Public companion does not proxy alpha/account/API routes.
-- Stakeholder option sites remain review-only and are not mapped to `thecapstoneapp.com`, `www.thecapstoneapp.com`, or `app.thecapstoneapp.com`.
+- Retired stakeholder option projects are not mapped to `thecapstoneproject.com`, `www.thecapstoneproject.com`, or `app.thecapstoneproject.com`.
+- No active package script deploys retired stakeholder option output.
 - No real student records or fake passwords are present in committed/static assets.
 
 ## Cloudflare Pages Custom Domains
@@ -55,18 +64,13 @@ Dashboard fallback steps:
 
 1. Cloudflare Dashboard
 2. Workers & Pages
-3. `senior-capstone-public`
+3. `senior-capstone-app`
 4. Custom domains
 5. Set up a domain
-6. Add `thecapstoneapp.com`
-7. Add `www.thecapstoneapp.com`
-8. Workers & Pages
-9. `senior-capstone-app`
-10. Custom domains
-11. Set up a domain
-12. Add `app.thecapstoneapp.com`
-13. Wait until custom domains show active
-14. Run repo live checks
+6. Add `thecapstoneproject.com`
+7. Add `www.thecapstoneproject.com` if Bryan wants the alias live
+8. Wait until custom domains show active
+9. Run repo live checks
 
 Pages Domains API references:
 
@@ -96,17 +100,25 @@ powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\ru
 Required live proof:
 
 - Token verifies without printing the token.
-- Pages domains list for `senior-capstone-public` contains active `thecapstoneapp.com` and `www.thecapstoneapp.com`.
-- Pages domains list for `senior-capstone-app` contains active `app.thecapstoneapp.com`.
-- Stakeholder option projects do not contain production hostnames.
-- `https://thecapstoneapp.com` loads the public guide or redirects safely to the same public guide.
-- `https://www.thecapstoneapp.com` loads the public guide or redirects safely to the same public guide.
-- `https://app.thecapstoneapp.com/workspace.html` reaches the app workspace route.
-- `https://app.thecapstoneapp.com/api/health` returns 200 without secrets.
-- `https://app.thecapstoneapp.com/api/auth/me` signed out returns the expected unauthenticated response without user records.
+- Pages domains list for `senior-capstone-app` contains active `thecapstoneproject.com`.
+- Pages domains list for `senior-capstone-app` contains active `www.thecapstoneproject.com` if the alias is configured.
+- Retired stakeholder option projects do not contain product hostnames.
+- `https://thecapstoneproject.com/workspace.html` reaches the app workspace route.
+- `https://thecapstoneproject.com/api/health` returns 200 without secrets.
+- `https://thecapstoneproject.com/api/auth/me` signed out returns the expected unauthenticated response without user records.
 - Normal app home does not land on `alpha.html` or `account.html`.
 
-If the token is missing, record `CLOUDFLARE_DOMAIN_CHECK_BLOCKED_NO_TOKEN`. If scope is insufficient, record `CLOUDFLARE_DOMAIN_CHECK_BLOCKED_INSUFFICIENT_SCOPE`. Do not claim live cutover passed.
+If the token is missing, record `CLOUDFLARE_DOMAIN_CHECK_BLOCKED_NO_TOKEN`. If scope is insufficient, record `CLOUDFLARE_DOMAIN_CHECK_BLOCKED_INSUFFICIENT_SCOPE`. If Cloudflare shows `initializing` or `pending`, record the exact status and do not claim live cutover passed.
+
+## Google Workspace SSO Redirect
+
+This rename/surface pass does not change the live Google OAuth redirect URI. Keep:
+
+```text
+https://app.thecapstoneapp.com/api/auth/google/callback
+```
+
+A later SSO cutover must add the exact new redirect URI in Google Cloud and Cloudflare Pages env/secrets, deploy the app, verify `/api/auth/config`, and prove Google Workspace SSO fail-closed behavior before enabling a new product-domain OAuth redirect.
 
 ## Alpha/Account Exposure
 
@@ -125,7 +137,7 @@ If cutover fails:
 - Stop pilot traffic and real-record entry.
 - Remove or pause the custom hostname mapping from the failing Pages project.
 - Repoint traffic to the prior known-good Pages hostname or Cloudflare rule.
-- Keep `https://senior-capstone-public.pages.dev` and `https://senior-capstone-app.pages.dev` as emergency fallbacks unless Bryan separately disables them.
+- Keep `https://senior-capstone-app.pages.dev` and `https://senior-capstone-public.pages.dev` as emergency fallbacks unless Bryan separately disables them.
 - Record hostname, response code, TLS state, failing command, and timestamp in `docs/progress/run-log.md`.
 - Re-run local and live gates before retrying.
 

@@ -2,131 +2,97 @@
 
 Date: 2026-05-21
 
-Classification values: `production`, `internal-alpha`, `internal-smoke`, `stakeholder-review`, `generated-output`, `preview`, `legacy`, `unknown`.
+Classification values: `production`, `internal-alpha`, `internal-smoke`, `generated-output`, `retired-stakeholder-option`, `preview`, `legacy`, `unknown`.
 
-Production-safe means the surface is safe to present in its intended context. A review artifact can be production-safe for review while still not being canonical production.
+Production-safe means the surface is safe to present in its intended context. A retired historical artifact can remain readable without being an active production or deploy target.
 
-## Production Domain Mapping
+## Naming And Domain State
 
-Live state: not yet verified in this repo pass unless `npm run check:custom-domain-cutover -- --live-required --live-http` or the equivalent wrapper command proves active Pages custom-domain association, DNS/TLS, and app/public health.
+| Item | Current state | Target state | Validation |
+| --- | --- | --- | --- |
+| Official product title | Capstone Project | Capstone Project | Search must not treat "The Capstone Project" as official title |
+| Product/app target | Cloudflare association in progress when live tooling permits | `thecapstoneproject.com` on `senior-capstone-app` | `npm run check:custom-domain-cutover` |
+| Product alias | Optional | `www.thecapstoneproject.com` on `senior-capstone-app` if configured | `npm run check:custom-domain-cutover -- --live-required --live-http` |
+| Optional app split | Not required by this pass | `app.thecapstoneproject.com` only if deployment/SSO split requires it later | Manual Cloudflare plus Google OAuth redirect URI cutover |
+| Current legacy guide hostnames | `thecapstoneapp.com`, `www.thecapstoneapp.com` | Legacy/current pending migration | Historical/live checks only |
+| Current legacy app/SSO hostname | `app.thecapstoneapp.com` | Keep as current Google OAuth redirect host until later SSO cutover | Google SSO tests and docs |
+| East Tech guide future domain | `TBD` | `TBD` until Bryan buys/configures it | Search for invented guide domains |
 
-| Hostname | Pages project | Classification | Purpose | Fallback | Live state | Validation |
-| --- | --- | --- | --- | --- | --- | --- |
-| `thecapstoneapp.com` | `senior-capstone-public` | `production` / `generated-output` | Public landing, student guide, and family/staff guide | `https://senior-capstone-public.pages.dev` | not yet verified | `npm run check:custom-domain-cutover` |
-| `www.thecapstoneapp.com` | `senior-capstone-public` | `production` / `generated-output` | Public guide alias, same guide, or optional Cloudflare Redirect Rule | `https://senior-capstone-public.pages.dev` | not yet verified | `npm run check:custom-domain-cutover` |
-| `app.thecapstoneapp.com` | `senior-capstone-app` | `production` | Secure app/backend, workspace, and app APIs | `https://senior-capstone-app.pages.dev` | not yet verified | `npm run check:custom-domain-cutover`; `npm run check:alpha-account-gating` |
-
-Root mode is `guide-root-app-subdomain`. Stakeholder review projects `senior-capstone-option-titan` and `senior-capstone-option-primary` must not be assigned any production hostname above. The aggregate cutover gate is `npm run check:production-cutover`.
+Repo edits do not equal Cloudflare custom-domain changes. Live state is verified only when the Pages Domains API and HTTPS checks pass.
 
 ## P0 Production Experience Targets
 
-| Surface | Path | Deploy project | Classification | Audience | Production-safe | Reason | Action needed | Owner lane | Validation |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Canonical production app | `workspace.html` with `workspace.js` and `workspace.css`; not `alpha.html`, `account.html`, or `app-preview.html` | `senior-capstone-app` | `production` | Authenticated students, mentors, program teachers, admins, misc admins | Partial | The workspace route requires authenticated session state, calls D1-backed role/scope APIs, renders role-aware student, teacher/admin, mentor, and admin/misc-admin sections, and now shows explicit session-expired, account-disabled, reset-required, role-pending, permission-denied, and no-active-assignment access-boundary states. Local signed-out and credential-backed student/role smoke verifies login, session restore, D1-backed student workspace, evidence link, truthful Drive-missing upload blocker, unsupported upload denial, role-route access, mentor no-assignment, logout, safe copy, and no console errors. Source/VM tests prove all account/access state rendering; in-app browser verified the local no-role role-pending UI and unassigned mentor no-assignment UI with zero console errors. Live signed-out and fake student signed-in workspace checks passed. The Shared Drive live gate now passes fake `.test` upload, D1 metadata/audit verification, denial guards, and storage-ID leak checks. Internal alpha/smoke/preview surfaces remain non-canonical. | Verify hosted workspace upload/download with fake `.test` accounts, including one >5MB resumable upload; verify the newest account-state/no-assignment markers after hosted deployment and add live section-level permission-denied browser UI proof. | backend-security-data | `npm run test`; `npm run check:production-surfaces`; `npm run check:drive:live` |
-| Public production website | `index.html` plus public guide routes; generated mirror in `public-companion/` | `senior-capstone-app`; `senior-capstone-public` | `production` / `generated-output` | Students, families, staff, mentors | Partial | Public guide content exists and now includes a Student Guide / Teacher Guide top-banner mode with visible current mode label, `aria-pressed`, public preference storage, and visible source-aligned guide summaries. | Broaden no-hidden-core-content coverage proof across every public route and keep the generated mirror in sync. | requirements-audit | `npm run check:production-surfaces`; `npm run check:generated-output-drift`; `npm run check:site-options` |
+| Surface | Path | Deploy project | Classification | Audience | Production-safe | Reason | Validation |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Capstone Project product app | `workspace.html`, `workspace.js`, `workspace.css`; product root redirects to `workspace.html` | `senior-capstone-app` | `production` | Authenticated students, mentors, program teachers, admins, misc admins | Partial | Canonical protected workspace route with role-aware dashboards, auth/session APIs, D1-backed data, evidence workflows, and school-agnostic copy. | `npm run test`; `npm run check:production-surfaces`; hosted workspace checks when credentials exist |
+| East Tech guide source | `index.html`, public route pages, `app.js`, `styles.css`, `assets/`, `templates/` | `senior-capstone-app` source and `senior-capstone-public` generated mirror | `production` / `generated-output` | East Tech students, families, staff, mentors | Yes as public guide | School-specific Student Guide / Teacher Guide content with East Tech/Titans branding. Not the long-term product root. | `npm run build:public-site`; `npm run check:generated-output-drift`; `npm run check:production-surfaces` |
+| Internal alpha page | `alpha.html` | `senior-capstone-app` | `internal-alpha` | Bryan and QA testers | No for public navigation | Internal seeded alpha walkthrough. | `npm run check:alpha-contract`; `npm run check:alpha-account-gating`; `npm run test` |
+| Internal account page | `account.html` | `senior-capstone-app` | `internal-smoke` | Bryan and QA testers | No for public navigation | Fake `.test` account/session/evidence smoke workflow. | `npm run check:alpha-account-gating`; `npm run test` |
+| App workflow preview | `app-preview.html` | `senior-capstone-app`, copied to `public-companion/` | `preview` | Public stakeholders and staff | No as canonical app | Clearly labeled workflow preview only. | `npm run check:production-surfaces` |
+| Retired Titan Blend option | `stakeholder-options/titan-blend/` | `senior-capstone-option-titan` historical project | `retired-stakeholder-option` | Historical review only | No active deploy target | Titan direction absorbed into East Tech guide. | `npm run check:site-options` |
+| Retired Back To Basics option | `stakeholder-options/back-to-basics/` | `senior-capstone-option-primary` historical project | `retired-stakeholder-option` | Historical review only | No active deploy target | Stakeholder comparison is over. | `npm run check:site-options` |
 
 ## Deploy Targets
 
-| Surface | Path | Deploy project | Classification | Audience | Production-safe | Reason | Action needed | Owner lane | Validation |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Root app/backend host | `.`; custom hostname `app.thecapstoneapp.com` | `senior-capstone-app` | `production` | Students, staff, mentors, admins, stakeholders | Partial | Canonical app/backend project with Cloudflare Pages Functions, D1 binding, public guide routes, and authenticated workspace route. | Keep `alpha.html` and `account.html` out of normal public navigation; deepen role-aware workspace behavior and live verification; keep production checker passing. | deployment-qa | `npm run check:production-surfaces`; `npm run check:cloudflare`; `npm run check:custom-domain-cutover`; `npm run check:alpha-account-gating` |
-| Public companion output | `public-companion/`; custom hostnames `thecapstoneapp.com`, `www.thecapstoneapp.com` | `senior-capstone-public` | `generated-output` | Students, families, staff, mentors | Partial | Generated public guide output mirrors the source Student/Teacher guide mode and remains a static public guide with no internal alpha/account/API proxying. | Rebuild only from root source; broaden route-level guide coverage; keep drift and production-surface checks passing. | requirements-audit | `npm run build:public-site`; `npm run check:generated-output-drift`; `npm run check:site-options`; `npm run check:production-surfaces`; `npm run check:custom-domain-cutover` |
-| Titan Blend option | `stakeholder-options/titan-blend/` | `senior-capstone-option-titan` | `stakeholder-review` | Bryan, leadership, stakeholders reviewing visual direction | Yes for review, no as canonical production | Generated visual direction artifact. Review CTAs point to the protected workspace, not internal alpha QA. | Keep review banner; do not promote without Bryan decision. | design-assets-handoff | `npm run build:stakeholder-sites`; `npm run check:generated-output-drift`; `npm run check:site-options` |
-| Back To Basics option | `stakeholder-options/back-to-basics/` | `senior-capstone-option-primary` | `stakeholder-review` | Bryan, leadership, stakeholders reviewing visual direction | Yes for review, no as canonical production | Generated visual direction artifact. Review CTAs point to the protected workspace, not internal alpha QA. | Keep review banner; do not promote without Bryan decision. | design-assets-handoff | `npm run build:stakeholder-sites`; `npm run check:generated-output-drift`; `npm run check:site-options` |
-| Root alpha page | `alpha.html` | `senior-capstone-app` | `internal-alpha` | Bryan and QA testers | No for public production navigation | Internal seeded alpha walkthrough. | Keep internal QA labels; no real student records; no passwords. | student-workflow-evidence | `npm run check:alpha-contract`; `npm run test` |
-| Root account page | `account.html` | `senior-capstone-app` | `internal-smoke` | Bryan and QA testers | No for public production navigation | Internal account/session/evidence smoke workflow for fake `.test` accounts. | Keep internal QA labels; do not expose passwords; do not link from public nav. | backend-security-data | `npm run test`; `npm run check:production-surfaces` |
-| App workflow preview | `app-preview.html` | `senior-capstone-app`, copied to `public-companion/`, generated into stakeholder options | `preview` | Public stakeholders and staff | No as canonical app; yes only as clearly labeled preview | Public app-boundary preview, not the live student-record system and not the canonical production app unless deliberately converted, renamed, routed, and validated. | Avoid finished-app claims; keep internal QA links out of normal flow; do not count as production app completion. | requirements-audit | `npm run check:production-surfaces` |
-| Preview branch deploy | `npm run deploy:preview` | `senior-capstone-app` branch `alpha` | `internal-alpha` | Bryan and QA testers | No as canonical production | Preview/alpha deploy branch only. | Do not describe as production; verify live only when auth/token is available. | deployment-qa | `npm run check:cloudflare` |
+| Surface | Deploy command | Project | Current role | Notes |
+| --- | --- | --- | --- | --- |
+| Capstone Project app/backend | `npm run deploy` | `senior-capstone-app` | Canonical product app/backend | Cloudflare project name remains a legacy technical identifier. |
+| East Tech guide | `npm run deploy:public-site` | `senior-capstone-public` | Temporary/current guide deployment | Future custom guide domain remains TBD. |
+| Preview branch | `npm run deploy:preview` | `senior-capstone-app` branch `alpha` | Internal preview | Not canonical production. |
 
-## Root Public HTML Entry Points
+Removed active scripts:
 
-| Path | Deploy project | Classification | Intended audience | Production-safe | Reason | Action needed | Owner lane | Validation |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `index.html` | `senior-capstone-app` | `production` | Students, families, staff, mentors | Partial | Canonical public guide home on the app host; `app.js` now renders the Student Guide / Teacher Guide top-banner mode and visible guide summaries. | Keep nav free of internal QA links and broaden public route-level guide coverage. | requirements-audit | `npm run check:production-surfaces` |
-| `program.html` | `senior-capstone-app` | `production` | Students and staff | Yes | Program requirement guide page. | None beyond checker. | student-workflow-evidence | `npm run check:production-surfaces` |
-| `sponsorship-support.html` | `senior-capstone-app` | `production` | Students, families, sponsors | Yes | Public support guidance. | None beyond checker. | requirements-audit | `npm run check:production-surfaces` |
-| `calendar.html` | `senior-capstone-app` | `production` | Students, families, staff | Yes | Public milestone guide. | None beyond checker. | student-workflow-evidence | `npm run check:production-surfaces` |
-| `process.html` | `senior-capstone-app` | `production` | Students | Yes | Public phase overview. | None beyond checker. | student-workflow-evidence | `npm run check:production-surfaces` |
-| `phase-1.html` | `senior-capstone-app` | `production` | Students | Yes | Public phase route. | None beyond checker. | student-workflow-evidence | `npm run check:production-surfaces` |
-| `phase-2a.html` | `senior-capstone-app` | `production` | Students | Yes | Public phase route. | None beyond checker. | student-workflow-evidence | `npm run check:production-surfaces` |
-| `gathering-supplies.html` | `senior-capstone-app` | `production` | Students | Yes | Public support page. | None beyond checker. | student-workflow-evidence | `npm run check:production-surfaces` |
-| `managing-your-vision.html` | `senior-capstone-app` | `production` | Students | Yes | Public support page. | None beyond checker. | student-workflow-evidence | `npm run check:production-surfaces` |
-| `mentor-meeting-1.html` | `senior-capstone-app` | `production` | Students and mentors | Yes | Public mentor prep page. | None beyond checker. | staff-review-mentor | `npm run check:production-surfaces` |
-| `phase-2b.html` | `senior-capstone-app` | `production` | Students | Yes | Public phase route. | None beyond checker. | student-workflow-evidence | `npm run check:production-surfaces` |
-| `sprint-to-finish.html` | `senior-capstone-app` | `production` | Students | Yes | Public support page. | None beyond checker. | student-workflow-evidence | `npm run check:production-surfaces` |
-| `mentor-meeting-2.html` | `senior-capstone-app` | `production` | Students and mentors | Yes | Public mentor prep page. | None beyond checker. | staff-review-mentor | `npm run check:production-surfaces` |
-| `present.html` | `senior-capstone-app` | `production` | Students and staff | Yes | Public presentation guide. | None beyond checker. | staff-review-mentor | `npm run check:production-surfaces` |
-| `project-showcase.html` | `senior-capstone-app` | `production` | Students, families, staff | Yes | Public showcase guide. | None beyond checker. | student-workflow-evidence | `npm run check:production-surfaces` |
-| `celebrate.html` | `senior-capstone-app` | `production` | Students, families, staff | Yes | Public celebration guide. | None beyond checker. | student-workflow-evidence | `npm run check:production-surfaces` |
-| `launch.html` | `senior-capstone-app` | `production` | Students | Yes | Public launch/portfolio route. | None beyond checker. | student-workflow-evidence | `npm run check:production-surfaces` |
-| `finish.html` | `senior-capstone-app` | `production` | Students | Yes | Public finish route. | None beyond checker. | student-workflow-evidence | `npm run check:production-surfaces` |
-| `pacing.html` | `senior-capstone-app` | `production` | Students | Yes | Public pacing guide. | None beyond checker. | student-workflow-evidence | `npm run check:production-surfaces` |
-| `examples.html` | `senior-capstone-app` | `production` | Students | Yes | Public examples/support page. | None beyond checker. | student-workflow-evidence | `npm run check:production-surfaces` |
-| `links.html` | `senior-capstone-app` | `production` | Students and staff | Yes | Public official-link reminder page. | None beyond checker. | requirements-audit | `npm run check:production-surfaces` |
-| `templates.html` | `senior-capstone-app` | `production` | Students | Yes | Public starter template page. | None beyond checker. | student-workflow-evidence | `npm run check:production-surfaces` |
-| `portfolio.html` | `senior-capstone-app` | `production` | Students | Yes | Public portfolio guide. | None beyond checker. | student-workflow-evidence | `npm run check:production-surfaces` |
-| `rubrics.html` | `senior-capstone-app` | `production` | Students and staff | Yes | Public rubric guide. | None beyond checker. | staff-review-mentor | `npm run check:production-surfaces` |
-| `grades.html` | `senior-capstone-app` | `production` | Students and staff | Yes | Public grading/recognition guide. | None beyond checker. | requirements-audit | `npm run check:production-surfaces` |
-| `workspace.html` | `senior-capstone-app` | `production` | Authenticated students, mentors, program teachers, admins, misc admins | Partial | Canonical protected workspace route with sign-in, session restore, role-aware dashboards, evidence link submission, file upload form wired to production auth/upload APIs, and visible access-boundary states for session-expired, account-disabled, reset-required, role-pending, permission-denied, and no-active-assignment accounts; local credential-backed smoke verifies student login/session/dashboard/evidence link/upload blocker/unsupported upload/logout plus role-route access and mentor no-assignment, and in-app browser proof verifies signed-in student workspace evidence link, no-role role-pending UI, unassigned mentor no-assignment UI, and logout with no console errors. Live signed-out and fake student signed-in checks passed. Shared Drive live gate passed fake upload, D1 metadata/audit verification, denial guards, and storage-ID leak checks. | Verify hosted workspace upload/download with fake `.test` accounts, including one >5MB resumable upload; verify the newest account-state/no-assignment markers after hosted deployment and add live permission-denied browser UI coverage. | backend-security-data | `npm run test`; `npm run check:production-surfaces`; `npm run check:drive:live` |
-| `start.html` | `senior-capstone-app` | `production` | Students | Yes | Root alias to the purpose phase. | Keep as alias or retire later if analytics show no use. | requirements-audit | `npm run check:production-surfaces` |
-| `audit.html` | `senior-capstone-app` | `legacy` | Existing bookmarks | Yes | Redirects to `index.html`. | Keep only as legacy redirect or remove after decision. | requirements-audit | `npm run check:production-surfaces` |
-| `roadmap.html` | `senior-capstone-app` | `legacy` | Existing bookmarks | Yes | Redirects to `index.html`. | Keep only as legacy redirect or remove after decision. | requirements-audit | `npm run check:production-surfaces` |
+- `build:stakeholder-sites`
+- `build:site-options`
+- `dev:option:titan`
+- `dev:option:primary`
+- `deploy:option:titan`
+- `deploy:option:primary`
 
 ## Normal Production Navigation Rule
 
-Normal production navigation must not link to `alpha.html`, `account.html`, internal smoke/fake account pages, alpha reset/report tools, seeded walkthroughs, or internal QA routes. Such surfaces may remain in the repo only as clearly labeled internal QA/smoke/preview artifacts and must not be presented as the normal student, family, mentor, teacher, or admin path.
+Normal production navigation must not link to `alpha.html`, `account.html`, internal smoke/fake account pages, alpha reset/report tools, seeded walkthroughs, or retired stakeholder option pages. Such surfaces may remain in the repo only as clearly labeled internal QA/smoke/preview/historical artifacts and must not be presented as the normal student, family, mentor, teacher, or admin path.
 
 ## Generated Output
 
-| Path | Deploy project | Classification | Intended audience | Production-safe | Reason | Action needed | Owner lane | Validation |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `public-companion/*.html` | `senior-capstone-public` | `generated-output` | Students, families, staff, mentors | Partial | Generated public guide mirror includes the source Student/Teacher guide mode through `public-companion/app.js`. | Rebuild from root source only; keep production and generated-output checkers passing. | requirements-audit | `npm run build:public-site`; `npm run check:generated-output-drift`; `npm run check:site-options`; `npm run check:production-surfaces` |
-| `public-companion/app.js` | `senior-capstone-public` | `generated-output` | Browser asset for public guide | Yes | Generated JS mirror of public guide logic. | Do not add internal QA labels or fake/test account copy. | requirements-audit | `npm run check:generated-output-drift`; `npm run check:production-surfaces` |
-| `public-companion/styles.css` | `senior-capstone-public` | `generated-output` | Browser asset for public guide | Yes | Generated CSS mirror. | Rebuild from source. | requirements-audit | `npm run check:site-options` |
-| `public-companion/templates/**` | `senior-capstone-public` | `generated-output` | Students | Yes | Generated starter files. | Rebuild from source templates. | student-workflow-evidence | `npm run check:site-options` |
-| `stakeholder-options/titan-blend/*.html` | `senior-capstone-option-titan` | `stakeholder-review` | Stakeholder reviewers | Yes for review | Generated Option 2 direction pages. | Keep review-only banner. | design-assets-handoff | `npm run check:generated-output-drift`; `npm run check:site-options` |
-| `stakeholder-options/back-to-basics/*.html` | `senior-capstone-option-primary` | `stakeholder-review` | Stakeholder reviewers | Yes for review | Generated Option 3 direction pages. | Keep review-only banner. | design-assets-handoff | `npm run check:generated-output-drift`; `npm run check:site-options` |
+| Path | Deploy project | Classification | Intended audience | Production-safe | Reason | Validation |
+| --- | --- | --- | --- | --- | --- | --- |
+| `public-companion/*.html` | `senior-capstone-public` | `generated-output` | East Tech students, families, staff, mentors | Yes for public guide | Generated mirror includes the source Student/Teacher guide mode through `public-companion/app.js`. | `npm run build:public-site`; `npm run check:generated-output-drift`; `npm run check:site-options` |
+| `public-companion/app.js` | `senior-capstone-public` | `generated-output` | Browser asset for public guide | Yes | Generated JS mirror of public guide logic. | `npm run check:generated-output-drift`; `npm run check:production-surfaces` |
+| `public-companion/styles.css` | `senior-capstone-public` | `generated-output` | Browser asset for public guide | Yes | Generated CSS mirror with Titan/East Tech tokens. | `npm run check:generated-output-drift`; `npm run check:site-options` |
+| `stakeholder-options/**` | Historical retired Pages projects | `retired-stakeholder-option` | Historical review only | No active deploy target | Kept temporarily only as archived context. | `npm run check:site-options` |
 
 ## API Routes
 
-| Route | Source path | Deploy project | Classification | Intended audience | Production-safe | Reason | Action needed | Owner lane | Validation |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `/api/health` | `functions/api/health.ts` | `senior-capstone-app` | `production` | Ops and health checks | Yes | Readiness status without secrets. | Keep secret values redacted. | deployment-qa | `npm run check:cloudflare`; `npm run test` |
-| `/api/auth/bootstrap` | `functions/api/auth/bootstrap.ts` | `senior-capstone-app` | `production` | Bryan/admin setup | Yes when setup key absent | First-admin setup route, gated by setup key and disabled after setup. | Keep live setup key removed. | backend-security-data | `npm run test` |
-| `/api/auth/login` | `functions/api/auth/login.ts` | `senior-capstone-app` | `production` | Future app users and QA accounts | Yes | Hardened pilot auth endpoint. | Complete account lifecycle before pilot. | backend-security-data | `npm run test` |
-| `/api/auth/logout` | `functions/api/auth/logout.ts` | `senior-capstone-app` | `production` | Future app users and QA accounts | Yes | Session revocation endpoint. | Keep audit/session tests passing. | backend-security-data | `npm run test` |
-| `/api/auth/me` | `functions/api/auth/me.ts` | `senior-capstone-app` | `production` | Future app users and QA accounts | Yes | Current session endpoint. | Keep role/scope redaction safe. | backend-security-data | `npm run test` |
-| `/api/alpha/state` | `functions/api/alpha/state.js` | `senior-capstone-app` | `internal-alpha` | Bryan and QA testers | No for public production users | Server-owned alpha walkthrough state. | Keep internal labels and no real records. | student-workflow-evidence | `npm run check:alpha-contract`; `npm run test` |
-| `/api/admin/test-accounts` | `functions/api/admin/test-accounts.ts` | `senior-capstone-app` | `internal-smoke` | Bryan/admin QA | No for public production users | Seeds fake QA role accounts and fixtures. | Keep passwords out of responses/docs. | backend-security-data | `npm run test` |
-| `/api/student/dashboard` | `functions/api/student/dashboard.ts` | `senior-capstone-app` | `production` | Signed-in students | Yes after auth hardening | Student dashboard data route. | Broaden permission tests before real records. | student-workflow-evidence | `npm run test` |
-| `/api/submissions/:id/submit` | `functions/api/submissions/[id]/submit.ts` | `senior-capstone-app` | `production` | Signed-in students | Yes after auth hardening | Submission status route. | Keep evidence gate and audit tests. | student-workflow-evidence | `npm run test` |
-| `/api/submissions/:id/evidence` | `functions/api/submissions/[id]/evidence.ts` | `senior-capstone-app` | `production` | Signed-in students | Yes after auth hardening | Evidence-link metadata route. | Complete Drive credentials before real uploads. | student-workflow-evidence | `npm run test` |
-| `/api/submissions/:id/evidence/upload` | `functions/api/submissions/[id]/evidence/upload.ts` | `senior-capstone-app` | `production` | Signed-in students | No until Drive secrets are verified live | Drive file-byte upload route. | Verify real upload/download before pilot. | student-workflow-evidence | `npm run test` |
-| `/api/evidence/repository` | `functions/api/evidence/repository.ts` | `senior-capstone-app` | `production` | Signed-in users | Yes | Evidence repository metadata route. | Keep storage IDs scoped/redacted. | backend-security-data | `npm run test` |
-| `/api/evidence/drive-probe` | `functions/api/evidence/drive-probe.ts` | `senior-capstone-app` | `production` | Admin/QA | No until Drive secrets verified | Drive credential probe. | Verify real credentials through health/probe. | deployment-qa | `npm run test` |
-| `/api/evidence/:id/check-access` | `functions/api/evidence/[id]/check-access.ts` | `senior-capstone-app` | `production` | Signed-in scoped users | Yes after permission hardening | Protected evidence authorization route. | Keep denial/audit tests broad. | backend-security-data | `npm run test` |
-| `/api/evidence/:id/download` | `functions/api/evidence/[id]/download.ts` | `senior-capstone-app` | `production` | Signed-in scoped users | No until Drive secrets verified | Protected Drive download route. | Verify real download and no storage-id leaks. | backend-security-data | `npm run test` |
-| `/api/teacher/review-queue` | `functions/api/teacher/review-queue.ts` | `senior-capstone-app` | `production` | Program teachers/admins | Yes after permission hardening | Teacher review queue route. | Add broader dashboard/queue tests. | staff-review-mentor | `npm run test` |
-| `/api/reviews/:submissionId/decision` | `functions/api/reviews/[submissionId]/decision.ts` | `senior-capstone-app` | `production` | Program teachers/admins | Yes after permission hardening | Review/comment/revision/approval route. | Keep immutable history tests. | staff-review-mentor | `npm run test` |
-| `/api/reviews/:submissionId/history` | `functions/api/reviews/[submissionId]/history.ts` | `senior-capstone-app` | `production` | Scoped users | Yes after permission hardening | Review history route. | Keep storage identifiers out of responses. | staff-review-mentor | `npm run test` |
-| `/api/mentor/assigned` | `functions/api/mentor/assigned.ts` | `senior-capstone-app` | `production` | Mentors | Yes after permission hardening | Assigned-student route. | Add presentation-slot workflow. | staff-review-mentor | `npm run test` |
-| `/api/mentor/meetings` | `functions/api/mentor/meetings.ts` | `senior-capstone-app` | `production` | Mentors | Yes after permission hardening | Mentor meeting route. | Add conflict/attendance depth. | staff-review-mentor | `npm run test` |
-| `/api/presentation-slots` | `functions/api/presentation-slots.ts` | `senior-capstone-app` | `production` | Scoped students/mentors/staff; scheduling staff | Yes after permission hardening | Presentation slot list/create route. | Verify remote D1 migration and dashboard surfacing. | staff-review-mentor | `npm run test` |
-| `/api/presentation-slots/:id/check-out` | `functions/api/presentation-slots/[id]/check-out.ts` | `senior-capstone-app` | `production` | In-scope program teachers/admins | Yes after permission hardening | Presentation day check-out transition route with audit events. | Surface status in app dashboards. | staff-review-mentor | `npm run test` |
-| `/api/presentation-slots/:id/check-in` | `functions/api/presentation-slots/[id]/check-in.ts` | `senior-capstone-app` | `production` | In-scope program teachers/admins | Yes after permission hardening | Presentation day check-in transition route with audit events. | Surface status in app dashboards. | staff-review-mentor | `npm run test` |
-| `/api/admin/announcements` | `functions/api/admin/announcements.ts` | `senior-capstone-app` | `production` | Admins | Yes after admin hardening | Admin announcement create route. | Keep no student messaging. | admin-ops-reporting | `npm run test` |
-| `/api/announcements` | `functions/api/announcements.ts` | `senior-capstone-app` | `production` | Signed-in users | Yes after auth hardening | Scoped announcement list route. | Keep scope tests. | admin-ops-reporting | `npm run test` |
-| `/api/admin/exports/student-archive` | `functions/api/admin/exports/student-archive.ts` | `senior-capstone-app` | `production` | Admins | Yes after migration apply and admin hardening | Archive manifest generation route. | Verify hosted migration and Drive-backed package delivery when credentials exist. | admin-ops-reporting | `npm run test` |
-| `/api/exports/:id/download` | `functions/api/exports/[id]/download.ts` | `senior-capstone-app` | `production` | Admins/scoped students | Yes after migration apply and permission hardening | Scoped archive manifest download route. | Add Drive package delivery or signed-link layer. | admin-ops-reporting | `npm run test` |
-| `/api/reports/readiness` | `functions/api/reports/readiness.ts` | `senior-capstone-app` | `production` | Admin/misc admin | Yes after misc-admin hardening | Aggregate-only readiness report route. | Keep student-level data out. | admin-ops-reporting | `npm run test` |
-| `/api/admin/audit-events` | `functions/api/admin/audit-events.ts` | `senior-capstone-app` | `production` | Admins | Yes after audit hardening | Redacted audit-event route. | Keep sensitive metadata redacted. | admin-ops-reporting | `npm run test` |
-| `/api/admin/mentor-assignments` | `functions/api/admin/mentor-assignments.ts` | `senior-capstone-app` | `production` | Admins | Yes after admin hardening | Mentor assignment management route. | Keep role guards/audit tests. | admin-ops-reporting | `npm run test` |
-| `/api/admin/role-assignments` | `functions/api/admin/role-assignments.ts` | `senior-capstone-app` | `production` | Admins | Yes after admin hardening | Role assignment management route. | Keep scope validation/audit tests. | admin-ops-reporting | `npm run test` |
+Canonical app APIs deploy from `functions/api/**` on `senior-capstone-app`. Protected tenant/SSO/dashboard baseline routes are production functionality and must not be removed or weakened by naming/domain work:
 
-## Generated Source Of Truth
+- `/api/admin/dashboard`
+- `/api/program-teacher/dashboard`
+- `/api/mentor/dashboard`
+- `/api/auth/config`
+- `/api/auth/google/start`
+- `/api/auth/google/callback`
+- `/api/auth/login`
+- `/api/auth/me`
+- `/api/student/dashboard`
+- `/api/submissions/:id/evidence`
+- `/api/evidence/:id/download`
 
-| Output | Source of truth | Classification | Production-safe | Validation |
-| --- | --- | --- | --- | --- |
-| `public-companion/` | `scripts/build-public-site.mjs`, root public pages, `app.js`, `styles.css`, `assets/`, `templates/` | `generated-output` | Yes for public guide | `npm run build:public-site`; `npm run check:site-options`; `npm run check:production-surfaces` |
-| `stakeholder-options/titan-blend/` | `scripts/build-stakeholder-sites.mjs` | `stakeholder-review` | Yes for review only | `npm run build:stakeholder-sites`; `npm run check:site-options` |
-| `stakeholder-options/back-to-basics/` | `scripts/build-stakeholder-sites.mjs` | `stakeholder-review` | Yes for review only | `npm run build:stakeholder-sites`; `npm run check:site-options` |
+Full route inventory is generated in `docs/generated/production-route-inventory.md` by:
+
+```powershell
+npm run inventory:production-routes
+```
+
+## Validation Commands
+
+```powershell
+npm run check:production-surfaces
+npm run check:route-inventory
+npm run check:generated-output-drift
+npm run check:site-options
+npm run check:custom-domain-cutover
+npm run check:alpha-account-gating
+npm run check:production-cutover
+npm run check
+```

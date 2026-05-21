@@ -2,11 +2,11 @@
 
 Date: 2026-05-18
 
-This records the first MVP backend foundation now configured for the Senior Capstone app.
+This records the first MVP backend foundation now configured for the Capstone Project app.
 
 ## Accepted Direction
 
-- Hosting: GitHub-connected Cloudflare Pages project `senior-capstone-app`.
+- Hosting: GitHub-connected Cloudflare Pages project `senior-capstone-app` (legacy technical project name retained).
 - Backend runtime: Cloudflare Pages Functions in `functions/`.
 - Database: Cloudflare D1 database `senior-capstone-db`.
 - Auth direction: hardened username/password remains for fake `.test` accounts, local smoke tests, approved fallback, and break-glass access; Google Workspace SSO is the preferred production target once tenant domains and OAuth client settings are configured and tested.
@@ -14,11 +14,11 @@ This records the first MVP backend foundation now configured for the Senior Caps
 
 ## Production Surface Boundary
 
-`senior-capstone-app` is the canonical app/backend project. Its custom hostname is `app.thecapstoneapp.com`. It may contain internal QA files in the repo, but normal production navigation must not route students, families, staff, or mentors into `alpha.html`, `account.html`, fake `.test` account flows, reset/report panels, or stakeholder option pages.
+`senior-capstone-app` is the canonical Capstone Project app/backend project. Product/app target domain is `thecapstoneproject.com`; `app.thecapstoneapp.com` remains the current legacy app hostname and Google Workspace SSO redirect host until a later OAuth/domain cutover. The app project may contain internal QA files in the repo, but normal production navigation must not route students, families, staff, or mentors into `alpha.html`, `account.html`, fake `.test` account flows, reset/report panels, or retired stakeholder option pages.
 
-`senior-capstone-public` is a separate generated public companion guide project for `thecapstoneapp.com` and `www.thecapstoneapp.com`. It is production-safe public guidance, not the secure workflow app, and it must not proxy internal alpha/account/API routes.
+`senior-capstone-public` is a separate generated East Tech guide project. Its future custom domain is TBD; old guide hostnames remain legacy/current pending migration. It is production-safe public guidance, not the secure workflow app, and it must not proxy internal alpha/account/API routes.
 
-`senior-capstone-option-titan` and `senior-capstone-option-primary` are stakeholder review projects only. Do not promote either as canonical production without updating `docs/production-deployment-policy.md` and `docs/production-surface-registry.md`.
+`senior-capstone-option-titan` and `senior-capstone-option-primary` are retired stakeholder option projects. Do not promote either as canonical production without a new Bryan decision and updated deployment policy, surface registry, checks, and live Cloudflare proof.
 
 Before a pilot-facing deploy, custom-domain cutover, or stakeholder option promotion/retirement, use `docs/production-predeploy-checklist.md`. Live Pages/D1 verification is separate from production-domain verification: `check:cloudflare:live` proves Pages/D1 visibility, while `check:custom-domain-cutover --live-required --live-http` proves Pages custom-domain association plus HTTPS/app health. Scoped-token `wrangler whoami` warnings can still appear and are non-blocking only when token verify plus required Pages/D1/domain lookup pass.
 
