@@ -309,3 +309,17 @@ Each rebuild run should append a dated entry with:
 - `phone tracker`: appended to `Senior Capstone QoL Run Tracker` at 2026-05-20 16:08 PT.
 - `self-improvement`: none.
 - `next action`: Surface presentation slot status/check-out/check-in in mentor/student/staff dashboards, then persist outline approval gates or continue admin workflow depth.
+
+### 2026-05-20 17:14 PT - MVP-032/MVP-033 Workspace Access Boundary States
+
+- `automation`: `senior-capstone-nonfigma-mvp-builder`
+- `master-plan section`: P0 Production Experience Gate; Role-Aware Production App Contract; Logging Requirements.
+- `source docs/logs read`: automation memory fallback at `C:\Users\bryan\.codex\automations\senior-capstone-nonfigma-mvp-builder\memory.md`, required master plan/catalog/cadence/runbook/self-improvement/memory/milestones/progress docs, recent run manifests, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, and the existing workspace route/tests.
+- `backlog or requirement IDs selected`: `SC-007`, `MVP-032`, `MVP-033`, supporting `MVP-034` and `MVP-039`.
+- `bounded scope`: Consume the existing repo-recorded Figma production-boundary handoff by adding explicit role-pending and permission-denied access-boundary states to the canonical authenticated workspace, without direct Figma work.
+- `files changed`: `workspace.js`, `workspace.css`, `tests/workspace-app.test.mjs`, `tests/workspace-browser-smoke.test.mjs`, `docs/mvp-requirements-catalog.md`, `docs/production-surface-registry.md`, `docs/artifacts.json`, `docs/automation-memory.md`, `docs/progress/handoffs.md`, `docs/progress/rebuild.md`, `docs/progress/run-log.md`, and the structured run manifest.
+- `validation`: focused workspace source/VM test passed; portable workspace smoke skipped without opt-in server as expected; local Pages dev plus local D1 seed passed credential-backed workspace HTTP smoke; production-surface checker passed; in-app browser verified the no-role role-pending card with zero console errors; aggregate `check` passed with static Cloudflare verification and live Cloudflare token blocker.
+- `blockers`: Live Drive upload/download still requires `GOOGLE_DRIVE_CLIENT_EMAIL` and `GOOGLE_DRIVE_PRIVATE_KEY` in Cloudflare Pages; non-interactive Pages/D1 deployment/secret inspection still requires `CLOUDFLARE_API_TOKEN`.
+- `self-improvement`: none.
+- `commit/push status`: pending closeout commit and push.
+- `next action`: Add disabled/reset-required/no-assignment workspace UI proof or resume MVP-017 dashboard surfacing; run live Drive upload/download after Bryan configures Drive credentials.

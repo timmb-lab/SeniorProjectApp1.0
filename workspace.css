@@ -452,6 +452,20 @@
   background: #fff7f6;
 }
 
+.workspace-access-card {
+  border-left: 6px solid var(--teal);
+  background: #f4fbfa;
+}
+
+.workspace-compact-list {
+  display: grid;
+  gap: 0.35rem;
+  margin: 0;
+  padding-left: 1.1rem;
+  color: var(--charcoal);
+  font-weight: 850;
+}
+
 .workspace-table {
   display: grid;
   gap: 0.55rem;

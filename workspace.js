@@ -241,6 +241,7 @@ function renderOverviewSection() {
       <h1>${escapeHtml(greetingForUser())}</h1>
       <p>${escapeHtml(nextStepText())}</p>
     </section>
+    ${renderAccessBoundarySummary()}
     <section class="workspace-card">
       <div class="workspace-card-head">
         <div>
@@ -264,8 +265,55 @@ function renderOverviewSection() {
   `;
 }
 
+function renderAccessBoundarySummary() {
+  const roles = roleIds(currentUser);
+  if (!roles.size) {
+    return `
+      <section class="workspace-card workspace-access-card" data-workspace-state="role-pending">
+        <p class="workspace-kicker">Role pending</p>
+        <h2>Workspace access is pending</h2>
+        <p>
+          Your account is signed in, but no workspace role is assigned yet. Ask your instructor
+          or Senior Project coordinator to assign the right access before using protected project sections.
+        </p>
+      </section>
+    `;
+  }
+
+  const deniedSections = deniedWorkspaceSections();
+  if (!deniedSections.length) return "";
+
+  return `
+    <section class="workspace-card workspace-error-card" data-workspace-state="permission-denied">
+      <p class="workspace-kicker">Permission denied</p>
+      <h2>Some workspace sections need different access</h2>
+      <p>
+        Your account is signed in, but the role or scope on this account does not permit the
+        requested section.
+      </p>
+      <ul class="workspace-compact-list">
+        ${deniedSections.map((label) => `<li>${escapeHtml(label)}</li>`).join("")}
+      </ul>
+    </section>
+  `;
+}
+
+function deniedWorkspaceSections() {
+  return [
+    ["dashboard", "Student workspace"],
+    ["reviewQueue", "Teacher review"],
+    ["mentorAssigned", "Mentor students"],
+    ["readiness", "Readiness report"],
+  ]
+    .filter(([key]) => currentData[key]?.status === 403)
+    .map(([, label]) => label);
+}
+
 function renderStudentSection() {
   const result = currentData.dashboard;
+  if (result?.status === 403) {
+    return renderPermissionDeniedSection("Student workspace", "student project records");
+  }
   const dashboard = unwrap(result);
   if (!dashboard) {
     return `
@@ -397,6 +445,9 @@ function renderEvidenceForms(submissions) {
 
 function renderTeacherSection() {
   const result = currentData.reviewQueue;
+  if (result?.status === 403) {
+    return renderPermissionDeniedSection("Teacher review", "submitted student work");
+  }
   const body = unwrap(result);
   const queue = body?.queue || [];
   return `
@@ -427,6 +478,9 @@ function renderTeacherSection() {
 
 function renderMentorSection() {
   const result = currentData.mentorAssigned;
+  if (result?.status === 403) {
+    return renderPermissionDeniedSection("Mentor students", "assigned student records");
+  }
   const body = unwrap(result);
   const assigned = body?.assignedStudents || [];
   return `
@@ -456,6 +510,9 @@ function renderMentorSection() {
 
 function renderReadinessSection() {
   const result = currentData.readiness;
+  if (result?.status === 403) {
+    return renderPermissionDeniedSection("Readiness report", "aggregate project reporting");
+  }
   const body = unwrap(result);
   const report = body?.report || {};
   return `
@@ -482,6 +539,19 @@ function renderReadinessSection() {
 function bindWorkspaceForms() {
   document.querySelector("#workspaceEvidenceLinkForm")?.addEventListener("submit", attachEvidenceLink);
   document.querySelector("#workspaceFileUploadForm")?.addEventListener("submit", uploadEvidenceFile);
+}
+
+function renderPermissionDeniedSection(title, detail) {
+  return `
+    <section class="workspace-card workspace-error-card" data-workspace-state="permission-denied">
+      <p class="workspace-kicker">Permission denied</p>
+      <h2>${escapeHtml(title)} unavailable</h2>
+      <p>
+        This signed-in account does not have the role or scope required for ${escapeHtml(detail)}.
+        Use another assigned account or ask the Senior Project coordinator to adjust access.
+      </p>
+    </section>
+  `;
 }
 
 async function attachEvidenceLink(event) {

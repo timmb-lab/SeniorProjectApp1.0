@@ -59,6 +59,10 @@ test("workspace route signed-out smoke over local HTTP", { skip: !baseUrl }, asy
   assert.match(script, /\/api\/submissions\/\$\{encodeURIComponent\(values\.submissionId\)\}\/evidence/);
   assert.match(script, /\/api\/submissions\/\$\{encodeURIComponent\(submissionId\)\}\/evidence\/upload/);
   assert.match(script, /storage is not configured for this environment/);
+  assert.match(script, /data-workspace-state="role-pending"/);
+  assert.match(script, /data-workspace-state="permission-denied"/);
+  assert.match(script, /Workspace access is pending/);
+  assert.match(script, /Some workspace sections need different access/);
   assert.doesNotMatch(script, /Your file was received[^.]*storage is not configured/i);
   assertSafeProductionCopy("workspace.js", script);
 

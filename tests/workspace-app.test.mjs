@@ -1,6 +1,7 @@
 import { readFile } from "node:fs/promises";
 import assert from "node:assert/strict";
 import test from "node:test";
+import vm from "node:vm";
 
 const workspaceHtml = await readFile("workspace.html", "utf8");
 const workspaceJs = await readFile("workspace.js", "utf8");
@@ -72,3 +73,99 @@ test("workspace evidence forms capture values before disabling controls", () => 
     /const formData = new FormData\(form\);\s+const file = formData\.get\("file"\);\s+const submissionId = String\(formData\.get\("submissionId"\) \|\| ""\);\s+setFormBusy\(form, true\);/,
   );
 });
+
+test("workspace renders role-pending and permission-denied access states", async () => {
+  const pending = await renderWorkspaceWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "user-without-role",
+          email: "pending.person@example.edu",
+          displayName: "Pending Person",
+          roles: [],
+        },
+      },
+    },
+    "/api/announcements": {
+      status: 200,
+      body: { ok: true, announcements: [] },
+    },
+  });
+  assert.match(pending, /data-workspace-state="role-pending"/);
+  assert.match(pending, /Workspace access is pending/);
+  assert.match(pending, /no workspace role is assigned yet/);
+
+  const denied = await renderWorkspaceWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "student-without-scope",
+          email: "student.scope@example.edu",
+          displayName: "Scoped Student",
+          roles: [{ role_id: "student", scope_type: "global", scope_id: "" }],
+        },
+      },
+    },
+    "/api/announcements": {
+      status: 200,
+      body: { ok: true, announcements: [] },
+    },
+    "/api/student/dashboard": {
+      status: 403,
+      body: { error: "forbidden" },
+    },
+  });
+  assert.match(denied, /data-workspace-state="permission-denied"/);
+  assert.match(denied, /Some workspace sections need different access/);
+  assert.match(denied, /Student workspace/);
+});
+
+async function renderWorkspaceWithFetch(routes) {
+  const workspaceRoot = {
+    innerHTML: "",
+    querySelectorAll: () => [],
+  };
+  const inertElement = {
+    addEventListener: () => {},
+    querySelectorAll: () => [],
+    value: "",
+  };
+  const context = vm.createContext({
+    Blob,
+    FormData,
+    Headers,
+    Intl,
+    URL,
+    clearTimeout,
+    console,
+    document: {
+      querySelector(selector) {
+        if (selector === "#workspaceMain") return workspaceRoot;
+        return inertElement;
+      },
+      querySelectorAll: () => [],
+    },
+    encodeURIComponent,
+    fetch: async (url) => {
+      const pathname = typeof url === "string" ? url : url?.pathname;
+      const route = routes[pathname];
+      if (!route) throw new Error(`Unexpected workspace fetch: ${pathname}`);
+      return {
+        ok: route.status >= 200 && route.status < 300,
+        status: route.status,
+        json: async () => route.body,
+      };
+    },
+    setTimeout,
+  });
+
+  vm.runInContext(workspaceJs, context);
+  for (let index = 0; index < 8; index += 1) {
+    await new Promise((resolve) => setTimeout(resolve, 0));
+  }
+  return workspaceRoot.innerHTML;
+}

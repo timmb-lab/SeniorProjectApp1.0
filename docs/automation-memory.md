@@ -41,6 +41,7 @@ This is not a static guide, brochure, or visual-only project.
 - Mentor meeting persistence foundation now exists: migration `migrations/0004_mentor_meetings.sql` plus authenticated mentor meeting record/list route `/api/mentor/meetings` with assignment-scope enforcement, audit events, and integration coverage in `tests/mentor-meetings.integration.test.mjs`.
 - Presentation slot persistence foundation now exists: migration `migrations/0006_presentation_slots.sql` plus authenticated `/api/presentation-slots` list/create route. The route exposes only slots the viewer can access, limits scheduling to admin/program-teacher staff, blocks same-location overlapping slots, and audits denied/conflict/scheduled outcomes. Integration coverage lives in `tests/presentation-slots.integration.test.mjs`, and local D1 migration verification applied the migration successfully.
 - Public Student/Teacher guide mode now exists for the production website gate: `app.js` renders the top-banner mode control with `Viewing: Student Guide`, `Viewing: Teacher Guide`, `Switch to Student Guide`, `Switch to Teacher Guide`, `aria-pressed`, and public `senior-capstone-guide-mode` preference storage. The home page keeps both Student Guide and Teacher Guide source summaries visible, `public-companion/` was rebuilt from source, `scripts/check-production-surfaces.mjs` checks exact guide-toggle markers, and `tests/account-and-evidence-access.test.mjs` covers the source behavior. In-app browser visual verification was attempted but blocked because no active Codex browser pane was available.
+- The canonical `workspace.html` route now renders explicit access-boundary UI states: signed-in users with no assigned roles see `data-workspace-state="role-pending"` and role-scoped 403 API responses render `data-workspace-state="permission-denied"`. `tests/workspace-app.test.mjs` executes both states with stubbed API responses; local Pages dev credential smoke still passes; the in-app browser verified the seeded no-role account renders the role-pending card with zero console errors.
 
 ## Active Automation Contract
 
@@ -102,7 +103,7 @@ Every builder run must ladder from `docs/master-plan.md` into `docs/mvp-requirem
 Immediate next useful passes:
 
 1. Broaden auth, permission, protected-evidence, status-transition, audit/export, meeting, and presentation dashboard/UI proof.
-2. Broaden public-site no-hidden-core-content proof across every guide route, then designate/build the canonical authenticated role-aware production app entry.
+2. Broaden public-site no-hidden-core-content proof across every guide route, then add disabled/reset-required/no-assignment workspace UI proof.
 3. Extend alpha proposal/review/evidence/audit records into real workflow endpoints.
 4. Add Google Drive server-side credential/OAuth implementation plus access-controlled evidence upload/retrieval assumptions.
 5. Implement account provisioning/import, invitation, password reset, credential rotation, and known-gaps QA.
