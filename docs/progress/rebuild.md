@@ -538,7 +538,7 @@ Each rebuild run should append a dated entry with:
 - `bounded scope`: Harden the program teacher review queue role/scope predicate and audit access outcomes without direct Figma work.
 - `files changed`: `functions/api/teacher/review-queue.ts`, `tests/review-loop.integration.test.mjs`, `docs/mvp-requirements-catalog.md`, `docs/automation-backlog.md`, `docs/automation-memory.md`, `docs/artifacts.json`, `docs/progress/handoffs.md`, this rebuild log, `docs/progress/run-log.md`, and structured run manifest `docs/progress/runs/2026-05-21-0336-teacher-review-queue-scope-audit-mvp-015.json`.
 - `validation`: `tests/review-loop.integration.test.mjs` passed with 4/4 tests; strict `typecheck` passed; `check:production-surfaces` passed with 91 production text surfaces scanned; full `test` passed with 173 passing tests and 4 expected opt-in skips; aggregate `check` passed with live Cloudflare read-only verification and 173 passing tests / 4 expected skips.
-- `commit/push status`: implementation commit `0920bf2d33af753817700439bf44374655c57958` created on `main`; closeout docs commit and push pending.
+- `commit/push status`: implementation commit `0920bf2d33af753817700439bf44374655c57958` and closeout commit `2e0ac3262c9252bd1d98358ac97d6c420ab30df9` pushed to `origin main` (`db74257..2e0ac32`).
 - `blockers`: live Drive upload still fails with redacted Google Drive HTTP 403 after token/root/index probes pass; real-user setup credential delivery remains Bryan decision `HD-2026-05-21-001`; hosted browser no-assignment and section-level permission-denied proof remains open.
 - `phone tracker`: not appended; Google Sheets connector was not used in this run.
 - `self-improvement`: none.
