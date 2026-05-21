@@ -38,7 +38,7 @@ Future productive runs should append compact entries that name the master-plan s
 - `blockers`: Real Drive upload/download remains blocked until Cloudflare Pages has `GOOGLE_DRIVE_CLIENT_EMAIL` and `GOOGLE_DRIVE_PRIVATE_KEY`; live Cloudflare Pages/D1 management verification still needs `CLOUDFLARE_API_TOKEN`.
 - `phone tracker`: appended to `Senior Capstone QoL Run Tracker` at 2026-05-20 17:10 PT.
 - `self-improvement`: none.
-- `commit`: implementation commit `c6470dfa50d136f2da3d29319859aa640ad347b4` pushed to `origin main`; closeout manifest commit follows.
+- `commit`: implementation commit `c6470dfa50d136f2da3d29319859aa640ad347b4` and closeout manifest commit `ff3b0ea687451427ce798b778302cf5e4e62cfb0` pushed to `origin main`; live-proof closeout commit is reported in the final run response because a commit cannot contain its own hash.
 
 ## 2026-05-20 15:14 PT - Workspace Browser, Denial, And Evidence Integrity Pass
 

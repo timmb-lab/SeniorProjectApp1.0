@@ -322,5 +322,5 @@ Each rebuild run should append a dated entry with:
 - `blockers`: Live Drive upload/download still requires `GOOGLE_DRIVE_CLIENT_EMAIL` and `GOOGLE_DRIVE_PRIVATE_KEY` in Cloudflare Pages; non-interactive Pages/D1 deployment/secret inspection still requires `CLOUDFLARE_API_TOKEN`.
 - `phone tracker`: appended to `Senior Capstone QoL Run Tracker` at 2026-05-20 17:10 PT.
 - `self-improvement`: none.
-- `commit/push status`: implementation commit `c6470dfa50d136f2da3d29319859aa640ad347b4` and closeout manifest commit `ff3b0ea687451427ce798b778302cf5e4e62cfb0` pushed to `origin main`; live-proof closeout commit pending.
+- `commit/push status`: implementation commit `c6470dfa50d136f2da3d29319859aa640ad347b4` and closeout manifest commit `ff3b0ea687451427ce798b778302cf5e4e62cfb0` pushed to `origin main`; live-proof closeout commit is reported in the final run response because a commit cannot contain its own hash.
 - `next action`: Add disabled/reset-required/no-assignment workspace UI proof or resume MVP-017 dashboard surfacing; run live Drive upload/download after Bryan configures Drive credentials.
