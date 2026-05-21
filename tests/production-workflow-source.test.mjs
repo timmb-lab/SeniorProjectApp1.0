@@ -14,6 +14,7 @@ const submissionDetailRoute = await readFile("functions/api/submissions/[id].ts"
 const exportDownloadRoute = await readFile("functions/api/exports/[id]/download.ts", "utf8");
 const productionRouteInventory = await readFile("docs/generated/production-route-inventory.md", "utf8");
 const mentorAssignedRoute = await readFile("functions/api/mentor/assigned.ts", "utf8");
+const mentorMeetingsRoute = await readFile("functions/api/mentor/meetings.ts", "utf8");
 const readinessRoute = await readFile("functions/api/reports/readiness.ts", "utf8");
 const reviewHistoryRoute = await readFile("functions/api/reviews/[submissionId]/history.ts", "utf8");
 const reviewQueueRoute = await readFile("functions/api/teacher/review-queue.ts", "utf8");
@@ -186,4 +187,16 @@ test("mentor and misc-admin reporting endpoints stay scoped and aggregate-only",
   assert.match(readinessRoute, /aggregate_only/);
   assert.match(readinessRoute, /readiness_report_viewed/);
   assert.doesNotMatch(readinessRoute, /student_name|display_name|email/);
+});
+
+test("mentor meetings endpoint audits scoped protected-record access", () => {
+  assert.match(mentorMeetingsRoute, /canAccessStudent/);
+  assert.match(mentorMeetingsRoute, /mentor_meetings_unauthorized/);
+  assert.match(mentorMeetingsRoute, /mentor_meetings_denied/);
+  assert.match(mentorMeetingsRoute, /mentor_meetings_viewed/);
+  assert.match(mentorMeetingsRoute, /mentor_meeting_unauthorized/);
+  assert.match(mentorMeetingsRoute, /mentor_meeting_denied/);
+  assert.match(mentorMeetingsRoute, /actorRoleScopes/);
+  assert.match(mentorMeetingsRoute, /missing_meeting_view_role/);
+  assert.match(mentorMeetingsRoute, /student_scope_denied/);
 });
