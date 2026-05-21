@@ -167,7 +167,8 @@
         "2026-05-20 20:43 PT: credential-backed local HTTP workspace smoke and in-app browser proof verified the fake student Archive tab rendered without Drive storage identifiers and with zero console errors.",
         "2026-05-20 20:43 PT: direct hosted https://senior-capstone-app.pages.dev/workspace.js returned HTTP 200 and contained /api/student/archive/readiness plus data-archive-check-status on the first post-push poll; signed-out /api/student/archive/readiness returned HTTP 401.",
         "2026-05-20 21:10 PT: migration 0007 adds export_artifacts for scoped archive manifests; /api/admin/exports/student-archive generates storage-ID-redacted JSON manifests with content hash and 14-day expiry; /api/exports/:id/download streams unexpired manifests and audits missing/expired/download states.",
-        "2026-05-20 21:10 PT: tests/archive-readiness.integration.test.mjs passed 8 archive/export tests, tests/workspace-app.test.mjs passed 7 workspace tests including data-archive-download marker coverage, tests/production-workflow-source.test.mjs passed 10 source checks, and strict typecheck passed."
+        "2026-05-20 21:10 PT: tests/archive-readiness.integration.test.mjs passed 8 archive/export tests, tests/workspace-app.test.mjs passed 7 workspace tests including data-archive-download marker coverage, tests/production-workflow-source.test.mjs passed 10 source checks, and strict typecheck passed.",
+        "2026-05-20 21:10 PT: direct hosted https://senior-capstone-app.pages.dev/workspace.js returned HTTP 200 with data-archive-download=\"manifest\" on poll 4 after push."
       ],
       "last_updated": "2026-05-20"
     },
