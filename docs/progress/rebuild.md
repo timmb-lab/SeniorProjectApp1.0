@@ -603,3 +603,18 @@ Each rebuild run should append a dated entry with:
 - `self-improvement`: none.
 - `commit/push status`: implementation commit `48de622de03b1c1ea660ee8b613d6b23c3d139b4` and closeout commit `427d9fd17d6493765fa853c9bb4289810c6c71fa` pushed to `origin main` (`6b9a1b3..427d9fd`); push-evidence update follows.
 - `next action`: Continue protected-record depth through evidence upload/download live proof after Drive 403 resolution, mentor meetings, presentation slots, archive/export, and hosted permission UI proof.
+
+### 2026-05-21 06:38 PT - MVP-017 Mentor Meetings Access Audit
+
+- `automation`: `senior-capstone-nonfigma-mvp-builder-30`
+- `master-plan section`: Role-Aware Production App Contract; North Star Workflow; Logging Requirements.
+- `source docs/logs read`: automation memory at `C:\Users\bryan\.codex\automations\senior-capstone-nonfigma-mvp-builder-30\memory.md`, required master plan/catalog/cadence/runbook/self-improvement/memory/milestones/progress docs, recent run manifests, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, `docs/progress/rebuild.md`, protected-record acceptance board manifest, mentor meetings route/test files, production workflow source tests, and permission helpers.
+- `backlog or requirement IDs selected`: `SC-004`, `SC-005`, `SC-006`, `MVP-006`, `MVP-017`, `MVP-020`, and `MVP-025`.
+- `bounded scope`: Extend the protected-record audit matrix to `/api/mentor/meetings` without direct Figma work.
+- `files changed`: `functions/api/mentor/meetings.ts`, `tests/mentor-meetings.integration.test.mjs`, `tests/production-workflow-source.test.mjs`, `docs/mvp-requirements-catalog.md`, `docs/automation-backlog.md`, `docs/automation-memory.md`, `docs/artifacts.json`, `docs/progress/handoffs.md`, this rebuild log, `docs/progress/run-log.md`, and structured run manifest `docs/progress/runs/2026-05-21-0638-mentor-meetings-access-audit-mvp-017.json`.
+- `validation`: focused mentor-meetings integration passed with 2/2 tests; production-workflow source test passed with 13/13 tests; strict typecheck passed; full `test` passed with 183 passing tests and 4 expected opt-in skips; `check:production-surfaces` passed with 91 production text surfaces scanned; `check:route-inventory` passed; aggregate `check` passed with live Cloudflare read-only verification and 183 passing tests / 4 expected skips.
+- `blockers`: live Drive upload still fails with redacted Google Drive HTTP 403 after token/root/index probes pass; real-user setup credential delivery remains Bryan decision `HD-2026-05-21-001`; hosted browser no-assignment and section-level permission-denied proof remains open.
+- `phone tracker`: not appended; Google Sheets connector was not used.
+- `self-improvement`: none.
+- `commit/push status`: implementation commit `cb89a3a47ca498c1d0ea7d9c3368e51c064b019b` created on `main`; closeout docs commit and push pending.
+- `next action`: Continue protected-record depth through presentation slots, archive/export, dashboard aggregate readbacks, and hosted permission UI proof; resolve the Drive upload HTTP 403 before real evidence uploads.
