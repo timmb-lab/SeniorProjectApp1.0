@@ -227,6 +227,15 @@ Every builder run must ladder from `docs/master-plan.md` into `docs/mvp-requirem
 - Validation passed: focused auth/workspace tests, strict typecheck, full test suite (156 pass / 3 expected skips), production-surface check, route-inventory check, and `git diff --check` with CRLF warnings only.
 - Remaining account lifecycle depth: invitation/import, generated/temporary credential policy if needed, and visual browser proof after deployment. Drive upload remains blocked by Google Drive HTTP 403 after root/index probes pass.
 
+### 2026-05-21 - Figma Credential Lifecycle Handoff
+
+- Figma-only builder `senior-capstone-figma-product-builder-15` added node `153:2`, `Prototype / 21 / Credential lifecycle handoff`, to active file `z4t4tFPAKrMDh6pIYOeEw6` on page `05 Full MVP Alpha Prototype`.
+- The handoff maps admin reset requested, reset completion form, password changed plus session rotation, invalid current password, weak or reused password, and stale session revoked states after reset-required completion, admin reset initiation, and active-user password change landed in the repo.
+- Shared plugin data key `senior_capstone/credential_lifecycle_contract_2026_05_21` records 6 states, 7 routes, 5 records, 6 guardrails, and the next rebuild action for invitation/import, generated or temporary credential policy, hosted reset/change proof, admin reset initiation proof, stale-session fallback, and redacted audit checks.
+- Initial readback found compact chip sizing and 4px state-row overflow issues; a targeted layout correction fixed them.
+- Final Figma verification succeeded: readback found 59 text nodes, zero suspicious clipped text nodes, zero child overflow, 6 states, 7 routes, 5 records, and 6 guardrails; `get_design_context` and `get_screenshot` passed for node `153:2`, with screenshot `868x1024` from original `1360x1605`.
+- Next best non-Figma slice from this handoff: finish invitation/import or generated credential policy and capture hosted fake `.test` proof for reset completion, active-user password change, admin reset initiation, stale-session fallback, invalid-current denial, and weak/reused-password guidance without exposing secrets or real student records.
+
 ## Current Priority
 
 Immediate next useful passes:
@@ -270,7 +279,7 @@ Current backlog anchors:
 - Canva folder: `FAHJ-n-VqFE`.
 - Canva asset: `DAHJ-v7TOM8`, proposal approval process strip, no-text 1600x500.
 - Active Figma product UI file: `https://www.figma.com/design/z4t4tFPAKrMDh6pIYOeEw6` (`z4t4tFPAKrMDh6pIYOeEw6`), team id `1638213362346160913`.
-- Key Figma implementation contract nodes: `18:2`, `31:2`, `37:2`, `43:2`, `48:2`, `56:2`, `61:2`, `69:2`, `78:2`, and full MVP alpha prototype page `98:2` with implementation nodes through `151:2`.
+- Key Figma implementation contract nodes: `18:2`, `31:2`, `37:2`, `43:2`, `48:2`, `56:2`, `61:2`, `69:2`, `78:2`, and full MVP alpha prototype page `98:2` with implementation nodes through `153:2`.
 - 2026-05-20 Figma review-history alignment updated full MVP alpha prototype nodes `98:9` and `98:10` to match `/api/reviews/:submissionId/history`, `reviews`, `comments`, `status_history`, `submission_versions`, scoped permissions, and storage-ID redaction; `get_design_context` and `get_screenshot` succeeded for both nodes.
 - 2026-05-20 Figma handoff update verified node `98:17` after primary alpha-console review-history consumption; it records `review_history_consumed_at`, redirects next rebuild focus to mentor/presentation/admin depth, preserves API/D1/audit/storage-redaction boundaries, and passed `get_design_context` plus `get_screenshot`.
 - 2026-05-20 Figma production-boundary handoff verified node `124:2`; it distinguishes public Student/Teacher guide mode from authenticated `/workspace` state, records route/data/permission contract data, and passed screenshot/metadata/readback QA.
@@ -279,6 +288,7 @@ Current backlog anchors:
 - 2026-05-20 Figma celebration archive readiness handoff verified node `144:2`; it maps closeout, Celebration Day evidence, reflection/portfolio, thank-you/mentor note, archive request, signed download, and archive permission states to persisted evidence/export/audit records with 7 states, 8 routes, 14 records, 5 permission scopes, 7 guardrails, and 7 acceptance checks.
 - 2026-05-20 Figma archive provider and retention handoff verified node `149:2`; it maps Drive credential missing, provider-unavailable retry, queued generation, scoped package readiness, retention-window expiry, and policy review states to persisted export/evidence/audit records with 6 states, 6 routes, 10 records, 5 permission scopes, 6 guardrails, and 7 acceptance checks.
 - 2026-05-20 Figma Drive archive delivery handoff verified node `151:2`; it maps credentials configured, package assembly to Drive, signed link issued, student download started, expired link retry, and hosted proof required states to persisted export/evidence/audit records with 6 states, 5 routes, 10 records, 5 permission scopes, 6 guardrails, and 6 acceptance checks.
+- 2026-05-21 Figma credential lifecycle handoff verified node `153:2`; it maps admin reset requested, reset completion form, password changed plus session rotation, invalid current password, weak or reused password, and stale session revoked states to auth/admin/audit routes and records with 6 states, 7 routes, 5 records, and 6 guardrails.
 - 2026-05-20 non-Figma workspace archive readiness pass partially consumed node `144:2` in repo code only by adding `/api/student/archive/readiness`, a student Archive workspace tab, explicit admin export reason enforcement, truthful signed-download-disabled output, focused integration/source/smoke/browser proof, and route inventory coverage.
 - 2026-05-20 non-Figma archive manifest pass added `export_artifacts`, scoped JSON archive manifest generation/download, content hash/expiry metadata, expired-package retry state, storage-ID redaction tests, and a workspace manifest download marker.
 - 2026-05-20 non-Figma archive provider/retention pass partially consumed node `149:2` by making archive generation provider-gated, auditing missing-credential/access failure states as failed exports, exposing configurable retention policy/window metadata, and rendering retention state in the canonical workspace.

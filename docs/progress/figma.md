@@ -140,3 +140,16 @@ Figma work is owned by `senior-capstone-figma-product-builder-15` and `senior-ca
 - `implementation handoff`: Rebuild should continue to use node `151:2` for hosted fake-account archive proof after Drive service-account root/index sharing is fixed, while keeping provider, migration, retention, and permission states distinct.
 - `repo logging note`: Pre-existing dirty shared docs from another automation included `docs/artifacts.json`, `docs/progress/handoffs.md`, `docs/progress/run-log.md`, `docs/mvp-requirements-catalog.md`, and `docs/human-decisions.md`. This run intentionally updated only this Figma lane log plus its new structured manifest so the commit can stage only run-owned files.
 - `self-improvement`: none
+
+## 2026-05-21 00:22 PT - MVP-028 Credential Lifecycle Handoff
+
+- `automation ID`: `senior-capstone-figma-product-builder-15`
+- `selected requirement IDs`: `MVP-028`, supporting `MVP-004`, `MVP-005`, `MVP-020`, `MVP-032`, and `MVP-033`
+- `selected slice`: Create and verify a credential lifecycle handoff after rebuild added reset-required completion, admin reset initiation, and active-user password change.
+- `active file`: `z4t4tFPAKrMDh6pIYOeEw6`
+- `page`: `05 Full MVP Alpha Prototype`
+- `nodes touched`: `153:2` (`Prototype / 21 / Credential lifecycle handoff`)
+- `changed in Figma`: Added state cards for `admin_reset_requested`, `reset_completion_form`, `password_changed_session_rotated`, `invalid_current_password`, `weak_or_reused_password`, and `stale_session_revoked`; mapped routes `/workspace`, `/api/auth/login`, `/api/auth/me`, `/api/auth/complete-reset`, `/api/auth/change-password`, `/api/admin/users/:id/require-password-reset`, and `/admin/audit`; mapped records `User`, `UserCredential`, `Session`, `UserRole`, and `AuditEvent`; stored shared plugin data key `senior_capstone/credential_lifecycle_contract_2026_05_21`.
+- `verification`: Code Connect search found no repo `.figma.*` files, `get_libraries` confirmed the active file library plus community kits, and design-system search only found local status-pill primitives, so the frame reused local prototype conventions. `use_figma` created node `153:2`, then a targeted layout correction fixed compact chip sizing and 4px state-row overflow. Final readback found 59 text nodes, zero suspicious clipped text nodes, zero child overflow, 6 states, 7 routes, 5 records, and 6 guardrails. `get_design_context` and `get_screenshot` succeeded for node `153:2`; screenshot returned `868x1024` from original `1360x1605`.
+- `implementation handoff`: Rebuild should consume node `153:2` when finishing invitation/import, generated or temporary credential policy, hosted reset-panel proof, signed-in password-change proof, admin reset-required initiation proof, stale-session fallback proof, and redacted audit coverage. Keep credential lifecycle blockers distinct from node `133:2` role-pending, no-assignment, and section-denied states.
+- `self-improvement`: none

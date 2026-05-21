@@ -28,6 +28,22 @@ This is the compact run log for the current quarter-hour split-builder automatio
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-05-21 00:22 PT - MVP-028 Credential Lifecycle Handoff
+
+- `automation ID`: `senior-capstone-figma-product-builder-15`.
+- `lane`: Figma-only product builder / design-assets-handoff.
+- `master-plan sections`: Role-Aware Production App Contract; Stack And Deployment Direction; Lane Responsibilities; Logging Requirements.
+- `requirement IDs`: `MVP-028`, supporting `MVP-004`, `MVP-005`, `MVP-020`, `MVP-032`, and `MVP-033`; `handoff`: `H-2026-05-21-001`.
+- `selected slice`: Create and verify a credential lifecycle handoff after rebuild added reset-required completion, admin reset initiation, and active-user password change.
+- `active Figma file`: `z4t4tFPAKrMDh6pIYOeEw6`.
+- `Figma page/node touched`: `05 Full MVP Alpha Prototype`; node `153:2` (`Prototype / 21 / Credential lifecycle handoff`).
+- `what changed`: Added route/data/permission state annotations for admin reset requested, reset completion form, password changed plus session rotation, invalid current password, weak or reused password, and stale session revoked. Stored shared plugin data key `senior_capstone/credential_lifecycle_contract_2026_05_21`.
+- `verification`: `use_figma` created node `153:2`, a layout correction fixed compact chip sizing and state-row overflow, and final readback found 59 text nodes, zero suspicious clipped text nodes, zero child overflow, 6 states, 7 routes, 5 records, and 6 guardrails. `get_design_context` and `get_screenshot` succeeded; screenshot returned `868x1024` from original `1360x1605`. Manifest and `docs/artifacts.json` parsed, cadence verifier passed, and `git diff --check` passed with CRLF warnings only.
+- `files changed`: Figma design docs, artifact registry, automation memory, Figma lane log, handoff ledger, MVP catalog, this run log, and `docs/progress/runs/2026-05-21-0022-figma-credential-lifecycle-handoff.json`.
+- `implementation handoff`: Rebuild should consume node `153:2` when finishing invitation/import, generated or temporary credential policy, hosted reset/change proof, admin reset initiation proof, stale-session fallback proof, and redacted audit checks without using real student records.
+- `blockers`: none for Figma. Existing Drive upload HTTP 403 remains an implementation/deployment blocker outside this slice.
+- `self-improvement`: none.
+
 ## 2026-05-21 00:09 PT - MVP-004 Active-User Password Change
 
 - `automation ID`: `senior-capstone-nonfigma-mvp-builder`.

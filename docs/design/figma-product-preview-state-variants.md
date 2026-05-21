@@ -505,6 +505,10 @@ Created/updated frames:
   - `Prototype / 20 / Drive archive delivery handoff`, node `151:2`
   - Created route/data/permission/state annotations for Drive credentials configured, package assembly to Drive, signed link issued, student download started, expired link retry, and hosted proof required.
   - Shared plugin data key `senior_capstone/drive_archive_delivery_contract_2026_05_20` records 6 states, 5 routes, 10 records, 5 permission scopes, 6 guardrails, 6 acceptance checks, and the next rebuild action for Drive-backed package or signed-link delivery plus hosted fake-account proof after Cloudflare/Drive secrets are available.
+- 2026-05-21 credential lifecycle handoff on `05 Full MVP Alpha Prototype`
+  - `Prototype / 21 / Credential lifecycle handoff`, node `153:2`
+  - Created route/data/permission/state annotations for admin reset requested, reset completion form, password changed plus session rotation, invalid current password, weak or reused password, and stale session revoked.
+  - Shared plugin data key `senior_capstone/credential_lifecycle_contract_2026_05_21` records 6 states, 7 routes, 5 records, 6 guardrails, and the next rebuild action for invitation/import, generated or temporary credential policy, hosted reset/change proof, admin reset initiation proof, stale-session fallback, and redacted audit checks.
 
 Verification status:
 - Canvas write succeeded and returned the frame IDs above.
@@ -573,3 +577,7 @@ Verification status:
 - 2026-05-20 `use_figma` write created node `151:2` to map the remaining Drive-backed archive package or signed-link delivery states after provider-gated archive generation was partially implemented.
 - Final readback found 102 text nodes, zero suspicious clipped text nodes, zero child overflow, 6 states, 5 routes, 10 records, 5 permission scopes, 6 guardrails, and 6 acceptance checks in shared contract data.
 - `get_design_context` and `get_screenshot` succeeded for node `151:2`; screenshot verification returned `684x1024` from original `1360x2038`.
+- 2026-05-21 `use_figma` write created node `153:2` to map credential lifecycle states after reset-required completion, admin reset initiation, and active-user password change landed in the workspace.
+- Initial readback found compact chip width and 4px state-row overflow issues; follow-up `use_figma` correction fixed chip sizing and state-row spacing.
+- Final readback found 59 text nodes, zero suspicious clipped text nodes, zero child overflow, 6 states, 7 routes, 5 records, and 6 guardrails in shared contract data.
+- `get_design_context` and `get_screenshot` succeeded for node `153:2`; screenshot verification returned `868x1024` from original `1360x1605`.

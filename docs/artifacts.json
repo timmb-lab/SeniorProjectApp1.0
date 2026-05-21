@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-05-21T00:09:00-07:00",
+  "updated_at": "2026-05-21T00:22:36-07:00",
   "artifacts": [
     {
       "id": "cloudflare-pages-senior-capstone-app",
@@ -377,7 +377,7 @@
       "plan_key": "team::1638213362346160913",
       "account_observed": "timmb@nv.ccsd.net",
       "purpose": "Active product UI source for the hosted Senior Capstone app, recreated in Bryan's Senior Project App Figma team/project.",
-      "app_placement": "Design source for app shell, visual foundations, shared component variants, student workspace, guided proposal form, teacher review queue, mentor/admin dashboards, mobile student view, automation handoff board, product preview state variants, the 100-pass MVP route/data contract, review/override interaction variants, private evidence/review-history contract, admin account/group/role provisioning contract, progress update/dashboard aggregate contract, audit log/export controls contract, mentor meeting/presentation scheduling contract, full MVP alpha prototype, production app/public guide boundary handoff, workspace account edge-state handoff, presentation dashboard state handoff, celebration archive readiness handoff, archive provider/retention handoff, and Drive archive delivery handoff.",
+      "app_placement": "Design source for app shell, visual foundations, shared component variants, student workspace, guided proposal form, teacher review queue, mentor/admin dashboards, mobile student view, automation handoff board, product preview state variants, the 100-pass MVP route/data contract, review/override interaction variants, private evidence/review-history contract, admin account/group/role provisioning contract, progress update/dashboard aggregate contract, audit log/export controls contract, mentor meeting/presentation scheduling contract, full MVP alpha prototype, production app/public guide boundary handoff, workspace account edge-state handoff, presentation dashboard state handoff, celebration archive readiness handoff, archive provider/retention handoff, Drive archive delivery handoff, and credential lifecycle handoff.",
       "consuming_lanes": [
         "figma",
         "rebuild",
@@ -491,6 +491,7 @@
         "full_alpha_prototype_celebration_archive_readiness": "144:2",
         "full_alpha_prototype_archive_provider_retention": "149:2",
         "full_alpha_prototype_drive_archive_delivery": "151:2",
+        "full_alpha_prototype_credential_lifecycle": "153:2",
         "full_alpha_prototype_map_rail": "98:1130"
       },
       "verification": [
@@ -535,13 +536,15 @@
         "Figma write on 2026-05-20 added full-alpha archive provider and retention node 149:2, mapping Drive credential missing, provider-unavailable retry, generation queued, scoped package ready, retention window expiring, and policy review states to export/evidence/audit routes and records.",
         "get_design_context and get_screenshot succeeded for node 149:2; screenshot verification returned 706x1024 from original 1360x1975, and use_figma readback found 108 text nodes, zero suspicious clipped text nodes, zero child overflow, 6 states, 6 routes, 10 records, 5 permission scopes, 6 guardrails, and 7 acceptance checks.",
         "Figma write on 2026-05-20 added full-alpha Drive archive delivery node 151:2, mapping credentials configured, package assembly to Drive, signed link issued, student download started, expired link retry, and hosted proof required states to export/evidence/audit routes and records.",
-        "get_design_context and get_screenshot succeeded for node 151:2; screenshot verification returned 684x1024 from original 1360x2038, and use_figma readback found 102 text nodes, zero suspicious clipped text nodes, zero child overflow, 6 states, 5 routes, 10 records, 5 permission scopes, 6 guardrails, and 6 acceptance checks."
+        "get_design_context and get_screenshot succeeded for node 151:2; screenshot verification returned 684x1024 from original 1360x2038, and use_figma readback found 102 text nodes, zero suspicious clipped text nodes, zero child overflow, 6 states, 5 routes, 10 records, 5 permission scopes, 6 guardrails, and 6 acceptance checks.",
+        "Figma write on 2026-05-21 added full-alpha credential lifecycle node 153:2, mapping admin reset requested, reset completion form, password changed plus session rotation, invalid current password, weak or reused password, and stale session revoked states to auth/admin/audit routes and records.",
+        "get_design_context and get_screenshot succeeded for node 153:2; screenshot verification returned 868x1024 from original 1360x1605, and use_figma readback found 59 text nodes, zero suspicious clipped text nodes, zero child overflow, 6 states, 7 routes, 5 records, and 6 guardrails after compact chip and row overflow correction."
       ],
       "supersedes": [
         "figma-product-ui-system-reference-old-team",
         "figma-product-ui-system-superseded"
       ],
-      "last_updated": "2026-05-20"
+      "last_updated": "2026-05-21"
     },
     {
       "id": "figma-product-ui-system-reference-old-team",
