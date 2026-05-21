@@ -6,6 +6,7 @@ export interface Env {
   SESSION_COOKIE_NAME?: string;
   SESSION_PEPPER?: string;
   PASSWORD_PEPPER?: string;
+  ALLOW_REAL_TEMP_CREDENTIAL_IMPORT?: string;
   EVIDENCE_STORAGE_PROVIDER: "google_drive";
   GOOGLE_DRIVE_CLIENT_EMAIL?: string;
   GOOGLE_DRIVE_PRIVATE_KEY?: string;

@@ -121,7 +121,7 @@ The credential file is intentionally ignored by git through `.secrets/`. Never p
 - In-app browser verification found and fixed a real workspace UI bug: `workspace.js` disabled evidence forms before reading `FormData`, causing the visible link form to post an undefined submission ID. The form data is now captured before controls are disabled.
 - Live signed-out `https://senior-capstone-app.pages.dev/workspace.html` redirects to `/workspace`; the canonical route loads with the Senior Project Workspace title/assets/sign-in UI, `/api/auth/me` returns 401 `{ "authenticated": false }`, and signed-out logout returns `{ "ok": true }`.
 - Live fake student login succeeds with the ignored `.test` credential file; the hosted browser renders the Student Workspace with no console errors, and the live credential-backed smoke verifies dashboard, evidence link, Drive-missing upload blocker, unsupported upload denial, and logout. Role-wide live coverage was not run because the local no-role account is local-only.
-- Live `/api/health` now reports the Google Drive evidence root, index, client email part, and private key part configured. The service-account credential is present in the runtime, but live Drive access is still blocked because `/api/evidence/drive-probe` audits `rootStatus:404` and `indexStatus:404` for the configured root folder and index sheet. The fake upload route fails truthfully with `drive_upload_failed` and Drive status 404 rather than claiming success.
+- Historical note, superseded on 2026-05-21: this run originally found stale Drive resource IDs because `/api/evidence/drive-probe` audited `rootStatus:404` and `indexStatus:404`. The Shared Drive root update below supersedes this as a current blocker.
 - Repo static Cloudflare checks pass, and non-interactive live Pages/D1 management is now verified with the scoped user-scope token. Earlier `LIVE_CLOUDFLARE_BLOCKED_NO_TOKEN` and `Invalid access token [code: 9109]` records are historical; the current Cloudflare state is resolved.
 
 ## 2026-05-20 Cloudflare/D1/Drive Live Bridge
@@ -153,9 +153,7 @@ Bryan verified the original Drive blocker was caused by stale/wrong resource IDs
 - Index sheet: `Evidence Index`, MIME type `application/vnd.google-apps.spreadsheet`, service-account permission `writer`.
 - Service account: `senior-project-app-drive@senior-capstone-app.iam.gserviceaccount.com`.
 
-`wrangler.jsonc`, Cloudflare Pages production/preview environment variables, and remote D1 `evidence_repositories.default-google-drive` now point to those corrected resources. `npm run check:drive:live` now passes token exchange plus root/index probes, so `DRIVE_ROOT_NOT_VISIBLE` is resolved.
-
-The remaining Drive live blocker is later in the path: the fake `.test` upload create call returns `drive_upload_failed` with redacted Google Drive HTTP status 403. Do not re-open the Cloudflare token or root/index sharing blocker for this state.
+`wrangler.jsonc`, Cloudflare Pages production/preview environment variables, and remote D1 `evidence_repositories.default-google-drive` were later superseded by the Shared Drive root recorded below. The intermediate 2026-05-20 state where `npm run check:drive:live` passed token/root/index probes but fake upload failed with redacted Google Drive HTTP status 403 is historical; it is not the current blocker after the 2026-05-21 Shared Drive update.
 
 ## 2026-05-21 Shared Drive Root Update
 
@@ -166,9 +164,9 @@ After the update and a production Pages deploy, `npm run check:drive:live` passe
 ## Remaining Required Config
 
 - Keep the Shared Drive evidence root in place and rerun `npm run check:drive:live` after any Drive, Cloudflare Pages, or upload-route change.
-- Before real student uploads, verify one hosted browser upload/download pass with fake `.test` accounts and one >5MB upload to exercise the resumable path.
+- Before real student uploads, keep `npm run check:drive:live` passing and run the explicit hosted proof aliases: `npm run check:workspace:hosted-evidence` for fake `.test` upload/download including one >5MB resumable upload, and `npm run check:workspace:hosted-permissions` for hosted role/scope states.
 - Add permission tests and workflow tests before real student data is entered.
-- Add account lifecycle flows for invitation/import, admin reset initiation, active-user credential rotation, and role/group management before pilot use.
+- Decide or implement real-user temporary credential delivery before pilot imports; real non-`.test` admin-visible temporary credential imports are now blocked by default unless `ALLOW_REAL_TEMP_CREDENTIAL_IMPORT=true`.
 
 Current test-account workflow route coverage:
 

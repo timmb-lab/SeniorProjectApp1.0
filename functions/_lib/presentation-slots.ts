@@ -38,6 +38,7 @@ const TRANSITIONS = {
     timestampColumn: "checked_out_at",
     successAction: "presentation_slot_checked_out",
     deniedAction: "presentation_slot_check_out_denied",
+    unauthorizedAction: "presentation_slot_check_out_unauthorized",
     responseField: "checked_out_at",
   },
   check_in: {
@@ -46,6 +47,7 @@ const TRANSITIONS = {
     timestampColumn: "checked_in_at",
     successAction: "presentation_slot_checked_in",
     deniedAction: "presentation_slot_check_in_denied",
+    unauthorizedAction: "presentation_slot_check_in_unauthorized",
     responseField: "checked_in_at",
   },
 } as const;
@@ -58,16 +60,26 @@ export async function handlePresentationSlotTransition(
   const methodError = requirePost(request);
   if (methodError) return methodError;
 
-  const user = await getCurrentUser(request, env);
-  if (!user) return workflowError("unauthorized", 401);
-
   const slotId = String(params.id || "").trim();
   if (!slotId) return workflowError("presentation_slot_not_found", 404);
+
+  const config = TRANSITIONS[transition];
+  const user = await getCurrentUser(request, env);
+  if (!user) {
+    await writeAudit(env, {
+      actorUserId: null,
+      action: config.unauthorizedAction,
+      entityType: "presentation_slot",
+      entityId: slotId,
+      request,
+      metadata: { reason: "missing_session", action: transition },
+    });
+    return workflowError("unauthorized", 401);
+  }
 
   const slot = await getPresentationSlot(env, slotId);
   if (!slot) return workflowError("presentation_slot_not_found", 404);
 
-  const config = TRANSITIONS[transition];
   const permissionError = await authorizeSlotManager(env, request, user, slot, config.deniedAction, transition);
   if (permissionError) return permissionError;
 

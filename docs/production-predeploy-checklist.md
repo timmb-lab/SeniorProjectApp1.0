@@ -17,6 +17,8 @@ powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\ru
 powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 check:cloudflare
 powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 check:cloudflare:live
 powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 check:drive:live
+powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 check:workspace:hosted-evidence
+powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 check:workspace:hosted-permissions
 powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 test
 powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 check
 ```
@@ -31,6 +33,8 @@ Required result:
 - Cloudflare static check passes for `wrangler.jsonc`, local Wrangler, D1 binding, and migrations.
 - Cloudflare live check passes token verify plus Pages/D1 lookup. Scoped-token `wrangler whoami` warnings are acceptable only when token verify, Pages project lookup, D1 database lookup, and D1 id match all pass.
 - Drive live check passes before accepting real student file bytes: runtime credential parts configured, service-account token exchange works, root folder is visible as a folder, index sheet is visible as a Google Sheet, fake `.test` upload succeeds, D1 metadata/audit are verified without selecting raw Drive IDs, and browser/API output stays redacted.
+- Hosted workspace evidence check passes or is explicitly skipped for missing ignored fake `.test` credentials; it must prove canonical `workspace.html` upload/download, including one >5MB resumable upload, before real student evidence is accepted.
+- Hosted workspace permission check passes or is explicitly skipped for missing ignored fake `.test` credentials; it must not use real accounts.
 - Tests pass.
 - Aggregate `check` passes.
 
@@ -53,6 +57,7 @@ Before pilot deploy:
 - Confirm no fake account passwords are committed or pasted into docs, screenshots, Figma, Canva, or public pages.
 - Confirm `.secrets/` remains ignored and any local test-account JSON stays untracked.
 - Confirm `wrangler.jsonc` contains no secret values, private keys, or `CLOUDFLARE_API_TOKEN`.
+- Confirm real non-`.test` admin-visible temporary credential imports remain blocked unless Bryan has accepted a delivery policy and `ALLOW_REAL_TEMP_CREDENTIAL_IMPORT=true` is intentionally configured.
 - Confirm real student records are not entered into alpha/pilot until auth, permissions, Drive upload, D1 metadata, and account lifecycle checks pass.
 
 Validation:
@@ -70,6 +75,7 @@ These must be decided before pilot users or real records enter the app:
 - Alpha/account deployment policy: choose Option A, B, or C from `docs/alpha-account-deployment-decision.md`.
 - Stakeholder option lifecycle: retain, retire, or promote from `docs/stakeholder-option-lifecycle.md`.
 - Custom-domain mapping: choose final hostnames using `docs/custom-domain-cutover-checklist.md`.
+- Real-user temporary credential delivery policy: choose HD-2026-05-21-001 before importing real pilot users.
 - Google Drive upload permission/policy: keep `npm run check:drive:live` passing against the configured Shared Drive evidence root.
 
 ## Cloudflare Static Gate
@@ -134,6 +140,8 @@ Current 2026-05-21 PT status:
 - Cloudflare Pages runtime credential parts are configured.
 - The Drive evidence root now points at Shared Drive folder `0AJHkstxfN-dTUk9PVA`; the Evidence Index sheet remains `1BCrBQ-5AKLmhvZr7tjJf3o1tibg13p_U21BiuN_ivN0`.
 - After a production Pages deploy, `npm run check:drive:live` passes token exchange, root folder visibility, index sheet visibility, fake `.test` upload, D1 metadata/audit verification, denial guards, and storage-ID leak checks.
+- `npm run check:workspace:hosted-evidence` is the explicit hosted workspace alias for the same fake `.test` upload/download gate, including the >5MB resumable upload/download path.
+- `npm run check:workspace:hosted-permissions` is the explicit hosted permission-state gate for fake `.test` role/scope accounts; it skips honestly if the ignored credential file or env credentials are unavailable.
 
 ## D1 Binding Gate
 

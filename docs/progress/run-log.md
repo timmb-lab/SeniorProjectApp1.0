@@ -28,6 +28,21 @@ This is the compact run log for the current quarter-hour split-builder automatio
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-05-21 08:20 PT - Pilot Guardrails, Hosted Permission Proof, Presentation/Archive Audit Depth
+
+- `automation ID`: manual Codex implementation pass in the non-Figma MVP builder lane.
+- `lane`: non-Figma MVP builder / backend-security-data, deployment-qa, staff-review-mentor, and admin-ops-reporting.
+- `master-plan sections`: Role-Aware Production App Contract; Stack And Deployment Direction; Logging Requirements.
+- `requirement IDs`: `MVP-004`, `MVP-013`, `MVP-017`, `MVP-018`, `MVP-020`, `MVP-022`, `MVP-026`, `MVP-032`, and `MVP-033`; `backlog IDs`: `SC-003`, `SC-004`, `SC-005`, and `SC-007`; `human decisions`: `HD-2026-05-21-001`, `HD-2026-05-20-002`, `HD-2026-05-20-003`, `HD-2026-05-20-004`, and `HD-2026-05-20-007`.
+- `selected slice`: Reconcile stale Drive 403 current-state language, add explicit hosted workspace proof aliases, guard real-user temporary credential imports by default, add hosted permission-state proof, and deepen presentation/archive protected-record audit coverage without direct Figma work.
+- `what changed`: `check:workspace:hosted-evidence` now aliases the proven live Drive gate with `WORKSPACE_SMOKE_*` env compatibility; `check:workspace:hosted-permissions` verifies hosted canonical workspace assets, signed-out auth state, fake student/teacher/mentor role access, and misc-admin import denial while skipping unavailable fake roles honestly. `/api/admin/users/import` now blocks real non-`.test` admin-visible temporary credential imports by default unless `ALLOW_REAL_TEMP_CREDENTIAL_IMPORT=true`; workspace admin import policy copy is production-safe. Presentation slots now audit missing-session list/transition attempts, misc-admin denial, scoped viewed counts, student no-leak list behavior, and empty-scope teacher no-leak behavior. Archive readiness/export/download now audit missing-session and non-admin denial paths.
+- `validation`: focused admin import/workspace/presentation/archive tests passed; `npm run check:workspace:hosted-evidence` passed hosted fake `.test` small upload/download, >5MB resumable upload/download, D1 upload/download audit checks, denials, and leak checks; `npm run check:workspace:hosted-permissions` passed for fake student, program teacher, mentor, and misc-admin denial, with admin skipped because no fake admin credential was available in the ignored credential source; `npm run check:drive:live`, `typecheck`, production-surface, route-inventory, generated-output drift, static/live Cloudflare checks, predeploy gate, site-options, full `test` (190 pass / 4 expected opt-in skips), and aggregate `check` all passed.
+- `blockers`: old Drive HTTP 403 is superseded/resolved for the fake `.test` live gate. `HD-2026-05-21-001` remains open; real non-`.test` temp-credential imports are intentionally blocked by default. Hosted permission proof is partial because the ignored credential file/env did not provide an admin fake account. Browser-level upload progress/retry, Google Docs export cases, hosted presentation/archive UI proof, archive retention policy, custom domain, alpha/account exposure, and stakeholder option retention remain open.
+- `phone tracker`: not appended; Google Sheets connector was not used.
+- `self-improvement`: added explicit hosted workspace proof script aliases so future runs do not confuse the old Drive 403 history with the current hosted evidence/permission gates.
+- `commit/push status`: pending.
+- `next action`: Run hosted permission-state proof again with an ignored fake admin credential available, then capture hosted presentation/archive UI proof.
+
 ## 2026-05-21 07:46 PT - MVP-013/MVP-014 Hosted Evidence Upload/Download Proof
 
 - `automation ID`: `senior-capstone-nonfigma-mvp-builder-30`.

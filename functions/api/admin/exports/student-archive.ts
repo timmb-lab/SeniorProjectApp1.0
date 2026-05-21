@@ -16,8 +16,28 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   if (methodError) return methodError;
 
   const user = await getCurrentUser(request, env);
-  if (!user) return workflowError("unauthorized", 401);
-  if (!await isAdmin(env, user.id)) return workflowError("forbidden", 403);
+  if (!user) {
+    await writeAudit(env, {
+      actorUserId: null,
+      action: "student_archive_export_unauthorized",
+      entityType: "export",
+      entityId: null,
+      request,
+      metadata: { reason: "missing_session" },
+    });
+    return workflowError("unauthorized", 401);
+  }
+  if (!await isAdmin(env, user.id)) {
+    await writeAudit(env, {
+      actorUserId: user.id,
+      action: "student_archive_export_denied",
+      entityType: "export",
+      entityId: null,
+      request,
+      metadata: { reason: "role_not_allowed" },
+    });
+    return workflowError("forbidden", 403);
+  }
 
   let body: StudentArchiveBody;
   try {

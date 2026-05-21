@@ -90,7 +90,17 @@ const CHECKS: ArchiveCheckDefinition[] = [
 
 export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
   const user = await getCurrentUser(request, env);
-  if (!user) return workflowError("unauthorized", 401);
+  if (!user) {
+    await writeAudit(env, {
+      actorUserId: null,
+      action: "student_archive_readiness_unauthorized",
+      entityType: "student_archive_readiness",
+      entityId: null,
+      request,
+      metadata: { reason: "missing_session" },
+    });
+    return workflowError("unauthorized", 401);
+  }
 
   const url = new URL(request.url);
   const requestedStudentId = cleanWorkflowText(url.searchParams.get("studentId"), user.id, 160);

@@ -16,6 +16,33 @@ test("presentation slots enforce scoped visibility, conflict checks, and audit e
       env: fixture.env,
     });
     assert.equal(response.status, 401);
+    assert.equal(fixture.db.data.auditEvents.at(-1).action, "presentation_slots_unauthorized");
+    assert.deepEqual(JSON.parse(fixture.db.data.auditEvents.at(-1).metadata_json), { reason: "missing_session" });
+  }
+
+  // Students only see their own protected presentation slot data.
+  {
+    const response = await onPresentationSlotsGet({
+      request: buildAuthedRequest("https://example.test/api/presentation-slots", fixture.studentAToken),
+      env: fixture.env,
+    });
+    assert.equal(response.status, 200);
+    const body = await response.json();
+    assert.deepEqual(body.slots.map((slot) => slot.studentId), ["student-a"]);
+    assert.equal(fixture.db.data.auditEvents.at(-1).action, "presentation_slots_viewed");
+    assert.equal(JSON.parse(fixture.db.data.auditEvents.at(-1).metadata_json).resultCount, 1);
+  }
+
+  // Students cannot use the list route to infer another student's protected slot record.
+  {
+    const response = await onPresentationSlotsGet({
+      request: buildAuthedRequest("https://example.test/api/presentation-slots", fixture.studentBToken),
+      env: fixture.env,
+    });
+    assert.equal(response.status, 200);
+    const body = await response.json();
+    assert.deepEqual(body.slots.map((slot) => slot.studentId), ["student-b"]);
+    assert.doesNotMatch(JSON.stringify(body), /student-a|Room 101|slot-existing-a/);
   }
 
   // Mentors only see slots for assigned students.
@@ -29,6 +56,31 @@ test("presentation slots enforce scoped visibility, conflict checks, and audit e
     assert.equal(body.ok, true);
     assert.deepEqual(body.slots.map((slot) => slot.studentId), ["student-a"]);
     assert.equal(body.slots[0].location, "Room 101");
+  }
+
+  // Misc admin broad reporting access is denied instead of matching all slots.
+  {
+    const response = await onPresentationSlotsGet({
+      request: buildAuthedRequest("https://example.test/api/presentation-slots", fixture.miscAdminToken),
+      env: fixture.env,
+    });
+    assert.equal(response.status, 403);
+    assert.equal(fixture.db.data.auditEvents.at(-1).action, "presentation_slots_denied");
+    assert.equal(JSON.parse(fixture.db.data.auditEvents.at(-1).metadata_json).reason, "role_not_allowed");
+  }
+
+  // Empty teacher scope stays an empty, audited no-leak state.
+  {
+    const response = await onPresentationSlotsGet({
+      request: buildAuthedRequest("https://example.test/api/presentation-slots", fixture.teacherEmptyToken),
+      env: fixture.env,
+    });
+    assert.equal(response.status, 200);
+    const body = await response.json();
+    assert.deepEqual(body.slots, []);
+    assert.equal(fixture.db.data.auditEvents.at(-1).action, "presentation_slots_viewed");
+    assert.equal(JSON.parse(fixture.db.data.auditEvents.at(-1).metadata_json).resultCount, 0);
+    assert.doesNotMatch(JSON.stringify(body), /slot-existing|Room 10[12]|Student A|Student B/);
   }
 
   // Mentors can view assigned slots, but scheduling is limited to admin/program teacher staff.
@@ -134,6 +186,8 @@ test("presentation slots enforce scoped visibility, conflict checks, and audit e
       params: { id: "slot-existing-a" },
     });
     assert.equal(response.status, 401);
+    assert.equal(fixture.db.data.auditEvents.at(-1).action, "presentation_slot_check_out_unauthorized");
+    assert.equal(JSON.parse(fixture.db.data.auditEvents.at(-1).metadata_json).reason, "missing_session");
   }
 
   // Mentors can view assigned slots, but cannot perform day-of check-out.
@@ -264,13 +318,17 @@ async function createFixture() {
 
   db.data.userAccounts.push(buildUser("admin-a", "Admin A"));
   db.data.userAccounts.push(buildUser("teacher-a", "Teacher A"));
+  db.data.userAccounts.push(buildUser("teacher-empty", "Teacher Empty"));
   db.data.userAccounts.push(buildUser("mentor-a", "Mentor A"));
+  db.data.userAccounts.push(buildUser("misc-admin-a", "Misc Admin A"));
   db.data.userAccounts.push(buildUser("student-a", "Student A"));
   db.data.userAccounts.push(buildUser("student-b", "Student B"));
 
   db.data.userRoles.push({ user_id: "admin-a", role_id: "admin", scope_type: "global", scope_id: "" });
   db.data.userRoles.push({ user_id: "teacher-a", role_id: "program_teacher", scope_type: "program", scope_id: "it" });
+  db.data.userRoles.push({ user_id: "teacher-empty", role_id: "program_teacher", scope_type: "program", scope_id: "" });
   db.data.userRoles.push({ user_id: "mentor-a", role_id: "mentor", scope_type: "global", scope_id: "" });
+  db.data.userRoles.push({ user_id: "misc-admin-a", role_id: "misc_admin", scope_type: "reporting", scope_id: "alpha-readiness" });
   db.data.userRoles.push({ user_id: "student-a", role_id: "student", scope_type: "global", scope_id: "" });
   db.data.userRoles.push({ user_id: "student-b", role_id: "student", scope_type: "global", scope_id: "" });
 
@@ -309,12 +367,20 @@ async function createFixture() {
 
   const adminToken = "token-admin-a";
   const teacherToken = "token-teacher-a";
+  const teacherEmptyToken = "token-teacher-empty";
   const mentorToken = "token-mentor-a";
+  const miscAdminToken = "token-misc-admin-a";
+  const studentAToken = "token-student-a";
+  const studentBToken = "token-student-b";
 
   for (const [userId, token] of [
     ["admin-a", adminToken],
     ["teacher-a", teacherToken],
+    ["teacher-empty", teacherEmptyToken],
     ["mentor-a", mentorToken],
+    ["misc-admin-a", miscAdminToken],
+    ["student-a", studentAToken],
+    ["student-b", studentBToken],
   ]) {
     db.data.sessions.push({
       id: `sess-${userId}`,
@@ -330,7 +396,11 @@ async function createFixture() {
     db,
     adminToken,
     teacherToken,
+    teacherEmptyToken,
     mentorToken,
+    miscAdminToken,
+    studentAToken,
+    studentBToken,
   };
 }
 
@@ -535,6 +605,19 @@ class MockD1PreparedStatement {
 
   async all() {
     const sql = this.normalizedSql();
+
+    if (sql.startsWith("select role_id, scope_type, scope_id from user_roles where user_id = ?")) {
+      const [userId] = this.params;
+      return {
+        results: this.db.data.userRoles
+          .filter((row) => row.user_id === userId)
+          .map((row) => ({
+            role_id: row.role_id,
+            scope_type: row.scope_type,
+            scope_id: row.scope_id,
+          })),
+      };
+    }
 
     if (sql.includes("from presentation_slots") && sql.includes("join user_accounts student")) {
       const locationFilter = sql.includes("where lower(presentation_slots.location) = lower(?)")

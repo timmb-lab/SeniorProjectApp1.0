@@ -1,8 +1,8 @@
-import type { Env } from "../_types.ts";
+import type { Env, RoleAssignment } from "../_types.ts";
 import { getCurrentUser, writeAudit } from "../_lib/auth.ts";
 import { randomId } from "../_lib/crypto.ts";
 import { badRequest, json, readJson, requirePost } from "../_lib/http.ts";
-import { canAccessStudent, hasRole, isAdmin } from "../_lib/permissions.ts";
+import { canAccessStudent, getRoleAssignments, hasRole, isAdmin } from "../_lib/permissions.ts";
 import { cleanWorkflowText, workflowError } from "../_lib/workflow.ts";
 
 interface PresentationSlotRow {
@@ -38,7 +38,33 @@ const CONFLICT_STATUSES = new Set(["scheduled", "checked_out", "checked_in", "co
 
 export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
   const user = await getCurrentUser(request, env);
-  if (!user) return json({ error: "unauthorized" }, { status: 401 });
+  if (!user) {
+    await writeAudit(env, {
+      actorUserId: null,
+      action: "presentation_slots_unauthorized",
+      entityType: "presentation_slot",
+      entityId: null,
+      request,
+      metadata: { reason: "missing_session" },
+    });
+    return workflowError("unauthorized", 401);
+  }
+
+  const roleAssignments = await getRoleAssignments(env, user.id);
+  if (!hasPresentationViewerRole(roleAssignments)) {
+    await writeAudit(env, {
+      actorUserId: user.id,
+      action: "presentation_slots_denied",
+      entityType: "presentation_slot",
+      entityId: null,
+      request,
+      metadata: {
+        reason: "role_not_allowed",
+        actorRoleScopes: safeRoleScopes(roleAssignments),
+      },
+    });
+    return workflowError("forbidden", 403);
+  }
 
   const rows = await env.DB.prepare(
     `SELECT
@@ -69,6 +95,18 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
       slots.push(formatSlot(row));
     }
   }
+
+  await writeAudit(env, {
+    actorUserId: user.id,
+    action: "presentation_slots_viewed",
+    entityType: "presentation_slot",
+    entityId: null,
+    request,
+    metadata: {
+      resultCount: slots.length,
+      actorRoleScopes: safeRoleScopes(roleAssignments),
+    },
+  });
 
   return json({
     ok: true,
@@ -312,6 +350,18 @@ function formatSlot(row: PresentationSlotRow) {
     notes: row.notes,
     createdAt: row.created_at,
   };
+}
+
+function hasPresentationViewerRole(roleAssignments: RoleAssignment[]): boolean {
+  return roleAssignments.some((role) => ["admin", "program_teacher", "mentor", "student"].includes(role.role_id));
+}
+
+function safeRoleScopes(roleAssignments: RoleAssignment[]) {
+  return roleAssignments.map((role) => ({
+    roleId: role.role_id,
+    scopeType: role.scope_type,
+    scopeId: role.scope_id || "",
+  }));
 }
 
 function formatConflict(row: PresentationSlotRow) {

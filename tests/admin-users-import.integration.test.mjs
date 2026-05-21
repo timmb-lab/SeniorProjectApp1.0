@@ -192,6 +192,74 @@ test("admin users import rejects existing emails and unknown role or scope recor
   }
 });
 
+test("admin users import blocks real non-.test temporary credentials by default", async () => {
+  const fixture = await createFixtureWithSession({ userId: "admin-a", roleId: "admin" });
+
+  const response = await onRequestPost({
+    request: buildJsonRequest(
+      "https://example.test/api/admin/users/import",
+      {
+        reason: "Initial pilot roster import.",
+        users: [studentInput({ email: "student.real@example.edu", displayName: "Real Student" })],
+      },
+      { cookie: `sc_session=${fixture.token}` },
+    ),
+    env: fixture.env,
+    params: {},
+  });
+
+  assert.equal(response.status, 403);
+  const body = await response.json();
+  assert.equal(body.ok, false);
+  assert.equal(body.error, "credential_delivery_policy_required");
+  assert.match(body.message, /temporary credential delivery is approved/i);
+  assert.equal(fixture.db.data.userAccounts.some((row) => row.email_norm === "student.real@example.edu"), false);
+  assert.equal(fixture.db.data.passwordCredentials.length, 0);
+  assert.equal(fixture.db.data.auditEvents.length, 1);
+  assert.equal(fixture.db.data.auditEvents[0].action, "admin_users_import_blocked");
+  assert.deepEqual(fixture.db.data.auditEvents[0].metadata, {
+    reason: "credential_delivery_policy_required",
+    userCount: 1,
+    fakeTestUserCount: 0,
+    realUserCount: 1,
+    temporaryCredentialDelivery: "one_time_admin_display",
+    allowRealTempCredentialImport: false,
+  });
+  assert.doesNotMatch(JSON.stringify(fixture.db.data.auditEvents), /student\.real@example\.edu/i);
+});
+
+test("admin users import allows real non-.test temporary credentials only with explicit override", async () => {
+  const fixture = await createFixtureWithSession({ userId: "admin-a", roleId: "admin" });
+  fixture.env.ALLOW_REAL_TEMP_CREDENTIAL_IMPORT = "true";
+
+  const response = await onRequestPost({
+    request: buildJsonRequest(
+      "https://example.test/api/admin/users/import",
+      {
+        reason: "Bryan-approved manual delivery proof.",
+        users: [studentInput({ email: "student.allowed@example.edu", displayName: "Allowed Student" })],
+      },
+      { cookie: `sc_session=${fixture.token}` },
+    ),
+    env: fixture.env,
+    params: {},
+  });
+
+  assert.equal(response.status, 200);
+  const body = await response.json();
+  assert.equal(body.ok, true);
+  assert.equal(body.importedCount, 1);
+  assert.equal(body.users[0].email, "student.allowed@example.edu");
+  assert.equal(body.users[0].delivery, "one_time_admin_display");
+  assert.equal(validatePassword(body.users[0].temporaryPassword, {
+    email: body.users[0].email,
+    displayName: body.users[0].displayName,
+  }).length, 0);
+  assert.equal(fixture.db.data.auditEvents.some((row) => row.action === "admin_users_import_blocked"), false);
+  assert.equal(fixture.db.data.auditEvents.at(-1).metadata.temporaryCredentialsReturnedOnce, true);
+  assert.equal(JSON.stringify(fixture.db.data.auditEvents).includes(body.users[0].temporaryPassword), false);
+});
+
 test("admin users import creates pending-reset users, role assignments, credentials, and redacted audits", async () => {
   const fixture = await createFixtureWithSession({ userId: "admin-a", roleId: "admin" });
 

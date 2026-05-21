@@ -1410,6 +1410,9 @@ function messageForChangePasswordError(error, status) {
 
 function messageForAdminImportError(error, status) {
   if (status === 401) return "Sign in again before importing accounts.";
+  if (error === "credential_delivery_policy_required") {
+    return "Real-user import is blocked until the credential delivery policy is approved. Use the approved pre-pilot roster, or implement an invitation or school-approved credential delivery path before importing real users.";
+  }
   if (status === 403) return "This account cannot import users.";
   if (error === "missing_reason") return "Add the reason for this account import.";
   if (error === "invalid_user") return "Check the email, name, role, and scope before importing.";

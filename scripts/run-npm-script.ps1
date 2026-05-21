@@ -242,6 +242,28 @@ function Invoke-KnownProjectScript {
             Invoke-Node "scripts\check-google-drive-live.mjs" @ScriptArgs
             return
         }
+        "check:workspace:hosted-evidence" {
+            $script:KnownProjectScriptHandled = $true
+            if (-not $env:CLOUDFLARE_API_TOKEN) {
+                $env:CLOUDFLARE_API_TOKEN = [Environment]::GetEnvironmentVariable("CLOUDFLARE_API_TOKEN", "User")
+            }
+            if (-not $env:CLOUDFLARE_ACCOUNT_ID) {
+                $env:CLOUDFLARE_ACCOUNT_ID = "539e8f7c55e7b1472013626ad72f4c7f"
+            }
+            if ($env:WORKSPACE_SMOKE_BASE_URL -and -not $env:DRIVE_LIVE_BASE_URL) {
+                $env:DRIVE_LIVE_BASE_URL = $env:WORKSPACE_SMOKE_BASE_URL
+            }
+            if ($env:WORKSPACE_SMOKE_CREDENTIALS_FILE -and -not $env:DRIVE_LIVE_CREDENTIALS_FILE) {
+                $env:DRIVE_LIVE_CREDENTIALS_FILE = $env:WORKSPACE_SMOKE_CREDENTIALS_FILE
+            }
+            Invoke-Node "scripts\check-google-drive-live.mjs" @ScriptArgs
+            return
+        }
+        "check:workspace:hosted-permissions" {
+            $script:KnownProjectScriptHandled = $true
+            Invoke-Node "scripts\check-hosted-workspace-permissions.mjs" @ScriptArgs
+            return
+        }
         "qol:hourly" {
             $script:KnownProjectScriptHandled = $true
             Invoke-ProjectPowerShell "scripts\run-node-script.ps1" (@("automation\qol\hourly-orchestrator.mjs") + @($ScriptArgs))

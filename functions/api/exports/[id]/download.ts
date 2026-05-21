@@ -33,7 +33,17 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env, params })
   if (!exportId) return workflowError("missing_export_id", 400);
 
   const user = await getCurrentUser(request, env);
-  if (!user) return workflowError("unauthorized", 401);
+  if (!user) {
+    await writeAudit(env, {
+      actorUserId: null,
+      action: "export_download_unauthorized",
+      entityType: "export",
+      entityId: exportId,
+      request,
+      metadata: { reason: "missing_session" },
+    });
+    return workflowError("unauthorized", 401);
+  }
 
   const row = await env.DB.prepare(
     `SELECT id, export_type, requested_by, target_user_id, drive_file_id, status, created_at, completed_at

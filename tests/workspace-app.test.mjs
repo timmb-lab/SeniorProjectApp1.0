@@ -34,6 +34,8 @@ test("workspace route is a real authenticated app surface", () => {
   assert.match(workspaceJs, /data-auth-action="change-password"/);
   assert.match(workspaceJs, /data-admin-action="import-users"/);
   assert.match(workspaceJs, /data-admin-import-result="one-time-setup-passwords"/);
+  assert.match(workspaceJs, /credential_delivery_policy_required/);
+  assert.match(workspaceJs, /Real-user import is blocked until the credential delivery policy is approved/);
   assert.match(workspaceJs, /Create a new password/);
   assert.match(workspaceJs, /Password And Sessions/);
   assert.match(workspaceJs, /Your file was received/);

@@ -1,0 +1,193 @@
+{
+  "timestamp_local": "2026-05-21T08:20:00-07:00",
+  "date": "2026-05-21",
+  "lane": "non-Figma MVP builder",
+  "automation_pass_label": "manual-codex-pilot-guardrails-hosted-permissions",
+  "repo_root": "C:\\SeniorProjectApp1.0",
+  "git_top_level": "C:/SeniorProjectApp1.0",
+  "branch_before": "main",
+  "branch_after": "main",
+  "origin": "https://github.com/timmb-lab/SeniorProjectApp1.0.git",
+  "start_sha": "852f2c7539111f7d6514fea640d8776b16e746c4",
+  "end_sha": "pending_until_commit",
+  "selected_mvp_ids": [
+    "MVP-004",
+    "MVP-013",
+    "MVP-017",
+    "MVP-018",
+    "MVP-020",
+    "MVP-022",
+    "MVP-026",
+    "MVP-032",
+    "MVP-033"
+  ],
+  "selected_backlog_ids": [
+    "SC-003",
+    "SC-004",
+    "SC-005",
+    "SC-007"
+  ],
+  "selected_human_decision_ids": [
+    "HD-2026-05-21-001",
+    "HD-2026-05-20-002",
+    "HD-2026-05-20-003",
+    "HD-2026-05-20-004",
+    "HD-2026-05-20-007"
+  ],
+  "scope_summary": "Reconciled stale Drive 403 current-state language, added explicit hosted workspace evidence and permission proof commands, blocked real non-.test admin-visible temporary credential imports by default, and deepened presentation/archive protected-record audit coverage.",
+  "files_changed": [
+    "docs/artifacts.json",
+    "docs/automation-backlog.md",
+    "docs/automation-memory.md",
+    "docs/backend-setup.md",
+    "docs/human-decisions.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/production-predeploy-checklist.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/rebuild.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-21-0820-pilot-guardrails-hosted-permissions.json",
+    "functions/_lib/presentation-slots.ts",
+    "functions/_types.ts",
+    "functions/api/admin/exports/student-archive.ts",
+    "functions/api/admin/users/import.ts",
+    "functions/api/exports/[id]/download.ts",
+    "functions/api/presentation-slots.ts",
+    "functions/api/student/archive/readiness.ts",
+    "package.json",
+    "scripts/check-hosted-workspace-permissions.mjs",
+    "scripts/run-npm-script.ps1",
+    "tests/admin-users-import.integration.test.mjs",
+    "tests/archive-readiness.integration.test.mjs",
+    "tests/presentation-slots.integration.test.mjs",
+    "tests/workspace-app.test.mjs",
+    "workspace.js"
+  ],
+  "implementation_summary": [
+    "Added ALLOW_REAL_TEMP_CREDENTIAL_IMPORT with default-safe real non-.test import blocking in /api/admin/users/import.",
+    "Kept fake .test imports allowed for internal proof and added safe audit metadata for blocked real-user imports.",
+    "Mapped the workspace admin import policy error to production-safe copy without exposing internal proof account wording on workspace.html.",
+    "Added npm run check:workspace:hosted-evidence as an explicit hosted evidence proof alias for the live Drive gate.",
+    "Added scripts/check-hosted-workspace-permissions.mjs and npm run check:workspace:hosted-permissions for hosted signed-out and fake role/scope permission checks.",
+    "Added presentation slot missing-session/list/transition audits, misc-admin denial, viewed result counts, student no-leak list proof, and empty-scope teacher no-leak proof.",
+    "Added archive readiness/export/download missing-session audits and non-admin archive export denial audit.",
+    "Updated current docs to supersede the old Drive HTTP 403 blocker with the Shared Drive/live proof state."
+  ],
+  "hosted_workspace_evidence_proof_result": "passed via npm run check:workspace:hosted-evidence against https://senior-capstone-app.pages.dev",
+  "small_upload_result": "passed: fake .test text file uploaded through app path and downloaded byte-for-byte through app-scoped route",
+  "large_resumable_upload_result": "passed: fake .test >5MB file uploaded through resumable path and downloaded byte-for-byte",
+  "download_result": "passed for small text and >5MB resumable proof artifacts through /api/evidence/:id/download",
+  "storage_id_leak_check_result": "passed: upload response, download headers, dashboard output, and hosted workspace assets omitted forbidden storage identifiers/secrets",
+  "hosted_permission_proof_result": {
+    "command": "npm run check:workspace:hosted-permissions",
+    "result": "partial_pass",
+    "base_url": "https://senior-capstone-app.pages.dev",
+    "passed_roles": [
+      "signed-out",
+      "student",
+      "program_teacher",
+      "mentor",
+      "misc_admin denial"
+    ],
+    "skipped_roles": [
+      "admin fake credential unavailable through ignored credential file/env"
+    ]
+  },
+  "credential_delivery_guardrail_result": {
+    "fake_test_imports": "allowed for internal proof",
+    "real_non_test_import_default": "blocked with credential_delivery_policy_required",
+    "override": "ALLOW_REAL_TEMP_CREDENTIAL_IMPORT=true allows real non-.test imports only when explicitly configured",
+    "human_decision": "HD-2026-05-21-001 remains open"
+  },
+  "presentation_slot_proof_result": "improved: missing-session list/transition audits, student own/no-leak list proof, misc-admin denial, empty-scope teacher no-leak, conflict, schedule, check-out, and check-in tests passed",
+  "archive_export_proof_result": "improved: readiness missing-session audit, admin export missing-session/non-admin denial audits, export download missing-session audit, provider/package/download/missing/expired tests passed",
+  "drive_live_check_result": "passed via npm run check:drive:live",
+  "cloudflare_check_result": "passed via npm run check:cloudflare and npm run check:cloudflare:live; scoped-token wrangler whoami warning remained non-blocking after token verify plus Pages/D1 lookup passed",
+  "test_commands": [
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts\\run-node-script.ps1 tests\\admin-users-import.integration.test.mjs",
+      "result": "passed: 8 tests"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts\\run-node-script.ps1 tests\\workspace-app.test.mjs",
+      "result": "passed: 11 tests"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts\\run-node-script.ps1 tests\\presentation-slots.integration.test.mjs",
+      "result": "passed: 1 test"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts\\run-node-script.ps1 tests\\archive-readiness.integration.test.mjs",
+      "result": "passed: 15 tests"
+    },
+    {
+      "command": "npm run check:workspace:hosted-permissions",
+      "result": "partial pass: signed-out, student, program_teacher, mentor, misc_admin passed; admin skipped because fake admin credential unavailable"
+    },
+    {
+      "command": "npm run check:workspace:hosted-evidence",
+      "result": "passed"
+    },
+    {
+      "command": "npm run check:drive:live",
+      "result": "passed"
+    },
+    {
+      "command": "npm run typecheck",
+      "result": "passed"
+    },
+    {
+      "command": "npm run check:production-surfaces",
+      "result": "passed: 91 production text surfaces scanned"
+    },
+    {
+      "command": "npm run check:route-inventory",
+      "result": "passed: inventory up to date"
+    },
+    {
+      "command": "npm run check:generated-output-drift",
+      "result": "passed"
+    },
+    {
+      "command": "npm run check:cloudflare",
+      "result": "passed static and live read-only checks"
+    },
+    {
+      "command": "npm run check:cloudflare:live",
+      "result": "passed live read-only Pages/D1 checks"
+    },
+    {
+      "command": "npm run check:predeploy-gate",
+      "result": "passed"
+    },
+    {
+      "command": "npm run check:site-options",
+      "result": "passed"
+    },
+    {
+      "command": "npm test",
+      "result": "passed: 190 passed, 4 expected opt-in skips"
+    },
+    {
+      "command": "npm run check",
+      "result": "passed: aggregate checks plus 190 passed, 4 expected opt-in skips"
+    }
+  ],
+  "generated_output_route_inventory_result": "check:route-inventory and check:generated-output-drift passed; no regeneration required",
+  "remaining_blockers": [
+    "Hosted permission-state proof needs an ignored fake admin credential to cover the admin allowed path.",
+    "Browser-level upload progress/retry handling remains open.",
+    "Google Docs export cases remain open.",
+    "Hosted presentation/archive UI proof remains open.",
+    "Archive retention policy remains policy_review_required until Bryan decides HD-2026-05-20-007."
+  ],
+  "remaining_bryan_decisions": [
+    "HD-2026-05-21-001 real-user credential delivery policy",
+    "canonical URL/domain mapping",
+    "alpha/account route exposure before pilot",
+    "stakeholder option retention",
+    "archive retention policy"
+  ],
+  "commit_sha": "pending_until_commit",
+  "push_result": "pending"
+}

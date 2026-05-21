@@ -93,6 +93,31 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     normalizedUsers.push(normalized);
   }
 
+  const realUserCount = normalizedUsers.filter((user) => !isFakeTestEmail(user.emailNorm)).length;
+  if (realUserCount > 0 && !allowRealTempCredentialImport(env)) {
+    await writeAudit(env, {
+      actorUserId: caller.id,
+      action: "admin_users_import_blocked",
+      entityType: "user_import_batch",
+      entityId: null,
+      request,
+      metadata: {
+        reason: "credential_delivery_policy_required",
+        userCount: normalizedUsers.length,
+        fakeTestUserCount: normalizedUsers.length - realUserCount,
+        realUserCount,
+        temporaryCredentialDelivery: "one_time_admin_display",
+        allowRealTempCredentialImport: false,
+      },
+    });
+
+    return json({
+      ok: false,
+      error: "credential_delivery_policy_required",
+      message: "Real-user import is blocked until temporary credential delivery is approved. Use fake .test accounts for internal proof, or implement/approve an invitation or school-approved credential delivery path before importing real users.",
+    }, { status: 403 });
+  }
+
   for (const user of normalizedUsers) {
     const existing = await env.DB.prepare(
       "SELECT id FROM user_accounts WHERE email_norm = ? LIMIT 1",
@@ -234,6 +259,14 @@ function generateTemporaryPassword(user: NormalizedImportUser): string {
 
 function isValidEmail(value: string): boolean {
   return value.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+}
+
+function isFakeTestEmail(emailNorm: string): boolean {
+  return emailNorm.endsWith(".test");
+}
+
+function allowRealTempCredentialImport(env: Env): boolean {
+  return String(env.ALLOW_REAL_TEMP_CREDENTIAL_IMPORT || "").trim().toLowerCase() === "true";
 }
 
 function isValidScope(roleId: RoleId, scopeType: RoleScopeType, scopeId: string): boolean {

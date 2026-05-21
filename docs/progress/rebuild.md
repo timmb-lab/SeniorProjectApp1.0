@@ -17,6 +17,20 @@ Each rebuild run should append a dated entry with:
 
 ## Entries
 
+### 2026-05-21 08:20 PT - Pilot Guardrails And Protected-Record Depth
+
+- `automation`: manual Codex implementation pass in the non-Figma MVP builder lane.
+- `master-plan section`: Role-Aware Production App Contract; Stack And Deployment Direction; Logging Requirements.
+- `source docs/logs read`: required repo identity/status docs, backend setup, MVP catalog, automation backlog/memory/cadence, production policies, run logs/manifests, workspace app files, auth/admin/evidence/presentation/archive routes, migrations, and focused tests.
+- `backlog or requirement IDs selected`: `SC-003`, `SC-004`, `SC-005`, `SC-007`; `MVP-004`, `MVP-013`, `MVP-017`, `MVP-018`, `MVP-020`, `MVP-022`, `MVP-026`, `MVP-032`, and `MVP-033`; `HD-2026-05-21-001`.
+- `bounded scope`: Reconcile Drive current status, add explicit hosted workspace evidence/permission proof commands, default-block real-user admin-visible temporary credential imports, and deepen presentation/archive audit coverage without scheduler or Figma work.
+- `files changed`: admin import route/types/tests, workspace admin policy copy/tests, presentation slots routes/tests, archive readiness/export/download routes/tests, hosted permission proof script, package/wrapper scripts, setup/predeploy/status docs, handoff/backlog/catalog/artifact/run records, and structured run manifest.
+- `validation`: focused admin import, workspace app, presentation slots, and archive-readiness tests passed; `check:workspace:hosted-evidence` passed hosted small upload/download, >5MB resumable upload/download, D1 upload/download audits, denial guards, and leak checks; `check:workspace:hosted-permissions` passed hosted signed-out state plus fake student/program-teacher/mentor/misc-admin checks and skipped admin for missing fake credential; `check:drive:live`, `typecheck`, `check:production-surfaces`, `check:route-inventory`, `check:generated-output-drift`, `check:cloudflare`, `check:cloudflare:live`, `check:predeploy-gate`, `check:site-options`, full `test` (190 pass / 4 expected skips), and aggregate `check` passed.
+- `blockers`: no Drive upload/download blocker remains for fake `.test` live proof. `HD-2026-05-21-001` remains open, real non-`.test` imports are blocked by default, hosted admin permission proof needs a fake admin credential, archive retention policy remains Bryan decision `HD-2026-05-20-007`, and hosted presentation/archive UI proof remains open.
+- `self-improvement`: added named hosted proof scripts so future runs use the current evidence gates instead of chasing historical Drive 403 entries.
+- `commit/push status`: pending.
+- `next action`: Provide/use an ignored fake admin credential and rerun `npm run check:workspace:hosted-permissions`, then capture hosted presentation/archive UI proof.
+
 ### 2026-05-21 06:53 PT - Shared Drive Evidence Root Applied
 
 - `automation`: manual Codex follow-up from Bryan's Shared Drive folder/index links.

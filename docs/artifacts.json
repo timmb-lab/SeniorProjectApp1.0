@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-05-21T07:46:00-07:00",
+  "updated_at": "2026-05-21T08:18:00-07:00",
   "artifacts": [
     {
       "id": "cloudflare-pages-senior-capstone-app",
@@ -199,7 +199,8 @@
         "2026-05-21 05:06 PT: /api/submissions/:id/submit now audits missing-session, cross-student/staff denial, missing-evidence blocked submit, and successful submit with redacted actor role scopes. tests/review-loop.integration.test.mjs passed with 7/7 workflow tests, tests/production-workflow-source.test.mjs passed with 11/11 source checks, and aggregate check passed with live Cloudflare read-only verification plus 179 passing tests / 4 expected opt-in skips.",
         "2026-05-21 05:35 PT: /api/submissions/:id now returns scoped submission/evidence detail readback and audits submission_detail_unauthorized, submission_detail_denied, and submission_detail_viewed with redacted actor role scopes. tests/review-loop.integration.test.mjs passed with 8/8 workflow tests, tests/production-workflow-source.test.mjs passed with 12/12 source checks, route inventory is current, production-surface check passed, and full test passed with 181 passing / 4 expected opt-in skips.",
         "2026-05-21 06:38 PT: /api/mentor/meetings now audits scoped read and mutation access across student self, student-other denial, active/inactive mentor assignments, scoped/empty-scope program teachers, admin inspection, misc-admin denial, missing sessions, and held meetings with redacted actor role scopes. tests/mentor-meetings.integration.test.mjs passed with 2/2 route tests, tests/production-workflow-source.test.mjs passed with 13/13 source checks, full test passed with 183 passing / 4 expected skips, and aggregate check passed with live Cloudflare read-only verification.",
-        "2026-05-21 07:46 PT: after commit d0fe1f6 deployed, hosted workspace.js contained data-evidence-download=\"file\" on poll 3; npm run check:drive:live passed hosted workspace marker proof, fake .test text upload/download byte match, >5MB resumable upload/download, remote D1 upload/download audit verification, denial guards, dashboard download URL redaction, and storage-ID leak checks."
+        "2026-05-21 07:46 PT: after commit d0fe1f6 deployed, hosted workspace.js contained data-evidence-download=\"file\" on poll 3; npm run check:drive:live passed hosted workspace marker proof, fake .test text upload/download byte match, >5MB resumable upload/download, remote D1 upload/download audit verification, denial guards, dashboard download URL redaction, and storage-ID leak checks.",
+        "2026-05-21: real non-.test admin-visible temporary credential imports are blocked by default pending HD-2026-05-21-001; workspace policy copy maps the guardrail without exposing internal proof credentials. Presentation slots now audit missing-session list/transition attempts, misc-admin denial, scoped viewed counts, and student/empty-scope no-leak states. Archive readiness/export/download routes now audit missing-session and non-admin denial paths."
       ],
       "last_updated": "2026-05-21"
     },
@@ -320,8 +321,8 @@
       "verification": [
         "Bryan provided verified sandbox Workspace resources on 2026-05-20: folder title Senior Capstone App, folder MIME type application/vnd.google-apps.folder, index sheet title Evidence Index, sheet MIME type application/vnd.google-apps.spreadsheet, and service-account writer permission on both resources.",
         "Cloudflare Pages production/preview env vars and remote D1 evidence_repositories row were updated to the corrected root folder and index sheet ids on 2026-05-20.",
-        "After the corrected ids and a Pages redeploy, npm run check:drive:live passed token exchange, root folder probe, and index sheet probe; the remaining blocker moved to fake upload drive_upload_failed with redacted Google Drive HTTP status 403.",
-        "Bryan provided Shared Drive root folder 0AJHkstxfN-dTUk9PVA on 2026-05-21; wrangler.jsonc, Cloudflare Pages production/preview env vars, and remote D1 evidence_repositories now point to that folder while the Evidence Index sheet remains unchanged. After a production Pages deploy, npm run check:drive:live passed fake .test upload, D1 metadata/audit verification, denial guards, and storage-ID leak checks."
+        "After the corrected ids and a Pages redeploy, npm run check:drive:live passed token exchange, root folder probe, and index sheet probe; the later 2026-05-20 fake-upload HTTP 403 was historical and is superseded by the Shared Drive root update.",
+        "Bryan provided Shared Drive root folder 0AJHkstxfN-dTUk9PVA on 2026-05-21; wrangler.jsonc, Cloudflare Pages production/preview env vars, and remote D1 evidence_repositories now point to that folder while the Evidence Index sheet remains unchanged. After a production Pages deploy, npm run check:drive:live passed fake .test upload/download, >5MB resumable upload/download, D1 metadata/audit verification, denial guards, and storage-ID leak checks."
       ],
       "last_updated": "2026-05-21"
     },
@@ -351,8 +352,9 @@
       "verification": [
         "Focused script classification tests passed on 2026-05-20.",
         "Live run loaded ignored fake .test credentials without printing passwords, verified signed-out/unsupported/empty/oversized/non-student upload denials, and did not expose raw Drive IDs.",
-        "2026-05-20 23:36 PT: after corrected Drive ids and a Pages redeploy, live run passed token exchange, root folder probe, and index sheet probe, then failed fake upload truthfully with DRIVE_UPLOAD_FAILED and redacted Google Drive HTTP status 403.",
-        "2026-05-21 06:59 PT: after the Shared Drive root update and production Pages deploy, npm run check:drive:live passed provider config, credential parts, fake .test auth, denial guards, Drive token/root/index probes, fake upload, D1 metadata/audit verification, and storage-ID leak checks."
+        "2026-05-20 23:36 PT: after corrected Drive ids and a Pages redeploy, live run passed token exchange, root folder probe, and index sheet probe, then failed fake upload truthfully with DRIVE_UPLOAD_FAILED and redacted Google Drive HTTP status 403. This is historical and superseded by the Shared Drive root update.",
+        "2026-05-21 06:59 PT: after the Shared Drive root update and production Pages deploy, npm run check:drive:live passed provider config, credential parts, fake .test auth, denial guards, Drive token/root/index probes, fake upload/download, >5MB resumable upload/download, D1 metadata/download-audit verification, and storage-ID leak checks.",
+        "2026-05-21: npm aliases check:workspace:hosted-evidence and check:workspace:hosted-permissions make hosted evidence and hosted role/scope proofs explicit for future pilot-safety runs."
       ],
       "last_updated": "2026-05-21"
     },

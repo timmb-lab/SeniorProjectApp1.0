@@ -7,6 +7,21 @@ import { onRequestPost as onQueueArchive } from "../functions/api/admin/exports/
 import { onRequestGet as onArchiveReadiness } from "../functions/api/student/archive/readiness.ts";
 import { onRequestGet as onExportDownload } from "../functions/api/exports/[id]/download.ts";
 
+test("student archive readiness requires auth and audits missing sessions safely", async () => {
+  const fixture = createFixture();
+
+  const response = await onArchiveReadiness({
+    request: new Request("https://example.test/api/student/archive/readiness"),
+    env: fixture.env,
+  });
+
+  assert.equal(response.status, 401);
+  assert.deepEqual(await response.json(), { error: "unauthorized", ok: false });
+  assert.equal(fixture.db.data.auditEvents.length, 1);
+  assert.equal(fixture.db.data.auditEvents[0].action, "student_archive_readiness_unauthorized");
+  assert.deepEqual(fixture.db.data.auditEvents[0].metadata, { reason: "missing_session" });
+});
+
 test("student archive readiness derives closeout checks from persisted rows and redacts storage ids", async () => {
   const fixture = await createFixtureWithSession({ userId: "student-a", roleId: "student" });
   seedArchiveReadyStudent(fixture.db, "student-a");
@@ -154,6 +169,43 @@ test("admin archive export records provider-unavailable state when Drive credent
   assert.equal(fixture.db.data.exportArtifacts.length, 0);
   assert.equal(fixture.db.data.auditEvents[0].action, "student_archive_export_provider_unavailable");
   assert.equal(fixture.db.data.auditEvents[0].metadata.providerStatus, "drive_credentials_missing");
+});
+
+test("admin archive export requires admin role and audits non-admin denial safely", async () => {
+  const fixture = await createFixtureWithSession({ userId: "student-a", roleId: "student" });
+
+  const response = await onQueueArchive({
+    request: buildJsonRequest(
+      "https://example.test/api/admin/exports/student-archive",
+      fixture.token,
+      { studentId: "student-a", reason: "Student self-service attempt" },
+      "POST",
+    ),
+    env: fixture.env,
+  });
+
+  assert.equal(response.status, 403);
+  assert.deepEqual(await response.json(), { error: "forbidden", ok: false });
+  assert.equal(fixture.db.data.exports.length, 0);
+  assert.equal(fixture.db.data.auditEvents.length, 1);
+  assert.equal(fixture.db.data.auditEvents[0].action, "student_archive_export_denied");
+  assert.deepEqual(fixture.db.data.auditEvents[0].metadata, { reason: "role_not_allowed" });
+});
+
+test("admin archive export audits missing sessions before reading request details", async () => {
+  const fixture = createFixture();
+
+  const response = await onQueueArchive({
+    request: new Request("https://example.test/api/admin/exports/student-archive", { method: "POST" }),
+    env: fixture.env,
+  });
+
+  assert.equal(response.status, 401);
+  assert.deepEqual(await response.json(), { error: "unauthorized", ok: false });
+  assert.equal(fixture.db.data.exports.length, 0);
+  assert.equal(fixture.db.data.auditEvents.length, 1);
+  assert.equal(fixture.db.data.auditEvents[0].action, "student_archive_export_unauthorized");
+  assert.deepEqual(fixture.db.data.auditEvents[0].metadata, { reason: "missing_session" });
 });
 
 test("admin archive export records Drive access failures without generating artifacts", async () => {
@@ -320,6 +372,33 @@ test("export download streams the generated archive manifest for scoped users", 
     assert.equal(fixture.db.data.auditEvents[0].metadata.scopedDownloadReady, true);
     assert.equal(fixture.db.data.auditEvents[0].metadata.drivePackageReady, true);
   });
+});
+
+test("export download requires auth and audits missing sessions safely", async () => {
+  const fixture = createFixture();
+  fixture.db.data.exports.push({
+    id: "export-auth-required",
+    export_type: "student_archive",
+    requested_by: "admin-a",
+    target_user_id: "student-a",
+    drive_file_id: "drive-complete-secret",
+    status: "complete",
+    created_at: "2026-05-04T16:00:00.000Z",
+    completed_at: "2026-05-04T16:05:00.000Z",
+  });
+
+  const response = await onExportDownload({
+    request: new Request("https://example.test/api/exports/export-auth-required/download"),
+    env: fixture.env,
+    params: { id: "export-auth-required" },
+  });
+
+  assert.equal(response.status, 401);
+  assert.deepEqual(await response.json(), { error: "unauthorized", ok: false });
+  assert.equal(fixture.db.data.auditEvents.length, 1);
+  assert.equal(fixture.db.data.auditEvents[0].action, "export_download_unauthorized");
+  assert.equal(fixture.db.data.auditEvents[0].entity_id, "export-auth-required");
+  assert.deepEqual(fixture.db.data.auditEvents[0].metadata, { reason: "missing_session" });
 });
 
 test("export download reports missing archive artifacts instead of claiming signed URL readiness", async () => {
