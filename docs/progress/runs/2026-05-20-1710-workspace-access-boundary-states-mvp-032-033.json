@@ -1,0 +1,164 @@
+{
+  "run_id": "2026-05-20-1710-workspace-access-boundary-states-mvp-032-033",
+  "timestamp_local": "2026-05-20T17:10:00-07:00",
+  "automation_id": "senior-capstone-nonfigma-mvp-builder",
+  "lane": "non-figma MVP builder / backend-security-data",
+  "status": "completed",
+  "accepted_mvp_pass": true,
+  "requirement_ids": [
+    "MVP-032",
+    "MVP-033",
+    "MVP-034",
+    "MVP-039"
+  ],
+  "backlog_ids": [
+    "SC-007",
+    "SC-005"
+  ],
+  "duration_minutes": 68,
+  "output_kind": "workspace-ui+tests+docs",
+  "scope": "Add explicit role-pending and permission-denied access-boundary states to the canonical authenticated workspace.",
+  "source_docs_read": [
+    "C:\\Users\\bryan\\.codex\\automations\\senior-capstone-nonfigma-mvp-builder\\memory.md",
+    "docs/master-plan.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/automation-cadence.md",
+    "docs/automation-runbook.md",
+    "docs/automation-self-improvement.md",
+    "docs/automation-memory.md",
+    "docs/automation-milestones.md",
+    "docs/progress/run-log.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/decision-log.md",
+    "docs/automation-backlog.md",
+    "docs/artifacts.json",
+    "docs/human-decisions.md",
+    "recent docs/progress/runs/*.json",
+    "docs/progress/rebuild.md",
+    "workspace.js",
+    "workspace.html",
+    "workspace.css",
+    "tests/workspace-app.test.mjs",
+    "tests/workspace-browser-smoke.test.mjs"
+  ],
+  "selected_category": "backend-security-data",
+  "selected_slice": "Consume the existing repo-recorded Figma production-boundary handoff by making the workspace access boundary visible for no-role and section-denied states, without direct Figma work.",
+  "changes": [
+    "Added data-workspace-state=\"role-pending\" UI when /api/auth/me returns a signed-in user with no assigned roles.",
+    "Added data-workspace-state=\"permission-denied\" UI when a role-scoped workspace section returns 403.",
+    "Added section-specific permission-denied cards for student, teacher, mentor, and readiness sections.",
+    "Added compact access-boundary styling in workspace.css.",
+    "Expanded tests/workspace-app.test.mjs with a VM-backed render test that executes workspace.js against stubbed /api/auth/me, /api/announcements, and /api/student/dashboard responses.",
+    "Expanded tests/workspace-browser-smoke.test.mjs to assert the HTTP-served workspace asset contains the role-pending and permission-denied state markers."
+  ],
+  "files_changed": [
+    "workspace.js",
+    "workspace.css",
+    "tests/workspace-app.test.mjs",
+    "tests/workspace-browser-smoke.test.mjs",
+    "docs/mvp-requirements-catalog.md",
+    "docs/production-surface-registry.md",
+    "docs/artifacts.json",
+    "docs/automation-memory.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/rebuild.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-20-1710-workspace-access-boundary-states-mvp-032-033.json"
+  ],
+  "validation": [
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 tests\\workspace-app.test.mjs",
+      "result": "passed",
+      "summary": "Focused workspace source/VM test passed: 5/5 tests, including role-pending and permission-denied render states."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 tests\\workspace-browser-smoke.test.mjs",
+      "result": "passed-with-expected-skips",
+      "summary": "Portable smoke test skipped all 3 opt-in HTTP checks when no base URL was set."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 scripts\\seed-local-workspace-smoke.mjs",
+      "result": "passed",
+      "summary": "Seeded local-only fake .test accounts and fixtures into local D1; passwords stayed in the ignored .secrets file and were not printed."
+    },
+    {
+      "command": "$env:WORKSPACE_SMOKE_BASE_URL='http://127.0.0.1:8788'; $env:WORKSPACE_SMOKE_CREDENTIALS_FILE='.secrets\\local-workspace-smoke-accounts.json'; powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 tests\\workspace-browser-smoke.test.mjs",
+      "result": "passed",
+      "summary": "Credential-backed local HTTP smoke passed for signed-out, student, upload-blocker, unsupported-upload, logout, and role-route coverage."
+    },
+    {
+      "command": "Codex in-app browser at http://127.0.0.1:8788/workspace.html",
+      "result": "passed",
+      "summary": "No-role account rendered Workspace access is pending with data-workspace-state role-pending and zero console errors; sign-out returned the sign-in UI."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 check:production-surfaces",
+      "result": "passed",
+      "summary": "Production surface leak check passed with 91 production text surfaces scanned."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 check",
+      "result": "passed-static-live-blocked",
+      "summary": "Aggregate check passed with alpha contract, cadence, predeploy gate, production surfaces, route inventory, generated-output drift, site options, static Cloudflare verification, 131 passing tests, 3 expected opt-in workspace smoke skips, and typecheck; live Cloudflare verification remained blocked without CLOUDFLARE_API_TOKEN."
+    },
+    {
+      "command": "Get-Content -Raw docs\\artifacts.json | ConvertFrom-Json",
+      "result": "passed",
+      "summary": "Artifact registry parsed as JSON."
+    },
+    {
+      "command": "git diff --check",
+      "result": "passed",
+      "summary": "No whitespace errors; Git printed line-ending normalization warnings only."
+    }
+  ],
+  "browser_verification": {
+    "local_url": "http://127.0.0.1:8788/workspace.html",
+    "signed_out_sign_in_visible": true,
+    "role_pending_visible": true,
+    "console_error_count": 0,
+    "local_server_stopped": true
+  },
+  "blockers": [
+    {
+      "id": "DRIVE_LIVE_BLOCKED_MISSING_CREDENTIAL_SECRETS",
+      "message": "Live Drive upload/download remains blocked because Cloudflare Pages is missing GOOGLE_DRIVE_CLIENT_EMAIL and GOOGLE_DRIVE_PRIVATE_KEY.",
+      "owner": "Bryan",
+      "next_action": "Add the Drive credential secrets in Cloudflare Pages, then rerun Drive probe plus small and >5MB upload/download through a fake .test account."
+    },
+    {
+      "id": "LIVE_CLOUDFLARE_BLOCKED_NO_TOKEN",
+      "message": "Non-interactive Cloudflare Pages/D1 deployment and secret inspection remains blocked because CLOUDFLARE_API_TOKEN is not set.",
+      "owner": "Bryan",
+      "next_action": "Provide a scoped Cloudflare API token or use an approved Cloudflare connector for read-only remote inspection."
+    }
+  ],
+  "next_actions": [
+    "Add disabled/reset-required/no-assignment workspace UI proof.",
+    "Surface presentation slot status/check-out/check-in in mentor/student/staff dashboards.",
+    "Verify live Drive upload/download after Bryan configures Cloudflare Pages Drive secrets."
+  ],
+  "automation_efficiency": {
+    "scale_signal": "accepted implementation pass; no cadence change recommended"
+  },
+  "self_improvement": "none",
+  "figma_work_avoided": true,
+  "direct_figma_tools_called": false,
+  "run_log_updated": true,
+  "structured_manifest_created": true,
+  "artifacts_json_updated": true,
+  "mvp_catalog_changed": true,
+  "human_decisions_changed": false,
+  "phone_tracker": {
+    "spreadsheet_id": "1J8jQMn85wJwo9Rh6LjQUVv_WfLS1YJWsbpcLBCojjjs",
+    "tab": "QoL Runs",
+    "result": "appended",
+    "timestamp_local": "2026-05-20T17:10:00-07:00",
+    "summary": "Recorded MVP-032/MVP-033 workspace access-boundary pass for phone-friendly tracking."
+  },
+  "implementation_commit_sha": "c6470dfa50d136f2da3d29319859aa640ad347b4",
+  "commit_sha": "c6470dfa50d136f2da3d29319859aa640ad347b4",
+  "push_result": "pushed to origin main: eebe5da..c6470df",
+  "closeout_commit_sha": "pending",
+  "closeout_push_result": "pending"
+}

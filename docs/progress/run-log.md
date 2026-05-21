@@ -26,7 +26,7 @@ This is the compact run log for the current split-builder automation contract.
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
-## 2026-05-20 17:14 PT - Workspace Access Boundary States
+## 2026-05-20 17:10 PT - Workspace Access Boundary States
 
 - `automation ID`: `senior-capstone-nonfigma-mvp-builder`
 - `lane`: non-Figma MVP builder / backend-security-data.
@@ -34,10 +34,11 @@ Future productive runs should append compact entries that name the master-plan s
 - `requirement IDs`: `MVP-032`, `MVP-033`, supporting `MVP-034` and `MVP-039`; `handoff`: consumed existing Figma production-boundary handoff node `124:2` from repo records only, without Figma tools.
 - `selected slice`: Add browser-visible workspace role-pending and permission-denied states so the canonical app route exposes access-boundary outcomes instead of only hiding unavailable tabs or showing generic notices.
 - `what changed`: `workspace.js` now renders `data-workspace-state="role-pending"` for signed-in users with no assigned roles and `data-workspace-state="permission-denied"` when a role-scoped section returns 403; section renderers use the same permission-denied card. `workspace.css` adds compact access-boundary styling. Workspace tests now execute both render paths with stubbed API responses and check the HTTP-served asset markers.
-- `validation`: focused workspace source/VM test passed; portable workspace smoke passed with expected skips; local Pages dev was started, local D1 smoke accounts were seeded, credential-backed local HTTP smoke passed for student and role routes; production-surface checker passed; in-app browser verified the no-role role-pending UI with zero console errors; aggregate `check` to be recorded in the structured manifest.
+- `validation`: focused workspace source/VM test passed; portable workspace smoke passed with expected skips; local Pages dev was started, local D1 smoke accounts were seeded, credential-backed local HTTP smoke passed for student and role routes; production-surface checker passed; in-app browser verified the no-role role-pending UI with zero console errors; aggregate `check` passed with 131 tests and 3 expected opt-in workspace smoke skips.
 - `blockers`: Real Drive upload/download remains blocked until Cloudflare Pages has `GOOGLE_DRIVE_CLIENT_EMAIL` and `GOOGLE_DRIVE_PRIVATE_KEY`; live Cloudflare Pages/D1 management verification still needs `CLOUDFLARE_API_TOKEN`.
+- `phone tracker`: appended to `Senior Capstone QoL Run Tracker` at 2026-05-20 17:10 PT.
 - `self-improvement`: none.
-- `commit`: pending closeout commit.
+- `commit`: implementation commit `c6470dfa50d136f2da3d29319859aa640ad347b4` pushed to `origin main`; closeout manifest commit follows.
 
 ## 2026-05-20 15:14 PT - Workspace Browser, Denial, And Evidence Integrity Pass
 
