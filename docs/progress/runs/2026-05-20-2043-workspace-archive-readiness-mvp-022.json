@@ -131,6 +131,14 @@
     {
       "command": "Codex in-app Browser against http://127.0.0.1:8788/workspace.html",
       "result": "pass; fake-student Archive tab rendered May 5 package readiness, expected missing/attention states, privacy guard text, and zero console errors"
+    },
+    {
+      "command": "Invoke-WebRequest https://senior-capstone-app.pages.dev/workspace.js",
+      "result": "pass; HTTP 200 contained /api/student/archive/readiness and data-archive-check-status on first post-push poll"
+    },
+    {
+      "command": "Invoke-WebRequest https://senior-capstone-app.pages.dev/api/student/archive/readiness",
+      "result": "pass; signed-out hosted route returned HTTP 401"
     }
   ],
   "browser_verification": {
@@ -190,6 +198,6 @@
   },
   "branch_before": "main",
   "branch_after": "main",
-  "commit_sha": "pending",
-  "push_result": "pending"
+  "commit_sha": "50a4efa95926c8db5b1e7f8637c75b95e419e526",
+  "push_result": "pushed to origin main (69b2de4..50a4efa)"
 }

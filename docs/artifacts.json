@@ -162,7 +162,8 @@
         "2026-05-20 19:10 PT: direct hosted https://senior-capstone-app.pages.dev/workspace.js returned HTTP 200 and contained the new /api/presentation-slots and data-presentation-action=\"check-out\" markers on the first post-push poll.",
         "2026-05-20 20:43 PT: workspace source now loads /api/student/archive/readiness for students and renders an Archive tab with May 5 package readiness, closeout checks, and storage/privacy guardrails.",
         "2026-05-20 20:43 PT: tests/archive-readiness.integration.test.mjs passed own-student readiness, out-of-scope denial/audit, misc-admin denial, admin scoped inspection, and truthful signed-download-disabled coverage.",
-        "2026-05-20 20:43 PT: credential-backed local HTTP workspace smoke and in-app browser proof verified the fake student Archive tab rendered without Drive storage identifiers and with zero console errors."
+        "2026-05-20 20:43 PT: credential-backed local HTTP workspace smoke and in-app browser proof verified the fake student Archive tab rendered without Drive storage identifiers and with zero console errors.",
+        "2026-05-20 20:43 PT: direct hosted https://senior-capstone-app.pages.dev/workspace.js returned HTTP 200 and contained /api/student/archive/readiness plus data-archive-check-status on the first post-push poll; signed-out /api/student/archive/readiness returned HTTP 401."
       ],
       "last_updated": "2026-05-20"
     },
