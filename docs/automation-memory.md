@@ -334,6 +334,16 @@ Every builder run must ladder from `docs/master-plan.md` into `docs/mvp-requirem
 - Next best non-Figma slice from this handoff: broaden the same audited permission matrix to remaining workflow endpoints and capture hosted browser proof for no-assignment and section-level permission-denied states.
 - self-improvement: none
 
+### 2026-05-21 - Teacher Review Queue Scope Audit
+
+- Non-Figma builder `senior-capstone-nonfigma-mvp-builder-30` advanced `MVP-006`, `MVP-015`, `MVP-020`, and `MVP-025` without direct Figma work.
+- `/api/teacher/review-queue` now writes `review_queue_unauthorized`, `review_queue_denied`, and `review_queue_viewed` audit events with redacted actor role/scope metadata for authenticated users.
+- The review-queue SQL now matches the shared `canAccessStudent` default-deny posture by requiring non-empty teacher program/cohort scope IDs and non-empty student group program/cohort IDs before matching scoped teachers.
+- `tests/review-loop.integration.test.mjs` now covers missing-session audit, misc-admin denial audit, empty program-scope no-leak behavior, and the existing end-to-end comment/revision/resubmission/approval loop.
+- Validation passed: focused review-loop test (4/4), strict typecheck, production-surface check, full test suite (173 passing / 4 expected opt-in skips), and aggregate `check` with live Cloudflare read-only verification.
+- Remaining protected-record depth: extend route-level permission/audit coverage to review detail/history, submissions, mentor meetings, presentation slots, archive/export, and hosted browser permission-denied states; Drive upload remains blocked by Google Drive HTTP 403.
+- self-improvement: none
+
 ## Current Priority
 
 Immediate next useful passes:
@@ -343,7 +353,7 @@ Immediate next useful passes:
 3. Extend alpha proposal/review/evidence/audit records into real workflow endpoints.
 4. Add Google Drive server-side credential/OAuth implementation plus access-controlled evidence upload/retrieval assumptions.
 5. Decide or implement the invitation/email/approved manual delivery policy before real pilot users receive setup credentials; local fake-account import/reset proof now covers validation, no-store refresh clearing, reset-first login, denied-role behavior, stale-session safety, and credential-leak prevention.
-6. Continue broadening route-level protected-record tests after the dashboard access audit by covering remaining workflow endpoints and live/browser permission-denied states, using Figma node `173:2` as the student dashboard access-audit contract.
+6. Continue broadening route-level protected-record tests after the dashboard and teacher review queue access audits by covering review detail/history, submissions, mentor meetings, presentation slots, archive/export, and live/browser permission-denied states, using Figma node `173:2` as the protected-access contract.
 7. Keep mobile/error/empty/permission alpha QA current while the Day 7 walkthrough hardens.
 
 Real daily MVP goal: minimum 2 accepted MVP passes per calendar day, stretch 3 when unblocked, and at least 14 accepted MVP passes per week until the 100-pass target is met or recalibrated.
@@ -370,7 +380,7 @@ Current backlog anchors:
 - `SC-002`: guided Research Proposal Challenge UI and review queue spec.
 - `SC-003`: Google Drive EvidenceArtifact model is in progress; metadata tables and root folder exist, but upload credentials and permission tests are still needed.
 - `SC-004`: mentor meetings, presentation scheduling, celebration evidence, archive/export workflows; Drive-backed archive package upload now exists locally, while hosted proof needs Cloudflare token plus Drive secrets.
-- `SC-005`: P0 Cloudflare stack/auth/database/user-group/progress/private-upload scaffold is in progress with Pages/D1/migrations/auth endpoints, password/session pepper secrets, Drive root folder configured, D1-backed alpha flow, state-machine tests, alpha contract checks, CI, production alpha deployment, verified first-admin bootstrap, login-verified fake role test accounts, reset-required password completion, admin reset initiation, active-user credential rotation, admin user import with generated reset-required temporary credentials, canonical workspace import UI marker proof, denied-role audit, reset-first import API proof, local Pages/D1 import-reset proof, student dashboard access audit/role-matrix tests, Figma node `158:2` for import/credential display handoff, and Figma node `163:2` for admin import proof QA; remaining endpoint permission depth, real-user credential delivery policy, and Drive upload credentials remain.
+- `SC-005`: P0 Cloudflare stack/auth/database/user-group/progress/private-upload scaffold is in progress with Pages/D1/migrations/auth endpoints, password/session pepper secrets, Drive root folder configured, D1-backed alpha flow, state-machine tests, alpha contract checks, CI, production alpha deployment, verified first-admin bootstrap, login-verified fake role test accounts, reset-required password completion, admin reset initiation, active-user credential rotation, admin user import with generated reset-required temporary credentials, canonical workspace import UI marker proof, denied-role audit, reset-first import API proof, local Pages/D1 import-reset proof, student dashboard access audit/role-matrix tests, teacher review queue audit plus empty-scope no-leak tests, Figma node `158:2` for import/credential display handoff, and Figma node `163:2` for admin import proof QA; remaining endpoint permission depth, real-user credential delivery policy, and Drive upload credentials remain.
 - `SC-006`: P0 Day 7 full app-flow alpha due 2026-05-24 PT; production user accounts may be incomplete, and the first D1-backed seeded alpha flow plus fake login-capable role accounts now exist.
 
 ## Known External Artifact Memory

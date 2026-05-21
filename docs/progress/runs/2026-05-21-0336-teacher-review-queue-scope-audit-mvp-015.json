@@ -1,0 +1,133 @@
+{
+  "run_id": "2026-05-21-0336-teacher-review-queue-scope-audit-mvp-015",
+  "timestamp_local": "2026-05-21T03:36:00-07:00",
+  "automation_id": "senior-capstone-nonfigma-mvp-builder-30",
+  "lane": "non-figma MVP builder",
+  "selected_category": "staff-review-mentor",
+  "status": "completed",
+  "accepted_mvp_pass": true,
+  "requirement_ids": [
+    "MVP-006",
+    "MVP-015",
+    "MVP-020",
+    "MVP-025"
+  ],
+  "backlog_ids": [
+    "SC-005",
+    "SC-006"
+  ],
+  "handoff_ids": [
+    "H-2026-05-21-003",
+    "H-2026-05-18-006"
+  ],
+  "output_kind": "teacher-review-queue-scope-audit-and-regression-test",
+  "bounded_scope": "Harden /api/teacher/review-queue access auditing and default-deny scoped program-teacher visibility without direct Figma work.",
+  "source_docs_read": [
+    "C:\\Users\\bryan\\.codex\\automations\\senior-capstone-nonfigma-mvp-builder-30\\memory.md",
+    "docs/master-plan.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/automation-cadence.md",
+    "docs/automation-runbook.md",
+    "docs/automation-self-improvement.md",
+    "docs/automation-memory.md",
+    "docs/automation-milestones.md",
+    "docs/progress/run-log.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/decision-log.md",
+    "docs/automation-backlog.md",
+    "docs/artifacts.json",
+    "docs/human-decisions.md",
+    "recent docs/progress/runs/*.json",
+    "docs/progress/rebuild.md",
+    "functions/api/teacher/review-queue.ts",
+    "functions/_lib/permissions.ts",
+    "tests/review-loop.integration.test.mjs"
+  ],
+  "figma_work_avoided": true,
+  "direct_figma_tools_called": false,
+  "changes": [
+    "/api/teacher/review-queue now audits missing-session, denied-role, and viewed queue access as review_queue_unauthorized, review_queue_denied, and review_queue_viewed.",
+    "Review queue audit metadata now includes redacted actor role/scope records for authenticated users.",
+    "The program/cohort teacher SQL predicate now requires non-empty teacher scope IDs and non-empty student group program/cohort IDs before matching.",
+    "tests/review-loop.integration.test.mjs now covers missing-session audit, misc-admin denial audit, empty program-scope no-leak behavior, and the existing teacher review loop."
+  ],
+  "files_changed": [
+    "functions/api/teacher/review-queue.ts",
+    "tests/review-loop.integration.test.mjs",
+    "docs/mvp-requirements-catalog.md",
+    "docs/automation-backlog.md",
+    "docs/automation-memory.md",
+    "docs/artifacts.json",
+    "docs/progress/handoffs.md",
+    "docs/progress/rebuild.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-21-0336-teacher-review-queue-scope-audit-mvp-015.json"
+  ],
+  "validation": [
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 tests\\review-loop.integration.test.mjs",
+      "result": "passed; 4/4 review-loop and review-queue scope/audit tests"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 typecheck",
+      "result": "passed"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 check:production-surfaces",
+      "result": "passed; 91 production text surfaces scanned"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 test",
+      "result": "passed; 173 passing tests and 4 expected opt-in skips"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 check",
+      "result": "passed; cadence, predeploy gate, production surfaces, route inventory, generated output, site options, static/live Cloudflare verification, and 173 passing tests / 4 expected opt-in skips"
+    },
+    {
+      "command": "git diff --check -- functions/api/teacher/review-queue.ts tests/review-loop.integration.test.mjs",
+      "result": "passed; CRLF warnings only"
+    }
+  ],
+  "blockers": [
+    {
+      "code": "DRIVE_UPLOAD_FAILED_HTTP_403",
+      "cause": "Existing live Drive check reaches token exchange, root folder, and index sheet, but Google Drive create/upload returns redacted HTTP 403.",
+      "bryan_must_act": true,
+      "next_safe_action": "Confirm service-account file-create permission/quota/Workspace policy for the configured root folder, then rerun npm run check:drive:live."
+    },
+    {
+      "code": "TEMP_CREDENTIAL_DELIVERY_POLICY_OPEN",
+      "cause": "The admin UI can display setup passwords once for fake .test proof, but Bryan has not approved a real-user manual distribution procedure or invitation/email delivery policy.",
+      "bryan_must_act": true,
+      "next_safe_action": "Decide HD-2026-05-21-001 before importing real pilot users."
+    },
+    {
+      "code": "LIVE_BROWSER_PERMISSION_PROOF_PENDING",
+      "cause": "Route-level protected review queue proof landed; hosted/browser workspace account-state and section-level permission-denied proof remain open.",
+      "bryan_must_act": false,
+      "next_safe_action": "Use fake .test accounts to capture hosted workspace account-state/no-assignment and section-level permission-denied UI evidence."
+    }
+  ],
+  "next_actions": [
+    "Extend the route-level permission/audit matrix to review decision/history and submission endpoints.",
+    "Capture hosted workspace account-state/no-assignment and section-level permission-denied proof.",
+    "Resolve the Drive upload HTTP 403 before accepting real student evidence uploads.",
+    "Decide or implement real-user credential delivery before pilot imports."
+  ],
+  "self_improvement": "none",
+  "run_log_updated": true,
+  "structured_manifest_created": true,
+  "artifacts_json_updated": true,
+  "mvp_catalog_changed": true,
+  "human_decisions_changed": false,
+  "phone_tracker": {
+    "updated": false,
+    "reason": "Google Sheets connector was not used in this run; repo-local closeout evidence was preserved."
+  },
+  "branch_before": "main",
+  "branch_after": "main",
+  "implementation_commit_sha": "0920bf2d33af753817700439bf44374655c57958",
+  "closeout_commit_sha": "pending-before-closeout-commit",
+  "push_result": "pending-before-closeout-commit"
+}

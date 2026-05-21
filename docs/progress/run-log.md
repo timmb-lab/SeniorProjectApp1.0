@@ -909,3 +909,18 @@ Future productive runs should append compact entries that name the master-plan s
 - `phone tracker`: not appended; Google Sheets connector was not used.
 - `self-improvement`: none.
 - `commit/push status`: pending closeout commit.
+
+## 2026-05-21 03:36 PT - MVP-015 Teacher Review Queue Scope Audit
+
+- `automation ID`: `senior-capstone-nonfigma-mvp-builder-30`.
+- `lane`: non-Figma MVP builder / staff-review-mentor.
+- `master-plan sections`: Role-Aware Production App Contract; North Star Workflow; Logging Requirements.
+- `requirement IDs`: `MVP-006`, `MVP-015`, `MVP-020`, and `MVP-025`; `backlog IDs`: `SC-005`, `SC-006`; `handoffs`: partial consumption of `H-2026-05-21-003` and progress on `H-2026-05-18-006`.
+- `selected slice`: Harden `/api/teacher/review-queue` so staff queue visibility follows default-deny role/scope behavior and writes access audit events, without direct Figma work.
+- `what changed`: `/api/teacher/review-queue` now audits missing-session, denied-role, and viewed queue access as `review_queue_unauthorized`, `review_queue_denied`, and `review_queue_viewed`, including redacted actor role/scope metadata for authenticated users. The teacher queue SQL now requires non-empty teacher program/cohort scopes and non-empty student group program/cohort IDs before matching, preventing empty-scope program teachers from seeing null/empty-group submissions.
+- `files changed`: `functions/api/teacher/review-queue.ts`, `tests/review-loop.integration.test.mjs`, MVP/backlog/artifact/memory/handoff/progress docs, and structured run manifest `docs/progress/runs/2026-05-21-0336-teacher-review-queue-scope-audit-mvp-015.json`.
+- `validation`: focused review-loop integration passed with 4/4 tests; strict typecheck passed; `check:production-surfaces` passed with 91 production text surfaces scanned; full `test` passed with 173 passing tests and 4 expected opt-in skips; aggregate `check` passed with cadence/predeploy/static-live Cloudflare verification and 173 passing tests / 4 expected skips.
+- `blockers`: live Drive upload still fails with redacted Google Drive HTTP 403 after token/root/index probes pass; real-user setup credential delivery remains Bryan decision `HD-2026-05-21-001`; hosted browser no-assignment and section-level permission-denied proof remains open.
+- `phone tracker`: not appended; Google Sheets connector was not used in this run.
+- `self-improvement`: none.
+- `commit/push status`: implementation commit `0920bf2d33af753817700439bf44374655c57958` created on `main`; closeout docs commit and push pending.

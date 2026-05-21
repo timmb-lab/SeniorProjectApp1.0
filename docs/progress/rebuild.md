@@ -528,3 +528,18 @@ Each rebuild run should append a dated entry with:
 - `phone tracker`: not appended; Google Sheets connector was not used in this run.
 - `self-improvement`: none.
 - `next action`: Broaden role-scope/protected-record tests, verify hosted account-state/permission-denied workspace states, and resolve the Drive upload HTTP 403.
+
+### 2026-05-21 03:36 PT - MVP-015 Teacher Review Queue Scope Audit
+
+- `automation`: `senior-capstone-nonfigma-mvp-builder-30`
+- `master-plan section`: Role-Aware Production App Contract; North Star Workflow; Logging Requirements.
+- `source docs/logs read`: automation memory fallback at `C:\Users\bryan\.codex\automations\senior-capstone-nonfigma-mvp-builder-30\memory.md`, required master plan/catalog/cadence/runbook/self-improvement/memory/milestones/progress docs, recent run manifests, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, `docs/progress/rebuild.md`, `functions/api/teacher/review-queue.ts`, `functions/_lib/permissions.ts`, and `tests/review-loop.integration.test.mjs`.
+- `backlog or requirement IDs selected`: `SC-005`, `SC-006`, `MVP-006`, `MVP-015`, `MVP-020`, and `MVP-025`.
+- `bounded scope`: Harden the program teacher review queue role/scope predicate and audit access outcomes without direct Figma work.
+- `files changed`: `functions/api/teacher/review-queue.ts`, `tests/review-loop.integration.test.mjs`, `docs/mvp-requirements-catalog.md`, `docs/automation-backlog.md`, `docs/automation-memory.md`, `docs/artifacts.json`, `docs/progress/handoffs.md`, this rebuild log, `docs/progress/run-log.md`, and structured run manifest `docs/progress/runs/2026-05-21-0336-teacher-review-queue-scope-audit-mvp-015.json`.
+- `validation`: `tests/review-loop.integration.test.mjs` passed with 4/4 tests; strict `typecheck` passed; `check:production-surfaces` passed with 91 production text surfaces scanned; full `test` passed with 173 passing tests and 4 expected opt-in skips; aggregate `check` passed with live Cloudflare read-only verification and 173 passing tests / 4 expected skips.
+- `commit/push status`: implementation commit `0920bf2d33af753817700439bf44374655c57958` created on `main`; closeout docs commit and push pending.
+- `blockers`: live Drive upload still fails with redacted Google Drive HTTP 403 after token/root/index probes pass; real-user setup credential delivery remains Bryan decision `HD-2026-05-21-001`; hosted browser no-assignment and section-level permission-denied proof remains open.
+- `phone tracker`: not appended; Google Sheets connector was not used in this run.
+- `self-improvement`: none.
+- `next action`: Extend the same route-level permission/audit depth to review history/decision and submission endpoints, then capture hosted no-assignment and section-level permission-denied UI proof with fake `.test` accounts.
