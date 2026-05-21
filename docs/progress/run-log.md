@@ -924,3 +924,21 @@ Future productive runs should append compact entries that name the master-plan s
 - `phone tracker`: not appended; Google Sheets connector was not used in this run.
 - `self-improvement`: none.
 - `commit/push status`: implementation commit `0920bf2d33af753817700439bf44374655c57958` and closeout commit `2e0ac3262c9252bd1d98358ac97d6c420ab30df9` pushed to `origin main` (`db74257..2e0ac32`).
+
+## 2026-05-21 03:52 PT - MVP-028 Teacher Review Queue Access Audit Handoff
+
+- `automation ID`: `senior-capstone-figma-product-builder`.
+- `lane`: Figma-only product builder / design-assets-handoff.
+- `master-plan sections`: Role-Aware Production App Contract; Lane Responsibilities; Logging Requirements.
+- `requirement IDs`: `MVP-028`, supporting `MVP-006`, `MVP-015`, `MVP-020`, and `MVP-025`; `handoff`: `H-2026-05-21-003`.
+- `selected slice`: Create and verify a Figma handoff that consumes `/api/teacher/review-queue` protected access, audit, and empty-scope no-leak proof.
+- `active Figma file`: `z4t4tFPAKrMDh6pIYOeEw6`.
+- `Figma page/node touched`: `05 Full MVP Alpha Prototype`; node `178:2` (`Prototype / 25 / Teacher review queue access audit handoff`).
+- `what changed`: Added route/data/permission/audit states for signed-out queue request, misc-admin denied role, empty program-scope no-leak behavior, scoped program-teacher queue visibility, admin inspection, and queue-row privacy. The handoff maps review queue access to `/api/teacher/review-queue`, `/teacher/reviews`, `/workspace`, `/admin/audit`, `/api/audit-events`, `/api/reviews/:submissionId/history`, `/api/reviews/:submissionId/decision`, protected review records, and audit events `review_queue_unauthorized`, `review_queue_denied`, and `review_queue_viewed`.
+- `verification`: First `use_figma` write failed atomically on an invalid divider `HUG` sizing assignment before any canvas change. Corrected `use_figma` write created node `178:2` and shared plugin data key `senior_capstone/teacher_review_queue_scope_audit_contract_2026_05_21`. Final readback found 49 text nodes, zero suspicious clipped text nodes, zero direct-child overflow, zero collapsed frames, 6 states, 7 routes, 13 records, 5 guardrails, and 4 acceptance checks. `get_design_context` and `get_screenshot` succeeded for node `178:2`; screenshot returned `1010x1024` from original `1360x1379`. Artifact registry and manifest JSON parsed; cadence verifier passed; targeted `git diff --check` passed with CRLF warnings only.
+- `files changed`: Figma design docs, artifact registry, automation memory, Figma lane log, handoff ledger, MVP catalog, this run log, and `docs/progress/runs/2026-05-21-0352-figma-teacher-review-queue-access-audit.json`.
+- `implementation handoff`: Rebuild should treat `/api/teacher/review-queue` route-level access auditing and empty-scope SQL hardening as consumed, then broaden the same audited role/scope matrix to review detail/history/decision endpoints plus hosted no-assignment and section-level permission-denied UI proof.
+- `blockers`: none for Figma; Drive upload remains blocked by redacted Google Drive HTTP 403, and `HD-2026-05-21-001` remains open for real-user setup credential delivery policy.
+- `phone tracker`: not appended; Google Sheets connector was not used.
+- `self-improvement`: none.
+- `commit/push status`: pending closeout commit.

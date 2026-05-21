@@ -530,6 +530,11 @@ Created/updated frames:
   - Created route/data/permission/audit annotations after `/api/student/dashboard` gained unauthorized, denied, and allowed protected-dashboard audit proof in run `2026-05-21-0306-student-dashboard-access-audit-mvp-006`.
   - State annotations cover signed-out request, student own dashboard viewed, student-other denied, mentor active assignment, program-teacher scoped cohort, and admin-allowed/misc-admin-denied behavior.
   - Shared plugin data key `senior_capstone/student_dashboard_access_audit_contract_2026_05_21` records consumed commit `d8eb8c95b56406c0c8c051ea0d55876986112567`, 5 permission scopes, 5 guardrails, 4 acceptance checks, and the next rebuild action for broadening the same audited permission matrix to remaining workflow endpoints plus live permission UI proof.
+- 2026-05-21 teacher review queue access audit handoff on `05 Full MVP Alpha Prototype`
+  - `Prototype / 25 / Teacher review queue access audit handoff`, node `178:2`
+  - Created route/data/permission/audit annotations after `/api/teacher/review-queue` gained unauthorized, denied, viewed, and empty-scope no-leak proof in run `2026-05-21-0336-teacher-review-queue-scope-audit-mvp-015`.
+  - State annotations cover signed-out queue request, misc-admin denied role, empty program-scope no-leak behavior, scoped program-teacher queue visibility, admin inspection, and queue-row privacy.
+  - Shared plugin data key `senior_capstone/teacher_review_queue_scope_audit_contract_2026_05_21` records consumed commits `0920bf2d33af753817700439bf44374655c57958` and `2e0ac3262c9252bd1d98358ac97d6c420ab30df9`, 6 states, 7 routes, 13 records, 5 permission scopes, 5 guardrails, 4 acceptance checks, and the next rebuild action for broadening the same audited permission matrix to review detail/history/decision endpoints plus hosted permission UI proof.
 
 Verification status:
 - Canvas write succeeded and returned the frame IDs above.
@@ -615,3 +620,7 @@ Verification status:
 - Initial readback found fixed-height horizontal rows and clipped 10px text nodes; targeted layout correction autosized rows, expanded text heights, and expanded node `173:2` to `1360x1455`.
 - Final readback found 49 text nodes, zero suspicious clipped text nodes, zero child overflow, 5 permission scopes, 5 guardrails, and 4 acceptance checks in shared contract data.
 - `get_design_context` and `get_screenshot` succeeded for node `173:2`; screenshot verification returned `958x1024` from original `1360x1455`.
+- 2026-05-21 `use_figma` write created node `178:2` to map teacher review queue protected-access audit states after `/api/teacher/review-queue` route-level proof landed.
+- Initial write failed atomically on an invalid divider `HUG` sizing assignment before creating canvas nodes; corrected write created node `178:2`.
+- Final readback found 49 text nodes, zero suspicious clipped text nodes, zero direct-child overflow, zero collapsed frames, 6 states, 7 routes, 13 records, 5 permission scopes, 5 guardrails, and 4 acceptance checks in shared contract data.
+- `get_design_context` and `get_screenshot` succeeded for node `178:2`; screenshot verification returned `1010x1024` from original `1360x1379`.

@@ -1,0 +1,194 @@
+{
+  "run_id": "2026-05-21-0352-figma-teacher-review-queue-access-audit",
+  "timestamp_local": "2026-05-21T03:52:43-07:00",
+  "automation_id": "senior-capstone-figma-product-builder",
+  "lane": "figma-only product builder",
+  "status": "completed",
+  "accepted_mvp_pass": true,
+  "requirement_ids": [
+    "MVP-028",
+    "MVP-006",
+    "MVP-015",
+    "MVP-020",
+    "MVP-025"
+  ],
+  "backlog_ids": [
+    "SC-005",
+    "SC-006"
+  ],
+  "handoff_ids": [
+    "H-2026-05-21-003",
+    "H-2026-05-18-008"
+  ],
+  "output_kind": "figma-teacher-review-queue-access-audit-handoff",
+  "scope": "Create and verify a Figma handoff that consumes /api/teacher/review-queue protected-access audit and empty-scope no-leak proof.",
+  "selected_figma_slice": "Teacher review queue scope/audit handoff after route-level rebuild proof.",
+  "figma": {
+    "file_key": "z4t4tFPAKrMDh6pIYOeEw6",
+    "url": "https://www.figma.com/design/z4t4tFPAKrMDh6pIYOeEw6",
+    "page": "05 Full MVP Alpha Prototype",
+    "page_id": "98:2",
+    "node_touched": {
+      "node_id": "178:2",
+      "name": "Prototype / 25 / Teacher review queue access audit handoff",
+      "frame_size": "1360x1379",
+      "mutation_performed": true,
+      "shared_plugin_data_key": "senior_capstone/teacher_review_queue_scope_audit_contract_2026_05_21"
+    },
+    "consumed_run": "2026-05-21-0336-teacher-review-queue-scope-audit-mvp-015",
+    "consumed_manifest": "docs/progress/runs/2026-05-21-0336-teacher-review-queue-scope-audit-mvp-015.json",
+    "consumed_commits": [
+      "0920bf2d33af753817700439bf44374655c57958",
+      "2e0ac3262c9252bd1d98358ac97d6c420ab30df9"
+    ],
+    "states": [
+      "signed-out queue request",
+      "misc-admin denied role",
+      "empty program scope no leak",
+      "program teacher scoped queue",
+      "admin inspection allowed",
+      "queue row privacy"
+    ],
+    "routes": [
+      "/api/teacher/review-queue",
+      "/teacher/reviews",
+      "/workspace",
+      "/admin/audit",
+      "/api/audit-events",
+      "/api/reviews/:submissionId/history",
+      "/api/reviews/:submissionId/decision"
+    ],
+    "records": [
+      "User",
+      "UserRole",
+      "StaffProfile",
+      "StaffProgramAssignment",
+      "Program",
+      "Cohort",
+      "Group",
+      "StudentProfile",
+      "Submission",
+      "Review",
+      "Comment",
+      "RequirementProgress",
+      "AuditEvent"
+    ],
+    "audit_events": [
+      "review_queue_unauthorized",
+      "review_queue_denied",
+      "review_queue_viewed"
+    ],
+    "permission_scopes": [
+      "missing session 401",
+      "misc-admin broad denial",
+      "non-empty program/cohort teacher scope",
+      "non-empty student group program/cohort match",
+      "admin inspection"
+    ],
+    "guardrails": [
+      "default-deny empty scopes",
+      "redacted actor role metadata",
+      "no private evidence body in queue rows",
+      "no raw Drive IDs or storage keys",
+      "fake .test proof only"
+    ],
+    "verification": [
+      {
+        "tool": "use_figma initial write",
+        "result": "failed atomically before canvas mutation on invalid divider HUG sizing"
+      },
+      {
+        "tool": "use_figma corrected write",
+        "result": "created node 178:2 with shared plugin data key senior_capstone/teacher_review_queue_scope_audit_contract_2026_05_21"
+      },
+      {
+        "tool": "use_figma readback",
+        "result": "passed; 49 text nodes, zero suspicious clipped text nodes, zero direct-child overflow, zero collapsed frames, 6 states, 7 routes, 13 records, 5 guardrails, and 4 acceptance checks"
+      },
+      {
+        "tool": "get_design_context",
+        "node_id": "178:2",
+        "result": "passed; returned route/data/permission/audit handoff context"
+      },
+      {
+        "tool": "get_screenshot",
+        "node_id": "178:2",
+        "result": "passed; returned 1010x1024 from original 1360x1379"
+      }
+    ]
+  },
+  "source_docs_read": [
+    "C:\\Users\\bryan\\.codex\\automations\\senior-capstone-figma-product-builder\\memory.md",
+    "docs/design/figma-first-pass-product-system.md",
+    "docs/design/figma-product-preview-state-variants.md",
+    "docs/master-plan.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/automation-cadence.md",
+    "docs/automation-runbook.md",
+    "docs/automation-memory.md",
+    "docs/progress/run-log.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/decision-log.md",
+    "docs/artifacts.json",
+    "docs/human-decisions.md",
+    "docs/progress/figma.md",
+    "recent docs/progress/runs/*.json",
+    "docs/progress/runs/2026-05-21-0336-teacher-review-queue-scope-audit-mvp-015.json"
+  ],
+  "repo_files_changed": [
+    "docs/design/figma-first-pass-product-system.md",
+    "docs/design/figma-product-preview-state-variants.md",
+    "docs/artifacts.json",
+    "docs/automation-memory.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/progress/figma.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-21-0352-figma-teacher-review-queue-access-audit.json"
+  ],
+  "implementation_handoff": "Rebuild should treat /api/teacher/review-queue route-level access auditing and empty-scope SQL hardening as consumed, then broaden the same audited role/scope matrix to review detail/history/decision endpoints plus hosted no-assignment and section-level permission-denied UI proof.",
+  "validation": [
+    {
+      "command": "Figma use_figma corrected write/readback for node 178:2",
+      "result": "passed"
+    },
+    {
+      "command": "Figma get_design_context for node 178:2",
+      "result": "passed"
+    },
+    {
+      "command": "Figma get_screenshot for node 178:2",
+      "result": "passed; returned 1010x1024 from original 1360x1379"
+    },
+    {
+      "command": "Get-Content docs/artifacts.json and this manifest through ConvertFrom-Json",
+      "result": "passed; JSON parsed"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\verify-cadence-30min.ps1 -RepoRoot .",
+      "result": "passed; quarter-hour cadence verification passed"
+    },
+    {
+      "command": "git diff --check -- current-run files",
+      "result": "passed with CRLF warnings only"
+    }
+  ],
+  "backend_code_work_avoided": true,
+  "forbidden_files_touched": false,
+  "figma_blocker": null,
+  "run_log_updated": true,
+  "structured_manifest_created": true,
+  "artifacts_json_updated": true,
+  "mvp_catalog_changed": true,
+  "human_decisions_changed": false,
+  "decision_log_changed": false,
+  "self_improvement": "none",
+  "phone_tracker": {
+    "result": "not_appended",
+    "reason": "Google Sheets connector was not used in this run; repo-local closeout evidence was preserved."
+  },
+  "branch_before": "main",
+  "branch_after": "main",
+  "commit_sha": "pending-before-closeout-commit",
+  "push_result": "pending-before-closeout-commit"
+}
