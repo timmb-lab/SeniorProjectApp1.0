@@ -540,6 +540,11 @@ Created/updated frames:
   - Created route/data/permission/audit annotations after `/api/reviews/:submissionId/history` gained unauthorized, denied, and viewed read audits and `/api/reviews/:submissionId/decision` gained unauthorized/denied reviewer audits in run `2026-05-21-0405-review-history-decision-audit-mvp-015`.
   - State annotations cover history signed-out, history scope denied, history viewed counts, decision signed-out, decision scope denied, and decision success audited behavior.
   - Shared plugin data key `senior_capstone/review_history_decision_access_audit_contract_2026_05_21` records consumed commits `d083100cd9cc501643217d627948026be4753f24` and `737fbc1`, 6 states, 6 routes, 12 records, 5 guardrails, 4 acceptance checks, and the next rebuild action for broadening the protected-record audit matrix to submissions, evidence, mentor meetings, presentation slots, archive/export, and hosted permission UI proof.
+- 2026-05-21 evidence link access audit handoff on `05 Full MVP Alpha Prototype`
+  - `Prototype / 27 / Evidence link access audit handoff`, node `183:2`
+  - Created route/data/permission/audit annotations after `/api/submissions/:id/evidence` gained missing-session, denied, and successful evidence-link metadata attach audits in run `2026-05-21-0439-evidence-link-access-audit-mvp-013`.
+  - State annotations cover signed-out attach request, cross-student attach denied, staff attach-route denied, student link metadata stored, no Drive identifier leakage, and file-byte blocker separate.
+  - Shared plugin data key `senior_capstone/evidence_link_access_audit_contract_2026_05_21` records consumed commits `7dd04d67039c0473a62d9a95b3ff05298bb36c72` and `29146c3e3b148a67237a0215901c4572c809ba67`, 6 states, 7 routes, 10 records, 5 permission scopes, 6 guardrails, 5 acceptance checks, and the next rebuild action for broadening the protected-record matrix to submission submit/detail, evidence upload/download proof, mentor meetings, presentation slots, archive/export, and hosted permission UI proof while Drive upload remains blocked by HTTP 403.
 
 Verification status:
 - Canvas write succeeded and returned the frame IDs above.
@@ -633,3 +638,7 @@ Verification status:
 - Initial readback found collapsed 1px text heights and collapsed auto-layout frame height; a targeted text-height and auto-layout correction expanded node `180:2` to `1360x1463`.
 - Final readback found 50 text nodes, zero suspicious clipped text nodes, zero child overflow, 6 states, 6 routes, and 8 audit events in shared contract data.
 - `get_design_context` and `get_screenshot` succeeded for node `180:2`; screenshot verification returned `952x1024` from original `1360x1463`.
+- 2026-05-21 `use_figma` write created node `183:2` to map evidence-link metadata attach protected-access audit states after `/api/submissions/:id/evidence` proof landed.
+- Initial readback found collapsed 1px text heights; a targeted text-height correction expanded node `183:2` to `1360x1434`.
+- Final readback found 50 text nodes, zero suspicious clipped text nodes, zero child overflow, 6 states, 7 routes, 10 records, 5 permission scopes, 6 guardrails, and 5 acceptance checks in shared contract data.
+- `get_design_context` and `get_screenshot` succeeded for node `183:2`; screenshot verification returned `972x1024` from original `1360x1434`.

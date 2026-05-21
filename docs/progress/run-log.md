@@ -28,6 +28,24 @@ This is the compact run log for the current quarter-hour split-builder automatio
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-05-21 04:54 PT - MVP-028 Evidence Link Access Audit Handoff
+
+- `automation ID`: `senior-capstone-figma-product-builder`.
+- `lane`: Figma-only product builder / design-assets-handoff.
+- `master-plan sections`: Role-Aware Production App Contract; Lane Responsibilities; Logging Requirements.
+- `requirement IDs`: `MVP-028`, supporting `MVP-006`, `MVP-013`, `MVP-014`, `MVP-020`, and `MVP-025`; `handoff`: `H-2026-05-21-003`.
+- `selected slice`: Create and verify a Figma handoff that consumes `/api/submissions/:id/evidence` evidence-link metadata access audit proof.
+- `active Figma file`: `z4t4tFPAKrMDh6pIYOeEw6`.
+- `Figma page/node touched`: `05 Full MVP Alpha Prototype`; node `183:2` (`Prototype / 27 / Evidence link access audit handoff`).
+- `what changed`: Added route/data/permission/audit states for signed-out evidence-link attach, cross-student denial, staff attach-route denial, student metadata success, no Drive identifier leakage, and separate file-byte Drive upload blocker. The handoff maps `/api/submissions/:id/evidence`, `/student/evidence`, `/workspace`, `/api/evidence/:id/check-access`, `/api/submissions/:id/evidence/upload`, `/api/evidence/:id/download`, `/admin/audit`, protected evidence records, and audit events `evidence_attach_unauthorized`, `evidence_attach_denied`, and `evidence_link_attached`.
+- `verification`: `use_figma` created node `183:2` and shared plugin data key `senior_capstone/evidence_link_access_audit_contract_2026_05_21`; initial readback found 32 collapsed text nodes, then a targeted text-height correction expanded the frame to `1360x1434`. Final readback found 50 text nodes, zero suspicious clipped text nodes, and zero child overflow. `get_design_context` and `get_screenshot` succeeded for node `183:2`; screenshot returned `972x1024` from original `1360x1434`. Artifact registry and manifest JSON parsed; cadence verifier passed; targeted `git diff --check` passed with CRLF warnings only.
+- `files changed`: Figma design docs, artifact registry, automation memory, Figma lane log, handoff ledger, MVP catalog, this run log, and `docs/progress/runs/2026-05-21-0454-figma-evidence-link-access-audit.json`.
+- `implementation handoff`: Rebuild should treat `/api/submissions/:id/evidence` route-level evidence-link metadata auditing as consumed, then broaden the same audited permission matrix to submission submit/detail, evidence upload/download proof, mentor meetings, presentation slots, archive/export, and hosted workspace permission states. Drive upload remains blocked by redacted Google Drive HTTP 403.
+- `blockers`: none for Figma; live Drive upload remains blocked by redacted Google Drive HTTP 403, hosted no-assignment/section-level permission-denied browser proof remains open, and `HD-2026-05-21-001` remains open for real-user setup credential delivery policy.
+- `phone tracker`: not appended; Google Sheets connector was not used.
+- `self-improvement`: none.
+- `commit/push status`: pending closeout commit.
+
 ## 2026-05-21 04:39 PT - MVP-013/MVP-014 Evidence Link Access Audit
 
 - `automation ID`: `senior-capstone-nonfigma-mvp-builder-30`.
