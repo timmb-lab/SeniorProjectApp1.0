@@ -127,18 +127,26 @@
     {
       "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 check",
       "result": "blocked after local/static gates; live Cloudflare verification failed because CLOUDFLARE_API_TOKEN was rejected as Invalid access token [code: 9109]"
+    },
+    {
+      "command": "Invoke-WebRequest https://senior-capstone-app.pages.dev/workspace.js marker poll",
+      "result": "pass; HTTP 200 and data-auth-action=\"complete-reset\" present on poll 2 after push"
     }
   ],
   "browser_verification": {
     "attempted": false,
     "reason": "In-app Browser tools were not exposed by tool_search in this session; executable workspace VM/source tests verify reset-panel rendering."
   },
+  "hosted_marker_verification": {
+    "url": "https://senior-capstone-app.pages.dev/workspace.js",
+    "result": "pass; HTTP 200 and data-auth-action=\"complete-reset\" present on poll 2 after push"
+  },
   "blockers": [
     {
       "code": "BROWSER_TOOL_UNAVAILABLE",
       "cause": "Browser plugin tools were not exposed through tool_search for this run.",
       "bryan_must_act": false,
-      "next_safe_action": "Capture reset-panel browser proof in a later run when the in-app Browser tool is exposed or after hosted deployment marker proof is available."
+      "next_safe_action": "Capture visual reset-panel browser proof in a later run when the in-app Browser tool is exposed."
     },
     {
       "code": "LIVE_CLOUDFLARE_INVALID_TOKEN",
@@ -156,7 +164,7 @@
   "next_actions": [
     "Add invitation/import and admin reset initiation for account lifecycle.",
     "Add active-user credential rotation for signed-in accounts that are not reset-required.",
-    "Capture hosted/browser reset-panel proof after this commit deploys.",
+    "Capture visual browser reset-panel proof after Browser tools are exposed.",
     "Continue broader permission and protected-evidence tests before pilot use."
   ],
   "self_improvement": "none",
@@ -171,6 +179,6 @@
   },
   "branch_before": "main",
   "branch_after": "main",
-  "commit_sha": "pending",
-  "push_result": "pending"
+  "commit_sha": "032a6eb862ebc793d8dd5a3f570b85d34c3f99c1",
+  "push_result": "pushed to origin main; d554dab..032a6eb"
 }

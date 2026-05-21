@@ -175,7 +175,7 @@
         "2026-05-20 22:09 PT: archive export generation now uploads the redacted manifest JSON to Drive before completion, stores the Drive file ID only server-side in exports.drive_file_id, exposes data-archive-drive-package in the workspace, and passed focused archive/workspace/source tests plus the full local test suite.",
         "2026-05-20 22:18 PT: direct hosted https://senior-capstone-app.pages.dev/workspace.js returned HTTP 200 with data-archive-drive-package on poll 3 after push.",
         "2026-05-20 22:40 PT: /api/auth/complete-reset was added for reset-required credential rotation; tests/auth-login.integration.test.mjs covers current-password verification, weak/unchanged password rejection, reset-state clearing, password-version increment, stale-session revocation, fresh session creation, password_reset_completed audit, and new-password login.",
-        "2026-05-20 22:40 PT: workspace.js renders data-auth-action=\"complete-reset\" when reset is required; tests/workspace-app.test.mjs and tests/workspace-browser-smoke.test.mjs cover the source markers. Browser tool access was unavailable in this session, so hosted/browser reset-panel proof remains pending."
+        "2026-05-20 22:40 PT: workspace.js renders data-auth-action=\"complete-reset\" when reset is required; tests/workspace-app.test.mjs and tests/workspace-browser-smoke.test.mjs cover the source markers. Direct hosted https://senior-capstone-app.pages.dev/workspace.js returned HTTP 200 with data-auth-action=\"complete-reset\" on poll 2 after push; in-app Browser UI proof remains pending because Browser tools were not exposed in this session."
       ],
       "last_updated": "2026-05-20"
     },
