@@ -25,11 +25,11 @@ Each rebuild run should append a dated entry with:
 - `backlog or requirement IDs selected`: `SC-005`, `SC-006`, `MVP-004`, `MVP-005`, supporting `MVP-020`, `MVP-025`, `MVP-032`, and `MVP-033`.
 - `bounded scope`: Add active-user self credential rotation for signed-in accounts without direct Figma work.
 - `files changed`: `functions/api/auth/change-password.ts`, `workspace.js`, `tests/auth-login.integration.test.mjs`, `tests/workspace-app.test.mjs`, `tests/workspace-browser-smoke.test.mjs`, `docs/generated/production-route-inventory.md`, MVP/backlog/artifact/memory/handoff/progress docs, and structured run manifest.
-- `validation`: focused auth integration passed; workspace source/VM test passed; workspace browser-smoke source checks passed with expected local-server skips; strict typecheck passed; full `test` passed with 156 passing tests and 3 expected opt-in skips; `check:production-surfaces` passed with 91 surfaces; `check:route-inventory` passed; `git diff --check` passed with CRLF warnings only.
+- `validation`: focused auth integration passed; workspace source/VM test passed; workspace browser-smoke source checks passed with expected local-server skips; strict typecheck passed; full `test` passed with 156 passing tests and 3 expected opt-in skips; aggregate `check` passed including live Cloudflare read-only verification; `check:production-surfaces` passed with 91 surfaces; `check:route-inventory` passed; `git diff --check` passed with CRLF warnings only; post-push hosted `workspace.js` returned HTTP 200 with `/api/auth/change-password` and `data-auth-action="change-password"` on poll 3.
 - `blockers`: none for this slice. Existing Drive live blocker remains Google Drive upload HTTP 403 after token/root/index probes pass; real uploads remain blocked.
 - `phone tracker`: not appended; Google Sheets connector was not used in this run.
 - `self-improvement`: none.
-- `commit/push status`: implementation/closeout commit `34408b1e483fae9d2ad60a31abd10ca7abb5c3f3` (`rebuild: add active password change (MVP-004)`) created on `main`; push pending.
+- `commit/push status`: implementation commit `34408b1e483fae9d2ad60a31abd10ca7abb5c3f3` and closeout commit `0841bcc` pushed to `origin main` (`ec73ba3..0841bcc`).
 - `next action`: Implement invitation/import or generated/temporary credential policy if needed; continue broader permission/protected-record tests and Drive upload 403 blocker resolution.
 
 ### 2026-05-18 07:14 PT - Lane Log Created
