@@ -277,6 +277,132 @@ test("workspace route credential-backed role route coverage over local HTTP", {
   });
 });
 
+test("workspace route credential-backed admin import reset-first proof over local HTTP", {
+  skip: !baseUrl || !smokeCredentials?.admin || !smokeCredentials?.misc_admin,
+}, async () => {
+  const admin = new SessionClient();
+  const adminAccount = smokeCredentials.admin;
+  const suffix = uniqueSmokeSuffix();
+  const importedEmail = `imported.browser.${suffix}@senior-capstone.test`;
+  const importedDisplayName = "Imported Browser Learner";
+  const replacementPassword = `Reset-Aa9!${Date.now()}Zz`;
+
+  const adminLogin = await admin.fetchJson("/api/auth/login", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ email: adminAccount.email, password: adminAccount.password }),
+  });
+  assert.equal(adminLogin.response.status, 200, "admin login status");
+  assert.equal(adminLogin.body.ok, true);
+
+  const validation = await admin.fetchJson("/api/admin/users/import", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      reason: "",
+      users: [adminImportStudentPayload({ email: importedEmail, displayName: importedDisplayName })],
+    }),
+  });
+  assert.equal(validation.response.status, 400, "admin import validation status");
+  assert.equal(validation.body.error, "missing_reason");
+
+  const misc = new SessionClient();
+  const miscLogin = await misc.fetchJson("/api/auth/login", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ email: smokeCredentials.misc_admin.email, password: smokeCredentials.misc_admin.password }),
+  });
+  assert.equal(miscLogin.response.status, 200, "misc admin login status");
+  const denied = await misc.fetchJson("/api/admin/users/import", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      reason: "Denied role import smoke.",
+      users: [adminImportStudentPayload({ email: `denied.${importedEmail}`, displayName: "Denied Import" })],
+    }),
+  });
+  assert.equal(denied.response.status, 403, "misc admin import denial status");
+  assert.equal(denied.body.error, "forbidden");
+
+  const importResult = await admin.fetchJson("/api/admin/users/import", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      reason: "Local browser-smoke import proof.",
+      users: [adminImportStudentPayload({ email: importedEmail, displayName: importedDisplayName })],
+    }),
+  });
+  assert.equal(importResult.response.status, 200, "admin import status");
+  assert.equal(importResult.response.headers.get("cache-control"), "no-store");
+  assert.equal(importResult.body.ok, true);
+  assert.equal(importResult.body.importedCount, 1);
+  assert.equal(importResult.body.users.length, 1);
+  const importedUser = importResult.body.users[0];
+  assert.equal(importedUser.email, importedEmail);
+  assert.equal(importedUser.status, "pending_reset");
+  assert.equal(importedUser.mustReset, true);
+  assert.equal(importedUser.delivery, "one_time_admin_display");
+  assert.equal(importedUser.role.roleId, "student");
+  assert.equal(typeof importedUser.temporaryPassword, "string");
+  assert.ok(importedUser.temporaryPassword.length >= 14, "temporary setup credential is present");
+
+  const imported = new SessionClient();
+  const resetRequiredLogin = await imported.fetchJson("/api/auth/login", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ email: importedEmail, password: importedUser.temporaryPassword }),
+  });
+  assert.equal(resetRequiredLogin.response.status, 403, "imported user first login status");
+  assert.equal(resetRequiredLogin.body.error, "password_reset_required");
+  assert.equal(imported.hasCookie("sc_session"), false, "reset-required login does not create a session");
+
+  const signedOutMe = await imported.fetchJson("/api/auth/me");
+  assert.equal(signedOutMe.response.status, 401, "imported user me before reset");
+  assert.deepEqual(signedOutMe.body, { authenticated: false });
+
+  const reset = await imported.fetchJson("/api/auth/complete-reset", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      email: importedEmail,
+      currentPassword: importedUser.temporaryPassword,
+      newPassword: replacementPassword,
+    }),
+  });
+  assert.equal(reset.response.status, 200, "imported user complete reset status");
+  assert.equal(reset.body.ok, true);
+  assert.equal(imported.hasCookie("sc_session"), true, "complete reset creates an active session");
+
+  const importedMe = await imported.fetchJson("/api/auth/me");
+  assert.equal(importedMe.response.status, 200, "imported user me after reset");
+  assert.equal(importedMe.body.authenticated, true);
+  assert.equal(importedMe.body.user.email, importedEmail);
+  assert.deepEqual(roleIds(importedMe.body.user.roles), ["student"]);
+
+  const oldCredentialLogin = await new SessionClient().fetchJson("/api/auth/login", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ email: importedEmail, password: importedUser.temporaryPassword }),
+  });
+  assert.equal(oldCredentialLogin.response.status, 401, "old setup credential is rejected after reset");
+
+  const newCredentialLogin = await new SessionClient().fetchJson("/api/auth/login", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ email: importedEmail, password: replacementPassword }),
+  });
+  assert.equal(newCredentialLogin.response.status, 200, "replacement password signs in normally");
+  assert.equal(newCredentialLogin.body.ok, true);
+
+  const audit = await admin.fetchJson("/api/admin/audit-events?limit=80");
+  assert.equal(audit.response.status, 200, "admin audit readback status");
+  assert.equal(audit.body.ok, true);
+  assert.ok(audit.body.events.some((event) => event.action === "admin_users_import_denied"));
+  assert.ok(audit.body.events.some((event) => event.action === "admin_user_imported"));
+  assert.ok(audit.body.events.some((event) => event.action === "password_reset_completed"));
+  assertNoCredentialLeak(audit.body, [importedUser.temporaryPassword, replacementPassword]);
+});
+
 async function fetchTextAsset(pathname) {
   const response = await fetchFromBase(pathname);
   assert.equal(response.status, 200, `${pathname} status`);
@@ -339,6 +465,27 @@ function readSmokeCredentials(rawPath) {
 
 function roleIds(roles) {
   return (roles || []).map((role) => role.role_id).sort();
+}
+
+function uniqueSmokeSuffix() {
+  return `${Date.now()}-${process.pid}-${Math.random().toString(36).slice(2, 8)}`.toLowerCase();
+}
+
+function adminImportStudentPayload({ email, displayName }) {
+  return {
+    email,
+    displayName,
+    roleId: "student",
+    scopeType: "global",
+    scopeId: "",
+  };
+}
+
+function assertNoCredentialLeak(value, credentials) {
+  const serialized = JSON.stringify(value);
+  for (const credential of credentials) {
+    assert.equal(serialized.includes(credential), false, "audit readback exposed a runtime credential");
+  }
 }
 
 function readSetCookies(headers) {

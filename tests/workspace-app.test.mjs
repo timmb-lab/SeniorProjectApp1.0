@@ -305,6 +305,92 @@ test("workspace renders admin import controls and one-time setup output", async 
   assert.match(adminUsers, /must create a new password at first sign-in/i);
 });
 
+test("workspace keeps admin import setup output memory-only and gates non-admin import UI", async () => {
+  const adminRoutes = {
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "admin-memory-only",
+          email: "admin.memory@example.edu",
+          displayName: "Admin Memory",
+          roles: [{ role_id: "admin", scope_type: "global", scope_id: "" }],
+        },
+      },
+    },
+    "/api/announcements": {
+      status: 200,
+      body: { ok: true, announcements: [] },
+    },
+    "/api/teacher/review-queue": {
+      status: 200,
+      body: { ok: true, queue: [] },
+    },
+    "/api/presentation-slots": {
+      status: 200,
+      body: { ok: true, slots: [] },
+    },
+    "/api/reports/readiness": {
+      status: 200,
+      body: { ok: true, scope: "all-programs", metrics: {} },
+    },
+  };
+  const { context, workspaceRoot } = await createWorkspaceContextWithFetch(adminRoutes);
+
+  vm.runInContext(`
+    activeSection = "adminUsers";
+    lastAdminImportResult = {
+      users: [
+        {
+          email: "memory.only@example.edu",
+          displayName: "Memory Only",
+          status: "pending_reset",
+          temporaryPassword: "Setup-Display-Only-2026!Aa9",
+          role: { roleId: "student", scopeType: "global", scopeId: "" }
+        }
+      ]
+    };
+    renderAppShell();
+  `, context);
+  assert.match(workspaceRoot.innerHTML, /data-admin-import-result="one-time-setup-passwords"/);
+  assert.match(workspaceRoot.innerHTML, /Setup-Display-Only-2026!Aa9/);
+
+  vm.runInContext(`
+    lastAdminImportResult = null;
+    renderAppShell("Workspace refreshed.", "success");
+  `, context);
+  assert.doesNotMatch(workspaceRoot.innerHTML, /data-admin-import-result="one-time-setup-passwords"/);
+  assert.doesNotMatch(workspaceRoot.innerHTML, /Setup-Display-Only-2026!Aa9/);
+
+  const nonAdminImport = await renderWorkspaceWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "misc-import-denied",
+          email: "misc.import@example.edu",
+          displayName: "Misc Import",
+          roles: [{ role_id: "misc_admin", scope_type: "reporting", scope_id: "alpha-readiness" }],
+        },
+      },
+    },
+    "/api/announcements": {
+      status: 200,
+      body: { ok: true, announcements: [] },
+    },
+    "/api/reports/readiness": {
+      status: 200,
+      body: { ok: true, scope: "aggregate_only", metrics: {} },
+    },
+  }, "adminUsers");
+
+  assert.match(nonAdminImport, /data-workspace-state="permission-denied"/);
+  assert.match(nonAdminImport, /User import unavailable/);
+  assert.doesNotMatch(nonAdminImport, /data-admin-action="import-users"/);
+});
+
 test("workspace renders presentation schedule and day-of actions", async () => {
   const presentation = await renderWorkspaceWithFetch({
     "/api/auth/me": {
@@ -469,6 +555,14 @@ test("workspace renders archive readiness from persisted rows", async () => {
 });
 
 async function renderWorkspaceWithFetch(routes, section = "", beforeSectionScript = "") {
+  const { context, workspaceRoot } = await createWorkspaceContextWithFetch(routes);
+  if (section || beforeSectionScript) {
+    vm.runInContext(`${beforeSectionScript}\nactiveSection = ${JSON.stringify(section || "overview")}; renderAppShell();`, context);
+  }
+  return workspaceRoot.innerHTML;
+}
+
+async function createWorkspaceContextWithFetch(routes) {
   const workspaceRoot = {
     innerHTML: "",
     querySelectorAll: () => [],
@@ -511,8 +605,5 @@ async function renderWorkspaceWithFetch(routes, section = "", beforeSectionScrip
   for (let index = 0; index < 8; index += 1) {
     await new Promise((resolve) => setTimeout(resolve, 0));
   }
-  if (section || beforeSectionScript) {
-    vm.runInContext(`${beforeSectionScript}\nactiveSection = ${JSON.stringify(section || "overview")}; renderAppShell();`, context);
-  }
-  return workspaceRoot.innerHTML;
+  return { context, workspaceRoot };
 }

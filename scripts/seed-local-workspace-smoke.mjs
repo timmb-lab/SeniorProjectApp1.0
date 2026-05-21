@@ -421,17 +421,18 @@ function writeCredentialsFile(file, accounts) {
 }
 
 async function verifyLocalSeed() {
+  const seededAccountIds = ACCOUNTS.map((account) => sql(account.id)).join(", ");
   const output = await runWrangler([
     "d1",
     "execute",
     DATABASE_NAME,
     "--local",
     "--command",
-    `SELECT COUNT(*) AS count FROM user_accounts WHERE email_norm LIKE '%.test'`,
+    `SELECT COUNT(*) AS count FROM user_accounts WHERE id IN (${seededAccountIds})`,
   ], "verify local fake account count");
 
   if (!/"count":\s*7/.test(output)) {
-    fail("Local D1 verification did not find the expected seven fake .test accounts.");
+    fail("Local D1 verification did not find the expected seven seeded fake account IDs.");
   }
 }
 
