@@ -28,6 +28,21 @@ This is the compact run log for the current quarter-hour split-builder automatio
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-05-21 05:35 PT - MVP-012 Submission Detail Access Audit
+
+- `automation ID`: `senior-capstone-nonfigma-mvp-builder-30`.
+- `lane`: non-Figma MVP builder / student-workflow-evidence.
+- `master-plan sections`: Role-Aware Production App Contract; North Star Workflow; Logging Requirements.
+- `requirement IDs`: `MVP-006`, `MVP-010`, `MVP-012`, `MVP-014`, `MVP-015`, `MVP-020`, and `MVP-025`; `backlog IDs`: `SC-005`, `SC-006`; `handoffs`: partial consumption of `H-2026-05-21-003` and progress on `H-2026-05-18-006`.
+- `selected slice`: Extend the protected-record audit matrix to `/api/submissions/:id` detail/readback without direct Figma work.
+- `what changed`: Added `GET /api/submissions/:id` for scoped submission/evidence metadata readback. The route audits missing-session, denied, and successful views as `submission_detail_unauthorized`, `submission_detail_denied`, and `submission_detail_viewed`, includes redacted actor role scopes, allows student-own/assigned mentor/scoped program teacher/admin access, denies student-other and misc-admin broad access, and returns no Drive storage identifiers.
+- `files changed`: `functions/api/submissions/[id].ts`, `tests/review-loop.integration.test.mjs`, `tests/production-workflow-source.test.mjs`, `docs/generated/production-route-inventory.md`, MVP/backlog/artifact/memory/handoff/progress docs, and structured run manifest `docs/progress/runs/2026-05-21-0535-submission-detail-access-audit-mvp-012.json`.
+- `validation`: focused review-loop integration passed with 8/8 tests; production-workflow source test passed with 12/12 tests; strict typecheck passed; route inventory is current; production-surface checker passed with 91 surfaces; full `test` passed with 181 passing tests and 4 expected opt-in skips; aggregate `check` passed with live Cloudflare read-only verification.
+- `blockers`: live Drive upload still fails with redacted Google Drive HTTP 403 after token/root/index probes pass; real-user setup credential delivery remains Bryan decision `HD-2026-05-21-001`; hosted browser no-assignment and section-level permission-denied proof remains open.
+- `phone tracker`: not appended; Google Sheets connector was not used.
+- `self-improvement`: none.
+- `commit/push status`: implementation commit `48de622de03b1c1ea660ee8b613d6b23c3d139b4` created on `main`; closeout evidence commit and push pending.
+
 ## 2026-05-21 05:30 PT - MVP-028 Submission Submit Access Audit Handoff
 
 - `automation ID`: `senior-capstone-figma-product-builder-15`.

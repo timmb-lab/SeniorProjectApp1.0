@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-05-21T05:30:00-07:00",
+  "updated_at": "2026-05-21T05:35:00-07:00",
   "artifacts": [
     {
       "id": "cloudflare-pages-senior-capstone-app",
@@ -129,6 +129,7 @@
         "workspace.html",
         "workspace.css",
         "workspace.js",
+        "functions/api/submissions/[id].ts",
         "functions/api/submissions/[id]/evidence.ts",
         "functions/api/teacher/review-queue.ts",
         "functions/api/reviews/[submissionId]/decision.ts",
@@ -195,7 +196,8 @@
         "2026-05-21 03:36 PT: /api/teacher/review-queue now audits unauthorized, denied, and viewed queue access with redacted role scopes, and its SQL default-denies empty program/cohort scope IDs instead of matching null/empty group values. tests/review-loop.integration.test.mjs covers missing-session audit, misc-admin denial audit, empty program-scope no-leak behavior, and the end-to-end teacher review loop.",
         "2026-05-21 04:05 PT: /api/reviews/:submissionId/history now audits unauthorized, denied, and successful history reads with redacted role scopes and result counts; /api/reviews/:submissionId/decision now audits missing-session reviewer attempts and includes role scopes in denied/success audit metadata. tests/review-loop.integration.test.mjs passed with 6/6 review workflow tests, and tests/production-workflow-source.test.mjs passed with 11/11 source checks.",
         "2026-05-21 04:39 PT: /api/submissions/:id/evidence now audits missing-session, cross-student/staff denial, and successful evidence-link metadata attachment with redacted actor role scopes. tests/evidence-link.integration.test.mjs passed with 3/3 route tests, tests/production-workflow-source.test.mjs passed with 11/11 source checks, and aggregate check passed with live Cloudflare read-only verification plus 178 passing tests / 4 expected opt-in skips.",
-        "2026-05-21 05:06 PT: /api/submissions/:id/submit now audits missing-session, cross-student/staff denial, missing-evidence blocked submit, and successful submit with redacted actor role scopes. tests/review-loop.integration.test.mjs passed with 7/7 workflow tests, tests/production-workflow-source.test.mjs passed with 11/11 source checks, and aggregate check passed with live Cloudflare read-only verification plus 179 passing tests / 4 expected opt-in skips."
+        "2026-05-21 05:06 PT: /api/submissions/:id/submit now audits missing-session, cross-student/staff denial, missing-evidence blocked submit, and successful submit with redacted actor role scopes. tests/review-loop.integration.test.mjs passed with 7/7 workflow tests, tests/production-workflow-source.test.mjs passed with 11/11 source checks, and aggregate check passed with live Cloudflare read-only verification plus 179 passing tests / 4 expected opt-in skips.",
+        "2026-05-21 05:35 PT: /api/submissions/:id now returns scoped submission/evidence detail readback and audits submission_detail_unauthorized, submission_detail_denied, and submission_detail_viewed with redacted actor role scopes. tests/review-loop.integration.test.mjs passed with 8/8 workflow tests, tests/production-workflow-source.test.mjs passed with 12/12 source checks, route inventory is current, production-surface check passed, and full test passed with 181 passing / 4 expected opt-in skips."
       ],
       "last_updated": "2026-05-21"
     },
