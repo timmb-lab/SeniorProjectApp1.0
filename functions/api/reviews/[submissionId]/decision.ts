@@ -1,7 +1,8 @@
-import type { Env } from "../../../_types.ts";
+import type { Env, RoleAssignment, UserAccount } from "../../../_types.ts";
 import { getCurrentUser, writeAudit } from "../../../_lib/auth.ts";
 import { randomId } from "../../../_lib/crypto.ts";
 import { badRequest, json, readJson, requirePost } from "../../../_lib/http.ts";
+import { getRoleAssignments } from "../../../_lib/permissions.ts";
 import {
   canReviewSubmission,
   cleanWorkflowText,
@@ -24,7 +25,12 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, params }
   if (!submissionId) return badRequest("missing_submission_id");
 
   const user = await getCurrentUser(request, env);
-  if (!user) return workflowError("unauthorized", 401);
+  if (!user) {
+    await auditReviewDecisionAccess(env, request, null, "review_decision_unauthorized", submissionId, {
+      reason: "missing_session",
+    });
+    return workflowError("unauthorized", 401);
+  }
 
   let body: ReviewDecisionBody;
   try {
@@ -41,16 +47,10 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, params }
   const submission = await getSubmission(env, submissionId);
   if (!submission) return workflowError("not_found", 404);
   if (!await canReviewSubmission(env, user, submission)) {
-    await writeAudit(env, {
-      actorUserId: user.id,
-      action: "review_decision_denied",
-      entityType: "submission",
-      entityId: submission.id,
-      request,
-      metadata: {
-        studentId: submission.student_id,
-        decision,
-      },
+    await auditReviewDecisionAccess(env, request, user, "review_decision_denied", submission.id, {
+      reason: "scope_denied",
+      studentId: submission.student_id,
+      decision,
     });
     return workflowError("forbidden", 403);
   }
@@ -121,6 +121,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, params }
       fromStatus: submission.status,
       toStatus: statusChanged ? decision : submission.status,
       statusChanged,
+      actorRoleScopes: serializeRoleScopes(await getRoleAssignments(env, user.id)),
     },
   });
 
@@ -155,4 +156,41 @@ function reviewAuditAction(decision: SubmissionDecision): string {
   if (decision === "approved") return "submission_approved";
   if (decision === "revision_requested") return "submission_revision_requested";
   return "submission_review_comment_added";
+}
+
+async function auditReviewDecisionAccess(
+  env: Env,
+  request: Request,
+  user: UserAccount | null,
+  action: string,
+  submissionId: string,
+  metadata: Record<string, unknown>,
+): Promise<void> {
+  const auditMetadata = user
+    ? {
+        ...metadata,
+        actorRoleScopes: serializeRoleScopes(await getRoleAssignments(env, user.id)),
+      }
+    : metadata;
+
+  await writeAudit(env, {
+    actorUserId: user?.id || null,
+    action,
+    entityType: "submission",
+    entityId: submissionId,
+    request,
+    metadata: auditMetadata,
+  });
+}
+
+function serializeRoleScopes(assignments: RoleAssignment[]): Array<{
+  roleId: string;
+  scopeType: string;
+  scopeId: string;
+}> {
+  return assignments.map((assignment) => ({
+    roleId: assignment.role_id,
+    scopeType: assignment.scope_type,
+    scopeId: assignment.scope_id,
+  }));
 }

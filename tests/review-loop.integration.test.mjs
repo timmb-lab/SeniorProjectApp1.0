@@ -272,6 +272,137 @@ test("teacher review queue default-denies empty program scopes and audits the em
   });
 });
 
+test("review history audits unauthorized, denied, and viewed access", async () => {
+  {
+    const fixture = await createFixture();
+    const response = await onReviewHistory({
+      request: buildAuthedRequest("https://example.test/api/reviews/submission-1/history", null),
+      env: fixture.env,
+      params: { submissionId: "submission-1" },
+    });
+
+    assert.equal(response.status, 401);
+    assert.deepEqual(await response.json(), { error: "unauthorized", ok: false });
+    assert.equal(fixture.db.data.auditEvents.length, 1);
+    assert.equal(fixture.db.data.auditEvents[0].actor_user_id, null);
+    assert.equal(fixture.db.data.auditEvents[0].action, "review_history_unauthorized");
+    assert.equal(fixture.db.data.auditEvents[0].entity_type, "submission");
+    assert.equal(fixture.db.data.auditEvents[0].entity_id, "submission-1");
+    assert.deepEqual(fixture.db.data.auditEvents[0].metadata, { reason: "missing_session" });
+  }
+
+  {
+    const fixture = await createFixture();
+    const miscToken = await addAuthedUser(fixture.db, {
+      userId: "misc-history",
+      displayName: "Misc History",
+      roleId: "misc_admin",
+      scopeType: "reporting",
+      scopeId: "alpha-readiness",
+    });
+
+    const response = await onReviewHistory({
+      request: buildAuthedRequest("https://example.test/api/reviews/submission-1/history", miscToken),
+      env: fixture.env,
+      params: { submissionId: "submission-1" },
+    });
+
+    assert.equal(response.status, 403);
+    assert.deepEqual(await response.json(), { error: "forbidden", ok: false });
+    assert.equal(fixture.db.data.auditEvents.length, 1);
+    assert.equal(fixture.db.data.auditEvents[0].action, "review_history_denied");
+    assert.equal(fixture.db.data.auditEvents[0].entity_id, "submission-1");
+    assert.deepEqual(fixture.db.data.auditEvents[0].metadata, {
+      reason: "scope_denied",
+      studentId: "student-a",
+      actorRoleScopes: [{ roleId: "misc_admin", scopeType: "reporting", scopeId: "alpha-readiness" }],
+    });
+  }
+
+  {
+    const fixture = await createFixture();
+    const response = await onReviewHistory({
+      request: buildAuthedRequest("https://example.test/api/reviews/submission-1/history", fixture.teacherToken),
+      env: fixture.env,
+      params: { submissionId: "submission-1" },
+    });
+
+    assert.equal(response.status, 200);
+    const body = await response.json();
+    assert.equal(body.ok, true);
+
+    assert.equal(fixture.db.data.auditEvents.length, 1);
+    assert.equal(fixture.db.data.auditEvents[0].action, "review_history_viewed");
+    assert.equal(fixture.db.data.auditEvents[0].entity_id, "submission-1");
+    assert.deepEqual(fixture.db.data.auditEvents[0].metadata, {
+      studentId: "student-a",
+      reviewCount: 0,
+      statusHistoryCount: 0,
+      versionCount: 0,
+      commentCount: 0,
+      actorRoleScopes: [{ roleId: "program_teacher", scopeType: "global", scopeId: "" }],
+    });
+  }
+});
+
+test("review decisions audit unauthorized and denied reviewer access", async () => {
+  {
+    const fixture = await createFixture();
+    const response = await onReviewSubmission({
+      request: buildAuthedJsonRequest(
+        "https://example.test/api/reviews/submission-1/decision",
+        null,
+        { decision: "revision_requested", feedback: "Please clarify the source connection." },
+      ),
+      env: fixture.env,
+      params: { submissionId: "submission-1" },
+    });
+
+    assert.equal(response.status, 401);
+    assert.deepEqual(await response.json(), { error: "unauthorized", ok: false });
+    assert.equal(fixture.db.data.auditEvents.length, 1);
+    assert.equal(fixture.db.data.auditEvents[0].actor_user_id, null);
+    assert.equal(fixture.db.data.auditEvents[0].action, "review_decision_unauthorized");
+    assert.equal(fixture.db.data.auditEvents[0].entity_type, "submission");
+    assert.equal(fixture.db.data.auditEvents[0].entity_id, "submission-1");
+    assert.deepEqual(fixture.db.data.auditEvents[0].metadata, { reason: "missing_session" });
+  }
+
+  {
+    const fixture = await createFixture();
+    fixture.db.data.submissions[0].status = "submitted";
+    const miscToken = await addAuthedUser(fixture.db, {
+      userId: "misc-decision",
+      displayName: "Misc Decision",
+      roleId: "misc_admin",
+      scopeType: "reporting",
+      scopeId: "alpha-readiness",
+    });
+
+    const response = await onReviewSubmission({
+      request: buildAuthedJsonRequest(
+        "https://example.test/api/reviews/submission-1/decision",
+        miscToken,
+        { decision: "approved", feedback: "Trying to approve outside scope." },
+      ),
+      env: fixture.env,
+      params: { submissionId: "submission-1" },
+    });
+
+    assert.equal(response.status, 403);
+    assert.deepEqual(await response.json(), { error: "forbidden", ok: false });
+    assert.equal(fixture.db.data.auditEvents.length, 1);
+    assert.equal(fixture.db.data.auditEvents[0].action, "review_decision_denied");
+    assert.equal(fixture.db.data.auditEvents[0].entity_id, "submission-1");
+    assert.deepEqual(fixture.db.data.auditEvents[0].metadata, {
+      reason: "scope_denied",
+      studentId: "student-a",
+      decision: "approved",
+      actorRoleScopes: [{ roleId: "misc_admin", scopeType: "reporting", scopeId: "alpha-readiness" }],
+    });
+  }
+});
+
 async function createFixture(options = {}) {
   const includeEvidence = options.includeEvidence !== false;
   const teacherScopeType = options.teacherScopeType || "global";

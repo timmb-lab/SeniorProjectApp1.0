@@ -1,6 +1,7 @@
-import type { Env } from "../../../_types.ts";
+import type { Env, RoleAssignment, UserAccount } from "../../../_types.ts";
 import { getCurrentUser, writeAudit } from "../../../_lib/auth.ts";
 import { json } from "../../../_lib/http.ts";
+import { getRoleAssignments } from "../../../_lib/permissions.ts";
 import { canViewSubmission, getSubmission, workflowError } from "../../../_lib/workflow.ts";
 
 interface ReviewHistoryRow {
@@ -43,18 +44,19 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env, params })
   if (!submissionId) return workflowError("missing_submission_id", 400);
 
   const user = await getCurrentUser(request, env);
-  if (!user) return workflowError("unauthorized", 401);
+  if (!user) {
+    await auditReviewHistoryAccess(env, request, null, "review_history_unauthorized", submissionId, {
+      reason: "missing_session",
+    });
+    return workflowError("unauthorized", 401);
+  }
 
   const submission = await getSubmission(env, submissionId);
   if (!submission) return workflowError("not_found", 404);
   if (!await canViewSubmission(env, user, submission)) {
-    await writeAudit(env, {
-      actorUserId: user.id,
-      action: "review_history_denied",
-      entityType: "submission",
-      entityId: submission.id,
-      request,
-      metadata: { studentId: submission.student_id },
+    await auditReviewHistoryAccess(env, request, user, "review_history_denied", submission.id, {
+      reason: "scope_denied",
+      studentId: submission.student_id,
     });
     return workflowError("forbidden", 403);
   }
@@ -121,6 +123,14 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env, params })
      LIMIT 30`,
   ).bind(submission.id).all<CommentHistoryRow>();
 
+  await auditReviewHistoryAccess(env, request, user, "review_history_viewed", submission.id, {
+    studentId: submission.student_id,
+    reviewCount: (reviews.results || []).length,
+    statusHistoryCount: (statusHistory.results || []).length,
+    versionCount: (versions.results || []).length,
+    commentCount: (comments.results || []).length,
+  });
+
   return json({
     ok: true,
     submission: {
@@ -146,6 +156,43 @@ function formatVersion(row: SubmissionVersionRow) {
     notes: row.notes,
     evidence: parseEvidenceSnapshot(row.evidence_snapshot_json),
   };
+}
+
+async function auditReviewHistoryAccess(
+  env: Env,
+  request: Request,
+  user: UserAccount | null,
+  action: string,
+  submissionId: string,
+  metadata: Record<string, unknown>,
+): Promise<void> {
+  const auditMetadata = user
+    ? {
+        ...metadata,
+        actorRoleScopes: serializeRoleScopes(await getRoleAssignments(env, user.id)),
+      }
+    : metadata;
+
+  await writeAudit(env, {
+    actorUserId: user?.id || null,
+    action,
+    entityType: "submission",
+    entityId: submissionId,
+    request,
+    metadata: auditMetadata,
+  });
+}
+
+function serializeRoleScopes(assignments: RoleAssignment[]): Array<{
+  roleId: string;
+  scopeType: string;
+  scopeId: string;
+}> {
+  return assignments.map((assignment) => ({
+    roleId: assignment.role_id,
+    scopeType: assignment.scope_type,
+    scopeId: assignment.scope_id,
+  }));
 }
 
 function parseEvidenceSnapshot(value: string): unknown[] {

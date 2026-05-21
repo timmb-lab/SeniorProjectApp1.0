@@ -67,7 +67,9 @@ test("review decision endpoint enforces teacher or admin scope and immutable rev
   assert.match(reviewRoute, /submission_approved/);
   assert.match(reviewRoute, /submission_revision_requested/);
   assert.match(reviewRoute, /submission_review_comment_added/);
+  assert.match(reviewRoute, /review_decision_unauthorized/);
   assert.match(reviewRoute, /review_decision_denied/);
+  assert.match(reviewRoute, /actorRoleScopes/);
   assert.match(workflowLib, /hasRole\(env, reviewer\.id, "program_teacher"\)/);
   assert.match(workflowLib, /isAdmin\(env, reviewer\.id\)/);
   assert.match(workflowLib, /canAccessStudent/);
@@ -75,7 +77,10 @@ test("review decision endpoint enforces teacher or admin scope and immutable rev
 
 test("review history endpoint is scoped and includes status and version history", () => {
   assert.match(reviewHistoryRoute, /canViewSubmission/);
+  assert.match(reviewHistoryRoute, /review_history_unauthorized/);
   assert.match(reviewHistoryRoute, /review_history_denied/);
+  assert.match(reviewHistoryRoute, /review_history_viewed/);
+  assert.match(reviewHistoryRoute, /actorRoleScopes/);
   assert.match(reviewHistoryRoute, /FROM reviews/);
   assert.match(reviewHistoryRoute, /FROM status_history/);
   assert.match(reviewHistoryRoute, /FROM submission_versions/);
