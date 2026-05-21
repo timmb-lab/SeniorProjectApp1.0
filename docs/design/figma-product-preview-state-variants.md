@@ -493,6 +493,10 @@ Created/updated frames:
   - `Prototype / 17 / Presentation dashboard state handoff`, node `139:2`
   - Created route/data/permission/state annotations that consume existing presentation slot, conflict, check-out, and check-in APIs into student, mentor, teacher, admin, denied-action, empty, and loading dashboard states.
   - Shared plugin data key `senior_capstone/presentation_dashboard_state_contract_2026_05_20` records 6 states, 7 routes, 8 records, 6 guardrails, and the next rebuild action for canonical dashboard presentation-state browser proof.
+- 2026-05-20 celebration archive readiness handoff on `05 Full MVP Alpha Prototype`
+  - `Prototype / 18 / Celebration archive readiness handoff`, node `144:2`
+  - Created route/data/permission/state annotations for Celebration Day evidence, program-specific ingredient evidence, thank-you and mentor-note completion, reflection/portfolio readiness, May 5 archive requests, expired signed downloads, and archive permission denial.
+  - Shared plugin data key `senior_capstone/celebration_archive_readiness_contract_2026_05_20` records 7 states, 8 routes, 14 records, 5 permission scopes, 7 guardrails, 7 acceptance checks, and the next rebuild action for archive/closeout workflow depth.
 
 Verification status:
 - Canvas write succeeded and returned the frame IDs above.
@@ -552,3 +556,6 @@ Verification status:
 - 2026-05-20 `use_figma` write created node `139:2` to map `/student/presentation`, `/mentor/assigned`, `/teacher/dashboard`, `/api/presentation-slots`, `/api/presentation-slots/:id/check-out`, `/api/presentation-slots/:id/check-in`, and `/admin/audit` to dashboard-facing presentation states.
 - Initial visual readback found compact panel action labels squeezed too narrowly; follow-up `use_figma` layout correction converted those rows to stacked content, expanded node `139:2` to `1360x1943`, and returned zero suspicious clipped text nodes plus zero child overflow.
 - Final `get_design_context` and `get_screenshot` succeeded for node `139:2`; screenshot verification returned `717x1024` from original `1360x1943`, and readback confirmed 6 states, 7 routes, 8 records, and 6 guardrails in shared contract data.
+- 2026-05-20 `use_figma` write created node `144:2` to map `/student/celebration`, `/student/portfolio`, `/student/archive`, `/api/submissions/:id/evidence`, `/api/evidence/:id/check-access`, `/api/exports/student-archive`, `/api/exports/:id/download`, and `/admin/audit` to closeout/archive readiness states.
+- Initial readback found fixed-height horizontal rows clipping taller child cards; follow-up `use_figma` row autosizing correction adjusted 7 horizontal rows plus vertical containers, expanded node `144:2` to `1360x2218`, and returned zero suspicious clipped text nodes plus zero child overflow.
+- Final `get_design_context` and `get_screenshot` succeeded for node `144:2`; screenshot verification returned `628x1024` from original `1360x2218`, and readback confirmed 7 states, 8 routes, 14 records, 5 permission scopes, 7 guardrails, and 7 acceptance checks in shared contract data.

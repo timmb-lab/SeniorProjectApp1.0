@@ -9,7 +9,7 @@ Figma remains a product-design source for route, state, data, and permission han
 - Active Figma file: `https://www.figma.com/design/z4t4tFPAKrMDh6pIYOeEw6`
 - File key: `z4t4tFPAKrMDh6pIYOeEw6`
 - Team id: `1638213362346160913`
-- Key implementation nodes: `18:2`, `31:2`, `37:2`, `43:2`, `48:2`, `56:2`, `61:2`, `69:2`, `78:2`, full MVP alpha prototype page `98:2`, production boundary node `124:2`, workspace account edge-state node `133:2`, and presentation dashboard state node `139:2`.
+- Key implementation nodes: `18:2`, `31:2`, `37:2`, `43:2`, `48:2`, `56:2`, `61:2`, `69:2`, `78:2`, full MVP alpha prototype page `98:2`, production boundary node `124:2`, workspace account edge-state node `133:2`, presentation dashboard state node `139:2`, and celebration archive readiness node `144:2`.
 
 ## Current Guidance
 
@@ -19,7 +19,7 @@ Figma remains a product-design source for route, state, data, and permission han
 
 ## Current Automation Contract
 
-Figma work is owned by `senior-capstone-figma-product-builder`, running hourly at minute 30 PT. It must stay Figma-only and produce route/data/permission handoffs, functional state variants, screenshot/metadata verification, or exact Figma blockers. The non-Figma builder may consume existing Figma evidence but must not call Figma tools.
+Figma work is owned by `senior-capstone-figma-product-builder-15` and `senior-capstone-figma-product-builder`, running hourly at minutes 15 and 45 PT under the repo-local quarter-hour cadence. It must stay Figma-only and produce route/data/permission handoffs, functional state variants, screenshot/metadata verification, or exact Figma blockers. The non-Figma builder may consume existing Figma evidence but must not call Figma tools.
 
 ## 2026-05-20 11:35 PT - MVP-028 Review History Prototype Alignment
 
@@ -84,4 +84,17 @@ Figma work is owned by `senior-capstone-figma-product-builder`, running hourly a
 - `changed in Figma`: Added dashboard-state annotations for student own slot, mentor assigned risk, teacher day-of queue, admin conflict review, permission-denied action, and empty/loading presentation surfaces; mapped routes `/student/presentation`, `/mentor/assigned`, `/teacher/dashboard`, `/api/presentation-slots`, `/api/presentation-slots/:id/check-out`, `/api/presentation-slots/:id/check-in`, and `/admin/audit`; mapped records `PresentationSlot`, `MeetingAttendance`, `MentorAssignment`, `StaffProgramAssignment`, `Review`, `Submission`, `StudentProfile`, and `AuditEvent`; stored shared plugin data key `senior_capstone/presentation_dashboard_state_contract_2026_05_20`.
 - `verification`: First `use_figma` attempt failed atomically on an invalid `HUG` sizing assignment before any changes. Corrected write created node `139:2`; visual QA then found compact action labels squeezed too narrowly, and a layout correction converted those rows to stacked content. Final readback found zero suspicious clipped text nodes and zero child overflow. `get_design_context` and `get_screenshot` succeeded for node `139:2`; screenshot returned `717x1024` from original `1360x1943`.
 - `implementation handoff`: Rebuild should consume node `139:2` when surfacing presentation slot, conflict, check-out, check-in, denied-action, empty, and loading states in canonical student, mentor, teacher, and admin dashboards from persisted `PresentationSlot` and `AuditEvent` rows.
+- `self-improvement`: none
+
+## 2026-05-20 20:18 PT - MVP-028 Celebration Archive Readiness Handoff
+
+- `automation ID`: `senior-capstone-figma-product-builder-15`
+- `selected requirement IDs`: `MVP-028`, supporting `MVP-017`, `MVP-018`, `MVP-020`, and `MVP-022`
+- `selected slice`: Create and verify a closeout/archive readiness handoff after rebuild consumed the presentation dashboard handoff in the canonical workspace.
+- `active file`: `z4t4tFPAKrMDh6pIYOeEw6`
+- `page`: `05 Full MVP Alpha Prototype`
+- `nodes touched`: `144:2` (`Prototype / 18 / Celebration archive readiness handoff`)
+- `changed in Figma`: Added closeout state annotations for Celebration Day evidence, program-specific ingredient evidence, thank-you and mentor-note completion, reflection/portfolio readiness, archive request readiness, expired signed downloads, and archive permission denial; mapped routes `/student/celebration`, `/student/portfolio`, `/student/archive`, `/api/submissions/:id/evidence`, `/api/evidence/:id/check-access`, `/api/exports/student-archive`, `/api/exports/:id/download`, and `/admin/audit`; mapped records `EvidenceArtifact`, `Submission`, `SubmissionVersion`, `Review`, `Comment`, `Requirement`, `RequirementProgress`, `Deadline`, `StudentArchiveExport`, `ExportRequest`, `ExportArtifact`, `AuditEvent`, `RetentionPolicy`, and `UserGroupRole`; stored shared plugin data key `senior_capstone/celebration_archive_readiness_contract_2026_05_20`.
+- `verification`: Initial readback found fixed-height rows clipping taller child cards. A follow-up row autosizing correction expanded node `144:2` from `1360x1784` to `1360x2218`; final readback found 87 text nodes, zero suspicious clipped text nodes, and zero child overflow. `get_design_context` and `get_screenshot` succeeded for node `144:2`; screenshot returned `628x1024` from original `1360x2218`.
+- `implementation handoff`: Rebuild should consume node `144:2` when implementing celebration evidence, thank-you/mentor note, reflection/portfolio completion, May 5 archive package, scoped signed download, expired download, provider-unavailable, and permission-denied archive states from persisted rows and audit events.
 - `self-improvement`: none

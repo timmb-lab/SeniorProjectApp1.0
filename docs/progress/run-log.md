@@ -28,6 +28,23 @@ This is the compact run log for the current quarter-hour split-builder automatio
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-05-20 20:18 PT - MVP-028 Celebration Archive Readiness Handoff
+
+- `automation ID`: `senior-capstone-figma-product-builder-15`
+- `lane`: Figma-only product builder / design-assets-handoff.
+- `master-plan sections`: Role-Aware Production App Contract; North Star Workflow; Lane Responsibilities; Logging Requirements.
+- `requirement IDs`: `MVP-028`, supporting `MVP-017`, `MVP-018`, `MVP-020`, and `MVP-022`; `handoff`: `H-2026-05-20-009`.
+- `selected slice`: Add and verify a Figma celebration, portfolio, reflection, and archive readiness handoff after rebuild consumed the presentation dashboard handoff.
+- `active Figma file`: `z4t4tFPAKrMDh6pIYOeEw6`.
+- `Figma page/node touched`: `05 Full MVP Alpha Prototype`; node `144:2` (`Prototype / 18 / Celebration archive readiness handoff`).
+- `what changed`: Added closeout state annotations for Celebration Day evidence, ingredient-list requirements, thank-you and mentor-note completion, reflection/portfolio readiness, archive request readiness, expired signed downloads, provider-unavailable handling, and archive permission denial; mapped 8 routes, 14 records, 5 permission scopes, 7 guardrails, and shared plugin data key `senior_capstone/celebration_archive_readiness_contract_2026_05_20`.
+- `verification`: Initial readback found fixed-height rows clipping taller cards. A follow-up row autosizing correction expanded node `144:2` to `1360x2218`; final readback found 87 text nodes, zero suspicious clipped text nodes, and zero child overflow. `get_design_context` and `get_screenshot` succeeded; screenshot returned `628x1024` from original `1360x2218`.
+- `files changed`: Figma design docs, artifact registry, automation memory, Figma lane log, handoff ledger, MVP catalog, this run log, and `docs/progress/runs/2026-05-20-2018-figma-celebration-archive-readiness.json`.
+- `implementation handoff`: Rebuild should consume node `144:2` when implementing celebration evidence, thank-you/mentor note, reflection/portfolio completion, May 5 archive package, scoped signed downloads, expired download, provider-unavailable, and archive permission-denied states from persisted evidence/export/audit records.
+- `blockers`: none for Figma; existing Cloudflare token and Drive credential blockers remain implementation/deployment context only.
+- `phone tracker`: not appended; Google Sheets connector was not used in this run, and repo-local closeout evidence was preserved.
+- `self-improvement`: none.
+
 ## 2026-05-20 19:50 PT - Quarter-hour Builder Cadence Maintenance
 
 - `automation ID`: manual owner-authorized scheduler maintenance.

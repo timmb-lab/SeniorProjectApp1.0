@@ -616,6 +616,18 @@ The 2026-05-20 18:33 PT Figma pass added a presentation dashboard state handoff 
 - The first write succeeded but visual QA found cramped compact action labels; a follow-up layout correction converted those rows to stacked content.
 - Final `use_figma` readback found zero suspicious clipped text nodes and zero child overflow. `get_design_context` and `get_screenshot` succeeded for node `139:2`; screenshot verification returned `717x1024` from original `1360x1943`.
 
+## Celebration Archive Readiness Handoff
+
+The 2026-05-20 20:18 PT Figma pass added a celebration, portfolio, reflection, and archive readiness handoff after rebuild consumed the presentation dashboard state handoff.
+
+- `Prototype / 18 / Celebration archive readiness handoff`, node `144:2`, maps final closeout readiness, May 5 archive/export, signed download, and permission-denied states to implementation-facing routes and records.
+- State annotations cover `Celebration evidence missing`, `Ingredient list required`, `Thank-you + mentor note pending`, `Reflection and portfolio ready`, `Archive request ready`, `Export download expired`, and `Permission denied for archive`.
+- Route annotations name `/student/celebration`, `/student/portfolio`, `/student/archive`, `/api/submissions/:id/evidence`, `/api/evidence/:id/check-access`, `/api/exports/student-archive`, `/api/exports/:id/download`, and `/admin/audit`.
+- Record annotations name `EvidenceArtifact`, `Submission`, `SubmissionVersion`, `Review`, `Comment`, `Requirement`, `RequirementProgress`, `Deadline`, `StudentArchiveExport`, `ExportRequest`, `ExportArtifact`, `AuditEvent`, `RetentionPolicy`, and `UserGroupRole`.
+- Shared plugin data key `senior_capstone/celebration_archive_readiness_contract_2026_05_20` records 7 states, 8 routes, 14 records, 5 permission scopes, 7 guardrails, and 7 acceptance checks.
+- Initial readback found fixed-height rows clipping child cards; a follow-up `use_figma` correction changed those rows to autosize and expanded the frame to `1360x2218`.
+- Final `use_figma` readback found 87 text nodes, zero suspicious clipped text nodes, and zero child overflow. `get_design_context` and `get_screenshot` succeeded for node `144:2`; screenshot verification returned `628x1024` from original `1360x2218`.
+
 ## Acceptance Checks For Next Figma Run
 
 - Continue active writable file `z4t4tFPAKrMDh6pIYOeEw6` in `team::1638213362346160913`.
@@ -650,10 +662,10 @@ Artifact:
 - Progress update/dashboard aggregate contract: node `61:2` in the active Figma file.
 - Audit log/export controls contract: node `69:2` in the active Figma file.
 - Mentor meeting/presentation scheduling contract: node `78:2` in the active Figma file.
-- Full MVP alpha prototype page: node `98:2`, with review detail node `98:9` and student revision node `98:10` aligned to the implemented review-history endpoint, handoff frame `98:17` updated after primary alpha-console consumption, production boundary handoff node `124:2` distinguishing the public guide mode from the authenticated workspace route, workspace account edge-state handoff node `133:2`, and presentation dashboard state handoff node `139:2`.
+- Full MVP alpha prototype page: node `98:2`, with review detail node `98:9` and student revision node `98:10` aligned to the implemented review-history endpoint, handoff frame `98:17` updated after primary alpha-console consumption, production boundary handoff node `124:2` distinguishing the public guide mode from the authenticated workspace route, workspace account edge-state handoff node `133:2`, presentation dashboard state handoff node `139:2`, and celebration archive readiness handoff node `144:2`.
 
 Exact next action:
-- Rebuild should consume nodes `18:2`, `31:2`, `37:2`, `43:2`, `48:2`, `56:2`, `61:2`, `69:2`, `78:2`, `98:9`, `98:10`, `98:17`, `124:2`, `133:2`, and `139:2` while scaffolding the accepted Cloudflare database/auth/progress/audit/export/meeting/presentation foundation. Review history is already consumed in the primary alpha console, and role-pending plus source-level permission-denied workspace states now have proof; next rebuild focus should surface presentation slot/check-out/check-in dashboard UI states from persisted rows, then verify hosted account-state and live section-level permission-denied workspace proof unless hosted alpha smoke finds a regression.
+- Rebuild should consume nodes `18:2`, `31:2`, `37:2`, `43:2`, `48:2`, `56:2`, `61:2`, `69:2`, `78:2`, `98:9`, `98:10`, `98:17`, `124:2`, `133:2`, `139:2`, and `144:2` while scaffolding the accepted Cloudflare database/auth/progress/audit/export/meeting/presentation foundation. Review history, workspace account states, and presentation dashboard states are already consumed locally; next rebuild focus should implement celebration evidence, thank-you/mentor note, reflection/portfolio completion, May 5 archive package, scoped signed download, and archive audit states from node `144:2` while hosted account/presentation proof remains deployment-blocked.
 
 Acceptance check:
 - Figma progress log records page/frame IDs, screenshot or metadata verification, route/data fields, permission scopes, and the next UI slice.

@@ -1,0 +1,228 @@
+{
+  "run_id": "2026-05-20-2018-figma-celebration-archive-readiness",
+  "timestamp_local": "2026-05-20T20:18:05-07:00",
+  "automation_id": "senior-capstone-figma-product-builder-15",
+  "lane": "figma-only product builder",
+  "status": "completed",
+  "accepted_mvp_pass": true,
+  "requirement_ids": [
+    "MVP-028",
+    "MVP-017",
+    "MVP-018",
+    "MVP-020",
+    "MVP-022"
+  ],
+  "backlog_ids": [
+    "SC-004"
+  ],
+  "output_kind": "figma-handoff+metadata+screenshot-verification",
+  "scope": "Add and verify a celebration, portfolio, reflection, and archive readiness handoff after rebuild consumed the presentation dashboard handoff.",
+  "selected_figma_slice": "Celebration evidence, thank-you/mentor note, reflection/portfolio, archive request, expired download, provider-unavailable, and archive permission-denied state handoff.",
+  "figma": {
+    "file_key": "z4t4tFPAKrMDh6pIYOeEw6",
+    "url": "https://www.figma.com/design/z4t4tFPAKrMDh6pIYOeEw6",
+    "page": "05 Full MVP Alpha Prototype",
+    "page_id": "98:2",
+    "node_touched": {
+      "node_id": "144:2",
+      "name": "Prototype / 18 / Celebration archive readiness handoff",
+      "frame_size": "1360x2218",
+      "changes": [
+        "Added closeout state cards for Celebration Day evidence, ingredient-list requirements, thank-you and mentor-note completion, reflection/portfolio readiness, archive request readiness, expired signed download, and archive permission denial.",
+        "Mapped archive readiness UI to /student/celebration, /student/portfolio, /student/archive, /api/submissions/:id/evidence, /api/evidence/:id/check-access, /api/exports/student-archive, /api/exports/:id/download, and /admin/audit.",
+        "Mapped persisted records EvidenceArtifact, Submission, SubmissionVersion, Review, Comment, Requirement, RequirementProgress, Deadline, StudentArchiveExport, ExportRequest, ExportArtifact, AuditEvent, RetentionPolicy, and UserGroupRole.",
+        "Stored shared plugin data key senior_capstone/celebration_archive_readiness_contract_2026_05_20.",
+        "Corrected fixed-height horizontal rows after readback found clipped child cards."
+      ]
+    },
+    "shared_plugin_data": {
+      "namespace": "senior_capstone",
+      "key": "celebration_archive_readiness_contract_2026_05_20",
+      "state_count": 7,
+      "route_count": 8,
+      "record_count": 14,
+      "permission_scope_count": 5,
+      "guardrail_count": 7,
+      "acceptance_check_count": 7,
+      "states": [
+        "Celebration evidence missing",
+        "Ingredient list required",
+        "Thank-you + mentor note pending",
+        "Reflection and portfolio ready",
+        "Archive request ready",
+        "Export download expired",
+        "Permission denied for archive"
+      ],
+      "routes": [
+        "/student/celebration",
+        "/student/portfolio",
+        "/student/archive",
+        "/api/submissions/:id/evidence",
+        "/api/evidence/:id/check-access",
+        "/api/exports/student-archive",
+        "/api/exports/:id/download",
+        "/admin/audit"
+      ],
+      "records": [
+        "EvidenceArtifact",
+        "Submission",
+        "SubmissionVersion",
+        "Review",
+        "Comment",
+        "Requirement",
+        "RequirementProgress",
+        "Deadline",
+        "StudentArchiveExport",
+        "ExportRequest",
+        "ExportArtifact",
+        "AuditEvent",
+        "RetentionPolicy",
+        "UserGroupRole"
+      ],
+      "permission_scopes": [
+        "student-own archive",
+        "mentor-assigned readiness only",
+        "program-teacher program/cohort readiness",
+        "admin export with reason",
+        "misc-admin explicit export/reporting scope"
+      ],
+      "guardrails": [
+        "private evidence and archive packages never use public URLs",
+        "raw Drive storage identifiers never render",
+        "archive/download/view/denied events are audited",
+        "archive readiness derives from persisted requirement/evidence/review rows",
+        "expired signed downloads return a retry state",
+        "Drive provider unavailable is truthful and non-successful",
+        "no student-to-student messaging"
+      ],
+      "next_rebuild_action": "Implement archive/closeout workflow depth for celebration evidence, thank-you/mentor note, reflection/portfolio completion, May 5 archive package, scoped signed downloads, and audit events."
+    },
+    "readback": {
+      "text_node_count": 87,
+      "suspicious_clipped_text_count": 0,
+      "overflow_count": 0,
+      "first_readback_issue": "Fixed-height 100px horizontal rows clipped taller state and handoff cards.",
+      "visual_fix": "A follow-up use_figma correction set row counter-axis sizing to AUTO, disabled clipping on affected containers, and expanded the frame from 1360x1784 to 1360x2218."
+    },
+    "metadata_verification": [
+      {
+        "node_id": "144:2",
+        "tool": "get_design_context",
+        "result": "passed",
+        "summary": "Returned the final celebration archive readiness handoff context after row autosizing correction."
+      }
+    ],
+    "screenshot_verification": [
+      {
+        "node_id": "144:2",
+        "tool": "get_screenshot",
+        "result": "passed",
+        "returned_size": "628x1024",
+        "original_size": "1360x2218",
+        "short_lived_asset_url_recorded": false
+      }
+    ],
+    "library_and_search_verification": [
+      {
+        "command": "rg --files -g '*.figma.ts' -g '*.figma.tsx' -g '*.figma.js' -g '*.figma.jsx'",
+        "result": "no Code Connect files found in repo"
+      },
+      {
+        "tool": "get_libraries",
+        "result": "passed",
+        "summary": "Confirmed the active file library plus Material 3, Simple Design System, and platform UI kits."
+      },
+      {
+        "tool": "search_design_system",
+        "query": "archive export student portfolio checklist status card",
+        "result": "passed-limited-local-match",
+        "summary": "Only the local archived status pill matched; the frame reused established local prototype conventions."
+      }
+    ]
+  },
+  "source_docs_read": [
+    "docs/design/figma-first-pass-product-system.md",
+    "docs/design/figma-product-preview-state-variants.md",
+    "docs/master-plan.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/automation-cadence.md",
+    "docs/automation-runbook.md",
+    "docs/automation-memory.md",
+    "docs/progress/run-log.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/decision-log.md",
+    "docs/artifacts.json",
+    "docs/human-decisions.md",
+    "docs/progress/figma.md",
+    "docs/automation-backlog.md",
+    "recent docs/progress/runs/*.json",
+    "figma-use skill",
+    "figma-generate-design skill"
+  ],
+  "repo_files_changed": [
+    "docs/design/figma-first-pass-product-system.md",
+    "docs/design/figma-product-preview-state-variants.md",
+    "docs/artifacts.json",
+    "docs/automation-memory.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/progress/figma.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-20-2018-figma-celebration-archive-readiness.json"
+  ],
+  "implementation_handoff": "Rebuild should consume node 144:2 when implementing celebration evidence, thank-you/mentor note, reflection/portfolio completion, May 5 archive package, scoped signed download, expired download, provider-unavailable, and archive permission-denied states from persisted evidence/export/audit records.",
+  "validation": [
+    {
+      "command": "Figma use_figma mutation",
+      "result": "passed",
+      "summary": "Created node 144:2 and stored shared plugin data for the celebration archive readiness contract."
+    },
+    {
+      "command": "Figma use_figma layout correction/readback",
+      "result": "passed",
+      "summary": "Corrected fixed-height rows; final readback found 87 text nodes, zero suspicious clipped text nodes, and zero child overflow."
+    },
+    {
+      "command": "Figma get_design_context for node 144:2",
+      "result": "passed",
+      "summary": "Confirmed final route/data/permission handoff context."
+    },
+    {
+      "command": "Figma get_screenshot for node 144:2",
+      "result": "passed",
+      "summary": "Returned 628x1024 from original 1360x2218 frame."
+    },
+    {
+      "command": "Get-Content docs/artifacts.json and manifest | ConvertFrom-Json",
+      "result": "passed",
+      "summary": "Artifact registry and structured run manifest parsed as JSON."
+    },
+    {
+      "command": "git diff --check",
+      "result": "passed",
+      "summary": "Whitespace check passed with line-ending warnings only."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\verify-cadence-30min.ps1 -RepoRoot .",
+      "result": "passed",
+      "summary": "Quarter-hour cadence verifier passed."
+    }
+  ],
+  "backend_code_work_avoided": true,
+  "forbidden_files_touched": false,
+  "figma_blocker": null,
+  "run_log_updated": true,
+  "structured_manifest_created": true,
+  "artifacts_json_updated": true,
+  "mvp_catalog_changed": true,
+  "human_decisions_changed": false,
+  "self_improvement": "none",
+  "phone_tracker": {
+    "result": "not_appended",
+    "reason": "Google Sheets connector was not used in this run; repo-local closeout evidence was preserved."
+  },
+  "branch_before": "main",
+  "branch_after": "main",
+  "commit_sha": "reported in final response because this manifest is included in the closeout commit",
+  "push_result": "reported in final response because this manifest is included in the closeout commit"
+}

@@ -148,11 +148,20 @@ Every builder run must ladder from `docs/master-plan.md` into `docs/mvp-requirem
 - Validation passed: focused workspace source/VM test, presentation-slot integration test, local D1 seed, credential-backed local HTTP workspace smoke, in-app browser program-teacher Presentation tab proof with zero console errors, typecheck, production-surface check, full test suite, aggregate `check`, and direct hosted `workspace.js` marker proof for `/api/presentation-slots` plus `data-presentation-action="check-out"`.
 - Next best non-Figma slices: hosted presentation-dashboard proof after deployment, outline approval gate persistence, celebration evidence, archive/export depth, or public no-hidden-core-content proof while Cloudflare/Drive secrets remain blocked.
 
+### 2026-05-20 - Figma Celebration Archive Readiness Handoff
+
+- Figma-only builder `senior-capstone-figma-product-builder-15` added node `144:2`, `Prototype / 18 / Celebration archive readiness handoff`, to active file `z4t4tFPAKrMDh6pIYOeEw6` on page `05 Full MVP Alpha Prototype`.
+- The handoff maps Celebration Day evidence, ingredient-list requirements, thank-you and mentor-note completion, reflection/portfolio readiness, May 5 archive request, expired signed download, and archive permission-denied states to closeout/archive implementation.
+- Shared plugin data key `senior_capstone/celebration_archive_readiness_contract_2026_05_20` records 7 states, 8 routes, 14 records, 5 permission scopes, 7 guardrails, 7 acceptance checks, and the next rebuild action for archive/closeout workflow depth.
+- Initial Figma readback found fixed-height rows clipping taller child cards; row autosizing correction expanded node `144:2` to `1360x2218`.
+- Final Figma verification succeeded: `get_design_context` and `get_screenshot` passed for node `144:2`, with screenshot `628x1024` from original `1360x2218`; final readback found 87 text nodes, zero suspicious clipped text nodes, and zero child overflow.
+- Next best non-Figma slice from this handoff: implement celebration evidence, thank-you/mentor note, reflection/portfolio completion, May 5 archive package, scoped signed download, expired download, provider-unavailable, and archive permission-denied states from persisted rows and audit events.
+
 ## Current Priority
 
 Immediate next useful passes:
 
-1. Broaden auth, permission, protected-evidence, status-transition, audit/export, and meeting proof; hosted presentation-dashboard proof remains useful after deployment.
+1. Consume Figma node `144:2` by implementing celebration evidence, thank-you/mentor note, reflection/portfolio completion, May 5 archive package, scoped signed download, expired download, provider-unavailable, and archive permission-denied states from persisted rows and audit events.
 2. Broaden public-site no-hidden-core-content proof across every guide route, then verify the newest workspace account-state/no-assignment markers after hosted deployment and add a live section-level permission-denied proof.
 3. Extend alpha proposal/review/evidence/audit records into real workflow endpoints.
 4. Add Google Drive server-side credential/OAuth implementation plus access-controlled evidence upload/retrieval assumptions.
@@ -191,12 +200,13 @@ Current backlog anchors:
 - Canva folder: `FAHJ-n-VqFE`.
 - Canva asset: `DAHJ-v7TOM8`, proposal approval process strip, no-text 1600x500.
 - Active Figma product UI file: `https://www.figma.com/design/z4t4tFPAKrMDh6pIYOeEw6` (`z4t4tFPAKrMDh6pIYOeEw6`), team id `1638213362346160913`.
-- Key Figma implementation contract nodes: `18:2`, `31:2`, `37:2`, `43:2`, `48:2`, `56:2`, `61:2`, `69:2`, `78:2`, and full MVP alpha prototype page `98:2`.
+- Key Figma implementation contract nodes: `18:2`, `31:2`, `37:2`, `43:2`, `48:2`, `56:2`, `61:2`, `69:2`, `78:2`, and full MVP alpha prototype page `98:2` with implementation nodes through `144:2`.
 - 2026-05-20 Figma review-history alignment updated full MVP alpha prototype nodes `98:9` and `98:10` to match `/api/reviews/:submissionId/history`, `reviews`, `comments`, `status_history`, `submission_versions`, scoped permissions, and storage-ID redaction; `get_design_context` and `get_screenshot` succeeded for both nodes.
 - 2026-05-20 Figma handoff update verified node `98:17` after primary alpha-console review-history consumption; it records `review_history_consumed_at`, redirects next rebuild focus to mentor/presentation/admin depth, preserves API/D1/audit/storage-redaction boundaries, and passed `get_design_context` plus `get_screenshot`.
 - 2026-05-20 Figma production-boundary handoff verified node `124:2`; it distinguishes public Student/Teacher guide mode from authenticated `/workspace` state, records route/data/permission contract data, and passed screenshot/metadata/readback QA.
 - 2026-05-20 Figma workspace account edge-state handoff verified node `133:2`; it distinguishes session expired, disabled account, reset required, role pending, no active assignment, and section permission denied states for `/workspace`, records route/data/audit contract data, and passed screenshot/metadata/readback QA after a text-width autosizing correction.
 - 2026-05-20 Figma presentation dashboard state handoff verified node `139:2`; it maps presentation slot, conflict, check-out, check-in, denied-action, empty, and loading states to persisted dashboard consumption with 6 states, 7 routes, 8 records, and 6 guardrails.
+- 2026-05-20 Figma celebration archive readiness handoff verified node `144:2`; it maps closeout, Celebration Day evidence, reflection/portfolio, thank-you/mentor note, archive request, signed download, and archive permission states to persisted evidence/export/audit records with 7 states, 8 routes, 14 records, 5 permission scopes, 7 guardrails, and 7 acceptance checks.
 - Bryan's phone-friendly live QoL tracker is the native Google Sheet `Senior Capstone QoL Run Tracker`, spreadsheet id `1J8jQMn85wJwo9Rh6LjQUVv_WfLS1YJWsbpcLBCojjjs`.
 
 ## Handoff And Logging Rules
