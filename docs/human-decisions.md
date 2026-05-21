@@ -69,6 +69,17 @@ No open external automation scheduler decisions are blocking the current scaffol
 - `decision workflow`: `docs/progress/human-action-email-draft-2026-05-20-cloudflare-drive.md`
 - `created`: 2026-05-20
 
+### HD-2026-05-20-007
+
+- `status`: open
+- `area`: archive retention policy
+- `owner`: Bryan
+- `severity`: P2
+- `decision needed`: Confirm the student archive download/retention window and whether the default 14-day package availability is acceptable before pilot archives use real student records.
+- `current recommendation`: Keep `ARCHIVE_DOWNLOAD_WINDOW_DAYS=14` and `ARCHIVE_RETENTION_POLICY_STATUS=policy_review_required` until school retention policy is confirmed; use fake `.test` accounts only for archive package verification.
+- `decision workflow`: `functions/_lib/archive-export.ts` and `wrangler.jsonc`
+- `created`: 2026-05-20
+
 ## Accepted Decisions
 
 ### HD-2026-05-20-001

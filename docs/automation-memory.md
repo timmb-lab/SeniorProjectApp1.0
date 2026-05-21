@@ -182,11 +182,20 @@ Every builder run must ladder from `docs/master-plan.md` into `docs/mvp-requirem
 - Final Figma verification succeeded: `use_figma` returned 108 text nodes, zero suspicious clipped text nodes, and zero child overflow; `get_design_context` and `get_screenshot` passed for node `149:2`, with screenshot `706x1024` from original `1360x1975`.
 - Next best non-Figma slice from this handoff: add provider-unavailable archive generation states, retention-policy handling, Drive-backed package or signed-link delivery, and hosted archive UI proof after Cloudflare/Drive secrets are available.
 
+### 2026-05-20 - Archive Provider Failure And Retention Handling
+
+- Non-Figma builder `senior-capstone-nonfigma-mvp-builder-30` partially consumed repo-recorded Figma node `149:2` without calling Figma tools.
+- `/api/admin/exports/student-archive` now verifies Drive repository/credential/provider access before successful archive generation; missing Drive credentials or access failures create failed export rows and `student_archive_export_provider_unavailable` audit events instead of claiming package delivery.
+- `functions/_lib/archive-export.ts` now centralizes archive provider readiness, configurable archive download-window retention metadata, and expiring-download detection; `.dev.vars.example` and `wrangler.jsonc` document the non-secret archive retention knobs.
+- `/api/student/archive/readiness` and `workspace.js` now expose provider status, retention policy review state, download-window expiry warnings, and `data-archive-retention-status` without returning Drive storage identifiers.
+- Validation passed: `tests/archive-readiness.integration.test.mjs` (10 tests), `tests/workspace-app.test.mjs` (7 tests), `tests/production-workflow-source.test.mjs` (10 tests), and strict `typecheck`.
+- Remaining archive/export depth: apply/verify migration `0007` remotely when `CLOUDFLARE_API_TOKEN` is available, add Drive-backed package files or signed-link delivery after Drive secrets, and capture hosted archive UI proof after deployment/credentials.
+
 ## Current Priority
 
 Immediate next useful passes:
 
-1. Finish archive/export delivery depth by consuming Figma node `149:2`: apply/verify migration `0007`, add Drive-backed package files or signed-link delivery, provider-unavailable generation states, retention-policy handling, and hosted archive UI proof after deployment/credentials.
+1. Finish archive/export delivery depth by consuming the remaining parts of Figma node `149:2`: apply/verify migration `0007`, add Drive-backed package files or signed-link delivery after Drive credentials, and capture hosted archive UI proof after deployment/credentials.
 2. Broaden public-site no-hidden-core-content proof across every guide route, then verify the newest workspace account-state/no-assignment markers after hosted deployment and add a live section-level permission-denied proof.
 3. Extend alpha proposal/review/evidence/audit records into real workflow endpoints.
 4. Add Google Drive server-side credential/OAuth implementation plus access-controlled evidence upload/retrieval assumptions.
@@ -235,6 +244,7 @@ Current backlog anchors:
 - 2026-05-20 Figma archive provider and retention handoff verified node `149:2`; it maps Drive credential missing, provider-unavailable retry, queued generation, scoped package readiness, retention-window expiry, and policy review states to persisted export/evidence/audit records with 6 states, 6 routes, 10 records, 5 permission scopes, 6 guardrails, and 7 acceptance checks.
 - 2026-05-20 non-Figma workspace archive readiness pass partially consumed node `144:2` in repo code only by adding `/api/student/archive/readiness`, a student Archive workspace tab, explicit admin export reason enforcement, truthful signed-download-disabled output, focused integration/source/smoke/browser proof, and route inventory coverage.
 - 2026-05-20 non-Figma archive manifest pass added `export_artifacts`, scoped JSON archive manifest generation/download, content hash/expiry metadata, expired-package retry state, storage-ID redaction tests, and a workspace manifest download marker.
+- 2026-05-20 non-Figma archive provider/retention pass partially consumed node `149:2` by making archive generation provider-gated, auditing missing-credential/access failure states as failed exports, exposing configurable retention policy/window metadata, and rendering retention state in the canonical workspace.
 - Bryan's phone-friendly live QoL tracker is the native Google Sheet `Senior Capstone QoL Run Tracker`, spreadsheet id `1J8jQMn85wJwo9Rh6LjQUVv_WfLS1YJWsbpcLBCojjjs`.
 
 ## Handoff And Logging Rules

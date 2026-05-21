@@ -383,3 +383,17 @@ Each rebuild run should append a dated entry with:
 - `phone tracker`: not appended; Google Sheets connector was not used in this run.
 - `self-improvement`: none.
 - `commit/push status`: implementation commit `a83c68b86f0902b11429314511412ed7917016d7` (`rebuild: add archive manifest exports (MVP-022)`) pushed to `origin main` (`3b50116..a83c68b`); closeout evidence commit `6ef24cf5321328c7f3ae1e5e8bf2083edfbcb8ae` pushed to `origin main` (`a83c68b..6ef24cf`).
+
+### 2026-05-20 21:38 PT - MVP-022 Archive Provider And Retention Handling
+
+- `automation`: `senior-capstone-nonfigma-mvp-builder-30`
+- `master-plan section`: Day 7 Alpha Gate; Role-Aware Production App Contract; North Star Workflow; Logging Requirements.
+- `source docs/logs read`: automation memory fallback at `C:\Users\bryan\.codex\automations\senior-capstone-nonfigma-mvp-builder-30\memory.md` (missing at start), required master plan/catalog/cadence/runbook/self-improvement/memory/milestones/progress docs, recent run manifests, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, `docs/progress/rebuild.md`, the latest archive provider/retention handoff manifest, and the existing archive/export route/test patterns.
+- `backlog or requirement IDs selected`: `SC-004`, `SC-005`, `SC-006`, `MVP-018`, `MVP-020`, `MVP-022`, `MVP-027`, supporting `MVP-032`.
+- `bounded scope`: Partially consume repo-recorded Figma node `149:2` without direct Figma work by turning missing Drive configuration/provider access into failed archive export states and by exposing configurable retention policy/window state.
+- `files changed`: `.dev.vars.example`, `wrangler.jsonc`, `functions/_types.ts`, `functions/_lib/archive-export.ts`, `functions/api/admin/exports/student-archive.ts`, `functions/api/student/archive/readiness.ts`, `workspace.js`, `tests/archive-readiness.integration.test.mjs`, `tests/workspace-app.test.mjs`, `tests/workspace-browser-smoke.test.mjs`, `tests/production-workflow-source.test.mjs`, `docs/backend-setup.md`, `docs/mvp-requirements-catalog.md`, `docs/automation-backlog.md`, `docs/automation-memory.md`, `docs/artifacts.json`, `docs/progress/handoffs.md`, `docs/human-decisions.md`, this rebuild log, `docs/progress/run-log.md`, and structured run manifest.
+- `validation`: `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-node-script.ps1 tests\archive-readiness.integration.test.mjs` passed with 10 tests; `tests\workspace-app.test.mjs` passed with 7 tests; `tests\production-workflow-source.test.mjs` passed with 10 tests; strict `typecheck` passed; full `test` passed with 143 passing tests and 3 expected opt-in workspace smoke skips; `check:production-surfaces` passed with 91 surfaces; aggregate `check` passed with static Cloudflare verification and `LIVE_CLOUDFLARE_BLOCKED_NO_TOKEN`; `docs/artifacts.json` and the manifest parsed; `git diff --check` passed with CRLF warnings only.
+- `blockers`: remote Pages/D1 management verification and remote migration `0007` still require `CLOUDFLARE_API_TOKEN`; Drive-backed archive package files or signed-link delivery still require Cloudflare Pages Drive credential secrets; Bryan must confirm archive retention policy before real student archives.
+- `phone tracker`: not appended; Google Sheets connector was not used in this run.
+- `self-improvement`: none.
+- `commit/push status`: implementation commit `2eeed9a00dee643ac84a8755a78dbe7c1f0bf8b8` pushed to `origin main`; closeout docs commit pending.

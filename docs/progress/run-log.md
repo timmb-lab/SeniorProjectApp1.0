@@ -613,3 +613,18 @@ Future productive runs should append compact entries that name the master-plan s
 - `blockers`: none for Figma; existing Cloudflare token and Drive secret blockers remain implementation/deployment setup blockers.
 - `phone tracker`: not appended; Google Sheets connector metadata call returned `Unknown tool: google drive_get_spreadsheet_metadata`, so repo-local closeout evidence was preserved.
 - `self-improvement`: none.
+
+## 2026-05-20 21:38 PT - MVP-022 Archive Provider And Retention Handling
+
+- `automation ID`: `senior-capstone-nonfigma-mvp-builder-30`
+- `lane`: non-Figma MVP builder / admin-ops-reporting.
+- `master-plan sections`: Day 7 Alpha Gate; Role-Aware Production App Contract; North Star Workflow; Logging Requirements.
+- `requirement IDs`: `MVP-018`, `MVP-020`, `MVP-022`, `MVP-027`, supporting `MVP-032`; `backlog IDs`: `SC-004`, `SC-005`, `SC-006`.
+- `selected slice`: Partially consume repo-recorded Figma node `149:2` without direct Figma work by provider-gating archive generation and rendering configurable retention state.
+- `what changed`: `/api/admin/exports/student-archive` now verifies Drive repository/credential/provider readiness before successful archive generation; missing credentials or Drive access failures create failed export rows plus `student_archive_export_provider_unavailable` audit events. Archive manifests include configurable retention-window metadata, `/api/student/archive/readiness` reports provider/retention/download-expiring state, and `workspace.js` renders `data-archive-retention-status`.
+- `files changed`: `.dev.vars.example`, `wrangler.jsonc`, `functions/_types.ts`, `functions/_lib/archive-export.ts`, `functions/api/admin/exports/student-archive.ts`, `functions/api/student/archive/readiness.ts`, `workspace.js`, `tests/archive-readiness.integration.test.mjs`, `tests/workspace-app.test.mjs`, `tests/workspace-browser-smoke.test.mjs`, `tests/production-workflow-source.test.mjs`, MVP/backlog/artifact/memory/handoff/backend/human-decision/progress docs, and structured run manifest.
+- `validation`: focused archive-readiness integration passed with 10 tests; workspace source/VM test passed with 7 tests; production-workflow source test passed with 10 tests; strict typecheck passed; full test suite passed with 143 passing tests and 3 expected opt-in local-server skips; production-surface check passed with 91 surfaces; aggregate `check` passed with static Cloudflare verification and `LIVE_CLOUDFLARE_BLOCKED_NO_TOKEN`; `docs/artifacts.json` and the manifest parsed; `git diff --check` passed with CRLF warnings only.
+- `blockers`: remote D1 migration `0007` and live Pages/D1 inspection still require `CLOUDFLARE_API_TOKEN`; Drive-backed archive package files or signed-link delivery still require Google Drive credential secrets; Bryan needs to confirm the archive retention policy before real student archives.
+- `phone tracker`: not appended; Google Sheets connector was not used in this run.
+- `self-improvement`: none.
+- `commit/push status`: implementation commit `2eeed9a00dee643ac84a8755a78dbe7c1f0bf8b8` pushed to `origin main`; closeout docs commit follows this entry.

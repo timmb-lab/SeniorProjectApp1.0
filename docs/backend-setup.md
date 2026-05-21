@@ -127,7 +127,8 @@ Current test-account workflow route coverage:
 - `/api/reviews/:submissionId/history` returns scoped review/status history.
 - `/api/admin/announcements` lets admins create scoped announcements for all users, roles, programs, or cohorts.
 - `/api/announcements` returns only currently visible announcements for the signed-in user's role/program/cohort scope.
-- `/api/admin/exports/student-archive` generates an admin-only scoped student archive manifest artifact from persisted progress/evidence rows, stores it in `export_artifacts`, and records the export lifecycle audit event.
+- `/api/admin/exports/student-archive` verifies Drive repository/credential/provider readiness before successful archive generation; provider setup or access failures create a failed export row and `student_archive_export_provider_unavailable` audit event instead of claiming package delivery.
+- When the provider is ready, `/api/admin/exports/student-archive` generates an admin-only scoped student archive manifest artifact from persisted progress/evidence rows, stores it in `export_artifacts`, includes configurable retention-window metadata, and records the export lifecycle audit event.
 - `/api/exports/:id/download` checks admin or student-scope access, streams the generated JSON archive manifest when unexpired, and returns an expired-package retry state after the download window.
 - `/api/reports/readiness` returns aggregate-only admin/misc-admin readiness counts without names, emails, or student-level rows.
 - `/api/admin/audit-events` returns admin-only, redacted audit entries.
