@@ -525,6 +525,11 @@ Created/updated frames:
   - Updated `Prototype / 23 / Admin import proof QA handoff`, node `163:2`, after reset-first API proof landed in run `2026-05-21-0137-admin-import-reset-proof-mvp-004`.
   - Shared plugin data key `senior_capstone/admin_import_proof_qa_contract_2026_05_21` now records `apiProofConsumedAt=2026-05-21T01:37:00-07:00`, 7 consumed API proof checks, 7 remaining browser proof checks, and implementation commit `f9f6ea8db24b064a821571c4b731236ed386b5f4`.
   - The visual handoff now explicitly narrows rebuild to browser-level fake-account proof for validation UI, no-store setup output clearing on refresh, reset-first login before dashboards, denied-role UI behavior, stale-session safety, and no credential leakage.
+- 2026-05-21 student dashboard access audit handoff on `05 Full MVP Alpha Prototype`
+  - `Prototype / 24 / Student dashboard access audit handoff`, node `173:2`
+  - Created route/data/permission/audit annotations after `/api/student/dashboard` gained unauthorized, denied, and allowed protected-dashboard audit proof in run `2026-05-21-0306-student-dashboard-access-audit-mvp-006`.
+  - State annotations cover signed-out request, student own dashboard viewed, student-other denied, mentor active assignment, program-teacher scoped cohort, and admin-allowed/misc-admin-denied behavior.
+  - Shared plugin data key `senior_capstone/student_dashboard_access_audit_contract_2026_05_21` records consumed commit `d8eb8c95b56406c0c8c051ea0d55876986112567`, 5 permission scopes, 5 guardrails, 4 acceptance checks, and the next rebuild action for broadening the same audited permission matrix to remaining workflow endpoints plus live permission UI proof.
 
 Verification status:
 - Canvas write succeeded and returned the frame IDs above.
@@ -606,3 +611,7 @@ Verification status:
 - Final readback found 49 text nodes, zero suspicious clipped text nodes, zero child overflow, 6 states, 8 routes, 9 records, 5 UI markers, 6 guardrails, and 5 acceptance checks in shared contract data.
 - `get_design_context` and `get_screenshot` succeeded for node `163:2`; screenshot verification returned `985x1024` from original `1360x1414`.
 - 2026-05-21 `use_figma` update marked node `163:2` API proof consumed after the reset-first API proof pass; readback found 49 text nodes, zero collapsed text nodes, zero child overflow, 7 consumed API proof points, and 7 remaining browser proof checks. `get_design_context` and `get_screenshot` succeeded, and screenshot verification returned `1007x1024` from original `1360x1384`.
+- 2026-05-21 `use_figma` write created node `173:2` to map student dashboard protected-access audit states after `/api/student/dashboard` route-level proof landed.
+- Initial readback found fixed-height horizontal rows and clipped 10px text nodes; targeted layout correction autosized rows, expanded text heights, and expanded node `173:2` to `1360x1455`.
+- Final readback found 49 text nodes, zero suspicious clipped text nodes, zero child overflow, 5 permission scopes, 5 guardrails, and 4 acceptance checks in shared contract data.
+- `get_design_context` and `get_screenshot` succeeded for node `173:2`; screenshot verification returned `958x1024` from original `1360x1455`.

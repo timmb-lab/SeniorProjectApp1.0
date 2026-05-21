@@ -891,3 +891,21 @@ Future productive runs should append compact entries that name the master-plan s
 - `phone tracker`: not appended; Google Sheets connector was not used.
 - `self-improvement`: none.
 - `commit/push status`: pending closeout commit.
+
+## 2026-05-21 03:24 PT - MVP-028 Student Dashboard Access Audit Handoff
+
+- `automation ID`: `senior-capstone-figma-product-builder-15`.
+- `lane`: Figma-only product builder / design-assets-handoff.
+- `master-plan sections`: Role-Aware Production App Contract; Lane Responsibilities; Logging Requirements.
+- `requirement IDs`: `MVP-028`, supporting `MVP-006`, `MVP-011`, `MVP-014`, `MVP-020`, and `MVP-025`; `handoff`: `H-2026-05-21-003`.
+- `selected slice`: Create and verify a Figma handoff that consumes `/api/student/dashboard` protected-access audit proof.
+- `active Figma file`: `z4t4tFPAKrMDh6pIYOeEw6`.
+- `Figma page/node touched`: `05 Full MVP Alpha Prototype`; node `173:2` (`Prototype / 24 / Student dashboard access audit handoff`).
+- `what changed`: Added route/data/permission/audit states for signed-out dashboard request, student own view, student-other denial, mentor active assignment, program-teacher scoped cohort, and admin-allowed/misc-admin-denied access. The handoff maps dashboard access to `/api/student/dashboard`, `/api/auth/me`, `/workspace`, `/admin/audit`, `/api/audit-events`, protected-record entities, and audit events `student_dashboard_unauthorized`, `student_dashboard_denied`, and `student_dashboard_viewed`.
+- `verification`: `use_figma` created node `173:2`, then fixed row autosizing and text heights after the first readback. Final readback found 49 text nodes, zero suspicious clipped text nodes, zero child overflow, 5 permission scopes, 5 guardrails, and 4 acceptance checks. `get_design_context` and `get_screenshot` succeeded for node `173:2`; screenshot returned `958x1024` from original `1360x1455`. Artifact registry and manifest JSON parsed; cadence verifier passed; targeted `git diff --check` passed with CRLF warnings only.
+- `files changed`: Figma design docs, artifact registry, automation memory, Figma lane log, handoff ledger, MVP catalog, this run log, and `docs/progress/runs/2026-05-21-0324-figma-student-dashboard-access-audit.json`.
+- `implementation handoff`: Rebuild should treat `/api/student/dashboard` route-level access auditing as consumed and broaden the same audited role/scope matrix to remaining workflow endpoints plus hosted no-assignment and section-level permission-denied browser proof.
+- `blockers`: none for Figma; Drive upload remains blocked by redacted Google Drive HTTP 403, and `HD-2026-05-21-001` remains open for real-user setup credential delivery policy.
+- `phone tracker`: not appended; Google Sheets connector was not used.
+- `self-improvement`: none.
+- `commit/push status`: pending closeout commit.

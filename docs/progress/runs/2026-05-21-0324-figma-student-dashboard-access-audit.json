@@ -1,0 +1,186 @@
+{
+  "run_id": "2026-05-21-0324-figma-student-dashboard-access-audit",
+  "timestamp_local": "2026-05-21T03:24:00-07:00",
+  "automation_id": "senior-capstone-figma-product-builder-15",
+  "lane": "figma-only product builder",
+  "status": "completed",
+  "accepted_mvp_pass": true,
+  "requirement_ids": [
+    "MVP-028",
+    "MVP-006",
+    "MVP-011",
+    "MVP-014",
+    "MVP-020",
+    "MVP-025"
+  ],
+  "backlog_ids": [
+    "SC-005",
+    "SC-006"
+  ],
+  "handoff_ids": [
+    "H-2026-05-21-003",
+    "H-2026-05-18-008"
+  ],
+  "output_kind": "figma-student-dashboard-access-audit-handoff",
+  "scope": "Create and verify a Figma handoff that consumes /api/student/dashboard protected-access audit proof and directs rebuild toward remaining workflow endpoint permission/audit depth.",
+  "selected_figma_slice": "Student dashboard protected access and audit handoff after route-level rebuild proof.",
+  "figma": {
+    "file_key": "z4t4tFPAKrMDh6pIYOeEw6",
+    "url": "https://www.figma.com/design/z4t4tFPAKrMDh6pIYOeEw6",
+    "page": "05 Full MVP Alpha Prototype",
+    "page_id": "98:2",
+    "node_touched": {
+      "node_id": "173:2",
+      "name": "Prototype / 24 / Student dashboard access audit handoff",
+      "frame_size": "1360x1455",
+      "mutation_performed": true,
+      "shared_plugin_data_key": "senior_capstone/student_dashboard_access_audit_contract_2026_05_21"
+    },
+    "consumed_run": "2026-05-21-0306-student-dashboard-access-audit-mvp-006",
+    "consumed_manifest": "docs/progress/runs/2026-05-21-0306-student-dashboard-access-audit-mvp-006.json",
+    "consumed_commit": "d8eb8c95b56406c0c8c051ea0d55876986112567",
+    "states": [
+      "signed-out dashboard request",
+      "student own dashboard viewed",
+      "student-other denied",
+      "mentor active assignment",
+      "program-teacher scoped cohort",
+      "admin allowed / misc-admin denied"
+    ],
+    "routes": [
+      "/api/student/dashboard",
+      "/api/auth/me",
+      "/workspace",
+      "/admin/audit",
+      "/api/audit-events"
+    ],
+    "records": [
+      "User",
+      "UserRole",
+      "StudentProfile",
+      "StaffProfile",
+      "MentorAssignment",
+      "StaffProgramAssignment",
+      "Program",
+      "Cohort",
+      "RequirementProgress",
+      "Submission",
+      "EvidenceArtifact",
+      "AuditEvent"
+    ],
+    "audit_events": [
+      "student_dashboard_unauthorized",
+      "student_dashboard_denied",
+      "student_dashboard_viewed"
+    ],
+    "permission_scopes": [
+      "student self only",
+      "active mentor assignment",
+      "matching program/cohort teacher scope",
+      "admin inspection",
+      "misc-admin broad denial"
+    ],
+    "guardrails": [
+      "no other-student records",
+      "no Drive storage identifiers",
+      "redacted audit metadata",
+      "fake .test proof only",
+      "safe 401/403 UI copy"
+    ],
+    "verification": [
+      {
+        "tool": "use_figma create/readback",
+        "result": "created node 173:2; initial readback found fixed-height rows and clipped 10px text"
+      },
+      {
+        "tool": "use_figma layout correction",
+        "result": "passed; node expanded to 1360x1455 with 49 text nodes, zero suspicious clipped text nodes, and zero child overflow"
+      },
+      {
+        "tool": "get_design_context",
+        "node_id": "173:2",
+        "result": "passed; returned route/data/permission/audit handoff context"
+      },
+      {
+        "tool": "get_screenshot",
+        "node_id": "173:2",
+        "result": "passed; returned 958x1024 from original 1360x1455"
+      }
+    ]
+  },
+  "source_docs_read": [
+    "C:\\Users\\bryan\\.codex\\automations\\senior-capstone-figma-product-builder-15\\memory.md",
+    "docs/design/figma-first-pass-product-system.md",
+    "docs/design/figma-product-preview-state-variants.md",
+    "docs/master-plan.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/automation-cadence.md",
+    "docs/automation-runbook.md",
+    "docs/automation-memory.md",
+    "docs/progress/run-log.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/decision-log.md",
+    "docs/artifacts.json",
+    "docs/human-decisions.md",
+    "docs/progress/figma.md",
+    "docs/automation-backlog.md",
+    "recent docs/progress/runs/*.json",
+    "docs/progress/runs/2026-05-21-0306-student-dashboard-access-audit-mvp-006.json"
+  ],
+  "repo_files_changed": [
+    "docs/design/figma-first-pass-product-system.md",
+    "docs/design/figma-product-preview-state-variants.md",
+    "docs/artifacts.json",
+    "docs/automation-memory.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/progress/figma.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-21-0324-figma-student-dashboard-access-audit.json"
+  ],
+  "implementation_handoff": "Rebuild should treat /api/student/dashboard protected access as consumed and broaden the same audited role/scope matrix to submissions, reviews, evidence, archive/export, mentor meetings, presentation slots, and dashboard aggregate readbacks; hosted no-assignment and section-level permission-denied browser proof remains pending.",
+  "validation": [
+    {
+      "command": "Figma use_figma create/readback and layout correction for node 173:2",
+      "result": "passed"
+    },
+    {
+      "command": "Figma get_design_context for node 173:2",
+      "result": "passed"
+    },
+    {
+      "command": "Figma get_screenshot for node 173:2",
+      "result": "passed; returned 958x1024 from original 1360x1455"
+    },
+    {
+      "command": "Get-Content docs/artifacts.json and this manifest through ConvertFrom-Json",
+      "result": "passed; JSON parsed"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\verify-cadence-30min.ps1 -RepoRoot .",
+      "result": "passed; quarter-hour cadence verification passed"
+    },
+    {
+      "command": "git diff --check -- current-run files",
+      "result": "passed with CRLF warnings only"
+    }
+  ],
+  "backend_code_work_avoided": true,
+  "forbidden_files_touched": false,
+  "figma_blocker": null,
+  "run_log_updated": true,
+  "structured_manifest_created": true,
+  "artifacts_json_updated": true,
+  "mvp_catalog_changed": true,
+  "human_decisions_changed": false,
+  "decision_log_changed": false,
+  "self_improvement": "none",
+  "phone_tracker": {
+    "result": "not_appended",
+    "reason": "Google Sheets connector was not used in this run; repo-local closeout evidence was preserved."
+  },
+  "branch_before": "main",
+  "branch_after": "main",
+  "commit_sha": "pending",
+  "push_result": "pending"
+}
