@@ -1,0 +1,145 @@
+{
+  "run_id": "2026-05-21-0037-admin-users-import-mvp-004-007",
+  "timestamp_local": "2026-05-21T00:37:00-07:00",
+  "automation_id": "senior-capstone-nonfigma-mvp-builder-30",
+  "lane": "non-figma MVP builder",
+  "selected_category": "backend-security-data",
+  "status": "completed",
+  "accepted_mvp_pass": true,
+  "requirement_ids": [
+    "MVP-004",
+    "MVP-005",
+    "MVP-007",
+    "MVP-020",
+    "MVP-025",
+    "MVP-033"
+  ],
+  "backlog_ids": [
+    "SC-005",
+    "SC-006"
+  ],
+  "handoff_ids": [
+    "H-2026-05-21-001",
+    "H-2026-05-18-006"
+  ],
+  "output_kind": "admin-users-import-endpoint-tests-docs",
+  "bounded_scope": "Add admin user import/provisioning with generated reset-required temporary credentials, initial role assignment, duplicate/scope validation, and redacted audit metadata without direct Figma work.",
+  "source_docs_read": [
+    "C:\\Users\\bryan\\.codex\\automations\\senior-capstone-nonfigma-mvp-builder-30\\memory.md",
+    "docs/master-plan.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/automation-cadence.md",
+    "docs/automation-runbook.md",
+    "docs/automation-self-improvement.md",
+    "docs/automation-memory.md",
+    "docs/automation-milestones.md",
+    "docs/progress/run-log.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/decision-log.md",
+    "docs/automation-backlog.md",
+    "docs/artifacts.json",
+    "docs/human-decisions.md",
+    "docs/progress/rebuild.md",
+    "recent docs/progress/runs/*.json",
+    "functions/_lib/auth.ts",
+    "functions/_lib/crypto.ts",
+    "functions/_lib/http.ts",
+    "functions/_lib/permissions.ts",
+    "functions/_lib/workflow.ts",
+    "functions/api/admin/role-assignments.ts",
+    "functions/api/admin/users/[id]/require-password-reset.ts",
+    "tests/admin-role-assignments.integration.test.mjs",
+    "tests/admin-password-reset.integration.test.mjs",
+    "tests/auth-login.integration.test.mjs"
+  ],
+  "figma_work_avoided": true,
+  "direct_figma_tools_called": false,
+  "changes": [
+    "Added /api/admin/users/import as an admin-only, reason-required route for importing up to 25 users.",
+    "The route validates email format, duplicate emails within the request, existing D1 emails, role records, and program/cohort scopes before mutating records.",
+    "Successful imports create user_accounts rows in pending_reset status, create password_credentials rows with generated one-time temporary credentials and requires_reset=1, and create initial user_roles rows assigned by the admin.",
+    "The route returns temporary credentials only in the no-store admin response with one_time_admin_display delivery guidance.",
+    "Import user and import batch audit events record reason, role/scope, and credential policy while excluding temporary credential values.",
+    "Added tests/admin-users-import.integration.test.mjs and regenerated docs/generated/production-route-inventory.md for /api/admin/users/import."
+  ],
+  "files_changed": [
+    "functions/api/admin/users/import.ts",
+    "tests/admin-users-import.integration.test.mjs",
+    "docs/generated/production-route-inventory.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/automation-backlog.md",
+    "docs/automation-memory.md",
+    "docs/artifacts.json",
+    "docs/progress/handoffs.md",
+    "docs/progress/rebuild.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-21-0037-admin-users-import-mvp-004-007.json"
+  ],
+  "validation": [
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 tests\\admin-users-import.integration.test.mjs",
+      "result": "pass; 5/5 admin user import tests"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 tests\\auth-login.integration.test.mjs",
+      "result": "pass"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 tests\\admin-password-reset.integration.test.mjs",
+      "result": "pass; 6/6 admin password reset tests"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 inventory:production-routes",
+      "result": "pass; wrote docs/generated/production-route-inventory.md"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 typecheck",
+      "result": "pass"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 test",
+      "result": "pass; 161 passing tests and 3 expected opt-in local-server skips"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 check:production-surfaces",
+      "result": "pass; 91 production text surfaces scanned"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 check:route-inventory",
+      "result": "pass"
+    },
+    {
+      "command": "git diff --check -- functions/api/admin/users/import.ts tests/admin-users-import.integration.test.mjs docs/generated/production-route-inventory.md",
+      "result": "pass; CRLF normalization warnings only"
+    }
+  ],
+  "blockers": [
+    {
+      "code": "DRIVE_UPLOAD_FAILED_HTTP_403",
+      "cause": "Existing live Drive check reaches token exchange, root folder, and index sheet, but Google Drive create/upload returns redacted HTTP 403.",
+      "bryan_must_act": true,
+      "next_safe_action": "Confirm service-account file-create permission/quota/Workspace policy for the configured root folder, then rerun npm run check:drive:live."
+    }
+  ],
+  "next_actions": [
+    "Add hosted/admin UI proof for import and credential lifecycle states.",
+    "Decide whether email delivery or invitations are needed beyond one-time admin display credentials.",
+    "Continue broader role-scope and protected-record tests before pilot use.",
+    "Resolve the Drive upload HTTP 403 before accepting real student uploads."
+  ],
+  "self_improvement": "none",
+  "run_log_updated": true,
+  "structured_manifest_created": true,
+  "artifacts_json_updated": true,
+  "mvp_catalog_changed": true,
+  "human_decisions_changed": false,
+  "phone_tracker": {
+    "updated": false,
+    "reason": "Google Sheets connector was not used in this run; repo-local closeout evidence was preserved."
+  },
+  "branch_before": "main",
+  "branch_after": "main",
+  "implementation_commit_sha": "6592b3b",
+  "closeout_commit_sha": "pending",
+  "push_result": "pending"
+}

@@ -17,6 +17,19 @@ Each rebuild run should append a dated entry with:
 
 ## Entries
 
+### 2026-05-21 00:37 PT - MVP-004/MVP-007 Admin User Import
+
+- `automation`: `senior-capstone-nonfigma-mvp-builder-30`
+- `master-plan section`: Role-Aware Production App Contract; Stack And Deployment Direction; Logging Requirements.
+- `source docs/logs read`: automation memory fallback at `C:\Users\bryan\.codex\automations\senior-capstone-nonfigma-mvp-builder-30\memory.md`, required master plan/catalog/cadence/runbook/self-improvement/memory/milestones/progress docs, recent run manifests, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, `docs/progress/rebuild.md`, and existing auth/admin role/reset route patterns.
+- `backlog or requirement IDs selected`: `SC-005`, `SC-006`, `MVP-004`, `MVP-005`, `MVP-007`, supporting `MVP-020`, `MVP-025`, and `MVP-033`.
+- `bounded scope`: Add admin import/provisioning for users with generated reset-required temporary credentials, initial role assignment, duplicate/scope validation, and redacted audit metadata without direct Figma work.
+- `files changed`: `functions/api/admin/users/import.ts`, `tests/admin-users-import.integration.test.mjs`, `docs/generated/production-route-inventory.md`, `docs/mvp-requirements-catalog.md`, `docs/automation-backlog.md`, `docs/automation-memory.md`, `docs/artifacts.json`, `docs/progress/handoffs.md`, this rebuild log, `docs/progress/run-log.md`, and structured run manifest.
+- `validation`: focused admin import integration passed with 5 tests; existing auth login and admin password reset regressions passed; strict `typecheck` passed; full `test` passed with 161 passing tests and 3 expected opt-in workspace smoke skips; `check:production-surfaces` passed with 91 surfaces; `check:route-inventory` passed; targeted `git diff --check` passed with CRLF warnings only.
+- `self-improvement`: none.
+- `commit/push status`: implementation commit `6592b3b` created on `main`; closeout docs commit and push pending.
+- `next action`: Add hosted/admin UI proof for import and credential lifecycle states, decide whether email delivery/invitations are needed beyond one-time admin display, then continue broader role-scope/protected-record tests and Drive upload 403 resolution.
+
 ### 2026-05-21 00:09 PT - MVP-004 Active-User Password Change
 
 - `automation`: `senior-capstone-nonfigma-mvp-builder`

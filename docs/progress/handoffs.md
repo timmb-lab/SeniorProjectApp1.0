@@ -17,13 +17,13 @@ Status values:
 
 - `source lane`: figma-only / design-assets-handoff
 - `owner lane`: non-figma / account-lifecycle and backend-security-data
-- `status`: open
+- `status`: in-progress
 - `source`: MVP-028 credential lifecycle handoff
 - `artifact`: active Figma file `z4t4tFPAKrMDh6pIYOeEw6`, page `05 Full MVP Alpha Prototype`, node `153:2` (`Prototype / 21 / Credential lifecycle handoff`), shared plugin data key `senior_capstone/credential_lifecycle_contract_2026_05_21`, and repo notes in `docs/progress/figma.md`.
-- `next action`: Consume node `153:2` when finishing invitation/import, generated or temporary credential policy, hosted reset-panel proof, signed-in password-change proof, admin reset-required initiation proof, stale-session fallback proof, and redacted audit coverage.
+- `next action`: Consume the remaining node `153:2` proof needs by adding hosted/import UI proof, reset-panel proof, signed-in password-change proof, admin reset-required initiation proof, stale-session fallback proof, and redacted audit coverage.
 - `acceptance check`: Credential lifecycle blockers stay distinct from role-pending, no-assignment, and section-denied workspace states; reset-required users do not enter role dashboards first; admin reset requires reason and cannot target self; password changes require current password and never log secrets; successful credential rotation closes stale sessions; denied attempts write redacted audit events; fake `.test` accounts are used for proof.
-- `evidence to close`: Passing auth/admin reset/workspace browser tests plus hosted marker or browser proof for reset completion, active-user password change, admin reset initiation, stale-session fallback, invalid-current denial, and weak/reused-password guidance; no passwords, temporary credentials, or real student records appear in docs, Figma, screenshots, logs, or chat.
-- `last updated`: 2026-05-21 00:22 PT
+- `evidence to close`: `/api/admin/users/import` now covers admin-only import, generated reset-required temporary credentials, initial role assignment, duplicate/scope validation, and redacted audit metadata with `tests/admin-users-import.integration.test.mjs`. Remaining evidence: hosted marker or browser proof for import, reset completion, active-user password change, admin reset initiation, stale-session fallback, invalid-current denial, and weak/reused-password guidance; no passwords, temporary credentials, or real student records appear in docs, Figma, screenshots, logs, or chat.
+- `last updated`: 2026-05-21 00:37 PT
 
 ### H-2026-05-20-005
 
@@ -152,10 +152,10 @@ Status values:
 - `status`: in-progress
 - `source`: automation operating-infrastructure pass plus revised MVP direction
 - `artifact`: `SC-005`, `HD-2026-05-18-001`, `docs/architecture/adr-0001-stack-auth-database-upload.md`
-- `next action`: Finish the scaffold by broadening permission tests, adding server-side Drive upload credentials, implementing account provisioning/import, deciding whether generated/temporary credential policy is needed, and implementing first admin/progress workflow endpoints.
+- `next action`: Finish the scaffold by broadening permission tests, resolving the Drive upload HTTP 403, adding hosted/admin UI proof for import/provisioning, deciding whether email delivery or invitations are needed beyond one-time admin display credentials, and implementing first admin/progress workflow endpoints.
 - `acceptance check`: Tests cover hardened auth, student-own access, assigned mentor access, program/cohort teacher access, admin access, misc-admin narrowing, protected evidence access, unauthorized denial, valid status transitions, and audit events.
-- `evidence to close`: Passing tests plus first vertical-slice endpoints that use the D1 schema and Google Drive evidence repository metadata without real student data. D1-backed alpha flow, state-machine tests, alpha framework/check/CI, deployment verification, first-admin bootstrap, fake role-account seeding, login proof, admin-only seed endpoint guard evidence, reset-required `/api/auth/complete-reset` credential rotation, admin reset initiation, and active-user `/api/auth/change-password` credential rotation with audit/session tests now exist; broader permission tests, invitation/import, generated/temporary credential policy, and Drive upload credentials remain before close.
-- `last updated`: 2026-05-21 00:09 PT
+- `evidence to close`: Passing tests plus first vertical-slice endpoints that use the D1 schema and Google Drive evidence repository metadata without real student data. D1-backed alpha flow, state-machine tests, alpha framework/check/CI, deployment verification, first-admin bootstrap, fake role-account seeding, login proof, admin-only seed endpoint guard evidence, reset-required `/api/auth/complete-reset` credential rotation, admin reset initiation, active-user `/api/auth/change-password` credential rotation, and admin `/api/admin/users/import` provisioning with generated reset-required temporary credentials and redacted audit tests now exist; broader permission tests, hosted/import UI proof or email-delivery policy, and Drive upload credentials remain before close.
+- `last updated`: 2026-05-21 00:37 PT
 
 ### H-2026-05-18-008
 

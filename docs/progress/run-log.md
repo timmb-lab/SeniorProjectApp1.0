@@ -28,6 +28,19 @@ This is the compact run log for the current quarter-hour split-builder automatio
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-05-21 00:37 PT - MVP-004/MVP-007 Admin User Import
+
+- `automation ID`: `senior-capstone-nonfigma-mvp-builder-30`.
+- `lane`: non-Figma MVP builder / backend-security-data.
+- `master-plan sections`: Role-Aware Production App Contract; Stack And Deployment Direction; Logging Requirements.
+- `requirement IDs`: `MVP-004`, `MVP-005`, `MVP-007`, supporting `MVP-020`, `MVP-025`, and `MVP-033`; `backlog IDs`: `SC-005`, `SC-006`; `handoff`: partial consumption of `H-2026-05-21-001`.
+- `selected slice`: Add admin user import/provisioning with generated reset-required temporary credentials and initial role assignment without direct Figma work.
+- `changed`: `/api/admin/users/import` now requires an admin session and reason, accepts up to 25 users, validates duplicate emails plus role/program/cohort scopes, creates `pending_reset` accounts, hashes generated one-time temporary credentials with `requires_reset=1`, assigns the initial role, and audits user/batch imports without writing temporary credentials to audit metadata. Route inventory now includes `/api/admin/users/import`.
+- `validation`: focused admin import test passed (5/5); auth login regression passed; admin reset regression passed; strict typecheck passed; full test suite passed (161 pass / 3 expected local-server skips); production-surface check passed; route-inventory check passed; targeted `git diff --check` passed with CRLF warnings only.
+- `commit`: implementation commit `6592b3b` (`rebuild: add admin user import (MVP-004)`) created on `main`; closeout docs commit follows.
+- `blockers`: none for this slice. Existing Drive live blocker remains Google Drive upload HTTP 403 after token/root/index probes pass; real uploads are still not accepted.
+- `self-improvement`: none.
+
 ## 2026-05-21 00:22 PT - MVP-028 Credential Lifecycle Handoff
 
 - `automation ID`: `senior-capstone-figma-product-builder-15`.
