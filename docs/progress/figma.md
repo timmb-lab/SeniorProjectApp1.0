@@ -9,7 +9,7 @@ Figma remains a product-design source for route, state, data, and permission han
 - Active Figma file: `https://www.figma.com/design/z4t4tFPAKrMDh6pIYOeEw6`
 - File key: `z4t4tFPAKrMDh6pIYOeEw6`
 - Team id: `1638213362346160913`
-- Key implementation nodes: `18:2`, `31:2`, `37:2`, `43:2`, `48:2`, `56:2`, `61:2`, `69:2`, `78:2`, full MVP alpha prototype page `98:2`, production boundary node `124:2`, workspace account edge-state node `133:2`, presentation dashboard state node `139:2`, celebration archive readiness node `144:2`, and archive provider/retention node `149:2`.
+- Key implementation nodes: `18:2`, `31:2`, `37:2`, `43:2`, `48:2`, `56:2`, `61:2`, `69:2`, `78:2`, full MVP alpha prototype page `98:2`, production boundary node `124:2`, workspace account edge-state node `133:2`, presentation dashboard state node `139:2`, celebration archive readiness node `144:2`, archive provider/retention node `149:2`, and Drive archive delivery node `151:2`.
 
 ## Current Guidance
 
@@ -125,4 +125,18 @@ Figma work is owned by `senior-capstone-figma-product-builder-15` and `senior-ca
 - `verification`: Existing page inspection found only archive nodes `144:2` and `149:2`; Code Connect search found no repo files and design-system search only found the local archived status pill, so the frame reused local prototype conventions. `use_figma` created node `151:2` and returned 102 text nodes, zero suspicious clipped text nodes, zero child overflow, 6 states, 5 routes, 10 records, and 6 acceptance checks. `get_design_context` and `get_screenshot` succeeded for node `151:2`; screenshot returned `684x1024` from original `1360x2038`.
 - `implementation handoff`: Rebuild should use node `151:2` after node `149:2` when adding Drive-backed package files or signed-link delivery, hosted fake-account archive UI proof, remote D1 migration `0007` readback, scoped download/expired retry states, and no raw Drive ID rendering.
 - `phone tracker`: not appended; Google Sheets connector was not used in this run, and repo-local closeout evidence was preserved.
+- `self-improvement`: none
+
+## 2026-05-20 23:19 PT - MVP-028 Drive Archive Delivery Verification
+
+- `automation ID`: `senior-capstone-figma-product-builder-15`
+- `selected requirement IDs`: `MVP-028`, supporting `MVP-018`, `MVP-020`, `MVP-022`, `MVP-026`, and `MVP-027`
+- `selected slice`: Screenshot and metadata re-verification for the existing Drive archive delivery handoff after live Drive checks classified the remaining blocker as service-account root/index visibility.
+- `active file`: `z4t4tFPAKrMDh6pIYOeEw6`
+- `page`: `05 Full MVP Alpha Prototype`
+- `node verified`: `151:2` (`Prototype / 20 / Drive archive delivery handoff`)
+- `changed in Figma`: No canvas mutation. This was a verification-only Figma slice to keep the active handoff evidence current while another automation owned dirty implementation docs.
+- `verification`: `get_design_context` succeeded for node `151:2` and returned the route/data/permission contract with the expected Drive delivery states, admin export queue contract, student archive card contract, and acceptance checks. `get_screenshot` succeeded for node `151:2`; screenshot returned `684x1024` from original `1360x2038`.
+- `implementation handoff`: Rebuild should continue to use node `151:2` for hosted fake-account archive proof after Drive service-account root/index sharing is fixed, while keeping provider, migration, retention, and permission states distinct.
+- `repo logging note`: Pre-existing dirty shared docs from another automation included `docs/artifacts.json`, `docs/progress/handoffs.md`, `docs/progress/run-log.md`, `docs/mvp-requirements-catalog.md`, and `docs/human-decisions.md`. This run intentionally updated only this Figma lane log plus its new structured manifest so the commit can stage only run-owned files.
 - `self-improvement`: none
