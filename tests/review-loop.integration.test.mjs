@@ -29,6 +29,15 @@ test("end-to-end teacher review loop persists history and updates queue", async 
       status: "submitted",
       version: 1,
     });
+    assert.equal(fixture.db.data.auditEvents[0].action, "submission_submitted");
+    assert.deepEqual(fixture.db.data.auditEvents[0].metadata, {
+      studentId: "student-a",
+      fromStatus: "draft",
+      toStatus: "submitted",
+      version: 1,
+      evidenceCount: 1,
+      actorRoleScopes: [{ roleId: "student", scopeType: "global", scopeId: "" }],
+    });
   }
 
   // teacher sees submission in queue
@@ -206,6 +215,93 @@ test("student submission blocks when no evidence artifacts exist", async () => {
   assert.equal(response.status, 409);
   const body = await response.json();
   assert.deepEqual(body, { error: "submission_missing_evidence", ok: false });
+  assert.equal(fixture.db.data.auditEvents.length, 1);
+  assert.equal(fixture.db.data.auditEvents[0].action, "submission_submit_blocked_missing_evidence");
+  assert.deepEqual(fixture.db.data.auditEvents[0].metadata, {
+    reason: "missing_required_evidence",
+    submissionId: "submission-1",
+    studentId: "student-a",
+    status: "draft",
+    evidenceCount: 0,
+    actorRoleScopes: [{ roleId: "student", scopeType: "global", scopeId: "" }],
+  });
+});
+
+test("student submission audits unauthorized and denied access", async () => {
+  {
+    const fixture = await createFixture();
+
+    const response = await onSubmitSubmission({
+      request: buildAuthedRequest("https://example.test/api/submissions/submission-1/submit", null, {
+        method: "POST",
+      }),
+      env: fixture.env,
+      params: { id: "submission-1" },
+    });
+
+    assert.equal(response.status, 401);
+    assert.deepEqual(await response.json(), { error: "unauthorized", ok: false });
+    assert.equal(fixture.db.data.auditEvents.length, 1);
+    assert.equal(fixture.db.data.auditEvents[0].actor_user_id, null);
+    assert.equal(fixture.db.data.auditEvents[0].action, "submission_submit_unauthorized");
+    assert.equal(fixture.db.data.auditEvents[0].entity_type, "submission");
+    assert.equal(fixture.db.data.auditEvents[0].entity_id, "submission-1");
+    assert.deepEqual(fixture.db.data.auditEvents[0].metadata, { reason: "missing_session" });
+  }
+
+  {
+    const fixture = await createFixture();
+    const otherStudentToken = await addAuthedUser(fixture.db, {
+      userId: "student-b",
+      displayName: "Student B",
+      roleId: "student",
+    });
+
+    const response = await onSubmitSubmission({
+      request: buildAuthedRequest("https://example.test/api/submissions/submission-1/submit", otherStudentToken, {
+        method: "POST",
+      }),
+      env: fixture.env,
+      params: { id: "submission-1" },
+    });
+
+    assert.equal(response.status, 403);
+    assert.deepEqual(await response.json(), { error: "forbidden", ok: false });
+    assert.equal(fixture.db.data.auditEvents.length, 1);
+    assert.equal(fixture.db.data.auditEvents[0].action, "submission_submit_denied");
+    assert.deepEqual(fixture.db.data.auditEvents[0].metadata, {
+      reason: "student_scope_denied",
+      studentId: "student-a",
+      actorRoleScopes: [{ roleId: "student", scopeType: "global", scopeId: "" }],
+    });
+  }
+
+  for (const roleId of ["mentor", "program_teacher", "admin", "misc_admin"]) {
+    const fixture = await createFixture();
+    const token = await addAuthedUser(fixture.db, {
+      userId: `${roleId}-submit`,
+      displayName: `${roleId} submit`,
+      roleId,
+    });
+
+    const response = await onSubmitSubmission({
+      request: buildAuthedRequest("https://example.test/api/submissions/submission-1/submit", token, {
+        method: "POST",
+      }),
+      env: fixture.env,
+      params: { id: "submission-1" },
+    });
+
+    assert.equal(response.status, 403, roleId);
+    assert.deepEqual(await response.json(), { error: "forbidden", ok: false }, roleId);
+    assert.equal(fixture.db.data.auditEvents.length, 1, roleId);
+    assert.equal(fixture.db.data.auditEvents[0].action, "submission_submit_denied", roleId);
+    assert.deepEqual(fixture.db.data.auditEvents[0].metadata, {
+      reason: "student_scope_denied",
+      studentId: "student-a",
+      actorRoleScopes: [{ roleId, scopeType: "global", scopeId: "" }],
+    }, roleId);
+  }
 });
 
 test("teacher review queue audits unauthorized and denied staff access", async () => {

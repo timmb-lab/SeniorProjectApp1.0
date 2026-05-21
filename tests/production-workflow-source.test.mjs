@@ -37,8 +37,10 @@ test("student submission endpoint persists status history and audit events", () 
   assert.match(submitRoute, /UPDATE submissions/);
   assert.match(submitRoute, /UPDATE progress_records/);
   assert.match(submitRoute, /writeStatusHistory/);
+  assert.match(submitRoute, /submission_submit_unauthorized/);
   assert.match(submitRoute, /submission_submitted/);
   assert.match(submitRoute, /submission_submit_denied/);
+  assert.match(submitRoute, /actorRoleScopes/);
 });
 
 test("student evidence endpoint validates HTTPS metadata and keeps file upload pending", () => {

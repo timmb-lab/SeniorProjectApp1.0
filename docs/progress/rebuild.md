@@ -573,3 +573,18 @@ Each rebuild run should append a dated entry with:
 - `self-improvement`: none.
 - `commit/push status`: pending closeout commit and push.
 - `next action`: Continue protected-record depth through submission submit/detail, evidence upload/download proof, mentor meetings, presentation slots, archive/export, and hosted permission UI proof.
+
+### 2026-05-21 05:06 PT - MVP-012 Submission Submit Access Audit
+
+- `automation`: `senior-capstone-nonfigma-mvp-builder`
+- `master-plan section`: Role-Aware Production App Contract; North Star Workflow; Logging Requirements.
+- `source docs/logs read`: automation memory at `C:\Users\bryan\.codex\automations\senior-capstone-nonfigma-mvp-builder\memory.md`, required master plan/catalog/cadence/runbook/self-improvement/memory/milestones/progress docs, recent run manifests, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, `docs/progress/rebuild.md`, submit route, review-loop tests, workflow/permission helpers, and production workflow source tests.
+- `backlog or requirement IDs selected`: `SC-005`, `SC-006`, `MVP-006`, `MVP-010`, `MVP-012`, `MVP-020`, and `MVP-025`.
+- `bounded scope`: Extend the protected-record audit matrix to `/api/submissions/:id/submit` without direct Figma work.
+- `files changed`: `functions/api/submissions/[id]/submit.ts`, `tests/review-loop.integration.test.mjs`, `tests/production-workflow-source.test.mjs`, `docs/mvp-requirements-catalog.md`, `docs/automation-backlog.md`, `docs/automation-memory.md`, `docs/artifacts.json`, `docs/progress/handoffs.md`, this rebuild log, `docs/progress/run-log.md`, and structured run manifest `docs/progress/runs/2026-05-21-0506-submission-submit-access-audit-mvp-012.json`.
+- `validation`: focused review-loop integration passed with 7/7 tests; production-workflow source test passed with 11/11 tests; strict typecheck passed; production-surface checker passed with 91 surfaces; full `test` passed with 179 passing tests and 4 expected opt-in skips; aggregate `check` passed with cadence/predeploy/static-live Cloudflare verification and 179 passing tests / 4 expected skips.
+- `blockers`: live Drive upload still fails with redacted Google Drive HTTP 403 after token/root/index probes pass; real-user setup credential delivery remains Bryan decision `HD-2026-05-21-001`; hosted browser no-assignment and section-level permission-denied proof remains open.
+- `phone tracker`: not appended; Google Sheets connector was not used.
+- `self-improvement`: none.
+- `commit/push status`: pending implementation/run-record commit and push.
+- `next action`: Continue protected-record depth through submission detail/readback, evidence upload/download live proof after Drive 403 resolution, mentor meetings, presentation slots, archive/export, and hosted permission UI proof.

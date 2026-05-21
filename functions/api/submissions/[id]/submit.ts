@@ -1,7 +1,7 @@
-import type { Env } from "../../../_types.ts";
+import type { Env, RoleAssignment, UserAccount } from "../../../_types.ts";
 import { getCurrentUser, writeAudit } from "../../../_lib/auth.ts";
 import { badRequest, json, requirePost } from "../../../_lib/http.ts";
-import { hasRole } from "../../../_lib/permissions.ts";
+import { getRoleAssignments, hasRole } from "../../../_lib/permissions.ts";
 import { getSubmission, workflowError, writeStatusHistory, writeSubmissionVersionSnapshot } from "../../../_lib/workflow.ts";
 
 export const onRequestPost: PagesFunction<Env> = async ({ request, env, params }) => {
@@ -12,18 +12,19 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, params }
   if (!submissionId) return badRequest("missing_submission_id");
 
   const user = await getCurrentUser(request, env);
-  if (!user) return workflowError("unauthorized", 401);
+  if (!user) {
+    await auditSubmissionSubmit(env, request, null, "submission_submit_unauthorized", submissionId, {
+      reason: "missing_session",
+    });
+    return workflowError("unauthorized", 401);
+  }
 
   const submission = await getSubmission(env, submissionId);
   if (!submission) return workflowError("not_found", 404);
   if (submission.student_id !== user.id || !await hasRole(env, user.id, "student")) {
-    await writeAudit(env, {
-      actorUserId: user.id,
-      action: "submission_submit_denied",
-      entityType: "submission",
-      entityId: submissionId,
-      request,
-      metadata: { studentId: submission.student_id },
+    await auditSubmissionSubmit(env, request, user, "submission_submit_denied", submission.id, {
+      reason: "student_scope_denied",
+      studentId: submission.student_id,
     });
     return workflowError("forbidden", 403);
   }
@@ -41,18 +42,12 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, params }
 
   const evidenceCount = Number(evidenceCountRow?.evidence_count || 0);
   if (!Number.isFinite(evidenceCount) || evidenceCount <= 0) {
-    await writeAudit(env, {
-      actorUserId: user.id,
-      action: "submission_submit_blocked_missing_evidence",
-      entityType: "submission",
-      entityId: submission.id,
-      request,
-      metadata: {
-        submissionId: submission.id,
-        studentId: submission.student_id,
-        status: submission.status,
-        evidenceCount,
-      },
+    await auditSubmissionSubmit(env, request, user, "submission_submit_blocked_missing_evidence", submission.id, {
+      reason: "missing_required_evidence",
+      submissionId: submission.id,
+      studentId: submission.student_id,
+      status: submission.status,
+      evidenceCount,
     });
     return workflowError("submission_missing_evidence", 409);
   }
@@ -94,17 +89,12 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, params }
     reason: "Student submitted proposal for review.",
   });
 
-  await writeAudit(env, {
-    actorUserId: user.id,
-    action: "submission_submitted",
-    entityType: "submission",
-    entityId: submission.id,
-    request,
-    metadata: {
-      fromStatus: submission.status,
-      toStatus: "submitted",
-      version: nextVersion,
-    },
+  await auditSubmissionSubmit(env, request, user, "submission_submitted", submission.id, {
+    studentId: submission.student_id,
+    fromStatus: submission.status,
+    toStatus: "submitted",
+    version: nextVersion,
+    evidenceCount,
   });
 
   return json({
@@ -117,3 +107,40 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, params }
     },
   });
 };
+
+async function auditSubmissionSubmit(
+  env: Env,
+  request: Request,
+  user: UserAccount | null,
+  action: string,
+  submissionId: string,
+  metadata: Record<string, unknown>,
+): Promise<void> {
+  const auditMetadata = user
+    ? {
+        ...metadata,
+        actorRoleScopes: serializeRoleScopes(await getRoleAssignments(env, user.id)),
+      }
+    : metadata;
+
+  await writeAudit(env, {
+    actorUserId: user?.id || null,
+    action,
+    entityType: "submission",
+    entityId: submissionId,
+    request,
+    metadata: auditMetadata,
+  });
+}
+
+function serializeRoleScopes(assignments: RoleAssignment[]): Array<{
+  roleId: string;
+  scopeType: string;
+  scopeId: string;
+}> {
+  return assignments.map((assignment) => ({
+    roleId: assignment.role_id,
+    scopeType: assignment.scope_type,
+    scopeId: assignment.scope_id,
+  }));
+}

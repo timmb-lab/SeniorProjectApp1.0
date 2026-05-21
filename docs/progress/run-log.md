@@ -28,6 +28,21 @@ This is the compact run log for the current quarter-hour split-builder automatio
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-05-21 05:06 PT - MVP-012 Submission Submit Access Audit
+
+- `automation ID`: `senior-capstone-nonfigma-mvp-builder`.
+- `lane`: non-Figma MVP builder / student-workflow-evidence.
+- `master-plan sections`: Role-Aware Production App Contract; North Star Workflow; Logging Requirements.
+- `requirement IDs`: `MVP-006`, `MVP-010`, `MVP-012`, `MVP-020`, and `MVP-025`; `backlog IDs`: `SC-005`, `SC-006`; `handoffs`: partial consumption of `H-2026-05-21-003` and progress on `H-2026-05-18-006`.
+- `selected slice`: Extend the protected-record audit matrix to `/api/submissions/:id/submit` without direct Figma work.
+- `what changed`: `/api/submissions/:id/submit` now audits missing-session attempts as `submission_submit_unauthorized`, adds redacted actor role scopes to `submission_submit_denied`, records reason/role scopes for `submission_submit_blocked_missing_evidence`, and includes `studentId`, `evidenceCount`, and role scopes on successful `submission_submitted` audits.
+- `files changed`: `functions/api/submissions/[id]/submit.ts`, `tests/review-loop.integration.test.mjs`, `tests/production-workflow-source.test.mjs`, MVP/backlog/artifact/memory/handoff/progress docs, and structured run manifest `docs/progress/runs/2026-05-21-0506-submission-submit-access-audit-mvp-012.json`.
+- `validation`: focused review-loop integration passed with 7/7 tests; production-workflow source test passed with 11/11 tests; strict typecheck passed; production-surface checker passed with 91 surfaces; full `test` passed with 179 passing tests and 4 expected opt-in skips; aggregate `check` passed with cadence/predeploy/static-live Cloudflare verification and 179 passing tests / 4 expected skips.
+- `blockers`: live Drive upload still fails with redacted Google Drive HTTP 403 after token/root/index probes pass; real-user setup credential delivery remains Bryan decision `HD-2026-05-21-001`; hosted browser no-assignment and section-level permission-denied proof remains open.
+- `phone tracker`: not appended; Google Sheets connector was not used.
+- `self-improvement`: none.
+- `commit/push status`: pending implementation/run-record commit and push.
+
 ## 2026-05-21 04:54 PT - MVP-028 Evidence Link Access Audit Handoff
 
 - `automation ID`: `senior-capstone-figma-product-builder`.
