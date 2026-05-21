@@ -3,6 +3,9 @@ import test from "node:test";
 
 import { sha256Hex, validatePassword, verifyPassword } from "../functions/_lib/crypto.ts";
 import { onRequestPost } from "../functions/api/admin/users/import.ts";
+import { onRequest as onCompleteReset } from "../functions/api/auth/complete-reset.ts";
+import { onRequest as onLogin } from "../functions/api/auth/login.ts";
+import { onRequestGet as onMe } from "../functions/api/auth/me.ts";
 
 test("admin users import returns 401 when session is missing", async () => {
   const { env } = createFixture();
@@ -38,6 +41,13 @@ test("admin users import returns 403 when caller is not admin", async () => {
 
   assert.equal(response.status, 403);
   assert.deepEqual(await response.json(), { error: "forbidden", ok: false });
+  assert.equal(fixture.db.data.auditEvents.length, 1);
+  assert.equal(fixture.db.data.auditEvents[0].action, "admin_users_import_denied");
+  assert.equal(fixture.db.data.auditEvents[0].actor_user_id, "mentor-a");
+  assert.deepEqual(fixture.db.data.auditEvents[0].metadata, {
+    reason: "forbidden",
+    requiredRole: "admin",
+  });
 });
 
 test("admin users import validates json, reason, users, duplicate emails, and role scopes", async () => {
@@ -258,6 +268,95 @@ test("admin users import creates pending-reset users, role assignments, credenti
   assert.equal(fixture.db.data.auditEvents[2].metadata.importedCount, 2);
 });
 
+test("admin users import enforces reset-first login and keeps credential values out of audits", async () => {
+  const fixture = await createFixtureWithSession({ userId: "admin-a", roleId: "admin" });
+  const newPassword = "Ready-For-Capstone-2026!";
+
+  const importResponse = await onRequestPost({
+    request: buildJsonRequest(
+      "https://example.test/api/admin/users/import",
+      {
+        reason: "Initial pilot roster import.",
+        users: [studentInput({ email: "reset.first@senior-capstone.test", displayName: "Reset First" })],
+      },
+      { cookie: `sc_session=${fixture.token}` },
+    ),
+    env: fixture.env,
+    params: {},
+  });
+
+  assert.equal(importResponse.status, 200);
+  assert.equal(importResponse.headers.get("cache-control"), "no-store");
+  const importBody = await importResponse.json();
+  const importedUser = importBody.users[0];
+  assert.equal(importedUser.status, "pending_reset");
+  assert.equal(importedUser.mustReset, true);
+  assert.equal(importedUser.delivery, "one_time_admin_display");
+
+  const createdUser = fixture.db.data.userAccounts.find((row) => row.id === importedUser.id);
+  const credential = fixture.db.data.passwordCredentials.find((row) => row.user_id === importedUser.id);
+  assert.equal(createdUser.status, "pending_reset");
+  assert.equal(credential.requires_reset, 1);
+  assert.equal(await verifyPassword(importedUser.temporaryPassword, credential.password_hash, credential.password_salt, ""), true);
+
+  const resetRequiredLogin = await onLogin({
+    request: buildJsonRequest("https://example.test/api/auth/login", {
+      email: importedUser.email,
+      password: importedUser.temporaryPassword,
+    }),
+    env: fixture.env,
+  });
+  assert.equal(resetRequiredLogin.status, 403);
+  assert.deepEqual(await resetRequiredLogin.json(), { error: "password_reset_required" });
+
+  const resetResponse = await onCompleteReset({
+    request: buildJsonRequest("https://example.test/api/auth/complete-reset", {
+      email: importedUser.email,
+      currentPassword: importedUser.temporaryPassword,
+      newPassword,
+    }),
+    env: fixture.env,
+  });
+  assert.equal(resetResponse.status, 200);
+  const resetCookie = resetResponse.headers.get("set-cookie")?.split(";")[0];
+  assert.ok(resetCookie);
+  assert.equal(createdUser.status, "active");
+  assert.equal(credential.requires_reset, 0);
+  assert.equal(credential.password_version, 2);
+  assert.equal(await verifyPassword(newPassword, credential.password_hash, credential.password_salt, ""), true);
+
+  const oldTemporaryPasswordLogin = await onLogin({
+    request: buildJsonRequest("https://example.test/api/auth/login", {
+      email: importedUser.email,
+      password: importedUser.temporaryPassword,
+    }),
+    env: fixture.env,
+  });
+  assert.equal(oldTemporaryPasswordLogin.status, 401);
+
+  const normalLoginCookie = await loginAndExtractCookie({
+    env: fixture.env,
+    email: importedUser.email,
+    password: newPassword,
+  });
+  assert.match(normalLoginCookie, /^sc_session=/);
+
+  const meResponse = await onMe({
+    request: new Request("https://example.test/api/auth/me", { headers: { cookie: resetCookie } }),
+    env: fixture.env,
+  });
+  assert.equal(meResponse.status, 200);
+  const meBody = await meResponse.json();
+  assert.equal(meBody.authenticated, true);
+  assert.equal(meBody.user.email, importedUser.email);
+  assert.equal(meBody.user.roles.some((row) => row.role_id === "student"), true);
+
+  const auditJson = JSON.stringify(fixture.db.data.auditEvents);
+  assert.equal(auditJson.includes(importedUser.temporaryPassword), false);
+  assert.equal(auditJson.includes(newPassword), false);
+  assert.equal(fixture.db.data.auditEvents.some((row) => row.action === "password_reset_completed"), true);
+});
+
 function studentInput(overrides = {}) {
   return {
     email: "student-a@senior-capstone.test",
@@ -291,10 +390,22 @@ function buildJsonRequest(url, data, headers = {}) {
   });
 }
 
+async function loginAndExtractCookie({ env, email, password }) {
+  const response = await onLogin({
+    request: buildJsonRequest("https://example.test/api/auth/login", { email, password }),
+    env,
+  });
+  assert.equal(response.status, 200);
+  const setCookie = response.headers.get("set-cookie");
+  assert.ok(setCookie);
+  return setCookie.split(";")[0];
+}
+
 function createFixture(options = {}) {
   const db = new MockD1Database({
     userAccounts: [],
     passwordCredentials: [],
+    loginAttempts: [],
     sessions: [],
     userRoles: [],
     roles: (options.roles ?? ["student", "mentor", "program_teacher", "admin", "misc_admin"]).map((id) => ({ id })),
@@ -351,6 +462,10 @@ class MockD1Database {
   prepare(sql) {
     return new MockPreparedStatement(sql, this.data);
   }
+
+  nowIso() {
+    return new Date().toISOString();
+  }
 }
 
 class MockPreparedStatement {
@@ -366,9 +481,57 @@ class MockPreparedStatement {
   }
 
   async first() {
+    if (this.sql.startsWith("select count(*) as count from login_attempts")) {
+      const [identifierHash] = this.params;
+      const count = this.data.loginAttempts.filter(
+        (row) => row.identifier_hash === identifierHash && row.success === 0,
+      ).length;
+      return { count };
+    }
+
+    if (this.sql.includes("from user_accounts u join password_credentials c")) {
+      const [emailNorm] = this.params.map(String);
+      const user = this.data.userAccounts.find((row) => row.email_norm === emailNorm);
+      if (!user) return null;
+      const credential = this.data.passwordCredentials.find((row) => row.user_id === user.id);
+      if (!credential) return null;
+      return {
+        user_id: user.id,
+        email: user.email,
+        email_norm: user.email_norm,
+        display_name: user.display_name,
+        status: user.status,
+        password_hash: credential.password_hash,
+        password_salt: credential.password_salt,
+        password_version: credential.password_version ?? 1,
+        requires_reset: credential.requires_reset ?? 0,
+      };
+    }
+
     if (this.sql.startsWith("select id, user_id, token_hash, expires_at, revoked_at from sessions where token_hash = ?")) {
       const [tokenHash] = this.params.map(String);
       return this.data.sessions.find((row) => row.token_hash === tokenHash && !row.revoked_at) ?? null;
+    }
+
+    if (this.sql.startsWith("select id, user_id, expires_at, revoked_at from sessions where token_hash = ?")) {
+      const [tokenHash] = this.params.map(String);
+      return this.data.sessions.find((row) => row.token_hash === tokenHash) ?? null;
+    }
+
+    if (this.sql.includes("from user_accounts left join password_credentials")) {
+      const [userId] = this.params.map(String);
+      const user = this.data.userAccounts.find((row) => row.id === userId);
+      const credential = this.data.passwordCredentials.find((row) => row.user_id === userId);
+      return user
+        ? {
+            id: user.id,
+            email: user.email,
+            email_norm: user.email_norm,
+            display_name: user.display_name,
+            status: user.status,
+            requires_reset: credential?.requires_reset ?? 0,
+          }
+        : null;
     }
 
     if (this.sql.startsWith("select id, email, email_norm, display_name, status from user_accounts where id = ? and status = 'active'")) {
@@ -409,8 +572,81 @@ class MockPreparedStatement {
     throw new Error(`Unmocked D1 first() query: ${this.sql}`);
   }
 
+  async all() {
+    if (this.sql.startsWith("select role_id, scope_type, scope_id from user_roles where user_id = ?")) {
+      const [userId] = this.params.map(String);
+      return {
+        results: this.data.userRoles.filter((row) => row.user_id === userId),
+      };
+    }
+
+    throw new Error(`Unmocked D1 all() query: ${this.sql}`);
+  }
+
   async run() {
+    if (this.sql.startsWith("insert into login_attempts")) {
+      const [id, identifierHash, ipHash, success, reason] = this.params;
+      this.data.loginAttempts.push({
+        id: String(id),
+        identifier_hash: String(identifierHash),
+        ip_hash: String(ipHash),
+        success: Number(success),
+        reason,
+        created_at: new Date().toISOString(),
+      });
+      return { success: true };
+    }
+
     if (this.sql.startsWith("update sessions set last_seen_at = strftime(")) {
+      return { success: true };
+    }
+
+    if (this.sql.startsWith("insert into sessions")) {
+      const [id, userId, tokenHash, expiresAt, ipHash, userAgentHash] = this.params;
+      this.data.sessions.push({
+        id: String(id),
+        user_id: String(userId),
+        token_hash: String(tokenHash),
+        expires_at: String(expiresAt),
+        revoked_at: null,
+        ip_hash: String(ipHash),
+        user_agent_hash: String(userAgentHash),
+      });
+      return { success: true };
+    }
+
+    if (this.sql.startsWith("update password_credentials set password_hash = ?")) {
+      const [passwordHash, passwordSalt, algorithm, iterations, userId] = this.params;
+      const credential = this.data.passwordCredentials.find((row) => row.user_id === String(userId));
+      if (credential) {
+        credential.password_hash = String(passwordHash);
+        credential.password_salt = String(passwordSalt);
+        credential.algorithm = String(algorithm);
+        credential.iterations = Number(iterations);
+        credential.password_version = Number(credential.password_version || 1) + 1;
+        credential.requires_reset = 0;
+        credential.password_changed_at = new Date().toISOString();
+      }
+      return { success: true };
+    }
+
+    if (this.sql.startsWith("update user_accounts set status = 'active'")) {
+      const [userId] = this.params.map(String);
+      const user = this.data.userAccounts.find((row) => row.id === userId);
+      if (user) {
+        user.status = "active";
+        user.updated_at = new Date().toISOString();
+      }
+      return { success: true };
+    }
+
+    if (this.sql.startsWith("update sessions set revoked_at = strftime") && this.sql.includes("where user_id = ?")) {
+      const [userId] = this.params.map(String);
+      for (const session of this.data.sessions) {
+        if (session.user_id === userId && !session.revoked_at) {
+          session.revoked_at = new Date().toISOString();
+        }
+      }
       return { success: true };
     }
 

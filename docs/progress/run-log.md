@@ -799,3 +799,18 @@ Future productive runs should append compact entries that name the master-plan s
 - `phone tracker`: not appended; Google Sheets connector was not used in this run.
 - `self-improvement`: none.
 - `commit`: implementation commit `032a6eb862ebc793d8dd5a3f570b85d34c3f99c1` pushed to `origin main` (`d554dab..032a6eb`); closeout evidence commit follows this entry.
+
+## 2026-05-21 01:37 PT - MVP-004/MVP-007 Admin Import Reset-First API Proof
+
+- `automation ID`: `senior-capstone-nonfigma-mvp-builder-30`.
+- `lane`: non-Figma MVP builder / backend-security-data.
+- `master-plan sections`: Role-Aware Production App Contract; Stack And Deployment Direction; Logging Requirements.
+- `requirement IDs`: `MVP-004`, `MVP-005`, `MVP-007`, `MVP-020`, `MVP-025`, supporting `MVP-032` and `MVP-033`; `backlog IDs`: `SC-005`, `SC-006`; `handoff`: partial consumption of `H-2026-05-21-002` / Figma node `163:2` without direct Figma work.
+- `selected slice`: Add denied-role audit coverage and reset-first API proof for imported accounts.
+- `what changed`: `/api/admin/users/import` now writes `admin_users_import_denied` for authenticated non-admin attempts before returning 403. `tests/admin-users-import.integration.test.mjs` now proves import no-store output, reset-required login blocking for temporary credentials, reset completion, old temporary credential rejection, new-password login, role readback through `/api/auth/me`, and no temporary/replacement password values in audit metadata.
+- `files changed`: `functions/api/admin/users/import.ts`, `tests/admin-users-import.integration.test.mjs`, MVP/backlog/artifact/memory/handoff/progress docs, and `docs/progress/runs/2026-05-21-0137-admin-import-reset-proof-mvp-004.json`.
+- `validation`: focused admin import test passed with 6/6; auth login integration passed; strict typecheck passed; production-surface check passed with 91 surfaces; full `test` passed with 163 passing tests and 3 expected opt-in skips; aggregate `check` passed with live Cloudflare verification; `git diff --check` passed with CRLF warnings only.
+- `blockers`: browser-level fake-account import proof remains pending; real-user temporary credential delivery remains open as `HD-2026-05-21-001`; Drive upload remains blocked by redacted Google Drive HTTP 403.
+- `phone tracker`: not appended; Google Sheets connector was not used in this run.
+- `self-improvement`: none.
+- `commit`: pending.

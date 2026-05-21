@@ -244,6 +244,14 @@ Every builder run must ladder from `docs/master-plan.md` into `docs/mvp-requirem
 - Validation passed: focused workspace VM/source test (9), focused admin import route test (5), workspace browser smoke source command with 3 expected opt-in skips, strict typecheck, production-surface check, full test suite (162 pass / 3 expected skips), aggregate `check` with live Cloudflare verification, targeted `git diff --check`, and hosted `workspace.js` marker proof on poll 2.
 - Remaining account lifecycle depth: fake-account browser/API proof for validation errors, denied-role audit behavior, reset-required first login after import, and Bryan's real-user temporary credential delivery decision.
 
+### 2026-05-21 - Admin Import Reset-First API Proof
+
+- Non-Figma builder `senior-capstone-nonfigma-mvp-builder-30` advanced `MVP-004`, `MVP-005`, `MVP-007`, `MVP-020`, and `MVP-025` without direct Figma work.
+- `/api/admin/users/import` now audits authenticated non-admin attempts as `admin_users_import_denied` before returning 403, with redacted metadata.
+- `tests/admin-users-import.integration.test.mjs` now proves the imported account lifecycle: admin import returns no-store one-time setup output, normal login with the temporary credential returns `password_reset_required`, `/api/auth/complete-reset` activates the account, the old temporary credential no longer works, the new password signs in normally, `/api/auth/me` returns the assigned student role, and neither temporary nor replacement password values appear in audit metadata.
+- Validation passed: focused admin import integration (6), auth integration, strict typecheck, production-surface check, full test suite (163 pass / 3 expected skips), aggregate `check` with live Cloudflare verification, and targeted `git diff --check` with CRLF warnings only.
+- Remaining account lifecycle depth: browser-level fake-account proof for import validation/no-store/reset/stale-session states, Bryan's real-user temporary credential delivery decision, broader role-scope/protected-record tests, and Drive upload HTTP 403 resolution.
+
 ### 2026-05-21 - Figma Credential Lifecycle Handoff
 
 - Figma-only builder `senior-capstone-figma-product-builder-15` added node `153:2`, `Prototype / 21 / Credential lifecycle handoff`, to active file `z4t4tFPAKrMDh6pIYOeEw6` on page `05 Full MVP Alpha Prototype`.
@@ -279,7 +287,7 @@ Immediate next useful passes:
 2. Broaden public-site no-hidden-core-content proof across every guide route, then verify the newest workspace account-state/no-assignment markers after hosted deployment and add a live section-level permission-denied proof.
 3. Extend alpha proposal/review/evidence/audit records into real workflow endpoints.
 4. Add Google Drive server-side credential/OAuth implementation plus access-controlled evidence upload/retrieval assumptions.
-5. Add fake-account browser/API proof for account import/provisioning from Figma nodes `158:2` and `163:2`, decide the invitation or email-delivery policy before real pilot users, and keep known-gaps QA current.
+5. Add browser-level fake-account proof for account import/provisioning from Figma nodes `158:2` and `163:2`, decide the invitation or email-delivery policy before real pilot users, and keep known-gaps QA current.
 6. Keep mobile/error/empty/permission alpha QA current while the Day 7 walkthrough hardens.
 
 Real daily MVP goal: minimum 2 accepted MVP passes per calendar day, stretch 3 when unblocked, and at least 14 accepted MVP passes per week until the 100-pass target is met or recalibrated.
@@ -306,7 +314,7 @@ Current backlog anchors:
 - `SC-002`: guided Research Proposal Challenge UI and review queue spec.
 - `SC-003`: Google Drive EvidenceArtifact model is in progress; metadata tables and root folder exist, but upload credentials and permission tests are still needed.
 - `SC-004`: mentor meetings, presentation scheduling, celebration evidence, archive/export workflows; Drive-backed archive package upload now exists locally, while hosted proof needs Cloudflare token plus Drive secrets.
-- `SC-005`: P0 Cloudflare stack/auth/database/user-group/progress/private-upload scaffold is in progress with Pages/D1/migrations/auth endpoints, password/session pepper secrets, Drive root folder configured, D1-backed alpha flow, state-machine tests, alpha contract checks, CI, production alpha deployment, verified first-admin bootstrap, login-verified fake role test accounts, reset-required password completion, admin reset initiation, active-user credential rotation, admin user import with generated reset-required temporary credentials, canonical workspace import UI marker proof, Figma node `158:2` for import/credential display handoff, and Figma node `163:2` for admin import proof QA; broader permission tests, browser/API import proof or email-delivery policy, and Drive upload credentials remain.
+- `SC-005`: P0 Cloudflare stack/auth/database/user-group/progress/private-upload scaffold is in progress with Pages/D1/migrations/auth endpoints, password/session pepper secrets, Drive root folder configured, D1-backed alpha flow, state-machine tests, alpha contract checks, CI, production alpha deployment, verified first-admin bootstrap, login-verified fake role test accounts, reset-required password completion, admin reset initiation, active-user credential rotation, admin user import with generated reset-required temporary credentials, canonical workspace import UI marker proof, denied-role audit, reset-first import API proof, Figma node `158:2` for import/credential display handoff, and Figma node `163:2` for admin import proof QA; broader permission tests, browser-level import proof or email-delivery policy, and Drive upload credentials remain.
 - `SC-006`: P0 Day 7 full app-flow alpha due 2026-05-24 PT; production user accounts may be incomplete, and the first D1-backed seeded alpha flow plus fake login-capable role accounts now exist.
 
 ## Known External Artifact Memory

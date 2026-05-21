@@ -53,7 +53,20 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
 
   const caller = await getCurrentUser(request, env);
   if (!caller) return workflowError("unauthorized", 401);
-  if (!await isAdmin(env, caller.id)) return workflowError("forbidden", 403);
+  if (!await isAdmin(env, caller.id)) {
+    await writeAudit(env, {
+      actorUserId: caller.id,
+      action: "admin_users_import_denied",
+      entityType: "user_import_batch",
+      entityId: null,
+      request,
+      metadata: {
+        reason: "forbidden",
+        requiredRole: "admin",
+      },
+    });
+    return workflowError("forbidden", 403);
+  }
 
   let body: ImportUsersBody;
   try {

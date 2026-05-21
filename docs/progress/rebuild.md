@@ -468,3 +468,18 @@ Each rebuild run should append a dated entry with:
 - `phone tracker`: not appended; Google Sheets connector was not used in this run.
 - `self-improvement`: none.
 - `next action`: Run fake-account browser/API proof for admin import validation states, reset-required first login, denied role attempts, and no credential leakage, or implement the approved invitation/email delivery path after Bryan decides.
+
+### 2026-05-21 01:37 PT - MVP-004/MVP-007 Admin Import Reset-First API Proof
+
+- `automation`: `senior-capstone-nonfigma-mvp-builder-30`
+- `master-plan section`: Role-Aware Production App Contract; Stack And Deployment Direction; Logging Requirements.
+- `source docs/logs read`: automation memory at `C:\Users\bryan\.codex\automations\senior-capstone-nonfigma-mvp-builder-30\memory.md` (empty/missing), required master plan/catalog/cadence/runbook/self-improvement/memory/milestones/progress docs, recent run manifests, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, `docs/progress/rebuild.md`, and import/auth route/test files.
+- `backlog or requirement IDs selected`: `SC-005`, `SC-006`, `MVP-004`, `MVP-005`, `MVP-007`, supporting `MVP-020`, `MVP-025`, `MVP-032`, and `MVP-033`.
+- `bounded scope`: Consume part of Figma node `163:2` without direct Figma work by proving the admin import reset-first API path and adding a denied-role audit event.
+- `files changed`: `functions/api/admin/users/import.ts`, `tests/admin-users-import.integration.test.mjs`, `docs/mvp-requirements-catalog.md`, `docs/automation-backlog.md`, `docs/automation-memory.md`, `docs/artifacts.json`, `docs/progress/handoffs.md`, this rebuild log, `docs/progress/run-log.md`, and structured run manifest `docs/progress/runs/2026-05-21-0137-admin-import-reset-proof-mvp-004.json`.
+- `validation`: `tests/admin-users-import.integration.test.mjs` passed with 6/6 import tests; `tests/auth-login.integration.test.mjs` passed; strict `typecheck` passed; `check:production-surfaces` passed with 91 surfaces; full `test` passed with 163 passing tests and 3 expected opt-in skips; aggregate `check` passed with cadence/predeploy/static-live Cloudflare checks and 163 passing tests / 3 expected skips; targeted `git diff --check` passed with CRLF warnings only.
+- `commit/push status`: pending closeout commit and push.
+- `blockers`: live Drive upload still fails with redacted Google Drive HTTP 403 after token/root/index probes pass; real-user setup credential delivery remains Bryan decision `HD-2026-05-21-001`; browser-level fake-account import proof is still pending.
+- `phone tracker`: not appended; Google Sheets connector was not used in this run.
+- `self-improvement`: none.
+- `next action`: Add browser-level fake-account proof for import validation/no-store/reset/stale-session states, then either implement Bryan's approved credential-delivery path or continue broader role-scope/protected-record tests.

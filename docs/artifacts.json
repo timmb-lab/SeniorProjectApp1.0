@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-05-21T01:08:00-07:00",
+  "updated_at": "2026-05-21T01:37:00-07:00",
   "artifacts": [
     {
       "id": "cloudflare-pages-senior-capstone-app",
@@ -181,7 +181,8 @@
         "2026-05-20 22:40 PT: workspace.js renders data-auth-action=\"complete-reset\" when reset is required; tests/workspace-app.test.mjs and tests/workspace-browser-smoke.test.mjs cover the source markers. Direct hosted https://senior-capstone-app.pages.dev/workspace.js returned HTTP 200 with data-auth-action=\"complete-reset\" on poll 2 after push; in-app Browser UI proof remains pending because Browser tools were not exposed in this session.",
         "2026-05-21 00:09 PT: /api/auth/change-password and the workspace Security tab were added for active-user self credential rotation. tests/auth-login.integration.test.mjs covers invalid current password denial, weak/unchanged rejection, password_version increment, old-session revocation, fresh-session issuance, password_changed_by_user/password_change_denied audit events, old-password rejection, and new-password login; tests/workspace-app.test.mjs covers data-auth-action=\"change-password\". Post-push hosted workspace.js returned HTTP 200 with /api/auth/change-password and data-auth-action=\"change-password\" on poll 3.",
         "2026-05-21 00:37 PT: /api/admin/users/import was added for admin account import/provisioning with reason-required import, duplicate email and role/scope validation, generated one-time temporary credentials, pending_reset user state, requires_reset credentials, initial role assignment, and redacted audit metadata. tests/admin-users-import.integration.test.mjs passed, full test suite passed with 161 pass / 3 expected skips, production-surface check passed, route inventory includes /api/admin/users/import, and hosted unauthenticated POST returned HTTP 401 on poll 2 after push.",
-        "2026-05-21 01:08 PT: workspace.js added the admin-only Users tab for /api/admin/users/import with data-admin-action=\"import-users\", no-store response marker, and data-admin-import-result=\"one-time-setup-passwords\" output. tests/workspace-app.test.mjs passed with 9 workspace VM/source tests, full test passed with 162 pass / 3 expected skips, production-surface check passed, and hosted workspace.js contained all admin import markers on poll 2 after implementation commit 5b23d15."
+        "2026-05-21 01:08 PT: workspace.js added the admin-only Users tab for /api/admin/users/import with data-admin-action=\"import-users\", no-store response marker, and data-admin-import-result=\"one-time-setup-passwords\" output. tests/workspace-app.test.mjs passed with 9 workspace VM/source tests, full test passed with 162 pass / 3 expected skips, production-surface check passed, and hosted workspace.js contained all admin import markers on poll 2 after implementation commit 5b23d15.",
+        "2026-05-21 01:37 PT: /api/admin/users/import now audits authenticated non-admin attempts as admin_users_import_denied. tests/admin-users-import.integration.test.mjs proves import no-store setup output, reset-required login blocking, /api/auth/complete-reset activation, post-reset normal login, role readback through /api/auth/me, and no temporary or replacement password leakage in audit metadata; full test passed with 163 pass / 3 expected skips and aggregate check passed with live Cloudflare verification."
       ],
       "last_updated": "2026-05-21"
     },
