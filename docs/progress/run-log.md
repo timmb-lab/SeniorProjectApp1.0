@@ -28,6 +28,18 @@ This is the compact run log for the current quarter-hour split-builder automatio
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-05-21 11:02 PT - TheCapstoneApp Pages Domain Attach Pending
+
+- `automation ID`: manual Codex live custom-domain cutover completion pass.
+- `scope`: Attach the resolved production hostnames to the correct Cloudflare Pages projects through the Pages Domains API, then verify live DNS/TLS and app/public health without changing onboarding, automation cadence, stakeholder review sites, or alpha/account policy.
+- `domain association result`: `thecapstoneapp.com` and `www.thecapstoneapp.com` were attached to `senior-capstone-public`; `app.thecapstoneapp.com` was attached to `senior-capstone-app`. All three ended `pending` with pending validation/verification status after a bounded wait.
+- `stakeholder exclusion`: `senior-capstone-option-titan` and `senior-capstone-option-primary` listed no production hostnames.
+- `live status`: `check:cloudflare:live` passed for the app Pages project and D1. `check:custom-domain-cutover --live-required --live-http` remained blocked because the three Pages custom domains are pending and all six HTTPS custom-host checks fail DNS resolution. `check:production-cutover` correctly remained blocked on the custom-domain live gate.
+- `zone/DNS note`: the token verified and had Pages Write, but `thecapstoneapp.com` was not observed through the safe zone list query. Public DNS did not resolve the apex, www, or app hostnames during this pass.
+- `security`: no secrets, token values, fake passwords, real users, real student data, raw storage IDs, or provider secret-bearing errors were printed or committed.
+- `open decisions`: alpha/account pilot policy remains Option A safety and not final pilot-safe; real-user credential delivery, Google Docs live export fixture/provider policy, archive retention, and stakeholder option lifecycle remain open.
+- `commit/push status`: evidence commit follows this entry.
+
 ## 2026-05-21 10:22 PT - TheCapstoneApp Custom Domain Cutover Gate
 
 - `automation ID`: manual Codex deployment-safety pass.

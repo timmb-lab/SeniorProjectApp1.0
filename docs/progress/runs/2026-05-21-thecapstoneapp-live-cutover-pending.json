@@ -1,0 +1,173 @@
+{
+  "runId": "2026-05-21-thecapstoneapp-live-cutover-pending",
+  "timestampPt": "2026-05-21T11:02:06-07:00",
+  "startSha": "8832b31dae9eb7fd87472e446d6b0438e2bf794a",
+  "endSha": null,
+  "scope": "Live Cloudflare Pages custom-domain attachment and verification pass for thecapstoneapp.com.",
+  "domainMapping": {
+    "domain": "thecapstoneapp.com",
+    "rootMode": "guide-root-app-subdomain",
+    "public": {
+      "hostnames": [
+        "thecapstoneapp.com",
+        "www.thecapstoneapp.com"
+      ],
+      "pagesProject": "senior-capstone-public",
+      "fallback": "https://senior-capstone-public.pages.dev"
+    },
+    "app": {
+      "hostname": "app.thecapstoneapp.com",
+      "pagesProject": "senior-capstone-app",
+      "fallback": "https://senior-capstone-app.pages.dev"
+    },
+    "stakeholderOptions": {
+      "senior-capstone-option-titan": "review-only; no production hostnames listed",
+      "senior-capstone-option-primary": "review-only; no production hostnames listed"
+    }
+  },
+  "cloudflareTokenScope": {
+    "tokenPresent": true,
+    "tokenVerified": true,
+    "tokenStatus": "active",
+    "pagesRead": "pass",
+    "pagesWrite": "pass via successful Pages Domains API create calls",
+    "zoneVisibility": "zone not observed by safe zones query"
+  },
+  "domainAssociationActions": [
+    {
+      "hostname": "thecapstoneapp.com",
+      "targetProject": "senior-capstone-public",
+      "startingStatus": "missing",
+      "action": "attached via Pages Domains API",
+      "endingStatus": "pending",
+      "validationStatus": "pending",
+      "verificationStatus": "pending"
+    },
+    {
+      "hostname": "www.thecapstoneapp.com",
+      "targetProject": "senior-capstone-public",
+      "startingStatus": "missing",
+      "action": "attached via Pages Domains API",
+      "endingStatus": "pending",
+      "validationStatus": "pending",
+      "verificationStatus": "pending"
+    },
+    {
+      "hostname": "app.thecapstoneapp.com",
+      "targetProject": "senior-capstone-app",
+      "startingStatus": "missing",
+      "action": "attached via Pages Domains API",
+      "endingStatus": "pending",
+      "validationStatus": "pending",
+      "verificationStatus": "pending"
+    }
+  ],
+  "liveHttpsResults": [
+    {
+      "url": "https://thecapstoneapp.com/",
+      "statusCode": null,
+      "finalUrl": null,
+      "result": "fail",
+      "safeReason": "DNS name did not resolve"
+    },
+    {
+      "url": "https://www.thecapstoneapp.com/",
+      "statusCode": null,
+      "finalUrl": null,
+      "result": "fail",
+      "safeReason": "DNS name did not resolve"
+    },
+    {
+      "url": "https://app.thecapstoneapp.com/",
+      "statusCode": null,
+      "finalUrl": null,
+      "result": "fail",
+      "safeReason": "DNS name did not resolve"
+    },
+    {
+      "url": "https://app.thecapstoneapp.com/workspace.html",
+      "statusCode": null,
+      "finalUrl": null,
+      "result": "fail",
+      "safeReason": "DNS name did not resolve"
+    },
+    {
+      "url": "https://app.thecapstoneapp.com/api/health",
+      "statusCode": null,
+      "finalUrl": null,
+      "result": "fail",
+      "safeReason": "DNS name did not resolve"
+    },
+    {
+      "url": "https://app.thecapstoneapp.com/api/auth/me",
+      "statusCode": null,
+      "finalUrl": null,
+      "result": "fail",
+      "safeReason": "DNS name did not resolve"
+    }
+  ],
+  "commandResults": [
+    {
+      "command": "check:production-surfaces",
+      "result": "pass"
+    },
+    {
+      "command": "check:route-inventory",
+      "result": "pass"
+    },
+    {
+      "command": "check:generated-output-drift",
+      "result": "pass"
+    },
+    {
+      "command": "check:custom-domain-cutover",
+      "result": "pass_static_live_not_verified"
+    },
+    {
+      "command": "check:alpha-account-gating",
+      "result": "pass_static_option_a_warning"
+    },
+    {
+      "command": "check:cloudflare",
+      "result": "pass_static"
+    },
+    {
+      "command": "check:cloudflare:live",
+      "result": "pass"
+    },
+    {
+      "command": "check:custom-domain-cutover --live-required --live-http",
+      "result": "block",
+      "notes": "Pages associations are pending and HTTPS custom-host checks fail DNS resolution."
+    },
+    {
+      "command": "check:production-cutover",
+      "result": "block",
+      "notes": "Aggregate correctly blocks on the custom-domain live gate."
+    }
+  ],
+  "alphaAccountPolicyStatus": {
+    "currentState": "Option A safety",
+    "pilotSafe": false,
+    "notes": "alpha.html and account.html remain deployed but unlinked, internal-labeled, fake .test only, and not pilot-safe final production unless Bryan accepts direct URL exposure or chooses Option B/C."
+  },
+  "securityPrivacyConfirmation": {
+    "realUserOnboardingUnchanged": true,
+    "realUsersCreated": false,
+    "realStudentDataUsed": false,
+    "fakePasswordsCommitted": false,
+    "secretsCommitted": false,
+    "secretsPrinted": false,
+    "rawDriveIdsAddedToUserFacingOutput": false,
+    "providerSecretBearingErrorsLeaked": false
+  },
+  "openDecisions": [
+    "Alpha/account pilot policy Option B/C or explicit direct exposure acceptance",
+    "HD-2026-05-21-001 real-user credential delivery",
+    "HD-2026-05-21-002 Google Docs live export fixture/provider policy",
+    "Archive retention policy",
+    "Stakeholder option lifecycle",
+    "Cloudflare DNS/TLS activation for the three pending custom domains"
+  ],
+  "finalStatus": "CUSTOM_DOMAIN_CUTOVER_PENDING_DNS_TLS"
+}
