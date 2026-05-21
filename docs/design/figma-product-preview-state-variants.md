@@ -550,6 +550,11 @@ Created/updated frames:
   - Created route/data/permission/audit annotations after `/api/submissions/:id/submit` gained missing-session, denied, missing-evidence blocked, and successful submit audits in run `2026-05-21-0506-submission-submit-access-audit-mvp-012`.
   - State annotations cover signed-out submit request, cross-student submit denied, staff submit route denied, missing evidence blocks submit, successful submit snapshots version, and immutable review-loop handoff behavior.
   - Shared plugin data key `senior_capstone/submission_submit_access_audit_contract_2026_05_21` records consumed commit `c35dd306c199f29d3e5d64a802c6912ca4de13c0`, 6 states, 6 routes, 10 records, 5 permission scopes, 6 guardrails, 6 acceptance checks, and the next rebuild action for submission detail/readback, evidence upload/download, mentor meeting, presentation slot, archive/export, and hosted permission UI proof.
+- 2026-05-21 submission detail access audit handoff on `05 Full MVP Alpha Prototype`
+  - `Prototype / 29 / Submission detail access audit handoff`, node `190:2`
+  - Created route/data/permission/audit annotations after `GET /api/submissions/:id` gained missing-session, denied, scoped readback, actor-role-scope, and no-storage-identifier proof in run `2026-05-21-0535-submission-detail-access-audit-mvp-012`.
+  - State annotations cover signed-out detail request, student-other detail denied, misc-admin broad access denied, student-own detail readback, mentor/teacher/admin scoped view, and evidence summary storage redaction.
+  - Shared plugin data key `senior_capstone/submission_detail_access_audit_contract_2026_05_21` records consumed commits `48de622de03b1c1ea660ee8b613d6b23c3d139b4` and `427d9fd17d6493765fa853c9bb4289810c6c71fa`, 6 states, 7 routes, 12 records, 7 permission scopes, 6 guardrails, and the next rebuild action for evidence upload/download, mentor meeting, presentation slot, archive/export, dashboard aggregate readbacks, and hosted permission UI proof.
 
 Verification status:
 - Canvas write succeeded and returned the frame IDs above.
@@ -650,3 +655,7 @@ Verification status:
 - 2026-05-21 `use_figma` write created node `187:2` to map submission submit protected-access audit states after `/api/submissions/:id/submit` proof landed.
 - Final readback found 50 text nodes, zero suspicious clipped text nodes, zero child overflow, 6 states, 6 routes, 10 records, 5 permission scopes, 6 guardrails, and 6 acceptance checks in shared contract data.
 - `get_design_context` and `get_screenshot` succeeded for node `187:2`; screenshot verification returned `1024x1013` from original `1360x1345`.
+- 2026-05-21 `use_figma` write created node `190:2` to map submission detail/readback protected-access audit states after `GET /api/submissions/:id` proof landed.
+- Initial readback found fixed-width text nodes and horizontal rows collapsed to 1px height; targeted text-height and row autosizing corrections expanded node `190:2` to `1360x1381`.
+- Final readback found 51 text nodes, zero collapsed text nodes, zero suspicious clipped text nodes, zero child overflow, 6 states, 7 routes, 12 records, 3 audit events, 7 permission scopes, and 6 guardrails in shared contract data.
+- `get_design_context` and `get_screenshot` succeeded for node `190:2`; screenshot verification returned `1009x1024` from original `1360x1381`.
