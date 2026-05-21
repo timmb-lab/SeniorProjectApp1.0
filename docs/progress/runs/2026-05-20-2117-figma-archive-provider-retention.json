@@ -1,0 +1,232 @@
+{
+  "run_id": "2026-05-20-2117-figma-archive-provider-retention",
+  "timestamp_local": "2026-05-20T21:17:00-07:00",
+  "automation_id": "senior-capstone-figma-product-builder-15",
+  "lane": "figma-only product builder",
+  "status": "completed",
+  "accepted_mvp_pass": true,
+  "requirement_ids": [
+    "MVP-028",
+    "MVP-018",
+    "MVP-020",
+    "MVP-022",
+    "MVP-027"
+  ],
+  "backlog_ids": [
+    "SC-004"
+  ],
+  "handoff_ids": [
+    "H-2026-05-20-009",
+    "H-2026-05-20-010"
+  ],
+  "output_kind": "figma-handoff+metadata+screenshot-verification",
+  "scope": "Add and verify an archive provider, signed-link, remote migration, and retention-policy handoff after rebuild added scoped archive manifests.",
+  "selected_figma_slice": "Archive provider failure, signed/scoped link, remote D1 migration, and retention policy state handoff.",
+  "figma": {
+    "file_key": "z4t4tFPAKrMDh6pIYOeEw6",
+    "url": "https://www.figma.com/design/z4t4tFPAKrMDh6pIYOeEw6",
+    "page": "05 Full MVP Alpha Prototype",
+    "page_id": "98:2",
+    "node_touched": {
+      "node_id": "149:2",
+      "name": "Prototype / 19 / Archive provider and retention handoff",
+      "frame_size": "1360x1975",
+      "changes": [
+        "Added state cards for Drive credentials missing, provider unavailable retry, generation queued, scoped package ready, retention window expiring, and policy review required.",
+        "Mapped archive delivery UI to /api/admin/exports/student-archive, /api/exports/:id/download, /api/student/archive/readiness, /api/evidence/drive-probe, /api/submissions/:id/evidence/upload, and /admin/audit.",
+        "Mapped records ExportRequest, StudentArchiveExport, ExportArtifact, EvidenceArtifact, EvidenceRepository, AuditEvent, RetentionPolicy, UserGroupRole, RequirementProgress, and Deadline.",
+        "Stored shared plugin data key senior_capstone/archive_provider_retention_contract_2026_05_20.",
+        "Recorded Cloudflare token and Google Drive credential blockers as implementation/deployment setup context, not Figma blockers."
+      ]
+    },
+    "shared_plugin_data": {
+      "namespace": "senior_capstone",
+      "key": "archive_provider_retention_contract_2026_05_20",
+      "state_count": 6,
+      "route_count": 6,
+      "record_count": 10,
+      "permission_scope_count": 5,
+      "guardrail_count": 6,
+      "acceptance_check_count": 7,
+      "states": [
+        "drive_credentials_missing",
+        "provider_unavailable_retry",
+        "generation_queued",
+        "scoped_package_ready",
+        "retention_window_expiring",
+        "policy_review_required"
+      ],
+      "routes": [
+        "/api/admin/exports/student-archive",
+        "/api/exports/:id/download",
+        "/api/student/archive/readiness",
+        "/api/evidence/drive-probe",
+        "/api/submissions/:id/evidence/upload",
+        "/admin/audit"
+      ],
+      "records": [
+        "ExportRequest",
+        "StudentArchiveExport",
+        "ExportArtifact",
+        "EvidenceArtifact",
+        "EvidenceRepository",
+        "AuditEvent",
+        "RetentionPolicy",
+        "UserGroupRole",
+        "RequirementProgress",
+        "Deadline"
+      ],
+      "permission_scopes": [
+        "student own archive download",
+        "admin export with reason",
+        "program teacher readiness only unless explicit export scope exists",
+        "mentor assigned readiness only",
+        "misc admin denied by default unless explicit export/reporting scope exists"
+      ],
+      "guardrails": [
+        "provider failures are non-success states",
+        "storage identifiers never render to clients",
+        "download expiry and retry paths are visible",
+        "retention values remain configurable until school policy is confirmed",
+        "audit writes cover request, generation, denied, expiry, retry, and download events",
+        "fake .test accounts only until real student data is authorized"
+      ],
+      "acceptance_checks": [
+        "missing Drive secrets blocks package success",
+        "provider unavailable returns retry state and audit event",
+        "remote migration pending is visible until migration 0007 is verified",
+        "download response includes expiry and scope",
+        "expired package denies bytes and offers regeneration",
+        "RetentionPolicy values are configurable",
+        "no storage IDs, stack traces, or fake account shortcuts render"
+      ],
+      "blockers": [
+        "CLOUDFLARE_API_TOKEN missing for remote D1 migration verification",
+        "GOOGLE_DRIVE_CLIENT_EMAIL and GOOGLE_DRIVE_PRIVATE_KEY missing for live Drive delivery"
+      ],
+      "next_rebuild_action": "Add provider-unavailable generation states, retention policy handling, Drive-backed package or signed-link delivery, and hosted archive UI proof after Cloudflare/Drive secrets are available."
+    },
+    "readback": {
+      "text_node_count": 108,
+      "suspicious_clipped_text_count": 0,
+      "overflow_count": 0
+    },
+    "metadata_verification": [
+      {
+        "node_id": "149:2",
+        "tool": "get_design_context",
+        "result": "passed",
+        "summary": "Returned the final archive provider and retention handoff context."
+      }
+    ],
+    "screenshot_verification": [
+      {
+        "node_id": "149:2",
+        "tool": "get_screenshot",
+        "result": "passed",
+        "returned_size": "706x1024",
+        "original_size": "1360x1975",
+        "short_lived_asset_url_recorded": false
+      }
+    ],
+    "library_and_search_verification": [
+      {
+        "command": "rg --files -g '*.figma.ts' -g '*.figma.tsx' -g '*.figma.js' -g '*.figma.jsx'",
+        "result": "no Code Connect files found in repo"
+      },
+      {
+        "tool": "get_libraries",
+        "result": "passed",
+        "summary": "Confirmed the active file library plus Material 3, Simple Design System, and platform UI kits."
+      },
+      {
+        "tool": "search_design_system",
+        "query": "archive export retention provider unavailable status card",
+        "result": "passed-limited-local-match",
+        "summary": "Only the local Archived status pill matched; the frame reused established local prototype conventions."
+      }
+    ]
+  },
+  "source_docs_read": [
+    "C:\\Users\\bryan\\.codex\\automations\\senior-capstone-figma-product-builder-15\\memory.md",
+    "docs/design/figma-first-pass-product-system.md",
+    "docs/design/figma-product-preview-state-variants.md",
+    "docs/master-plan.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/automation-cadence.md",
+    "docs/automation-runbook.md",
+    "docs/automation-memory.md",
+    "docs/progress/run-log.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/decision-log.md",
+    "docs/artifacts.json",
+    "docs/human-decisions.md",
+    "docs/progress/figma.md",
+    "docs/automation-backlog.md",
+    "docs/automation-self-improvement.md",
+    "recent docs/progress/runs/*.json",
+    "figma-use skill",
+    "figma-generate-design skill"
+  ],
+  "repo_files_changed": [
+    "docs/design/figma-first-pass-product-system.md",
+    "docs/design/figma-product-preview-state-variants.md",
+    "docs/artifacts.json",
+    "docs/automation-memory.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/progress/figma.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-20-2117-figma-archive-provider-retention.json"
+  ],
+  "implementation_handoff": "Rebuild should consume node 149:2 when adding provider-unavailable archive generation states, retention-policy handling, Drive-backed package or signed-link delivery, and hosted archive UI proof after Cloudflare/Drive secrets are available.",
+  "validation": [
+    {
+      "command": "Figma use_figma mutation/readback",
+      "result": "passed",
+      "summary": "Created node 149:2 and read back 108 text nodes, zero suspicious clipped text nodes, and zero child overflow."
+    },
+    {
+      "command": "Figma get_design_context for node 149:2",
+      "result": "passed",
+      "summary": "Confirmed final route/data/permission handoff context."
+    },
+    {
+      "command": "Figma get_screenshot for node 149:2",
+      "result": "passed",
+      "summary": "Returned 706x1024 from original 1360x1975 frame."
+    },
+    {
+      "command": "Get-Content docs/artifacts.json and manifest | ConvertFrom-Json",
+      "result": "passed",
+      "summary": "Artifact registry and structured manifest parsed as JSON."
+    },
+    {
+      "command": "git diff --check",
+      "result": "passed",
+      "summary": "Whitespace check passed with line-ending warnings only."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\verify-cadence-30min.ps1 -RepoRoot .",
+      "result": "passed",
+      "summary": "Quarter-hour cadence verifier passed."
+    }
+  ],
+  "backend_code_work_avoided": true,
+  "forbidden_files_touched": false,
+  "figma_blocker": null,
+  "run_log_updated": true,
+  "structured_manifest_created": true,
+  "artifacts_json_updated": true,
+  "mvp_catalog_changed": true,
+  "human_decisions_changed": false,
+  "self_improvement": "none",
+  "phone_tracker": {
+    "result": "blocked",
+    "reason": "Google Sheets connector metadata call returned: Unknown tool: google drive_get_spreadsheet_metadata. Repo-local closeout evidence was preserved."
+  },
+  "branch_before": "main",
+  "branch_after": "main",
+  "commit_sha": "reported in final response because this manifest is included in the closeout commit",
+  "push_result": "reported in final response because this manifest is included in the closeout commit"
+}

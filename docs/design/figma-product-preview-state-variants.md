@@ -497,6 +497,10 @@ Created/updated frames:
   - `Prototype / 18 / Celebration archive readiness handoff`, node `144:2`
   - Created route/data/permission/state annotations for Celebration Day evidence, program-specific ingredient evidence, thank-you and mentor-note completion, reflection/portfolio readiness, May 5 archive requests, expired signed downloads, and archive permission denial.
   - Shared plugin data key `senior_capstone/celebration_archive_readiness_contract_2026_05_20` records 7 states, 8 routes, 14 records, 5 permission scopes, 7 guardrails, 7 acceptance checks, and the next rebuild action for archive/closeout workflow depth.
+- 2026-05-20 archive provider and retention handoff on `05 Full MVP Alpha Prototype`
+  - `Prototype / 19 / Archive provider and retention handoff`, node `149:2`
+  - Created route/data/permission/state annotations for missing Drive credentials, provider-unavailable retry, queued generation, scoped package readiness, expiring retention windows, and retention policy review.
+  - Shared plugin data key `senior_capstone/archive_provider_retention_contract_2026_05_20` records 6 states, 6 routes, 10 records, 5 permission scopes, 6 guardrails, 7 acceptance checks, and the current Cloudflare token plus Drive credential blockers.
 
 Verification status:
 - Canvas write succeeded and returned the frame IDs above.
@@ -559,3 +563,6 @@ Verification status:
 - 2026-05-20 `use_figma` write created node `144:2` to map `/student/celebration`, `/student/portfolio`, `/student/archive`, `/api/submissions/:id/evidence`, `/api/evidence/:id/check-access`, `/api/exports/student-archive`, `/api/exports/:id/download`, and `/admin/audit` to closeout/archive readiness states.
 - Initial readback found fixed-height horizontal rows clipping taller child cards; follow-up `use_figma` row autosizing correction adjusted 7 horizontal rows plus vertical containers, expanded node `144:2` to `1360x2218`, and returned zero suspicious clipped text nodes plus zero child overflow.
 - Final `get_design_context` and `get_screenshot` succeeded for node `144:2`; screenshot verification returned `628x1024` from original `1360x2218`, and readback confirmed 7 states, 8 routes, 14 records, 5 permission scopes, 7 guardrails, and 7 acceptance checks in shared contract data.
+- 2026-05-20 `use_figma` write created node `149:2` to map archive provider failures, remote migration pending setup, scoped package readiness, signed/scoped download expiry, and retention-policy review to persisted export/evidence/audit records.
+- Final readback found 108 text nodes, zero suspicious clipped text nodes, zero child overflow, 6 states, 6 routes, 10 records, 5 permission scopes, 6 guardrails, and 7 acceptance checks in shared contract data.
+- `get_design_context` and `get_screenshot` succeeded for node `149:2`; screenshot verification returned `706x1024` from original `1360x1975`.

@@ -9,7 +9,7 @@ Figma remains a product-design source for route, state, data, and permission han
 - Active Figma file: `https://www.figma.com/design/z4t4tFPAKrMDh6pIYOeEw6`
 - File key: `z4t4tFPAKrMDh6pIYOeEw6`
 - Team id: `1638213362346160913`
-- Key implementation nodes: `18:2`, `31:2`, `37:2`, `43:2`, `48:2`, `56:2`, `61:2`, `69:2`, `78:2`, full MVP alpha prototype page `98:2`, production boundary node `124:2`, workspace account edge-state node `133:2`, presentation dashboard state node `139:2`, and celebration archive readiness node `144:2`.
+- Key implementation nodes: `18:2`, `31:2`, `37:2`, `43:2`, `48:2`, `56:2`, `61:2`, `69:2`, `78:2`, full MVP alpha prototype page `98:2`, production boundary node `124:2`, workspace account edge-state node `133:2`, presentation dashboard state node `139:2`, celebration archive readiness node `144:2`, and archive provider/retention node `149:2`.
 
 ## Current Guidance
 
@@ -97,4 +97,18 @@ Figma work is owned by `senior-capstone-figma-product-builder-15` and `senior-ca
 - `changed in Figma`: Added closeout state annotations for Celebration Day evidence, program-specific ingredient evidence, thank-you and mentor-note completion, reflection/portfolio readiness, archive request readiness, expired signed downloads, and archive permission denial; mapped routes `/student/celebration`, `/student/portfolio`, `/student/archive`, `/api/submissions/:id/evidence`, `/api/evidence/:id/check-access`, `/api/exports/student-archive`, `/api/exports/:id/download`, and `/admin/audit`; mapped records `EvidenceArtifact`, `Submission`, `SubmissionVersion`, `Review`, `Comment`, `Requirement`, `RequirementProgress`, `Deadline`, `StudentArchiveExport`, `ExportRequest`, `ExportArtifact`, `AuditEvent`, `RetentionPolicy`, and `UserGroupRole`; stored shared plugin data key `senior_capstone/celebration_archive_readiness_contract_2026_05_20`.
 - `verification`: Initial readback found fixed-height rows clipping taller child cards. A follow-up row autosizing correction expanded node `144:2` from `1360x1784` to `1360x2218`; final readback found 87 text nodes, zero suspicious clipped text nodes, and zero child overflow. `get_design_context` and `get_screenshot` succeeded for node `144:2`; screenshot returned `628x1024` from original `1360x2218`.
 - `implementation handoff`: Rebuild should consume node `144:2` when implementing celebration evidence, thank-you/mentor note, reflection/portfolio completion, May 5 archive package, scoped signed download, expired download, provider-unavailable, and permission-denied archive states from persisted rows and audit events.
+- `self-improvement`: none
+
+## 2026-05-20 21:17 PT - MVP-028 Archive Provider And Retention Handoff
+
+- `automation ID`: `senior-capstone-figma-product-builder-15`
+- `selected requirement IDs`: `MVP-028`, supporting `MVP-018`, `MVP-020`, `MVP-022`, and `MVP-027`
+- `selected slice`: Create and verify an archive provider, signed-link, remote migration, and retention-policy handoff after rebuild added scoped archive manifests.
+- `active file`: `z4t4tFPAKrMDh6pIYOeEw6`
+- `page`: `05 Full MVP Alpha Prototype`
+- `nodes touched`: `149:2` (`Prototype / 19 / Archive provider and retention handoff`)
+- `changed in Figma`: Added state annotations for `drive_credentials_missing`, `provider_unavailable_retry`, `generation_queued`, `scoped_package_ready`, `retention_window_expiring`, and `policy_review_required`; mapped routes `/api/admin/exports/student-archive`, `/api/exports/:id/download`, `/api/student/archive/readiness`, `/api/evidence/drive-probe`, `/api/submissions/:id/evidence/upload`, and `/admin/audit`; mapped records `ExportRequest`, `StudentArchiveExport`, `ExportArtifact`, `EvidenceArtifact`, `EvidenceRepository`, `AuditEvent`, `RetentionPolicy`, `UserGroupRole`, `RequirementProgress`, and `Deadline`; stored shared plugin data key `senior_capstone/archive_provider_retention_contract_2026_05_20`.
+- `verification`: `use_figma` created node `149:2` and returned 108 text nodes, zero suspicious clipped text nodes, zero child overflow, 6 states, 6 routes, 10 records, and 7 acceptance checks. `get_design_context` and `get_screenshot` succeeded for node `149:2`; screenshot returned `706x1024` from original `1360x1975`.
+- `implementation handoff`: Rebuild should consume node `149:2` when adding provider-unavailable archive generation states, retention-policy handling, Drive-backed package or signed-link delivery, and hosted archive UI proof after Cloudflare/Drive secrets are available.
+- `phone tracker`: not appended; Google Sheets connector metadata call returned `Unknown tool: google drive_get_spreadsheet_metadata`, so repo-local closeout evidence was preserved.
 - `self-improvement`: none

@@ -596,3 +596,20 @@ Future productive runs should append compact entries that name the master-plan s
 - `blockers`: hosted edge-state proof and non-interactive Cloudflare Pages/D1 deployment/secret inspection still require `CLOUDFLARE_API_TOKEN`; live Drive upload/download still requires `GOOGLE_DRIVE_CLIENT_EMAIL` and `GOOGLE_DRIVE_PRIVATE_KEY` in Cloudflare Pages.
 - `phone tracker`: not appended; Google Sheets connector was not used in this run, and repo-local closeout evidence was preserved.
 - `self-improvement`: none.
+
+## 2026-05-20 21:17 PT - MVP-028 Archive Provider And Retention Handoff
+
+- `automation ID`: `senior-capstone-figma-product-builder-15`
+- `lane`: Figma-only product builder / design-assets-handoff.
+- `master-plan sections`: Product Destination; P0 Production Experience Gate; Lane Responsibilities; Logging Requirements.
+- `requirement IDs`: `MVP-028`, supporting `MVP-018`, `MVP-020`, `MVP-022`, and `MVP-027`.
+- `selected slice`: Add and verify an archive provider, signed-link, remote migration, and retention-policy handoff after rebuild added scoped archive manifests.
+- `active Figma file`: `z4t4tFPAKrMDh6pIYOeEw6`.
+- `Figma page/node touched`: `05 Full MVP Alpha Prototype`; node `149:2` (`Prototype / 19 / Archive provider and retention handoff`).
+- `what changed`: Added Figma state/route/data/permission annotations for Drive credential missing, provider-unavailable retry, queued generation, scoped package readiness, retention-window expiry, and retention-policy review; stored shared plugin data key `senior_capstone/archive_provider_retention_contract_2026_05_20`.
+- `verification`: `use_figma` created node `149:2` and returned 108 text nodes, zero suspicious clipped text nodes, zero child overflow, 6 states, 6 routes, 10 records, and 7 acceptance checks. `get_design_context` and `get_screenshot` succeeded; screenshot returned `706x1024` from original `1360x1975`.
+- `files changed`: Figma docs, artifact registry, automation memory, Figma lane log, handoff ledger, MVP catalog, this run log, and `docs/progress/runs/2026-05-20-2117-figma-archive-provider-retention.json`.
+- `implementation handoff`: Rebuild should consume node `149:2` when adding provider-unavailable archive generation states, retention-policy handling, Drive-backed package or signed-link delivery, and hosted archive UI proof after Cloudflare/Drive secrets are available.
+- `blockers`: none for Figma; existing Cloudflare token and Drive secret blockers remain implementation/deployment setup blockers.
+- `phone tracker`: not appended; Google Sheets connector metadata call returned `Unknown tool: google drive_get_spreadsheet_metadata`, so repo-local closeout evidence was preserved.
+- `self-improvement`: none.
