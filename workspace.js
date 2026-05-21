@@ -24,7 +24,11 @@ async function loadSession() {
     const data = await safeJson(response);
     if (!response.ok || !data?.authenticated) {
       currentUser = null;
-      renderSignIn();
+      renderSignIn(
+        messageForSessionStateError(data?.error, response.status),
+        data?.error ? "error" : "neutral",
+        workspaceStateForAuthError(data?.error),
+      );
       return;
     }
     currentUser = data.user;
@@ -81,9 +85,9 @@ function renderLoading(message) {
   `;
 }
 
-function renderSignIn(message = "", tone = "neutral") {
+function renderSignIn(message = "", tone = "neutral", workspaceState = "signed-out") {
   workspaceMain.innerHTML = `
-    <section class="workspace-auth" aria-labelledby="signInTitle">
+    <section class="workspace-auth" aria-labelledby="signInTitle" data-workspace-state="${escapeHtml(workspaceState)}">
       <div class="workspace-auth-intro">
         <a class="workspace-brand" href="index.html">
           <span class="workspace-mark">SC</span>
@@ -141,7 +145,7 @@ async function signIn(event) {
     });
     const data = await safeJson(response);
     if (!response.ok) {
-      renderSignIn(messageForAuthError(data?.error, response.status), "error");
+      renderSignIn(messageForAuthError(data?.error, response.status), "error", workspaceStateForAuthError(data?.error));
       document.querySelector("#workspaceEmail").value = email;
       return;
     }
@@ -281,9 +285,21 @@ function renderAccessBoundarySummary() {
   }
 
   const deniedSections = deniedWorkspaceSections();
-  if (!deniedSections.length) return "";
+  const noAssignmentSections = noAssignmentWorkspaceSections();
+  if (!deniedSections.length && !noAssignmentSections.length) return "";
 
   return `
+    ${noAssignmentSections.length ? `
+    <section class="workspace-card workspace-access-card" data-workspace-state="no-active-assignment">
+      <p class="workspace-kicker">No active assignment</p>
+      <h2>Workspace assignment is not active yet</h2>
+      <p>
+        Your account has a workspace role, but there are no active student assignments for
+        ${escapeHtml(noAssignmentSections.join(", "))}. Ask the Senior Project coordinator to confirm the assignment.
+      </p>
+    </section>
+    ` : ""}
+    ${deniedSections.length ? `
     <section class="workspace-card workspace-error-card" data-workspace-state="permission-denied">
       <p class="workspace-kicker">Permission denied</p>
       <h2>Some workspace sections need different access</h2>
@@ -295,6 +311,7 @@ function renderAccessBoundarySummary() {
         ${deniedSections.map((label) => `<li>${escapeHtml(label)}</li>`).join("")}
       </ul>
     </section>
+    ` : ""}
   `;
 }
 
@@ -307,6 +324,16 @@ function deniedWorkspaceSections() {
   ]
     .filter(([key]) => currentData[key]?.status === 403)
     .map(([, label]) => label);
+}
+
+function noAssignmentWorkspaceSections() {
+  const labels = [];
+  const roles = roleIds(currentUser);
+  const mentorAssigned = unwrap(currentData.mentorAssigned)?.assignedStudents;
+  if (roles.has("mentor") && Array.isArray(mentorAssigned) && mentorAssigned.length === 0) {
+    labels.push("Mentor students");
+  }
+  return labels;
 }
 
 function renderStudentSection() {
@@ -502,7 +529,7 @@ function renderMentorSection() {
             </div>
             ${statusPill(item.submissionStatus || "not_started")}
           </article>
-        `).join("") : `<div class="workspace-empty">No students are assigned to this mentor account yet.</div>`}
+        `).join("") : `<div class="workspace-empty workspace-assignment-empty" data-workspace-state="no-active-assignment">No students are assigned to this mentor account yet.</div>`}
       </div>
     </section>
   `;
@@ -775,6 +802,20 @@ function messageForAuthError(error, status) {
   if (error === "password_reset_required") return "This account needs a password reset. Contact your instructor or Senior Project coordinator.";
   if (error === "rate_limited" || status === 429) return "Too many sign-in attempts. Wait a few minutes and try again.";
   return "Sign-in is unavailable right now. Try again or contact your instructor.";
+}
+
+function messageForSessionStateError(error, status) {
+  if (error === "session_expired") return "Your session has ended. Sign in again to continue.";
+  if (error === "account_disabled") return "This account is not active. Contact your instructor or Senior Project coordinator.";
+  if (error === "password_reset_required") return "This account needs a password reset. Contact your instructor or Senior Project coordinator.";
+  return "";
+}
+
+function workspaceStateForAuthError(error) {
+  if (error === "session_expired") return "session-expired";
+  if (error === "account_disabled") return "account-disabled";
+  if (error === "password_reset_required") return "reset-required";
+  return "signed-out";
 }
 
 function messageForEvidenceError(error, status) {

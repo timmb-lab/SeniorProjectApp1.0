@@ -61,8 +61,14 @@ test("workspace route signed-out smoke over local HTTP", { skip: !baseUrl }, asy
   assert.match(script, /storage is not configured for this environment/);
   assert.match(script, /data-workspace-state="role-pending"/);
   assert.match(script, /data-workspace-state="permission-denied"/);
+  assert.match(script, /data-workspace-state="\$\{escapeHtml\(workspaceState\)\}"/);
+  assert.match(script, /"session-expired"/);
+  assert.match(script, /"account-disabled"/);
+  assert.match(script, /"reset-required"/);
+  assert.match(script, /data-workspace-state="no-active-assignment"/);
   assert.match(script, /Workspace access is pending/);
   assert.match(script, /Some workspace sections need different access/);
+  assert.match(script, /Workspace assignment is not active yet/);
   assert.doesNotMatch(script, /Your file was received[^.]*storage is not configured/i);
   assertSafeProductionCopy("workspace.js", script);
 
@@ -204,6 +210,13 @@ test("workspace route credential-backed role route coverage over local HTTP", {
     assert.ok(Array.isArray(body.assignedStudents));
     assert.ok(body.assignedStudents.some((student) => student.submissionId));
   });
+
+  if (smokeCredentials.mentor_no_assignment) {
+    await assertRoleRoute("mentor_no_assignment", ["mentor"], "/api/mentor/assigned", (body) => {
+      assert.equal(body.ok, true);
+      assert.deepEqual(body.assignedStudents, []);
+    });
+  }
 
   await assertRoleRoute("admin", ["admin"], "/api/reports/readiness", (body) => {
     assert.equal(body.ok, true);

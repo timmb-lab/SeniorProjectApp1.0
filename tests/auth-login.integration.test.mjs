@@ -101,6 +101,46 @@ test("auth login/me/logout covers active, disabled, reset-required, invalid, and
     assert.equal(response.status, 401);
     const body = await response.json();
     assert.equal(body.authenticated, false);
+    assert.equal(body.error, "session_expired");
+  }
+
+  // disabled account sessions return a specific account-state blocker for the workspace
+  {
+    const disabledCookie = await fixture.seedSessionForUser(fixture.disabledUser.id);
+    const response = await onMe({
+      request: new Request("https://example.test/api/auth/me", { headers: { cookie: disabledCookie } }),
+      env: fixture.env,
+    });
+    assert.equal(response.status, 403);
+    const body = await response.json();
+    assert.equal(body.authenticated, false);
+    assert.equal(body.error, "account_disabled");
+  }
+
+  // reset-required account sessions return a specific account-state blocker for the workspace
+  {
+    const pendingResetCookie = await fixture.seedSessionForUser(fixture.pendingResetUser.id);
+    const response = await onMe({
+      request: new Request("https://example.test/api/auth/me", { headers: { cookie: pendingResetCookie } }),
+      env: fixture.env,
+    });
+    assert.equal(response.status, 403);
+    const body = await response.json();
+    assert.equal(body.authenticated, false);
+    assert.equal(body.error, "password_reset_required");
+  }
+
+  // reset-required credential flags are also treated as workspace blockers
+  {
+    const requiresResetCookie = await fixture.seedSessionForUser(fixture.requiresResetUser.id);
+    const response = await onMe({
+      request: new Request("https://example.test/api/auth/me", { headers: { cookie: requiresResetCookie } }),
+      env: fixture.env,
+    });
+    assert.equal(response.status, 403);
+    const body = await response.json();
+    assert.equal(body.authenticated, false);
+    assert.equal(body.error, "password_reset_required");
   }
 
   // logout revokes session + clears cookie
@@ -221,13 +261,17 @@ async function createFixture() {
   const fixtureEnv = { ...env, DB: db };
 
   async function seedExpiredSession() {
-    const token = "expired-session-token";
+    return seedSessionForUser(activeUser.id, { token: "expired-session-token", expiresAt: "2000-01-01T00:00:00.000Z" });
+  }
+
+  async function seedSessionForUser(userId, options = {}) {
+    const token = options.token || `session-token-${userId}`;
     const tokenHash = await sha256Hex(`${fixtureEnv.SESSION_PEPPER}${token}`);
     db.data.sessions.push({
-      id: "sess-expired",
-      user_id: activeUser.id,
+      id: options.id || `sess-${userId}`,
+      user_id: userId,
       token_hash: tokenHash,
-      expires_at: "2000-01-01T00:00:00.000Z",
+      expires_at: options.expiresAt || new Date(Date.now() + 60 * 60 * 1000).toISOString(),
       revoked_at: null,
     });
     return `sc_session=${token}`;
@@ -242,6 +286,7 @@ async function createFixture() {
     pendingResetUser,
     requiresResetUser,
     seedExpiredSession,
+    seedSessionForUser,
   };
 }
 
@@ -304,12 +349,13 @@ class MockD1PreparedStatement {
       };
     }
 
-    if (sql.startsWith("select id, user_id, token_hash, expires_at, revoked_at from sessions where token_hash = ?")) {
+    if (sql.startsWith("select id, user_id") && sql.includes("from sessions") && sql.includes("where token_hash = ?")) {
       const [tokenHash] = this.params;
-      const nowIso = this.db.nowIso();
-      const session = this.db.data.sessions.find(
-        (row) => row.token_hash === tokenHash && !row.revoked_at && String(row.expires_at) > nowIso,
-      );
+      const session = this.db.data.sessions.find((row) => {
+        if (row.token_hash !== tokenHash) return false;
+        if (!sql.includes("revoked_at is null")) return true;
+        return !row.revoked_at && String(row.expires_at) > this.db.nowIso();
+      });
       return session
         ? {
             id: session.id,
@@ -317,6 +363,22 @@ class MockD1PreparedStatement {
             token_hash: session.token_hash,
             expires_at: session.expires_at,
             revoked_at: session.revoked_at,
+          }
+        : null;
+    }
+
+    if (sql.includes("from user_accounts left join password_credentials")) {
+      const [userId] = this.params;
+      const user = this.db.data.userAccounts.find((row) => row.id === userId);
+      const credential = this.db.data.passwordCredentials.find((row) => row.user_id === userId);
+      return user
+        ? {
+            id: user.id,
+            email: user.email,
+            email_norm: user.email_norm,
+            display_name: user.display_name,
+            status: user.status,
+            requires_reset: credential?.requires_reset ?? 0,
           }
         : null;
     }
@@ -422,4 +484,3 @@ class MockD1PreparedStatement {
     throw new Error(`Unmocked D1 run() query: ${this.sql}`);
   }
 }
-

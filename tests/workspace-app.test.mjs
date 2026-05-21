@@ -24,6 +24,11 @@ test("workspace route is a real authenticated app surface", () => {
   assert.match(workspaceJs, /Sign in to continue/);
   assert.match(workspaceJs, /Your file was received/);
   assert.match(workspaceJs, /storage is not configured for this environment/);
+  assert.match(workspaceJs, /data-workspace-state="\$\{escapeHtml\(workspaceState\)\}"/);
+  assert.match(workspaceJs, /"session-expired"/);
+  assert.match(workspaceJs, /"account-disabled"/);
+  assert.match(workspaceJs, /"reset-required"/);
+  assert.match(workspaceJs, /data-workspace-state="no-active-assignment"/);
   assert.doesNotMatch(workspaceJs, /localStorage|sessionStorage|indexedDB/);
   assert.doesNotThrow(() => new Function(workspaceJs));
 });
@@ -75,6 +80,33 @@ test("workspace evidence forms capture values before disabling controls", () => 
 });
 
 test("workspace renders role-pending and permission-denied access states", async () => {
+  const expiredSession = await renderWorkspaceWithFetch({
+    "/api/auth/me": {
+      status: 401,
+      body: { authenticated: false, error: "session_expired" },
+    },
+  });
+  assert.match(expiredSession, /data-workspace-state="session-expired"/);
+  assert.match(expiredSession, /Your session has ended/);
+
+  const disabledAccount = await renderWorkspaceWithFetch({
+    "/api/auth/me": {
+      status: 403,
+      body: { authenticated: false, error: "account_disabled" },
+    },
+  });
+  assert.match(disabledAccount, /data-workspace-state="account-disabled"/);
+  assert.match(disabledAccount, /This account is not active/);
+
+  const resetRequired = await renderWorkspaceWithFetch({
+    "/api/auth/me": {
+      status: 403,
+      body: { authenticated: false, error: "password_reset_required" },
+    },
+  });
+  assert.match(resetRequired, /data-workspace-state="reset-required"/);
+  assert.match(resetRequired, /This account needs a password reset/);
+
   const pending = await renderWorkspaceWithFetch({
     "/api/auth/me": {
       status: 200,
@@ -122,6 +154,32 @@ test("workspace renders role-pending and permission-denied access states", async
   assert.match(denied, /data-workspace-state="permission-denied"/);
   assert.match(denied, /Some workspace sections need different access/);
   assert.match(denied, /Student workspace/);
+
+  const noAssignment = await renderWorkspaceWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "mentor-without-assignment",
+          email: "mentor.assignment@example.edu",
+          displayName: "Unassigned Mentor",
+          roles: [{ role_id: "mentor", scope_type: "global", scope_id: "" }],
+        },
+      },
+    },
+    "/api/announcements": {
+      status: 200,
+      body: { ok: true, announcements: [] },
+    },
+    "/api/mentor/assigned": {
+      status: 200,
+      body: { ok: true, assignedStudents: [] },
+    },
+  });
+  assert.match(noAssignment, /data-workspace-state="no-active-assignment"/);
+  assert.match(noAssignment, /Workspace assignment is not active yet/);
+  assert.match(noAssignment, /Mentor students/);
 });
 
 async function renderWorkspaceWithFetch(routes) {

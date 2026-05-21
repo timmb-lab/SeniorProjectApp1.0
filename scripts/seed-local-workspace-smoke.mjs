@@ -42,6 +42,15 @@ const ACCOUNTS = [
     scopeId: "",
   },
   {
+    key: "mentor_no_assignment",
+    id: "test_user_mentor_unassigned",
+    email: "unassigned.mentor@senior-capstone.test",
+    displayName: "Test Unassigned Mentor",
+    roleId: "mentor",
+    scopeType: "global",
+    scopeId: "",
+  },
+  {
     key: "admin",
     id: "test_user_admin_lee",
     email: "lee.admin@senior-capstone.test",
@@ -362,8 +371,8 @@ async function verifyLocalSeed() {
     `SELECT COUNT(*) AS count FROM user_accounts WHERE email_norm LIKE '%.test'`,
   ], "verify local fake account count");
 
-  if (!/"count":\s*6/.test(output)) {
-    fail("Local D1 verification did not find the expected six fake .test accounts.");
+  if (!/"count":\s*7/.test(output)) {
+    fail("Local D1 verification did not find the expected seven fake .test accounts.");
   }
 }
 
