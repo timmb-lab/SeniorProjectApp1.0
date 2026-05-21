@@ -15,7 +15,7 @@
     "APP_ENV": "production",
     "AUTH_MODE": "hardened_username_password",
     "EVIDENCE_STORAGE_PROVIDER": "google_drive",
-    "GOOGLE_DRIVE_EVIDENCE_ROOT_ID": "1pfEhlrU1fax9N8LfaoA1Cyo5nUIXetG2",
+    "GOOGLE_DRIVE_EVIDENCE_ROOT_ID": "0AJHkstxfN-dTUk9PVA",
     "GOOGLE_DRIVE_EVIDENCE_INDEX_SHEET_ID": "1BCrBQ-5AKLmhvZr7tjJf3o1tibg13p_U21BiuN_ivN0",
     "ARCHIVE_DOWNLOAD_WINDOW_DAYS": "14",
     "ARCHIVE_RETENTION_POLICY_STATUS": "policy_review_required",

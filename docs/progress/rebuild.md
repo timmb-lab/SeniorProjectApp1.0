@@ -17,6 +17,17 @@ Each rebuild run should append a dated entry with:
 
 ## Entries
 
+### 2026-05-21 06:53 PT - Shared Drive Evidence Root Applied
+
+- `automation`: manual Codex follow-up from Bryan's Shared Drive folder/index links.
+- `master-plan section`: Stack And Deployment Direction; Role-Aware Production App Contract; Logging Requirements.
+- `bounded scope`: Point local config, Cloudflare Pages production/preview vars, and remote D1 evidence repository metadata at the new Shared Drive root without changing the existing Evidence Index sheet.
+- `external artifact`: Google Drive Shared Drive folder id `0AJHkstxfN-dTUk9PVA`; Evidence Index sheet id `1BCrBQ-5AKLmhvZr7tjJf3o1tibg13p_U21BiuN_ivN0`.
+- `remote changes`: Cloudflare Pages preview/production `GOOGLE_DRIVE_EVIDENCE_ROOT_ID` set to `0AJHkstxfN-dTUk9PVA`; D1 `evidence_repositories.default-google-drive.root_folder_id` set to the same id and `status` remains `active`.
+- `files changed`: `wrangler.jsonc`, `migrations/0009_update_drive_shared_drive_root.sql`, Drive setup docs, automation memory/backlog, artifact registry, and run log.
+- `validation`: remote D1 migration applied; remote D1 select confirmed the Shared Drive root and index sheet. After a forced production Pages deploy, `npm run check:drive:live` passed provider config, credential parts, fake `.test` auth, denial guards, Drive token/root/index probes, fake upload, D1 metadata/audit verification, and storage-ID leak checks.
+- `next action`: Verify hosted workspace upload/download with fake `.test` accounts, including one >5MB upload to exercise the resumable path.
+
 ### 2026-05-21 03:06 PT - MVP-006/MVP-011 Student Dashboard Access Audit
 
 - `automation`: `senior-capstone-nonfigma-mvp-builder`

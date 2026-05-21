@@ -29,7 +29,7 @@ Before a pilot-facing deploy, custom-domain cutover, or stakeholder option promo
 - Pages URL: `https://senior-capstone-app.pages.dev`.
 - D1 database id: `3141d9ac-08b7-49c1-92ba-bbf50c1a611f`.
 - D1 region: `WNAM`.
-- Google Drive evidence root folder: `https://drive.google.com/drive/folders/1pfEhlrU1fax9N8LfaoA1Cyo5nUIXetG2`.
+- Google Drive evidence root folder: `https://drive.google.com/drive/folders/0AJHkstxfN-dTUk9PVA`.
 - Google Drive evidence index: `https://docs.google.com/spreadsheets/d/1BCrBQ-5AKLmhvZr7tjJf3o1tibg13p_U21BiuN_ivN0`.
 
 ## Current Schema
@@ -157,10 +157,16 @@ Bryan verified the original Drive blocker was caused by stale/wrong resource IDs
 
 The remaining Drive live blocker is later in the path: the fake `.test` upload create call returns `drive_upload_failed` with redacted Google Drive HTTP status 403. Do not re-open the Cloudflare token or root/index sharing blocker for this state.
 
+## 2026-05-21 Shared Drive Root Update
+
+Bryan provided the Shared Drive evidence root folder `0AJHkstxfN-dTUk9PVA`; the Evidence Index sheet remains `1BCrBQ-5AKLmhvZr7tjJf3o1tibg13p_U21BiuN_ivN0`. `wrangler.jsonc`, Cloudflare Pages production/preview environment variables, and remote D1 `evidence_repositories.default-google-drive` now point to the Shared Drive root.
+
+After the update and a production Pages deploy, `npm run check:drive:live` passed end to end: runtime config, credential parts, fake `.test` auth, signed-out/unsupported/empty/oversized/non-student denials, Drive token exchange, Shared Drive root visibility, Evidence Index visibility, fake `.test` upload, remote D1 evidence/audit verification, and storage-ID leak checks.
+
 ## Remaining Required Config
 
-- Resolve the Google Drive upload HTTP 403 for the configured service account. Confirm the service account can create files in the configured root folder under the sandbox Workspace policy; if Google Drive reports service-account quota or ownership constraints, move the evidence root to a Shared Drive or use an approved delegated Workspace identity.
-- After the upload permission/quota/policy fix, rerun `npm run check:drive:live`.
+- Keep the Shared Drive evidence root in place and rerun `npm run check:drive:live` after any Drive, Cloudflare Pages, or upload-route change.
+- Before real student uploads, verify one hosted browser upload/download pass with fake `.test` accounts and one >5MB upload to exercise the resumable path.
 - Add permission tests and workflow tests before real student data is entered.
 - Add account lifecycle flows for invitation/import, admin reset initiation, active-user credential rotation, and role/group management before pilot use.
 
@@ -184,9 +190,9 @@ Current test-account workflow route coverage:
 
 Current Drive repository wiring:
 
-- `GOOGLE_DRIVE_EVIDENCE_ROOT_ID` is set to `1pfEhlrU1fax9N8LfaoA1Cyo5nUIXetG2` in Cloudflare Pages preview and production.
-- D1 `evidence_repositories.root_folder_id` for `default-google-drive` is set to `1pfEhlrU1fax9N8LfaoA1Cyo5nUIXetG2` and status is `active`.
-- Google Drive connector metadata verified the folder as a Drive folder titled `Senior Capstone App`.
+- `GOOGLE_DRIVE_EVIDENCE_ROOT_ID` is set to `0AJHkstxfN-dTUk9PVA` in Cloudflare Pages preview and production.
+- D1 `evidence_repositories.root_folder_id` for `default-google-drive` is set to `0AJHkstxfN-dTUk9PVA` and status is `active`.
+- `npm run check:drive:live` passed end to end after a production Pages deploy: token/root/index probes, fake upload, D1 evidence metadata/audit verification, denial guards, and storage-ID leak checks all passed.
 
 Completed on 2026-05-18:
 

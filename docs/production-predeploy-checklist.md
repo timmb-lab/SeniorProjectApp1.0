@@ -70,7 +70,7 @@ These must be decided before pilot users or real records enter the app:
 - Alpha/account deployment policy: choose Option A, B, or C from `docs/alpha-account-deployment-decision.md`.
 - Stakeholder option lifecycle: retain, retire, or promote from `docs/stakeholder-option-lifecycle.md`.
 - Custom-domain mapping: choose final hostnames using `docs/custom-domain-cutover-checklist.md`.
-- Google Drive upload permission/policy: ensure the configured service account can create files in the configured evidence root folder, not only read the folder and index sheet.
+- Google Drive upload permission/policy: keep `npm run check:drive:live` passing against the configured Shared Drive evidence root.
 
 ## Cloudflare Static Gate
 
@@ -129,11 +129,11 @@ Required result before real student file bytes:
 - Signed-out, non-student, unsupported, empty, and oversized upload denials still fail before provider success.
 - Upload response and browser/API refresh output do not include `drive_file_id`, `driveFileId`, parent folder ids, access tokens, private keys, or fake account passwords.
 
-Current 2026-05-20 PT status:
+Current 2026-05-21 PT status:
 
 - Cloudflare Pages runtime credential parts are configured.
-- The stale/wrong Drive root and index IDs were corrected to the verified sandbox Workspace resources. After a Pages redeploy, `npm run check:drive:live` passes token exchange, root folder visibility, and index sheet visibility.
-- Drive live check now fails later as `DRIVE_UPLOAD_FAILED`: the fake allowed-upload path returns `drive_upload_failed` with redacted Google Drive HTTP status 403. Fix the service-account file-create permission/quota/policy issue, then rerun `npm run check:drive:live`.
+- The Drive evidence root now points at Shared Drive folder `0AJHkstxfN-dTUk9PVA`; the Evidence Index sheet remains `1BCrBQ-5AKLmhvZr7tjJf3o1tibg13p_U21BiuN_ivN0`.
+- After a production Pages deploy, `npm run check:drive:live` passes token exchange, root folder visibility, index sheet visibility, fake `.test` upload, D1 metadata/audit verification, denial guards, and storage-ID leak checks.
 
 ## D1 Binding Gate
 
@@ -144,7 +144,7 @@ Before deploy:
 - Any new remote migration is applied and verified only when authorized token/session exists.
 - Remote D1 verification is recorded before real student records enter the app.
 
-Current 2026-05-20 PT status: remote D1 migrations `0001` through `0007` are applied and recorded by Wrangler; required MVP tables including `export_artifacts` and `presentation_slots` were verified remotely without selecting student rows.
+Current 2026-05-21 PT status: remote D1 migrations `0001` through `0009` are applied and recorded by Wrangler; required MVP tables including `export_artifacts` and `presentation_slots` were verified remotely without selecting student rows.
 
 Pilot blocker:
 

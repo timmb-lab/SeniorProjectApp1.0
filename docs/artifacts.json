@@ -297,8 +297,8 @@
       "title": "Senior Capstone Evidence Repository Index",
       "file_id": "1BCrBQ-5AKLmhvZr7tjJf3o1tibg13p_U21BiuN_ivN0",
       "url": "https://docs.google.com/spreadsheets/d/1BCrBQ-5AKLmhvZr7tjJf3o1tibg13p_U21BiuN_ivN0",
-      "root_folder_id": "1pfEhlrU1fax9N8LfaoA1Cyo5nUIXetG2",
-      "root_folder_url": "https://drive.google.com/drive/folders/1pfEhlrU1fax9N8LfaoA1Cyo5nUIXetG2",
+      "root_folder_id": "0AJHkstxfN-dTUk9PVA",
+      "root_folder_url": "https://drive.google.com/drive/folders/0AJHkstxfN-dTUk9PVA",
       "root_folder_title": "Senior Capstone App",
       "purpose": "Google Drive-native evidence repository root and index for MVP uploads and evidence metadata reconciliation.",
       "app_placement": "Referenced by Cloudflare Pages env vars GOOGLE_DRIVE_EVIDENCE_ROOT_ID and GOOGLE_DRIVE_EVIDENCE_INDEX_SHEET_ID, plus D1 evidence_repositories.root_folder_id and index_sheet_id.",
@@ -319,14 +319,15 @@
       "verification": [
         "Bryan provided verified sandbox Workspace resources on 2026-05-20: folder title Senior Capstone App, folder MIME type application/vnd.google-apps.folder, index sheet title Evidence Index, sheet MIME type application/vnd.google-apps.spreadsheet, and service-account writer permission on both resources.",
         "Cloudflare Pages production/preview env vars and remote D1 evidence_repositories row were updated to the corrected root folder and index sheet ids on 2026-05-20.",
-        "After the corrected ids and a Pages redeploy, npm run check:drive:live passed token exchange, root folder probe, and index sheet probe; the remaining blocker moved to fake upload drive_upload_failed with redacted Google Drive HTTP status 403."
+        "After the corrected ids and a Pages redeploy, npm run check:drive:live passed token exchange, root folder probe, and index sheet probe; the remaining blocker moved to fake upload drive_upload_failed with redacted Google Drive HTTP status 403.",
+        "Bryan provided Shared Drive root folder 0AJHkstxfN-dTUk9PVA on 2026-05-21; wrangler.jsonc, Cloudflare Pages production/preview env vars, and remote D1 evidence_repositories now point to that folder while the Evidence Index sheet remains unchanged. After a production Pages deploy, npm run check:drive:live passed fake .test upload, D1 metadata/audit verification, denial guards, and storage-ID leak checks."
       ],
-      "last_updated": "2026-05-20"
+      "last_updated": "2026-05-21"
     },
     {
       "id": "drive-live-readiness-checker",
       "type": "repo_script",
-      "status": "active_blocked_on_drive_upload_403",
+      "status": "active",
       "owner_lane": "deployment-qa",
       "title": "Google Drive Live Readiness Checker",
       "local_entry": "scripts/check-google-drive-live.mjs",
@@ -349,9 +350,10 @@
       "verification": [
         "Focused script classification tests passed on 2026-05-20.",
         "Live run loaded ignored fake .test credentials without printing passwords, verified signed-out/unsupported/empty/oversized/non-student upload denials, and did not expose raw Drive IDs.",
-        "2026-05-20 23:36 PT: after corrected Drive ids and a Pages redeploy, live run passed token exchange, root folder probe, and index sheet probe, then failed fake upload truthfully with DRIVE_UPLOAD_FAILED and redacted Google Drive HTTP status 403."
+        "2026-05-20 23:36 PT: after corrected Drive ids and a Pages redeploy, live run passed token exchange, root folder probe, and index sheet probe, then failed fake upload truthfully with DRIVE_UPLOAD_FAILED and redacted Google Drive HTTP status 403.",
+        "2026-05-21 06:59 PT: after the Shared Drive root update and production Pages deploy, npm run check:drive:live passed provider config, credential parts, fake .test auth, denial guards, Drive token/root/index probes, fake upload, D1 metadata/audit verification, and storage-ID leak checks."
       ],
-      "last_updated": "2026-05-20"
+      "last_updated": "2026-05-21"
     },
     {
       "id": "figma-senior-project-app-team-target",

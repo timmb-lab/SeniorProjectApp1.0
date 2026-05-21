@@ -12,7 +12,7 @@ Status values:
 
 ## Open Decisions
 
-No open external automation scheduler decisions are blocking the current scaffold. The Google Drive evidence root folder is selected and configured, first-admin bootstrap is complete for `bryan.timm89@gmail.com`, the production setup key has been removed, and the Cloudflare live verification token decision is resolved. Remaining setup work is configuration/implementation: fix the Google Drive upload HTTP 403 before real student uploads, finish account lifecycle flows, decide temporary credential delivery before real pilot accounts, and broaden permission tests.
+No open external automation scheduler decisions are blocking the current scaffold. The Google Drive Shared Drive evidence root is selected, configured, and passes the live fake-upload gate; first-admin bootstrap is complete for `bryan.timm89@gmail.com`; the production setup key has been removed; and the Cloudflare live verification token decision is resolved. Remaining setup work is configuration/implementation: finish account lifecycle flows, decide temporary credential delivery before real pilot accounts, verify hosted workspace upload/download with fake `.test` accounts, and broaden permission tests.
 
 ### HD-2026-05-21-001
 
@@ -58,17 +58,6 @@ No open external automation scheduler decisions are blocking the current scaffol
 - `decision workflow`: `docs/stakeholder-option-lifecycle.md`
 - `created`: 2026-05-20
 
-### HD-2026-05-20-006
-
-- `status`: open
-- `area`: Google Drive service-account secrets for live uploads
-- `owner`: Bryan
-- `severity`: P1
-- `decision needed`: Resolve the Google Drive upload HTTP 403 after the corrected sandbox root/index IDs.
-- `current recommendation`: Keep the existing Cloudflare token and Drive credential secrets. Bryan verified the sandbox root folder and index sheet IDs were stale/wrong; `wrangler.jsonc`, Cloudflare Pages env vars, and D1 metadata now point to the verified `Senior Capstone App` folder and `Evidence Index` sheet. `npm run check:drive:live` now passes token exchange plus root/index probes, but the fake upload route still fails truthfully with `drive_upload_failed` and redacted Google Drive status 403. Confirm the service account can create files in that folder under Workspace policy; if the 403 is quota/ownership related, move the root to a Shared Drive or use an approved delegated Workspace identity, then rerun `npm run check:drive:live`.
-- `decision workflow`: `docs/progress/human-action-email-draft-2026-05-20-cloudflare-drive.md`
-- `created`: 2026-05-20
-
 ### HD-2026-05-20-007
 
 - `status`: open
@@ -81,6 +70,18 @@ No open external automation scheduler decisions are blocking the current scaffol
 - `created`: 2026-05-20
 
 ## Accepted Decisions
+
+### HD-2026-05-20-006
+
+- `status`: accepted
+- `area`: Google Drive service-account live uploads
+- `owner`: Bryan
+- `severity`: P1
+- `decision`: Move the evidence root to the Shared Drive folder `0AJHkstxfN-dTUk9PVA` while keeping the existing Evidence Index sheet `1BCrBQ-5AKLmhvZr7tjJf3o1tibg13p_U21BiuN_ivN0`.
+- `accepted implementation`: On 2026-05-21 PT, `wrangler.jsonc`, Cloudflare Pages production/preview environment variables, and remote D1 `evidence_repositories.default-google-drive` were updated to the Shared Drive root. A production Pages deploy completed, then `npm run check:drive:live` passed provider config, runtime credential parts, fake `.test` auth, denial guards, Drive token/root/index probes, fake upload, remote D1 evidence/audit verification, and storage-ID leak checks.
+- `decision workflow`: `docs/progress/human-action-email-draft-2026-05-20-cloudflare-drive.md`
+- `created`: 2026-05-20
+- `accepted`: 2026-05-21
 
 ### HD-2026-05-20-005
 
@@ -114,7 +115,7 @@ No open external automation scheduler decisions are blocking the current scaffol
 - `owner`: Bryan
 - `severity`: P0
 - `decision`: Use Bryan's authorized Cloudflare account for the first remote MVP foundation, use hardened username/password auth because district SSO is not available, and use Google Drive as the MVP upload/evidence repository path.
-- `accepted implementation`: Cloudflare Pages project `senior-capstone-app` is configured for GitHub-connected deployment; D1 database `senior-capstone-db` is created and migrated; Pages preview/production environment variables point to hardened username/password auth and Google Drive evidence storage; Google Drive evidence root folder `1pfEhlrU1fax9N8LfaoA1Cyo5nUIXetG2` and index sheet `1BCrBQ-5AKLmhvZr7tjJf3o1tibg13p_U21BiuN_ivN0` exist.
+- `accepted implementation`: Cloudflare Pages project `senior-capstone-app` is configured for GitHub-connected deployment; D1 database `senior-capstone-db` is created and migrated; Pages preview/production environment variables point to hardened username/password auth and Google Drive evidence storage; Google Drive evidence Shared Drive root folder `0AJHkstxfN-dTUk9PVA` and index sheet `1BCrBQ-5AKLmhvZr7tjJf3o1tibg13p_U21BiuN_ivN0` exist.
 - `remaining configuration`: add server-side Google Drive upload credentials/OAuth, account lifecycle flows, and broader permission tests before accepting real student uploads. First-admin bootstrap is complete, the production `BOOTSTRAP_SETUP_KEY` has been removed, and `PASSWORD_PEPPER`, `SESSION_PEPPER`, and `GOOGLE_DRIVE_EVIDENCE_ROOT_ID` are already set in Cloudflare Pages.
 - `current account evidence`: Cloudflare account `539e8f7c55e7b1472013626ad72f4c7f` is reachable from prior proof; D1 and Pages provisioning succeeded; Workers has existing Worker `it-networking-curriculum`; R2 remains disabled with Cloudflare error `10042` but is no longer an MVP blocker because Google Drive is the accepted evidence repository path. GitHub app access is installed for `timmb-lab`. Local Wrangler 4.93.0 is available through the repo dependency and wrapper; global `npm`, `npx`, and live read-only Pages/D1 verification remain blocked in this shell until `CLOUDFLARE_API_TOKEN` is provided.
 - `safe automation behavior`: Continue local scaffold, tests, and Cloudflare Pages/D1 configuration. Do not enter real student data or claim pilot readiness until Drive upload credentials, account lifecycle, and permission tests are complete.

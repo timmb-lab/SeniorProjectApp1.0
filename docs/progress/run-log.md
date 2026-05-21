@@ -28,6 +28,17 @@ This is the compact run log for the current quarter-hour split-builder automatio
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-05-21 06:53 PT - Shared Drive Root Applied
+
+- `automation ID`: manual Codex follow-up from Bryan's Shared Drive folder/index links.
+- `lane`: non-Figma / deployment-qa and drive-upload-oauth.
+- `Drive config`: updated `wrangler.jsonc` to use Shared Drive root folder `0AJHkstxfN-dTUk9PVA`; Evidence Index remains `1BCrBQ-5AKLmhvZr7tjJf3o1tibg13p_U21BiuN_ivN0`.
+- `Cloudflare`: patched `senior-capstone-app` production and preview Pages environment variables so `GOOGLE_DRIVE_EVIDENCE_ROOT_ID=0AJHkstxfN-dTUk9PVA` and `GOOGLE_DRIVE_EVIDENCE_INDEX_SHEET_ID=1BCrBQ-5AKLmhvZr7tjJf3o1tibg13p_U21BiuN_ivN0`.
+- `D1`: added and applied `0009_update_drive_shared_drive_root.sql`; remote `evidence_repositories.default-google-drive` now points to the Shared Drive root and existing Evidence Index sheet.
+- `deploy`: forced a production Pages deploy from the refreshed workspace; deployment completed at `https://f6e8c1c7.senior-capstone-app.pages.dev`.
+- `validation`: remote D1 select confirmed `root_folder_id=0AJHkstxfN-dTUk9PVA`, `index_sheet_id=1BCrBQ-5AKLmhvZr7tjJf3o1tibg13p_U21BiuN_ivN0`, and `status=active`. After the deploy, `npm run check:drive:live` passed provider config, runtime credential parts, fake `.test` auth/session/dashboard, signed-out/unsupported/empty/oversized/non-student denials, Drive token/root/index probes, fake upload, remote D1 metadata/audit verification, and storage-ID leak checks.
+- `remaining blocker`: Drive upload HTTP 403 is resolved for the fake `.test` live gate. Next proof is hosted workspace upload/download with fake `.test` accounts, including one >5MB upload to exercise the resumable path.
+
 ## 2026-05-21 06:16 PT - MVP-028 Protected Record Audit Acceptance Board
 
 - `automation ID`: `senior-capstone-figma-product-builder-15`.
