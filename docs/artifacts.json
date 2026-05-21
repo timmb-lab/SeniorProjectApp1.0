@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-05-20T17:11:00-07:00",
+  "updated_at": "2026-05-20T17:12:00-07:00",
   "artifacts": [
     {
       "id": "cloudflare-pages-senior-capstone-app",
@@ -144,6 +144,7 @@
         "2026-05-20: credential-backed local smoke passed for fake student login, /api/auth/me session restore, dashboard, evidence link, truthful Drive-missing upload blocker, unsupported upload denial, logout, and role-route coverage for program_teacher, mentor, admin, misc_admin, and no-role.",
         "2026-05-20: workspace source now renders explicit data-workspace-state=\"role-pending\" and data-workspace-state=\"permission-denied\" access-boundary states; tests/workspace-app.test.mjs executes both render paths with stubbed API responses.",
         "2026-05-20: local Pages dev plus in-app browser verified the no-role account renders Workspace access is pending with zero console errors.",
+        "2026-05-20: after commit c6470dfa was pushed, direct live https://senior-capstone-app.pages.dev/workspace.js returned 200 and contained data-workspace-state=\"role-pending\" on the first poll.",
         "2026-05-20: in-app browser signed-in smoke found and verified the workspace form-data fix; student evidence-link submission succeeded through the visible UI, logout returned sign-in UI, and console errors were empty.",
         "2026-05-20: live hosted signed-out workspace passed at https://senior-capstone-app.pages.dev/workspace after /workspace.html redirected; live fake student signed-in API/browser smoke passed for login, student workspace, dashboard, evidence link, Drive-missing upload blocker, unsupported upload denial, and logout.",
         "2026-05-20: live /api/health reports evidence root/index configured but Google Drive client email and private key credential parts missing, so real Drive upload/download remains blocked."

@@ -110,6 +110,11 @@
       "command": "git diff --check",
       "result": "passed",
       "summary": "No whitespace errors; Git printed line-ending normalization warnings only."
+    },
+    {
+      "command": "Invoke-WebRequest https://senior-capstone-app.pages.dev/workspace.js",
+      "result": "passed",
+      "summary": "After push, direct live workspace.js returned 200 and contained data-workspace-state=\"role-pending\" on the first poll."
     }
   ],
   "browser_verification": {
@@ -159,6 +164,6 @@
   "implementation_commit_sha": "c6470dfa50d136f2da3d29319859aa640ad347b4",
   "commit_sha": "c6470dfa50d136f2da3d29319859aa640ad347b4",
   "push_result": "pushed to origin main: eebe5da..c6470df",
-  "closeout_commit_sha": "pending",
-  "closeout_push_result": "pending"
+  "closeout_commit_sha": "ff3b0ea687451427ce798b778302cf5e4e62cfb0",
+  "closeout_push_result": "pushed to origin main: c6470df..ff3b0ea"
 }
