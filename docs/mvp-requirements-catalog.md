@@ -2,7 +2,7 @@
 
 Date: 2026-05-18
 
-This catalog converts the master plan into MVP requirements. It is the operating map for the split Senior Capstone builders. The top-of-hour non-Figma builder must read this file after `docs/master-plan.md`, run as many bounded inspect-implement-validate-record passes as the session safely supports, update the status/evidence here when material progress happens, and ladder each next pass from the highest-risk incomplete requirement in its target area. The bottom-of-hour Figma-only builder owns `MVP-028` and may support other requirements only through concrete Figma handoffs that reduce implementation ambiguity. The daily summary is report-only, and the weekly strategy review adjusts this catalog from seven-day evidence when statuses, blockers, or priorities drift.
+This catalog converts the master plan into MVP requirements. It is the operating map for the duplicated split Senior Capstone builders. The non-Figma builder lane now has minute 0 and minute 30 GUI-visible instances; each must read this file after `docs/master-plan.md`, run as many bounded inspect-implement-validate-record passes as the session safely supports, update the status/evidence here when material progress happens, and ladder each next pass from the highest-risk incomplete requirement in its target area. The Figma-only builder lane also has minute 0 and minute 30 GUI-visible instances; it owns `MVP-028` and may support other requirements only through concrete Figma handoffs that reduce implementation ambiguity. The daily summary is report-only, and the weekly strategy review adjusts this catalog from seven-day evidence when statuses, blockers, or priorities drift.
 
 Status values:
 
@@ -25,8 +25,8 @@ Functional requirement groupings:
 
 Current active automation is recorded in `docs/automation-cadence.md`. The owner category column below remains a functional grouping; active delivery ownership now comes from the split builders:
 
-- `senior-capstone-nonfigma-mvp-builder` owns implementation, tests, deployment, data/security, student/staff/admin workflows, repo-local docs/automation hardening, Canva-only support work, and exact blockers for `MVP-001` through `MVP-027`, `MVP-029`, and `MVP-030`.
-- `senior-capstone-figma-product-builder` owns `MVP-028` and may support `MVP-004` through `MVP-027` only through route/data/permission annotations, functional state variants, screenshots, metadata verification, component/state handoffs, or exact Figma blockers.
+- `senior-capstone-nonfigma-mvp-builder` and `senior-capstone-nonfigma-mvp-builder-bottom` own implementation, tests, deployment, data/security, student/staff/admin workflows, repo-local docs/automation hardening, Canva-only support work, and exact blockers for `MVP-001` through `MVP-027`, `MVP-029`, and `MVP-030`.
+- `senior-capstone-figma-product-builder-top` and `senior-capstone-figma-product-builder` own `MVP-028` and may support `MVP-004` through `MVP-027` only through route/data/permission annotations, functional state variants, screenshots, metadata verification, component/state handoffs, or exact Figma blockers.
 - P0 production-experience overlays `MVP-031` through `MVP-040` are owned by the non-Figma builder for implementation/validation and supported by the Figma builder only through route/data/permission/state handoffs.
 - The non-Figma builder may consume existing Figma evidence but may not spend runs doing direct Figma work.
 - `MVP-029` Canva work stays outside the Figma lane except where design placement or relationship to a Figma handoff needs to be recorded.

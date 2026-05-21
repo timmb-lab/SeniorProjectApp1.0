@@ -2,19 +2,21 @@
 
 Last refreshed: 2026-05-20
 
-This is the compact run log for the current split-builder automation contract.
+This is the compact run log for the current duplicated split-builder automation contract.
 
 ## Current Automation Contract
 
 - Active top-of-hour non-Figma MVP builder: `senior-capstone-nonfigma-mvp-builder`.
+- Active bottom-of-hour non-Figma MVP builder: `senior-capstone-nonfigma-mvp-builder-bottom`.
+- Active top-of-hour Figma-only product builder: `senior-capstone-figma-product-builder-top`.
 - Active bottom-of-hour Figma-only product builder: `senior-capstone-figma-product-builder`.
-- Non-Figma RRULE: `FREQ=HOURLY;BYMINUTE=0;BYSECOND=0`.
-- Figma RRULE: `FREQ=HOURLY;BYMINUTE=30;BYSECOND=0`.
-- Combined capacity: 48 scheduled builder starts/day and 1,440 scheduled builder starts/30 days.
+- Non-Figma RRULEs: `FREQ=HOURLY;BYMINUTE=0;BYSECOND=0` and `FREQ=HOURLY;BYMINUTE=30;BYSECOND=0`.
+- Figma RRULEs: `FREQ=HOURLY;BYMINUTE=0;BYSECOND=0` and `FREQ=HOURLY;BYMINUTE=30;BYSECOND=0`.
+- Combined capacity: 96 scheduled builder starts/day and 2,880 scheduled builder starts/30 days.
 - Source of truth: `automation/qol/project-lock.json`.
 - Latest live hidden scheduler evidence: `automation/qol/state/automation-registry-evidence.json`.
 - Verifier: `scripts/verify-cadence-30min.ps1`.
-- Rule: no other Senior Capstone builder automation should be created, invoked, revived, or maintained from this repo. `senior-capstone-hourly-qol-orchestrator` is legacy diagnostic/manual only.
+- Rule: no other Senior Capstone builder automation should be created, invoked, revived, or maintained from this repo unless Bryan explicitly approves another scheduler change. `senior-capstone-hourly-qol-orchestrator` is legacy diagnostic/manual only if present.
 
 ## Current Product Baseline
 

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-05-20T19:10:00-07:00",
+  "updated_at": "2026-05-20T19:28:38-07:00",
   "artifacts": [
     {
       "id": "cloudflare-pages-senior-capstone-app",
@@ -658,11 +658,13 @@
       "type": "automation_system",
       "status": "active",
       "owner_lane": "requirements-audit",
-      "title": "Senior Capstone Split Builder Cadence",
-      "purpose": "Project-local automation operating layer for the 100-pass MVP plan and Day 7 alpha ladder, split into non-Figma and Figma-only recurring builder lanes.",
-      "app_placement": "Two alternating GUI-available builder automations for project-local recurring work; daily and weekly automations remain oversight only.",
+      "title": "Senior Capstone Duplicated Split Builder Cadence",
+      "purpose": "Project-local automation operating layer for the 100-pass MVP plan and Day 7 alpha ladder, split into non-Figma and Figma-only recurring builder lanes with two GUI-visible instances per lane.",
+      "app_placement": "Four GUI-available builder automations for project-local recurring work; daily and weekly automations remain oversight only.",
       "builder_automation_ids": [
         "senior-capstone-nonfigma-mvp-builder",
+        "senior-capstone-nonfigma-mvp-builder-bottom",
+        "senior-capstone-figma-product-builder-top",
         "senior-capstone-figma-product-builder"
       ],
       "oversight_automation_ids": [
@@ -682,12 +684,12 @@
         "plan_key": "team::1638213362346160913"
       },
       "capacity": {
-        "non_figma_starts_per_day": 24,
-        "figma_starts_per_day": 24,
-        "combined_starts_per_day": 48,
-        "non_figma_starts_per_30_days": 720,
-        "figma_starts_per_30_days": 720,
-        "combined_starts_per_30_days": 1440
+        "non_figma_starts_per_day": 48,
+        "figma_starts_per_day": 48,
+        "combined_starts_per_day": 96,
+        "non_figma_starts_per_30_days": 1440,
+        "figma_starts_per_30_days": 1440,
+        "combined_starts_per_30_days": 2880
       },
       "repo_records": [
         "automation/prompts/senior-capstone-nonfigma-mvp-builder.md",
@@ -701,9 +703,10 @@
         "scripts/verify-cadence-30min.ps1"
       ],
       "verification": [
-        "Project-local cadence docs list non-Figma minute 0 PT and Figma-only minute 30 PT builder lanes.",
-        "Project lock allows the two split builder IDs plus daily/weekly oversight IDs and marks senior-capstone-hourly-qol-orchestrator as legacy diagnostic-only.",
-        "Cadence verifier checks both prompt files, lane separation, active Figma file key, split capacity math, and wrapper-only scheduled command guidance."
+        "Bryan explicitly approved duplicated builder capacity on 2026-05-20.",
+        "Project-local cadence docs list non-Figma minute 0 PT, non-Figma minute 30 PT, Figma-only minute 0 PT, and Figma-only minute 30 PT builder instances.",
+        "Project lock allows the four duplicated split builder IDs plus daily/weekly oversight IDs and marks senior-capstone-hourly-qol-orchestrator as legacy diagnostic-only.",
+        "Cadence verifier checks both prompt files, lane separation, active Figma file key, duplicated split capacity math, live registry evidence, and wrapper-only scheduled command guidance."
       ],
       "last_updated": "2026-05-20"
     },

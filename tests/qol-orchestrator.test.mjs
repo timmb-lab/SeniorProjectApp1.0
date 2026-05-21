@@ -86,7 +86,7 @@ test("doctor fails when mock evidence has a duplicate split builder automation",
   assert.equal(result.status, 21, result.stdout);
   const json = parseDoctorJson(result.stdout);
   assert.equal(json.safety_status, "FAIL");
-  assert.equal(json.automationRegistry.active_builder_automation_count, 3);
+    assert.equal(json.automationRegistry.active_builder_automation_count, 5);
   assert.match(json.automationRegistry.failure_reason, /Duplicate active Senior Capstone automation IDs/);
 });
 
@@ -165,8 +165,8 @@ test("orchestrator writes latest report with lock release and orchestrator path 
     assert.match(latest, /- registry_status: `VERIFIED_REPO_LOCAL`/);
     assert.match(latest, /- registry_health_verified: `true`/);
     assert.match(latest, /- unexpected_project_automation_detected: `false`/);
-    assert.match(latest, /- active_senior_capstone_automation_count: `4`/);
-    assert.match(latest, /- active_builder_automation_count: `2`/);
+    assert.match(latest, /- active_senior_capstone_automation_count: `6`/);
+    assert.match(latest, /- active_builder_automation_count: `4`/);
     assert.match(latest, /- missing_builder_automation_ids: ``/);
   } finally {
     for (const target of restoreTargets) {
@@ -228,12 +228,14 @@ test("active split-builder prompts enforce lane boundaries and start safety", as
   assert.match(figma, /Do not implement backend code\./);
   assert.match(figma, /implementation ambiguity/);
 
-  assert.match(cadence, /24 \+ 24 = 48 scheduled builder runs per day/);
-  assert.match(cadence, /720 \+ 720 = 1,440 scheduled builder runs per 30 days/);
+  assert.match(cadence, /48 \+ 48 = 96 scheduled builder runs per day/);
+  assert.match(cadence, /1,440 \+ 1,440 = 2,880 scheduled builder runs per 30 days/);
   assert.match(cadence, /Old single-builder cadence is retired/);
   assert.equal(projectLock.expectedAutomationCadenceRRule, undefined);
   assert.deepEqual(projectLock.expectedBuilderAutomationIds, [
     "senior-capstone-nonfigma-mvp-builder",
+    "senior-capstone-nonfigma-mvp-builder-bottom",
+    "senior-capstone-figma-product-builder-top",
     "senior-capstone-figma-product-builder",
   ]);
   assert.ok(!projectLock.allowedActiveAutomationIds.includes("senior-capstone-hourly-qol-orchestrator"));

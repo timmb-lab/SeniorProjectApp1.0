@@ -5,8 +5,10 @@ This directory holds structured manifests for productive Senior Capstone runs.
 Current automation contract:
 
 - Active top-of-hour non-Figma builder: `senior-capstone-nonfigma-mvp-builder`.
+- Active bottom-of-hour non-Figma builder: `senior-capstone-nonfigma-mvp-builder-bottom`.
+- Active top-of-hour Figma-only builder: `senior-capstone-figma-product-builder-top`.
 - Active bottom-of-hour Figma-only builder: `senior-capstone-figma-product-builder`.
-- Combined cadence: minute 0 and minute 30 PT, 48 scheduled builder starts/day.
+- Combined cadence: both lanes run at minute 0 and minute 30 PT, 96 scheduled builder starts/day.
 - Verifier: `scripts/verify-cadence-30min.ps1`.
 
 Future manifests should name:

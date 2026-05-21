@@ -1,28 +1,76 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-05-20T09:26:49.3116936-07:00",
+  "generatedAt": "2026-05-20T19:28:38.2301376-07:00",
   "sourceRoot": "C:\\Users\\bryan\\.codex\\automations",
-  "inspectedTomlCount": 10,
-  "matchingSeniorCapstoneTomlCount": 5,
+  "inspectedTomlCount": 12,
+  "matchingSeniorCapstoneTomlCount": 6,
+  "model": "duplicated split-builder cadence",
   "automations": [
     {
-      "id": "senior-capstone-daily-mvp-summary",
-      "name": "Senior Capstone Daily MVP Summary",
+      "id": "senior-capstone-nonfigma-mvp-builder",
+      "name": "senior-capstone-nonfigma-mvp-builder",
       "kind": "cron",
       "status": "ACTIVE",
-      "rrule": "FREQ=DAILY;BYHOUR=8;BYMINUTE=0",
-      "model": "gpt-5.2",
-      "reasoning_effort": "medium",
+      "rrule": "FREQ=HOURLY;BYMINUTE=0;BYSECOND=0",
+      "model": "gpt-5.5",
+      "reasoning_effort": "xhigh",
       "execution_environment": "local",
       "cwds": [
-        "C:/SeniorProjectApp1.0"
+        "C:\\SeniorProjectApp1.0"
       ],
-      "path": "C:\\Users\\bryan\\.codex\\automations\\senior-capstone-daily-mvp-summary\\automation.toml",
-      "promptMentionsCorrectRepo": false,
-      "promptMentionsMain": false,
-      "promptMentionsOriginMainOrPush": false,
-      "promptForbidsDirectNodeNpm": false,
-      "promptForbidsUnrelatedReposWorktrees": false,
+      "path": "C:\\Users\\bryan\\.codex\\automations\\senior-capstone-nonfigma-mvp-builder\\automation.toml",
+      "promptSha256": "AF647868AA6929FF5954796007DEBB15F70998F441956259B3542E44A159DDBA",
+      "promptMentionsCorrectRepo": true,
+      "promptMentionsMain": true,
+      "promptMentionsOriginMainOrPush": true,
+      "promptForbidsDirectNodeNpm": true,
+      "promptForbidsUnrelatedReposWorktrees": true,
+      "laneContamination": false
+    },
+    {
+      "id": "senior-capstone-nonfigma-mvp-builder-bottom",
+      "name": "senior-capstone-nonfigma-mvp-builder-bottom",
+      "kind": "cron",
+      "status": "ACTIVE",
+      "rrule": "FREQ=HOURLY;BYMINUTE=30;BYSECOND=0",
+      "model": "gpt-5.5",
+      "reasoning_effort": "xhigh",
+      "execution_environment": "local",
+      "cwds": [
+        "C:\\SeniorProjectApp1.0"
+      ],
+      "path": "C:\\Users\\bryan\\.codex\\automations\\senior-capstone-nonfigma-mvp-builder-bottom\\automation.toml",
+      "promptSha256": "AF647868AA6929FF5954796007DEBB15F70998F441956259B3542E44A159DDBA",
+      "promptSourceAutomationId": "senior-capstone-nonfigma-mvp-builder",
+      "promptMatchesSource": true,
+      "promptMentionsCorrectRepo": true,
+      "promptMentionsMain": true,
+      "promptMentionsOriginMainOrPush": true,
+      "promptForbidsDirectNodeNpm": true,
+      "promptForbidsUnrelatedReposWorktrees": true,
+      "laneContamination": false
+    },
+    {
+      "id": "senior-capstone-figma-product-builder-top",
+      "name": "senior-capstone-figma-product-builder-top",
+      "kind": "cron",
+      "status": "ACTIVE",
+      "rrule": "FREQ=HOURLY;BYMINUTE=0;BYSECOND=0",
+      "model": "gpt-5.5",
+      "reasoning_effort": "xhigh",
+      "execution_environment": "local",
+      "cwds": [
+        "C:\\SeniorProjectApp1.0"
+      ],
+      "path": "C:\\Users\\bryan\\.codex\\automations\\senior-capstone-figma-product-builder-top\\automation.toml",
+      "promptSha256": "9551B4C642C65A6F4FC817F01C5A46CF8EB5C8CE6D28AA87F3D3BDE5EB6659B7",
+      "promptSourceAutomationId": "senior-capstone-figma-product-builder",
+      "promptMatchesSource": true,
+      "promptMentionsCorrectRepo": true,
+      "promptMentionsMain": true,
+      "promptMentionsOriginMainOrPush": true,
+      "promptForbidsDirectNodeNpm": true,
+      "promptForbidsUnrelatedReposWorktrees": true,
       "laneContamination": false
     },
     {
@@ -38,6 +86,7 @@
         "C:\\SeniorProjectApp1.0"
       ],
       "path": "C:\\Users\\bryan\\.codex\\automations\\senior-capstone-figma-product-builder\\automation.toml",
+      "promptSha256": "9551B4C642C65A6F4FC817F01C5A46CF8EB5C8CE6D28AA87F3D3BDE5EB6659B7",
       "promptMentionsCorrectRepo": true,
       "promptMentionsMain": true,
       "promptMentionsOriginMainOrPush": true,
@@ -46,38 +95,19 @@
       "laneContamination": false
     },
     {
-      "id": "senior-capstone-hourly-qol-orchestrator",
-      "name": "Senior Capstone Legacy QoL Diagnostic Runner",
-      "kind": "cron",
-      "status": "PAUSED",
-      "rrule": "FREQ=DAILY;BYHOUR=0;BYMINUTE=0",
-      "model": "gpt-5.5",
-      "reasoning_effort": "xhigh",
-      "execution_environment": "local",
-      "cwds": [
-        "C:\\SeniorProjectApp1.0"
-      ],
-      "path": "C:\\Users\\bryan\\.codex\\automations\\senior-capstone-hourly-qol-orchestrator\\automation.toml",
-      "promptMentionsCorrectRepo": false,
-      "promptMentionsMain": false,
-      "promptMentionsOriginMainOrPush": false,
-      "promptForbidsDirectNodeNpm": true,
-      "promptForbidsUnrelatedReposWorktrees": true,
-      "laneContamination": false
-    },
-    {
-      "id": "senior-capstone-nonfigma-mvp-builder",
-      "name": "senior-capstone-nonfigma-mvp-builder",
+      "id": "senior-capstone-daily-mvp-summary",
+      "name": "Senior Capstone Daily MVP Summary",
       "kind": "cron",
       "status": "ACTIVE",
-      "rrule": "FREQ=HOURLY;BYMINUTE=0;BYSECOND=0",
-      "model": "gpt-5.5",
-      "reasoning_effort": "xhigh",
+      "rrule": "FREQ=DAILY;BYHOUR=8;BYMINUTE=0",
+      "model": "gpt-5.2",
+      "reasoning_effort": "medium",
       "execution_environment": "local",
       "cwds": [
-        "C:\\SeniorProjectApp1.0"
+        "C:/SeniorProjectApp1.0"
       ],
-      "path": "C:\\Users\\bryan\\.codex\\automations\\senior-capstone-nonfigma-mvp-builder\\automation.toml",
+      "path": "C:\\Users\\bryan\\.codex\\automations\\senior-capstone-daily-mvp-summary\\automation.toml",
+      "promptSha256": "585F32A0713CF15D9F118AB3DB87719E94E072E0AD82E5E3077E075841E66DA9",
       "promptMentionsCorrectRepo": true,
       "promptMentionsMain": true,
       "promptMentionsOriginMainOrPush": true,
@@ -98,10 +128,11 @@
         "C:/SeniorProjectApp1.0"
       ],
       "path": "C:\\Users\\bryan\\.codex\\automations\\senior-capstone-weekly-script-audit\\automation.toml",
-      "promptMentionsCorrectRepo": false,
-      "promptMentionsMain": false,
-      "promptMentionsOriginMainOrPush": false,
-      "promptForbidsDirectNodeNpm": false,
+      "promptSha256": "D21FC00D34D42F9A40DE0CEBD81B67DBA84E568EFAE7AD4CAB41002CAE6649A5",
+      "promptMentionsCorrectRepo": true,
+      "promptMentionsMain": true,
+      "promptMentionsOriginMainOrPush": true,
+      "promptForbidsDirectNodeNpm": true,
       "promptForbidsUnrelatedReposWorktrees": true,
       "laneContamination": false
     }
@@ -109,19 +140,49 @@
   "activeSeniorCapstoneIds": [
     "senior-capstone-daily-mvp-summary",
     "senior-capstone-figma-product-builder",
+    "senior-capstone-figma-product-builder-top",
     "senior-capstone-nonfigma-mvp-builder",
+    "senior-capstone-nonfigma-mvp-builder-bottom",
     "senior-capstone-weekly-script-audit"
   ],
   "expectedBuilderIds": [
     "senior-capstone-nonfigma-mvp-builder",
+    "senior-capstone-nonfigma-mvp-builder-bottom",
+    "senior-capstone-figma-product-builder-top",
     "senior-capstone-figma-product-builder"
   ],
+  "activeBuilderIds": [
+    "senior-capstone-nonfigma-mvp-builder",
+    "senior-capstone-nonfigma-mvp-builder-bottom",
+    "senior-capstone-figma-product-builder-top",
+    "senior-capstone-figma-product-builder"
+  ],
+  "expectedBuilderInstances": {
+    "nonFigmaTop": {
+      "id": "senior-capstone-nonfigma-mvp-builder",
+      "rrule": "FREQ=HOURLY;BYMINUTE=0;BYSECOND=0"
+    },
+    "nonFigmaBottom": {
+      "id": "senior-capstone-nonfigma-mvp-builder-bottom",
+      "rrule": "FREQ=HOURLY;BYMINUTE=30;BYSECOND=0",
+      "promptMatches": "senior-capstone-nonfigma-mvp-builder"
+    },
+    "figmaTop": {
+      "id": "senior-capstone-figma-product-builder-top",
+      "rrule": "FREQ=HOURLY;BYMINUTE=0;BYSECOND=0",
+      "promptMatches": "senior-capstone-figma-product-builder"
+    },
+    "figmaBottom": {
+      "id": "senior-capstone-figma-product-builder",
+      "rrule": "FREQ=HOURLY;BYMINUTE=30;BYSECOND=0"
+    }
+  },
   "missingBuilderIds": [],
   "unexpectedActiveIds": [],
   "legacyActiveIds": [],
   "duplicateActiveIds": [],
-  "pausedSeniorCapstoneIds": [
-    "senior-capstone-hourly-qol-orchestrator"
-  ],
+  "pausedSeniorCapstoneIds": [],
+  "legacyDiagnosticPresent": false,
+  "legacyDiagnosticNote": "senior-capstone-hourly-qol-orchestrator automation.toml was absent from the live registry scan; it was not recreated or revived.",
   "verdict": "PASS"
 }

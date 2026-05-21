@@ -2,15 +2,15 @@
 
 This directory contains the bounded project-local QoL diagnostic path for the Senior Capstone app. It is scoped to this repository only and fails closed when the selected Codex project does not match `automation/qol/project-lock.json`.
 
-As of 2026-05-20, this path is not an active MVP builder prompt. The active builder prompts are `automation/prompts/senior-capstone-nonfigma-mvp-builder.md` and `automation/prompts/senior-capstone-figma-product-builder.md`. These scripts remain useful for project identity checks, automation health reports, lock/state diagnostics, and safety audits.
+As of 2026-05-20, this path is not an active MVP builder prompt. Bryan explicitly approved duplicating the working builder setup so the active GUI-visible builder instances are `senior-capstone-nonfigma-mvp-builder`, `senior-capstone-nonfigma-mvp-builder-bottom`, `senior-capstone-figma-product-builder-top`, and `senior-capstone-figma-product-builder`. The active builder prompt bodies still come from the working non-Figma and Figma prompt contracts; the new bottom/top rows are exact prompt-body duplicates of their source lane. These scripts remain useful for project identity checks, automation health reports, lock/state diagnostics, and safety audits.
 
-The non-Figma builder lane is the functional MVP acceleration lane. It should use the maximum practical session budget, run repeated inspect-implement-validate-record passes, and keep prioritizing login, upload, canonical app routing, and user-facing copy safety until those master-planner requirements are verified complete. The Figma prompt remains the product-design-only lane.
+The non-Figma builder lane is the functional MVP acceleration lane and now has minute 0 and minute 30 starts. It should use the maximum practical session budget, run repeated inspect-implement-validate-record passes, and keep prioritizing login, upload, canonical app routing, and user-facing copy safety until those master-planner requirements are verified complete. The Figma prompt remains the product-design-only lane and now also has minute 0 and minute 30 starts.
 
 ## Authoritative Files
 
 - Runner prompt and allowed action contract: `automation/qol/GUI_ALLOWED_COMMANDS.md`
-- Active non-Figma builder prompt: `automation/prompts/senior-capstone-nonfigma-mvp-builder.md`
-- Active Figma-only builder prompt: `automation/prompts/senior-capstone-figma-product-builder.md`
+- Active non-Figma builder prompt source: `automation/prompts/senior-capstone-nonfigma-mvp-builder.md`
+- Active Figma-only builder prompt source: `automation/prompts/senior-capstone-figma-product-builder.md`
 - Project identity lock: `automation/qol/project-lock.json`
 - Doctor: `automation/qol/doctor.mjs`
 - Legacy diagnostic orchestrator: `automation/qol/hourly-orchestrator.mjs`

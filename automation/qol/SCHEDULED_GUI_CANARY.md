@@ -19,7 +19,7 @@ The next legacy diagnostic GUI canary succeeds only if `automation/qol/reports/l
 - `report_written` is `true`.
 - `safety_status` is `PASS` or `UNKNOWN_REGISTRY_UNINSPECTABLE`.
 - `unexpected_project_automation_detected` is not `true`.
-- Active builder automation count is exactly `2` only when `registry_health_verified` is `true` and `registry_evidence_source` is live hidden-registry evidence mirrored to `automation/qol/state/automation-registry-evidence.json`; test fixtures under `tests/fixtures/` are not live scheduler proof.
+- Active builder automation count is exactly `4` only when `registry_health_verified` is `true` and `registry_evidence_source` is live hidden-registry evidence mirrored to `automation/qol/state/automation-registry-evidence.json`; test fixtures under `tests/fixtures/` are not live scheduler proof.
 - Active Senior Capstone automation count may include the two oversight automations when live hidden-registry evidence shows them active.
 - Otherwise, registry state must be reported as `UNKNOWN_REGISTRY_UNINSPECTABLE`.
 

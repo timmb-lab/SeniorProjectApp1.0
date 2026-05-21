@@ -2,14 +2,14 @@
 
 Date: 2026-05-20
 
-Current active model name: split-builder cadence.
+Current active model name: duplicated split-builder cadence.
 
-The Senior Capstone project now uses two alternating hourly builder lanes, plus daily and weekly oversight. Old single-builder cadence is retired. The single undifferentiated 30-minute builder model has been replaced by:
+The Senior Capstone project now uses four active hourly builder instances across two lanes, plus daily and weekly oversight. Old single-builder cadence is retired. Bryan explicitly approved the duplicated builder capacity increase on 2026-05-20. The single undifferentiated 30-minute builder model has been replaced by:
 
-- Minute 0 PT: top-of-hour non-Figma MVP builder.
-- Minute 30 PT: bottom-of-hour Figma-only product builder.
+- Minute 0 PT: top-of-hour non-Figma MVP builder and top-of-hour Figma-only product builder.
+- Minute 30 PT: bottom-of-hour non-Figma MVP builder and bottom-of-hour Figma-only product builder.
 
-Combined builder capacity is scheduled capacity, not guaranteed successful completed changes: 24 + 24 = 48 scheduled builder runs per day, and 720 + 720 = 1,440 scheduled builder runs per 30 days. Oversight automations report and recalibrate from evidence; they are not builder capacity.
+Combined builder capacity is scheduled capacity, not guaranteed successful completed changes: 48 + 48 = 96 scheduled builder runs per day, and 1,440 + 1,440 = 2,880 scheduled builder runs per 30 days. Oversight automations report and recalibrate from evidence; they are not builder capacity.
 
 End goal: a GitHub-to-Cloudflare hosted Senior Capstone app whose MVP is a secure database-backed operating system with users, groups, roles, programs, cohorts, progress updates, submissions, private evidence, reviews, approvals, dashboards, announcements, admin controls, audit logs, exports, and protected student records.
 
@@ -36,6 +36,8 @@ Oversight prompts: `automation/prompts/senior-capstone-daily-mvp-summary.md` and
 | Automation | ID | Schedule PT | Primary output |
 | --- | --- | --- | --- |
 | Top-of-Hour Non-Figma MVP Builder | `senior-capstone-nonfigma-mvp-builder` | Hourly at minute 0 | One bounded non-Figma MVP implementation, validation, deployment, docs, Canva-only, automation-hardening, or exact blocker slice. |
+| Bottom-of-Hour Non-Figma MVP Builder | `senior-capstone-nonfigma-mvp-builder-bottom` | Hourly at minute 30 | Separate GUI-visible duplicate of the working non-Figma builder prompt, with the same lane scope and start safety. |
+| Top-of-Hour Figma Product Builder | `senior-capstone-figma-product-builder-top` | Hourly at minute 0 | Separate GUI-visible duplicate of the working Figma product builder prompt, with the same Figma-only scope and start safety. |
 | Bottom-of-Hour Figma Product Builder | `senior-capstone-figma-product-builder` | Hourly at minute 30 | One bounded Figma-only product design, state variant, route/data/permission handoff, screenshot/metadata verification, or exact Figma blocker. |
 | Daily MVP Summary | `senior-capstone-daily-mvp-summary` | Daily at 8:00 AM PT | Report-only summary of the last 24 hours. |
 | Weekly Strategy Review | `senior-capstone-weekly-script-audit` | Sundays at 6:00 PM PT | Evidence-based weekly review and plan/catalog/memory/backlog adjustment. |
@@ -44,9 +46,9 @@ The legacy `senior-capstone-hourly-qol-orchestrator` ID is replaced as the activ
 
 ## Split Builder Contract
 
-- Combined capacity remains 48 scheduled starts/day.
-- Non-Figma builder runs 24/day.
-- Figma builder runs 24/day.
+- Combined capacity is now 96 scheduled starts/day.
+- Non-Figma builder runs 48/day across two GUI-visible instances.
+- Figma builder runs 48/day across two GUI-visible instances.
 - Daily summary and weekly review are oversight, not builder capacity.
 - Accepted passes require durable evidence.
 - Figma-only accepted passes require a functional handoff, state variant, route/data/permission annotation, screenshot/metadata verification, or exact blocker evidence.
@@ -116,19 +118,19 @@ Run this verifier during explicit automation audits and Sunday calibration:
 powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\verify-cadence-30min.ps1 -RepoRoot .
 ```
 
-Current split-builder scale math:
+Current duplicated split-builder scale math:
 
-- 24 non-Figma starts/day.
-- 24 Figma starts/day.
-- 48 combined starts/day.
-- 24 + 24 = 48 scheduled builder runs per day.
-- 720 non-Figma starts/30 days.
-- 720 Figma starts/30 days.
-- 1,440 combined starts/30 days.
-- 720 + 720 = 1,440 scheduled builder runs per 30 days.
+- 48 non-Figma starts/day.
+- 48 Figma starts/day.
+- 96 combined starts/day.
+- 48 + 48 = 96 scheduled builder runs per day.
+- 1,440 non-Figma starts/30 days.
+- 1,440 Figma starts/30 days.
+- 2,880 combined starts/30 days.
+- 1,440 + 1,440 = 2,880 scheduled builder runs per 30 days.
 - Minimum target: 60 accepted MVP passes per 30 days.
 - Stretch target: 90 accepted MVP passes per 30 days.
-- Required conversion: 4.17 percent for minimum, 6.25 percent for stretch.
+- Required conversion: 2.08 percent for minimum, 3.13 percent for stretch.
 
 Auto-scaling means retargeting requirement focus, lane separation, blockers, and acceptance checks from evidence before changing the schedule. If minute-0/minute-30 collisions, dirty-worktree contention, or low accepted-pass conversion appear, first sharpen slice selection, blockers, validation, and handoffs before adding more automations.
 
@@ -136,18 +138,17 @@ Auto-scaling means retargeting requirement focus, lane separation, blockers, and
 
 Repo validation enforces prompt, lock, docs, and verifier truth. It does not prove the external Codex scheduler has been changed unless a repo-local scheduler config exists and was updated, or direct scheduler evidence is inspected in the current run.
 
-No repo-local scheduler manifest currently controls the external scheduler. Bryan must keep the external scheduler aligned with this repo-local truth:
+No repo-local scheduler manifest currently controls the external scheduler. Bryan approved this external scheduler increase on 2026-05-20. Keep the external scheduler aligned with this repo-local truth:
 
 1. Create or update `senior-capstone-nonfigma-mvp-builder` to run hourly at minute 0 PT.
-2. Paste the full contents of `automation/prompts/senior-capstone-nonfigma-mvp-builder.md`.
-3. Create or update `senior-capstone-figma-product-builder` to run hourly at minute 30 PT.
-4. Paste the full contents of `automation/prompts/senior-capstone-figma-product-builder.md`.
-5. Disable `senior-capstone-hourly-qol-orchestrator` as recurring or convert it to manual diagnostic only.
+2. Create or update `senior-capstone-nonfigma-mvp-builder-bottom` to run hourly at minute 30 PT with an exact copy of the working non-Figma prompt body.
+3. Create or update `senior-capstone-figma-product-builder-top` to run hourly at minute 0 PT with an exact copy of the working Figma prompt body.
+4. Create or update `senior-capstone-figma-product-builder` to run hourly at minute 30 PT.
+5. Disable `senior-capstone-hourly-qol-orchestrator` as recurring or keep it absent/manual diagnostic only.
 6. Keep daily and weekly oversight active.
-7. Open the existing visible `Senior Capstone Daily MVP Summary` entry, confirm project `SeniorProjectApp1.0` and daily 8:00 AM schedule, paste `automation/prompts/senior-capstone-daily-mvp-summary.md`, and save in place without deleting or recreating it.
-8. Open the existing visible `Senior Capstone Weekly Strategy Review` entry, confirm project `SeniorProjectApp1.0` and Sunday 6:00 PM schedule, paste `automation/prompts/senior-capstone-weekly-script-audit.md`, and save in place without deleting or recreating it.
+7. Do not collapse the four rows into a single every-30-minute automation.
 
-If safe in-place GUI editing cannot be proven, follow `docs/CODEX_GUI_OVERSIGHT_ACTION_REQUIRED.md` instead of touching live registry records. Preserve GUI visibility, existing IDs, project binding, cwd, enabled status, and the minute 0 / minute 30 split-builder cadence.
+Preserve GUI visibility, existing IDs, project binding, cwd, enabled status, and the duplicated minute 0 / minute 30 split-builder cadence.
 
 ## Commit Prefixes
 

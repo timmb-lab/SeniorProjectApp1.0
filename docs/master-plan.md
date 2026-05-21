@@ -524,7 +524,7 @@ Earlier incomplete milestones beat later polish unless a P0/P1 risk says otherwi
 
 ## 100-Pass Delivery Constraint
 
-Bryan's current delivery pressure is to reach an MVP in 100 automation passes or fewer over roughly the next 45 days. The current active delivery cadence is two GUI-available split builders: `senior-capstone-nonfigma-mvp-builder` hourly at minute 0 PT and `senior-capstone-figma-product-builder` hourly at minute 30 PT. Together they still run 48 times per day in this workspace with xhigh reasoning, plus daily and weekly oversight automations.
+Bryan's current delivery pressure is to reach an MVP in 100 automation passes or fewer over roughly the next 45 days. The current active delivery cadence is four GUI-available duplicated split builders: `senior-capstone-nonfigma-mvp-builder` hourly at minute 0 PT, `senior-capstone-nonfigma-mvp-builder-bottom` hourly at minute 30 PT, `senior-capstone-figma-product-builder-top` hourly at minute 0 PT, and `senior-capstone-figma-product-builder` hourly at minute 30 PT. Together they run 96 times per day in this workspace with xhigh reasoning, plus daily and weekly oversight automations.
 
 The pass budget should bias every lane toward reducing implementation ambiguity:
 
@@ -537,7 +537,7 @@ The target is not "100 design passes." It is 100 total compounding passes toward
 
 ### Real Daily MVP Goal
 
-The current split-builder cadence provides 48 combined active builder starts per day. The real delivery goal is evidence-based accepted MVP progress, not counted scheduled starts every day.
+The current duplicated split-builder cadence provides 96 combined active builder starts per day. The real delivery goal is evidence-based accepted MVP progress, not counted scheduled starts every day.
 
 For the current 45-day / 100-pass target, use this daily goal:
 
@@ -557,7 +557,7 @@ Daily priority order:
 
 Weekly adjustment rule for this project only: `senior-capstone-weekly-script-audit` reviews the last seven days of run manifests, run log entries, commits, backlog movement, handoffs, and audit findings on Sundays. It then updates this master plan, `docs/automation-memory.md`, `docs/mvp-requirements-catalog.md`, and related backlog/cadence records with the next week's daily goal/allocation if evidence shows the plan is too loose, too aggressive, or pointed at the wrong requirement area.
 
-30-day efficiency rule: use `scripts/verify-cadence-30min.ps1` to confirm the active automation system remains the two-lane split before changing cadence. The current schedule creates 720 non-Figma starts, 720 Figma starts, and 1,440 combined builder starts in 30 days; it needs 60 accepted MVP passes for the minimum target and 90 for the stretch target, so it needs 4.17 percent conversion for minimum and 6.25 percent for stretch. Auto-scaling should retarget requirement focus, blockers, prompt clarity, lane separation, and acceptance checks from evidence before recommending schedule changes.
+30-day efficiency rule: use `scripts/verify-cadence-30min.ps1` to confirm the active automation system remains the owner-approved duplicated two-lane split before changing cadence. The current schedule creates 1,440 non-Figma starts, 1,440 Figma starts, and 2,880 combined builder starts in 30 days; it needs 60 accepted MVP passes for the minimum target and 90 for the stretch target, so it needs 2.08 percent conversion for minimum and 3.13 percent for stretch. Auto-scaling should retarget requirement focus, blockers, prompt clarity, lane separation, collision handling, and acceptance checks from evidence before recommending further schedule changes.
 
 ### 2026-05-18 Historical Baseline After Figma And Automation Catch-Up
 

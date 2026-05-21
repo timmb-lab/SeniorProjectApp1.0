@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "source": "test fixture: duplicate split builder automation",
+  "source": "test fixture: duplicated split cadence with an accidental duplicate active ID",
   "automations": [
     {
       "id": "senior-capstone-nonfigma-mvp-builder",
@@ -8,6 +8,14 @@
     },
     {
       "id": "senior-capstone-nonfigma-mvp-builder",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "senior-capstone-nonfigma-mvp-builder-bottom",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "senior-capstone-figma-product-builder-top",
       "status": "ACTIVE"
     },
     {

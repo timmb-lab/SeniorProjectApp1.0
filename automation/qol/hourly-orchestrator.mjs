@@ -24,8 +24,18 @@ const GUI_ALLOWED_COMMAND_DOC_RELATIVE = "automation/qol/GUI_ALLOWED_COMMANDS.md
 const SCHEDULED_GUI_CANARY_RELATIVE = "automation/qol/SCHEDULED_GUI_CANARY.md";
 const REPORT_SCHEMA_DOC_RELATIVE = "automation/qol/REPORT_SCHEMA.md";
 const DEFAULT_REGISTRY_EVIDENCE_RELATIVE = "automation/qol/state/automation-registry-evidence.json";
-const NON_FIGMA_BUILDER_ID = "senior-capstone-nonfigma-mvp-builder";
-const FIGMA_BUILDER_ID = "senior-capstone-figma-product-builder";
+const NON_FIGMA_TOP_BUILDER_ID = "senior-capstone-nonfigma-mvp-builder";
+const NON_FIGMA_BOTTOM_BUILDER_ID = "senior-capstone-nonfigma-mvp-builder-bottom";
+const FIGMA_TOP_BUILDER_ID = "senior-capstone-figma-product-builder-top";
+const FIGMA_BOTTOM_BUILDER_ID = "senior-capstone-figma-product-builder";
+const NON_FIGMA_BUILDER_ID = NON_FIGMA_TOP_BUILDER_ID;
+const FIGMA_BUILDER_ID = FIGMA_BOTTOM_BUILDER_ID;
+const EXPECTED_BUILDER_INSTANCE_IDS = [
+  NON_FIGMA_TOP_BUILDER_ID,
+  NON_FIGMA_BOTTOM_BUILDER_ID,
+  FIGMA_TOP_BUILDER_ID,
+  FIGMA_BOTTOM_BUILDER_ID,
+];
 const DAILY_OVERSIGHT_ID = "senior-capstone-daily-mvp-summary";
 const WEEKLY_OVERSIGHT_ID = "senior-capstone-weekly-script-audit";
 const LEGACY_DIAGNOSTIC_ID = "senior-capstone-hourly-qol-orchestrator";
@@ -903,20 +913,15 @@ function inspectLockContract(projectRoot, projectLock) {
       ? `expected root is ${EXPECTED_REPOSITORY_ROOT_WINDOWS_PATH}`
       : `expectedRepositoryRootWindowsPath must be ${EXPECTED_REPOSITORY_ROOT_WINDOWS_PATH}`,
   );
-  addCheck(
-    "lock-active-nonfigma-builder",
-    includes(allowedActiveIds, NON_FIGMA_BUILDER_ID) ? "pass" : "fail",
-    includes(allowedActiveIds, NON_FIGMA_BUILDER_ID)
-      ? `${NON_FIGMA_BUILDER_ID} is allowed active`
-      : `${NON_FIGMA_BUILDER_ID} must be allowed active`,
-  );
-  addCheck(
-    "lock-active-figma-builder",
-    includes(allowedActiveIds, FIGMA_BUILDER_ID) ? "pass" : "fail",
-    includes(allowedActiveIds, FIGMA_BUILDER_ID)
-      ? `${FIGMA_BUILDER_ID} is allowed active`
-      : `${FIGMA_BUILDER_ID} must be allowed active`,
-  );
+  for (const builderId of EXPECTED_BUILDER_INSTANCE_IDS) {
+    addCheck(
+      `lock-active-builder-${builderId}`,
+      includes(allowedActiveIds, builderId) ? "pass" : "fail",
+      includes(allowedActiveIds, builderId)
+        ? `${builderId} is allowed active`
+        : `${builderId} must be allowed active`,
+    );
+  }
   addCheck(
     "lock-legacy-not-active",
     includes(allowedActiveIds, LEGACY_DIAGNOSTIC_ID) ? "fail" : "pass",
@@ -926,18 +931,16 @@ function inspectLockContract(projectRoot, projectLock) {
   );
   addCheck(
     "lock-expected-builder-count",
-    expectedBuilderIds.length === 2 &&
-      includes(expectedBuilderIds, NON_FIGMA_BUILDER_ID) &&
-      includes(expectedBuilderIds, FIGMA_BUILDER_ID) &&
+    expectedBuilderIds.length === 4 &&
+      EXPECTED_BUILDER_INSTANCE_IDS.every((id) => includes(expectedBuilderIds, id)) &&
       !includes(expectedBuilderIds, LEGACY_DIAGNOSTIC_ID)
       ? "pass"
       : "fail",
-    expectedBuilderIds.length === 2 &&
-      includes(expectedBuilderIds, NON_FIGMA_BUILDER_ID) &&
-      includes(expectedBuilderIds, FIGMA_BUILDER_ID) &&
+    expectedBuilderIds.length === 4 &&
+      EXPECTED_BUILDER_INSTANCE_IDS.every((id) => includes(expectedBuilderIds, id)) &&
       !includes(expectedBuilderIds, LEGACY_DIAGNOSTIC_ID)
-      ? "expected builder IDs are exactly the two split builders"
-      : "expectedBuilderAutomationIds must contain exactly the non-Figma and Figma split builders",
+      ? "expected builder IDs are exactly the four duplicated split builders"
+      : "expectedBuilderAutomationIds must contain exactly the four duplicated split builders",
   );
   addCheck(
     "lock-oversight-ids",
@@ -963,26 +966,48 @@ function inspectLockContract(projectRoot, projectLock) {
       : "No singular old-builder cadence field remains",
   );
   addCheck(
-    "lock-nonfigma-cadence",
-    projectLock.expectedBuilderCadences?.nonFigma?.id === NON_FIGMA_BUILDER_ID &&
-      projectLock.expectedBuilderCadences?.nonFigma?.rrule === "FREQ=HOURLY;BYMINUTE=0;BYSECOND=0"
+    "lock-nonfigma-top-cadence",
+    projectLock.expectedBuilderCadences?.nonFigmaTop?.id === NON_FIGMA_TOP_BUILDER_ID &&
+      projectLock.expectedBuilderCadences?.nonFigmaTop?.rrule === "FREQ=HOURLY;BYMINUTE=0;BYSECOND=0"
       ? "pass"
       : "fail",
-    projectLock.expectedBuilderCadences?.nonFigma?.id === NON_FIGMA_BUILDER_ID &&
-      projectLock.expectedBuilderCadences?.nonFigma?.rrule === "FREQ=HOURLY;BYMINUTE=0;BYSECOND=0"
-      ? "non-Figma builder cadence is hourly at minute 0"
-      : "expectedBuilderCadences.nonFigma must be the non-Figma builder at minute 0",
+    projectLock.expectedBuilderCadences?.nonFigmaTop?.id === NON_FIGMA_TOP_BUILDER_ID &&
+      projectLock.expectedBuilderCadences?.nonFigmaTop?.rrule === "FREQ=HOURLY;BYMINUTE=0;BYSECOND=0"
+      ? "non-Figma top builder cadence is hourly at minute 0"
+      : "expectedBuilderCadences.nonFigmaTop must be the non-Figma builder at minute 0",
   );
   addCheck(
-    "lock-figma-cadence",
-    projectLock.expectedBuilderCadences?.figma?.id === FIGMA_BUILDER_ID &&
-      projectLock.expectedBuilderCadences?.figma?.rrule === "FREQ=HOURLY;BYMINUTE=30;BYSECOND=0"
+    "lock-nonfigma-bottom-cadence",
+    projectLock.expectedBuilderCadences?.nonFigmaBottom?.id === NON_FIGMA_BOTTOM_BUILDER_ID &&
+      projectLock.expectedBuilderCadences?.nonFigmaBottom?.rrule === "FREQ=HOURLY;BYMINUTE=30;BYSECOND=0"
       ? "pass"
       : "fail",
-    projectLock.expectedBuilderCadences?.figma?.id === FIGMA_BUILDER_ID &&
-      projectLock.expectedBuilderCadences?.figma?.rrule === "FREQ=HOURLY;BYMINUTE=30;BYSECOND=0"
-      ? "Figma builder cadence is hourly at minute 30"
-      : "expectedBuilderCadences.figma must be the Figma builder at minute 30",
+    projectLock.expectedBuilderCadences?.nonFigmaBottom?.id === NON_FIGMA_BOTTOM_BUILDER_ID &&
+      projectLock.expectedBuilderCadences?.nonFigmaBottom?.rrule === "FREQ=HOURLY;BYMINUTE=30;BYSECOND=0"
+      ? "non-Figma bottom builder cadence is hourly at minute 30"
+      : "expectedBuilderCadences.nonFigmaBottom must be the non-Figma builder at minute 30",
+  );
+  addCheck(
+    "lock-figma-top-cadence",
+    projectLock.expectedBuilderCadences?.figmaTop?.id === FIGMA_TOP_BUILDER_ID &&
+      projectLock.expectedBuilderCadences?.figmaTop?.rrule === "FREQ=HOURLY;BYMINUTE=0;BYSECOND=0"
+      ? "pass"
+      : "fail",
+    projectLock.expectedBuilderCadences?.figmaTop?.id === FIGMA_TOP_BUILDER_ID &&
+      projectLock.expectedBuilderCadences?.figmaTop?.rrule === "FREQ=HOURLY;BYMINUTE=0;BYSECOND=0"
+      ? "Figma top builder cadence is hourly at minute 0"
+      : "expectedBuilderCadences.figmaTop must be the Figma builder at minute 0",
+  );
+  addCheck(
+    "lock-figma-bottom-cadence",
+    projectLock.expectedBuilderCadences?.figmaBottom?.id === FIGMA_BOTTOM_BUILDER_ID &&
+      projectLock.expectedBuilderCadences?.figmaBottom?.rrule === "FREQ=HOURLY;BYMINUTE=30;BYSECOND=0"
+      ? "pass"
+      : "fail",
+    projectLock.expectedBuilderCadences?.figmaBottom?.id === FIGMA_BOTTOM_BUILDER_ID &&
+      projectLock.expectedBuilderCadences?.figmaBottom?.rrule === "FREQ=HOURLY;BYMINUTE=30;BYSECOND=0"
+      ? "Figma bottom builder cadence is hourly at minute 30"
+      : "expectedBuilderCadences.figmaBottom must be the Figma builder at minute 30",
   );
   addCheck(
     "stale-lock-threshold",

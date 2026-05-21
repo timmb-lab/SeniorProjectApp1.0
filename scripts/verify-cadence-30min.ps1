@@ -7,8 +7,13 @@ $RepoRoot = (Resolve-Path -LiteralPath $RepoRoot).Path
 $failures = New-Object System.Collections.Generic.List[string]
 $checkedFiles = New-Object System.Collections.Generic.List[string]
 
-$nonFigmaId = "senior-capstone-nonfigma-mvp-builder"
-$figmaId = "senior-capstone-figma-product-builder"
+$nonFigmaTopId = "senior-capstone-nonfigma-mvp-builder"
+$nonFigmaBottomId = "senior-capstone-nonfigma-mvp-builder-bottom"
+$figmaTopId = "senior-capstone-figma-product-builder-top"
+$figmaBottomId = "senior-capstone-figma-product-builder"
+$nonFigmaId = $nonFigmaTopId
+$figmaId = $figmaBottomId
+$expectedBuilderInstanceIds = @($nonFigmaTopId, $nonFigmaBottomId, $figmaTopId, $figmaBottomId)
 $dailyId = "senior-capstone-daily-mvp-summary"
 $weeklyId = "senior-capstone-weekly-script-audit"
 $legacyId = "senior-capstone-hourly-qol-orchestrator"
@@ -198,20 +203,22 @@ catch {
 
 $cadenceDoc = Read-Text "docs\automation-cadence.md"
 Assert-Contains $cadenceDoc "split-builder cadence" "Automation cadence doc"
-Assert-Contains $cadenceDoc $nonFigmaId "Automation cadence doc"
-Assert-Contains $cadenceDoc $figmaId "Automation cadence doc"
+foreach ($builderId in $expectedBuilderInstanceIds) {
+    Assert-Contains $cadenceDoc $builderId "Automation cadence doc"
+}
 Assert-Contains $cadenceDoc $dailyId "Automation cadence doc"
 Assert-Contains $cadenceDoc $weeklyId "Automation cadence doc"
 Assert-Match $cadenceDoc "minute 0|Hourly at minute 0|top-of-hour" "Automation cadence doc"
 Assert-Match $cadenceDoc "minute 30|Hourly at minute 30|bottom-of-hour" "Automation cadence doc"
-Assert-Contains $cadenceDoc "24 non-Figma starts/day" "Automation cadence doc"
-Assert-Contains $cadenceDoc "24 Figma starts/day" "Automation cadence doc"
-Assert-Contains $cadenceDoc "48 combined starts/day" "Automation cadence doc"
-Assert-Contains $cadenceDoc "24 + 24 = 48 scheduled builder runs per day" "Automation cadence doc"
-Assert-Contains $cadenceDoc "720 non-Figma starts/30 days" "Automation cadence doc"
-Assert-Contains $cadenceDoc "720 Figma starts/30 days" "Automation cadence doc"
-Assert-Contains $cadenceDoc "1,440 combined starts/30 days" "Automation cadence doc"
-Assert-Contains $cadenceDoc "720 + 720 = 1,440 scheduled builder runs per 30 days" "Automation cadence doc"
+Assert-Contains $cadenceDoc "48 non-Figma starts/day" "Automation cadence doc"
+Assert-Contains $cadenceDoc "48 Figma starts/day" "Automation cadence doc"
+Assert-Contains $cadenceDoc "96 combined starts/day" "Automation cadence doc"
+Assert-Contains $cadenceDoc "48 + 48 = 96 scheduled builder runs per day" "Automation cadence doc"
+Assert-Contains $cadenceDoc "1,440 non-Figma starts/30 days" "Automation cadence doc"
+Assert-Contains $cadenceDoc "1,440 Figma starts/30 days" "Automation cadence doc"
+Assert-Contains $cadenceDoc "2,880 combined starts/30 days" "Automation cadence doc"
+Assert-Contains $cadenceDoc "1,440 + 1,440 = 2,880 scheduled builder runs per 30 days" "Automation cadence doc"
+Assert-Contains $cadenceDoc "Bryan explicitly approved" "Automation cadence doc"
 Assert-Contains $cadenceDoc "Daily summary and weekly review are oversight, not builder capacity" "Automation cadence doc"
 Assert-Match $cadenceDoc "External scheduler handling" "Automation cadence doc"
 Assert-Match $cadenceDoc "unproven scheduler claims" "Automation cadence doc"
@@ -222,20 +229,20 @@ $projectLockText = Read-Text "automation\qol\project-lock.json"
 if ($projectLockText) {
     try {
         $projectLock = $projectLockText | ConvertFrom-Json
-        Assert-ArrayContains $projectLock.allowedActiveAutomationIds $nonFigmaId "project-lock allowedActiveAutomationIds"
-        Assert-ArrayContains $projectLock.allowedActiveAutomationIds $figmaId "project-lock allowedActiveAutomationIds"
+        foreach ($builderId in $expectedBuilderInstanceIds) {
+            Assert-ArrayContains $projectLock.allowedActiveAutomationIds $builderId "project-lock allowedActiveAutomationIds"
+            Assert-ArrayContains $projectLock.expectedBuilderAutomationIds $builderId "project-lock expectedBuilderAutomationIds"
+        }
         Assert-ArrayContains $projectLock.allowedActiveAutomationIds $dailyId "project-lock allowedActiveAutomationIds"
         Assert-ArrayContains $projectLock.allowedActiveAutomationIds $weeklyId "project-lock allowedActiveAutomationIds"
         Assert-ArrayNotContains $projectLock.allowedActiveAutomationIds $legacyId "project-lock allowedActiveAutomationIds"
         Assert-ArrayContains $projectLock.allowedOversightAutomationIds $dailyId "project-lock allowedOversightAutomationIds"
         Assert-ArrayContains $projectLock.allowedOversightAutomationIds $weeklyId "project-lock allowedOversightAutomationIds"
-        Assert-ArrayContains $projectLock.expectedBuilderAutomationIds $nonFigmaId "project-lock expectedBuilderAutomationIds"
-        Assert-ArrayContains $projectLock.expectedBuilderAutomationIds $figmaId "project-lock expectedBuilderAutomationIds"
         Assert-ArrayContains $projectLock.legacyDiagnosticAutomationIds $legacyId "project-lock legacyDiagnosticAutomationIds"
         Assert-ArrayNotContains $projectLock.expectedBuilderAutomationIds $legacyId "project-lock expectedBuilderAutomationIds"
 
-        if (@($projectLock.expectedBuilderAutomationIds).Count -ne 2) {
-            $failures.Add("project-lock expectedBuilderAutomationIds must contain exactly the two split builder IDs")
+        if (@($projectLock.expectedBuilderAutomationIds).Count -ne 4) {
+            $failures.Add("project-lock expectedBuilderAutomationIds must contain exactly the four duplicated split builder IDs")
         }
         if ($projectLock.PSObject.Properties["expectedAutomationCadenceRRule"]) {
             $failures.Add("project-lock must not retain singular expectedAutomationCadenceRRule from the old 30-minute builder")
@@ -250,20 +257,23 @@ if ($projectLockText) {
             $failures.Add("project-lock legacyDiagnosticAutomationStatus must mark the old automation ID manual/diagnostic/non-recurring")
         }
 
-        if ($projectLock.expectedAutomationCadenceDescription -ne "split hourly builders: non-Figma at minute 0 PT and Figma-only at minute 30 PT") {
-            $failures.Add("project-lock expectedAutomationCadenceDescription does not describe the split hourly builders")
+        if ($projectLock.expectedAutomationCadenceDescription -ne "duplicated split hourly builders: non-Figma at minute 0 and minute 30 PT; Figma-only at minute 0 and minute 30 PT") {
+            $failures.Add("project-lock expectedAutomationCadenceDescription does not describe the duplicated split hourly builders")
         }
-        if ($projectLock.expectedBuilderCadences.nonFigma.id -ne $nonFigmaId) {
-            $failures.Add("project-lock expectedBuilderCadences.nonFigma.id is incorrect")
+        if (@($projectLock.expectedBuilderInstances).Count -ne 4) {
+            $failures.Add("project-lock expectedBuilderInstances must contain exactly four builder instances")
         }
-        if ($projectLock.expectedBuilderCadences.nonFigma.rrule -ne "FREQ=HOURLY;BYMINUTE=0;BYSECOND=0") {
-            $failures.Add("project-lock non-Figma RRULE is incorrect")
+        if ($projectLock.expectedBuilderCadences.nonFigmaTop.id -ne $nonFigmaTopId -or $projectLock.expectedBuilderCadences.nonFigmaTop.rrule -ne "FREQ=HOURLY;BYMINUTE=0;BYSECOND=0") {
+            $failures.Add("project-lock expectedBuilderCadences.nonFigmaTop is incorrect")
         }
-        if ($projectLock.expectedBuilderCadences.figma.id -ne $figmaId) {
-            $failures.Add("project-lock expectedBuilderCadences.figma.id is incorrect")
+        if ($projectLock.expectedBuilderCadences.nonFigmaBottom.id -ne $nonFigmaBottomId -or $projectLock.expectedBuilderCadences.nonFigmaBottom.rrule -ne "FREQ=HOURLY;BYMINUTE=30;BYSECOND=0") {
+            $failures.Add("project-lock expectedBuilderCadences.nonFigmaBottom is incorrect")
         }
-        if ($projectLock.expectedBuilderCadences.figma.rrule -ne "FREQ=HOURLY;BYMINUTE=30;BYSECOND=0") {
-            $failures.Add("project-lock Figma RRULE is incorrect")
+        if ($projectLock.expectedBuilderCadences.figmaTop.id -ne $figmaTopId -or $projectLock.expectedBuilderCadences.figmaTop.rrule -ne "FREQ=HOURLY;BYMINUTE=0;BYSECOND=0") {
+            $failures.Add("project-lock expectedBuilderCadences.figmaTop is incorrect")
+        }
+        if ($projectLock.expectedBuilderCadences.figmaBottom.id -ne $figmaBottomId -or $projectLock.expectedBuilderCadences.figmaBottom.rrule -ne "FREQ=HOURLY;BYMINUTE=30;BYSECOND=0") {
+            $failures.Add("project-lock expectedBuilderCadences.figmaBottom is incorrect")
         }
         if ($projectLock.expectedOversightCadences.daily.id -ne $dailyId) {
             $failures.Add("project-lock expectedOversightCadences.daily.id is incorrect")
@@ -410,14 +420,15 @@ Assert-Contains $runbook "npm missing from PATH" "Automation runbook"
 
 $memory = Read-Text "docs\automation-memory.md"
 Assert-Contains $memory "2026-05-20 - Split Builder Cadence" "Automation memory"
-Assert-Contains $memory "Non-Figma builder runs at minute 0 PT" "Automation memory"
-Assert-Contains $memory "Figma-only builder runs at minute 30 PT" "Automation memory"
-Assert-Contains $memory "Combined capacity remains 48 starts/day" "Automation memory"
+Assert-Contains $memory "2026-05-20 - Owner-Approved Duplicated Builder Cadence" "Automation memory"
+Assert-Contains $memory $nonFigmaBottomId "Automation memory"
+Assert-Contains $memory $figmaTopId "Automation memory"
+Assert-Contains $memory "96 starts/day" "Automation memory"
 Assert-Contains $memory $figmaFileKey "Automation memory"
 Assert-Contains $memory "External scheduler may still require manual configuration" "Automation memory"
 
 $catalog = Read-Text "docs\mvp-requirements-catalog.md"
-Assert-Contains $catalog 'bottom-of-hour Figma-only builder owns `MVP-028`' "MVP requirements catalog"
+Assert-Contains $catalog "Figma-only builder lane also has minute 0 and minute 30" "MVP requirements catalog"
 Assert-Contains $catalog "non-Figma builder may consume existing Figma evidence" "MVP requirements catalog"
 Assert-Contains $catalog "Figma is not production data" "MVP requirements catalog"
 
@@ -449,12 +460,54 @@ if ($artifactsText) {
         if ($splitArtifact.Count -ne 1) {
             $failures.Add("docs/artifacts.json must contain exactly one senior-capstone-split-builder-cadence artifact")
         }
-        elseif ($splitArtifact[0].capacity.non_figma_starts_per_30_days -ne 720 -or $splitArtifact[0].capacity.figma_starts_per_30_days -ne 720) {
-            $failures.Add("docs/artifacts.json split builder artifact must record 720 non-Figma and 720 Figma starts per 30 days")
+        elseif (
+            $splitArtifact[0].capacity.non_figma_starts_per_day -ne 48 -or
+            $splitArtifact[0].capacity.figma_starts_per_day -ne 48 -or
+            $splitArtifact[0].capacity.combined_starts_per_day -ne 96 -or
+            $splitArtifact[0].capacity.non_figma_starts_per_30_days -ne 1440 -or
+            $splitArtifact[0].capacity.figma_starts_per_30_days -ne 1440 -or
+            $splitArtifact[0].capacity.combined_starts_per_30_days -ne 2880
+        ) {
+            $failures.Add("docs/artifacts.json split builder artifact must record 48/day per lane and 2,880 combined starts per 30 days")
         }
     }
     catch {
         $failures.Add("docs/artifacts.json is not valid JSON: $($_.Exception.Message)")
+    }
+}
+
+$registryEvidenceText = Read-Text "automation\qol\state\automation-registry-evidence.json"
+if ($registryEvidenceText) {
+    try {
+        $registryEvidence = $registryEvidenceText | ConvertFrom-Json
+        foreach ($builderId in $expectedBuilderInstanceIds) {
+            Assert-ArrayContains $registryEvidence.expectedBuilderIds $builderId "registry evidence expectedBuilderIds"
+            Assert-ArrayContains $registryEvidence.activeBuilderIds $builderId "registry evidence activeBuilderIds"
+            Assert-ArrayContains $registryEvidence.activeSeniorCapstoneIds $builderId "registry evidence activeSeniorCapstoneIds"
+        }
+        Assert-ArrayContains $registryEvidence.activeSeniorCapstoneIds $dailyId "registry evidence activeSeniorCapstoneIds"
+        Assert-ArrayContains $registryEvidence.activeSeniorCapstoneIds $weeklyId "registry evidence activeSeniorCapstoneIds"
+        if (@($registryEvidence.activeBuilderIds).Count -ne 4) {
+            $failures.Add("registry evidence must show exactly four active builder IDs")
+        }
+        if (@($registryEvidence.missingBuilderIds).Count -ne 0) {
+            $failures.Add("registry evidence must not show missing builder IDs")
+        }
+        if (@($registryEvidence.unexpectedActiveIds).Count -ne 0) {
+            $failures.Add("registry evidence must not show unexpected active IDs")
+        }
+        if (@($registryEvidence.legacyActiveIds).Count -ne 0) {
+            $failures.Add("registry evidence must not show active legacy diagnostic IDs")
+        }
+        if (@($registryEvidence.duplicateActiveIds).Count -ne 0) {
+            $failures.Add("registry evidence must not show duplicate active IDs")
+        }
+        if ($registryEvidence.verdict -ne "PASS") {
+            $failures.Add("registry evidence verdict must be PASS")
+        }
+    }
+    catch {
+        $failures.Add("automation-registry-evidence is not valid JSON: $($_.Exception.Message)")
     }
 }
 
@@ -470,8 +523,10 @@ if ($failures.Count -gt 0) {
 Write-Output "Split cadence verification passed."
 Write-Output "Checked files: $($checkedFiles.Count)"
 Write-Output "Active builder automations:"
-Write-Output "- $nonFigmaId at minute 0 PT"
-Write-Output "- $figmaId at minute 30 PT"
+Write-Output "- $nonFigmaTopId at minute 0 PT"
+Write-Output "- $nonFigmaBottomId at minute 30 PT"
+Write-Output "- $figmaTopId at minute 0 PT"
+Write-Output "- $figmaBottomId at minute 30 PT"
 Write-Output "Oversight automations:"
 Write-Output "- $dailyId"
 Write-Output "- $weeklyId"
