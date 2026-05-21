@@ -1205,3 +1205,16 @@ Future productive runs should append compact entries that name the master-plan s
 - `self-improvement`: none.
 - `commit/push status`: implementation commit `cb89a3a47ca498c1d0ea7d9c3368e51c064b019b` and closeout commit `9146a8d79236007751736dfc8200d14f6ef5d683` pushed to `origin main` (`f4fa9bb..9146a8d`); push-evidence update follows.
 - `next action`: Continue protected-record depth through presentation slots, archive/export, dashboard aggregate readbacks, and hosted permission UI proof; resolve the Drive upload HTTP 403 before real evidence uploads.
+
+## 2026-05-21 13:02 PT - Custom Domain Cutover Live Verified
+
+- `automation ID`: manual Codex live cutover verification.
+- `lane`: production cutover verification / sanitized evidence only.
+- `selected slice`: Fast-forward-only sync on `main`, live custom-domain verification after Cloudflare DNS fix, aggregate production cutover gate, and aggregate repo check.
+- `what changed`: Added this sanitized closeout record and structured run manifest `docs/progress/runs/2026-05-21-thecapstoneapp-custom-domain-cutover-verified.json`; no app behavior, account, automation, stakeholder-site, alpha/account policy, fake-credential, or real-user-data changes were made.
+- `live custom-domain proof`: `thecapstoneapp.com`, `www.thecapstoneapp.com`, and `app.thecapstoneapp.com` are active on their expected Cloudflare Pages projects with active validation and verification; requested HTTPS checks passed for the public root, public www, app root, workspace route, health endpoint, and expected signed-out auth endpoint.
+- `validation`: `npm run check:custom-domain-cutover -- --live-required --live-http` passed with `CUSTOM_DOMAIN_CUTOVER_VERIFIED`; `npm run check:production-cutover` passed with `PRODUCTION_CUTOVER_VERIFIED`; `npm run check` passed with 223 passing tests, 0 failures, and 4 expected opt-in skips.
+- `blockers`: none for custom-domain cutover verification.
+- `phone tracker`: not appended; Google Sheets connector was not used.
+- `self-improvement`: none.
+- `commit/push status`: pending closeout commit.

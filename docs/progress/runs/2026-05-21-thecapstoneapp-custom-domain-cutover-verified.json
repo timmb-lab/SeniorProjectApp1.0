@@ -1,0 +1,132 @@
+{
+  "runId": "2026-05-21-thecapstoneapp-custom-domain-cutover-verified",
+  "timestampPt": "2026-05-21T13:01:45-07:00",
+  "startSha": "64809e930c67da2278c68dda53a7c54ce9d32790",
+  "scope": "Final sanitized live custom-domain cutover verification after Cloudflare DNS fix.",
+  "sync": {
+    "branch": "main",
+    "pullMode": "ff-only",
+    "result": "already_up_to_date"
+  },
+  "finalStatus": "CUSTOM_DOMAIN_CUTOVER_VERIFIED",
+  "domainMapping": {
+    "domain": "thecapstoneapp.com",
+    "rootMode": "guide-root-app-subdomain",
+    "public": {
+      "hostnames": [
+        "thecapstoneapp.com",
+        "www.thecapstoneapp.com"
+      ],
+      "pagesProject": "senior-capstone-public"
+    },
+    "app": {
+      "hostname": "app.thecapstoneapp.com",
+      "pagesProject": "senior-capstone-app"
+    }
+  },
+  "pagesDomainAssociations": [
+    {
+      "hostname": "thecapstoneapp.com",
+      "pagesProject": "senior-capstone-public",
+      "status": "active",
+      "validation": "active",
+      "verification": "active"
+    },
+    {
+      "hostname": "www.thecapstoneapp.com",
+      "pagesProject": "senior-capstone-public",
+      "status": "active",
+      "validation": "active",
+      "verification": "active"
+    },
+    {
+      "hostname": "app.thecapstoneapp.com",
+      "pagesProject": "senior-capstone-app",
+      "status": "active",
+      "validation": "active",
+      "verification": "active"
+    }
+  ],
+  "liveHttpsChecks": [
+    {
+      "name": "root public guide",
+      "url": "https://thecapstoneapp.com/",
+      "status": 200,
+      "result": "pass"
+    },
+    {
+      "name": "www public guide",
+      "url": "https://www.thecapstoneapp.com/",
+      "status": 200,
+      "result": "pass"
+    },
+    {
+      "name": "app host",
+      "url": "https://app.thecapstoneapp.com/",
+      "status": 200,
+      "result": "pass"
+    },
+    {
+      "name": "workspace",
+      "url": "https://app.thecapstoneapp.com/workspace.html",
+      "status": 200,
+      "result": "pass"
+    },
+    {
+      "name": "api health",
+      "url": "https://app.thecapstoneapp.com/api/health",
+      "status": 200,
+      "result": "pass"
+    },
+    {
+      "name": "api auth me signed-out",
+      "url": "https://app.thecapstoneapp.com/api/auth/me",
+      "status": 401,
+      "result": "pass_expected_signed_out"
+    }
+  ],
+  "commandResults": [
+    {
+      "command": "git pull --ff-only",
+      "result": "pass",
+      "notes": "Already up to date."
+    },
+    {
+      "command": "npm run check:custom-domain-cutover -- --live-required --live-http",
+      "result": "pass",
+      "marker": "CUSTOM_DOMAIN_CUTOVER_VERIFIED"
+    },
+    {
+      "command": "npm run check:production-cutover",
+      "result": "pass",
+      "marker": "PRODUCTION_CUTOVER_VERIFIED"
+    },
+    {
+      "command": "npm run check",
+      "result": "pass",
+      "tests": {
+        "total": 227,
+        "passed": 223,
+        "failed": 0,
+        "skipped": 4
+      }
+    }
+  ],
+  "sanitization": {
+    "evidenceScope": "public hostnames, expected Pages project names, HTTP statuses, final markers, and aggregate test counts only",
+    "secretsPrinted": false,
+    "providerSecretBearingErrorsLeaked": false,
+    "rawDriveIdsAddedToUserFacingOutput": false,
+    "fakePasswordsCommitted": false
+  },
+  "changeGuardrails": {
+    "appBehaviorChanged": false,
+    "accountsChanged": false,
+    "automationChanged": false,
+    "stakeholderSitesChanged": false,
+    "alphaAccountPolicyChanged": false,
+    "fakeCredentialsChanged": false,
+    "realUserDataTouched": false
+  },
+  "blockers": []
+}
