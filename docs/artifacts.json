@@ -171,7 +171,8 @@
         "2026-05-20 21:10 PT: direct hosted https://senior-capstone-app.pages.dev/workspace.js returned HTTP 200 with data-archive-download=\"manifest\" on poll 4 after push.",
         "2026-05-20 21:38 PT: admin archive generation now verifies Drive provider readiness before success; missing credentials or Drive access failures create failed export rows plus student_archive_export_provider_unavailable audit events, and the workspace renders retention-policy state with data-archive-retention-status.",
         "2026-05-20 21:43 PT: direct hosted https://senior-capstone-app.pages.dev/workspace.js returned HTTP 200 with data-archive-retention-status on poll 1 after the archive provider/retention push.",
-        "2026-05-20 22:09 PT: archive export generation now uploads the redacted manifest JSON to Drive before completion, stores the Drive file ID only server-side in exports.drive_file_id, exposes data-archive-drive-package in the workspace, and passed focused archive/workspace/source tests plus the full local test suite."
+        "2026-05-20 22:09 PT: archive export generation now uploads the redacted manifest JSON to Drive before completion, stores the Drive file ID only server-side in exports.drive_file_id, exposes data-archive-drive-package in the workspace, and passed focused archive/workspace/source tests plus the full local test suite.",
+        "2026-05-20 22:18 PT: direct hosted https://senior-capstone-app.pages.dev/workspace.js returned HTTP 200 with data-archive-drive-package on poll 3 after push."
       ],
       "last_updated": "2026-05-20"
     },

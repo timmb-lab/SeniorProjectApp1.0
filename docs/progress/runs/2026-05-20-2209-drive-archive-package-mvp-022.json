@@ -124,6 +124,10 @@
     {
       "command": "git diff --check",
       "result": "pass; CRLF conversion warnings only"
+    },
+    {
+      "command": "Invoke-WebRequest https://senior-capstone-app.pages.dev/workspace.js",
+      "result": "pass; HTTP 200 contained data-archive-drive-package on poll 3 after push"
     }
   ],
   "blockers": [
