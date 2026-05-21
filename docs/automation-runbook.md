@@ -108,6 +108,13 @@ Old single-builder cadence is retired. The legacy `senior-capstone-hourly-qol-or
 
 Oversight automations are also active: `senior-capstone-daily-mvp-summary` reports the last 24 hours without adding builder capacity, and `senior-capstone-weekly-script-audit` performs the seven-day strategy review and plan adjustment.
 
+Oversight prompt files:
+
+- Daily: `automation/prompts/senior-capstone-daily-mvp-summary.md`, visible GUI title `Senior Capstone Daily MVP Summary`, daily at 8:00 AM PT.
+- Weekly: `automation/prompts/senior-capstone-weekly-script-audit.md`, visible GUI title `Senior Capstone Weekly Strategy Review`, Sundays at 6:00 PM PT.
+
+The daily and weekly oversight jobs summarize, count, audit, steer, and escalate from durable evidence. They must not implement app/backend changes, perform Figma work, deploy Cloudflare, edit builder prompts, change schedules, create replacement automations, or touch hourly automations. If GUI prompt paste is required, use `docs/CODEX_GUI_OVERSIGHT_ACTION_REQUIRED.md` and save the existing visible entries in place.
+
 Manual verification:
 
 - Confirm the repo is on `main` with `git branch --show-current`.
@@ -116,6 +123,7 @@ Manual verification:
 - Confirm both prompts exist in `automation/prompts/`.
 - Confirm the Figma prompt blocks backend implementation and production route changes.
 - Confirm the non-Figma prompt blocks direct Figma work, Figma MCP calls, Figma file edits, and Figma screenshots.
+- Confirm the daily and weekly oversight prompts exist and preserve GUI visibility without changing hourly builder records.
 
 Non-Figma builder run expectations:
 

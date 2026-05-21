@@ -29,6 +29,7 @@ Artifact registry: `docs/artifacts.json`.
 Cadence verifier: `scripts/verify-cadence-30min.ps1`.
 Node/npm wrappers: `scripts/run-node-script.ps1` and `scripts/run-npm-script.ps1`.
 Builder prompts: `automation/prompts/senior-capstone-nonfigma-mvp-builder.md` and `automation/prompts/senior-capstone-figma-product-builder.md`.
+Oversight prompts: `automation/prompts/senior-capstone-daily-mvp-summary.md` and `automation/prompts/senior-capstone-weekly-script-audit.md`.
 
 ## Active Automation
 
@@ -36,8 +37,8 @@ Builder prompts: `automation/prompts/senior-capstone-nonfigma-mvp-builder.md` an
 | --- | --- | --- | --- |
 | Top-of-Hour Non-Figma MVP Builder | `senior-capstone-nonfigma-mvp-builder` | Hourly at minute 0 | One bounded non-Figma MVP implementation, validation, deployment, docs, Canva-only, automation-hardening, or exact blocker slice. |
 | Bottom-of-Hour Figma Product Builder | `senior-capstone-figma-product-builder` | Hourly at minute 30 | One bounded Figma-only product design, state variant, route/data/permission handoff, screenshot/metadata verification, or exact Figma blocker. |
-| Daily MVP Summary | `senior-capstone-daily-mvp-summary` | Daily morning report | Report-only summary of the last 24 hours. |
-| Weekly Strategy Review | `senior-capstone-weekly-script-audit` | Sunday evening review | Evidence-based weekly review and plan/catalog/memory/backlog adjustment. |
+| Daily MVP Summary | `senior-capstone-daily-mvp-summary` | Daily at 8:00 AM PT | Report-only summary of the last 24 hours. |
+| Weekly Strategy Review | `senior-capstone-weekly-script-audit` | Sundays at 6:00 PM PT | Evidence-based weekly review and plan/catalog/memory/backlog adjustment. |
 
 The legacy `senior-capstone-hourly-qol-orchestrator` ID is replaced as the active builder. It may remain in the repo only as a diagnostic/manual QoL runner through `automation/qol/doctor.mjs` and `automation/qol/hourly-orchestrator.mjs`; it must not be counted as active builder capacity.
 
@@ -143,6 +144,10 @@ No repo-local scheduler manifest currently controls the external scheduler. Brya
 4. Paste the full contents of `automation/prompts/senior-capstone-figma-product-builder.md`.
 5. Disable `senior-capstone-hourly-qol-orchestrator` as recurring or convert it to manual diagnostic only.
 6. Keep daily and weekly oversight active.
+7. Open the existing visible `Senior Capstone Daily MVP Summary` entry, confirm project `SeniorProjectApp1.0` and daily 8:00 AM schedule, paste `automation/prompts/senior-capstone-daily-mvp-summary.md`, and save in place without deleting or recreating it.
+8. Open the existing visible `Senior Capstone Weekly Strategy Review` entry, confirm project `SeniorProjectApp1.0` and Sunday 6:00 PM schedule, paste `automation/prompts/senior-capstone-weekly-script-audit.md`, and save in place without deleting or recreating it.
+
+If safe in-place GUI editing cannot be proven, follow `docs/CODEX_GUI_OVERSIGHT_ACTION_REQUIRED.md` instead of touching live registry records. Preserve GUI visibility, existing IDs, project binding, cwd, enabled status, and the minute 0 / minute 30 split-builder cadence.
 
 ## Commit Prefixes
 

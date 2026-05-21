@@ -33,6 +33,20 @@
       "rrule": "FREQ=HOURLY;BYMINUTE=30;BYSECOND=0"
     }
   },
+  "expectedOversightCadences": {
+    "daily": {
+      "id": "senior-capstone-daily-mvp-summary",
+      "rrule": "FREQ=DAILY;BYHOUR=8;BYMINUTE=0;BYSECOND=0"
+    },
+    "weekly": {
+      "id": "senior-capstone-weekly-script-audit",
+      "rrule": "FREQ=WEEKLY;BYDAY=SU;BYHOUR=18;BYMINUTE=0;BYSECOND=0"
+    }
+  },
+  "expectedOversightPromptPaths": {
+    "daily": "automation/prompts/senior-capstone-daily-mvp-summary.md",
+    "weekly": "automation/prompts/senior-capstone-weekly-script-audit.md"
+  },
   "expectedRepositoryRootWindowsPath": "C:\\SeniorProjectApp1.0",
   "expectedAutomationRegistryEvidencePath": "automation/qol/state/automation-registry-evidence.json",
   "expectedRepositoryRootBasename": "SeniorProjectApp1.0",

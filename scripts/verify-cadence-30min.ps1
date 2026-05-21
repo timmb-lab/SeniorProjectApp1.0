@@ -116,6 +116,43 @@ function Assert-NoForbiddenScheduledCommandLines {
     }
 }
 
+function Assert-NoHourlyBuilderPromptMutationInstructions {
+    param(
+        [Parameter(Mandatory = $true)][string]$Text,
+        [Parameter(Mandatory = $true)][string]$Context
+    )
+
+    $lineNumber = 0
+    foreach ($line in ($Text -split '\r?\n')) {
+        $lineNumber += 1
+        $mentionsHourlyPrompt = $line -match 'automation[\\/]+prompts[\\/]+senior-capstone-(?:nonfigma-mvp-builder|figma-product-builder)\.md'
+        $isProtective = $line -match '(?i)\b(do not|never|read-only|forbidden|must not|unchanged|not edit|not edited|without modifying)\b'
+
+        if ($mentionsHourlyPrompt -and -not $isProtective) {
+            $failures.Add("$Context line $lineNumber mentions an hourly builder prompt without protective read-only language: $($line.Trim())")
+        }
+    }
+}
+
+function Assert-NoReplacementAutomationInstructions {
+    param(
+        [Parameter(Mandatory = $true)][string]$Text,
+        [Parameter(Mandatory = $true)][string]$Context
+    )
+
+    $lineNumber = 0
+    foreach ($line in ($Text -split '\r?\n')) {
+        $lineNumber += 1
+        $trimmed = $line.Trim()
+        $looksLikeReplacementAutomation = $trimmed -match '(?i)\b(create|recreate|clone|register|re-register)\b.*\b(automation|builder)\b'
+        $isProtective = $trimmed -match '(?i)\b(do not|never|no creation|forbidden|must not|without deleting|without recreating|not attempted)\b'
+
+        if ($looksLikeReplacementAutomation -and -not $isProtective) {
+            $failures.Add("$Context line $lineNumber appears to instruct creating or replacing automations: $trimmed")
+        }
+    }
+}
+
 function Assert-PackageQolScriptsUseWrappers {
     param($PackageJson)
 
@@ -190,6 +227,8 @@ if ($projectLockText) {
         Assert-ArrayContains $projectLock.allowedActiveAutomationIds $dailyId "project-lock allowedActiveAutomationIds"
         Assert-ArrayContains $projectLock.allowedActiveAutomationIds $weeklyId "project-lock allowedActiveAutomationIds"
         Assert-ArrayNotContains $projectLock.allowedActiveAutomationIds $legacyId "project-lock allowedActiveAutomationIds"
+        Assert-ArrayContains $projectLock.allowedOversightAutomationIds $dailyId "project-lock allowedOversightAutomationIds"
+        Assert-ArrayContains $projectLock.allowedOversightAutomationIds $weeklyId "project-lock allowedOversightAutomationIds"
         Assert-ArrayContains $projectLock.expectedBuilderAutomationIds $nonFigmaId "project-lock expectedBuilderAutomationIds"
         Assert-ArrayContains $projectLock.expectedBuilderAutomationIds $figmaId "project-lock expectedBuilderAutomationIds"
         Assert-ArrayContains $projectLock.legacyDiagnosticAutomationIds $legacyId "project-lock legacyDiagnosticAutomationIds"
@@ -226,6 +265,24 @@ if ($projectLockText) {
         if ($projectLock.expectedBuilderCadences.figma.rrule -ne "FREQ=HOURLY;BYMINUTE=30;BYSECOND=0") {
             $failures.Add("project-lock Figma RRULE is incorrect")
         }
+        if ($projectLock.expectedOversightCadences.daily.id -ne $dailyId) {
+            $failures.Add("project-lock expectedOversightCadences.daily.id is incorrect")
+        }
+        if ($projectLock.expectedOversightCadences.daily.rrule -ne "FREQ=DAILY;BYHOUR=8;BYMINUTE=0;BYSECOND=0") {
+            $failures.Add("project-lock daily oversight RRULE is incorrect")
+        }
+        if ($projectLock.expectedOversightCadences.weekly.id -ne $weeklyId) {
+            $failures.Add("project-lock expectedOversightCadences.weekly.id is incorrect")
+        }
+        if ($projectLock.expectedOversightCadences.weekly.rrule -ne "FREQ=WEEKLY;BYDAY=SU;BYHOUR=18;BYMINUTE=0;BYSECOND=0") {
+            $failures.Add("project-lock weekly oversight RRULE is incorrect")
+        }
+        if ($projectLock.expectedOversightPromptPaths.daily -ne "automation/prompts/senior-capstone-daily-mvp-summary.md") {
+            $failures.Add("project-lock expectedOversightPromptPaths.daily is incorrect")
+        }
+        if ($projectLock.expectedOversightPromptPaths.weekly -ne "automation/prompts/senior-capstone-weekly-script-audit.md") {
+            $failures.Add("project-lock expectedOversightPromptPaths.weekly is incorrect")
+        }
     }
     catch {
         $failures.Add("project-lock is not valid JSON: $($_.Exception.Message)")
@@ -234,8 +291,12 @@ if ($projectLockText) {
 
 $nonFigmaPromptPath = "automation\prompts\senior-capstone-nonfigma-mvp-builder.md"
 $figmaPromptPath = "automation\prompts\senior-capstone-figma-product-builder.md"
+$dailyPromptPath = "automation\prompts\senior-capstone-daily-mvp-summary.md"
+$weeklyPromptPath = "automation\prompts\senior-capstone-weekly-script-audit.md"
 $nonFigmaPrompt = Read-Text $nonFigmaPromptPath
 $figmaPrompt = Read-Text $figmaPromptPath
+$dailyPrompt = Read-Text $dailyPromptPath
+$weeklyPrompt = Read-Text $weeklyPromptPath
 
 Assert-Contains $nonFigmaPrompt $nonFigmaId "Non-Figma prompt"
 Assert-Contains $nonFigmaPrompt "minute 0" "Non-Figma prompt"
@@ -290,6 +351,50 @@ Assert-Contains $figmaPrompt "broad visual polish" "Figma prompt"
 Assert-Contains $figmaPrompt "Do not claim external scheduler changes" "Figma prompt"
 Assert-NotContains $figmaPrompt "runs every 30 minutes" "Figma prompt"
 Assert-NoForbiddenScheduledCommandLines $figmaPrompt "Figma prompt"
+
+Assert-Contains $dailyPrompt $dailyId "Daily oversight prompt"
+Assert-Contains $dailyPrompt "Senior Capstone Daily MVP Summary" "Daily oversight prompt"
+Assert-Contains $dailyPrompt "Daily at 8:00 AM" "Daily oversight prompt"
+Assert-Contains $dailyPrompt "accepted MVP pass" "Daily oversight prompt"
+Assert-Contains $dailyPrompt "scheduled starts are not accepted passes" "Daily oversight prompt"
+Assert-Contains $dailyPrompt "docs/progress/runs/" "Daily oversight prompt"
+Assert-Contains $dailyPrompt "docs/progress/run-log.md" "Daily oversight prompt"
+Assert-Contains $dailyPrompt "docs/mvp-requirements-catalog.md" "Daily oversight prompt"
+Assert-Contains $dailyPrompt "Cloudflare" "Daily oversight prompt"
+Assert-Contains $dailyPrompt "login" "Daily oversight prompt"
+Assert-Contains $dailyPrompt "upload" "Daily oversight prompt"
+Assert-Contains $dailyPrompt "report-only churn" "Daily oversight prompt"
+Assert-Contains $dailyPrompt "human decisions" "Daily oversight prompt"
+Assert-Contains $dailyPrompt "do not touch hourly automations" "Daily oversight prompt"
+Assert-Contains $dailyPrompt "preserve GUI visibility" "Daily oversight prompt"
+Assert-Contains $dailyPrompt "Do not run hourly builders." "Daily oversight prompt"
+Assert-Contains $dailyPrompt "No builder prompt edits." "Daily oversight prompt"
+Assert-Contains $dailyPrompt "No revival of legacy hourly QoL orchestrator." "Daily oversight prompt"
+Assert-NoForbiddenScheduledCommandLines $dailyPrompt "Daily oversight prompt"
+Assert-NoHourlyBuilderPromptMutationInstructions $dailyPrompt "Daily oversight prompt"
+Assert-NoReplacementAutomationInstructions $dailyPrompt "Daily oversight prompt"
+
+Assert-Contains $weeklyPrompt $weeklyId "Weekly oversight prompt"
+Assert-Contains $weeklyPrompt "Senior Capstone Weekly Strategy Review" "Weekly oversight prompt"
+Assert-Contains $weeklyPrompt "Sundays at 6:00 PM" "Weekly oversight prompt"
+Assert-Contains $weeklyPrompt "seven days" "Weekly oversight prompt"
+Assert-Contains $weeklyPrompt "14 accepted MVP passes" "Weekly oversight prompt"
+Assert-Contains $weeklyPrompt "weekly stretch" "Weekly oversight prompt"
+Assert-Contains $weeklyPrompt "docs/automation-memory.md" "Weekly oversight prompt"
+Assert-Contains $weeklyPrompt "docs/automation-backlog.md" "Weekly oversight prompt"
+Assert-Contains $weeklyPrompt "docs/master-plan.md" "Weekly oversight prompt"
+Assert-Contains $weeklyPrompt "docs/mvp-requirements-catalog.md" "Weekly oversight prompt"
+Assert-Contains $weeklyPrompt "handoffs" "Weekly oversight prompt"
+Assert-Contains $weeklyPrompt "requirement coverage" "Weekly oversight prompt"
+Assert-Contains $weeklyPrompt "no schedule changes unless Bryan asks" "Weekly oversight prompt"
+Assert-Contains $weeklyPrompt "do not touch hourly automations" "Weekly oversight prompt"
+Assert-Contains $weeklyPrompt "preserve GUI visibility" "Weekly oversight prompt"
+Assert-Contains $weeklyPrompt "Do not run hourly builders." "Weekly oversight prompt"
+Assert-Contains $weeklyPrompt "No builder prompt edits." "Weekly oversight prompt"
+Assert-Contains $weeklyPrompt "No revival of old hourly QoL orchestrator." "Weekly oversight prompt"
+Assert-NoForbiddenScheduledCommandLines $weeklyPrompt "Weekly oversight prompt"
+Assert-NoHourlyBuilderPromptMutationInstructions $weeklyPrompt "Weekly oversight prompt"
+Assert-NoReplacementAutomationInstructions $weeklyPrompt "Weekly oversight prompt"
 
 $runbook = Read-Text "docs\automation-runbook.md"
 Assert-Contains $runbook "## Split Builder Cadence" "Automation runbook"
