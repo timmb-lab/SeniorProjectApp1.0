@@ -40,7 +40,7 @@ Future productive runs should append compact entries that name the master-plan s
 - `blockers`: live Drive upload still fails with redacted Google Drive HTTP 403 after token/root/index probes pass; real-user setup credential delivery remains Bryan decision `HD-2026-05-21-001`; hosted browser no-assignment and section-level permission-denied proof remains open.
 - `phone tracker`: not appended; Google Sheets connector was not used.
 - `self-improvement`: none.
-- `commit/push status`: implementation commit `7dd04d67039c0473a62d9a95b3ff05298bb36c72` created on `main`; closeout docs commit and push pending.
+- `commit/push status`: implementation commit `7dd04d67039c0473a62d9a95b3ff05298bb36c72` and closeout commit `29146c3e3b148a67237a0215901c4572c809ba67` pushed to `origin main` (`89a65bd..29146c3`); push-evidence update follows.
 
 ## 2026-05-21 03:06 PT - MVP-006/MVP-011 Student Dashboard Access Audit
 
