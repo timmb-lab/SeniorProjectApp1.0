@@ -41,7 +41,7 @@ Future productive runs should append compact entries that name the master-plan s
 - `blockers`: remote migration apply/verification for `0007_archive_export_artifacts.sql` and non-interactive Pages/D1 inspection still require `CLOUDFLARE_API_TOKEN`; Drive-backed archive files or signed-link delivery still require live Drive credential secrets; hosted archive manifest proof is pending deployment.
 - `phone tracker`: not appended; Google Sheets connector was not used in this run.
 - `self-improvement`: none.
-- `commit`: implementation commit `a83c68b0cc690adf332edc7ce890f6b4506a812c` (`rebuild: add archive manifest exports (MVP-022)`) pushed to `origin main` (`3b50116..a83c68b`); closeout evidence commit follows this entry.
+- `commit`: implementation commit `a83c68b86f0902b11429314511412ed7917016d7` (`rebuild: add archive manifest exports (MVP-022)`) pushed to `origin main` (`3b50116..a83c68b`); closeout evidence commit `6ef24cf5321328c7f3ae1e5e8bf2083edfbcb8ae` pushed to `origin main` (`a83c68b..6ef24cf`).
 
 ## 2026-05-20 20:43 PT - MVP-022 Workspace Archive Readiness
 

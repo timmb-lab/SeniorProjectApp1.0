@@ -382,4 +382,4 @@ Each rebuild run should append a dated entry with:
 - `blockers`: migration `0007_archive_export_artifacts.sql` cannot be applied/verified remotely without `CLOUDFLARE_API_TOKEN`; Drive-backed archive files or signed-link delivery still need Cloudflare Pages Drive credential secrets; hosted archive manifest proof is pending post-push deployment.
 - `phone tracker`: not appended; Google Sheets connector was not used in this run.
 - `self-improvement`: none.
-- `commit/push status`: implementation commit `a83c68b0cc690adf332edc7ce890f6b4506a812c` (`rebuild: add archive manifest exports (MVP-022)`) pushed to `origin main` (`3b50116..a83c68b`); closeout evidence commit follows this entry.
+- `commit/push status`: implementation commit `a83c68b86f0902b11429314511412ed7917016d7` (`rebuild: add archive manifest exports (MVP-022)`) pushed to `origin main` (`3b50116..a83c68b`); closeout evidence commit `6ef24cf5321328c7f3ae1e5e8bf2083edfbcb8ae` pushed to `origin main` (`a83c68b..6ef24cf`).
