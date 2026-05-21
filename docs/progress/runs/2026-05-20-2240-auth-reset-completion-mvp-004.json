@@ -1,0 +1,176 @@
+{
+  "run_id": "2026-05-20-2240-auth-reset-completion-mvp-004",
+  "timestamp_local": "2026-05-20T22:40:00-07:00",
+  "automation_id": "senior-capstone-nonfigma-mvp-builder-30",
+  "lane": "non-figma MVP builder",
+  "selected_category": "backend-security-data",
+  "status": "completed",
+  "accepted_mvp_pass": true,
+  "requirement_ids": [
+    "MVP-004",
+    "MVP-005",
+    "MVP-020",
+    "MVP-025",
+    "MVP-032",
+    "MVP-033"
+  ],
+  "backlog_ids": [
+    "SC-005",
+    "SC-006"
+  ],
+  "handoff_ids": [
+    "H-2026-05-18-006"
+  ],
+  "output_kind": "auth-reset-endpoint-workspace-ui-tests-docs",
+  "bounded_scope": "Add reset-required password completion for the hardened username/password pilot auth path and expose it in the canonical workspace without direct Figma work.",
+  "source_docs_read": [
+    "C:\\Users\\bryan\\.codex\\automations\\senior-capstone-nonfigma-mvp-builder-30\\memory.md",
+    "docs/master-plan.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/automation-cadence.md",
+    "docs/automation-runbook.md",
+    "docs/automation-self-improvement.md",
+    "docs/automation-memory.md",
+    "docs/automation-milestones.md",
+    "docs/progress/run-log.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/decision-log.md",
+    "docs/automation-backlog.md",
+    "docs/artifacts.json",
+    "docs/human-decisions.md",
+    "docs/progress/rebuild.md",
+    "docs/progress/runs/2026-05-20-2209-drive-archive-package-mvp-022.json",
+    "docs/progress/runs/2026-05-20-2138-archive-provider-retention-mvp-022.json",
+    "docs/progress/runs/2026-05-20-2110-scoped-archive-manifests-mvp-022.json",
+    "docs/progress/runs/2026-05-20-1910-workspace-presentation-dashboard-mvp-017.json",
+    "functions/_lib/auth.ts",
+    "functions/_lib/crypto.ts",
+    "functions/_lib/http.ts",
+    "functions/api/auth/login.ts",
+    "functions/api/auth/me.ts",
+    "functions/api/auth/bootstrap.ts",
+    "workspace.js",
+    "workspace.css",
+    "tests/auth-login.integration.test.mjs",
+    "tests/workspace-app.test.mjs",
+    "tests/workspace-browser-smoke.test.mjs"
+  ],
+  "figma_work_avoided": true,
+  "direct_figma_tools_called": false,
+  "changes": [
+    "Added /api/auth/complete-reset for reset-required accounts.",
+    "The reset route verifies current password, enforces existing password policy, rejects unchanged replacements, updates password hash/salt, increments password_version, clears reset state, revokes stale sessions, creates a fresh session, and writes password_reset_completed audit events.",
+    "Updated workspace.js to render a reset completion panel with data-auth-action=\"complete-reset\" when login or session state returns password_reset_required.",
+    "Updated workspace.css for the reset panel.",
+    "Expanded auth integration coverage and workspace source/browser-smoke markers.",
+    "Regenerated the production route inventory to include /api/auth/complete-reset."
+  ],
+  "files_changed": [
+    "functions/api/auth/complete-reset.ts",
+    "workspace.js",
+    "workspace.css",
+    "tests/auth-login.integration.test.mjs",
+    "tests/workspace-app.test.mjs",
+    "tests/workspace-browser-smoke.test.mjs",
+    "docs/generated/production-route-inventory.md",
+    "docs/backend-setup.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/automation-backlog.md",
+    "docs/automation-memory.md",
+    "docs/artifacts.json",
+    "docs/progress/handoffs.md",
+    "docs/progress/rebuild.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-20-2240-auth-reset-completion-mvp-004.json"
+  ],
+  "validation": [
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 tests\\auth-login.integration.test.mjs",
+      "result": "pass; reset completion, stale-session revocation, audit, and new-password login covered"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 tests\\workspace-app.test.mjs",
+      "result": "pass; 7/7 workspace source/VM tests"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 tests\\workspace-browser-smoke.test.mjs",
+      "result": "pass with expected skips; source checks covered reset markers, HTTP checks skipped without opt-in server"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 tests\\production-workflow-source.test.mjs",
+      "result": "pass; 10/10 source tests"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 inventory:production-routes",
+      "result": "pass; wrote docs/generated/production-route-inventory.md"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 typecheck",
+      "result": "pass"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 check:production-surfaces",
+      "result": "pass; 91 production text surfaces scanned"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 check:route-inventory",
+      "result": "pass"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 test",
+      "result": "pass; 144 passing tests and 3 expected opt-in workspace smoke skips"
+    },
+    {
+      "command": "git diff --check",
+      "result": "pass; CRLF conversion warnings only"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 check",
+      "result": "blocked after local/static gates; live Cloudflare verification failed because CLOUDFLARE_API_TOKEN was rejected as Invalid access token [code: 9109]"
+    }
+  ],
+  "browser_verification": {
+    "attempted": false,
+    "reason": "In-app Browser tools were not exposed by tool_search in this session; executable workspace VM/source tests verify reset-panel rendering."
+  },
+  "blockers": [
+    {
+      "code": "BROWSER_TOOL_UNAVAILABLE",
+      "cause": "Browser plugin tools were not exposed through tool_search for this run.",
+      "bryan_must_act": false,
+      "next_safe_action": "Capture reset-panel browser proof in a later run when the in-app Browser tool is exposed or after hosted deployment marker proof is available."
+    },
+    {
+      "code": "LIVE_CLOUDFLARE_INVALID_TOKEN",
+      "cause": "CLOUDFLARE_API_TOKEN is present, but Wrangler whoami --json failed during aggregate check because Cloudflare rejected it as Invalid access token [code: 9109].",
+      "bryan_must_act": true,
+      "next_safe_action": "Replace the token with a valid scoped Cloudflare API token or run remote verification manually."
+    },
+    {
+      "code": "DRIVE_LIVE_BLOCKED_MISSING_CREDENTIAL_SECRETS",
+      "cause": "Live Drive upload/download remains blocked because Cloudflare Pages is missing GOOGLE_DRIVE_CLIENT_EMAIL and GOOGLE_DRIVE_PRIVATE_KEY.",
+      "bryan_must_act": true,
+      "next_safe_action": "Add Drive credential secrets in Cloudflare Pages, then rerun Drive probe/upload/download with fake .test accounts only."
+    }
+  ],
+  "next_actions": [
+    "Add invitation/import and admin reset initiation for account lifecycle.",
+    "Add active-user credential rotation for signed-in accounts that are not reset-required.",
+    "Capture hosted/browser reset-panel proof after this commit deploys.",
+    "Continue broader permission and protected-evidence tests before pilot use."
+  ],
+  "self_improvement": "none",
+  "run_log_updated": true,
+  "structured_manifest_created": true,
+  "artifacts_json_updated": true,
+  "mvp_catalog_changed": true,
+  "human_decisions_changed": true,
+  "phone_tracker": {
+    "updated": false,
+    "reason": "Google Sheets connector was not used in this run; repo-local closeout evidence was preserved."
+  },
+  "branch_before": "main",
+  "branch_after": "main",
+  "commit_sha": "pending",
+  "push_result": "pending"
+}

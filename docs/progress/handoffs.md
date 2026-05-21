@@ -128,9 +128,9 @@ Status values:
 - `status`: in-progress
 - `source`: automation operating-infrastructure pass plus revised MVP direction
 - `artifact`: `SC-005`, `HD-2026-05-18-001`, `docs/architecture/adr-0001-stack-auth-database-upload.md`
-- `next action`: Finish the scaffold by broadening auth/permission tests, adding server-side Drive upload credentials, implementing account provisioning/password-reset lifecycle, and implementing first admin/progress workflow endpoints.
+- `next action`: Finish the scaffold by broadening permission tests, adding server-side Drive upload credentials, implementing account provisioning/import/admin reset initiation/active-user credential rotation, and implementing first admin/progress workflow endpoints.
 - `acceptance check`: Tests cover hardened auth, student-own access, assigned mentor access, program/cohort teacher access, admin access, misc-admin narrowing, protected evidence access, unauthorized denial, valid status transitions, and audit events.
-- `evidence to close`: Passing tests plus first vertical-slice endpoints that use the D1 schema and Google Drive evidence repository metadata without real student data. D1-backed alpha flow, state-machine tests, alpha framework/check/CI, deployment verification, first-admin bootstrap, fake role-account seeding, login proof, and admin-only seed endpoint guard evidence now exist; broader permission tests and Drive upload credentials remain before close.
+- `evidence to close`: Passing tests plus first vertical-slice endpoints that use the D1 schema and Google Drive evidence repository metadata without real student data. D1-backed alpha flow, state-machine tests, alpha framework/check/CI, deployment verification, first-admin bootstrap, fake role-account seeding, login proof, admin-only seed endpoint guard evidence, and reset-required `/api/auth/complete-reset` credential rotation with audit/session tests now exist; broader permission tests, invitation/import/admin reset initiation, active-user credential rotation, and Drive upload credentials remain before close.
 - `last updated`: 2026-05-18 12:45 PT
 
 ### H-2026-05-18-008

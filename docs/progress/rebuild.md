@@ -411,3 +411,17 @@ Each rebuild run should append a dated entry with:
 - `phone tracker`: not appended; Google Sheets connector was not used in this run.
 - `self-improvement`: none.
 - `commit/push status`: implementation commit `39c04b051f2d63eb81e513b679c656b4294d1586` created on `main`; closeout docs commit and push pending.
+
+### 2026-05-20 22:40 PT - MVP-004 Reset-Required Password Completion
+
+- `automation`: `senior-capstone-nonfigma-mvp-builder-30`
+- `master-plan section`: Role-Aware Production App Contract; Stack And Deployment Direction; Logging Requirements.
+- `source docs/logs read`: automation memory fallback at `C:\Users\bryan\.codex\automations\senior-capstone-nonfigma-mvp-builder-30\memory.md`, required master plan/catalog/cadence/runbook/self-improvement/memory/milestones/progress docs, recent run manifests, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, `docs/progress/rebuild.md`, and auth/workspace route/test files.
+- `backlog or requirement IDs selected`: `SC-005`, `SC-006`, `MVP-004`, `MVP-005`, supporting `MVP-020`, `MVP-025`, `MVP-032`, and `MVP-033`.
+- `bounded scope`: Add the first reset-required password completion flow so accounts marked for reset can rotate credentials and open the canonical workspace without direct Figma work or external secrets.
+- `files changed`: `functions/api/auth/complete-reset.ts`, `workspace.js`, `workspace.css`, `tests/auth-login.integration.test.mjs`, `tests/workspace-app.test.mjs`, `tests/workspace-browser-smoke.test.mjs`, `docs/generated/production-route-inventory.md`, MVP/backlog/artifact/memory/handoff/setup/progress docs, and structured run manifest.
+- `validation`: focused auth integration passed; workspace source/VM test passed; workspace browser-smoke source checks passed with expected opt-in skips; production-workflow source test passed; strict `typecheck` passed; production-surface check passed with 91 surfaces; route-inventory check passed; full test suite passed with 144 passing tests and 3 expected opt-in workspace smoke skips; `git diff --check` passed with CRLF warnings only. Aggregate `check` passed local/static gates but failed live Cloudflare verification because `CLOUDFLARE_API_TOKEN` was present and rejected by Cloudflare as `Invalid access token [code: 9109]`. In-app browser tooling was not exposed through `tool_search`, so reset-panel browser proof remains pending.
+- `blockers`: hosted reset-panel proof and post-push hosted marker proof remain pending until deployment catches the commit; non-interactive Pages/D1 inspection requires a valid `CLOUDFLARE_API_TOKEN` because the current token fails with Cloudflare code `9109`; Drive upload/download remains blocked by missing Cloudflare Pages Drive credential secrets.
+- `phone tracker`: not appended; Google Sheets connector was not used in this run.
+- `self-improvement`: none.
+- `commit/push status`: pending closeout commit and push.

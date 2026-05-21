@@ -14,6 +14,7 @@ test("workspace route is a real authenticated app surface", () => {
   assert.match(workspaceHtml, /workspace\.css/);
   assert.match(workspaceJs, /\/api\/auth\/me/);
   assert.match(workspaceJs, /\/api\/auth\/login/);
+  assert.match(workspaceJs, /\/api\/auth\/complete-reset/);
   assert.match(workspaceJs, /\/api\/auth\/logout/);
   assert.match(workspaceJs, /\/api\/student\/dashboard/);
   assert.match(workspaceJs, /\/api\/student\/archive\/readiness/);
@@ -25,6 +26,8 @@ test("workspace route is a real authenticated app surface", () => {
   assert.match(workspaceJs, /\/api\/submissions\/\$\{encodeURIComponent\(values\.submissionId\)\}\/evidence/);
   assert.match(workspaceJs, /\/api\/submissions\/\$\{encodeURIComponent\(submissionId\)\}\/evidence\/upload/);
   assert.match(workspaceJs, /Sign in to continue/);
+  assert.match(workspaceJs, /data-auth-action="complete-reset"/);
+  assert.match(workspaceJs, /Create a new password/);
   assert.match(workspaceJs, /Your file was received/);
   assert.match(workspaceJs, /storage is not configured for this environment/);
   assert.match(workspaceJs, /data-workspace-state="\$\{escapeHtml\(workspaceState\)\}"/);
@@ -115,6 +118,9 @@ test("workspace renders role-pending and permission-denied access states", async
   });
   assert.match(resetRequired, /data-workspace-state="reset-required"/);
   assert.match(resetRequired, /This account needs a password reset/);
+  assert.match(resetRequired, /data-auth-action="complete-reset"/);
+  assert.match(resetRequired, /Create a new password/);
+  assert.match(resetRequired, /Update password/);
 
   const pending = await renderWorkspaceWithFetch({
     "/api/auth/me": {

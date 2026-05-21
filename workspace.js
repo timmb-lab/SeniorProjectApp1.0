@@ -93,7 +93,9 @@ function renderLoading(message) {
   `;
 }
 
-function renderSignIn(message = "", tone = "neutral", workspaceState = "signed-out") {
+function renderSignIn(message = "", tone = "neutral", workspaceState = "signed-out", options = {}) {
+  const emailValue = escapeHtml(options.email || "");
+  const showResetForm = Boolean(options.showResetForm || workspaceState === "reset-required");
   workspaceMain.innerHTML = `
     <section class="workspace-auth" aria-labelledby="signInTitle" data-workspace-state="${escapeHtml(workspaceState)}">
       <div class="workspace-auth-intro">
@@ -119,7 +121,7 @@ function renderSignIn(message = "", tone = "neutral", workspaceState = "signed-o
         <form id="workspaceLoginForm" class="workspace-form">
           <label class="workspace-label">
             Email
-            <input class="workspace-input" id="workspaceEmail" name="email" type="email" autocomplete="username" required>
+            <input class="workspace-input" id="workspaceEmail" name="email" type="email" autocomplete="username" value="${emailValue}" required>
           </label>
           <label class="workspace-label">
             Password
@@ -127,6 +129,34 @@ function renderSignIn(message = "", tone = "neutral", workspaceState = "signed-o
           </label>
           <button class="workspace-button workspace-button-primary" type="submit">Sign in</button>
         </form>
+        ${showResetForm ? `
+        <div class="workspace-reset-panel" data-auth-action="complete-reset">
+          <div>
+            <p class="workspace-kicker">Password reset</p>
+            <h3>Create a new password</h3>
+          </div>
+          <form id="workspacePasswordResetForm" class="workspace-form">
+            <label class="workspace-label">
+              Email
+              <input class="workspace-input" id="workspaceResetEmail" name="email" type="email" autocomplete="username" value="${emailValue}" required>
+            </label>
+            <label class="workspace-label">
+              Current password
+              <input class="workspace-input" name="currentPassword" type="password" autocomplete="current-password" required>
+            </label>
+            <label class="workspace-label">
+              New password
+              <input class="workspace-input" name="newPassword" type="password" autocomplete="new-password" required>
+            </label>
+            <label class="workspace-label">
+              Confirm new password
+              <input class="workspace-input" name="confirmPassword" type="password" autocomplete="new-password" required>
+            </label>
+            <button class="workspace-button workspace-button-secondary" type="submit">Update password</button>
+          </form>
+          <p class="workspace-muted">Use your current password once, then choose a new one before opening the workspace.</p>
+        </div>
+        ` : ""}
         <p class="workspace-muted">
           Need access or a password reset? Contact your instructor or Senior Project coordinator.
         </p>
@@ -136,6 +166,7 @@ function renderSignIn(message = "", tone = "neutral", workspaceState = "signed-o
   `;
 
   document.querySelector("#workspaceLoginForm")?.addEventListener("submit", signIn);
+  document.querySelector("#workspacePasswordResetForm")?.addEventListener("submit", completePasswordReset);
 }
 
 async function signIn(event) {
@@ -153,14 +184,54 @@ async function signIn(event) {
     });
     const data = await safeJson(response);
     if (!response.ok) {
-      renderSignIn(messageForAuthError(data?.error, response.status), "error", workspaceStateForAuthError(data?.error));
-      document.querySelector("#workspaceEmail").value = email;
+      renderSignIn(messageForAuthError(data?.error, response.status), "error", workspaceStateForAuthError(data?.error), {
+        email,
+        showResetForm: data?.error === "password_reset_required",
+      });
       return;
     }
     await loadSession();
   } catch (error) {
-    renderSignIn(messageForNetworkError(error), "error");
-    document.querySelector("#workspaceEmail").value = email;
+    renderSignIn(messageForNetworkError(error), "error", "signed-out", { email });
+  }
+}
+
+async function completePasswordReset(event) {
+  event.preventDefault();
+  if (busy) return;
+  busy = true;
+  const form = event.currentTarget;
+  const email = form.email.value.trim();
+  const currentPassword = form.currentPassword.value;
+  const newPassword = form.newPassword.value;
+  const confirmPassword = form.confirmPassword.value;
+
+  if (newPassword !== confirmPassword) {
+    busy = false;
+    renderSignIn("The new passwords do not match.", "error", "reset-required", { email, showResetForm: true });
+    return;
+  }
+
+  setFormBusy(form, true);
+  try {
+    const response = await fetch("/api/auth/complete-reset", {
+      method: "POST",
+      headers: { "content-type": "application/json", accept: "application/json" },
+      body: JSON.stringify({ email, currentPassword, newPassword }),
+    });
+    const data = await safeJson(response);
+    if (!response.ok) {
+      renderSignIn(messageForPasswordResetError(data?.error, response.status), "error", "reset-required", {
+        email,
+        showResetForm: true,
+      });
+      return;
+    }
+    await loadSession();
+  } catch (error) {
+    renderSignIn(messageForNetworkError(error), "error", "reset-required", { email, showResetForm: true });
+  } finally {
+    busy = false;
   }
 }
 
@@ -1027,9 +1098,18 @@ function artifactTypeOptions() {
 
 function messageForAuthError(error, status) {
   if (error === "invalid_credentials") return "We could not sign you in with that email and password.";
-  if (error === "password_reset_required") return "This account needs a password reset. Contact your instructor or Senior Project coordinator.";
+  if (error === "password_reset_required") return "This account needs a new password before the workspace can open.";
   if (error === "rate_limited" || status === 429) return "Too many sign-in attempts. Wait a few minutes and try again.";
   return "Sign-in is unavailable right now. Try again or contact your instructor.";
+}
+
+function messageForPasswordResetError(error, status) {
+  if (error === "invalid_credentials") return "We could not verify the current password for this account.";
+  if (error === "invalid_password") return "Choose a stronger new password before opening the workspace.";
+  if (error === "password_must_change") return "Choose a new password that is different from the current password.";
+  if (error === "password_reset_not_required") return "This account is not marked for password reset. Sign in normally.";
+  if (error === "rate_limited" || status === 429) return "Too many reset attempts. Wait a few minutes and try again.";
+  return "Password reset is unavailable right now. Try again or contact your instructor.";
 }
 
 function messageForSessionStateError(error, status) {

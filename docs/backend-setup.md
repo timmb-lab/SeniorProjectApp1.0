@@ -54,6 +54,7 @@ The pilot auth flow uses:
 - Login throttling after repeated failures.
 - 12-hour HttpOnly, Secure, SameSite=Lax session cookies.
 - Hashed session tokens, optional `SESSION_PEPPER`, logout revocation, and audit events.
+- Reset-required accounts can complete a credential rotation through `/api/auth/complete-reset`; the route requires the current password, rejects weak or unchanged replacements, clears reset state, increments password version, revokes stale sessions, creates a fresh session, and writes `password_reset_completed`.
 - One-time admin bootstrap endpoint gated by `BOOTSTRAP_SETUP_KEY`; production setup key is removed after first-admin creation.
 - Cloudflare Pages preview/production now have `PASSWORD_PEPPER` and `SESSION_PEPPER` stored as `secret_text` environment variables.
 
@@ -108,16 +109,17 @@ The credential file is intentionally ignored by git through `.secrets/`. Never p
 - Live signed-out `https://senior-capstone-app.pages.dev/workspace.html` redirects to `/workspace`; the canonical route loads with the Senior Project Workspace title/assets/sign-in UI, `/api/auth/me` returns 401 `{ "authenticated": false }`, and signed-out logout returns `{ "ok": true }`.
 - Live fake student login succeeds with the ignored `.test` credential file; the hosted browser renders the Student Workspace with no console errors, and the live credential-backed smoke verifies dashboard, evidence link, Drive-missing upload blocker, unsupported upload denial, and logout. Role-wide live coverage was not run because the local no-role account is local-only.
 - Live `/api/health` reports `GOOGLE_DRIVE_EVIDENCE_ROOT_ID` and the evidence index configured, but `GOOGLE_DRIVE_CLIENT_EMAIL` and `GOOGLE_DRIVE_PRIVATE_KEY` are not configured. Real Drive upload/download remains blocked.
-- Repo static Cloudflare checks pass, but non-interactive Wrangler/connector live Pages/D1 management remains blocked in this shell because `CLOUDFLARE_API_TOKEN` is not set and no Cloudflare connector tool is exposed.
+- Repo static Cloudflare checks pass, but non-interactive Wrangler/connector live Pages/D1 management remains blocked. Earlier runs had no exported `CLOUDFLARE_API_TOKEN`; on 2026-05-20 22:43 PT the token was present but Cloudflare rejected it as `Invalid access token [code: 9109]`.
 
 ## Remaining Required Config
 
 - Add Cloudflare Pages secrets `GOOGLE_DRIVE_CLIENT_EMAIL` and `GOOGLE_DRIVE_PRIVATE_KEY` for production and preview before accepting file bytes from students. `GOOGLE_DRIVE_EVIDENCE_ROOT_ID` is already present in `wrangler.jsonc` and live health reports it configured.
 - Add permission tests and workflow tests before real student data is entered.
-- Add account lifecycle flows for invitation/import, password reset, credential rotation, and role/group management before pilot use.
+- Add account lifecycle flows for invitation/import, admin reset initiation, active-user credential rotation, and role/group management before pilot use.
 
 Current test-account workflow route coverage:
 
+- `/api/auth/complete-reset` completes reset-required credential rotation with stale-session revocation and audit coverage.
 - `/api/student/dashboard` reads D1 progress, submissions, and evidence for an authorized student record.
 - `/api/submissions/:id/evidence` attaches scoped HTTPS evidence-link metadata while file-byte upload remains pending.
 - `/api/submissions/:id/submit` moves draft/revision-requested submissions into submitted review state.

@@ -54,7 +54,7 @@ No open external automation scheduler decisions are blocking the current scaffol
 - `owner`: Bryan
 - `severity`: P1
 - `decision needed`: Decide whether to provide `CLOUDFLARE_API_TOKEN` for read-only non-interactive Pages/D1 verification before the next deploy or custom-domain cutover.
-- `current recommendation`: Provide a scoped token for verification runs when possible; if unavailable, record `LIVE_CLOUDFLARE_BLOCKED_NO_TOKEN` for remote Pages/D1 management and treat only static Cloudflare checks plus direct live endpoint checks as passed. On 2026-05-20, repo `check:cloudflare` passed static config, `check:cloudflare:live` failed because no token was exported, Wrangler `whoami --json` reported `loggedIn:false`, tool discovery did not expose a Cloudflare connector, and direct live signed-out/signed-in endpoint checks for `senior-capstone-app` passed.
+- `current recommendation`: Provide a valid scoped token for verification runs when possible; if unavailable, record `LIVE_CLOUDFLARE_BLOCKED_NO_TOKEN` for remote Pages/D1 management and treat only static Cloudflare checks plus direct live endpoint checks as passed. On 2026-05-20, repo `check:cloudflare` passed static config, `check:cloudflare:live` failed because no token was exported, Wrangler `whoami --json` reported `loggedIn:false`, tool discovery did not expose a Cloudflare connector, and direct live signed-out/signed-in endpoint checks for `senior-capstone-app` passed. On 2026-05-20 22:43 PT, aggregate `check` found `CLOUDFLARE_API_TOKEN` present, but Wrangler read-only live verification failed with Cloudflare error `Invalid access token [code: 9109]`.
 - `decision workflow`: `docs/production-predeploy-checklist.md`
 - `created`: 2026-05-20
 

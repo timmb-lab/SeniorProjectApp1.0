@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { hashPassword, normalizeEmail, sha256Hex } from "../functions/_lib/crypto.ts";
+import { onRequest as onCompleteReset } from "../functions/api/auth/complete-reset.ts";
 import { onRequest as onLogin } from "../functions/api/auth/login.ts";
 import { onRequestGet as onMe } from "../functions/api/auth/me.ts";
 import { onRequest as onLogout } from "../functions/api/auth/logout.ts";
@@ -158,6 +159,119 @@ test("auth login/me/logout covers active, disabled, reset-required, invalid, and
     assert.equal(fixture.db.data.sessions.filter((row) => row.revoked_at).length, 1);
     assert.equal(fixture.db.data.auditEvents.some((row) => row.action === "logout"), true);
   }
+
+  // reset completion rejects invalid current password before rotating credentials
+  {
+    const response = await onCompleteReset({
+      request: buildJsonRequest("https://example.test/api/auth/complete-reset", {
+        email: fixture.pendingResetUser.email,
+        currentPassword: "wrong-password",
+        newPassword: fixture.newPassword,
+      }),
+      env: fixture.env,
+    });
+    assert.equal(response.status, 401);
+    const body = await response.json();
+    assert.equal(body.error, "invalid_credentials");
+  }
+
+  // reset completion rejects weak or unchanged replacement passwords
+  {
+    const weak = await onCompleteReset({
+      request: buildJsonRequest("https://example.test/api/auth/complete-reset", {
+        email: fixture.pendingResetUser.email,
+        currentPassword: fixture.password,
+        newPassword: "short",
+      }),
+      env: fixture.env,
+    });
+    assert.equal(weak.status, 400);
+    assert.equal((await weak.json()).error, "invalid_password");
+
+    const unchanged = await onCompleteReset({
+      request: buildJsonRequest("https://example.test/api/auth/complete-reset", {
+        email: fixture.pendingResetUser.email,
+        currentPassword: fixture.password,
+        newPassword: fixture.password,
+      }),
+      env: fixture.env,
+    });
+    assert.equal(unchanged.status, 400);
+    assert.equal((await unchanged.json()).error, "password_must_change");
+  }
+
+  // reset-required users can rotate credentials, clear reset state, and receive a fresh session
+  {
+    const oldSessionCookie = await fixture.seedSessionForUser(fixture.pendingResetUser.id, { id: "sess-pending-before-reset" });
+    const response = await onCompleteReset({
+      request: buildJsonRequest("https://example.test/api/auth/complete-reset", {
+        email: fixture.pendingResetUser.email,
+        currentPassword: fixture.password,
+        newPassword: fixture.newPassword,
+      }),
+      env: fixture.env,
+    });
+    assert.equal(response.status, 200);
+    const body = await response.json();
+    assert.equal(body.ok, true);
+    assert.equal(body.user.email, fixture.pendingResetUser.email);
+    const resetCookie = response.headers.get("set-cookie");
+    assert.ok(resetCookie);
+    assert.equal(fixture.pendingResetUser.status, "active");
+    const pendingCredential = fixture.db.data.passwordCredentials.find((row) => row.user_id === fixture.pendingResetUser.id);
+    assert.equal(pendingCredential.requires_reset, 0);
+    assert.equal(pendingCredential.password_version, 2);
+    assert.notEqual(pendingCredential.password_hash, fixture.originalCredentialHashes.pendingReset);
+    assert.equal(fixture.db.data.sessions.some((row) => row.id === "sess-pending-before-reset" && row.revoked_at), true);
+    assert.equal(fixture.db.data.auditEvents.some((row) => row.action === "password_reset_completed"), true);
+
+    const staleSession = await onMe({
+      request: new Request("https://example.test/api/auth/me", { headers: { cookie: oldSessionCookie } }),
+      env: fixture.env,
+    });
+    assert.equal(staleSession.status, 401);
+    assert.equal((await staleSession.json()).error, "session_expired");
+
+    const meAfterReset = await onMe({
+      request: new Request("https://example.test/api/auth/me", { headers: { cookie: resetCookie.split(";")[0] } }),
+      env: fixture.env,
+    });
+    assert.equal(meAfterReset.status, 200);
+    assert.equal((await meAfterReset.json()).authenticated, true);
+  }
+
+  // old password is no longer valid and the new password signs in normally
+  {
+    const oldPassword = await onLogin({
+      request: buildJsonRequest("https://example.test/api/auth/login", {
+        email: fixture.pendingResetUser.email,
+        password: fixture.password,
+      }),
+      env: fixture.env,
+    });
+    assert.equal(oldPassword.status, 401);
+
+    const newCookie = await loginAndExtractCookie({
+      env: fixture.env,
+      email: fixture.pendingResetUser.email,
+      password: fixture.newPassword,
+    });
+    assert.match(newCookie, /^sc_session=/);
+  }
+
+  // users without reset-required state cannot use the reset completion endpoint as normal login
+  {
+    const response = await onCompleteReset({
+      request: buildJsonRequest("https://example.test/api/auth/complete-reset", {
+        email: fixture.activeUser.email,
+        currentPassword: fixture.password,
+        newPassword: fixture.newPassword,
+      }),
+      env: fixture.env,
+    });
+    assert.equal(response.status, 409);
+    assert.equal((await response.json()).error, "password_reset_not_required");
+  }
 });
 
 function buildJsonRequest(url, data) {
@@ -181,6 +295,7 @@ async function loginAndExtractCookie({ env, email, password }) {
 
 async function createFixture() {
   const password = "Correct-Horse-Battery-Staple-123!";
+  const newPassword = "Updated-Horse-Battery-Staple-456!";
   const env = {
     AUTH_MODE: "hardened_username_password",
     EVIDENCE_STORAGE_PROVIDER: "google_drive",
@@ -229,24 +344,28 @@ async function createFixture() {
         user_id: activeUser.id,
         password_hash: credentialActive.hash,
         password_salt: credentialActive.salt,
+        password_version: 1,
         requires_reset: 0,
       },
       {
         user_id: disabledUser.id,
         password_hash: credentialDisabled.hash,
         password_salt: credentialDisabled.salt,
+        password_version: 1,
         requires_reset: 0,
       },
       {
         user_id: pendingResetUser.id,
         password_hash: credentialPendingReset.hash,
         password_salt: credentialPendingReset.salt,
+        password_version: 1,
         requires_reset: 0,
       },
       {
         user_id: requiresResetUser.id,
         password_hash: credentialRequiresReset.hash,
         password_salt: credentialRequiresReset.salt,
+        password_version: 1,
         requires_reset: 1,
       },
     ],
@@ -279,12 +398,19 @@ async function createFixture() {
 
   return {
     password,
+    newPassword,
     env: fixtureEnv,
     db,
     activeUser,
     disabledUser,
     pendingResetUser,
     requiresResetUser,
+    originalCredentialHashes: {
+      active: credentialActive.hash,
+      disabled: credentialDisabled.hash,
+      pendingReset: credentialPendingReset.hash,
+      requiresReset: credentialRequiresReset.hash,
+    },
     seedExpiredSession,
     seedSessionForUser,
   };
@@ -447,11 +573,46 @@ class MockD1PreparedStatement {
       return { success: true, results: [] };
     }
 
-    if (sql.startsWith("update sessions set revoked_at = strftime")) {
+    if (sql.startsWith("update sessions set revoked_at = strftime") && sql.includes("where token_hash = ?")) {
       const [tokenHash] = this.params;
       const session = this.db.data.sessions.find((row) => row.token_hash === tokenHash);
       if (session) {
         session.revoked_at = this.db.nowIso();
+      }
+      return { success: true, results: [] };
+    }
+
+    if (sql.startsWith("update password_credentials set password_hash = ?")) {
+      const [passwordHash, passwordSalt, algorithm, iterations, userId] = this.params;
+      const credential = this.db.data.passwordCredentials.find((row) => row.user_id === userId);
+      if (credential) {
+        credential.password_hash = passwordHash;
+        credential.password_salt = passwordSalt;
+        credential.algorithm = algorithm;
+        credential.iterations = iterations;
+        credential.password_version = Number(credential.password_version || 1) + 1;
+        credential.requires_reset = 0;
+        credential.password_changed_at = this.db.nowIso();
+      }
+      return { success: true, results: [] };
+    }
+
+    if (sql.startsWith("update user_accounts set status = 'active'")) {
+      const [userId] = this.params;
+      const user = this.db.data.userAccounts.find((row) => row.id === userId);
+      if (user) {
+        user.status = "active";
+        user.updated_at = this.db.nowIso();
+      }
+      return { success: true, results: [] };
+    }
+
+    if (sql.startsWith("update sessions set revoked_at = strftime") && sql.includes("where user_id = ?")) {
+      const [userId] = this.params;
+      for (const session of this.db.data.sessions) {
+        if (session.user_id === userId && !session.revoked_at) {
+          session.revoked_at = this.db.nowIso();
+        }
       }
       return { success: true, results: [] };
     }
