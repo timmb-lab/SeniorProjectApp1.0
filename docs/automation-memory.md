@@ -120,7 +120,7 @@ Every builder run must ladder from `docs/master-plan.md` into `docs/mvp-requirem
 - Non-Figma builder consumed the repo-recorded Figma presentation dashboard handoff node `139:2` without calling Figma tools.
 - `workspace.js` now loads `/api/presentation-slots` for student, mentor, program-teacher, and admin users, adds a Presentation tab, renders scheduled/checked-out/checked-in/empty states, and shows check-out/check-in buttons only to program-teacher/admin staff.
 - `scripts/seed-local-workspace-smoke.mjs` now seeds a local-only presentation requirement and scheduled Room 101 slot for credential-backed workspace smoke without printing passwords.
-- Validation passed: focused workspace source/VM test, presentation-slot integration test, local D1 seed, credential-backed local HTTP workspace smoke, in-app browser program-teacher Presentation tab proof with zero console errors, typecheck, production-surface check, full test suite, and aggregate `check`.
+- Validation passed: focused workspace source/VM test, presentation-slot integration test, local D1 seed, credential-backed local HTTP workspace smoke, in-app browser program-teacher Presentation tab proof with zero console errors, typecheck, production-surface check, full test suite, aggregate `check`, and direct hosted `workspace.js` marker proof for `/api/presentation-slots` plus `data-presentation-action="check-out"`.
 - Next best non-Figma slices: hosted presentation-dashboard proof after deployment, outline approval gate persistence, celebration evidence, archive/export depth, or public no-hidden-core-content proof while Cloudflare/Drive secrets remain blocked.
 
 ## Current Priority

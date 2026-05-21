@@ -132,6 +132,11 @@
       "command": "git diff --check",
       "result": "passed",
       "summary": "Whitespace check passed with line-ending warnings only."
+    },
+    {
+      "command": "Invoke-WebRequest https://senior-capstone-app.pages.dev/workspace.js",
+      "result": "passed",
+      "summary": "Direct hosted workspace.js returned HTTP 200 and contained /api/presentation-slots plus data-presentation-action=\"check-out\" on the first poll after push."
     }
   ],
   "browser_verification": {
@@ -180,6 +185,6 @@
   "implementation_commit_sha": "0ebbcb54a909cf9d8d8f0d722cc466d4551a5f10",
   "commit_sha": "0ebbcb54a909cf9d8d8f0d722cc466d4551a5f10",
   "push_result": "pushed to origin main: 12b16b8..0ebbcb5",
-  "closeout_commit_sha": "pending",
-  "closeout_push_result": "pending"
+  "closeout_commit_sha": "437d770515f7a718e6929cfb9f2c1e3af89904c5",
+  "closeout_push_result": "pushed to origin main: 0ebbcb5..437d770"
 }

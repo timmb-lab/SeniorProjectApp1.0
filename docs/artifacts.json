@@ -154,7 +154,8 @@
         "2026-05-20: live /api/health reports evidence root/index configured but Google Drive client email and private key credential parts missing, so real Drive upload/download remains blocked.",
         "2026-05-20 19:10 PT: workspace source now loads /api/presentation-slots for student, mentor, program-teacher, and admin roles and renders a Presentation tab with persisted schedule, outline, empty, checked-out, and checked-in states plus staff-only check-out/check-in controls.",
         "2026-05-20 19:10 PT: local D1 workspace smoke seed now includes a local-only presentation requirement and scheduled Room 101 slot; credential-backed local HTTP smoke proves student, program-teacher, and mentor visibility through /api/presentation-slots.",
-        "2026-05-20 19:10 PT: in-app browser verified the local program-teacher Presentation tab rendered one scheduled Room 101 slot, one check-out button, and zero console errors."
+        "2026-05-20 19:10 PT: in-app browser verified the local program-teacher Presentation tab rendered one scheduled Room 101 slot, one check-out button, and zero console errors.",
+        "2026-05-20 19:10 PT: direct hosted https://senior-capstone-app.pages.dev/workspace.js returned HTTP 200 and contained the new /api/presentation-slots and data-presentation-action=\"check-out\" markers on the first post-push poll."
       ],
       "last_updated": "2026-05-20"
     },
