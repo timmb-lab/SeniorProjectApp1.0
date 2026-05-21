@@ -2,16 +2,16 @@
 
 Last refreshed: 2026-05-20
 
-This is the compact run log for the current duplicated split-builder automation contract.
+This is the compact run log for the current quarter-hour split-builder automation contract.
 
 ## Current Automation Contract
 
-- Active top-of-hour non-Figma MVP builder: `senior-capstone-nonfigma-mvp-builder`.
-- Active bottom-of-hour non-Figma MVP builder: `senior-capstone-nonfigma-mvp-builder-bottom`.
-- Active top-of-hour Figma-only product builder: `senior-capstone-figma-product-builder-top`.
-- Active bottom-of-hour Figma-only product builder: `senior-capstone-figma-product-builder`.
+- Active minute-0 non-Figma MVP builder: `senior-capstone-nonfigma-mvp-builder`.
+- Active minute-15 Figma-only product builder: `senior-capstone-figma-product-builder-15`.
+- Active minute-30 non-Figma MVP builder: `senior-capstone-nonfigma-mvp-builder-30`.
+- Active minute-45 Figma-only product builder: `senior-capstone-figma-product-builder`.
 - Non-Figma RRULEs: `FREQ=HOURLY;BYMINUTE=0;BYSECOND=0` and `FREQ=HOURLY;BYMINUTE=30;BYSECOND=0`.
-- Figma RRULEs: `FREQ=HOURLY;BYMINUTE=0;BYSECOND=0` and `FREQ=HOURLY;BYMINUTE=30;BYSECOND=0`.
+- Figma RRULEs: `FREQ=HOURLY;BYMINUTE=15;BYSECOND=0` and `FREQ=HOURLY;BYMINUTE=45;BYSECOND=0`.
 - Combined capacity: 96 scheduled builder starts/day and 2,880 scheduled builder starts/30 days.
 - Source of truth: `automation/qol/project-lock.json`.
 - Latest live hidden scheduler evidence: `automation/qol/state/automation-registry-evidence.json`.
@@ -27,6 +27,16 @@ This is the compact run log for the current duplicated split-builder automation 
 - Remaining priority: broader permission/protected-evidence tests, real workflow endpoints, Drive upload credential/OAuth, account lifecycle, mobile/error/empty QA, and deployment verification.
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
+
+## 2026-05-20 19:50 PT - Quarter-hour Builder Cadence Maintenance
+
+- `automation ID`: manual owner-authorized scheduler maintenance.
+- `lane`: automation/cadence.
+- `purpose`: Move SeniorProjectApp1.0 from same-minute duplicate builders to the quarter-hour builder order: Non-Figma minute 0, Figma minute 15, Non-Figma minute 30, Figma minute 45.
+- `what changed`: Live Codex scheduler now has four active GUI-visible builder rows with exact source/duplicate prompt-body hash matches; superseded `senior-capstone-figma-product-builder-top` and `senior-capstone-nonfigma-mvp-builder-bottom` rows are paused scheduler history. Repo cadence truth, verifier, scheduler evidence, and docs were updated to the new IDs and minute placement.
+- `capacity`: 48 non-Figma starts/day, 48 Figma starts/day, 96 combined starts/day, 1,440 non-Figma starts/30 days, 1,440 Figma starts/30 days, and 2,880 combined starts/30 days.
+- `scope guard`: no production app behavior, Figma design work, Cloudflare deployment, secrets, worktrees, branches, or broad cleanup.
+- `validation`: see final maintenance report and `automation/qol/state/automation-registry-evidence.json`.
 
 ## 2026-05-20 19:10 PT - MVP-017 Workspace Presentation Dashboard
 
@@ -193,7 +203,7 @@ Future productive runs should append compact entries that name the master-plan s
 - `master-plan sections`: 100-Pass Delivery Constraint; 30-Minute Master-Plan Orchestrator; Logging Requirements; Anti-Drift Rules.
 - `requirement IDs`: `MVP-028`, `MVP-030`.
 - `files changed`: `automation/prompts/senior-capstone-nonfigma-mvp-builder.md`, `automation/prompts/senior-capstone-figma-product-builder.md`, `docs/automation-cadence.md`, `automation/qol/project-lock.json`, `automation/qol/GUI_ALLOWED_COMMANDS.md`, `automation/qol/hourly-orchestrator.mjs`, `scripts/verify-cadence-30min.ps1`, `docs/automation-runbook.md`, `docs/automation-memory.md`, `docs/mvp-requirements-catalog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, and related project-local automation/progress records.
-- `why`: Bryan requested replacing the single undifferentiated 30-minute builder with two safe, auditable, alternating builder lanes: non-Figma implementation at minute 0 PT and Figma-only product design at minute 30 PT, while preserving 48 combined starts/day.
+- `why`: Historical split-builder setup replaced the single undifferentiated 30-minute builder with two safe, auditable, alternating builder lanes; this 48 combined starts/day model is superseded by the quarter-hour 96 starts/day cadence recorded above.
 - `verification`: `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\verify-cadence-30min.ps1 -RepoRoot .` (pass); `npm run verify:automation-cadence` blocked because `npm` is not on PATH; wrapper equivalents passed for `verify:automation-cadence`, `verify:qol-automation`, and `check:automation`; JSON parse checks passed for `package.json`, `automation/qol/project-lock.json`, and `docs/artifacts.json`; full project test fallback passed with 113 tests.
 - `blockers`: global `npm` was unavailable in that shell, so package scripts were validated through `scripts/run-npm-script.ps1`. The scheduler action was later satisfied by live hidden registry evidence on 2026-05-20.
 - `commit`: pending until commit is created.

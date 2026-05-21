@@ -77,8 +77,8 @@ No open external automation scheduler decisions are blocking the current scaffol
 - `area`: external Codex automation scheduler
 - `owner`: Bryan
 - `severity`: P0
-- `decision`: Use the split external Codex scheduler with `senior-capstone-nonfigma-mvp-builder` hourly at minute 0 PT and `senior-capstone-figma-product-builder` hourly at minute 30 PT. Keep `senior-capstone-daily-mvp-summary` and `senior-capstone-weekly-script-audit` active as oversight/reporting automations, not builder capacity. Keep `senior-capstone-hourly-qol-orchestrator` paused or manual diagnostic only.
-- `accepted implementation`: Live hidden Codex registry audit on 2026-05-20 found the two expected builders ACTIVE with `FREQ=HOURLY;BYMINUTE=0;BYSECOND=0` and `FREQ=HOURLY;BYMINUTE=30;BYSECOND=0`, daily/weekly oversight ACTIVE, and `senior-capstone-hourly-qol-orchestrator` PAUSED.
+- `decision`: Use the quarter-hour external Codex scheduler with `senior-capstone-nonfigma-mvp-builder` hourly at minute 0 PT, `senior-capstone-figma-product-builder-15` hourly at minute 15 PT, `senior-capstone-nonfigma-mvp-builder-30` hourly at minute 30 PT, and `senior-capstone-figma-product-builder` hourly at minute 45 PT. Keep `senior-capstone-daily-mvp-summary` and `senior-capstone-weekly-script-audit` active as oversight/reporting automations, not builder capacity. Keep `senior-capstone-hourly-qol-orchestrator` paused, absent, or manual diagnostic only.
+- `accepted implementation`: Live hidden Codex registry audit on 2026-05-20 found the four expected quarter-hour builders ACTIVE at minutes 0, 15, 30, and 45 PT, daily/weekly oversight ACTIVE, superseded same-minute duplicate rows PAUSED, and `senior-capstone-hourly-qol-orchestrator` absent/not revived.
 - `evidence`: `automation/qol/state/automation-registry-evidence.json`
 - `created`: 2026-05-20
 - `accepted`: 2026-05-20

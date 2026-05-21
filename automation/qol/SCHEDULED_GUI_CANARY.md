@@ -2,7 +2,7 @@
 
 The current canary baseline run_id is `20260519T190403Z-605c9b99`.
 
-This canary is for the legacy diagnostic/manual QoL runner only. It is not an active recurring builder and does not replace either split builder.
+This canary is for the legacy diagnostic/manual QoL runner only. It is not an active recurring builder and does not replace any of the four quarter-hour split builders.
 
 The next legacy diagnostic GUI canary succeeds only if `automation/qol/reports/latest.md` is fresh and shows all of these:
 

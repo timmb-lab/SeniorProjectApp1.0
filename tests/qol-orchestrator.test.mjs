@@ -234,8 +234,8 @@ test("active split-builder prompts enforce lane boundaries and start safety", as
   assert.equal(projectLock.expectedAutomationCadenceRRule, undefined);
   assert.deepEqual(projectLock.expectedBuilderAutomationIds, [
     "senior-capstone-nonfigma-mvp-builder",
-    "senior-capstone-nonfigma-mvp-builder-bottom",
-    "senior-capstone-figma-product-builder-top",
+    "senior-capstone-figma-product-builder-15",
+    "senior-capstone-nonfigma-mvp-builder-30",
     "senior-capstone-figma-product-builder",
   ]);
   assert.ok(!projectLock.allowedActiveAutomationIds.includes("senior-capstone-hourly-qol-orchestrator"));

@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
-  "source": "test fixture: duplicated split builders plus oversight active",
+  "source": "test fixture: quarter-hour split builders plus oversight active",
   "automations": [
     {
       "id": "senior-capstone-nonfigma-mvp-builder",
       "status": "ACTIVE"
     },
     {
-      "id": "senior-capstone-nonfigma-mvp-builder-bottom",
+      "id": "senior-capstone-figma-product-builder-15",
       "status": "ACTIVE"
     },
     {
-      "id": "senior-capstone-figma-product-builder-top",
+      "id": "senior-capstone-nonfigma-mvp-builder-30",
       "status": "ACTIVE"
     },
     {

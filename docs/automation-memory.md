@@ -3,7 +3,7 @@
 Date initialized: 2026-05-18
 Last refreshed: 2026-05-20
 
-This is the compact working memory for the Senior Capstone project-local automation loop. The project now has four GUI-available delivery automation rows across two lanes: `senior-capstone-nonfigma-mvp-builder`, `senior-capstone-nonfigma-mvp-builder-bottom`, `senior-capstone-figma-product-builder-top`, and `senior-capstone-figma-product-builder`, plus two oversight automations: `senior-capstone-daily-mvp-summary` and `senior-capstone-weekly-script-audit`. The non-Figma builder lane runs hourly at minute 0 and minute 30 PT, the Figma-only builder lane runs hourly at minute 0 and minute 30 PT, and all four builder rows are governed by `automation/qol/project-lock.json`, `docs/automation-cadence.md`, and the active prompt files in `automation/prompts/`.
+This is the compact working memory for the Senior Capstone project-local automation loop. The project now has four GUI-available delivery automation rows across two lanes: `senior-capstone-nonfigma-mvp-builder`, `senior-capstone-figma-product-builder-15`, `senior-capstone-nonfigma-mvp-builder-30`, and `senior-capstone-figma-product-builder`, plus two oversight automations: `senior-capstone-daily-mvp-summary` and `senior-capstone-weekly-script-audit`. The non-Figma builder lane runs hourly at minute 0 and minute 30 PT, the Figma-only builder lane runs hourly at minute 15 and minute 45 PT, and all four builder rows are governed by `automation/qol/project-lock.json`, `docs/automation-cadence.md`, and the active prompt files in `automation/prompts/`.
 
 The legacy `senior-capstone-hourly-qol-orchestrator` ID is diagnostic/manual only if present and must not be counted as active builder capacity. No other Senior Capstone project delivery automation should be created, invoked, revived, or maintained from this repo unless Bryan explicitly asks for it.
 
@@ -46,14 +46,14 @@ This is not a static guide, brochure, or visual-only project.
 
 ## Active Automation Contract
 
-- Active top-of-hour non-Figma MVP builder: `senior-capstone-nonfigma-mvp-builder`.
-- Active bottom-of-hour non-Figma MVP builder: `senior-capstone-nonfigma-mvp-builder-bottom`.
-- Active top-of-hour Figma-only product builder: `senior-capstone-figma-product-builder-top`.
-- Active bottom-of-hour Figma-only product builder: `senior-capstone-figma-product-builder`.
+- Active minute-0 non-Figma MVP builder: `senior-capstone-nonfigma-mvp-builder`.
+- Active minute-15 Figma-only product builder: `senior-capstone-figma-product-builder-15`.
+- Active minute-30 non-Figma MVP builder: `senior-capstone-nonfigma-mvp-builder-30`.
+- Active minute-45 Figma-only product builder: `senior-capstone-figma-product-builder`.
 - Active report-only daily summary: `senior-capstone-daily-mvp-summary`.
 - Active weekly strategy review: `senior-capstone-weekly-script-audit`.
 - Non-Figma cadences: `FREQ=HOURLY;BYMINUTE=0;BYSECOND=0` and `FREQ=HOURLY;BYMINUTE=30;BYSECOND=0`.
-- Figma cadences: `FREQ=HOURLY;BYMINUTE=0;BYSECOND=0` and `FREQ=HOURLY;BYMINUTE=30;BYSECOND=0`.
+- Figma cadences: `FREQ=HOURLY;BYMINUTE=15;BYSECOND=0` and `FREQ=HOURLY;BYMINUTE=45;BYSECOND=0`.
 - Capacity: 48 non-Figma starts/day, 48 Figma starts/day, 96 combined starts/day, and 2,880 combined scheduled starts in 30 days.
 - Daily and weekly automations remain oversight, not builder capacity.
 - The stable `hourly` name remains only as a legacy diagnostic/manual ID; the actual builder cadence is split by lane.
@@ -78,16 +78,28 @@ Every builder run must ladder from `docs/master-plan.md` into `docs/mvp-requirem
 - Daily and weekly automations remain oversight, not builder capacity.
 - External scheduler may still require manual configuration unless a repo-local scheduler config exists and is changed with evidence.
 
+### 2026-05-20 - Quarter-hour Builder Cadence
+
+- Bryan approved moving SeniorProjectApp1.0 to four active GUI-visible builder instances with one builder start every 15 minutes.
+- Non-Figma builder instances are `senior-capstone-nonfigma-mvp-builder` at minute 0 PT and `senior-capstone-nonfigma-mvp-builder-30` at minute 30 PT.
+- Figma builder instances are `senior-capstone-figma-product-builder-15` at minute 15 PT and `senior-capstone-figma-product-builder` at minute 45 PT.
+- Combined scheduled capacity is 96 starts/day: 48 non-Figma starts/day and 48 Figma starts/day.
+- Thirty-day scheduled capacity is 2,880 starts: 1,440 non-Figma starts and 1,440 Figma starts.
+- The duplicate scheduler prompt bodies should remain exact matches to their source lane prompt bodies; do not rewrite active automation prompt bodies during cadence maintenance.
+- Daily and weekly automations remain oversight, not builder capacity.
+- The legacy hourly QoL orchestrator remains absent/manual/diagnostic only if present and must not be revived.
+
 ### 2026-05-20 - Owner-Approved Duplicated Builder Cadence
 
 - Bryan explicitly approved duplicating the working Senior Capstone builder automation setup on 2026-05-20.
-- Active non-Figma builder instances are `senior-capstone-nonfigma-mvp-builder` at minute 0 PT and `senior-capstone-nonfigma-mvp-builder-bottom` at minute 30 PT.
-- Active Figma builder instances are `senior-capstone-figma-product-builder-top` at minute 0 PT and `senior-capstone-figma-product-builder` at minute 30 PT.
+- Earlier duplicated non-Figma builder instances were `senior-capstone-nonfigma-mvp-builder` at minute 0 PT and `senior-capstone-nonfigma-mvp-builder-bottom` at minute 30 PT.
+- Earlier duplicated Figma builder instances were `senior-capstone-figma-product-builder-top` at minute 0 PT and `senior-capstone-figma-product-builder` at minute 30 PT.
 - The new GUI rows were created as separate visible automations with exact live prompt-body copies from their source lane.
 - Combined scheduled capacity is now 96 starts/day: 48 non-Figma starts/day and 48 Figma starts/day.
 - Thirty-day scheduled capacity is now 2,880 starts: 1,440 non-Figma starts and 1,440 Figma starts.
 - Daily and weekly automations remain oversight, not builder capacity.
 - The legacy hourly QoL orchestrator remains diagnostic/manual only if present and must not be revived.
+- Superseded by the quarter-hour cadence above, which preserves 96 starts/day while removing same-minute Non-Figma/Figma collisions.
 
 ### 2026-05-20 - Primary Alpha Review History
 

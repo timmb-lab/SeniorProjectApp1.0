@@ -7,16 +7,16 @@
   "legacyDiagnosticAutomationStatus": "manual-diagnostic-only-non-recurring",
   "allowedActiveAutomationIds": [
     "senior-capstone-nonfigma-mvp-builder",
-    "senior-capstone-nonfigma-mvp-builder-bottom",
-    "senior-capstone-figma-product-builder-top",
+    "senior-capstone-figma-product-builder-15",
+    "senior-capstone-nonfigma-mvp-builder-30",
     "senior-capstone-figma-product-builder",
     "senior-capstone-daily-mvp-summary",
     "senior-capstone-weekly-script-audit"
   ],
   "expectedBuilderAutomationIds": [
     "senior-capstone-nonfigma-mvp-builder",
-    "senior-capstone-nonfigma-mvp-builder-bottom",
-    "senior-capstone-figma-product-builder-top",
+    "senior-capstone-figma-product-builder-15",
+    "senior-capstone-nonfigma-mvp-builder-30",
     "senior-capstone-figma-product-builder"
   ],
   "allowedOversightAutomationIds": [
@@ -26,35 +26,35 @@
   "legacyDiagnosticAutomationIds": [
     "senior-capstone-hourly-qol-orchestrator"
   ],
-  "expectedAutomationCadenceDescription": "duplicated split hourly builders: non-Figma at minute 0 and minute 30 PT; Figma-only at minute 0 and minute 30 PT",
+  "expectedAutomationCadenceDescription": "quarter-hour builders: non-Figma at minutes 0 and 30 PT; Figma-only at minutes 15 and 45 PT",
   "expectedBuilderInstances": [
     {
       "id": "senior-capstone-nonfigma-mvp-builder",
       "lane": "nonFigma",
-      "slot": "top",
+      "slot": "nonFigmaTop",
       "sourcePromptAutomationId": "senior-capstone-nonfigma-mvp-builder",
       "rrule": "FREQ=HOURLY;BYMINUTE=0;BYSECOND=0"
     },
     {
-      "id": "senior-capstone-nonfigma-mvp-builder-bottom",
+      "id": "senior-capstone-figma-product-builder-15",
+      "lane": "figma",
+      "slot": "figmaQuarter",
+      "sourcePromptAutomationId": "senior-capstone-figma-product-builder",
+      "rrule": "FREQ=HOURLY;BYMINUTE=15;BYSECOND=0"
+    },
+    {
+      "id": "senior-capstone-nonfigma-mvp-builder-30",
       "lane": "nonFigma",
-      "slot": "bottom",
+      "slot": "nonFigmaBottom",
       "sourcePromptAutomationId": "senior-capstone-nonfigma-mvp-builder",
       "rrule": "FREQ=HOURLY;BYMINUTE=30;BYSECOND=0"
-    },
-    {
-      "id": "senior-capstone-figma-product-builder-top",
-      "lane": "figma",
-      "slot": "top",
-      "sourcePromptAutomationId": "senior-capstone-figma-product-builder",
-      "rrule": "FREQ=HOURLY;BYMINUTE=0;BYSECOND=0"
     },
     {
       "id": "senior-capstone-figma-product-builder",
       "lane": "figma",
-      "slot": "bottom",
+      "slot": "figmaThreeQuarter",
       "sourcePromptAutomationId": "senior-capstone-figma-product-builder",
-      "rrule": "FREQ=HOURLY;BYMINUTE=30;BYSECOND=0"
+      "rrule": "FREQ=HOURLY;BYMINUTE=45;BYSECOND=0"
     }
   ],
   "expectedBuilderCadences": {
@@ -62,17 +62,17 @@
       "id": "senior-capstone-nonfigma-mvp-builder",
       "rrule": "FREQ=HOURLY;BYMINUTE=0;BYSECOND=0"
     },
+    "figmaQuarter": {
+      "id": "senior-capstone-figma-product-builder-15",
+      "rrule": "FREQ=HOURLY;BYMINUTE=15;BYSECOND=0"
+    },
     "nonFigmaBottom": {
-      "id": "senior-capstone-nonfigma-mvp-builder-bottom",
+      "id": "senior-capstone-nonfigma-mvp-builder-30",
       "rrule": "FREQ=HOURLY;BYMINUTE=30;BYSECOND=0"
     },
-    "figmaTop": {
-      "id": "senior-capstone-figma-product-builder-top",
-      "rrule": "FREQ=HOURLY;BYMINUTE=0;BYSECOND=0"
-    },
-    "figmaBottom": {
+    "figmaThreeQuarter": {
       "id": "senior-capstone-figma-product-builder",
-      "rrule": "FREQ=HOURLY;BYMINUTE=30;BYSECOND=0"
+      "rrule": "FREQ=HOURLY;BYMINUTE=45;BYSECOND=0"
     }
   },
   "expectedOversightCadences": {

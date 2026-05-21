@@ -99,12 +99,12 @@ If those account/provisioning pieces are missing, rebuild should still scaffold 
 
 ## Split Builder Cadence
 
-The active Senior Capstone delivery automation is split into two lanes with four GUI-visible builder instances. Bryan explicitly approved this duplicated builder capacity increase on 2026-05-20:
+The active Senior Capstone delivery automation is split into two lanes with four GUI-visible builder instances. Bryan explicitly approved this quarter-hour builder cadence on 2026-05-20:
 
-- Top-of-hour non-Figma MVP builder: `senior-capstone-nonfigma-mvp-builder`, hourly at minute 0 PT.
-- Bottom-of-hour non-Figma MVP builder: `senior-capstone-nonfigma-mvp-builder-bottom`, hourly at minute 30 PT.
-- Top-of-hour Figma-only product builder: `senior-capstone-figma-product-builder-top`, hourly at minute 0 PT.
-- Bottom-of-hour Figma-only product builder: `senior-capstone-figma-product-builder`, hourly at minute 30 PT.
+- Non-Figma MVP builder instance 1: `senior-capstone-nonfigma-mvp-builder`, hourly at minute 0 PT.
+- Figma-only product builder instance 1: `senior-capstone-figma-product-builder-15`, hourly at minute 15 PT.
+- Non-Figma MVP builder instance 2: `senior-capstone-nonfigma-mvp-builder-30`, hourly at minute 30 PT.
+- Figma-only product builder instance 2: `senior-capstone-figma-product-builder`, hourly at minute 45 PT.
 
 Old single-builder cadence is retired. The legacy `senior-capstone-hourly-qol-orchestrator` may remain only as a manual diagnostic runner and must not be scheduled as an active recurring builder.
 
@@ -120,8 +120,8 @@ The daily and weekly oversight jobs summarize, count, audit, steer, and escalate
 Manual verification:
 
 - Confirm the repo is on `main` with `git branch --show-current`.
-- Confirm the project lock includes all four duplicated split builder IDs in `automation/qol/project-lock.json`.
-- Confirm `docs/automation-cadence.md` documents minute 0 and minute 30 for both non-Figma and Figma.
+- Confirm the project lock includes all four quarter-hour builder IDs in `automation/qol/project-lock.json`.
+- Confirm `docs/automation-cadence.md` documents non-Figma at minutes 0 and 30 and Figma-only at minutes 15 and 45.
 - Confirm both prompts exist in `automation/prompts/`.
 - Confirm the Figma prompt blocks backend implementation and production route changes.
 - Confirm the non-Figma prompt blocks direct Figma work, Figma MCP calls, Figma file edits, and Figma screenshots.
@@ -147,7 +147,7 @@ Figma builder run expectations:
 
 Registry drift prevention:
 
-- Expected builder IDs: `senior-capstone-nonfigma-mvp-builder`, `senior-capstone-nonfigma-mvp-builder-bottom`, `senior-capstone-figma-product-builder-top`, and `senior-capstone-figma-product-builder`.
+- Expected builder IDs: `senior-capstone-nonfigma-mvp-builder`, `senior-capstone-figma-product-builder-15`, `senior-capstone-nonfigma-mvp-builder-30`, and `senior-capstone-figma-product-builder`.
 - Expected oversight IDs: `senior-capstone-daily-mvp-summary` and `senior-capstone-weekly-script-audit`.
 - If old `senior-capstone-hourly-qol-orchestrator` appears active externally, record a human action to disable it or convert it to diagnostic/manual only. Do not count it as a third builder.
 - If duplicate active IDs appear beyond the four intentional separate builder IDs, stop and record registry drift instead of normalizing it away.
@@ -185,7 +185,7 @@ Failure modes and recovery:
 
 ## Orchestrator No-Intervention Contract
 
-No other project delivery automation should be created, invoked, or maintained for Senior Capstone unless Bryan explicitly asks for it. The four duplicated split-builder instances are the only delivery automation rows, organized into the two non-Figma and Figma lanes. Reporting and strategy-review automations may exist only as oversight, not competing implementation lanes.
+No other project delivery automation should be created, invoked, or maintained for Senior Capstone unless Bryan explicitly asks for it. The four quarter-hour split-builder instances are the only active delivery automation rows, organized into the two non-Figma and Figma lanes. Reporting and strategy-review automations may exist only as oversight, not competing implementation lanes.
 
 The orchestrator should resolve everything it can resolve from accepted docs, repo evidence, saved connector approvals, and safe fallbacks. It should not stop for a human when it can:
 
@@ -205,14 +205,14 @@ Every productive run should produce A-material evidence. It must do one of three
 - Repair a repeatable project automation, script, verifier, or manifest failure so the same miss is less likely to recur.
 - Commit an exact blocker with the requirement ID, command or tool that failed, suspected account/tool cause, and next action.
 
-For automation maintenance, only touch automation related to this project: the duplicated split-builder scheduler records, the two source builder prompt contracts, oversight automation records, automation docs/logs/manifests, project automation scripts/verifiers, and project automation memory.
+For automation maintenance, only touch automation related to this project: the quarter-hour split-builder scheduler records, the two source builder prompt contracts, oversight automation records, automation docs/logs/manifests, project automation scripts/verifiers, and project automation memory.
 
 ## Writable Preflight
 
 Every split-builder run must spend the first minute proving it can do useful work before it opens large context:
 
 - Run `git status --short --branch`.
-- Confirm the current automation is one of the four active builder rows: `senior-capstone-nonfigma-mvp-builder`, `senior-capstone-nonfigma-mvp-builder-bottom`, `senior-capstone-figma-product-builder-top`, or `senior-capstone-figma-product-builder`.
+- Confirm the current automation is one of the four active builder rows: `senior-capstone-nonfigma-mvp-builder`, `senior-capstone-figma-product-builder-15`, `senior-capstone-nonfigma-mvp-builder-30`, or `senior-capstone-figma-product-builder`.
 - Confirm repo writes are available by planning a tiny repo-owned log/manifest update before broad inspection. Do not make throwaway files.
 - Confirm command execution can run the bundled or PATH Node/PowerShell path needed for repo checks.
 - If `apply_patch`, shell execution, `$CODEX_HOME` reads, Git LFS, Node/npm, or commit/push is blocked by policy, stop the product slice immediately and leave the shortest possible blocker closeout with the exact command/error and next action. Do not spend a full run rediscovering the same read-only state.
@@ -237,11 +237,11 @@ Each split-builder run may use a large prompt, but it should avoid uncontrolled 
 - Prefer `rg`, recent run manifests, and relevant log sections before opening long files.
 - Read the specific source files, tests, docs, Figma/Canva handoffs, or Cloudflare setup notes needed for the selected QoL target.
 - Avoid broad repo scans unless the selected acceptance check requires it.
-- Pick one bounded master-plan slice per run and leave unrelated MVP work for a later 30-minute pass.
+- Pick one bounded master-plan slice per run and leave unrelated MVP work for a later builder pass.
 
 ## 30-Day Efficiency Auto-Scaling Protocol
 
-The current duplicated split-builder cadence is 96 combined builder starts/day: 48 non-Figma starts/day and 48 Figma-only starts/day. Bryan explicitly approved this capacity increase on 2026-05-20; future scaling should first improve conversion, lane separation, target selection, collision handling, and blocker burn-down before adding more starts.
+The current quarter-hour split-builder cadence is 96 combined builder starts/day: 48 non-Figma starts/day and 48 Figma-only starts/day. Bryan explicitly approved this cadence on 2026-05-20; future scaling should first improve conversion, lane separation, target selection, collision handling, and blocker burn-down before adding more starts.
 
 Use this command for explicit automation audits and Sunday calibration:
 
@@ -249,15 +249,15 @@ Use this command for explicit automation audits and Sunday calibration:
 powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\verify-cadence-30min.ps1 -RepoRoot .
 ```
 
-Under the duplicated split-builder contract, active builder automation count is 4 and daily active builder start capacity is 96. Daily summary and weekly strategy review are oversight and do not add builder capacity.
+Under the quarter-hour split-builder contract, active builder automation count is 4 and daily active builder start capacity is 96. Daily summary and weekly strategy review are oversight and do not add builder capacity.
 
 Scaling rules:
 
-- Keep the 96-start/day duplicated split schedule unless Bryan explicitly asks to change it or evidence shows this project-specific cadence is harming output.
+- Keep the 96-start/day quarter-hour split schedule unless Bryan explicitly asks to change it or evidence shows this project-specific cadence is harming output.
 - Minimum 30-day target is 60 accepted MVP passes; stretch is 90. With 1,440 non-Figma starts, 1,440 Figma starts, and 2,880 combined builder starts in 30 days, the system needs 2.08 percent accepted-pass conversion for minimum and 3.13 percent for stretch.
 - If accepted-pass conversion is below target, retarget the next week toward implementation, tests, deployment proof, exact blockers, and high-risk requirements before adding more runs.
 - If either builder has no accepted evidence or exact blocker after seven days, sharpen its backlog selection, prompt instructions, or handoff rules before changing cadence.
-- If run duration or dirty-worktree collisions repeatedly exceed the 30-minute spacing, reduce collision risk by selecting non-conflicting verification slices, narrowing prompt execution, or recommending a schedule adjustment for Bryan.
+- If run duration or dirty-worktree collisions repeatedly exceed the quarter-hour spacing, reduce collision risk by selecting non-conflicting verification slices, narrowing prompt execution, or recommending a schedule adjustment for Bryan.
 - If blockers dominate a requirement area, the automation should commit one precise blocker with the account/tool/policy action required and then move to adjacent non-blocked evidence in its scope.
 - If the project exceeds the stretch target with low collision risk, keep cadence stable and tighten acceptance quality; do not chase more starts for its own sake.
 
@@ -448,7 +448,7 @@ Each unresolved item should include:
 - `next action`
 - `last updated`
 
-The 30-minute builder owns ordinary backlog hygiene for selected work. The weekly strategy review may reprioritize backlog items from seven-day evidence, but should not casually churn unrelated items.
+The split builders own ordinary backlog hygiene for selected work. The weekly strategy review may reprioritize backlog items from seven-day evidence, but should not casually churn unrelated items.
 
 When selecting a backlog item:
 

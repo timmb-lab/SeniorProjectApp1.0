@@ -25,16 +25,16 @@ const SCHEDULED_GUI_CANARY_RELATIVE = "automation/qol/SCHEDULED_GUI_CANARY.md";
 const REPORT_SCHEMA_DOC_RELATIVE = "automation/qol/REPORT_SCHEMA.md";
 const DEFAULT_REGISTRY_EVIDENCE_RELATIVE = "automation/qol/state/automation-registry-evidence.json";
 const NON_FIGMA_TOP_BUILDER_ID = "senior-capstone-nonfigma-mvp-builder";
-const NON_FIGMA_BOTTOM_BUILDER_ID = "senior-capstone-nonfigma-mvp-builder-bottom";
-const FIGMA_TOP_BUILDER_ID = "senior-capstone-figma-product-builder-top";
-const FIGMA_BOTTOM_BUILDER_ID = "senior-capstone-figma-product-builder";
+const FIGMA_QUARTER_BUILDER_ID = "senior-capstone-figma-product-builder-15";
+const NON_FIGMA_BOTTOM_BUILDER_ID = "senior-capstone-nonfigma-mvp-builder-30";
+const FIGMA_THREE_QUARTER_BUILDER_ID = "senior-capstone-figma-product-builder";
 const NON_FIGMA_BUILDER_ID = NON_FIGMA_TOP_BUILDER_ID;
-const FIGMA_BUILDER_ID = FIGMA_BOTTOM_BUILDER_ID;
+const FIGMA_BUILDER_ID = FIGMA_THREE_QUARTER_BUILDER_ID;
 const EXPECTED_BUILDER_INSTANCE_IDS = [
   NON_FIGMA_TOP_BUILDER_ID,
+  FIGMA_QUARTER_BUILDER_ID,
   NON_FIGMA_BOTTOM_BUILDER_ID,
-  FIGMA_TOP_BUILDER_ID,
-  FIGMA_BOTTOM_BUILDER_ID,
+  FIGMA_THREE_QUARTER_BUILDER_ID,
 ];
 const DAILY_OVERSIGHT_ID = "senior-capstone-daily-mvp-summary";
 const WEEKLY_OVERSIGHT_ID = "senior-capstone-weekly-script-audit";
@@ -939,8 +939,8 @@ function inspectLockContract(projectRoot, projectLock) {
     expectedBuilderIds.length === 4 &&
       EXPECTED_BUILDER_INSTANCE_IDS.every((id) => includes(expectedBuilderIds, id)) &&
       !includes(expectedBuilderIds, LEGACY_DIAGNOSTIC_ID)
-      ? "expected builder IDs are exactly the four duplicated split builders"
-      : "expectedBuilderAutomationIds must contain exactly the four duplicated split builders",
+      ? "expected builder IDs are exactly the four quarter-hour split builders"
+      : "expectedBuilderAutomationIds must contain exactly the four quarter-hour split builders",
   );
   addCheck(
     "lock-oversight-ids",
@@ -988,26 +988,26 @@ function inspectLockContract(projectRoot, projectLock) {
       : "expectedBuilderCadences.nonFigmaBottom must be the non-Figma builder at minute 30",
   );
   addCheck(
-    "lock-figma-top-cadence",
-    projectLock.expectedBuilderCadences?.figmaTop?.id === FIGMA_TOP_BUILDER_ID &&
-      projectLock.expectedBuilderCadences?.figmaTop?.rrule === "FREQ=HOURLY;BYMINUTE=0;BYSECOND=0"
+    "lock-figma-quarter-cadence",
+    projectLock.expectedBuilderCadences?.figmaQuarter?.id === FIGMA_QUARTER_BUILDER_ID &&
+      projectLock.expectedBuilderCadences?.figmaQuarter?.rrule === "FREQ=HOURLY;BYMINUTE=15;BYSECOND=0"
       ? "pass"
       : "fail",
-    projectLock.expectedBuilderCadences?.figmaTop?.id === FIGMA_TOP_BUILDER_ID &&
-      projectLock.expectedBuilderCadences?.figmaTop?.rrule === "FREQ=HOURLY;BYMINUTE=0;BYSECOND=0"
-      ? "Figma top builder cadence is hourly at minute 0"
-      : "expectedBuilderCadences.figmaTop must be the Figma builder at minute 0",
+    projectLock.expectedBuilderCadences?.figmaQuarter?.id === FIGMA_QUARTER_BUILDER_ID &&
+      projectLock.expectedBuilderCadences?.figmaQuarter?.rrule === "FREQ=HOURLY;BYMINUTE=15;BYSECOND=0"
+      ? "Figma quarter builder cadence is hourly at minute 15"
+      : "expectedBuilderCadences.figmaQuarter must be the Figma builder at minute 15",
   );
   addCheck(
-    "lock-figma-bottom-cadence",
-    projectLock.expectedBuilderCadences?.figmaBottom?.id === FIGMA_BOTTOM_BUILDER_ID &&
-      projectLock.expectedBuilderCadences?.figmaBottom?.rrule === "FREQ=HOURLY;BYMINUTE=30;BYSECOND=0"
+    "lock-figma-three-quarter-cadence",
+    projectLock.expectedBuilderCadences?.figmaThreeQuarter?.id === FIGMA_THREE_QUARTER_BUILDER_ID &&
+      projectLock.expectedBuilderCadences?.figmaThreeQuarter?.rrule === "FREQ=HOURLY;BYMINUTE=45;BYSECOND=0"
       ? "pass"
       : "fail",
-    projectLock.expectedBuilderCadences?.figmaBottom?.id === FIGMA_BOTTOM_BUILDER_ID &&
-      projectLock.expectedBuilderCadences?.figmaBottom?.rrule === "FREQ=HOURLY;BYMINUTE=30;BYSECOND=0"
-      ? "Figma bottom builder cadence is hourly at minute 30"
-      : "expectedBuilderCadences.figmaBottom must be the Figma builder at minute 30",
+    projectLock.expectedBuilderCadences?.figmaThreeQuarter?.id === FIGMA_THREE_QUARTER_BUILDER_ID &&
+      projectLock.expectedBuilderCadences?.figmaThreeQuarter?.rrule === "FREQ=HOURLY;BYMINUTE=45;BYSECOND=0"
+      ? "Figma three-quarter builder cadence is hourly at minute 45"
+      : "expectedBuilderCadences.figmaThreeQuarter must be the Figma builder at minute 45",
   );
   addCheck(
     "stale-lock-threshold",
