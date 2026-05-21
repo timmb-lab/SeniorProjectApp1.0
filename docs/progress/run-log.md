@@ -809,8 +809,8 @@ Future productive runs should append compact entries that name the master-plan s
 - `selected slice`: Add denied-role audit coverage and reset-first API proof for imported accounts.
 - `what changed`: `/api/admin/users/import` now writes `admin_users_import_denied` for authenticated non-admin attempts before returning 403. `tests/admin-users-import.integration.test.mjs` now proves import no-store output, reset-required login blocking for temporary credentials, reset completion, old temporary credential rejection, new-password login, role readback through `/api/auth/me`, and no temporary/replacement password values in audit metadata.
 - `files changed`: `functions/api/admin/users/import.ts`, `tests/admin-users-import.integration.test.mjs`, MVP/backlog/artifact/memory/handoff/progress docs, and `docs/progress/runs/2026-05-21-0137-admin-import-reset-proof-mvp-004.json`.
-- `validation`: focused admin import test passed with 6/6; auth login integration passed; strict typecheck passed; production-surface check passed with 91 surfaces; full `test` passed with 163 passing tests and 3 expected opt-in skips; aggregate `check` passed with live Cloudflare verification; `git diff --check` passed with CRLF warnings only.
+- `validation`: focused admin import test passed with 6/6; auth login integration passed; strict typecheck passed; production-surface check passed with 91 surfaces; full `test` passed with 163 passing tests and 3 expected opt-in skips; aggregate `check` passed with live Cloudflare verification; `git diff --check` passed with CRLF warnings only; hosted unauthenticated POST to `/api/admin/users/import` returned HTTP 401 after push.
 - `blockers`: browser-level fake-account import proof remains pending; real-user temporary credential delivery remains open as `HD-2026-05-21-001`; Drive upload remains blocked by redacted Google Drive HTTP 403.
 - `phone tracker`: not appended; Google Sheets connector was not used in this run.
 - `self-improvement`: none.
-- `commit`: pending.
+- `commit`: implementation/run-record commit `f9f6ea8db24b064a821571c4b731236ed386b5f4` pushed to `origin main`; closeout evidence commit follows this entry.

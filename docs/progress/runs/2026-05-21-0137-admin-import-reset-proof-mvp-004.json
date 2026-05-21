@@ -101,6 +101,10 @@
     {
       "command": "git diff --check -- functions/api/admin/users/import.ts tests/admin-users-import.integration.test.mjs",
       "result": "pass; CRLF normalization warnings only"
+    },
+    {
+      "command": "Invoke-WebRequest https://senior-capstone-app.pages.dev/api/admin/users/import unauthenticated POST after push",
+      "result": "pass; hosted endpoint returned HTTP 401"
     }
   ],
   "blockers": [
@@ -141,6 +145,7 @@
   },
   "branch_before": "main",
   "branch_after": "main",
-  "commit_sha": "pending",
-  "push_result": "pending"
+  "implementation_commit_sha": "f9f6ea8db24b064a821571c4b731236ed386b5f4",
+  "closeout_commit_sha": "pending",
+  "push_result": "implementation commit pushed to origin main; hosted unauthenticated import POST returned HTTP 401"
 }
