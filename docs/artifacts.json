@@ -497,6 +497,7 @@
         "full_alpha_prototype_drive_archive_delivery": "151:2",
         "full_alpha_prototype_credential_lifecycle": "153:2",
         "full_alpha_prototype_admin_import_temporary_credential": "158:2",
+        "full_alpha_prototype_admin_import_proof_qa": "163:2",
         "full_alpha_prototype_map_rail": "98:1130"
       },
       "verification": [
@@ -545,7 +546,9 @@
         "Figma write on 2026-05-21 added full-alpha credential lifecycle node 153:2, mapping admin reset requested, reset completion form, password changed plus session rotation, invalid current password, weak or reused password, and stale session revoked states to auth/admin/audit routes and records.",
         "get_design_context and get_screenshot succeeded for node 153:2; screenshot verification returned 868x1024 from original 1360x1605, and use_figma readback found 59 text nodes, zero suspicious clipped text nodes, zero child overflow, 6 states, 7 routes, 5 records, and 6 guardrails after compact chip and row overflow correction.",
         "Figma write on 2026-05-21 added full-alpha admin import temporary credential node 158:2, mapping import batch draft, validation errors, pending-reset account creation, one-time temporary credential display, delivery policy needed, and permission-denied audit states to account import/auth/admin/audit routes and records.",
-        "get_design_context and get_screenshot succeeded for node 158:2; screenshot verification returned 814x1024 from original 1360x1712, and use_figma readback found 59 text nodes, zero suspicious clipped text nodes, zero child overflow, 6 states, 7 routes, 9 records, 4 permission scopes, 6 guardrails, and 5 acceptance checks after text-height and chip/row corrections."
+        "get_design_context and get_screenshot succeeded for node 158:2; screenshot verification returned 814x1024 from original 1360x1712, and use_figma readback found 59 text nodes, zero suspicious clipped text nodes, zero child overflow, 6 states, 7 routes, 9 records, 4 permission scopes, 6 guardrails, and 5 acceptance checks after text-height and chip/row corrections.",
+        "Figma write on 2026-05-21 added full-alpha admin import proof QA node 163:2, mapping hosted admin form loaded, validation errors blocked, import success no-store, reset-first login required, denied role attempt, and refresh/stale-session safety states to account import/auth/admin/audit routes and records.",
+        "get_design_context and get_screenshot succeeded for node 163:2; screenshot verification returned 985x1024 from original 1360x1414, and use_figma readback found 49 text nodes, zero suspicious clipped text nodes, zero child overflow, 6 states, 8 routes, 9 records, 5 UI markers, 6 guardrails, and 5 acceptance checks after text-height correction."
       ],
       "supersedes": [
         "figma-product-ui-system-reference-old-team",

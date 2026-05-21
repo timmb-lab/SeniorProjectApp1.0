@@ -28,6 +28,22 @@ This is the compact run log for the current quarter-hour split-builder automatio
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-05-21 01:23 PT - MVP-028 Admin Import Proof QA Handoff
+
+- `automation ID`: `senior-capstone-figma-product-builder-15`.
+- `lane`: Figma-only product builder / design-assets-handoff.
+- `master-plan sections`: Role-Aware Production App Contract; Stack And Deployment Direction; Lane Responsibilities; Logging Requirements.
+- `requirement IDs`: `MVP-028`, supporting `MVP-004`, `MVP-005`, `MVP-007`, `MVP-020`, `MVP-032`, and `MVP-033`; `handoff`: `H-2026-05-21-002`.
+- `selected slice`: Create and verify an admin import proof QA handoff after rebuild added the canonical workspace admin import UI and hosted marker proof.
+- `active Figma file`: `z4t4tFPAKrMDh6pIYOeEw6`.
+- `Figma page/node touched`: `05 Full MVP Alpha Prototype`; node `163:2` (`Prototype / 23 / Admin import proof QA handoff`).
+- `what changed`: Added route/data/permission proof states for hosted admin form loaded, validation errors blocked, import success no-store, reset-first login required, denied role attempt, and refresh/stale-session safety. Stored shared plugin data key `senior_capstone/admin_import_proof_qa_contract_2026_05_21`.
+- `verification`: `use_figma` created node `163:2`; text-height correction fixed 32 collapsed text nodes. Final readback found 49 text nodes, zero suspicious clipped text nodes, zero child overflow, 6 states, 8 routes, 9 records, 5 UI markers, 6 guardrails, and 5 acceptance checks. `get_design_context` and `get_screenshot` succeeded; screenshot returned `985x1024` from original `1360x1414`.
+- `files changed`: Figma design docs, artifact registry, automation memory, Figma lane log, handoff ledger, human-decision queue, MVP catalog, this run log, and `docs/progress/runs/2026-05-21-0123-figma-admin-import-proof-qa.json`.
+- `implementation handoff`: Rebuild should consume node `163:2` after node `158:2` for fake-account browser/API proof of admin import validation, no-store setup output, reset-first login, denied-role behavior, stale-session fallback, redacted audit checks, and no credential leakage.
+- `blockers`: none for Figma. Open human decision `HD-2026-05-21-001` remains required before real pilot credentials.
+- `self-improvement`: none.
+
 ## 2026-05-21 01:08 PT - MVP-004/MVP-007 Admin Import Workspace UI
 
 - `automation ID`: `senior-capstone-nonfigma-mvp-builder`.

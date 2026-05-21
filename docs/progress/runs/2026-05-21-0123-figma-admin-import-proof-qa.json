@@ -1,0 +1,192 @@
+{
+  "run_id": "2026-05-21-0123-figma-admin-import-proof-qa",
+  "timestamp_local": "2026-05-21T01:23:00-07:00",
+  "automation_id": "senior-capstone-figma-product-builder-15",
+  "lane": "figma-only product builder",
+  "status": "completed",
+  "accepted_mvp_pass": true,
+  "requirement_ids": [
+    "MVP-028",
+    "MVP-004",
+    "MVP-005",
+    "MVP-007",
+    "MVP-020",
+    "MVP-032",
+    "MVP-033"
+  ],
+  "backlog_ids": [
+    "SC-005",
+    "SC-006"
+  ],
+  "handoff_ids": [
+    "H-2026-05-21-002",
+    "H-2026-05-21-001"
+  ],
+  "output_kind": "figma-route-data-permission-proof-qa-handoff",
+  "scope": "Create and verify an admin import proof QA handoff after the canonical workspace admin import UI and hosted source-marker proof landed.",
+  "selected_figma_slice": "Admin import fake-account proof sequence for validation, no-store setup output, reset-first login, denied-role audit behavior, stale-session safety, and no credential leakage.",
+  "figma": {
+    "file_key": "z4t4tFPAKrMDh6pIYOeEw6",
+    "url": "https://www.figma.com/design/z4t4tFPAKrMDh6pIYOeEw6",
+    "page": "05 Full MVP Alpha Prototype",
+    "page_id": "98:2",
+    "node_touched": {
+      "node_id": "163:2",
+      "name": "Prototype / 23 / Admin import proof QA handoff",
+      "frame_size": "1360x1414",
+      "mutation_performed": true,
+      "shared_plugin_data_key": "senior_capstone/admin_import_proof_qa_contract_2026_05_21"
+    },
+    "source_nodes": [
+      "153:2",
+      "158:2"
+    ],
+    "states": [
+      "hosted_admin_form_loaded",
+      "validation_errors_blocked",
+      "import_success_no_store",
+      "reset_first_login_required",
+      "denied_role_attempt",
+      "refresh_and_stale_session_safety"
+    ],
+    "routes": [
+      "/workspace",
+      "/api/auth/me",
+      "/api/admin/users/import",
+      "/api/auth/login",
+      "/api/auth/complete-reset",
+      "/api/auth/change-password",
+      "/api/admin/audit-events",
+      "/admin/audit"
+    ],
+    "records": [
+      "User",
+      "UserCredential",
+      "UserRole",
+      "Session",
+      "Program",
+      "Cohort",
+      "StaffProfile",
+      "StudentProfile",
+      "AuditEvent"
+    ],
+    "ui_markers": [
+      "data-admin-action=\"import-users\"",
+      "data-admin-import-result=\"one-time-setup-passwords\"",
+      "data-auth-action=\"complete-reset\"",
+      "data-auth-action=\"change-password\"",
+      "data-workspace-state=\"permission-denied\""
+    ],
+    "guardrails": [
+      "fake .test users only for proof",
+      "no passwords or temporary credentials in Figma, docs, screenshots, logs, commits, browser storage, URLs, or chat",
+      "one-time display is no-store and disappears after refresh",
+      "reset-required users complete reset before role dashboards",
+      "denied roles cannot infer imported rows",
+      "audit metadata is redacted"
+    ],
+    "acceptance_checks": [
+      "browser proof covers form loaded, validation blocked, no-store success, refresh clearing, and reset-first-login",
+      "API proof covers duplicate/scope denial and non-admin denial",
+      "audit proof redacts credential-adjacent metadata",
+      "HD-2026-05-21-001 remains open before real users",
+      "no credential, storage ID, or real student data leakage"
+    ],
+    "verification": [
+      {
+        "tool": "use_figma create",
+        "result": "passed; created node 163:2 with 6 states, 8 routes, 9 records, 5 UI markers, 6 guardrails, and 5 acceptance checks"
+      },
+      {
+        "tool": "use_figma readback",
+        "result": "initial readback found 32 collapsed 1px text heights and zero child overflow"
+      },
+      {
+        "tool": "use_figma text-height correction",
+        "result": "passed; corrected 32 text nodes and expanded frame to 1360x1414"
+      },
+      {
+        "tool": "use_figma final readback",
+        "result": "passed; 49 text nodes, zero suspicious clipped text nodes, zero child overflow, 6 states, 8 routes, 9 records, 5 UI markers, 6 guardrails, and 5 acceptance checks"
+      },
+      {
+        "tool": "get_design_context",
+        "node_id": "163:2",
+        "result": "passed"
+      },
+      {
+        "tool": "get_screenshot",
+        "node_id": "163:2",
+        "result": "passed; returned 985x1024 from original 1360x1414"
+      }
+    ]
+  },
+  "source_docs_read": [
+    "C:\\Users\\bryan\\.codex\\automations\\senior-capstone-figma-product-builder-15\\memory.md",
+    "docs/design/figma-first-pass-product-system.md",
+    "docs/design/figma-product-preview-state-variants.md",
+    "docs/master-plan.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/automation-cadence.md",
+    "docs/automation-runbook.md",
+    "docs/automation-memory.md",
+    "docs/progress/run-log.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/decision-log.md",
+    "docs/artifacts.json",
+    "docs/human-decisions.md",
+    "docs/progress/figma.md",
+    "recent docs/progress/runs/*.json",
+    "docs/progress/runs/2026-05-21-0108-admin-import-workspace-ui-mvp-004.json",
+    "docs/progress/runs/2026-05-21-0054-figma-admin-import-temp-credential.json"
+  ],
+  "repo_files_changed": [
+    "docs/design/figma-first-pass-product-system.md",
+    "docs/design/figma-product-preview-state-variants.md",
+    "docs/artifacts.json",
+    "docs/automation-memory.md",
+    "docs/human-decisions.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/progress/figma.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-21-0123-figma-admin-import-proof-qa.json"
+  ],
+  "implementation_handoff": "Rebuild should consume node 163:2 after node 158:2 for fake-account browser/API proof of admin import validation, no-store setup output, reset-required first login, denied-role behavior, stale-session fallback, and redacted audit checks without exposing credentials or real student records.",
+  "validation": [
+    {
+      "command": "Figma use_figma create node 163:2",
+      "result": "passed"
+    },
+    {
+      "command": "Figma use_figma text-height correction and readback for node 163:2",
+      "result": "passed; zero suspicious clipped text nodes and zero child overflow"
+    },
+    {
+      "command": "Figma get_design_context for node 163:2",
+      "result": "passed"
+    },
+    {
+      "command": "Figma get_screenshot for node 163:2",
+      "result": "passed; returned 985x1024 from original 1360x1414"
+    }
+  ],
+  "backend_code_work_avoided": true,
+  "forbidden_files_touched": false,
+  "figma_blocker": null,
+  "run_log_updated": true,
+  "structured_manifest_created": true,
+  "artifacts_json_updated": true,
+  "mvp_catalog_changed": true,
+  "human_decisions_changed": true,
+  "decision_log_changed": false,
+  "self_improvement": "none",
+  "phone_tracker": {
+    "result": "not_appended",
+    "reason": "Google Sheets connector was not used in this run; repo-local closeout evidence was preserved."
+  },
+  "branch_before": "main",
+  "branch_after": "main",
+  "commit_sha": "pending",
+  "push_result": "pending"
+}

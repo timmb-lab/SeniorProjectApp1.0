@@ -1,6 +1,6 @@
 # Figma Progress
 
-Last refreshed: 2026-05-20
+Last refreshed: 2026-05-21
 
 Figma remains a product-design source for route, state, data, and permission handoffs. It is not an automation source of truth and it does not define project automation cadence.
 
@@ -9,7 +9,7 @@ Figma remains a product-design source for route, state, data, and permission han
 - Active Figma file: `https://www.figma.com/design/z4t4tFPAKrMDh6pIYOeEw6`
 - File key: `z4t4tFPAKrMDh6pIYOeEw6`
 - Team id: `1638213362346160913`
-- Key implementation nodes: `18:2`, `31:2`, `37:2`, `43:2`, `48:2`, `56:2`, `61:2`, `69:2`, `78:2`, full MVP alpha prototype page `98:2`, production boundary node `124:2`, workspace account edge-state node `133:2`, presentation dashboard state node `139:2`, celebration archive readiness node `144:2`, archive provider/retention node `149:2`, and Drive archive delivery node `151:2`.
+- Key implementation nodes: `18:2`, `31:2`, `37:2`, `43:2`, `48:2`, `56:2`, `61:2`, `69:2`, `78:2`, full MVP alpha prototype page `98:2`, production boundary node `124:2`, workspace account edge-state node `133:2`, presentation dashboard state node `139:2`, celebration archive readiness node `144:2`, archive provider/retention node `149:2`, Drive archive delivery node `151:2`, credential lifecycle node `153:2`, admin import credential node `158:2`, and admin import proof QA node `163:2`.
 
 ## Current Guidance
 
@@ -165,4 +165,17 @@ Figma work is owned by `senior-capstone-figma-product-builder-15` and `senior-ca
 - `changed in Figma`: Added state cards for `Import batch draft`, `Validation errors`, `Pending reset created`, `One-time credential display`, `Delivery policy needed`, and `Permission denied audit`; mapped `/admin/users`, `/api/admin/users/import`, `/api/admin/role-assignments`, `/api/admin/users/:id/require-password-reset`, `/api/auth/complete-reset`, `/workspace`, and `/admin/audit`; mapped `User`, `UserCredential`, `UserRole`, `Program`, `Cohort`, `StaffProfile`, `StudentProfile`, `Session`, and `AuditEvent`; stored shared plugin data key `senior_capstone/admin_import_temp_credential_contract_2026_05_21`.
 - `verification`: Existing node inspection confirmed node `48:2` and node `153:2` already covered broad provisioning and credential lifecycle but not import-batch temporary credential UI. Code Connect search found no repo `.figma.*` files, `get_libraries` confirmed the active file library plus community kits, and design-system search only found local status-pill primitives, so the frame reused local prototype conventions. `use_figma` created node `158:2`; initial readback found collapsed 1px text heights and overflow, then layout corrections expanded text/rows and tightened chip/action labels. Final readback found 59 text nodes, zero suspicious clipped text nodes, zero child overflow, 6 states, 7 routes, 9 records, 4 permission scopes, 6 guardrails, and 5 acceptance checks. `get_design_context` and `get_screenshot` succeeded for node `158:2`; screenshot returned `814x1024` from original `1360x1712`.
 - `implementation handoff`: Rebuild should consume node `158:2` when adding hosted/admin UI proof for `/api/admin/users/import`, no-store one-time credential display, duplicate/scope validation states, permission-denied audit proof, and a delivery-policy decision before real pilot users. Keep temporary credential values out of Figma, docs, screenshots, logs, and chat.
+- `self-improvement`: none
+
+## 2026-05-21 01:23 PT - MVP-028 Admin Import Proof QA Handoff
+
+- `automation ID`: `senior-capstone-figma-product-builder-15`
+- `selected requirement IDs`: `MVP-028`, supporting `MVP-004`, `MVP-005`, `MVP-007`, `MVP-020`, `MVP-032`, and `MVP-033`
+- `selected slice`: Create and verify a follow-up proof QA handoff after rebuild added the canonical workspace admin import UI and hosted source-marker proof.
+- `active file`: `z4t4tFPAKrMDh6pIYOeEw6`
+- `page`: `05 Full MVP Alpha Prototype`
+- `nodes touched`: `163:2` (`Prototype / 23 / Admin import proof QA handoff`)
+- `changed in Figma`: Added proof-state annotations for hosted admin form loaded, validation errors blocked, import success no-store, reset-first login required, denied role attempt, and refresh/stale-session safety. Mapped `/workspace`, `/api/auth/me`, `/api/admin/users/import`, `/api/auth/login`, `/api/auth/complete-reset`, `/api/auth/change-password`, `/api/admin/audit-events`, and `/admin/audit`; mapped `User`, `UserCredential`, `UserRole`, `Session`, `Program`, `Cohort`, `StaffProfile`, `StudentProfile`, and `AuditEvent`; stored shared plugin data key `senior_capstone/admin_import_proof_qa_contract_2026_05_21`.
+- `verification`: `use_figma` created node `163:2`; initial readback found 32 collapsed 1px text heights, then a targeted text-height correction expanded the frame to `1360x1414`. Final readback found 49 text nodes, zero suspicious clipped text nodes, zero child overflow, 6 states, 8 routes, 9 records, 5 UI markers, 6 guardrails, and 5 acceptance checks. `get_design_context` and `get_screenshot` succeeded; screenshot returned `985x1024` from original `1360x1414`.
+- `implementation handoff`: Rebuild should consume node `163:2` after node `158:2` for fake-account browser/API proof of admin import validation, no-store setup output, reset-required first login, denied-role behavior, stale-session fallback, and redacted audit checks. Keep credential values out of Figma, docs, screenshots, logs, commits, browser storage, URLs, and chat.
 - `self-improvement`: none

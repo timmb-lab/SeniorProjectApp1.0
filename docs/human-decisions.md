@@ -22,7 +22,7 @@ No open external automation scheduler decisions are blocking the current scaffol
 - `severity`: P1
 - `decision needed`: Decide whether the admin import flow may use one-time admin-visible temporary credentials for real pilot account setup, or whether the app must implement an email/invitation/school-approved credential delivery path before real users are imported.
 - `current recommendation`: Use the new admin workspace one-time display UI only for fake `.test` alpha proof and internal setup. Before real student or staff accounts, either Bryan approves a documented manual distribution procedure or the rebuild lane implements an invitation/email delivery policy. Do not put temporary credential values in docs, Figma, screenshots, logs, audit metadata, commits, or chat.
-- `decision workflow`: Figma node `158:2` (`Prototype / 22 / Admin import temporary credential handoff`) and handoff `H-2026-05-21-002`.
+- `decision workflow`: Figma node `158:2` (`Prototype / 22 / Admin import temporary credential handoff`), Figma node `163:2` (`Prototype / 23 / Admin import proof QA handoff`), and handoff `H-2026-05-21-002`.
 - `created`: 2026-05-21
 
 ### HD-2026-05-20-002

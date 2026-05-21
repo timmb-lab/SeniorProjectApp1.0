@@ -675,6 +675,18 @@ The 2026-05-21 00:54 PT Figma pass added an admin import and temporary credentia
 - Guardrails specify that temporary credentials are shown once only, credential values never appear in audit metadata/Figma/docs/screenshots/chat, pending-reset users complete reset before role dashboards, duplicate/invalid-scope rows block submit, and fake `.test` proof is the only accepted proof data.
 - Final `use_figma` readback found 59 text nodes, zero suspicious clipped text nodes, zero child overflow, 6 states, 7 routes, 9 records, 4 permission scopes, 6 guardrails, and 5 acceptance checks. `get_design_context` and `get_screenshot` succeeded for node `158:2`; screenshot verification returned `814x1024` from original `1360x1712`.
 
+## Admin Import Proof QA Handoff
+
+The 2026-05-21 01:23 PT Figma pass added a proof QA handoff after rebuild consumed node `158:2` into the canonical workspace admin import UI.
+
+- `Prototype / 23 / Admin import proof QA handoff`, node `163:2`, turns the admin import handoff into concrete fake-account proof states.
+- State annotations cover `hosted_admin_form_loaded`, `validation_errors_blocked`, `import_success_no_store`, `reset_first_login_required`, `denied_role_attempt`, and `refresh_and_stale_session_safety`.
+- Route annotations name `/workspace`, `/api/auth/me`, `/api/admin/users/import`, `/api/auth/login`, `/api/auth/complete-reset`, `/api/auth/change-password`, `/api/admin/audit-events`, and `/admin/audit`.
+- Record annotations name `User`, `UserCredential`, `UserRole`, `Session`, `Program`, `Cohort`, `StaffProfile`, `StudentProfile`, and `AuditEvent`.
+- UI marker annotations name `data-admin-action="import-users"`, `data-admin-import-result="one-time-setup-passwords"`, `data-auth-action="complete-reset"`, `data-auth-action="change-password"`, and `data-workspace-state="permission-denied"`.
+- Shared plugin data key `senior_capstone/admin_import_proof_qa_contract_2026_05_21` records 6 states, 8 routes, 9 records, 5 UI markers, 6 guardrails, and 5 acceptance checks.
+- Initial readback found collapsed text heights; a targeted text-height correction fixed all collapsed nodes. Final `use_figma` readback found 49 text nodes, zero suspicious clipped text nodes, zero child overflow, 6 states, 8 routes, 9 records, 5 UI markers, 6 guardrails, and 5 acceptance checks. `get_design_context` and `get_screenshot` succeeded for node `163:2`; screenshot verification returned `985x1024` from original `1360x1414`.
+
 ## Acceptance Checks For Next Figma Run
 
 - Continue active writable file `z4t4tFPAKrMDh6pIYOeEw6` in `team::1638213362346160913`.
@@ -709,10 +721,10 @@ Artifact:
 - Progress update/dashboard aggregate contract: node `61:2` in the active Figma file.
 - Audit log/export controls contract: node `69:2` in the active Figma file.
 - Mentor meeting/presentation scheduling contract: node `78:2` in the active Figma file.
-- Full MVP alpha prototype page: node `98:2`, with review detail node `98:9` and student revision node `98:10` aligned to the implemented review-history endpoint, handoff frame `98:17` updated after primary alpha-console consumption, production boundary handoff node `124:2` distinguishing the public guide mode from the authenticated workspace route, workspace account edge-state handoff node `133:2`, presentation dashboard state handoff node `139:2`, celebration archive readiness handoff node `144:2`, archive provider/retention handoff node `149:2`, Drive archive delivery handoff node `151:2`, credential lifecycle handoff node `153:2`, and admin import temporary credential handoff node `158:2`.
+- Full MVP alpha prototype page: node `98:2`, with review detail node `98:9` and student revision node `98:10` aligned to the implemented review-history endpoint, handoff frame `98:17` updated after primary alpha-console consumption, production boundary handoff node `124:2` distinguishing the public guide mode from the authenticated workspace route, workspace account edge-state handoff node `133:2`, presentation dashboard state handoff node `139:2`, celebration archive readiness handoff node `144:2`, archive provider/retention handoff node `149:2`, Drive archive delivery handoff node `151:2`, credential lifecycle handoff node `153:2`, admin import temporary credential handoff node `158:2`, and admin import proof QA handoff node `163:2`.
 
 Exact next action:
-- Rebuild should consume nodes `18:2`, `31:2`, `37:2`, `43:2`, `48:2`, `56:2`, `61:2`, `69:2`, `78:2`, `98:9`, `98:10`, `98:17`, `124:2`, `133:2`, `139:2`, `144:2`, `149:2`, `151:2`, `153:2`, and `158:2` while scaffolding the accepted Cloudflare database/auth/progress/audit/export/meeting/presentation foundation. Review history, workspace account states, presentation dashboard states, initial archive manifests, and admin import backend behavior are already partially consumed locally; next account-lifecycle rebuild focus should use nodes `153:2` and `158:2` for hosted admin import UI proof, generated credential display policy, reset/password-change proof, admin reset initiation, stale-session fallback, and redacted audit checks. Node `151:2` remains the Drive-backed package or signed-link delivery handoff after the Drive upload HTTP 403 is fixed.
+- Rebuild should consume nodes `18:2`, `31:2`, `37:2`, `43:2`, `48:2`, `56:2`, `61:2`, `69:2`, `78:2`, `98:9`, `98:10`, `98:17`, `124:2`, `133:2`, `139:2`, `144:2`, `149:2`, `151:2`, `153:2`, `158:2`, and `163:2` while scaffolding the accepted Cloudflare database/auth/progress/audit/export/meeting/presentation foundation. Review history, workspace account states, presentation dashboard states, initial archive manifests, and admin import backend behavior are already partially consumed locally; next account-lifecycle rebuild focus should use nodes `153:2`, `158:2`, and `163:2` for fake-account browser/API proof covering hosted admin import validation, generated no-store setup output, reset-first login, reset/password-change proof, admin reset initiation, stale-session fallback, denied-role behavior, and redacted audit checks. Node `151:2` remains the Drive-backed package or signed-link delivery handoff after the Drive upload HTTP 403 is fixed.
 
 Acceptance check:
 - Figma progress log records page/frame IDs, screenshot or metadata verification, route/data fields, permission scopes, and the next UI slice.

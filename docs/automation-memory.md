@@ -262,6 +262,15 @@ Every builder run must ladder from `docs/master-plan.md` into `docs/mvp-requirem
 - Final Figma verification succeeded: readback found 59 text nodes, zero suspicious clipped text nodes, zero child overflow, 6 states, 7 routes, 9 records, 4 permission scopes, 6 guardrails, and 5 acceptance checks; `get_design_context` and `get_screenshot` passed for node `158:2`, with screenshot `814x1024` from original `1360x1712`.
 - Next best non-Figma slice from this handoff: add hosted/admin UI proof for import, validation errors, no-store one-time credential display, reset-required first login, denied role attempts, and keep credential values out of docs, Figma, screenshots, logs, and chat.
 
+### 2026-05-21 - Figma Admin Import Proof QA Handoff
+
+- Figma-only builder `senior-capstone-figma-product-builder-15` added node `163:2`, `Prototype / 23 / Admin import proof QA handoff`, to active file `z4t4tFPAKrMDh6pIYOeEw6` on page `05 Full MVP Alpha Prototype`.
+- The handoff follows the workspace admin import UI implementation and maps the remaining fake-account proof sequence: hosted admin form loaded, validation errors blocked, import success no-store, reset-first login required, denied role attempt, and refresh/stale-session safety.
+- Shared plugin data key `senior_capstone/admin_import_proof_qa_contract_2026_05_21` records 6 states, 8 routes, 9 records, 5 UI markers, 6 guardrails, 5 acceptance checks, and source nodes `153:2` and `158:2`.
+- Initial readback found 32 collapsed 1px text heights; targeted correction expanded node `163:2` to `1360x1414`.
+- Final Figma verification succeeded: readback found 49 text nodes, zero suspicious clipped text nodes, zero child overflow, 6 states, 8 routes, 9 records, 5 UI markers, 6 guardrails, and 5 acceptance checks; `get_design_context` and `get_screenshot` passed for node `163:2`, with screenshot `985x1024` from original `1360x1414`.
+- Next best non-Figma slice from this handoff: capture fake-account browser/API proof for admin import validation, no-store setup output, reset-required first login, denied-role behavior, stale-session fallback, and redacted audit checks without exposing credentials or real student records.
+
 ## Current Priority
 
 Immediate next useful passes:
@@ -270,7 +279,7 @@ Immediate next useful passes:
 2. Broaden public-site no-hidden-core-content proof across every guide route, then verify the newest workspace account-state/no-assignment markers after hosted deployment and add a live section-level permission-denied proof.
 3. Extend alpha proposal/review/evidence/audit records into real workflow endpoints.
 4. Add Google Drive server-side credential/OAuth implementation plus access-controlled evidence upload/retrieval assumptions.
-5. Add fake-account browser/API proof for account import/provisioning from Figma node `158:2`, decide the invitation or email-delivery policy before real pilot users, and keep known-gaps QA current.
+5. Add fake-account browser/API proof for account import/provisioning from Figma nodes `158:2` and `163:2`, decide the invitation or email-delivery policy before real pilot users, and keep known-gaps QA current.
 6. Keep mobile/error/empty/permission alpha QA current while the Day 7 walkthrough hardens.
 
 Real daily MVP goal: minimum 2 accepted MVP passes per calendar day, stretch 3 when unblocked, and at least 14 accepted MVP passes per week until the 100-pass target is met or recalibrated.
@@ -297,7 +306,7 @@ Current backlog anchors:
 - `SC-002`: guided Research Proposal Challenge UI and review queue spec.
 - `SC-003`: Google Drive EvidenceArtifact model is in progress; metadata tables and root folder exist, but upload credentials and permission tests are still needed.
 - `SC-004`: mentor meetings, presentation scheduling, celebration evidence, archive/export workflows; Drive-backed archive package upload now exists locally, while hosted proof needs Cloudflare token plus Drive secrets.
-- `SC-005`: P0 Cloudflare stack/auth/database/user-group/progress/private-upload scaffold is in progress with Pages/D1/migrations/auth endpoints, password/session pepper secrets, Drive root folder configured, D1-backed alpha flow, state-machine tests, alpha contract checks, CI, production alpha deployment, verified first-admin bootstrap, login-verified fake role test accounts, reset-required password completion, admin reset initiation, active-user credential rotation, admin user import with generated reset-required temporary credentials, canonical workspace import UI marker proof, and Figma node `158:2` for import/credential display handoff; broader permission tests, browser/API import proof or email-delivery policy, and Drive upload credentials remain.
+- `SC-005`: P0 Cloudflare stack/auth/database/user-group/progress/private-upload scaffold is in progress with Pages/D1/migrations/auth endpoints, password/session pepper secrets, Drive root folder configured, D1-backed alpha flow, state-machine tests, alpha contract checks, CI, production alpha deployment, verified first-admin bootstrap, login-verified fake role test accounts, reset-required password completion, admin reset initiation, active-user credential rotation, admin user import with generated reset-required temporary credentials, canonical workspace import UI marker proof, Figma node `158:2` for import/credential display handoff, and Figma node `163:2` for admin import proof QA; broader permission tests, browser/API import proof or email-delivery policy, and Drive upload credentials remain.
 - `SC-006`: P0 Day 7 full app-flow alpha due 2026-05-24 PT; production user accounts may be incomplete, and the first D1-backed seeded alpha flow plus fake login-capable role accounts now exist.
 
 ## Known External Artifact Memory
@@ -305,7 +314,7 @@ Current backlog anchors:
 - Canva folder: `FAHJ-n-VqFE`.
 - Canva asset: `DAHJ-v7TOM8`, proposal approval process strip, no-text 1600x500.
 - Active Figma product UI file: `https://www.figma.com/design/z4t4tFPAKrMDh6pIYOeEw6` (`z4t4tFPAKrMDh6pIYOeEw6`), team id `1638213362346160913`.
-- Key Figma implementation contract nodes: `18:2`, `31:2`, `37:2`, `43:2`, `48:2`, `56:2`, `61:2`, `69:2`, `78:2`, and full MVP alpha prototype page `98:2` with implementation nodes through `158:2`.
+- Key Figma implementation contract nodes: `18:2`, `31:2`, `37:2`, `43:2`, `48:2`, `56:2`, `61:2`, `69:2`, `78:2`, and full MVP alpha prototype page `98:2` with implementation nodes through `163:2`.
 - 2026-05-20 Figma review-history alignment updated full MVP alpha prototype nodes `98:9` and `98:10` to match `/api/reviews/:submissionId/history`, `reviews`, `comments`, `status_history`, `submission_versions`, scoped permissions, and storage-ID redaction; `get_design_context` and `get_screenshot` succeeded for both nodes.
 - 2026-05-20 Figma handoff update verified node `98:17` after primary alpha-console review-history consumption; it records `review_history_consumed_at`, redirects next rebuild focus to mentor/presentation/admin depth, preserves API/D1/audit/storage-redaction boundaries, and passed `get_design_context` plus `get_screenshot`.
 - 2026-05-20 Figma production-boundary handoff verified node `124:2`; it distinguishes public Student/Teacher guide mode from authenticated `/workspace` state, records route/data/permission contract data, and passed screenshot/metadata/readback QA.
@@ -316,6 +325,7 @@ Current backlog anchors:
 - 2026-05-20 Figma Drive archive delivery handoff verified node `151:2`; it maps credentials configured, package assembly to Drive, signed link issued, student download started, expired link retry, and hosted proof required states to persisted export/evidence/audit records with 6 states, 5 routes, 10 records, 5 permission scopes, 6 guardrails, and 6 acceptance checks.
 - 2026-05-21 Figma credential lifecycle handoff verified node `153:2`; it maps admin reset requested, reset completion form, password changed plus session rotation, invalid current password, weak or reused password, and stale session revoked states to auth/admin/audit routes and records with 6 states, 7 routes, 5 records, and 6 guardrails.
 - 2026-05-21 Figma admin import temporary credential handoff verified node `158:2`; it maps import draft, validation errors, pending-reset creation, one-time credential display, delivery policy needed, and permission-denied audit states to account import/auth/admin/audit routes and records with 6 states, 7 routes, 9 records, 4 permission scopes, 6 guardrails, and 5 acceptance checks.
+- 2026-05-21 Figma admin import proof QA handoff verified node `163:2`; it maps hosted admin form loaded, validation errors blocked, import success no-store, reset-first login required, denied role attempt, and refresh/stale-session safety states to account import/auth/admin/audit routes and records with 6 states, 8 routes, 9 records, 5 UI markers, 6 guardrails, and 5 acceptance checks.
 - 2026-05-20 non-Figma workspace archive readiness pass partially consumed node `144:2` in repo code only by adding `/api/student/archive/readiness`, a student Archive workspace tab, explicit admin export reason enforcement, truthful signed-download-disabled output, focused integration/source/smoke/browser proof, and route inventory coverage.
 - 2026-05-20 non-Figma archive manifest pass added `export_artifacts`, scoped JSON archive manifest generation/download, content hash/expiry metadata, expired-package retry state, storage-ID redaction tests, and a workspace manifest download marker.
 - 2026-05-20 non-Figma archive provider/retention pass partially consumed node `149:2` by making archive generation provider-gated, auditing missing-credential/access failure states as failed exports, exposing configurable retention policy/window metadata, and rendering retention state in the canonical workspace.
