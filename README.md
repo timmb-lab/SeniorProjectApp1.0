@@ -30,8 +30,8 @@ Production-surface policy lives in:
 
 Canonical production targets:
 
-- `senior-capstone-app`: root app/backend host, deployed by `npm run deploy`.
-- `senior-capstone-public`: generated public companion guide, deployed by `npm run deploy:public-site`.
+- `thecapstoneapp.com` and `www.thecapstoneapp.com`: public guide on `senior-capstone-public`, deployed by `npm run deploy:public-site`.
+- `app.thecapstoneapp.com`: secure app/backend on `senior-capstone-app`, deployed by `npm run deploy`.
 
 Review-only targets:
 
@@ -65,8 +65,13 @@ npm run check:predeploy-gate
 npm run check:production-surfaces
 npm run check:route-inventory
 npm run check:generated-output-drift
+npm run check:custom-domain-cutover
+npm run check:alpha-account-gating
+npm run check:production-cutover
 npm run check
 ```
+
+`check:custom-domain-cutover` is the static/read-only domain mapping gate. Live cutover still requires active Cloudflare Pages custom-domain association, DNS/TLS, public guide health, and `app.thecapstoneapp.com` app/API health.
 
 ## Internal Alpha QA
 
@@ -101,7 +106,7 @@ npm run check:cloudflare:live
 
 Cloudflare GitHub integration may automatically deploy after pushes to `main`. That integration is Cloudflare-side and does not give the local Codex/Wrangler shell Cloudflare API credentials. Static/local gates can pass without a token, but `check:cloudflare:live` requires `CLOUDFLARE_API_TOKEN` or a repo-supported authenticated Cloudflare connector path. Git push success is not live Cloudflare verification success.
 
-`check:cloudflare` verifies `wrangler.jsonc`, the expected Pages project name, D1 binding, migrations, and local Wrangler CLI. If `CLOUDFLARE_API_TOKEN` is absent, it reports live Pages/D1 verification as blocked rather than passed. `check:cloudflare:live` requires `CLOUDFLARE_API_TOKEN` and exits nonzero when live verification cannot run. These checks do not perform login, deployment, migration, or student-data queries.
+`check:cloudflare` verifies `wrangler.jsonc`, the expected Pages project name, D1 binding, migrations, and local Wrangler CLI. It is intentionally static-only. `check:cloudflare:live` requires `CLOUDFLARE_API_TOKEN` and exits nonzero when live verification cannot run. These checks do not perform login, deployment, migration, or student-data queries.
 
 The alpha runbook is `docs/alpha-runbook.md`.
 

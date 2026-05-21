@@ -1,6 +1,6 @@
 # Production Predeploy Checklist
 
-Date: 2026-05-20
+Date: 2026-05-21
 
 Use this checklist before any pilot-facing deploy, preview promotion, or custom-domain cutover. It converts the production-surface cleanup into a gate: static checks may pass locally, but live Cloudflare checks are not complete unless `CLOUDFLARE_API_TOKEN` is available and read-only verification succeeds.
 
@@ -15,7 +15,10 @@ powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\ru
 powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 check:generated-output-drift
 powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 check:site-options
 powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 check:cloudflare
+powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 check:custom-domain-cutover
+powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 check:alpha-account-gating
 powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 check:cloudflare:live
+powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 check:production-cutover
 powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 check:drive:live
 powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 check:workspace:hosted-evidence
 powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 check:workspace:hosted-permissions
@@ -31,7 +34,10 @@ Required result:
 - Generated-output drift checker passes for `public-companion/` and `stakeholder-options/**`.
 - Site option checker confirms generated manifests/pages exist.
 - Cloudflare static check passes for `wrangler.jsonc`, local Wrangler, D1 binding, and migrations.
+- Custom-domain cutover static check passes for `thecapstoneapp.com`, root mode `guide-root-app-subdomain`, and the app/public/stakeholder project mapping.
+- Alpha/account gating check passes for internal labels, no normal production navigation links, and no public companion proxying.
 - Cloudflare live check passes token verify plus Pages/D1 lookup. Scoped-token `wrangler whoami` warnings are acceptable only when token verify, Pages project lookup, D1 database lookup, and D1 id match all pass.
+- Production cutover aggregate passes only when live-only checks are not blocked and the domain/API/app proof succeeds.
 - Drive live check passes before accepting real student file bytes: runtime credential parts configured, service-account token exchange works, root folder is visible as a folder, index sheet is visible as a Google Sheet, fake `.test` upload succeeds, D1 metadata/audit are verified without selecting raw Drive IDs, and browser/API output stays redacted.
 - Hosted workspace evidence check passes or is explicitly skipped for missing ignored fake `.test` credentials; it must prove canonical `workspace.html` upload/download, including one >5MB resumable upload, before real student evidence is accepted.
 - Hosted workspace permission check passes or is explicitly skipped for missing ignored fake `.test` credentials; it must not use real accounts.
@@ -74,7 +80,7 @@ These must be decided before pilot users or real records enter the app:
 
 - Alpha/account deployment policy: choose Option A, B, or C from `docs/alpha-account-deployment-decision.md`.
 - Stakeholder option lifecycle: retain, retire, or promote from `docs/stakeholder-option-lifecycle.md`.
-- Custom-domain mapping: choose final hostnames using `docs/custom-domain-cutover-checklist.md`.
+- Custom-domain live cutover: domain selection is resolved as `thecapstoneapp.com` with root mode `guide-root-app-subdomain`; live activation remains separate until Pages domains, DNS/TLS, and app/public health pass.
 - Real-user temporary credential delivery policy: choose HD-2026-05-21-001 before importing real pilot users.
 - Google Drive upload permission/policy: keep `npm run check:drive:live` passing against the configured Shared Drive evidence root.
 
@@ -97,6 +103,8 @@ Required result:
 - No obvious secrets are present in config.
 
 This is static proof only. It does not prove the live Pages project, live D1 database, current deployment, custom domain, or API health.
+
+`check:cloudflare` is intentionally static-only. Run `check:cloudflare:live` for read-only live Pages/D1 proof.
 
 ## Cloudflare Live Gate
 
@@ -163,9 +171,12 @@ Pilot blocker:
 After a deploy or cutover, verify:
 
 - `GET /api/health` returns 200 on the app hostname.
+- `GET https://app.thecapstoneapp.com/api/health` returns 200 after custom-domain activation.
 - Health output does not expose secret values.
 - D1 and evidence configuration fields report expected readiness state.
 - `GET /api/auth/me` returns an unauthenticated response without leaking user records when no session is present.
+- `GET https://app.thecapstoneapp.com/api/auth/me` signed out returns the expected unauthenticated response.
+- `https://app.thecapstoneapp.com/workspace.html` reaches the canonical workspace or app navigation points there.
 - Internal alpha/account API routes remain internal QA only.
 
 Do not treat static local checks as API health proof.
@@ -188,16 +199,30 @@ Required result:
 
 ## Custom-Domain Cutover Checklist
 
-Before cutover:
+Domain selection is resolved:
 
-- Bryan chooses final app/public hostnames.
-- DNS/CNAME targets are prepared.
-- Cloudflare Pages custom domains are attached to the correct project.
-- SSL/TLS issuance is complete.
-- App health and public companion health checks are prepared.
-- Rollback hostnames and DNS records are documented.
+- Public guide: `thecapstoneapp.com` and `www.thecapstoneapp.com` -> `senior-capstone-public`.
+- Secure app/backend: `app.thecapstoneapp.com` -> `senior-capstone-app`.
+- Root mode: `guide-root-app-subdomain`.
+- Stakeholder options: no production hostname mapping.
 
-Use `docs/custom-domain-cutover-checklist.md` for the detailed steps.
+Before claiming live cutover:
+
+```powershell
+powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 check:custom-domain-cutover
+powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 check:custom-domain-cutover --live-required --live-http
+powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 check:alpha-account-gating
+```
+
+Required live checks:
+
+- `https://thecapstoneapp.com` loads the public guide.
+- `https://www.thecapstoneapp.com` loads or redirects safely to the public guide.
+- `https://app.thecapstoneapp.com/api/health` returns 200.
+- `https://app.thecapstoneapp.com/api/auth/me` signed out returns unauthenticated/no-record output.
+- `https://app.thecapstoneapp.com/workspace.html` is reachable or app navigation points there.
+
+Use `docs/custom-domain-cutover-checklist.md` for the detailed steps and rollback path.
 
 ## Rollback Checklist
 

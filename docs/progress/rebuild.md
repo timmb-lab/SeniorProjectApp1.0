@@ -17,6 +17,18 @@ Each rebuild run should append a dated entry with:
 
 ## Entries
 
+### 2026-05-21 10:22 PT - TheCapstoneApp Custom Domain Cutover Gate
+
+- `automation`: manual Codex deployment-safety pass.
+- `master-plan section`: Stack And Deployment Direction; Production Surface Boundary; Logging Requirements.
+- `source docs/logs read`: repo identity/status, package scripts, Wrangler config, Cloudflare checker, production surface/route/generated-output/site-option checkers, production deployment docs, alpha/account decision docs, backend setup, human decisions, recent progress logs, root/public/stakeholder HTML, `_redirects`, and internal QA API routes.
+- `bounded scope`: Resolve the production domain mapping for `thecapstoneapp.com`, add static/read-only custom-domain and alpha/account gating checks, and keep live cutover separate from repo readiness.
+- `files changed`: domain config, custom-domain checker, alpha/account gating checker, production-cutover aggregate, npm/runner wiring, route inventory generator/output, focused tests, deployment docs, README, human decisions, backend setup, progress docs, and structured run manifest.
+- `validation`: syntax checks passed for changed scripts; focused custom-domain and alpha/account tests passed; `check:predeploy-gate`, `check:production-surfaces`, `check:route-inventory`, `check:generated-output-drift`, `check:site-options`, `check:custom-domain-cutover`, `check:alpha-account-gating`, `check:cloudflare`, `typecheck`, `npm test`, and aggregate `check` passed. `check:cloudflare:live`, hosted dashboard, hosted permissions, hosted evidence, and Drive live checks passed with fake `.test` credentials only. `check:production-cutover` correctly exited blocked because custom-domain Pages associations are missing and HTTPS fetches for the custom hostnames failed.
+- `blockers`: live custom-domain cutover is not verified. Pages custom-domain associations are missing for `thecapstoneapp.com`, `www.thecapstoneapp.com`, and `app.thecapstoneapp.com`; DNS/TLS custom-host fetches failed. `HD-2026-05-21-001`, `HD-2026-05-21-002`, archive retention, alpha/account pilot policy, and stakeholder lifecycle remain open where noted.
+- `commit/push status`: pending.
+- `next action`: Run the new focused tests and full static gates, then commit/push; use Cloudflare dashboard or a token with Pages Read/Write to attach and verify custom domains.
+
 ### 2026-05-21 09:33 PT - Upload Retry UX, Hosted Dashboard Proof, Google Docs Export Cases
 
 - `automation`: manual Codex implementation pass in the non-Figma MVP builder lane.
@@ -41,7 +53,7 @@ Each rebuild run should append a dated entry with:
 - `remote account state`: `BRYAN_ADMIN_ALREADY_EXISTS`; remote D1 non-secret verification returned Bryan Timm / `bryan.timm89@gmail.com`, status `active`, `requires_reset=0`, and global `admin`. No Bryan setup credential was generated, printed, or committed.
 - `hosted proof`: fake `.test` credentials only. The ignored hosted credential file was repaired to include fake admin, the supported admin-only test-account endpoint seeded fake `.test` rows, and `npm run check:workspace:hosted-permissions` passed signed-out, student, program teacher, mentor, misc-admin denial, and admin allowed checks with no missing-role skips.
 - `validation`: owner-admin ensure remote verification passed; focused owner-admin source tests passed; `npm run typecheck`, `npm run check:workspace:hosted-evidence`, `npm run check:workspace:hosted-permissions`, `npm run check:drive:live`, `npm run check:cloudflare`, `npm run check:cloudflare:live`, `npm run check:route-inventory`, `npm run check:production-surfaces`, `npm run check:generated-output-drift`, `npm test` (194 pass / 4 expected opt-in skips), `npm run check` (194 pass / 4 expected opt-in skips), `git diff --check`, and `git diff --cached --check` passed. `git diff --check` reported CRLF normalization warnings only.
-- `blockers`: `HD-2026-05-21-001` remains open for real non-Bryan credential delivery. Real non-`.test` imports remain blocked by default. Browser-level upload progress/retry, hosted presentation/archive UI proof, Google Docs export cases, custom domain, alpha/account exposure, stakeholder option retention, and archive retention policy remain open.
+- `blockers`: `HD-2026-05-21-001` remains open for real non-Bryan credential delivery. Real non-`.test` imports remain blocked by default. Browser-level upload progress/retry, hosted presentation/archive UI proof, Google Docs export cases, custom-domain live activation, alpha/account exposure, stakeholder option retention, and archive retention policy remain open.
 - `commit/push status`: pending.
 - `next action`: Run full validation and commit/push the safe source/docs changes.
 

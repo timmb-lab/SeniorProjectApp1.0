@@ -16,6 +16,7 @@ const EXPECTED = {
 
 const args = new Set(process.argv.slice(2));
 const liveRequired = args.has("--live-required");
+const liveRequested = liveRequired || args.has("--live");
 const staticOnly = args.has("--static-only");
 const repoRoot = process.cwd();
 const failures = [];
@@ -450,6 +451,11 @@ if (wrangler?.version) {
 const hasToken = Boolean(process.env.CLOUDFLARE_API_TOKEN);
 if (staticOnly) {
   console.log("Cloudflare live verification skipped: --static-only was requested.");
+  process.exit(0);
+}
+
+if (!liveRequested) {
+  console.log("Cloudflare live verification skipped: static check only. Run check:cloudflare:live for read-only Pages/D1 verification.");
   process.exit(0);
 }
 

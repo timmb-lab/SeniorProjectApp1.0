@@ -1,29 +1,31 @@
 # Custom-Domain Cutover Checklist
 
-Date: 2026-05-20
+Date: 2026-05-21 PT
 
-This checklist prepares the Senior Capstone app and public companion for a future Bryan-owned custom domain. Hostnames are placeholders until Bryan chooses the final mapping.
+Domain selected: `thecapstoneapp.com`
+Purchased through Cloudflare: confirmed by Bryan
+Added to Cloudflare: confirmed by Bryan
+Root mode: `guide-root-app-subdomain`
 
-## Current Cloudflare Pages Project Mapping
+Live cutover is not complete until Cloudflare Pages custom-domain association, DNS/Cloudflare activation, HTTPS/TLS, app health, public guide health, and alpha/account exposure checks pass. Git push success, Pages project existence, DNS record existence, and Pages auto-deploy success are not enough.
 
-| Project | Current Pages URL | Current role | Deploy command |
-| --- | --- | --- | --- |
-| `senior-capstone-app` | `https://senior-capstone-app.pages.dev` | Canonical app/backend project | `npm run deploy` |
-| `senior-capstone-public` | `https://senior-capstone-public.pages.dev` | Generated public companion guide | `npm run deploy:public-site` |
-| `senior-capstone-option-titan` | `https://senior-capstone-option-titan.pages.dev` | Stakeholder review only | `npm run deploy:option:titan` |
-| `senior-capstone-option-primary` | `https://senior-capstone-option-primary.pages.dev` | Stakeholder review only | `npm run deploy:option:primary` |
+## Canonical Mapping
 
-## Desired Final Hostnames
+| Hostname | Purpose | Pages project | Deploy source | Deploy command | Required live proof |
+| --- | --- | --- | --- | --- | --- |
+| `thecapstoneapp.com` | public landing / student guide | `senior-capstone-public` | `public-companion/` | `npm run deploy:public-site` | HTTPS loads public guide |
+| `www.thecapstoneapp.com` | public guide alias / same guide / optional Cloudflare redirect rule | `senior-capstone-public` | `public-companion/` | `npm run deploy:public-site` | HTTPS loads or redirects safely |
+| `app.thecapstoneapp.com` | secure app/backend | `senior-capstone-app` | `.` | `npm run deploy` | `/api/health`, `/api/auth/me`, workspace |
 
-Placeholders until Bryan decides:
+Fallback Pages URLs remain:
 
-- App/backend: `app.<custom-domain>` or `<custom-domain>` if the app is the root.
-- Public companion: `<custom-domain>` or `guide.<custom-domain>` if the guide is the root.
-- Stakeholder options: no production custom domain unless Bryan explicitly retains review hostnames.
+- `https://senior-capstone-public.pages.dev`
+- `https://senior-capstone-app.pages.dev`
 
-Open decision:
+Review-only Pages projects stay excluded from production hostnames:
 
-- Choose whether the root domain should serve the secure app/backend, the public companion guide, or a split root/subdomain model.
+- `senior-capstone-option-titan`
+- `senior-capstone-option-primary`
 
 ## Pre-Cutover Repo Gate
 
@@ -33,6 +35,8 @@ Run:
 powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 check:production-surfaces
 powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 check:route-inventory
 powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 check:generated-output-drift
+powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 check:custom-domain-cutover
+powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 check:alpha-account-gating
 powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 check
 ```
 
@@ -40,75 +44,79 @@ Required:
 
 - Production navigation stays free of alpha/account routes.
 - Public companion does not proxy alpha/account/API routes.
-- Stakeholder option sites remain labeled review-only or are retired/promoted by decision.
+- Stakeholder option sites remain review-only and are not mapped to `thecapstoneapp.com`, `www.thecapstoneapp.com`, or `app.thecapstoneapp.com`.
 - No real student records or fake passwords are present in committed/static assets.
 
-## Cloudflare Live Verification
+## Cloudflare Pages Custom Domains
 
-When `CLOUDFLARE_API_TOKEN` is available:
+Use the Cloudflare Pages custom-domain flow or the Pages Domains API. A CNAME-only change is not a valid cutover. A hostname must be associated with the target Pages project through Cloudflare Pages custom domains before DNS/TLS success can count as verified.
+
+Dashboard fallback steps:
+
+1. Cloudflare Dashboard
+2. Workers & Pages
+3. `senior-capstone-public`
+4. Custom domains
+5. Set up a domain
+6. Add `thecapstoneapp.com`
+7. Add `www.thecapstoneapp.com`
+8. Workers & Pages
+9. `senior-capstone-app`
+10. Custom domains
+11. Set up a domain
+12. Add `app.thecapstoneapp.com`
+13. Wait until custom domains show active
+14. Run repo live checks
+
+Pages Domains API references:
+
+- `GET /accounts/{account_id}/pages/projects/{project_name}/domains`
+- `POST /accounts/{account_id}/pages/projects/{project_name}/domains`
+
+Use API tokens over global keys. Required read verification needs Pages Read or Pages Write. Attaching domains needs Pages Write. Do not print or commit token values.
+
+## Redirect And Routing Caveats
+
+- `_redirects` belongs in the static asset output directory.
+- `_redirects` applies to static asset responses and does not protect requests served by Pages Functions.
+- `_redirects` does not support domain-level redirects. Do not force apex/www behavior with hostname-dependent `_redirects` rules.
+- Use Cloudflare Redirect Rules for domain-level canonicalization if Bryan wants root-to-www or www-to-root later.
+- `_routes.json` controls Pages Functions invocation when Functions are present; `exclude` has priority over `include`.
+- Do not use `_redirects` to protect `/api/*`, `alpha.html`, `account.html`, or internal QA API routes.
+
+## Live Verification
+
+When `CLOUDFLARE_API_TOKEN` has the needed scope:
 
 ```powershell
 powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 check:cloudflare:live
+powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 check:custom-domain-cutover --live-required --live-http
 ```
 
-If the token is missing, record `LIVE_CLOUDFLARE_BLOCKED_NO_TOKEN` and do not claim live Pages/D1 verification passed.
+Required live proof:
 
-## DNS And CNAME Human Actions
+- Token verifies without printing the token.
+- Pages domains list for `senior-capstone-public` contains active `thecapstoneapp.com` and `www.thecapstoneapp.com`.
+- Pages domains list for `senior-capstone-app` contains active `app.thecapstoneapp.com`.
+- Stakeholder option projects do not contain production hostnames.
+- `https://thecapstoneapp.com` loads the public guide or redirects safely to the same public guide.
+- `https://www.thecapstoneapp.com` loads the public guide or redirects safely to the same public guide.
+- `https://app.thecapstoneapp.com/workspace.html` reaches the app workspace route.
+- `https://app.thecapstoneapp.com/api/health` returns 200 without secrets.
+- `https://app.thecapstoneapp.com/api/auth/me` signed out returns the expected unauthenticated response without user records.
+- Normal app home does not land on `alpha.html` or `account.html`.
 
-Bryan or the Cloudflare account owner must:
+If the token is missing, record `CLOUDFLARE_DOMAIN_CHECK_BLOCKED_NO_TOKEN`. If scope is insufficient, record `CLOUDFLARE_DOMAIN_CHECK_BLOCKED_INSUFFICIENT_SCOPE`. Do not claim live cutover passed.
 
-- Buy or confirm ownership of the custom domain.
-- Add the domain to Cloudflare DNS if it is not already managed there.
-- Attach the chosen hostname to the correct Cloudflare Pages project.
-- Create the required CNAME record for each hostname.
-- Confirm no stakeholder review hostname is mapped as canonical production by accident.
-- Wait for DNS propagation and Cloudflare Pages domain activation.
+## Alpha/Account Exposure
 
-Do not commit tokens, DNS provider credentials, registrar credentials, or Cloudflare secrets.
+Current enforceable state is Option A safety: `alpha.html` and `account.html` are deployed from `senior-capstone-app`, unlinked from normal production navigation, internal-labeled, and fake `.test` only. That is not pilot-safe final production unless Bryan explicitly accepts direct URL exposure or chooses Option B/C in `docs/alpha-account-deployment-decision.md`.
 
-## SSL/TLS Check
+Run:
 
-After Cloudflare activates the hostname:
-
-- Open the hostname over `https://`.
-- Confirm certificate is valid and issued for the hostname.
-- Confirm there are no mixed-content warnings.
-- Confirm root-to-subdomain redirects, if any, use HTTPS.
-- Confirm HSTS or stricter policies are not enabled until rollback behavior is understood.
-
-## App And Backend Health Check
-
-For the app/backend hostname:
-
-- Open the production home page.
-- Verify `GET /api/health` returns 200.
-- Verify the health response does not expose secret values.
-- Verify D1/evidence readiness fields are expected for the current phase.
-- Verify `GET /api/auth/me` without a session does not expose user records.
-- Verify alpha/account pages are handled according to Bryan's selected policy.
-
-Do not enter real student records until auth, evidence, and permission checks pass.
-
-## Public Companion Health Check
-
-For the public companion hostname:
-
-- Open the public guide home page.
-- Open several phase/support pages.
-- Confirm navigation does not link to `alpha.html` or `account.html`.
-- Confirm `_redirects` does not proxy `/api/`.
-- Confirm app workflow copy is a preview/boundary explanation, not a finished secure-app claim.
-
-## Post-Cutover Smoke Checks
-
-- Production-surface checker still passes locally.
-- Route inventory still matches the chosen mapping.
-- Cloudflare static check passes.
-- Live Cloudflare check passes when token exists.
-- App health endpoint passes on the custom hostname.
-- Public companion pages load on the custom hostname.
-- Stakeholder review targets remain review-only or are retired.
-- No real student records are entered until the pilot safety gates pass.
+```powershell
+powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 check:alpha-account-gating
+```
 
 ## Rollback Steps
 
@@ -116,9 +124,9 @@ If cutover fails:
 
 - Stop pilot traffic and real-record entry.
 - Remove or pause the custom hostname mapping from the failing Pages project.
-- Restore DNS/CNAME records to the previous known-good target.
-- Use the `pages.dev` hostname for emergency access if needed.
+- Repoint traffic to the prior known-good Pages hostname or Cloudflare rule.
+- Keep `https://senior-capstone-public.pages.dev` and `https://senior-capstone-app.pages.dev` as emergency fallbacks unless Bryan separately disables them.
 - Record hostname, response code, TLS state, failing command, and timestamp in `docs/progress/run-log.md`.
-- Re-run the local gate before retrying.
+- Re-run local and live gates before retrying.
 
-Rollback must not rely on force-push, repo reset, or deleting unreviewed generated output.
+Rollback must not rely on force-push, repo reset, broad user-account imports, fake-password commits, or deleting unreviewed generated output.

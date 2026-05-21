@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "domain": "thecapstoneapp.com",
+  "rootMode": "guide-root-app-subdomain",
+  "hostnames": {
+    "publicApex": "thecapstoneapp.com",
+    "publicWww": "www.thecapstoneapp.com",
+    "app": "app.thecapstoneapp.com"
+  },
+  "pagesProjects": {
+    "publicGuide": "senior-capstone-public",
+    "appBackend": "senior-capstone-app",
+    "stakeholderTitan": "senior-capstone-option-titan",
+    "stakeholderPrimary": "senior-capstone-option-primary"
+  },
+  "pagesDevFallbacks": {
+    "publicGuide": "https://senior-capstone-public.pages.dev",
+    "appBackend": "https://senior-capstone-app.pages.dev",
+    "stakeholderTitan": "https://senior-capstone-option-titan.pages.dev",
+    "stakeholderPrimary": "https://senior-capstone-option-primary.pages.dev"
+  },
+  "policy": {
+    "stakeholderOptionsMayUseProductionDomain": false,
+    "realUserOnboardingPolicyChangeAllowed": false,
+    "disablePagesDevFallbackAfterCutover": false,
+    "publicWwwBehavior": "serve-same-public-guide-or-cloudflare-redirect-rule",
+    "doNotUseRedirectsFileForDomainLevelRedirects": true
+  }
+}

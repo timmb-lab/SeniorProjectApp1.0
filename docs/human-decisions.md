@@ -12,7 +12,7 @@ Status values:
 
 ## Open Decisions
 
-No open external automation scheduler decisions are blocking the current scaffold. The Google Drive Shared Drive evidence root is selected, configured, and passes the live fake-upload gate; first-admin bootstrap is complete for `bryan.timm89@gmail.com`; the production setup key has been removed; Cloudflare live verification token decision is resolved; and hosted fake `.test` role permission proof now covers student, program teacher, mentor, misc-admin denial, and admin allowed paths. Remaining setup work is configuration/implementation: decide temporary credential delivery before real pilot accounts, live-prove Google Docs export with a fake native Docs fixture if approved, keep hosted upload/dashboard proof passing after deployment, and broaden remaining permission tests.
+No open external automation scheduler decisions are blocking the current scaffold. The Google Drive Shared Drive evidence root is selected, configured, and passes the live fake-upload gate; first-admin bootstrap is complete for `bryan.timm89@gmail.com`; the production setup key has been removed; Cloudflare live verification token decision is resolved; hosted fake `.test` role permission proof now covers student, program teacher, mentor, misc-admin denial, and admin allowed paths; and the production domain/root-mode decision is resolved as `thecapstoneapp.com` with root mode `guide-root-app-subdomain`. Live custom-domain cutover remains separate and must not be claimed until Pages custom domains, DNS/TLS, app health, public guide health, and alpha/account exposure checks pass. Remaining setup work is configuration/implementation: decide temporary credential delivery before real pilot accounts, live-prove Google Docs export with a fake native Docs fixture if approved, keep hosted upload/dashboard proof passing after deployment, and broaden remaining permission tests.
 
 ### HD-2026-05-21-001
 
@@ -25,17 +25,6 @@ No open external automation scheduler decisions are blocking the current scaffol
 - `2026-05-21 update`: Bryan approved a narrow real owner/admin account setup for `bryan.timm89@gmail.com` / Bryan Timm only. Remote D1 verification on 2026-05-21 found the account already active with global `admin` role and no reset requirement, so no duplicate account and no new Bryan setup credential were created. This is an owner/admin bootstrap/repair exception and does not approve real student, staff, mentor, or parent imports. General real-user credential delivery remains open. `/api/admin/users/import` should continue blocking real non-`.test` admin-visible temporary credential imports unless Bryan separately accepts a credential delivery policy and intentionally configures `ALLOW_REAL_TEMP_CREDENTIAL_IMPORT=true`.
 - `decision workflow`: Figma node `158:2` (`Prototype / 22 / Admin import temporary credential handoff`), Figma node `163:2` (`Prototype / 23 / Admin import proof QA handoff`), and handoff `H-2026-05-21-002`.
 - `created`: 2026-05-21
-
-### HD-2026-05-20-002
-
-- `status`: open
-- `area`: canonical URL and production surface cutover
-- `owner`: Bryan
-- `severity`: P1
-- `decision needed`: Choose the final public URL/domain mapping before pilot: whether the future custom domain points to `senior-capstone-app`, `senior-capstone-public`, or a split such as public guide on the root domain and app/backend on an app subdomain.
-- `current recommendation`: Keep `senior-capstone-app` as the canonical secure app/backend and `senior-capstone-public` as a production-safe generated public guide until the custom domain plan is chosen.
-- `decision workflow`: `docs/custom-domain-cutover-checklist.md`
-- `created`: 2026-05-20
 
 ### HD-2026-05-20-003
 
@@ -83,6 +72,20 @@ No open external automation scheduler decisions are blocking the current scaffol
 - `created`: 2026-05-21
 
 ## Accepted Decisions
+
+### HD-2026-05-20-002
+
+- `status`: accepted
+- `area`: canonical URL and production surface cutover
+- `owner`: Bryan
+- `severity`: P1
+- `decision`: Use `thecapstoneapp.com` as the production domain with root mode `guide-root-app-subdomain`.
+- `accepted mapping`: Public guide on `thecapstoneapp.com` and `www.thecapstoneapp.com` through `senior-capstone-public`; secure app/backend on `app.thecapstoneapp.com` through `senior-capstone-app`.
+- `live cutover state`: not yet verified in docs by this decision alone. Pages custom-domain association, DNS/TLS, public guide health, app health, and alpha/account exposure checks remain separate proof gates.
+- `stakeholder exclusion`: `senior-capstone-option-titan` and `senior-capstone-option-primary` remain review-only and must not be mapped to the production hostnames.
+- `decision workflow`: `docs/custom-domain-cutover-checklist.md`
+- `created`: 2026-05-20
+- `accepted`: 2026-05-21
 
 ### HD-2026-05-20-006
 

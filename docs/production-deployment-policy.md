@@ -1,6 +1,6 @@
 # Production Deployment Policy
 
-Date: 2026-05-20
+Date: 2026-05-21
 
 This policy defines which Senior Capstone surfaces are real production, which are internal QA, which are stakeholder review artifacts, and how generated output must be handled.
 
@@ -23,6 +23,20 @@ Canonical public companion site:
 - Purpose: public student/family/staff guide only.
 
 The app/backend project is the canonical operational product. The public companion is production-safe public guidance, but it is generated output and not the secure workflow app.
+
+## Custom Domain Policy
+
+The production domain is resolved as `thecapstoneapp.com`, purchased through Cloudflare and added to Cloudflare by Bryan. Root mode is `guide-root-app-subdomain`:
+
+- `thecapstoneapp.com` serves the public guide from `senior-capstone-public`.
+- `www.thecapstoneapp.com` serves the same public guide or a Cloudflare Redirect Rule to the same public guide.
+- `app.thecapstoneapp.com` serves the secure app/backend from `senior-capstone-app`.
+
+Cloudflare Pages custom-domain association is required before any hostname is considered cut over. DNS or CNAME evidence alone is not enough. Verify with the Pages Domains API or the Cloudflare dashboard Custom domains page before claiming live production-domain success.
+
+`senior-capstone-option-titan` and `senior-capstone-option-primary` must not be mapped to `thecapstoneapp.com`, `www.thecapstoneapp.com`, or `app.thecapstoneapp.com`. They remain review-only until Bryan makes a separate stakeholder lifecycle decision.
+
+Do not use `_redirects` as a domain-level redirect mechanism and do not use `_redirects` as a security boundary for `/api/*`, `alpha.html`, `account.html`, or internal QA API routes. `_redirects` applies to static asset responses, while Pages Functions routing is controlled by file routes plus `_routes.json`; `_routes.json` `exclude` rules have priority over `include` rules.
 
 ## Production Deploy Scripts
 
@@ -68,6 +82,8 @@ Internal QA surfaces are for Bryan and testers:
 - fake `.test` role accounts and seeded alpha fixtures
 
 Internal QA pages may include alpha, smoke, fake-account, seeded-record, and no-real-record warnings. They must not expose passwords, invite real student records, or be presented as proof of pilot readiness.
+
+Current enforceable alpha/account deployment policy is Option A safety from `docs/alpha-account-deployment-decision.md`: deployed from the app project, unlinked from normal production navigation, internal-labeled, and fake `.test` only. Option B or C remains open before broader pilot unless Bryan explicitly accepts direct URL exposure.
 
 ## Forbidden Production Copy
 
@@ -137,6 +153,8 @@ powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\ru
 powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 check:route-inventory
 powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 check:generated-output-drift
 powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 check:site-options
+powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 check:custom-domain-cutover
+powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 check:alpha-account-gating
 powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 check
 ```
 

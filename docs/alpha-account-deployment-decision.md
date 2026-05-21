@@ -1,8 +1,8 @@
 # Alpha And Account Deployment Decision
 
-Date: 2026-05-20
+Date: 2026-05-21
 
-Bryan needs to choose how `alpha.html` and `account.html` should be handled before pilot users or real student records enter the app. These pages are useful internal QA surfaces, but they are not canonical production navigation.
+Bryan still needs to choose how `alpha.html` and `account.html` should be handled before pilot users or real student records enter the app. These pages are useful internal QA surfaces, but they are not canonical production navigation. The app/backend custom hostname is `app.thecapstoneapp.com`.
 
 Current state:
 
@@ -10,6 +10,8 @@ Current state:
 - `account.html`, `account.js`, and `account.css` are classified as `internal-smoke`.
 - They are deployed from the root `senior-capstone-app` project today, but removed from normal public navigation and labeled internal QA.
 - Production-surface validation allows alpha/smoke language only on these internal QA surfaces.
+- Current enforceable state is Option A safety: deployed but unlinked and internal-labeled.
+- Option B or C remains open before broader pilot unless Bryan explicitly accepts direct URL exposure.
 
 ## Option A: Keep Deployed But Unlinked And Clearly Internal QA
 
@@ -40,6 +42,7 @@ Validation command:
 
 ```powershell
 powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 check:production-surfaces
+powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 check:alpha-account-gating
 ```
 
 Bryan decision needed:
@@ -121,3 +124,5 @@ Bryan decision needed:
 ## Current Recommendation
 
 No final choice is recorded yet. The current docs recommend Option A through the Day 7 alpha, then Option B or C before pilot use with real records. Bryan must explicitly accept the final policy.
+
+Run `npm run check:alpha-account-gating` after any navigation, public companion, stakeholder option, alpha/account, or internal QA API change.

@@ -1,10 +1,22 @@
 # Production Surface Registry
 
-Date: 2026-05-20
+Date: 2026-05-21
 
 Classification values: `production`, `internal-alpha`, `internal-smoke`, `stakeholder-review`, `generated-output`, `preview`, `legacy`, `unknown`.
 
 Production-safe means the surface is safe to present in its intended context. A review artifact can be production-safe for review while still not being canonical production.
+
+## Production Domain Mapping
+
+Live state: not yet verified in this repo pass unless `npm run check:custom-domain-cutover -- --live-required --live-http` or the equivalent wrapper command proves active Pages custom-domain association, DNS/TLS, and app/public health.
+
+| Hostname | Pages project | Classification | Purpose | Fallback | Live state | Validation |
+| --- | --- | --- | --- | --- | --- | --- |
+| `thecapstoneapp.com` | `senior-capstone-public` | `production` / `generated-output` | Public landing, student guide, and family/staff guide | `https://senior-capstone-public.pages.dev` | not yet verified | `npm run check:custom-domain-cutover` |
+| `www.thecapstoneapp.com` | `senior-capstone-public` | `production` / `generated-output` | Public guide alias, same guide, or optional Cloudflare Redirect Rule | `https://senior-capstone-public.pages.dev` | not yet verified | `npm run check:custom-domain-cutover` |
+| `app.thecapstoneapp.com` | `senior-capstone-app` | `production` | Secure app/backend, workspace, and app APIs | `https://senior-capstone-app.pages.dev` | not yet verified | `npm run check:custom-domain-cutover`; `npm run check:alpha-account-gating` |
+
+Root mode is `guide-root-app-subdomain`. Stakeholder review projects `senior-capstone-option-titan` and `senior-capstone-option-primary` must not be assigned any production hostname above. The aggregate cutover gate is `npm run check:production-cutover`.
 
 ## P0 Production Experience Targets
 
@@ -17,8 +29,8 @@ Production-safe means the surface is safe to present in its intended context. A 
 
 | Surface | Path | Deploy project | Classification | Audience | Production-safe | Reason | Action needed | Owner lane | Validation |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Root app/backend host | `.` | `senior-capstone-app` | `production` | Students, staff, mentors, admins, stakeholders | Partial | Canonical app/backend project with Cloudflare Pages Functions, D1 binding, public guide routes, and authenticated workspace route. | Keep `alpha.html` and `account.html` out of normal public navigation; deepen role-aware workspace behavior and live verification; keep production checker passing. | deployment-qa | `npm run check:production-surfaces`; `npm run check:cloudflare` |
-| Public companion output | `public-companion/` | `senior-capstone-public` | `generated-output` | Students, families, staff, mentors | Partial | Generated public guide output mirrors the source Student/Teacher guide mode and remains a static public guide with no internal alpha/account/API proxying. | Rebuild only from root source; broaden route-level guide coverage; keep drift and production-surface checks passing. | requirements-audit | `npm run build:public-site`; `npm run check:generated-output-drift`; `npm run check:site-options`; `npm run check:production-surfaces` |
+| Root app/backend host | `.`; custom hostname `app.thecapstoneapp.com` | `senior-capstone-app` | `production` | Students, staff, mentors, admins, stakeholders | Partial | Canonical app/backend project with Cloudflare Pages Functions, D1 binding, public guide routes, and authenticated workspace route. | Keep `alpha.html` and `account.html` out of normal public navigation; deepen role-aware workspace behavior and live verification; keep production checker passing. | deployment-qa | `npm run check:production-surfaces`; `npm run check:cloudflare`; `npm run check:custom-domain-cutover`; `npm run check:alpha-account-gating` |
+| Public companion output | `public-companion/`; custom hostnames `thecapstoneapp.com`, `www.thecapstoneapp.com` | `senior-capstone-public` | `generated-output` | Students, families, staff, mentors | Partial | Generated public guide output mirrors the source Student/Teacher guide mode and remains a static public guide with no internal alpha/account/API proxying. | Rebuild only from root source; broaden route-level guide coverage; keep drift and production-surface checks passing. | requirements-audit | `npm run build:public-site`; `npm run check:generated-output-drift`; `npm run check:site-options`; `npm run check:production-surfaces`; `npm run check:custom-domain-cutover` |
 | Titan Blend option | `stakeholder-options/titan-blend/` | `senior-capstone-option-titan` | `stakeholder-review` | Bryan, leadership, stakeholders reviewing visual direction | Yes for review, no as canonical production | Generated visual direction artifact. Review CTAs point to the protected workspace, not internal alpha QA. | Keep review banner; do not promote without Bryan decision. | design-assets-handoff | `npm run build:stakeholder-sites`; `npm run check:generated-output-drift`; `npm run check:site-options` |
 | Back To Basics option | `stakeholder-options/back-to-basics/` | `senior-capstone-option-primary` | `stakeholder-review` | Bryan, leadership, stakeholders reviewing visual direction | Yes for review, no as canonical production | Generated visual direction artifact. Review CTAs point to the protected workspace, not internal alpha QA. | Keep review banner; do not promote without Bryan decision. | design-assets-handoff | `npm run build:stakeholder-sites`; `npm run check:generated-output-drift`; `npm run check:site-options` |
 | Root alpha page | `alpha.html` | `senior-capstone-app` | `internal-alpha` | Bryan and QA testers | No for public production navigation | Internal seeded alpha walkthrough. | Keep internal QA labels; no real student records; no passwords. | student-workflow-evidence | `npm run check:alpha-contract`; `npm run test` |

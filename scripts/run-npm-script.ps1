@@ -151,6 +151,8 @@ function Invoke-KnownProjectScript {
             Invoke-Node "scripts\check-generated-output-drift.mjs"
             Invoke-Node "scripts\check-site-options.mjs"
             Invoke-Node "scripts\check-cloudflare.mjs"
+            Invoke-Node "scripts\check-custom-domain-cutover.mjs"
+            Invoke-Node "scripts\check-alpha-account-gating.mjs"
 
             $testFiles = @(Get-ChildItem -LiteralPath (Join-Path $RepoRoot "tests") -Filter "*.test.mjs" -File | ForEach-Object { $_.FullName })
             if ($testFiles.Count -eq 0) {
@@ -229,6 +231,21 @@ function Invoke-KnownProjectScript {
         "check:cloudflare:live" {
             $script:KnownProjectScriptHandled = $true
             Invoke-Node "scripts\check-cloudflare.mjs" "--live-required" @ScriptArgs
+            return
+        }
+        "check:custom-domain-cutover" {
+            $script:KnownProjectScriptHandled = $true
+            Invoke-Node "scripts\check-custom-domain-cutover.mjs" @ScriptArgs
+            return
+        }
+        "check:alpha-account-gating" {
+            $script:KnownProjectScriptHandled = $true
+            Invoke-Node "scripts\check-alpha-account-gating.mjs" @ScriptArgs
+            return
+        }
+        "check:production-cutover" {
+            $script:KnownProjectScriptHandled = $true
+            Invoke-Node "scripts\check-production-cutover.mjs" @ScriptArgs
             return
         }
         "check:drive:live" {

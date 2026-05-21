@@ -1,0 +1,142 @@
+{
+  "runId": "2026-05-21-thecapstoneapp-domain-cutover",
+  "timestampPt": "2026-05-21T10:22:12-07:00",
+  "startSha": "557602cbf77482199a15349d0662d769751273f5",
+  "endSha": null,
+  "scope": "Resolved thecapstoneapp.com domain mapping, added repo safety gates, and documented Cloudflare Pages custom-domain cutover readiness without changing real-user onboarding.",
+  "domainMapping": {
+    "domain": "thecapstoneapp.com",
+    "rootMode": "guide-root-app-subdomain",
+    "public": {
+      "hostnames": [
+        "thecapstoneapp.com",
+        "www.thecapstoneapp.com"
+      ],
+      "pagesProject": "senior-capstone-public",
+      "deploySource": "public-companion/",
+      "deployCommand": "npm run deploy:public-site",
+      "fallback": "https://senior-capstone-public.pages.dev"
+    },
+    "app": {
+      "hostname": "app.thecapstoneapp.com",
+      "pagesProject": "senior-capstone-app",
+      "deploySource": ".",
+      "deployCommand": "npm run deploy",
+      "fallback": "https://senior-capstone-app.pages.dev"
+    },
+    "stakeholderOptions": {
+      "senior-capstone-option-titan": "review-only",
+      "senior-capstone-option-primary": "review-only"
+    }
+  },
+  "commandResults": [
+    {
+      "command": "npm run check:production-surfaces",
+      "phase": "baseline",
+      "result": "pass"
+    },
+    {
+      "command": "npm run check:route-inventory",
+      "phase": "baseline",
+      "result": "pass"
+    },
+    {
+      "command": "npm run check:generated-output-drift",
+      "phase": "baseline",
+      "result": "pass"
+    },
+    {
+      "command": "npm run check:cloudflare",
+      "phase": "baseline",
+      "result": "fail",
+      "notes": "Static Cloudflare checks passed; live Pages/D1 lookup failed because the present token verified but lacked Pages permission for project listing."
+    },
+    {
+      "command": "npm run test",
+      "phase": "baseline",
+      "result": "pass"
+    },
+    {
+      "command": "npm run check",
+      "phase": "baseline",
+      "result": "fail",
+      "notes": "Failed at the same pre-existing live Cloudflare Pages permission boundary."
+    }
+  ],
+  "cloudflareStatus": {
+    "tokenPresent": true,
+    "tokenValid": true,
+    "zoneObserved": "not_visible_with_current_token_scope",
+    "pagesDomainsListed": true,
+    "domainsAttached": "missing_expected_pages_custom_domain_associations",
+    "missingAssociations": [
+      "thecapstoneapp.com -> senior-capstone-public",
+      "www.thecapstoneapp.com -> senior-capstone-public",
+      "app.thecapstoneapp.com -> senior-capstone-app"
+    ],
+    "dnsTlsStatus": "custom_hostnames_fetch_failed",
+    "appHealthStatus": "pages_dev_passed_custom_hostname_not_verified",
+    "pagesDevFallbackStatus": "public and app pages.dev fallbacks reachable; app health and signed-out auth passed"
+  },
+  "postValidationSummary": {
+    "staticChecks": "passed",
+    "focusedTests": "passed",
+    "fullTest": "passed",
+    "aggregateCheck": "passed",
+    "cloudflareLive": "passed for Pages app project and D1",
+    "customDomainLive": "blocked: Pages custom-domain associations missing and HTTPS fetch failed for custom hostnames",
+    "hostedEvidence": "passed with fake .test credentials only",
+    "hostedPermissions": "passed with fake .test credentials only",
+    "productionCutover": "blocked by custom-domain live verification"
+  },
+  "finalCommandResults": [
+    { "command": "node --check scripts/check-custom-domain-cutover.mjs", "result": "pass" },
+    { "command": "node --check scripts/check-alpha-account-gating.mjs", "result": "pass" },
+    { "command": "node --check scripts/check-production-cutover.mjs", "result": "pass" },
+    { "command": "node --test tests/custom-domain-cutover.test.mjs", "result": "pass" },
+    { "command": "node --test tests/alpha-account-gating.test.mjs", "result": "pass" },
+    { "command": "npm run check:predeploy-gate", "result": "pass" },
+    { "command": "npm run check:production-surfaces", "result": "pass" },
+    { "command": "npm run check:route-inventory", "result": "pass" },
+    { "command": "npm run check:generated-output-drift", "result": "pass" },
+    { "command": "npm run check:site-options", "result": "pass" },
+    { "command": "npm run check:custom-domain-cutover", "result": "pass_static_live_not_verified" },
+    { "command": "npm run check:alpha-account-gating", "result": "pass_static_option_a_warning" },
+    { "command": "npm run check:cloudflare", "result": "pass_static" },
+    { "command": "npm run check:cloudflare:live", "result": "pass" },
+    { "command": "scripts/run-npm-script.ps1 check:custom-domain-cutover --live-required --live-http", "result": "block", "notes": "Pages associations missing and HTTPS custom-host fetches failed." },
+    { "command": "scripts/run-npm-script.ps1 check:alpha-account-gating --live", "result": "pass_static_live_fetch_failed_nonrequired" },
+    { "command": "npm run check:workspace:hosted-dashboard", "result": "pass" },
+    { "command": "npm run check:workspace:hosted-permissions", "result": "pass" },
+    { "command": "npm run check:workspace:hosted-evidence", "result": "pass" },
+    { "command": "npm run check:drive:live", "result": "pass" },
+    { "command": "npm run typecheck", "result": "pass" },
+    { "command": "npm test", "result": "pass" },
+    { "command": "npm run check", "result": "pass" },
+    { "command": "npm run check:production-cutover", "result": "block", "notes": "Aggregate correctly blocked on custom-domain live verification." },
+    { "command": "git diff --check", "result": "pass_with_crlf_warnings" },
+    { "command": "git diff --cached --check", "result": "pass" }
+  ],
+  "alphaAccountPolicyStatus": {
+    "currentState": "Option A safety",
+    "pilotSafe": false,
+    "notes": "alpha.html and account.html remain deployed but unlinked, internal-labeled, fake .test only, and not pilot-safe final production unless Bryan accepts direct URL exposure or chooses Option B/C."
+  },
+  "securityPrivacyConfirmation": {
+    "realUserOnboardingUnchanged": true,
+    "realUsersCreated": false,
+    "realStudentDataUsed": false,
+    "fakePasswordsCommitted": false,
+    "secretsCommitted": false,
+    "secretsPrinted": false,
+    "rawDriveIdsAddedToUserFacingOutput": false
+  },
+  "openDecisions": [
+    "HD-2026-05-21-001 real-user credential delivery",
+    "HD-2026-05-21-002 Google Docs live export fixture/provider policy",
+    "HD-2026-05-20-007 archive retention policy",
+    "HD-2026-05-20-003 alpha/account pilot policy Option B/C or direct exposure acceptance",
+    "HD-2026-05-20-004 stakeholder option lifecycle",
+    "Cloudflare Pages custom-domain activation and DNS/TLS verification"
+  ]
+}

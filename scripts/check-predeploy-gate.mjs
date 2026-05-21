@@ -17,12 +17,15 @@ const requiredGateScripts = [
   "check:generated-output-drift",
   "check:site-options",
   "check:cloudflare",
+  "check:custom-domain-cutover",
+  "check:alpha-account-gating",
   "test",
   "check",
 ];
 
 const liveOnlyScripts = [
   "check:cloudflare:live",
+  "check:production-cutover",
 ];
 
 function fail(message) {
@@ -63,6 +66,17 @@ assert(
   "scripts/run-npm-script.ps1 must expose check:predeploy-gate",
 );
 
+for (const [scriptName, scriptPathPattern] of [
+  ["check:custom-domain-cutover", "scripts\\\\check-custom-domain-cutover\\.mjs"],
+  ["check:alpha-account-gating", "scripts\\\\check-alpha-account-gating\\.mjs"],
+  ["check:production-cutover", "scripts\\\\check-production-cutover\\.mjs"],
+]) {
+  assert(
+    new RegExp(`"${scriptName}"\\s*\\{[\\s\\S]*?Invoke-Node\\s+"${scriptPathPattern}"`).test(runNpmScript),
+    `scripts/run-npm-script.ps1 must expose ${scriptName}`,
+  );
+}
+
 for (const scriptName of requiredGateScripts) {
   assert(
     hasWrapperCommand(predeployChecklist, scriptName),
@@ -70,7 +84,16 @@ for (const scriptName of requiredGateScripts) {
   );
 }
 
-for (const scriptName of ["check:predeploy-gate", "check:production-surfaces", "check:route-inventory", "check:generated-output-drift", "check"]) {
+for (const scriptName of [
+  "check:predeploy-gate",
+  "check:production-surfaces",
+  "check:route-inventory",
+  "check:generated-output-drift",
+  "check:custom-domain-cutover",
+  "check:alpha-account-gating",
+  "check:production-cutover",
+  "check",
+]) {
   assert(
     hasNpmCommand(readme, scriptName),
     `README.md predeploy gate is missing npm command for '${scriptName}'`,
@@ -142,6 +165,10 @@ assert(
 assert(
   /if \(liveRequired\) \{[\s\S]*?process\.exit\(1\)/.test(checkCloudflare),
   "check-cloudflare.mjs must fail check:cloudflare:live when live verification is required and token is missing",
+);
+assert(
+  /static check only\. Run check:cloudflare:live/.test(checkCloudflare),
+  "check-cloudflare.mjs must keep check:cloudflare static-only and point to check:cloudflare:live for live proof",
 );
 
 if (failures.length > 0) {

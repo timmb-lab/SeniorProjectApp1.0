@@ -14,18 +14,19 @@ This records the first MVP backend foundation now configured for the Senior Caps
 
 ## Production Surface Boundary
 
-`senior-capstone-app` is the canonical app/backend project. It may contain internal QA files in the repo, but normal production navigation must not route students, families, staff, or mentors into `alpha.html`, `account.html`, fake `.test` account flows, reset/report panels, or stakeholder option pages.
+`senior-capstone-app` is the canonical app/backend project. Its custom hostname is `app.thecapstoneapp.com`. It may contain internal QA files in the repo, but normal production navigation must not route students, families, staff, or mentors into `alpha.html`, `account.html`, fake `.test` account flows, reset/report panels, or stakeholder option pages.
 
-`senior-capstone-public` is a separate generated public companion guide project. It is production-safe public guidance, not the secure workflow app, and it must not proxy internal alpha/account/API routes.
+`senior-capstone-public` is a separate generated public companion guide project for `thecapstoneapp.com` and `www.thecapstoneapp.com`. It is production-safe public guidance, not the secure workflow app, and it must not proxy internal alpha/account/API routes.
 
 `senior-capstone-option-titan` and `senior-capstone-option-primary` are stakeholder review projects only. Do not promote either as canonical production without updating `docs/production-deployment-policy.md` and `docs/production-surface-registry.md`.
 
-Before a pilot-facing deploy, custom-domain cutover, or stakeholder option promotion/retirement, use `docs/production-predeploy-checklist.md`. Live Pages/D1 verification is no longer the active blocker: on 2026-05-20 PT, a user-scope scoped token verified successfully, `check:cloudflare:live` passed, the Pages project was visible, and the D1 database id matched. Scoped-token `wrangler whoami` warnings can still appear and are non-blocking when token verify plus Pages/D1 lookup pass.
+Before a pilot-facing deploy, custom-domain cutover, or stakeholder option promotion/retirement, use `docs/production-predeploy-checklist.md`. Live Pages/D1 verification is separate from production-domain verification: `check:cloudflare:live` proves Pages/D1 visibility, while `check:custom-domain-cutover --live-required --live-http` proves Pages custom-domain association plus HTTPS/app health. Scoped-token `wrangler whoami` warnings can still appear and are non-blocking only when token verify plus required Pages/D1/domain lookup pass.
 
 ## Live Resources
 
 - Cloudflare account: `539e8f7c55e7b1472013626ad72f4c7f`.
 - Pages project: `senior-capstone-app`.
+- App/backend custom hostname: `https://app.thecapstoneapp.com`.
 - Pages URL: `https://senior-capstone-app.pages.dev`.
 - D1 database id: `3141d9ac-08b7-49c1-92ba-bbf50c1a611f`.
 - D1 region: `WNAM`.
@@ -70,6 +71,14 @@ The pilot auth flow uses:
 - Reset-required accounts can complete a credential rotation through `/api/auth/complete-reset`; the route requires the current password, rejects weak or unchanged replacements, clears reset state, increments password version, revokes stale sessions, creates a fresh session, and writes `password_reset_completed`.
 - One-time admin bootstrap endpoint gated by `BOOTSTRAP_SETUP_KEY`; production setup key is removed after first-admin creation.
 - Cloudflare Pages preview/production now have `PASSWORD_PEPPER` and `SESSION_PEPPER` stored as `secret_text` environment variables.
+
+Custom-domain app health checks after activation:
+
+- `https://app.thecapstoneapp.com/api/health`
+- `https://app.thecapstoneapp.com/api/auth/me`
+- `https://app.thecapstoneapp.com/workspace.html`
+
+Signed-out `/api/auth/me` must return the expected unauthenticated/no-record response.
 
 ## Production Test Accounts
 
