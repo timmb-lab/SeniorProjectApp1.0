@@ -7,6 +7,7 @@ const auditEventsRoute = await readFile("functions/api/admin/audit-events.ts", "
 const adminAnnouncementRoute = await readFile("functions/api/admin/announcements.ts", "utf8");
 const announcementListRoute = await readFile("functions/api/announcements.ts", "utf8");
 const archiveQueueRoute = await readFile("functions/api/admin/exports/student-archive.ts", "utf8");
+const archiveReadinessRoute = await readFile("functions/api/student/archive/readiness.ts", "utf8");
 const evidenceRoute = await readFile("functions/api/submissions/[id]/evidence.ts", "utf8");
 const exportDownloadRoute = await readFile("functions/api/exports/[id]/download.ts", "utf8");
 const mentorAssignedRoute = await readFile("functions/api/mentor/assigned.ts", "utf8");
@@ -109,10 +110,17 @@ test("archive export endpoints queue admin requests and expose pending signed do
   assert.match(archiveQueueRoute, /isAdmin/);
   assert.match(archiveQueueRoute, /INSERT INTO exports/);
   assert.match(archiveQueueRoute, /student_archive_export_queued/);
+  assert.match(archiveQueueRoute, /missing_reason/);
   assert.match(archiveQueueRoute, /signedDownloadReady: false/);
+  assert.match(archiveReadinessRoute, /student_archive_readiness_viewed/);
+  assert.match(archiveReadinessRoute, /student_archive_readiness_denied/);
+  assert.match(archiveReadinessRoute, /canAccessStudent/);
+  assert.match(archiveReadinessRoute, /driveCredentialsConfigured/);
+  assert.match(archiveReadinessRoute, /storageIdentifiersRedacted: true/);
   assert.match(exportDownloadRoute, /canAccessStudent/);
   assert.match(exportDownloadRoute, /export_download_denied/);
   assert.match(exportDownloadRoute, /export_download_checked/);
+  assert.match(exportDownloadRoute, /signedDownloadReady: false/);
   assert.match(exportDownloadRoute, /url: null/);
 });
 

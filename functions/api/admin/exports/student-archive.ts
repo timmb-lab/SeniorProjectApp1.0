@@ -27,6 +27,8 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
 
   const studentId = cleanWorkflowText(body.studentId, "", 160);
   if (!studentId) return badRequest("missing_student_id");
+  const reason = cleanWorkflowText(body.reason, "", 300);
+  if (!reason) return badRequest("missing_reason");
 
   const student = await env.DB.prepare(
     "SELECT id FROM user_accounts WHERE id = ? AND status = 'active'",
@@ -47,7 +49,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     request,
     metadata: {
       targetUserId: studentId,
-      reason: cleanWorkflowText(body.reason, "Test-account archive queue.", 300),
+      reason,
       signedDownloadReady: false,
     },
   });

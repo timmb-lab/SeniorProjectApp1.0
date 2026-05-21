@@ -157,11 +157,19 @@ Every builder run must ladder from `docs/master-plan.md` into `docs/mvp-requirem
 - Final Figma verification succeeded: `get_design_context` and `get_screenshot` passed for node `144:2`, with screenshot `628x1024` from original `1360x2218`; final readback found 87 text nodes, zero suspicious clipped text nodes, and zero child overflow.
 - Next best non-Figma slice from this handoff: implement celebration evidence, thank-you/mentor note, reflection/portfolio completion, May 5 archive package, scoped signed download, expired download, provider-unavailable, and archive permission-denied states from persisted rows and audit events.
 
+### 2026-05-20 - Workspace Archive Readiness Consumption
+
+- Non-Figma builder `senior-capstone-nonfigma-mvp-builder-30` partially consumed repo-recorded Figma node `144:2` without calling Figma tools.
+- `/api/student/archive/readiness` now derives Celebration Day evidence, ingredient-list, thank-you/mentor note, reflection/portfolio, export, storage-provider, and signed-download readiness from persisted progress, evidence, export, and audit rows while redacting storage identifiers.
+- The canonical workspace now adds a student Archive tab for the May 5 package checklist and storage/privacy guardrails.
+- Validation passed: focused archive-readiness integration, workspace VM/source tests, production workflow source checks, typecheck, route inventory, full test suite, aggregate `check`, credential-backed local HTTP smoke, and in-app browser student Archive tab proof with zero console errors. Aggregate `check` still reports `LIVE_CLOUDFLARE_BLOCKED_NO_TOKEN`, and real Drive delivery still needs Cloudflare Drive credential secrets.
+- Remaining archive/export depth: real export artifact generation, signed expiry or safe Drive link behavior, expired-download retry, provider-unavailable generation states, retention handling, and hosted archive UI proof after deployment/credentials.
+
 ## Current Priority
 
 Immediate next useful passes:
 
-1. Consume Figma node `144:2` by implementing celebration evidence, thank-you/mentor note, reflection/portfolio completion, May 5 archive package, scoped signed download, expired download, provider-unavailable, and archive permission-denied states from persisted rows and audit events.
+1. Finish archive/export delivery depth by generating real archive artifacts, adding signed expiry or safe Drive link behavior, expired-download retry, provider-unavailable generation states, retention handling, and hosted archive UI proof after deployment/credentials.
 2. Broaden public-site no-hidden-core-content proof across every guide route, then verify the newest workspace account-state/no-assignment markers after hosted deployment and add a live section-level permission-denied proof.
 3. Extend alpha proposal/review/evidence/audit records into real workflow endpoints.
 4. Add Google Drive server-side credential/OAuth implementation plus access-controlled evidence upload/retrieval assumptions.
@@ -207,6 +215,7 @@ Current backlog anchors:
 - 2026-05-20 Figma workspace account edge-state handoff verified node `133:2`; it distinguishes session expired, disabled account, reset required, role pending, no active assignment, and section permission denied states for `/workspace`, records route/data/audit contract data, and passed screenshot/metadata/readback QA after a text-width autosizing correction.
 - 2026-05-20 Figma presentation dashboard state handoff verified node `139:2`; it maps presentation slot, conflict, check-out, check-in, denied-action, empty, and loading states to persisted dashboard consumption with 6 states, 7 routes, 8 records, and 6 guardrails.
 - 2026-05-20 Figma celebration archive readiness handoff verified node `144:2`; it maps closeout, Celebration Day evidence, reflection/portfolio, thank-you/mentor note, archive request, signed download, and archive permission states to persisted evidence/export/audit records with 7 states, 8 routes, 14 records, 5 permission scopes, 7 guardrails, and 7 acceptance checks.
+- 2026-05-20 non-Figma workspace archive readiness pass partially consumed node `144:2` in repo code only by adding `/api/student/archive/readiness`, a student Archive workspace tab, explicit admin export reason enforcement, truthful signed-download-disabled output, focused integration/source/smoke/browser proof, and route inventory coverage.
 - Bryan's phone-friendly live QoL tracker is the native Google Sheet `Senior Capstone QoL Run Tracker`, spreadsheet id `1J8jQMn85wJwo9Rh6LjQUVv_WfLS1YJWsbpcLBCojjjs`.
 
 ## Handoff And Logging Rules

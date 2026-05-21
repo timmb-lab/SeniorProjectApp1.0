@@ -354,3 +354,18 @@ Each rebuild run should append a dated entry with:
 - `phone tracker`: not appended; Google Sheets connector was not used in this run.
 - `self-improvement`: none.
 - `next action`: Verify hosted presentation-dashboard states after deployment when Cloudflare token/proof is available; otherwise persist outline approval gates or continue celebration/archive workflow depth.
+
+### 2026-05-20 20:43 PT - MVP-022 Workspace Archive Readiness
+
+- `automation`: `senior-capstone-nonfigma-mvp-builder-30`
+- `master-plan section`: Day 7 Alpha Gate; Role-Aware Production App Contract; North Star Workflow; Logging Requirements.
+- `source docs/logs read`: automation memory fallback at `C:\Users\bryan\.codex\automations\senior-capstone-nonfigma-mvp-builder-30\memory.md`, required master plan/catalog/cadence/runbook/self-improvement/memory/milestones/progress docs, recent run manifests, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, `docs/progress/rebuild.md`, the latest celebration archive readiness handoff manifest, and the existing workspace/export route/test patterns.
+- `backlog or requirement IDs selected`: `SC-004`, `SC-005`, `SC-006`, `MVP-018`, `MVP-020`, `MVP-022`, supporting `MVP-032`.
+- `bounded scope`: Partially consume repo-recorded Figma node `144:2` without direct Figma work by adding the first persisted student archive-readiness API and workspace Archive tab, while keeping signed archive downloads disabled until real delivery is implemented.
+- `files changed`: `functions/api/student/archive/readiness.ts`, `functions/api/admin/exports/student-archive.ts`, `functions/api/exports/[id]/download.ts`, `workspace.js`, `tests/archive-readiness.integration.test.mjs`, `tests/workspace-app.test.mjs`, `tests/workspace-browser-smoke.test.mjs`, `tests/production-workflow-source.test.mjs`, `docs/generated/production-route-inventory.md`, `docs/mvp-requirements-catalog.md`, `docs/automation-backlog.md`, `docs/automation-memory.md`, `docs/artifacts.json`, `docs/progress/handoffs.md`, this rebuild log, `docs/progress/run-log.md`, and structured run manifest.
+- `validation`: focused archive-readiness integration passed; workspace source/VM test passed; production-workflow source test passed; strict typecheck passed; route inventory regenerated; `git diff --check` passed with line-ending warnings only; full test suite passed with 138 passing tests and 3 expected opt-in workspace smoke skips; aggregate `check` passed with static Cloudflare verification and `LIVE_CLOUDFLARE_BLOCKED_NO_TOKEN`; local D1 seed plus credential-backed local HTTP workspace smoke passed; in-app browser verified the local fake-student Archive tab with May 5 package readiness, expected missing/attention states, privacy guard text, and zero console errors.
+- `blockers`: remote Pages/D1 management verification still requires `CLOUDFLARE_API_TOKEN`; live Drive archive delivery still requires Cloudflare Pages Drive credential secrets; real export artifact generation, signed expiry or safe Drive links, expired-download retry, provider-unavailable generation states, and retention handling remain pending.
+- `phone tracker`: not appended; Google Sheets connector was not used in this run.
+- `self-improvement`: none.
+- `commit/push status`: pending implementation commit and push.
+- `next action`: Generate real archive artifacts, wire signed expiry or safe Drive links, add expired-download retry/provider-unavailable handling, document retention, and verify hosted Archive tab after deployment/Drive credentials.

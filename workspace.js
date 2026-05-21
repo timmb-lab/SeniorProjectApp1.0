@@ -8,6 +8,7 @@ let currentData = {
   mentorAssigned: null,
   presentationSlots: null,
   readiness: null,
+  archiveReadiness: null,
 };
 let activeSection = "overview";
 let busy = false;
@@ -53,6 +54,7 @@ async function loadWorkspaceData(statusMessage = "") {
   ];
 
   if (roles.has("student")) loaders.push(["dashboard", apiJson("/api/student/dashboard")]);
+  if (roles.has("student")) loaders.push(["archiveReadiness", apiJson("/api/student/archive/readiness")]);
   if (roles.has("program_teacher") || roles.has("admin")) loaders.push(["reviewQueue", apiJson("/api/teacher/review-queue")]);
   if (roles.has("mentor")) loaders.push(["mentorAssigned", apiJson("/api/mentor/assigned")]);
   if (roles.has("student") || roles.has("mentor") || roles.has("program_teacher") || roles.has("admin")) {
@@ -68,6 +70,7 @@ async function loadWorkspaceData(statusMessage = "") {
     mentorAssigned: null,
     presentationSlots: null,
     readiness: null,
+    archiveReadiness: null,
   };
 
   for (const [key, result] of results) {
@@ -228,6 +231,7 @@ function availableSections() {
   const roles = roleIds(currentUser);
   const sections = [{ id: "overview", label: "Overview", detail: "Announcements and current priorities" }];
   if (roles.has("student")) sections.push({ id: "student", label: "Student Workspace", detail: "Progress, submissions, and evidence" });
+  if (roles.has("student")) sections.push({ id: "archive", label: "Archive", detail: "Closeout and May 5 package" });
   if (roles.has("program_teacher") || roles.has("admin")) sections.push({ id: "teacher", label: "Teacher Review", detail: "Review queue and submitted work" });
   if (roles.has("mentor")) sections.push({ id: "mentor", label: "Mentor Students", detail: "Assigned students and evidence counts" });
   if (roles.has("student") || roles.has("mentor") || roles.has("program_teacher") || roles.has("admin")) {
@@ -242,6 +246,7 @@ function renderActiveSection() {
   if (activeSection === "teacher") return renderTeacherSection();
   if (activeSection === "mentor") return renderMentorSection();
   if (activeSection === "presentation") return renderPresentationSection();
+  if (activeSection === "archive") return renderArchiveSection();
   if (activeSection === "readiness") return renderReadinessSection();
   return renderOverviewSection();
 }
@@ -330,6 +335,7 @@ function deniedWorkspaceSections() {
     ["reviewQueue", "Teacher review"],
     ["mentorAssigned", "Mentor students"],
     ["presentationSlots", "Presentation schedule"],
+    ["archiveReadiness", "Archive readiness"],
     ["readiness", "Readiness report"],
   ]
     .filter(([key]) => currentData[key]?.status === 403)
@@ -608,6 +614,95 @@ function renderPresentationSection() {
         `}
       </div>
     </section>
+  `;
+}
+
+function renderArchiveSection() {
+  const result = currentData.archiveReadiness;
+  if (result?.status === 403) {
+    return renderPermissionDeniedSection("Archive readiness", "student archive records");
+  }
+  const body = unwrap(result);
+  if (!body) {
+    return `
+      <section class="workspace-card workspace-error-card">
+        <h2>Archive readiness unavailable</h2>
+        ${renderApiNotice(result)}
+      </section>
+    `;
+  }
+
+  const checks = body.checks || [];
+  const summary = body.summary || {};
+  const archive = body.archive || {};
+  const storage = body.storage || {};
+  return `
+    <section class="workspace-card workspace-hero-card" data-archive-status="${escapeHtml(archive.status || "unknown")}">
+      <div class="workspace-card-head">
+        <div>
+          <p class="workspace-kicker">Closeout and archive</p>
+          <h2>May 5 Package Readiness</h2>
+        </div>
+        ${statusPill(summary.archiveAvailableToRequest ? "ready" : archive.status || "not_requested")}
+      </div>
+      <p>${escapeHtml(archive.message || "Review your closeout evidence before requesting an archive package.")}</p>
+      <div class="workspace-grid">
+        ${metric("Ready Checks", summary.readyChecks || 0)}
+        ${metric("Needs Action", summary.missingChecks || 0)}
+        ${metric("Total Checks", summary.totalChecks || checks.length)}
+      </div>
+    </section>
+    <section class="workspace-card">
+      <div class="workspace-card-head">
+        <div>
+          <p class="workspace-kicker">Archive checklist</p>
+          <h2>Closeout Requirements</h2>
+        </div>
+        <span class="workspace-chip">${escapeHtml(body.source || "persisted rows")}</span>
+      </div>
+      ${renderApiNotice(result)}
+      <div class="workspace-list">
+        ${checks.length ? checks.map(renderArchiveCheckRow).join("") : `<div class="workspace-empty">Archive checks will appear after closeout requirements are assigned.</div>`}
+      </div>
+    </section>
+    <section class="workspace-card">
+      <div class="workspace-card-head">
+        <div>
+          <p class="workspace-kicker">Storage</p>
+          <h2>Archive Package Access</h2>
+        </div>
+        ${statusPill(storage.credentialsConfigured ? "configured" : "provider_unavailable")}
+      </div>
+      <div class="workspace-list">
+        <article class="workspace-row">
+          <div>
+            <strong>Download status</strong>
+            <p>${escapeHtml(archive.signedDownloadReady ? "Scoped archive download is ready." : "Scoped archive download is not ready yet.")}</p>
+          </div>
+          ${statusPill(archive.status || "not_requested")}
+        </article>
+        <article class="workspace-row">
+          <div>
+            <strong>Privacy guard</strong>
+            <p>Private storage identifiers stay hidden from this workspace.</p>
+          </div>
+          ${statusPill(storage.storageIdentifiersRedacted ? "ready" : "needs_review")}
+        </article>
+      </div>
+    </section>
+  `;
+}
+
+function renderArchiveCheckRow(check) {
+  return `
+    <article class="workspace-row" data-archive-check="${escapeHtml(check.id)}" data-archive-check-status="${escapeHtml(check.status || "unknown")}">
+      <div>
+        <strong>${escapeHtml(check.label || "Archive check")}</strong>
+        <p>${escapeHtml(check.message || "Review this archive requirement.")}</p>
+        <p class="workspace-muted">${escapeHtml(check.evidenceCount || 0)} evidence item${Number(check.evidenceCount || 0) === 1 ? "" : "s"} matched.</p>
+      </div>
+      ${statusPill(check.status)}
+    </article>
   `;
 }
 
@@ -897,6 +992,11 @@ function artifactTypeOptions() {
     ["reflection", "Reflection"],
     ["rubric", "Rubric"],
     ["photo", "Photo"],
+    ["celebration_photo", "Celebration photo"],
+    ["ingredient_list", "Ingredient list"],
+    ["thank_you_letter", "Thank-you letter"],
+    ["mentor_note", "Mentor note"],
+    ["portfolio", "Portfolio"],
     ["presentation", "Presentation"],
     ["other", "Other"],
   ].map(([value, label]) => `<option value="${value}">${label}</option>`).join("");

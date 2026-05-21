@@ -1,0 +1,195 @@
+{
+  "run_id": "2026-05-20-2043-workspace-archive-readiness-mvp-022",
+  "timestamp_local": "2026-05-20T20:43:00-07:00",
+  "automation_id": "senior-capstone-nonfigma-mvp-builder-30",
+  "lane": "non-figma MVP builder",
+  "selected_category": "admin-ops-reporting",
+  "status": "completed",
+  "accepted_mvp_pass": true,
+  "requirement_ids": [
+    "MVP-018",
+    "MVP-020",
+    "MVP-022",
+    "MVP-032"
+  ],
+  "backlog_ids": [
+    "SC-004",
+    "SC-005",
+    "SC-006"
+  ],
+  "handoff_ids": [
+    "H-2026-05-20-009"
+  ],
+  "output_kind": "archive-readiness-api-workspace-ui-tests-browser-proof-docs",
+  "bounded_scope": "Add the first persisted student archive-readiness API and workspace Archive tab from repo-recorded celebration archive readiness evidence, while keeping signed archive downloads disabled until real delivery exists.",
+  "source_docs_read": [
+    "docs/master-plan.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/automation-cadence.md",
+    "docs/automation-runbook.md",
+    "docs/automation-self-improvement.md",
+    "docs/automation-memory.md",
+    "docs/automation-milestones.md",
+    "docs/progress/run-log.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/decision-log.md",
+    "docs/automation-backlog.md",
+    "docs/artifacts.json",
+    "docs/human-decisions.md",
+    "docs/progress/rebuild.md",
+    "docs/progress/runs/2026-05-20-2018-figma-celebration-archive-readiness.json",
+    "docs/progress/runs/2026-05-20-1910-workspace-presentation-dashboard-mvp-017.json",
+    "docs/progress/runs/2026-05-20-1833-figma-presentation-dashboard-state-handoff.json",
+    "docs/progress/runs/2026-05-20-1815-workspace-account-edge-states-mvp-004-032-033.json"
+  ],
+  "figma_work_avoided": true,
+  "direct_figma_tools_called": false,
+  "repo_recorded_figma_handoff_consumed": {
+    "file_key": "z4t4tFPAKrMDh6pIYOeEw6",
+    "page": "05 Full MVP Alpha Prototype",
+    "node_id": "144:2",
+    "node_name": "Prototype / 18 / Celebration archive readiness handoff",
+    "shared_plugin_data_key": "senior_capstone/celebration_archive_readiness_contract_2026_05_20",
+    "consumption_level": "partial repo-only implementation"
+  },
+  "changes": [
+    "Added /api/student/archive/readiness for student-owned and staff-scoped archive readiness checks.",
+    "Derived Celebration Day evidence, ingredient-list, thank-you/mentor note, reflection/portfolio, export, storage-provider, and signed-download readiness from persisted rows.",
+    "Audited archive-readiness views and denials while redacting storage identifiers from responses.",
+    "Added a student Archive tab in the canonical workspace with May 5 package readiness, closeout checks, and storage/privacy guardrails.",
+    "Required explicit admin archive export reasons and stopped claiming signed downloads are ready before delivery support exists.",
+    "Regenerated production route inventory and added focused integration, source, workspace, smoke, and browser evidence."
+  ],
+  "files_changed": [
+    "functions/api/student/archive/readiness.ts",
+    "functions/api/admin/exports/student-archive.ts",
+    "functions/api/exports/[id]/download.ts",
+    "workspace.js",
+    "tests/archive-readiness.integration.test.mjs",
+    "tests/workspace-app.test.mjs",
+    "tests/workspace-browser-smoke.test.mjs",
+    "tests/production-workflow-source.test.mjs",
+    "docs/generated/production-route-inventory.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/automation-backlog.md",
+    "docs/automation-memory.md",
+    "docs/artifacts.json",
+    "docs/progress/handoffs.md",
+    "docs/progress/rebuild.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-20-2043-workspace-archive-readiness-mvp-022.json"
+  ],
+  "validation": [
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 tests\\archive-readiness.integration.test.mjs",
+      "result": "pass; 5/5 tests"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 tests\\workspace-app.test.mjs",
+      "result": "pass; 7/7 tests"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 tests\\production-workflow-source.test.mjs",
+      "result": "pass; 10/10 tests"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 typecheck",
+      "result": "pass"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 inventory:production-routes",
+      "result": "pass; docs/generated/production-route-inventory.md regenerated"
+    },
+    {
+      "command": "git diff --check",
+      "result": "pass; CRLF conversion warnings only"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 test",
+      "result": "pass; 138 passing tests and 3 expected opt-in workspace smoke skips"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 check:production-surfaces",
+      "result": "pass; 91 production surfaces"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 check:route-inventory",
+      "result": "pass; route inventory current"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 check",
+      "result": "pass; static Cloudflare checks passed, live Cloudflare verification blocked only by missing CLOUDFLARE_API_TOKEN"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 scripts\\seed-local-workspace-smoke.mjs",
+      "result": "pass; local-only smoke accounts seeded without printing passwords"
+    },
+    {
+      "command": "$env:WORKSPACE_SMOKE_BASE_URL='http://127.0.0.1:8788'; $env:WORKSPACE_SMOKE_CREDENTIALS_FILE='.secrets\\local-workspace-smoke-accounts.json'; powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 tests\\workspace-browser-smoke.test.mjs",
+      "result": "pass; credential-backed local HTTP smoke covered Archive route and storage-ID leakage guard"
+    },
+    {
+      "command": "Codex in-app Browser against http://127.0.0.1:8788/workspace.html",
+      "result": "pass; fake-student Archive tab rendered May 5 package readiness, expected missing/attention states, privacy guard text, and zero console errors"
+    }
+  ],
+  "browser_verification": {
+    "tool": "Codex in-app Browser",
+    "target": "http://127.0.0.1:8788/workspace.html",
+    "account_type": "local fake student .test account",
+    "archive_tab_found": true,
+    "visible_headings": [
+      "May 5 Package Readiness",
+      "Closeout Requirements",
+      "Archive Package Access"
+    ],
+    "visible_check_labels": [
+      "Celebration Day evidence",
+      "Thank-you letter and mentor note",
+      "Reflections and portfolio",
+      "Ingredient list if food is shared"
+    ],
+    "storage_privacy_guard_found": true,
+    "console_errors": 0
+  },
+  "blockers": [
+    {
+      "code": "LIVE_CLOUDFLARE_BLOCKED_NO_TOKEN",
+      "cause": "CLOUDFLARE_API_TOKEN is not set for non-interactive Pages/D1 deployment and secret inspection.",
+      "bryan_must_act": true,
+      "next_safe_action": "Provide a scoped Cloudflare API token or run the hosted deployment/D1 verification manually."
+    },
+    {
+      "code": "DRIVE_LIVE_BLOCKED_MISSING_CREDENTIAL_SECRETS",
+      "cause": "Cloudflare Pages still lacks Google Drive credential secret parts for real archive upload/download delivery.",
+      "bryan_must_act": true,
+      "next_safe_action": "Configure Google Drive credential secrets before live archive artifact delivery is verified."
+    },
+    {
+      "code": "ARCHIVE_SIGNED_DOWNLOADS_PENDING",
+      "cause": "Export artifact generation and signed expiry/safe Drive link behavior are not implemented yet.",
+      "bryan_must_act": false,
+      "next_safe_action": "Implement real archive artifact generation, signed/expired download behavior, and retention handling."
+    }
+  ],
+  "next_actions": [
+    "Generate real archive export artifacts from persisted student records.",
+    "Wire signed expiry or safe Drive link behavior and expired-download retry handling.",
+    "Add provider-unavailable export generation states and retention documentation.",
+    "Verify hosted Archive tab after deployment and Drive credentials are available."
+  ],
+  "self_improvement": "none",
+  "run_log_updated": true,
+  "structured_manifest_created": true,
+  "artifacts_json_updated": true,
+  "mvp_catalog_changed": true,
+  "human_decisions_changed": false,
+  "phone_tracker": {
+    "updated": false,
+    "reason": "Google Sheets connector was not used in this run."
+  },
+  "branch_before": "main",
+  "branch_after": "main",
+  "commit_sha": "pending",
+  "push_result": "pending"
+}

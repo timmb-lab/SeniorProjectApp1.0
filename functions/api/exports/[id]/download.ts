@@ -1,8 +1,8 @@
-import type { Env } from "../../../_types";
-import { getCurrentUser, writeAudit } from "../../../_lib/auth";
-import { json } from "../../../_lib/http";
-import { canAccessStudent, isAdmin } from "../../../_lib/permissions";
-import { workflowError } from "../../../_lib/workflow";
+import type { Env } from "../../../_types.ts";
+import { getCurrentUser, writeAudit } from "../../../_lib/auth.ts";
+import { json } from "../../../_lib/http.ts";
+import { canAccessStudent, isAdmin } from "../../../_lib/permissions.ts";
+import { workflowError } from "../../../_lib/workflow.ts";
 
 interface ExportRow {
   id: string;
@@ -51,7 +51,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env, params })
     request,
     metadata: {
       status: row.status,
-      signedDownloadReady: Boolean(row.drive_file_id && row.status === "complete"),
+      signedDownloadReady: false,
     },
   });
 
@@ -66,10 +66,10 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env, params })
       completedAt: row.completed_at,
     },
     download: {
-      signedDownloadReady: Boolean(row.drive_file_id && row.status === "complete"),
+      signedDownloadReady: false,
       url: null,
       message: row.drive_file_id && row.status === "complete"
-        ? "Signed download generation is not enabled in this test-account MVP yet."
+        ? "Archive file exists, but signed download generation is still disabled until export delivery is wired."
         : "Archive is not complete yet; signed download remains pending.",
     },
   });

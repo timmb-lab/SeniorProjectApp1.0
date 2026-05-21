@@ -28,6 +28,21 @@ This is the compact run log for the current quarter-hour split-builder automatio
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-05-20 20:43 PT - MVP-022 Workspace Archive Readiness
+
+- `automation ID`: `senior-capstone-nonfigma-mvp-builder-30`
+- `lane`: non-Figma MVP builder / admin-ops-reporting.
+- `master-plan sections`: Day 7 Alpha Gate; Role-Aware Production App Contract; North Star Workflow; Logging Requirements.
+- `requirement IDs`: `MVP-018`, `MVP-020`, `MVP-022`, supporting `MVP-032`; `backlog IDs`: `SC-004`, `SC-005`, `SC-006`; `handoff`: partial consumption of `H-2026-05-20-009`.
+- `selected slice`: Consume the repo-recorded celebration archive readiness handoff by adding a persisted archive-readiness API and student Archive workspace tab, without direct Figma work.
+- `what changed`: Added `/api/student/archive/readiness` to derive Celebration Day evidence, ingredient-list, thank-you/mentor note, reflection/portfolio, export, storage-provider, and signed-download readiness from persisted rows with view/denial audits and storage identifiers redacted. `workspace.js` now loads the route for students and renders an Archive tab with May 5 package readiness, closeout checks, and storage/privacy guardrails. Admin archive queueing now requires an explicit reason, and export download checks truthfully report signed archive links disabled until delivery is wired.
+- `files changed`: `functions/api/student/archive/readiness.ts`, `functions/api/admin/exports/student-archive.ts`, `functions/api/exports/[id]/download.ts`, `workspace.js`, archive/workspace/source tests, production route inventory, MVP/backlog/artifact/memory/handoff/progress docs, and `docs/progress/runs/2026-05-20-2043-workspace-archive-readiness-mvp-022.json`.
+- `validation`: focused archive-readiness integration passed; workspace source/VM test passed; production-workflow source test passed; strict typecheck passed; production route inventory regenerated; full test suite passed with 138 passing tests and 3 expected opt-in workspace smoke skips; aggregate `check` passed with `LIVE_CLOUDFLARE_BLOCKED_NO_TOKEN`; local D1 seed plus credential-backed local HTTP workspace smoke passed; in-app browser verified the local fake-student Archive tab with May 5 package readiness, expected missing/attention states, privacy guard text, and zero console errors.
+- `blockers`: remote Pages/D1 management verification still requires `CLOUDFLARE_API_TOKEN`; real Drive archive delivery still requires Cloudflare Pages Drive credential secrets; real archive artifact generation, signed/expired download behavior, and retention handling remain pending.
+- `phone tracker`: not appended; Google Sheets connector was not used in this run.
+- `self-improvement`: none.
+- `commit`: pending implementation commit and push.
+
 ## 2026-05-20 20:18 PT - MVP-028 Celebration Archive Readiness Handoff
 
 - `automation ID`: `senior-capstone-figma-product-builder-15`

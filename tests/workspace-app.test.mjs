@@ -16,6 +16,7 @@ test("workspace route is a real authenticated app surface", () => {
   assert.match(workspaceJs, /\/api\/auth\/login/);
   assert.match(workspaceJs, /\/api\/auth\/logout/);
   assert.match(workspaceJs, /\/api\/student\/dashboard/);
+  assert.match(workspaceJs, /\/api\/student\/archive\/readiness/);
   assert.match(workspaceJs, /\/api\/teacher\/review-queue/);
   assert.match(workspaceJs, /\/api\/mentor\/assigned/);
   assert.match(workspaceJs, /\/api\/presentation-slots/);
@@ -34,6 +35,7 @@ test("workspace route is a real authenticated app surface", () => {
   assert.match(workspaceJs, /data-presentation-state="\$\{escapeHtml\(status\)\}"/);
   assert.match(workspaceJs, /data-presentation-action="check-out"/);
   assert.match(workspaceJs, /data-presentation-action="check-in"/);
+  assert.match(workspaceJs, /data-archive-check-status/);
   assert.doesNotMatch(workspaceJs, /localStorage|sessionStorage|indexedDB/);
   assert.doesNotThrow(() => new Function(workspaceJs));
 });
@@ -256,6 +258,86 @@ test("workspace renders presentation schedule and day-of actions", async () => {
   assert.match(presentation, /Outline approved/);
   assert.match(presentation, /data-presentation-action="check-out"/);
   assert.match(presentation, /data-presentation-action="check-in"/);
+});
+
+test("workspace renders archive readiness from persisted rows", async () => {
+  const archive = await renderWorkspaceWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "student-a",
+          email: "student.archive@example.edu",
+          displayName: "Archive Student",
+          roles: [{ role_id: "student", scope_type: "global", scope_id: "" }],
+        },
+      },
+    },
+    "/api/announcements": {
+      status: 200,
+      body: { ok: true, announcements: [] },
+    },
+    "/api/student/dashboard": {
+      status: 200,
+      body: {
+        ok: true,
+        nextAction: "Review archive package readiness.",
+        viewer: { self: true },
+        progress: [],
+        submissions: [],
+        evidence: [],
+      },
+    },
+    "/api/student/archive/readiness": {
+      status: 200,
+      body: {
+        ok: true,
+        source: "persisted_rows",
+        summary: {
+          readyChecks: 2,
+          missingChecks: 1,
+          totalChecks: 4,
+          archiveAvailableToRequest: false,
+        },
+        checks: [
+          {
+            id: "celebration_evidence",
+            label: "Celebration Day evidence",
+            status: "ready",
+            evidenceCount: 2,
+            message: "Ready for archive review.",
+          },
+          {
+            id: "ingredient_list_if_needed",
+            label: "Ingredient list if food is shared",
+            status: "attention_required",
+            evidenceCount: 0,
+            message: "Needed when food is part of the Celebration Day display.",
+          },
+        ],
+        archive: {
+          status: "queued",
+          signedDownloadReady: false,
+          message: "Archive package is being prepared.",
+        },
+        storage: {
+          credentialsConfigured: false,
+          storageIdentifiersRedacted: true,
+        },
+      },
+    },
+    "/api/presentation-slots": {
+      status: 200,
+      body: { ok: true, slots: [] },
+    },
+  }, "archive");
+
+  assert.match(archive, /May 5 Package Readiness/);
+  assert.match(archive, /data-archive-check-status="ready"/);
+  assert.match(archive, /data-archive-check-status="attention_required"/);
+  assert.match(archive, /Celebration Day evidence/);
+  assert.match(archive, /Private storage identifiers stay hidden/);
 });
 
 async function renderWorkspaceWithFetch(routes, section = "") {

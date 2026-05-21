@@ -56,10 +56,12 @@ test("workspace route signed-out smoke over local HTTP", { skip: !baseUrl }, asy
   assert.match(script, /\/api\/auth\/login/);
   assert.match(script, /\/api\/auth\/me/);
   assert.match(script, /\/api\/auth\/logout/);
+  assert.match(script, /\/api\/student\/archive\/readiness/);
   assert.match(script, /\/api\/presentation-slots/);
   assert.match(script, /data-presentation-state/);
   assert.match(script, /data-presentation-action="check-out"/);
   assert.match(script, /data-presentation-action="check-in"/);
+  assert.match(script, /data-archive-check-status/);
   assert.match(script, /\/api\/submissions\/\$\{encodeURIComponent\(values\.submissionId\)\}\/evidence/);
   assert.match(script, /\/api\/submissions\/\$\{encodeURIComponent\(submissionId\)\}\/evidence\/upload/);
   assert.match(script, /storage is not configured for this environment/);
@@ -167,6 +169,13 @@ test("workspace route credential-backed student smoke over local HTTP", {
     presentationSlots.body.slots.some((slot) => slot.studentId === login.body.user.id),
     "student can see own presentation slot",
   );
+
+  const archiveReadiness = await client.fetchJson("/api/student/archive/readiness");
+  assert.equal(archiveReadiness.response.status, 200, "student archive readiness status");
+  assert.equal(archiveReadiness.body.ok, true);
+  assert.equal(archiveReadiness.body.viewer.self, true);
+  assert.ok(Array.isArray(archiveReadiness.body.checks));
+  assert.doesNotMatch(JSON.stringify(archiveReadiness.body), /drive_file_id|driveFileId/i);
 
   const allowedFile = new FormData();
   allowedFile.set("title", "Local credential-backed smoke upload");
