@@ -483,3 +483,18 @@ Each rebuild run should append a dated entry with:
 - `phone tracker`: not appended; Google Sheets connector was not used in this run.
 - `self-improvement`: none.
 - `next action`: Add browser-level fake-account proof for import validation/no-store/reset/stale-session states, then either implement Bryan's approved credential-delivery path or continue broader role-scope/protected-record tests.
+
+### 2026-05-21 02:10 PT - MVP-004/MVP-007 Admin Import Local Proof
+
+- `automation`: `senior-capstone-nonfigma-mvp-builder`
+- `master-plan section`: Role-Aware Production App Contract; Stack And Deployment Direction; Logging Requirements.
+- `source docs/logs read`: automation memory fallback at `C:\Users\bryan\.codex\automations\senior-capstone-nonfigma-mvp-builder\memory.md`, required master plan/catalog/cadence/runbook/self-improvement/memory/milestones/progress docs, recent run manifests, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, `docs/progress/rebuild.md`, Figma handoff node `163:2` records, and workspace smoke/test/seed files.
+- `backlog or requirement IDs selected`: `SC-005`, `SC-006`, `MVP-004`, `MVP-005`, `MVP-007`, supporting `MVP-020`, `MVP-025`, `MVP-032`, and `MVP-033`.
+- `bounded scope`: Consume the remaining local proof needs from node `163:2` without direct Figma work by proving admin import validation, no-store temporary credential output, reset-first login, denied-role behavior, role readback, and redacted audit checks against local Pages/D1 fake `.test` accounts.
+- `files changed`: `tests/workspace-browser-smoke.test.mjs`, `tests/workspace-app.test.mjs`, `scripts/seed-local-workspace-smoke.mjs`, `docs/mvp-requirements-catalog.md`, `docs/automation-backlog.md`, `docs/automation-memory.md`, `docs/artifacts.json`, `docs/progress/handoffs.md`, this rebuild log, `docs/progress/run-log.md`, and structured run manifest `docs/progress/runs/2026-05-21-0210-admin-import-local-proof-mvp-004.json`.
+- `validation`: `tests/workspace-app.test.mjs` passed with 10/10 workspace VM/source tests; `tests/workspace-browser-smoke.test.mjs` passed with 4 expected opt-in skips when no local server was provided; local D1 seed passed after seed-verifier hardening; credential-backed local Pages smoke on `127.0.0.1:8794` passed for validation failure, misc-admin denial, no-store import, reset-required login, reset completion, old setup credential rejection, replacement-password login, role readback, and redacted audit readback; strict `typecheck` passed; `check:production-surfaces` passed with 91 surfaces; full `test` passed with 164 passing tests and 4 expected opt-in skips; aggregate `check` passed with live Cloudflare read-only verification; targeted `git diff --check` passed with CRLF warnings only.
+- `commit/push status`: implementation commit `d44d8e29ee14c29ff79300e31debdeaf898f057c` created on `main`; closeout docs commit and push pending.
+- `blockers`: live Drive upload still fails with redacted Google Drive HTTP 403 after token/root/index probes pass; real-user setup credential delivery remains Bryan decision `HD-2026-05-21-001`; no Figma blocker.
+- `phone tracker`: not appended; Google Sheets connector was not used in this run.
+- `self-improvement`: `scripts/seed-local-workspace-smoke.mjs` now verifies the known seven seed account IDs because local import proof creates additional fake `.test` users.
+- `next action`: Decide or implement the real-user credential delivery policy before pilot imports, then broaden role-scope/protected-record tests and resolve the Drive upload HTTP 403.

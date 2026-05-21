@@ -1,0 +1,154 @@
+{
+  "run_id": "2026-05-21-0210-admin-import-local-proof-mvp-004",
+  "timestamp_local": "2026-05-21T02:10:00-07:00",
+  "automation_id": "senior-capstone-nonfigma-mvp-builder",
+  "lane": "non-figma",
+  "selected_category": "backend-security-data",
+  "status": "completed",
+  "accepted_mvp_pass": true,
+  "requirement_ids": [
+    "MVP-004",
+    "MVP-005",
+    "MVP-007",
+    "MVP-020",
+    "MVP-025",
+    "MVP-032",
+    "MVP-033"
+  ],
+  "backlog_ids": [
+    "SC-005",
+    "SC-006"
+  ],
+  "handoff_ids": [
+    "H-2026-05-21-002",
+    "H-2026-05-21-001",
+    "H-2026-05-18-006"
+  ],
+  "output_kind": "local-pages-d1-admin-import-browser-proof-and-smoke-hardening",
+  "bounded_scope": "Consume the remaining local proof needs from Figma node 163:2 without direct Figma work by proving admin import validation, no-store temporary credential output, reset-first login, denied-role behavior, role readback, and redacted audit checks against local Pages/D1 fake .test accounts.",
+  "source_docs_read": [
+    "C:\\Users\\bryan\\.codex\\automations\\senior-capstone-nonfigma-mvp-builder\\memory.md",
+    "docs/master-plan.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/automation-cadence.md",
+    "docs/automation-runbook.md",
+    "docs/automation-self-improvement.md",
+    "docs/automation-memory.md",
+    "docs/automation-milestones.md",
+    "docs/progress/run-log.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/decision-log.md",
+    "docs/automation-backlog.md",
+    "docs/artifacts.json",
+    "docs/human-decisions.md",
+    "recent docs/progress/runs manifests",
+    "tests/workspace-browser-smoke.test.mjs",
+    "tests/workspace-app.test.mjs",
+    "scripts/seed-local-workspace-smoke.mjs"
+  ],
+  "figma_work_avoided": true,
+  "direct_figma_tools_called": false,
+  "changes": [
+    "Added optional local Pages/D1 admin import/reset proof to tests/workspace-browser-smoke.test.mjs.",
+    "Added workspace VM/source coverage for memory-only setup output clearing and non-admin import UI gating.",
+    "Hardened scripts/seed-local-workspace-smoke.mjs to verify the known seven seed account IDs instead of all .test emails."
+  ],
+  "files_changed": [
+    "tests/workspace-browser-smoke.test.mjs",
+    "tests/workspace-app.test.mjs",
+    "scripts/seed-local-workspace-smoke.mjs",
+    "docs/mvp-requirements-catalog.md",
+    "docs/automation-backlog.md",
+    "docs/automation-memory.md",
+    "docs/artifacts.json",
+    "docs/progress/handoffs.md",
+    "docs/progress/rebuild.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-21-0210-admin-import-local-proof-mvp-004.json"
+  ],
+  "validation": [
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 tests\\workspace-app.test.mjs",
+      "result": "passed; 10/10 workspace VM/source tests"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 tests\\workspace-browser-smoke.test.mjs",
+      "result": "passed; 4 expected opt-in local-server skips without WORKSPACE_SMOKE_BASE_URL"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 scripts\\seed-local-workspace-smoke.mjs",
+      "result": "passed after seed verifier counted the seven known seed account IDs"
+    },
+    {
+      "command": "WORKSPACE_SMOKE_BASE_URL=http://127.0.0.1:8794 WORKSPACE_SMOKE_CREDENTIALS_FILE=.secrets/local-workspace-smoke-accounts.json powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 tests\\workspace-browser-smoke.test.mjs",
+      "result": "passed against local Pages/D1 for validation failure, misc-admin denial, no-store import, reset-required login, reset completion, old setup credential rejection, replacement-password login, role readback, and redacted audit readback"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 test",
+      "result": "passed; 164 passing tests and 4 expected opt-in skips"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 typecheck",
+      "result": "passed"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 check:production-surfaces",
+      "result": "passed; 91 production text surfaces scanned"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 check",
+      "result": "passed with live Cloudflare read-only verification"
+    },
+    {
+      "command": "git diff --check -- tests/workspace-app.test.mjs tests/workspace-browser-smoke.test.mjs scripts/seed-local-workspace-smoke.mjs",
+      "result": "passed; CRLF warnings only"
+    }
+  ],
+  "blockers": [
+    {
+      "id": "DRIVE_UPLOAD_FAILED_HTTP_403",
+      "requirement_ids": [
+        "MVP-013",
+        "MVP-022",
+        "MVP-027"
+      ],
+      "bryan_must_act": true,
+      "next_safe_action": "Resolve the Google Drive service-account upload HTTP 403, then rerun the live Drive check."
+    },
+    {
+      "id": "TEMP_CREDENTIAL_DELIVERY_POLICY_OPEN",
+      "requirement_ids": [
+        "MVP-004",
+        "MVP-007"
+      ],
+      "bryan_must_act": true,
+      "next_safe_action": "Approve one-time admin display for real pilot credentials or choose an invitation/email delivery path."
+    },
+    {
+      "id": "HOSTED_VISUAL_IMPORT_PROOF_OPTIONAL",
+      "requirement_ids": [
+        "MVP-032",
+        "MVP-033"
+      ],
+      "bryan_must_act": false,
+      "next_safe_action": "Capture hosted visual proof after deployment if pilot readiness needs browser screenshots beyond local Pages/D1 proof."
+    }
+  ],
+  "next_actions": [
+    "Decide or implement real-user credential delivery before pilot imports.",
+    "Broaden role-scope and protected-record tests.",
+    "Resolve Drive upload HTTP 403 before real student evidence uploads."
+  ],
+  "self_improvement": "scripts/seed-local-workspace-smoke.mjs now verifies known seed account IDs because local import proof creates additional fake .test users.",
+  "run_log_updated": true,
+  "structured_manifest_created": true,
+  "artifacts_json_updated": true,
+  "mvp_catalog_changed": true,
+  "human_decisions_changed": false,
+  "phone_tracker": "not appended; Google Sheets connector was not used",
+  "branch_before": "main",
+  "branch_after": "main",
+  "implementation_commit_sha": "d44d8e29ee14c29ff79300e31debdeaf898f057c",
+  "closeout_commit_sha": "pending-before-closeout-commit",
+  "push_result": "pending-before-closeout-commit"
+}

@@ -28,6 +28,20 @@ This is the compact run log for the current quarter-hour split-builder automatio
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-05-21 02:10 PT - MVP-004/MVP-007 Admin Import Local Proof
+
+- `automation ID`: `senior-capstone-nonfigma-mvp-builder`.
+- `lane`: non-Figma MVP builder / backend-security-data.
+- `master-plan sections`: Role-Aware Production App Contract; Stack And Deployment Direction; Logging Requirements.
+- `requirement IDs`: `MVP-004`, `MVP-005`, `MVP-007`, `MVP-020`, `MVP-025`, supporting `MVP-032` and `MVP-033`; `backlog IDs`: `SC-005`, `SC-006`; `handoff`: consumption of `H-2026-05-21-002` local proof needs without direct Figma work.
+- `selected slice`: Add local credential-backed Pages/D1 proof for admin import validation, no-store temporary credential output, reset-first login, denied-role behavior, role readback, and redacted audit checks.
+- `changed`: `tests/workspace-browser-smoke.test.mjs` now runs an opt-in local admin import/reset proof when `WORKSPACE_SMOKE_BASE_URL` and ignored fake credentials are present; `tests/workspace-app.test.mjs` proves memory-only setup output clearing and non-admin import gating; `scripts/seed-local-workspace-smoke.mjs` verifies the seven known seed IDs so repeated local import proof can create extra fake `.test` accounts safely.
+- `validation`: focused workspace VM/source test passed (10/10); workspace browser smoke source command passed with 4 expected opt-in skips; local D1 seed plus credential-backed Pages smoke on `127.0.0.1:8794` passed; strict typecheck passed; production-surface check passed with 91 surfaces; full test suite passed (164 pass / 4 expected opt-in skips); aggregate `check` passed with live Cloudflare read-only verification; targeted `git diff --check` passed with CRLF warnings only.
+- `commit`: implementation commit `d44d8e29ee14c29ff79300e31debdeaf898f057c` (`rebuild: add admin import local proof (MVP-004)`) created on `main`; closeout docs commit follows this entry.
+- `blockers`: live Drive upload still fails with redacted Google Drive HTTP 403 after token/root/index probes pass; real-user setup credential delivery remains Bryan decision `HD-2026-05-21-001`.
+- `phone tracker`: not appended; Google Sheets connector was not used in this run.
+- `self-improvement`: `scripts/seed-local-workspace-smoke.mjs` seed verification was hardened after local import proof exposed broad `.test` counting fragility.
+
 ## 2026-05-21 01:49 PT - MVP-028 Admin Import API Proof Consumption Update
 
 - `automation ID`: `senior-capstone-figma-product-builder`.
