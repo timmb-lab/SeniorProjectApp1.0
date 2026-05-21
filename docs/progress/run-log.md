@@ -28,6 +28,19 @@ This is the compact run log for the current quarter-hour split-builder automatio
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-05-20 23:38 PT - MVP-004 Admin Password Reset Initiation
+
+- `automation ID`: `senior-capstone-nonfigma-mvp-builder-30`.
+- `lane`: non-Figma MVP builder / backend-security-data.
+- `master-plan sections`: Role-Aware Production App Contract; Stack And Deployment Direction; Logging Requirements.
+- `requirement IDs`: `MVP-004`, `MVP-005`, supporting `MVP-020`, `MVP-025`; `backlog IDs`: `SC-005`, `SC-006`.
+- `selected slice`: Add admin-initiated reset-required state for another user without direct Figma work.
+- `changed`: `/api/admin/users/:id/require-password-reset` now requires admin scope and a reason, rejects self-reset/disabled/credentialless targets, marks target accounts `pending_reset`, sets `password_credentials.requires_reset`, revokes target sessions, and audits success/denials. Added focused integration tests and route inventory coverage.
+- `validation`: focused admin password reset test passed (6/6), existing auth integration passed, typecheck passed, route inventory check passed, full test suite passed (155 pass / 3 expected skips), production-surface check passed, and targeted `git diff --check` passed with CRLF warnings only.
+- `commit`: implementation commit `0f616bfdba037c4a6b3601afe5d8bc4a076e140e`; closeout manifest commit follows.
+- `blockers`: none for this slice; concurrent Drive-resource changes from another automation were left unstaged.
+- `self-improvement`: none.
+
 ## 2026-05-20 23:11 PT - Cloudflare/D1 Resolved, Drive Live Classified
 
 - `automation ID`: manual Codex real-change run.
