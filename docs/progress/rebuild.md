@@ -29,7 +29,7 @@ Each rebuild run should append a dated entry with:
 - `blockers`: none for this slice. Existing Drive live blocker remains Google Drive upload HTTP 403 after token/root/index probes pass; real uploads remain blocked.
 - `phone tracker`: not appended; Google Sheets connector was not used in this run.
 - `self-improvement`: none.
-- `commit/push status`: pending.
+- `commit/push status`: implementation/closeout commit `34408b1e483fae9d2ad60a31abd10ca7abb5c3f3` (`rebuild: add active password change (MVP-004)`) created on `main`; push pending.
 - `next action`: Implement invitation/import or generated/temporary credential policy if needed; continue broader permission/protected-record tests and Drive upload 403 blocker resolution.
 
 ### 2026-05-18 07:14 PT - Lane Log Created
