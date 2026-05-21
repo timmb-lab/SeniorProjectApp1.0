@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { sha256Hex } from "../functions/_lib/crypto.ts";
+import { onRequestGet as onSubmissionDetail } from "../functions/api/submissions/[id].ts";
 import { onRequestPost as onSubmitSubmission } from "../functions/api/submissions/[id]/submit.ts";
 import { onRequestPost as onReviewSubmission } from "../functions/api/reviews/[submissionId]/decision.ts";
 import { onRequestGet as onReviewHistory } from "../functions/api/reviews/[submissionId]/history.ts";
@@ -301,6 +302,154 @@ test("student submission audits unauthorized and denied access", async () => {
       studentId: "student-a",
       actorRoleScopes: [{ roleId, scopeType: "global", scopeId: "" }],
     }, roleId);
+  }
+});
+
+test("submission detail audits unauthorized, denied, and scoped readback", async () => {
+  {
+    const fixture = await createFixture();
+    const response = await onSubmissionDetail({
+      request: buildAuthedRequest("https://example.test/api/submissions/submission-1", null),
+      env: fixture.env,
+      params: { id: "submission-1" },
+    });
+
+    assert.equal(response.status, 401);
+    assert.deepEqual(await response.json(), { error: "unauthorized", ok: false });
+    assert.equal(fixture.db.data.auditEvents.length, 1);
+    assert.equal(fixture.db.data.auditEvents[0].actor_user_id, null);
+    assert.equal(fixture.db.data.auditEvents[0].action, "submission_detail_unauthorized");
+    assert.equal(fixture.db.data.auditEvents[0].entity_type, "submission");
+    assert.equal(fixture.db.data.auditEvents[0].entity_id, "submission-1");
+    assert.deepEqual(fixture.db.data.auditEvents[0].metadata, { reason: "missing_session" });
+  }
+
+  {
+    const fixture = await createFixture();
+    const otherStudentToken = await addAuthedUser(fixture.db, {
+      userId: "student-b",
+      displayName: "Student B",
+      roleId: "student",
+    });
+
+    const response = await onSubmissionDetail({
+      request: buildAuthedRequest("https://example.test/api/submissions/submission-1", otherStudentToken),
+      env: fixture.env,
+      params: { id: "submission-1" },
+    });
+
+    assert.equal(response.status, 403);
+    assert.deepEqual(await response.json(), { error: "forbidden", ok: false });
+    assert.equal(fixture.db.data.auditEvents.length, 1);
+    assert.equal(fixture.db.data.auditEvents[0].action, "submission_detail_denied");
+    assert.deepEqual(fixture.db.data.auditEvents[0].metadata, {
+      reason: "scope_denied",
+      studentId: "student-a",
+      actorRoleScopes: [{ roleId: "student", scopeType: "global", scopeId: "" }],
+    });
+  }
+
+  {
+    const fixture = await createFixture();
+    const miscToken = await addAuthedUser(fixture.db, {
+      userId: "misc-detail",
+      displayName: "Misc Detail",
+      roleId: "misc_admin",
+      scopeType: "reporting",
+      scopeId: "alpha-readiness",
+    });
+
+    const response = await onSubmissionDetail({
+      request: buildAuthedRequest("https://example.test/api/submissions/submission-1", miscToken),
+      env: fixture.env,
+      params: { id: "submission-1" },
+    });
+
+    assert.equal(response.status, 403);
+    assert.deepEqual(await response.json(), { error: "forbidden", ok: false });
+    assert.equal(fixture.db.data.auditEvents.length, 1);
+    assert.equal(fixture.db.data.auditEvents[0].action, "submission_detail_denied");
+    assert.deepEqual(fixture.db.data.auditEvents[0].metadata, {
+      reason: "scope_denied",
+      studentId: "student-a",
+      actorRoleScopes: [{ roleId: "misc_admin", scopeType: "reporting", scopeId: "alpha-readiness" }],
+    });
+  }
+
+  for (const [label, setup] of [
+    ["student", async (fixture) => fixture.studentToken],
+    ["mentor-assigned", async (fixture) => {
+      const token = await addAuthedUser(fixture.db, {
+        userId: "mentor-detail",
+        displayName: "Mentor Detail",
+        roleId: "mentor",
+      });
+      fixture.db.data.mentorAssignments.push({
+        mentor_user_id: "mentor-detail",
+        student_user_id: "student-a",
+        active: 1,
+      });
+      return token;
+    }],
+    ["program-teacher", async (fixture) => fixture.teacherToken],
+    ["admin", async (fixture) => addAuthedUser(fixture.db, {
+      userId: "admin-detail",
+      displayName: "Admin Detail",
+      roleId: "admin",
+    })],
+  ]) {
+    const fixture = await createFixture();
+    const token = await setup(fixture);
+
+    const response = await onSubmissionDetail({
+      request: buildAuthedRequest("https://example.test/api/submissions/submission-1", token),
+      env: fixture.env,
+      params: { id: "submission-1" },
+    });
+
+    assert.equal(response.status, 200, label);
+    const body = await response.json();
+    assert.equal(body.ok, true, label);
+    assert.deepEqual(body.submission, {
+      id: "submission-1",
+      studentId: "student-a",
+      requirementId: "req-proposal-draft",
+      status: "draft",
+      version: 1,
+    }, label);
+    assert.equal(body.evidence.length, 1, label);
+    assert.deepEqual(body.evidence[0], {
+      id: "evidence-1",
+      title: "First evidence link",
+      artifactType: "planning_document",
+      sourceKind: "external_link",
+      reviewStatus: "pending_review",
+      createdAt: "2026-05-20T00:00:00.000Z",
+    }, label);
+    assert.deepEqual(body.storage, {
+      provider: "google_drive",
+      storageIdentifiersRedacted: true,
+    }, label);
+    const serializedBody = JSON.stringify(body);
+    assert.equal(/"drive_file_id"\s*:/.test(serializedBody), false, label);
+    assert.equal(/"driveFileId"\s*:/.test(serializedBody), false, label);
+    assert.equal(/"storageId"\s*:/.test(serializedBody), false, label);
+
+    assert.equal(fixture.db.data.auditEvents.length, 1, label);
+    assert.equal(fixture.db.data.auditEvents[0].action, "submission_detail_viewed", label);
+    assert.deepEqual(fixture.db.data.auditEvents[0].metadata, {
+      studentId: "student-a",
+      requirementId: "req-proposal-draft",
+      status: "draft",
+      evidenceCount: 1,
+      actorRoleScopes: label === "mentor-assigned"
+        ? [{ roleId: "mentor", scopeType: "global", scopeId: "" }]
+        : label === "admin"
+          ? [{ roleId: "admin", scopeType: "global", scopeId: "" }]
+          : label === "program-teacher"
+            ? [{ roleId: "program_teacher", scopeType: "global", scopeId: "" }]
+            : [{ roleId: "student", scopeType: "global", scopeId: "" }],
+    }, label);
   }
 });
 

@@ -10,6 +10,7 @@ const archiveQueueRoute = await readFile("functions/api/admin/exports/student-ar
 const archiveReadinessRoute = await readFile("functions/api/student/archive/readiness.ts", "utf8");
 const archiveExportLib = await readFile("functions/_lib/archive-export.ts", "utf8");
 const evidenceRoute = await readFile("functions/api/submissions/[id]/evidence.ts", "utf8");
+const submissionDetailRoute = await readFile("functions/api/submissions/[id].ts", "utf8");
 const exportDownloadRoute = await readFile("functions/api/exports/[id]/download.ts", "utf8");
 const productionRouteInventory = await readFile("docs/generated/production-route-inventory.md", "utf8");
 const mentorAssignedRoute = await readFile("functions/api/mentor/assigned.ts", "utf8");
@@ -41,6 +42,18 @@ test("student submission endpoint persists status history and audit events", () 
   assert.match(submitRoute, /submission_submitted/);
   assert.match(submitRoute, /submission_submit_denied/);
   assert.match(submitRoute, /actorRoleScopes/);
+});
+
+test("submission detail endpoint returns scoped protected-record readback", () => {
+  assert.match(submissionDetailRoute, /onRequestGet/);
+  assert.match(submissionDetailRoute, /canViewSubmission/);
+  assert.match(submissionDetailRoute, /submission_detail_unauthorized/);
+  assert.match(submissionDetailRoute, /submission_detail_denied/);
+  assert.match(submissionDetailRoute, /submission_detail_viewed/);
+  assert.match(submissionDetailRoute, /actorRoleScopes/);
+  assert.match(submissionDetailRoute, /storageIdentifiersRedacted: true/);
+  assert.match(submissionDetailRoute, /SELECT id, title, artifact_type, source_kind, review_status, created_at/);
+  assert.doesNotMatch(submissionDetailRoute, /drive_file_id/);
 });
 
 test("student evidence endpoint validates HTTPS metadata and keeps file upload pending", () => {
