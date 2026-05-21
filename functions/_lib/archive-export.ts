@@ -1,9 +1,12 @@
 import type { Env } from "../_types.ts";
 import { randomId, sha256Hex } from "./crypto.ts";
+import { getGoogleDriveAccessToken, googleDriveCredentialParts, probeGoogleDriveFile } from "./google-drive.ts";
 
 export const STUDENT_ARCHIVE_MANIFEST_TYPE = "student_archive_manifest_json";
 
-const ARCHIVE_DOWNLOAD_TTL_MS = 14 * 24 * 60 * 60 * 1000;
+const DAY_MS = 24 * 60 * 60 * 1000;
+const DEFAULT_ARCHIVE_DOWNLOAD_WINDOW_DAYS = 14;
+const MAX_ARCHIVE_DOWNLOAD_WINDOW_DAYS = 90;
 
 interface ProgressRow {
   requirement_id: string | null;
@@ -42,6 +45,147 @@ export interface ArchiveManifestArtifact {
     progressRows: number;
     evidenceArtifacts: number;
   };
+  retention: ArchiveRetentionPolicy;
+}
+
+export interface ArchiveRetentionPolicy {
+  downloadWindowDays: number;
+  expiryWarningDays: number;
+  policyStatus: "configured" | "policy_review_required";
+  policyReviewRequired: boolean;
+}
+
+export interface ArchiveProviderReadiness {
+  ready: boolean;
+  status:
+    | "ready"
+    | "drive_config_missing"
+    | "drive_credentials_missing"
+    | "drive_token_exchange_failed"
+    | "drive_provider_error"
+    | "drive_access_denied";
+  error: string | null;
+  httpStatus: number;
+  retry: "configure_drive_repository" | "configure_drive_credentials" | "retry_archive_export" | null;
+  rootConfigured: boolean;
+  indexConfigured: boolean;
+  credentialParts: {
+    clientEmail: boolean;
+    privateKey: boolean;
+  };
+  message: string;
+}
+
+export function getArchiveRetentionPolicy(env: Pick<Env, "ARCHIVE_DOWNLOAD_WINDOW_DAYS" | "ARCHIVE_RETENTION_POLICY_STATUS">): ArchiveRetentionPolicy {
+  const parsedDays = Number.parseInt(String(env.ARCHIVE_DOWNLOAD_WINDOW_DAYS || ""), 10);
+  const downloadWindowDays = Number.isFinite(parsedDays) && parsedDays > 0
+    ? Math.min(parsedDays, MAX_ARCHIVE_DOWNLOAD_WINDOW_DAYS)
+    : DEFAULT_ARCHIVE_DOWNLOAD_WINDOW_DAYS;
+  const policyStatus = env.ARCHIVE_RETENTION_POLICY_STATUS === "configured"
+    ? "configured"
+    : "policy_review_required";
+
+  return {
+    downloadWindowDays,
+    expiryWarningDays: Math.min(3, downloadWindowDays),
+    policyStatus,
+    policyReviewRequired: policyStatus !== "configured",
+  };
+}
+
+export function getArchiveProviderConfiguration(env: Env): ArchiveProviderReadiness {
+  const rootConfigured = configured(env.GOOGLE_DRIVE_EVIDENCE_ROOT_ID);
+  const indexConfigured = configured(env.GOOGLE_DRIVE_EVIDENCE_INDEX_SHEET_ID);
+  const credentialParts = googleDriveCredentialParts(env);
+
+  if (!rootConfigured || !indexConfigured) {
+    return {
+      ready: false,
+      status: "drive_config_missing",
+      error: "drive_config_missing",
+      httpStatus: 503,
+      retry: "configure_drive_repository",
+      rootConfigured,
+      indexConfigured,
+      credentialParts,
+      message: "Drive repository configuration is incomplete, so archive package generation is unavailable.",
+    };
+  }
+
+  if (!credentialParts.clientEmail || !credentialParts.privateKey) {
+    return {
+      ready: false,
+      status: "drive_credentials_missing",
+      error: "drive_credentials_missing",
+      httpStatus: 503,
+      retry: "configure_drive_credentials",
+      rootConfigured,
+      indexConfigured,
+      credentialParts,
+      message: "Drive credentials are not configured, so archive package generation is unavailable.",
+    };
+  }
+
+  return {
+    ready: true,
+    status: "ready",
+    error: null,
+    httpStatus: 200,
+    retry: null,
+    rootConfigured,
+    indexConfigured,
+    credentialParts,
+    message: "Drive repository configuration is ready for archive package generation.",
+  };
+}
+
+export async function verifyArchiveProviderReady(env: Env): Promise<ArchiveProviderReadiness> {
+  const configuration = getArchiveProviderConfiguration(env);
+  if (!configuration.ready) return configuration;
+
+  let accessToken = "";
+  try {
+    const tokenResult = await getGoogleDriveAccessToken(env);
+    accessToken = tokenResult.accessToken;
+  } catch {
+    return {
+      ...configuration,
+      ready: false,
+      status: "drive_token_exchange_failed",
+      error: "drive_token_exchange_failed",
+      httpStatus: 502,
+      retry: "retry_archive_export",
+      message: "Drive token exchange failed, so archive package generation should be retried after provider access is fixed.",
+    };
+  }
+
+  try {
+    const rootProbe = await probeGoogleDriveFile(accessToken, String(env.GOOGLE_DRIVE_EVIDENCE_ROOT_ID || "").trim());
+    const indexProbe = await probeGoogleDriveFile(accessToken, String(env.GOOGLE_DRIVE_EVIDENCE_INDEX_SHEET_ID || "").trim());
+    if (!rootProbe.ok || !indexProbe.ok) {
+      return {
+        ...configuration,
+        ready: false,
+        status: "drive_access_denied",
+        error: "drive_access_denied",
+        httpStatus: 502,
+        retry: "retry_archive_export",
+        message: "Drive repository access was denied, so archive package generation remains unavailable.",
+      };
+    }
+  } catch {
+    return {
+      ...configuration,
+      ready: false,
+      status: "drive_provider_error",
+      error: "drive_provider_error",
+      httpStatus: 502,
+      retry: "retry_archive_export",
+      message: "Drive provider verification failed, so archive package generation remains unavailable.",
+    };
+  }
+
+  return configuration;
 }
 
 export async function buildStudentArchiveManifest(
@@ -53,8 +197,9 @@ export async function buildStudentArchiveManifest(
     reason: string;
   },
 ): Promise<ArchiveManifestArtifact> {
+  const retention = getArchiveRetentionPolicy(env);
   const generatedAt = new Date().toISOString();
-  const expiresAt = new Date(Date.now() + ARCHIVE_DOWNLOAD_TTL_MS).toISOString();
+  const expiresAt = new Date(Date.now() + retention.downloadWindowDays * DAY_MS).toISOString();
 
   const [student, progress, evidence] = await Promise.all([
     env.DB.prepare(
@@ -108,7 +253,10 @@ export async function buildStudentArchiveManifest(
       displayName: student.display_name,
     },
     retention: {
-      downloadWindowDays: 14,
+      downloadWindowDays: retention.downloadWindowDays,
+      expiryWarningDays: retention.expiryWarningDays,
+      policyStatus: retention.policyStatus,
+      policyReviewRequired: retention.policyReviewRequired,
       retryAfterExpiry: "Ask an admin to generate a fresh archive package.",
     },
     progress: progressRows.map((row) => ({
@@ -152,6 +300,7 @@ export async function buildStudentArchiveManifest(
       progressRows: progressRows.length,
       evidenceArtifacts: evidenceRows.length,
     },
+    retention,
   };
 }
 
@@ -159,4 +308,29 @@ export function archiveArtifactExpired(expiresAt: string | null | undefined, now
   if (!expiresAt) return false;
   const timestamp = Date.parse(expiresAt);
   return Number.isFinite(timestamp) && timestamp <= now.getTime();
+}
+
+export function archiveArtifactExpiresSoon(
+  expiresAt: string | null | undefined,
+  options: { now?: Date; warningDays?: number } = {},
+): boolean {
+  if (!expiresAt) return false;
+  const timestamp = Date.parse(expiresAt);
+  if (!Number.isFinite(timestamp)) return false;
+  const now = options.now || new Date();
+  const warningDays = Number.isFinite(options.warningDays) && Number(options.warningDays) > 0
+    ? Number(options.warningDays)
+    : 3;
+  return timestamp > now.getTime() && timestamp - now.getTime() <= warningDays * DAY_MS;
+}
+
+function configured(value?: string): boolean {
+  const normalized = String(value || "").trim().toLowerCase();
+  return Boolean(
+    normalized
+      && !normalized.startsWith("pending")
+      && !normalized.startsWith("replace-with")
+      && normalized !== "undefined"
+      && normalized !== "null",
+  );
 }

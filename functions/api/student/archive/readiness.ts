@@ -1,4 +1,5 @@
 import type { Env } from "../../../_types.ts";
+import { archiveArtifactExpiresSoon, archiveArtifactExpired, getArchiveProviderConfiguration, getArchiveRetentionPolicy } from "../../../_lib/archive-export.ts";
 import { getCurrentUser, writeAudit } from "../../../_lib/auth.ts";
 import { json } from "../../../_lib/http.ts";
 import { canAccessStudent, getRoleAssignments } from "../../../_lib/permissions.ts";
@@ -181,16 +182,21 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
   const exportRows = exports.results || [];
   const checks = CHECKS.map((definition) => archiveCheck(definition, progressRows, evidenceRows));
   const latestExport = exportRows[0] || null;
+  const provider = getArchiveProviderConfiguration(env);
+  const retention = getArchiveRetentionPolicy(env);
   const signedDownloadsEnabled = false;
   const scopedDownloadReady = Boolean(
     latestExport?.status === "complete" &&
     latestExport.artifact_id &&
     !archiveArtifactExpired(latestExport.artifact_expires_at),
   );
+  const downloadExpiresSoon = archiveArtifactExpiresSoon(latestExport?.artifact_expires_at, {
+    warningDays: retention.expiryWarningDays,
+  });
   const exportStatus = latestExport?.status || "not_requested";
   const readyChecks = checks.filter((check) => check.status === "ready").length;
   const missingChecks = checks.filter((check) => check.status === "missing").length;
-  const archiveAvailableToRequest = missingChecks === 0 && !["queued", "running"].includes(exportStatus);
+  const archiveAvailableToRequest = missingChecks === 0 && provider.ready && !["queued", "running"].includes(exportStatus);
 
   await writeAudit(env, {
     actorUserId: user.id,
@@ -203,6 +209,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
       missingChecks,
       exportStatus,
       scopedDownloadReady,
+      providerStatus: provider.status,
       viewerScope: viewerScope(env, user, requestedStudentId, roleAssignments),
     },
   });
@@ -219,10 +226,21 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
     },
     storage: {
       provider: "google_drive",
-      credentialsConfigured: driveCredentialsConfigured(env),
+      providerStatus: provider.status,
+      providerMessage: provider.message,
+      rootConfigured: provider.rootConfigured,
+      indexConfigured: provider.indexConfigured,
+      credentialsConfigured: provider.credentialParts.clientEmail && provider.credentialParts.privateKey,
       signedDownloadsEnabled,
       scopedPackageDownloadsEnabled: true,
       storageIdentifiersRedacted: true,
+    },
+    retention: {
+      downloadWindowDays: retention.downloadWindowDays,
+      expiryWarningDays: retention.expiryWarningDays,
+      policyStatus: retention.policyStatus,
+      policyReviewRequired: retention.policyReviewRequired,
+      downloadExpiresSoon,
     },
     summary: {
       readyChecks,
@@ -243,6 +261,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
         latestExport?.artifact_id &&
         archiveArtifactExpired(latestExport.artifact_expires_at),
       ),
+      downloadExpiresSoon,
       signedDownloadReady: Boolean(
         signedDownloadsEnabled &&
         latestExport?.drive_file_id &&
@@ -250,10 +269,11 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
       ),
       message: archiveMessage(
         exportStatus,
-        driveCredentialsConfigured(env),
+        provider.ready,
         signedDownloadsEnabled,
         scopedDownloadReady,
         Boolean(latestExport?.artifact_id && archiveArtifactExpired(latestExport.artifact_expires_at)),
+        downloadExpiresSoon,
       ),
     },
     guardrails: [
@@ -307,29 +327,21 @@ function messageForCheckStatus(status: string): string {
 
 function archiveMessage(
   status: string,
-  driveReady: boolean,
+  providerReady: boolean,
   signedDownloadsEnabled: boolean,
   scopedDownloadReady: boolean,
   downloadExpired: boolean,
+  downloadExpiresSoon: boolean,
 ): string {
   if (downloadExpired) return "Archive package download expired. Ask an admin to generate a fresh package.";
+  if (downloadExpiresSoon && scopedDownloadReady) return "Archive package manifest is ready, but the download window is expiring soon.";
   if (scopedDownloadReady) return "Archive package manifest is ready for scoped download.";
-  if (!driveReady) return "Drive credentials are not configured yet, so archive package files cannot be generated.";
+  if (!providerReady) return "Drive provider setup is unavailable, so archive package generation cannot complete yet.";
   if (!signedDownloadsEnabled) return "Archive package checks are available; signed archive links are still disabled until export generation is wired.";
   if (status === "complete") return "Archive package is complete and ready for a scoped download link.";
   if (status === "queued" || status === "running") return "Archive package is being prepared.";
   if (status === "failed") return "Archive package failed and needs staff follow-up.";
   return "Archive package has not been requested yet.";
-}
-
-function archiveArtifactExpired(expiresAt: string | null | undefined, now = new Date()): boolean {
-  if (!expiresAt) return false;
-  const timestamp = Date.parse(expiresAt);
-  return Number.isFinite(timestamp) && timestamp <= now.getTime();
-}
-
-function driveCredentialsConfigured(env: Env): boolean {
-  return Boolean(env.GOOGLE_DRIVE_CLIENT_EMAIL && env.GOOGLE_DRIVE_PRIVATE_KEY);
 }
 
 function safeRoleScopes(roleAssignments: Awaited<ReturnType<typeof getRoleAssignments>>) {

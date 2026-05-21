@@ -11,6 +11,8 @@ export interface Env {
   GOOGLE_DRIVE_PRIVATE_KEY?: string;
   GOOGLE_DRIVE_EVIDENCE_ROOT_ID?: string;
   GOOGLE_DRIVE_EVIDENCE_INDEX_SHEET_ID?: string;
+  ARCHIVE_DOWNLOAD_WINDOW_DAYS?: string;
+  ARCHIVE_RETENTION_POLICY_STATUS?: "configured" | "policy_review_required";
 }
 
 export interface UserAccount {

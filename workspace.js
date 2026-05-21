@@ -636,6 +636,7 @@ function renderArchiveSection() {
   const summary = body.summary || {};
   const archive = body.archive || {};
   const storage = body.storage || {};
+  const retention = body.retention || {};
   const scopedDownloadReady = Boolean(archive.scopedDownloadReady || archive.signedDownloadReady);
   const downloadMessage = scopedDownloadReady
     ? `Scoped archive manifest is ready${archive.downloadExpiresAt ? ` until ${formatDate(archive.downloadExpiresAt)}` : ""}.`
@@ -694,6 +695,13 @@ function renderArchiveSection() {
             <p>Private storage identifiers stay hidden from this workspace.</p>
           </div>
           ${statusPill(storage.storageIdentifiersRedacted ? "ready" : "needs_review")}
+        </article>
+        <article class="workspace-row" data-archive-retention-status="${escapeHtml(retention.policyStatus || "unknown")}">
+          <div>
+            <strong>Retention window</strong>
+            <p>${escapeHtml(retention.policyReviewRequired ? "Retention policy needs school review before pilot archives." : `Archive downloads stay available for ${retention.downloadWindowDays || 14} days.`)}</p>
+          </div>
+          ${statusPill(retention.downloadExpiresSoon ? "expiring_soon" : retention.policyStatus || "policy_review_required")}
         </article>
       </div>
     </section>

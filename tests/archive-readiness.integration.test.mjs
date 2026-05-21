@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { generateKeyPairSync } from "node:crypto";
 
 import { sha256Hex } from "../functions/_lib/crypto.ts";
 import { onRequestPost as onQueueArchive } from "../functions/api/admin/exports/student-archive.ts";
@@ -123,7 +124,7 @@ test("admin archive readiness can inspect a scoped student but still reports sig
   assert.doesNotMatch(JSON.stringify(body), /drive-complete-secret|drive_file_id|driveFileId/i);
 });
 
-test("admin archive export generates a scoped manifest artifact without storage ids", async () => {
+test("admin archive export records provider-unavailable state when Drive credentials are missing", async () => {
   const fixture = await createFixtureWithSession({ userId: "admin-a", roleId: "admin" });
   seedArchiveReadyStudent(fixture.db, "student-a");
 
@@ -137,58 +138,134 @@ test("admin archive export generates a scoped manifest artifact without storage 
     env: fixture.env,
   });
 
-  assert.equal(response.status, 200);
+  assert.equal(response.status, 503);
   const body = await response.json();
-  assert.equal(body.ok, true);
-  assert.equal(body.export.status, "complete");
-  assert.equal(body.export.scopedDownloadReady, true);
-  assert.equal(body.export.signedDownloadReady, false);
-  assert.match(body.export.downloadUrl, /^\/api\/exports\/export[_-]/);
+  assert.equal(body.ok, false);
+  assert.equal(body.error, "drive_credentials_missing");
+  assert.equal(body.export.status, "failed");
+  assert.equal(body.export.providerStatus, "drive_credentials_missing");
+  assert.equal(body.export.scopedDownloadReady, false);
+  assert.equal(body.provider.credentialParts.clientEmail, false);
+  assert.equal(body.provider.credentialParts.privateKey, false);
   assert.equal(fixture.db.data.exports.length, 1);
-  assert.equal(fixture.db.data.exports[0].status, "complete");
-  assert.equal(fixture.db.data.exportArtifacts.length, 1);
-  assert.equal(fixture.db.data.exportArtifacts[0].artifact_type, "student_archive_manifest_json");
-  assert.doesNotMatch(fixture.db.data.exportArtifacts[0].body_json, /drive-celebration-secret|drive_file_id|driveFileId/i);
-  assert.equal(fixture.db.data.auditEvents[0].action, "student_archive_export_generated");
-  assert.equal(fixture.db.data.auditEvents[0].metadata.scopedDownloadReady, true);
+  assert.equal(fixture.db.data.exports[0].status, "failed");
+  assert.equal(fixture.db.data.exportArtifacts.length, 0);
+  assert.equal(fixture.db.data.auditEvents[0].action, "student_archive_export_provider_unavailable");
+  assert.equal(fixture.db.data.auditEvents[0].metadata.providerStatus, "drive_credentials_missing");
+});
+
+test("admin archive export records Drive access failures without generating artifacts", async () => {
+  const fixture = await createFixtureWithSession({ userId: "admin-a", roleId: "admin" });
+  seedArchiveReadyStudent(fixture.db, "student-a");
+
+  await withDriveProvider(fixture, async (input, init = {}) => {
+    const url = resolveFetchUrl(input);
+    if (url === "https://oauth2.googleapis.com/token") {
+      assert.equal(String(init.method || "GET").toUpperCase(), "POST");
+      return jsonResponse({ access_token: "test-token", expires_in: 3600, token_type: "Bearer" });
+    }
+    if (url.startsWith("https://www.googleapis.com/drive/v3/files/")) {
+      return jsonResponse({ error: { message: "forbidden" } }, 403);
+    }
+    throw new Error(`Unexpected fetch URL in test: ${url}`);
+  }, async () => {
+    const response = await onQueueArchive({
+      request: buildJsonRequest(
+        "https://example.test/api/admin/exports/student-archive",
+        fixture.token,
+        { studentId: "student-a", reason: "May 5 archive package" },
+        "POST",
+      ),
+      env: fixture.env,
+    });
+
+    assert.equal(response.status, 502);
+    const body = await response.json();
+    assert.equal(body.error, "drive_access_denied");
+    assert.equal(body.export.status, "failed");
+    assert.equal(body.export.providerStatus, "drive_access_denied");
+    assert.equal(fixture.db.data.exportArtifacts.length, 0);
+    assert.equal(fixture.db.data.auditEvents[0].action, "student_archive_export_provider_unavailable");
+    assert.equal(fixture.db.data.auditEvents[0].metadata.providerStatus, "drive_access_denied");
+  });
+});
+
+test("admin archive export generates a scoped manifest artifact without storage ids", async () => {
+  const fixture = await createFixtureWithSession({ userId: "admin-a", roleId: "admin" });
+  seedArchiveReadyStudent(fixture.db, "student-a");
+
+  await withSuccessfulDriveProvider(fixture, async () => {
+    const response = await onQueueArchive({
+      request: buildJsonRequest(
+        "https://example.test/api/admin/exports/student-archive",
+        fixture.token,
+        { studentId: "student-a", reason: "May 5 archive package" },
+        "POST",
+      ),
+      env: fixture.env,
+    });
+
+    assert.equal(response.status, 200);
+    const body = await response.json();
+    assert.equal(body.ok, true);
+    assert.equal(body.export.status, "complete");
+    assert.equal(body.export.scopedDownloadReady, true);
+    assert.equal(body.export.signedDownloadReady, false);
+    assert.equal(body.export.retention.downloadWindowDays, 14);
+    assert.equal(body.export.retention.policyReviewRequired, true);
+    assert.match(body.export.downloadUrl, /^\/api\/exports\/export[_-]/);
+    assert.equal(fixture.db.data.exports.length, 1);
+    assert.equal(fixture.db.data.exports[0].status, "complete");
+    assert.equal(fixture.db.data.exportArtifacts.length, 1);
+    assert.equal(fixture.db.data.exportArtifacts[0].artifact_type, "student_archive_manifest_json");
+    assert.doesNotMatch(fixture.db.data.exportArtifacts[0].body_json, /drive-celebration-secret|drive_file_id|driveFileId/i);
+    const manifest = JSON.parse(fixture.db.data.exportArtifacts[0].body_json);
+    assert.equal(manifest.retention.downloadWindowDays, 14);
+    assert.equal(manifest.retention.policyStatus, "policy_review_required");
+    assert.equal(fixture.db.data.auditEvents[0].action, "student_archive_export_generated");
+    assert.equal(fixture.db.data.auditEvents[0].metadata.scopedDownloadReady, true);
+    assert.equal(fixture.db.data.auditEvents[0].metadata.providerStatus, "ready");
+  });
 });
 
 test("export download streams the generated archive manifest for scoped users", async () => {
   const fixture = await createFixtureWithSession({ userId: "admin-a", roleId: "admin" });
   seedArchiveReadyStudent(fixture.db, "student-a");
 
-  const queueResponse = await onQueueArchive({
-    request: buildJsonRequest(
-      "https://example.test/api/admin/exports/student-archive",
-      fixture.token,
-      { studentId: "student-a", reason: "May 5 archive package" },
-      "POST",
-    ),
-    env: fixture.env,
-  });
-  const queued = await queueResponse.json();
-  fixture.db.data.auditEvents.length = 0;
+  await withSuccessfulDriveProvider(fixture, async () => {
+    const queueResponse = await onQueueArchive({
+      request: buildJsonRequest(
+        "https://example.test/api/admin/exports/student-archive",
+        fixture.token,
+        { studentId: "student-a", reason: "May 5 archive package" },
+        "POST",
+      ),
+      env: fixture.env,
+    });
+    const queued = await queueResponse.json();
+    fixture.db.data.auditEvents.length = 0;
 
-  const response = await onExportDownload({
-    request: buildRequest(`https://example.test/api/exports/${queued.export.id}/download`, fixture.token),
-    env: fixture.env,
-    params: { id: queued.export.id },
-  });
+    const response = await onExportDownload({
+      request: buildRequest(`https://example.test/api/exports/${queued.export.id}/download`, fixture.token),
+      env: fixture.env,
+      params: { id: queued.export.id },
+    });
 
-  assert.equal(response.status, 200);
-  assert.match(response.headers.get("content-type"), /application\/json/);
-  assert.match(response.headers.get("content-disposition"), /attachment/);
-  assert.equal(response.headers.get("x-archive-storage-identifiers-redacted"), "true");
-  const manifest = await response.json();
-  assert.equal(manifest.manifestVersion, "student-archive-v1");
-  assert.equal(manifest.exportId, queued.export.id);
-  assert.equal(manifest.student.id, "student-a");
-  assert.equal(manifest.evidenceArtifacts.length, 8);
-  assert.equal(manifest.evidenceArtifacts[0].fileBytesReady, true);
-  assert.doesNotMatch(JSON.stringify(manifest), /drive-celebration-secret|drive_file_id|driveFileId/i);
-  assert.equal(fixture.db.data.auditEvents.length, 1);
-  assert.equal(fixture.db.data.auditEvents[0].action, "export_downloaded");
-  assert.equal(fixture.db.data.auditEvents[0].metadata.scopedDownloadReady, true);
+    assert.equal(response.status, 200);
+    assert.match(response.headers.get("content-type"), /application\/json/);
+    assert.match(response.headers.get("content-disposition"), /attachment/);
+    assert.equal(response.headers.get("x-archive-storage-identifiers-redacted"), "true");
+    const manifest = await response.json();
+    assert.equal(manifest.manifestVersion, "student-archive-v1");
+    assert.equal(manifest.exportId, queued.export.id);
+    assert.equal(manifest.student.id, "student-a");
+    assert.equal(manifest.evidenceArtifacts.length, 8);
+    assert.equal(manifest.evidenceArtifacts[0].fileBytesReady, true);
+    assert.doesNotMatch(JSON.stringify(manifest), /drive-celebration-secret|drive_file_id|driveFileId/i);
+    assert.equal(fixture.db.data.auditEvents.length, 1);
+    assert.equal(fixture.db.data.auditEvents[0].action, "export_downloaded");
+    assert.equal(fixture.db.data.auditEvents[0].metadata.scopedDownloadReady, true);
+  });
 });
 
 test("export download reports missing archive artifacts instead of claiming signed URL readiness", async () => {
@@ -362,6 +439,52 @@ function buildJsonRequest(url, token, body, method = "POST") {
     },
     body: JSON.stringify(body),
   });
+}
+
+function jsonResponse(data, status = 200) {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: { "content-type": "application/json" },
+  });
+}
+
+function resolveFetchUrl(input) {
+  if (typeof input === "string") return input;
+  if (input instanceof URL) return input.toString();
+  if (input && typeof input === "object" && typeof input.url === "string") return input.url;
+  return String(input);
+}
+
+async function withSuccessfulDriveProvider(fixture, callback) {
+  return withDriveProvider(fixture, async (input, init = {}) => {
+    const url = resolveFetchUrl(input);
+    if (url === "https://oauth2.googleapis.com/token") {
+      assert.equal(String(init.method || "GET").toUpperCase(), "POST");
+      return jsonResponse({ access_token: "test-token", expires_in: 3600, token_type: "Bearer" });
+    }
+    if (url.startsWith("https://www.googleapis.com/drive/v3/files/")) {
+      const fileId = url.split("/drive/v3/files/")[1].split("?")[0];
+      return jsonResponse({ id: fileId, name: fileId === fixture.env.GOOGLE_DRIVE_EVIDENCE_ROOT_ID ? "Evidence Root" : "Evidence Index", mimeType: "application/vnd.google-apps.folder" });
+    }
+    throw new Error(`Unexpected fetch URL in test: ${url}`);
+  }, callback);
+}
+
+async function withDriveProvider(fixture, fetchFn, callback) {
+  const { privateKey } = generateKeyPairSync("rsa", {
+    modulusLength: 2048,
+    publicKeyEncoding: { type: "spki", format: "pem" },
+    privateKeyEncoding: { type: "pkcs8", format: "pem" },
+  });
+  const originalFetch = globalThis.fetch;
+  fixture.env.GOOGLE_DRIVE_CLIENT_EMAIL = "service-account@example.test";
+  fixture.env.GOOGLE_DRIVE_PRIVATE_KEY = privateKey;
+  globalThis.fetch = fetchFn;
+  try {
+    return await callback();
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
 }
 
 function createFixture() {
@@ -617,7 +740,7 @@ class MockPreparedStatement {
         requested_by: requestedBy,
         target_user_id: targetUserId,
         drive_file_id: null,
-        status: "complete",
+        status: this.sql.includes("'failed'") ? "failed" : "complete",
         created_at: completedAt,
         completed_at: completedAt,
       });

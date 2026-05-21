@@ -326,8 +326,16 @@ test("workspace renders archive readiness from persisted rows", async () => {
           message: "Archive package manifest is ready for scoped download.",
         },
         storage: {
+          providerStatus: "drive_credentials_missing",
           credentialsConfigured: false,
           storageIdentifiersRedacted: true,
+        },
+        retention: {
+          downloadWindowDays: 14,
+          expiryWarningDays: 3,
+          policyStatus: "policy_review_required",
+          policyReviewRequired: true,
+          downloadExpiresSoon: true,
         },
       },
     },
@@ -344,6 +352,9 @@ test("workspace renders archive readiness from persisted rows", async () => {
   assert.match(archive, /data-archive-download="manifest"/);
   assert.match(archive, /Download archive manifest/);
   assert.match(archive, /Private storage identifiers stay hidden/);
+  assert.match(archive, /data-archive-retention-status="policy_review_required"/);
+  assert.match(archive, /Retention policy needs school review before pilot archives/);
+  assert.match(archive, /expiring soon/i);
 });
 
 async function renderWorkspaceWithFetch(routes, section = "") {

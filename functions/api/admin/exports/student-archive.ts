@@ -1,5 +1,5 @@
 import type { Env } from "../../../_types.ts";
-import { buildStudentArchiveManifest } from "../../../_lib/archive-export.ts";
+import { buildStudentArchiveManifest, verifyArchiveProviderReady } from "../../../_lib/archive-export.ts";
 import { getCurrentUser, writeAudit } from "../../../_lib/auth.ts";
 import { randomId } from "../../../_lib/crypto.ts";
 import { badRequest, json, readJson, requirePost } from "../../../_lib/http.ts";
@@ -37,6 +37,58 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   if (!student) return workflowError("student_not_found", 404);
 
   const exportId = randomId("export");
+  const provider = await verifyArchiveProviderReady(env);
+  if (!provider.ready) {
+    const completedAt = new Date().toISOString();
+    await env.DB.prepare(
+      `INSERT INTO exports (id, export_type, requested_by, target_user_id, status, completed_at)
+       VALUES (?, 'student_archive', ?, ?, 'failed', ?)`,
+    ).bind(exportId, user.id, studentId, completedAt).run();
+
+    await writeAudit(env, {
+      actorUserId: user.id,
+      action: "student_archive_export_provider_unavailable",
+      entityType: "export",
+      entityId: exportId,
+      request,
+      metadata: {
+        targetUserId: studentId,
+        reason,
+        providerStatus: provider.status,
+        retry: provider.retry,
+        rootConfigured: provider.rootConfigured,
+        indexConfigured: provider.indexConfigured,
+        credentialParts: provider.credentialParts,
+        signedDownloadReady: false,
+        scopedDownloadReady: false,
+        storageIdentifiersRedacted: true,
+      },
+    });
+
+    return json({
+      ok: false,
+      error: provider.error,
+      export: {
+        id: exportId,
+        exportType: "student_archive",
+        targetUserId: studentId,
+        status: "failed",
+        completedAt,
+        providerStatus: provider.status,
+        retry: provider.retry,
+        signedDownloadReady: false,
+        scopedDownloadReady: false,
+      },
+      provider: {
+        status: provider.status,
+        message: provider.message,
+        rootConfigured: provider.rootConfigured,
+        indexConfigured: provider.indexConfigured,
+        credentialParts: provider.credentialParts,
+      },
+    }, { status: provider.httpStatus });
+  }
+
   const artifact = await buildStudentArchiveManifest(env, {
     exportId,
     studentId,
@@ -91,6 +143,8 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
       contentSha256: artifact.contentSha256,
       expiresAt: artifact.expiresAt,
       itemCounts: artifact.itemCounts,
+      providerStatus: provider.status,
+      retention: artifact.retention,
       signedDownloadReady: false,
       scopedDownloadReady: true,
       storageIdentifiersRedacted: true,
@@ -109,6 +163,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
       artifactType: artifact.artifactType,
       packageBytes: artifact.byteLength,
       downloadExpiresAt: artifact.expiresAt,
+      retention: artifact.retention,
       signedDownloadReady: false,
       scopedDownloadReady: true,
       downloadUrl: `/api/exports/${exportId}/download`,
