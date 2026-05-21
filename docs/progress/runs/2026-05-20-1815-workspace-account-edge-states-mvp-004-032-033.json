@@ -1,0 +1,167 @@
+{
+  "run_id": "2026-05-20-1815-workspace-account-edge-states-mvp-004-032-033",
+  "timestamp_local": "2026-05-20T18:15:00-07:00",
+  "automation_id": "senior-capstone-nonfigma-mvp-builder",
+  "lane": "non-figma MVP builder / backend-security-data",
+  "status": "completed",
+  "accepted_mvp_pass": true,
+  "requirement_ids": [
+    "MVP-004",
+    "MVP-032",
+    "MVP-033",
+    "MVP-034",
+    "MVP-039"
+  ],
+  "backlog_ids": [
+    "SC-007"
+  ],
+  "output_kind": "workspace-auth-edge-states+tests+browser-proof+docs",
+  "scope": "Consume the existing repo-recorded workspace account edge-state handoff by adding explicit session-expired, disabled-account, reset-required, and no-active-assignment states to the canonical authenticated workspace.",
+  "source_docs_read": [
+    "C:\\Users\\bryan\\.codex\\automations\\senior-capstone-nonfigma-mvp-builder\\memory.md",
+    "docs/master-plan.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/automation-cadence.md",
+    "docs/automation-runbook.md",
+    "docs/automation-self-improvement.md",
+    "docs/automation-memory.md",
+    "docs/automation-milestones.md",
+    "docs/progress/run-log.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/decision-log.md",
+    "docs/automation-backlog.md",
+    "docs/artifacts.json",
+    "docs/human-decisions.md",
+    "recent docs/progress/runs/*.json",
+    "docs/progress/rebuild.md",
+    "functions/api/auth/me.ts",
+    "workspace.js",
+    "tests/auth-login.integration.test.mjs",
+    "tests/workspace-app.test.mjs",
+    "tests/workspace-browser-smoke.test.mjs"
+  ],
+  "selected_category": "backend-security-data",
+  "selected_slice": "Add and prove account edge-state behavior for expired sessions, disabled accounts, required password resets, and mentors without active assignments, without direct Figma work.",
+  "changes": [
+    "Changed /api/auth/me to preserve fresh signed-out 401 behavior while returning specific account blockers for expired sessions, disabled accounts, and password-reset-required accounts.",
+    "Added workspace sign-in/account-state rendering for session-expired, account-disabled, and reset-required responses.",
+    "Added no-active-assignment workspace state markers for mentors with no assigned students.",
+    "Added a local-only mentor_no_assignment fake .test account to the workspace smoke seed.",
+    "Expanded auth integration tests for expired, disabled, pending-reset, and credential-flag reset-required /api/auth/me behavior.",
+    "Expanded workspace source/VM tests and HTTP smoke asset checks for the new state markers."
+  ],
+  "files_changed": [
+    "functions/api/auth/me.ts",
+    "workspace.js",
+    "scripts/seed-local-workspace-smoke.mjs",
+    "tests/auth-login.integration.test.mjs",
+    "tests/workspace-app.test.mjs",
+    "tests/workspace-browser-smoke.test.mjs",
+    "docs/mvp-requirements-catalog.md",
+    "docs/production-surface-registry.md",
+    "docs/automation-backlog.md",
+    "docs/automation-memory.md",
+    "docs/artifacts.json",
+    "docs/progress/handoffs.md",
+    "docs/progress/rebuild.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-20-1815-workspace-account-edge-states-mvp-004-032-033.json"
+  ],
+  "validation": [
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 tests\\auth-login.integration.test.mjs",
+      "result": "passed",
+      "summary": "Focused auth integration coverage passed for expired-session, disabled-account, pending-reset, and credential-flag reset-required /api/auth/me responses."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 tests\\workspace-app.test.mjs",
+      "result": "passed",
+      "summary": "Workspace source/VM coverage passed for session-expired, account-disabled, reset-required, role-pending, permission-denied, and no-active-assignment rendering."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 tests\\workspace-browser-smoke.test.mjs",
+      "result": "passed-with-expected-skips",
+      "summary": "Portable workspace smoke asset checks passed, with opt-in HTTP checks skipped when no base URL was set."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 typecheck",
+      "result": "passed",
+      "summary": "TypeScript typecheck exited 0."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 check:production-surfaces",
+      "result": "passed",
+      "summary": "Production surface leak check passed with 91 production text surfaces scanned."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 scripts\\seed-local-workspace-smoke.mjs",
+      "result": "passed",
+      "summary": "Seeded seven local-only fake .test workspace accounts, including mentor_no_assignment, without printing passwords."
+    },
+    {
+      "command": "$env:WORKSPACE_SMOKE_BASE_URL='http://127.0.0.1:8788'; $env:WORKSPACE_SMOKE_CREDENTIALS_FILE='.secrets\\local-workspace-smoke-accounts.json'; powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 tests\\workspace-browser-smoke.test.mjs",
+      "result": "passed",
+      "summary": "Credential-backed local HTTP smoke passed, including mentor_no_assignment returning assignedStudents: []."
+    },
+    {
+      "command": "Codex in-app browser at http://127.0.0.1:8788/workspace.html",
+      "result": "passed",
+      "summary": "Signed in as mentor_no_assignment, verified the no-active-assignment overview/mentor empty states, and observed zero console errors."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 test",
+      "result": "passed",
+      "summary": "Full test suite passed: 134 tests, 131 passing and 3 expected opt-in workspace smoke skips."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 check",
+      "result": "passed-static-live-blocked",
+      "summary": "Aggregate check passed with static Cloudflare verification; live Cloudflare verification remained blocked without CLOUDFLARE_API_TOKEN."
+    }
+  ],
+  "browser_verification": {
+    "local_url": "http://127.0.0.1:8788/workspace.html",
+    "account_used": "mentor_no_assignment",
+    "no_assignment_overview_visible": true,
+    "mentor_empty_state_visible": true,
+    "console_error_count": 0
+  },
+  "blockers": [
+    {
+      "id": "LIVE_CLOUDFLARE_BLOCKED_NO_TOKEN",
+      "message": "Non-interactive Cloudflare Pages/D1 deployment and secret inspection remains blocked because CLOUDFLARE_API_TOKEN is not set.",
+      "owner": "Bryan",
+      "next_action": "Provide a scoped Cloudflare API token or use an approved Cloudflare connector for read-only remote inspection and hosted workspace edge-state proof."
+    },
+    {
+      "id": "DRIVE_LIVE_BLOCKED_MISSING_CREDENTIAL_SECRETS",
+      "message": "Live Drive upload/download remains blocked because Cloudflare Pages is missing GOOGLE_DRIVE_CLIENT_EMAIL and GOOGLE_DRIVE_PRIVATE_KEY.",
+      "owner": "Bryan",
+      "next_action": "Add the Drive credential secrets in Cloudflare Pages, then rerun Drive probe plus small and >5MB upload/download through a fake .test account."
+    }
+  ],
+  "next_actions": [
+    "After deployment, prove hosted workspace behavior for session-expired, disabled-account, reset-required, and no-active-assignment states.",
+    "Continue MVP-017 dashboard surfacing for presentation slot status/check-out/check-in if hosted workspace edge-state proof remains blocked.",
+    "Run live Drive upload/download proof after Bryan configures Cloudflare Pages Drive secrets."
+  ],
+  "automation_efficiency": {
+    "scale_signal": "accepted implementation pass; no cadence change recommended"
+  },
+  "self_improvement": "none",
+  "figma_work_avoided": true,
+  "direct_figma_tools_called": false,
+  "run_log_updated": true,
+  "structured_manifest_created": true,
+  "artifacts_json_updated": true,
+  "mvp_catalog_changed": true,
+  "human_decisions_changed": false,
+  "phone_tracker": {
+    "result": "not_appended",
+    "reason": "Google Sheets connector was not used in this run; repo-local closeout evidence was preserved."
+  },
+  "implementation_commit_sha": "a5f01d3765b49d752dc1b5cb133f246507176985",
+  "commit_sha": "a5f01d3765b49d752dc1b5cb133f246507176985",
+  "push_result": "pending",
+  "closeout_commit_sha": "reported in final response because a closeout commit cannot contain its own hash"
+}

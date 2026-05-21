@@ -324,3 +324,18 @@ Each rebuild run should append a dated entry with:
 - `self-improvement`: none.
 - `commit/push status`: implementation commit `c6470dfa50d136f2da3d29319859aa640ad347b4` and closeout manifest commit `ff3b0ea687451427ce798b778302cf5e4e62cfb0` pushed to `origin main`; live-proof closeout commit is reported in the final run response because a commit cannot contain its own hash.
 - `next action`: Add disabled/reset-required/no-assignment workspace UI proof or resume MVP-017 dashboard surfacing; run live Drive upload/download after Bryan configures Drive credentials.
+
+### 2026-05-20 18:15 PT - MVP-004/MVP-032/MVP-033 Workspace Account Edge States
+
+- `automation`: `senior-capstone-nonfigma-mvp-builder`
+- `master-plan section`: P0 Production Experience Gate; Role-Aware Production App Contract; Day 7 Alpha Gate; Logging Requirements.
+- `source docs/logs read`: automation memory fallback at `C:\Users\bryan\.codex\automations\senior-capstone-nonfigma-mvp-builder\memory.md`, required master plan/catalog/cadence/runbook/self-improvement/memory/milestones/progress docs, recent run manifests, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, `docs/progress/rebuild.md`, and the existing auth/workspace route/test patterns.
+- `backlog or requirement IDs selected`: `SC-007`, `MVP-004`, `MVP-032`, `MVP-033`, supporting `MVP-034` and `MVP-039`.
+- `bounded scope`: Add explicit account edge-state behavior for expired sessions, disabled accounts, password-reset-required accounts, and mentors without active assignments in the canonical authenticated workspace.
+- `files changed`: `functions/api/auth/me.ts`, `workspace.js`, `scripts/seed-local-workspace-smoke.mjs`, `tests/auth-login.integration.test.mjs`, `tests/workspace-app.test.mjs`, `tests/workspace-browser-smoke.test.mjs`, `docs/mvp-requirements-catalog.md`, `docs/production-surface-registry.md`, `docs/automation-backlog.md`, `docs/automation-memory.md`, `docs/artifacts.json`, `docs/progress/handoffs.md`, this rebuild log, `docs/progress/run-log.md`, and structured run manifest.
+- `validation`: focused auth integration passed; focused workspace source/VM test passed; portable workspace smoke passed with expected opt-in skips; strict typecheck passed; production-surface checker passed; local D1 workspace smoke seed passed; credential-backed local HTTP workspace smoke passed; in-app browser verified `mentor_no_assignment` no-active-assignment state with zero console errors; full `test` passed with 131 passing tests and 3 expected opt-in skips; aggregate `check` passed with static Cloudflare verification and live Cloudflare verification blocked only by missing `CLOUDFLARE_API_TOKEN`.
+- `commit/push status`: implementation commit `a5f01d3765b49d752dc1b5cb133f246507176985` created on `main`; closeout docs commit and push pending.
+- `blockers`: hosted edge-state proof and non-interactive Cloudflare Pages/D1 deployment/secret inspection still require `CLOUDFLARE_API_TOKEN`; live Drive upload/download still requires Cloudflare Pages Drive secrets.
+- `phone tracker`: not appended; Google Sheets connector was not used in this run.
+- `self-improvement`: none.
+- `next action`: After deployment, prove hosted workspace session-expired, disabled-account, reset-required, and no-active-assignment states; otherwise continue MVP-017 dashboard surfacing while Cloudflare/Drive secrets remain blocked.

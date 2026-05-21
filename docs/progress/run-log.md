@@ -490,3 +490,18 @@ Future productive runs should append compact entries that name the master-plan s
 - `implementation handoff`: Rebuild should consume node `124:2` when adding browser-visible role-pending and permission-denied workspace states; keep public guide mode separate from session, D1 role/scope, API, evidence-redaction, and audit logic.
 - `blockers`: none for Figma; existing Drive and Cloudflare setup blockers are recorded as implementation/deployment setup context only.
 - `self-improvement`: none.
+
+## 2026-05-20 18:15 PT - MVP-004/MVP-032/MVP-033 Workspace Account Edge States
+
+- `automation ID`: `senior-capstone-nonfigma-mvp-builder`
+- `lane`: non-Figma MVP builder / backend-security-data.
+- `master-plan sections`: P0 Production Experience Gate; Role-Aware Production App Contract; Day 7 Alpha Gate; Logging Requirements.
+- `requirement IDs`: `MVP-004`, `MVP-032`, `MVP-033`, supporting `MVP-034` and `MVP-039`; `backlog IDs`: `SC-007`.
+- `selected slice`: Consume the existing repo-recorded workspace account edge-state handoff by adding explicit session-expired, disabled-account, reset-required, and no-active-assignment states to the canonical authenticated workspace without direct Figma work.
+- `what changed`: `/api/auth/me` now returns specific blockers for expired sessions, disabled accounts, and password-reset-required accounts while preserving fresh signed-out behavior; `workspace.js` renders `data-workspace-state` markers for session-expired, account-disabled, reset-required, and no-active-assignment; the local workspace smoke seed now includes a fake `mentor_no_assignment` account; auth/workspace/browser smoke tests cover the new states.
+- `files changed`: `functions/api/auth/me.ts`, `workspace.js`, `scripts/seed-local-workspace-smoke.mjs`, `tests/auth-login.integration.test.mjs`, `tests/workspace-app.test.mjs`, `tests/workspace-browser-smoke.test.mjs`, requirement/backlog/registry/artifact/handoff/progress docs, and `docs/progress/runs/2026-05-20-1815-workspace-account-edge-states-mvp-004-032-033.json`.
+- `validation`: focused auth integration passed; focused workspace source/VM test passed; portable workspace smoke passed with expected opt-in skips; strict typecheck passed; production-surface checker passed with 91 surfaces; local D1 smoke seed passed with seven fake `.test` accounts; credential-backed local HTTP workspace smoke passed; in-app browser verified the `mentor_no_assignment` no-active-assignment state with zero console errors; full `test` passed with 131 passing tests and 3 expected skips; aggregate `check` passed with static Cloudflare verification and `LIVE_CLOUDFLARE_BLOCKED_NO_TOKEN`.
+- `commit`: implementation commit `a5f01d3765b49d752dc1b5cb133f246507176985` (`rebuild: add workspace account edge states (MVP-032)`) created on `main`; closeout evidence commit follows this entry.
+- `blockers`: hosted edge-state proof and non-interactive Cloudflare Pages/D1 deployment/secret inspection still require `CLOUDFLARE_API_TOKEN`; live Drive upload/download still requires `GOOGLE_DRIVE_CLIENT_EMAIL` and `GOOGLE_DRIVE_PRIVATE_KEY` in Cloudflare Pages.
+- `phone tracker`: not appended; Google Sheets connector was not used in this run, and repo-local closeout evidence was preserved.
+- `self-improvement`: none.
