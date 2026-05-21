@@ -1218,3 +1218,18 @@ Future productive runs should append compact entries that name the master-plan s
 - `phone tracker`: not appended; Google Sheets connector was not used.
 - `self-improvement`: none.
 - `commit/push status`: pending closeout commit.
+
+## 2026-05-21 13:43 PT - Real Staff/Admin Account Setup
+
+- `automation ID`: manual Codex real staff account setup.
+- `lane`: production account setup / sanitized evidence only.
+- `selected slice`: Bryan-approved five-account real staff/admin setup and credential handoff to `bryan@thecapstoneapp.com` only.
+- `what changed`: Created the five authorized real staff/admin accounts through the hosted admin import path, captured temporary credentials only in ignored `.secrets/` handoff files, sent the credential handoff only to Bryan, updated `HD-2026-05-21-001` with the narrow exception boundary, and added sanitized run manifest `docs/progress/runs/2026-05-21-real-staff-account-setup.json`.
+- `account proof`: `timmb@nv.ccsd.net` has `program_teacher` with existing production `program:it` scope; `clarkj9@nv.ccsd.net` and `christr@nv.ccsd.net` have global `mentor`; `rawsojp@nv.ccsd.net` and `bryan@thecapstoneapp.com` have global `admin`. All five are `pending_reset`, have one password credential, require reset, and have no duplicate `email_norm` rows.
+- `credential delivery`: one email was sent to `bryan@thecapstoneapp.com` with subject `The Capstone App real staff account temporary credentials`; no individual account holders were emailed, and no credentials were printed or committed.
+- `policy flag handling`: `ALLOW_REAL_TEMP_CREDENTIAL_IMPORT` was enabled only in one temporary Pages deployment from a tracked-file staging archive, used for the approved import, then removed by a follow-up deployment. The temporary enabled deployment was deleted; the live app now returns the expected real-import policy gate.
+- `validation`: Targeted D1 verification passed for accounts, roles/scopes, credentials, reset requirement, duplicate check, and audit counts. `npm test`, `npm run typecheck`, `npm run check:predeploy-gate`, `npm run check:production-surfaces`, `npm run check:alpha-account-gating`, `npm run check:cloudflare:live`, `npm run check:custom-domain-cutover -- --live-required --live-http`, `npm run check:production-cutover`, and `npm run check` passed; the custom-domain run reported `CUSTOM_DOMAIN_CUTOVER_VERIFIED`.
+- `blockers`: none for the five approved staff/admin accounts. Broader real-user credential delivery remains open.
+- `phone tracker`: not appended; Google Sheets connector was not used.
+- `self-improvement`: none.
+- `commit/push status`: safe evidence queued for closeout commit and push.

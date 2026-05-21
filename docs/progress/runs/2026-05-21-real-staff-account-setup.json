@@ -1,0 +1,161 @@
+{
+  "runId": "2026-05-21-real-staff-account-setup",
+  "timestampPt": "2026-05-21T13:43:14-07:00",
+  "startSha": "416a90f693a590725de5cf4eb805b267d83df4ec",
+  "endSha": null,
+  "authorizedBy": "Bryan user request on 2026-05-21",
+  "authorizedAccounts": [
+    {
+      "email": "timmb@nv.ccsd.net",
+      "role": "program_teacher"
+    },
+    {
+      "email": "clarkj9@nv.ccsd.net",
+      "role": "mentor"
+    },
+    {
+      "email": "christr@nv.ccsd.net",
+      "role": "mentor"
+    },
+    {
+      "email": "rawsojp@nv.ccsd.net",
+      "role": "admin"
+    },
+    {
+      "email": "bryan@thecapstoneapp.com",
+      "role": "admin"
+    }
+  ],
+  "deliveryRecipient": "bryan@thecapstoneapp.com",
+  "deliveryMethod": "email sent",
+  "deliveryDetails": {
+    "subject": "The Capstone App real staff account temporary credentials",
+    "credentialDeliveryFormat": "one Gmail message to Bryan with the ignored local credential handoff file attached; credential values are omitted from committed evidence",
+    "sentTo": "bryan@thecapstoneapp.com",
+    "cc": "",
+    "bcc": "",
+    "sentToIndividualUsers": false,
+    "ignoredCredentialFilePath": ".secrets/real-staff-accounts-2026-05-21-credentials.json",
+    "ignoredEmailBodyPath": ".secrets/real-staff-accounts-2026-05-21-email-to-bryan.txt",
+    "credentialsPrinted": false,
+    "credentialsCommitted": false
+  },
+  "accountResults": [
+    {
+      "email": "timmb@nv.ccsd.net",
+      "existedBefore": false,
+      "created": true,
+      "roleRepaired": false,
+      "passwordGenerated": true,
+      "status": "pending_reset",
+      "requiresReset": true,
+      "role": "program_teacher",
+      "scope": "program:it",
+      "credentialValueCommitted": false,
+      "credentialValuePrinted": false
+    },
+    {
+      "email": "clarkj9@nv.ccsd.net",
+      "existedBefore": false,
+      "created": true,
+      "roleRepaired": false,
+      "passwordGenerated": true,
+      "status": "pending_reset",
+      "requiresReset": true,
+      "role": "mentor",
+      "scope": "global",
+      "credentialValueCommitted": false,
+      "credentialValuePrinted": false
+    },
+    {
+      "email": "christr@nv.ccsd.net",
+      "existedBefore": false,
+      "created": true,
+      "roleRepaired": false,
+      "passwordGenerated": true,
+      "status": "pending_reset",
+      "requiresReset": true,
+      "role": "mentor",
+      "scope": "global",
+      "credentialValueCommitted": false,
+      "credentialValuePrinted": false
+    },
+    {
+      "email": "rawsojp@nv.ccsd.net",
+      "existedBefore": false,
+      "created": true,
+      "roleRepaired": false,
+      "passwordGenerated": true,
+      "status": "pending_reset",
+      "requiresReset": true,
+      "role": "admin",
+      "scope": "global",
+      "credentialValueCommitted": false,
+      "credentialValuePrinted": false
+    },
+    {
+      "email": "bryan@thecapstoneapp.com",
+      "existedBefore": false,
+      "created": true,
+      "roleRepaired": false,
+      "passwordGenerated": true,
+      "status": "pending_reset",
+      "requiresReset": true,
+      "role": "admin",
+      "scope": "global",
+      "credentialValueCommitted": false,
+      "credentialValuePrinted": false
+    }
+  ],
+  "policyFlagHandling": {
+    "allowRealTempCredentialImportBefore": "absent",
+    "allowRealTempCredentialImportDuring": "temporary deployment only",
+    "enabledDeploymentId": "7abaa68a-075d-4765-9322-74009c809451",
+    "enabledDeploymentDeleted": true,
+    "allowRealTempCredentialImportAfter": "absent",
+    "disabledDeploymentId": "a1e99e2c-5766-492d-8e09-f4b4e5bac70d",
+    "runtimePolicyAfterDisable": "credential_delivery_policy_required"
+  },
+  "validationResults": {
+    "targetedAccountQuery": "pass",
+    "roleScopeVerification": "pass",
+    "passwordCredentialVerification": "pass",
+    "requiresResetVerification": "pass",
+    "duplicateEmailNormVerification": "pass",
+    "auditEventsVerification": "pass: admin_user_imported=5, admin_users_import_completed=1",
+    "customDomainCutoverLiveHttp": "pass: CUSTOM_DOMAIN_CUTOVER_VERIFIED",
+    "npmTest": "pass: 227 tests, 223 passed, 4 skipped",
+    "typecheck": "pass",
+    "checkPredeployGate": "pass",
+    "checkProductionSurfaces": "pass: 91 production text surfaces scanned",
+    "checkAlphaAccountGating": "pass: ALPHA_ACCOUNT_GATING_VERIFIED with expected ALPHA_ACCOUNT_OPTION_A_OPEN warning",
+    "checkCloudflareLive": "pass",
+    "checkProductionCutover": "pass: PRODUCTION_CUTOVER_VERIFIED",
+    "npmRunCheck": "pass",
+    "gitDiffChecks": "pass: manifest parsed, .secrets ignored, git diff checks passed, and generated password-value scan reported no leaks"
+  },
+  "securityPrivacyConfirmation": {
+    "credentialsPrinted": false,
+    "credentialsCommitted": false,
+    "credentialValuesInManifest": false,
+    "credentialValuesInRunLog": false,
+    "fakePasswordsCommitted": false,
+    "realStudentDataUsed": false,
+    "realStudentAccountsCreated": false,
+    "providerSecretBearingErrorsLeaked": false,
+    "sentOnlyToBryan": true,
+    "sentToIndividualUsers": false,
+    "alphaAccountPolicyChanged": false,
+    "stakeholderSitesChanged": false,
+    "automationCadenceOrStateChanged": false,
+    "domainConfigChanged": false
+  },
+  "openDecisionsRemaining": [
+    "alpha/account pilot policy",
+    "student credential delivery",
+    "Google Docs live export fixture/provider policy",
+    "archive retention",
+    "stakeholder option lifecycle"
+  ],
+  "finalStatus": "REAL_STAFF_ACCOUNTS_CREATED_AND_CREDENTIALS_SENT_TO_BRYAN"
+}
