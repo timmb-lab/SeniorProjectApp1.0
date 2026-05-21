@@ -97,7 +97,8 @@ powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\ru
 
 Required result:
 
-- Wrangler `whoami` succeeds.
+- The Cloudflare API token verifies successfully through `GET https://api.cloudflare.com/client/v4/user/tokens/verify`.
+- Wrangler `whoami` is optional and non-blocking. Scoped API tokens can be valid and active even when `whoami` cannot retrieve account identity.
 - Live Pages project `senior-capstone-app` exists.
 - Live D1 database `senior-capstone-db` exists and matches database id `3141d9ac-08b7-49c1-92ba-bbf50c1a611f`.
 - Run log records the exact result.

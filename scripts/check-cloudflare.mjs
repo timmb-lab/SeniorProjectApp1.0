@@ -4,6 +4,7 @@ import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 
 const EXPECTED = {
+  accountId: "539e8f7c55e7b1472013626ad72f4c7f",
   projectName: "senior-capstone-app",
   pagesOutputDir: ".",
   d1Binding: "DB",
@@ -159,11 +160,27 @@ function collectRecords(value, depth = 0) {
   ];
 }
 
+function redactKnownSecrets(text) {
+  let sanitized = String(text || "").replace(/\u001B\[[0-?]*[ -/]*[@-~]/g, "");
+  const secretValues = [
+    process.env.CLOUDFLARE_API_TOKEN,
+  ]
+    .map((value) => String(value || "").trim())
+    .filter((value) => value.length >= 8);
+
+  for (const secret of secretValues) {
+    sanitized = sanitized.split(secret).join("[REDACTED]");
+  }
+
+  return sanitized;
+}
+
 function summarizeCommandOutput(output) {
-  return output
+  return redactKnownSecrets(output)
     .split(/\r?\n/)
     .map((line) => line.trim())
     .filter(Boolean)
+    .filter((line) => !/Logs were written/i.test(line))
     .slice(0, 5)
     .join(" | ");
 }
@@ -197,10 +214,15 @@ function extractJson(output) {
 }
 
 function runWrangler(wranglerJs, wranglerArgs, description) {
+  const env = { ...process.env, CI: "1" };
+  if (!String(env.CLOUDFLARE_ACCOUNT_ID || "").trim() && EXPECTED.accountId) {
+    env.CLOUDFLARE_ACCOUNT_ID = EXPECTED.accountId;
+  }
+
   const result = spawnSync(process.execPath, [wranglerJs, ...wranglerArgs], {
     cwd: repoRoot,
     encoding: "utf8",
-    env: { ...process.env, CI: "1" },
+    env,
   });
   const output = `${result.stdout || ""}\n${result.stderr || ""}`.trim();
   if (looksLikeGenericHelp(output)) {
@@ -223,21 +245,21 @@ function runWranglerJson(wranglerJs, wranglerArgs, description) {
 
 function findPagesProject(value) {
   return collectRecords(value).find((record) => (
-    stringField(record, ["name", "project_name", "projectName"]) === EXPECTED.projectName
+    stringField(record, ["name", "project_name", "projectName", "Project Name"]) === EXPECTED.projectName
   ));
 }
 
 function findD1Database(value) {
   return collectRecords(value).find((record) => {
-    const name = stringField(record, ["name", "database_name", "databaseName"]);
-    const id = stringField(record, ["uuid", "id", "database_id", "databaseId"]);
+    const name = stringField(record, ["name", "database_name", "databaseName", "Database Name"]);
+    const id = stringField(record, ["uuid", "id", "database_id", "databaseId", "Database ID", "Database UUID"]);
     return name === EXPECTED.d1DatabaseName || id === EXPECTED.d1DatabaseId;
   });
 }
 
 function verifyD1Identity(record, source) {
-  const name = stringField(record, ["name", "database_name", "databaseName"]);
-  const id = stringField(record, ["uuid", "id", "database_id", "databaseId"]);
+  const name = stringField(record, ["name", "database_name", "databaseName", "Database Name"]);
+  const id = stringField(record, ["uuid", "id", "database_id", "databaseId", "Database ID", "Database UUID"]);
   if (name && name !== EXPECTED.d1DatabaseName) {
     throw new Error(`${source} returned D1 database name '${name}', expected '${EXPECTED.d1DatabaseName}'`);
   }
@@ -310,11 +332,83 @@ function verifyWranglerCli() {
   }
 }
 
-function verifyLiveCloudflare(wranglerJs) {
-  console.log("Cloudflare live verification: CLOUDFLARE_API_TOKEN is present; running read-only Pages/D1 checks.");
+function cloudflareErrors(data) {
+  if (!Array.isArray(data?.errors) || data.errors.length === 0) return "";
+  return data.errors
+    .map((error) => {
+      if (!isRecord(error)) return "";
+      const code = error.code ? String(error.code) : "";
+      const message = stringField(error, ["message"]);
+      return [code, message].filter(Boolean).join(": ");
+    })
+    .filter(Boolean)
+    .join("; ");
+}
 
-  runWranglerJson(wranglerJs, ["whoami", "--json"], "wrangler whoami --json");
-  console.log("PASS live: Wrangler whoami succeeded");
+async function verifyCloudflareApiToken() {
+  const token = String(process.env.CLOUDFLARE_API_TOKEN || "").trim();
+  const response = await fetch("https://api.cloudflare.com/client/v4/user/tokens/verify", {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  const text = await response.text();
+
+  let data;
+  try {
+    data = text ? JSON.parse(text) : {};
+  } catch {
+    throw new Error(`Cloudflare token verify returned HTTP ${response.status} with non-JSON output`);
+  }
+
+  if (!response.ok || data.success !== true) {
+    const errors = cloudflareErrors(data);
+    throw new Error(`Cloudflare token verify failed with HTTP ${response.status}${errors ? `: ${errors}` : ""}`);
+  }
+
+  const status = stringField(isRecord(data.result) ? data.result : {}, ["status"]);
+  if (status && status !== "active") {
+    throw new Error(`Cloudflare token verify returned token status '${status}', expected 'active'`);
+  }
+
+  console.log("PASS live: Cloudflare API token is valid and active");
+}
+
+function classifyLiveFailure(message) {
+  if (/Pages project '.+' was not found/i.test(message)) return "PAGES_PROJECT_NOT_VISIBLE";
+  if (/D1 database '.+' \(.+\) was not found/i.test(message)) return "D1_DATABASE_NOT_VISIBLE";
+  if (/returned D1 database id '.+', expected/i.test(message)) return "D1_DATABASE_ID_MISMATCH";
+  if (/pages project list/i.test(message) && /permission|unauthorized|forbidden|not authorized|authentication/i.test(message)) {
+    return "MISSING_CLOUDFLARE_PAGES_PERMISSION";
+  }
+  if (/d1/i.test(message) && /permission|unauthorized|forbidden|not authorized|authentication/i.test(message)) {
+    return "MISSING_D1_PERMISSION";
+  }
+  if (/generic Wrangler help|did not return parseable JSON|returned generic Wrangler help/i.test(message)) {
+    return "WRANGLER_PAGES_D1_COMMAND_COMPATIBILITY_ISSUE";
+  }
+  return "UNKNOWN";
+}
+
+async function verifyLiveCloudflare(wranglerJs) {
+  console.log("Cloudflare live verification: CLOUDFLARE_API_TOKEN is present; running read-only Pages/D1 checks.");
+  await verifyCloudflareApiToken();
+
+  if (!String(process.env.CLOUDFLARE_ACCOUNT_ID || "").trim() && EXPECTED.accountId) {
+    console.log("INFO live: using configured Cloudflare account id for scoped-token Wrangler checks");
+  }
+
+  try {
+    runWranglerJson(wranglerJs, ["whoami", "--json"], "wrangler whoami --json");
+    console.log("PASS live: Wrangler whoami succeeded");
+  } catch (error) {
+    const message = redactKnownSecrets(error instanceof Error ? error.message : String(error));
+    console.log("WARN live: wrangler whoami failed, but token verify passed; continuing Pages/D1 checks");
+    if (/generic Wrangler help|did not return parseable JSON/i.test(message)) {
+      console.log(`WARN live: ${message}`);
+    }
+  }
 
   const pagesProjects = runWranglerJson(wranglerJs, ["pages", "project", "list", "--json"], "wrangler pages project list --json");
   const pagesProject = findPagesProject(pagesProjects);
@@ -370,9 +464,10 @@ if (!hasToken) {
 }
 
 try {
-  verifyLiveCloudflare(wrangler.wranglerJs);
+  await verifyLiveCloudflare(wrangler.wranglerJs);
   console.log("Cloudflare live verification passed: Pages project and D1 database were verified read-only.");
 } catch (error) {
-  console.error(`Cloudflare live verification failed: ${error instanceof Error ? error.message : String(error)}`);
+  const message = redactKnownSecrets(error instanceof Error ? error.message : String(error));
+  console.error(`Cloudflare live verification failed: ${classifyLiveFailure(message)}: ${message}`);
   process.exit(1);
 }
