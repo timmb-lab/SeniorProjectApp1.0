@@ -489,6 +489,10 @@ Created/updated frames:
   - `Prototype / 16 / Workspace account edge-state handoff`, node `133:2`
   - Created route/data/permission/state annotations for session expired, disabled account, password reset required, role pending, no active assignment, and section-level permission denied.
   - Shared plugin data key `senior_capstone/workspace_account_edge_contract_2026_05_20` records 6 states, 9 routes, 9 records, 6 guardrails, and the next rebuild action for disabled/reset-required/no-assignment/session-expired workspace UI proof.
+- 2026-05-20 presentation dashboard state handoff on `05 Full MVP Alpha Prototype`
+  - `Prototype / 17 / Presentation dashboard state handoff`, node `139:2`
+  - Created route/data/permission/state annotations that consume existing presentation slot, conflict, check-out, and check-in APIs into student, mentor, teacher, admin, denied-action, empty, and loading dashboard states.
+  - Shared plugin data key `senior_capstone/presentation_dashboard_state_contract_2026_05_20` records 6 states, 7 routes, 8 records, 6 guardrails, and the next rebuild action for canonical dashboard presentation-state browser proof.
 
 Verification status:
 - Canvas write succeeded and returned the frame IDs above.
@@ -545,3 +549,6 @@ Verification status:
 - 2026-05-20 `use_figma` write created node `133:2` to map `/workspace`, `/workspace.html`, `/api/auth/login`, `/api/auth/me`, `/api/auth/logout`, `/api/student/dashboard`, `/api/mentor/assigned`, `/api/teacher/review-queue`, and `/api/reports/readiness` to account lifecycle and assignment/scope edge states.
 - First readback found zero-width text and an oversized `41066px` auto-layout height; follow-up `use_figma` layout correction fixed text widths, frame autosizing, and reduced node `133:2` to `1360x1568`.
 - Final `get_design_context` and `get_screenshot` succeeded for node `133:2`; screenshot verification returned `889x1024` from original `1360x1568`, and readback confirmed 58 text nodes, zero suspicious clipped text nodes, zero child overflow, 6 states, 9 routes, 9 records, and 6 guardrails.
+- 2026-05-20 `use_figma` write created node `139:2` to map `/student/presentation`, `/mentor/assigned`, `/teacher/dashboard`, `/api/presentation-slots`, `/api/presentation-slots/:id/check-out`, `/api/presentation-slots/:id/check-in`, and `/admin/audit` to dashboard-facing presentation states.
+- Initial visual readback found compact panel action labels squeezed too narrowly; follow-up `use_figma` layout correction converted those rows to stacked content, expanded node `139:2` to `1360x1943`, and returned zero suspicious clipped text nodes plus zero child overflow.
+- Final `get_design_context` and `get_screenshot` succeeded for node `139:2`; screenshot verification returned `717x1024` from original `1360x1943`, and readback confirmed 6 states, 7 routes, 8 records, and 6 guardrails in shared contract data.

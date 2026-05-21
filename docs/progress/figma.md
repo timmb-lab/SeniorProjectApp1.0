@@ -9,7 +9,7 @@ Figma remains a product-design source for route, state, data, and permission han
 - Active Figma file: `https://www.figma.com/design/z4t4tFPAKrMDh6pIYOeEw6`
 - File key: `z4t4tFPAKrMDh6pIYOeEw6`
 - Team id: `1638213362346160913`
-- Key implementation nodes: `18:2`, `31:2`, `37:2`, `43:2`, `48:2`, `56:2`, `61:2`, `69:2`, `78:2`, full MVP alpha prototype page `98:2`, production boundary node `124:2`, and workspace account edge-state node `133:2`.
+- Key implementation nodes: `18:2`, `31:2`, `37:2`, `43:2`, `48:2`, `56:2`, `61:2`, `69:2`, `78:2`, full MVP alpha prototype page `98:2`, production boundary node `124:2`, workspace account edge-state node `133:2`, and presentation dashboard state node `139:2`.
 
 ## Current Guidance
 
@@ -71,4 +71,17 @@ Figma work is owned by `senior-capstone-figma-product-builder`, running hourly a
 - `changed in Figma`: Added state cards for `session_expired`, `account_disabled`, `reset_required`, `role_pending`, `no_active_assignment`, and `section_permission_denied`; added route/record/audit annotations for `/workspace`, auth/session APIs, role dashboard APIs, `User`, `UserCredential`, `Session`, `UserRole`, `MentorAssignment`, `StaffProgramAssignment`, and `AuditEvent`; stored shared plugin data key `senior_capstone/workspace_account_edge_contract_2026_05_20`.
 - `verification`: First readback found zero-width text and an oversized `41066px` auto-layout height; a follow-up layout correction fixed text widths and reduced the frame to `1360x1568`. Final readback found 58 text nodes, zero suspicious clipped text nodes, zero child overflow, 6 states, 9 routes, 9 records, and 6 guardrails. `get_design_context` and `get_screenshot` succeeded for node `133:2`; screenshot returned `889x1024` from original `1360x1568`.
 - `implementation handoff`: Rebuild should consume node `133:2` when adding disabled/reset-required/no-assignment/session-expired workspace UI proof and browser smoke coverage through fake `.test` accounts only. Role-pending and source-level permission-denied are already proven but should remain covered.
+- `self-improvement`: none
+
+## 2026-05-20 18:33 PT - MVP-028 Presentation Dashboard State Handoff
+
+- `automation ID`: `senior-capstone-figma-product-builder`
+- `selected requirement IDs`: `MVP-028`, supporting `MVP-017`, `MVP-020`, `MVP-021`, `MVP-032`, and `MVP-033`
+- `selected slice`: Create and verify a dashboard-facing presentation state handoff after rebuild implemented presentation slot scheduling plus check-out/check-in endpoints.
+- `active file`: `z4t4tFPAKrMDh6pIYOeEw6`
+- `page`: `05 Full MVP Alpha Prototype`
+- `nodes touched`: `139:2` (`Prototype / 17 / Presentation dashboard state handoff`)
+- `changed in Figma`: Added dashboard-state annotations for student own slot, mentor assigned risk, teacher day-of queue, admin conflict review, permission-denied action, and empty/loading presentation surfaces; mapped routes `/student/presentation`, `/mentor/assigned`, `/teacher/dashboard`, `/api/presentation-slots`, `/api/presentation-slots/:id/check-out`, `/api/presentation-slots/:id/check-in`, and `/admin/audit`; mapped records `PresentationSlot`, `MeetingAttendance`, `MentorAssignment`, `StaffProgramAssignment`, `Review`, `Submission`, `StudentProfile`, and `AuditEvent`; stored shared plugin data key `senior_capstone/presentation_dashboard_state_contract_2026_05_20`.
+- `verification`: First `use_figma` attempt failed atomically on an invalid `HUG` sizing assignment before any changes. Corrected write created node `139:2`; visual QA then found compact action labels squeezed too narrowly, and a layout correction converted those rows to stacked content. Final readback found zero suspicious clipped text nodes and zero child overflow. `get_design_context` and `get_screenshot` succeeded for node `139:2`; screenshot returned `717x1024` from original `1360x1943`.
+- `implementation handoff`: Rebuild should consume node `139:2` when surfacing presentation slot, conflict, check-out, check-in, denied-action, empty, and loading states in canonical student, mentor, teacher, and admin dashboards from persisted `PresentationSlot` and `AuditEvent` rows.
 - `self-improvement`: none

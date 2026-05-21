@@ -26,6 +26,23 @@ This is the compact run log for the current split-builder automation contract.
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-05-20 18:33 PT - MVP-028 Presentation Dashboard State Handoff
+
+- `automation ID`: `senior-capstone-figma-product-builder`
+- `lane`: Figma-only product builder / design-assets-handoff.
+- `master-plan sections`: Role-Aware Production App Contract; North Star Workflow; Lane Responsibilities; Logging Requirements.
+- `requirement IDs`: `MVP-028`, supporting `MVP-017`, `MVP-020`, `MVP-021`, `MVP-032`, and `MVP-033`.
+- `selected slice`: Add and verify a Figma presentation dashboard state handoff after rebuild implemented presentation slot scheduling plus check-out/check-in endpoints.
+- `active Figma file`: `z4t4tFPAKrMDh6pIYOeEw6`.
+- `Figma page/node touched`: `05 Full MVP Alpha Prototype`; node `139:2` (`Prototype / 17 / Presentation dashboard state handoff`).
+- `what changed`: Added dashboard state annotations for student own slot, mentor assigned risk, teacher day-of queue, admin conflict review, permission-denied action, and empty/loading presentation surfaces; mapped 7 routes, 8 records, 6 guardrails, and shared plugin data key `senior_capstone/presentation_dashboard_state_contract_2026_05_20`.
+- `verification`: First `use_figma` attempt failed atomically before changes on a rectangle `HUG` sizing bug; corrected write created node `139:2`. Layout QA then fixed cramped compact action rows. Final `use_figma` readback found zero suspicious clipped text nodes and zero child overflow. `get_design_context` and `get_screenshot` succeeded; screenshot returned `717x1024` from original `1360x1943`.
+- `files changed`: Figma docs, artifact registry, automation memory, Figma lane log, handoff ledger, MVP catalog, this run log, and `docs/progress/runs/2026-05-20-1833-figma-presentation-dashboard-state-handoff.json`.
+- `implementation handoff`: Rebuild should consume node `139:2` when surfacing presentation slot/check-out/check-in dashboard UI states from persisted `PresentationSlot` and `AuditEvent` rows.
+- `blockers`: none for Figma.
+- `phone tracker`: appended to `Senior Capstone QoL Run Tracker` row 31 at 2026-05-20 18:33 PT.
+- `self-improvement`: none.
+
 ## 2026-05-20 17:37 PT - MVP-028 Workspace Account Edge-State Handoff
 
 - `automation ID`: `senior-capstone-figma-product-builder`

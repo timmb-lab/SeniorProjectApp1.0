@@ -106,6 +106,14 @@ Every builder run must ladder from `docs/master-plan.md` into `docs/mvp-requirem
 - Validation passed: focused auth/workspace tests, credential-backed local HTTP workspace smoke, in-app browser unassigned mentor no-assignment proof with zero console errors, full test suite, production-surface check, and aggregate `check`. Live Cloudflare inspection still needs `CLOUDFLARE_API_TOKEN`, and real Drive upload/download still needs Drive credential secrets.
 - Next best non-Figma slices: verify hosted account-state markers after deployment, add a live section-level permission-denied proof, broaden public no-hidden-core-content coverage, or resume MVP-017 dashboard surfacing.
 
+### 2026-05-20 - Figma Presentation Dashboard State Handoff
+
+- Figma-only builder added node `139:2`, `Prototype / 17 / Presentation dashboard state handoff`, to the active file `z4t4tFPAKrMDh6pIYOeEw6` on page `05 Full MVP Alpha Prototype`.
+- The handoff maps implemented `/api/presentation-slots`, `/api/presentation-slots/:id/check-out`, and `/api/presentation-slots/:id/check-in` behavior into student, mentor, teacher, admin, denied-action, empty, and loading dashboard states.
+- Shared plugin data key `senior_capstone/presentation_dashboard_state_contract_2026_05_20` records 6 states, 7 routes, 8 records, 6 guardrails, and the next rebuild action for canonical dashboard presentation-state browser proof.
+- Final Figma verification succeeded: `get_design_context` and `get_screenshot` passed for node `139:2`, with screenshot `717x1024` from original `1360x1943`; final readback found zero suspicious clipped text nodes and zero child overflow after a compact-row layout correction.
+- Next best non-Figma slice from this handoff: surface presentation slot/check-out/check-in dashboard UI states from persisted `PresentationSlot` and `AuditEvent` rows without using client-only workflow state.
+
 ## Current Priority
 
 Immediate next useful passes:
@@ -154,6 +162,7 @@ Current backlog anchors:
 - 2026-05-20 Figma handoff update verified node `98:17` after primary alpha-console review-history consumption; it records `review_history_consumed_at`, redirects next rebuild focus to mentor/presentation/admin depth, preserves API/D1/audit/storage-redaction boundaries, and passed `get_design_context` plus `get_screenshot`.
 - 2026-05-20 Figma production-boundary handoff verified node `124:2`; it distinguishes public Student/Teacher guide mode from authenticated `/workspace` state, records route/data/permission contract data, and passed screenshot/metadata/readback QA.
 - 2026-05-20 Figma workspace account edge-state handoff verified node `133:2`; it distinguishes session expired, disabled account, reset required, role pending, no active assignment, and section permission denied states for `/workspace`, records route/data/audit contract data, and passed screenshot/metadata/readback QA after a text-width autosizing correction.
+- 2026-05-20 Figma presentation dashboard state handoff verified node `139:2`; it maps presentation slot, conflict, check-out, check-in, denied-action, empty, and loading states to persisted dashboard consumption with 6 states, 7 routes, 8 records, and 6 guardrails.
 - Bryan's phone-friendly live QoL tracker is the native Google Sheet `Senior Capstone QoL Run Tracker`, spreadsheet id `1J8jQMn85wJwo9Rh6LjQUVv_WfLS1YJWsbpcLBCojjjs`.
 
 ## Handoff And Logging Rules

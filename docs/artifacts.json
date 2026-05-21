@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-05-20T18:15:00-07:00",
+  "updated_at": "2026-05-20T18:33:00-07:00",
   "artifacts": [
     {
       "id": "cloudflare-pages-senior-capstone-app",
@@ -320,7 +320,7 @@
       "plan_key": "team::1638213362346160913",
       "account_observed": "timmb@nv.ccsd.net",
       "purpose": "Active product UI source for the hosted Senior Capstone app, recreated in Bryan's Senior Project App Figma team/project.",
-      "app_placement": "Design source for app shell, visual foundations, shared component variants, student workspace, guided proposal form, teacher review queue, mentor/admin dashboards, mobile student view, automation handoff board, product preview state variants, the 100-pass MVP route/data contract, review/override interaction variants, private evidence/review-history contract, admin account/group/role provisioning contract, progress update/dashboard aggregate contract, audit log/export controls contract, mentor meeting/presentation scheduling contract, full MVP alpha prototype, and production app/public guide boundary handoff.",
+      "app_placement": "Design source for app shell, visual foundations, shared component variants, student workspace, guided proposal form, teacher review queue, mentor/admin dashboards, mobile student view, automation handoff board, product preview state variants, the 100-pass MVP route/data contract, review/override interaction variants, private evidence/review-history contract, admin account/group/role provisioning contract, progress update/dashboard aggregate contract, audit log/export controls contract, mentor meeting/presentation scheduling contract, full MVP alpha prototype, production app/public guide boundary handoff, workspace account edge-state handoff, and presentation dashboard state handoff.",
       "consuming_lanes": [
         "figma",
         "rebuild",
@@ -430,6 +430,7 @@
         "full_alpha_prototype_handoff": "98:17",
         "full_alpha_prototype_production_boundary": "124:2",
         "full_alpha_prototype_workspace_account_edge": "133:2",
+        "full_alpha_prototype_presentation_dashboard_state": "139:2",
         "full_alpha_prototype_map_rail": "98:1130"
       },
       "verification": [
@@ -466,7 +467,9 @@
         "Figma write on 2026-05-20 added full-alpha production boundary node 124:2, distinguishing public Student/Teacher guide mode from authenticated /workspace behavior and storing shared plugin data key senior_capstone/production_boundary_contract_2026_05_20.",
         "get_design_context and get_screenshot succeeded for node 124:2 after text-height and bullet-width corrections; screenshot verification returned 800x1024 from original 1360x1742, and final use_figma readback found zero suspicious clipped text nodes, zero child overflow, 7 route entries, 9 records, 6 permission scopes, 6 guardrails, and 3 external setup blockers.",
         "Figma write on 2026-05-20 added full-alpha workspace account edge-state node 133:2, distinguishing session expired, account disabled, reset required, role pending, no active assignment, and section permission denied states for the canonical /workspace route.",
-        "get_design_context and get_screenshot succeeded for node 133:2 after text-width and autosizing correction; screenshot verification returned 889x1024 from original 1360x1568, and final use_figma readback found zero suspicious clipped text nodes, zero child overflow, 6 account/scope states, 9 routes, 9 records, and 6 guardrails."
+        "get_design_context and get_screenshot succeeded for node 133:2 after text-width and autosizing correction; screenshot verification returned 889x1024 from original 1360x1568, and final use_figma readback found zero suspicious clipped text nodes, zero child overflow, 6 account/scope states, 9 routes, 9 records, and 6 guardrails.",
+        "Figma write on 2026-05-20 added full-alpha presentation dashboard state node 139:2, mapping presentation slot, conflict, check-out, check-in, denied-action, empty, and loading states to persisted dashboard consumption.",
+        "get_design_context and get_screenshot succeeded for node 139:2 after compact row layout correction; screenshot verification returned 717x1024 from original 1360x1943, and final use_figma readback found zero suspicious clipped text nodes, zero child overflow, 6 states, 7 routes, 8 records, and 6 guardrails."
       ],
       "supersedes": [
         "figma-product-ui-system-reference-old-team",
@@ -738,7 +741,8 @@
         "2026-05-20 13:13 PT: non-Figma builder appended the MVP-017 presentation slot scheduling closeout row with implementation commit d1dfb69.",
         "2026-05-20 14:14 PT: non-Figma builder appended the MVP-035 Student/Teacher guide mode closeout row with implementation commit c2477ec, closeout commit a9e0a1d, and tracker evidence commit c1bc407.",
         "2026-05-20 16:08 PT: non-Figma builder appended the MVP-017 presentation check-out/check-in closeout row with implementation commit c363889.",
-        "2026-05-20 17:10 PT: non-Figma builder appended the MVP-032/MVP-033 workspace access-boundary closeout row with implementation commit c6470dfa."
+        "2026-05-20 17:10 PT: non-Figma builder appended the MVP-032/MVP-033 workspace access-boundary closeout row with implementation commit c6470dfa.",
+        "2026-05-20 18:33 PT: Figma builder appended the MVP-028 presentation dashboard state handoff closeout row 31 for node 139:2."
       ],
       "last_updated": "2026-05-20"
     }

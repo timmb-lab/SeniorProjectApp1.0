@@ -1,0 +1,215 @@
+{
+  "run_id": "2026-05-20-1833-figma-presentation-dashboard-state-handoff",
+  "timestamp_local": "2026-05-20T18:33:46-07:00",
+  "automation_id": "senior-capstone-figma-product-builder",
+  "lane": "figma-only product builder",
+  "status": "completed",
+  "accepted_mvp_pass": true,
+  "requirement_ids": [
+    "MVP-028",
+    "MVP-017",
+    "MVP-020",
+    "MVP-021",
+    "MVP-032",
+    "MVP-033"
+  ],
+  "output_kind": "figma-handoff+metadata+screenshot-verification",
+  "scope": "Add and verify a dashboard-facing presentation state handoff after rebuild implemented presentation slot scheduling plus check-out/check-in endpoints.",
+  "selected_figma_slice": "Presentation dashboard slot, conflict, check-out, check-in, denied-action, empty, and loading state handoff.",
+  "figma": {
+    "file_key": "z4t4tFPAKrMDh6pIYOeEw6",
+    "url": "https://www.figma.com/design/z4t4tFPAKrMDh6pIYOeEw6",
+    "page": "05 Full MVP Alpha Prototype",
+    "page_id": "98:2",
+    "node_touched": {
+      "node_id": "139:2",
+      "name": "Prototype / 17 / Presentation dashboard state handoff",
+      "frame_size": "1360x1943",
+      "changes": [
+        "Added presentation dashboard state cards for student own slot, mentor assigned risk, teacher day-of queue, admin conflict review, permission-denied action, and empty/loading surface.",
+        "Mapped presentation dashboard UI to /student/presentation, /mentor/assigned, /teacher/dashboard, /api/presentation-slots, /api/presentation-slots/:id/check-out, /api/presentation-slots/:id/check-in, and /admin/audit.",
+        "Mapped persisted records PresentationSlot, MeetingAttendance, MentorAssignment, StaffProgramAssignment, Review, Submission, StudentProfile, and AuditEvent.",
+        "Stored shared plugin data key senior_capstone/presentation_dashboard_state_contract_2026_05_20.",
+        "Corrected compact panel rows after visual QA found action labels too narrow."
+      ]
+    },
+    "shared_plugin_data": {
+      "namespace": "senior_capstone",
+      "key": "presentation_dashboard_state_contract_2026_05_20",
+      "state_count": 6,
+      "route_count": 7,
+      "record_count": 8,
+      "guardrail_count": 6,
+      "states": [
+        "student_slot_scheduled",
+        "mentor_assigned_risk",
+        "teacher_day_of_queue",
+        "admin_conflict_review",
+        "permission_denied_action",
+        "empty_loading_surface"
+      ],
+      "routes": [
+        "/student/presentation",
+        "/mentor/assigned",
+        "/teacher/dashboard",
+        "/api/presentation-slots",
+        "/api/presentation-slots/:id/check-out",
+        "/api/presentation-slots/:id/check-in",
+        "/admin/audit"
+      ],
+      "records": [
+        "PresentationSlot",
+        "MeetingAttendance",
+        "MentorAssignment",
+        "StaffProgramAssignment",
+        "Review",
+        "Submission",
+        "StudentProfile",
+        "AuditEvent"
+      ],
+      "guardrails": [
+        "no peer schedule visibility",
+        "no localStorage workflow state",
+        "audit sensitive state changes",
+        "deny out-of-scope actions",
+        "dashboard counts derive from persisted rows",
+        "raw storage IDs never render"
+      ],
+      "next_rebuild_action": "Surface presentation slot, conflict, check-out, and check-in states in canonical student, mentor, teacher, and admin dashboard UI with browser proof."
+    },
+    "readback": {
+      "text_node_count": "verified through use_figma readback",
+      "suspicious_clipped_text_count": 0,
+      "overflow_count": 0,
+      "first_write_issue": "First use_figma attempt failed atomically before making changes because a helper set layoutSizingVertical=HUG on a rectangle accent node.",
+      "visual_fix": "Second write succeeded; follow-up correction changed compact panel rows to stacked content after the screenshot showed cramped action labels."
+    },
+    "metadata_verification": [
+      {
+        "node_id": "139:2",
+        "tool": "get_design_context",
+        "result": "passed",
+        "summary": "Returned the final presentation dashboard state handoff context after compact-row layout correction."
+      }
+    ],
+    "screenshot_verification": [
+      {
+        "node_id": "139:2",
+        "tool": "get_screenshot",
+        "result": "passed",
+        "returned_size": "717x1024",
+        "original_size": "1360x1943",
+        "short_lived_asset_url_recorded": false
+      }
+    ],
+    "library_and_search_verification": [
+      {
+        "command": "rg --files -g '*.figma.ts' -g '*.figma.tsx' -g '*.figma.js' -g '*.figma.jsx'",
+        "result": "no Code Connect files found in repo"
+      },
+      {
+        "tool": "get_libraries",
+        "result": "passed",
+        "summary": "Confirmed the active file library plus Material 3, Simple Design System, and platform UI kits."
+      },
+      {
+        "tool": "search_design_system",
+        "query": "presentation dashboard card status pill table row button",
+        "result": "passed-no-local-match",
+        "summary": "No richer local reusable dashboard primitive matched; the frame reused established local status-card conventions from the existing prototype."
+      }
+    ]
+  },
+  "source_docs_read": [
+    "docs/design/figma-first-pass-product-system.md",
+    "docs/design/figma-product-preview-state-variants.md",
+    "docs/master-plan.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/automation-cadence.md",
+    "docs/automation-runbook.md",
+    "docs/automation-memory.md",
+    "docs/progress/run-log.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/decision-log.md",
+    "docs/artifacts.json",
+    "docs/human-decisions.md",
+    "docs/progress/figma.md",
+    "docs/automation-backlog.md",
+    "docs/automation-self-improvement.md",
+    "recent docs/progress/runs/*.json",
+    "figma-use skill",
+    "figma-generate-design skill"
+  ],
+  "repo_files_changed": [
+    "docs/design/figma-first-pass-product-system.md",
+    "docs/design/figma-product-preview-state-variants.md",
+    "docs/artifacts.json",
+    "docs/automation-memory.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/progress/figma.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-20-1833-figma-presentation-dashboard-state-handoff.json"
+  ],
+  "implementation_handoff": "Rebuild should consume node 139:2 when surfacing presentation slot, conflict, check-out, check-in, denied-action, empty, and loading states in canonical student, mentor, teacher, and admin dashboards from persisted PresentationSlot and AuditEvent rows.",
+  "validation": [
+    {
+      "command": "Figma use_figma mutation",
+      "result": "passed-after-atomic-first-error",
+      "summary": "Initial invalid HUG sizing call failed atomically with no changes; corrected script created node 139:2."
+    },
+    {
+      "command": "Figma use_figma layout correction/readback",
+      "result": "passed",
+      "summary": "Corrected compact panel row layout; final readback found zero suspicious clipped text nodes and zero child overflow."
+    },
+    {
+      "command": "Figma get_design_context for node 139:2",
+      "result": "passed",
+      "summary": "Confirmed final presentation dashboard state handoff context."
+    },
+    {
+      "command": "Figma get_screenshot for node 139:2",
+      "result": "passed",
+      "summary": "Returned 717x1024 from original 1360x1943 frame."
+    },
+    {
+      "command": "Get-Content docs/artifacts.json and manifest | ConvertFrom-Json",
+      "result": "passed",
+      "summary": "Artifact registry and structured run manifest parsed as JSON."
+    },
+    {
+      "command": "git diff --check",
+      "result": "passed",
+      "summary": "Whitespace check passed with line-ending warnings only."
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\verify-cadence-30min.ps1 -RepoRoot .",
+      "result": "passed",
+      "summary": "Split cadence verifier passed with the two expected builder automations and oversight lanes."
+    },
+    {
+      "command": "Google Sheets connector append and row search",
+      "result": "passed",
+      "summary": "Appended and read back QoL Runs row 31 for the MVP-028 presentation dashboard state handoff."
+    }
+  ],
+  "backend_code_work_avoided": true,
+  "figma_blocker": null,
+  "run_log_updated": true,
+  "structured_manifest_created": true,
+  "artifacts_json_updated": true,
+  "mvp_catalog_changed": true,
+  "human_decisions_changed": false,
+  "self_improvement": "none",
+  "phone_tracker": {
+    "spreadsheet_id": "1J8jQMn85wJwo9Rh6LjQUVv_WfLS1YJWsbpcLBCojjjs",
+    "tab": "QoL Runs",
+    "result": "appended",
+    "row": 31,
+    "timestamp_local": "2026-05-20T18:33:00-07:00",
+    "summary": "Recorded MVP-028 presentation dashboard state handoff for phone-friendly tracking."
+  },
+  "commit_sha": "pending closeout commit",
+  "push_result": "pending closeout push"
+}
