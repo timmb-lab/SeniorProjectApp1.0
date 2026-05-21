@@ -12,7 +12,7 @@ Status values:
 
 ## Open Decisions
 
-No open external automation scheduler decisions are blocking the current scaffold. The Google Drive Shared Drive evidence root is selected, configured, and passes the live fake-upload gate; first-admin bootstrap is complete for `bryan.timm89@gmail.com`; the production setup key has been removed; Cloudflare live verification token decision is resolved; and hosted fake `.test` role permission proof now covers student, program teacher, mentor, misc-admin denial, and admin allowed paths. Remaining setup work is configuration/implementation: finish account lifecycle flows, decide temporary credential delivery before real pilot accounts, add browser-level upload progress/retry proof, capture hosted presentation/archive UI proof, and broaden remaining permission tests.
+No open external automation scheduler decisions are blocking the current scaffold. The Google Drive Shared Drive evidence root is selected, configured, and passes the live fake-upload gate; first-admin bootstrap is complete for `bryan.timm89@gmail.com`; the production setup key has been removed; Cloudflare live verification token decision is resolved; and hosted fake `.test` role permission proof now covers student, program teacher, mentor, misc-admin denial, and admin allowed paths. Remaining setup work is configuration/implementation: decide temporary credential delivery before real pilot accounts, live-prove Google Docs export with a fake native Docs fixture if approved, keep hosted upload/dashboard proof passing after deployment, and broaden remaining permission tests.
 
 ### HD-2026-05-21-001
 
@@ -69,6 +69,18 @@ No open external automation scheduler decisions are blocking the current scaffol
 - `current recommendation`: Keep `ARCHIVE_DOWNLOAD_WINDOW_DAYS=14` and `ARCHIVE_RETENTION_POLICY_STATUS=policy_review_required` until school retention policy is confirmed; use fake `.test` accounts only for archive package verification.
 - `decision workflow`: `functions/_lib/archive-export.ts` and `wrangler.jsonc`
 - `created`: 2026-05-20
+
+### HD-2026-05-21-002
+
+- `status`: open
+- `area`: Google Docs live export provider fixture and format policy
+- `owner`: Bryan
+- `severity`: P2
+- `decision needed`: Decide whether the app should live-prove native Google Docs evidence export with a fake `.test` Google Docs fixture in the Shared Drive, and confirm the preferred export format for native Docs before real records rely on it.
+- `current recommendation`: Keep the implemented app default as PDF export for native Google Docs (`application/vnd.google-apps.document` -> `application/pdf`) because it is broadly readable and stable for archive/download packages. Use only a fake `.test` fixture document for live proof. Do not create or export real student Docs until the credential-delivery and archive-retention decisions are resolved.
+- `implementation status`: Provider-safe code/tests now classify native Google Docs in archive manifests and use the Google Drive `files.export` endpoint for app-scoped evidence downloads. Live Google Docs export is not yet claimed because no fake native Docs fixture has been approved or seeded for hosted proof.
+- `decision workflow`: `functions/_lib/google-drive.ts`, `functions/api/evidence/[id]/download.ts`, and `functions/_lib/archive-export.ts`
+- `created`: 2026-05-21
 
 ## Accepted Decisions
 

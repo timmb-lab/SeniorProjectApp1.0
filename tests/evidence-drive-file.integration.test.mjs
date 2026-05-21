@@ -737,6 +737,107 @@ test("evidence download returns 409 and audits when artifact is not a Drive file
   }
 });
 
+test("evidence download exports native Google Docs as PDF without exposing Drive ids", async () => {
+  const fixture = await createFixtureWithSession({ userId: "student-a", roleId: "student" });
+  fixture.db.data.evidenceArtifacts.push({
+    id: "evidence-doc",
+    student_id: "student-a",
+    source_kind: "google_drive_file",
+    drive_file_id: "drive-doc-secret",
+    mime_type: "application/vnd.google-apps.document",
+    title: "Reflection Google Doc",
+    deleted_at: null,
+  });
+
+  let sawExport = false;
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async (input) => {
+    const url = resolveFetchUrl(input);
+    if (url === "https://oauth2.googleapis.com/token") {
+      return jsonResponse({ access_token: "test-token", expires_in: 3600, token_type: "Bearer" });
+    }
+    if (url.startsWith("https://www.googleapis.com/drive/v3/files/drive-doc-secret/export")) {
+      sawExport = true;
+      assert.match(url, /mimeType=application%2Fpdf/);
+      assert.doesNotMatch(url, /alt=media/);
+      return new Response("pdf-export-bytes", { status: 200, headers: { "content-type": "application/pdf" } });
+    }
+    throw new Error(`Unexpected fetch URL in test: ${url}`);
+  };
+
+  try {
+    const response = await onDownloadEvidenceFile({
+      request: new Request("https://example.test/api/evidence/evidence-doc/download", {
+        headers: {
+          cookie: `sc_session=${fixture.token}`,
+          "cf-connecting-ip": "203.0.113.72",
+          "user-agent": "integration-test",
+        },
+      }),
+      env: fixture.env,
+      params: { id: "evidence-doc" },
+    });
+
+    assert.equal(response.status, 200);
+    assert.equal(response.headers.get("content-type"), "application/pdf");
+    assert.match(response.headers.get("content-disposition") || "", /Reflection Google Doc\.pdf/);
+    assert.equal(await response.text(), "pdf-export-bytes");
+    assert.equal(sawExport, true);
+    assert.equal(fixture.db.data.auditEvents.length, 1);
+    const [event] = fixture.db.data.auditEvents;
+    assert.equal(event.action, "evidence_downloaded");
+    assert.equal(event.metadata.delivery, "google_workspace_export");
+    assert.equal(event.metadata.sourceMimeType, "application/vnd.google-apps.document");
+    assert.equal(event.metadata.exportMimeType, "application/pdf");
+    assert.doesNotMatch(JSON.stringify(fixture.db.data.auditEvents), /drive-doc-secret|drive_file_id|driveFileId|access_token|PRIVATE KEY/i);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("evidence download rejects unsupported native Google Workspace files before provider calls", async () => {
+  const fixture = await createFixtureWithSession({ userId: "student-a", roleId: "student" });
+  fixture.db.data.evidenceArtifacts.push({
+    id: "evidence-sheet",
+    student_id: "student-a",
+    source_kind: "google_drive_file",
+    drive_file_id: "drive-sheet-secret",
+    mime_type: "application/vnd.google-apps.spreadsheet",
+    title: "Unsupported Native Sheet",
+    deleted_at: null,
+  });
+
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async () => {
+    throw new Error("fetch should not be called for unsupported native workspace exports");
+  };
+
+  try {
+    const response = await onDownloadEvidenceFile({
+      request: new Request("https://example.test/api/evidence/evidence-sheet/download", {
+        headers: {
+          cookie: `sc_session=${fixture.token}`,
+          "cf-connecting-ip": "203.0.113.73",
+          "user-agent": "integration-test",
+        },
+      }),
+      env: fixture.env,
+      params: { id: "evidence-sheet" },
+    });
+
+    assert.equal(response.status, 409);
+    assert.deepEqual(await response.json(), { error: "unsupported_google_workspace_export", ok: false });
+    assert.equal(fixture.db.data.auditEvents.length, 1);
+    const [event] = fixture.db.data.auditEvents;
+    assert.equal(event.action, "evidence_download_google_workspace_export_unsupported");
+    assert.equal(event.metadata.sourceMimeType, "application/vnd.google-apps.spreadsheet");
+    assert.equal(event.metadata.exportStatus, "unsupported_google_workspace_export");
+    assert.doesNotMatch(JSON.stringify(fixture.db.data.auditEvents), /drive-sheet-secret|drive_file_id|driveFileId|access_token|PRIVATE KEY/i);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
 test("evidence download returns 502 and audits when Drive download fails", async () => {
   const fixture = await createFixtureWithSession({ userId: "student-a", roleId: "student" });
   fixture.db.data.evidenceArtifacts.push({

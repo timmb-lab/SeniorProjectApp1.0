@@ -28,6 +28,20 @@ This is the compact run log for the current quarter-hour split-builder automatio
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-05-21 09:33 PT - Upload Progress/Retry, Hosted Dashboard Proof, Google Docs Export Cases
+
+- `automation ID`: manual Codex implementation pass in the non-Figma MVP builder lane.
+- `lane`: non-Figma MVP builder / student-workflow-evidence, deployment-qa, staff-review-mentor, and archive-export.
+- `master-plan sections`: Role-Aware Production App Contract; North Star Workflow; Stack And Deployment Direction; Logging Requirements.
+- `requirement IDs`: `MVP-013`, `MVP-014`, `MVP-017`, `MVP-022`, `MVP-026`, `MVP-032`, and `MVP-033`; `backlog IDs`: `SC-003`, `SC-004`, `SC-005`, and `SC-007`; `human decisions`: `HD-2026-05-21-001`, `HD-2026-05-21-002`, and `HD-2026-05-20-007`.
+- `selected slice`: Implement browser-level upload progress/retry UX, strengthen hosted fake `.test` presentation/archive dashboard proof, and add provider-safe Google Docs export handling without using real student data or expanding Bryan's real admin exception.
+- `what changed`: `workspace.js` now uses `XMLHttpRequest` for file uploads and renders selected/preparing/uploading/verifying/complete/failed states with progress markers, `aria-live` status, safe validation messages, and retry for retryable failures. `check:workspace:hosted-dashboard` now aliases the hosted fake-account dashboard proof, which checks student archive readiness/presentation scope, program-teacher and mentor presentation dashboards, misc-admin presentation denial, and admin archive-readiness access when credentials are available. Native Google Docs evidence downloads now use Drive `files.export` to return PDF bytes through the app-scoped route, and archive manifests classify Google Docs export readiness without Drive IDs.
+- `validation`: focused workspace/source test, hosted dashboard source test, evidence Drive-file integration, and archive-readiness integration passed. Full validation, hosted proof, commit, and push follow this entry.
+- `blockers`: live Google Docs export remains pending a fake native Docs fixture/provider policy decision; general real-user credential delivery for non-Bryan users remains open; archive retention, canonical URL, internal QA route exposure, and stakeholder option retention remain open.
+- `phone tracker`: not appended; Google Sheets connector was not used.
+- `commit/push status`: pending.
+- `next action`: Complete validation, push, and re-check hosted dashboard/evidence proof against the deployed commit when Cloudflare has updated.
+
 ## 2026-05-21 08:52 PT - Bryan Owner/Admin Verification And Hosted Permission Closeout
 
 - `automation ID`: manual Codex implementation pass in the non-Figma MVP builder lane.

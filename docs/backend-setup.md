@@ -178,10 +178,24 @@ Remote D1 non-secret verification found Bryan's production account already prese
 
 The hosted permission proof was completed with fake `.test` accounts only. The ignored `.secrets/test-accounts-2026-05-18.json` file was repaired locally to include the fake admin account, and the existing admin-only fake-account seed endpoint reseeded the hosted fake `.test` users. `npm run check:workspace:hosted-permissions` then passed signed-out state, student dashboard, program teacher review queue/presentation slots, mentor assigned-students/presentation slots, misc-admin import denial, admin readiness/presentation slots, hosted workspace production-surface checks, storage-ID leak checks, and secret-marker checks.
 
+## 2026-05-21 Upload Progress, Dashboard Proof, And Google Docs Export Cases
+
+The canonical `workspace.html` / `workspace.js` upload surface now uses browser `XMLHttpRequest` for the file upload request so the UI can show byte-level progress when the browser reports it. The student file form renders selected, preparing, uploading, verifying, complete, and failed states with `aria-live` status text, a progress bar, safe validation copy for empty/oversized/unsupported files, and a retry button for retryable provider/network failures. The UI still calls the existing app-scoped evidence upload route and does not expose Drive file IDs, parent folder IDs, tokens, cookies, or raw provider errors.
+
+The hosted dashboard proof now has an explicit alias:
+
+```powershell
+npm run check:workspace:hosted-dashboard
+```
+
+It reuses the fake `.test` hosted permission proof path and now checks student archive readiness/presentation scope, program-teacher and mentor presentation dashboard data, misc-admin presentation denial, and admin archive-readiness access for the fake student when credentials are available. Bryan's real account is not used for this proof.
+
+Google Docs export handling now has provider-safe coverage. Native Google Docs evidence MIME type `application/vnd.google-apps.document` is classified in archive manifests with storage identifiers redacted, and app-scoped evidence downloads use the Google Drive `files.export` endpoint to return PDF bytes for native Docs. Unsupported native Google Workspace types fail with `unsupported_google_workspace_export` instead of being treated as regular media downloads. Live Google Docs export is not yet claimed as proven because the hosted proof does not currently seed a fake native Google Docs fixture; Bryan still needs to decide the live fixture/provider policy and preferred export format before real records depend on it.
+
 ## Remaining Required Config
 
 - Keep the Shared Drive evidence root in place and rerun `npm run check:drive:live` after any Drive, Cloudflare Pages, or upload-route change.
-- Before real student uploads, keep `npm run check:drive:live` passing and run the explicit hosted proof aliases: `npm run check:workspace:hosted-evidence` for fake `.test` upload/download including one >5MB resumable upload, and `npm run check:workspace:hosted-permissions` for hosted role/scope states.
+- Before real student uploads, keep `npm run check:drive:live` passing and run the explicit hosted proof aliases: `npm run check:workspace:hosted-evidence` for fake `.test` upload/download including one >5MB resumable upload, `npm run check:workspace:hosted-permissions` for hosted role/scope states, and `npm run check:workspace:hosted-dashboard` for presentation/archive dashboard proof.
 - Add permission tests and workflow tests before real student data is entered.
 - Decide or implement real-user temporary credential delivery before pilot imports; real non-`.test` admin-visible temporary credential imports are now blocked by default unless `ALLOW_REAL_TEMP_CREDENTIAL_IMPORT=true`.
 

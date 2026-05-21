@@ -17,6 +17,19 @@ Each rebuild run should append a dated entry with:
 
 ## Entries
 
+### 2026-05-21 09:33 PT - Upload Retry UX, Hosted Dashboard Proof, Google Docs Export Cases
+
+- `automation`: manual Codex implementation pass in the non-Figma MVP builder lane.
+- `master-plan section`: Role-Aware Production App Contract; North Star Workflow; Stack And Deployment Direction; Logging Requirements.
+- `source docs/logs read`: repo identity/status, workspace UI/source tests, hosted permission/evidence scripts, Drive helper/export routes, archive export routes/tests, backend setup, human decisions, backlog, and recent run manifests.
+- `backlog or requirement IDs selected`: `SC-003`, `SC-004`, `SC-005`, `SC-007`; `MVP-013`, `MVP-014`, `MVP-017`, `MVP-022`, `MVP-026`, `MVP-032`, and `MVP-033`; `HD-2026-05-21-001`, `HD-2026-05-21-002`, and `HD-2026-05-20-007`.
+- `bounded scope`: Add browser upload progress/retry UX to the canonical workspace, strengthen hosted fake `.test` presentation/archive dashboard proof, and add provider-safe Google Docs export handling without using real student data or Bryan's real account for proof.
+- `files changed`: workspace upload UI/CSS/tests, hosted workspace proof script and npm alias, Google Drive/evidence-download/archive-export code, focused integration/source tests, README/backend/backlog/human-decision/progress docs, and structured run manifest.
+- `validation`: focused workspace, hosted-dashboard source, evidence-drive-file, and archive-readiness tests passed. Full validation, hosted proof, commit, and push follow this entry.
+- `blockers`: live Google Docs export is provider-safe/mocked only until Bryan approves or seeds a fake native Google Docs fixture. `HD-2026-05-21-001` remains open for non-Bryan real-user credential delivery, and archive retention/custom-domain/internal-route/stakeholder decisions remain open.
+- `commit/push status`: pending.
+- `next action`: Run full validation, then commit/push and re-run hosted proof against the deployed assets if Cloudflare deploys the pushed commit in this session.
+
 ### 2026-05-21 08:52 PT - Bryan Owner/Admin And Hosted Permissions Closeout
 
 - `automation`: manual Codex implementation pass in the non-Figma MVP builder lane.

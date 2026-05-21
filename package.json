@@ -32,6 +32,7 @@
     "check:cloudflare:live": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-npm-script.ps1 check:cloudflare:live",
     "check:drive:live": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-npm-script.ps1 check:drive:live",
     "check:workspace:hosted-evidence": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-npm-script.ps1 check:workspace:hosted-evidence",
+    "check:workspace:hosted-dashboard": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-npm-script.ps1 check:workspace:hosted-dashboard",
     "check:workspace:hosted-permissions": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-npm-script.ps1 check:workspace:hosted-permissions",
     "ensure:owner-admin:local": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-node-script.ps1 scripts/ensure-owner-admin-account.mjs --local",
     "ensure:owner-admin:remote": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-node-script.ps1 scripts/ensure-owner-admin-account.mjs --remote",

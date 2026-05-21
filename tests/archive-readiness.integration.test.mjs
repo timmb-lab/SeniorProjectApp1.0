@@ -290,6 +290,51 @@ test("admin archive export generates a scoped manifest artifact without storage 
   });
 });
 
+test("admin archive export classifies native Google Docs export cases without storage ids", async () => {
+  const fixture = await createFixtureWithSession({ userId: "admin-a", roleId: "admin" });
+  seedArchiveReadyStudent(fixture.db, "student-a");
+  fixture.db.data.evidenceArtifacts.push({
+    student_id: "student-a",
+    artifact_type: "reflection",
+    source_kind: "google_drive_file",
+    title: "Reflection Google Doc",
+    review_status: "approved",
+    created_at: "2026-05-03T16:09:00.000Z",
+    requirement_id: "req-reflection-best-work",
+    mime_type: "application/vnd.google-apps.document",
+    drive_file_id: "drive-doc-secret",
+    deleted_at: null,
+  });
+
+  await withSuccessfulDriveProvider(fixture, async () => {
+    const response = await onQueueArchive({
+      request: buildJsonRequest(
+        "https://example.test/api/admin/exports/student-archive",
+        fixture.token,
+        { studentId: "student-a", reason: "May 5 archive package" },
+        "POST",
+      ),
+      env: fixture.env,
+    });
+
+    assert.equal(response.status, 200);
+    const body = await response.json();
+    assert.equal(body.ok, true);
+    const manifest = JSON.parse(fixture.db.data.exportArtifacts[0].body_json);
+    const docArtifact = manifest.evidenceArtifacts.find((artifact) => artifact.title === "Reflection Google Doc");
+    assert.equal(docArtifact.mimeType, "application/vnd.google-apps.document");
+    assert.deepEqual(docArtifact.googleWorkspaceExport, {
+      nativeType: "google_docs",
+      supported: true,
+      status: "pdf_export_supported",
+      exportMimeType: "application/pdf",
+      exportExtension: "pdf",
+      storageIdentifiersRedacted: true,
+    });
+    assert.doesNotMatch(JSON.stringify(manifest), /drive-doc-secret|drive_file_id|driveFileId|drive_parent_folder_id|driveParentFolderId/i);
+  });
+});
+
 test("admin archive export fails safely when Drive package upload fails", async () => {
   const fixture = await createFixtureWithSession({ userId: "admin-a", roleId: "admin" });
   seedArchiveReadyStudent(fixture.db, "student-a");
@@ -815,6 +860,7 @@ class MockPreparedStatement {
             artifact_type: row.artifact_type,
             source_kind: row.source_kind,
             external_url: row.external_url || null,
+            mime_type: row.mime_type || null,
             title: row.title,
             review_status: row.review_status,
             created_at: row.created_at,

@@ -1,0 +1,116 @@
+{
+  "timestamp": "2026-05-21T09:33:00-07:00",
+  "automation": "manual-codex-nonfigma-mvp-builder",
+  "branch": "main",
+  "startingHead": "c9fa7cabc2660edfbb3a0a352f0e270ac992eba8",
+  "scope": [
+    "browser_upload_progress_retry_ux",
+    "hosted_fake_test_presentation_archive_dashboard_proof",
+    "google_docs_export_cases_provider_safe"
+  ],
+  "safety": {
+    "realStudentDataUsed": false,
+    "realStudentStaffMentorAccountsCreated": false,
+    "bryanAccountModified": false,
+    "fakeHostedProofAccountsOnly": true,
+    "secretsPrinted": false,
+    "secretsCommitted": false,
+    "rawDriveIdsInUserFacingOutput": false,
+    "adminImportGuardWeakened": false,
+    "allowRealTempCredentialImportEnabled": false
+  },
+  "uploadUx": {
+    "surface": "workspace.html/workspace.js/workspace.css",
+    "progressBehavior": "XMLHttpRequest upload progress with deterministic preparing/verifying phases",
+    "states": [
+      "idle",
+      "selected",
+      "preparing",
+      "uploading",
+      "verifying",
+      "complete",
+      "failed"
+    ],
+    "retry": "retryable network/provider failures reuse the retained selected File object when available",
+    "markers": [
+      "data-upload-state",
+      "data-upload-progress",
+      "data-upload-message",
+      "data-upload-action=select-file",
+      "data-upload-action=retry"
+    ]
+  },
+  "hostedDashboardProof": {
+    "script": "scripts/check-hosted-workspace-permissions.mjs",
+    "alias": "check:workspace:hosted-dashboard",
+    "baseUrl": "https://senior-capstone-app.pages.dev",
+    "accountPolicy": "fake .test credentials only",
+    "proofAreas": [
+      "student_dashboard",
+      "student_archive_readiness",
+      "student_presentation_scope",
+      "program_teacher_presentation_dashboard",
+      "mentor_presentation_dashboard",
+      "misc_admin_presentation_denial",
+      "admin_archive_dashboard_when_fake_student_context_available"
+    ]
+  },
+  "googleDocsExport": {
+    "liveProven": false,
+    "coverage": "mocked/provider-safe integration tests",
+    "nativeMimeTypesHandled": [
+      "application/vnd.google-apps.document"
+    ],
+    "defaultExportMimeType": "application/pdf",
+    "unsupportedNativeStatus": "unsupported_google_workspace_export",
+    "remainingDecision": "HD-2026-05-21-002"
+  },
+  "focusedValidation": [
+    {
+      "command": "node --check workspace.js",
+      "result": "pass"
+    },
+    {
+      "command": "node --test tests/workspace-app.test.mjs",
+      "result": "pass"
+    },
+    {
+      "command": "node --test tests/hosted-workspace-dashboard-proof.test.mjs",
+      "result": "pass"
+    },
+    {
+      "command": "node --check scripts/check-hosted-workspace-permissions.mjs",
+      "result": "pass"
+    },
+    {
+      "command": "node --test tests/evidence-drive-file.integration.test.mjs",
+      "result": "pass"
+    },
+    {
+      "command": "node --test tests/archive-readiness.integration.test.mjs",
+      "result": "pass"
+    }
+  ],
+  "fullValidation": {
+    "status": "passed_before_commit",
+    "commands": [
+      "npm run typecheck",
+      "npm run check:workspace:hosted-dashboard",
+      "npm run check:workspace:hosted-permissions",
+      "npm run check:workspace:hosted-evidence",
+      "npm run check:drive:live",
+      "npm run check:cloudflare",
+      "npm run check:cloudflare:live",
+      "npm run check:route-inventory",
+      "npm run check:production-surfaces",
+      "npm run check:generated-output-drift",
+      "npm test",
+      "npm run check"
+    ],
+    "testSummary": {
+      "npmTest": "201 pass / 4 expected opt-in skips",
+      "npmRunCheck": "201 pass / 4 expected opt-in skips"
+    },
+    "note": "Commit, push, and post-push hosted asset freshness are recorded in the final report."
+  }
+}

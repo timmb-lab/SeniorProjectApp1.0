@@ -2,6 +2,10 @@ const TOKEN_URL = "https://oauth2.googleapis.com/token";
 const TOKEN_AUDIENCE = "https://oauth2.googleapis.com/token";
 const DRIVE_SCOPE = "https://www.googleapis.com/auth/drive";
 const DRIVE_UPLOAD_URL = "https://www.googleapis.com/upload/drive/v3/files";
+const DRIVE_FILE_URL = "https://www.googleapis.com/drive/v3/files";
+export const GOOGLE_WORKSPACE_DOCUMENT_MIME_TYPE = "application/vnd.google-apps.document";
+export const GOOGLE_DOCS_DEFAULT_EXPORT_MIME_TYPE = "application/pdf";
+export const GOOGLE_DOCS_DEFAULT_EXPORT_EXTENSION = "pdf";
 
 function isConfiguredSecret(value?: string): boolean {
   const normalized = String(value || "").trim().toLowerCase();
@@ -364,7 +368,7 @@ export async function downloadGoogleDriveFileMedia(
   fileId: string,
   options: { fetchFn?: typeof fetch } = {},
 ): Promise<Response> {
-  const url = new URL(`https://www.googleapis.com/drive/v3/files/${encodeURIComponent(fileId)}`);
+  const url = new URL(`${DRIVE_FILE_URL}/${encodeURIComponent(fileId)}`);
   url.searchParams.set("alt", "media");
   url.searchParams.set("supportsAllDrives", "true");
 
@@ -373,6 +377,70 @@ export async function downloadGoogleDriveFileMedia(
     method: "GET",
     headers: {
       authorization: `Bearer ${accessToken}`,
+    },
+  });
+}
+
+export function isGoogleWorkspaceMimeType(mimeType: string | null | undefined): boolean {
+  return String(mimeType || "").toLowerCase().startsWith("application/vnd.google-apps.");
+}
+
+export function googleWorkspaceExportPlan(mimeType: string | null | undefined): {
+  native: boolean;
+  supported: boolean;
+  sourceMimeType: string | null;
+  exportMimeType: string | null;
+  extension: string | null;
+  status: "not_native" | "pdf_export_supported" | "unsupported_google_workspace_export";
+} {
+  const sourceMimeType = String(mimeType || "").toLowerCase().trim() || null;
+  if (!isGoogleWorkspaceMimeType(sourceMimeType)) {
+    return {
+      native: false,
+      supported: false,
+      sourceMimeType,
+      exportMimeType: null,
+      extension: null,
+      status: "not_native",
+    };
+  }
+
+  if (sourceMimeType === GOOGLE_WORKSPACE_DOCUMENT_MIME_TYPE) {
+    return {
+      native: true,
+      supported: true,
+      sourceMimeType,
+      exportMimeType: GOOGLE_DOCS_DEFAULT_EXPORT_MIME_TYPE,
+      extension: GOOGLE_DOCS_DEFAULT_EXPORT_EXTENSION,
+      status: "pdf_export_supported",
+    };
+  }
+
+  return {
+    native: true,
+    supported: false,
+    sourceMimeType,
+    exportMimeType: null,
+    extension: null,
+    status: "unsupported_google_workspace_export",
+  };
+}
+
+export async function exportGoogleDriveWorkspaceDocument(
+  accessToken: string,
+  fileId: string,
+  exportMimeType = GOOGLE_DOCS_DEFAULT_EXPORT_MIME_TYPE,
+  options: { fetchFn?: typeof fetch } = {},
+): Promise<Response> {
+  const url = new URL(`${DRIVE_FILE_URL}/${encodeURIComponent(fileId)}/export`);
+  url.searchParams.set("mimeType", exportMimeType);
+
+  const fetchFn = options.fetchFn || fetch;
+  return fetchFn(url, {
+    method: "GET",
+    headers: {
+      authorization: `Bearer ${accessToken}`,
+      accept: exportMimeType,
     },
   });
 }

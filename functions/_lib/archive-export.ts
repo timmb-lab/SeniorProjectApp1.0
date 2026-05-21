@@ -1,6 +1,6 @@
 import type { Env } from "../_types.ts";
 import { randomId, sha256Hex } from "./crypto.ts";
-import { getGoogleDriveAccessToken, googleDriveCredentialParts, probeGoogleDriveFile, uploadGoogleDriveFile } from "./google-drive.ts";
+import { getGoogleDriveAccessToken, googleDriveCredentialParts, googleWorkspaceExportPlan, probeGoogleDriveFile, uploadGoogleDriveFile } from "./google-drive.ts";
 
 export const STUDENT_ARCHIVE_MANIFEST_TYPE = "student_archive_manifest_json";
 export const STUDENT_ARCHIVE_DRIVE_PACKAGE_TYPE = "student_archive_drive_package_json";
@@ -21,6 +21,7 @@ interface EvidenceRow {
   artifact_type: string;
   source_kind: string;
   external_url: string | null;
+  mime_type: string | null;
   title: string;
   review_status: string;
   created_at: string;
@@ -230,6 +231,7 @@ export async function buildStudentArchiveManifest(
          evidence.artifact_type,
          evidence.source_kind,
          evidence.external_url,
+         evidence.mime_type,
          evidence.title,
          evidence.review_status,
          evidence.created_at,
@@ -277,12 +279,14 @@ export async function buildStudentArchiveManifest(
     evidenceArtifacts: evidenceRows.map((row) => ({
       artifactType: row.artifact_type,
       sourceKind: row.source_kind,
+      mimeType: row.mime_type,
       externalUrl: row.source_kind === "external_link" ? row.external_url : null,
       title: row.title,
       reviewStatus: row.review_status,
       createdAt: row.created_at,
       requirementId: row.requirement_id,
       fileBytesReady: row.source_kind === "google_drive_file",
+      googleWorkspaceExport: archiveGoogleWorkspaceExport(row.mime_type),
     })),
     guardrails: [
       "Private Drive storage identifiers are redacted from this package.",
@@ -378,4 +382,17 @@ function archivePackageFileName(title: string): string {
     .trim()
     .slice(0, 120) || "senior-project-archive";
   return safeTitle.toLowerCase().endsWith(".json") ? safeTitle : `${safeTitle}.json`;
+}
+
+function archiveGoogleWorkspaceExport(mimeType: string | null) {
+  const plan = googleWorkspaceExportPlan(mimeType);
+  if (!plan.native) return null;
+  return {
+    nativeType: plan.sourceMimeType === "application/vnd.google-apps.document" ? "google_docs" : "google_workspace",
+    supported: plan.supported,
+    status: plan.status,
+    exportMimeType: plan.exportMimeType,
+    exportExtension: plan.extension,
+    storageIdentifiersRedacted: true,
+  };
 }

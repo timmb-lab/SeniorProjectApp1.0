@@ -177,6 +177,87 @@
   background: #edf8f1;
 }
 
+.workspace-upload-status {
+  display: grid;
+  gap: 0.45rem;
+  border: 1px solid #d4dddc;
+  border-radius: var(--radius);
+  background: #f7fbfa;
+  padding: 0.7rem;
+}
+
+.workspace-upload-status-selected,
+.workspace-upload-status-uploading,
+.workspace-upload-status-verifying {
+  border-color: rgba(4, 123, 131, 0.35);
+  background: #eef9f8;
+}
+
+.workspace-upload-status-complete {
+  border-color: rgba(45, 123, 73, 0.36);
+  background: #edf8f1;
+}
+
+.workspace-upload-status-failed {
+  border-color: rgba(180, 54, 41, 0.38);
+  background: #fff0ef;
+}
+
+.workspace-upload-status-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-weight: 900;
+}
+
+.workspace-upload-status-label {
+  color: var(--ink);
+}
+
+.workspace-upload-status-percent {
+  color: var(--charcoal);
+  font-variant-numeric: tabular-nums;
+}
+
+.workspace-upload-meter {
+  height: 0.65rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #dfe8e6;
+}
+
+.workspace-upload-meter span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--teal);
+  transition: width 160ms ease;
+}
+
+.workspace-upload-status-complete .workspace-upload-meter span {
+  background: var(--green);
+}
+
+.workspace-upload-status-failed .workspace-upload-meter span {
+  background: var(--red);
+}
+
+.workspace-upload-message,
+.workspace-upload-file {
+  font-size: 0.92rem;
+}
+
+.workspace-upload-file {
+  color: var(--charcoal);
+  overflow-wrap: anywhere;
+}
+
+.workspace-upload-actions {
+  display: flex;
+  justify-content: flex-start;
+}
+
 .workspace-app {
   display: grid;
   min-height: 100vh;

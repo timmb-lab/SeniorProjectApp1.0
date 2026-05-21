@@ -190,9 +190,9 @@ async function expectJson(client, pathname, expectedStatus, label, init = {}) {
   return result.body;
 }
 
-async function verifyRole(baseUrl, roleId, account) {
+async function verifyRole(baseUrl, roleId, account, context = {}) {
   const client = new SessionClient(baseUrl);
-  await login(client, account, roleId);
+  const loginBody = await login(client, account, roleId);
   const me = await expectJson(client, "/api/auth/me", 200, `${roleId} /api/auth/me`);
   const roleIds = roleIdsFromMe(me);
   if (!roleIds.includes(roleId)) {
@@ -205,30 +205,72 @@ async function verifyRole(baseUrl, roleId, account) {
   const checks = [];
   if (roleId === "student") {
     const dashboard = await expectJson(client, "/api/student/dashboard", 200, "student dashboard");
+    const archiveReadiness = await expectJson(client, "/api/student/archive/readiness", 200, "student archive readiness");
+    const presentationSlots = await expectJson(client, "/api/presentation-slots", 200, "student presentation slots");
+    const studentId = loginBody?.user?.id || me?.user?.id || "";
+    if (studentId && Array.isArray(presentationSlots.slots)) {
+      const outOfScopeSlot = presentationSlots.slots.find((slot) => slot?.studentId && slot.studentId !== studentId);
+      if (outOfScopeSlot) {
+        throw new WorkspacePermissionCheckError("permission_scope", "Student presentation slots included another student's protected record.", {
+          roleId,
+          studentId,
+        });
+      }
+    }
     checks.push({ name: "student_dashboard", status: dashboard.ok === true ? "passed" : "unexpected_body" });
+    checks.push({ name: "student_archive_readiness", status: archiveReadiness.ok === true ? "passed" : "unexpected_body" });
+    checks.push({ name: "student_presentation_scope", status: "passed" });
+    if (archiveReadiness?.archive?.downloadUrl) {
+      const archiveDownload = await client.fetch(archiveReadiness.archive.downloadUrl, {
+        headers: { accept: "application/json" },
+      });
+      const contentType = archiveDownload.headers.get("content-type") || "";
+      if (archiveDownload.status === 200 && contentType.includes("application/json")) {
+        const manifest = await archiveDownload.json().catch(() => null);
+        assertNoStorageLeak(manifest, "student archive manifest download");
+        checks.push({ name: "student_archive_manifest_download", status: "passed" });
+      } else {
+        checks.push({ name: "student_archive_manifest_download", status: "skipped_not_ready" });
+      }
+    } else {
+      checks.push({ name: "student_archive_manifest_download", status: "skipped_not_ready" });
+    }
   } else if (roleId === "program_teacher") {
     await expectJson(client, "/api/teacher/review-queue", 200, "program teacher review queue");
-    await expectJson(client, "/api/presentation-slots", 200, "program teacher presentation slots");
+    const presentationSlots = await expectJson(client, "/api/presentation-slots", 200, "program teacher presentation slots");
     checks.push({ name: "teacher_scope", status: "passed" });
+    checks.push({ name: "teacher_presentation_dashboard", status: Array.isArray(presentationSlots.slots) ? "passed" : "unexpected_body" });
   } else if (roleId === "mentor") {
     await expectJson(client, "/api/mentor/assigned", 200, "mentor assigned students");
-    await expectJson(client, "/api/presentation-slots", 200, "mentor presentation slots");
+    const presentationSlots = await expectJson(client, "/api/presentation-slots", 200, "mentor presentation slots");
     checks.push({ name: "mentor_scope", status: "passed" });
+    checks.push({ name: "mentor_presentation_dashboard", status: Array.isArray(presentationSlots.slots) ? "passed" : "unexpected_body" });
   } else if (roleId === "misc_admin") {
     await expectJson(client, "/api/admin/users/import", 403, "misc admin import denial", {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ reason: "Hosted permission proof", users: [] }),
     });
+    await expectJson(client, "/api/presentation-slots", 403, "misc admin presentation denial");
     checks.push({ name: "misc_admin_denial", status: "passed" });
+    checks.push({ name: "misc_admin_presentation_denial", status: "passed" });
   } else if (roleId === "admin") {
     await expectJson(client, "/api/reports/readiness", 200, "admin readiness report");
     await expectJson(client, "/api/presentation-slots", 200, "admin presentation slots");
+    if (context.studentId) {
+      await expectJson(
+        client,
+        `/api/student/archive/readiness?studentId=${encodeURIComponent(context.studentId)}`,
+        200,
+        "admin student archive readiness",
+      );
+      checks.push({ name: "admin_archive_dashboard", status: "passed" });
+    }
     checks.push({ name: "admin_allowed_path", status: "passed" });
   }
 
   await client.fetchJson("/api/auth/logout", { method: "POST" });
-  return { roleId, status: "passed", checks };
+  return { roleId, status: "passed", userId: loginBody?.user?.id || me?.user?.id || null, checks };
 }
 
 async function runHostedWorkspacePermissionCheck() {
@@ -256,6 +298,9 @@ async function runHostedWorkspacePermissionCheck() {
     'data-workspace-state="no-active-assignment"',
     'data-workspace-state="${escapeHtml(workspaceState)}"',
     'data-presentation-state="${escapeHtml(status)}"',
+    'data-archive-check-status',
+    'data-archive-download="manifest"',
+    'data-archive-drive-package',
     'data-admin-action="import-users"',
   ]) {
     if (!workspaceText.includes(marker)) {
@@ -277,6 +322,7 @@ async function runHostedWorkspacePermissionCheck() {
   const requiredRoles = ["student", "program_teacher", "mentor", "misc_admin", "admin"];
   const roleResults = [];
   const missingRoles = [];
+  const proofContext = {};
   for (const roleId of requiredRoles) {
     const account = requireFakeAccount(byRole.get(roleId), roleId);
     if (!account) {
@@ -284,7 +330,9 @@ async function runHostedWorkspacePermissionCheck() {
       roleResults.push({ roleId, status: "skipped_missing_fake_credential" });
       continue;
     }
-    roleResults.push(await verifyRole(baseUrl, roleId, account));
+    const roleResult = await verifyRole(baseUrl, roleId, account, proofContext);
+    if (roleId === "student" && roleResult.userId) proofContext.studentId = roleResult.userId;
+    roleResults.push(roleResult);
     log(`PASS role: ${roleId} hosted permission check passed.`);
   }
 
@@ -313,6 +361,7 @@ async function runHostedWorkspacePermissionCheck() {
       noSecretValuesPrinted: true,
       rawDriveIdsInBrowserOutput: false,
       realStudentDataUsed: false,
+      fakeTestAccountsOnly: true,
     },
     logs,
   };

@@ -264,6 +264,11 @@ function Invoke-KnownProjectScript {
             Invoke-Node "scripts\check-hosted-workspace-permissions.mjs" @ScriptArgs
             return
         }
+        "check:workspace:hosted-dashboard" {
+            $script:KnownProjectScriptHandled = $true
+            Invoke-Node "scripts\check-hosted-workspace-permissions.mjs" @ScriptArgs
+            return
+        }
         "qol:hourly" {
             $script:KnownProjectScriptHandled = $true
             Invoke-ProjectPowerShell "scripts\run-node-script.ps1" (@("automation\qol\hourly-orchestrator.mjs") + @($ScriptArgs))

@@ -13,6 +13,25 @@ let currentData = {
 let activeSection = "overview";
 let busy = false;
 let lastAdminImportResult = null;
+const WORKSPACE_UPLOAD_MAX_BYTES = 20 * 1024 * 1024;
+const WORKSPACE_UPLOAD_ALLOWED_MIME_TYPES = new Set([
+  "application/pdf",
+  "text/plain",
+  "text/csv",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+]);
+const WORKSPACE_UPLOAD_ALLOWED_EXTENSIONS = [".pdf", ".txt", ".csv", ".docx", ".pptx", ".xlsx"];
+let uploadState = {
+  state: "idle",
+  progress: 0,
+  message: "Choose a file to upload evidence.",
+  fileName: "",
+  fileSize: 0,
+  retryReady: false,
+};
+let lastUploadAttempt = null;
 
 init();
 
@@ -550,16 +569,78 @@ function renderEvidenceForms(submissions) {
           </label>
           <label class="workspace-label workspace-label-wide">
             File
-            <input class="workspace-input" name="file" type="file" accept="image/*,.pdf,.txt,.csv,.docx,.pptx,.xlsx,application/pdf,text/plain,text/csv,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" required>
+            <input class="workspace-input" name="file" type="file" accept="image/*,.pdf,.txt,.csv,.docx,.pptx,.xlsx,application/pdf,text/plain,text/csv,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" data-upload-action="select-file" required>
           </label>
         </div>
         <p class="workspace-muted">Files up to 20 MB are accepted when storage is configured for this environment.</p>
+        ${renderUploadStatus()}
         <div class="workspace-form-actions">
           <button class="workspace-button workspace-button-primary" type="submit">Upload file</button>
         </div>
       </form>
     </div>
   `;
+}
+
+function renderUploadStatus() {
+  const state = uploadState.state || "idle";
+  const progress = clampUploadProgress(uploadState.progress);
+  const message = uploadState.message || uploadMessageForState(state);
+  const fileSummary = uploadState.fileName
+    ? `<span class="workspace-upload-file">${escapeHtml(uploadState.fileName)}${uploadState.fileSize ? ` (${formatBytes(uploadState.fileSize)})` : ""}</span>`
+    : "";
+  const retryButton = uploadState.retryReady && lastUploadAttempt
+    ? `<button class="workspace-button workspace-button-secondary" type="button" data-upload-action="retry">Retry upload</button>`
+    : "";
+
+  return `
+    <div id="workspaceUploadStatus" class="workspace-upload-status workspace-upload-status-${escapeHtml(state)}" data-upload-state="${escapeHtml(state)}" data-upload-progress="${progress}" role="status" aria-live="polite">
+      <div class="workspace-upload-status-head">
+        <span class="workspace-upload-status-label">${escapeHtml(uploadLabelForState(state))}</span>
+        <span class="workspace-upload-status-percent">${progress}%</span>
+      </div>
+      <div class="workspace-upload-meter" role="progressbar" aria-label="Evidence upload progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${progress}" data-upload-progress="${progress}">
+        <span style="width: ${progress}%"></span>
+      </div>
+      <p class="workspace-upload-message" data-upload-message>${escapeHtml(message)}</p>
+      ${fileSummary}
+      ${retryButton ? `<div class="workspace-upload-actions">${retryButton}</div>` : ""}
+    </div>
+  `;
+}
+
+function uploadLabelForState(state) {
+  if (state === "selected") return "Ready";
+  if (state === "preparing") return "Preparing";
+  if (state === "uploading") return "Uploading";
+  if (state === "verifying") return "Checking";
+  if (state === "complete") return "Uploaded";
+  if (state === "failed") return "Needs attention";
+  return "Waiting";
+}
+
+function uploadMessageForState(state) {
+  if (state === "selected") return "File selected. Press Upload file when you are ready.";
+  if (state === "preparing") return "Preparing your file for upload.";
+  if (state === "uploading") return "Uploading your evidence file.";
+  if (state === "verifying") return "Checking that the upload finished safely.";
+  if (state === "complete") return "Your file was received and added to your evidence.";
+  if (state === "failed") return "The upload did not finish. Review the message and try again if available.";
+  return "Choose a file to upload evidence.";
+}
+
+function clampUploadProgress(value) {
+  const numberValue = Number(value);
+  if (!Number.isFinite(numberValue)) return 0;
+  return Math.max(0, Math.min(100, Math.round(numberValue)));
+}
+
+function formatBytes(bytes) {
+  const numberValue = Number(bytes);
+  if (!Number.isFinite(numberValue) || numberValue <= 0) return "0 bytes";
+  if (numberValue < 1024) return `${numberValue} bytes`;
+  if (numberValue < 1024 * 1024) return `${(numberValue / 1024).toFixed(1)} KB`;
+  return `${(numberValue / (1024 * 1024)).toFixed(1)} MB`;
 }
 
 function renderTeacherSection() {
@@ -790,10 +871,17 @@ function bindWorkspaceForms() {
   adminImportForm?.querySelector?.('[name="scopeType"]')?.addEventListener("change", updateAdminImportScopeFields);
   updateAdminImportScopeFields();
   document.querySelector("#workspaceEvidenceLinkForm")?.addEventListener("submit", attachEvidenceLink);
-  document.querySelector("#workspaceFileUploadForm")?.addEventListener("submit", uploadEvidenceFile);
+  const uploadForm = document.querySelector("#workspaceFileUploadForm");
+  uploadForm?.addEventListener("submit", uploadEvidenceFile);
+  uploadForm?.querySelector?.('[data-upload-action="select-file"]')?.addEventListener("change", handleUploadFileSelected);
+  bindUploadRetryButton();
   document.querySelectorAll("[data-presentation-action]").forEach((button) => {
     button.addEventListener("click", updatePresentationSlot);
   });
+}
+
+function bindUploadRetryButton() {
+  document.querySelector('[data-upload-action="retry"]')?.addEventListener("click", retryEvidenceUpload);
 }
 
 function renderPresentationSection() {
@@ -1020,46 +1108,254 @@ async function attachEvidenceLink(event) {
 async function uploadEvidenceFile(event) {
   event.preventDefault();
   if (busy) return;
-  busy = true;
   const form = event.currentTarget;
-  const formData = new FormData(form);
-  const file = formData.get("file");
-  const submissionId = String(formData.get("submissionId") || "");
-  setFormBusy(form, true);
+  const attempt = buildUploadAttemptFromForm(form);
+  const validationMessage = validateUploadAttempt(attempt);
 
-  if (!file || typeof file !== "object" || !Number.isFinite(file.size)) {
-    busy = false;
-    renderAppShell("Choose a file before uploading.", "error");
+  if (validationMessage) {
+    lastUploadAttempt = null;
+    updateUploadState({
+      state: "failed",
+      progress: 0,
+      message: validationMessage,
+      fileName: attempt.file?.name || "",
+      fileSize: attempt.file?.size || 0,
+      retryReady: false,
+    });
     return;
   }
-  if (file.size <= 0) {
-    busy = false;
-    renderAppShell("The selected file is empty. Choose a file with content and try again.", "error");
+
+  lastUploadAttempt = attempt;
+  await runEvidenceUploadAttempt(attempt, form);
+}
+
+function handleUploadFileSelected(event) {
+  const file = event.currentTarget?.files?.[0] || null;
+  if (!file) {
+    lastUploadAttempt = null;
+    updateUploadState({
+      state: "idle",
+      progress: 0,
+      message: "Choose a file to upload evidence.",
+      fileName: "",
+      fileSize: 0,
+      retryReady: false,
+    });
     return;
   }
-  if (file.size > 20 * 1024 * 1024) {
-    busy = false;
-    renderAppShell("This file is larger than the current 20 MB limit. Choose a smaller file or ask your instructor for help.", "error");
+
+  const validationMessage = validateWorkspaceUploadFile(file);
+  updateUploadState({
+    state: validationMessage ? "failed" : "selected",
+    progress: 0,
+    message: validationMessage || `${file.name || "Selected file"} is ready to upload.`,
+    fileName: file.name || "Selected file",
+    fileSize: file.size || 0,
+    retryReady: false,
+  });
+}
+
+async function retryEvidenceUpload() {
+  if (busy) return;
+  if (!lastUploadAttempt?.file) {
+    updateUploadState({
+      state: "failed",
+      progress: 0,
+      message: "Choose the file again, then upload it.",
+      retryReady: false,
+    });
     return;
   }
+  await runEvidenceUploadAttempt(lastUploadAttempt, null);
+}
+
+async function runEvidenceUploadAttempt(attempt, form) {
+  busy = true;
+  if (form) setFormBusy(form, true);
+  updateUploadState({
+    state: "preparing",
+    progress: 5,
+    message: "Preparing your file for upload.",
+    fileName: attempt.file.name || "Selected file",
+    fileSize: attempt.file.size || 0,
+    retryReady: false,
+  });
 
   try {
-    const response = await fetch(`/api/submissions/${encodeURIComponent(submissionId)}/evidence/upload`, {
+    const response = await uploadEvidenceWithProgress(
+      `/api/submissions/${encodeURIComponent(attempt.submissionId)}/evidence/upload`,
+      formDataForUploadAttempt(attempt),
+      (progressEvent) => {
+        const progress = progressEvent.lengthComputable && progressEvent.total > 0
+          ? Math.max(8, Math.min(92, Math.round((progressEvent.loaded / progressEvent.total) * 92)))
+          : Math.max(uploadState.progress || 0, 35);
+        updateUploadState({
+          state: "uploading",
+          progress,
+          message: progressEvent.lengthComputable
+            ? `Uploading ${attempt.file.name || "your file"} (${progress}%).`
+            : `Uploading ${attempt.file.name || "your file"}.`,
+          retryReady: false,
+        });
+      },
+    );
+
+    updateUploadState({
+      state: "verifying",
+      progress: 95,
+      message: "Checking that the upload finished safely.",
+      retryReady: false,
+    });
+
+    const body = response.body;
+    if (!response.ok) {
+      updateUploadState({
+        state: "failed",
+        progress: 0,
+        message: messageForUploadError(body?.error, response.status),
+        fileName: attempt.file.name || "Selected file",
+        fileSize: attempt.file.size || 0,
+        retryReady: canRetryUploadFailure(body?.error, response.status),
+      });
+      return;
+    }
+    updateUploadState({
+      state: "complete",
+      progress: 100,
+      message: "Your file was received and added to your evidence.",
+      fileName: attempt.file.name || "Selected file",
+      fileSize: attempt.file.size || 0,
+      retryReady: false,
+    });
+    await loadWorkspaceData("Your file was received and added to your Senior Project evidence.");
+  } catch (error) {
+    updateUploadState({
+      state: "failed",
+      progress: 0,
+      message: messageForNetworkError(error),
+      fileName: attempt.file.name || "Selected file",
+      fileSize: attempt.file.size || 0,
+      retryReady: true,
+    });
+  } finally {
+    if (form) setFormBusy(form, false);
+    busy = false;
+  }
+}
+
+function buildUploadAttemptFromForm(form) {
+  const formData = new FormData(form);
+  return {
+    submissionId: String(formData.get("submissionId") || ""),
+    artifactType: String(formData.get("artifactType") || "reflection"),
+    title: String(formData.get("title") || ""),
+    file: formData.get("file"),
+  };
+}
+
+function formDataForUploadAttempt(attempt) {
+  const formData = new FormData();
+  formData.set("title", attempt.title);
+  formData.set("artifactType", attempt.artifactType);
+  formData.set("file", attempt.file, attempt.file.name || "evidence-upload");
+  return formData;
+}
+
+function validateUploadAttempt(attempt) {
+  if (!attempt.submissionId) return "Choose the submission this file belongs to.";
+  if (!attempt.title.trim()) return "Add a short title for this file.";
+  return validateWorkspaceUploadFile(attempt.file);
+}
+
+function validateWorkspaceUploadFile(file) {
+  if (!file || typeof file !== "object" || !Number.isFinite(file.size)) {
+    return "Choose a file before uploading.";
+  }
+  if (file.size <= 0) {
+    return "The selected file is empty. Choose a file with content and try again.";
+  }
+  if (file.size > WORKSPACE_UPLOAD_MAX_BYTES) {
+    return "This file is larger than the current 20 MB limit. Choose a smaller file or ask your instructor for help.";
+  }
+  if (!workspaceUploadFileSupported(file)) {
+    return "Choose a PDF, image, text file, spreadsheet, presentation, or document for this upload.";
+  }
+  return "";
+}
+
+function workspaceUploadFileSupported(file) {
+  const mimeType = String(file?.type || "").toLowerCase().split(";")[0].trim();
+  if (mimeType.startsWith("image/") || WORKSPACE_UPLOAD_ALLOWED_MIME_TYPES.has(mimeType)) return true;
+  const fileName = String(file?.name || "").toLowerCase();
+  return WORKSPACE_UPLOAD_ALLOWED_EXTENSIONS.some((extension) => fileName.endsWith(extension));
+}
+
+function canRetryUploadFailure(error, status) {
+  if (error === "drive_token_exchange_failed" || error === "drive_provider_error" || error === "drive_upload_failed") return true;
+  if (status === 0 || status === 502) return true;
+  return false;
+}
+
+function updateUploadState(nextState) {
+  uploadState = {
+    ...uploadState,
+    ...nextState,
+    progress: clampUploadProgress(nextState.progress ?? uploadState.progress),
+  };
+  refreshUploadStatusPanel();
+}
+
+function refreshUploadStatusPanel() {
+  const panel = document.querySelector("#workspaceUploadStatus");
+  if (!panel) return;
+  panel.outerHTML = renderUploadStatus();
+  bindUploadRetryButton();
+}
+
+function uploadEvidenceWithProgress(url, formData, onProgress) {
+  if (typeof XMLHttpRequest !== "function") {
+    return fetch(url, {
       method: "POST",
       headers: { accept: "application/json" },
       body: formData,
-    });
-    const body = await safeJson(response);
-    if (!response.ok) {
-      renderAppShell(messageForUploadError(body?.error, response.status), response.status === 503 ? "neutral" : "error");
-      return;
-    }
-    await loadWorkspaceData("Your file was received and added to your Senior Project evidence.");
-  } catch (error) {
-    renderAppShell(messageForNetworkError(error), "error");
-  } finally {
-    busy = false;
+    }).then(async (response) => ({
+      ok: response.ok,
+      status: response.status,
+      body: await safeJson(response),
+    }));
   }
+
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", url);
+    xhr.setRequestHeader("accept", "application/json");
+    xhr.responseType = "text";
+    if (xhr.upload) {
+      xhr.upload.onprogress = (event) => {
+        onProgress({
+          lengthComputable: event.lengthComputable,
+          loaded: event.loaded,
+          total: event.total,
+        });
+      };
+    }
+    xhr.onload = () => {
+      let body = null;
+      try {
+        body = xhr.responseText ? JSON.parse(xhr.responseText) : null;
+      } catch {
+        body = null;
+      }
+      resolve({
+        ok: xhr.status >= 200 && xhr.status < 300,
+        status: xhr.status,
+        body,
+      });
+    };
+    xhr.onerror = () => reject(new Error("network_error"));
+    xhr.onabort = () => reject(new Error("upload_cancelled"));
+    xhr.send(formData);
+  });
 }
 
 async function updatePresentationSlot(event) {

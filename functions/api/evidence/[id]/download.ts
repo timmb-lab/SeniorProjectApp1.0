@@ -1,7 +1,13 @@
 import type { Env, RoleAssignment, UserAccount } from "../../../_types.ts";
 import { getCurrentUser, writeAudit } from "../../../_lib/auth.ts";
 import { badRequest } from "../../../_lib/http.ts";
-import { downloadGoogleDriveFileMedia, getGoogleDriveAccessToken, googleDriveCredentialParts } from "../../../_lib/google-drive.ts";
+import {
+  downloadGoogleDriveFileMedia,
+  exportGoogleDriveWorkspaceDocument,
+  getGoogleDriveAccessToken,
+  googleDriveCredentialParts,
+  googleWorkspaceExportPlan,
+} from "../../../_lib/google-drive.ts";
 import { canAccessStudent, getRoleAssignments } from "../../../_lib/permissions.ts";
 import { workflowError } from "../../../_lib/workflow.ts";
 
@@ -56,6 +62,17 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env, params })
     return workflowError("not_a_drive_file", 409);
   }
 
+  const workspaceExport = googleWorkspaceExportPlan(artifact.mime_type);
+  if (workspaceExport.native && !workspaceExport.supported) {
+    await auditEvidenceAccess(env, request, user, "evidence_download_google_workspace_export_unsupported", evidenceId, {
+      studentId: artifact.student_id,
+      sourceKind: artifact.source_kind,
+      sourceMimeType: workspaceExport.sourceMimeType,
+      exportStatus: workspaceExport.status,
+    });
+    return workflowError("unsupported_google_workspace_export", 409);
+  }
+
   const credentialParts = googleDriveCredentialParts(env);
   if (!credentialParts.clientEmail || !credentialParts.privateKey) {
     await writeAudit(env, {
@@ -87,17 +104,27 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env, params })
   }
 
   let driveResponse: Response;
+  const usesWorkspaceExport = workspaceExport.native && workspaceExport.supported && workspaceExport.exportMimeType;
   try {
-    driveResponse = await downloadGoogleDriveFileMedia(accessToken, artifact.drive_file_id);
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
+    driveResponse = usesWorkspaceExport
+      ? await exportGoogleDriveWorkspaceDocument(accessToken, artifact.drive_file_id, workspaceExport.exportMimeType || undefined)
+      : await downloadGoogleDriveFileMedia(accessToken, artifact.drive_file_id);
+  } catch {
     await writeAudit(env, {
       actorUserId: user.id,
-      action: "google_drive_download_request_failed",
+      action: usesWorkspaceExport ? "google_drive_docs_export_request_failed" : "google_drive_download_request_failed",
       entityType: "evidence_repository",
       entityId: "default-google-drive",
       request,
-      metadata: { message },
+      metadata: {
+        reason: "provider_request_failed",
+        ...(usesWorkspaceExport
+          ? {
+              sourceMimeType: workspaceExport.sourceMimeType,
+              exportMimeType: workspaceExport.exportMimeType,
+            }
+          : {}),
+      },
     });
     return workflowError("drive_provider_error", 502);
   }
@@ -105,30 +132,53 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env, params })
   if (!driveResponse.ok) {
     await writeAudit(env, {
       actorUserId: user.id,
-      action: "google_drive_download_failed",
+      action: usesWorkspaceExport ? "google_drive_docs_export_failed" : "google_drive_download_failed",
       entityType: "evidence_repository",
       entityId: "default-google-drive",
       request,
-      metadata: { status: driveResponse.status },
+      metadata: {
+        status: driveResponse.status,
+        ...(usesWorkspaceExport
+          ? {
+              sourceMimeType: workspaceExport.sourceMimeType,
+              exportMimeType: workspaceExport.exportMimeType,
+            }
+          : {}),
+      },
     });
     await auditEvidenceAccess(env, request, user, "evidence_download_failed", evidenceId, {
       studentId: artifact.student_id,
       sourceKind: artifact.source_kind,
       driveStatus: driveResponse.status,
+      ...(usesWorkspaceExport
+        ? {
+            sourceMimeType: workspaceExport.sourceMimeType,
+            exportMimeType: workspaceExport.exportMimeType,
+          }
+        : {}),
     });
-    return workflowError("drive_download_failed", 502);
+    return workflowError(usesWorkspaceExport ? "google_docs_export_failed" : "drive_download_failed", 502);
   }
 
   await auditEvidenceAccess(env, request, user, "evidence_downloaded", evidenceId, {
     studentId: artifact.student_id,
     sourceKind: artifact.source_kind,
+    ...(usesWorkspaceExport
+      ? {
+          sourceMimeType: workspaceExport.sourceMimeType,
+          exportMimeType: workspaceExport.exportMimeType,
+          delivery: "google_workspace_export",
+        }
+      : {}),
   });
 
   const headers = new Headers();
   headers.set("cache-control", "no-store");
   headers.set("x-content-type-options", "nosniff");
 
-  const contentType = driveResponse.headers.get("content-type") || artifact.mime_type || "application/octet-stream";
+  const contentType = usesWorkspaceExport
+    ? workspaceExport.exportMimeType || "application/pdf"
+    : driveResponse.headers.get("content-type") || artifact.mime_type || "application/octet-stream";
   headers.set("content-type", contentType);
   headers.set("content-disposition", contentDispositionAttachment(artifact.title, contentType));
 

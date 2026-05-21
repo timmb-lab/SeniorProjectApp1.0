@@ -115,6 +115,20 @@ npm run ensure:owner-admin:remote
 
 This path is separate from `/api/admin/users/import`, which still blocks real non-`.test` temporary-credential imports by default pending Bryan's broader credential-delivery decision.
 
+## Hosted Workspace Proof Gates
+
+Use fake `.test` accounts only for hosted workspace proof. The ignored credential source defaults to `.secrets/test-accounts-2026-05-18.json`; do not commit or paste those values.
+
+```powershell
+npm run check:workspace:hosted-evidence
+npm run check:workspace:hosted-permissions
+npm run check:workspace:hosted-dashboard
+```
+
+The canonical workspace now includes browser upload selected/progress/verifying/complete/failure states with a retry action for retryable upload failures. The hosted dashboard proof strengthens the fake-account presentation/archive checks without using Bryan's real admin account.
+
+Google Docs evidence downloads have provider-safe coverage for native Google Docs MIME classification and PDF export through the app-scoped download route. Live Google Docs export still needs a fake native Docs fixture/policy decision before it should be claimed as live-proven.
+
 ## Teacher Companion
 
 Teacher planning notes live in `teacher-companion/implementation-guide.md`. They are not linked from the student guide.

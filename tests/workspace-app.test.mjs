@@ -26,7 +26,7 @@ test("workspace route is a real authenticated app surface", () => {
   assert.match(workspaceJs, /\/api\/presentation-slots\/\$\{encodeURIComponent\(slotId\)\}\/\$\{actionPath\}/);
   assert.match(workspaceJs, /\/api\/reports\/readiness/);
   assert.match(workspaceJs, /\/api\/submissions\/\$\{encodeURIComponent\(values\.submissionId\)\}\/evidence/);
-  assert.match(workspaceJs, /\/api\/submissions\/\$\{encodeURIComponent\(submissionId\)\}\/evidence\/upload/);
+  assert.match(workspaceJs, /\/api\/submissions\/\$\{encodeURIComponent\(attempt\.submissionId\)\}\/evidence\/upload/);
   assert.match(workspaceJs, /\/api\/evidence\/\$\{encodeURIComponent\(row\.id\)\}\/download|data-evidence-download="file"/);
   assert.match(workspaceJs, /data-evidence-link="external"/);
   assert.match(workspaceJs, /Sign in to continue/);
@@ -40,6 +40,12 @@ test("workspace route is a real authenticated app surface", () => {
   assert.match(workspaceJs, /Password And Sessions/);
   assert.match(workspaceJs, /Your file was received/);
   assert.match(workspaceJs, /storage is not configured for this environment/);
+  assert.match(workspaceJs, /XMLHttpRequest/);
+  assert.match(workspaceJs, /data-upload-state/);
+  assert.match(workspaceJs, /data-upload-progress/);
+  assert.match(workspaceJs, /data-upload-message/);
+  assert.match(workspaceJs, /data-upload-action="select-file"/);
+  assert.match(workspaceJs, /data-upload-action="retry"/);
   assert.match(workspaceJs, /data-workspace-state="\$\{escapeHtml\(workspaceState\)\}"/);
   assert.match(workspaceJs, /"session-expired"/);
   assert.match(workspaceJs, /"account-disabled"/);
@@ -97,8 +103,111 @@ test("workspace evidence forms capture values before disabling controls", () => 
   );
   assert.match(
     workspaceJs,
-    /const formData = new FormData\(form\);\s+const file = formData\.get\("file"\);\s+const submissionId = String\(formData\.get\("submissionId"\) \|\| ""\);\s+setFormBusy\(form, true\);/,
+    /const attempt = buildUploadAttemptFromForm\(form\);\s+const validationMessage = validateUploadAttempt\(attempt\);/,
   );
+  assert.match(workspaceJs, /function buildUploadAttemptFromForm\(form\)[\s\S]*new FormData\(form\)/);
+  assert.match(workspaceJs, /function formDataForUploadAttempt\(attempt\)[\s\S]*formData\.set\("file", attempt\.file/);
+});
+
+test("workspace renders upload progress, validation, completion, and retry states safely", async () => {
+  const routes = {
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "student-upload",
+          email: "student.upload@senior-capstone.test",
+          displayName: "Student Upload",
+          roles: [{ role_id: "student", scope_type: "global", scope_id: "" }],
+        },
+      },
+    },
+    "/api/announcements": {
+      status: 200,
+      body: { ok: true, announcements: [] },
+    },
+    "/api/student/dashboard": {
+      status: 200,
+      body: {
+        ok: true,
+        viewer: { self: true },
+        progress: [],
+        submissions: [
+          {
+            id: "submission-upload",
+            requirement_title: "Reflection",
+            status: "draft",
+          },
+        ],
+        evidence: [],
+      },
+    },
+    "/api/student/archive/readiness": {
+      status: 200,
+      body: { ok: true, checks: [], summary: {}, archive: {}, storage: {}, retention: {} },
+    },
+    "/api/presentation-slots": {
+      status: 200,
+      body: { ok: true, slots: [] },
+    },
+  };
+
+  const uploading = await renderWorkspaceWithFetch(routes, "student", `
+    uploadState = {
+      state: "uploading",
+      progress: 64,
+      message: "Uploading progress-proof.txt (64%).",
+      fileName: "progress-proof.txt",
+      fileSize: 2048,
+      retryReady: false
+    };
+  `);
+  assert.match(uploading, /data-upload-state="uploading"/);
+  assert.match(uploading, /data-upload-progress="64"/);
+  assert.match(uploading, /role="progressbar"/);
+  assert.match(uploading, /aria-live="polite"/);
+  assert.match(uploading, /progress-proof\.txt/);
+
+  const failed = await renderWorkspaceWithFetch(routes, "student", `
+    lastUploadAttempt = {
+      submissionId: "submission-upload",
+      artifactType: "reflection",
+      title: "Progress proof",
+      file: { name: "progress-proof.txt", size: 2048, type: "text/plain" }
+    };
+    uploadState = {
+      state: "failed",
+      progress: 0,
+      message: "The storage provider could not receive the file. Try again or contact your instructor.",
+      fileName: "progress-proof.txt",
+      fileSize: 2048,
+      retryReady: true
+    };
+  `);
+  assert.match(failed, /data-upload-state="failed"/);
+  assert.match(failed, /data-upload-action="retry"/);
+  assert.match(failed, /Retry upload/);
+  assert.match(failed, /storage provider could not receive the file/i);
+
+  const complete = await renderWorkspaceWithFetch(routes, "student", `
+    uploadState = {
+      state: "complete",
+      progress: 100,
+      message: "Your file was received and added to your evidence.",
+      fileName: "progress-proof.txt",
+      fileSize: 2048,
+      retryReady: false
+    };
+  `);
+  assert.match(complete, /data-upload-state="complete"/);
+  assert.match(complete, /data-upload-progress="100"/);
+  assert.match(complete, /Your file was received and added to your evidence/);
+
+  assert.match(workspaceJs, /unsupported_file_type/);
+  assert.match(workspaceJs, /selected file is empty/i);
+  assert.match(workspaceJs, /20 MB limit/);
+  assert.doesNotMatch(`${uploading}\n${failed}\n${complete}`, /drive_file_id|driveFileId|drive_parent_folder_id|driveParentFolderId|access_token|refresh_token/i);
 });
 
 test("workspace renders role-pending and permission-denied access states", async () => {
