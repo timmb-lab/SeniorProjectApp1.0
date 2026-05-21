@@ -12,7 +12,18 @@ Status values:
 
 ## Open Decisions
 
-No open external automation scheduler decisions are blocking the current scaffold. The Google Drive evidence root folder is selected and configured, first-admin bootstrap is complete for `bryan.timm89@gmail.com`, the production setup key has been removed, and the Cloudflare live verification token decision is resolved. Remaining setup work is configuration/implementation: fix the Google Drive upload HTTP 403 before real student uploads, add account lifecycle flows, and broaden permission tests.
+No open external automation scheduler decisions are blocking the current scaffold. The Google Drive evidence root folder is selected and configured, first-admin bootstrap is complete for `bryan.timm89@gmail.com`, the production setup key has been removed, and the Cloudflare live verification token decision is resolved. Remaining setup work is configuration/implementation: fix the Google Drive upload HTTP 403 before real student uploads, finish account lifecycle flows, decide temporary credential delivery before real pilot accounts, and broaden permission tests.
+
+### HD-2026-05-21-001
+
+- `status`: open
+- `area`: temporary credential delivery for imported accounts
+- `owner`: Bryan
+- `severity`: P1
+- `decision needed`: Decide whether the admin import flow may use one-time admin-visible temporary credentials for real pilot account setup, or whether the app must implement an email/invitation/school-approved credential delivery path before real users are imported.
+- `current recommendation`: Use one-time admin display only for fake `.test` alpha proof and internal setup. Before real student or staff accounts, either Bryan approves a documented manual distribution procedure or the rebuild lane implements an invitation/email delivery policy. Do not put temporary credential values in docs, Figma, screenshots, logs, audit metadata, commits, or chat.
+- `decision workflow`: Figma node `158:2` (`Prototype / 22 / Admin import temporary credential handoff`) and handoff `H-2026-05-21-002`.
+- `created`: 2026-05-21
 
 ### HD-2026-05-20-002
 

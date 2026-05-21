@@ -509,6 +509,10 @@ Created/updated frames:
   - `Prototype / 21 / Credential lifecycle handoff`, node `153:2`
   - Created route/data/permission/state annotations for admin reset requested, reset completion form, password changed plus session rotation, invalid current password, weak or reused password, and stale session revoked.
   - Shared plugin data key `senior_capstone/credential_lifecycle_contract_2026_05_21` records 6 states, 7 routes, 5 records, 6 guardrails, and the next rebuild action for invitation/import, generated or temporary credential policy, hosted reset/change proof, admin reset initiation proof, stale-session fallback, and redacted audit checks.
+- 2026-05-21 admin import temporary credential handoff on `05 Full MVP Alpha Prototype`
+  - `Prototype / 22 / Admin import temporary credential handoff`, node `158:2`
+  - Created route/data/permission/state annotations for admin import draft, validation errors, pending-reset account creation, one-time temporary credential display, delivery policy needed, and permission-denied audit.
+  - Shared plugin data key `senior_capstone/admin_import_temp_credential_contract_2026_05_21` records 6 states, 7 routes, 9 records, 4 permission scopes, 6 guardrails, 5 acceptance checks, and the next rebuild action for hosted admin import UI proof plus a credential-delivery policy decision before real pilot users.
 
 Verification status:
 - Canvas write succeeded and returned the frame IDs above.
@@ -581,3 +585,7 @@ Verification status:
 - Initial readback found compact chip width and 4px state-row overflow issues; follow-up `use_figma` correction fixed chip sizing and state-row spacing.
 - Final readback found 59 text nodes, zero suspicious clipped text nodes, zero child overflow, 6 states, 7 routes, 5 records, and 6 guardrails in shared contract data.
 - `get_design_context` and `get_screenshot` succeeded for node `153:2`; screenshot verification returned `868x1024` from original `1360x1605`.
+- 2026-05-21 `use_figma` write created node `158:2` to map admin import and one-time temporary credential states after `/api/admin/users/import` landed.
+- Initial readback found collapsed 1px text heights and row overflow; follow-up layout corrections expanded text/rows and then tightened chip/action labels.
+- Final readback found 59 text nodes, zero suspicious clipped text nodes, zero child overflow, 6 states, 7 routes, 9 records, 4 permission scopes, 6 guardrails, and 5 acceptance checks in shared contract data.
+- `get_design_context` and `get_screenshot` succeeded for node `158:2`; screenshot verification returned `814x1024` from original `1360x1712`.

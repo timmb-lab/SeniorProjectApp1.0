@@ -28,6 +28,22 @@ This is the compact run log for the current quarter-hour split-builder automatio
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-05-21 00:54 PT - MVP-028 Admin Import Temporary Credential Handoff
+
+- `automation ID`: `senior-capstone-figma-product-builder`.
+- `lane`: Figma-only product builder / design-assets-handoff.
+- `master-plan sections`: Role-Aware Production App Contract; Stack And Deployment Direction; Lane Responsibilities; Logging Requirements.
+- `requirement IDs`: `MVP-028`, supporting `MVP-004`, `MVP-005`, `MVP-007`, `MVP-020`, `MVP-032`, and `MVP-033`; `handoff`: `H-2026-05-21-002`.
+- `selected slice`: Create and verify an admin import temporary credential handoff after rebuild added `/api/admin/users/import`.
+- `active Figma file`: `z4t4tFPAKrMDh6pIYOeEw6`.
+- `Figma page/node touched`: `05 Full MVP Alpha Prototype`; node `158:2` (`Prototype / 22 / Admin import temporary credential handoff`).
+- `what changed`: Added route/data/permission state annotations for import batch draft, validation errors, pending-reset account creation, one-time temporary credential display, delivery policy needed, and permission-denied audit. Stored shared plugin data key `senior_capstone/admin_import_temp_credential_contract_2026_05_21`.
+- `verification`: `use_figma` created node `158:2`; layout corrections fixed collapsed 1px text, row overflow, and chip/action label sizing. Final readback found 59 text nodes, zero suspicious clipped text nodes, zero child overflow, 6 states, 7 routes, 9 records, 4 permission scopes, 6 guardrails, and 5 acceptance checks. `get_design_context` and `get_screenshot` succeeded; screenshot returned `814x1024` from original `1360x1712`.
+- `files changed`: Figma design docs, artifact registry, automation memory, Figma lane log, handoff ledger, human-decision queue, MVP catalog, this run log, and `docs/progress/runs/2026-05-21-0054-figma-admin-import-temp-credential.json`.
+- `implementation handoff`: Rebuild should consume node `158:2` for hosted/admin UI proof of import, no-store one-time credential display, duplicate/scope validation states, permission-denied audit proof, and a credential delivery policy decision before real pilot users.
+- `blockers`: none for Figma. Open human decision `HD-2026-05-21-001` asks Bryan to approve or replace one-time admin display before real pilot credentials.
+- `self-improvement`: none.
+
 ## 2026-05-21 00:37 PT - MVP-004/MVP-007 Admin User Import
 
 - `automation ID`: `senior-capstone-nonfigma-mvp-builder-30`.
