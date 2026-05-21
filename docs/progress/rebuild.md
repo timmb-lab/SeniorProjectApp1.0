@@ -616,5 +616,5 @@ Each rebuild run should append a dated entry with:
 - `blockers`: live Drive upload still fails with redacted Google Drive HTTP 403 after token/root/index probes pass; real-user setup credential delivery remains Bryan decision `HD-2026-05-21-001`; hosted browser no-assignment and section-level permission-denied proof remains open.
 - `phone tracker`: not appended; Google Sheets connector was not used.
 - `self-improvement`: none.
-- `commit/push status`: implementation commit `cb89a3a47ca498c1d0ea7d9c3368e51c064b019b` created on `main`; closeout docs commit and push pending.
+- `commit/push status`: implementation commit `cb89a3a47ca498c1d0ea7d9c3368e51c064b019b` and closeout commit `9146a8d79236007751736dfc8200d14f6ef5d683` pushed to `origin main` (`f4fa9bb..9146a8d`); push-evidence update follows.
 - `next action`: Continue protected-record depth through presentation slots, archive/export, dashboard aggregate readbacks, and hosted permission UI proof; resolve the Drive upload HTTP 403 before real evidence uploads.
