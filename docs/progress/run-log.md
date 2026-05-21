@@ -28,6 +28,24 @@ This is the compact run log for the current quarter-hour split-builder automatio
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-05-21 05:30 PT - MVP-028 Submission Submit Access Audit Handoff
+
+- `automation ID`: `senior-capstone-figma-product-builder-15`.
+- `lane`: Figma-only product builder / design-assets-handoff.
+- `master-plan sections`: Role-Aware Production App Contract; Lane Responsibilities; Logging Requirements.
+- `requirement IDs`: `MVP-028`, supporting `MVP-006`, `MVP-010`, `MVP-012`, `MVP-020`, and `MVP-025`; `handoffs`: `H-2026-05-21-003` and `H-2026-05-18-008`.
+- `selected slice`: Create and verify a Figma handoff that consumes `/api/submissions/:id/submit` submit access audit proof.
+- `active Figma file`: `z4t4tFPAKrMDh6pIYOeEw6`.
+- `Figma page/node touched`: `05 Full MVP Alpha Prototype`; node `187:2` (`Prototype / 28 / Submission submit access audit handoff`).
+- `what changed`: Added route/data/permission/audit states for signed-out submit request, cross-student submit denied, staff submit route denied, missing evidence blocks submit, successful submit snapshots version, and immutable review-loop handoff behavior. The handoff maps `/api/submissions/:id/submit`, `/student/submissions/:id`, `/workspace`, `/api/reviews/:submissionId/history`, `/admin/audit`, `/api/audit-events`, protected submission records, and audit events `submission_submit_unauthorized`, `submission_submit_denied`, `submission_submit_blocked_missing_evidence`, and `submission_submitted`.
+- `verification`: `use_figma` created node `187:2` and shared plugin data key `senior_capstone/submission_submit_access_audit_contract_2026_05_21`. Final readback found 50 text nodes, zero suspicious clipped text nodes, zero child overflow, 6 states, 6 routes, 10 records, 5 permission scopes, 6 guardrails, and 6 acceptance checks. `get_design_context` and `get_screenshot` succeeded for node `187:2`; screenshot returned `1024x1013` from original `1360x1345`. Artifact registry and manifest JSON parsed; cadence verifier passed; targeted `git diff --check` passed with CRLF warnings only.
+- `files changed`: Figma design docs, artifact registry, automation memory, Figma lane log, handoff ledger, MVP catalog, this run log, and `docs/progress/runs/2026-05-21-0530-figma-submission-submit-access-audit.json`.
+- `implementation handoff`: Rebuild should treat `/api/submissions/:id/submit` route-level submit access auditing as consumed, then broaden the same audited permission matrix to submission detail/readback, evidence upload/download proof after the Drive 403 is resolved, mentor meetings, presentation slots, archive/export, and hosted workspace permission states.
+- `blockers`: none for Figma; live Drive upload remains blocked by redacted Google Drive HTTP 403, hosted no-assignment/section-level permission-denied browser proof remains open, and `HD-2026-05-21-001` remains open for real-user setup credential delivery policy.
+- `phone tracker`: not appended; Google Sheets connector was not used.
+- `self-improvement`: none.
+- `commit/push status`: pending closeout commit.
+
 ## 2026-05-21 05:06 PT - MVP-012 Submission Submit Access Audit
 
 - `automation ID`: `senior-capstone-nonfigma-mvp-builder`.

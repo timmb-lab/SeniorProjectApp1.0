@@ -392,6 +392,15 @@ Every builder run must ladder from `docs/master-plan.md` into `docs/mvp-requirem
 - Remaining protected-record depth: submission detail/readback, evidence upload/download live proof after Drive 403 resolution, mentor meetings, presentation slots, archive/export, and hosted no-assignment/section-denied UI proof.
 - self-improvement: none
 
+### 2026-05-21 - Figma Submission Submit Access Audit Handoff
+
+- Figma-only builder `senior-capstone-figma-product-builder-15` added node `187:2`, `Prototype / 28 / Submission submit access audit handoff`, to active file `z4t4tFPAKrMDh6pIYOeEw6` on page `05 Full MVP Alpha Prototype`.
+- The handoff consumes non-Figma run `2026-05-21-0506-submission-submit-access-audit-mvp-012` and implementation commit `c35dd306c199f29d3e5d64a802c6912ca4de13c0` after `/api/submissions/:id/submit` gained missing-session, denied, missing-evidence blocked, and successful submit audit proof.
+- Shared plugin data key `senior_capstone/submission_submit_access_audit_contract_2026_05_21` records 6 states, 6 routes, 10 records, 5 permission scopes, 6 guardrails, 6 acceptance checks, routes `/api/submissions/:id/submit`, `/student/submissions/:id`, `/workspace`, `/api/reviews/:submissionId/history`, `/admin/audit`, and `/api/audit-events`, and audit events `submission_submit_unauthorized`, `submission_submit_denied`, `submission_submit_blocked_missing_evidence`, and `submission_submitted`.
+- Final Figma verification succeeded: readback found 50 text nodes, zero suspicious clipped text nodes, and zero child overflow; `get_design_context` and `get_screenshot` passed for node `187:2`, with screenshot `1024x1013` from original `1360x1345`.
+- Next best non-Figma slice from this handoff: submission detail/readback, evidence upload/download after Drive 403, mentor meetings, presentation slots, archive/export, and hosted permission UI proof.
+- self-improvement: none
+
 ## Current Priority
 
 Immediate next useful passes:
@@ -401,7 +410,7 @@ Immediate next useful passes:
 3. Extend alpha proposal/review/evidence/audit records into real workflow endpoints.
 4. Add Google Drive server-side credential/OAuth implementation plus access-controlled evidence upload/retrieval assumptions.
 5. Decide or implement the invitation/email/approved manual delivery policy before real pilot users receive setup credentials; local fake-account import/reset proof now covers validation, no-store refresh clearing, reset-first login, denied-role behavior, stale-session safety, and credential-leak prevention.
-6. Continue broadening route-level protected-record tests after the dashboard, teacher review queue, review history/decision, evidence-link, and submission-submit access audits by covering submission detail/readback, evidence upload/download proof, mentor meetings, presentation slots, archive/export, and live/browser permission-denied states, using Figma nodes `173:2`, `178:2`, `180:2`, and `183:2` as the protected-access contracts.
+6. Continue broadening route-level protected-record tests after the dashboard, teacher review queue, review history/decision, evidence-link, and submission-submit access audits by covering submission detail/readback, evidence upload/download proof, mentor meetings, presentation slots, archive/export, and live/browser permission-denied states, using Figma nodes `173:2`, `178:2`, `180:2`, `183:2`, and `187:2` as the protected-access contracts.
 7. Keep mobile/error/empty/permission alpha QA current while the Day 7 walkthrough hardens.
 
 Real daily MVP goal: minimum 2 accepted MVP passes per calendar day, stretch 3 when unblocked, and at least 14 accepted MVP passes per week until the 100-pass target is met or recalibrated.
@@ -436,7 +445,7 @@ Current backlog anchors:
 - Canva folder: `FAHJ-n-VqFE`.
 - Canva asset: `DAHJ-v7TOM8`, proposal approval process strip, no-text 1600x500.
 - Active Figma product UI file: `https://www.figma.com/design/z4t4tFPAKrMDh6pIYOeEw6` (`z4t4tFPAKrMDh6pIYOeEw6`), team id `1638213362346160913`.
-- Key Figma implementation contract nodes: `18:2`, `31:2`, `37:2`, `43:2`, `48:2`, `56:2`, `61:2`, `69:2`, `78:2`, and full MVP alpha prototype page `98:2` with implementation nodes through `183:2`.
+- Key Figma implementation contract nodes: `18:2`, `31:2`, `37:2`, `43:2`, `48:2`, `56:2`, `61:2`, `69:2`, `78:2`, and full MVP alpha prototype page `98:2` with implementation nodes through `187:2`.
 - 2026-05-20 Figma review-history alignment updated full MVP alpha prototype nodes `98:9` and `98:10` to match `/api/reviews/:submissionId/history`, `reviews`, `comments`, `status_history`, `submission_versions`, scoped permissions, and storage-ID redaction; `get_design_context` and `get_screenshot` succeeded for both nodes.
 - 2026-05-20 Figma handoff update verified node `98:17` after primary alpha-console review-history consumption; it records `review_history_consumed_at`, redirects next rebuild focus to mentor/presentation/admin depth, preserves API/D1/audit/storage-redaction boundaries, and passed `get_design_context` plus `get_screenshot`.
 - 2026-05-20 Figma production-boundary handoff verified node `124:2`; it distinguishes public Student/Teacher guide mode from authenticated `/workspace` state, records route/data/permission contract data, and passed screenshot/metadata/readback QA. The 2026-05-21 Figma update on the same node marks canonical `workspace.html` route-inventory proof consumed with shared plugin data key `senior_capstone/production_route_inventory_consumption_2026_05_21`.
@@ -452,6 +461,7 @@ Current backlog anchors:
 - 2026-05-21 Figma teacher review queue access audit handoff verified node `178:2`; it maps signed-out queue request, misc-admin denied role, empty program-scope no-leak behavior, scoped program-teacher queue visibility, admin inspection, and queue-row privacy states to review queue/review endpoint routes, protected records, permission scopes, and audit events with zero clipped text, zero direct-child overflow, and screenshot `1010x1024` from original `1360x1379`.
 - 2026-05-21 Figma review history and decision access audit handoff verified node `180:2`; it maps history signed-out, history denied, history viewed, decision signed-out, decision denied, and decision success states to review endpoint routes, protected records, audit events, and next protected-record expansion guidance with zero clipped text, zero child overflow, and screenshot `952x1024` from original `1360x1463`.
 - 2026-05-21 Figma evidence link access audit handoff verified node `183:2`; it maps signed-out attach, cross-student denial, staff attach-route denial, student link metadata success, no Drive identifier leakage, and separate Drive upload blocker states to evidence routes, protected records, audit events, and next protected-record expansion guidance with zero clipped text, zero child overflow, and screenshot `972x1024` from original `1360x1434`.
+- 2026-05-21 Figma submission submit access audit handoff verified node `187:2`; it maps signed-out submit, cross-student denial, staff submit-route denial, missing-evidence blocked submit, successful submit version snapshot, and immutable review-loop handoff states to submission routes, protected records, audit events, and next protected-record expansion guidance with zero clipped text, zero child overflow, and screenshot `1024x1013` from original `1360x1345`.
 - 2026-05-20 non-Figma workspace archive readiness pass partially consumed node `144:2` in repo code only by adding `/api/student/archive/readiness`, a student Archive workspace tab, explicit admin export reason enforcement, truthful signed-download-disabled output, focused integration/source/smoke/browser proof, and route inventory coverage.
 - 2026-05-20 non-Figma archive manifest pass added `export_artifacts`, scoped JSON archive manifest generation/download, content hash/expiry metadata, expired-package retry state, storage-ID redaction tests, and a workspace manifest download marker.
 - 2026-05-20 non-Figma archive provider/retention pass partially consumed node `149:2` by making archive generation provider-gated, auditing missing-credential/access failure states as failed exports, exposing configurable retention policy/window metadata, and rendering retention state in the canonical workspace.

@@ -1,0 +1,195 @@
+{
+  "run_id": "2026-05-21-0530-figma-submission-submit-access-audit",
+  "timestamp_local": "2026-05-21T05:30:00-07:00",
+  "automation_id": "senior-capstone-figma-product-builder-15",
+  "lane": "figma-only product builder",
+  "selected_category": "design-assets-handoff",
+  "status": "completed",
+  "accepted_mvp_pass": true,
+  "requirement_ids": [
+    "MVP-028",
+    "MVP-006",
+    "MVP-010",
+    "MVP-012",
+    "MVP-020",
+    "MVP-025"
+  ],
+  "handoff_ids": [
+    "H-2026-05-21-003",
+    "H-2026-05-18-008"
+  ],
+  "output_kind": "figma-route-data-permission-audit-handoff",
+  "bounded_scope": "Create and verify a Figma handoff that consumes /api/submissions/:id/submit submit access audit proof.",
+  "source_docs_read": [
+    "C:\\Users\\bryan\\.codex\\automations\\senior-capstone-figma-product-builder-15\\memory.md",
+    "docs/design/figma-first-pass-product-system.md",
+    "docs/design/figma-product-preview-state-variants.md",
+    "docs/master-plan.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/automation-cadence.md",
+    "docs/automation-runbook.md",
+    "docs/automation-memory.md",
+    "docs/progress/run-log.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/decision-log.md",
+    "docs/artifacts.json",
+    "docs/human-decisions.md",
+    "recent docs/progress/runs/*.json",
+    "docs/progress/figma.md",
+    "docs/progress/runs/2026-05-21-0506-submission-submit-access-audit-mvp-012.json",
+    "tests/review-loop.integration.test.mjs",
+    "functions/api/submissions/[id]/submit.ts"
+  ],
+  "figma": {
+    "file_key": "z4t4tFPAKrMDh6pIYOeEw6",
+    "file_url": "https://www.figma.com/design/z4t4tFPAKrMDh6pIYOeEw6",
+    "page_name": "05 Full MVP Alpha Prototype",
+    "page_id": "98:2",
+    "node_id": "187:2",
+    "frame_name": "Prototype / 28 / Submission submit access audit handoff",
+    "size": "1360x1345",
+    "shared_plugin_data_key": "senior_capstone/submission_submit_access_audit_contract_2026_05_21",
+    "states": [
+      "signed_out_submit_request",
+      "cross_student_submit_denied",
+      "staff_submit_route_denied",
+      "missing_evidence_blocks_submit",
+      "successful_submit_snapshots_version",
+      "review_loop_remains_immutable"
+    ],
+    "routes": [
+      "/api/submissions/:id/submit",
+      "/student/submissions/:id",
+      "/workspace",
+      "/api/reviews/:submissionId/history",
+      "/admin/audit",
+      "/api/audit-events"
+    ],
+    "records": [
+      "User",
+      "UserRole",
+      "Session",
+      "Submission",
+      "SubmissionVersion",
+      "EvidenceArtifact",
+      "RequirementProgress",
+      "Review",
+      "Comment",
+      "AuditEvent"
+    ],
+    "audit_events": [
+      "submission_submit_unauthorized",
+      "submission_submit_denied",
+      "submission_submit_blocked_missing_evidence",
+      "submission_submitted"
+    ],
+    "permission_scopes": [
+      "student_self_submit_only",
+      "student_other_denied",
+      "mentor_denied_for_submit_route",
+      "program_teacher_denied_for_submit_route",
+      "admin_misc_admin_denied_for_submit_route"
+    ],
+    "guardrails": [
+      "no_staff_submit_route",
+      "missing_evidence_blocks_version_snapshot",
+      "redacted_actor_role_scopes_only",
+      "no_drive_storage_identifiers",
+      "fake_test_accounts_only",
+      "production_safe_401_403_copy"
+    ],
+    "acceptance_checks": [
+      "401_missing_session_audited",
+      "403_denials_audited_with_role_scopes",
+      "missing_evidence_blocker_audited_without_snapshot",
+      "successful_submit_writes_version_and_audit",
+      "review_history_versions_stay_immutable",
+      "no_drive_storage_id_leakage"
+    ],
+    "verification": {
+      "use_figma_create": "created node 187:2 and shared plugin data key senior_capstone/submission_submit_access_audit_contract_2026_05_21",
+      "final_readback": "50 text nodes, zero suspicious clipped text nodes, zero child overflow, 6 states, 6 routes, 10 records, 5 permission scopes, 6 guardrails, 6 acceptance checks, and 4 audit events",
+      "get_design_context": "succeeded",
+      "get_screenshot": "succeeded; returned 1024x1013 from original 1360x1345"
+    }
+  },
+  "consumed_non_figma_evidence": {
+    "run_id": "2026-05-21-0506-submission-submit-access-audit-mvp-012",
+    "implementation_commit_sha": "c35dd306c199f29d3e5d64a802c6912ca4de13c0",
+    "summary": "/api/submissions/:id/submit audits missing session, cross-student denial, staff denial, missing-evidence blocked submit, successful submit metadata, role scopes, and immutable version snapshot preservation."
+  },
+  "repo_changes": [
+    "docs/design/figma-first-pass-product-system.md",
+    "docs/design/figma-product-preview-state-variants.md",
+    "docs/artifacts.json",
+    "docs/automation-memory.md",
+    "docs/progress/figma.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/run-log.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/progress/runs/2026-05-21-0530-figma-submission-submit-access-audit.json"
+  ],
+  "validation": [
+    {
+      "command": "Figma use_figma readback",
+      "result": "passed; 50 text nodes, zero suspicious clipped text nodes, zero child overflow"
+    },
+    {
+      "command": "Figma get_design_context node 187:2",
+      "result": "passed"
+    },
+    {
+      "command": "Figma get_screenshot node 187:2",
+      "result": "passed; 1024x1013 from original 1360x1345"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\verify-cadence-30min.ps1 -RepoRoot .",
+      "result": "passed; quarter-hour cadence verification checked 13 files"
+    },
+    {
+      "command": "JSON parse docs/artifacts.json and this manifest",
+      "result": "passed"
+    },
+    {
+      "command": "git diff --check -- touched docs",
+      "result": "passed with CRLF warnings only"
+    }
+  ],
+  "blockers": [
+    {
+      "code": "DRIVE_UPLOAD_FAILED_HTTP_403",
+      "cause": "Existing live Drive check reaches token exchange, root folder, and index sheet, but Google Drive create/upload returns redacted HTTP 403.",
+      "bryan_must_act": true,
+      "next_safe_action": "Confirm service-account file-create permission/quota/Workspace policy for the configured root folder, then rerun npm run check:drive:live."
+    },
+    {
+      "code": "TEMP_CREDENTIAL_DELIVERY_POLICY_OPEN",
+      "cause": "The admin UI can display setup passwords once for fake .test proof, but Bryan has not approved a real-user manual distribution procedure or invitation/email delivery policy.",
+      "bryan_must_act": true,
+      "next_safe_action": "Decide HD-2026-05-21-001 before importing real pilot users."
+    },
+    {
+      "code": "LIVE_BROWSER_PERMISSION_PROOF_PENDING",
+      "cause": "Route-level submit proof is consumed in Figma; hosted/browser workspace account-state and section-level permission-denied proof remain open.",
+      "bryan_must_act": false,
+      "next_safe_action": "Use fake .test accounts to capture hosted workspace account-state/no-assignment and section-level permission-denied UI evidence."
+    }
+  ],
+  "next_actions": [
+    "Rebuild should treat /api/submissions/:id/submit submit access auditing as consumed.",
+    "Extend protected-record coverage to submission detail/readback, evidence upload/download proof, mentor meetings, presentation slots, archive/export, and hosted permission UI states.",
+    "Resolve Drive upload HTTP 403 before accepting real file-byte evidence uploads.",
+    "Decide or implement real-user credential delivery before pilot imports."
+  ],
+  "self_improvement": "none",
+  "run_log_updated": true,
+  "structured_manifest_created": true,
+  "artifacts_json_updated": true,
+  "mvp_catalog_changed": true,
+  "human_decisions_changed": false,
+  "backend_code_work_avoided": true,
+  "branch_before": "main",
+  "branch_after": "main",
+  "commit_sha": "pending_closeout_commit",
+  "push_result": "pending"
+}
