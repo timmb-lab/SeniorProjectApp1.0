@@ -67,6 +67,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env, params })
         status: row.status,
         signedDownloadReady: false,
         scopedDownloadReady: false,
+        drivePackageReady: Boolean(row.drive_file_id),
       },
     });
 
@@ -109,6 +110,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env, params })
         status: row.status,
         signedDownloadReady: false,
         scopedDownloadReady: false,
+        drivePackageReady: Boolean(row.drive_file_id),
       },
     });
 
@@ -127,6 +129,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env, params })
         expiredAt: artifact.expires_at,
         signedDownloadReady: false,
         scopedDownloadReady: false,
+        drivePackageReady: Boolean(row.drive_file_id),
       },
     });
 
@@ -163,6 +166,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env, params })
       contentSha256: artifact.content_sha256,
       expiresAt: artifact.expires_at,
       storageIdentifiersRedacted: true,
+      drivePackageReady: Boolean(row.drive_file_id),
       signedDownloadReady: false,
       scopedDownloadReady: true,
     },
@@ -176,6 +180,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env, params })
   headers.set("x-archive-expires-at", artifact.expires_at || "");
   headers.set("x-archive-content-sha256", artifact.content_sha256);
   headers.set("x-archive-storage-identifiers-redacted", "true");
+  headers.set("x-archive-drive-package-ready", row.drive_file_id ? "true" : "false");
 
   return new Response(artifact.body_json, { status: 200, headers });
 };

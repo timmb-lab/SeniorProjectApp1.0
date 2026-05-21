@@ -1,8 +1,9 @@
 import type { Env } from "../_types.ts";
 import { randomId, sha256Hex } from "./crypto.ts";
-import { getGoogleDriveAccessToken, googleDriveCredentialParts, probeGoogleDriveFile } from "./google-drive.ts";
+import { getGoogleDriveAccessToken, googleDriveCredentialParts, probeGoogleDriveFile, uploadGoogleDriveFile } from "./google-drive.ts";
 
 export const STUDENT_ARCHIVE_MANIFEST_TYPE = "student_archive_manifest_json";
+export const STUDENT_ARCHIVE_DRIVE_PACKAGE_TYPE = "student_archive_drive_package_json";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const DEFAULT_ARCHIVE_DOWNLOAD_WINDOW_DAYS = 14;
@@ -74,6 +75,13 @@ export interface ArchiveProviderReadiness {
     privateKey: boolean;
   };
   message: string;
+}
+
+export interface ArchiveDrivePackage {
+  fileId: string;
+  name: string;
+  mimeType: string;
+  uploadedAt: string;
 }
 
 export function getArchiveRetentionPolicy(env: Pick<Env, "ARCHIVE_DOWNLOAD_WINDOW_DAYS" | "ARCHIVE_RETENTION_POLICY_STATUS">): ArchiveRetentionPolicy {
@@ -304,6 +312,34 @@ export async function buildStudentArchiveManifest(
   };
 }
 
+export async function uploadStudentArchiveDrivePackage(
+  env: Env,
+  artifact: ArchiveManifestArtifact,
+): Promise<ArchiveDrivePackage> {
+  const tokenResult = await getGoogleDriveAccessToken(env);
+  const fileName = archivePackageFileName(artifact.title);
+  const uploadResult = await uploadGoogleDriveFile(
+    tokenResult.accessToken,
+    {
+      name: fileName,
+      mimeType: artifact.mimeType,
+      parentFolderId: env.GOOGLE_DRIVE_EVIDENCE_ROOT_ID,
+    },
+    new TextEncoder().encode(artifact.bodyJson),
+  );
+
+  if (!uploadResult.ok || !uploadResult.fileId) {
+    throw new Error(`google_drive_archive_upload_failed:${uploadResult.status}`);
+  }
+
+  return {
+    fileId: uploadResult.fileId,
+    name: uploadResult.name || fileName,
+    mimeType: uploadResult.mimeType || artifact.mimeType,
+    uploadedAt: new Date().toISOString(),
+  };
+}
+
 export function archiveArtifactExpired(expiresAt: string | null | undefined, now = new Date()): boolean {
   if (!expiresAt) return false;
   const timestamp = Date.parse(expiresAt);
@@ -333,4 +369,13 @@ function configured(value?: string): boolean {
       && normalized !== "undefined"
       && normalized !== "null",
   );
+}
+
+function archivePackageFileName(title: string): string {
+  const safeTitle = String(title || "senior-project-archive")
+    .replace(/[\r\n]+/g, " ")
+    .replace(/[^\w.\- ()]/g, "_")
+    .trim()
+    .slice(0, 120) || "senior-project-archive";
+  return safeTitle.toLowerCase().endsWith(".json") ? safeTitle : `${safeTitle}.json`;
 }

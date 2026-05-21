@@ -638,6 +638,7 @@ function renderArchiveSection() {
   const storage = body.storage || {};
   const retention = body.retention || {};
   const scopedDownloadReady = Boolean(archive.scopedDownloadReady || archive.signedDownloadReady);
+  const drivePackageStatus = archive.drivePackageReady || storage.drivePackageReady ? "ready" : "pending";
   const downloadMessage = scopedDownloadReady
     ? `Scoped archive manifest is ready${archive.downloadExpiresAt ? ` until ${formatDate(archive.downloadExpiresAt)}` : ""}.`
     : archive.downloadExpired
@@ -695,6 +696,13 @@ function renderArchiveSection() {
             <p>Private storage identifiers stay hidden from this workspace.</p>
           </div>
           ${statusPill(storage.storageIdentifiersRedacted ? "ready" : "needs_review")}
+        </article>
+        <article class="workspace-row" data-archive-drive-package="${escapeHtml(drivePackageStatus)}">
+          <div>
+            <strong>Drive package file</strong>
+            <p>${escapeHtml(drivePackageStatus === "ready" ? "Drive-backed archive package is stored for scoped app delivery." : "Drive package file is pending until staff generates the archive after storage is ready.")}</p>
+          </div>
+          ${statusPill(drivePackageStatus)}
         </article>
         <article class="workspace-row" data-archive-retention-status="${escapeHtml(retention.policyStatus || "unknown")}">
           <div>

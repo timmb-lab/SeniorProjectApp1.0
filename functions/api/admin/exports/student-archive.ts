@@ -1,5 +1,5 @@
 import type { Env } from "../../../_types.ts";
-import { buildStudentArchiveManifest, verifyArchiveProviderReady } from "../../../_lib/archive-export.ts";
+import { buildStudentArchiveManifest, uploadStudentArchiveDrivePackage, verifyArchiveProviderReady } from "../../../_lib/archive-export.ts";
 import { getCurrentUser, writeAudit } from "../../../_lib/auth.ts";
 import { randomId } from "../../../_lib/crypto.ts";
 import { badRequest, json, readJson, requirePost } from "../../../_lib/http.ts";
@@ -95,11 +95,63 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     requestedBy: user.id,
     reason,
   });
+  let drivePackage;
+  try {
+    drivePackage = await uploadStudentArchiveDrivePackage(env, artifact);
+  } catch {
+    const completedAt = new Date().toISOString();
+    await env.DB.prepare(
+      `INSERT INTO exports (id, export_type, requested_by, target_user_id, status, completed_at)
+       VALUES (?, 'student_archive', ?, ?, 'failed', ?)`,
+    ).bind(exportId, user.id, studentId, completedAt).run();
+
+    await writeAudit(env, {
+      actorUserId: user.id,
+      action: "student_archive_export_drive_upload_failed",
+      entityType: "export",
+      entityId: exportId,
+      request,
+      metadata: {
+        targetUserId: studentId,
+        reason,
+        providerStatus: "drive_package_upload_failed",
+        retry: "retry_archive_export",
+        signedDownloadReady: false,
+        scopedDownloadReady: false,
+        drivePackageReady: false,
+        storageIdentifiersRedacted: true,
+      },
+    });
+
+    return json({
+      ok: false,
+      error: "drive_package_upload_failed",
+      export: {
+        id: exportId,
+        exportType: "student_archive",
+        targetUserId: studentId,
+        status: "failed",
+        completedAt,
+        providerStatus: "drive_package_upload_failed",
+        retry: "retry_archive_export",
+        signedDownloadReady: false,
+        scopedDownloadReady: false,
+        drivePackageReady: false,
+      },
+      provider: {
+        status: "drive_package_upload_failed",
+        message: "Drive package upload failed, so archive package generation should be retried after provider access is fixed.",
+        rootConfigured: provider.rootConfigured,
+        indexConfigured: provider.indexConfigured,
+        credentialParts: provider.credentialParts,
+      },
+    }, { status: 502 });
+  }
 
   await env.DB.prepare(
-    `INSERT INTO exports (id, export_type, requested_by, target_user_id, status, completed_at)
-     VALUES (?, 'student_archive', ?, ?, 'complete', ?)`,
-  ).bind(exportId, user.id, studentId, artifact.generatedAt).run();
+    `INSERT INTO exports (id, export_type, requested_by, target_user_id, drive_file_id, status, completed_at)
+     VALUES (?, 'student_archive', ?, ?, ?, 'complete', ?)`,
+  ).bind(exportId, user.id, studentId, drivePackage.fileId, artifact.generatedAt).run();
 
   await env.DB.prepare(
     `INSERT INTO export_artifacts (
@@ -145,6 +197,9 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
       itemCounts: artifact.itemCounts,
       providerStatus: provider.status,
       retention: artifact.retention,
+      drivePackageReady: true,
+      drivePackageName: drivePackage.name,
+      drivePackageMimeType: drivePackage.mimeType,
       signedDownloadReady: false,
       scopedDownloadReady: true,
       storageIdentifiersRedacted: true,
@@ -162,6 +217,8 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
       artifactId: artifact.id,
       artifactType: artifact.artifactType,
       packageBytes: artifact.byteLength,
+      drivePackageReady: true,
+      drivePackageName: drivePackage.name,
       downloadExpiresAt: artifact.expiresAt,
       retention: artifact.retention,
       signedDownloadReady: false,

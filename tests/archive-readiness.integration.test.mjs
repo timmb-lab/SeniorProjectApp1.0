@@ -120,6 +120,8 @@ test("admin archive readiness can inspect a scoped student but still reports sig
   assert.equal(body.archive.status, "complete");
   assert.equal(body.archive.signedDownloadReady, false);
   assert.equal(body.archive.scopedDownloadReady, false);
+  assert.equal(body.archive.drivePackageReady, true);
+  assert.equal(body.storage.drivePackageReady, true);
   assert.match(body.archive.message, /signed archive links are still disabled/i);
   assert.doesNotMatch(JSON.stringify(body), /drive-complete-secret|drive_file_id|driveFileId/i);
 });
@@ -211,11 +213,18 @@ test("admin archive export generates a scoped manifest artifact without storage 
     assert.equal(body.export.status, "complete");
     assert.equal(body.export.scopedDownloadReady, true);
     assert.equal(body.export.signedDownloadReady, false);
+    assert.equal(body.export.drivePackageReady, true);
+    assert.equal(body.export.drivePackageName, "Archive Student Senior Project archive manifest.json");
     assert.equal(body.export.retention.downloadWindowDays, 14);
     assert.equal(body.export.retention.policyReviewRequired, true);
     assert.match(body.export.downloadUrl, /^\/api\/exports\/export[_-]/);
+    assert.equal(fixture.driveUploadBodies.length, 1);
+    assert.match(fixture.driveUploadBodies[0], /Archive Student Senior Project archive manifest\.json/);
+    assert.match(fixture.driveUploadBodies[0], /root-123/);
+    assert.doesNotMatch(fixture.driveUploadBodies[0], /drive-celebration-secret|drive_file_id|driveFileId/i);
     assert.equal(fixture.db.data.exports.length, 1);
     assert.equal(fixture.db.data.exports[0].status, "complete");
+    assert.equal(fixture.db.data.exports[0].drive_file_id, "drive-archive-package-123");
     assert.equal(fixture.db.data.exportArtifacts.length, 1);
     assert.equal(fixture.db.data.exportArtifacts[0].artifact_type, "student_archive_manifest_json");
     assert.doesNotMatch(fixture.db.data.exportArtifacts[0].body_json, /drive-celebration-secret|drive_file_id|driveFileId/i);
@@ -224,7 +233,50 @@ test("admin archive export generates a scoped manifest artifact without storage 
     assert.equal(manifest.retention.policyStatus, "policy_review_required");
     assert.equal(fixture.db.data.auditEvents[0].action, "student_archive_export_generated");
     assert.equal(fixture.db.data.auditEvents[0].metadata.scopedDownloadReady, true);
+    assert.equal(fixture.db.data.auditEvents[0].metadata.drivePackageReady, true);
     assert.equal(fixture.db.data.auditEvents[0].metadata.providerStatus, "ready");
+  });
+});
+
+test("admin archive export fails safely when Drive package upload fails", async () => {
+  const fixture = await createFixtureWithSession({ userId: "admin-a", roleId: "admin" });
+  seedArchiveReadyStudent(fixture.db, "student-a");
+
+  await withDriveProvider(fixture, async (input, init = {}) => {
+    const url = resolveFetchUrl(input);
+    if (url === "https://oauth2.googleapis.com/token") {
+      assert.equal(String(init.method || "GET").toUpperCase(), "POST");
+      return jsonResponse({ access_token: "test-token", expires_in: 3600, token_type: "Bearer" });
+    }
+    if (url.startsWith("https://www.googleapis.com/upload/drive/v3/files")) {
+      return jsonResponse({ error: { message: "upload failed" } }, 502);
+    }
+    if (url.startsWith("https://www.googleapis.com/drive/v3/files/")) {
+      const fileId = url.split("/drive/v3/files/")[1].split("?")[0];
+      return jsonResponse({ id: fileId, name: fileId === fixture.env.GOOGLE_DRIVE_EVIDENCE_ROOT_ID ? "Evidence Root" : "Evidence Index", mimeType: "application/vnd.google-apps.folder" });
+    }
+    throw new Error(`Unexpected fetch URL in test: ${url}`);
+  }, async () => {
+    const response = await onQueueArchive({
+      request: buildJsonRequest(
+        "https://example.test/api/admin/exports/student-archive",
+        fixture.token,
+        { studentId: "student-a", reason: "May 5 archive package" },
+        "POST",
+      ),
+      env: fixture.env,
+    });
+
+    assert.equal(response.status, 502);
+    const body = await response.json();
+    assert.equal(body.error, "drive_package_upload_failed");
+    assert.equal(body.export.status, "failed");
+    assert.equal(body.export.drivePackageReady, false);
+    assert.equal(fixture.db.data.exports.length, 1);
+    assert.equal(fixture.db.data.exports[0].status, "failed");
+    assert.equal(fixture.db.data.exportArtifacts.length, 0);
+    assert.equal(fixture.db.data.auditEvents[0].action, "student_archive_export_drive_upload_failed");
+    assert.equal(fixture.db.data.auditEvents[0].metadata.drivePackageReady, false);
   });
 });
 
@@ -255,6 +307,7 @@ test("export download streams the generated archive manifest for scoped users", 
     assert.match(response.headers.get("content-type"), /application\/json/);
     assert.match(response.headers.get("content-disposition"), /attachment/);
     assert.equal(response.headers.get("x-archive-storage-identifiers-redacted"), "true");
+    assert.equal(response.headers.get("x-archive-drive-package-ready"), "true");
     const manifest = await response.json();
     assert.equal(manifest.manifestVersion, "student-archive-v1");
     assert.equal(manifest.exportId, queued.export.id);
@@ -265,6 +318,7 @@ test("export download streams the generated archive manifest for scoped users", 
     assert.equal(fixture.db.data.auditEvents.length, 1);
     assert.equal(fixture.db.data.auditEvents[0].action, "export_downloaded");
     assert.equal(fixture.db.data.auditEvents[0].metadata.scopedDownloadReady, true);
+    assert.equal(fixture.db.data.auditEvents[0].metadata.drivePackageReady, true);
   });
 });
 
@@ -461,6 +515,13 @@ async function withSuccessfulDriveProvider(fixture, callback) {
     if (url === "https://oauth2.googleapis.com/token") {
       assert.equal(String(init.method || "GET").toUpperCase(), "POST");
       return jsonResponse({ access_token: "test-token", expires_in: 3600, token_type: "Bearer" });
+    }
+    if (url.startsWith("https://www.googleapis.com/upload/drive/v3/files")) {
+      assert.equal(String(init.method || "GET").toUpperCase(), "POST");
+      const uploadBody = init.body && typeof init.body.text === "function" ? await init.body.text() : String(init.body || "");
+      fixture.driveUploadBodies ??= [];
+      fixture.driveUploadBodies.push(uploadBody);
+      return jsonResponse({ id: "drive-archive-package-123", name: "Archive Student Senior Project archive manifest.json", mimeType: "application/json" });
     }
     if (url.startsWith("https://www.googleapis.com/drive/v3/files/")) {
       const fileId = url.split("/drive/v3/files/")[1].split("?")[0];
@@ -733,13 +794,15 @@ class MockPreparedStatement {
     }
 
     if (this.sql.startsWith("insert into exports")) {
-      const [id, requestedBy, targetUserId, completedAt] = this.params;
+      const hasDrivePackage = this.sql.includes("drive_file_id");
+      const [id, requestedBy, targetUserId, driveFileIdOrCompletedAt, maybeCompletedAt] = this.params;
+      const completedAt = hasDrivePackage ? maybeCompletedAt : driveFileIdOrCompletedAt;
       this.data.exports.push({
         id,
         export_type: "student_archive",
         requested_by: requestedBy,
         target_user_id: targetUserId,
-        drive_file_id: null,
+        drive_file_id: hasDrivePackage ? driveFileIdOrCompletedAt : null,
         status: this.sql.includes("'failed'") ? "failed" : "complete",
         created_at: completedAt,
         completed_at: completedAt,

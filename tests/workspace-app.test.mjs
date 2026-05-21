@@ -37,6 +37,7 @@ test("workspace route is a real authenticated app surface", () => {
   assert.match(workspaceJs, /data-presentation-action="check-in"/);
   assert.match(workspaceJs, /data-archive-check-status/);
   assert.match(workspaceJs, /data-archive-download="manifest"/);
+  assert.match(workspaceJs, /data-archive-drive-package/);
   assert.doesNotMatch(workspaceJs, /localStorage|sessionStorage|indexedDB/);
   assert.doesNotThrow(() => new Function(workspaceJs));
 });
@@ -321,6 +322,7 @@ test("workspace renders archive readiness from persisted rows", async () => {
           status: "complete",
           scopedDownloadReady: true,
           signedDownloadReady: false,
+          drivePackageReady: true,
           downloadUrl: "/api/exports/export-ready/download",
           downloadExpiresAt: "2026-05-05T16:00:00.000Z",
           message: "Archive package manifest is ready for scoped download.",
@@ -328,6 +330,7 @@ test("workspace renders archive readiness from persisted rows", async () => {
         storage: {
           providerStatus: "drive_credentials_missing",
           credentialsConfigured: false,
+          drivePackageReady: true,
           storageIdentifiersRedacted: true,
         },
         retention: {
@@ -352,6 +355,8 @@ test("workspace renders archive readiness from persisted rows", async () => {
   assert.match(archive, /data-archive-download="manifest"/);
   assert.match(archive, /Download archive manifest/);
   assert.match(archive, /Private storage identifiers stay hidden/);
+  assert.match(archive, /data-archive-drive-package="ready"/);
+  assert.match(archive, /Drive-backed archive package is stored/);
   assert.match(archive, /data-archive-retention-status="policy_review_required"/);
   assert.match(archive, /Retention policy needs school review before pilot archives/);
   assert.match(archive, /expiring soon/i);

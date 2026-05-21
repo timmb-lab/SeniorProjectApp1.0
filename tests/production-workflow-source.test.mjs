@@ -114,12 +114,16 @@ test("archive export endpoints generate scoped manifest artifacts and expiry sta
   assert.match(archiveQueueRoute, /INSERT INTO export_artifacts/);
   assert.match(archiveQueueRoute, /student_archive_export_generated/);
   assert.match(archiveQueueRoute, /verifyArchiveProviderReady/);
+  assert.match(archiveQueueRoute, /uploadStudentArchiveDrivePackage/);
+  assert.match(archiveQueueRoute, /student_archive_export_drive_upload_failed/);
   assert.match(archiveQueueRoute, /student_archive_export_provider_unavailable/);
   assert.match(archiveQueueRoute, /missing_reason/);
   assert.match(archiveQueueRoute, /scopedDownloadReady: true/);
   assert.match(archiveQueueRoute, /signedDownloadReady: false/);
   assert.match(archiveExportLib, /STUDENT_ARCHIVE_MANIFEST_TYPE/);
+  assert.match(archiveExportLib, /STUDENT_ARCHIVE_DRIVE_PACKAGE_TYPE/);
   assert.match(archiveExportLib, /getArchiveRetentionPolicy/);
+  assert.match(archiveExportLib, /uploadGoogleDriveFile/);
   assert.match(archiveExportLib, /archiveArtifactExpiresSoon/);
   assert.match(archiveExportLib, /policy_review_required/);
   assert.match(archiveExportLib, /drive_credentials_missing/);
@@ -134,12 +138,14 @@ test("archive export endpoints generate scoped manifest artifacts and expiry sta
   assert.match(archiveReadinessRoute, /downloadExpiresSoon/);
   assert.match(archiveReadinessRoute, /storageIdentifiersRedacted: true/);
   assert.match(archiveReadinessRoute, /scopedDownloadReady/);
+  assert.match(archiveReadinessRoute, /drivePackageReady/);
   assert.match(exportDownloadRoute, /canAccessStudent/);
   assert.match(exportDownloadRoute, /export_download_denied/);
   assert.match(exportDownloadRoute, /export_downloaded/);
   assert.match(exportDownloadRoute, /export_download_expired/);
   assert.match(exportDownloadRoute, /archive_artifact_missing/);
   assert.match(exportDownloadRoute, /x-archive-storage-identifiers-redacted/);
+  assert.match(exportDownloadRoute, /x-archive-drive-package-ready/);
   assert.match(exportDownloadRoute, /signedDownloadReady: false/);
 });
 

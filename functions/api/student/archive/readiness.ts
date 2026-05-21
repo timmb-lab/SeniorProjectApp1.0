@@ -185,6 +185,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
   const provider = getArchiveProviderConfiguration(env);
   const retention = getArchiveRetentionPolicy(env);
   const signedDownloadsEnabled = false;
+  const drivePackageReady = Boolean(latestExport?.status === "complete" && latestExport.drive_file_id);
   const scopedDownloadReady = Boolean(
     latestExport?.status === "complete" &&
     latestExport.artifact_id &&
@@ -209,6 +210,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
       missingChecks,
       exportStatus,
       scopedDownloadReady,
+      drivePackageReady,
       providerStatus: provider.status,
       viewerScope: viewerScope(env, user, requestedStudentId, roleAssignments),
     },
@@ -233,6 +235,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
       credentialsConfigured: provider.credentialParts.clientEmail && provider.credentialParts.privateKey,
       signedDownloadsEnabled,
       scopedPackageDownloadsEnabled: true,
+      drivePackageReady,
       storageIdentifiersRedacted: true,
     },
     retention: {
@@ -255,6 +258,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
       requestedAt: latestExport?.created_at || null,
       completedAt: latestExport?.completed_at || null,
       scopedDownloadReady,
+      drivePackageReady,
       downloadUrl: scopedDownloadReady ? `/api/exports/${latestExport?.id}/download` : null,
       downloadExpiresAt: latestExport?.artifact_expires_at || null,
       downloadExpired: Boolean(
