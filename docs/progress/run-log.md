@@ -37,7 +37,7 @@ Future productive runs should append compact entries that name the master-plan s
 - `selected slice`: Add admin user import/provisioning with generated reset-required temporary credentials and initial role assignment without direct Figma work.
 - `changed`: `/api/admin/users/import` now requires an admin session and reason, accepts up to 25 users, validates duplicate emails plus role/program/cohort scopes, creates `pending_reset` accounts, hashes generated one-time temporary credentials with `requires_reset=1`, assigns the initial role, and audits user/batch imports without writing temporary credentials to audit metadata. Route inventory now includes `/api/admin/users/import`.
 - `validation`: focused admin import test passed (5/5); auth login regression passed; admin reset regression passed; strict typecheck passed; full test suite passed (161 pass / 3 expected local-server skips); production-surface check passed; route-inventory check passed; targeted `git diff --check` passed with CRLF warnings only.
-- `commit`: implementation commit `6592b3b` (`rebuild: add admin user import (MVP-004)`) created on `main`; closeout docs commit follows.
+- `commit`: implementation commit `6592b3b` (`rebuild: add admin user import (MVP-004)`) and closeout commit `55f9442` pushed to `origin main` (`54302d3..55f9442`); hosted unauthenticated POST to `/api/admin/users/import` returned HTTP 401 on poll 2 after push.
 - `blockers`: none for this slice. Existing Drive live blocker remains Google Drive upload HTTP 403 after token/root/index probes pass; real uploads are still not accepted.
 - `self-improvement`: none.
 

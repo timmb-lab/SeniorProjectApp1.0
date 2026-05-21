@@ -140,6 +140,6 @@
   "branch_before": "main",
   "branch_after": "main",
   "implementation_commit_sha": "6592b3b",
-  "closeout_commit_sha": "pending",
-  "push_result": "pending"
+  "closeout_commit_sha": "55f9442",
+  "push_result": "pushed to origin main; 54302d3..55f9442; hosted unauthenticated POST to /api/admin/users/import returned HTTP 401 on poll 2 after push"
 }

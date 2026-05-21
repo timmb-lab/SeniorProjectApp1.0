@@ -27,7 +27,7 @@ Each rebuild run should append a dated entry with:
 - `files changed`: `functions/api/admin/users/import.ts`, `tests/admin-users-import.integration.test.mjs`, `docs/generated/production-route-inventory.md`, `docs/mvp-requirements-catalog.md`, `docs/automation-backlog.md`, `docs/automation-memory.md`, `docs/artifacts.json`, `docs/progress/handoffs.md`, this rebuild log, `docs/progress/run-log.md`, and structured run manifest.
 - `validation`: focused admin import integration passed with 5 tests; existing auth login and admin password reset regressions passed; strict `typecheck` passed; full `test` passed with 161 passing tests and 3 expected opt-in workspace smoke skips; `check:production-surfaces` passed with 91 surfaces; `check:route-inventory` passed; targeted `git diff --check` passed with CRLF warnings only.
 - `self-improvement`: none.
-- `commit/push status`: implementation commit `6592b3b` created on `main`; closeout docs commit and push pending.
+- `commit/push status`: implementation commit `6592b3b` and closeout commit `55f9442` pushed to `origin main` (`54302d3..55f9442`); hosted unauthenticated POST to `/api/admin/users/import` returned HTTP 401 on poll 2 after push.
 - `next action`: Add hosted/admin UI proof for import and credential lifecycle states, decide whether email delivery/invitations are needed beyond one-time admin display, then continue broader role-scope/protected-record tests and Drive upload 403 resolution.
 
 ### 2026-05-21 00:09 PT - MVP-004 Active-User Password Change
