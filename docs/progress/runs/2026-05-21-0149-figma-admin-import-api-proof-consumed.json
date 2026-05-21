@@ -1,0 +1,157 @@
+{
+  "run_id": "2026-05-21-0149-figma-admin-import-api-proof-consumed",
+  "timestamp_local": "2026-05-21T01:49:00-07:00",
+  "automation_id": "senior-capstone-figma-product-builder",
+  "lane": "figma-only product builder",
+  "status": "completed",
+  "accepted_mvp_pass": true,
+  "requirement_ids": [
+    "MVP-028",
+    "MVP-004",
+    "MVP-005",
+    "MVP-007",
+    "MVP-020",
+    "MVP-032",
+    "MVP-033"
+  ],
+  "backlog_ids": [
+    "SC-005",
+    "SC-006"
+  ],
+  "handoff_ids": [
+    "H-2026-05-21-002",
+    "H-2026-05-21-001"
+  ],
+  "output_kind": "figma-existing-node-api-proof-consumption-update",
+  "scope": "Update existing admin import proof QA handoff after reset-first API proof landed, narrowing the next rebuild action to browser-level fake-account proof.",
+  "selected_figma_slice": "Admin import proof QA API-consumed state update for node 163:2.",
+  "figma": {
+    "file_key": "z4t4tFPAKrMDh6pIYOeEw6",
+    "url": "https://www.figma.com/design/z4t4tFPAKrMDh6pIYOeEw6",
+    "page": "05 Full MVP Alpha Prototype",
+    "page_id": "98:2",
+    "node_touched": {
+      "node_id": "163:2",
+      "name": "Prototype / 23 / Admin import proof QA handoff",
+      "frame_size": "1360x1384",
+      "mutation_performed": true,
+      "shared_plugin_data_key": "senior_capstone/admin_import_proof_qa_contract_2026_05_21"
+    },
+    "text_nodes_mutated": [
+      "163:5",
+      "163:23",
+      "163:38",
+      "163:51",
+      "163:58",
+      "163:60",
+      "163:65",
+      "163:76",
+      "163:77",
+      "163:81",
+      "163:88"
+    ],
+    "api_proof_consumed_at": "2026-05-21T01:37:00-07:00",
+    "api_proof_manifest": "docs/progress/runs/2026-05-21-0137-admin-import-reset-proof-mvp-004.json",
+    "api_proof_commit": "f9f6ea8db24b064a821571c4b731236ed386b5f4",
+    "api_proof_consumed": [
+      "import success no-store output",
+      "duplicate/scope validation denial",
+      "authenticated non-admin denial audit",
+      "reset-required login blocking",
+      "complete-reset activation",
+      "post-reset role readback",
+      "audit metadata redaction"
+    ],
+    "remaining_browser_proof": [
+      "form loaded with admin users.manage scope",
+      "validation errors block submit in UI",
+      "one-time setup output clears after refresh",
+      "reset-first login panel before dashboard",
+      "permission-denied UI for non-admin attempt",
+      "refresh and stale-session safety",
+      "no credential leakage in screenshots, docs, logs, URLs, browser storage, or chat"
+    ],
+    "verification": [
+      {
+        "tool": "use_figma update/readback",
+        "result": "passed; updated 11 text nodes, 49 text nodes total, zero collapsed text nodes, zero child overflow, 7 consumed API proof points, and 7 remaining browser proof checks"
+      },
+      {
+        "tool": "get_design_context",
+        "node_id": "163:2",
+        "result": "passed; returned updated API-consumed language"
+      },
+      {
+        "tool": "get_screenshot",
+        "node_id": "163:2",
+        "result": "passed; returned 1007x1024 from original 1360x1384"
+      }
+    ]
+  },
+  "source_docs_read": [
+    "C:\\Users\\bryan\\.codex\\automations\\senior-capstone-figma-product-builder\\memory.md",
+    "docs/design/figma-first-pass-product-system.md",
+    "docs/design/figma-product-preview-state-variants.md",
+    "docs/master-plan.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/automation-cadence.md",
+    "docs/automation-runbook.md",
+    "docs/automation-memory.md",
+    "docs/progress/run-log.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/decision-log.md",
+    "docs/artifacts.json",
+    "docs/human-decisions.md",
+    "docs/progress/figma.md",
+    "docs/automation-backlog.md",
+    "docs/automation-self-improvement.md",
+    "recent docs/progress/runs/*.json",
+    "docs/progress/runs/2026-05-21-0137-admin-import-reset-proof-mvp-004.json",
+    "docs/progress/runs/2026-05-21-0123-figma-admin-import-proof-qa.json",
+    "docs/progress/runs/2026-05-21-0108-admin-import-workspace-ui-mvp-004.json"
+  ],
+  "repo_files_changed": [
+    "docs/design/figma-first-pass-product-system.md",
+    "docs/design/figma-product-preview-state-variants.md",
+    "docs/artifacts.json",
+    "docs/automation-memory.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/progress/figma.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-21-0149-figma-admin-import-api-proof-consumed.json"
+  ],
+  "implementation_handoff": "Rebuild should treat API proof as consumed and capture browser-level fake-account proof for admin import validation UI, one-time setup output clearing after refresh, reset-first login before role dashboards, denied-role UI behavior, stale-session safety, and credential-leak prevention.",
+  "validation": [
+    {
+      "command": "Figma use_figma update/readback for node 163:2",
+      "result": "passed"
+    },
+    {
+      "command": "Figma get_design_context for node 163:2",
+      "result": "passed"
+    },
+    {
+      "command": "Figma get_screenshot for node 163:2",
+      "result": "passed; returned 1007x1024 from original 1360x1384"
+    }
+  ],
+  "backend_code_work_avoided": true,
+  "forbidden_files_touched": false,
+  "figma_blocker": null,
+  "run_log_updated": true,
+  "structured_manifest_created": true,
+  "artifacts_json_updated": true,
+  "mvp_catalog_changed": true,
+  "human_decisions_changed": false,
+  "decision_log_changed": false,
+  "self_improvement": "none",
+  "phone_tracker": {
+    "result": "not_appended",
+    "reason": "Google Sheets connector was not used in this run; repo-local closeout evidence was preserved."
+  },
+  "branch_before": "main",
+  "branch_after": "main",
+  "commit_sha": "pending",
+  "push_result": "pending"
+}

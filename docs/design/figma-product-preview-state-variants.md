@@ -517,6 +517,10 @@ Created/updated frames:
   - `Prototype / 23 / Admin import proof QA handoff`, node `163:2`
   - Created route/data/permission/state annotations for hosted admin form loaded, validation errors blocked, import success no-store, reset-first login required, denied role attempt, and refresh/stale-session safety.
   - Shared plugin data key `senior_capstone/admin_import_proof_qa_contract_2026_05_21` records 6 states, 8 routes, 9 records, 5 UI markers, 6 guardrails, 5 acceptance checks, and the next rebuild action for fake-account browser/API proof after the workspace admin import UI landed.
+- 2026-05-21 admin import API proof consumption update on `05 Full MVP Alpha Prototype`
+  - Updated `Prototype / 23 / Admin import proof QA handoff`, node `163:2`, after reset-first API proof landed in run `2026-05-21-0137-admin-import-reset-proof-mvp-004`.
+  - Shared plugin data key `senior_capstone/admin_import_proof_qa_contract_2026_05_21` now records `apiProofConsumedAt=2026-05-21T01:37:00-07:00`, 7 consumed API proof checks, 7 remaining browser proof checks, and implementation commit `f9f6ea8db24b064a821571c4b731236ed386b5f4`.
+  - The visual handoff now explicitly narrows rebuild to browser-level fake-account proof for validation UI, no-store setup output clearing on refresh, reset-first login before dashboards, denied-role UI behavior, stale-session safety, and no credential leakage.
 
 Verification status:
 - Canvas write succeeded and returned the frame IDs above.
@@ -597,3 +601,4 @@ Verification status:
 - Initial readback found 32 collapsed 1px text heights; a targeted text-height correction expanded node `163:2` to `1360x1414`.
 - Final readback found 49 text nodes, zero suspicious clipped text nodes, zero child overflow, 6 states, 8 routes, 9 records, 5 UI markers, 6 guardrails, and 5 acceptance checks in shared contract data.
 - `get_design_context` and `get_screenshot` succeeded for node `163:2`; screenshot verification returned `985x1024` from original `1360x1414`.
+- 2026-05-21 `use_figma` update marked node `163:2` API proof consumed after the reset-first API proof pass; readback found 49 text nodes, zero collapsed text nodes, zero child overflow, 7 consumed API proof points, and 7 remaining browser proof checks. `get_design_context` and `get_screenshot` succeeded, and screenshot verification returned `1007x1024` from original `1360x1384`.

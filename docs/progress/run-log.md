@@ -28,6 +28,22 @@ This is the compact run log for the current quarter-hour split-builder automatio
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-05-21 01:49 PT - MVP-028 Admin Import API Proof Consumption Update
+
+- `automation ID`: `senior-capstone-figma-product-builder`.
+- `lane`: Figma-only product builder / design-assets-handoff.
+- `master-plan sections`: Role-Aware Production App Contract; Stack And Deployment Direction; Lane Responsibilities; Logging Requirements.
+- `requirement IDs`: `MVP-028`, supporting `MVP-004`, `MVP-005`, `MVP-007`, `MVP-020`, `MVP-032`, and `MVP-033`; `handoff`: `H-2026-05-21-002`.
+- `selected slice`: Update and verify existing Figma node `163:2` after reset-first API proof landed in the non-Figma lane.
+- `active Figma file`: `z4t4tFPAKrMDh6pIYOeEw6`.
+- `Figma page/node touched`: `05 Full MVP Alpha Prototype`; node `163:2` (`Prototype / 23 / Admin import proof QA handoff`).
+- `what changed`: Updated node `163:2` text and shared plugin data to record `apiProofConsumedAt=2026-05-21T01:37:00-07:00`, 7 consumed API proof checks, 7 remaining browser proof checks, and implementation commit `f9f6ea8db24b064a821571c4b731236ed386b5f4`.
+- `verification`: `use_figma` updated 11 text nodes and read back 49 text nodes, zero collapsed text, zero overflow, 7 consumed API proof points, and 7 remaining browser checks. `get_design_context` and `get_screenshot` succeeded for node `163:2`; screenshot returned `1007x1024` from original `1360x1384`.
+- `files changed`: Figma design docs, artifact registry, automation memory, Figma lane log, handoff ledger, MVP catalog, this run log, and `docs/progress/runs/2026-05-21-0149-figma-admin-import-api-proof-consumed.json`.
+- `implementation handoff`: Rebuild should capture browser-level fake `.test` proof for import validation UI, no-store setup output clearing on refresh, reset-first login before dashboards, denied-role UI behavior, stale-session safety, and credential-leak prevention.
+- `blockers`: none for Figma. Open human decision `HD-2026-05-21-001` remains required before real pilot credential delivery; Drive upload HTTP 403 remains outside this Figma slice.
+- `self-improvement`: none.
+
 ## 2026-05-21 01:23 PT - MVP-028 Admin Import Proof QA Handoff
 
 - `automation ID`: `senior-capstone-figma-product-builder-15`.

@@ -179,3 +179,16 @@ Figma work is owned by `senior-capstone-figma-product-builder-15` and `senior-ca
 - `verification`: `use_figma` created node `163:2`; initial readback found 32 collapsed 1px text heights, then a targeted text-height correction expanded the frame to `1360x1414`. Final readback found 49 text nodes, zero suspicious clipped text nodes, zero child overflow, 6 states, 8 routes, 9 records, 5 UI markers, 6 guardrails, and 5 acceptance checks. `get_design_context` and `get_screenshot` succeeded; screenshot returned `985x1024` from original `1360x1414`.
 - `implementation handoff`: Rebuild should consume node `163:2` after node `158:2` for fake-account browser/API proof of admin import validation, no-store setup output, reset-required first login, denied-role behavior, stale-session fallback, and redacted audit checks. Keep credential values out of Figma, docs, screenshots, logs, commits, browser storage, URLs, and chat.
 - `self-improvement`: none
+
+## 2026-05-21 01:49 PT - MVP-028 Admin Import API Proof Consumption Update
+
+- `automation ID`: `senior-capstone-figma-product-builder`
+- `selected requirement IDs`: `MVP-028`, supporting `MVP-004`, `MVP-005`, `MVP-007`, `MVP-020`, `MVP-032`, and `MVP-033`
+- `selected slice`: Update and verify the existing admin import proof QA handoff after non-Figma reset-first API proof landed.
+- `active file`: `z4t4tFPAKrMDh6pIYOeEw6`
+- `page`: `05 Full MVP Alpha Prototype`
+- `nodes touched`: `163:2` (`Prototype / 23 / Admin import proof QA handoff`); text nodes `163:5`, `163:23`, `163:38`, `163:51`, `163:58`, `163:60`, `163:65`, `163:76`, `163:77`, `163:81`, and `163:88`.
+- `changed in Figma`: Marked reset-first API proof consumed after run `2026-05-21-0137-admin-import-reset-proof-mvp-004`; updated the shared plugin data key `senior_capstone/admin_import_proof_qa_contract_2026_05_21` with `apiProofConsumedAt=2026-05-21T01:37:00-07:00`, 7 consumed API proof points, 7 remaining browser proof checks, and implementation commit `f9f6ea8db24b064a821571c4b731236ed386b5f4`.
+- `verification`: `use_figma` updated 11 text nodes and returned 49 text nodes, zero collapsed text nodes, zero child overflow, 7 consumed API proof points, and 7 remaining browser proof checks. `get_design_context` confirmed the updated API-consumed language, and `get_screenshot` succeeded for node `163:2` at `1007x1024` from original `1360x1384`.
+- `implementation handoff`: Rebuild should now treat API proof as consumed and use node `163:2` for browser-level fake-account proof only: validation UI, one-time setup output clearing after refresh, reset-first login panel before dashboards, denied-role UI behavior, stale-session safety, and no credential leakage.
+- `self-improvement`: none

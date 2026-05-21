@@ -279,6 +279,13 @@ Every builder run must ladder from `docs/master-plan.md` into `docs/mvp-requirem
 - Final Figma verification succeeded: readback found 49 text nodes, zero suspicious clipped text nodes, zero child overflow, 6 states, 8 routes, 9 records, 5 UI markers, 6 guardrails, and 5 acceptance checks; `get_design_context` and `get_screenshot` passed for node `163:2`, with screenshot `985x1024` from original `1360x1414`.
 - Next best non-Figma slice from this handoff: capture fake-account browser/API proof for admin import validation, no-store setup output, reset-required first login, denied-role behavior, stale-session fallback, and redacted audit checks without exposing credentials or real student records.
 
+### 2026-05-21 - Figma Admin Import API Proof Consumption Update
+
+- Figma-only builder `senior-capstone-figma-product-builder` updated existing node `163:2` after non-Figma run `2026-05-21-0137-admin-import-reset-proof-mvp-004` proved the import/reset API path.
+- Shared plugin data key `senior_capstone/admin_import_proof_qa_contract_2026_05_21` now records `apiProofConsumedAt=2026-05-21T01:37:00-07:00`, consumed API proof commit `f9f6ea8db24b064a821571c4b731236ed386b5f4`, 7 consumed API proof checks, and 7 remaining browser proof checks.
+- Final Figma verification succeeded: `use_figma` updated 11 text nodes and returned 49 text nodes, zero collapsed text nodes, zero child overflow, 7 consumed API proof points, and 7 remaining browser proof checks; `get_design_context` and `get_screenshot` passed for node `163:2`, with screenshot `1007x1024` from original `1360x1384`.
+- Next best non-Figma slice from this handoff: browser-level fake `.test` proof for validation UI, no-store setup output clearing after refresh, reset-first login before dashboards, denied-role UI behavior, stale-session safety, and no credential leakage.
+
 ## Current Priority
 
 Immediate next useful passes:
@@ -287,7 +294,7 @@ Immediate next useful passes:
 2. Broaden public-site no-hidden-core-content proof across every guide route, then verify the newest workspace account-state/no-assignment markers after hosted deployment and add a live section-level permission-denied proof.
 3. Extend alpha proposal/review/evidence/audit records into real workflow endpoints.
 4. Add Google Drive server-side credential/OAuth implementation plus access-controlled evidence upload/retrieval assumptions.
-5. Add browser-level fake-account proof for account import/provisioning from Figma nodes `158:2` and `163:2`, decide the invitation or email-delivery policy before real pilot users, and keep known-gaps QA current.
+5. Add browser-level fake-account proof for account import/provisioning from Figma node `163:2`; API proof is now consumed, while validation UI, no-store refresh clearing, reset-first login panel, denied-role UI, stale-session safety, and credential-leak prevention remain. Decide the invitation or email-delivery policy before real pilot users, and keep known-gaps QA current.
 6. Keep mobile/error/empty/permission alpha QA current while the Day 7 walkthrough hardens.
 
 Real daily MVP goal: minimum 2 accepted MVP passes per calendar day, stretch 3 when unblocked, and at least 14 accepted MVP passes per week until the 100-pass target is met or recalibrated.
