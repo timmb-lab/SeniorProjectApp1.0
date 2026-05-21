@@ -89,7 +89,14 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
         indexStatus: indexProbe.status,
       },
     });
-    return workflowError("drive_access_denied", 502);
+    return json({
+      error: "drive_access_denied",
+      ok: false,
+      drive: {
+        root: rootProbe,
+        indexSheet: indexProbe,
+      },
+    }, { status: 502 });
   }
 
   await writeAudit(env, {

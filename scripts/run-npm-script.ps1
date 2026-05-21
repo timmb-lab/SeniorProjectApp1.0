@@ -231,6 +231,17 @@ function Invoke-KnownProjectScript {
             Invoke-Node "scripts\check-cloudflare.mjs" "--live-required" @ScriptArgs
             return
         }
+        "check:drive:live" {
+            $script:KnownProjectScriptHandled = $true
+            if (-not $env:CLOUDFLARE_API_TOKEN) {
+                $env:CLOUDFLARE_API_TOKEN = [Environment]::GetEnvironmentVariable("CLOUDFLARE_API_TOKEN", "User")
+            }
+            if (-not $env:CLOUDFLARE_ACCOUNT_ID) {
+                $env:CLOUDFLARE_ACCOUNT_ID = "539e8f7c55e7b1472013626ad72f4c7f"
+            }
+            Invoke-Node "scripts\check-google-drive-live.mjs" @ScriptArgs
+            return
+        }
         "qol:hourly" {
             $script:KnownProjectScriptHandled = $true
             Invoke-ProjectPowerShell "scripts\run-node-script.ps1" (@("automation\qol\hourly-orchestrator.mjs") + @($ScriptArgs))

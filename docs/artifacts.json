@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-05-20T22:09:00-07:00",
+  "updated_at": "2026-05-20T23:11:00-07:00",
   "artifacts": [
     {
       "id": "cloudflare-pages-senior-capstone-app",
@@ -289,15 +289,48 @@
         "docs/backend-setup.md",
         "docs/progress/decision-log.md",
         "docs/progress/rebuild.md",
-        "wrangler.jsonc"
+        "wrangler.jsonc",
+        "scripts/check-google-drive-live.mjs",
+        "docs/progress/runs/2026-05-20-2311-drive-live-cloudflare-cleanup.json"
       ],
       "verification": [
         "Google Drive metadata returned native spreadsheet title and sheets Evidence Index, Folder Policy, and Upload Intake Fields on 2026-05-18.",
         "Bryan provided root folder https://drive.google.com/drive/folders/1XPgYKbIMqv332DAJZJNJetHppFB670e7 on 2026-05-18.",
         "Google Drive metadata verified folder id 1XPgYKbIMqv332DAJZJNJetHppFB670e7 as folder title Senior Project App; folder listing returned successfully and was empty at verification time.",
-        "Cloudflare Pages preview/production env vars and D1 evidence_repositories row were updated to the root folder id on 2026-05-18."
+        "Cloudflare Pages preview/production env vars and D1 evidence_repositories row were updated to the root folder id on 2026-05-18.",
+        "2026-05-20 23:11 PT: live runtime health reported Drive credential parts configured, but npm run check:drive:live failed as DRIVE_ROOT_NOT_VISIBLE because the service account received 404 for both configured root folder and index sheet; blocked fake upload returned drive_upload_failed with Drive status 404."
       ],
-      "last_updated": "2026-05-18"
+      "last_updated": "2026-05-20"
+    },
+    {
+      "id": "drive-live-readiness-checker",
+      "type": "repo_script",
+      "status": "active_blocked_on_drive_sharing",
+      "owner_lane": "deployment-qa",
+      "title": "Google Drive Live Readiness Checker",
+      "local_entry": "scripts/check-google-drive-live.mjs",
+      "npm_script": "check:drive:live",
+      "purpose": "Redacted live gate for Cloudflare Pages runtime Google Drive readiness using fake .test accounts only.",
+      "app_placement": "Local verification script; not exposed in browser UI.",
+      "consuming_lanes": [
+        "rebuild",
+        "audit",
+        "daily-report",
+        "weekly-deep-audit"
+      ],
+      "repo_records": [
+        "scripts/check-google-drive-live.mjs",
+        "tests/check-google-drive-live-script.test.mjs",
+        "tests/google-drive-probe.integration.test.mjs",
+        "docs/production-predeploy-checklist.md",
+        "docs/progress/runs/2026-05-20-2311-drive-live-cloudflare-cleanup.json"
+      ],
+      "verification": [
+        "Focused script classification tests passed on 2026-05-20.",
+        "Live run loaded ignored fake .test credentials without printing passwords, verified signed-out/unsupported/empty/oversized/non-student upload denials, and did not expose raw Drive IDs.",
+        "Live run classified current Drive blocker as DRIVE_ROOT_NOT_VISIBLE with redacted statuses rootStatus=404 and indexStatus=404; allowed fake upload failed truthfully with drive_upload_failed."
+      ],
+      "last_updated": "2026-05-20"
     },
     {
       "id": "figma-senior-project-app-team-target",

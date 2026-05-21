@@ -20,7 +20,7 @@ This records the first MVP backend foundation now configured for the Senior Caps
 
 `senior-capstone-option-titan` and `senior-capstone-option-primary` are stakeholder review projects only. Do not promote either as canonical production without updating `docs/production-deployment-policy.md` and `docs/production-surface-registry.md`.
 
-Before a pilot-facing deploy, custom-domain cutover, or stakeholder option promotion/retirement, use `docs/production-predeploy-checklist.md`. Live Pages/D1 verification remains incomplete until `CLOUDFLARE_API_TOKEN` is available and `check:cloudflare:live` passes.
+Before a pilot-facing deploy, custom-domain cutover, or stakeholder option promotion/retirement, use `docs/production-predeploy-checklist.md`. Live Pages/D1 verification is no longer the active blocker: on 2026-05-20 PT, a user-scope scoped token verified successfully, `check:cloudflare:live` passed, the Pages project was visible, and the D1 database id matched. Scoped-token `wrangler whoami` warnings can still appear and are non-blocking when token verify plus Pages/D1 lookup pass.
 
 ## Live Resources
 
@@ -34,7 +34,19 @@ Before a pilot-facing deploy, custom-domain cutover, or stakeholder option promo
 
 ## Current Schema
 
-Migration `migrations/0001_foundation.sql` has been applied remotely. It creates users, password credentials, sessions, login attempts, roles, role assignments, programs, cohorts, groups, mentor assignments, requirements, progress records, status history, submissions, reviews, comments, evidence repositories, evidence artifacts, deadlines, announcements, exports, audit events, and app settings.
+Remote D1 migration state was corrected on 2026-05-20 PT. Wrangler initially reported all seven committed migrations pending because earlier schema work had been applied outside Wrangler's migration bookkeeping. The repo migrations are idempotent, so `npx wrangler d1 migrations apply senior-capstone-db --remote` applied and recorded:
+
+- `0001_foundation.sql` - auth, users, roles, workflow, evidence, exports, audit, and app settings foundation.
+- `0002_framework_seed.sql` - source-framework support tables.
+- `0003_framework_seed_data.sql` - generated framework seed data.
+- `0004_mentor_meetings.sql` - mentor meeting records.
+- `0005_submission_versions.sql` - immutable submission version snapshots.
+- `0006_presentation_slots.sql` - presentation scheduling and check-out/check-in state.
+- `0007_archive_export_artifacts.sql` - scoped archive manifest artifacts.
+
+After apply, `wrangler d1 migrations list senior-capstone-db --remote` reported no pending migrations. Remote schema probes verified `user_accounts`, `sessions`, `user_roles`, `submissions`, `evidence_repositories`, `evidence_artifacts`, `audit_events`, `exports`, `export_artifacts`, and `presentation_slots`.
+
+Migration `migrations/0001_foundation.sql` creates users, password credentials, sessions, login attempts, roles, role assignments, programs, cohorts, groups, mentor assignments, requirements, progress records, status history, submissions, reviews, comments, evidence repositories, evidence artifacts, deadlines, announcements, exports, audit events, and app settings.
 
 Seeded records:
 
@@ -108,12 +120,34 @@ The credential file is intentionally ignored by git through `.secrets/`. Never p
 - In-app browser verification found and fixed a real workspace UI bug: `workspace.js` disabled evidence forms before reading `FormData`, causing the visible link form to post an undefined submission ID. The form data is now captured before controls are disabled.
 - Live signed-out `https://senior-capstone-app.pages.dev/workspace.html` redirects to `/workspace`; the canonical route loads with the Senior Project Workspace title/assets/sign-in UI, `/api/auth/me` returns 401 `{ "authenticated": false }`, and signed-out logout returns `{ "ok": true }`.
 - Live fake student login succeeds with the ignored `.test` credential file; the hosted browser renders the Student Workspace with no console errors, and the live credential-backed smoke verifies dashboard, evidence link, Drive-missing upload blocker, unsupported upload denial, and logout. Role-wide live coverage was not run because the local no-role account is local-only.
-- Live `/api/health` reports `GOOGLE_DRIVE_EVIDENCE_ROOT_ID` and the evidence index configured, but `GOOGLE_DRIVE_CLIENT_EMAIL` and `GOOGLE_DRIVE_PRIVATE_KEY` are not configured. Real Drive upload/download remains blocked.
-- Repo static Cloudflare checks pass, but non-interactive Wrangler/connector live Pages/D1 management remains blocked. Earlier runs had no exported `CLOUDFLARE_API_TOKEN`; on 2026-05-20 22:43 PT the token was present but Cloudflare rejected it as `Invalid access token [code: 9109]`.
+- Live `/api/health` now reports the Google Drive evidence root, index, client email part, and private key part configured. The service-account credential is present in the runtime, but live Drive access is still blocked because `/api/evidence/drive-probe` audits `rootStatus:404` and `indexStatus:404` for the configured root folder and index sheet. The fake upload route fails truthfully with `drive_upload_failed` and Drive status 404 rather than claiming success.
+- Repo static Cloudflare checks pass, and non-interactive live Pages/D1 management is now verified with the scoped user-scope token. Earlier `LIVE_CLOUDFLARE_BLOCKED_NO_TOKEN` and `Invalid access token [code: 9109]` records are historical; the current Cloudflare state is resolved.
+
+## 2026-05-20 Cloudflare/D1/Drive Live Bridge
+
+Commands run with the Cloudflare token loaded only from user-scope environment:
+
+```powershell
+$env:CLOUDFLARE_API_TOKEN = [Environment]::GetEnvironmentVariable("CLOUDFLARE_API_TOKEN", "User")
+npm run check:cloudflare
+npm run check:cloudflare:live
+npm run check:drive:live
+```
+
+Results:
+
+- `check:cloudflare` passed static Wrangler/D1 checks.
+- `check:cloudflare:live` passed token verify, Pages project lookup, D1 database lookup, and D1 id match; `wrangler whoami` warned but was acceptable for this scoped token.
+- Remote D1 migrations `0001` through `0007` are applied and recorded by Wrangler; required MVP tables were verified remotely without selecting student rows.
+- `check:drive:live` is now the first-class Drive live gate. It logs in with ignored fake `.test` credentials, verifies pre-provider upload denials, checks live health, calls the deployed Drive probe, and, when Drive is ready, uploads one tiny fake proof file and verifies D1 metadata without selecting raw Drive file IDs.
+- Current Drive classification is `DRIVE_ROOT_NOT_VISIBLE`: runtime credentials are configured and token exchange reaches Drive, but the service account receives HTTP 404 for both the configured root folder and index sheet. The blocked allowed-upload proof returns `drive_upload_failed` with Drive status 404.
+
+The Google Drive human connector account visibility is not the app readiness proof. A human Google Drive connector not seeing the folder can be a warning, but the app is ready only when the Cloudflare Pages runtime service account can exchange a token, read the root folder, read the index sheet, upload a fake file, persist D1 metadata, and keep raw Drive IDs out of browser/API output.
 
 ## Remaining Required Config
 
-- Add Cloudflare Pages secrets `GOOGLE_DRIVE_CLIENT_EMAIL` and `GOOGLE_DRIVE_PRIVATE_KEY` for production and preview before accepting file bytes from students. `GOOGLE_DRIVE_EVIDENCE_ROOT_ID` is already present in `wrangler.jsonc` and live health reports it configured.
+- Share the configured Google Drive root folder with the configured service-account email as editor/content manager, and share the configured index sheet with the same service account as editor if index writes are expected or viewer if read-only index checks are enough. The Cloudflare Pages credential secret parts are present; the current blocker is Drive resource visibility/permissions, not a new Cloudflare token.
+- Confirm the root folder and index sheet ids in `wrangler.jsonc` still point to the sandbox Workspace resources intended for this app, then rerun `npm run check:drive:live`.
 - Add permission tests and workflow tests before real student data is entered.
 - Add account lifecycle flows for invitation/import, admin reset initiation, active-user credential rotation, and role/group management before pilot use.
 

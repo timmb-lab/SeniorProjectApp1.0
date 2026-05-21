@@ -1,0 +1,162 @@
+{
+  "run_id": "2026-05-20-2311-drive-live-cloudflare-cleanup",
+  "started_at": "2026-05-20T23:04:24-07:00",
+  "ended_at": "2026-05-20T23:11:30-07:00",
+  "repo_identity": {
+    "root": "C:/SeniorProjectApp1.0",
+    "branch_start": "main",
+    "branch_end": "main",
+    "origin": "https://github.com/timmb-lab/SeniorProjectApp1.0.git",
+    "package_name": "senior-capstone-app",
+    "start_commit": "5f72be9b1dff52b571605eb290e97defc3a30285",
+    "end_commit": "recorded_in_final_report_after_commit"
+  },
+  "cloudflare": {
+    "token_loaded_from_user_scope": true,
+    "token_value_printed": false,
+    "check_cloudflare": "passed",
+    "check_cloudflare_live": "passed",
+    "token_verify": "passed",
+    "pages_project": "senior-capstone-app visible",
+    "d1_database": "senior-capstone-db visible",
+    "d1_id_match": true,
+    "wrangler_whoami_warning": "non_blocking_scoped_token_warning"
+  },
+  "d1_remote_migrations": {
+    "committed_migrations": [
+      "0001_foundation.sql",
+      "0002_framework_seed.sql",
+      "0003_framework_seed_data.sql",
+      "0004_mentor_meetings.sql",
+      "0005_submission_versions.sql",
+      "0006_presentation_slots.sql",
+      "0007_archive_export_artifacts.sql"
+    ],
+    "latest_migration": "0007_archive_export_artifacts.sql",
+    "initial_remote_list": "all seven committed migrations pending in Wrangler bookkeeping",
+    "applied_remote": true,
+    "post_apply_remote_list": "no pending migrations",
+    "required_tables_verified": [
+      "user_accounts",
+      "sessions",
+      "user_roles",
+      "submissions",
+      "evidence_repositories",
+      "evidence_artifacts",
+      "audit_events",
+      "exports",
+      "export_artifacts",
+      "presentation_slots"
+    ],
+    "blocker": null
+  },
+  "google_drive_live": {
+    "provider_configured": true,
+    "credential_parts_present": {
+      "client_email": true,
+      "private_key": true
+    },
+    "token_exchange": "passed_before_drive_probe_statuses",
+    "root_folder_probe": {
+      "ok": false,
+      "status": 404
+    },
+    "index_sheet_probe": {
+      "ok": false,
+      "status": 404
+    },
+    "test_upload": {
+      "attempted": false,
+      "reason": "probe_failed_before_success_upload",
+      "blocked_allowed_upload": {
+        "status": 502,
+        "error": "drive_upload_failed",
+        "drive_status": 404
+      }
+    },
+    "classification": "DRIVE_ROOT_NOT_VISIBLE",
+    "raw_drive_file_id_printed": false,
+    "proof_artifact_handling": "no proof file was created because root/index visibility failed before successful upload"
+  },
+  "fake_upload_flow": {
+    "fake_student_login_tested": true,
+    "fake_submission_discovered": true,
+    "file_upload_success_tested": false,
+    "file_upload_success_blocker": "DRIVE_ROOT_NOT_VISIBLE",
+    "d1_evidence_metadata_verified": false,
+    "audit_event_verified": "drive_probe_access_denied and google_drive_upload_failed audit statuses verified",
+    "raw_drive_id_leakage_checked": true,
+    "denial_cases": {
+      "signed_out_upload": "passed_401_unauthorized",
+      "non_student_upload": "passed_403_forbidden",
+      "unsupported_file": "passed_400_unsupported_file_type",
+      "empty_file": "passed_400_empty_file",
+      "oversized_file": "passed_400_file_too_large",
+      "cross_student_upload": "covered_by_integration_test_only_no_second_live_fake_student_credential"
+    }
+  },
+  "command_results": [
+    {
+      "command": "npm run check:cloudflare",
+      "result": "passed"
+    },
+    {
+      "command": "npm run check:cloudflare:live",
+      "result": "passed; scoped wrangler whoami warning was non-blocking"
+    },
+    {
+      "command": "npx wrangler d1 migrations list senior-capstone-db --remote",
+      "result": "initially all seven committed migrations pending; after apply no pending migrations"
+    },
+    {
+      "command": "npx wrangler d1 migrations apply senior-capstone-db --remote",
+      "result": "passed; all seven committed idempotent migrations applied and recorded"
+    },
+    {
+      "command": "remote D1 table probe",
+      "result": "passed; required MVP tables present without selecting student rows"
+    },
+    {
+      "command": "npm run check:drive:live",
+      "result": "failed as expected with DRIVE_ROOT_NOT_VISIBLE; rootStatus=404, indexStatus=404, blocked upload drive_upload_failed"
+    },
+    {
+      "command": "focused Drive checker/probe/upload tests",
+      "result": "passed"
+    }
+  ],
+  "files_changed": [
+    "docs/automation-backlog.md",
+    "docs/artifacts.json",
+    "docs/backend-setup.md",
+    "docs/human-decisions.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/production-predeploy-checklist.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-20-2311-drive-live-cloudflare-cleanup.json",
+    "functions/api/evidence/drive-probe.ts",
+    "functions/api/health.ts",
+    "package.json",
+    "scripts/check-google-drive-live.mjs",
+    "scripts/run-npm-script.ps1",
+    "tests/check-google-drive-live-script.test.mjs",
+    "tests/google-drive-probe.integration.test.mjs"
+  ],
+  "blockers": [
+    {
+      "code": "DRIVE_ROOT_NOT_VISIBLE",
+      "cause": "The configured service account receives 404 for both the configured Drive evidence root folder and index sheet.",
+      "human_action": "Share the configured root folder with the service-account email as editor/content manager, share the index sheet with that service account as editor or viewer as appropriate, confirm the ids in wrangler.jsonc, then rerun npm run check:drive:live."
+    }
+  ],
+  "security_privacy": {
+    "no_tokens_printed": true,
+    "no_private_keys_committed": true,
+    "no_fake_passwords_committed": true,
+    "no_real_student_data_used": true,
+    "no_raw_drive_ids_in_browser_output": true,
+    "secrets_directory_ignored": true
+  },
+  "push_status": "recorded_in_final_report_after_push"
+}

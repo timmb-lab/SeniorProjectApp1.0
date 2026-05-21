@@ -15,6 +15,8 @@ powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\ru
 powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 check:generated-output-drift
 powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 check:site-options
 powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 check:cloudflare
+powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 check:cloudflare:live
+powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 check:drive:live
 powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 test
 powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 check
 ```
@@ -27,6 +29,8 @@ Required result:
 - Generated-output drift checker passes for `public-companion/` and `stakeholder-options/**`.
 - Site option checker confirms generated manifests/pages exist.
 - Cloudflare static check passes for `wrangler.jsonc`, local Wrangler, D1 binding, and migrations.
+- Cloudflare live check passes token verify plus Pages/D1 lookup. Scoped-token `wrangler whoami` warnings are acceptable only when token verify, Pages project lookup, D1 database lookup, and D1 id match all pass.
+- Drive live check passes before accepting real student file bytes: runtime credential parts configured, service-account token exchange works, root folder is visible as a folder, index sheet is visible as a Google Sheet, fake `.test` upload succeeds, D1 metadata/audit are verified without selecting raw Drive IDs, and browser/API output stays redacted.
 - Tests pass.
 - Aggregate `check` passes.
 
@@ -35,7 +39,7 @@ Required result:
 - Cloudflare GitHub integration may automatically deploy after pushes to `main`.
 - That integration is Cloudflare-side and does not give the local Codex/Wrangler shell Cloudflare API credentials.
 - The repo's static checks do not require `CLOUDFLARE_API_TOKEN`.
-- Remote Pages/D1 verification requires `CLOUDFLARE_API_TOKEN` in the environment, plus any required account/project identifiers, or a repo-supported authenticated Cloudflare connector if a script is explicitly written to use one.
+- Remote Pages/D1 verification requires `CLOUDFLARE_API_TOKEN` in the environment, plus any required account/project identifiers, or a repo-supported authenticated Cloudflare connector if a script is explicitly written to use one. For local runs, load the token from user scope before live checks: `$env:CLOUDFLARE_API_TOKEN = [Environment]::GetEnvironmentVariable("CLOUDFLARE_API_TOKEN", "User")`.
 - If no local token/auth path is present, live verification must report `LIVE_CLOUDFLARE_BLOCKED_NO_TOKEN`.
 - Git push success is not the same as live Cloudflare verification success.
 - Cloudflare GitHub auto-deploy success is not the same as Codex local live verification success unless the script verifies the live URL/API/D1 state.
@@ -49,13 +53,14 @@ Before pilot deploy:
 - Confirm no fake account passwords are committed or pasted into docs, screenshots, Figma, Canva, or public pages.
 - Confirm `.secrets/` remains ignored and any local test-account JSON stays untracked.
 - Confirm `wrangler.jsonc` contains no secret values, private keys, or `CLOUDFLARE_API_TOKEN`.
-- Confirm real student records are not entered into alpha/pilot until auth, evidence, and permission checks pass.
+- Confirm real student records are not entered into alpha/pilot until auth, permissions, Drive upload, D1 metadata, and account lifecycle checks pass.
 
 Validation:
 
 ```powershell
 powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 check:production-surfaces
 powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 check:cloudflare
+powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 check:drive:live
 ```
 
 ## Required Bryan Decisions
@@ -65,7 +70,7 @@ These must be decided before pilot users or real records enter the app:
 - Alpha/account deployment policy: choose Option A, B, or C from `docs/alpha-account-deployment-decision.md`.
 - Stakeholder option lifecycle: retain, retire, or promote from `docs/stakeholder-option-lifecycle.md`.
 - Custom-domain mapping: choose final hostnames using `docs/custom-domain-cutover-checklist.md`.
-- Live verification token: decide whether to provide `CLOUDFLARE_API_TOKEN` for read-only Pages/D1 verification automation.
+- Google Drive service-account sharing: ensure the configured service account can see the configured evidence root folder and index sheet.
 
 ## Cloudflare Static Gate
 
@@ -105,6 +110,31 @@ Required result:
 
 If the token is missing, record `LIVE_CLOUDFLARE_BLOCKED_NO_TOKEN`. Do not claim live verification passed.
 
+## Google Drive Live Gate
+
+Live Drive gate command:
+
+```powershell
+powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 check:drive:live
+```
+
+Required result before real student file bytes:
+
+- Live `/api/health` reports `EVIDENCE_STORAGE_PROVIDER=google_drive`, root configured, index configured, and both Google Drive credential parts configured without exposing secret values.
+- The deployed runtime service account can exchange its JWT for an access token.
+- The configured root id is visible to the service account and has MIME type `application/vnd.google-apps.folder`.
+- The configured index id is visible to the service account and has MIME type `application/vnd.google-apps.spreadsheet`.
+- A fake `.test` student can upload one tiny text proof through `/api/submissions/:id/evidence/upload`.
+- Remote D1 has the `evidence_artifacts` row and `evidence_file_uploaded` audit event; the verification must not select or print raw Drive file IDs.
+- Signed-out, non-student, unsupported, empty, and oversized upload denials still fail before provider success.
+- Upload response and browser/API refresh output do not include `drive_file_id`, `driveFileId`, parent folder ids, access tokens, private keys, or fake account passwords.
+
+Current 2026-05-20 PT status:
+
+- Cloudflare Pages runtime credential parts are configured.
+- Drive live check fails as `DRIVE_ROOT_NOT_VISIBLE`: the service account receives HTTP 404 for both the configured root folder and index sheet, and the fake allowed-upload path fails truthfully with `drive_upload_failed` / Drive status 404.
+- Human Google Drive connector visibility is not equivalent to service-account visibility. Fix sharing for the configured service account, confirm the configured IDs, then rerun `npm run check:drive:live`.
+
 ## D1 Binding Gate
 
 Before deploy:
@@ -113,6 +143,8 @@ Before deploy:
 - Required migrations are committed.
 - Any new remote migration is applied and verified only when authorized token/session exists.
 - Remote D1 verification is recorded before real student records enter the app.
+
+Current 2026-05-20 PT status: remote D1 migrations `0001` through `0007` are applied and recorded by Wrangler; required MVP tables including `export_artifacts` and `presentation_slots` were verified remotely without selecting student rows.
 
 Pilot blocker:
 

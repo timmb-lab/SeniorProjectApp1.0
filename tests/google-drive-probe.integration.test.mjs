@@ -110,7 +110,11 @@ test("drive probe returns 502 and audits when Drive API access is denied", async
     });
 
     assert.equal(response.status, 502);
-    assert.deepEqual(await response.json(), { error: "drive_access_denied", ok: false });
+    const body = await response.json();
+    assert.equal(body.error, "drive_access_denied");
+    assert.equal(body.ok, false);
+    assert.deepEqual(body.drive.root, { ok: false, status: 403, mimeType: null, name: null });
+    assert.deepEqual(body.drive.indexSheet, { ok: false, status: 403, mimeType: null, name: null });
 
     assert.equal(fixture.db.data.auditEvents.length, 1);
     assert.equal(fixture.db.data.auditEvents[0].action, "google_drive_probe_access_denied");

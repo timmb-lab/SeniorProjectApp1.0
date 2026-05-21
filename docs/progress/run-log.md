@@ -28,6 +28,19 @@ This is the compact run log for the current quarter-hour split-builder automatio
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-05-20 23:11 PT - Cloudflare/D1 Resolved, Drive Live Classified
+
+- `automation ID`: manual Codex real-change run.
+- `lane`: non-Figma / deployment-qa and drive-upload-oauth.
+- `identity`: repo root `C:\SeniorProjectApp1.0`, branch `main`, origin `https://github.com/timmb-lab/SeniorProjectApp1.0.git`, start commit `5f72be9b1dff52b571605eb290e97defc3a30285`.
+- `Cloudflare`: loaded `CLOUDFLARE_API_TOKEN` from user scope without printing it; `npm run check:cloudflare` and `npm run check:cloudflare:live` passed. Token verify, Pages project `senior-capstone-app`, D1 database `senior-capstone-db`, and D1 id `3141d9ac-08b7-49c1-92ba-bbf50c1a611f` all passed. Scoped-token `wrangler whoami` warned but was non-blocking.
+- `D1`: `wrangler d1 migrations list senior-capstone-db --remote` initially reported committed migrations `0001` through `0007` pending; `npx wrangler d1 migrations apply senior-capstone-db --remote` applied/recorded all seven idempotent repo migrations. Recheck reported no pending migrations. Remote schema probes verified `user_accounts`, `sessions`, `user_roles`, `submissions`, `evidence_repositories`, `evidence_artifacts`, `audit_events`, `exports`, `export_artifacts`, and `presentation_slots`.
+- `Drive`: added `npm run check:drive:live` backed by `scripts/check-google-drive-live.mjs`. The live run used ignored fake `.test` credentials, verified signed-out/unsupported/empty/oversized/non-student denials, confirmed runtime Drive credential parts configured, then failed as `DRIVE_ROOT_NOT_VISIBLE`. D1 audit metadata shows `rootStatus:404` and `indexStatus:404`; the blocked allowed-upload path failed truthfully with `drive_upload_failed` and Drive status 404.
+- `fake upload`: full fake-student upload success was not claimed because Drive root/index are not visible to the service account. Pre-provider denial cases passed live; cross-student live denial remains covered by integration tests because only one production fake-student credential is available in the ignored credential file.
+- `changed`: Drive live checker, npm wrapper, safe health booleans, redacted Drive-probe failure body, focused tests, docs, artifact registry, and structured run evidence.
+- `validation`: focused Drive checker, Drive probe, and evidence upload integration tests passed. Full validation and final commit/push are recorded in the final report for this run.
+- `remaining blocker`: share the configured Drive root folder and index sheet with the configured service-account email, then rerun `npm run check:drive:live`. Cloudflare token and remote D1 migration are no longer blockers.
+
 ## 2026-05-20 21:10 PT - MVP-022 Scoped Archive Manifests
 
 - `automation ID`: `senior-capstone-nonfigma-mvp-builder`

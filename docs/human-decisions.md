@@ -12,7 +12,7 @@ Status values:
 
 ## Open Decisions
 
-No open external automation scheduler decisions are blocking the current scaffold. The Google Drive evidence root folder is selected and configured, first-admin bootstrap is complete for `bryan.timm89@gmail.com`, and the production setup key has been removed. Remaining setup work is configuration/implementation: add Cloudflare Pages Google Drive credential secrets before real student uploads, add account lifecycle flows, broaden permission tests, and provide `CLOUDFLARE_API_TOKEN` before the next non-interactive Pages/D1 project/deployment/secret verification or remote mutation/deploy proof.
+No open external automation scheduler decisions are blocking the current scaffold. The Google Drive evidence root folder is selected and configured, first-admin bootstrap is complete for `bryan.timm89@gmail.com`, the production setup key has been removed, and the Cloudflare live verification token decision is resolved. Remaining setup work is configuration/implementation: fix Google Drive service-account folder/index sharing before real student uploads, add account lifecycle flows, and broaden permission tests.
 
 ### HD-2026-05-20-002
 
@@ -47,25 +47,14 @@ No open external automation scheduler decisions are blocking the current scaffol
 - `decision workflow`: `docs/stakeholder-option-lifecycle.md`
 - `created`: 2026-05-20
 
-### HD-2026-05-20-005
-
-- `status`: open
-- `area`: live Cloudflare verification token
-- `owner`: Bryan
-- `severity`: P1
-- `decision needed`: Decide whether to provide `CLOUDFLARE_API_TOKEN` for read-only non-interactive Pages/D1 verification before the next deploy or custom-domain cutover.
-- `current recommendation`: Provide a valid scoped token for verification runs when possible; if unavailable, record `LIVE_CLOUDFLARE_BLOCKED_NO_TOKEN` for remote Pages/D1 management and treat only static Cloudflare checks plus direct live endpoint checks as passed. On 2026-05-20, repo `check:cloudflare` passed static config, `check:cloudflare:live` failed because no token was exported, Wrangler `whoami --json` reported `loggedIn:false`, tool discovery did not expose a Cloudflare connector, and direct live signed-out/signed-in endpoint checks for `senior-capstone-app` passed. On 2026-05-20 22:43 PT, aggregate `check` found `CLOUDFLARE_API_TOKEN` present, but Wrangler read-only live verification failed with Cloudflare error `Invalid access token [code: 9109]`.
-- `decision workflow`: `docs/production-predeploy-checklist.md`
-- `created`: 2026-05-20
-
 ### HD-2026-05-20-006
 
 - `status`: open
 - `area`: Google Drive service-account secrets for live uploads
 - `owner`: Bryan
 - `severity`: P1
-- `decision needed`: Add or verify the Cloudflare Pages secret values for `GOOGLE_DRIVE_CLIENT_EMAIL` and `GOOGLE_DRIVE_PRIVATE_KEY` in `senior-capstone-app` production, and preview if preview upload testing is desired.
-- `current recommendation`: Add both Drive credential secrets in Cloudflare Pages without exposing values in repo or chat, then rerun live Drive probe/upload/download verification with fake `.test` accounts only. Live `/api/health` on 2026-05-20 reports `GOOGLE_DRIVE_EVIDENCE_ROOT_ID` and the index configured, but `googleDriveCredentialParts.clientEmail=false` and `googleDriveCredentialParts.privateKey=false`, so real Drive upload/download is blocked.
+- `decision needed`: Fix the sandbox Google Drive sharing/visibility for the configured Cloudflare Pages service account.
+- `current recommendation`: Keep the existing Cloudflare token and Drive credential secrets. Live `/api/health` now reports the Drive client email and private key parts configured, but `npm run check:drive:live` classifies the app as `DRIVE_ROOT_NOT_VISIBLE`: the service account gets HTTP 404 for both the configured root folder and index sheet, and the fake upload route fails truthfully with `drive_upload_failed` / Drive status 404. Share the root folder with the service-account email as editor/content manager, share the index sheet with that service account as editor if index writes are expected or viewer if read-only probe is enough, confirm the IDs in `wrangler.jsonc`, then rerun `npm run check:drive:live`.
 - `decision workflow`: `docs/progress/human-action-email-draft-2026-05-20-cloudflare-drive.md`
 - `created`: 2026-05-20
 
@@ -81,6 +70,19 @@ No open external automation scheduler decisions are blocking the current scaffol
 - `created`: 2026-05-20
 
 ## Accepted Decisions
+
+### HD-2026-05-20-005
+
+- `status`: accepted
+- `area`: live Cloudflare verification token
+- `owner`: Bryan
+- `severity`: P1
+- `decision`: Bryan provided/loaded a valid user-scope Cloudflare API token for read-only non-interactive Pages/D1 verification.
+- `accepted implementation`: On 2026-05-20 PT, `npm run check:cloudflare` and `npm run check:cloudflare:live` passed. Token verify returned valid/active, Pages project `senior-capstone-app` was visible, D1 database `senior-capstone-db` was visible, and the D1 id matched `3141d9ac-08b7-49c1-92ba-bbf50c1a611f`. `wrangler whoami --json` warned for the scoped token, but that is non-blocking because token verify plus Pages/D1 lookup passed.
+- `historical context`: Earlier runs recorded `LIVE_CLOUDFLARE_BLOCKED_NO_TOKEN`, and one 2026-05-20 22:43 PT aggregate check saw Cloudflare reject a token with `Invalid access token [code: 9109]`. Those are no longer the current state.
+- `decision workflow`: `docs/production-predeploy-checklist.md`
+- `created`: 2026-05-20
+- `accepted`: 2026-05-20
 
 ### HD-2026-05-20-001
 
