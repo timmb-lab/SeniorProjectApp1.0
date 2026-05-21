@@ -1,0 +1,182 @@
+{
+  "run_id": "2026-05-21-0616-figma-protected-record-acceptance-board",
+  "timestamp_local": "2026-05-21T06:16:00-07:00",
+  "automation_id": "senior-capstone-figma-product-builder-15",
+  "lane": "figma-only product builder",
+  "selected_category": "design-assets-handoff",
+  "status": "completed",
+  "accepted_mvp_pass": true,
+  "requirement_ids": [
+    "MVP-028",
+    "MVP-006",
+    "MVP-010",
+    "MVP-012",
+    "MVP-013",
+    "MVP-014",
+    "MVP-015",
+    "MVP-016",
+    "MVP-020",
+    "MVP-025",
+    "MVP-032",
+    "MVP-033"
+  ],
+  "handoff_ids": [
+    "H-2026-05-21-003",
+    "H-2026-05-18-008"
+  ],
+  "output_kind": "figma-acceptance-check-board",
+  "bounded_scope": "Create and verify a protected-record audit acceptance board after the latest submission-detail handoff because no newer non-Figma implementation proof existed to consume.",
+  "source_docs_read": [
+    "C:\\Users\\bryan\\.codex\\automations\\senior-capstone-figma-product-builder-15\\memory.md",
+    "docs/design/figma-first-pass-product-system.md",
+    "docs/design/figma-product-preview-state-variants.md",
+    "docs/master-plan.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/automation-cadence.md",
+    "docs/automation-runbook.md",
+    "docs/automation-memory.md",
+    "docs/progress/run-log.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/decision-log.md",
+    "docs/artifacts.json",
+    "docs/human-decisions.md",
+    "recent docs/progress/runs/*.json",
+    "docs/progress/figma.md",
+    "docs/progress/runs/2026-05-21-0554-figma-submission-detail-access-audit.json",
+    "docs/progress/runs/2026-05-21-0535-submission-detail-access-audit-mvp-012.json"
+  ],
+  "figma": {
+    "file_key": "z4t4tFPAKrMDh6pIYOeEw6",
+    "file_url": "https://www.figma.com/design/z4t4tFPAKrMDh6pIYOeEw6",
+    "page_name": "05 Full MVP Alpha Prototype",
+    "page_id": "98:2",
+    "node_id": "196:2",
+    "frame_name": "Prototype / 30 / Protected record audit acceptance board",
+    "size": "1360x2724",
+    "shared_plugin_data_key": "senior_capstone/protected_record_acceptance_matrix_2026_05_21",
+    "consumed_nodes": [
+      "173:2",
+      "178:2",
+      "180:2",
+      "183:2",
+      "187:2",
+      "190:2"
+    ],
+    "consumed_endpoint_families": [
+      "/api/student/dashboard",
+      "/api/teacher/review-queue",
+      "/api/reviews/:submissionId/history",
+      "/api/reviews/:submissionId/decision",
+      "/api/submissions/:id/evidence",
+      "/api/submissions/:id/submit",
+      "GET /api/submissions/:id"
+    ],
+    "remaining_proof_families": [
+      "evidence_upload_download",
+      "mentor_meetings",
+      "presentation_slots",
+      "archive_export",
+      "dashboard_aggregates",
+      "hosted_denied_ui_proof"
+    ],
+    "role_scopes": [
+      "student_self",
+      "student_other_denied",
+      "mentor_assigned",
+      "mentor_inactive_denied",
+      "program_teacher_scoped",
+      "admin_allowed",
+      "misc_admin_default_denied"
+    ],
+    "acceptance_checks": [
+      "401_missing_session_or_unauthorized_audit",
+      "student_own_allow_student_other_deny",
+      "active_mentor_assignment_required",
+      "non_empty_program_teacher_scope_required",
+      "explicit_admin_allowed_misc_admin_default_denied",
+      "redacted_audit_metadata_no_private_identifiers",
+      "loading_empty_denied_blocked_retry_success_ui_states",
+      "fake_test_browser_or_hosted_proof_only"
+    ],
+    "verification": {
+      "use_figma_create": "created node 196:2 and shared plugin data key senior_capstone/protected_record_acceptance_matrix_2026_05_21",
+      "use_figma_corrections": "fixed 12 child-overflow containers by narrowing matrix rows, restoring autosizing, and expanding text heights",
+      "final_readback": "122 text nodes, zero suspicious clipped text nodes, zero child overflow, consumed-node references present, remaining proof queue present",
+      "get_design_context": "succeeded",
+      "get_screenshot": "succeeded; returned 512x1024 from original 1360x2724"
+    }
+  },
+  "consumed_figma_evidence": {
+    "node_ids": [
+      "173:2",
+      "178:2",
+      "180:2",
+      "183:2",
+      "187:2",
+      "190:2"
+    ],
+    "summary": "The new board consolidates the already verified protected-record audit handoffs for dashboard, teacher queue, review history/decision, evidence-link metadata, submission submit, and submission detail/readback."
+  },
+  "repo_changes": [
+    "docs/design/figma-first-pass-product-system.md",
+    "docs/design/figma-product-preview-state-variants.md",
+    "docs/artifacts.json",
+    "docs/automation-memory.md",
+    "docs/progress/figma.md",
+    "docs/progress/handoffs.md",
+    "docs/progress/run-log.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/progress/runs/2026-05-21-0616-figma-protected-record-acceptance-board.json"
+  ],
+  "validation": [
+    {
+      "command": "Figma use_figma readback",
+      "result": "passed; 122 text nodes, zero suspicious clipped text nodes, zero child overflow, consumed-node references present, remaining proof queue present"
+    },
+    {
+      "command": "Figma get_design_context node 196:2",
+      "result": "passed"
+    },
+    {
+      "command": "Figma get_screenshot node 196:2",
+      "result": "passed; 512x1024 from original 1360x2724"
+    }
+  ],
+  "blockers": [
+    {
+      "code": "DRIVE_UPLOAD_FAILED_HTTP_403",
+      "cause": "Existing live Drive check reaches token exchange, root folder, and index sheet, but Google Drive create/upload returns redacted HTTP 403.",
+      "bryan_must_act": true,
+      "next_safe_action": "Confirm service-account file-create permission/quota/Workspace policy for the configured root folder, then rerun npm run check:drive:live."
+    },
+    {
+      "code": "TEMP_CREDENTIAL_DELIVERY_POLICY_OPEN",
+      "cause": "The admin UI can display setup passwords once for fake .test proof, but Bryan has not approved a real-user manual distribution procedure or invitation/email delivery policy.",
+      "bryan_must_act": true,
+      "next_safe_action": "Decide HD-2026-05-21-001 before importing real pilot users."
+    },
+    {
+      "code": "LIVE_BROWSER_PERMISSION_PROOF_PENDING",
+      "cause": "Hosted/browser workspace account-state and section-level permission-denied proof remain open.",
+      "bryan_must_act": false,
+      "next_safe_action": "Use fake .test accounts to capture hosted workspace account-state/no-assignment and section-level permission-denied UI evidence."
+    }
+  ],
+  "next_actions": [
+    "Rebuild should use node 196:2 as the checklist for the next protected-record endpoint family.",
+    "Extend protected-record coverage to evidence upload/download proof, mentor meetings, presentation slots, archive/export, dashboard aggregate readbacks, or hosted permission UI states.",
+    "Resolve Drive upload HTTP 403 before accepting real file-byte evidence uploads.",
+    "Decide or implement real-user credential delivery before pilot imports."
+  ],
+  "self_improvement": "none",
+  "run_log_updated": true,
+  "structured_manifest_created": true,
+  "artifacts_json_updated": true,
+  "mvp_catalog_changed": true,
+  "human_decisions_changed": false,
+  "backend_code_work_avoided": true,
+  "branch_before": "main",
+  "branch_after": "main",
+  "commit_sha": "pending_closeout_commit",
+  "push_result": "pending"
+}

@@ -28,6 +28,24 @@ This is the compact run log for the current quarter-hour split-builder automatio
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-05-21 06:16 PT - MVP-028 Protected Record Audit Acceptance Board
+
+- `automation ID`: `senior-capstone-figma-product-builder-15`.
+- `lane`: Figma-only product builder / design-assets-handoff.
+- `master-plan sections`: Role-Aware Production App Contract; Lane Responsibilities; Logging Requirements.
+- `requirement IDs`: `MVP-028`, supporting `MVP-006`, `MVP-010`, `MVP-012`, `MVP-013`, `MVP-014`, `MVP-015`, `MVP-016`, `MVP-020`, `MVP-025`, `MVP-032`, and `MVP-033`; `handoffs`: `H-2026-05-21-003` and `H-2026-05-18-008`.
+- `selected slice`: Create and verify a protected-record audit acceptance board after the latest submission-detail handoff because no newer non-Figma implementation proof existed to consume.
+- `active Figma file`: `z4t4tFPAKrMDh6pIYOeEw6`.
+- `Figma page/node touched`: `05 Full MVP Alpha Prototype`; node `196:2` (`Prototype / 30 / Protected record audit acceptance board`).
+- `what changed`: Added one implementation-facing board that consolidates verified nodes `173:2`, `178:2`, `180:2`, `183:2`, `187:2`, and `190:2`, maps 7 consumed endpoint families, lists 6 remaining proof families, records 7 role-scope rules, and defines 8 acceptance checks for the next protected-record rebuild pass.
+- `verification`: `use_figma` created node `196:2` and shared plugin data key `senior_capstone/protected_record_acceptance_matrix_2026_05_21`. Initial readback found 12 child-overflow containers from fixed-height rows; targeted row-width, autosizing, and text-height corrections expanded the frame to `1360x2724`. Final readback found 122 text nodes, zero suspicious clipped text nodes, zero child overflow, consumed-node references present, and the remaining proof queue present. `get_design_context` and `get_screenshot` succeeded for node `196:2`; screenshot returned `512x1024` from original `1360x2724`.
+- `files changed`: Figma design docs, artifact registry, automation memory, Figma lane log, handoff ledger, MVP catalog, this run log, and `docs/progress/runs/2026-05-21-0616-figma-protected-record-acceptance-board.json`.
+- `implementation handoff`: Rebuild should use node `196:2` as the checklist for evidence upload/download proof after the Drive 403 is resolved, mentor meetings, presentation slots, archive/export, dashboard aggregate readbacks, and hosted no-assignment plus section-level permission-denied UI proof.
+- `blockers`: none for Figma; live Drive upload remains blocked by redacted Google Drive HTTP 403, hosted no-assignment/section-level permission-denied browser proof remains open, and `HD-2026-05-21-001` remains open for real-user setup credential delivery policy.
+- `phone tracker`: not appended; Google Sheets connector was not used.
+- `self-improvement`: none.
+- `commit/push status`: pending closeout commit.
+
 ## 2026-05-21 05:54 PT - MVP-028 Submission Detail Access Audit Handoff
 
 - `automation ID`: `senior-capstone-figma-product-builder`.

@@ -555,6 +555,11 @@ Created/updated frames:
   - Created route/data/permission/audit annotations after `GET /api/submissions/:id` gained missing-session, denied, scoped readback, actor-role-scope, and no-storage-identifier proof in run `2026-05-21-0535-submission-detail-access-audit-mvp-012`.
   - State annotations cover signed-out detail request, student-other detail denied, misc-admin broad access denied, student-own detail readback, mentor/teacher/admin scoped view, and evidence summary storage redaction.
   - Shared plugin data key `senior_capstone/submission_detail_access_audit_contract_2026_05_21` records consumed commits `48de622de03b1c1ea660ee8b613d6b23c3d139b4` and `427d9fd17d6493765fa853c9bb4289810c6c71fa`, 6 states, 7 routes, 12 records, 7 permission scopes, 6 guardrails, and the next rebuild action for evidence upload/download, mentor meeting, presentation slot, archive/export, dashboard aggregate readbacks, and hosted permission UI proof.
+- 2026-05-21 protected-record audit acceptance board on `05 Full MVP Alpha Prototype`
+  - `Prototype / 30 / Protected record audit acceptance board`, node `196:2`
+  - Created an implementation-facing acceptance board after no newer non-Figma proof existed beyond node `190:2`.
+  - The board consolidates consumed nodes `173:2`, `178:2`, `180:2`, `183:2`, `187:2`, and `190:2`; it maps 7 consumed endpoint families, 7 role scopes, 8 acceptance checks, and 6 remaining proof families.
+  - Shared plugin data key `senior_capstone/protected_record_acceptance_matrix_2026_05_21` records `ready_for_rebuild_followup` and tells rebuild to use the board for evidence upload/download proof, mentor meetings, presentation slots, archive/export, dashboard aggregate readbacks, and hosted no-assignment plus section-level permission-denied UI proof.
 
 Verification status:
 - Canvas write succeeded and returned the frame IDs above.
@@ -659,3 +664,7 @@ Verification status:
 - Initial readback found fixed-width text nodes and horizontal rows collapsed to 1px height; targeted text-height and row autosizing corrections expanded node `190:2` to `1360x1381`.
 - Final readback found 51 text nodes, zero collapsed text nodes, zero suspicious clipped text nodes, zero child overflow, 6 states, 7 routes, 12 records, 3 audit events, 7 permission scopes, and 6 guardrails in shared contract data.
 - `get_design_context` and `get_screenshot` succeeded for node `190:2`; screenshot verification returned `1009x1024` from original `1360x1381`.
+- 2026-05-21 `use_figma` write created node `196:2` to consolidate the protected-record audit chain into a rebuild acceptance matrix after the latest endpoint handoffs were already consumed.
+- Initial readback found 12 child-overflow containers from fixed-height rows; follow-up row width, autosizing, and text-height corrections expanded node `196:2` to `1360x2724`.
+- Final readback found 122 text nodes, zero suspicious clipped text nodes, zero child overflow, consumed-node references present, and the remaining proof queue present in shared contract data.
+- `get_design_context` and `get_screenshot` succeeded for node `196:2`; screenshot verification returned `512x1024` from original `1360x2724`.
