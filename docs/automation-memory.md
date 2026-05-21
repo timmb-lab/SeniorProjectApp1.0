@@ -165,11 +165,20 @@ Every builder run must ladder from `docs/master-plan.md` into `docs/mvp-requirem
 - Validation passed: focused archive-readiness integration, workspace VM/source tests, production workflow source checks, typecheck, route inventory, full test suite, aggregate `check`, credential-backed local HTTP smoke, and in-app browser student Archive tab proof with zero console errors. Aggregate `check` still reports `LIVE_CLOUDFLARE_BLOCKED_NO_TOKEN`, and real Drive delivery still needs Cloudflare Drive credential secrets.
 - Remaining archive/export depth: real export artifact generation, signed expiry or safe Drive link behavior, expired-download retry, provider-unavailable generation states, retention handling, and hosted archive UI proof after deployment/credentials.
 
+### 2026-05-20 - Scoped Archive Manifest Generation
+
+- Non-Figma builder `senior-capstone-nonfigma-mvp-builder` continued `MVP-018`/`MVP-022` archive/export depth without Figma tools.
+- Added migration `migrations/0007_archive_export_artifacts.sql` plus `functions/_lib/archive-export.ts` to generate a storage-ID-redacted student archive manifest from persisted progress/evidence rows, with content hash, byte length, and 14-day expiry.
+- `/api/admin/exports/student-archive` now requires an admin reason, creates a completed export plus `export_artifacts` row, and audits `student_archive_export_generated`; `/api/exports/:id/download` streams the unexpired JSON manifest to admin/scoped users, audits download/missing/expired states, and returns `archive_download_expired` with a retry instruction after expiry.
+- `workspace.js` now renders a student Archive manifest download link when `/api/student/archive/readiness` reports `scopedDownloadReady`.
+- Validation passed: focused archive-readiness integration (8 tests), workspace source/VM test (7), production-workflow source test (10), strict typecheck, full test suite (141 passing tests plus 3 expected opt-in skips), production-surface check, artifact JSON parse, `git diff --check`, and aggregate `check` with static Cloudflare checks and `LIVE_CLOUDFLARE_BLOCKED_NO_TOKEN`.
+- Remaining archive/export depth: apply/verify migration `0007` remotely when `CLOUDFLARE_API_TOKEN` is available, add Drive-backed package files or signed-link delivery after Drive credentials, provider-unavailable generation states, retention policy docs, and hosted archive UI proof.
+
 ## Current Priority
 
 Immediate next useful passes:
 
-1. Finish archive/export delivery depth by generating real archive artifacts, adding signed expiry or safe Drive link behavior, expired-download retry, provider-unavailable generation states, retention handling, and hosted archive UI proof after deployment/credentials.
+1. Finish archive/export delivery depth by applying/verifying migration `0007`, adding Drive-backed package files or signed-link delivery, provider-unavailable generation states, retention handling, and hosted archive UI proof after deployment/credentials.
 2. Broaden public-site no-hidden-core-content proof across every guide route, then verify the newest workspace account-state/no-assignment markers after hosted deployment and add a live section-level permission-denied proof.
 3. Extend alpha proposal/review/evidence/audit records into real workflow endpoints.
 4. Add Google Drive server-side credential/OAuth implementation plus access-controlled evidence upload/retrieval assumptions.
@@ -216,6 +225,7 @@ Current backlog anchors:
 - 2026-05-20 Figma presentation dashboard state handoff verified node `139:2`; it maps presentation slot, conflict, check-out, check-in, denied-action, empty, and loading states to persisted dashboard consumption with 6 states, 7 routes, 8 records, and 6 guardrails.
 - 2026-05-20 Figma celebration archive readiness handoff verified node `144:2`; it maps closeout, Celebration Day evidence, reflection/portfolio, thank-you/mentor note, archive request, signed download, and archive permission states to persisted evidence/export/audit records with 7 states, 8 routes, 14 records, 5 permission scopes, 7 guardrails, and 7 acceptance checks.
 - 2026-05-20 non-Figma workspace archive readiness pass partially consumed node `144:2` in repo code only by adding `/api/student/archive/readiness`, a student Archive workspace tab, explicit admin export reason enforcement, truthful signed-download-disabled output, focused integration/source/smoke/browser proof, and route inventory coverage.
+- 2026-05-20 non-Figma archive manifest pass added `export_artifacts`, scoped JSON archive manifest generation/download, content hash/expiry metadata, expired-package retry state, storage-ID redaction tests, and a workspace manifest download marker.
 - Bryan's phone-friendly live QoL tracker is the native Google Sheet `Senior Capstone QoL Run Tracker`, spreadsheet id `1J8jQMn85wJwo9Rh6LjQUVv_WfLS1YJWsbpcLBCojjjs`.
 
 ## Handoff And Logging Rules

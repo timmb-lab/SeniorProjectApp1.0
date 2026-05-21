@@ -369,3 +369,17 @@ Each rebuild run should append a dated entry with:
 - `self-improvement`: none.
 - `commit/push status`: implementation commit `50a4efa95926c8db5b1e7f8637c75b95e419e526` (`rebuild: add archive readiness workspace (MVP-022)`) pushed to `origin main` (`69b2de4..50a4efa`); closeout evidence commit follows this entry.
 - `next action`: Generate real archive artifacts, wire signed expiry or safe Drive links, add expired-download retry/provider-unavailable handling, document retention, and verify hosted Archive tab after deployment/Drive credentials.
+
+### 2026-05-20 21:10 PT - MVP-022 Scoped Archive Manifests
+
+- `automation`: `senior-capstone-nonfigma-mvp-builder`
+- `master-plan section`: Day 7 Alpha Gate; Role-Aware Production App Contract; North Star Workflow; Logging Requirements.
+- `source docs/logs read`: automation memory fallback at `C:\Users\bryan\.codex\automations\senior-capstone-nonfigma-mvp-builder\memory.md`, required master plan/catalog/cadence/runbook/self-improvement/memory/milestones/progress docs, recent run manifests, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, `docs/progress/rebuild.md`, and the existing archive/export route/test patterns.
+- `backlog or requirement IDs selected`: `SC-004`, `SC-005`, `SC-006`, `MVP-018`, `MVP-020`, `MVP-022`, supporting `MVP-032`.
+- `bounded scope`: Add a real scoped archive manifest artifact path and expired-package retry behavior without calling Figma tools or requiring live Drive credentials.
+- `files changed`: `migrations/0007_archive_export_artifacts.sql`, `functions/_lib/archive-export.ts`, `functions/api/admin/exports/student-archive.ts`, `functions/api/exports/[id]/download.ts`, `functions/api/student/archive/readiness.ts`, `workspace.js`, `tests/archive-readiness.integration.test.mjs`, `tests/workspace-app.test.mjs`, `tests/production-workflow-source.test.mjs`, MVP/backlog/artifact/memory/handoff/setup/registry/progress docs, and structured run manifest.
+- `validation`: focused archive-readiness integration passed with 8 tests; workspace source/VM test passed with 7 tests; production-workflow source test passed with 10 tests; strict typecheck passed; full test suite passed with 141 passing tests and 3 expected opt-in local-server skips; production-surface check passed with 91 surfaces; aggregate `check` passed with static Cloudflare checks and `LIVE_CLOUDFLARE_BLOCKED_NO_TOKEN`; `docs/artifacts.json` parsed; `git diff --check` passed with CRLF warnings only.
+- `blockers`: migration `0007_archive_export_artifacts.sql` cannot be applied/verified remotely without `CLOUDFLARE_API_TOKEN`; Drive-backed archive files or signed-link delivery still need Cloudflare Pages Drive credential secrets; hosted archive manifest proof is pending post-push deployment.
+- `phone tracker`: not appended; Google Sheets connector was not used in this run.
+- `self-improvement`: none.
+- `commit/push status`: pending closeout commit and push.

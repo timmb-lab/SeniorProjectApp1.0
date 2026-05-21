@@ -8,6 +8,7 @@ const adminAnnouncementRoute = await readFile("functions/api/admin/announcements
 const announcementListRoute = await readFile("functions/api/announcements.ts", "utf8");
 const archiveQueueRoute = await readFile("functions/api/admin/exports/student-archive.ts", "utf8");
 const archiveReadinessRoute = await readFile("functions/api/student/archive/readiness.ts", "utf8");
+const archiveExportLib = await readFile("functions/_lib/archive-export.ts", "utf8");
 const evidenceRoute = await readFile("functions/api/submissions/[id]/evidence.ts", "utf8");
 const exportDownloadRoute = await readFile("functions/api/exports/[id]/download.ts", "utf8");
 const mentorAssignedRoute = await readFile("functions/api/mentor/assigned.ts", "utf8");
@@ -106,22 +107,31 @@ test("announcement endpoints support admin create and scoped authenticated reads
   assert.match(announcementListRoute, /group_memberships/);
 });
 
-test("archive export endpoints queue admin requests and expose pending signed download state", () => {
+test("archive export endpoints generate scoped manifest artifacts and expiry states", () => {
   assert.match(archiveQueueRoute, /isAdmin/);
   assert.match(archiveQueueRoute, /INSERT INTO exports/);
-  assert.match(archiveQueueRoute, /student_archive_export_queued/);
+  assert.match(archiveQueueRoute, /buildStudentArchiveManifest/);
+  assert.match(archiveQueueRoute, /INSERT INTO export_artifacts/);
+  assert.match(archiveQueueRoute, /student_archive_export_generated/);
   assert.match(archiveQueueRoute, /missing_reason/);
+  assert.match(archiveQueueRoute, /scopedDownloadReady: true/);
   assert.match(archiveQueueRoute, /signedDownloadReady: false/);
+  assert.match(archiveExportLib, /STUDENT_ARCHIVE_MANIFEST_TYPE/);
+  assert.match(archiveExportLib, /storage identifiers are redacted/i);
+  assert.doesNotMatch(archiveExportLib, /drive_file_id/i);
   assert.match(archiveReadinessRoute, /student_archive_readiness_viewed/);
   assert.match(archiveReadinessRoute, /student_archive_readiness_denied/);
   assert.match(archiveReadinessRoute, /canAccessStudent/);
   assert.match(archiveReadinessRoute, /driveCredentialsConfigured/);
   assert.match(archiveReadinessRoute, /storageIdentifiersRedacted: true/);
+  assert.match(archiveReadinessRoute, /scopedDownloadReady/);
   assert.match(exportDownloadRoute, /canAccessStudent/);
   assert.match(exportDownloadRoute, /export_download_denied/);
-  assert.match(exportDownloadRoute, /export_download_checked/);
+  assert.match(exportDownloadRoute, /export_downloaded/);
+  assert.match(exportDownloadRoute, /export_download_expired/);
+  assert.match(exportDownloadRoute, /archive_artifact_missing/);
+  assert.match(exportDownloadRoute, /x-archive-storage-identifiers-redacted/);
   assert.match(exportDownloadRoute, /signedDownloadReady: false/);
-  assert.match(exportDownloadRoute, /url: null/);
 });
 
 test("mentor and misc-admin reporting endpoints stay scoped and aggregate-only", () => {

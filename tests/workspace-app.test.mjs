@@ -36,6 +36,7 @@ test("workspace route is a real authenticated app surface", () => {
   assert.match(workspaceJs, /data-presentation-action="check-out"/);
   assert.match(workspaceJs, /data-presentation-action="check-in"/);
   assert.match(workspaceJs, /data-archive-check-status/);
+  assert.match(workspaceJs, /data-archive-download="manifest"/);
   assert.doesNotMatch(workspaceJs, /localStorage|sessionStorage|indexedDB/);
   assert.doesNotThrow(() => new Function(workspaceJs));
 });
@@ -317,9 +318,12 @@ test("workspace renders archive readiness from persisted rows", async () => {
           },
         ],
         archive: {
-          status: "queued",
+          status: "complete",
+          scopedDownloadReady: true,
           signedDownloadReady: false,
-          message: "Archive package is being prepared.",
+          downloadUrl: "/api/exports/export-ready/download",
+          downloadExpiresAt: "2026-05-05T16:00:00.000Z",
+          message: "Archive package manifest is ready for scoped download.",
         },
         storage: {
           credentialsConfigured: false,
@@ -337,6 +341,8 @@ test("workspace renders archive readiness from persisted rows", async () => {
   assert.match(archive, /data-archive-check-status="ready"/);
   assert.match(archive, /data-archive-check-status="attention_required"/);
   assert.match(archive, /Celebration Day evidence/);
+  assert.match(archive, /data-archive-download="manifest"/);
+  assert.match(archive, /Download archive manifest/);
   assert.match(archive, /Private storage identifiers stay hidden/);
 });
 

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-05-20T20:43:00-07:00",
+  "updated_at": "2026-05-20T21:10:00-07:00",
   "artifacts": [
     {
       "id": "cloudflare-pages-senior-capstone-app",
@@ -129,6 +129,8 @@
         "workspace.html",
         "workspace.css",
         "workspace.js",
+        "migrations/0007_archive_export_artifacts.sql",
+        "functions/_lib/archive-export.ts",
         "functions/api/student/archive/readiness.ts",
         "functions/api/admin/exports/student-archive.ts",
         "functions/api/exports/[id]/download.ts",
@@ -163,7 +165,9 @@
         "2026-05-20 20:43 PT: workspace source now loads /api/student/archive/readiness for students and renders an Archive tab with May 5 package readiness, closeout checks, and storage/privacy guardrails.",
         "2026-05-20 20:43 PT: tests/archive-readiness.integration.test.mjs passed own-student readiness, out-of-scope denial/audit, misc-admin denial, admin scoped inspection, and truthful signed-download-disabled coverage.",
         "2026-05-20 20:43 PT: credential-backed local HTTP workspace smoke and in-app browser proof verified the fake student Archive tab rendered without Drive storage identifiers and with zero console errors.",
-        "2026-05-20 20:43 PT: direct hosted https://senior-capstone-app.pages.dev/workspace.js returned HTTP 200 and contained /api/student/archive/readiness plus data-archive-check-status on the first post-push poll; signed-out /api/student/archive/readiness returned HTTP 401."
+        "2026-05-20 20:43 PT: direct hosted https://senior-capstone-app.pages.dev/workspace.js returned HTTP 200 and contained /api/student/archive/readiness plus data-archive-check-status on the first post-push poll; signed-out /api/student/archive/readiness returned HTTP 401.",
+        "2026-05-20 21:10 PT: migration 0007 adds export_artifacts for scoped archive manifests; /api/admin/exports/student-archive generates storage-ID-redacted JSON manifests with content hash and 14-day expiry; /api/exports/:id/download streams unexpired manifests and audits missing/expired/download states.",
+        "2026-05-20 21:10 PT: tests/archive-readiness.integration.test.mjs passed 8 archive/export tests, tests/workspace-app.test.mjs passed 7 workspace tests including data-archive-download marker coverage, tests/production-workflow-source.test.mjs passed 10 source checks, and strict typecheck passed."
       ],
       "last_updated": "2026-05-20"
     },

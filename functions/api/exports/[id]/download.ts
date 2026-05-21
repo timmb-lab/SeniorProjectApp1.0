@@ -1,4 +1,5 @@
 import type { Env } from "../../../_types.ts";
+import { archiveArtifactExpired, STUDENT_ARCHIVE_MANIFEST_TYPE } from "../../../_lib/archive-export.ts";
 import { getCurrentUser, writeAudit } from "../../../_lib/auth.ts";
 import { json } from "../../../_lib/http.ts";
 import { canAccessStudent, isAdmin } from "../../../_lib/permissions.ts";
@@ -13,6 +14,18 @@ interface ExportRow {
   status: string;
   created_at: string;
   completed_at: string | null;
+}
+
+interface ExportArtifactRow {
+  id: string;
+  artifact_type: string;
+  title: string;
+  mime_type: string;
+  byte_length: number;
+  content_sha256: string;
+  body_json: string;
+  expires_at: string | null;
+  created_at: string;
 }
 
 export const onRequestGet: PagesFunction<Env> = async ({ request, env, params }) => {
@@ -43,34 +56,137 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env, params })
     return workflowError("forbidden", 403);
   }
 
+  if (row.status !== "complete") {
+    await writeAudit(env, {
+      actorUserId: user.id,
+      action: "export_download_checked",
+      entityType: "export",
+      entityId: row.id,
+      request,
+      metadata: {
+        status: row.status,
+        signedDownloadReady: false,
+        scopedDownloadReady: false,
+      },
+    });
+
+    return json({
+      ok: true,
+      export: {
+        id: row.id,
+        exportType: row.export_type,
+        targetUserId: row.target_user_id,
+        status: row.status,
+        createdAt: row.created_at,
+        completedAt: row.completed_at,
+      },
+      download: {
+        signedDownloadReady: false,
+        scopedDownloadReady: false,
+        url: null,
+        message: "Archive is not complete yet; scoped package download remains pending.",
+      },
+    });
+  }
+
+  const artifact = await env.DB.prepare(
+    `SELECT id, artifact_type, title, mime_type, byte_length, content_sha256, body_json, expires_at, created_at
+     FROM export_artifacts
+     WHERE export_id = ?
+       AND artifact_type = ?
+     ORDER BY created_at DESC
+     LIMIT 1`,
+  ).bind(row.id, STUDENT_ARCHIVE_MANIFEST_TYPE).first<ExportArtifactRow>();
+
+  if (!artifact) {
+    await writeAudit(env, {
+      actorUserId: user.id,
+      action: "export_download_missing_artifact",
+      entityType: "export",
+      entityId: row.id,
+      request,
+      metadata: {
+        status: row.status,
+        signedDownloadReady: false,
+        scopedDownloadReady: false,
+      },
+    });
+
+    return workflowError("archive_artifact_missing", 409);
+  }
+
+  if (archiveArtifactExpired(artifact.expires_at)) {
+    await writeAudit(env, {
+      actorUserId: user.id,
+      action: "export_download_expired",
+      entityType: "export",
+      entityId: row.id,
+      request,
+      metadata: {
+        artifactId: artifact.id,
+        expiredAt: artifact.expires_at,
+        signedDownloadReady: false,
+        scopedDownloadReady: false,
+      },
+    });
+
+    return json({
+      ok: false,
+      error: "archive_download_expired",
+      export: {
+        id: row.id,
+        exportType: row.export_type,
+        targetUserId: row.target_user_id,
+        status: row.status,
+      },
+      download: {
+        signedDownloadReady: false,
+        scopedDownloadReady: false,
+        expiredAt: artifact.expires_at,
+        retry: "request_new_archive_export",
+        message: "Archive package download expired. Ask an admin to generate a fresh archive package.",
+      },
+    }, { status: 410 });
+  }
+
   await writeAudit(env, {
     actorUserId: user.id,
-    action: "export_download_checked",
+    action: "export_downloaded",
     entityType: "export",
     entityId: row.id,
     request,
     metadata: {
       status: row.status,
+      artifactId: artifact.id,
+      artifactType: artifact.artifact_type,
+      byteLength: artifact.byte_length,
+      contentSha256: artifact.content_sha256,
+      expiresAt: artifact.expires_at,
+      storageIdentifiersRedacted: true,
       signedDownloadReady: false,
+      scopedDownloadReady: true,
     },
   });
 
-  return json({
-    ok: true,
-    export: {
-      id: row.id,
-      exportType: row.export_type,
-      targetUserId: row.target_user_id,
-      status: row.status,
-      createdAt: row.created_at,
-      completedAt: row.completed_at,
-    },
-    download: {
-      signedDownloadReady: false,
-      url: null,
-      message: row.drive_file_id && row.status === "complete"
-        ? "Archive file exists, but signed download generation is still disabled until export delivery is wired."
-        : "Archive is not complete yet; signed download remains pending.",
-    },
-  });
+  const headers = new Headers();
+  headers.set("cache-control", "no-store");
+  headers.set("content-type", artifact.mime_type || "application/json");
+  headers.set("content-disposition", contentDispositionAttachment(artifact.title));
+  headers.set("x-content-type-options", "nosniff");
+  headers.set("x-archive-expires-at", artifact.expires_at || "");
+  headers.set("x-archive-content-sha256", artifact.content_sha256);
+  headers.set("x-archive-storage-identifiers-redacted", "true");
+
+  return new Response(artifact.body_json, { status: 200, headers });
 };
+
+function contentDispositionAttachment(title: string): string {
+  const safeTitle = String(title || "senior-project-archive")
+    .replace(/[\r\n]+/g, " ")
+    .replace(/[^\w.\- ()]/g, "_")
+    .trim()
+    .slice(0, 120) || "senior-project-archive";
+
+  const fileName = safeTitle.toLowerCase().endsWith(".json") ? safeTitle : `${safeTitle}.json`;
+  return `attachment; filename="${fileName.replace(/"/g, "")}"`;
+}

@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { sha256Hex } from "../functions/_lib/crypto.ts";
+import { onRequestPost as onQueueArchive } from "../functions/api/admin/exports/student-archive.ts";
 import { onRequestGet as onArchiveReadiness } from "../functions/api/student/archive/readiness.ts";
 import { onRequestGet as onExportDownload } from "../functions/api/exports/[id]/download.ts";
 
@@ -117,11 +118,80 @@ test("admin archive readiness can inspect a scoped student but still reports sig
   assert.equal(body.viewer.scope, "admin archive");
   assert.equal(body.archive.status, "complete");
   assert.equal(body.archive.signedDownloadReady, false);
+  assert.equal(body.archive.scopedDownloadReady, false);
   assert.match(body.archive.message, /signed archive links are still disabled/i);
   assert.doesNotMatch(JSON.stringify(body), /drive-complete-secret|drive_file_id|driveFileId/i);
 });
 
-test("export download check does not claim signed URL readiness without delivery support", async () => {
+test("admin archive export generates a scoped manifest artifact without storage ids", async () => {
+  const fixture = await createFixtureWithSession({ userId: "admin-a", roleId: "admin" });
+  seedArchiveReadyStudent(fixture.db, "student-a");
+
+  const response = await onQueueArchive({
+    request: buildJsonRequest(
+      "https://example.test/api/admin/exports/student-archive",
+      fixture.token,
+      { studentId: "student-a", reason: "May 5 archive package" },
+      "POST",
+    ),
+    env: fixture.env,
+  });
+
+  assert.equal(response.status, 200);
+  const body = await response.json();
+  assert.equal(body.ok, true);
+  assert.equal(body.export.status, "complete");
+  assert.equal(body.export.scopedDownloadReady, true);
+  assert.equal(body.export.signedDownloadReady, false);
+  assert.match(body.export.downloadUrl, /^\/api\/exports\/export[_-]/);
+  assert.equal(fixture.db.data.exports.length, 1);
+  assert.equal(fixture.db.data.exports[0].status, "complete");
+  assert.equal(fixture.db.data.exportArtifacts.length, 1);
+  assert.equal(fixture.db.data.exportArtifacts[0].artifact_type, "student_archive_manifest_json");
+  assert.doesNotMatch(fixture.db.data.exportArtifacts[0].body_json, /drive-celebration-secret|drive_file_id|driveFileId/i);
+  assert.equal(fixture.db.data.auditEvents[0].action, "student_archive_export_generated");
+  assert.equal(fixture.db.data.auditEvents[0].metadata.scopedDownloadReady, true);
+});
+
+test("export download streams the generated archive manifest for scoped users", async () => {
+  const fixture = await createFixtureWithSession({ userId: "admin-a", roleId: "admin" });
+  seedArchiveReadyStudent(fixture.db, "student-a");
+
+  const queueResponse = await onQueueArchive({
+    request: buildJsonRequest(
+      "https://example.test/api/admin/exports/student-archive",
+      fixture.token,
+      { studentId: "student-a", reason: "May 5 archive package" },
+      "POST",
+    ),
+    env: fixture.env,
+  });
+  const queued = await queueResponse.json();
+  fixture.db.data.auditEvents.length = 0;
+
+  const response = await onExportDownload({
+    request: buildRequest(`https://example.test/api/exports/${queued.export.id}/download`, fixture.token),
+    env: fixture.env,
+    params: { id: queued.export.id },
+  });
+
+  assert.equal(response.status, 200);
+  assert.match(response.headers.get("content-type"), /application\/json/);
+  assert.match(response.headers.get("content-disposition"), /attachment/);
+  assert.equal(response.headers.get("x-archive-storage-identifiers-redacted"), "true");
+  const manifest = await response.json();
+  assert.equal(manifest.manifestVersion, "student-archive-v1");
+  assert.equal(manifest.exportId, queued.export.id);
+  assert.equal(manifest.student.id, "student-a");
+  assert.equal(manifest.evidenceArtifacts.length, 8);
+  assert.equal(manifest.evidenceArtifacts[0].fileBytesReady, true);
+  assert.doesNotMatch(JSON.stringify(manifest), /drive-celebration-secret|drive_file_id|driveFileId/i);
+  assert.equal(fixture.db.data.auditEvents.length, 1);
+  assert.equal(fixture.db.data.auditEvents[0].action, "export_downloaded");
+  assert.equal(fixture.db.data.auditEvents[0].metadata.scopedDownloadReady, true);
+});
+
+test("export download reports missing archive artifacts instead of claiming signed URL readiness", async () => {
   const fixture = await createFixtureWithSession({ userId: "student-a", roleId: "student" });
   fixture.db.data.exports.push({
     id: "export-complete",
@@ -140,15 +210,49 @@ test("export download check does not claim signed URL readiness without delivery
     params: { id: "export-complete" },
   });
 
-  assert.equal(response.status, 200);
   const body = await response.json();
-  assert.equal(body.download.signedDownloadReady, false);
-  assert.equal(body.download.url, null);
-  assert.match(body.download.message, /signed download generation is still disabled/i);
-  assert.doesNotMatch(JSON.stringify(body), /drive-complete-secret|drive_file_id|driveFileId/i);
+  assert.equal(response.status, 409);
+  assert.deepEqual(body, { error: "archive_artifact_missing", ok: false });
   assert.equal(fixture.db.data.auditEvents.length, 1);
-  assert.equal(fixture.db.data.auditEvents[0].action, "export_download_checked");
-  assert.equal(fixture.db.data.auditEvents[0].metadata.signedDownloadReady, false);
+  assert.equal(fixture.db.data.auditEvents[0].action, "export_download_missing_artifact");
+});
+
+test("export download returns an expired-package retry state", async () => {
+  const fixture = await createFixtureWithSession({ userId: "student-a", roleId: "student" });
+  fixture.db.data.exports.push({
+    id: "export-expired",
+    export_type: "student_archive",
+    requested_by: "admin-a",
+    target_user_id: "student-a",
+    drive_file_id: null,
+    status: "complete",
+    created_at: "2026-05-04T16:00:00.000Z",
+    completed_at: "2026-05-04T16:05:00.000Z",
+  });
+  fixture.db.data.exportArtifacts.push({
+    id: "artifact-expired",
+    export_id: "export-expired",
+    artifact_type: "student_archive_manifest_json",
+    title: "Expired archive",
+    mime_type: "application/json",
+    byte_length: 2,
+    content_sha256: "sha",
+    body_json: "{}",
+    expires_at: "2000-01-01T00:00:00.000Z",
+    created_at: "2000-01-01T00:00:00.000Z",
+  });
+
+  const response = await onExportDownload({
+    request: buildRequest("https://example.test/api/exports/export-expired/download", fixture.token),
+    env: fixture.env,
+    params: { id: "export-expired" },
+  });
+
+  assert.equal(response.status, 410);
+  const body = await response.json();
+  assert.equal(body.error, "archive_download_expired");
+  assert.equal(body.download.retry, "request_new_archive_export");
+  assert.equal(fixture.db.data.auditEvents[0].action, "export_download_expired");
 });
 
 function seedArchiveReadyStudent(db, studentId) {
@@ -247,6 +351,19 @@ function buildRequest(url, token) {
   });
 }
 
+function buildJsonRequest(url, token, body, method = "POST") {
+  return new Request(url, {
+    method,
+    headers: {
+      cookie: `sc_session=${token}`,
+      "content-type": "application/json",
+      "cf-connecting-ip": "203.0.113.70",
+      "user-agent": "integration-test",
+    },
+    body: JSON.stringify(body),
+  });
+}
+
 function createFixture() {
   const db = new MockD1Database({
     userAccounts: [],
@@ -258,6 +375,7 @@ function createFixture() {
     progressRecords: [],
     evidenceArtifacts: [],
     exports: [],
+    exportArtifacts: [],
     auditEvents: [],
   });
 
@@ -342,6 +460,12 @@ class MockPreparedStatement {
       return this.data.userAccounts.find((row) => row.id === userId && row.status === "active") ?? null;
     }
 
+    if (this.sql.startsWith("select id from user_accounts where id = ? and status = 'active'")) {
+      const [userId] = this.params;
+      const user = this.data.userAccounts.find((row) => row.id === userId && row.status === "active");
+      return user ? { id: user.id } : null;
+    }
+
     if (this.sql.startsWith("select id, display_name from user_accounts where id = ? and status = 'active'")) {
       const [userId] = this.params;
       const user = this.data.userAccounts.find((row) => row.id === userId && row.status === "active");
@@ -388,6 +512,13 @@ class MockPreparedStatement {
       return this.data.exports.find((row) => row.id === exportId) ?? null;
     }
 
+    if (this.sql.startsWith("select id, artifact_type, title, mime_type, byte_length, content_sha256, body_json, expires_at, created_at from export_artifacts")) {
+      const [exportId, artifactType] = this.params;
+      return this.data.exportArtifacts
+        .filter((row) => row.export_id === exportId && row.artifact_type === artifactType)
+        .sort((a, b) => String(b.created_at).localeCompare(String(a.created_at)))[0] ?? null;
+    }
+
     throw new Error(`Unmocked D1 first() query: ${this.sql}`);
   }
 
@@ -420,6 +551,7 @@ class MockPreparedStatement {
           .map((row) => ({
             artifact_type: row.artifact_type,
             source_kind: row.source_kind,
+            external_url: row.external_url || null,
             title: row.title,
             review_status: row.review_status,
             created_at: row.created_at,
@@ -428,13 +560,23 @@ class MockPreparedStatement {
       };
     }
 
-    if (this.sql.startsWith("select id, status, drive_file_id, created_at, completed_at from exports where export_type = 'student_archive'")) {
+    if (this.sql.startsWith("select exports.id")) {
       const [studentId] = this.params;
       return {
         results: this.data.exports
           .filter((row) => row.export_type === "student_archive" && row.target_user_id === studentId)
           .sort((a, b) => String(b.created_at).localeCompare(String(a.created_at)))
-          .slice(0, 5),
+          .slice(0, 5)
+          .map((row) => {
+            const artifact = this.data.exportArtifacts
+              .filter((candidate) => candidate.export_id === row.id && candidate.artifact_type === "student_archive_manifest_json")
+              .sort((a, b) => String(b.created_at).localeCompare(String(a.created_at)))[0];
+            return {
+              ...row,
+              artifact_id: artifact?.id || null,
+              artifact_expires_at: artifact?.expires_at || null,
+            };
+          }),
       };
     }
 
@@ -463,6 +605,49 @@ class MockPreparedStatement {
         entity_type: entityType,
         entity_id: entityId,
         metadata: metadataJson ? JSON.parse(metadataJson) : null,
+      });
+      return { success: true };
+    }
+
+    if (this.sql.startsWith("insert into exports")) {
+      const [id, requestedBy, targetUserId, completedAt] = this.params;
+      this.data.exports.push({
+        id,
+        export_type: "student_archive",
+        requested_by: requestedBy,
+        target_user_id: targetUserId,
+        drive_file_id: null,
+        status: "complete",
+        created_at: completedAt,
+        completed_at: completedAt,
+      });
+      return { success: true };
+    }
+
+    if (this.sql.startsWith("insert into export_artifacts")) {
+      const [
+        id,
+        exportId,
+        artifactType,
+        title,
+        mimeType,
+        byteLength,
+        contentSha256,
+        bodyJson,
+        expiresAt,
+        createdAt,
+      ] = this.params;
+      this.data.exportArtifacts.push({
+        id,
+        export_id: exportId,
+        artifact_type: artifactType,
+        title,
+        mime_type: mimeType,
+        byte_length: byteLength,
+        content_sha256: contentSha256,
+        body_json: bodyJson,
+        expires_at: expiresAt,
+        created_at: createdAt,
       });
       return { success: true };
     }

@@ -27,6 +27,8 @@ interface ExportRow {
   drive_file_id: string | null;
   created_at: string;
   completed_at: string | null;
+  artifact_id: string | null;
+  artifact_expires_at: string | null;
 }
 
 interface StudentRow {
@@ -155,11 +157,21 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
        ORDER BY evidence.created_at DESC`,
     ).bind(requestedStudentId).all<EvidenceRow>(),
     env.DB.prepare(
-      `SELECT id, status, drive_file_id, created_at, completed_at
+      `SELECT
+         exports.id,
+         exports.status,
+         exports.drive_file_id,
+         exports.created_at,
+         exports.completed_at,
+         artifact.id AS artifact_id,
+         artifact.expires_at AS artifact_expires_at
        FROM exports
-       WHERE export_type = 'student_archive'
-         AND target_user_id = ?
-       ORDER BY created_at DESC
+       LEFT JOIN export_artifacts artifact
+         ON artifact.export_id = exports.id
+        AND artifact.artifact_type = 'student_archive_manifest_json'
+       WHERE exports.export_type = 'student_archive'
+         AND exports.target_user_id = ?
+       ORDER BY exports.created_at DESC
        LIMIT 5`,
     ).bind(requestedStudentId).all<ExportRow>(),
   ]);
@@ -170,6 +182,11 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
   const checks = CHECKS.map((definition) => archiveCheck(definition, progressRows, evidenceRows));
   const latestExport = exportRows[0] || null;
   const signedDownloadsEnabled = false;
+  const scopedDownloadReady = Boolean(
+    latestExport?.status === "complete" &&
+    latestExport.artifact_id &&
+    !archiveArtifactExpired(latestExport.artifact_expires_at),
+  );
   const exportStatus = latestExport?.status || "not_requested";
   const readyChecks = checks.filter((check) => check.status === "ready").length;
   const missingChecks = checks.filter((check) => check.status === "missing").length;
@@ -185,6 +202,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
       readyChecks,
       missingChecks,
       exportStatus,
+      scopedDownloadReady,
       viewerScope: viewerScope(env, user, requestedStudentId, roleAssignments),
     },
   });
@@ -203,6 +221,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
       provider: "google_drive",
       credentialsConfigured: driveCredentialsConfigured(env),
       signedDownloadsEnabled,
+      scopedPackageDownloadsEnabled: true,
       storageIdentifiersRedacted: true,
     },
     summary: {
@@ -217,12 +236,25 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
       latestExportId: latestExport?.id || null,
       requestedAt: latestExport?.created_at || null,
       completedAt: latestExport?.completed_at || null,
+      scopedDownloadReady,
+      downloadUrl: scopedDownloadReady ? `/api/exports/${latestExport?.id}/download` : null,
+      downloadExpiresAt: latestExport?.artifact_expires_at || null,
+      downloadExpired: Boolean(
+        latestExport?.artifact_id &&
+        archiveArtifactExpired(latestExport.artifact_expires_at),
+      ),
       signedDownloadReady: Boolean(
         signedDownloadsEnabled &&
         latestExport?.drive_file_id &&
         latestExport.status === "complete"
       ),
-      message: archiveMessage(exportStatus, driveCredentialsConfigured(env), signedDownloadsEnabled),
+      message: archiveMessage(
+        exportStatus,
+        driveCredentialsConfigured(env),
+        signedDownloadsEnabled,
+        scopedDownloadReady,
+        Boolean(latestExport?.artifact_id && archiveArtifactExpired(latestExport.artifact_expires_at)),
+      ),
     },
     guardrails: [
       "Archive readiness is derived from D1 progress, evidence, and export rows.",
@@ -273,13 +305,27 @@ function messageForCheckStatus(status: string): string {
   return "Needs evidence or staff review before the archive package is ready.";
 }
 
-function archiveMessage(status: string, driveReady: boolean, signedDownloadsEnabled: boolean): string {
+function archiveMessage(
+  status: string,
+  driveReady: boolean,
+  signedDownloadsEnabled: boolean,
+  scopedDownloadReady: boolean,
+  downloadExpired: boolean,
+): string {
+  if (downloadExpired) return "Archive package download expired. Ask an admin to generate a fresh package.";
+  if (scopedDownloadReady) return "Archive package manifest is ready for scoped download.";
   if (!driveReady) return "Drive credentials are not configured yet, so archive package files cannot be generated.";
   if (!signedDownloadsEnabled) return "Archive package checks are available; signed archive links are still disabled until export generation is wired.";
   if (status === "complete") return "Archive package is complete and ready for a scoped download link.";
   if (status === "queued" || status === "running") return "Archive package is being prepared.";
   if (status === "failed") return "Archive package failed and needs staff follow-up.";
   return "Archive package has not been requested yet.";
+}
+
+function archiveArtifactExpired(expiresAt: string | null | undefined, now = new Date()): boolean {
+  if (!expiresAt) return false;
+  const timestamp = Date.parse(expiresAt);
+  return Number.isFinite(timestamp) && timestamp <= now.getTime();
 }
 
 function driveCredentialsConfigured(env: Env): boolean {

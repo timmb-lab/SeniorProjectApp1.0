@@ -636,6 +636,12 @@ function renderArchiveSection() {
   const summary = body.summary || {};
   const archive = body.archive || {};
   const storage = body.storage || {};
+  const scopedDownloadReady = Boolean(archive.scopedDownloadReady || archive.signedDownloadReady);
+  const downloadMessage = scopedDownloadReady
+    ? `Scoped archive manifest is ready${archive.downloadExpiresAt ? ` until ${formatDate(archive.downloadExpiresAt)}` : ""}.`
+    : archive.downloadExpired
+      ? "Archive package download expired. Ask staff to generate a fresh package."
+      : "Scoped archive download is not ready yet.";
   return `
     <section class="workspace-card workspace-hero-card" data-archive-status="${escapeHtml(archive.status || "unknown")}">
       <div class="workspace-card-head">
@@ -677,7 +683,8 @@ function renderArchiveSection() {
         <article class="workspace-row">
           <div>
             <strong>Download status</strong>
-            <p>${escapeHtml(archive.signedDownloadReady ? "Scoped archive download is ready." : "Scoped archive download is not ready yet.")}</p>
+            <p>${escapeHtml(downloadMessage)}</p>
+            ${scopedDownloadReady && archive.downloadUrl ? `<a class="workspace-link-button" data-archive-download="manifest" href="${escapeHtml(archive.downloadUrl)}">Download archive manifest</a>` : ""}
           </div>
           ${statusPill(archive.status || "not_requested")}
         </article>

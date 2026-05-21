@@ -28,6 +28,21 @@ This is the compact run log for the current quarter-hour split-builder automatio
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-05-20 21:10 PT - MVP-022 Scoped Archive Manifests
+
+- `automation ID`: `senior-capstone-nonfigma-mvp-builder`
+- `lane`: non-Figma MVP builder / admin-ops-reporting.
+- `master-plan sections`: Day 7 Alpha Gate; Role-Aware Production App Contract; North Star Workflow; Logging Requirements.
+- `requirement IDs`: `MVP-018`, `MVP-020`, `MVP-022`, supporting `MVP-032`; `backlog IDs`: `SC-004`, `SC-005`, `SC-006`; `handoff`: continued repo-only consumption of `H-2026-05-20-009`.
+- `selected slice`: Generate scoped archive manifest artifacts and download/expiry behavior from persisted rows without direct Figma or live Drive work.
+- `what changed`: Added `export_artifacts` migration and archive-manifest helper; `/api/admin/exports/student-archive` now creates a completed export plus storage-ID-redacted JSON manifest with content hash and 14-day expiry; `/api/exports/:id/download` streams unexpired manifests to admin/scoped users, audits missing/expired/download states, and returns an expired-package retry state; `workspace.js` renders a manifest download link when readiness reports `scopedDownloadReady`.
+- `files changed`: `migrations/0007_archive_export_artifacts.sql`, `functions/_lib/archive-export.ts`, archive export/download/readiness routes, `workspace.js`, focused archive/workspace/source tests, MVP/backlog/artifact/memory/handoff/setup/registry/progress docs, and `docs/progress/runs/2026-05-20-2110-scoped-archive-manifests-mvp-022.json`.
+- `validation`: focused archive-readiness integration passed with 8 tests; workspace source/VM test passed with 7 tests; production-workflow source test passed with 10 tests; strict typecheck passed; full test suite passed with 141 passing tests and 3 expected opt-in local-server skips; production-surface check passed with 91 surfaces; aggregate `check` passed with static Cloudflare checks and `LIVE_CLOUDFLARE_BLOCKED_NO_TOKEN`; `docs/artifacts.json` parsed; `git diff --check` passed with CRLF warnings only.
+- `blockers`: remote migration apply/verification for `0007_archive_export_artifacts.sql` and non-interactive Pages/D1 inspection still require `CLOUDFLARE_API_TOKEN`; Drive-backed archive files or signed-link delivery still require live Drive credential secrets; hosted archive manifest proof is pending deployment.
+- `phone tracker`: not appended; Google Sheets connector was not used in this run.
+- `self-improvement`: none.
+- `commit`: pending closeout commit.
+
 ## 2026-05-20 20:43 PT - MVP-022 Workspace Archive Readiness
 
 - `automation ID`: `senior-capstone-nonfigma-mvp-builder-30`
