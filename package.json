@@ -33,6 +33,8 @@
     "check:drive:live": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-npm-script.ps1 check:drive:live",
     "check:workspace:hosted-evidence": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-npm-script.ps1 check:workspace:hosted-evidence",
     "check:workspace:hosted-permissions": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-npm-script.ps1 check:workspace:hosted-permissions",
+    "ensure:owner-admin:local": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-node-script.ps1 scripts/ensure-owner-admin-account.mjs --local",
+    "ensure:owner-admin:remote": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-node-script.ps1 scripts/ensure-owner-admin-account.mjs --remote",
     "qol:hourly": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-node-script.ps1 automation/qol/hourly-orchestrator.mjs",
     "qol:hourly:dry-run": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-node-script.ps1 automation/qol/hourly-orchestrator.mjs --dry-run",
     "qol:hourly:explain": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-node-script.ps1 automation/qol/hourly-orchestrator.mjs --explain",

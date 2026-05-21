@@ -28,6 +28,23 @@ This is the compact run log for the current quarter-hour split-builder automatio
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-05-21 08:52 PT - Bryan Owner/Admin Verification And Hosted Permission Closeout
+
+- `automation ID`: manual Codex implementation pass in the non-Figma MVP builder lane.
+- `lane`: non-Figma MVP builder / backend-security-data, deployment-qa, and admin-ops-reporting.
+- `master-plan sections`: Role-Aware Production App Contract; Stack And Deployment Direction; Logging Requirements.
+- `requirement IDs`: `MVP-004`, `MVP-006`, `MVP-013`, `MVP-020`, `MVP-026`, `MVP-032`, and `MVP-033`; `backlog IDs`: `SC-003`, `SC-005`, and `SC-007`; `human decisions`: `HD-2026-05-21-001`, `HD-2026-05-20-002`, `HD-2026-05-20-003`, `HD-2026-05-20-004`, and `HD-2026-05-20-007`.
+- `selected slice`: Verify Bryan's real production owner/admin account without weakening the import guard, add a narrow owner-admin ensure script/source guard, seed the missing fake `.test` admin proof account through the supported fake-account route, and finish hosted permission-state proof.
+- `what changed`: Added `scripts/ensure-owner-admin-account.mjs` and npm aliases for local/remote owner-admin verification/repair. The script is Bryan-only, refuses non-Bryan owner env values, verifies repo identity, keeps `/api/admin/users/import` untouched, uses the repo password hasher if a setup credential is ever required, and writes any generated setup credential only to ignored `.secrets/`. Added source tests for the narrow path. Updated docs to record that remote Bryan already exists as active global admin and that `HD-2026-05-21-001` remains open for all non-Bryan real users.
+- `Bryan account result`: `BRYAN_ADMIN_ALREADY_EXISTS`; remote D1 returned `bryan.timm89@gmail.com`, Bryan Timm, `active`, `requires_reset=0`, global `admin`. No duplicate account, role repair, or Bryan setup credential was created. Local D1 was inspected and did not contain Bryan; no local real account was created because the target is production.
+- `fake proof result`: The ignored `.secrets/test-accounts-2026-05-18.json` fake credential source now includes fake admin `lee.admin@senior-capstone.test`. The admin-only fake-account seed endpoint reseeded only fake `.test` accounts, then `npm run check:workspace:hosted-permissions` passed signed-out, student, program teacher, mentor, misc-admin denial, and admin allowed paths with no missing-role skips.
+- `validation`: owner-admin ensure remote verification passed; focused owner-admin source tests passed; `npm run typecheck`, `npm run check:workspace:hosted-evidence`, `npm run check:workspace:hosted-permissions`, `npm run check:drive:live`, `npm run check:cloudflare`, `npm run check:cloudflare:live`, `npm run check:route-inventory`, `npm run check:production-surfaces`, `npm run check:generated-output-drift`, `npm test` (194 pass / 4 expected opt-in skips), `npm run check` (194 pass / 4 expected opt-in skips), `git diff --check`, and `git diff --cached --check` all passed. `git diff --check` reported CRLF normalization warnings only.
+- `blockers`: no hosted fake `.test` permission-role blocker remains. `HD-2026-05-21-001` remains open for real non-Bryan credential delivery; real non-`.test` admin-visible temporary credential imports remain blocked by default. Browser-level upload progress/retry, hosted presentation/archive UI proof, Google Docs export cases, archive retention policy, custom domain, alpha/account exposure, and stakeholder option retention remain open.
+- `phone tracker`: not appended; Google Sheets connector was not used.
+- `self-improvement`: added a repeatable owner-admin verifier so future passes can prove Bryan's exception without relying on the guarded general import route.
+- `commit/push status`: pending.
+- `next action`: Run the full validation set, then capture hosted presentation/archive UI proof and browser-level upload progress/retry behavior with fake `.test` accounts.
+
 ## 2026-05-21 08:20 PT - Pilot Guardrails, Hosted Permission Proof, Presentation/Archive Audit Depth
 
 - `automation ID`: manual Codex implementation pass in the non-Figma MVP builder lane.

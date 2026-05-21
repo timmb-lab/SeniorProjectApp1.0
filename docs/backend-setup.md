@@ -85,6 +85,17 @@ Seeded test accounts:
 
 These accounts are fake alpha data only. They are safe for role-flow testing but are not the final account lifecycle, import, password-reset, or district SSO replacement.
 
+## Owner/Admin Exception
+
+Bryan's real production owner/admin account is the only real account approved by the current exception:
+
+- Email: `bryan.timm89@gmail.com`.
+- Display name: Bryan Timm.
+- Role: global `admin`.
+- Status verified on 2026-05-21: active, no reset required.
+
+Use `npm run ensure:owner-admin:remote` to re-run the narrow non-secret verification/repair path. The script refuses non-Bryan owner values, keeps the path separate from `/api/admin/users/import`, and only writes a one-time setup credential to an ignored `.secrets/bryan-admin-setup-*.json` file if the account is missing and a safe credential write is explicitly possible. No Bryan setup credential was generated in the 2026-05-21 verification because the account already existed as active global admin.
+
 ## Local Workspace Smoke Seed
 
 2026-05-20 local verification found the previous `invalid_credentials` blocker was caused by local D1 containing the migrated schema but no fake `.test` user rows, while the ignored credential file already existed from a previous seed. The local Pages dev server was reading `.wrangler/state/v3/d1`, and safe `.test` row queries returned no fake users before the new seed ran.
@@ -160,6 +171,12 @@ Bryan verified the original Drive blocker was caused by stale/wrong resource IDs
 Bryan provided the Shared Drive evidence root folder `0AJHkstxfN-dTUk9PVA`; the Evidence Index sheet remains `1BCrBQ-5AKLmhvZr7tjJf3o1tibg13p_U21BiuN_ivN0`. `wrangler.jsonc`, Cloudflare Pages production/preview environment variables, and remote D1 `evidence_repositories.default-google-drive` now point to the Shared Drive root.
 
 After the update and a production Pages deploy, `npm run check:drive:live` passed end to end: runtime config, credential parts, fake `.test` auth, signed-out/unsupported/empty/oversized/non-student denials, Drive token exchange, Shared Drive root visibility, Evidence Index visibility, fake `.test` upload, remote D1 evidence/audit verification, and storage-ID leak checks.
+
+## 2026-05-21 Owner/Admin And Hosted Permission Proof
+
+Remote D1 non-secret verification found Bryan's production account already present as `bryan.timm89@gmail.com` / Bryan Timm, status `active`, global `admin`, and `requires_reset=0`. No duplicate Bryan account was created, no Bryan role repair was needed, and no Bryan setup credential was generated.
+
+The hosted permission proof was completed with fake `.test` accounts only. The ignored `.secrets/test-accounts-2026-05-18.json` file was repaired locally to include the fake admin account, and the existing admin-only fake-account seed endpoint reseeded the hosted fake `.test` users. `npm run check:workspace:hosted-permissions` then passed signed-out state, student dashboard, program teacher review queue/presentation slots, mentor assigned-students/presentation slots, misc-admin import denial, admin readiness/presentation slots, hosted workspace production-surface checks, storage-ID leak checks, and secret-marker checks.
 
 ## Remaining Required Config
 

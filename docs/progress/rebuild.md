@@ -17,6 +17,21 @@ Each rebuild run should append a dated entry with:
 
 ## Entries
 
+### 2026-05-21 08:52 PT - Bryan Owner/Admin And Hosted Permissions Closeout
+
+- `automation`: manual Codex implementation pass in the non-Figma MVP builder lane.
+- `master-plan section`: Role-Aware Production App Contract; Stack And Deployment Direction; Logging Requirements.
+- `source docs/logs read`: repo identity/status, backend setup, human decisions, latest run log/manifest, auth/login/reset/change-password/me routes, admin import/test-account/role/reset routes, auth/crypto/permissions/http helpers, D1 foundation migrations, hosted evidence/permission scripts, run wrappers, workspace docs, and focused auth/import tests.
+- `backlog or requirement IDs selected`: `SC-003`, `SC-005`, `SC-007`; `MVP-004`, `MVP-006`, `MVP-013`, `MVP-020`, `MVP-026`, `MVP-032`, and `MVP-033`; `HD-2026-05-21-001`.
+- `bounded scope`: Prove Bryan's real owner/admin account exists in production, keep the real-user import guard intact, add a narrow repeatable owner-admin verifier, and finish hosted fake `.test` permission proof.
+- `files changed`: owner-admin ensure script, package aliases, owner-admin source tests, README/backend/human-decision/progress docs, and structured run manifest.
+- `remote account state`: `BRYAN_ADMIN_ALREADY_EXISTS`; remote D1 non-secret verification returned Bryan Timm / `bryan.timm89@gmail.com`, status `active`, `requires_reset=0`, and global `admin`. No Bryan setup credential was generated, printed, or committed.
+- `hosted proof`: fake `.test` credentials only. The ignored hosted credential file was repaired to include fake admin, the supported admin-only test-account endpoint seeded fake `.test` rows, and `npm run check:workspace:hosted-permissions` passed signed-out, student, program teacher, mentor, misc-admin denial, and admin allowed checks with no missing-role skips.
+- `validation`: owner-admin ensure remote verification passed; focused owner-admin source tests passed; `npm run typecheck`, `npm run check:workspace:hosted-evidence`, `npm run check:workspace:hosted-permissions`, `npm run check:drive:live`, `npm run check:cloudflare`, `npm run check:cloudflare:live`, `npm run check:route-inventory`, `npm run check:production-surfaces`, `npm run check:generated-output-drift`, `npm test` (194 pass / 4 expected opt-in skips), `npm run check` (194 pass / 4 expected opt-in skips), `git diff --check`, and `git diff --cached --check` passed. `git diff --check` reported CRLF normalization warnings only.
+- `blockers`: `HD-2026-05-21-001` remains open for real non-Bryan credential delivery. Real non-`.test` imports remain blocked by default. Browser-level upload progress/retry, hosted presentation/archive UI proof, Google Docs export cases, custom domain, alpha/account exposure, stakeholder option retention, and archive retention policy remain open.
+- `commit/push status`: pending.
+- `next action`: Run full validation and commit/push the safe source/docs changes.
+
 ### 2026-05-21 08:20 PT - Pilot Guardrails And Protected-Record Depth
 
 - `automation`: manual Codex implementation pass in the non-Figma MVP builder lane.

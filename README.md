@@ -105,6 +105,16 @@ Cloudflare GitHub integration may automatically deploy after pushes to `main`. T
 
 The alpha runbook is `docs/alpha-runbook.md`.
 
+## Owner/Admin Verification
+
+Bryan Timm's production owner/admin account is a narrow real-account exception only: `bryan.timm89@gmail.com`, global `admin`. Re-run the non-secret verifier with:
+
+```powershell
+npm run ensure:owner-admin:remote
+```
+
+This path is separate from `/api/admin/users/import`, which still blocks real non-`.test` temporary-credential imports by default pending Bryan's broader credential-delivery decision.
+
 ## Teacher Companion
 
 Teacher planning notes live in `teacher-companion/implementation-guide.md`. They are not linked from the student guide.

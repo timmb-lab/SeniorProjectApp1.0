@@ -1,0 +1,199 @@
+{
+  "timestamp_local": "2026-05-21T08:52:00-07:00",
+  "date": "2026-05-21",
+  "lane": "non-Figma MVP builder",
+  "automation_pass_label": "manual-codex-bryan-admin-hosted-permissions",
+  "repo_root": "C:\\SeniorProjectApp1.0",
+  "git_top_level": "C:/SeniorProjectApp1.0",
+  "branch_before": "main",
+  "branch_after": "main",
+  "origin": "https://github.com/timmb-lab/SeniorProjectApp1.0.git",
+  "start_sha": "421566073d7d80cf6068d483917b4816088a8723",
+  "end_sha": "pending_until_commit",
+  "selected_mvp_ids": [
+    "MVP-004",
+    "MVP-006",
+    "MVP-013",
+    "MVP-020",
+    "MVP-026",
+    "MVP-032",
+    "MVP-033"
+  ],
+  "selected_backlog_ids": [
+    "SC-003",
+    "SC-005",
+    "SC-007"
+  ],
+  "selected_human_decision_ids": [
+    "HD-2026-05-21-001",
+    "HD-2026-05-20-002",
+    "HD-2026-05-20-003",
+    "HD-2026-05-20-004",
+    "HD-2026-05-20-007"
+  ],
+  "scope_summary": "Verified Bryan's production owner/admin account, added a narrow Bryan-only owner-admin ensure script, kept the guarded real-user import path intact, repaired the ignored fake .test admin credential source, and completed hosted fake .test permission proof.",
+  "bryan_owner_admin_result": {
+    "status_code": "BRYAN_ADMIN_ALREADY_EXISTS",
+    "email": "bryan.timm89@gmail.com",
+    "display_name": "Bryan Timm",
+    "role": "admin",
+    "scope_type": "global",
+    "scope_id": "",
+    "target": "remote",
+    "local_state": "admin role exists locally; Bryan account not present locally; no local real account was created",
+    "remote_state": "active global admin, requires_reset=0",
+    "account_existed_before": true,
+    "account_created_this_run": false,
+    "account_repaired_this_run": false,
+    "role_repaired_this_run": false,
+    "temporary_credential_generated": false,
+    "credential_path": null,
+    "credential_value_printed": false,
+    "credential_value_committed": false,
+    "login_verified": "yes via ignored first-admin credential source for admin-only fake-account seed; no credential value printed",
+    "broader_real_user_import_policy_remains_open": true
+  },
+  "hosted_fake_test_permission_proof": {
+    "base_url": "https://senior-capstone-app.pages.dev",
+    "credential_source_type": "ignored .secrets/test-accounts-2026-05-18.json plus supported fake-account seed endpoint; values redacted",
+    "required_roles_checked": [
+      "student",
+      "program_teacher",
+      "mentor",
+      "misc_admin",
+      "admin"
+    ],
+    "optional_roles_checked": [],
+    "roles_skipped": [],
+    "signed_out": "passed",
+    "student": "passed student dashboard",
+    "program_teacher": "passed review queue and presentation slots",
+    "mentor": "passed assigned students and presentation slots",
+    "misc_admin": "passed admin import denial",
+    "admin": "passed readiness and presentation slots",
+    "role_pending_no_role": "not applicable; no hosted fake role-pending credential fixture was required",
+    "no_active_assignment": "not applicable; no hosted fake no-assignment credential fixture was required",
+    "storage_id_leak_result": "passed",
+    "secret_leak_result": "passed",
+    "logout_session_cleanup_result": "passed via isolated session clients and logout calls"
+  },
+  "hosted_evidence_drive_cloudflare": {
+    "check_workspace_hosted_evidence": "passed",
+    "check_workspace_hosted_permissions": "passed",
+    "check_drive_live": "passed",
+    "check_cloudflare": "passed",
+    "check_cloudflare_live": "passed",
+    "hosted_small_upload_download": "passed",
+    "hosted_resumable_upload_download_over_5mb": "passed",
+    "storage_id_redaction_proof": "passed",
+    "hosted_deployment_state": "current for required hosted proof markers"
+  },
+  "files_changed": [
+    "README.md",
+    "docs/automation-backlog.md",
+    "docs/backend-setup.md",
+    "docs/human-decisions.md",
+    "docs/progress/rebuild.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-21-0852-bryan-admin-hosted-permissions.json",
+    "package.json",
+    "scripts/ensure-owner-admin-account.mjs",
+    "tests/owner-admin-ensure.test.mjs"
+  ],
+  "validation": [
+    {
+      "command": "git rev-parse --show-toplevel; git branch --show-current; git remote get-url origin; git status --short --branch; node -e \"const p=require('./package.json'); console.log(p.name)\"",
+      "result": "passed identity guard"
+    },
+    {
+      "command": "git fetch origin; git pull --ff-only origin main; git status --short --branch; git rev-parse HEAD; git log -1 --oneline",
+      "result": "passed; already up to date at 421566073d7d80cf6068d483917b4816088a8723"
+    },
+    {
+      "command": "node scripts/ensure-owner-admin-account.mjs --remote",
+      "result": "passed; BRYAN_ADMIN_ALREADY_EXISTS"
+    },
+    {
+      "command": "admin-only fake .test seed endpoint via ignored credential source",
+      "result": "passed; fake admin credential added to ignored local file and fake .test accounts seeded"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 tests\\owner-admin-ensure.test.mjs",
+      "result": "passed; 4 tests"
+    },
+    {
+      "command": "npm run typecheck",
+      "result": "passed"
+    },
+    {
+      "command": "npm run check:workspace:hosted-evidence",
+      "result": "passed"
+    },
+    {
+      "command": "npm run check:workspace:hosted-permissions",
+      "result": "passed"
+    },
+    {
+      "command": "npm run check:drive:live",
+      "result": "passed"
+    },
+    {
+      "command": "npm run check:cloudflare",
+      "result": "passed with non-blocking scoped-token wrangler whoami warning"
+    },
+    {
+      "command": "npm run check:cloudflare:live",
+      "result": "passed with non-blocking scoped-token wrangler whoami warning"
+    },
+    {
+      "command": "npm run check:route-inventory",
+      "result": "passed"
+    },
+    {
+      "command": "npm run check:production-surfaces",
+      "result": "passed; 91 production text surfaces scanned"
+    },
+    {
+      "command": "npm run check:generated-output-drift",
+      "result": "passed"
+    },
+    {
+      "command": "npm test",
+      "result": "passed; 194 pass / 4 expected opt-in skips"
+    },
+    {
+      "command": "npm run check",
+      "result": "passed; 194 pass / 4 expected opt-in skips"
+    },
+    {
+      "command": "git diff --check",
+      "result": "passed with CRLF normalization warnings only"
+    },
+    {
+      "command": "git diff --cached --check",
+      "result": "passed"
+    }
+  ],
+  "security_privacy": {
+    "real_student_data_used": false,
+    "real_student_staff_mentor_accounts_created": false,
+    "secrets_committed": false,
+    "credentials_printed": false,
+    "temporary_credentials_in_audit_metadata": false,
+    "secrets_remained_ignored": true,
+    "bryan_owner_admin_exception_only": true,
+    "import_guard_preserved": true
+  },
+  "remaining_blockers": [
+    "HD-2026-05-21-001 real-user credential delivery policy remains open for non-Bryan users.",
+    "Canonical URL/domain mapping remains open.",
+    "Alpha/account route exposure before pilot remains open.",
+    "Stakeholder option retention remains open.",
+    "Archive retention policy remains open.",
+    "Browser-level upload progress/retry proof remains open.",
+    "Hosted presentation/archive UI proof remains open.",
+    "Google Docs export cases remain open."
+  ],
+  "commit_sha": "pending_until_commit",
+  "push_result": "pending"
+}
