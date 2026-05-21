@@ -45,8 +45,10 @@ test("student evidence endpoint validates HTTPS metadata and keeps file upload p
   assert.match(evidenceRoute, /cleanHttpsUrl/);
   assert.match(evidenceRoute, /INSERT INTO evidence_artifacts/);
   assert.match(evidenceRoute, /sourceKind: "external_link"/);
+  assert.match(evidenceRoute, /evidence_attach_unauthorized/);
   assert.match(evidenceRoute, /evidence_link_attached/);
   assert.match(evidenceRoute, /evidence_attach_denied/);
+  assert.match(evidenceRoute, /actorRoleScopes/);
   assert.match(evidenceRoute, /fileBytesReady: false/);
 });
 
