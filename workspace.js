@@ -301,6 +301,7 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
 function availableSections() {
   const roles = roleIds(currentUser);
   const sections = [{ id: "overview", label: "Overview", detail: "Announcements and current priorities" }];
+  sections.push({ id: "security", label: "Security", detail: "Password and session controls" });
   if (roles.has("student")) sections.push({ id: "student", label: "Student Workspace", detail: "Progress, submissions, and evidence" });
   if (roles.has("student")) sections.push({ id: "archive", label: "Archive", detail: "Closeout and May 5 package" });
   if (roles.has("program_teacher") || roles.has("admin")) sections.push({ id: "teacher", label: "Teacher Review", detail: "Review queue and submitted work" });
@@ -313,6 +314,7 @@ function availableSections() {
 }
 
 function renderActiveSection() {
+  if (activeSection === "security") return renderSecuritySection();
   if (activeSection === "student") return renderStudentSection();
   if (activeSection === "teacher") return renderTeacherSection();
   if (activeSection === "mentor") return renderMentorSection();
@@ -650,7 +652,43 @@ function renderReadinessSection() {
   `;
 }
 
+function renderSecuritySection() {
+  return `
+    <section class="workspace-card">
+      <div class="workspace-card-head">
+        <div>
+          <p class="workspace-kicker">Account security</p>
+          <h2>Password And Sessions</h2>
+        </div>
+        <span class="workspace-chip">Signed in</span>
+      </div>
+      <p>Update your password from this workspace when you know the current password.</p>
+      <form id="workspaceChangePasswordForm" class="workspace-form" data-auth-action="change-password" data-auth-endpoint="/api/auth/change-password">
+        <div class="workspace-form-grid">
+          <label class="workspace-label">
+            Current password
+            <input class="workspace-input" name="currentPassword" type="password" autocomplete="current-password" required>
+          </label>
+          <label class="workspace-label">
+            New password
+            <input class="workspace-input" name="newPassword" type="password" autocomplete="new-password" required>
+          </label>
+          <label class="workspace-label workspace-label-wide">
+            Confirm new password
+            <input class="workspace-input" name="confirmPassword" type="password" autocomplete="new-password" required>
+          </label>
+        </div>
+        <p class="workspace-muted">After a password change, other active sessions for this account are closed.</p>
+        <div class="workspace-form-actions">
+          <button class="workspace-button workspace-button-primary" type="submit">Change password</button>
+        </div>
+      </form>
+    </section>
+  `;
+}
+
 function bindWorkspaceForms() {
+  document.querySelector("#workspaceChangePasswordForm")?.addEventListener("submit", changeOwnPassword);
   document.querySelector("#workspaceEvidenceLinkForm")?.addEventListener("submit", attachEvidenceLink);
   document.querySelector("#workspaceFileUploadForm")?.addEventListener("submit", uploadEvidenceFile);
   document.querySelectorAll("[data-presentation-action]").forEach((button) => {
@@ -951,6 +989,45 @@ async function updatePresentationSlot(event) {
   }
 }
 
+async function changeOwnPassword(event) {
+  event.preventDefault();
+  if (busy) return;
+  busy = true;
+  const form = event.currentTarget;
+  const currentPassword = form.currentPassword.value;
+  const newPassword = form.newPassword.value;
+  const confirmPassword = form.confirmPassword.value;
+
+  if (newPassword !== confirmPassword) {
+    busy = false;
+    activeSection = "security";
+    renderAppShell("The new passwords do not match.", "error");
+    return;
+  }
+
+  setFormBusy(form, true);
+  try {
+    const response = await fetch("/api/auth/change-password", {
+      method: "POST",
+      headers: { "content-type": "application/json", accept: "application/json" },
+      body: JSON.stringify({ currentPassword, newPassword }),
+    });
+    const body = await safeJson(response);
+    if (!response.ok) {
+      activeSection = "security";
+      renderAppShell(messageForChangePasswordError(body?.error, response.status), "error");
+      return;
+    }
+    activeSection = "security";
+    await loadWorkspaceData("Password changed. Other sessions for this account were closed.");
+  } catch (error) {
+    activeSection = "security";
+    renderAppShell(messageForNetworkError(error), "error");
+  } finally {
+    busy = false;
+  }
+}
+
 async function signOut() {
   renderAppShell("Signing out...");
   try {
@@ -1110,6 +1187,15 @@ function messageForPasswordResetError(error, status) {
   if (error === "password_reset_not_required") return "This account is not marked for password reset. Sign in normally.";
   if (error === "rate_limited" || status === 429) return "Too many reset attempts. Wait a few minutes and try again.";
   return "Password reset is unavailable right now. Try again or contact your instructor.";
+}
+
+function messageForChangePasswordError(error, status) {
+  if (error === "invalid_current_password") return "We could not verify the current password for this account.";
+  if (error === "invalid_password") return "Choose a stronger new password before saving this change.";
+  if (error === "password_must_change") return "Choose a new password that is different from the current password.";
+  if (error === "password_reset_required") return "Complete the required password reset before using the workspace.";
+  if (status === 401) return "Sign in again before changing your password.";
+  return "Password change is unavailable right now. Try again or contact your instructor.";
 }
 
 function messageForSessionStateError(error, status) {

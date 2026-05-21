@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { hashPassword, normalizeEmail, sha256Hex } from "../functions/_lib/crypto.ts";
+import { onRequestPost as onChangePassword } from "../functions/api/auth/change-password.ts";
 import { onRequest as onCompleteReset } from "../functions/api/auth/complete-reset.ts";
 import { onRequest as onLogin } from "../functions/api/auth/login.ts";
 import { onRequestGet as onMe } from "../functions/api/auth/me.ts";
@@ -272,12 +273,107 @@ test("auth login/me/logout covers active, disabled, reset-required, invalid, and
     assert.equal(response.status, 409);
     assert.equal((await response.json()).error, "password_reset_not_required");
   }
+
+  // signed-in active users can rotate their own password and close existing sessions
+  {
+    const changeCookie = await loginAndExtractCookie({
+      env: fixture.env,
+      email: fixture.activeUser.email,
+      password: fixture.password,
+    });
+    const oldSessionCookie = await fixture.seedSessionForUser(fixture.activeUser.id, { id: "sess-active-before-change" });
+
+    const invalidCurrent = await onChangePassword({
+      request: buildJsonRequest(
+        "https://example.test/api/auth/change-password",
+        { currentPassword: "wrong-password", newPassword: fixture.newPassword },
+        { cookie: changeCookie },
+      ),
+      env: fixture.env,
+    });
+    assert.equal(invalidCurrent.status, 401);
+    assert.equal((await invalidCurrent.json()).error, "invalid_current_password");
+    assert.equal(fixture.db.data.auditEvents.at(-1).action, "password_change_denied");
+
+    const weak = await onChangePassword({
+      request: buildJsonRequest(
+        "https://example.test/api/auth/change-password",
+        { currentPassword: fixture.password, newPassword: "short" },
+        { cookie: changeCookie },
+      ),
+      env: fixture.env,
+    });
+    assert.equal(weak.status, 400);
+    assert.equal((await weak.json()).error, "invalid_password");
+
+    const unchanged = await onChangePassword({
+      request: buildJsonRequest(
+        "https://example.test/api/auth/change-password",
+        { currentPassword: fixture.password, newPassword: fixture.password },
+        { cookie: changeCookie },
+      ),
+      env: fixture.env,
+    });
+    assert.equal(unchanged.status, 400);
+    assert.equal((await unchanged.json()).error, "password_must_change");
+
+    const response = await onChangePassword({
+      request: buildJsonRequest(
+        "https://example.test/api/auth/change-password",
+        { currentPassword: fixture.password, newPassword: fixture.newPassword },
+        { cookie: changeCookie },
+      ),
+      env: fixture.env,
+    });
+    assert.equal(response.status, 200);
+    const body = await response.json();
+    assert.equal(body.ok, true);
+    assert.equal(body.activeSessionsRevoked, 2);
+    const rotatedCookie = response.headers.get("set-cookie")?.split(";")[0];
+    assert.ok(rotatedCookie);
+
+    const activeCredential = fixture.db.data.passwordCredentials.find((row) => row.user_id === fixture.activeUser.id);
+    assert.equal(activeCredential.password_version, 2);
+    assert.notEqual(activeCredential.password_hash, fixture.originalCredentialHashes.active);
+    assert.equal(fixture.db.data.sessions.some((row) => row.id === "sess-active-before-change" && row.revoked_at), true);
+    assert.equal(fixture.db.data.auditEvents.at(-1).action, "password_changed_by_user");
+
+    const staleSession = await onMe({
+      request: new Request("https://example.test/api/auth/me", { headers: { cookie: oldSessionCookie } }),
+      env: fixture.env,
+    });
+    assert.equal(staleSession.status, 401);
+    assert.equal((await staleSession.json()).error, "session_expired");
+
+    const meAfterChange = await onMe({
+      request: new Request("https://example.test/api/auth/me", { headers: { cookie: rotatedCookie } }),
+      env: fixture.env,
+    });
+    assert.equal(meAfterChange.status, 200);
+    assert.equal((await meAfterChange.json()).authenticated, true);
+
+    const oldPassword = await onLogin({
+      request: buildJsonRequest("https://example.test/api/auth/login", {
+        email: fixture.activeUser.email,
+        password: fixture.password,
+      }),
+      env: fixture.env,
+    });
+    assert.equal(oldPassword.status, 401);
+
+    const newCookie = await loginAndExtractCookie({
+      env: fixture.env,
+      email: fixture.activeUser.email,
+      password: fixture.newPassword,
+    });
+    assert.match(newCookie, /^sc_session=/);
+  }
 });
 
-function buildJsonRequest(url, data) {
+function buildJsonRequest(url, data, headers = {}) {
   return new Request(url, {
     method: "POST",
-    headers: { "content-type": "application/json; charset=utf-8" },
+    headers: { "content-type": "application/json; charset=utf-8", ...headers },
     body: JSON.stringify(data),
   });
 }
@@ -458,8 +554,11 @@ class MockD1PreparedStatement {
     }
 
     if (sql.includes("from user_accounts u join password_credentials c")) {
-      const [emailNorm] = this.params;
-      const user = this.db.data.userAccounts.find((row) => row.email_norm === emailNorm);
+      const [lookupValue] = this.params;
+      const lookupByUserId = sql.includes("where u.id = ?");
+      const user = this.db.data.userAccounts.find((row) => (
+        lookupByUserId ? row.id === lookupValue : row.email_norm === lookupValue
+      ));
       if (!user) return null;
       const credential = this.db.data.passwordCredentials.find((row) => row.user_id === user.id);
       if (!credential) return null;
@@ -471,7 +570,17 @@ class MockD1PreparedStatement {
         status: user.status,
         password_hash: credential.password_hash,
         password_salt: credential.password_salt,
+        password_version: credential.password_version ?? 1,
         requires_reset: credential.requires_reset ?? 0,
+      };
+    }
+
+    if (sql.startsWith("select count(*) as count from sessions where user_id = ?")) {
+      const [userId] = this.params;
+      return {
+        count: this.db.data.sessions.filter((row) => (
+          row.user_id === userId && !row.revoked_at && String(row.expires_at) > this.db.nowIso()
+        )).length,
       };
     }
 

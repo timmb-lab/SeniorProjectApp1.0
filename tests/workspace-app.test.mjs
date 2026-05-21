@@ -14,6 +14,7 @@ test("workspace route is a real authenticated app surface", () => {
   assert.match(workspaceHtml, /workspace\.css/);
   assert.match(workspaceJs, /\/api\/auth\/me/);
   assert.match(workspaceJs, /\/api\/auth\/login/);
+  assert.match(workspaceJs, /\/api\/auth\/change-password/);
   assert.match(workspaceJs, /\/api\/auth\/complete-reset/);
   assert.match(workspaceJs, /\/api\/auth\/logout/);
   assert.match(workspaceJs, /\/api\/student\/dashboard/);
@@ -27,7 +28,9 @@ test("workspace route is a real authenticated app surface", () => {
   assert.match(workspaceJs, /\/api\/submissions\/\$\{encodeURIComponent\(submissionId\)\}\/evidence\/upload/);
   assert.match(workspaceJs, /Sign in to continue/);
   assert.match(workspaceJs, /data-auth-action="complete-reset"/);
+  assert.match(workspaceJs, /data-auth-action="change-password"/);
   assert.match(workspaceJs, /Create a new password/);
+  assert.match(workspaceJs, /Password And Sessions/);
   assert.match(workspaceJs, /Your file was received/);
   assert.match(workspaceJs, /storage is not configured for this environment/);
   assert.match(workspaceJs, /data-workspace-state="\$\{escapeHtml\(workspaceState\)\}"/);
@@ -203,6 +206,44 @@ test("workspace renders role-pending and permission-denied access states", async
   assert.match(noAssignment, /data-workspace-state="no-active-assignment"/);
   assert.match(noAssignment, /Workspace assignment is not active yet/);
   assert.match(noAssignment, /Mentor students/);
+});
+
+test("workspace renders self-service password rotation controls", async () => {
+  const security = await renderWorkspaceWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "student-security",
+          email: "student.security@example.edu",
+          displayName: "Security Student",
+          roles: [{ role_id: "student", scope_type: "global", scope_id: "" }],
+        },
+      },
+    },
+    "/api/announcements": {
+      status: 200,
+      body: { ok: true, announcements: [] },
+    },
+    "/api/student/dashboard": {
+      status: 200,
+      body: { ok: true, viewer: { self: true }, progress: [], submissions: [], evidence: [] },
+    },
+    "/api/student/archive/readiness": {
+      status: 200,
+      body: { ok: true, checks: [], summary: {}, archive: {}, storage: {}, retention: {} },
+    },
+    "/api/presentation-slots": {
+      status: 200,
+      body: { ok: true, slots: [] },
+    },
+  }, "security");
+
+  assert.match(security, /Password And Sessions/);
+  assert.match(security, /data-auth-action="change-password"/);
+  assert.match(security, /\/api\/auth\/change-password/);
+  assert.match(security, /other active sessions for this account are closed/);
 });
 
 test("workspace renders presentation schedule and day-of actions", async () => {
