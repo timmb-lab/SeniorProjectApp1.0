@@ -119,6 +119,10 @@
       "result": "pass; static Cloudflare verification passed and live verification blocked only by missing CLOUDFLARE_API_TOKEN"
     },
     {
+      "command": "Invoke-WebRequest https://senior-capstone-app.pages.dev/workspace.js",
+      "result": "pass; HTTP 200 contained data-archive-retention-status on poll 1 after push"
+    },
+    {
       "command": "Get-Content -Raw docs\\artifacts.json | ConvertFrom-Json",
       "result": "pass"
     },
@@ -172,5 +176,5 @@
   "branch_before": "main",
   "branch_after": "main",
   "commit_sha": "2eeed9a00dee643ac84a8755a78dbe7c1f0bf8b8",
-  "push_result": "implementation pushed to origin main (b807558..2eeed9a); closeout docs push pending until this manifest commit is created"
+  "push_result": "implementation pushed to origin main (b807558..2eeed9a); closeout docs pushed to origin main (2eeed9a..f94654d); hosted marker proof commit pending until this manifest update is created"
 }
