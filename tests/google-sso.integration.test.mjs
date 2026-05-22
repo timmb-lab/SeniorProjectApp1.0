@@ -41,12 +41,41 @@ test("auth config keeps Google SSO disabled unless required env is complete", as
 test("Google SSO start fails closed when disabled and stores hashed state when enabled", async () => {
   {
     const { env } = await createFixture({ enabled: false });
-    const response = await onStart({
-      request: new Request("https://example.test/api/auth/google/start"),
-      env,
+    let response;
+    const logs = await captureConsoleError(async () => {
+      response = await onStart({
+        request: new Request("https://example.test/api/auth/google/start"),
+        env,
+      });
     });
     assert.equal(response.status, 503);
     assert.equal((await response.json()).error, "sso_not_configured");
+    assert.equal(logs.length, 1);
+    assert.equal(logs[0][0], "google_sso_start_failed");
+    assert.equal(logs[0][1].reason, "sso_env_disabled");
+    assert.equal(logs[0][1].step, "env_check");
+  }
+
+  {
+    const db = createSqliteD1({ migrations: ["migrations/0001_foundation.sql"] });
+    const env = googleSsoEnv(db);
+    let response;
+    const logs = await captureConsoleError(async () => {
+      response = await onStart({
+        request: new Request("https://example.test/api/auth/google/start"),
+        env,
+      });
+    });
+    assert.equal(response.status, 503);
+    assert.equal((await response.json()).error, "sso_not_configured");
+    assert.equal(logs.length, 1);
+    assert.equal(logs[0][0], "google_sso_start_failed");
+    assert.equal(logs[0][1].reason, "sso_oauth_state_failed");
+    assert.equal(logs[0][1].step, "oauth_state");
+    assert.equal(logs[0][1].googleSsoEnabled, true);
+    assert.equal(logs[0][1].googleSsoConfigured, true);
+    assert.equal(logs[0][1].hasAllowedDomains, true);
+    assert.doesNotMatch(JSON.stringify(logs), /google-client-secret|sc_oauth_state/);
   }
 
   const { env, db, jwks, restoreFetch } = await createFixture();
@@ -182,19 +211,7 @@ test("Google SSO callback rejects invalid states, OAuth errors, replay, and unsa
 
 async function createFixture({ enabled = true, suspendedTenant = false } = {}) {
   const db = createSqliteD1({ migrations: foundationMigrations() });
-  const env = {
-    DB: db,
-    APP_ENV: "local",
-    SESSION_PEPPER: "",
-    AUTH_MODE: enabled ? "hybrid_google_workspace_local" : "hardened_username_password",
-    AUTH_GOOGLE_SSO_ENABLED: enabled ? "true" : "false",
-    AUTH_LOCAL_LOGIN_ENABLED: "true",
-    GOOGLE_OAUTH_CLIENT_ID: enabled ? "google-client-id" : "",
-    GOOGLE_OAUTH_CLIENT_SECRET: enabled ? "google-client-secret" : "",
-    GOOGLE_OAUTH_REDIRECT_URI: enabled ? "https://app.thecapstoneapp.com/api/auth/google/callback" : "",
-    GOOGLE_OAUTH_ALLOWED_HOSTED_DOMAINS: "senior-capstone.test",
-    EVIDENCE_STORAGE_PROVIDER: "google_drive",
-  };
+  const env = googleSsoEnv(db, { enabled });
 
   await db.prepare(
     "UPDATE identity_providers SET status = 'configured', client_id = ? WHERE hosted_domain = 'senior-capstone.test'",
@@ -225,6 +242,22 @@ async function createFixture({ enabled = true, suspendedTenant = false } = {}) {
     restoreFetch() {
       globalThis.fetch = originalFetch;
     },
+  };
+}
+
+function googleSsoEnv(db, { enabled = true } = {}) {
+  return {
+    DB: db,
+    APP_ENV: "local",
+    SESSION_PEPPER: "",
+    AUTH_MODE: enabled ? "hybrid_google_workspace_local" : "hardened_username_password",
+    AUTH_GOOGLE_SSO_ENABLED: enabled ? "true" : "false",
+    AUTH_LOCAL_LOGIN_ENABLED: "true",
+    GOOGLE_OAUTH_CLIENT_ID: enabled ? "google-client-id" : "",
+    GOOGLE_OAUTH_CLIENT_SECRET: enabled ? "google-client-secret" : "",
+    GOOGLE_OAUTH_REDIRECT_URI: enabled ? "https://app.thecapstoneapp.com/api/auth/google/callback" : "",
+    GOOGLE_OAUTH_ALLOWED_HOSTED_DOMAINS: "senior-capstone.test",
+    EVIDENCE_STORAGE_PROVIDER: "google_drive",
   };
 }
 
@@ -299,6 +332,20 @@ function jsonResponse(body, init = {}) {
     ...init,
     headers: { "content-type": "application/json", ...(init.headers || {}) },
   });
+}
+
+async function captureConsoleError(fn) {
+  const original = console.error;
+  const logs = [];
+  console.error = (...args) => {
+    logs.push(args);
+  };
+  try {
+    await fn();
+  } finally {
+    console.error = original;
+  }
+  return logs;
 }
 
 function base64UrlJson(value) {

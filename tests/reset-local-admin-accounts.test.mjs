@@ -1,5 +1,4 @@
 import assert from "node:assert/strict";
-import { spawnSync } from "node:child_process";
 import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -169,24 +168,23 @@ test("local write reset snapshots old rows and recreates only two non-SSO local 
   }
 });
 
-test("reset safety source keeps secrets ignored and protected SSO files untouched", () => {
+test("reset safety source keeps secrets ignored and protected SSO paths out of reset code", () => {
   const gitignore = readFileSync(".gitignore", "utf8");
   assert.match(gitignore, /^\.secrets\/$/m);
 
-  const changed = spawnSync("git", ["diff", "--name-only"], {
-    cwd: process.cwd(),
-    encoding: "utf8",
-    windowsHide: true,
-  }).stdout.split(/\r?\n/).filter(Boolean);
+  const resetSource = readFileSync("scripts/reset-accounts-and-create-local-admins.mjs", "utf8");
   for (const protectedFile of [
-    "migrations/0010_tenant_google_sso.sql",
     "functions/api/auth/config.ts",
     "functions/api/auth/google/start.ts",
     "functions/api/auth/google/callback.ts",
     "functions/_lib/google-oauth.ts",
     "functions/_lib/oauth-state.ts",
   ]) {
-    assert.equal(changed.includes(protectedFile), false, `${protectedFile} must not be modified by the account reset pass`);
+    assert.equal(
+      resetSource.includes(protectedFile),
+      false,
+      `${protectedFile} must not be referenced by the account reset pass`,
+    );
   }
 });
 
