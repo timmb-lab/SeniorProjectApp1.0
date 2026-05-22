@@ -1289,3 +1289,19 @@ Future productive runs should append compact entries that name the master-plan s
 - `phone tracker`: not appended; Google Sheets connector was not used.
 - `self-improvement`: none.
 - `commit/push status`: pending Part 2 implementation commit and push.
+
+## 2026-05-21 17:49 PT - Local Admin Login Proof
+
+- `automation ID`: manual Codex local admin proof.
+- `lane`: account reset follow-up / local auth proof only.
+- `starting HEAD`: `085c153b885326178074941a188227296d37e7b3`.
+- `selected slice`: Prove the two approved local admins can complete the reset-required flow and log in locally without Google Workspace SSO.
+- `what changed`: Added `scripts/prove-local-admin-logins.mjs`, package script `prove:local-admin-logins`, focused local proof tests, this sanitized run-log entry, and structured manifest `docs/progress/runs/2026-05-21-local-admin-login-proof.json`.
+- `proof method`: Direct route-handler proof against local D1 through the real `/api/auth/login`, `/api/auth/complete-reset`, `/api/auth/me`, and authenticated admin overview handlers; no remote D1, no remote reset, no remote migration, no fake `.test` seed.
+- `local proof`: `bryan@learntechonline.com` and `bryan.timm89@gmail.com` both verified pending-reset state, completed reset locally, logged in with new working local credentials, returned authenticated `/api/auth/me`, exposed global `admin`, reached the authenticated workspace/admin data path, and remained independent of Google Workspace SSO.
+- `credential handling`: Setup credential path used was `.secrets/local-admin-reset-20260522-002030.json`; working login path created was `.secrets/local-admin-working-logins-20260522-004930.json`; credential values were not printed, committed, or written to docs.
+- `validation`: `git diff --check` passed with CRLF normalization warnings only; focused proof tests passed with 5/5 passing; `npm run test` passed with 243 passing and 4 expected local HTTP skips; `npm run typecheck` passed; `npm run check` passed; final `npm run prove:local-admin-logins` passed in already-active account mode using the ignored working-login file.
+- `blockers`: none for local admin login proof.
+- `phone tracker`: not appended; Google Sheets connector was not used.
+- `self-improvement`: none.
+- `commit/push status`: pending local admin proof commit and push.

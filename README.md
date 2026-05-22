@@ -158,6 +158,14 @@ After the reset, the only recreated local-auth global admins are:
 
 One-time setup credentials and account-reset backups are written only to ignored `.secrets/` files. Do not print, commit, paste, screenshot, or move those files outside `.secrets/`. The reset clears old fake `.test` accounts and old `bryan@thecapstoneapp.com` if present; fake test accounts can be recreated later only through explicit test-account seed tooling.
 
+Prove the two approved local admins can complete reset and log in locally with:
+
+```powershell
+npm run prove:local-admin-logins
+```
+
+The proof uses the ignored setup credential file when accounts are still pending reset, creates ignored working login credentials under `.secrets/local-admin-working-logins-*.json`, and prints only sanitized pass/fail metadata. It does not require Google Workspace SSO, does not touch remote D1, and does not seed fake `.test` users.
+
 Bryan Timm's earlier production owner/admin verifier remains a narrow non-secret check for `bryan.timm89@gmail.com`, global `admin`. Re-run that verifier with:
 
 ```powershell

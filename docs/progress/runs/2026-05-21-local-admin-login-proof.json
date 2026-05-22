@@ -1,0 +1,93 @@
+{
+  "date_pt": "2026-05-21",
+  "run_type": "local_admin_login_proof",
+  "repo": {
+    "root": "C:/SeniorProjectApp1.0",
+    "branch": "main",
+    "remote": "https://github.com/timmb-lab/SeniorProjectApp1.0.git",
+    "starting_head": "085c153b885326178074941a188227296d37e7b3"
+  },
+  "scope": {
+    "local_only": true,
+    "remote_reset_run": false,
+    "remote_d1_touched": false,
+    "remote_migration_0010_applied": false,
+    "fake_test_users_seeded": false,
+    "google_sso_rewritten": false
+  },
+  "proof_method": {
+    "route_execution": "direct_route_handler",
+    "routes": [
+      "/api/auth/login",
+      "/api/auth/complete-reset",
+      "/api/auth/me",
+      "/api/admin/dashboard"
+    ],
+    "local_d1": true,
+    "workspace_shell": "workspace.html"
+  },
+  "credential_files": {
+    "setup_credential_path_used": ".secrets/local-admin-reset-20260522-002030.json",
+    "working_credential_path_created": ".secrets/local-admin-working-logins-20260522-004930.json",
+    "credential_values_printed": false,
+    "credential_values_committed": false,
+    "secrets_gitignored": true
+  },
+  "accounts": [
+    {
+      "email": "bryan@learntechonline.com",
+      "display_name": "Bryan Timm",
+      "reset_required_state_verified_before_reset": true,
+      "reset_required_flow_completed": true,
+      "login_verified": true,
+      "auth_me_verified": true,
+      "global_admin_role_verified": true,
+      "workspace_reachable_after_auth": true,
+      "sso_dependency": "none"
+    },
+    {
+      "email": "bryan.timm89@gmail.com",
+      "display_name": "Bryan Timm",
+      "reset_required_state_verified_before_reset": true,
+      "reset_required_flow_completed": true,
+      "login_verified": true,
+      "auth_me_verified": true,
+      "global_admin_role_verified": true,
+      "workspace_reachable_after_auth": true,
+      "sso_dependency": "none"
+    }
+  ],
+  "validation": [
+    {
+      "command": "git diff --check",
+      "result": "passed",
+      "notes": "CRLF normalization warnings only"
+    },
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-node-script.ps1 tests/local-admin-login-proof.test.mjs",
+      "result": "passed",
+      "notes": "5 focused proof tests passed"
+    },
+    {
+      "command": "npm run test",
+      "result": "passed",
+      "notes": "243 tests passed with 4 expected local HTTP skips"
+    },
+    {
+      "command": "npm run typecheck",
+      "result": "passed",
+      "notes": "TypeScript check completed"
+    },
+    {
+      "command": "npm run check",
+      "result": "passed",
+      "notes": "Aggregate local/static checks passed"
+    },
+    {
+      "command": "npm run prove:local-admin-logins",
+      "result": "passed",
+      "notes": "Final rerun verified both already-active approved local admins using the ignored working-login file; output was sanitized"
+    }
+  ],
+  "remaining_blockers": []
+}

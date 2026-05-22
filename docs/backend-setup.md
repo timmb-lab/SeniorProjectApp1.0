@@ -148,6 +148,23 @@ Old `bryan@thecapstoneapp.com` and fake `.test` accounts are cleared and not rec
 
 Google Workspace SSO remains separate. The two local admins do not depend on Google Workspace SSO, and the reset does not remove the SSO scaffold, OAuth validation, tenant/domain/idp records, or migration `0010`.
 
+## Local Admin Login Proof
+
+The approved local admins can be proven through the local-only route-handler proof:
+
+```powershell
+npm run prove:local-admin-logins
+```
+
+The proof reads the ignored setup credential file under `.secrets/`, calls the real `/api/auth/login`, `/api/auth/complete-reset`, `/api/auth/me`, and authenticated admin overview route handlers against local D1, verifies global `admin`, and writes final working credentials only to ignored `.secrets/local-admin-working-logins-*.json`.
+
+The completed local proof accounts are:
+
+- `bryan@learntechonline.com` - Bryan Timm, local username/password, global `admin`, independent of Google Workspace SSO.
+- `bryan.timm89@gmail.com` - Bryan Timm, local username/password, global `admin`, independent of Google Workspace SSO.
+
+Credential values, password hashes, salts, session tokens, Cloudflare tokens, and pepper values must not be printed, committed, logged in docs, or placed in run manifests.
+
 ## Owner/Admin Exception
 
 The older non-secret owner/admin verifier is retained only for the narrow `bryan.timm89@gmail.com` exception path:
