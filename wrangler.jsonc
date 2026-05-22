@@ -13,7 +13,7 @@
   ],
   "vars": {
     "APP_ENV": "production",
-    "AUTH_MODE": "hardened_username_password",
+    "AUTH_MODE": "hybrid_google_workspace_local",
     "EVIDENCE_STORAGE_PROVIDER": "google_drive",
     "GOOGLE_DRIVE_EVIDENCE_ROOT_ID": "0AJHkstxfN-dTUk9PVA",
     "GOOGLE_DRIVE_EVIDENCE_INDEX_SHEET_ID": "1BCrBQ-5AKLmhvZr7tjJf3o1tibg13p_U21BiuN_ivN0",
