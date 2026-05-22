@@ -28,6 +28,18 @@ This is the compact run log for the current quarter-hour split-builder automatio
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-05-21 PT - Controlled Account Reset Tooling And Local Reset
+
+- `automation ID`: manual Codex account reset pass from Bryan's destructive reset prompt.
+- `lane`: backend-security-data / account lifecycle / deployment safety.
+- `selected slice`: Add a three-stage account reset path, run local dry run, run local reset, and attempt remote dry run without applying remote migrations or printing credentials.
+- `what changed`: Added `scripts/reset-accounts-and-create-local-admins.mjs`, npm aliases for local/remote dry-run/write, focused reset tests, and docs for the approved two-admin reset posture. The script verifies repo/package/D1 identity, introspects schema, classifies reset vs preserved tables, snapshots reset rows into ignored `.secrets/`, refuses missing confirmations/env gates, clears account-linked rows in FK-safe order, recreates only `bryan@learntechonline.com` and `bryan.timm89@gmail.com` as local-auth reset-required global admins, and verifies final state without printing passwords, hashes, salts, token values, or pepper values.
+- `local result`: Local dry run found 9 users, 9 fake `.test` users, 79 sessions, 0 OAuth states, 0 Google auth identities, and 0 old `bryan@thecapstoneapp.com` rows. Local write created ignored backup `.secrets/account-reset-backup-LOCAL-20260522-002030.json` and ignored credential file `.secrets/local-admin-reset-20260522-002030.json`, then verified exactly two users, both approved emails, both Bryan Timm, both `pending_reset`, both `requires_reset=1`, both global `admin`, no sessions, no OAuth states, no fake `.test` users, no old `bryan@thecapstoneapp.com`, no tenant memberships, no Google auth identities, and no local auth identity rows because current local login does not require them.
+- `remote result`: Remote dry run loaded the available Cloudflare token and refused safely because remote D1 is missing `tenant_users`, `auth_identities`, and `oauth_states`; migration `0010_tenant_google_sso.sql` was not applied in this pass. Remote write was not run because remote dry run did not produce a clear plan, `ALLOW_REMOTE_ACCOUNT_RESET=true` was not set, and `PASSWORD_PEPPER` was not present in the process/user environment check.
+- `validation`: Focused reset tests, `git diff --check`, `npm run test`, `npm run typecheck`, `npm run check`, `npm run check:cloudflare`, and read-only `npm run check:cloudflare:live` passed. `git diff --check` reported CRLF normalization warnings only.
+- `security`: Credential values were not printed or committed; backup content was not printed or committed; `.secrets/` remains gitignored; Google Workspace SSO scaffold and migration `0010` were not modified; Drive physical files were not deleted.
+- `commit/push status`: pending.
+
 ## 2026-05-21 15:48 PT - Tenant SSO And Role Dashboard Implementation
 
 - `automation ID`: manual Codex implementation pass from Bryan's final production workspace prompt.

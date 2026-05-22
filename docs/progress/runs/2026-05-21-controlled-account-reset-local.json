@@ -1,0 +1,162 @@
+{
+  "date_pt": "2026-05-21",
+  "run_type": "controlled_account_reset",
+  "repo": {
+    "root": "C:/SeniorProjectApp1.0",
+    "branch": "main",
+    "remote": "https://github.com/timmb-lab/SeniorProjectApp1.0.git",
+    "starting_head": "953ad027582bd4e8ca9ce33031b6f0e3dddf5aa9"
+  },
+  "reset_model": {
+    "dry_run_first": true,
+    "backup_before_delete": true,
+    "write_requires_confirmation": true,
+    "remote_requires_environment_gate": true
+  },
+  "local": {
+    "dry_run_run": true,
+    "write_run": true,
+    "before_counts": {
+      "users": 9,
+      "disabled_users": 0,
+      "fake_test_users": 9,
+      "old_bryan_thecapstoneapp_users": 0,
+      "admins": 1,
+      "sessions": 79,
+      "oauth_states": 0,
+      "google_auth_identities": 0,
+      "local_password_auth_identities": 0,
+      "tenant_users": 0
+    },
+    "backup_path": ".secrets/account-reset-backup-LOCAL-20260522-002030.json",
+    "credential_path": ".secrets/local-admin-reset-20260522-002030.json",
+    "final_counts": {
+      "users": 2,
+      "sessions": 0,
+      "oauth_states": 0,
+      "fake_test_users": 0,
+      "old_bryan_thecapstoneapp_users": 0,
+      "tenant_users": 0,
+      "google_auth_identities": 0,
+      "local_password_auth_identities": 0
+    },
+    "final_accounts": [
+      {
+        "email": "bryan@learntechonline.com",
+        "display_name": "Bryan Timm",
+        "status": "pending_reset",
+        "requires_reset": 1,
+        "role": "admin",
+        "scope": "global",
+        "auth_type": "local username/password",
+        "sso_dependency": "none"
+      },
+      {
+        "email": "bryan.timm89@gmail.com",
+        "display_name": "Bryan Timm",
+        "status": "pending_reset",
+        "requires_reset": 1,
+        "role": "admin",
+        "scope": "global",
+        "auth_type": "local username/password",
+        "sso_dependency": "none"
+      }
+    ]
+  },
+  "remote": {
+    "dry_run_run": true,
+    "write_run": false,
+    "blockers": [
+      "Remote D1 dry run refused because tenant_users, auth_identities, and oauth_states are missing from the remote schema.",
+      "Remote migration 0010 was not applied in this pass.",
+      "ALLOW_REMOTE_ACCOUNT_RESET=true was not set.",
+      "PASSWORD_PEPPER was not present in the process/user environment check."
+    ]
+  },
+  "preserved": [
+    "schema",
+    "migrations",
+    "D1 migration history",
+    "wrangler.jsonc",
+    "D1 binding",
+    "roles",
+    "programs",
+    "requirements",
+    "deadlines",
+    "quality checks",
+    "app settings",
+    "evidence repository config",
+    "tenants",
+    "tenant domains",
+    "identity providers",
+    "Google Workspace SSO scaffold",
+    "Drive physical files"
+  ],
+  "security": {
+    "credential_values_printed": false,
+    "credential_values_committed": false,
+    "password_hashes_printed": false,
+    "password_salts_printed": false,
+    "token_values_printed": false,
+    "pepper_values_printed": false,
+    "backup_committed": false,
+    "secrets_gitignored": true
+  },
+  "validation": [
+    {
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-node-script.ps1 tests/reset-local-admin-accounts.test.mjs",
+      "result": "passed",
+      "notes": "5 reset safety tests passed"
+    },
+    {
+      "command": "npm run reset:accounts:local:dry-run",
+      "result": "passed",
+      "notes": "Read-only local plan produced no backup and no setup credentials"
+    },
+    {
+      "command": "npm run reset:accounts:local",
+      "result": "passed",
+      "notes": "Local reset completed and final verification passed"
+    },
+    {
+      "command": "npm run reset:accounts:remote:dry-run",
+      "result": "blocked safely",
+      "notes": "Remote schema missing tenant_users, auth_identities, and oauth_states"
+    },
+    {
+      "command": "git diff --check",
+      "result": "passed",
+      "notes": "Only CRLF normalization warnings"
+    },
+    {
+      "command": "npm run test",
+      "result": "passed",
+      "notes": "238 passed, 4 expected local HTTP skips"
+    },
+    {
+      "command": "npm run typecheck",
+      "result": "passed",
+      "notes": "TypeScript check completed"
+    },
+    {
+      "command": "npm run check",
+      "result": "passed",
+      "notes": "Aggregate local/static checks passed; custom-domain live gate inside check passed"
+    },
+    {
+      "command": "npm run check:cloudflare",
+      "result": "passed",
+      "notes": "Static Wrangler/D1 checks passed"
+    },
+    {
+      "command": "npm run check:cloudflare:live",
+      "result": "passed",
+      "notes": "Read-only token, Pages project, and D1 database verification passed"
+    }
+  ],
+  "notes": [
+    "Fake .test accounts are absent after local reset until separately seeded.",
+    "Hosted workspace tests that depend on fake users may need the explicit fake-account seed path before they can pass.",
+    "Do not delete physical Google Drive files as part of this reset path."
+  ]
+}

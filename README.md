@@ -140,9 +140,25 @@ Cloudflare GitHub integration may automatically deploy after pushes to `main`. T
 
 The alpha runbook is `docs/alpha-runbook.md`.
 
-## Owner/Admin Verification
+## Owner/Admin And Account Reset
 
-Bryan Timm's production owner/admin account is a narrow real-account exception only: `bryan.timm89@gmail.com`, global `admin`. Re-run the non-secret verifier with:
+The supported clean account reset path is:
+
+```powershell
+npm run reset:accounts:local:dry-run
+npm run reset:accounts:local
+```
+
+Remote reset uses the matching `reset:accounts:remote:dry-run` and `reset:accounts:remote` scripts, but remote write is destructive and additionally requires `ALLOW_REMOTE_ACCOUNT_RESET=true`, `CLOUDFLARE_API_TOKEN`, `PASSWORD_PEPPER`, and the exact confirmation built into the npm script.
+
+After the reset, the only recreated local-auth global admins are:
+
+- Master local admin: `bryan@learntechonline.com`, Bryan Timm, global `admin`, local username/password, reset required on first use.
+- Break-glass local admin: `bryan.timm89@gmail.com`, Bryan Timm, global `admin`, local username/password, reset required on first use.
+
+One-time setup credentials and account-reset backups are written only to ignored `.secrets/` files. Do not print, commit, paste, screenshot, or move those files outside `.secrets/`. The reset clears old fake `.test` accounts and old `bryan@thecapstoneapp.com` if present; fake test accounts can be recreated later only through explicit test-account seed tooling.
+
+Bryan Timm's earlier production owner/admin verifier remains a narrow non-secret check for `bryan.timm89@gmail.com`, global `admin`. Re-run that verifier with:
 
 ```powershell
 npm run ensure:owner-admin:remote

@@ -54,15 +54,15 @@ Migration `migrations/0001_foundation.sql` creates users, password credentials, 
 
 Migration `migrations/0010_tenant_google_sso.sql` is additive and preserves the existing global `user_accounts.email_norm` uniqueness. True duplicate email support across tenants is a future migration if the product later needs it. For this pass, tenant membership is represented through `tenant_users` rather than a destructive `user_accounts` rewrite.
 
-As of the tenant/SSO implementation pass, migration `0010` is repo-managed and locally validated first. Apply it to remote D1 through Wrangler migrations after the code deploy is ready; do not hand-edit remote D1 outside migrations.
+As of the tenant/SSO implementation pass, migration `0010` is repo-managed and locally validated first. Apply it to remote D1 through Wrangler migrations after the code deploy is ready; do not hand-edit remote D1 outside migrations. A 2026-05-21 account-reset remote dry run refused safely because the remote schema did not expose `tenant_users`, `auth_identities`, or `oauth_states`; do not run destructive remote account reset until remote migration state is reconciled through the repo-supported migration path.
 
 Seeded records:
 
 - 5 roles: student, mentor, program teacher, admin, misc admin.
 - 9 CTE programs.
 - Default Google Drive evidence repository row pointing at the evidence root folder and index sheet.
-- First real admin account: `bryan.timm89@gmail.com`.
-- 5 fake `.test` alpha accounts: one student, one program teacher, one mentor, one admin, and one misc-admin reporting account, with cohort/group/mentor/proposal/progress/submission/evidence fixtures.
+- Account reset tooling now recreates only the two approved local-auth global admins: `bryan@learntechonline.com` and `bryan.timm89@gmail.com`.
+- Fake `.test` alpha accounts are not recreated by the reset path. They can be recreated later only through explicit fake test-account seed tooling.
 
 ## Auth Boundary
 
@@ -124,30 +124,39 @@ Custom-domain app health checks after activation:
 
 Signed-out `/api/auth/me` must return the expected unauthenticated/no-record response.
 
-## Production Test Accounts
+## Test Accounts And Clean Reset
 
-The production D1 database has been verified with Bryan's real admin account plus fake alpha test accounts. After reseeding with the current endpoint, the fake account set includes 5 `.test` users. Test credentials are generated into ignored local storage at `.secrets/test-accounts-2026-05-18.json`; do not commit, paste, or expose those passwords.
+The clean account reset path is intentionally separate from fake-account seeding:
 
-Seeded test accounts:
+```powershell
+npm run reset:accounts:local:dry-run
+npm run reset:accounts:local
+npm run reset:accounts:remote:dry-run
+npm run reset:accounts:remote
+```
 
-- `maya.student@senior-capstone.test` - student.
-- `chen.teacher@senior-capstone.test` - program teacher scoped to IT.
-- `rivera.mentor@senior-capstone.test` - mentor assigned to the test student.
-- `lee.admin@senior-capstone.test` - admin.
-- `reporting.miscadmin@senior-capstone.test` - misc admin scoped to alpha-readiness reporting.
+Dry runs inspect schema, classify tables, count rows, and create a delete/recreate plan without writing D1 or generating setup passwords. Write mode requires the exact confirmation text and creates a backup/snapshot under ignored `.secrets/` before any destructive delete. Remote write additionally requires `ALLOW_REMOTE_ACCOUNT_RESET=true`, `CLOUDFLARE_API_TOKEN`, and `PASSWORD_PEPPER`.
 
-These accounts are fake alpha data only. They are safe for role-flow testing but are not the final account lifecycle, import, password-reset, or Google Workspace SSO replacement.
+The reset clears all users, sessions, password credentials, local/Google auth identity links, tenant-user memberships, OAuth state rows, role assignments, and user-linked workflow/test rows. It then recreates exactly:
+
+- Master local admin: `bryan@learntechonline.com`, Bryan Timm, global `admin`, local username/password, reset required.
+- Break-glass local admin: `bryan.timm89@gmail.com`, Bryan Timm, global `admin`, local username/password, reset required.
+
+One-time setup credentials are stored only in ignored `.secrets/local-admin-reset-*.json` files. Backup snapshots are stored only in ignored `.secrets/account-reset-backup-*.json` files. Do not print, commit, paste, screenshot, or move credential/backup contents outside `.secrets/`.
+
+Old `bryan@thecapstoneapp.com` and fake `.test` accounts are cleared and not recreated by this reset. Fake `.test` accounts can be recreated later only by explicit test-account seed tooling if hosted proof needs them again.
+
+Google Workspace SSO remains separate. The two local admins do not depend on Google Workspace SSO, and the reset does not remove the SSO scaffold, OAuth validation, tenant/domain/idp records, or migration `0010`.
 
 ## Owner/Admin Exception
 
-Bryan's real production owner/admin account is the only real account approved by the current exception:
+The older non-secret owner/admin verifier is retained only for the narrow `bryan.timm89@gmail.com` exception path:
 
-- Email: `bryan.timm89@gmail.com`.
-- Display name: Bryan Timm.
-- Role: global `admin`.
-- Status verified on 2026-05-21: active, no reset required.
+```powershell
+npm run ensure:owner-admin:remote
+```
 
-Use `npm run ensure:owner-admin:remote` to re-run the narrow non-secret verification/repair path. The script refuses non-Bryan owner values, keeps the path separate from `/api/admin/users/import`, and only writes a one-time setup credential to an ignored `.secrets/bryan-admin-setup-*.json` file if the account is missing and a safe credential write is explicitly possible. No Bryan setup credential was generated in the 2026-05-21 verification because the account already existed as active global admin.
+The broader destructive reset path above supersedes the old one-account bootstrap shape when Bryan explicitly wants a fresh account state with both approved local admins.
 
 ## Local Workspace Smoke Seed
 
