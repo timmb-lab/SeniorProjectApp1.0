@@ -28,6 +28,21 @@ This is the compact run log for the current quarter-hour split-builder automatio
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-05-22 PT - Local Demo Workspace Seed
+
+- `automation ID`: manual Codex local demo-data pass.
+- `lane`: backend-demo-data / local workspace proof / account safety.
+- `starting HEAD`: `69ca39af3c94da350d72e17e7d95e3539496eb66`.
+- `selected slice`: Create a deterministic local-only fake demo environment for the Capstone Project workspace without touching remote D1, resetting accounts, enabling SSO, creating Drive files, or using real student data.
+- `what changed`: Added `scripts/seed-local-demo-workspace.mjs`, `scripts/prove-local-demo-workspace.mjs`, package aliases for dry-run/reset/proof, focused seed/API tests, `docs/local-demo-data.md`, README/backend setup notes, and structured run manifest `docs/progress/runs/2026-05-22-local-demo-workspace-seed.json`.
+- `local seed result`: Dry run found 0 existing demo rows. Reset seeded 250 fake students, 12 program teachers, 25 mentors, 225 active mentor assignments, 25 intentionally unassigned students, 230 submissions, 619 evidence metadata rows, 240 comments, 173 reviews, 200 mentor meetings, 35 presentation slots, 5 announcements, 195 submission versions, 12 export rows, and 6 export artifacts.
+- `API proof`: `prove:local-admin-logins` passed for both protected local admins. `prove:demo:local` passed direct route-handler proof for `/api/auth/me`, `/api/admin/dashboard`, `/api/program-teacher/dashboard`, `/api/mentor/dashboard`, `/api/teacher/review-queue`, `/api/reports/readiness`, and `/api/mentor/assigned`; admin saw 250 students and all nine programs, sample IT/Culinary/Sports Medicine teachers saw scoped rosters, and three sample mentors saw exactly assigned students.
+- `credential handling`: Demo staff credential path was `.secrets/demo-staff-logins-20260522-013542.json`; credential values were not printed, committed, or written to docs. No student demo credentials were created.
+- `safety`: The seeder refuses remote D1, deletes only demo-owned rows, uses `demo-student.capstone.test` and `demo-staff.capstone.test`, creates no physical Google Drive files, stores only example.com evidence metadata, and preserves `bryan@learntechonline.com` plus `bryan.timm89@gmail.com` as active local-auth global admins.
+- `validation`: `git diff --check` passed with CRLF normalization warnings only; `npm run test` passed with 248 passing and 4 expected local HTTP skips; `npm run typecheck` passed; `npm run check` passed; post-seed `npm run seed:demo:local:dry-run`, `npm run prove:local-admin-logins`, and `npm run prove:demo:local` passed.
+- `blockers`: none for local demo data.
+- `commit/push status`: pending.
+
 ## 2026-05-21 PT - Controlled Account Reset Tooling And Local Reset
 
 - `automation ID`: manual Codex account reset pass from Bryan's destructive reset prompt.

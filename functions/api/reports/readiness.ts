@@ -1,7 +1,7 @@
-import type { Env } from "../../_types";
-import { getCurrentUser, writeAudit } from "../../_lib/auth";
-import { json } from "../../_lib/http";
-import { hasRole, isAdmin } from "../../_lib/permissions";
+import type { Env } from "../../_types.ts";
+import { getCurrentUser, writeAudit } from "../../_lib/auth.ts";
+import { json } from "../../_lib/http.ts";
+import { hasRole, isAdmin } from "../../_lib/permissions.ts";
 
 interface CountRow {
   count: number;

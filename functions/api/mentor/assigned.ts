@@ -1,7 +1,7 @@
-import type { Env } from "../../_types";
-import { getCurrentUser } from "../../_lib/auth";
-import { json } from "../../_lib/http";
-import { hasRole } from "../../_lib/permissions";
+import type { Env } from "../../_types.ts";
+import { getCurrentUser } from "../../_lib/auth.ts";
+import { json } from "../../_lib/http.ts";
+import { hasRole } from "../../_lib/permissions.ts";
 
 interface AssignedStudentRow {
   student_id: string;

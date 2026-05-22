@@ -1,0 +1,127 @@
+{
+  "run": "2026-05-22-local-demo-workspace-seed",
+  "type": "local-demo-data",
+  "localOnly": true,
+  "startingHead": "69ca39af3c94da350d72e17e7d95e3539496eb66",
+  "repo": {
+    "root": "C:/SeniorProjectApp1.0",
+    "branch": "main",
+    "remote": "https://github.com/timmb-lab/SeniorProjectApp1.0.git"
+  },
+  "commands": {
+    "dryRun": "npm run seed:demo:local:dry-run",
+    "seedReset": "npm run seed:demo:local:reset",
+    "localAdminProof": "npm run prove:local-admin-logins",
+    "demoProof": "npm run prove:demo:local"
+  },
+  "dryRun": {
+    "ok": true,
+    "demoRowsFoundBeforeReset": 0
+  },
+  "seedReset": {
+    "ok": true,
+    "credentialPath": ".secrets/demo-staff-logins-20260522-013542.json",
+    "demoStudents": 250,
+    "programTeachers": 12,
+    "mentors": 25,
+    "mentorAssignments": 225,
+    "studentsWithMentors": 225,
+    "studentsWithoutMentors": 25,
+    "submissions": 230,
+    "evidenceMetadata": 619,
+    "comments": 240,
+    "reviews": 173,
+    "mentorMeetings": 200,
+    "presentationSlots": 35,
+    "announcements": 5,
+    "submissionVersions": 195,
+    "exports": 12,
+    "exportArtifacts": 6,
+    "foreignKeyViolations": 0,
+    "forbiddenRealDomainRows": 0
+  },
+  "programDistribution": {
+    "IT": 45,
+    "Culinary": 35,
+    "Hospitality & Marketing": 25,
+    "Mechanical Technology": 25,
+    "Construction": 25,
+    "Sports Medicine": 35,
+    "Teaching & Training": 20,
+    "Early Childhood Education": 20,
+    "Medical Professions": 20
+  },
+  "submissionStatusDistribution": {
+    "not_started": 20,
+    "draft": 35,
+    "submitted": 40,
+    "revision_requested": 45,
+    "approved": 100,
+    "archived": 10
+  },
+  "apiProof": {
+    "ok": true,
+    "adminDashboardStudents250": true,
+    "adminProgramBreakdownNinePrograms": true,
+    "adminMentorCoveragePopulated": true,
+    "adminReviewQueuePopulated": true,
+    "readinessReportingPopulated": true,
+    "teacherDashboards": [
+      {
+        "programId": "it",
+        "scopedStudents": 45,
+        "nonEmpty": true
+      },
+      {
+        "programId": "culinary",
+        "scopedStudents": 35,
+        "nonEmpty": true
+      },
+      {
+        "programId": "sports-medicine",
+        "scopedStudents": 35,
+        "nonEmpty": true
+      }
+    ],
+    "mentorDashboards": [
+      {
+        "mentor": "mentor001@demo-staff.capstone.test",
+        "assignedCount": 9,
+        "assignedOnly": true
+      },
+      {
+        "mentor": "mentor002@demo-staff.capstone.test",
+        "assignedCount": 9,
+        "assignedOnly": true
+      },
+      {
+        "mentor": "mentor003@demo-staff.capstone.test",
+        "assignedCount": 9,
+        "assignedOnly": true
+      }
+    ],
+    "localAdminProofStillPasses": true
+  },
+  "safety": {
+    "realStudentDataUsed": false,
+    "realSchoolDomainsUsed": false,
+    "testDomainsOnlyForDemoAccounts": true,
+    "physicalDriveFilesCreated": false,
+    "driveIdsCreated": false,
+    "credentialsPrinted": false,
+    "credentialsCommitted": false,
+    "protectedAdminsPreserved": true,
+    "remoteD1Touched": false,
+    "googleSsoEnabled": false
+  },
+  "validation": {
+    "gitDiffCheck": "pass; CRLF normalization warnings only",
+    "npmRunTest": "pass; 248 passing, 4 expected local HTTP skips",
+    "npmRunTypecheck": "pass",
+    "npmRunCheck": "pass",
+    "postSeedDryRun": "pass; found existing demo-owned rows only",
+    "localAdminProof": "pass",
+    "demoApiProof": "pass"
+  },
+  "remainingBlockers": []
+}

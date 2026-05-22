@@ -123,6 +123,21 @@ Use `account.html` through Cloudflare Pages dev or deployment to verify fake `.t
 
 Initial D1-backed workflow routes now exist for `/api/student/dashboard`, `/api/submissions/:id/submit`, `/api/submissions/:id/evidence`, `/api/reviews/:submissionId/decision`, `/api/reviews/:submissionId/history`, `/api/teacher/review-queue`, `/api/mentor/assigned`, `/api/admin/announcements`, `/api/announcements`, `/api/admin/exports/student-archive`, `/api/exports/:id/download`, `/api/reports/readiness`, and `/api/admin/audit-events` so the test-account MVP path can move beyond alpha-only state.
 
+## Local Demo Workspace Seed
+
+For local functional demos before real student onboarding is approved, use the local-only synthetic workspace seed:
+
+```powershell
+npm run seed:demo:local:dry-run
+npm run seed:demo:local:reset
+npm run prove:local-admin-logins
+npm run prove:demo:local
+```
+
+The seed creates 250 fake students across all nine programs, fake program teachers, fake mentors, mentor assignments, scoped teacher roles, mixed project lifecycle states, submissions, evidence-link metadata, comments, reviews, mentor meetings, presentation slots, announcements, and dashboard-ready aggregate records when the schema supports those tables. It refuses remote D1, uses only `.test` demo domains, creates no Drive files, preserves the two protected local admins, and writes demo staff credentials only to ignored `.secrets/demo-staff-logins-*.json` files.
+
+Details live in `docs/local-demo-data.md`.
+
 ## MVP Backend Foundation
 
 The first Cloudflare MVP foundation is scaffolded with Pages Functions, D1, hardened username/password auth endpoints, Google Workspace SSO fail-closed scaffold, and Google Drive evidence-repository metadata. Setup notes and live resource IDs are tracked in `docs/backend-setup.md`.

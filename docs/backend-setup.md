@@ -205,6 +205,22 @@ powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\ru
 
 The credential file is intentionally ignored by git through `.secrets/`. Never paste, commit, or print the passwords.
 
+## Local Demo Workspace Seed
+
+The full local-only demo seed is separate from the account reset script and the smaller smoke seed:
+
+```powershell
+npm run seed:demo:local:dry-run
+npm run seed:demo:local:reset
+npm run prove:demo:local
+```
+
+It refuses remote D1, verifies the repo/package/local D1 shape, verifies the two protected local admins, deletes only demo-owned rows, and reseeds a deterministic synthetic workspace. The current seed creates 250 fake students, 12 fake program teachers, 25 fake mentors, 225 active mentor assignments, 25 intentionally unassigned students, scoped program teacher roles, fake submissions, evidence-link metadata, teacher/mentor comments, reviews, mentor meetings, presentation slots, announcements, submission versions, archive export metadata, and dashboard-ready aggregate records.
+
+All fake accounts use `.test` domains only: students under `demo-student.capstone.test`, staff/mentors under `demo-staff.capstone.test`. Evidence rows are metadata-only with `https://example.com/capstone-demo/...` links. No real student data, no real district data, no physical Google Drive files, and no Drive IDs are created. Demo staff login credentials are written only to ignored `.secrets/demo-staff-logins-*.json` files and are never printed or committed.
+
+This seed exists only for local demos until legal/district approval, Google Workspace SSO policy, and real student onboarding decisions are complete. See `docs/local-demo-data.md`.
+
 ## 2026-05-20 Workspace/Live Verification Notes
 
 - Local credential-backed workspace smoke now passes against `http://127.0.0.1:8788`: fake student login, session restore, dashboard, evidence link, Drive-missing upload blocker, unsupported upload denial, logout, and role-route coverage for `program_teacher`, `mentor`, `admin`, `misc_admin`, and no-role.
