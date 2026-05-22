@@ -652,13 +652,33 @@ function deleteSpecs(schema) {
     }));
 }
 
-async function buildDemoDataset({ capabilities, lookups, seed = DEFAULT_SEED, passwordPepper = process.env.PASSWORD_PEPPER || "" } = {}) {
+async function buildDemoDataset({
+  capabilities,
+  lookups,
+  seed = DEFAULT_SEED,
+  passwordPepper = process.env.PASSWORD_PEPPER || "",
+  programTeacherCountOverride = null,
+  mentorCount = 25,
+  credentialTeacherProgramIds = ["it", "culinary", "sports-medicine"],
+  credentialMentorCount = 3,
+  suggestedDemoUrl = "http://127.0.0.1:8788/workspace.html",
+  includeDemoAdmin = false,
+  demoAdminId = "demo-admin-001",
+  demoAdminEmail = `admin001@${STAFF_DOMAIN}`,
+  demoAdminDisplayName = "Demo Admin",
+  passwordPrefix = "DemoLocal!",
+  demoLocationLabel = "local",
+} = {}) {
   const rows = emptyRows();
   const credentials = {
+    adminLogins: [],
     programTeacherLogins: [],
     mentorLogins: [],
     sampleStudentLogins: [],
   };
+  const credentialTeacherPrograms = new Set(credentialTeacherProgramIds);
+  const resolvedMentorCount = positiveInteger(mentorCount, 25);
+  const resolvedCredentialMentorCount = Math.min(positiveInteger(credentialMentorCount, 0), resolvedMentorCount);
   const stagePool = deterministicShuffle(expandStagePool(), `${seed}:stages`);
   const students = [];
   const teachersByProgram = new Map();
@@ -688,7 +708,8 @@ async function buildDemoDataset({ capabilities, lookups, seed = DEFAULT_SEED, pa
 
   for (const program of PROGRAMS) {
     const teachers = [];
-    for (let offset = 1; offset <= program.teacherCount; offset += 1) {
+    const teacherCount = positiveInteger(programTeacherCountOverride ?? program.teacherCount, program.teacherCount);
+    for (let offset = 1; offset <= teacherCount; offset += 1) {
       const id = `demo-teacher-${program.teacherSlug}-${pad(offset, 2)}`;
       const email = `teacher-${program.teacherSlug}-${pad(offset, 2)}@${STAFF_DOMAIN}`;
       const displayName = `${TEACHER_FIRST_NAMES[(teachers.length + rows.userAccounts.length) % TEACHER_FIRST_NAMES.length]} ${TEACHER_LAST_NAMES[(teachers.length * 3 + rows.userAccounts.length) % TEACHER_LAST_NAMES.length]}`;
@@ -707,15 +728,15 @@ async function buildDemoDataset({ capabilities, lookups, seed = DEFAULT_SEED, pa
         assigned_by: null,
       });
       teachers.push(id);
-      if ((program.id === "it" || program.id === "culinary" || program.id === "sports-medicine") && offset === 1) {
-        const password = passwordFor(id, email, displayName, seed);
+      if (credentialTeacherPrograms.has(program.id) && offset === 1) {
+        const password = passwordFor(id, email, displayName, seed, passwordPrefix);
         rows.passwordCredentials.push(await credentialRow(id, password, passwordPepper, seed));
         credentials.programTeacherLogins.push({
           email,
           displayName,
           role: "program_teacher",
           scope: `program:${program.id}`,
-          suggestedDemoUrl: "http://127.0.0.1:8788/workspace.html",
+          suggestedDemoUrl,
           password,
         });
       }
@@ -723,7 +744,36 @@ async function buildDemoDataset({ capabilities, lookups, seed = DEFAULT_SEED, pa
     teachersByProgram.set(program.id, teachers);
   }
 
-  for (let mentorIndex = 1; mentorIndex <= 25; mentorIndex += 1) {
+  if (includeDemoAdmin) {
+    const email = demoAdminEmail;
+    const displayName = demoAdminDisplayName;
+    rows.userAccounts.push({
+      id: demoAdminId,
+      email,
+      email_norm: normalizeEmail(email),
+      display_name: displayName,
+      status: "active",
+    });
+    rows.userRoles.push({
+      user_id: demoAdminId,
+      role_id: "admin",
+      scope_type: "global",
+      scope_id: "",
+      assigned_by: null,
+    });
+    const password = passwordFor(demoAdminId, email, displayName, seed, passwordPrefix);
+    rows.passwordCredentials.push(await credentialRow(demoAdminId, password, passwordPepper, seed));
+    credentials.adminLogins.push({
+      email,
+      displayName,
+      role: "admin",
+      scope: "global",
+      suggestedDemoUrl,
+      password,
+    });
+  }
+
+  for (let mentorIndex = 1; mentorIndex <= resolvedMentorCount; mentorIndex += 1) {
     const id = `demo-mentor-${pad(mentorIndex, 3)}`;
     const email = `mentor${pad(mentorIndex, 3)}@${STAFF_DOMAIN}`;
     const displayName = `${MENTOR_FIRST_NAMES[(mentorIndex - 1) % MENTOR_FIRST_NAMES.length]} ${MENTOR_LAST_NAMES[(mentorIndex * 5) % MENTOR_LAST_NAMES.length]}`;
@@ -741,15 +791,15 @@ async function buildDemoDataset({ capabilities, lookups, seed = DEFAULT_SEED, pa
       scope_id: "",
       assigned_by: null,
     });
-    if (mentorIndex <= 3) {
-      const password = passwordFor(id, email, displayName, seed);
+    if (mentorIndex <= resolvedCredentialMentorCount) {
+      const password = passwordFor(id, email, displayName, seed, passwordPrefix);
       rows.passwordCredentials.push(await credentialRow(id, password, passwordPepper, seed));
       credentials.mentorLogins.push({
         email,
         displayName,
         role: "mentor",
         scope: "assigned_students",
-        suggestedDemoUrl: "http://127.0.0.1:8788/workspace.html",
+        suggestedDemoUrl,
         password,
       });
     }
@@ -797,7 +847,7 @@ async function buildDemoDataset({ capabilities, lookups, seed = DEFAULT_SEED, pa
 
   const assignedStudents = students.filter((student) => student.number % 10 !== 0);
   assignedStudents.forEach((student, index) => {
-    const mentorNumber = (index % 25) + 1;
+    const mentorNumber = (index % resolvedMentorCount) + 1;
     rows.mentorAssignments.push({
       id: `demo-mentor-assignment-${pad(student.number, 3)}`,
       mentor_user_id: `demo-mentor-${pad(mentorNumber, 3)}`,
@@ -1073,9 +1123,9 @@ async function buildDemoDataset({ capabilities, lookups, seed = DEFAULT_SEED, pa
   }
 
   rows.auditEvents.push(
-    auditEvent("demo-audit-seed-started", "demo_seed_started", "local_demo_workspace", "demo-workspace", null, { marker: DEMO_MARKER, synthetic: true }),
-    auditEvent("demo-audit-admin-ready", "demo_admin_dashboard_ready", "local_demo_workspace", "demo-admin-dashboard", "demo-teacher-it-01", { marker: DEMO_MARKER, students: 250 }),
-    auditEvent("demo-audit-mentor-ready", "demo_mentor_dashboard_ready", "local_demo_workspace", "demo-mentor-dashboard", "demo-mentor-001", { marker: DEMO_MARKER, mentors: 25 }),
+    auditEvent("demo-audit-seed-started", "demo_seed_started", `${demoLocationLabel}_demo_workspace`, "demo-workspace", null, { marker: DEMO_MARKER, synthetic: true }),
+    auditEvent("demo-audit-admin-ready", "demo_admin_dashboard_ready", `${demoLocationLabel}_demo_workspace`, "demo-admin-dashboard", includeDemoAdmin ? demoAdminId : "demo-teacher-it-01", { marker: DEMO_MARKER, students: 250 }),
+    auditEvent("demo-audit-mentor-ready", "demo_mentor_dashboard_ready", `${demoLocationLabel}_demo_workspace`, "demo-mentor-dashboard", "demo-mentor-001", { marker: DEMO_MARKER, mentors: resolvedMentorCount }),
   );
 
   return {
@@ -1085,6 +1135,11 @@ async function buildDemoDataset({ capabilities, lookups, seed = DEFAULT_SEED, pa
     programDistribution: Object.fromEntries(PROGRAMS.map((program) => [program.name, program.count])),
     stageDistribution: { ...STAGE_COUNTS },
   };
+}
+
+function positiveInteger(value, fallback) {
+  const number = Number(value);
+  return Number.isInteger(number) && number > 0 ? number : fallback;
 }
 
 function emptyRows() {
@@ -1240,13 +1295,15 @@ function generatedCounts(rows) {
   return Object.fromEntries(Object.entries(rows).map(([key, value]) => [key, value.length]));
 }
 
-function buildSeedSql(dataset, schema) {
+function buildSeedSql(dataset, schema, { includeDeletes = true, includeTransaction = true } = {}) {
   const statements = [
     "PRAGMA foreign_keys = ON;",
-    "BEGIN TRANSACTION;",
   ];
-  for (const spec of deleteSpecs(schema)) {
-    statements.push(`DELETE FROM ${quoteIdent(spec.table)} WHERE ${spec.where};`);
+  if (includeTransaction) statements.push("BEGIN TRANSACTION;");
+  if (includeDeletes) {
+    for (const spec of deleteSpecs(schema)) {
+      statements.push(`DELETE FROM ${quoteIdent(spec.table)} WHERE ${spec.where};`);
+    }
   }
 
   const rows = dataset.rows;
@@ -1270,7 +1327,7 @@ function buildSeedSql(dataset, schema) {
   if (schema.tableNames.has("exports")) pushRows(statements, "exports", rows.exports);
   if (schema.tableNames.has("export_artifacts")) pushRows(statements, "export_artifacts", rows.exportArtifacts);
   pushRows(statements, "audit_events", rows.auditEvents);
-  statements.push("COMMIT;");
+  if (includeTransaction) statements.push("COMMIT;");
   statements.push("");
   return statements.join("\n");
 }
@@ -1457,9 +1514,9 @@ async function credentialRow(userId, password, pepper, seed) {
   };
 }
 
-function passwordFor(userId, email, displayName, seed) {
+function passwordFor(userId, email, displayName, seed, prefix = "DemoLocal!") {
   const token = Buffer.from(sha256Hex(`${seed}:${userId}:${email}:${displayName}`), "hex").toString("base64url").slice(0, 18);
-  return `DemoLocal!${token}9zZ`;
+  return `${prefix}${token}9zZ`;
 }
 
 function dateForStudent(studentNumber, dayOffset, time = "16:00:00.000Z") {

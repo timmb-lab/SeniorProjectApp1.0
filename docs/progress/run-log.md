@@ -28,6 +28,20 @@ This is the compact run log for the current quarter-hour split-builder automatio
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-05-22 PT - Remote Demo Workspace Seed
+
+- `automation ID`: manual Codex remote demo-data pass.
+- `lane`: backend-demo-data / remote D1 proof / account safety.
+- `selected slice`: Add a confirmed remote D1 demo seed path for fake Capstone Project workspace data without touching real accounts, Bryan admins, tenant/provider/Drive config, or physical Google Drive files.
+- `what changed`: Added `scripts/seed-remote-demo-workspace.mjs`, `scripts/prove-remote-demo-workspace.mjs`, remote npm aliases, focused remote seed tests, `docs/remote-demo-data.md`, and structured manifest `docs/progress/runs/2026-05-22-remote-demo-workspace-seed.json`.
+- `remote seed result`: Dry run passed, then confirmed remote write seeded 250 fake students, 9 fake program teachers, 48 fake mentors, 1 fake demo admin, 225 assignments, 25 unassigned students, 230 submissions, 606 evidence metadata rows, 243 comments, 176 reviews, 200 mentor meetings, 35 presentation slots, 5 announcements, 195 submission versions, 12 exports, and 6 export artifacts.
+- `proof`: `prove:demo:remote` passed remote D1 counts, all-program teacher scope coverage, 48 mentor assignment coverage, hosted admin/program-teacher/mentor dashboard rendering, sample fake artifacts/comments/status history rendering, and no Drive ID or secret leaks.
+- `safety`: Real-user count, Bryan-admin rows, tenant/domain/provider config, evidence repositories, and app settings were preserved; demo rows used only `demo-student.capstone.test`, `demo-staff.capstone.test`, `DEMO_SEED`, and example.com evidence URLs.
+- `credential handling`: Remote staff credential path was `.secrets/demo-remote-staff-logins-20260522-041229.json`; no credential values were printed or committed; no student credentials were created.
+- `validation`: remote dry run, remote write, remote proof, `npm run test`, `npm run typecheck`, and `npm run check` passed.
+- `blockers`: Hosted generated demo staff login is not claimed because production password pepper is not available to the local direct-D1 seeder; hosted proof used existing fake hosted credentials while D1 scope proof covered all generated demo staff.
+- `commit/push status`: pending closeout commit.
+
 ## 2026-05-22 PT - Local Demo Workspace Seed
 
 - `automation ID`: manual Codex local demo-data pass.

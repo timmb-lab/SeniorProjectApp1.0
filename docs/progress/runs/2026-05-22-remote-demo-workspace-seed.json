@@ -1,0 +1,85 @@
+{
+  "run": "2026-05-22-remote-demo-workspace-seed",
+  "type": "remote-demo-data",
+  "remote": true,
+  "repo": {
+    "root": "C:/SeniorProjectApp1.0",
+    "branch": "main",
+    "remote": "https://github.com/timmb-lab/SeniorProjectApp1.0.git",
+    "startingHead": "027e229f07c1fb5b7e92f169f374b362b38af3d5"
+  },
+  "commands": {
+    "dryRun": "npm run seed:demo:remote:dry-run",
+    "seed": "npm run seed:demo:remote",
+    "proof": "npm run prove:demo:remote",
+    "test": "npm run test",
+    "typecheck": "npm run typecheck",
+    "check": "npm run check"
+  },
+  "seed": {
+    "demoStudents": 250,
+    "programTeachers": 9,
+    "mentors": 48,
+    "demoAdmins": 1,
+    "mentorAssignments": 225,
+    "studentsWithoutMentors": 25,
+    "submissions": 230,
+    "evidenceMetadata": 606,
+    "comments": 243,
+    "reviews": 176,
+    "mentorMeetings": 200,
+    "presentationSlots": 35,
+    "announcements": 5,
+    "submissionVersions": 195,
+    "exports": 12,
+    "exportArtifacts": 6,
+    "foreignKeyViolations": 0,
+    "forbiddenDemoRealDomainRows": 0,
+    "unsafeDemoEvidenceRows": 0,
+    "credentialPath": ".secrets/demo-remote-staff-logins-20260522-041229.json"
+  },
+  "programDistribution": {
+    "IT": 45,
+    "Culinary": 35,
+    "Hospitality & Marketing": 25,
+    "Mechanical Technology": 25,
+    "Construction": 25,
+    "Sports Medicine": 35,
+    "Teaching & Training": 20,
+    "Early Childhood Education": 20,
+    "Medical Professions": 20
+  },
+  "proof": {
+    "remoteD1": true,
+    "allProgramsNonzero": true,
+    "adminSeesAtLeast250DemoStudents": true,
+    "programTeachersScopedInD1": 9,
+    "mentorsScopedInD1": 48,
+    "hostedDashboardRendersSeededDemoData": true,
+    "fakeArtifactsCommentsStagesRender": true,
+    "driveIdsOrSecretsObserved": false
+  },
+  "safety": {
+    "studentDomain": "demo-student.capstone.test",
+    "staffDomain": "demo-staff.capstone.test",
+    "realUsersPreserved": true,
+    "bryanAdminsPreserved": true,
+    "tenantDomainProviderConfigPreserved": true,
+    "driveConfigPreserved": true,
+    "physicalDriveFilesCreated": false,
+    "studentCredentialsCreated": false,
+    "credentialsPrinted": false,
+    "credentialsCommitted": false
+  },
+  "validation": {
+    "dryRun": "passed",
+    "remoteSeed": "passed",
+    "remoteProof": "passed",
+    "test": "passed; 251 passing, 4 expected local HTTP skips",
+    "typecheck": "passed",
+    "check": "passed"
+  },
+  "notes": [
+    "Hosted proof used existing fake hosted credentials because direct-D1 generated staff hashes do not include the production password pepper available only to the hosted app."
+  ]
+}
