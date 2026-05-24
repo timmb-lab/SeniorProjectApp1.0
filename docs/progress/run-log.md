@@ -1416,4 +1416,14 @@ Future productive runs should append compact entries that name the master-plan s
 - `primary palette fidelity summary`: exact Figma hex values are present in `workspace.css`, but several are still carried through ABC-era aliases (`yellow`, `purple`, `line`) rather than explicit Figma semantic names (`gold`, `violet`, `border`), and older public/alpha/account surfaces use separate palettes.
 - `validation`: `npm run test` passed with 274 passing tests and 4 expected local HTTP skips; `npm run typecheck` passed; `npm run check` passed; `npm run check:production-surfaces` passed with 91 production text surfaces scanned; `git diff --check` passed with CRLF normalization warnings only.
 - `blockers`: none for the audit; the audit recommends a Phase 6.6 design cleanup before Phase 7.
-- `commit/push status`: pending Phase 6.5 commit and push.
+- `commit/push status`: committed and pushed as `2c5735c docs: audit Figma UX alignment before site dashboard`.
+
+## 2026-05-24 - PHASE 06.75 Full Product / UX / Architecture / Sales MVP Audit
+
+- `starting HEAD`: `2c5735c36977a401512bfa41feeca425070c357a`.
+- `files inspected`: README; MVP contract and decisions; Phase 6/6.5 Figma alignment docs; demo persona/story/data docs; production surface registry and generated route inventory; run log and manifests for Phases 1 through 6.5; package/Wrangler config; foundation/tenant/site migrations; permission/workflow/type libs; admin/program teacher/mentor/student/review/readiness/presentation/archive/audit/auth/import/role APIs; workspace/account/alpha/public guide/app preview surfaces; local/remote seed/proof/reset/owner scripts; and relevant permission, workspace, seed, dashboard, workflow, production, hosted-proof, and audit tests.
+- `files changed`: `docs/audits/2026-05-24-full-multisite-sales-mvp-audit.md`, `docs/audits/2026-05-24-full-multisite-sales-mvp-audit-summary.md`, `docs/progress/runs/2026-05-24-full-multisite-sales-mvp-audit.json`, `tests/full-multisite-sales-mvp-audit.test.mjs`, Phase 6.5 completion metadata, and this run log.
+- `recommendation`: run `06.6_design_cleanup_before_dashboard.txt` before `07_site_admin_dashboard.txt`; immediate Phase 7, remote migration `0011`, remote seed 5B, and a sales demo are no-go today.
+- `validation`: `npm run test` passed with 280 passing tests and 4 expected local HTTP skips; `npm run typecheck` passed; `npm run check` passed; `npm run check:production-surfaces` passed with 91 production text surfaces scanned; `git diff --check` passed with CRLF normalization warnings for edited docs only.
+- `blockers`: remote D1 still needs migration `0011_multisite_site_role_foundation.sql` before remote multisite seed/proof; site admin dashboard, student directory, student detail, hosted proof, and full Figma-aligned UI are not yet built.
+- `commit/push status`: pending Phase 6.75 commit and push.

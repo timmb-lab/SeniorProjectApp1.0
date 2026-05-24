@@ -8,7 +8,7 @@
     "packageName": "senior-capstone-app"
   },
   "startingHead": "f8ac7d80d6b1db4345db48a978051ca29747ab14",
-  "endingHead": null,
+  "endingHead": "2c5735c36977a401512bfa41feeca425070c357a",
   "phase6HygieneFixes": [
     "Updated docs/progress/runs/2026-05-24-figma-alignment-foundation.json endingHead to f8ac7d80d6b1db4345db48a978051ca29747ab14.",
     "Updated the Phase 6 run-log commit/push status to committed and pushed as f8ac7d8 ui: add Figma-aligned workspace design foundation."
