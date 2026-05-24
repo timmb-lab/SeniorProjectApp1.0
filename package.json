@@ -55,6 +55,7 @@
     "qol:doctor": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-node-script.ps1 automation/qol/doctor.mjs",
     "qol:smoke": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-node-script.ps1 automation/qol/hourly-orchestrator.mjs --smoke",
     "verify:qol-automation": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-node-script.ps1 automation/qol/hourly-orchestrator.mjs --smoke",
+    "verify:functionality-ux-automation": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-npm-script.ps1 verify:functionality-ux-automation",
     "verify:functionality-language": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-node-script.ps1 scripts/verify-functionality-language.mjs",
     "verify:automation-cadence": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-npm-script.ps1 verify:automation-cadence",
     "inventory:production-routes": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-npm-script.ps1 inventory:production-routes",

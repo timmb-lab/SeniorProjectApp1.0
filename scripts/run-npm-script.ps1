@@ -305,6 +305,11 @@ function Invoke-KnownProjectScript {
             Invoke-ProjectPowerShell "scripts\run-node-script.ps1" (@("automation\qol\hourly-orchestrator.mjs", "--smoke") + @($ScriptArgs))
             return
         }
+        "verify:functionality-ux-automation" {
+            $script:KnownProjectScriptHandled = $true
+            Invoke-Node "--test" "tests\functionality-ux-automation-prompt.test.mjs" @ScriptArgs
+            return
+        }
         "verify:automation-cadence" {
             $script:KnownProjectScriptHandled = $true
             Invoke-ProjectPowerShell "scripts\verify-cadence-30min.ps1" $ScriptArgs

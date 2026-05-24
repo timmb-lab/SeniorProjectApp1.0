@@ -1,0 +1,90 @@
+{
+  "schemaVersion": 1,
+  "lastRunAt": "2026-05-24T15:16:54-07:00",
+  "lastStartingSha": "e0171a9941b10e35067da7e57b5263561e5a4c91",
+  "lastEndingSha": null,
+  "currentLadderFocus": "LEVEL_1_NAVIGABLE_DASHBOARDS",
+  "completedWorkOrders": [
+    {
+      "id": "workspace-header-product-language-cleanup",
+      "completedAt": "2026-05-24",
+      "ladderLevel": "LEVEL_0_PROTOTYPE_CLEANUP",
+      "summary": "Protected workspace header and posture chips no longer show internal build-language phrases."
+    },
+    {
+      "id": "site-dashboard-no-mentor-clickthrough",
+      "completedAt": "2026-05-24T15:05:33-07:00",
+      "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS",
+      "summary": "Site Dashboard No Mentor metric opens Mentor Assignments with noMentor=true and status=unassigned.",
+      "commit": "e0171a9941b10e35067da7e57b5263561e5a4c91"
+    },
+    {
+      "id": "functionality-ux-automation-growth-system",
+      "completedAt": "2026-05-24T15:16:54-07:00",
+      "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
+      "type": "TYPE_G_VERIFICATION_REGRESSION_PROTECTION",
+      "summary": "Expanded the hourly functionality UX prompt into a ladder-driven growth system with durable ledger/state tracking and prompt-quality verification.",
+      "commit": "created-by-closeout-commit"
+    }
+  ],
+  "deferredWorkOrders": [
+    {
+      "id": "public-app-preview-language-cleanup",
+      "ladderLevel": "LEVEL_0_PROTOTYPE_CLEANUP",
+      "reason": "Public app-preview still has review-only implementation, Figma artifact, and technical event notices."
+    },
+    {
+      "id": "site-dashboard-review-count-clickthroughs",
+      "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS",
+      "reason": "Submitted and Needs Revision metrics should open existing Review Queue filters."
+    },
+    {
+      "id": "dashboard-link-verifier",
+      "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS",
+      "reason": "A source verifier should prevent future fake dashboard links and unsupported section actions."
+    }
+  ],
+  "blockedWorkOrders": [],
+  "nextRecommendedWorkOrders": [
+    {
+      "id": "site-dashboard-submitted-review-queue-clickthrough",
+      "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS",
+      "type": "TYPE_B_DASHBOARD_CLICK_THROUGH",
+      "summary": "Link Site Dashboard Submitted metric to the existing Review Queue filtered to submitted work."
+    },
+    {
+      "id": "site-dashboard-needs-revision-review-queue-clickthrough",
+      "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS",
+      "type": "TYPE_B_DASHBOARD_CLICK_THROUGH",
+      "summary": "Link Site Dashboard Needs Revision metric to the existing Review Queue filtered to revision-requested work."
+    },
+    {
+      "id": "dashboard-action-link-verifier",
+      "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
+      "type": "TYPE_G_VERIFICATION_REGRESSION_PROTECTION",
+      "summary": "Add verifier coverage for dashboard section actions, presets, and no fake hrefs."
+    }
+  ],
+  "doNotRepeat": [
+    "Do not repeat protected workspace header/posture chip cleanup unless new leaked phrases are found.",
+    "Do not relink the Site Dashboard No Mentor metric; it already opens Mentor Assignments filtered to unassigned students.",
+    "Do not spend a run on generic docs churn when a concrete ladder work order is safe and testable.",
+    "Do not replace the functionality UX growth system with a short generic checklist; preserve ladder, ledger, state, scoring, and handoff requirements."
+  ],
+  "lastValidationStatus": {
+    "status": "passed",
+    "completedAt": "2026-05-24T15:16:54-07:00",
+    "commands": [
+      "npm run verify:functionality-ux-automation",
+      "npm run verify:functionality-language",
+      "node --test tests/functionality-language-audit.test.mjs",
+      "npm run test",
+      "npm run typecheck",
+      "npm run check:automation",
+      "npm run check:production-surfaces",
+      "npm run check",
+      "git diff --check"
+    ],
+    "notes": "All commands passed; git diff --check emitted CRLF normalization warnings only."
+  }
+}
