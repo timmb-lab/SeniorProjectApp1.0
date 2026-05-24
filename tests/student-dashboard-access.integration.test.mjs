@@ -25,6 +25,20 @@ test("student dashboard returns 401 and audits when session is missing", async (
 test("student dashboard returns own rows without storage ids and audits the view", async () => {
   const fixture = await createFixtureWithSession({ userId: "student-a", roleId: "student" });
   seedStudentRecord(fixture.db, "student-a");
+  fixture.db.data.userAccounts.push(buildUser("mentor-a", "Mentor A"));
+  fixture.db.data.userRoles.push({
+    user_id: "mentor-a",
+    role_id: "mentor",
+    scope_type: "global",
+    scope_id: "",
+  });
+  fixture.db.data.mentorAssignments.push({
+    id: "mentor-assignment-a",
+    mentor_user_id: "mentor-a",
+    student_user_id: "student-a",
+    active: 1,
+    created_at: "2026-05-20T08:20:00.000Z",
+  });
 
   const response = await onRequestGet({
     request: buildRequest("https://example.test/api/student/dashboard", fixture.token),
@@ -36,7 +50,36 @@ test("student dashboard returns own rows without storage ids and audits the view
   assert.equal(body.ok, true);
   assert.equal(body.studentId, "student-a");
   assert.equal(body.viewer.self, true);
-  assert.equal(body.nextAction, "Submit the proposal for teacher review.");
+  assert.equal(body.nextAction, "Start or finish Core Concept Proposal.");
+  assert.deepEqual(body.summary, {
+    requirementsTotal: 1,
+    requirementsComplete: 0,
+    completionPercent: 0,
+    phasesTotal: 1,
+    phasesComplete: 0,
+    submittedRequiredCount: 0,
+    missingRequiredCount: 1,
+    waitingForReviewCount: 0,
+    revisionRequestedCount: 0,
+    currentPhase: "proposal",
+    currentPhaseLabel: "Proposal",
+    currentStatus: "Getting Started",
+    lastUpdatedAt: "2026-05-20T08:20:00.000Z",
+    mentor: {
+      assigned: true,
+      name: "Mentor A",
+      message: "Mentor A can help with project questions.",
+    },
+    dueDatesAvailable: false,
+  });
+  assert.deepEqual(body.nextSteps, [
+    {
+      title: "Core Concept Proposal",
+      status: "Missing",
+      detail: "Start or finish Core Concept Proposal.",
+      dueDate: null,
+    },
+  ]);
   assert.equal(body.progress.length, 1);
   assert.equal(body.submissions.length, 1);
   assert.equal(body.evidence.length, 1);
@@ -202,7 +245,7 @@ function createFixture() {
     groupMemberships: [],
     groups: [],
     requirements: [
-      { id: "req-proposal-draft", title: "Core Concept Proposal" },
+      { id: "req-proposal-draft", program_id: null, phase: "proposal", title: "Core Concept Proposal", required: 1, sort_order: 1 },
     ],
     progressRecords: [],
     submissions: [],
@@ -293,12 +336,12 @@ function seedStudentRecord(db, studentId, { programId = "it", cohortId = "cohort
   });
 }
 
-function buildUser(id) {
+function buildUser(id, displayName = id) {
   return {
     id,
     email: `${id}@senior-capstone.test`,
     email_norm: `${id}@senior-capstone.test`,
-    display_name: id,
+    display_name: displayName,
     status: "active",
   };
 }
@@ -369,6 +412,25 @@ class MockPreparedStatement {
       return hasMentorRole && exists ? { ok: 1 } : null;
     }
 
+    if (this.sql.includes("from mentor_assignments") && this.sql.includes("mentor.display_name as mentor_name")) {
+      const [studentId] = this.params;
+      const assignment = this.data.mentorAssignments
+        .filter((row) => row.student_user_id === studentId && Number(row.active) === 1)
+        .find((row) => {
+          const mentor = this.data.userAccounts.find((user) => user.id === row.mentor_user_id && user.status === "active");
+          const hasMentorRole = this.data.userRoles.some(
+            (role) => role.user_id === row.mentor_user_id && role.role_id === "mentor",
+          );
+          return mentor && hasMentorRole;
+        });
+      if (!assignment) return null;
+      const mentor = this.data.userAccounts.find((row) => row.id === assignment.mentor_user_id);
+      return {
+        mentor_name: mentor?.display_name || null,
+        created_at: assignment.created_at || null,
+      };
+    }
+
     if (this.sql.includes("from user_roles teacher_role")) {
       const [studentId, teacherId] = this.params;
       return resolveTeacherScopeRow(this.data, { studentId, teacherId });
@@ -403,6 +465,30 @@ class MockPreparedStatement {
             status: row.status,
             updated_at: row.updated_at,
             requirement_title: requirementTitle(this.data, row.requirement_id),
+          })),
+      };
+    }
+
+    if (this.sql.includes("from requirements") && this.sql.includes("requirements.required = 1")) {
+      const [studentId] = this.params;
+      const studentProgramIds = new Set(
+        this.data.groupMemberships
+          .filter((membership) => membership.user_id === studentId)
+          .map((membership) => this.data.groups.find((group) => group.id === membership.group_id)?.program_id)
+          .filter(Boolean),
+      );
+      return {
+        results: this.data.requirements
+          .filter((row) => Number(row.required ?? 1) === 1)
+          .filter((row) => !row.program_id || studentProgramIds.has(row.program_id))
+          .sort((a, b) => Number(a.sort_order || 0) - Number(b.sort_order || 0))
+          .map((row) => ({
+            id: row.id,
+            program_id: row.program_id ?? null,
+            phase: row.phase || "proposal",
+            title: row.title,
+            required: row.required ?? 1,
+            sort_order: row.sort_order ?? 0,
           })),
       };
     }

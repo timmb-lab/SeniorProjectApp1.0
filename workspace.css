@@ -1078,6 +1078,127 @@
   background: var(--abc-soft-red);
 }
 
+.workspace-student-progress-hero {
+  gap: 1.25rem;
+}
+
+.workspace-student-progress-hero .workspace-card-head {
+  align-items: flex-start;
+}
+
+.workspace-student-progress-layout {
+  display: grid;
+  grid-template-columns: minmax(130px, 0.22fr) minmax(0, 1fr);
+  gap: 1rem;
+  align-items: center;
+}
+
+.workspace-student-progress-number {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.workspace-student-progress-number strong {
+  color: var(--abc-ink);
+  font-size: 4rem;
+  line-height: 0.95;
+}
+
+.workspace-student-progress-number span,
+.workspace-student-detail-fact span {
+  color: var(--abc-muted);
+  font-size: 0.78rem;
+  font-weight: 950;
+  text-transform: uppercase;
+}
+
+.workspace-student-progress-main {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.workspace-student-progress-meter {
+  position: relative;
+  width: 100%;
+  min-height: 18px;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--workspace-primary) 26%, white);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--workspace-soft) 68%, white);
+}
+
+.workspace-student-progress-meter span {
+  display: block;
+  min-height: 18px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--workspace-primary), var(--abc-green));
+}
+
+.workspace-student-status-badge {
+  border: 1px solid color-mix(in srgb, var(--workspace-primary) 36%, white);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--abc-ink);
+  font-size: 0.78rem;
+  font-weight: 950;
+  padding: 0.4rem 0.7rem;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.workspace-student-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.85rem;
+}
+
+.workspace-student-summary-tile strong {
+  font-size: 1.35rem;
+  line-height: 1.12;
+}
+
+.workspace-student-details-panel {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.workspace-student-details-panel summary {
+  cursor: pointer;
+  font-weight: 900;
+}
+
+.workspace-student-details-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-top: 0.85rem;
+}
+
+.workspace-student-detail-fact {
+  display: grid;
+  gap: 0.25rem;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-card);
+  background: #fff;
+  padding: 0.85rem;
+}
+
+.workspace-student-detail-fact strong {
+  color: var(--abc-ink);
+  line-height: 1.25;
+}
+
+.workspace-student-support-box {
+  border-left: 5px solid var(--abc-green);
+  border-radius: var(--radius-card);
+  background: var(--abc-green-soft);
+  padding: 0.9rem 1rem;
+}
+
+.workspace-student-next-step {
+  align-items: flex-start;
+}
+
 .workspace-quick-action-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1433,6 +1554,9 @@ button.workspace-metric-tile,
   .workspace-command-hero,
   .workspace-dashboard-grid,
   .workspace-dashboard-grid-two,
+  .workspace-student-progress-layout,
+  .workspace-student-summary-grid,
+  .workspace-student-details-grid,
   .workspace-filter-bar,
   .workspace-review-layout,
   .workspace-mentor-assignment-layout,
@@ -1445,6 +1569,10 @@ button.workspace-metric-tile,
 
   .workspace-review-queue .workspace-student-card {
     grid-template-columns: 1fr;
+  }
+
+  .workspace-student-progress-number strong {
+    font-size: 3rem;
   }
 
   .workspace-review-panel {

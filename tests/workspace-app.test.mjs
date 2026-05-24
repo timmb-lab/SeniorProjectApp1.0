@@ -1153,9 +1153,9 @@ test("workspace renders upload progress, validation, completion, and retry state
   assert.match(uploading, /role="progressbar"/);
   assert.match(uploading, /aria-live="polite"/);
   assert.match(uploading, /progress-proof\.txt/);
-  assert.match(uploading, /workspace-product-header/);
-  assert.match(uploading, /Senior Capstone Product/);
-  assert.match(uploading, /No student messaging/);
+  assert.match(uploading, /Your Senior Project/);
+  assert.doesNotMatch(uploading, /workspace-product-header/);
+  assert.doesNotMatch(uploading, /Database-backed MVP|Cloudflare target|Audit-sensitive admin/);
 
   const failed = await renderWorkspaceWithFetch(routes, "student", `
     lastUploadAttempt = {
@@ -1196,6 +1196,117 @@ test("workspace renders upload progress, validation, completion, and retry state
   assert.match(workspaceJs, /selected file is empty/i);
   assert.match(workspaceJs, /20 MB limit/);
   assert.doesNotMatch(`${uploading}\n${failed}\n${complete}`, /drive_file_id|driveFileId|drive_parent_folder_id|driveParentFolderId|access_token|refresh_token/i);
+});
+
+test("workspace renders a progress-first student homepage with safe language", async () => {
+  const student = await renderWorkspaceWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "student-progress-home",
+          email: "student.progress@senior-capstone.test",
+          displayName: "Progress Student",
+          roles: [{ role_id: "student", scope_type: "global", scope_id: "" }],
+        },
+      },
+    },
+    "/api/student/dashboard": {
+      status: 200,
+      body: {
+        ok: true,
+        viewer: { self: true },
+        nextAction: "Revise Senior Project Proposal and send it back for review.",
+        summary: {
+          requirementsTotal: 6,
+          requirementsComplete: 3,
+          completionPercent: 50,
+          phasesTotal: 4,
+          phasesComplete: 2,
+          submittedRequiredCount: 4,
+          missingRequiredCount: 2,
+          waitingForReviewCount: 1,
+          revisionRequestedCount: 1,
+          currentPhase: "proposal-and-research",
+          currentPhaseLabel: "Proposal And Research",
+          currentStatus: "Needs Revision",
+          lastUpdatedAt: "2026-05-24T18:00:00.000Z",
+          mentor: {
+            assigned: true,
+            name: "Ms. Garcia",
+            message: "Ms. Garcia can help with project questions.",
+          },
+          dueDatesAvailable: false,
+        },
+        nextSteps: [
+          {
+            title: "Senior Project Proposal",
+            status: "Needs Revision",
+            detail: "Revise Senior Project Proposal and send it back for review.",
+            dueDate: null,
+          },
+          {
+            title: "Mentor Meeting One Plan",
+            status: "Missing",
+            detail: "Start or finish Mentor Meeting One Plan.",
+            dueDate: null,
+          },
+        ],
+        progress: [
+          { requirement_id: "req-proposal", phase: "proposal-and-research", status: "revision_requested", updated_at: "2026-05-24T18:00:00.000Z", requirement_title: "Senior Project Proposal" },
+        ],
+        submissions: [
+          { id: "submission-proposal", requirement_id: "req-proposal", requirement_title: "Senior Project Proposal", status: "revision_requested", version: 2, updated_at: "2026-05-24T18:00:00.000Z" },
+        ],
+        evidence: [],
+      },
+    },
+    "/api/student/archive/readiness": {
+      status: 200,
+      body: { ok: true, checks: [], summary: {}, archive: {}, storage: {}, retention: {} },
+    },
+    "/api/presentation-slots": {
+      status: 200,
+      body: { ok: true, slots: [] },
+    },
+  });
+
+  assert.match(student, /Your Senior Project/);
+  assert.match(student, /Track what is complete, what is missing, and what to do next/);
+  assert.match(student, /role="progressbar"/);
+  assert.match(student, /aria-valuenow="50"/);
+  assert.match(student, /Project Phases/);
+  assert.match(student, /2 of 4 complete/);
+  assert.match(student, /Required Submissions/);
+  assert.match(student, /4 of 6 submitted/);
+  assert.match(student, /Review Status/);
+  assert.match(student, /1 needs revision/);
+  assert.match(student, /Mentor: Ms\. Garcia/);
+  assert.match(student, /What to Work On Next/);
+  assert.match(student, /Progress Details/);
+  assert.match(student, /Need help/);
+  assert.match(student, /Due date: Not available yet/);
+  assert.doesNotMatch(student, /Database-backed MVP/);
+  assert.doesNotMatch(student, /Cloudflare target/);
+  assert.doesNotMatch(student, /Audit-sensitive admin/);
+  assert.doesNotMatch(student, /href="#"/);
+  for (const pattern of [
+    /\bprompt\b/i,
+    /\bdeveloper\b/i,
+    /\bprototype\b/i,
+    /\bmock\b/i,
+    /\bfake\b/i,
+    /\bseed\b/i,
+    /\binternal\b/i,
+    /\bRBAC\b/i,
+    /\bschema\b/i,
+    /\bdebug\b/i,
+    /\bTODO\b/i,
+    /\bFIXME\b/i,
+  ]) {
+    assert.doesNotMatch(student, pattern);
+  }
 });
 
 test("workspace renders role-pending and permission-denied access states", async () => {

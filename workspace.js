@@ -517,7 +517,7 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
         </aside>
         <div class="workspace-main">
           ${statusMessage ? statusHtml(statusMessage, tone) : ""}
-          ${renderProductHeader({
+          ${primaryRole === "student" ? "" : renderProductHeader({
             context: headerContext,
             readOnly: roles.has("viewer"),
           })}
@@ -2468,44 +2468,66 @@ function renderStudentSection() {
     return `
       <section class="workspace-card workspace-error-card">
         <h2>Student workspace unavailable</h2>
+        <p>We could not load your project progress.</p>
         ${renderApiNotice(result)}
+        ${renderProblemState({
+          reason: "Your project records did not load.",
+          owner: "Program teacher",
+          nextAction: "Refresh this page. Ask your program teacher for help if this keeps happening.",
+        })}
       </section>
     `;
   }
 
   const submissions = dashboard.submissions || [];
   const evidence = dashboard.evidence || [];
-  const progress = dashboard.progress || [];
+  const summary = studentProgressSummary(dashboard);
+  const nextSteps = Array.isArray(dashboard.nextSteps) ? dashboard.nextSteps : [];
   return `
-    <section class="workspace-card workspace-hero-card">
+    <section class="workspace-card workspace-hero-card workspace-student-progress-hero" aria-labelledby="studentProgressTitle">
       <div class="workspace-card-head">
         <div>
-          <p class="workspace-kicker">Student workspace</p>
-          <h2>Current Project Status</h2>
+          <p class="workspace-kicker">Student home</p>
+          <h2 id="studentProgressTitle">Your Senior Project</h2>
+          <p>Track what is complete, what is missing, and what to do next.</p>
         </div>
-        <span class="workspace-chip">${escapeHtml(dashboard.viewer?.self ? "Own record" : "Scoped view")}</span>
+        ${studentStatusBadge(summary.currentStatus)}
       </div>
-      <p>${escapeHtml(dashboard.nextAction || "Review your current Capstone Project status.")}</p>
-      <div class="workspace-grid">
-        ${metric("Submissions", submissions.length)}
-        ${metric("Evidence", evidence.length)}
-        ${metric("Progress Items", progress.length)}
+      <div class="workspace-student-progress-layout">
+        <div class="workspace-student-progress-number">
+          <strong>${escapeHtml(summary.completionPercent)}%</strong>
+          <span>overall complete</span>
+        </div>
+        <div class="workspace-student-progress-main">
+          <div class="workspace-student-progress-meter" role="progressbar" aria-label="Overall senior project completion" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${escapeHtml(summary.completionPercent)}">
+            <span style="width: ${escapeHtml(summary.completionPercent)}%"></span>
+          </div>
+          <p>${escapeHtml(summary.requirementsTotal ? `${summary.requirementsComplete} of ${summary.requirementsTotal} requirements are complete.` : "Your teacher has not added project requirements yet.")}</p>
+        </div>
+      </div>
+      <div class="workspace-student-summary-grid">
+        ${renderStudentSummaryTile("Project Phases", `${summary.phasesComplete} of ${summary.phasesTotal || 0} complete`, summary.phasesTotal ? "Progress is grouped by senior project phase." : "Project phases are not available yet.", "student")}
+        ${renderStudentSummaryTile("Required Submissions", `${summary.submittedRequiredCount} of ${summary.requirementsTotal || 0} submitted`, summary.requirementsTotal ? `${summary.missingRequiredCount} still missing or in draft.` : "No required submissions are assigned yet.", summary.missingRequiredCount ? "warning" : "student")}
+        ${renderStudentSummaryTile("Review Status", reviewMetric(summary), reviewExplanation(summary), summary.revisionRequestedCount ? "danger" : summary.waitingForReviewCount ? "warning" : "student")}
+        ${renderStudentSummaryTile("Mentor / Support", summary.mentor.assigned ? `Mentor: ${summary.mentor.name}` : "No mentor assigned yet", summary.mentor.assigned ? "Ask your mentor or program teacher if something looks wrong." : "Ask your program teacher who can help with mentor questions.", summary.mentor.assigned ? "mentor" : "warning")}
       </div>
     </section>
+    ${renderStudentNextSteps(nextSteps, summary)}
+    ${renderStudentProgressDetails(summary, dashboard)}
     <section class="workspace-card">
       <div class="workspace-card-head">
         <div>
-          <p class="workspace-kicker">Required artifacts</p>
+          <p class="workspace-kicker">Add your work</p>
           <h2>Submit Evidence</h2>
         </div>
       </div>
-      ${submissions.length ? renderEvidenceForms(submissions) : `<div class="workspace-empty">No active submission is ready for evidence yet.</div>`}
+      ${submissions.length ? renderEvidenceForms(submissions) : `<div class="workspace-empty">No active submission is ready for evidence yet. Check back after your teacher adds a requirement.</div>`}
     </section>
     <section class="workspace-card">
       <div class="workspace-card-head">
         <div>
           <p class="workspace-kicker">Submissions</p>
-          <h2>Teacher Review Status</h2>
+          <h2>Your Submitted Work</h2>
         </div>
       </div>
       <div class="workspace-list">
@@ -2515,7 +2537,7 @@ function renderStudentSection() {
     <section class="workspace-card">
       <div class="workspace-card-head">
         <div>
-          <p class="workspace-kicker">Evidence</p>
+          <p class="workspace-kicker">Evidence and files</p>
           <h2>Uploaded And Linked Work</h2>
         </div>
       </div>
@@ -2523,6 +2545,163 @@ function renderStudentSection() {
         ${evidence.length ? evidence.map(renderEvidenceRow).join("") : `<div class="workspace-empty">Evidence will appear here after you attach a link or upload a file.</div>`}
       </div>
     </section>
+  `;
+}
+
+function studentProgressSummary(dashboard) {
+  const fallback = {
+    requirementsTotal: 0,
+    requirementsComplete: 0,
+    completionPercent: 0,
+    phasesTotal: 0,
+    phasesComplete: 0,
+    submittedRequiredCount: 0,
+    missingRequiredCount: 0,
+    waitingForReviewCount: 0,
+    revisionRequestedCount: 0,
+    currentPhase: "",
+    currentPhaseLabel: "Not available yet",
+    currentStatus: "Not Started",
+    lastUpdatedAt: null,
+    mentor: {
+      assigned: false,
+      name: null,
+      message: "No mentor assigned yet.",
+    },
+    dueDatesAvailable: false,
+  };
+  const summary = dashboard?.summary || {};
+  const completionPercent = clampPercent(summary.completionPercent);
+  return {
+    ...fallback,
+    ...summary,
+    completionPercent,
+    requirementsTotal: safeNumber(summary.requirementsTotal),
+    requirementsComplete: safeNumber(summary.requirementsComplete),
+    phasesTotal: safeNumber(summary.phasesTotal),
+    phasesComplete: safeNumber(summary.phasesComplete),
+    submittedRequiredCount: safeNumber(summary.submittedRequiredCount),
+    missingRequiredCount: safeNumber(summary.missingRequiredCount),
+    waitingForReviewCount: safeNumber(summary.waitingForReviewCount),
+    revisionRequestedCount: safeNumber(summary.revisionRequestedCount),
+    mentor: {
+      ...fallback.mentor,
+      ...(summary.mentor || {}),
+    },
+  };
+}
+
+function clampPercent(value) {
+  const numberValue = Number(value);
+  if (!Number.isFinite(numberValue)) return 0;
+  return Math.max(0, Math.min(100, Math.round(numberValue)));
+}
+
+function studentStatusBadge(status) {
+  const normalized = String(status || "Not Started").trim() || "Not Started";
+  const statusKey = normalized.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+  return `<span class="workspace-student-status-badge" data-student-progress-status="${escapeHtml(statusKey)}">${escapeHtml(normalized)}</span>`;
+}
+
+function renderStudentSummaryTile(title, metricText, explanation, tone = "") {
+  return `
+    <article class="workspace-metric-tile workspace-student-summary-tile ${escapeHtml(tone)}">
+      <div>
+        <span>${escapeHtml(title)}</span>
+        <strong>${escapeHtml(metricText)}</strong>
+        <p>${escapeHtml(explanation)}</p>
+      </div>
+    </article>
+  `;
+}
+
+function reviewMetric(summary) {
+  if (summary.revisionRequestedCount) return `${summary.revisionRequestedCount} needs revision`;
+  if (summary.waitingForReviewCount) return `${summary.waitingForReviewCount} waiting for review`;
+  return "No review action";
+}
+
+function reviewExplanation(summary) {
+  if (summary.revisionRequestedCount) return "Revise these items before moving forward.";
+  if (summary.waitingForReviewCount) return "Your teacher has work to review.";
+  return "Nothing is waiting for review right now.";
+}
+
+function renderStudentNextSteps(nextSteps, summary) {
+  const rows = nextSteps.length ? nextSteps : [];
+  return `
+    <section class="workspace-dashboard-card workspace-student-next-steps" aria-labelledby="studentNextStepsTitle">
+      <div class="workspace-card-head">
+        <div>
+          <p class="workspace-kicker">Next steps</p>
+          <h2 id="studentNextStepsTitle">What to Work On Next</h2>
+        </div>
+      </div>
+      <div class="workspace-list">
+        ${rows.length ? rows.map(renderStudentNextStepRow).join("") : `
+          <article class="workspace-empty-state-card">
+            <strong>You are caught up right now.</strong>
+            <p>${escapeHtml(summary.waitingForReviewCount ? "Check back after your teacher reviews your work." : "Check back after your teacher adds or reviews project requirements.")}</p>
+          </article>
+        `}
+      </div>
+    </section>
+  `;
+}
+
+function renderStudentNextStepRow(item) {
+  return `
+    <article class="workspace-row workspace-student-next-step">
+      <div>
+        <strong>${escapeHtml(item.title || "Senior Project requirement")}</strong>
+        <p>${escapeHtml(item.detail || "Review this requirement and continue your next step.")}</p>
+        <p class="workspace-muted">Due date: ${escapeHtml(item.dueDate ? formatDate(item.dueDate) : "Not available yet")}</p>
+      </div>
+      ${statusPill(item.status || "not_started")}
+    </article>
+  `;
+}
+
+function renderStudentProgressDetails(summary, dashboard) {
+  const progress = dashboard.progress || [];
+  const submissions = dashboard.submissions || [];
+  const evidence = dashboard.evidence || [];
+  return `
+    <section class="workspace-dashboard-card workspace-student-progress-details" aria-labelledby="studentProgressDetailsTitle">
+      <div class="workspace-card-head">
+        <div>
+          <p class="workspace-kicker">Progress details</p>
+          <h2 id="studentProgressDetailsTitle">Progress Details</h2>
+        </div>
+      </div>
+      <details class="workspace-student-details-panel" open>
+        <summary>View your project progress details</summary>
+        <div class="workspace-student-details-grid">
+          ${renderStudentDetailFact("Current phase", summary.currentPhaseLabel || "Not available yet")}
+          ${renderStudentDetailFact("Completed requirements", `${summary.requirementsComplete} of ${summary.requirementsTotal || 0}`)}
+          ${renderStudentDetailFact("Missing submissions", summary.missingRequiredCount ? `${summary.missingRequiredCount} to finish` : "None right now")}
+          ${renderStudentDetailFact("Waiting for review", summary.waitingForReviewCount ? `${summary.waitingForReviewCount} submitted` : "Nothing waiting")}
+          ${renderStudentDetailFact("Needs revision", summary.revisionRequestedCount ? `${summary.revisionRequestedCount} item${summary.revisionRequestedCount === 1 ? "" : "s"}` : "Nothing right now")}
+          ${renderStudentDetailFact("Last updated", summary.lastUpdatedAt ? formatDate(summary.lastUpdatedAt) : "Not available yet")}
+          ${renderStudentDetailFact("Evidence added", `${evidence.length} item${evidence.length === 1 ? "" : "s"}`)}
+          ${renderStudentDetailFact("Teacher feedback", summary.revisionRequestedCount ? "Review the item marked Needs Revision." : "You do not have feedback that needs action right now.")}
+        </div>
+      </details>
+      <div class="workspace-student-support-box">
+        <strong>Need help?</strong>
+        <p>${escapeHtml(summary.mentor.message || "Ask your mentor or program teacher if something looks wrong.")}</p>
+        <p class="workspace-muted">${escapeHtml(submissions.length || progress.length ? "Use the submission list below to attach work or check review status." : "Your teacher has not added project requirements yet.")}</p>
+      </div>
+    </section>
+  `;
+}
+
+function renderStudentDetailFact(label, value) {
+  return `
+    <article class="workspace-student-detail-fact">
+      <span>${escapeHtml(label)}</span>
+      <strong>${escapeHtml(value)}</strong>
+    </article>
   `;
 }
 
@@ -2541,7 +2720,7 @@ function renderEvidenceForms(submissions) {
             <select class="workspace-select" name="submissionId" required>${options}</select>
           </label>
           <label class="workspace-label">
-            Artifact type
+            Work type
             <select class="workspace-select" name="artifactType">
               ${artifactTypeOptions()}
             </select>
@@ -2569,7 +2748,7 @@ function renderEvidenceForms(submissions) {
             <select class="workspace-select" name="submissionId" required>${options}</select>
           </label>
           <label class="workspace-label">
-            Artifact type
+            Work type
             <select class="workspace-select" name="artifactType">
               ${artifactTypeOptions()}
             </select>
@@ -2583,7 +2762,7 @@ function renderEvidenceForms(submissions) {
             <input class="workspace-input" name="file" type="file" accept="image/*,.pdf,.txt,.csv,.docx,.pptx,.xlsx,application/pdf,text/plain,text/csv,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" data-upload-action="select-file" required>
           </label>
         </div>
-        <p class="workspace-muted">Files up to 20 MB are accepted when storage is configured for this environment.</p>
+        <p class="workspace-muted">Files up to 20 MB can be uploaded when file storage is available.</p>
         ${renderUploadStatus()}
         <div class="workspace-form-actions">
           <button class="workspace-button workspace-button-primary" type="submit">Upload file</button>
@@ -4540,7 +4719,7 @@ function renderEvidenceRow(item) {
     <article class="workspace-row">
       <div>
         <strong>${escapeHtml(item.title || "Evidence")}</strong>
-        <p>${escapeHtml(statusText(item.source_kind || "evidence"))} / ${escapeHtml(item.artifact_type || "artifact")}</p>
+        <p>${escapeHtml(evidenceSourceLabel(item.source_kind))} / ${escapeHtml(statusText(item.artifact_type || "evidence"))}</p>
       </div>
       <div class="workspace-row-actions">
         ${actions.join("")}
@@ -4548,6 +4727,13 @@ function renderEvidenceRow(item) {
       </div>
     </article>
   `;
+}
+
+function evidenceSourceLabel(value) {
+  if (value === "google_drive_file") return "Uploaded file";
+  if (value === "external_link") return "Linked work";
+  if (value === "generated_export") return "Exported package";
+  return "Evidence";
 }
 
 function statusPill(status) {
