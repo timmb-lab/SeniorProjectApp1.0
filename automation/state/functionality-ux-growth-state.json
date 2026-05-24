@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-05-24T15:16:54-07:00",
-  "lastStartingSha": "e0171a9941b10e35067da7e57b5263561e5a4c91",
+  "lastRunAt": "2026-05-24T15:43:49-07:00",
+  "lastStartingSha": "19396ea065fdc3c748d342844ecddcf81a9d4b79",
   "lastEndingSha": null,
   "currentLadderFocus": "LEVEL_1_NAVIGABLE_DASHBOARDS",
   "completedWorkOrders": [
@@ -25,66 +25,143 @@
       "type": "TYPE_G_VERIFICATION_REGRESSION_PROTECTION",
       "summary": "Expanded the hourly functionality UX prompt into a ladder-driven growth system with durable ledger/state tracking and prompt-quality verification.",
       "commit": "created-by-closeout-commit"
+    },
+    {
+      "id": "product-readiness-upgrade-sprint",
+      "completedAt": "2026-05-24T15:43:49-07:00",
+      "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS",
+      "type": "TYPE_H_DOCUMENTATION_BACKLOG_ALIGNMENT",
+      "summary": "Completed the one-time product readiness sprint: language cleanup, admin site selector, collapsible navigation, wider dashboard layout, dashboard click-through presets, top-risk student detail actions, 100-item audit, ledger, and state handoff.",
+      "commit": "pending-closeout-commit"
+    },
+    {
+      "id": "admin-site-switcher-current-site-context",
+      "completedAt": "2026-05-24T15:43:49-07:00",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "type": "TYPE_D_ROLE_WORKSPACE",
+      "summary": "Product/platform, org, and site admins now see a real current-site selector when multiple accessible sites exist, or an honest current-site indicator when only one site is available.",
+      "commit": "pending-closeout-commit"
+    },
+    {
+      "id": "dashboard-review-operations-clickthrough-presets",
+      "completedAt": "2026-05-24T15:43:49-07:00",
+      "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS",
+      "type": "TYPE_B_DASHBOARD_CLICK_THROUGH",
+      "summary": "Site Dashboard Submitted and Needs Revision metrics open the Review Queue filters, and Presentation and Archive metrics open Operations readiness filters.",
+      "commit": "pending-closeout-commit"
+    },
+    {
+      "id": "site-dashboard-top-risk-student-detail-entry",
+      "completedAt": "2026-05-24T15:43:49-07:00",
+      "ladderLevel": "LEVEL_2_STUDENT_DETAIL_DEPTH",
+      "type": "TYPE_C_STUDENT_DETAIL_DRILL_DOWN",
+      "summary": "Top-risk dashboard rows now open the existing authorized student detail panel through the scoped detail loader.",
+      "commit": "pending-closeout-commit"
     }
   ],
   "deferredWorkOrders": [
     {
-      "id": "public-app-preview-language-cleanup",
-      "ladderLevel": "LEVEL_0_PROTOTYPE_CLEANUP",
-      "reason": "Public app-preview still has review-only implementation, Figma artifact, and technical event notices."
+      "id": "dashboard-action-link-verifier",
+      "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
+      "reason": "Workspace source tests cover the new presets, but a standalone verifier should prevent fake links, unsupported presets, and unauthorized dashboard destinations."
     },
     {
-      "id": "site-dashboard-review-count-clickthroughs",
-      "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS",
-      "reason": "Submitted and Needs Revision metrics should open existing Review Queue filters."
+      "id": "browser-visual-qa-collapsed-nav-and-site-switching",
+      "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
+      "reason": "Browser screenshot QA needs credentialed local runtime and multiple-site demo data."
     },
     {
-      "id": "dashboard-link-verifier",
+      "id": "program-row-student-directory-clickthrough",
       "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS",
-      "reason": "A source verifier should prevent future fake dashboard links and unsupported section actions."
+      "reason": "Program-row drill-down should wait until supported directory program filters are confirmed."
+    },
+    {
+      "id": "mentor-workload-and-missing-submission-drilldowns",
+      "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS",
+      "reason": "These need route/filter confirmation before adding visible controls."
+    },
+    {
+      "id": "student-next-action-card",
+      "ladderLevel": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN",
+      "reason": "Student next-action guidance should use real existing progress/submission fields and own-student data only."
+    },
+    {
+      "id": "product-admin-all-sites-rollup",
+      "ladderLevel": "LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS",
+      "reason": "All-sites rollup needs backend aggregate and authorization design; the sprint intentionally avoided fake cross-site controls."
     }
   ],
   "blockedWorkOrders": [],
   "nextRecommendedWorkOrders": [
     {
-      "id": "site-dashboard-submitted-review-queue-clickthrough",
-      "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS",
-      "type": "TYPE_B_DASHBOARD_CLICK_THROUGH",
-      "summary": "Link Site Dashboard Submitted metric to the existing Review Queue filtered to submitted work."
-    },
-    {
-      "id": "site-dashboard-needs-revision-review-queue-clickthrough",
-      "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS",
-      "type": "TYPE_B_DASHBOARD_CLICK_THROUGH",
-      "summary": "Link Site Dashboard Needs Revision metric to the existing Review Queue filtered to revision-requested work."
-    },
-    {
       "id": "dashboard-action-link-verifier",
       "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
       "type": "TYPE_G_VERIFICATION_REGRESSION_PROTECTION",
-      "summary": "Add verifier coverage for dashboard section actions, presets, and no fake hrefs."
+      "summary": "Add a standalone verifier that checks dashboard actions, Review Queue presets, Operations presets, no href=\"#\", no empty links, and no unauthorized student/admin destinations."
+    },
+    {
+      "id": "browser-visual-qa-collapsed-nav",
+      "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
+      "type": "TYPE_G_VERIFICATION_REGRESSION_PROTECTION",
+      "summary": "Run credentialed browser screenshot QA for expanded/collapsed navigation, admin site selector, and mobile wrapping."
+    },
+    {
+      "id": "program-row-directory-clickthrough",
+      "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS",
+      "type": "TYPE_B_DASHBOARD_CLICK_THROUGH",
+      "summary": "Link program breakdown rows to a real Student Directory filter after confirming route support."
+    },
+    {
+      "id": "mentor-workload-clickthrough",
+      "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS",
+      "type": "TYPE_B_DASHBOARD_CLICK_THROUGH",
+      "summary": "Link overloaded mentor counts to a real Mentor Assignments workload filter if supported."
+    },
+    {
+      "id": "student-next-action-card",
+      "ladderLevel": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN",
+      "type": "TYPE_D_ROLE_WORKSPACE",
+      "summary": "Add a student-owned next-action card using existing progress, submission, revision, presentation, and archive signals."
     }
   ],
   "doNotRepeat": [
     "Do not repeat protected workspace header/posture chip cleanup unless new leaked phrases are found.",
     "Do not relink the Site Dashboard No Mentor metric; it already opens Mentor Assignments filtered to unassigned students.",
+    "Do not repeat public preview implementation-language cleanup unless the verifier reports a new public review-only leak.",
     "Do not spend a run on generic docs churn when a concrete ladder work order is safe and testable.",
-    "Do not replace the functionality UX growth system with a short generic checklist; preserve ladder, ledger, state, scoring, and handoff requirements."
+    "Do not replace the functionality UX growth system with a short generic checklist; preserve ladder, ledger, state, scoring, and handoff requirements.",
+    "Do not add fake site switching, fake all-sites rollups, fake retry buttons, fake intervention workflows, or links to routes that do not exist.",
+    "Do not broaden viewer, teacher, mentor, or student access while adding dashboard drill-downs or student detail entry points."
   ],
   "lastValidationStatus": {
     "status": "passed",
-    "completedAt": "2026-05-24T15:16:54-07:00",
+    "completedAt": "2026-05-24T15:47:55-07:00",
     "commands": [
       "npm run verify:functionality-ux-automation",
       "npm run verify:functionality-language",
       "node --test tests/functionality-language-audit.test.mjs",
+      "node --test tests/workspace-app.test.mjs",
+      "node --test tests/account-and-evidence-access.test.mjs",
       "npm run test",
       "npm run typecheck",
-      "npm run check:automation",
       "npm run check:production-surfaces",
       "npm run check",
       "git diff --check"
     ],
-    "notes": "All commands passed; git diff --check emitted CRLF normalization warnings only."
+    "notes": "Final validation passed. git diff --check reported CRLF normalization warnings only. lastEndingSha is left null until the closeout commit exists."
+  },
+  "lastProductReadinessScorecardSummary": {
+    "homepageClarity": "2 to 4",
+    "dashboardLanguageQuality": "2 to 4",
+    "dashboardClickThroughDepth": "2 to 3",
+    "studentDetailUsability": "3 to 4",
+    "siteContextClarity": "2 to 4",
+    "layoutWidthUsage": "2 to 4",
+    "navigationMenuEfficiency": "2 to 4",
+    "roleSpecificWorkspaceClarity": "3 to 4",
+    "studentPrivacyConfidence": "4 to 4",
+    "staffWorkflowUsefulness": "3 to 4",
+    "emptyErrorStateQuality": "2 to 3",
+    "regressionTestCoverage": "3 to 4"
   }
 }

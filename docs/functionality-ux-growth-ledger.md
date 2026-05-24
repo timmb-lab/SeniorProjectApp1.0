@@ -133,3 +133,93 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: none known at draft time
   - Do not repeat: do not re-audit the old short prompt after this commit; inspect the new ladder/state first
   - First file to inspect next run: `automation/state/functionality-ux-growth-state.json`
+
+## Product Upgrade Sprint 2026-05-24 15:43 PT
+
+- Starting SHA: `19396ea065fdc3c748d342844ecddcf81a9d4b79`
+- Ending SHA: pending closeout commit
+- Branch: `main`
+- Ladder levels targeted: `LEVEL_0_PROTOTYPE_CLEANUP`, `LEVEL_1_NAVIGABLE_DASHBOARDS`, `LEVEL_2_STUDENT_DETAIL_DEPTH`, `LEVEL_4_ROLE_SPECIFIC_WORKSPACES`, `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT`
+- Backlog item: one-time user-requested product-readiness upgrade sprint covering homepage language, dashboard language, site selection, layout width, collapsible navigation, student detail entry, and obvious product gaps
+- Work order selected: Fix the explicit reported issues, document a 100-item repo-grounded product audit, and leave validated handoff state for future growth runs.
+- Selection reason: The request named high-visibility school-user blockers and asked for an aggressive but safe product cleanup rather than another narrow hourly slice.
+- User-facing improvement: The protected workspace now reads as a school workspace, uses more desktop width, has a collapsible menu, shows admin-only current-site selection, links more dashboard counts to real scoped worklists, and opens high-risk student detail from the dashboard.
+- Roles affected: Product/platform admin, org admin, site admin, viewer, program teacher, mentor, student, and public preview visitors
+- Explicit user-reported issues addressed:
+  - Homepage developer/product-build language: fixed
+  - Dashboard developer/implementation language: fixed
+  - Product/Site Admin site selector/current-site control: fixed
+  - Page width and cramped dashboard layout: fixed
+  - Hamburger/collapsible menu: fixed
+  - Student detail entry from dashboard risk rows: fixed using existing authorized detail route
+  - Prototype/product gaps: partially fixed, with 100 concrete follow-up issues documented
+- 100-item audit file: `docs/product-readiness-upgrade-sprint.md`
+- Ladder levels advanced:
+  - `LEVEL_0_PROTOTYPE_CLEANUP`: protected and public-facing language cleanup expanded
+  - `LEVEL_1_NAVIGABLE_DASHBOARDS`: Submitted, Needs Revision, Presentation, Archive, and Top Risk actions now route to real work surfaces
+  - `LEVEL_2_STUDENT_DETAIL_DEPTH`: top-risk dashboard rows now open existing authorized student detail
+  - `LEVEL_4_ROLE_SPECIFIC_WORKSPACES`: Product/Site Admin site context and mentor empty states improved without broadening access
+  - `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT`: sprint audit, scorecard, verifier, and state handoff updated
+- Fixes completed:
+  - Cleaned workspace homepage, permission, dashboard, empty-state, archive privacy, and public preview implementation copy
+  - Added admin-only site selector/current-site indicator using existing `accessibleSites` and `siteId` query behavior
+  - Propagated selected site into site dashboard, directory, review queue, mentor assignments, operations, student detail, and timeline calls
+  - Added collapsible navigation with compact labels and accessible toggle state
+  - Widened app shell and dashboard grids for better desktop use
+  - Added dashboard presets for submitted work, revision work, presentation readiness, and archive failures
+  - Added Top Risk `View detail` actions to the existing student detail loader
+  - Hardened protected workspace language verifier
+- Fixes partially completed:
+  - Browser/mobile visual QA used source and DOM tests because local credentialed smoke was not available in this run
+  - Dashboard action verifier coverage exists in workspace tests, but a standalone route/action verifier remains recommended
+  - Student detail entry was repaired from dashboard risk rows; richer detail tabs and URL state remain future work
+- Fixes deferred:
+  - Product Admin all-sites rollup until backend aggregate/RBAC design exists
+  - Program-row, mentor workload, missing submission, and student next-action drill-downs until route/filter support is confirmed
+  - Staff intervention mutation workflows until backend/audit support exists
+- Files changed:
+  - `workspace.js`
+  - `workspace.css`
+  - `app.js`
+  - `public-companion/app.js`
+  - `scripts/verify-functionality-language.mjs`
+  - `tests/workspace-app.test.mjs`
+  - `tests/workspace-browser-smoke.test.mjs`
+  - `docs/product-readiness-upgrade-sprint.md`
+  - `docs/functionality-ux-growth-ledger.md`
+  - `automation/state/functionality-ux-growth-state.json`
+- Tests/verifiers added or updated:
+  - `scripts/verify-functionality-language.mjs`
+  - `tests/workspace-app.test.mjs`
+  - `tests/workspace-browser-smoke.test.mjs`
+- Browser/DOM checks:
+  - Source/DOM render coverage checked workspace home, site dashboard, student directory/detail, review queue, mentor assignments, operations, mentor dashboard, student dashboard, permission states, archive, presentation, site selector, and collapsible nav.
+  - No screenshots were committed because the browser smoke harness requires credentialed local/runtime setup.
+- Validation commands:
+  - Baseline: `npm run verify:functionality-language`; `npm run test`; `npm run typecheck`; `npm run check:production-surfaces`; `git diff --check`
+  - Targeted during implementation: `npm run verify:functionality-language`; `node --test tests/workspace-app.test.mjs`; `node --test tests/functionality-language-audit.test.mjs`; `npm run check:production-surfaces`
+  - Final validation: `npm run verify:functionality-ux-automation`; `npm run verify:functionality-language`; `node --test tests/functionality-language-audit.test.mjs`; `node --test tests/workspace-app.test.mjs`; `node --test tests/account-and-evidence-access.test.mjs`; `npm run test`; `npm run typecheck`; `npm run check:production-surfaces`; `npm run check`; `git diff --check`
+- Validation result: passed; `git diff --check` reported CRLF normalization warnings only
+- Commit: pending closeout commit; see final report or `git log -1` because embedding the final hash in the same commit would change the hash
+- Push status: not pushed
+- Next recommended work orders:
+  - Add standalone dashboard action verifier for fake links, unsupported presets, and unauthorized destinations
+  - Run browser screenshot QA for desktop/mobile collapsed and expanded navigation
+  - Add program-row click-through to Student Directory after confirming supported filters
+  - Add mentor workload and missing submission drill-downs
+  - Add student next-action and archive-blocker guidance
+- Do-not-repeat notes:
+  - Do not re-clean the workspace header posture language unless a new leak appears
+  - Do not relink the No Mentor metric; it was completed before this sprint
+  - Do not add fake site switching, fake all-sites rollups, fake retry buttons, or fake intervention workflows
+  - Do not broaden viewer, teacher, mentor, or student access while adding drill-downs
+  - Do not repeat this 100-item audit as generic docs work; use it to select concrete next slices
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_1_NAVIGABLE_DASHBOARDS`
+  - Advanced: yes, with Level 0, Level 2, Level 4, and Level 9 supporting work
+  - Evidence: route-backed dashboard presets, admin site selector, collapsible nav, top-risk detail actions, hardened verifier, and sprint audit
+  - Unlocks: safer future dashboard drill-downs and browser visual QA
+  - Next: add the standalone dashboard action verifier, then program-row or workload drill-down
+  - Blockers: browser screenshots need credentialed local runtime; all-sites rollup needs backend aggregate design
+  - Do not repeat: do not redo the explicit fixed items unless regression evidence appears
+  - First file to inspect next run: `docs/product-readiness-upgrade-sprint.md`

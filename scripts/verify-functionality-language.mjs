@@ -37,6 +37,22 @@ const hardFailures = [
     message: "Protected workspace must not show developer prototype language.",
   },
   {
+    pattern: /\bPermission denied\b/i,
+    message: "Protected workspace should explain missing access without technical denial language.",
+  },
+  {
+    pattern: /\bRole scoped views\b/i,
+    message: "Protected workspace should use school-facing assigned-record language instead of role-scope jargon.",
+  },
+  {
+    pattern: /\bselected-site\b/i,
+    message: "Protected workspace should say current school or current site, not selected-site.",
+  },
+  {
+    pattern: /\bstorage identifiers redacted\b/i,
+    message: "Protected workspace should say private file details are protected instead of showing storage jargon.",
+  },
+  {
     pattern: /\bhref=(['"])#\1/i,
     message: "Protected workspace must not include dead hash links.",
   },

@@ -91,7 +91,7 @@ test("workspace route signed-out smoke over local HTTP", { skip: !baseUrl }, asy
   assert.match(script, /data-workspace-state="no-active-assignment"/);
   assert.match(script, /Workspace access is pending/);
   assert.match(script, /Some workspace sections need different access/);
-  assert.match(script, /Workspace assignment is not active yet/);
+  assert.match(script, /No students are assigned to you yet/);
   assert.doesNotMatch(script, /Your file was received[^.]*storage is not configured/i);
   assertSafeProductionCopy("workspace.js", script);
 

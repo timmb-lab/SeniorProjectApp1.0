@@ -81,7 +81,7 @@ test("workspace route is a real authenticated app surface", () => {
   assert.doesNotMatch(workspaceJs, /\/api\/announcements/);
   assert.doesNotMatch(workspaceJs, /announcements:\s*null/);
   assert.doesNotMatch(workspaceJs, /Current Updates|No current announcements|workspace-kicker">Announcements/i);
-  assert.match(workspaceJs, /Role-Safe Priorities/);
+  assert.match(workspaceJs, /Your workspace priorities/);
   assert.match(workspaceCss, /--abc-red/);
   assert.match(workspaceCss, /--abc-blue/);
   assert.match(workspaceCss, /\.workspace-app\[data-primary-role="admin"\]/);
@@ -165,6 +165,7 @@ test("workspace exposes Figma-aligned design tokens and future site patterns", (
 
   for (const className of [
     ".workspace-read-only-banner",
+    ".workspace-menu-toggle",
     ".workspace-product-header",
     ".workspace-product-eyebrow",
     ".workspace-product-title",
@@ -177,6 +178,7 @@ test("workspace exposes Figma-aligned design tokens and future site patterns", (
     ".workspace-problem-state-label",
     ".workspace-problem-state-value",
     ".workspace-site-switcher",
+    ".workspace-tab-short",
     ".workspace-site-context-badge",
     ".workspace-student-directory",
     ".workspace-filter-bar",
@@ -322,15 +324,22 @@ test("workspace renders route-connected site dashboard with Figma product-system
   assert.match(siteDashboard, /Students/);
   assert.match(siteDashboard, /No Mentor/);
   assert.match(siteDashboard, /data-section="mentorAssignments" data-section-preset="no-mentor">Review/);
+  assert.match(siteDashboard, /data-section="teacher" data-section-preset="submitted">Review/);
+  assert.match(siteDashboard, /data-section="teacher" data-section-preset="revision-requested">Review/);
+  assert.match(siteDashboard, /data-section="operations" data-section-preset="presentation-pending">Review/);
+  assert.match(siteDashboard, /data-section="operations" data-section-preset="archive-failed">Review/);
   assert.match(siteDashboard, /Submitted/);
   assert.match(siteDashboard, /Needs Revision/);
   assert.match(siteDashboard, /Evidence/);
   assert.match(siteDashboard, /Presentations/);
   assert.match(siteDashboard, /Archive \/ Exports/);
   assert.match(siteDashboard, /Private evidence/);
-  assert.match(siteDashboard, /Role scoped views/);
-  assert.match(siteDashboard, /Audited changes/);
-  assert.match(siteDashboard, /Teacher intervention/);
+  assert.match(siteDashboard, /Assigned student records/);
+  assert.match(siteDashboard, /Protected access/);
+  assert.match(siteDashboard, /Teacher follow-up/);
+  assert.match(siteDashboard, /Current site/);
+  assert.match(siteDashboard, /workspace-site-switcher/);
+  assert.match(siteDashboard, /data-site-student-action="view-detail"/);
   assert.match(siteDashboard, /workspace-status-pill/);
   assert.match(siteDashboard, /workspace-risk-chip/);
   assert.doesNotMatch(siteDashboard, /data-section="studentDirectory"|\/api\/site\/students/);
@@ -356,7 +365,7 @@ test("workspace renders route-connected site dashboard with Figma product-system
   assert.match(viewer, /data-workspace-mode="read-only"/);
   assert.match(viewer, /Read-only workspace/);
   assert.match(viewer, /Read-only viewer/);
-  assert.match(viewer, /This dashboard is scoped to Desert Valley High School only/);
+  assert.match(viewer, /This view is scoped to Desert Valley High School only/);
 
   const selectionRequired = await renderWorkspaceWithFetch({
     "/api/auth/me": {
@@ -385,6 +394,10 @@ test("workspace renders route-connected site dashboard with Figma product-system
     },
   }, "siteDashboard");
   assert.match(selectionRequired, /data-workspace-state="site-selection-required"/);
+  assert.match(selectionRequired, /workspace-site-switcher/);
+  assert.match(selectionRequired, /id="workspaceSiteSelect"/);
+  assert.match(selectionRequired, /data-site-switch-id="site-desert-valley-high"/);
+  assert.match(selectionRequired, /Choose a site from the Current site menu/);
   assert.match(selectionRequired, /workspace-problem-state/);
   assert.match(selectionRequired, /Reason/);
   assert.match(selectionRequired, /Owner/);
@@ -432,9 +445,9 @@ test("workspace renders route-connected student directory with filters and real 
   assert.match(siteAdmin, /No mentor/);
   assert.match(siteAdmin, /workspace-status-pill revision_requested/);
   assert.match(siteAdmin, /Private evidence/);
-  assert.match(siteAdmin, /Role scoped views/);
-  assert.match(siteAdmin, /Audited changes/);
-  assert.match(siteAdmin, /Teacher intervention/);
+  assert.match(siteAdmin, /Assigned records only/);
+  assert.match(siteAdmin, /Protected access/);
+  assert.match(siteAdmin, /Teacher follow-up/);
   assert.match(siteAdmin, /No student messaging/);
   assert.match(siteAdmin, /View detail/);
   assert.match(siteAdmin, /data-site-student-action="view-detail"/);
@@ -658,11 +671,10 @@ test("workspace renders site-aware Review Queue with teacher decisions and read-
 
   assert.match(teacher, /data-section="teacher"/);
   assert.match(teacher, /Teacher review queue/);
-  assert.match(teacher, /Route-connected submitted work/);
-  assert.match(teacher, /Private evidence/);
-  assert.match(teacher, /Role scoped views/);
-  assert.match(teacher, /Audited changes/);
-  assert.match(teacher, /Teacher intervention/);
+  assert.match(teacher, /Submitted work, revision follow-up/);
+  assert.match(teacher, /protected evidence/);
+  assert.match(teacher, /assigned records/);
+  assert.match(teacher, /teacher review/);
   assert.match(teacher, /No student messaging/);
   assert.match(teacher, /workspace-review-queue/);
   assert.match(teacher, /workspace-filter-bar/);
@@ -787,7 +799,7 @@ test("workspace renders site-scoped Mentor Assignments with role-safe assignment
 
   assert.match(siteAdmin, /data-section="mentorAssignments"/);
   assert.match(siteAdmin, /Mentor Assignments/);
-  assert.match(siteAdmin, /Mentor assigned scope/);
+  assert.match(siteAdmin, /Mentor coverage/);
   assert.match(siteAdmin, /workspace-mentor-assignments/);
   assert.match(siteAdmin, /workspace-mentor-assignment-layout/);
   assert.match(siteAdmin, /workspace-filter-bar/);
@@ -803,11 +815,10 @@ test("workspace renders site-scoped Mentor Assignments with role-safe assignment
   assert.match(siteAdmin, /data-mentor-active-assignments="true"/);
   assert.match(siteAdmin, /data-mentor-assignment-form="true"/);
   assert.match(siteAdmin, /Assign mentor/);
-  assert.match(siteAdmin, /Assignments are audited, selected-site only/);
-  assert.match(siteAdmin, /Private evidence/);
-  assert.match(siteAdmin, /Role scoped views/);
-  assert.match(siteAdmin, /Audited changes/);
-  assert.match(siteAdmin, /Teacher intervention/);
+  assert.match(siteAdmin, /Assignments stay within the current school/);
+  assert.match(siteAdmin, /protected evidence boundaries/);
+  assert.match(siteAdmin, /assigned records/);
+  assert.match(siteAdmin, /teacher follow-up/);
   assert.match(siteAdmin, /No student messaging/);
   assert.doesNotMatch(siteAdmin, /Reassign|Deactivate|Archive retry|Download archive|data-admin-action="import-users"/i);
 
@@ -949,10 +960,9 @@ test("workspace renders site-scoped Operations readiness worklists without mutat
   assert.match(siteAdmin, /workspace-story-chip/);
   assert.match(siteAdmin, /workspace-risk-chip/);
   assert.match(siteAdmin, /status-pill|workspace-status-pill/);
-  assert.match(siteAdmin, /Private evidence/);
-  assert.match(siteAdmin, /Role scoped views/);
-  assert.match(siteAdmin, /Audited changes/);
-  assert.match(siteAdmin, /Teacher intervention/);
+  assert.match(siteAdmin, /protected evidence/);
+  assert.match(siteAdmin, /assigned records/);
+  assert.match(siteAdmin, /teacher follow-up/);
   assert.match(siteAdmin, /No student messaging/);
   assert.doesNotMatch(siteAdmin, /data-presentation-action|data-archive-action|data-admin-action="import-users"|<button[^>]*>\s*(?:Archive retry|Retry archive|Schedule presentation|Check out|Check in|Export package)/i);
 
@@ -1042,6 +1052,9 @@ test("workspace gates review queue visibility and refresh behavior by role", () 
   assert.match(availableSectionsBlock, /id: "teacher", label: "Review Queue", detail: "Teacher review and submitted work"/);
   assert.match(loadWorkspaceDataBlock, /hasSiteReviewQueueRole\(roles\).*\/api\/site\/review-queue/s);
   assert.match(workspaceJs, /function submitReviewDecision/);
+  assert.match(workspaceJs, /button\.dataset\.sectionPreset === "submitted"/);
+  assert.match(workspaceJs, /button\.dataset\.sectionPreset === "revision-requested"/);
+  assert.match(workspaceJs, /loadReviewQueueResult\("Showing submitted work ready for review\."\)/);
   assert.match(workspaceJs, /loadReviewQueueResult\("Review decision saved\."\)/);
   assert.match(workspaceJs, /function refreshSelectedStudentDetailAfterReview/);
   assert.match(workspaceJs, /\/api\/site\/students\/\$\{encodeURIComponent\(selected\.studentId\)\}/);
@@ -1083,10 +1096,34 @@ test("workspace gates operations readiness visibility and keeps it read-only", (
   assert.match(workspaceJs, /function renderOperationsReadinessSection/);
   assert.match(workspaceJs, /function applyOperationsReadinessFilters/);
   assert.match(workspaceJs, /function loadOperationsReadinessResult/);
+  assert.match(workspaceJs, /button\.dataset\.sectionPreset === "presentation-pending"/);
+  assert.match(workspaceJs, /button\.dataset\.sectionPreset === "archive-failed"/);
   assert.match(workspaceJs, /data-operations-action="open-student"/);
   assert.match(workspaceJs, /openSiteStudentDetail\(event\.currentTarget\?\.dataset\?\.operationsStudentId/);
   assert.match(workspaceJs, /scope\.readOnly/);
   assert.doesNotMatch(workspaceJs, /data-operations-action="schedule"|data-operations-action="retry"|data-operations-action="check-in"|data-operations-action="check-out"/);
+});
+
+test("workspace exposes a real admin site switcher and collapsible navigation", () => {
+  const siteSwitcherBlock = workspaceJs.match(/function renderSiteSwitcherControl[\s\S]*?function canUseSiteSwitcher/)?.[0] || "";
+  const siteSwitcherRoleBlock = workspaceJs.match(/function canUseSiteSwitcher[\s\S]*?function currentSiteWorkspaceContext/)?.[0] || "";
+  assert.match(workspaceJs, /let selectedSiteId = ""/);
+  assert.match(workspaceJs, /id="workspaceMenuToggle"/);
+  assert.match(workspaceJs, /data-nav-state="\$\{workspaceNavCollapsed \? "collapsed" : "expanded"\}"/);
+  assert.match(workspaceJs, /function toggleWorkspaceMenu/);
+  assert.match(workspaceJs, /workspace-tab-short/);
+  assert.match(siteSwitcherBlock, /id="workspaceSiteSelect"/);
+  assert.match(workspaceJs, /data-site-switch-id/);
+  assert.match(siteSwitcherRoleBlock, /roles\.has\("platform_admin"\)/);
+  assert.match(siteSwitcherRoleBlock, /roles\.has\("admin"\)/);
+  assert.match(siteSwitcherRoleBlock, /roles\.has\("org_admin"\)/);
+  assert.match(siteSwitcherRoleBlock, /roles\.has\("site_admin"\)/);
+  assert.doesNotMatch(siteSwitcherRoleBlock, /roles\.has\("viewer"\)|roles\.has\("student"\)|roles\.has\("mentor"\)/);
+  assert.match(workspaceJs, /function siteDashboardQueryString/);
+  assert.match(workspaceJs, /selectedSiteQueryValue\(\)/);
+  assert.match(workspaceCss, /width: min\(1600px, calc\(100% - 32px\)\)/);
+  assert.match(workspaceCss, /\.workspace-app\[data-nav-state="collapsed"\] \.workspace-content/);
+  assert.match(workspaceCss, /\.workspace-app\[data-nav-state="collapsed"\] \.workspace-tab-short/);
 });
 
 test("production surface checker includes the authenticated workspace", () => {
@@ -1395,7 +1432,7 @@ test("workspace renders role-pending and permission-denied access states", async
     },
   });
   assert.match(denied, /data-workspace-state="permission-denied"/);
-  assert.match(denied, /Some workspace sections need different access/);
+  assert.match(denied, /You do not have access to this section/);
   assert.match(denied, /Student workspace/);
   assert.match(denied, /workspace-problem-state/);
 
@@ -1422,9 +1459,9 @@ test("workspace renders role-pending and permission-denied access states", async
     },
   });
   assert.match(noAssignment, /data-workspace-state="no-active-assignment"/);
-  assert.match(noAssignment, /Workspace assignment is not active yet/);
+  assert.match(noAssignment, /No students are assigned to you yet/);
   assert.match(noAssignment, /Mentor students/);
-  assert.match(noAssignment, /No active student records match this assigned view/);
+  assert.match(noAssignment, /No active students are assigned to this account yet/);
 
   const viewer = await renderWorkspaceWithFetch({
     "/api/auth/me": {
@@ -1876,7 +1913,7 @@ test("workspace renders archive readiness from persisted rows", async () => {
   assert.match(archive, /Celebration Day evidence/);
   assert.match(archive, /data-archive-download="manifest"/);
   assert.match(archive, /Download archive manifest/);
-  assert.match(archive, /Private storage identifiers stay hidden/);
+  assert.match(archive, /Private file details stay hidden/);
   assert.match(archive, /data-archive-drive-package="ready"/);
   assert.match(archive, /Drive-backed archive package is stored/);
   assert.match(archive, /data-archive-retention-status="policy_review_required"/);
@@ -1980,7 +2017,7 @@ function siteDashboardFixture({ readOnly = false } = {}) {
     ],
     nextActions: [
       {
-        label: "Teacher intervention",
+        label: "Teacher follow-up",
         detail: "84 submitted or revision-requested records need review posture.",
         status: "revision_requested",
       },
@@ -2309,7 +2346,7 @@ function siteMentorAssignmentsFixture({
         siteId: "site-desert-valley-high",
         siteName: "Desert Valley High School",
         loadStatus: "steady",
-        nextAction: "Available for selected-site mentor support.",
+        nextAction: "Available for mentor support at this school.",
       },
       {
         mentorUserId: "demo-mentor-002",
@@ -2319,7 +2356,7 @@ function siteMentorAssignmentsFixture({
         siteId: "site-desert-valley-high",
         siteName: "Desert Valley High School",
         loadStatus: "available",
-        nextAction: "Available for selected-site mentor support.",
+        nextAction: "Available for mentor support at this school.",
       },
     ],
     unassignedStudents: [
@@ -2335,7 +2372,7 @@ function siteMentorAssignmentsFixture({
         riskScore: 8,
         riskFlags: ["no_mentor", "high"],
         latestSubmissionStatus: "revision_requested",
-        nextAction: "Assign a selected-site mentor before the next intervention checkpoint.",
+        nextAction: "Assign a mentor before the next follow-up checkpoint.",
       },
     ],
     assignments: [

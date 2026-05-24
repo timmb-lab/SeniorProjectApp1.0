@@ -57,7 +57,7 @@ test("account smoke and alpha routes stay out of production public navigation", 
   assert.doesNotMatch(appJs, /App Boundary/);
   assert.doesNotMatch(buildPublicSite, /account\.html/);
   assert.doesNotMatch(buildPublicSite, /alpha\.html/);
-  assert.match(appJs, /Separate account-check pages are reserved for Bryan and testers/);
+  assert.match(appJs, /Separate account-check pages are reserved for approved workspace verification/);
 });
 
 test("public site exposes Student and Teacher guide modes without treating them as auth", () => {

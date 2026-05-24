@@ -23,6 +23,8 @@ let currentData = {
 let activeSection = "overview";
 let busy = false;
 let lastAdminImportResult = null;
+let workspaceNavCollapsed = false;
+let selectedSiteId = "";
 let siteStudentFilters = defaultSiteStudentFilters();
 let siteStudentDetailState = defaultSiteStudentDetailState();
 let reviewQueueFilters = defaultReviewQueueFilters();
@@ -208,7 +210,7 @@ async function loadWorkspaceData(statusMessage = "") {
 
   if (roles.has("student")) loaders.push(["dashboard", apiJson("/api/student/dashboard")]);
   if (roles.has("student")) loaders.push(["archiveReadiness", apiJson("/api/student/archive/readiness")]);
-  if (hasSiteDashboardRole(roles)) loaders.push(["siteDashboard", apiJson("/api/site/dashboard")]);
+  if (hasSiteDashboardRole(roles)) loaders.push(["siteDashboard", apiJson(`/api/site/dashboard${siteDashboardQueryString()}`)]);
   if (hasSiteStudentDirectoryRole(roles)) loaders.push(["siteStudents", apiJson(`/api/site/students${siteStudentQueryString()}`)]);
   if (hasSiteReviewQueueRole(roles)) loaders.push(["reviewQueue", apiJson(`/api/site/review-queue${siteReviewQueueQueryString()}`)]);
   if (hasSiteMentorAssignmentRole(roles)) loaders.push(["mentorAssignments", apiJson(`/api/site/mentor-assignments${siteMentorAssignmentQueryString()}`)]);
@@ -474,7 +476,7 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
   const roles = roleIds(currentUser);
   const headerContext = [roleLabel(primaryRole), roleScopeSummary(currentUser)];
   workspaceMain.innerHTML = `
-    <section class="workspace-app" data-primary-role="${escapeHtml(primaryRole)}">
+    <section class="workspace-app" data-primary-role="${escapeHtml(primaryRole)}" data-nav-state="${workspaceNavCollapsed ? "collapsed" : "expanded"}">
       <header class="workspace-topbar">
         <a class="workspace-brand" href="index.html">
           <span class="workspace-mark">SC</span>
@@ -482,6 +484,10 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
           <span>Capstone Project Workspace</span>
         </a>
         <div class="workspace-user">
+          <button class="workspace-menu-toggle" id="workspaceMenuToggle" type="button" aria-controls="workspaceNavigationRail" aria-expanded="${workspaceNavCollapsed ? "false" : "true"}">
+            <span>${workspaceNavCollapsed ? "Open menu" : "Collapse menu"}</span>
+          </button>
+          ${renderSiteSwitcherControl()}
           <div class="workspace-user-text">
             <strong>${escapeHtml(currentUser.displayName || "Signed in")}</strong>
             <span>${escapeHtml(currentUser.email || "")}</span>
@@ -491,7 +497,7 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
         </div>
       </header>
       <div class="workspace-content">
-        <aside class="workspace-rail" aria-label="Workspace navigation">
+        <aside class="workspace-rail" id="workspaceNavigationRail" aria-label="Workspace navigation">
           <section class="workspace-rail-card">
             <p class="workspace-kicker">Your access</p>
             <div class="workspace-role-banner">
@@ -504,7 +510,8 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
           </section>
           <nav class="workspace-tabs" aria-label="Workspace sections">
             ${sections.map((section) => `
-              <button class="workspace-tab ${section.id === activeSection ? "is-active" : ""}" data-section="${escapeHtml(section.id)}" type="button" ${section.id === activeSection ? 'aria-current="page"' : ""}>
+              <button class="workspace-tab ${section.id === activeSection ? "is-active" : ""}" data-section="${escapeHtml(section.id)}" type="button" title="${escapeHtml(section.label)}" aria-label="${escapeHtml(`${section.label}: ${section.detail}`)}" ${section.id === activeSection ? 'aria-current="page"' : ""}>
+                <span class="workspace-tab-short" aria-hidden="true">${escapeHtml(sectionShortLabel(section))}</span>
                 <strong>${escapeHtml(section.label)}</strong>
                 <span>${escapeHtml(section.detail)}</span>
               </button>
@@ -528,12 +535,149 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
     </section>
   `;
 
+  document.querySelector("#workspaceMenuToggle")?.addEventListener("click", toggleWorkspaceMenu);
+  document.querySelector("#workspaceSiteSelect")?.addEventListener("change", (event) => selectWorkspaceSite(event.currentTarget?.value || ""));
+  document.querySelectorAll("[data-site-switch-id]").forEach((button) => {
+    button.addEventListener("click", () => selectWorkspaceSite(button.dataset.siteSwitchId || ""));
+  });
   document.querySelector("#workspaceRefresh")?.addEventListener("click", () => loadWorkspaceData("Workspace refreshed."));
   document.querySelector("#workspaceLogout")?.addEventListener("click", signOut);
   document.querySelectorAll("[data-section]").forEach((button) => {
     button.addEventListener("click", () => openWorkspaceSection(button));
   });
   bindWorkspaceForms();
+}
+
+function toggleWorkspaceMenu() {
+  workspaceNavCollapsed = !workspaceNavCollapsed;
+  renderAppShell(workspaceNavCollapsed ? "Menu collapsed." : "Menu opened.", "success");
+}
+
+function sectionShortLabel(section) {
+  const labels = {
+    overview: "Home",
+    siteDashboard: "Dash",
+    students: "Students",
+    student: "My Work",
+    archive: "Archive",
+    mentorDashboard: "Mentor",
+    mentor: "Assigned",
+    programDashboard: "Program",
+    teacher: "Review",
+    mentorAssignments: "Coverage",
+    operations: "Ops",
+    presentation: "Present",
+    adminDashboard: "Admin",
+    readiness: "Ready",
+    adminUsers: "Users",
+    audit: "Audit",
+    archiveExports: "Exports",
+    security: "Security",
+  };
+  return labels[section.id] || section.label || "Open";
+}
+
+function renderSiteSwitcherControl() {
+  if (!currentUser || !canUseSiteSwitcher(roleIds(currentUser))) return "";
+  const context = currentSiteWorkspaceContext();
+  const sites = accessibleSitesForWorkspace();
+  const currentSiteId = selectedSiteId || context.siteId || (sites.length === 1 ? sites[0].siteId : "");
+  const currentSite = sites.find((site) => site.siteId === currentSiteId) || (context.siteId ? {
+    siteId: context.siteId,
+    siteName: context.siteName || "Current site",
+  } : null);
+
+  if (sites.length > 1) {
+    return `
+      <label class="workspace-site-switcher workspace-site-switcher-select">
+        <span>Current site</span>
+        <select id="workspaceSiteSelect" aria-label="Choose site">
+          <option value="" ${currentSiteId ? "" : "selected"}>Choose site</option>
+          ${sites.map((site) => `
+            <option value="${escapeHtml(site.siteId)}" ${site.siteId === currentSiteId ? "selected" : ""}>
+              ${escapeHtml(site.siteName || site.siteId)}
+            </option>
+          `).join("")}
+        </select>
+      </label>
+    `;
+  }
+
+  if (currentSite) {
+    return `
+      <div class="workspace-site-switcher" aria-label="Current site">
+        <span>Current site</span>
+        <strong>${escapeHtml(currentSite.siteName || currentSite.siteId)}</strong>
+        ${sites.length === 1 ? `<em>Only one site</em>` : ""}
+      </div>
+    `;
+  }
+
+  return "";
+}
+
+function canUseSiteSwitcher(roles) {
+  return roles.has("platform_admin")
+    || roles.has("admin")
+    || roles.has("org_admin")
+    || roles.has("site_admin");
+}
+
+function currentSiteWorkspaceContext() {
+  const candidates = [
+    unwrap(currentData.siteDashboard)?.scope,
+    unwrap(currentData.siteStudents)?.scope,
+    unwrap(currentData.reviewQueue)?.scope,
+    unwrap(currentData.mentorAssignments)?.scope,
+    unwrap(currentData.operationsReadiness)?.scope,
+  ].filter(Boolean);
+  return candidates.find((scope) => scope?.siteId) || {};
+}
+
+function accessibleSitesForWorkspace() {
+  const siteRows = [];
+  const sources = [
+    unwrap(currentData.siteDashboard)?.scope?.accessibleSites,
+    currentData.siteDashboard?.body?.accessibleSites,
+    unwrap(currentData.siteStudents)?.scope?.accessibleSites,
+    currentData.siteStudents?.body?.accessibleSites,
+    unwrap(currentData.reviewQueue)?.scope?.accessibleSites,
+    currentData.reviewQueue?.body?.accessibleSites,
+    unwrap(currentData.mentorAssignments)?.scope?.accessibleSites,
+    currentData.mentorAssignments?.body?.accessibleSites,
+    unwrap(currentData.operationsReadiness)?.scope?.accessibleSites,
+    currentData.operationsReadiness?.body?.accessibleSites,
+  ];
+  for (const rows of sources) {
+    if (!Array.isArray(rows)) continue;
+    for (const site of rows) {
+      if (!site?.siteId || siteRows.some((existing) => existing.siteId === site.siteId)) continue;
+      siteRows.push(site);
+    }
+  }
+  const context = currentSiteWorkspaceContext();
+  if (context.siteId && !siteRows.some((site) => site.siteId === context.siteId)) {
+    siteRows.push({
+      siteId: context.siteId,
+      siteName: context.siteName || "Current site",
+      tenantName: context.tenantName || "",
+      schoolYear: context.schoolYear || "",
+    });
+  }
+  return siteRows;
+}
+
+async function selectWorkspaceSite(siteId) {
+  const nextSiteId = cleanDirectoryFilter(siteId);
+  if (!nextSiteId) return;
+  selectedSiteId = nextSiteId;
+  siteStudentFilters = defaultSiteStudentFilters();
+  siteStudentDetailState = defaultSiteStudentDetailState();
+  reviewQueueFilters = defaultReviewQueueFilters();
+  reviewQueueState = defaultReviewQueueState();
+  mentorAssignmentFilters = defaultMentorAssignmentFilters();
+  operationsReadinessFilters = defaultOperationsReadinessFilters();
+  await loadWorkspaceData("Current site updated.");
 }
 
 async function openWorkspaceSection(button) {
@@ -546,6 +690,42 @@ async function openWorkspaceSection(button) {
       noMentor: true,
     };
     await loadMentorAssignmentsResult("Showing students without mentors.");
+    return;
+  }
+  if (section === "teacher" && button.dataset.sectionPreset === "submitted") {
+    reviewQueueFilters = {
+      ...defaultReviewQueueFilters(),
+      status: "submitted",
+    };
+    reviewQueueState = defaultReviewQueueState();
+    await loadReviewQueueResult("Showing submitted work ready for review.");
+    return;
+  }
+  if (section === "teacher" && button.dataset.sectionPreset === "revision-requested") {
+    reviewQueueFilters = {
+      ...defaultReviewQueueFilters(),
+      status: "revision_requested",
+    };
+    reviewQueueState = defaultReviewQueueState();
+    await loadReviewQueueResult("Showing revision follow-up.");
+    return;
+  }
+  if (section === "operations" && button.dataset.sectionPreset === "presentation-pending") {
+    operationsReadinessFilters = {
+      ...defaultOperationsReadinessFilters(),
+      presentationStatus: "pending",
+      readiness: "attention_required",
+    };
+    await loadOperationsReadinessResult("Showing presentation readiness follow-up.");
+    return;
+  }
+  if (section === "operations" && button.dataset.sectionPreset === "archive-failed") {
+    operationsReadinessFilters = {
+      ...defaultOperationsReadinessFilters(),
+      archiveStatus: "failed",
+      readiness: "blocked",
+    };
+    await loadOperationsReadinessResult("Showing archive follow-up.");
     return;
   }
   activeSection = section;
@@ -616,7 +796,7 @@ function renderOverviewSection() {
       <div class="workspace-card-head">
         <div>
           <p class="workspace-kicker">Workspace</p>
-          <h2>Role-Safe Priorities</h2>
+          <h2>Your workspace priorities</h2>
         </div>
       </div>
       <div class="workspace-list">
@@ -671,13 +851,13 @@ function renderAccessBoundarySummary() {
     ${noAssignmentSections.length ? `
     <section class="workspace-card workspace-access-card" data-workspace-state="no-active-assignment">
       <p class="workspace-kicker">No active assignment</p>
-      <h2>Workspace assignment is not active yet</h2>
+      <h2>No students are assigned to you yet</h2>
       <p>
-        Your account has a workspace role, but there are no active student assignments for
-        ${escapeHtml(noAssignmentSections.join(", "))}. Ask the project coordinator to confirm the assignment.
+        Your account is signed in, but there are no active student assignments for
+        ${escapeHtml(noAssignmentSections.join(", "))}. Ask the project coordinator to confirm your student list.
       </p>
       ${renderProblemState({
-        reason: "No active student records match this assigned view.",
+        reason: "No active students are assigned to this account yet.",
         owner: "Assigned staff or site administrator.",
         nextAction: "Confirm the assignment, then refresh this workspace.",
       })}
@@ -685,7 +865,7 @@ function renderAccessBoundarySummary() {
     ` : ""}
     ${deniedSections.length ? `
     <section class="workspace-card workspace-error-card" data-workspace-state="permission-denied">
-      <p class="workspace-kicker">Permission denied</p>
+      <p class="workspace-kicker">Access needed</p>
       <h2>Some workspace sections need different access</h2>
       <p>
         Your account is signed in, but the role or scope on this account does not permit the
@@ -728,12 +908,12 @@ function renderSiteDashboardSection() {
     return `
       <section class="workspace-card workspace-error-card">
         <p class="workspace-kicker">Site dashboard</p>
-        <h2>Site operating view unavailable</h2>
+        <h2>School dashboard unavailable</h2>
         ${renderApiNotice(result)}
         ${renderProblemState({
-          reason: "The site dashboard route could not return an assigned site view.",
+          reason: "The school dashboard could not load for the assigned site.",
           owner: "Administration or platform support.",
-          nextAction: "Refresh after site assignment or route availability is confirmed.",
+          nextAction: "Refresh after the site assignment is confirmed.",
         })}
       </section>
     `;
@@ -753,11 +933,11 @@ function renderSiteDashboardSection() {
       ${renderSiteContextBlock(dashboard)}
       <div class="workspace-command-hero">
         <div>
-          <p class="workspace-kicker">Administration Operating View</p>
+          <p class="workspace-kicker">School dashboard</p>
           <h1 id="siteDashboardTitle">${escapeHtml(scope.siteName || "Site Dashboard")}</h1>
           <p>
-            School-wide capstone health for this assigned site, with private evidence,
-            role scoped views, audited changes, and teacher intervention signals.
+            School-wide capstone health for this site, with student progress,
+            mentor coverage, submitted work, and presentation readiness.
           </p>
         </div>
         <div class="workspace-command-hero-grid">
@@ -768,23 +948,23 @@ function renderSiteDashboardSection() {
       <div class="workspace-dashboard-grid">
         ${renderMetricTile("Students", summary.studentsActive, `${safeNumber(summary.studentsTotal)} visible at this site`, "admin", "students")}
         ${renderMetricTile("No Mentor", summary.studentsNoMentor, "Need assigned mentor coverage", safeNumber(summary.studentsNoMentor) ? "warning" : "mentor", "mentorAssignments", { label: "Review", preset: "no-mentor" })}
-        ${renderMetricTile("Submitted", summary.submissionsSubmitted, "Awaiting teacher review", "teacher")}
-        ${renderMetricTile("Needs Revision", summary.revisionRequested, "Teacher intervention needed", safeNumber(summary.revisionRequested) ? "warning" : "student")}
-        ${renderMetricTile("Evidence", summary.evidenceArtifacts, "Private evidence artifacts", "mentor")}
-        ${renderMetricTile("Presentations", presentationsTotal, `${safeNumber(summary.presentationsPending)} pending readiness`, "teacher")}
-        ${renderMetricTile("Archive / Exports", archiveTotal, `${safeNumber(summary.exportsFailed)} failed`, safeNumber(summary.exportsFailed) ? "danger" : "admin")}
-        ${renderMetricTile("Recent Activity", summary.recentActivityCount, "Audited site activity", "admin")}
+        ${renderMetricTile("Submitted", summary.submissionsSubmitted, "Awaiting teacher review", "teacher", "teacher", { label: "Review", preset: "submitted" })}
+        ${renderMetricTile("Needs Revision", summary.revisionRequested, "Teacher follow-up needed", safeNumber(summary.revisionRequested) ? "warning" : "student", "teacher", { label: "Review", preset: "revision-requested" })}
+        ${renderMetricTile("Evidence", summary.evidenceArtifacts, "Protected evidence records", "mentor")}
+        ${renderMetricTile("Presentations", presentationsTotal, `${safeNumber(summary.presentationsPending)} pending readiness`, "teacher", "operations", { label: "Review", preset: "presentation-pending" })}
+        ${renderMetricTile("Archive / Exports", archiveTotal, `${safeNumber(summary.exportsFailed)} failed`, safeNumber(summary.exportsFailed) ? "danger" : "admin", "operations", { label: "Review", preset: "archive-failed" })}
+        ${renderMetricTile("Recent Activity", summary.recentActivityCount, "Recent site activity", "admin")}
       </div>
       ${renderSitePermissionRules(dashboard)}
-      ${renderDashboardCard("Needs Attention", "Teacher intervention and operations", renderNeedsAttention(dashboard.needsAttention))}
+      ${renderDashboardCard("Needs Attention", "Teacher follow-up and operations", renderNeedsAttention(dashboard.needsAttention))}
       <div class="workspace-dashboard-grid workspace-dashboard-grid-two">
-        ${renderDashboardCard("Program Breakdown", "Site-scoped source records", renderProgramBreakdown(dashboard.programBreakdown))}
-        ${renderDashboardCard("Status Breakdown", "Text plus color status", renderSnapshotRows(dashboard.statusBreakdown))}
-        ${renderDashboardCard("Top Risk Students", "Redacted operating signals", renderSiteTopRiskStudents(dashboard.topRiskStudents))}
-        ${renderDashboardCard("Mentor Coverage", "Assigned mentor scope", renderMentorCoverage(dashboard.mentorCoverage, summary))}
+        ${renderDashboardCard("Program Breakdown", "Students by program", renderProgramBreakdown(dashboard.programBreakdown))}
+        ${renderDashboardCard("Status Breakdown", "Student status", renderSnapshotRows(dashboard.statusBreakdown))}
+        ${renderDashboardCard("Top Risk Students", "Priority student signals", renderSiteTopRiskStudents(dashboard.topRiskStudents))}
+        ${renderDashboardCard("Mentor Coverage", "Mentor assignment load", renderMentorCoverage(dashboard.mentorCoverage, summary))}
         ${renderDashboardCard("Presentation Snapshot", "Readiness and day-of status", renderSnapshotRows(dashboard.presentationSnapshot))}
         ${renderDashboardCard("Archive / Export Snapshot", "Closeout package status", renderSnapshotRows(dashboard.archiveSnapshot))}
-        ${renderDashboardCard("Next Actions", "Audit-safe administration posture", renderSiteNextActions(dashboard.nextActions, readOnly))}
+        ${renderDashboardCard("Next Actions", "Recommended follow-up", renderSiteNextActions(dashboard.nextActions, readOnly))}
       </div>
     </section>
   `;
@@ -806,9 +986,9 @@ function renderSiteStudentDirectorySection() {
         <h2>Student directory unavailable</h2>
         ${renderApiNotice(result)}
         ${renderProblemState({
-          reason: "The student directory route could not return an assigned site view.",
+          reason: "The student directory could not load for the assigned site.",
           owner: "Administration or platform support.",
-          nextAction: "Refresh after site assignment or route availability is confirmed.",
+          nextAction: "Refresh after the site assignment is confirmed.",
         })}
       </section>
     `;
@@ -835,14 +1015,14 @@ function renderSiteStudentDirectorySection() {
         </div>
         <div class="workspace-command-hero-grid">
           ${statusPill(readOnly ? "configured" : "approved")}
-          <span class="workspace-chip">Role scoped views</span>
+          <span class="workspace-chip">Assigned records only</span>
         </div>
       </div>
       <div class="workspace-dashboard-grid">
         ${renderMetricTile("Students", summary.studentsTotal, `${safeNumber(pagination.returned)} shown now`, "admin")}
         ${renderMetricTile("No Mentor", summary.noMentor, "Needs mentor coverage", safeNumber(summary.noMentor) ? "warning" : "mentor")}
         ${renderMetricTile("Submitted", summary.submitted, "Teacher review queue signal", "teacher")}
-        ${renderMetricTile("Needs Revision", summary.revisionRequested, "Teacher intervention", safeNumber(summary.revisionRequested) ? "warning" : "student")}
+        ${renderMetricTile("Needs Revision", summary.revisionRequested, "Teacher follow-up", safeNumber(summary.revisionRequested) ? "warning" : "student")}
         ${renderMetricTile("Presentation Pending", summary.presentationPending, "Readiness follow-up", "teacher")}
         ${renderMetricTile("Archive Ready", summary.archiveReady, "Closeout candidates", "mentor")}
         ${renderMetricTile("Archive Failed", summary.archiveFailed, "Export follow-up", safeNumber(summary.archiveFailed) ? "danger" : "admin")}
@@ -863,14 +1043,18 @@ function renderSiteDirectorySelectionRequired(body = {}) {
     <section class="workspace-card workspace-error-card" data-workspace-state="student-directory-site-selection-required">
       <p class="workspace-kicker">Students</p>
       <h2>Select a site before opening the student directory</h2>
-      <p>This account can view more than one site, so the directory needs an explicit site selection.</p>
+      <p>This account can view more than one site. Choose the school workspace before opening student records.</p>
       <div class="workspace-chip-row">
-        ${sites.map((site) => `<span class="workspace-site-context-badge">${escapeHtml(site.siteName || site.siteId)}</span>`).join("")}
+        ${sites.map((site) => `
+          <button class="workspace-link-button workspace-link-button-small" type="button" data-site-switch-id="${escapeHtml(site.siteId || "")}">
+            ${escapeHtml(site.siteName || site.siteId)}
+          </button>
+        `).join("")}
       </div>
       ${renderProblemState({
-        reason: "Multiple assigned sites are available and no safe directory default was selected.",
-        owner: "Administration or platform support.",
-        nextAction: "Choose a site once site switching is available, or open a direct site-scoped link.",
+        reason: "Multiple assigned schools are available.",
+        owner: "School administration.",
+        nextAction: "Choose a site from the Current site menu or one of the buttons above.",
       })}
     </section>
   `;
@@ -885,17 +1069,17 @@ function renderStudentDirectoryOperatingPosture(readOnly) {
         ${statusPill("configured")}
       </article>
       <article class="workspace-empty-state-card">
-        <strong>Role scoped views</strong>
+        <strong>Assigned records only</strong>
         <span>${readOnly ? "Viewer access is read-only for assigned site records." : "This view is limited to assigned site or program records."}</span>
         ${statusPill(readOnly ? "configured" : "approved")}
       </article>
       <article class="workspace-empty-state-card">
-        <strong>Audited changes</strong>
-        <span>Directory viewed, denied, and unauthorized paths are recorded without raw search text.</span>
+        <strong>Protected access</strong>
+        <span>Directory access is reviewed without exposing private file details.</span>
         ${statusPill("approved")}
       </article>
       <article class="workspace-empty-state-card">
-        <strong>Teacher intervention</strong>
+        <strong>Teacher follow-up</strong>
         <span>No student messaging is provided; follow-up stays with assigned staff workflows.</span>
         ${statusPill("pending")}
       </article>
@@ -1174,7 +1358,7 @@ function renderStudentDetailSummary(detail) {
   return `
     <section class="workspace-detail-section" data-student-detail-section="summary">
       <div class="workspace-dashboard-grid workspace-dashboard-grid-two">
-        ${renderDashboardCard("Current Story", "Role scoped views", `
+        ${renderDashboardCard("Current Story", "Assigned record view", `
           <p>${escapeHtml(student.nextAction || "Continue normal capstone monitoring.")}</p>
           <div class="workspace-chip-row">
             <span class="workspace-site-context-badge">${escapeHtml(safeNumber(student.evidenceCount))} evidence</span>
@@ -1192,8 +1376,8 @@ function renderStudentDetailSummary(detail) {
           <p>${escapeHtml(safeNumber(progress.percentComplete))}% complete / ${escapeHtml(progress.currentStage || "proposal")}</p>
           ${statusPill(progress.blockedReasons?.length ? "blocked" : "ready")}
         `)}
-        ${renderDashboardCard("Visibility", "Private evidence and audited changes", `
-          <p>Role scoped detail with storage identifiers redacted.</p>
+        ${renderDashboardCard("Visibility", "Protected student record", `
+          <p>Details are limited to this school assignment and private file identifiers stay hidden.</p>
           <p class="workspace-muted">Review workflow controls remain in the teacher queue.</p>
           ${statusPill("configured")}
         `)}
@@ -1241,15 +1425,15 @@ function renderStudentDetailSubmissions(detail) {
 
 function renderStudentDetailEvidence(detail) {
   const rows = detail.evidence || [];
-  return renderStudentDetailList("Evidence", "Private evidence metadata", rows, "No evidence rows are available in this bounded view.", (row) => `
+  return renderStudentDetailList("Evidence", "Evidence details", rows, "No evidence records are available for this student.", (row) => `
     <article class="workspace-row">
       <div>
         <strong>${escapeHtml(row.title || "Evidence")}</strong>
-        <p>${escapeHtml(row.artifactType || "artifact")} / ${escapeHtml(statusText(row.sourceKind || "evidence"))}</p>
-        <p class="workspace-muted">${row.externalUrl ? escapeHtml(row.externalUrl) : "Storage identifiers redacted"}</p>
+        <p>${escapeHtml(row.artifactType || "evidence")} / ${escapeHtml(statusText(row.sourceKind || "evidence"))}</p>
+        <p class="workspace-muted">${row.externalUrl ? escapeHtml(row.externalUrl) : "File details are protected."}</p>
       </div>
       <div class="workspace-row-actions">
-        <span class="workspace-site-context-badge">Storage redacted</span>
+        <span class="workspace-site-context-badge">Protected file details</span>
         ${statusPill(row.reviewStatus || "pending_review")}
       </div>
     </article>
@@ -1261,7 +1445,7 @@ function renderStudentDetailReviews(detail) {
   const comments = detail.comments || [];
   return `
     <section class="workspace-detail-section" data-student-detail-section="reviews">
-      ${renderStudentDetailList("Reviews", "Teacher intervention history", reviews, "No review rows are available in this bounded view.", (row) => `
+      ${renderStudentDetailList("Reviews", "Teacher feedback history", reviews, "No review records are available for this student.", (row) => `
         <article class="workspace-row">
           <div>
             <strong>${escapeHtml(row.requirementTitle || "Senior Project submission")}</strong>
@@ -1271,7 +1455,7 @@ function renderStudentDetailReviews(detail) {
           ${statusPill(row.decision || "under_review")}
         </article>
       `)}
-      ${renderStudentDetailList("Comments", "Role-based visibility", comments, "No comments are available in this bounded view.", (row) => `
+      ${renderStudentDetailList("Comments", "Visible notes", comments, "No visible notes are available for this student.", (row) => `
         <article class="workspace-row">
           <div>
             <strong>${escapeHtml(row.authorName || "Staff")}</strong>
@@ -1298,7 +1482,7 @@ function renderStudentDetailMentor(detail) {
           ${statusPill(mentor.latestMeetingStatus || (mentor.active ? "approved" : "blocked"))}
         </div>
       `)}
-      ${renderStudentDetailList("Mentor Meetings", "Bounded support timeline", meetings, "No mentor meetings are available in this bounded view.", (row) => `
+      ${renderStudentDetailList("Mentor Meetings", "Support timeline", meetings, "No mentor meetings are available for this student.", (row) => `
         <article class="workspace-row">
           <div>
             <strong>${escapeHtml(row.mentorName || "Mentor")}</strong>
@@ -1341,9 +1525,9 @@ function renderStudentDetailArchive(detail) {
         <div class="workspace-chip-row">
           ${statusPill(archive.status || "missing")}
           ${statusPill(archive.exportStatus || "not_requested")}
-          <span class="workspace-site-context-badge">Storage redacted</span>
+          <span class="workspace-site-context-badge">Protected file details</span>
         </div>
-        <p class="workspace-muted">${escapeHtml(safeNumber(archive.artifactCount))} artifact record${safeNumber(archive.artifactCount) === 1 ? "" : "s"} in the latest export metadata.</p>
+        <p class="workspace-muted">${escapeHtml(safeNumber(archive.artifactCount))} file record${safeNumber(archive.artifactCount) === 1 ? "" : "s"} in the latest archive summary.</p>
       `)}
     </section>
   `;
@@ -1359,7 +1543,7 @@ function renderStudentDetailTimeline(detail, state) {
         <div class="workspace-empty-state-card">
           <strong>Loading full timeline</strong>
           ${renderProblemState({
-            reason: "The full timeline is loading with bounded pagination.",
+            reason: "The full timeline is loading.",
             owner: "Assigned staff workspace.",
             nextAction: "Keep the detail panel open while events return.",
           })}
@@ -1372,11 +1556,11 @@ function renderStudentDetailTimeline(detail, state) {
           ${renderProblemState({
             reason: "The full timeline could not be loaded for this role and site scope.",
             owner: "Administration or platform support.",
-            nextAction: "Use the bounded preview or confirm site assignment.",
+            nextAction: "Use the preview or confirm the site assignment.",
           })}
         </div>
       ` : ""}
-      ${renderStudentDetailList(title, "Stable event types and safe summaries", events, "No timeline events are available in this bounded view.", (event) => `
+      ${renderStudentDetailList(title, "Recent activity", events, "No timeline events are available for this student.", (event) => `
         <article class="workspace-row">
           <div>
             <strong>${escapeHtml(event.title || statusText(event.type))}</strong>
@@ -1405,7 +1589,7 @@ function renderStudentDetailList(title, detail, rows, emptyText, rowRenderer) {
         <div class="workspace-empty-state-card">
           <strong>${escapeHtml(emptyText)}</strong>
           ${renderProblemState({
-            reason: "This bounded section has no records for the selected student.",
+            reason: "This section has no records for the selected student.",
             owner: "Assigned staff workspace.",
             nextAction: "Use another detail section or return to the directory.",
           })}
@@ -1444,14 +1628,18 @@ function renderSiteSelectionRequired(body = {}) {
     <section class="workspace-card workspace-error-card" data-workspace-state="site-selection-required">
       <p class="workspace-kicker">Site selection required</p>
       <h2>Select a site before viewing school-wide health</h2>
-      <p>This account can view more than one site, so the dashboard needs an explicit site selection.</p>
+      <p>This account can view more than one site. Choose the school workspace to review.</p>
       <div class="workspace-chip-row">
-        ${sites.map((site) => `<span class="workspace-site-context-badge">${escapeHtml(site.siteName || site.siteId)}</span>`).join("")}
+        ${sites.map((site) => `
+          <button class="workspace-link-button workspace-link-button-small" type="button" data-site-switch-id="${escapeHtml(site.siteId || "")}">
+            ${escapeHtml(site.siteName || site.siteId)}
+          </button>
+        `).join("")}
       </div>
       ${renderProblemState({
-        reason: "Multiple assigned sites are available and no safe default was selected.",
-        owner: "Administration or platform support.",
-        nextAction: "Use the site selector once Phase 8 expands site navigation, or open a direct site-scoped link.",
+        reason: "Multiple assigned schools are available.",
+        owner: "School administration.",
+        nextAction: "Choose a site from the Current site menu or one of the buttons above.",
       })}
     </section>
   `;
@@ -1464,21 +1652,21 @@ function renderSiteContextBlock(dashboard) {
     <section class="workspace-card">
       <div class="workspace-card-head">
         <div>
-          <p class="workspace-kicker">Site Context</p>
-          <h2>${escapeHtml(scope.tenantName || "Organization")} / ${escapeHtml(scope.schoolYear || "School year")}</h2>
+          <p class="workspace-kicker">Current site</p>
+          <h2>${escapeHtml(scope.siteName || "Assigned site")} / ${escapeHtml(scope.schoolYear || "School year")}</h2>
         </div>
         ${statusPill(scope.readOnly ? "configured" : "approved")}
       </div>
       <div class="workspace-chip-row">
-        <span class="workspace-site-context-badge">${escapeHtml(scope.siteName || "Assigned site")}</span>
+        <span class="workspace-site-context-badge">${escapeHtml(scope.tenantName || "School organization")}</span>
         <span class="workspace-site-context-badge">${escapeHtml(roleLabel(scope.role || primaryRoleForUser(currentUser)))}</span>
         <span class="workspace-site-context-badge">${escapeHtml(scope.readOnly ? "Read-only viewer" : "Administration access")}</span>
         <span class="workspace-site-context-badge">No student messaging</span>
       </div>
       ${accessibleSites.length > 1 ? `
         <p class="workspace-muted">
-          ${safeNumber(accessibleSites.length)} accessible site${accessibleSites.length === 1 ? "" : "s"} are included for future site switching.
-          This dashboard is scoped to ${escapeHtml(scope.siteName || "the selected site")} only.
+          ${safeNumber(accessibleSites.length)} accessible site${accessibleSites.length === 1 ? "" : "s"} are available.
+          This view is scoped to ${escapeHtml(scope.siteName || "the current site")} only.
         </p>
       ` : ""}
     </section>
@@ -1491,21 +1679,21 @@ function renderSitePermissionRules(dashboard) {
     <div class="workspace-dashboard-grid workspace-dashboard-grid-two">
       <article class="workspace-empty-state-card">
         <strong>Private evidence</strong>
-        <span>Evidence counts are visible without exposing storage identifiers.</span>
+        <span>Evidence counts are visible without exposing private file details.</span>
         ${statusPill("configured")}
       </article>
       <article class="workspace-empty-state-card">
-        <strong>Role scoped views</strong>
+        <strong>Assigned student records</strong>
         <span>${permissions.canViewStudentDirectory ? "This role can view assigned student records." : "This role is limited to dashboard review."}</span>
         ${statusPill(permissions.canViewStudentDirectory ? "approved" : "blocked")}
       </article>
       <article class="workspace-empty-state-card">
-        <strong>Audited changes</strong>
-        <span>Dashboard viewed, denied, and unauthorized paths are recorded.</span>
+        <strong>Protected access</strong>
+        <span>Workspace access is reviewed without exposing private file details.</span>
         ${statusPill("approved")}
       </article>
       <article class="workspace-empty-state-card">
-        <strong>Teacher intervention</strong>
+        <strong>Teacher follow-up</strong>
         <span>${permissions.canViewReviewQueue ? "Review queue visibility is available for this site." : "Review queue action remains with assigned staff."}</span>
         ${statusPill(permissions.canViewReviewQueue ? "submitted" : "pending")}
       </article>
@@ -1530,7 +1718,14 @@ function renderSiteTopRiskStudents(rows = []) {
                   : `<span class="workspace-story-chip">No critical reason</span>`}
               </div>
             </div>
-            ${statusPill(row.submissionStatus || "draft")}
+            <div class="workspace-row-actions">
+              ${statusPill(row.submissionStatus || "draft")}
+              ${row.studentId ? `
+                <button class="workspace-link-button workspace-link-button-small" type="button" data-site-student-action="view-detail" data-student-detail-id="${escapeHtml(row.studentId)}">
+                  View detail
+                </button>
+              ` : ""}
+            </div>
           </article>
         `;
       }).join("")}
@@ -1631,13 +1826,13 @@ function renderAdminOverviewSection() {
         ${renderMetricTile("Submitted", summary.submissionsSubmitted, "Ready for review", "teacher", "teacher")}
         ${renderMetricTile("Needs Revision", summary.revisionRequested, "Open revision loops", "warning", "teacher")}
         ${renderMetricTile("Approved", summary.approved, "Accepted submissions", "student")}
-        ${renderMetricTile("Evidence", summary.evidenceArtifacts, "Persisted artifacts", "mentor")}
+        ${renderMetricTile("Evidence", summary.evidenceArtifacts, "Evidence records", "mentor")}
         ${renderMetricTile("Presentations", summary.presentationScheduled, "Scheduled slots", "teacher", "presentation")}
         ${renderMetricTile("Exports", summary.exportsQueued, exportsAttention, safeNumber(summary.exportsFailed) ? "danger" : "admin", "archiveExports")}
         ${renderMetricTile("Audit", summary.recentAuditEvents, "Recent protected activity", "admin", "audit")}
       </div>
       ${renderDashboardCard("Needs Attention", "Operational risks", renderNeedsAttention(dashboard.needsAttention))}
-      ${renderDashboardCard("Program Breakdown", "Scoped source records", renderProgramBreakdown(dashboard.programBreakdown))}
+      ${renderDashboardCard("Program Breakdown", "Students by program", renderProgramBreakdown(dashboard.programBreakdown))}
       <div class="workspace-dashboard-grid workspace-dashboard-grid-two">
         ${renderDashboardCard("Review Workload", "Submitted and revision records", renderReviewQueueSummary(dashboard.reviewQueue))}
         ${renderDashboardCard("Mentor Coverage", "Active assignment load", renderMentorCoverage(dashboard.mentorCoverage, summary))}
@@ -1691,7 +1886,7 @@ function renderProgramTeacherDashboardSection() {
         ${renderMetricTile("Submitted", summary.submitted, "Ready for review", "teacher", "teacher")}
         ${renderMetricTile("Needs Revision", summary.revisionRequested, "Follow-up needed", "warning", "teacher")}
         ${renderMetricTile("Approved", summary.approved, "Accepted submissions", "student")}
-        ${renderMetricTile("Evidence", summary.evidenceArtifacts, "Attached artifacts", "mentor")}
+        ${renderMetricTile("Evidence", summary.evidenceArtifacts, "Evidence records", "mentor")}
         ${renderMetricTile("Presentations", summary.presentationsPending, "Pending readiness", "warning", "presentation")}
       </div>
       ${renderDashboardCard("Needs Attention", "Scoped risks", renderNeedsAttention(dashboard.needsAttention))}
@@ -1749,11 +1944,11 @@ function renderMentorDashboardSection() {
       </div>
       ${assigned.length ? renderDashboardCard("Assigned Students", "Active mentor scope", renderMentorStudentCards(assigned)) : `
         <section class="workspace-dashboard-card workspace-empty" data-workspace-state="no-active-assignment">
-          <strong>Workspace assignment is not active yet</strong>
+          <strong>No students are assigned to you yet</strong>
           <span>Mentor students</span>
           No students are assigned to this mentor account yet.
           ${renderProblemState({
-            reason: "No active student records match this assigned view.",
+            reason: "No active students are assigned to this account yet.",
             owner: "Project coordinator or site administrator.",
             nextAction: "Confirm the mentor assignment, then refresh this workspace.",
           })}
@@ -1779,9 +1974,9 @@ function renderMentorAssignmentsSection() {
         <h2>Mentor coverage unavailable</h2>
         ${renderApiNotice(result)}
         ${renderProblemState({
-          reason: "The site mentor assignment route could not return assigned-site coverage.",
+          reason: "Mentor coverage could not load for the assigned site.",
           owner: "Site administration or platform support.",
-          nextAction: "Refresh after site assignment and route availability are confirmed.",
+          nextAction: "Refresh after the site assignment is confirmed.",
         })}
       </section>
     `;
@@ -1801,11 +1996,11 @@ function renderMentorAssignmentsSection() {
       ${renderSiteContextBlock(body)}
       <div class="workspace-command-hero">
         <div>
-          <p class="workspace-kicker">Mentor assigned scope</p>
+          <p class="workspace-kicker">Mentor coverage</p>
           <h1 id="mentorAssignmentsTitle">Mentor Assignments</h1>
           <p>
-            Resolve selected-site mentor coverage with Role scoped views, Audited changes,
-            Private evidence boundaries, and Teacher intervention signals. No student messaging.
+            Resolve mentor coverage for this school with assigned records,
+            protected evidence boundaries, and teacher follow-up signals. No student messaging.
           </p>
         </div>
         <div class="workspace-command-hero-grid">
@@ -1817,13 +2012,13 @@ function renderMentorAssignmentsSection() {
       ${readOnly ? `
         <section class="workspace-read-only-banner" data-mentor-assignment-read-only="true">
           <strong>Read-only mentor coverage</strong>
-          <p>This role can inspect selected-site mentor coverage, but assignment changes stay with authorized site operations.</p>
+          <p>This role can inspect mentor coverage for this school, but assignment changes stay with authorized site operations.</p>
         </section>
       ` : ""}
       <div class="workspace-dashboard-grid">
-        ${renderMetricTile("Students With Mentors", summary.studentsWithActiveMentor, "Active selected-site coverage", "mentor")}
+        ${renderMetricTile("Students With Mentors", summary.studentsWithActiveMentor, "Active mentor coverage", "mentor")}
         ${renderMetricTile("Missing Mentors", summary.studentsWithoutActiveMentor, "Needs assignment follow-up", safeNumber(summary.studentsWithoutActiveMentor) ? "warning" : "mentor")}
-        ${renderMetricTile("Active Mentors", summary.activeMentors, "Selected-site mentor pool", "admin")}
+        ${renderMetricTile("Active Mentors", summary.activeMentors, "Current mentor pool", "admin")}
         ${renderMetricTile("Overloaded Mentors", summary.overloadedMentors, "Review load before assigning", safeNumber(summary.overloadedMentors) ? "danger" : "admin")}
       </div>
       ${renderMentorAssignmentFilters(body)}
@@ -1833,7 +2028,7 @@ function renderMentorAssignmentsSection() {
             <div>
               <p class="workspace-kicker">Coverage queue</p>
               <h2>Unassigned students</h2>
-              <p>${safeNumber(unassignedStudents.length)} shown of ${safeNumber(pagination.filteredTotal)} matching selected-site students.</p>
+              <p>${safeNumber(unassignedStudents.length)} shown of ${safeNumber(pagination.filteredTotal)} matching students at this school.</p>
             </div>
             <span class="workspace-site-context-badge">${safeNumber(pagination.total)} scoped</span>
           </div>
@@ -1841,7 +2036,7 @@ function renderMentorAssignmentsSection() {
             <section class="workspace-empty-state-card" data-mentor-assignments-empty="true">
               <h2>No missing mentor rows match</h2>
               ${renderProblemState(body.emptyState || {
-                reason: "No selected-site students without active mentors match these filters.",
+                reason: "No students without active mentors match these filters at this school.",
                 owner: "Site administration.",
                 nextAction: "Adjust filters or review active assignments.",
               })}
@@ -1854,7 +2049,7 @@ function renderMentorAssignmentsSection() {
             <div>
               <p class="workspace-kicker">Assignment action</p>
               <h2>${canManage ? "Assign Mentor" : "Assignment Controls"}</h2>
-              <p>${canManage ? "Assign one selected-site mentor to one currently unassigned selected-site student." : "Assignment controls are hidden for this role."}</p>
+              <p>${canManage ? "Assign one mentor to one currently unassigned student at this school." : "Assignment controls are hidden for this role."}</p>
             </div>
           </div>
           ${canManage ? renderMentorAssignmentForm(body) : `
@@ -1870,8 +2065,8 @@ function renderMentorAssignmentsSection() {
         </section>
       </div>
       <div class="workspace-dashboard-grid workspace-dashboard-grid-two">
-        ${renderDashboardCard("Mentor Coverage", "Selected-site mentor load", renderMentorCoverageRows(mentors))}
-        ${renderDashboardCard("Active Assignments", "Current mentor assigned scope", renderMentorActiveAssignments(assignments, permissions))}
+        ${renderDashboardCard("Mentor Coverage", "Mentor workload at this school", renderMentorCoverageRows(mentors))}
+        ${renderDashboardCard("Active Assignments", "Current assignments", renderMentorActiveAssignments(assignments, permissions))}
       </div>
     </section>
   `;
@@ -1883,14 +2078,18 @@ function renderMentorAssignmentSelectionRequired(body = {}) {
     <section class="workspace-card workspace-error-card" data-workspace-state="mentor-assignment-site-selection-required">
       <p class="workspace-kicker">Mentor assignments</p>
       <h2>Select a site before viewing mentor coverage</h2>
-      <p>This account can view more than one site, so mentor assignment management needs an explicit site selection.</p>
+      <p>This account can view more than one site. Choose the school workspace before reviewing mentor coverage.</p>
       <div class="workspace-chip-row">
-        ${sites.map((site) => `<span class="workspace-site-context-badge">${escapeHtml(site.siteName || site.siteId)}</span>`).join("")}
+        ${sites.map((site) => `
+          <button class="workspace-link-button workspace-link-button-small" type="button" data-site-switch-id="${escapeHtml(site.siteId || "")}">
+            ${escapeHtml(site.siteName || site.siteId)}
+          </button>
+        `).join("")}
       </div>
       ${renderProblemState({
-        reason: "Multiple assigned sites are available and no safe assignment default was selected.",
-        owner: "Administration or platform support.",
-        nextAction: "Choose a site once site switching is available, or open a direct site-scoped link.",
+        reason: "Multiple assigned schools are available.",
+        owner: "School administration.",
+        nextAction: "Choose a site from the Current site menu or one of the buttons above.",
       })}
     </section>
   `;
@@ -1965,7 +2164,7 @@ function renderMentorUnassignedStudents(students = [], permissions = {}) {
             <span class="workspace-site-context-badge">${safeNumber(student.riskScore)} risk</span>
           </div>
           <div class="workspace-row-actions">
-            <p>${escapeHtml(student.nextAction || "Assign a selected-site mentor.")}</p>
+            <p>${escapeHtml(student.nextAction || "Assign a mentor for this school.")}</p>
             ${permissions.canViewStudentDetail ? `
               <button class="workspace-link-button workspace-link-button-small" type="button" data-mentor-assignment-action="open-student" data-mentor-student-id="${escapeHtml(student.studentId || "")}">
                 View student detail
@@ -2002,13 +2201,13 @@ function renderMentorAssignmentForm(body) {
       <div class="workspace-form-actions">
         <button class="workspace-button workspace-button-primary" type="submit" data-mentor-assignment-action="assign">Assign mentor</button>
       </div>
-      <p class="workspace-muted">Assignments are audited, selected-site only, and do not create users or credentials.</p>
+      <p class="workspace-muted">Assignments stay within the current school and do not create users or credentials.</p>
     </form>
   ` : `
     <section class="workspace-empty-state-card" data-mentor-assignment-form-empty="true">
       <h2>Assignment form unavailable</h2>
       ${renderProblemState({
-        reason: students.length ? "No active selected-site mentors are available." : "No currently unassigned selected-site students are visible in this page.",
+        reason: students.length ? "No active mentors are available at this school." : "No currently unassigned students are visible in this page.",
         owner: "Site administration.",
         nextAction: "Adjust filters or confirm mentor and student site memberships.",
       })}
@@ -2044,7 +2243,7 @@ function renderMentorCoverageRows(mentors = []) {
         </article>
       `).join("")}
     </div>
-  ` : `<div class="workspace-empty">No selected-site mentors match these filters.</div>`;
+  ` : `<div class="workspace-empty">No mentors at this school match these filters.</div>`;
 }
 
 function renderMentorActiveAssignments(assignments = [], permissions = {}) {
@@ -2087,9 +2286,9 @@ function renderOperationsReadinessSection() {
         <h2>Operations readiness unavailable</h2>
         ${renderApiNotice(result)}
         ${renderProblemState({
-          reason: "The site operations readiness route could not return selected-site worklists.",
+          reason: "Operations readiness could not load for the current site.",
           owner: "Site administration or platform support.",
-          nextAction: "Refresh after selected-site access and route availability are confirmed.",
+          nextAction: "Refresh after the site assignment is confirmed.",
         })}
       </section>
     `;
@@ -2111,8 +2310,8 @@ function renderOperationsReadinessSection() {
           <p class="workspace-kicker">Presentation readiness / Archive readiness</p>
           <h1 id="operationsReadinessTitle">Operations</h1>
           <p>
-            Site-scoped worklists for Presentation readiness, Archive readiness, Private evidence, Role scoped views,
-            Audited changes, and Teacher intervention. No student messaging.
+            Worklists for presentation readiness, archive readiness, protected evidence,
+            assigned records, and teacher follow-up. No student messaging.
           </p>
         </div>
         <div class="workspace-command-hero-grid">
@@ -2123,7 +2322,7 @@ function renderOperationsReadinessSection() {
       ${renderApiNotice(result)}
       <section class="workspace-read-only-banner" data-operations-read-only="true">
         <strong>Read-only operations worklists</strong>
-        <p>Scheduling, check-in/check-out, archive retry, and export controls stay out of this phase. Open student detail for blocker context.</p>
+        <p>This view is for monitoring and follow-up. Open student detail for blocker context.</p>
       </section>
       <div class="workspace-dashboard-grid">
         ${renderMetricTile("Presentation Ready", summary.presentationReady, "Ready or complete signals", "teacher")}
@@ -2139,7 +2338,7 @@ function renderOperationsReadinessSection() {
           <div>
             <p class="workspace-kicker">Results</p>
             <h2>Showing ${safeNumber(pagination.returned)} of ${safeNumber(pagination.filteredTotal)}</h2>
-            <p class="workspace-muted">Rows are bounded, selected-site scoped, and sorted with blocked or pending attention first.</p>
+            <p class="workspace-muted">Rows are limited to the current school and sorted with blocked or pending attention first.</p>
           </div>
           <span class="workspace-site-context-badge">${safeNumber(pagination.total)} total in scope</span>
         </div>
@@ -2165,14 +2364,18 @@ function renderOperationsSelectionRequired(body = {}) {
     <section class="workspace-card workspace-error-card" data-workspace-state="operations-site-selection-required">
       <p class="workspace-kicker">Operations</p>
       <h2>Select a site before viewing operations readiness</h2>
-      <p>This account can view more than one site, so presentation/archive/readiness worklists need an explicit site selection.</p>
+      <p>This account can view more than one site. Choose the school workspace before reviewing operations worklists.</p>
       <div class="workspace-chip-row">
-        ${sites.map((site) => `<span class="workspace-site-context-badge">${escapeHtml(site.siteName || site.siteId)}</span>`).join("")}
+        ${sites.map((site) => `
+          <button class="workspace-link-button workspace-link-button-small" type="button" data-site-switch-id="${escapeHtml(site.siteId || "")}">
+            ${escapeHtml(site.siteName || site.siteId)}
+          </button>
+        `).join("")}
       </div>
       ${renderProblemState({
-        reason: "Multiple assigned sites are available and no safe operations default was selected.",
-        owner: "Administration or platform support.",
-        nextAction: "Choose a site once site switching is available, or open a direct site-scoped link.",
+        reason: "Multiple assigned schools are available.",
+        owner: "School administration.",
+        nextAction: "Choose a site from the Current site menu or one of the buttons above.",
       })}
     </section>
   `;
@@ -2263,7 +2466,7 @@ function renderPresentationWorklistRows(rows = [], permissions = {}) {
     <section class="workspace-empty-state-card" data-operations-presentation-empty="true">
       <h2>No presentation rows match</h2>
       ${renderProblemState({
-        reason: "No selected-site presentation readiness rows match the current filters.",
+        reason: "No presentation readiness rows match the current filters at this school.",
         owner: "Site administration.",
         nextAction: "Adjust filters or review the student directory.",
       })}
@@ -2287,7 +2490,7 @@ function renderArchiveWorklistRows(rows = [], permissions = {}) {
           <div>
             <span class="workspace-muted">Archive</span>
             <strong>${escapeHtml(row.reason || "Archive status")}</strong>
-            <p>${escapeHtml(row.downloadExpiresSoon ? "Download window expiring soon." : "Storage identifiers redacted.")}</p>
+            <p>${escapeHtml(row.downloadExpiresSoon ? "Download window expiring soon." : "File details are protected.")}</p>
           </div>
           <div class="workspace-row-actions">
             ${statusPill(row.archiveStatus || "missing")}
@@ -2305,7 +2508,7 @@ function renderArchiveWorklistRows(rows = [], permissions = {}) {
     <section class="workspace-empty-state-card" data-operations-archive-empty="true">
       <h2>No archive rows match</h2>
       ${renderProblemState({
-        reason: "No selected-site archive readiness rows match the current filters.",
+        reason: "No archive readiness rows match the current filters at this school.",
         owner: "Site administration.",
         nextAction: "Adjust filters or open student detail from the directory.",
       })}
@@ -2429,7 +2632,7 @@ function renderAdminAuditSection() {
         <div>
           <p class="workspace-kicker">Audit</p>
           <h1>Recent Protected Activity</h1>
-          <p>Recent activity is summarized without sensitive metadata.</p>
+          <p>Recent activity is summarized without sensitive private details.</p>
         </div>
         <span class="workspace-chip">${safeNumber(dashboard.summary?.recentAuditEvents)} recent event${safeNumber(dashboard.summary?.recentAuditEvents) === 1 ? "" : "s"}</span>
       </div>
@@ -2868,7 +3071,7 @@ function renderTeacherSection() {
           <p class="workspace-kicker">Teacher review queue</p>
           <h1 id="reviewQueueTitle">Review Queue</h1>
           <p>
-            Route-connected submitted work for Private evidence, Role scoped views, Audited changes, and Teacher intervention.
+            Submitted work, revision follow-up, protected evidence, and teacher review for assigned records.
             No student messaging.
           </p>
         </div>
@@ -2889,7 +3092,7 @@ function renderTeacherSection() {
         ${renderMetricTile("Submitted", summary.submitted, "Ready for teacher review", "teacher")}
         ${renderMetricTile("Needs Revision", summary.revisionRequested, "Open revision loops", "warning")}
         ${renderMetricTile("Evidence Attached", summary.evidenceAttached, "Private evidence summaries", "admin")}
-        ${renderMetricTile("High Risk", summary.highRisk, "Prioritize intervention", safeNumber(summary.highRisk) ? "danger" : "admin")}
+        ${renderMetricTile("High Risk", summary.highRisk, "Prioritize follow-up", safeNumber(summary.highRisk) ? "danger" : "admin")}
       </div>
       ${renderReviewQueueFilters(body)}
       <div class="workspace-review-layout">
@@ -3092,7 +3295,7 @@ function renderReviewHistorySummary(historyResult, history) {
       <section class="workspace-empty-state-card" data-review-history-error="true">
         <h2>Review history unavailable</h2>
         ${renderProblemState({
-          reason: "The bounded review history could not load for this submission.",
+          reason: "The review history could not load for this submission.",
           owner: "Teacher review queue",
           nextAction: "Refresh the queue or check role scope.",
         })}
@@ -3117,8 +3320,8 @@ function renderReviewHistorySummary(historyResult, history) {
             </article>
           `).join("")}
         </div>
-      ` : `<div class="workspace-empty">No bounded review history is loaded yet.</div>`}
-      <p class="workspace-muted">${safeNumber(comments.length)} bounded comment${safeNumber(comments.length) === 1 ? "" : "s"} available for this submission.</p>
+      ` : `<div class="workspace-empty">No review history is loaded yet.</div>`}
+      <p class="workspace-muted">${safeNumber(comments.length)} comment${safeNumber(comments.length) === 1 ? "" : "s"} available for this submission.</p>
     </section>
   `;
 }
@@ -3135,7 +3338,7 @@ function renderReviewDecisionForm(selected) {
         <button class="workspace-button workspace-button-secondary" type="submit" name="decision" value="revision_requested" data-review-decision="revision_requested">Request revision</button>
         <button class="workspace-button workspace-button-secondary" type="submit" name="decision" value="comment_only" data-review-decision="comment_only">Add comment only</button>
       </div>
-      <p class="workspace-muted">Decisions are audited and refresh this queue after they are saved.</p>
+      <p class="workspace-muted">Saved decisions refresh this queue.</p>
       <input type="hidden" name="submissionId" value="${escapeHtml(selected.submissionId || "")}">
     </form>
   `;
@@ -3548,7 +3751,7 @@ async function openReviewSubmission(submissionId) {
   const selectedSubmissionId = cleanDirectoryFilter(submissionId);
   if (!selectedSubmissionId) return;
   const queue = unwrap(currentData.reviewQueue);
-  const siteId = queue?.scope?.siteId || "";
+  const siteId = selectedSiteQueryValue() || queue?.scope?.siteId || "";
   const query = siteId ? `?siteId=${encodeURIComponent(siteId)}` : "";
   reviewQueueState = {
     ...defaultReviewQueueState(),
@@ -3752,7 +3955,8 @@ async function openSiteStudentDetail(studentId) {
   const selectedStudentId = cleanDirectoryFilter(studentId);
   if (!selectedStudentId) return;
   const directory = unwrap(currentData.siteStudents);
-  const siteId = directory?.scope?.siteId
+  const siteId = selectedSiteQueryValue()
+    || directory?.scope?.siteId
     || unwrap(currentData.operationsReadiness)?.scope?.siteId
     || unwrap(currentData.mentorAssignments)?.scope?.siteId
     || unwrap(currentData.reviewQueue)?.scope?.siteId
@@ -3796,7 +4000,7 @@ async function selectSiteStudentDetailTab(event) {
     return;
   }
   const detail = unwrap(siteStudentDetailState.result);
-  const siteId = detail?.scope?.siteId || unwrap(currentData.siteStudents)?.scope?.siteId || "";
+  const siteId = selectedSiteQueryValue() || detail?.scope?.siteId || unwrap(currentData.siteStudents)?.scope?.siteId || "";
   const query = siteId ? `?siteId=${encodeURIComponent(siteId)}` : "";
   siteStudentDetailState = {
     ...siteStudentDetailState,
@@ -3919,7 +4123,7 @@ function renderArchiveSection() {
         <article class="workspace-row">
           <div>
             <strong>Privacy guard</strong>
-            <p>Private storage identifiers stay hidden from this workspace.</p>
+            <p>Private file details stay hidden from this workspace.</p>
           </div>
           ${statusPill(storage.storageIdentifiersRedacted ? "ready" : "needs_review")}
         </article>
@@ -3993,11 +4197,10 @@ function renderPresentationAction(slot, canManage) {
 function renderPermissionDeniedSection(title, detail) {
   return `
     <section class="workspace-card workspace-error-card" data-workspace-state="permission-denied">
-      <p class="workspace-kicker">Permission denied</p>
+      <p class="workspace-kicker">Access needed</p>
       <h2>${escapeHtml(title)} unavailable</h2>
       <p>
-        Some workspace sections need different access.
-        This signed-in account does not have the role or scope required for ${escapeHtml(detail)}.
+        You do not have access to this section with the current school assignment.
         Use another assigned account or ask the project coordinator to adjust access.
       </p>
       ${renderProblemState({
@@ -4559,7 +4762,7 @@ function renderNeedsAttention(items = []) {
 }
 
 function renderProgramBreakdown(rows = []) {
-  if (!rows.length) return `<div class="workspace-empty">No program records are available for this assigned view.</div>`;
+  if (!rows.length) return `<div class="workspace-empty">No program records are available for this school view.</div>`;
   return `
     <div class="workspace-program-breakdown">
       ${rows.map((row) => `
@@ -4656,7 +4859,7 @@ function renderAuditSummary(rows = []) {
 }
 
 function renderScopedStudentList(rows = []) {
-  if (!rows.length) return `<div class="workspace-empty">No students are currently visible for this assigned view.</div>`;
+  if (!rows.length) return `<div class="workspace-empty">No students are currently visible for this school view.</div>`;
   return `
     <div class="workspace-list">
       ${rows.slice(0, 12).map((row) => `
@@ -4920,9 +5123,23 @@ function defaultReviewQueueState() {
   };
 }
 
+function selectedSiteQueryValue() {
+  return cleanDirectoryFilter(selectedSiteId);
+}
+
+function siteDashboardQueryString() {
+  const params = new URLSearchParams();
+  const siteId = selectedSiteQueryValue();
+  if (siteId) params.set("siteId", siteId);
+  const query = params.toString();
+  return query ? `?${query}` : "";
+}
+
 function siteStudentQueryString() {
   const params = new URLSearchParams();
   const filters = siteStudentFilters || defaultSiteStudentFilters();
+  const siteId = selectedSiteQueryValue();
+  if (siteId) params.set("siteId", siteId);
   if (filters.search) params.set("search", filters.search);
   if (filters.programId) params.set("programId", filters.programId);
   if (filters.status) params.set("status", filters.status);
@@ -4940,7 +5157,7 @@ function siteStudentQueryString() {
 function siteReviewQueueQueryString() {
   const params = new URLSearchParams();
   const filters = reviewQueueFilters || defaultReviewQueueFilters();
-  const siteId = unwrap(currentData.reviewQueue)?.scope?.siteId || "";
+  const siteId = selectedSiteQueryValue() || unwrap(currentData.reviewQueue)?.scope?.siteId || "";
   if (siteId) params.set("siteId", siteId);
   if (filters.status) params.set("status", filters.status);
   if (filters.programId) params.set("programId", filters.programId);
@@ -4956,7 +5173,8 @@ function siteReviewQueueQueryString() {
 function siteMentorAssignmentQueryString() {
   const params = new URLSearchParams();
   const filters = mentorAssignmentFilters || defaultMentorAssignmentFilters();
-  const siteId = unwrap(currentData.mentorAssignments)?.scope?.siteId
+  const siteId = selectedSiteQueryValue()
+    || unwrap(currentData.mentorAssignments)?.scope?.siteId
     || unwrap(currentData.siteDashboard)?.scope?.siteId
     || unwrap(currentData.siteStudents)?.scope?.siteId
     || "";
@@ -4975,7 +5193,8 @@ function siteMentorAssignmentQueryString() {
 function siteOperationsReadinessQueryString() {
   const params = new URLSearchParams();
   const filters = operationsReadinessFilters || defaultOperationsReadinessFilters();
-  const siteId = unwrap(currentData.operationsReadiness)?.scope?.siteId
+  const siteId = selectedSiteQueryValue()
+    || unwrap(currentData.operationsReadiness)?.scope?.siteId
     || unwrap(currentData.siteDashboard)?.scope?.siteId
     || unwrap(currentData.siteStudents)?.scope?.siteId
     || "";
