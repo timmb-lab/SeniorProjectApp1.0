@@ -3,7 +3,7 @@
   "name": "remote-demo-seed-gate",
   "date": "2026-05-24",
   "startingHead": "ae1ac45eaaf009606770e43f4c40e4474bce0667",
-  "endingHead": null,
+  "endingHead": "73690988cdb605178aa96e63a8f6e7591779707b",
   "phase13BHygieneFixes": [
     "Updated docs/progress/runs/2026-05-24-remote-migration-0011-gate.json endingHead to ae1ac45eaaf009606770e43f4c40e4474bce0667.",
     "Updated docs/progress/run-log.md Phase 13B commit/push status to committed and pushed as ae1ac45 ops: apply remote migration 0011 gate."

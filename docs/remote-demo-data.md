@@ -14,7 +14,7 @@ The multisite seed requires the remote D1 schema to include migration `0011_mult
 
 No remote demo seed was run in Phase 13B; the seed was applied later in Phase 13C.
 
-Current hosted sales proof status is fake-data/API ready, with browser and screenshot proof still pending. Use the read-only gates:
+Current hosted sales proof status is fake-data/API ready, with browser and screenshot proof ready with caveats. Use the read-only gates:
 
 ```powershell
 npm run prove:remote:migration-0011
@@ -27,6 +27,14 @@ Expected Phase 13C schema/data status:
 REMOTE_MIGRATION_0011_ALREADY_PRESENT
 REMOTE_DEMO_SEED_PRESENT
 HOSTED_PROOF_READY_FAKE_DATA_BROWSER_PROOF_PENDING
+```
+
+Expected Phase 14 browser status:
+
+```text
+HOSTED_BROWSER_PROOF_READY_WITH_CAVEATS
+SCREENSHOTS_GENERATED_SAFE
+EXISTING_FAKE_HOSTED_CREDENTIALS_USED_FOR_BROWSER_PROOF
 ```
 
 Previous hosted blocked status after migration 0011 and before remote seed:
@@ -56,7 +64,8 @@ REMOTE_DEMO_SEED_APPLIED_HOSTED_BROWSER_PROOF_PENDING
 - No physical Google Drive files are created. Evidence uses metadata plus `https://example.com/capstone-demo/...` URLs only.
 - Staff and persona credential files are written only under ignored `.secrets/demo-remote-staff-logins-*.json`; student credentials are not created.
 - Phase 13C did not print, commit, paste, screenshot, or document credential values. The generated staff credential file was written under ignored `.secrets`.
-- Phase 13C hosted API proof used existing fake hosted credentials after the generated remote demo staff credentials were rejected by hosted login. Do not claim generated remote staff persona browser-login readiness until a Phase 14 browser/persona proof resolves that path.
+- Phase 13C hosted API proof used existing fake hosted credentials after the generated remote demo staff credentials were rejected by hosted login.
+- Phase 14 browser proof used the existing fake hosted admin, program teacher, and mentor credential path. Generated remote staff credentials still fail hosted login and were not repaired. Viewer browser proof is blocked because the safe existing fake hosted credential file does not include a viewer account.
 
 ## Seed Shape
 
@@ -73,6 +82,6 @@ REMOTE_DEMO_SEED_APPLIED_HOSTED_BROWSER_PROOF_PENDING
 
 Demo seeds no longer create announcements. Schools should continue using existing communication systems such as Remind, Canvas, Infinite Campus, Google Classroom, email, or district-approved tools. The legacy `announcements` table remains deprecated/schema-only until a later safe cleanup phase.
 
-The Phase 13C proof script verifies remote D1 counts, role scope boundaries, hosted dashboard rendering, site dashboard, student directory, student detail/timeline, review queue, mentor assignment, operations readiness API checks, example.com-only evidence, and absence of Drive ID or secret leaks in rendered API responses.
+The Phase 13C proof script verifies remote D1 counts, role scope boundaries, hosted dashboard rendering, site dashboard, student directory, student detail/timeline, review queue, mentor assignment, operations readiness API checks, example.com-only evidence, and absence of Drive ID or secret leaks in rendered API responses. Phase 14 adds hosted browser screenshots with caveats at `docs/sales/hosted-browser-proof-screenshot-index.md`.
 
 Do not run remote reset, account reset, deploy, domain, OAuth, or Cloudflare config changes from the sales-demo proof phase.

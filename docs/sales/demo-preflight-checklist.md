@@ -28,16 +28,16 @@
 - [ ] Run `npm run prove:remote:migration-0011`.
 - [ ] Run `npm run prove:demo:remote`.
 - [ ] Run `npm run prove:sales-demo:hosted`.
-- [ ] Confirm hosted status is `HOSTED_PROOF_READY_FAKE_DATA_BROWSER_PROOF_PENDING`.
-- [ ] Confirm no screenshots are claimed unless Phase 14 browser artifacts exist.
-- [ ] Confirm generated remote staff credentials are not shown; use only an approved fake hosted credential path for browser walkthroughs.
+- [ ] Confirm hosted API/data proof is ready and, after Phase 14, hosted browser status is `HOSTED_BROWSER_PROOF_READY_WITH_CAVEATS`.
+- [ ] Confirm screenshot index exists at `docs/sales/hosted-browser-proof-screenshot-index.md`.
+- [ ] Confirm generated remote staff credentials are not shown; use only the approved existing fake hosted credential path for browser walkthroughs.
 
 ## Persona Checks
 
 - [ ] Avery Administration can sign in.
 - [ ] Primary IT Program Teacher can sign in.
-- [ ] Valeria Viewer can sign in.
-- [ ] Primary Mentor can sign in.
+- [ ] Valeria Viewer can sign in. Current Phase 14 status: blocked until a safe viewer credential path exists.
+- [ ] Primary Mentor can sign in. Current Phase 14 status: login works, but assigned-student rows were not proven with the fallback mentor account.
 - [ ] Log out between personas.
 - [ ] Do not show password files or credential values.
 
@@ -49,7 +49,7 @@
 - [ ] Review Queue loads for program teacher.
 - [ ] Mentor Assignments loads for Administration.
 - [ ] Operations loads.
-- [ ] Viewer read-only marker appears.
+- [ ] Viewer read-only marker appears. Current Phase 14 status: not browser-proven.
 - [ ] No announcements appear.
 - [ ] No scheduling/archive retry/export controls appear in Operations.
 
@@ -68,5 +68,5 @@
 ## Fallback Ready
 
 - [ ] If local screen fails, use `docs/sales/technical-proof-checklist.md`.
-- [ ] If hosted/prod is asked, say fake-data API proof is ready but browser/screenshot proof is still pending.
+- [ ] If hosted/prod is asked, say fake-data API proof is ready and browser/screenshot proof is ready with viewer/generated-credential caveats.
 - [ ] If compliance is asked, say compliance certification is not claimed.

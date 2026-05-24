@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -21,6 +21,7 @@ const BLOCKED_MISSING_0011 = "HOSTED_PROOF_BLOCKED_REMOTE_D1_MISSING_0011";
 const BLOCKED_REMOTE_SEED = "HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING";
 const BLOCKED_READ_ACCESS = "HOSTED_PROOF_BLOCKED_REMOTE_D1_READ_ACCESS_REQUIRED";
 const READY_FAKE_DATA_BROWSER_PENDING = "HOSTED_PROOF_READY_FAKE_DATA_BROWSER_PROOF_PENDING";
+const PHASE_14_BROWSER_MANIFEST = "docs/progress/runs/2026-05-24-hosted-browser-proof-screenshot-gate.json";
 
 function parseArgs(values = process.argv.slice(2)) {
   const parsed = {
@@ -105,23 +106,35 @@ async function runHostedSalesDemoProof(args = {}, options = {}) {
       };
     }
 
+    const browserProof = readHostedBrowserProofSummary(repoRoot);
+    const hostedProofStatus = browserProof.browserProofGenerated
+      ? browserProof.browserProofStatus
+      : READY_FAKE_DATA_BROWSER_PENDING;
+    const blockedBrowserProof = /_BLOCKED_/i.test(hostedProofStatus);
+
     return {
       ok: true,
       proof: "sales_demo_hosted",
-      hostedProofPassed: true,
-      hostedProofStatus: READY_FAKE_DATA_BROWSER_PENDING,
-      claimStatus: "Hosted fake-data proof ready; browser proof pending",
+      hostedProofPassed: !blockedBrowserProof,
+      hostedApiDataProofPassed: true,
+      hostedProofStatus,
+      claimStatus: browserProof.browserProofGenerated
+        ? browserProof.claimStatus
+        : "Hosted fake-data proof ready; browser proof pending",
       repo,
       baseUrl,
       remoteSchema0011Ready: true,
       remoteDemoSeedPresent: true,
       remoteDemoSeed,
-      browserProofGenerated: false,
-      screenshotProofGenerated: false,
+      browserProofGenerated: browserProof.browserProofGenerated,
+      screenshotProofGenerated: browserProof.screenshotProofGenerated,
+      credentialPathStatus: browserProof.credentialPathStatus,
+      screenshotStatus: browserProof.screenshotStatus,
+      browserProofCaveats: browserProof.caveats,
       remoteWritesPerformed: false,
       remoteSeedPerformed: false,
       deployPerformed: false,
-      nextGate: "14_hosted_browser_proof_and_screenshot_gate.txt",
+      nextGate: browserProof.nextGate,
     };
   } catch (error) {
     if (error instanceof DemoSeedError) {
@@ -143,6 +156,56 @@ async function runHostedSalesDemoProof(args = {}, options = {}) {
       readOnly: true,
     });
   }
+}
+
+function readHostedBrowserProofSummary(repoRoot) {
+  const manifestPath = path.join(repoRoot, PHASE_14_BROWSER_MANIFEST);
+  if (!existsSync(manifestPath)) {
+    return {
+      browserProofGenerated: false,
+      screenshotProofGenerated: false,
+      browserProofStatus: READY_FAKE_DATA_BROWSER_PENDING,
+      credentialPathStatus: "BROWSER_PROOF_SKIPPED_NO_SAFE_CREDENTIAL_PATH",
+      screenshotStatus: "SCREENSHOTS_NOT_GENERATED_NOT_REQUESTED",
+      claimStatus: "Hosted fake-data proof ready; browser proof pending",
+      caveats: [],
+      nextGate: "14_hosted_browser_proof_and_screenshot_gate.txt",
+    };
+  }
+
+  const manifest = JSON.parse(readFileSync(manifestPath, "utf8").replace(/^\uFEFF/, ""));
+  const browserProofStatus = manifest.browserProofResults?.status
+    || manifest.browserProofStatus
+    || READY_FAKE_DATA_BROWSER_PENDING;
+  const screenshotStatus = manifest.screenshotHygiene?.status
+    || manifest.screenshotStatus
+    || "SCREENSHOTS_NOT_GENERATED_NOT_REQUESTED";
+  const screenshotFiles = Array.isArray(manifest.screenshotsGenerated?.files)
+    ? manifest.screenshotsGenerated.files
+    : [];
+  const missingScreenshots = screenshotFiles.filter((file) => !existsSync(path.join(repoRoot, file)));
+  const screenshotProofGenerated = screenshotStatus === "SCREENSHOTS_GENERATED_SAFE"
+    && screenshotFiles.length > 0
+    && missingScreenshots.length === 0;
+  const browserProofGenerated = browserProofStatus !== READY_FAKE_DATA_BROWSER_PENDING;
+
+  return {
+    browserProofGenerated,
+    screenshotProofGenerated,
+    browserProofStatus,
+    credentialPathStatus: manifest.credentialPathStatus || "BROWSER_PROOF_SKIPPED_NO_SAFE_CREDENTIAL_PATH",
+    screenshotStatus,
+    claimStatus: browserProofStatus === "HOSTED_BROWSER_PROOF_READY"
+      ? "Hosted browser proof ready"
+      : browserProofStatus === "HOSTED_BROWSER_PROOF_READY_WITH_CAVEATS"
+        ? "Hosted browser proof ready with caveats"
+        : "Hosted browser proof blocked or pending",
+    caveats: [
+      ...(Array.isArray(manifest.blockers) ? manifest.blockers : []),
+      ...missingScreenshots.map((file) => `Missing screenshot artifact: ${file}`),
+    ],
+    nextGate: manifest.nextRecommendedPrompt || "14_hosted_browser_proof_and_screenshot_gate.txt",
+  };
 }
 
 function blockedOutput({ repo, baseUrl, status, reason, missingTables = [], missingRoles = [], classification = status, readOnly = true }) {
@@ -244,6 +307,7 @@ export {
   BLOCKED_REMOTE_SEED,
   BLOCKED_READ_ACCESS,
   READY_FAKE_DATA_BROWSER_PENDING,
+  readHostedBrowserProofSummary,
   parseArgs,
   runHostedSalesDemoProof,
 };

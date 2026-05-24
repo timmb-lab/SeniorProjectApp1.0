@@ -147,7 +147,8 @@ test("technical proof and hosted plan map screens to routes and blockers", () =>
   assert.match(hosted, /site_programs/);
   assert.match(hosted, /HOSTED_PROOF_BLOCKED_REMOTE_D1_MISSING_0011/);
   assert.match(hosted, /HOSTED_PROOF_READY_FAKE_DATA_BROWSER_PROOF_PENDING/);
-  assert.match(hosted, /REMOTE_DEMO_SEED_APPLIED_HOSTED_BROWSER_PROOF_PENDING/);
+  assert.match(hosted, /HOSTED_BROWSER_PROOF_READY_WITH_CAVEATS/);
+  assert.match(hosted, /SCREENSHOTS_GENERATED_SAFE/);
   assert.match(hosted, /No additional remote migrations/);
   assert.match(hosted, /No remote seed\/reset writes/);
 });
@@ -157,7 +158,8 @@ test("sales docs avoid overclaims, secret-like values, and screenshot proof clai
   assert.match(combinedSalesDocs, /not a FERPA certification|not claiming FERPA/i);
   assert.match(combinedSalesDocs, /not claiming production pilot readiness|not a hosted pilot claim|No-go/i);
   assert.match(combinedSalesDocs, /HOSTED_PROOF_READY_FAKE_DATA_BROWSER_PROOF_PENDING|Hosted fake-data API proof ready/i);
-  assert.match(docs["docs/sales/demo-screenshot-checklist.md"], /Screenshots were not generated in Phase 13/);
+  assert.match(docs["docs/sales/demo-screenshot-checklist.md"], /Phase 14 generated a hosted fake-data screenshot set with caveats/);
+  assert.match(docs["docs/sales/demo-screenshot-checklist.md"], /hosted-browser-proof-screenshot-index\.md/);
 
   const forbidden = [
     /BEGIN PRIVATE KEY/i,

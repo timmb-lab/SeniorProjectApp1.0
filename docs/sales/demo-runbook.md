@@ -18,7 +18,7 @@ This demo is a fake-data demo only. It is not a real student-data pilot, hosted 
 
 - Proven locally: automated local seed/proof/tests currently verify this behavior.
 - Fake-data demo only: the demo uses synthetic `.test` users and seeded records.
-- Hosted fake-data API proof ready: Phase 13C seeded the remote fake-data workspace and proved remote D1 plus hosted read-only API checks. Browser/screenshot proof remains pending.
+- Hosted fake-data API proof ready: Phase 13C seeded the remote fake-data workspace and proved remote D1 plus hosted read-only API checks. Phase 14 added browser/screenshot proof with credential-path caveats.
 - Planned / future: a useful next capability, but not built or proven in this phase.
 - Not claimed: do not state or imply this in sales conversations.
 
@@ -42,7 +42,7 @@ This demo is a fake-data demo only. It is not a real student-data pilot, hosted 
 
 | Area | Claim label | Safe wording |
 | --- | --- | --- |
-| Hosted demo readiness | API/data proof ready; browser pending | "The hosted fake-data API proof is ready, and screenshots/persona browser proof are the next gate." |
+| Hosted demo readiness | API/data proof ready; browser proof ready with caveats | "The hosted fake-data API proof is ready, and hosted browser screenshots are available with viewer/generated-credential caveats." |
 | Real student data readiness | Not claimed | "This uses fake data only today." |
 | Billing/subscription readiness | Not claimed | "Billing is outside this MVP demo." |
 | Tenant-owned Drive migration | Planned / future | "Current proof avoids raw storage IDs; tenant-owned storage policy is future work unless separately proven." |
@@ -147,8 +147,8 @@ Search by these prefixes in the Students section or use them in worklist filters
 - Page: `workspace.html`.
 - Click: sign in with the fake site-administration account.
 - Point out: "This is a school-operations workspace for capstone visibility."
-- Say: "This is fake data only. Local proof and hosted API/data proof are complete; browser screenshots are still pending."
-- Do not claim: hosted browser proof, real student readiness, or compliance certification.
+- Say: "This is fake data only. Local proof and hosted API/data proof are complete; hosted browser screenshots are available with credential caveats."
+- Do not claim: full persona browser readiness, generated remote staff credential readiness, real student readiness, or compliance certification.
 - Fallback: if login fails, run `npm run prove:sales-demo:local`, then use this runbook and the one-page leave-behind to continue the story honestly.
 
 ### 2. Site Dashboard
@@ -235,7 +235,7 @@ Search by these prefixes in the Students section or use them in worklist filters
 
 ### 10. Close With Next Gates
 
-- Say: "The local fake-data MVP is ready to demo. Hosted fake-data API proof is ready, and browser/screenshot proof is the next gate."
+- Say: "The local fake-data MVP is ready to demo. Hosted fake-data API proof is ready, and Phase 14 screenshots cover the hosted browser path with viewer/generated-credential caveats."
 - Do not claim: pilot readiness or compliance certification.
 
 ## Role-Based Demo Paths
@@ -292,7 +292,7 @@ Search by these prefixes in the Students section or use them in worklist filters
 | 3:45-4:45 | Review Queue | IT Teacher | "Teachers see scoped work and can review submitted items." |
 | 4:45-5:45 | Mentor Assignments | Avery | Filter missing mentors: "Administration can see coverage gaps." |
 | 5:45-6:30 | Operations | Avery | Filter archive failed/presentation pending: "Closeout worklists show who needs staff follow-up." |
-| 6:30-7:00 | Close | Avery | "This is fake data. Local proof is complete, hosted API/data proof is ready, and browser screenshots are still pending." |
+| 6:30-7:00 | Close | Avery | "This is fake data. Local proof is complete, hosted API/data proof is ready, and hosted browser screenshots exist with credential caveats." |
 
 ## 15-Minute Deeper Demo
 
@@ -374,7 +374,7 @@ Search by these prefixes in the Students section or use them in worklist filters
 
 - Remote D1 still lacks migration `0011_multisite_site_role_foundation.sql`.
 - Hosted fake-data API proof is ready.
-- Browser/persona/screenshot proof remains pending for Phase 14.
+- Browser/persona/screenshot proof is ready with Phase 14 caveats: existing fake hosted admin and teacher paths work; viewer and generated remote staff credentials remain blocked.
 - Archive retry/export mutation UI is deferred.
 - Presentation scheduling/check-in/check-out mutation UI is not part of Operations.
 - Mentor reassign/deactivate is deferred.
@@ -389,7 +389,7 @@ Search by these prefixes in the Students section or use them in worklist filters
 3. Re-run remote seed dry-run only if a future seed refresh is explicitly approved.
 4. Do not run another remote seed write without a new approval gate.
 5. Run hosted smoke proof using fake `.test` credentials only.
-6. Capture screenshots manually or through a script and label them with date/environment.
+6. Use the Phase 14 screenshot index or capture replacement screenshots only if the credential path is safe and date/environment labels are preserved.
 7. Run final no-secret scan.
 8. Confirm Bryan/admin account still works.
 9. Confirm OAuth/domain settings are unchanged.
@@ -405,7 +405,7 @@ Do:
 - Show no announcements/student messaging.
 - Show read-only viewer mode.
 - Show story students.
-- Say hosted fake-data API proof is ready and browser/screenshot proof is pending.
+- Say hosted fake-data API proof is ready and browser/screenshot proof is ready with viewer/generated-credential caveats.
 
 Do not:
 
@@ -433,7 +433,7 @@ Do not:
 | Area | Current decision | Reason | Next gate |
 | --- | --- | --- | --- |
 | Local sales demo | Go | Proven locally with fake data. | Run reset/proof before demo. |
-| Hosted sales demo | Partial go | Fake-data API proof is ready; browser/screenshot proof is still pending. | `14_hosted_browser_proof_and_screenshot_gate.txt`. |
+| Hosted sales demo | Partial go | Fake-data API proof is ready; browser/screenshots are ready with credential-path caveats. | `14A_hosted_persona_credentials_fix.txt`. |
 | Remote D1 migration 0011 | Complete | Migration was applied and remains proven. | No further migration without a dedicated gate. |
 | Remote seed 5B | Complete for fake data | Phase 13C seeded the fake-data workspace through the approved confirmation gate. | No reseed without a new approved gate. |
 | District pilot | No-go | Needs hosted proof, legal/security review, data policy, SSO, onboarding. | Pilot readiness plan. |

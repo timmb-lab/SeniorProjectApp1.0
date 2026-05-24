@@ -14,22 +14,28 @@ const DOC_FILES = [
 
 const combinedDocs = DOC_FILES.map(read).join("\n\n");
 
-test("remote demo docs record the Phase 13C seed gate without claiming browser proof", () => {
+test("remote demo docs preserve the Phase 13C seed gate and Phase 14 browser update", () => {
   assert.match(combinedDocs, /Phase 13C/i);
   assert.match(combinedDocs, /REMOTE_DEMO_SEED_APPLIED_HOSTED_BROWSER_PROOF_PENDING/);
   assert.match(combinedDocs, /HOSTED_PROOF_READY_FAKE_DATA_BROWSER_PROOF_PENDING/);
-  assert.match(combinedDocs, /Screenshots were not generated in Phase 13C/i);
+  assert.match(combinedDocs, /HOSTED_BROWSER_PROOF_READY_WITH_CAVEATS/);
   assert.doesNotMatch(combinedDocs, /screenshot proof (is )?complete/i);
   assert.doesNotMatch(combinedDocs, /browser proof (is )?complete/i);
+
+  const phase13Manifest = JSON.parse(read("docs/progress/runs/2026-05-24-remote-demo-seed-gate.json"));
+  assert.equal(phase13Manifest.screenshotStatus.screenshotsGenerated, false);
+  assert.equal(phase13Manifest.screenshotStatus.browserProofGenerated, false);
+  assert.equal(phase13Manifest.nextRecommendedPrompt, "14_hosted_browser_proof_and_screenshot_gate.txt");
 });
 
-test("hosted proof plan distinguishes schema ready, seed applied, and browser pending", () => {
+test("hosted proof plan distinguishes schema ready, seed applied, and Phase 14 browser caveats", () => {
   const hosted = read("docs/sales/hosted-proof-plan.md");
   assert.match(hosted, /REMOTE_MIGRATION_0011_ALREADY_PRESENT/);
   assert.match(hosted, /REMOTE_DEMO_SEED_PRESENT/);
   assert.match(hosted, /HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING/);
   assert.match(hosted, /HOSTED_PROOF_READY_FAKE_DATA_BROWSER_PROOF_PENDING/);
-  assert.match(hosted, /14_hosted_browser_proof_and_screenshot_gate\.txt/);
+  assert.match(hosted, /HOSTED_BROWSER_PROOF_READY_WITH_CAVEATS/);
+  assert.match(hosted, /14A_hosted_persona_credentials_fix\.txt/);
 });
 
 test("remote proof scripts stay away from reset, deploy, and config commands", () => {

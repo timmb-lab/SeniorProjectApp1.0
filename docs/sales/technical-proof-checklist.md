@@ -30,15 +30,15 @@ Expected pass conditions:
 
 | Demo screen | Route(s) | Test file | Local proof command | Hosted proof status | Notes |
 | --- | --- | --- | --- | --- | --- |
-| Site Dashboard | `/api/site/dashboard` | `tests/site-dashboard.integration.test.mjs` | `npm run prove:demo:local` | REMOTE API PROVEN; browser pending | Hosted proof shows 250 primary-site students through the route. |
-| Student Directory | `/api/site/students` | `tests/site-students.integration.test.mjs` | `npm run prove:demo:local` | REMOTE API PROVEN; browser pending | Hosted proof finds Missing Mentor and Rich Timeline story rows. |
-| Student Detail | `/api/site/students/:studentId` | `tests/site-student-detail.integration.test.mjs` | `npm run prove:demo:local` | REMOTE API PROVEN; browser pending | Hosted proof renders a story student detail response with timeline preview. |
-| Timeline | `/api/site/students/:studentId/timeline` | `tests/site-student-detail.integration.test.mjs` | `npm run prove:demo:local` | REMOTE API PROVEN; browser pending | Hosted proof returns timeline events for a story student. |
-| Review Queue | `/api/site/review-queue` | `tests/site-review-queue.integration.test.mjs` | `npm run prove:demo:local` | REMOTE API PROVEN; browser pending | Hosted proof sees submitted and revision-requested demo rows. |
+| Site Dashboard | `/api/site/dashboard` | `tests/site-dashboard.integration.test.mjs` | `npm run prove:demo:local` | REMOTE API PROVEN; BROWSER PROVEN WITH CAVEATS | Hosted proof shows 250 primary-site students through the route; browser proof used existing fake hosted admin fallback. |
+| Student Directory | `/api/site/students` | `tests/site-students.integration.test.mjs` | `npm run prove:demo:local` | REMOTE API PROVEN; BROWSER PROVEN WITH CAVEATS | Hosted proof finds Missing Mentor and Rich Timeline story rows; browser proof searched Rich Timeline. |
+| Student Detail | `/api/site/students/:studentId` | `tests/site-student-detail.integration.test.mjs` | `npm run prove:demo:local` | REMOTE API PROVEN; BROWSER PROVEN WITH CAVEATS | Hosted proof renders a story student detail response with timeline preview. |
+| Timeline | `/api/site/students/:studentId/timeline` | `tests/site-student-detail.integration.test.mjs` | `npm run prove:demo:local` | REMOTE API PROVEN; BROWSER PROVEN WITH CAVEATS | Hosted proof returns timeline events for a story student; browser proof opened the timeline section. |
+| Review Queue | `/api/site/review-queue` | `tests/site-review-queue.integration.test.mjs` | `npm run prove:demo:local` | REMOTE API PROVEN; BROWSER PROVEN WITH CAVEATS | Hosted proof sees submitted and revision-requested demo rows; browser proof used existing fake hosted program teacher credentials. |
 | Review Decision | `/api/reviews/:submissionId/decision` | `tests/site-review-queue.integration.test.mjs` | Integration tests | NOT RUN REMOTELY | Mutations stay integration-tested; Phase 13C remote proof is read-only. |
-| Mentor Assignments | `/api/site/mentor-assignments` | `tests/site-mentor-assignments.integration.test.mjs` | `npm run prove:demo:local` | REMOTE API PROVEN; browser pending | Hosted proof sees Missing Mentor coverage rows; assign mutation remains integration-tested. |
-| Operations Readiness | `/api/site/operations-readiness` | `tests/site-operations-readiness.integration.test.mjs` | `npm run prove:demo:local` | REMOTE API PROVEN; browser pending | Hosted proof sees archive failed, archive ready, presentation pending, and high-risk story worklists. |
-| Viewer read-only | Multiple site routes | `tests/site-aware-permissions.test.mjs`, `tests/workspace-app.test.mjs` | `npm run prove:demo:local` | DATA PROVEN; BROWSER PERSONA PENDING | D1 proof verifies viewer persona exists; hosted viewer session proof waits for Phase 14. |
+| Mentor Assignments | `/api/site/mentor-assignments` | `tests/site-mentor-assignments.integration.test.mjs` | `npm run prove:demo:local` | REMOTE API PROVEN; BROWSER PROVEN WITH CAVEATS | Hosted proof sees Missing Mentor coverage rows; browser proof filtered Missing Mentor and did not submit assignment mutation. |
+| Operations Readiness | `/api/site/operations-readiness` | `tests/site-operations-readiness.integration.test.mjs` | `npm run prove:demo:local` | REMOTE API PROVEN; BROWSER PROVEN WITH CAVEATS | Hosted proof sees archive failed, archive ready, presentation pending, and high-risk story worklists; browser proof filtered archive failed and presentation pending. |
+| Viewer read-only | Multiple site routes | `tests/site-aware-permissions.test.mjs`, `tests/workspace-app.test.mjs` | `npm run prove:demo:local` | DATA PROVEN; BROWSER PERSONA BLOCKED | D1 proof verifies viewer persona exists; hosted viewer session proof is blocked because the safe existing fake hosted credential file has no viewer account and generated remote staff credentials fail hosted login. |
 | No announcements | Workspace/source/seed checks | `tests/production-workflow-source.test.mjs`, `tests/workspace-app.test.mjs`, seed tests | `npm run prove:demo:local` | REMOTE PROVEN | Remote D1 proof reports 0 demo announcements. |
 | Redaction | All demo routes | Integration/source tests | `npm run prove:sales-demo:local` | REMOTE API PROVEN; browser pending | Hosted API proof found no raw Drive IDs/storage IDs/secrets. |
 | Remote migration 0011 gate | Remote D1 schema | `tests/remote-migration-0011-gate.test.mjs` | `npm run prove:remote:migration-0011` | SCHEMA READY; seed present | Proves `sites`, `site_users`, `site_programs`, new roles, sandbox site, sandbox site-program mappings, no FK violations, and remote seed present. |
@@ -78,11 +78,19 @@ Remote fake-data proof is ready at the data/API gate after:
 3. Hosted smoke proof uses only fake `.test` credentials.
 4. Final no-secret and no-real-data scans pass.
 
-Hosted browser proof remains pending until:
+Phase 14 hosted browser proof status:
 
-1. Browser/screenshot proof is captured and labeled by environment/date.
-2. Generated remote persona login behavior is resolved or an approved fake hosted credential path is used.
-3. Screenshots are checked for secrets, raw Drive identifiers, credential files, and private URLs.
+```text
+HOSTED_BROWSER_PROOF_READY_WITH_CAVEATS
+SCREENSHOTS_GENERATED_SAFE
+EXISTING_FAKE_HOSTED_CREDENTIALS_USED_FOR_BROWSER_PROOF
+```
+
+Hosted browser proof remains caveated until:
+
+1. Generated remote persona login behavior is resolved without credential leakage.
+2. A safe fake hosted viewer credential path is available and viewer read-only is browser-proven.
+3. Mentor browser proof can show assigned-student rows rather than the fallback no-active-assignment state.
 
 Previous schema blocker status before Phase 13B:
 

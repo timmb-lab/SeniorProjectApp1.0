@@ -2,9 +2,9 @@
 
 ## Current Hosted Proof Status
 
-Hosted fake-data proof is ready at the data/API gate, with browser and screenshot proof still pending.
+Hosted fake-data proof is ready at the data/API gate. Phase 14 added hosted browser proof and screenshots with credential-path caveats.
 
-Do not claim browser walkthrough readiness, screenshot proof, real pilot readiness, FERPA certification, or production readiness.
+Do not claim full persona walkthrough readiness, generated remote staff credential readiness, real pilot readiness, FERPA certification, or production readiness.
 
 Phase 13C applied the approved remote fake-data demo seed and proved the seeded shape through remote D1 plus hosted read-only API checks. The current read-only hosted proof status is:
 
@@ -15,10 +15,10 @@ HOSTED_PROOF_READY_FAKE_DATA_BROWSER_PROOF_PENDING
 Phase-level status:
 
 ```text
-REMOTE_DEMO_SEED_APPLIED_HOSTED_BROWSER_PROOF_PENDING
+HOSTED_BROWSER_PROOF_READY_WITH_CAVEATS
 ```
 
-Next gate: `14_hosted_browser_proof_and_screenshot_gate.txt`.
+Next gate: `14A_hosted_persona_credentials_fix.txt`.
 
 The remote seed blocker status before Phase 13C was:
 
@@ -32,9 +32,15 @@ The schema blocker status before Phase 13B was:
 HOSTED_PROOF_BLOCKED_REMOTE_D1_MISSING_0011
 ```
 
-## Remaining Hosted Blocker
+## Remaining Hosted Caveats
 
-The local MVP depends on multisite tables, roles, and fake Desert Valley demo rows. Remote D1 now has the migration 0011 schema foundation and the Phase 13C fake-data seed. The remaining blocker is visual/browser evidence: screenshots and a persona walkthrough were not generated in Phase 13C.
+The local MVP depends on multisite tables, roles, and fake Desert Valley demo rows. Remote D1 now has the migration 0011 schema foundation and the Phase 13C fake-data seed. Phase 14 captured hosted browser screenshots through the existing fake hosted admin and program teacher credential path.
+
+The remaining blockers are credential-path specific:
+
+- Generated remote staff credentials still fail hosted login and were not repaired in Phase 14.
+- The safe existing fake hosted credential file has no viewer account, so viewer browser proof and viewer screenshot remain blocked.
+- The existing fake hosted mentor account signs in but renders a no-active-assignment state, so assigned-student mentor rows were not browser-proven.
 
 ## Remote D1 Migration 0011 Gate
 
@@ -120,7 +126,17 @@ The hosted API proof used existing fake hosted credentials after the newly gener
 
 ## Screenshots / Browser Proof Gate
 
-Screenshots were not generated in Phase 13C.
+Screenshots were generated in Phase 14 and indexed at `docs/sales/hosted-browser-proof-screenshot-index.md`.
+
+Phase 14 status:
+
+```text
+HOSTED_BROWSER_PROOF_READY_WITH_CAVEATS
+SCREENSHOTS_GENERATED_SAFE
+EXISTING_FAKE_HOSTED_CREDENTIALS_USED_FOR_BROWSER_PROOF
+```
+
+The screenshots prove hosted browser rendering for the sign-in/product shell, administration dashboard surface, student directory, student detail/timeline route, review queue, mentor assignments, operations archive/presentation filters, and the mentor fallback no-active-assignment screen. They do not prove viewer read-only browser login or generated remote staff credential login.
 
 Before using screenshots as proof:
 

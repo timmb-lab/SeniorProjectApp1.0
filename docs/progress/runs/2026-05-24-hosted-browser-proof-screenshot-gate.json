@@ -1,0 +1,184 @@
+{
+  "phase": "14",
+  "name": "hosted-browser-proof-screenshot-gate",
+  "date": "2026-05-24",
+  "startingHead": "73690988cdb605178aa96e63a8f6e7591779707b",
+  "endingHead": null,
+  "phase13CHygieneFixes": [
+    "Updated docs/progress/runs/2026-05-24-remote-demo-seed-gate.json endingHead to 73690988cdb605178aa96e63a8f6e7591779707b.",
+    "Updated docs/progress/run-log.md Phase 13C commit/push status to committed and pushed as 7369098 ops: seed remote sales demo data."
+  ],
+  "hostedStatusPreflight": {
+    "proveRemoteMigration0011": "REMOTE_MIGRATION_0011_ALREADY_PRESENT",
+    "proveDemoRemote": "passed remote D1 shape plus hosted read-only API route proof",
+    "proveSalesDemoHostedBeforeBrowser": "HOSTED_PROOF_READY_FAKE_DATA_BROWSER_PROOF_PENDING",
+    "remoteSchema0011Ready": true,
+    "remoteDemoSeedPresent": true,
+    "hostedApiDataProofReady": true,
+    "remoteWritesPerformed": false,
+    "deployPerformed": false
+  },
+  "credentialPathStatus": "EXISTING_FAKE_HOSTED_CREDENTIALS_USED_FOR_BROWSER_PROOF",
+  "credentialInvestigation": {
+    "generatedRemoteStaffCredentialsAuthenticatedWithoutRepair": false,
+    "generatedRemoteStaffCredentialReason": "invalid_credentials",
+    "likelyCause": "Remote seed writes generated staff password hashes with the local seed hash path unless hosted provisioning is explicitly enabled; hosted proof shows those generated credentials do not match the hosted runtime credential verifier.",
+    "existingFakeHostedCredentialRolesAvailable": ["admin", "program_teacher", "mentor", "student", "misc_admin"],
+    "existingFakeHostedViewerCredentialAvailable": false,
+    "credentialsPrinted": false,
+    "secretsContentPrinted": false,
+    "credentialRepairRun": false
+  },
+  "personasTested": [
+    {
+      "persona": "Administration surface through existing fake hosted admin fallback",
+      "login": "passed",
+      "screens": ["Site Dashboard", "Student Directory", "Student Detail / Timeline", "Mentor Assignments", "Operations"],
+      "caveat": "This was not a generated remote site_admin credential."
+    },
+    {
+      "persona": "Program Teacher through existing fake hosted fallback",
+      "login": "passed",
+      "screens": ["Review Queue"],
+      "decisionControls": "visible for submitted work; no mutation submitted",
+      "caveat": null
+    },
+    {
+      "persona": "Mentor through existing fake hosted fallback",
+      "login": "passed",
+      "screens": ["Assigned Students"],
+      "caveat": "No-active-assignment state rendered; assigned-student rows were not proven in browser."
+    }
+  ],
+  "personasNotTested": [
+    {
+      "persona": "Viewer",
+      "reason": "No existing fake hosted viewer credential is available, and generated remote staff credentials still fail hosted login."
+    },
+    {
+      "persona": "Generated remote site_admin / viewer / staff personas",
+      "reason": "Credential repair is out of scope and generated remote staff credentials are rejected by hosted login."
+    },
+    {
+      "persona": "Student",
+      "reason": "Remote seed intentionally creates 0 student credentials."
+    },
+    {
+      "persona": "Bryan SSO",
+      "reason": "Optional and not needed for fake-data browser proof; no SSO automation was run."
+    }
+  ],
+  "screensTested": [
+    "Sign-in/product shell",
+    "Site Dashboard",
+    "Student Directory with Rich Timeline Demo search",
+    "Student Detail / Timeline for Rich Timeline Demo",
+    "Mentor Assignments with Missing Mentor Demo search",
+    "Operations with Archive Failed Demo filter",
+    "Operations with Presentation Pending Demo filter",
+    "Review Queue with submitted-work filter and decision controls visible",
+    "Mentor Assigned Students no-active-assignment state"
+  ],
+  "screenshotsGenerated": {
+    "status": "SCREENSHOTS_GENERATED_SAFE",
+    "count": 9,
+    "files": [
+      "docs/sales/screenshots/2026-05-24/01-sign-in-product-shell.png",
+      "docs/sales/screenshots/2026-05-24/02-site-admin-dashboard.png",
+      "docs/sales/screenshots/2026-05-24/03-student-directory.png",
+      "docs/sales/screenshots/2026-05-24/04-student-detail-rich-timeline.png",
+      "docs/sales/screenshots/2026-05-24/05-review-queue-program-teacher.png",
+      "docs/sales/screenshots/2026-05-24/06-mentor-assignments.png",
+      "docs/sales/screenshots/2026-05-24/07-operations-readiness.png",
+      "docs/sales/screenshots/2026-05-24/08-operations-presentation-pending.png",
+      "docs/sales/screenshots/2026-05-24/09-mentor-assigned-students.png"
+    ],
+    "maxScreenshotCountPolicy": "under 10 screenshots"
+  },
+  "screenshotIndexPath": "docs/sales/hosted-browser-proof-screenshot-index.md",
+  "browserProofScriptAdded": false,
+  "browserProofResults": {
+    "status": "HOSTED_BROWSER_PROOF_READY_WITH_CAVEATS",
+    "safeCredentialPathUsed": true,
+    "adminFallbackBrowserProof": "passed",
+    "programTeacherBrowserProof": "passed",
+    "mentorBrowserProof": "login passed; assigned rows not proven",
+    "viewerBrowserProof": "not run: credential path unavailable",
+    "studentBrowserProof": "not run: remote seed creates 0 student credentials",
+    "noAnnouncementsObserved": true,
+    "mutationsSubmitted": false
+  },
+  "apiProofResults": {
+    "status": "HOSTED_API_DATA_PROOF_READY",
+    "proveRemoteMigration0011": "passed",
+    "proveDemoRemote": "passed",
+    "proveSalesDemoHostedBeforeBrowser": "HOSTED_PROOF_READY_FAKE_DATA_BROWSER_PROOF_PENDING"
+  },
+  "screenshotHygiene": {
+    "status": "SCREENSHOTS_GENERATED_SAFE",
+    "manualInspection": true,
+    "passwordsVisible": false,
+    "secretsVisible": false,
+    "tokensVisible": false,
+    "oauthSecretsVisible": false,
+    "rawD1TablesVisible": false,
+    "rawDriveIdsVisible": false,
+    "credentialFilesVisible": false,
+    "caveats": [
+      "Screenshots may show fake .test persona identifiers and fake demo student identifiers.",
+      "Viewer read-only screenshot is not included because the safe credential path lacks a viewer account.",
+      "Mentor screenshot shows the no-active-assignment state for the fallback mentor account."
+    ]
+  },
+  "noSecretProof": {
+    "docsDoNotContainCredentialValues": true,
+    "screenshotsDoNotShowCredentialValues": true,
+    "secretsFilesCommitted": false,
+    "cloudflareTokenPrinted": false,
+    "generatedPasswordsPrinted": false
+  },
+  "docsUpdated": [
+    "README.md",
+    "docs/sales/admin-demo-script.md",
+    "docs/sales/admin-faq.md",
+    "docs/sales/demo-preflight-checklist.md",
+    "docs/sales/demo-runbook.md",
+    "docs/sales/demo-screenshot-checklist.md",
+    "docs/sales/hosted-browser-proof-screenshot-index.md",
+    "docs/sales/hosted-proof-plan.md",
+    "docs/sales/technical-proof-checklist.md",
+    "docs/remote-demo-data.md",
+    "docs/progress/run-log.md"
+  ],
+  "scriptsAddedOrUpdated": [
+    "scripts/prove-sales-demo-hosted.mjs"
+  ],
+  "testsAddedOrUpdated": [
+    "tests/hosted-browser-proof-gate.test.mjs",
+    "tests/remote-demo-seed-gate.test.mjs",
+    "tests/sales-demo-runbook.test.mjs"
+  ],
+  "validation": {
+    "status": "passed",
+    "commands": [
+      "node --test tests/hosted-browser-proof-gate.test.mjs",
+      "node --test tests/remote-demo-seed-gate.test.mjs",
+      "node --test tests/sales-demo-runbook.test.mjs",
+      "npm run test",
+      "npm run typecheck",
+      "npm run check",
+      "npm run check:production-surfaces",
+      "npm run prove:remote:migration-0011",
+      "npm run prove:demo:remote",
+      "npm run prove:sales-demo:hosted"
+    ],
+    "proveHostedBrowserDemo": "not run because no repo browser proof script was added; proof used the existing browser tool and committed manifest/screenshots.",
+    "gitDiffCheck": "passed with CRLF normalization warnings only"
+  },
+  "blockers": [
+    "Generated remote staff credentials still fail hosted login and were not repaired.",
+    "No existing fake hosted viewer credential is available, so viewer browser proof and viewer screenshot are blocked.",
+    "Mentor fallback credential signs in but renders no-active-assignment state instead of assigned-student rows."
+  ],
+  "nextRecommendedPrompt": "14A_hosted_persona_credentials_fix.txt"
+}

@@ -1607,4 +1607,21 @@ Future productive runs should append compact entries that name the master-plan s
 - `docs/tests/scripts`: updated hosted proof docs, runbook/preflight/remote data docs, proof status scripts, and focused 13C tests; created `docs/progress/runs/2026-05-24-remote-demo-seed-gate.json`.
 - `validation`: focused 13C docs/proof tests passed with 15 passing tests; `npm run test` passed with 318 passing tests and 4 expected local HTTP skips; `npm run typecheck` passed; `npm run check:production-surfaces` passed with 91 production text surfaces scanned; `npm run check` passed; remote preflight/postflight proof commands passed; post-seed dry-run passed as a no-write demo-owned refresh plan; `git diff --check` passed with CRLF normalization warnings only.
 - `blockers`: browser/screenshot proof pending; generated remote staff persona login path needs Phase 14 handling before claiming persona browser readiness.
+- `commit/push status`: committed and pushed as 7369098 ops: seed remote sales demo data.
+
+## 2026-05-24 PT - Phase 14 Hosted Browser Proof And Screenshot Gate
+
+- `automation ID`: manual Codex Phase 14 pass.
+- `lane`: hosted sales-demo browser/persona/screenshot proof without remote seed/reset/migration/deploy/config changes.
+- `starting HEAD`: `73690988cdb605178aa96e63a8f6e7591779707b`.
+- `phase13C hygiene fixes`: updated the Phase 13C manifest ending head to `73690988cdb605178aa96e63a8f6e7591779707b` and run-log commit/push status to `committed and pushed as 7369098 ops: seed remote sales demo data`.
+- `hosted API/data preflight`: `npm run prove:remote:migration-0011`, `npm run prove:demo:remote`, and `npm run prove:sales-demo:hosted` passed before browser work; hosted API/data proof started at `HOSTED_PROOF_READY_FAKE_DATA_BROWSER_PROOF_PENDING`.
+- `credential path`: used existing fake hosted credentials for browser proof. Generated remote staff credentials still fail hosted login as `invalid_credentials` and were not repaired. The existing fake hosted credential file has admin, program teacher, mentor, student, and misc admin accounts, but no viewer account.
+- `browser proof`: hosted browser login/navigation passed for the existing fake hosted admin fallback across Site Dashboard, Student Directory, Rich Timeline detail/timeline, Mentor Assignments, and Operations filters; hosted browser login/navigation passed for the existing fake hosted program teacher fallback through Review Queue with decision controls visible and no mutation submitted. The existing fake hosted mentor fallback signed in and lacked site-management routes, but rendered no-active-assignment rather than assigned-student rows.
+- `screenshots`: generated 9 safe PNG screenshots under `docs/sales/screenshots/2026-05-24/` and indexed them in `docs/sales/hosted-browser-proof-screenshot-index.md`. Screenshot status is `SCREENSHOTS_GENERATED_SAFE` with caveats: no viewer screenshot, no generated remote staff login screenshot, and mentor assigned rows not proven.
+- `hosted browser status`: `HOSTED_BROWSER_PROOF_READY_WITH_CAVEATS`; exact next prompt is `14A_hosted_persona_credentials_fix.txt`.
+- `out of scope confirmed`: no remote seed, remote reset, remote migration, deploy, domain/DNS, OAuth, Cloudflare env/config change, credential repair, remote user creation, Bryan SSO modification, program change, or announcement creation was run.
+- `docs/tests/scripts`: updated hosted proof docs, runbook/preflight/screenshot/remote data docs, hosted proof script status reading, screenshot index, Phase 14 manifest, and focused Phase 14 tests.
+- `validation`: focused Phase 14/remote seed/sales-doc tests passed; `npm run test` passed with 323 passing tests and 4 expected opt-in skips; `npm run typecheck`, `npm run check`, and `npm run check:production-surfaces` passed; read-only `npm run prove:remote:migration-0011`, `npm run prove:demo:remote`, and `npm run prove:sales-demo:hosted` passed; `git diff --check` passed with CRLF normalization warnings only.
+- `blockers`: generated remote staff credential browser login remains blocked; viewer browser proof remains blocked by missing safe viewer credential; mentor fallback account has no assigned-student browser rows.
 - `commit/push status`: pending.
