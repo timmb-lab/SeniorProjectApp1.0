@@ -12,7 +12,7 @@
     "worktreeBeforeEdits": "clean"
   },
   "startingHead": "1c6ee054ced99582f2684849160298f58971670f",
-  "endingHead": null,
+  "endingHead": "8bf6fe7e944b555f589f5e58a81fc99caba0ff4d",
   "routeStrategy": "deleted",
   "filesInspected": [
     "docs/mvp-multisite-sales-demo-contract.md",

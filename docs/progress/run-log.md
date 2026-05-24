@@ -1367,4 +1367,16 @@ Future productive runs should append compact entries that name the master-plan s
 - `seed/proof removal summary`: demo seeds no longer create announcements or count them; reset cleanup can still remove older demo-owned rows from the deprecated table; proof scripts do not expect announcements.
 - `validation`: `npm run inventory:production-routes`, `npm run check:route-inventory`, `npm run check:production-surfaces`, `npm run test`, `npm run typecheck`, `npm run check`, and `git diff --check` passed. `git diff --check` reported CRLF normalization warnings only.
 - `blockers`: none for Phase 3. Full site-aware capability permissions remain Phase 4 work.
-- `commit/push status`: pending closeout commit and push.
+- `commit/push status`: committed and pushed as `8bf6fe7 chore: remove announcements from MVP workspace`.
+
+## 2026-05-24 - PHASE 04 Site-Aware Capability Permissions
+
+- `starting HEAD`: `8bf6fe7e944b555f589f5e58a81fc99caba0ff4d`.
+- `files inspected`: Phase 3 contract/decision/run docs, run log, multisite migration `0011`, type/permission/workflow libs, admin/student/program teacher/mentor/review/readiness route code, and related role/auth/permission/migration/admin import/role assignment/review/student/program teacher/mentor test fixtures.
+- `files changed`: `functions/_lib/permissions.ts`, `functions/_types.ts`, `tests/site-aware-permissions.test.mjs`, Phase 3 metadata hygiene, Phase 4 product/decision docs, Phase 4 manifest, and this run log.
+- `helpers added`: role helpers for org/site/viewer/program teacher/mentor/student checks; tenant/site scope helpers; platform/org/site/student/review/mentor/presentation/archive/readiness/audit/security/tenant-config capability helpers.
+- `routes touched`: none.
+- `compatibility behavior`: legacy `admin` remains platform-equivalent through `isPlatformAdmin`; `isAdmin` remains legacy-admin-only for current routes; `canManageUsers` recognizes `platform_admin` and legacy `admin` while existing user import/role assignment routes are not broadened; `site_admin` and `viewer` require assigned active sites; `misc_admin` remains legacy/narrow.
+- `validation`: `npm run test` passed with 267 passing tests and 4 expected local HTTP skips; `npm run typecheck` passed; `npm run check` passed; `git diff --check` passed with CRLF normalization warnings only.
+- `blockers`: none for Phase 4. Full site-aware route conversion and multi-site seeded data remain later phases.
+- `commit/push status`: pending Phase 4 commit and push.

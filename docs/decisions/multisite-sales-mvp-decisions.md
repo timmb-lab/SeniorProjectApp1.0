@@ -38,7 +38,7 @@ This decision record locks the target vocabulary and scope for the multisite sal
 - `site_admin` remains labeled "Administration" in product/UI language.
 - `misc_admin` remains legacy/narrow and is not promoted to site administration.
 - Phase 3 removed announcement surfaces from the MVP product surface.
-- Phase 4 builds full site-aware capability permissions.
+- Phase 4 adds full site-aware capability permission helpers for later route/UI phases.
 
 ## Phase 3 Announcement Removal
 
@@ -47,3 +47,14 @@ This decision record locks the target vocabulary and scope for the multisite sal
 - Local and remote demo seeds no longer create fake announcements, but they may clean up older demo-owned announcement rows during reset.
 - The legacy `announcements` table remains deprecated/schema-only until a later non-destructive cleanup decision.
 - Schools should continue using existing communication systems such as Remind, Canvas, Infinite Campus, Google Classroom, email, or district-approved tools.
+
+## Phase 4 Site-Aware Capability Foundation
+
+- Site-aware permissions are helper-first. Current production routes are not broadly converted until seeded multisite data and route-specific tests exist.
+- New helpers in `functions/_lib/permissions.ts` answer platform, tenant, site, student detail/evidence, review, mentor assignment, presentation, archive, readiness, audit, user, security, and tenant-config capability questions.
+- `platform_admin` and legacy `admin` are platform-equivalent for new helper checks; `isAdmin` remains legacy-admin-only so existing admin routes do not silently widen.
+- `canManageUsers` now allows `platform_admin` and legacy `admin`, but current admin import and role-assignment routes still use legacy `isAdmin` gates until scoped user-management policy is designed.
+- `org_admin`, `site_admin`, and `viewer` require active tenant/site scope and deny unrelated tenants/sites.
+- `site_admin` can perform assigned-site operational capabilities in helpers, but cannot manage users, platform security, or tenant configuration in this phase.
+- `viewer` is read-only in helpers and cannot mutate reviews, add staff notes, manage mentor assignments, manage presentation/archive operations, manage users, or manage security.
+- `misc_admin` remains legacy/narrow and is not treated as `site_admin` or `platform_admin`.

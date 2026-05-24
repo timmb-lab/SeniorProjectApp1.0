@@ -88,6 +88,12 @@ export interface SiteProgram {
   active: number;
 }
 
+export interface TenantUser {
+  tenant_id: string;
+  user_id: string;
+  membership_status: "active" | "suspended" | "archived";
+}
+
 export interface IdentityProvider {
   id: string;
   tenant_id: string;

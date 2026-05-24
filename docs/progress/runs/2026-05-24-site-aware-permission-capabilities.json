@@ -1,0 +1,107 @@
+{
+  "phase": "PHASE 04 - Site-Aware Capability Permissions",
+  "date": "2026-05-24",
+  "repo": {
+    "path": "C:\\SeniorProjectApp1.0",
+    "expectedOrigin": "https://github.com/timmb-lab/SeniorProjectApp1.0.git",
+    "branch": "main",
+    "packageName": "senior-capstone-app"
+  },
+  "startingHead": "8bf6fe7e944b555f589f5e58a81fc99caba0ff4d",
+  "endingHead": null,
+  "phase3HygieneFixes": [
+    "Updated docs/progress/runs/2026-05-24-remove-announcements-from-mvp.json endingHead to 8bf6fe7e944b555f589f5e58a81fc99caba0ff4d.",
+    "Updated the Phase 3 run-log commit/push status to record 8bf6fe7 chore: remove announcements from MVP workspace."
+  ],
+  "helpersAdded": {
+    "roleHelpers": [
+      "hasAnyRole",
+      "isOrgAdmin",
+      "isSiteAdmin",
+      "isViewer",
+      "isProgramTeacher",
+      "isMentor",
+      "isStudent"
+    ],
+    "scopeHelpers": [
+      "getTenantMemberships",
+      "getSiteMemberships",
+      "getAccessibleTenantIds",
+      "getAccessibleSiteIds",
+      "canAccessTenant",
+      "canAccessSite",
+      "getRoleScopeSummary",
+      "getMentorAssignedStudentIds"
+    ],
+    "capabilityHelpers": [
+      "canViewPlatformAdmin",
+      "canManageOrganizations",
+      "canManageSites",
+      "canViewOrgDashboard",
+      "canViewSiteDashboard",
+      "canViewStudentDirectory",
+      "canViewSiteStudentDetail",
+      "canViewStudentTimeline",
+      "canViewSiteStudentEvidence",
+      "canDownloadStudentEvidence",
+      "canViewReviewQueue",
+      "canMutateReviewDecision",
+      "canAddStaffNote",
+      "canViewMentorAssignments",
+      "canManageMentorAssignments",
+      "canViewPresentationOperations",
+      "canManagePresentationOperations",
+      "canViewArchiveOperations",
+      "canManageArchiveOperations",
+      "canViewReadinessReports",
+      "canViewAuditEvents",
+      "canManageSecurity",
+      "canManageTenantConfig"
+    ]
+  },
+  "routesTouched": [],
+  "typesAdded": [
+    "TenantUser"
+  ],
+  "compatibilityDecisions": [
+    "Existing legacy admin remains platform-equivalent through isPlatformAdmin.",
+    "isAdmin remains a legacy-admin-only compatibility helper so current legacy admin-only routes are not broadened.",
+    "canManageUsers now recognizes platform_admin and legacy admin, while current admin import and role assignment routes continue to require isAdmin until scoped user-management work is approved.",
+    "site_admin can view assigned site operations through helper checks but is not a platform admin, security admin, or user manager.",
+    "viewer is read-only and cannot mutate reviews, staff notes, mentor assignments, presentation operations, archive operations, users, security, or tenant config.",
+    "org_admin requires assigned tenant scope and is not granted platform security or user management in this phase.",
+    "program_teacher remains scoped by existing program/cohort roles and related site-program mappings.",
+    "mentor remains assigned-student-only and cannot access full site directories or review mutation.",
+    "student remains self-only through existing self-service compatibility.",
+    "misc_admin remains legacy/narrow and is not promoted to platform, org, site, or viewer behavior.",
+    "Missing, invalid, inactive, or empty tenant/site/program/cohort scopes deny access where scope is required.",
+    "No production routes were broadly converted in this helper-first phase.",
+    "No domain, OAuth, Cloudflare hostname, remote migration, remote write, UI, or seed behavior was changed."
+  ],
+  "testsAdded": [
+    "tests/site-aware-permissions.test.mjs"
+  ],
+  "validation": [
+    {
+      "command": "npm run test",
+      "status": "passed",
+      "notes": "267 passing tests and 4 expected local HTTP skips."
+    },
+    {
+      "command": "npm run typecheck",
+      "status": "passed"
+    },
+    {
+      "command": "npm run check",
+      "status": "passed",
+      "notes": "Aggregate checks passed, including static Cloudflare config checks and the full test suite."
+    },
+    {
+      "command": "git diff --check",
+      "status": "passed",
+      "notes": "Passed with existing CRLF normalization warnings only."
+    }
+  ],
+  "blockers": [],
+  "nextRecommendedPrompt": "05_multisite_demo_seed_and_proof.txt"
+}

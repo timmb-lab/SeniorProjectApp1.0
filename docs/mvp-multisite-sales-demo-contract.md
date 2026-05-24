@@ -87,7 +87,8 @@ Phase 2 additive foundation:
 - `platform_admin` now exists for new platform/system capabilities, while legacy `admin` remains platform-equivalent during transition and Bryan's existing admin accounts continue to work.
 - `misc_admin` remains legacy/narrow and must not silently become `site_admin`.
 - Phase 3 removed announcement product surfaces from the active workspace, route inventory, and demo seeds.
-- Phase 4 builds the full site-aware capability permission model.
+- Phase 4 adds the helper-first site-aware capability permission model for later route/UI phases.
+- Full conversion of current routes to site-aware behavior remains a later phase after multisite demo seed data exists.
 
 ## 5. Capability Matrix
 
@@ -216,6 +217,14 @@ Target route families:
 
 Existing admin routes may remain for compatibility, but new sales MVP routes should be site-aware.
 
+Phase 4 permission foundation:
+
+- `functions/_lib/permissions.ts` now exposes site-aware organization, site, viewer, program teacher, mentor, student, and platform capability helpers.
+- Existing legacy routes remain compatible; admin-only routes that currently depend on legacy `admin` are not broadly converted in Phase 4.
+- `platform_admin` and legacy `admin` are platform-equivalent for new helper checks, while `isAdmin` continues to mean legacy `admin` for current route compatibility.
+- `site_admin` and `viewer` capabilities require assigned active sites and do not gain platform/security/user-management powers.
+- `misc_admin` remains narrow and aggregate-readiness compatible only.
+
 ## 9. Demo Seed Direction
 
 Future synthetic sales demo data should include:
@@ -306,6 +315,7 @@ It should include:
 - There are no migrations after `0010_tenant_google_sso.sql` at the time of this audit.
 - `functions/_types.ts` defines `RoleId` with only current legacy/current roles, not `platform_admin`, `org_admin`, `site_admin`, or `viewer`.
 - `functions/_lib/permissions.ts` treats `admin` as global full access, allows scoped program/cohort teachers, active assigned mentors, student self-access, and keeps `misc_admin` out of student detail while allowing aggregate readiness.
+- Phase 4 adds site-aware capability helpers in `functions/_lib/permissions.ts` without broadly converting the current routes; tests prove platform, organization, site, viewer, program teacher, mentor, student, misc-admin, and deny-by-default behavior.
 - Current dashboard routes are global/admin or program/mentor/student scoped, but not organization/site scoped.
 - Announcement route files have been removed from the active MVP route surface; the schema table remains deprecated/schema-only.
 - `workspace.html`, `workspace.js`, and `workspace.css` form the authenticated app. The UI no longer loads announcement data or renders announcement overview cards; it still uses current compatibility route families and lacks full site-aware navigation.
