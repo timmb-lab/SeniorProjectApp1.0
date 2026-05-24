@@ -1334,3 +1334,13 @@ Future productive runs should append compact entries that name the master-plan s
 - `phone tracker`: not appended; Google Sheets connector was not used.
 - `self-improvement`: none.
 - `commit/push status`: pending local admin proof commit and push.
+
+## 2026-05-24 - PHASE 01 Multisite Sales Demo MVP Contract
+
+- `starting HEAD`: `035aa3e9cb713cf135652a64c62811f4e23afdd0`.
+- `files inspected`: README, package/Wrangler config, production-surface docs, generated route inventory, run log, migrations `0001` and `0010`, role/permission/workflow libs, admin/student/program teacher/mentor/review/announcement routes, workspace HTML/JS/CSS, local/remote demo seed and proof scripts, and related role/permission/workspace/seed/announcement/production-surface tests.
+- `files changed`: `docs/mvp-multisite-sales-demo-contract.md`, `docs/decisions/multisite-sales-mvp-decisions.md`, `docs/progress/runs/2026-05-24-multisite-sales-demo-contract.json`, and this run log.
+- `key decisions`: Capstone Project sales MVP targets multi-organization and multi-site demos; tenant means organization/district/customer for now; site means school/campus; `site_admin` displays as "Administration"; legacy `admin` remains platform-equivalent during transition; `misc_admin` remains legacy/narrow; announcements are removed from MVP product scope; Figma alignment is MVP credibility work; no domain/OAuth/Cloudflare hostname changes are part of this sequence; demo data must be fake `.test` only.
+- `validation`: `npm run test` passed with 251 passing tests and 4 expected local HTTP skips; `npm run typecheck` passed; `npm run check` passed with aggregate checks and 251 passing tests / 4 expected local HTTP skips; `npm run check:production-surfaces` passed with 91 production text surfaces scanned; `git diff --check` passed with a CRLF normalization warning for this run log.
+- `blockers`: no site/school schema exists yet; current code/docs/tests still treat announcements as active; generated route inventory still lists current announcement routes and should not be manually edited without route changes.
+- `commit/push status`: pending.
