@@ -213,3 +213,22 @@ Route/data changes:
 - Decision/history calls include site-aware validation when `siteId` is supplied.
 - Evidence and history summaries stay bounded and redacted; raw Drive/storage identifiers and secret/token/password fields are not rendered.
 - No mentor assignment, archive retry/export, user-management, announcement, or student messaging UI was added.
+
+## 13. Phase 11 Mentor Assignments Applied
+
+Phase 11 connects the Figma-aligned mentor coverage workflow to `/api/site/mentor-assignments`.
+
+Rendered app changes:
+
+- The Mentor Assignments section is visible to platform/admin/org/site/viewer roles and to program teachers as a read-only scoped view; mentor, student, and misc-admin navigation does not include the management route.
+- The section uses the product shell, site context badges, `workspace-filter-bar`, `workspace-dashboard-card`, `workspace-student-row`, `workspace-story-chip`, `workspace-risk-chip`, `workspace-problem-state`, `statusPill()`, `workspace-mentor-assignments`, and `workspace-mentor-assignment-layout`.
+- Authorized managers see summary tiles, mentor coverage rows, unassigned-student rows, active assignment rows, and an assign-only form requiring student, mentor, and reason.
+- Viewer and program-teacher views show read-only explanations and no assignment controls.
+- Successful assignment refreshes mentor assignments, site dashboard, student directory, and open student detail where loaded, without resetting directory state.
+
+Route/data changes:
+
+- Assignment rows are selected-site records only and are scoped through active site membership plus student/mentor roles.
+- The MVP mutation is assign-only; reassign and deactivate controls are absent until a later tested route is added.
+- Responses stay bounded and redacted; raw Drive/storage identifiers, secret/token/password fields, and credential/user-management data are not rendered.
+- No mentor meeting mutation, archive retry/export, user-management, credential creation, announcement, or student messaging UI was added.

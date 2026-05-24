@@ -13,6 +13,7 @@ import { onRequestGet as onSiteStudents } from "../functions/api/site/students.t
 import { onRequestGet as onSiteStudentDetail } from "../functions/api/site/students/[studentId].ts";
 import { onRequestGet as onSiteStudentTimeline } from "../functions/api/site/students/[studentId]/timeline.ts";
 import { onRequestGet as onSiteReviewQueue } from "../functions/api/site/review-queue.ts";
+import { onRequestGet as onSiteMentorAssignments } from "../functions/api/site/mentor-assignments.ts";
 import { onRequestGet as onProgramTeacherDashboard } from "../functions/api/program-teacher/dashboard.ts";
 import { onRequestGet as onMentorDashboard } from "../functions/api/mentor/dashboard.ts";
 import { onRequestGet as onTeacherReviewQueue } from "../functions/api/teacher/review-queue.ts";
@@ -298,6 +299,8 @@ async function runDemoProof(args = {}, options = {}) {
   const siteStudentDirectorySearch = await routeJson(onSiteStudents, env, adminCookie, `https://local.capstone.test/api/site/students?siteId=${PRIMARY_SITE_ID}&search=${encodeURIComponent("Revision Loop Demo")}&limit=100`);
   const adminReviewQueue = await routeJson(onTeacherReviewQueue, env, adminCookie, "https://local.capstone.test/api/teacher/review-queue");
   const siteReviewQueueAdmin = await routeJson(onSiteReviewQueue, env, adminCookie, `https://local.capstone.test/api/site/review-queue?siteId=${PRIMARY_SITE_ID}`);
+  const siteMentorAssignmentsAdmin = await routeJson(onSiteMentorAssignments, env, adminCookie, `https://local.capstone.test/api/site/mentor-assignments?siteId=${PRIMARY_SITE_ID}`);
+  const siteMentorAssignmentsNoMentor = await routeJson(onSiteMentorAssignments, env, adminCookie, `https://local.capstone.test/api/site/mentor-assignments?siteId=${PRIMARY_SITE_ID}&noMentor=true&limit=100`);
   const readiness = await routeJson(onReadinessReport, env, adminCookie, "https://local.capstone.test/api/reports/readiness");
   const multisite = await verifyMultisiteShape(env);
   const siteAwarePermissions = await verifySiteAwarePermissions(env);
@@ -305,6 +308,7 @@ async function runDemoProof(args = {}, options = {}) {
   const siteStudentDirectoryRoleProof = await verifySiteStudentDirectoryRouteProof(env, demoCredentials);
   const siteStudentDetailRoleProof = await verifySiteStudentDetailRouteProof(env, demoCredentials, adminCookie);
   const siteReviewQueueRoleProof = await verifySiteReviewQueueRouteProof(env, demoCredentials);
+  const siteMentorAssignmentRoleProof = await verifySiteMentorAssignmentRouteProof(env, demoCredentials);
 
   const adminChecks = {
     authMe: adminMe.authenticated === true,
@@ -339,6 +343,14 @@ async function runDemoProof(args = {}, options = {}) {
       && Array.isArray(siteReviewQueueAdmin.queue)
       && siteReviewQueueAdmin.queue.length > 0
       && (siteReviewQueueAdmin.queue || []).every((row) => row.siteId === PRIMARY_SITE_ID),
+    siteMentorAssignmentsPopulated: siteMentorAssignmentsAdmin.scope?.siteId === PRIMARY_SITE_ID
+      && Number(siteMentorAssignmentsAdmin.summary?.studentsTotal || 0) === 250
+      && Number(siteMentorAssignmentsAdmin.summary?.studentsWithoutActiveMentor || 0) > 0
+      && Array.isArray(siteMentorAssignmentsAdmin.mentors)
+      && siteMentorAssignmentsAdmin.mentors.length > 0
+      && Number(siteMentorAssignmentsNoMentor.pagination?.filteredTotal || 0) >= 10
+      && (siteMentorAssignmentsNoMentor.unassignedStudents || []).every((student) => (student.riskFlags || []).includes("no_mentor"))
+      && (siteMentorAssignmentsNoMentor.assignments || []).length === 0,
     readinessPopulated: Number(readiness.report?.submitted || 0) > 0
       && Number(readiness.report?.revisionRequested || 0) > 0
       && Number(readiness.report?.approved || 0) > 0
@@ -350,6 +362,7 @@ async function runDemoProof(args = {}, options = {}) {
     siteStudentDirectoryRoleProof: siteStudentDirectoryRoleProof.ok === true,
     siteStudentDetailRoleProof: siteStudentDetailRoleProof.ok === true,
     siteReviewQueueRoleProof: siteReviewQueueRoleProof.ok === true,
+    siteMentorAssignmentRoleProof: siteMentorAssignmentRoleProof.ok === true,
   };
   assertChecks("ADMIN_API_PROOF_FAILED", adminChecks);
 
@@ -462,6 +475,7 @@ async function runDemoProof(args = {}, options = {}) {
       mentorCoverageCount: adminDashboard.mentorCoverage.length,
       reviewQueueCount: adminReviewQueue.queue.length,
       siteReviewQueueCount: siteReviewQueueAdmin.queue.length,
+      siteMentorAssignmentMissingMentors: Number(siteMentorAssignmentsAdmin.summary.studentsWithoutActiveMentor || 0),
       readinessReport: readiness.report,
     },
     multisite,
@@ -527,6 +541,26 @@ async function runDemoProof(args = {}, options = {}) {
       studentDenied: siteReviewQueueRoleProof.studentDenied,
       mutationProofLocation: "integration_tests",
       noSensitiveQueueFields: siteReviewQueueRoleProof.noSensitiveQueueFields,
+    },
+    siteMentorAssignments: {
+      ok: true,
+      route: "/api/site/mentor-assignments",
+      mutationProofLocation: "integration_tests",
+      mutationProofSkippedInLocalProof: true,
+      mutationSkipReason: "Local proof is non-mutating so seeded demo state remains reusable; integration tests prove assignment mutation.",
+      primarySiteId: PRIMARY_SITE_ID,
+      primarySiteStudents: Number(siteMentorAssignmentsAdmin.summary.studentsTotal || 0),
+      missingMentorStudents: Number(siteMentorAssignmentsAdmin.summary.studentsWithoutActiveMentor || 0),
+      activeMentors: Number(siteMentorAssignmentsAdmin.summary.activeMentors || 0),
+      noMentorFilteredTotal: Number(siteMentorAssignmentsNoMentor.pagination.filteredTotal || 0),
+      viewerReadOnly: siteMentorAssignmentRoleProof.viewerReadOnly,
+      viewerMutationPermissionsFalse: siteMentorAssignmentRoleProof.viewerMutationPermissionsFalse,
+      siteAdminCanManage: siteMentorAssignmentRoleProof.siteAdminCanManage,
+      siteAdminCannotAccessSecondary: siteMentorAssignmentRoleProof.siteAdminCannotAccessSecondary,
+      programTeacherReadOnlyScoped: siteMentorAssignmentRoleProof.programTeacherReadOnlyScoped,
+      mentorDenied: siteMentorAssignmentRoleProof.mentorDenied,
+      studentDenied: siteMentorAssignmentRoleProof.studentDenied,
+      noSensitiveAssignmentFields: siteMentorAssignmentRoleProof.noSensitiveAssignmentFields,
     },
     programTeachers: teacherProofs,
     mentors: mentorProofs,
@@ -935,6 +969,79 @@ async function verifySiteReviewQueueRouteProof(env, demoCredentials) {
     ]),
   };
   assertChecks("SITE_REVIEW_QUEUE_ROUTE_PROOF_FAILED", checks);
+  return { ok: true, ...checks };
+}
+
+async function verifySiteMentorAssignmentRouteProof(env, demoCredentials) {
+  const viewerAccount = (demoCredentials.personaLogins || []).find((account) => (
+    account.role === "viewer" && account.scope === `site:${PRIMARY_SITE_ID}`
+  ));
+  const siteAdminAccount = (demoCredentials.personaLogins || []).find((account) => (
+    account.role === "site_admin" && account.scope === `site:${PRIMARY_SITE_ID}`
+  ));
+  const teacherAccount = (demoCredentials.programTeacherLogins || []).find((account) => account.scope === "program:it");
+  const mentorAccount = (demoCredentials.mentorLogins || []).find((account) => account.email.includes("mentor001"));
+  if (!viewerAccount || !siteAdminAccount || !teacherAccount || !mentorAccount) {
+    throw new DemoProofError("SITE_MENTOR_ASSIGNMENT_CREDENTIALS_MISSING", "Missing demo viewer, site-admin, program-teacher, or mentor credential for mentor assignment proof.");
+  }
+
+  const viewerCookie = await login(env, viewerAccount);
+  await getMe(env, viewerCookie, viewerAccount.email, "viewer");
+  const viewerAssignments = await routeJson(onSiteMentorAssignments, env, viewerCookie, `https://local.capstone.test/api/site/mentor-assignments?siteId=${PRIMARY_SITE_ID}`);
+
+  const siteAdminCookie = await login(env, siteAdminAccount);
+  await getMe(env, siteAdminCookie, siteAdminAccount.email, "site_admin");
+  const siteAdminAssignments = await routeJson(onSiteMentorAssignments, env, siteAdminCookie, `https://local.capstone.test/api/site/mentor-assignments?siteId=${PRIMARY_SITE_ID}`);
+  const siteAdminNoMentor = await routeJson(onSiteMentorAssignments, env, siteAdminCookie, `https://local.capstone.test/api/site/mentor-assignments?siteId=${PRIMARY_SITE_ID}&noMentor=true&limit=100`);
+  const siteAdminSecondary = await routeStatus(onSiteMentorAssignments, env, siteAdminCookie, `https://local.capstone.test/api/site/mentor-assignments?siteId=${SECONDARY_SITE_IDS[0]}`);
+
+  const teacherCookie = await login(env, teacherAccount);
+  await getMe(env, teacherCookie, teacherAccount.email, "program_teacher");
+  const teacherAssignments = await routeJson(onSiteMentorAssignments, env, teacherCookie, `https://local.capstone.test/api/site/mentor-assignments?siteId=${PRIMARY_SITE_ID}&limit=100`);
+
+  const mentorCookie = await login(env, mentorAccount);
+  await getMe(env, mentorCookie, mentorAccount.email, "mentor");
+  const mentorDenied = await routeStatus(onSiteMentorAssignments, env, mentorCookie, `https://local.capstone.test/api/site/mentor-assignments?siteId=${PRIMARY_SITE_ID}`);
+  const studentDenied = await routeStatus(onSiteMentorAssignments, env, await seedExistingSession(env, "demo-student-001", "mentor-assignment-proof-student"), `https://local.capstone.test/api/site/mentor-assignments?siteId=${PRIMARY_SITE_ID}`);
+
+  const mutationPermissionsFalse = (permissions = {}) => [
+    "canManageMentorAssignments",
+    "canManageUsers",
+    "canManageSecurity",
+  ].every((key) => permissions[key] === false);
+
+  const checks = {
+    viewerReadOnly: viewerAssignments.scope?.readOnly === true,
+    viewerMutationPermissionsFalse: mutationPermissionsFalse(viewerAssignments.permissions),
+    siteAdminCanManage: siteAdminAssignments.scope?.role === "site_admin"
+      && siteAdminAssignments.permissions?.canManageMentorAssignments === true
+      && Number(siteAdminAssignments.summary?.studentsTotal || 0) === 250
+      && Number(siteAdminAssignments.summary?.studentsWithoutActiveMentor || 0) > 0,
+    siteAdminCannotAccessSecondary: siteAdminSecondary.status === 403,
+    noMentorFiltered: Number(siteAdminNoMentor.pagination?.filteredTotal || 0) >= 10
+      && (siteAdminNoMentor.unassignedStudents || []).length > 0
+      && (siteAdminNoMentor.unassignedStudents || []).every((student) => (student.riskFlags || []).includes("no_mentor"))
+      && (siteAdminNoMentor.assignments || []).length === 0,
+    programTeacherReadOnlyScoped: teacherAssignments.scope?.role === "program_teacher"
+      && teacherAssignments.scope?.readOnly === true
+      && teacherAssignments.scope?.studentScope === "program_teacher"
+      && teacherAssignments.permissions?.canManageMentorAssignments === false
+      && Number(teacherAssignments.pagination?.total || 0) > 0
+      && Number(teacherAssignments.pagination?.total || 0) < Number(siteAdminAssignments.pagination?.total || 0)
+      && [...(teacherAssignments.unassignedStudents || []), ...(teacherAssignments.assignments || [])].every((row) => row.programId === "it"),
+    mentorDenied: mentorDenied.status === 403,
+    studentDenied: studentDenied.status === 403,
+    noSensitiveAssignmentFields: !directoryHasForbiddenOutput([
+      viewerAssignments,
+      siteAdminAssignments,
+      siteAdminNoMentor,
+      siteAdminSecondary.body,
+      teacherAssignments,
+      mentorDenied.body,
+      studentDenied.body,
+    ]),
+  };
+  assertChecks("SITE_MENTOR_ASSIGNMENT_ROUTE_PROOF_FAILED", checks);
   return { ok: true, ...checks };
 }
 

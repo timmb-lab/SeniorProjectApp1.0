@@ -115,3 +115,13 @@ This decision record locks the target vocabulary and scope for the multisite sal
 - Mutation policy is intentionally narrow: the new site Review Queue UI exposes approve, request-revision, and comment-only controls only to scoped `program_teacher` users on submitted work. Platform admin, org admin, site admin, and viewer are read-only in the new UI; legacy admin backend compatibility is preserved but not expanded into broad site-admin controls.
 - Review payloads stay bounded and redacted. The queue does not expose raw Drive/storage IDs, token/password/setup credential fields, full private evidence URLs, or unsafe audit metadata.
 - After a successful decision, the workspace refreshes the queue and refreshes the open student detail drawer when the selected review row belongs to the open student, without resetting directory filters or pagination.
+
+## Phase 11 Mentor Assignment Workflow
+
+- `/api/site/mentor-assignments` is the new selected-site mentor coverage and assignment surface. It scopes rows through active selected-site `site_users`, active student and mentor role memberships, selected-site program/cohort membership, and active `mentor_assignments`; it does not use global mentor dashboard data.
+- GET is bounded and filterable with default limit 50 and max limit 100. It returns selected-site summary counts, mentor load rows, unassigned students, active assignments, filters, pagination, and permission flags.
+- The MVP mutation policy is assign-only. POST requires an authenticated user, selected active site, `canManageMentorAssignments`, an active same-site student with the student role, an active same-site mentor with the mentor role, and a sanitized non-empty reason.
+- The uniqueness policy is one active mentor assignment per selected-site student. Duplicate active assignment attempts return `active_assignment_exists`; reassign and deactivate are intentionally deferred rather than represented as fake UI controls.
+- Capability helpers drive mutation policy: site admin can manage assigned-site mentor assignments; platform admin, legacy admin, and org admin can manage where the existing helper allows; viewer and program teacher are read-only; mentor, student, and misc admin are denied from the management route.
+- Assignment writes audit `site_mentor_assignment_created` and conflict/denial paths without full sensitive reason text, Drive/storage IDs, secret fields, credentials, or user-management metadata.
+- Workspace Mentor Assignments refreshes the assignment route after a successful assign and also refreshes loaded site dashboard, student directory, and open student detail state without resetting directory filters or pagination.

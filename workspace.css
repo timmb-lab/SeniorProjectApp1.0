@@ -1359,6 +1359,18 @@
   gap: 0.75rem;
 }
 
+.workspace-mentor-assignments {
+  display: grid;
+  gap: var(--space-card);
+}
+
+.workspace-mentor-assignment-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(300px, 0.8fr);
+  gap: var(--space-card);
+  align-items: start;
+}
+
 .workspace-review-feedback textarea {
   min-height: 120px;
   resize: vertical;
@@ -1411,6 +1423,7 @@ button.workspace-metric-tile,
   .workspace-dashboard-grid-two,
   .workspace-filter-bar,
   .workspace-review-layout,
+  .workspace-mentor-assignment-layout,
   .workspace-student-row,
   .workspace-review-queue .workspace-student-row,
   .workspace-student-card {

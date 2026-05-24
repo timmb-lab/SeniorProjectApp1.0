@@ -28,6 +28,7 @@ test("workspace route is a real authenticated app surface", () => {
   assert.match(workspaceJs, /\/api\/student\/dashboard/);
   assert.match(workspaceJs, /\/api\/student\/archive\/readiness/);
   assert.match(workspaceJs, /\/api\/site\/review-queue/);
+  assert.match(workspaceJs, /\/api\/site\/mentor-assignments/);
   assert.match(workspaceJs, /\/api\/reviews\/\$\{encodeURIComponent\(selectedSubmissionId\)\}\/history/);
   assert.match(workspaceJs, /\/api\/reviews\/\$\{encodeURIComponent\(submissionId\)\}\/decision/);
   assert.match(workspaceJs, /\/api\/mentor\/assigned/);
@@ -186,6 +187,8 @@ test("workspace exposes Figma-aligned design tokens and future site patterns", (
     ".workspace-review-layout",
     ".workspace-review-panel",
     ".workspace-review-feedback",
+    ".workspace-mentor-assignments",
+    ".workspace-mentor-assignment-layout",
     ".workspace-story-chip",
     ".workspace-risk-chip",
     ".workspace-empty-state-card",
@@ -742,6 +745,140 @@ test("workspace renders site-aware Review Queue with teacher decisions and read-
   assert.match(workspaceRoot.innerHTML, /Improve scope and cite the private evidence summary/);
 });
 
+test("workspace renders site-scoped Mentor Assignments with role-safe assignment controls", async () => {
+  const siteAdmin = await renderWorkspaceWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "site-admin-mentor-assignments",
+          email: "site.mentor.assignments@example.edu",
+          displayName: "Mentor Assignment Admin",
+          roles: [{ role_id: "site_admin", scope_type: "site", scope_id: "site-desert-valley-high" }],
+        },
+      },
+    },
+    "/api/site/dashboard": {
+      status: 200,
+      body: siteDashboardFixture({ readOnly: false }),
+    },
+    "/api/site/students": {
+      status: 200,
+      body: siteStudentsFixture({ readOnly: false }),
+    },
+    "/api/site/review-queue": {
+      status: 200,
+      body: siteReviewQueueFixture({ role: "site_admin", readOnly: true }),
+    },
+    "/api/site/mentor-assignments": {
+      status: 200,
+      body: siteMentorAssignmentsFixture({ role: "site_admin", canManage: true }),
+    },
+  }, "mentorAssignments");
+
+  assert.match(siteAdmin, /data-section="mentorAssignments"/);
+  assert.match(siteAdmin, /Mentor Assignments/);
+  assert.match(siteAdmin, /Mentor assigned scope/);
+  assert.match(siteAdmin, /workspace-mentor-assignments/);
+  assert.match(siteAdmin, /workspace-mentor-assignment-layout/);
+  assert.match(siteAdmin, /workspace-filter-bar/);
+  assert.match(siteAdmin, /Students With Mentors/);
+  assert.match(siteAdmin, /Missing Mentors/);
+  assert.match(siteAdmin, /Active Mentors/);
+  assert.match(siteAdmin, /Overloaded Mentors/);
+  assert.match(siteAdmin, /Missing Mentor Demo 001/);
+  assert.match(siteAdmin, /workspace-story-chip/);
+  assert.match(siteAdmin, /workspace-risk-chip/);
+  assert.match(siteAdmin, /data-mentor-unassigned-list="true"/);
+  assert.match(siteAdmin, /data-mentor-coverage-list="true"/);
+  assert.match(siteAdmin, /data-mentor-active-assignments="true"/);
+  assert.match(siteAdmin, /data-mentor-assignment-form="true"/);
+  assert.match(siteAdmin, /Assign mentor/);
+  assert.match(siteAdmin, /Assignments are audited, selected-site only/);
+  assert.match(siteAdmin, /Private evidence/);
+  assert.match(siteAdmin, /Role scoped views/);
+  assert.match(siteAdmin, /Audited changes/);
+  assert.match(siteAdmin, /Teacher intervention/);
+  assert.match(siteAdmin, /No student messaging/);
+  assert.doesNotMatch(siteAdmin, /Reassign|Deactivate|Archive retry|Download archive|data-admin-action="import-users"/i);
+
+  const viewer = await renderWorkspaceWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "viewer-mentor-assignments",
+          email: "viewer.mentor.assignments@example.edu",
+          displayName: "Mentor Assignment Viewer",
+          roles: [{ role_id: "viewer", scope_type: "site", scope_id: "site-desert-valley-high" }],
+        },
+      },
+    },
+    "/api/site/dashboard": {
+      status: 200,
+      body: siteDashboardFixture({ readOnly: true }),
+    },
+    "/api/site/students": {
+      status: 200,
+      body: siteStudentsFixture({ readOnly: true }),
+    },
+    "/api/site/review-queue": {
+      status: 200,
+      body: siteReviewQueueFixture({ role: "viewer", readOnly: true }),
+    },
+    "/api/site/mentor-assignments": {
+      status: 200,
+      body: siteMentorAssignmentsFixture({ role: "viewer", readOnly: true, canManage: false }),
+    },
+  }, "mentorAssignments");
+
+  assert.match(viewer, /data-workspace-mode="read-only"/);
+  assert.match(viewer, /Read-only mentor coverage/);
+  assert.match(viewer, /Assignment controls are hidden for this role/);
+  assert.match(viewer, /This role has a read-only mentor coverage view/);
+  assert.doesNotMatch(viewer, /data-mentor-assignment-form="true"|Assign mentor/);
+
+  const teacher = await renderWorkspaceWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "teacher-mentor-assignments",
+          email: "teacher.mentor.assignments@example.edu",
+          displayName: "Mentor Assignment Teacher",
+          roles: [{ role_id: "program_teacher", scope_type: "program", scope_id: "it" }],
+        },
+      },
+    },
+    "/api/site/students": {
+      status: 200,
+      body: siteStudentsFixture({ role: "program_teacher", total: 45 }),
+    },
+    "/api/site/review-queue": {
+      status: 200,
+      body: siteReviewQueueFixture({ role: "program_teacher" }),
+    },
+    "/api/site/mentor-assignments": {
+      status: 200,
+      body: siteMentorAssignmentsFixture({ role: "program_teacher", readOnly: true, canManage: false }),
+    },
+    "/api/program-teacher/dashboard": {
+      status: 200,
+      body: { ok: true, summary: { scopedStudents: 45, submissionsAwaitingReview: 3 }, students: [], programBreakdown: [] },
+    },
+    "/api/presentation-slots": {
+      status: 200,
+      body: { ok: true, slots: [] },
+    },
+  }, "mentorAssignments");
+  assert.match(teacher, /Program Teacher/);
+  assert.match(teacher, /Read-only mentor coverage/);
+  assert.doesNotMatch(teacher, /data-mentor-assignment-form="true"|Assign mentor/);
+});
+
 test("workspace gates student directory visibility by role", () => {
   const loadWorkspaceDataBlock = workspaceJs.match(/async function loadWorkspaceData[\s\S]*?function renderLoading/)?.[0] || "";
   const availableSectionsBlock = workspaceJs.match(/function availableSections[\s\S]*?function renderActiveSection/)?.[0] || "";
@@ -766,6 +903,25 @@ test("workspace gates review queue visibility and refresh behavior by role", () 
   assert.match(workspaceJs, /loadReviewQueueResult\("Review decision saved\."\)/);
   assert.match(workspaceJs, /function refreshSelectedStudentDetailAfterReview/);
   assert.match(workspaceJs, /\/api\/site\/students\/\$\{encodeURIComponent\(selected\.studentId\)\}/);
+});
+
+test("workspace gates mentor assignment visibility and refresh behavior by role", () => {
+  const loadWorkspaceDataBlock = workspaceJs.match(/async function loadWorkspaceData[\s\S]*?function renderLoading/)?.[0] || "";
+  const availableSectionsBlock = workspaceJs.match(/function availableSections[\s\S]*?function renderActiveSection/)?.[0] || "";
+  const mentorRoleHelperBlock = workspaceJs.match(/function hasSiteMentorAssignmentRole[\s\S]*?function defaultSiteStudentFilters/)?.[0] || "";
+  assert.match(workspaceJs, /function hasSiteMentorAssignmentRole\(roles\)/);
+  assert.match(mentorRoleHelperBlock, /"platform_admin",\s+"admin",\s+"org_admin",\s+"site_admin",\s+"viewer",\s+"program_teacher"/);
+  assert.doesNotMatch(mentorRoleHelperBlock, /"mentor"|"student"|"misc_admin"/);
+  assert.match(availableSectionsBlock, /id: "mentorAssignments", label: "Mentor Assignments", detail: "Coverage and assignment workflow"/);
+  assert.match(loadWorkspaceDataBlock, /hasSiteMentorAssignmentRole\(roles\).*\/api\/site\/mentor-assignments/s);
+  assert.match(workspaceJs, /function submitMentorAssignment/);
+  assert.match(workspaceJs, /\/api\/site\/mentor-assignments/);
+  assert.match(workspaceJs, /function refreshConnectedSurfacesAfterMentorAssignment/);
+  assert.match(workspaceJs, /loadMentorAssignmentsResult\("Mentor assignment saved\."\)/);
+  assert.match(workspaceJs, /\/api\/site\/dashboard\$\{query\}/);
+  assert.match(workspaceJs, /\/api\/site\/students\$\{siteStudentQueryString\(\)\}/);
+  assert.match(workspaceJs, /\/api\/site\/students\/\$\{encodeURIComponent\(studentId\)\}/);
+  assert.doesNotMatch(workspaceJs, /site_mentor_assignment_reassigned|site_mentor_assignment_deactivated|data-mentor-assignment-action="reassign"|data-mentor-assignment-action="deactivate"/);
 });
 
 test("production surface checker includes the authenticated workspace", () => {
@@ -1816,6 +1972,128 @@ function siteReviewQueueFixture({
       owner: "Program teacher or site staff.",
       nextAction: "Adjust filters or review the student detail timeline for context.",
     } : null,
+  };
+}
+
+function siteMentorAssignmentsFixture({
+  role = "site_admin",
+  readOnly = !["site_admin", "admin", "org_admin", "platform_admin"].includes(role),
+  canManage = !readOnly && role !== "program_teacher" && role !== "viewer",
+} = {}) {
+  return {
+    ok: true,
+    generatedAt: "2026-05-24T17:30:00.000Z",
+    scope: {
+      tenantId: "tenant-desert-valley",
+      tenantName: "Desert Valley School District",
+      siteId: "site-desert-valley-high",
+      siteName: "Desert Valley High School",
+      schoolYear: "2025-2026",
+      role,
+      readOnly,
+      selectionMode: "single_accessible_site",
+      accessibleSites: [
+        { siteId: "site-desert-valley-high", siteName: "Desert Valley High School" },
+      ],
+      studentScope: role === "program_teacher" ? "program_teacher" : "site",
+    },
+    filters: {
+      siteId: "site-desert-valley-high",
+      programId: "",
+      mentorUserId: "",
+      studentSearch: "",
+      status: "",
+      noMentor: false,
+      limit: 50,
+      offset: 0,
+    },
+    pagination: {
+      limit: 50,
+      offset: 0,
+      returned: 2,
+      total: role === "program_teacher" ? 45 : 250,
+      filteredTotal: 17,
+    },
+    summary: {
+      studentsTotal: role === "program_teacher" ? 45 : 250,
+      studentsWithActiveMentor: role === "program_teacher" ? 41 : 233,
+      studentsWithoutActiveMentor: role === "program_teacher" ? 4 : 17,
+      activeMentors: 28,
+      overloadedMentors: 1,
+      averageAssignedPerMentor: 8.3,
+    },
+    mentors: [
+      {
+        mentorUserId: "demo-mentor-001",
+        mentorName: "Mentor One",
+        email: "mentor001@demo-mentor.capstone.test",
+        activeAssignmentCount: 8,
+        siteId: "site-desert-valley-high",
+        siteName: "Desert Valley High School",
+        loadStatus: "steady",
+        nextAction: "Available for selected-site mentor support.",
+      },
+      {
+        mentorUserId: "demo-mentor-002",
+        mentorName: "Mentor Two",
+        email: "mentor002@demo-mentor.capstone.test",
+        activeAssignmentCount: 0,
+        siteId: "site-desert-valley-high",
+        siteName: "Desert Valley High School",
+        loadStatus: "available",
+        nextAction: "Available for selected-site mentor support.",
+      },
+    ],
+    unassignedStudents: [
+      {
+        studentId: "demo-student-101",
+        displayName: "Missing Mentor Demo 001",
+        email: "missing.mentor.001@demo-student.capstone.test",
+        programId: "it",
+        programName: "Information Technology",
+        cohortId: "cohort-it-2026",
+        cohortName: "IT 2026",
+        storyBucket: "missing_mentor",
+        riskScore: 8,
+        riskFlags: ["no_mentor", "high"],
+        latestSubmissionStatus: "revision_requested",
+        nextAction: "Assign a selected-site mentor before the next intervention checkpoint.",
+      },
+    ],
+    assignments: [
+      {
+        assignmentId: "demo-mentor-assignment-144",
+        studentId: "demo-student-144",
+        studentName: "Archive Failed Demo 001",
+        mentorUserId: "demo-mentor-001",
+        mentorName: "Mentor One",
+        programId: "it",
+        programName: "Information Technology",
+        active: true,
+        assignedAt: "2026-05-20T12:00:00.000Z",
+        nextAction: "Monitor mentor meeting cadence and student progress.",
+      },
+    ],
+    filterOptions: {
+      programs: [
+        { programId: "it", programName: "Information Technology", studentCount: role === "program_teacher" ? 45 : 69 },
+      ],
+      mentors: [
+        { mentorUserId: "demo-mentor-001", mentorName: "Mentor One", activeAssignmentCount: 8 },
+        { mentorUserId: "demo-mentor-002", mentorName: "Mentor Two", activeAssignmentCount: 0 },
+      ],
+      statuses: ["active", "unassigned", "all"],
+      risks: ["any", "high", "medium", "low", "stale", "no_mentor"],
+      storyBuckets: ["model_excellent", "missing_mentor", "awaiting_review", "revision_requested", "presentation_pending", "archive_ready", "archive_failed", "high_risk", "rich_timeline"],
+    },
+    permissions: {
+      canManageMentorAssignments: canManage,
+      canViewStudentDetail: true,
+      canViewStudentDirectory: true,
+      canManageUsers: false,
+      canManageSecurity: false,
+    },
+    emptyState: null,
   };
 }
 

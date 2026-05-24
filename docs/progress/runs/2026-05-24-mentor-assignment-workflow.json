@@ -1,0 +1,134 @@
+{
+  "phase": "11_mentor_assignment_workflow",
+  "startingHead": "794c81f0a8b77eb88519eb7587b37b24e0f53a63",
+  "endingHead": null,
+  "phase10HygieneFixes": [
+    "Updated docs/progress/runs/2026-05-24-program-teacher-review-workflow.json endingHead to 794c81f0a8b77eb88519eb7587b37b24e0f53a63.",
+    "Updated the Phase 10 run-log commit/push status to committed and pushed as 794c81f feat: add program teacher review workflow."
+  ],
+  "routesAddedOrChanged": [
+    {
+      "route": "GET /api/site/mentor-assignments",
+      "file": "functions/api/site/mentor-assignments.ts",
+      "status": "added"
+    },
+    {
+      "route": "POST /api/site/mentor-assignments",
+      "file": "functions/api/site/mentor-assignments.ts",
+      "status": "added assign-only mutation"
+    },
+    {
+      "helper": "functions/_lib/site-mentor-assignments.ts",
+      "status": "added shared site-scoped list and assignment logic"
+    }
+  ],
+  "assignmentScopeStrategy": {
+    "summary": "All rows are selected-site rows derived from active site_users, active student accounts, active student role membership, active mentor accounts, active mentor role membership, selected-site program/cohort membership, and active mentor_assignments.",
+    "programTeacher": "Program teachers receive a read-only scoped view intersected with teacher-visible selected-site program/cohort students.",
+    "denials": "Inaccessible sites, out-of-site students, out-of-site mentors, and denied roles receive generic denied/not_found style responses without alternate site hints."
+  },
+  "mutationPolicy": {
+    "implemented": "Assign a mentor to a currently unassigned selected-site student.",
+    "allowedRoles": [
+      "site_admin",
+      "platform_admin",
+      "admin"
+    ],
+    "readOnlyRoles": [
+      "viewer",
+      "program_teacher",
+      "org_admin"
+    ],
+    "deniedRoles": [
+      "mentor",
+      "student",
+      "misc_admin"
+    ],
+    "guardrails": [
+      "Mutation requires canManageMentorAssignments.",
+      "Mutation requires a non-empty sanitized reason.",
+      "Mutation does not create users, credentials, roles, tenant membership, or site membership."
+    ]
+  },
+  "assignmentUniquenessPolicy": "One active mentor assignment per student per selected site. Assigning a student who already has an active assignment returns a 409 conflict.",
+  "sameSiteValidation": [
+    "Student must be an active selected-site user with active student role membership.",
+    "Mentor must be an active selected-site user with active mentor role membership.",
+    "Selected student and selected mentor must both resolve through the same explicit or inferred active site."
+  ],
+  "duplicateAssignmentPolicy": {
+    "activeDuplicate": "Rejected with active_assignment_exists and safe audit metadata.",
+    "reassign": "Deferred to a later phase as an explicit action.",
+    "deactivate": "Deferred to a later phase as an explicit action."
+  },
+  "workspaceChanges": [
+    "Added a route-connected Mentor Assignments section for platform/admin/org/site/viewer/program_teacher roles.",
+    "Added selected-site summary tiles, filters, mentor coverage, unassigned student list, active assignment list, and a reason-required assign form for mutation-allowed roles.",
+    "Viewer, org admin, and program teacher see read-only mode and no active assign controls.",
+    "Mentor, student, and misc_admin do not receive the management section.",
+    "Workspace uses the existing product shell, site context badges, workspace-filter-bar, workspace-dashboard-card, workspace-student-row patterns, story/risk chips, statusPill(), and renderProblemState()."
+  ],
+  "connectedSurfaceRefresh": [
+    "Successful assignment refreshes Mentor Assignments.",
+    "Successful assignment refreshes Site Dashboard when loaded.",
+    "Successful assignment refreshes the Students directory when loaded without resetting directory filters or pagination.",
+    "Successful assignment refreshes an open student detail drawer when the assigned student is selected."
+  ],
+  "auditEvents": [
+    "site_mentor_assignments_viewed",
+    "site_mentor_assignments_denied",
+    "site_mentor_assignments_unauthorized",
+    "site_mentor_assignment_created",
+    "site_mentor_assignment_conflict"
+  ],
+  "redactionProof": [
+    "Route responses and workspace assets are checked for Drive IDs, storage IDs, token/password/setup credential fields, and raw secret values.",
+    "Audit metadata uses tenantId, siteId, studentId, mentorUserId, assignmentId, action, role/scope summary, and truncated reason summary only.",
+    "No raw Drive/storage identifiers are returned by the assignment route or rendered in the workspace."
+  ],
+  "testsAddedOrUpdated": [
+    "tests/site-mentor-assignments.integration.test.mjs",
+    "tests/workspace-app.test.mjs",
+    "tests/production-workflow-source.test.mjs"
+  ],
+  "localProofUpdates": {
+    "updated": "scripts/prove-local-demo-workspace.mjs",
+    "checks": [
+      "/api/site/mentor-assignments?siteId=site-desert-valley-high returns selected-site summary.",
+      "Primary site has missing mentor students.",
+      "Viewer is read-only with mutation permissions false.",
+      "Site admin can manage assigned-site mentor assignments and cannot access secondary site assignment data.",
+      "Program teacher receives read-only scoped coverage.",
+      "Mentor and student are denied.",
+      "No sensitive assignment fields leak."
+    ],
+    "mutationProof": "Assignment mutation is proven in integration tests instead of local proof to keep prove:demo:local repeatable."
+  },
+  "validation": {
+    "status": "passed",
+    "commands": [
+      "node --test tests/site-mentor-assignments.integration.test.mjs",
+      "node --test tests/workspace-app.test.mjs",
+      "node --test tests/production-workflow-source.test.mjs",
+      "npm run inventory:production-routes",
+      "npm run check:route-inventory",
+      "npm run check:production-surfaces",
+      "npm run test",
+      "npm run typecheck",
+      "npm run check",
+      "npm run prove:demo:local",
+      "git diff --check"
+    ],
+    "results": {
+      "tests": "npm run test and npm run check passed with 299 passing tests, 4 expected local HTTP skips, and 303 total test cases.",
+      "routeInventory": "Production route inventory was regenerated and includes /api/site/mentor-assignments.",
+      "productionSurfaces": "Passed with 91 production text surfaces scanned.",
+      "localProof": "Passed with non-mutating mentor assignment route scoping/read-only proof; mutation proof is covered by integration tests.",
+      "diffCheck": "Passed with CRLF normalization warnings only."
+    }
+  },
+  "blockers": [
+    "Remote D1 still lacks migration 0011_multisite_site_role_foundation.sql, so no remote migration, remote write, remote seed, deploy, or hosted proof was run."
+  ],
+  "nextRecommendedPrompt": "12_presentation_archive_reports.txt"
+}

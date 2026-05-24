@@ -19,6 +19,8 @@ const siteStudentTimelineRoute = await readFile("functions/api/site/students/[st
 const siteStudentDetailLib = await readFile("functions/_lib/site-student-detail.ts", "utf8");
 const siteReviewQueueRoute = await readFile("functions/api/site/review-queue.ts", "utf8");
 const siteReviewQueueLib = await readFile("functions/_lib/site-review-queue.ts", "utf8");
+const siteMentorAssignmentsRoute = await readFile("functions/api/site/mentor-assignments.ts", "utf8");
+const siteMentorAssignmentsLib = await readFile("functions/_lib/site-mentor-assignments.ts", "utf8");
 const siteScopeLib = await readFile("functions/_lib/site-scope.ts", "utf8");
 const mentorAssignedRoute = await readFile("functions/api/mentor/assigned.ts", "utf8");
 const mentorMeetingsRoute = await readFile("functions/api/mentor/meetings.ts", "utf8");
@@ -89,6 +91,7 @@ test("production route inventory classifies the canonical workspace route", () =
   assert.match(productionRouteInventory, /\| \/api\/site\/students\/:studentId \| functions\/api\/site\/students\/\[studentId\]\.ts \| senior-capstone-app \| production \| conditional \|/);
   assert.match(productionRouteInventory, /\| \/api\/site\/students\/:studentId\/timeline \| functions\/api\/site\/students\/\[studentId\]\/timeline\.ts \| senior-capstone-app \| production \| conditional \|/);
   assert.match(productionRouteInventory, /\| \/api\/site\/review-queue \| functions\/api\/site\/review-queue\.ts \| senior-capstone-app \| production \| conditional \|/);
+  assert.match(productionRouteInventory, /\| \/api\/site\/mentor-assignments \| functions\/api\/site\/mentor-assignments\.ts \| senior-capstone-app \| production \| conditional \|/);
   assert.match(productionRouteInventory, /Canonical protected app route/);
   assert.doesNotMatch(productionRouteInventory, /\| workspace\.html \|  \| unknown \| unknown \|/);
 });
@@ -246,6 +249,33 @@ test("site review queue route is site-scoped, role-aware, bounded, and redacted"
   assert.match(siteReviewQueueLib, /"program_teacher"/);
   assert.match(siteReviewQueueLib, /"viewer"/);
   assert.doesNotMatch(siteReviewQueueLib, /from "\.\.\/admin\/dashboard|\/api\/admin\/dashboard|drive_file_id|drive_parent_folder_id|storage_key|password_hash|password_salt|token_hash|client_secret|refresh_token|access_token|private_key|temporaryPassword|setupPassword|content_sha256|body_json/i);
+});
+
+test("site mentor assignment route is site-scoped, role-aware, mutable by policy, and redacted", () => {
+  assert.match(siteMentorAssignmentsRoute, /handleSiteMentorAssignmentsGet/);
+  assert.match(siteMentorAssignmentsRoute, /handleSiteMentorAssignmentsPost/);
+  assert.match(siteMentorAssignmentsLib, /resolveSiteSelection/);
+  assert.match(siteMentorAssignmentsLib, /canViewMentorAssignments/);
+  assert.match(siteMentorAssignmentsLib, /canManageMentorAssignments/);
+  assert.match(siteMentorAssignmentsLib, /getProgramTeacherScopedStudentIds/);
+  assert.match(siteMentorAssignmentsLib, /site_users/);
+  assert.match(siteMentorAssignmentsLib, /student_role\.role_id = 'student'/);
+  assert.match(siteMentorAssignmentsLib, /mentor_role\.role_id = 'mentor'/);
+  assert.match(siteMentorAssignmentsLib, /DEFAULT_LIMIT = 50/);
+  assert.match(siteMentorAssignmentsLib, /MAX_LIMIT = 100/);
+  assert.match(siteMentorAssignmentsLib, /LIMIT \? OFFSET \?/);
+  assert.match(siteMentorAssignmentsLib, /site_mentor_assignments_viewed/);
+  assert.match(siteMentorAssignmentsLib, /site_mentor_assignments_denied/);
+  assert.match(siteMentorAssignmentsLib, /site_mentor_assignments_unauthorized/);
+  assert.match(siteMentorAssignmentsLib, /site_mentor_assignment_created/);
+  assert.match(siteMentorAssignmentsLib, /site_mentor_assignment_conflict/);
+  assert.match(siteMentorAssignmentsLib, /activeAssignmentForStudent/);
+  assert.match(siteMentorAssignmentsLib, /active_assignment_exists/);
+  assert.match(siteMentorAssignmentsLib, /reason_required/);
+  assert.match(siteMentorAssignmentsLib, /assignment_target_not_in_selected_site/);
+  assert.match(siteMentorAssignmentsLib, /canManageUsers: false/);
+  assert.match(siteMentorAssignmentsLib, /canManageSecurity: false/);
+  assert.doesNotMatch(siteMentorAssignmentsLib, /CREATE USER|password_credentials|temporaryPassword|setupPassword|drive_file_id|drive_parent_folder_id|storage_key|password_hash|password_salt|token_hash|client_secret|refresh_token|access_token|private_key|content_sha256|body_json/i);
 });
 
 test("admin audit endpoint is admin-only and redacts sensitive metadata", () => {

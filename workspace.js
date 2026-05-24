@@ -12,6 +12,7 @@ let currentData = {
   programTeacherDashboard: null,
   mentorDashboard: null,
   reviewQueue: null,
+  mentorAssignments: null,
   mentorAssigned: null,
   presentationSlots: null,
   readiness: null,
@@ -25,6 +26,7 @@ let siteStudentFilters = defaultSiteStudentFilters();
 let siteStudentDetailState = defaultSiteStudentDetailState();
 let reviewQueueFilters = defaultReviewQueueFilters();
 let reviewQueueState = defaultReviewQueueState();
+let mentorAssignmentFilters = defaultMentorAssignmentFilters();
 const WORKSPACE_UPLOAD_MAX_BYTES = 20 * 1024 * 1024;
 const WORKSPACE_UPLOAD_ALLOWED_MIME_TYPES = new Set([
   "application/pdf",
@@ -175,6 +177,7 @@ function defaultCurrentData(authConfig = currentData.authConfig) {
     programTeacherDashboard: null,
     mentorDashboard: null,
     reviewQueue: null,
+    mentorAssignments: null,
     mentorAssigned: null,
     presentationSlots: null,
     readiness: null,
@@ -199,6 +202,7 @@ async function loadWorkspaceData(statusMessage = "") {
   if (hasSiteDashboardRole(roles)) loaders.push(["siteDashboard", apiJson("/api/site/dashboard")]);
   if (hasSiteStudentDirectoryRole(roles)) loaders.push(["siteStudents", apiJson(`/api/site/students${siteStudentQueryString()}`)]);
   if (hasSiteReviewQueueRole(roles)) loaders.push(["reviewQueue", apiJson(`/api/site/review-queue${siteReviewQueueQueryString()}`)]);
+  if (hasSiteMentorAssignmentRole(roles)) loaders.push(["mentorAssignments", apiJson(`/api/site/mentor-assignments${siteMentorAssignmentQueryString()}`)]);
   if (roles.has("admin")) loaders.push(["adminDashboard", apiJson("/api/admin/dashboard")]);
   if (roles.has("program_teacher")) loaders.push(["programTeacherDashboard", apiJson("/api/program-teacher/dashboard")]);
   if (roles.has("mentor") || roles.has("admin")) loaders.push(["mentorDashboard", apiJson("/api/mentor/dashboard")]);
@@ -536,10 +540,10 @@ function availableSections() {
   if (roles.has("mentor")) sections.push({ id: "mentor", label: "Assigned Students", detail: "Assigned students and evidence counts" });
   if (roles.has("program_teacher")) sections.push({ id: "programDashboard", label: "Program Dashboard", detail: "Scoped cohort and review risks" });
   if (hasSiteReviewQueueRole(roles)) sections.push({ id: "teacher", label: "Review Queue", detail: "Teacher review and submitted work" });
+  if (hasSiteMentorAssignmentRole(roles)) sections.push({ id: "mentorAssignments", label: "Mentor Assignments", detail: "Coverage and assignment workflow" });
   if (roles.has("student") || roles.has("mentor") || roles.has("program_teacher") || roles.has("admin")) {
     sections.push({ id: "presentation", label: "Presentation", detail: "Schedule, outline, and day-of status" });
   }
-  if (roles.has("admin")) sections.push({ id: "mentorAssignments", label: "Mentors / Assignments", detail: "Coverage and assignment signals" });
   if (roles.has("admin")) sections.push({ id: "adminDashboard", label: "Admin Command Center", detail: "Legacy global operations" });
   if (roles.has("admin") || roles.has("misc_admin")) sections.push({ id: "readiness", label: "Readiness", detail: "Aggregate project readiness" });
   if (roles.has("admin")) sections.push({ id: "adminUsers", label: "Users & Access", detail: "Import accounts and setup access" });
@@ -562,7 +566,7 @@ function renderActiveSection() {
   if (activeSection === "presentation") return renderPresentationSection();
   if (activeSection === "archive") return renderArchiveSection();
   if (activeSection === "adminUsers") return renderAdminUsersSection();
-  if (activeSection === "mentorAssignments") return renderAdminMentorAssignmentsSection();
+  if (activeSection === "mentorAssignments") return renderMentorAssignmentsSection();
   if (activeSection === "audit") return renderAdminAuditSection();
   if (activeSection === "archiveExports") return renderAdminArchiveExportsSection();
   if (activeSection === "readiness") return renderReadinessSection();
@@ -1543,6 +1547,7 @@ function deniedWorkspaceSections() {
     ["programTeacherDashboard", "Program dashboard"],
     ["mentorDashboard", "Mentor dashboard"],
     ["reviewQueue", "Teacher review"],
+    ["mentorAssignments", "Mentor assignments"],
     ["mentorAssigned", "Mentor students"],
     ["presentationSlots", "Presentation schedule"],
     ["archiveReadiness", "Archive readiness"],
@@ -1733,31 +1738,312 @@ function renderMentorDashboardSection() {
   `;
 }
 
-function renderAdminMentorAssignmentsSection() {
-  const dashboard = unwrap(currentData.adminDashboard);
-  if (!dashboard) {
+function renderMentorAssignmentsSection() {
+  const result = currentData.mentorAssignments;
+  if (result?.status === 403) {
+    return renderPermissionDeniedSection("Mentor assignments", "assigned site mentor coverage records");
+  }
+  if (result?.status === 409 && result.body?.selectionRequired) {
+    return renderMentorAssignmentSelectionRequired(result.body);
+  }
+  const body = unwrap(result);
+  if (!body) {
     return `
       <section class="workspace-card workspace-error-card">
-        <p class="workspace-kicker">Mentors / assignments</p>
-        <h2>Coverage data unavailable</h2>
-        ${renderApiNotice(currentData.adminDashboard)}
+        <p class="workspace-kicker">Mentor assignments</p>
+        <h2>Mentor coverage unavailable</h2>
+        ${renderApiNotice(result)}
+        ${renderProblemState({
+          reason: "The site mentor assignment route could not return assigned-site coverage.",
+          owner: "Site administration or platform support.",
+          nextAction: "Refresh after site assignment and route availability are confirmed.",
+        })}
       </section>
     `;
   }
+
+  const scope = body.scope || {};
+  const summary = body.summary || {};
+  const permissions = body.permissions || {};
+  const mentors = body.mentors || [];
+  const unassignedStudents = body.unassignedStudents || [];
+  const assignments = body.assignments || [];
+  const pagination = body.pagination || {};
+  const canManage = Boolean(permissions.canManageMentorAssignments);
+  const readOnly = Boolean(scope.readOnly || !canManage);
   return `
-    <section class="workspace-command-center">
+    <section class="workspace-command-center workspace-mentor-assignments" aria-labelledby="mentorAssignmentsTitle">
+      ${renderSiteContextBlock(body)}
       <div class="workspace-command-hero">
         <div>
-          <p class="workspace-kicker">Mentors / Assignments</p>
-          <h1>Coverage Snapshot</h1>
-          <p>Active assignments and no-mentor counts are derived from the current assignment table.</p>
+          <p class="workspace-kicker">Mentor assigned scope</p>
+          <h1 id="mentorAssignmentsTitle">Mentor Assignments</h1>
+          <p>
+            Resolve selected-site mentor coverage with Role scoped views, Audited changes,
+            Private evidence boundaries, and Teacher intervention signals. No student messaging.
+          </p>
         </div>
-        <span class="workspace-chip">${safeNumber(dashboard.summary?.mentorAssignmentsActive)} active assignments</span>
+        <div class="workspace-command-hero-grid">
+          ${statusPill(canManage ? "approved" : "configured")}
+          <span class="workspace-chip">${escapeHtml(canManage ? "Assignment controls enabled" : "Read-only")}</span>
+        </div>
       </div>
-      ${renderDashboardCard("Mentor Coverage", "Active assignment load", renderMentorCoverage(dashboard.mentorCoverage, dashboard.summary || {}))}
-      ${renderDashboardCard("Needs Attention", "Coverage risks", renderNeedsAttention((dashboard.needsAttention || []).filter((item) => item.type === "mentor_coverage" || item.type === "mentor_meetings")))}
+      ${renderApiNotice(result)}
+      ${readOnly ? `
+        <section class="workspace-read-only-banner" data-mentor-assignment-read-only="true">
+          <strong>Read-only mentor coverage</strong>
+          <p>This role can inspect selected-site mentor coverage, but assignment changes stay with authorized site operations.</p>
+        </section>
+      ` : ""}
+      <div class="workspace-dashboard-grid">
+        ${renderMetricTile("Students With Mentors", summary.studentsWithActiveMentor, "Active selected-site coverage", "mentor")}
+        ${renderMetricTile("Missing Mentors", summary.studentsWithoutActiveMentor, "Needs assignment follow-up", safeNumber(summary.studentsWithoutActiveMentor) ? "warning" : "mentor")}
+        ${renderMetricTile("Active Mentors", summary.activeMentors, "Selected-site mentor pool", "admin")}
+        ${renderMetricTile("Overloaded Mentors", summary.overloadedMentors, "Review load before assigning", safeNumber(summary.overloadedMentors) ? "danger" : "admin")}
+      </div>
+      ${renderMentorAssignmentFilters(body)}
+      <div class="workspace-mentor-assignment-layout">
+        <section class="workspace-dashboard-card">
+          <div class="workspace-card-head">
+            <div>
+              <p class="workspace-kicker">Coverage queue</p>
+              <h2>Unassigned students</h2>
+              <p>${safeNumber(unassignedStudents.length)} shown of ${safeNumber(pagination.filteredTotal)} matching selected-site students.</p>
+            </div>
+            <span class="workspace-site-context-badge">${safeNumber(pagination.total)} scoped</span>
+          </div>
+          ${unassignedStudents.length ? renderMentorUnassignedStudents(unassignedStudents, permissions) : `
+            <section class="workspace-empty-state-card" data-mentor-assignments-empty="true">
+              <h2>No missing mentor rows match</h2>
+              ${renderProblemState(body.emptyState || {
+                reason: "No selected-site students without active mentors match these filters.",
+                owner: "Site administration.",
+                nextAction: "Adjust filters or review active assignments.",
+              })}
+            </section>
+          `}
+          ${renderMentorAssignmentPagination(pagination)}
+        </section>
+        <section class="workspace-dashboard-card">
+          <div class="workspace-card-head">
+            <div>
+              <p class="workspace-kicker">Assignment action</p>
+              <h2>${canManage ? "Assign Mentor" : "Assignment Controls"}</h2>
+              <p>${canManage ? "Assign one selected-site mentor to one currently unassigned selected-site student." : "Assignment controls are hidden for this role."}</p>
+            </div>
+          </div>
+          ${canManage ? renderMentorAssignmentForm(body) : `
+            <section class="workspace-empty-state-card" data-mentor-assignment-controls-hidden="true">
+              <h2>Assignment changes unavailable</h2>
+              ${renderProblemState({
+                reason: "This role has a read-only mentor coverage view.",
+                owner: "Authorized site administrator.",
+                nextAction: "Use this section for coverage context, or ask a site administrator to assign mentors.",
+              })}
+            </section>
+          `}
+        </section>
+      </div>
+      <div class="workspace-dashboard-grid workspace-dashboard-grid-two">
+        ${renderDashboardCard("Mentor Coverage", "Selected-site mentor load", renderMentorCoverageRows(mentors))}
+        ${renderDashboardCard("Active Assignments", "Current mentor assigned scope", renderMentorActiveAssignments(assignments, permissions))}
+      </div>
     </section>
   `;
+}
+
+function renderMentorAssignmentSelectionRequired(body = {}) {
+  const sites = body.accessibleSites || [];
+  return `
+    <section class="workspace-card workspace-error-card" data-workspace-state="mentor-assignment-site-selection-required">
+      <p class="workspace-kicker">Mentor assignments</p>
+      <h2>Select a site before viewing mentor coverage</h2>
+      <p>This account can view more than one site, so mentor assignment management needs an explicit site selection.</p>
+      <div class="workspace-chip-row">
+        ${sites.map((site) => `<span class="workspace-site-context-badge">${escapeHtml(site.siteName || site.siteId)}</span>`).join("")}
+      </div>
+      ${renderProblemState({
+        reason: "Multiple assigned sites are available and no safe assignment default was selected.",
+        owner: "Administration or platform support.",
+        nextAction: "Choose a site once site switching is available, or open a direct site-scoped link.",
+      })}
+    </section>
+  `;
+}
+
+function renderMentorAssignmentFilters(body) {
+  const filters = body?.filters || mentorAssignmentFilters || defaultMentorAssignmentFilters();
+  const options = body?.filterOptions || {};
+  const mentors = options.mentors || body?.mentors || [];
+  return `
+    <form id="mentorAssignmentFilterForm" class="workspace-filter-bar" data-mentor-assignment-filters="true">
+      <label class="workspace-label">
+        <span>Program</span>
+        <select class="workspace-select" name="programId">
+          ${renderProgramFilterOptions(options.programs, filters.programId)}
+        </select>
+      </label>
+      <label class="workspace-label">
+        <span>Mentor</span>
+        <select class="workspace-select" name="mentorUserId">
+          <option value="" ${!filters.mentorUserId ? "selected" : ""}>All mentors</option>
+          ${mentors.map((mentor) => {
+            const mentorId = mentor.mentorUserId || "";
+            const count = mentor.activeAssignmentCount != null ? ` (${safeNumber(mentor.activeAssignmentCount)})` : "";
+            return `<option value="${escapeHtml(mentorId)}" ${filters.mentorUserId === mentorId ? "selected" : ""}>${escapeHtml((mentor.mentorName || "Mentor") + count)}</option>`;
+          }).join("")}
+        </select>
+      </label>
+      <label class="workspace-label">
+        <span>Status</span>
+        <select class="workspace-select" name="status">
+          <option value="" ${!filters.status ? "selected" : ""}>All coverage</option>
+          ${(options.statuses || ["active", "unassigned", "all"]).map((status) => `
+            <option value="${escapeHtml(status)}" ${filters.status === status ? "selected" : ""}>${escapeHtml(statusText(status))}</option>
+          `).join("")}
+        </select>
+      </label>
+      <label class="workspace-label">
+        <span>Student search</span>
+        <input class="workspace-input" name="studentSearch" type="search" value="${escapeHtml(filters.studentSearch || "")}" autocomplete="off" maxlength="80">
+      </label>
+      <label class="workspace-label workspace-checkbox-label">
+        <input name="noMentor" type="checkbox" value="true" ${filters.noMentor ? "checked" : ""}>
+        <span>No mentor</span>
+      </label>
+      <input name="offset" type="hidden" value="${escapeHtml(filters.offset || 0)}">
+      <input name="limit" type="hidden" value="${escapeHtml(filters.limit || 50)}">
+      <div class="workspace-form-actions">
+        <button class="workspace-button workspace-button-primary" type="submit">Apply filters</button>
+        <button class="workspace-button workspace-button-secondary" type="button" data-mentor-assignment-action="reset-filters">Reset</button>
+      </div>
+    </form>
+  `;
+}
+
+function renderMentorUnassignedStudents(students = [], permissions = {}) {
+  return `
+    <div class="workspace-list" data-mentor-unassigned-list="true">
+      ${students.map((student) => `
+        <article class="workspace-student-row workspace-student-card">
+          <div>
+            <strong>${escapeHtml(student.displayName || "Student")}</strong>
+            <p>${escapeHtml(student.email || "")}</p>
+            <p class="workspace-muted">${escapeHtml(student.programName || "Unassigned")} / ${escapeHtml(student.cohortName || "No cohort")}</p>
+            <div class="workspace-chip-row">
+              ${student.storyBucket ? `<span class="workspace-story-chip">${escapeHtml(storyLabel(student.storyBucket))}</span>` : `<span class="workspace-story-chip">Coverage follow-up</span>`}
+              ${renderRiskChips(student.riskFlags || [])}
+            </div>
+          </div>
+          <div class="workspace-row-meta">
+            ${statusPill(student.latestSubmissionStatus || "draft")}
+            <span class="workspace-site-context-badge">${safeNumber(student.riskScore)} risk</span>
+          </div>
+          <div class="workspace-row-actions">
+            <p>${escapeHtml(student.nextAction || "Assign a selected-site mentor.")}</p>
+            ${permissions.canViewStudentDetail ? `
+              <button class="workspace-link-button workspace-link-button-small" type="button" data-mentor-assignment-action="open-student" data-mentor-student-id="${escapeHtml(student.studentId || "")}">
+                View student detail
+              </button>
+            ` : ""}
+          </div>
+        </article>
+      `).join("")}
+    </div>
+  `;
+}
+
+function renderMentorAssignmentForm(body) {
+  const students = body?.unassignedStudents || [];
+  const mentors = body?.mentors || [];
+  return students.length && mentors.length ? `
+    <form id="mentorAssignmentForm" class="workspace-review-feedback" data-mentor-assignment-form="true">
+      <label>
+        <span>Student</span>
+        <select class="workspace-select" name="studentId" required>
+          ${students.map((student) => `<option value="${escapeHtml(student.studentId || "")}">${escapeHtml(student.displayName || "Student")} / ${escapeHtml(student.programName || "Unassigned")}</option>`).join("")}
+        </select>
+      </label>
+      <label>
+        <span>Mentor</span>
+        <select class="workspace-select" name="mentorUserId" required>
+          ${mentors.map((mentor) => `<option value="${escapeHtml(mentor.mentorUserId || "")}">${escapeHtml(mentor.mentorName || "Mentor")} / ${safeNumber(mentor.activeAssignmentCount)} active</option>`).join("")}
+        </select>
+      </label>
+      <label>
+        <span>Reason</span>
+        <textarea name="reason" rows="4" maxlength="240" required></textarea>
+      </label>
+      <div class="workspace-form-actions">
+        <button class="workspace-button workspace-button-primary" type="submit" data-mentor-assignment-action="assign">Assign mentor</button>
+      </div>
+      <p class="workspace-muted">Assignments are audited, selected-site only, and do not create users or credentials.</p>
+    </form>
+  ` : `
+    <section class="workspace-empty-state-card" data-mentor-assignment-form-empty="true">
+      <h2>Assignment form unavailable</h2>
+      ${renderProblemState({
+        reason: students.length ? "No active selected-site mentors are available." : "No currently unassigned selected-site students are visible in this page.",
+        owner: "Site administration.",
+        nextAction: "Adjust filters or confirm mentor and student site memberships.",
+      })}
+    </section>
+  `;
+}
+
+function renderMentorAssignmentPagination(pagination = {}) {
+  const limit = safeNumber(pagination.limit || mentorAssignmentFilters.limit || 50);
+  const offset = safeNumber(pagination.offset || mentorAssignmentFilters.offset || 0);
+  const returned = safeNumber(pagination.returned);
+  const filteredTotal = safeNumber(pagination.filteredTotal);
+  return `
+    <div class="workspace-directory-pagination" aria-label="Mentor assignment pagination">
+      <button class="workspace-button workspace-button-secondary" type="button" data-mentor-assignment-action="previous-page" ${offset <= 0 ? "disabled" : ""}>Previous</button>
+      <span class="workspace-muted">Offset ${escapeHtml(offset)} / Limit ${escapeHtml(limit)}</span>
+      <button class="workspace-button workspace-button-secondary" type="button" data-mentor-assignment-action="next-page" ${(offset + returned) >= filteredTotal ? "disabled" : ""}>Next</button>
+    </div>
+  `;
+}
+
+function renderMentorCoverageRows(mentors = []) {
+  return mentors.length ? `
+    <div class="workspace-list" data-mentor-coverage-list="true">
+      ${mentors.map((mentor) => `
+        <article class="workspace-row">
+          <div>
+            <strong>${escapeHtml(mentor.mentorName || "Mentor")}</strong>
+            <p>${escapeHtml(mentor.email || "")}</p>
+            <p class="workspace-muted">${escapeHtml(mentor.siteName || "Selected site")} / ${safeNumber(mentor.activeAssignmentCount)} active assignment${safeNumber(mentor.activeAssignmentCount) === 1 ? "" : "s"}</p>
+          </div>
+          ${statusPill(mentor.loadStatus || "available")}
+        </article>
+      `).join("")}
+    </div>
+  ` : `<div class="workspace-empty">No selected-site mentors match these filters.</div>`;
+}
+
+function renderMentorActiveAssignments(assignments = [], permissions = {}) {
+  return assignments.length ? `
+    <div class="workspace-list" data-mentor-active-assignments="true">
+      ${assignments.map((assignment) => `
+        <article class="workspace-row">
+          <div>
+            <strong>${escapeHtml(assignment.studentName || "Student")}</strong>
+            <p>${escapeHtml(assignment.mentorName || "Mentor")} / ${escapeHtml(assignment.programName || "Unassigned")}</p>
+            <p class="workspace-muted">Assigned ${escapeHtml(formatDate(assignment.assignedAt))}</p>
+          </div>
+          <div class="workspace-row-actions">
+            ${statusPill(assignment.active ? "active" : "blocked")}
+            ${permissions.canViewStudentDetail ? `
+              <button class="workspace-link-button workspace-link-button-small" type="button" data-mentor-assignment-action="open-student" data-mentor-student-id="${escapeHtml(assignment.studentId || "")}">
+                View student detail
+              </button>
+            ` : ""}
+          </div>
+        </article>
+      `).join("")}
+    </div>
+  ` : `<div class="workspace-empty">No active assignments match these filters.</div>`;
 }
 
 function renderAdminAuditSection() {
@@ -2527,6 +2813,11 @@ function bindWorkspaceForms() {
     button.addEventListener("click", handleReviewQueueAction);
   });
   document.querySelector("#reviewDecisionForm")?.addEventListener("submit", submitReviewDecision);
+  document.querySelector("#mentorAssignmentFilterForm")?.addEventListener("submit", applyMentorAssignmentFilters);
+  document.querySelectorAll("[data-mentor-assignment-action]").forEach((button) => {
+    button.addEventListener("click", handleMentorAssignmentAction);
+  });
+  document.querySelector("#mentorAssignmentForm")?.addEventListener("submit", submitMentorAssignment);
 }
 
 function bindUploadRetryButton() {
@@ -2571,6 +2862,53 @@ async function applyReviewQueueFilters(event) {
   reviewQueueState = defaultReviewQueueState();
   activeSection = "teacher";
   await loadReviewQueueResult("Review queue filters applied.");
+}
+
+async function applyMentorAssignmentFilters(event) {
+  event?.preventDefault?.();
+  const form = event?.currentTarget;
+  if (!form) return;
+  const data = new FormData(form);
+  mentorAssignmentFilters = {
+    programId: cleanDirectoryFilter(data.get("programId")),
+    mentorUserId: cleanDirectoryFilter(data.get("mentorUserId")),
+    studentSearch: cleanDirectoryFilter(data.get("studentSearch")),
+    status: cleanDirectoryFilter(data.get("status")),
+    noMentor: data.get("noMentor") === "true",
+    limit: clampDirectoryNumber(data.get("limit"), 50, 1, 100),
+    offset: 0,
+  };
+  activeSection = "mentorAssignments";
+  await loadMentorAssignmentsResult("Mentor assignment filters applied.");
+}
+
+async function handleMentorAssignmentAction(event) {
+  const action = event?.currentTarget?.dataset?.mentorAssignmentAction;
+  if (!action) return;
+  if (action === "open-student") {
+    activeSection = "students";
+    await openSiteStudentDetail(event.currentTarget?.dataset?.mentorStudentId || "");
+    return;
+  }
+  if (action === "reset-filters") {
+    mentorAssignmentFilters = defaultMentorAssignmentFilters();
+    activeSection = "mentorAssignments";
+    await loadMentorAssignmentsResult("Mentor assignment filters reset.");
+    return;
+  }
+  if (action === "previous-page" || action === "next-page") {
+    const body = unwrap(currentData.mentorAssignments);
+    const pagination = body?.pagination || {};
+    const limit = safeNumber(pagination.limit || mentorAssignmentFilters.limit || 50);
+    const offset = safeNumber(pagination.offset || mentorAssignmentFilters.offset || 0);
+    mentorAssignmentFilters = {
+      ...mentorAssignmentFilters,
+      limit,
+      offset: action === "previous-page" ? Math.max(0, offset - limit) : offset + limit,
+    };
+    activeSection = "mentorAssignments";
+    await loadMentorAssignmentsResult("Mentor assignment page updated.");
+  }
 }
 
 async function handleReviewQueueAction(event) {
@@ -2701,6 +3039,76 @@ async function refreshSelectedStudentDetailAfterReview(selected) {
   }
 }
 
+async function submitMentorAssignment(event) {
+  event?.preventDefault?.();
+  if (busy) return;
+  const form = event?.currentTarget;
+  if (!form) return;
+  const data = new FormData(form);
+  const studentId = cleanDirectoryFilter(data.get("studentId"));
+  const mentorUserId = cleanDirectoryFilter(data.get("mentorUserId"));
+  const reason = String(data.get("reason") || "").trim();
+  const body = unwrap(currentData.mentorAssignments);
+  const siteId = body?.scope?.siteId || unwrap(currentData.siteStudents)?.scope?.siteId || "";
+  if (!siteId || !studentId || !mentorUserId || !reason) {
+    renderAppShell("Choose a student, mentor, and assignment reason before saving.", "error");
+    return;
+  }
+  busy = true;
+  setFormBusy(form, true);
+  try {
+    const result = await settleApi(apiJson("/api/site/mentor-assignments", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ siteId, studentId, mentorUserId, reason }),
+    }));
+    if (!result.ok) {
+      activeSection = "mentorAssignments";
+      renderAppShell(messageForMentorAssignmentError(result.body?.error || result.error, result.status), "error");
+      return;
+    }
+    await refreshConnectedSurfacesAfterMentorAssignment(studentId, siteId);
+    await loadMentorAssignmentsResult("Mentor assignment saved.");
+  } finally {
+    busy = false;
+  }
+}
+
+async function loadMentorAssignmentsResult(message = "") {
+  const result = await settleApi(apiJson(`/api/site/mentor-assignments${siteMentorAssignmentQueryString()}`));
+  currentData.mentorAssignments = result;
+  activeSection = "mentorAssignments";
+  renderAppShell(result.ok ? (message || "Mentor assignments loaded.") : "Mentor assignments unavailable.", result.ok ? "success" : "error");
+}
+
+async function refreshConnectedSurfacesAfterMentorAssignment(studentId, siteId) {
+  const query = siteId ? `?siteId=${encodeURIComponent(siteId)}` : "";
+  const refreshes = [];
+  if (currentData.siteDashboard) {
+    refreshes.push(settleApi(apiJson(`/api/site/dashboard${query}`)).then((result) => {
+      currentData.siteDashboard = result;
+    }));
+  }
+  if (currentData.siteStudents) {
+    refreshes.push(settleApi(apiJson(`/api/site/students${siteStudentQueryString()}`)).then((result) => {
+      currentData.siteStudents = result;
+    }));
+  }
+  if (siteStudentDetailState.studentId === studentId || unwrap(currentData.siteStudentDetail)?.scope?.studentId === studentId) {
+    refreshes.push(settleApi(apiJson(`/api/site/students/${encodeURIComponent(studentId)}${query}`)).then((result) => {
+      if (result.ok) {
+        siteStudentDetailState = {
+          ...siteStudentDetailState,
+          result,
+          timelineResult: null,
+        };
+        currentData.siteStudentDetail = result;
+      }
+    }));
+  }
+  await Promise.all(refreshes);
+}
+
 async function handleSiteStudentAction(event) {
   const action = event?.currentTarget?.dataset?.siteStudentAction;
   if (!action) return;
@@ -2734,7 +3142,7 @@ async function openSiteStudentDetail(studentId) {
   const selectedStudentId = cleanDirectoryFilter(studentId);
   if (!selectedStudentId) return;
   const directory = unwrap(currentData.siteStudents);
-  const siteId = directory?.scope?.siteId || "";
+  const siteId = directory?.scope?.siteId || unwrap(currentData.mentorAssignments)?.scope?.siteId || unwrap(currentData.reviewQueue)?.scope?.siteId || "";
   const query = siteId ? `?siteId=${encodeURIComponent(siteId)}` : "";
   siteStudentDetailState = {
     ...defaultSiteStudentDetailState(),
@@ -3806,6 +4214,10 @@ function hasSiteReviewQueueRole(roles) {
   return ["platform_admin", "admin", "org_admin", "site_admin", "viewer", "program_teacher"].some((role) => roles.has(role));
 }
 
+function hasSiteMentorAssignmentRole(roles) {
+  return ["platform_admin", "admin", "org_admin", "site_admin", "viewer", "program_teacher"].some((role) => roles.has(role));
+}
+
 function defaultSiteStudentFilters() {
   return {
     search: "",
@@ -3816,6 +4228,18 @@ function defaultSiteStudentFilters() {
     story: "",
     presentationStatus: "any",
     archiveStatus: "any",
+    limit: 50,
+    offset: 0,
+  };
+}
+
+function defaultMentorAssignmentFilters() {
+  return {
+    programId: "",
+    mentorUserId: "",
+    studentSearch: "",
+    status: "",
+    noMentor: false,
     limit: 50,
     offset: 0,
   };
@@ -3880,6 +4304,25 @@ function siteReviewQueueQueryString() {
   if (filters.search) params.set("search", filters.search);
   if (filters.story) params.set("story", filters.story);
   if (filters.risk && filters.risk !== "any") params.set("risk", filters.risk);
+  if (safeNumber(filters.limit) !== 50) params.set("limit", String(filters.limit));
+  if (safeNumber(filters.offset) > 0) params.set("offset", String(filters.offset));
+  const query = params.toString();
+  return query ? `?${query}` : "";
+}
+
+function siteMentorAssignmentQueryString() {
+  const params = new URLSearchParams();
+  const filters = mentorAssignmentFilters || defaultMentorAssignmentFilters();
+  const siteId = unwrap(currentData.mentorAssignments)?.scope?.siteId
+    || unwrap(currentData.siteDashboard)?.scope?.siteId
+    || unwrap(currentData.siteStudents)?.scope?.siteId
+    || "";
+  if (siteId) params.set("siteId", siteId);
+  if (filters.programId) params.set("programId", filters.programId);
+  if (filters.mentorUserId) params.set("mentorUserId", filters.mentorUserId);
+  if (filters.studentSearch) params.set("studentSearch", filters.studentSearch);
+  if (filters.status) params.set("status", filters.status);
+  if (filters.noMentor) params.set("noMentor", "true");
   if (safeNumber(filters.limit) !== 50) params.set("limit", String(filters.limit));
   if (safeNumber(filters.offset) > 0) params.set("offset", String(filters.offset));
   const query = params.toString();
@@ -4071,6 +4514,15 @@ function messageForReviewDecisionError(error, status) {
   if (status === 401) return "Sign in again before saving review feedback.";
   if (status === 403) return "This role cannot save review decisions for this submission.";
   return "Review feedback could not be saved right now.";
+}
+
+function messageForMentorAssignmentError(error, status) {
+  if (error === "active_assignment_exists") return "This student already has an active mentor assignment.";
+  if (error === "reason_required") return "Add a reason before assigning a mentor.";
+  if (error === "not_found") return "That student or mentor is outside the selected site assignment scope.";
+  if (status === 401) return "Sign in again before assigning a mentor.";
+  if (status === 403) return "This role cannot change mentor assignments for this site.";
+  return "Mentor assignment could not be saved right now.";
 }
 
 function messageForSessionStateError(error, status) {

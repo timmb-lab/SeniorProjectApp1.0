@@ -263,6 +263,15 @@ Phase 10 program teacher review workflow implementation:
 - Decisions continue to write reviews, comments, submission/progress status updates when applicable, status history, and audit events. History remains bounded and evidence/storage identifiers stay redacted.
 - The authenticated workspace renders a route-connected Review Queue section with site context, filters, summary counts, queue rows, selected submission context, bounded review history, teacher feedback controls for allowed program teachers, read-only explanations for read-only roles, and no mentor-assignment, archive retry/export, user-management, or announcement UI.
 
+Phase 11 site-scoped mentor assignment implementation:
+
+- `/api/site/mentor-assignments` is implemented as the selected-site mentor coverage and assignment route. It reuses shared site selection, active selected-site `site_users`, active student/mentor role memberships, program/cohort group membership, and bounded pagination with default limit 50 and maximum limit 100.
+- GET returns selected-site summary counts, mentor load rows, unassigned students, active assignments, filters, and permissions. It supports `siteId`, `programId`, `mentorUserId`, `studentSearch`, `status`, `noMentor`, `limit`, and `offset`.
+- POST supports the MVP mutation only: assign one active selected-site mentor to one currently unassigned active selected-site student with a required reason. It does not create users, create credentials, modify roles, silently add site memberships, reassign, or deactivate assignments.
+- The uniqueness policy is one active mentor assignment per selected-site student. Assigning a student who already has an active mentor returns conflict; reassign/deactivate are deferred until a later tested workflow.
+- `site_admin`, platform admin, legacy admin, and org admin can manage when the existing capability helper allows it; viewer and program teacher are read-only; mentor, student, and misc admin are denied from the management route. Mentor assigned-student visibility remains `/api/mentor/dashboard` and `/api/mentor/assigned`.
+- The authenticated workspace renders a route-connected Mentor Assignments section with site context, filters, summary tiles, mentor coverage rows, unassigned-student rows, active assignment rows, read-only explanations, and an assign form only when `canManageMentorAssignments` is true.
+
 ## 9. Demo Seed Direction
 
 Future synthetic sales demo data should include:

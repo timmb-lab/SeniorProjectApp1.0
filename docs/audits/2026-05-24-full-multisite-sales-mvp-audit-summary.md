@@ -131,3 +131,18 @@ After Phase 9, Phase 10 added the site-aware Program Teacher Review Workflow:
 - No mentor assignment, archive retry/export, user-management, remote migration/write/seed, deploy, domain/OAuth/Cloudflare config change, announcement, or student messaging UI was added.
 
 Updated next prompt after Phase 10: `11_mentor_assignment_workflow.txt`.
+
+## Phase 11 Update
+
+After Phase 10, Phase 11 added the site-scoped Mentor Assignment Workflow:
+
+- `/api/site/mentor-assignments` is implemented and tested as a selected-site mentor coverage route with default limit 50, max limit 100, program/mentor/student-search/status/no-mentor filters, summary counts, and no global mentor-dashboard fallback.
+- POST supports only the MVP assignment mutation: assign one active same-site mentor to one currently unassigned active same-site student with a required reason.
+- Duplicate active assignments are prevented with a conflict response; reassign and deactivate are deferred rather than shown as fake UI controls.
+- Site admin can manage assigned-site mentor assignments; platform admin, legacy admin, and org admin follow the existing capability helper; viewer and program teacher are read-only; mentor, student, and misc admin are denied from the management route.
+- Assignment responses, audit metadata, local proof output, and workspace UI avoid raw Drive IDs, storage IDs, token/password/setup credential fields, credentials, and user-management metadata.
+- The workspace renders a Figma-aligned Mentor Assignments section with filters, summary tiles, mentor coverage rows, unassigned-student rows, active assignment rows, read-only role explanations, and assign-only controls for authorized managers.
+- Successful assignment refreshes the mentor assignment section and loaded site dashboard, student directory, and open student detail state without resetting directory filters or pagination.
+- No mentor meeting mutation, archive retry/export, user-management, remote migration/write/seed, deploy, domain/OAuth/Cloudflare config change, announcement, or student messaging UI was added.
+
+Updated next prompt after Phase 11: `12_presentation_archive_reports.txt`.
