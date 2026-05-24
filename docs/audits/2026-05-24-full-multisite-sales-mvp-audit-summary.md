@@ -160,3 +160,15 @@ After Phase 11, Phase 12 added Presentation, Archive, and Readiness Worklists:
 - No presentation scheduling, check-in/check-out, archive retry/export, reporting export, user-management, remote migration/write/seed, deploy, domain/OAuth/Cloudflare config change, announcement, or student messaging UI was added.
 
 Updated next prompt after Phase 12: `13_sales_demo_runbook_and_hosted_proof.txt`.
+
+## Phase 13 Update
+
+After Phase 12, Phase 13 packaged the local fake-data MVP into a sales-demo runbook and proof plan:
+
+- Added `docs/sales/demo-runbook.md`, administrator demo script, FAQ, one-page leave-behind, technical proof checklist, preflight checklist, data dictionary, hosted-proof plan, and screenshot checklist.
+- Added `npm run prove:sales-demo:local` as a non-mutating local proof summary for the sales-demo route/screen package.
+- Added `npm run prove:sales-demo:hosted` as a read-only hosted gate that reports blocked status instead of running migrations, seed writes, deploys, or config changes.
+- Documentation labels claims as Proven locally, Fake-data demo only, Hosted proof blocked, Planned / future, or Not claimed.
+- Hosted proof remains blocked until remote D1 has migration `0011_multisite_site_role_foundation.sql` and remote fake-data proof is explicitly approved and run.
+
+Updated next prompt after Phase 13: `13B_remote_migration_0011_gate.txt`.

@@ -19,6 +19,7 @@ Prove the API dashboard paths can see the data:
 ```powershell
 npm run prove:local-admin-logins
 npm run prove:demo:local
+npm run prove:sales-demo:local
 ```
 
 ## Safety
@@ -51,3 +52,5 @@ npm run prove:demo:local
 Demo seeds no longer create announcements. Schools should continue using their existing communication systems; the legacy `announcements` table is deprecated/schema-only until a later safe cleanup phase.
 
 The seeder is deterministic and idempotent. It deletes only demo-owned rows identified by `demo-` IDs, demo `.test` domains, or explicit `DEMO_SEED` markers, then recreates the same local demo workspace shape.
+
+Sales demo docs live in `docs/sales/`. The local sales proof is a non-mutating wrapper around the current local demo proof; it summarizes the screens, route surfaces, role proof, story buckets, and redaction checks without printing credential values.

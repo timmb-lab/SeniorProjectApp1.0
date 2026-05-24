@@ -140,6 +140,8 @@ The seed creates the fake Desert Valley School District with three sites: Desert
 
 Details live in `docs/local-demo-data.md`.
 
+The internal sales demo package starts at `docs/sales/demo-runbook.md`. It includes the administrator script, FAQ, one-page leave-behind, technical proof checklist, preflight checklist, data dictionary, screenshot checklist, and hosted-proof plan. Hosted proof remains blocked until remote D1 has migration `0011_multisite_site_role_foundation.sql` and remote fake-data proof is explicitly approved and run.
+
 ## MVP Backend Foundation
 
 The first Cloudflare MVP foundation is scaffolded with Pages Functions, D1, hardened username/password auth endpoints, Google Workspace SSO fail-closed scaffold, and Google Drive evidence-repository metadata. Setup notes and live resource IDs are tracked in `docs/backend-setup.md`.

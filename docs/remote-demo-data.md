@@ -12,6 +12,18 @@ npm run prove:demo:remote
 
 The multisite seed requires the remote D1 schema to include migration `0011_multisite_site_role_foundation.sql`. Phase 5A does not run remote migrations or remote writes.
 
+Current Phase 13 hosted sales proof status is BLOCKED until the remote D1 schema has migration `0011_multisite_site_role_foundation.sql` and remote fake-data seed/proof is explicitly approved and run. Use the read-only gate:
+
+```powershell
+npm run prove:sales-demo:hosted
+```
+
+Expected blocked status while migration 0011 is missing:
+
+```text
+HOSTED_PROOF_BLOCKED_REMOTE_D1_MISSING_0011
+```
+
 ## Safety
 
 - Demo users use only `demo-student.capstone.test` and `demo-staff.capstone.test`.
@@ -37,3 +49,5 @@ The multisite seed requires the remote D1 schema to include migration `0011_mult
 Demo seeds no longer create announcements. Schools should continue using existing communication systems such as Remind, Canvas, Infinite Campus, Google Classroom, email, or district-approved tools. The legacy `announcements` table remains deprecated/schema-only until a later safe cleanup phase.
 
 The proof script verifies remote D1 counts, role scope boundaries, hosted dashboard rendering, example.com-only evidence, and absence of Drive ID or secret leaks in rendered API responses.
+
+Do not run remote migration, remote write, remote seed, or deploy from the sales-demo documentation phase.

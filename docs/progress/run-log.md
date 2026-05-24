@@ -1553,4 +1553,19 @@ Future productive runs should append compact entries that name the master-plan s
 - `local proof update`: `scripts/prove-local-demo-workspace.mjs` now proves `/api/site/operations-readiness` selected-site summary, presentation pending rows, archive ready/failed rows, high-risk attention rows, viewer read-only behavior, site-admin cross-site denial, program-teacher scoping, mentor/student denial, and no leak output. Misc denial remains covered by integration tests.
 - `validation`: focused operations readiness, workspace, and production workflow source tests passed; `npm run inventory:production-routes` regenerated inventory; `npm run check:route-inventory` passed; `npm run check:production-surfaces` passed with 91 production text surfaces scanned; `npm run test` passed with 303 passing tests and 4 expected local HTTP skips; `npm run typecheck` passed; `npm run check` passed with the same full test result; `npm run prove:demo:local` passed with non-mutating operations readiness proof; `git diff --check` passed with CRLF normalization warnings only.
 - `blockers`: remote D1 still lacks migration `0011_multisite_site_role_foundation.sql`, so no remote migration, remote write/seed, deploy, or hosted proof was run.
+- `commit/push status`: committed and pushed as dc66a9f feat: add presentation archive readiness worklists.
+
+## 2026-05-24 PT - Phase 13 Sales Demo Runbook And Hosted Proof Plan
+
+- `automation ID`: manual Codex Phase 13 pass.
+- `lane`: multisite-sales-demo / runbook and proof packaging / hosted gate planning.
+- `starting HEAD`: `dc66a9fab39b406c3df4a8e9d53657ee52520a5f`.
+- `selected slice`: Package the current local fake-data MVP into administrator-ready sales demo docs and read-only proof gates, without product feature changes, route behavior changes, schema changes, permission changes, seed data changes, remote migration, remote write/seed, deploy, domain, OAuth, Cloudflare config, user creation, credential creation, announcement, or screenshot proof claims.
+- `phase12 hygiene fixes`: updated the Phase 12 manifest `endingHead` and run-log commit/push status to `committed and pushed as dc66a9f feat: add presentation archive readiness worklists`.
+- `docs created`: sales demo runbook, administrator demo script, administrator FAQ, one-page leave-behind, technical proof checklist, demo preflight checklist, demo data dictionary, hosted-proof plan, and screenshot checklist.
+- `proof scripts`: added `prove:sales-demo:local` as a non-mutating local proof summary and `prove:sales-demo:hosted` as a read-only hosted schema gate that reports blocker status.
+- `claims policy`: all sales docs distinguish Proven locally, Fake-data demo only, Hosted proof blocked, Planned / future, and Not claimed; docs avoid FERPA certification, real-student-data, production pilot, billing, tenant-owned Drive, and hosted-readiness overclaims.
+- `hosted status`: blocked until remote D1 has migration `0011_multisite_site_role_foundation.sql` and remote fake-data seed/proof is explicitly approved and run.
+- `validation`: focused sales-demo docs test passed; `npm run check:production-surfaces` passed with 91 production text surfaces scanned; `npm run typecheck` passed; `npm run test` passed with 309 passing tests and 4 expected local HTTP skips; `npm run check` passed with the same full test result; `npm run prove:demo:local` passed; `npm run prove:sales-demo:local` passed and reported Proven locally; `npm run prove:sales-demo:hosted` passed as a read-only blocker gate with `HOSTED_PROOF_BLOCKED_REMOTE_D1_MISSING_0011`; `git diff --check` passed with CRLF normalization warnings only.
+- `blockers`: hosted proof remains blocked by remote migration/seed/proof gates; no remote work was run.
 - `commit/push status`: pending final commit and push.

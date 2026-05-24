@@ -1,0 +1,140 @@
+{
+  "phase": "13",
+  "name": "sales-demo-runbook-hosted-proof",
+  "date": "2026-05-24",
+  "startingHead": "dc66a9fab39b406c3df4a8e9d53657ee52520a5f",
+  "endingHead": null,
+  "phase12HygieneFixes": [
+    "Updated docs/progress/runs/2026-05-24-presentation-archive-reports.json endingHead to dc66a9fab39b406c3df4a8e9d53657ee52520a5f.",
+    "Updated docs/progress/run-log.md Phase 12 commit/push status to committed and pushed as dc66a9f feat: add presentation archive readiness worklists."
+  ],
+  "docsCreated": [
+    "docs/sales/demo-runbook.md",
+    "docs/sales/admin-demo-script.md",
+    "docs/sales/admin-faq.md",
+    "docs/sales/demo-one-page-leavebehind.md",
+    "docs/sales/technical-proof-checklist.md",
+    "docs/sales/demo-preflight-checklist.md",
+    "docs/sales/demo-data-dictionary.md",
+    "docs/sales/hosted-proof-plan.md",
+    "docs/sales/demo-screenshot-checklist.md"
+  ],
+  "proofScriptsAdded": [
+    "scripts/prove-sales-demo-local.mjs",
+    "scripts/prove-sales-demo-hosted.mjs"
+  ],
+  "packageScriptsAdded": [
+    "prove:sales-demo:local",
+    "prove:sales-demo:hosted"
+  ],
+  "localProofStatus": {
+    "status": "Proven locally",
+    "command": "npm run prove:sales-demo:local",
+    "scope": [
+      "site dashboard",
+      "student directory",
+      "student detail/timeline",
+      "review queue",
+      "mentor assignments",
+      "operations readiness",
+      "viewer read-only",
+      "program teacher scoping",
+      "no announcements",
+      "redaction"
+    ],
+    "mutating": false
+  },
+  "hostedProofStatus": {
+    "status": "Hosted proof blocked",
+    "command": "npm run prove:sales-demo:hosted",
+    "scriptBehavior": "Read-only remote D1 schema gate; reports blocker status and never runs migration, seed, deploy, or remote write."
+  },
+  "hostedBlocker": "Remote D1 still lacks migration 0011_multisite_site_role_foundation.sql. Hosted proof is BLOCKED until migration 0011 and remote fake-data proof are explicitly approved and run.",
+  "salesDemoReadiness": {
+    "localSalesDemo": "Go for fake-data local administrator demo after reset/proof.",
+    "hostedSalesDemo": "No-go until remote migration 0011 and remote proof gates pass.",
+    "realStudentPilot": "No-go until legal/security/data ownership/SSO/onboarding gates are approved."
+  },
+  "claimsPolicy": [
+    "Proven locally",
+    "Fake-data demo only",
+    "Hosted proof blocked",
+    "Planned / future",
+    "Not claimed"
+  ],
+  "routeSurfaceProofMatrix": [
+    {
+      "screen": "Site Dashboard",
+      "routes": ["/api/site/dashboard"],
+      "tests": ["tests/site-dashboard.integration.test.mjs"],
+      "localProof": "npm run prove:demo:local",
+      "hostedStatus": "BLOCKED"
+    },
+    {
+      "screen": "Student Directory",
+      "routes": ["/api/site/students"],
+      "tests": ["tests/site-students.integration.test.mjs"],
+      "localProof": "npm run prove:demo:local",
+      "hostedStatus": "BLOCKED"
+    },
+    {
+      "screen": "Student Detail / Timeline",
+      "routes": ["/api/site/students/:studentId", "/api/site/students/:studentId/timeline"],
+      "tests": ["tests/site-student-detail.integration.test.mjs"],
+      "localProof": "npm run prove:demo:local",
+      "hostedStatus": "BLOCKED"
+    },
+    {
+      "screen": "Review Queue",
+      "routes": ["/api/site/review-queue", "/api/reviews/:submissionId/decision", "/api/reviews/:submissionId/history"],
+      "tests": ["tests/site-review-queue.integration.test.mjs"],
+      "localProof": "npm run prove:demo:local",
+      "hostedStatus": "BLOCKED"
+    },
+    {
+      "screen": "Mentor Assignments",
+      "routes": ["/api/site/mentor-assignments"],
+      "tests": ["tests/site-mentor-assignments.integration.test.mjs"],
+      "localProof": "npm run prove:demo:local",
+      "hostedStatus": "BLOCKED"
+    },
+    {
+      "screen": "Operations Readiness",
+      "routes": ["/api/site/operations-readiness"],
+      "tests": ["tests/site-operations-readiness.integration.test.mjs"],
+      "localProof": "npm run prove:demo:local",
+      "hostedStatus": "BLOCKED"
+    }
+  ],
+  "remoteMigrationGate": [
+    "Apply migration 0011_multisite_site_role_foundation.sql only in a dedicated approved remote migration phase.",
+    "Run read-only remote schema proof.",
+    "Run remote seed dry-run.",
+    "Run remote seed write only with explicit approval.",
+    "Run hosted smoke/browser proof with fake .test credentials only."
+  ],
+  "testsAddedOrUpdated": [
+    "tests/sales-demo-runbook.test.mjs",
+    "package.json script alias checks"
+  ],
+  "validation": {
+    "status": "passed",
+    "commands": [
+      "node --test tests/sales-demo-runbook.test.mjs passed.",
+      "npm run check:production-surfaces passed with 91 production text surfaces scanned.",
+      "npm run typecheck passed.",
+      "npm run test passed with 309 passing tests and 4 expected local HTTP skips.",
+      "npm run check passed.",
+      "npm run prove:demo:local passed.",
+      "npm run prove:sales-demo:local passed and reported Proven locally.",
+      "npm run prove:sales-demo:hosted passed as a read-only blocker gate with HOSTED_PROOF_BLOCKED_REMOTE_D1_MISSING_0011.",
+      "git diff --check passed with CRLF normalization warnings only."
+    ]
+  },
+  "blockers": [
+    "Hosted proof is blocked until remote D1 migration 0011 is applied and remote fake-data seed/proof is approved.",
+    "No screenshots were generated in Phase 13; only a checklist was created.",
+    "No remote migration, remote write, remote seed, deploy, or Cloudflare/domain/OAuth config change was run."
+  ],
+  "nextRecommendedPrompt": "13B_remote_migration_0011_gate.txt"
+}
