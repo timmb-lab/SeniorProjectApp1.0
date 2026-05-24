@@ -17,10 +17,12 @@ test("remote migration 0011 gate docs distinguish schema and seed blockers", () 
   assert.match(hostedPlan, /0011_multisite_site_role_foundation\.sql/);
   assert.match(hostedPlan, /REMOTE_MIGRATION_0011_APPLIED_REMOTE_DEMO_SEED_NOT_RUN/);
   assert.match(hostedPlan, /HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING/);
+  assert.match(hostedPlan, /HOSTED_PROOF_READY_FAKE_DATA_BROWSER_PROOF_PENDING/);
   assert.match(hostedPlan, /HOSTED_PROOF_BLOCKED_REMOTE_D1_MISSING_0011/);
   assert.match(checklist, /remote migration 0011 gate/i);
-  assert.match(checklist, /HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING/);
+  assert.match(checklist, /HOSTED_PROOF_READY_FAKE_DATA_BROWSER_PROOF_PENDING/);
   assert.match(remoteDemo, /No remote demo seed was run in Phase 13B/i);
+  assert.match(remoteDemo, /Phase 13C remote seed status/i);
 });
 
 test("remote migration 0011 gate manifest is present", () => {
@@ -56,7 +58,9 @@ test("hosted proof script reports the post-schema remote seed blocker", () => {
   const script = read("scripts/prove-sales-demo-hosted.mjs");
   assert.match(script, /HOSTED_PROOF_BLOCKED_REMOTE_D1_MISSING_0011/);
   assert.match(script, /HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING/);
+  assert.match(script, /HOSTED_PROOF_READY_FAKE_DATA_BROWSER_PROOF_PENDING/);
   assert.match(script, /13C_remote_demo_seed_gate\.txt/);
+  assert.match(script, /14_hosted_browser_proof_and_screenshot_gate\.txt/);
   assert.match(script, /remoteWritesPerformed:\s*false/);
   assert.match(script, /remoteSeedPerformed:\s*false/);
   assert.match(script, /deployPerformed:\s*false/);
@@ -83,8 +87,8 @@ test("remote migration gate docs and scripts avoid secret-looking values and hos
   ]) {
     assert.doesNotMatch(combined, pattern);
   }
-  assert.doesNotMatch(combined, /hosted proof passed/i);
-  assert.match(combined, /remote seed was not run|remoteSeedPerformed:\s*false/i);
+  assert.doesNotMatch(combined, /hosted browser proof passed/i);
+  assert.match(combined, /browser proof pending|remoteSeedPerformed:\s*false/i);
 });
 
 function read(file) {

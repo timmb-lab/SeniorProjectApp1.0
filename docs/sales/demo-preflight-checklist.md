@@ -23,6 +23,15 @@
 - [ ] Confirm no credential files are visible.
 - [ ] Confirm a fallback copy of `docs/sales/admin-demo-script.md` and `docs/sales/demo-one-page-leavebehind.md` is open or ready.
 
+## Hosted Data/API Proof
+
+- [ ] Run `npm run prove:remote:migration-0011`.
+- [ ] Run `npm run prove:demo:remote`.
+- [ ] Run `npm run prove:sales-demo:hosted`.
+- [ ] Confirm hosted status is `HOSTED_PROOF_READY_FAKE_DATA_BROWSER_PROOF_PENDING`.
+- [ ] Confirm no screenshots are claimed unless Phase 14 browser artifacts exist.
+- [ ] Confirm generated remote staff credentials are not shown; use only an approved fake hosted credential path for browser walkthroughs.
+
 ## Persona Checks
 
 - [ ] Avery Administration can sign in.
@@ -59,5 +68,5 @@
 ## Fallback Ready
 
 - [ ] If local screen fails, use `docs/sales/technical-proof-checklist.md`.
-- [ ] If hosted/prod is asked, say hosted proof is blocked until remote D1 migration 0011.
+- [ ] If hosted/prod is asked, say fake-data API proof is ready but browser/screenshot proof is still pending.
 - [ ] If compliance is asked, say compliance certification is not claimed.

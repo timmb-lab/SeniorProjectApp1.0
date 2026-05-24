@@ -1587,4 +1587,24 @@ Future productive runs should append compact entries that name the master-plan s
 - `remote seed/deploy status`: no remote seed, reset, deploy, domain/OAuth/Cloudflare config change, user creation, or credential creation was run.
 - `validation`: focused remote migration gate and sales demo docs tests passed; `npm run typecheck` passed; `npm run check:production-surfaces` passed with 91 production text surfaces scanned; `npm run test` passed with 314 passing tests and 4 expected local HTTP skips; `npm run check` passed with the same full test result; `npm run prove:sales-demo:hosted` passed as a read-only blocker gate with `HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING`; `npm run prove:remote:migration-0011` passed with `REMOTE_MIGRATION_0011_ALREADY_PRESENT`; `git diff --check` passed with CRLF normalization warnings only.
 - `blockers`: hosted proof remains blocked by missing remote fake-data seed/proof.
+- `commit/push status`: committed and pushed as ae1ac45 ops: apply remote migration 0011 gate.
+
+## 2026-05-24 PT - Phase 13C Remote Demo Seed Gate
+
+- `automation ID`: manual Codex Phase 13C pass.
+- `lane`: hosted sales-demo gate / remote fake-data seed / read-only hosted API proof.
+- `starting HEAD`: `ae1ac45eaaf009606770e43f4c40e4474bce0667`.
+- `phase13B hygiene fixes`: updated the Phase 13B manifest ending head to `ae1ac45eaaf009606770e43f4c40e4474bce0667` and run-log commit/push status to `committed and pushed as ae1ac45 ops: apply remote migration 0011 gate`.
+- `remote schema preflight`: `npm run prove:remote:migration-0011` passed with `REMOTE_MIGRATION_0011_ALREADY_PRESENT`; `npm run prove:sales-demo:hosted` started at `HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING`.
+- `seed safety`: reviewed `scripts/seed-remote-demo-workspace.mjs` for dry-run support, explicit `SEED_REMOTE_DEMO` confirmation, remote-only target, demo-owned cleanup, Bryan/real-user/config preservation, fake `.test` domains only, no physical Drive file creation, ignored `.secrets` credential output, no announcement creation, no migration, no deploy, and no reset path used.
+- `dry-run`: `npm run seed:demo:remote:dry-run` passed against remote `senior-capstone-db`, targeted only demo-owned rows, planned 3 fake sites, 370 fake students, all requested story buckets, 0 generated announcements, example.com evidence metadata, and no credential values.
+- `seed write`: `npm run seed:demo:remote` ran through the existing confirmation-gated alias only. It did not request reset. It seeded 3 fake sites, 370 fake students, 460 fake demo user records, 320 mentor assignments, 345 submissions, 938 example.com evidence metadata rows, 367 comments, 268 reviews, 200 mentor meetings, 67 presentation slots, 29 export rows, 0 announcements, 0 student credentials, and preserved Bryan/real-user/config baselines.
+- `remote proof`: `npm run prove:demo:remote` passed remote D1 shape and hosted read-only API checks for site dashboard, student directory, student detail/timeline, review queue, mentor assignments, operations readiness, example.com evidence, and no Drive ID/secret leaks.
+- `hosted status after`: `npm run prove:sales-demo:hosted` now reports `HOSTED_PROOF_READY_FAKE_DATA_BROWSER_PROOF_PENDING`; `npm run prove:remote:migration-0011` still reports `REMOTE_MIGRATION_0011_ALREADY_PRESENT` and `REMOTE_DEMO_SEED_PRESENT`.
+- `credential handling`: generated remote staff credentials were written only to ignored `.secrets/demo-remote-staff-logins-*.json`; no values were printed, committed, pasted, or documented. Hosted API proof used existing fake hosted credentials because generated remote staff credentials were rejected as invalid credentials.
+- `screenshots`: no screenshots or browser walkthrough artifacts were generated in Phase 13C; screenshot/browser proof remains Phase 14.
+- `out of scope confirmed`: no remote reset, account reset, deploy, domain/DNS, OAuth, Cloudflare env/config change, manual user creation, real student data, real Drive file creation, or announcements were run.
+- `docs/tests/scripts`: updated hosted proof docs, runbook/preflight/remote data docs, proof status scripts, and focused 13C tests; created `docs/progress/runs/2026-05-24-remote-demo-seed-gate.json`.
+- `validation`: focused 13C docs/proof tests passed with 15 passing tests; `npm run test` passed with 318 passing tests and 4 expected local HTTP skips; `npm run typecheck` passed; `npm run check:production-surfaces` passed with 91 production text surfaces scanned; `npm run check` passed; remote preflight/postflight proof commands passed; post-seed dry-run passed as a no-write demo-owned refresh plan; `git diff --check` passed with CRLF normalization warnings only.
+- `blockers`: browser/screenshot proof pending; generated remote staff persona login path needs Phase 14 handling before claiming persona browser readiness.
 - `commit/push status`: pending.

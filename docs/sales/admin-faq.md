@@ -42,7 +42,7 @@ Hosted proof, remote migration 0011, remote fake-data seed/proof, SSO policy, le
 
 ## What is currently local-only versus hosted?
 
-Proven locally: the multisite demo routes and workspace screens. Hosted proof blocked: remote D1 still needs migration 0011 and an approved remote fake-data proof pass before hosted demo readiness can be claimed.
+Proven locally: the multisite demo routes and workspace screens. Hosted fake-data API/data proof is also ready after Phase 13C. Browser persona proof and screenshots remain pending before hosted visual readiness can be claimed.
 
 ## What happens if a school stops using it?
 

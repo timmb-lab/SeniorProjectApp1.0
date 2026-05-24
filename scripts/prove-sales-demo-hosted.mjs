@@ -20,6 +20,7 @@ const REQUIRED_0011_ROLES = Object.freeze(["platform_admin", "org_admin", "site_
 const BLOCKED_MISSING_0011 = "HOSTED_PROOF_BLOCKED_REMOTE_D1_MISSING_0011";
 const BLOCKED_REMOTE_SEED = "HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING";
 const BLOCKED_READ_ACCESS = "HOSTED_PROOF_BLOCKED_REMOTE_D1_READ_ACCESS_REQUIRED";
+const READY_FAKE_DATA_BROWSER_PENDING = "HOSTED_PROOF_READY_FAKE_DATA_BROWSER_PROOF_PENDING";
 
 function parseArgs(values = process.argv.slice(2)) {
   const parsed = {
@@ -107,18 +108,20 @@ async function runHostedSalesDemoProof(args = {}, options = {}) {
     return {
       ok: true,
       proof: "sales_demo_hosted",
-      hostedProofPassed: false,
-      hostedProofStatus: "HOSTED_PROOF_SCHEMA_AND_REMOTE_SEED_READY_BROWSER_PROOF_STILL_REQUIRED",
-      claimStatus: "Hosted proof blocked",
+      hostedProofPassed: true,
+      hostedProofStatus: READY_FAKE_DATA_BROWSER_PENDING,
+      claimStatus: "Hosted fake-data proof ready; browser proof pending",
       repo,
       baseUrl,
       remoteSchema0011Ready: true,
       remoteDemoSeedPresent: true,
       remoteDemoSeed,
+      browserProofGenerated: false,
+      screenshotProofGenerated: false,
       remoteWritesPerformed: false,
       remoteSeedPerformed: false,
       deployPerformed: false,
-      nextGate: "Run an explicitly approved remote fake-data seed/proof phase before claiming hosted demo readiness.",
+      nextGate: "14_hosted_browser_proof_and_screenshot_gate.txt",
     };
   } catch (error) {
     if (error instanceof DemoSeedError) {
@@ -240,6 +243,7 @@ export {
   BLOCKED_MISSING_0011,
   BLOCKED_REMOTE_SEED,
   BLOCKED_READ_ACCESS,
+  READY_FAKE_DATA_BROWSER_PENDING,
   parseArgs,
   runHostedSalesDemoProof,
 };

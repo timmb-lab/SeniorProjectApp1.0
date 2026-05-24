@@ -3,7 +3,7 @@
   "name": "remote-migration-0011-gate",
   "date": "2026-05-24",
   "startingHead": "17e65a69ca77faa55e24f2e7e2152915598aa79a",
-  "endingHead": null,
+  "endingHead": "ae1ac45eaaf009606770e43f4c40e4474bce0667",
   "phase13HygieneFixes": [
     "Updated docs/progress/runs/2026-05-24-sales-demo-runbook-hosted-proof.json endingHead to 17e65a69ca77faa55e24f2e7e2152915598aa79a.",
     "Updated docs/progress/run-log.md Phase 13 commit/push status to committed and pushed as 17e65a6 docs: add sales demo runbook and proof plan."

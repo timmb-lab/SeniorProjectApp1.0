@@ -18,7 +18,7 @@ This demo is a fake-data demo only. It is not a real student-data pilot, hosted 
 
 - Proven locally: automated local seed/proof/tests currently verify this behavior.
 - Fake-data demo only: the demo uses synthetic `.test` users and seeded records.
-- Hosted proof blocked: remote hosted proof is blocked until remote D1 has migration `0011_multisite_site_role_foundation.sql` and remote fake-data proof is explicitly approved and run.
+- Hosted fake-data API proof ready: Phase 13C seeded the remote fake-data workspace and proved remote D1 plus hosted read-only API checks. Browser/screenshot proof remains pending.
 - Planned / future: a useful next capability, but not built or proven in this phase.
 - Not claimed: do not state or imply this in sales conversations.
 
@@ -42,12 +42,12 @@ This demo is a fake-data demo only. It is not a real student-data pilot, hosted 
 
 | Area | Claim label | Safe wording |
 | --- | --- | --- |
-| Hosted demo readiness | Hosted proof blocked | "The hosted proof is gated until remote D1 has migration 0011 and remote fake-data proof is run." |
+| Hosted demo readiness | API/data proof ready; browser pending | "The hosted fake-data API proof is ready, and screenshots/persona browser proof are the next gate." |
 | Real student data readiness | Not claimed | "This uses fake data only today." |
 | Billing/subscription readiness | Not claimed | "Billing is outside this MVP demo." |
 | Tenant-owned Drive migration | Planned / future | "Current proof avoids raw storage IDs; tenant-owned storage policy is future work unless separately proven." |
 | Real school onboarding | Planned / future | "A pilot would need legal, security, SSO, data ownership, and onboarding approval." |
-| Remote seed write | Hosted proof blocked | "Remote seed writes require an explicit future gate." |
+| Remote seed write | Complete for fake data | "The Phase 13C remote seed used the confirmation-gated fake-data seed path only; it was not a pilot seed." |
 | FERPA/compliance certification | Not claimed | "This demo is designed around privacy-aware roles and redaction, but it is not a compliance certification." |
 | Archive retry/export mutation UI | Planned / future | "Archive retry/export controls are not built in this phase." |
 | Presentation scheduling mutation UI | Planned / future | "Presentation scheduling/check-in workflows remain separate from the Phase 12 worklists." |
@@ -147,8 +147,8 @@ Search by these prefixes in the Students section or use them in worklist filters
 - Page: `workspace.html`.
 - Click: sign in with the fake site-administration account.
 - Point out: "This is a school-operations workspace for capstone visibility."
-- Say: "This is fake data only and proven locally today."
-- Do not claim: hosted proof, real student readiness, or compliance certification.
+- Say: "This is fake data only. Local proof and hosted API/data proof are complete; browser screenshots are still pending."
+- Do not claim: hosted browser proof, real student readiness, or compliance certification.
 - Fallback: if login fails, run `npm run prove:sales-demo:local`, then use this runbook and the one-page leave-behind to continue the story honestly.
 
 ### 2. Site Dashboard
@@ -235,7 +235,7 @@ Search by these prefixes in the Students section or use them in worklist filters
 
 ### 10. Close With Next Gates
 
-- Say: "The local fake-data MVP is ready to demo. Hosted proof is blocked until remote D1 migration 0011 and remote fake-data proof are explicitly approved and run."
+- Say: "The local fake-data MVP is ready to demo. Hosted fake-data API proof is ready, and browser/screenshot proof is the next gate."
 - Do not claim: pilot readiness or compliance certification.
 
 ## Role-Based Demo Paths
@@ -292,7 +292,7 @@ Search by these prefixes in the Students section or use them in worklist filters
 | 3:45-4:45 | Review Queue | IT Teacher | "Teachers see scoped work and can review submitted items." |
 | 4:45-5:45 | Mentor Assignments | Avery | Filter missing mentors: "Administration can see coverage gaps." |
 | 5:45-6:30 | Operations | Avery | Filter archive failed/presentation pending: "Closeout worklists show who needs staff follow-up." |
-| 6:30-7:00 | Close | Avery | "This is locally proven fake data. Hosted proof is blocked until remote migration 0011 and remote proof are approved." |
+| 6:30-7:00 | Close | Avery | "This is fake data. Local proof is complete, hosted API/data proof is ready, and browser screenshots are still pending." |
 
 ## 15-Minute Deeper Demo
 
@@ -307,7 +307,7 @@ Search by these prefixes in the Students section or use them in worklist filters
 | 10:00-12:00 | Operations | Avery | Show Presentation Pending, Archive Failed, Archive Ready, High Risk filters. Open a row detail. |
 | 12:00-13:00 | Viewer | Valeria Viewer | Show read-only marker and absent mutation controls. |
 | 13:00-14:00 | Mentor | Primary Mentor | Show assigned-student-only view. |
-| 14:00-15:00 | Caveats / Next Gate | Avery | Say hosted proof is blocked by remote D1 migration 0011; next step is a gated remote schema/seed/proof phase. |
+| 14:00-15:00 | Caveats / Next Gate | Avery | Say hosted fake-data API proof is ready; next step is browser/persona/screenshot proof without exposing credentials. |
 
 ## Talking Points For Administrators
 
@@ -338,23 +338,23 @@ Search by these prefixes in the Students section or use them in worklist filters
 - Local dev server fails: restart with `npm run dev`; use the runbook, one-page leave-behind, and technical proof checklist while it starts.
 - Section loads slowly: pause on the current screen and explain the route/proof mapping; refresh once.
 - Browser state looks wrong: use a new private window and avoid showing credential files.
-- Hosted question comes up: say, "Hosted proof is blocked until remote D1 has migration 0011 and remote fake-data proof is explicitly approved."
+- Hosted question comes up: say, "Hosted fake-data API proof is ready; browser and screenshot proof are still pending."
 
 ## Technical Proof Matrix
 
 | Demo screen | Route(s) | Test file | Local proof | Hosted status | Notes |
 | --- | --- | --- | --- | --- | --- |
-| Site Dashboard | `/api/site/dashboard` | `tests/site-dashboard.integration.test.mjs` | `npm run prove:demo:local` | Hosted proof blocked | Selected-site 250/60/60 proof. |
-| Student Directory | `/api/site/students` | `tests/site-students.integration.test.mjs` | `npm run prove:demo:local` | Hosted proof blocked | Filters, pagination, story/risk, no cross-site leakage. |
-| Student Detail | `/api/site/students/:studentId` | `tests/site-student-detail.integration.test.mjs` | `npm run prove:demo:local` | Hosted proof blocked | Bounded sections, redaction, role scope. |
-| Timeline | `/api/site/students/:studentId/timeline` | `tests/site-student-detail.integration.test.mjs` | `npm run prove:demo:local` | Hosted proof blocked | Rich Timeline Demo event types. |
-| Review Queue | `/api/site/review-queue` | `tests/site-review-queue.integration.test.mjs` | `npm run prove:demo:local` | Hosted proof blocked | Mutation proof is integration-tested. |
-| Mentor Assignments | `/api/site/mentor-assignments` | `tests/site-mentor-assignments.integration.test.mjs` | `npm run prove:demo:local` | Hosted proof blocked | Assignment mutation proof is integration-tested. |
-| Operations Readiness | `/api/site/operations-readiness` | `tests/site-operations-readiness.integration.test.mjs` | `npm run prove:demo:local` | Hosted proof blocked | Presentation/archive/readiness worklists. |
-| Viewer read-only | Multiple site routes | `tests/site-aware-permissions.test.mjs`, workspace tests | `npm run prove:demo:local` | Hosted proof blocked | Mutation permissions false. |
-| No announcements | Route inventory/workspace/seed tests | `tests/production-workflow-source.test.mjs`, `tests/workspace-app.test.mjs` | `npm run prove:demo:local` | Hosted proof blocked | No active announcements UI/routes/seeds. |
-| Redaction | All site routes | Integration and source tests | `npm run prove:sales-demo:local` | Hosted proof blocked | No raw Drive/storage/secrets in responses. |
-| Route inventory | Generated inventory | `tests/production-workflow-source.test.mjs` | `npm run check:route-inventory` | Hosted proof blocked | Inventory includes current site routes. |
+| Site Dashboard | `/api/site/dashboard` | `tests/site-dashboard.integration.test.mjs` | `npm run prove:demo:local` | Hosted API proven; browser pending | Selected-site 250/60/60 proof. |
+| Student Directory | `/api/site/students` | `tests/site-students.integration.test.mjs` | `npm run prove:demo:local` | Hosted API proven; browser pending | Filters, pagination, story/risk, no cross-site leakage. |
+| Student Detail | `/api/site/students/:studentId` | `tests/site-student-detail.integration.test.mjs` | `npm run prove:demo:local` | Hosted API proven; browser pending | Bounded sections, redaction, role scope. |
+| Timeline | `/api/site/students/:studentId/timeline` | `tests/site-student-detail.integration.test.mjs` | `npm run prove:demo:local` | Hosted API proven; browser pending | Rich Timeline Demo event types. |
+| Review Queue | `/api/site/review-queue` | `tests/site-review-queue.integration.test.mjs` | `npm run prove:demo:local` | Hosted API proven; browser pending | Mutation proof is integration-tested. |
+| Mentor Assignments | `/api/site/mentor-assignments` | `tests/site-mentor-assignments.integration.test.mjs` | `npm run prove:demo:local` | Hosted API proven; browser pending | Assignment mutation proof is integration-tested. |
+| Operations Readiness | `/api/site/operations-readiness` | `tests/site-operations-readiness.integration.test.mjs` | `npm run prove:demo:local` | Hosted API proven; browser pending | Presentation/archive/readiness worklists. |
+| Viewer read-only | Multiple site routes | `tests/site-aware-permissions.test.mjs`, workspace tests | `npm run prove:demo:local` | D1 persona proven; browser pending | Mutation permissions false. |
+| No announcements | Route inventory/workspace/seed tests | `tests/production-workflow-source.test.mjs`, `tests/workspace-app.test.mjs` | `npm run prove:demo:local` | Remote proven | No active announcements UI/routes/seeds. |
+| Redaction | All site routes | Integration and source tests | `npm run prove:sales-demo:local` | Hosted API proven; browser pending | No raw Drive/storage/secrets in responses. |
+| Route inventory | Generated inventory | `tests/production-workflow-source.test.mjs` | `npm run check:route-inventory` | No route changes | Inventory includes current site routes. |
 
 ## Role Access Matrix
 
@@ -373,8 +373,8 @@ Search by these prefixes in the Students section or use them in worklist filters
 ## Known Caveats
 
 - Remote D1 still lacks migration `0011_multisite_site_role_foundation.sql`.
-- Hosted proof is blocked.
-- Remote demo seed 5B is blocked until a gated remote phase.
+- Hosted fake-data API proof is ready.
+- Browser/persona/screenshot proof remains pending for Phase 14.
 - Archive retry/export mutation UI is deferred.
 - Presentation scheduling/check-in/check-out mutation UI is not part of Operations.
 - Mentor reassign/deactivate is deferred.
@@ -386,8 +386,8 @@ Search by these prefixes in the Students section or use them in worklist filters
 
 1. Apply remote migration `0011_multisite_site_role_foundation.sql` in a dedicated approved phase.
 2. Run read-only remote schema proof.
-3. Run remote seed dry-run.
-4. Run remote seed write only with explicit approval.
+3. Re-run remote seed dry-run only if a future seed refresh is explicitly approved.
+4. Do not run another remote seed write without a new approval gate.
 5. Run hosted smoke proof using fake `.test` credentials only.
 6. Capture screenshots manually or through a script and label them with date/environment.
 7. Run final no-secret scan.
@@ -405,7 +405,7 @@ Do:
 - Show no announcements/student messaging.
 - Show read-only viewer mode.
 - Show story students.
-- Say hosted proof is blocked until migration 0011.
+- Say hosted fake-data API proof is ready and browser/screenshot proof is pending.
 
 Do not:
 
@@ -415,7 +415,7 @@ Do not:
 - Show passwords.
 - Show Drive IDs or secrets.
 - Overpromise integrations.
-- Claim hosted proof passed.
+- Claim hosted browser proof passed.
 
 ## Post-Demo Follow-Up Checklist
 
@@ -426,16 +426,16 @@ Do not:
 - Note approval/security concerns.
 - Send the one-page summary.
 - Schedule a technical review if needed.
-- Decide whether to proceed to hosted proof gate.
+- Proceed to the hosted browser proof and screenshot gate.
 
 ## Go / No-Go Table
 
 | Area | Current decision | Reason | Next gate |
 | --- | --- | --- | --- |
 | Local sales demo | Go | Proven locally with fake data. | Run reset/proof before demo. |
-| Hosted sales demo | No-go | Hosted proof blocked by remote D1 migration 0011 and remote seed/proof gate. | `13B_remote_migration_0011_gate.txt`. |
-| Remote D1 migration 0011 | No-go in Phase 13 | Remote migrations are not allowed in this phase. | Dedicated approved migration gate. |
-| Remote seed 5B | No-go in Phase 13 | Remote writes are not allowed in this phase. | Seed dry-run, explicit approval, write gate. |
+| Hosted sales demo | Partial go | Fake-data API proof is ready; browser/screenshot proof is still pending. | `14_hosted_browser_proof_and_screenshot_gate.txt`. |
+| Remote D1 migration 0011 | Complete | Migration was applied and remains proven. | No further migration without a dedicated gate. |
+| Remote seed 5B | Complete for fake data | Phase 13C seeded the fake-data workspace through the approved confirmation gate. | No reseed without a new approved gate. |
 | District pilot | No-go | Needs hosted proof, legal/security review, data policy, SSO, onboarding. | Pilot readiness plan. |
 | Real student data pilot | No-go | No real student data approval. | Legal/security/data governance approval. |
 | FERPA/legal review | Required | Not claimed as complete. | District/legal review. |

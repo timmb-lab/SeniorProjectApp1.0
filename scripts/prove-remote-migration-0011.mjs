@@ -22,6 +22,7 @@ const READY_STATUS = "REMOTE_MIGRATION_0011_ALREADY_PRESENT";
 const MISSING_STATUS = "REMOTE_MIGRATION_0011_NOT_APPLIED_SAFETY_STOP";
 const READ_ACCESS_STATUS = "REMOTE_MIGRATION_0011_READ_ACCESS_REQUIRED";
 const SEED_MISSING_STATUS = "HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING";
+const READY_FAKE_DATA_BROWSER_PENDING = "HOSTED_PROOF_READY_FAKE_DATA_BROWSER_PROOF_PENDING";
 
 function parseArgs(values = process.argv.slice(2)) {
   for (const value of values) {
@@ -118,7 +119,7 @@ async function runRemoteMigration0011Proof(_args = {}, options = {}) {
       foreignKeyViolations: foreignKeyRows.length,
       remoteDemoSeedStatus: remoteDemoSeed.present ? "REMOTE_DEMO_SEED_PRESENT" : "REMOTE_DEMO_SEED_NOT_RUN",
       hostedProofStatus: remoteDemoSeed.present
-        ? "HOSTED_PROOF_SCHEMA_AND_REMOTE_SEED_READY_BROWSER_PROOF_STILL_REQUIRED"
+        ? READY_FAKE_DATA_BROWSER_PENDING
         : SEED_MISSING_STATUS,
       remoteDemoSeed,
       readOnly: true,
@@ -126,7 +127,7 @@ async function runRemoteMigration0011Proof(_args = {}, options = {}) {
       remoteSeedPerformed: false,
       deployPerformed: false,
       nextGate: remoteDemoSeed.present
-        ? "14_final_hardening_sales_demo_closeout.txt"
+        ? "14_hosted_browser_proof_and_screenshot_gate.txt"
         : "13C_remote_demo_seed_gate.txt",
     };
   } catch (error) {

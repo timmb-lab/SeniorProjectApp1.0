@@ -15,7 +15,7 @@
 | 3:45-4:45 | Review Queue | Switch to `teacher-it-01@demo-staff.capstone.test`. "Teachers see only their scoped work and can review submitted items." |
 | 4:45-5:45 | Mentor Assignments | Back as Administration. "This shows missing mentor coverage and lets authorized school staff resolve it." |
 | 5:45-6:30 | Operations | Filter `archive_failed` or `presentation_pending`. "This is the closeout list: who is ready, who is blocked, who needs follow-up." |
-| 6:30-7:00 | Close | "Everything shown is fake-data local proof today. Hosted proof is blocked until remote D1 migration 0011 and remote fake-data proof are approved." |
+| 6:30-7:00 | Close | "Everything shown is fake data. Local proof and hosted API/data proof are ready; browser screenshots are still pending." |
 
 ## 15-Minute Deeper Demo
 
@@ -51,7 +51,7 @@
 - "This uses fake data today."
 - "This is not replacing school messaging or Canvas."
 - "This is designed around private evidence and audit-sensitive operations."
-- "Hosted proof is blocked until the remote database has the multisite migration and remote fake-data proof is approved."
+- "Hosted fake-data API proof is ready after the multisite migration and approved remote seed; browser screenshots are still pending."
 
 ## Closing Pitch
 
@@ -62,7 +62,7 @@
 - "No real student data is used today."
 - "We are not claiming FERPA certification."
 - "We are not claiming production pilot readiness."
-- "Hosted proof is blocked until remote D1 migration 0011."
+- "Hosted browser proof is pending; the remote fake-data API/data gate is ready."
 - "Archive retry/export and presentation scheduling mutations are future work."
 - "Tenant-owned Drive and data retention policies need a technical/legal decision before real onboarding."
 

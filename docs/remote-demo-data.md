@@ -10,22 +10,26 @@ npm run prove:demo:remote
 
 `seed:demo:remote` expands to `--remote --write --confirm SEED_REMOTE_DEMO` and refuses remote write without `CLOUDFLARE_API_TOKEN`.
 
-The multisite seed requires the remote D1 schema to include migration `0011_multisite_site_role_foundation.sql`. Phase 13B applied that migration gate only; it did not seed remote demo data.
+The multisite seed requires the remote D1 schema to include migration `0011_multisite_site_role_foundation.sql`. Phase 13B applied that migration gate. Phase 13C applied the approved fake-data remote demo seed through the existing confirmation-gated npm alias.
 
-Current hosted sales proof status is BLOCKED until remote fake-data seed/proof is explicitly approved and run. Use the read-only gates:
+No remote demo seed was run in Phase 13B; the seed was applied later in Phase 13C.
+
+Current hosted sales proof status is fake-data/API ready, with browser and screenshot proof still pending. Use the read-only gates:
 
 ```powershell
 npm run prove:remote:migration-0011
 npm run prove:sales-demo:hosted
 ```
 
-Expected Phase 13B schema status:
+Expected Phase 13C schema/data status:
 
 ```text
 REMOTE_MIGRATION_0011_ALREADY_PRESENT
+REMOTE_DEMO_SEED_PRESENT
+HOSTED_PROOF_READY_FAKE_DATA_BROWSER_PROOF_PENDING
 ```
 
-Expected hosted blocked status after migration 0011 and before remote seed:
+Previous hosted blocked status after migration 0011 and before remote seed:
 
 ```text
 HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING
@@ -37,7 +41,11 @@ Previous blocked status while migration 0011 was missing:
 HOSTED_PROOF_BLOCKED_REMOTE_D1_MISSING_0011
 ```
 
-No remote demo seed was run in Phase 13B.
+Phase 13C remote seed status:
+
+```text
+REMOTE_DEMO_SEED_APPLIED_HOSTED_BROWSER_PROOF_PENDING
+```
 
 ## Safety
 
@@ -47,6 +55,8 @@ No remote demo seed was run in Phase 13B.
 - Cleanup deletes only demo-owned rows: `demo-` IDs, approved demo domains, `example.com/capstone-demo` evidence, or `DEMO_SEED` markers.
 - No physical Google Drive files are created. Evidence uses metadata plus `https://example.com/capstone-demo/...` URLs only.
 - Staff and persona credential files are written only under ignored `.secrets/demo-remote-staff-logins-*.json`; student credentials are not created.
+- Phase 13C did not print, commit, paste, screenshot, or document credential values. The generated staff credential file was written under ignored `.secrets`.
+- Phase 13C hosted API proof used existing fake hosted credentials after the generated remote demo staff credentials were rejected by hosted login. Do not claim generated remote staff persona browser-login readiness until a Phase 14 browser/persona proof resolves that path.
 
 ## Seed Shape
 
@@ -63,6 +73,6 @@ No remote demo seed was run in Phase 13B.
 
 Demo seeds no longer create announcements. Schools should continue using existing communication systems such as Remind, Canvas, Infinite Campus, Google Classroom, email, or district-approved tools. The legacy `announcements` table remains deprecated/schema-only until a later safe cleanup phase.
 
-The proof script verifies remote D1 counts, role scope boundaries, hosted dashboard rendering, example.com-only evidence, and absence of Drive ID or secret leaks in rendered API responses.
+The Phase 13C proof script verifies remote D1 counts, role scope boundaries, hosted dashboard rendering, site dashboard, student directory, student detail/timeline, review queue, mentor assignment, operations readiness API checks, example.com-only evidence, and absence of Drive ID or secret leaks in rendered API responses.
 
-Do not run remote migration, remote write, remote seed, or deploy from the sales-demo documentation phase.
+Do not run remote reset, account reset, deploy, domain, OAuth, or Cloudflare config changes from the sales-demo proof phase.

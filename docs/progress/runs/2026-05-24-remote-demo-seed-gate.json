@@ -1,0 +1,269 @@
+{
+  "phase": "13C",
+  "name": "remote-demo-seed-gate",
+  "date": "2026-05-24",
+  "startingHead": "ae1ac45eaaf009606770e43f4c40e4474bce0667",
+  "endingHead": null,
+  "phase13BHygieneFixes": [
+    "Updated docs/progress/runs/2026-05-24-remote-migration-0011-gate.json endingHead to ae1ac45eaaf009606770e43f4c40e4474bce0667.",
+    "Updated docs/progress/run-log.md Phase 13B commit/push status to committed and pushed as ae1ac45 ops: apply remote migration 0011 gate."
+  ],
+  "remoteSchemaPreflight": {
+    "cloudflareTokenPresent": true,
+    "targetDatabase": "senior-capstone-db",
+    "proveRemoteMigration0011": "REMOTE_MIGRATION_0011_ALREADY_PRESENT",
+    "hostedProofBefore": "HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING",
+    "remoteSchema0011Ready": true,
+    "remoteDemoSeedPresentBefore": false,
+    "remoteDemoRowsBefore": {
+      "demoTenantRows": 0,
+      "demoStudents": 250,
+      "demoStaff": 58,
+      "demoSites": 0,
+      "demoSiteStudentMemberships": 0
+    }
+  },
+  "seedScriptSafetyReview": {
+    "supportsDryRun": true,
+    "writeRequiresConfirm": "SEED_REMOTE_DEMO",
+    "refusesRemoteWriteWithoutConfirm": true,
+    "remoteTargetOnly": true,
+    "cleanupScope": "demo-owned rows only: demo ids, demo .test domains, DEMO_SEED markers, and example.com/capstone-demo evidence",
+    "preservesBryanAndRealUsers": true,
+    "preservesTenantProviderDriveConfigUnlessDemoOwned": true,
+    "fakeDomainsOnly": ["demo-student.capstone.test", "demo-staff.capstone.test"],
+    "physicalDriveFilesCreated": false,
+    "credentialsPrinted": false,
+    "credentialOutput": "ignored .secrets/demo-remote-staff-logins-*.json only",
+    "createsAnnouncements": false,
+    "runsRemoteReset": false,
+    "runsMigrations": false,
+    "runsDeploy": false
+  },
+  "dryRunCommand": "npm run seed:demo:remote:dry-run",
+  "dryRunResult": {
+    "status": "passed",
+    "target": "remote",
+    "mode": "dryrun",
+    "writesAttempted": false,
+    "totalDemoRowsFoundBeforeReset": 3801,
+    "protectedRealUsersBaseline": 12,
+    "knownRealDomainUsersBaseline": 6,
+    "configurationTablesPreserved": ["tenants", "tenant_domains", "identity_providers", "evidence_repositories", "app_settings"],
+    "generatedShape": {
+      "sites": 3,
+      "students": 370,
+      "primarySiteStudents": 250,
+      "secondarySiteStudents": {
+        "site-canyon-ridge-career": 60,
+        "site-north-valley-tech": 60
+      },
+      "userAccounts": 460,
+      "passwordCredentials": 64,
+      "mentorAssignments": 320,
+      "submissions": 345,
+      "evidenceMetadata": 938,
+      "comments": 367,
+      "reviews": 268,
+      "announcementsGenerated": 0
+    },
+    "storyBuckets": {
+      "model_excellent": 3,
+      "missing_mentor": 10,
+      "awaiting_review": 10,
+      "revision_requested": 10,
+      "presentation_pending": 10,
+      "archive_ready": 10,
+      "archive_failed": 5,
+      "high_risk": 5,
+      "rich_timeline": 3
+    },
+    "credentialValuesPrinted": false,
+    "physicalDriveFilesCreated": false,
+    "realDomainsInDemoUsers": false
+  },
+  "seedWriteCommand": "npm run seed:demo:remote",
+  "seedWriteResult": {
+    "status": "passed",
+    "target": "remote",
+    "mode": "write",
+    "resetRequested": false,
+    "confirmationGateUsed": "SEED_REMOTE_DEMO",
+    "remoteSeedAppliedStatus": "REMOTE_DEMO_SEED_APPLIED_HOSTED_BROWSER_PROOF_PENDING",
+    "credentialFileWritten": true,
+    "credentialPathPattern": ".secrets/demo-remote-staff-logins-*.json",
+    "credentialValuesPrinted": false,
+    "credentialValuesCommitted": false,
+    "protectedRealUsersPreserved": true,
+    "knownRealDomainUsersPreserved": true,
+    "configurationTablesPreserved": true,
+    "announcementsDeletedAsStaleDemoRows": 5,
+    "announcementsInserted": 0
+  },
+  "remoteSeedApplied": true,
+  "credentialPolicy": {
+    "studentCredentialsCreated": 0,
+    "staffCredentialFileIgnored": true,
+    "credentialValuesPrinted": false,
+    "credentialValuesCommitted": false,
+    "hostedGeneratedStaffCredentialsAuthenticated": false,
+    "hostedGeneratedCredentialReason": "invalid_credentials",
+    "hostedApiProofCredentialPath": "existing fake hosted credentials fallback",
+    "phase14Caveat": "Do not claim generated remote staff persona browser-login readiness until Phase 14 resolves or approves the credential path."
+  },
+  "remoteProofCommands": [
+    "npm run prove:demo:remote",
+    "npm run prove:sales-demo:hosted",
+    "npm run prove:remote:migration-0011"
+  ],
+  "remoteProofResults": {
+    "proveDemoRemote": {
+      "status": "passed",
+      "method": "remote_d1_plus_hosted_api",
+      "remoteD1": {
+        "tenant": "tenant-desert-valley",
+        "demoSites": 3,
+        "demoStudents": 370,
+        "primarySiteStudents": 250,
+        "secondarySiteCounts": {
+          "site-canyon-ridge-career": 60,
+          "site-north-valley-tech": 60
+        },
+        "sitePrograms": 19,
+        "demoProgramTeachers": 19,
+        "demoMentors": 64,
+        "demoAdmins": 1,
+        "platformAdmins": 1,
+        "orgAdmins": 1,
+        "siteAdmins": 3,
+        "viewers": 1,
+        "mentorAssignments": 320,
+        "studentCredentials": 0,
+        "announcements": 0,
+        "foreignKeyViolations": 0,
+        "unsafeEvidenceRows": 0,
+        "unsafeExportDriveRows": 0,
+        "forbiddenDemoRealDomainRows": 0
+      },
+      "hostedApi": {
+        "siteDashboardStudents": 250,
+        "studentDirectoryMissingMentor": 10,
+        "studentDetailTimelinePreview": 10,
+        "studentTimelineEvents": 12,
+        "reviewQueueSubmitted": 52,
+        "reviewQueueRevisionRequested": 52,
+        "mentorAssignmentsMissingMentor": 10,
+        "operationsArchiveFailed": 5,
+        "operationsArchiveReady": 10,
+        "operationsPresentationPending": 10,
+        "operationsHighRisk": 5,
+        "noDriveIdOrSecretLeak": true
+      }
+    },
+    "proveSalesDemoHosted": {
+      "status": "HOSTED_PROOF_READY_FAKE_DATA_BROWSER_PROOF_PENDING",
+      "remoteSchema0011Ready": true,
+      "remoteDemoSeedPresent": true,
+      "browserProofGenerated": false,
+      "screenshotProofGenerated": false
+    },
+    "proveRemoteMigration0011": {
+      "status": "REMOTE_MIGRATION_0011_ALREADY_PRESENT",
+      "remoteDemoSeedStatus": "REMOTE_DEMO_SEED_PRESENT",
+      "hostedProofStatus": "HOSTED_PROOF_READY_FAKE_DATA_BROWSER_PROOF_PENDING",
+      "foreignKeyViolations": 0
+    }
+  },
+  "hostedProofStatusBefore": "HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING",
+  "hostedProofStatusAfter": "HOSTED_PROOF_READY_FAKE_DATA_BROWSER_PROOF_PENDING",
+  "screenshotStatus": {
+    "screenshotsGenerated": false,
+    "browserProofGenerated": false,
+    "status": "PHASE_14_TASK"
+  },
+  "remoteSeedShape": {
+    "tenant": {
+      "id": "tenant-desert-valley",
+      "name": "Desert Valley School District"
+    },
+    "sites": {
+      "site-desert-valley-high": {
+        "name": "Desert Valley High School",
+        "students": 250
+      },
+      "site-canyon-ridge-career": {
+        "name": "Canyon Ridge Career Academy",
+        "students": 60
+      },
+      "site-north-valley-tech": {
+        "name": "North Valley Technical High School",
+        "students": 60
+      }
+    },
+    "totalFakeStudents": 370,
+    "studentDomain": "demo-student.capstone.test",
+    "staffDomain": "demo-staff.capstone.test",
+    "evidenceLinks": "https://example.com/capstone-demo/...",
+    "storyBucketDisplayPrefixes": [
+      "Model Excellent Demo",
+      "Missing Mentor Demo",
+      "Awaiting Review Demo",
+      "Revision Loop Demo",
+      "Presentation Pending Demo",
+      "Archive Ready Demo",
+      "Archive Failed Demo",
+      "High Risk Demo",
+      "Rich Timeline Demo"
+    ],
+    "announcements": 0,
+    "studentCredentials": 0
+  },
+  "docsUpdated": [
+    "README.md",
+    "docs/sales/admin-demo-script.md",
+    "docs/sales/admin-faq.md",
+    "docs/sales/demo-data-dictionary.md",
+    "docs/sales/demo-one-page-leavebehind.md",
+    "docs/sales/demo-preflight-checklist.md",
+    "docs/sales/demo-runbook.md",
+    "docs/sales/hosted-proof-plan.md",
+    "docs/sales/technical-proof-checklist.md",
+    "docs/remote-demo-data.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-24-remote-migration-0011-gate.json"
+  ],
+  "scriptsAddedOrUpdated": [
+    "scripts/prove-remote-demo-workspace.mjs",
+    "scripts/prove-sales-demo-hosted.mjs",
+    "scripts/prove-remote-migration-0011.mjs"
+  ],
+  "testsAddedOrUpdated": [
+    "tests/remote-demo-seed-gate.test.mjs",
+    "tests/remote-migration-0011-gate.test.mjs",
+    "tests/sales-demo-runbook.test.mjs"
+  ],
+  "validation": {
+    "status": "passed",
+    "commands": [
+      "node --test tests/remote-demo-seed-gate.test.mjs tests/remote-migration-0011-gate.test.mjs tests/sales-demo-runbook.test.mjs passed with 15 passing tests.",
+      "npm run test passed with 318 passing tests and 4 expected local HTTP skips.",
+      "npm run typecheck passed.",
+      "npm run check:production-surfaces passed with 91 production text surfaces scanned.",
+      "npm run check passed with aggregate static gates and 318 passing tests / 4 expected local HTTP skips.",
+      "npm run prove:remote:migration-0011 passed before seed with REMOTE_MIGRATION_0011_ALREADY_PRESENT and HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING.",
+      "npm run prove:sales-demo:hosted passed before seed with HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING.",
+      "npm run seed:demo:remote:dry-run passed before write with 3 fake sites, 370 fake students, fake domains only, no writes, no credential values, and demo-owned cleanup only.",
+      "npm run seed:demo:remote passed once through --remote --write --confirm SEED_REMOTE_DEMO.",
+      "npm run prove:demo:remote passed with remote D1 shape and hosted read-only API route proof.",
+      "npm run prove:sales-demo:hosted passed after seed with HOSTED_PROOF_READY_FAKE_DATA_BROWSER_PROOF_PENDING.",
+      "npm run prove:remote:migration-0011 passed after seed with REMOTE_MIGRATION_0011_ALREADY_PRESENT and REMOTE_DEMO_SEED_PRESENT.",
+      "npm run seed:demo:remote:dry-run passed after seed as a no-write refresh plan over demo-owned rows.",
+      "git diff --check passed with CRLF normalization warnings only."
+    ]
+  },
+  "blockers": [
+    "Browser/screenshot proof was not generated in Phase 13C.",
+    "Generated remote demo staff credentials did not authenticate in hosted API proof; existing fake hosted credentials were used for read-only hosted route proof."
+  ],
+  "nextRecommendedPrompt": "14_hosted_browser_proof_and_screenshot_gate.txt"
+}

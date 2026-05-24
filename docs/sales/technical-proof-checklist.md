@@ -30,19 +30,19 @@ Expected pass conditions:
 
 | Demo screen | Route(s) | Test file | Local proof command | Hosted proof status | Notes |
 | --- | --- | --- | --- | --- | --- |
-| Site Dashboard | `/api/site/dashboard` | `tests/site-dashboard.integration.test.mjs` | `npm run prove:demo:local` | BLOCKED: remote demo seed missing | Selected-site summary and 250/60/60 counts are local-proven. |
-| Student Directory | `/api/site/students` | `tests/site-students.integration.test.mjs` | `npm run prove:demo:local` | BLOCKED: remote demo seed missing | Filters, pagination, story/risk, no cross-site leakage. |
-| Student Detail | `/api/site/students/:studentId` | `tests/site-student-detail.integration.test.mjs` | `npm run prove:demo:local` | BLOCKED: remote demo seed missing | Bounded sections and redaction. |
-| Timeline | `/api/site/students/:studentId/timeline` | `tests/site-student-detail.integration.test.mjs` | `npm run prove:demo:local` | BLOCKED: remote demo seed missing | Rich Timeline Demo event types. |
-| Review Queue | `/api/site/review-queue` | `tests/site-review-queue.integration.test.mjs` | `npm run prove:demo:local` | BLOCKED: remote demo seed missing | Program teacher scoped mutation is integration-tested. |
-| Review Decision | `/api/reviews/:submissionId/decision` | `tests/site-review-queue.integration.test.mjs` | Integration tests | BLOCKED: remote demo seed missing | Approve, revision, comment-only for in-scope submitted work. |
-| Mentor Assignments | `/api/site/mentor-assignments` | `tests/site-mentor-assignments.integration.test.mjs` | `npm run prove:demo:local` | BLOCKED: remote demo seed missing | GET proof is local; assign mutation is integration-tested. |
-| Operations Readiness | `/api/site/operations-readiness` | `tests/site-operations-readiness.integration.test.mjs` | `npm run prove:demo:local` | BLOCKED: remote demo seed missing | Presentation, archive, readiness worklists. |
-| Viewer read-only | Multiple site routes | `tests/site-aware-permissions.test.mjs`, `tests/workspace-app.test.mjs` | `npm run prove:demo:local` | BLOCKED: remote demo seed missing | Mutation permissions false. |
-| No announcements | Workspace/source/seed checks | `tests/production-workflow-source.test.mjs`, `tests/workspace-app.test.mjs`, seed tests | `npm run prove:demo:local` | BLOCKED: remote demo seed missing | Announcement routes/UI/seeds remain removed. |
-| Redaction | All demo routes | Integration/source tests | `npm run prove:sales-demo:local` | BLOCKED: remote demo seed missing | No raw Drive/storage/secrets in route proof. |
-| Remote migration 0011 gate | Remote D1 schema | `tests/remote-migration-0011-gate.test.mjs` | `npm run prove:remote:migration-0011` | SCHEMA READY; seed missing | Proves `sites`, `site_users`, `site_programs`, new roles, sandbox site, sandbox site-program mappings, and no FK violations. |
-| Route inventory | `docs/generated/production-route-inventory.md` | `tests/production-workflow-source.test.mjs` | `npm run check:route-inventory` | BLOCKED: remote demo seed missing | Current API surface documented. |
+| Site Dashboard | `/api/site/dashboard` | `tests/site-dashboard.integration.test.mjs` | `npm run prove:demo:local` | REMOTE API PROVEN; browser pending | Hosted proof shows 250 primary-site students through the route. |
+| Student Directory | `/api/site/students` | `tests/site-students.integration.test.mjs` | `npm run prove:demo:local` | REMOTE API PROVEN; browser pending | Hosted proof finds Missing Mentor and Rich Timeline story rows. |
+| Student Detail | `/api/site/students/:studentId` | `tests/site-student-detail.integration.test.mjs` | `npm run prove:demo:local` | REMOTE API PROVEN; browser pending | Hosted proof renders a story student detail response with timeline preview. |
+| Timeline | `/api/site/students/:studentId/timeline` | `tests/site-student-detail.integration.test.mjs` | `npm run prove:demo:local` | REMOTE API PROVEN; browser pending | Hosted proof returns timeline events for a story student. |
+| Review Queue | `/api/site/review-queue` | `tests/site-review-queue.integration.test.mjs` | `npm run prove:demo:local` | REMOTE API PROVEN; browser pending | Hosted proof sees submitted and revision-requested demo rows. |
+| Review Decision | `/api/reviews/:submissionId/decision` | `tests/site-review-queue.integration.test.mjs` | Integration tests | NOT RUN REMOTELY | Mutations stay integration-tested; Phase 13C remote proof is read-only. |
+| Mentor Assignments | `/api/site/mentor-assignments` | `tests/site-mentor-assignments.integration.test.mjs` | `npm run prove:demo:local` | REMOTE API PROVEN; browser pending | Hosted proof sees Missing Mentor coverage rows; assign mutation remains integration-tested. |
+| Operations Readiness | `/api/site/operations-readiness` | `tests/site-operations-readiness.integration.test.mjs` | `npm run prove:demo:local` | REMOTE API PROVEN; browser pending | Hosted proof sees archive failed, archive ready, presentation pending, and high-risk story worklists. |
+| Viewer read-only | Multiple site routes | `tests/site-aware-permissions.test.mjs`, `tests/workspace-app.test.mjs` | `npm run prove:demo:local` | DATA PROVEN; BROWSER PERSONA PENDING | D1 proof verifies viewer persona exists; hosted viewer session proof waits for Phase 14. |
+| No announcements | Workspace/source/seed checks | `tests/production-workflow-source.test.mjs`, `tests/workspace-app.test.mjs`, seed tests | `npm run prove:demo:local` | REMOTE PROVEN | Remote D1 proof reports 0 demo announcements. |
+| Redaction | All demo routes | Integration/source tests | `npm run prove:sales-demo:local` | REMOTE API PROVEN; browser pending | Hosted API proof found no raw Drive IDs/storage IDs/secrets. |
+| Remote migration 0011 gate | Remote D1 schema | `tests/remote-migration-0011-gate.test.mjs` | `npm run prove:remote:migration-0011` | SCHEMA READY; seed present | Proves `sites`, `site_users`, `site_programs`, new roles, sandbox site, sandbox site-program mappings, no FK violations, and remote seed present. |
+| Route inventory | `docs/generated/production-route-inventory.md` | `tests/production-workflow-source.test.mjs` | `npm run check:route-inventory` | NO ROUTE CHANGES | Current API surface documented; Phase 13C did not add/remove product routes. |
 
 ## Roles Proven Locally
 
@@ -63,20 +63,26 @@ Remote migration 0011 gate:
 npm run prove:remote:migration-0011
 ```
 
-Expected Phase 13B status:
+Expected Phase 13C status:
 
 ```text
 REMOTE_MIGRATION_0011_ALREADY_PRESENT
-HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING
+HOSTED_PROOF_READY_FAKE_DATA_BROWSER_PROOF_PENDING
+REMOTE_DEMO_SEED_APPLIED_HOSTED_BROWSER_PROOF_PENDING
 ```
 
-Hosted proof is BLOCKED until:
+Remote fake-data proof is ready at the data/API gate after:
 
 1. Remote fake-data seed dry-run is clean.
 2. Remote fake-data seed write is explicitly approved.
 3. Hosted smoke proof uses only fake `.test` credentials.
-4. Browser/screenshot proof is captured and labeled by environment/date.
-5. Final no-secret and no-real-data scans pass.
+4. Final no-secret and no-real-data scans pass.
+
+Hosted browser proof remains pending until:
+
+1. Browser/screenshot proof is captured and labeled by environment/date.
+2. Generated remote persona login behavior is resolved or an approved fake hosted credential path is used.
+3. Screenshots are checked for secrets, raw Drive identifiers, credential files, and private URLs.
 
 Previous schema blocker status before Phase 13B:
 

@@ -34,7 +34,7 @@ Capstone Project does not replace Canvas, Google Classroom, Remind, Infinite Cam
 
 ## Current Demo Caveat
 
-This is fake-data demo only and proven locally. Hosted proof is blocked until remote D1 has migration `0011_multisite_site_role_foundation.sql` and remote fake-data proof is explicitly approved and run.
+This is fake-data demo only. It is proven locally, and Phase 13C proved the hosted fake-data API/data gate after remote D1 migration `0011_multisite_site_role_foundation.sql` and the approved remote seed. Browser persona proof and screenshots remain pending.
 
 ## Next Step Before Pilot
 

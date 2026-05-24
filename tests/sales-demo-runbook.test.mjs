@@ -74,7 +74,7 @@ test("runbook covers required demo flow, claims, caveats, and proof matrix", () 
   }
 
   assert.match(runbook, /Fake-data demo only/);
-  assert.match(runbook, /Hosted proof blocked/);
+  assert.match(runbook, /Hosted fake-data API proof ready|hosted API\/data proof is ready/i);
   assert.match(runbook, /No announcements\/student messaging/i);
   assert.match(runbook, /Do not show `.secrets`|Do not show During Demo/i);
   assert.match(runbook, /post-demo follow-up/i);
@@ -86,7 +86,7 @@ test("administrator-facing docs include required safe answers and flows", () => 
   assert.match(script, /7-Minute Quick Demo/);
   assert.match(script, /15-Minute Deeper Demo/);
   assert.match(script, /Rich Timeline Demo/);
-  assert.match(script, /Hosted proof is blocked/i);
+  assert.match(script, /Hosted fake-data API proof is ready|Hosted browser proof is pending/i);
   assert.match(script, /not a FERPA certification/i);
 
   const faq = docs["docs/sales/admin-faq.md"];
@@ -111,7 +111,7 @@ test("administrator-facing docs include required safe answers and flows", () => 
   }
   assert.match(faq, /No\. Fake-data demo only/);
   assert.match(faq, /not a FERPA certification/i);
-  assert.match(faq, /Hosted proof blocked/i);
+  assert.match(faq, /Hosted fake-data API\/data proof is also ready/i);
 });
 
 test("technical proof and hosted plan map screens to routes and blockers", () => {
@@ -140,22 +140,23 @@ test("technical proof and hosted plan map screens to routes and blockers", () =>
   }
 
   const hosted = docs["docs/sales/hosted-proof-plan.md"];
-  assert.match(hosted, /Hosted proof is BLOCKED/);
+  assert.match(hosted, /Hosted fake-data proof is ready at the data\/API gate/i);
   assert.match(hosted, /0011_multisite_site_role_foundation\.sql/);
   assert.match(hosted, /sites/);
   assert.match(hosted, /site_users/);
   assert.match(hosted, /site_programs/);
   assert.match(hosted, /HOSTED_PROOF_BLOCKED_REMOTE_D1_MISSING_0011/);
-  assert.match(hosted, /No remote migrations/);
-  assert.match(hosted, /No remote writes/);
-  assert.match(hosted, /No remote seed/);
+  assert.match(hosted, /HOSTED_PROOF_READY_FAKE_DATA_BROWSER_PROOF_PENDING/);
+  assert.match(hosted, /REMOTE_DEMO_SEED_APPLIED_HOSTED_BROWSER_PROOF_PENDING/);
+  assert.match(hosted, /No additional remote migrations/);
+  assert.match(hosted, /No remote seed\/reset writes/);
 });
 
 test("sales docs avoid overclaims, secret-like values, and screenshot proof claims", () => {
   assert.match(combinedSalesDocs, /fake data|fake-data/i);
   assert.match(combinedSalesDocs, /not a FERPA certification|not claiming FERPA/i);
   assert.match(combinedSalesDocs, /not claiming production pilot readiness|not a hosted pilot claim|No-go/i);
-  assert.match(combinedSalesDocs, /Hosted proof is BLOCKED|Hosted proof blocked/i);
+  assert.match(combinedSalesDocs, /HOSTED_PROOF_READY_FAKE_DATA_BROWSER_PROOF_PENDING|Hosted fake-data API proof ready/i);
   assert.match(docs["docs/sales/demo-screenshot-checklist.md"], /Screenshots were not generated in Phase 13/);
 
   const forbidden = [

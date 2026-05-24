@@ -140,7 +140,7 @@ The seed creates the fake Desert Valley School District with three sites: Desert
 
 Details live in `docs/local-demo-data.md`.
 
-The internal sales demo package starts at `docs/sales/demo-runbook.md`. It includes the administrator script, FAQ, one-page leave-behind, technical proof checklist, preflight checklist, data dictionary, screenshot checklist, and hosted-proof plan. Remote D1 migration `0011_multisite_site_role_foundation.sql` has been applied, but hosted proof remains blocked until the remote fake-data seed/proof gate is explicitly approved and run.
+The internal sales demo package starts at `docs/sales/demo-runbook.md`. It includes the administrator script, FAQ, one-page leave-behind, technical proof checklist, preflight checklist, data dictionary, screenshot checklist, and hosted-proof plan. Remote D1 migration `0011_multisite_site_role_foundation.sql` has been applied, and Phase 13C seeded/proved the remote fake-data demo workspace at the hosted API/data gate. Browser persona proof and screenshots remain a Phase 14 task.
 
 ## MVP Backend Foundation
 

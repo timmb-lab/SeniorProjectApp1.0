@@ -10,6 +10,7 @@ import { RemoteWranglerD1Adapter, verifyRemoteSeedState } from "./seed-remote-de
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(SCRIPT_DIR, "..");
 const DEFAULT_BASE_URL = "https://senior-capstone-app.pages.dev";
+const PRIMARY_SITE_ID = "site-desert-valley-high";
 
 class RemoteDemoProofError extends Error {
   constructor(classification, message, details = {}) {
@@ -167,6 +168,7 @@ async function verifyHostedDashboardProof({ baseUrl, credentials, adapter }) {
       adminStudentsVisible,
     });
   }
+  const siteRoutes = await verifyHostedSiteRoutes(adminClient);
 
   const teacherProofs = [];
   for (const account of credentials.programTeacherLogins || []) {
@@ -291,6 +293,7 @@ async function verifyHostedDashboardProof({ baseUrl, credentials, adapter }) {
       programBreakdownPrograms: Object.keys(adminProgramCounts).length,
       summaryStudentsTotalAtLeastDemo: Number(adminDashboard.summary?.studentsTotal || 0) >= 250,
     },
+    siteRoutes,
     programTeachers: teacherProofs,
     mentors: {
       proofCount: mentorProofs.length,
@@ -348,6 +351,7 @@ async function verifyHostedFallbackProof({ baseUrl, repoRoot, generatedCredentia
       adminStudentsVisible,
     });
   }
+  const siteRoutes = await verifyHostedSiteRoutes(adminClient);
 
   const teacherClient = new SessionClient(baseUrl);
   await login(teacherClient, credentials.programTeacher, "program_teacher");
@@ -413,6 +417,7 @@ async function verifyHostedFallbackProof({ baseUrl, repoRoot, generatedCredentia
       programBreakdownPrograms: Object.keys(adminProgramCounts).length,
       summaryStudentsTotalAtLeastDemo: Number(adminDashboard.summary?.studentsTotal || 0) >= 250,
     },
+    siteRoutes,
     programTeachers: [
       {
         programId: "it",
@@ -435,6 +440,90 @@ async function verifyHostedFallbackProof({ baseUrl, repoRoot, generatedCredentia
       visibleSubmissionStatuses: Array.from(new Set((teacherDashboard.students || []).map((student) => student.submissionStatus || "not_started"))).sort(),
       noDriveIdOrSecretLeak: true,
     },
+  };
+}
+
+async function verifyHostedSiteRoutes(client) {
+  const dashboard = await expectJson(client, `/api/site/dashboard?siteId=${PRIMARY_SITE_ID}`, 200, "site dashboard");
+  if (Number(dashboard.summary?.studentsTotal || 0) !== 250) {
+    throw new RemoteDemoProofError("SITE_DASHBOARD_REMOTE_PROOF_FAILED", "Hosted site dashboard did not expose the primary-site demo count.", {
+      studentsTotal: Number(dashboard.summary?.studentsTotal || 0),
+    });
+  }
+
+  const missingMentor = await expectJson(client, `/api/site/students?siteId=${PRIMARY_SITE_ID}&story=missing_mentor&limit=100`, 200, "site student directory missing mentor");
+  if (Number(missingMentor.pagination?.filteredTotal || 0) < 10) {
+    throw new RemoteDemoProofError("SITE_DIRECTORY_STORY_PROOF_FAILED", "Hosted student directory did not find Missing Mentor Demo rows.", {
+      filteredTotal: Number(missingMentor.pagination?.filteredTotal || 0),
+    });
+  }
+
+  const richTimeline = await expectJson(client, `/api/site/students?siteId=${PRIMARY_SITE_ID}&story=rich_timeline&limit=100`, 200, "site student directory rich timeline");
+  const sampleStudentId = richTimeline.students?.[0]?.studentId || missingMentor.students?.[0]?.studentId;
+  if (!sampleStudentId) {
+    throw new RemoteDemoProofError("SITE_DIRECTORY_SAMPLE_STUDENT_MISSING", "Hosted student directory did not return a story student for detail proof.");
+  }
+
+  const detail = await expectJson(client, `/api/site/students/${encodeURIComponent(sampleStudentId)}?siteId=${PRIMARY_SITE_ID}`, 200, "site student detail");
+  if (detail.student?.studentId !== sampleStudentId || !Array.isArray(detail.timelinePreview) || detail.timelinePreview.length === 0) {
+    throw new RemoteDemoProofError("SITE_STUDENT_DETAIL_REMOTE_PROOF_FAILED", "Hosted site student detail did not render the sampled story student timeline preview.", {
+      studentMatched: detail.student?.studentId === sampleStudentId,
+      timelinePreview: Array.isArray(detail.timelinePreview) ? detail.timelinePreview.length : 0,
+    });
+  }
+
+  const timeline = await expectJson(client, `/api/site/students/${encodeURIComponent(sampleStudentId)}/timeline?siteId=${PRIMARY_SITE_ID}&limit=100`, 200, "site student timeline");
+  if (!Array.isArray(timeline.events) || timeline.events.length === 0) {
+    throw new RemoteDemoProofError("SITE_STUDENT_TIMELINE_REMOTE_PROOF_FAILED", "Hosted site student timeline did not return events for the sampled story student.");
+  }
+
+  const submittedQueue = await expectJson(client, `/api/site/review-queue?siteId=${PRIMARY_SITE_ID}&status=submitted&limit=100`, 200, "site review queue submitted");
+  const revisionQueue = await expectJson(client, `/api/site/review-queue?siteId=${PRIMARY_SITE_ID}&status=revision_requested&limit=100`, 200, "site review queue revision");
+  if (Number(submittedQueue.pagination?.filteredTotal || 0) === 0 || Number(revisionQueue.pagination?.filteredTotal || 0) === 0) {
+    throw new RemoteDemoProofError("SITE_REVIEW_QUEUE_REMOTE_PROOF_FAILED", "Hosted site review queue did not expose submitted and revision-requested demo rows.", {
+      submitted: Number(submittedQueue.pagination?.filteredTotal || 0),
+      revisionRequested: Number(revisionQueue.pagination?.filteredTotal || 0),
+    });
+  }
+
+  const mentorAssignments = await expectJson(client, `/api/site/mentor-assignments?siteId=${PRIMARY_SITE_ID}&noMentor=true&studentSearch=${encodeURIComponent("Missing Mentor Demo")}&limit=100`, 200, "site mentor assignments missing mentor");
+  if (Number(mentorAssignments.pagination?.filteredTotal || 0) < 10 || Number(mentorAssignments.summary?.studentsWithoutActiveMentor || 0) < 10) {
+    throw new RemoteDemoProofError("SITE_MENTOR_ASSIGNMENTS_REMOTE_PROOF_FAILED", "Hosted site mentor assignment route did not expose missing mentor coverage rows.", {
+      filteredTotal: Number(mentorAssignments.pagination?.filteredTotal || 0),
+      studentsWithoutActiveMentor: Number(mentorAssignments.summary?.studentsWithoutActiveMentor || 0),
+    });
+  }
+
+  const archiveFailed = await expectJson(client, `/api/site/operations-readiness?siteId=${PRIMARY_SITE_ID}&story=archive_failed&limit=100`, 200, "site operations archive failed");
+  const archiveReady = await expectJson(client, `/api/site/operations-readiness?siteId=${PRIMARY_SITE_ID}&story=archive_ready&limit=100`, 200, "site operations archive ready");
+  const presentationPending = await expectJson(client, `/api/site/operations-readiness?siteId=${PRIMARY_SITE_ID}&story=presentation_pending&limit=100`, 200, "site operations presentation pending");
+  const highRisk = await expectJson(client, `/api/site/operations-readiness?siteId=${PRIMARY_SITE_ID}&story=high_risk&limit=100`, 200, "site operations high risk");
+  for (const [label, body] of [
+    ["archiveFailed", archiveFailed],
+    ["archiveReady", archiveReady],
+    ["presentationPending", presentationPending],
+    ["highRisk", highRisk],
+  ]) {
+    if (Number(body.pagination?.filteredTotal || 0) === 0) {
+      throw new RemoteDemoProofError("SITE_OPERATIONS_REMOTE_PROOF_FAILED", "Hosted site operations readiness did not expose an expected story worklist.", {
+        label,
+      });
+    }
+  }
+
+  return {
+    siteDashboardStudents: Number(dashboard.summary.studentsTotal || 0),
+    studentDirectoryMissingMentor: Number(missingMentor.pagination.filteredTotal || 0),
+    studentDetailTimelinePreview: detail.timelinePreview.length,
+    studentTimelineEvents: timeline.events.length,
+    reviewQueueSubmitted: Number(submittedQueue.pagination.filteredTotal || 0),
+    reviewQueueRevisionRequested: Number(revisionQueue.pagination.filteredTotal || 0),
+    mentorAssignmentsMissingMentor: Number(mentorAssignments.pagination.filteredTotal || 0),
+    operationsArchiveFailed: Number(archiveFailed.pagination.filteredTotal || 0),
+    operationsArchiveReady: Number(archiveReady.pagination.filteredTotal || 0),
+    operationsPresentationPending: Number(presentationPending.pagination.filteredTotal || 0),
+    operationsHighRisk: Number(highRisk.pagination.filteredTotal || 0),
+    noDriveIdOrSecretLeak: true,
   };
 }
 

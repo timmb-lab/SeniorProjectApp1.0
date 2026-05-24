@@ -4,7 +4,7 @@
 
 - Proven locally: validated by local proof/tests.
 - Fake-data demo only: synthetic records for demonstration.
-- Hosted proof blocked: remote D1 migration 0011 and remote proof gates remain.
+- Hosted fake-data API proof ready: remote D1 migration 0011 and the Phase 13C fake-data seed/proof gate passed; browser persona proof and screenshots remain pending.
 - Planned / future: not built or not proven yet.
 - Not claimed: do not state as true.
 
