@@ -1,0 +1,115 @@
+{
+  "phase": "PHASE 06.5 - Full Figma / UX / Visual Audit Before Site Dashboard Build",
+  "date": "2026-05-24",
+  "repo": {
+    "path": "C:\\SeniorProjectApp1.0",
+    "expectedOrigin": "https://github.com/timmb-lab/SeniorProjectApp1.0.git",
+    "branch": "main",
+    "packageName": "senior-capstone-app"
+  },
+  "startingHead": "f8ac7d80d6b1db4345db48a978051ca29747ab14",
+  "endingHead": null,
+  "phase6HygieneFixes": [
+    "Updated docs/progress/runs/2026-05-24-figma-alignment-foundation.json endingHead to f8ac7d80d6b1db4345db48a978051ca29747ab14.",
+    "Updated the Phase 6 run-log commit/push status to committed and pushed as f8ac7d8 ui: add Figma-aligned workspace design foundation."
+  ],
+  "figmaSourcesInspected": {
+    "fileKey": "z4t4tFPAKrMDh6pIYOeEw6",
+    "fileMetadata": {
+      "inspected": true,
+      "rootId": "0:0",
+      "pageCount": 7,
+      "editorType": "figma"
+    },
+    "page": {
+      "id": "0:1",
+      "name": "00 Master Plan + Foundations",
+      "inspected": true
+    },
+    "node": {
+      "id": "2:5",
+      "name": "Senior Capstone Product Control Center",
+      "inspected": true,
+      "width": 1680,
+      "height": 1172.4,
+      "descendantCount": 122
+    },
+    "designContextInspected": true,
+    "screenshotInspected": true,
+    "liveFigmaEdited": false
+  },
+  "appSurfacesAudited": [
+    "sign-in screen",
+    "workspace shell/topbar/rail",
+    "role-aware workspace landing",
+    "overview",
+    "admin command center",
+    "future site admin dashboard area",
+    "program teacher dashboard",
+    "mentor dashboard",
+    "student workspace",
+    "review queue",
+    "evidence upload/link forms",
+    "presentation section",
+    "archive/readiness section",
+    "users/access/security section",
+    "viewer read-only mode",
+    "empty states",
+    "error/permission-denied states",
+    "account smoke page",
+    "alpha page",
+    "public guide surface",
+    "app preview surface"
+  ],
+  "figmaColorPalette": {
+    "ink": "#172026",
+    "muted": "#596871",
+    "paper": "#fbfaf7",
+    "surface": "#ffffff",
+    "blue": "#2463a6",
+    "green": "#22734d",
+    "amber": "#a65f00",
+    "red": "#b82f2f",
+    "teal": "#047b83",
+    "violet": "#6c4aa3",
+    "coral": "#c6553d",
+    "gold": "#d9a441",
+    "border": "#dce4e5"
+  },
+  "auditDocCreated": "docs/design/ux-visual-audit-phase-6-5.md",
+  "optionalCodeChanges": [
+    "No workspace CSS, JS, route, migration, seed, domain, OAuth, or Cloudflare live configuration changes were made.",
+    "Only docs, Phase 6 closeout metadata, and source tests were changed."
+  ],
+  "testsAddedOrUpdated": [
+    "tests/ux-visual-audit-phase-6-5.test.mjs"
+  ],
+  "validation": [
+    {
+      "command": "npm run test",
+      "status": "passed",
+      "notes": "274 passing tests and 4 expected local HTTP skips."
+    },
+    {
+      "command": "npm run typecheck",
+      "status": "passed"
+    },
+    {
+      "command": "npm run check",
+      "status": "passed",
+      "notes": "Aggregate check passed, including production-surface scan, route inventory freshness check, generated output drift, site option checks, Cloudflare static checks, and the full test suite."
+    },
+    {
+      "command": "npm run check:production-surfaces",
+      "status": "passed",
+      "notes": "91 production text surfaces scanned."
+    },
+    {
+      "command": "git diff --check",
+      "status": "passed",
+      "notes": "Passed with CRLF normalization warnings only."
+    }
+  ],
+  "blockers": [],
+  "nextRecommendedPrompt": "06.6_design_cleanup_before_dashboard.txt"
+}

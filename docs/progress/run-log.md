@@ -1404,4 +1404,16 @@ Future productive runs should append compact entries that name the master-plan s
 - `workspace summary`: improved target role labels, added viewer read-only banner support, added future CSS patterns for site context, student directory/detail, filters, story/risk chips, metric action tiles, and empty states; no announcement UI, routes, seeds, or backend route families were added.
 - `validation`: `npm run test` passed with 269 passing tests and 4 expected local HTTP skips; `npm run typecheck` passed; `npm run check` passed; `npm run check:production-surfaces` passed with 91 production text surfaces scanned; `git diff --check` passed with CRLF normalization warnings only.
 - `blockers`: none.
-- `commit/push status`: pending Phase 6 commit and push.
+- `commit/push status`: committed and pushed as `f8ac7d8 ui: add Figma-aligned workspace design foundation`.
+
+## 2026-05-24 - PHASE 06.5 UX Visual Audit Before Site Dashboard
+
+- `starting HEAD`: `f8ac7d80d6b1db4345db48a978051ca29747ab14`.
+- `files inspected`: MVP multisite contract and decisions, Phase 6 Figma alignment docs, first-pass Figma system docs, product preview state docs, Figma progress/handoff logs, demo personas/story map, Phase 6 manifest and run log, workspace HTML/JS/CSS, public guide/app preview/alpha/account surfaces, production surface registry, generated route inventory, auth/admin/program-teacher/mentor/student/readiness/presentation/archive/audit API routes, and workspace/source/production/account/alpha tests.
+- `files changed`: `docs/design/ux-visual-audit-phase-6-5.md`, `tests/ux-visual-audit-phase-6-5.test.mjs`, `docs/progress/runs/2026-05-24-ux-visual-audit-phase-6-5.json`, Phase 6 metadata hygiene in `docs/progress/runs/2026-05-24-figma-alignment-foundation.json`, and this run log.
+- `Figma sources inspected`: live read-only Figma file metadata for `z4t4tFPAKrMDh6pIYOeEw6`, page/node metadata for `0:1` (`00 Master Plan + Foundations`) and `2:5` (`Senior Capstone Product Control Center`), design context for node `2:5`, and screenshot context for node `2:5`; live Figma was not edited.
+- `UX audit summary`: current app is partially aligned but not truly Figma-aligned; Phase 6 added correct token values and future hooks, while rendered workspace surfaces still need the dark product header, gold eyebrow, exact posture chips, North Star workflow cards, permission/data rule cards, status problem-state detail, and stronger school-operations/admin credibility before the site dashboard build.
+- `primary palette fidelity summary`: exact Figma hex values are present in `workspace.css`, but several are still carried through ABC-era aliases (`yellow`, `purple`, `line`) rather than explicit Figma semantic names (`gold`, `violet`, `border`), and older public/alpha/account surfaces use separate palettes.
+- `validation`: `npm run test` passed with 274 passing tests and 4 expected local HTTP skips; `npm run typecheck` passed; `npm run check` passed; `npm run check:production-surfaces` passed with 91 production text surfaces scanned; `git diff --check` passed with CRLF normalization warnings only.
+- `blockers`: none for the audit; the audit recommends a Phase 6.6 design cleanup before Phase 7.
+- `commit/push status`: pending Phase 6.5 commit and push.
