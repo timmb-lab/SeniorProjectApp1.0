@@ -531,12 +531,25 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
   document.querySelector("#workspaceRefresh")?.addEventListener("click", () => loadWorkspaceData("Workspace refreshed."));
   document.querySelector("#workspaceLogout")?.addEventListener("click", signOut);
   document.querySelectorAll("[data-section]").forEach((button) => {
-    button.addEventListener("click", () => {
-      activeSection = button.dataset.section;
-      renderAppShell();
-    });
+    button.addEventListener("click", () => openWorkspaceSection(button));
   });
   bindWorkspaceForms();
+}
+
+async function openWorkspaceSection(button) {
+  const section = button?.dataset?.section;
+  if (!section) return;
+  if (section === "mentorAssignments" && button.dataset.sectionPreset === "no-mentor") {
+    mentorAssignmentFilters = {
+      ...defaultMentorAssignmentFilters(),
+      status: "unassigned",
+      noMentor: true,
+    };
+    await loadMentorAssignmentsResult("Showing students without mentors.");
+    return;
+  }
+  activeSection = section;
+  renderAppShell();
 }
 
 function availableSections() {
@@ -754,7 +767,7 @@ function renderSiteDashboardSection() {
       </div>
       <div class="workspace-dashboard-grid">
         ${renderMetricTile("Students", summary.studentsActive, `${safeNumber(summary.studentsTotal)} visible at this site`, "admin", "students")}
-        ${renderMetricTile("No Mentor", summary.studentsNoMentor, "Need assigned mentor coverage", safeNumber(summary.studentsNoMentor) ? "warning" : "mentor")}
+        ${renderMetricTile("No Mentor", summary.studentsNoMentor, "Need assigned mentor coverage", safeNumber(summary.studentsNoMentor) ? "warning" : "mentor", "mentorAssignments", { label: "Review", preset: "no-mentor" })}
         ${renderMetricTile("Submitted", summary.submissionsSubmitted, "Awaiting teacher review", "teacher")}
         ${renderMetricTile("Needs Revision", summary.revisionRequested, "Teacher intervention needed", safeNumber(summary.revisionRequested) ? "warning" : "student")}
         ${renderMetricTile("Evidence", summary.evidenceArtifacts, "Private evidence artifacts", "mentor")}
@@ -4479,9 +4492,13 @@ function metric(label, value) {
   `;
 }
 
-function renderMetricTile(label, value, detail = "", tone = "", actionSection = "") {
+function renderMetricTile(label, value, detail = "", tone = "", actionSection = "", actionOptions = {}) {
+  const actionLabel = actionOptions.label || "Open";
+  const actionPreset = actionOptions.preset
+    ? ` data-section-preset="${escapeHtml(actionOptions.preset)}"`
+    : "";
   const action = actionSection
-    ? `<button class="workspace-link-button workspace-link-button-small" type="button" data-section="${escapeHtml(actionSection)}">Open</button>`
+    ? `<button class="workspace-link-button workspace-link-button-small" type="button" data-section="${escapeHtml(actionSection)}"${actionPreset}>${escapeHtml(actionLabel)}</button>`
     : "";
   return `
     <article class="workspace-metric-tile ${escapeHtml(tone)}">

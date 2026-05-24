@@ -321,6 +321,7 @@ test("workspace renders route-connected site dashboard with Figma product-system
   assert.match(siteDashboard, /workspace-metric-tile/);
   assert.match(siteDashboard, /Students/);
   assert.match(siteDashboard, /No Mentor/);
+  assert.match(siteDashboard, /data-section="mentorAssignments" data-section-preset="no-mentor">Review/);
   assert.match(siteDashboard, /Submitted/);
   assert.match(siteDashboard, /Needs Revision/);
   assert.match(siteDashboard, /Evidence/);
@@ -1050,11 +1051,16 @@ test("workspace gates mentor assignment visibility and refresh behavior by role"
   const loadWorkspaceDataBlock = workspaceJs.match(/async function loadWorkspaceData[\s\S]*?function renderLoading/)?.[0] || "";
   const availableSectionsBlock = workspaceJs.match(/function availableSections[\s\S]*?function renderActiveSection/)?.[0] || "";
   const mentorRoleHelperBlock = workspaceJs.match(/function hasSiteMentorAssignmentRole[\s\S]*?function defaultSiteStudentFilters/)?.[0] || "";
+  const sectionOpenBlock = workspaceJs.match(/async function openWorkspaceSection[\s\S]*?function availableSections/)?.[0] || "";
   assert.match(workspaceJs, /function hasSiteMentorAssignmentRole\(roles\)/);
   assert.match(mentorRoleHelperBlock, /"platform_admin",\s+"admin",\s+"org_admin",\s+"site_admin",\s+"viewer",\s+"program_teacher"/);
   assert.doesNotMatch(mentorRoleHelperBlock, /"mentor"|"student"|"misc_admin"/);
   assert.match(availableSectionsBlock, /id: "mentorAssignments", label: "Mentor Assignments", detail: "Coverage and assignment workflow"/);
   assert.match(loadWorkspaceDataBlock, /hasSiteMentorAssignmentRole\(roles\).*\/api\/site\/mentor-assignments/s);
+  assert.match(sectionOpenBlock, /section === "mentorAssignments" && button\.dataset\.sectionPreset === "no-mentor"/);
+  assert.match(sectionOpenBlock, /status:\s*"unassigned"/);
+  assert.match(sectionOpenBlock, /noMentor:\s*true/);
+  assert.match(sectionOpenBlock, /loadMentorAssignmentsResult\("Showing students without mentors\."\)/);
   assert.match(workspaceJs, /function submitMentorAssignment/);
   assert.match(workspaceJs, /\/api\/site\/mentor-assignments/);
   assert.match(workspaceJs, /function refreshConnectedSurfacesAfterMentorAssignment/);

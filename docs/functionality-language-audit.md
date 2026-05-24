@@ -343,3 +343,4 @@ Every automation run must re-scan the current repo, verify the chosen issue stil
 | Date | Slice | Evidence | Status |
 | --- | --- | --- | --- |
 | 2026-05-24 | Replaced the protected workspace product header and posture chips so normal authenticated users no longer see `Database-backed MVP`, `Cloudflare target`, `Audit-sensitive admin`, or `Senior Capstone Product` in the app header. | `workspace.js`, `tests/workspace-app.test.mjs`, `scripts/verify-functionality-language.mjs`, `npm run verify:functionality-language` | Complete |
+| 2026-05-24 | Linked the Site Dashboard `No Mentor` metric to the real Mentor Assignments workflow with the missing-mentor filter applied, so site staff and read-only viewers can move from coverage summary to scoped assignment rows without a dead route. | `workspace.js`, `tests/workspace-app.test.mjs`, `npm run verify:functionality-language`, `node --test tests/workspace-app.test.mjs` | Complete |
