@@ -198,6 +198,8 @@ That future document must map:
 Figma screen/element -> app surface -> workspace.js function/section -> CSS/token -> verification
 ```
 
+Phase 6 creates `docs/design/figma-product-alignment.md` and applies the first workspace design-system foundation: semantic CSS tokens, ABC-inspired primary color mapping, read-only viewer banner patterns, target role labels, and future component classes for site dashboards, student directories, student detail panels, and readiness/reporting surfaces. This phase does not build the site dashboard, student directory, student detail routes, or review workflow UI.
+
 ## 8. Route Direction
 
 Target route families:

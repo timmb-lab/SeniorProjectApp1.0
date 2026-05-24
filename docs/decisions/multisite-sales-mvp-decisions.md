@@ -68,3 +68,11 @@ This decision record locks the target vocabulary and scope for the multisite sal
 - Fake platform, organization, site-administration, viewer, program teacher, and mentor persona accounts are created; credential values stay only in ignored `.secrets/demo-...json` files.
 - Story buckets are deterministic and searchable by prefix for model excellent, missing mentor, awaiting review, revision requested, presentation pending, archive ready, archive failed, high-risk, and rich timeline students.
 - Phase 5A local proof validates the multisite shape locally. Remote dry-run may be used when safe, but remote write remains deferred.
+
+## Phase 6 Figma Alignment Foundation
+
+- Figma/product alignment is applied to the repo workspace as a design-system foundation, not as a full route or workflow build.
+- The local Figma/design source for this phase is repo documentation, especially `docs/design/figma-first-pass-product-system.md` and `docs/design/figma-product-preview-state-variants.md`; no live Figma file is edited in this phase.
+- Workspace CSS now exposes semantic product tokens for primary, accent, status, neutral surface, border, radius, shadow, focus, spacing, and typography use.
+- The authenticated workspace keeps the ABC-inspired school-friendly visual language and adds read-only viewer, site-context, student-directory, detail-panel, story-chip, risk-chip, metric-action, and empty-state class patterns for later phases.
+- `site_admin` continues to display as "Administration"; `platform_admin`, `org_admin`, and `viewer` have user-facing labels without changing backend role IDs.

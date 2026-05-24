@@ -339,7 +339,7 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
           <section class="workspace-rail-card">
             <p class="workspace-kicker">Your access</p>
             <div class="workspace-role-banner">
-              <strong>${escapeHtml(statusText(primaryRole))}</strong>
+              <strong>${escapeHtml(roleLabel(primaryRole))}</strong>
               <span>${escapeHtml(roleScopeSummary(currentUser))}</span>
             </div>
             <div class="workspace-chip-row">
@@ -361,6 +361,7 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
         </aside>
         <div class="workspace-main">
           ${statusMessage ? statusHtml(statusMessage, tone) : ""}
+          ${renderReadOnlyBanner()}
           ${renderActiveSection()}
         </div>
       </div>
@@ -504,6 +505,17 @@ function renderAccessBoundarySummary() {
       </ul>
     </section>
     ` : ""}
+  `;
+}
+
+function renderReadOnlyBanner() {
+  const roles = roleIds(currentUser);
+  if (!roles.has("viewer")) return "";
+  return `
+    <section class="workspace-read-only-banner" data-workspace-mode="read-only" aria-label="Viewer read-only mode">
+      <span class="workspace-chip workspace-role-chip" data-role-id="viewer">Viewer</span>
+      <p>Read-only workspace. You can review assigned site information, but changes stay with authorized staff.</p>
+    </section>
   `;
 }
 
@@ -1862,9 +1874,13 @@ function statusHtml(message, tone = "neutral") {
 
 function greetingForUser() {
   const roles = roleIds(currentUser);
+  if (roles.has("platform_admin")) return "Platform workspace is ready.";
+  if (roles.has("org_admin")) return "Organization workspace is ready.";
+  if (roles.has("site_admin")) return "Administration workspace is ready.";
   if (roles.has("student")) return "Your senior project is ready.";
   if (roles.has("program_teacher")) return "Teacher review is ready.";
   if (roles.has("mentor")) return "Mentor workspace is ready.";
+  if (roles.has("viewer")) return "Viewer workspace is ready.";
   if (roles.has("admin")) return "Admin overview is ready.";
   return "Workspace is ready.";
 }
@@ -1873,6 +1889,10 @@ function nextStepText() {
   const dashboard = unwrap(currentData.dashboard);
   if (dashboard?.nextAction) return dashboard.nextAction;
   const roles = roleIds(currentUser);
+  if (roles.has("site_admin")) return "Review site progress, student readiness, mentor coverage, presentation status, and archive signals available to this account.";
+  if (roles.has("org_admin")) return "Review assigned organization and site summaries available to this account.";
+  if (roles.has("platform_admin")) return "Review platform setup and multisite readiness available to this account.";
+  if (roles.has("viewer")) return "Review assigned site information in read-only mode.";
   if (roles.has("program_teacher") || roles.has("admin")) return "Review submitted work and follow up where students need feedback.";
   if (roles.has("mentor")) return "Check assigned students before mentor meetings and presentation preparation.";
   if (roles.has("misc_admin")) return "Review aggregate readiness without opening individual student records.";
@@ -2137,13 +2157,40 @@ function statusText(value) {
   return String(value || "Unknown").replace(/_/g, " ");
 }
 
+const ROLE_LABELS = {
+  platform_admin: "Platform Admin",
+  admin: "Admin",
+  org_admin: "Organization Admin",
+  site_admin: "Administration",
+  program_teacher: "Program Teacher",
+  mentor: "Mentor",
+  viewer: "Viewer",
+  student: "Student",
+  misc_admin: "Reporting Admin (legacy)",
+  role_pending: "Role pending",
+};
+
+function roleLabel(roleId) {
+  return ROLE_LABELS[roleId] || statusText(roleId);
+}
+
 function roleIds(user) {
   return new Set((user?.roles || []).map((role) => role.role_id));
 }
 
 function primaryRoleForUser(user) {
   const roles = roleIds(user);
-  for (const role of ["admin", "program_teacher", "mentor", "student", "misc_admin"]) {
+  for (const role of [
+    "platform_admin",
+    "admin",
+    "org_admin",
+    "site_admin",
+    "program_teacher",
+    "mentor",
+    "viewer",
+    "student",
+    "misc_admin",
+  ]) {
     if (roles.has(role)) return role;
   }
   return "role_pending";
@@ -2155,7 +2202,7 @@ function roleScopeSummary(user) {
   const role = (user?.roles || []).find((assignment) => assignment.role_id === primary);
   if (!role) return "Global scope";
   const scope = role.scope_id ? `${role.scope_type}:${role.scope_id}` : role.scope_type || "global";
-  return `${statusText(primary)} / ${scope}`;
+  return `${roleLabel(primary)} / ${scope}`;
 }
 
 function authConfigForUi() {
@@ -2182,7 +2229,7 @@ function roleChips(user) {
   if (!roles.length) return `<span class="workspace-chip">Role pending</span>`;
   return roles.map((role) => {
     const scope = role.scope_id ? `${role.scope_type}:${role.scope_id}` : role.scope_type || "global";
-    return `<span class="workspace-chip">${escapeHtml(statusText(role.role_id))} / ${escapeHtml(scope)}</span>`;
+    return `<span class="workspace-chip workspace-role-chip" data-role-id="${escapeHtml(role.role_id)}">${escapeHtml(roleLabel(role.role_id))} / ${escapeHtml(scope)}</span>`;
   }).join("");
 }
 

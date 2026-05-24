@@ -111,6 +111,53 @@ test("workspace production text avoids internal build language", () => {
   }
 });
 
+test("workspace exposes Figma-aligned design tokens and future site patterns", () => {
+  for (const token of [
+    "--color-primary",
+    "--color-primary-strong",
+    "--color-primary-soft",
+    "--color-accent",
+    "--color-success",
+    "--color-warning",
+    "--color-danger",
+    "--color-info",
+    "--surface-page",
+    "--surface-card",
+    "--border-soft",
+    "--shadow-card",
+    "--radius-card",
+    "--focus-ring",
+  ]) {
+    assert.ok(workspaceCss.includes(token), `missing workspace token ${token}`);
+  }
+
+  for (const className of [
+    ".workspace-read-only-banner",
+    ".workspace-site-switcher",
+    ".workspace-site-context-badge",
+    ".workspace-student-directory",
+    ".workspace-filter-bar",
+    ".workspace-student-row",
+    ".workspace-student-card",
+    ".workspace-detail-drawer",
+    ".workspace-detail-panel",
+    ".workspace-story-chip",
+    ".workspace-risk-chip",
+    ".workspace-empty-state-card",
+  ]) {
+    assert.ok(workspaceCss.includes(className), `missing workspace pattern ${className}`);
+  }
+
+  assert.match(workspaceJs, /function renderReadOnlyBanner/);
+  assert.match(workspaceJs, /data-workspace-mode="read-only"/);
+  assert.match(workspaceJs, /site_admin: "Administration"/);
+  assert.match(workspaceJs, /platform_admin: "Platform Admin"/);
+  assert.match(workspaceJs, /org_admin: "Organization Admin"/);
+  assert.match(workspaceJs, /viewer: "Viewer"/);
+  assert.match(workspaceJs, /"platform_admin",\s+"admin",\s+"org_admin",\s+"site_admin"/);
+  assert.doesNotMatch(`${workspaceHtml}\n${workspaceJs}\n${workspaceCss}`, /client_secret|refresh_token|access_token|private_key|drive_file_id|driveFileId|drive_parent_folder_id|driveParentFolderId|PASSWORD_PEPPER/i);
+});
+
 test("production surface checker includes the authenticated workspace", () => {
   assert.match(productionSurfaceCheck, /"workspace\.html"/);
   assert.match(productionSurfaceCheck, /"workspace\.js"/);

@@ -1392,4 +1392,16 @@ Future productive runs should append compact entries that name the master-plan s
 - `remote dry-run status`: attempted because a Cloudflare token was available; read-only dry-run failed before any write because remote D1 is missing the `sites` table. No remote migration, reset, seed, or write was run.
 - `validation`: `npm run test` passed with 268 passing tests and 4 expected local HTTP skips; `npm run typecheck` passed; `npm run check` passed; `git diff --check` passed with CRLF normalization warnings only.
 - `blockers`: Phase 5B remote seed write is not safe until remote D1 has migration `0011_multisite_site_role_foundation.sql` applied in an approved later phase.
-- `commit/push status`: pending Phase 5A commit and push.
+- `commit/push status`: committed and pushed as `7f26ef4 data: add multisite demo seed and local proof`.
+
+## 2026-05-24 - PHASE 06 Figma Alignment Foundation
+
+- `starting HEAD`: `7f26ef44d9e4250f5ccaa210c3bc362e3ea4f7e9`.
+- `files inspected`: Phase 5A contract/decision/demo/run docs, run log, workspace HTML/JS/CSS, README, production surface registry, generated route inventory, repo-local Figma/design docs, Figma/design keyword search results, workspace/source/hosted-proof tests, and package validation scripts.
+- `files changed`: `workspace.html`, `workspace.js`, `workspace.css`, `tests/workspace-app.test.mjs`, `docs/design/figma-product-alignment.md`, `docs/mvp-multisite-sales-demo-contract.md`, `docs/decisions/multisite-sales-mvp-decisions.md`, Phase 5A metadata hygiene, Phase 6 manifest, and this run log.
+- `design-token summary`: added semantic workspace tokens for primary/accent/status colors, surfaces, borders, muted text, radius, shadows, spacing, focus ring, and typography; kept the ABC-inspired product palette and existing workspace aliases.
+- `Figma/source availability`: repo-local Figma docs and node handoff records are available for active file `z4t4tFPAKrMDh6pIYOeEw6`; no live Figma file was edited or claimed updated in this phase.
+- `workspace summary`: improved target role labels, added viewer read-only banner support, added future CSS patterns for site context, student directory/detail, filters, story/risk chips, metric action tiles, and empty states; no announcement UI, routes, seeds, or backend route families were added.
+- `validation`: `npm run test` passed with 269 passing tests and 4 expected local HTTP skips; `npm run typecheck` passed; `npm run check` passed; `npm run check:production-surfaces` passed with 91 production text surfaces scanned; `git diff --check` passed with CRLF normalization warnings only.
+- `blockers`: none.
+- `commit/push status`: pending Phase 6 commit and push.

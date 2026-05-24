@@ -8,7 +8,7 @@
     "packageName": "senior-capstone-app"
   },
   "startingHead": "beb510f7e5b2749ea04f2d89e39dd60667c84a55",
-  "endingHead": null,
+  "endingHead": "7f26ef44d9e4250f5ccaa210c3bc362e3ea4f7e9",
   "phase4HygieneFixes": [
     "Updated docs/progress/runs/2026-05-24-site-aware-permission-capabilities.json endingHead to beb510f7e5b2749ea04f2d89e39dd60667c84a55.",
     "Updated the Phase 4 run-log commit/push status to record beb510f auth: add site-aware permission capabilities."
