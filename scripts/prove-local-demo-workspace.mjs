@@ -10,6 +10,8 @@ import { onRequestGet as onMe } from "../functions/api/auth/me.ts";
 import { onRequestGet as onAdminDashboard } from "../functions/api/admin/dashboard.ts";
 import { onRequestGet as onSiteDashboard } from "../functions/api/site/dashboard.ts";
 import { onRequestGet as onSiteStudents } from "../functions/api/site/students.ts";
+import { onRequestGet as onSiteStudentDetail } from "../functions/api/site/students/[studentId].ts";
+import { onRequestGet as onSiteStudentTimeline } from "../functions/api/site/students/[studentId]/timeline.ts";
 import { onRequestGet as onProgramTeacherDashboard } from "../functions/api/program-teacher/dashboard.ts";
 import { onRequestGet as onMentorDashboard } from "../functions/api/mentor/dashboard.ts";
 import { onRequestGet as onTeacherReviewQueue } from "../functions/api/teacher/review-queue.ts";
@@ -26,6 +28,7 @@ import {
   getAccessibleSiteIds,
   getAccessibleTenantIds,
 } from "../functions/_lib/permissions.ts";
+import { sha256Hex } from "../functions/_lib/crypto.ts";
 import { runLocalAdminLoginProof } from "./prove-local-admin-logins.mjs";
 
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
@@ -298,6 +301,7 @@ async function runDemoProof(args = {}, options = {}) {
   const siteAwarePermissions = await verifySiteAwarePermissions(env);
   const siteDashboardRoleProof = await verifySiteDashboardRouteProof(env, demoCredentials);
   const siteStudentDirectoryRoleProof = await verifySiteStudentDirectoryRouteProof(env, demoCredentials);
+  const siteStudentDetailRoleProof = await verifySiteStudentDetailRouteProof(env, demoCredentials, adminCookie);
 
   const adminChecks = {
     authMe: adminMe.authenticated === true,
@@ -337,6 +341,7 @@ async function runDemoProof(args = {}, options = {}) {
     siteAwarePermissions: siteAwarePermissions.ok === true,
     siteDashboardRoleProof: siteDashboardRoleProof.ok === true,
     siteStudentDirectoryRoleProof: siteStudentDirectoryRoleProof.ok === true,
+    siteStudentDetailRoleProof: siteStudentDetailRoleProof.ok === true,
   };
   assertChecks("ADMIN_API_PROOF_FAILED", adminChecks);
 
@@ -475,6 +480,20 @@ async function runDemoProof(args = {}, options = {}) {
       viewerMutationPermissionsFalse: siteStudentDirectoryRoleProof.viewerMutationPermissionsFalse,
       siteAdminCannotAccessSecondary: siteStudentDirectoryRoleProof.siteAdminCannotAccessSecondary,
       programTeacherScoped: siteStudentDirectoryRoleProof.programTeacherScoped,
+    },
+    siteStudentDetail: {
+      ok: true,
+      route: "/api/site/students/:studentId",
+      timelineRoute: "/api/site/students/:studentId/timeline",
+      timelineStrategy: "separate_route_with_preview",
+      storyExamples: siteStudentDetailRoleProof.storyExamples,
+      richTimelineEventTypes: siteStudentDetailRoleProof.richTimelineEventTypes,
+      viewerReadOnly: siteStudentDetailRoleProof.viewerReadOnly,
+      viewerMutationPermissionsFalse: siteStudentDetailRoleProof.viewerMutationPermissionsFalse,
+      siteAdminCannotAccessSecondary: siteStudentDetailRoleProof.siteAdminCannotAccessSecondary,
+      programTeacherScoped: siteStudentDetailRoleProof.programTeacherScoped,
+      mentorAssignedOnly: siteStudentDetailRoleProof.mentorAssignedOnly,
+      noSensitiveDetailFields: siteStudentDetailRoleProof.noSensitiveDetailFields,
     },
     programTeachers: teacherProofs,
     mentors: mentorProofs,
@@ -700,6 +719,222 @@ async function verifySiteStudentDirectoryRouteProof(env, demoCredentials) {
   return { ok: true, ...checks };
 }
 
+async function verifySiteStudentDetailRouteProof(env, demoCredentials, adminCookie) {
+  const storyStudents = {
+    modelExcellent: await findStudentByPrefix(env, "Model Excellent Demo"),
+    missingMentor: await findStudentByPrefix(env, "Missing Mentor Demo"),
+    revisionLoop: await findStudentByPrefix(env, "Revision Loop Demo"),
+    archiveFailed: await findStudentByPrefix(env, "Archive Failed Demo"),
+    richTimeline: await findStudentByPrefix(env, "Rich Timeline Demo"),
+  };
+  const details = {
+    modelExcellent: await routeStudentDetail(env, adminCookie, storyStudents.modelExcellent.id),
+    missingMentor: await routeStudentDetail(env, adminCookie, storyStudents.missingMentor.id),
+    revisionLoop: await routeStudentDetail(env, adminCookie, storyStudents.revisionLoop.id),
+    archiveFailed: await routeStudentDetail(env, adminCookie, storyStudents.archiveFailed.id),
+    richTimeline: await routeStudentDetail(env, adminCookie, storyStudents.richTimeline.id),
+  };
+  const richTimeline = await routeStudentTimeline(env, adminCookie, storyStudents.richTimeline.id, "&limit=20");
+  const richTimelineTypes = Array.from(new Set((richTimeline.events || []).map((event) => event.type))).sort();
+
+  const viewerAccount = (demoCredentials.personaLogins || []).find((account) => (
+    account.role === "viewer" && account.scope === `site:${PRIMARY_SITE_ID}`
+  ));
+  const siteAdminAccount = (demoCredentials.personaLogins || []).find((account) => (
+    account.role === "site_admin" && account.scope === `site:${PRIMARY_SITE_ID}`
+  ));
+  const teacherAccount = (demoCredentials.programTeacherLogins || []).find((account) => account.scope === "program:it");
+  const mentorAccount = (demoCredentials.mentorLogins || []).find((account) => account.email.includes("mentor001"));
+  if (!viewerAccount || !siteAdminAccount || !teacherAccount || !mentorAccount) {
+    throw new DemoProofError("SITE_STUDENT_DETAIL_CREDENTIALS_MISSING", "Missing demo viewer, site-admin, program-teacher, or mentor credential for student detail proof.");
+  }
+
+  const viewerCookie = await login(env, viewerAccount);
+  await getMe(env, viewerCookie, viewerAccount.email, "viewer");
+  const viewerDetail = await routeStudentDetail(env, viewerCookie, storyStudents.modelExcellent.id);
+
+  const siteAdminCookie = await login(env, siteAdminAccount);
+  await getMe(env, siteAdminCookie, siteAdminAccount.email, "site_admin");
+  const secondaryStudent = await findStudentBySite(env, SECONDARY_SITE_IDS[0]);
+  const siteAdminSecondary = await routeStudentDetailStatus(env, siteAdminCookie, secondaryStudent.id, `?siteId=${PRIMARY_SITE_ID}`);
+
+  const teacherCookie = await login(env, teacherAccount);
+  await getMe(env, teacherCookie, teacherAccount.email, "program_teacher");
+  const teacherDetail = await routeStudentDetail(env, teacherCookie, storyStudents.revisionLoop.id);
+  const nonItStudent = await findPrimaryStudentOutsideProgram(env, "it");
+  const teacherDenied = await routeStudentDetailStatus(env, teacherCookie, nonItStudent.id, `?siteId=${PRIMARY_SITE_ID}`);
+
+  const mentorCookie = await login(env, mentorAccount);
+  const mentorMe = await getMe(env, mentorCookie, mentorAccount.email, "mentor");
+  const mentorAssigned = await findAssignedStudentForMentor(env, mentorMe.user.id);
+  const mentorDetail = await routeStudentDetail(env, mentorCookie, mentorAssigned.id);
+  const mentorDenied = await routeStudentDetailStatus(env, mentorCookie, storyStudents.missingMentor.id, `?siteId=${PRIMARY_SITE_ID}`);
+
+  const studentDenied = await routeStudentDetailStatus(env, await seedExistingSession(env, "demo-student-001", "detail-proof-student"), storyStudents.modelExcellent.id, `?siteId=${PRIMARY_SITE_ID}`);
+
+  const mutationPermissionsFalse = (permissions = {}) => [
+    "canMutateReviewDecision",
+    "canAddStaffNote",
+    "canManageMentorAssignments",
+    "canManagePresentationOperations",
+    "canManageArchiveOperations",
+    "canManageUsers",
+    "canManageSecurity",
+  ].every((key) => permissions[key] === false);
+
+  const checks = {
+    modelExcellent: details.modelExcellent.student?.storyBucket === "model_excellent"
+      && ["archived", "approved", "complete"].includes(details.modelExcellent.student?.status),
+    missingMentor: details.missingMentor.student?.storyBucket === "missing_mentor"
+      && details.missingMentor.mentor?.active === false,
+    revisionLoop: details.revisionLoop.student?.storyBucket === "revision_requested"
+      && details.revisionLoop.student?.latestSubmissionStatus === "revision_requested"
+      && (details.revisionLoop.reviews || []).some((review) => review.decision === "revision_requested")
+      && (details.revisionLoop.statusHistory || []).some((event) => event.toStatus === "revision_requested"),
+    archiveFailed: details.archiveFailed.student?.storyBucket === "archive_failed"
+      && details.archiveFailed.archive?.status === "failed"
+      && details.archiveFailed.archive?.storageIdentifiersRedacted === true,
+    richTimeline: details.richTimeline.student?.storyBucket === "rich_timeline"
+      && (details.richTimeline.timelinePreview || []).length <= Number(details.richTimeline.limits?.timelinePreview || 10)
+      && richTimelineTypes.length >= 4
+      && ["evidence", "review", "comment", "mentor_meeting", "presentation", "archive_export"].some((type) => richTimelineTypes.includes(type)),
+    detailLimits: Object.entries(details.richTimeline.limits || {}).every(([key, value]) => key === "timelinePreview" || (details.richTimeline[key] || []).length <= Number(value || 0)),
+    viewerReadOnly: viewerDetail.scope?.readOnly === true,
+    viewerMutationPermissionsFalse: mutationPermissionsFalse(viewerDetail.permissions),
+    siteAdminCannotAccessSecondary: siteAdminSecondary.status === 404,
+    programTeacherScoped: teacherDetail.scope?.role === "program_teacher"
+      && teacherDetail.student?.programId === "it"
+      && teacherDenied.status === 404
+      && mutationPermissionsFalse(teacherDetail.permissions),
+    mentorAssignedOnly: mentorDetail.scope?.role === "mentor"
+      && mentorDenied.status === 404
+      && mutationPermissionsFalse(mentorDetail.permissions),
+    studentDenied: studentDenied.status === 403,
+    timelinePagination: Number(richTimeline.pagination?.limit || 0) === 20
+      && (richTimeline.events || []).length <= 20,
+    noSensitiveDetailFields: !directoryHasForbiddenOutput([
+      details,
+      richTimeline,
+      viewerDetail,
+      siteAdminSecondary.body,
+      teacherDetail,
+      teacherDenied.body,
+      mentorDetail,
+      mentorDenied.body,
+      studentDenied.body,
+    ]),
+  };
+  assertChecks("SITE_STUDENT_DETAIL_ROUTE_PROOF_FAILED", checks);
+
+  return {
+    ok: true,
+    ...checks,
+    storyExamples: Object.fromEntries(Object.entries(storyStudents).map(([key, row]) => [key, row.displayName])),
+    richTimelineEventTypes: richTimelineTypes,
+  };
+}
+
+async function routeStudentDetail(env, cookie, studentId, query = `?siteId=${PRIMARY_SITE_ID}`) {
+  return routeJson(
+    onSiteStudentDetail,
+    env,
+    cookie,
+    `https://local.capstone.test/api/site/students/${encodeURIComponent(studentId)}${query}`,
+    { studentId },
+  );
+}
+
+async function routeStudentTimeline(env, cookie, studentId, querySuffix = "") {
+  return routeJson(
+    onSiteStudentTimeline,
+    env,
+    cookie,
+    `https://local.capstone.test/api/site/students/${encodeURIComponent(studentId)}/timeline?siteId=${PRIMARY_SITE_ID}${querySuffix}`,
+    { studentId },
+  );
+}
+
+async function routeStudentDetailStatus(env, cookie, studentId, query = `?siteId=${PRIMARY_SITE_ID}`) {
+  return routeStatus(
+    onSiteStudentDetail,
+    env,
+    cookie,
+    `https://local.capstone.test/api/site/students/${encodeURIComponent(studentId)}${query}`,
+    { studentId },
+  );
+}
+
+async function findStudentByPrefix(env, prefix) {
+  const row = await env.DB.prepare(
+    `SELECT user_accounts.id, user_accounts.display_name
+     FROM user_accounts
+     JOIN site_users ON site_users.user_id = user_accounts.id
+      AND site_users.site_id = ?
+      AND site_users.membership_status = 'active'
+     WHERE user_accounts.display_name LIKE ?
+     ORDER BY user_accounts.display_name ASC
+     LIMIT 1`,
+  ).bind(PRIMARY_SITE_ID, `${prefix}%`).first();
+  if (!row) throw new DemoProofError("SITE_STUDENT_DETAIL_STORY_MISSING", `Missing seeded story student for ${prefix}.`);
+  return { id: row.id, displayName: row.display_name };
+}
+
+async function findStudentBySite(env, siteId) {
+  const row = await env.DB.prepare(
+    `SELECT user_accounts.id, user_accounts.display_name
+     FROM site_users
+     JOIN user_accounts ON user_accounts.id = site_users.user_id
+      AND user_accounts.status = 'active'
+     JOIN user_roles ON user_roles.user_id = user_accounts.id
+      AND user_roles.role_id = 'student'
+     WHERE site_users.site_id = ?
+      AND site_users.membership_status = 'active'
+     ORDER BY user_accounts.display_name ASC
+     LIMIT 1`,
+  ).bind(siteId).first();
+  if (!row) throw new DemoProofError("SITE_STUDENT_DETAIL_SITE_STUDENT_MISSING", `Missing seeded student for ${siteId}.`);
+  return { id: row.id, displayName: row.display_name };
+}
+
+async function findPrimaryStudentOutsideProgram(env, programId) {
+  const row = await env.DB.prepare(
+    `SELECT DISTINCT user_accounts.id, user_accounts.display_name
+     FROM site_users
+     JOIN user_accounts ON user_accounts.id = site_users.user_id
+      AND user_accounts.status = 'active'
+     JOIN user_roles ON user_roles.user_id = user_accounts.id
+      AND user_roles.role_id = 'student'
+     JOIN group_memberships ON group_memberships.user_id = user_accounts.id
+     JOIN groups ON groups.id = group_memberships.group_id
+     WHERE site_users.site_id = ?
+      AND site_users.membership_status = 'active'
+      AND groups.program_id IS NOT NULL
+      AND groups.program_id <> ?
+     ORDER BY user_accounts.display_name ASC
+     LIMIT 1`,
+  ).bind(PRIMARY_SITE_ID, programId).first();
+  if (!row) throw new DemoProofError("SITE_STUDENT_DETAIL_OUT_OF_PROGRAM_STUDENT_MISSING", `Missing primary-site student outside ${programId}.`);
+  return { id: row.id, displayName: row.display_name };
+}
+
+async function findAssignedStudentForMentor(env, mentorId) {
+  const row = await env.DB.prepare(
+    `SELECT user_accounts.id, user_accounts.display_name
+     FROM mentor_assignments
+     JOIN user_accounts ON user_accounts.id = mentor_assignments.student_user_id
+      AND user_accounts.status = 'active'
+     JOIN site_users ON site_users.user_id = user_accounts.id
+      AND site_users.site_id = ?
+      AND site_users.membership_status = 'active'
+     WHERE mentor_assignments.mentor_user_id = ?
+      AND mentor_assignments.active = 1
+     ORDER BY user_accounts.display_name ASC
+     LIMIT 1`,
+  ).bind(PRIMARY_SITE_ID, mentorId).first();
+  if (!row) throw new DemoProofError("SITE_STUDENT_DETAIL_MENTOR_STUDENT_MISSING", `Missing assigned student for ${mentorId}.`);
+  return { id: row.id, displayName: row.display_name };
+}
+
 async function loadProofUsers(env) {
   const ids = {
     platform: "demo-platform-admin-001",
@@ -719,8 +954,8 @@ async function loadProofUsers(env) {
   return output;
 }
 
-async function routeJson(handler, env, cookie, url) {
-  const response = await handler({ request: authedRequest(url, cookie), env });
+async function routeJson(handler, env, cookie, url, params = undefined) {
+  const response = await handler({ request: authedRequest(url, cookie), env, params });
   const body = await responseJson(response);
   if (response.status !== 200 || body.ok !== true) {
     throw new DemoProofError("API_ROUTE_FAILED", "A required local demo API route failed.", { url, status: response.status, body: safeBody(body) });
@@ -728,10 +963,19 @@ async function routeJson(handler, env, cookie, url) {
   return body;
 }
 
-async function routeStatus(handler, env, cookie, url) {
-  const response = await handler({ request: authedRequest(url, cookie), env });
+async function routeStatus(handler, env, cookie, url, params = undefined) {
+  const response = await handler({ request: authedRequest(url, cookie), env, params });
   const body = await responseJson(response);
   return { status: response.status, body: safeBody(body) };
+}
+
+async function seedExistingSession(env, userId, token) {
+  const tokenHash = await sha256Hex(`${env.SESSION_PEPPER || ""}${token}`);
+  await env.DB.prepare(
+    `INSERT OR REPLACE INTO sessions (id, user_id, token_hash, expires_at)
+     VALUES (?, ?, ?, ?)`,
+  ).bind(`sess-${token}`, userId, tokenHash, "2099-01-01T00:00:00.000Z").run();
+  return token;
 }
 
 function assertChecks(classification, checks) {
@@ -906,7 +1150,7 @@ function safeBody(body) {
 }
 
 function directoryHasForbiddenOutput(values) {
-  return /drive_file_id|drive_parent_folder_id|storage_key|password_hash|password_salt|token_hash|client_secret|refresh_token|access_token|private_key|PASSWORD_PEPPER|temporaryPassword|setupPassword/i.test(JSON.stringify(values || []));
+  return /drive_file_id|drive_parent_folder_id|root_folder_id|index_sheet_id|storage_key|password_hash|password_salt|token_hash|client_secret|refresh_token|access_token|private_key|content_sha256|body_json|PASSWORD_PEPPER|temporaryPassword|setupPassword/i.test(JSON.stringify(values || []));
 }
 
 function redact(value) {

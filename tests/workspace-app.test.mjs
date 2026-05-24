@@ -69,11 +69,12 @@ test("workspace route is a real authenticated app surface", () => {
   assert.match(workspaceJs, /function renderSiteStudentDirectorySection/);
   assert.match(workspaceJs, /function renderProgramTeacherDashboardSection/);
   assert.match(workspaceJs, /function renderMentorDashboardSection/);
+  assert.match(workspaceJs, /\/api\/site\/students\/\$\{encodeURIComponent\(selectedStudentId\)\}/);
+  assert.match(workspaceJs, /\/api\/site\/students\/\$\{encodeURIComponent\(siteStudentDetailState\.studentId\)\}\/timeline/);
   assert.match(workspaceJs, /Continue with Google Workspace/);
   assert.match(workspaceJs, /Google Workspace sign-in is not configured for this environment yet/);
   assert.match(workspaceJs, /Local account sign in/);
   assert.doesNotMatch(workspaceJs, /\/api\/announcements/);
-  assert.doesNotMatch(workspaceJs, /\/api\/site\/students\/\$\{|\/api\/site\/students\/:/);
   assert.doesNotMatch(workspaceJs, /announcements:\s*null/);
   assert.doesNotMatch(workspaceJs, /Current Updates|No current announcements|workspace-kicker">Announcements/i);
   assert.match(workspaceJs, /Role-Safe Priorities/);
@@ -373,7 +374,7 @@ test("workspace renders route-connected site dashboard with Figma product-system
   assert.match(selectionRequired, /Next action/);
 });
 
-test("workspace renders route-connected student directory with filters and no detail navigation", async () => {
+test("workspace renders route-connected student directory with filters and real detail action", async () => {
   const directoryBody = siteStudentsFixture();
   const siteAdmin = await renderWorkspaceWithFetch({
     "/api/auth/me": {
@@ -418,9 +419,10 @@ test("workspace renders route-connected student directory with filters and no de
   assert.match(siteAdmin, /Audited changes/);
   assert.match(siteAdmin, /Teacher intervention/);
   assert.match(siteAdmin, /No student messaging/);
-  assert.match(siteAdmin, /Detail view coming soon/);
-  assert.match(siteAdmin, /data-student-detail-disabled="phase-9"/);
-  assert.doesNotMatch(siteAdmin, /href="[^"]*\/api\/site\/students\/|data-section="studentDetail"|data-section="studentDirectory"/);
+  assert.match(siteAdmin, /View detail/);
+  assert.match(siteAdmin, /data-site-student-action="view-detail"/);
+  assert.match(siteAdmin, /data-student-detail-id="demo-student-101"/);
+  assert.doesNotMatch(siteAdmin, /Detail view coming soon|data-student-detail-disabled="phase-9"|href="[^"]*\/api\/site\/students\/|data-section="studentDetail"|data-section="studentDirectory"/);
 
   const viewer = await renderWorkspaceWithFetch({
     "/api/auth/me": {
@@ -512,6 +514,90 @@ test("workspace renders route-connected student directory with filters and no de
   assert.match(empty, /Reason/);
   assert.match(empty, /Owner/);
   assert.match(empty, /Next action/);
+});
+
+test("workspace opens real student detail, loads timeline, and preserves directory state", async () => {
+  const filteredDirectory = siteStudentsFixture({
+    readOnly: true,
+    filteredTotal: 10,
+    filters: {
+      search: "Revision Loop Demo",
+      programId: "it",
+      status: "revision_requested",
+      noMentor: false,
+      risk: "any",
+      story: "revision_requested",
+      presentationStatus: "any",
+      archiveStatus: "any",
+      limit: 50,
+      offset: 50,
+    },
+  });
+  const { context, workspaceRoot } = await createWorkspaceContextWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "viewer-detail",
+          email: "viewer.detail@example.edu",
+          displayName: "Student Detail Viewer",
+          roles: [{ role_id: "viewer", scope_type: "site", scope_id: "site-desert-valley-high" }],
+        },
+      },
+    },
+    "/api/site/dashboard": {
+      status: 200,
+      body: siteDashboardFixture({ readOnly: true }),
+    },
+    "/api/site/students": {
+      status: 200,
+      body: filteredDirectory,
+    },
+    "/api/site/students/demo-student-101": {
+      status: 200,
+      body: siteStudentDetailFixture({ readOnly: true }),
+    },
+    "/api/site/students/demo-student-101/timeline": {
+      status: 200,
+      body: siteStudentTimelineFixture({ readOnly: true }),
+    },
+  });
+
+  vm.runInContext('activeSection = "students"; renderAppShell();', context);
+  assert.match(workspaceRoot.innerHTML, /value="Revision Loop Demo"/);
+  assert.match(workspaceRoot.innerHTML, /Offset 50 \/ Limit 50/);
+  assert.doesNotMatch(workspaceRoot.innerHTML, /workspace-detail-drawer/);
+
+  await vm.runInContext('openSiteStudentDetail("demo-student-101")', context);
+  assert.match(workspaceRoot.innerHTML, /workspace-detail-drawer/);
+  assert.match(workspaceRoot.innerHTML, /workspace-detail-panel/);
+  assert.match(workspaceRoot.innerHTML, /Student detail/);
+  assert.match(workspaceRoot.innerHTML, /Missing Mentor Demo 001/);
+  assert.match(workspaceRoot.innerHTML, /workspace-site-context-badge/);
+  assert.match(workspaceRoot.innerHTML, /workspace-story-chip/);
+  assert.match(workspaceRoot.innerHTML, /workspace-risk-chip/);
+  assert.match(workspaceRoot.innerHTML, /Read-only viewer/);
+  assert.match(workspaceRoot.innerHTML, /Summary/);
+  assert.match(workspaceRoot.innerHTML, /Progress/);
+  assert.match(workspaceRoot.innerHTML, /Evidence/);
+  assert.match(workspaceRoot.innerHTML, /Reviews &amp; Comments/);
+  assert.match(workspaceRoot.innerHTML, /Timeline/);
+  assert.match(workspaceRoot.innerHTML, /workspace-status-pill/);
+  assert.match(workspaceRoot.innerHTML, /value="Revision Loop Demo"/);
+  assert.match(workspaceRoot.innerHTML, /Offset 50 \/ Limit 50/);
+  assert.doesNotMatch(workspaceRoot.innerHTML, /data-review-decision|data-mentor-assignment|data-archive-retry|Request revision|Assign mentor|Archive retry|Download file|Download archive/);
+
+  await vm.runInContext('selectSiteStudentDetailTab({ currentTarget: { dataset: { studentDetailTab: "timeline" } } })', context);
+  assert.match(workspaceRoot.innerHTML, /data-student-detail-section="timeline"/);
+  assert.match(workspaceRoot.innerHTML, /Timeline event/);
+  assert.match(workspaceRoot.innerHTML, /Evidence added/);
+  assert.match(workspaceRoot.innerHTML, /value="Revision Loop Demo"/);
+
+  vm.runInContext('handleSiteStudentDetailAction({ currentTarget: { dataset: { studentDetailAction: "close" } } })', context);
+  assert.doesNotMatch(workspaceRoot.innerHTML, /workspace-detail-drawer/);
+  assert.match(workspaceRoot.innerHTML, /value="Revision Loop Demo"/);
+  assert.match(workspaceRoot.innerHTML, /Offset 50 \/ Limit 50/);
 });
 
 test("workspace gates student directory visibility by role", () => {
@@ -1322,6 +1408,7 @@ function siteStudentsFixture({
   total = 250,
   filteredTotal = total,
   students = null,
+  filters = null,
 } = {}) {
   const visibleStudents = students ?? [
     {
@@ -1395,7 +1482,7 @@ function siteStudentsFixture({
         { siteId: "site-desert-valley-high", siteName: "Desert Valley High School" },
       ],
     },
-    filters: {
+    filters: filters || {
       search: "",
       programId: "",
       status: "",
@@ -1454,6 +1541,227 @@ function siteStudentsFixture({
   };
 }
 
+function siteStudentDetailFixture({ readOnly = false } = {}) {
+  return {
+    ok: true,
+    generatedAt: "2026-05-24T16:45:00.000Z",
+    scope: {
+      tenantId: "tenant-desert-valley",
+      tenantName: "Desert Valley School District",
+      siteId: "site-desert-valley-high",
+      siteName: "Desert Valley High School",
+      schoolYear: "2025-2026",
+      role: readOnly ? "viewer" : "site_admin",
+      readOnly,
+      selectionMode: "single_accessible_site",
+      studentId: "demo-student-101",
+      accessibleSites: [{ siteId: "site-desert-valley-high", siteName: "Desert Valley High School" }],
+    },
+    student: {
+      studentId: "demo-student-101",
+      displayName: "Missing Mentor Demo 001",
+      email: "missing.mentor.001@demo-student.capstone.test",
+      status: "revision_requested",
+      siteId: "site-desert-valley-high",
+      siteName: "Desert Valley High School",
+      programId: "it",
+      programName: "Information Technology",
+      cohortId: "cohort-it-2026",
+      cohortName: "IT 2026",
+      storyBucket: "missing_mentor",
+      riskScore: 8,
+      riskFlags: ["no_mentor", "high"],
+      latestSubmissionStatus: "revision_requested",
+      lastActivityAt: "2026-05-20T12:00:00.000Z",
+      evidenceCount: 3,
+      reviewCount: 1,
+      commentCount: 2,
+      presentationStatus: "pending",
+      archiveStatus: "missing",
+      nextAction: "Assign or confirm mentor coverage.",
+    },
+    mentor: {
+      mentorUserId: "",
+      mentorName: "",
+      active: false,
+      assignedAt: "",
+      meetingCount: 0,
+      latestMeetingAt: "",
+      latestMeetingStatus: "",
+      nextAction: "Assign or confirm mentor coverage.",
+    },
+    progress: {
+      requirementsTotal: 8,
+      requirementsComplete: 3,
+      percentComplete: 38,
+      currentStage: "proposal",
+      blockedReasons: ["no_mentor", "revision_requested"],
+      nextAction: "Resolve the visible blockers before closeout.",
+    },
+    submissions: [
+      {
+        submissionId: "submission-101",
+        requirementTitle: "Project proposal",
+        status: "revision_requested",
+        version: 2,
+        updatedAt: "2026-05-20T12:00:00.000Z",
+        evidenceCount: 3,
+        nextAction: "Student revision is needed before approval.",
+      },
+    ],
+    evidence: [
+      {
+        evidenceId: "evidence-101",
+        title: "Research plan",
+        artifactType: "research",
+        sourceKind: "external_link",
+        reviewStatus: "pending_review",
+        createdAt: "2026-05-19T12:00:00.000Z",
+        externalUrl: "https://example.com/capstone-demo/student101/research",
+        storageIdentifiersRedacted: true,
+      },
+    ],
+    reviews: [
+      {
+        reviewId: "review-101",
+        requirementTitle: "Project proposal",
+        decision: "revision_requested",
+        feedback: "Revision requested. Add one measurable success criteria.",
+        reviewerName: "Program Teacher",
+        createdAt: "2026-05-20T12:00:00.000Z",
+      },
+    ],
+    comments: [
+      {
+        commentId: "comment-101",
+        visibility: "student_and_staff",
+        body: "Use the rubric to tighten the next draft.",
+        authorName: "Program Teacher",
+        createdAt: "2026-05-20T12:10:00.000Z",
+      },
+    ],
+    statusHistory: [
+      {
+        statusHistoryId: "status-101",
+        fromStatus: "submitted",
+        toStatus: "revision_requested",
+        reason: "Revision requested after teacher feedback.",
+        changedByName: "Program Teacher",
+        createdAt: "2026-05-20T12:00:00.000Z",
+      },
+    ],
+    mentorMeetings: [],
+    presentation: {
+      status: "pending",
+      scheduledAt: "2026-05-28T17:00:00.000Z",
+      room: "Demo Room 101",
+      outlineStatus: "pending",
+      checkInStatus: "scheduled",
+      nextAction: "Resolve outline readiness before presentation.",
+    },
+    archive: {
+      status: "missing",
+      exportStatus: "not_requested",
+      ready: false,
+      failed: false,
+      artifactCount: 0,
+      storageIdentifiersRedacted: true,
+      nextAction: "Prepare archive readiness checks when the student reaches closeout.",
+    },
+    timelinePreview: [
+      {
+        id: "timeline-101-review",
+        type: "review",
+        occurredAt: "2026-05-20T12:00:00.000Z",
+        title: "Review Revision requested",
+        summary: "Revision requested. Add one measurable success criteria.",
+        status: "revision_requested",
+      },
+    ],
+    timeline: {
+      strategy: "separate_route_with_preview",
+      route: "/api/site/students/demo-student-101/timeline",
+      previewLimit: 10,
+    },
+    permissions: {
+      canViewStudentEvidence: true,
+      canDownloadStudentEvidence: false,
+      canViewReviewQueue: true,
+      canMutateReviewDecision: false,
+      canAddStaffNote: false,
+      canManageMentorAssignments: false,
+      canViewPresentationOperations: true,
+      canManagePresentationOperations: false,
+      canViewArchiveOperations: true,
+      canManageArchiveOperations: false,
+      canManageUsers: false,
+      canManageSecurity: false,
+    },
+    visibility: {
+      mode: readOnly ? "viewer_read_only" : "admin_operational",
+      staffOnlyComments: "included_when_scoped",
+      adminContext: readOnly ? "omitted" : "included_when_scoped",
+      unsafeStorageIdentifiers: "redacted",
+    },
+    limits: {
+      submissions: 5,
+      evidence: 10,
+      reviews: 10,
+      comments: 10,
+      statusHistory: 10,
+      mentorMeetings: 5,
+      timelinePreview: 10,
+    },
+  };
+}
+
+function siteStudentTimelineFixture({ readOnly = false } = {}) {
+  return {
+    ok: true,
+    generatedAt: "2026-05-24T16:46:00.000Z",
+    scope: {
+      siteId: "site-desert-valley-high",
+      siteName: "Desert Valley High School",
+      role: readOnly ? "viewer" : "site_admin",
+      readOnly,
+      studentId: "demo-student-101",
+    },
+    pagination: {
+      limit: 50,
+      offset: 0,
+      returned: 2,
+      hasMore: false,
+    },
+    filters: { type: "" },
+    events: [
+      {
+        id: "timeline-101-event",
+        type: "evidence",
+        occurredAt: "2026-05-21T12:00:00.000Z",
+        title: "Evidence added",
+        summary: "Timeline event with storage identifiers redacted.",
+        actorName: "Student",
+        status: "pending_review",
+        reason: "",
+        owner: "Student",
+        nextAction: "Review evidence context in the evidence section.",
+      },
+      {
+        id: "timeline-101-review",
+        type: "review",
+        occurredAt: "2026-05-20T12:00:00.000Z",
+        title: "Review Revision requested",
+        summary: "Revision requested. Add one measurable success criteria.",
+        actorName: "Program Teacher",
+        status: "revision_requested",
+        reason: "Revision requested. Add one measurable success criteria.",
+        owner: "Program teacher",
+        nextAction: "Track the revision loop and next student submission.",
+      },
+    ],
+  };
+}
+
 async function renderWorkspaceWithFetch(routes, section = "", beforeSectionScript = "") {
   const { context, workspaceRoot } = await createWorkspaceContextWithFetch(routes);
   if (section || beforeSectionScript) {
@@ -1490,7 +1798,10 @@ async function createWorkspaceContextWithFetch(routes) {
     },
     encodeURIComponent,
     fetch: async (url) => {
-      const pathname = typeof url === "string" ? url : url?.pathname;
+      const rawPath = typeof url === "string" ? url : url?.pathname;
+      const pathname = String(rawPath || "").startsWith("http")
+        ? new URL(rawPath).pathname
+        : String(rawPath || "").split("?")[0];
       const route = routes[pathname];
       if (!route) throw new Error(`Unexpected workspace fetch: ${pathname}`);
       return {

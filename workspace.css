@@ -1286,9 +1286,38 @@
   color: #734300;
 }
 
-.workspace-detail-coming-soon {
-  cursor: default;
-  white-space: nowrap;
+.workspace-detail-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  border-bottom: 1px solid var(--border-soft);
+  padding-bottom: 0.7rem;
+}
+
+.workspace-detail-tab {
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-pill);
+  background: var(--surface-card);
+  color: var(--abc-charcoal);
+  cursor: pointer;
+  font: inherit;
+  font-size: var(--font-size-caption);
+  font-weight: 950;
+  min-height: 36px;
+  padding: 0.34rem 0.72rem;
+}
+
+.workspace-detail-tab.is-active,
+.workspace-detail-tab:focus-visible {
+  border-color: color-mix(in srgb, var(--workspace-primary) 48%, white);
+  background: var(--workspace-soft);
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.workspace-detail-section {
+  display: grid;
+  gap: var(--space-card);
 }
 
 a.workspace-metric-tile,

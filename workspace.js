@@ -6,6 +6,8 @@ let currentData = {
   dashboard: null,
   siteDashboard: null,
   siteStudents: null,
+  siteStudentDetail: null,
+  siteStudentTimeline: null,
   adminDashboard: null,
   programTeacherDashboard: null,
   mentorDashboard: null,
@@ -20,6 +22,7 @@ let activeSection = "overview";
 let busy = false;
 let lastAdminImportResult = null;
 let siteStudentFilters = defaultSiteStudentFilters();
+let siteStudentDetailState = defaultSiteStudentDetailState();
 const WORKSPACE_UPLOAD_MAX_BYTES = 20 * 1024 * 1024;
 const WORKSPACE_UPLOAD_ALLOWED_MIME_TYPES = new Set([
   "application/pdf",
@@ -164,6 +167,8 @@ function defaultCurrentData(authConfig = currentData.authConfig) {
     dashboard: null,
     siteDashboard: null,
     siteStudents: null,
+    siteStudentDetail: null,
+    siteStudentTimeline: null,
     adminDashboard: null,
     programTeacherDashboard: null,
     mentorDashboard: null,
@@ -816,6 +821,7 @@ function renderSiteStudentDirectorySection() {
       ${renderStudentDirectoryFilterBar(directory)}
       ${renderStudentDirectoryResultSummary(directory)}
       ${students.length ? renderStudentRows(students, readOnly) : renderStudentDirectoryEmptyState(directory)}
+      ${renderSiteStudentDetailSurface(directory)}
     </section>
   `;
 }
@@ -987,8 +993,8 @@ function renderStudentRow(student, readOnly = false) {
       </div>
       <div class="workspace-row-actions">
         <span class="workspace-site-context-badge">${escapeHtml(safeNumber(student.evidenceCount))} evidence</span>
-        <button class="workspace-link-button workspace-link-button-small workspace-detail-coming-soon" type="button" disabled data-student-detail-disabled="phase-9">
-          Detail view coming soon
+        <button class="workspace-link-button workspace-link-button-small" type="button" data-site-student-action="view-detail" data-student-detail-id="${escapeHtml(student.studentId || "")}">
+          View detail
         </button>
         ${readOnly ? `<span class="workspace-chip" data-workspace-mode="read-only">Read-only</span>` : ""}
       </div>
@@ -1006,6 +1012,374 @@ function renderStudentDirectoryEmptyState(directory) {
         owner: emptyState.owner || "Assigned staff or site administrator.",
         nextAction: emptyState.nextAction || "Adjust filters or check the student's project status.",
       })}
+    </section>
+  `;
+}
+
+function renderSiteStudentDetailSurface(directory) {
+  const state = siteStudentDetailState || defaultSiteStudentDetailState();
+  if (!state.studentId) return "";
+  const selectedRow = (directory.students || []).find((student) => student.studentId === state.studentId);
+  const title = selectedRow?.displayName || "Student detail";
+
+  if (state.loading) {
+    return `
+      <aside class="workspace-detail-drawer" data-student-detail-state="loading" aria-label="Student detail">
+        <div class="workspace-detail-panel">
+          <div class="workspace-card-head">
+            <div>
+              <p class="workspace-kicker">Student detail</p>
+              <h2>${escapeHtml(title)}</h2>
+            </div>
+            <button class="workspace-link-button workspace-link-button-small" type="button" data-student-detail-action="close">Close</button>
+          </div>
+          ${renderProblemState({
+            reason: "Loading the site-scoped student record.",
+            owner: "Assigned staff workspace.",
+            nextAction: "Keep the directory open while the detail response returns.",
+          })}
+        </div>
+      </aside>
+    `;
+  }
+
+  const detail = unwrap(state.result);
+  if (!detail) {
+    return `
+      <aside class="workspace-detail-drawer" data-student-detail-state="error" aria-label="Student detail">
+        <div class="workspace-detail-panel">
+          <div class="workspace-card-head">
+            <div>
+              <p class="workspace-kicker">Student detail</p>
+              <h2>${escapeHtml(title)}</h2>
+            </div>
+            <button class="workspace-link-button workspace-link-button-small" type="button" data-student-detail-action="close">Close</button>
+          </div>
+          ${renderApiNotice(state.result)}
+          ${renderProblemState({
+            reason: "This student detail is unavailable for the current site and role scope.",
+            owner: "Administration or platform support.",
+            nextAction: "Use the visible directory rows or confirm the selected site assignment.",
+          })}
+        </div>
+      </aside>
+    `;
+  }
+
+  const scope = detail.scope || {};
+  const student = detail.student || {};
+  const activeTab = state.activeTab || "summary";
+  const riskFlags = Array.isArray(student.riskFlags) ? student.riskFlags : [];
+  return `
+    <aside class="workspace-detail-drawer" data-student-detail-state="ready" data-student-detail-id="${escapeHtml(student.studentId || state.studentId)}" aria-labelledby="siteStudentDetailTitle">
+      <div class="workspace-detail-panel">
+        <div class="workspace-card-head">
+          <div>
+            <p class="workspace-kicker">Student detail</p>
+            <h2 id="siteStudentDetailTitle">${escapeHtml(student.displayName || title)}</h2>
+            <p class="workspace-muted">${escapeHtml(student.email || "")}</p>
+          </div>
+          <button class="workspace-link-button workspace-link-button-small" type="button" data-student-detail-action="close">Close</button>
+        </div>
+        <div class="workspace-chip-row">
+          <span class="workspace-site-context-badge">${escapeHtml(scope.siteName || directory.scope?.siteName || "Selected site")}</span>
+          <span class="workspace-site-context-badge">${escapeHtml(student.programName || "Unassigned")}</span>
+          <span class="workspace-site-context-badge">${escapeHtml(student.cohortName || "No cohort")}</span>
+          ${scope.readOnly ? `<span class="workspace-chip" data-workspace-mode="read-only">Read-only viewer</span>` : ""}
+        </div>
+        <div class="workspace-chip-row">
+          ${statusPill(student.status || "draft")}
+          ${statusPill(student.presentationStatus || "missing")}
+          ${statusPill(student.archiveStatus || "missing")}
+          ${student.storyBucket ? `<span class="workspace-story-chip">${escapeHtml(storyLabel(student.storyBucket))}</span>` : ""}
+          ${riskFlags.length ? riskFlags.map((flag) => `<span class="workspace-risk-chip">${escapeHtml(riskLabel(flag))}</span>`).join("") : `<span class="workspace-risk-chip">Low risk</span>`}
+        </div>
+        ${renderStudentDetailTabs(activeTab)}
+        ${renderStudentDetailTab(detail, activeTab, state)}
+      </div>
+    </aside>
+  `;
+}
+
+function renderStudentDetailTabs(activeTab) {
+  const tabs = [
+    ["summary", "Summary"],
+    ["progress", "Progress"],
+    ["submissions", "Submissions"],
+    ["evidence", "Evidence"],
+    ["reviews", "Reviews & Comments"],
+    ["mentor", "Mentor"],
+    ["presentation", "Presentation"],
+    ["archive", "Archive"],
+    ["timeline", "Timeline"],
+  ];
+  return `
+    <div class="workspace-detail-tabs" role="tablist" aria-label="Student detail sections">
+      ${tabs.map(([id, label]) => `
+        <button class="workspace-detail-tab ${activeTab === id ? "is-active" : ""}" type="button" role="tab" data-student-detail-tab="${escapeHtml(id)}" ${activeTab === id ? 'aria-selected="true"' : ""}>
+          ${escapeHtml(label)}
+        </button>
+      `).join("")}
+    </div>
+  `;
+}
+
+function renderStudentDetailTab(detail, activeTab, state) {
+  if (activeTab === "progress") return renderStudentDetailProgress(detail);
+  if (activeTab === "submissions") return renderStudentDetailSubmissions(detail);
+  if (activeTab === "evidence") return renderStudentDetailEvidence(detail);
+  if (activeTab === "reviews") return renderStudentDetailReviews(detail);
+  if (activeTab === "mentor") return renderStudentDetailMentor(detail);
+  if (activeTab === "presentation") return renderStudentDetailPresentation(detail);
+  if (activeTab === "archive") return renderStudentDetailArchive(detail);
+  if (activeTab === "timeline") return renderStudentDetailTimeline(detail, state);
+  return renderStudentDetailSummary(detail);
+}
+
+function renderStudentDetailSummary(detail) {
+  const student = detail.student || {};
+  const mentor = detail.mentor || {};
+  const progress = detail.progress || {};
+  return `
+    <section class="workspace-detail-section" data-student-detail-section="summary">
+      <div class="workspace-dashboard-grid workspace-dashboard-grid-two">
+        ${renderDashboardCard("Current Story", "Role scoped views", `
+          <p>${escapeHtml(student.nextAction || "Continue normal capstone monitoring.")}</p>
+          <div class="workspace-chip-row">
+            <span class="workspace-site-context-badge">${escapeHtml(safeNumber(student.evidenceCount))} evidence</span>
+            <span class="workspace-site-context-badge">${escapeHtml(safeNumber(student.reviewCount))} reviews</span>
+            <span class="workspace-site-context-badge">${escapeHtml(safeNumber(student.commentCount))} comments</span>
+          </div>
+        `)}
+        ${renderDashboardCard("Mentor", mentor.active ? "Assigned student support" : "Coverage needed", `
+          <strong>${escapeHtml(mentor.active ? mentor.mentorName || "Assigned mentor" : "No active mentor")}</strong>
+          <p>${escapeHtml(mentor.nextAction || "Continue mentor support.")}</p>
+          ${statusPill(mentor.active ? "approved" : "blocked")}
+        `)}
+        ${renderDashboardCard("Progress", "Bounded section summary", `
+          <p>${escapeHtml(safeNumber(progress.requirementsComplete))} of ${escapeHtml(safeNumber(progress.requirementsTotal))} requirements complete.</p>
+          <p>${escapeHtml(safeNumber(progress.percentComplete))}% complete / ${escapeHtml(progress.currentStage || "proposal")}</p>
+          ${statusPill(progress.blockedReasons?.length ? "blocked" : "ready")}
+        `)}
+        ${renderDashboardCard("Visibility", "Private evidence and audited changes", `
+          <p>Role scoped detail with storage identifiers redacted.</p>
+          <p class="workspace-muted">Review workflow controls remain in the teacher queue.</p>
+          ${statusPill("configured")}
+        `)}
+      </div>
+    </section>
+  `;
+}
+
+function renderStudentDetailProgress(detail) {
+  const progress = detail.progress || {};
+  const blockedReasons = Array.isArray(progress.blockedReasons) ? progress.blockedReasons : [];
+  return `
+    <section class="workspace-detail-section" data-student-detail-section="progress">
+      ${renderDashboardCard("Progress", "Current stage and next action", `
+        <p>${escapeHtml(safeNumber(progress.requirementsComplete))} of ${escapeHtml(safeNumber(progress.requirementsTotal))} requirements complete.</p>
+        <p>${escapeHtml(progress.nextAction || "Continue the next capstone milestone.")}</p>
+        <div class="workspace-chip-row">
+          <span class="workspace-site-context-badge">${escapeHtml(progress.currentStage || "proposal")}</span>
+          <span class="workspace-site-context-badge">${escapeHtml(safeNumber(progress.percentComplete))}% complete</span>
+        </div>
+      `)}
+      ${blockedReasons.length ? `
+        <div class="workspace-empty-state-card">
+          <strong>Blocked reasons</strong>
+          <div class="workspace-chip-row">${blockedReasons.map((reason) => `<span class="workspace-risk-chip">${escapeHtml(riskLabel(reason))}</span>`).join("")}</div>
+        </div>
+      ` : ""}
+    </section>
+  `;
+}
+
+function renderStudentDetailSubmissions(detail) {
+  const rows = detail.submissions || [];
+  return renderStudentDetailList("Submissions", "Newest submitted work", rows, "No submissions are available for this student.", (row) => `
+    <article class="workspace-row">
+      <div>
+        <strong>${escapeHtml(row.requirementTitle || "Senior Project submission")}</strong>
+        <p>Version ${escapeHtml(row.version || 1)} / ${escapeHtml(row.evidenceCount || 0)} evidence item${safeNumber(row.evidenceCount) === 1 ? "" : "s"}</p>
+        <p class="workspace-muted">${escapeHtml(row.nextAction || "")}</p>
+      </div>
+      ${statusPill(row.status || "draft")}
+    </article>
+  `);
+}
+
+function renderStudentDetailEvidence(detail) {
+  const rows = detail.evidence || [];
+  return renderStudentDetailList("Evidence", "Private evidence metadata", rows, "No evidence rows are available in this bounded view.", (row) => `
+    <article class="workspace-row">
+      <div>
+        <strong>${escapeHtml(row.title || "Evidence")}</strong>
+        <p>${escapeHtml(row.artifactType || "artifact")} / ${escapeHtml(statusText(row.sourceKind || "evidence"))}</p>
+        <p class="workspace-muted">${row.externalUrl ? escapeHtml(row.externalUrl) : "Storage identifiers redacted"}</p>
+      </div>
+      <div class="workspace-row-actions">
+        <span class="workspace-site-context-badge">Storage redacted</span>
+        ${statusPill(row.reviewStatus || "pending_review")}
+      </div>
+    </article>
+  `);
+}
+
+function renderStudentDetailReviews(detail) {
+  const reviews = detail.reviews || [];
+  const comments = detail.comments || [];
+  return `
+    <section class="workspace-detail-section" data-student-detail-section="reviews">
+      ${renderStudentDetailList("Reviews", "Teacher intervention history", reviews, "No review rows are available in this bounded view.", (row) => `
+        <article class="workspace-row">
+          <div>
+            <strong>${escapeHtml(row.requirementTitle || "Senior Project submission")}</strong>
+            <p>${escapeHtml(row.feedback || "Review recorded.")}</p>
+            <p class="workspace-muted">${escapeHtml(row.reviewerName || "Reviewer")} / ${escapeHtml(formatDate(row.createdAt))}</p>
+          </div>
+          ${statusPill(row.decision || "under_review")}
+        </article>
+      `)}
+      ${renderStudentDetailList("Comments", "Role-based visibility", comments, "No comments are available in this bounded view.", (row) => `
+        <article class="workspace-row">
+          <div>
+            <strong>${escapeHtml(row.authorName || "Staff")}</strong>
+            <p>${escapeHtml(row.body || "Comment recorded.")}</p>
+            <p class="workspace-muted">${escapeHtml(formatDate(row.createdAt))}</p>
+          </div>
+          ${statusPill(row.visibility || "configured")}
+        </article>
+      `)}
+    </section>
+  `;
+}
+
+function renderStudentDetailMentor(detail) {
+  const mentor = detail.mentor || {};
+  const meetings = detail.mentorMeetings || [];
+  return `
+    <section class="workspace-detail-section" data-student-detail-section="mentor">
+      ${renderDashboardCard("Mentor", mentor.active ? "Assigned support" : "Coverage needed", `
+        <strong>${escapeHtml(mentor.active ? mentor.mentorName || "Assigned mentor" : "No active mentor")}</strong>
+        <p>${escapeHtml(mentor.nextAction || "Continue mentor support.")}</p>
+        <div class="workspace-chip-row">
+          <span class="workspace-site-context-badge">${escapeHtml(safeNumber(mentor.meetingCount))} meeting${safeNumber(mentor.meetingCount) === 1 ? "" : "s"}</span>
+          ${statusPill(mentor.latestMeetingStatus || (mentor.active ? "approved" : "blocked"))}
+        </div>
+      `)}
+      ${renderStudentDetailList("Mentor Meetings", "Bounded support timeline", meetings, "No mentor meetings are available in this bounded view.", (row) => `
+        <article class="workspace-row">
+          <div>
+            <strong>${escapeHtml(row.mentorName || "Mentor")}</strong>
+            <p>${escapeHtml(row.notes || row.nextAction || "Meeting recorded.")}</p>
+            <p class="workspace-muted">${escapeHtml(formatDate(row.heldAt || row.scheduledFor || row.createdAt))}</p>
+          </div>
+          ${statusPill(row.status || "pending")}
+        </article>
+      `)}
+    </section>
+  `;
+}
+
+function renderStudentDetailPresentation(detail) {
+  const presentation = detail.presentation || {};
+  return `
+    <section class="workspace-detail-section" data-student-detail-section="presentation">
+      ${renderDashboardCard("Presentation", "Readiness and day-of status", `
+        <p>${escapeHtml(presentation.nextAction || "Confirm presentation readiness when appropriate.")}</p>
+        <div class="workspace-chip-row">
+          <span class="workspace-site-context-badge">${escapeHtml(presentation.room || "No room")}</span>
+          <span class="workspace-site-context-badge">${escapeHtml(formatDate(presentation.scheduledAt))}</span>
+        </div>
+        <div class="workspace-chip-row">
+          ${statusPill(presentation.status || "missing")}
+          ${statusPill(presentation.outlineStatus || "pending")}
+          ${statusPill(presentation.checkInStatus || "missing")}
+        </div>
+      `)}
+    </section>
+  `;
+}
+
+function renderStudentDetailArchive(detail) {
+  const archive = detail.archive || {};
+  return `
+    <section class="workspace-detail-section" data-student-detail-section="archive">
+      ${renderDashboardCard("Archive", "Closeout package status", `
+        <p>${escapeHtml(archive.nextAction || "Prepare archive readiness checks when the student reaches closeout.")}</p>
+        <div class="workspace-chip-row">
+          ${statusPill(archive.status || "missing")}
+          ${statusPill(archive.exportStatus || "not_requested")}
+          <span class="workspace-site-context-badge">Storage redacted</span>
+        </div>
+        <p class="workspace-muted">${escapeHtml(safeNumber(archive.artifactCount))} artifact record${safeNumber(archive.artifactCount) === 1 ? "" : "s"} in the latest export metadata.</p>
+      `)}
+    </section>
+  `;
+}
+
+function renderStudentDetailTimeline(detail, state) {
+  const timelineBody = unwrap(state.timelineResult);
+  const events = timelineBody?.events || detail.timelinePreview || [];
+  const title = timelineBody ? "Timeline" : "Timeline Preview";
+  return `
+    <section class="workspace-detail-section" data-student-detail-section="timeline">
+      ${state.loadingTimeline ? `
+        <div class="workspace-empty-state-card">
+          <strong>Loading full timeline</strong>
+          ${renderProblemState({
+            reason: "The full timeline is loading with bounded pagination.",
+            owner: "Assigned staff workspace.",
+            nextAction: "Keep the detail panel open while events return.",
+          })}
+        </div>
+      ` : ""}
+      ${state.timelineResult && !timelineBody ? `
+        <div class="workspace-empty-state-card">
+          <strong>Timeline unavailable</strong>
+          ${renderApiNotice(state.timelineResult)}
+          ${renderProblemState({
+            reason: "The full timeline could not be loaded for this role and site scope.",
+            owner: "Administration or platform support.",
+            nextAction: "Use the bounded preview or confirm site assignment.",
+          })}
+        </div>
+      ` : ""}
+      ${renderStudentDetailList(title, "Stable event types and safe summaries", events, "No timeline events are available in this bounded view.", (event) => `
+        <article class="workspace-row">
+          <div>
+            <strong>${escapeHtml(event.title || statusText(event.type))}</strong>
+            <p>${escapeHtml(event.summary || "Timeline event recorded.")}</p>
+            <p class="workspace-muted">${escapeHtml(statusText(event.type || "timeline"))} / ${escapeHtml(formatDate(event.occurredAt))}</p>
+          </div>
+          ${statusPill(event.status || "configured")}
+        </article>
+      `)}
+    </section>
+  `;
+}
+
+function renderStudentDetailList(title, detail, rows, emptyText, rowRenderer) {
+  const safeRows = Array.isArray(rows) ? rows : [];
+  return `
+    <section class="workspace-dashboard-card">
+      <div class="workspace-card-head">
+        <div>
+          <p class="workspace-kicker">${escapeHtml(detail)}</p>
+          <h3>${escapeHtml(title)}</h3>
+        </div>
+        <span class="workspace-site-context-badge">${escapeHtml(safeNumber(safeRows.length))} shown</span>
+      </div>
+      ${safeRows.length ? `<div class="workspace-list">${safeRows.map(rowRenderer).join("")}</div>` : `
+        <div class="workspace-empty-state-card">
+          <strong>${escapeHtml(emptyText)}</strong>
+          ${renderProblemState({
+            reason: "This bounded section has no records for the selected student.",
+            owner: "Assigned staff workspace.",
+            nextAction: "Use another detail section or return to the directory.",
+          })}
+        </div>
+      `}
     </section>
   `;
 }
@@ -1878,6 +2252,12 @@ function bindWorkspaceForms() {
   document.querySelectorAll("[data-site-student-action]").forEach((button) => {
     button.addEventListener("click", handleSiteStudentAction);
   });
+  document.querySelectorAll("[data-student-detail-tab]").forEach((button) => {
+    button.addEventListener("click", selectSiteStudentDetailTab);
+  });
+  document.querySelectorAll("[data-student-detail-action]").forEach((button) => {
+    button.addEventListener("click", handleSiteStudentDetailAction);
+  });
 }
 
 function bindUploadRetryButton() {
@@ -1908,8 +2288,13 @@ async function applySiteStudentFilters(event) {
 async function handleSiteStudentAction(event) {
   const action = event?.currentTarget?.dataset?.siteStudentAction;
   if (!action) return;
+  if (action === "view-detail") {
+    await openSiteStudentDetail(event.currentTarget?.dataset?.studentDetailId || "");
+    return;
+  }
   if (action === "reset-filters") {
     siteStudentFilters = defaultSiteStudentFilters();
+    siteStudentDetailState = defaultSiteStudentDetailState();
     activeSection = "students";
     await loadWorkspaceData("Student directory filters reset.");
     return;
@@ -1927,6 +2312,67 @@ async function handleSiteStudentAction(event) {
     activeSection = "students";
     await loadWorkspaceData("Student directory page updated.");
   }
+}
+
+async function openSiteStudentDetail(studentId) {
+  const selectedStudentId = cleanDirectoryFilter(studentId);
+  if (!selectedStudentId) return;
+  const directory = unwrap(currentData.siteStudents);
+  const siteId = directory?.scope?.siteId || "";
+  const query = siteId ? `?siteId=${encodeURIComponent(siteId)}` : "";
+  siteStudentDetailState = {
+    ...defaultSiteStudentDetailState(),
+    studentId: selectedStudentId,
+    loading: true,
+  };
+  activeSection = "students";
+  renderAppShell("Loading student detail...");
+  const result = await settleApi(apiJson(`/api/site/students/${encodeURIComponent(selectedStudentId)}${query}`));
+  siteStudentDetailState = {
+    ...siteStudentDetailState,
+    loading: false,
+    result,
+  };
+  currentData.siteStudentDetail = result;
+  renderAppShell(result.ok ? "Student detail loaded." : "Student detail unavailable.", result.ok ? "success" : "error");
+}
+
+function handleSiteStudentDetailAction(event) {
+  const action = event?.currentTarget?.dataset?.studentDetailAction;
+  if (action === "close") {
+    siteStudentDetailState = defaultSiteStudentDetailState();
+    activeSection = "students";
+    renderAppShell();
+  }
+}
+
+async function selectSiteStudentDetailTab(event) {
+  const tab = event?.currentTarget?.dataset?.studentDetailTab;
+  if (!tab || !siteStudentDetailState.studentId) return;
+  siteStudentDetailState = {
+    ...siteStudentDetailState,
+    activeTab: tab,
+  };
+  if (tab !== "timeline" || siteStudentDetailState.timelineResult || siteStudentDetailState.loadingTimeline) {
+    renderAppShell();
+    return;
+  }
+  const detail = unwrap(siteStudentDetailState.result);
+  const siteId = detail?.scope?.siteId || unwrap(currentData.siteStudents)?.scope?.siteId || "";
+  const query = siteId ? `?siteId=${encodeURIComponent(siteId)}` : "";
+  siteStudentDetailState = {
+    ...siteStudentDetailState,
+    loadingTimeline: true,
+  };
+  renderAppShell("Loading student timeline...");
+  const timelineResult = await settleApi(apiJson(`/api/site/students/${encodeURIComponent(siteStudentDetailState.studentId)}/timeline${query}`));
+  siteStudentDetailState = {
+    ...siteStudentDetailState,
+    loadingTimeline: false,
+    timelineResult,
+  };
+  currentData.siteStudentTimeline = timelineResult;
+  renderAppShell(timelineResult.ok ? "Student timeline loaded." : "Student timeline unavailable.", timelineResult.ok ? "success" : "error");
 }
 
 function renderPresentationSection() {
@@ -2952,6 +3398,17 @@ function defaultSiteStudentFilters() {
     archiveStatus: "any",
     limit: 50,
     offset: 0,
+  };
+}
+
+function defaultSiteStudentDetailState() {
+  return {
+    studentId: "",
+    activeTab: "summary",
+    loading: false,
+    loadingTimeline: false,
+    result: null,
+    timelineResult: null,
   };
 }
 
