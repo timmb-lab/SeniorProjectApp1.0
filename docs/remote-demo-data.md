@@ -10,19 +10,34 @@ npm run prove:demo:remote
 
 `seed:demo:remote` expands to `--remote --write --confirm SEED_REMOTE_DEMO` and refuses remote write without `CLOUDFLARE_API_TOKEN`.
 
-The multisite seed requires the remote D1 schema to include migration `0011_multisite_site_role_foundation.sql`. Phase 5A does not run remote migrations or remote writes.
+The multisite seed requires the remote D1 schema to include migration `0011_multisite_site_role_foundation.sql`. Phase 13B applied that migration gate only; it did not seed remote demo data.
 
-Current Phase 13 hosted sales proof status is BLOCKED until the remote D1 schema has migration `0011_multisite_site_role_foundation.sql` and remote fake-data seed/proof is explicitly approved and run. Use the read-only gate:
+Current hosted sales proof status is BLOCKED until remote fake-data seed/proof is explicitly approved and run. Use the read-only gates:
 
 ```powershell
+npm run prove:remote:migration-0011
 npm run prove:sales-demo:hosted
 ```
 
-Expected blocked status while migration 0011 is missing:
+Expected Phase 13B schema status:
+
+```text
+REMOTE_MIGRATION_0011_ALREADY_PRESENT
+```
+
+Expected hosted blocked status after migration 0011 and before remote seed:
+
+```text
+HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING
+```
+
+Previous blocked status while migration 0011 was missing:
 
 ```text
 HOSTED_PROOF_BLOCKED_REMOTE_D1_MISSING_0011
 ```
+
+No remote demo seed was run in Phase 13B.
 
 ## Safety
 

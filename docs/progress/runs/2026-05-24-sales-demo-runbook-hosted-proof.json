@@ -3,7 +3,7 @@
   "name": "sales-demo-runbook-hosted-proof",
   "date": "2026-05-24",
   "startingHead": "dc66a9fab39b406c3df4a8e9d53657ee52520a5f",
-  "endingHead": null,
+  "endingHead": "17e65a69ca77faa55e24f2e7e2152915598aa79a",
   "phase12HygieneFixes": [
     "Updated docs/progress/runs/2026-05-24-presentation-archive-reports.json endingHead to dc66a9fab39b406c3df4a8e9d53657ee52520a5f.",
     "Updated docs/progress/run-log.md Phase 12 commit/push status to committed and pushed as dc66a9f feat: add presentation archive readiness worklists."

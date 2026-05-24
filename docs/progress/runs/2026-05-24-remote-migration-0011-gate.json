@@ -1,0 +1,117 @@
+{
+  "phase": "13B",
+  "name": "remote-migration-0011-gate",
+  "date": "2026-05-24",
+  "startingHead": "17e65a69ca77faa55e24f2e7e2152915598aa79a",
+  "endingHead": null,
+  "phase13HygieneFixes": [
+    "Updated docs/progress/runs/2026-05-24-sales-demo-runbook-hosted-proof.json endingHead to 17e65a69ca77faa55e24f2e7e2152915598aa79a.",
+    "Updated docs/progress/run-log.md Phase 13 commit/push status to committed and pushed as 17e65a6 docs: add sales demo runbook and proof plan."
+  ],
+  "migrationFileReviewed": "migrations/0011_multisite_site_role_foundation.sql",
+  "migrationSafetyReview": {
+    "status": "additive",
+    "createTableIfNotExists": ["sites", "site_users", "site_programs"],
+    "createIndexIfNotExists": true,
+    "insertOrIgnoreRoles": ["platform_admin", "org_admin", "site_admin", "viewer"],
+    "insertOrIgnoreSandboxSite": "site-capstone-sandbox-main",
+    "insertOrIgnoreSandboxSiteProgramsFromActivePrograms": true,
+    "dropsTables": false,
+    "deletesRows": false,
+    "modifiesRealUsers": false,
+    "changesSecrets": false,
+    "createsDesertValleySeedData": false,
+    "createsCredentials": false,
+    "createsAnnouncements": false
+  },
+  "remotePreflight": {
+    "hostedProofBefore": "HOSTED_PROOF_BLOCKED_REMOTE_D1_MISSING_0011",
+    "tablePresenceBefore": {
+      "sites": false,
+      "site_users": false,
+      "site_programs": false
+    },
+    "rolesBefore": [],
+    "sandboxSiteBefore": null,
+    "sandboxSiteProgramsBefore": null,
+    "activeProgramsBefore": 9
+  },
+  "pendingMigrationGate": {
+    "status": "passed",
+    "pendingMigrations": ["0011_multisite_site_role_foundation.sql"],
+    "laterMigrationFilesPresent": false,
+    "targetDatabase": "senior-capstone-db",
+    "targetDatabaseIdPrintedInFinal": false
+  },
+  "migrationApplyCommand": "npm run db:migrate:remote",
+  "migrationApplied": {
+    "status": "REMOTE_MIGRATION_0011_APPLIED_REMOTE_DEMO_SEED_NOT_RUN",
+    "applied": true,
+    "alreadyPresent": false,
+    "stoppedForSafety": false,
+    "remoteSeedRun": false
+  },
+  "remotePostMigrationProof": {
+    "tables": {
+      "sites": true,
+      "site_users": true,
+      "site_programs": true
+    },
+    "roles": ["org_admin", "platform_admin", "site_admin", "viewer"],
+    "sandboxSite": {
+      "id": "site-capstone-sandbox-main",
+      "tenantId": "tenant-capstone-sandbox",
+      "status": "active",
+      "schoolYear": "2026-2027"
+    },
+    "sandboxSitePrograms": 9,
+    "activePrograms": 9,
+    "duplicateRoleIds": 0,
+    "foreignKeyViolations": 0,
+    "pendingMigrationsAfter": []
+  },
+  "hostedProofStatusBefore": {
+    "status": "HOSTED_PROOF_BLOCKED_REMOTE_D1_MISSING_0011",
+    "remoteSchema0011Ready": false
+  },
+  "hostedProofStatusAfter": {
+    "status": "HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING",
+    "remoteSchema0011Ready": true,
+    "remoteDemoSeedPresent": false
+  },
+  "remainingHostedBlocker": "HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING",
+  "remoteSeedStatus": "REMOTE_DEMO_SEED_NOT_RUN",
+  "docsUpdated": [
+    "README.md",
+    "docs/sales/hosted-proof-plan.md",
+    "docs/sales/technical-proof-checklist.md",
+    "docs/remote-demo-data.md",
+    "docs/progress/run-log.md"
+  ],
+  "scriptsAddedOrUpdated": [
+    "scripts/prove-sales-demo-hosted.mjs",
+    "scripts/prove-remote-migration-0011.mjs",
+    "package.json prove:remote:migration-0011"
+  ],
+  "testsAddedOrUpdated": [
+    "tests/remote-migration-0011-gate.test.mjs"
+  ],
+  "validation": {
+    "status": "passed",
+    "commands": [
+      "node --test tests/remote-migration-0011-gate.test.mjs tests/sales-demo-runbook.test.mjs passed with 11 passing tests.",
+      "npm run typecheck passed.",
+      "npm run check:production-surfaces passed with 91 production text surfaces scanned.",
+      "npm run test passed with 314 passing tests and 4 expected local HTTP skips.",
+      "npm run check passed with the same full test result.",
+      "npm run prove:sales-demo:hosted passed as a read-only blocker gate with HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING.",
+      "npm run prove:remote:migration-0011 passed with REMOTE_MIGRATION_0011_ALREADY_PRESENT.",
+      "git diff --check passed with CRLF normalization warnings only."
+    ]
+  },
+  "blockers": [
+    "Remote fake-data demo seed/proof has not been approved or run, so hosted proof remains blocked.",
+    "No remote seed, reset, deploy, user creation, credential creation, domain/OAuth/Cloudflare config change, or product behavior change was run."
+  ],
+  "nextRecommendedPrompt": "13C_remote_demo_seed_gate.txt"
+}

@@ -44,6 +44,7 @@
     "prove:demo:local": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-node-script.ps1 scripts/prove-local-demo-workspace.mjs",
     "prove:sales-demo:local": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-node-script.ps1 scripts/prove-sales-demo-local.mjs",
     "prove:sales-demo:hosted": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-node-script.ps1 scripts/prove-sales-demo-hosted.mjs",
+    "prove:remote:migration-0011": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-node-script.ps1 scripts/prove-remote-migration-0011.mjs",
     "seed:demo:remote:dry-run": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-node-script.ps1 scripts/seed-remote-demo-workspace.mjs --remote --dry-run",
     "seed:demo:remote": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-node-script.ps1 scripts/seed-remote-demo-workspace.mjs --remote --write --confirm SEED_REMOTE_DEMO",
     "seed:demo:remote:reset": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-node-script.ps1 scripts/seed-remote-demo-workspace.mjs --remote --reset --write --confirm SEED_REMOTE_DEMO",

@@ -2,17 +2,29 @@
 
 ## Current Hosted Proof Status
 
-Hosted proof is BLOCKED until remote D1 has migration `0011_multisite_site_role_foundation.sql` and remote fake-data seed/proof is explicitly approved and run.
+Hosted proof is BLOCKED until remote fake-data seed/proof is explicitly approved and run.
 
 Do not claim hosted demo readiness today.
 
+Phase 13B applied and proved remote D1 migration `0011_multisite_site_role_foundation.sql`. The current read-only hosted proof status is:
+
+```text
+HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING
+```
+
+The schema blocker status before Phase 13B was:
+
+```text
+HOSTED_PROOF_BLOCKED_REMOTE_D1_MISSING_0011
+```
+
 ## Why Hosted Proof Is Blocked
 
-The local MVP depends on multisite tables and roles introduced by migration 0011. The current hosted/remote D1 state is documented as missing that migration, so site-scoped routes cannot be claimed as hosted-proven.
+The local MVP depends on multisite tables, roles, and fake Desert Valley demo rows. Remote D1 now has the migration 0011 schema foundation, but the remote Desert Valley fake-data seed has not been approved or run. Site-scoped routes cannot be claimed as hosted-proven until the seed/proof/browser gates pass.
 
-## Remote D1 Migration 0011 Blocker
+## Remote D1 Migration 0011 Gate
 
-Required migration:
+Required migration, applied in Phase 13B:
 
 - `migrations/0011_multisite_site_role_foundation.sql`
 
@@ -32,28 +44,30 @@ Required remote roles:
 Read-only schema gate:
 
 ```powershell
-npm run prove:sales-demo:hosted
+npm run prove:remote:migration-0011
 ```
 
-Expected blocked status until migration is present:
+Expected status after Phase 13B:
 
 ```text
-HOSTED_PROOF_BLOCKED_REMOTE_D1_MISSING_0011
+REMOTE_MIGRATION_0011_APPLIED_REMOTE_DEMO_SEED_NOT_RUN
+REMOTE_MIGRATION_0011_ALREADY_PRESENT
+REMOTE_DEMO_SEED_NOT_RUN
 ```
 
 If remote read access is unavailable, the script reports a read-access blocker instead of mutating anything.
 
 ## Remote Migration Gate
 
-Planned / future:
+Completed in Phase 13B:
 
-1. Create a dedicated remote migration phase.
-2. Confirm backup/rollback expectations.
-3. Apply migration 0011 with explicit approval.
-4. Run read-only schema proof.
-5. Do not seed remote data until schema proof passes.
+1. Reviewed migration 0011 as additive.
+2. Confirmed Wrangler listed only `0011_multisite_site_role_foundation.sql` as pending.
+3. Applied `npm run db:migrate:remote`.
+4. Proved `sites`, `site_users`, `site_programs`, the four new roles, sandbox site, sandbox site-program mappings, and zero foreign-key violations.
+5. Did not seed remote data.
 
-No remote migrations are allowed in Phase 13.
+No remote migrations were run in Phase 13. Phase 13B ran only migration 0011. No further remote migration should run before a new dedicated gate.
 
 ## Remote Seed 5B Gate
 
@@ -66,11 +80,11 @@ Planned / future:
 5. Run remote seed write only with explicit approval.
 6. Store generated fake staff credentials only in ignored `.secrets` files.
 
-No remote writes or remote seed are allowed in Phase 13.
+No remote seed/reset writes were run in Phase 13B; the only remote D1 change was migration 0011.
 
 ## Hosted Smoke Proof Gate
 
-After migration and remote fake-data seed:
+After remote fake-data seed:
 
 1. Run `npm run prove:demo:remote`.
 2. Run hosted workspace smoke checks with fake `.test` credentials only.
@@ -96,12 +110,12 @@ Before using screenshots as proof:
 - Do not paste credentials into docs, slides, screenshots, chat, or issue trackers.
 - If remote proof fails, keep hosted status blocked and use local fake-data demo only.
 
-## No Remote Writes In Phase 13
+## No Remote Seed In Phase 13B
 
-Phase 13 creates docs and read-only proof gates only:
+Phase 13 created docs and read-only proof gates only. No remote writes were run in Phase 13. Phase 13B applied the schema migration gate only:
 
-- No remote migrations.
-- No remote writes.
+- Remote migration 0011 applied.
+- No remote seed/reset writes.
 - No remote seed.
 - No deploy.
 - No Cloudflare/domain/OAuth config changes.

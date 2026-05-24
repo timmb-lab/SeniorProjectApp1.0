@@ -1568,4 +1568,23 @@ Future productive runs should append compact entries that name the master-plan s
 - `hosted status`: blocked until remote D1 has migration `0011_multisite_site_role_foundation.sql` and remote fake-data seed/proof is explicitly approved and run.
 - `validation`: focused sales-demo docs test passed; `npm run check:production-surfaces` passed with 91 production text surfaces scanned; `npm run typecheck` passed; `npm run test` passed with 309 passing tests and 4 expected local HTTP skips; `npm run check` passed with the same full test result; `npm run prove:demo:local` passed; `npm run prove:sales-demo:local` passed and reported Proven locally; `npm run prove:sales-demo:hosted` passed as a read-only blocker gate with `HOSTED_PROOF_BLOCKED_REMOTE_D1_MISSING_0011`; `git diff --check` passed with CRLF normalization warnings only.
 - `blockers`: hosted proof remains blocked by remote migration/seed/proof gates; no remote work was run.
-- `commit/push status`: pending final commit and push.
+- `commit/push status`: committed and pushed as 17e65a6 docs: add sales demo runbook and proof plan.
+
+## 2026-05-24 PT - Phase 13B Remote Migration 0011 Gate
+
+- `automation ID`: manual Codex Phase 13B pass.
+- `lane`: hosted sales-demo gate / remote D1 migration 0011 only.
+- `starting HEAD`: `17e65a69ca77faa55e24f2e7e2152915598aa79a`.
+- `selected slice`: Safely apply and prove only remote D1 migration `0011_multisite_site_role_foundation.sql`, without running remote seed/reset, deploy, domain, OAuth, Cloudflare config, user creation, credential creation, product behavior changes, route changes, permission changes, or announcements.
+- `phase13 hygiene fixes`: updated the Phase 13 manifest `endingHead` to `17e65a69ca77faa55e24f2e7e2152915598aa79a` and run-log commit/push status to `committed and pushed as 17e65a6 docs: add sales demo runbook and proof plan`.
+- `migration safety`: migration 0011 was reviewed as additive: `CREATE TABLE IF NOT EXISTS` for `sites`, `site_users`, and `site_programs`; `CREATE INDEX IF NOT EXISTS`; `INSERT OR IGNORE` role, sandbox site, and sandbox site-program rows; no drops, deletes, credential creation, real-user modification, Desert Valley seed data, or announcements.
+- `remote preflight`: `npm run prove:sales-demo:hosted` returned `HOSTED_PROOF_BLOCKED_REMOTE_D1_MISSING_0011`; read-only D1 checks showed the three multisite tables and four new role rows were missing, sandbox site/program mappings were absent, and 9 active programs existed.
+- `pending migration gate`: Wrangler remote migration list showed exactly one pending migration: `0011_multisite_site_role_foundation.sql`; no later migration files exist in the repo.
+- `migration apply`: ran `npm run db:migrate:remote` with the configured account id supplied through environment and CI/non-interactive behavior; Wrangler applied only `0011_multisite_site_role_foundation.sql` to remote `senior-capstone-db`.
+- `remote post-migration proof`: read-only D1 checks proved `sites`, `site_users`, and `site_programs` exist; roles `platform_admin`, `org_admin`, `site_admin`, and `viewer` exist; sandbox site `site-capstone-sandbox-main` is active; sandbox site-program rows cover all 9 active programs; duplicate role IDs = 0; foreign-key violations = 0; Wrangler reports no migrations pending.
+- `hosted proof after`: `npm run prove:sales-demo:hosted` now returns `HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING`, meaning schema 0011 is ready but the approved remote fake-data seed/proof gate has not run.
+- `proof scripts`: added read-only `npm run prove:remote:migration-0011`; tightened hosted proof status wording to distinguish missing schema from missing remote demo seed.
+- `remote seed/deploy status`: no remote seed, reset, deploy, domain/OAuth/Cloudflare config change, user creation, or credential creation was run.
+- `validation`: focused remote migration gate and sales demo docs tests passed; `npm run typecheck` passed; `npm run check:production-surfaces` passed with 91 production text surfaces scanned; `npm run test` passed with 314 passing tests and 4 expected local HTTP skips; `npm run check` passed with the same full test result; `npm run prove:sales-demo:hosted` passed as a read-only blocker gate with `HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING`; `npm run prove:remote:migration-0011` passed with `REMOTE_MIGRATION_0011_ALREADY_PRESENT`; `git diff --check` passed with CRLF normalization warnings only.
+- `blockers`: hosted proof remains blocked by missing remote fake-data seed/proof.
+- `commit/push status`: pending.
