@@ -8,7 +8,7 @@
     "packageName": "senior-capstone-app"
   },
   "startingHead": "2c5735c36977a401512bfa41feeca425070c357a",
-  "endingHead": null,
+  "endingHead": "d6711a3e56658a1d8fe24c1cf01d8a4318a70506",
   "phase65HygieneFixes": [
     "Updated docs/progress/runs/2026-05-24-ux-visual-audit-phase-6-5.json endingHead to 2c5735c36977a401512bfa41feeca425070c357a.",
     "Updated the Phase 6.5 run-log commit/push status to committed and pushed as 2c5735c docs: audit Figma UX alignment before site dashboard."

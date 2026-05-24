@@ -27,6 +27,85 @@ const WORKSPACE_UPLOAD_ALLOWED_MIME_TYPES = new Set([
   "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
 ]);
 const WORKSPACE_UPLOAD_ALLOWED_EXTENSIONS = [".pdf", ".txt", ".csv", ".docx", ".pptx", ".xlsx"];
+const WORKSPACE_POSTURE_CHIPS = [
+  "Database-backed MVP",
+  "No student messaging",
+  "Cloudflare target",
+  "Private evidence",
+  "Audit-sensitive admin",
+];
+const STATUS_CLASS_BY_STATUS = {
+  draft: "draft",
+  not_started: "draft",
+  submitted: "submitted",
+  under_review: "under_review",
+  reviewing: "under_review",
+  revision_requested: "revision_requested",
+  approved: "approved",
+  ready: "ready",
+  configured: "configured",
+  complete: "complete",
+  completed: "complete",
+  blocked: "blocked",
+  rejected: "rejected",
+  failed: "failed",
+  provider_unavailable: "failed",
+  drive_credentials_missing: "failed",
+  expired: "expired",
+  expiring_soon: "expired",
+  overridden: "overridden",
+  override: "overridden",
+  archived: "archived",
+  pending: "pending",
+  pending_review: "pending",
+  pending_reset: "pending",
+  scheduled: "pending",
+  checked_out: "under_review",
+  checked_in: "complete",
+  available: "ready",
+  attention_required: "blocked",
+  needs_review: "pending",
+  active: "approved",
+  no_active_assignments: "blocked",
+  not_requested: "pending",
+  policy_review_required: "pending",
+};
+const STATUS_LABELS = {
+  draft: "Draft",
+  not_started: "Draft",
+  submitted: "Submitted",
+  under_review: "Under review",
+  reviewing: "Under review",
+  revision_requested: "Revision requested",
+  approved: "Approved",
+  blocked: "Blocked",
+  rejected: "Rejected",
+  overridden: "Overridden",
+  override: "Overridden",
+  archived: "Archived",
+  pending: "Pending",
+  pending_review: "Pending",
+  pending_reset: "Pending reset",
+  scheduled: "Scheduled",
+  checked_out: "Checked out",
+  checked_in: "Checked in",
+  available: "Ready",
+  ready: "Ready",
+  configured: "Configured",
+  failed: "Failed",
+  provider_unavailable: "Storage unavailable",
+  drive_credentials_missing: "Storage unavailable",
+  complete: "Complete",
+  completed: "Complete",
+  expired: "Expired",
+  expiring_soon: "Expiring soon",
+  attention_required: "Blocked",
+  needs_review: "Pending",
+  active: "Approved",
+  no_active_assignments: "Blocked",
+  not_requested: "Pending",
+  policy_review_required: "Pending",
+};
 let uploadState = {
   state: "idle",
   progress: 0,
@@ -136,6 +215,58 @@ function renderLoading(message) {
   `;
 }
 
+function renderProductHeader(options = {}) {
+  const {
+    eyebrow = "Database-backed MVP • Private evidence • Audit-safe operations",
+    title = "Senior Capstone Product",
+    subtitle = "A serious school-operations workspace for progress tracking, private evidence, mentor scope, review workflows, and site-level oversight.",
+    chips = WORKSPACE_POSTURE_CHIPS,
+    context = [],
+    readOnly = false,
+    titleId = "",
+  } = options;
+  const contextChips = [
+    ...context.filter(Boolean),
+    ...(readOnly ? ["Read-only viewer"] : []),
+  ];
+  return `
+    <section class="workspace-product-header" aria-label="Product context">
+      <p class="workspace-product-eyebrow">${escapeHtml(eyebrow)}</p>
+      <h1 class="workspace-product-title" ${titleId ? `id="${escapeHtml(titleId)}"` : ""}>${escapeHtml(title)}</h1>
+      <p class="workspace-product-subtitle">${escapeHtml(subtitle)}</p>
+      <div class="workspace-posture-chips" aria-label="Product posture">
+        ${chips.map((chip) => `<span class="workspace-posture-chip">${escapeHtml(chip)}</span>`).join("")}
+      </div>
+      ${contextChips.length ? `
+        <div class="workspace-product-context" aria-label="Workspace role context">
+          ${contextChips.map((chip) => `<span class="workspace-posture-chip">${escapeHtml(chip)}</span>`).join("")}
+        </div>
+      ` : ""}
+    </section>
+  `;
+}
+
+function renderProblemState({ reason, owner, nextAction }) {
+  return `
+    <article class="workspace-problem-state">
+      <div class="workspace-problem-state-grid">
+        <div class="workspace-problem-state-item">
+          <span class="workspace-problem-state-label">Reason</span>
+          <span class="workspace-problem-state-value">${escapeHtml(reason || "The workspace needs an access or status update.")}</span>
+        </div>
+        <div class="workspace-problem-state-item">
+          <span class="workspace-problem-state-label">Owner</span>
+          <span class="workspace-problem-state-value">${escapeHtml(owner || "Project coordinator")}</span>
+        </div>
+        <div class="workspace-problem-state-item">
+          <span class="workspace-problem-state-label">Next action</span>
+          <span class="workspace-problem-state-value">${escapeHtml(nextAction || "Refresh after the assigned staff member updates the record.")}</span>
+        </div>
+      </div>
+    </article>
+  `;
+}
+
 function renderSignIn(message = "", tone = "neutral", workspaceState = "signed-out", options = {}) {
   const authConfig = authConfigForUi();
   const urlAuthError = authErrorMessageFromLocation();
@@ -153,14 +284,7 @@ function renderSignIn(message = "", tone = "neutral", workspaceState = "signed-o
           <span class="workspace-abc-motif" aria-hidden="true"><span></span><span></span><span></span></span>
           <span>Capstone Project</span>
         </a>
-        <div>
-          <p class="workspace-kicker">Capstone Project workspace</p>
-          <h1 id="signInTitle">Capstone Project Workspace</h1>
-          <p>
-            Review your project status, attach evidence, follow teacher feedback, and keep the
-            required Capstone Project artifacts in one place.
-          </p>
-        </div>
+        ${renderProductHeader({ titleId: "signInTitle" })}
       </div>
       <div class="workspace-auth-panel">
         <div>
@@ -317,6 +441,8 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
 
   const sections = availableSections();
   const primaryRole = primaryRoleForUser(currentUser);
+  const roles = roleIds(currentUser);
+  const headerContext = [roleLabel(primaryRole), roleScopeSummary(currentUser)];
   workspaceMain.innerHTML = `
     <section class="workspace-app" data-primary-role="${escapeHtml(primaryRole)}">
       <header class="workspace-topbar">
@@ -361,6 +487,10 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
         </aside>
         <div class="workspace-main">
           ${statusMessage ? statusHtml(statusMessage, tone) : ""}
+          ${renderProductHeader({
+            context: headerContext,
+            readOnly: roles.has("viewer"),
+          })}
           ${renderReadOnlyBanner()}
           ${renderActiveSection()}
         </div>
@@ -473,6 +603,11 @@ function renderAccessBoundarySummary() {
           Your account is signed in, but no workspace role is assigned yet. Ask your instructor
           or project coordinator to assign the right access before using protected project sections.
         </p>
+        ${renderProblemState({
+          reason: "This signed-in account does not have an active workspace role.",
+          owner: "Project coordinator or site administrator.",
+          nextAction: "Assign the correct role, then refresh the workspace.",
+        })}
       </section>
     `;
   }
@@ -490,6 +625,11 @@ function renderAccessBoundarySummary() {
         Your account has a workspace role, but there are no active student assignments for
         ${escapeHtml(noAssignmentSections.join(", "))}. Ask the project coordinator to confirm the assignment.
       </p>
+      ${renderProblemState({
+        reason: "No active student records match this assigned view.",
+        owner: "Assigned staff or site administrator.",
+        nextAction: "Confirm the assignment, then refresh this workspace.",
+      })}
     </section>
     ` : ""}
     ${deniedSections.length ? `
@@ -503,6 +643,11 @@ function renderAccessBoundarySummary() {
       <ul class="workspace-compact-list">
         ${deniedSections.map((label) => `<li>${escapeHtml(label)}</li>`).join("")}
       </ul>
+      ${renderProblemState({
+        reason: "The current role does not include every requested workspace section.",
+        owner: "Project coordinator or site administrator.",
+        nextAction: "Use an assigned account or request access for this site and role.",
+      })}
     </section>
     ` : ""}
   `;
@@ -514,7 +659,7 @@ function renderReadOnlyBanner() {
   return `
     <section class="workspace-read-only-banner" data-workspace-mode="read-only" aria-label="Viewer read-only mode">
       <span class="workspace-chip workspace-role-chip" data-role-id="viewer">Viewer</span>
-      <p>Read-only workspace. You can review assigned site information, but changes stay with authorized staff.</p>
+      <p>Read-only workspace. You can review assigned site information and private-evidence status, but changes stay with authorized staff.</p>
     </section>
   `;
 }
@@ -705,6 +850,11 @@ function renderMentorDashboardSection() {
           <strong>Workspace assignment is not active yet</strong>
           <span>Mentor students</span>
           No students are assigned to this mentor account yet.
+          ${renderProblemState({
+            reason: "No active student records match this assigned view.",
+            owner: "Project coordinator or site administrator.",
+            nextAction: "Confirm the mentor assignment, then refresh this workspace.",
+          })}
         </section>
       `}
     </section>
@@ -1421,6 +1571,11 @@ function renderPermissionDeniedSection(title, detail) {
         This signed-in account does not have the role or scope required for ${escapeHtml(detail)}.
         Use another assigned account or ask the project coordinator to adjust access.
       </p>
+      ${renderProblemState({
+        reason: `This account is not assigned to ${detail}.`,
+        owner: "Project coordinator or site administrator.",
+        nextAction: "Request the correct role or open the workspace with an assigned account.",
+      })}
     </section>
   `;
 }
@@ -1953,7 +2108,7 @@ function renderQuickActions(actions) {
 
 function renderNeedsAttention(items = []) {
   if (!items.length) {
-    return `<div class="workspace-empty">No dashboard risks need attention right now.</div>`;
+    return `<div class="workspace-empty">No urgent records match this view right now. Assigned staff can continue normal project follow-up.</div>`;
   }
   return `
     <div class="workspace-attention-list">
@@ -1971,7 +2126,7 @@ function renderNeedsAttention(items = []) {
 }
 
 function renderProgramBreakdown(rows = []) {
-  if (!rows.length) return `<div class="workspace-empty">No program records are available in this scope.</div>`;
+  if (!rows.length) return `<div class="workspace-empty">No program records are available for this assigned view.</div>`;
   return `
     <div class="workspace-program-breakdown">
       ${rows.map((row) => `
@@ -1991,7 +2146,7 @@ function renderProgramBreakdown(rows = []) {
 }
 
 function renderReviewQueueSummary(rows = []) {
-  if (!rows.length) return `<div class="workspace-empty">No submitted or revision records are waiting right now.</div>`;
+  if (!rows.length) return `<div class="workspace-empty">No submitted or revision-requested records need teacher review right now.</div>`;
   return `
     <div class="workspace-list">
       ${rows.slice(0, 8).map((item) => `
@@ -2068,7 +2223,7 @@ function renderAuditSummary(rows = []) {
 }
 
 function renderScopedStudentList(rows = []) {
-  if (!rows.length) return `<div class="workspace-empty">No students are currently visible in this scope.</div>`;
+  if (!rows.length) return `<div class="workspace-empty">No students are currently visible for this assigned view.</div>`;
   return `
     <div class="workspace-list">
       ${rows.slice(0, 12).map((row) => `
@@ -2149,12 +2304,23 @@ function renderEvidenceRow(item) {
 }
 
 function statusPill(status) {
-  const normalized = String(status || "unknown").replace(/[^a-z0-9_-]/gi, "_").toLowerCase();
-  return `<span class="workspace-status-pill ${escapeHtml(normalized)}">${escapeHtml(statusText(status))}</span>`;
+  const normalized = normalizeStatus(status);
+  const statusClass = statusClassFor(status);
+  return `<span class="workspace-status-pill ${escapeHtml(statusClass)}" data-status="${escapeHtml(normalized)}">${escapeHtml(statusText(status))}</span>`;
+}
+
+function statusClassFor(status) {
+  const normalized = normalizeStatus(status);
+  return STATUS_CLASS_BY_STATUS[normalized] || normalized;
 }
 
 function statusText(value) {
-  return String(value || "Unknown").replace(/_/g, " ");
+  const normalized = normalizeStatus(value);
+  return STATUS_LABELS[normalized] || String(value || "Unknown").replace(/_/g, " ");
+}
+
+function normalizeStatus(value) {
+  return String(value || "unknown").replace(/[^a-z0-9]+/gi, "_").replace(/^_+|_+$/g, "").toLowerCase() || "unknown";
 }
 
 const ROLE_LABELS = {

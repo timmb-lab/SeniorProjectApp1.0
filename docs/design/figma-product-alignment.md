@@ -78,7 +78,29 @@ Phase 6 adds or refines these workspace design tokens:
 
 The legacy `--abc-*` and `--workspace-*` aliases remain for compatibility with existing workspace styles.
 
-## 5. UI Sections Changed
+## 5. Phase 6.6 Cleanup Applied
+
+Phase 6.6 applies the highest-priority Figma product-control-center cleanup before the route-connected site admin dashboard build. This remains a workspace-only UX cleanup; no routes, schema, permission logic, seed scripts, remote operations, deployment, domain/OAuth/Cloudflare configuration, or live Figma edits were changed.
+
+Rendered app changes:
+
+- The unauthenticated sign-in surface now renders the reusable dark product header pattern with the gold eyebrow, `Senior Capstone Product` title, operational subtitle, and posture chips.
+- The authenticated workspace shell now renders the same product header before role-specific content, with role/scope context chips and a read-only viewer marker when the viewer role is present.
+- The posture chips use the Figma language: `Database-backed MVP`, `No student messaging`, `Cloudflare target`, `Private evidence`, and `Audit-sensitive admin`.
+- Status pill rendering now flows through a shared status mapping helper and covers the Figma status language plus operational states used by archive, presentation, upload, import, and readiness surfaces.
+- Permission denied, role pending, no active assignment, and mentor no-assignment states now expose reason, owner, and next action detail through a reusable problem-state component.
+- Viewer read-only mode remains visible in the workspace shell and is reinforced in the product header context.
+
+Token aliases added for future implementation:
+
+- `--color-ink`, `--color-muted`, `--color-paper`, `--color-surface`, `--color-blue`, `--color-green`, `--color-amber`, `--color-red`, `--color-teal`, `--color-violet`, `--color-coral`, `--color-gold`, `--color-border`, and `--color-header`.
+- Compatibility aliases `--abc-violet`, `--abc-gold`, and `--abc-border`.
+
+Dead-helper guard:
+
+- `tests/workspace-app.test.mjs` now proves the header, posture chips, status mapping, problem-state detail, and viewer read-only marker are used by real `workspace.js` render paths and rendered workspace output, not only defined in CSS.
+
+## 6. UI Sections Changed
 
 - Sign-in / workspace landing asset version and token usage.
 - Workspace topbar and rail token foundation.
@@ -90,7 +112,7 @@ The legacy `--abc-*` and `--workspace-*` aliases remain for compatibility with e
 - Presentation, archive, readiness, audit, and security sections through shared cards, rows, status pills, and focus states.
 - Future student directory, filter bar, student row/card, detail drawer/panel, site context, story bucket, risk chip, metric action, and empty-state class support.
 
-## 6. Not Yet Matched / Later Phases
+## 7. Not Yet Matched / Later Phases
 
 - Full site dashboard UI connected to site-aware route data.
 - Student directory UI connected to `/api/site/students`.
@@ -101,7 +123,7 @@ The legacy `--abc-*` and `--workspace-*` aliases remain for compatibility with e
 - Hosted screenshot proof after route-connected screens exist.
 - Direct Figma file update if a later Figma workflow targets the active file.
 
-## 7. Verification
+## 8. Verification
 
 Phase 6 verification commands:
 
@@ -112,3 +134,5 @@ Phase 6 verification commands:
 - `git diff --check`
 
 Route inventory is not regenerated in this phase because no route files are added, removed, or renamed.
+
+Phase 6.6 uses the same validation command set and keeps route inventory unchanged because no route files are added, removed, or renamed.

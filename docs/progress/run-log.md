@@ -1426,4 +1426,16 @@ Future productive runs should append compact entries that name the master-plan s
 - `recommendation`: run `06.6_design_cleanup_before_dashboard.txt` before `07_site_admin_dashboard.txt`; immediate Phase 7, remote migration `0011`, remote seed 5B, and a sales demo are no-go today.
 - `validation`: `npm run test` passed with 280 passing tests and 4 expected local HTTP skips; `npm run typecheck` passed; `npm run check` passed; `npm run check:production-surfaces` passed with 91 production text surfaces scanned; `git diff --check` passed with CRLF normalization warnings for edited docs only.
 - `blockers`: remote D1 still needs migration `0011_multisite_site_role_foundation.sql` before remote multisite seed/proof; site admin dashboard, student directory, student detail, hosted proof, and full Figma-aligned UI are not yet built.
-- `commit/push status`: pending Phase 6.75 commit and push.
+- `commit/push status`: committed and pushed as `d6711a docs: audit multisite sales MVP readiness`.
+
+## 2026-05-24 - PHASE 06.6 Figma Design Cleanup Before Site Dashboard
+
+- `starting HEAD`: `d6711a3e56658a1d8fe24c1cf01d8a4318a70506`.
+- `files inspected`: Phase 6.75 full audit and summary, Phase 6.5 UX visual audit, Figma product alignment docs, first-pass Figma system docs, product preview state variants, MVP contract and decisions, Phase 6.75 manifest, run log, workspace HTML/JS/CSS, and workspace/design/audit/production workflow tests.
+- `files changed`: `workspace.html`, `workspace.js`, `workspace.css`, `tests/workspace-app.test.mjs`, `docs/design/figma-product-alignment.md`, Phase 6.75 completion metadata, Phase 6.6 manifest, and this run log.
+- `design cleanup summary`: added exact Figma semantic token aliases, compatibility aliases for violet/gold/border, a reusable dark product header pattern, gold eyebrow/product context copy, exact posture chips, expanded status chip coverage and mapping, reason/owner/next-action problem-state detail, stronger viewer read-only presentation, and safer empty/denied-state copy.
+- `render path summary`: the Figma product header now renders on the unauthenticated sign-in surface and authenticated workspace shell; problem-state detail renders in role-pending, permission-denied, no-active-assignment, and mentor no-assignment states; viewer users get a read-only header marker and the existing read-only banner.
+- `no-announcements posture`: no announcement routes or product sections were reintroduced; `No student messaging` is present only as a posture chip.
+- `validation`: focused `node --test tests/workspace-app.test.mjs` passed; `npm run test` passed with 281 passing tests and 4 expected local HTTP skips; `npm run typecheck` passed; `npm run check` passed with aggregate checks and 281 passing tests / 4 expected local HTTP skips; `npm run check:production-surfaces` passed with 91 production text surfaces scanned; `git diff --check` passed with CRLF normalization warnings only.
+- `blockers`: none for Phase 6.6; route-connected site admin dashboard, student directory, student detail, remote migration `0011`, remote seed/proof, and hosted proof remain future work.
+- `commit/push status`: pending Phase 6.6 commit and push.

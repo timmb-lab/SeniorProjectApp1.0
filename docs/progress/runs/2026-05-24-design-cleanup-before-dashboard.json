@@ -1,0 +1,195 @@
+{
+  "phase": "06.6",
+  "name": "Figma design cleanup before site dashboard",
+  "date": "2026-05-24",
+  "repo": {
+    "path": "C:\\SeniorProjectApp1.0",
+    "origin": "https://github.com/timmb-lab/SeniorProjectApp1.0.git",
+    "branch": "main",
+    "packageName": "senior-capstone-app"
+  },
+  "startingHead": "d6711a3e56658a1d8fe24c1cf01d8a4318a70506",
+  "endingHead": null,
+  "phase675HygieneFixes": [
+    "Updated docs/progress/runs/2026-05-24-full-multisite-sales-mvp-audit.json endingHead to d6711a3e56658a1d8fe24c1cf01d8a4318a70506.",
+    "Updated the Phase 6.75 run-log commit/push status to committed and pushed as d6711a docs: audit multisite sales MVP readiness."
+  ],
+  "filesInspected": [
+    "docs/audits/2026-05-24-full-multisite-sales-mvp-audit.md",
+    "docs/audits/2026-05-24-full-multisite-sales-mvp-audit-summary.md",
+    "docs/design/ux-visual-audit-phase-6-5.md",
+    "docs/design/figma-product-alignment.md",
+    "docs/design/figma-first-pass-product-system.md",
+    "docs/design/figma-product-preview-state-variants.md",
+    "docs/mvp-multisite-sales-demo-contract.md",
+    "docs/decisions/multisite-sales-mvp-decisions.md",
+    "docs/progress/runs/2026-05-24-full-multisite-sales-mvp-audit.json",
+    "docs/progress/run-log.md",
+    "workspace.html",
+    "workspace.js",
+    "workspace.css",
+    "tests/workspace-app.test.mjs",
+    "tests/ux-visual-audit-phase-6-5.test.mjs",
+    "tests/full-multisite-sales-mvp-audit.test.mjs",
+    "tests/production-workflow-source.test.mjs",
+    "tests/workspace-browser-smoke.test.mjs"
+  ],
+  "filesChanged": [
+    "workspace.html",
+    "workspace.js",
+    "workspace.css",
+    "tests/workspace-app.test.mjs",
+    "docs/design/figma-product-alignment.md",
+    "docs/progress/runs/2026-05-24-full-multisite-sales-mvp-audit.json",
+    "docs/progress/runs/2026-05-24-design-cleanup-before-dashboard.json",
+    "docs/progress/run-log.md"
+  ],
+  "tokenAliasesAdded": [
+    "--color-ink: #172026",
+    "--color-muted: #596871",
+    "--color-paper: #fbfaf7",
+    "--color-surface: #ffffff",
+    "--color-blue: #2463a6",
+    "--color-green: #22734d",
+    "--color-amber: #a65f00",
+    "--color-red: #b82f2f",
+    "--color-teal: #047b83",
+    "--color-violet: #6c4aa3",
+    "--color-coral: #c6553d",
+    "--color-gold: #d9a441",
+    "--color-border: #dce4e5",
+    "--color-header: #22303a",
+    "--abc-violet: #6c4aa3",
+    "--abc-gold: #d9a441",
+    "--abc-border: #dce4e5"
+  ],
+  "productHeaderPattern": {
+    "cssClasses": [
+      ".workspace-product-header",
+      ".workspace-product-eyebrow",
+      ".workspace-product-title",
+      ".workspace-product-subtitle",
+      ".workspace-posture-chips",
+      ".workspace-posture-chip",
+      ".workspace-product-context"
+    ],
+    "defaultEyebrow": "Database-backed MVP • Private evidence • Audit-safe operations",
+    "defaultTitle": "Senior Capstone Product",
+    "defaultSubtitle": "A serious school-operations workspace for progress tracking, private evidence, mentor scope, review workflows, and site-level oversight.",
+    "postureChips": [
+      "Database-backed MVP",
+      "No student messaging",
+      "Cloudflare target",
+      "Private evidence",
+      "Audit-sensitive admin"
+    ]
+  },
+  "productHeaderRenderPaths": [
+    "renderSignIn renders renderProductHeader({ titleId: \"signInTitle\" }) for the unauthenticated/sign-in surface.",
+    "renderAppShell renders renderProductHeader({ context: headerContext, readOnly: roles.has(\"viewer\") }) for authenticated workspace users before active section content."
+  ],
+  "statusChipsAdded": [
+    "draft",
+    "submitted",
+    "under_review",
+    "revision_requested",
+    "approved",
+    "blocked",
+    "rejected",
+    "overridden",
+    "archived",
+    "ready",
+    "configured",
+    "pending",
+    "failed",
+    "complete",
+    "expired"
+  ],
+  "statusMappingUsage": [
+    "statusPill normalizes input through normalizeStatus and statusClassFor.",
+    "statusClassFor uses STATUS_CLASS_BY_STATUS to map operational aliases onto Figma palette classes.",
+    "Existing dashboard, review, student evidence, presentation, archive, import, audit, mentor, and readiness rows continue to call statusPill."
+  ],
+  "problemStatePattern": {
+    "cssClasses": [
+      ".workspace-problem-state",
+      ".workspace-problem-state-grid",
+      ".workspace-problem-state-item",
+      ".workspace-problem-state-label",
+      ".workspace-problem-state-value"
+    ],
+    "fields": [
+      "Reason",
+      "Owner",
+      "Next action"
+    ],
+    "helper": "renderProblemState({ reason, owner, nextAction })"
+  },
+  "problemStateRenderPaths": [
+    "renderAccessBoundarySummary role-pending state",
+    "renderAccessBoundarySummary no-active-assignment state",
+    "renderAccessBoundarySummary permission-denied summary state",
+    "renderPermissionDeniedSection shared denied section",
+    "renderMentorDashboardSection mentor no-active-assignment empty state"
+  ],
+  "viewerReadOnlyRenderPath": [
+    "renderAppShell passes readOnly: roles.has(\"viewer\") into renderProductHeader.",
+    "renderReadOnlyBanner renders data-workspace-mode=\"read-only\" for viewer users."
+  ],
+  "optionalCopyChanges": [
+    "Changed generic dashboard empty copy to explain no urgent records match the current view.",
+    "Changed program and student-list empty copy from scope jargon to assigned-view language.",
+    "Changed teacher review empty copy to mention revision-requested records.",
+    "Expanded viewer read-only copy to mention private-evidence status."
+  ],
+  "deadCssDeadHelperGuard": [
+    "tests/workspace-app.test.mjs asserts product header CSS exists and renderProductHeader is called from sign-in and authenticated workspace paths.",
+    "tests/workspace-app.test.mjs asserts posture chip strings live in workspace.js and render in sign-in/authenticated output.",
+    "tests/workspace-app.test.mjs asserts status mapping helpers exist and statusPill is used by existing status surfaces.",
+    "tests/workspace-app.test.mjs asserts problem-state CSS exists and renderProblemState is called by multiple real states.",
+    "tests/workspace-app.test.mjs asserts viewer read-only output renders for a viewer user.",
+    "No future-only CSS/helper was added in this phase without at least one real app usage."
+  ],
+  "testsAddedOrUpdated": [
+    "tests/workspace-app.test.mjs"
+  ],
+  "designCleanupAcceptanceChecklist": {
+    "productHeaderRenders": [
+      "unauthenticated sign-in surface",
+      "authenticated workspace shell"
+    ],
+    "postureChipsRender": [
+      "renderProductHeader default WORKSPACE_POSTURE_CHIPS",
+      "sign-in output",
+      "authenticated workspace output"
+    ],
+    "statusChipMappingUsed": [
+      "statusPill",
+      "statusClassFor",
+      "normalizeStatus",
+      "existing dashboard/review/student/presentation/archive/import/readiness surfaces"
+    ],
+    "problemStateDetailRenders": [
+      "role pending",
+      "permission denied",
+      "no active assignment",
+      "mentor no-assignment empty state"
+    ],
+    "viewerReadOnlyStateRenders": [
+      "product header read-only context chip",
+      "workspace read-only banner"
+    ],
+    "cleanupType": "CSS and JS render cleanup with HTML asset-version bump; no backend or route changes.",
+    "deadHelperConfirmation": "Confirmed by source/render tests; no new CSS/helper was added without real app usage or a documented future-only reason."
+  },
+  "validation": {
+    "node --test tests/workspace-app.test.mjs": "passed",
+    "npm run test": "passed with 281 passing tests and 4 expected local HTTP skips",
+    "npm run typecheck": "passed",
+    "npm run check": "passed with aggregate checks and 281 passing tests / 4 expected local HTTP skips",
+    "npm run check:production-surfaces": "passed with 91 production text surfaces scanned",
+    "git diff --check": "passed with CRLF normalization warnings only"
+  },
+  "blockers": [],
+  "nextRecommendedPrompt": "07_site_admin_dashboard.txt"
+}

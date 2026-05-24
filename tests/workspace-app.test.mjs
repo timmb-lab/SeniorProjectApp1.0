@@ -113,6 +113,27 @@ test("workspace production text avoids internal build language", () => {
 
 test("workspace exposes Figma-aligned design tokens and future site patterns", () => {
   for (const token of [
+    "--color-ink: #172026",
+    "--color-muted: #596871",
+    "--color-paper: #fbfaf7",
+    "--color-surface: #ffffff",
+    "--color-blue: #2463a6",
+    "--color-green: #22734d",
+    "--color-amber: #a65f00",
+    "--color-red: #b82f2f",
+    "--color-teal: #047b83",
+    "--color-violet: #6c4aa3",
+    "--color-coral: #c6553d",
+    "--color-gold: #d9a441",
+    "--color-border: #dce4e5",
+    "--color-header: #22303a",
+    "--abc-violet: #6c4aa3",
+    "--abc-gold: #d9a441",
+  ]) {
+    assert.ok(workspaceCss.includes(token), `missing exact Figma token alias ${token}`);
+  }
+
+  for (const token of [
     "--color-primary",
     "--color-primary-strong",
     "--color-primary-soft",
@@ -133,6 +154,17 @@ test("workspace exposes Figma-aligned design tokens and future site patterns", (
 
   for (const className of [
     ".workspace-read-only-banner",
+    ".workspace-product-header",
+    ".workspace-product-eyebrow",
+    ".workspace-product-title",
+    ".workspace-product-subtitle",
+    ".workspace-posture-chips",
+    ".workspace-posture-chip",
+    ".workspace-problem-state",
+    ".workspace-problem-state-grid",
+    ".workspace-problem-state-item",
+    ".workspace-problem-state-label",
+    ".workspace-problem-state-value",
     ".workspace-site-switcher",
     ".workspace-site-context-badge",
     ".workspace-student-directory",
@@ -156,6 +188,81 @@ test("workspace exposes Figma-aligned design tokens and future site patterns", (
   assert.match(workspaceJs, /viewer: "Viewer"/);
   assert.match(workspaceJs, /"platform_admin",\s+"admin",\s+"org_admin",\s+"site_admin"/);
   assert.doesNotMatch(`${workspaceHtml}\n${workspaceJs}\n${workspaceCss}`, /client_secret|refresh_token|access_token|private_key|drive_file_id|driveFileId|drive_parent_folder_id|driveParentFolderId|PASSWORD_PEPPER/i);
+});
+
+test("workspace uses Phase 6.6 Figma cleanup patterns in real render paths", () => {
+  for (const copy of [
+    "Database-backed MVP",
+    "No student messaging",
+    "Cloudflare target",
+    "Private evidence",
+    "Audit-sensitive admin",
+    "Senior Capstone Product",
+  ]) {
+    assert.ok(workspaceJs.includes(copy), `missing product header copy ${copy}`);
+  }
+
+  const signInBlock = workspaceJs.match(/function renderSignIn[\s\S]*?async function signIn/)?.[0] || "";
+  const appShellBlock = workspaceJs.match(/function renderAppShell[\s\S]*?function availableSections/)?.[0] || "";
+  assert.match(workspaceJs, /function renderProductHeader\(options = \{\}\)/);
+  assert.match(signInBlock, /renderProductHeader\(\{\s*titleId: "signInTitle"\s*\}\)/);
+  assert.match(appShellBlock, /renderProductHeader\(\{[\s\S]*context: headerContext,[\s\S]*readOnly: roles\.has\("viewer"\)/);
+  assert.match(workspaceJs, /chips = WORKSPACE_POSTURE_CHIPS/);
+
+  for (const status of [
+    "draft",
+    "submitted",
+    "under_review",
+    "revision_requested",
+    "approved",
+    "blocked",
+    "rejected",
+    "overridden",
+    "archived",
+    "pending",
+    "failed",
+    "complete",
+  ]) {
+    assert.match(workspaceJs, new RegExp(`${status}: "${status === "complete" ? "complete" : status}"|${status}: "`));
+  }
+  assert.match(workspaceJs, /under_review: "Under review"/);
+  assert.match(workspaceJs, /revision_requested: "Revision requested"/);
+  assert.match(workspaceJs, /function statusClassFor\(status\)/);
+  assert.match(workspaceJs, /STATUS_CLASS_BY_STATUS\[normalized\]/);
+  assert.match(workspaceJs, /function normalizeStatus\(value\)/);
+  assert.match(workspaceJs, /statusClassFor\(status\)/);
+  assert.ok((workspaceJs.match(/statusPill\(/g) || []).length > 10, "status helper must be used by existing status surfaces");
+  for (const className of [
+    ".workspace-status-pill.submitted",
+    ".workspace-status-pill.under_review",
+    ".workspace-status-pill.approved",
+    ".workspace-status-pill.revision_requested",
+    ".workspace-status-pill.pending",
+    ".workspace-status-pill.draft",
+    ".workspace-status-pill.archived",
+    ".workspace-status-pill.blocked",
+    ".workspace-status-pill.rejected",
+    ".workspace-status-pill.failed",
+    ".workspace-status-pill.expired",
+    ".workspace-status-pill.overridden",
+  ]) {
+    assert.ok(workspaceCss.includes(className), `missing status CSS ${className}`);
+  }
+
+  assert.match(workspaceJs, /function renderProblemState\(\{ reason, owner, nextAction \}\)/);
+  assert.match(workspaceJs, /workspace-problem-state/);
+  assert.match(workspaceJs, /Reason/);
+  assert.match(workspaceJs, /Owner/);
+  assert.match(workspaceJs, /Next action/);
+  assert.ok((workspaceJs.match(/renderProblemState\(/g) || []).length >= 5, "problem-state helper must be used by multiple real states");
+  assert.match(workspaceJs, /data-workspace-state="role-pending"[\s\S]*renderProblemState\(/);
+  assert.match(workspaceJs, /data-workspace-state="no-active-assignment"[\s\S]*renderProblemState\(/);
+  assert.match(workspaceJs, /data-workspace-state="permission-denied"[\s\S]*renderProblemState\(/);
+
+  assert.match(appShellBlock, /readOnly: roles\.has\("viewer"\)/);
+  assert.match(workspaceJs, /data-workspace-mode="read-only"/);
+  assert.match(workspaceJs, /Read-only workspace/);
+  assert.doesNotMatch(workspaceJs, /\/api\/announcements|\/api\/admin\/announcements|workspace-kicker">Announcements/i);
 });
 
 test("production surface checker includes the authenticated workspace", () => {
@@ -232,6 +339,9 @@ test("workspace renders upload progress, validation, completion, and retry state
   assert.match(uploading, /role="progressbar"/);
   assert.match(uploading, /aria-live="polite"/);
   assert.match(uploading, /progress-proof\.txt/);
+  assert.match(uploading, /workspace-product-header/);
+  assert.match(uploading, /Senior Capstone Product/);
+  assert.match(uploading, /No student messaging/);
 
   const failed = await renderWorkspaceWithFetch(routes, "student", `
     lastUploadAttempt = {
@@ -322,6 +432,10 @@ test("workspace renders role-pending and permission-denied access states", async
   assert.match(pending, /data-workspace-state="role-pending"/);
   assert.match(pending, /Workspace access is pending/);
   assert.match(pending, /no workspace role is assigned yet/);
+  assert.match(pending, /workspace-problem-state/);
+  assert.match(pending, /Reason/);
+  assert.match(pending, /Owner/);
+  assert.match(pending, /Next action/);
 
   const denied = await renderWorkspaceWithFetch({
     "/api/auth/me": {
@@ -348,6 +462,7 @@ test("workspace renders role-pending and permission-denied access states", async
   assert.match(denied, /data-workspace-state="permission-denied"/);
   assert.match(denied, /Some workspace sections need different access/);
   assert.match(denied, /Student workspace/);
+  assert.match(denied, /workspace-problem-state/);
 
   const noAssignment = await renderWorkspaceWithFetch({
     "/api/auth/me": {
@@ -374,6 +489,26 @@ test("workspace renders role-pending and permission-denied access states", async
   assert.match(noAssignment, /data-workspace-state="no-active-assignment"/);
   assert.match(noAssignment, /Workspace assignment is not active yet/);
   assert.match(noAssignment, /Mentor students/);
+  assert.match(noAssignment, /No active student records match this assigned view/);
+
+  const viewer = await renderWorkspaceWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "viewer-read-only",
+          email: "viewer.readonly@example.edu",
+          displayName: "Readonly Viewer",
+          roles: [{ role_id: "viewer", scope_type: "site", scope_id: "west" }],
+        },
+      },
+    },
+  });
+  assert.match(viewer, /data-workspace-mode="read-only"/);
+  assert.match(viewer, /Read-only workspace/);
+  assert.match(viewer, /Read-only viewer/);
+  assert.match(viewer, /Private evidence/);
 });
 
 test("workspace renders safe Google Workspace SSO and local sign-in states", async () => {
@@ -419,6 +554,13 @@ test("workspace renders safe Google Workspace SSO and local sign-in states", asy
   assert.match(enabled, /Continue with Google Workspace/);
   assert.match(enabled, /href="\/api\/auth\/google\/start\?returnTo=\/workspace\.html"/);
   assert.match(enabled, /Local account sign in/);
+  assert.match(enabled, /workspace-product-header/);
+  assert.match(enabled, /Senior Capstone Product/);
+  assert.match(enabled, /Database-backed MVP/);
+  assert.match(enabled, /No student messaging/);
+  assert.match(enabled, /Cloudflare target/);
+  assert.match(enabled, /Private evidence/);
+  assert.match(enabled, /Audit-sensitive admin/);
   assert.doesNotMatch(enabled, /client_secret|access_token|refresh_token|id_token/i);
 });
 
@@ -704,7 +846,7 @@ test("workspace renders presentation schedule and day-of actions", async () => {
   assert.match(presentation, /data-presentation-state="checked_out"/);
   assert.match(presentation, /Maya Student/);
   assert.match(presentation, /Room 101/);
-  assert.match(presentation, /Outline approved/);
+  assert.match(presentation, /Outline Approved/);
   assert.match(presentation, /data-presentation-action="check-out"/);
   assert.match(presentation, /data-presentation-action="check-in"/);
 });
