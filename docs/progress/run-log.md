@@ -40,7 +40,7 @@ Future productive runs should append compact entries that name the master-plan s
 - `credential handling`: Remote staff credential path was `.secrets/demo-remote-staff-logins-20260522-041229.json`; no credential values were printed or committed; no student credentials were created.
 - `validation`: remote dry run, remote write, remote proof, `npm run test`, `npm run typecheck`, and `npm run check` passed.
 - `blockers`: Hosted generated demo staff login is not claimed because production password pepper is not available to the local direct-D1 seeder; hosted proof used existing fake hosted credentials while D1 scope proof covered all generated demo staff.
-- `commit/push status`: pending closeout commit.
+- `commit/push status`: committed and pushed as 8e4a760 feat: add site student directory.
 
 ## 2026-05-22 PT - Local Demo Workspace Seed
 
@@ -1475,4 +1475,24 @@ Future productive runs should append compact entries that name the master-plan s
 - `local proof update`: `scripts/prove-local-demo-workspace.mjs` now proves the site directory primary total 250/default returned 50, secondary total 60, noMentor filter, missing_mentor/revision_requested/archive_failed story filters, Revision Loop Demo search, viewer read-only directory behavior, site-admin cross-site denial, and program-teacher scoped directory behavior.
 - `validation`: focused `node --test tests/site-students.integration.test.mjs`, `node --test tests/site-dashboard.integration.test.mjs`, `node --test tests/workspace-app.test.mjs`, and `node --test tests/production-workflow-source.test.mjs` passed; `npm run inventory:production-routes` regenerated inventory; `npm run check:route-inventory` passed; `npm run check:production-surfaces` passed with 91 production text surfaces scanned; `npm run test` passed with 288 passing tests and 4 expected local HTTP skips; `npm run typecheck` passed; `npm run check` passed; `npm run prove:demo:local` passed; `git diff --check` passed with CRLF normalization warnings only.
 - `blockers`: remote D1 still lacks migration `0011_multisite_site_role_foundation.sql`, so no remote migration, remote write/seed, deploy, or hosted proof was run. Student detail remains Phase 9 work.
+
+## 2026-05-24 PT - Phase 9 Site Student Detail And Timeline
+
+- `automation ID`: manual Codex Phase 9 pass.
+- `lane`: multisite-sales-demo / site-scoped drill-down / workspace detail.
+- `starting HEAD`: `8e4a7608857c08c2d07aa0e267076c26b62b3395`.
+- `selected slice`: Add the site-scoped student detail and timeline routes plus the authenticated workspace drawer opened from the Students directory, without adding review, mentor assignment, archive retry, export, user-management, messaging, remote migration, remote write, remote seed, deploy, domain, OAuth, or Cloudflare config changes.
+- `routes added`: `GET /api/site/students/:studentId` and `GET /api/site/students/:studentId/timeline`.
+- `timeline strategy`: detail returns a bounded `timelinePreview` capped at 10 events; full timeline reads use the separate paginated route with default limit 50, maximum limit 100, offset, optional type filter, and stable event type names.
+- `site/student scoping`: detail and timeline reuse `functions/_lib/site-scope.ts`, active selected-site `site_users`, active student role membership, selected-site program/group membership where relevant, and Phase 4 permission helpers. Workflow tables without `site_id` are scoped through the selected student and selected-site membership instead of global joins.
+- `role behavior`: platform admin and legacy admin can view any active site student; org admin can view assigned tenant-site students; site admin and viewer can view assigned-site students; viewer is read-only with mutation permissions false; program teacher can view only selected-site program/cohort students; mentor can view only assigned selected-site students; student and misc admin are denied.
+- `visibility/redaction`: admin-family roles see operational detail; viewer receives read-only operational detail; program teacher receives scoped evidence/review/submission data; mentor receives assigned-student support data with unsafe staff-only/admin/security context omitted where visibility cannot be proven. Raw Drive IDs, storage IDs, token/password/setup credential fields, and raw audit metadata are not returned.
+- `existence leakage`: cross-site or out-of-scope students return generic denial/not-found responses without revealing whether the student exists elsewhere or naming the real site.
+- `bounded payloads`: detail sections are capped at submissions 5, evidence 10, reviews 10, comments 10, status history 10, mentor meetings 5, and timeline preview 10.
+- `workspace summary`: the Students row action is now `View detail`, opens an in-workspace drawer/panel, preserves search/filter/pagination and selected site state on open/close, uses `renderProblemState()` for loading/error/denied/empty states, and renders Summary, Progress, Submissions, Evidence, Reviews & Comments, Mentor, Presentation, Archive, and Timeline sections without mutation buttons.
+- `story examples proven`: Model Excellent Demo, Missing Mentor Demo, Revision Loop Demo, Archive Failed Demo, and Rich Timeline Demo are resolved by seeded display-name prefixes in tests and local proof.
+- `files changed`: `functions/_lib/site-student-detail.ts`, dynamic site student detail/timeline routes, `workspace.js`, `workspace.css`, `tests/site-student-detail.integration.test.mjs`, workspace/source tests, local proof script, generated route inventory, production surface registry, README, MVP contract/decision/design/audit/demo docs, Phase 8 completion metadata, Phase 9 manifest, and this run log.
+- `validation`: focused `node --test tests/site-student-detail.integration.test.mjs`, `node --test tests/workspace-app.test.mjs`, and `node --test tests/production-workflow-source.test.mjs` passed; `npm run inventory:production-routes` regenerated inventory; `npm run check:route-inventory` passed; `npm run check:production-surfaces` passed with 91 production text surfaces scanned; `npm run test` passed with 291 passing tests and 4 expected local HTTP skips; `npm run typecheck` passed; `npm run check` passed; `npm run prove:demo:local` passed with the five deterministic story students and rich timeline event types proven.
+- `blockers`: remote D1 still lacks migration `0011_multisite_site_role_foundation.sql`, so no remote migration, remote write/seed, deploy, or hosted proof was run.
+- `commit/push status`: pending final validation and closeout commit.
 - `commit/push status`: pending.

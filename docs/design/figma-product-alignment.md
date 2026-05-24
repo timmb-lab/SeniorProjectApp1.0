@@ -174,3 +174,23 @@ Route/data changes:
 - Canonical status, story, risk, presentation, and archive filter values are implemented for Phase 9 reuse.
 - Program teacher directory access is scoped to the selected site and teacher-visible program students rather than full-site counts.
 - Route inventory is regenerated because a new production API route was added.
+
+## 11. Phase 9 Student Detail Applied
+
+Phase 9 connects the Figma-aligned Students row action to real site-scoped drill-down data through `/api/site/students/:studentId` and `/api/site/students/:studentId/timeline`.
+
+Rendered app changes:
+
+- The Students section row action now reads `View detail` and opens an in-workspace drawer instead of a disabled placeholder.
+- The drawer uses `workspace-detail-drawer`, `workspace-detail-panel`, `workspace-site-context-badge`, `workspace-story-chip`, `workspace-risk-chip`, `workspace-dashboard-card`, `workspace-problem-state`, `workspace-empty-state-card`, and `statusPill()`.
+- Detail sections cover Summary, Progress, Submissions, Evidence, Reviews & Comments, Mentor, Presentation, Archive, and Timeline.
+- Directory search, filters, pagination, and selected site remain in memory while the drawer opens and closes.
+- Viewer mode shows read-only state and no mutation buttons. Review decisions, mentor assignment, archive retry/export, user-management, and download controls are not introduced.
+- Loading, denied, failed, and empty detail states use `renderProblemState()` and retain the surrounding directory.
+
+Route/data changes:
+
+- Detail sections are bounded to keep payloads small, and the full timeline uses a separate paginated route.
+- Role visibility is conservative: program teacher and mentor responses omit broad admin/security context, and ambiguous staff-only data is omitted rather than exposed.
+- Evidence, archive, and timeline output redacts raw Drive IDs, storage IDs, credentials, tokens, and unsafe audit metadata.
+- Route inventory is regenerated because two production API routes were added.

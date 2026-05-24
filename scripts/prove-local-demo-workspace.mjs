@@ -975,7 +975,7 @@ async function seedExistingSession(env, userId, token) {
     `INSERT OR REPLACE INTO sessions (id, user_id, token_hash, expires_at)
      VALUES (?, ?, ?, ?)`,
   ).bind(`sess-${token}`, userId, tokenHash, "2099-01-01T00:00:00.000Z").run();
-  return token;
+  return `${env.SESSION_COOKIE_NAME || "sc_session"}=${token}`;
 }
 
 function assertChecks(classification, checks) {

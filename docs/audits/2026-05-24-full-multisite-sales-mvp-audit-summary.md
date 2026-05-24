@@ -100,3 +100,19 @@ After Phase 7, Phase 8 added the route-connected site-scoped Student Directory:
 - Student detail is still not built; Phase 9 should build on the directory route and filter vocabulary.
 
 Updated next prompt after Phase 8: `09_student_detail_timeline_ui.txt`.
+
+## Phase 9 Update
+
+After Phase 8, Phase 9 added the site-scoped Student Detail and Timeline drill-down:
+
+- `/api/site/students/:studentId` is implemented and tested independently from legacy dashboards and student self-service.
+- `/api/site/students/:studentId/timeline` is implemented as the separate full timeline route; the detail route carries only a `timelinePreview` capped at 10 events.
+- Detail sections are bounded: submissions 5, evidence 10, reviews 10, comments 10, status history 10, mentor meetings 5, and timeline preview 10.
+- The route reuses Phase 8 canonical story/status/presentation/archive vocabulary and resolves story proof students by seeded display-name prefixes.
+- Viewer detail access is read-only with mutation permissions disabled; program teacher detail access is scoped to selected-site program students; mentor detail access is assigned-student only; student and misc admin are denied.
+- Cross-site and out-of-scope requests use generic denial/not-found responses without leaking whether the student exists elsewhere.
+- Evidence, archive, and timeline responses avoid raw Drive IDs, storage IDs, credentials, token/password fields, and unsafe raw audit metadata.
+- The authenticated workspace Students rows now open a Figma-aligned detail drawer with Summary, Progress, Submissions, Evidence, Reviews & Comments, Mentor, Presentation, Archive, and Timeline sections. Directory filters, search, pagination, and selected site are preserved when opening and closing detail.
+- No review decision, mentor assignment, archive retry/export, user-management, download, or messaging mutation UI was added.
+
+Updated next prompt after Phase 9: `10_program_teacher_review_workflow.txt`.

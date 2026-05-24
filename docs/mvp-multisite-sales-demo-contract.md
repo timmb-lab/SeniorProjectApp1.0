@@ -243,7 +243,17 @@ Phase 8 site student directory implementation:
 - Default pagination limit is 50, maximum limit is 100, `pagination.returned` equals the returned row count, and `pagination.filteredTotal` is the filter match count before pagination.
 - Canonical filters are implemented for status, story bucket, risk, presentation status, archive status, no mentor, program, and search. Story filters include `missing_mentor`, `revision_requested`, and `archive_failed` proof paths.
 - `platform_admin`, legacy `admin`, `org_admin`, assigned `site_admin`, assigned `viewer`, and scoped `program_teacher` can view the route; `viewer` is read-only and `program_teacher` is limited to scoped program/site students. `mentor`, `student`, and legacy `misc_admin` are denied.
-- The authenticated workspace renders a Figma-aligned Students section from `/api/site/students` with filters, result counts, pagination summary, story/risk chips, status chips, and disabled `Detail view coming soon` controls only. Student detail remains a Phase 9 route/surface.
+- The authenticated workspace renders a Figma-aligned Students section from `/api/site/students` with filters, result counts, pagination summary, story/risk chips, status chips, and real `View detail` controls.
+
+Phase 9 site student detail and timeline implementation:
+
+- `/api/site/students/:studentId` is implemented as the site-scoped drill-down route and reuses the Phase 8 canonical status, story, presentation status, and archive status vocabulary.
+- `/api/site/students/:studentId/timeline` is implemented as the full timeline route. The detail route includes `timelinePreview` capped at 10 events; the timeline route defaults to limit 50, caps limit at 100, supports offset, and can filter by stable event type.
+- Detail sections are bounded: submissions 5, evidence 10, reviews 10, comments 10, status history 10, mentor meetings 5, and timeline preview 10.
+- Cross-site and out-of-scope students return generic denial/not-found responses and do not disclose whether the student exists in another site.
+- Visibility is conservative by role: admin-family roles see scoped operational detail; viewer is read-only; program teacher sees scoped evidence/review/submission data only; mentor sees assigned-student support data only; student self-service remains `/api/student/dashboard`; misc admin is denied.
+- Evidence, archive, and timeline responses omit raw Drive IDs, storage IDs, token/password/setup credential fields, and unsafe raw audit metadata.
+- The authenticated workspace opens a Figma-aligned detail drawer from the Students section, preserves directory search/filter/pagination and selected site state, renders section tabs, uses `renderProblemState()` for loading/error/denied/empty states, and adds no mutation buttons.
 
 ## 9. Demo Seed Direction
 

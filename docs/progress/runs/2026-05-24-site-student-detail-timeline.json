@@ -1,0 +1,180 @@
+{
+  "phase": "09 - Site-Scoped Student Detail and Timeline",
+  "date": "2026-05-24",
+  "startingHead": "8e4a7608857c08c2d07aa0e267076c26b62b3395",
+  "endingHead": null,
+  "phase8HygieneFixes": [
+    "Updated docs/progress/runs/2026-05-24-site-student-directory.json endingHead to 8e4a7608857c08c2d07aa0e267076c26b62b3395.",
+    "Updated the Phase 8 run-log commit/push status to committed and pushed as 8e4a760 feat: add site student directory."
+  ],
+  "routesAdded": [
+    {
+      "path": "/api/site/students/:studentId",
+      "file": "functions/api/site/students/[studentId].ts",
+      "method": "GET",
+      "purpose": "Site-scoped, role-scoped bounded student detail."
+    },
+    {
+      "path": "/api/site/students/:studentId/timeline",
+      "file": "functions/api/site/students/[studentId]/timeline.ts",
+      "method": "GET",
+      "purpose": "Paginated safe timeline for the selected site student."
+    }
+  ],
+  "siteSelectionBehavior": {
+    "sharedHelper": "functions/_lib/site-scope.ts",
+    "explicitAccessibleSiteId": "Returns detail or timeline only when the selected active student belongs to the selected active site and the role is allowed.",
+    "explicitInaccessibleSiteId": "403 using existing site access patterns.",
+    "explicitInvalidOrInactiveSiteId": "403 using existing site access patterns.",
+    "explicitStudentOutsideSite": "Generic not_found denial without student existence, actual site, program, mentor, or evidence hints.",
+    "missingSiteIdSingleAccessibleSite": "Infers the single accessible site when the selected student belongs to it.",
+    "missingSiteIdMultipleAccessibleSites": "Infers only when the selected student belongs to exactly one accessible site; otherwise requires selection.",
+    "noGlobalFallback": true
+  },
+  "studentScopeStrategy": [
+    "Detail scope starts from active selected-site site_users joined to active student accounts and student role membership.",
+    "Program and cohort are derived through selected-site group membership, programs, and cohorts.",
+    "Program teacher detail is intersected with getProgramTeacherScopedStudentIds for the selected site.",
+    "Mentor detail is intersected with active mentor_assignments for the current mentor and selected-site student.",
+    "Workflow tables without site_id are filtered through the selected student id and active selected-site membership.",
+    "Legacy global dashboards are not reused as detail data sources."
+  ],
+  "timelineStrategy": {
+    "chosen": "separate_route_with_preview",
+    "reason": "The detail route stays fast and bounded for drawer loading, while full history can paginate independently for Phase 10+ workflow surfaces.",
+    "detailPreviewLimit": 10,
+    "timelineDefaultLimit": 50,
+    "timelineMaxLimit": 100,
+    "timelineOffset": true,
+    "timelineTypeFilter": true,
+    "eventOrder": "descending occurredAt",
+    "stableEventTypes": [
+      "status_history",
+      "submission",
+      "evidence",
+      "review",
+      "comment",
+      "mentor_meeting",
+      "presentation",
+      "archive_export",
+      "audit_safe"
+    ]
+  },
+  "sectionLimitStrategy": {
+    "submissions": 5,
+    "evidence": 10,
+    "reviews": 10,
+    "comments": 10,
+    "statusHistory": 10,
+    "mentorMeetings": 5,
+    "timelinePreview": 10,
+    "fullTimeline": "Use /api/site/students/:studentId/timeline with limit and offset."
+  },
+  "roleVisibilityPolicy": {
+    "platform_admin": "Can view scoped operational detail for any active site student.",
+    "admin": "Legacy platform-equivalent compatibility can view scoped operational detail for any active site student.",
+    "org_admin": "Can view scoped operational detail for assigned tenant-site students.",
+    "site_admin": "Can view scoped operational detail for assigned-site students.",
+    "viewer": "Can view assigned-site operational detail read-only with mutation permissions false.",
+    "program_teacher": "Can view scoped evidence, review, submission, and status data for selected-site program/cohort students only; site-wide admin/security/user-management context is omitted.",
+    "mentor": "Can view assigned-student support detail only; unsafe staff-only/admin/security context is omitted when visibility cannot be proven.",
+    "student": "Denied for /api/site/students/:studentId; self-service remains /api/student/dashboard.",
+    "misc_admin": "Denied."
+  },
+  "existenceLeakagePolicy": {
+    "policy": "Cross-site and out-of-scope student lookups use generic denial/not-found responses.",
+    "doesNotReturn": [
+      "actual site where the student belongs",
+      "whether the student exists in another site",
+      "program, mentor, evidence, presentation, archive, or alternate site hints"
+    ],
+    "documentedBehavior": "Explicit inaccessible sites keep the existing 403 site access pattern; selected-site student mismatch returns generic not_found."
+  },
+  "storyExamplesProven": {
+    "lookupStrategy": "Resolve by seeded display-name prefixes, not hard-coded row ids.",
+    "prefixes": [
+      "Model Excellent Demo",
+      "Missing Mentor Demo",
+      "Revision Loop Demo",
+      "Archive Failed Demo",
+      "Rich Timeline Demo"
+    ],
+    "modelExcellent": "Approved/completed/archive-ready style detail.",
+    "missingMentor": "No active mentor and next-action support data.",
+    "revisionLoop": "Revision requested status, feedback/review/comment/status history.",
+    "archiveFailed": "Failed archive/export state without raw provider or storage ids.",
+    "richTimeline": "Multiple timeline event types across seeded workflow data."
+  },
+  "workspaceChanges": [
+    "Replaced disabled Detail view coming soon rows with real View detail actions.",
+    "Added a Students detail drawer/panel that calls /api/site/students/:studentId with the selected site id.",
+    "Loads /api/site/students/:studentId/timeline when the Timeline tab opens.",
+    "Renders Summary, Progress, Submissions, Evidence, Reviews & Comments, Mentor, Presentation, Archive, and Timeline sections.",
+    "Uses renderProblemState() for loading, denied, failed, and empty detail states.",
+    "Does not prefetch all student details and does not add mutation buttons."
+  ],
+  "roleAccessMatrix": {
+    "platform_admin": "view any active site student detail and timeline",
+    "admin": "view any active site student detail and timeline",
+    "org_admin": "view assigned tenant-site student detail and timeline",
+    "site_admin": "view assigned-site student detail and timeline",
+    "viewer": "view assigned-site student detail and timeline read-only",
+    "program_teacher": "view selected-site scoped program/cohort student detail and timeline",
+    "mentor": "view assigned selected-site student detail and timeline",
+    "student": "403 denied on site detail/timeline route family",
+    "misc_admin": "403 denied"
+  },
+  "directoryStatePreservation": {
+    "preserved": true,
+    "details": "Opening and closing detail only changes siteStudentDetailState. It does not reset directory query, filters, pagination, selected site, or the current directory response. Detail load failures leave the directory list intact."
+  },
+  "redactionProof": {
+    "rawDriveIds": "not returned",
+    "driveParentFolderIds": "not returned",
+    "storageIds": "not returned",
+    "passwordOrTokenFields": "not returned",
+    "setupCredentials": "not returned",
+    "rawAuditMetadata": "not returned",
+    "evidenceAllowed": "safe title, kind, count, safe example.com demo URL, and redacted storage status"
+  },
+  "figmaPatternUsage": [
+    "renderAppShell product header remains the shell.",
+    "workspace-detail-drawer",
+    "workspace-detail-panel",
+    "workspace-site-context-badge",
+    "workspace-story-chip",
+    "workspace-risk-chip",
+    "workspace-dashboard-card",
+    "workspace-problem-state",
+    "workspace-empty-state-card",
+    "statusPill()"
+  ],
+  "testsAddedOrUpdated": [
+    "tests/site-student-detail.integration.test.mjs",
+    "tests/workspace-app.test.mjs",
+    "tests/production-workflow-source.test.mjs"
+  ],
+  "localProofUpdates": [
+    "scripts/prove-local-demo-workspace.mjs now proves detail for the five deterministic story prefixes.",
+    "Local proof now checks rich timeline event types, missing mentor next action, revision loop feedback/history, archive failure redaction, viewer read-only detail, site-admin cross-site denial, program-teacher out-of-scope denial, mentor unassigned denial, student denial, bounded detail sections, and no sensitive detail/timeline fields."
+  ],
+  "validation": {
+    "node --test tests/site-student-detail.integration.test.mjs": "passed",
+    "node --test tests/workspace-app.test.mjs": "passed",
+    "node --test tests/production-workflow-source.test.mjs": "passed",
+    "npm run inventory:production-routes": "passed",
+    "npm run check:route-inventory": "passed",
+    "npm run check:production-surfaces": "passed; 91 production text surfaces scanned",
+    "npm run test": "passed; 291 passing tests and 4 expected local HTTP skips",
+    "npm run typecheck": "passed",
+    "npm run check": "passed",
+    "npm run prove:demo:local": "passed; proved five story students, rich timeline event types, viewer read-only, site-admin cross-site denial, program-teacher scoping, mentor assigned-only scoping, student denial, bounded payloads, and no sensitive fields",
+    "git diff --check": "passed with CRLF normalization warnings only"
+  },
+  "blockers": [
+    "Remote D1 still lacks migration 0011_multisite_site_role_foundation.sql, so no remote proof or hosted proof was run.",
+    "Review decision mutation UI remains Phase 10 work.",
+    "Mentor assignment and archive retry/export mutation UI remain future phases."
+  ],
+  "nextRecommendedPrompt": "10_program_teacher_review_workflow.txt"
+}

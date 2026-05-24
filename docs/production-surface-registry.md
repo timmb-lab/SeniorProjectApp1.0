@@ -69,6 +69,8 @@ Canonical app APIs deploy from `functions/api/**` on `senior-capstone-app`. Prot
 - `/api/admin/dashboard`
 - `/api/site/dashboard`
 - `/api/site/students`
+- `/api/site/students/:studentId`
+- `/api/site/students/:studentId/timeline`
 - `/api/program-teacher/dashboard`
 - `/api/mentor/dashboard`
 - `/api/auth/config`

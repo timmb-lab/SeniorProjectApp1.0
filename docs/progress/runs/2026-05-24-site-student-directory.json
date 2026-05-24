@@ -2,7 +2,7 @@
   "phase": "08 - Site-Scoped Student Directory API and UI",
   "date": "2026-05-24",
   "startingHead": "3bd47dca891933374d158cb30ebb303c4ac25d77",
-  "endingHead": null,
+  "endingHead": "8e4a7608857c08c2d07aa0e267076c26b62b3395",
   "phase7HygieneFixes": [
     "Updated docs/progress/runs/2026-05-24-site-admin-dashboard.json endingHead to 3bd47dca891933374d158cb30ebb303c4ac25d77.",
     "Updated the Phase 7 run-log commit/push status to committed and pushed as 3bd47dc feat: add site admin dashboard."

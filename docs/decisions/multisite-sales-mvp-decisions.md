@@ -95,4 +95,14 @@ This decision record locks the target vocabulary and scope for the multisite sal
 - Program teacher access is intentionally narrower than site administration access: it returns only selected-site students in the teacher-visible program scope and does not expose full-site counts.
 - Viewer access remains read-only with mutation permissions false.
 - Directory filters use canonical values for status, story, risk, presentation, and archive states so Phase 9 student detail can reuse the same vocabulary.
-- Student rows do not link to student detail yet. The only row-level action is a disabled `Detail view coming soon` control, preserving Phase 9 as the detail route/surface phase.
+- Student rows now link into the Phase 9 detail drawer through the real `View detail` control.
+
+## Phase 9 Site Student Detail And Timeline
+
+- `/api/site/students/:studentId` is the drill-down route for selected-site operational student detail. It reuses Phase 8 canonical story/status/presentation/archive values instead of creating a parallel vocabulary.
+- `/api/site/students/:studentId/timeline` is separate from the main detail payload. Detail includes only a `timelinePreview` capped at 10 events, while the timeline route owns paginated history with default limit 50, max limit 100, offset, and optional type filtering.
+- Payloads are intentionally bounded: submissions 5, evidence 10, reviews 10, comments 10, status history 10, mentor meetings 5, and timeline preview 10. Full history should build on the timeline route rather than widening detail.
+- Site scoping starts from the selected active site and selected student membership; workflow tables that lack `site_id` are joined through the selected student and active selected-site membership. The route must not fall back to global legacy dashboards.
+- Cross-site or out-of-scope student requests use generic denial/not-found responses so a scoped user cannot distinguish another site's real student from a nonexistent student.
+- Role visibility defaults safe: admin-family roles can see scoped operational detail; viewer is read-only; program teacher is scoped to teacher-visible program/cohort students; mentor is scoped to assigned-student support data; student self-service remains separate; misc admin is denied.
+- The workspace detail surface is read/detail-only in this phase. Review decisions, mentor assignment, archive retry/export, user-management, and download controls remain outside Phase 9 unless an existing scoped route is explicitly tested.

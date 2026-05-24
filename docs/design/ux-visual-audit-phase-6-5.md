@@ -243,6 +243,7 @@ Small safe visual fixes only. No route changes.
 - Keep staff-only notes separate from student-visible evidence.
 - Revision/blocked states must show reason, owner, and next action.
 - Viewer mode must be read-only throughout.
+- Phase 9 status: completed for the read-only drill-down vertical slice. The Students directory now opens a site-scoped detail drawer backed by `/api/site/students/:studentId`, with a separate paginated timeline route, bounded section payloads, role-scoped redaction, problem-state handling, and no mutation controls.
 
 ### Later phases
 
@@ -287,13 +288,13 @@ Do inside Phase 7:
 Do after Phase 7:
 
 - Phase 8 status: completed for the site-scoped Student Directory vertical slice. `/api/site/students` now backs the authenticated workspace Students section, uses the Phase 6.6 product header shell, site context badges, filter bar, story/risk chips, status pills, problem-state empty handling, private evidence / role scoped / audited changes / teacher intervention language, and no-announcements posture.
-- Build student detail using the same token/status/problem-state rules.
+- Phase 9 status: completed for the site-scoped Student Detail and Timeline vertical slice. `/api/site/students/:studentId` and `/api/site/students/:studentId/timeline` now back the Students detail drawer using the same token/status/problem-state rules, preserve directory state, and keep the surface read-only.
 - Add browser screenshot proof after route-connected views exist.
 
 Do not do yet:
 
 - Do not edit live Figma.
 - Do not run remote migrations, remote writes, remote seed, or deploy.
-- Do not build student detail before the directory route/UI is stable.
+- Do not build review, mentor assignment, archive retry/export, user-management, or download mutation controls into the detail surface before their scoped workflow phases.
 - Do not reintroduce announcements or messaging.
 - Do not change domain, OAuth, or Cloudflare live configuration.
