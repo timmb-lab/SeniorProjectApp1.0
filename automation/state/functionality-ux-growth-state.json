@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-05-24T15:43:49-07:00",
-  "lastStartingSha": "19396ea065fdc3c748d342844ecddcf81a9d4b79",
+  "lastRunAt": "2026-05-24T16:37:05-07:00",
+  "lastStartingSha": "f278233c8ba309dd9aee3a3711aa8803810a523b",
   "lastEndingSha": null,
   "currentLadderFocus": "LEVEL_1_NAVIGABLE_DASHBOARDS",
   "completedWorkOrders": [
@@ -57,28 +57,50 @@
       "type": "TYPE_C_STUDENT_DETAIL_DRILL_DOWN",
       "summary": "Top-risk dashboard rows now open the existing authorized student detail panel through the scoped detail loader.",
       "commit": "pending-closeout-commit"
+    },
+    {
+      "id": "dashboard-action-link-verifier",
+      "completedAt": "2026-05-24T16:37:05-07:00",
+      "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
+      "type": "TYPE_G_VERIFICATION_REGRESSION_PROTECTION",
+      "summary": "Added npm run verify:dashboard-actions to block dead protected workspace links, unsupported dashboard presets, unbacked review/operations filters, student-detail bypasses, read-only boundary drift, and fake placeholder action text.",
+      "commit": "pending-closeout-commit"
+    },
+    {
+      "id": "program-row-directory-clickthrough",
+      "completedAt": "2026-05-24T16:37:05-07:00",
+      "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS",
+      "type": "TYPE_B_DASHBOARD_CLICK_THROUGH",
+      "summary": "Site Dashboard Program Breakdown rows now open Student Directory with the existing scoped programId filter.",
+      "commit": "pending-closeout-commit"
+    },
+    {
+      "id": "mentor-workload-clickthrough",
+      "completedAt": "2026-05-24T16:37:05-07:00",
+      "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS",
+      "type": "TYPE_B_DASHBOARD_CLICK_THROUGH",
+      "summary": "Site Dashboard Mentor Coverage rows now open Mentor Assignments with the existing scoped mentorUserId filter.",
+      "commit": "pending-closeout-commit"
+    },
+    {
+      "id": "student-primary-next-action-card",
+      "completedAt": "2026-05-24T16:37:05-07:00",
+      "ladderLevel": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN",
+      "type": "TYPE_D_ROLE_WORKSPACE",
+      "summary": "Student home now elevates one own-student next action from existing nextSteps or summary counts before the longer task list.",
+      "commit": "pending-closeout-commit"
     }
   ],
   "deferredWorkOrders": [
-    {
-      "id": "dashboard-action-link-verifier",
-      "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
-      "reason": "Workspace source tests cover the new presets, but a standalone verifier should prevent fake links, unsupported presets, and unauthorized dashboard destinations."
-    },
     {
       "id": "browser-visual-qa-collapsed-nav-and-site-switching",
       "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
       "reason": "Browser screenshot QA needs credentialed local runtime and multiple-site demo data."
     },
     {
-      "id": "program-row-student-directory-clickthrough",
+      "id": "missing-submission-drilldown",
       "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS",
-      "reason": "Program-row drill-down should wait until supported directory program filters are confirmed."
-    },
-    {
-      "id": "mentor-workload-and-missing-submission-drilldowns",
-      "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS",
-      "reason": "These need route/filter confirmation before adding visible controls."
+      "reason": "Needs exact source metric and supported route/filter mapping before adding visible controls."
     },
     {
       "id": "student-next-action-card",
@@ -94,34 +116,28 @@
   "blockedWorkOrders": [],
   "nextRecommendedWorkOrders": [
     {
-      "id": "dashboard-action-link-verifier",
-      "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
-      "type": "TYPE_G_VERIFICATION_REGRESSION_PROTECTION",
-      "summary": "Add a standalone verifier that checks dashboard actions, Review Queue presets, Operations presets, no href=\"#\", no empty links, and no unauthorized student/admin destinations."
-    },
-    {
       "id": "browser-visual-qa-collapsed-nav",
       "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
       "type": "TYPE_G_VERIFICATION_REGRESSION_PROTECTION",
       "summary": "Run credentialed browser screenshot QA for expanded/collapsed navigation, admin site selector, and mobile wrapping."
     },
     {
-      "id": "program-row-directory-clickthrough",
+      "id": "missing-submission-drilldown",
       "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS",
       "type": "TYPE_B_DASHBOARD_CLICK_THROUGH",
-      "summary": "Link program breakdown rows to a real Student Directory filter after confirming route support."
+      "summary": "Map missing-submission or evidence-attention counts to a supported scoped Review Queue or Student Directory filter, then add the drill-down only if the mapping is exact."
     },
     {
-      "id": "mentor-workload-clickthrough",
+      "id": "student-detail-latest-feedback-context",
+      "ladderLevel": "LEVEL_2_STUDENT_DETAIL_DEPTH",
+      "type": "TYPE_C_STUDENT_DETAIL_DRILL_DOWN",
+      "summary": "Improve student detail section headings and latest feedback context using fields already returned by the authorized detail API."
+    },
+    {
+      "id": "review-queue-filter-url-state",
       "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS",
       "type": "TYPE_B_DASHBOARD_CLICK_THROUGH",
-      "summary": "Link overloaded mentor counts to a real Mentor Assignments workload filter if supported."
-    },
-    {
-      "id": "student-next-action-card",
-      "ladderLevel": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN",
-      "type": "TYPE_D_ROLE_WORKSPACE",
-      "summary": "Add a student-owned next-action card using existing progress, submission, revision, presentation, and archive signals."
+      "summary": "Consider URL/query persistence for review queue filters after privacy review."
     }
   ],
   "doNotRepeat": [
@@ -131,12 +147,15 @@
     "Do not spend a run on generic docs churn when a concrete ladder work order is safe and testable.",
     "Do not replace the functionality UX growth system with a short generic checklist; preserve ladder, ledger, state, scoring, and handoff requirements.",
     "Do not add fake site switching, fake all-sites rollups, fake retry buttons, fake intervention workflows, or links to routes that do not exist.",
-    "Do not broaden viewer, teacher, mentor, or student access while adding dashboard drill-downs or student detail entry points."
+    "Do not broaden viewer, teacher, mentor, or student access while adding dashboard drill-downs or student detail entry points.",
+    "Do not relink Program Breakdown rows to Student Directory; the program preset is complete.",
+    "Do not relink Mentor Coverage rows to Mentor Assignments; the mentor-workload preset is complete."
   ],
   "lastValidationStatus": {
     "status": "passed",
-    "completedAt": "2026-05-24T15:47:55-07:00",
+    "completedAt": "2026-05-24T16:40:01-07:00",
     "commands": [
+      "npm run verify:dashboard-actions",
       "npm run verify:functionality-ux-automation",
       "npm run verify:functionality-language",
       "node --test tests/functionality-language-audit.test.mjs",
@@ -148,7 +167,7 @@
       "npm run check",
       "git diff --check"
     ],
-    "notes": "Final validation passed. git diff --check reported CRLF normalization warnings only. lastEndingSha is left null until the closeout commit exists."
+    "notes": "Final validation passed. Baseline npm run test first failed only because the brand-new branch had no upstream; after setting temporary upstream to origin/main, baseline and final npm run test passed. git diff --check reported CRLF normalization warnings only. lastEndingSha is left null until the closeout commit exists."
   },
   "lastProductReadinessScorecardSummary": {
     "homepageClarity": "2 to 4",
