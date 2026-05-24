@@ -25,6 +25,8 @@ npm run prove:demo:remote
 - 48 fake mentors.
 - 1 fake program teacher per program.
 - 225 active mentor assignments, leaving 25 students intentionally unassigned.
-- Fake submissions, evidence, comments, reviews, status history, submission versions, mentor meetings, presentation slots, announcements, and archive metadata.
+- Fake submissions, evidence, comments, reviews, status history, submission versions, mentor meetings, presentation slots, and archive metadata.
+
+Demo seeds no longer create announcements. Schools should continue using existing communication systems such as Remind, Canvas, Infinite Campus, Google Classroom, email, or district-approved tools. The legacy `announcements` table remains deprecated/schema-only until a later safe cleanup phase.
 
 The proof script verifies remote D1 counts, role scope boundaries, hosted dashboard rendering, example.com-only evidence, and absence of Drive ID or secret leaks in rendered API responses.

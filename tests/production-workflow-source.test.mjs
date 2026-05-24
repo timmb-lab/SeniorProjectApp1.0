@@ -1,11 +1,10 @@
 import { readFile } from "node:fs/promises";
+import { existsSync } from "node:fs";
 import assert from "node:assert/strict";
 import test from "node:test";
 
 const dashboardRoute = await readFile("functions/api/student/dashboard.ts", "utf8");
 const auditEventsRoute = await readFile("functions/api/admin/audit-events.ts", "utf8");
-const adminAnnouncementRoute = await readFile("functions/api/admin/announcements.ts", "utf8");
-const announcementListRoute = await readFile("functions/api/announcements.ts", "utf8");
 const archiveQueueRoute = await readFile("functions/api/admin/exports/student-archive.ts", "utf8");
 const archiveReadinessRoute = await readFile("functions/api/student/archive/readiness.ts", "utf8");
 const archiveExportLib = await readFile("functions/_lib/archive-export.ts", "utf8");
@@ -21,6 +20,13 @@ const reviewQueueRoute = await readFile("functions/api/teacher/review-queue.ts",
 const submitRoute = await readFile("functions/api/submissions/[id]/submit.ts", "utf8");
 const reviewRoute = await readFile("functions/api/reviews/[submissionId]/decision.ts", "utf8");
 const workflowLib = await readFile("functions/_lib/workflow.ts", "utf8");
+const workspaceJs = await readFile("workspace.js", "utf8");
+const localDemoSeed = await readFile("scripts/seed-local-demo-workspace.mjs", "utf8");
+const remoteDemoSeed = await readFile("scripts/seed-remote-demo-workspace.mjs", "utf8");
+const localDemoProof = await readFile("scripts/prove-local-demo-workspace.mjs", "utf8");
+const remoteDemoProof = await readFile("scripts/prove-remote-demo-workspace.mjs", "utf8");
+const readme = await readFile("README.md", "utf8");
+const productionSurfaceRegistry = await readFile("docs/production-surface-registry.md", "utf8");
 
 test("student dashboard is D1-backed and uses server authorization", () => {
   assert.match(dashboardRoute, /getCurrentUser/);
@@ -126,15 +132,18 @@ test("admin audit endpoint is admin-only and redacts sensitive metadata", () => 
   assert.match(auditEventsRoute, /action/);
 });
 
-test("announcement endpoints support admin create and scoped authenticated reads", () => {
-  assert.match(adminAnnouncementRoute, /isAdmin/);
-  assert.match(adminAnnouncementRoute, /INSERT INTO announcements/);
-  assert.match(adminAnnouncementRoute, /announcement_created/);
-  assert.match(adminAnnouncementRoute, /missing_audience_id/);
-  assert.match(announcementListRoute, /getCurrentUser/);
-  assert.match(announcementListRoute, /audience_scope = 'all'/);
-  assert.match(announcementListRoute, /audience_scope = 'role'/);
-  assert.match(announcementListRoute, /group_memberships/);
+test("announcement routes and seed creation are removed from active MVP surfaces", () => {
+  assert.equal(existsSync("functions/api/announcements.ts"), false);
+  assert.equal(existsSync("functions/api/admin/announcements.ts"), false);
+  assert.doesNotMatch(productionRouteInventory, /\/api\/(?:admin\/)?announcements/);
+  assert.doesNotMatch(workspaceJs, /\/api\/announcements|announcements:\s*null|Current Updates|No current announcements/i);
+  assert.doesNotMatch(readme, /\/api\/(?:admin\/)?announcements/);
+  assert.doesNotMatch(productionSurfaceRegistry, /\| \/api\/(?:admin\/)?announcements \|/);
+  assert.match(productionSurfaceRegistry, /announcement routes are removed from the active MVP product surface/i);
+  assert.doesNotMatch(localDemoSeed, /announcementRow|rows\.announcements|pushRows\(statements, "announcements"|optional\.announcements/);
+  assert.match(localDemoSeed, /\["announcements",/);
+  assert.doesNotMatch(remoteDemoSeed, /optional\.announcements|announcements:\s*\[\]/);
+  assert.doesNotMatch(`${localDemoProof}\n${remoteDemoProof}`, /announcements/i);
 });
 
 test("archive export endpoints generate scoped manifest artifacts and expiry states", () => {

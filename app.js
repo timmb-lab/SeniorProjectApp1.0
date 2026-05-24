@@ -727,7 +727,7 @@ const officialLinks = [
     title: "Senior Remind",
     pages: "1",
     action: "Join the Senior Remind and keep notifications on.",
-    useFor: "Deadline reminders, quick updates, and schoolwide senior project announcements.",
+    useFor: "Deadline reminders, quick updates, and schoolwide senior project messages.",
     currentLink: "Use the join code or invite link shared by your senior project team."
   },
   {

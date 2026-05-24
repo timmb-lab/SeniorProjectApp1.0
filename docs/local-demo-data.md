@@ -41,6 +41,8 @@ npm run prove:demo:local
 - 25 fake mentors with active mentor roles.
 - 225 active mentor assignments, leaving 25 students intentionally without mentors.
 - Mixed proposal, revision, approval, build, presentation, completion, and high-risk states.
-- Fake submissions, evidence metadata, comments, reviews, submission versions, mentor meetings, presentation slots, announcements, archive export metadata, and audit markers when the local schema supports those tables.
+- Fake submissions, evidence metadata, comments, reviews, submission versions, mentor meetings, presentation slots, archive export metadata, and audit markers when the local schema supports those tables.
+
+Demo seeds no longer create announcements. Schools should continue using their existing communication systems; the legacy `announcements` table is deprecated/schema-only until a later safe cleanup phase.
 
 The seeder is deterministic and idempotent. It deletes only demo-owned rows identified by `demo-` IDs, demo `.test` domains, or explicit `DEMO_SEED` markers, then recreates the same local demo workspace shape.

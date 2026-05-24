@@ -189,7 +189,6 @@ const EVIDENCE_TEMPLATES = Object.freeze([
 ]);
 
 const OPTIONAL_TABLES = Object.freeze([
-  "announcements",
   "submission_versions",
   "mentor_meetings",
   "presentation_slots",
@@ -220,7 +219,6 @@ const REQUIRED_TABLE_COLUMNS = Object.freeze({
 });
 
 const OPTIONAL_TABLE_COLUMNS = Object.freeze({
-  announcements: ["id", "title", "body", "audience_scope", "audience_id", "publish_at", "expires_at", "created_by"],
   submission_versions: ["id", "submission_id", "student_id", "requirement_id", "version", "status", "submitted_by", "submitted_at", "evidence_snapshot_json", "notes"],
   mentor_meetings: ["id", "mentor_user_id", "student_user_id", "submission_id", "status", "scheduled_for", "held_at", "notes", "created_by"],
   presentation_slots: ["id", "student_user_id", "submission_id", "requirement_id", "scheduled_for", "duration_minutes", "location", "status", "outline_status", "checked_out_at", "checked_in_at", "notes", "created_by"],
@@ -445,7 +443,6 @@ function validateSchemaCapabilities(schema) {
   }
 
   const capabilities = {
-    announcements: schema.tableNames.has("announcements"),
     submissionVersions: schema.tableNames.has("submission_versions"),
     mentorMeetings: schema.tableNames.has("mentor_meetings"),
     presentationSlots: schema.tableNames.has("presentation_slots"),
@@ -1065,24 +1062,6 @@ async function buildDemoDataset({
     });
   }
 
-  if (capabilities.announcements) {
-    const announcementAuthor = "demo-teacher-it-01";
-    rows.announcements.push(
-      announcementRow("demo-announcement-safety", "DEMO_SEED: Synthetic Local Demo Data", [
-        "This is synthetic local demo data.",
-        "No real student records are present.",
-        "No real district data is present.",
-        "No Google Drive files were created.",
-        "Real student onboarding remains blocked until legal/district approval and SSO policy are complete.",
-        "Demo data can be wiped and reseeded.",
-      ].join(" "), "all", null, announcementAuthor),
-      announcementRow("demo-announcement-proposal", "DEMO_SEED: Proposal Deadline Reminder", "DEMO_SEED: Demo students should move proposal drafts toward review this week.", "cohort", "demo-cohort-2026", announcementAuthor),
-      announcementRow("demo-announcement-mentor-window", "DEMO_SEED: Mentor Meeting Window", "DEMO_SEED: Mentor check-ins are open for assigned demo students; missed meetings need makeup notes.", "role", "mentor", "demo-mentor-001"),
-      announcementRow("demo-announcement-presentations", "DEMO_SEED: Presentation Schedule Opening", "DEMO_SEED: Presentation-ready demo students can review scheduled slots and outline status.", "all", null, announcementAuthor),
-      announcementRow("demo-announcement-evidence-quality", "DEMO_SEED: Evidence Quality Reminder", "DEMO_SEED: Evidence links should show what changed, what was tested, and what feedback was used.", "program", "it", announcementAuthor),
-    );
-  }
-
   if (capabilities.exports) {
     const exportStudents = students.filter((student) => ["completed", "presentation", "approved"].includes(student.stage)).slice(0, 12);
     exportStudents.forEach((student, index) => {
@@ -1160,7 +1139,6 @@ function emptyRows() {
     submissionVersions: [],
     mentorMeetings: [],
     presentationSlots: [],
-    announcements: [],
     exports: [],
     exportArtifacts: [],
     auditEvents: [],
@@ -1263,20 +1241,6 @@ function commentRow(id, entityType, entityId, authorUserId, body, ageDays) {
   };
 }
 
-function announcementRow(id, title, body, audienceScope, audienceId, createdBy) {
-  return {
-    id,
-    title,
-    body,
-    audience_scope: audienceScope,
-    audience_id: audienceId,
-    publish_at: "2026-05-01T15:00:00.000Z",
-    expires_at: "2026-08-01T15:00:00.000Z",
-    created_by: createdBy,
-    created_at: "2026-05-01T15:00:00.000Z",
-  };
-}
-
 function auditEvent(id, action, entityType, entityId, actorUserId, metadata) {
   return {
     id,
@@ -1323,7 +1287,6 @@ function buildSeedSql(dataset, schema, { includeDeletes = true, includeTransacti
   if (schema.tableNames.has("submission_versions")) pushRows(statements, "submission_versions", rows.submissionVersions);
   if (schema.tableNames.has("mentor_meetings")) pushRows(statements, "mentor_meetings", rows.mentorMeetings);
   if (schema.tableNames.has("presentation_slots")) pushRows(statements, "presentation_slots", rows.presentationSlots);
-  if (schema.tableNames.has("announcements")) pushRows(statements, "announcements", rows.announcements);
   if (schema.tableNames.has("exports")) pushRows(statements, "exports", rows.exports);
   if (schema.tableNames.has("export_artifacts")) pushRows(statements, "export_artifacts", rows.exportArtifacts);
   pushRows(statements, "audit_events", rows.auditEvents);
@@ -1374,7 +1337,6 @@ async function verifySeedState(adapter, schema) {
   const optional = {};
   if (schema.tableNames.has("mentor_meetings")) optional.mentorMeetings = firstCount(await adapter.query("SELECT COUNT(*) AS count FROM mentor_meetings WHERE id LIKE 'demo-%';"));
   if (schema.tableNames.has("presentation_slots")) optional.presentationSlots = firstCount(await adapter.query("SELECT COUNT(*) AS count FROM presentation_slots WHERE id LIKE 'demo-%';"));
-  if (schema.tableNames.has("announcements")) optional.announcements = firstCount(await adapter.query("SELECT COUNT(*) AS count FROM announcements WHERE id LIKE 'demo-%';"));
   if (schema.tableNames.has("exports")) optional.exports = firstCount(await adapter.query("SELECT COUNT(*) AS count FROM exports WHERE id LIKE 'demo-%';"));
   if (schema.tableNames.has("export_artifacts")) optional.exportArtifacts = firstCount(await adapter.query("SELECT COUNT(*) AS count FROM export_artifacts WHERE id LIKE 'demo-%';"));
   if (schema.tableNames.has("submission_versions")) optional.submissionVersions = firstCount(await adapter.query("SELECT COUNT(*) AS count FROM submission_versions WHERE id LIKE 'demo-%';"));

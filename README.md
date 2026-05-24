@@ -121,7 +121,9 @@ Then open `http://localhost:8788/alpha.html`. This requires Node/npm plus Wrangl
 
 Use `account.html` through Cloudflare Pages dev or deployment to verify fake `.test` account login, `/api/auth/me`, logout, role scopes, and protected evidence access checks. The smoke page covers student, program teacher, mentor, admin, and misc admin test accounts; compares evidence allow/deny results against the active fake account; checks the expected role scope; shows backend readiness as a checklist; and includes a one-click smoke sequence. Passwords stay only in ignored local `.secrets/` files; do not paste them into docs, screenshots, Figma, or Canva.
 
-Initial D1-backed workflow routes now exist for `/api/student/dashboard`, `/api/submissions/:id/submit`, `/api/submissions/:id/evidence`, `/api/reviews/:submissionId/decision`, `/api/reviews/:submissionId/history`, `/api/teacher/review-queue`, `/api/mentor/assigned`, `/api/admin/announcements`, `/api/announcements`, `/api/admin/exports/student-archive`, `/api/exports/:id/download`, `/api/reports/readiness`, and `/api/admin/audit-events` so the test-account MVP path can move beyond alpha-only state.
+Initial D1-backed workflow routes now exist for `/api/student/dashboard`, `/api/submissions/:id/submit`, `/api/submissions/:id/evidence`, `/api/reviews/:submissionId/decision`, `/api/reviews/:submissionId/history`, `/api/teacher/review-queue`, `/api/mentor/assigned`, `/api/admin/exports/student-archive`, `/api/exports/:id/download`, `/api/reports/readiness`, and `/api/admin/audit-events` so the test-account MVP path can move beyond alpha-only state.
+
+Announcements are removed from active MVP product surfaces. Schools should continue using existing communication systems such as Remind, Canvas, Infinite Campus, Google Classroom, email, or district-approved tools. The legacy `announcements` table remains schema-only/deprecated until a later safe cleanup phase.
 
 ## Local Demo Workspace Seed
 
@@ -134,7 +136,7 @@ npm run prove:local-admin-logins
 npm run prove:demo:local
 ```
 
-The seed creates 250 fake students across all nine programs, fake program teachers, fake mentors, mentor assignments, scoped teacher roles, mixed project lifecycle states, submissions, evidence-link metadata, comments, reviews, mentor meetings, presentation slots, announcements, and dashboard-ready aggregate records when the schema supports those tables. It refuses remote D1, uses only `.test` demo domains, creates no Drive files, preserves the two protected local admins, and writes demo staff credentials only to ignored `.secrets/demo-staff-logins-*.json` files.
+The seed creates 250 fake students across all nine programs, fake program teachers, fake mentors, mentor assignments, scoped teacher roles, mixed project lifecycle states, submissions, evidence-link metadata, comments, reviews, mentor meetings, presentation slots, and dashboard-ready aggregate records when the schema supports those tables. It does not create announcements. It refuses remote D1, uses only `.test` demo domains, creates no Drive files, preserves the two protected local admins, and writes demo staff credentials only to ignored `.secrets/demo-staff-logins-*.json` files.
 
 Details live in `docs/local-demo-data.md`.
 

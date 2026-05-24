@@ -78,6 +78,8 @@ Canonical app APIs deploy from `functions/api/**` on `senior-capstone-app`. Prot
 - `/api/submissions/:id/evidence`
 - `/api/evidence/:id/download`
 
+Announcement routes are removed from the active MVP product surface. The app should not replace school communication systems such as Remind, Canvas, Infinite Campus, Google Classroom, email, or district-approved tools. The legacy `announcements` database table remains deprecated/schema-only until a later safe cleanup phase.
+
 Full route inventory is generated in `docs/generated/production-route-inventory.md` by:
 
 ```powershell

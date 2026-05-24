@@ -86,7 +86,7 @@ Phase 2 additive foundation:
 - `site_admin` continues to display as "Administration" for site leadership.
 - `platform_admin` now exists for new platform/system capabilities, while legacy `admin` remains platform-equivalent during transition and Bryan's existing admin accounts continue to work.
 - `misc_admin` remains legacy/narrow and must not silently become `site_admin`.
-- Phase 3 removes announcement product surfaces.
+- Phase 3 removed announcement product surfaces from the active workspace, route inventory, and demo seeds.
 - Phase 4 builds the full site-aware capability permission model.
 
 ## 5. Capability Matrix
@@ -168,7 +168,7 @@ Required direction:
 - do not drop the DB table in the first removal pass unless a later cleanup phase safely does so
 - remaining announcement references must be classified as deprecated, schema-only, historical, or removed
 
-Current repo state as of this contract: announcements still exist in `migrations/0001_foundation.sql`, `/api/announcements`, `/api/admin/announcements`, `workspace.js`, production route inventory, seed scripts, seed tests, and several historical planning docs. They should be removed from active product surfaces in a later implementation phase rather than edited piecemeal in this contract pass.
+Current repo state after Phase 3: announcement loading and cards are removed from `workspace.js`; `/api/announcements` and `/api/admin/announcements` route files are deleted; generated production route inventory no longer lists announcement routes; local and remote demo seeds no longer create announcement rows; proof scripts do not expect announcements. The legacy `announcements` table remains in `migrations/0001_foundation.sql` as deprecated/schema-only until a later safe cleanup phase.
 
 ## 7. Figma Alignment Decision
 
@@ -297,17 +297,17 @@ It should include:
 
 ## Current Repo Audit Snapshot
 
-- `README.md` already frames Capstone Project as the product and the East Tech guide as a separate public guide, but it still lists announcements as active workflow routes and seeded demo data.
+- `README.md` frames Capstone Project as the product and the East Tech guide as a separate public guide, and Phase 3 removed announcements from active workflow routes and seeded demo data.
 - `package.json` is `senior-capstone-app` with validation scripts for `test`, `typecheck`, `check`, and production-surface checks.
 - `wrangler.jsonc` keeps the Cloudflare Pages project as `senior-capstone-app`, D1 binding `DB`, and current Google Drive/app environment vars. This phase does not change live config.
-- Production-surface docs and generated route inventory still classify `workspace.html` and current API routes, including announcement routes, as active current surfaces.
+- Production-surface docs and generated route inventory classify `workspace.html` and current API routes; Phase 3 removed announcement routes from active current surfaces.
 - `migrations/0001_foundation.sql` creates the legacy role set: `student`, `mentor`, `program_teacher`, `admin`, and `misc_admin`. It also creates the `announcements` table.
 - `migrations/0010_tenant_google_sso.sql` adds tenants, tenant domains, identity providers, tenant users, auth identities, and OAuth state. It does not add a site/school table.
 - There are no migrations after `0010_tenant_google_sso.sql` at the time of this audit.
 - `functions/_types.ts` defines `RoleId` with only current legacy/current roles, not `platform_admin`, `org_admin`, `site_admin`, or `viewer`.
 - `functions/_lib/permissions.ts` treats `admin` as global full access, allows scoped program/cohort teachers, active assigned mentors, student self-access, and keeps `misc_admin` out of student detail while allowing aggregate readiness.
 - Current dashboard routes are global/admin or program/mentor/student scoped, but not organization/site scoped.
-- `functions/api/announcements.ts` and `functions/api/admin/announcements.ts` are active current routes and should be deprecated/removed from the MVP product surface later.
-- `workspace.html`, `workspace.js`, and `workspace.css` form the authenticated app. The UI loads `/api/announcements`, shows an overview announcement card for role-pending/default cases, uses legacy role labels, and lacks site-aware navigation.
-- Local and remote demo seed/proof scripts create 250 fake students in one program/cohort model, with fake staff, mentors, evidence, reviews, mentor meetings, presentation slots, exports, and current announcement rows.
-- Relevant tests cover permissions, admin/program teacher/mentor/student dashboards, review workflow, workspace rendering, production source expectations, local/remote demo seeding, announcement endpoint source checks, and production-surface safety.
+- Announcement route files have been removed from the active MVP route surface; the schema table remains deprecated/schema-only.
+- `workspace.html`, `workspace.js`, and `workspace.css` form the authenticated app. The UI no longer loads announcement data or renders announcement overview cards; it still uses current compatibility route families and lacks full site-aware navigation.
+- Local and remote demo seed/proof scripts create 250 fake students in one program/cohort model, with fake staff, mentors, evidence, reviews, mentor meetings, presentation slots, exports, and no new announcement rows.
+- Relevant tests cover permissions, admin/program teacher/mentor/student dashboards, review workflow, workspace rendering, production source expectations, local/remote demo seeding, announcement removal source checks, and production-surface safety.

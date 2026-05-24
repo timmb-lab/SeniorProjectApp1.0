@@ -63,6 +63,10 @@ test("demo dry run writes nothing and requires protected admins", async () => {
 
 test("demo seed creates deterministic fake workspace rows and preserves admins", async () => {
   const db = await createDemoDb();
+  await db.prepare(
+    `INSERT INTO announcements (id, title, body, audience_scope, audience_id, created_by)
+     VALUES ('demo-announcement-stale', 'DEMO_SEED: stale announcement', 'DEMO_SEED: stale announcement body', 'all', NULL, 'protected-admin-primary')`,
+  ).run();
   const repoRoot = mkdtempSync(path.join(os.tmpdir(), "capstone-demo-seed-"));
   const result = await runDemoSeed({ target: "local", mode: "write", reset: true }, {
     adapter: new DirectD1Adapter(db),
@@ -82,7 +86,8 @@ test("demo seed creates deterministic fake workspace rows and preserves admins",
   assert.equal(result.finalVerification.evidenceMetadata, 619);
   assert.equal(result.finalVerification.mentorMeetings, 200);
   assert.equal(result.finalVerification.presentationSlots, 35);
-  assert.equal(result.finalVerification.announcements, 5);
+  assert.equal("announcements" in result.generatedCounts, false);
+  assert.equal("announcements" in result.finalVerification, false);
   assert.equal(result.finalVerification.foreignKeyViolations, 0);
   assert.equal(result.protectedAdminsAfter.preserved, true);
 
@@ -129,6 +134,7 @@ test("demo seed creates deterministic fake workspace rows and preserves admins",
   assert.equal(await count(db, "SELECT COUNT(*) AS count FROM reviews r JOIN submissions s ON s.id = r.submission_id WHERE s.status = 'draft'"), 0);
   assert.equal(await count(db, "SELECT COUNT(*) AS count FROM reviews WHERE id LIKE 'demo-%' AND decision NOT IN ('approved', 'revision_requested', 'comment_only')"), 0);
   assert.equal(await count(db, "SELECT COUNT(*) AS count FROM comments WHERE id LIKE 'demo-%' AND body NOT LIKE '%DEMO_SEED%'"), 0);
+  assert.equal(await count(db, "SELECT COUNT(*) AS count FROM announcements WHERE id LIKE 'demo-%' OR title LIKE '%DEMO_SEED%' OR body LIKE '%DEMO_SEED%'"), 0);
 
   assert.match(result.credentialPath, /^\.secrets\/demo-staff-logins-/);
   const credentialPayload = JSON.parse(readFileSync(path.join(repoRoot, result.credentialPath), "utf8"));

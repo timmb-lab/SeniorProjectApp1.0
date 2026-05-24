@@ -384,15 +384,6 @@ async function buildSeedSql(accounts) {
        notes = excluded.notes,
        created_by = excluded.created_by,
        updated_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now');`,
-    `INSERT OR IGNORE INTO announcements (id, title, body, audience_scope, audience_id, created_by)
-     VALUES (
-       'announcement-local-workspace-smoke',
-       'Workspace check-in',
-       'Review your current Senior Project status and keep evidence attached to the correct requirement.',
-       'all',
-       NULL,
-       'test_user_admin_lee'
-     );`,
   );
 
   return `${statements.join("\n\n")}\n`;

@@ -320,7 +320,6 @@ function emptyRemoteDataset() {
       submissionVersions: [],
       mentorMeetings: [],
       presentationSlots: [],
-      announcements: [],
       exports: [],
       exportArtifacts: [],
       auditEvents: [],
@@ -755,7 +754,6 @@ async function verifyRemoteSeedState(adapter, schema) {
   const optional = {};
   if (schema.tableNames.has("mentor_meetings")) optional.mentorMeetings = firstCount(await adapter.query("SELECT COUNT(*) AS count FROM mentor_meetings WHERE id LIKE 'demo-%';"));
   if (schema.tableNames.has("presentation_slots")) optional.presentationSlots = firstCount(await adapter.query("SELECT COUNT(*) AS count FROM presentation_slots WHERE id LIKE 'demo-%';"));
-  if (schema.tableNames.has("announcements")) optional.announcements = firstCount(await adapter.query("SELECT COUNT(*) AS count FROM announcements WHERE id LIKE 'demo-%';"));
   if (schema.tableNames.has("exports")) optional.exports = firstCount(await adapter.query("SELECT COUNT(*) AS count FROM exports WHERE id LIKE 'demo-%';"));
   if (schema.tableNames.has("export_artifacts")) optional.exportArtifacts = firstCount(await adapter.query("SELECT COUNT(*) AS count FROM export_artifacts WHERE id LIKE 'demo-%';"));
   if (schema.tableNames.has("submission_versions")) optional.submissionVersions = firstCount(await adapter.query("SELECT COUNT(*) AS count FROM submission_versions WHERE id LIKE 'demo-%';"));

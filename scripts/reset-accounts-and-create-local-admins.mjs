@@ -71,7 +71,7 @@ const RESET_TABLE_REASONS = Object.freeze({
   presentation_slots: "presentation schedule rows are student/account-bound workflow data",
   exports: "exports are requested-by or target-user scoped",
   export_artifacts: "export artifacts are generated from user-scoped exports",
-  announcements: "announcements are user-generated operational rows",
+  announcements: "announcements are deprecated operational rows",
   audit_events: "old audit rows are cleared, then reset audit events are recreated without secrets",
   tenant_users: "tenant memberships are account-bound and should not bind the new local admins",
   auth_identities: "SSO/local auth identity links are user-bound and rebuilt only if required",

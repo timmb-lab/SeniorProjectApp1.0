@@ -1,0 +1,131 @@
+{
+  "phase": "PHASE 03 - REMOVE ANNOUNCEMENTS FROM MVP PRODUCT SURFACE",
+  "date": "2026-05-24",
+  "repoIdentity": {
+    "cwd": "C:\\SeniorProjectApp1.0",
+    "expectedOrigin": "https://github.com/timmb-lab/SeniorProjectApp1.0.git",
+    "actualOrigin": "https://github.com/timmb-lab/SeniorProjectApp1.0.git",
+    "expectedBranch": "main",
+    "actualBranch": "main",
+    "packageName": "senior-capstone-app",
+    "pullResult": "Already up to date.",
+    "worktreeBeforeEdits": "clean"
+  },
+  "startingHead": "1c6ee054ced99582f2684849160298f58971670f",
+  "endingHead": null,
+  "routeStrategy": "deleted",
+  "filesInspected": [
+    "docs/mvp-multisite-sales-demo-contract.md",
+    "docs/decisions/multisite-sales-mvp-decisions.md",
+    "docs/progress/runs/2026-05-24-multisite-site-role-foundation.json",
+    "docs/progress/run-log.md",
+    "workspace.js",
+    "workspace.html",
+    "workspace.css",
+    "functions/api/announcements.ts",
+    "functions/api/admin/announcements.ts",
+    "migrations/0001_foundation.sql",
+    "scripts/seed-local-demo-workspace.mjs",
+    "scripts/seed-remote-demo-workspace.mjs",
+    "scripts/prove-local-demo-workspace.mjs",
+    "scripts/prove-remote-demo-workspace.mjs",
+    "README.md",
+    "docs/production-surface-registry.md",
+    "docs/generated/production-route-inventory.md",
+    "docs/local-demo-data.md",
+    "docs/remote-demo-data.md",
+    "docs/backend-setup.md",
+    "docs/mvp-requirements-catalog.md",
+    "app.js",
+    "public-companion/app.js",
+    "tests/workspace-app.test.mjs",
+    "tests/production-workflow-source.test.mjs",
+    "tests/local-demo-workspace-seed.test.mjs",
+    "tests/remote-demo-workspace-seed.test.mjs",
+    "tests/reset-local-admin-accounts.test.mjs",
+    "package.json"
+  ],
+  "filesChanged": [
+    "README.md",
+    "app.js",
+    "docs/backend-setup.md",
+    "docs/decisions/multisite-sales-mvp-decisions.md",
+    "docs/generated/production-route-inventory.md",
+    "docs/local-demo-data.md",
+    "docs/mvp-multisite-sales-demo-contract.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/production-surface-registry.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-24-multisite-site-role-foundation.json",
+    "docs/progress/runs/2026-05-24-remove-announcements-from-mvp.json",
+    "docs/remote-demo-data.md",
+    "functions/api/admin/announcements.ts",
+    "functions/api/announcements.ts",
+    "public-companion/app.js",
+    "scripts/reset-accounts-and-create-local-admins.mjs",
+    "scripts/seed-local-demo-workspace.mjs",
+    "scripts/seed-local-workspace-smoke.mjs",
+    "scripts/seed-remote-demo-workspace.mjs",
+    "tests/local-demo-workspace-seed.test.mjs",
+    "tests/production-workflow-source.test.mjs",
+    "tests/remote-demo-workspace-seed.test.mjs",
+    "tests/workspace-app.test.mjs",
+    "workspace.js"
+  ],
+  "announcementReferencesClassified": {
+    "removed": [
+      "workspace currentData/defaultCurrentData announcement slot",
+      "workspace /api/announcements loader",
+      "workspace overview announcement card/list",
+      "functions/api/announcements.ts",
+      "functions/api/admin/announcements.ts",
+      "generated production route inventory rows for announcement routes",
+      "local and remote seed creation/count/proof output for new announcement rows",
+      "local workspace smoke announcement insert",
+      "public guide copy using announcement wording"
+    ],
+    "deprecatedRoute": [],
+    "schemaOnly": [
+      "migrations/0001_foundation.sql announcements table and audience_scope column",
+      "docs/backend-setup.md schema inventory mention"
+    ],
+    "historicalDocs": [
+      "alpha prototype/state references",
+      "automation planning docs",
+      "master plan and older run manifests/log entries describing prior announcement work"
+    ],
+    "generatedOutput": [
+      "docs/generated/production-route-inventory.md regenerated with announcement routes absent",
+      "public-companion/app.js mirrors source guide copy without announcement wording"
+    ],
+    "testOnly": [
+      "tests proving announcement routes and seed creation remain removed",
+      "tests inserting stale demo announcement rows only to prove reset cleanup",
+      "reset-local-admin account cleanup tests for the legacy table"
+    ],
+    "activeProductSurface": []
+  },
+  "seedChanges": [
+    "Local and remote demo seeds no longer create fake announcements or report announcement counts.",
+    "Demo reset cleanup may still delete older demo-owned rows from the deprecated announcements table.",
+    "Local workspace smoke seed no longer creates an announcement row.",
+    "Remote write confirmation behavior was not changed."
+  ],
+  "proofChanges": [
+    "Local and remote proof scripts did not contain active announcement expectations.",
+    "Seed proof expectations now assert generated/final verification shapes do not include announcements.",
+    "Production source tests assert active route/UI/seed announcement surfaces stay removed."
+  ],
+  "validation": {
+    "npm run inventory:production-routes": "passed: regenerated route inventory after deleting announcement route files",
+    "npm run check:route-inventory": "passed",
+    "npm run check:production-surfaces": "passed: 91 production text surfaces scanned",
+    "npm run test": "passed: 258 passing tests, 4 expected local HTTP skips",
+    "npm run typecheck": "passed",
+    "npm run check": "passed: aggregate checks, generated output drift check, production route inventory check, 258 passing tests, 4 expected local HTTP skips",
+    "git diff --check": "passed with existing CRLF normalization warnings only",
+    "remote": "no remote migrations, remote writes, or remote reseeds were run"
+  },
+  "blockers": [],
+  "nextRecommendedPrompt": "04_site_aware_permission_capabilities.txt"
+}

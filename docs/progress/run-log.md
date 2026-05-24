@@ -1355,4 +1355,16 @@ Future productive runs should append compact entries that name the master-plan s
 - `roles added`: `platform_admin`, `org_admin`, `site_admin`, `viewer`.
 - `validation`: `npm run db:migrate:local` passed and applied `0011`; local D1 proof found the default sandbox site, site-program coverage for all active programs, 4 new roles, 5 legacy roles, 0 duplicate role IDs, and 0 FK failures; `npm run test` passed with 258 passing tests and 4 expected local HTTP skips; `npm run typecheck` passed; `npm run check` passed; `git diff --check` passed with CRLF normalization warnings only.
 - `blockers`: none for Phase 2. Full site-aware route families/capability permissions remain Phase 4 work, and announcement removal remains Phase 3 work.
+- `commit/push status`: committed and pushed as `1c6ee05 db: add multisite site and role foundation`.
+
+## 2026-05-24 - PHASE 03 Remove Announcements From MVP Product Surface
+
+- `starting HEAD`: `1c6ee054ced99582f2684849160298f58971670f`.
+- `files inspected`: Phase 2 contract/decision/run docs, workspace HTML/JS/CSS, announcement route files, foundation schema, local/remote seed and proof scripts, README, production-surface docs, generated route inventory, local/remote demo data docs, backend setup, MVP catalog, public guide copy, and related workspace/production/seed/reset tests.
+- `files changed`: workspace announcement loading/cards removed; announcement route files deleted; route inventory regenerated; local/remote/local-smoke seed announcement creation removed; stale demo announcement cleanup proof added; production/workspace/seed source tests updated; README/demo/product docs updated; Phase 2 metadata hygiene fixed; Phase 3 manifest added.
+- `announcement route strategy`: deleted.
+- `UI removal summary`: `workspace.js` no longer keeps announcement data, fetches `/api/announcements`, or renders announcement overview cards; overview fallback now shows role-safe workspace priorities.
+- `seed/proof removal summary`: demo seeds no longer create announcements or count them; reset cleanup can still remove older demo-owned rows from the deprecated table; proof scripts do not expect announcements.
+- `validation`: `npm run inventory:production-routes`, `npm run check:route-inventory`, `npm run check:production-surfaces`, `npm run test`, `npm run typecheck`, `npm run check`, and `git diff --check` passed. `git diff --check` reported CRLF normalization warnings only.
+- `blockers`: none for Phase 3. Full site-aware capability permissions remain Phase 4 work.
 - `commit/push status`: pending closeout commit and push.

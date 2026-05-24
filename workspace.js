@@ -3,7 +3,6 @@ const workspaceMain = document.querySelector("#workspaceMain");
 let currentUser = null;
 let currentData = {
   authConfig: null,
-  announcements: null,
   dashboard: null,
   adminDashboard: null,
   programTeacherDashboard: null,
@@ -78,7 +77,6 @@ async function loadAuthConfig() {
 function defaultCurrentData(authConfig = currentData.authConfig) {
   return {
     authConfig,
-    announcements: null,
     dashboard: null,
     adminDashboard: null,
     programTeacherDashboard: null,
@@ -101,9 +99,7 @@ async function loadWorkspaceData(statusMessage = "") {
   renderAppShell(statusMessage || "Loading your workspace...");
   const roles = roleIds(currentUser);
   const authConfig = currentData.authConfig || await loadAuthConfig();
-  const loaders = [
-    ["announcements", apiJson("/api/announcements")],
-  ];
+  const loaders = [];
 
   if (roles.has("student")) loaders.push(["dashboard", apiJson("/api/student/dashboard")]);
   if (roles.has("student")) loaders.push(["archiveReadiness", apiJson("/api/student/archive/readiness")]);
@@ -384,7 +380,7 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
 
 function availableSections() {
   const roles = roleIds(currentUser);
-  const sections = [{ id: "overview", label: "Overview", detail: "Announcements and current priorities" }];
+  const sections = [{ id: "overview", label: "Overview", detail: "Workspace priorities and access" }];
   if (roles.has("student")) sections.push({ id: "student", label: "Student Workspace", detail: "Progress, submissions, and evidence" });
   if (roles.has("student")) sections.push({ id: "archive", label: "Archive", detail: "Closeout and May 5 package" });
   if (roles.has("mentor")) sections.push({ id: "mentorDashboard", label: "Mentor Dashboard", detail: "Assigned student risks" });
@@ -427,7 +423,6 @@ function renderOverviewSection() {
   if (primaryRole === "mentor") return renderMentorDashboardSection();
   if (primaryRole === "student") return renderStudentSection();
   if (primaryRole === "misc_admin") return renderReadinessSection();
-  const announcements = unwrap(currentData.announcements)?.announcements || [];
   return `
     <section class="workspace-card workspace-hero-card">
       <p class="workspace-kicker">Signed in</p>
@@ -438,21 +433,29 @@ function renderOverviewSection() {
     <section class="workspace-card">
       <div class="workspace-card-head">
         <div>
-          <p class="workspace-kicker">Announcements</p>
-          <h2>Current Updates</h2>
+          <p class="workspace-kicker">Workspace</p>
+          <h2>Role-Safe Priorities</h2>
         </div>
       </div>
-      ${renderApiNotice(currentData.announcements)}
       <div class="workspace-list">
-        ${announcements.length ? announcements.map((item) => `
-          <article class="workspace-row">
-            <div>
-              <strong>${escapeHtml(item.title)}</strong>
-              <p>${escapeHtml(item.body)}</p>
-            </div>
-            <span class="workspace-chip">${escapeHtml(formatDate(item.createdAt))}</span>
-          </article>
-        `).join("") : `<div class="workspace-empty">No current announcements are posted for your role.</div>`}
+        <article class="workspace-row">
+          <div>
+            <strong>Capstone status</strong>
+            <p>Review the progress, submission, and evidence records available to this account.</p>
+          </div>
+        </article>
+        <article class="workspace-row">
+          <div>
+            <strong>Review and mentor work</strong>
+            <p>Open assigned review or mentor sections when this account has scoped access.</p>
+          </div>
+        </article>
+        <article class="workspace-row">
+          <div>
+            <strong>Presentation and archive readiness</strong>
+            <p>Track presentation operations and closeout status where your role grants visibility.</p>
+          </div>
+        </article>
       </div>
     </section>
   `;

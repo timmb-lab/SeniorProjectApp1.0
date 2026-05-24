@@ -52,12 +52,17 @@ test("remote demo dry run builds remote-shaped fake data without writing", async
   assert.equal(result.generatedCounts.comments, 243);
   assert.equal(result.generatedCounts.reviews, 176);
   assert.equal(result.generatedCounts.mentorMeetings, 200);
+  assert.equal("announcements" in result.generatedCounts, false);
   assert.equal(result.remoteSafety.fakeDomainsOnly, true);
   assert.equal(await count(db, "SELECT COUNT(*) AS count FROM user_accounts WHERE email_norm LIKE '%@demo-student.capstone.test'"), 0);
 });
 
 test("remote demo seed creates requested counts and preserves real accounts/config", async () => {
   const db = await createRemoteDemoDb();
+  await db.prepare(
+    `INSERT INTO announcements (id, title, body, audience_scope, audience_id, created_by)
+     VALUES ('demo-announcement-stale', 'DEMO_SEED: stale announcement', 'DEMO_SEED: stale announcement body', 'all', NULL, 'bryan-prod-admin')`,
+  ).run();
   const repoRoot = mkdtempSync(path.join(os.tmpdir(), "capstone-remote-demo-seed-"));
   const result = await runRemoteDemoSeed({ target: "remote", mode: "write", reset: true, confirm: "SEED_REMOTE_DEMO" }, {
     adapter: new DirectD1Adapter(db),
@@ -78,6 +83,7 @@ test("remote demo seed creates requested counts and preserves real accounts/conf
   assert.equal(result.finalVerification.unsafeDemoEvidenceRows, 0);
   assert.equal(result.finalVerification.unsafeDemoExportDriveRows, 0);
   assert.equal(result.finalVerification.forbiddenDemoRealDomainRows, 0);
+  assert.equal("announcements" in result.finalVerification, false);
   assert.equal(result.finalVerification.foreignKeyViolations, 0);
   assert.equal(result.protectedStateBefore.realUsersPreservedBaseline, result.protectedStateAfter.realUsersPreservedBaseline);
   assert.equal(result.protectedStateBefore.knownRealDomainUsersBaseline, result.protectedStateAfter.knownRealDomainUsersBaseline);
@@ -99,6 +105,7 @@ test("remote demo seed creates requested counts and preserves real accounts/conf
   assert.equal(await count(db, "SELECT COUNT(*) AS count FROM tenant_domains WHERE domain = 'nv.ccsd.net'"), 1);
   assert.equal(await count(db, "SELECT COUNT(*) AS count FROM evidence_artifacts WHERE id LIKE 'demo-%' AND (drive_file_id IS NOT NULL OR drive_parent_folder_id IS NOT NULL)"), 0);
   assert.equal(await count(db, "SELECT COUNT(*) AS count FROM evidence_artifacts WHERE id LIKE 'demo-%' AND external_url NOT LIKE 'https://example.com/capstone-demo/%'"), 0);
+  assert.equal(await count(db, "SELECT COUNT(*) AS count FROM announcements WHERE id LIKE 'demo-%' OR title LIKE '%DEMO_SEED%' OR body LIKE '%DEMO_SEED%'"), 0);
 
   assert.match(result.credentialPath, /^\.secrets\/demo-remote-staff-logins-/);
   const credentialPayload = JSON.parse(readFileSync(path.join(repoRoot, result.credentialPath), "utf8"));

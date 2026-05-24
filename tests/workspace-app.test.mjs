@@ -68,6 +68,10 @@ test("workspace route is a real authenticated app surface", () => {
   assert.match(workspaceJs, /Continue with Google Workspace/);
   assert.match(workspaceJs, /Google Workspace sign-in is not configured for this environment yet/);
   assert.match(workspaceJs, /Local account sign in/);
+  assert.doesNotMatch(workspaceJs, /\/api\/announcements/);
+  assert.doesNotMatch(workspaceJs, /announcements:\s*null/);
+  assert.doesNotMatch(workspaceJs, /Current Updates|No current announcements|workspace-kicker">Announcements/i);
+  assert.match(workspaceJs, /Role-Safe Priorities/);
   assert.match(workspaceCss, /--abc-red/);
   assert.match(workspaceCss, /--abc-blue/);
   assert.match(workspaceCss, /\.workspace-app\[data-primary-role="admin"\]/);
@@ -139,10 +143,6 @@ test("workspace renders upload progress, validation, completion, and retry state
           roles: [{ role_id: "student", scope_type: "global", scope_id: "" }],
         },
       },
-    },
-    "/api/announcements": {
-      status: 200,
-      body: { ok: true, announcements: [] },
     },
     "/api/student/dashboard": {
       status: 200,
@@ -271,10 +271,6 @@ test("workspace renders role-pending and permission-denied access states", async
         },
       },
     },
-    "/api/announcements": {
-      status: 200,
-      body: { ok: true, announcements: [] },
-    },
   });
   assert.match(pending, /data-workspace-state="role-pending"/);
   assert.match(pending, /Workspace access is pending/);
@@ -292,10 +288,6 @@ test("workspace renders role-pending and permission-denied access states", async
           roles: [{ role_id: "student", scope_type: "global", scope_id: "" }],
         },
       },
-    },
-    "/api/announcements": {
-      status: 200,
-      body: { ok: true, announcements: [] },
     },
     "/api/student/dashboard": {
       status: 403,
@@ -322,10 +314,6 @@ test("workspace renders role-pending and permission-denied access states", async
           roles: [{ role_id: "mentor", scope_type: "global", scope_id: "" }],
         },
       },
-    },
-    "/api/announcements": {
-      status: 200,
-      body: { ok: true, announcements: [] },
     },
     "/api/mentor/assigned": {
       status: 200,
@@ -401,10 +389,6 @@ test("workspace renders self-service password rotation controls", async () => {
         },
       },
     },
-    "/api/announcements": {
-      status: 200,
-      body: { ok: true, announcements: [] },
-    },
     "/api/student/dashboard": {
       status: 200,
       body: { ok: true, viewer: { self: true }, progress: [], submissions: [], evidence: [] },
@@ -438,10 +422,6 @@ test("workspace renders evidence download and external-link actions without stor
           roles: [{ role_id: "student", scope_type: "global", scope_id: "" }],
         },
       },
-    },
-    "/api/announcements": {
-      status: 200,
-      body: { ok: true, announcements: [] },
     },
     "/api/student/dashboard": {
       status: 200,
@@ -507,10 +487,6 @@ test("workspace renders admin import controls and one-time setup output", async 
         },
       },
     },
-    "/api/announcements": {
-      status: 200,
-      body: { ok: true, announcements: [] },
-    },
     "/api/teacher/review-queue": {
       status: 200,
       body: { ok: true, queue: [] },
@@ -562,10 +538,6 @@ test("workspace keeps admin import setup output memory-only and gates non-admin 
           roles: [{ role_id: "admin", scope_type: "global", scope_id: "" }],
         },
       },
-    },
-    "/api/announcements": {
-      status: 200,
-      body: { ok: true, announcements: [] },
     },
     "/api/teacher/review-queue": {
       status: 200,
@@ -620,10 +592,6 @@ test("workspace keeps admin import setup output memory-only and gates non-admin 
         },
       },
     },
-    "/api/announcements": {
-      status: 200,
-      body: { ok: true, announcements: [] },
-    },
     "/api/reports/readiness": {
       status: 200,
       body: { ok: true, scope: "aggregate_only", metrics: {} },
@@ -648,10 +616,6 @@ test("workspace renders presentation schedule and day-of actions", async () => {
           roles: [{ role_id: "program_teacher", scope_type: "program", scope_id: "it" }],
         },
       },
-    },
-    "/api/announcements": {
-      status: 200,
-      body: { ok: true, announcements: [] },
     },
     "/api/teacher/review-queue": {
       status: 200,
@@ -711,10 +675,6 @@ test("workspace renders archive readiness from persisted rows", async () => {
           roles: [{ role_id: "student", scope_type: "global", scope_id: "" }],
         },
       },
-    },
-    "/api/announcements": {
-      status: 200,
-      body: { ok: true, announcements: [] },
     },
     "/api/student/dashboard": {
       status: 200,

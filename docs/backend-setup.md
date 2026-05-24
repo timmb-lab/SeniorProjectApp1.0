@@ -215,7 +215,7 @@ npm run seed:demo:local:reset
 npm run prove:demo:local
 ```
 
-It refuses remote D1, verifies the repo/package/local D1 shape, verifies the two protected local admins, deletes only demo-owned rows, and reseeds a deterministic synthetic workspace. The current seed creates 250 fake students, 12 fake program teachers, 25 fake mentors, 225 active mentor assignments, 25 intentionally unassigned students, scoped program teacher roles, fake submissions, evidence-link metadata, teacher/mentor comments, reviews, mentor meetings, presentation slots, announcements, submission versions, archive export metadata, and dashboard-ready aggregate records.
+It refuses remote D1, verifies the repo/package/local D1 shape, verifies the two protected local admins, deletes only demo-owned rows, and reseeds a deterministic synthetic workspace. The current seed creates 250 fake students, 12 fake program teachers, 25 fake mentors, 225 active mentor assignments, 25 intentionally unassigned students, scoped program teacher roles, fake submissions, evidence-link metadata, teacher/mentor comments, reviews, mentor meetings, presentation slots, submission versions, archive export metadata, and dashboard-ready aggregate records. It no longer creates announcements.
 
 All fake accounts use `.test` domains only: students under `demo-student.capstone.test`, staff/mentors under `demo-staff.capstone.test`. Evidence rows are metadata-only with `https://example.com/capstone-demo/...` links. No real student data, no real district data, no physical Google Drive files, and no Drive IDs are created. Demo staff login credentials are written only to ignored `.secrets/demo-staff-logins-*.json` files and are never printed or committed.
 
@@ -304,8 +304,7 @@ Current test-account workflow route coverage:
 - `/api/mentor/assigned` lists active mentor assignments with submission status and evidence counts.
 - `/api/reviews/:submissionId/decision` persists approval/revision decisions with review, status-history, progress, and audit writes.
 - `/api/reviews/:submissionId/history` returns scoped review/status history.
-- `/api/admin/announcements` lets admins create scoped announcements for all users, roles, programs, or cohorts.
-- `/api/announcements` returns only currently visible announcements for the signed-in user's role/program/cohort scope.
+- Announcement routes are removed from the active MVP product surface. Schools should continue using existing communication systems such as Remind, Canvas, Infinite Campus, Google Classroom, email, or district-approved tools. The legacy `announcements` table remains deprecated/schema-only until a later safe cleanup phase.
 - `/api/admin/exports/student-archive` verifies Drive repository/credential/provider readiness before successful archive generation; provider setup or access failures create a failed export row and `student_archive_export_provider_unavailable` audit event instead of claiming package delivery.
 - When the provider is ready, `/api/admin/exports/student-archive` generates an admin-only scoped student archive manifest artifact from persisted progress/evidence rows, uploads the redacted manifest JSON into the configured Drive root, stores the Drive file ID only server-side in `exports.drive_file_id`, stores the scoped manifest body/hash/expiry in `export_artifacts`, includes configurable retention-window metadata, and records the export lifecycle audit event.
 - `/api/exports/:id/download` checks admin or student-scope access, streams the generated JSON archive manifest when unexpired, emits only redaction/package-ready headers without raw Drive IDs, and returns an expired-package retry state after the download window.
