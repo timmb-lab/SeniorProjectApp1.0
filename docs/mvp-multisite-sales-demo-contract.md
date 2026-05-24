@@ -213,6 +213,7 @@ Target route families:
 - `/api/site/students/[studentId]/timeline`
 - `/api/site/evidence`
 - `/api/site/mentor-assignments`
+- `/api/site/operations-readiness`
 - `/api/site/presentation-slots`
 - `/api/site/archive-exports`
 - Keep `/api/student/dashboard` for student self-service.
@@ -271,6 +272,15 @@ Phase 11 site-scoped mentor assignment implementation:
 - The uniqueness policy is one active mentor assignment per selected-site student. Assigning a student who already has an active mentor returns conflict; reassign/deactivate are deferred until a later tested workflow.
 - `site_admin`, platform admin, legacy admin, and org admin can manage when the existing capability helper allows it; viewer and program teacher are read-only; mentor, student, and misc admin are denied from the management route. Mentor assigned-student visibility remains `/api/mentor/dashboard` and `/api/mentor/assigned`.
 - The authenticated workspace renders a route-connected Mentor Assignments section with site context, filters, summary tiles, mentor coverage rows, unassigned-student rows, active assignment rows, read-only explanations, and an assign form only when `canManageMentorAssignments` is true.
+
+Phase 12 presentation, archive, and readiness worklists implementation:
+
+- `/api/site/operations-readiness` is implemented as the combined selected-site worklist route for presentation readiness, archive readiness, and attention/readiness reporting. It reuses shared site selection, active selected-site student membership, student role membership, program/cohort scope, presentation slots, archive export rows, submissions, evidence counts, progress records, mentor coverage, and review/comment counts.
+- The route is read-only, bounded with default limit 50 and maximum limit 100, and returns summary counts for the full selected scope plus paginated worklist rows.
+- Canonical presentation, archive, readiness, risk, and story values are mapped into stable sales-demo vocabulary so runbooks can rely on `pending`, `ready`, `failed`, `attention_required`, `archive_ready`, `archive_failed`, `presentation_pending`, and `high_risk` style filters.
+- Platform admin, legacy admin, org admin, site admin, and viewer can view selected-site operations; viewer is read-only. Program teacher views are scoped to teacher-visible selected-site students. Mentor, student, and misc admin are denied from the site operations route.
+- Archive/export details are redacted and omit Drive IDs, storage identifiers, full private URLs, token/password/setup credential fields, and unsafe audit metadata.
+- The authenticated workspace renders a route-connected Operations section with Presentation, Archive, and Readiness panels, summary tiles, filters, story/risk/status chips, real student-detail drawer actions, read-only explanations, and no scheduling, check-in/check-out, archive retry/export, user-management, announcement, or student messaging controls.
 
 ## 9. Demo Seed Direction
 

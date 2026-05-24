@@ -232,3 +232,22 @@ Route/data changes:
 - The MVP mutation is assign-only; reassign and deactivate controls are absent until a later tested route is added.
 - Responses stay bounded and redacted; raw Drive/storage identifiers, secret/token/password fields, and credential/user-management data are not rendered.
 - No mentor meeting mutation, archive retry/export, user-management, credential creation, announcement, or student messaging UI was added.
+
+## 14. Phase 12 Operations Readiness Applied
+
+Phase 12 connects the Figma-aligned end-of-project operations view to `/api/site/operations-readiness`.
+
+Rendered app changes:
+
+- The Operations section is visible to platform/admin/org/site/viewer roles and to program teachers as a read-only scoped view; mentor, student, and misc-admin navigation does not include the site operations route.
+- The section uses the product shell, site context badges, `workspace-filter-bar`, `workspace-dashboard-card`, `workspace-student-row`, `workspace-story-chip`, `workspace-risk-chip`, `workspace-problem-state`, `statusPill()`, `workspace-operations-readiness`, and `workspace-operations-layout`.
+- Summary tiles cover Presentation Ready, Presentation Pending, Outline Pending, Archive Ready, Archive Failed, and Needs Attention.
+- Presentation, Archive, Readiness, Program Breakdown, and Next Action panels render route data with safe "View student detail" actions that reuse the existing detail drawer.
+- Viewer and program-teacher views show read-only explanations and no scheduling, check-in/check-out, archive retry/export, or user-management controls.
+
+Route/data changes:
+
+- Operations rows are selected-site records only and are scoped through active selected-site student membership plus program/cohort, presentation, archive, submission, evidence, progress, mentor, and review data.
+- The route is read-only and bounded with default limit 50 and maximum limit 100.
+- Responses stay redacted; raw Drive/storage identifiers, full private URLs, secret/token/password fields, and unsafe audit metadata are not rendered.
+- No presentation scheduling, archive retry/export, check-in/check-out, reporting export, user-management, announcement, or student messaging UI was added.

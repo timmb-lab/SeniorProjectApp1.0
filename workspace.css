@@ -1364,9 +1364,21 @@
   gap: var(--space-card);
 }
 
+.workspace-operations-readiness {
+  display: grid;
+  gap: var(--space-card);
+}
+
 .workspace-mentor-assignment-layout {
   display: grid;
   grid-template-columns: minmax(0, 1.2fr) minmax(300px, 0.8fr);
+  gap: var(--space-card);
+  align-items: start;
+}
+
+.workspace-operations-layout {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--space-card);
   align-items: start;
 }
@@ -1424,6 +1436,7 @@ button.workspace-metric-tile,
   .workspace-filter-bar,
   .workspace-review-layout,
   .workspace-mentor-assignment-layout,
+  .workspace-operations-layout,
   .workspace-student-row,
   .workspace-review-queue .workspace-student-row,
   .workspace-student-card {

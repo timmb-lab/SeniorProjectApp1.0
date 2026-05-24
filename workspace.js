@@ -13,6 +13,7 @@ let currentData = {
   mentorDashboard: null,
   reviewQueue: null,
   mentorAssignments: null,
+  operationsReadiness: null,
   mentorAssigned: null,
   presentationSlots: null,
   readiness: null,
@@ -27,6 +28,7 @@ let siteStudentDetailState = defaultSiteStudentDetailState();
 let reviewQueueFilters = defaultReviewQueueFilters();
 let reviewQueueState = defaultReviewQueueState();
 let mentorAssignmentFilters = defaultMentorAssignmentFilters();
+let operationsReadinessFilters = defaultOperationsReadinessFilters();
 const WORKSPACE_UPLOAD_MAX_BYTES = 20 * 1024 * 1024;
 const WORKSPACE_UPLOAD_ALLOWED_MIME_TYPES = new Set([
   "application/pdf",
@@ -70,11 +72,14 @@ const STATUS_CLASS_BY_STATUS = {
   pending_review: "pending",
   pending_reset: "pending",
   scheduled: "pending",
+  outline_pending: "pending",
+  outline_revision_needed: "revision_requested",
   missing: "archived",
   checked_out: "under_review",
   checked_in: "complete",
   available: "ready",
   attention_required: "blocked",
+  in_progress: "under_review",
   needs_review: "pending",
   active: "approved",
   no_active_assignments: "blocked",
@@ -98,6 +103,8 @@ const STATUS_LABELS = {
   pending_review: "Pending",
   pending_reset: "Pending reset",
   scheduled: "Scheduled",
+  outline_pending: "Outline pending",
+  outline_revision_needed: "Outline revision",
   checked_out: "Checked out",
   checked_in: "Checked in",
   available: "Ready",
@@ -112,6 +119,7 @@ const STATUS_LABELS = {
   expired: "Expired",
   expiring_soon: "Expiring soon",
   attention_required: "Blocked",
+  in_progress: "In progress",
   needs_review: "Pending",
   active: "Approved",
   no_active_assignments: "Blocked",
@@ -178,6 +186,7 @@ function defaultCurrentData(authConfig = currentData.authConfig) {
     mentorDashboard: null,
     reviewQueue: null,
     mentorAssignments: null,
+    operationsReadiness: null,
     mentorAssigned: null,
     presentationSlots: null,
     readiness: null,
@@ -203,6 +212,7 @@ async function loadWorkspaceData(statusMessage = "") {
   if (hasSiteStudentDirectoryRole(roles)) loaders.push(["siteStudents", apiJson(`/api/site/students${siteStudentQueryString()}`)]);
   if (hasSiteReviewQueueRole(roles)) loaders.push(["reviewQueue", apiJson(`/api/site/review-queue${siteReviewQueueQueryString()}`)]);
   if (hasSiteMentorAssignmentRole(roles)) loaders.push(["mentorAssignments", apiJson(`/api/site/mentor-assignments${siteMentorAssignmentQueryString()}`)]);
+  if (hasSiteOperationsRole(roles)) loaders.push(["operationsReadiness", apiJson(`/api/site/operations-readiness${siteOperationsReadinessQueryString()}`)]);
   if (roles.has("admin")) loaders.push(["adminDashboard", apiJson("/api/admin/dashboard")]);
   if (roles.has("program_teacher")) loaders.push(["programTeacherDashboard", apiJson("/api/program-teacher/dashboard")]);
   if (roles.has("mentor") || roles.has("admin")) loaders.push(["mentorDashboard", apiJson("/api/mentor/dashboard")]);
@@ -541,6 +551,7 @@ function availableSections() {
   if (roles.has("program_teacher")) sections.push({ id: "programDashboard", label: "Program Dashboard", detail: "Scoped cohort and review risks" });
   if (hasSiteReviewQueueRole(roles)) sections.push({ id: "teacher", label: "Review Queue", detail: "Teacher review and submitted work" });
   if (hasSiteMentorAssignmentRole(roles)) sections.push({ id: "mentorAssignments", label: "Mentor Assignments", detail: "Coverage and assignment workflow" });
+  if (hasSiteOperationsRole(roles)) sections.push({ id: "operations", label: "Operations", detail: "Presentation, archive, and readiness" });
   if (roles.has("student") || roles.has("mentor") || roles.has("program_teacher") || roles.has("admin")) {
     sections.push({ id: "presentation", label: "Presentation", detail: "Schedule, outline, and day-of status" });
   }
@@ -567,6 +578,7 @@ function renderActiveSection() {
   if (activeSection === "archive") return renderArchiveSection();
   if (activeSection === "adminUsers") return renderAdminUsersSection();
   if (activeSection === "mentorAssignments") return renderMentorAssignmentsSection();
+  if (activeSection === "operations") return renderOperationsReadinessSection();
   if (activeSection === "audit") return renderAdminAuditSection();
   if (activeSection === "archiveExports") return renderAdminArchiveExportsSection();
   if (activeSection === "readiness") return renderReadinessSection();
@@ -2046,6 +2058,347 @@ function renderMentorActiveAssignments(assignments = [], permissions = {}) {
   ` : `<div class="workspace-empty">No active assignments match these filters.</div>`;
 }
 
+function renderOperationsReadinessSection() {
+  const result = currentData.operationsReadiness;
+  if (result?.status === 403) {
+    return renderPermissionDeniedSection("Operations readiness", "site presentation, archive, and readiness worklists");
+  }
+  if (result?.status === 409 && result.body?.selectionRequired) {
+    return renderOperationsSelectionRequired(result.body);
+  }
+  const body = unwrap(result);
+  if (!body) {
+    return `
+      <section class="workspace-card workspace-error-card">
+        <p class="workspace-kicker">Operations</p>
+        <h2>Operations readiness unavailable</h2>
+        ${renderApiNotice(result)}
+        ${renderProblemState({
+          reason: "The site operations readiness route could not return selected-site worklists.",
+          owner: "Site administration or platform support.",
+          nextAction: "Refresh after selected-site access and route availability are confirmed.",
+        })}
+      </section>
+    `;
+  }
+
+  const scope = body.scope || {};
+  const summary = body.summary || {};
+  const presentation = body.presentation || {};
+  const archive = body.archive || {};
+  const readiness = body.readiness || {};
+  const permissions = body.permissions || {};
+  const pagination = body.pagination || {};
+  const readOnly = Boolean(scope.readOnly);
+  return `
+    <section class="workspace-command-center workspace-operations-readiness" aria-labelledby="operationsReadinessTitle">
+      ${renderSiteContextBlock(body)}
+      <div class="workspace-command-hero">
+        <div>
+          <p class="workspace-kicker">Presentation readiness / Archive readiness</p>
+          <h1 id="operationsReadinessTitle">Operations</h1>
+          <p>
+            Site-scoped worklists for Presentation readiness, Archive readiness, Private evidence, Role scoped views,
+            Audited changes, and Teacher intervention. No student messaging.
+          </p>
+        </div>
+        <div class="workspace-command-hero-grid">
+          ${statusPill(readOnly ? "configured" : "ready")}
+          <span class="workspace-chip">${escapeHtml(readOnly ? "Read-only worklists" : "Operations ready")}</span>
+        </div>
+      </div>
+      ${renderApiNotice(result)}
+      <section class="workspace-read-only-banner" data-operations-read-only="true">
+        <strong>Read-only operations worklists</strong>
+        <p>Scheduling, check-in/check-out, archive retry, and export controls stay out of this phase. Open student detail for blocker context.</p>
+      </section>
+      <div class="workspace-dashboard-grid">
+        ${renderMetricTile("Presentation Ready", summary.presentationReady, "Ready or complete signals", "teacher")}
+        ${renderMetricTile("Presentation Pending", summary.presentationPending, "Outline or schedule attention", safeNumber(summary.presentationPending) ? "warning" : "teacher")}
+        ${renderMetricTile("Outline Pending", summary.outlinePending, "Needs outline approval", safeNumber(summary.outlinePending) ? "warning" : "teacher")}
+        ${renderMetricTile("Archive Ready", summary.archiveReady, "Ready or complete package state", "mentor")}
+        ${renderMetricTile("Archive Failed", summary.archiveFailed, "Needs archive follow-up", safeNumber(summary.archiveFailed) ? "danger" : "admin")}
+        ${renderMetricTile("Needs Attention", summary.needsAttention, "Blocked, missing, or high-risk rows", safeNumber(summary.needsAttention) ? "danger" : "admin")}
+      </div>
+      ${renderOperationsFilters(body)}
+      <section class="workspace-card workspace-directory-summary" aria-label="Operations readiness results">
+        <div class="workspace-card-head">
+          <div>
+            <p class="workspace-kicker">Results</p>
+            <h2>Showing ${safeNumber(pagination.returned)} of ${safeNumber(pagination.filteredTotal)}</h2>
+            <p class="workspace-muted">Rows are bounded, selected-site scoped, and sorted with blocked or pending attention first.</p>
+          </div>
+          <span class="workspace-site-context-badge">${safeNumber(pagination.total)} total in scope</span>
+        </div>
+        ${renderOperationsPagination(pagination)}
+      </section>
+      <div class="workspace-operations-layout">
+        ${renderDashboardCard("Presentation", "Schedule, outline, and day-of readiness", renderPresentationWorklistRows(presentation.rows || [], permissions))}
+        ${renderDashboardCard("Archive", "Package readiness and export failures", renderArchiveWorklistRows(archive.rows || [], permissions))}
+        ${renderDashboardCard("Readiness", "Attention rows and next actions", renderReadinessAttentionRows(readiness.attentionRows || [], permissions))}
+      </div>
+      <div class="workspace-dashboard-grid workspace-dashboard-grid-two">
+        ${renderDashboardCard("Program Breakdown", "Readiness by visible program", renderOperationsProgramBreakdown(readiness.filteredProgramBreakdown || readiness.programBreakdown || []))}
+        ${renderDashboardCard("Next Actions", "Grouped staff follow-up", renderOperationsNextActions(readiness.nextActions || []))}
+      </div>
+      ${renderSiteStudentDetailSurface({ students: operationRowsForDetail(body) })}
+    </section>
+  `;
+}
+
+function renderOperationsSelectionRequired(body = {}) {
+  const sites = body.accessibleSites || [];
+  return `
+    <section class="workspace-card workspace-error-card" data-workspace-state="operations-site-selection-required">
+      <p class="workspace-kicker">Operations</p>
+      <h2>Select a site before viewing operations readiness</h2>
+      <p>This account can view more than one site, so presentation/archive/readiness worklists need an explicit site selection.</p>
+      <div class="workspace-chip-row">
+        ${sites.map((site) => `<span class="workspace-site-context-badge">${escapeHtml(site.siteName || site.siteId)}</span>`).join("")}
+      </div>
+      ${renderProblemState({
+        reason: "Multiple assigned sites are available and no safe operations default was selected.",
+        owner: "Administration or platform support.",
+        nextAction: "Choose a site once site switching is available, or open a direct site-scoped link.",
+      })}
+    </section>
+  `;
+}
+
+function renderOperationsFilters(body) {
+  const filters = body?.filters || operationsReadinessFilters || defaultOperationsReadinessFilters();
+  const options = body?.filterOptions || {};
+  return `
+    <form id="operationsReadinessFilterForm" class="workspace-filter-bar" data-operations-readiness-filters="true">
+      <label class="workspace-label">
+        <span>Program</span>
+        <select class="workspace-select" name="programId">
+          ${renderProgramFilterOptions(options.programs, filters.programId)}
+        </select>
+      </label>
+      <label class="workspace-label">
+        <span>Presentation</span>
+        <select class="workspace-select" name="presentationStatus">
+          ${renderValueOptions(options.presentationStatuses || [], filters.presentationStatus || "", "Any presentation", statusText)}
+        </select>
+      </label>
+      <label class="workspace-label">
+        <span>Archive</span>
+        <select class="workspace-select" name="archiveStatus">
+          ${renderValueOptions(options.archiveStatuses || [], filters.archiveStatus || "", "Any archive", statusText)}
+        </select>
+      </label>
+      <label class="workspace-label">
+        <span>Readiness</span>
+        <select class="workspace-select" name="readiness">
+          ${renderValueOptions(options.readiness || [], filters.readiness || "", "Any readiness", statusText)}
+        </select>
+      </label>
+      <label class="workspace-label">
+        <span>Story bucket</span>
+        <select class="workspace-select" name="story">
+          ${renderValueOptions(options.storyBuckets || [], filters.story || "", "Any story", storyLabel)}
+        </select>
+      </label>
+      <label class="workspace-label">
+        <span>Risk</span>
+        <select class="workspace-select" name="risk">
+          ${renderValueOptions(options.risks || [], filters.risk || "any", "Any risk", riskLabel)}
+        </select>
+      </label>
+      <input name="offset" type="hidden" value="${escapeHtml(filters.offset || 0)}">
+      <input name="limit" type="hidden" value="${escapeHtml(filters.limit || 50)}">
+      <div class="workspace-form-actions">
+        <button class="workspace-button workspace-button-primary" type="submit">Apply filters</button>
+        <button class="workspace-button workspace-button-secondary" type="button" data-operations-action="reset-filters">Reset</button>
+      </div>
+    </form>
+  `;
+}
+
+function renderPresentationWorklistRows(rows = [], permissions = {}) {
+  return rows.length ? `
+    <div class="workspace-list" data-operations-presentation-rows="true">
+      ${rows.map((row) => `
+        <article class="workspace-student-row workspace-student-card">
+          <div>
+            <strong>${escapeHtml(row.studentName || "Student")}</strong>
+            <p>${escapeHtml(row.programName || "Unassigned")} / ${escapeHtml(row.cohortName || "No cohort")}</p>
+            <div class="workspace-chip-row">
+              ${row.storyBucket ? `<span class="workspace-story-chip">${escapeHtml(storyLabel(row.storyBucket))}</span>` : `<span class="workspace-story-chip">Presentation readiness</span>`}
+              ${renderRiskChips(row.riskFlags || [])}
+            </div>
+          </div>
+          <div>
+            <span class="workspace-muted">Presentation</span>
+            <strong>${escapeHtml(row.scheduledFor ? formatDate(row.scheduledFor) : "No schedule")}</strong>
+            <p>${escapeHtml(row.location || row.reason || "Presentation readiness pending.")}</p>
+          </div>
+          <div class="workspace-row-actions">
+            ${statusPill(row.presentationStatus || "missing")}
+            ${statusPill(row.outlineStatus || "pending")}
+            ${statusPill(row.checkInStatus || "missing")}
+          </div>
+          <div class="workspace-row-actions">
+            <p>${escapeHtml(row.nextAction || "Open student detail for blocker context.")}</p>
+            ${operationsDetailButton(row.studentId, permissions)}
+          </div>
+        </article>
+      `).join("")}
+    </div>
+  ` : `
+    <section class="workspace-empty-state-card" data-operations-presentation-empty="true">
+      <h2>No presentation rows match</h2>
+      ${renderProblemState({
+        reason: "No selected-site presentation readiness rows match the current filters.",
+        owner: "Site administration.",
+        nextAction: "Adjust filters or review the student directory.",
+      })}
+    </section>
+  `;
+}
+
+function renderArchiveWorklistRows(rows = [], permissions = {}) {
+  return rows.length ? `
+    <div class="workspace-list" data-operations-archive-rows="true">
+      ${rows.map((row) => `
+        <article class="workspace-student-row workspace-student-card">
+          <div>
+            <strong>${escapeHtml(row.studentName || "Student")}</strong>
+            <p>${escapeHtml(row.programName || "Unassigned")} / ${escapeHtml(row.providerStatus || "archive provider")}</p>
+            <div class="workspace-chip-row">
+              ${row.storyBucket ? `<span class="workspace-story-chip">${escapeHtml(storyLabel(row.storyBucket))}</span>` : `<span class="workspace-story-chip">Archive readiness</span>`}
+              ${renderRiskChips(row.riskFlags || [])}
+            </div>
+          </div>
+          <div>
+            <span class="workspace-muted">Archive</span>
+            <strong>${escapeHtml(row.reason || "Archive status")}</strong>
+            <p>${escapeHtml(row.downloadExpiresSoon ? "Download window expiring soon." : "Storage identifiers redacted.")}</p>
+          </div>
+          <div class="workspace-row-actions">
+            ${statusPill(row.archiveStatus || "missing")}
+            ${statusPill(row.exportStatus || "not_requested")}
+            <span class="workspace-site-context-badge">Private evidence</span>
+          </div>
+          <div class="workspace-row-actions">
+            <p>${escapeHtml(row.nextAction || "Open student detail for archive context.")}</p>
+            ${operationsDetailButton(row.studentId, permissions)}
+          </div>
+        </article>
+      `).join("")}
+    </div>
+  ` : `
+    <section class="workspace-empty-state-card" data-operations-archive-empty="true">
+      <h2>No archive rows match</h2>
+      ${renderProblemState({
+        reason: "No selected-site archive readiness rows match the current filters.",
+        owner: "Site administration.",
+        nextAction: "Adjust filters or open student detail from the directory.",
+      })}
+    </section>
+  `;
+}
+
+function renderReadinessAttentionRows(rows = [], permissions = {}) {
+  return rows.length ? `
+    <div class="workspace-list" data-operations-readiness-rows="true">
+      ${rows.map((row) => `
+        <article class="workspace-row workspace-attention-item">
+          <div>
+            <strong>${escapeHtml(row.studentName || "Student")}</strong>
+            <p>${escapeHtml(row.programName || "Unassigned")} / ${escapeHtml(row.owner || "Site administration")}</p>
+            <p class="workspace-muted">${escapeHtml(row.reason || "Needs readiness review.")}</p>
+          </div>
+          <div class="workspace-row-actions">
+            ${statusPill(row.status || "attention_required")}
+            <span class="workspace-site-context-badge">${escapeHtml(statusText(row.category || "readiness"))}</span>
+            ${operationsDetailButton(row.studentId, permissions)}
+          </div>
+        </article>
+      `).join("")}
+    </div>
+  ` : `
+    <section class="workspace-empty-state-card" data-operations-readiness-empty="true">
+      <h2>No attention rows match</h2>
+      ${renderProblemState({
+        reason: "No blocked, missing, or attention-required readiness rows match the current filters.",
+        owner: "Site administration.",
+        nextAction: "Adjust filters or continue monitoring ready rows.",
+      })}
+    </section>
+  `;
+}
+
+function renderOperationsProgramBreakdown(rows = []) {
+  return rows.length ? `
+    <div class="workspace-list" data-operations-program-breakdown="true">
+      ${rows.map((row) => `
+        <article class="workspace-program-row">
+          <strong>${escapeHtml(row.programName || "Program")}</strong>
+          <span>${safeNumber(row.studentsTotal)} students</span>
+          <span>${safeNumber(row.presentationPending)} presentation</span>
+          <span>${safeNumber(row.archiveFailed)} archive failed</span>
+          <span>${safeNumber(row.needsAttention)} attention</span>
+        </article>
+      `).join("")}
+    </div>
+  ` : `<div class="workspace-empty">No program breakdown is available for these filters.</div>`;
+}
+
+function renderOperationsNextActions(rows = []) {
+  return rows.length ? `
+    <div class="workspace-list" data-operations-next-actions="true">
+      ${rows.map((row) => `
+        <article class="workspace-row">
+          <div>
+            <strong>${escapeHtml(row.nextAction || "Review student detail")}</strong>
+            <p>${escapeHtml(row.owner || "Site administration")} / ${escapeHtml(statusText(row.category || "readiness"))}</p>
+          </div>
+          <span class="workspace-site-context-badge">${safeNumber(row.count)} row${safeNumber(row.count) === 1 ? "" : "s"}</span>
+        </article>
+      `).join("")}
+    </div>
+  ` : `<div class="workspace-empty">No grouped next actions for the current filters.</div>`;
+}
+
+function renderOperationsPagination(pagination = {}) {
+  const limit = safeNumber(pagination.limit || operationsReadinessFilters.limit || 50);
+  const offset = safeNumber(pagination.offset || operationsReadinessFilters.offset || 0);
+  const returned = safeNumber(pagination.returned);
+  const filteredTotal = safeNumber(pagination.filteredTotal);
+  return `
+    <div class="workspace-directory-pagination" aria-label="Operations pagination">
+      <button class="workspace-button workspace-button-secondary" type="button" data-operations-action="previous-page" ${offset <= 0 ? "disabled" : ""}>Previous</button>
+      <span class="workspace-muted">Offset ${escapeHtml(offset)} / Limit ${escapeHtml(limit)}</span>
+      <button class="workspace-button workspace-button-secondary" type="button" data-operations-action="next-page" ${(offset + returned) >= filteredTotal ? "disabled" : ""}>Next</button>
+    </div>
+  `;
+}
+
+function operationsDetailButton(studentId, permissions = {}) {
+  return permissions.canViewStudentDetail ? `
+    <button class="workspace-link-button workspace-link-button-small" type="button" data-operations-action="open-student" data-operations-student-id="${escapeHtml(studentId || "")}">
+      View student detail
+    </button>
+  ` : "";
+}
+
+function operationRowsForDetail(body = {}) {
+  const rows = [
+    ...((body.presentation || {}).rows || []),
+    ...((body.archive || {}).rows || []),
+    ...((body.readiness || {}).attentionRows || []),
+  ];
+  const seen = new Set();
+  return rows
+    .filter((row) => row?.studentId && !seen.has(row.studentId) && seen.add(row.studentId))
+    .map((row) => ({
+      studentId: row.studentId,
+      displayName: row.studentName || "Student detail",
+    }));
+}
+
 function renderAdminAuditSection() {
   const dashboard = unwrap(currentData.adminDashboard);
   if (!dashboard) {
@@ -2818,6 +3171,10 @@ function bindWorkspaceForms() {
     button.addEventListener("click", handleMentorAssignmentAction);
   });
   document.querySelector("#mentorAssignmentForm")?.addEventListener("submit", submitMentorAssignment);
+  document.querySelector("#operationsReadinessFilterForm")?.addEventListener("submit", applyOperationsReadinessFilters);
+  document.querySelectorAll("[data-operations-action]").forEach((button) => {
+    button.addEventListener("click", handleOperationsReadinessAction);
+  });
 }
 
 function bindUploadRetryButton() {
@@ -2880,6 +3237,55 @@ async function applyMentorAssignmentFilters(event) {
   };
   activeSection = "mentorAssignments";
   await loadMentorAssignmentsResult("Mentor assignment filters applied.");
+}
+
+async function applyOperationsReadinessFilters(event) {
+  event?.preventDefault?.();
+  const form = event?.currentTarget;
+  if (!form) return;
+  const data = new FormData(form);
+  operationsReadinessFilters = {
+    programId: cleanDirectoryFilter(data.get("programId")),
+    status: cleanDirectoryFilter(data.get("status")),
+    story: cleanDirectoryFilter(data.get("story")),
+    risk: cleanDirectoryFilter(data.get("risk")) || "any",
+    presentationStatus: cleanDirectoryFilter(data.get("presentationStatus")),
+    archiveStatus: cleanDirectoryFilter(data.get("archiveStatus")),
+    readiness: cleanDirectoryFilter(data.get("readiness")),
+    limit: clampDirectoryNumber(data.get("limit"), 50, 1, 100),
+    offset: 0,
+  };
+  activeSection = "operations";
+  await loadOperationsReadinessResult("Operations filters applied.");
+}
+
+async function handleOperationsReadinessAction(event) {
+  const action = event?.currentTarget?.dataset?.operationsAction;
+  if (!action) return;
+  if (action === "open-student") {
+    activeSection = "operations";
+    await openSiteStudentDetail(event.currentTarget?.dataset?.operationsStudentId || "");
+    return;
+  }
+  if (action === "reset-filters") {
+    operationsReadinessFilters = defaultOperationsReadinessFilters();
+    activeSection = "operations";
+    await loadOperationsReadinessResult("Operations filters reset.");
+    return;
+  }
+  if (action === "previous-page" || action === "next-page") {
+    const body = unwrap(currentData.operationsReadiness);
+    const pagination = body?.pagination || {};
+    const limit = safeNumber(pagination.limit || operationsReadinessFilters.limit || 50);
+    const offset = safeNumber(pagination.offset || operationsReadinessFilters.offset || 0);
+    operationsReadinessFilters = {
+      ...operationsReadinessFilters,
+      limit,
+      offset: action === "previous-page" ? Math.max(0, offset - limit) : offset + limit,
+    };
+    activeSection = "operations";
+    await loadOperationsReadinessResult("Operations page updated.");
+  }
 }
 
 async function handleMentorAssignmentAction(event) {
@@ -3081,6 +3487,13 @@ async function loadMentorAssignmentsResult(message = "") {
   renderAppShell(result.ok ? (message || "Mentor assignments loaded.") : "Mentor assignments unavailable.", result.ok ? "success" : "error");
 }
 
+async function loadOperationsReadinessResult(message = "") {
+  const result = await settleApi(apiJson(`/api/site/operations-readiness${siteOperationsReadinessQueryString()}`));
+  currentData.operationsReadiness = result;
+  activeSection = "operations";
+  renderAppShell(result.ok ? (message || "Operations readiness loaded.") : "Operations readiness unavailable.", result.ok ? "success" : "error");
+}
+
 async function refreshConnectedSurfacesAfterMentorAssignment(studentId, siteId) {
   const query = siteId ? `?siteId=${encodeURIComponent(siteId)}` : "";
   const refreshes = [];
@@ -3104,6 +3517,11 @@ async function refreshConnectedSurfacesAfterMentorAssignment(studentId, siteId) 
         };
         currentData.siteStudentDetail = result;
       }
+    }));
+  }
+  if (currentData.operationsReadiness) {
+    refreshes.push(settleApi(apiJson(`/api/site/operations-readiness${siteOperationsReadinessQueryString()}`)).then((result) => {
+      currentData.operationsReadiness = result;
     }));
   }
   await Promise.all(refreshes);
@@ -3142,7 +3560,11 @@ async function openSiteStudentDetail(studentId) {
   const selectedStudentId = cleanDirectoryFilter(studentId);
   if (!selectedStudentId) return;
   const directory = unwrap(currentData.siteStudents);
-  const siteId = directory?.scope?.siteId || unwrap(currentData.mentorAssignments)?.scope?.siteId || unwrap(currentData.reviewQueue)?.scope?.siteId || "";
+  const siteId = directory?.scope?.siteId
+    || unwrap(currentData.operationsReadiness)?.scope?.siteId
+    || unwrap(currentData.mentorAssignments)?.scope?.siteId
+    || unwrap(currentData.reviewQueue)?.scope?.siteId
+    || "";
   const query = siteId ? `?siteId=${encodeURIComponent(siteId)}` : "";
   siteStudentDetailState = {
     ...defaultSiteStudentDetailState(),
@@ -4218,6 +4640,10 @@ function hasSiteMentorAssignmentRole(roles) {
   return ["platform_admin", "admin", "org_admin", "site_admin", "viewer", "program_teacher"].some((role) => roles.has(role));
 }
 
+function hasSiteOperationsRole(roles) {
+  return ["platform_admin", "admin", "org_admin", "site_admin", "viewer", "program_teacher"].some((role) => roles.has(role));
+}
+
 function defaultSiteStudentFilters() {
   return {
     search: "",
@@ -4252,6 +4678,20 @@ function defaultReviewQueueFilters() {
     search: "",
     story: "",
     risk: "any",
+    limit: 50,
+    offset: 0,
+  };
+}
+
+function defaultOperationsReadinessFilters() {
+  return {
+    programId: "",
+    status: "",
+    story: "",
+    risk: "any",
+    presentationStatus: "",
+    archiveStatus: "",
+    readiness: "",
     limit: 50,
     offset: 0,
   };
@@ -4323,6 +4763,27 @@ function siteMentorAssignmentQueryString() {
   if (filters.studentSearch) params.set("studentSearch", filters.studentSearch);
   if (filters.status) params.set("status", filters.status);
   if (filters.noMentor) params.set("noMentor", "true");
+  if (safeNumber(filters.limit) !== 50) params.set("limit", String(filters.limit));
+  if (safeNumber(filters.offset) > 0) params.set("offset", String(filters.offset));
+  const query = params.toString();
+  return query ? `?${query}` : "";
+}
+
+function siteOperationsReadinessQueryString() {
+  const params = new URLSearchParams();
+  const filters = operationsReadinessFilters || defaultOperationsReadinessFilters();
+  const siteId = unwrap(currentData.operationsReadiness)?.scope?.siteId
+    || unwrap(currentData.siteDashboard)?.scope?.siteId
+    || unwrap(currentData.siteStudents)?.scope?.siteId
+    || "";
+  if (siteId) params.set("siteId", siteId);
+  if (filters.programId) params.set("programId", filters.programId);
+  if (filters.status) params.set("status", filters.status);
+  if (filters.story) params.set("story", filters.story);
+  if (filters.risk && filters.risk !== "any") params.set("risk", filters.risk);
+  if (filters.presentationStatus) params.set("presentationStatus", filters.presentationStatus);
+  if (filters.archiveStatus) params.set("archiveStatus", filters.archiveStatus);
+  if (filters.readiness) params.set("readiness", filters.readiness);
   if (safeNumber(filters.limit) !== 50) params.set("limit", String(filters.limit));
   if (safeNumber(filters.offset) > 0) params.set("offset", String(filters.offset));
   const query = params.toString();

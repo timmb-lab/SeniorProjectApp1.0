@@ -1,0 +1,158 @@
+{
+  "phase": "12",
+  "name": "presentation-archive-reports",
+  "date": "2026-05-24",
+  "startingHead": "670a516e564c1804d42a8be39c6ef20484df5725",
+  "endingHead": null,
+  "phase11HygieneFixes": [
+    "Updated docs/progress/runs/2026-05-24-mentor-assignment-workflow.json endingHead to 670a516e564c1804d42a8be39c6ef20484df5725.",
+    "Updated docs/progress/run-log.md Phase 11 commit/push status to committed and pushed as 670a516 feat: add mentor assignment workflow."
+  ],
+  "routesAddedOrChanged": [
+    "Added GET /api/site/operations-readiness in functions/api/site/operations-readiness.ts.",
+    "Added shared read-only helper functions/_lib/site-operations-readiness.ts.",
+    "Preserved /api/presentation-slots, /api/student/archive/readiness, /api/reports/readiness, and archive/export routes."
+  ],
+  "routeShapeDecision": {
+    "chosen": "combined",
+    "route": "/api/site/operations-readiness",
+    "reason": "One selected-site read-only route keeps presentation, archive, readiness, summary, filters, permissions, and workspace state under a single bounded operations payload."
+  },
+  "presentationScopeStrategy": [
+    "Resolve selected site through functions/_lib/site-scope.ts.",
+    "Start from active selected-site site_users joined to active student accounts and active student role membership.",
+    "Join selected-site program/cohort membership and presentation slots only for scoped students.",
+    "Map presentation rows to canonical ready, pending, scheduled, completed, missing, outline_pending, outline_revision_needed, and attention_required values."
+  ],
+  "archiveScopeStrategy": [
+    "Resolve archive rows through selected-site students instead of global archive/export data.",
+    "Include archive/export state, provider status, download readiness, and expiration booleans only when safe.",
+    "Set storageIdentifiersRedacted true and omit Drive IDs, storage IDs, full private URLs, token/password/setup credential fields, and unsafe audit payloads."
+  ],
+  "readinessReportStrategy": [
+    "Use selected-site presentation blockers, archive failures, high-risk/stale/no-mentor signals, submitted/revision pressure, evidence/progress gaps, and program breakdown counts.",
+    "Return bounded attention rows plus selected-scope summary counts.",
+    "Use the same selected-site population totals as Phase 7 dashboard and Phase 8 directory."
+  ],
+  "canonicalStatusMapping": {
+    "presentation": [
+      "ready",
+      "pending",
+      "scheduled",
+      "completed",
+      "missing",
+      "outline_pending",
+      "outline_revision_needed",
+      "attention_required"
+    ],
+    "archive": [
+      "ready",
+      "complete",
+      "failed",
+      "missing",
+      "queued",
+      "running",
+      "expired",
+      "expiring_soon",
+      "provider_unavailable"
+    ],
+    "readiness": [
+      "ready",
+      "in_progress",
+      "attention_required",
+      "blocked",
+      "missing",
+      "complete"
+    ],
+    "risk": [
+      "high",
+      "medium",
+      "low",
+      "stale",
+      "no_mentor"
+    ],
+    "story": [
+      "model_excellent",
+      "missing_mentor",
+      "awaiting_review",
+      "revision_requested",
+      "presentation_pending",
+      "archive_ready",
+      "archive_failed",
+      "high_risk",
+      "rich_timeline"
+    ]
+  },
+  "mutationPolicy": "Read-only in Phase 12. No presentation scheduling, check-in/check-out, archive retry/export, reporting export, user-management, user creation, credential creation, or fake mutation UI was added.",
+  "roleVisibilityPolicy": {
+    "platform_admin": "Can view any active selected-site operations; no mutation permissions returned.",
+    "admin": "Can view any active selected-site operations; no mutation permissions returned.",
+    "org_admin": "Can view assigned tenant site operations; no mutation permissions returned.",
+    "site_admin": "Can view assigned-site operations; no mutation permissions returned.",
+    "viewer": "Can view assigned-site operations read-only with mutation permissions false.",
+    "program_teacher": "Can view read-only operations rows and counts scoped to teacher-visible selected-site program/cohort students.",
+    "mentor": "Denied from the site operations route; mentor assigned-student surfaces remain separate.",
+    "student": "Denied from the site operations route; student self-service remains /api/student/dashboard and /api/student/archive/readiness.",
+    "misc_admin": "Denied from the site operations route."
+  },
+  "workspaceChanges": [
+    "Added Operations navigation section for authorized roles.",
+    "Loaded /api/site/operations-readiness with selected site and filter query params.",
+    "Rendered summary tiles, filter bar, Presentation, Archive, Readiness, Program Breakdown, and Next Action panels.",
+    "Used Figma-aligned classes workspace-operations-readiness, workspace-operations-layout, workspace-filter-bar, workspace-dashboard-card, workspace-student-row, workspace-story-chip, workspace-risk-chip, workspace-problem-state, and statusPill().",
+    "Showed read-only explanations and omitted scheduling, check-in/check-out, archive retry/export, and user-management controls."
+  ],
+  "studentDetailIntegration": [
+    "Worklist rows include safe studentId values.",
+    "Rows use the existing Phase 9 openSiteStudentDetail path.",
+    "Opening and closing detail preserves Operations filter state and does not reset Students directory filters/pagination."
+  ],
+  "auditEvents": [
+    "site_operations_readiness_viewed",
+    "site_operations_readiness_denied",
+    "site_operations_readiness_unauthorized"
+  ],
+  "redactionProof": [
+    "API tests and local proof scan operations responses for raw Drive IDs, storage identifiers, full private URLs, token/password/setup credential fields, and unsafe audit metadata.",
+    "Archive rows return storageIdentifiersRedacted true.",
+    "Workspace source tests ensure no raw storage or secret strings are rendered in the Operations UI."
+  ],
+  "testsAddedOrUpdated": [
+    "Added tests/site-operations-readiness.integration.test.mjs.",
+    "Updated tests/workspace-app.test.mjs for Operations route loading, rendering, detail action, read-only mode, and no mutation controls.",
+    "Updated tests/production-workflow-source.test.mjs for route inventory/source patterns, scoping, bounded payloads, redaction, audit events, and no mutation handlers.",
+    "Regenerated docs/generated/production-route-inventory.md."
+  ],
+  "localProofUpdates": [
+    "Updated scripts/prove-local-demo-workspace.mjs with non-mutating /api/site/operations-readiness proof.",
+    "Local proof covers primary selected-site summary, presentation pending, archive ready, archive failed, high-risk attention rows, viewer read-only, site-admin cross-site denial, program-teacher scoping, mentor/student denial, and no leak output.",
+    "Misc-admin denial remains covered by integration tests."
+  ],
+  "phase13Readiness": {
+    "ready": true,
+    "notes": "Phase 13 can build the sales demo runbook and hosted proof plan on selected-site dashboard, directory, detail, review queue, mentor assignment, and operations readiness surfaces. Hosted proof still depends on remote D1 migration 0011 being available."
+  },
+  "validation": {
+    "focusedAlreadyRun": [
+      "node --test tests/site-operations-readiness.integration.test.mjs",
+      "node --test tests/workspace-app.test.mjs",
+      "node --test tests/production-workflow-source.test.mjs",
+      "npm run inventory:production-routes",
+      "npm run typecheck"
+    ],
+    "fullValidation": [
+      "npm run check:route-inventory passed.",
+      "npm run check:production-surfaces passed with 91 production text surfaces scanned.",
+      "npm run test passed with 303 passing tests and 4 expected local HTTP skips.",
+      "npm run typecheck passed.",
+      "npm run check passed.",
+      "npm run prove:demo:local passed with non-mutating operations readiness proof.",
+      "git diff --check passed with CRLF normalization warnings only."
+    ]
+  },
+  "blockers": [
+    "Remote D1 still lacks migration 0011_multisite_site_role_foundation.sql, so no remote migration, remote write/seed, deploy, or hosted proof was run.",
+    "Phase 12 intentionally does not add presentation scheduling, check-in/check-out, archive retry/export, or reporting export mutations."
+  ],
+  "nextRecommendedPrompt": "13_sales_demo_runbook_and_hosted_proof.txt"
+}

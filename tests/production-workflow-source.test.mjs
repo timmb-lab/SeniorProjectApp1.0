@@ -21,6 +21,8 @@ const siteReviewQueueRoute = await readFile("functions/api/site/review-queue.ts"
 const siteReviewQueueLib = await readFile("functions/_lib/site-review-queue.ts", "utf8");
 const siteMentorAssignmentsRoute = await readFile("functions/api/site/mentor-assignments.ts", "utf8");
 const siteMentorAssignmentsLib = await readFile("functions/_lib/site-mentor-assignments.ts", "utf8");
+const siteOperationsReadinessRoute = await readFile("functions/api/site/operations-readiness.ts", "utf8");
+const siteOperationsReadinessLib = await readFile("functions/_lib/site-operations-readiness.ts", "utf8");
 const siteScopeLib = await readFile("functions/_lib/site-scope.ts", "utf8");
 const mentorAssignedRoute = await readFile("functions/api/mentor/assigned.ts", "utf8");
 const mentorMeetingsRoute = await readFile("functions/api/mentor/meetings.ts", "utf8");
@@ -276,6 +278,29 @@ test("site mentor assignment route is site-scoped, role-aware, mutable by policy
   assert.match(siteMentorAssignmentsLib, /canManageUsers: false/);
   assert.match(siteMentorAssignmentsLib, /canManageSecurity: false/);
   assert.doesNotMatch(siteMentorAssignmentsLib, /CREATE USER|password_credentials|temporaryPassword|setupPassword|drive_file_id|drive_parent_folder_id|storage_key|password_hash|password_salt|token_hash|client_secret|refresh_token|access_token|private_key|content_sha256|body_json/i);
+});
+
+test("site operations readiness route is site-scoped, read-only, bounded, and redacted", () => {
+  assert.match(siteOperationsReadinessRoute, /handleSiteOperationsReadinessGet/);
+  assert.match(siteOperationsReadinessLib, /resolveSiteSelection/);
+  assert.match(siteOperationsReadinessLib, /canViewPresentationOperations/);
+  assert.match(siteOperationsReadinessLib, /canViewArchiveOperations/);
+  assert.match(siteOperationsReadinessLib, /canViewReadinessReports/);
+  assert.match(siteOperationsReadinessLib, /getProgramTeacherScopedStudentIds/);
+  assert.match(siteOperationsReadinessLib, /site_users/);
+  assert.match(siteOperationsReadinessLib, /student_role\.role_id = 'student'/);
+  assert.match(siteOperationsReadinessLib, /DEFAULT_LIMIT = 50/);
+  assert.match(siteOperationsReadinessLib, /MAX_LIMIT = 100/);
+  assert.match(siteOperationsReadinessLib, /site_operations_readiness_viewed/);
+  assert.match(siteOperationsReadinessLib, /site_operations_readiness_denied/);
+  assert.match(siteOperationsReadinessLib, /site_operations_readiness_unauthorized/);
+  assert.match(siteOperationsReadinessLib, /PRESENTATION_STATUS_VALUES/);
+  assert.match(siteOperationsReadinessLib, /ARCHIVE_STATUS_VALUES/);
+  assert.match(siteOperationsReadinessLib, /READINESS_VALUES/);
+  assert.match(siteOperationsReadinessLib, /canManagePresentationOperations: false/);
+  assert.match(siteOperationsReadinessLib, /canManageArchiveOperations: false/);
+  assert.match(siteOperationsReadinessLib, /storageIdentifiersRedacted: true/);
+  assert.doesNotMatch(siteOperationsReadinessLib, /CREATE USER|password_credentials|temporaryPassword|setupPassword|drive_file_id|drive_parent_folder_id|storage_key|password_hash|password_salt|token_hash|client_secret|refresh_token|access_token|private_key|content_sha256|body_json/i);
 });
 
 test("admin audit endpoint is admin-only and redacts sensitive metadata", () => {

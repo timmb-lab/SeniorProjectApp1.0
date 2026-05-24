@@ -146,3 +146,17 @@ After Phase 10, Phase 11 added the site-scoped Mentor Assignment Workflow:
 - No mentor meeting mutation, archive retry/export, user-management, remote migration/write/seed, deploy, domain/OAuth/Cloudflare config change, announcement, or student messaging UI was added.
 
 Updated next prompt after Phase 11: `12_presentation_archive_reports.txt`.
+
+## Phase 12 Update
+
+After Phase 11, Phase 12 added Presentation, Archive, and Readiness Worklists:
+
+- `/api/site/operations-readiness` is implemented and tested as a combined selected-site operations route with default limit 50, max limit 100, presentation/archive/readiness/story/risk/program filters, summary counts, and no global presentation/archive/report fallbacks.
+- Primary-site scope proves exactly 250 selected-site students; each secondary site proves 60 selected-site students.
+- Archive Failed Demo, Archive Ready Demo, Presentation Pending Demo, High Risk Demo, and Rich Timeline Demo rows are proven through worklist filters and row-to-detail integration.
+- Viewer and program teacher views are read-only; program teacher rows are scoped to teacher-visible selected-site students. Mentor, student, and misc admin are denied from the site operations route.
+- Archive/export rows, audit metadata, local proof output, and workspace UI avoid raw Drive IDs, storage IDs, full private URLs, token/password/setup credential fields, credentials, and unsafe audit metadata.
+- The workspace renders a Figma-aligned Operations section with Presentation, Archive, and Readiness panels, filters, summary tiles, story/risk/status chips, read-only explanations, and real student-detail drawer actions.
+- No presentation scheduling, check-in/check-out, archive retry/export, reporting export, user-management, remote migration/write/seed, deploy, domain/OAuth/Cloudflare config change, announcement, or student messaging UI was added.
+
+Updated next prompt after Phase 12: `13_sales_demo_runbook_and_hosted_proof.txt`.

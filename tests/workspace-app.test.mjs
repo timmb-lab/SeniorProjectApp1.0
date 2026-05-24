@@ -29,6 +29,7 @@ test("workspace route is a real authenticated app surface", () => {
   assert.match(workspaceJs, /\/api\/student\/archive\/readiness/);
   assert.match(workspaceJs, /\/api\/site\/review-queue/);
   assert.match(workspaceJs, /\/api\/site\/mentor-assignments/);
+  assert.match(workspaceJs, /\/api\/site\/operations-readiness/);
   assert.match(workspaceJs, /\/api\/reviews\/\$\{encodeURIComponent\(selectedSubmissionId\)\}\/history/);
   assert.match(workspaceJs, /\/api\/reviews\/\$\{encodeURIComponent\(submissionId\)\}\/decision/);
   assert.match(workspaceJs, /\/api\/mentor\/assigned/);
@@ -189,6 +190,8 @@ test("workspace exposes Figma-aligned design tokens and future site patterns", (
     ".workspace-review-feedback",
     ".workspace-mentor-assignments",
     ".workspace-mentor-assignment-layout",
+    ".workspace-operations-readiness",
+    ".workspace-operations-layout",
     ".workspace-story-chip",
     ".workspace-risk-chip",
     ".workspace-empty-state-card",
@@ -879,6 +882,140 @@ test("workspace renders site-scoped Mentor Assignments with role-safe assignment
   assert.doesNotMatch(teacher, /data-mentor-assignment-form="true"|Assign mentor/);
 });
 
+test("workspace renders site-scoped Operations readiness worklists without mutation controls", async () => {
+  const siteAdmin = await renderWorkspaceWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "site-admin-operations",
+          email: "site.operations@example.edu",
+          displayName: "Operations Admin",
+          roles: [{ role_id: "site_admin", scope_type: "site", scope_id: "site-desert-valley-high" }],
+        },
+      },
+    },
+    "/api/site/dashboard": {
+      status: 200,
+      body: siteDashboardFixture({ readOnly: false }),
+    },
+    "/api/site/students": {
+      status: 200,
+      body: siteStudentsFixture({ readOnly: false }),
+    },
+    "/api/site/review-queue": {
+      status: 200,
+      body: siteReviewQueueFixture({ role: "site_admin", readOnly: true }),
+    },
+    "/api/site/mentor-assignments": {
+      status: 200,
+      body: siteMentorAssignmentsFixture({ role: "site_admin", canManage: true }),
+    },
+    "/api/site/operations-readiness": {
+      status: 200,
+      body: siteOperationsReadinessFixture({ role: "site_admin" }),
+    },
+  }, "operations");
+
+  assert.match(siteAdmin, /data-section="operations"/);
+  assert.match(siteAdmin, /Operations/);
+  assert.match(siteAdmin, /Presentation readiness/);
+  assert.match(siteAdmin, /Archive readiness/);
+  assert.match(siteAdmin, /workspace-operations-readiness/);
+  assert.match(siteAdmin, /workspace-operations-layout/);
+  assert.match(siteAdmin, /workspace-filter-bar/);
+  assert.match(siteAdmin, /Presentation Ready/);
+  assert.match(siteAdmin, /Presentation Pending/);
+  assert.match(siteAdmin, /Outline Pending/);
+  assert.match(siteAdmin, /Archive Ready/);
+  assert.match(siteAdmin, /Archive Failed/);
+  assert.match(siteAdmin, /Needs Attention/);
+  assert.match(siteAdmin, /Presentation Pending Demo 001/);
+  assert.match(siteAdmin, /Archive Failed Demo 001/);
+  assert.match(siteAdmin, /Archive Ready Demo 001/);
+  assert.match(siteAdmin, /High Risk Demo 001/);
+  assert.match(siteAdmin, /data-operations-presentation-rows="true"/);
+  assert.match(siteAdmin, /data-operations-archive-rows="true"/);
+  assert.match(siteAdmin, /data-operations-readiness-rows="true"/);
+  assert.match(siteAdmin, /data-operations-program-breakdown="true"/);
+  assert.match(siteAdmin, /data-operations-next-actions="true"/);
+  assert.match(siteAdmin, /View student detail/);
+  assert.match(siteAdmin, /workspace-story-chip/);
+  assert.match(siteAdmin, /workspace-risk-chip/);
+  assert.match(siteAdmin, /status-pill|workspace-status-pill/);
+  assert.match(siteAdmin, /Private evidence/);
+  assert.match(siteAdmin, /Role scoped views/);
+  assert.match(siteAdmin, /Audited changes/);
+  assert.match(siteAdmin, /Teacher intervention/);
+  assert.match(siteAdmin, /No student messaging/);
+  assert.doesNotMatch(siteAdmin, /data-presentation-action|data-archive-action|data-admin-action="import-users"|<button[^>]*>\s*(?:Archive retry|Retry archive|Schedule presentation|Check out|Check in|Export package)/i);
+
+  const viewer = await renderWorkspaceWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "viewer-operations",
+          email: "viewer.operations@example.edu",
+          displayName: "Operations Viewer",
+          roles: [{ role_id: "viewer", scope_type: "site", scope_id: "site-desert-valley-high" }],
+        },
+      },
+    },
+    "/api/site/dashboard": {
+      status: 200,
+      body: siteDashboardFixture({ readOnly: true }),
+    },
+    "/api/site/students": {
+      status: 200,
+      body: siteStudentsFixture({ readOnly: true }),
+    },
+    "/api/site/review-queue": {
+      status: 200,
+      body: siteReviewQueueFixture({ role: "viewer", readOnly: true }),
+    },
+    "/api/site/mentor-assignments": {
+      status: 200,
+      body: siteMentorAssignmentsFixture({ role: "viewer", readOnly: true, canManage: false }),
+    },
+    "/api/site/operations-readiness": {
+      status: 200,
+      body: siteOperationsReadinessFixture({ role: "viewer", readOnly: true }),
+    },
+  }, "operations");
+
+  assert.match(viewer, /data-workspace-mode="read-only"/);
+  assert.match(viewer, /Read-only operations worklists/);
+  assert.doesNotMatch(viewer, /data-presentation-action|data-archive-action|<button[^>]*>\s*(?:Archive retry|Retry archive|Schedule presentation)/i);
+
+  const { context, workspaceRoot } = await createWorkspaceContextWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "site-admin-operations-detail",
+          email: "site.operations.detail@example.edu",
+          displayName: "Operations Detail Admin",
+          roles: [{ role_id: "site_admin", scope_type: "site", scope_id: "site-desert-valley-high" }],
+        },
+      },
+    },
+    "/api/site/dashboard": { status: 200, body: siteDashboardFixture({ readOnly: false }) },
+    "/api/site/students": { status: 200, body: siteStudentsFixture({ readOnly: false }) },
+    "/api/site/review-queue": { status: 200, body: siteReviewQueueFixture({ role: "site_admin", readOnly: true }) },
+    "/api/site/mentor-assignments": { status: 200, body: siteMentorAssignmentsFixture({ role: "site_admin", canManage: true }) },
+    "/api/site/operations-readiness": { status: 200, body: siteOperationsReadinessFixture({ role: "site_admin" }) },
+    "/api/site/students/demo-student-054": { status: 200, body: siteStudentDetailFixture({ readOnly: false }) },
+  });
+  await vm.runInContext('activeSection = "operations"; renderAppShell(); openSiteStudentDetail("demo-student-054")', context);
+  assert.match(workspaceRoot.innerHTML, /Student detail loaded/);
+  assert.match(workspaceRoot.innerHTML, /workspace-detail-drawer/);
+  assert.match(workspaceRoot.innerHTML, /Operations/);
+});
+
 test("workspace gates student directory visibility by role", () => {
   const loadWorkspaceDataBlock = workspaceJs.match(/async function loadWorkspaceData[\s\S]*?function renderLoading/)?.[0] || "";
   const availableSectionsBlock = workspaceJs.match(/function availableSections[\s\S]*?function renderActiveSection/)?.[0] || "";
@@ -922,6 +1059,24 @@ test("workspace gates mentor assignment visibility and refresh behavior by role"
   assert.match(workspaceJs, /\/api\/site\/students\$\{siteStudentQueryString\(\)\}/);
   assert.match(workspaceJs, /\/api\/site\/students\/\$\{encodeURIComponent\(studentId\)\}/);
   assert.doesNotMatch(workspaceJs, /site_mentor_assignment_reassigned|site_mentor_assignment_deactivated|data-mentor-assignment-action="reassign"|data-mentor-assignment-action="deactivate"/);
+});
+
+test("workspace gates operations readiness visibility and keeps it read-only", () => {
+  const loadWorkspaceDataBlock = workspaceJs.match(/async function loadWorkspaceData[\s\S]*?function renderLoading/)?.[0] || "";
+  const availableSectionsBlock = workspaceJs.match(/function availableSections[\s\S]*?function renderActiveSection/)?.[0] || "";
+  const operationsRoleHelperBlock = workspaceJs.match(/function hasSiteOperationsRole[\s\S]*?function defaultSiteStudentFilters/)?.[0] || "";
+  assert.match(workspaceJs, /function hasSiteOperationsRole\(roles\)/);
+  assert.match(operationsRoleHelperBlock, /"platform_admin",\s+"admin",\s+"org_admin",\s+"site_admin",\s+"viewer",\s+"program_teacher"/);
+  assert.doesNotMatch(operationsRoleHelperBlock, /"mentor"|"student"|"misc_admin"/);
+  assert.match(availableSectionsBlock, /id: "operations", label: "Operations", detail: "Presentation, archive, and readiness"/);
+  assert.match(loadWorkspaceDataBlock, /hasSiteOperationsRole\(roles\).*\/api\/site\/operations-readiness/s);
+  assert.match(workspaceJs, /function renderOperationsReadinessSection/);
+  assert.match(workspaceJs, /function applyOperationsReadinessFilters/);
+  assert.match(workspaceJs, /function loadOperationsReadinessResult/);
+  assert.match(workspaceJs, /data-operations-action="open-student"/);
+  assert.match(workspaceJs, /openSiteStudentDetail\(event\.currentTarget\?\.dataset\?\.operationsStudentId/);
+  assert.match(workspaceJs, /scope\.readOnly/);
+  assert.doesNotMatch(workspaceJs, /data-operations-action="schedule"|data-operations-action="retry"|data-operations-action="check-in"|data-operations-action="check-out"/);
 });
 
 test("production surface checker includes the authenticated workspace", () => {
@@ -2097,6 +2252,217 @@ function siteMentorAssignmentsFixture({
   };
 }
 
+function siteOperationsReadinessFixture({
+  role = "site_admin",
+  readOnly = true,
+  total = role === "program_teacher" ? 45 : 250,
+} = {}) {
+  const presentationRows = [
+    {
+      studentId: "demo-student-040",
+      studentName: "Presentation Pending Demo 001",
+      programId: "it",
+      programName: "Information Technology",
+      cohortId: "cohort-it-2026",
+      cohortName: "IT 2026",
+      storyBucket: "presentation_pending",
+      riskScore: 6,
+      riskFlags: ["presentation_pending", "no_mentor"],
+      presentationStatus: "outline_pending",
+      scheduledFor: "2026-06-04T17:00:00.000Z",
+      location: "Demo Room 105",
+      outlineStatus: "pending",
+      checkInStatus: "scheduled",
+      reason: "Presentation outline is pending approval.",
+      owner: "Site administration",
+      nextAction: "Review presentation readiness before completion.",
+    },
+  ];
+  const archiveRows = [
+    {
+      studentId: "demo-student-054",
+      studentName: "Archive Failed Demo 001",
+      programId: "it",
+      programName: "Information Technology",
+      storyBucket: "archive_failed",
+      riskScore: 7,
+      riskFlags: ["archive_failed", "high"],
+      archiveStatus: "failed",
+      exportStatus: "failed",
+      ready: false,
+      failed: true,
+      providerStatus: "drive_config_missing",
+      downloadReady: false,
+      downloadExpiresSoon: false,
+      storageIdentifiersRedacted: true,
+      reason: "Archive export failed and needs staff follow-up.",
+      owner: "Archive operations",
+      nextAction: "Review archive failure details before completion.",
+    },
+    {
+      studentId: "demo-student-050",
+      studentName: "Archive Ready Demo 001",
+      programId: "it",
+      programName: "Information Technology",
+      storyBucket: "archive_ready",
+      riskScore: 2,
+      riskFlags: [],
+      archiveStatus: "complete",
+      exportStatus: "complete",
+      ready: true,
+      failed: false,
+      providerStatus: "ready",
+      downloadReady: true,
+      downloadExpiresSoon: false,
+      storageIdentifiersRedacted: true,
+      reason: "Archive package is complete and scoped download is available when permitted.",
+      owner: "Site administration",
+      nextAction: "Continue closeout monitoring.",
+    },
+  ];
+  const attentionRows = [
+    {
+      studentId: "demo-student-059",
+      studentName: "High Risk Demo 001",
+      programId: "it",
+      programName: "Information Technology",
+      category: "risk",
+      status: "attention_required",
+      reason: "High risk or stale capstone activity needs staff follow-up.",
+      owner: "Site administration",
+      nextAction: "Open student detail and confirm the current blocker.",
+    },
+  ];
+  return {
+    ok: true,
+    generatedAt: "2026-05-24T18:00:00.000Z",
+    scope: {
+      tenantId: "tenant-desert-valley",
+      tenantName: "Desert Valley School District",
+      siteId: "site-desert-valley-high",
+      siteName: "Desert Valley High School",
+      schoolYear: "2025-2026",
+      role,
+      readOnly,
+      selectedBy: "single_accessible_site",
+      studentScope: role === "program_teacher" ? "program_teacher" : "selected_site",
+      accessibleSites: [
+        { siteId: "site-desert-valley-high", siteName: "Desert Valley High School" },
+      ],
+    },
+    filters: {
+      siteId: "site-desert-valley-high",
+      programId: "",
+      status: "",
+      story: "",
+      risk: "any",
+      presentationStatus: "",
+      archiveStatus: "",
+      readiness: "",
+      limit: 50,
+      offset: 0,
+    },
+    pagination: {
+      limit: 50,
+      offset: 0,
+      returned: 3,
+      total,
+      filteredTotal: 3,
+    },
+    summary: {
+      studentsTotal: total,
+      presentationReady: 12,
+      presentationPending: 9,
+      presentationScheduled: 6,
+      outlinePending: 5,
+      archiveReady: 10,
+      archiveFailed: 5,
+      archiveMissing: 20,
+      highRisk: 5,
+      needsAttention: 15,
+    },
+    presentation: {
+      summary: {
+        ready: 12,
+        scheduled: 6,
+        pending: 0,
+        completed: 8,
+        missing: 14,
+        outlinePending: 5,
+        outlineRevisionNeeded: 4,
+        attentionRequired: 0,
+      },
+      rows: presentationRows,
+    },
+    archive: {
+      summary: {
+        ready: 4,
+        missing: 20,
+        failed: 5,
+        complete: 6,
+        queued: 0,
+        running: 0,
+        expired: 0,
+        expiringSoon: 0,
+        providerUnavailable: 0,
+      },
+      rows: archiveRows,
+    },
+    readiness: {
+      programBreakdown: [
+        {
+          programId: "it",
+          programName: "Information Technology",
+          studentsTotal: total,
+          presentationPending: 9,
+          archiveReady: 10,
+          archiveFailed: 5,
+          needsAttention: 15,
+        },
+      ],
+      filteredProgramBreakdown: [
+        {
+          programId: "it",
+          programName: "Information Technology",
+          studentsTotal: 3,
+          presentationPending: 1,
+          archiveReady: 1,
+          archiveFailed: 1,
+          needsAttention: 1,
+        },
+      ],
+      attentionRows,
+      nextActions: [
+        {
+          owner: "Site administration",
+          nextAction: "Open student detail and confirm the current blocker.",
+          count: 5,
+          category: "risk",
+        },
+      ],
+    },
+    permissions: {
+      canViewPresentationOperations: true,
+      canManagePresentationOperations: false,
+      canViewArchiveOperations: true,
+      canManageArchiveOperations: false,
+      canViewReadinessReports: true,
+      canViewStudentDetail: true,
+      canManageUsers: false,
+      canManageSecurity: false,
+    },
+    filterOptions: {
+      programs: [{ programId: "it", programName: "Information Technology" }],
+      statuses: ["draft", "submitted", "revision_requested", "approved", "archived"],
+      storyBuckets: ["model_excellent", "missing_mentor", "awaiting_review", "revision_requested", "presentation_pending", "archive_ready", "archive_failed", "high_risk", "rich_timeline"],
+      risks: ["high", "medium", "low", "stale", "no_mentor"],
+      presentationStatuses: ["ready", "pending", "scheduled", "completed", "missing", "outline_pending", "outline_revision_needed", "attention_required"],
+      archiveStatuses: ["ready", "complete", "failed", "missing", "queued", "running", "expired", "expiring_soon", "provider_unavailable"],
+      readiness: ["ready", "in_progress", "attention_required", "blocked", "missing", "complete"],
+    },
+  };
+}
+
 function reviewHistoryFixture() {
   return {
     ok: true,
@@ -2389,7 +2755,9 @@ async function createWorkspaceContextWithFetch(routes) {
       const pathname = String(rawPath || "").startsWith("http")
         ? new URL(rawPath).pathname
         : String(rawPath || "").split("?")[0];
-      const route = routes[pathname];
+      const route = routes[pathname] || (pathname === "/api/site/operations-readiness"
+        ? { status: 200, body: siteOperationsReadinessFixture() }
+        : null);
       if (!route) throw new Error(`Unexpected workspace fetch: ${pathname}`);
       return {
         ok: route.status >= 200 && route.status < 300,

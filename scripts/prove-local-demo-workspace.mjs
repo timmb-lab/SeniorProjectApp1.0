@@ -14,6 +14,7 @@ import { onRequestGet as onSiteStudentDetail } from "../functions/api/site/stude
 import { onRequestGet as onSiteStudentTimeline } from "../functions/api/site/students/[studentId]/timeline.ts";
 import { onRequestGet as onSiteReviewQueue } from "../functions/api/site/review-queue.ts";
 import { onRequestGet as onSiteMentorAssignments } from "../functions/api/site/mentor-assignments.ts";
+import { onRequestGet as onSiteOperationsReadiness } from "../functions/api/site/operations-readiness.ts";
 import { onRequestGet as onProgramTeacherDashboard } from "../functions/api/program-teacher/dashboard.ts";
 import { onRequestGet as onMentorDashboard } from "../functions/api/mentor/dashboard.ts";
 import { onRequestGet as onTeacherReviewQueue } from "../functions/api/teacher/review-queue.ts";
@@ -301,6 +302,11 @@ async function runDemoProof(args = {}, options = {}) {
   const siteReviewQueueAdmin = await routeJson(onSiteReviewQueue, env, adminCookie, `https://local.capstone.test/api/site/review-queue?siteId=${PRIMARY_SITE_ID}`);
   const siteMentorAssignmentsAdmin = await routeJson(onSiteMentorAssignments, env, adminCookie, `https://local.capstone.test/api/site/mentor-assignments?siteId=${PRIMARY_SITE_ID}`);
   const siteMentorAssignmentsNoMentor = await routeJson(onSiteMentorAssignments, env, adminCookie, `https://local.capstone.test/api/site/mentor-assignments?siteId=${PRIMARY_SITE_ID}&noMentor=true&limit=100`);
+  const siteOperationsReadinessAdmin = await routeJson(onSiteOperationsReadiness, env, adminCookie, `https://local.capstone.test/api/site/operations-readiness?siteId=${PRIMARY_SITE_ID}&limit=100`);
+  const siteOperationsArchiveFailed = await routeJson(onSiteOperationsReadiness, env, adminCookie, `https://local.capstone.test/api/site/operations-readiness?siteId=${PRIMARY_SITE_ID}&archiveStatus=failed&limit=100`);
+  const siteOperationsArchiveReady = await routeJson(onSiteOperationsReadiness, env, adminCookie, `https://local.capstone.test/api/site/operations-readiness?siteId=${PRIMARY_SITE_ID}&archiveStatus=ready&limit=100`);
+  const siteOperationsPresentationPending = await routeJson(onSiteOperationsReadiness, env, adminCookie, `https://local.capstone.test/api/site/operations-readiness?siteId=${PRIMARY_SITE_ID}&presentationStatus=pending&limit=100`);
+  const siteOperationsHighRisk = await routeJson(onSiteOperationsReadiness, env, adminCookie, `https://local.capstone.test/api/site/operations-readiness?siteId=${PRIMARY_SITE_ID}&story=high_risk&limit=100`);
   const readiness = await routeJson(onReadinessReport, env, adminCookie, "https://local.capstone.test/api/reports/readiness");
   const multisite = await verifyMultisiteShape(env);
   const siteAwarePermissions = await verifySiteAwarePermissions(env);
@@ -309,6 +315,7 @@ async function runDemoProof(args = {}, options = {}) {
   const siteStudentDetailRoleProof = await verifySiteStudentDetailRouteProof(env, demoCredentials, adminCookie);
   const siteReviewQueueRoleProof = await verifySiteReviewQueueRouteProof(env, demoCredentials);
   const siteMentorAssignmentRoleProof = await verifySiteMentorAssignmentRouteProof(env, demoCredentials);
+  const siteOperationsReadinessRoleProof = await verifySiteOperationsReadinessRouteProof(env, demoCredentials);
 
   const adminChecks = {
     authMe: adminMe.authenticated === true,
@@ -351,6 +358,14 @@ async function runDemoProof(args = {}, options = {}) {
       && Number(siteMentorAssignmentsNoMentor.pagination?.filteredTotal || 0) >= 10
       && (siteMentorAssignmentsNoMentor.unassignedStudents || []).every((student) => (student.riskFlags || []).includes("no_mentor"))
       && (siteMentorAssignmentsNoMentor.assignments || []).length === 0,
+    siteOperationsReadinessPopulated: siteOperationsReadinessAdmin.scope?.siteId === PRIMARY_SITE_ID
+      && Number(siteOperationsReadinessAdmin.summary?.studentsTotal || 0) === 250
+      && Number(siteOperationsReadinessAdmin.pagination?.total || 0) === 250
+      && Number(siteOperationsArchiveFailed.pagination?.filteredTotal || 0) >= 5
+      && Number(siteOperationsArchiveReady.pagination?.filteredTotal || 0) >= 10
+      && Number(siteOperationsPresentationPending.pagination?.filteredTotal || 0) > 0
+      && Number(siteOperationsHighRisk.pagination?.filteredTotal || 0) >= 5
+      && (siteOperationsArchiveFailed.archive?.rows || []).every((row) => row.archiveStatus === "failed" && row.storageIdentifiersRedacted === true),
     readinessPopulated: Number(readiness.report?.submitted || 0) > 0
       && Number(readiness.report?.revisionRequested || 0) > 0
       && Number(readiness.report?.approved || 0) > 0
@@ -363,6 +378,7 @@ async function runDemoProof(args = {}, options = {}) {
     siteStudentDetailRoleProof: siteStudentDetailRoleProof.ok === true,
     siteReviewQueueRoleProof: siteReviewQueueRoleProof.ok === true,
     siteMentorAssignmentRoleProof: siteMentorAssignmentRoleProof.ok === true,
+    siteOperationsReadinessRoleProof: siteOperationsReadinessRoleProof.ok === true,
   };
   assertChecks("ADMIN_API_PROOF_FAILED", adminChecks);
 
@@ -476,6 +492,7 @@ async function runDemoProof(args = {}, options = {}) {
       reviewQueueCount: adminReviewQueue.queue.length,
       siteReviewQueueCount: siteReviewQueueAdmin.queue.length,
       siteMentorAssignmentMissingMentors: Number(siteMentorAssignmentsAdmin.summary.studentsWithoutActiveMentor || 0),
+      siteOperationsReadinessStudents: Number(siteOperationsReadinessAdmin.summary.studentsTotal || 0),
       readinessReport: readiness.report,
     },
     multisite,
@@ -561,6 +578,27 @@ async function runDemoProof(args = {}, options = {}) {
       mentorDenied: siteMentorAssignmentRoleProof.mentorDenied,
       studentDenied: siteMentorAssignmentRoleProof.studentDenied,
       noSensitiveAssignmentFields: siteMentorAssignmentRoleProof.noSensitiveAssignmentFields,
+    },
+    siteOperationsReadiness: {
+      ok: true,
+      route: "/api/site/operations-readiness",
+      routeShape: "combined_read_only_route",
+      primarySiteId: PRIMARY_SITE_ID,
+      primarySiteStudents: Number(siteOperationsReadinessAdmin.summary.studentsTotal || 0),
+      primarySiteReturned: Number(siteOperationsReadinessAdmin.pagination.returned || 0),
+      defaultLimit: Number(siteOperationsReadinessAdmin.pagination.limit || 0),
+      archiveFailedRows: Number(siteOperationsArchiveFailed.pagination.filteredTotal || 0),
+      archiveReadyRows: Number(siteOperationsArchiveReady.pagination.filteredTotal || 0),
+      presentationPendingRows: Number(siteOperationsPresentationPending.pagination.filteredTotal || 0),
+      highRiskAttentionRows: Number(siteOperationsHighRisk.pagination.filteredTotal || 0),
+      viewerReadOnly: siteOperationsReadinessRoleProof.viewerReadOnly,
+      viewerMutationPermissionsFalse: siteOperationsReadinessRoleProof.viewerMutationPermissionsFalse,
+      siteAdminCannotAccessSecondary: siteOperationsReadinessRoleProof.siteAdminCannotAccessSecondary,
+      programTeacherScopedReadOnly: siteOperationsReadinessRoleProof.programTeacherScopedReadOnly,
+      mentorDenied: siteOperationsReadinessRoleProof.mentorDenied,
+      studentDenied: siteOperationsReadinessRoleProof.studentDenied,
+      miscDeniedProofLocation: "integration_tests",
+      noSensitiveOperationsFields: siteOperationsReadinessRoleProof.noSensitiveOperationsFields,
     },
     programTeachers: teacherProofs,
     mentors: mentorProofs,
@@ -1042,6 +1080,79 @@ async function verifySiteMentorAssignmentRouteProof(env, demoCredentials) {
     ]),
   };
   assertChecks("SITE_MENTOR_ASSIGNMENT_ROUTE_PROOF_FAILED", checks);
+  return { ok: true, ...checks };
+}
+
+async function verifySiteOperationsReadinessRouteProof(env, demoCredentials) {
+  const viewerAccount = (demoCredentials.personaLogins || []).find((account) => (
+    account.role === "viewer" && account.scope === `site:${PRIMARY_SITE_ID}`
+  ));
+  const siteAdminAccount = (demoCredentials.personaLogins || []).find((account) => (
+    account.role === "site_admin" && account.scope === `site:${PRIMARY_SITE_ID}`
+  ));
+  const teacherAccount = (demoCredentials.programTeacherLogins || []).find((account) => account.scope === "program:it");
+  const mentorAccount = (demoCredentials.mentorLogins || []).find((account) => account.email.includes("mentor001"));
+  if (!viewerAccount || !siteAdminAccount || !teacherAccount || !mentorAccount) {
+    throw new DemoProofError("SITE_OPERATIONS_READINESS_CREDENTIALS_MISSING", "Missing demo viewer, site-admin, program-teacher, or mentor credential for operations readiness proof.");
+  }
+
+  const viewerCookie = await login(env, viewerAccount);
+  await getMe(env, viewerCookie, viewerAccount.email, "viewer");
+  const viewerOperations = await routeJson(onSiteOperationsReadiness, env, viewerCookie, `https://local.capstone.test/api/site/operations-readiness?siteId=${PRIMARY_SITE_ID}`);
+
+  const siteAdminCookie = await login(env, siteAdminAccount);
+  await getMe(env, siteAdminCookie, siteAdminAccount.email, "site_admin");
+  const siteAdminOperations = await routeJson(onSiteOperationsReadiness, env, siteAdminCookie, `https://local.capstone.test/api/site/operations-readiness?siteId=${PRIMARY_SITE_ID}&limit=100`);
+  const siteAdminSecondary = await routeStatus(onSiteOperationsReadiness, env, siteAdminCookie, `https://local.capstone.test/api/site/operations-readiness?siteId=${SECONDARY_SITE_IDS[0]}`);
+
+  const teacherCookie = await login(env, teacherAccount);
+  await getMe(env, teacherCookie, teacherAccount.email, "program_teacher");
+  const teacherOperations = await routeJson(onSiteOperationsReadiness, env, teacherCookie, `https://local.capstone.test/api/site/operations-readiness?siteId=${PRIMARY_SITE_ID}&limit=100`);
+  const teacherCulinary = await routeJson(onSiteOperationsReadiness, env, teacherCookie, `https://local.capstone.test/api/site/operations-readiness?siteId=${PRIMARY_SITE_ID}&programId=culinary&limit=100`);
+
+  const mentorCookie = await login(env, mentorAccount);
+  await getMe(env, mentorCookie, mentorAccount.email, "mentor");
+  const mentorDenied = await routeStatus(onSiteOperationsReadiness, env, mentorCookie, `https://local.capstone.test/api/site/operations-readiness?siteId=${PRIMARY_SITE_ID}`);
+  const studentDenied = await routeStatus(onSiteOperationsReadiness, env, await seedExistingSession(env, "demo-student-001", "operations-readiness-proof-student"), `https://local.capstone.test/api/site/operations-readiness?siteId=${PRIMARY_SITE_ID}`);
+
+  const mutationPermissionsFalse = (permissions = {}) => [
+    "canManagePresentationOperations",
+    "canManageArchiveOperations",
+  ].every((key) => permissions[key] === false);
+
+  const teacherRows = [
+    ...(teacherOperations.presentation?.rows || []),
+    ...(teacherOperations.archive?.rows || []),
+    ...(teacherOperations.readiness?.attentionRows || []),
+  ];
+  const checks = {
+    viewerReadOnly: viewerOperations.scope?.readOnly === true,
+    viewerMutationPermissionsFalse: mutationPermissionsFalse(viewerOperations.permissions),
+    siteAdminReadOnly: siteAdminOperations.scope?.role === "site_admin"
+      && siteAdminOperations.scope?.readOnly === true
+      && mutationPermissionsFalse(siteAdminOperations.permissions)
+      && Number(siteAdminOperations.summary?.studentsTotal || 0) === 250,
+    siteAdminCannotAccessSecondary: siteAdminSecondary.status === 403,
+    programTeacherScopedReadOnly: teacherOperations.scope?.role === "program_teacher"
+      && teacherOperations.scope?.readOnly === true
+      && teacherOperations.scope?.studentScope === "program_teacher"
+      && Number(teacherOperations.summary?.studentsTotal || 0) === 45
+      && Number(teacherOperations.pagination?.total || 0) === 45
+      && teacherRows.every((row) => row.programId === "it")
+      && Number(teacherCulinary.pagination?.filteredTotal || 0) === 0,
+    mentorDenied: mentorDenied.status === 403,
+    studentDenied: studentDenied.status === 403,
+    noSensitiveOperationsFields: !directoryHasForbiddenOutput([
+      viewerOperations,
+      siteAdminOperations,
+      siteAdminSecondary.body,
+      teacherOperations,
+      teacherCulinary,
+      mentorDenied.body,
+      studentDenied.body,
+    ]),
+  };
+  assertChecks("SITE_OPERATIONS_READINESS_ROUTE_PROOF_FAILED", checks);
   return { ok: true, ...checks };
 }
 
