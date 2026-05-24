@@ -14,8 +14,16 @@ export async function hasRole(env: Env, userId: string, roleId: RoleId): Promise
   return Boolean(row);
 }
 
-export async function isAdmin(env: Env, userId: string): Promise<boolean> {
+export async function isLegacyAdmin(env: Env, userId: string): Promise<boolean> {
   return hasRole(env, userId, "admin");
+}
+
+export async function isPlatformAdmin(env: Env, userId: string): Promise<boolean> {
+  return await hasRole(env, userId, "platform_admin") || await isLegacyAdmin(env, userId);
+}
+
+export async function isAdmin(env: Env, userId: string): Promise<boolean> {
+  return isLegacyAdmin(env, userId);
 }
 
 export function roleIds(assignments: RoleAssignment[]): Set<RoleId> {
@@ -31,6 +39,7 @@ export async function getViewerRoleContext(env: Env, viewer: UserAccount): Promi
   roleIds: RoleId[];
   primaryRole: RoleId | "role_pending";
   isAdmin: boolean;
+  isPlatformAdmin: boolean;
   isMiscAdmin: boolean;
 }> {
   const roles = await getRoleAssignments(env, viewer.id);
@@ -41,6 +50,7 @@ export async function getViewerRoleContext(env: Env, viewer: UserAccount): Promi
     roleIds: ids,
     primaryRole,
     isAdmin: ids.includes("admin"),
+    isPlatformAdmin: ids.includes("platform_admin") || ids.includes("admin"),
     isMiscAdmin: ids.includes("misc_admin"),
   };
 }
@@ -185,7 +195,17 @@ export async function canManageUsers(env: Env, viewer: UserAccount): Promise<boo
 }
 
 function primaryRoleFor(ids: RoleId[]): RoleId | "role_pending" {
-  for (const roleId of ["admin", "program_teacher", "mentor", "student", "misc_admin"] as RoleId[]) {
+  for (const roleId of [
+    "platform_admin",
+    "admin",
+    "org_admin",
+    "site_admin",
+    "program_teacher",
+    "mentor",
+    "viewer",
+    "student",
+    "misc_admin",
+  ] as RoleId[]) {
     if (ids.includes(roleId)) return roleId;
   }
   return "role_pending";

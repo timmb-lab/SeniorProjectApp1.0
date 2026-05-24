@@ -29,6 +29,7 @@ const MIGRATIONS = [
   "migrations/0008_update_drive_resource_ids.sql",
   "migrations/0009_update_drive_shared_drive_root.sql",
   "migrations/0010_tenant_google_sso.sql",
+  "migrations/0011_multisite_site_role_foundation.sql",
 ];
 
 test("demo seeder refuses remote mode", () => {

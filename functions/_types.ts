@@ -40,7 +40,16 @@ export interface SessionRecord {
   revoked_at: string | null;
 }
 
-export type RoleId = "student" | "mentor" | "program_teacher" | "admin" | "misc_admin";
+export type RoleId =
+  | "student"
+  | "mentor"
+  | "program_teacher"
+  | "site_admin"
+  | "org_admin"
+  | "platform_admin"
+  | "viewer"
+  | "admin"
+  | "misc_admin";
 
 export interface RoleAssignment {
   role_id: RoleId;
@@ -55,6 +64,28 @@ export interface Tenant {
   status: "active" | "suspended" | "archived";
   subscription_status: "trial" | "active" | "past_due" | "cancelled" | "suspended";
   storage_mode: "app_managed_google_drive" | "tenant_owned_google_drive" | "pending";
+}
+
+export interface Site {
+  id: string;
+  tenant_id: string;
+  name: string;
+  slug: string;
+  status: "active" | "suspended" | "archived";
+  timezone: string;
+  school_year: string | null;
+}
+
+export interface SiteUser {
+  site_id: string;
+  user_id: string;
+  membership_status: "active" | "suspended" | "archived";
+}
+
+export interface SiteProgram {
+  site_id: string;
+  program_id: string;
+  active: number;
 }
 
 export interface IdentityProvider {

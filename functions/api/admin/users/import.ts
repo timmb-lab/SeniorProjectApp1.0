@@ -279,7 +279,17 @@ function isValidScope(roleId: RoleId, scopeType: RoleScopeType, scopeId: string)
 
 function cleanRoleId(value: string): RoleId | null {
   const trimmed = value.trim();
-  return ["student", "mentor", "program_teacher", "admin", "misc_admin"].includes(trimmed) ? (trimmed as RoleId) : null;
+  return [
+    "student",
+    "mentor",
+    "program_teacher",
+    "site_admin",
+    "org_admin",
+    "platform_admin",
+    "viewer",
+    "admin",
+    "misc_admin",
+  ].includes(trimmed) ? (trimmed as RoleId) : null;
 }
 
 function cleanScopeType(value: string): RoleScopeType | null {

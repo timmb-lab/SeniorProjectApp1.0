@@ -79,6 +79,16 @@ Role transition rules:
 - New code should prefer `platform_admin` for new platform/system capabilities.
 - `misc_admin` is legacy/narrow and should not silently become site admin.
 
+Phase 2 additive foundation:
+
+- Migration `0011_multisite_site_role_foundation.sql` adds the site/school layer with `sites`, `site_users`, and `site_programs`.
+- Migration `0011_multisite_site_role_foundation.sql` adds backend role IDs `platform_admin`, `org_admin`, `site_admin`, and `viewer`.
+- `site_admin` continues to display as "Administration" for site leadership.
+- `platform_admin` now exists for new platform/system capabilities, while legacy `admin` remains platform-equivalent during transition and Bryan's existing admin accounts continue to work.
+- `misc_admin` remains legacy/narrow and must not silently become `site_admin`.
+- Phase 3 removes announcement product surfaces.
+- Phase 4 builds the full site-aware capability permission model.
+
 ## 5. Capability Matrix
 
 Legend:

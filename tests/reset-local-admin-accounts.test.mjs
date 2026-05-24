@@ -24,6 +24,7 @@ const MIGRATIONS = [
   "migrations/0008_update_drive_resource_ids.sql",
   "migrations/0009_update_drive_shared_drive_root.sql",
   "migrations/0010_tenant_google_sso.sql",
+  "migrations/0011_multisite_site_role_foundation.sql",
 ];
 
 test("account reset CLI and write gates fail closed", () => {
@@ -97,6 +98,9 @@ test("local dry run builds a plan without writing backups, credentials, or SQL",
     assert.equal(result.beforeCounts.oldBryanCapstoneAppUsers, 1);
     assert.equal(result.plan.localPasswordAuthIdentitiesRequired, false);
     assert.ok(result.plan.resetTables.some((row) => row.table === "auth_identities"));
+    assert.ok(result.plan.resetTables.some((row) => row.table === "site_users"));
+    assert.ok(result.plan.preserveTables.some((row) => row.table === "sites"));
+    assert.ok(result.plan.preserveTables.some((row) => row.table === "site_programs"));
     assert.ok(result.plan.preserveTables.some((row) => row.table === "identity_providers"));
   } finally {
     fixture.cleanup();
@@ -154,8 +158,11 @@ test("local write reset snapshots old rows and recreates only two non-SSO local 
     assert.equal(count(fixture.sqlite, "submissions"), 0);
     assert.equal(count(fixture.sqlite, "evidence_artifacts"), 0);
     assert.equal(count(fixture.sqlite, "announcements"), 0);
-    assert.equal(count(fixture.sqlite, "roles"), 5);
+    assert.equal(count(fixture.sqlite, "roles"), 9);
     assert.equal(count(fixture.sqlite, "programs"), 9);
+    assert.equal(count(fixture.sqlite, "sites"), 1);
+    assert.equal(count(fixture.sqlite, "site_programs"), 9);
+    assert.equal(count(fixture.sqlite, "site_users"), 0);
     assert.ok(count(fixture.sqlite, "requirements") > 0);
     assert.equal(count(fixture.sqlite, "evidence_repositories"), 1);
     assert.equal(count(fixture.sqlite, "identity_providers"), 1);

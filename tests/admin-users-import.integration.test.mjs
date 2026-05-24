@@ -336,6 +336,41 @@ test("admin users import creates pending-reset users, role assignments, credenti
   assert.equal(fixture.db.data.auditEvents[2].metadata.importedCount, 2);
 });
 
+test("admin users import accepts additive platform, org, site, and viewer roles for fake test users", async () => {
+  const fixture = await createFixtureWithSession({ userId: "admin-a", roleId: "admin" });
+
+  const response = await onRequestPost({
+    request: buildJsonRequest(
+      "https://example.test/api/admin/users/import",
+      {
+        reason: "Synthetic multisite role fixture import.",
+        users: [
+          studentInput({ email: "platform.admin@senior-capstone.test", displayName: "Platform Admin", roleId: "platform_admin" }),
+          studentInput({ email: "org.admin@senior-capstone.test", displayName: "Org Admin", roleId: "org_admin" }),
+          studentInput({ email: "site.admin@senior-capstone.test", displayName: "Site Admin", roleId: "site_admin" }),
+          studentInput({ email: "viewer@senior-capstone.test", displayName: "Viewer", roleId: "viewer" }),
+        ],
+      },
+      { cookie: `sc_session=${fixture.token}` },
+    ),
+    env: fixture.env,
+    params: {},
+  });
+
+  assert.equal(response.status, 200);
+  const body = await response.json();
+  assert.equal(body.ok, true);
+  assert.equal(body.importedCount, 4);
+  for (const roleId of ["platform_admin", "org_admin", "site_admin", "viewer"]) {
+    assert.equal(
+      fixture.db.data.userRoles.some(
+        (row) => row.role_id === roleId && row.scope_type === "global" && row.scope_id === "",
+      ),
+      true,
+    );
+  }
+});
+
 test("admin users import enforces reset-first login and keeps credential values out of audits", async () => {
   const fixture = await createFixtureWithSession({ userId: "admin-a", roleId: "admin" });
   const newPassword = "Ready-For-Capstone-2026!";
@@ -476,7 +511,17 @@ function createFixture(options = {}) {
     loginAttempts: [],
     sessions: [],
     userRoles: [],
-    roles: (options.roles ?? ["student", "mentor", "program_teacher", "admin", "misc_admin"]).map((id) => ({ id })),
+    roles: (options.roles ?? [
+      "student",
+      "mentor",
+      "program_teacher",
+      "site_admin",
+      "org_admin",
+      "platform_admin",
+      "viewer",
+      "admin",
+      "misc_admin",
+    ]).map((id) => ({ id })),
     programs: [{ id: "it" }],
     cohorts: [{ id: "cohort-a" }],
     auditEvents: [],

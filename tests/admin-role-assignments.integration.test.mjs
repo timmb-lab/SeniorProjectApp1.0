@@ -192,6 +192,37 @@ test("admin role assignments creates role assignment and audits", async () => {
   assert.deepEqual(event.metadata, { userId: "student-a", roleId: "student", scopeType: "global", scopeId: "" });
 });
 
+test("admin role assignments accepts additive platform, org, site, and viewer roles", async () => {
+  const fixture = await createFixtureWithSession({ userId: "admin-a", roleId: "admin" });
+  fixture.db.data.userAccounts.push(buildUser("platform-target"));
+  fixture.db.data.userAccounts.push(buildUser("org-target"));
+  fixture.db.data.userAccounts.push(buildUser("site-target"));
+  fixture.db.data.userAccounts.push(buildUser("viewer-target"));
+
+  for (const [userId, roleId] of [
+    ["platform-target", "platform_admin"],
+    ["org-target", "org_admin"],
+    ["site-target", "site_admin"],
+    ["viewer-target", "viewer"],
+  ]) {
+    const request = new Request("https://example.test/api/admin/role-assignments", {
+      method: "POST",
+      headers: {
+        cookie: `sc_session=${fixture.token}`,
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({ userId, roleId, scopeType: "global", scopeId: "" }),
+    });
+
+    const response = await onRequestPost({ request, env: fixture.env, params: {} });
+    assert.equal(response.status, 200);
+  }
+
+  for (const roleId of ["platform_admin", "org_admin", "site_admin", "viewer"]) {
+    assert.equal(fixture.db.data.userRoles.some((row) => row.role_id === roleId), true);
+  }
+});
+
 test("admin role assignments returns created=false for duplicates and audits", async () => {
   const fixture = await createFixtureWithSession({ userId: "admin-a", roleId: "admin" });
   fixture.db.data.userAccounts.push(buildUser("student-a"));
@@ -273,7 +304,17 @@ function createFixture(options = {}) {
     userAccounts: [],
     sessions: [],
     userRoles: [],
-    roles: (options.roles ?? ["student", "mentor", "program_teacher", "admin", "misc_admin"]).map((id) => ({ id })),
+    roles: (options.roles ?? [
+      "student",
+      "mentor",
+      "program_teacher",
+      "site_admin",
+      "org_admin",
+      "platform_admin",
+      "viewer",
+      "admin",
+      "misc_admin",
+    ]).map((id) => ({ id })),
     programs: [{ id: "it" }],
     cohorts: [{ id: "cohort-a" }],
     auditEvents: [],

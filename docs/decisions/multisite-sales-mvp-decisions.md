@@ -27,3 +27,15 @@ This decision record locks the target vocabulary and scope for the multisite sal
 - Current admin, teacher, mentor, student, archive, presentation, review, readiness, and audit surfaces are useful building blocks, but they need site-aware route families for the sales demo.
 - Current local and remote demo seeders create single-site style program/cohort demo data and still seed announcements.
 - Current generated production route inventory still lists announcement routes because the route files exist. That should be corrected by a later removal implementation, not by manually editing generated output.
+
+## Phase 2 Additive Foundation
+
+- Migration `0011_multisite_site_role_foundation.sql` adds `sites`, `site_users`, and `site_programs`.
+- Migration `0011_multisite_site_role_foundation.sql` adds roles `platform_admin`, `org_admin`, `site_admin`, and `viewer`.
+- The default compatibility site is `site-capstone-sandbox-main` under `tenant-capstone-sandbox`, with all active programs mapped through `site_programs`.
+- Legacy `admin` remains platform-equivalent during transition and keeps current admin-only route behavior.
+- `platform_admin` is available for new platform/system capabilities, but it does not replace legacy `admin` in existing routes during this phase.
+- `site_admin` remains labeled "Administration" in product/UI language.
+- `misc_admin` remains legacy/narrow and is not promoted to site administration.
+- Phase 3 removes announcement surfaces from the MVP product surface.
+- Phase 4 builds full site-aware capability permissions.

@@ -12,6 +12,8 @@ import {
   getRoleAssignments,
   hasRole,
   isAdmin,
+  isLegacyAdmin,
+  isPlatformAdmin,
 } from "../functions/_lib/permissions.ts";
 
 test("permission helpers enforce default-deny student access rules", async () => {
@@ -69,8 +71,13 @@ test("role assignment helpers return stable role/scope records", async () => {
   const { env, users } = createFixture();
 
   assert.equal(await hasRole(env, users.studentA.id, "student"), true);
+  assert.equal(await isLegacyAdmin(env, users.admin.id), true);
   assert.equal(await isAdmin(env, users.admin.id), true);
+  assert.equal(await isPlatformAdmin(env, users.admin.id), true);
+  assert.equal(await isPlatformAdmin(env, users.platformAdmin.id), true);
+  assert.equal(await isAdmin(env, users.platformAdmin.id), false);
   assert.equal(await isAdmin(env, users.studentA.id), false);
+  assert.equal(await isPlatformAdmin(env, users.miscAdmin.id), false);
 
   const assignments = await getRoleAssignments(env, users.teacherProgramIT.id);
   assert.deepEqual(assignments, [
@@ -84,8 +91,19 @@ test("role hierarchy helpers expose primary context and protected dashboard acce
   const adminContext = await getViewerRoleContext(env, users.admin);
   assert.equal(adminContext.primaryRole, "admin");
   assert.equal(adminContext.isAdmin, true);
+  assert.equal(adminContext.isPlatformAdmin, true);
   assert.equal(await canViewAdminDashboard(env, users.admin), true);
   assert.equal(await canViewAggregateReadiness(env, users.admin), true);
+
+  const platformContext = await getViewerRoleContext(env, users.platformAdmin);
+  assert.equal(platformContext.primaryRole, "platform_admin");
+  assert.equal(platformContext.isAdmin, false);
+  assert.equal(platformContext.isPlatformAdmin, true);
+  assert.equal(await canViewAdminDashboard(env, users.platformAdmin), false);
+
+  assert.equal((await getViewerRoleContext(env, users.orgAdmin)).primaryRole, "org_admin");
+  assert.equal((await getViewerRoleContext(env, users.siteAdmin)).primaryRole, "site_admin");
+  assert.equal((await getViewerRoleContext(env, users.viewer)).primaryRole, "viewer");
 
   assert.equal(await canViewProgramTeacherDashboard(env, users.teacherProgramIT), true);
   assert.equal(await canViewProgramTeacherDashboard(env, users.teacherProgramEmpty), false);
@@ -122,7 +140,11 @@ function createFixture() {
     { user_id: "student-a", role_id: "student", scope_type: "global", scope_id: "" },
     { user_id: "student-b", role_id: "student", scope_type: "global", scope_id: "" },
     { user_id: "student-cohort-only", role_id: "student", scope_type: "global", scope_id: "" },
+    { user_id: "platform-admin", role_id: "platform_admin", scope_type: "global", scope_id: "" },
     { user_id: "admin", role_id: "admin", scope_type: "global", scope_id: "" },
+    { user_id: "org-admin", role_id: "org_admin", scope_type: "global", scope_id: "" },
+    { user_id: "site-admin", role_id: "site_admin", scope_type: "global", scope_id: "" },
+    { user_id: "viewer", role_id: "viewer", scope_type: "global", scope_id: "" },
     { user_id: "misc-admin", role_id: "misc_admin", scope_type: "global", scope_id: "" },
     { user_id: "mentor-active", role_id: "mentor", scope_type: "global", scope_id: "" },
     { user_id: "mentor-inactive", role_id: "mentor", scope_type: "global", scope_id: "" },
@@ -146,7 +168,11 @@ function createFixture() {
     studentA: buildUser("student-a"),
     studentB: buildUser("student-b"),
     studentCohortOnly: buildUser("student-cohort-only"),
+    platformAdmin: buildUser("platform-admin"),
     admin: buildUser("admin"),
+    orgAdmin: buildUser("org-admin"),
+    siteAdmin: buildUser("site-admin"),
+    viewer: buildUser("viewer"),
     miscAdmin: buildUser("misc-admin"),
     mentorActive: buildUser("mentor-active"),
     mentorInactive: buildUser("mentor-inactive"),

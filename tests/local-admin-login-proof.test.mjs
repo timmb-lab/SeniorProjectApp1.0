@@ -21,6 +21,7 @@ const MIGRATIONS = [
   "migrations/0006_presentation_slots.sql",
   "migrations/0007_archive_export_artifacts.sql",
   "migrations/0010_tenant_google_sso.sql",
+  "migrations/0011_multisite_site_role_foundation.sql",
 ];
 
 const APPROVED = [

@@ -57,6 +57,7 @@ const RESET_TABLE_REASONS = Object.freeze({
   sessions: "sessions must be invalidated for a clean account reset",
   login_attempts: "login history is account/auth state",
   user_roles: "role grants are account-bound and recreated only for the approved admins",
+  site_users: "site memberships are account-bound and should not bind the new local admins",
   group_memberships: "membership rows are account-bound",
   mentor_assignments: "mentor/student rows are account-bound workflow data",
   progress_records: "student progress rows are account-bound workflow data",
@@ -93,6 +94,8 @@ const PRESERVE_TABLE_REASONS = Object.freeze({
   app_settings: "non-user-specific app settings are preserved",
   evidence_repositories: "Google Drive repository config is preserved",
   tenants: "tenant config is preserved",
+  sites: "site/school config rows are preserved",
+  site_programs: "site-program config rows are preserved",
   tenant_domains: "tenant domain config is preserved",
   identity_providers: "identity-provider config is preserved",
 });
@@ -1024,6 +1027,8 @@ async function assertPreservedConfig(adapter, beforePlan, afterPlan) {
     "app_settings",
     "evidence_repositories",
     "tenants",
+    "sites",
+    "site_programs",
     "tenant_domains",
     "identity_providers",
   ].filter((table) => beforePlan.schema.tableNames.has(table) && afterPlan.schema.tableNames.has(table));

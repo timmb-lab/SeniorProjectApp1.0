@@ -12,7 +12,7 @@
     "worktreeBeforeEdits": "clean"
   },
   "startingHead": "035aa3e9cb713cf135652a64c62811f4e23afdd0",
-  "endingHead": null,
+  "endingHead": "8a9991baa2daed3d5d638c4ef542a8ccc6bfa3d3",
   "filesInspected": [
     "README.md",
     "package.json",

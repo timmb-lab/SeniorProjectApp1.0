@@ -1343,4 +1343,16 @@ Future productive runs should append compact entries that name the master-plan s
 - `key decisions`: Capstone Project sales MVP targets multi-organization and multi-site demos; tenant means organization/district/customer for now; site means school/campus; `site_admin` displays as "Administration"; legacy `admin` remains platform-equivalent during transition; `misc_admin` remains legacy/narrow; announcements are removed from MVP product scope; Figma alignment is MVP credibility work; no domain/OAuth/Cloudflare hostname changes are part of this sequence; demo data must be fake `.test` only.
 - `validation`: `npm run test` passed with 251 passing tests and 4 expected local HTTP skips; `npm run typecheck` passed; `npm run check` passed with aggregate checks and 251 passing tests / 4 expected local HTTP skips; `npm run check:production-surfaces` passed with 91 production text surfaces scanned; `git diff --check` passed with a CRLF normalization warning for this run log.
 - `blockers`: no site/school schema exists yet; current code/docs/tests still treat announcements as active; generated route inventory still lists current announcement routes and should not be manually edited without route changes.
-- `commit/push status`: pending.
+- `commit/push status`: committed and pushed as `8a9991b docs: define multisite sales demo MVP contract`.
+
+## 2026-05-24 - PHASE 02 Multisite Site and Role Foundation
+
+- `starting HEAD`: `8a9991baa2daed3d5d638c4ef542a8ccc6bfa3d3`.
+- `files inspected`: Phase 1 contract/decision/run docs, migrations `0001` and `0010`, no pre-existing migrations after `0010`, role/type/permission/auth/admin import/admin dashboard code, local/remote seed scripts, local account reset and owner-admin scripts, related role/auth/permission/migration/admin import/demo seed/reset tests, and package validation scripts.
+- `files changed`: `migrations/0011_multisite_site_role_foundation.sql`, role/type/permission/admin import/role assignment compatibility code, reset compatibility script, focused tests, Phase 1 metadata hygiene, Phase 2 docs, and this run log.
+- `migration name`: `migrations/0011_multisite_site_role_foundation.sql`.
+- `tables added`: `sites`, `site_users`, `site_programs`.
+- `roles added`: `platform_admin`, `org_admin`, `site_admin`, `viewer`.
+- `validation`: `npm run db:migrate:local` passed and applied `0011`; local D1 proof found the default sandbox site, site-program coverage for all active programs, 4 new roles, 5 legacy roles, 0 duplicate role IDs, and 0 FK failures; `npm run test` passed with 258 passing tests and 4 expected local HTTP skips; `npm run typecheck` passed; `npm run check` passed; `git diff --check` passed with CRLF normalization warnings only.
+- `blockers`: none for Phase 2. Full site-aware route families/capability permissions remain Phase 4 work, and announcement removal remains Phase 3 work.
+- `commit/push status`: pending closeout commit and push.
