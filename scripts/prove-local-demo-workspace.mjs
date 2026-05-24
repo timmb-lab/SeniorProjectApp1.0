@@ -8,6 +8,7 @@ import { fileURLToPath } from "node:url";
 import { onRequest as onLogin } from "../functions/api/auth/login.ts";
 import { onRequestGet as onMe } from "../functions/api/auth/me.ts";
 import { onRequestGet as onAdminDashboard } from "../functions/api/admin/dashboard.ts";
+import { onRequestGet as onSiteDashboard } from "../functions/api/site/dashboard.ts";
 import { onRequestGet as onProgramTeacherDashboard } from "../functions/api/program-teacher/dashboard.ts";
 import { onRequestGet as onMentorDashboard } from "../functions/api/mentor/dashboard.ts";
 import { onRequestGet as onTeacherReviewQueue } from "../functions/api/teacher/review-queue.ts";
@@ -281,14 +282,22 @@ async function runDemoProof(args = {}, options = {}) {
   const adminCookie = await login(env, { email: adminAccount.email, password: adminAccount.workingPassword });
   const adminMe = await getMe(env, adminCookie, adminAccount.email, "admin");
   const adminDashboard = await routeJson(onAdminDashboard, env, adminCookie, "https://local.capstone.test/api/admin/dashboard");
+  const siteDashboardPrimary = await routeJson(onSiteDashboard, env, adminCookie, `https://local.capstone.test/api/site/dashboard?siteId=${PRIMARY_SITE_ID}`);
+  const siteDashboardSecondary = await routeJson(onSiteDashboard, env, adminCookie, `https://local.capstone.test/api/site/dashboard?siteId=${SECONDARY_SITE_IDS[0]}`);
   const adminReviewQueue = await routeJson(onTeacherReviewQueue, env, adminCookie, "https://local.capstone.test/api/teacher/review-queue");
   const readiness = await routeJson(onReadinessReport, env, adminCookie, "https://local.capstone.test/api/reports/readiness");
   const multisite = await verifyMultisiteShape(env);
   const siteAwarePermissions = await verifySiteAwarePermissions(env);
+  const siteDashboardRoleProof = await verifySiteDashboardRouteProof(env, demoCredentials);
 
   const adminChecks = {
     authMe: adminMe.authenticated === true,
     dashboardStudents370: Number(adminDashboard.summary?.studentsTotal || 0) === 370,
+    siteDashboardPrimary250: Number(siteDashboardPrimary.summary?.studentsTotal || 0) === 250,
+    siteDashboardSecondary60: Number(siteDashboardSecondary.summary?.studentsTotal || 0) === 60,
+    siteDashboardNoLeak: Number(siteDashboardPrimary.summary?.studentsTotal || 0) !== 370
+      && siteDashboardPrimary.scope?.siteId === PRIMARY_SITE_ID
+      && siteDashboardSecondary.scope?.siteId === SECONDARY_SITE_IDS[0],
     primarySiteStudents250: multisite.primarySiteStudents === 250,
     secondarySitesInRange: Object.values(multisite.secondarySiteCounts).every((count) => count >= 40 && count <= 75),
     programBreakdownNinePrograms: Array.isArray(adminDashboard.programBreakdown) && adminDashboard.programBreakdown.length === 9,
@@ -301,6 +310,7 @@ async function runDemoProof(args = {}, options = {}) {
     noAnnouncements: multisite.announcements === 0,
     noStudentCredentials: multisite.studentCredentials === 0,
     siteAwarePermissions: siteAwarePermissions.ok === true,
+    siteDashboardRoleProof: siteDashboardRoleProof.ok === true,
   };
   assertChecks("ADMIN_API_PROOF_FAILED", adminChecks);
 
@@ -396,6 +406,8 @@ async function runDemoProof(args = {}, options = {}) {
       email: adminAccount.email,
       checks: adminChecks,
       studentsTotal: Number(adminDashboard.summary.studentsTotal || 0),
+      siteDashboardPrimaryStudents: Number(siteDashboardPrimary.summary.studentsTotal || 0),
+      siteDashboardSecondaryStudents: Number(siteDashboardSecondary.summary.studentsTotal || 0),
       programBreakdownCount: adminDashboard.programBreakdown.length,
       mentorCoverageCount: adminDashboard.mentorCoverage.length,
       reviewQueueCount: adminReviewQueue.queue.length,
@@ -403,6 +415,17 @@ async function runDemoProof(args = {}, options = {}) {
     },
     multisite,
     siteAwarePermissions,
+    siteDashboard: {
+      ok: true,
+      route: "/api/site/dashboard",
+      primarySiteId: PRIMARY_SITE_ID,
+      primarySiteStudents: Number(siteDashboardPrimary.summary.studentsTotal || 0),
+      secondarySiteId: SECONDARY_SITE_IDS[0],
+      secondarySiteStudents: Number(siteDashboardSecondary.summary.studentsTotal || 0),
+      viewerReadOnly: siteDashboardRoleProof.viewerReadOnly,
+      viewerMutationPermissionsFalse: siteDashboardRoleProof.viewerMutationPermissionsFalse,
+      siteAdminCannotAccessSecondary: siteDashboardRoleProof.siteAdminCannotAccessSecondary,
+    },
     programTeachers: teacherProofs,
     mentors: mentorProofs,
     googleSsoRequired: false,
@@ -544,6 +567,41 @@ async function verifySiteAwarePermissions(env) {
   return { ok: true, checks };
 }
 
+async function verifySiteDashboardRouteProof(env, demoCredentials) {
+  const viewerAccount = (demoCredentials.personaLogins || []).find((account) => (
+    account.role === "viewer" && account.scope === `site:${PRIMARY_SITE_ID}`
+  ));
+  const siteAdminAccount = (demoCredentials.personaLogins || []).find((account) => (
+    account.role === "site_admin" && account.scope === `site:${PRIMARY_SITE_ID}`
+  ));
+  if (!viewerAccount || !siteAdminAccount) {
+    throw new DemoProofError("SITE_DASHBOARD_CREDENTIALS_MISSING", "Missing demo viewer or site-admin credential for site dashboard proof.");
+  }
+
+  const viewerCookie = await login(env, viewerAccount);
+  await getMe(env, viewerCookie, viewerAccount.email, "viewer");
+  const viewerDashboard = await routeJson(onSiteDashboard, env, viewerCookie, `https://local.capstone.test/api/site/dashboard?siteId=${PRIMARY_SITE_ID}`);
+
+  const siteAdminCookie = await login(env, siteAdminAccount);
+  await getMe(env, siteAdminCookie, siteAdminAccount.email, "site_admin");
+  const siteAdminPrimary = await routeJson(onSiteDashboard, env, siteAdminCookie, `https://local.capstone.test/api/site/dashboard?siteId=${PRIMARY_SITE_ID}`);
+  const siteAdminSecondary = await routeStatus(onSiteDashboard, env, siteAdminCookie, `https://local.capstone.test/api/site/dashboard?siteId=${SECONDARY_SITE_IDS[0]}`);
+
+  const checks = {
+    viewerPrimary250: Number(viewerDashboard.summary?.studentsTotal || 0) === 250,
+    viewerReadOnly: viewerDashboard.scope?.readOnly === true,
+    viewerMutationPermissionsFalse: viewerDashboard.permissions?.canManageMentorAssignments === false
+      && viewerDashboard.permissions?.canManagePresentationOperations === false
+      && viewerDashboard.permissions?.canManageArchiveOperations === false
+      && viewerDashboard.permissions?.canManageUsers === false
+      && viewerDashboard.permissions?.canManageSecurity === false,
+    siteAdminPrimary250: Number(siteAdminPrimary.summary?.studentsTotal || 0) === 250,
+    siteAdminCannotAccessSecondary: siteAdminSecondary.status === 403,
+  };
+  assertChecks("SITE_DASHBOARD_ROUTE_PROOF_FAILED", checks);
+  return { ok: true, ...checks };
+}
+
 async function loadProofUsers(env) {
   const ids = {
     platform: "demo-platform-admin-001",
@@ -570,6 +628,12 @@ async function routeJson(handler, env, cookie, url) {
     throw new DemoProofError("API_ROUTE_FAILED", "A required local demo API route failed.", { url, status: response.status, body: safeBody(body) });
   }
   return body;
+}
+
+async function routeStatus(handler, env, cookie, url) {
+  const response = await handler({ request: authedRequest(url, cookie), env });
+  const body = await responseJson(response);
+  return { status: response.status, body: safeBody(body) };
 }
 
 function assertChecks(classification, checks) {

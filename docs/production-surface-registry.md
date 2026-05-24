@@ -67,6 +67,7 @@ Normal production navigation must not link to `alpha.html`, `account.html`, inte
 Canonical app APIs deploy from `functions/api/**` on `senior-capstone-app`. Protected tenant/SSO/dashboard baseline routes are production functionality and must not be removed or weakened by naming/domain work:
 
 - `/api/admin/dashboard`
+- `/api/site/dashboard`
 - `/api/program-teacher/dashboard`
 - `/api/mentor/dashboard`
 - `/api/auth/config`

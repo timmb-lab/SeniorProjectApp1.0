@@ -1,0 +1,100 @@
+{
+  "phase": "07 - Site Admin Dashboard",
+  "date": "2026-05-24",
+  "startingHead": "ffdfe8f0fccf810ac2c9fe6fc054f8e9c899f604",
+  "endingHead": null,
+  "phase66HygieneFixes": [
+    "Updated docs/progress/runs/2026-05-24-design-cleanup-before-dashboard.json endingHead to ffdfe8f0fccf810ac2c9fe6fc054f8e9c899f604.",
+    "Updated the Phase 6.6 run-log commit/push status to committed and pushed as ffdfe8f ui: apply Figma cleanup before site dashboard."
+  ],
+  "routeAdded": {
+    "path": "/api/site/dashboard",
+    "file": "functions/api/site/dashboard.ts",
+    "method": "GET",
+    "legacyAdminDashboardPreserved": true
+  },
+  "siteSelectionBehavior": {
+    "explicitAccessibleSiteId": "returns selected active site dashboard",
+    "explicitInaccessibleSiteId": "403 site_not_accessible",
+    "explicitInvalidSiteId": "403 invalid_site_id",
+    "singleAccessibleSite": "infers selected site",
+    "multipleAccessibleSites": "platform_admin, legacy admin, and org_admin use documented Desert Valley demo default when accessible; otherwise selectionRequired with accessibleSites",
+    "demoDefaultSiteId": "site-desert-valley-high",
+    "accessibleSitesReturned": true
+  },
+  "sqlSiteScopingStrategy": [
+    "Students are counted from active selected-site site_users joined to student role memberships.",
+    "Programs are counted from active selected-site site_programs.",
+    "Submissions, evidence, mentor assignments, presentation slots, exports, top-risk rows, and audit activity are filtered through selected-site student memberships when their tables do not carry site_id.",
+    "No global legacy admin dashboard counts are reused for /api/site/dashboard."
+  ],
+  "workspaceChanges": [
+    "Added currentData.siteDashboard and loadWorkspaceData fetch for platform_admin, legacy admin, org_admin, site_admin, and viewer roles.",
+    "Added Site Dashboard navigation section with label Site Dashboard and detail School-wide capstone health.",
+    "Overview now renders the route-connected Site Dashboard for platform, organization, site-administration, legacy admin, and viewer roles.",
+    "Legacy admin users retain an Admin Command Center section backed by /api/admin/dashboard.",
+    "Site dashboard metric tiles do not navigate to student directory or student detail routes before Phase 8."
+  ],
+  "roleAccessMatrix": {
+    "platform_admin": "can view any active site",
+    "admin": "legacy platform-equivalent compatibility can view any active site",
+    "org_admin": "can view assigned tenant sites only",
+    "site_admin": "can view assigned site only",
+    "viewer": "can view assigned site read-only with mutation permissions false",
+    "program_teacher": "403 for /api/site/dashboard in Phase 7",
+    "mentor": "403",
+    "student": "403",
+    "misc_admin": "403; aggregate readiness compatibility remains only in /api/reports/readiness"
+  },
+  "siteScopedCountsProven": {
+    "primarySite": {
+      "siteId": "site-desert-valley-high",
+      "studentsTotal": 250
+    },
+    "secondarySites": {
+      "site-canyon-ridge-career": 60,
+      "site-north-valley-tech": 60
+    },
+    "primaryDoesNotLeakSecondaryStudents": true,
+    "proof": [
+      "tests/site-dashboard.integration.test.mjs",
+      "scripts/prove-local-demo-workspace.mjs"
+    ]
+  },
+  "figmaPatternUsage": [
+    "Site dashboard renders under the Phase 6.6 product header in renderAppShell.",
+    "Site context block uses workspace-site-context-badge.",
+    "Dashboard tiles use workspace-metric-tile.",
+    "Status rows and next actions use statusPill().",
+    "Selection, unavailable, and denied states use renderProblemState().",
+    "Rule cards expose Private evidence, Role scoped views, Audited changes, and Teacher intervention language.",
+    "Viewer mode uses the existing product-header read-only marker and workspace-read-only-banner."
+  ],
+  "testsAddedOrUpdated": [
+    "tests/site-dashboard.integration.test.mjs",
+    "tests/workspace-app.test.mjs",
+    "tests/production-workflow-source.test.mjs"
+  ],
+  "localProofUpdates": [
+    "scripts/prove-local-demo-workspace.mjs now proves /api/site/dashboard primary and secondary counts.",
+    "Local proof now verifies viewer dashboard read-only behavior and site_admin denial for another site."
+  ],
+  "validation": {
+    "node --test tests/site-dashboard.integration.test.mjs": "passed",
+    "node --test tests/workspace-app.test.mjs": "passed",
+    "node --test tests/production-workflow-source.test.mjs": "passed",
+    "npm run inventory:production-routes": "passed",
+    "npm run check:route-inventory": "passed",
+    "npm run check:production-surfaces": "passed; 91 production text surfaces scanned",
+    "npm run test": "passed; 284 passing tests and 4 expected local HTTP skips",
+    "npm run typecheck": "passed",
+    "npm run check": "passed; aggregate checks and test suite passed",
+    "npm run prove:demo:local": "passed; proved primary site 250 students, secondary site 60 students, viewer read-only, and site-admin cross-site denial",
+    "git diff --check": "passed with CRLF normalization warnings only"
+  },
+  "blockers": [
+    "Remote D1 still lacks migration 0011_multisite_site_role_foundation.sql, so no remote proof or hosted proof was run.",
+    "Student directory and student detail remain Phase 8 and Phase 9 work."
+  ],
+  "nextRecommendedPrompt": "08_student_directory_api_ui.txt"
+}

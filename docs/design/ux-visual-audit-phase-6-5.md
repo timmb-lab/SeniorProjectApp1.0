@@ -282,6 +282,7 @@ Do inside Phase 7:
 
 - Build the site admin dashboard against the Figma operating-view pattern and this audit.
 - Make site context, story buckets, private evidence, and audit safety visible in the first viewport.
+- Phase 7 status: completed for the site dashboard vertical slice. `/api/site/dashboard` now backs the authenticated workspace Site Dashboard, uses the Phase 6.6 product header shell, site context badges, status pills, problem-state handling, private evidence / role scoped / audited changes / teacher intervention rule language, and no-announcements posture.
 
 Do after Phase 7:
 

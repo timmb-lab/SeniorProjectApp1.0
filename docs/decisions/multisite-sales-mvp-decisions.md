@@ -76,3 +76,13 @@ This decision record locks the target vocabulary and scope for the multisite sal
 - Workspace CSS now exposes semantic product tokens for primary, accent, status, neutral surface, border, radius, shadow, focus, spacing, and typography use.
 - The authenticated workspace keeps the ABC-inspired school-friendly visual language and adds read-only viewer, site-context, student-directory, detail-panel, story-chip, risk-chip, metric-action, and empty-state class patterns for later phases.
 - `site_admin` continues to display as "Administration"; `platform_admin`, `org_admin`, and `viewer` have user-facing labels without changing backend role IDs.
+
+## Phase 7 Site Admin Dashboard
+
+- `/api/site/dashboard` is the first new site-aware route family in the sales MVP sequence.
+- The route defaults to the primary Desert Valley demo site for platform/org/legacy admin users only when multiple accessible sites exist and the primary demo site is accessible; the response includes `accessibleSites` so a future selector can be built.
+- Assigned `site_admin` and assigned `viewer` users infer their single active site when `siteId` is omitted.
+- Inaccessible, inactive, missing, or invalid explicit `siteId` values are denied instead of falling back to global data.
+- Legacy `/api/admin/dashboard` remains unchanged for compatibility and still reports global legacy admin counts.
+- The workspace prefers the route-connected Site Dashboard for platform, organization, site-administration, legacy admin, and viewer overview paths, while legacy admin users can still open the Admin Command Center section.
+- Phase 7 does not build student directory or student detail routes; dashboard metric tiles intentionally do not navigate to those future sections.

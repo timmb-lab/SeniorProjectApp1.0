@@ -20,6 +20,7 @@ test("workspace route is a real authenticated app surface", () => {
   assert.match(workspaceJs, /\/api\/auth\/complete-reset/);
   assert.match(workspaceJs, /\/api\/auth\/logout/);
   assert.match(workspaceJs, /\/api\/admin\/users\/import/);
+  assert.match(workspaceJs, /\/api\/site\/dashboard/);
   assert.match(workspaceJs, /\/api\/admin\/dashboard/);
   assert.match(workspaceJs, /\/api\/program-teacher\/dashboard/);
   assert.match(workspaceJs, /\/api\/mentor\/dashboard/);
@@ -63,6 +64,7 @@ test("workspace route is a real authenticated app surface", () => {
   assert.match(workspaceJs, /data-archive-download="manifest"/);
   assert.match(workspaceJs, /data-archive-drive-package/);
   assert.match(workspaceJs, /function renderAdminOverviewSection/);
+  assert.match(workspaceJs, /function renderSiteDashboardSection/);
   assert.match(workspaceJs, /function renderProgramTeacherDashboardSection/);
   assert.match(workspaceJs, /function renderMentorDashboardSection/);
   assert.match(workspaceJs, /Continue with Google Workspace/);
@@ -78,6 +80,7 @@ test("workspace route is a real authenticated app surface", () => {
   assert.match(workspaceCss, /\.workspace-command-center/);
   assert.match(workspaceCss, /\.workspace-metric-tile/);
   assert.match(workspaceCss, /\.workspace-abc-motif/);
+  assert.doesNotMatch(workspaceJs, /data-section="studentDirectory"/);
   assert.doesNotMatch(workspaceJs, /localStorage|sessionStorage|indexedDB/);
   assert.doesNotThrow(() => new Function(workspaceJs));
 });
@@ -263,6 +266,108 @@ test("workspace uses Phase 6.6 Figma cleanup patterns in real render paths", () 
   assert.match(workspaceJs, /data-workspace-mode="read-only"/);
   assert.match(workspaceJs, /Read-only workspace/);
   assert.doesNotMatch(workspaceJs, /\/api\/announcements|\/api\/admin\/announcements|workspace-kicker">Announcements/i);
+});
+
+test("workspace renders route-connected site dashboard with Figma product-system patterns", async () => {
+  const body = siteDashboardFixture({ readOnly: false });
+  const siteDashboard = await renderWorkspaceWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "site-admin-a",
+          email: "site.admin@example.edu",
+          displayName: "Site Admin",
+          roles: [{ role_id: "site_admin", scope_type: "site", scope_id: "site-desert-valley-high" }],
+        },
+      },
+    },
+    "/api/site/dashboard": {
+      status: 200,
+      body,
+    },
+  }, "siteDashboard");
+
+  assert.match(siteDashboard, /Site Dashboard/);
+  assert.match(siteDashboard, /School-wide capstone health/);
+  assert.match(siteDashboard, /Desert Valley High School/);
+  assert.match(siteDashboard, /Desert Valley School District/);
+  assert.match(siteDashboard, /workspace-product-header/);
+  assert.match(siteDashboard, /Senior Capstone Product/);
+  assert.match(siteDashboard, /Database-backed MVP/);
+  assert.match(siteDashboard, /No student messaging/);
+  assert.match(siteDashboard, /workspace-site-context-badge/);
+  assert.match(siteDashboard, /workspace-metric-tile/);
+  assert.match(siteDashboard, /Students/);
+  assert.match(siteDashboard, /No Mentor/);
+  assert.match(siteDashboard, /Submitted/);
+  assert.match(siteDashboard, /Needs Revision/);
+  assert.match(siteDashboard, /Evidence/);
+  assert.match(siteDashboard, /Presentations/);
+  assert.match(siteDashboard, /Archive \/ Exports/);
+  assert.match(siteDashboard, /Private evidence/);
+  assert.match(siteDashboard, /Role scoped views/);
+  assert.match(siteDashboard, /Audited changes/);
+  assert.match(siteDashboard, /Teacher intervention/);
+  assert.match(siteDashboard, /workspace-status-pill/);
+  assert.match(siteDashboard, /workspace-risk-chip/);
+  assert.doesNotMatch(siteDashboard, /data-section="studentDirectory"|\/api\/site\/students/);
+
+  const viewer = await renderWorkspaceWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "viewer-a",
+          email: "viewer.site@example.edu",
+          displayName: "Site Viewer",
+          roles: [{ role_id: "viewer", scope_type: "site", scope_id: "site-desert-valley-high" }],
+        },
+      },
+    },
+    "/api/site/dashboard": {
+      status: 200,
+      body: siteDashboardFixture({ readOnly: true }),
+    },
+  }, "siteDashboard");
+  assert.match(viewer, /data-workspace-mode="read-only"/);
+  assert.match(viewer, /Read-only workspace/);
+  assert.match(viewer, /Read-only viewer/);
+  assert.match(viewer, /This dashboard is scoped to Desert Valley High School only/);
+
+  const selectionRequired = await renderWorkspaceWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "org-admin-a",
+          email: "org.admin@example.edu",
+          displayName: "Org Admin",
+          roles: [{ role_id: "org_admin", scope_type: "tenant", scope_id: "tenant-desert-valley" }],
+        },
+      },
+    },
+    "/api/site/dashboard": {
+      status: 409,
+      body: {
+        ok: false,
+        error: "site_selection_required",
+        selectionRequired: true,
+        accessibleSites: [
+          { siteId: "site-desert-valley-high", siteName: "Desert Valley High School" },
+          { siteId: "site-canyon-ridge-career", siteName: "Canyon Ridge Career Academy" },
+        ],
+      },
+    },
+  }, "siteDashboard");
+  assert.match(selectionRequired, /data-workspace-state="site-selection-required"/);
+  assert.match(selectionRequired, /workspace-problem-state/);
+  assert.match(selectionRequired, /Reason/);
+  assert.match(selectionRequired, /Owner/);
+  assert.match(selectionRequired, /Next action/);
 });
 
 test("production surface checker includes the authenticated workspace", () => {
@@ -946,6 +1051,115 @@ test("workspace renders archive readiness from persisted rows", async () => {
   assert.match(archive, /Retention policy needs school review before pilot archives/);
   assert.match(archive, /expiring soon/i);
 });
+
+function siteDashboardFixture({ readOnly = false } = {}) {
+  return {
+    ok: true,
+    generatedAt: "2026-05-24T16:00:00.000Z",
+    scope: {
+      tenantId: "tenant-desert-valley",
+      tenantName: "Desert Valley School District",
+      siteId: "site-desert-valley-high",
+      siteName: "Desert Valley High School",
+      schoolYear: "2025-2026",
+      role: readOnly ? "viewer" : "site_admin",
+      readOnly,
+      selectionMode: "single_accessible_site",
+      accessibleSites: [
+        { siteId: "site-desert-valley-high", siteName: "Desert Valley High School" },
+        { siteId: "site-canyon-ridge-career", siteName: "Canyon Ridge Career Academy" },
+      ],
+    },
+    permissions: {
+      canViewStudentDirectory: true,
+      canViewStudentDetail: true,
+      canViewReviewQueue: true,
+      canViewMentorAssignments: true,
+      canManageMentorAssignments: !readOnly,
+      canViewPresentationOperations: true,
+      canManagePresentationOperations: !readOnly,
+      canViewArchiveOperations: true,
+      canManageArchiveOperations: !readOnly,
+      canViewReadinessReports: true,
+      canViewAuditEvents: !readOnly,
+      canManageUsers: false,
+      canManageSecurity: false,
+    },
+    summary: {
+      studentsTotal: 250,
+      studentsActive: 250,
+      studentsNoMentor: 17,
+      programsTotal: 9,
+      programTeachers: 18,
+      mentors: 28,
+      submissionsDraft: 18,
+      submissionsSubmitted: 46,
+      revisionRequested: 38,
+      approved: 91,
+      completedOrArchived: 18,
+      evidenceArtifacts: 690,
+      mentorAssignmentsActive: 233,
+      presentationsScheduled: 32,
+      presentationsPending: 14,
+      archiveReady: 8,
+      exportsQueued: 2,
+      exportsRunning: 1,
+      exportsComplete: 8,
+      exportsFailed: 1,
+      recentActivityCount: 12,
+    },
+    programBreakdown: [
+      { programId: "it", programName: "IT", studentCount: 69, submitted: 14, revisionRequested: 8, approved: 31, evidenceArtifacts: 188, noMentor: 4 },
+      { programId: "culinary", programName: "Culinary", studentCount: 47, submitted: 9, revisionRequested: 7, approved: 18, evidenceArtifacts: 122, noMentor: 3 },
+    ],
+    statusBreakdown: [
+      { status: "submitted", count: 46 },
+      { status: "revision_requested", count: 38 },
+      { status: "approved", count: 91 },
+    ],
+    needsAttention: [
+      {
+        label: "Students without active mentors",
+        detail: "17 active student records at this site need mentor coverage.",
+        severity: "warning",
+      },
+    ],
+    topRiskStudents: [
+      {
+        studentId: "demo-student-101",
+        studentName: "Missing Mentor Demo",
+        programName: "IT",
+        submissionStatus: "revision_requested",
+        evidenceCount: 3,
+        riskReasons: ["No mentor", "Revision requested"],
+      },
+    ],
+    mentorCoverage: [
+      { mentorId: "demo-mentor-001", mentorName: "Mentor One", activeAssignments: 8 },
+      { mentorId: "demo-mentor-002", mentorName: "Mentor Two", activeAssignments: 0 },
+    ],
+    presentationSnapshot: [
+      { status: "scheduled", count: 32 },
+      { status: "checked_out", count: 2 },
+    ],
+    archiveSnapshot: [
+      { status: "complete", count: 8 },
+      { status: "failed", count: 1 },
+    ],
+    nextActions: [
+      {
+        label: "Teacher intervention",
+        detail: "84 submitted or revision-requested records need review posture.",
+        status: "revision_requested",
+      },
+      {
+        label: "Private evidence",
+        detail: "690 private evidence artifacts are counted without exposing storage identifiers.",
+        status: "configured",
+      },
+    ],
+  };
+}
 
 async function renderWorkspaceWithFetch(routes, section = "", beforeSectionScript = "") {
   const { context, workspaceRoot } = await createWorkspaceContextWithFetch(routes);

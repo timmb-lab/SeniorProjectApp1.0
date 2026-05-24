@@ -73,3 +73,15 @@ Then Phase 7 should build the site admin dashboard using the Figma operating-vie
 | Remote seed 5B now | No-go |
 | Sales demo today | No-go |
 | Exact next prompt | `06.6_design_cleanup_before_dashboard.txt` |
+
+## Phase 7 Update
+
+After Phase 6.6, Phase 7 added the first route-connected administration surface:
+
+- `/api/site/dashboard` is implemented and tested independently from legacy `/api/admin/dashboard`.
+- The route proves local Desert Valley site scoping: Desert Valley High School returns 250 students, and each secondary site returns 60 students.
+- The authenticated workspace renders a Figma-aligned Site Dashboard for platform, organization, site-administration, legacy admin, and viewer roles.
+- Viewer dashboard access is read-only and mutation permissions are disabled.
+- Student directory and student detail are still not built; Phase 8 should build on the site dashboard route foundation.
+
+Updated next prompt after Phase 7: `08_student_directory_api_ui.txt`.

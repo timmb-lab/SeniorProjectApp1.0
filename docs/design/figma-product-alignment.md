@@ -114,7 +114,6 @@ Dead-helper guard:
 
 ## 7. Not Yet Matched / Later Phases
 
-- Full site dashboard UI connected to site-aware route data.
 - Student directory UI connected to `/api/site/students`.
 - Student detail drawer connected to `/api/site/students/[studentId]`.
 - Route-connected filters and site switcher behavior.
@@ -136,3 +135,22 @@ Phase 6 verification commands:
 Route inventory is not regenerated in this phase because no route files are added, removed, or renamed.
 
 Phase 6.6 uses the same validation command set and keeps route inventory unchanged because no route files are added, removed, or renamed.
+
+## 9. Phase 7 Site Dashboard Applied
+
+Phase 7 connects the first Figma-aligned administration surface to real site-scoped D1 data through `/api/site/dashboard`.
+
+Rendered app changes:
+
+- The authenticated workspace now loads `/api/site/dashboard` for `platform_admin`, legacy `admin`, `org_admin`, `site_admin`, and `viewer`.
+- The Overview path for those roles renders the Site Dashboard operating view; legacy `admin` users can still open the Admin Command Center compatibility section backed by `/api/admin/dashboard`.
+- The Site Dashboard uses the Phase 6.6 product header already in `renderAppShell`, a visible site context block, `workspace-site-context-badge`, `workspace-metric-tile`, `workspace-dashboard-card`, `workspace-empty-state-card`, `workspace-risk-chip`, `statusPill()`, and `renderProblemState()`.
+- Viewer mode is still visibly read-only through the product header and read-only banner, and `/api/site/dashboard` returns `readOnly: true` with mutation permissions disabled for viewer users.
+- The dashboard preserves the no-announcements posture and includes `No student messaging`, `Private evidence`, `Role scoped views`, `Audited changes`, and `Teacher intervention` language.
+- Dashboard metric tiles are intentionally not linked to student directory or student detail routes before Phase 8.
+
+Route/data changes:
+
+- `/api/site/dashboard` scopes data through selected-site `site_users`, `site_programs`, and selected-site student joins for submissions, evidence, mentor assignments, presentation slots, exports, and audit activity.
+- Local seeded tests prove Desert Valley High School returns exactly 250 students and both secondary sites return exactly 60 students.
+- Route inventory is regenerated because a new production API route was added.

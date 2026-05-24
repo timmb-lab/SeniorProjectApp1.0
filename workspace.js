@@ -4,6 +4,7 @@ let currentUser = null;
 let currentData = {
   authConfig: null,
   dashboard: null,
+  siteDashboard: null,
   adminDashboard: null,
   programTeacherDashboard: null,
   mentorDashboard: null,
@@ -157,6 +158,7 @@ function defaultCurrentData(authConfig = currentData.authConfig) {
   return {
     authConfig,
     dashboard: null,
+    siteDashboard: null,
     adminDashboard: null,
     programTeacherDashboard: null,
     mentorDashboard: null,
@@ -182,6 +184,7 @@ async function loadWorkspaceData(statusMessage = "") {
 
   if (roles.has("student")) loaders.push(["dashboard", apiJson("/api/student/dashboard")]);
   if (roles.has("student")) loaders.push(["archiveReadiness", apiJson("/api/student/archive/readiness")]);
+  if (hasSiteDashboardRole(roles)) loaders.push(["siteDashboard", apiJson("/api/site/dashboard")]);
   if (roles.has("admin")) loaders.push(["adminDashboard", apiJson("/api/admin/dashboard")]);
   if (roles.has("program_teacher")) loaders.push(["programTeacherDashboard", apiJson("/api/program-teacher/dashboard")]);
   if (roles.has("program_teacher") || roles.has("admin")) loaders.push(["reviewQueue", apiJson("/api/teacher/review-queue")]);
@@ -512,6 +515,7 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
 function availableSections() {
   const roles = roleIds(currentUser);
   const sections = [{ id: "overview", label: "Overview", detail: "Workspace priorities and access" }];
+  if (hasSiteDashboardRole(roles)) sections.push({ id: "siteDashboard", label: "Site Dashboard", detail: "School-wide capstone health" });
   if (roles.has("student")) sections.push({ id: "student", label: "Student Workspace", detail: "Progress, submissions, and evidence" });
   if (roles.has("student")) sections.push({ id: "archive", label: "Archive", detail: "Closeout and May 5 package" });
   if (roles.has("mentor")) sections.push({ id: "mentorDashboard", label: "Mentor Dashboard", detail: "Assigned student risks" });
@@ -522,6 +526,7 @@ function availableSections() {
     sections.push({ id: "presentation", label: "Presentation", detail: "Schedule, outline, and day-of status" });
   }
   if (roles.has("admin")) sections.push({ id: "mentorAssignments", label: "Mentors / Assignments", detail: "Coverage and assignment signals" });
+  if (roles.has("admin")) sections.push({ id: "adminDashboard", label: "Admin Command Center", detail: "Legacy global operations" });
   if (roles.has("admin") || roles.has("misc_admin")) sections.push({ id: "readiness", label: "Readiness", detail: "Aggregate project readiness" });
   if (roles.has("admin")) sections.push({ id: "adminUsers", label: "Users & Access", detail: "Import accounts and setup access" });
   if (roles.has("admin")) sections.push({ id: "audit", label: "Audit", detail: "Recent protected-record activity" });
@@ -532,6 +537,8 @@ function availableSections() {
 
 function renderActiveSection() {
   if (activeSection === "security") return renderSecuritySection();
+  if (activeSection === "siteDashboard") return renderSiteDashboardSection();
+  if (activeSection === "adminDashboard") return renderAdminOverviewSection();
   if (activeSection === "student") return renderStudentSection();
   if (activeSection === "programDashboard") return renderProgramTeacherDashboardSection();
   if (activeSection === "teacher") return renderTeacherSection();
@@ -549,7 +556,7 @@ function renderActiveSection() {
 
 function renderOverviewSection() {
   const primaryRole = primaryRoleForUser(currentUser);
-  if (primaryRole === "admin") return renderAdminOverviewSection();
+  if (["platform_admin", "admin", "org_admin", "site_admin", "viewer"].includes(primaryRole)) return renderSiteDashboardSection();
   if (primaryRole === "program_teacher") return renderProgramTeacherDashboardSection();
   if (primaryRole === "mentor") return renderMentorDashboardSection();
   if (primaryRole === "student") return renderStudentSection();
@@ -664,9 +671,210 @@ function renderReadOnlyBanner() {
   `;
 }
 
+function renderSiteDashboardSection() {
+  const result = currentData.siteDashboard;
+  if (result?.status === 403) {
+    return renderPermissionDeniedSection("Site dashboard", "assigned site operating records");
+  }
+  if (result?.status === 409 && result.body?.selectionRequired) {
+    return renderSiteSelectionRequired(result.body);
+  }
+  const dashboard = unwrap(result);
+  if (!dashboard) {
+    return `
+      <section class="workspace-card workspace-error-card">
+        <p class="workspace-kicker">Site dashboard</p>
+        <h2>Site operating view unavailable</h2>
+        ${renderApiNotice(result)}
+        ${renderProblemState({
+          reason: "The site dashboard route could not return an assigned site view.",
+          owner: "Administration or platform support.",
+          nextAction: "Refresh after site assignment or route availability is confirmed.",
+        })}
+      </section>
+    `;
+  }
+
+  const summary = dashboard.summary || {};
+  const scope = dashboard.scope || {};
+  const readOnly = Boolean(scope.readOnly);
+  const presentationsTotal = safeNumber(summary.presentationsScheduled) + safeNumber(summary.presentationsPending);
+  const archiveTotal = safeNumber(summary.exportsQueued)
+    + safeNumber(summary.exportsRunning)
+    + safeNumber(summary.exportsComplete)
+    + safeNumber(summary.exportsFailed);
+
+  return `
+    <section class="workspace-command-center" aria-labelledby="siteDashboardTitle">
+      ${renderSiteContextBlock(dashboard)}
+      <div class="workspace-command-hero">
+        <div>
+          <p class="workspace-kicker">Administration Operating View</p>
+          <h1 id="siteDashboardTitle">${escapeHtml(scope.siteName || "Site Dashboard")}</h1>
+          <p>
+            School-wide capstone health for this assigned site, with private evidence,
+            role scoped views, audited changes, and teacher intervention signals.
+          </p>
+        </div>
+        <div class="workspace-command-hero-grid">
+          ${statusPill(readOnly ? "configured" : "approved")}
+          <span class="workspace-chip">${escapeHtml(statusText(scope.selectionMode || "site_scope"))}</span>
+        </div>
+      </div>
+      <div class="workspace-dashboard-grid">
+        ${renderMetricTile("Students", summary.studentsActive, `${safeNumber(summary.studentsTotal)} visible at this site`, "admin")}
+        ${renderMetricTile("No Mentor", summary.studentsNoMentor, "Need assigned mentor coverage", safeNumber(summary.studentsNoMentor) ? "warning" : "mentor")}
+        ${renderMetricTile("Submitted", summary.submissionsSubmitted, "Awaiting teacher review", "teacher")}
+        ${renderMetricTile("Needs Revision", summary.revisionRequested, "Teacher intervention needed", safeNumber(summary.revisionRequested) ? "warning" : "student")}
+        ${renderMetricTile("Evidence", summary.evidenceArtifacts, "Private evidence artifacts", "mentor")}
+        ${renderMetricTile("Presentations", presentationsTotal, `${safeNumber(summary.presentationsPending)} pending readiness`, "teacher")}
+        ${renderMetricTile("Archive / Exports", archiveTotal, `${safeNumber(summary.exportsFailed)} failed`, safeNumber(summary.exportsFailed) ? "danger" : "admin")}
+        ${renderMetricTile("Recent Activity", summary.recentActivityCount, "Audited site activity", "admin")}
+      </div>
+      ${renderSitePermissionRules(dashboard)}
+      ${renderDashboardCard("Needs Attention", "Teacher intervention and operations", renderNeedsAttention(dashboard.needsAttention))}
+      <div class="workspace-dashboard-grid workspace-dashboard-grid-two">
+        ${renderDashboardCard("Program Breakdown", "Site-scoped source records", renderProgramBreakdown(dashboard.programBreakdown))}
+        ${renderDashboardCard("Status Breakdown", "Text plus color status", renderSnapshotRows(dashboard.statusBreakdown))}
+        ${renderDashboardCard("Top Risk Students", "Redacted operating signals", renderSiteTopRiskStudents(dashboard.topRiskStudents))}
+        ${renderDashboardCard("Mentor Coverage", "Assigned mentor scope", renderMentorCoverage(dashboard.mentorCoverage, summary))}
+        ${renderDashboardCard("Presentation Snapshot", "Readiness and day-of status", renderSnapshotRows(dashboard.presentationSnapshot))}
+        ${renderDashboardCard("Archive / Export Snapshot", "Closeout package status", renderSnapshotRows(dashboard.archiveSnapshot))}
+        ${renderDashboardCard("Next Actions", "Audit-safe administration posture", renderSiteNextActions(dashboard.nextActions, readOnly))}
+      </div>
+    </section>
+  `;
+}
+
+function renderSiteSelectionRequired(body = {}) {
+  const sites = body.accessibleSites || [];
+  return `
+    <section class="workspace-card workspace-error-card" data-workspace-state="site-selection-required">
+      <p class="workspace-kicker">Site selection required</p>
+      <h2>Select a site before viewing school-wide health</h2>
+      <p>This account can view more than one site, so the dashboard needs an explicit site selection.</p>
+      <div class="workspace-chip-row">
+        ${sites.map((site) => `<span class="workspace-site-context-badge">${escapeHtml(site.siteName || site.siteId)}</span>`).join("")}
+      </div>
+      ${renderProblemState({
+        reason: "Multiple assigned sites are available and no safe default was selected.",
+        owner: "Administration or platform support.",
+        nextAction: "Use the site selector once Phase 8 expands site navigation, or open a direct site-scoped link.",
+      })}
+    </section>
+  `;
+}
+
+function renderSiteContextBlock(dashboard) {
+  const scope = dashboard.scope || {};
+  const accessibleSites = scope.accessibleSites || [];
+  return `
+    <section class="workspace-card">
+      <div class="workspace-card-head">
+        <div>
+          <p class="workspace-kicker">Site Context</p>
+          <h2>${escapeHtml(scope.tenantName || "Organization")} / ${escapeHtml(scope.schoolYear || "School year")}</h2>
+        </div>
+        ${statusPill(scope.readOnly ? "configured" : "approved")}
+      </div>
+      <div class="workspace-chip-row">
+        <span class="workspace-site-context-badge">${escapeHtml(scope.siteName || "Assigned site")}</span>
+        <span class="workspace-site-context-badge">${escapeHtml(roleLabel(scope.role || primaryRoleForUser(currentUser)))}</span>
+        <span class="workspace-site-context-badge">${escapeHtml(scope.readOnly ? "Read-only viewer" : "Administration access")}</span>
+        <span class="workspace-site-context-badge">No student messaging</span>
+      </div>
+      ${accessibleSites.length > 1 ? `
+        <p class="workspace-muted">
+          ${safeNumber(accessibleSites.length)} accessible site${accessibleSites.length === 1 ? "" : "s"} are included for future site switching.
+          This dashboard is scoped to ${escapeHtml(scope.siteName || "the selected site")} only.
+        </p>
+      ` : ""}
+    </section>
+  `;
+}
+
+function renderSitePermissionRules(dashboard) {
+  const permissions = dashboard.permissions || {};
+  return `
+    <div class="workspace-dashboard-grid workspace-dashboard-grid-two">
+      <article class="workspace-empty-state-card">
+        <strong>Private evidence</strong>
+        <span>Evidence counts are visible without exposing storage identifiers.</span>
+        ${statusPill("configured")}
+      </article>
+      <article class="workspace-empty-state-card">
+        <strong>Role scoped views</strong>
+        <span>${permissions.canViewStudentDirectory ? "This role can view assigned student records." : "This role is limited to dashboard review."}</span>
+        ${statusPill(permissions.canViewStudentDirectory ? "approved" : "blocked")}
+      </article>
+      <article class="workspace-empty-state-card">
+        <strong>Audited changes</strong>
+        <span>Dashboard viewed, denied, and unauthorized paths are recorded.</span>
+        ${statusPill("approved")}
+      </article>
+      <article class="workspace-empty-state-card">
+        <strong>Teacher intervention</strong>
+        <span>${permissions.canViewReviewQueue ? "Review queue visibility is available for this site." : "Review queue action remains with assigned staff."}</span>
+        ${statusPill(permissions.canViewReviewQueue ? "submitted" : "pending")}
+      </article>
+    </div>
+  `;
+}
+
+function renderSiteTopRiskStudents(rows = []) {
+  if (!rows.length) return `<div class="workspace-empty">No high-risk records match this site view right now.</div>`;
+  return `
+    <div class="workspace-list">
+      ${rows.map((row) => {
+        const reasons = Array.isArray(row.riskReasons) ? row.riskReasons : [];
+        return `
+          <article class="workspace-row">
+            <div>
+              <strong>${escapeHtml(row.studentName || "Student")}</strong>
+              <p>${escapeHtml(row.programName || "Program")} / ${safeNumber(row.evidenceCount)} evidence</p>
+              <div class="workspace-chip-row">
+                ${reasons.length
+                  ? reasons.map((reason) => `<span class="workspace-risk-chip">${escapeHtml(reason)}</span>`).join("")
+                  : `<span class="workspace-story-chip">No critical reason</span>`}
+              </div>
+            </div>
+            ${statusPill(row.submissionStatus || "draft")}
+          </article>
+        `;
+      }).join("")}
+    </div>
+  `;
+}
+
+function renderSiteNextActions(actions = [], readOnly = false) {
+  if (!actions.length) {
+    return `
+      <div class="workspace-empty-state-card">
+        <strong>${readOnly ? "Review only" : "No immediate action"}</strong>
+        <span>No site dashboard actions are currently required.</span>
+        ${statusPill(readOnly ? "configured" : "ready")}
+      </div>
+    `;
+  }
+  return `
+    <div class="workspace-list">
+      ${actions.map((action) => `
+        <article class="workspace-row">
+          <div>
+            <strong>${escapeHtml(action.label || "Next action")}</strong>
+            <p>${escapeHtml(action.detail || "Review this site-level signal.")}</p>
+          </div>
+          ${statusPill(action.status || "pending")}
+        </article>
+      `).join("")}
+    </div>
+  `;
+}
+
 function deniedWorkspaceSections() {
   return [
     ["dashboard", "Student workspace"],
+    ["siteDashboard", "Site dashboard"],
     ["adminDashboard", "Admin command center"],
     ["programTeacherDashboard", "Program dashboard"],
     ["mentorDashboard", "Mentor dashboard"],
@@ -2342,6 +2550,10 @@ function roleLabel(roleId) {
 
 function roleIds(user) {
   return new Set((user?.roles || []).map((role) => role.role_id));
+}
+
+function hasSiteDashboardRole(roles) {
+  return ["platform_admin", "admin", "org_admin", "site_admin", "viewer"].some((role) => roles.has(role));
 }
 
 function primaryRoleForUser(user) {

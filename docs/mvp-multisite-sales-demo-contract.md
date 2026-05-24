@@ -227,6 +227,14 @@ Phase 4 permission foundation:
 - `site_admin` and `viewer` capabilities require assigned active sites and do not gain platform/security/user-management powers.
 - `misc_admin` remains narrow and aggregate-readiness compatible only.
 
+Phase 7 site dashboard implementation:
+
+- `/api/site/dashboard` is implemented as the first route-connected sales-demo surface.
+- The route scopes counts through active `site_users`, active `site_programs`, and selected-site student joins for workflow tables that do not yet carry `site_id`.
+- Desert Valley High School returns exactly 250 students; Canyon Ridge Career Academy and North Valley Technical High School return exactly 60 students each in local seeded proof and integration tests.
+- `platform_admin`, legacy `admin`, `org_admin`, assigned `site_admin`, and assigned `viewer` can view the route; `viewer` is read-only; `program_teacher`, `mentor`, `student`, and legacy `misc_admin` are denied.
+- The authenticated workspace renders a Figma-aligned Site Dashboard section from `/api/site/dashboard` while keeping legacy `/api/admin/dashboard` for compatibility.
+
 ## 9. Demo Seed Direction
 
 Future synthetic sales demo data should include:
