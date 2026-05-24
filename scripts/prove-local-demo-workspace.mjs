@@ -9,6 +9,7 @@ import { onRequest as onLogin } from "../functions/api/auth/login.ts";
 import { onRequestGet as onMe } from "../functions/api/auth/me.ts";
 import { onRequestGet as onAdminDashboard } from "../functions/api/admin/dashboard.ts";
 import { onRequestGet as onSiteDashboard } from "../functions/api/site/dashboard.ts";
+import { onRequestGet as onSiteStudents } from "../functions/api/site/students.ts";
 import { onRequestGet as onProgramTeacherDashboard } from "../functions/api/program-teacher/dashboard.ts";
 import { onRequestGet as onMentorDashboard } from "../functions/api/mentor/dashboard.ts";
 import { onRequestGet as onTeacherReviewQueue } from "../functions/api/teacher/review-queue.ts";
@@ -284,17 +285,41 @@ async function runDemoProof(args = {}, options = {}) {
   const adminDashboard = await routeJson(onAdminDashboard, env, adminCookie, "https://local.capstone.test/api/admin/dashboard");
   const siteDashboardPrimary = await routeJson(onSiteDashboard, env, adminCookie, `https://local.capstone.test/api/site/dashboard?siteId=${PRIMARY_SITE_ID}`);
   const siteDashboardSecondary = await routeJson(onSiteDashboard, env, adminCookie, `https://local.capstone.test/api/site/dashboard?siteId=${SECONDARY_SITE_IDS[0]}`);
+  const siteStudentDirectoryPrimary = await routeJson(onSiteStudents, env, adminCookie, `https://local.capstone.test/api/site/students?siteId=${PRIMARY_SITE_ID}`);
+  const siteStudentDirectorySecondary = await routeJson(onSiteStudents, env, adminCookie, `https://local.capstone.test/api/site/students?siteId=${SECONDARY_SITE_IDS[0]}`);
+  const siteStudentDirectoryNoMentor = await routeJson(onSiteStudents, env, adminCookie, `https://local.capstone.test/api/site/students?siteId=${PRIMARY_SITE_ID}&noMentor=true&limit=100`);
+  const siteStudentDirectoryMissingMentor = await routeJson(onSiteStudents, env, adminCookie, `https://local.capstone.test/api/site/students?siteId=${PRIMARY_SITE_ID}&story=missing_mentor&limit=100`);
+  const siteStudentDirectoryRevision = await routeJson(onSiteStudents, env, adminCookie, `https://local.capstone.test/api/site/students?siteId=${PRIMARY_SITE_ID}&story=revision_requested&limit=100`);
+  const siteStudentDirectoryArchiveFailed = await routeJson(onSiteStudents, env, adminCookie, `https://local.capstone.test/api/site/students?siteId=${PRIMARY_SITE_ID}&story=archive_failed&limit=100`);
+  const siteStudentDirectorySearch = await routeJson(onSiteStudents, env, adminCookie, `https://local.capstone.test/api/site/students?siteId=${PRIMARY_SITE_ID}&search=${encodeURIComponent("Revision Loop Demo")}&limit=100`);
   const adminReviewQueue = await routeJson(onTeacherReviewQueue, env, adminCookie, "https://local.capstone.test/api/teacher/review-queue");
   const readiness = await routeJson(onReadinessReport, env, adminCookie, "https://local.capstone.test/api/reports/readiness");
   const multisite = await verifyMultisiteShape(env);
   const siteAwarePermissions = await verifySiteAwarePermissions(env);
   const siteDashboardRoleProof = await verifySiteDashboardRouteProof(env, demoCredentials);
+  const siteStudentDirectoryRoleProof = await verifySiteStudentDirectoryRouteProof(env, demoCredentials);
 
   const adminChecks = {
     authMe: adminMe.authenticated === true,
     dashboardStudents370: Number(adminDashboard.summary?.studentsTotal || 0) === 370,
     siteDashboardPrimary250: Number(siteDashboardPrimary.summary?.studentsTotal || 0) === 250,
     siteDashboardSecondary60: Number(siteDashboardSecondary.summary?.studentsTotal || 0) === 60,
+    siteStudentDirectoryPrimary250: Number(siteStudentDirectoryPrimary.pagination?.total || 0) === 250
+      && Number(siteStudentDirectoryPrimary.summary?.studentsTotal || 0) === 250,
+    siteStudentDirectoryPaginationRespected: Number(siteStudentDirectoryPrimary.pagination?.returned || 0) <= Number(siteStudentDirectoryPrimary.pagination?.limit || 0)
+      && Number(siteStudentDirectoryPrimary.pagination?.returned || 0) === (siteStudentDirectoryPrimary.students || []).length,
+    siteStudentDirectorySecondary60: Number(siteStudentDirectorySecondary.pagination?.total || 0) === 60,
+    siteStudentDirectoryNoLeak: (siteStudentDirectoryPrimary.students || []).every((student) => student.siteId === PRIMARY_SITE_ID)
+      && (siteStudentDirectorySecondary.students || []).every((student) => student.siteId === SECONDARY_SITE_IDS[0]),
+    siteStudentDirectoryNoMentor: Number(siteStudentDirectoryNoMentor.pagination?.filteredTotal || 0) >= 10
+      && (siteStudentDirectoryNoMentor.students || []).every((student) => student.hasActiveMentor === false),
+    siteStudentDirectoryStories: Number(siteStudentDirectoryMissingMentor.pagination?.filteredTotal || 0) >= 10
+      && Number(siteStudentDirectoryRevision.pagination?.filteredTotal || 0) >= 10
+      && Number(siteStudentDirectoryArchiveFailed.pagination?.filteredTotal || 0) >= 5
+      && (siteStudentDirectoryMissingMentor.students || []).every((student) => student.storyBucket === "missing_mentor")
+      && (siteStudentDirectoryRevision.students || []).every((student) => student.storyBucket === "revision_requested")
+      && (siteStudentDirectoryArchiveFailed.students || []).every((student) => student.storyBucket === "archive_failed"),
+    siteStudentDirectorySearch: Number(siteStudentDirectorySearch.pagination?.filteredTotal || 0) >= 10,
     siteDashboardNoLeak: Number(siteDashboardPrimary.summary?.studentsTotal || 0) !== 370
       && siteDashboardPrimary.scope?.siteId === PRIMARY_SITE_ID
       && siteDashboardSecondary.scope?.siteId === SECONDARY_SITE_IDS[0],
@@ -311,6 +336,7 @@ async function runDemoProof(args = {}, options = {}) {
     noStudentCredentials: multisite.studentCredentials === 0,
     siteAwarePermissions: siteAwarePermissions.ok === true,
     siteDashboardRoleProof: siteDashboardRoleProof.ok === true,
+    siteStudentDirectoryRoleProof: siteStudentDirectoryRoleProof.ok === true,
   };
   assertChecks("ADMIN_API_PROOF_FAILED", adminChecks);
 
@@ -408,6 +434,9 @@ async function runDemoProof(args = {}, options = {}) {
       studentsTotal: Number(adminDashboard.summary.studentsTotal || 0),
       siteDashboardPrimaryStudents: Number(siteDashboardPrimary.summary.studentsTotal || 0),
       siteDashboardSecondaryStudents: Number(siteDashboardSecondary.summary.studentsTotal || 0),
+      siteStudentDirectoryPrimaryStudents: Number(siteStudentDirectoryPrimary.pagination.total || 0),
+      siteStudentDirectoryPrimaryReturned: Number(siteStudentDirectoryPrimary.pagination.returned || 0),
+      siteStudentDirectorySecondaryStudents: Number(siteStudentDirectorySecondary.pagination.total || 0),
       programBreakdownCount: adminDashboard.programBreakdown.length,
       mentorCoverageCount: adminDashboard.mentorCoverage.length,
       reviewQueueCount: adminReviewQueue.queue.length,
@@ -425,6 +454,27 @@ async function runDemoProof(args = {}, options = {}) {
       viewerReadOnly: siteDashboardRoleProof.viewerReadOnly,
       viewerMutationPermissionsFalse: siteDashboardRoleProof.viewerMutationPermissionsFalse,
       siteAdminCannotAccessSecondary: siteDashboardRoleProof.siteAdminCannotAccessSecondary,
+    },
+    siteStudentDirectory: {
+      ok: true,
+      route: "/api/site/students",
+      primarySiteId: PRIMARY_SITE_ID,
+      primarySiteTotal: Number(siteStudentDirectoryPrimary.pagination.total || 0),
+      primarySiteReturned: Number(siteStudentDirectoryPrimary.pagination.returned || 0),
+      defaultLimit: Number(siteStudentDirectoryPrimary.pagination.limit || 0),
+      secondarySiteId: SECONDARY_SITE_IDS[0],
+      secondarySiteTotal: Number(siteStudentDirectorySecondary.pagination.total || 0),
+      noMentorFilteredTotal: Number(siteStudentDirectoryNoMentor.pagination.filteredTotal || 0),
+      storyFilters: {
+        missingMentor: Number(siteStudentDirectoryMissingMentor.pagination.filteredTotal || 0),
+        revisionRequested: Number(siteStudentDirectoryRevision.pagination.filteredTotal || 0),
+        archiveFailed: Number(siteStudentDirectoryArchiveFailed.pagination.filteredTotal || 0),
+      },
+      searchPrefixFilteredTotal: Number(siteStudentDirectorySearch.pagination.filteredTotal || 0),
+      viewerReadOnly: siteStudentDirectoryRoleProof.viewerReadOnly,
+      viewerMutationPermissionsFalse: siteStudentDirectoryRoleProof.viewerMutationPermissionsFalse,
+      siteAdminCannotAccessSecondary: siteStudentDirectoryRoleProof.siteAdminCannotAccessSecondary,
+      programTeacherScoped: siteStudentDirectoryRoleProof.programTeacherScoped,
     },
     programTeachers: teacherProofs,
     mentors: mentorProofs,
@@ -599,6 +649,54 @@ async function verifySiteDashboardRouteProof(env, demoCredentials) {
     siteAdminCannotAccessSecondary: siteAdminSecondary.status === 403,
   };
   assertChecks("SITE_DASHBOARD_ROUTE_PROOF_FAILED", checks);
+  return { ok: true, ...checks };
+}
+
+async function verifySiteStudentDirectoryRouteProof(env, demoCredentials) {
+  const viewerAccount = (demoCredentials.personaLogins || []).find((account) => (
+    account.role === "viewer" && account.scope === `site:${PRIMARY_SITE_ID}`
+  ));
+  const siteAdminAccount = (demoCredentials.personaLogins || []).find((account) => (
+    account.role === "site_admin" && account.scope === `site:${PRIMARY_SITE_ID}`
+  ));
+  const teacherAccount = (demoCredentials.programTeacherLogins || []).find((account) => account.scope === "program:it");
+  if (!viewerAccount || !siteAdminAccount || !teacherAccount) {
+    throw new DemoProofError("SITE_STUDENT_DIRECTORY_CREDENTIALS_MISSING", "Missing demo viewer, site-admin, or program-teacher credential for student directory proof.");
+  }
+
+  const viewerCookie = await login(env, viewerAccount);
+  await getMe(env, viewerCookie, viewerAccount.email, "viewer");
+  const viewerDirectory = await routeJson(onSiteStudents, env, viewerCookie, `https://local.capstone.test/api/site/students?siteId=${PRIMARY_SITE_ID}`);
+
+  const siteAdminCookie = await login(env, siteAdminAccount);
+  await getMe(env, siteAdminCookie, siteAdminAccount.email, "site_admin");
+  const siteAdminPrimary = await routeJson(onSiteStudents, env, siteAdminCookie, `https://local.capstone.test/api/site/students?siteId=${PRIMARY_SITE_ID}`);
+  const siteAdminSecondary = await routeStatus(onSiteStudents, env, siteAdminCookie, `https://local.capstone.test/api/site/students?siteId=${SECONDARY_SITE_IDS[0]}`);
+
+  const teacherCookie = await login(env, teacherAccount);
+  await getMe(env, teacherCookie, teacherAccount.email, "program_teacher");
+  const teacherDirectory = await routeJson(onSiteStudents, env, teacherCookie, `https://local.capstone.test/api/site/students?siteId=${PRIMARY_SITE_ID}&limit=100`);
+
+  const checks = {
+    viewerPrimary250: Number(viewerDirectory.pagination?.total || 0) === 250,
+    viewerReadOnly: viewerDirectory.scope?.readOnly === true,
+    viewerMutationPermissionsFalse: viewerDirectory.permissions?.canManageMentorAssignments === false
+      && viewerDirectory.permissions?.canManageUsers === false
+      && viewerDirectory.permissions?.canManageSecurity === false,
+    siteAdminPrimary250: Number(siteAdminPrimary.pagination?.total || 0) === 250,
+    siteAdminCannotAccessSecondary: siteAdminSecondary.status === 403,
+    programTeacherScoped: Number(teacherDirectory.summary?.studentsTotal || 0) === 45
+      && Number(teacherDirectory.summary?.studentsTotal || 0) < Number(siteAdminPrimary.summary?.studentsTotal || 0)
+      && (teacherDirectory.students || []).every((student) => student.siteId === PRIMARY_SITE_ID && student.programId === "it")
+      && (teacherDirectory.filterOptions?.programs || []).every((program) => program.programId === "it"),
+    noSensitiveDirectoryFields: !directoryHasForbiddenOutput([
+      viewerDirectory,
+      siteAdminPrimary,
+      siteAdminSecondary.body,
+      teacherDirectory,
+    ]),
+  };
+  assertChecks("SITE_STUDENT_DIRECTORY_ROUTE_PROOF_FAILED", checks);
   return { ok: true, ...checks };
 }
 
@@ -805,6 +903,10 @@ class LocalWranglerD1Statement {
 
 function safeBody(body) {
   return JSON.parse(redact(JSON.stringify(body || {})));
+}
+
+function directoryHasForbiddenOutput(values) {
+  return /drive_file_id|drive_parent_folder_id|storage_key|password_hash|password_salt|token_hash|client_secret|refresh_token|access_token|private_key|PASSWORD_PEPPER|temporaryPassword|setupPassword/i.test(JSON.stringify(values || []));
 }
 
 function redact(value) {

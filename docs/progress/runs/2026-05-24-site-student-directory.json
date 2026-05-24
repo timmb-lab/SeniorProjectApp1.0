@@ -1,0 +1,157 @@
+{
+  "phase": "08 - Site-Scoped Student Directory API and UI",
+  "date": "2026-05-24",
+  "startingHead": "3bd47dca891933374d158cb30ebb303c4ac25d77",
+  "endingHead": null,
+  "phase7HygieneFixes": [
+    "Updated docs/progress/runs/2026-05-24-site-admin-dashboard.json endingHead to 3bd47dca891933374d158cb30ebb303c4ac25d77.",
+    "Updated the Phase 7 run-log commit/push status to committed and pushed as 3bd47dc feat: add site admin dashboard."
+  ],
+  "routeAdded": {
+    "path": "/api/site/students",
+    "file": "functions/api/site/students.ts",
+    "method": "GET",
+    "studentDetailBuilt": false
+  },
+  "siteSelectionBehavior": {
+    "sharedHelper": "functions/_lib/site-scope.ts",
+    "explicitAccessibleSiteId": "returns selected active site directory",
+    "explicitInaccessibleSiteId": "403 site_not_accessible",
+    "explicitInvalidSiteId": "403 invalid_site_id",
+    "singleAccessibleSite": "infers selected site",
+    "multipleAccessibleSites": "platform_admin, legacy admin, org_admin, and safely scoped program_teacher users use the documented Desert Valley demo default when accessible; otherwise selectionRequired with accessibleSites",
+    "demoDefaultSiteId": "site-desert-valley-high",
+    "accessibleSitesReturned": true
+  },
+  "sqlSiteScopingStrategy": [
+    "Directory scope starts from active selected-site site_users joined to active student accounts and student role memberships.",
+    "Program/cohort values are derived through group_memberships, groups, programs, and cohorts.",
+    "Mentor coverage is derived from active mentor_assignments for selected-site students.",
+    "Latest submission, evidence count, review count, comment count, presentation status, archive status, risk score, and story bucket values are selected only for scoped students.",
+    "Tables without site_id are filtered through selected-site student membership instead of global rows.",
+    "No legacy global admin, program teacher, mentor, or student dashboard data is reused for /api/site/students."
+  ],
+  "filterStrategy": {
+    "search": "Sanitized, length-limited search across display name, email, program, and mentor name using bound LIKE parameters.",
+    "programId": "Exact selected visible program filter.",
+    "status": "Canonical latest submission/status-derived filter.",
+    "noMentor": "Boolean active mentor assignment absence filter.",
+    "risk": "Derived risk filter for high, medium, low, stale, and no_mentor.",
+    "story": "Derived story bucket filter from seeded predictable display-name prefixes.",
+    "presentationStatus": "Derived from presentation slot state and outline readiness.",
+    "archiveStatus": "Derived from export rows and archive-ready seeded names.",
+    "composition": "Filters compose through AND clauses and never widen selected-site scope.",
+    "noMatches": "Returns ok true with empty students and filteredTotal 0."
+  },
+  "canonicalFilterValues": {
+    "status": ["draft", "submitted", "under_review", "revision_requested", "approved", "blocked", "archived", "complete"],
+    "story": ["model_excellent", "missing_mentor", "awaiting_review", "revision_requested", "presentation_pending", "archive_ready", "archive_failed", "high_risk", "rich_timeline"],
+    "risk": ["any", "high", "medium", "low", "stale", "no_mentor"],
+    "presentationStatus": ["any", "pending", "scheduled", "completed", "missing"],
+    "archiveStatus": ["any", "ready", "complete", "failed", "missing"]
+  },
+  "paginationBehavior": {
+    "defaultLimit": 50,
+    "maxLimit": 100,
+    "offsetDefault": 0,
+    "returned": "Number of rows returned after limit and offset.",
+    "total": "Unfiltered total for the selected site or scoped program population.",
+    "filteredTotal": "Total matching active filters before pagination.",
+    "requiredWording": "Primary site returns exactly 250 total unfiltered matching students, while returned row count respects pagination."
+  },
+  "storyBucketStrategy": {
+    "source": "Seeded predictable display-name prefixes documented in docs/demo/story-map.md.",
+    "prefixes": {
+      "Model Excellent Demo": "model_excellent",
+      "Missing Mentor Demo": "missing_mentor",
+      "Awaiting Review Demo": "awaiting_review",
+      "Revision Loop Demo": "revision_requested",
+      "Presentation Pending Demo": "presentation_pending",
+      "Archive Ready Demo": "archive_ready",
+      "Archive Failed Demo": "archive_failed",
+      "High Risk Demo": "high_risk",
+      "Rich Timeline Demo": "rich_timeline"
+    }
+  },
+  "workspaceChanges": [
+    "Added currentData.siteStudents and loadWorkspaceData fetch for platform_admin, legacy admin, org_admin, site_admin, viewer, and program_teacher roles.",
+    "Added Students navigation section with label Students and detail Search and filter capstone progress.",
+    "Added route-connected Students render path with site context, metric tiles, filter form, result summary, pagination controls, student rows, story/risk chips, status pills, and empty problem-state detail.",
+    "Added disabled Detail view coming soon row control without linking to a nonexistent student detail route.",
+    "Dashboard Students metric can open the Students section without pretending student detail exists."
+  ],
+  "roleAccessMatrix": {
+    "platform_admin": "can view any active site directory",
+    "admin": "legacy platform-equivalent compatibility can view any active site directory",
+    "org_admin": "can view assigned tenant site directories only",
+    "site_admin": "can view assigned site directory only",
+    "viewer": "can view assigned site directory read-only with mutation permissions false",
+    "program_teacher": "can view only selected-site students in teacher-visible program scope",
+    "mentor": "403",
+    "student": "403",
+    "misc_admin": "403; aggregate readiness compatibility remains only in /api/reports/readiness"
+  },
+  "programTeacherScopingBehavior": {
+    "status": "implemented and proven",
+    "strategy": "Program teacher directory rows are intersected with selected-site student membership and getProgramTeacherScopedStudentIds.",
+    "localProof": "IT program teacher sees 45 selected-site IT students, not the full 250-student site or 69-student cross-site IT dashboard population.",
+    "filterOptions": "Program teacher filterOptions.programs includes only visible programs."
+  },
+  "siteScopedCountsProven": {
+    "primarySite": {
+      "siteId": "site-desert-valley-high",
+      "total": 250,
+      "defaultReturned": 50
+    },
+    "secondarySites": {
+      "site-canyon-ridge-career": 60,
+      "site-north-valley-tech": 60
+    },
+    "primaryDoesNotLeakSecondaryStudents": true,
+    "paginationProven": true,
+    "searchProven": true,
+    "storyFiltersProven": ["missing_mentor", "revision_requested", "archive_failed"],
+    "proof": [
+      "tests/site-students.integration.test.mjs",
+      "scripts/prove-local-demo-workspace.mjs"
+    ]
+  },
+  "figmaPatternUsage": [
+    "Students section renders under the Phase 6.6 product header in renderAppShell.",
+    "Site context block uses workspace-site-context-badge.",
+    "Filter surface uses workspace-filter-bar.",
+    "Rows use workspace-student-directory, workspace-student-row, and workspace-student-card.",
+    "Story and risk signals use workspace-story-chip and workspace-risk-chip.",
+    "Status surfaces use statusPill().",
+    "Empty, unavailable, denied, and selection-required states use renderProblemState().",
+    "Viewer mode uses the existing product-header read-only marker and workspace-read-only-banner."
+  ],
+  "testsAddedOrUpdated": [
+    "tests/site-students.integration.test.mjs",
+    "tests/workspace-app.test.mjs",
+    "tests/production-workflow-source.test.mjs"
+  ],
+  "localProofUpdates": [
+    "scripts/prove-local-demo-workspace.mjs now proves /api/site/students primary total 250 with returned rows respecting pagination.",
+    "Local proof now verifies secondary total 60, noMentor filter, missing_mentor/revision_requested/archive_failed story filters, Revision Loop Demo search, viewer read-only directory behavior, site-admin cross-site denial, and program-teacher scoped directory behavior."
+  ],
+  "validation": {
+    "node --test tests/site-students.integration.test.mjs": "passed",
+    "node --test tests/site-dashboard.integration.test.mjs": "passed",
+    "node --test tests/workspace-app.test.mjs": "passed",
+    "node --test tests/production-workflow-source.test.mjs": "passed",
+    "npm run inventory:production-routes": "passed",
+    "npm run check:route-inventory": "passed",
+    "npm run check:production-surfaces": "passed; 91 production text surfaces scanned",
+    "npm run test": "passed; 288 passing tests and 4 expected local HTTP skips",
+    "npm run typecheck": "passed",
+    "npm run check": "passed; aggregate checks and test suite passed",
+    "npm run prove:demo:local": "passed; proved directory primary total 250, default returned 50, secondary total 60, story filters, search, viewer read-only, site-admin cross-site denial, and program-teacher scoping",
+    "git diff --check": "passed with CRLF normalization warnings only"
+  },
+  "blockers": [
+    "Remote D1 still lacks migration 0011_multisite_site_role_foundation.sql, so no remote proof or hosted proof was run.",
+    "Student detail remains Phase 9 work."
+  ],
+  "nextRecommendedPrompt": "09_student_detail_timeline_ui.txt"
+}

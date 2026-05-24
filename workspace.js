@@ -5,6 +5,7 @@ let currentData = {
   authConfig: null,
   dashboard: null,
   siteDashboard: null,
+  siteStudents: null,
   adminDashboard: null,
   programTeacherDashboard: null,
   mentorDashboard: null,
@@ -18,6 +19,7 @@ let currentData = {
 let activeSection = "overview";
 let busy = false;
 let lastAdminImportResult = null;
+let siteStudentFilters = defaultSiteStudentFilters();
 const WORKSPACE_UPLOAD_MAX_BYTES = 20 * 1024 * 1024;
 const WORKSPACE_UPLOAD_ALLOWED_MIME_TYPES = new Set([
   "application/pdf",
@@ -61,6 +63,7 @@ const STATUS_CLASS_BY_STATUS = {
   pending_review: "pending",
   pending_reset: "pending",
   scheduled: "pending",
+  missing: "archived",
   checked_out: "under_review",
   checked_in: "complete",
   available: "ready",
@@ -91,6 +94,7 @@ const STATUS_LABELS = {
   checked_out: "Checked out",
   checked_in: "Checked in",
   available: "Ready",
+  missing: "Missing",
   ready: "Ready",
   configured: "Configured",
   failed: "Failed",
@@ -159,6 +163,7 @@ function defaultCurrentData(authConfig = currentData.authConfig) {
     authConfig,
     dashboard: null,
     siteDashboard: null,
+    siteStudents: null,
     adminDashboard: null,
     programTeacherDashboard: null,
     mentorDashboard: null,
@@ -185,6 +190,7 @@ async function loadWorkspaceData(statusMessage = "") {
   if (roles.has("student")) loaders.push(["dashboard", apiJson("/api/student/dashboard")]);
   if (roles.has("student")) loaders.push(["archiveReadiness", apiJson("/api/student/archive/readiness")]);
   if (hasSiteDashboardRole(roles)) loaders.push(["siteDashboard", apiJson("/api/site/dashboard")]);
+  if (hasSiteStudentDirectoryRole(roles)) loaders.push(["siteStudents", apiJson(`/api/site/students${siteStudentQueryString()}`)]);
   if (roles.has("admin")) loaders.push(["adminDashboard", apiJson("/api/admin/dashboard")]);
   if (roles.has("program_teacher")) loaders.push(["programTeacherDashboard", apiJson("/api/program-teacher/dashboard")]);
   if (roles.has("program_teacher") || roles.has("admin")) loaders.push(["reviewQueue", apiJson("/api/teacher/review-queue")]);
@@ -516,6 +522,7 @@ function availableSections() {
   const roles = roleIds(currentUser);
   const sections = [{ id: "overview", label: "Overview", detail: "Workspace priorities and access" }];
   if (hasSiteDashboardRole(roles)) sections.push({ id: "siteDashboard", label: "Site Dashboard", detail: "School-wide capstone health" });
+  if (hasSiteStudentDirectoryRole(roles)) sections.push({ id: "students", label: "Students", detail: "Search and filter capstone progress" });
   if (roles.has("student")) sections.push({ id: "student", label: "Student Workspace", detail: "Progress, submissions, and evidence" });
   if (roles.has("student")) sections.push({ id: "archive", label: "Archive", detail: "Closeout and May 5 package" });
   if (roles.has("mentor")) sections.push({ id: "mentorDashboard", label: "Mentor Dashboard", detail: "Assigned student risks" });
@@ -538,6 +545,7 @@ function availableSections() {
 function renderActiveSection() {
   if (activeSection === "security") return renderSecuritySection();
   if (activeSection === "siteDashboard") return renderSiteDashboardSection();
+  if (activeSection === "students") return renderSiteStudentDirectorySection();
   if (activeSection === "adminDashboard") return renderAdminOverviewSection();
   if (activeSection === "student") return renderStudentSection();
   if (activeSection === "programDashboard") return renderProgramTeacherDashboardSection();
@@ -722,7 +730,7 @@ function renderSiteDashboardSection() {
         </div>
       </div>
       <div class="workspace-dashboard-grid">
-        ${renderMetricTile("Students", summary.studentsActive, `${safeNumber(summary.studentsTotal)} visible at this site`, "admin")}
+        ${renderMetricTile("Students", summary.studentsActive, `${safeNumber(summary.studentsTotal)} visible at this site`, "admin", "students")}
         ${renderMetricTile("No Mentor", summary.studentsNoMentor, "Need assigned mentor coverage", safeNumber(summary.studentsNoMentor) ? "warning" : "mentor")}
         ${renderMetricTile("Submitted", summary.submissionsSubmitted, "Awaiting teacher review", "teacher")}
         ${renderMetricTile("Needs Revision", summary.revisionRequested, "Teacher intervention needed", safeNumber(summary.revisionRequested) ? "warning" : "student")}
@@ -744,6 +752,285 @@ function renderSiteDashboardSection() {
       </div>
     </section>
   `;
+}
+
+function renderSiteStudentDirectorySection() {
+  const result = currentData.siteStudents;
+  if (result?.status === 403) {
+    return renderPermissionDeniedSection("Students", "assigned site student records");
+  }
+  if (result?.status === 409 && result.body?.selectionRequired) {
+    return renderSiteDirectorySelectionRequired(result.body);
+  }
+  const directory = unwrap(result);
+  if (!directory) {
+    return `
+      <section class="workspace-card workspace-error-card">
+        <p class="workspace-kicker">Students</p>
+        <h2>Student directory unavailable</h2>
+        ${renderApiNotice(result)}
+        ${renderProblemState({
+          reason: "The student directory route could not return an assigned site view.",
+          owner: "Administration or platform support.",
+          nextAction: "Refresh after site assignment or route availability is confirmed.",
+        })}
+      </section>
+    `;
+  }
+
+  const scope = directory.scope || {};
+  const summary = directory.summary || {};
+  const pagination = directory.pagination || {};
+  const students = Array.isArray(directory.students) ? directory.students : [];
+  const filters = directory.filters || {};
+  const readOnly = Boolean(scope.readOnly);
+
+  return `
+    <section class="workspace-command-center workspace-student-directory" aria-labelledby="siteStudentsTitle">
+      ${renderSiteContextBlock(directory)}
+      <div class="workspace-command-hero">
+        <div>
+          <p class="workspace-kicker">Student Directory</p>
+          <h1 id="siteStudentsTitle">Students</h1>
+          <p>
+            Search and filter assigned student records by program, mentor coverage, progress status,
+            risk, presentation readiness, and archive state without exposing private-evidence storage details.
+          </p>
+        </div>
+        <div class="workspace-command-hero-grid">
+          ${statusPill(readOnly ? "configured" : "approved")}
+          <span class="workspace-chip">Role scoped views</span>
+        </div>
+      </div>
+      <div class="workspace-dashboard-grid">
+        ${renderMetricTile("Students", summary.studentsTotal, `${safeNumber(pagination.returned)} shown now`, "admin")}
+        ${renderMetricTile("No Mentor", summary.noMentor, "Needs mentor coverage", safeNumber(summary.noMentor) ? "warning" : "mentor")}
+        ${renderMetricTile("Submitted", summary.submitted, "Teacher review queue signal", "teacher")}
+        ${renderMetricTile("Needs Revision", summary.revisionRequested, "Teacher intervention", safeNumber(summary.revisionRequested) ? "warning" : "student")}
+        ${renderMetricTile("Presentation Pending", summary.presentationPending, "Readiness follow-up", "teacher")}
+        ${renderMetricTile("Archive Ready", summary.archiveReady, "Closeout candidates", "mentor")}
+        ${renderMetricTile("Archive Failed", summary.archiveFailed, "Export follow-up", safeNumber(summary.archiveFailed) ? "danger" : "admin")}
+        ${renderMetricTile("High Risk", summary.highRisk, "Prioritize outreach", safeNumber(summary.highRisk) ? "danger" : "admin")}
+      </div>
+      ${renderStudentDirectoryOperatingPosture(readOnly)}
+      ${renderStudentDirectoryFilterBar(directory)}
+      ${renderStudentDirectoryResultSummary(directory)}
+      ${students.length ? renderStudentRows(students, readOnly) : renderStudentDirectoryEmptyState(directory)}
+    </section>
+  `;
+}
+
+function renderSiteDirectorySelectionRequired(body = {}) {
+  const sites = body.accessibleSites || [];
+  return `
+    <section class="workspace-card workspace-error-card" data-workspace-state="student-directory-site-selection-required">
+      <p class="workspace-kicker">Students</p>
+      <h2>Select a site before opening the student directory</h2>
+      <p>This account can view more than one site, so the directory needs an explicit site selection.</p>
+      <div class="workspace-chip-row">
+        ${sites.map((site) => `<span class="workspace-site-context-badge">${escapeHtml(site.siteName || site.siteId)}</span>`).join("")}
+      </div>
+      ${renderProblemState({
+        reason: "Multiple assigned sites are available and no safe directory default was selected.",
+        owner: "Administration or platform support.",
+        nextAction: "Choose a site once site switching is available, or open a direct site-scoped link.",
+      })}
+    </section>
+  `;
+}
+
+function renderStudentDirectoryOperatingPosture(readOnly) {
+  return `
+    <div class="workspace-dashboard-grid workspace-dashboard-grid-two">
+      <article class="workspace-empty-state-card">
+        <strong>Private evidence</strong>
+        <span>Rows show evidence counts while storage details remain hidden.</span>
+        ${statusPill("configured")}
+      </article>
+      <article class="workspace-empty-state-card">
+        <strong>Role scoped views</strong>
+        <span>${readOnly ? "Viewer access is read-only for assigned site records." : "This view is limited to assigned site or program records."}</span>
+        ${statusPill(readOnly ? "configured" : "approved")}
+      </article>
+      <article class="workspace-empty-state-card">
+        <strong>Audited changes</strong>
+        <span>Directory viewed, denied, and unauthorized paths are recorded without raw search text.</span>
+        ${statusPill("approved")}
+      </article>
+      <article class="workspace-empty-state-card">
+        <strong>Teacher intervention</strong>
+        <span>No student messaging is provided; follow-up stays with assigned staff workflows.</span>
+        ${statusPill("pending")}
+      </article>
+    </div>
+  `;
+}
+
+function renderStudentDirectoryFilterBar(directory) {
+  const filters = directory.filters || {};
+  const options = directory.filterOptions || {};
+  return `
+    <form class="workspace-filter-bar" id="siteStudentFilterForm" data-student-directory-filters="active">
+      <label class="workspace-label">
+        <span>Search</span>
+        <input class="workspace-input" name="search" value="${escapeHtml(filters.search || "")}" autocomplete="off" maxlength="80">
+      </label>
+      <label class="workspace-label">
+        <span>Program</span>
+        <select class="workspace-select" name="programId">
+          ${renderProgramFilterOptions(options.programs, filters.programId)}
+        </select>
+      </label>
+      <label class="workspace-label">
+        <span>Status</span>
+        <select class="workspace-select" name="status">
+          ${renderValueOptions(options.statuses || [], filters.status || "", "Any status", statusText)}
+        </select>
+      </label>
+      <label class="workspace-label">
+        <span>Risk</span>
+        <select class="workspace-select" name="risk">
+          ${renderValueOptions(options.risks || [], filters.risk || "any", "Any risk", riskLabel)}
+        </select>
+      </label>
+      <label class="workspace-label">
+        <span>Story bucket</span>
+        <select class="workspace-select" name="story">
+          ${renderValueOptions(options.storyBuckets || [], filters.story || "", "Any story", storyLabel)}
+        </select>
+      </label>
+      <label class="workspace-label">
+        <span>Presentation</span>
+        <select class="workspace-select" name="presentationStatus">
+          ${renderValueOptions(options.presentationStatuses || [], filters.presentationStatus || "any", "Any presentation", statusText)}
+        </select>
+      </label>
+      <label class="workspace-label">
+        <span>Archive</span>
+        <select class="workspace-select" name="archiveStatus">
+          ${renderValueOptions(options.archiveStatuses || [], filters.archiveStatus || "any", "Any archive", statusText)}
+        </select>
+      </label>
+      <label class="workspace-label workspace-checkbox-label">
+        <input name="noMentor" type="checkbox" value="true" ${filters.noMentor ? "checked" : ""}>
+        <span>No mentor</span>
+      </label>
+      <input name="offset" type="hidden" value="${escapeHtml(filters.offset || 0)}">
+      <input name="limit" type="hidden" value="${escapeHtml(filters.limit || 50)}">
+      <div class="workspace-form-actions">
+        <button class="workspace-button workspace-button-primary" type="submit">Apply filters</button>
+        <button class="workspace-button workspace-button-secondary" type="button" data-site-student-action="reset-filters">Reset</button>
+      </div>
+    </form>
+  `;
+}
+
+function renderStudentDirectoryResultSummary(directory) {
+  const pagination = directory.pagination || {};
+  const filters = directory.filters || {};
+  const limit = safeNumber(pagination.limit || filters.limit || 50);
+  const offset = safeNumber(pagination.offset || filters.offset || 0);
+  const returned = safeNumber(pagination.returned);
+  const filteredTotal = safeNumber(pagination.filteredTotal);
+  const total = safeNumber(pagination.total);
+  return `
+    <section class="workspace-card workspace-directory-summary" aria-label="Student directory results">
+      <div class="workspace-card-head">
+        <div>
+          <p class="workspace-kicker">Results</p>
+          <h2>Showing ${escapeHtml(returned)} of ${escapeHtml(filteredTotal)}</h2>
+          <p class="workspace-muted">Returned rows respect pagination; total and filtered totals stay tied to the selected site or program scope.</p>
+        </div>
+        <span class="workspace-site-context-badge">${escapeHtml(total)} total in scope</span>
+      </div>
+      <div class="workspace-directory-pagination">
+        <button class="workspace-button workspace-button-secondary" type="button" data-site-student-action="previous-page" ${offset <= 0 ? "disabled" : ""}>Previous</button>
+        <span class="workspace-muted">Offset ${escapeHtml(offset)} / Limit ${escapeHtml(limit)}</span>
+        <button class="workspace-button workspace-button-secondary" type="button" data-site-student-action="next-page" ${(offset + returned) >= filteredTotal ? "disabled" : ""}>Next</button>
+      </div>
+    </section>
+  `;
+}
+
+function renderStudentRows(students = [], readOnly = false) {
+  return `
+    <div class="workspace-student-list" aria-label="Student directory rows">
+      ${students.map((student) => renderStudentRow(student, readOnly)).join("")}
+    </div>
+  `;
+}
+
+function renderStudentRow(student, readOnly = false) {
+  const riskFlags = Array.isArray(student.riskFlags) ? student.riskFlags : [];
+  return `
+    <article class="workspace-student-row workspace-student-card">
+      <div>
+        <strong>${escapeHtml(student.displayName || "Student")}</strong>
+        <p>${escapeHtml(student.email || "")}</p>
+        <p class="workspace-muted">${escapeHtml(student.programName || "Unassigned")} / ${escapeHtml(student.cohortName || "No cohort")}</p>
+        <div class="workspace-chip-row">
+          ${student.storyBucket ? `<span class="workspace-story-chip">${escapeHtml(storyLabel(student.storyBucket))}</span>` : `<span class="workspace-story-chip">Standard monitoring</span>`}
+          ${riskFlags.length
+            ? riskFlags.map((flag) => `<span class="workspace-risk-chip">${escapeHtml(riskLabel(flag))}</span>`).join("")
+            : `<span class="workspace-risk-chip">Low risk</span>`}
+        </div>
+      </div>
+      <div>
+        <span class="workspace-muted">Mentor</span>
+        <strong>${escapeHtml(student.hasActiveMentor ? (student.mentorName || "Assigned") : "No mentor")}</strong>
+        <p>${escapeHtml(student.nextAction || "Continue normal capstone monitoring.")}</p>
+      </div>
+      <div class="workspace-row-actions">
+        ${statusPill(student.latestSubmissionStatus || "draft")}
+        ${statusPill(student.presentationStatus || "missing")}
+        ${statusPill(student.archiveStatus || "missing")}
+      </div>
+      <div class="workspace-row-actions">
+        <span class="workspace-site-context-badge">${escapeHtml(safeNumber(student.evidenceCount))} evidence</span>
+        <button class="workspace-link-button workspace-link-button-small workspace-detail-coming-soon" type="button" disabled data-student-detail-disabled="phase-9">
+          Detail view coming soon
+        </button>
+        ${readOnly ? `<span class="workspace-chip" data-workspace-mode="read-only">Read-only</span>` : ""}
+      </div>
+    </article>
+  `;
+}
+
+function renderStudentDirectoryEmptyState(directory) {
+  const emptyState = directory.emptyState || {};
+  return `
+    <section class="workspace-empty-state-card" data-student-directory-empty="true">
+      <strong>No student records match these filters</strong>
+      ${renderProblemState({
+        reason: emptyState.reason || "No records match this view.",
+        owner: emptyState.owner || "Assigned staff or site administrator.",
+        nextAction: emptyState.nextAction || "Adjust filters or check the student's project status.",
+      })}
+    </section>
+  `;
+}
+
+function renderProgramFilterOptions(programs = [], selected = "") {
+  const rows = Array.isArray(programs) ? programs : [];
+  return `
+    <option value="">All visible programs</option>
+    ${rows.map((program) => {
+      const value = program.programId || "";
+      const label = `${program.programName || value || "Program"}${program.studentCount != null ? ` (${safeNumber(program.studentCount)})` : ""}`;
+      return `<option value="${escapeHtml(value)}" ${value === selected ? "selected" : ""}>${escapeHtml(label)}</option>`;
+    }).join("")}
+  `;
+}
+
+function renderValueOptions(values = [], selected = "", anyLabel = "Any", labeler = statusText) {
+  const rawRows = Array.isArray(values) ? values : [];
+  const rows = rawRows.includes("any") ? rawRows : ["any", ...rawRows];
+  return rows.map((value) => {
+    const optionValue = value === "any" ? "" : value;
+    const isSelected = selected === value || selected === optionValue || (!selected && value === "any");
+    const label = value === "any" ? anyLabel : labeler(value);
+    return `<option value="${escapeHtml(optionValue)}" ${isSelected ? "selected" : ""}>${escapeHtml(label)}</option>`;
+  }).join("");
 }
 
 function renderSiteSelectionRequired(body = {}) {
@@ -875,6 +1162,7 @@ function deniedWorkspaceSections() {
   return [
     ["dashboard", "Student workspace"],
     ["siteDashboard", "Site dashboard"],
+    ["siteStudents", "Students"],
     ["adminDashboard", "Admin command center"],
     ["programTeacherDashboard", "Program dashboard"],
     ["mentorDashboard", "Mentor dashboard"],
@@ -1586,10 +1874,59 @@ function bindWorkspaceForms() {
   document.querySelectorAll("[data-presentation-action]").forEach((button) => {
     button.addEventListener("click", updatePresentationSlot);
   });
+  document.querySelector("#siteStudentFilterForm")?.addEventListener("submit", applySiteStudentFilters);
+  document.querySelectorAll("[data-site-student-action]").forEach((button) => {
+    button.addEventListener("click", handleSiteStudentAction);
+  });
 }
 
 function bindUploadRetryButton() {
   document.querySelector('[data-upload-action="retry"]')?.addEventListener("click", retryEvidenceUpload);
+}
+
+async function applySiteStudentFilters(event) {
+  event?.preventDefault?.();
+  const form = event?.currentTarget;
+  if (!form) return;
+  const data = new FormData(form);
+  siteStudentFilters = {
+    search: cleanDirectoryFilter(data.get("search")),
+    programId: cleanDirectoryFilter(data.get("programId")),
+    status: cleanDirectoryFilter(data.get("status")),
+    noMentor: data.get("noMentor") === "true",
+    risk: cleanDirectoryFilter(data.get("risk")) || "any",
+    story: cleanDirectoryFilter(data.get("story")),
+    presentationStatus: cleanDirectoryFilter(data.get("presentationStatus")) || "any",
+    archiveStatus: cleanDirectoryFilter(data.get("archiveStatus")) || "any",
+    limit: clampDirectoryNumber(data.get("limit"), 50, 1, 100),
+    offset: 0,
+  };
+  activeSection = "students";
+  await loadWorkspaceData("Student directory filters applied.");
+}
+
+async function handleSiteStudentAction(event) {
+  const action = event?.currentTarget?.dataset?.siteStudentAction;
+  if (!action) return;
+  if (action === "reset-filters") {
+    siteStudentFilters = defaultSiteStudentFilters();
+    activeSection = "students";
+    await loadWorkspaceData("Student directory filters reset.");
+    return;
+  }
+  if (action === "previous-page" || action === "next-page") {
+    const directory = unwrap(currentData.siteStudents);
+    const pagination = directory?.pagination || {};
+    const limit = safeNumber(pagination.limit || siteStudentFilters.limit || 50);
+    const offset = safeNumber(pagination.offset || siteStudentFilters.offset || 0);
+    siteStudentFilters = {
+      ...siteStudentFilters,
+      limit,
+      offset: action === "previous-page" ? Math.max(0, offset - limit) : offset + limit,
+    };
+    activeSection = "students";
+    await loadWorkspaceData("Student directory page updated.");
+  }
 }
 
 function renderPresentationSection() {
@@ -2472,6 +2809,16 @@ function safeNumber(value) {
   return Number.isFinite(numberValue) ? numberValue : 0;
 }
 
+function cleanDirectoryFilter(value) {
+  return String(value || "").trim().slice(0, 100);
+}
+
+function clampDirectoryNumber(value, defaultValue, min, max) {
+  const parsed = Number.parseInt(String(value || ""), 10);
+  if (!Number.isFinite(parsed)) return defaultValue;
+  return Math.min(Math.max(parsed, min), max);
+}
+
 function pluralize(count, singular, plural = `${singular}s`) {
   return safeNumber(count) === 1 ? singular : plural;
 }
@@ -2527,6 +2874,39 @@ function statusText(value) {
   return STATUS_LABELS[normalized] || String(value || "Unknown").replace(/_/g, " ");
 }
 
+function storyLabel(value) {
+  const labels = {
+    model_excellent: "Model excellent",
+    missing_mentor: "Missing mentor",
+    awaiting_review: "Awaiting review",
+    revision_requested: "Revision requested",
+    presentation_pending: "Presentation pending",
+    archive_ready: "Archive ready",
+    archive_failed: "Archive failed",
+    high_risk: "High risk",
+    rich_timeline: "Rich timeline",
+  };
+  const normalized = normalizeStatus(value);
+  return labels[normalized] || statusText(value);
+}
+
+function riskLabel(value) {
+  const labels = {
+    any: "Any risk",
+    high: "High risk",
+    medium: "Medium risk",
+    low: "Low risk",
+    stale: "Stale activity",
+    no_mentor: "No mentor",
+    awaiting_review: "Awaiting review",
+    revision_requested: "Revision requested",
+    presentation_pending: "Presentation pending",
+    archive_failed: "Archive failed",
+  };
+  const normalized = normalizeStatus(value);
+  return labels[normalized] || statusText(value);
+}
+
 function normalizeStatus(value) {
   return String(value || "unknown").replace(/[^a-z0-9]+/gi, "_").replace(/^_+|_+$/g, "").toLowerCase() || "unknown";
 }
@@ -2554,6 +2934,42 @@ function roleIds(user) {
 
 function hasSiteDashboardRole(roles) {
   return ["platform_admin", "admin", "org_admin", "site_admin", "viewer"].some((role) => roles.has(role));
+}
+
+function hasSiteStudentDirectoryRole(roles) {
+  return ["platform_admin", "admin", "org_admin", "site_admin", "viewer", "program_teacher"].some((role) => roles.has(role));
+}
+
+function defaultSiteStudentFilters() {
+  return {
+    search: "",
+    programId: "",
+    status: "",
+    noMentor: false,
+    risk: "any",
+    story: "",
+    presentationStatus: "any",
+    archiveStatus: "any",
+    limit: 50,
+    offset: 0,
+  };
+}
+
+function siteStudentQueryString() {
+  const params = new URLSearchParams();
+  const filters = siteStudentFilters || defaultSiteStudentFilters();
+  if (filters.search) params.set("search", filters.search);
+  if (filters.programId) params.set("programId", filters.programId);
+  if (filters.status) params.set("status", filters.status);
+  if (filters.noMentor) params.set("noMentor", "true");
+  if (filters.risk && filters.risk !== "any") params.set("risk", filters.risk);
+  if (filters.story) params.set("story", filters.story);
+  if (filters.presentationStatus && filters.presentationStatus !== "any") params.set("presentationStatus", filters.presentationStatus);
+  if (filters.archiveStatus && filters.archiveStatus !== "any") params.set("archiveStatus", filters.archiveStatus);
+  if (safeNumber(filters.limit) !== 50) params.set("limit", String(filters.limit));
+  if (safeNumber(filters.offset) > 0) params.set("offset", String(filters.offset));
+  const query = params.toString();
+  return query ? `?${query}` : "";
 }
 
 function primaryRoleForUser(user) {

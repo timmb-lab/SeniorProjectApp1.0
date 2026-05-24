@@ -21,6 +21,7 @@ test("workspace route is a real authenticated app surface", () => {
   assert.match(workspaceJs, /\/api\/auth\/logout/);
   assert.match(workspaceJs, /\/api\/admin\/users\/import/);
   assert.match(workspaceJs, /\/api\/site\/dashboard/);
+  assert.match(workspaceJs, /\/api\/site\/students/);
   assert.match(workspaceJs, /\/api\/admin\/dashboard/);
   assert.match(workspaceJs, /\/api\/program-teacher\/dashboard/);
   assert.match(workspaceJs, /\/api\/mentor\/dashboard/);
@@ -65,12 +66,14 @@ test("workspace route is a real authenticated app surface", () => {
   assert.match(workspaceJs, /data-archive-drive-package/);
   assert.match(workspaceJs, /function renderAdminOverviewSection/);
   assert.match(workspaceJs, /function renderSiteDashboardSection/);
+  assert.match(workspaceJs, /function renderSiteStudentDirectorySection/);
   assert.match(workspaceJs, /function renderProgramTeacherDashboardSection/);
   assert.match(workspaceJs, /function renderMentorDashboardSection/);
   assert.match(workspaceJs, /Continue with Google Workspace/);
   assert.match(workspaceJs, /Google Workspace sign-in is not configured for this environment yet/);
   assert.match(workspaceJs, /Local account sign in/);
   assert.doesNotMatch(workspaceJs, /\/api\/announcements/);
+  assert.doesNotMatch(workspaceJs, /\/api\/site\/students\/\$\{|\/api\/site\/students\/:/);
   assert.doesNotMatch(workspaceJs, /announcements:\s*null/);
   assert.doesNotMatch(workspaceJs, /Current Updates|No current announcements|workspace-kicker">Announcements/i);
   assert.match(workspaceJs, /Role-Safe Priorities/);
@@ -368,6 +371,158 @@ test("workspace renders route-connected site dashboard with Figma product-system
   assert.match(selectionRequired, /Reason/);
   assert.match(selectionRequired, /Owner/);
   assert.match(selectionRequired, /Next action/);
+});
+
+test("workspace renders route-connected student directory with filters and no detail navigation", async () => {
+  const directoryBody = siteStudentsFixture();
+  const siteAdmin = await renderWorkspaceWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "site-admin-students",
+          email: "site.students@example.edu",
+          displayName: "Site Students Admin",
+          roles: [{ role_id: "site_admin", scope_type: "site", scope_id: "site-desert-valley-high" }],
+        },
+      },
+    },
+    "/api/site/dashboard": {
+      status: 200,
+      body: siteDashboardFixture({ readOnly: false }),
+    },
+    "/api/site/students": {
+      status: 200,
+      body: directoryBody,
+    },
+  }, "students");
+
+  assert.match(siteAdmin, /data-section="students"/);
+  assert.match(siteAdmin, /Search and filter capstone progress/);
+  assert.match(siteAdmin, /workspace-student-directory/);
+  assert.match(siteAdmin, /workspace-filter-bar/);
+  assert.match(siteAdmin, /workspace-directory-summary/);
+  assert.match(siteAdmin, /Showing 2 of 250/);
+  assert.match(siteAdmin, /250 total in scope/);
+  assert.match(siteAdmin, /workspace-student-row/);
+  assert.match(siteAdmin, /workspace-student-card/);
+  assert.match(siteAdmin, /Missing Mentor Demo 001/);
+  assert.match(siteAdmin, /workspace-story-chip/);
+  assert.match(siteAdmin, /Missing mentor/);
+  assert.match(siteAdmin, /workspace-risk-chip/);
+  assert.match(siteAdmin, /No mentor/);
+  assert.match(siteAdmin, /workspace-status-pill revision_requested/);
+  assert.match(siteAdmin, /Private evidence/);
+  assert.match(siteAdmin, /Role scoped views/);
+  assert.match(siteAdmin, /Audited changes/);
+  assert.match(siteAdmin, /Teacher intervention/);
+  assert.match(siteAdmin, /No student messaging/);
+  assert.match(siteAdmin, /Detail view coming soon/);
+  assert.match(siteAdmin, /data-student-detail-disabled="phase-9"/);
+  assert.doesNotMatch(siteAdmin, /href="[^"]*\/api\/site\/students\/|data-section="studentDetail"|data-section="studentDirectory"/);
+
+  const viewer = await renderWorkspaceWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "viewer-students",
+          email: "viewer.students@example.edu",
+          displayName: "Student Directory Viewer",
+          roles: [{ role_id: "viewer", scope_type: "site", scope_id: "site-desert-valley-high" }],
+        },
+      },
+    },
+    "/api/site/dashboard": {
+      status: 200,
+      body: siteDashboardFixture({ readOnly: true }),
+    },
+    "/api/site/students": {
+      status: 200,
+      body: siteStudentsFixture({ readOnly: true }),
+    },
+  }, "students");
+  assert.match(viewer, /data-workspace-mode="read-only"/);
+  assert.match(viewer, /Read-only workspace/);
+  assert.match(viewer, /Read-only/);
+  assert.doesNotMatch(viewer, /Assign mentor|Archive retry|Review action/);
+
+  const teacher = await renderWorkspaceWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "teacher-students",
+          email: "teacher.students@example.edu",
+          displayName: "Program Teacher",
+          roles: [{ role_id: "program_teacher", scope_type: "program", scope_id: "it" }],
+        },
+      },
+    },
+    "/api/site/students": {
+      status: 200,
+      body: siteStudentsFixture({ role: "program_teacher", total: 45 }),
+    },
+    "/api/program-teacher/dashboard": {
+      status: 200,
+      body: { ok: true, summary: { scopedStudents: 45, submissionsAwaitingReview: 3 }, students: [], programBreakdown: [] },
+    },
+    "/api/teacher/review-queue": {
+      status: 200,
+      body: { ok: true, queue: [] },
+    },
+    "/api/presentation-slots": {
+      status: 200,
+      body: { ok: true, slots: [] },
+    },
+  }, "students");
+  assert.match(teacher, /Program Teacher/);
+  assert.match(teacher, /45 total in scope/);
+  assert.match(teacher, />Information Technology \(45\)</);
+  assert.doesNotMatch(teacher, /Culinary/);
+
+  const empty = await renderWorkspaceWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "site-admin-empty-students",
+          email: "site.empty@example.edu",
+          displayName: "Site Empty Admin",
+          roles: [{ role_id: "site_admin", scope_type: "site", scope_id: "site-desert-valley-high" }],
+        },
+      },
+    },
+    "/api/site/dashboard": {
+      status: 200,
+      body: siteDashboardFixture({ readOnly: false }),
+    },
+    "/api/site/students": {
+      status: 200,
+      body: siteStudentsFixture({ filteredTotal: 0, students: [] }),
+    },
+  }, "students");
+  assert.match(empty, /data-student-directory-empty="true"/);
+  assert.match(empty, /workspace-problem-state/);
+  assert.match(empty, /No student records match these filters/);
+  assert.match(empty, /Reason/);
+  assert.match(empty, /Owner/);
+  assert.match(empty, /Next action/);
+});
+
+test("workspace gates student directory visibility by role", () => {
+  const loadWorkspaceDataBlock = workspaceJs.match(/async function loadWorkspaceData[\s\S]*?function renderLoading/)?.[0] || "";
+  const availableSectionsBlock = workspaceJs.match(/function availableSections[\s\S]*?function renderActiveSection/)?.[0] || "";
+  const directoryRoleHelperBlock = workspaceJs.match(/function hasSiteStudentDirectoryRole[\s\S]*?function defaultSiteStudentFilters/)?.[0] || "";
+  assert.match(workspaceJs, /function hasSiteStudentDirectoryRole\(roles\)/);
+  assert.match(workspaceJs, /"platform_admin",\s+"admin",\s+"org_admin",\s+"site_admin",\s+"viewer",\s+"program_teacher"/);
+  assert.match(availableSectionsBlock, /id: "students", label: "Students", detail: "Search and filter capstone progress"/);
+  assert.match(loadWorkspaceDataBlock, /hasSiteStudentDirectoryRole\(roles\).*\/api\/site\/students/s);
+  assert.doesNotMatch(directoryRoleHelperBlock, /"mentor"|"student"|"misc_admin"/);
 });
 
 test("production surface checker includes the authenticated workspace", () => {
@@ -1161,6 +1316,144 @@ function siteDashboardFixture({ readOnly = false } = {}) {
   };
 }
 
+function siteStudentsFixture({
+  readOnly = false,
+  role = readOnly ? "viewer" : "site_admin",
+  total = 250,
+  filteredTotal = total,
+  students = null,
+} = {}) {
+  const visibleStudents = students ?? [
+    {
+      studentId: "demo-student-101",
+      displayName: "Missing Mentor Demo 001",
+      email: "missing.mentor.001@demo-student.capstone.test",
+      siteId: "site-desert-valley-high",
+      siteName: "Desert Valley High School",
+      programId: "it",
+      programName: "Information Technology",
+      cohortId: "cohort-it-2026",
+      cohortName: "IT 2026",
+      mentorUserId: "",
+      mentorName: "",
+      hasActiveMentor: false,
+      latestSubmissionId: "submission-101",
+      latestSubmissionStatus: "revision_requested",
+      latestSubmissionUpdatedAt: "2026-05-20T12:00:00.000Z",
+      evidenceCount: 3,
+      reviewCount: 1,
+      commentCount: 2,
+      presentationStatus: "pending",
+      archiveStatus: "missing",
+      riskScore: 8,
+      riskFlags: ["no_mentor", "high"],
+      storyBucket: "missing_mentor",
+      lastActivityAt: "2026-05-20T12:00:00.000Z",
+      nextAction: "Assign or confirm mentor coverage.",
+    },
+    {
+      studentId: "demo-student-144",
+      displayName: "Archive Failed Demo 001",
+      email: "archive.failed.001@demo-student.capstone.test",
+      siteId: "site-desert-valley-high",
+      siteName: "Desert Valley High School",
+      programId: "it",
+      programName: "Information Technology",
+      cohortId: "cohort-it-2026",
+      cohortName: "IT 2026",
+      mentorUserId: "demo-mentor-001",
+      mentorName: "Mentor One",
+      hasActiveMentor: true,
+      latestSubmissionId: "submission-144",
+      latestSubmissionStatus: "approved",
+      latestSubmissionUpdatedAt: "2026-05-21T12:00:00.000Z",
+      evidenceCount: 5,
+      reviewCount: 2,
+      commentCount: 1,
+      presentationStatus: "scheduled",
+      archiveStatus: "failed",
+      riskScore: 5,
+      riskFlags: ["archive_failed"],
+      storyBucket: "archive_failed",
+      lastActivityAt: "2026-05-21T12:00:00.000Z",
+      nextAction: "Review archive export failure.",
+    },
+  ];
+  return {
+    ok: true,
+    generatedAt: "2026-05-24T16:30:00.000Z",
+    scope: {
+      tenantId: "tenant-desert-valley",
+      tenantName: "Desert Valley School District",
+      siteId: "site-desert-valley-high",
+      siteName: "Desert Valley High School",
+      schoolYear: "2025-2026",
+      role,
+      readOnly,
+      selectionMode: "single_accessible_site",
+      accessibleSites: [
+        { siteId: "site-desert-valley-high", siteName: "Desert Valley High School" },
+      ],
+    },
+    filters: {
+      search: "",
+      programId: "",
+      status: "",
+      noMentor: false,
+      risk: "any",
+      story: "",
+      presentationStatus: "any",
+      archiveStatus: "any",
+      limit: 50,
+      offset: 0,
+    },
+    pagination: {
+      limit: 50,
+      offset: 0,
+      returned: visibleStudents.length,
+      total,
+      filteredTotal,
+    },
+    summary: {
+      studentsTotal: total,
+      filteredTotal,
+      noMentor: 12,
+      submitted: 18,
+      revisionRequested: 10,
+      presentationPending: 9,
+      archiveReady: 6,
+      archiveFailed: 5,
+      highRisk: 7,
+    },
+    students: visibleStudents,
+    filterOptions: {
+      programs: [
+        { programId: "it", programName: "Information Technology", studentCount: total },
+      ],
+      statuses: ["draft", "submitted", "under_review", "revision_requested", "approved", "blocked", "archived", "complete"],
+      storyBuckets: ["model_excellent", "missing_mentor", "awaiting_review", "revision_requested", "presentation_pending", "archive_ready", "archive_failed", "high_risk", "rich_timeline"],
+      risks: ["any", "high", "medium", "low", "stale", "no_mentor"],
+      presentationStatuses: ["any", "pending", "scheduled", "completed", "missing"],
+      archiveStatuses: ["any", "ready", "complete", "failed", "missing"],
+    },
+    permissions: {
+      canViewStudentDetail: true,
+      canViewStudentEvidence: true,
+      canViewReviewQueue: true,
+      canManageMentorAssignments: !readOnly && role !== "program_teacher",
+      canViewPresentationOperations: true,
+      canViewArchiveOperations: true,
+      canManageUsers: false,
+      canManageSecurity: false,
+    },
+    emptyState: filteredTotal === 0 ? {
+      reason: "No student records match the selected filters.",
+      owner: "Assigned staff or site administrator.",
+      nextAction: "Adjust filters or check the student's project status.",
+    } : null,
+  };
+}
+
 async function renderWorkspaceWithFetch(routes, section = "", beforeSectionScript = "") {
   const { context, workspaceRoot } = await createWorkspaceContextWithFetch(routes);
   if (section || beforeSectionScript) {
@@ -1185,6 +1478,7 @@ async function createWorkspaceContextWithFetch(routes) {
     Headers,
     Intl,
     URL,
+    URLSearchParams,
     clearTimeout,
     console,
     document: {

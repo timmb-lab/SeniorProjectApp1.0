@@ -41,7 +41,7 @@ Figma availability:
 | --- | --- | --- | --- |
 | Primary color / ABC motif | workspace shell/topbar/cards | `workspace.css` tokens/classes; `workspace.html` asset cache bump | source tests / visual review |
 | Admin command center cards | future site admin dashboard | card and metric tile classes in `workspace.css`; existing command center surface in `workspace.js` | workspace source tests |
-| Student directory list | future Students section | filter/list/detail classes in `workspace.css` | source tests |
+| Student directory list | Students section | `/api/site/students` route, filter/list classes in `workspace.css`, and directory render path in `workspace.js` | integration and workspace tests |
 | Student detail drawer | future drill-down | drawer/detail panel classes in `workspace.css` | source tests |
 | Viewer read-only mode | future viewer workspace | read-only banner classes in `workspace.css`; viewer banner and role label in `workspace.js` | workspace source tests |
 | Status and risk chips | review, readiness, presentation, archive, and story buckets | status pill, story chip, and risk chip classes in `workspace.css` | workspace source tests |
@@ -114,9 +114,8 @@ Dead-helper guard:
 
 ## 7. Not Yet Matched / Later Phases
 
-- Student directory UI connected to `/api/site/students`.
 - Student detail drawer connected to `/api/site/students/[studentId]`.
-- Route-connected filters and site switcher behavior.
+- Full site switcher behavior.
 - Full review workflow drawer/action UI.
 - Mentor assignment operations UI.
 - Hosted screenshot proof after route-connected screens exist.
@@ -153,4 +152,25 @@ Route/data changes:
 
 - `/api/site/dashboard` scopes data through selected-site `site_users`, `site_programs`, and selected-site student joins for submissions, evidence, mentor assignments, presentation slots, exports, and audit activity.
 - Local seeded tests prove Desert Valley High School returns exactly 250 students and both secondary sites return exactly 60 students.
+- Route inventory is regenerated because a new production API route was added.
+
+## 10. Phase 8 Student Directory Applied
+
+Phase 8 connects the Figma-aligned Students section to real site-scoped D1 data through `/api/site/students`.
+
+Rendered app changes:
+
+- The authenticated workspace now loads `/api/site/students` for `platform_admin`, legacy `admin`, `org_admin`, `site_admin`, `viewer`, and `program_teacher`.
+- The navigation includes `Students` with the detail text `Search and filter capstone progress` for those roles only.
+- The Students section uses the Phase 6.6 product header already in `renderAppShell`, a visible site context block, `workspace-filter-bar`, `workspace-student-directory`, `workspace-student-row`, `workspace-student-card`, `workspace-story-chip`, `workspace-risk-chip`, `workspace-empty-state-card`, `statusPill()`, and `renderProblemState()`.
+- Viewer mode remains visibly read-only; row actions expose only a disabled `Detail view coming soon` control.
+- The section preserves no-announcements posture and uses `Private evidence`, `Role scoped views`, `Audited changes`, `Teacher intervention`, and `No student messaging` language.
+
+Route/data changes:
+
+- `/api/site/students` scopes data through selected-site `site_users`, student roles, program/group membership, mentor assignments, submissions, evidence counts, presentation slots, and archive/export rows.
+- Primary site returns exactly 250 total unfiltered matching students, while returned row count respects pagination.
+- Default pagination limit is 50 and maximum limit is 100.
+- Canonical status, story, risk, presentation, and archive filter values are implemented for Phase 9 reuse.
+- Program teacher directory access is scoped to the selected site and teacher-visible program students rather than full-site counts.
 - Route inventory is regenerated because a new production API route was added.

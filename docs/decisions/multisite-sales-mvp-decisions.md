@@ -85,4 +85,14 @@ This decision record locks the target vocabulary and scope for the multisite sal
 - Inaccessible, inactive, missing, or invalid explicit `siteId` values are denied instead of falling back to global data.
 - Legacy `/api/admin/dashboard` remains unchanged for compatibility and still reports global legacy admin counts.
 - The workspace prefers the route-connected Site Dashboard for platform, organization, site-administration, legacy admin, and viewer overview paths, while legacy admin users can still open the Admin Command Center section.
-- Phase 7 does not build student directory or student detail routes; dashboard metric tiles intentionally do not navigate to those future sections.
+- Phase 7 did not build student directory or student detail routes; Phase 8 later adds the directory and leaves student detail for Phase 9.
+
+## Phase 8 Site Student Directory
+
+- `/api/site/students` is the second site-aware route family in the sales MVP sequence and uses the shared site-selection helper extracted from the Phase 7 dashboard.
+- Pagination is part of the contract: default `limit` is 50, maximum `limit` is 100, `returned` reflects the current page, `filteredTotal` reflects filter matches before pagination, and `total` reflects the unfiltered selected-site or selected-program scope.
+- Primary site returns exactly 250 total unfiltered matching students, while returned row count respects pagination.
+- Program teacher access is intentionally narrower than site administration access: it returns only selected-site students in the teacher-visible program scope and does not expose full-site counts.
+- Viewer access remains read-only with mutation permissions false.
+- Directory filters use canonical values for status, story, risk, presentation, and archive states so Phase 9 student detail can reuse the same vocabulary.
+- Student rows do not link to student detail yet. The only row-level action is a disabled `Detail view coming soon` control, preserving Phase 9 as the detail route/surface phase.

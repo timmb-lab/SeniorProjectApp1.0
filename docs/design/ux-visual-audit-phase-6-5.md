@@ -286,13 +286,14 @@ Do inside Phase 7:
 
 Do after Phase 7:
 
-- Build student directory and student detail using the same token/status/problem-state rules.
+- Phase 8 status: completed for the site-scoped Student Directory vertical slice. `/api/site/students` now backs the authenticated workspace Students section, uses the Phase 6.6 product header shell, site context badges, filter bar, story/risk chips, status pills, problem-state empty handling, private evidence / role scoped / audited changes / teacher intervention language, and no-announcements posture.
+- Build student detail using the same token/status/problem-state rules.
 - Add browser screenshot proof after route-connected views exist.
 
 Do not do yet:
 
 - Do not edit live Figma.
 - Do not run remote migrations, remote writes, remote seed, or deploy.
-- Do not build student directory or student detail before the site dashboard.
+- Do not build student detail before the directory route/UI is stable.
 - Do not reintroduce announcements or messaging.
 - Do not change domain, OAuth, or Cloudflare live configuration.

@@ -2,6 +2,12 @@ import type { Env, RoleAssignment, RoleId, UserAccount } from "../../_types.ts";
 import { getCurrentUser, writeAudit } from "../../_lib/auth.ts";
 import { json } from "../../_lib/http.ts";
 import {
+  cleanId,
+  isReadOnlyViewer,
+  resolveSiteSelection,
+  type SiteScopeContext,
+} from "../../_lib/site-scope.ts";
+import {
   canManageMentorAssignments,
   canManagePresentationOperations,
   canManageArchiveOperations,
@@ -15,22 +21,11 @@ import {
   canViewReviewQueue,
   canViewSiteDashboard,
   canViewStudentDirectory,
-  getAccessibleSiteIds,
   getViewerRoleContext,
 } from "../../_lib/permissions.ts";
 
-const DEMO_DEFAULT_SITE_ID = "site-desert-valley-high";
-
 interface CountRow {
   count: number;
-}
-
-interface SiteRow {
-  id: string;
-  tenant_id: string;
-  tenant_name: string;
-  name: string;
-  school_year: string | null;
 }
 
 interface StatusCountRow {
@@ -67,11 +62,7 @@ interface MentorCoverageRow {
   active_assignments: number;
 }
 
-interface AuditContext {
-  roles: RoleAssignment[];
-  roleIds: RoleId[];
-  primaryRole: RoleId | "role_pending";
-}
+type AuditContext = SiteScopeContext;
 
 export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
   const url = new URL(request.url);
@@ -107,7 +98,13 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
     }, { status: 403 });
   }
 
-  const selection = await resolveSiteSelection(env, user, context, requestedSiteId);
+  const selection = await resolveSiteSelection({
+    env,
+    user,
+    context,
+    requestedSiteId,
+    canViewSite: (siteId) => canViewSiteDashboard(env, user, siteId),
+  });
   if (selection.kind === "denied") {
     await auditSiteDashboard(env, request, user, context, "site_dashboard_denied", {
       reason: selection.reason,
@@ -218,59 +215,6 @@ function canUseSiteDashboardRole(roleIds: RoleId[]): boolean {
     || roleId === "site_admin"
     || roleId === "viewer"
   ));
-}
-
-function isReadOnlyViewer(roleIds: RoleId[]): boolean {
-  const mutationRole = roleIds.some((roleId) => (
-    roleId === "platform_admin"
-    || roleId === "admin"
-    || roleId === "org_admin"
-    || roleId === "site_admin"
-  ));
-  return roleIds.includes("viewer") && !mutationRole;
-}
-
-async function resolveSiteSelection(
-  env: Env,
-  user: UserAccount,
-  context: AuditContext,
-  requestedSiteId: string,
-): Promise<
-  | { kind: "ok"; site: SiteRow; accessibleSites: ReturnType<typeof siteResponse>[]; selectionMode: string }
-  | { kind: "denied"; reason: string; accessibleSites: ReturnType<typeof siteResponse>[] }
-  | { kind: "selectionRequired"; accessibleSites: ReturnType<typeof siteResponse>[] }
-> {
-  const accessibleSiteIds = await getAccessibleSiteIds(env, user);
-  const accessibleSites = (await loadSitesByIds(env, accessibleSiteIds)).map(siteResponse);
-
-  if (requestedSiteId) {
-    if (!await canViewSiteDashboard(env, user, requestedSiteId)) {
-      return { kind: "denied", reason: "site_not_accessible", accessibleSites };
-    }
-    const site = await loadSite(env, requestedSiteId);
-    if (!site) return { kind: "denied", reason: "site_not_accessible", accessibleSites };
-    return { kind: "ok", site, accessibleSites, selectionMode: "requested" };
-  }
-
-  if (accessibleSites.length === 0) {
-    return { kind: "denied", reason: "no_accessible_sites", accessibleSites };
-  }
-
-  if (accessibleSites.length === 1) {
-    const site = await loadSite(env, accessibleSites[0].siteId);
-    if (!site) return { kind: "denied", reason: "site_not_accessible", accessibleSites };
-    return { kind: "ok", site, accessibleSites, selectionMode: "single_accessible_site" };
-  }
-
-  if (
-    ["platform_admin", "admin", "org_admin"].includes(context.primaryRole)
-    && accessibleSites.some((site) => site.siteId === DEMO_DEFAULT_SITE_ID)
-  ) {
-    const site = await loadSite(env, DEMO_DEFAULT_SITE_ID);
-    if (site) return { kind: "ok", site, accessibleSites, selectionMode: "demo_default_site" };
-  }
-
-  return { kind: "selectionRequired", accessibleSites };
 }
 
 async function loadPermissions(env: Env, user: UserAccount, siteId: string, readOnly: boolean) {
@@ -640,43 +584,6 @@ async function countRecentActivity(env: Env, siteId: string): Promise<number> {
   return Number(row?.count || 0);
 }
 
-async function loadSite(env: Env, siteId: string): Promise<SiteRow | null> {
-  return env.DB.prepare(
-    `SELECT
-       sites.id,
-       sites.tenant_id,
-       tenants.name AS tenant_name,
-       sites.name,
-       sites.school_year
-     FROM sites
-     JOIN tenants ON tenants.id = sites.tenant_id
-      AND tenants.status = 'active'
-     WHERE sites.id = ?
-      AND sites.status = 'active'
-     LIMIT 1`,
-  ).bind(siteId).first<SiteRow>();
-}
-
-async function loadSitesByIds(env: Env, siteIds: string[]): Promise<SiteRow[]> {
-  if (!siteIds.length) return [];
-  const placeholders = siteIds.map(() => "?").join(", ");
-  const rows = await env.DB.prepare(
-    `SELECT
-       sites.id,
-       sites.tenant_id,
-       tenants.name AS tenant_name,
-       sites.name,
-       sites.school_year
-     FROM sites
-     JOIN tenants ON tenants.id = sites.tenant_id
-      AND tenants.status = 'active'
-     WHERE sites.id IN (${placeholders})
-      AND sites.status = 'active'
-     ORDER BY sites.name`,
-  ).bind(...siteIds).all<SiteRow>();
-  return rows.results || [];
-}
-
 async function count(env: Env, siteId: string, sql: string): Promise<number> {
   const row = await env.DB.prepare(sql).bind(siteId).first<CountRow>();
   return Number(row?.count || 0);
@@ -792,16 +699,6 @@ function riskReasons(row: RiskStudentRow): string[] {
   return reasons;
 }
 
-function siteResponse(site: SiteRow) {
-  return {
-    tenantId: site.tenant_id,
-    tenantName: site.tenant_name,
-    siteId: site.id,
-    siteName: site.name,
-    schoolYear: site.school_year || "",
-  };
-}
-
 async function auditSiteDashboard(
   env: Env,
   request: Request,
@@ -834,9 +731,4 @@ function safeRoleScopes(assignments: RoleAssignment[]) {
     scopeType: assignment.scope_type,
     scopeId: assignment.scope_id || "",
   }));
-}
-
-function cleanId(value: string | null): string {
-  const trimmed = String(value || "").trim();
-  return /^[a-zA-Z0-9_.:-]+$/.test(trimmed) ? trimmed : "";
 }

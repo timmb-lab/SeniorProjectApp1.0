@@ -85,3 +85,18 @@ After Phase 6.6, Phase 7 added the first route-connected administration surface:
 - Student directory and student detail are still not built; Phase 8 should build on the site dashboard route foundation.
 
 Updated next prompt after Phase 7: `08_student_directory_api_ui.txt`.
+
+## Phase 8 Update
+
+After Phase 7, Phase 8 added the route-connected site-scoped Student Directory:
+
+- `/api/site/students` is implemented and tested independently from legacy admin/program/mentor/student dashboards.
+- The route proves local Desert Valley directory scoping: Desert Valley High School has 250 total unfiltered matching students, Canyon Ridge Career Academy has 60, and North Valley Technical High School has 60, while returned rows respect pagination.
+- Default `limit` is 50, maximum `limit` is 100, offset pagination changes the returned set, and `filteredTotal` tracks filter matches before pagination.
+- Canonical filters are implemented for status, story, risk, presentation status, and archive status. Missing mentor, revision requested, and archive failed story filters are proven against the seeded story buckets.
+- Viewer directory access is read-only with mutation permissions disabled.
+- Program teacher directory access is safely scoped to selected-site program students and does not expose full-site counts.
+- The authenticated workspace renders a Figma-aligned Students section with filters, result counts, story/risk chips, status pills, problem-state empty handling, and disabled `Detail view coming soon` row controls only.
+- Student detail is still not built; Phase 9 should build on the directory route and filter vocabulary.
+
+Updated next prompt after Phase 8: `09_student_detail_timeline_ui.txt`.

@@ -13,6 +13,8 @@ const submissionDetailRoute = await readFile("functions/api/submissions/[id].ts"
 const exportDownloadRoute = await readFile("functions/api/exports/[id]/download.ts", "utf8");
 const productionRouteInventory = await readFile("docs/generated/production-route-inventory.md", "utf8");
 const siteDashboardRoute = await readFile("functions/api/site/dashboard.ts", "utf8");
+const siteStudentsRoute = await readFile("functions/api/site/students.ts", "utf8");
+const siteScopeLib = await readFile("functions/_lib/site-scope.ts", "utf8");
 const mentorAssignedRoute = await readFile("functions/api/mentor/assigned.ts", "utf8");
 const mentorMeetingsRoute = await readFile("functions/api/mentor/meetings.ts", "utf8");
 const readinessRoute = await readFile("functions/api/reports/readiness.ts", "utf8");
@@ -78,21 +80,58 @@ test("student evidence endpoint validates HTTPS metadata and keeps file upload p
 test("production route inventory classifies the canonical workspace route", () => {
   assert.match(productionRouteInventory, /\| workspace\.html \| senior-capstone-app \| production \| conditional \|/);
   assert.match(productionRouteInventory, /\| \/api\/site\/dashboard \| functions\/api\/site\/dashboard\.ts \| senior-capstone-app \| production \| conditional \|/);
+  assert.match(productionRouteInventory, /\| \/api\/site\/students \| functions\/api\/site\/students\.ts \| senior-capstone-app \| production \| conditional \|/);
   assert.match(productionRouteInventory, /Canonical protected app route/);
   assert.doesNotMatch(productionRouteInventory, /\| workspace\.html \|  \| unknown \| unknown \|/);
 });
 
 test("site dashboard route is site-scoped and not a legacy global dashboard wrapper", () => {
   assert.match(siteDashboardRoute, /canViewSiteDashboard/);
-  assert.match(siteDashboardRoute, /getAccessibleSiteIds/);
+  assert.match(siteScopeLib, /getAccessibleSiteIds/);
   assert.match(siteDashboardRoute, /site_users/);
   assert.match(siteDashboardRoute, /site_programs/);
   assert.match(siteDashboardRoute, /site_dashboard_viewed/);
   assert.match(siteDashboardRoute, /site_dashboard_denied/);
   assert.match(siteDashboardRoute, /site_dashboard_unauthorized/);
-  assert.match(siteDashboardRoute, /DEMO_DEFAULT_SITE_ID = "site-desert-valley-high"/);
+  assert.match(siteDashboardRoute, /resolveSiteSelection/);
+  assert.match(siteScopeLib, /DEMO_DEFAULT_SITE_ID = "site-desert-valley-high"/);
   assert.match(siteDashboardRoute, /readOnly \? false :/);
   assert.doesNotMatch(siteDashboardRoute, /from "\.\.\/admin\/dashboard|\/api\/admin\/dashboard|drive_file_id|drive_parent_folder_id|password_hash|password_salt|token_hash|client_secret|refresh_token|access_token|private_key/i);
+});
+
+test("site student directory route is site-scoped, paginated, filterable, and safe", () => {
+  assert.match(siteStudentsRoute, /canViewStudentDirectory/);
+  assert.match(siteStudentsRoute, /resolveSiteSelection/);
+  assert.match(siteStudentsRoute, /getProgramTeacherScopedStudentIds/);
+  assert.match(siteStudentsRoute, /site_users/);
+  assert.match(siteStudentsRoute, /student_role\.role_id = 'student'/);
+  assert.match(siteStudentsRoute, /DEFAULT_LIMIT = 50/);
+  assert.match(siteStudentsRoute, /MAX_LIMIT = 100/);
+  assert.match(siteStudentsRoute, /pagination/);
+  assert.match(siteStudentsRoute, /filteredTotal/);
+  assert.match(siteStudentsRoute, /LIMIT \? OFFSET \?/);
+  for (const value of [
+    "draft",
+    "submitted",
+    "under_review",
+    "revision_requested",
+    "approved",
+    "blocked",
+    "archived",
+    "complete",
+    "model_excellent",
+    "missing_mentor",
+    "archive_failed",
+    "presentation_pending",
+  ]) {
+    assert.match(siteStudentsRoute, new RegExp(value));
+  }
+  assert.match(siteStudentsRoute, /site_student_directory_viewed/);
+  assert.match(siteStudentsRoute, /site_student_directory_denied/);
+  assert.match(siteStudentsRoute, /site_student_directory_unauthorized/);
+  assert.match(siteStudentsRoute, /searchPresent/);
+  assert.match(siteStudentsRoute, /searchLength/);
+  assert.doesNotMatch(siteStudentsRoute, /from "\.\.\/admin\/dashboard|\/api\/admin\/dashboard|drive_file_id|drive_parent_folder_id|storage_key|password_hash|password_salt|token_hash|client_secret|refresh_token|access_token|private_key|temporaryPassword|setupPassword/i);
 });
 
 test("review decision endpoint enforces teacher or admin scope and immutable review records", () => {

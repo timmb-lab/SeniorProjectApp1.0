@@ -339,7 +339,8 @@
   color: var(--teal-dark);
 }
 
-.workspace-button:disabled {
+.workspace-button:disabled,
+.workspace-link-button:disabled {
   cursor: wait;
   opacity: 0.62;
 }
@@ -1214,6 +1215,25 @@
   padding: var(--space-card);
 }
 
+.workspace-checkbox-label {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 900;
+}
+
+.workspace-directory-summary,
+.workspace-directory-pagination {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.workspace-directory-pagination {
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+}
+
 .workspace-student-list {
   display: grid;
   gap: 0.58rem;
@@ -1264,6 +1284,11 @@
   border: 1px solid color-mix(in srgb, var(--color-warning) 34%, white);
   background: var(--abc-soft-amber);
   color: #734300;
+}
+
+.workspace-detail-coming-soon {
+  cursor: default;
+  white-space: nowrap;
 }
 
 a.workspace-metric-tile,

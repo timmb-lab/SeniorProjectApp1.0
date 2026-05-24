@@ -235,6 +235,16 @@ Phase 7 site dashboard implementation:
 - `platform_admin`, legacy `admin`, `org_admin`, assigned `site_admin`, and assigned `viewer` can view the route; `viewer` is read-only; `program_teacher`, `mentor`, `student`, and legacy `misc_admin` are denied.
 - The authenticated workspace renders a Figma-aligned Site Dashboard section from `/api/site/dashboard` while keeping legacy `/api/admin/dashboard` for compatibility.
 
+Phase 8 site student directory implementation:
+
+- `/api/site/students` is implemented as the route-connected Student Directory surface.
+- The route reuses the shared site-selection helper used by `/api/site/dashboard` and scopes records through active selected-site `site_users`, student roles, program/group membership, mentor assignments, submissions, evidence counts, presentation slots, and archive/export rows.
+- Primary site returns exactly 250 total unfiltered matching students, while returned row count respects pagination.
+- Default pagination limit is 50, maximum limit is 100, `pagination.returned` equals the returned row count, and `pagination.filteredTotal` is the filter match count before pagination.
+- Canonical filters are implemented for status, story bucket, risk, presentation status, archive status, no mentor, program, and search. Story filters include `missing_mentor`, `revision_requested`, and `archive_failed` proof paths.
+- `platform_admin`, legacy `admin`, `org_admin`, assigned `site_admin`, assigned `viewer`, and scoped `program_teacher` can view the route; `viewer` is read-only and `program_teacher` is limited to scoped program/site students. `mentor`, `student`, and legacy `misc_admin` are denied.
+- The authenticated workspace renders a Figma-aligned Students section from `/api/site/students` with filters, result counts, pagination summary, story/risk chips, status chips, and disabled `Detail view coming soon` controls only. Student detail remains a Phase 9 route/surface.
+
 ## 9. Demo Seed Direction
 
 Future synthetic sales demo data should include:

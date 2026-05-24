@@ -33,3 +33,4 @@ The Phase 5A seed uses one fake district, three fake sites, and named primary-si
 - The legacy `announcements` table remains deprecated/schema-only.
 - The remote seeder supports the same shape but Phase 5A runs no remote write.
 - Phase 7 `/api/site/dashboard` proof uses this shape directly: the primary site returns exactly 250 students, each secondary site returns exactly 60 students, and the primary-site dashboard does not include secondary-site student counts.
+- Phase 8 `/api/site/students` proof uses the same shape for the Student Directory: primary site returns exactly 250 total unfiltered matching students, while returned row count respects pagination; each secondary site returns 60 total matching students; and story filters map to stable canonical values such as `model_excellent`, `missing_mentor`, `awaiting_review`, `revision_requested`, `presentation_pending`, `archive_ready`, `archive_failed`, `high_risk`, and `rich_timeline`.
