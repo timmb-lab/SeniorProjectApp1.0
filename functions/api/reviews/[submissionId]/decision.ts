@@ -2,11 +2,18 @@ import type { Env, RoleAssignment, UserAccount } from "../../../_types.ts";
 import { getCurrentUser, writeAudit } from "../../../_lib/auth.ts";
 import { randomId } from "../../../_lib/crypto.ts";
 import { badRequest, json, readJson, requirePost } from "../../../_lib/http.ts";
-import { getRoleAssignments } from "../../../_lib/permissions.ts";
+import { cleanId } from "../../../_lib/site-scope.ts";
+import {
+  canAccessSite,
+  getProgramTeacherScopedStudentIds,
+  getRoleAssignments,
+  hasRole,
+} from "../../../_lib/permissions.ts";
 import {
   canReviewSubmission,
   cleanWorkflowText,
   getSubmission,
+  type SubmissionRow,
   type SubmissionDecision,
   workflowError,
   writeStatusHistory,
@@ -15,6 +22,7 @@ import {
 interface ReviewDecisionBody {
   decision?: SubmissionDecision;
   feedback?: string;
+  siteId?: string;
 }
 
 export const onRequestPost: PagesFunction<Env> = async ({ request, env, params }) => {
@@ -43,10 +51,31 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, params }
     return badRequest("invalid_review_decision");
   }
   const decision = body.decision;
+  const rawSiteId = new URL(request.url).searchParams.get("siteId") || body.siteId || null;
+  const siteId = cleanId(rawSiteId);
+  if (rawSiteId !== null && !siteId) {
+    await auditReviewDecisionAccess(env, request, user, "review_decision_denied", submissionId, {
+      reason: "invalid_site_id",
+      decision,
+    });
+    return workflowError("forbidden", 403);
+  }
 
   const submission = await getSubmission(env, submissionId);
   if (!submission) return workflowError("not_found", 404);
-  if (!await canReviewSubmission(env, user, submission)) {
+
+  if (siteId) {
+    const siteScopedAccess = await canReviewSubmissionForSite(env, user, submission, siteId);
+    if (!siteScopedAccess.ok) {
+      await auditReviewDecisionAccess(env, request, user, "review_decision_denied", submission.id, {
+        reason: siteScopedAccess.reason,
+        siteId,
+        studentId: siteScopedAccess.includeStudent ? submission.student_id : undefined,
+        decision,
+      });
+      return workflowError(siteScopedAccess.error, siteScopedAccess.status);
+    }
+  } else if (!await canReviewSubmission(env, user, submission)) {
     await auditReviewDecisionAccess(env, request, user, "review_decision_denied", submission.id, {
       reason: "scope_denied",
       studentId: submission.student_id,
@@ -118,6 +147,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, params }
       reviewId,
       commentId,
       studentId: submission.student_id,
+      siteId: siteId || undefined,
       fromStatus: submission.status,
       toStatus: statusChanged ? decision : submission.status,
       statusChanged,
@@ -156,6 +186,46 @@ function reviewAuditAction(decision: SubmissionDecision): string {
   if (decision === "approved") return "submission_approved";
   if (decision === "revision_requested") return "submission_revision_requested";
   return "submission_review_comment_added";
+}
+
+async function canReviewSubmissionForSite(
+  env: Env,
+  user: UserAccount,
+  submission: SubmissionRow,
+  siteId: string,
+): Promise<{ ok: true } | { ok: false; status: number; error: string; reason: string; includeStudent: boolean }> {
+  if (!await studentHasActiveSite(env, submission.student_id, siteId)) {
+    return { ok: false, status: 404, error: "not_found", reason: "submission_not_in_selected_site", includeStudent: false };
+  }
+
+  if (!await canAccessSite(env, user, siteId)) {
+    return { ok: false, status: 403, error: "forbidden", reason: "site_not_accessible", includeStudent: false };
+  }
+
+  if (!await hasRole(env, user.id, "program_teacher")) {
+    return { ok: false, status: 403, error: "forbidden", reason: "role_not_allowed_for_site_review_decision", includeStudent: true };
+  }
+
+  const teacherScope = await getProgramTeacherScopedStudentIds(env, user);
+  if (!teacherScope.valid || !teacherScope.studentIds.includes(submission.student_id)) {
+    return { ok: false, status: 404, error: "not_found", reason: "submission_not_in_program_teacher_scope", includeStudent: false };
+  }
+
+  return { ok: true };
+}
+
+async function studentHasActiveSite(env: Env, studentId: string, siteId: string): Promise<boolean> {
+  const row = await env.DB.prepare(
+    `SELECT 1
+     FROM site_users
+     JOIN sites ON sites.id = site_users.site_id
+      AND sites.status = 'active'
+     WHERE site_users.user_id = ?
+      AND site_users.site_id = ?
+      AND site_users.membership_status = 'active'
+     LIMIT 1`,
+  ).bind(studentId, siteId).first();
+  return Boolean(row);
 }
 
 async function auditReviewDecisionAccess(

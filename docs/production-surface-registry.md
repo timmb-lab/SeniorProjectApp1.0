@@ -71,6 +71,7 @@ Canonical app APIs deploy from `functions/api/**` on `senior-capstone-app`. Prot
 - `/api/site/students`
 - `/api/site/students/:studentId`
 - `/api/site/students/:studentId/timeline`
+- `/api/site/review-queue`
 - `/api/program-teacher/dashboard`
 - `/api/mentor/dashboard`
 - `/api/auth/config`
@@ -79,6 +80,8 @@ Canonical app APIs deploy from `functions/api/**` on `senior-capstone-app`. Prot
 - `/api/auth/login`
 - `/api/auth/me`
 - `/api/student/dashboard`
+- `/api/reviews/:submissionId/decision`
+- `/api/reviews/:submissionId/history`
 - `/api/submissions/:id/evidence`
 - `/api/evidence/:id/download`
 

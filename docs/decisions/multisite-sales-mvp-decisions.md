@@ -106,3 +106,12 @@ This decision record locks the target vocabulary and scope for the multisite sal
 - Cross-site or out-of-scope student requests use generic denial/not-found responses so a scoped user cannot distinguish another site's real student from a nonexistent student.
 - Role visibility defaults safe: admin-family roles can see scoped operational detail; viewer is read-only; program teacher is scoped to teacher-visible program/cohort students; mentor is scoped to assigned-student support data; student self-service remains separate; misc admin is denied.
 - The workspace detail surface is read/detail-only in this phase. Review decisions, mentor assignment, archive retry/export, user-management, and download controls remain outside Phase 9 unless an existing scoped route is explicitly tested.
+
+## Phase 10 Program Teacher Review Workflow
+
+- `/api/site/review-queue` is the new site-aware queue surface. It scopes rows through active selected-site `site_users`, active student role membership, submissions for selected-site students, program/cohort group membership, and evidence/review/comment counts. The route defaults to submitted and revision-requested rows, uses bound filters, and caps pagination at 100 rows.
+- `/api/teacher/review-queue` remains for legacy compatibility. The site workspace uses `/api/site/review-queue`.
+- The review decision/history model remains the existing `/api/reviews/:submissionId/decision` and `/api/reviews/:submissionId/history` routes. When `siteId` is provided, both routes validate selected-site membership and teacher program scope before returning or mutating.
+- Mutation policy is intentionally narrow: the new site Review Queue UI exposes approve, request-revision, and comment-only controls only to scoped `program_teacher` users on submitted work. Platform admin, org admin, site admin, and viewer are read-only in the new UI; legacy admin backend compatibility is preserved but not expanded into broad site-admin controls.
+- Review payloads stay bounded and redacted. The queue does not expose raw Drive/storage IDs, token/password/setup credential fields, full private evidence URLs, or unsafe audit metadata.
+- After a successful decision, the workspace refreshes the queue and refreshes the open student detail drawer when the selected review row belongs to the open student, without resetting directory filters or pagination.

@@ -23,6 +23,8 @@ let busy = false;
 let lastAdminImportResult = null;
 let siteStudentFilters = defaultSiteStudentFilters();
 let siteStudentDetailState = defaultSiteStudentDetailState();
+let reviewQueueFilters = defaultReviewQueueFilters();
+let reviewQueueState = defaultReviewQueueState();
 const WORKSPACE_UPLOAD_MAX_BYTES = 20 * 1024 * 1024;
 const WORKSPACE_UPLOAD_ALLOWED_MIME_TYPES = new Set([
   "application/pdf",
@@ -196,9 +198,9 @@ async function loadWorkspaceData(statusMessage = "") {
   if (roles.has("student")) loaders.push(["archiveReadiness", apiJson("/api/student/archive/readiness")]);
   if (hasSiteDashboardRole(roles)) loaders.push(["siteDashboard", apiJson("/api/site/dashboard")]);
   if (hasSiteStudentDirectoryRole(roles)) loaders.push(["siteStudents", apiJson(`/api/site/students${siteStudentQueryString()}`)]);
+  if (hasSiteReviewQueueRole(roles)) loaders.push(["reviewQueue", apiJson(`/api/site/review-queue${siteReviewQueueQueryString()}`)]);
   if (roles.has("admin")) loaders.push(["adminDashboard", apiJson("/api/admin/dashboard")]);
   if (roles.has("program_teacher")) loaders.push(["programTeacherDashboard", apiJson("/api/program-teacher/dashboard")]);
-  if (roles.has("program_teacher") || roles.has("admin")) loaders.push(["reviewQueue", apiJson("/api/teacher/review-queue")]);
   if (roles.has("mentor") || roles.has("admin")) loaders.push(["mentorDashboard", apiJson("/api/mentor/dashboard")]);
   if (roles.has("mentor")) loaders.push(["mentorAssigned", apiJson("/api/mentor/assigned")]);
   if (roles.has("student") || roles.has("mentor") || roles.has("program_teacher") || roles.has("admin")) {
@@ -533,7 +535,7 @@ function availableSections() {
   if (roles.has("mentor")) sections.push({ id: "mentorDashboard", label: "Mentor Dashboard", detail: "Assigned student risks" });
   if (roles.has("mentor")) sections.push({ id: "mentor", label: "Assigned Students", detail: "Assigned students and evidence counts" });
   if (roles.has("program_teacher")) sections.push({ id: "programDashboard", label: "Program Dashboard", detail: "Scoped cohort and review risks" });
-  if (roles.has("program_teacher") || roles.has("admin")) sections.push({ id: "teacher", label: "Teacher Review", detail: "Review queue and submitted work" });
+  if (hasSiteReviewQueueRole(roles)) sections.push({ id: "teacher", label: "Review Queue", detail: "Teacher review and submitted work" });
   if (roles.has("student") || roles.has("mentor") || roles.has("program_teacher") || roles.has("admin")) {
     sections.push({ id: "presentation", label: "Presentation", detail: "Schedule, outline, and day-of status" });
   }
@@ -2016,33 +2018,295 @@ function formatBytes(bytes) {
 function renderTeacherSection() {
   const result = currentData.reviewQueue;
   if (result?.status === 403) {
-    return renderPermissionDeniedSection("Teacher review", "submitted student work");
+    return renderPermissionDeniedSection("Teacher review queue", "submitted student work");
   }
   const body = unwrap(result);
   const queue = body?.queue || [];
+  const scope = body?.scope || {};
+  const summary = body?.summary || {};
+  const pagination = body?.pagination || {};
+  const permissions = body?.permissions || {};
+  const filters = body?.filters || reviewQueueFilters || defaultReviewQueueFilters();
+  const selectedId = reviewQueueState.selectedSubmissionId;
+  const selected = queue.find((item) => item.submissionId === selectedId) || null;
+  const readOnly = scope.readOnly || !permissions.canReview;
   return `
-    <section class="workspace-card">
-      <div class="workspace-card-head">
+    <section class="workspace-command-center workspace-review-queue" aria-labelledby="reviewQueueTitle">
+      <div class="workspace-section-heading">
         <div>
-          <p class="workspace-kicker">Teacher review</p>
-          <h2>Submitted Work</h2>
+          <p class="workspace-kicker">Teacher review queue</p>
+          <h1 id="reviewQueueTitle">Review Queue</h1>
+          <p>
+            Route-connected submitted work for Private evidence, Role scoped views, Audited changes, and Teacher intervention.
+            No student messaging.
+          </p>
         </div>
-        <span class="workspace-chip">${queue.length} item${queue.length === 1 ? "" : "s"}</span>
+        <div class="workspace-site-context">
+          <span class="workspace-site-context-badge">${escapeHtml(scope.siteName || "Selected site")}</span>
+          <span class="workspace-site-context-badge">${escapeHtml(scope.schoolYear || "School year")}</span>
+          ${readOnly ? `<span class="workspace-site-context-badge">Read-only</span>` : `<span class="workspace-site-context-badge">Teacher decisions enabled</span>`}
+        </div>
       </div>
       ${renderApiNotice(result)}
-      <div class="workspace-table">
-        ${queue.length ? queue.map((item) => `
-          <article class="workspace-table-row">
+      ${readOnly ? `
+        <section class="workspace-read-only-banner" data-review-queue-read-only="true">
+          <strong>Read-only review queue</strong>
+          <p>This role can inspect submitted work and review context, but approve, revision, and comment-only decisions stay with scoped program teachers.</p>
+        </section>
+      ` : ""}
+      <div class="workspace-metric-grid">
+        ${renderMetricTile("Submitted", summary.submitted, "Ready for teacher review", "teacher")}
+        ${renderMetricTile("Needs Revision", summary.revisionRequested, "Open revision loops", "warning")}
+        ${renderMetricTile("Evidence Attached", summary.evidenceAttached, "Private evidence summaries", "admin")}
+        ${renderMetricTile("High Risk", summary.highRisk, "Prioritize intervention", safeNumber(summary.highRisk) ? "danger" : "admin")}
+      </div>
+      ${renderReviewQueueFilters(body)}
+      <div class="workspace-review-layout">
+        <section class="workspace-dashboard-card">
+          <div class="workspace-card-head">
             <div>
-              <strong>${escapeHtml(item.student_name || "Student")}</strong>
-              <span class="workspace-muted">${escapeHtml(item.requirement_title || "Capstone Project submission")}</span>
+              <h2>Submitted work</h2>
+              <p>${safeNumber(pagination.returned)} shown of ${safeNumber(pagination.filteredTotal)} matching records</p>
             </div>
-            <span>${escapeHtml(item.evidence_count || 0)} evidence item${Number(item.evidence_count || 0) === 1 ? "" : "s"}</span>
-            ${statusPill(item.status)}
-          </article>
-        `).join("") : `<div class="workspace-empty">No submissions are waiting for review right now.</div>`}
+            <span class="workspace-chip">${safeNumber(pagination.total)} scoped</span>
+          </div>
+          ${queue.length ? `
+            <div class="workspace-list">
+              ${queue.map((item) => renderReviewQueueRow(item, selectedId, permissions)).join("")}
+            </div>
+            <div class="workspace-directory-pagination" aria-label="Review queue pagination">
+              <button class="workspace-button workspace-button-secondary" type="button" data-review-queue-action="previous-page" ${safeNumber(pagination.offset) <= 0 ? "disabled" : ""}>Previous</button>
+              <span>${safeNumber(pagination.offset) + 1}-${safeNumber(pagination.offset) + safeNumber(pagination.returned)} of ${safeNumber(pagination.filteredTotal)}</span>
+              <button class="workspace-button workspace-button-secondary" type="button" data-review-queue-action="next-page" ${(safeNumber(pagination.offset) + safeNumber(pagination.returned)) >= safeNumber(pagination.filteredTotal) ? "disabled" : ""}>Next</button>
+            </div>
+          ` : `
+            <section class="workspace-empty-state-card" data-review-queue-empty="true">
+              <h2>No review rows match</h2>
+              ${renderProblemState(body?.emptyState || {
+                reason: "No submitted or revision-requested records are available for this site and role scope.",
+                owner: "Program teacher or site staff.",
+                nextAction: "Adjust filters or check the student directory.",
+              })}
+            </section>
+          `}
+        </section>
+        ${renderReviewSubmissionPanel(selected, body)}
       </div>
     </section>
+  `;
+}
+
+function renderReviewQueueFilters(body) {
+  const filters = body?.filters || reviewQueueFilters || defaultReviewQueueFilters();
+  const options = body?.filterOptions || {};
+  const programs = options.programs || [];
+  return `
+    <form id="reviewQueueFilterForm" class="workspace-filter-bar" data-review-queue-filters="true">
+      <label>
+        <span>Status</span>
+        <select name="status">
+          <option value="" ${!filters.status ? "selected" : ""}>Submitted and revision</option>
+          ${(options.statuses || ["submitted", "revision_requested", "approved"]).map((status) => `
+            <option value="${escapeHtml(status)}" ${filters.status === status ? "selected" : ""}>${escapeHtml(statusText(status))}</option>
+          `).join("")}
+        </select>
+      </label>
+      <label>
+        <span>Program</span>
+        <select name="programId">
+          <option value="" ${!filters.programId ? "selected" : ""}>All visible programs</option>
+          ${programs.map((program) => `
+            <option value="${escapeHtml(program.programId)}" ${filters.programId === program.programId ? "selected" : ""}>
+              ${escapeHtml(program.programName)} (${safeNumber(program.queueCount)})
+            </option>
+          `).join("")}
+        </select>
+      </label>
+      <label>
+        <span>Story</span>
+        <select name="story">
+          <option value="" ${!filters.story ? "selected" : ""}>Any story</option>
+          ${(options.storyBuckets || []).map((story) => `
+            <option value="${escapeHtml(story)}" ${filters.story === story ? "selected" : ""}>${escapeHtml(storyLabel(story))}</option>
+          `).join("")}
+        </select>
+      </label>
+      <label>
+        <span>Risk</span>
+        <select name="risk">
+          ${(options.risks || ["any", "high", "medium", "low", "stale", "no_mentor"]).map((risk) => `
+            <option value="${escapeHtml(risk)}" ${(filters.risk || "any") === risk ? "selected" : ""}>${escapeHtml(riskLabel(risk))}</option>
+          `).join("")}
+        </select>
+      </label>
+      <label>
+        <span>Search</span>
+        <input name="search" type="search" value="${escapeHtml(filters.search || "")}">
+      </label>
+      <label>
+        <span>Page size</span>
+        <select name="limit">
+          ${[25, 50, 100].map((limit) => `<option value="${limit}" ${safeNumber(filters.limit) === limit ? "selected" : ""}>${limit}</option>`).join("")}
+        </select>
+      </label>
+      <button class="workspace-button workspace-button-primary" type="submit">Apply filters</button>
+      <button class="workspace-button workspace-button-secondary" type="button" data-review-queue-action="reset-filters">Reset</button>
+    </form>
+  `;
+}
+
+function renderReviewQueueRow(item, selectedId, permissions = {}) {
+  const selected = item.submissionId === selectedId;
+  return `
+    <article class="workspace-student-row ${selected ? "is-selected" : ""}" data-review-submission-id="${escapeHtml(item.submissionId || "")}">
+      <div class="workspace-student-card">
+        <div>
+          <strong>${escapeHtml(item.studentName || "Student")}</strong>
+          <p>${escapeHtml(item.requirementTitle || "Capstone Project submission")}</p>
+          <p class="workspace-muted">${escapeHtml(item.programName || "Unassigned")} / version ${safeNumber(item.version)} / updated ${escapeHtml(formatDate(item.updatedAt))}</p>
+        </div>
+        <div class="workspace-row-meta">
+          ${statusPill(item.status)}
+          ${item.storyBucket ? `<span class="workspace-story-chip">${escapeHtml(storyLabel(item.storyBucket))}</span>` : ""}
+          ${renderRiskChips(item.riskFlags || [])}
+          <span>${safeNumber(item.evidenceCount)} evidence</span>
+          <span>${safeNumber(item.reviewCount)} reviews</span>
+          <span>${safeNumber(item.commentCount)} comments</span>
+        </div>
+      </div>
+      <div class="workspace-row-actions">
+        <p>${escapeHtml(item.nextAction || "Review status and context.")}</p>
+        <button class="workspace-link-button workspace-link-button-small" type="button" data-review-queue-action="select" data-review-submission-id="${escapeHtml(item.submissionId || "")}">
+          ${permissions.canReview ? "Review" : "View"}
+        </button>
+      </div>
+    </article>
+  `;
+}
+
+function renderRiskChips(flags = []) {
+  return flags.length
+    ? flags.map((flag) => `<span class="workspace-risk-chip">${escapeHtml(riskLabel(flag))}</span>`).join("")
+    : `<span class="workspace-risk-chip">Low risk</span>`;
+}
+
+function renderReviewSubmissionPanel(selected, body) {
+  const permissions = body?.permissions || {};
+  const historyResult = reviewQueueState.historyResult;
+  const history = unwrap(historyResult);
+  if (reviewQueueState.loadingHistory) {
+    return `
+      <section class="workspace-dashboard-card workspace-review-panel" data-review-panel-state="loading">
+        <h2>Loading submission</h2>
+        ${renderProblemState({
+          reason: "Review history is loading.",
+          owner: "Teacher review queue",
+          nextAction: "Keep the selected row open.",
+        })}
+      </section>
+    `;
+  }
+  if (!selected) {
+    return `
+      <section class="workspace-dashboard-card workspace-review-panel" data-review-panel-state="empty">
+        <h2>Select a submission</h2>
+        ${renderProblemState({
+          reason: "No review row is selected.",
+          owner: "Program teacher or site staff",
+          nextAction: "Open a submitted row to view evidence summaries, history, and available teacher decisions.",
+        })}
+      </section>
+    `;
+  }
+  const canDecide = permissions.canReview && selected.status === "submitted";
+  return `
+    <section class="workspace-dashboard-card workspace-review-panel" data-review-panel-state="ready" data-review-selected-submission="${escapeHtml(selected.submissionId || "")}">
+      <div class="workspace-card-head">
+        <div>
+          <h2>${escapeHtml(selected.studentName || "Student")}</h2>
+          <p>${escapeHtml(selected.requirementTitle || "Capstone Project submission")}</p>
+        </div>
+        ${statusPill(selected.status)}
+      </div>
+      <div class="workspace-detail-grid">
+        <span class="workspace-site-context-badge">${escapeHtml(selected.programName || "Unassigned")}</span>
+        <span class="workspace-site-context-badge">${safeNumber(selected.evidenceCount)} private evidence</span>
+        <span class="workspace-site-context-badge">${safeNumber(selected.reviewCount)} reviews</span>
+        <span class="workspace-site-context-badge">${safeNumber(selected.commentCount)} comments</span>
+      </div>
+      <p>${escapeHtml(selected.nextAction || "Review evidence and history.")}</p>
+      <div class="workspace-row-actions">
+        <button class="workspace-link-button workspace-link-button-small" type="button" data-review-queue-action="open-student" data-review-student-id="${escapeHtml(selected.studentId || "")}">
+          View student detail
+        </button>
+      </div>
+      ${renderReviewHistorySummary(historyResult, history)}
+      ${canDecide ? renderReviewDecisionForm(selected) : `
+        <section class="workspace-empty-state-card" data-review-mutation-disabled="true">
+          <h2>Review actions unavailable</h2>
+          ${renderProblemState({
+            reason: permissions.canReview ? "Status-changing reviews are limited to submitted work." : "This role has a read-only review queue view.",
+            owner: "Scoped program teacher",
+            nextAction: "Use the queue for context or wait for a submitted item assigned to this teacher scope.",
+          })}
+        </section>
+      `}
+    </section>
+  `;
+}
+
+function renderReviewHistorySummary(historyResult, history) {
+  if (historyResult && !historyResult.ok) {
+    return `
+      <section class="workspace-empty-state-card" data-review-history-error="true">
+        <h2>Review history unavailable</h2>
+        ${renderProblemState({
+          reason: "The bounded review history could not load for this submission.",
+          owner: "Teacher review queue",
+          nextAction: "Refresh the queue or check role scope.",
+        })}
+      </section>
+    `;
+  }
+  const reviews = history?.reviews || [];
+  const comments = history?.comments || [];
+  return `
+    <section class="workspace-detail-section" data-review-history-section="true">
+      <h3>Review history</h3>
+      ${reviews.length ? `
+        <div class="workspace-list">
+          ${reviews.slice(0, 5).map((row) => `
+            <article class="workspace-row">
+              <div>
+                <strong>${escapeHtml(statusText(row.decision || "under_review"))}</strong>
+                <p>${escapeHtml(row.feedback || "Feedback recorded.")}</p>
+                <p class="workspace-muted">${escapeHtml(row.reviewer_name || row.reviewerName || "Reviewer")} / ${escapeHtml(formatDate(row.created_at || row.createdAt))}</p>
+              </div>
+              ${statusPill(row.decision || "under_review")}
+            </article>
+          `).join("")}
+        </div>
+      ` : `<div class="workspace-empty">No bounded review history is loaded yet.</div>`}
+      <p class="workspace-muted">${safeNumber(comments.length)} bounded comment${safeNumber(comments.length) === 1 ? "" : "s"} available for this submission.</p>
+    </section>
+  `;
+}
+
+function renderReviewDecisionForm(selected) {
+  return `
+    <form id="reviewDecisionForm" class="workspace-review-feedback" data-review-decision-form="true">
+      <label>
+        <span>Feedback</span>
+        <textarea name="feedback" rows="5" maxlength="800"></textarea>
+      </label>
+      <div class="workspace-row-actions">
+        <button class="workspace-button workspace-button-primary" type="submit" name="decision" value="approved" data-review-decision="approved">Approve</button>
+        <button class="workspace-button workspace-button-secondary" type="submit" name="decision" value="revision_requested" data-review-decision="revision_requested">Request revision</button>
+        <button class="workspace-button workspace-button-secondary" type="submit" name="decision" value="comment_only" data-review-decision="comment_only">Add comment only</button>
+      </div>
+      <p class="workspace-muted">Decisions are audited and refresh this queue after they are saved.</p>
+      <input type="hidden" name="submissionId" value="${escapeHtml(selected.submissionId || "")}">
+    </form>
   `;
 }
 
@@ -2258,6 +2522,11 @@ function bindWorkspaceForms() {
   document.querySelectorAll("[data-student-detail-action]").forEach((button) => {
     button.addEventListener("click", handleSiteStudentDetailAction);
   });
+  document.querySelector("#reviewQueueFilterForm")?.addEventListener("submit", applyReviewQueueFilters);
+  document.querySelectorAll("[data-review-queue-action]").forEach((button) => {
+    button.addEventListener("click", handleReviewQueueAction);
+  });
+  document.querySelector("#reviewDecisionForm")?.addEventListener("submit", submitReviewDecision);
 }
 
 function bindUploadRetryButton() {
@@ -2283,6 +2552,153 @@ async function applySiteStudentFilters(event) {
   };
   activeSection = "students";
   await loadWorkspaceData("Student directory filters applied.");
+}
+
+async function applyReviewQueueFilters(event) {
+  event?.preventDefault?.();
+  const form = event?.currentTarget;
+  if (!form) return;
+  const data = new FormData(form);
+  reviewQueueFilters = {
+    status: cleanDirectoryFilter(data.get("status")),
+    programId: cleanDirectoryFilter(data.get("programId")),
+    search: cleanDirectoryFilter(data.get("search")),
+    story: cleanDirectoryFilter(data.get("story")),
+    risk: cleanDirectoryFilter(data.get("risk")) || "any",
+    limit: clampDirectoryNumber(data.get("limit"), 50, 1, 100),
+    offset: 0,
+  };
+  reviewQueueState = defaultReviewQueueState();
+  activeSection = "teacher";
+  await loadReviewQueueResult("Review queue filters applied.");
+}
+
+async function handleReviewQueueAction(event) {
+  const action = event?.currentTarget?.dataset?.reviewQueueAction;
+  if (!action) return;
+  if (action === "select") {
+    await openReviewSubmission(event.currentTarget?.dataset?.reviewSubmissionId || "");
+    return;
+  }
+  if (action === "open-student") {
+    activeSection = "students";
+    await openSiteStudentDetail(event.currentTarget?.dataset?.reviewStudentId || "");
+    return;
+  }
+  if (action === "reset-filters") {
+    reviewQueueFilters = defaultReviewQueueFilters();
+    reviewQueueState = defaultReviewQueueState();
+    activeSection = "teacher";
+    await loadReviewQueueResult("Review queue filters reset.");
+    return;
+  }
+  if (action === "previous-page" || action === "next-page") {
+    const queue = unwrap(currentData.reviewQueue);
+    const pagination = queue?.pagination || {};
+    const limit = safeNumber(pagination.limit || reviewQueueFilters.limit || 50);
+    const offset = safeNumber(pagination.offset || reviewQueueFilters.offset || 0);
+    reviewQueueFilters = {
+      ...reviewQueueFilters,
+      limit,
+      offset: action === "previous-page" ? Math.max(0, offset - limit) : offset + limit,
+    };
+    reviewQueueState = defaultReviewQueueState();
+    activeSection = "teacher";
+    await loadReviewQueueResult("Review queue page updated.");
+  }
+}
+
+async function openReviewSubmission(submissionId) {
+  const selectedSubmissionId = cleanDirectoryFilter(submissionId);
+  if (!selectedSubmissionId) return;
+  const queue = unwrap(currentData.reviewQueue);
+  const siteId = queue?.scope?.siteId || "";
+  const query = siteId ? `?siteId=${encodeURIComponent(siteId)}` : "";
+  reviewQueueState = {
+    ...defaultReviewQueueState(),
+    selectedSubmissionId,
+    loadingHistory: true,
+  };
+  activeSection = "teacher";
+  renderAppShell("Loading review history...");
+  const historyResult = await settleApi(apiJson(`/api/reviews/${encodeURIComponent(selectedSubmissionId)}/history${query}`));
+  reviewQueueState = {
+    ...reviewQueueState,
+    loadingHistory: false,
+    historyResult,
+  };
+  renderAppShell(historyResult.ok ? "Review history loaded." : "Review history unavailable.", historyResult.ok ? "success" : "error");
+}
+
+async function submitReviewDecision(event) {
+  event?.preventDefault?.();
+  if (busy) return;
+  const form = event?.currentTarget;
+  if (!form) return;
+  const data = new FormData(form);
+  const submissionId = cleanDirectoryFilter(data.get("submissionId"));
+  const decision = cleanDirectoryFilter(event.submitter?.value || data.get("decision"));
+  const feedback = String(data.get("feedback") || "").trim();
+  if (!submissionId || !["approved", "revision_requested", "comment_only"].includes(decision)) {
+    renderAppShell("Choose a review decision before saving.", "error");
+    return;
+  }
+  busy = true;
+  setFormBusy(form, true);
+  const queue = unwrap(currentData.reviewQueue);
+  const selected = (queue?.queue || []).find((item) => item.submissionId === submissionId) || null;
+  const siteId = queue?.scope?.siteId || "";
+  const query = siteId ? `?siteId=${encodeURIComponent(siteId)}` : "";
+  try {
+    const result = await settleApi(apiJson(`/api/reviews/${encodeURIComponent(submissionId)}/decision${query}`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ decision, feedback }),
+    }));
+    reviewQueueState = {
+      ...reviewQueueState,
+      decisionResult: result,
+    };
+    if (!result.ok) {
+      renderAppShell(messageForReviewDecisionError(result.body?.error || result.error, result.status), "error");
+      return;
+    }
+    await refreshSelectedStudentDetailAfterReview(selected);
+    await loadReviewQueueResult("Review decision saved.");
+  } finally {
+    busy = false;
+  }
+}
+
+async function loadReviewQueueResult(message = "") {
+  const result = await settleApi(apiJson(`/api/site/review-queue${siteReviewQueueQueryString()}`));
+  currentData.reviewQueue = result;
+  const rows = unwrap(result)?.queue || [];
+  if (!rows.some((row) => row.submissionId === reviewQueueState.selectedSubmissionId)) {
+    reviewQueueState = {
+      ...reviewQueueState,
+      selectedSubmissionId: "",
+      historyResult: null,
+      loadingHistory: false,
+    };
+  }
+  activeSection = "teacher";
+  renderAppShell(result.ok ? (message || "Review queue loaded.") : "Review queue unavailable.", result.ok ? "success" : "error");
+}
+
+async function refreshSelectedStudentDetailAfterReview(selected) {
+  if (!selected?.studentId || siteStudentDetailState.studentId !== selected.studentId) return;
+  const siteId = unwrap(currentData.reviewQueue)?.scope?.siteId || unwrap(currentData.siteStudents)?.scope?.siteId || "";
+  const query = siteId ? `?siteId=${encodeURIComponent(siteId)}` : "";
+  const result = await settleApi(apiJson(`/api/site/students/${encodeURIComponent(selected.studentId)}${query}`));
+  if (result.ok) {
+    siteStudentDetailState = {
+      ...siteStudentDetailState,
+      result,
+      timelineResult: null,
+    };
+    currentData.siteStudentDetail = result;
+  }
 }
 
 async function handleSiteStudentAction(event) {
@@ -3386,6 +3802,10 @@ function hasSiteStudentDirectoryRole(roles) {
   return ["platform_admin", "admin", "org_admin", "site_admin", "viewer", "program_teacher"].some((role) => roles.has(role));
 }
 
+function hasSiteReviewQueueRole(roles) {
+  return ["platform_admin", "admin", "org_admin", "site_admin", "viewer", "program_teacher"].some((role) => roles.has(role));
+}
+
 function defaultSiteStudentFilters() {
   return {
     search: "",
@@ -3396,6 +3816,18 @@ function defaultSiteStudentFilters() {
     story: "",
     presentationStatus: "any",
     archiveStatus: "any",
+    limit: 50,
+    offset: 0,
+  };
+}
+
+function defaultReviewQueueFilters() {
+  return {
+    status: "",
+    programId: "",
+    search: "",
+    story: "",
+    risk: "any",
     limit: 50,
     offset: 0,
   };
@@ -3412,6 +3844,15 @@ function defaultSiteStudentDetailState() {
   };
 }
 
+function defaultReviewQueueState() {
+  return {
+    selectedSubmissionId: "",
+    historyResult: null,
+    loadingHistory: false,
+    decisionResult: null,
+  };
+}
+
 function siteStudentQueryString() {
   const params = new URLSearchParams();
   const filters = siteStudentFilters || defaultSiteStudentFilters();
@@ -3423,6 +3864,22 @@ function siteStudentQueryString() {
   if (filters.story) params.set("story", filters.story);
   if (filters.presentationStatus && filters.presentationStatus !== "any") params.set("presentationStatus", filters.presentationStatus);
   if (filters.archiveStatus && filters.archiveStatus !== "any") params.set("archiveStatus", filters.archiveStatus);
+  if (safeNumber(filters.limit) !== 50) params.set("limit", String(filters.limit));
+  if (safeNumber(filters.offset) > 0) params.set("offset", String(filters.offset));
+  const query = params.toString();
+  return query ? `?${query}` : "";
+}
+
+function siteReviewQueueQueryString() {
+  const params = new URLSearchParams();
+  const filters = reviewQueueFilters || defaultReviewQueueFilters();
+  const siteId = unwrap(currentData.reviewQueue)?.scope?.siteId || "";
+  if (siteId) params.set("siteId", siteId);
+  if (filters.status) params.set("status", filters.status);
+  if (filters.programId) params.set("programId", filters.programId);
+  if (filters.search) params.set("search", filters.search);
+  if (filters.story) params.set("story", filters.story);
+  if (filters.risk && filters.risk !== "any") params.set("risk", filters.risk);
   if (safeNumber(filters.limit) !== 50) params.set("limit", String(filters.limit));
   if (safeNumber(filters.offset) > 0) params.set("offset", String(filters.offset));
   const query = params.toString();
@@ -3606,6 +4063,14 @@ function messageForAdminImportError(error, status) {
   if (error === "cohort_not_found") return "That cohort scope was not found.";
   if (error === "too_many_users") return "Import fewer accounts in one request.";
   return "Account import is unavailable right now. Check the details and try again.";
+}
+
+function messageForReviewDecisionError(error, status) {
+  if (error === "submission_not_in_review") return "This submission is no longer in a submitted review state.";
+  if (error === "not_found") return "This submission is outside the current site or teacher scope.";
+  if (status === 401) return "Sign in again before saving review feedback.";
+  if (status === 403) return "This role cannot save review decisions for this submission.";
+  return "Review feedback could not be saved right now.";
 }
 
 function messageForSessionStateError(error, status) {

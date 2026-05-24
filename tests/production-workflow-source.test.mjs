@@ -17,6 +17,8 @@ const siteStudentsRoute = await readFile("functions/api/site/students.ts", "utf8
 const siteStudentDetailRoute = await readFile("functions/api/site/students/[studentId].ts", "utf8");
 const siteStudentTimelineRoute = await readFile("functions/api/site/students/[studentId]/timeline.ts", "utf8");
 const siteStudentDetailLib = await readFile("functions/_lib/site-student-detail.ts", "utf8");
+const siteReviewQueueRoute = await readFile("functions/api/site/review-queue.ts", "utf8");
+const siteReviewQueueLib = await readFile("functions/_lib/site-review-queue.ts", "utf8");
 const siteScopeLib = await readFile("functions/_lib/site-scope.ts", "utf8");
 const mentorAssignedRoute = await readFile("functions/api/mentor/assigned.ts", "utf8");
 const mentorMeetingsRoute = await readFile("functions/api/mentor/meetings.ts", "utf8");
@@ -86,6 +88,7 @@ test("production route inventory classifies the canonical workspace route", () =
   assert.match(productionRouteInventory, /\| \/api\/site\/students \| functions\/api\/site\/students\.ts \| senior-capstone-app \| production \| conditional \|/);
   assert.match(productionRouteInventory, /\| \/api\/site\/students\/:studentId \| functions\/api\/site\/students\/\[studentId\]\.ts \| senior-capstone-app \| production \| conditional \|/);
   assert.match(productionRouteInventory, /\| \/api\/site\/students\/:studentId\/timeline \| functions\/api\/site\/students\/\[studentId\]\/timeline\.ts \| senior-capstone-app \| production \| conditional \|/);
+  assert.match(productionRouteInventory, /\| \/api\/site\/review-queue \| functions\/api\/site\/review-queue\.ts \| senior-capstone-app \| production \| conditional \|/);
   assert.match(productionRouteInventory, /Canonical protected app route/);
   assert.doesNotMatch(productionRouteInventory, /\| workspace\.html \|  \| unknown \| unknown \|/);
 });
@@ -176,6 +179,10 @@ test("site student detail and timeline routes are site-scoped, bounded, role-awa
 
 test("review decision endpoint enforces teacher or admin scope and immutable review records", () => {
   assert.match(reviewRoute, /canReviewSubmission/);
+  assert.match(reviewRoute, /canReviewSubmissionForSite/);
+  assert.match(reviewRoute, /studentHasActiveSite/);
+  assert.match(reviewRoute, /getProgramTeacherScopedStudentIds/);
+  assert.match(reviewRoute, /siteId/);
   assert.match(reviewRoute, /comment_only/);
   assert.match(reviewRoute, /INSERT INTO reviews/);
   assert.match(reviewRoute, /INSERT INTO comments/);
@@ -195,6 +202,9 @@ test("review decision endpoint enforces teacher or admin scope and immutable rev
 
 test("review history endpoint is scoped and includes status and version history", () => {
   assert.match(reviewHistoryRoute, /canViewSubmission/);
+  assert.match(reviewHistoryRoute, /canViewSubmissionHistoryForSite/);
+  assert.match(reviewHistoryRoute, /getProgramTeacherScopedStudentIds/);
+  assert.match(reviewHistoryRoute, /siteId/);
   assert.match(reviewHistoryRoute, /review_history_unauthorized/);
   assert.match(reviewHistoryRoute, /review_history_denied/);
   assert.match(reviewHistoryRoute, /review_history_viewed/);
@@ -215,6 +225,27 @@ test("teacher review queue scopes submissions by program or admin role", () => {
   assert.match(reviewQueueRoute, /teacherScopePredicate/);
   assert.match(reviewQueueRoute, /submissions\.status IN \('submitted', 'revision_requested'\)/);
   assert.match(reviewQueueRoute, /COUNT\(evidence\.id\) AS evidence_count/);
+});
+
+test("site review queue route is site-scoped, role-aware, bounded, and redacted", () => {
+  assert.match(siteReviewQueueRoute, /handleSiteReviewQueueRequest/);
+  assert.match(siteReviewQueueLib, /resolveSiteSelection/);
+  assert.match(siteReviewQueueLib, /canViewReviewQueue/);
+  assert.match(siteReviewQueueLib, /getProgramTeacherScopedStudentIds/);
+  assert.match(siteReviewQueueLib, /site_users/);
+  assert.match(siteReviewQueueLib, /student_role\.role_id = 'student'/);
+  assert.match(siteReviewQueueLib, /DEFAULT_LIMIT = 50/);
+  assert.match(siteReviewQueueLib, /MAX_LIMIT = 100/);
+  assert.match(siteReviewQueueLib, /LIMIT \? OFFSET \?/);
+  assert.match(siteReviewQueueLib, /review_queue_viewed/);
+  assert.match(siteReviewQueueLib, /review_queue_denied/);
+  assert.match(siteReviewQueueLib, /review_queue_unauthorized/);
+  assert.match(siteReviewQueueLib, /canApprove/);
+  assert.match(siteReviewQueueLib, /canRequestRevision/);
+  assert.match(siteReviewQueueLib, /canCommentOnly/);
+  assert.match(siteReviewQueueLib, /"program_teacher"/);
+  assert.match(siteReviewQueueLib, /"viewer"/);
+  assert.doesNotMatch(siteReviewQueueLib, /from "\.\.\/admin\/dashboard|\/api\/admin\/dashboard|drive_file_id|drive_parent_folder_id|storage_key|password_hash|password_salt|token_hash|client_secret|refresh_token|access_token|private_key|temporaryPassword|setupPassword|content_sha256|body_json/i);
 });
 
 test("admin audit endpoint is admin-only and redacts sensitive metadata", () => {

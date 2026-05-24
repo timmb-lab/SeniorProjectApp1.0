@@ -2,7 +2,7 @@
   "phase": "09 - Site-Scoped Student Detail and Timeline",
   "date": "2026-05-24",
   "startingHead": "8e4a7608857c08c2d07aa0e267076c26b62b3395",
-  "endingHead": null,
+  "endingHead": "c292e9131353bd8483b79a8b4115b9c0794afa00",
   "phase8HygieneFixes": [
     "Updated docs/progress/runs/2026-05-24-site-student-directory.json endingHead to 8e4a7608857c08c2d07aa0e267076c26b62b3395.",
     "Updated the Phase 8 run-log commit/push status to committed and pushed as 8e4a760 feat: add site student directory."

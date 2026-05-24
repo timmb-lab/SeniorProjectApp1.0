@@ -116,3 +116,18 @@ After Phase 8, Phase 9 added the site-scoped Student Detail and Timeline drill-d
 - No review decision, mentor assignment, archive retry/export, user-management, download, or messaging mutation UI was added.
 
 Updated next prompt after Phase 9: `10_program_teacher_review_workflow.txt`.
+
+## Phase 10 Update
+
+After Phase 9, Phase 10 added the site-aware Program Teacher Review Workflow:
+
+- `/api/site/review-queue` is implemented and tested as a selected-site queue with default limit 50, max limit 100, status/program/search/story/risk filters, summary counts, and no global queue fallbacks.
+- Program teacher access is scoped to selected-site program/cohort students and can approve, request revision, or add comment-only feedback only for in-scope submitted submissions.
+- Site admin, org admin, platform admin, legacy admin, and viewer workspace queue views are read-only in the new site Review Queue UI; legacy admin backend decision compatibility remains preserved.
+- `/api/reviews/:submissionId/decision` and `/api/reviews/:submissionId/history` now support optional `siteId` validation so selected-site membership and program-teacher scope are checked before mutation or history readback.
+- Review decisions continue to write review/comment/status/progress/status-history/audit records, and review history remains bounded.
+- Queue, history, decision, and workspace output avoid raw Drive IDs, storage IDs, token/password/setup credential fields, full private evidence URLs, and unsafe audit metadata.
+- The workspace renders a Figma-aligned Review Queue with filters, queue rows, selected submission panel, bounded history, teacher feedback controls for allowed program teachers, read-only role explanations, and queue/student-detail refresh behavior after successful decisions.
+- No mentor assignment, archive retry/export, user-management, remote migration/write/seed, deploy, domain/OAuth/Cloudflare config change, announcement, or student messaging UI was added.
+
+Updated next prompt after Phase 10: `11_mentor_assignment_workflow.txt`.

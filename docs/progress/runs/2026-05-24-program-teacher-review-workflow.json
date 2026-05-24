@@ -1,0 +1,130 @@
+{
+  "phase": "10_program_teacher_review_workflow",
+  "startingHead": "c292e9131353bd8483b79a8b4115b9c0794afa00",
+  "endingHead": null,
+  "phase9HygieneFixes": [
+    "Updated docs/progress/runs/2026-05-24-site-student-detail-timeline.json endingHead to c292e9131353bd8483b79a8b4115b9c0794afa00.",
+    "Updated the Phase 9 run-log commit/push status to committed and pushed as c292e91 feat: add site student detail timeline."
+  ],
+  "routesAddedOrChanged": [
+    {
+      "route": "GET /api/site/review-queue",
+      "file": "functions/api/site/review-queue.ts",
+      "status": "added"
+    },
+    {
+      "route": "GET /api/teacher/review-queue",
+      "file": "functions/api/teacher/review-queue.ts",
+      "status": "preserved as legacy compatibility"
+    },
+    {
+      "route": "POST /api/reviews/:submissionId/decision",
+      "file": "functions/api/reviews/[submissionId]/decision.ts",
+      "status": "extended with optional siteId validation"
+    },
+    {
+      "route": "GET /api/reviews/:submissionId/history",
+      "file": "functions/api/reviews/[submissionId]/history.ts",
+      "status": "extended with optional siteId validation"
+    }
+  ],
+  "queueScopeStrategy": {
+    "siteSelection": "Reuses shared site-selection logic and selected active site access.",
+    "studentScope": "Starts from active selected-site site_users joined to active student accounts and student role memberships.",
+    "workflowScope": "Submissions, evidence counts, review counts, and comment counts are derived only for selected-site students.",
+    "programTeacherScope": "Intersects selected-site students with getProgramTeacherScopedStudentIds for teacher-visible program/cohort scope.",
+    "filters": ["siteId", "status", "programId", "search", "story", "risk", "limit", "offset"],
+    "pagination": {
+      "defaultLimit": 50,
+      "maxLimit": 100,
+      "offset": "bounded non-negative integer"
+    }
+  },
+  "decisionScopeStrategy": {
+    "existingModelPreserved": true,
+    "siteAwarePath": "When siteId is supplied, the decision route validates active selected-site student membership, site access, program_teacher role, and teacher program/cohort scope.",
+    "compatibilityPath": "When siteId is absent, existing canReviewSubmission compatibility behavior is preserved.",
+    "statusRules": "Existing submitted-only decision behavior is preserved; non-submitted status-changing decisions return conflict.",
+    "existenceLeakage": "Out-of-scope selected-site/program submissions use generic denial/not_found responses without naming the true site, student, or program."
+  },
+  "roleMutationPolicy": {
+    "program_teacher": "Can approve, request revision, and add comment-only feedback for in-scope submitted submissions.",
+    "viewer": "Read-only; mutation permissions false.",
+    "site_admin": "Read-only in the new site Review Queue UI and site-aware decision path.",
+    "org_admin": "Read-only in the new site Review Queue UI.",
+    "platform_admin": "Read-only in the new site Review Queue UI.",
+    "legacy_admin": "Read-only in the new site UI; existing backend compatibility without siteId is preserved.",
+    "mentor": "Denied.",
+    "student": "Denied.",
+    "misc_admin": "Denied."
+  },
+  "reviewHistoryStrategy": {
+    "route": "GET /api/reviews/:submissionId/history",
+    "bounded": true,
+    "siteAwareWhenSiteIdProvided": true,
+    "uiUsage": "Loaded for the selected Review Queue row and summarized in the selected submission panel."
+  },
+  "workspaceChanges": [
+    "Added a route-connected Review Queue section backed by /api/site/review-queue.",
+    "Added status, program, story, risk, search, and page-size filters.",
+    "Added queue summary tiles, queue rows, selected-submission panel, bounded history summary, and teacher feedback controls.",
+    "Program teachers see approve/request-revision/comment-only controls for submitted scoped rows.",
+    "Read-only roles see read-only copy and no active decision controls.",
+    "Mentor, student, and misc-admin navigation does not include the Review Queue section.",
+    "No mentor assignment, archive retry/export, user-management, announcement, or student messaging UI was added."
+  ],
+  "studentDetailIntegration": {
+    "afterDecision": "Successful decisions refresh the review queue and refresh an open student detail drawer for the selected student.",
+    "directoryState": "Directory filters and pagination are not reset by review decision refreshes.",
+    "minimumRefreshMet": true
+  },
+  "auditEvents": {
+    "queueAdded": ["review_queue_viewed", "review_queue_denied", "review_queue_unauthorized"],
+    "decisionPreserved": ["submission_approved", "submission_revision_requested", "submission_review_comment_added"],
+    "metadataPolicy": "Safe site/submission/role summaries only; no full feedback body, raw Drive IDs, storage IDs, secrets, or credential values."
+  },
+  "redactionProof": [
+    "Queue route does not select raw Drive IDs, Drive parent folder IDs, storage keys, token/password fields, setup credentials, or raw audit metadata.",
+    "Workspace source tests reject raw storage/secret identifier strings.",
+    "Integration tests assert queue, history, and decision responses do not contain forbidden storage/secret fields.",
+    "Local proof checks site review queue output for forbidden Drive/storage/secret fields."
+  ],
+  "testsAddedOrUpdated": [
+    "tests/site-review-queue.integration.test.mjs",
+    "tests/workspace-app.test.mjs",
+    "tests/production-workflow-source.test.mjs",
+    "tests/review-loop.integration.test.mjs coverage preserved"
+  ],
+  "localProofUpdates": [
+    "scripts/prove-local-demo-workspace.mjs now calls /api/site/review-queue.",
+    "Local proof validates selected-site rows, viewer read-only, site-admin read-only, site-admin cross-site denial, program-teacher scoped queue, mentor/student denial, and no leak output.",
+    "Review mutation proof remains in integration tests to avoid making the local proof brittle by mutating seeded demo state."
+  ],
+  "validation": {
+    "status": "passed",
+    "commands": [
+      "npm run inventory:production-routes",
+      "npm run check:route-inventory",
+      "npm run check:production-surfaces",
+      "npm run test",
+      "npm run typecheck",
+      "npm run check",
+      "npm run prove:demo:local",
+      "git diff --check"
+    ],
+    "results": {
+      "routeInventory": "passed and regenerated docs/generated/production-route-inventory.md",
+      "routeInventoryCheck": "passed",
+      "productionSurfaces": "passed with 91 production text surfaces scanned",
+      "test": "passed with 295 passing tests and 4 expected local HTTP skips",
+      "typecheck": "passed",
+      "check": "passed",
+      "localProof": "passed with /api/site/review-queue scoped/read-only proof and mutation proof documented in integration tests",
+      "diffCheck": "passed with CRLF normalization warnings only"
+    }
+  },
+  "blockers": [
+    "Remote D1 still lacks migration 0011_multisite_site_role_foundation.sql, so no remote migration, remote write/seed, deploy, or hosted proof was run."
+  ],
+  "nextRecommendedPrompt": "11_mentor_assignment_workflow.txt"
+}

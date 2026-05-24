@@ -1,8 +1,14 @@
 import type { Env, RoleAssignment, UserAccount } from "../../../_types.ts";
 import { getCurrentUser, writeAudit } from "../../../_lib/auth.ts";
 import { json } from "../../../_lib/http.ts";
-import { getRoleAssignments } from "../../../_lib/permissions.ts";
-import { canViewSubmission, getSubmission, workflowError } from "../../../_lib/workflow.ts";
+import { cleanId } from "../../../_lib/site-scope.ts";
+import {
+  canViewReviewQueue,
+  getProgramTeacherScopedStudentIds,
+  getRoleAssignments,
+  hasRole,
+} from "../../../_lib/permissions.ts";
+import { canViewSubmission, getSubmission, type SubmissionRow, workflowError } from "../../../_lib/workflow.ts";
 
 interface ReviewHistoryRow {
   id: string;
@@ -42,6 +48,8 @@ interface CommentHistoryRow {
 export const onRequestGet: PagesFunction<Env> = async ({ request, env, params }) => {
   const submissionId = String(params?.submissionId || "").trim();
   if (!submissionId) return workflowError("missing_submission_id", 400);
+  const rawSiteId = new URL(request.url).searchParams.get("siteId");
+  const siteId = cleanId(rawSiteId);
 
   const user = await getCurrentUser(request, env);
   if (!user) {
@@ -51,9 +59,26 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env, params })
     return workflowError("unauthorized", 401);
   }
 
+  if (rawSiteId !== null && !siteId) {
+    await auditReviewHistoryAccess(env, request, user, "review_history_denied", submissionId, {
+      reason: "invalid_site_id",
+    });
+    return workflowError("forbidden", 403);
+  }
+
   const submission = await getSubmission(env, submissionId);
   if (!submission) return workflowError("not_found", 404);
-  if (!await canViewSubmission(env, user, submission)) {
+  if (siteId) {
+    const siteScopedAccess = await canViewSubmissionHistoryForSite(env, user, submission, siteId);
+    if (!siteScopedAccess.ok) {
+      await auditReviewHistoryAccess(env, request, user, "review_history_denied", submission.id, {
+        reason: siteScopedAccess.reason,
+        siteId,
+        studentId: siteScopedAccess.includeStudent ? submission.student_id : undefined,
+      });
+      return workflowError(siteScopedAccess.error, siteScopedAccess.status);
+    }
+  } else if (!await canViewSubmission(env, user, submission)) {
     await auditReviewHistoryAccess(env, request, user, "review_history_denied", submission.id, {
       reason: "scope_denied",
       studentId: submission.student_id,
@@ -125,6 +150,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env, params })
 
   await auditReviewHistoryAccess(env, request, user, "review_history_viewed", submission.id, {
     studentId: submission.student_id,
+    siteId: siteId || undefined,
     reviewCount: (reviews.results || []).length,
     statusHistoryCount: (statusHistory.results || []).length,
     versionCount: (versions.results || []).length,
@@ -156,6 +182,44 @@ function formatVersion(row: SubmissionVersionRow) {
     notes: row.notes,
     evidence: parseEvidenceSnapshot(row.evidence_snapshot_json),
   };
+}
+
+async function canViewSubmissionHistoryForSite(
+  env: Env,
+  user: UserAccount,
+  submission: SubmissionRow,
+  siteId: string,
+): Promise<{ ok: true } | { ok: false; status: number; error: string; reason: string; includeStudent: boolean }> {
+  if (!await studentHasActiveSite(env, submission.student_id, siteId)) {
+    return { ok: false, status: 404, error: "not_found", reason: "submission_not_in_selected_site", includeStudent: false };
+  }
+
+  if (!await canViewReviewQueue(env, user, siteId)) {
+    return { ok: false, status: 403, error: "forbidden", reason: "site_review_history_denied", includeStudent: false };
+  }
+
+  if (await hasRole(env, user.id, "program_teacher")) {
+    const teacherScope = await getProgramTeacherScopedStudentIds(env, user);
+    if (!teacherScope.valid || !teacherScope.studentIds.includes(submission.student_id)) {
+      return { ok: false, status: 404, error: "not_found", reason: "submission_not_in_program_teacher_scope", includeStudent: false };
+    }
+  }
+
+  return { ok: true };
+}
+
+async function studentHasActiveSite(env: Env, studentId: string, siteId: string): Promise<boolean> {
+  const row = await env.DB.prepare(
+    `SELECT 1
+     FROM site_users
+     JOIN sites ON sites.id = site_users.site_id
+      AND sites.status = 'active'
+     WHERE site_users.user_id = ?
+      AND site_users.site_id = ?
+      AND site_users.membership_status = 'active'
+     LIMIT 1`,
+  ).bind(studentId, siteId).first();
+  return Boolean(row);
 }
 
 async function auditReviewHistoryAccess(

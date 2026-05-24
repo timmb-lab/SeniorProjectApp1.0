@@ -27,7 +27,9 @@ test("workspace route is a real authenticated app surface", () => {
   assert.match(workspaceJs, /\/api\/mentor\/dashboard/);
   assert.match(workspaceJs, /\/api\/student\/dashboard/);
   assert.match(workspaceJs, /\/api\/student\/archive\/readiness/);
-  assert.match(workspaceJs, /\/api\/teacher\/review-queue/);
+  assert.match(workspaceJs, /\/api\/site\/review-queue/);
+  assert.match(workspaceJs, /\/api\/reviews\/\$\{encodeURIComponent\(selectedSubmissionId\)\}\/history/);
+  assert.match(workspaceJs, /\/api\/reviews\/\$\{encodeURIComponent\(submissionId\)\}\/decision/);
   assert.match(workspaceJs, /\/api\/mentor\/assigned/);
   assert.match(workspaceJs, /\/api\/presentation-slots/);
   assert.match(workspaceJs, /\/api\/presentation-slots\/\$\{encodeURIComponent\(slotId\)\}\/\$\{actionPath\}/);
@@ -180,6 +182,10 @@ test("workspace exposes Figma-aligned design tokens and future site patterns", (
     ".workspace-student-card",
     ".workspace-detail-drawer",
     ".workspace-detail-panel",
+    ".workspace-review-queue",
+    ".workspace-review-layout",
+    ".workspace-review-panel",
+    ".workspace-review-feedback",
     ".workspace-story-chip",
     ".workspace-risk-chip",
     ".workspace-empty-state-card",
@@ -472,9 +478,9 @@ test("workspace renders route-connected student directory with filters and real 
       status: 200,
       body: { ok: true, summary: { scopedStudents: 45, submissionsAwaitingReview: 3 }, students: [], programBreakdown: [] },
     },
-    "/api/teacher/review-queue": {
+    "/api/site/review-queue": {
       status: 200,
-      body: { ok: true, queue: [] },
+      body: siteReviewQueueFixture({ role: "program_teacher" }),
     },
     "/api/presentation-slots": {
       status: 200,
@@ -600,6 +606,142 @@ test("workspace opens real student detail, loads timeline, and preserves directo
   assert.match(workspaceRoot.innerHTML, /Offset 50 \/ Limit 50/);
 });
 
+test("workspace renders site-aware Review Queue with teacher decisions and read-only role states", async () => {
+  const teacherHistory = reviewHistoryFixture();
+  const teacher = await renderWorkspaceWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "teacher-review",
+          email: "teacher.review@example.edu",
+          displayName: "Program Teacher Review",
+          roles: [{ role_id: "program_teacher", scope_type: "program", scope_id: "it" }],
+        },
+      },
+    },
+    "/api/site/students": {
+      status: 200,
+      body: siteStudentsFixture({ role: "program_teacher", total: 45 }),
+    },
+    "/api/site/review-queue": {
+      status: 200,
+      body: siteReviewQueueFixture({ role: "program_teacher" }),
+    },
+    "/api/program-teacher/dashboard": {
+      status: 200,
+      body: { ok: true, summary: { scopedStudents: 45, submissionsAwaitingReview: 3 }, students: [], programBreakdown: [] },
+    },
+    "/api/presentation-slots": {
+      status: 200,
+      body: { ok: true, slots: [] },
+    },
+  }, "teacher", `
+    reviewQueueState = {
+      ...defaultReviewQueueState(),
+      selectedSubmissionId: "submission-review-001",
+      historyResult: { ok: true, status: 200, body: ${JSON.stringify(teacherHistory)} }
+    };
+  `);
+
+  assert.match(teacher, /data-section="teacher"/);
+  assert.match(teacher, /Teacher review queue/);
+  assert.match(teacher, /Route-connected submitted work/);
+  assert.match(teacher, /Private evidence/);
+  assert.match(teacher, /Role scoped views/);
+  assert.match(teacher, /Audited changes/);
+  assert.match(teacher, /Teacher intervention/);
+  assert.match(teacher, /No student messaging/);
+  assert.match(teacher, /workspace-review-queue/);
+  assert.match(teacher, /workspace-filter-bar/);
+  assert.match(teacher, /workspace-student-row is-selected/);
+  assert.match(teacher, /workspace-status-pill submitted/);
+  assert.match(teacher, /workspace-story-chip/);
+  assert.match(teacher, /workspace-risk-chip/);
+  assert.match(teacher, /data-review-queue-action="open-student"/);
+  assert.match(teacher, /data-review-history-section="true"/);
+  assert.match(teacher, /data-review-decision="approved"/);
+  assert.match(teacher, /data-review-decision="revision_requested"/);
+  assert.match(teacher, /data-review-decision="comment_only"/);
+  assert.match(teacher, /<textarea name="feedback"/);
+
+  const viewer = await renderWorkspaceWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "viewer-review",
+          email: "viewer.review@example.edu",
+          displayName: "Review Viewer",
+          roles: [{ role_id: "viewer", scope_type: "site", scope_id: "site-desert-valley-high" }],
+        },
+      },
+    },
+    "/api/site/dashboard": {
+      status: 200,
+      body: siteDashboardFixture({ readOnly: true }),
+    },
+    "/api/site/students": {
+      status: 200,
+      body: siteStudentsFixture({ readOnly: true }),
+    },
+    "/api/site/review-queue": {
+      status: 200,
+      body: siteReviewQueueFixture({ role: "viewer", readOnly: true }),
+    },
+  }, "teacher", `
+    reviewQueueState = {
+      ...defaultReviewQueueState(),
+      selectedSubmissionId: "submission-review-001",
+      historyResult: { ok: true, status: 200, body: ${JSON.stringify(teacherHistory)} }
+    };
+  `);
+  assert.match(viewer, /data-workspace-mode="read-only"/);
+  assert.match(viewer, /Read-only review queue/);
+  assert.match(viewer, /This role has a read-only review queue view/);
+  assert.doesNotMatch(viewer, /data-review-decision="approved"|data-review-decision="revision_requested"|data-review-decision="comment_only"|<textarea name="feedback"/);
+
+  const { context, workspaceRoot } = await createWorkspaceContextWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "teacher-review-open",
+          email: "teacher.review.open@example.edu",
+          displayName: "Program Teacher Review Open",
+          roles: [{ role_id: "program_teacher", scope_type: "program", scope_id: "it" }],
+        },
+      },
+    },
+    "/api/site/students": {
+      status: 200,
+      body: siteStudentsFixture({ role: "program_teacher", total: 45 }),
+    },
+    "/api/site/review-queue": {
+      status: 200,
+      body: siteReviewQueueFixture({ role: "program_teacher" }),
+    },
+    "/api/program-teacher/dashboard": {
+      status: 200,
+      body: { ok: true, summary: { scopedStudents: 45, submissionsAwaitingReview: 3 }, students: [], programBreakdown: [] },
+    },
+    "/api/presentation-slots": {
+      status: 200,
+      body: { ok: true, slots: [] },
+    },
+    "/api/reviews/submission-review-001/history": {
+      status: 200,
+      body: teacherHistory,
+    },
+  });
+  await vm.runInContext('openReviewSubmission("submission-review-001")', context);
+  assert.match(workspaceRoot.innerHTML, /Review history loaded/);
+  assert.match(workspaceRoot.innerHTML, /Improve scope and cite the private evidence summary/);
+});
+
 test("workspace gates student directory visibility by role", () => {
   const loadWorkspaceDataBlock = workspaceJs.match(/async function loadWorkspaceData[\s\S]*?function renderLoading/)?.[0] || "";
   const availableSectionsBlock = workspaceJs.match(/function availableSections[\s\S]*?function renderActiveSection/)?.[0] || "";
@@ -609,6 +751,21 @@ test("workspace gates student directory visibility by role", () => {
   assert.match(availableSectionsBlock, /id: "students", label: "Students", detail: "Search and filter capstone progress"/);
   assert.match(loadWorkspaceDataBlock, /hasSiteStudentDirectoryRole\(roles\).*\/api\/site\/students/s);
   assert.doesNotMatch(directoryRoleHelperBlock, /"mentor"|"student"|"misc_admin"/);
+});
+
+test("workspace gates review queue visibility and refresh behavior by role", () => {
+  const loadWorkspaceDataBlock = workspaceJs.match(/async function loadWorkspaceData[\s\S]*?function renderLoading/)?.[0] || "";
+  const availableSectionsBlock = workspaceJs.match(/function availableSections[\s\S]*?function renderActiveSection/)?.[0] || "";
+  const reviewRoleHelperBlock = workspaceJs.match(/function hasSiteReviewQueueRole[\s\S]*?function defaultSiteStudentFilters/)?.[0] || "";
+  assert.match(workspaceJs, /function hasSiteReviewQueueRole\(roles\)/);
+  assert.match(reviewRoleHelperBlock, /"platform_admin",\s+"admin",\s+"org_admin",\s+"site_admin",\s+"viewer",\s+"program_teacher"/);
+  assert.doesNotMatch(reviewRoleHelperBlock, /"mentor"|"student"|"misc_admin"/);
+  assert.match(availableSectionsBlock, /id: "teacher", label: "Review Queue", detail: "Teacher review and submitted work"/);
+  assert.match(loadWorkspaceDataBlock, /hasSiteReviewQueueRole\(roles\).*\/api\/site\/review-queue/s);
+  assert.match(workspaceJs, /function submitReviewDecision/);
+  assert.match(workspaceJs, /loadReviewQueueResult\("Review decision saved\."\)/);
+  assert.match(workspaceJs, /function refreshSelectedStudentDetailAfterReview/);
+  assert.match(workspaceJs, /\/api\/site\/students\/\$\{encodeURIComponent\(selected\.studentId\)\}/);
 });
 
 test("production surface checker includes the authenticated workspace", () => {
@@ -1022,9 +1179,9 @@ test("workspace renders admin import controls and one-time setup output", async 
         },
       },
     },
-    "/api/teacher/review-queue": {
+    "/api/site/review-queue": {
       status: 200,
-      body: { ok: true, queue: [] },
+      body: siteReviewQueueFixture({ role: "admin", readOnly: true }),
     },
     "/api/presentation-slots": {
       status: 200,
@@ -1074,9 +1231,9 @@ test("workspace keeps admin import setup output memory-only and gates non-admin 
         },
       },
     },
-    "/api/teacher/review-queue": {
+    "/api/site/review-queue": {
       status: 200,
-      body: { ok: true, queue: [] },
+      body: siteReviewQueueFixture({ role: "admin", readOnly: true }),
     },
     "/api/presentation-slots": {
       status: 200,
@@ -1152,9 +1309,9 @@ test("workspace renders presentation schedule and day-of actions", async () => {
         },
       },
     },
-    "/api/teacher/review-queue": {
+    "/api/site/review-queue": {
       status: 200,
-      body: { ok: true, queue: [] },
+      body: siteReviewQueueFixture({ role: "program_teacher" }),
     },
     "/api/presentation-slots": {
       status: 200,
@@ -1538,6 +1695,158 @@ function siteStudentsFixture({
       owner: "Assigned staff or site administrator.",
       nextAction: "Adjust filters or check the student's project status.",
     } : null,
+  };
+}
+
+function siteReviewQueueFixture({
+  role = "program_teacher",
+  readOnly = role !== "program_teacher",
+  canReview = role === "program_teacher" && !readOnly,
+  queue = null,
+} = {}) {
+  const rows = queue ?? [
+    {
+      submissionId: "submission-review-001",
+      studentId: "demo-student-101",
+      studentName: "Revision Loop Demo 001",
+      siteId: "site-desert-valley-high",
+      siteName: "Desert Valley High School",
+      programId: "it",
+      programName: "Information Technology",
+      cohortId: "cohort-it-2026",
+      cohortName: "IT 2026",
+      requirementId: "req-proposal",
+      requirementTitle: "Project proposal",
+      status: "submitted",
+      version: 2,
+      submittedAt: "2026-05-21T12:00:00.000Z",
+      updatedAt: "2026-05-21T12:20:00.000Z",
+      evidenceCount: 3,
+      reviewCount: 1,
+      commentCount: 2,
+      storyBucket: "revision_requested",
+      riskScore: 6,
+      riskFlags: ["awaiting_review", "stale"],
+      nextAction: "Review evidence and record teacher feedback.",
+    },
+    {
+      submissionId: "submission-review-002",
+      studentId: "demo-student-144",
+      studentName: "Archive Failed Demo 001",
+      siteId: "site-desert-valley-high",
+      siteName: "Desert Valley High School",
+      programId: "it",
+      programName: "Information Technology",
+      cohortId: "cohort-it-2026",
+      cohortName: "IT 2026",
+      requirementId: "req-final",
+      requirementTitle: "Final reflection",
+      status: "revision_requested",
+      version: 3,
+      submittedAt: "2026-05-20T12:00:00.000Z",
+      updatedAt: "2026-05-22T12:00:00.000Z",
+      evidenceCount: 2,
+      reviewCount: 2,
+      commentCount: 3,
+      storyBucket: "archive_failed",
+      riskScore: 8,
+      riskFlags: ["revision_requested", "high"],
+      nextAction: "Wait for student revision or add comment-only guidance.",
+    },
+  ];
+  return {
+    ok: true,
+    generatedAt: "2026-05-24T17:00:00.000Z",
+    scope: {
+      tenantId: "tenant-desert-valley",
+      tenantName: "Desert Valley School District",
+      siteId: "site-desert-valley-high",
+      siteName: "Desert Valley High School",
+      schoolYear: "2025-2026",
+      role,
+      readOnly,
+      selectionMode: "single_accessible_site",
+      accessibleSites: [
+        { siteId: "site-desert-valley-high", siteName: "Desert Valley High School" },
+      ],
+    },
+    filters: {
+      status: "",
+      programId: "",
+      search: "",
+      story: "",
+      risk: "any",
+      limit: 50,
+      offset: 0,
+    },
+    pagination: {
+      limit: 50,
+      offset: 0,
+      returned: rows.length,
+      total: rows.length,
+      filteredTotal: rows.length,
+    },
+    summary: {
+      submitted: rows.filter((row) => row.status === "submitted").length,
+      revisionRequested: rows.filter((row) => row.status === "revision_requested").length,
+      readyToReview: rows.filter((row) => row.status === "submitted" && row.evidenceCount > 0).length,
+      overdueOrStale: 1,
+      evidenceAttached: rows.filter((row) => row.evidenceCount > 0).length,
+      highRisk: rows.filter((row) => row.riskScore >= 7).length,
+    },
+    queue: rows,
+    filterOptions: {
+      programs: [{ programId: "it", programName: "Information Technology", queueCount: rows.length }],
+      statuses: ["submitted", "revision_requested", "approved"],
+      storyBuckets: ["model_excellent", "missing_mentor", "awaiting_review", "revision_requested", "presentation_pending", "archive_ready", "archive_failed", "high_risk", "rich_timeline"],
+      risks: ["any", "high", "medium", "low", "stale", "no_mentor"],
+    },
+    permissions: {
+      canReview,
+      canApprove: canReview,
+      canRequestRevision: canReview,
+      canCommentOnly: canReview,
+      canViewStudentDetail: true,
+      canViewStudentEvidence: true,
+      canManageUsers: false,
+      canManageSecurity: false,
+    },
+    emptyState: rows.length === 0 ? {
+      reason: "No submitted or revision-requested work matches the selected filters.",
+      owner: "Program teacher or site staff.",
+      nextAction: "Adjust filters or review the student detail timeline for context.",
+    } : null,
+  };
+}
+
+function reviewHistoryFixture() {
+  return {
+    ok: true,
+    submission: {
+      id: "submission-review-001",
+      status: "submitted",
+      version: 2,
+    },
+    reviews: [
+      {
+        id: "review-review-001",
+        decision: "revision_requested",
+        feedback: "Improve scope and cite the private evidence summary.",
+        reviewerName: "Program Teacher",
+        reviewer_name: "Program Teacher",
+        createdAt: "2026-05-21T12:30:00.000Z",
+      },
+    ],
+    comments: [
+      {
+        id: "comment-review-001",
+        body: "Bounded teacher comment.",
+        authorName: "Program Teacher",
+        createdAt: "2026-05-21T12:35:00.000Z",
+      },
+    ],
+    statusHistory: [],
+    versions: [],
   };
 }
 

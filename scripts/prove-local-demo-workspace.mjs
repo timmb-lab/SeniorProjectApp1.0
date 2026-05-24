@@ -12,6 +12,7 @@ import { onRequestGet as onSiteDashboard } from "../functions/api/site/dashboard
 import { onRequestGet as onSiteStudents } from "../functions/api/site/students.ts";
 import { onRequestGet as onSiteStudentDetail } from "../functions/api/site/students/[studentId].ts";
 import { onRequestGet as onSiteStudentTimeline } from "../functions/api/site/students/[studentId]/timeline.ts";
+import { onRequestGet as onSiteReviewQueue } from "../functions/api/site/review-queue.ts";
 import { onRequestGet as onProgramTeacherDashboard } from "../functions/api/program-teacher/dashboard.ts";
 import { onRequestGet as onMentorDashboard } from "../functions/api/mentor/dashboard.ts";
 import { onRequestGet as onTeacherReviewQueue } from "../functions/api/teacher/review-queue.ts";
@@ -296,12 +297,14 @@ async function runDemoProof(args = {}, options = {}) {
   const siteStudentDirectoryArchiveFailed = await routeJson(onSiteStudents, env, adminCookie, `https://local.capstone.test/api/site/students?siteId=${PRIMARY_SITE_ID}&story=archive_failed&limit=100`);
   const siteStudentDirectorySearch = await routeJson(onSiteStudents, env, adminCookie, `https://local.capstone.test/api/site/students?siteId=${PRIMARY_SITE_ID}&search=${encodeURIComponent("Revision Loop Demo")}&limit=100`);
   const adminReviewQueue = await routeJson(onTeacherReviewQueue, env, adminCookie, "https://local.capstone.test/api/teacher/review-queue");
+  const siteReviewQueueAdmin = await routeJson(onSiteReviewQueue, env, adminCookie, `https://local.capstone.test/api/site/review-queue?siteId=${PRIMARY_SITE_ID}`);
   const readiness = await routeJson(onReadinessReport, env, adminCookie, "https://local.capstone.test/api/reports/readiness");
   const multisite = await verifyMultisiteShape(env);
   const siteAwarePermissions = await verifySiteAwarePermissions(env);
   const siteDashboardRoleProof = await verifySiteDashboardRouteProof(env, demoCredentials);
   const siteStudentDirectoryRoleProof = await verifySiteStudentDirectoryRouteProof(env, demoCredentials);
   const siteStudentDetailRoleProof = await verifySiteStudentDetailRouteProof(env, demoCredentials, adminCookie);
+  const siteReviewQueueRoleProof = await verifySiteReviewQueueRouteProof(env, demoCredentials);
 
   const adminChecks = {
     authMe: adminMe.authenticated === true,
@@ -332,6 +335,10 @@ async function runDemoProof(args = {}, options = {}) {
     programBreakdownNinePrograms: Array.isArray(adminDashboard.programBreakdown) && adminDashboard.programBreakdown.length === 9,
     mentorCoveragePopulated: Array.isArray(adminDashboard.mentorCoverage) && adminDashboard.mentorCoverage.length >= 41,
     reviewQueuePopulated: Array.isArray(adminDashboard.reviewQueue) && adminDashboard.reviewQueue.length > 0 && Array.isArray(adminReviewQueue.queue) && adminReviewQueue.queue.length > 0,
+    siteReviewQueuePopulated: siteReviewQueueAdmin.scope?.siteId === PRIMARY_SITE_ID
+      && Array.isArray(siteReviewQueueAdmin.queue)
+      && siteReviewQueueAdmin.queue.length > 0
+      && (siteReviewQueueAdmin.queue || []).every((row) => row.siteId === PRIMARY_SITE_ID),
     readinessPopulated: Number(readiness.report?.submitted || 0) > 0
       && Number(readiness.report?.revisionRequested || 0) > 0
       && Number(readiness.report?.approved || 0) > 0
@@ -342,6 +349,7 @@ async function runDemoProof(args = {}, options = {}) {
     siteDashboardRoleProof: siteDashboardRoleProof.ok === true,
     siteStudentDirectoryRoleProof: siteStudentDirectoryRoleProof.ok === true,
     siteStudentDetailRoleProof: siteStudentDetailRoleProof.ok === true,
+    siteReviewQueueRoleProof: siteReviewQueueRoleProof.ok === true,
   };
   assertChecks("ADMIN_API_PROOF_FAILED", adminChecks);
 
@@ -355,6 +363,7 @@ async function runDemoProof(args = {}, options = {}) {
     const me = await getMe(env, cookie, loginAccount.email, "program_teacher");
     const dashboard = await routeJson(onProgramTeacherDashboard, env, cookie, "https://local.capstone.test/api/program-teacher/dashboard");
     const reviewQueue = await routeJson(onTeacherReviewQueue, env, cookie, "https://local.capstone.test/api/teacher/review-queue");
+    const siteReviewQueue = await routeJson(onSiteReviewQueue, env, cookie, `https://local.capstone.test/api/site/review-queue?siteId=${PRIMARY_SITE_ID}&limit=100`);
     const expectedCount = PROGRAM_EXPECTATIONS[programId];
     const programRow = (dashboard.programBreakdown || []).find((row) => row.programId === programId);
     const nonEmpty = Number(dashboard.summary?.scopedStudents || 0) === expectedCount
@@ -362,7 +371,12 @@ async function runDemoProof(args = {}, options = {}) {
       && dashboard.students.length > 0
       && Array.isArray(dashboard.programBreakdown)
       && Number(programRow?.studentCount || 0) === expectedCount
-      && Array.isArray(reviewQueue.queue);
+      && Array.isArray(reviewQueue.queue)
+      && siteReviewQueue.scope?.role === "program_teacher"
+      && siteReviewQueue.scope?.siteId === PRIMARY_SITE_ID
+      && siteReviewQueue.scope?.readOnly === false
+      && siteReviewQueue.permissions?.canApprove === true
+      && (siteReviewQueue.queue || []).every((row) => row.siteId === PRIMARY_SITE_ID && row.programId === programId);
     if (!nonEmpty) {
       throw new DemoProofError("PROGRAM_TEACHER_API_PROOF_FAILED", "Program teacher dashboard was not scoped as expected.", {
         programId,
@@ -377,6 +391,8 @@ async function runDemoProof(args = {}, options = {}) {
       authMe: me.authenticated === true,
       dashboardNonEmpty: true,
       reviewQueueRows: reviewQueue.queue.length,
+      siteReviewQueueRows: siteReviewQueue.queue.length,
+      siteReviewQueueScoped: true,
     });
   }
 
@@ -445,6 +461,7 @@ async function runDemoProof(args = {}, options = {}) {
       programBreakdownCount: adminDashboard.programBreakdown.length,
       mentorCoverageCount: adminDashboard.mentorCoverage.length,
       reviewQueueCount: adminReviewQueue.queue.length,
+      siteReviewQueueCount: siteReviewQueueAdmin.queue.length,
       readinessReport: readiness.report,
     },
     multisite,
@@ -494,6 +511,22 @@ async function runDemoProof(args = {}, options = {}) {
       programTeacherScoped: siteStudentDetailRoleProof.programTeacherScoped,
       mentorAssignedOnly: siteStudentDetailRoleProof.mentorAssignedOnly,
       noSensitiveDetailFields: siteStudentDetailRoleProof.noSensitiveDetailFields,
+    },
+    siteReviewQueue: {
+      ok: true,
+      route: "/api/site/review-queue",
+      primarySiteId: PRIMARY_SITE_ID,
+      primarySiteReturned: Number(siteReviewQueueAdmin.pagination.returned || 0),
+      defaultLimit: Number(siteReviewQueueAdmin.pagination.limit || 0),
+      viewerReadOnly: siteReviewQueueRoleProof.viewerReadOnly,
+      viewerMutationPermissionsFalse: siteReviewQueueRoleProof.viewerMutationPermissionsFalse,
+      siteAdminReadOnly: siteReviewQueueRoleProof.siteAdminReadOnly,
+      siteAdminCannotAccessSecondary: siteReviewQueueRoleProof.siteAdminCannotAccessSecondary,
+      programTeacherScoped: siteReviewQueueRoleProof.programTeacherScoped,
+      mentorDenied: siteReviewQueueRoleProof.mentorDenied,
+      studentDenied: siteReviewQueueRoleProof.studentDenied,
+      mutationProofLocation: "integration_tests",
+      noSensitiveQueueFields: siteReviewQueueRoleProof.noSensitiveQueueFields,
     },
     programTeachers: teacherProofs,
     mentors: mentorProofs,
@@ -832,6 +865,77 @@ async function verifySiteStudentDetailRouteProof(env, demoCredentials, adminCook
     storyExamples: Object.fromEntries(Object.entries(storyStudents).map(([key, row]) => [key, row.displayName])),
     richTimelineEventTypes: richTimelineTypes,
   };
+}
+
+async function verifySiteReviewQueueRouteProof(env, demoCredentials) {
+  const viewerAccount = (demoCredentials.personaLogins || []).find((account) => (
+    account.role === "viewer" && account.scope === `site:${PRIMARY_SITE_ID}`
+  ));
+  const siteAdminAccount = (demoCredentials.personaLogins || []).find((account) => (
+    account.role === "site_admin" && account.scope === `site:${PRIMARY_SITE_ID}`
+  ));
+  const teacherAccount = (demoCredentials.programTeacherLogins || []).find((account) => account.scope === "program:it");
+  const mentorAccount = (demoCredentials.mentorLogins || []).find((account) => account.email.includes("mentor001"));
+  if (!viewerAccount || !siteAdminAccount || !teacherAccount || !mentorAccount) {
+    throw new DemoProofError("SITE_REVIEW_QUEUE_CREDENTIALS_MISSING", "Missing demo viewer, site-admin, program-teacher, or mentor credential for review queue proof.");
+  }
+
+  const viewerCookie = await login(env, viewerAccount);
+  await getMe(env, viewerCookie, viewerAccount.email, "viewer");
+  const viewerQueue = await routeJson(onSiteReviewQueue, env, viewerCookie, `https://local.capstone.test/api/site/review-queue?siteId=${PRIMARY_SITE_ID}`);
+
+  const siteAdminCookie = await login(env, siteAdminAccount);
+  await getMe(env, siteAdminCookie, siteAdminAccount.email, "site_admin");
+  const siteAdminQueue = await routeJson(onSiteReviewQueue, env, siteAdminCookie, `https://local.capstone.test/api/site/review-queue?siteId=${PRIMARY_SITE_ID}`);
+  const siteAdminSecondary = await routeStatus(onSiteReviewQueue, env, siteAdminCookie, `https://local.capstone.test/api/site/review-queue?siteId=${SECONDARY_SITE_IDS[0]}`);
+
+  const teacherCookie = await login(env, teacherAccount);
+  await getMe(env, teacherCookie, teacherAccount.email, "program_teacher");
+  const teacherQueue = await routeJson(onSiteReviewQueue, env, teacherCookie, `https://local.capstone.test/api/site/review-queue?siteId=${PRIMARY_SITE_ID}&limit=100`);
+  const teacherFilteredOut = await routeJson(onSiteReviewQueue, env, teacherCookie, `https://local.capstone.test/api/site/review-queue?siteId=${PRIMARY_SITE_ID}&programId=culinary&limit=100`);
+
+  const mentorCookie = await login(env, mentorAccount);
+  await getMe(env, mentorCookie, mentorAccount.email, "mentor");
+  const mentorDenied = await routeStatus(onSiteReviewQueue, env, mentorCookie, `https://local.capstone.test/api/site/review-queue?siteId=${PRIMARY_SITE_ID}`);
+  const studentDenied = await routeStatus(onSiteReviewQueue, env, await seedExistingSession(env, "demo-student-001", "review-queue-proof-student"), `https://local.capstone.test/api/site/review-queue?siteId=${PRIMARY_SITE_ID}`);
+
+  const mutationPermissionsFalse = (permissions = {}) => [
+    "canReview",
+    "canApprove",
+    "canRequestRevision",
+    "canCommentOnly",
+    "canManageUsers",
+    "canManageSecurity",
+  ].every((key) => permissions[key] === false);
+
+  const checks = {
+    viewerReadOnly: viewerQueue.scope?.readOnly === true,
+    viewerMutationPermissionsFalse: mutationPermissionsFalse(viewerQueue.permissions),
+    siteAdminReadOnly: siteAdminQueue.scope?.readOnly === true,
+    siteAdminMutationPermissionsFalse: mutationPermissionsFalse(siteAdminQueue.permissions),
+    siteAdminCannotAccessSecondary: siteAdminSecondary.status === 403,
+    programTeacherScoped: teacherQueue.scope?.role === "program_teacher"
+      && teacherQueue.scope?.readOnly === false
+      && teacherQueue.permissions?.canApprove === true
+      && Number(teacherQueue.pagination?.total || 0) > 0
+      && Number(teacherQueue.pagination?.total || 0) < 69
+      && (teacherQueue.queue || []).every((row) => row.siteId === PRIMARY_SITE_ID && row.programId === "it")
+      && Number(teacherFilteredOut.pagination?.filteredTotal || 0) === 0
+      && (teacherFilteredOut.queue || []).length === 0,
+    mentorDenied: mentorDenied.status === 403,
+    studentDenied: studentDenied.status === 403,
+    noSensitiveQueueFields: !directoryHasForbiddenOutput([
+      viewerQueue,
+      siteAdminQueue,
+      siteAdminSecondary.body,
+      teacherQueue,
+      teacherFilteredOut,
+      mentorDenied.body,
+      studentDenied.body,
+    ]),
+  };
+  assertChecks("SITE_REVIEW_QUEUE_ROUTE_PROOF_FAILED", checks);
+  return { ok: true, ...checks };
 }
 
 async function routeStudentDetail(env, cookie, studentId, query = `?siteId=${PRIMARY_SITE_ID}`) {

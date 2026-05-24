@@ -194,3 +194,22 @@ Route/data changes:
 - Role visibility is conservative: program teacher and mentor responses omit broad admin/security context, and ambiguous staff-only data is omitted rather than exposed.
 - Evidence, archive, and timeline output redacts raw Drive IDs, storage IDs, credentials, tokens, and unsafe audit metadata.
 - Route inventory is regenerated because two production API routes were added.
+
+## 12. Phase 10 Review Queue Applied
+
+Phase 10 connects the Figma-aligned teacher review workflow to `/api/site/review-queue`, `/api/reviews/:submissionId/history`, and `/api/reviews/:submissionId/decision`.
+
+Rendered app changes:
+
+- The Review Queue section is visible to program teachers and authorized read-only staff roles, and hidden from mentor, student, and misc-admin navigation.
+- The section uses the product shell, site context badges, `workspace-filter-bar`, `workspace-dashboard-card`, `workspace-student-row`, `workspace-story-chip`, `workspace-risk-chip`, `workspace-problem-state`, and `statusPill()`.
+- Program teachers see scoped submitted work, selected-submission context, bounded review history, a feedback field, and approve/request-revision/comment-only controls.
+- Viewer, site-admin, org-admin, platform-admin, and legacy-admin workspace views show read-only explanations and no active decision controls in the site queue.
+- Decision success refreshes the route-backed queue and refreshes an already-open student detail drawer for that student, without resetting directory state.
+
+Route/data changes:
+
+- Queue rows are selected-site records only and are scoped through active student site membership and program/cohort scope.
+- Decision/history calls include site-aware validation when `siteId` is supplied.
+- Evidence and history summaries stay bounded and redacted; raw Drive/storage identifiers and secret/token/password fields are not rendered.
+- No mentor assignment, archive retry/export, user-management, announcement, or student messaging UI was added.

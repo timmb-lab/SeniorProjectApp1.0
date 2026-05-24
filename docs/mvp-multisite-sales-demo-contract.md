@@ -129,7 +129,7 @@ Legend:
 | Capability | platform_admin | org_admin | site_admin | viewer | program_teacher | mentor | student | legacy admin | legacy misc_admin |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | view review queue | Yes | Scoped org/site | Scoped site | Read scoped | Scoped program/cohort | No | No | Compat | No |
-| approve/request revision/comment | Yes | Scoped org/site | Scoped site | No | Scoped program/cohort | No | No | Compat | No |
+| approve/request revision/comment | Read-only in site UI | Read-only in site UI | Read-only in site UI | No | Scoped program/cohort | No | No | Compat | No |
 | view mentor assignments | Yes | Scoped org/site | Scoped site | Read scoped | Scoped program/cohort | Own assigned students | No | Compat | No |
 | manage mentor assignments | Yes | Scoped org/site | Scoped site | No | No | No | No | Compat | No |
 
@@ -254,6 +254,14 @@ Phase 9 site student detail and timeline implementation:
 - Visibility is conservative by role: admin-family roles see scoped operational detail; viewer is read-only; program teacher sees scoped evidence/review/submission data only; mentor sees assigned-student support data only; student self-service remains `/api/student/dashboard`; misc admin is denied.
 - Evidence, archive, and timeline responses omit raw Drive IDs, storage IDs, token/password/setup credential fields, and unsafe raw audit metadata.
 - The authenticated workspace opens a Figma-aligned detail drawer from the Students section, preserves directory search/filter/pagination and selected site state, renders section tabs, uses `renderProblemState()` for loading/error/denied/empty states, and adds no mutation buttons.
+
+Phase 10 program teacher review workflow implementation:
+
+- `/api/site/review-queue` is implemented as the site-aware Review Queue route. It reuses shared site selection, active selected-site student membership, student role membership, program/cohort group membership, and bounded pagination with default limit 50 and maximum limit 100.
+- The existing `/api/teacher/review-queue` remains as legacy compatibility. The existing `/api/reviews/:submissionId/decision` and `/api/reviews/:submissionId/history` remain the review mutation/history model and are extended with optional `siteId` checks for selected-site and program-teacher scope.
+- In the new site Review Queue UI, `program_teacher` can approve, request revision, or add comment-only feedback only for in-scope submitted submissions. Platform admin, legacy admin, org admin, site admin, and viewer can inspect the site queue read-only in the workspace; legacy admin backend compatibility remains available outside the new site UI.
+- Decisions continue to write reviews, comments, submission/progress status updates when applicable, status history, and audit events. History remains bounded and evidence/storage identifiers stay redacted.
+- The authenticated workspace renders a route-connected Review Queue section with site context, filters, summary counts, queue rows, selected submission context, bounded review history, teacher feedback controls for allowed program teachers, read-only explanations for read-only roles, and no mentor-assignment, archive retry/export, user-management, or announcement UI.
 
 ## 9. Demo Seed Direction
 
