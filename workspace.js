@@ -40,11 +40,11 @@ const WORKSPACE_UPLOAD_ALLOWED_MIME_TYPES = new Set([
 ]);
 const WORKSPACE_UPLOAD_ALLOWED_EXTENSIONS = [".pdf", ".txt", ".csv", ".docx", ".pptx", ".xlsx"];
 const WORKSPACE_POSTURE_CHIPS = [
-  "Database-backed MVP",
-  "No student messaging",
-  "Cloudflare target",
+  "Student progress",
   "Private evidence",
-  "Audit-sensitive admin",
+  "Mentor coverage",
+  "Review queue",
+  "Presentation readiness",
 ];
 const STATUS_CLASS_BY_STATUS = {
   draft: "draft",
@@ -247,9 +247,9 @@ function renderLoading(message) {
 
 function renderProductHeader(options = {}) {
   const {
-    eyebrow = "Database-backed MVP • Private evidence • Audit-safe operations",
-    title = "Senior Capstone Product",
-    subtitle = "A serious school-operations workspace for progress tracking, private evidence, mentor scope, review workflows, and site-level oversight.",
+    eyebrow = "School workspace",
+    title = "Capstone Project Workspace",
+    subtitle = "Review student progress, mentor coverage, submissions, presentations, and closeout work for your assigned school role.",
     chips = WORKSPACE_POSTURE_CHIPS,
     context = [],
     readOnly = false,

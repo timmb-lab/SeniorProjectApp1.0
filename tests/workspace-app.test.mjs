@@ -211,15 +211,17 @@ test("workspace exposes Figma-aligned design tokens and future site patterns", (
 
 test("workspace uses Phase 6.6 Figma cleanup patterns in real render paths", () => {
   for (const copy of [
-    "Database-backed MVP",
-    "No student messaging",
-    "Cloudflare target",
+    "School workspace",
+    "Student progress",
     "Private evidence",
-    "Audit-sensitive admin",
-    "Senior Capstone Product",
+    "Mentor coverage",
+    "Review queue",
+    "Presentation readiness",
+    "Capstone Project Workspace",
   ]) {
     assert.ok(workspaceJs.includes(copy), `missing product header copy ${copy}`);
   }
+  assert.doesNotMatch(workspaceJs, /Database-backed MVP|Cloudflare target|Audit-sensitive admin|Senior Capstone Product/);
 
   const signInBlock = workspaceJs.match(/function renderSignIn[\s\S]*?async function signIn/)?.[0] || "";
   const appShellBlock = workspaceJs.match(/function renderAppShell[\s\S]*?function availableSections/)?.[0] || "";
@@ -310,9 +312,11 @@ test("workspace renders route-connected site dashboard with Figma product-system
   assert.match(siteDashboard, /Desert Valley High School/);
   assert.match(siteDashboard, /Desert Valley School District/);
   assert.match(siteDashboard, /workspace-product-header/);
-  assert.match(siteDashboard, /Senior Capstone Product/);
-  assert.match(siteDashboard, /Database-backed MVP/);
-  assert.match(siteDashboard, /No student messaging/);
+  assert.match(siteDashboard, /Capstone Project Workspace/);
+  assert.match(siteDashboard, /School workspace/);
+  assert.match(siteDashboard, /Student progress/);
+  assert.match(siteDashboard, /Mentor coverage/);
+  assert.doesNotMatch(siteDashboard, /Database-backed MVP|Cloudflare target|Audit-sensitive admin|Senior Capstone Product/);
   assert.match(siteDashboard, /workspace-site-context-badge/);
   assert.match(siteDashboard, /workspace-metric-tile/);
   assert.match(siteDashboard, /Students/);
@@ -1480,12 +1484,14 @@ test("workspace renders safe Google Workspace SSO and local sign-in states", asy
   assert.match(enabled, /href="\/api\/auth\/google\/start\?returnTo=\/workspace\.html"/);
   assert.match(enabled, /Local account sign in/);
   assert.match(enabled, /workspace-product-header/);
-  assert.match(enabled, /Senior Capstone Product/);
-  assert.match(enabled, /Database-backed MVP/);
-  assert.match(enabled, /No student messaging/);
-  assert.match(enabled, /Cloudflare target/);
+  assert.match(enabled, /Capstone Project Workspace/);
+  assert.match(enabled, /School workspace/);
+  assert.match(enabled, /Student progress/);
   assert.match(enabled, /Private evidence/);
-  assert.match(enabled, /Audit-sensitive admin/);
+  assert.match(enabled, /Mentor coverage/);
+  assert.match(enabled, /Review queue/);
+  assert.match(enabled, /Presentation readiness/);
+  assert.doesNotMatch(enabled, /Database-backed MVP|Cloudflare target|Audit-sensitive admin|Senior Capstone Product/);
   assert.doesNotMatch(enabled, /client_secret|access_token|refresh_token|id_token/i);
 });
 
