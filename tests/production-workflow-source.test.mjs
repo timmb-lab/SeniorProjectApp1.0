@@ -143,7 +143,8 @@ test("announcement routes and seed creation are removed from active MVP surfaces
   assert.doesNotMatch(localDemoSeed, /announcementRow|rows\.announcements|pushRows\(statements, "announcements"|optional\.announcements/);
   assert.match(localDemoSeed, /\["announcements",/);
   assert.doesNotMatch(remoteDemoSeed, /optional\.announcements|announcements:\s*\[\]/);
-  assert.doesNotMatch(`${localDemoProof}\n${remoteDemoProof}`, /announcements/i);
+  assert.match(localDemoProof, /noAnnouncements|announcements.*0/);
+  assert.doesNotMatch(`${localDemoProof}\n${remoteDemoProof}`, /\/api\/(?:admin\/)?announcements|announcementRow|rows\.announcements|pushRows\(statements, "announcements"/);
 });
 
 test("archive export endpoints generate scoped manifest artifacts and expiry states", () => {

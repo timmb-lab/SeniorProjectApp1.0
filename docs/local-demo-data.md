@@ -32,16 +32,21 @@ npm run prove:demo:local
 - No physical Google Drive files are uploaded or created.
 - Demo evidence is metadata-only and uses `https://example.com/capstone-demo/...` links.
 - The protected local admins `bryan@learntechonline.com` and `bryan.timm89@gmail.com` are verified and preserved.
-- Demo staff credentials are written only to ignored `.secrets/demo-staff-logins-*.json` files and are never printed or committed.
+- Demo staff and persona credentials are written only to ignored `.secrets/demo-staff-logins-*.json` files and are never printed or committed.
 
 ## Seed Shape
 
-- 250 fake students across all nine programs.
-- 12 fake program teachers with program-scoped `program_teacher` roles.
-- 25 fake mentors with active mentor roles.
-- 225 active mentor assignments, leaving 25 students intentionally without mentors.
+- One fake organization: Desert Valley School District.
+- Three fake sites: Desert Valley High School, Canyon Ridge Career Academy, and North Valley Technical High School.
+- 370 fake students total: 250 at the primary site and 60 at each secondary site.
+- 22 fake program teachers with program-scoped `program_teacher` roles and site memberships.
+- 41 fake mentors with active mentor roles and site memberships.
+- 320 active mentor assignments, leaving 50 students intentionally without active mentors.
+- Fake platform admin, organization admin, site-administration, and viewer personas.
+- All active programs are mapped to the primary site; each secondary site has five mapped programs.
 - Mixed proposal, revision, approval, build, presentation, completion, and high-risk states.
 - Fake submissions, evidence metadata, comments, reviews, submission versions, mentor meetings, presentation slots, archive export metadata, and audit markers when the local schema supports those tables.
+- Named story buckets for model excellent, missing mentor, awaiting review, revision requested, presentation pending, archive ready, archive failed, high-risk, and rich timeline students.
 
 Demo seeds no longer create announcements. Schools should continue using their existing communication systems; the legacy `announcements` table is deprecated/schema-only until a later safe cleanup phase.
 

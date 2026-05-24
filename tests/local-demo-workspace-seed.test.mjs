@@ -76,41 +76,60 @@ test("demo seed creates deterministic fake workspace rows and preserves admins",
     now: new Date("2026-05-22T12:00:00.000Z"),
   });
 
-  assert.equal(result.finalVerification.demoStudents, 250);
-  assert.equal(result.finalVerification.demoProgramTeachers, 12);
-  assert.equal(result.finalVerification.demoMentors, 25);
-  assert.equal(result.finalVerification.mentorAssignments, 225);
-  assert.equal(result.finalVerification.studentsWithMentors, 225);
-  assert.equal(result.finalVerification.studentsWithoutMentors, 25);
-  assert.equal(result.finalVerification.submissions, 230);
-  assert.equal(result.finalVerification.evidenceMetadata, 619);
+  assert.equal(result.finalVerification.demoStudents, 370);
+  assert.equal(result.finalVerification.primarySiteStudents, 250);
+  assert.deepEqual(result.finalVerification.secondarySiteCounts, {
+    "site-canyon-ridge-career": 60,
+    "site-north-valley-tech": 60,
+  });
+  assert.equal(result.finalVerification.demoProgramTeachers, 22);
+  assert.equal(result.finalVerification.demoMentors, 41);
+  assert.equal(result.finalVerification.mentorAssignments, 320);
+  assert.equal(result.finalVerification.studentsWithMentors, 320);
+  assert.equal(result.finalVerification.studentsWithoutMentors, 50);
+  assert.equal(result.finalVerification.submissions, 344);
+  assert.equal(result.finalVerification.evidenceMetadata, 968);
   assert.equal(result.finalVerification.mentorMeetings, 200);
-  assert.equal(result.finalVerification.presentationSlots, 35);
+  assert.equal(result.finalVerification.presentationSlots, 72);
+  assert.equal(result.finalVerification.platformAdmins, 1);
+  assert.equal(result.finalVerification.orgAdmins, 1);
+  assert.equal(result.finalVerification.siteAdmins, 3);
+  assert.equal(result.finalVerification.viewers, 1);
+  assert.equal(result.finalVerification.studentCredentials, 0);
   assert.equal("announcements" in result.generatedCounts, false);
-  assert.equal("announcements" in result.finalVerification, false);
+  assert.equal(result.finalVerification.announcements, 0);
   assert.equal(result.finalVerification.foreignKeyViolations, 0);
   assert.equal(result.protectedAdminsAfter.preserved, true);
 
   assert.deepEqual(result.finalVerification.programDistribution, {
-    Construction: 25,
-    Culinary: 35,
-    "Early Childhood Education": 20,
-    "Hospitality & Marketing": 25,
-    IT: 45,
-    "Mechanical Technology": 25,
-    "Medical Professions": 20,
-    "Sports Medicine": 35,
-    "Teaching & Training": 20,
+    Construction: 37,
+    Culinary: 47,
+    "Early Childhood Education": 32,
+    "Hospitality & Marketing": 37,
+    IT: 69,
+    "Mechanical Technology": 37,
+    "Medical Professions": 32,
+    "Sports Medicine": 47,
+    "Teaching & Training": 32,
   });
+  assert.equal(result.finalVerification.storyBuckets.model_excellent.count, 3);
+  assert.equal(result.finalVerification.storyBuckets.missing_mentor.count, 10);
+  assert.equal(result.finalVerification.storyBuckets.awaiting_review.count, 10);
+  assert.equal(result.finalVerification.storyBuckets.revision_requested.count, 10);
+  assert.equal(result.finalVerification.storyBuckets.presentation_pending.count, 10);
+  assert.equal(result.finalVerification.storyBuckets.archive_ready.count, 10);
+  assert.equal(result.finalVerification.storyBuckets.archive_failed.count, 5);
+  assert.equal(result.finalVerification.storyBuckets.high_risk.count, 5);
+  assert.equal(result.finalVerification.storyBuckets.rich_timeline.count, 3);
 
   assert.equal(await count(db, "SELECT COUNT(*) AS count FROM user_accounts WHERE email_norm LIKE '%@demo-student.capstone.test' AND email_norm NOT LIKE '%.test'"), 0);
   assert.equal(await count(db, "SELECT COUNT(*) AS count FROM user_accounts WHERE email_norm LIKE '%@demo-staff.capstone.test' AND email_norm NOT LIKE '%.test'"), 0);
   assert.equal(await count(db, "SELECT COUNT(*) AS count FROM user_accounts WHERE email_norm LIKE '%nv.ccsd.net' OR email_norm = 'bryan@thecapstoneapp.com'"), 0);
   assert.equal(await count(db, "SELECT COUNT(*) AS count FROM user_accounts WHERE email_norm IN ('bryan@learntechonline.com', 'bryan.timm89@gmail.com')"), 2);
-  assert.equal(await count(db, "SELECT COUNT(*) AS count FROM user_accounts u JOIN user_roles r ON r.user_id = u.id AND r.role_id = 'student' WHERE u.email_norm LIKE '%@demo-student.capstone.test'"), 250);
-  assert.equal(await count(db, "SELECT COUNT(*) AS count FROM user_accounts u JOIN user_roles r ON r.user_id = u.id AND r.role_id = 'mentor' WHERE u.email_norm LIKE '%@demo-staff.capstone.test'"), 25);
-  assert.equal(await count(db, "SELECT COUNT(*) AS count FROM user_accounts u JOIN user_roles r ON r.user_id = u.id AND r.role_id = 'program_teacher' WHERE u.email_norm LIKE '%@demo-staff.capstone.test'"), 12);
-  assert.equal(await count(db, "SELECT COUNT(*) AS count FROM evidence_artifacts WHERE id LIKE 'demo-%' AND source_kind = 'external_link' AND external_url LIKE 'https://example.com/capstone-demo/%' AND drive_file_id IS NULL AND drive_parent_folder_id IS NULL"), 619);
+  assert.equal(await count(db, "SELECT COUNT(*) AS count FROM user_accounts u JOIN user_roles r ON r.user_id = u.id AND r.role_id = 'student' WHERE u.email_norm LIKE '%@demo-student.capstone.test'"), 370);
+  assert.equal(await count(db, "SELECT COUNT(*) AS count FROM user_accounts u JOIN user_roles r ON r.user_id = u.id AND r.role_id = 'mentor' WHERE u.email_norm LIKE '%@demo-staff.capstone.test'"), 41);
+  assert.equal(await count(db, "SELECT COUNT(*) AS count FROM user_accounts u JOIN user_roles r ON r.user_id = u.id AND r.role_id = 'program_teacher' WHERE u.email_norm LIKE '%@demo-staff.capstone.test'"), 22);
+  assert.equal(await count(db, "SELECT COUNT(*) AS count FROM evidence_artifacts WHERE id LIKE 'demo-%' AND source_kind = 'external_link' AND external_url LIKE 'https://example.com/capstone-demo/%' AND drive_file_id IS NULL AND drive_parent_folder_id IS NULL"), 968);
 
   const statuses = await db.prepare(
     `SELECT COALESCE(s.status, 'not_started') AS status, COUNT(*) AS count
@@ -121,12 +140,12 @@ test("demo seed creates deterministic fake workspace rows and preserves admins",
      GROUP BY COALESCE(s.status, 'not_started')`,
   ).all();
   const byStatus = Object.fromEntries(statuses.results.map((row) => [row.status, row.count]));
-  assert.equal(byStatus.not_started, 20);
-  assert.equal(byStatus.draft, 35);
-  assert.equal(byStatus.submitted, 40);
-  assert.equal(byStatus.revision_requested, 45);
-  assert.equal(byStatus.approved, 100);
-  assert.equal(byStatus.archived, 10);
+  assert.equal(byStatus.not_started, 26);
+  assert.equal(byStatus.draft, 39);
+  assert.equal(byStatus.submitted, 71);
+  assert.equal(byStatus.revision_requested, 68);
+  assert.equal(byStatus.approved, 137);
+  assert.equal(byStatus.archived, 29);
 
   assert.equal(await count(db, "SELECT COUNT(*) AS count FROM presentation_slots WHERE id LIKE 'demo-%' AND status NOT IN ('scheduled', 'checked_out', 'checked_in', 'completed', 'cancelled')"), 0);
   assert.equal(await count(db, "SELECT COUNT(*) AS count FROM presentation_slots WHERE id LIKE 'demo-%' AND outline_status NOT IN ('pending', 'approved', 'revision_needed')"), 0);
@@ -138,6 +157,7 @@ test("demo seed creates deterministic fake workspace rows and preserves admins",
 
   assert.match(result.credentialPath, /^\.secrets\/demo-staff-logins-/);
   const credentialPayload = JSON.parse(readFileSync(path.join(repoRoot, result.credentialPath), "utf8"));
+  assert.equal(credentialPayload.personaLogins.length, 6);
   assert.equal(credentialPayload.programTeacherLogins.length, 3);
   assert.equal(credentialPayload.mentorLogins.length, 3);
   assert.equal(credentialPayload.sampleStudentLogins.length, 0);
@@ -184,9 +204,9 @@ test("demo APIs can see seeded admin, teacher, mentor, and readiness data", asyn
   assert.equal(adminMe.user.roles.some((role) => role.role_id === "admin"), true);
 
   const adminDashboard = await routeJson(onAdminDashboard, env, "/api/admin/dashboard", adminToken);
-  assert.equal(adminDashboard.summary.studentsTotal, 250);
+  assert.equal(adminDashboard.summary.studentsTotal, 370);
   assert.equal(adminDashboard.programBreakdown.length, 9);
-  assert.equal(adminDashboard.mentorCoverage.length, 25);
+  assert.equal(adminDashboard.mentorCoverage.length, 41);
   assert.equal(adminDashboard.reviewQueue.length > 0, true);
 
   const adminReviewQueue = await routeJson(onTeacherReviewQueue, env, "/api/teacher/review-queue", adminToken);
@@ -201,8 +221,8 @@ test("demo APIs can see seeded admin, teacher, mentor, and readiness data", asyn
   const teacherMe = await routeJson(onMe, env, "/api/auth/me", teacherToken);
   assert.equal(teacherMe.user.roles.some((role) => role.role_id === "program_teacher" && role.scope_id === "it"), true);
   const teacherDashboard = await routeJson(onProgramTeacherDashboard, env, "/api/program-teacher/dashboard", teacherToken);
-  assert.equal(teacherDashboard.summary.scopedStudents, 45);
-  assert.equal(teacherDashboard.programBreakdown.some((row) => row.programId === "it" && row.studentCount === 45), true);
+  assert.equal(teacherDashboard.summary.scopedStudents, 69);
+  assert.equal(teacherDashboard.programBreakdown.some((row) => row.programId === "it" && row.studentCount === 69), true);
   assert.equal(teacherDashboard.students.length > 0, true);
 
   const mentorToken = await seedSession(db, env, "demo-mentor-001", "mentor-demo-token");
@@ -211,6 +231,34 @@ test("demo APIs can see seeded admin, teacher, mentor, and readiness data", asyn
   const mentorDashboard = await routeJson(onMentorDashboard, env, "/api/mentor/dashboard", mentorToken);
   assert.equal(mentorDashboard.summary.assignedCount, 9);
   assert.equal(mentorDashboard.assignedStudents.length, 9);
+});
+
+test("demo persona and story docs stay sanitized and match multisite shape", () => {
+  const personas = readFileSync("docs/demo/personas.md", "utf8");
+  const storyMap = readFileSync("docs/demo/story-map.md", "utf8");
+  const docs = `${personas}\n${storyMap}`;
+
+  for (const text of [
+    "Desert Valley School District",
+    "Desert Valley High School",
+    "Canyon Ridge Career Academy",
+    "North Valley Technical High School",
+    "Model Excellent Demo",
+    "Missing Mentor Demo",
+    "Awaiting Review Demo",
+    "Revision Loop Demo",
+    "Presentation Pending Demo",
+    "Archive Ready Demo",
+    "Archive Failed Demo",
+    "High Risk Demo",
+    "Rich Timeline Demo",
+    ".secrets/demo-staff-logins-*.json",
+  ]) {
+    assert.match(docs, new RegExp(text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  }
+
+  assert.doesNotMatch(docs, /DemoLocal!|Q9!vV-|workingPassword|"password"\s*:|password_hash|password_salt/i);
+  assert.doesNotMatch(docs, /@(?:nv\.ccsd\.net|gmail\.com|thecapstoneapp\.com|learntechonline\.com)/i);
 });
 
 async function createDemoDb() {

@@ -1,0 +1,162 @@
+{
+  "phase": "PHASE 05A - Multisite Demo Seed and Local Proof",
+  "date": "2026-05-24",
+  "repo": {
+    "path": "C:\\SeniorProjectApp1.0",
+    "expectedOrigin": "https://github.com/timmb-lab/SeniorProjectApp1.0.git",
+    "branch": "main",
+    "packageName": "senior-capstone-app"
+  },
+  "startingHead": "beb510f7e5b2749ea04f2d89e39dd60667c84a55",
+  "endingHead": null,
+  "phase4HygieneFixes": [
+    "Updated docs/progress/runs/2026-05-24-site-aware-permission-capabilities.json endingHead to beb510f7e5b2749ea04f2d89e39dd60667c84a55.",
+    "Updated the Phase 4 run-log commit/push status to record beb510f auth: add site-aware permission capabilities."
+  ],
+  "seedShape": {
+    "tenant": {
+      "id": "tenant-desert-valley",
+      "name": "Desert Valley School District",
+      "status": "active",
+      "subscriptionStatus": "trial",
+      "storageMode": "app_managed_google_drive"
+    },
+    "totalStudents": 370,
+    "primarySiteStudents": 250,
+    "secondarySiteStudents": 120,
+    "announcementsCreated": 0,
+    "studentCredentialsCreated": 0,
+    "evidenceUrlPolicy": "https://example.com/capstone-demo/ metadata-only links",
+    "remoteWriteRun": false
+  },
+  "sitesCreated": [
+    {
+      "id": "site-desert-valley-high",
+      "name": "Desert Valley High School",
+      "students": 250,
+      "sitePrograms": 9
+    },
+    {
+      "id": "site-canyon-ridge-career",
+      "name": "Canyon Ridge Career Academy",
+      "students": 60,
+      "sitePrograms": 5
+    },
+    {
+      "id": "site-north-valley-tech",
+      "name": "North Valley Technical High School",
+      "students": 60,
+      "sitePrograms": 5
+    }
+  ],
+  "rolesCreated": {
+    "platform_admin": 1,
+    "org_admin": 1,
+    "site_admin": 3,
+    "viewer": 1,
+    "program_teacherLocal": 22,
+    "mentorLocal": 41,
+    "studentLocal": 370
+  },
+  "storyBuckets": {
+    "model_excellent": 3,
+    "missing_mentor": 10,
+    "awaiting_review": 10,
+    "revision_requested": 10,
+    "presentation_pending": 10,
+    "archive_ready": 10,
+    "archive_failed": 5,
+    "high_risk": 5,
+    "rich_timeline": 3
+  },
+  "credentialsPolicy": [
+    "Demo users use only demo-student.capstone.test and demo-staff.capstone.test domains.",
+    "Student credentials are not created.",
+    "Staff and persona credentials are written only to ignored .secrets/demo-*.json files.",
+    "Credential values are not printed or committed.",
+    "Protected local admin accounts are verified and preserved."
+  ],
+  "localProof": {
+    "seedDryRun": "passed",
+    "seedReset": "passed",
+    "proveDemoLocal": "passed",
+    "studentsTotal": 370,
+    "primarySiteStudents": 250,
+    "secondarySiteCounts": {
+      "site-canyon-ridge-career": 60,
+      "site-north-valley-tech": 60
+    },
+    "siteAwarePermissionChecks": "passed",
+    "announcements": 0,
+    "studentCredentials": 0,
+    "unsafeEvidenceRows": 0
+  },
+  "remoteDryRunStatus": {
+    "attempted": true,
+    "status": "blocked",
+    "blocker": "Remote D1 schema is missing sites, so multisite remote dry-run cannot inspect the target shape until migration 0011 is applied remotely in an approved later phase.",
+    "remoteWritesRun": false,
+    "remoteMigrationsRun": false,
+    "remoteResetRun": false
+  },
+  "filesChanged": [
+    "README.md",
+    "docs/demo/personas.md",
+    "docs/demo/story-map.md",
+    "docs/local-demo-data.md",
+    "docs/remote-demo-data.md",
+    "docs/mvp-multisite-sales-demo-contract.md",
+    "docs/decisions/multisite-sales-mvp-decisions.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-24-site-aware-permission-capabilities.json",
+    "docs/progress/runs/2026-05-24-multisite-demo-seed-local-proof.json",
+    "scripts/seed-local-demo-workspace.mjs",
+    "scripts/seed-remote-demo-workspace.mjs",
+    "scripts/prove-local-demo-workspace.mjs",
+    "scripts/prove-remote-demo-workspace.mjs",
+    "tests/local-demo-workspace-seed.test.mjs",
+    "tests/remote-demo-workspace-seed.test.mjs",
+    "tests/production-workflow-source.test.mjs"
+  ],
+  "validation": [
+    {
+      "command": "npm run seed:demo:local:dry-run",
+      "status": "passed"
+    },
+    {
+      "command": "npm run seed:demo:local:reset",
+      "status": "passed"
+    },
+    {
+      "command": "npm run prove:demo:local",
+      "status": "passed"
+    },
+    {
+      "command": "npm run seed:demo:remote:dry-run",
+      "status": "blocked",
+      "notes": "CLOUDFLARE_API_TOKEN was present; the read-only dry-run failed because remote D1 is missing the sites table. No remote write, reset, or migration was run."
+    },
+    {
+      "command": "npm run test",
+      "status": "passed",
+      "notes": "268 passing tests and 4 expected local HTTP skips."
+    },
+    {
+      "command": "npm run typecheck",
+      "status": "passed"
+    },
+    {
+      "command": "npm run check",
+      "status": "passed"
+    },
+    {
+      "command": "git diff --check",
+      "status": "passed",
+      "notes": "Passed with CRLF normalization warnings only."
+    }
+  ],
+  "blockers": [
+    "Remote D1 does not yet have migration 0011 applied, so Phase 5B remote seed write is not safe yet."
+  ],
+  "nextRecommendedPrompt": "06_figma_alignment_foundation.txt"
+}

@@ -8,7 +8,7 @@
     "packageName": "senior-capstone-app"
   },
   "startingHead": "8bf6fe7e944b555f589f5e58a81fc99caba0ff4d",
-  "endingHead": null,
+  "endingHead": "beb510f7e5b2749ea04f2d89e39dd60667c84a55",
   "phase3HygieneFixes": [
     "Updated docs/progress/runs/2026-05-24-remove-announcements-from-mvp.json endingHead to 8bf6fe7e944b555f589f5e58a81fc99caba0ff4d.",
     "Updated the Phase 3 run-log commit/push status to record 8bf6fe7 chore: remove announcements from MVP workspace."

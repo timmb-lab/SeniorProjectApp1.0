@@ -8,7 +8,10 @@ import { fileURLToPath } from "node:url";
 import {
   DEFAULT_SEED,
   DEMO_MARKER,
+  DEMO_SITES,
+  DEMO_TENANT_ID,
   PROGRAMS,
+  STORY_BUCKETS,
   STAFF_DOMAIN,
   STUDENT_DOMAIN,
   DemoSeedError,
@@ -18,6 +21,8 @@ import {
   buildSeedSql,
   introspectSchema,
   loadLookups,
+  siteStudentCounts,
+  storyBucketCounts,
   validateSchemaCapabilities,
 } from "./seed-local-demo-workspace.mjs";
 
@@ -201,7 +206,9 @@ async function runRemoteDemoSeed(args, options = {}) {
     },
     generatedCounts: dataset.generatedCounts,
     programDistribution: dataset.programDistribution,
+    siteDistribution: dataset.siteDistribution,
     stageDistribution: dataset.stageDistribution,
+    storyBuckets: dataset.storyBuckets,
     skippedSlices,
     credentialPath: null,
     credentialsPrinted: false,
@@ -304,11 +311,16 @@ function buildRemoteCleanupSql(schema) {
 function emptyRemoteDataset() {
   return {
     rows: {
+      tenants: [],
+      sites: [],
+      sitePrograms: [],
       cohorts: [],
       groups: [],
       userAccounts: [],
       passwordCredentials: [],
       userRoles: [],
+      tenantUsers: [],
+      siteUsers: [],
       groupMemberships: [],
       mentorAssignments: [],
       progressRecords: [],
@@ -354,7 +366,15 @@ function assertDatasetUsesOnlyAllowedDomains(dataset) {
   const forbidden = dataset.rows.userAccounts.filter((row) => {
     const email = normalizeEmail(row.email_norm || row.email);
     if (row.id.startsWith("demo-student-")) return !email.endsWith(`@${STUDENT_DOMAIN}`);
-    if (row.id.startsWith("demo-teacher-") || row.id.startsWith("demo-mentor-") || row.id.startsWith("demo-admin-")) {
+    if (
+      row.id.startsWith("demo-teacher-")
+      || row.id.startsWith("demo-mentor-")
+      || row.id.startsWith("demo-admin-")
+      || row.id.startsWith("demo-platform-admin-")
+      || row.id.startsWith("demo-org-admin-")
+      || row.id.startsWith("demo-site-admin-")
+      || row.id.startsWith("demo-viewer-")
+    ) {
       return !email.endsWith(`@${STAFF_DOMAIN}`);
     }
     return row.id.startsWith("demo-");
@@ -523,6 +543,12 @@ function hostedImportScope(account) {
     const scopeId = String(account.scope || "").replace(/^program:/, "");
     return { scopeType: "program", scopeId };
   }
+  if (account.role === "org_admin" && String(account.scope || "").startsWith("tenant:")) {
+    return { scopeType: "tenant", scopeId: String(account.scope || "").replace(/^tenant:/, "") };
+  }
+  if ((account.role === "site_admin" || account.role === "viewer") && String(account.scope || "").startsWith("site:")) {
+    return { scopeType: "site", scopeId: String(account.scope || "").replace(/^site:/, "") };
+  }
   return { scopeType: "global", scopeId: "" };
 }
 
@@ -608,6 +634,10 @@ function chunks(values, size) {
 
 function roleForSeedUserId(id) {
   if (String(id).startsWith("demo-admin-")) return "admin";
+  if (String(id).startsWith("demo-platform-admin-")) return "platform_admin";
+  if (String(id).startsWith("demo-org-admin-")) return "org_admin";
+  if (String(id).startsWith("demo-site-admin-")) return "site_admin";
+  if (String(id).startsWith("demo-viewer-")) return "viewer";
   if (String(id).startsWith("demo-teacher-")) return "program_teacher";
   if (String(id).startsWith("demo-mentor-")) return "mentor";
   return "staff";
@@ -671,7 +701,8 @@ async function snapshotPreservedRemoteState(adapter, schema) {
 }
 
 async function tableSnapshot(adapter, table) {
-  const rows = await adapter.query(`SELECT * FROM ${quoteIdent(table)} ORDER BY ${orderByFor(table)};`);
+  const where = table === "tenants" ? ` WHERE id <> ${sqlString(DEMO_TENANT_ID)}` : "";
+  const rows = await adapter.query(`SELECT * FROM ${quoteIdent(table)}${where} ORDER BY ${orderByFor(table)};`);
   return {
     count: rows.length,
     digest: sha256(JSON.stringify(rows)),
@@ -731,6 +762,27 @@ async function verifyRemoteSeedState(adapter, schema) {
     `SELECT COUNT(*) AS count FROM user_accounts WHERE id LIKE 'demo-%' AND (${realDomainWhere("email_norm")});`,
     "SELECT COUNT(*) AS count FROM evidence_artifacts WHERE id LIKE 'demo-%' AND (drive_file_id IS NOT NULL OR drive_parent_folder_id IS NOT NULL OR external_url NOT LIKE 'https://example.com/capstone-demo/%');",
     "SELECT COUNT(*) AS count FROM exports WHERE id LIKE 'demo-%' AND drive_file_id IS NOT NULL;",
+    `SELECT COUNT(*) AS count FROM tenants WHERE id = ${sqlString(DEMO_TENANT_ID)} AND status = 'active';`,
+    `SELECT COUNT(*) AS count FROM sites WHERE tenant_id = ${sqlString(DEMO_TENANT_ID)} AND status = 'active';`,
+    `SELECT COUNT(*) AS count
+     FROM site_users su
+     JOIN user_roles r ON r.user_id = su.user_id AND r.role_id = 'student'
+     JOIN user_accounts u ON u.id = su.user_id AND u.email_norm LIKE '%@demo-student.capstone.test'
+     WHERE su.site_id = ${sqlString(DEMO_SITES[0].id)}
+       AND su.membership_status = 'active';`,
+    `SELECT COUNT(*) AS count
+     FROM site_users su
+     JOIN user_roles r ON r.user_id = su.user_id AND r.role_id = 'student'
+     JOIN user_accounts u ON u.id = su.user_id AND u.email_norm LIKE '%@demo-student.capstone.test'
+     WHERE su.site_id IN (${DEMO_SITES.filter((site) => !site.primary).map((site) => sqlString(site.id)).join(", ")})
+       AND su.membership_status = 'active';`,
+    `SELECT COUNT(*) AS count FROM site_programs WHERE site_id = ${sqlString(DEMO_SITES[0].id)} AND active = 1;`,
+    `SELECT COUNT(*) AS count FROM user_accounts u JOIN user_roles r ON r.user_id = u.id AND r.role_id = 'platform_admin' WHERE u.email_norm LIKE '%@demo-staff.capstone.test';`,
+    `SELECT COUNT(*) AS count FROM user_accounts u JOIN user_roles r ON r.user_id = u.id AND r.role_id = 'org_admin' WHERE u.email_norm LIKE '%@demo-staff.capstone.test';`,
+    `SELECT COUNT(*) AS count FROM user_accounts u JOIN user_roles r ON r.user_id = u.id AND r.role_id = 'site_admin' WHERE u.email_norm LIKE '%@demo-staff.capstone.test';`,
+    `SELECT COUNT(*) AS count FROM user_accounts u JOIN user_roles r ON r.user_id = u.id AND r.role_id = 'viewer' WHERE u.email_norm LIKE '%@demo-staff.capstone.test';`,
+    `SELECT COUNT(*) AS count FROM password_credentials WHERE user_id IN (SELECT id FROM user_accounts WHERE email_norm LIKE '%@demo-student.capstone.test');`,
+    "SELECT COUNT(*) AS count FROM announcements WHERE id LIKE 'demo-%' OR title LIKE '%DEMO_SEED%' OR body LIKE '%DEMO_SEED%';",
     "PRAGMA foreign_key_check;",
   ];
   const rows = await adapter.queryBatch(queries);
@@ -749,7 +801,18 @@ async function verifyRemoteSeedState(adapter, schema) {
     forbiddenDemoRealDomainRows: firstCount(rows[11]),
     unsafeDemoEvidenceRows: firstCount(rows[12]),
     unsafeDemoExportDriveRows: firstCount(rows[13]),
-    foreignKeyViolations: rows[14].length,
+    demoTenantRows: firstCount(rows[14]),
+    demoSites: firstCount(rows[15]),
+    primarySiteStudents: firstCount(rows[16]),
+    secondarySiteStudents: firstCount(rows[17]),
+    primarySitePrograms: firstCount(rows[18]),
+    platformAdmins: firstCount(rows[19]),
+    orgAdmins: firstCount(rows[20]),
+    siteAdmins: firstCount(rows[21]),
+    viewers: firstCount(rows[22]),
+    studentCredentials: firstCount(rows[23]),
+    announcements: firstCount(rows[24]),
+    foreignKeyViolations: rows[25].length,
   };
   const optional = {};
   if (schema.tableNames.has("mentor_meetings")) optional.mentorMeetings = firstCount(await adapter.query("SELECT COUNT(*) AS count FROM mentor_meetings WHERE id LIKE 'demo-%';"));
@@ -758,14 +821,31 @@ async function verifyRemoteSeedState(adapter, schema) {
   if (schema.tableNames.has("export_artifacts")) optional.exportArtifacts = firstCount(await adapter.query("SELECT COUNT(*) AS count FROM export_artifacts WHERE id LIKE 'demo-%';"));
   if (schema.tableNames.has("submission_versions")) optional.submissionVersions = firstCount(await adapter.query("SELECT COUNT(*) AS count FROM submission_versions WHERE id LIKE 'demo-%';"));
 
+  const secondarySiteCounts = await siteStudentCounts(adapter, DEMO_SITES.filter((site) => !site.primary).map((site) => site.id));
+  const storyBuckets = await storyBucketCounts(adapter);
+  const secondaryCountsOk = Object.values(secondarySiteCounts).every((count) => count >= 40 && count <= 75);
+  const storyBucketsOk = STORY_BUCKETS.every((bucket) => Number(storyBuckets[bucket.id]?.count || 0) >= bucket.count);
+
   if (
-    summary.demoStudents !== 250
-    || summary.demoProgramTeachers !== PROGRAMS.length
-    || summary.demoMentors !== 48
+    summary.demoStudents !== 370
+    || summary.primarySiteStudents !== 250
+    || !secondaryCountsOk
+    || summary.demoProgramTeachers < PROGRAMS.length + 10
+    || summary.demoMentors !== 64
     || summary.demoAdmins !== 1
-    || summary.mentorAssignments !== 225
-    || summary.studentsWithMentors !== 225
-    || summary.studentsWithoutMentors !== 25
+    || summary.mentorAssignments !== 320
+    || summary.studentsWithMentors !== 320
+    || summary.studentsWithoutMentors !== 50
+    || summary.demoTenantRows !== 1
+    || summary.demoSites !== 3
+    || summary.primarySitePrograms !== PROGRAMS.length
+    || summary.platformAdmins !== 1
+    || summary.orgAdmins !== 1
+    || summary.siteAdmins !== 3
+    || summary.viewers !== 1
+    || summary.studentCredentials !== 0
+    || summary.announcements !== 0
+    || !storyBucketsOk
     || summary.forbiddenDemoRealDomainRows !== 0
     || summary.unsafeDemoEvidenceRows !== 0
     || summary.unsafeDemoExportDriveRows !== 0
@@ -796,6 +876,8 @@ async function verifyRemoteSeedState(adapter, schema) {
   return {
     ...summary,
     ...optional,
+    secondarySiteCounts,
+    storyBuckets,
     programDistribution: Object.fromEntries(programRows.map((row) => [row.name, Number(row.count || 0)])),
     submissionStatusDistribution: Object.fromEntries(stageRows.map((row) => [row.status, Number(row.count || 0)])),
     demoMarker: DEMO_MARKER,
@@ -818,6 +900,7 @@ function writeRemoteCredentialFile({ repoRoot, credentials, now = new Date(), as
     studentCredentialsCreated: false,
     suggestedDemoUrl: DEFAULT_REMOTE_DEMO_URL,
     adminLogins: credentials.adminLogins,
+    personaLogins: credentials.personaLogins || [],
     programTeacherLogins: credentials.programTeacherLogins,
     mentorLogins: credentials.mentorLogins,
     sampleStudentLogins: [],

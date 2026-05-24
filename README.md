@@ -136,7 +136,7 @@ npm run prove:local-admin-logins
 npm run prove:demo:local
 ```
 
-The seed creates 250 fake students across all nine programs, fake program teachers, fake mentors, mentor assignments, scoped teacher roles, mixed project lifecycle states, submissions, evidence-link metadata, comments, reviews, mentor meetings, presentation slots, and dashboard-ready aggregate records when the schema supports those tables. It does not create announcements. It refuses remote D1, uses only `.test` demo domains, creates no Drive files, preserves the two protected local admins, and writes demo staff credentials only to ignored `.secrets/demo-staff-logins-*.json` files.
+The seed creates the fake Desert Valley School District with three sites: Desert Valley High School with 250 students, plus Canyon Ridge Career Academy and North Valley Technical High School with 60 students each. It creates fake platform, organization, site-administration, viewer, program teacher, mentor, and student records, site memberships, site-program mappings, story-based search targets, submissions, evidence-link metadata, comments, reviews, mentor meetings, presentation slots, and archive export metadata. It does not create announcements. It refuses remote D1, uses only `.test` demo domains, creates no Drive files, preserves the two protected local admins, and writes demo staff/persona credentials only to ignored `.secrets/demo-staff-logins-*.json` files.
 
 Details live in `docs/local-demo-data.md`.
 

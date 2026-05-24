@@ -58,3 +58,13 @@ This decision record locks the target vocabulary and scope for the multisite sal
 - `site_admin` can perform assigned-site operational capabilities in helpers, but cannot manage users, platform security, or tenant configuration in this phase.
 - `viewer` is read-only in helpers and cannot mutate reviews, add staff notes, manage mentor assignments, manage presentation/archive operations, manage users, or manage security.
 - `misc_admin` remains legacy/narrow and is not treated as `site_admin` or `platform_admin`.
+
+## Phase 5A Multisite Demo Seed Foundation
+
+- Local and remote demo seeders now share the same Desert Valley School District multisite shape.
+- The primary site, Desert Valley High School, has exactly 250 fake students; Canyon Ridge Career Academy and North Valley Technical High School each have 60 fake students.
+- Demo users remain fake `.test` accounts only: `demo-student.capstone.test` and `demo-staff.capstone.test`.
+- Demo seeders create no student credentials and no announcements.
+- Fake platform, organization, site-administration, viewer, program teacher, and mentor persona accounts are created; credential values stay only in ignored `.secrets/demo-...json` files.
+- Story buckets are deterministic and searchable by prefix for model excellent, missing mentor, awaiting review, revision requested, presentation pending, archive ready, archive failed, high-risk, and rich timeline students.
+- Phase 5A local proof validates the multisite shape locally. Remote dry-run may be used when safe, but remote write remains deferred.

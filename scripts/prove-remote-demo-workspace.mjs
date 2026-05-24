@@ -163,7 +163,7 @@ async function verifyHostedDashboardProof({ baseUrl, credentials, adapter }) {
   }
   const adminStudentsVisible = Object.entries(expectedProgramCounts).reduce((sum, [programId]) => sum + Number(adminProgramCounts[programId] || 0), 0);
   if (adminStudentsVisible < 250) {
-    throw new RemoteDemoProofError("ADMIN_DASHBOARD_STUDENT_TOTAL_FAILED", "Admin dashboard program breakdown did not expose all 250 demo students.", {
+    throw new RemoteDemoProofError("ADMIN_DASHBOARD_STUDENT_TOTAL_FAILED", "Admin dashboard program breakdown did not expose the primary-site demo student floor.", {
       adminStudentsVisible,
     });
   }
@@ -344,7 +344,7 @@ async function verifyHostedFallbackProof({ baseUrl, repoRoot, generatedCredentia
   }
   const adminStudentsVisible = Object.entries(expectedProgramCounts).reduce((sum, [programId]) => sum + Number(adminProgramCounts[programId] || 0), 0);
   if (adminStudentsVisible < 250) {
-    throw new RemoteDemoProofError("FALLBACK_ADMIN_STUDENT_TOTAL_FAILED", "Fallback hosted admin dashboard did not expose all 250 demo students.", {
+    throw new RemoteDemoProofError("FALLBACK_ADMIN_STUDENT_TOTAL_FAILED", "Fallback hosted admin dashboard did not expose the primary-site demo student floor.", {
       adminStudentsVisible,
     });
   }
@@ -473,10 +473,10 @@ async function verifyD1Visibility(adapter) {
     coversDemoProgramScope: Number(row.demo_students || 0) >= Number(expectedProgramCounts[row.program_id] || Number.POSITIVE_INFINITY),
   }));
   const mentorProofs = mentorRows.map((row) => Number(row.assigned_students || 0));
-  const ok = teacherProofs.length === PROGRAMS.length
+  const ok = teacherProofs.length >= PROGRAMS.length + 10
     && teacherProofs.every((row) => row.coversDemoProgramScope)
-    && mentorProofs.length === 48
-    && mentorProofs.reduce((sum, count) => sum + count, 0) === 225
+    && mentorProofs.length === 64
+    && mentorProofs.reduce((sum, count) => sum + count, 0) === 320
     && Number(studentCredentialRows[0]?.count || 0) === 0;
   if (!ok) {
     throw new RemoteDemoProofError("REMOTE_D1_VISIBILITY_PROOF_FAILED", "Remote D1 role visibility proof failed.", {
@@ -637,6 +637,7 @@ function normalizeFallbackRole(account) {
 function assertCredentialDomains(credentials) {
   const staffAccounts = [
     ...(credentials.adminLogins || []),
+    ...(credentials.personaLogins || []),
     ...(credentials.programTeacherLogins || []),
     ...(credentials.mentorLogins || []),
   ];

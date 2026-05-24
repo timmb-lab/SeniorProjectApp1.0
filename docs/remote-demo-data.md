@@ -10,6 +10,8 @@ npm run prove:demo:remote
 
 `seed:demo:remote` expands to `--remote --write --confirm SEED_REMOTE_DEMO` and refuses remote write without `CLOUDFLARE_API_TOKEN`.
 
+The multisite seed requires the remote D1 schema to include migration `0011_multisite_site_role_foundation.sql`. Phase 5A does not run remote migrations or remote writes.
+
 ## Safety
 
 - Demo users use only `demo-student.capstone.test` and `demo-staff.capstone.test`.
@@ -17,15 +19,20 @@ npm run prove:demo:remote
 - Bryan admin accounts, real users, tenant/domain/provider rows, and Drive repository/settings rows are snapshotted and preserved.
 - Cleanup deletes only demo-owned rows: `demo-` IDs, approved demo domains, `example.com/capstone-demo` evidence, or `DEMO_SEED` markers.
 - No physical Google Drive files are created. Evidence uses metadata plus `https://example.com/capstone-demo/...` URLs only.
-- Staff credential files are written only under ignored `.secrets/demo-remote-staff-logins-*.json`; student credentials are not created.
+- Staff and persona credential files are written only under ignored `.secrets/demo-remote-staff-logins-*.json`; student credentials are not created.
 
 ## Seed Shape
 
-- 250 fake students across all nine programs.
-- 48 fake mentors.
-- 1 fake program teacher per program.
-- 225 active mentor assignments, leaving 25 students intentionally unassigned.
+- One fake organization: Desert Valley School District.
+- Three fake sites: Desert Valley High School, Canyon Ridge Career Academy, and North Valley Technical High School.
+- 370 fake students total: 250 at the primary site and 60 at each secondary site.
+- 64 fake mentors.
+- 1 primary-site fake program teacher per program plus secondary-site program teachers for mapped programs.
+- 320 active mentor assignments, leaving 50 students intentionally unassigned.
+- Fake platform admin, organization admin, site-administration, and viewer personas.
+- All active programs are mapped to the primary site; each secondary site has five mapped programs.
 - Fake submissions, evidence, comments, reviews, status history, submission versions, mentor meetings, presentation slots, and archive metadata.
+- Named story buckets for model excellent, missing mentor, awaiting review, revision requested, presentation pending, archive ready, archive failed, high-risk, and rich timeline students.
 
 Demo seeds no longer create announcements. Schools should continue using existing communication systems such as Remind, Canvas, Infinite Campus, Google Classroom, email, or district-approved tools. The legacy `announcements` table remains deprecated/schema-only until a later safe cleanup phase.
 

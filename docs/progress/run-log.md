@@ -1379,4 +1379,17 @@ Future productive runs should append compact entries that name the master-plan s
 - `compatibility behavior`: legacy `admin` remains platform-equivalent through `isPlatformAdmin`; `isAdmin` remains legacy-admin-only for current routes; `canManageUsers` recognizes `platform_admin` and legacy `admin` while existing user import/role assignment routes are not broadened; `site_admin` and `viewer` require assigned active sites; `misc_admin` remains legacy/narrow.
 - `validation`: `npm run test` passed with 267 passing tests and 4 expected local HTTP skips; `npm run typecheck` passed; `npm run check` passed; `git diff --check` passed with CRLF normalization warnings only.
 - `blockers`: none for Phase 4. Full site-aware route conversion and multi-site seeded data remain later phases.
-- `commit/push status`: pending Phase 4 commit and push.
+- `commit/push status`: committed and pushed as `beb510f auth: add site-aware permission capabilities`.
+
+## 2026-05-24 - PHASE 05A Multisite Demo Seed and Local Proof
+
+- `starting HEAD`: `beb510f7e5b2749ea04f2d89e39dd60667c84a55`.
+- `files inspected`: Phase 4 contract/decision/run docs, run log, multisite migration `0011`, permission helpers, package scripts, foundation/tenant/site migrations, local/remote seed and proof scripts, local admin proof/reset scripts, local/remote demo data docs, README, and related local/remote seed, hosted proof, site-aware permission, D1 helper, and auth fixture tests.
+- `files changed`: local and remote demo seed/proof scripts; multisite demo persona/story docs; local/remote demo docs; README; MVP contract/decision docs; Phase 4 metadata hygiene; focused local/remote seed and production workflow tests; Phase 5A manifest; this run log.
+- `seed shape`: Desert Valley School District with 3 fake sites, 370 `.test` students total, 250 primary-site students, 60 students at each secondary site, site memberships, site-program mappings, target persona roles, 320 mentor assignments, no student credentials, and no announcements.
+- `story buckets`: model excellent 3, missing mentor 10, awaiting review 10, revision requested 10, presentation pending 10, archive ready 10, archive failed 5, high-risk 5, rich timeline 3.
+- `local proof`: `npm run seed:demo:local:dry-run`, `npm run seed:demo:local:reset`, and `npm run prove:demo:local` passed; local proof verified multisite shape, story buckets, no announcements, no student credentials, safe example.com evidence links, and site-aware permission helper behavior.
+- `remote dry-run status`: attempted because a Cloudflare token was available; read-only dry-run failed before any write because remote D1 is missing the `sites` table. No remote migration, reset, seed, or write was run.
+- `validation`: `npm run test` passed with 268 passing tests and 4 expected local HTTP skips; `npm run typecheck` passed; `npm run check` passed; `git diff --check` passed with CRLF normalization warnings only.
+- `blockers`: Phase 5B remote seed write is not safe until remote D1 has migration `0011_multisite_site_role_foundation.sql` applied in an approved later phase.
+- `commit/push status`: pending Phase 5A commit and push.

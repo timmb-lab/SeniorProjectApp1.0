@@ -17,6 +17,52 @@ const DEMO_MARKER = "DEMO_SEED";
 const DEFAULT_SEED = "capstone-local-demo-2026-v1";
 const STUDENT_DOMAIN = "demo-student.capstone.test";
 const STAFF_DOMAIN = "demo-staff.capstone.test";
+const DEMO_TENANT_ID = "tenant-desert-valley";
+const DEMO_TENANT = Object.freeze({
+  id: DEMO_TENANT_ID,
+  name: "Desert Valley School District",
+  slug: "desert-valley",
+  status: "active",
+  subscription_status: "trial",
+  storage_mode: "app_managed_google_drive",
+});
+const PRIMARY_SITE_ID = "site-desert-valley-high";
+const DEMO_SITES = Object.freeze([
+  {
+    id: PRIMARY_SITE_ID,
+    tenantId: DEMO_TENANT_ID,
+    name: "Desert Valley High School",
+    slug: "desert-valley-high",
+    schoolYear: "2026-2027",
+    studentCount: 250,
+    programIds: "all",
+    mentorPrefix: "demo-mentor-",
+    primary: true,
+  },
+  {
+    id: "site-canyon-ridge-career",
+    tenantId: DEMO_TENANT_ID,
+    name: "Canyon Ridge Career Academy",
+    slug: "canyon-ridge-career",
+    schoolYear: "2026-2027",
+    studentCount: 60,
+    programIds: ["it", "culinary", "construction", "sports-medicine", "medical-professions"],
+    mentorPrefix: "demo-mentor-canyon-ridge-career-",
+    primary: false,
+  },
+  {
+    id: "site-north-valley-tech",
+    tenantId: DEMO_TENANT_ID,
+    name: "North Valley Technical High School",
+    slug: "north-valley-tech",
+    schoolYear: "2026-2027",
+    studentCount: 60,
+    programIds: ["it", "hospitality-marketing", "mechanical-technology", "teaching-training", "early-childhood-education"],
+    mentorPrefix: "demo-mentor-north-valley-tech-",
+    primary: false,
+  },
+]);
+const SECONDARY_SITE_MENTOR_COUNT = 8;
 const PROTECTED_ADMIN_EMAILS = Object.freeze([
   "bryan@learntechonline.com",
   "bryan.timm89@gmail.com",
@@ -156,6 +202,81 @@ const STAGE_COUNTS = Object.freeze({
   high_risk: 5,
 });
 
+const STORY_BUCKETS = Object.freeze([
+  {
+    id: "model_excellent",
+    label: "Model excellent students",
+    prefix: "Model Excellent",
+    count: 3,
+    stage: "completed",
+    mentor: "required",
+  },
+  {
+    id: "missing_mentor",
+    label: "Missing mentor students",
+    prefix: "Missing Mentor",
+    count: 10,
+    stage: "submitted",
+    mentor: "none",
+  },
+  {
+    id: "awaiting_review",
+    label: "Submitted awaiting review",
+    prefix: "Awaiting Review",
+    count: 10,
+    stage: "submitted",
+    mentor: "required",
+  },
+  {
+    id: "revision_requested",
+    label: "Revision requested",
+    prefix: "Revision Loop",
+    count: 10,
+    stage: "revision_requested",
+    mentor: "required",
+  },
+  {
+    id: "presentation_pending",
+    label: "Presentation pending",
+    prefix: "Presentation Pending",
+    count: 10,
+    stage: "presentation",
+    mentor: "required",
+  },
+  {
+    id: "archive_ready",
+    label: "Archive ready",
+    prefix: "Archive Ready",
+    count: 10,
+    stage: "completed",
+    mentor: "required",
+  },
+  {
+    id: "archive_failed",
+    label: "Archive/export failed",
+    prefix: "Archive Failed",
+    count: 5,
+    stage: "completed",
+    mentor: "required",
+  },
+  {
+    id: "high_risk",
+    label: "Stale/high-risk students",
+    prefix: "High Risk",
+    count: 5,
+    stage: "high_risk",
+    mentor: "none",
+  },
+  {
+    id: "rich_timeline",
+    label: "Rich timeline students",
+    prefix: "Rich Timeline",
+    count: 3,
+    stage: "building",
+    mentor: "required",
+  },
+]);
+
 const FIRST_NAMES = Object.freeze([
   "Aven", "Bexley", "Corin", "Dalen", "Ember", "Fintan", "Greer", "Halen", "Ivara", "Joss",
   "Kellan", "Liora", "Maren", "Niko", "Orin", "Perrin", "Quinlan", "Riven", "Sable", "Taren",
@@ -216,6 +337,11 @@ const REQUIRED_TABLE_COLUMNS = Object.freeze({
   evidence_repositories: ["id"],
   evidence_artifacts: ["id", "repository_id", "student_id", "submission_id", "artifact_type", "source_kind", "drive_file_id", "drive_parent_folder_id", "external_url", "title", "review_status", "created_by"],
   audit_events: ["id", "actor_user_id", "action", "entity_type", "entity_id", "metadata_json"],
+  tenants: ["id", "name", "slug", "status", "subscription_status", "storage_mode"],
+  tenant_users: ["tenant_id", "user_id", "membership_status"],
+  sites: ["id", "tenant_id", "name", "slug", "status", "school_year"],
+  site_users: ["site_id", "user_id", "membership_status"],
+  site_programs: ["site_id", "program_id", "active"],
 });
 
 const OPTIONAL_TABLE_COLUMNS = Object.freeze({
@@ -614,6 +740,7 @@ function deleteSpecs(schema) {
   const demoUsers = "(id LIKE 'demo-%' OR email_norm LIKE '%@demo-student.capstone.test' OR email_norm LIKE '%@demo-staff.capstone.test')";
   const demoUserSubquery = `SELECT id FROM user_accounts WHERE ${demoUsers}`;
   const demoSubmissions = "SELECT id FROM submissions WHERE id LIKE 'demo-%' OR student_id IN (SELECT id FROM user_accounts WHERE id LIKE 'demo-%' OR email_norm LIKE '%@demo-student.capstone.test' OR email_norm LIKE '%@demo-staff.capstone.test')";
+  const demoSites = DEMO_SITES.map((site) => sqlString(site.id)).join(", ");
   const specs = [
     ["export_artifacts", "id LIKE 'demo-%' OR export_id IN (SELECT id FROM exports WHERE id LIKE 'demo-%' OR requested_by IN (__DEMO_USERS__) OR target_user_id IN (__DEMO_USERS__)) OR title LIKE '%DEMO_SEED%' OR body_json LIKE '%DEMO_SEED%'"],
     ["exports", "id LIKE 'demo-%' OR requested_by IN (__DEMO_USERS__) OR target_user_id IN (__DEMO_USERS__)"],
@@ -630,7 +757,9 @@ function deleteSpecs(schema) {
     ["group_memberships", "group_id LIKE 'demo-%' OR user_id IN (__DEMO_USERS__)"],
     ["announcements", "id LIKE 'demo-%' OR title LIKE '%DEMO_SEED%' OR body LIKE '%DEMO_SEED%' OR created_by IN (__DEMO_USERS__)"],
     ["audit_events", "id LIKE 'demo-%' OR actor_user_id IN (__DEMO_USERS__) OR entity_id LIKE 'demo-%' OR metadata_json LIKE '%DEMO_SEED%'"],
-    ["tenant_users", "user_id IN (__DEMO_USERS__)"],
+    ["site_users", `site_id IN (${demoSites}) OR user_id IN (__DEMO_USERS__)`],
+    ["site_programs", `site_id IN (${demoSites})`],
+    ["tenant_users", `tenant_id = ${sqlString(DEMO_TENANT_ID)} OR user_id IN (__DEMO_USERS__)`],
     ["auth_identities", "user_id IN (__DEMO_USERS__) OR email_norm LIKE '%@demo-student.capstone.test' OR email_norm LIKE '%@demo-staff.capstone.test'"],
     ["sessions", "user_id IN (__DEMO_USERS__)"],
     ["password_credentials", "user_id IN (__DEMO_USERS__)"],
@@ -638,6 +767,8 @@ function deleteSpecs(schema) {
     ["user_accounts", demoUsers],
     ["groups", "id LIKE 'demo-%'"],
     ["cohorts", "id LIKE 'demo-%' OR label LIKE '%DEMO_SEED%'"],
+    ["sites", `tenant_id = ${sqlString(DEMO_TENANT_ID)} OR id IN (${demoSites})`],
+    ["tenants", `id = ${sqlString(DEMO_TENANT_ID)}`],
   ];
   return specs
     .filter(([table]) => schema.tableNames.has(table))
@@ -669,6 +800,7 @@ async function buildDemoDataset({
   const rows = emptyRows();
   const credentials = {
     adminLogins: [],
+    personaLogins: [],
     programTeacherLogins: [],
     mentorLogins: [],
     sampleStudentLogins: [],
@@ -679,28 +811,173 @@ async function buildDemoDataset({
   const stagePool = deterministicShuffle(expandStagePool(), `${seed}:stages`);
   const students = [];
   const teachersByProgram = new Map();
+  const mentorIdsBySite = new Map();
+
+  rows.tenants.push({ ...DEMO_TENANT });
+  for (const site of DEMO_SITES) {
+    rows.sites.push({
+      id: site.id,
+      tenant_id: site.tenantId,
+      name: site.name,
+      slug: site.slug,
+      status: "active",
+      timezone: "America/Los_Angeles",
+      school_year: site.schoolYear,
+    });
+    for (const program of programsForSite(site)) {
+      rows.sitePrograms.push({
+        site_id: site.id,
+        program_id: program.id,
+        active: 1,
+      });
+    }
+  }
+
+  function addTenantMembership(userId) {
+    rows.tenantUsers.push({
+      tenant_id: DEMO_TENANT_ID,
+      user_id: userId,
+      membership_status: "active",
+    });
+  }
+
+  function addSiteMembership(siteId, userId) {
+    rows.siteUsers.push({
+      site_id: siteId,
+      user_id: userId,
+      membership_status: "active",
+    });
+  }
+
+  async function addStaffPersona({ id, email, displayName, roleId, scopeType, scopeId, siteIds = [], credentialGroup = "personaLogins" }) {
+    rows.userAccounts.push({
+      id,
+      email,
+      email_norm: normalizeEmail(email),
+      display_name: displayName,
+      status: "active",
+    });
+    rows.userRoles.push({
+      user_id: id,
+      role_id: roleId,
+      scope_type: scopeType,
+      scope_id: scopeId,
+      assigned_by: null,
+    });
+    addTenantMembership(id);
+    for (const siteId of siteIds) addSiteMembership(siteId, id);
+    const password = passwordFor(id, email, displayName, seed, passwordPrefix);
+    rows.passwordCredentials.push(await credentialRow(id, password, passwordPepper, seed));
+    credentials[credentialGroup].push({
+      email,
+      displayName,
+      role: roleId,
+      scope: scopeType === "global" ? "global" : `${scopeType}:${scopeId}`,
+      suggestedDemoUrl,
+      password,
+    });
+  }
+
+  await addStaffPersona({
+    id: "demo-platform-admin-001",
+    email: `platform.admin@${STAFF_DOMAIN}`,
+    displayName: "Priya Platform",
+    roleId: "platform_admin",
+    scopeType: "global",
+    scopeId: "",
+    siteIds: DEMO_SITES.map((site) => site.id),
+  });
+  await addStaffPersona({
+    id: "demo-org-admin-desert-valley",
+    email: `org.admin@${STAFF_DOMAIN}`,
+    displayName: "Owen District",
+    roleId: "org_admin",
+    scopeType: "tenant",
+    scopeId: DEMO_TENANT_ID,
+    siteIds: DEMO_SITES.map((site) => site.id),
+  });
+  await addStaffPersona({
+    id: "demo-site-admin-desert-valley-high",
+    email: `admin.desert-valley-high@${STAFF_DOMAIN}`,
+    displayName: "Avery Administration",
+    roleId: "site_admin",
+    scopeType: "site",
+    scopeId: PRIMARY_SITE_ID,
+    siteIds: [PRIMARY_SITE_ID],
+  });
+  await addStaffPersona({
+    id: "demo-site-admin-canyon-ridge-career",
+    email: `admin.canyon-ridge-career@${STAFF_DOMAIN}`,
+    displayName: "Camden Career",
+    roleId: "site_admin",
+    scopeType: "site",
+    scopeId: "site-canyon-ridge-career",
+    siteIds: ["site-canyon-ridge-career"],
+  });
+  await addStaffPersona({
+    id: "demo-site-admin-north-valley-tech",
+    email: `admin.north-valley-tech@${STAFF_DOMAIN}`,
+    displayName: "Nia Technical",
+    roleId: "site_admin",
+    scopeType: "site",
+    scopeId: "site-north-valley-tech",
+    siteIds: ["site-north-valley-tech"],
+  });
+  await addStaffPersona({
+    id: "demo-viewer-desert-valley-high",
+    email: `viewer.desert-valley-high@${STAFF_DOMAIN}`,
+    displayName: "Valeria Viewer",
+    roleId: "viewer",
+    scopeType: "site",
+    scopeId: PRIMARY_SITE_ID,
+    siteIds: [PRIMARY_SITE_ID],
+  });
 
   rows.cohorts.push({
-    id: "demo-cohort-2026",
-    label: "Demo Class of 2026",
-    school_year: "2025-2026",
+    id: "demo-cohort-desert-valley-high-2027",
+    label: "DEMO_SEED Desert Valley High School Class of 2027",
+    school_year: "2026-2027",
     active: 1,
   });
   rows.groups.push({
-    id: "demo-group-cohort-2026",
-    name: "Demo Class of 2026",
+    id: "demo-group-desert-valley-high-cohort-2027",
+    name: "DEMO_SEED Desert Valley High School Class of 2027",
     group_type: "cohort",
     program_id: null,
-    cohort_id: "demo-cohort-2026",
+    cohort_id: "demo-cohort-desert-valley-high-2027",
   });
   for (const program of PROGRAMS) {
     rows.groups.push({
-      id: `demo-group-program-${program.id}`,
-      name: `Demo ${program.name}`,
+      id: `demo-group-desert-valley-high-program-${program.id}`,
+      name: `DEMO_SEED Desert Valley High School ${program.name}`,
       group_type: "program",
       program_id: program.id,
       cohort_id: null,
     });
+  }
+  for (const site of DEMO_SITES.filter((item) => !item.primary)) {
+    rows.cohorts.push({
+      id: `demo-cohort-${site.slug}-2027`,
+      label: `DEMO_SEED ${site.name} Class of 2027`,
+      school_year: site.schoolYear,
+      active: 1,
+    });
+    rows.groups.push({
+      id: `demo-group-${site.slug}-cohort-2027`,
+      name: `DEMO_SEED ${site.name} Class of 2027`,
+      group_type: "cohort",
+      program_id: null,
+      cohort_id: `demo-cohort-${site.slug}-2027`,
+    });
+    for (const program of programsForSite(site)) {
+      rows.groups.push({
+        id: `demo-group-${site.slug}-program-${program.id}`,
+        name: `DEMO_SEED ${site.name} ${program.name}`,
+        group_type: "program",
+        program_id: program.id,
+        cohort_id: null,
+      });
+    }
   }
 
   for (const program of PROGRAMS) {
@@ -724,6 +1001,8 @@ async function buildDemoDataset({
         scope_id: program.id,
         assigned_by: null,
       });
+      addTenantMembership(id);
+      addSiteMembership(PRIMARY_SITE_ID, id);
       teachers.push(id);
       if (credentialTeacherPrograms.has(program.id) && offset === 1) {
         const password = passwordFor(id, email, displayName, seed, passwordPrefix);
@@ -739,6 +1018,33 @@ async function buildDemoDataset({
       }
     }
     teachersByProgram.set(program.id, teachers);
+  }
+
+  for (const site of DEMO_SITES.filter((item) => !item.primary)) {
+    for (const program of programsForSite(site).slice(0, 5)) {
+      const id = `demo-teacher-${site.slug}-${program.teacherSlug}-01`;
+      const email = `teacher-${site.slug}-${program.teacherSlug}-01@${STAFF_DOMAIN}`;
+      const displayName = `${TEACHER_FIRST_NAMES[(rows.userAccounts.length + program.id.length) % TEACHER_FIRST_NAMES.length]} ${TEACHER_LAST_NAMES[(rows.userAccounts.length + site.slug.length) % TEACHER_LAST_NAMES.length]}`;
+      rows.userAccounts.push({
+        id,
+        email,
+        email_norm: normalizeEmail(email),
+        display_name: displayName,
+        status: "active",
+      });
+      rows.userRoles.push({
+        user_id: id,
+        role_id: "program_teacher",
+        scope_type: "program",
+        scope_id: program.id,
+        assigned_by: null,
+      });
+      addTenantMembership(id);
+      addSiteMembership(site.id, id);
+      const teachers = teachersByProgram.get(program.id) || [];
+      teachers.push(id);
+      teachersByProgram.set(program.id, teachers);
+    }
   }
 
   if (includeDemoAdmin) {
@@ -758,6 +1064,8 @@ async function buildDemoDataset({
       scope_id: "",
       assigned_by: null,
     });
+    addTenantMembership(demoAdminId);
+    for (const site of DEMO_SITES) addSiteMembership(site.id, demoAdminId);
     const password = passwordFor(demoAdminId, email, displayName, seed, passwordPrefix);
     rows.passwordCredentials.push(await credentialRow(demoAdminId, password, passwordPepper, seed));
     credentials.adminLogins.push({
@@ -788,6 +1096,11 @@ async function buildDemoDataset({
       scope_id: "",
       assigned_by: null,
     });
+    addTenantMembership(id);
+    addSiteMembership(PRIMARY_SITE_ID, id);
+    const primaryMentors = mentorIdsBySite.get(PRIMARY_SITE_ID) || [];
+    primaryMentors.push(id);
+    mentorIdsBySite.set(PRIMARY_SITE_ID, primaryMentors);
     if (mentorIndex <= resolvedCredentialMentorCount) {
       const password = passwordFor(id, email, displayName, seed, passwordPrefix);
       rows.passwordCredentials.push(await credentialRow(id, password, passwordPepper, seed));
@@ -802,18 +1115,61 @@ async function buildDemoDataset({
     }
   }
 
+  for (const site of DEMO_SITES.filter((item) => !item.primary)) {
+    const siteMentors = [];
+    for (let mentorIndex = 1; mentorIndex <= SECONDARY_SITE_MENTOR_COUNT; mentorIndex += 1) {
+      const id = `${site.mentorPrefix}${pad(mentorIndex, 3)}`;
+      const email = `mentor-${site.slug}-${pad(mentorIndex, 3)}@${STAFF_DOMAIN}`;
+      const displayName = `${MENTOR_FIRST_NAMES[(mentorIndex + rows.userAccounts.length) % MENTOR_FIRST_NAMES.length]} ${MENTOR_LAST_NAMES[(mentorIndex * 7 + rows.userAccounts.length) % MENTOR_LAST_NAMES.length]}`;
+      rows.userAccounts.push({
+        id,
+        email,
+        email_norm: normalizeEmail(email),
+        display_name: displayName,
+        status: "active",
+      });
+      rows.userRoles.push({
+        user_id: id,
+        role_id: "mentor",
+        scope_type: "global",
+        scope_id: "",
+        assigned_by: null,
+      });
+      addTenantMembership(id);
+      addSiteMembership(site.id, id);
+      siteMentors.push(id);
+    }
+    mentorIdsBySite.set(site.id, siteMentors);
+  }
+
   let studentNumber = 0;
   for (const program of PROGRAMS) {
     for (let index = 0; index < program.count; index += 1) {
       studentNumber += 1;
       const id = `demo-student-${pad(studentNumber, 3)}`;
       const email = `student${pad(studentNumber, 3)}@${STUDENT_DOMAIN}`;
-      const displayName = `${FIRST_NAMES[(studentNumber - 1) % FIRST_NAMES.length]} ${LAST_NAMES[(studentNumber * 7) % LAST_NAMES.length]}`;
-      const stage = stagePool[studentNumber - 1];
+      const story = storyForPrimaryStudent(studentNumber);
+      const displayName = story
+        ? `${story.prefix} Demo ${pad(story.index, 2)}`
+        : `${FIRST_NAMES[(studentNumber - 1) % FIRST_NAMES.length]} ${LAST_NAMES[(studentNumber * 7) % LAST_NAMES.length]}`;
+      const stage = story?.stage || stagePool[studentNumber - 1];
       const projectTitle = program.titles[(studentNumber + index) % program.titles.length];
-      const teacherIds = teachersByProgram.get(program.id) || [];
+      const teacherIds = primaryTeacherIdsForProgram(teachersByProgram, program.id);
       const teacherId = teacherIds[index % teacherIds.length] || teacherIds[0] || null;
-      const student = { id, email, displayName, number: studentNumber, program, stage, projectTitle, teacherId };
+      const student = {
+        id,
+        email,
+        displayName,
+        number: studentNumber,
+        program,
+        stage,
+        projectTitle,
+        teacherId,
+        siteId: PRIMARY_SITE_ID,
+        siteSlug: "desert-valley-high",
+        storyBucket: story?.id || null,
+        noMentor: story?.mentor === "none" || studentNumber % 10 === 0,
+      };
       students.push(student);
       rows.userAccounts.push({
         id,
@@ -829,30 +1185,89 @@ async function buildDemoDataset({
         scope_id: "",
         assigned_by: null,
       });
+      addTenantMembership(id);
+      addSiteMembership(PRIMARY_SITE_ID, id);
       rows.groupMemberships.push({
-        group_id: `demo-group-program-${program.id}`,
+        group_id: `demo-group-desert-valley-high-program-${program.id}`,
         user_id: id,
         membership_role: "student",
       });
       rows.groupMemberships.push({
-        group_id: "demo-group-cohort-2026",
+        group_id: "demo-group-desert-valley-high-cohort-2027",
         user_id: id,
         membership_role: "student",
       });
     }
   }
 
-  const assignedStudents = students.filter((student) => student.number % 10 !== 0);
+  for (const site of DEMO_SITES.filter((item) => !item.primary)) {
+    const sitePrograms = programsForSite(site);
+    for (let index = 0; index < site.studentCount; index += 1) {
+      studentNumber += 1;
+      const program = sitePrograms[index % sitePrograms.length];
+      const id = `demo-student-${pad(studentNumber, 3)}`;
+      const email = `student${pad(studentNumber, 3)}@${STUDENT_DOMAIN}`;
+      const displayName = `${site.name.split(" ")[0]} ${FIRST_NAMES[(studentNumber - 1) % FIRST_NAMES.length]} ${LAST_NAMES[(studentNumber * 7) % LAST_NAMES.length]}`;
+      const stage = stagePool[(studentNumber - 1) % stagePool.length];
+      const projectTitle = program.titles[(studentNumber + index) % program.titles.length];
+      const teacherIds = secondaryTeacherIdsForSiteProgram(site.slug, teachersByProgram, program.id);
+      const teacherId = teacherIds[index % teacherIds.length] || teacherIds[0] || primaryTeacherIdsForProgram(teachersByProgram, program.id)[0] || null;
+      const student = {
+        id,
+        email,
+        displayName,
+        number: studentNumber,
+        program,
+        stage,
+        projectTitle,
+        teacherId,
+        siteId: site.id,
+        siteSlug: site.slug,
+        storyBucket: null,
+        noMentor: (index + 1) % 10 === 0,
+      };
+      students.push(student);
+      rows.userAccounts.push({
+        id,
+        email,
+        email_norm: normalizeEmail(email),
+        display_name: displayName,
+        status: "active",
+      });
+      rows.userRoles.push({
+        user_id: id,
+        role_id: "student",
+        scope_type: "global",
+        scope_id: "",
+        assigned_by: null,
+      });
+      addTenantMembership(id);
+      addSiteMembership(site.id, id);
+      rows.groupMemberships.push({
+        group_id: `demo-group-${site.slug}-program-${program.id}`,
+        user_id: id,
+        membership_role: "student",
+      });
+      rows.groupMemberships.push({
+        group_id: `demo-group-${site.slug}-cohort-2027`,
+        user_id: id,
+        membership_role: "student",
+      });
+    }
+  }
+
+  const assignedStudents = students.filter((student) => !student.noMentor);
   assignedStudents.forEach((student, index) => {
-    const mentorNumber = (index % resolvedMentorCount) + 1;
+    const siteMentors = mentorIdsBySite.get(student.siteId) || mentorIdsBySite.get(PRIMARY_SITE_ID) || [];
+    const mentorId = siteMentors[index % siteMentors.length] || `demo-mentor-${pad((index % resolvedMentorCount) + 1, 3)}`;
     rows.mentorAssignments.push({
       id: `demo-mentor-assignment-${pad(student.number, 3)}`,
-      mentor_user_id: `demo-mentor-${pad(mentorNumber, 3)}`,
+      mentor_user_id: mentorId,
       student_user_id: student.id,
       assigned_by: null,
       active: 1,
     });
-    student.mentorId = `demo-mentor-${pad(mentorNumber, 3)}`;
+    student.mentorId = mentorId;
   });
 
   for (const student of students) {
@@ -1039,9 +1454,12 @@ async function buildDemoDataset({
   if (capabilities.presentationSlots) {
     const presentationCandidates = students.filter((student) => ["presentation", "completed"].includes(student.stage)).concat(
       students.filter((student) => student.stage === "approved").slice(0, 5),
+      students.filter((student) => student.storyBucket === "rich_timeline"),
     );
     presentationCandidates.forEach((student, index) => {
-      const slot = presentationSlotShape(student.stage, index);
+      const slot = student.storyBucket === "presentation_pending"
+        ? { status: "scheduled", outlineStatus: index % 2 === 0 ? "pending" : "revision_needed", checkedOut: false, checkedIn: false, dayOffset: 10 }
+        : presentationSlotShape(student.stage, index);
       rows.presentationSlots.push({
         id: `demo-presentation-slot-${pad(student.number, 3)}`,
         student_user_id: student.id,
@@ -1063,9 +1481,15 @@ async function buildDemoDataset({
   }
 
   if (capabilities.exports) {
-    const exportStudents = students.filter((student) => ["completed", "presentation", "approved"].includes(student.stage)).slice(0, 12);
-    exportStudents.forEach((student, index) => {
-      const status = index < 4 ? "queued" : index < 10 ? "complete" : "failed";
+    const archiveReadyStudents = students.filter((student) => ["model_excellent", "archive_ready", "rich_timeline"].includes(student.storyBucket));
+    const archiveFailedStudents = students.filter((student) => student.storyBucket === "archive_failed");
+    const queuedStudents = students.filter((student) => ["presentation", "approved"].includes(student.stage) && !student.storyBucket).slice(0, 8);
+    const exportStudents = [
+      ...archiveReadyStudents.map((student) => ({ student, status: "complete" })),
+      ...archiveFailedStudents.map((student) => ({ student, status: "failed" })),
+      ...queuedStudents.map((student, index) => ({ student, status: index % 2 === 0 ? "queued" : "running" })),
+    ];
+    exportStudents.forEach(({ student, status }, index) => {
       const exportId = `demo-export-${pad(index + 1, 3)}`;
       rows.exports.push({
         id: exportId,
@@ -1103,17 +1527,80 @@ async function buildDemoDataset({
 
   rows.auditEvents.push(
     auditEvent("demo-audit-seed-started", "demo_seed_started", `${demoLocationLabel}_demo_workspace`, "demo-workspace", null, { marker: DEMO_MARKER, synthetic: true }),
-    auditEvent("demo-audit-admin-ready", "demo_admin_dashboard_ready", `${demoLocationLabel}_demo_workspace`, "demo-admin-dashboard", includeDemoAdmin ? demoAdminId : "demo-teacher-it-01", { marker: DEMO_MARKER, students: 250 }),
-    auditEvent("demo-audit-mentor-ready", "demo_mentor_dashboard_ready", `${demoLocationLabel}_demo_workspace`, "demo-mentor-dashboard", "demo-mentor-001", { marker: DEMO_MARKER, mentors: resolvedMentorCount }),
+    auditEvent("demo-audit-admin-ready", "demo_admin_dashboard_ready", `${demoLocationLabel}_demo_workspace`, "demo-admin-dashboard", includeDemoAdmin ? demoAdminId : "demo-platform-admin-001", { marker: DEMO_MARKER, students: students.length, primarySiteStudents: DEMO_SITES[0].studentCount }),
+    auditEvent("demo-audit-mentor-ready", "demo_mentor_dashboard_ready", `${demoLocationLabel}_demo_workspace`, "demo-mentor-dashboard", "demo-mentor-001", { marker: DEMO_MARKER, mentors: Array.from(mentorIdsBySite.values()).flat().length }),
   );
 
   return {
     rows,
     credentials,
     generatedCounts: generatedCounts(rows),
-    programDistribution: Object.fromEntries(PROGRAMS.map((program) => [program.name, program.count])),
+    programDistribution: programDistributionForStudents(students),
+    siteDistribution: siteDistributionForStudents(students),
     stageDistribution: { ...STAGE_COUNTS },
+    storyBuckets: storyBucketSummary(students),
   };
+}
+
+function programsForSite(site) {
+  if (site.programIds === "all") return PROGRAMS;
+  const ids = new Set(site.programIds);
+  return PROGRAMS.filter((program) => ids.has(program.id));
+}
+
+function primaryTeacherIdsForProgram(teachersByProgram, programId) {
+  return (teachersByProgram.get(programId) || []).filter((id) => !id.includes("canyon-ridge-career") && !id.includes("north-valley-tech"));
+}
+
+function secondaryTeacherIdsForSiteProgram(siteSlug, teachersByProgram, programId) {
+  return (teachersByProgram.get(programId) || []).filter((id) => id.includes(siteSlug));
+}
+
+function storyForPrimaryStudent(studentNumber) {
+  let start = 1;
+  for (const bucket of STORY_BUCKETS) {
+    const end = start + bucket.count - 1;
+    if (studentNumber >= start && studentNumber <= end) {
+      return {
+        ...bucket,
+        index: studentNumber - start + 1,
+      };
+    }
+    start = end + 1;
+  }
+  return null;
+}
+
+function programDistributionForStudents(students) {
+  const output = {};
+  for (const program of PROGRAMS) output[program.name] = 0;
+  for (const student of students) output[student.program.name] = (output[student.program.name] || 0) + 1;
+  return output;
+}
+
+function siteDistributionForStudents(students) {
+  const output = Object.fromEntries(DEMO_SITES.map((site) => [site.id, {
+    name: site.name,
+    students: 0,
+  }]));
+  for (const student of students) {
+    if (!output[student.siteId]) output[student.siteId] = { name: student.siteId, students: 0 };
+    output[student.siteId].students += 1;
+  }
+  return output;
+}
+
+function storyBucketSummary(students) {
+  const output = Object.fromEntries(STORY_BUCKETS.map((bucket) => [bucket.id, {
+    label: bucket.label,
+    count: 0,
+    searchPrefix: `${bucket.prefix} Demo`,
+  }]));
+  for (const student of students) {
+    if (!student.storyBucket || !output[student.storyBucket]) continue;
+    output[student.storyBucket].count += 1;
+  }
+  return output;
 }
 
 function positiveInteger(value, fallback) {
@@ -1123,11 +1610,16 @@ function positiveInteger(value, fallback) {
 
 function emptyRows() {
   return {
+    tenants: [],
+    sites: [],
+    sitePrograms: [],
     cohorts: [],
     groups: [],
     userAccounts: [],
     passwordCredentials: [],
     userRoles: [],
+    tenantUsers: [],
+    siteUsers: [],
     groupMemberships: [],
     mentorAssignments: [],
     progressRecords: [],
@@ -1271,11 +1763,16 @@ function buildSeedSql(dataset, schema, { includeDeletes = true, includeTransacti
   }
 
   const rows = dataset.rows;
+  pushRows(statements, "tenants", rows.tenants);
+  pushRows(statements, "sites", rows.sites);
+  pushRows(statements, "site_programs", rows.sitePrograms);
   pushRows(statements, "cohorts", rows.cohorts);
   pushRows(statements, "groups", rows.groups);
   pushRows(statements, "user_accounts", rows.userAccounts);
   pushRows(statements, "password_credentials", rows.passwordCredentials);
   pushRows(statements, "user_roles", rows.userRoles);
+  pushRows(statements, "tenant_users", rows.tenantUsers);
+  pushRows(statements, "site_users", rows.siteUsers);
   pushRows(statements, "group_memberships", rows.groupMemberships);
   pushRows(statements, "mentor_assignments", rows.mentorAssignments);
   pushRows(statements, "progress_records", rows.progressRecords);
@@ -1317,6 +1814,27 @@ async function verifySeedState(adapter, schema) {
     "SELECT COUNT(*) AS count FROM comments WHERE id LIKE 'demo-%';",
     "SELECT COUNT(*) AS count FROM reviews WHERE id LIKE 'demo-%';",
     "SELECT COUNT(*) AS count FROM user_accounts WHERE email_norm LIKE '%nv.ccsd.net' OR email_norm = 'bryan@thecapstoneapp.com';",
+    `SELECT COUNT(*) AS count FROM tenants WHERE id = ${sqlString(DEMO_TENANT_ID)} AND status = 'active';`,
+    `SELECT COUNT(*) AS count FROM sites WHERE tenant_id = ${sqlString(DEMO_TENANT_ID)} AND status = 'active';`,
+    `SELECT COUNT(*) AS count
+     FROM site_users su
+     JOIN user_roles r ON r.user_id = su.user_id AND r.role_id = 'student'
+     JOIN user_accounts u ON u.id = su.user_id AND u.email_norm LIKE '%@demo-student.capstone.test'
+     WHERE su.site_id = ${sqlString(PRIMARY_SITE_ID)}
+       AND su.membership_status = 'active';`,
+    `SELECT COUNT(*) AS count
+     FROM site_users su
+     JOIN user_roles r ON r.user_id = su.user_id AND r.role_id = 'student'
+     JOIN user_accounts u ON u.id = su.user_id AND u.email_norm LIKE '%@demo-student.capstone.test'
+     WHERE su.site_id IN (${DEMO_SITES.filter((site) => !site.primary).map((site) => sqlString(site.id)).join(", ")})
+       AND su.membership_status = 'active';`,
+    `SELECT COUNT(*) AS count FROM site_programs WHERE site_id = ${sqlString(PRIMARY_SITE_ID)} AND active = 1;`,
+    `SELECT COUNT(*) AS count FROM user_accounts u JOIN user_roles r ON r.user_id = u.id AND r.role_id = 'platform_admin' WHERE u.email_norm LIKE '%@demo-staff.capstone.test';`,
+    `SELECT COUNT(*) AS count FROM user_accounts u JOIN user_roles r ON r.user_id = u.id AND r.role_id = 'org_admin' WHERE u.email_norm LIKE '%@demo-staff.capstone.test';`,
+    `SELECT COUNT(*) AS count FROM user_accounts u JOIN user_roles r ON r.user_id = u.id AND r.role_id = 'site_admin' WHERE u.email_norm LIKE '%@demo-staff.capstone.test';`,
+    `SELECT COUNT(*) AS count FROM user_accounts u JOIN user_roles r ON r.user_id = u.id AND r.role_id = 'viewer' WHERE u.email_norm LIKE '%@demo-staff.capstone.test';`,
+    `SELECT COUNT(*) AS count FROM password_credentials WHERE user_id IN (SELECT id FROM user_accounts WHERE email_norm LIKE '%@demo-student.capstone.test');`,
+    "SELECT COUNT(*) AS count FROM announcements WHERE id LIKE 'demo-%' OR title LIKE '%DEMO_SEED%' OR body LIKE '%DEMO_SEED%';",
     "PRAGMA foreign_key_check;",
   ];
   const rows = await adapter.queryBatch(queries);
@@ -1332,7 +1850,18 @@ async function verifySeedState(adapter, schema) {
     comments: firstCount(rows[8]),
     reviews: firstCount(rows[9]),
     forbiddenRealDomainRows: firstCount(rows[10]),
-    foreignKeyViolations: rows[11].length,
+    demoTenantRows: firstCount(rows[11]),
+    demoSites: firstCount(rows[12]),
+    primarySiteStudents: firstCount(rows[13]),
+    secondarySiteStudents: firstCount(rows[14]),
+    primarySitePrograms: firstCount(rows[15]),
+    platformAdmins: firstCount(rows[16]),
+    orgAdmins: firstCount(rows[17]),
+    siteAdmins: firstCount(rows[18]),
+    viewers: firstCount(rows[19]),
+    studentCredentials: firstCount(rows[20]),
+    announcements: firstCount(rows[21]),
+    foreignKeyViolations: rows[22].length,
   };
   const optional = {};
   if (schema.tableNames.has("mentor_meetings")) optional.mentorMeetings = firstCount(await adapter.query("SELECT COUNT(*) AS count FROM mentor_meetings WHERE id LIKE 'demo-%';"));
@@ -1341,7 +1870,30 @@ async function verifySeedState(adapter, schema) {
   if (schema.tableNames.has("export_artifacts")) optional.exportArtifacts = firstCount(await adapter.query("SELECT COUNT(*) AS count FROM export_artifacts WHERE id LIKE 'demo-%';"));
   if (schema.tableNames.has("submission_versions")) optional.submissionVersions = firstCount(await adapter.query("SELECT COUNT(*) AS count FROM submission_versions WHERE id LIKE 'demo-%';"));
 
-  if (summary.demoStudents !== 250 || summary.demoProgramTeachers !== 12 || summary.demoMentors !== 25 || summary.studentsWithMentors < 225 || summary.studentsWithoutMentors !== 25 || summary.forbiddenRealDomainRows !== 0 || summary.foreignKeyViolations !== 0) {
+  const secondarySiteCounts = await siteStudentCounts(adapter, DEMO_SITES.filter((site) => !site.primary).map((site) => site.id));
+  const storyBuckets = await storyBucketCounts(adapter);
+  const storyBucketsOk = STORY_BUCKETS.every((bucket) => Number(storyBuckets[bucket.id]?.count || 0) >= bucket.count);
+  const secondaryCountsOk = Object.values(secondarySiteCounts).every((count) => count >= 40 && count <= 75);
+
+  if (
+    summary.demoStudents !== 370
+    || summary.primarySiteStudents !== 250
+    || !secondaryCountsOk
+    || summary.demoProgramTeachers < 22
+    || summary.demoMentors < 41
+    || summary.demoTenantRows !== 1
+    || summary.demoSites !== 3
+    || summary.primarySitePrograms !== PROGRAMS.length
+    || summary.platformAdmins !== 1
+    || summary.orgAdmins !== 1
+    || summary.siteAdmins !== 3
+    || summary.viewers !== 1
+    || summary.studentCredentials !== 0
+    || summary.announcements !== 0
+    || !storyBucketsOk
+    || summary.forbiddenRealDomainRows !== 0
+    || summary.foreignKeyViolations !== 0
+  ) {
     throw new DemoSeedError("SEED_VERIFY_FAILED", "Local demo seed verification failed.", { summary, optional });
   }
   const programRows = await adapter.query(
@@ -1366,9 +1918,45 @@ async function verifySeedState(adapter, schema) {
   return {
     ...summary,
     ...optional,
+    secondarySiteCounts,
+    storyBuckets,
     programDistribution: Object.fromEntries(programRows.map((row) => [row.name, Number(row.count || 0)])),
     submissionStatusDistribution: Object.fromEntries(stageRows.map((row) => [row.status, Number(row.count || 0)])),
   };
+}
+
+async function siteStudentCounts(adapter, siteIds) {
+  if (!siteIds.length) return {};
+  const rows = await adapter.query(
+    `SELECT su.site_id, COUNT(DISTINCT su.user_id) AS count
+     FROM site_users su
+     JOIN user_accounts u ON u.id = su.user_id AND u.email_norm LIKE '%@${STUDENT_DOMAIN}'
+     JOIN user_roles r ON r.user_id = su.user_id AND r.role_id = 'student'
+     WHERE su.site_id IN (${siteIds.map(sqlString).join(", ")})
+       AND su.membership_status = 'active'
+     GROUP BY su.site_id
+     ORDER BY su.site_id;`,
+  );
+  return Object.fromEntries(rows.map((row) => [row.site_id, Number(row.count || 0)]));
+}
+
+async function storyBucketCounts(adapter) {
+  const output = {};
+  for (const bucket of STORY_BUCKETS) {
+    const rows = await adapter.query(
+      `SELECT COUNT(*) AS count
+       FROM user_accounts u
+       JOIN site_users su ON su.user_id = u.id AND su.site_id = ${sqlString(PRIMARY_SITE_ID)}
+       WHERE u.email_norm LIKE '%@${STUDENT_DOMAIN}'
+         AND u.display_name LIKE ${sqlString(`${bucket.prefix} Demo%`)};`,
+    );
+    output[bucket.id] = {
+      label: bucket.label,
+      count: firstCount(rows),
+      searchPrefix: `${bucket.prefix} Demo`,
+    };
+  }
+  return output;
 }
 
 async function runDemoSeed(args, options = {}) {
@@ -1402,7 +1990,9 @@ async function runDemoSeed(args, options = {}) {
     },
     generatedCounts: dataset.generatedCounts,
     programDistribution: dataset.programDistribution,
+    siteDistribution: dataset.siteDistribution,
     stageDistribution: dataset.stageDistribution,
+    storyBuckets: dataset.storyBuckets,
     skippedSlices,
     credentialPath: null,
     credentialsPrinted: false,
@@ -1455,6 +2045,8 @@ function writeDemoCredentialFile({ repoRoot, credentials, now = new Date(), asse
     syntheticOnly: true,
     noRealStudentData: true,
     suggestedDemoUrl: "http://127.0.0.1:8788/workspace.html",
+    adminLogins: credentials.adminLogins,
+    personaLogins: credentials.personaLogins,
     programTeacherLogins: credentials.programTeacherLogins,
     mentorLogins: credentials.mentorLogins,
     sampleStudentLogins: credentials.sampleStudentLogins,
@@ -1631,10 +2223,15 @@ function redactErrorDetails(details) {
 
 export {
   DEFAULT_SEED,
+  DEMO_SITES,
+  DEMO_TENANT,
+  DEMO_TENANT_ID,
   DEMO_MARKER,
+  PRIMARY_SITE_ID,
   PROGRAMS,
   STAFF_DOMAIN,
   STUDENT_DOMAIN,
+  STORY_BUCKETS,
   STAGE_COUNTS,
   DemoSeedError,
   DirectD1Adapter,
@@ -1647,6 +2244,8 @@ export {
   loadLookups,
   parseArgs,
   runDemoSeed,
+  siteStudentCounts,
+  storyBucketCounts,
   validateSchemaCapabilities,
   verifyProtectedAdmins,
   verifySeedState,

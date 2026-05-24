@@ -13,6 +13,17 @@ import { onRequestGet as onMentorDashboard } from "../functions/api/mentor/dashb
 import { onRequestGet as onTeacherReviewQueue } from "../functions/api/teacher/review-queue.ts";
 import { onRequestGet as onReadinessReport } from "../functions/api/reports/readiness.ts";
 import { onRequestGet as onMentorAssigned } from "../functions/api/mentor/assigned.ts";
+import {
+  canAccessSite,
+  canAccessTenant,
+  canManageSecurity,
+  canMutateReviewDecision,
+  canViewSiteDashboard,
+  canViewStudentDirectory,
+  canViewSiteStudentDetail,
+  getAccessibleSiteIds,
+  getAccessibleTenantIds,
+} from "../functions/_lib/permissions.ts";
 import { runLocalAdminLoginProof } from "./prove-local-admin-logins.mjs";
 
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
@@ -25,10 +36,14 @@ const DATABASE_NAME = "senior-capstone-db";
 const WRANGLER_JS = path.join(REPO_ROOT, "node_modules", "wrangler", "bin", "wrangler.js");
 
 const PROGRAM_EXPECTATIONS = Object.freeze({
-  it: 45,
-  culinary: 35,
-  "sports-medicine": 35,
+  it: 69,
+  culinary: 47,
+  "sports-medicine": 47,
 });
+
+const DEMO_TENANT_ID = "tenant-desert-valley";
+const PRIMARY_SITE_ID = "site-desert-valley-high";
+const SECONDARY_SITE_IDS = Object.freeze(["site-canyon-ridge-career", "site-north-valley-tech"]);
 
 class DemoProofError extends Error {
   constructor(classification, message, details = {}) {
@@ -268,17 +283,24 @@ async function runDemoProof(args = {}, options = {}) {
   const adminDashboard = await routeJson(onAdminDashboard, env, adminCookie, "https://local.capstone.test/api/admin/dashboard");
   const adminReviewQueue = await routeJson(onTeacherReviewQueue, env, adminCookie, "https://local.capstone.test/api/teacher/review-queue");
   const readiness = await routeJson(onReadinessReport, env, adminCookie, "https://local.capstone.test/api/reports/readiness");
+  const multisite = await verifyMultisiteShape(env);
+  const siteAwarePermissions = await verifySiteAwarePermissions(env);
 
   const adminChecks = {
     authMe: adminMe.authenticated === true,
-    dashboardStudents250: Number(adminDashboard.summary?.studentsTotal || 0) === 250,
+    dashboardStudents370: Number(adminDashboard.summary?.studentsTotal || 0) === 370,
+    primarySiteStudents250: multisite.primarySiteStudents === 250,
+    secondarySitesInRange: Object.values(multisite.secondarySiteCounts).every((count) => count >= 40 && count <= 75),
     programBreakdownNinePrograms: Array.isArray(adminDashboard.programBreakdown) && adminDashboard.programBreakdown.length === 9,
-    mentorCoveragePopulated: Array.isArray(adminDashboard.mentorCoverage) && adminDashboard.mentorCoverage.length >= 25,
+    mentorCoveragePopulated: Array.isArray(adminDashboard.mentorCoverage) && adminDashboard.mentorCoverage.length >= 41,
     reviewQueuePopulated: Array.isArray(adminDashboard.reviewQueue) && adminDashboard.reviewQueue.length > 0 && Array.isArray(adminReviewQueue.queue) && adminReviewQueue.queue.length > 0,
     readinessPopulated: Number(readiness.report?.submitted || 0) > 0
       && Number(readiness.report?.revisionRequested || 0) > 0
       && Number(readiness.report?.approved || 0) > 0
       && Number(readiness.report?.evidence || 0) > 0,
+    noAnnouncements: multisite.announcements === 0,
+    noStudentCredentials: multisite.studentCredentials === 0,
+    siteAwarePermissions: siteAwarePermissions.ok === true,
   };
   assertChecks("ADMIN_API_PROOF_FAILED", adminChecks);
 
@@ -379,10 +401,166 @@ async function runDemoProof(args = {}, options = {}) {
       reviewQueueCount: adminReviewQueue.queue.length,
       readinessReport: readiness.report,
     },
+    multisite,
+    siteAwarePermissions,
     programTeachers: teacherProofs,
     mentors: mentorProofs,
     googleSsoRequired: false,
   };
+}
+
+async function verifyMultisiteShape(env) {
+  const [tenant, sites, primarySite, secondaryRows, sitePrograms, roleRows, storyRows, studentCredentials, announcements, unsafeEvidence, richTimelineRows] = await Promise.all([
+    env.DB.prepare("SELECT COUNT(*) AS count FROM tenants WHERE id = ? AND status = 'active'").bind(DEMO_TENANT_ID).first(),
+    env.DB.prepare("SELECT COUNT(*) AS count FROM sites WHERE tenant_id = ? AND status = 'active'").bind(DEMO_TENANT_ID).first(),
+    env.DB.prepare(
+      `SELECT COUNT(DISTINCT su.user_id) AS count
+       FROM site_users su
+       JOIN user_roles r ON r.user_id = su.user_id AND r.role_id = 'student'
+       JOIN user_accounts u ON u.id = su.user_id AND u.email_norm LIKE '%@demo-student.capstone.test'
+       WHERE su.site_id = ? AND su.membership_status = 'active'`,
+    ).bind(PRIMARY_SITE_ID).first(),
+    env.DB.prepare(
+      `SELECT su.site_id, COUNT(DISTINCT su.user_id) AS count
+       FROM site_users su
+       JOIN user_roles r ON r.user_id = su.user_id AND r.role_id = 'student'
+       JOIN user_accounts u ON u.id = su.user_id AND u.email_norm LIKE '%@demo-student.capstone.test'
+       WHERE su.site_id IN (${SECONDARY_SITE_IDS.map(sqlLiteral).join(", ")})
+       GROUP BY su.site_id
+       ORDER BY su.site_id`,
+    ).all(),
+    env.DB.prepare("SELECT site_id, COUNT(*) AS count FROM site_programs WHERE active = 1 AND site_id IN (?, ?, ?) GROUP BY site_id").bind(PRIMARY_SITE_ID, ...SECONDARY_SITE_IDS).all(),
+    env.DB.prepare(
+      `SELECT role_id, COUNT(*) AS count
+       FROM user_roles
+       WHERE role_id IN ('platform_admin', 'org_admin', 'site_admin', 'viewer')
+         AND user_id IN (SELECT id FROM user_accounts WHERE email_norm LIKE '%@demo-staff.capstone.test')
+       GROUP BY role_id`,
+    ).all(),
+    env.DB.prepare(
+      `SELECT
+         SUM(CASE WHEN display_name LIKE 'Model Excellent Demo%' THEN 1 ELSE 0 END) AS model_excellent,
+         SUM(CASE WHEN display_name LIKE 'Missing Mentor Demo%' THEN 1 ELSE 0 END) AS missing_mentor,
+         SUM(CASE WHEN display_name LIKE 'Awaiting Review Demo%' THEN 1 ELSE 0 END) AS awaiting_review,
+         SUM(CASE WHEN display_name LIKE 'Revision Loop Demo%' THEN 1 ELSE 0 END) AS revision_requested,
+         SUM(CASE WHEN display_name LIKE 'Presentation Pending Demo%' THEN 1 ELSE 0 END) AS presentation_pending,
+         SUM(CASE WHEN display_name LIKE 'Archive Ready Demo%' THEN 1 ELSE 0 END) AS archive_ready,
+         SUM(CASE WHEN display_name LIKE 'Archive Failed Demo%' THEN 1 ELSE 0 END) AS archive_failed,
+         SUM(CASE WHEN display_name LIKE 'High Risk Demo%' THEN 1 ELSE 0 END) AS high_risk,
+         SUM(CASE WHEN display_name LIKE 'Rich Timeline Demo%' THEN 1 ELSE 0 END) AS rich_timeline
+       FROM user_accounts
+       WHERE email_norm LIKE '%@demo-student.capstone.test'`,
+    ).first(),
+    env.DB.prepare("SELECT COUNT(*) AS count FROM password_credentials WHERE user_id IN (SELECT id FROM user_accounts WHERE email_norm LIKE '%@demo-student.capstone.test')").first(),
+    env.DB.prepare("SELECT COUNT(*) AS count FROM announcements WHERE id LIKE 'demo-%' OR title LIKE '%DEMO_SEED%' OR body LIKE '%DEMO_SEED%'").first(),
+    env.DB.prepare("SELECT COUNT(*) AS count FROM evidence_artifacts WHERE id LIKE 'demo-%' AND (drive_file_id IS NOT NULL OR drive_parent_folder_id IS NOT NULL OR external_url NOT LIKE 'https://example.com/capstone-demo/%')").first(),
+    env.DB.prepare(
+      `SELECT COUNT(DISTINCT u.id) AS count
+       FROM user_accounts u
+       JOIN submissions s ON s.student_id = u.id
+       JOIN evidence_artifacts e ON e.submission_id = s.id
+       JOIN comments c ON c.entity_id = s.id
+       JOIN reviews r ON r.submission_id = s.id
+       JOIN mentor_meetings mm ON mm.student_user_id = u.id
+       JOIN presentation_slots ps ON ps.student_user_id = u.id
+       JOIN exports ex ON ex.target_user_id = u.id
+       WHERE u.display_name LIKE 'Rich Timeline Demo%'`,
+    ).first(),
+  ]);
+  const secondarySiteCounts = Object.fromEntries((secondaryRows.results || []).map((row) => [row.site_id, Number(row.count || 0)]));
+  const siteProgramCounts = Object.fromEntries((sitePrograms.results || []).map((row) => [row.site_id, Number(row.count || 0)]));
+  const roles = Object.fromEntries((roleRows.results || []).map((row) => [row.role_id, Number(row.count || 0)]));
+  const storyBuckets = Object.fromEntries(Object.entries(storyRows || {}).map(([key, value]) => [key, Number(value || 0)]));
+  const ok = Number(tenant?.count || 0) === 1
+    && Number(sites?.count || 0) === 3
+    && Number(primarySite?.count || 0) === 250
+    && Object.values(secondarySiteCounts).every((count) => count >= 40 && count <= 75)
+    && Number(siteProgramCounts[PRIMARY_SITE_ID] || 0) === 9
+    && Number(roles.platform_admin || 0) === 1
+    && Number(roles.org_admin || 0) === 1
+    && Number(roles.site_admin || 0) === 3
+    && Number(roles.viewer || 0) === 1
+    && Number(storyBuckets.model_excellent || 0) >= 3
+    && Number(storyBuckets.missing_mentor || 0) >= 10
+    && Number(storyBuckets.awaiting_review || 0) >= 10
+    && Number(storyBuckets.revision_requested || 0) >= 10
+    && Number(storyBuckets.presentation_pending || 0) >= 10
+    && Number(storyBuckets.archive_ready || 0) >= 10
+    && Number(storyBuckets.archive_failed || 0) >= 5
+    && Number(storyBuckets.high_risk || 0) >= 5
+    && Number(storyBuckets.rich_timeline || 0) >= 3
+    && Number(richTimelineRows?.count || 0) >= 3
+    && Number(studentCredentials?.count || 0) === 0
+    && Number(announcements?.count || 0) === 0
+    && Number(unsafeEvidence?.count || 0) === 0;
+  if (!ok) {
+    throw new DemoProofError("MULTISITE_SHAPE_PROOF_FAILED", "Local multisite seed shape did not match the sales demo contract.", {
+      tenantRows: Number(tenant?.count || 0),
+      siteRows: Number(sites?.count || 0),
+      primarySiteStudents: Number(primarySite?.count || 0),
+      secondarySiteCounts,
+      roles,
+      storyBuckets,
+    });
+  }
+  return {
+    ok,
+    tenantId: DEMO_TENANT_ID,
+    sites: 3,
+    primarySiteStudents: Number(primarySite?.count || 0),
+    secondarySiteCounts,
+    siteProgramCounts,
+    roles,
+    storyBuckets,
+    studentCredentials: Number(studentCredentials?.count || 0),
+    announcements: Number(announcements?.count || 0),
+    unsafeEvidenceRows: Number(unsafeEvidence?.count || 0),
+    richTimelineStudents: Number(richTimelineRows?.count || 0),
+  };
+}
+
+async function verifySiteAwarePermissions(env) {
+  const users = await loadProofUsers(env);
+  const sampleSubmission = await env.DB.prepare(
+    "SELECT id, student_id FROM submissions WHERE student_id = 'demo-student-001' LIMIT 1",
+  ).first();
+  const checks = {
+    platformTenant: await canAccessTenant(env, users.platform, DEMO_TENANT_ID),
+    platformSecurity: await canManageSecurity(env, users.platform),
+    orgTenant: await canAccessTenant(env, users.org, DEMO_TENANT_ID),
+    orgPrimarySite: await canAccessSite(env, users.org, PRIMARY_SITE_ID),
+    orgNotSecurity: !await canManageSecurity(env, users.org),
+    siteDashboard: await canViewSiteDashboard(env, users.siteAdmin, PRIMARY_SITE_ID),
+    siteDirectory: await canViewStudentDirectory(env, users.siteAdmin, PRIMARY_SITE_ID),
+    siteStudentDetail: await canViewSiteStudentDetail(env, users.siteAdmin, "demo-student-001", PRIMARY_SITE_ID),
+    siteUnrelatedDenied: !await canAccessSite(env, users.siteAdmin, SECONDARY_SITE_IDS[0]),
+    viewerReadOnly: await canViewSiteDashboard(env, users.viewer, PRIMARY_SITE_ID)
+      && !await canMutateReviewDecision(env, users.viewer, sampleSubmission?.id || ""),
+    teacherSiteAccess: (await getAccessibleSiteIds(env, users.teacher)).includes(PRIMARY_SITE_ID),
+    mentorAssignedSites: (await getAccessibleSiteIds(env, users.mentor)).includes(PRIMARY_SITE_ID),
+    studentSiteDashboardDenied: !await canViewSiteDashboard(env, users.student, PRIMARY_SITE_ID),
+  };
+  assertChecks("SITE_AWARE_PERMISSION_PROOF_FAILED", checks);
+  return { ok: true, checks };
+}
+
+async function loadProofUsers(env) {
+  const ids = {
+    platform: "demo-platform-admin-001",
+    org: "demo-org-admin-desert-valley",
+    siteAdmin: "demo-site-admin-desert-valley-high",
+    viewer: "demo-viewer-desert-valley-high",
+    teacher: "demo-teacher-it-01",
+    mentor: "demo-mentor-001",
+    student: "demo-student-001",
+  };
+  const output = {};
+  for (const [key, id] of Object.entries(ids)) {
+    const user = await env.DB.prepare("SELECT id, email, email_norm, display_name, status FROM user_accounts WHERE id = ?").bind(id).first();
+    if (!user) throw new DemoProofError("SITE_AWARE_PERMISSION_USER_MISSING", "Missing seeded proof user.", { key, id });
+    output[key] = user;
+  }
+  return output;
 }
 
 async function routeJson(handler, env, cookie, url) {

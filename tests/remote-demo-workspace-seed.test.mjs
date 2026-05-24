@@ -44,14 +44,21 @@ test("remote demo dry run builds remote-shaped fake data without writing", async
   });
 
   assert.equal(result.ok, true);
-  assert.equal(result.generatedCounts.userAccounts, 308);
-  assert.equal(result.generatedCounts.passwordCredentials, 58);
-  assert.equal(result.generatedCounts.mentorAssignments, 225);
-  assert.equal(result.generatedCounts.submissions, 230);
-  assert.equal(result.generatedCounts.evidenceArtifacts, 606);
-  assert.equal(result.generatedCounts.comments, 243);
-  assert.equal(result.generatedCounts.reviews, 176);
+  assert.equal(result.generatedCounts.tenants, 1);
+  assert.equal(result.generatedCounts.sites, 3);
+  assert.equal(result.generatedCounts.sitePrograms, 19);
+  assert.equal(result.generatedCounts.userAccounts, 460);
+  assert.equal(result.generatedCounts.passwordCredentials, 64);
+  assert.equal(result.generatedCounts.mentorAssignments, 320);
+  assert.equal(result.generatedCounts.submissions, 345);
+  assert.equal(result.generatedCounts.evidenceArtifacts, 938);
+  assert.equal(result.generatedCounts.comments, 367);
+  assert.equal(result.generatedCounts.reviews, 268);
   assert.equal(result.generatedCounts.mentorMeetings, 200);
+  assert.equal(result.siteDistribution["site-desert-valley-high"].students, 250);
+  assert.equal(result.siteDistribution["site-canyon-ridge-career"].students, 60);
+  assert.equal(result.siteDistribution["site-north-valley-tech"].students, 60);
+  assert.equal(result.storyBuckets.archive_failed.count, 5);
   assert.equal("announcements" in result.generatedCounts, false);
   assert.equal(result.remoteSafety.fakeDomainsOnly, true);
   assert.equal(await count(db, "SELECT COUNT(*) AS count FROM user_accounts WHERE email_norm LIKE '%@demo-student.capstone.test'"), 0);
@@ -73,31 +80,41 @@ test("remote demo seed creates requested counts and preserves real accounts/conf
     provisionStaffWithHostedApp: false,
   });
 
-  assert.equal(result.finalVerification.demoStudents, 250);
-  assert.equal(result.finalVerification.demoProgramTeachers, 9);
-  assert.equal(result.finalVerification.demoMentors, 48);
+  assert.equal(result.finalVerification.demoStudents, 370);
+  assert.equal(result.finalVerification.primarySiteStudents, 250);
+  assert.deepEqual(result.finalVerification.secondarySiteCounts, {
+    "site-canyon-ridge-career": 60,
+    "site-north-valley-tech": 60,
+  });
+  assert.equal(result.finalVerification.demoProgramTeachers, 19);
+  assert.equal(result.finalVerification.demoMentors, 64);
   assert.equal(result.finalVerification.demoAdmins, 1);
-  assert.equal(result.finalVerification.mentorAssignments, 225);
-  assert.equal(result.finalVerification.studentsWithMentors, 225);
-  assert.equal(result.finalVerification.studentsWithoutMentors, 25);
+  assert.equal(result.finalVerification.mentorAssignments, 320);
+  assert.equal(result.finalVerification.studentsWithMentors, 320);
+  assert.equal(result.finalVerification.studentsWithoutMentors, 50);
+  assert.equal(result.finalVerification.platformAdmins, 1);
+  assert.equal(result.finalVerification.orgAdmins, 1);
+  assert.equal(result.finalVerification.siteAdmins, 3);
+  assert.equal(result.finalVerification.viewers, 1);
+  assert.equal(result.finalVerification.studentCredentials, 0);
   assert.equal(result.finalVerification.unsafeDemoEvidenceRows, 0);
   assert.equal(result.finalVerification.unsafeDemoExportDriveRows, 0);
   assert.equal(result.finalVerification.forbiddenDemoRealDomainRows, 0);
-  assert.equal("announcements" in result.finalVerification, false);
+  assert.equal(result.finalVerification.announcements, 0);
   assert.equal(result.finalVerification.foreignKeyViolations, 0);
   assert.equal(result.protectedStateBefore.realUsersPreservedBaseline, result.protectedStateAfter.realUsersPreservedBaseline);
   assert.equal(result.protectedStateBefore.knownRealDomainUsersBaseline, result.protectedStateAfter.knownRealDomainUsersBaseline);
 
   assert.deepEqual(result.finalVerification.programDistribution, {
-    Construction: 25,
-    Culinary: 35,
-    "Early Childhood Education": 20,
-    "Hospitality & Marketing": 25,
-    IT: 45,
-    "Mechanical Technology": 25,
-    "Medical Professions": 20,
-    "Sports Medicine": 35,
-    "Teaching & Training": 20,
+    Construction: 37,
+    Culinary: 47,
+    "Early Childhood Education": 32,
+    "Hospitality & Marketing": 37,
+    IT: 69,
+    "Mechanical Technology": 37,
+    "Medical Professions": 32,
+    "Sports Medicine": 47,
+    "Teaching & Training": 32,
   });
 
   assert.equal(await count(db, "SELECT COUNT(*) AS count FROM user_accounts WHERE email_norm = 'bryan@thecapstoneapp.com'"), 1);
@@ -110,6 +127,7 @@ test("remote demo seed creates requested counts and preserves real accounts/conf
   assert.match(result.credentialPath, /^\.secrets\/demo-remote-staff-logins-/);
   const credentialPayload = JSON.parse(readFileSync(path.join(repoRoot, result.credentialPath), "utf8"));
   assert.equal(credentialPayload.adminLogins.length, 1);
+  assert.equal(credentialPayload.personaLogins.length, 6);
   assert.equal(credentialPayload.programTeacherLogins.length, 9);
   assert.equal(credentialPayload.mentorLogins.length, 48);
   assert.equal(credentialPayload.sampleStudentLogins.length, 0);
