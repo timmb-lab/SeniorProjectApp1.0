@@ -712,6 +712,32 @@
   flex-wrap: wrap;
 }
 
+.workspace-mentor-signal-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr));
+  gap: 0.45rem;
+  margin: 0.65rem 0 0.45rem;
+}
+
+.workspace-mentor-signal-grid span {
+  min-width: 0;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid rgba(92, 106, 126, 0.22);
+  border-radius: 8px;
+  background: rgba(248, 250, 252, 0.92);
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.25;
+}
+
+.workspace-mentor-signal-grid strong {
+  display: block;
+  color: var(--ink);
+  font-size: 0.74rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
 .workspace-student-feedback-row {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;

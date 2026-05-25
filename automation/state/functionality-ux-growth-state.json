@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-05-25T11:06:00-07:00",
-  "lastStartingSha": "cfec0951f10f56ee19476b5384d18e4074cbfcd4",
+  "lastRunAt": "2026-05-25T11:34:00-07:00",
+  "lastStartingSha": "de3090651cadea921212d6d8d192036554a3e024",
   "lastEndingSha": null,
-  "currentLadderFocus": "LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS",
+  "currentLadderFocus": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
   "completedWorkOrders": [
     {
       "id": "workspace-header-product-language-cleanup",
@@ -417,6 +417,14 @@
       "type": "TYPE_A_LANGUAGE_PRODUCT_READINESS",
       "summary": "Operations presentation, archive, and attention panes now distinguish active-filter no-matches from true no-data without row jargon or fake actions.",
       "commit": "pending-closeout-commit"
+    },
+    {
+      "id": "mentor-dashboard-meeting-status-depth",
+      "completedAt": "2026-05-25T11:34:00-07:00",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "type": "TYPE_D_ROLE_WORKSPACE",
+      "summary": "Mentor Dashboard assigned-student rows now show meeting, presentation, outline, evidence, and next-step context from existing scoped route fields.",
+      "commit": "pending-closeout-commit"
     }
   ],
   "deferredWorkOrders": [
@@ -449,16 +457,16 @@
   "blockedWorkOrders": [],
   "nextRecommendedWorkOrders": [
     {
-      "id": "mentor-student-directory-no-results-review",
-      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "id": "mentor-assignments-row-jargon-empty-heading",
+      "ladderLevel": "LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW",
       "type": "TYPE_A_LANGUAGE_PRODUCT_READINESS",
-      "summary": "Inspect Mentor Assignments and Student Directory no-results states only if source evidence shows stale row or action-ownership language."
+      "summary": "Replace the remaining Mentor Assignments `No missing mentor rows match` heading if still present."
     },
     {
-      "id": "mentor-dashboard-meeting-status-depth",
+      "id": "mentor-dashboard-attention-sorting-review",
       "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
       "type": "TYPE_D_ROLE_WORKSPACE",
-      "summary": "Review mentor dashboard route/data shape for safe meeting/status depth."
+      "summary": "Review whether assigned-student rows should sort by needsAttention after route/test design."
     },
     {
       "id": "review-queue-missing-evidence-filter-proof",
@@ -518,11 +526,12 @@
     "Do not re-clean shared workspace access chips for raw site/program/global scope ids; assignment labels and verifier coverage now guard that cluster.",
     "Do not re-clean Review Queue empty/history/disabled-decision phrases unless regression evidence appears; the verifier now blocks the removed stale wording.",
     "Do not re-add vague protected-comments-available copy in Review Queue selected-submission history; visibility-count labels now guard the boundary.",
-    "Do not re-clean Operations No presentation/archive/attention rows match phrases; filter-aware work/no-data copy and verifier coverage now guard that cluster."
+    "Do not re-clean Operations No presentation/archive/attention rows match phrases; filter-aware work/no-data copy and verifier coverage now guard that cluster.",
+    "Do not re-add the Mentor Dashboard assigned-student signal grid or next-step copy unless regression evidence appears."
   ],
   "lastValidationStatus": {
     "status": "passed",
-    "completedAt": "2026-05-25T11:20:00-07:00",
+    "completedAt": "2026-05-25T11:50:00-07:00",
     "commands": [
       "node --test tests/workspace-app.test.mjs",
       "npm run verify:functionality-language",
@@ -531,7 +540,7 @@
       "npm run verify:review-queue-deeplinks",
       "npm run verify:functionality-ux-automation",
       "node --test tests/functionality-language-audit.test.mjs",
-      "node -e JSON.parse automation/state/functionality-ux-growth-state.json and docs/progress/runs/2026-05-25-1106-operations-empty-state-language.json",
+      "node -e JSON.parse automation/state/functionality-ux-growth-state.json and docs/progress/runs/2026-05-25-1134-mentor-dashboard-status-depth.json",
       "npm run check:route-inventory",
       "npm run test",
       "npm run typecheck",
@@ -539,7 +548,7 @@
       "npm run check",
       "git diff --check"
     ],
-    "notes": "Full required validation passed for the Operations empty-state language slice. git diff --check reported only CRLF normalization warnings. The first automation verifier run caught local GUI schedule drift at minutes 0,20,40; the local non-repo TOML was corrected back to HH:00/HH:30 and the verifier then passed. This run changes Operations UI language, workspace tests, verifier coverage, and run records only; it does not broaden auth, RBAC, tenant, site, program, mentor assignment, or student privacy boundaries. No remote seed/reset/migration, live data write, deploy, credential repair, domain/OAuth, or Cloudflare config change was run."
+    "notes": "Full required validation passed for the Mentor Dashboard status-depth slice. git diff --check reported only CRLF normalization warnings. This run changes mentor dashboard UI, layout CSS, workspace tests, and run records only; it does not broaden auth, RBAC, tenant, site, program, mentor assignment, or student privacy boundaries. No remote seed/reset/migration, live data write, deploy, credential repair, domain/OAuth, or Cloudflare config change was run."
   },
   "lastProductReadinessScorecardSummary": {
     "homepageClarity": "4 to 4",
@@ -556,6 +565,7 @@
     "studentPrivacyConfidence": "4 to 4",
     "staffWorkflowUsefulness": "4 to 4",
     "emptyErrorStateQuality": "3 to 4",
-    "regressionTestCoverage": "4 to 4"
+    "regressionTestCoverage": "4 to 4",
+    "mentorWorkspaceDepth": "3 to 4"
   }
 }

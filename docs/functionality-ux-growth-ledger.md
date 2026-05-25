@@ -2066,3 +2066,57 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: Review Queue and Student Directory still lack exact missing/evidence filters; full comment body rendering needs product/privacy design; browser QA still needs credentialed runtime.
   - Do not repeat: do not rebuild this Operations empty-state language cluster unless regression evidence appears.
   - First file to inspect next run: `workspace.js` `renderMentorAssignmentRows()` and `renderSiteStudentsSection()`
+
+## Run 2026-05-25 11:34 PT
+
+- Starting SHA: `de3090651cadea921212d6d8d192036554a3e024`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Branch policy: work stayed on clean local `main`; local `main` was one commit ahead of `origin/main`, `origin/main` was not ahead, and no push was run
+- Ladder level targeted: `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` with `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` support for mentor-facing assigned-student context
+- Backlog item: `mentor-dashboard-meeting-status-depth`; advances `MVP-032`, `MVP-033`, `MVP-034`, and staff-review/mentor-flow evidence in the MVP catalog
+- Work order selected: Add meeting, presentation, outline, evidence, and next-step context to Mentor Dashboard assigned-student rows.
+- Selection reason: The previous state handoff recommended checking Mentor Assignments/Student Directory no-results first, then mentor dashboard meeting/status depth. Current source still had one Mentor Assignments row-jargon heading, but the safer and more useful product slice was already route-backed: `/api/mentor/dashboard` returns mentor meeting, presentation, outline, evidence, and attention fields, while the workspace compressed them into one sentence and did not translate them into a mentor next step.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Mentor dashboard meeting/status depth | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | mentor | 4 | 5 | 5 | S | 58 | selected |
+| Mentor Assignments row-jargon empty heading | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | site staff, viewer, program teacher | 3 | 5 | 4 | XS | 47 | rejected: safe but lower workflow value |
+| Student Directory no-results review | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | site staff, viewer, program teacher | 2 | 5 | 4 | XS | 42 | rejected: current source is already filter-aware |
+| Mentor dashboard attention sorting | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | mentor | 4 | 3 | 3 | M | 40 | deferred: would change list ordering and needs more route/data proof |
+| Mentor dashboard meeting route drill-down | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | mentor | 4 | 3 | 3 | M | 39 | deferred: no mentor meeting detail section is currently wired |
+| Mentor assignment history in student detail | `LEVEL_7_AUDITABILITY_AND_TRUST` | staff, mentor | 4 | 3 | 3 | M | 38 | deferred: persisted history shape needs confirmation |
+| Review Queue missing-evidence filter proof | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | site staff, program teacher | 5 | 2 | 3 | M | 37 | deferred: backend support/privacy tests still missing |
+| Full Review Queue comment body rendering | `LEVEL_7_AUDITABILITY_AND_TRUST` | site staff, program teacher, viewer | 4 | 2 | 3 | M | 34 | deferred: needs product/privacy decision |
+| Public app-preview language cleanup | `LEVEL_0_PROTOTYPE_CLEANUP` | public stakeholders | 3 | 5 | 4 | S | 40 | rejected: protected mentor workflow had clearer product value |
+| Site Dashboard summary-only affordance styling | `LEVEL_1_NAVIGABLE_DASHBOARDS` | staff, viewer | 3 | 4 | 3 | S | 39 | rejected: broader visual/design surface |
+| Student requirement detail extension | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 4 | 4 | 4 | S | 44 | rejected: no new persisted field identified |
+| Operations program breakdown empty copy | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | site staff, viewer | 3 | 5 | 4 | XS | 44 | rejected: Operations empty-state cluster is already complete |
+| Credentialed browser QA | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all | 4 | 4 | 3 | M | 39 | blocked: needs credentialed runtime |
+| Org-admin tenant rollup | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | org_admin | 4 | 2 | 2 | L | 30 | blocked: needs backend aggregate and RBAC design |
+| Real-user credential delivery policy | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | admin | 4 | 1 | 2 | L | 24 | blocked: human policy decision required |
+
+- User-facing improvement: Mentors now see labeled assigned-student signals for meeting status, presentation status, outline status, evidence count, and a plain next-step sentence before opening student detail.
+- Roles affected: `mentor` only in the existing Mentor Dashboard surface; admin inspection of the mentor dashboard data remains route-owned and unchanged.
+- Files changed: `workspace.js`, `workspace.css`, `tests/workspace-app.test.mjs`, `docs/functionality-language-audit.md`, `docs/mvp-requirements-catalog.md`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`, `docs/progress/run-log.md`, `docs/progress/runs/2026-05-25-1134-mentor-dashboard-status-depth.json`
+- Tests/verifiers added or updated: workspace render test now asserts mentor dashboard signal labels, evidence count, and the derived next-step line while preserving the existing mentor detail action/source-section behavior.
+- Validation commands:
+  - Focused passed before docs/state closeout: `node --test tests/workspace-app.test.mjs`; `npm run verify:functionality-language`; `npm run verify:dashboard-actions`; `npm run verify:workspace-navigation`
+  - Final passed: `npm run verify:review-queue-deeplinks`; `npm run verify:functionality-language`; `npm run verify:functionality-ux-automation`; `node --test tests/workspace-app.test.mjs`; `node --test tests/functionality-language-audit.test.mjs`; JSON parse for state and manifest; `npm run check:route-inventory`; `npm run test`; `npm run typecheck`; `npm run check:production-surfaces`; `npm run check`; `git diff --check`
+- Validation result: passed; `git diff --check` reported only CRLF normalization warnings during closeout, with no whitespace errors.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: Mentor Assignments `No missing mentor rows match` copy remains a safe future XS language cleanup; mentor dashboard sorting/drill-down remains deferred until route/data behavior is intentionally designed; browser QA still needs credentialed runtime.
+- New backlog items: none
+- Next recommended work order: clean the remaining Mentor Assignments row-jargon empty heading if it still appears, or review mentor dashboard attention sorting only after route/data expectations are clear.
+- Do-not-repeat notes: do not re-add the mentor dashboard signal grid or next-step copy unless a regression removes it.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_4_ROLE_SPECIFIC_WORKSPACES`
+  - Advanced: yes
+  - Evidence: Mentor Dashboard assigned-student rows now show labeled meeting, presentation, outline, evidence, and next-step context from existing scoped `/api/mentor/dashboard` fields; focused workspace test and language/navigation/action verifiers passed.
+  - Unlocks: future mentor work can evaluate sorting, meeting detail, or assignment-history depth without first proving basic mentor status visibility.
+  - Next: clean Mentor Assignments `No missing mentor rows match` if still present, or inspect mentor dashboard attention sorting with route/test design.
+  - Blockers: meeting detail drill-down needs a real section/route contract; browser QA still needs credentialed runtime; org rollup and real-user credential delivery need product/security decisions.
+  - Do not repeat: do not rebuild this mentor dashboard signal grid unless regression evidence appears.
+  - First file to inspect next run: `workspace.js` `renderMentorAssignmentsSection()`

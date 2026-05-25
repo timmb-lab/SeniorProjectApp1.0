@@ -129,6 +129,10 @@ const STATUS_LABELS = {
   no_active_assignments: "Blocked",
   not_requested: "Pending",
   policy_review_required: "Pending",
+  not_recorded: "Not recorded",
+  missed: "Missed",
+  makeup_required: "Make-up required",
+  not_scheduled: "Not scheduled",
 };
 const WORKSPACE_SECTION_IDS = new Set([
   "overview",
@@ -6180,11 +6184,20 @@ function renderMentorStudentCards(rows = []) {
     <div class="workspace-list">
       ${rows.map((row) => {
         const attention = Array.isArray(row.needsAttention) ? row.needsAttention : [];
+        const meetingStatus = row.mentorMeetingStatus || "not_recorded";
+        const presentationStatus = row.presentationStatus || "not_scheduled";
+        const outlineStatus = row.outlineStatus || "pending";
         return `
           <article class="workspace-row">
             <div>
               <strong>${escapeHtml(row.studentName || "Student")}</strong>
-              <p>${safeNumber(row.evidenceCount)} evidence / meeting ${escapeHtml(statusText(row.mentorMeetingStatus || "not_recorded"))} / presentation ${escapeHtml(statusText(row.presentationStatus || "not_scheduled"))}</p>
+              <div class="workspace-mentor-signal-grid" data-mentor-dashboard-signals="true">
+                ${renderMentorDashboardSignal("Meeting", statusText(meetingStatus))}
+                ${renderMentorDashboardSignal("Presentation", statusText(presentationStatus))}
+                ${renderMentorDashboardSignal("Outline", statusText(outlineStatus))}
+                ${renderMentorDashboardSignal("Evidence", `${safeNumber(row.evidenceCount)} item${safeNumber(row.evidenceCount) === 1 ? "" : "s"}`)}
+              </div>
+              <p class="workspace-muted" data-mentor-dashboard-next-step="true">${escapeHtml(mentorDashboardNextStep(row, attention))}</p>
               ${attention.length ? `<p class="workspace-muted">${escapeHtml(attention.map(statusText).join(", "))}</p>` : ""}
             </div>
             <div class="workspace-row-actions">
@@ -6200,6 +6213,28 @@ function renderMentorStudentCards(rows = []) {
       }).join("")}
     </div>
   `;
+}
+
+function renderMentorDashboardSignal(label, value) {
+  return `
+    <span>
+      <strong>${escapeHtml(label)}</strong>
+      ${escapeHtml(String(value || "Not available"))}
+    </span>
+  `;
+}
+
+function mentorDashboardNextStep(row = {}, attention = []) {
+  if (attention.includes("mentor_meeting")) {
+    return "Update the mentor meeting plan or make-up status before the next check-in.";
+  }
+  if (attention.includes("presentation")) {
+    return "Check outline and presentation readiness with this student.";
+  }
+  if (row.submissionStatus === "revision_requested") {
+    return "Review the revision request before the next mentor check-in.";
+  }
+  return "Keep monitoring progress and open detail when you need more context.";
 }
 
 function safeNumber(value) {

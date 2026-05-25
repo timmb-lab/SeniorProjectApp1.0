@@ -21,6 +21,17 @@ This is the compact run log for the current Functionality UX Upgrade automation 
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-05-25 11:34 PT - Functionality UX Upgrade Mentor Dashboard Status Depth
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 4 role-specific workspaces / mentor assigned-student depth.
+- `starting HEAD`: `de3090651cadea921212d6d8d192036554a3e024`.
+- `selected slice`: Add meeting, presentation, outline, evidence, and next-step context to Mentor Dashboard assigned-student rows.
+- `repo-grounded findings`: the previous state handoff named mentor dashboard meeting/status depth after checking Mentor Assignments and Student Directory no-results language. Current `/api/mentor/dashboard` already returned `mentorMeetingStatus`, `presentationStatus`, `outlineStatus`, `evidenceCount`, and `needsAttention`, but `workspace.js` compressed those fields into one sentence and only showed the submission status pill.
+- `changes`: `workspace.js` now renders labeled assigned-student signals and a mentor next-step line from existing scoped fields; `workspace.css` adds compact signal layout; `tests/workspace-app.test.mjs` asserts the new mentor-safe context and keeps the existing detail action/source behavior covered.
+- `validation`: focused workspace, functionality-language, dashboard-action, and workspace-navigation checks passed before docs/state closeout. Final validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.
+
 ## 2026-05-25 11:06 PT - Functionality UX Upgrade Operations Empty States
 
 - `automation ID`: functionality-ux-upgrade-hourly.

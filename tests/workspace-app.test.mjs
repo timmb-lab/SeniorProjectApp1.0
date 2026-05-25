@@ -2031,6 +2031,12 @@ test("mentor dashboard assigned students open student detail without leaving men
 
   vm.runInContext('activeSection = "mentorDashboard"; renderAppShell();', context);
   assert.match(workspaceRoot.innerHTML, /Assigned Student Focus/);
+  assert.match(workspaceRoot.innerHTML, /data-mentor-dashboard-signals="true"/);
+  assert.match(workspaceRoot.innerHTML, /Meeting[\s\S]*Make-up required/);
+  assert.match(workspaceRoot.innerHTML, /Presentation[\s\S]*Not scheduled/);
+  assert.match(workspaceRoot.innerHTML, /Outline[\s\S]*Pending/);
+  assert.match(workspaceRoot.innerHTML, /Evidence[\s\S]*3 items/);
+  assert.match(workspaceRoot.innerHTML, /Update the mentor meeting plan or make-up status before the next check-in/);
   assert.match(workspaceRoot.innerHTML, /data-mentor-dashboard-action="open-student"/);
   assert.match(workspaceRoot.innerHTML, /data-mentor-dashboard-student-id="demo-student-101"/);
 
