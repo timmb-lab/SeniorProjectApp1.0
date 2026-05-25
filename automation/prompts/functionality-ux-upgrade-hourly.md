@@ -2,7 +2,9 @@
 
 Automation slug: `functionality-ux-upgrade-hourly`
 
-Recommended cadence: hourly at minute 20 Pacific Time.
+Recommended cadence: top and bottom of the hour.
+
+The Functionality UX Upgrade automation should run twice per hour: once at the top of the hour and once at the bottom of the hour. In human schedule terms, that means HH:00 and HH:30 local Pacific time.
 
 Repo: `C:\SeniorProjectApp1.0`
 
@@ -10,13 +12,21 @@ Remote: `https://github.com/timmb-lab/SeniorProjectApp1.0.git`
 
 Branch: `main`
 
-This prompt governs a product-readiness lane for the Capstone Project app. It is designed to run hourly for weeks and steadily compound real app functionality, role-based usability, dashboard depth, navigation clarity, empty states, permission messaging, language quality, and validation coverage.
+GUI-visible identity to preserve:
+
+- Display name: `Functionality UX Upgrade`
+- Automation slug/id: `functionality-ux-upgrade-hourly`
+- Active prompt path: `automation/prompts/functionality-ux-upgrade-hourly.md`
+- The Codex Desktop GUI entry must stay active and must continue to point at this prompt path.
+- Do not rename this file, change this heading, change the slug, or create a duplicate active prompt.
+
+This prompt governs a product-readiness lane for the Capstone Project app. It is designed to run twice per hour for weeks and steadily compound real app functionality, role-based usability, dashboard depth, navigation clarity, empty states, permission messaging, language quality, and validation coverage.
 
 This is not a marketing polish lane, fake-page lane, broad refactor lane, credential/config/deployment lane, or random cleanup lane.
 
 ## 1. Mission
 
-Every run must spend serious attention on the current repository, then complete exactly one bounded repo-grounded improvement or one exact blocker record.
+Every run must spend serious attention on the current repository, then complete one bounded repo-grounded improvement batch or one exact blocker record.
 
 Target behavior when the runner budget allows it:
 
@@ -24,14 +34,14 @@ Target behavior when the runner budget allows it:
 - Run multiple repo review passes before selecting work.
 - Discover 10 to 20 candidate work orders.
 - Score candidates with the rubric in this prompt.
-- Select one high-value safe work order, plus at most one tiny directly supporting cleanup.
+- Select one high-value safe work order batch that can be finished in a single run.
 - Implement a small but real app/product improvement.
 - Add or update a focused test/verifier whenever practical.
 - Update the growth ledger and JSON state.
 - Commit only after validation passes.
 - Leave a clear Ladder Handoff for the next run.
 
-The lane should feel like a careful product engineer steadily sharpening the app, not a script picking the easiest text replacement.
+The lane should feel like a careful product engineer steadily sharpening the app, not a script picking the easiest text replacement or wandering into stale automation cleanup.
 
 ## 2. Non-Negotiable Safety Rules
 
@@ -67,6 +77,10 @@ git branch --show-current
 git rev-parse HEAD
 git remote -v
 git status --short --branch
+git fetch origin --prune
+git rev-parse origin/main
+git rev-list --count origin/main..HEAD
+git rev-list --count HEAD..origin/main
 Get-Date -Format o
 ```
 
@@ -77,7 +91,9 @@ Continue only when:
 - repo root is `C:\SeniorProjectApp1.0`
 - branch is `main`
 - origin is `https://github.com/timmb-lab/SeniorProjectApp1.0.git`
+- local `main` is aligned with `origin/main`, or safely fast-forwarded before editing
 - the worktree is clean or only contains files created by this same run
+- package name is still `senior-capstone-app`
 
 If identity fails, stop immediately with `WRONG_PROJECT` or `WRONG_BRANCH_OR_REMOTE`.
 
@@ -100,6 +116,7 @@ If a previous run left known generated files that are unrelated to this lane, st
 
 Read these before selecting work:
 
+- `package.json` scripts, especially active verification scripts
 - `automation/prompts/functionality-ux-upgrade-hourly.md`
 - `docs/functionality-language-audit.md`
 - `docs/functionality-ux-growth-ladder.md`
@@ -114,6 +131,12 @@ Read these before selecting work:
 - `docs/automation-memory.md`
 - `docs/progress/run-log.md` recent entries
 - recent `docs/progress/runs/` manifests when relevant
+- `docs/master-plan.md`
+- `docs/mvp-requirements-catalog.md`
+- role/RBAC documentation and permission helper tests for the selected surface
+- admin, student, teacher/advisor, mentor, viewer, and administration-facing workspace surfaces
+- demo data and seed/prove scripts only as context; do not run live writes unless the selected work safely requires a local dry-run proof
+- Cloudflare, D1, OAuth, Drive, and deployment docs only for context; do not edit production config in this lane
 - `workspace.html`
 - `workspace.js`
 - `workspace.css`
@@ -203,6 +226,18 @@ Before editing, discover 10 to 20 possible work orders from:
 - incomplete prior slices
 - recent commits and changed files
 
+Each candidate should include:
+
+- title
+- affected user role
+- affected route or surface
+- user pain point
+- expected improvement
+- files likely involved
+- risk level
+- testing path
+- whether it touches forbidden areas
+
 Use `rg` for current evidence. Good searches include:
 
 ```powershell
@@ -218,18 +253,17 @@ Candidate discovery must be written in the final report and ledger summary. It c
 Score each candidate from 1 to 5 in these categories:
 
 - Student impact
-- Staff impact
-- Role/workflow importance
-- Ladder progression
-- Safety
-- Boundedness
+- Teacher/advisor impact
+- Admin impact
+- Usability improvement
+- Implementation safety
 - Testability
-- Data readiness
-- Existing route/component readiness
-- Language/product-readiness improvement
-- Dashboard/detail-depth improvement
-- Avoids repetition
-- Unlocks future work
+- Small-batch feasibility
+- Production readiness value
+- Regression risk, reversed so lower risk scores higher
+- Existing route/component/data readiness
+- Ladder progression
+- Avoids repetition or stale completed work
 
 Then summarize:
 
@@ -254,12 +288,14 @@ The selected item must include:
 
 ## 10. Work Order Selection Rules
 
-- Select exactly one primary work order.
-- Optionally include one tiny supporting cleanup only when directly required by the selected work.
+- Select one bounded primary work order or tightly related batch.
+- Include supporting tests, verifiers, and docs only when they protect or explain the selected work.
+- Keep the selected batch small enough to validate fully in one run.
 - Prefer work that advances the current ladder focus or unlocks the next ladder level.
-- Prefer work that touches real app functionality, navigation, dashboard depth, role workflow, student next steps, permission messaging, empty states, or verifiers.
+- Prefer workflow clarity, missing empty states, admin drill-downs, student progress visibility, teacher/advisor usability, dashboard usefulness, clearer status labels, safer forms, route-level polish, demo/proof surfaces, and verifier-backed improvements.
 - Prefer existing routes/components/data over new abstractions.
 - Reject broad rewrites, broad redesigns, broad schema migrations, and vague docs churn.
+- Reject cosmetic churn, speculative architecture changes, auth/RBAC or tenant-boundary changes, migrations, D1 schema/config edits, Cloudflare/deployment edits, secret/env edits, and stale cleanup that does not improve functionality.
 - Reject isolated low-value copy when higher-priority ladder blockers are safe and ready.
 - Reject work already listed in `completedWorkOrders` or `doNotRepeat` unless current repo evidence proves regression.
 - If the selected item turns unsafe, mark it deferred and choose the next safe candidate only if still within scope and clean. Otherwise update ledger/state and stop.
@@ -433,7 +469,19 @@ Prefer XS/S slices:
 
 M-sized slices are allowed only when they remain strongly bounded and testable. L-sized broad rewrites are not for this hourly lane.
 
-Stop after one bounded slice. Do not continue into a second app feature because the first was easy.
+Stop after one bounded batch. Do not continue into an unrelated second app feature because the first was easy.
+
+Implementation rules:
+
+- Make minimal file changes.
+- Follow existing local patterns before adding abstractions.
+- Add no new dependency unless the selected work clearly justifies it.
+- Avoid broad rewrites and broad file moves.
+- Do not add placeholder UI pretending to be real functionality.
+- Do not put fake data in production paths.
+- Keep UI changes accessibility-conscious with simple language and clear loading, empty, and error states.
+- Preserve school-safe demo behavior and tenant-safe data access.
+- Add tests or verifiers when behavior changes.
 
 ## 24. Test/Verifier Requirements
 
@@ -454,6 +502,13 @@ Use existing scripts where available:
 Choose the narrowest relevant validation first, then broader checks when user-facing source changes.
 
 Do not invent a package script unless you also add the script and validation support.
+
+GUI visibility validation:
+
+- Preserve the active Markdown path, display name, slug/id, and enabled state used by the Codex Desktop GUI.
+- If the local Codex Desktop automation TOML exists, verify it still has `id = "functionality-ux-upgrade-hourly"`, `name = "Functionality UX Upgrade"`, `status = "ACTIVE"`, a prompt that references `automation/prompts/functionality-ux-upgrade-hourly.md`, and the expected repo working directory.
+- If the local GUI TOML is absent, do not guess. Preserve the repo-side identity fields and report that GUI visibility requires external confirmation.
+- Do not create a duplicate GUI-visible automation entry unless Bryan explicitly asks for a second entry because the platform cannot express both HH:00 and HH:30 in one schedule.
 
 ## 25. Documentation Requirements
 
@@ -520,9 +575,18 @@ Before committing:
 git status --short
 git diff --stat
 git diff --check
+npm run check
+npm run test
+npm run typecheck
+npm run check:production-surfaces
+npm run verify:functionality-ux-automation
 ```
 
 Also run relevant package scripts that exist in `package.json`.
+
+If JSON files changed, parse them before commit. If YAML files changed, run the repo's available parser/checker or report that no YAML checker exists.
+
+Always run the automation verifier before commit. It owns the stale automation reference scan, including retired cadence, retired checker, and retired builder-lane language, while still allowing the valid HH:00 and HH:30 schedule.
 
 If validation fails:
 
@@ -568,6 +632,8 @@ Return:
 - push status
 - blockers/caveats
 - next recommended work order
+- explicit skipped candidates and why
+- explicit confirmation that app functionality, auth, RBAC, tenant boundaries, migrations, D1 config, secrets/env files, Cloudflare/OAuth/deployment settings, and live data were not changed unless the selected work explicitly and safely required one of those areas
 - Ladder Handoff:
   - Targeted Level
   - Advanced
@@ -856,7 +922,6 @@ Likely files:
 - `scripts/**`
 - `tests/**`
 - `package.json`
-- `scripts/run-npm-script.ps1` if adding a package-script fallback
 
 Tests/verifiers:
 

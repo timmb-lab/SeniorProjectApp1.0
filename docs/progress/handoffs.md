@@ -2,7 +2,7 @@
 
 This file tracks cross-lane asks that should survive for future automation runs. Lane logs can contain narrative, but this ledger is the actionable queue.
 
-After the 2026-05-20 split-cadence update, new handoffs should name the consuming builder lane (`non-figma` or `figma-only`) plus the functional owner from `docs/automation-cadence.md`: `source-framework-seed`, `drive-upload-oauth`, `protected-evidence-tests`, `teacher-review-endpoints`, `immutable-review-history`, `mentor-presentation-flow`, `admin-ops-endpoints`, `announcements`, `account-lifecycle`, `cloudflare-verification`, or `design-assets-handoff`. Legacy lane labels remain in historical entries.
+New handoffs should name the consuming Functionality UX Upgrade area plus the functional owner from `docs/mvp-requirements-catalog.md`, such as `protected-evidence-tests`, `teacher-review-endpoints`, `immutable-review-history`, `mentor-presentation-flow`, `admin-ops-endpoints`, `account-lifecycle`, `cloudflare-verification`, or `design-assets-handoff`. Legacy lane labels remain only in historical entries.
 
 Status values:
 

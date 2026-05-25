@@ -19,7 +19,7 @@ Figma remains a product-design source for route, state, data, and permission han
 
 ## Current Automation Contract
 
-Figma work is owned by `functionality-ux-upgrade-hourly` and `functionality-ux-upgrade-hourly`, running hourly at minutes 15 and 45 PT under the repo-local Functionality UX Upgrade automation. It must stay Figma-only and produce route/data/permission handoffs, functional state variants, screenshot/metadata verification, or exact Figma blockers. The non-Figma builder may consume existing Figma evidence but must not call Figma tools.
+The only active repo-visible automation contract is Functionality UX Upgrade (`functionality-ux-upgrade-hourly`). It may use Figma only when a bounded product-readiness candidate genuinely needs design-context verification or a route/data/permission handoff. Figma remains an evidence source, not a separate active automation lane or cadence source.
 
 ## 2026-05-20 11:35 PT - MVP-028 Review History Prototype Alignment
 

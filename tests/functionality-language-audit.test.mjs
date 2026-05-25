@@ -56,7 +56,7 @@ test("functionality and language audit includes required sections and enough rep
 test("functionality UX automation prompt is bounded and safety-focused", () => {
   assert.match(prompt, /Functionality UX Upgrade/);
   assert.match(prompt, /functionality-ux-upgrade-hourly/);
-  assert.match(prompt, /complete exactly one bounded repo-grounded improvement/);
+  assert.match(prompt, /complete one bounded repo-grounded improvement batch/);
   assert.match(prompt, /Candidate Scoring Rubric/);
   assert.match(prompt, /Growth Ledger And State Rules/);
   assert.match(prompt, /Preserve authentication, authorization, tenant isolation, site isolation/);

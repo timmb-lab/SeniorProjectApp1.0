@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import { readFile, readdir, stat } from "node:fs/promises";
+import { join } from "node:path";
 import test from "node:test";
 
 const promptPath = "automation/prompts/functionality-ux-upgrade-hourly.md";
@@ -48,6 +49,10 @@ function assertConcepts(text, concepts) {
   for (const [label, pattern] of Object.entries(concepts)) {
     assert.match(text, pattern, `Missing prompt concept: ${label}`);
   }
+}
+
+function escapeRegex(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 test("functionality UX growth artifacts exist and are parseable", () => {
@@ -107,6 +112,9 @@ test("functionality UX upgrade is the only active automation contract", async ()
     ["quarter", "-hour"],
     ["quarter", "_hour"],
     ["quarter", "Hour"],
+    ["every", " quarter hour"],
+    ["every ", "15 minutes"],
+    ["15", "-minute cadence"],
     ["split", "-builder"],
     ["split", " builder"],
     ["BYMINUTE=", "15"],
@@ -132,6 +140,64 @@ test("functionality UX upgrade is the only active automation contract", async ()
       );
     }
   }
+});
+
+test("functionality UX automation keeps GUI identity and top-bottom cadence", async (t) => {
+  assert.match(prompt, /^# Functionality UX Upgrade/m);
+  assert.match(prompt, /Automation slug: `functionality-ux-upgrade-hourly`/);
+  assert.match(prompt, /automation\/prompts\/functionality-ux-upgrade-hourly\.md/);
+  assert.match(prompt, /top of the hour/i);
+  assert.match(prompt, /bottom of the hour/i);
+  assert.match(prompt, /HH:00/);
+  assert.match(prompt, /HH:30/);
+  assert.doesNotMatch(prompt, /hourly at minute 20/i);
+
+  const activeGuidanceDocs = [
+    "docs/automation.md",
+    "docs/automation-cadence.md",
+    "docs/automation-runbook.md",
+    "docs/automation-memory.md",
+    "docs/automation-self-improvement.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/progress/figma.md",
+    "docs/progress/handoffs.md",
+  ];
+  const staleActivePatterns = [
+    ["minutes ", "15 and 45"],
+    ["non-", "Figma builder"],
+    ["Figma-only product ", "builder"],
+    ["top-of-hour non-", "Figma"],
+    ["bottom-of-hour ", "Figma"],
+    ["daily summary ", "automation"],
+    ["weekly strategy review ", "automation"],
+  ].map((parts) => new RegExp(escapeRegex(parts.join("")), "i"));
+  for (const file of activeGuidanceDocs) {
+    const text = await readFile(file, "utf8");
+    for (const pattern of staleActivePatterns) {
+      assert.doesNotMatch(text, pattern, `${file} must not describe retired split-lane automation`);
+    }
+  }
+
+  const legacyScriptPath = ["scripts", ["run", "npm", "script.ps1"].join("-")].join("/");
+  assert.doesNotMatch(prompt, new RegExp(escapeRegex(legacyScriptPath)), "Prompt must not recommend adding the retired package-script fallback path");
+
+  const home = process.env.USERPROFILE || process.env.HOME || "";
+  const guiAutomationPath = home
+    ? join(home, ".codex", "automations", "functionality-ux-upgrade-hourly", "automation.toml")
+    : "";
+  if (!guiAutomationPath || !existsSync(guiAutomationPath)) {
+    t.diagnostic("Local Codex Desktop GUI automation TOML not present; repo-side identity checks still passed.");
+    return;
+  }
+
+  const guiText = await readFile(guiAutomationPath, "utf8");
+  const expectedRrule = ["FREQ=HOURLY", ["BYMINUTE=0", "30"].join(","), "BYSECOND=0"].join(";");
+  assert.match(guiText, /^id = "functionality-ux-upgrade-hourly"$/m);
+  assert.match(guiText, /^name = "Functionality UX Upgrade"$/m);
+  assert.match(guiText, /^status = "ACTIVE"$/m);
+  assert.match(guiText, /automation\/prompts\/functionality-ux-upgrade-hourly\.md/);
+  assert.match(guiText, /C:\\\\SeniorProjectApp1\.0/);
+  assert.match(guiText, new RegExp(`^rrule = "${escapeRegex(expectedRrule)}"$`, "m"));
 });
 
 test("functionality UX growth ladder defines durable maturity levels", () => {

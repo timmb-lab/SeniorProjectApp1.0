@@ -10,6 +10,12 @@ Current active automation: Functionality UX Upgrade (`functionality-ux-upgrade-h
 - State: `automation/state/functionality-ux-growth-state.json`
 - Cadence note: `docs/automation-cadence.md`
 
+## Cadence And GUI Visibility
+
+The intended cadence is HH:00 and HH:30. The Functionality UX Upgrade automation should run twice per hour: once at the top of the hour and once at the bottom of the hour.
+
+The Codex Desktop GUI-visible record lives outside the repo in the local automation registry. Preserve the existing display name `Functionality UX Upgrade`, id `functionality-ux-upgrade-hourly`, active status, working directory `C:\SeniorProjectApp1.0`, and prompt reference to `automation/prompts/functionality-ux-upgrade-hourly.md`.
+
 ## Validation
 
 Run:

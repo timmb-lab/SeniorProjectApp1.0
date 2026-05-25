@@ -6,6 +6,13 @@ The active prompt is:
 
 - `automation/prompts/functionality-ux-upgrade-hourly.md`
 
+Intended cadence:
+
+- HH:00
+- HH:30
+
+The Codex Desktop GUI entry is expected to keep the same `Functionality UX Upgrade` display name, `functionality-ux-upgrade-hourly` id, active status, and prompt reference.
+
 The active state and handoff files are:
 
 - `automation/state/functionality-ux-growth-state.json`

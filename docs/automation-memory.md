@@ -9,6 +9,7 @@ Use this compact memory for automation-contract orientation:
 - The handoff ledger is `docs/functionality-ux-growth-ledger.md`.
 - The JSON state file is `automation/state/functionality-ux-growth-state.json`.
 - The cadence note is `docs/automation-cadence.md`.
+- Intended cadence is HH:00 and HH:30, using the same active prompt and GUI identity.
 
 Validation command:
 
