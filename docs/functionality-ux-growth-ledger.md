@@ -1793,3 +1793,58 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: Review Queue and Student Directory still lack exact missing/evidence filters; browser QA still needs credentialed runtime.
   - Do not repeat: do not re-add the read-only copy cluster unless regression evidence appears.
   - First file to inspect next run: `workspace.js` `renderProgramTeacherDashboardSection()`
+
+## Run 2026-05-25 09:05 PT
+
+- Starting SHA: `2d2317c4a5ad57c4fc74067c10e16dcd31755790`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Branch policy: work stayed on clean local `main`; local `main` was twenty-six commits ahead of `origin/main`, `origin/main` was not ahead, and no push was run
+- Ladder level targeted: `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` with `LEVEL_0_PROTOTYPE_CLEANUP` language cleanup support
+- Backlog item: `program-dashboard-source-record-language`; advances the Program Teacher role workspace and production-safe app copy under `MVP-033` and `MVP-034`
+- Work order selected: Clean Program Teacher dashboard source/scope language without changing routes, data, permissions, or mutation controls.
+- Selection reason: The previous handoff pointed directly to Program Teacher dashboard `Source record counts` copy. Current source confirmed the protected dashboard still rendered `Source record counts`, `Scoped Student Progress`, `Visible in this role scope`, and `assigned scope`; this was a safe, bounded language cluster with existing render tests and verifier coverage.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Program Teacher dashboard language cluster | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | program teacher | 4 | 5 | 5 | XS | 56 | selected |
+| Program Breakdown `Source record counts` copy | `LEVEL_0_PROTOTYPE_CLEANUP` | program teacher | 3 | 5 | 5 | XS | 52 | included |
+| Program Teacher scope chip labels | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | program teacher, admin | 3 | 5 | 4 | XS | 48 | included |
+| Program Teacher load/permission copy | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | program teacher | 3 | 5 | 4 | XS | 46 | included |
+| Workspace role/scope banner cleanup | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | all roles | 4 | 4 | 4 | S | 45 | rejected: broader cross-role surface |
+| Student Directory scope empty-state language | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | staff, viewer | 3 | 5 | 4 | XS | 43 | rejected: lower current handoff value |
+| Student Detail scope/error language | `LEVEL_2_STUDENT_DETAIL_DEPTH` | staff, mentor | 4 | 4 | 4 | S | 44 | deferred: needs detail privacy wording review |
+| Review Queue scope empty-state language | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | program teacher, viewer | 4 | 5 | 4 | XS | 45 | rejected: Program Teacher homepage copy was the named handoff |
+| Mentor Dashboard `Active mentor scope` copy | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | mentor | 3 | 5 | 4 | XS | 42 | rejected: lower current handoff value |
+| Mentor assignment workload language | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | site staff, viewer | 3 | 5 | 4 | XS | 42 | rejected: no exact current regression found |
+| Public app-preview language cleanup | `LEVEL_0_PROTOTYPE_CLEANUP` | public | 3 | 5 | 4 | S | 40 | rejected: protected workspace handoff was safer and more direct |
+| Review Queue missing-evidence filter | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | program teacher, site staff | 5 | 2 | 3 | M | 37 | deferred: route still lacks exact missing/evidence param |
+| Student Directory missing-evidence filter | `LEVEL_1_NAVIGABLE_DASHBOARDS` | site staff, viewer | 4 | 2 | 3 | M | 35 | deferred: directory still lacks exact evidence-missing filter |
+| Student requirement detail extension | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 4 | 4 | 4 | S | 44 | rejected: no new persisted field identified |
+| Credentialed browser QA | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all | 4 | 4 | 3 | M | 39 | blocked: needs credentialed runtime |
+| Org-admin tenant rollup | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | org admin | 4 | 2 | 2 | L | 30 | blocked: needs backend aggregate and RBAC design |
+
+- User-facing improvement: Program Teachers now land on an assigned-student dashboard that describes their program/cohort view in school-facing terms: `Assigned Student Progress`, `Assigned Students`, `Visible in your assigned program or cohort`, `Students by program`, and `Assigned student list`.
+- Roles affected: `program_teacher`; legacy admin can still view the route through existing policy. No student, mentor, viewer, site, tenant, or program visibility changed.
+- Files changed: `workspace.js`, `tests/workspace-app.test.mjs`, `scripts/verify-functionality-language.mjs`, `docs/functionality-language-audit.md`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`, `docs/progress/run-log.md`, `docs/progress/runs/2026-05-25-0905-program-dashboard-language.json`
+- Tests/verifiers added or updated: workspace render test now asserts the new Program Teacher copy and rejects the removed source/scope phrases; language verifier now blocks `Source record counts`, `Visible in this role scope`, `assigned scope`, `Scoped dashboard unavailable`, and `Scoped Student Progress` from protected workspace files.
+- Validation commands:
+  - Focused passed before docs/state closeout: `node --test tests/workspace-app.test.mjs`; `npm run verify:functionality-language`
+  - Final planned: `npm run verify:dashboard-actions`; `npm run verify:review-queue-deeplinks`; `npm run verify:workspace-navigation`; `npm run verify:functionality-language`; `npm run verify:functionality-ux-automation`; `node --test tests/workspace-app.test.mjs`; `node --test tests/functionality-language-audit.test.mjs`; JSON parse for `automation/state/functionality-ux-growth-state.json` and `docs/progress/runs/2026-05-25-0905-program-dashboard-language.json`; `npm run check:route-inventory`; `npm run test`; `npm run typecheck`; `npm run check:production-surfaces`; `npm run check`; `git diff --check`; `git status --short`
+- Validation result: passed; `git diff --check` reported CRLF normalization warnings only
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: Review Queue missing/evidence params remain unsupported; Student Directory exact evidence-missing filtering remains unsupported; broad workspace role-chip language cleanup should be a separate pass; credentialed browser QA still needs runtime.
+- New backlog items: none
+- Next recommended work order: clean the remaining cross-role workspace role/scope chip and empty-state language, starting with `roleScopeSummary()` and `roleChips()`, or only add missing/evidence queue filters after backend support exists.
+- Do-not-repeat notes: do not re-clean Program Teacher `Source record counts` or `Scoped Student Progress`; the protected-language verifier now guards those phrases.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_4_ROLE_SPECIFIC_WORKSPACES`
+  - Advanced: yes
+  - Evidence: `workspace.js` now renders assigned-program/cohort language for Program Teacher dashboard cards, and the verifier blocks the removed source/scope phrases.
+  - Unlocks: future role-workspace copy work can move to the shared role chips and remaining empty states instead of repeating Program Teacher dashboard wording.
+  - Next: clean `roleScopeSummary()` / `roleChips()` user-facing scope labels, or defer queue filters until route support exists.
+  - Blockers: Review Queue and Student Directory still lack exact missing/evidence filters; browser QA still needs credentialed runtime; admin import scope fields still intentionally use technical role/scope inputs.
+  - Do not repeat: do not rebuild the Program Teacher dashboard language cluster unless regression evidence appears.
+  - First file to inspect next run: `workspace.js` `roleScopeSummary()` and `roleChips()`

@@ -2226,45 +2226,47 @@ function renderAdminOverviewSection() {
 function renderProgramTeacherDashboardSection() {
   const result = currentData.programTeacherDashboard;
   if (result?.status === 403) {
-    return renderPermissionDeniedSection("Program dashboard", "scoped program or cohort records");
+    return renderPermissionDeniedSection("Program dashboard", "assigned program or cohort records");
   }
   const dashboard = unwrap(result);
   if (!dashboard) {
     return `
       <section class="workspace-card workspace-error-card">
         <p class="workspace-kicker">Program dashboard</p>
-        <h2>Scoped dashboard unavailable</h2>
+        <h2>Program dashboard unavailable</h2>
         ${renderApiNotice(result)}
       </section>
     `;
   }
   const summary = dashboard.summary || {};
+  const scopeTypeLabel = programDashboardScopeTypeLabel(dashboard.scope);
+  const scopeIdLabel = programDashboardScopeIdLabel(dashboard.scope);
   return `
     <section class="workspace-command-center">
       <div class="workspace-command-hero">
         <div>
           <p class="workspace-kicker">Program Dashboard</p>
-          <h1>Scoped Student Progress</h1>
-          <p>Review workload, mentor coverage, evidence activity, and presentation readiness for the students in your assigned scope.</p>
+          <h1>Assigned Student Progress</h1>
+          <p>Review workload, mentor coverage, evidence activity, and presentation readiness for the students in your assigned program or cohort.</p>
         </div>
         <div class="workspace-command-hero-grid">
-          <span class="workspace-chip">${escapeHtml(statusText(dashboard.scope?.scopeType || "scope"))}</span>
-          <span class="workspace-chip">${escapeHtml(dashboard.scope?.scopeId || "global")}</span>
+          <span class="workspace-chip">${escapeHtml(scopeTypeLabel)}</span>
+          <span class="workspace-chip">${escapeHtml(scopeIdLabel)}</span>
         </div>
       </div>
       <div class="workspace-dashboard-grid">
-        ${renderMetricTile("Scoped Students", summary.scopedStudents, "Visible in this role scope", "teacher")}
+        ${renderMetricTile("Assigned Students", summary.scopedStudents, "Visible in your assigned program or cohort", "teacher")}
         ${renderMetricTile("Submitted", summary.submitted, "Ready for review", "teacher", "teacher")}
         ${renderMetricTile("Needs Revision", summary.revisionRequested, "Follow-up needed", "warning", "teacher")}
         ${renderMetricTile("Approved", summary.approved, "Accepted submissions", "student")}
         ${renderMetricTile("Evidence", summary.evidenceArtifacts, "Evidence records", "mentor")}
         ${renderMetricTile("Presentations", summary.presentationsPending, "Pending readiness", "warning", "presentation")}
       </div>
-      ${renderDashboardCard("Needs Attention", "Scoped risks", renderNeedsAttention(dashboard.needsAttention))}
+      ${renderDashboardCard("Needs Attention", "Priority follow-up", renderNeedsAttention(dashboard.needsAttention))}
       <div class="workspace-dashboard-grid workspace-dashboard-grid-two">
         ${renderDashboardCard("Needs Review", "Submitted and revision records", renderReviewQueueSummary(dashboard.needsReview))}
-        ${renderDashboardCard("Program Breakdown", "Source record counts", renderProgramBreakdown(dashboard.programBreakdown))}
-        ${renderDashboardCard("Students", "Scoped student list", renderScopedStudentList(dashboard.students))}
+        ${renderDashboardCard("Program Breakdown", "Students by program", renderProgramBreakdown(dashboard.programBreakdown))}
+        ${renderDashboardCard("Students", "Assigned student list", renderScopedStudentList(dashboard.students))}
       </div>
       ${siteStudentDetailState?.sourceSection === "programDashboard" ? renderSiteStudentDetailSurface({
         students: (dashboard.students || []).map((row) => ({
@@ -2274,6 +2276,20 @@ function renderProgramTeacherDashboardSection() {
       }) : ""}
     </section>
   `;
+}
+
+function programDashboardScopeTypeLabel(scope = {}) {
+  const scopeType = String(scope?.scopeType || "").toLowerCase();
+  if (scopeType === "program") return "Program assignment";
+  if (scopeType === "cohort") return "Cohort assignment";
+  if (scopeType === "global") return "All assigned students";
+  return "Assigned students";
+}
+
+function programDashboardScopeIdLabel(scope = {}) {
+  const scopeId = String(scope?.scopeId || "").trim();
+  if (!scopeId || scopeId === "global") return "Current student group";
+  return statusText(scopeId);
 }
 
 function renderMentorDashboardSection() {

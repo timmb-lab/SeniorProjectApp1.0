@@ -523,10 +523,15 @@ test("program teacher dashboard rows open existing student detail", async () => 
   }, "programDashboard");
 
   assert.match(programTeacher, /Program Dashboard/);
-  assert.match(programTeacher, /Scoped student list/);
+  assert.match(programTeacher, /Assigned Student Progress/);
+  assert.match(programTeacher, /Assigned Students/);
+  assert.match(programTeacher, /Visible in your assigned program or cohort/);
+  assert.match(programTeacher, /Students by program/);
+  assert.match(programTeacher, /Assigned student list/);
   assert.match(programTeacher, /Program Student One/);
   assert.match(programTeacher, /data-site-student-action="view-detail"/);
   assert.match(programTeacher, /data-student-detail-id="demo-program-student-001"/);
+  assert.doesNotMatch(programTeacher, /Source record counts|Visible in this role scope|assigned scope|Scoped Student Progress/);
   assert.doesNotMatch(programTeacher, /href="[^"]*\/api\/site\/students\/|data-section="studentDetail"|Detail view coming soon/);
 });
 

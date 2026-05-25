@@ -61,6 +61,26 @@ const hardFailures = [
     message: "Read-only mentor coverage should not imply assignment action is available.",
   },
   {
+    pattern: /\bSource record counts\b/i,
+    message: "Program Teacher dashboard should describe program summaries in school-facing language.",
+  },
+  {
+    pattern: /\bVisible in this role scope\b/i,
+    message: "Program Teacher dashboard should describe assigned program or cohort visibility without role-scope jargon.",
+  },
+  {
+    pattern: /\bassigned scope\b/i,
+    message: "Program Teacher dashboard should say assigned program or cohort instead of assigned scope.",
+  },
+  {
+    pattern: /\bScoped dashboard unavailable\b/i,
+    message: "Program Teacher dashboard load failures should use plain dashboard language.",
+  },
+  {
+    pattern: /\bScoped Student Progress\b/i,
+    message: "Program Teacher dashboard heading should use assigned-student language.",
+  },
+  {
     pattern: /\bstorage identifiers redacted\b/i,
     message: "Protected workspace should say private file details are protected instead of showing storage jargon.",
   },

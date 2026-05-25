@@ -1,0 +1,91 @@
+{
+  "automationId": "functionality-ux-upgrade-hourly",
+  "runStartedAt": "2026-05-25T09:05:15-07:00",
+  "startingSha": "2d2317c4a5ad57c4fc74067c10e16dcd31755790",
+  "endingSha": null,
+  "branch": "main",
+  "originAhead": 0,
+  "localAhead": 26,
+  "workOrder": {
+    "id": "program-dashboard-source-record-language",
+    "type": "TYPE_A_LANGUAGE_PRODUCT_READINESS",
+    "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+    "title": "Program Teacher dashboard language",
+    "selectedReason": "The prior handoff named Program Teacher dashboard source-record language, and current source still rendered source/scope wording in the protected Program Teacher dashboard.",
+    "rolesAffected": [
+      "program_teacher"
+    ],
+    "surfaces": [
+      "workspace.html",
+      "Program Teacher dashboard"
+    ]
+  },
+  "candidateScoring": [
+    { "candidate": "Program Teacher dashboard language cluster", "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES", "roles": "program teacher", "impact": 4, "safety": 5, "testability": 5, "size": "XS", "score": 56, "decision": "selected" },
+    { "candidate": "Program Breakdown Source record counts copy", "ladderLevel": "LEVEL_0_PROTOTYPE_CLEANUP", "roles": "program teacher", "impact": 3, "safety": 5, "testability": 5, "size": "XS", "score": 52, "decision": "included" },
+    { "candidate": "Program Teacher scope chip labels", "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES", "roles": "program teacher, admin", "impact": 3, "safety": 5, "testability": 4, "size": "XS", "score": 48, "decision": "included" },
+    { "candidate": "Program Teacher load and permission copy", "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES", "roles": "program teacher", "impact": 3, "safety": 5, "testability": 4, "size": "XS", "score": 46, "decision": "included" },
+    { "candidate": "Workspace role/scope banner cleanup", "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES", "roles": "all roles", "impact": 4, "safety": 4, "testability": 4, "size": "S", "score": 45, "decision": "rejected: broader cross-role surface" },
+    { "candidate": "Student Directory scope empty-state language", "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES", "roles": "staff, viewer", "impact": 3, "safety": 5, "testability": 4, "size": "XS", "score": 43, "decision": "rejected: lower current handoff value" },
+    { "candidate": "Student Detail scope/error language", "ladderLevel": "LEVEL_2_STUDENT_DETAIL_DEPTH", "roles": "staff, mentor", "impact": 4, "safety": 4, "testability": 4, "size": "S", "score": 44, "decision": "deferred: needs detail privacy wording review" },
+    { "candidate": "Review Queue scope empty-state language", "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES", "roles": "program teacher, viewer", "impact": 4, "safety": 5, "testability": 4, "size": "XS", "score": 45, "decision": "rejected: Program Teacher homepage copy was the named handoff" },
+    { "candidate": "Mentor Dashboard Active mentor scope copy", "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES", "roles": "mentor", "impact": 3, "safety": 5, "testability": 4, "size": "XS", "score": 42, "decision": "rejected: lower current handoff value" },
+    { "candidate": "Mentor assignment workload language", "ladderLevel": "LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW", "roles": "site staff, viewer", "impact": 3, "safety": 5, "testability": 4, "size": "XS", "score": 42, "decision": "rejected: no exact current regression found" },
+    { "candidate": "Public app-preview language cleanup", "ladderLevel": "LEVEL_0_PROTOTYPE_CLEANUP", "roles": "public", "impact": 3, "safety": 5, "testability": 4, "size": "S", "score": 40, "decision": "rejected: protected workspace handoff was safer and more direct" },
+    { "candidate": "Review Queue missing-evidence filter", "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES", "roles": "program teacher, site staff", "impact": 5, "safety": 2, "testability": 3, "size": "M", "score": 37, "decision": "deferred: route still lacks exact missing/evidence param" },
+    { "candidate": "Student Directory missing-evidence filter", "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS", "roles": "site staff, viewer", "impact": 4, "safety": 2, "testability": 3, "size": "M", "score": 35, "decision": "deferred: directory still lacks exact evidence-missing filter" },
+    { "candidate": "Student requirement detail extension", "ladderLevel": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN", "roles": "student", "impact": 4, "safety": 4, "testability": 4, "size": "S", "score": 44, "decision": "rejected: no new persisted field identified" },
+    { "candidate": "Credentialed browser QA", "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT", "roles": "all", "impact": 4, "safety": 4, "testability": 3, "size": "M", "score": 39, "decision": "blocked: needs credentialed runtime" },
+    { "candidate": "Org-admin tenant rollup", "ladderLevel": "LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS", "roles": "org admin", "impact": 4, "safety": 2, "testability": 2, "size": "L", "score": 30, "decision": "blocked: needs backend aggregate and RBAC design" }
+  ],
+  "filesChanged": [
+    "workspace.js",
+    "tests/workspace-app.test.mjs",
+    "scripts/verify-functionality-language.mjs",
+    "docs/functionality-language-audit.md",
+    "docs/functionality-ux-growth-ledger.md",
+    "automation/state/functionality-ux-growth-state.json",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-25-0905-program-dashboard-language.json"
+  ],
+  "focusedValidation": [
+    "node --test tests/workspace-app.test.mjs",
+    "npm run verify:functionality-language"
+  ],
+  "finalValidation": [
+    "npm run verify:dashboard-actions",
+    "npm run verify:review-queue-deeplinks",
+    "npm run verify:workspace-navigation",
+    "npm run verify:functionality-language",
+    "npm run verify:functionality-ux-automation",
+    "node --test tests/workspace-app.test.mjs",
+    "node --test tests/functionality-language-audit.test.mjs",
+    "node -e JSON.parse automation/state/functionality-ux-growth-state.json and docs/progress/runs/2026-05-25-0905-program-dashboard-language.json",
+    "npm run check:route-inventory",
+    "npm run test",
+    "npm run typecheck",
+    "npm run check:production-surfaces",
+    "npm run check",
+    "git diff --check"
+  ],
+  "validationResult": {
+    "status": "passed",
+    "completedAt": "2026-05-25T09:05:15-07:00",
+    "notes": "Full closeout validation passed; git diff --check reported CRLF normalization warnings only."
+  },
+  "privacyAndSafety": {
+    "authChanged": false,
+    "rbacChanged": false,
+    "tenantScopeChanged": false,
+    "siteScopeChanged": false,
+    "programScopeChanged": false,
+    "studentPrivacyChanged": false,
+    "mutationsAdded": false,
+    "fakeLinksAdded": false,
+    "migrationsChanged": false,
+    "secretsOrConfigChanged": false,
+    "deploysRun": false
+  },
+  "nextRecommendedWorkOrder": "Clean shared role/scope header chips and related empty-state language, or only add Review Queue/Student Directory missing-evidence filters after backend support and privacy tests exist.",
+  "doNotRepeat": "Do not re-clean Program Teacher Source record counts, Scoped Student Progress, Visible in this role scope, assigned scope, or Scoped dashboard unavailable language unless regression evidence appears."
+}

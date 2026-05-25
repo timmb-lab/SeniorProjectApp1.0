@@ -1883,3 +1883,14 @@ Future productive runs should append compact entries that name the master-plan s
 - `changes`: `workspace.js` now explains Viewer read-only monitoring, student-detail context, Site Dashboard permission-card boundaries, Review Queue decision ownership, Mentor Assignments coverage context, and Operations monitoring-only behavior. The mentor assignment no-data state now says no assignment can be made right now. The language verifier blocks the removed confusing phrases.
 - `validation`: focused `node --test tests/workspace-app.test.mjs`, `npm run verify:functionality-language`, `npm run verify:dashboard-actions`, and `npm run verify:workspace-navigation` passed before final validation. Final validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
 - `commit/push status`: pending closeout commit; not pushed by this automation run.
+
+## 2026-05-25 PT - Functionality UX Upgrade Program Teacher Dashboard Language
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 4 role-specific workspaces / Program Teacher dashboard clarity.
+- `starting HEAD`: `2d2317c4a5ad57c4fc74067c10e16dcd31755790`.
+- `selected slice`: Replace Program Teacher dashboard source/scope wording with assigned-program/cohort language.
+- `repo-grounded findings`: the previous handoff named `Source record counts`, and current `workspace.js` also still rendered `Scoped Student Progress`, `Visible in this role scope`, and `assigned scope` in the protected Program Teacher dashboard.
+- `changes`: Program Teacher dashboard now renders `Assigned Student Progress`, `Assigned Students`, `Visible in your assigned program or cohort`, `Students by program`, and `Assigned student list`; scope chips now use plain assignment labels. The language verifier blocks the removed phrases.
+- `validation`: focused `node --test tests/workspace-app.test.mjs` and `npm run verify:functionality-language` passed before final validation. Final validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.
