@@ -1,0 +1,70 @@
+{
+  "automationId": "functionality-ux-upgrade-hourly",
+  "runStartedAt": "2026-05-25T15:05:59-07:00",
+  "lane": "LEVEL_0_PROTOTYPE_CLEANUP",
+  "supportingLane": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
+  "startingSha": "4dace7b5f00f3726ed830fb69e159578505395fb",
+  "endingSha": null,
+  "branch": "main",
+  "originMainAheadBy": 8,
+  "originMainBehindBy": 0,
+  "workOrder": {
+    "id": "public-app-preview-workspace-workflow-copy",
+    "type": "TYPE_A_LANGUAGE_PRODUCT_READINESS",
+    "title": "Reframe public app-preview as Workspace Workflow",
+    "selectedReason": "Current source still exposed stale future-app/backend-ready implementation language on the public app-preview surface, while the protected mentor workflow handoff was complete and hosted permission proof depends on credentialed runtime."
+  },
+  "candidateScoring": [
+    { "id": "public-app-preview-workspace-workflow-copy", "ladderLevel": "LEVEL_0_PROTOTYPE_CLEANUP", "roles": "public stakeholders", "impact": 3, "safety": 5, "testability": 5, "size": "S", "score": 52, "decision": "selected" },
+    { "id": "public-app-preview-verifier-hardening", "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT", "roles": "public stakeholders", "impact": 3, "safety": 5, "testability": 5, "size": "XS", "score": 51, "decision": "included" },
+    { "id": "hosted-section-permission-proof", "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT", "roles": "all roles", "impact": 4, "safety": 4, "testability": 3, "size": "M", "score": 40, "decision": "rejected-credentialed-runtime-needed" },
+    { "id": "public-no-hidden-core-content-route-proof", "ladderLevel": "LEVEL_0_PROTOTYPE_CLEANUP", "roles": "public students and teachers", "impact": 4, "safety": 4, "testability": 3, "size": "M", "score": 42, "decision": "rejected-too-broad-for-this-slice" },
+    { "id": "public-app-preview-remove-fake-action-controls", "ladderLevel": "LEVEL_0_PROTOTYPE_CLEANUP", "roles": "public stakeholders", "impact": 3, "safety": 3, "testability": 3, "size": "M", "score": 34, "decision": "deferred-product-design-decision" },
+    { "id": "app-preview-route-file-rename", "ladderLevel": "LEVEL_0_PROTOTYPE_CLEANUP", "roles": "public stakeholders", "impact": 3, "safety": 2, "testability": 3, "size": "M", "score": 31, "decision": "rejected-unnecessary-route-churn" },
+    { "id": "student-requirement-guided-form", "ladderLevel": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN", "roles": "student", "impact": 4, "safety": 3, "testability": 3, "size": "M", "score": 38, "decision": "rejected-write-path-design-needed" },
+    { "id": "student-due-date-timeline", "ladderLevel": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN", "roles": "student", "impact": 4, "safety": 4, "testability": 4, "size": "S", "score": 44, "decision": "rejected-recent-student-checklist-healthy" },
+    { "id": "review-queue-missing-evidence-filter", "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES", "roles": "site staff and program teacher", "impact": 5, "safety": 2, "testability": 3, "size": "M", "score": 37, "decision": "deferred-backend-privacy-support-missing" },
+    { "id": "student-directory-missing-evidence-filter", "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS", "roles": "site staff and viewer", "impact": 4, "safety": 2, "testability": 3, "size": "M", "score": 35, "decision": "deferred-route-filter-missing" },
+    { "id": "mentor-staff-meeting-controls", "ladderLevel": "LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW", "roles": "site staff", "impact": 4, "safety": 2, "testability": 3, "size": "M", "score": 35, "decision": "rejected-staff-mutation-policy-undefined" },
+    { "id": "mentor-meeting-scheduled-date-ui", "ladderLevel": "LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW", "roles": "mentor", "impact": 3, "safety": 3, "testability": 4, "size": "S", "score": 42, "decision": "rejected-schedule-semantics-need-policy" },
+    { "id": "mentor-assignment-reassignment-controls", "ladderLevel": "LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW", "roles": "site admin", "impact": 5, "safety": 2, "testability": 3, "size": "L", "score": 33, "decision": "rejected-mutation-policy-needed" },
+    { "id": "downloadable-student-progress-summary", "ladderLevel": "LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS", "roles": "student and staff", "impact": 4, "safety": 2, "testability": 3, "size": "L", "score": 31, "decision": "rejected-export-privacy-policy-needed" },
+    { "id": "org-admin-tenant-rollup", "ladderLevel": "LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS", "roles": "org_admin", "impact": 4, "safety": 2, "testability": 2, "size": "L", "score": 30, "decision": "blocked-backend-rbac-design-needed" }
+  ],
+  "filesChanged": [
+    "app.js",
+    "public-companion/app.js",
+    "scripts/verify-functionality-language.mjs",
+    "tests/account-and-evidence-access.test.mjs",
+    "docs/functionality-language-audit.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/functionality-ux-growth-ledger.md",
+    "automation/state/functionality-ux-growth-state.json",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-25-1505-public-workspace-workflow-copy.json"
+  ],
+  "privacyAndPermissions": "No auth, RBAC, tenant, site, program, mentor assignment, student privacy, route, migration, D1 config, Cloudflare, OAuth, deployment, secret, credential, or live-data behavior changed.",
+  "validation": {
+    "status": "passed",
+    "completedAt": "2026-05-25T15:10:28-07:00",
+    "commands": [
+      "node --test tests/account-and-evidence-access.test.mjs",
+      "npm run verify:functionality-language",
+      "npm run check:generated-output-drift",
+      "npm run check:production-surfaces",
+      "node -e JSON.parse automation/state/functionality-ux-growth-state.json and docs/progress/runs/2026-05-25-1505-public-workspace-workflow-copy.json",
+      "git diff --check",
+      "npm run verify:functionality-ux-automation",
+      "node --test tests/functionality-language-audit.test.mjs",
+      "npm run check:route-inventory",
+      "npm run typecheck",
+      "npm run test",
+      "npm run check"
+    ],
+    "notes": "Passed. git diff --check reported only CRLF normalization warnings."
+  },
+  "commit": null,
+  "pushStatus": "not-pushed",
+  "nextRecommendedWorkOrder": "Inspect no-hidden-core-content coverage across the public guide route set, or run hosted permission proof when credentialed runtime is available.",
+  "doNotRepeat": "Do not repeat the public app-preview Future App Workflow/backend-ready/preview-data/source-count/audit-sensitive copy cleanup unless regression evidence appears."
+}

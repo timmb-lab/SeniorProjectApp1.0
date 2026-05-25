@@ -81,6 +81,23 @@ test("public site exposes Student and Teacher guide modes without treating them 
   assert.match(appJs, /not login, permission, or a private workflow/);
 });
 
+test("public workspace workflow guide avoids stale future-app and implementation copy", () => {
+  assert.match(appJs, /Workspace Workflow/);
+  assert.match(appJs, /How The Signed-In Workspace Works/);
+  assert.match(appJs, /A public guide to the signed-in workflow/);
+  assert.match(appJs, /real student records stay inside the Capstone Project Workspace/);
+  assert.match(appJs, /Example workspace search/);
+  assert.match(appJs, /Protected activity/);
+  assert.doesNotMatch(appJs, /Future App Workflow/);
+  assert.doesNotMatch(appJs, /Non-production workflow preview/);
+  assert.doesNotMatch(appJs, /when the backend is ready/);
+  assert.doesNotMatch(appJs, /Search preview data/);
+  assert.doesNotMatch(appJs, /source counts/);
+  assert.doesNotMatch(appJs, /Audit-sensitive/);
+  assert.doesNotMatch(appJs, /No localStorage source of truth/);
+  assert.doesNotMatch(appJs, /role scope created/);
+});
+
 test("protected evidence access route is scoped, audited, and avoids storage id exposure", () => {
   assert.match(evidenceRoute, /getCurrentUser/);
   assert.match(evidenceRoute, /canAccessStudent/);

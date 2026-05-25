@@ -2015,3 +2015,14 @@ Future productive runs should append compact entries that name the master-plan s
 - `changes`: `workspace.js` renders the record form only for the actively assigned mentor, posts held/missed/make-up-required results to `/api/mentor/meetings`, refreshes mentor detail/dashboard context after save, and keeps staff/viewer read paths unchanged. `/api/mentor/meetings` now rejects optional linked submissions outside the selected student with `submission_scope_denied`.
 - `validation`: focused mentor-meeting route test, workspace render/handler test, and language/dashboard/navigation verifiers passed before final validation. Final validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
 - `commit/push status`: pending closeout commit; not pushed by this automation run.
+
+## 2026-05-25 PT - Functionality UX Upgrade Public Workspace Workflow Copy
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 0 prototype cleanup / public app-preview language.
+- `starting HEAD`: `4dace7b5f00f3726ed830fb69e159578505395fb`.
+- `selected slice`: Reframe the public app-preview as `Workspace Workflow` and block stale future-app/backend-ready wording.
+- `repo-grounded findings`: protected mentor meeting read/create work is complete, while `app.js` and generated `public-companion/app.js` still showed `Future App Workflow`, `Non-production workflow preview`, `when the backend is ready`, `Search preview data`, `source counts`, `Audit-sensitive`, and implementation-storage language on the public app-preview surface.
+- `changes`: updated public guide source copy, rebuilt `public-companion/app.js`, added functionality-language verifier rules for the removed phrases, and added a focused public source test.
+- `validation`: focused validation and full validation results are recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.

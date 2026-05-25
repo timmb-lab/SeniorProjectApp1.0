@@ -1909,7 +1909,7 @@ const workspaceHref =
 const navItems = [
   { page: "home", label: "Home", href: "index.html" },
   { page: "workspace", label: "Workspace", href: workspaceHref },
-  { page: "app-preview", label: "App Workflow Preview", href: "app-preview.html" },
+  { page: "app-preview", label: "Workspace Workflow", href: "app-preview.html" },
   { page: "process", label: "Process", href: "process.html" },
   { page: "pacing", label: "Pacing", href: "pacing.html" },
   { page: "examples", label: "Examples", href: "examples.html" },
@@ -2265,7 +2265,7 @@ const productMetrics = {
     { value: "12", label: "Approved this week", detail: "Ready for build-phase check-ins.", tone: "green" }
   ],
   mentor: [
-    { value: "14", label: "Assigned students", detail: "Visible through mentor scope only.", tone: "blue" },
+    { value: "14", label: "Assigned students", detail: "Visible only for active mentor assignments.", tone: "blue" },
     { value: "5", label: "Meetings due", detail: "Need scheduling or make-up notes.", tone: "amber" },
     { value: "4", label: "Presentation risks", detail: "Outline missing or slot unconfirmed.", tone: "red" },
     { value: "8", label: "Ready to coach", detail: "Students with fresh evidence to discuss.", tone: "green" }
@@ -2283,15 +2283,15 @@ const productProgressStateContracts = [
     title: "Student Progress Update Draft",
     label: "draft update",
     tone: "blue",
-    detail: "Student changes stay local until the server accepts the update.",
-    meta: "Fields: requirement, phase, percent, note, evidence refs."
+    detail: "Student changes stay in progress until the workspace accepts the update.",
+    meta: "Fields: requirement, phase, progress, note, and evidence."
   },
   {
     title: "Staff Progress Update",
     label: "assigned staff",
     tone: "green",
     detail: "Mentors and teachers work only with the students assigned to their role.",
-    meta: "Checks: role, program, assigned students, and reason."
+    meta: "Checks: account, program, assigned students, and reason."
   },
   {
     title: "Status History Saved",
@@ -2312,12 +2312,12 @@ const productProgressStateContracts = [
     label: "reviewed access",
     tone: "red",
     detail: "Out-of-date changes ask the user to refresh and keep the student record protected.",
-    meta: "Activity: progress updates, status changes, and protected access checks."
+    meta: "Activity: progress updates, status changes, and protected access reviews."
   }
 ];
 
 const productProgressPipeline = [
-  { step: "01", title: "Receive update", detail: "Check the signed-in user and the submitted change." },
+  { step: "01", title: "Receive update", detail: "Check the signed-in account and the submitted change." },
   { step: "02", title: "Confirm access", detail: "Apply student, mentor, teacher, or admin boundaries." },
   { step: "03", title: "Check readiness", detail: "Review status move, deadline, and evidence readiness." },
   { step: "04", title: "Save records", detail: "Save progress and status history together." },
@@ -2326,7 +2326,7 @@ const productProgressPipeline = [
 ];
 
 const productPhaseProgress = [
-  { label: "Setup", status: "Approved", detail: "Workspace, program, cohort, and role scope created." },
+  { label: "Setup", status: "Approved", detail: "Workspace, program, cohort, and access created." },
   { label: "Proposal", status: "Revision requested", detail: "Teacher asked for clearer CTE evidence." },
   { label: "Research", status: "Draft", detail: "Two sections still need completion." },
   { label: "Build", status: "Not started", detail: "Unlocks after proposal approval." },
@@ -2384,17 +2384,17 @@ const programHealthRows = [
 
 const auditEvents = [
   { action: "Role assignment changed", actor: "Admin", scope: "Program teacher -> IT cohort", status: "Overridden" },
-  { action: "Private evidence accessed", actor: "Program teacher", scope: "Assigned student only", status: "Approved" },
+  { action: "Private evidence reviewed", actor: "Program teacher", scope: "Assigned student only", status: "Approved" },
   { action: "Revision requested", actor: "Program teacher", scope: "Proposal v2", status: "Revision requested" },
   { action: "Export package queued", actor: "Admin", scope: "Student archive", status: "Under review" }
 ];
 
 const productStateCards = [
-  { title: "Permission Denied", status: "Rejected", detail: "Mentors see assigned students only. Misc admin sees explicitly granted dashboards only." },
+  { title: "Access Not Available", status: "Rejected", detail: "Mentors see assigned students only. Readiness viewers see explicitly granted dashboards only." },
   { title: "Upload Failed", status: "Blocked", detail: "Student can retry, replace, or attach an external link without exposing a public file URL." },
   { title: "Submission Locked", status: "Under review", detail: "Draft fields lock while a reviewer is making a decision, with version history still visible." },
   { title: "Resubmission Ready", status: "Revision requested", detail: "Feedback routes back to the exact section that must change before the next submit." },
-  { title: "Admin Override", status: "Overridden", detail: "Override requires a reason and writes an audit event before state changes." },
+  { title: "Admin Override", status: "Overridden", detail: "Override requires a reason and records protected activity before state changes." },
   { title: "Empty Queue", status: "Archived", detail: "Empty states explain the missing action, filter, or assignment instead of showing a blank panel." }
 ];
 
@@ -2986,7 +2986,7 @@ function siteMenuHtml() {
       <a class="menu-tree-heading" href="${workspaceHref}">Web App</a>
       <div class="menu-app-links">
         <a class="menu-resource-link" href="${workspaceHref}">Capstone Project Workspace</a>
-        <a class="menu-resource-link" href="app-preview.html">App Workflow Preview</a>
+        <a class="menu-resource-link" href="app-preview.html">Workspace Workflow</a>
         <a class="menu-resource-link" href="templates.html">Templates</a>
         <a class="menu-resource-link" href="rubrics.html">Rubrics</a>
         <a class="menu-resource-link" href="grades.html">Grades</a>
@@ -3225,7 +3225,7 @@ function supportCardsHtml() {
     ["Sprint To The Finish", "Close build gaps before presentation prep takes over.", "sprint-to-finish.html"],
     ["Mentor Meeting 2", "Check final progress, presentation structure, and logistics.", "mentor-meeting-2.html"],
     ["Project Showcase", "Prepare a clean public display that visitors can understand quickly.", "project-showcase.html"],
-    ["App Workflow Preview", "See the planned app workflow boundary for evidence, review, status, and dashboards.", "app-preview.html"]
+    ["Workspace Workflow", "See how the signed-in workspace connects evidence, review, progress, and dashboards.", "app-preview.html"]
   ]
     .map(supportCardHtml)
     .join("");
@@ -3348,7 +3348,7 @@ function syncBlueprintHtml() {
         ${listHtml([
           "Private evidence, uploads, revision history, and status changes.",
           "Teacher review queues, mentor assignments, and role-aware dashboards.",
-          "Audit-sensitive actions, permissions, and operational reporting."
+          "Protected actions, permissions, and operational reporting."
         ])}
       </article>
       <div class="sync-note">
@@ -3450,12 +3450,12 @@ function productTrustContractHtml() {
           <p class="eyebrow">Trusted progress state</p>
           <h2 id="product-contract-title">Dashboard Counts Come From Persisted Records</h2>
           <p>
-            The preview now separates draft UI, scoped staff adjustments, status history, aggregate counts, and stale-write recovery so reviewers can see which state is safe to trust.
+            The workspace separates student drafts, assigned-staff updates, status history, school totals, and refresh states so users know which information is ready to trust.
           </p>
         </div>
         <div class="product-contract-proof" aria-label="Current aggregate rule">
           <strong>Server-owned</strong>
-          <span>No localStorage source of truth</span>
+          <span>Counts come from saved workspace records</span>
         </div>
       </div>
       <div class="product-contract-grid" aria-label="Progress state contracts">
@@ -3803,7 +3803,7 @@ function teacherRolePanelHtml() {
         <div>
           <p class="eyebrow">Program teacher dashboard</p>
           <h2>Review Faster, Intervene Earlier</h2>
-          <p>The staff surface is denser: filters, review queue, evidence risks, source counts, revision loops, and direct actions.</p>
+          <p>The staff surface is denser: filters, review queue, evidence risks, student counts, revision loops, and direct actions.</p>
         </div>
         ${productNavRailHtml(role)}
       </div>
@@ -3895,7 +3895,7 @@ function adminRolePanelHtml() {
         </section>
         <section class="product-preview-card">
           <div class="section-subhead">
-            <p class="eyebrow">Audit-sensitive</p>
+            <p class="eyebrow">Protected activity</p>
             <h3>Recent Events</h3>
           </div>
           ${auditEventsHtml()}
@@ -3936,13 +3936,13 @@ function setupProductPreviewInteractions(root) {
 }
 
 function renderAppPreviewPage(root) {
-  document.title = "App Workflow Preview | East Tech Senior Capstone Guide";
+  document.title = "Workspace Workflow | East Tech Senior Capstone Guide";
   root.innerHTML = `
     ${pageHeroHtml({
-      eyebrow: "Non-production workflow preview",
-      title: "Role-Aware App Workflow Preview",
+      eyebrow: "Workspace workflow guide",
+      title: "How The Signed-In Workspace Works",
       summary:
-        "A public preview of the intended secure workflow for students, mentors, program teachers, and admins. It is not the live student-record system; it shows how private evidence, review decisions, revision loops, dashboards, and audit-safe operations should behave when the backend is ready."
+        "A public guide to the signed-in workflow for students, mentors, program teachers, and admins. It explains how private evidence, review decisions, revision loops, dashboards, and protected activity fit together; real student records stay inside the Capstone Project Workspace."
     })}
     <section class="section section-tight">
       <div class="product-preview-shell">
@@ -3961,7 +3961,7 @@ function renderAppPreviewPage(root) {
           <div class="product-topbar" aria-label="App controls">
             <label class="product-search">
               <span>Search students, submissions, evidence</span>
-              <input type="search" value="proposal evidence risks" aria-label="Search preview data">
+              <input type="search" value="proposal evidence risks" aria-label="Example workspace search">
             </label>
           <div class="product-control-chips" aria-label="Active filters">
               <span>Class of 2026</span>
@@ -3989,7 +3989,7 @@ function renderAppPreviewPage(root) {
         <p class="eyebrow">Workspace boundary</p>
         <h2 id="workspace-boundary-title">Use The Protected Workspace For Student Records</h2>
         <p>
-          This public preview explains the workflow. Student records, private work, reviews, mentor assignments, and closeout tasks belong in the signed-in Capstone Project Workspace.
+          This public guide explains the workflow. Student records, private work, reviews, mentor assignments, and closeout tasks belong in the signed-in Capstone Project Workspace.
         </p>
         <p>
           School users should sign in from the workspace when they need to review real project information.
@@ -4273,7 +4273,7 @@ function renderHomePage(root) {
             <a class="button button-primary" href="${workspaceHref}">Open Workspace</a>
             <a class="button button-primary" href="program.html">Program Requirements</a>
             <a class="button button-secondary" href="process.html">Open Phases</a>
-            <a class="button button-secondary" href="app-preview.html">Future App Workflow</a>
+            <a class="button button-secondary" href="app-preview.html">Workspace Workflow</a>
           </div>
         </div>
         ${homeAudienceCardsHtml()}

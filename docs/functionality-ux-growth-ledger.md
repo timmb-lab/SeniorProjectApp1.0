@@ -2445,3 +2445,57 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: staff meeting creation, scheduling semantics, reassignment/remove controls, and exports need product/security policy; browser QA still needs credentialed runtime.
   - Do not repeat: do not rebuild this mentor meeting record form or submission guard without regression evidence.
   - First file to inspect next run: `app.js` `app-preview` copy, or `tests/workspace-browser-smoke.test.mjs` for hosted permission proof
+
+## Run 2026-05-25 15:05 PT
+
+- Starting SHA: `4dace7b5f00f3726ed830fb69e159578505395fb`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Branch policy: work stayed on clean local `main`; local `main` was eight commits ahead of `origin/main`, `origin/main` was not ahead, and no push was run
+- Ladder level targeted: `LEVEL_0_PROTOTYPE_CLEANUP` with `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` verifier support
+- Backlog item: `public-app-preview-language-cleanup`; advances `MVP-034` and `MVP-039`
+- Work order selected: Reframe the public app-preview as a current `Workspace Workflow` guide.
+- Selection reason: The previous handoff said protected mentor meeting read/create depth was healthy and pointed at public app-preview language or hosted permission proof. Hosted proof depends on credentialed/browser runtime, while current `app.js` still had stale public wording: `Future App Workflow`, `Non-production workflow preview`, `when the backend is ready`, `Search preview data`, `source counts`, `Audit-sensitive`, and `No localStorage source of truth`.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Public app-preview Workspace Workflow copy | `LEVEL_0_PROTOTYPE_CLEANUP` | public stakeholders | 3 | 5 | 5 | S | 52 | selected |
+| Public app-preview verifier hardening | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | public stakeholders | 3 | 5 | 5 | XS | 51 | included |
+| Hosted section-level permission proof | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all roles | 4 | 4 | 3 | M | 40 | rejected: credentialed runtime dependency |
+| Public no-hidden-core-content route proof | `LEVEL_0_PROTOTYPE_CLEANUP` | public students, teachers | 4 | 4 | 3 | M | 42 | rejected: broader route audit than one safe slice |
+| Public app-preview remove fake action controls | `LEVEL_0_PROTOTYPE_CLEANUP` | public stakeholders | 3 | 3 | 3 | M | 34 | deferred: needs design/product decision for preview interactivity |
+| App-preview rename route/file | `LEVEL_0_PROTOTYPE_CLEANUP` | public stakeholders | 3 | 2 | 3 | M | 31 | rejected: route inventory and link churn unnecessary |
+| Student requirement guided form | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 4 | 3 | 3 | M | 38 | rejected: write-path/product design needed |
+| Student due-date timeline | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 4 | 4 | 4 | S | 44 | rejected: recent student checklist work is healthy; no new persisted field |
+| Review Queue missing evidence filter | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | site staff, program teacher | 5 | 2 | 3 | M | 37 | deferred: backend/privacy support missing |
+| Student Directory missing evidence filter | `LEVEL_1_NAVIGABLE_DASHBOARDS` | site staff, viewer | 4 | 2 | 3 | M | 35 | deferred: exact route filter missing |
+| Mentor staff meeting controls | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | site staff | 4 | 2 | 3 | M | 35 | rejected: endpoint is mentor-only and staff mutation policy undefined |
+| Mentor meeting scheduled date UI | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | mentor | 3 | 3 | 4 | S | 42 | rejected: schedule semantics need policy |
+| Mentor assignment reassignment controls | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | site admin | 5 | 2 | 3 | L | 33 | rejected: mutation policy and audit design needed |
+| Downloadable student progress summary | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | student, staff | 4 | 2 | 3 | L | 31 | rejected: export/privacy policy needed |
+| Org-admin tenant rollup | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | org_admin | 4 | 2 | 2 | L | 30 | blocked: backend aggregate and RBAC design needed |
+
+- User-facing improvement: Public visitors now see `Workspace Workflow` and signed-in workflow guidance instead of language that makes the app sound future-only, unbuilt, or implementation-centric.
+- Roles affected: public stakeholders and school users reading `app-preview.html`; no authenticated app role, permission, route, or data path changed.
+- Files changed: `app.js`, `public-companion/app.js`, `scripts/verify-functionality-language.mjs`, `tests/account-and-evidence-access.test.mjs`, `docs/functionality-language-audit.md`, `docs/mvp-requirements-catalog.md`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`, `docs/progress/run-log.md`, `docs/progress/runs/2026-05-25-1505-public-workspace-workflow-copy.json`
+- Tests/verifiers added or updated: functionality-language verifier now blocks the stale public app-preview phrases in source and generated output; public source test checks the new `Workspace Workflow` copy and old phrase removals.
+- Validation commands:
+  - Focused passed: `node --test tests/account-and-evidence-access.test.mjs`; `npm run verify:functionality-language`; `npm run check:generated-output-drift`; `npm run check:production-surfaces`; JSON parse for state and manifest
+  - Final passed: `git diff --check`; `npm run verify:functionality-ux-automation`; `node --test tests/functionality-language-audit.test.mjs`; `npm run check:route-inventory`; `npm run typecheck`; `npm run test`; `npm run check`
+- Validation result: passed; `git diff --check` reported only CRLF normalization warnings, with no whitespace errors.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: hosted section-level permission proof still needs credentialed runtime; deeper public app-preview structural changes need a design/product decision; Review Queue and Student Directory missing/evidence filters remain unsupported.
+- New backlog items: none
+- Next recommended work order: inspect no-hidden-core-content coverage across the public guide route set, or run hosted permission proof when credentialed runtime is available.
+- Do-not-repeat notes: do not re-clean public `Future App Workflow`/backend-ready/preview-data/source-count/audit-sensitive wording unless regression evidence appears.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_0_PROTOTYPE_CLEANUP`
+  - Advanced: yes
+  - Evidence: public guide source and generated companion now use `Workspace Workflow`, signed-in workflow guide copy, example-workspace labels, student counts, protected activity language, and a verifier blocks the removed phrases.
+  - Unlocks: public guide QA can move from stale app-preview language into no-hidden-core-content proof or route-level public source coverage.
+  - Next: inspect full public guide no-hidden-core-content coverage or credentialed hosted permission proof.
+  - Blockers: browser/hosted proof requires credentialed runtime; app-preview structural rename/removal needs product decision.
+  - Do not repeat: do not redo this copy cluster unless `Future App Workflow`, `Non-production workflow preview`, `when the backend is ready`, `Search preview data`, `source counts`, `Audit-sensitive`, or `No localStorage source of truth` returns to `app.js` or `public-companion/app.js`.
+  - First file to inspect next run: `tests/account-and-evidence-access.test.mjs`

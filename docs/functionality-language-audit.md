@@ -74,7 +74,7 @@ These phrases can appear to real staff on the protected workspace header. They d
 - `Presentation readiness`
 - `School workspace`
 
-The public guide has legitimate student project language using "prototype" in curriculum contexts. The public app-preview copy at `app.js` / `public-companion/app.js` also includes implementation language about hosted accounts, roles, permissions, tests, and deployment. That copy should be rewritten in a later public-site slice because it is not the canonical protected workspace header, but it is still a stakeholder-facing language risk.
+The public guide has legitimate student project language using "prototype" in curriculum contexts. The public app-preview copy at `app.js` / `public-companion/app.js` previously included stale future-app, backend-readiness, preview-data, source-count, and audit-sensitive wording. The 2026-05-25 public-site slice reframed it as a current Workspace Workflow guide while keeping the signed-in workspace boundary clear.
 
 Internal `alpha.html`, `alpha.js`, `account.html`, and `account.js` contain "internal", "fake", "test", and "demo" copy by design. Those routes are classified as internal QA/smoke routes in `docs/generated/production-route-inventory.md` and should remain isolated from production navigation rather than being cleaned as if they were normal user pages.
 
@@ -100,9 +100,7 @@ Internal `alpha.html`, `alpha.js`, `account.html`, and `account.js` contain "int
 | `workspace.js` | `Workspace assignment is not active yet` | Mentor no-assignment state | mentor | Abstract account phrasing. | `No students are assigned to you yet` | Yes |
 | `workspace.js` | `provider_unavailable` label mapping | Storage status | student/staff | Internal provider status if surfaced. | `Storage unavailable` already maps safely | Monitor |
 | `workspace.js` | `Site Context` | Scope card | staff/viewer | Useful, but sounds system/admin heavy. | `School workspace` | Yes |
-| `app.js` | Hosted app still needs database-backed accounts... | Public app-preview | public/stakeholders | Implementation roadmap appears on user-facing public page. | Explain app-preview boundary without backend checklist. | Yes, later |
-| `app.js` | `Events: progress.updated, status.changed, unauthorized.denied.` | Public preview technical card | public/stakeholders | Event names and denial jargon. | `Recent progress, status changes, and protected access events` | Yes, later |
-| `app.js` | Figma target file text | Public preview | public/stakeholders | Internal design artifact reference. | Move to docs or hide from public preview. | Yes, later |
+| `app.js` | Formerly `Future App Workflow`, `Non-production workflow preview`, `when the backend is ready`, `Search preview data`, `source counts`, `Audit-sensitive`, and `No localStorage source of truth` | Public app-preview | public/stakeholders | Stale future-app and implementation wording made the signed-in app sound unbuilt or technical. | Replaced with `Workspace Workflow`, signed-in workflow guidance, protected-activity copy, and example-workspace labels; guarded by language verifier. | Complete |
 | `account.html` | Fake Test Account Smoke Page | Internal account QA | internal QA | Fine only if isolated. | Keep internal; do not link publicly. | No normal-user change |
 | `alpha.html` | Internal alpha / QA only | Internal alpha QA | internal QA | Fine only if isolated. | Keep internal; do not link publicly. | No normal-user change |
 | `workspace.js` | `global` scope chips | Staff header role chips | admin/staff | Raw scope terms can confuse normal users. | Replaced with assigned-record, assigned-school, assigned-program, and own-student labels; guarded by language verifier. | Complete |
@@ -118,8 +116,8 @@ Confirmed protected app leak candidates:
 
 Confirmed public/stakeholder copy risks:
 
-- `app.js` and generated `public-companion/app.js`: app-preview copy says the final hosted app still needs implementation items before managing real student records.
-- `app.js` and generated `public-companion/app.js`: preview model includes technical event labels and Figma file references.
+- Completed 2026-05-25: `app.js` and generated `public-companion/app.js` no longer describe the app-preview as `Future App Workflow`, `Non-production workflow preview`, or something waiting for the backend to be ready.
+- Completed 2026-05-25: `app.js` and generated `public-companion/app.js` now use `Workspace Workflow`, example-workspace labels, student-count wording, and protected-activity copy for the public app-preview surface.
 
 Not counted as normal-user leaks:
 
@@ -240,9 +238,9 @@ Not counted as normal-user leaks:
 | 69 | Language | Staff | `No active student records match this assigned view` | Abstract. | `No students match this view right now.` | Clearer. | `workspace.js` | None. | Mentor/staff. | XS | Yes | Source test. | Copy. |
 | 70 | Language | Staff | `Operating view` | Admin-heavy. | `School dashboard` when not platform. | Clearer. | `workspace.js` | None. | Site. | XS | Yes | Render test. | Copy. |
 | 71 | Language | Staff | `Global admin` chip | Fine for platform, bad for site users. | Make context-specific. | Avoid overclaim. | `workspace.js` | No role change. | Global only. | XS | Yes | Site users do not see global admin. | Copy check. |
-| 72 | Language | Public | `Future App Workflow` | App is no longer just future. | `Workspace overview` or hide. | Better product trust. | `app.js`, generated public companion | No auth. | Public. | S | Yes | Build public-site drift check. | Copy. |
-| 73 | Language | Public | Figma file references | Design-internal. | Move to docs. | Less prototype feel. | `app.js` | None. | Public. | S | Yes | Production text verifier. | Copy. |
-| 74 | Language | Public | Technical event names | Internal. | Human activity labels. | Clearer. | `app.js` | None. | Public. | XS | Yes | Source test. | Copy. |
+| 72 | Language | Public | Formerly `Future App Workflow` | App is no longer just future. | Replaced with `Workspace Workflow`; guarded by verifier/test. | Better product trust. | `app.js`, generated public companion | No auth. | Public. | S | Yes | Build public-site drift check. | Complete |
+| 73 | Language | Public | Formerly implementation-storage and backend-ready language | Design/build-internal. | Replaced with saved-workspace-record and signed-in workflow copy. | Less prototype feel. | `app.js`, generated public companion | None. | Public. | S | Yes | Production text verifier. | Complete |
+| 74 | Language | Public | Formerly preview-data/source-count/audit-sensitive wording | Internal. | Replaced with example workspace search, student counts, and protected activity labels. | Clearer. | `app.js`, generated public companion | None. | Public. | XS | Yes | Source test. | Complete |
 | 75 | Language | Admin | `credential_delivery_policy_required` visible in test/source | Error code appears in source tests; UI maps long message. | Keep code hidden; shorten message. | Cleaner admin UX. | `workspace.js`, tests | Security unchanged. | Admin. | XS | Yes | UI no code string except source handling? | Copy. |
 | 76 | Functionality | Tests | No dedicated functionality-language audit test | Audit could go stale. | Add test verifying audit sections, 75 rows, prompt. | Keeps audit useful. | tests | No product change. | Source. | XS | Yes | Count table rows. | Test. |
 | 77 | Functionality | Automation | Current generic builder may touch broad MVP tasks | Need focused product-readiness automation. | Add hourly `Functionality UX Upgrade`. | Continuous real UX depth. | automation prompt, scheduler | Must preserve RBAC. | Repo. | XS | Yes | Prompt contains guardrails. | Prompt+automation. |
@@ -270,8 +268,8 @@ Summary counts: 54 functionality/workflow items and 26 language/navigation/clari
 14. Clarify viewer read-only overview copy.
 15. Replace `selected-site` phrases with `this school`.
 16. Replace `Assignment form unavailable` with a clear no-action state.
-17. Reframe public app-preview from `Future App Workflow`.
-18. Remove public Figma file references from stakeholder pages.
+17. Reframe public app-preview from `Future App Workflow`. Complete 2026-05-25.
+18. Keep public app-preview/workspace guide copy free of design-artifact or implementation-readiness language.
 19. Add dashboard action/link verifier.
 20. Add audit doc test to keep 75+ findings present.
 
@@ -386,3 +384,4 @@ Every automation run must re-scan the current repo, verify the chosen issue stil
 | 2026-05-25 | Added a real Mentor Dashboard `Open meeting history` action that opens the existing authorized student-detail Mentor tab, so mentors can jump from an assigned-student card to scoped meeting rows without a fake section or new access path. | `workspace.js`, `tests/workspace-app.test.mjs`, focused workspace/language/dashboard/navigation verifiers | Complete |
 | 2026-05-25 | Added linked-work context to authorized student-detail Mentor Meeting rows from existing meeting, submission, and requirement records, so staff and assigned mentors can see which submitted work a meeting supported without rendering raw submission IDs in the Mentor tab. | `functions/_lib/site-student-detail.ts`, `workspace.js`, `tests/site-student-detail.integration.test.mjs`, `tests/workspace-app.test.mjs`, focused route/UI/language tests | Complete |
 | 2026-05-25 | Added a mentor-only `Record meeting` form to the existing authorized student-detail Mentor tab, using `/api/mentor/meetings` for actively assigned mentors and hardening optional linked-submission writes so meetings cannot point at another student's work. | `functions/api/mentor/meetings.ts`, `workspace.js`, `tests/mentor-meetings.integration.test.mjs`, `tests/workspace-app.test.mjs`, focused route/UI/language tests | Complete |
+| 2026-05-25 | Reframed the public app-preview as `Workspace Workflow`, replacing stale future-app/backend-ready/preview-data/source-count/audit-sensitive implementation wording while keeping the signed-in workspace boundary clear. | `app.js`, `public-companion/app.js`, `scripts/verify-functionality-language.mjs`, `tests/account-and-evidence-access.test.mjs`, `npm run build:public-site` | Complete |

@@ -197,6 +197,41 @@ const reviewPatterns = [
   },
 ];
 
+const reviewFailures = [
+  {
+    pattern: /\bFuture App Workflow\b/i,
+    message: "Public app-preview should describe the current workspace workflow, not a future app.",
+  },
+  {
+    pattern: /\bNon-production workflow preview\b/i,
+    message: "Public app-preview should use a school-facing workflow-guide label.",
+  },
+  {
+    pattern: /\bwhen the backend is ready\b/i,
+    message: "Public app-preview should not describe the signed-in workspace as a future backend dependency.",
+  },
+  {
+    pattern: /\bSearch preview data\b/i,
+    message: "Public app-preview should label example controls as workspace examples, not preview data.",
+  },
+  {
+    pattern: /\bsource counts\b/i,
+    message: "Public app-preview should use student/count language instead of source-count jargon.",
+  },
+  {
+    pattern: /\bAudit-sensitive\b/i,
+    message: "Public app-preview should use protected-activity language instead of audit-sensitive copy.",
+  },
+  {
+    pattern: /\bNo localStorage source of truth\b/i,
+    message: "Public app-preview should avoid implementation-storage language.",
+  },
+  {
+    pattern: /\brole scope created\b/i,
+    message: "Public app-preview should use access language instead of role-scope language.",
+  },
+];
+
 const failures = [];
 const notices = [];
 
@@ -219,6 +254,11 @@ for (const file of reviewOnlyFiles) {
   for (const rule of reviewPatterns) {
     if (rule.pattern.test(text)) {
       notices.push(`${file}: ${rule.message}`);
+    }
+  }
+  for (const rule of reviewFailures) {
+    if (rule.pattern.test(text)) {
+      failures.push(`${file}: ${rule.message}`);
     }
   }
 }
