@@ -1628,3 +1628,58 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: no dedicated requirement detail route; guided draft editing beyond evidence upload still needs product/write policy; missing/evidence drill-down lacks exact route mapping; browser QA still needs credentialed runtime.
   - Do not repeat: do not rebuild checklist send-for-review actions unless a regression removes the route payload or UI markers.
   - First file to inspect next run: `workspace.js` `renderStudentRequirementPanel()` and `functions/api/student/dashboard.ts` `buildStudentRequirementDetails()`
+
+## Run 2026-05-25 07:38 PT
+
+- Starting SHA: `8a18698fbf5cfc1892188750430019f4e50c12ee`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Branch policy: work stayed on clean local `main`; local `main` was twenty-three commits ahead of `origin/main`, `origin/main` was not ahead, and no push was run
+- Ladder level targeted: `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN`
+- Backlog item: `student-requirement-detail-disclosure`; follows the prior `student-requirement-send-for-review-action` handoff
+- Work order selected: Add an in-page student requirement detail disclosure to `Your Required Work`.
+- Selection reason: The previous handoff pointed to deeper requirement detail. Current source already had scoped requirement, submission, evidence, due-date, progress, and feedback data in `/api/student/dashboard`, but students had to scan several panels to connect one requirement's status, next action, and latest teacher note. An in-page disclosure adds detail without a new route, fake page, or write-policy change.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Student requirement detail disclosure | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 5 | 5 | 5 | S | 58 | selected |
+| Student requirement detail route/page | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 5 | 3 | 3 | M | 42 | deferred: no dedicated route/policy yet |
+| Missing/evidence drill-down mapping | `LEVEL_1_NAVIGABLE_DASHBOARDS` | staff | 5 | 2 | 3 | M | 38 | deferred: exact scoped filter mapping remains unproven |
+| Program teacher missing-submission queue | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | program teacher | 4 | 3 | 3 | M | 37 | deferred: needs route mapping |
+| Student phase-specific progress page | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 4 | 3 | 3 | M | 40 | deferred: grouped checklist already covers first need |
+| Richer student feedback timeline controls | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 3 | 4 | 3 | M | 36 | deferred: current timeline is usable |
+| Richer student due-date timeline | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 4 | 4 | 4 | M | 44 | rejected: row-level deadline labels already exist |
+| Mentor contact/support workflow | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | student, mentor | 4 | 2 | 2 | M | 32 | blocked: unsafe contact-policy surface |
+| Student detail visible-note labels | `LEVEL_7_AUDITABILITY_AND_TRUST` | staff, student | 4 | 5 | 4 | S | 45 | rejected: less aligned to current student handoff |
+| Viewer read-only homepage clarity | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | viewer | 3 | 5 | 4 | XS | 42 | rejected: lower value than student detail depth |
+| Operations empty-state wording | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | staff, viewer | 3 | 5 | 4 | XS | 43 | rejected: copy-only while student detail data was ready |
+| Assignment form unavailable copy cleanup | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | site admin | 3 | 5 | 4 | XS | 43 | rejected: lower current student value |
+| Student Directory mentor filter labels | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | staff | 4 | 3 | 4 | M | 42 | deferred: needs safe API-provided mentor labels |
+| Public app-preview language cleanup | `LEVEL_0_PROTOTYPE_CLEANUP` | public | 3 | 5 | 4 | S | 40 | rejected: protected student workflow had higher value |
+| Credentialed browser QA for student dashboard | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all | 4 | 4 | 3 | M | 39 | blocked: needs credentialed runtime |
+| Org-admin tenant rollup | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | org admin | 4 | 2 | 2 | L | 30 | blocked: needs backend aggregate/RBAC design |
+
+- User-facing improvement: Students can open `Review details` on a requirement row and see status, due date, evidence count, submitted version, progress state, next action, and latest matching teacher feedback in one place.
+- Roles affected: `student`; staff, mentor, admin, tenant, site, program, and assignment access behavior was not changed.
+- Files changed: `workspace.js`, `workspace.css`, `tests/workspace-app.test.mjs`, `docs/student-progress-dashboard.md`, `docs/functionality-language-audit.md`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`, `docs/progress/run-log.md`, `docs/progress/runs/2026-05-25-0738-student-requirement-detail-disclosure.json`
+- Tests/verifiers added or updated: workspace render test now proves the in-page detail disclosure renders scoped status/due/evidence/submission/progress/feedback context and does not call another route.
+- Validation commands:
+  - Baseline/focused: `node --test tests/workspace-app.test.mjs`; `npm run verify:functionality-language`; JSON parse for `automation/state/functionality-ux-growth-state.json`
+  - Final: `npm run verify:dashboard-actions`; `npm run verify:review-queue-deeplinks`; `npm run verify:workspace-navigation`; `npm run verify:functionality-language`; `npm run verify:functionality-ux-automation`; `node --test tests/workspace-app.test.mjs`; `node --test tests/functionality-language-audit.test.mjs`; JSON parse for `automation/state/functionality-ux-growth-state.json` and `docs/progress/runs/2026-05-25-0738-student-requirement-detail-disclosure.json`; `npm run check:route-inventory`; `npm run test`; `npm run typecheck`; `npm run check:production-surfaces`; `npm run check`; `git diff --check`; `git status --short`
+- Validation result: passed; `git diff --check` reported CRLF normalization warnings only
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: dedicated student requirement detail page; phase-specific progress page; missing/evidence staff drill-down mapping; credentialed browser QA
+- New backlog items: none
+- Next recommended work order: prove exact missing-submission/evidence drill-down mapping to a supported scoped Review Queue or Student Directory filter before exposing a staff control; otherwise extend the student requirement detail disclosure only when a new persisted field or safe endpoint adds useful detail.
+- Do-not-repeat notes: do not re-add the student requirement detail disclosure; extend only with new persisted requirement/feedback fields or a real route-backed student workflow.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN`
+  - Advanced: yes
+  - Evidence: `workspace.js` now renders `data-student-requirement-action="toggle-detail"` and `data-student-requirement-detail="true"` from existing student dashboard data; tests prove the disclosure uses no additional route call.
+  - Unlocks: the student checklist is now actionable and explorable without a dedicated route, letting future runs return to staff missing/evidence drill-down mapping.
+  - Next: prove missing/evidence drill-down mapping against existing scoped Review Queue or Student Directory filters before adding staff controls.
+  - Blockers: no dedicated requirement detail route; missing/evidence drill-down lacks exact route mapping; credentialed browser QA still needs runtime.
+  - Do not repeat: do not rebuild the same in-page requirement detail disclosure unless regression evidence appears.
+  - First file to inspect next run: `functions/_lib/site-review-queue.ts`, `functions/api/site/review-queue.ts`, and `workspace.js` dashboard metric preset handling

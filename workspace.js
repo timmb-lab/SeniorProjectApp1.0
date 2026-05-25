@@ -27,6 +27,7 @@ let workspaceNavCollapsed = false;
 let selectedSiteId = "";
 let siteStudentFilters = defaultSiteStudentFilters();
 let siteStudentDetailState = defaultSiteStudentDetailState();
+let studentRequirementDetailState = defaultStudentRequirementDetailState();
 let studentFeedbackHistoryState = defaultStudentFeedbackHistoryState();
 let reviewQueueFilters = defaultReviewQueueFilters();
 let reviewQueueState = defaultReviewQueueState();
@@ -250,6 +251,7 @@ async function loadSession() {
     if (!response.ok || !data?.authenticated) {
       currentUser = null;
       currentData = defaultCurrentData(authConfig);
+      studentRequirementDetailState = defaultStudentRequirementDetailState();
       studentFeedbackHistoryState = defaultStudentFeedbackHistoryState();
       renderSignIn(
         messageForSessionStateError(data?.error, response.status),
@@ -259,6 +261,7 @@ async function loadSession() {
       return;
     }
     if (currentUser?.id !== data.user?.id) {
+      studentRequirementDetailState = defaultStudentRequirementDetailState();
       studentFeedbackHistoryState = defaultStudentFeedbackHistoryState();
     }
     currentUser = data.user;
@@ -266,6 +269,7 @@ async function loadSession() {
   } catch (error) {
     currentUser = null;
     currentData = defaultCurrentData(authConfig);
+    studentRequirementDetailState = defaultStudentRequirementDetailState();
     studentFeedbackHistoryState = defaultStudentFeedbackHistoryState();
     renderSignIn(messageForNetworkError(error), "error");
   }
@@ -3161,7 +3165,7 @@ function renderStudentSection() {
     </section>
     ${renderStudentPrimaryNextAction(summary, nextSteps)}
     ${renderStudentNextSteps(nextSteps, summary)}
-    ${renderStudentRequirementPanel(dashboard.requirements || [], summary)}
+    ${renderStudentRequirementPanel(dashboard.requirements || [], summary, dashboard.feedback || [], studentRequirementDetailState)}
     ${renderStudentFeedbackPanel(dashboard.feedback || [], summary, studentFeedbackHistoryState)}
     ${renderStudentProgressDetails(summary, dashboard)}
     <section class="workspace-card" data-student-evidence-panel="true">
@@ -3379,7 +3383,7 @@ function renderStudentNextStepRow(item) {
   `;
 }
 
-function renderStudentRequirementPanel(requirements = [], summary = {}) {
+function renderStudentRequirementPanel(requirements = [], summary = {}, feedback = [], detailState = defaultStudentRequirementDetailState()) {
   const rows = Array.isArray(requirements) ? requirements : [];
   const phaseGroups = groupStudentRequirementsByPhase(rows);
   return `
@@ -3392,7 +3396,7 @@ function renderStudentRequirementPanel(requirements = [], summary = {}) {
         </div>
       </div>
       <div class="workspace-list">
-        ${phaseGroups.length ? phaseGroups.map(renderStudentRequirementPhaseGroup).join("") : `
+        ${phaseGroups.length ? phaseGroups.map((group) => renderStudentRequirementPhaseGroup(group, feedback, detailState)).join("") : `
           <article class="workspace-empty-state-card" data-student-requirements-empty="true">
             <strong>No project requirements yet.</strong>
             <p>${escapeHtml(summary.waitingForReviewCount ? "Check back after your teacher updates your project requirements." : "Ask your program teacher when your project requirements will be ready.")}</p>
@@ -3422,7 +3426,7 @@ function groupStudentRequirementsByPhase(rows) {
   return groups;
 }
 
-function renderStudentRequirementPhaseGroup(group) {
+function renderStudentRequirementPhaseGroup(group, feedback = [], detailState = defaultStudentRequirementDetailState()) {
   const rows = Array.isArray(group?.rows) ? group.rows : [];
   const completeCount = rows.filter((row) => isStudentRequirementComplete(row?.status)).length;
   const remainingCount = Math.max(0, rows.length - completeCount);
@@ -3438,7 +3442,7 @@ function renderStudentRequirementPhaseGroup(group) {
         </div>
       </div>
       <div class="workspace-list">
-        ${rows.map(renderStudentRequirementRow).join("")}
+        ${rows.map((row) => renderStudentRequirementRow(row, feedback, detailState)).join("")}
       </div>
     </section>
   `;
@@ -3448,15 +3452,19 @@ function isStudentRequirementComplete(status) {
   return ["approved", "archived", "complete", "completed"].includes(normalizeStatus(status));
 }
 
-function renderStudentRequirementRow(item) {
+function renderStudentRequirementRow(item, feedback = [], detailState = defaultStudentRequirementDetailState()) {
   const version = safeNumber(item?.submissionVersion);
   const updatedAt = item?.lastUpdatedAt ? formatDate(item.lastUpdatedAt) : "Not available yet";
   const description = String(item?.description || "").trim();
   const qualityPrompt = String(item?.qualityPrompt || "").trim();
   const submissionId = String(item?.submissionId || "").trim();
   const evidenceCount = safeNumber(item?.evidenceCount);
+  const requirementId = studentRequirementId(item);
+  const detailDomId = studentRequirementDetailDomId(requirementId);
+  const selected = requirementId && detailState?.selectedRequirementId === requirementId;
+  const latestFeedback = latestFeedbackForRequirement(item, feedback);
   return `
-    <article class="workspace-row workspace-student-requirement-row" data-student-requirement-row="true" data-student-requirement-submission-id="${escapeHtml(submissionId)}" data-student-requirement-evidence-count="${escapeHtml(evidenceCount)}">
+    <article class="workspace-row workspace-student-requirement-row" data-student-requirement-row="true" data-student-requirement-id="${escapeHtml(requirementId)}" data-student-requirement-submission-id="${escapeHtml(submissionId)}" data-student-requirement-evidence-count="${escapeHtml(evidenceCount)}">
       <div>
         <strong>${escapeHtml(item?.title || "Senior Project requirement")}</strong>
         ${description ? `<p class="workspace-student-requirement-guidance" data-student-requirement-description="true">${escapeHtml(description)}</p>` : ""}
@@ -3468,9 +3476,72 @@ function renderStudentRequirementRow(item) {
       <div class="workspace-row-actions">
         ${submissionId ? `<span class="workspace-site-context-badge" data-student-requirement-evidence="true">${escapeHtml(evidenceCount)} evidence</span>` : ""}
         ${version > 0 ? `<span class="workspace-site-context-badge" data-student-requirement-version="true">Version ${escapeHtml(version)}</span>` : ""}
+        ${requirementId ? `<button class="workspace-link-button workspace-link-button-small" type="button" data-student-requirement-action="toggle-detail" data-student-requirement-id="${escapeHtml(requirementId)}" aria-expanded="${selected ? "true" : "false"}" aria-controls="${escapeHtml(detailDomId)}">${escapeHtml(selected ? "Hide details" : "Review details")}</button>` : ""}
         ${renderStudentRequirementAction(item, evidenceCount)}
         ${statusPill(item?.status || "missing")}
       </div>
+      ${selected ? renderStudentRequirementDetail(item, latestFeedback) : ""}
+    </article>
+  `;
+}
+
+function studentRequirementId(item) {
+  return cleanDirectoryFilter(item?.requirementId || item?.requirement_id || item?.id || item?.title || "");
+}
+
+function studentRequirementDetailDomId(requirementId) {
+  return `studentRequirementDetail-${String(requirementId || "item").replace(/[^A-Za-z0-9_-]+/g, "-")}`;
+}
+
+function latestFeedbackForRequirement(item, feedback = []) {
+  const submissionId = String(item?.submissionId || "").trim();
+  if (!submissionId) return null;
+  return latestFeedbackForSubmission({ id: submissionId }, feedback);
+}
+
+function renderStudentRequirementDetail(item, latestFeedback = null) {
+  const requirementId = studentRequirementId(item);
+  const detailDomId = studentRequirementDetailDomId(requirementId);
+  const evidenceCount = safeNumber(item?.evidenceCount);
+  const version = safeNumber(item?.submissionVersion);
+  const status = statusText(item?.status || "missing");
+  const submissionStatus = item?.submissionStatus ? statusText(item.submissionStatus) : status;
+  const progressStatus = item?.progressStatus ? statusText(item.progressStatus) : "Not started";
+  return `
+    <section id="${escapeHtml(detailDomId)}" class="workspace-student-requirement-detail" data-student-requirement-detail="true">
+      <div>
+        <h4>Requirement details</h4>
+        <p class="workspace-muted">Use this summary to check the status, due date, feedback, and next action for this requirement.</p>
+      </div>
+      <div class="workspace-student-requirement-detail-grid">
+        ${renderStudentRequirementDetailFact("Status", status)}
+        ${renderStudentRequirementDetailFact("Due date", studentDueText(item))}
+        ${renderStudentRequirementDetailFact("Evidence", `${evidenceCount} ${pluralize(evidenceCount, "item")} attached`)}
+        ${renderStudentRequirementDetailFact("Submission", version > 0 ? `Version ${version} / ${submissionStatus}` : "No submitted version yet")}
+        ${renderStudentRequirementDetailFact("Progress", progressStatus)}
+        ${renderStudentRequirementDetailFact("Next action", item?.nextAction || "Ask your program teacher what to do next.")}
+      </div>
+      ${latestFeedback ? `
+        <article class="workspace-mini-row" data-student-requirement-feedback="true">
+          <span>Latest teacher feedback</span>
+          <small>${escapeHtml(latestFeedback.message || "Teacher feedback was recorded for this submission.")}</small>
+          <small>${escapeHtml(latestFeedback.authorName || "Program teacher")} / ${escapeHtml(formatDate(latestFeedback.createdAt))}</small>
+        </article>
+      ` : `
+        <article class="workspace-mini-row" data-student-requirement-feedback-empty="true">
+          <span>No teacher feedback for this requirement yet.</span>
+          <small>Feedback meant for you will appear after your teacher reviews or comments on this work.</small>
+        </article>
+      `}
+    </section>
+  `;
+}
+
+function renderStudentRequirementDetailFact(label, value) {
+  return `
+    <article class="workspace-mini-row" data-student-requirement-detail-fact="true">
+      <span>${escapeHtml(label)}</span>
+      <small>${escapeHtml(value || "Not available yet")}</small>
     </article>
   `;
 }
@@ -4349,6 +4420,9 @@ function bindWorkspaceForms() {
   document.querySelectorAll("[data-student-feedback-action]").forEach((button) => {
     button.addEventListener("click", handleStudentFeedbackAction);
   });
+  document.querySelectorAll("[data-student-requirement-action]").forEach((button) => {
+    button.addEventListener("click", handleStudentRequirementAction);
+  });
   document.querySelectorAll("[data-student-submission-action]").forEach((button) => {
     button.addEventListener("click", handleStudentSubmissionAction);
   });
@@ -4389,6 +4463,19 @@ async function handleStudentFeedbackAction(event) {
   const action = event?.currentTarget?.dataset?.studentFeedbackAction;
   if (action !== "open-history") return;
   await openStudentFeedbackHistory(event.currentTarget?.dataset?.studentFeedbackSubmissionId || "");
+}
+
+function handleStudentRequirementAction(event) {
+  const action = event?.currentTarget?.dataset?.studentRequirementAction;
+  if (action !== "toggle-detail") return;
+  const requirementId = cleanDirectoryFilter(event.currentTarget?.dataset?.studentRequirementId || "");
+  if (!requirementId) return;
+  const opening = studentRequirementDetailState.selectedRequirementId !== requirementId;
+  studentRequirementDetailState = {
+    selectedRequirementId: opening ? requirementId : "",
+  };
+  activeSection = "student";
+  renderAppShell(opening ? "Requirement details opened." : "Requirement details closed.", "success");
 }
 
 async function handleStudentSubmissionAction(event) {
@@ -5662,6 +5749,7 @@ async function signOut() {
     currentUser = null;
     currentData = defaultCurrentData(currentData.authConfig);
     lastAdminImportResult = null;
+    studentRequirementDetailState = defaultStudentRequirementDetailState();
     studentFeedbackHistoryState = defaultStudentFeedbackHistoryState();
     renderSignIn("You have signed out.", "success");
   }
@@ -6250,6 +6338,12 @@ function defaultSiteStudentDetailState() {
     loadingTimeline: false,
     result: null,
     timelineResult: null,
+  };
+}
+
+function defaultStudentRequirementDetailState() {
+  return {
+    selectedRequirementId: "",
   };
 }
 

@@ -2331,6 +2331,109 @@ test("workspace renders a progress-first student homepage with safe language", a
   }
 });
 
+test("student requirement rows open in-page details without another route", async () => {
+  const routes = {
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "student-requirement-detail",
+          email: "student.requirement.detail@senior-capstone.test",
+          displayName: "Requirement Detail Student",
+          roles: [{ role_id: "student", scope_type: "global", scope_id: "" }],
+        },
+      },
+    },
+    "/api/student/dashboard": {
+      status: 200,
+      body: {
+        ok: true,
+        viewer: { self: true },
+        summary: {
+          requirementsTotal: 1,
+          requirementsComplete: 0,
+          completionPercent: 0,
+          submittedRequiredCount: 1,
+          missingRequiredCount: 0,
+          revisionRequestedCount: 1,
+          waitingForReviewCount: 0,
+          currentStatus: "Needs Revision",
+        },
+        nextSteps: [],
+        requirements: [
+          {
+            requirementId: "req-proposal",
+            submissionId: "submission-proposal",
+            title: "Senior Project Proposal",
+            description: "Explain the problem, solution, audience, and evidence for your capstone project.",
+            phase: "proposal-and-research",
+            phaseLabel: "Proposal And Research",
+            status: "revision_requested",
+            progressStatus: "revision_requested",
+            submissionStatus: "revision_requested",
+            submissionVersion: 2,
+            evidenceCount: 1,
+            dueLabel: "October 9 and 10",
+            qualityPrompt: "Add one measurable success target before you send the proposal back.",
+            lastUpdatedAt: "2026-05-24T18:00:00.000Z",
+            nextAction: "Send the revised Senior Project Proposal back for teacher review.",
+          },
+        ],
+        progress: [],
+        submissions: [
+          { id: "submission-proposal", requirement_id: "req-proposal", requirement_title: "Senior Project Proposal", status: "revision_requested", version: 2, updated_at: "2026-05-24T18:00:00.000Z" },
+        ],
+        evidence: [],
+        feedback: [
+          {
+            id: "review-proposal",
+            submissionId: "submission-proposal",
+            requirementTitle: "Senior Project Proposal",
+            submissionStatus: "revision_requested",
+            submissionVersion: 2,
+            status: "revision_requested",
+            message: "Add one measurable success target before resubmitting.",
+            authorName: "Ms. Garcia",
+            createdAt: "2026-05-24T18:30:00.000Z",
+          },
+        ],
+      },
+    },
+    "/api/student/archive/readiness": {
+      status: 200,
+      body: {
+        ok: true,
+        summary: { readyChecks: 0, missingChecks: 0, totalChecks: 0, archiveAvailableToRequest: false },
+        checks: [],
+        archive: { status: "not_requested" },
+        storage: {},
+        retention: {},
+      },
+    },
+    "/api/presentation-slots": {
+      status: 200,
+      body: { ok: true, slots: [] },
+    },
+  };
+  const { context, workspaceRoot, fetchLog } = await createWorkspaceContextWithFetch(routes);
+  assert.match(workspaceRoot.innerHTML, /data-student-requirement-action="toggle-detail"/);
+  assert.match(workspaceRoot.innerHTML, /Review details/);
+  assert.doesNotMatch(workspaceRoot.innerHTML, /data-student-requirement-detail="true"/);
+
+  const fetchCountBeforeDetail = fetchLog.length;
+  vm.runInContext('studentRequirementDetailState = { selectedRequirementId: "req-proposal" }; activeSection = "student"; renderAppShell();', context);
+  assert.equal(fetchLog.length, fetchCountBeforeDetail);
+  assert.match(workspaceRoot.innerHTML, /data-student-requirement-detail="true"/);
+  assert.match(workspaceRoot.innerHTML, /Requirement details/);
+  assert.match(workspaceRoot.innerHTML, /Due October 9 and 10/);
+  assert.match(workspaceRoot.innerHTML, /1 item attached/);
+  assert.match(workspaceRoot.innerHTML, /Version 2 \/ Revision requested/);
+  assert.match(workspaceRoot.innerHTML, /Latest teacher feedback/);
+  assert.match(workspaceRoot.innerHTML, /Add one measurable success target before resubmitting/);
+  assert.doesNotMatch(workspaceRoot.innerHTML, /href="#"/);
+});
+
 test("student feedback rows open a student-safe review timeline", async () => {
   const { context, workspaceRoot, fetchLog } = await createWorkspaceContextWithFetch({
     "/api/auth/me": {

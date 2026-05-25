@@ -21,6 +21,17 @@ This is the compact run log for the current Functionality UX Upgrade automation 
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-05-25 07:38 PT - Functionality UX Upgrade Student Requirement Detail Disclosure
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 6 student progress drill-down / requirement detail disclosure.
+- `starting HEAD`: `8a18698fbf5cfc1892188750430019f4e50c12ee`.
+- `selected slice`: Add an in-page `Review details` disclosure to student `Your Required Work` rows using already scoped dashboard data.
+- `repo-grounded findings`: the prior handoff pointed to deeper requirement detail. Current `workspace.js` rendered requirement descriptions, quality nudges, due dates, evidence counts, and submit/focus actions, but students had to scan separate panels to connect one requirement's status, next action, and latest teacher feedback.
+- `changes`: `workspace.js` now tracks a selected requirement row and renders status, due date, evidence count, submitted version, progress state, next action, and latest matching teacher feedback in a row-level disclosure; `workspace.css` adds responsive detail layout; `tests/workspace-app.test.mjs` proves the disclosure uses no new route call.
+- `validation`: focused workspace test and functionality-language verifier passed before final validation. Final validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.
+
 ## 2026-05-25 04:38 PT - Functionality UX Upgrade Student Feedback Timeline
 
 - `automation ID`: functionality-ux-upgrade-hourly.

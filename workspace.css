@@ -717,6 +717,11 @@
   grid-template-columns: minmax(0, 1fr) auto;
 }
 
+.workspace-student-requirement-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
 .workspace-student-requirement-phase {
   display: grid;
   gap: 0.55rem;
@@ -752,6 +757,25 @@
 
 .workspace-student-requirement-guidance {
   color: var(--text);
+}
+
+.workspace-student-requirement-detail {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 0.65rem;
+  border-top: 1px solid var(--border-soft);
+  padding-top: 0.75rem;
+}
+
+.workspace-student-requirement-detail h4 {
+  margin: 0;
+  font-size: 0.98rem;
+}
+
+.workspace-student-requirement-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.55rem;
 }
 
 .workspace-student-feedback-timeline {
@@ -1898,6 +1922,10 @@ button.workspace-metric-tile,
   .workspace-student-feedback-timeline-grid {
     grid-template-columns: 1fr;
   }
+
+  .workspace-student-requirement-detail-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 620px) {
@@ -1913,6 +1941,10 @@ button.workspace-metric-tile,
   .workspace-metric-tile {
     display: grid;
     justify-content: stretch;
+  }
+
+  .workspace-student-requirement-row {
+    grid-template-columns: 1fr;
   }
 
   .workspace-user-text {

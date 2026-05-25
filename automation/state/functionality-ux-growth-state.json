@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-05-25T07:08:04-07:00",
-  "lastStartingSha": "1f7eaf17366789864dac2ccca26e2ad7354fbe96",
+  "lastRunAt": "2026-05-25T07:38:28-07:00",
+  "lastStartingSha": "8a18698fbf5cfc1892188750430019f4e50c12ee",
   "lastEndingSha": null,
   "currentLadderFocus": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN",
   "completedWorkOrders": [
@@ -353,6 +353,14 @@
       "type": "TYPE_C_STUDENT_DETAIL_DRILL_DOWN",
       "summary": "Student requirement checklist rows now expose real actions: focus existing evidence forms when evidence is missing, or send the existing draft/revision submission for teacher review when evidence is attached.",
       "commit": "pending-closeout-commit"
+    },
+    {
+      "id": "student-requirement-detail-disclosure",
+      "completedAt": "2026-05-25T07:38:28-07:00",
+      "ladderLevel": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN",
+      "type": "TYPE_C_STUDENT_DETAIL_DRILL_DOWN",
+      "summary": "Student requirement checklist rows now open an in-page detail disclosure with status, due date, evidence count, submitted version, progress state, next action, and latest matching teacher feedback.",
+      "commit": "pending-closeout-commit"
     }
   ],
   "deferredWorkOrders": [
@@ -385,16 +393,16 @@
   "blockedWorkOrders": [],
   "nextRecommendedWorkOrders": [
     {
-      "id": "student-requirement-detail-drawer",
-      "ladderLevel": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN",
-      "type": "TYPE_C_STUDENT_DETAIL_DRILL_DOWN",
-      "summary": "Add a deeper student-safe requirement detail drawer only if it reuses persisted requirement, submission, evidence, and feedback records."
-    },
-    {
       "id": "missing-submission-drilldown",
       "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS",
       "type": "TYPE_B_DASHBOARD_CLICK_THROUGH",
       "summary": "Map missing-submission or evidence-attention counts to a supported scoped Review Queue or Student Directory filter before exposing a staff control."
+    },
+    {
+      "id": "student-requirement-detail-extension",
+      "ladderLevel": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN",
+      "type": "TYPE_C_STUDENT_DETAIL_DRILL_DOWN",
+      "summary": "Extend the in-page requirement detail disclosure only when a new persisted requirement, submission, evidence, or feedback field adds useful student context."
     }
   ],
   "doNotRepeat": [
@@ -434,21 +442,21 @@
     "Do not re-add student requirement phase grouping; extend only with a real requirement detail/form, due-date detail, or deeper phase page backed by existing route data.",
     "Do not re-add student requirement deadline labels; extend only with a real requirement detail/form or richer due-date timeline backed by existing deadlines.",
     "Do not re-add student requirement descriptions or quality nudges; extend next only with a real guided requirement form or additional persisted guidance fields.",
-    "Do not re-add student requirement send-for-review actions; extend only with a deeper requirement detail drawer or a new route-backed student workflow."
+    "Do not re-add student requirement send-for-review actions; extend only with a deeper requirement detail drawer or a new route-backed student workflow.",
+    "Do not re-add the student requirement detail disclosure; extend only if a new persisted requirement, evidence, submission, or feedback field adds useful student context."
   ],
   "lastValidationStatus": {
     "status": "passed",
-    "completedAt": "2026-05-25T07:11:45-07:00",
+    "completedAt": "2026-05-25T07:41:38-07:00",
     "commands": [
       "npm run verify:dashboard-actions",
       "npm run verify:review-queue-deeplinks",
       "npm run verify:workspace-navigation",
       "npm run verify:functionality-language",
       "npm run verify:functionality-ux-automation",
-      "node --test tests/student-dashboard-access.integration.test.mjs",
       "node --test tests/workspace-app.test.mjs",
       "node --test tests/functionality-language-audit.test.mjs",
-      "node -e JSON.parse automation/state/functionality-ux-growth-state.json and docs/progress/runs/2026-05-25-0708-student-send-for-review-actions.json",
+      "node -e JSON.parse automation/state/functionality-ux-growth-state.json and docs/progress/runs/2026-05-25-0738-student-requirement-detail-disclosure.json",
       "npm run check:route-inventory",
       "npm run test",
       "npm run typecheck",
@@ -456,7 +464,7 @@
       "npm run check",
       "git diff --check"
     ],
-    "notes": "Full required validation passed for the student requirement send-for-review action slice. git diff --check reported CRLF normalization warnings only. The new UI calls the existing scoped submit endpoint and does not broaden auth, RBAC, tenant, site, program, mentor assignment, or student privacy boundaries. No remote seed/reset/migration, live data write, deploy, credential repair, domain/OAuth, or Cloudflare config change was run."
+    "notes": "Full required validation passed for the student requirement detail disclosure slice. git diff --check reported CRLF normalization warnings only. The new UI renders already scoped student dashboard data in-page and does not broaden auth, RBAC, tenant, site, program, mentor assignment, or student privacy boundaries. No remote seed/reset/migration, live data write, deploy, credential repair, domain/OAuth, or Cloudflare config change was run."
   },
   "lastProductReadinessScorecardSummary": {
     "homepageClarity": "4 to 4",
