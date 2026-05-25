@@ -2159,6 +2159,18 @@ test("workspace renders a progress-first student homepage with safe language", a
             lastUpdatedAt: null,
             nextAction: "Start Mentor Meeting One Plan when your teacher is ready for this step.",
           },
+          {
+            requirementId: "req-reflection",
+            title: "Final Reflection",
+            phase: "portfolio",
+            phaseLabel: "Portfolio",
+            status: "approved",
+            progressStatus: "approved",
+            submissionStatus: "approved",
+            submissionVersion: 1,
+            lastUpdatedAt: "2026-05-23T18:00:00.000Z",
+            nextAction: "You are done with Final Reflection.",
+          },
         ],
         progress: [
           { requirement_id: "req-proposal", phase: "proposal-and-research", status: "revision_requested", updated_at: "2026-05-24T18:00:00.000Z", requirement_title: "Senior Project Proposal" },
@@ -2230,8 +2242,17 @@ test("workspace renders a progress-first student homepage with safe language", a
   assert.match(student, /Your action/);
   assert.match(student, /What to Work On Next/);
   assert.match(student, /data-student-requirements-panel="true"/);
-  assert.match(student, /data-student-requirements-count="2"/);
+  assert.match(student, /data-student-requirements-count="3"/);
   assert.match(student, /Your Required Work/);
+  assert.equal((student.match(/data-student-requirement-phase="true"/g) || []).length, 3);
+  assert.match(student, /data-student-requirement-phase-key="proposal-and-research"/);
+  assert.match(student, /data-student-requirement-phase-key="mentor-meetings"/);
+  assert.match(student, /data-student-requirement-phase-key="portfolio"/);
+  assert.match(student, /Proposal And Research/);
+  assert.match(student, /Mentor Meetings/);
+  assert.match(student, /Portfolio/);
+  assert.match(student, /0 of 1 complete \/ 1 still need work/);
+  assert.match(student, /1 of 1 complete/);
   assert.match(student, /data-student-requirement-row="true"/);
   assert.match(student, /Revise Senior Project Proposal and send it back for review/);
   assert.match(student, /Version 2/);

@@ -1408,3 +1408,59 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: no dedicated student requirement detail route or write policy; missing/evidence drill-down still lacks exact scoped route mapping; browser QA still needs credentialed runtime.
   - Do not repeat: do not rebuild the checklist unless a regression removes the route payload or UI panel.
   - First file to inspect next run: `workspace.js` `renderStudentRequirementPanel()` and `functions/api/student/dashboard.ts` `buildStudentRequirementDetails()`
+
+## Run 2026-05-25 05:35 PT
+
+- Starting SHA: `c5855e238f7307d0a0b70b5a9c6480606ebfa6a6`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Branch policy: work stayed on clean local `main`; local `main` was nineteen commits ahead of `origin/main`, `origin/main` was not ahead, and no push was run
+- Ladder level targeted: `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN`
+- Backlog item: `student-phase-progress-panel`; supports the student workspace/proposal progress row in `docs/mvp-requirements-catalog.md`
+- Work order selected: Group the student `Your Required Work` checklist by senior project phase using the existing `/api/student/dashboard` requirement data.
+- Selection reason: The previous handoff named phase grouping after the checklist was added. Current source showed each requirement already had `phase` and `phaseLabel`, but `renderStudentRequirementPanel()` rendered a flat list. The selected slice adds useful student scanning depth without a new route, fake requirement page, mutation path, or access expansion.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Student requirement phase grouping | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 5 | 5 | 5 | XS | 59 | selected |
+| Student guided requirement form | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 5 | 3 | 4 | M | 45 | deferred: needs write-path design |
+| Student requirement detail page | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 5 | 3 | 4 | M | 44 | deferred: no dedicated student-safe route yet |
+| Phase-specific student progress pages | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 4 | 4 | 4 | M | 44 | deferred: grouped checklist is the safer first slice |
+| Student detail visible-note labels | `LEVEL_7_AUDITABILITY_AND_TRUST` | staff, student | 4 | 5 | 4 | S | 45 | rejected: less aligned to the current handoff |
+| Operations empty-state wording | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | staff, viewer | 3 | 5 | 4 | XS | 43 | rejected: copy-only while student drill-down was ready |
+| Assignment form unavailable copy cleanup | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | site admin | 3 | 5 | 4 | XS | 43 | rejected: lower current student workflow value |
+| Viewer read-only homepage clarity | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | viewer | 3 | 5 | 4 | XS | 42 | rejected: read-only controls are already guarded |
+| Student Directory mentor filter labels | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | staff | 4 | 3 | 4 | M | 42 | deferred: needs safe API-provided mentor labels |
+| Public app-preview language cleanup | `LEVEL_0_PROTOTYPE_CLEANUP` | public | 3 | 5 | 4 | S | 40 | rejected: protected student workflow had higher value |
+| Credentialed browser QA for worklist URLs | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all | 4 | 4 | 3 | M | 39 | blocked: needs credentialed local or hosted runtime |
+| Missing/evidence drill-down mapping | `LEVEL_1_NAVIGABLE_DASHBOARDS` | staff | 5 | 2 | 3 | M | 38 | deferred: exact scoped route/filter mapping remains unproven |
+| Site Admin mentor POST default alignment | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | site admin | 4 | 2 | 4 | M | 37 | deferred: mutation policy risk is too high |
+| Program teacher missing-submission queue | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | program teacher | 4 | 3 | 3 | M | 37 | deferred: needs scoped route mapping |
+| Student feedback compare/filter controls | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 3 | 4 | 3 | M | 36 | deferred: current timeline is already usable |
+| Student due-date timeline | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 4 | 3 | 3 | M | 35 | deferred: deadline source mapping remains unclear |
+| Org-admin tenant rollup | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | org admin | 4 | 2 | 2 | L | 30 | blocked: needs backend aggregate/RBAC design |
+
+- User-facing improvement: Students now see their required work grouped by phase with a simple per-phase complete/remaining count before the individual requirement rows.
+- Roles affected: `student`; staff, mentor, admin, tenant, site, program, and assignment access behavior was not changed.
+- Files changed: `workspace.js`, `workspace.css`, `tests/workspace-app.test.mjs`, `docs/student-progress-dashboard.md`, `docs/mvp-requirements-catalog.md`, `docs/functionality-language-audit.md`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`, `docs/progress/run-log.md`
+- Tests/verifiers added or updated: workspace render test now guards phase groups, phase keys, grouped phase labels, incomplete/complete phase counts, and existing requirement rows.
+- Validation commands:
+  - Focused: `node --test tests/workspace-app.test.mjs`; `npm run verify:functionality-language`; `npm run verify:dashboard-actions`; `npm run verify:workspace-navigation`
+  - Final planned: `npm run verify:dashboard-actions`; `npm run verify:review-queue-deeplinks`; `npm run verify:workspace-navigation`; `npm run verify:functionality-language`; `npm run verify:functionality-ux-automation`; `node --test tests/workspace-app.test.mjs`; `node --test tests/functionality-language-audit.test.mjs`; JSON parse for `automation/state/functionality-ux-growth-state.json`; `npm run check:route-inventory`; `npm run test`; `npm run typecheck`; `npm run check:production-surfaces`; `npm run check`; `git diff --check`; `git status --short`
+- Validation result: passed; `git diff --check` reported CRLF normalization warnings only
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: guided requirement form/detail page; deeper phase-specific pages; missing/evidence drill-down mapping; credentialed browser QA
+- New backlog items: none
+- Next recommended work order: add a guided student-safe requirement detail/form only if it uses persisted requirement/progress records and existing authorized submission/evidence endpoints, or prove exact missing/evidence drill-down mapping before exposing a staff control.
+- Do-not-repeat notes: do not re-add student requirement phase grouping; extend only with a real requirement detail/form, due-date source, or deeper phase page backed by existing route data.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN`
+  - Advanced: yes
+  - Evidence: `workspace.js` now renders `data-student-requirement-phase="true"` groups from each requirement's existing `phase` and `phaseLabel`, with per-phase complete/remaining counts; focused workspace tests cover the grouped checklist.
+  - Unlocks: students can scan the whole project by phase before opening a future guided requirement detail/form.
+  - Next: add a guided student-safe requirement detail/form using persisted records and existing authorized submission/evidence endpoints, or prove the missing/evidence drill-down mapping.
+  - Blockers: no dedicated student requirement detail route or write policy; due-date source mapping remains unclear; missing/evidence drill-down still lacks exact scoped route mapping; browser QA still needs credentialed runtime.
+  - Do not repeat: do not rebuild the phase grouping unless a regression removes the grouped checklist.
+  - First file to inspect next run: `workspace.js` `renderStudentRequirementPanel()` and `functions/api/student/dashboard.ts` `buildStudentRequirementDetails()`

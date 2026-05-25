@@ -3381,17 +3381,18 @@ function renderStudentNextStepRow(item) {
 
 function renderStudentRequirementPanel(requirements = [], summary = {}) {
   const rows = Array.isArray(requirements) ? requirements : [];
+  const phaseGroups = groupStudentRequirementsByPhase(rows);
   return `
     <section class="workspace-dashboard-card workspace-student-requirements-panel" data-student-requirements-panel="true" data-student-requirements-count="${escapeHtml(rows.length)}" aria-labelledby="studentRequirementChecklistTitle">
       <div class="workspace-card-head">
         <div>
           <p class="workspace-kicker">Requirement checklist</p>
           <h2 id="studentRequirementChecklistTitle">Your Required Work</h2>
-          <p>${escapeHtml(rows.length ? "Review each project requirement and the next step for that item." : "Required work will appear after your teacher adds project requirements.")}</p>
+          <p>${escapeHtml(rows.length ? "Review each project phase, requirement, and next step." : "Required work will appear after your teacher adds project requirements.")}</p>
         </div>
       </div>
       <div class="workspace-list">
-        ${rows.length ? rows.map(renderStudentRequirementRow).join("") : `
+        ${phaseGroups.length ? phaseGroups.map(renderStudentRequirementPhaseGroup).join("") : `
           <article class="workspace-empty-state-card" data-student-requirements-empty="true">
             <strong>No project requirements yet.</strong>
             <p>${escapeHtml(summary.waitingForReviewCount ? "Check back after your teacher updates your project requirements." : "Ask your program teacher when your project requirements will be ready.")}</p>
@@ -3400,6 +3401,51 @@ function renderStudentRequirementPanel(requirements = [], summary = {}) {
       </div>
     </section>
   `;
+}
+
+function groupStudentRequirementsByPhase(rows) {
+  const groups = [];
+  const byPhase = new Map();
+  for (const row of rows) {
+    const key = String(row?.phase || row?.phaseLabel || "unassigned");
+    if (!byPhase.has(key)) {
+      const group = {
+        key,
+        label: row?.phaseLabel || (row?.phase ? statusText(row.phase) : "Other required work"),
+        rows: [],
+      };
+      byPhase.set(key, group);
+      groups.push(group);
+    }
+    byPhase.get(key).rows.push(row);
+  }
+  return groups;
+}
+
+function renderStudentRequirementPhaseGroup(group) {
+  const rows = Array.isArray(group?.rows) ? group.rows : [];
+  const completeCount = rows.filter((row) => isStudentRequirementComplete(row?.status)).length;
+  const remainingCount = Math.max(0, rows.length - completeCount);
+  const phaseSummary = rows.length
+    ? `${completeCount} of ${rows.length} complete${remainingCount ? ` / ${remainingCount} still need work` : ""}`
+    : "No requirements in this phase yet.";
+  return `
+    <section class="workspace-student-requirement-phase" data-student-requirement-phase="true" data-student-requirement-phase-key="${escapeHtml(group?.key || "unassigned")}" data-student-requirement-phase-total="${escapeHtml(rows.length)}" data-student-requirement-phase-complete="${escapeHtml(completeCount)}">
+      <div class="workspace-student-requirement-phase-head">
+        <div>
+          <h3>${escapeHtml(group?.label || "Other required work")}</h3>
+          <p class="workspace-muted">${escapeHtml(phaseSummary)}</p>
+        </div>
+      </div>
+      <div class="workspace-list">
+        ${rows.map(renderStudentRequirementRow).join("")}
+      </div>
+    </section>
+  `;
+}
+
+function isStudentRequirementComplete(status) {
+  return ["approved", "archived", "complete", "completed"].includes(normalizeStatus(status));
 }
 
 function renderStudentRequirementRow(item) {

@@ -1806,3 +1806,14 @@ Future productive runs should append compact entries that name the master-plan s
 - `changes`: `/api/student/dashboard` now returns a bounded `requirements` checklist with title, phase, status, submitted version, last update, and next action. `workspace.js` renders that checklist on the student home without a new route, fake page, URL state, or mutation control. Focused route/UI tests guard the payload and rendered panel.
 - `validation`: focused student-dashboard/workspace tests and functionality-language verifier passed. Final validation passed: dashboard/review/workspace/language/automation verifiers, focused route/UI/audit tests, JSON state parse, route inventory, full `npm run test`, `npm run typecheck`, `npm run check:production-surfaces`, aggregate `npm run check`, and `git diff --check` with CRLF normalization warnings only. The local Codex GUI automation rrule was corrected to the documented HH:00/HH:30 cadence before the automation verifier passed.
 - `commit/push status`: pending closeout commit.
+
+## 2026-05-25 PT - Functionality UX Upgrade Student Phase Checklist
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 6 student progress drill-down / requirement phase grouping.
+- `starting HEAD`: `c5855e238f7307d0a0b70b5a9c6480606ebfa6a6`.
+- `selected slice`: Group the student `Your Required Work` checklist by senior project phase using the existing student-scoped requirement payload.
+- `repo-grounded findings`: the previous handoff named phase grouping. Current source already returned `phase` and `phaseLabel` for each `/api/student/dashboard` requirement, but `renderStudentRequirementPanel()` rendered a flat list.
+- `changes`: `workspace.js` now groups requirement rows by phase and renders per-phase complete/remaining counts; `workspace.css` adds unframed phase spacing; `tests/workspace-app.test.mjs` guards phase keys, labels, and complete/incomplete counts.
+- `validation`: focused workspace test plus functionality-language, dashboard-action, and workspace-navigation verifiers passed before final validation; final validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit.

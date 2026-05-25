@@ -716,6 +716,29 @@
   grid-template-columns: minmax(0, 1fr) auto;
 }
 
+.workspace-student-requirement-phase {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.workspace-student-requirement-phase + .workspace-student-requirement-phase {
+  border-top: 1px solid var(--border-soft);
+  padding-top: 0.8rem;
+}
+
+.workspace-student-requirement-phase-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.workspace-student-requirement-phase-head h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
 .workspace-student-feedback-timeline {
   grid-column: 1 / -1;
   display: grid;
