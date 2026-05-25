@@ -1,7 +1,7 @@
 {
   "run_id": "2026-05-21-0233-workspace-route-inventory-mvp-032",
   "timestamp_local": "2026-05-21T02:33:00-07:00",
-  "automation_id": "senior-capstone-nonfigma-mvp-builder-30",
+  "automation_id": "functionality-ux-upgrade-hourly",
   "lane": "non-figma MVP builder",
   "selected_category": "deployment-qa",
   "status": "completed",
@@ -21,7 +21,7 @@
   "output_kind": "route-inventory-production-surface-hardening",
   "bounded_scope": "Align generated production route inventory with the canonical protected workspace route after the inventory still classified workspace.html as unknown.",
   "source_docs_read": [
-    "C:\\Users\\bryan\\.codex\\automations\\senior-capstone-nonfigma-mvp-builder-30\\memory.md",
+    "C:\\Users\\bryan\\.codex\\automations\\functionality-ux-upgrade-hourly\\memory.md",
     "docs/master-plan.md",
     "docs/mvp-requirements-catalog.md",
     "docs/automation-cadence.md",

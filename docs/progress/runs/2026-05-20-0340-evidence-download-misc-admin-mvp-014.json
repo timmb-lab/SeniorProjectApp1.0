@@ -1,7 +1,7 @@
 {
   "run_id": "2026-05-20-0340-evidence-download-misc-admin-mvp-014",
   "timestamp_local": "2026-05-20T03:40:00-07:00",
-  "automation_id": "senior-capstone-hourly-qol-orchestrator",
+  "automation_id": "functionality-ux-upgrade-hourly",
   "trigger": "30-minute MVP builder run: deepen protected evidence access tests by proving misc-admin cannot download student evidence and denied attempts are audited with role-scope metadata.",
   "lane": "backend-security-data",
   "status": "completed",

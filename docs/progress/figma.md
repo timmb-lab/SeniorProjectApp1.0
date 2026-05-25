@@ -19,11 +19,11 @@ Figma remains a product-design source for route, state, data, and permission han
 
 ## Current Automation Contract
 
-Figma work is owned by `senior-capstone-figma-product-builder-15` and `senior-capstone-figma-product-builder`, running hourly at minutes 15 and 45 PT under the repo-local quarter-hour cadence. It must stay Figma-only and produce route/data/permission handoffs, functional state variants, screenshot/metadata verification, or exact Figma blockers. The non-Figma builder may consume existing Figma evidence but must not call Figma tools.
+Figma work is owned by `functionality-ux-upgrade-hourly` and `functionality-ux-upgrade-hourly`, running hourly at minutes 15 and 45 PT under the repo-local Functionality UX Upgrade automation. It must stay Figma-only and produce route/data/permission handoffs, functional state variants, screenshot/metadata verification, or exact Figma blockers. The non-Figma builder may consume existing Figma evidence but must not call Figma tools.
 
 ## 2026-05-20 11:35 PT - MVP-028 Review History Prototype Alignment
 
-- `automation ID`: `senior-capstone-figma-product-builder`
+- `automation ID`: `functionality-ux-upgrade-hourly`
 - `selected requirement IDs`: `MVP-028`, supporting `MVP-015` and `MVP-016`
 - `selected slice`: Align and verify full MVP alpha prototype review-history annotations after rebuild added persisted comments and immutable submission versions.
 - `active file`: `z4t4tFPAKrMDh6pIYOeEw6`
@@ -36,7 +36,7 @@ Figma work is owned by `senior-capstone-figma-product-builder-15` and `senior-ca
 
 ## 2026-05-20 12:35 PT - MVP-028 Full Alpha Handoff Consumption Update
 
-- `automation ID`: `senior-capstone-figma-product-builder`
+- `automation ID`: `functionality-ux-upgrade-hourly`
 - `selected requirement IDs`: `MVP-028`, supporting `MVP-015`, `MVP-016`, `MVP-017`, and `MVP-018`
 - `selected slice`: Update and verify the full MVP alpha prototype route/implementation handoff after rebuild consumed review history in the primary alpha console.
 - `active file`: `z4t4tFPAKrMDh6pIYOeEw6`
@@ -49,7 +49,7 @@ Figma work is owned by `senior-capstone-figma-product-builder-15` and `senior-ca
 
 ## 2026-05-20 16:41 PT - MVP-028 Production App/Public Guide Boundary Handoff
 
-- `automation ID`: `senior-capstone-figma-product-builder`
+- `automation ID`: `functionality-ux-upgrade-hourly`
 - `selected requirement IDs`: `MVP-028`, supporting `MVP-031` through `MVP-040`
 - `selected slice`: Create and verify a production-boundary handoff that distinguishes public Student/Teacher guide mode from the authenticated role-aware workspace route.
 - `active file`: `z4t4tFPAKrMDh6pIYOeEw6`
@@ -62,7 +62,7 @@ Figma work is owned by `senior-capstone-figma-product-builder-15` and `senior-ca
 
 ## 2026-05-20 17:37 PT - MVP-028 Workspace Account Edge-State Handoff
 
-- `automation ID`: `senior-capstone-figma-product-builder`
+- `automation ID`: `functionality-ux-upgrade-hourly`
 - `selected requirement IDs`: `MVP-028`, supporting `MVP-004`, `MVP-032`, `MVP-033`, `MVP-034`, and `MVP-039`
 - `selected slice`: Create and verify a workspace account edge-state handoff for disabled, reset-required, no-assignment, session-expired, role-pending, and section-level permission-denied UI behavior.
 - `active file`: `z4t4tFPAKrMDh6pIYOeEw6`
@@ -75,7 +75,7 @@ Figma work is owned by `senior-capstone-figma-product-builder-15` and `senior-ca
 
 ## 2026-05-20 18:33 PT - MVP-028 Presentation Dashboard State Handoff
 
-- `automation ID`: `senior-capstone-figma-product-builder`
+- `automation ID`: `functionality-ux-upgrade-hourly`
 - `selected requirement IDs`: `MVP-028`, supporting `MVP-017`, `MVP-020`, `MVP-021`, `MVP-032`, and `MVP-033`
 - `selected slice`: Create and verify a dashboard-facing presentation state handoff after rebuild implemented presentation slot scheduling plus check-out/check-in endpoints.
 - `active file`: `z4t4tFPAKrMDh6pIYOeEw6`
@@ -88,7 +88,7 @@ Figma work is owned by `senior-capstone-figma-product-builder-15` and `senior-ca
 
 ## 2026-05-20 20:18 PT - MVP-028 Celebration Archive Readiness Handoff
 
-- `automation ID`: `senior-capstone-figma-product-builder-15`
+- `automation ID`: `functionality-ux-upgrade-hourly`
 - `selected requirement IDs`: `MVP-028`, supporting `MVP-017`, `MVP-018`, `MVP-020`, and `MVP-022`
 - `selected slice`: Create and verify a closeout/archive readiness handoff after rebuild consumed the presentation dashboard handoff in the canonical workspace.
 - `active file`: `z4t4tFPAKrMDh6pIYOeEw6`
@@ -101,7 +101,7 @@ Figma work is owned by `senior-capstone-figma-product-builder-15` and `senior-ca
 
 ## 2026-05-20 21:17 PT - MVP-028 Archive Provider And Retention Handoff
 
-- `automation ID`: `senior-capstone-figma-product-builder-15`
+- `automation ID`: `functionality-ux-upgrade-hourly`
 - `selected requirement IDs`: `MVP-028`, supporting `MVP-018`, `MVP-020`, `MVP-022`, and `MVP-027`
 - `selected slice`: Create and verify an archive provider, signed-link, remote migration, and retention-policy handoff after rebuild added scoped archive manifests.
 - `active file`: `z4t4tFPAKrMDh6pIYOeEw6`
@@ -115,7 +115,7 @@ Figma work is owned by `senior-capstone-figma-product-builder-15` and `senior-ca
 
 ## 2026-05-20 21:48 PT - MVP-028 Drive Archive Delivery Handoff
 
-- `automation ID`: `senior-capstone-figma-product-builder`
+- `automation ID`: `functionality-ux-upgrade-hourly`
 - `selected requirement IDs`: `MVP-028`, supporting `MVP-018`, `MVP-020`, `MVP-022`, `MVP-026`, and `MVP-027`
 - `selected slice`: Create and verify a Drive-backed archive delivery, signed-link, and hosted-proof handoff after rebuild partially consumed node `149:2` with provider-gated archive generation and retention state.
 - `active file`: `z4t4tFPAKrMDh6pIYOeEw6`
@@ -129,7 +129,7 @@ Figma work is owned by `senior-capstone-figma-product-builder-15` and `senior-ca
 
 ## 2026-05-20 23:19 PT - MVP-028 Drive Archive Delivery Verification
 
-- `automation ID`: `senior-capstone-figma-product-builder-15`
+- `automation ID`: `functionality-ux-upgrade-hourly`
 - `selected requirement IDs`: `MVP-028`, supporting `MVP-018`, `MVP-020`, `MVP-022`, `MVP-026`, and `MVP-027`
 - `selected slice`: Screenshot and metadata re-verification for the existing Drive archive delivery handoff after live Drive checks classified the remaining blocker as service-account root/index visibility.
 - `active file`: `z4t4tFPAKrMDh6pIYOeEw6`
@@ -143,7 +143,7 @@ Figma work is owned by `senior-capstone-figma-product-builder-15` and `senior-ca
 
 ## 2026-05-21 00:22 PT - MVP-028 Credential Lifecycle Handoff
 
-- `automation ID`: `senior-capstone-figma-product-builder-15`
+- `automation ID`: `functionality-ux-upgrade-hourly`
 - `selected requirement IDs`: `MVP-028`, supporting `MVP-004`, `MVP-005`, `MVP-020`, `MVP-032`, and `MVP-033`
 - `selected slice`: Create and verify a credential lifecycle handoff after rebuild added reset-required completion, admin reset initiation, and active-user password change.
 - `active file`: `z4t4tFPAKrMDh6pIYOeEw6`
@@ -156,7 +156,7 @@ Figma work is owned by `senior-capstone-figma-product-builder-15` and `senior-ca
 
 ## 2026-05-21 00:54 PT - MVP-028 Admin Import Temporary Credential Handoff
 
-- `automation ID`: `senior-capstone-figma-product-builder`
+- `automation ID`: `functionality-ux-upgrade-hourly`
 - `selected requirement IDs`: `MVP-028`, supporting `MVP-004`, `MVP-005`, `MVP-007`, `MVP-020`, `MVP-032`, and `MVP-033`
 - `selected slice`: Create and verify an admin import temporary credential handoff after rebuild added `/api/admin/users/import`.
 - `active file`: `z4t4tFPAKrMDh6pIYOeEw6`
@@ -169,7 +169,7 @@ Figma work is owned by `senior-capstone-figma-product-builder-15` and `senior-ca
 
 ## 2026-05-21 01:23 PT - MVP-028 Admin Import Proof QA Handoff
 
-- `automation ID`: `senior-capstone-figma-product-builder-15`
+- `automation ID`: `functionality-ux-upgrade-hourly`
 - `selected requirement IDs`: `MVP-028`, supporting `MVP-004`, `MVP-005`, `MVP-007`, `MVP-020`, `MVP-032`, and `MVP-033`
 - `selected slice`: Create and verify a follow-up proof QA handoff after rebuild added the canonical workspace admin import UI and hosted source-marker proof.
 - `active file`: `z4t4tFPAKrMDh6pIYOeEw6`
@@ -182,7 +182,7 @@ Figma work is owned by `senior-capstone-figma-product-builder-15` and `senior-ca
 
 ## 2026-05-21 01:49 PT - MVP-028 Admin Import API Proof Consumption Update
 
-- `automation ID`: `senior-capstone-figma-product-builder`
+- `automation ID`: `functionality-ux-upgrade-hourly`
 - `selected requirement IDs`: `MVP-028`, supporting `MVP-004`, `MVP-005`, `MVP-007`, `MVP-020`, `MVP-032`, and `MVP-033`
 - `selected slice`: Update and verify the existing admin import proof QA handoff after non-Figma reset-first API proof landed.
 - `active file`: `z4t4tFPAKrMDh6pIYOeEw6`
@@ -195,7 +195,7 @@ Figma work is owned by `senior-capstone-figma-product-builder-15` and `senior-ca
 
 ## 2026-05-21 02:50 PT - MVP-028 Production Route Inventory Consumption Update
 
-- `automation ID`: `senior-capstone-figma-product-builder`
+- `automation ID`: `functionality-ux-upgrade-hourly`
 - `selected requirement IDs`: `MVP-028`, supporting `MVP-031`, `MVP-032`, `MVP-033`, `MVP-034`, and `MVP-039`
 - `selected slice`: Update and verify the existing production-boundary Figma handoff after non-Figma route inventory classified `workspace.html` as the canonical protected production app route.
 - `active file`: `z4t4tFPAKrMDh6pIYOeEw6`
@@ -208,7 +208,7 @@ Figma work is owned by `senior-capstone-figma-product-builder-15` and `senior-ca
 
 ## 2026-05-21 03:24 PT - MVP-028 Student Dashboard Access Audit Handoff
 
-- `automation ID`: `senior-capstone-figma-product-builder-15`
+- `automation ID`: `functionality-ux-upgrade-hourly`
 - `selected requirement IDs`: `MVP-028`, supporting `MVP-006`, `MVP-011`, `MVP-014`, `MVP-020`, and `MVP-025`
 - `selected slice`: Create and verify a student dashboard protected-access audit handoff after rebuild added `/api/student/dashboard` unauthorized, denied, and allowed audit proof.
 - `active file`: `z4t4tFPAKrMDh6pIYOeEw6`
@@ -221,7 +221,7 @@ Figma work is owned by `senior-capstone-figma-product-builder-15` and `senior-ca
 
 ## 2026-05-21 03:52 PT - MVP-028 Teacher Review Queue Access Audit Handoff
 
-- `automation ID`: `senior-capstone-figma-product-builder`
+- `automation ID`: `functionality-ux-upgrade-hourly`
 - `selected requirement IDs`: `MVP-028`, supporting `MVP-006`, `MVP-015`, `MVP-020`, and `MVP-025`
 - `selected slice`: Create and verify a teacher review queue access audit handoff after rebuild added `/api/teacher/review-queue` unauthorized, denied, viewed, and empty-scope no-leak proof.
 - `active file`: `z4t4tFPAKrMDh6pIYOeEw6`
@@ -234,7 +234,7 @@ Figma work is owned by `senior-capstone-figma-product-builder-15` and `senior-ca
 
 ## 2026-05-21 04:22 PT - MVP-028 Review History And Decision Access Audit Handoff
 
-- `automation ID`: `senior-capstone-figma-product-builder-15`
+- `automation ID`: `functionality-ux-upgrade-hourly`
 - `selected requirement IDs`: `MVP-028`, supporting `MVP-006`, `MVP-015`, `MVP-016`, `MVP-020`, and `MVP-025`
 - `selected slice`: Create and verify a review history and review decision access audit handoff after rebuild added `/api/reviews/:submissionId/history` unauthorized/denied/viewed audits and `/api/reviews/:submissionId/decision` unauthorized/denied reviewer audits.
 - `active file`: `z4t4tFPAKrMDh6pIYOeEw6`
@@ -247,7 +247,7 @@ Figma work is owned by `senior-capstone-figma-product-builder-15` and `senior-ca
 
 ## 2026-05-21 04:54 PT - MVP-028 Evidence Link Access Audit Handoff
 
-- `automation ID`: `senior-capstone-figma-product-builder`
+- `automation ID`: `functionality-ux-upgrade-hourly`
 - `selected requirement IDs`: `MVP-028`, supporting `MVP-006`, `MVP-013`, `MVP-014`, `MVP-020`, and `MVP-025`
 - `selected slice`: Create and verify an evidence-link access audit handoff after rebuild added `/api/submissions/:id/evidence` missing-session, denied, and success audit proof.
 - `active file`: `z4t4tFPAKrMDh6pIYOeEw6`
@@ -260,7 +260,7 @@ Figma work is owned by `senior-capstone-figma-product-builder-15` and `senior-ca
 
 ## 2026-05-21 05:30 PT - MVP-028 Submission Submit Access Audit Handoff
 
-- `automation ID`: `senior-capstone-figma-product-builder-15`
+- `automation ID`: `functionality-ux-upgrade-hourly`
 - `selected requirement IDs`: `MVP-028`, supporting `MVP-006`, `MVP-010`, `MVP-012`, `MVP-020`, and `MVP-025`
 - `selected slice`: Create and verify a submission-submit access audit handoff after rebuild added `/api/submissions/:id/submit` missing-session, denied, missing-evidence blocked, and successful submit audit proof.
 - `active file`: `z4t4tFPAKrMDh6pIYOeEw6`
@@ -273,7 +273,7 @@ Figma work is owned by `senior-capstone-figma-product-builder-15` and `senior-ca
 
 ## 2026-05-21 05:54 PT - MVP-028 Submission Detail Access Audit Handoff
 
-- `automation ID`: `senior-capstone-figma-product-builder`
+- `automation ID`: `functionality-ux-upgrade-hourly`
 - `selected requirement IDs`: `MVP-028`, supporting `MVP-006`, `MVP-010`, `MVP-012`, `MVP-014`, `MVP-020`, and `MVP-025`
 - `selected slice`: Create and verify a submission-detail access audit handoff after rebuild added `GET /api/submissions/:id` missing-session, denied, scoped readback, actor-role-scope, and no-storage-identifier proof.
 - `active file`: `z4t4tFPAKrMDh6pIYOeEw6`
@@ -286,7 +286,7 @@ Figma work is owned by `senior-capstone-figma-product-builder-15` and `senior-ca
 
 ## 2026-05-21 06:16 PT - MVP-028 Protected Record Audit Acceptance Board
 
-- `automation ID`: `senior-capstone-figma-product-builder-15`
+- `automation ID`: `functionality-ux-upgrade-hourly`
 - `selected requirement IDs`: `MVP-028`, supporting `MVP-006`, `MVP-010`, `MVP-012`, `MVP-013`, `MVP-014`, `MVP-015`, `MVP-016`, `MVP-020`, `MVP-025`, `MVP-032`, and `MVP-033`
 - `selected slice`: Create and verify a protected-record acceptance board after the latest submission-detail handoff, because no newer non-Figma implementation proof existed to consume.
 - `active file`: `z4t4tFPAKrMDh6pIYOeEw6`

@@ -1,7 +1,7 @@
 {
   "run_id": "2026-05-20-1833-figma-presentation-dashboard-state-handoff",
   "timestamp_local": "2026-05-20T18:33:46-07:00",
-  "automation_id": "senior-capstone-figma-product-builder",
+  "automation_id": "functionality-ux-upgrade-hourly",
   "lane": "figma-only product builder",
   "status": "completed",
   "accepted_mvp_pass": true,
@@ -184,14 +184,14 @@
       "summary": "Whitespace check passed with line-ending warnings only."
     },
     {
-      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\verify-cadence-30min.ps1 -RepoRoot .",
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\verify:functionality-ux-automation -RepoRoot .",
       "result": "passed",
-      "summary": "Split cadence verifier passed with the two expected builder automations and oversight lanes."
+      "summary": "Functionality UX automation verifier passed."
     },
     {
       "command": "Google Sheets connector append and row search",
       "result": "passed",
-      "summary": "Appended and read back QoL Runs row 31 for the MVP-028 presentation dashboard state handoff."
+      "summary": "Appended and read back Automation Runs row 31 for the MVP-028 presentation dashboard state handoff."
     }
   ],
   "backend_code_work_avoided": true,
@@ -204,7 +204,7 @@
   "self_improvement": "none",
   "phone_tracker": {
     "spreadsheet_id": "1J8jQMn85wJwo9Rh6LjQUVv_WfLS1YJWsbpcLBCojjjs",
-    "tab": "QoL Runs",
+    "tab": "Automation Runs",
     "result": "appended",
     "row": 31,
     "timestamp_local": "2026-05-20T18:33:00-07:00",

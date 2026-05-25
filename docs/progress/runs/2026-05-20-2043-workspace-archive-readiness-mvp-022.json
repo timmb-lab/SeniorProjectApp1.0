@@ -1,7 +1,7 @@
 {
   "run_id": "2026-05-20-2043-workspace-archive-readiness-mvp-022",
   "timestamp_local": "2026-05-20T20:43:00-07:00",
-  "automation_id": "senior-capstone-nonfigma-mvp-builder-30",
+  "automation_id": "functionality-ux-upgrade-hourly",
   "lane": "non-figma MVP builder",
   "selected_category": "admin-ops-reporting",
   "status": "completed",

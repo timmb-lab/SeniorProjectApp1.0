@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import { readFile, readdir, stat } from "node:fs/promises";
 import test from "node:test";
@@ -30,6 +31,17 @@ async function listFilesRecursive(dir) {
     }
   }
   return files;
+}
+
+function listTrackedTextFiles() {
+  const output = execFileSync("git", ["ls-files"], { encoding: "utf8" });
+  return output
+    .split(/\r?\n/)
+    .filter(Boolean)
+    .filter((file) => existsSync(file))
+    .filter((file) =>
+      /\.(css|html|js|json|jsonc|md|mjs|ps1|sql|toml|ts|txt|ya?ml)$/i.test(file),
+    );
 }
 
 function assertConcepts(text, concepts) {
@@ -65,7 +77,8 @@ test("functionality UX upgrade is the only active automation contract", async ()
   const retiredVerifierPrefix = ["verify", "cadence"].join("-");
   assert.ok(!scriptFiles.some((name) => name.toLowerCase().startsWith(retiredVerifierPrefix)));
   const automationFiles = await listFilesRecursive("automation");
-  assert.ok(!automationFiles.some((name) => name.split(/[\\/]/).includes("qol")));
+  const retiredSegment = ["qo", "l"].join("");
+  assert.ok(!automationFiles.some((name) => name.split(/[\\/]/).includes(retiredSegment)));
 
   const activeDocs = [
     "docs/automation.md",
@@ -78,6 +91,46 @@ test("functionality UX upgrade is the only active automation contract", async ()
     const text = await readFile(file, "utf8");
     assert.match(text, /Functionality UX Upgrade/);
     assert.match(text, /functionality-ux-upgrade-hourly/);
+  }
+
+  const retiredAutomationTokens = [
+    ["senior-capstone-", "nonfigma-mvp-builder"],
+    ["senior-capstone-", "figma-product-builder"],
+    ["senior-capstone-", "daily-mvp-summary"],
+    ["senior-capstone-", "weekly-script-audit"],
+    ["senior-capstone-", "hourly-", retiredSegment],
+    ["automation/", retiredSegment],
+    ["verify-", "cadence"],
+    ["check:", "automation"],
+    ["verify:", retiredSegment],
+    [retiredSegment, ":"],
+    ["quarter", "-hour"],
+    ["quarter", "_hour"],
+    ["quarter", "Hour"],
+    ["split", "-builder"],
+    ["split", " builder"],
+    ["BYMINUTE=", "15"],
+    ["BYMINUTE=", "30"],
+    ["BYMINUTE=", "45"],
+    ["expected", "BuilderCadences"],
+    ["expected", "BuilderAutomationIds"],
+  ].map((parts) => parts.join(""));
+
+  for (const file of listTrackedTextFiles()) {
+    for (const token of retiredAutomationTokens) {
+      assert.ok(
+        !file.includes(token),
+        `Retired automation reference "${token}" must stay out of tracked file paths: ${file}`,
+      );
+    }
+
+    const text = await readFile(file, "utf8");
+    for (const token of retiredAutomationTokens) {
+      assert.ok(
+        !text.includes(token),
+        `Retired automation reference "${token}" must stay out of tracked text: ${file}`,
+      );
+    }
   }
 });
 

@@ -1,7 +1,7 @@
 {
   "run_id": "2026-05-20-2018-figma-celebration-archive-readiness",
   "timestamp_local": "2026-05-20T20:18:05-07:00",
-  "automation_id": "senior-capstone-figma-product-builder-15",
+  "automation_id": "functionality-ux-upgrade-hourly",
   "lane": "figma-only product builder",
   "status": "completed",
   "accepted_mvp_pass": true,
@@ -203,9 +203,9 @@
       "summary": "Whitespace check passed with line-ending warnings only."
     },
     {
-      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\verify-cadence-30min.ps1 -RepoRoot .",
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\verify:functionality-ux-automation -RepoRoot .",
       "result": "passed",
-      "summary": "Quarter-hour cadence verifier passed."
+      "summary": "Functionality UX Upgrade automation verifier passed."
     }
   ],
   "backend_code_work_avoided": true,

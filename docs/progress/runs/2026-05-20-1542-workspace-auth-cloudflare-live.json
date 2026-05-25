@@ -207,12 +207,12 @@
       "summary": "Aggregate check passed with 130 passing tests and 3 expected opt-in workspace smoke skips."
     },
     {
-      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 automation\\qol\\doctor.mjs",
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 automation\\automation\\functionality-ux-upgrade-hourly.md",
       "result": "pass",
       "summary": "Doctor passed; dirty worktree was the current in-progress run."
     },
     {
-      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 automation\\qol\\hourly-orchestrator.mjs --smoke",
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 automation\\automation\\functionality-ux-upgrade-hourly.md --smoke",
       "result": "pass",
       "summary": "14 smoke checks passed."
     }

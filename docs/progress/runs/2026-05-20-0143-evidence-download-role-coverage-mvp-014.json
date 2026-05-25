@@ -1,7 +1,7 @@
 {
   "run_id": "2026-05-20-0143-evidence-download-role-coverage-mvp-014",
   "timestamp_local": "2026-05-20T01:43:00-07:00",
-  "automation_id": "senior-capstone-hourly-qol-orchestrator",
+  "automation_id": "functionality-ux-upgrade-hourly",
   "trigger": "30-minute MVP builder run: extend /api/evidence/:id/download integration tests to cover mentor/program-teacher/admin allow paths with audit role-scope assertions.",
   "lane": "backend-security-data",
   "status": "completed",
@@ -32,7 +32,7 @@
     "docs/progress/decision-log.md",
     "docs/artifacts.json",
     "docs/human-decisions.md",
-    "automation/qol/reports/latest.md",
+    "automation/state/functionality-ux-growth-state.json",
     "functions/api/evidence/[id]/download.ts",
     "functions/_lib/permissions.ts",
     "scripts/resolve-node.ps1",

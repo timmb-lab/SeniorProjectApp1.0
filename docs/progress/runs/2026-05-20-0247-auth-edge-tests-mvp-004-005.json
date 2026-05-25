@@ -1,7 +1,7 @@
 {
   "run_id": "2026-05-20-0247-auth-edge-tests-mvp-004-005",
   "timestamp_local": "2026-05-20T02:47:00-07:00",
-  "automation_id": "senior-capstone-hourly-qol-orchestrator",
+  "automation_id": "functionality-ux-upgrade-hourly",
   "trigger": "30-minute MVP builder run: add D1-backed integration coverage for auth edge states (disabled/reset-required/session expiry) and align auth routes with the Node integration harness.",
   "lane": "backend-security-data",
   "status": "completed",

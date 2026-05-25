@@ -1,7 +1,7 @@
 {
   "run_id": "2026-05-21-0336-teacher-review-queue-scope-audit-mvp-015",
   "timestamp_local": "2026-05-21T03:36:00-07:00",
-  "automation_id": "senior-capstone-nonfigma-mvp-builder-30",
+  "automation_id": "functionality-ux-upgrade-hourly",
   "lane": "non-figma MVP builder",
   "selected_category": "staff-review-mentor",
   "status": "completed",
@@ -23,7 +23,7 @@
   "output_kind": "teacher-review-queue-scope-audit-and-regression-test",
   "bounded_scope": "Harden /api/teacher/review-queue access auditing and default-deny scoped program-teacher visibility without direct Figma work.",
   "source_docs_read": [
-    "C:\\Users\\bryan\\.codex\\automations\\senior-capstone-nonfigma-mvp-builder-30\\memory.md",
+    "C:\\Users\\bryan\\.codex\\automations\\functionality-ux-upgrade-hourly\\memory.md",
     "docs/master-plan.md",
     "docs/mvp-requirements-catalog.md",
     "docs/automation-cadence.md",

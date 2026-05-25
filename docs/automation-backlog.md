@@ -1,6 +1,6 @@
 # Automation Backlog
 
-This file tracks unresolved cross-category issues for the Senior Capstone rebuild. Ordinary backlog hygiene is owned by the split builders in their lanes, while the weekly strategy review may reprioritize backlog items from seven-day evidence.
+This file tracks unresolved cross-category issues for the Senior Capstone rebuild. Ordinary backlog hygiene is owned by the Functionality UX Upgrades in their lanes, while the weekly strategy review may reprioritize backlog items from seven-day evidence.
 
 Active automation ownership is tracked in `docs/automation-cadence.md`. The `owner` values in backlog items remain functional product groupings; they are not separate project automations.
 

@@ -1,7 +1,7 @@
 {
   "run_id": "2026-05-21-0306-student-dashboard-access-audit-mvp-006",
   "timestamp_local": "2026-05-21T03:06:00-07:00",
-  "automation_id": "senior-capstone-nonfigma-mvp-builder",
+  "automation_id": "functionality-ux-upgrade-hourly",
   "lane": "non-figma MVP builder",
   "selected_category": "backend-security-data",
   "status": "completed",
@@ -23,7 +23,7 @@
   "output_kind": "protected-dashboard-access-audit-and-role-scope-tests",
   "bounded_scope": "Broaden protected-record permission evidence by auditing /api/student/dashboard access and adding deterministic route-level student, mentor, teacher, admin, and misc-admin tests.",
   "source_docs_read": [
-    "C:\\Users\\bryan\\.codex\\automations\\senior-capstone-nonfigma-mvp-builder\\memory.md",
+    "C:\\Users\\bryan\\.codex\\automations\\functionality-ux-upgrade-hourly\\memory.md",
     "docs/master-plan.md",
     "docs/mvp-requirements-catalog.md",
     "docs/automation-cadence.md",

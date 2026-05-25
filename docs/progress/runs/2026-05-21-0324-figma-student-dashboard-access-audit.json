@@ -1,7 +1,7 @@
 {
   "run_id": "2026-05-21-0324-figma-student-dashboard-access-audit",
   "timestamp_local": "2026-05-21T03:24:00-07:00",
-  "automation_id": "senior-capstone-figma-product-builder-15",
+  "automation_id": "functionality-ux-upgrade-hourly",
   "lane": "figma-only product builder",
   "status": "completed",
   "accepted_mvp_pass": true,
@@ -109,7 +109,7 @@
     ]
   },
   "source_docs_read": [
-    "C:\\Users\\bryan\\.codex\\automations\\senior-capstone-figma-product-builder-15\\memory.md",
+    "C:\\Users\\bryan\\.codex\\automations\\functionality-ux-upgrade-hourly\\memory.md",
     "docs/design/figma-first-pass-product-system.md",
     "docs/design/figma-product-preview-state-variants.md",
     "docs/master-plan.md",
@@ -157,8 +157,8 @@
       "result": "passed; JSON parsed"
     },
     {
-      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\verify-cadence-30min.ps1 -RepoRoot .",
-      "result": "passed; quarter-hour cadence verification passed"
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\verify:functionality-ux-automation -RepoRoot .",
+      "result": "passed; Functionality UX Upgrade automation verification passed"
     },
     {
       "command": "git diff --check -- current-run files",

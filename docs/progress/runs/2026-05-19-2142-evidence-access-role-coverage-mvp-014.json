@@ -1,7 +1,7 @@
 {
   "run_id": "2026-05-19-2142-evidence-access-role-coverage-mvp-014",
   "timestamp_local": "2026-05-19T21:42:00-07:00",
-  "automation_id": "senior-capstone-hourly-qol-orchestrator",
+  "automation_id": "functionality-ux-upgrade-hourly",
   "trigger": "30-minute MVP builder run: extend /api/evidence/:id/check-access integration coverage to include mentor, program teacher, and admin allow paths with audit assertions.",
   "lane": "backend-security-data",
   "status": "completed",
@@ -27,7 +27,7 @@
     "docs/progress/decision-log.md",
     "docs/human-decisions.md",
     "docs/artifacts.json",
-    "automation/qol/reports/latest.md",
+    "automation/state/functionality-ux-growth-state.json",
     "docs/progress/runs/2026-05-19-2119-evidence-access-route-tests-mvp-014.json",
     "tests/evidence-check-access.integration.test.mjs",
     "functions/api/evidence/[id]/check-access.ts",

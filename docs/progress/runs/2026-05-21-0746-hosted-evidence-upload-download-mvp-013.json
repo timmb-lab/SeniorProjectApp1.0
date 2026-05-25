@@ -1,7 +1,7 @@
 {
   "run_id": "2026-05-21-0746-hosted-evidence-upload-download-mvp-013",
   "timestamp_local": "2026-05-21T07:46:00-07:00",
-  "automation_id": "senior-capstone-nonfigma-mvp-builder-30",
+  "automation_id": "functionality-ux-upgrade-hourly",
   "lane": "non-figma MVP builder",
   "selected_category": "student-workflow-evidence",
   "secondary_category": "deployment-qa",
@@ -33,7 +33,7 @@
   "output_kind": "hosted-evidence-upload-download-proof",
   "bounded_scope": "Prove hosted fake .test file-byte upload/download through the app-scoped Drive route, including a >5MB resumable path, without direct Figma work.",
   "source_docs_read": [
-    "C:\\Users\\bryan\\.codex\\automations\\senior-capstone-nonfigma-mvp-builder-30\\memory.md",
+    "C:\\Users\\bryan\\.codex\\automations\\functionality-ux-upgrade-hourly\\memory.md",
     "docs/master-plan.md",
     "docs/mvp-requirements-catalog.md",
     "docs/automation-cadence.md",
@@ -137,8 +137,8 @@
       "result": "passed"
     },
     {
-      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 verify:automation-cadence",
-      "result": "passed; quarter-hour cadence still has only the two non-Figma and two Figma builder lanes plus oversight automations"
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 verify:functionality-ux-automation",
+      "result": "passed; Functionality UX automation verifier passed"
     },
     {
       "command": "hosted workspace.js poll after implementation commit d0fe1f6",

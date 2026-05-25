@@ -77,13 +77,13 @@
           },
           {
             "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts\\run-npm-script.ps1 check",
-            "result": "blocked: broader repo check failed on existing QoL cadence gate strings outside this UI lane"
+            "result": "blocked: broader repo check failed on existing automation gate strings outside this UI lane"
           }
         ],
         "visualBrowserCheck": "not-run: in-app Browser tools were not exposed and Playwright was not available in node_repl"
       },
       "commitHash": null,
-      "pushResult": "not-pushed: changes left uncommitted because the broader repo check is blocked by existing QoL cadence failures",
+      "pushResult": "not-pushed: changes left uncommitted because the broader repo check is blocked by existing automation failures",
       "notes": "Ledger was missing at run start, so previous local Figma read usage could not be inferred; conservative 8-read cap was used."
     }
   ]

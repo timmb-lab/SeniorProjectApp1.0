@@ -3,7 +3,7 @@
 Date: 2026-05-18
 Last accuracy audit: 2026-05-21 PT
 
-This is the top-level product plan for Capstone Project. The split builders must read this before choosing work. If a run cannot explain how its slice advances this plan and leave durable evidence, it should pick a different slice.
+This is the top-level product plan for Capstone Project. The Functionality UX Upgrades must read this before choosing work. If a run cannot explain how its slice advances this plan and leave durable evidence, it should pick a different slice.
 
 The MVP requirement source is `docs/mvp-requirements-catalog.md`. Every Functionality UX Upgrade run must ladder from this master plan into that catalog, name the requirement IDs it advances, and update the catalog when status, evidence, blockers, owner category, or acceptance checks materially change. Active automation ownership is recorded in `docs/automation-cadence.md`.
 
@@ -591,7 +591,7 @@ Automation adjustment rule for this project only: use `docs/functionality-ux-gro
 
 The 2026-05-18 morning work materially improved the implementation runway, but at that point it had not yet created the hosted database-backed app. Treat the repo state through commit `08660f3` as the historical 100-pass baseline; later bullets in this plan record the current shipped scaffold, D1, auth, alpha, and automation state:
 
-- Operating base was stronger by that baseline: the project had MVP requirements, structured run manifests, a human-decision queue, artifact registry, publication/commit-push requirements, and non-interactive project-script rules. Current ownership is the split builder model in the Split Builder Master-Plan Orchestrator section.
+- Operating base was stronger by that baseline: the project had MVP requirements, structured run manifests, a human-decision queue, artifact registry, publication/commit-push requirements, and non-interactive project-script rules. Current ownership is the Functionality UX Upgrade model.
 - Stack direction is accepted and later refined: `HD-2026-05-18-001`, ADR-0001, and `D-2026-05-18-019` select the GitHub-to-Cloudflare path with Cloudflare Workers/Pages, D1, hardened username/password pilot auth until school SSO is available, Google Drive as the MVP evidence repository, server authorization, and audit logging. R2 is only a future fallback if enabled and approved.
 - Active Figma source is usable: professional-plan calls verified and updated file `z4t4tFPAKrMDh6pIYOeEw6` in team `1638213362346160913`.
 - Figma implementation handoffs now exist for the first MVP spine:

@@ -4,12 +4,8 @@ This directory holds structured manifests for productive Senior Capstone runs.
 
 Current automation contract:
 
-- Active minute-0 non-Figma builder: `senior-capstone-nonfigma-mvp-builder`.
-- Active minute-15 Figma-only builder: `senior-capstone-figma-product-builder-15`.
-- Active minute-30 non-Figma builder: `senior-capstone-nonfigma-mvp-builder-30`.
-- Active minute-45 Figma-only builder: `senior-capstone-figma-product-builder`.
-- Combined cadence: one builder starts every 15 minutes, 96 scheduled builder starts/day.
-- Verifier: `scripts/verify-cadence-30min.ps1`.
+- Active automation: Functionality UX Upgrade (`functionality-ux-upgrade-hourly`).
+- Verifier: `npm run verify:functionality-ux-automation`.
 
 Future manifests should name:
 
@@ -25,4 +21,4 @@ Future manifests should name:
 - `commit`
 - `self_improvement`
 
-Do not add manifests for any other Senior Capstone builder automation. Daily and weekly oversight may create report/audit records, but they do not add builder capacity.
+Do not add manifests for any other Senior Capstone automation unless Bryan explicitly asks for it.

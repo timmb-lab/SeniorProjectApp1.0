@@ -84,9 +84,9 @@ Each rebuild run should append a dated entry with:
 
 ### 2026-05-21 03:06 PT - MVP-006/MVP-011 Student Dashboard Access Audit
 
-- `automation`: `senior-capstone-nonfigma-mvp-builder`
+- `automation`: `functionality-ux-upgrade-hourly`
 - `master-plan section`: Role-Aware Production App Contract; North Star Workflow; Logging Requirements.
-- `source docs/logs read`: automation memory at `C:\Users\bryan\.codex\automations\senior-capstone-nonfigma-mvp-builder\memory.md`, required master plan/catalog/cadence/runbook/self-improvement/memory/milestones/progress docs, recent run manifests, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, `docs/progress/rebuild.md`, permission/evidence route tests, and `functions/api/student/dashboard.ts`.
+- `source docs/logs read`: automation memory at `C:\Users\bryan\.codex\automations\functionality-ux-upgrade-hourly\memory.md`, required master plan/catalog/cadence/runbook/self-improvement/memory/milestones/progress docs, recent run manifests, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, `docs/progress/rebuild.md`, permission/evidence route tests, and `functions/api/student/dashboard.ts`.
 - `backlog or requirement IDs selected`: `SC-005`, `SC-006`, `MVP-006`, `MVP-011`, `MVP-014`, `MVP-020`, and `MVP-025`.
 - `bounded scope`: Broaden protected-record permission evidence by auditing `/api/student/dashboard` access and adding deterministic route-level role/scope tests without direct Figma work.
 - `files changed`: `functions/api/student/dashboard.ts`, `tests/student-dashboard-access.integration.test.mjs`, MVP/backlog/artifact/memory/handoff/progress docs, and structured run manifest `docs/progress/runs/2026-05-21-0306-student-dashboard-access-audit-mvp-006.json`.
@@ -99,9 +99,9 @@ Each rebuild run should append a dated entry with:
 
 ### 2026-05-21 00:37 PT - MVP-004/MVP-007 Admin User Import
 
-- `automation`: `senior-capstone-nonfigma-mvp-builder-30`
+- `automation`: `functionality-ux-upgrade-hourly`
 - `master-plan section`: Role-Aware Production App Contract; Stack And Deployment Direction; Logging Requirements.
-- `source docs/logs read`: automation memory fallback at `C:\Users\bryan\.codex\automations\senior-capstone-nonfigma-mvp-builder-30\memory.md`, required master plan/catalog/cadence/runbook/self-improvement/memory/milestones/progress docs, recent run manifests, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, `docs/progress/rebuild.md`, and existing auth/admin role/reset route patterns.
+- `source docs/logs read`: automation memory fallback at `C:\Users\bryan\.codex\automations\functionality-ux-upgrade-hourly\memory.md`, required master plan/catalog/cadence/runbook/self-improvement/memory/milestones/progress docs, recent run manifests, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, `docs/progress/rebuild.md`, and existing auth/admin role/reset route patterns.
 - `backlog or requirement IDs selected`: `SC-005`, `SC-006`, `MVP-004`, `MVP-005`, `MVP-007`, supporting `MVP-020`, `MVP-025`, and `MVP-033`.
 - `bounded scope`: Add admin import/provisioning for users with generated reset-required temporary credentials, initial role assignment, duplicate/scope validation, and redacted audit metadata without direct Figma work.
 - `files changed`: `functions/api/admin/users/import.ts`, `tests/admin-users-import.integration.test.mjs`, `docs/generated/production-route-inventory.md`, `docs/mvp-requirements-catalog.md`, `docs/automation-backlog.md`, `docs/automation-memory.md`, `docs/artifacts.json`, `docs/progress/handoffs.md`, this rebuild log, `docs/progress/run-log.md`, and structured run manifest.
@@ -112,9 +112,9 @@ Each rebuild run should append a dated entry with:
 
 ### 2026-05-21 00:09 PT - MVP-004 Active-User Password Change
 
-- `automation`: `senior-capstone-nonfigma-mvp-builder`
+- `automation`: `functionality-ux-upgrade-hourly`
 - `master-plan section`: Role-Aware Production App Contract; Stack And Deployment Direction; Logging Requirements.
-- `source docs/logs read`: automation memory fallback at `C:\Users\bryan\.codex\automations\senior-capstone-nonfigma-mvp-builder\memory.md`, required master plan/catalog/cadence/runbook/self-improvement/memory/milestones/progress docs, recent run manifests, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, `docs/progress/rebuild.md`, and auth/workspace route/test files.
+- `source docs/logs read`: automation memory fallback at `C:\Users\bryan\.codex\automations\functionality-ux-upgrade-hourly\memory.md`, required master plan/catalog/cadence/runbook/self-improvement/memory/milestones/progress docs, recent run manifests, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, `docs/progress/rebuild.md`, and auth/workspace route/test files.
 - `backlog or requirement IDs selected`: `SC-005`, `SC-006`, `MVP-004`, `MVP-005`, supporting `MVP-020`, `MVP-025`, `MVP-032`, and `MVP-033`.
 - `bounded scope`: Add active-user self credential rotation for signed-in accounts without direct Figma work.
 - `files changed`: `functions/api/auth/change-password.ts`, `workspace.js`, `tests/auth-login.integration.test.mjs`, `tests/workspace-app.test.mjs`, `tests/workspace-browser-smoke.test.mjs`, `docs/generated/production-route-inventory.md`, MVP/backlog/artifact/memory/handoff/progress docs, and structured run manifest.
@@ -235,9 +235,9 @@ Each rebuild run should append a dated entry with:
 
 ### 2026-05-20 01:13 PT - MVP-014 Evidence Download Access Tests
 
-- `automation`: `senior-capstone-hourly-qol-orchestrator`
+- `automation`: `functionality-ux-upgrade-hourly`
 - `master-plan section`: Day 7 Alpha Gate; Logging Requirements.
-- `source docs/logs read`: `docs/master-plan.md`, `docs/mvp-requirements-catalog.md`, `docs/automation-runbook.md`, `docs/automation-self-improvement.md`, `docs/automation-cadence.md`, `docs/automation-milestones.md`, `docs/automation-memory.md`, `docs/progress/run-log.md`, recent `docs/progress/runs/`, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, and `automation/qol/reports/latest.md`.
+- `source docs/logs read`: `docs/master-plan.md`, `docs/mvp-requirements-catalog.md`, `docs/automation-runbook.md`, `docs/automation-self-improvement.md`, `docs/automation-cadence.md`, `docs/automation-milestones.md`, `docs/automation-memory.md`, `docs/progress/run-log.md`, recent `docs/progress/runs/`, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, and `automation/state/functionality-ux-growth-state.json`.
 - `backlog or requirement IDs selected`: `MVP-014`, `SC-003`, `SC-005`.
 - `bounded scope`: Add missing integration coverage for `/api/evidence/:id/download` across 404/403/409 flows while asserting audit-event metadata and short-circuit behavior (no provider fetch on denied/non-Drive artifacts).
 - `files changed`: `tests/evidence-drive-file.integration.test.mjs`, `docs/mvp-requirements-catalog.md`, `docs/progress/run-log.md`, and `docs/progress/runs/2026-05-20-0113-evidence-download-tests-mvp-014.json`.
@@ -248,7 +248,7 @@ Each rebuild run should append a dated entry with:
 
 ### 2026-05-20 02:47 PT - MVP-004/MVP-005 Auth Edge-State Integration Tests
 
-- `automation`: `senior-capstone-hourly-qol-orchestrator`
+- `automation`: `functionality-ux-upgrade-hourly`
 - `master-plan section`: Day 7 Alpha Gate; 2026-05-20 30-Minute MVP Builder And Oversight; Logging Requirements.
 - `source docs/logs read`: `docs/master-plan.md`, `docs/mvp-requirements-catalog.md`, `docs/automation-runbook.md`, `docs/automation-self-improvement.md`, `docs/automation-cadence.md`, `docs/automation-milestones.md`, `docs/automation-memory.md`, `docs/progress/run-log.md`, recent `docs/progress/runs/`, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, and `docs/human-decisions.md`.
 - `backlog or requirement IDs selected`: `SC-005`, `MVP-004`, `MVP-005`.
@@ -261,9 +261,9 @@ Each rebuild run should append a dated entry with:
 
 ### 2026-05-20 04:16 PT - MVP-012 Block Submissions Without Evidence
 
-- `automation`: `senior-capstone-hourly-qol-orchestrator`
+- `automation`: `functionality-ux-upgrade-hourly`
 - `master-plan section`: Day 7 Alpha Gate; Seven-day implementation ladder (Day 3: evidence metadata validation + blocked-submit states); Logging Requirements.
-- `source docs/logs read`: `docs/master-plan.md`, `docs/mvp-requirements-catalog.md`, `docs/automation-runbook.md`, `docs/automation-self-improvement.md`, `docs/automation-cadence.md`, `docs/automation-milestones.md`, `docs/automation-memory.md`, `docs/progress/run-log.md`, recent `docs/progress/runs/`, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, and `automation/qol/reports/latest.md`.
+- `source docs/logs read`: `docs/master-plan.md`, `docs/mvp-requirements-catalog.md`, `docs/automation-runbook.md`, `docs/automation-self-improvement.md`, `docs/automation-cadence.md`, `docs/automation-milestones.md`, `docs/automation-memory.md`, `docs/progress/run-log.md`, recent `docs/progress/runs/`, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, and `automation/state/functionality-ux-growth-state.json`.
 - `backlog or requirement IDs selected`: `SC-005`, `SC-006`, `MVP-012`.
 - `bounded scope`: Implement a real blocked-submit state by requiring at least one attached evidence artifact before a student can submit a proposal for review.
 - `files changed`: `functions/api/submissions/[id]/submit.ts`, `tests/review-loop.integration.test.mjs`, `docs/mvp-requirements-catalog.md`, `docs/automation-memory.md`, `docs/progress/rebuild.md`, `docs/progress/run-log.md`, and `docs/progress/runs/2026-05-20-0416-submit-evidence-gate-mvp-012.json`.
@@ -274,9 +274,9 @@ Each rebuild run should append a dated entry with:
 
 ### 2026-05-20 04:48 PT - MVP-006 Mentor Role Guard On Mentor Assignments
 
-- `automation`: `senior-capstone-hourly-qol-orchestrator`
+- `automation`: `functionality-ux-upgrade-hourly`
 - `master-plan section`: Day 7 Alpha Gate; Anti-Drift Rules; Logging Requirements.
-- `source docs/logs read`: `docs/master-plan.md`, `docs/mvp-requirements-catalog.md`, `docs/automation-runbook.md`, `docs/automation-self-improvement.md`, `docs/automation-cadence.md`, `docs/automation-milestones.md`, `docs/automation-memory.md`, `docs/progress/run-log.md`, recent `docs/progress/runs/`, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, and `automation/qol/reports/latest.md`.
+- `source docs/logs read`: `docs/master-plan.md`, `docs/mvp-requirements-catalog.md`, `docs/automation-runbook.md`, `docs/automation-self-improvement.md`, `docs/automation-cadence.md`, `docs/automation-milestones.md`, `docs/automation-memory.md`, `docs/progress/run-log.md`, recent `docs/progress/runs/`, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, and `automation/state/functionality-ux-growth-state.json`.
 - `backlog or requirement IDs selected`: `SC-005`, `MVP-006`.
 - `bounded scope`: Tighten `canAccessStudent` so mentor access requires both an active mentor assignment and the `mentor` role, and add regression coverage.
 - `files changed`: `functions/_lib/permissions.ts`, `tests/permissions-access.test.mjs`, `docs/mvp-requirements-catalog.md`, `docs/automation-memory.md`, `docs/progress/run-log.md`, `docs/progress/rebuild.md`, and `docs/progress/runs/2026-05-20-0448-mentor-role-guard-mvp-006.json`.
@@ -287,9 +287,9 @@ Each rebuild run should append a dated entry with:
 
 ### 2026-05-20 05:18 PT - MVP-006/MVP-007 Admin Mentor Assignment Provisioning Guard
 
-- `automation`: `senior-capstone-hourly-qol-orchestrator`
+- `automation`: `functionality-ux-upgrade-hourly`
 - `master-plan section`: Day 7 Alpha Gate; Anti-Drift Rules; Logging Requirements.
-- `source docs/logs read`: `docs/master-plan.md`, `docs/mvp-requirements-catalog.md`, `docs/automation-runbook.md`, `docs/automation-self-improvement.md`, `docs/automation-cadence.md`, `docs/automation-milestones.md`, `docs/automation-memory.md`, `docs/progress/run-log.md`, recent `docs/progress/runs/`, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, and `automation/qol/reports/latest.md`.
+- `source docs/logs read`: `docs/master-plan.md`, `docs/mvp-requirements-catalog.md`, `docs/automation-runbook.md`, `docs/automation-self-improvement.md`, `docs/automation-cadence.md`, `docs/automation-milestones.md`, `docs/automation-memory.md`, `docs/progress/run-log.md`, recent `docs/progress/runs/`, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, and `automation/state/functionality-ux-growth-state.json`.
 - `backlog or requirement IDs selected`: `SC-005`, `MVP-006`, `MVP-007`, `MVP-020`.
 - `bounded scope`: Add an admin-only mentor assignment provisioning endpoint that blocks invalid role combinations (mentor must have `mentor`, student must have `student`) and audits both denied attempts and successful upserts.
 - `files changed`: `functions/api/admin/mentor-assignments.ts`, `tests/admin-mentor-assignments.integration.test.mjs`, `docs/mvp-requirements-catalog.md`, `docs/automation-memory.md`, `docs/progress/rebuild.md`, `docs/progress/run-log.md`, and structured run manifest `docs/progress/runs/2026-05-20-0518-admin-mentor-assignments-mvp-006.json`.
@@ -300,9 +300,9 @@ Each rebuild run should append a dated entry with:
 
 ### 2026-05-20 05:44 PT - MVP-007 Admin Mentor Assignment List + Deactivation
 
-- `automation`: `senior-capstone-hourly-qol-orchestrator`
+- `automation`: `functionality-ux-upgrade-hourly`
 - `master-plan section`: Day 7 Alpha Gate; Logging Requirements.
-- `source docs/logs read`: `docs/master-plan.md`, `docs/mvp-requirements-catalog.md`, `docs/automation-runbook.md`, `docs/automation-self-improvement.md`, `docs/automation-cadence.md`, `docs/automation-milestones.md`, `docs/automation-memory.md`, `docs/progress/run-log.md`, recent `docs/progress/runs/`, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, and `automation/qol/reports/latest.md`.
+- `source docs/logs read`: `docs/master-plan.md`, `docs/mvp-requirements-catalog.md`, `docs/automation-runbook.md`, `docs/automation-self-improvement.md`, `docs/automation-cadence.md`, `docs/automation-milestones.md`, `docs/automation-memory.md`, `docs/progress/run-log.md`, recent `docs/progress/runs/`, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, and `automation/state/functionality-ux-growth-state.json`.
 - `backlog or requirement IDs selected`: `SC-005`, `MVP-007`, `MVP-020`.
 - `bounded scope`: Extend `/api/admin/mentor-assignments` with an admin-only list endpoint (GET) and an audited deactivation endpoint (DELETE) so admin provisioning can manage the full assignment lifecycle without direct DB edits.
 - `files changed`: `functions/api/admin/mentor-assignments.ts`, `tests/admin-mentor-assignments.integration.test.mjs`, `docs/mvp-requirements-catalog.md`, and structured run manifest `docs/progress/runs/2026-05-20-0544-admin-mentor-assignment-list-deactivate-mvp-007.json`.
@@ -313,9 +313,9 @@ Each rebuild run should append a dated entry with:
 
 ### 2026-05-20 06:49 PT - MVP-006/MVP-014 Teacher Scope Default-Deny Hardening
 
-- `automation`: `senior-capstone-hourly-qol-orchestrator`
+- `automation`: `functionality-ux-upgrade-hourly`
 - `master-plan section`: Day 7 Alpha Gate; Anti-Drift Rules; Logging Requirements.
-- `source docs/logs read`: `docs/master-plan.md`, `docs/mvp-requirements-catalog.md`, `docs/automation-runbook.md`, `docs/automation-self-improvement.md`, `docs/automation-cadence.md`, `docs/automation-milestones.md`, `docs/automation-memory.md`, `docs/progress/run-log.md`, recent `docs/progress/runs/`, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, and the automation memory file at `C:\\Users\\bryan\\.codex\\automations\\senior-capstone-hourly-qol-orchestrator\\memory.md`.
+- `source docs/logs read`: `docs/master-plan.md`, `docs/mvp-requirements-catalog.md`, `docs/automation-runbook.md`, `docs/automation-self-improvement.md`, `docs/automation-cadence.md`, `docs/automation-milestones.md`, `docs/automation-memory.md`, `docs/progress/run-log.md`, recent `docs/progress/runs/`, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, and the automation memory file at `C:\\Users\\bryan\\.codex\\automations\\functionality-ux-upgrade-hourly\\memory.md`.
 - `backlog or requirement IDs selected`: `SC-003`, `SC-005`, `MVP-006`, `MVP-014`.
 - `bounded scope`: Tighten `canAccessStudent` teacher scope matching to default-deny empty `program_teacher` scope IDs and avoid null/empty program/cohort matches; add regression coverage in the permission-helper unit tests and evidence access integration suite.
 - `files changed`: `functions/_lib/permissions.ts`, `tests/permissions-access.test.mjs`, `tests/evidence-check-access.integration.test.mjs`, `docs/mvp-requirements-catalog.md`, `docs/automation-memory.md`, `docs/progress/rebuild.md`, `docs/progress/run-log.md`, and `docs/progress/runs/2026-05-20-0649-teacher-scope-null-guard-mvp-006-014.json`.
@@ -326,9 +326,9 @@ Each rebuild run should append a dated entry with:
 
 ### 2026-05-20 08:32 PT - MVP-016 Submission Version History
 
-- `automation`: `senior-capstone-hourly-qol-orchestrator`
+- `automation`: `functionality-ux-upgrade-hourly`
 - `master-plan section`: Day 7 Alpha Gate; Seven-day implementation ladder Day 4; Logging Requirements.
-- `source docs/logs read`: `docs/master-plan.md`, `docs/mvp-requirements-catalog.md`, `docs/automation-cadence.md`, `docs/automation-backlog.md`, `docs/automation-self-improvement.md`, `docs/automation-memory.md`, `docs/progress/run-log.md`, recent run manifests, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/daily-automation-reports.md`, `docs/alpha-week-framework.md`, and the automation memory file at `C:\\Users\\bryan\\.codex\\automations\\senior-capstone-hourly-qol-orchestrator\\memory.md`.
+- `source docs/logs read`: `docs/master-plan.md`, `docs/mvp-requirements-catalog.md`, `docs/automation-cadence.md`, `docs/automation-backlog.md`, `docs/automation-self-improvement.md`, `docs/automation-memory.md`, `docs/progress/run-log.md`, recent run manifests, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/daily-automation-reports.md`, `docs/alpha-week-framework.md`, and the automation memory file at `C:\\Users\\bryan\\.codex\\automations\\functionality-ux-upgrade-hourly\\memory.md`.
 - `backlog or requirement IDs selected`: `SC-005`, `SC-006`, `MVP-012`, `MVP-015`, `MVP-016`.
 - `bounded scope`: Add D1-backed immutable submission version snapshots so resubmissions preserve prior versions in the review-history API.
 - `files changed`: `migrations/0005_submission_versions.sql`, `functions/_lib/workflow.ts`, `functions/api/submissions/[id]/submit.ts`, `functions/api/reviews/[submissionId]/history.ts`, `tests/review-loop.integration.test.mjs`, `tests/production-workflow-source.test.mjs`, `docs/mvp-requirements-catalog.md`, `docs/automation-memory.md`, `docs/progress/run-log.md`, and structured run manifest `docs/progress/runs/2026-05-20-0832-submission-version-history-mvp-016.json`.
@@ -339,9 +339,9 @@ Each rebuild run should append a dated entry with:
 
 ### 2026-05-20 09:05 PT - MVP-015/MVP-016 Review History Comments
 
-- `automation`: `senior-capstone-nonfigma-mvp-builder`
+- `automation`: `functionality-ux-upgrade-hourly`
 - `master-plan section`: Day 7 Alpha Gate; Seven-day implementation ladder Day 4; Logging Requirements.
-- `source docs/logs read`: automation memory fallback at `C:\\Users\\bryan\\.codex\\automations\\senior-capstone-nonfigma-mvp-builder\\memory.md` (missing at start), `docs/master-plan.md`, `docs/mvp-requirements-catalog.md`, `docs/automation-cadence.md`, `docs/automation-runbook.md`, `docs/automation-self-improvement.md`, `docs/automation-memory.md`, `docs/automation-milestones.md`, `docs/progress/run-log.md`, recent run manifests, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, and `docs/progress/rebuild.md`.
+- `source docs/logs read`: automation memory fallback at `C:\\Users\\bryan\\.codex\\automations\\functionality-ux-upgrade-hourly\\memory.md` (missing at start), `docs/master-plan.md`, `docs/mvp-requirements-catalog.md`, `docs/automation-cadence.md`, `docs/automation-runbook.md`, `docs/automation-self-improvement.md`, `docs/automation-memory.md`, `docs/automation-milestones.md`, `docs/progress/run-log.md`, recent run manifests, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, and `docs/progress/rebuild.md`.
 - `backlog or requirement IDs selected`: `SC-005`, `SC-006`, `MVP-015`, `MVP-016`.
 - `bounded scope`: Persist teacher review comments into the existing `comments` table, support `comment_only` review records without changing submission status, and return scoped comments from the review-history endpoint alongside reviews/status/version history.
 - `files changed`: `functions/api/reviews/[submissionId]/decision.ts`, `functions/api/reviews/[submissionId]/history.ts`, `functions/_lib/workflow.ts`, `tests/review-loop.integration.test.mjs`, `tests/production-workflow-source.test.mjs`, `docs/mvp-requirements-catalog.md`, `docs/automation-memory.md`, `docs/progress/run-log.md`, and structured run manifest `docs/progress/runs/2026-05-20-0905-review-history-comments-mvp-015-016.json`.
@@ -352,22 +352,22 @@ Each rebuild run should append a dated entry with:
 
 ### 2026-05-20 10:18 PT - MVP-015/MVP-016 Review History UI
 
-- `automation`: `senior-capstone-nonfigma-mvp-builder`
+- `automation`: `functionality-ux-upgrade-hourly`
 - `master-plan section`: Day 7 Alpha Gate; Seven-day implementation ladder Day 4; Logging Requirements.
-- `source docs/logs read`: `automation/qol/project-lock.json`, `automation/qol/reports/latest.md`, `automation/qol/state/state.json`, `automation/qol/state/plan-index.json`, `automation/prompts/senior-capstone-nonfigma-mvp-builder.md`, `docs/master-plan.md`, `docs/mvp-requirements-catalog.md`, `docs/automation-cadence.md`, `docs/automation-runbook.md`, `docs/automation-self-improvement.md`, `docs/automation-memory.md`, `docs/automation-milestones.md`, `docs/progress/run-log.md`, recent run manifests, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, `README.md`, `package.json`, `account.html`, `account.js`, `account.css`, `functions/api/reviews/[submissionId]/history.ts`, and `tests/account-and-evidence-access.test.mjs`.
+- `source docs/logs read`: `automation/state/functionality-ux-growth-state.json`, `automation/state/functionality-ux-growth-state.json`, `automation/state/functionality-ux-growth-state.json`, `automation/state/functionality-ux-growth-state.json`, `automation/prompts/functionality-ux-upgrade-hourly.md`, `docs/master-plan.md`, `docs/mvp-requirements-catalog.md`, `docs/automation-cadence.md`, `docs/automation-runbook.md`, `docs/automation-self-improvement.md`, `docs/automation-memory.md`, `docs/automation-milestones.md`, `docs/progress/run-log.md`, recent run manifests, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, `README.md`, `package.json`, `account.html`, `account.js`, `account.css`, `functions/api/reviews/[submissionId]/history.ts`, and `tests/account-and-evidence-access.test.mjs`.
 - `backlog or requirement IDs selected`: `SC-005`, `SC-006`, `MVP-015`, `MVP-016`.
 - `bounded scope`: Add a user-visible account smoke panel that calls the scoped review-history endpoint for the seeded submission and renders teacher comments, review decisions, status changes, and immutable submission versions without exposing Drive storage identifiers.
 - `files changed`: `account.html`, `account.js`, `account.css`, `tests/account-and-evidence-access.test.mjs`, `docs/mvp-requirements-catalog.md`, `docs/automation-memory.md`, `docs/progress/handoffs.md`, `docs/progress/run-log.md`, and structured run manifest `docs/progress/runs/2026-05-20-1018-review-history-ui-mvp-015-016.json`.
-- `validation`: `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 tests\\account-and-evidence-access.test.mjs` (pass); `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 typecheck` (pass); `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 test` (pass; 115 tests); `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 verify:qol-automation` (pass; 14 checks); `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 check:cloudflare` (pass static checks; live check skipped because `CLOUDFLARE_API_TOKEN` is not set); `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 check:automation` (pass); `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 check` (pass).
+- `validation`: `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 tests\\account-and-evidence-access.test.mjs` (pass); `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 typecheck` (pass); `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 test` (pass; 115 tests); `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 verify:functionality-ux-automation` (pass; 14 checks); `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 check:cloudflare` (pass static checks; live check skipped because `CLOUDFLARE_API_TOKEN` is not set); `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 verify:functionality-ux-automation` (pass); `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 check` (pass).
 - `self-improvement`: none.
 - `commit/push status`: implementation commit `0ebbcb54a909cf9d8d8f0d722cc466d4551a5f10` (`rebuild: surface presentation dashboard states (MVP-017)`) pushed to `origin main` (`12b16b8..0ebbcb5`); closeout evidence commit follows this entry.
 - `next action`: Apply/verify `0005_submission_versions.sql` remotely once `CLOUDFLARE_API_TOKEN` is available, then move the same review-history rendering from the smoke surface into the primary alpha/student-teacher workflow view if the Day 7 walkthrough needs it there.
 
 ### 2026-05-20 12:06 PT - MVP-015/MVP-016 Primary Alpha Review History
 
-- `automation`: `senior-capstone-nonfigma-mvp-builder`
+- `automation`: `functionality-ux-upgrade-hourly`
 - `master-plan section`: Day 7 Alpha Gate; Seven-day implementation ladder Day 4; Logging Requirements.
-- `source docs/logs read`: automation memory fallback at `C:\Users\bryan\.codex\automations\senior-capstone-nonfigma-mvp-builder\memory.md`, required master plan/catalog/cadence/runbook/self-improvement/memory/milestones/progress docs, recent run manifests, the review-history account smoke code, alpha console code, and review-history API implementation.
+- `source docs/logs read`: automation memory fallback at `C:\Users\bryan\.codex\automations\functionality-ux-upgrade-hourly\memory.md`, required master plan/catalog/cadence/runbook/self-improvement/memory/milestones/progress docs, recent run manifests, the review-history account smoke code, alpha console code, and review-history API implementation.
 - `backlog or requirement IDs selected`: `SC-005`, `SC-006`, `MVP-015`, `MVP-016`.
 - `bounded scope`: Preserve teacher comments, status timeline entries, and immutable submission version snapshots in the primary server-owned alpha state, then render those review-history sections in `alpha.html`/`alpha.js` without exposing storage identifiers.
 - `files changed`: `functions/_lib/alpha-flow-model.js`, `alpha.js`, `alpha.css`, `tests/alpha-flow.test.mjs`, `scripts/check-alpha-contract.mjs`, `docs/mvp-requirements-catalog.md`, `docs/progress/handoffs.md`, `docs/progress/run-log.md`, `docs/automation-memory.md`, `docs/progress/rebuild.md`, and structured run manifest `docs/progress/runs/2026-05-20-1206-alpha-review-history-main-console-mvp-015-016.json`.
@@ -378,9 +378,9 @@ Each rebuild run should append a dated entry with:
 
 ### 2026-05-20 13:06 PT - MVP-017 Presentation Slot Scheduling
 
-- `automation`: `senior-capstone-nonfigma-mvp-builder`
+- `automation`: `functionality-ux-upgrade-hourly`
 - `master-plan section`: Day 7 Alpha Gate; Seven-day implementation ladder Day 4/Day 5 mentor and presentation depth; Logging Requirements.
-- `source docs/logs read`: automation memory fallback at `C:\Users\bryan\.codex\automations\senior-capstone-nonfigma-mvp-builder\memory.md`, `docs/master-plan.md`, `docs/mvp-requirements-catalog.md`, `docs/automation-cadence.md`, `docs/automation-runbook.md`, `docs/automation-self-improvement.md`, `docs/automation-memory.md`, `docs/automation-milestones.md`, `docs/progress/run-log.md`, recent run manifests, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, `docs/progress/rebuild.md`, `docs/progress/figma.md`, and the mentor meeting route/test patterns.
+- `source docs/logs read`: automation memory fallback at `C:\Users\bryan\.codex\automations\functionality-ux-upgrade-hourly\memory.md`, `docs/master-plan.md`, `docs/mvp-requirements-catalog.md`, `docs/automation-cadence.md`, `docs/automation-runbook.md`, `docs/automation-self-improvement.md`, `docs/automation-memory.md`, `docs/automation-milestones.md`, `docs/progress/run-log.md`, recent run manifests, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, `docs/progress/rebuild.md`, `docs/progress/figma.md`, and the mentor meeting route/test patterns.
 - `backlog or requirement IDs selected`: `SC-004`, `SC-005`, `SC-006`, `MVP-017`, and supporting `MVP-020`.
 - `bounded scope`: Add D1-backed presentation slot scheduling with role-scoped visibility, admin/program-teacher scheduling, same-location conflict blocking, and audit events.
 - `files changed`: `migrations/0006_presentation_slots.sql`, `functions/api/presentation-slots.ts`, `tests/presentation-slots.integration.test.mjs`, `docs/generated/production-route-inventory.md`, `docs/mvp-requirements-catalog.md`, `docs/automation-backlog.md`, `docs/automation-memory.md`, `docs/artifacts.json`, `docs/progress/handoffs.md`, this rebuild log, `docs/progress/run-log.md`, and structured run manifest.
@@ -391,53 +391,53 @@ Each rebuild run should append a dated entry with:
 
 ### 2026-05-20 14:09 PT - MVP-035 Student/Teacher Public Guide Mode
 
-- `automation`: `senior-capstone-nonfigma-mvp-builder`
+- `automation`: `functionality-ux-upgrade-hourly`
 - `master-plan section`: P0 Production Experience Gate; Student And Teacher Website Contract; Logging Requirements.
-- `source docs/logs read`: automation memory fallback at `C:\Users\bryan\.codex\automations\senior-capstone-nonfigma-mvp-builder\memory.md`, required master plan/catalog/cadence/runbook/self-improvement/memory/milestones/progress docs, recent run manifests, `docs/source-materials/production-content-crosswalk.md`, `docs/production-surface-registry.md`, public site source, generator, production-surface checker, and public-surface source tests.
+- `source docs/logs read`: automation memory fallback at `C:\Users\bryan\.codex\automations\functionality-ux-upgrade-hourly\memory.md`, required master plan/catalog/cadence/runbook/self-improvement/memory/milestones/progress docs, recent run manifests, `docs/source-materials/production-content-crosswalk.md`, `docs/production-surface-registry.md`, public site source, generator, production-surface checker, and public-surface source tests.
 - `backlog or requirement IDs selected`: `SC-007`, `MVP-031`, `MVP-035`, `MVP-036`, `MVP-037`, `MVP-038`, `MVP-039`.
 - `bounded scope`: Implement the public Student Guide / Teacher Guide top-banner toggle in the public site source, keep both guide summaries visible, rebuild generated public output, and strengthen source validation for exact guide-toggle markers.
 - `files changed`: `app.js`, `styles.css`, `public-companion/app.js`, `public-companion/styles.css`, `scripts/check-production-surfaces.mjs`, `tests/account-and-evidence-access.test.mjs`, `docs/mvp-requirements-catalog.md`, `docs/production-surface-registry.md`, `docs/source-materials/production-content-crosswalk.md`, `docs/automation-backlog.md`, `docs/automation-memory.md`, `docs/artifacts.json`, `docs/progress/handoffs.md`, `docs/progress/run-log.md`, and structured run manifest.
 - `validation`: `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-node-script.ps1 tests\account-and-evidence-access.test.mjs` passed with 5/5 tests; `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-node-script.ps1 scripts\check-production-surfaces.mjs` passed with 86 surfaces; `build:public-site`, `check:generated-output-drift`, `check:site-options`, and aggregate `check` passed. Browser verification was attempted through the in-app Browser plugin and blocked with no active Codex browser pane available.
 - `self-improvement`: none.
 - `commit/push status`: implementation commit `c2477ec9febae91893fb3b12c2ebd1e67393336e`, closeout evidence commit `a9e0a1d`, and tracker evidence commit `c1bc4071e9a5cc697189e22321ab1e69080fe45d` pushed to `origin main`.
-- `phone tracker`: appended to `Senior Capstone QoL Run Tracker` at 2026-05-20 14:14 PT.
+- `phone tracker`: appended to `Senior Capstone Automation Run Tracker` at 2026-05-20 14:14 PT.
 - `next action`: Broaden public route-level no-hidden-core-content proof, then designate/build the canonical authenticated role-aware production app route.
 
 ### 2026-05-20 16:08 PT - MVP-017 Presentation Check-Out/Check-In
 
-- `automation`: `senior-capstone-nonfigma-mvp-builder`
+- `automation`: `functionality-ux-upgrade-hourly`
 - `master-plan section`: Day 7 Alpha Gate; Seven-day implementation ladder Day 5 mentor and presentation depth; Logging Requirements.
-- `source docs/logs read`: automation memory fallback at `C:\Users\bryan\.codex\automations\senior-capstone-nonfigma-mvp-builder\memory.md`, required master plan/catalog/cadence/runbook/self-improvement/memory/milestones/progress docs, recent run manifests, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, and the existing presentation slot route/test patterns.
+- `source docs/logs read`: automation memory fallback at `C:\Users\bryan\.codex\automations\functionality-ux-upgrade-hourly\memory.md`, required master plan/catalog/cadence/runbook/self-improvement/memory/milestones/progress docs, recent run manifests, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, and the existing presentation slot route/test patterns.
 - `backlog or requirement IDs selected`: `SC-004`, `SC-005`, `SC-006`, `MVP-017`, and supporting `MVP-020`.
 - `bounded scope`: Add scoped presentation day check-out/check-in state transitions on top of the existing D1-backed presentation slot schedule.
 - `files changed`: `functions/_lib/presentation-slots.ts`, `functions/api/presentation-slots/[id]/check-out.ts`, `functions/api/presentation-slots/[id]/check-in.ts`, `tests/presentation-slots.integration.test.mjs`, `docs/generated/production-route-inventory.md`, `docs/mvp-requirements-catalog.md`, `docs/automation-backlog.md`, `docs/automation-memory.md`, `docs/progress/handoffs.md`, `docs/source-materials/production-content-crosswalk.md`, `docs/production-surface-registry.md`, this rebuild log, `docs/progress/run-log.md`, and structured run manifest.
 - `validation`: focused presentation-slot integration test passed; strict `typecheck` passed; production route inventory regenerated for `/api/presentation-slots/:id/check-out` and `/api/presentation-slots/:id/check-in`; full test suite passed with 130 passing tests and 3 expected opt-in workspace smoke skips; aggregate `check` passed with production surfaces, route inventory, generated-output drift, site options, static Cloudflare verification, and live Cloudflare verification blocked only by missing `CLOUDFLARE_API_TOKEN`.
 - `commit/push status`: implementation commit `c36388973b60802ca7f0acc21e8cf81792c4a48b` pushed to `origin main`; closeout docs commit pending.
 - `blockers`: remote D1 apply/verification for `0006_presentation_slots.sql` still requires `CLOUDFLARE_API_TOKEN`; this run did not perform live Cloudflare mutation.
-- `phone tracker`: appended to `Senior Capstone QoL Run Tracker` at 2026-05-20 16:08 PT.
+- `phone tracker`: appended to `Senior Capstone Automation Run Tracker` at 2026-05-20 16:08 PT.
 - `self-improvement`: none.
 - `next action`: Surface presentation slot status/check-out/check-in in mentor/student/staff dashboards, then persist outline approval gates or continue admin workflow depth.
 
 ### 2026-05-20 17:10 PT - MVP-032/MVP-033 Workspace Access Boundary States
 
-- `automation`: `senior-capstone-nonfigma-mvp-builder`
+- `automation`: `functionality-ux-upgrade-hourly`
 - `master-plan section`: P0 Production Experience Gate; Role-Aware Production App Contract; Logging Requirements.
-- `source docs/logs read`: automation memory fallback at `C:\Users\bryan\.codex\automations\senior-capstone-nonfigma-mvp-builder\memory.md`, required master plan/catalog/cadence/runbook/self-improvement/memory/milestones/progress docs, recent run manifests, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, and the existing workspace route/tests.
+- `source docs/logs read`: automation memory fallback at `C:\Users\bryan\.codex\automations\functionality-ux-upgrade-hourly\memory.md`, required master plan/catalog/cadence/runbook/self-improvement/memory/milestones/progress docs, recent run manifests, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, and the existing workspace route/tests.
 - `backlog or requirement IDs selected`: `SC-007`, `MVP-032`, `MVP-033`, supporting `MVP-034` and `MVP-039`.
 - `bounded scope`: Consume the existing repo-recorded Figma production-boundary handoff by adding explicit role-pending and permission-denied access-boundary states to the canonical authenticated workspace, without direct Figma work.
 - `files changed`: `workspace.js`, `workspace.css`, `tests/workspace-app.test.mjs`, `tests/workspace-browser-smoke.test.mjs`, `docs/mvp-requirements-catalog.md`, `docs/production-surface-registry.md`, `docs/artifacts.json`, `docs/automation-memory.md`, `docs/progress/handoffs.md`, `docs/progress/rebuild.md`, `docs/progress/run-log.md`, and the structured run manifest.
 - `validation`: focused workspace source/VM test passed; portable workspace smoke skipped without opt-in server as expected; local Pages dev plus local D1 seed passed credential-backed workspace HTTP smoke; production-surface checker passed; in-app browser verified the no-role role-pending card with zero console errors; aggregate `check` passed with static Cloudflare verification and live Cloudflare token blocker; direct live `workspace.js` returned 200 and contained the role-pending marker after push.
 - `blockers`: Live Drive upload/download still requires `GOOGLE_DRIVE_CLIENT_EMAIL` and `GOOGLE_DRIVE_PRIVATE_KEY` in Cloudflare Pages; non-interactive Pages/D1 deployment/secret inspection still requires `CLOUDFLARE_API_TOKEN`.
-- `phone tracker`: appended to `Senior Capstone QoL Run Tracker` at 2026-05-20 17:10 PT.
+- `phone tracker`: appended to `Senior Capstone Automation Run Tracker` at 2026-05-20 17:10 PT.
 - `self-improvement`: none.
 - `commit/push status`: implementation commit `c6470dfa50d136f2da3d29319859aa640ad347b4` and closeout manifest commit `ff3b0ea687451427ce798b778302cf5e4e62cfb0` pushed to `origin main`; live-proof closeout commit is reported in the final run response because a commit cannot contain its own hash.
 - `next action`: Add disabled/reset-required/no-assignment workspace UI proof or resume MVP-017 dashboard surfacing; run live Drive upload/download after Bryan configures Drive credentials.
 
 ### 2026-05-20 18:15 PT - MVP-004/MVP-032/MVP-033 Workspace Account Edge States
 
-- `automation`: `senior-capstone-nonfigma-mvp-builder`
+- `automation`: `functionality-ux-upgrade-hourly`
 - `master-plan section`: P0 Production Experience Gate; Role-Aware Production App Contract; Day 7 Alpha Gate; Logging Requirements.
-- `source docs/logs read`: automation memory fallback at `C:\Users\bryan\.codex\automations\senior-capstone-nonfigma-mvp-builder\memory.md`, required master plan/catalog/cadence/runbook/self-improvement/memory/milestones/progress docs, recent run manifests, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, `docs/progress/rebuild.md`, and the existing auth/workspace route/test patterns.
+- `source docs/logs read`: automation memory fallback at `C:\Users\bryan\.codex\automations\functionality-ux-upgrade-hourly\memory.md`, required master plan/catalog/cadence/runbook/self-improvement/memory/milestones/progress docs, recent run manifests, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, `docs/progress/rebuild.md`, and the existing auth/workspace route/test patterns.
 - `backlog or requirement IDs selected`: `SC-007`, `MVP-004`, `MVP-032`, `MVP-033`, supporting `MVP-034` and `MVP-039`.
 - `bounded scope`: Add explicit account edge-state behavior for expired sessions, disabled accounts, password-reset-required accounts, and mentors without active assignments in the canonical authenticated workspace.
 - `files changed`: `functions/api/auth/me.ts`, `workspace.js`, `scripts/seed-local-workspace-smoke.mjs`, `tests/auth-login.integration.test.mjs`, `tests/workspace-app.test.mjs`, `tests/workspace-browser-smoke.test.mjs`, `docs/mvp-requirements-catalog.md`, `docs/production-surface-registry.md`, `docs/automation-backlog.md`, `docs/automation-memory.md`, `docs/artifacts.json`, `docs/progress/handoffs.md`, this rebuild log, `docs/progress/run-log.md`, and structured run manifest.
@@ -450,9 +450,9 @@ Each rebuild run should append a dated entry with:
 
 ### 2026-05-20 19:10 PT - MVP-017 Workspace Presentation Dashboard
 
-- `automation`: `senior-capstone-nonfigma-mvp-builder`
+- `automation`: `functionality-ux-upgrade-hourly`
 - `master-plan section`: Day 7 Alpha Gate; Role-Aware Production App Contract; North Star Workflow; Logging Requirements.
-- `source docs/logs read`: automation memory fallback at `C:\Users\bryan\.codex\automations\senior-capstone-nonfigma-mvp-builder\memory.md`, required master plan/catalog/cadence/runbook/self-improvement/memory/milestones/progress docs, recent run manifests, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, the latest Figma presentation-dashboard manifest, and the existing workspace/presentation route/test patterns.
+- `source docs/logs read`: automation memory fallback at `C:\Users\bryan\.codex\automations\functionality-ux-upgrade-hourly\memory.md`, required master plan/catalog/cadence/runbook/self-improvement/memory/milestones/progress docs, recent run manifests, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, the latest Figma presentation-dashboard manifest, and the existing workspace/presentation route/test patterns.
 - `backlog or requirement IDs selected`: `SC-004`, `SC-005`, `SC-006`, `MVP-017`, supporting `MVP-020`, `MVP-021`, `MVP-032`, and `MVP-033`.
 - `bounded scope`: Surface persisted presentation slot status and check-out/check-in actions in the canonical workspace without direct Figma work.
 - `files changed`: `workspace.js`, `workspace.css`, `scripts/seed-local-workspace-smoke.mjs`, `tests/workspace-app.test.mjs`, `tests/workspace-browser-smoke.test.mjs`, `docs/mvp-requirements-catalog.md`, `docs/automation-backlog.md`, `docs/automation-memory.md`, `docs/artifacts.json`, `docs/progress/handoffs.md`, this rebuild log, `docs/progress/run-log.md`, and structured run manifest.
@@ -465,9 +465,9 @@ Each rebuild run should append a dated entry with:
 
 ### 2026-05-20 20:43 PT - MVP-022 Workspace Archive Readiness
 
-- `automation`: `senior-capstone-nonfigma-mvp-builder-30`
+- `automation`: `functionality-ux-upgrade-hourly`
 - `master-plan section`: Day 7 Alpha Gate; Role-Aware Production App Contract; North Star Workflow; Logging Requirements.
-- `source docs/logs read`: automation memory fallback at `C:\Users\bryan\.codex\automations\senior-capstone-nonfigma-mvp-builder-30\memory.md`, required master plan/catalog/cadence/runbook/self-improvement/memory/milestones/progress docs, recent run manifests, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, `docs/progress/rebuild.md`, the latest celebration archive readiness handoff manifest, and the existing workspace/export route/test patterns.
+- `source docs/logs read`: automation memory fallback at `C:\Users\bryan\.codex\automations\functionality-ux-upgrade-hourly\memory.md`, required master plan/catalog/cadence/runbook/self-improvement/memory/milestones/progress docs, recent run manifests, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, `docs/progress/rebuild.md`, the latest celebration archive readiness handoff manifest, and the existing workspace/export route/test patterns.
 - `backlog or requirement IDs selected`: `SC-004`, `SC-005`, `SC-006`, `MVP-018`, `MVP-020`, `MVP-022`, supporting `MVP-032`.
 - `bounded scope`: Partially consume repo-recorded Figma node `144:2` without direct Figma work by adding the first persisted student archive-readiness API and workspace Archive tab, while keeping signed archive downloads disabled until real delivery is implemented.
 - `files changed`: `functions/api/student/archive/readiness.ts`, `functions/api/admin/exports/student-archive.ts`, `functions/api/exports/[id]/download.ts`, `workspace.js`, `tests/archive-readiness.integration.test.mjs`, `tests/workspace-app.test.mjs`, `tests/workspace-browser-smoke.test.mjs`, `tests/production-workflow-source.test.mjs`, `docs/generated/production-route-inventory.md`, `docs/mvp-requirements-catalog.md`, `docs/automation-backlog.md`, `docs/automation-memory.md`, `docs/artifacts.json`, `docs/progress/handoffs.md`, this rebuild log, `docs/progress/run-log.md`, and structured run manifest.
@@ -480,9 +480,9 @@ Each rebuild run should append a dated entry with:
 
 ### 2026-05-20 21:10 PT - MVP-022 Scoped Archive Manifests
 
-- `automation`: `senior-capstone-nonfigma-mvp-builder`
+- `automation`: `functionality-ux-upgrade-hourly`
 - `master-plan section`: Day 7 Alpha Gate; Role-Aware Production App Contract; North Star Workflow; Logging Requirements.
-- `source docs/logs read`: automation memory fallback at `C:\Users\bryan\.codex\automations\senior-capstone-nonfigma-mvp-builder\memory.md`, required master plan/catalog/cadence/runbook/self-improvement/memory/milestones/progress docs, recent run manifests, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, `docs/progress/rebuild.md`, and the existing archive/export route/test patterns.
+- `source docs/logs read`: automation memory fallback at `C:\Users\bryan\.codex\automations\functionality-ux-upgrade-hourly\memory.md`, required master plan/catalog/cadence/runbook/self-improvement/memory/milestones/progress docs, recent run manifests, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, `docs/progress/rebuild.md`, and the existing archive/export route/test patterns.
 - `backlog or requirement IDs selected`: `SC-004`, `SC-005`, `SC-006`, `MVP-018`, `MVP-020`, `MVP-022`, supporting `MVP-032`.
 - `bounded scope`: Add a real scoped archive manifest artifact path and expired-package retry behavior without calling Figma tools or requiring live Drive credentials.
 - `files changed`: `migrations/0007_archive_export_artifacts.sql`, `functions/_lib/archive-export.ts`, `functions/api/admin/exports/student-archive.ts`, `functions/api/exports/[id]/download.ts`, `functions/api/student/archive/readiness.ts`, `workspace.js`, `tests/archive-readiness.integration.test.mjs`, `tests/workspace-app.test.mjs`, `tests/production-workflow-source.test.mjs`, MVP/backlog/artifact/memory/handoff/setup/registry/progress docs, and structured run manifest.
@@ -494,9 +494,9 @@ Each rebuild run should append a dated entry with:
 
 ### 2026-05-20 21:38 PT - MVP-022 Archive Provider And Retention Handling
 
-- `automation`: `senior-capstone-nonfigma-mvp-builder-30`
+- `automation`: `functionality-ux-upgrade-hourly`
 - `master-plan section`: Day 7 Alpha Gate; Role-Aware Production App Contract; North Star Workflow; Logging Requirements.
-- `source docs/logs read`: automation memory fallback at `C:\Users\bryan\.codex\automations\senior-capstone-nonfigma-mvp-builder-30\memory.md` (missing at start), required master plan/catalog/cadence/runbook/self-improvement/memory/milestones/progress docs, recent run manifests, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, `docs/progress/rebuild.md`, the latest archive provider/retention handoff manifest, and the existing archive/export route/test patterns.
+- `source docs/logs read`: automation memory fallback at `C:\Users\bryan\.codex\automations\functionality-ux-upgrade-hourly\memory.md` (missing at start), required master plan/catalog/cadence/runbook/self-improvement/memory/milestones/progress docs, recent run manifests, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, `docs/progress/rebuild.md`, the latest archive provider/retention handoff manifest, and the existing archive/export route/test patterns.
 - `backlog or requirement IDs selected`: `SC-004`, `SC-005`, `SC-006`, `MVP-018`, `MVP-020`, `MVP-022`, `MVP-027`, supporting `MVP-032`.
 - `bounded scope`: Partially consume repo-recorded Figma node `149:2` without direct Figma work by turning missing Drive configuration/provider access into failed archive export states and by exposing configurable retention policy/window state.
 - `files changed`: `.dev.vars.example`, `wrangler.jsonc`, `functions/_types.ts`, `functions/_lib/archive-export.ts`, `functions/api/admin/exports/student-archive.ts`, `functions/api/student/archive/readiness.ts`, `workspace.js`, `tests/archive-readiness.integration.test.mjs`, `tests/workspace-app.test.mjs`, `tests/workspace-browser-smoke.test.mjs`, `tests/production-workflow-source.test.mjs`, `docs/backend-setup.md`, `docs/mvp-requirements-catalog.md`, `docs/automation-backlog.md`, `docs/automation-memory.md`, `docs/artifacts.json`, `docs/progress/handoffs.md`, `docs/human-decisions.md`, this rebuild log, `docs/progress/run-log.md`, and structured run manifest.
@@ -508,9 +508,9 @@ Each rebuild run should append a dated entry with:
 
 ### 2026-05-20 22:09 PT - MVP-022 Drive Archive Package Delivery
 
-- `automation`: `senior-capstone-nonfigma-mvp-builder`
+- `automation`: `functionality-ux-upgrade-hourly`
 - `master-plan section`: Day 7 Alpha Gate; Role-Aware Production App Contract; North Star Workflow; Logging Requirements.
-- `source docs/logs read`: automation memory fallback at `C:\Users\bryan\.codex\automations\senior-capstone-nonfigma-mvp-builder\memory.md`, required master plan/catalog/cadence/runbook/self-improvement/memory/milestones/progress docs, recent run manifests, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, `docs/progress/rebuild.md`, the latest Drive archive delivery handoff manifest, and the existing archive/export route/test patterns.
+- `source docs/logs read`: automation memory fallback at `C:\Users\bryan\.codex\automations\functionality-ux-upgrade-hourly\memory.md`, required master plan/catalog/cadence/runbook/self-improvement/memory/milestones/progress docs, recent run manifests, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, `docs/progress/rebuild.md`, the latest Drive archive delivery handoff manifest, and the existing archive/export route/test patterns.
 - `backlog or requirement IDs selected`: `SC-004`, `SC-005`, `SC-006`, `MVP-018`, `MVP-020`, `MVP-022`, `MVP-027`, supporting `MVP-032`.
 - `bounded scope`: Partially consume repo-recorded Figma node `151:2` without direct Figma work by uploading the redacted archive manifest JSON into Drive before completing an export and by exposing only package-ready markers to the workspace.
 - `files changed`: `functions/_lib/archive-export.ts`, `functions/api/admin/exports/student-archive.ts`, `functions/api/exports/[id]/download.ts`, `functions/api/student/archive/readiness.ts`, `workspace.js`, `tests/archive-readiness.integration.test.mjs`, `tests/workspace-app.test.mjs`, `tests/production-workflow-source.test.mjs`, `docs/backend-setup.md`, `docs/mvp-requirements-catalog.md`, `docs/automation-backlog.md`, `docs/automation-memory.md`, `docs/artifacts.json`, `docs/progress/handoffs.md`, this rebuild log, `docs/progress/run-log.md`, and structured run manifest.
@@ -522,9 +522,9 @@ Each rebuild run should append a dated entry with:
 
 ### 2026-05-20 22:40 PT - MVP-004 Reset-Required Password Completion
 
-- `automation`: `senior-capstone-nonfigma-mvp-builder-30`
+- `automation`: `functionality-ux-upgrade-hourly`
 - `master-plan section`: Role-Aware Production App Contract; Stack And Deployment Direction; Logging Requirements.
-- `source docs/logs read`: automation memory fallback at `C:\Users\bryan\.codex\automations\senior-capstone-nonfigma-mvp-builder-30\memory.md`, required master plan/catalog/cadence/runbook/self-improvement/memory/milestones/progress docs, recent run manifests, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, `docs/progress/rebuild.md`, and auth/workspace route/test files.
+- `source docs/logs read`: automation memory fallback at `C:\Users\bryan\.codex\automations\functionality-ux-upgrade-hourly\memory.md`, required master plan/catalog/cadence/runbook/self-improvement/memory/milestones/progress docs, recent run manifests, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, `docs/progress/rebuild.md`, and auth/workspace route/test files.
 - `backlog or requirement IDs selected`: `SC-005`, `SC-006`, `MVP-004`, `MVP-005`, supporting `MVP-020`, `MVP-025`, `MVP-032`, and `MVP-033`.
 - `bounded scope`: Add the first reset-required password completion flow so accounts marked for reset can rotate credentials and open the canonical workspace without direct Figma work or external secrets.
 - `files changed`: `functions/api/auth/complete-reset.ts`, `workspace.js`, `workspace.css`, `tests/auth-login.integration.test.mjs`, `tests/workspace-app.test.mjs`, `tests/workspace-browser-smoke.test.mjs`, `docs/generated/production-route-inventory.md`, MVP/backlog/artifact/memory/handoff/setup/progress docs, and structured run manifest.
@@ -536,9 +536,9 @@ Each rebuild run should append a dated entry with:
 
 ### 2026-05-21 01:08 PT - MVP-004/MVP-007 Admin Import Workspace UI
 
-- `automation`: `senior-capstone-nonfigma-mvp-builder`
+- `automation`: `functionality-ux-upgrade-hourly`
 - `master-plan section`: Role-Aware Production App Contract; Stack And Deployment Direction; Logging Requirements.
-- `source docs/logs read`: automation memory fallback at `C:\Users\bryan\.codex\automations\senior-capstone-nonfigma-mvp-builder\memory.md`, required master plan/catalog/cadence/runbook/self-improvement/memory/milestones/progress docs, recent run manifests, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, `docs/progress/rebuild.md`, latest Figma node `158:2` run manifest, `workspace.js`, `workspace.css`, `tests/workspace-app.test.mjs`, `tests/workspace-browser-smoke.test.mjs`, and `functions/api/admin/users/import.ts`.
+- `source docs/logs read`: automation memory fallback at `C:\Users\bryan\.codex\automations\functionality-ux-upgrade-hourly\memory.md`, required master plan/catalog/cadence/runbook/self-improvement/memory/milestones/progress docs, recent run manifests, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, `docs/progress/rebuild.md`, latest Figma node `158:2` run manifest, `workspace.js`, `workspace.css`, `tests/workspace-app.test.mjs`, `tests/workspace-browser-smoke.test.mjs`, and `functions/api/admin/users/import.ts`.
 - `backlog or requirement IDs selected`: `SC-005`, `SC-006`, `MVP-004`, `MVP-005`, `MVP-007`, supporting `MVP-020`, `MVP-025`, `MVP-032`, and `MVP-033`.
 - `bounded scope`: Consume part of Figma node `158:2` without direct Figma work by adding the canonical workspace admin import panel and one-time setup password output for `/api/admin/users/import`.
 - `files changed`: `workspace.js`, `workspace.css`, `tests/workspace-app.test.mjs`, `tests/workspace-browser-smoke.test.mjs`, `docs/mvp-requirements-catalog.md`, `docs/automation-memory.md`, `docs/artifacts.json`, `docs/human-decisions.md`, `docs/progress/handoffs.md`, this rebuild log, `docs/progress/run-log.md`, and structured run manifest `docs/progress/runs/2026-05-21-0108-admin-import-workspace-ui-mvp-004.json`.
@@ -551,9 +551,9 @@ Each rebuild run should append a dated entry with:
 
 ### 2026-05-21 01:37 PT - MVP-004/MVP-007 Admin Import Reset-First API Proof
 
-- `automation`: `senior-capstone-nonfigma-mvp-builder-30`
+- `automation`: `functionality-ux-upgrade-hourly`
 - `master-plan section`: Role-Aware Production App Contract; Stack And Deployment Direction; Logging Requirements.
-- `source docs/logs read`: automation memory at `C:\Users\bryan\.codex\automations\senior-capstone-nonfigma-mvp-builder-30\memory.md` (empty/missing), required master plan/catalog/cadence/runbook/self-improvement/memory/milestones/progress docs, recent run manifests, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, `docs/progress/rebuild.md`, and import/auth route/test files.
+- `source docs/logs read`: automation memory at `C:\Users\bryan\.codex\automations\functionality-ux-upgrade-hourly\memory.md` (empty/missing), required master plan/catalog/cadence/runbook/self-improvement/memory/milestones/progress docs, recent run manifests, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, `docs/progress/rebuild.md`, and import/auth route/test files.
 - `backlog or requirement IDs selected`: `SC-005`, `SC-006`, `MVP-004`, `MVP-005`, `MVP-007`, supporting `MVP-020`, `MVP-025`, `MVP-032`, and `MVP-033`.
 - `bounded scope`: Consume part of Figma node `163:2` without direct Figma work by proving the admin import reset-first API path and adding a denied-role audit event.
 - `files changed`: `functions/api/admin/users/import.ts`, `tests/admin-users-import.integration.test.mjs`, `docs/mvp-requirements-catalog.md`, `docs/automation-backlog.md`, `docs/automation-memory.md`, `docs/artifacts.json`, `docs/progress/handoffs.md`, this rebuild log, `docs/progress/run-log.md`, and structured run manifest `docs/progress/runs/2026-05-21-0137-admin-import-reset-proof-mvp-004.json`.
@@ -566,9 +566,9 @@ Each rebuild run should append a dated entry with:
 
 ### 2026-05-21 02:10 PT - MVP-004/MVP-007 Admin Import Local Proof
 
-- `automation`: `senior-capstone-nonfigma-mvp-builder`
+- `automation`: `functionality-ux-upgrade-hourly`
 - `master-plan section`: Role-Aware Production App Contract; Stack And Deployment Direction; Logging Requirements.
-- `source docs/logs read`: automation memory fallback at `C:\Users\bryan\.codex\automations\senior-capstone-nonfigma-mvp-builder\memory.md`, required master plan/catalog/cadence/runbook/self-improvement/memory/milestones/progress docs, recent run manifests, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, `docs/progress/rebuild.md`, Figma handoff node `163:2` records, and workspace smoke/test/seed files.
+- `source docs/logs read`: automation memory fallback at `C:\Users\bryan\.codex\automations\functionality-ux-upgrade-hourly\memory.md`, required master plan/catalog/cadence/runbook/self-improvement/memory/milestones/progress docs, recent run manifests, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, `docs/progress/rebuild.md`, Figma handoff node `163:2` records, and workspace smoke/test/seed files.
 - `backlog or requirement IDs selected`: `SC-005`, `SC-006`, `MVP-004`, `MVP-005`, `MVP-007`, supporting `MVP-020`, `MVP-025`, `MVP-032`, and `MVP-033`.
 - `bounded scope`: Consume the remaining local proof needs from node `163:2` without direct Figma work by proving admin import validation, no-store temporary credential output, reset-first login, denied-role behavior, role readback, and redacted audit checks against local Pages/D1 fake `.test` accounts.
 - `files changed`: `tests/workspace-browser-smoke.test.mjs`, `tests/workspace-app.test.mjs`, `scripts/seed-local-workspace-smoke.mjs`, `docs/mvp-requirements-catalog.md`, `docs/automation-backlog.md`, `docs/automation-memory.md`, `docs/artifacts.json`, `docs/progress/handoffs.md`, this rebuild log, `docs/progress/run-log.md`, and structured run manifest `docs/progress/runs/2026-05-21-0210-admin-import-local-proof-mvp-004.json`.
@@ -581,9 +581,9 @@ Each rebuild run should append a dated entry with:
 
 ### 2026-05-21 02:33 PT - MVP-032 Workspace Route Inventory Classification
 
-- `automation`: `senior-capstone-nonfigma-mvp-builder-30`
+- `automation`: `functionality-ux-upgrade-hourly`
 - `master-plan section`: P0 Production Experience Gate; Role-Aware Production App Contract; Logging Requirements.
-- `source docs/logs read`: automation memory at `C:\Users\bryan\.codex\automations\senior-capstone-nonfigma-mvp-builder-30\memory.md`, required master plan/catalog/cadence/runbook/self-improvement/memory/milestones/progress docs, recent run manifests, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, `docs/progress/rebuild.md`, route inventory generator/output, and production workflow source tests.
+- `source docs/logs read`: automation memory at `C:\Users\bryan\.codex\automations\functionality-ux-upgrade-hourly\memory.md`, required master plan/catalog/cadence/runbook/self-improvement/memory/milestones/progress docs, recent run manifests, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, `docs/progress/rebuild.md`, route inventory generator/output, and production workflow source tests.
 - `backlog or requirement IDs selected`: `SC-007`, `MVP-025`, `MVP-032`, `MVP-034`, and `MVP-039`.
 - `bounded scope`: Fix the production route inventory mismatch where `workspace.html` was still generated as `unknown` even though the registry/catalog name it as the canonical protected production app route.
 - `files changed`: `scripts/inventory-production-routes.mjs`, `docs/generated/production-route-inventory.md`, `tests/production-workflow-source.test.mjs`, `docs/mvp-requirements-catalog.md`, `docs/automation-backlog.md`, `docs/automation-memory.md`, `docs/artifacts.json`, `docs/progress/handoffs.md`, this rebuild log, `docs/progress/run-log.md`, and structured run manifest `docs/progress/runs/2026-05-21-0233-workspace-route-inventory-mvp-032.json`.
@@ -596,9 +596,9 @@ Each rebuild run should append a dated entry with:
 
 ### 2026-05-21 03:36 PT - MVP-015 Teacher Review Queue Scope Audit
 
-- `automation`: `senior-capstone-nonfigma-mvp-builder-30`
+- `automation`: `functionality-ux-upgrade-hourly`
 - `master-plan section`: Role-Aware Production App Contract; North Star Workflow; Logging Requirements.
-- `source docs/logs read`: automation memory fallback at `C:\Users\bryan\.codex\automations\senior-capstone-nonfigma-mvp-builder-30\memory.md`, required master plan/catalog/cadence/runbook/self-improvement/memory/milestones/progress docs, recent run manifests, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, `docs/progress/rebuild.md`, `functions/api/teacher/review-queue.ts`, `functions/_lib/permissions.ts`, and `tests/review-loop.integration.test.mjs`.
+- `source docs/logs read`: automation memory fallback at `C:\Users\bryan\.codex\automations\functionality-ux-upgrade-hourly\memory.md`, required master plan/catalog/cadence/runbook/self-improvement/memory/milestones/progress docs, recent run manifests, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, `docs/progress/rebuild.md`, `functions/api/teacher/review-queue.ts`, `functions/_lib/permissions.ts`, and `tests/review-loop.integration.test.mjs`.
 - `backlog or requirement IDs selected`: `SC-005`, `SC-006`, `MVP-006`, `MVP-015`, `MVP-020`, and `MVP-025`.
 - `bounded scope`: Harden the program teacher review queue role/scope predicate and audit access outcomes without direct Figma work.
 - `files changed`: `functions/api/teacher/review-queue.ts`, `tests/review-loop.integration.test.mjs`, `docs/mvp-requirements-catalog.md`, `docs/automation-backlog.md`, `docs/automation-memory.md`, `docs/artifacts.json`, `docs/progress/handoffs.md`, this rebuild log, `docs/progress/run-log.md`, and structured run manifest `docs/progress/runs/2026-05-21-0336-teacher-review-queue-scope-audit-mvp-015.json`.
@@ -611,9 +611,9 @@ Each rebuild run should append a dated entry with:
 
 ### 2026-05-21 04:05 PT - MVP-015/MVP-016 Review History And Decision Access Audit
 
-- `automation`: `senior-capstone-nonfigma-mvp-builder`
+- `automation`: `functionality-ux-upgrade-hourly`
 - `master-plan section`: Role-Aware Production App Contract; North Star Workflow; Logging Requirements.
-- `source docs/logs read`: automation memory fallback at `C:\Users\bryan\.codex\automations\senior-capstone-nonfigma-mvp-builder\memory.md`, required master plan/catalog/cadence/runbook/self-improvement/memory/milestones/progress docs, recent run manifests, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, `docs/progress/rebuild.md`, review history/decision route files, workflow/permission helpers, and review-loop/source tests.
+- `source docs/logs read`: automation memory fallback at `C:\Users\bryan\.codex\automations\functionality-ux-upgrade-hourly\memory.md`, required master plan/catalog/cadence/runbook/self-improvement/memory/milestones/progress docs, recent run manifests, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, `docs/progress/rebuild.md`, review history/decision route files, workflow/permission helpers, and review-loop/source tests.
 - `backlog or requirement IDs selected`: `SC-005`, `SC-006`, `MVP-006`, `MVP-015`, `MVP-016`, `MVP-020`, and `MVP-025`.
 - `bounded scope`: Extend the protected-record access audit matrix from the teacher review queue to `/api/reviews/:submissionId/history` and `/api/reviews/:submissionId/decision` without direct Figma work.
 - `files changed`: `functions/api/reviews/[submissionId]/history.ts`, `functions/api/reviews/[submissionId]/decision.ts`, `tests/review-loop.integration.test.mjs`, `tests/production-workflow-source.test.mjs`, `docs/mvp-requirements-catalog.md`, `docs/automation-backlog.md`, `docs/automation-memory.md`, `docs/artifacts.json`, `docs/progress/handoffs.md`, this rebuild log, `docs/progress/run-log.md`, and structured run manifest `docs/progress/runs/2026-05-21-0405-review-history-decision-audit-mvp-015.json`.
@@ -626,9 +626,9 @@ Each rebuild run should append a dated entry with:
 
 ### 2026-05-21 04:39 PT - MVP-013/MVP-014 Evidence Link Access Audit
 
-- `automation`: `senior-capstone-nonfigma-mvp-builder-30`
+- `automation`: `functionality-ux-upgrade-hourly`
 - `master-plan section`: Role-Aware Production App Contract; North Star Workflow; Logging Requirements.
-- `source docs/logs read`: automation memory at `C:\Users\bryan\.codex\automations\senior-capstone-nonfigma-mvp-builder-30\memory.md`, required master plan/catalog/cadence/runbook/self-improvement/memory/milestones/progress docs, recent run manifests, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, `docs/progress/rebuild.md`, evidence route/test files, and production workflow source tests.
+- `source docs/logs read`: automation memory at `C:\Users\bryan\.codex\automations\functionality-ux-upgrade-hourly\memory.md`, required master plan/catalog/cadence/runbook/self-improvement/memory/milestones/progress docs, recent run manifests, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, `docs/progress/rebuild.md`, evidence route/test files, and production workflow source tests.
 - `backlog or requirement IDs selected`: `SC-003`, `SC-005`, `SC-006`, `MVP-006`, `MVP-013`, `MVP-014`, `MVP-020`, and `MVP-025`.
 - `bounded scope`: Add route-level protected evidence-link metadata audit coverage for `/api/submissions/:id/evidence` without direct Figma work.
 - `files changed`: `functions/api/submissions/[id]/evidence.ts`, `tests/evidence-link.integration.test.mjs`, `tests/production-workflow-source.test.mjs`, `docs/mvp-requirements-catalog.md`, `docs/automation-backlog.md`, `docs/automation-memory.md`, `docs/artifacts.json`, `docs/progress/handoffs.md`, this rebuild log, `docs/progress/run-log.md`, and structured run manifest `docs/progress/runs/2026-05-21-0439-evidence-link-access-audit-mvp-013.json`.
@@ -641,9 +641,9 @@ Each rebuild run should append a dated entry with:
 
 ### 2026-05-21 05:06 PT - MVP-012 Submission Submit Access Audit
 
-- `automation`: `senior-capstone-nonfigma-mvp-builder`
+- `automation`: `functionality-ux-upgrade-hourly`
 - `master-plan section`: Role-Aware Production App Contract; North Star Workflow; Logging Requirements.
-- `source docs/logs read`: automation memory at `C:\Users\bryan\.codex\automations\senior-capstone-nonfigma-mvp-builder\memory.md`, required master plan/catalog/cadence/runbook/self-improvement/memory/milestones/progress docs, recent run manifests, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, `docs/progress/rebuild.md`, submit route, review-loop tests, workflow/permission helpers, and production workflow source tests.
+- `source docs/logs read`: automation memory at `C:\Users\bryan\.codex\automations\functionality-ux-upgrade-hourly\memory.md`, required master plan/catalog/cadence/runbook/self-improvement/memory/milestones/progress docs, recent run manifests, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, `docs/progress/rebuild.md`, submit route, review-loop tests, workflow/permission helpers, and production workflow source tests.
 - `backlog or requirement IDs selected`: `SC-005`, `SC-006`, `MVP-006`, `MVP-010`, `MVP-012`, `MVP-020`, and `MVP-025`.
 - `bounded scope`: Extend the protected-record audit matrix to `/api/submissions/:id/submit` without direct Figma work.
 - `files changed`: `functions/api/submissions/[id]/submit.ts`, `tests/review-loop.integration.test.mjs`, `tests/production-workflow-source.test.mjs`, `docs/mvp-requirements-catalog.md`, `docs/automation-backlog.md`, `docs/automation-memory.md`, `docs/artifacts.json`, `docs/progress/handoffs.md`, this rebuild log, `docs/progress/run-log.md`, and structured run manifest `docs/progress/runs/2026-05-21-0506-submission-submit-access-audit-mvp-012.json`.
@@ -656,9 +656,9 @@ Each rebuild run should append a dated entry with:
 
 ### 2026-05-21 05:35 PT - MVP-012 Submission Detail Access Audit
 
-- `automation`: `senior-capstone-nonfigma-mvp-builder-30`
+- `automation`: `functionality-ux-upgrade-hourly`
 - `master-plan section`: Role-Aware Production App Contract; North Star Workflow; Logging Requirements.
-- `source docs/logs read`: automation memory at `C:\Users\bryan\.codex\automations\senior-capstone-nonfigma-mvp-builder-30\memory.md`, required master plan/catalog/cadence/runbook/self-improvement/memory/milestones/progress docs, recent run manifests, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, `docs/progress/rebuild.md`, submission/review route files, workflow/permission helpers, and production workflow source tests.
+- `source docs/logs read`: automation memory at `C:\Users\bryan\.codex\automations\functionality-ux-upgrade-hourly\memory.md`, required master plan/catalog/cadence/runbook/self-improvement/memory/milestones/progress docs, recent run manifests, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, `docs/progress/rebuild.md`, submission/review route files, workflow/permission helpers, and production workflow source tests.
 - `backlog or requirement IDs selected`: `SC-005`, `SC-006`, `MVP-006`, `MVP-010`, `MVP-012`, `MVP-014`, `MVP-015`, `MVP-020`, and `MVP-025`.
 - `bounded scope`: Extend the protected-record access audit matrix to `/api/submissions/:id` detail/readback without direct Figma work.
 - `files changed`: `functions/api/submissions/[id].ts`, `tests/review-loop.integration.test.mjs`, `tests/production-workflow-source.test.mjs`, `docs/generated/production-route-inventory.md`, `docs/mvp-requirements-catalog.md`, `docs/automation-backlog.md`, `docs/automation-memory.md`, `docs/artifacts.json`, `docs/progress/handoffs.md`, this rebuild log, `docs/progress/run-log.md`, and structured run manifest `docs/progress/runs/2026-05-21-0535-submission-detail-access-audit-mvp-012.json`.
@@ -671,9 +671,9 @@ Each rebuild run should append a dated entry with:
 
 ### 2026-05-21 06:38 PT - MVP-017 Mentor Meetings Access Audit
 
-- `automation`: `senior-capstone-nonfigma-mvp-builder-30`
+- `automation`: `functionality-ux-upgrade-hourly`
 - `master-plan section`: Role-Aware Production App Contract; North Star Workflow; Logging Requirements.
-- `source docs/logs read`: automation memory at `C:\Users\bryan\.codex\automations\senior-capstone-nonfigma-mvp-builder-30\memory.md`, required master plan/catalog/cadence/runbook/self-improvement/memory/milestones/progress docs, recent run manifests, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, `docs/progress/rebuild.md`, protected-record acceptance board manifest, mentor meetings route/test files, production workflow source tests, and permission helpers.
+- `source docs/logs read`: automation memory at `C:\Users\bryan\.codex\automations\functionality-ux-upgrade-hourly\memory.md`, required master plan/catalog/cadence/runbook/self-improvement/memory/milestones/progress docs, recent run manifests, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, `docs/progress/rebuild.md`, protected-record acceptance board manifest, mentor meetings route/test files, production workflow source tests, and permission helpers.
 - `backlog or requirement IDs selected`: `SC-004`, `SC-005`, `SC-006`, `MVP-006`, `MVP-017`, `MVP-020`, and `MVP-025`.
 - `bounded scope`: Extend the protected-record audit matrix to `/api/mentor/meetings` without direct Figma work.
 - `files changed`: `functions/api/mentor/meetings.ts`, `tests/mentor-meetings.integration.test.mjs`, `tests/production-workflow-source.test.mjs`, `docs/mvp-requirements-catalog.md`, `docs/automation-backlog.md`, `docs/automation-memory.md`, `docs/artifacts.json`, `docs/progress/handoffs.md`, this rebuild log, `docs/progress/run-log.md`, and structured run manifest `docs/progress/runs/2026-05-21-0638-mentor-meetings-access-audit-mvp-017.json`.
@@ -686,9 +686,9 @@ Each rebuild run should append a dated entry with:
 
 ### 2026-05-21 07:46 PT - MVP-013/MVP-014 Hosted Evidence Upload/Download Proof
 
-- `automation`: `senior-capstone-nonfigma-mvp-builder-30`
+- `automation`: `functionality-ux-upgrade-hourly`
 - `master-plan section`: Role-Aware Production App Contract; North Star Workflow; Stack And Deployment Direction; Logging Requirements.
-- `source docs/logs read`: automation memory at `C:\Users\bryan\.codex\automations\senior-capstone-nonfigma-mvp-builder-30\memory.md`, required master plan/catalog/cadence/runbook/self-improvement/memory/milestones/progress docs, recent run manifests, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, `docs/progress/rebuild.md`, dashboard/workspace/evidence route tests, and the live Drive checker.
+- `source docs/logs read`: automation memory at `C:\Users\bryan\.codex\automations\functionality-ux-upgrade-hourly\memory.md`, required master plan/catalog/cadence/runbook/self-improvement/memory/milestones/progress docs, recent run manifests, `docs/progress/handoffs.md`, `docs/progress/decision-log.md`, `docs/automation-backlog.md`, `docs/artifacts.json`, `docs/human-decisions.md`, `docs/progress/rebuild.md`, dashboard/workspace/evidence route tests, and the live Drive checker.
 - `backlog or requirement IDs selected`: `SC-003`, `SC-005`, `SC-007`, `MVP-006`, `MVP-013`, `MVP-014`, `MVP-025`, `MVP-026`, `MVP-032`, and `MVP-033`.
 - `bounded scope`: Prove hosted fake `.test` file-byte upload/download through the app-scoped Drive route, including a >5MB resumable path, without direct Figma work.
 - `files changed`: `functions/api/student/dashboard.ts`, `workspace.js`, `workspace.css`, `tests/student-dashboard-access.integration.test.mjs`, `tests/workspace-app.test.mjs`, `tests/workspace-browser-smoke.test.mjs`, `scripts/check-google-drive-live.mjs`, `docs/mvp-requirements-catalog.md`, `docs/automation-backlog.md`, `docs/automation-memory.md`, `docs/artifacts.json`, `docs/progress/handoffs.md`, this rebuild log, `docs/progress/run-log.md`, and structured run manifest `docs/progress/runs/2026-05-21-0746-hosted-evidence-upload-download-mvp-013.json`.

@@ -36,11 +36,11 @@
     {
       "name": "production_and_automation_closeout",
       "result": "completed",
-      "evidence": "Production-surface, generated-output, route-inventory, Cloudflare static, QoL doctor/smoke, aggregate check, JSON parse, and git diff checks passed; report schema now warns against stale pending commit fields."
+      "evidence": "Production-surface, generated-output, route-inventory, Cloudflare static, automation checks, aggregate check, JSON parse, and git diff checks passed; report schema now warns against stale pending commit fields."
     }
   ],
   "files_changed": [
-    "automation/qol/REPORT_SCHEMA.md",
+    "automation/state/functionality-ux-growth-state.json",
     "docs/artifacts.json",
     "docs/mvp-requirements-catalog.md",
     "docs/production-surface-registry.md",
@@ -189,12 +189,12 @@
       "notes": "Static Wrangler/D1 config passed; live Cloudflare verification blocked by missing token."
     },
     {
-      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 automation\\qol\\doctor.mjs",
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 automation\\automation\\functionality-ux-upgrade-hourly.md",
       "result": "pass",
       "notes": "Doctor passed while reporting the expected dirty state from this in-progress run."
     },
     {
-      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 automation\\qol\\hourly-orchestrator.mjs --smoke",
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 automation\\automation\\functionality-ux-upgrade-hourly.md --smoke",
       "result": "pass",
       "notes": "14 smoke checks passed."
     },

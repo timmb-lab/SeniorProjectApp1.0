@@ -18,8 +18,8 @@ Run:
 npm run verify:functionality-ux-automation
 ```
 
-For PR readiness, use the project validation ladder requested by the current task. Do not run retired cadence, builder, daily/weekly, or diagnostic automation checks.
+For PR readiness, use the project validation ladder requested by the current task. Do not run retired automation checks.
 
 ## Change Rule
 
-Do not add, revive, or document any other active automation unless Bryan explicitly asks for it in a future task. Historical progress logs may preserve old run history, but active automation docs and checks should point only to Functionality UX Upgrade.
+Do not add, revive, or document any other active automation unless Bryan explicitly asks for it in a future task. Tracked automation docs and checks should point only to Functionality UX Upgrade.

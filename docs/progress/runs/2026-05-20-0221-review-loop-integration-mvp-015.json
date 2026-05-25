@@ -1,7 +1,7 @@
 {
   "run_id": "2026-05-20-0221-review-loop-integration-mvp-015",
   "timestamp_local": "2026-05-20T02:21:00-07:00",
-  "automation_id": "senior-capstone-hourly-qol-orchestrator",
+  "automation_id": "functionality-ux-upgrade-hourly",
   "trigger": "30-minute MVP builder run: add an end-to-end integration test proving the student submit -> teacher revision -> student resubmit -> teacher approval loop persists review/status history and updates the teacher queue.",
   "lane": "staff-review-mentor",
   "status": "completed",

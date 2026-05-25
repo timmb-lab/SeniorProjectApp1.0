@@ -1,5 +1,5 @@
 {
-  "run_id": "2026-05-19-0925-qol-wrapper-check-repair",
+  "run_id": "2026-05-19-0925-automation-wrapper-check-repair",
   "timestamp_local": "2026-05-19T09:25:00-07:00",
   "automation_id": "manual-codex-thread",
   "trigger": "user-reported-recent-failures",
@@ -11,17 +11,17 @@
   ],
   "duration_minutes": 8,
   "output_kind": "script-repair",
-  "scope": "Repair the QoL aggregate check failure seen in recent logs by making the automation closeout check resilient when TypeScript tooling is not installed locally.",
+  "scope": "Repair the automation aggregate check failure seen in recent logs by making the automation closeout check resilient when TypeScript tooling is not installed locally.",
   "files_changed": [
     "docs/automation-memory.md",
     "docs/automation-runbook.md",
     "docs/progress/audit.md",
     "docs/progress/run-log.md",
-    "docs/progress/runs/2026-05-19-0925-qol-wrapper-check-repair.json",
+    "docs/progress/runs/2026-05-19-0925-automation-wrapper-check-repair.json",
     "scripts/run-npm-script.ps1"
   ],
   "log_findings": [
-    "State DB shows the only SeniorProjectApp1.0 thread inside the past half hour was the manual QoL audit thread; scheduled Senior Capstone QoL worktrees last updated earlier at 07:17 PT.",
+    "State DB shows the only SeniorProjectApp1.0 thread inside the past half hour was the manual automation audit thread; scheduled Senior Capstone automation worktrees last updated earlier at 07:17 PT.",
     "The recent project thread ended with aggregate run-npm-script.ps1 check reaching TypeScript and failing because this shell has no npm, node_modules, or tsc.cmd.",
     "The Codex log database did not show additional Senior Capstone scheduled failures inside the same half-hour window; the freshest automation worktrees in that window were Curriculum runs, not this repo."
   ],
@@ -33,16 +33,16 @@
   "validation": [
     "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 check passed with 7 Node tests and a nonfatal optional TypeScript warning.",
     "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 typecheck failed intentionally with the concise compiler-missing message.",
-    "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 check:automation:live passed for 30 QoL automations and 2 support automations."
+    "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 verify:functionality-ux-automation:live passed for configured automation entries and 2 support automations."
   ],
   "blockers": [],
   "known_limits": [
-    "Strict TypeScript validation still requires npm install, node_modules, or TSC_CMD; aggregate QoL closeout no longer fails solely because the unattended shell lacks that optional local tool."
+    "Strict TypeScript validation still requires npm install, node_modules, or TSC_CMD; aggregate automation closeout no longer fails solely because the unattended shell lacks that optional local tool."
   ],
   "automation_efficiency": {
     "duplicate_scope_checked": true,
     "scale_signal": "preflight-blocked",
-    "notes": "This removes the repeated missing-compiler failure from the aggregate QoL closeout path while preserving a strict typecheck command for environments with installed dependencies."
+    "notes": "This removes the repeated missing-compiler failure from the aggregate automation closeout path while preserving a strict typecheck command for environments with installed dependencies."
   },
   "self_improvement": "Patched the project wrapper, verified the failed aggregate path, and logged the repair so future scheduled runs can use the same non-interactive command safely."
 }

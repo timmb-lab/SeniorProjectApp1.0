@@ -1,7 +1,7 @@
 {
   "run_id": "2026-05-20-2110-scoped-archive-manifests-mvp-022",
   "timestamp_local": "2026-05-20T21:10:00-07:00",
-  "automation_id": "senior-capstone-nonfigma-mvp-builder",
+  "automation_id": "functionality-ux-upgrade-hourly",
   "lane": "non-figma MVP builder",
   "selected_category": "admin-ops-reporting",
   "status": "completed",
@@ -23,7 +23,7 @@
   "output_kind": "archive-manifest-artifact-generation-download-expiry-tests-docs",
   "bounded_scope": "Generate scoped student archive manifest artifacts from persisted rows, stream them through authorized export downloads, and add expired-package retry behavior without direct Figma work or live Drive credentials.",
   "source_docs_read": [
-    "C:\\Users\\bryan\\.codex\\automations\\senior-capstone-nonfigma-mvp-builder\\memory.md",
+    "C:\\Users\\bryan\\.codex\\automations\\functionality-ux-upgrade-hourly\\memory.md",
     "docs/master-plan.md",
     "docs/mvp-requirements-catalog.md",
     "docs/automation-cadence.md",

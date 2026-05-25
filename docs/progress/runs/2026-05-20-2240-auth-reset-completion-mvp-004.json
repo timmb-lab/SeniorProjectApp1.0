@@ -1,7 +1,7 @@
 {
   "run_id": "2026-05-20-2240-auth-reset-completion-mvp-004",
   "timestamp_local": "2026-05-20T22:40:00-07:00",
-  "automation_id": "senior-capstone-nonfigma-mvp-builder-30",
+  "automation_id": "functionality-ux-upgrade-hourly",
   "lane": "non-figma MVP builder",
   "selected_category": "backend-security-data",
   "status": "completed",
@@ -24,7 +24,7 @@
   "output_kind": "auth-reset-endpoint-workspace-ui-tests-docs",
   "bounded_scope": "Add reset-required password completion for the hardened username/password pilot auth path and expose it in the canonical workspace without direct Figma work.",
   "source_docs_read": [
-    "C:\\Users\\bryan\\.codex\\automations\\senior-capstone-nonfigma-mvp-builder-30\\memory.md",
+    "C:\\Users\\bryan\\.codex\\automations\\functionality-ux-upgrade-hourly\\memory.md",
     "docs/master-plan.md",
     "docs/mvp-requirements-catalog.md",
     "docs/automation-cadence.md",

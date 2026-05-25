@@ -1,7 +1,7 @@
 {
   "run_id": "2026-05-20-0832-submission-version-history-mvp-016",
   "timestamp_local": "2026-05-20T08:32:00-07:00",
-  "automation_id": "senior-capstone-hourly-qol-orchestrator",
+  "automation_id": "functionality-ux-upgrade-hourly",
   "trigger": "30-minute MVP builder run: preserve prior submission versions for the teacher review loop by adding a D1 version-history table, submit-time snapshots, review-history output, and integration coverage.",
   "lane": "staff-review-mentor",
   "status": "completed",

@@ -1,7 +1,7 @@
 {
   "run_id": "2026-05-21-0108-admin-import-workspace-ui-mvp-004",
   "timestamp_local": "2026-05-21T01:08:00-07:00",
-  "automation_id": "senior-capstone-nonfigma-mvp-builder",
+  "automation_id": "functionality-ux-upgrade-hourly",
   "lane": "non-figma MVP builder",
   "selected_category": "backend-security-data",
   "status": "completed",
@@ -27,7 +27,7 @@
   "output_kind": "workspace-admin-import-ui-tests-hosted-marker-proof",
   "bounded_scope": "Add the canonical workspace admin import panel for /api/admin/users/import and one-time setup password display without direct Figma work.",
   "source_docs_read": [
-    "C:\\Users\\bryan\\.codex\\automations\\senior-capstone-nonfigma-mvp-builder\\memory.md",
+    "C:\\Users\\bryan\\.codex\\automations\\functionality-ux-upgrade-hourly\\memory.md",
     "docs/master-plan.md",
     "docs/mvp-requirements-catalog.md",
     "docs/automation-cadence.md",

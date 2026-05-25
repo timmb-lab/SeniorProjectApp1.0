@@ -1,7 +1,7 @@
 {
   "run_id": "2026-05-20-1737-figma-workspace-account-edge-states",
   "timestamp_local": "2026-05-20T17:37:00-07:00",
-  "automation_id": "senior-capstone-figma-product-builder",
+  "automation_id": "functionality-ux-upgrade-hourly",
   "lane": "figma-only product builder",
   "status": "completed",
   "accepted_mvp_pass": true,
@@ -112,7 +112,7 @@
     }
   },
   "source_docs_read": [
-    "C:\\Users\\bryan\\.codex\\automations\\senior-capstone-figma-product-builder\\memory.md",
+    "C:\\Users\\bryan\\.codex\\automations\\functionality-ux-upgrade-hourly\\memory.md",
     "docs/design/figma-first-pass-product-system.md",
     "docs/design/figma-product-preview-state-variants.md",
     "docs/master-plan.md",
@@ -170,9 +170,9 @@
       "summary": "Whitespace check passed with line-ending warnings only."
     },
     {
-      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\verify-cadence-30min.ps1 -RepoRoot .",
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\verify:functionality-ux-automation -RepoRoot .",
       "result": "passed",
-      "summary": "Split cadence verifier passed with the two expected builder automations and oversight lanes."
+      "summary": "Functionality UX automation verifier passed."
     }
   ],
   "backend_code_work_avoided": true,
@@ -185,7 +185,7 @@
   "self_improvement": "none",
   "phone_tracker": {
     "spreadsheet_id": "1J8jQMn85wJwo9Rh6LjQUVv_WfLS1YJWsbpcLBCojjjs",
-    "tab": "QoL Runs",
+    "tab": "Automation Runs",
     "result": "appended",
     "timestamp_local": "2026-05-20T17:37:00-07:00",
     "summary": "Recorded MVP-028 workspace account edge-state Figma handoff for phone-friendly tracking."

@@ -1,7 +1,7 @@
 {
   "run_id": "2026-05-20-2138-archive-provider-retention-mvp-022",
   "timestamp_local": "2026-05-20T21:38:00-07:00",
-  "automation_id": "senior-capstone-nonfigma-mvp-builder-30",
+  "automation_id": "functionality-ux-upgrade-hourly",
   "lane": "non-figma MVP builder",
   "selected_category": "admin-ops-reporting",
   "status": "completed",
@@ -25,7 +25,7 @@
   "output_kind": "archive-provider-gating-retention-state-tests-docs",
   "bounded_scope": "Partially consume repo-recorded Figma node 149:2 without direct Figma work by turning missing Drive setup/provider access into failed archive export states and exposing configurable retention policy/window state.",
   "source_docs_read": [
-    "C:\\Users\\bryan\\.codex\\automations\\senior-capstone-nonfigma-mvp-builder-30\\memory.md (missing at start)",
+    "C:\\Users\\bryan\\.codex\\automations\\functionality-ux-upgrade-hourly\\memory.md (missing at start)",
     "docs/master-plan.md",
     "docs/mvp-requirements-catalog.md",
     "docs/automation-cadence.md",

@@ -1,7 +1,7 @@
 {
   "run_id": "2026-05-21-0439-evidence-link-access-audit-mvp-013",
   "timestamp_local": "2026-05-21T04:39:00-07:00",
-  "automation_id": "senior-capstone-nonfigma-mvp-builder-30",
+  "automation_id": "functionality-ux-upgrade-hourly",
   "lane": "non-figma MVP builder",
   "selected_category": "student-workflow-evidence",
   "status": "completed",
@@ -25,7 +25,7 @@
   "output_kind": "evidence-link-access-audit-and-route-tests",
   "bounded_scope": "Add route-level protected evidence-link metadata audit coverage for /api/submissions/:id/evidence without direct Figma work.",
   "source_docs_read": [
-    "C:\\Users\\bryan\\.codex\\automations\\senior-capstone-nonfigma-mvp-builder-30\\memory.md",
+    "C:\\Users\\bryan\\.codex\\automations\\functionality-ux-upgrade-hourly\\memory.md",
     "docs/master-plan.md",
     "docs/mvp-requirements-catalog.md",
     "docs/automation-cadence.md",

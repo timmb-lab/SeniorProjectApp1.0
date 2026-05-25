@@ -1,7 +1,7 @@
 {
   "run_id": "2026-05-20-0012-seeded-requirement-fixtures-mvp-009",
   "timestamp_local": "2026-05-20T00:12:00-07:00",
-  "automation_id": "senior-capstone-hourly-qol-orchestrator",
+  "automation_id": "functionality-ux-upgrade-hourly",
   "trigger": "30-minute MVP builder run: switch the admin test-account workflow fixtures from the alpha-only placeholder requirement (req-alpha-proposal) to the seeded framework requirement ID (req-proposal-draft).",
   "lane": "requirements-audit",
   "status": "completed",

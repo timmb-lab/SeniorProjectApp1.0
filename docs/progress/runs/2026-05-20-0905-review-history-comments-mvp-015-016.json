@@ -1,7 +1,7 @@
 {
   "run_id": "2026-05-20-0905-review-history-comments-mvp-015-016",
   "timestamp_local": "2026-05-20T09:05:00-07:00",
-  "automation_id": "senior-capstone-nonfigma-mvp-builder",
+  "automation_id": "functionality-ux-upgrade-hourly",
   "trigger": "Top-of-hour non-Figma MVP builder run: add persisted teacher comments into the scoped review-history flow after immutable submission version snapshots landed.",
   "lane": "staff-review-mentor",
   "status": "completed",
@@ -18,7 +18,7 @@
   "output_kind": "code+tests+docs",
   "scope": "Persist review feedback into the existing comments table, support comment-only review records without status changes, and return scoped comments from the review-history endpoint alongside reviews, status history, and immutable version snapshots.",
   "source_docs_read": [
-    "C:\\\\Users\\\\bryan\\\\.codex\\\\automations\\\\senior-capstone-nonfigma-mvp-builder\\\\memory.md",
+    "C:\\\\Users\\\\bryan\\\\.codex\\\\automations\\\\functionality-ux-upgrade-hourly\\\\memory.md",
     "docs/master-plan.md",
     "docs/mvp-requirements-catalog.md",
     "docs/automation-cadence.md",

@@ -1,7 +1,7 @@
 {
   "run_id": "2026-05-21-0210-admin-import-local-proof-mvp-004",
   "timestamp_local": "2026-05-21T02:10:00-07:00",
-  "automation_id": "senior-capstone-nonfigma-mvp-builder",
+  "automation_id": "functionality-ux-upgrade-hourly",
   "lane": "non-figma",
   "selected_category": "backend-security-data",
   "status": "completed",
@@ -27,7 +27,7 @@
   "output_kind": "local-pages-d1-admin-import-browser-proof-and-smoke-hardening",
   "bounded_scope": "Consume the remaining local proof needs from Figma node 163:2 without direct Figma work by proving admin import validation, no-store temporary credential output, reset-first login, denied-role behavior, role readback, and redacted audit checks against local Pages/D1 fake .test accounts.",
   "source_docs_read": [
-    "C:\\Users\\bryan\\.codex\\automations\\senior-capstone-nonfigma-mvp-builder\\memory.md",
+    "C:\\Users\\bryan\\.codex\\automations\\functionality-ux-upgrade-hourly\\memory.md",
     "docs/master-plan.md",
     "docs/mvp-requirements-catalog.md",
     "docs/automation-cadence.md",

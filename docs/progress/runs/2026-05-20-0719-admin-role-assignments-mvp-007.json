@@ -1,7 +1,7 @@
 {
   "run_id": "2026-05-20-0719-admin-role-assignments-mvp-007",
   "timestamp_local": "2026-05-20T07:19:00-07:00",
-  "automation_id": "senior-capstone-hourly-qol-orchestrator",
+  "automation_id": "functionality-ux-upgrade-hourly",
   "trigger": "30-minute MVP builder run: add an admin role-assignment endpoint to manage user_roles (including validated program/cohort teacher scopes) with audit events, then add deterministic integration coverage.",
   "lane": "admin-ops-reporting",
   "status": "completed",
@@ -32,7 +32,7 @@
     "docs/automation-backlog.md",
     "docs/artifacts.json",
     "docs/human-decisions.md",
-    "automation/qol/reports/latest.md",
+    "automation/state/functionality-ux-growth-state.json",
     "functions/api/admin/role-assignments.ts",
     "tests/admin-role-assignments.integration.test.mjs"
   ],

@@ -46,8 +46,8 @@
     "scripts/run-npm-script.ps1",
     "scripts/check-generated-output-drift.mjs",
     "scripts/check-site-options.mjs",
-    "automation/prompts/senior-capstone-nonfigma-mvp-builder.md",
-    "automation/prompts/senior-capstone-figma-product-builder.md"
+    "automation/prompts/functionality-ux-upgrade-hourly.md",
+    "automation/prompts/functionality-ux-upgrade-hourly.md"
   ],
   "files_changed": [
     "docs/master-plan.md",
@@ -58,8 +58,8 @@
     "app.js",
     "public-companion/app.js",
     "tests/account-and-evidence-access.test.mjs",
-    "automation/prompts/senior-capstone-nonfigma-mvp-builder.md",
-    "automation/prompts/senior-capstone-figma-product-builder.md",
+    "automation/prompts/functionality-ux-upgrade-hourly.md",
+    "automation/prompts/functionality-ux-upgrade-hourly.md",
     "docs/automation-backlog.md",
     "docs/progress/handoffs.md",
     "docs/progress/decision-log.md",

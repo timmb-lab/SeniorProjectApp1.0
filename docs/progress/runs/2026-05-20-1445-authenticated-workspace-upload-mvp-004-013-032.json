@@ -118,12 +118,12 @@
       "notes": "Static Wrangler/D1 config passed; live Cloudflare verification reported LIVE_CLOUDFLARE_BLOCKED_NO_TOKEN."
     },
     {
-      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 automation\\qol\\doctor.mjs",
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 automation\\automation\\functionality-ux-upgrade-hourly.md",
       "result": "pass",
-      "notes": "QoL identity/safety doctor passed."
+      "notes": "automation identity/safety doctor passed."
     },
     {
-      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 automation\\qol\\hourly-orchestrator.mjs --smoke",
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-node-script.ps1 automation\\automation\\functionality-ux-upgrade-hourly.md --smoke",
       "result": "pass",
       "notes": "14 smoke checks passed."
     },
@@ -144,7 +144,7 @@
     "upload API validation and tests",
     "public/stakeholder source generators and generated output",
     "production/generated-output validators",
-    "non-Figma max-pass automation prompt and QoL selector/report docs",
+    "non-Figma max-pass automation prompt and automation selector/report docs",
     "planner/progress/artifact records"
   ],
   "commit": {
