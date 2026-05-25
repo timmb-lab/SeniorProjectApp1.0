@@ -1,7 +1,7 @@
 {
   "run_id": "2026-05-19-2030-framework-seed-mvp-009",
   "timestamp_local": "2026-05-19T20:30:00-07:00",
-  "automation_id": "senior-capstone-hourly-qol-orchestrator",
+  "automation_id": "functionality-ux-upgrade-hourly",
   "trigger": "30-minute MVP builder run: implement MVP-009 / SC-001 framework seed loader foundations.",
   "lane": "requirements-audit",
   "status": "completed",
@@ -23,7 +23,7 @@
     "docs/automation-memory.md",
     "docs/progress/handoffs.md",
     "docs/progress/run-log.md",
-    "automation/qol/reports/latest.md",
+    "automation/state/functionality-ux-growth-state.json",
     "data/capstone-framework.json",
     "migrations/0001_foundation.sql"
   ],
@@ -31,7 +31,7 @@
     "Added migration 0002 framework seed support tables (sections, checks, credit owners, review gates, evidence signals).",
     "Added scripts/framework-seed.mjs to generate idempotent seed SQL for requirements/deadlines/checks from data/capstone-framework.json.",
     "Added tests/framework-seed.test.mjs to lock mapping counts and prevent leaking local filesystem paths into seed SQL output.",
-    "Updated the master plan with a stable 30-Minute Master-Plan Orchestrator heading so the QoL parser has a durable anchor."
+    "Updated the master plan with a stable Functionality UX Upgrade Model heading so the automation parser has a durable anchor."
   ],
   "validation": [
     "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 test"

@@ -600,6 +600,11 @@ test("workspace opens real student detail, loads timeline, and preserves directo
 
   vm.runInContext('activeSection = "students"; renderAppShell();', context);
   assert.match(workspaceRoot.innerHTML, /value="Revision Loop Demo"/);
+  assert.match(workspaceRoot.innerHTML, /Active filters/);
+  assert.match(workspaceRoot.innerHTML, /Revision Loop Demo/);
+  assert.match(workspaceRoot.innerHTML, /Information Technology/);
+  assert.match(workspaceRoot.innerHTML, /Revision requested/);
+  assert.match(workspaceRoot.innerHTML, /Clear filters/);
   assert.match(workspaceRoot.innerHTML, /Offset 50 \/ Limit 50/);
   assert.doesNotMatch(workspaceRoot.innerHTML, /workspace-detail-drawer/);
 
@@ -769,6 +774,99 @@ test("workspace renders site-aware Review Queue with teacher decisions and read-
   assert.match(workspaceRoot.innerHTML, /Improve scope and cite the private evidence summary/);
 });
 
+test("workspace applies Review Queue URL filters safely and syncs filter URLs", async () => {
+  const urlFilters = {
+    status: "revision_requested",
+    programId: "",
+    search: "proposal scope",
+    story: "",
+    risk: "stale",
+    limit: 100,
+    offset: 0,
+  };
+  const { context, workspaceRoot, fetchLog, window } = await createWorkspaceContextWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "teacher-review-url",
+          email: "teacher.review.url@example.edu",
+          displayName: "Program Teacher Review URL",
+          roles: [{ role_id: "program_teacher", scope_type: "program", scope_id: "it" }],
+        },
+      },
+    },
+    "/api/site/students": {
+      status: 200,
+      body: siteStudentsFixture({ role: "program_teacher", total: 45 }),
+    },
+    "/api/site/review-queue": {
+      status: 200,
+      body: siteReviewQueueFixture({ role: "program_teacher", filters: urlFilters }),
+    },
+    "/api/program-teacher/dashboard": {
+      status: 200,
+      body: { ok: true, summary: { scopedStudents: 45, submissionsAwaitingReview: 3 }, students: [], programBreakdown: [] },
+    },
+    "/api/presentation-slots": {
+      status: 200,
+      body: { ok: true, slots: [] },
+    },
+  }, {
+    url: "https://workspace.example/workspace.html?section=teacher&siteId=site-desert-valley-high&status=revision_requested&search=%20proposal%20scope%20&risk=bogus&overdue=true&limit=999&offset=-50&unknown=keep&evidenceStatus=approved",
+  });
+
+  const reviewFetch = fetchLog.find((entry) => entry.startsWith("/api/site/review-queue?"));
+  assert.ok(reviewFetch, "expected Review Queue fetch with URL-derived filters");
+  const fetched = new URL(reviewFetch, "https://workspace.example");
+  assert.equal(fetched.searchParams.get("siteId"), "site-desert-valley-high");
+  assert.equal(fetched.searchParams.get("status"), "revision_requested");
+  assert.equal(fetched.searchParams.get("search"), "proposal scope");
+  assert.equal(fetched.searchParams.get("risk"), "stale");
+  assert.equal(fetched.searchParams.get("limit"), "100");
+  assert.equal(fetched.searchParams.has("offset"), false);
+  assert.equal(fetched.searchParams.has("evidenceStatus"), false);
+  assert.match(workspaceRoot.innerHTML, /data-section="teacher"/);
+  assert.match(workspaceRoot.innerHTML, /Active filters/);
+  assert.match(workspaceRoot.innerHTML, /Revision requested/);
+  assert.match(workspaceRoot.innerHTML, /Stale activity/);
+  assert.match(workspaceRoot.innerHTML, /proposal scope/);
+  assert.match(workspaceRoot.innerHTML, /Clear filters/);
+
+  await vm.runInContext('handleReviewQueueAction({ currentTarget: { dataset: { reviewQueueAction: "reset-filters" } } })', context);
+  assert.match(window.location.href, /unknown=keep/);
+  assert.match(window.location.href, /section=teacher/);
+  assert.doesNotMatch(window.location.href, /status=|search=|risk=|limit=|offset=|evidenceStatus=/);
+
+  vm.runInContext(`
+    reviewQueueFilters = {
+      ...defaultReviewQueueFilters(),
+      status: "submitted",
+      programId: "it",
+      search: "senior proposal",
+      risk: "high",
+      limit: 25
+    };
+    syncReviewQueueUrlState();
+  `, context);
+  const synced = new URL(window.location.href);
+  assert.equal(synced.searchParams.get("section"), "teacher");
+  assert.equal(synced.searchParams.get("status"), "submitted");
+  assert.equal(synced.searchParams.get("programId"), "it");
+  assert.equal(synced.searchParams.get("search"), "senior proposal");
+  assert.equal(synced.searchParams.get("risk"), "high");
+  assert.equal(synced.searchParams.get("limit"), "25");
+  assert.equal(synced.searchParams.get("unknown"), "keep");
+
+  window.history.pushState({}, "", "/workspace.html?section=teacher&status=revision_requested&risk=stale&unknown=keep");
+  window.dispatchEvent({ type: "popstate" });
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  const restored = JSON.parse(vm.runInContext("JSON.stringify(reviewQueueFilters)", context));
+  assert.equal(restored.status, "revision_requested");
+  assert.equal(restored.risk, "stale");
+});
+
 test("workspace renders site-scoped Mentor Assignments with role-safe assignment controls", async () => {
   const siteAdmin = await renderWorkspaceWithFetch({
     "/api/auth/me": {
@@ -797,7 +895,20 @@ test("workspace renders site-scoped Mentor Assignments with role-safe assignment
     },
     "/api/site/mentor-assignments": {
       status: 200,
-      body: siteMentorAssignmentsFixture({ role: "site_admin", canManage: true }),
+      body: siteMentorAssignmentsFixture({
+        role: "site_admin",
+        canManage: true,
+        filters: {
+          siteId: "site-desert-valley-high",
+          programId: "it",
+          mentorUserId: "demo-mentor-001",
+          studentSearch: "Archive",
+          status: "active",
+          noMentor: false,
+          limit: 50,
+          offset: 0,
+        },
+      }),
     },
   }, "mentorAssignments");
 
@@ -807,6 +918,11 @@ test("workspace renders site-scoped Mentor Assignments with role-safe assignment
   assert.match(siteAdmin, /workspace-mentor-assignments/);
   assert.match(siteAdmin, /workspace-mentor-assignment-layout/);
   assert.match(siteAdmin, /workspace-filter-bar/);
+  assert.match(siteAdmin, /Active filters/);
+  assert.match(siteAdmin, /Information Technology/);
+  assert.match(siteAdmin, /Mentor One/);
+  assert.match(siteAdmin, /Archive/);
+  assert.match(siteAdmin, /Clear filters/);
   assert.match(siteAdmin, /Students With Mentors/);
   assert.match(siteAdmin, /Missing Mentors/);
   assert.match(siteAdmin, /Active Mentors/);
@@ -2201,6 +2317,7 @@ function siteReviewQueueFixture({
   readOnly = role !== "program_teacher",
   canReview = role === "program_teacher" && !readOnly,
   queue = null,
+  filters = null,
 } = {}) {
   const rows = queue ?? [
     {
@@ -2268,7 +2385,7 @@ function siteReviewQueueFixture({
         { siteId: "site-desert-valley-high", siteName: "Desert Valley High School" },
       ],
     },
-    filters: {
+    filters: filters || {
       status: "",
       programId: "",
       search: "",
@@ -2321,6 +2438,7 @@ function siteMentorAssignmentsFixture({
   role = "site_admin",
   readOnly = !["site_admin", "admin", "org_admin", "platform_admin"].includes(role),
   canManage = !readOnly && role !== "program_teacher" && role !== "viewer",
+  filters = null,
 } = {}) {
   return {
     ok: true,
@@ -2339,7 +2457,7 @@ function siteMentorAssignmentsFixture({
       ],
       studentScope: role === "program_teacher" ? "program_teacher" : "site",
     },
-    filters: {
+    filters: filters || {
       siteId: "site-desert-valley-high",
       programId: "",
       mentorUserId: "",
@@ -2902,15 +3020,15 @@ function siteStudentTimelineFixture({ readOnly = false } = {}) {
   };
 }
 
-async function renderWorkspaceWithFetch(routes, section = "", beforeSectionScript = "") {
-  const { context, workspaceRoot } = await createWorkspaceContextWithFetch(routes);
+async function renderWorkspaceWithFetch(routes, section = "", beforeSectionScript = "", options = {}) {
+  const { context, workspaceRoot } = await createWorkspaceContextWithFetch(routes, options);
   if (section || beforeSectionScript) {
     vm.runInContext(`${beforeSectionScript}\nactiveSection = ${JSON.stringify(section || "overview")}; renderAppShell();`, context);
   }
   return workspaceRoot.innerHTML;
 }
 
-async function createWorkspaceContextWithFetch(routes) {
+async function createWorkspaceContextWithFetch(routes, options = {}) {
   const workspaceRoot = {
     innerHTML: "",
     querySelectorAll: () => [],
@@ -2920,6 +3038,44 @@ async function createWorkspaceContextWithFetch(routes) {
     querySelectorAll: () => [],
     value: "",
   };
+  const initialUrl = options.url || "https://workspace.example/workspace.html";
+  let currentHref = initialUrl;
+  const listeners = new Map();
+  const fetchLog = [];
+  const locationChanges = [];
+  const location = {};
+  const updateLocation = (nextUrl) => {
+    const parsed = new URL(nextUrl, currentHref);
+    currentHref = parsed.href;
+    location.href = parsed.href;
+    location.pathname = parsed.pathname;
+    location.search = parsed.search;
+    location.hash = parsed.hash;
+  };
+  updateLocation(initialUrl);
+  const history = {
+    pushState(state, title, url) {
+      updateLocation(url || currentHref);
+      locationChanges.push({ method: "pushState", state, title, href: currentHref });
+    },
+    replaceState(state, title, url) {
+      updateLocation(url || currentHref);
+      locationChanges.push({ method: "replaceState", state, title, href: currentHref });
+    },
+  };
+  const window = {
+    location,
+    history,
+    addEventListener(type, handler) {
+      const rows = listeners.get(type) || [];
+      rows.push(handler);
+      listeners.set(type, rows);
+    },
+    dispatchEvent(event) {
+      const rows = listeners.get(event?.type) || [];
+      for (const handler of rows) handler(event);
+    },
+  };
   const context = vm.createContext({
     Blob,
     FormData,
@@ -2927,6 +3083,9 @@ async function createWorkspaceContextWithFetch(routes) {
     Intl,
     URL,
     URLSearchParams,
+    __fetchLog: fetchLog,
+    __locationChanges: locationChanges,
+    addEventListener: window.addEventListener,
     clearTimeout,
     console,
     document: {
@@ -2939,6 +3098,7 @@ async function createWorkspaceContextWithFetch(routes) {
     encodeURIComponent,
     fetch: async (url) => {
       const rawPath = typeof url === "string" ? url : url?.pathname;
+      fetchLog.push(String(rawPath || ""));
       const pathname = String(rawPath || "").startsWith("http")
         ? new URL(rawPath).pathname
         : String(rawPath || "").split("?")[0];
@@ -2952,12 +3112,15 @@ async function createWorkspaceContextWithFetch(routes) {
         json: async () => route.body,
       };
     },
+    history,
+    location,
     setTimeout,
+    window,
   });
 
   vm.runInContext(workspaceJs, context);
   for (let index = 0; index < 8; index += 1) {
     await new Promise((resolve) => setTimeout(resolve, 0));
   }
-  return { context, workspaceRoot };
+  return { context, workspaceRoot, fetchLog, locationChanges, window };
 }

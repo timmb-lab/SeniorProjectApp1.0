@@ -250,7 +250,7 @@ Important classifications:
 
 Keep unchanged or defer:
 
-- `dev`, `dev:alpha`, `deploy`, `deploy:preview`, `db:migrate:local`, `db:migrate:remote`, `check:alpha`, `check:alpha-contract`, `check:automation`, `check:predeploy-gate`, `check:production-surfaces`, `check:route-inventory`, `check:cloudflare`, `check:cloudflare:live`, `check:custom-domain-cutover`, `check:alpha-account-gating`, `check:production-cutover`, `check:drive:live`, `check:workspace:hosted-evidence`, `check:workspace:hosted-dashboard`, `check:workspace:hosted-permissions`, owner-admin scripts, automation cadence/QoL scripts, `inventory:production-routes`, `typecheck`, `types`, `test`.
+- `dev`, `dev:alpha`, `deploy`, `deploy:preview`, `db:migrate:local`, `db:migrate:remote`, `check:alpha`, `check:alpha-contract`, `verify:functionality-ux-automation`, `check:predeploy-gate`, `check:production-surfaces`, `check:route-inventory`, `check:cloudflare`, `check:cloudflare:live`, `check:custom-domain-cutover`, `check:alpha-account-gating`, `check:production-cutover`, `check:drive:live`, `check:workspace:hosted-evidence`, `check:workspace:hosted-dashboard`, `check:workspace:hosted-permissions`, owner-admin scripts, automation cadence/automation scripts, `inventory:production-routes`, `typecheck`, `types`, `test`.
 
 Update in Part 2:
 

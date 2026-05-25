@@ -1,7 +1,7 @@
 {
   "run_id": "2026-05-20-1815-workspace-account-edge-states-mvp-004-032-033",
   "timestamp_local": "2026-05-20T18:15:00-07:00",
-  "automation_id": "senior-capstone-nonfigma-mvp-builder",
+  "automation_id": "functionality-ux-upgrade-hourly",
   "lane": "non-figma MVP builder / backend-security-data",
   "status": "completed",
   "accepted_mvp_pass": true,
@@ -18,7 +18,7 @@
   "output_kind": "workspace-auth-edge-states+tests+browser-proof+docs",
   "scope": "Consume the existing repo-recorded workspace account edge-state handoff by adding explicit session-expired, disabled-account, reset-required, and no-active-assignment states to the canonical authenticated workspace.",
   "source_docs_read": [
-    "C:\\Users\\bryan\\.codex\\automations\\senior-capstone-nonfigma-mvp-builder\\memory.md",
+    "C:\\Users\\bryan\\.codex\\automations\\functionality-ux-upgrade-hourly\\memory.md",
     "docs/master-plan.md",
     "docs/mvp-requirements-catalog.md",
     "docs/automation-cadence.md",

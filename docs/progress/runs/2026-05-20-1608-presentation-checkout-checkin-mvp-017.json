@@ -1,7 +1,7 @@
 {
   "run_id": "2026-05-20-1608-presentation-checkout-checkin-mvp-017",
   "timestamp_local": "2026-05-20T16:08:42-07:00",
-  "automation_id": "senior-capstone-nonfigma-mvp-builder",
+  "automation_id": "functionality-ux-upgrade-hourly",
   "lane": "staff-review-mentor",
   "status": "completed",
   "accepted_mvp_pass": true,
@@ -18,7 +18,7 @@
   "output_kind": "api+tests+docs",
   "scope": "Add scoped presentation day check-out/check-in transitions to the existing D1-backed presentation slot workflow.",
   "source_docs_read": [
-    "C:\\Users\\bryan\\.codex\\automations\\senior-capstone-nonfigma-mvp-builder\\memory.md",
+    "C:\\Users\\bryan\\.codex\\automations\\functionality-ux-upgrade-hourly\\memory.md",
     "docs/master-plan.md",
     "docs/mvp-requirements-catalog.md",
     "docs/automation-cadence.md",
@@ -111,7 +111,7 @@
   "mvp_catalog_changed": true,
   "phone_tracker": {
     "spreadsheet_id": "1J8jQMn85wJwo9Rh6LjQUVv_WfLS1YJWsbpcLBCojjjs",
-    "tab": "QoL Runs",
+    "tab": "Automation Runs",
     "result": "appended",
     "timestamp_local": "2026-05-20T16:08:42-07:00",
     "summary": "Recorded MVP-017 presentation check-out/check-in endpoint pass for phone-friendly tracking."

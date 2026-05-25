@@ -1,7 +1,7 @@
 {
   "run_id": "2026-05-20-1018-review-history-ui-mvp-015-016",
   "timestamp_local": "2026-05-20T10:18:46-07:00",
-  "automation_id": "senior-capstone-nonfigma-mvp-builder",
+  "automation_id": "functionality-ux-upgrade-hourly",
   "trigger": "Top-of-hour non-Figma MVP builder pass: expose the existing scoped review-history API in the visible app smoke workflow.",
   "lane": "staff-review-mentor",
   "status": "completed",
@@ -18,11 +18,11 @@
   "output_kind": "ui+tests+docs",
   "scope": "Add an account smoke review-history panel that fetches /api/reviews/:submissionId/history for the seeded Maya submission and renders teacher comments, review decisions, status changes, and immutable submission versions without rendering Drive storage identifiers.",
   "source_docs_read": [
-    "automation/qol/project-lock.json",
-    "automation/qol/reports/latest.md",
-    "automation/qol/state/state.json",
-    "automation/qol/state/plan-index.json",
-    "automation/prompts/senior-capstone-nonfigma-mvp-builder.md",
+    "automation/state/functionality-ux-growth-state.json",
+    "automation/state/functionality-ux-growth-state.json",
+    "automation/state/functionality-ux-growth-state.json",
+    "automation/state/functionality-ux-growth-state.json",
+    "automation/prompts/functionality-ux-upgrade-hourly.md",
     "docs/master-plan.md",
     "docs/mvp-requirements-catalog.md",
     "docs/automation-cadence.md",
@@ -71,9 +71,9 @@
       "summary": "Full Node test suite passed: 115/115."
     },
     {
-      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 verify:qol-automation",
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 verify:functionality-ux-automation",
       "result": "passed",
-      "summary": "QoL smoke passed 14 checks."
+      "summary": "automation smoke passed 14 checks."
     },
     {
       "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 check:cloudflare",
@@ -81,7 +81,7 @@
       "summary": "Static Wrangler/D1 verification passed; live Pages/D1 verification was skipped because CLOUDFLARE_API_TOKEN is not set."
     },
     {
-      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 check:automation",
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\run-npm-script.ps1 verify:functionality-ux-automation",
       "result": "passed",
       "summary": "Split cadence verification passed."
     },

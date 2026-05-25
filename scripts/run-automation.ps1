@@ -28,10 +28,6 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-if ($AutomationName -eq "qol:hourly") {
-  throw "qol:hourly is intentionally not supported by scripts/run-automation.ps1. Use the bounded QoL sequence in automation/qol/GUI_ALLOWED_COMMANDS.md with scripts/run-node-script.ps1 for doctor.mjs and hourly-orchestrator.mjs."
-}
-
 function Get-CurrentPowerShellExe {
   try {
     $path = (Get-Process -Id $PID).Path
@@ -75,8 +71,16 @@ function Invoke-Git {
     [string]$WorkingDirectory = $script:ResolvedRepoRoot
   )
 
-  $output = & git @Args 2>&1
-  $exitCode = if ($null -ne $LASTEXITCODE) { [int]$LASTEXITCODE } else { 0 }
+  $previousErrorActionPreference = $ErrorActionPreference
+  $ErrorActionPreference = "Continue"
+  try {
+    $output = & git @Args 2>&1
+    $exitCode = if ($null -ne $LASTEXITCODE) { [int]$LASTEXITCODE } else { 0 }
+  }
+  finally {
+    $ErrorActionPreference = $previousErrorActionPreference
+  }
+
   return [pscustomobject]@{
     ExitCode = $exitCode
     Output = [string]($output -join "`n")
@@ -182,12 +186,33 @@ try {
 
   $runId = New-RunId
   $startedAtUtc = (Get-Date).ToUniversalTime().ToString("o")
-  $gitBranch = (Invoke-Git -Args @("rev-parse", "--abbrev-ref", "HEAD")).Output.Trim()
-  $startingSha = (Invoke-Git -Args @("rev-parse", "HEAD")).Output.Trim()
+  $gitBranchResult = Invoke-Git -Args @("rev-parse", "--abbrev-ref", "HEAD")
+  if ($gitBranchResult.ExitCode -ne 0) {
+    throw "Unable to resolve current git branch: $($gitBranchResult.Output)"
+  }
+  $gitBranch = $gitBranchResult.Output.Trim()
+  if ($gitBranch -eq "HEAD") {
+    $fallbackBranch = Get-EnvFirst -Names @("GITHUB_HEAD_REF", "GITHUB_REF_NAME", "BRANCH_NAME")
+    $gitBranch = if ($fallbackBranch) { $fallbackBranch } else { "detached" }
+  }
+
+  $startingShaResult = Invoke-Git -Args @("rev-parse", "HEAD")
+  if ($startingShaResult.ExitCode -ne 0) {
+    throw "Unable to resolve current git SHA: $($startingShaResult.Output)"
+  }
+  $startingSha = $startingShaResult.Output.Trim()
 
   $upstream = Invoke-Git -Args @("rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}")
   if ($upstream.ExitCode -ne 0) {
-    throw "Current branch has no upstream remote. Set an upstream (e.g. git push -u) before running guarded automations."
+    if ($DryRun) {
+      $upstreamName = "dry-run: upstream not required"
+    }
+    else {
+      throw "Current branch has no upstream remote. Set an upstream (e.g. git push -u) before running guarded automations."
+    }
+  }
+  else {
+    $upstreamName = $upstream.Output.Trim()
   }
 
   $statusBefore = Invoke-Git -Args @("status", "--porcelain=v1")
@@ -230,7 +255,7 @@ try {
     }
     git = [ordered]@{
       branch = $gitBranch
-      upstream = $upstream.Output.Trim()
+      upstream = $upstreamName
       starting_sha = $startingSha
       status_before = @($statusBefore.Output.Split("`n") | Where-Object { $_ -ne "" })
     }
@@ -246,19 +271,11 @@ try {
     }
   }
 
-  # Run automation (plus any required doctors first).
+  # Run automation through the repo-local npm-script adapter.
   $steps = New-Object System.Collections.Generic.List[object]
   $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
 
-  if ($AutomationName -eq "qol:hourly") {
-    $steps.Add((Invoke-LoggedNode -Label "doctor" -NodeScriptRelativePath "automation\\qol\\doctor.mjs" -Args @() -RunId $runId))
-    if ($steps[$steps.Count - 1].ExitCode -eq 0) {
-      $steps.Add((Invoke-LoggedNode -Label "orchestrator" -NodeScriptRelativePath "automation\\qol\\hourly-orchestrator.mjs" -Args @() -RunId $runId))
-    }
-  }
-  else {
-    $steps.Add((Invoke-RepoPowerShell -Label "run" -ScriptRelativePath "scripts\\run-npm-script.ps1" -Args (@($AutomationName) + @($AutomationArgs)) -RunId $runId))
-  }
+  $steps.Add((Invoke-RepoPowerShell -Label "run" -ScriptRelativePath "scripts\\run-npm-script.ps1" -Args (@($AutomationName) + @($AutomationArgs)) -RunId $runId))
 
   $stopwatch.Stop()
 

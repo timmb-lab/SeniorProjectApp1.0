@@ -1,7 +1,7 @@
 {
   "run_id": "2026-05-20-1206-alpha-review-history-main-console-mvp-015-016",
   "timestamp_local": "2026-05-20T12:06:53-07:00",
-  "automation_id": "senior-capstone-nonfigma-mvp-builder",
+  "automation_id": "functionality-ux-upgrade-hourly",
   "lane": "staff-review-mentor",
   "status": "completed",
   "accepted_mvp_pass": true,
@@ -16,7 +16,7 @@
   "output_kind": "alpha-ui+state-model+tests+docs",
   "scope": "Preserve teacher comments, status timeline events, and immutable submission version snapshots in the primary server-owned alpha state, then render them in the main alpha console with storage-identifier blocking.",
   "source_docs_read": [
-    "C:\\Users\\bryan\\.codex\\automations\\senior-capstone-nonfigma-mvp-builder\\memory.md",
+    "C:\\Users\\bryan\\.codex\\automations\\functionality-ux-upgrade-hourly\\memory.md",
     "docs/master-plan.md",
     "docs/mvp-requirements-catalog.md",
     "docs/automation-cadence.md",

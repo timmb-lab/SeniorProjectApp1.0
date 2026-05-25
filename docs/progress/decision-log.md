@@ -5,10 +5,10 @@ Last refreshed: 2026-05-21
 ## Current Automation Decision
 
 - `area`: project-local Senior Capstone automation
-- `decision`: Split the active builder into `senior-capstone-nonfigma-mvp-builder` at minute 0 PT and `senior-capstone-figma-product-builder` at minute 30 PT, with `senior-capstone-daily-mvp-summary` as a report-only daily summary and `senior-capstone-weekly-script-audit` as the weekly strategy review.
-- `applies to`: `automation/prompts/senior-capstone-nonfigma-mvp-builder.md`, `automation/prompts/senior-capstone-figma-product-builder.md`, `automation/qol/project-lock.json`, `automation/qol/GUI_ALLOWED_COMMANDS.md`, `automation/qol/hourly-orchestrator.mjs`, `docs/automation-cadence.md`, `docs/automation-memory.md`, `docs/master-plan.md`, `docs/mvp-requirements-catalog.md`, and `scripts/verify-cadence-30min.ps1`.
-- `reason`: Bryan clarified that the project should no longer treat builder capacity as one undifferentiated 30-minute automation. Non-Figma implementation and Figma-only design handoff work need separate prompts, schedules, and safety boundaries while preserving 48 combined scheduled builder starts/day.
-- `verification`: `scripts/verify-cadence-30min.ps1` checks split builder IDs, minute 0/minute 30 cadence language, prompt existence/content, project lock IDs, oversight handling, and wrapper-only scheduled command guidance.
+- `decision`: Keep Functionality UX Upgrade (`functionality-ux-upgrade-hourly`) as the only active repo-visible automation contract.
+- `applies to`: `automation/prompts/functionality-ux-upgrade-hourly.md`, `automation/state/functionality-ux-growth-state.json`, `docs/automation-cadence.md`, `docs/automation-memory.md`, `docs/master-plan.md`, `docs/mvp-requirements-catalog.md`, and `npm run verify:functionality-ux-automation`.
+- `reason`: Bryan clarified that the repo should not preserve or enforce older multi-automation schedules.
+- `verification`: `npm run verify:functionality-ux-automation` checks the single active prompt, state, docs, and stale-reference guard.
 
 ## Current Product Decisions
 

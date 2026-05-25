@@ -1,6 +1,6 @@
 # Admin Ops Endpoints Progress
 
-This lane log exists because the live admin-ops QoL prompts read it before selecting endpoint work.
+This lane log exists because the live admin-ops automation prompts read it before selecting endpoint work.
 
 ## Current Focus
 

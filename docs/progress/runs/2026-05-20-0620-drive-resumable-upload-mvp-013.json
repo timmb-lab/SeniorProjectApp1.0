@@ -1,7 +1,7 @@
 {
   "run_id": "2026-05-20-0620-drive-resumable-upload-mvp-013",
   "timestamp_local": "2026-05-20T06:20:00-07:00",
-  "automation_id": "senior-capstone-hourly-qol-orchestrator",
+  "automation_id": "functionality-ux-upgrade-hourly",
   "trigger": "30-minute MVP builder run: extend `/api/submissions/:id/evidence/upload` with resumable Google Drive uploads for files >5MB (Drive multipart limit), increase max upload cap to 20MB, and add integration coverage for Drive forbidden + resumable paths.",
   "lane": "student-workflow-evidence",
   "status": "completed",
@@ -31,7 +31,7 @@
     "docs/automation-backlog.md",
     "docs/artifacts.json",
     "docs/human-decisions.md",
-    "automation/qol/reports/latest.md",
+    "automation/state/functionality-ux-growth-state.json",
     "functions/_lib/google-drive.ts",
     "functions/api/submissions/[id]/evidence/upload.ts",
     "tests/evidence-drive-file.integration.test.mjs"

@@ -1,7 +1,7 @@
 {
   "run_id": "2026-05-20-0544-admin-mentor-assignment-list-deactivate-mvp-007",
   "timestamp_local": "2026-05-20T05:44:00-07:00",
-  "automation_id": "senior-capstone-hourly-qol-orchestrator",
+  "automation_id": "functionality-ux-upgrade-hourly",
   "trigger": "30-minute MVP builder run: extend `/api/admin/mentor-assignments` with admin-only listing and audited deactivation so admin provisioning can manage mentor assignment lifecycle without direct DB edits.",
   "lane": "admin-ops-reporting",
   "status": "completed",
@@ -31,7 +31,7 @@
     "docs/automation-backlog.md",
     "docs/artifacts.json",
     "docs/human-decisions.md",
-    "automation/qol/reports/latest.md",
+    "automation/state/functionality-ux-growth-state.json",
     "functions/api/admin/mentor-assignments.ts",
     "tests/admin-mentor-assignments.integration.test.mjs"
   ],

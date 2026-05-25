@@ -1,7 +1,7 @@
 {
   "run_id": "2026-05-20-1409-student-teacher-guide-toggle-mvp-035",
   "timestamp_local": "2026-05-20T14:09:10-07:00",
-  "automation_id": "senior-capstone-nonfigma-mvp-builder",
+  "automation_id": "functionality-ux-upgrade-hourly",
   "lane": "student-workflow-evidence",
   "status": "completed",
   "accepted_mvp_pass": true,
@@ -27,7 +27,7 @@
     "start_commit": "b6b24ac audit: enforce production app and website experience gate"
   },
   "source_docs_read": [
-    "C:\\Users\\bryan\\.codex\\automations\\senior-capstone-nonfigma-mvp-builder\\memory.md",
+    "C:\\Users\\bryan\\.codex\\automations\\functionality-ux-upgrade-hourly\\memory.md",
     "docs/master-plan.md",
     "docs/mvp-requirements-catalog.md",
     "docs/automation-cadence.md",
@@ -146,7 +146,7 @@
   "mvp_catalog_changed": true,
   "phone_tracker": {
     "spreadsheet_id": "1J8jQMn85wJwo9Rh6LjQUVv_WfLS1YJWsbpcLBCojjjs",
-    "tab": "QoL Runs",
+    "tab": "Automation Runs",
     "result": "appended",
     "timestamp_local": "2026-05-20T14:14:00-07:00",
     "summary": "Recorded MVP-035 Student/Teacher guide mode pass for phone-friendly tracking."

@@ -1,7 +1,7 @@
 {
   "run_id": "2026-05-21-0137-admin-import-reset-proof-mvp-004",
   "timestamp_local": "2026-05-21T01:37:00-07:00",
-  "automation_id": "senior-capstone-nonfigma-mvp-builder-30",
+  "automation_id": "functionality-ux-upgrade-hourly",
   "lane": "non-figma MVP builder",
   "selected_category": "backend-security-data",
   "status": "completed",
@@ -27,7 +27,7 @@
   "output_kind": "admin-import-reset-first-api-proof-and-denied-audit",
   "bounded_scope": "Partially consume Figma node 163:2 without direct Figma work by proving the imported-account reset-first API lifecycle and auditing authenticated denied import attempts.",
   "source_docs_read": [
-    "C:\\Users\\bryan\\.codex\\automations\\senior-capstone-nonfigma-mvp-builder-30\\memory.md",
+    "C:\\Users\\bryan\\.codex\\automations\\functionality-ux-upgrade-hourly\\memory.md",
     "docs/master-plan.md",
     "docs/mvp-requirements-catalog.md",
     "docs/automation-cadence.md",

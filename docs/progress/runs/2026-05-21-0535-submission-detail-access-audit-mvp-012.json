@@ -1,7 +1,7 @@
 {
   "run_id": "2026-05-21-0535-submission-detail-access-audit-mvp-012",
   "timestamp_local": "2026-05-21T05:35:00-07:00",
-  "automation_id": "senior-capstone-nonfigma-mvp-builder-30",
+  "automation_id": "functionality-ux-upgrade-hourly",
   "lane": "non-figma MVP builder",
   "selected_category": "student-workflow-evidence",
   "status": "completed",
@@ -26,7 +26,7 @@
   "output_kind": "submission-detail-access-audit-and-route-tests",
   "bounded_scope": "Add protected-record submission detail/readback access auditing for /api/submissions/:id without direct Figma work.",
   "source_docs_read": [
-    "C:\\Users\\bryan\\.codex\\automations\\senior-capstone-nonfigma-mvp-builder-30\\memory.md",
+    "C:\\Users\\bryan\\.codex\\automations\\functionality-ux-upgrade-hourly\\memory.md",
     "docs/master-plan.md",
     "docs/mvp-requirements-catalog.md",
     "docs/automation-cadence.md",

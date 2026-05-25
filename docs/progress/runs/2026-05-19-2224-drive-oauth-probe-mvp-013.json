@@ -1,7 +1,7 @@
 {
   "run_id": "2026-05-19-2224-drive-oauth-probe-mvp-013",
   "timestamp_local": "2026-05-19T22:24:00-07:00",
-  "automation_id": "senior-capstone-hourly-qol-orchestrator",
+  "automation_id": "functionality-ux-upgrade-hourly",
   "trigger": "30-minute MVP builder run: implement Google Drive service-account JWT token exchange helper plus an authenticated/audited probe route with provider failure coverage.",
   "lane": "student-workflow-evidence",
   "status": "completed",

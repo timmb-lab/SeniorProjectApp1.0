@@ -1,7 +1,7 @@
 {
   "run_id": "2026-05-20-0046-framework-seed-d1-verify-mvp-009",
   "timestamp_local": "2026-05-20T00:46:00-07:00",
-  "automation_id": "senior-capstone-hourly-qol-orchestrator",
+  "automation_id": "functionality-ux-upgrade-hourly",
   "trigger": "30-minute MVP builder run: apply the framework seed migrations to local D1 and verify seeded counts by query; add a durable script wrapper and record the remote Wrangler token blocker.",
   "lane": "requirements-audit",
   "status": "completed",

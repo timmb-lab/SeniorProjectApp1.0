@@ -116,7 +116,7 @@ Do not delete historical entries. If an older entry needs correction, add a shor
 - Roles affected: all roles indirectly through improved automation selection and safety
 - Files changed: `automation/prompts/functionality-ux-upgrade-hourly.md`, `docs/functionality-ux-growth-ladder.md`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`, automation prompt quality tests, and package/script wiring
 - Tests/verifiers added or updated: prompt quality test and `verify:functionality-ux-automation`
-- Validation commands: `npm run verify:functionality-ux-automation`; `npm run verify:functionality-language`; `node --test tests/functionality-language-audit.test.mjs`; `npm run test`; `npm run typecheck`; `npm run check:automation`; `npm run check:production-surfaces`; `npm run check`; `git diff --check`
+- Validation commands: `npm run verify:functionality-ux-automation`; `npm run verify:functionality-language`; `node --test tests/functionality-language-audit.test.mjs`; `npm run test`; `npm run typecheck`; `npm run check:production-surfaces`; `npm run check`; `git diff --check`
 - Validation result: passed; `git diff --check` reported CRLF normalization warnings only
 - Commit: pending closeout commit; see final run report or `git log -1`
 - Push status: not pushed
@@ -257,3 +257,34 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: browser screenshot QA still needs credentialed local runtime; all-sites rollup still needs backend aggregate design
   - Do not repeat: do not redo the verifier, program preset, or mentor-workload preset unless a regression appears
   - First file to inspect next run: `scripts/verify-dashboard-actions.mjs`
+
+## Run 2026-05-24 16:59 PT
+
+- Starting SHA: `1e2e22c63a7b0a71320ff7099e014e6ae7a00835`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `product-functionality-megasprint-3-20260524`
+- Ladder level targeted: `LEVEL_1_NAVIGABLE_DASHBOARDS`, `LEVEL_4_ROLE_SPECIFIC_WORKSPACES`, `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT`
+- Backlog item: Product Functionality Megasprint 3.0
+- Work order selected: Review Queue URL-state/deep links, active filter UI across core worklists, workspace navigation verifier, Review Queue deep-link verifier, and docs/state handoff.
+- Selection reason: The prior run completed dashboard card drill-downs and explicitly left Review Queue URL-state as the next safe high-value workflow improvement.
+- User-facing improvement: Staff can open/reload Review Queue links with real supported filters, see active filters in Review Queue, Student Directory, Mentor Assignments, and Operations, clear filters from the visible summary, and get clearer no-results guidance.
+- Roles affected: admin, platform admin, org admin, site admin, viewer, program teacher; student surfaces were preserved and revalidated but not changed.
+- Files changed: `workspace.js`, `workspace.css`, `tests/workspace-app.test.mjs`, `tests/functionality-language-audit.test.mjs`, `scripts/verify-review-queue-deeplinks.mjs`, `scripts/verify-workspace-navigation-integrity.mjs`, `package.json`, `docs/product-readiness-upgrade-sprint.md`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`
+- Tests/verifiers added or updated: added `npm run verify:review-queue-deeplinks`, added `npm run verify:workspace-navigation`, extended workspace URL/history render tests, and extended functionality language audit registration tests.
+- Validation commands: `npm run verify:dashboard-actions`; `npm run verify:review-queue-deeplinks`; `npm run verify:workspace-navigation`; `npm run verify:functionality-language`; `npm run verify:functionality-ux-automation`; `node --test tests/workspace-app.test.mjs`; `node --test tests/functionality-language-audit.test.mjs`; `node --test tests/account-and-evidence-access.test.mjs`; `npm run test`; `npm run typecheck`; `npm run check:production-surfaces`; `npm run check`; `git diff --check`; `git diff --cached --check`
+- Validation result: passed; the first `npm run test` attempt failed only because the new local branch had no upstream, then passed after setting a temporary upstream to the prior sprint branch; `git diff --check` reported CRLF normalization warnings only and `git diff --cached --check` passed cleanly
+- Commit: pending closeout commit
+- Push status: pending
+- Deferred items: missing/evidence/student/mentor Review Queue params without complete supported filter paths; browser screenshot QA; Student Directory and Mentor Assignments URL-state beyond visible active filters.
+- New backlog items: credentialed browser QA for Review Queue deep links and active filters; evaluate student-specific Review Queue link only after privacy/UI review; consider URL-state for other staff worklists if product wants reloadable worklist URLs.
+- Next recommended work order: map missing-submission/evidence-attention counts to a real supported route/filter, or run credentialed browser QA for the Review Queue URL-state work.
+- Do-not-repeat notes: do not add `missing`, `evidenceStatus`, `mentorUserId`, `studentUserId`, or `studentId` Review Queue links until backend, UI, and privacy support are complete.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_1_NAVIGABLE_DASHBOARDS`
+  - Advanced: yes
+  - Evidence: Review Queue URL state, active filter summaries, and two verifiers now pass focused tests.
+  - Unlocks: dashboard links and staff-shared queue URLs can be regression-protected.
+  - Next: missing/evidence drill-down mapping or credentialed browser QA.
+  - Blockers: missing-submission route/filter mapping remains unconfirmed; browser QA needs credentialed local runtime.
+  - Do not repeat: do not re-add already-supported dashboard presets or active-filter UI unless a new list view is added.
+  - First file to inspect next run: `workspace.js`

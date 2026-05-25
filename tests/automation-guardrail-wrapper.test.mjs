@@ -49,14 +49,14 @@ test("guardrail wrapper dry-run fails fast when sheet config is missing", () => 
   assert.match(result.stderr + result.stdout, /Missing env var: AUTOMATION_SHEETS_SPREADSHEET_ID/);
 });
 
-test("guardrail wrapper refuses bounded QoL hourly runner", () => {
-  const result = runWrapper(["qol:hourly", "-DryRun", "-AllowDirtyStart"], {
+test("guardrail wrapper supports the functionality UX automation verifier", () => {
+  const result = runWrapper(["verify:functionality-ux-automation", "-DryRun", "-AllowDirtyStart"], {
     AUTOMATION_SHEETS_SPREADSHEET_ID: "TEST_SPREADSHEET",
     AUTOMATION_SHEETS_TAB_NAME: "Automation Runs",
     GOOGLE_SHEETS_CLIENT_EMAIL: "test@example.com",
     GOOGLE_SHEETS_PRIVATE_KEY: "TEST_KEY",
   });
 
-  assert.notEqual(result.status, 0);
-  assert.match(result.stderr + result.stdout, /qol:hourly is intentionally not supported/);
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+  assert.match(result.stdout, /verify:functionality-ux-automation/);
 });

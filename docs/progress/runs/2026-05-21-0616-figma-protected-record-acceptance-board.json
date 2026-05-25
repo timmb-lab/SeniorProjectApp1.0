@@ -1,7 +1,7 @@
 {
   "run_id": "2026-05-21-0616-figma-protected-record-acceptance-board",
   "timestamp_local": "2026-05-21T06:16:00-07:00",
-  "automation_id": "senior-capstone-figma-product-builder-15",
+  "automation_id": "functionality-ux-upgrade-hourly",
   "lane": "figma-only product builder",
   "selected_category": "design-assets-handoff",
   "status": "completed",
@@ -27,7 +27,7 @@
   "output_kind": "figma-acceptance-check-board",
   "bounded_scope": "Create and verify a protected-record audit acceptance board after the latest submission-detail handoff because no newer non-Figma implementation proof existed to consume.",
   "source_docs_read": [
-    "C:\\Users\\bryan\\.codex\\automations\\senior-capstone-figma-product-builder-15\\memory.md",
+    "C:\\Users\\bryan\\.codex\\automations\\functionality-ux-upgrade-hourly\\memory.md",
     "docs/design/figma-first-pass-product-system.md",
     "docs/design/figma-product-preview-state-variants.md",
     "docs/master-plan.md",

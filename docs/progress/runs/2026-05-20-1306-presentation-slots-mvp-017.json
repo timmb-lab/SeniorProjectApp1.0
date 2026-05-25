@@ -1,7 +1,7 @@
 {
   "run_id": "2026-05-20-1306-presentation-slots-mvp-017",
   "timestamp_local": "2026-05-20T13:06:29-07:00",
-  "automation_id": "senior-capstone-nonfigma-mvp-builder",
+  "automation_id": "functionality-ux-upgrade-hourly",
   "lane": "staff-review-mentor",
   "status": "completed",
   "accepted_mvp_pass": true,
@@ -18,7 +18,7 @@
   "output_kind": "schema+api+tests+docs",
   "scope": "Add D1-backed presentation slot scheduling with role-scoped visibility, admin/program-teacher scheduling, same-location conflict blocking, and audit events.",
   "source_docs_read": [
-    "C:\\Users\\bryan\\.codex\\automations\\senior-capstone-nonfigma-mvp-builder\\memory.md",
+    "C:\\Users\\bryan\\.codex\\automations\\functionality-ux-upgrade-hourly\\memory.md",
     "docs/master-plan.md",
     "docs/mvp-requirements-catalog.md",
     "docs/automation-cadence.md",
@@ -119,7 +119,7 @@
   "mvp_catalog_changed": true,
   "phone_tracker": {
     "spreadsheet_id": "1J8jQMn85wJwo9Rh6LjQUVv_WfLS1YJWsbpcLBCojjjs",
-    "tab": "QoL Runs",
+    "tab": "Automation Runs",
     "result": "appended",
     "timestamp_local": "2026-05-20T13:13:21-07:00",
     "summary": "Recorded MVP-017 presentation slot scheduling pass for phone-friendly tracking."

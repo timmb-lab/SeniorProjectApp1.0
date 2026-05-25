@@ -1,7 +1,7 @@
 {
   "run_id": "2026-05-20-0649-teacher-scope-null-guard-mvp-006-014",
   "timestamp_local": "2026-05-20T06:49:00-07:00",
-  "automation_id": "senior-capstone-hourly-qol-orchestrator",
+  "automation_id": "functionality-ux-upgrade-hourly",
   "trigger": "30-minute MVP builder run: tighten `canAccessStudent` teacher scope checks to default-deny empty scope IDs and prevent null/empty program/cohort matches, then add regression coverage for permission helpers and evidence access checks.",
   "lane": "backend-security-data",
   "status": "completed",
@@ -32,7 +32,7 @@
     "docs/automation-backlog.md",
     "docs/artifacts.json",
     "docs/human-decisions.md",
-    "automation/qol/reports/latest.md",
+    "automation/state/functionality-ux-growth-state.json",
     "functions/_lib/permissions.ts",
     "tests/permissions-access.test.mjs",
     "tests/evidence-check-access.integration.test.mjs"

@@ -1,7 +1,7 @@
 {
   "run_id": "2026-05-21-0405-review-history-decision-audit-mvp-015",
   "timestamp_local": "2026-05-21T04:05:00-07:00",
-  "automation_id": "senior-capstone-nonfigma-mvp-builder",
+  "automation_id": "functionality-ux-upgrade-hourly",
   "lane": "non-figma MVP builder",
   "selected_category": "staff-review-mentor",
   "status": "completed",
@@ -24,7 +24,7 @@
   "output_kind": "review-history-decision-access-audit-and-tests",
   "bounded_scope": "Extend the protected-record access audit matrix from the teacher review queue to /api/reviews/:submissionId/history and /api/reviews/:submissionId/decision without direct Figma work.",
   "source_docs_read": [
-    "C:\\Users\\bryan\\.codex\\automations\\senior-capstone-nonfigma-mvp-builder\\memory.md",
+    "C:\\Users\\bryan\\.codex\\automations\\functionality-ux-upgrade-hourly\\memory.md",
     "docs/master-plan.md",
     "docs/mvp-requirements-catalog.md",
     "docs/automation-cadence.md",

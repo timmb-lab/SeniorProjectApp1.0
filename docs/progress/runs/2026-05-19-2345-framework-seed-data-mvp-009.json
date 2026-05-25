@@ -1,7 +1,7 @@
 {
   "run_id": "2026-05-19-2345-framework-seed-data-mvp-009",
   "timestamp_local": "2026-05-19T23:45:00-07:00",
-  "automation_id": "senior-capstone-hourly-qol-orchestrator",
+  "automation_id": "functionality-ux-upgrade-hourly",
   "trigger": "30-minute MVP builder run: capture MVP-009 / SC-001 framework seed SQL as a first-class D1 migration + keep it in sync with tests.",
   "lane": "requirements-audit",
   "status": "completed",

@@ -1,7 +1,7 @@
 {
   "run_id": "2026-05-21-0530-figma-submission-submit-access-audit",
   "timestamp_local": "2026-05-21T05:30:00-07:00",
-  "automation_id": "senior-capstone-figma-product-builder-15",
+  "automation_id": "functionality-ux-upgrade-hourly",
   "lane": "figma-only product builder",
   "selected_category": "design-assets-handoff",
   "status": "completed",
@@ -21,7 +21,7 @@
   "output_kind": "figma-route-data-permission-audit-handoff",
   "bounded_scope": "Create and verify a Figma handoff that consumes /api/submissions/:id/submit submit access audit proof.",
   "source_docs_read": [
-    "C:\\Users\\bryan\\.codex\\automations\\senior-capstone-figma-product-builder-15\\memory.md",
+    "C:\\Users\\bryan\\.codex\\automations\\functionality-ux-upgrade-hourly\\memory.md",
     "docs/design/figma-first-pass-product-system.md",
     "docs/design/figma-product-preview-state-variants.md",
     "docs/master-plan.md",
@@ -143,8 +143,8 @@
       "result": "passed; 1024x1013 from original 1360x1345"
     },
     {
-      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\verify-cadence-30min.ps1 -RepoRoot .",
-      "result": "passed; quarter-hour cadence verification checked 13 files"
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\verify:functionality-ux-automation -RepoRoot .",
+      "result": "passed; Functionality UX Upgrade automation verification checked 13 files"
     },
     {
       "command": "JSON parse docs/artifacts.json and this manifest",

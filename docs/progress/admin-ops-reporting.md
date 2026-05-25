@@ -1,6 +1,6 @@
 # Admin Ops Reporting Progress
 
-This lane log is the shared admin-ops reporting and announcements memory referenced by the live QoL prompts.
+This lane log is the shared admin-ops reporting and announcements memory referenced by the live automation prompts.
 
 ## Current Focus
 
@@ -11,6 +11,6 @@ This lane log is the shared admin-ops reporting and announcements memory referen
 ## 2026-05-19 07:29 PT - Seeded Lane Log
 
 - `scope`: Created this missing log so live announcements and admin-ops prompts can complete their required-read step without wasting a scheduled run.
-- `latest evidence`: The QoL Google Sheet tracker now exists for phone-readable closeouts, and all 30 QoL prompts include the tracker block.
+- `latest evidence`: The automation Google Sheet tracker now exists for phone-readable closeouts, and all 30 automation prompts include the tracker block.
 - `next action`: The next announcements/admin-reporting pass should either land an announcement/reporting implementation slice or record an exact blocker with requirement IDs and validation.
 - `self-improvement`: Future runs should append concise, evidence-first entries here only when admin reporting or announcements work changes materially.

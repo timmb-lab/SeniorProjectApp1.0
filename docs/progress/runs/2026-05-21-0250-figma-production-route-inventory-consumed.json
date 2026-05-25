@@ -1,7 +1,7 @@
 {
   "run_id": "2026-05-21-0250-figma-production-route-inventory-consumed",
   "timestamp_local": "2026-05-21T02:50:00-07:00",
-  "automation_id": "senior-capstone-figma-product-builder",
+  "automation_id": "functionality-ux-upgrade-hourly",
   "lane": "figma-only product builder",
   "status": "completed",
   "accepted_mvp_pass": true,
@@ -76,7 +76,7 @@
     ]
   },
   "source_docs_read": [
-    "C:\\Users\\bryan\\.codex\\automations\\senior-capstone-figma-product-builder\\memory.md",
+    "C:\\Users\\bryan\\.codex\\automations\\functionality-ux-upgrade-hourly\\memory.md",
     "docs/design/figma-first-pass-product-system.md",
     "docs/design/figma-product-preview-state-variants.md",
     "docs/master-plan.md",
@@ -126,7 +126,7 @@
       "result": "passed"
     },
     {
-      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\verify-cadence-30min.ps1 -RepoRoot .",
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\verify:functionality-ux-automation -RepoRoot .",
       "result": "passed"
     },
     {

@@ -1,7 +1,7 @@
 {
   "run_id": "2026-05-20-2148-figma-drive-archive-delivery",
   "timestamp_local": "2026-05-20T21:48:00-07:00",
-  "automation_id": "senior-capstone-figma-product-builder",
+  "automation_id": "functionality-ux-upgrade-hourly",
   "lane": "figma-only product builder",
   "status": "completed",
   "accepted_mvp_pass": true,
@@ -147,7 +147,7 @@
     ]
   },
   "source_docs_read": [
-    "C:\\Users\\bryan\\.codex\\automations\\senior-capstone-figma-product-builder\\memory.md (not present at run start)",
+    "C:\\Users\\bryan\\.codex\\automations\\functionality-ux-upgrade-hourly\\memory.md (not present at run start)",
     "docs/design/figma-first-pass-product-system.md",
     "docs/design/figma-product-preview-state-variants.md",
     "docs/master-plan.md",
@@ -204,9 +204,9 @@
       "summary": "Whitespace check passed with line-ending warnings only."
     },
     {
-      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\verify-cadence-30min.ps1 -RepoRoot .",
+      "command": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\\scripts\\verify:functionality-ux-automation -RepoRoot .",
       "result": "passed",
-      "summary": "Quarter-hour cadence verifier passed."
+      "summary": "Functionality UX Upgrade automation verifier passed."
     }
   ],
   "backend_code_work_avoided": true,

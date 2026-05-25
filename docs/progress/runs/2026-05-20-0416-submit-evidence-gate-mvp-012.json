@@ -1,7 +1,7 @@
 {
   "run_id": "2026-05-20-0416-submit-evidence-gate-mvp-012",
   "timestamp_local": "2026-05-20T04:16:00-07:00",
-  "automation_id": "senior-capstone-hourly-qol-orchestrator",
+  "automation_id": "functionality-ux-upgrade-hourly",
   "trigger": "30-minute MVP builder run: implement a real blocked-submit state by requiring attached evidence before a student can submit a proposal for review.",
   "lane": "student-workflow-evidence",
   "status": "completed",
@@ -31,7 +31,7 @@
     "docs/automation-backlog.md",
     "docs/artifacts.json",
     "docs/human-decisions.md",
-    "automation/qol/reports/latest.md",
+    "automation/state/functionality-ux-growth-state.json",
     "functions/api/submissions/[id]/submit.ts",
     "tests/review-loop.integration.test.mjs"
   ],

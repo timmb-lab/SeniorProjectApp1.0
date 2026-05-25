@@ -1,7 +1,7 @@
 {
   "run_id": "2026-05-20-2209-drive-archive-package-mvp-022",
   "timestamp_local": "2026-05-20T22:09:00-07:00",
-  "automation_id": "senior-capstone-nonfigma-mvp-builder",
+  "automation_id": "functionality-ux-upgrade-hourly",
   "lane": "non-figma MVP builder",
   "selected_category": "admin-ops-reporting",
   "status": "completed",
@@ -26,7 +26,7 @@
   "output_kind": "drive-archive-package-upload-tests-docs",
   "bounded_scope": "Partially consume repo-recorded Figma node 151:2 without direct Figma work by uploading the redacted archive manifest JSON into Drive before completing an export and exposing only package-ready markers.",
   "source_docs_read": [
-    "C:\\Users\\bryan\\.codex\\automations\\senior-capstone-nonfigma-mvp-builder\\memory.md",
+    "C:\\Users\\bryan\\.codex\\automations\\functionality-ux-upgrade-hourly\\memory.md",
     "docs/master-plan.md",
     "docs/mvp-requirements-catalog.md",
     "docs/automation-cadence.md",

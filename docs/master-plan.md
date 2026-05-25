@@ -3,9 +3,9 @@
 Date: 2026-05-18
 Last accuracy audit: 2026-05-21 PT
 
-This is the top-level product plan for Capstone Project. The split builders must read this before choosing work. If a run cannot explain how its slice advances this plan and leave durable evidence, it should pick a different slice.
+This is the top-level product plan for Capstone Project. The Functionality UX Upgrades must read this before choosing work. If a run cannot explain how its slice advances this plan and leave durable evidence, it should pick a different slice.
 
-The MVP requirement source is `docs/mvp-requirements-catalog.md`. Every builder run must ladder from this master plan into that catalog, name the requirement IDs it advances, and update the catalog when status, evidence, blockers, owner category, or acceptance checks materially change. Active work ownership is split between the top-of-hour non-Figma MVP builder and the bottom-of-hour Figma-only product builder in `docs/automation-cadence.md`.
+The MVP requirement source is `docs/mvp-requirements-catalog.md`. Every Functionality UX Upgrade run must ladder from this master plan into that catalog, name the requirement IDs it advances, and update the catalog when status, evidence, blockers, owner category, or acceptance checks materially change. Active automation ownership is recorded in `docs/automation-cadence.md`.
 
 ## P0 Production Experience Gate
 
@@ -554,7 +554,7 @@ Earlier incomplete milestones beat later polish unless a P0/P1 risk says otherwi
 
 ## 100-Pass Delivery Constraint
 
-Bryan's current delivery pressure is to reach an MVP in 100 automation passes or fewer over roughly the next 45 days. The current active delivery cadence is four GUI-available quarter-hour split builders: `senior-capstone-nonfigma-mvp-builder` hourly at minute 0 PT, `senior-capstone-figma-product-builder-15` hourly at minute 15 PT, `senior-capstone-nonfigma-mvp-builder-30` hourly at minute 30 PT, and `senior-capstone-figma-product-builder` hourly at minute 45 PT. Together they run 96 times per day in this workspace with xhigh reasoning, plus daily and weekly oversight automations.
+Bryan's current delivery pressure is to reach an MVP in 100 automation passes or fewer over roughly the next 45 days. The current active automation contract is Functionality UX Upgrade (`functionality-ux-upgrade-hourly`), focused on safe product-readiness improvements, tests, verifiers, and clear handoffs.
 
 The pass budget should bias every lane toward reducing implementation ambiguity:
 
@@ -567,7 +567,7 @@ The target is not "100 design passes." It is 100 total compounding passes toward
 
 ### Real Daily MVP Goal
 
-The current quarter-hour split-builder cadence provides 96 combined active builder starts per day. The real delivery goal is evidence-based accepted MVP progress, not counted scheduled starts every day.
+The current Functionality UX Upgrade automation is the only active automation contract. The real delivery goal is evidence-based accepted MVP progress, not counted scheduled starts.
 
 For the current 45-day / 100-pass target, use this daily goal:
 
@@ -585,15 +585,13 @@ Daily priority order:
 2. Second accepted pass should deepen or verify the same alpha path: working transitions, seeded/demo data, tests, local run proof, Cloudflare preview proof, error/empty/permission states, or bug fixes.
 3. Stretch pass can be Figma, Canva, audit, or docs only when it directly unblocks the Day 7 alpha or closes a concrete P0/P1 handoff.
 
-Weekly adjustment rule for this project only: `senior-capstone-weekly-script-audit` reviews the last seven days of run manifests, run log entries, commits, backlog movement, handoffs, and audit findings on Sundays. It then updates this master plan, `docs/automation-memory.md`, `docs/mvp-requirements-catalog.md`, and related backlog/cadence records with the next week's daily goal/allocation if evidence shows the plan is too loose, too aggressive, or pointed at the wrong requirement area.
-
-30-day efficiency rule: use `scripts/verify-cadence-30min.ps1` to confirm the active automation system remains the owner-approved quarter-hour two-lane split before changing cadence. The current schedule creates 1,440 non-Figma starts, 1,440 Figma starts, and 2,880 combined builder starts in 30 days; it needs 60 accepted MVP passes for the minimum target and 90 for the stretch target, so it needs 2.08 percent conversion for minimum and 3.13 percent for stretch. Auto-scaling should retarget requirement focus, blockers, prompt clarity, lane separation, collision handling, and acceptance checks from evidence before recommending further schedule changes.
+Automation adjustment rule for this project only: use `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`, and recent committed evidence to recalibrate the next safe Functionality UX Upgrade target. Do not add or document another active automation without explicit future instruction.
 
 ### 2026-05-18 Historical Baseline After Figma And Automation Catch-Up
 
 The 2026-05-18 morning work materially improved the implementation runway, but at that point it had not yet created the hosted database-backed app. Treat the repo state through commit `08660f3` as the historical 100-pass baseline; later bullets in this plan record the current shipped scaffold, D1, auth, alpha, and automation state:
 
-- Operating base was stronger by that baseline: the project had MVP requirements, structured run manifests, a human-decision queue, artifact registry, publication/commit-push requirements, and non-interactive project-script rules. Current ownership is the split builder model in the Split Builder Master-Plan Orchestrator section.
+- Operating base was stronger by that baseline: the project had MVP requirements, structured run manifests, a human-decision queue, artifact registry, publication/commit-push requirements, and non-interactive project-script rules. Current ownership is the Functionality UX Upgrade model.
 - Stack direction is accepted and later refined: `HD-2026-05-18-001`, ADR-0001, and `D-2026-05-18-019` select the GitHub-to-Cloudflare path with Cloudflare Workers/Pages, D1, hardened username/password pilot auth until school SSO is available, Google Drive as the MVP evidence repository, server authorization, and audit logging. R2 is only a future fallback if enabled and approved.
 - Active Figma source is usable: professional-plan calls verified and updated file `z4t4tFPAKrMDh6pIYOeEw6` in team `1638213362346160913`.
 - Figma implementation handoffs now exist for the first MVP spine:
@@ -611,17 +609,13 @@ The 2026-05-18 morning work materially improved the implementation runway, but a
 
 Because of that gap, the next useful 100-pass plan must prioritize implementation, deployment proof, and tests over additional design polish unless design work is directly blocking a concrete route/data/permission implementation. The full Figma prototype now exists; future Figma work should be targeted QA/handoff refinement, not another broad prototype pass, until the hosted alpha catches up.
 
-## Split Builder Master-Plan Orchestrator
+## Functionality UX Upgrade Automation
 
-### 2026-05-20 Split Builders And Oversight
+### Current Automation Contract
 
-Bryan requested that the active automation produce real MVP results instead of report-only churn, plus daily and weekly oversight. The active builder model is now split into four quarter-hour builder rows: non-Figma at minutes 0 and 30 PT, and Figma-only at minutes 15 and 45 PT. The split exists so non-Figma implementation and Figma product/design can advance independently without lane contamination or same-minute collisions. Together they run 96 times per day from this workspace, read the master plan and requirements catalog every run, and must leave either a verified commit/push that moves the MVP forward, a functional Figma handoff, or a specific blocker artifact that reduces uncertainty.
+The only active automation is Functionality UX Upgrade (`functionality-ux-upgrade-hourly`). It should produce real app/product-readiness progress, tests/verifiers, and accurate handoff state without weakening auth, RBAC, privacy, deployment, or production-data boundaries.
 
-The builders must cover the full master plan over time, not attempt every requirement in one run. Each pass picks exactly one bounded slice, names the master-plan section and MVP requirement IDs it advances, checks recent manifests to avoid repeating stale work, and prefers the highest-risk incomplete requirement that can be advanced from the current repo/tool state. The non-Figma prompt covers real code/test/docs/deployment/Canva-only/automation-safety work while forbidding direct Figma actions. The Figma-only prompt covers functional design handoffs, route/data/permission annotations, state variants, screenshot/metadata verification, and exact Figma blockers while forbidding backend implementation.
-
-The daily summary automation is `senior-capstone-daily-mvp-summary`; it reports the last 24 hours of evidence-backed upgrades, commits, checks, failures, blockers, and accepted-progress math without changing the repo. The weekly strategy automation is `senior-capstone-weekly-script-audit`; it performs the seven-day review and adjusts this plan, the MVP catalog, memory, cadence, and backlog only when evidence justifies it.
-
-The split builder schedule is 96 active starts/day. It is execution capacity, not an accepted-pass count. The accepted-pass goal remains 2 per day minimum and 3 per day stretch while the repo is unblocked.
+Each pass picks a bounded safe slice, names the master-plan section and MVP requirement IDs it advances, checks recent ledger/state entries to avoid repeating stale work, and prefers the highest-risk incomplete requirement that can be advanced from the current repo state.
 
 ### Updated 100-Pass Allocation From Current State
 
@@ -777,7 +771,7 @@ Do not:
 Each week, Bryan should be able to answer:
 
 - Did the project hit at least 14 accepted MVP passes this week, and were they mostly implementation-heavy while `SC-005` remained open?
-- Did `senior-capstone-weekly-script-audit` adjust the next week's daily goal/allocation from evidence instead of vibes?
+- Did the Functionality UX Upgrade ledger/state update the next recommended work from evidence instead of vibes?
 - Did the repo move closer to a real hosted app?
 - Did the repo move closer to the secure database/account/group/progress MVP?
 - Did the GitHub-to-Cloudflare deployment path move forward?

@@ -1,7 +1,7 @@
 {
   "run_id": "2026-05-20-1910-workspace-presentation-dashboard-mvp-017",
   "timestamp_local": "2026-05-20T19:10:00-07:00",
-  "automation_id": "senior-capstone-nonfigma-mvp-builder",
+  "automation_id": "functionality-ux-upgrade-hourly",
   "lane": "non-figma MVP builder / staff-review-mentor",
   "status": "completed",
   "accepted_mvp_pass": true,
@@ -21,7 +21,7 @@
   "selected_category": "staff-review-mentor",
   "scope": "Consume the repo-recorded presentation dashboard handoff by surfacing persisted presentation slot status and check-out/check-in actions in the canonical workspace.",
   "source_docs_read": [
-    "C:\\Users\\bryan\\.codex\\automations\\senior-capstone-nonfigma-mvp-builder\\memory.md",
+    "C:\\Users\\bryan\\.codex\\automations\\functionality-ux-upgrade-hourly\\memory.md",
     "docs/master-plan.md",
     "docs/mvp-requirements-catalog.md",
     "docs/automation-cadence.md",

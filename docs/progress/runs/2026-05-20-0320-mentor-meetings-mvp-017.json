@@ -1,7 +1,7 @@
 {
   "run_id": "2026-05-20-0320-mentor-meetings-mvp-017",
   "timestamp_local": "2026-05-20T03:20:00-07:00",
-  "automation_id": "senior-capstone-hourly-qol-orchestrator",
+  "automation_id": "functionality-ux-upgrade-hourly",
   "trigger": "30-minute MVP builder run: introduce D1-backed mentor meeting persistence with scope enforcement and audit logging so mentor workflow can move beyond alpha-only state.",
   "lane": "staff-review-mentor",
   "status": "completed",

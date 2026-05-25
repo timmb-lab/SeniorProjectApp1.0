@@ -1,7 +1,7 @@
 {
   "run_id": "2026-05-20-1710-workspace-access-boundary-states-mvp-032-033",
   "timestamp_local": "2026-05-20T17:10:00-07:00",
-  "automation_id": "senior-capstone-nonfigma-mvp-builder",
+  "automation_id": "functionality-ux-upgrade-hourly",
   "lane": "non-figma MVP builder / backend-security-data",
   "status": "completed",
   "accepted_mvp_pass": true,
@@ -19,7 +19,7 @@
   "output_kind": "workspace-ui+tests+docs",
   "scope": "Add explicit role-pending and permission-denied access-boundary states to the canonical authenticated workspace.",
   "source_docs_read": [
-    "C:\\Users\\bryan\\.codex\\automations\\senior-capstone-nonfigma-mvp-builder\\memory.md",
+    "C:\\Users\\bryan\\.codex\\automations\\functionality-ux-upgrade-hourly\\memory.md",
     "docs/master-plan.md",
     "docs/mvp-requirements-catalog.md",
     "docs/automation-cadence.md",
@@ -156,7 +156,7 @@
   "human_decisions_changed": false,
   "phone_tracker": {
     "spreadsheet_id": "1J8jQMn85wJwo9Rh6LjQUVv_WfLS1YJWsbpcLBCojjjs",
-    "tab": "QoL Runs",
+    "tab": "Automation Runs",
     "result": "appended",
     "timestamp_local": "2026-05-20T17:10:00-07:00",
     "summary": "Recorded MVP-032/MVP-033 workspace access-boundary pass for phone-friendly tracking."

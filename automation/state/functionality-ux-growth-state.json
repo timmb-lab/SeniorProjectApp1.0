@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-05-24T16:37:05-07:00",
-  "lastStartingSha": "f278233c8ba309dd9aee3a3711aa8803810a523b",
+  "lastRunAt": "2026-05-24T17:05:30-07:00",
+  "lastStartingSha": "1e2e22c63a7b0a71320ff7099e014e6ae7a00835",
   "lastEndingSha": null,
   "currentLadderFocus": "LEVEL_1_NAVIGABLE_DASHBOARDS",
   "completedWorkOrders": [
@@ -89,6 +89,38 @@
       "type": "TYPE_D_ROLE_WORKSPACE",
       "summary": "Student home now elevates one own-student next action from existing nextSteps or summary counts before the longer task list.",
       "commit": "pending-closeout-commit"
+    },
+    {
+      "id": "review-queue-url-state",
+      "completedAt": "2026-05-24T16:59:12-07:00",
+      "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS",
+      "type": "TYPE_B_DASHBOARD_CLICK_THROUGH",
+      "summary": "Review Queue now supports safe URL-state deep links for real scoped filters, URL sync on filter changes, clear-filter query cleanup, and back/forward restoration.",
+      "commit": "pending-closeout-commit"
+    },
+    {
+      "id": "worklist-active-filter-summaries",
+      "completedAt": "2026-05-24T16:59:12-07:00",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "type": "TYPE_D_ROLE_WORKSPACE",
+      "summary": "Review Queue, Student Directory, Mentor Assignments, and Operations now show active filter summaries with clear-filter actions and clearer no-results guidance.",
+      "commit": "pending-closeout-commit"
+    },
+    {
+      "id": "review-queue-deeplink-verifier",
+      "completedAt": "2026-05-24T16:59:12-07:00",
+      "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
+      "type": "TYPE_G_VERIFICATION_REGRESSION_PROTECTION",
+      "summary": "Added npm run verify:review-queue-deeplinks to guard supported query params, canonicalization, history sync, clear filters, and URL tests.",
+      "commit": "pending-closeout-commit"
+    },
+    {
+      "id": "workspace-navigation-integrity-verifier",
+      "completedAt": "2026-05-24T16:59:12-07:00",
+      "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
+      "type": "TYPE_G_VERIFICATION_REGRESSION_PROTECTION",
+      "summary": "Added npm run verify:workspace-navigation to guard known workspace sections, route-backed dashboard presets, read-only boundaries, and active-filter UI.",
+      "commit": "pending-closeout-commit"
     }
   ],
   "deferredWorkOrders": [
@@ -103,29 +135,34 @@
       "reason": "Needs exact source metric and supported route/filter mapping before adding visible controls."
     },
     {
-      "id": "student-next-action-card",
-      "ladderLevel": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN",
-      "reason": "Student next-action guidance should use real existing progress/submission fields and own-student data only."
+      "id": "review-queue-unsupported-filter-params",
+      "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS",
+      "reason": "missing, evidenceStatus, mentorUserId, studentUserId, and studentId are not emitted as Review Queue filters until a full scoped backend/UI/privacy path exists."
     },
     {
       "id": "product-admin-all-sites-rollup",
       "ladderLevel": "LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS",
-      "reason": "All-sites rollup needs backend aggregate and authorization design; the sprint intentionally avoided fake cross-site controls."
+      "reason": "All-sites rollup needs backend aggregate and authorization design; this sprint intentionally avoided fake cross-site controls."
+    },
+    {
+      "id": "other-worklist-url-state",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "reason": "Student Directory and Mentor Assignments received visible active filters, but reloadable URL state should be a separate product decision."
     }
   ],
   "blockedWorkOrders": [],
   "nextRecommendedWorkOrders": [
     {
-      "id": "browser-visual-qa-collapsed-nav",
-      "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
-      "type": "TYPE_G_VERIFICATION_REGRESSION_PROTECTION",
-      "summary": "Run credentialed browser screenshot QA for expanded/collapsed navigation, admin site selector, and mobile wrapping."
-    },
-    {
       "id": "missing-submission-drilldown",
       "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS",
       "type": "TYPE_B_DASHBOARD_CLICK_THROUGH",
       "summary": "Map missing-submission or evidence-attention counts to a supported scoped Review Queue or Student Directory filter, then add the drill-down only if the mapping is exact."
+    },
+    {
+      "id": "browser-visual-qa-review-queue-url-state",
+      "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
+      "type": "TYPE_G_VERIFICATION_REGRESSION_PROTECTION",
+      "summary": "Run credentialed browser QA for Review Queue deep links, active filters, collapsed navigation, mobile wrapping, and multi-site switching."
     },
     {
       "id": "student-detail-latest-feedback-context",
@@ -134,10 +171,10 @@
       "summary": "Improve student detail section headings and latest feedback context using fields already returned by the authorized detail API."
     },
     {
-      "id": "review-queue-filter-url-state",
-      "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS",
-      "type": "TYPE_B_DASHBOARD_CLICK_THROUGH",
-      "summary": "Consider URL/query persistence for review queue filters after privacy review."
+      "id": "other-worklist-url-state-decision",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "type": "TYPE_D_ROLE_WORKSPACE",
+      "summary": "Decide whether Student Directory and Mentor Assignments need reloadable URL-state beyond visible active filters."
     }
   ],
   "doNotRepeat": [
@@ -149,38 +186,45 @@
     "Do not add fake site switching, fake all-sites rollups, fake retry buttons, fake intervention workflows, or links to routes that do not exist.",
     "Do not broaden viewer, teacher, mentor, or student access while adding dashboard drill-downs or student detail entry points.",
     "Do not relink Program Breakdown rows to Student Directory; the program preset is complete.",
-    "Do not relink Mentor Coverage rows to Mentor Assignments; the mentor-workload preset is complete."
+    "Do not relink Mentor Coverage rows to Mentor Assignments; the mentor-workload preset is complete.",
+    "Do not re-add Review Queue URL-state support; extend it only when a newly supported filter has backend, UI, tests, and verifier coverage.",
+    "Do not emit Review Queue missing/evidence/mentor/student query params until full scoped support exists."
   ],
   "lastValidationStatus": {
     "status": "passed",
-    "completedAt": "2026-05-24T16:40:01-07:00",
+    "completedAt": "2026-05-24T17:05:30-07:00",
     "commands": [
       "npm run verify:dashboard-actions",
-      "npm run verify:functionality-ux-automation",
+      "npm run verify:review-queue-deeplinks",
+      "npm run verify:workspace-navigation",
       "npm run verify:functionality-language",
-      "node --test tests/functionality-language-audit.test.mjs",
+      "npm run verify:functionality-ux-automation",
       "node --test tests/workspace-app.test.mjs",
+      "node --test tests/functionality-language-audit.test.mjs",
       "node --test tests/account-and-evidence-access.test.mjs",
       "npm run test",
       "npm run typecheck",
       "npm run check:production-surfaces",
       "npm run check",
-      "git diff --check"
+      "git diff --check",
+      "git diff --cached --check"
     ],
-    "notes": "Final validation passed. Baseline npm run test first failed only because the brand-new branch had no upstream; after setting temporary upstream to origin/main, baseline and final npm run test passed. git diff --check reported CRLF normalization warnings only. lastEndingSha is left null until the closeout commit exists."
+    "notes": "Full required validation passed. The first npm run test attempt failed only because the new local branch had no upstream; after setting a temporary upstream to the prior sprint branch, the same suite passed. git diff --check reported CRLF normalization warnings only; git diff --cached --check passed cleanly."
   },
   "lastProductReadinessScorecardSummary": {
-    "homepageClarity": "2 to 4",
-    "dashboardLanguageQuality": "2 to 4",
-    "dashboardClickThroughDepth": "2 to 3",
-    "studentDetailUsability": "3 to 4",
-    "siteContextClarity": "2 to 4",
-    "layoutWidthUsage": "2 to 4",
-    "navigationMenuEfficiency": "2 to 4",
-    "roleSpecificWorkspaceClarity": "3 to 4",
+    "homepageClarity": "4 to 4",
+    "dashboardLanguageQuality": "4 to 4",
+    "dashboardClickThroughDepth": "3 to 3",
+    "reviewQueueUrlState": "1 to 4",
+    "activeFilterClarity": "2 to 4",
+    "studentDetailUsability": "4 to 4",
+    "siteContextClarity": "4 to 4",
+    "layoutWidthUsage": "4 to 4",
+    "navigationMenuEfficiency": "4 to 4",
+    "roleSpecificWorkspaceClarity": "4 to 4",
     "studentPrivacyConfidence": "4 to 4",
     "staffWorkflowUsefulness": "3 to 4",
-    "emptyErrorStateQuality": "2 to 3",
-    "regressionTestCoverage": "3 to 4"
+    "emptyErrorStateQuality": "3 to 4",
+    "regressionTestCoverage": "4 to 4"
   }
 }
