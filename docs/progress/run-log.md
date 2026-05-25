@@ -1597,3 +1597,14 @@ Future productive runs should append compact entries that name the master-plan s
 - `changes`: moved the menu button to the top-left header group with Open/Close labels, `aria-expanded`, and controlled nav; collapsed state hides the full nav rail and gives content the full grid; mobile uses an overlay drawer; Site Dashboard/Admin `Students` opens Student Directory; `No Mentor` and Mentor Coverage open Student Directory with `noMentor=true`; admin Submitted/Needs Revision/Presentations use existing filtered sections; unavailable metric actions render as summary-only.
 - `validation`: `git diff --check` passed with CRLF normalization warnings only; focused workspace render tests, functionality audit test, dashboard/navigation/review/language/automation verifiers, route inventory check, full `npm run test`, `npm run typecheck`, `npm run check:production-surfaces`, and aggregate `npm run check` passed. Local browser smoke loaded `/workspace` sign-in with zero console errors; authenticated dashboard click-throughs are covered by tests because no credentials were used.
 - `commit/push status`: pending closeout commit.
+
+## 2026-05-24 PT - Functionality UX Upgrade Status Breakdown Drill-Down
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 1 navigable dashboards / status breakdown drill-down.
+- `starting HEAD`: `b079911f14b1e1ddfeae836b2ee784822118b657`.
+- `selected slice`: Link Site Dashboard `Status Breakdown` rows to the existing scoped Student Directory `status` filter, while leaving unsupported status values summary-only.
+- `repo-grounded findings`: the dashboard still rendered `Status Breakdown` through static `renderSnapshotRows()`, while `/api/site/students` and existing Student Directory URL state already supported `status` filters for `draft`, `submitted`, `under_review`, `revision_requested`, `approved`, `blocked`, `archived`, and `complete`.
+- `changes`: added a `status-breakdown` dashboard preset, rendered supported status rows with `View students` buttons, set `siteStudentFilters.status`, synced the filtered Student Directory URL, and extended workspace render/source tests plus dashboard/navigation verifiers.
+- `validation`: focused and final validation passed: dashboard/review/workspace/language/automation verifiers, workspace and audit tests, JSON state parse, route inventory, full test suite, typecheck, production-surface check, aggregate `npm run check`, and `git diff --check` with CRLF normalization warnings only.
+- `commit/push status`: pending closeout commit.

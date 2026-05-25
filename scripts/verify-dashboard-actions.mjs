@@ -77,6 +77,7 @@ const allowedPresets = new Map([
   ["all-students", "students"],
   ["missing-mentors", "students"],
   ["program", "students"],
+  ["status-breakdown", "students"],
   ["submitted", "teacher"],
   ["revision-requested", "teacher"],
   ["presentation-pending", "operations"],
@@ -124,6 +125,11 @@ assertMatches(
   "workspaceJs",
   /section === "students" && button\.dataset\.sectionPreset === "program"[\s\S]*const programId = cleanDirectoryFilter\(button\.dataset\.programId\)[\s\S]*programId,[\s\S]*syncSiteStudentUrlState\(\)/,
   "program drill-down must set the Student Directory program filter and sync URL state",
+);
+assertMatches(
+  "workspaceJs",
+  /section === "students" && button\.dataset\.sectionPreset === "status-breakdown"[\s\S]*const status = canonicalReviewQueueValue\(normalizeStatus\(button\.dataset\.statusFilter\), SITE_STUDENT_STATUS_VALUES\)[\s\S]*status,[\s\S]*syncSiteStudentUrlState\(\)/,
+  "status breakdown drill-down must set the Student Directory status filter and sync URL state",
 );
 
 assertIncludes("workspaceJs", "function siteMentorAssignmentQueryString()", "Mentor Assignments query helper must exist");

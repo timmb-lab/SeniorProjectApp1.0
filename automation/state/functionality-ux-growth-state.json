@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-05-24T19:22:39-07:00",
-  "lastStartingSha": "38cde8d763f603496dae237ab0267d79ec023087",
+  "lastRunAt": "2026-05-24T19:35:50-07:00",
+  "lastStartingSha": "b079911f14b1e1ddfeae836b2ee784822118b657",
   "lastEndingSha": null,
   "currentLadderFocus": "LEVEL_1_NAVIGABLE_DASHBOARDS",
   "completedWorkOrders": [
@@ -169,6 +169,14 @@
       "type": "TYPE_B_DASHBOARD_CLICK_THROUGH",
       "summary": "Admin workspace hamburger close now hides the full navigation and frees content width; Students and No Mentor dashboard counts open the Student Directory, with No Mentor and Mentor Coverage using the supported noMentor=true filter.",
       "commit": "pending-closeout-commit"
+    },
+    {
+      "id": "site-dashboard-status-breakdown-directory-clickthrough",
+      "completedAt": "2026-05-24T19:35:50-07:00",
+      "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS",
+      "type": "TYPE_B_DASHBOARD_CLICK_THROUGH",
+      "summary": "Site Dashboard Status Breakdown rows now open the scoped Student Directory with the supported status filter and shareable URL state; unsupported statuses remain summary-only.",
+      "commit": "pending-closeout-commit"
     }
   ],
   "deferredWorkOrders": [
@@ -228,11 +236,12 @@
     "Do not emit Review Queue missing/evidence/mentor/student query params until full scoped support exists.",
     "Do not rebuild Student Directory, Mentor Assignments, or Operations URL-state unless adding a newly supported filter.",
     "Do not reintroduce retired builder cadence checks.",
-    "Do not re-add the student detail latest feedback summary; extend it only if the authorized detail API adds a new visible feedback source."
+    "Do not re-add the student detail latest feedback summary; extend it only if the authorized detail API adds a new visible feedback source.",
+    "Do not re-add Site Dashboard Status Breakdown status-filter actions; extend only if new dashboard status values gain a supported Student Directory mapping."
   ],
   "lastValidationStatus": {
     "status": "passed",
-    "completedAt": "2026-05-24T19:26:50-07:00",
+    "completedAt": "2026-05-24T19:39:17-07:00",
     "commands": [
       "npm run verify:dashboard-actions",
       "npm run verify:review-queue-deeplinks",
@@ -248,10 +257,9 @@
       "npm run check:production-surfaces",
       "npm run check",
       "git diff --check",
-      "browser smoke: local /workspace sign-in route loaded with zero console errors",
       "git status --short"
     ],
-    "notes": "Full required validation passed for the admin workspace click-through and responsive navigation repair. git diff --check reported CRLF normalization warnings only. Local browser smoke loaded the protected workspace sign-in route without console errors; authenticated dashboard click-through behavior is covered by render/integration tests. No remote seed/reset/migration, live data write, deploy, credential repair, domain/OAuth, or Cloudflare config change was run."
+    "notes": "Full required validation passed for the Site Dashboard Status Breakdown click-through to the scoped Student Directory status filter. git diff --check reported CRLF normalization warnings only. No browser smoke was run because this slice is covered by render/source tests and no credentials were used. No remote seed/reset/migration, live data write, deploy, credential repair, domain/OAuth, or Cloudflare config change was run."
   },
   "lastProductReadinessScorecardSummary": {
     "homepageClarity": "4 to 4",

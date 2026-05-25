@@ -845,6 +845,19 @@ async function openWorkspaceSection(button) {
     await loadWorkspaceData("Showing students in the selected program.");
     return;
   }
+  if (section === "students" && button.dataset.sectionPreset === "status-breakdown") {
+    const status = canonicalReviewQueueValue(normalizeStatus(button.dataset.statusFilter), SITE_STUDENT_STATUS_VALUES);
+    if (!status) return;
+    siteStudentFilters = {
+      ...defaultSiteStudentFilters(),
+      status,
+    };
+    siteStudentDetailState = defaultSiteStudentDetailState();
+    activeSection = "students";
+    syncSiteStudentUrlState();
+    await loadWorkspaceData(`Showing ${statusText(status)} students.`);
+    return;
+  }
   if (section === "teacher" && button.dataset.sectionPreset === "submitted") {
     reviewQueueFilters = {
       ...defaultReviewQueueFilters(),
@@ -1116,7 +1129,7 @@ function renderSiteDashboardSection() {
       ${renderDashboardCard("Needs Attention", "Teacher follow-up and operations", renderNeedsAttention(dashboard.needsAttention))}
       <div class="workspace-dashboard-grid workspace-dashboard-grid-two">
         ${renderDashboardCard("Program Breakdown", "Students by program", renderProgramBreakdown(dashboard.programBreakdown))}
-        ${renderDashboardCard("Status Breakdown", "Student status", renderSnapshotRows(dashboard.statusBreakdown))}
+        ${renderDashboardCard("Status Breakdown", "Student status", renderStatusBreakdown(dashboard.statusBreakdown))}
         ${renderDashboardCard("Top Risk Students", "Priority student signals", renderSiteTopRiskStudents(dashboard.topRiskStudents))}
         ${renderDashboardCard("Mentor Coverage", "Mentor assignment load", renderMentorCoverage(dashboard.mentorCoverage, summary))}
         ${renderDashboardCard("Presentation Snapshot", "Readiness and day-of status", renderSnapshotRows(dashboard.presentationSnapshot))}
@@ -5278,6 +5291,35 @@ function renderMentorCoverage(rows = [], summary = {}) {
           </div>
         </article>
       `).join("") : `<div class="workspace-empty">No mentor coverage records are available yet.</div>`}
+    </div>
+  `;
+}
+
+function renderStatusBreakdown(rows = []) {
+  if (!rows.length) return `<div class="workspace-empty">No student status rows are available yet.</div>`;
+  const canOpenStudents = availableSectionIds().has("students");
+  return `
+    <div class="workspace-list">
+      ${rows.map((row) => {
+        const status = normalizeStatus(row.status);
+        const canFilter = canOpenStudents && SITE_STUDENT_STATUS_VALUES.has(status);
+        return `
+          <article class="workspace-row">
+            <div>
+              <strong>${escapeHtml(statusText(status))}</strong>
+              <p>${safeNumber(row.count)} ${escapeHtml(pluralize(row.count, "student"))}</p>
+            </div>
+            <div class="workspace-row-actions">
+              ${statusPill(status)}
+              ${canFilter ? `
+                <button class="workspace-link-button workspace-link-button-small" type="button" data-section="students" data-section-preset="status-breakdown" data-status-filter="${escapeHtml(status)}">
+                  View students
+                </button>
+              ` : `<span class="workspace-summary-badge">Summary only</span>`}
+            </div>
+          </article>
+        `;
+      }).join("")}
     </div>
   `;
 }

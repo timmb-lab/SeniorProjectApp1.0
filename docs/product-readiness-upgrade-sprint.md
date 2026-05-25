@@ -532,3 +532,35 @@ Do-not-repeat notes:
 - Do not create Review Queue links with `missing`, `evidenceStatus`, `mentorUserId`, `studentUserId`, or `studentId` until backend, UI, tests, verifier, and privacy review are complete.
 - Do not add fake missing-submission, evidence-attention, intervention, archive retry, presentation scheduling, all-sites rollup, or student-specific queue controls.
 - Do not reintroduce retired builder cadence checks or hardcoded local repo-root enforcement.
+
+## Functionality UX Upgrade - Status Breakdown Click-Through - 2026-05-24 19:35 PT
+
+Branch/SHA: `main` / `b079911f14b1e1ddfeae836b2ee784822118b657`
+
+Selected slice: link the Site Dashboard `Status Breakdown` rows to the existing scoped Student Directory `status` filter.
+
+Decision summary:
+
+- Implemented because `/api/site/students` already supports `status` filters, Student Directory URL state already syncs that filter, and the dashboard status rows were still static.
+- Kept unsupported status values summary-only instead of creating fake filters.
+- Deferred missing-submission/evidence-attention drill-downs because Review Queue `missing` and `evidenceStatus` params remain unsupported.
+
+User-facing result:
+
+- Staff and read-only viewers can open `Submitted`, `Revision requested`, `Approved`, and other supported student statuses from the Site Dashboard directly into the filtered Student Directory.
+- The destination keeps the existing site/program scope and visible active-filter summary.
+
+Validation added:
+
+- `tests/workspace-app.test.mjs` asserts Status Breakdown row actions and handler behavior.
+- `scripts/verify-dashboard-actions.mjs` and `scripts/verify-workspace-navigation-integrity.mjs` now guard the `status-breakdown` preset and Student Directory status-filter URL sync.
+
+RBAC/privacy notes:
+
+- No auth, RBAC, tenant, site, program, mentor, student privacy, migration, D1 config, secrets, OAuth, Cloudflare config, deploy, or live data behavior changed.
+- The UI only feeds an existing scoped `/api/site/students?status=...` query, leaving server authorization unchanged.
+
+Next recommended:
+
+1. Map missing-submission/evidence-attention counts to an exact supported route/filter before adding any visible control.
+2. Run credentialed browser QA for dashboard drill-downs, shareable filtered URLs, site switching, and mobile wrapping when credentials/runtime are available.

@@ -379,3 +379,54 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: missing/evidence dashboard drill-down still lacks exact supported filter mapping; browser QA still needs credentialed runtime
   - Do not repeat: do not re-add latest feedback summary
   - First file to inspect next run: `workspace.js` `renderStudentDetailSummary()`
+
+## Run 2026-05-24 19:35 PT
+
+- Starting SHA: `b079911f14b1e1ddfeae836b2ee784822118b657`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Ladder level targeted: `LEVEL_1_NAVIGABLE_DASHBOARDS`
+- Backlog item: `status-breakdown-directory-clickthrough`
+- Work order selected: Link Site Dashboard `Status Breakdown` rows to the existing scoped Student Directory status filter.
+- Selection reason: The previous memory handoff named status-breakdown drill-down as the next safe slice; the repo still rendered status rows as static snapshot rows, while `/api/site/students` already supports scoped `status` filters and shareable Student Directory URL state.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Status Breakdown -> Student Directory status filter | `LEVEL_1_NAVIGABLE_DASHBOARDS` | admin, site staff, viewer | 4 | 5 | 5 | S | 55 | selected |
+| Missing/evidence dashboard drill-down mapping | `LEVEL_1_NAVIGABLE_DASHBOARDS` | staff | 5 | 2 | 3 | M | 40 | deferred: unsupported mapping still unproven |
+| Credentialed browser QA for drill-down URLs | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all | 4 | 4 | 3 | M | 41 | deferred: needs credentialed runtime |
+| Student Directory mentor filter options | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | staff | 4 | 3 | 4 | M | 42 | deferred: API lacks safe mentor option labels |
+| Program Teacher scoped student detail action | `LEVEL_2_STUDENT_DETAIL_DEPTH` | program teacher | 4 | 4 | 4 | S | 47 | rejected this run: current handoff favored dashboard navigation |
+| Mentor assigned-student detail action | `LEVEL_2_STUDENT_DETAIL_DEPTH` | mentor | 4 | 3 | 3 | M | 39 | deferred: assigned-site detail context needs audit |
+| Student archive blocked guidance | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 4 | 5 | 4 | S | 46 | rejected: less tied to current Level 1 handoff |
+| Viewer read-only homepage clarity | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | viewer | 3 | 5 | 4 | XS | 43 | rejected: already covered by read-only verifier |
+| Public guide app-boundary cleanup | `LEVEL_0_PROTOTYPE_CLEANUP` | public | 3 | 5 | 4 | S | 42 | rejected: protected app workflow had higher value |
+| Student detail URL state | `LEVEL_2_STUDENT_DETAIL_DEPTH` | staff | 4 | 2 | 3 | M | 36 | deferred: URL student-id privacy policy not settled |
+| Operations snapshot row drill-downs | `LEVEL_1_NAVIGABLE_DASHBOARDS` | staff | 4 | 3 | 4 | S | 43 | rejected: metric presets already cover the safest operations paths |
+| Program dashboard language cleanup | `LEVEL_0_PROTOTYPE_CLEANUP` | program teacher | 2 | 5 | 4 | XS | 39 | rejected: lower workflow impact than a real drill-down |
+| Mentor meeting status summary | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | mentor | 4 | 3 | 3 | S | 40 | deferred: needs mentor dashboard field audit |
+
+- User-facing improvement: Staff can open supported `Status Breakdown` rows such as Submitted, Revision requested, and Approved into the filtered Student Directory instead of manually recreating the status filter.
+- Roles affected: platform admin, admin, org admin, site admin, viewer/read-only staff; program teacher student-directory filters remain scoped by the existing route when reached through available sections.
+- Files changed: `workspace.js`, `tests/workspace-app.test.mjs`, `scripts/verify-dashboard-actions.mjs`, `scripts/verify-workspace-navigation-integrity.mjs`, `docs/functionality-language-audit.md`, `docs/product-readiness-upgrade-sprint.md`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`
+- Tests/verifiers added or updated: workspace render/source assertions for status-breakdown actions; dashboard action verifier and workspace navigation verifier guard the new `status-breakdown` preset.
+- Validation commands:
+  - Baseline focused validation: `npm run verify:dashboard-actions`; `npm run verify:workspace-navigation`; `node --test tests/workspace-app.test.mjs`
+  - Final validation: `npm run verify:dashboard-actions`; `npm run verify:review-queue-deeplinks`; `npm run verify:workspace-navigation`; `npm run verify:functionality-language`; `npm run verify:functionality-ux-automation`; `node --test tests/workspace-app.test.mjs`; `node --test tests/functionality-language-audit.test.mjs`; JSON parse for `automation/state/functionality-ux-growth-state.json`; `npm run check:route-inventory`; `npm run test`; `npm run typecheck`; `npm run check:production-surfaces`; `npm run check`; `git diff --check`; `git status --short`
+- Validation result: passed; `git diff --check` reported CRLF normalization warnings only
+- Commit: pending closeout commit
+- Push status: not pushed at draft time
+- Deferred items: missing-submission/evidence drill-down; credentialed browser QA; Student Directory mentor filter options; mentor assigned-student detail action
+- New backlog items: none
+- Next recommended work order: map missing-submission/evidence-attention counts to an exact supported scoped route/filter, or run credentialed browser QA if the approved runtime/credentials are available.
+- Do-not-repeat notes: do not re-add Status Breakdown status-filter actions; extend only if new dashboard status values need a supported mapping.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_1_NAVIGABLE_DASHBOARDS`
+  - Advanced: yes
+  - Evidence: `Status Breakdown` rows now use `data-section-preset="status-breakdown"` and set the Student Directory `status` filter with verifier/test coverage.
+  - Unlocks: staff can drill from status counts to exact scoped student rows before deeper missing/evidence work.
+  - Next: exact missing-submission/evidence mapping or credentialed browser QA.
+  - Blockers: missing/evidence mapping remains unproven; browser QA still needs credentialed runtime.
+  - Do not repeat: do not rebuild the status-breakdown click-through unless a regression appears.
+  - First file to inspect next run: `workspace.js` `renderStatusBreakdown()`

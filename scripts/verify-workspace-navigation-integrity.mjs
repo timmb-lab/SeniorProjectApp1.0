@@ -76,6 +76,7 @@ assertMatches("workspaceJs", /sectionPreset === "revision-requested"[\s\S]*statu
 assertMatches("workspaceJs", /sectionPreset === "all-students"[\s\S]*siteStudentFilters = defaultSiteStudentFilters\(\)/, "Students dashboard preset must open the Student Directory without stale filters");
 assertMatches("workspaceJs", /sectionPreset === "missing-mentors"[\s\S]*noMentor: true[\s\S]*syncSiteStudentUrlState\(\)/, "Missing mentor dashboard preset must open Student Directory with a missing-mentor filter");
 assertMatches("workspaceJs", /sectionPreset === "program"[\s\S]*siteStudentFilters = [\s\S]*programId/, "Program dashboard rows must open Student Directory with a program filter");
+assertMatches("workspaceJs", /sectionPreset === "status-breakdown"[\s\S]*siteStudentFilters = [\s\S]*status/, "Status Breakdown rows must open Student Directory with a status filter");
 assertMatches("workspaceJs", /sectionPreset === "mentor-workload"[\s\S]*mentorAssignmentFilters = [\s\S]*mentorUserId/, "Mentor workload rows must open Mentor Assignments with a mentor filter");
 assertMatches("workspaceJs", /sectionPreset === "presentation-pending"[\s\S]*presentationStatus: "pending"/, "Presentation dashboard preset must open Operations with a supported filter");
 assertMatches("workspaceJs", /sectionPreset === "archive-failed"[\s\S]*archiveStatus: "failed"/, "Archive dashboard preset must open Operations with a supported filter");
