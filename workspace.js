@@ -3164,7 +3164,7 @@ function renderStudentSection() {
     ${renderStudentRequirementPanel(dashboard.requirements || [], summary)}
     ${renderStudentFeedbackPanel(dashboard.feedback || [], summary, studentFeedbackHistoryState)}
     ${renderStudentProgressDetails(summary, dashboard)}
-    <section class="workspace-card">
+    <section class="workspace-card" data-student-evidence-panel="true">
       <div class="workspace-card-head">
         <div>
           <p class="workspace-kicker">Add your work</p>
@@ -3453,8 +3453,10 @@ function renderStudentRequirementRow(item) {
   const updatedAt = item?.lastUpdatedAt ? formatDate(item.lastUpdatedAt) : "Not available yet";
   const description = String(item?.description || "").trim();
   const qualityPrompt = String(item?.qualityPrompt || "").trim();
+  const submissionId = String(item?.submissionId || "").trim();
+  const evidenceCount = safeNumber(item?.evidenceCount);
   return `
-    <article class="workspace-row workspace-student-requirement-row" data-student-requirement-row="true">
+    <article class="workspace-row workspace-student-requirement-row" data-student-requirement-row="true" data-student-requirement-submission-id="${escapeHtml(submissionId)}" data-student-requirement-evidence-count="${escapeHtml(evidenceCount)}">
       <div>
         <strong>${escapeHtml(item?.title || "Senior Project requirement")}</strong>
         ${description ? `<p class="workspace-student-requirement-guidance" data-student-requirement-description="true">${escapeHtml(description)}</p>` : ""}
@@ -3464,11 +3466,24 @@ function renderStudentRequirementRow(item) {
         <p class="workspace-muted" data-student-requirement-next="true">${escapeHtml(item?.nextAction || "Ask your program teacher what to do next.")}</p>
       </div>
       <div class="workspace-row-actions">
+        ${submissionId ? `<span class="workspace-site-context-badge" data-student-requirement-evidence="true">${escapeHtml(evidenceCount)} evidence</span>` : ""}
         ${version > 0 ? `<span class="workspace-site-context-badge" data-student-requirement-version="true">Version ${escapeHtml(version)}</span>` : ""}
+        ${renderStudentRequirementAction(item, evidenceCount)}
         ${statusPill(item?.status || "missing")}
       </div>
     </article>
   `;
+}
+
+function renderStudentRequirementAction(item, evidenceCount = 0) {
+  const submissionId = String(item?.submissionId || "").trim();
+  const status = normalizeStatus(item?.submissionStatus || item?.status);
+  if (!submissionId || !["draft", "revision_requested"].includes(status)) return "";
+  if (safeNumber(evidenceCount) <= 0) {
+    return `<button class="workspace-button workspace-button-small workspace-button-secondary" type="button" data-student-submission-action="focus-evidence" data-student-submission-id="${escapeHtml(submissionId)}">Add evidence</button>`;
+  }
+  const label = status === "revision_requested" ? "Send revision" : "Send for review";
+  return `<button class="workspace-button workspace-button-small workspace-button-primary" type="button" data-student-submission-action="submit" data-student-submission-id="${escapeHtml(submissionId)}">${escapeHtml(label)}</button>`;
 }
 
 function studentDueText(item, fallback = "Due date: Not available yet") {
@@ -4334,6 +4349,9 @@ function bindWorkspaceForms() {
   document.querySelectorAll("[data-student-feedback-action]").forEach((button) => {
     button.addEventListener("click", handleStudentFeedbackAction);
   });
+  document.querySelectorAll("[data-student-submission-action]").forEach((button) => {
+    button.addEventListener("click", handleStudentSubmissionAction);
+  });
   document.querySelector("#siteStudentFilterForm")?.addEventListener("submit", applySiteStudentFilters);
   document.querySelectorAll("[data-site-student-action]").forEach((button) => {
     button.addEventListener("click", handleSiteStudentAction);
@@ -4371,6 +4389,45 @@ async function handleStudentFeedbackAction(event) {
   const action = event?.currentTarget?.dataset?.studentFeedbackAction;
   if (action !== "open-history") return;
   await openStudentFeedbackHistory(event.currentTarget?.dataset?.studentFeedbackSubmissionId || "");
+}
+
+async function handleStudentSubmissionAction(event) {
+  const button = event?.currentTarget;
+  const action = button?.dataset?.studentSubmissionAction || "";
+  const submissionId = cleanDirectoryFilter(button?.dataset?.studentSubmissionId || "");
+  if (!submissionId) return;
+  if (action === "focus-evidence") {
+    focusEvidenceFormsForSubmission(submissionId);
+    return;
+  }
+  if (action !== "submit" || busy) return;
+  busy = true;
+  button.disabled = true;
+  renderAppShell("Sending your work for teacher review...");
+  const result = await settleApi(apiJson(`/api/submissions/${encodeURIComponent(submissionId)}/submit`, {
+    method: "POST",
+  }));
+  busy = false;
+  if (!result.ok) {
+    renderAppShell(messageForStudentSubmissionError(result.body?.error || result.error, result.status), "error");
+    return;
+  }
+  await loadWorkspaceData("Your work was sent for teacher review.");
+}
+
+function focusEvidenceFormsForSubmission(submissionId) {
+  let matched = false;
+  document.querySelectorAll('#workspaceEvidenceLinkForm select[name="submissionId"], #workspaceFileUploadForm select[name="submissionId"]').forEach((select) => {
+    const hasOption = Array.from(select.options || []).some((option) => option.value === submissionId);
+    if (hasOption) {
+      select.value = submissionId;
+      matched = true;
+    }
+  });
+  const panel = document.querySelector('[data-student-evidence-panel="true"]');
+  if (matched) panel?.setAttribute("data-selected-submission-id", submissionId);
+  panel?.scrollIntoView?.({ behavior: "smooth", block: "start" });
+  document.querySelector('#workspaceEvidenceLinkForm input[name="title"]')?.focus?.();
 }
 
 async function openStudentFeedbackHistory(submissionId) {
@@ -6862,6 +6919,15 @@ function messageForEvidenceError(error, status) {
   if (status === 403) return "This account does not have permission to add evidence to that submission.";
   if (status === 401) return "Sign in again before adding evidence.";
   return "We could not attach that evidence link. Check the information and try again.";
+}
+
+function messageForStudentSubmissionError(error, status) {
+  if (error === "submission_missing_evidence") return "Attach evidence before sending this work for teacher review.";
+  if (error === "submission_not_submittable" || status === 409) return "This work is not ready to send right now.";
+  if (error === "missing_submission_id" || status === 404) return "We could not find that submission. Refresh and try again.";
+  if (status === 403) return "This account cannot send that submission for review.";
+  if (status === 401) return "Sign in again before sending work for review.";
+  return "We could not send this work for review. Try again or ask your program teacher for help.";
 }
 
 function messageForUploadError(error, status) {

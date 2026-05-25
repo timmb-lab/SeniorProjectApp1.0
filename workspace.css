@@ -354,6 +354,7 @@
   outline: 0;
 }
 
+.workspace-button-small,
 .workspace-link-button-small {
   min-height: 36px;
   padding: 0.45rem 0.65rem;

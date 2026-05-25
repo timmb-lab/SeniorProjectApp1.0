@@ -20,6 +20,7 @@ interface SubmissionSummaryRow {
   submitted_at: string | null;
   updated_at: string;
   requirement_title: string | null;
+  evidence_count: number;
 }
 
 interface EvidenceSummaryRow {
@@ -124,6 +125,7 @@ interface StudentNextStep {
 
 interface StudentRequirementDetail {
   requirementId: string;
+  submissionId: string | null;
   title: string;
   description: string | null;
   phase: string;
@@ -132,6 +134,7 @@ interface StudentRequirementDetail {
   progressStatus: string | null;
   submissionStatus: string | null;
   submissionVersion: number | null;
+  evidenceCount: number;
   dueDate: string | null;
   dueLabel: string | null;
   qualityPrompt: string | null;
@@ -182,7 +185,14 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
        submissions.version,
        submissions.submitted_at,
        submissions.updated_at,
-       requirements.title AS requirement_title
+       requirements.title AS requirement_title,
+       (
+         SELECT COUNT(evidence_artifacts.id)
+         FROM evidence_artifacts
+         WHERE evidence_artifacts.submission_id = submissions.id
+           AND evidence_artifacts.deleted_at IS NULL
+           AND evidence_artifacts.review_status != 'archived'
+       ) AS evidence_count
      FROM submissions
      LEFT JOIN requirements ON requirements.id = submissions.requirement_id
      WHERE submissions.student_id = ?
@@ -531,8 +541,10 @@ function buildStudentRequirementDetails(
     const progress = progressByRequirement.get(requirement.id) || null;
     const submission = submissionsByRequirement.get(requirement.id) || null;
     const status = studentRequirementStatus(progress, submission);
+    const evidenceCount = safeNumber(submission?.evidence_count);
     return {
       requirementId: requirement.id,
+      submissionId: submission?.id || null,
       title: safeStudentText(requirement.title, "Senior Project requirement", 180),
       description: safeStudentText(requirement.description, "", 240) || null,
       phase: requirement.phase || "",
@@ -541,6 +553,7 @@ function buildStudentRequirementDetails(
       progressStatus: progress?.status || null,
       submissionStatus: submission?.status || null,
       submissionVersion: submission?.version || null,
+      evidenceCount,
       dueDate: requirement.due_at || null,
       dueLabel: safeStudentText(requirement.due_label, "", 80) || null,
       qualityPrompt: safeStudentText(requirement.quality_prompt, "", 240) || null,
@@ -549,7 +562,7 @@ function buildStudentRequirementDetails(
         submission?.updated_at || null,
         submission?.submitted_at || null,
       ]),
-      nextAction: studentRequirementNextAction(requirement, progress, submission, status),
+      nextAction: studentRequirementNextAction(requirement, progress, submission, status, evidenceCount),
     };
   });
 }
@@ -571,15 +584,29 @@ function studentRequirementNextAction(
   progress: ProgressRow | null,
   submission: SubmissionSummaryRow | null,
   status: string,
+  evidenceCount: number,
 ): string {
   const title = safeStudentText(requirement.title || submission?.requirement_title || progress?.requirement_title, "this requirement", 180);
-  if (status === "revision_requested") return `Revise ${title} and send it back for review.`;
+  if (status === "revision_requested") {
+    return evidenceCount > 0
+      ? `Send the revised ${title} back for teacher review.`
+      : `Update evidence for ${title}, then send it back for review.`;
+  }
   if (status === "submitted") return `${title} is waiting for teacher review.`;
   if (status === "approved" || status === "archived") return `${title} is complete for now.`;
-  if (status === "draft") return `Finish ${title} and attach the work your teacher requested.`;
+  if (status === "draft") {
+    return evidenceCount > 0
+      ? `Send ${title} for teacher review.`
+      : `Finish ${title} and attach the work your teacher requested.`;
+  }
   if (status === "in_progress") return `Keep working on ${title}.`;
   if (status === "missing") return `Start ${title} when your teacher is ready for this step.`;
   return `Review ${title} and ask your program teacher what to do next.`;
+}
+
+function safeNumber(value: unknown): number {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : 0;
 }
 
 function latestByRequirement<T extends { requirement_id: string | null; updated_at?: string | null; submitted_at?: string | null }>(rows: T[]): Map<string, T> {

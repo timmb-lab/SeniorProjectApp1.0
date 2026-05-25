@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-05-25T06:35:00-07:00",
-  "lastStartingSha": "9f0aff878803c160d9ee4ff6d74fe94bcb6ee3a9",
+  "lastRunAt": "2026-05-25T07:08:04-07:00",
+  "lastStartingSha": "1f7eaf17366789864dac2ccca26e2ad7354fbe96",
   "lastEndingSha": null,
   "currentLadderFocus": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN",
   "completedWorkOrders": [
@@ -345,6 +345,14 @@
       "type": "TYPE_C_STUDENT_DETAIL_DRILL_DOWN",
       "summary": "Student requirement checklist rows now show student-safe requirement descriptions and one quality nudge from existing requirement/quality-check records.",
       "commit": "pending-closeout-commit"
+    },
+    {
+      "id": "student-requirement-send-for-review-action",
+      "completedAt": "2026-05-25T07:08:04-07:00",
+      "ladderLevel": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN",
+      "type": "TYPE_C_STUDENT_DETAIL_DRILL_DOWN",
+      "summary": "Student requirement checklist rows now expose real actions: focus existing evidence forms when evidence is missing, or send the existing draft/revision submission for teacher review when evidence is attached.",
+      "commit": "pending-closeout-commit"
     }
   ],
   "deferredWorkOrders": [
@@ -371,16 +379,16 @@
     {
       "id": "student-guided-requirement-form",
       "ladderLevel": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN",
-      "reason": "Needs a bounded write-path design using existing authorized submission/evidence endpoints; this run stayed read-only."
+      "reason": "The first safe in-page action path now exists; a deeper requirement detail/draft form still needs product and write-path design beyond existing evidence and submit endpoints."
     }
   ],
   "blockedWorkOrders": [],
   "nextRecommendedWorkOrders": [
     {
-      "id": "student-guided-requirement-form",
+      "id": "student-requirement-detail-drawer",
       "ladderLevel": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN",
       "type": "TYPE_C_STUDENT_DETAIL_DRILL_DOWN",
-      "summary": "Add a guided student-safe requirement form only if it uses persisted records and existing authorized submission/evidence endpoints."
+      "summary": "Add a deeper student-safe requirement detail drawer only if it reuses persisted requirement, submission, evidence, and feedback records."
     },
     {
       "id": "missing-submission-drilldown",
@@ -425,11 +433,12 @@
     "Do not re-add the student requirement checklist panel; extend next only with a guided requirement detail/form or deeper phase page backed by real route data.",
     "Do not re-add student requirement phase grouping; extend only with a real requirement detail/form, due-date detail, or deeper phase page backed by existing route data.",
     "Do not re-add student requirement deadline labels; extend only with a real requirement detail/form or richer due-date timeline backed by existing deadlines.",
-    "Do not re-add student requirement descriptions or quality nudges; extend next only with a real guided requirement form or additional persisted guidance fields."
+    "Do not re-add student requirement descriptions or quality nudges; extend next only with a real guided requirement form or additional persisted guidance fields.",
+    "Do not re-add student requirement send-for-review actions; extend only with a deeper requirement detail drawer or a new route-backed student workflow."
   ],
   "lastValidationStatus": {
     "status": "passed",
-    "completedAt": "2026-05-25T06:39:13-07:00",
+    "completedAt": "2026-05-25T07:11:45-07:00",
     "commands": [
       "npm run verify:dashboard-actions",
       "npm run verify:review-queue-deeplinks",
@@ -439,7 +448,7 @@
       "node --test tests/student-dashboard-access.integration.test.mjs",
       "node --test tests/workspace-app.test.mjs",
       "node --test tests/functionality-language-audit.test.mjs",
-      "node -e JSON.parse automation/state/functionality-ux-growth-state.json and docs/progress/runs/2026-05-25-0635-student-requirement-guidance.json",
+      "node -e JSON.parse automation/state/functionality-ux-growth-state.json and docs/progress/runs/2026-05-25-0708-student-send-for-review-actions.json",
       "npm run check:route-inventory",
       "npm run test",
       "npm run typecheck",
@@ -447,7 +456,7 @@
       "npm run check",
       "git diff --check"
     ],
-    "notes": "Full required validation passed for the student requirement guidance slice. npm run verify:functionality-ux-automation initially failed because nextRecommendedWorkOrders lost a required Review Queue handoff phrase; the state summary was corrected and the verifier passed. git diff --check reported CRLF normalization warnings only. No browser smoke was run because this read-only student dashboard UI change is covered by focused route and workspace render tests plus source verifiers. No remote seed/reset/migration, live data write, deploy, credential repair, domain/OAuth, or Cloudflare config change was run."
+    "notes": "Full required validation passed for the student requirement send-for-review action slice. git diff --check reported CRLF normalization warnings only. The new UI calls the existing scoped submit endpoint and does not broaden auth, RBAC, tenant, site, program, mentor assignment, or student privacy boundaries. No remote seed/reset/migration, live data write, deploy, credential repair, domain/OAuth, or Cloudflare config change was run."
   },
   "lastProductReadinessScorecardSummary": {
     "homepageClarity": "4 to 4",

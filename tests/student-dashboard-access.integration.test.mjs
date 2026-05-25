@@ -82,22 +82,24 @@ test("student dashboard returns own rows without storage ids and audits the view
     },
   ]);
   assert.deepEqual(body.requirements, [
-    {
-      requirementId: "req-proposal-draft",
-      title: "Core Concept Proposal",
-      description: "Draft the proposal with a clear problem, solution, audience, and proof of work.",
-      phase: "proposal",
-      phaseLabel: "Proposal",
-      status: "draft",
-      progressStatus: "draft",
-      submissionStatus: "draft",
-      submissionVersion: 1,
-      dueDate: "2025-10-09T00:00:00Z",
-      dueLabel: "October 9 and 10",
-      qualityPrompt: "Name the problem, who benefits, and the evidence that proves your work.",
-      lastUpdatedAt: "2026-05-20T08:10:00.000Z",
-      nextAction: "Finish Core Concept Proposal and attach the work your teacher requested.",
-    },
+      {
+        requirementId: "req-proposal-draft",
+        submissionId: "submission-student-a",
+        title: "Core Concept Proposal",
+        description: "Draft the proposal with a clear problem, solution, audience, and proof of work.",
+        phase: "proposal",
+        phaseLabel: "Proposal",
+        status: "draft",
+        progressStatus: "draft",
+        submissionStatus: "draft",
+        submissionVersion: 1,
+        evidenceCount: 1,
+        dueDate: "2025-10-09T00:00:00Z",
+        dueLabel: "October 9 and 10",
+        qualityPrompt: "Name the problem, who benefits, and the evidence that proves your work.",
+        lastUpdatedAt: "2026-05-20T08:10:00.000Z",
+        nextAction: "Send Core Concept Proposal for teacher review.",
+      },
   ]);
   assert.equal(body.progress.length, 1);
   assert.equal(body.submissions.length, 1);
@@ -421,6 +423,7 @@ function seedStudentRecord(db, studentId, { programId = "it", cohortId = "cohort
   db.data.evidenceArtifacts.push({
     id: `evidence-${studentId}`,
     student_id: studentId,
+    submission_id: `submission-${studentId}`,
     title: "Protected build log",
     artifact_type: "reflection",
     source_kind: "google_drive_file",
@@ -623,6 +626,11 @@ class MockPreparedStatement {
             submitted_at: row.submitted_at,
             updated_at: row.updated_at,
             requirement_title: requirementTitle(this.data, row.requirement_id),
+            evidence_count: this.data.evidenceArtifacts.filter((artifact) =>
+              artifact.submission_id === row.id &&
+              !artifact.deleted_at &&
+              artifact.review_status !== "archived"
+            ).length,
           })),
       };
     }

@@ -1839,3 +1839,14 @@ Future productive runs should append compact entries that name the master-plan s
 - `changes`: `/api/student/dashboard` now returns `description` and `qualityPrompt` for each scoped required item; `workspace.js` renders the guidance as read-only checklist text; `workspace.css` keeps the added guidance stable in compact rows; focused route/UI tests and student-dashboard docs were updated.
 - `validation`: full validation passed: dashboard/review/workspace/language/automation verifiers, focused route/UI/audit tests, JSON parse, route inventory, full `npm run test`, `npm run typecheck`, production-surface check, aggregate `npm run check`, and `git diff --check` with CRLF normalization warnings only.
 - `commit/push status`: pending closeout commit; not pushed by this automation run.
+
+## 2026-05-25 PT - Functionality UX Upgrade Student Send-For-Review Actions
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 6 student progress drill-down / requirement checklist action path.
+- `starting HEAD`: `1f7eaf17366789864dac2ccca26e2ad7354fbe96`.
+- `selected slice`: Add real per-requirement actions to the student `Your Required Work` checklist using existing submission/evidence state and `/api/submissions/:id/submit`.
+- `repo-grounded findings`: the student dashboard already showed requirement guidance, persisted due dates, and evidence forms, and the protected submit endpoint already enforced own-student access, draft/revision status, and required evidence. The missing UX was a direct way for students to send ready draft/revision work to teacher review.
+- `changes`: `/api/student/dashboard` now includes each requirement's matching `submissionId` and submission evidence count; requirement rows show evidence count, focus existing evidence forms when no evidence is attached, and send draft/revision submissions for teacher review when evidence exists.
+- `validation`: focused student dashboard route test, workspace render test, functionality language verifier, and dashboard action verifier passed before final validation. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.

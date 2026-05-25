@@ -32,6 +32,7 @@ test("workspace route is a real authenticated app surface", () => {
   assert.match(workspaceJs, /\/api\/site\/operations-readiness/);
   assert.match(workspaceJs, /\/api\/reviews\/\$\{encodeURIComponent\(selectedSubmissionId\)\}\/history/);
   assert.match(workspaceJs, /\/api\/reviews\/\$\{encodeURIComponent\(submissionId\)\}\/decision/);
+  assert.match(workspaceJs, /\/api\/submissions\/\$\{encodeURIComponent\(submissionId\)\}\/submit/);
   assert.match(workspaceJs, /\/api\/mentor\/assigned/);
   assert.match(workspaceJs, /\/api\/presentation-slots/);
   assert.match(workspaceJs, /\/api\/presentation-slots\/\$\{encodeURIComponent\(slotId\)\}\/\$\{actionPath\}/);
@@ -2139,6 +2140,7 @@ test("workspace renders a progress-first student homepage with safe language", a
         requirements: [
           {
             requirementId: "req-proposal",
+            submissionId: "submission-proposal",
             title: "Senior Project Proposal",
             description: "Explain the problem, solution, audience, and evidence for your capstone project.",
             phase: "proposal-and-research",
@@ -2147,14 +2149,16 @@ test("workspace renders a progress-first student homepage with safe language", a
             progressStatus: "revision_requested",
             submissionStatus: "revision_requested",
             submissionVersion: 2,
+            evidenceCount: 1,
             dueDate: "2025-10-09T00:00:00Z",
             dueLabel: "October 9 and 10",
             qualityPrompt: "Add one measurable success target before you send the proposal back.",
             lastUpdatedAt: "2026-05-24T18:00:00.000Z",
-            nextAction: "Revise Senior Project Proposal and send it back for review.",
+            nextAction: "Send the revised Senior Project Proposal back for teacher review.",
           },
           {
             requirementId: "req-mentor-plan",
+            submissionId: null,
             title: "Mentor Meeting One Plan",
             description: "Bring your proposal and ask your mentor for help with scope, evidence, and timeline.",
             phase: "mentor-meetings",
@@ -2163,6 +2167,7 @@ test("workspace renders a progress-first student homepage with safe language", a
             progressStatus: null,
             submissionStatus: null,
             submissionVersion: null,
+            evidenceCount: 0,
             dueDate: "2026-01-14T00:00:00Z",
             dueLabel: "January 14, make-up January 16",
             qualityPrompt: "Write down the strongest advice you heard and your next step.",
@@ -2171,6 +2176,7 @@ test("workspace renders a progress-first student homepage with safe language", a
           },
           {
             requirementId: "req-reflection",
+            submissionId: "submission-reflection",
             title: "Final Reflection",
             description: "Choose evidence that shows growth, skill, effort, or impact.",
             phase: "portfolio",
@@ -2179,6 +2185,7 @@ test("workspace renders a progress-first student homepage with safe language", a
             progressStatus: "approved",
             submissionStatus: "approved",
             submissionVersion: 1,
+            evidenceCount: 2,
             dueDate: "2026-04-08T00:00:00Z",
             dueLabel: "April 8 and 9",
             qualityPrompt: "Explain why this work shows your best effort.",
@@ -2190,9 +2197,11 @@ test("workspace renders a progress-first student homepage with safe language", a
           { requirement_id: "req-proposal", phase: "proposal-and-research", status: "revision_requested", updated_at: "2026-05-24T18:00:00.000Z", requirement_title: "Senior Project Proposal" },
         ],
         submissions: [
-          { id: "submission-proposal", requirement_id: "req-proposal", requirement_title: "Senior Project Proposal", status: "revision_requested", version: 2, updated_at: "2026-05-24T18:00:00.000Z" },
+          { id: "submission-proposal", requirement_id: "req-proposal", requirement_title: "Senior Project Proposal", status: "revision_requested", version: 2, evidence_count: 1, updated_at: "2026-05-24T18:00:00.000Z" },
         ],
-        evidence: [],
+        evidence: [
+          { id: "evidence-proposal", title: "Proposal draft", artifact_type: "planning_document", source_kind: "external_link", externalUrl: "https://example.test/proposal", review_status: "pending_review", created_at: "2026-05-24T17:50:00.000Z" },
+        ],
         feedback: [
           {
             id: "review-proposal",
@@ -2268,11 +2277,18 @@ test("workspace renders a progress-first student homepage with safe language", a
   assert.match(student, /0 of 1 complete \/ 1 still need work/);
   assert.match(student, /1 of 1 complete/);
   assert.match(student, /data-student-requirement-row="true"/);
+  assert.match(student, /data-student-requirement-submission-id="submission-proposal"/);
+  assert.match(student, /data-student-requirement-evidence-count="1"/);
+  assert.match(student, /data-student-requirement-evidence="true"/);
+  assert.match(student, />1 evidence</);
+  assert.match(student, /data-student-submission-action="submit"/);
+  assert.match(student, /data-student-submission-id="submission-proposal"/);
+  assert.match(student, /Send revision/);
   assert.match(student, /data-student-requirement-description="true"/);
   assert.match(student, /Explain the problem, solution, audience, and evidence for your capstone project/);
   assert.match(student, /data-student-requirement-quality="true"/);
   assert.match(student, /Try this: Add one measurable success target before you send the proposal back/);
-  assert.match(student, /Revise Senior Project Proposal and send it back for review/);
+  assert.match(student, /Send the revised Senior Project Proposal back for teacher review/);
   assert.match(student, /data-student-next-step-due="true"/);
   assert.match(student, /data-student-requirement-due="true"/);
   assert.match(student, /Due October 9 and 10/);
