@@ -1949,3 +1949,14 @@ Future productive runs should append compact entries that name the master-plan s
 - `changes`: `workspace.js` now summarizes Review Queue selected-submission comments by student-visible, staff-only, or protected visibility counts and explicitly keeps teacher note text protected. Workspace tests assert those labels and prove comment bodies are not rendered in the selected-submission panel. The functionality-language verifier now blocks the old vague phrase.
 - `validation`: focused `node --test tests/workspace-app.test.mjs` and `npm run verify:functionality-language` passed before final validation. Final validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
 - `commit/push status`: pending closeout commit; not pushed by this automation run.
+
+## 2026-05-25 PT - Functionality UX Upgrade Mentor Assignments Empty States
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 3 mentor assignment workflow / role-specific workspace language.
+- `starting HEAD`: `ac2829fb45a2ef8cfb5342206b622827b3a083e4`.
+- `selected slice`: Replace the remaining Mentor Assignments row-jargon empty heading with student coverage language.
+- `repo-grounded findings`: the previous handoff named `renderMentorAssignmentsSection()`. Current source still rendered `No missing mentor rows match` when the unassigned-student pane was empty, even though this is a normal staff/viewer coverage workflow.
+- `changes`: `workspace.js` now distinguishes filtered no-matches (`No matching students need mentors`) from true no-coverage-needed state (`No students need mentors right now`); the workspace test covers both states and the language verifier blocks the removed phrase.
+- `validation`: focused workspace test plus functionality-language, dashboard-action, and workspace-navigation verifiers passed before final validation. Final validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.

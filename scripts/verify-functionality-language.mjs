@@ -165,6 +165,10 @@ const hardFailures = [
     message: "Operations empty states should describe matching attention work, not data rows.",
   },
   {
+    pattern: /\bNo missing mentor rows match\b/i,
+    message: "Mentor assignment empty states should describe student coverage, not data rows.",
+  },
+  {
     pattern: /\bstorage identifiers redacted\b/i,
     message: "Protected workspace should say private file details are protected instead of showing storage jargon.",
   },

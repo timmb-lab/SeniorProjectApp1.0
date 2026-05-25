@@ -1582,6 +1582,99 @@ test("workspace renders site-scoped Mentor Assignments with role-safe assignment
   assert.doesNotMatch(teacher, /data-mentor-assignment-form="true"|Assign mentor/);
 });
 
+test("mentor assignment empty state uses student coverage language instead of row jargon", async () => {
+  const filtered = await renderWorkspaceWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "site-admin-mentor-empty",
+          email: "site.mentor.empty@example.edu",
+          displayName: "Mentor Empty Admin",
+          roles: [{ role_id: "site_admin", scope_type: "site", scope_id: "site-desert-valley-high" }],
+        },
+      },
+    },
+    "/api/site/dashboard": {
+      status: 200,
+      body: siteDashboardFixture({ readOnly: false }),
+    },
+    "/api/site/students": {
+      status: 200,
+      body: siteStudentsFixture({ readOnly: false }),
+    },
+    "/api/site/review-queue": {
+      status: 200,
+      body: siteReviewQueueFixture({ role: "site_admin", readOnly: true }),
+    },
+    "/api/site/mentor-assignments": {
+      status: 200,
+      body: siteMentorAssignmentsFixture({
+        role: "site_admin",
+        canManage: true,
+        unassignedStudents: [],
+        pagination: { returned: 0, filteredTotal: 0 },
+        filters: {
+          siteId: "site-desert-valley-high",
+          programId: "it",
+          mentorUserId: "",
+          studentSearch: "",
+          status: "unassigned",
+          noMentor: true,
+          limit: 50,
+          offset: 0,
+        },
+      }),
+    },
+  }, "mentorAssignments");
+
+  assert.match(filtered, /data-mentor-assignments-empty="true"/);
+  assert.match(filtered, /No matching students need mentors/);
+  assert.match(filtered, /Clear filters or review active assignments/);
+  assert.doesNotMatch(filtered, /No missing mentor rows match|data rows/i);
+
+  const noCoverageNeeded = await renderWorkspaceWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "site-admin-mentor-no-coverage-needed",
+          email: "site.mentor.no.coverage@example.edu",
+          displayName: "Mentor Coverage Admin",
+          roles: [{ role_id: "site_admin", scope_type: "site", scope_id: "site-desert-valley-high" }],
+        },
+      },
+    },
+    "/api/site/dashboard": {
+      status: 200,
+      body: siteDashboardFixture({ readOnly: false }),
+    },
+    "/api/site/students": {
+      status: 200,
+      body: siteStudentsFixture({ readOnly: false }),
+    },
+    "/api/site/review-queue": {
+      status: 200,
+      body: siteReviewQueueFixture({ role: "site_admin", readOnly: true }),
+    },
+    "/api/site/mentor-assignments": {
+      status: 200,
+      body: siteMentorAssignmentsFixture({
+        role: "site_admin",
+        canManage: true,
+        unassignedStudents: [],
+        pagination: { returned: 0, filteredTotal: 0 },
+      }),
+    },
+  }, "mentorAssignments");
+
+  assert.match(noCoverageNeeded, /No students need mentors right now/);
+  assert.match(noCoverageNeeded, /Every visible student at this school has active mentor coverage/);
+  assert.doesNotMatch(noCoverageNeeded, /No missing mentor rows match|data rows/i);
+});
+
 test("mentor assignment detail actions preserve mentor assignment context", async () => {
   const { context, workspaceRoot } = await createWorkspaceContextWithFetch({
     "/api/auth/me": {
@@ -3866,6 +3959,8 @@ function siteMentorAssignmentsFixture({
   readOnly = !["site_admin", "admin", "org_admin", "platform_admin"].includes(role),
   canManage = !readOnly && role !== "program_teacher" && role !== "viewer",
   filters = null,
+  unassignedStudents = null,
+  pagination = null,
 } = {}) {
   return {
     ok: true,
@@ -3900,6 +3995,7 @@ function siteMentorAssignmentsFixture({
       returned: 2,
       total: role === "program_teacher" ? 45 : 250,
       filteredTotal: 17,
+      ...(pagination || {}),
     },
     summary: {
       studentsTotal: role === "program_teacher" ? 45 : 250,
@@ -3931,7 +4027,7 @@ function siteMentorAssignmentsFixture({
         nextAction: "Available for mentor support at this school.",
       },
     ],
-    unassignedStudents: [
+    unassignedStudents: unassignedStudents || [
       {
         studentId: "demo-student-101",
         displayName: "Missing Mentor Demo 001",

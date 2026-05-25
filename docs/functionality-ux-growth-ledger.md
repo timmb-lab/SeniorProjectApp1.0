@@ -2120,3 +2120,57 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: meeting detail drill-down needs a real section/route contract; browser QA still needs credentialed runtime; org rollup and real-user credential delivery need product/security decisions.
   - Do not repeat: do not rebuild this mentor dashboard signal grid unless regression evidence appears.
   - First file to inspect next run: `workspace.js` `renderMentorAssignmentsSection()`
+
+## Run 2026-05-25 12:04 PT
+
+- Starting SHA: `ac2829fb45a2ef8cfb5342206b622827b3a083e4`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Branch policy: work stayed on clean local `main`; local `main` was two commits ahead of `origin/main`, `origin/main` was not ahead, and no push was run
+- Ladder level targeted: `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` with `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` language support
+- Backlog item: `mentor-assignments-empty-state-language`; advances `MVP-032`, `MVP-033`, `MVP-034`, and `MVP-039`
+- Work order selected: Clarify Mentor Assignments empty states for filtered no-matches and true no-data.
+- Selection reason: The previous handoff named `renderMentorAssignmentsSection()`. Current source still rendered `No missing mentor rows match` in the protected Mentor Assignments workflow. This was bounded, user-facing, verifier-backed, and did not require new routes, filters, permissions, data paths, or fake actions.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Mentor Assignments empty-state language | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | site staff, viewer, program teacher | 3 | 5 | 5 | XS | 56 | selected |
+| Mentor assignment form empty reason | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | site admin | 3 | 5 | 4 | XS | 46 | rejected: current copy already clear |
+| Mentor assignment active-filter summary | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | site staff, viewer, program teacher | 3 | 5 | 4 | XS | 45 | rejected: existing filter chips are clear |
+| Mentor dashboard attention sorting review | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | mentor | 4 | 3 | 3 | M | 40 | deferred: route ordering design needed |
+| Mentor dashboard meeting route drill-down | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | mentor | 4 | 3 | 3 | M | 39 | deferred: no real detail section wired |
+| Mentor assignment history in student detail | `LEVEL_7_AUDITABILITY_AND_TRUST` | staff, mentor | 4 | 3 | 3 | M | 38 | deferred: persisted history shape needs confirmation |
+| Review Queue missing-evidence filter proof | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | site staff, program teacher | 5 | 2 | 3 | M | 37 | deferred: backend/privacy support missing |
+| Student Directory missing-evidence filter | `LEVEL_1_NAVIGABLE_DASHBOARDS` | site staff, viewer | 4 | 2 | 3 | M | 35 | deferred: route filter missing |
+| Full Review Queue comment body rendering | `LEVEL_7_AUDITABILITY_AND_TRUST` | site staff, program teacher, viewer | 4 | 2 | 3 | M | 34 | deferred: product/privacy decision needed |
+| Public app-preview language cleanup | `LEVEL_0_PROTOTYPE_CLEANUP` | public stakeholders | 3 | 5 | 4 | S | 40 | rejected: protected workflow had higher value |
+| Site Dashboard summary-only affordance styling | `LEVEL_1_NAVIGABLE_DASHBOARDS` | staff, viewer | 3 | 4 | 3 | S | 39 | rejected: broader design surface |
+| Student requirement detail extension | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 4 | 4 | 4 | S | 44 | rejected: no new persisted field identified |
+| Operations program breakdown empty copy | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | site staff, viewer | 3 | 5 | 4 | XS | 44 | rejected: Operations empty cluster complete |
+| Credentialed browser QA | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all | 4 | 4 | 3 | M | 39 | blocked: needs credentialed runtime |
+| Org-admin tenant rollup | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | org_admin | 4 | 2 | 2 | L | 30 | blocked: needs backend/RBAC design |
+
+- User-facing improvement: Mentor Assignments no longer describes an empty coverage queue as missing rows. Filtered no-matches now say `No matching students need mentors`; true no-data says `No students need mentors right now` and explains that visible students have active mentor coverage.
+- Roles affected: `platform_admin`, `admin`, `org_admin`, `site_admin`, `viewer`, and `program_teacher` in the existing scoped Mentor Assignments workspace.
+- Files changed: `workspace.js`, `tests/workspace-app.test.mjs`, `scripts/verify-functionality-language.mjs`, `docs/functionality-language-audit.md`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`, `docs/progress/run-log.md`, `docs/progress/runs/2026-05-25-1204-mentor-assignments-empty-state-language.json`
+- Tests/verifiers added or updated: workspace render test now covers filtered and true no-data Mentor Assignments empty states; language verifier now blocks `No missing mentor rows match`.
+- Validation commands:
+  - Focused passed before docs/state closeout: `node --test tests/workspace-app.test.mjs`; `npm run verify:functionality-language`; `npm run verify:dashboard-actions`; `npm run verify:workspace-navigation`
+  - Final passed: `npm run verify:review-queue-deeplinks`; `npm run verify:functionality-language`; `npm run verify:functionality-ux-automation`; `node --test tests/workspace-app.test.mjs`; `node --test tests/functionality-language-audit.test.mjs`; JSON parse for `automation/state/functionality-ux-growth-state.json` and `docs/progress/runs/2026-05-25-1204-mentor-assignments-empty-state-language.json`; `npm run check:route-inventory`; `npm run test`; `npm run typecheck`; `npm run check:production-surfaces`; `npm run check`; `git diff --check`
+- Validation result: passed; `git diff --check` reported only CRLF normalization warnings during closeout, with no whitespace errors.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: mentor dashboard sorting/drill-down remains deferred until route/data behavior is intentionally designed; mentor assignment history remains deferred until persisted history shape is confirmed; Review Queue and Student Directory missing/evidence filters remain unsupported.
+- New backlog items: none
+- Next recommended work order: review whether Mentor Dashboard assigned-student rows should sort by `needsAttention` after route/test design, or inspect assignment history only after persisted history shape is confirmed.
+- Do-not-repeat notes: do not re-clean Mentor Assignments `No missing mentor rows match` unless regression evidence appears; the verifier now blocks it.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW`
+  - Advanced: yes
+  - Evidence: `workspace.js` now renders filter-aware student coverage empty states, focused workspace tests cover both variants, and the functionality-language verifier blocks the old row-jargon phrase.
+  - Unlocks: future mentor work can move into sorting, drill-down, or assignment-history depth instead of repeating empty-state cleanup.
+  - Next: inspect whether Mentor Dashboard assigned-student rows should sort by `needsAttention`; do not change ordering without route/test design.
+  - Blockers: mentor meeting detail drill-down needs a real section/route contract; assignment history needs persisted shape confirmation; browser QA still needs credentialed runtime.
+  - Do not repeat: do not rebuild this Mentor Assignments empty-state language cluster unless regression evidence appears.
+  - First file to inspect next run: `workspace.js` `renderMentorStudentCards()`

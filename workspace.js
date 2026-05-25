@@ -2396,6 +2396,7 @@ function renderMentorAssignmentsSection() {
   const pagination = body.pagination || {};
   const canManage = Boolean(permissions.canManageMentorAssignments);
   const readOnly = Boolean(scope.readOnly || !canManage);
+  const hasActiveUnassignedFilters = hasActiveMentorAssignmentFilters(mentorAssignmentFiltersForBody(body));
   return `
     <section class="workspace-command-center workspace-mentor-assignments" aria-labelledby="mentorAssignmentsTitle">
       ${renderSiteContextBlock(body)}
@@ -2440,11 +2441,15 @@ function renderMentorAssignmentsSection() {
           </div>
           ${unassignedStudents.length ? renderMentorUnassignedStudents(unassignedStudents, permissions) : `
             <section class="workspace-empty-state-card" data-mentor-assignments-empty="true">
-              <h2>No missing mentor rows match</h2>
+              <h2>${hasActiveUnassignedFilters ? "No matching students need mentors" : "No students need mentors right now"}</h2>
               ${renderProblemState(body.emptyState || {
-                reason: "No students without active mentors match these filters at this school.",
+                reason: hasActiveUnassignedFilters
+                  ? "No students without active mentors match these filters at this school."
+                  : "Every visible student at this school has active mentor coverage.",
                 owner: "Site administration.",
-                nextAction: "Adjust filters or review active assignments.",
+                nextAction: hasActiveUnassignedFilters
+                  ? "Clear filters or review active assignments."
+                  : "Keep monitoring coverage and review active assignments as students change programs or status.",
               })}
             </section>
           `}
@@ -2577,6 +2582,18 @@ function renderMentorAssignmentActiveFilters(filters = {}, options = {}) {
   if (safeNumber(filters.limit) !== 50) chips.push(activeFilterChip("Page size", filters.limit));
   if (safeNumber(filters.offset) > 0) chips.push(activeFilterChip("Offset", filters.offset));
   return renderActiveFilterSummary("Mentor assignments", chips, 'data-mentor-assignment-action="reset-filters"');
+}
+
+function hasActiveMentorAssignmentFilters(filters = {}) {
+  return Boolean(
+    filters.programId
+    || filters.mentorUserId
+    || filters.status
+    || filters.studentSearch
+    || filters.noMentor
+    || safeNumber(filters.limit) !== 50
+    || safeNumber(filters.offset) > 0,
+  );
 }
 
 function renderMentorUnassignedStudents(students = [], permissions = {}) {
