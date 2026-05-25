@@ -27,6 +27,7 @@ const RISK_VALUES = ["high", "medium", "low", "stale", "no_mentor"];
 const PRESENTATION_STATUS_VALUES = ["ready", "pending", "scheduled", "completed", "missing", "outline_pending", "outline_revision_needed", "attention_required"];
 const ARCHIVE_STATUS_VALUES = ["ready", "complete", "failed", "missing", "queued", "running", "expired", "expiring_soon", "provider_unavailable"];
 const READINESS_VALUES = ["ready", "in_progress", "attention_required", "blocked", "missing", "complete"];
+const CATEGORY_VALUES = ["archive", "risk", "mentor", "review", "presentation", "completion", "evidence", "readiness"];
 
 interface RawOperationRow {
   student_id: string;
@@ -67,6 +68,7 @@ interface OperationFilters {
   presentationStatus: string;
   archiveStatus: string;
   readiness: string;
+  category: string;
   limit: number;
   offset: number;
 }
@@ -274,6 +276,7 @@ async function buildOperationsPayload({
       presentationStatus: filters.presentationStatus,
       archiveStatus: filters.archiveStatus,
       readiness: filters.readiness,
+      category: filters.category,
       limit: filters.limit,
       offset: filters.offset,
     },
@@ -322,6 +325,7 @@ async function buildOperationsPayload({
       presentationStatuses: PRESENTATION_STATUS_VALUES,
       archiveStatuses: ARCHIVE_STATUS_VALUES,
       readiness: READINESS_VALUES,
+      categories: CATEGORY_VALUES,
     },
     limits: {
       defaultLimit: DEFAULT_LIMIT,
@@ -811,6 +815,7 @@ function matchesFilters(row: OperationStudentRow, filters: OperationFilters): bo
   if (filters.presentationStatus && !matchesPresentationStatus(row.presentationStatus, filters.presentationStatus)) return false;
   if (filters.archiveStatus && !matchesArchiveStatus(row.archiveStatus, filters.archiveStatus)) return false;
   if (filters.readiness && row.readinessStatus !== filters.readiness) return false;
+  if (filters.category && row.readinessCategory !== filters.category) return false;
   return true;
 }
 
@@ -1089,6 +1094,7 @@ function parseFilters(params: URLSearchParams): OperationFilters {
     presentationStatus: canonical(params.get("presentationStatus"), PRESENTATION_STATUS_VALUES),
     archiveStatus: canonical(params.get("archiveStatus"), ARCHIVE_STATUS_VALUES),
     readiness: canonical(params.get("readiness"), READINESS_VALUES),
+    category: canonical(params.get("category"), CATEGORY_VALUES),
     limit: clampNumber(params.get("limit"), DEFAULT_LIMIT, 1, MAX_LIMIT),
     offset: clampNumber(params.get("offset"), 0, 0, 100000),
   };
@@ -1145,6 +1151,7 @@ function safeFilterSummary(filters: OperationFilters) {
     presentationStatus: filters.presentationStatus,
     archiveStatus: filters.archiveStatus,
     readiness: filters.readiness,
+    category: filters.category,
     limit: filters.limit,
     offset: filters.offset,
   };

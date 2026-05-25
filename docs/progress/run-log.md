@@ -1729,3 +1729,14 @@ Future productive runs should append compact entries that name the master-plan s
 - `changes`: Operations metric tiles now render `Review rows` actions using the existing `presentation-pending` and `archive-failed` presets. Workspace tests prove the buttons render and sync the exact filter URLs; the dashboard-action verifier now guards the metric-to-filter wiring.
 - `validation`: dashboard/review/workspace/language/automation verifiers, focused workspace/operations/audit tests, JSON parse, route inventory, full `npm run test`, `npm run typecheck`, `npm run check:production-surfaces`, aggregate `npm run check`, and `git diff --check` passed. `git diff --check` reported CRLF normalization warnings only.
 - `commit/push status`: pending closeout commit.
+
+## 2026-05-25 PT - Functionality UX Upgrade Operations Category Drill-Downs
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 5 review/intervention queues / Operations readiness category filtering.
+- `starting HEAD`: `a8e80c42e90cdedec7b72eabb3c8ebadac85f76b`.
+- `selected slice`: Add real `category` filtering to `/api/site/operations-readiness` and use it from Operations Next Actions rows.
+- `repo-grounded findings`: Operations already computed `readinessCategory` and grouped Next Actions by category, but staff could only read those grouped counts. The route did not parse `category`, the workspace did not sync it into URLs, and Next Actions had no scoped drill-down control.
+- `changes`: added the backend category allowlist/filter/response option; added Operations Category filter UI, active-filter chip, query parsing/sync, and `View risk/archive/... rows` Next Action buttons; updated dashboard/navigation verifiers plus workspace and site-operations tests.
+- `validation`: focused dashboard/navigation verifiers plus `tests/workspace-app.test.mjs` and `tests/site-operations-readiness.integration.test.mjs` passed before final validation; final validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit.

@@ -161,6 +161,7 @@ const OPERATIONS_RISK_VALUES = new Set(["any", "high", "medium", "low", "stale",
 const OPERATIONS_PRESENTATION_STATUS_VALUES = new Set(["ready", "pending", "scheduled", "completed", "missing", "outline_pending", "outline_revision_needed", "attention_required"]);
 const OPERATIONS_ARCHIVE_STATUS_VALUES = new Set(["ready", "complete", "failed", "missing", "queued", "running", "expired", "expiring_soon", "provider_unavailable"]);
 const OPERATIONS_READINESS_VALUES = new Set(["ready", "in_progress", "attention_required", "blocked", "missing", "complete"]);
+const OPERATIONS_CATEGORY_VALUES = new Set(["archive", "risk", "mentor", "review", "presentation", "completion", "evidence", "readiness"]);
 const REVIEW_QUEUE_URL_FILTER_PARAMS = [
   "status",
   "reviewStatus",
@@ -209,6 +210,7 @@ const OPERATIONS_URL_FILTER_PARAMS = [
   "presentationStatus",
   "archiveStatus",
   "readiness",
+  "category",
   "limit",
   "offset",
 ];
@@ -2779,6 +2781,12 @@ function renderOperationsFilters(body) {
         </select>
       </label>
       <label class="workspace-label">
+        <span>Category</span>
+        <select class="workspace-select" name="category">
+          ${renderValueOptions(options.categories || [], filters.category || "", "Any category", categoryLabel)}
+        </select>
+      </label>
+      <label class="workspace-label">
         <span>Story bucket</span>
         <select class="workspace-select" name="story">
           ${renderValueOptions(options.storyBuckets || [], filters.story || "", "Any story", storyLabel)}
@@ -2807,6 +2815,7 @@ function renderOperationsActiveFilters(filters = {}, options = {}) {
   if (filters.presentationStatus) chips.push(activeFilterChip("Presentation", statusText(filters.presentationStatus)));
   if (filters.archiveStatus) chips.push(activeFilterChip("Archive", statusText(filters.archiveStatus)));
   if (filters.readiness) chips.push(activeFilterChip("Readiness", statusText(filters.readiness)));
+  if (filters.category) chips.push(activeFilterChip("Category", categoryLabel(filters.category)));
   if (filters.story) chips.push(activeFilterChip("Story", storyLabel(filters.story)));
   if (filters.risk && filters.risk !== "any") chips.push(activeFilterChip("Risk", riskLabel(filters.risk)));
   if (safeNumber(filters.limit) !== 50) chips.push(activeFilterChip("Page size", filters.limit));
@@ -2956,9 +2965,16 @@ function renderOperationsNextActions(rows = []) {
         <article class="workspace-row">
           <div>
             <strong>${escapeHtml(row.nextAction || "Review student detail")}</strong>
-            <p>${escapeHtml(row.owner || "Site administration")} / ${escapeHtml(statusText(row.category || "readiness"))}</p>
+            <p>${escapeHtml(row.owner || "Site administration")} / ${escapeHtml(categoryLabel(row.category || "readiness"))}</p>
           </div>
-          <span class="workspace-site-context-badge">${safeNumber(row.count)} row${safeNumber(row.count) === 1 ? "" : "s"}</span>
+          <div class="workspace-row-actions">
+            <span class="workspace-site-context-badge">${safeNumber(row.count)} row${safeNumber(row.count) === 1 ? "" : "s"}</span>
+            ${row.category ? `
+              <button class="workspace-link-button workspace-link-button-small" type="button" data-operations-action="filter-category" data-operations-category="${escapeHtml(row.category)}">
+                View ${escapeHtml(categoryLabel(row.category).toLowerCase())} rows
+              </button>
+            ` : ""}
+          </div>
         </article>
       `).join("")}
     </div>
@@ -4190,6 +4206,7 @@ async function applyOperationsReadinessFilters(event) {
     presentationStatus: cleanDirectoryFilter(data.get("presentationStatus")),
     archiveStatus: cleanDirectoryFilter(data.get("archiveStatus")),
     readiness: cleanDirectoryFilter(data.get("readiness")),
+    category: cleanDirectoryFilter(data.get("category")),
     limit: clampDirectoryNumber(data.get("limit"), 50, 1, 100),
     offset: 0,
   };
@@ -4211,6 +4228,19 @@ async function handleOperationsReadinessAction(event) {
     activeSection = "operations";
     syncOperationsReadinessUrlState({ clearFilters: true });
     await loadOperationsReadinessResult("Operations filters reset.");
+    return;
+  }
+  if (action === "filter-category") {
+    const category = canonicalReviewQueueValue(event.currentTarget?.dataset?.operationsCategory, OPERATIONS_CATEGORY_VALUES);
+    if (!category) return;
+    operationsReadinessFilters = {
+      ...operationsReadinessFilters,
+      category,
+      offset: 0,
+    };
+    activeSection = "operations";
+    syncOperationsReadinessUrlState();
+    await loadOperationsReadinessResult(`Showing ${categoryLabel(category).toLowerCase()} operations rows.`);
     return;
   }
   if (action === "previous-page" || action === "next-page") {
@@ -5775,6 +5805,21 @@ function riskLabel(value) {
   return labels[normalized] || statusText(value);
 }
 
+function categoryLabel(value) {
+  const labels = {
+    archive: "Archive",
+    risk: "Risk",
+    mentor: "Mentor coverage",
+    review: "Review",
+    presentation: "Presentation",
+    completion: "Completion",
+    evidence: "Evidence",
+    readiness: "Readiness",
+  };
+  const normalized = normalizeStatus(value);
+  return labels[normalized] || statusText(value);
+}
+
 function normalizeStatus(value) {
   return String(value || "unknown").replace(/[^a-z0-9]+/gi, "_").replace(/^_+|_+$/g, "").toLowerCase() || "unknown";
 }
@@ -5868,6 +5913,7 @@ function defaultOperationsReadinessFilters() {
     presentationStatus: "",
     archiveStatus: "",
     readiness: "",
+    category: "",
     limit: 50,
     offset: 0,
   };
@@ -6072,6 +6118,7 @@ function operationsReadinessFiltersFromSearchParams(params) {
   filters.presentationStatus = canonicalReviewQueueValue(params.get("presentationStatus"), OPERATIONS_PRESENTATION_STATUS_VALUES);
   filters.archiveStatus = canonicalReviewQueueValue(params.get("archiveStatus"), OPERATIONS_ARCHIVE_STATUS_VALUES);
   filters.readiness = canonicalReviewQueueValue(params.get("readiness"), OPERATIONS_READINESS_VALUES);
+  filters.category = canonicalReviewQueueValue(params.get("category"), OPERATIONS_CATEGORY_VALUES);
   filters.limit = clampDirectoryNumber(params.get("limit"), 50, 1, 100);
   filters.offset = clampDirectoryNumber(params.get("offset"), 0, 0, 100000);
   return filters;
@@ -6160,6 +6207,7 @@ function syncOperationsReadinessUrlState(options = {}) {
     if (filters.presentationStatus) url.searchParams.set("presentationStatus", filters.presentationStatus);
     if (filters.archiveStatus) url.searchParams.set("archiveStatus", filters.archiveStatus);
     if (filters.readiness) url.searchParams.set("readiness", filters.readiness);
+    if (filters.category) url.searchParams.set("category", filters.category);
     if (safeNumber(filters.limit) !== 50) url.searchParams.set("limit", String(filters.limit));
     if (safeNumber(filters.offset) > 0) url.searchParams.set("offset", String(filters.offset));
   });
@@ -6312,6 +6360,7 @@ function siteOperationsReadinessQueryString() {
   if (filters.presentationStatus) params.set("presentationStatus", filters.presentationStatus);
   if (filters.archiveStatus) params.set("archiveStatus", filters.archiveStatus);
   if (filters.readiness) params.set("readiness", filters.readiness);
+  if (filters.category) params.set("category", filters.category);
   if (safeNumber(filters.limit) !== 50) params.set("limit", String(filters.limit));
   if (safeNumber(filters.offset) > 0) params.set("offset", String(filters.offset));
   const query = params.toString();

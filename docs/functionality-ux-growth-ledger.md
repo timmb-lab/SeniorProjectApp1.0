@@ -1021,3 +1021,58 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: `Needs Attention` spans multiple readiness statuses; `Next Actions` groups by category but the route does not yet filter by category; browser QA still needs credentialed runtime.
   - Do not repeat: do not rebuild these two metric actions unless a regression removes them.
   - First file to inspect next run: `functions/_lib/site-operations-readiness.ts` `OperationFilters` and `matchesFilters()`
+
+## Run 2026-05-25 02:06 PT
+
+- Starting SHA: `a8e80c42e90cdedec7b72eabb3c8ebadac85f76b`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Branch policy: work stayed on clean local `main`; local `main` was twelve commits ahead of `origin/main`, `origin/main` was not ahead, and no push was run
+- Ladder level targeted: `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` with Level 1 dashboard navigation support
+- Backlog item: `operations-next-action-category-filter`; supports `MVP-032`, `MVP-033`, and dashboard/reporting drill-down from `docs/master-plan.md`
+- Work order selected: Add route-backed Operations readiness category filtering and Next Actions category drill-downs.
+- Selection reason: The previous handoff named `functions/_lib/site-operations-readiness.ts` `OperationFilters` and `matchesFilters()` as the first file to inspect. Current source already computed stable readiness categories (`archive`, `risk`, `mentor`, `review`, `presentation`, `completion`, `evidence`, `readiness`) and grouped Next Actions by category, but the route, URL state, filter UI, and Next Action rows could not filter by that exact category.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Operations next-action category filter | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | staff, viewer, program teacher | 5 | 5 | 5 | S | 58 | selected |
+| Operations Needs Attention metric action | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | staff, viewer | 4 | 3 | 4 | S | 45 | rejected: summary spans multiple readiness statuses and needs clearer mapping |
+| Operations Outline Pending metric action | `LEVEL_1_NAVIGABLE_DASHBOARDS` | staff, viewer | 3 | 4 | 4 | XS | 41 | rejected: outline summary is not exact enough without presentation-status review |
+| Missing/evidence drill-down mapping | `LEVEL_1_NAVIGABLE_DASHBOARDS` | staff | 5 | 2 | 3 | M | 38 | deferred: exact Review Queue or Directory route mapping remains unproven |
+| Student feedback history detail | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 5 | 3 | 3 | M | 42 | deferred: route/comment visibility decision still needed |
+| Student due-date timeline | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 4 | 3 | 3 | M | 35 | deferred: due-date source mapping remains unclear |
+| Mentor assigned-student meeting depth | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | mentor | 4 | 3 | 3 | M | 36 | deferred: needs route/data shape design |
+| Student detail visible-note labels | `LEVEL_7_AUDITABILITY_AND_TRUST` | staff, students | 4 | 5 | 4 | S | 45 | rejected: useful but less aligned to the current handoff |
+| Operations empty-state wording | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | staff, viewer | 3 | 5 | 4 | XS | 43 | rejected: copy-only while route-backed functionality was ready |
+| Assignment form unavailable copy cleanup | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | site admin | 3 | 5 | 4 | XS | 43 | rejected: lower workflow value this run |
+| Viewer read-only homepage clarity | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | viewer | 3 | 5 | 4 | XS | 42 | rejected: existing read-only banners are already guarded |
+| Student Directory mentor filter labels | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | staff | 4 | 3 | 4 | M | 42 | deferred: needs safe API-provided mentor option labels |
+| Public app-preview language cleanup | `LEVEL_0_PROTOTYPE_CLEANUP` | public | 3 | 5 | 4 | S | 40 | rejected: protected app functionality had higher value |
+| Credentialed browser QA for worklist URLs | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all | 4 | 4 | 3 | M | 39 | blocked: needs credentialed local or hosted runtime |
+| Site Admin mentor POST default alignment | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | site admin | 4 | 2 | 4 | M | 37 | deferred: mutation policy risk is too high for this lane |
+| Org-admin tenant rollup | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | org admin | 4 | 2 | 2 | L | 30 | blocked: needs backend aggregate/RBAC design |
+
+- User-facing improvement: Staff, viewers, and scoped program teachers can filter Operations by readiness category and click grouped Next Actions such as risk or archive to land on matching scoped rows with shareable URL state.
+- Roles affected: `platform_admin`, `admin`, `org_admin`, `site_admin`, `viewer`, and `program_teacher`; student, mentor, misc-admin, tenant, site, and program access boundaries were not expanded.
+- Files changed: `functions/_lib/site-operations-readiness.ts`, `workspace.js`, `tests/site-operations-readiness.integration.test.mjs`, `tests/workspace-app.test.mjs`, `scripts/verify-dashboard-actions.mjs`, `scripts/verify-workspace-navigation-integrity.mjs`, `docs/functionality-language-audit.md`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`, `docs/progress/run-log.md`
+- Tests/verifiers added or updated: site operations integration test now proves `category=archive`; workspace tests prove Operations category URL parsing/sync, reset cleanup, filter UI, and Next Actions category click-through; dashboard and navigation verifiers guard the category action.
+- Validation commands:
+  - Focused: `npm run verify:dashboard-actions`; `npm run verify:workspace-navigation`; `node --test tests/workspace-app.test.mjs`; `node --test tests/site-operations-readiness.integration.test.mjs`
+  - Final planned: `npm run verify:dashboard-actions`; `npm run verify:review-queue-deeplinks`; `npm run verify:workspace-navigation`; `npm run verify:functionality-language`; `npm run verify:functionality-ux-automation`; `node --test tests/workspace-app.test.mjs`; `node --test tests/site-operations-readiness.integration.test.mjs`; `node --test tests/functionality-language-audit.test.mjs`; JSON parse for `automation/state/functionality-ux-growth-state.json`; `npm run check:route-inventory`; `npm run test`; `npm run typecheck`; `npm run check:production-surfaces`; `npm run check`; `git diff --check`; `git status --short`
+- Validation result: passed; `git diff --check` reported CRLF normalization warnings only
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: Operations Needs Attention exact drill-down; missing/evidence drill-down mapping; student feedback history route; credentialed browser QA
+- New backlog items: none
+- Next recommended work order: evaluate whether Operations `Needs Attention` can safely map to one exact supported filter, or inspect student feedback history route shape with explicit staff-only comment exclusion.
+- Do-not-repeat notes: do not re-add Operations category filtering or Next Actions category drill-downs; extend only if a new safe category or exact next-action filter is added by the route.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES`
+  - Advanced: yes
+  - Evidence: `/api/site/operations-readiness` now parses `category`, `matchesFilters()` applies it to `readinessCategory`, the workspace exposes a Category filter and shareable URL state, and Next Actions render `data-operations-action="filter-category"`.
+  - Unlocks: Operations grouped follow-up now drills into exact category rows without inventing a new queue or fake route.
+  - Next: prove an exact `Needs Attention` filter mapping, or inspect student feedback history route/comment visibility.
+  - Blockers: `Needs Attention` still spans several categories/statuses; browser QA still needs credentialed runtime; student feedback history still needs route/visibility decision.
+  - Do not repeat: do not rebuild category filtering unless a regression removes `category` from route/UI/tests.
+  - First file to inspect next run: `workspace.js` `renderOperationsReadinessSection()` and `functions/_lib/site-operations-readiness.ts` `summarizeRows()`

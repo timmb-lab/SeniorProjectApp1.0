@@ -121,6 +121,12 @@ test("site operations readiness route is scoped, read-only, audited, bounded, an
   assert.equal(highRisk.pagination.filteredTotal, 5);
   assert.equal(highRisk.readiness.attentionRows.every((row) => row.category === "risk" && row.status === "attention_required"), true);
 
+  const archiveCategory = await expectOperations(env, tokens.siteAdminPrimary, `?siteId=${PRIMARY_SITE_ID}&category=archive&limit=100`);
+  assert.equal(archiveCategory.pagination.filteredTotal, 5);
+  assert.equal(archiveCategory.filters.category, "archive");
+  assert.equal(archiveCategory.readiness.attentionRows.every((row) => row.category === "archive"), true);
+  assert.equal(archiveCategory.readiness.nextActions.every((row) => row.category === "archive"), true);
+
   for (const story of ["presentation_pending", "archive_ready", "archive_failed", "high_risk"]) {
     const body = await expectOperations(env, tokens.siteAdminPrimary, `?siteId=${PRIMARY_SITE_ID}&story=${story}&limit=100`);
     assert.equal(body.pagination.filteredTotal > 0, true, story);

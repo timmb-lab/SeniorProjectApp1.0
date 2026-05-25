@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-05-25T01:36:24-07:00",
-  "lastStartingSha": "687406ba7df36f9c667dcefd660198f5161e19f8",
+  "lastRunAt": "2026-05-25T02:06:23-07:00",
+  "lastStartingSha": "a8e80c42e90cdedec7b72eabb3c8ebadac85f76b",
   "lastEndingSha": null,
-  "currentLadderFocus": "LEVEL_1_NAVIGABLE_DASHBOARDS",
+  "currentLadderFocus": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
   "completedWorkOrders": [
     {
       "id": "workspace-header-product-language-cleanup",
@@ -265,6 +265,14 @@
       "type": "TYPE_B_DASHBOARD_CLICK_THROUGH",
       "summary": "Operations Presentation Pending and Archive Failed summary tiles now open existing scoped Operations filters with shareable URL state.",
       "commit": "pending-closeout-commit"
+    },
+    {
+      "id": "operations-next-action-category-filter",
+      "completedAt": "2026-05-25T02:06:23-07:00",
+      "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
+      "type": "TYPE_F_REVIEW_INTERVENTION_QUEUE",
+      "summary": "Operations readiness now supports scoped category filters and Next Actions category drill-downs with shareable URL state.",
+      "commit": "pending-closeout-commit"
     }
   ],
   "deferredWorkOrders": [
@@ -292,10 +300,10 @@
   "blockedWorkOrders": [],
   "nextRecommendedWorkOrders": [
     {
-      "id": "operations-next-action-category-filter",
+      "id": "operations-needs-attention-exact-filter",
       "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
       "type": "TYPE_F_REVIEW_INTERVENTION_QUEUE",
-      "summary": "Add an exact Operations next-action/category drill-down only after the route supports category-safe filtering."
+      "summary": "Evaluate whether the Operations Needs Attention total can map to one exact supported filter without hiding categories."
     },
     {
       "id": "student-feedback-history-detail",
@@ -336,11 +344,12 @@
     "Do not re-add student archive blocked guidance; extend it only if the archive readiness API adds a new student-safe status or action.",
     "Do not re-add the student home Latest Feedback panel; extend it only into a deeper feedback history after comment visibility and route shape are proven.",
     "Do not re-add student Submitted Work feedback context; extend only if a dedicated student-safe feedback history or new feedback source is proven.",
-    "Do not re-add Operations Presentation Pending or Archive Failed metric filter actions; extend only when another Operations metric has an exact supported route filter."
+    "Do not re-add Operations Presentation Pending or Archive Failed metric filter actions; extend only when another Operations metric has an exact supported route filter.",
+    "Do not re-add Operations category filtering or Next Actions category drill-downs; extend only if the route adds a new safe category or exact next-action filter."
   ],
   "lastValidationStatus": {
     "status": "passed",
-    "completedAt": "2026-05-25T01:39:28-07:00",
+    "completedAt": "2026-05-25T02:09:19-07:00",
     "commands": [
       "npm run verify:dashboard-actions",
       "npm run verify:review-queue-deeplinks",
@@ -359,7 +368,7 @@
       "git diff --check",
       "git status --short"
     ],
-    "notes": "Full required validation passed for the Operations summary metric filter action slice. git diff --check reported CRLF normalization warnings only. No browser smoke was run because this source/handler path is covered by workspace render tests and dashboard-action verifier. No remote seed/reset/migration, live data write, deploy, credential repair, domain/OAuth, or Cloudflare config change was run."
+    "notes": "Full required validation passed for the Operations category filter slice. git diff --check reported CRLF normalization warnings only. No browser smoke was run because this route/UI path is covered by workspace render tests, site operations integration tests, and dashboard/navigation verifiers. No remote seed/reset/migration, live data write, deploy, credential repair, domain/OAuth, or Cloudflare config change was run."
   },
   "lastProductReadinessScorecardSummary": {
     "homepageClarity": "4 to 4",

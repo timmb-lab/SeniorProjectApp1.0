@@ -1233,6 +1233,7 @@ test("workspace applies shareable URL filters for site worklists safely", async 
     presentationStatus: "",
     archiveStatus: "provider_unavailable",
     readiness: "blocked",
+    category: "archive",
     limit: 25,
     offset: 0,
   };
@@ -1244,7 +1245,7 @@ test("workspace applies shareable URL filters for site worklists safely", async 
       body: siteOperationsReadinessFixture({ role: "site_admin", filters: operationsFilters }),
     },
   }, {
-    url: "https://workspace.example/workspace.html?section=operations&siteId=site-desert-valley-high&programId=it&status=revision_requested&story=archive_failed&risk=high&presentationStatus=bogus&archiveStatus=provider_unavailable&readiness=blocked&limit=25&offset=-4&unknown=keep&studentId=stale",
+    url: "https://workspace.example/workspace.html?section=operations&siteId=site-desert-valley-high&programId=it&status=revision_requested&story=archive_failed&risk=high&presentationStatus=bogus&archiveStatus=provider_unavailable&readiness=blocked&category=archive&limit=25&offset=-4&unknown=keep&studentId=stale",
   });
   const operationsFetch = operationsContext.fetchLog.find((entry) => entry.startsWith("/api/site/operations-readiness?"));
   assert.ok(operationsFetch, "expected Operations fetch with URL filters");
@@ -1255,6 +1256,7 @@ test("workspace applies shareable URL filters for site worklists safely", async 
   assert.equal(operationsUrl.searchParams.get("risk"), "high");
   assert.equal(operationsUrl.searchParams.get("archiveStatus"), "provider_unavailable");
   assert.equal(operationsUrl.searchParams.get("readiness"), "blocked");
+  assert.equal(operationsUrl.searchParams.get("category"), "archive");
   assert.equal(operationsUrl.searchParams.get("limit"), "25");
   assert.equal(operationsUrl.searchParams.has("presentationStatus"), false);
   assert.equal(operationsUrl.searchParams.has("offset"), false);
@@ -1262,11 +1264,13 @@ test("workspace applies shareable URL filters for site worklists safely", async 
   assert.match(operationsContext.workspaceRoot.innerHTML, /data-section="operations"/);
   assert.match(operationsContext.workspaceRoot.innerHTML, /Any submission/);
   assert.match(operationsContext.workspaceRoot.innerHTML, /Submission/);
+  assert.match(operationsContext.workspaceRoot.innerHTML, /Any category/);
+  assert.match(operationsContext.workspaceRoot.innerHTML, /Category/);
   assert.match(operationsContext.workspaceRoot.innerHTML, /Reload or share this view with the current browser URL/);
   await vm.runInContext('handleOperationsReadinessAction({ currentTarget: { dataset: { operationsAction: "reset-filters" } } })', operationsContext.context);
   assert.match(operationsContext.window.location.href, /unknown=keep/);
   assert.match(operationsContext.window.location.href, /section=operations/);
-  assert.doesNotMatch(operationsContext.window.location.href, /programId=|status=|story=|risk=|archiveStatus=|readiness=|limit=|studentId=/);
+  assert.doesNotMatch(operationsContext.window.location.href, /programId=|status=|story=|risk=|archiveStatus=|readiness=|category=|limit=|studentId=/);
 });
 
 test("workspace renders site-scoped Mentor Assignments with role-safe assignment controls", async () => {
@@ -1546,6 +1550,8 @@ test("workspace renders site-scoped Operations readiness worklists without mutat
   assert.match(siteAdmin, /data-section="operations" data-section-preset="program-breakdown" data-program-id="it"/);
   assert.match(siteAdmin, /View program rows/);
   assert.match(siteAdmin, /data-operations-next-actions="true"/);
+  assert.match(siteAdmin, /data-operations-action="filter-category" data-operations-category="risk"/);
+  assert.match(siteAdmin, /View risk rows/);
   assert.match(siteAdmin, /View student detail/);
   assert.match(siteAdmin, /workspace-story-chip/);
   assert.match(siteAdmin, /workspace-risk-chip/);
@@ -1666,6 +1672,14 @@ test("workspace renders site-scoped Operations readiness worklists without mutat
   assert.equal(archiveUrl.searchParams.get("readiness"), "blocked");
   assert.equal(archiveUrl.searchParams.has("programId"), false);
   assert.match(window.location.href, /archiveStatus=failed/);
+
+  await vm.runInContext('handleOperationsReadinessAction({ currentTarget: { dataset: { operationsAction: "filter-category", operationsCategory: "risk" } } })', context);
+  const categoryFetch = fetchLog.findLast((entry) => entry.startsWith("/api/site/operations-readiness?"));
+  assert.ok(categoryFetch, "expected Operations fetch with readiness category filter");
+  const categoryUrl = new URL(categoryFetch, "https://workspace.example");
+  assert.equal(categoryUrl.searchParams.get("category"), "risk");
+  assert.equal(categoryUrl.searchParams.get("offset"), null);
+  assert.match(window.location.href, /category=risk/);
 });
 
 test("mentor dashboard assigned students open student detail without leaving mentor context", async () => {
@@ -1825,6 +1839,7 @@ test("workspace gates operations readiness visibility and keeps it read-only", (
   assert.match(workspaceJs, /function loadOperationsReadinessResult/);
   assert.match(workspaceJs, /button\.dataset\.sectionPreset === "presentation-pending"/);
   assert.match(workspaceJs, /button\.dataset\.sectionPreset === "archive-failed"/);
+  assert.match(workspaceJs, /data-operations-action="filter-category"/);
   assert.match(workspaceJs, /data-operations-action="open-student"/);
   assert.match(workspaceJs, /openSiteStudentDetail\(event\.currentTarget\?\.dataset\?\.operationsStudentId/);
   assert.match(workspaceJs, /scope\.readOnly/);
@@ -1875,6 +1890,9 @@ test("workspace dashboard actions use supported filters and loaders", () => {
   assert.match(sectionOpenBlock, /section === "operations" && button\.dataset\.sectionPreset === "program-breakdown"/);
   assert.match(sectionOpenBlock, /programId,/);
   assert.match(sectionOpenBlock, /loadOperationsReadinessResult\("Showing operations rows for the selected program\."\)/);
+  assert.match(workspaceJs, /data-operations-action="filter-category"/);
+  assert.match(workspaceJs, /const category = canonicalReviewQueueValue\(event\.currentTarget\?\.dataset\?\.operationsCategory, OPERATIONS_CATEGORY_VALUES\)/);
+  assert.match(workspaceJs, /params\.set\("category", filters\.category\)/);
   assert.match(workspaceJs, /function siteStudentQueryString/);
   assert.match(workspaceJs, /params\.set\("programId", filters\.programId\)/);
   assert.match(workspaceJs, /params\.set\("status", filters\.status\)/);
@@ -3448,6 +3466,7 @@ function siteOperationsReadinessFixture({
       presentationStatus: "",
       archiveStatus: "",
       readiness: "",
+      category: "",
       limit: 50,
       offset: 0,
     },
@@ -3548,6 +3567,7 @@ function siteOperationsReadinessFixture({
       presentationStatuses: ["ready", "pending", "scheduled", "completed", "missing", "outline_pending", "outline_revision_needed", "attention_required"],
       archiveStatuses: ["ready", "complete", "failed", "missing", "queued", "running", "expired", "expiring_soon", "provider_unavailable"],
       readiness: ["ready", "in_progress", "attention_required", "blocked", "missing", "complete"],
+      categories: ["archive", "risk", "mentor", "review", "presentation", "completion", "evidence", "readiness"],
     },
   };
 }

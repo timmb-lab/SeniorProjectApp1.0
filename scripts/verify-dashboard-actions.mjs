@@ -209,6 +209,16 @@ assertMatches(
 );
 assertMatches(
   "workspaceJs",
+  /function renderOperationsNextActions\([\s\S]*data-operations-action="filter-category" data-operations-category="\$\{escapeHtml\(row\.category\)\}"/,
+  "Operations Next Actions rows must render a real category filter action",
+);
+assertMatches(
+  "workspaceJs",
+  /function handleOperationsReadinessAction\([\s\S]*?action === "filter-category"[\s\S]*?const category = canonicalReviewQueueValue\(event\.currentTarget\?\.dataset\?\.operationsCategory, OPERATIONS_CATEGORY_VALUES\)[\s\S]*?category,[\s\S]*?syncOperationsReadinessUrlState\(\)/,
+  "Operations Next Actions category action must set a supported category filter and sync URL state",
+);
+assertMatches(
+  "workspaceJs",
   /function handleMentorDashboardAction\([\s\S]*?openSiteStudentDetail\(event\.currentTarget\?\.dataset\?\.mentorDashboardStudentId \|\| "", \{ sourceSection: "mentorDashboard" \}\)/,
   "Mentor Dashboard student-detail actions must keep the Mentor Dashboard as the detail source",
 );
