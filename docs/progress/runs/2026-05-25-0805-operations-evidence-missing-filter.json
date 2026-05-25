@@ -1,0 +1,84 @@
+{
+  "automationId": "functionality-ux-upgrade-hourly",
+  "runStartedAt": "2026-05-25T08:05:33-07:00",
+  "startingSha": "26a59ed8db1356b7c4b68508d637014d72ccf581",
+  "branch": "main",
+  "lane": "Functionality UX Upgrade",
+  "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
+  "mvpRequirements": ["MVP-021", "MVP-033"],
+  "workOrder": {
+    "id": "operations-evidence-missing-filter-action",
+    "type": "TYPE_F_REVIEW_INTERVENTION_QUEUE",
+    "summary": "Link Operations Evidence Missing to scoped category=evidence and readiness=missing worklist rows."
+  },
+  "selectionReason": "The prior handoff asked for a missing-submission or evidence drill-down. Current source showed Review Queue and Student Directory still lack exact missing/evidence filters, while Operations already supports scoped category and readiness filters for evidence-missing rows.",
+  "repoEvidence": [
+    "functions/_lib/site-operations-readiness.ts already computed readinessCategory=evidence with readinessStatus=missing when evidence or submission progress is missing.",
+    "workspace.js already synced Operations category and readiness filters into URL state.",
+    "functions/_lib/site-review-queue.ts only allows status/program/search/story/risk filters, so adding a Review Queue missing-evidence button would be unsupported."
+  ],
+  "candidateSummary": [
+    {
+      "id": "operations-evidence-missing-filter-action",
+      "score": 58,
+      "decision": "selected"
+    },
+    {
+      "id": "review-queue-missing-evidence-filter",
+      "score": 37,
+      "decision": "deferred: route does not support a missing/evidence param"
+    },
+    {
+      "id": "student-directory-missing-evidence-filter",
+      "score": 35,
+      "decision": "deferred: directory has no exact evidence-missing filter"
+    },
+    {
+      "id": "viewer-read-only-homepage-clarity",
+      "score": 42,
+      "decision": "next recommended after the Operations drill-down"
+    }
+  ],
+  "filesChanged": [
+    "functions/_lib/site-operations-readiness.ts",
+    "workspace.js",
+    "scripts/verify-dashboard-actions.mjs",
+    "scripts/verify-workspace-navigation-integrity.mjs",
+    "tests/site-operations-readiness.integration.test.mjs",
+    "tests/workspace-app.test.mjs",
+    "docs/functionality-language-audit.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/functionality-ux-growth-ledger.md",
+    "automation/state/functionality-ux-growth-state.json",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-25-0805-operations-evidence-missing-filter.json"
+  ],
+  "privacyAndPermissionNotes": [
+    "No auth, RBAC, tenant, site, program, mentor assignment, or student privacy boundary was broadened.",
+    "The new metric uses the existing read-only Operations route and existing scoped filters.",
+    "No staff-only comments, raw storage identifiers, secrets, migrations, deploys, remote writes, domain/OAuth, or Cloudflare config changes were added."
+  ],
+  "validationPlanned": [
+    "npm run verify:dashboard-actions",
+    "npm run verify:workspace-navigation",
+    "node --test tests/site-operations-readiness.integration.test.mjs",
+    "node --test tests/workspace-app.test.mjs",
+    "npm run verify:review-queue-deeplinks",
+    "npm run verify:functionality-language",
+    "npm run verify:functionality-ux-automation",
+    "node --test tests/functionality-language-audit.test.mjs",
+    "node -e JSON.parse automation/state/functionality-ux-growth-state.json and docs/progress/runs/2026-05-25-0805-operations-evidence-missing-filter.json",
+    "npm run check:route-inventory",
+    "npm run test",
+    "npm run typecheck",
+    "npm run check:production-surfaces",
+    "npm run check",
+    "git diff --check"
+  ],
+  "validationResult": {
+    "status": "passed",
+    "completedAt": "2026-05-25T08:09:16-07:00",
+    "notes": "Full closeout validation passed; git diff --check reported CRLF normalization warnings only."
+  },
+  "nextRecommendedWorkOrder": "Improve Viewer read-only homepage/worklist language now that the Operations evidence-missing drill-down is route-backed."
+}

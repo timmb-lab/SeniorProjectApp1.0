@@ -1544,10 +1544,12 @@ test("workspace renders site-scoped Operations readiness worklists without mutat
   assert.match(siteAdmin, /Archive Ready/);
   assert.match(siteAdmin, /Archive Failed/);
   assert.match(siteAdmin, /Needs Attention/);
+  assert.match(siteAdmin, /Evidence Missing/);
   assert.match(siteAdmin, /data-section="operations" data-section-preset="presentation-pending">Review rows/);
   assert.match(siteAdmin, /data-section="operations" data-section-preset="outline-pending">Review rows/);
   assert.match(siteAdmin, /data-section="operations" data-section-preset="archive-failed">Review rows/);
   assert.match(siteAdmin, /data-section="operations" data-section-preset="needs-attention">Review rows/);
+  assert.match(siteAdmin, /data-section="operations" data-section-preset="evidence-missing">Review rows/);
   assert.match(siteAdmin, /Presentation Pending Demo 001/);
   assert.match(siteAdmin, /Archive Failed Demo 001/);
   assert.match(siteAdmin, /Archive Ready Demo 001/);
@@ -1699,6 +1701,17 @@ test("workspace renders site-scoped Operations readiness worklists without mutat
   assert.equal(outlineUrl.searchParams.has("presentationStatus"), false);
   assert.equal(outlineUrl.searchParams.has("needsAttention"), false);
   assert.match(window.location.href, /outlineAttention=true/);
+
+  await vm.runInContext('openWorkspaceSection({ dataset: { section: "operations", sectionPreset: "evidence-missing" } })', context);
+  const evidenceFetch = fetchLog.findLast((entry) => entry.startsWith("/api/site/operations-readiness?"));
+  assert.ok(evidenceFetch, "expected Operations fetch with evidence missing filter");
+  const evidenceUrl = new URL(evidenceFetch, "https://workspace.example");
+  assert.equal(evidenceUrl.searchParams.get("category"), "evidence");
+  assert.equal(evidenceUrl.searchParams.get("readiness"), "missing");
+  assert.equal(evidenceUrl.searchParams.has("needsAttention"), false);
+  assert.equal(evidenceUrl.searchParams.has("outlineAttention"), false);
+  assert.match(window.location.href, /category=evidence/);
+  assert.match(window.location.href, /readiness=missing/);
 
   await vm.runInContext('handleOperationsReadinessAction({ currentTarget: { dataset: { operationsAction: "filter-category", operationsCategory: "risk" } } })', context);
   const categoryFetch = fetchLog.findLast((entry) => entry.startsWith("/api/site/operations-readiness?"));
@@ -1867,6 +1880,7 @@ test("workspace gates operations readiness visibility and keeps it read-only", (
   assert.match(workspaceJs, /button\.dataset\.sectionPreset === "presentation-pending"/);
   assert.match(workspaceJs, /button\.dataset\.sectionPreset === "archive-failed"/);
   assert.match(workspaceJs, /button\.dataset\.sectionPreset === "needs-attention"/);
+  assert.match(workspaceJs, /button\.dataset\.sectionPreset === "evidence-missing"/);
   assert.match(workspaceJs, /data-operations-action="filter-category"/);
   assert.match(workspaceJs, /data-operations-action="open-student"/);
   assert.match(workspaceJs, /openSiteStudentDetail\(event\.currentTarget\?\.dataset\?\.operationsStudentId/);
@@ -1917,6 +1931,7 @@ test("workspace dashboard actions use supported filters and loaders", () => {
   assert.match(sectionOpenBlock, /loadWorkspaceData\(`Showing \$\{statusText\(status\)\} students\.`\)/);
   assert.match(sectionOpenBlock, /section === "operations" && button\.dataset\.sectionPreset === "program-breakdown"/);
   assert.match(sectionOpenBlock, /section === "operations" && button\.dataset\.sectionPreset === "outline-pending"/);
+  assert.match(sectionOpenBlock, /section === "operations" && button\.dataset\.sectionPreset === "evidence-missing"/);
   assert.match(sectionOpenBlock, /programId,/);
   assert.match(sectionOpenBlock, /loadOperationsReadinessResult\("Showing operations rows for the selected program\."\)/);
   assert.match(workspaceJs, /data-operations-action="filter-category"/);
@@ -1937,6 +1952,7 @@ test("workspace dashboard actions use supported filters and loaders", () => {
   assert.match(workspaceJs, /data-section-preset="mentor-workload"/);
   assert.match(workspaceJs, /data-section-preset="program-breakdown"/);
   assert.match(workspaceJs, /preset: "outline-pending"/);
+  assert.match(workspaceJs, /preset: "evidence-missing"/);
   assert.match(workspaceJs, /Showing students missing mentors/);
   assert.doesNotMatch(workspaceJs, /href="#"/);
 });
@@ -3842,6 +3858,7 @@ function siteOperationsReadinessFixture({
       archiveReady: 10,
       archiveFailed: 5,
       archiveMissing: 20,
+      evidenceMissing: 7,
       highRisk: 5,
       needsAttention: 15,
     },

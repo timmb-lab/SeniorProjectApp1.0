@@ -1861,3 +1861,14 @@ Future productive runs should append compact entries that name the master-plan s
 - `changes`: `/api/student/dashboard` now includes each requirement's matching `submissionId` and submission evidence count; requirement rows show evidence count, focus existing evidence forms when no evidence is attached, and send draft/revision submissions for teacher review when evidence exists.
 - `validation`: focused student dashboard route test, workspace render test, functionality language verifier, and dashboard action verifier passed before final validation. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
 - `commit/push status`: pending closeout commit; not pushed by this automation run.
+
+## 2026-05-25 PT - Functionality UX Upgrade Operations Evidence Missing Filter
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 5 review/intervention queues / Operations readiness evidence filtering.
+- `starting HEAD`: `26a59ed8db1356b7c4b68508d637014d72ccf581`.
+- `selected slice`: Link Operations `Evidence Missing` to the existing scoped `category=evidence` and `readiness=missing` filter path.
+- `repo-grounded findings`: Review Queue and Student Directory still do not expose exact missing/evidence query params, while Operations already computed evidence-missing readiness rows and supported `category` plus `readiness` filters safely.
+- `changes`: `/api/site/operations-readiness` now returns `summary.evidenceMissing`; `workspace.js` adds an `Evidence Missing` metric action that opens `category=evidence&readiness=missing`; workspace/route tests and dashboard/navigation verifiers guard the preset and scoped rows.
+- `validation`: focused Operations route test, workspace render/navigation test, dashboard-action verifier, workspace-navigation verifier, full test, typecheck, production-surface check, route inventory, aggregate check, automation/language verifiers, JSON parse, and diff check passed. `git diff --check` reported CRLF normalization warnings only.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.

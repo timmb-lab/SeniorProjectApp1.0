@@ -145,6 +145,17 @@ test("site operations readiness route is scoped, read-only, audited, bounded, an
   );
   assert.equal(needsAttention.readiness.nextActions.length > 0, true);
 
+  const evidenceMissing = await expectOperations(env, tokens.siteAdminPrimary, `?siteId=${PRIMARY_SITE_ID}&category=evidence&readiness=missing&limit=100`);
+  assert.equal(evidenceMissing.filters.category, "evidence");
+  assert.equal(evidenceMissing.filters.readiness, "missing");
+  assert.equal(evidenceMissing.summary.evidenceMissing > 0, true);
+  assert.equal(evidenceMissing.pagination.filteredTotal, evidenceMissing.summary.evidenceMissing);
+  assert.equal(
+    evidenceMissing.readiness.attentionRows.every((row) => row.category === "evidence" && row.status === "missing"),
+    true,
+  );
+  assert.equal(evidenceMissing.readiness.nextActions.every((row) => row.category === "evidence"), true);
+
   for (const story of ["presentation_pending", "archive_ready", "archive_failed", "high_risk"]) {
     const body = await expectOperations(env, tokens.siteAdminPrimary, `?siteId=${PRIMARY_SITE_ID}&story=${story}&limit=100`);
     assert.equal(body.pagination.filteredTotal > 0, true, story);
@@ -167,7 +178,7 @@ test("site operations readiness route is scoped, read-only, audited, bounded, an
   assert.equal(detail.response.status, 200);
   assert.equal(detail.body.student.studentId, richStudentId);
 
-  for (const body of [platform, secondary, legacy, org, siteAdmin, viewer, teacher, archiveFailed, archiveReady, presentationPending, outlineAttention, highRisk, archiveCategory, needsAttention, paged, offset, capped, richTimeline, detail.body]) {
+  for (const body of [platform, secondary, legacy, org, siteAdmin, viewer, teacher, archiveFailed, archiveReady, presentationPending, outlineAttention, highRisk, archiveCategory, needsAttention, evidenceMissing, paged, offset, capped, richTimeline, detail.body]) {
     assert.doesNotMatch(JSON.stringify(body), FORBIDDEN_RESPONSE_FIELDS);
   }
 

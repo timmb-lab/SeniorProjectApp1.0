@@ -1683,3 +1683,58 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: no dedicated requirement detail route; missing/evidence drill-down lacks exact route mapping; credentialed browser QA still needs runtime.
   - Do not repeat: do not rebuild the same in-page requirement detail disclosure unless regression evidence appears.
   - First file to inspect next run: `functions/_lib/site-review-queue.ts`, `functions/api/site/review-queue.ts`, and `workspace.js` dashboard metric preset handling
+
+## Run 2026-05-25 08:05 PT
+
+- Starting SHA: `26a59ed8db1356b7c4b68508d637014d72ccf581`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Branch policy: work stayed on clean local `main`; local `main` was twenty-four commits ahead of `origin/main`, `origin/main` was not ahead, and no push was run
+- Ladder level targeted: `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES`
+- Backlog item: `missing-submission-drilldown`; refined to the existing scoped Operations `category=evidence` plus `readiness=missing` route mapping
+- Work order selected: Link Operations `Evidence Missing` to a real scoped worklist filter.
+- Selection reason: The prior handoff asked to prove missing-submission/evidence drill-down mapping. Current source showed Review Queue and Student Directory still lacked exact missing/evidence params, while `/api/site/operations-readiness` already computed evidence-missing readiness rows and exposed supported `category` and `readiness` filters. This made Operations the safest real route-backed slice.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Operations Evidence Missing metric filter | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | site admin, viewer, program teacher | 5 | 5 | 5 | S | 58 | selected |
+| Review Queue missing-evidence filter | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | program teacher, site staff | 5 | 2 | 3 | M | 37 | deferred: route does not support a missing/evidence param |
+| Student Directory missing-evidence filter | `LEVEL_1_NAVIGABLE_DASHBOARDS` | site staff, viewer | 4 | 2 | 3 | M | 35 | deferred: directory has no exact evidence-missing filter |
+| Site Dashboard Evidence summary drill-down | `LEVEL_1_NAVIGABLE_DASHBOARDS` | site staff, viewer | 4 | 3 | 3 | S | 39 | rejected: existing dashboard evidence count is summary-only and not evidence-missing |
+| Operations readiness empty-state wording | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | staff, viewer | 3 | 5 | 4 | XS | 43 | rejected: lower value than a real route-backed action |
+| Viewer read-only homepage clarity | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | viewer | 3 | 5 | 4 | XS | 42 | rejected: useful but less aligned to prior evidence-missing handoff |
+| Assignment form unavailable copy cleanup | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | site admin | 3 | 5 | 4 | XS | 43 | rejected: copy-only while supported Operations route mapping existed |
+| Mentor assignment permission regression test | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | site admin, viewer, mentor | 4 | 4 | 5 | S | 46 | rejected: no current regression evidence in selected surface |
+| Mentor assignment history in student detail | `LEVEL_7_AUDITABILITY_AND_TRUST` | staff, mentor | 4 | 3 | 3 | M | 38 | deferred: persisted history shape needs confirmation |
+| Program teacher missing-submission queue | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | program teacher | 4 | 3 | 3 | M | 37 | deferred: needs exact scoped route design |
+| Student requirement detail route | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 4 | 3 | 3 | M | 40 | deferred: in-page disclosure is complete; no dedicated route policy yet |
+| Student phase-specific progress page | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 4 | 3 | 3 | M | 40 | rejected: grouped checklist already covers the safe first need |
+| Student feedback timeline filters | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 3 | 4 | 3 | M | 36 | rejected: current timeline is usable |
+| Public app-preview language cleanup | `LEVEL_0_PROTOTYPE_CLEANUP` | public | 3 | 5 | 4 | S | 40 | rejected: protected staff workflow had higher current value |
+| Credentialed browser QA | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all | 4 | 4 | 3 | M | 39 | blocked: needs credentialed runtime |
+| Org-admin tenant rollup | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | org admin | 4 | 2 | 2 | L | 30 | blocked: needs backend aggregate and RBAC design |
+
+- User-facing improvement: Operations now shows an `Evidence Missing` tile and opens the scoped rows where evidence or submission progress is missing, using shareable URL state and existing filter chips.
+- Roles affected: `platform_admin`, `admin`, `org_admin`, `site_admin`, `viewer`, and `program_teacher` where the existing Operations route already grants read-only visibility.
+- Files changed: `functions/_lib/site-operations-readiness.ts`, `workspace.js`, `scripts/verify-dashboard-actions.mjs`, `scripts/verify-workspace-navigation-integrity.mjs`, `tests/site-operations-readiness.integration.test.mjs`, `tests/workspace-app.test.mjs`, `docs/functionality-language-audit.md`, `docs/mvp-requirements-catalog.md`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`, `docs/progress/run-log.md`, `docs/progress/runs/2026-05-25-0805-operations-evidence-missing-filter.json`
+- Tests/verifiers added or updated: Operations route integration test now proves `category=evidence&readiness=missing` returns only evidence/missing attention rows and matches `summary.evidenceMissing`; workspace tests and dashboard/navigation verifiers now guard the new metric preset and URL state.
+- Validation commands:
+  - Focused passed: `npm run verify:dashboard-actions`; `npm run verify:workspace-navigation`; `node --test tests/site-operations-readiness.integration.test.mjs`; `node --test tests/workspace-app.test.mjs`
+  - Final planned: `npm run verify:review-queue-deeplinks`; `npm run verify:functionality-language`; `npm run verify:functionality-ux-automation`; `node --test tests/functionality-language-audit.test.mjs`; JSON parse for `automation/state/functionality-ux-growth-state.json` and `docs/progress/runs/2026-05-25-0805-operations-evidence-missing-filter.json`; `npm run check:route-inventory`; `npm run test`; `npm run typecheck`; `npm run check:production-surfaces`; `npm run check`; `git diff --check`; `git status --short`
+- Validation result: passed; `git diff --check` reported CRLF normalization warnings only
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: Review Queue missing/evidence params remain unsupported; Student Directory exact evidence-missing filtering remains unsupported; credentialed browser QA still needs runtime.
+- New backlog items: none
+- Next recommended work order: improve Viewer read-only homepage/worklist language now that the main Operations missing/evidence drill-down has a route-backed path.
+- Do-not-repeat notes: do not re-add Operations `Evidence Missing`; extend only if the route adds a narrower missing-submission subtype or a new exact evidence filter.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES`
+  - Advanced: yes
+  - Evidence: `/api/site/operations-readiness` now returns `summary.evidenceMissing`; `workspace.js` renders `Evidence Missing` with `data-section-preset="evidence-missing"`; opening the metric syncs `category=evidence&readiness=missing`; focused route/UI tests and verifiers passed.
+  - Unlocks: staff can move from Operations evidence-missing counts to exact scoped readiness rows without a fake Review Queue filter.
+  - Next: improve Viewer read-only homepage/worklist language, or add a new queue filter only after backend support exists.
+  - Blockers: Review Queue and Student Directory still lack exact missing/evidence filters; browser QA still needs credentialed runtime.
+  - Do not repeat: do not rebuild the same Operations evidence-missing metric or route-backed preset unless regression evidence appears.
+  - First file to inspect next run: `workspace.js` `renderReadOnlyBanner()` and `renderSiteDashboardSection()`

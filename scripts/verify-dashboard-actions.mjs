@@ -84,6 +84,7 @@ const allowedPresets = new Map([
   ["archive-failed", "operations"],
   ["needs-attention", "operations"],
   ["outline-pending", "operations"],
+  ["evidence-missing", "operations"],
   ["program-breakdown", "operations"],
 ]);
 
@@ -198,6 +199,16 @@ assertMatches(
   "workspaceJs",
   /renderMetricTile\("Outline Pending"[\s\S]*"operations", \{ label: "Review rows", preset: "outline-pending" \}\)/,
   "Operations Outline Pending metric must open the existing outline worklist filter",
+);
+assertMatches(
+  "workspaceJs",
+  /section === "operations" && button\.dataset\.sectionPreset === "evidence-missing"[\s\S]*readiness: "missing"[\s\S]*category: "evidence"[\s\S]*syncOperationsReadinessUrlState\(\)/,
+  "evidence-missing dashboard preset must be backed by the Operations evidence/readiness filters and sync URL state",
+);
+assertMatches(
+  "workspaceJs",
+  /renderMetricTile\("Evidence Missing"[\s\S]*"operations", \{ label: "Review rows", preset: "evidence-missing" \}\)/,
+  "Operations Evidence Missing metric must open the existing evidence-missing worklist filter",
 );
 assertMatches(
   "workspaceJs",

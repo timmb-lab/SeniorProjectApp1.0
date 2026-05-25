@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-05-25T07:38:28-07:00",
-  "lastStartingSha": "8a18698fbf5cfc1892188750430019f4e50c12ee",
+  "lastRunAt": "2026-05-25T08:05:33-07:00",
+  "lastStartingSha": "26a59ed8db1356b7c4b68508d637014d72ccf581",
   "lastEndingSha": null,
-  "currentLadderFocus": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN",
+  "currentLadderFocus": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
   "completedWorkOrders": [
     {
       "id": "workspace-header-product-language-cleanup",
@@ -361,6 +361,14 @@
       "type": "TYPE_C_STUDENT_DETAIL_DRILL_DOWN",
       "summary": "Student requirement checklist rows now open an in-page detail disclosure with status, due date, evidence count, submitted version, progress state, next action, and latest matching teacher feedback.",
       "commit": "pending-closeout-commit"
+    },
+    {
+      "id": "operations-evidence-missing-filter-action",
+      "completedAt": "2026-05-25T08:05:33-07:00",
+      "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
+      "type": "TYPE_F_REVIEW_INTERVENTION_QUEUE",
+      "summary": "Operations Evidence Missing now opens scoped category=evidence and readiness=missing worklist rows with shareable URL state.",
+      "commit": "pending-closeout-commit"
     }
   ],
   "deferredWorkOrders": [
@@ -372,7 +380,7 @@
     {
       "id": "missing-submission-drilldown",
       "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS",
-      "reason": "Needs exact source metric and supported route/filter mapping before adding visible controls."
+      "reason": "Review Queue and Student Directory exact missing/evidence filters remain unsupported; Operations evidence-missing worklist filtering is complete."
     },
     {
       "id": "review-queue-unsupported-filter-params",
@@ -393,10 +401,16 @@
   "blockedWorkOrders": [],
   "nextRecommendedWorkOrders": [
     {
-      "id": "missing-submission-drilldown",
-      "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS",
-      "type": "TYPE_B_DASHBOARD_CLICK_THROUGH",
-      "summary": "Map missing-submission or evidence-attention counts to a supported scoped Review Queue or Student Directory filter before exposing a staff control."
+      "id": "viewer-read-only-homepage-clarity",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "type": "TYPE_D_ROLE_WORKSPACE",
+      "summary": "Tighten Viewer read-only dashboard and worklist language without adding mutation controls."
+    },
+    {
+      "id": "review-queue-missing-evidence-filter-proof",
+      "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
+      "type": "TYPE_F_REVIEW_INTERVENTION_QUEUE",
+      "summary": "Add a Review Queue missing-evidence filter only after backend support and privacy tests exist."
     },
     {
       "id": "student-requirement-detail-extension",
@@ -443,20 +457,22 @@
     "Do not re-add student requirement deadline labels; extend only with a real requirement detail/form or richer due-date timeline backed by existing deadlines.",
     "Do not re-add student requirement descriptions or quality nudges; extend next only with a real guided requirement form or additional persisted guidance fields.",
     "Do not re-add student requirement send-for-review actions; extend only with a deeper requirement detail drawer or a new route-backed student workflow.",
-    "Do not re-add the student requirement detail disclosure; extend only if a new persisted requirement, evidence, submission, or feedback field adds useful student context."
+    "Do not re-add the student requirement detail disclosure; extend only if a new persisted requirement, evidence, submission, or feedback field adds useful student context.",
+    "Do not re-add Operations Evidence Missing filtering; it now uses category=evidence and readiness=missing with route/UI/verifier coverage."
   ],
   "lastValidationStatus": {
     "status": "passed",
-    "completedAt": "2026-05-25T07:41:38-07:00",
+    "completedAt": "2026-05-25T08:09:16-07:00",
     "commands": [
       "npm run verify:dashboard-actions",
-      "npm run verify:review-queue-deeplinks",
       "npm run verify:workspace-navigation",
+      "node --test tests/site-operations-readiness.integration.test.mjs",
+      "node --test tests/workspace-app.test.mjs",
+      "npm run verify:review-queue-deeplinks",
       "npm run verify:functionality-language",
       "npm run verify:functionality-ux-automation",
-      "node --test tests/workspace-app.test.mjs",
       "node --test tests/functionality-language-audit.test.mjs",
-      "node -e JSON.parse automation/state/functionality-ux-growth-state.json and docs/progress/runs/2026-05-25-0738-student-requirement-detail-disclosure.json",
+      "node -e JSON.parse automation/state/functionality-ux-growth-state.json and docs/progress/runs/2026-05-25-0805-operations-evidence-missing-filter.json",
       "npm run check:route-inventory",
       "npm run test",
       "npm run typecheck",
@@ -464,7 +480,7 @@
       "npm run check",
       "git diff --check"
     ],
-    "notes": "Full required validation passed for the student requirement detail disclosure slice. git diff --check reported CRLF normalization warnings only. The new UI renders already scoped student dashboard data in-page and does not broaden auth, RBAC, tenant, site, program, mentor assignment, or student privacy boundaries. No remote seed/reset/migration, live data write, deploy, credential repair, domain/OAuth, or Cloudflare config change was run."
+    "notes": "Full required validation passed for the Operations evidence-missing filter slice. git diff --check reported CRLF normalization warnings only. The new metric uses existing read-only Operations route filters and does not broaden auth, RBAC, tenant, site, program, mentor assignment, or student privacy boundaries. No remote seed/reset/migration, live data write, deploy, credential repair, domain/OAuth, or Cloudflare config change was run."
   },
   "lastProductReadinessScorecardSummary": {
     "homepageClarity": "4 to 4",
