@@ -463,7 +463,7 @@ All users benefit because the automation compounds product quality over weeks an
 - `tests/functionality-language-audit.test.mjs`
 - `tests/functionality-ux-automation-prompt.test.mjs`
 - `npm run verify:functionality-ux-automation`
-- `npm run check:automation`
+- `npm run verify:functionality-ux-automation`
 
 ## Ladder Advancement Guidance
 

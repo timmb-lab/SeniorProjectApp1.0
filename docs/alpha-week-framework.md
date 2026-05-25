@@ -25,7 +25,7 @@ As of 2026-05-18, the repo has:
 - Alpha route `alpha.html`, client state/actions in `alpha.js`, styling in `alpha.css`, D1-backed endpoint `/api/alpha/state`, and state model `functions/_lib/alpha-flow-model.js`.
 - Seeded personas for student, program teacher, mentor, admin, and misc admin.
 - First runbook in `docs/alpha-runbook.md`.
-- Alpha CI/check rail in `.github/workflows/ci.yml`, `tests/alpha-flow.test.mjs`, `scripts/check-alpha-contract.mjs`, and `scripts/verify-cadence-30min.ps1`.
+- Alpha CI/check rail in `.github/workflows/ci.yml`, `tests/alpha-flow.test.mjs`, and `scripts/check-alpha-contract.mjs`.
 
 Current blocker to direct Cloudflare mutation from this Codex session:
 

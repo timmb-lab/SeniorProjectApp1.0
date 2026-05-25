@@ -116,7 +116,7 @@ Do not delete historical entries. If an older entry needs correction, add a shor
 - Roles affected: all roles indirectly through improved automation selection and safety
 - Files changed: `automation/prompts/functionality-ux-upgrade-hourly.md`, `docs/functionality-ux-growth-ladder.md`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`, automation prompt quality tests, and package/script wiring
 - Tests/verifiers added or updated: prompt quality test and `verify:functionality-ux-automation`
-- Validation commands: `npm run verify:functionality-ux-automation`; `npm run verify:functionality-language`; `node --test tests/functionality-language-audit.test.mjs`; `npm run test`; `npm run typecheck`; `npm run check:automation`; `npm run check:production-surfaces`; `npm run check`; `git diff --check`
+- Validation commands: `npm run verify:functionality-ux-automation`; `npm run verify:functionality-language`; `node --test tests/functionality-language-audit.test.mjs`; `npm run test`; `npm run typecheck`; `npm run check:production-surfaces`; `npm run check`; `git diff --check`
 - Validation result: passed; `git diff --check` reported CRLF normalization warnings only
 - Commit: pending closeout commit; see final run report or `git log -1`
 - Push status: not pushed

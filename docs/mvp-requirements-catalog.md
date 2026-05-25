@@ -2,7 +2,7 @@
 
 Date: 2026-05-18
 
-This catalog converts the master plan into MVP requirements. It is the operating map for the quarter-hour split Capstone Project builders. The non-Figma builder lane has minute 0 and minute 30 GUI-visible instances; each must read this file after `docs/master-plan.md`, run as many bounded inspect-implement-validate-record passes as the session safely supports, update the status/evidence here when material progress happens, and ladder each next pass from the highest-risk incomplete requirement in its target area. The Figma-only builder lane has minute 15 and minute 45 GUI-visible instances; it owns `MVP-028` and may support other requirements only through concrete Figma handoffs that reduce implementation ambiguity. The daily summary is report-only, and the weekly strategy review adjusts this catalog from seven-day evidence when statuses, blockers, or priorities drift.
+This catalog converts the master plan into MVP requirements. It is the operating map for product-readiness work selected by the Functionality UX Upgrade automation. Each automation run should read this file after `docs/master-plan.md`, choose a bounded safe improvement, update the status/evidence here when material progress happens, and ladder each next pass from the highest-risk incomplete requirement in its target area.
 
 Status values:
 
@@ -23,15 +23,7 @@ Functional requirement groupings:
 - `deployment-qa`: GitHub-to-Cloudflare deployment, CI, test coverage, smoke checks, environment/secrets, backup/restore posture.
 - `design-assets-handoff`: Figma product specs, Canva supporting imagery, component/state handoffs, guided prototype, implementation annotations.
 
-Current active automation is recorded in `docs/automation-cadence.md`. The owner category column below remains a functional grouping; active delivery ownership now comes from the split builders:
-
-- `senior-capstone-nonfigma-mvp-builder` and `senior-capstone-nonfigma-mvp-builder-30` own implementation, tests, deployment, data/security, student/staff/admin workflows, repo-local docs/automation hardening, Canva-only support work, and exact blockers for `MVP-001` through `MVP-027`, `MVP-029`, and `MVP-030`.
-- `senior-capstone-figma-product-builder-15` and `senior-capstone-figma-product-builder` own `MVP-028` and may support `MVP-004` through `MVP-027` only through route/data/permission annotations, functional state variants, screenshots, metadata verification, component/state handoffs, or exact Figma blockers.
-- P0 production-experience overlays `MVP-031` through `MVP-040` are owned by the non-Figma builder for implementation/validation and supported by the Figma builder only through route/data/permission/state handoffs.
-- Tenant, Google Workspace SSO, and school-storage direction requirements `MVP-041` through `MVP-047` are owned by the non-Figma builder for schema, routes, docs, tests, and deployment validation; Figma may support only with implementation-ready state/permission handoffs.
-- The non-Figma builder may consume existing Figma evidence but may not spend runs doing direct Figma work.
-- `MVP-029` Canva work stays outside the Figma lane except where design placement or relationship to a Figma handoff needs to be recorded.
-- Figma is not production data and is not the source of truth for secure student records, accounts, evidence, audit logs, or dashboards.
+Current active automation is recorded in `docs/automation-cadence.md`. The owner category column below remains a functional grouping; it is not a scheduler or automation-lane declaration. The only active automation contract is Functionality UX Upgrade (`functionality-ux-upgrade-hourly`).
 
 ## Category Summary
 

@@ -144,7 +144,6 @@ function Invoke-KnownProjectScript {
             $script:KnownProjectScriptHandled = $true
             Invoke-Node "--check" "alpha.js"
             Invoke-Node "scripts\check-alpha-contract.mjs"
-            Invoke-ProjectPowerShell "scripts\verify-cadence-30min.ps1"
             Invoke-Node "scripts\check-predeploy-gate.mjs"
             Invoke-Node "scripts\check-production-surfaces.mjs"
             Invoke-Node "scripts\inventory-production-routes.mjs" "--check"
@@ -160,11 +159,6 @@ function Invoke-KnownProjectScript {
             }
             Invoke-Node "--test" @testFiles
             Invoke-TypeScriptCheck -Optional
-            return
-        }
-        "check:automation" {
-            $script:KnownProjectScriptHandled = $true
-            Invoke-ProjectPowerShell "scripts\verify-cadence-30min.ps1" $ScriptArgs
             return
         }
         "check:predeploy-gate" {
@@ -275,44 +269,9 @@ function Invoke-KnownProjectScript {
             Invoke-Node "scripts\check-hosted-workspace-permissions.mjs" @ScriptArgs
             return
         }
-        "qol:hourly" {
-            $script:KnownProjectScriptHandled = $true
-            Invoke-ProjectPowerShell "scripts\run-node-script.ps1" (@("automation\qol\hourly-orchestrator.mjs") + @($ScriptArgs))
-            return
-        }
-        "qol:hourly:dry-run" {
-            $script:KnownProjectScriptHandled = $true
-            Invoke-ProjectPowerShell "scripts\run-node-script.ps1" (@("automation\qol\hourly-orchestrator.mjs", "--dry-run") + @($ScriptArgs))
-            return
-        }
-        "qol:hourly:explain" {
-            $script:KnownProjectScriptHandled = $true
-            Invoke-ProjectPowerShell "scripts\run-node-script.ps1" (@("automation\qol\hourly-orchestrator.mjs", "--explain") + @($ScriptArgs))
-            return
-        }
-        "qol:doctor" {
-            $script:KnownProjectScriptHandled = $true
-            Invoke-ProjectPowerShell "scripts\run-node-script.ps1" (@("automation\qol\doctor.mjs") + @($ScriptArgs))
-            return
-        }
-        "qol:smoke" {
-            $script:KnownProjectScriptHandled = $true
-            Invoke-ProjectPowerShell "scripts\run-node-script.ps1" (@("automation\qol\hourly-orchestrator.mjs", "--smoke") + @($ScriptArgs))
-            return
-        }
-        "verify:qol-automation" {
-            $script:KnownProjectScriptHandled = $true
-            Invoke-ProjectPowerShell "scripts\run-node-script.ps1" (@("automation\qol\hourly-orchestrator.mjs", "--smoke") + @($ScriptArgs))
-            return
-        }
         "verify:functionality-ux-automation" {
             $script:KnownProjectScriptHandled = $true
             Invoke-Node "--test" "tests\functionality-ux-automation-prompt.test.mjs" @ScriptArgs
-            return
-        }
-        "verify:automation-cadence" {
-            $script:KnownProjectScriptHandled = $true
-            Invoke-ProjectPowerShell "scripts\verify-cadence-30min.ps1" $ScriptArgs
             return
         }
         "typecheck" {

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
-import { readFile } from "node:fs/promises";
+import { readFile, readdir, stat } from "node:fs/promises";
 import test from "node:test";
 
 const promptPath = "automation/prompts/functionality-ux-upgrade-hourly.md";
@@ -16,6 +16,21 @@ const [prompt, ladder, ledger, stateText] = await Promise.all([
 ]);
 
 const state = JSON.parse(stateText);
+
+async function listFilesRecursive(dir) {
+  const entries = await readdir(dir);
+  const files = [];
+  for (const entry of entries) {
+    const path = `${dir}/${entry}`;
+    const info = await stat(path);
+    if (info.isDirectory()) {
+      files.push(...await listFilesRecursive(path));
+    } else {
+      files.push(path);
+    }
+  }
+  return files;
+}
 
 function assertConcepts(text, concepts) {
   for (const [label, pattern] of Object.entries(concepts)) {
@@ -35,6 +50,37 @@ test("functionality UX growth artifacts exist and are parseable", () => {
   assert.equal(Array.isArray(state.nextRecommendedWorkOrders), true);
   assert.equal(Array.isArray(state.doNotRepeat), true);
 });
+
+test("functionality UX upgrade is the only active automation contract", async () => {
+  const packageJson = JSON.parse(await readFile("package.json", "utf8"));
+  const automationScriptNames = Object.keys(packageJson.scripts).filter((name) =>
+    /automation|cadence/i.test(name),
+  );
+  assert.deepEqual(automationScriptNames, ["verify:functionality-ux-automation"]);
+
+  const promptFiles = (await readdir("automation/prompts")).filter((name) => name.endsWith(".md"));
+  assert.deepEqual(promptFiles, ["functionality-ux-upgrade-hourly.md"]);
+
+  const scriptFiles = await readdir("scripts");
+  const retiredVerifierPrefix = ["verify", "cadence"].join("-");
+  assert.ok(!scriptFiles.some((name) => name.toLowerCase().startsWith(retiredVerifierPrefix)));
+  const automationFiles = await listFilesRecursive("automation");
+  assert.ok(!automationFiles.some((name) => name.split(/[\\/]/).includes("qol")));
+
+  const activeDocs = [
+    "docs/automation.md",
+    "docs/automation-cadence.md",
+    "docs/automation-runbook.md",
+    "docs/automation-memory.md",
+    "docs/automation-self-improvement.md",
+  ];
+  for (const file of activeDocs) {
+    const text = await readFile(file, "utf8");
+    assert.match(text, /Functionality UX Upgrade/);
+    assert.match(text, /functionality-ux-upgrade-hourly/);
+  }
+});
+
 test("functionality UX growth ladder defines durable maturity levels", () => {
   for (const heading of [
     "Level 0 - Prototype Cleanup",

@@ -1,74 +1,22 @@
 # Automation Guardrails
 
-This repo standardizes broad reusable automation runs behind a guardrail wrapper. The bounded Senior Capstone QoL 30-minute GUI runner is now a legacy diagnostic path and uses `automation/qol/GUI_ALLOWED_COMMANDS.md` instead of the active split builder prompts in `automation/prompts/`.
+The only active automation for this repo is Functionality UX Upgrade (`functionality-ux-upgrade-hourly`).
 
-## Why
+The active prompt is:
 
-Every automation run must:
+- `automation/prompts/functionality-ux-upgrade-hourly.md`
 
-1. run from the repo root,
-2. produce an audit record,
-3. commit its result,
-4. push to the current branch upstream,
-5. append a row to the project's Google Sheet run log.
+The active state and handoff files are:
 
-## Run Through The Wrapper
+- `automation/state/functionality-ux-growth-state.json`
+- `docs/functionality-ux-growth-ladder.md`
+- `docs/functionality-ux-growth-ledger.md`
+- `docs/automation-cadence.md`
 
-PowerShell (Windows):
-
-```powershell
-powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-automation.ps1 <automation-name> [args...]
-```
-
-Shell (macOS/Linux, requires `pwsh` or `powershell` available):
-
-```sh
-./scripts/run_automation.sh <automation-name> [args...]
-```
-
-The legacy QoL 30-minute GUI diagnostic runner must not use this wrapper; `scripts/run-automation.ps1` refuses the stable `qol:hourly` compatibility alias so it cannot commit, push, or log to Sheets from the bounded diagnostic path. Its allowed sequence is:
+Validate automation-contract changes with:
 
 ```powershell
-powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-node-script.ps1 automation\qol\doctor.mjs
-powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-node-script.ps1 automation\qol\hourly-orchestrator.mjs
+npm run verify:functionality-ux-automation
 ```
 
-## Required Environment Variables
-
-The wrapper fails fast if Google Sheet logging is not configured.
-
-Set these in your shell/session (or use your own `.env` loader):
-
-- `AUTOMATION_SHEETS_SPREADSHEET_ID`
-- `AUTOMATION_SHEETS_TAB_NAME`
-- `GOOGLE_SHEETS_CLIENT_EMAIL` (or fallback `GOOGLE_DRIVE_CLIENT_EMAIL`)
-- `GOOGLE_SHEETS_PRIVATE_KEY` (or fallback `GOOGLE_DRIVE_PRIVATE_KEY`)
-
-Optional:
-
-- `AUTOMATION_ACTOR` (defaults to `USERNAME`/`USER`)
-
-## Outbox + Backfill
-
-If the Sheets append fails after a successful push, the wrapper writes a durable pending payload into:
-
-- `.automation-log-outbox/`
-
-Retry pending payloads:
-
-```powershell
-powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\sync-automation-sheet-logs.ps1
-```
-
-## Dry Run
-
-`-DryRun` performs preflight checks only (no run/commit/push/sheet write).
-
-Use `-DryRun` only with a current, explicitly supported wrapper target.
-
-## Intentional Exclusions
-
-Some scripts are intentionally **not** guarded (no commit/push/sheet log) because they are dev/CI helpers or deploy commands:
-
-- `.github/workflows/ci.yml` (CI checks)
-- `npm run dev*`, `npm run deploy*` (deployment/dev servers)
+Do not add, revive, or document another active automation unless Bryan explicitly requests it in a future task.

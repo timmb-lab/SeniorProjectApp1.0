@@ -28,10 +28,6 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-if ($AutomationName -eq "qol:hourly") {
-  throw "qol:hourly is intentionally not supported by scripts/run-automation.ps1. Use the bounded QoL sequence in automation/qol/GUI_ALLOWED_COMMANDS.md with scripts/run-node-script.ps1 for doctor.mjs and hourly-orchestrator.mjs."
-}
-
 function Get-CurrentPowerShellExe {
   try {
     $path = (Get-Process -Id $PID).Path
@@ -246,19 +242,11 @@ try {
     }
   }
 
-  # Run automation (plus any required doctors first).
+  # Run automation through the repo-local npm-script adapter.
   $steps = New-Object System.Collections.Generic.List[object]
   $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
 
-  if ($AutomationName -eq "qol:hourly") {
-    $steps.Add((Invoke-LoggedNode -Label "doctor" -NodeScriptRelativePath "automation\\qol\\doctor.mjs" -Args @() -RunId $runId))
-    if ($steps[$steps.Count - 1].ExitCode -eq 0) {
-      $steps.Add((Invoke-LoggedNode -Label "orchestrator" -NodeScriptRelativePath "automation\\qol\\hourly-orchestrator.mjs" -Args @() -RunId $runId))
-    }
-  }
-  else {
-    $steps.Add((Invoke-RepoPowerShell -Label "run" -ScriptRelativePath "scripts\\run-npm-script.ps1" -Args (@($AutomationName) + @($AutomationArgs)) -RunId $runId))
-  }
+  $steps.Add((Invoke-RepoPowerShell -Label "run" -ScriptRelativePath "scripts\\run-npm-script.ps1" -Args (@($AutomationName) + @($AutomationArgs)) -RunId $runId))
 
   $stopwatch.Stop()
 
