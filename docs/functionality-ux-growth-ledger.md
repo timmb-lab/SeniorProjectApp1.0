@@ -2337,3 +2337,57 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: meeting mutation UX, mentor reassignment/remove controls, and student progress exports need product/security decisions; browser QA still needs credentialed runtime.
   - Do not repeat: do not rebuild this Mentor Dashboard meeting-history action unless regression evidence appears.
   - First file to inspect next run: `workspace.js` `renderStudentDetailMentor()`
+
+## Run 2026-05-25 14:04 PT
+
+- Starting SHA: `bac65fc4d79c1fa1e12592f33e3dd28fc2b0752c`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Branch policy: work stayed on clean local `main`; local `main` was six commits ahead of `origin/main`, `origin/main` was not ahead, and no push was run
+- Ladder level targeted: `LEVEL_2_STUDENT_DETAIL_DEPTH` with `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` mentor support
+- Backlog item: `student-detail-mentor-meeting-context`; advances `MVP-017`, `MVP-032`, and `MVP-033`
+- Work order selected: Add safe linked-work context to student-detail Mentor Meeting rows.
+- Selection reason: The prior handoff named `renderStudentDetailMentor()` and `loadMentorMeetings()`. Current student detail already loaded scoped mentor meeting rows and meeting rows already had `submission_id`, but the Mentor tab only showed note/date/status. Joining through existing submissions and requirements adds real context without a new route, fake page, mutation control, or access expansion.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Student-detail mentor meeting linked-work context | `LEVEL_2_STUDENT_DETAIL_DEPTH` | mentor, site staff, viewer, program teacher | 4 | 5 | 5 | XS | 58 | selected |
+| Mentor meeting standalone section | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | mentor | 4 | 3 | 3 | M | 39 | rejected: existing detail tab is safer |
+| Mentor meeting POST form polish | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | mentor | 5 | 2 | 3 | M | 35 | rejected: mutation UX/policy decision needed |
+| Mentor assignment reassignment controls | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | site admin | 5 | 2 | 3 | L | 33 | rejected: mutation policy and audit design needed |
+| Mentor assignment remove workflow | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | site admin | 4 | 2 | 3 | M | 33 | rejected: dangerous control without policy |
+| Mentor Dashboard meeting filter toggle | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | mentor | 3 | 4 | 4 | S | 43 | rejected: context in the existing detail row has higher value |
+| Student-detail mentor meeting empty copy | `LEVEL_2_STUDENT_DETAIL_DEPTH` | staff, mentor | 2 | 5 | 4 | XS | 42 | rejected: current empty state is acceptable |
+| Review Queue missing-evidence filter proof | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | site staff, program teacher | 5 | 2 | 3 | M | 37 | deferred: backend/privacy support missing |
+| Student Directory missing-evidence filter | `LEVEL_1_NAVIGABLE_DASHBOARDS` | site staff, viewer | 4 | 2 | 3 | M | 35 | deferred: exact route filter missing |
+| Review Queue comment body rendering | `LEVEL_7_AUDITABILITY_AND_TRUST` | site staff, program teacher, viewer | 4 | 2 | 3 | M | 34 | deferred: product/privacy decision needed |
+| Public app-preview language cleanup | `LEVEL_0_PROTOTYPE_CLEANUP` | public stakeholders | 3 | 5 | 4 | S | 40 | rejected: protected mentor workflow had higher current value |
+| Student requirement detail extension | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 4 | 4 | 4 | S | 44 | rejected: no new persisted field identified |
+| Operations report filter polish | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | site staff, viewer | 3 | 4 | 4 | S | 42 | rejected: recent Operations filter work is complete |
+| Downloadable student progress summary | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | student, staff | 4 | 2 | 3 | L | 31 | rejected: export/privacy policy needed |
+| Credentialed browser QA | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all | 4 | 4 | 3 | M | 39 | blocked: needs credentialed runtime |
+
+- User-facing improvement: Mentor Meeting rows now show `Linked work` with the requirement title, submission version, and submission status when a meeting is tied to a submission, without rendering the raw submission ID in the Mentor tab.
+- Roles affected: `platform_admin`, `admin`, `org_admin`, `site_admin`, `viewer`, `program_teacher`, and assigned `mentor` users through the existing student-detail authorization path.
+- Files changed: `functions/_lib/site-student-detail.ts`, `workspace.js`, `tests/site-student-detail.integration.test.mjs`, `tests/workspace-app.test.mjs`, `docs/functionality-language-audit.md`, `docs/mvp-requirements-catalog.md`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`, `docs/progress/run-log.md`, `docs/progress/runs/2026-05-25-1404-student-detail-mentor-meeting-context.json`
+- Tests/verifiers added or updated: site student-detail route test proves linked requirement/status/version context for mentor meetings; workspace render/handler test proves the Mentor tab renders linked-work context and does not render the raw linked submission ID.
+- Validation commands:
+  - Focused passed before docs/state closeout: `node --test tests/site-student-detail.integration.test.mjs`; `node --test tests/workspace-app.test.mjs`; `npm run verify:functionality-language`
+  - Final passed: `git diff --check`; `npm run verify:review-queue-deeplinks`; `npm run verify:dashboard-actions`; `npm run verify:workspace-navigation`; `npm run verify:functionality-ux-automation`; `node --test tests/functionality-language-audit.test.mjs`; JSON parse for state and manifest; `npm run check:route-inventory`; `npm run test`; `npm run typecheck`; `npm run check:production-surfaces`; `npm run check`
+- Validation result: passed; `git diff --check` reported only CRLF normalization warnings, with no whitespace errors.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: standalone mentor meeting section remains unnecessary; meeting mutation polish, reassignment, and remove controls remain deferred pending product/security policy; Review Queue and Student Directory missing/evidence filters remain unsupported.
+- New backlog items: none
+- Next recommended work order: inspect whether mentor meeting record/create UX can be safely clarified without adding mutation rights, or move to public app-preview language cleanup if protected mentor workflows remain healthy.
+- Do-not-repeat notes: do not re-add linked-work context to Mentor Meeting rows unless regression removes `submissionTitle`/`Linked work` rendering.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_2_STUDENT_DETAIL_DEPTH`
+  - Advanced: yes
+  - Evidence: student detail route now joins mentor meetings to existing submissions/requirements and the Mentor tab renders linked work/version/status; focused route/UI tests passed.
+  - Unlocks: future mentor work can evaluate meeting creation polish from a richer read-only context, or shift to the next product-readiness gap.
+  - Next: inspect whether mentor meeting record/create UX needs safe language/state polish without changing permissions.
+  - Blockers: mentor meeting mutation UX, mentor reassignment/remove controls, student progress exports, and real-user credential delivery need product/security decisions; browser QA still needs credentialed runtime.
+  - Do not repeat: do not rebuild this Mentor Meeting linked-work context unless regression evidence appears.
+  - First file to inspect next run: `functions/api/mentor/meetings.ts` `onRequestPost()`

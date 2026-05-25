@@ -65,6 +65,14 @@ test("site student detail and timeline are scoped, bounded, role-aware, and reda
     `INSERT INTO mentor_assignments (id, mentor_user_id, student_user_id, assigned_by, active, created_at)
      VALUES ('history-assignment-detail', 'history-mentor-detail', ?, 'protected-admin-primary', 0, '2026-05-01T12:00:00.000Z')`,
   ).bind(stories.modelExcellent.id).run();
+  await db.prepare(
+    `INSERT INTO submissions (id, student_id, requirement_id, status, version, submitted_at, created_at, updated_at)
+     VALUES ('meeting-context-submission', ?, 'req-proposal-draft', 'approved', 3, '2026-05-22T12:00:00.000Z', '2026-05-22T12:00:00.000Z', '2026-05-22T12:00:00.000Z')`,
+  ).bind(stories.modelExcellent.id).run();
+  await db.prepare(
+    `INSERT INTO mentor_meetings (id, mentor_user_id, student_user_id, submission_id, status, scheduled_for, held_at, notes, created_by, created_at, updated_at)
+     VALUES ('meeting-context-detail', 'history-mentor-detail', ?, 'meeting-context-submission', 'held', '2026-05-23T12:00:00.000Z', '2026-05-23T12:00:00.000Z', 'Reviewed the proposal revision plan.', 'history-mentor-detail', '2026-05-23T12:00:00.000Z', '2026-05-23T12:00:00.000Z')`,
+  ).bind(stories.modelExcellent.id).run();
 
   {
     const { response, body } = await routeDetail(env, null, stories.modelExcellent.id, `?siteId=${PRIMARY_SITE_ID}`);
@@ -96,6 +104,15 @@ test("site student detail and timeline are scoped, bounded, role-aware, and reda
     true,
   );
   assert.equal(platform.mentorMeetings.length <= platform.limits.mentorMeetings, true);
+  assert.equal(
+    platform.mentorMeetings.some((meeting) => (
+      meeting.mentorMeetingId === "meeting-context-detail"
+      && meeting.submissionTitle === "Senior Project Proposal Draft"
+      && meeting.submissionStatus === "approved"
+      && meeting.submissionVersion === 3
+    )),
+    true,
+  );
   assert.deepEqual(platform.canonicalValues.storyBuckets, [
     "model_excellent",
     "missing_mentor",

@@ -1993,3 +1993,14 @@ Future productive runs should append compact entries that name the master-plan s
 - `changes`: `workspace.js` now supports an `open-meetings` mentor dashboard action and an optional initial student-detail tab; Mentor Dashboard rows render `Open meeting history` beside the existing detail action. `tests/workspace-app.test.mjs` proves the action opens the Mentor tab, keeps the Mentor Dashboard source context, and renders scoped meeting history.
 - `validation`: focused workspace test plus functionality-language, dashboard-action, and workspace-navigation verifiers passed before final validation. Full validation passed; final status is recorded in `docs/functionality-ux-growth-ledger.md`.
 - `commit/push status`: pending closeout commit; not pushed by this automation run.
+
+## 2026-05-25 PT - Functionality UX Upgrade Mentor Meeting Context
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 2 student detail depth / mentor meeting context.
+- `starting HEAD`: `bac65fc4d79c1fa1e12592f33e3dd28fc2b0752c`.
+- `selected slice`: Show linked requirement/submission context on authorized student-detail Mentor Meeting rows.
+- `repo-grounded findings`: the previous handoff named `renderStudentDetailMentor()` and `loadMentorMeetings()`. Current source already returned scoped mentor meeting rows and the `mentor_meetings` table already stored `submission_id`, but the Mentor tab rendered only mentor name, notes, date, and status.
+- `changes`: `/api/site/students/:studentId` now joins mentor meetings to existing submissions and requirements and returns safe linked-work title, submission status, and version context. The Mentor tab renders that context as `Linked work` while the workspace test proves the raw linked submission ID is not rendered in the meeting row.
+- `validation`: focused student-detail route test, workspace render/handler test, and functionality-language verifier passed before final validation. Final validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.

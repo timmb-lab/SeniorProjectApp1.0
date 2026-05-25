@@ -2153,6 +2153,9 @@ test("mentor dashboard assigned students open detail and meeting history without
             mentorUserId: "mentor-detail-user",
             mentorName: "Mentor Detail",
             submissionId: "submission-101",
+            submissionTitle: "Senior Project Proposal Draft",
+            submissionStatus: "revision_requested",
+            submissionVersion: 3,
             status: "makeup_required",
             scheduledFor: "2026-05-27T15:30:00.000Z",
             heldAt: "",
@@ -2200,6 +2203,8 @@ test("mentor dashboard assigned students open detail and meeting history without
   assert.match(workspaceRoot.innerHTML, /data-student-detail-section="mentor"/);
   assert.match(workspaceRoot.innerHTML, /Mentor Meetings/);
   assert.match(workspaceRoot.innerHTML, /Confirm a make-up check-in before presentation practice/);
+  assert.match(workspaceRoot.innerHTML, /Linked work: Senior Project Proposal Draft \(version 3, Revision requested\)/);
+  assert.doesNotMatch(workspaceRoot.innerHTML, /submission-101/);
   assert.match(workspaceRoot.innerHTML, /Assigned Students/);
   assert.deepEqual(
     JSON.parse(vm.runInContext('JSON.stringify({ activeSection, sourceSection: siteStudentDetailState.sourceSection, activeTab: siteStudentDetailState.activeTab })', context)),

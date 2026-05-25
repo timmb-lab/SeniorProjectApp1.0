@@ -157,6 +157,9 @@ interface MentorMeetingRow {
   mentor_user_id: string;
   mentor_name: string | null;
   submission_id: string | null;
+  requirement_title: string | null;
+  submission_status: string | null;
+  submission_version: number | null;
   status: string;
   scheduled_for: string | null;
   held_at: string | null;
@@ -1288,6 +1291,9 @@ async function loadMentorMeetings(env: Env, studentId: string, limit: number, vi
        mentor_meetings.mentor_user_id,
        mentor.display_name AS mentor_name,
        mentor_meetings.submission_id,
+       requirements.title AS requirement_title,
+       submissions.status AS submission_status,
+       submissions.version AS submission_version,
        mentor_meetings.status,
        mentor_meetings.scheduled_for,
        mentor_meetings.held_at,
@@ -1296,6 +1302,8 @@ async function loadMentorMeetings(env: Env, studentId: string, limit: number, vi
        mentor_meetings.updated_at
      FROM mentor_meetings
      LEFT JOIN user_accounts mentor ON mentor.id = mentor_meetings.mentor_user_id
+     LEFT JOIN submissions ON submissions.id = mentor_meetings.submission_id
+     LEFT JOIN requirements ON requirements.id = submissions.requirement_id
      WHERE mentor_meetings.student_user_id = ?
      ORDER BY COALESCE(mentor_meetings.held_at, mentor_meetings.scheduled_for, mentor_meetings.created_at) DESC
      LIMIT ?`,
@@ -1305,6 +1313,9 @@ async function loadMentorMeetings(env: Env, studentId: string, limit: number, vi
     mentorUserId: row.mentor_user_id,
     mentorName: row.mentor_name || "Mentor",
     submissionId: row.submission_id || "",
+    submissionTitle: row.requirement_title || (row.submission_id ? "Senior Project submission" : ""),
+    submissionStatus: row.submission_status ? canonicalStatus(row.submission_status) : "",
+    submissionVersion: Number(row.submission_version || 0),
     status: canonicalStatus(row.status),
     scheduledFor: row.scheduled_for || "",
     heldAt: row.held_at || "",
@@ -1546,7 +1557,9 @@ async function loadTimelineEvents(
       type: "mentor_meeting",
       occurredAt: row.heldAt || row.scheduledFor || row.createdAt,
       title: `Mentor meeting ${statusText(row.status)}`,
-      summary: row.notes || "Mentor support event recorded.",
+      summary: row.submissionTitle
+        ? `${row.submissionTitle}: ${row.notes || "Mentor support event recorded."}`
+        : row.notes || "Mentor support event recorded.",
       actorName: row.mentorName || "",
       status: row.status,
       reason: row.notes || "",

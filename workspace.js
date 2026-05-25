@@ -1827,6 +1827,7 @@ function renderStudentDetailMentor(detail) {
           <div>
             <strong>${escapeHtml(row.mentorName || "Mentor")}</strong>
             <p>${escapeHtml(row.notes || row.nextAction || "Meeting recorded.")}</p>
+            ${renderMentorMeetingLinkedWork(row)}
             <p class="workspace-muted">${escapeHtml(formatDate(row.heldAt || row.scheduledFor || row.createdAt))}</p>
           </div>
           ${statusPill(row.status || "pending")}
@@ -1834,6 +1835,18 @@ function renderStudentDetailMentor(detail) {
       `)}
     </section>
   `;
+}
+
+function renderMentorMeetingLinkedWork(row) {
+  const title = String(row?.submissionTitle || "").trim();
+  if (!title) return "";
+  const version = safeNumber(row?.submissionVersion);
+  const status = String(row?.submissionStatus || "").trim();
+  const details = [];
+  if (version > 0) details.push(`version ${version}`);
+  if (status) details.push(statusText(status));
+  const suffix = details.length ? ` (${details.join(", ")})` : "";
+  return `<p class="workspace-muted">Linked work: ${escapeHtml(title)}${escapeHtml(suffix)}</p>`;
 }
 
 function renderStudentDetailPresentation(detail) {
