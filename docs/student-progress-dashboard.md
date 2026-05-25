@@ -53,6 +53,7 @@ Status uses simple rules:
 - Four summary cards: Project Phases, Required Submissions, Review Status, and Mentor / Support.
 - What to Work On Next, prioritized by revision items, missing submissions, current-phase work, waiting review, then next remaining requirement.
 - Progress Details with current phase, completed requirements, missing submissions, review counts, last updated, evidence count, and feedback action status.
+- May 5 archive status fact when the student-owned archive readiness response has closeout checks to summarize.
 - Support note that shows the assigned mentor name when available or a safe no-mentor fallback.
 
 ## Student-Safe Fallbacks
@@ -72,6 +73,7 @@ No new fake links were added. The dashboard keeps existing real actions only:
 - Attach evidence link through the existing student evidence form.
 - Upload evidence file through the existing student upload form.
 - Download or open evidence using existing safe evidence URLs when present.
+- Review archive readiness through the existing Archive workspace section; the student home only summarizes the next archive blocker and does not add a fake archive request action.
 
 Future student drill-down links were not added because there is not yet a dedicated student-safe requirement detail page.
 

@@ -21,6 +21,17 @@ This is the compact run log for the current Functionality UX Upgrade automation 
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-05-25 00:08 PT - Functionality UX Upgrade Student Archive Guidance
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 6 student progress drill-down / archive blocked guidance.
+- `starting HEAD`: `152e6cffeb3f096b67333f1cca4e191d3567693a`.
+- `selected slice`: Turn existing own-student archive readiness checks into clear student next-step guidance on the student home and Archive tab.
+- `repo-grounded findings`: `/api/student/archive/readiness` already returns scoped checks, missing counts, export status, download readiness, and storage/retention state; the workspace rendered the checklist but did not summarize the first blocking closeout item for students.
+- `changes`: `workspace.js` now renders a May 5 archive fact in the student progress details and an Archive next step card that prioritizes missing, in-progress, or attention-required checks without adding request/export actions. `tests/workspace-app.test.mjs` covers ready and blocked archive guidance and confirms no fake archive action or `href="#"` appears.
+- `validation`: focused workspace tests, dashboard-action verifier, and functionality-language verifier passed before docs/state closeout. Final validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.
+
 ## 2026-05-24 20:38 PT - Program Teacher Dashboard Detail Action
 
 - `automation ID`: functionality-ux-upgrade-hourly.

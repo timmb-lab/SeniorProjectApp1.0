@@ -66,6 +66,7 @@ test("workspace route is a real authenticated app surface", () => {
   assert.match(workspaceJs, /data-presentation-action="check-out"/);
   assert.match(workspaceJs, /data-presentation-action="check-in"/);
   assert.match(workspaceJs, /data-archive-check-status/);
+  assert.match(workspaceJs, /data-archive-guidance="true"/);
   assert.match(workspaceJs, /data-archive-download="manifest"/);
   assert.match(workspaceJs, /data-archive-drive-package/);
   assert.match(workspaceJs, /function renderAdminOverviewSection/);
@@ -1921,7 +1922,27 @@ test("workspace renders upload progress, validation, completion, and retry state
     },
     "/api/student/archive/readiness": {
       status: 200,
-      body: { ok: true, checks: [], summary: {}, archive: {}, storage: {}, retention: {} },
+      body: {
+        ok: true,
+        summary: {
+          readyChecks: 1,
+          missingChecks: 2,
+          totalChecks: 4,
+          archiveAvailableToRequest: false,
+        },
+        checks: [
+          {
+            id: "reflection_portfolio",
+            label: "Reflections and portfolio",
+            status: "missing",
+            evidenceCount: 0,
+            message: "Needs evidence or staff review before the archive package is ready.",
+          },
+        ],
+        archive: { status: "not_requested" },
+        storage: { credentialsConfigured: true, providerStatus: "ready" },
+        retention: {},
+      },
     },
     "/api/presentation-slots": {
       status: 200,
@@ -2055,7 +2076,27 @@ test("workspace renders a progress-first student homepage with safe language", a
     },
     "/api/student/archive/readiness": {
       status: 200,
-      body: { ok: true, checks: [], summary: {}, archive: {}, storage: {}, retention: {} },
+      body: {
+        ok: true,
+        summary: {
+          readyChecks: 1,
+          missingChecks: 2,
+          totalChecks: 4,
+          archiveAvailableToRequest: false,
+        },
+        checks: [
+          {
+            id: "reflection_portfolio",
+            label: "Reflections and portfolio",
+            status: "missing",
+            evidenceCount: 0,
+            message: "Needs evidence or staff review before the archive package is ready.",
+          },
+        ],
+        archive: { status: "not_requested" },
+        storage: { credentialsConfigured: true, providerStatus: "ready" },
+        retention: {},
+      },
     },
     "/api/presentation-slots": {
       status: 200,
@@ -2080,6 +2121,8 @@ test("workspace renders a progress-first student homepage with safe language", a
   assert.match(student, /Your action/);
   assert.match(student, /What to Work On Next/);
   assert.match(student, /Progress Details/);
+  assert.match(student, /May 5 archive/);
+  assert.match(student, /Finish Reflections and portfolio/);
   assert.match(student, /Need help/);
   assert.match(student, /Due date: Not available yet/);
   assert.doesNotMatch(student, /Database-backed MVP/);
@@ -2624,6 +2667,13 @@ test("workspace renders archive readiness from persisted rows", async () => {
             evidenceCount: 0,
             message: "Needed when food is part of the Celebration Day display.",
           },
+          {
+            id: "reflection_portfolio",
+            label: "Reflections and portfolio",
+            status: "missing",
+            evidenceCount: 0,
+            message: "Needs evidence or staff review before the archive package is ready.",
+          },
         ],
         archive: {
           status: "complete",
@@ -2659,6 +2709,8 @@ test("workspace renders archive readiness from persisted rows", async () => {
   assert.match(archive, /data-archive-check-status="ready"/);
   assert.match(archive, /data-archive-check-status="attention_required"/);
   assert.match(archive, /Celebration Day evidence/);
+  assert.match(archive, /data-archive-guidance="true"/);
+  assert.match(archive, /Your archive package is ready/);
   assert.match(archive, /data-archive-download="manifest"/);
   assert.match(archive, /Download archive manifest/);
   assert.match(archive, /Private file details stay hidden/);
@@ -2667,6 +2719,95 @@ test("workspace renders archive readiness from persisted rows", async () => {
   assert.match(archive, /data-archive-retention-status="policy_review_required"/);
   assert.match(archive, /Retention policy needs school review before pilot archives/);
   assert.match(archive, /expiring soon/i);
+});
+
+test("workspace explains the next student archive blocker without adding fake actions", async () => {
+  const archive = await renderWorkspaceWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "student-archive-blocked",
+          email: "student.archive.blocked@example.edu",
+          displayName: "Archive Blocked Student",
+          roles: [{ role_id: "student", scope_type: "global", scope_id: "" }],
+        },
+      },
+    },
+    "/api/student/dashboard": {
+      status: 200,
+      body: {
+        ok: true,
+        viewer: { self: true },
+        progress: [],
+        submissions: [],
+        evidence: [],
+      },
+    },
+    "/api/student/archive/readiness": {
+      status: 200,
+      body: {
+        ok: true,
+        source: "persisted_rows",
+        summary: {
+          readyChecks: 1,
+          missingChecks: 2,
+          totalChecks: 4,
+          archiveAvailableToRequest: false,
+        },
+        checks: [
+          {
+            id: "celebration_evidence",
+            label: "Celebration Day evidence",
+            status: "ready",
+            evidenceCount: 2,
+            message: "Ready for archive review.",
+          },
+          {
+            id: "reflection_portfolio",
+            label: "Reflections and portfolio",
+            status: "missing",
+            evidenceCount: 0,
+            message: "Needs evidence or staff review before the archive package is ready.",
+          },
+        ],
+        archive: {
+          status: "not_requested",
+          scopedDownloadReady: false,
+          signedDownloadReady: false,
+          drivePackageReady: false,
+          downloadUrl: null,
+        },
+        storage: {
+          providerStatus: "ready",
+          credentialsConfigured: true,
+          drivePackageReady: false,
+          storageIdentifiersRedacted: true,
+        },
+        retention: {
+          downloadWindowDays: 14,
+          expiryWarningDays: 3,
+          policyStatus: "policy_review_required",
+          policyReviewRequired: true,
+          downloadExpiresSoon: false,
+        },
+      },
+    },
+    "/api/presentation-slots": {
+      status: 200,
+      body: { ok: true, slots: [] },
+    },
+  }, "archive");
+
+  assert.match(archive, /data-archive-guidance="true"/);
+  assert.match(archive, /data-archive-guidance-status="missing"/);
+  assert.match(archive, /Archive next step/);
+  assert.match(archive, /Finish Reflections and portfolio/);
+  assert.match(archive, /1 of 4 closeout checks ready/);
+  assert.match(archive, /Add the missing work or ask your program teacher what to attach/);
+  assert.match(archive, /Evidence matched: 0/);
+  assert.doesNotMatch(archive, /data-archive-action|Request archive|href="#"/);
 });
 
 function siteDashboardFixture({ readOnly = false } = {}) {

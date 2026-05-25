@@ -803,3 +803,58 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: missing/evidence drill-down mapping remains unproven; browser QA still needs credentialed runtime.
   - Do not repeat: do not rebuild Operations Program Breakdown filtering unless a regression removes it.
   - First file to inspect next run: `workspace.js` `renderStudentArchiveSection()` and `renderStudentProgressDetails()`
+
+## Run 2026-05-25 00:08 PT
+
+- Starting SHA: `152e6cffeb3f096b67333f1cca4e191d3567693a`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Branch policy: work stayed on clean local `main`; local `main` was eight commits ahead of `origin/main`, `origin/main` was not ahead, and no push was run
+- Ladder level targeted: `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN`
+- Backlog item: `student-archive-blocked-guidance`
+- Work order selected: Add student-safe archive blocked guidance from the existing own-student archive readiness response.
+- Selection reason: The previous handoff explicitly named student archive blocked guidance. Current source already loaded `/api/student/archive/readiness` for students and rendered the checklist, but did not summarize the first missing/in-progress/attention-required closeout item in a student-friendly way.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Student archive blocked guidance | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 4 | 5 | 5 | S | 55 | selected |
+| Student archive home fact only | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 3 | 5 | 5 | XS | 50 | included as supporting slice |
+| Missing/evidence drill-down mapping | `LEVEL_1_NAVIGABLE_DASHBOARDS` | staff | 5 | 2 | 3 | M | 38 | deferred: exact supported route/filter mapping remains unproven |
+| Operations readiness category filter action | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | staff, viewer | 4 | 4 | 4 | S | 47 | rejected: category-to-filter mapping still needs proof |
+| Student detail visible-note labels | `LEVEL_7_AUDITABILITY_AND_TRUST` | staff, students | 4 | 5 | 4 | S | 45 | rejected: lower current handoff alignment |
+| Operations empty-state wording | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | staff, viewer | 3 | 5 | 4 | XS | 43 | rejected: safe but lower student impact |
+| Assignment form unavailable copy cleanup | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | site admin | 3 | 5 | 4 | XS | 43 | rejected: copy-only and lower value |
+| Viewer read-only homepage clarity | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | viewer | 3 | 5 | 4 | XS | 42 | rejected: existing read-only banners are already guarded |
+| Student Directory mentor filter labels | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | staff | 4 | 3 | 4 | M | 42 | deferred: needs safe API-provided mentor option labels |
+| Public app-preview language cleanup | `LEVEL_0_PROTOTYPE_CLEANUP` | public | 3 | 5 | 4 | S | 40 | rejected: protected student workflow had higher value |
+| Credentialed browser QA for worklist URLs | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all | 4 | 4 | 3 | M | 39 | blocked: needs credentialed runtime |
+| Public Figma/reference cleanup | `LEVEL_0_PROTOTYPE_CLEANUP` | public | 3 | 5 | 4 | S | 39 | rejected: lower value than student closeout guidance |
+| Site Admin mentor POST default alignment | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | site admin | 4 | 2 | 4 | M | 37 | deferred: mutation policy/risk is too high for this slice |
+| Mentor assigned-student meeting depth | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | mentor | 4 | 3 | 3 | M | 36 | deferred: needs API/data shape inspection |
+| Student due-date detail | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 4 | 3 | 3 | M | 35 | deferred: due-date source mapping needs a separate proof slice |
+| Org-admin tenant rollup | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | org admin | 4 | 2 | 2 | L | 30 | blocked: needs backend aggregate/RBAC design |
+
+- User-facing improvement: Students now see a May 5 archive status fact on their home dashboard and an Archive next step card that names the first closeout blocker, the ready-check count, who owns the next action, and whether evidence is already matched.
+- Roles affected: `student`; staff, viewer, mentor, tenant, site, program, and admin access boundaries were not expanded.
+- Files changed: `workspace.js`, `tests/workspace-app.test.mjs`, `docs/functionality-language-audit.md`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`, `docs/progress/run-log.md`
+- Tests/verifiers added or updated: workspace render/source tests now assert archive guidance markers, ready archive guidance, blocked archive guidance, student home archive fact, and no fake archive action or `href="#"`.
+- Validation commands:
+  - Focused: `node --test tests/workspace-app.test.mjs`; `npm run verify:dashboard-actions`; `npm run verify:functionality-language`
+  - Final planned: `npm run verify:dashboard-actions`; `npm run verify:review-queue-deeplinks`; `npm run verify:workspace-navigation`; `npm run verify:functionality-language`; `npm run verify:functionality-ux-automation`; `node --test tests/workspace-app.test.mjs`; `node --test tests/archive-readiness.integration.test.mjs`; `node --test tests/functionality-language-audit.test.mjs`; JSON parse for `automation/state/functionality-ux-growth-state.json`; `npm run check:route-inventory`; `npm run test`; `npm run typecheck`; `npm run check:production-surfaces`; `npm run check`; `git diff --check`; `git status --short`
+- Validation result: passed; `git diff --check` reported CRLF normalization warnings only
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: missing/evidence drill-down mapping; Operations category/next-action filter mapping; credentialed browser QA; student feedback/revision drill-down
+- New backlog items: none
+- Next recommended work order: prove the missing/evidence drill-down mapping before adding a visible staff control, or inspect student-visible feedback data for a safe revision feedback drill-down.
+- Do-not-repeat notes: do not re-add student archive blocked guidance; extend only if the archive readiness API adds a new student-safe status or action.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN`
+  - Advanced: yes
+  - Evidence: Student home renders a May 5 archive fact from `currentData.archiveReadiness`, and the Archive tab renders `data-archive-guidance="true"` with ready or blocked next-step guidance from scoped readiness checks.
+  - Unlocks: Student closeout guidance can now move toward feedback/revision drill-downs instead of only staff dashboard navigation.
+  - Next: prove an exact missing/evidence drill-down mapping, or inspect student-visible feedback data for a safe revision-feedback panel.
+  - Blockers: missing/evidence drill-down mapping remains unproven; browser QA still needs credentialed runtime.
+  - Do not repeat: do not rebuild archive guidance unless the API adds a new state or the guidance regresses.
+  - First file to inspect next run: `workspace.js` `renderReviewHistorySummary()` and `renderStudentProgressDetails()`

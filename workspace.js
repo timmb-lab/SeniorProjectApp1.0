@@ -3337,6 +3337,7 @@ function renderStudentProgressDetails(summary, dashboard) {
   const progress = dashboard.progress || [];
   const submissions = dashboard.submissions || [];
   const evidence = dashboard.evidence || [];
+  const archiveFact = studentArchiveProgressFact(unwrap(currentData.archiveReadiness));
   return `
     <section class="workspace-dashboard-card workspace-student-progress-details" aria-labelledby="studentProgressDetailsTitle">
       <div class="workspace-card-head">
@@ -3356,6 +3357,7 @@ function renderStudentProgressDetails(summary, dashboard) {
           ${renderStudentDetailFact("Last updated", summary.lastUpdatedAt ? formatDate(summary.lastUpdatedAt) : "Not available yet")}
           ${renderStudentDetailFact("Evidence added", `${evidence.length} item${evidence.length === 1 ? "" : "s"}`)}
           ${renderStudentDetailFact("Teacher feedback", summary.revisionRequestedCount ? "Review the item marked Needs Revision." : "You do not have feedback that needs action right now.")}
+          ${archiveFact ? renderStudentDetailFact("May 5 archive", archiveFact) : ""}
         </div>
       </details>
       <div class="workspace-student-support-box">
@@ -4619,6 +4621,7 @@ function renderArchiveSection() {
         ${metric("Total Checks", summary.totalChecks || checks.length)}
       </div>
     </section>
+    ${renderStudentArchiveGuidance(body)}
     <section class="workspace-card">
       <div class="workspace-card-head">
         <div>
@@ -4673,6 +4676,140 @@ function renderArchiveSection() {
       </div>
     </section>
   `;
+}
+
+function renderStudentArchiveGuidance(body) {
+  const guidance = studentArchiveGuidance(body);
+  return `
+    <section class="workspace-dashboard-card workspace-student-archive-guidance" data-archive-guidance="true" data-archive-guidance-status="${escapeHtml(guidance.status)}" aria-labelledby="studentArchiveGuidanceTitle">
+      <div class="workspace-card-head">
+        <div>
+          <p class="workspace-kicker">Archive next step</p>
+          <h2 id="studentArchiveGuidanceTitle">${escapeHtml(guidance.title)}</h2>
+          <p>${escapeHtml(guidance.detail)}</p>
+        </div>
+        ${statusPill(guidance.status)}
+      </div>
+      <div class="workspace-student-action-focus">
+        <strong>${escapeHtml(guidance.owner)}</strong>
+        <span>${escapeHtml(guidance.when)}</span>
+      </div>
+    </section>
+  `;
+}
+
+function studentArchiveProgressFact(body) {
+  const checks = archiveReadinessChecks(body);
+  const summary = body?.summary || {};
+  if (!checks.length && !safeNumber(summary.totalChecks)) return "";
+  const guidance = studentArchiveGuidance(body);
+  return `${guidance.title}. ${guidance.when}`;
+}
+
+function studentArchiveGuidance(body) {
+  const checks = archiveReadinessChecks(body);
+  const summary = body?.summary || {};
+  const archive = body?.archive || {};
+  const storage = body?.storage || {};
+  const totalChecks = safeNumber(summary.totalChecks || checks.length);
+  const readyChecks = safeNumber(summary.readyChecks);
+  const progressText = totalChecks
+    ? `${readyChecks} of ${totalChecks} closeout checks ready.`
+    : "Closeout checks will appear after they are assigned.";
+  const archiveStatus = String(archive.status || "not_requested");
+  const scopedDownloadReady = Boolean(archive.scopedDownloadReady || archive.signedDownloadReady);
+
+  if (archive.downloadExpired) {
+    return {
+      status: "expired",
+      title: "Ask for a fresh archive package",
+      detail: "The previous download window expired. Ask your program teacher or administrator to generate a fresh package.",
+      owner: "Staff support",
+      when: "No new evidence is needed unless a check below changed.",
+    };
+  }
+
+  if (scopedDownloadReady) {
+    return {
+      status: "ready",
+      title: "Your archive package is ready",
+      detail: "Use the download link below before the window expires.",
+      owner: "Your action",
+      when: archive.downloadExpiresAt ? `Download by ${formatDate(archive.downloadExpiresAt)}.` : "Download when you are ready.",
+    };
+  }
+
+  if (archiveStatus === "queued" || archiveStatus === "running") {
+    return {
+      status: archiveStatus,
+      title: "Staff are preparing your archive package",
+      detail: `${progressText} No extra upload is needed right now.`,
+      owner: "Staff support",
+      when: "Check back after the package finishes.",
+    };
+  }
+
+  const blockingCheck = firstArchiveBlockingCheck(checks);
+  if (blockingCheck) {
+    return {
+      status: blockingCheck.status || "missing",
+      title: `Finish ${blockingCheck.label || "a closeout requirement"}`,
+      detail: `${progressText} ${archiveGuidanceDetailForCheck(blockingCheck)}`,
+      owner: blockingCheck.status === "attention_required" ? "Ask your program teacher" : "Your action",
+      when: `Evidence matched: ${safeNumber(blockingCheck.evidenceCount)}`,
+    };
+  }
+
+  if (summary.archiveAvailableToRequest) {
+    return {
+      status: "ready",
+      title: "Closeout checks are ready",
+      detail: `${progressText} Ask your program teacher or administrator to generate your May 5 archive package.`,
+      owner: "Staff support",
+      when: "Your checklist is ready for staff review.",
+    };
+  }
+
+  if (storage.credentialsConfigured === false || (storage.providerStatus && storage.providerStatus !== "ready" && storage.providerStatus !== "configured")) {
+    return {
+      status: "provider_unavailable",
+      title: "Staff setup is needed before download",
+      detail: `${progressText} Your checklist can still be reviewed, but archive package downloads are not ready yet.`,
+      owner: "Staff support",
+      when: "Keep finishing the checklist below.",
+    };
+  }
+
+  return {
+    status: archiveStatus,
+    title: "Review your closeout checklist",
+    detail: `${progressText} Use the checklist below to see what is ready and what still needs evidence or teacher review.`,
+    owner: "Your action",
+    when: "Start with any check that is not ready.",
+  };
+}
+
+function archiveReadinessChecks(body) {
+  return Array.isArray(body?.checks) ? body.checks : [];
+}
+
+function firstArchiveBlockingCheck(checks) {
+  for (const status of ["missing", "in_progress", "attention_required"]) {
+    const match = checks.find((check) => check?.status === status);
+    if (match) return match;
+  }
+  return null;
+}
+
+function archiveGuidanceDetailForCheck(check) {
+  const message = check.message || "Review this archive requirement.";
+  if (check.status === "attention_required") {
+    return `${message} Ask your program teacher whether this applies to your project.`;
+  }
+  if (check.status === "in_progress") {
+    return `${message} Add or update evidence if your teacher asked for more.`;
+  }
+  return `${message} Add the missing work or ask your program teacher what to attach.`;
 }
 
 function renderArchiveCheckRow(check) {
