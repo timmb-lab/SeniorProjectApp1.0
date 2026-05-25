@@ -102,6 +102,62 @@ test("student dashboard returns own rows without storage ids and audits the view
   });
 });
 
+test("student dashboard returns latest review feedback scoped to the viewed student", async () => {
+  const fixture = await createFixtureWithSession({ userId: "student-a", roleId: "student" });
+  seedStudentRecord(fixture.db, "student-a");
+  seedStudentRecord(fixture.db, "student-b");
+  fixture.db.data.userAccounts.push(buildUser("teacher-a", "Teacher A"));
+  const ownSubmission = fixture.db.data.submissions.find((row) => row.id === "submission-student-a");
+  ownSubmission.status = "revision_requested";
+  ownSubmission.updated_at = "2026-05-24T18:30:00.000Z";
+  fixture.db.data.reviews.push(
+    {
+      id: "review-student-a-old",
+      submission_id: "submission-student-a",
+      reviewer_user_id: "teacher-a",
+      decision: "comment_only",
+      feedback: "Earlier note for the same submission.",
+      created_at: "2026-05-24T17:30:00.000Z",
+    },
+    {
+      id: "review-student-a-latest",
+      submission_id: "submission-student-a",
+      reviewer_user_id: "teacher-a",
+      decision: "revision_requested",
+      feedback: "Add one measurable success target before resubmitting.",
+      created_at: "2026-05-24T18:40:00.000Z",
+    },
+    {
+      id: "review-student-b",
+      submission_id: "submission-student-b",
+      reviewer_user_id: "teacher-a",
+      decision: "revision_requested",
+      feedback: "This belongs to another student.",
+      created_at: "2026-05-24T19:00:00.000Z",
+    },
+  );
+
+  const response = await onRequestGet({
+    request: buildRequest("https://example.test/api/student/dashboard", fixture.token),
+    env: fixture.env,
+  });
+
+  assert.equal(response.status, 200);
+  const body = await response.json();
+  assert.equal(body.feedback.length, 2);
+  assert.deepEqual(body.feedback[0], {
+    id: "review-student-a-latest",
+    kind: "review",
+    submissionId: "submission-student-a",
+    requirementTitle: "Core Concept Proposal",
+    status: "revision_requested",
+    message: "Add one measurable success target before resubmitting.",
+    authorName: "Teacher A",
+    createdAt: "2026-05-24T18:40:00.000Z",
+  });
+  assert.doesNotMatch(JSON.stringify(body.feedback), /another student|drive-secret|staff_only/i);
+});
+
 test("student dashboard denies another student's record and audits role scope", async () => {
   const fixture = await createFixtureWithSession({ userId: "student-b", roleId: "student" });
   seedStudentRecord(fixture.db, "student-a");
@@ -250,6 +306,7 @@ function createFixture() {
     progressRecords: [],
     submissions: [],
     evidenceArtifacts: [],
+    reviews: [],
     auditEvents: [],
   });
 
@@ -526,6 +583,32 @@ class MockPreparedStatement {
             review_status: row.review_status,
             created_at: row.created_at,
           })),
+      };
+    }
+
+    if (this.sql.includes("from reviews") && this.sql.includes("join submissions on submissions.id = reviews.submission_id")) {
+      const [studentId] = this.params;
+      return {
+        results: this.data.reviews
+          .filter((row) => {
+            const submission = this.data.submissions.find((submissionRow) => submissionRow.id === row.submission_id);
+            return submission?.student_id === studentId;
+          })
+          .sort((a, b) => String(b.created_at || "").localeCompare(String(a.created_at || "")))
+          .slice(0, 5)
+          .map((row) => {
+            const submission = this.data.submissions.find((submissionRow) => submissionRow.id === row.submission_id);
+            const reviewer = this.data.userAccounts.find((user) => user.id === row.reviewer_user_id);
+            return {
+              id: row.id,
+              submission_id: row.submission_id,
+              requirement_title: requirementTitle(this.data, submission?.requirement_id),
+              decision: row.decision,
+              feedback: row.feedback,
+              created_at: row.created_at,
+              reviewer_name: reviewer?.display_name || null,
+            };
+          }),
       };
     }
 

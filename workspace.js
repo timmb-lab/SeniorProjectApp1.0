@@ -3117,6 +3117,7 @@ function renderStudentSection() {
     </section>
     ${renderStudentPrimaryNextAction(summary, nextSteps)}
     ${renderStudentNextSteps(nextSteps, summary)}
+    ${renderStudentFeedbackPanel(dashboard.feedback || [], summary)}
     ${renderStudentProgressDetails(summary, dashboard)}
     <section class="workspace-card">
       <div class="workspace-card-head">
@@ -3329,6 +3330,41 @@ function renderStudentNextStepRow(item) {
         <p class="workspace-muted">Due date: ${escapeHtml(item.dueDate ? formatDate(item.dueDate) : "Not available yet")}</p>
       </div>
       ${statusPill(item.status || "not_started")}
+    </article>
+  `;
+}
+
+function renderStudentFeedbackPanel(feedback = [], summary = {}) {
+  const rows = Array.isArray(feedback) ? feedback : [];
+  return `
+    <section class="workspace-dashboard-card workspace-student-feedback-panel" data-student-feedback-panel="true" aria-labelledby="studentFeedbackTitle">
+      <div class="workspace-card-head">
+        <div>
+          <p class="workspace-kicker">Teacher feedback</p>
+          <h2 id="studentFeedbackTitle">Latest Feedback</h2>
+        </div>
+      </div>
+      <div class="workspace-list">
+        ${rows.length ? rows.map(renderStudentFeedbackRow).join("") : `
+          <article class="workspace-empty-state-card" data-student-feedback-empty="true">
+            <strong>${escapeHtml(summary.revisionRequestedCount ? "No feedback details are available here yet." : "No teacher feedback yet.")}</strong>
+            <p>${escapeHtml(summary.revisionRequestedCount ? "Check the submission list below and ask your program teacher what to revise." : "Feedback will appear here after your teacher reviews or comments on your work.")}</p>
+          </article>
+        `}
+      </div>
+    </section>
+  `;
+}
+
+function renderStudentFeedbackRow(item) {
+  return `
+    <article class="workspace-row workspace-student-feedback-row" data-student-feedback-item="${escapeHtml(item.id || "")}">
+      <div>
+        <strong>${escapeHtml(item.requirementTitle || "Senior Project submission")}</strong>
+        <p>${escapeHtml(item.message || "Teacher feedback was recorded for this submission.")}</p>
+        <p class="workspace-muted">${escapeHtml(item.authorName || "Program teacher")} / ${escapeHtml(formatDate(item.createdAt))}</p>
+      </div>
+      ${statusPill(item.status || "under_review")}
     </article>
   `;
 }

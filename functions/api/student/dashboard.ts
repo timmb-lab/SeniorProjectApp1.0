@@ -49,6 +49,27 @@ interface EvidenceSummary {
   storageIdentifiersRedacted: true;
 }
 
+interface FeedbackRow {
+  id: string;
+  submission_id: string;
+  requirement_title: string | null;
+  decision: string;
+  feedback: string | null;
+  created_at: string;
+  reviewer_name: string | null;
+}
+
+interface StudentFeedback {
+  id: string;
+  kind: "review";
+  submissionId: string;
+  requirementTitle: string;
+  status: string;
+  message: string;
+  authorName: string;
+  createdAt: string;
+}
+
 interface RequirementRow {
   id: string;
   program_id: string | null;
@@ -158,6 +179,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
   const submissionRows = submissions.results || [];
   const evidenceRows = evidence.results || [];
   const requirementRows = requirements.results || [];
+  const feedback = await loadStudentVisibleFeedback(env, studentId);
   const summary = buildStudentProgressSummary(requirementRows, progressRows, submissionRows, evidenceRows, mentor);
   const nextSteps = buildStudentNextSteps(requirementRows, progressRows, submissionRows, summary);
 
@@ -182,6 +204,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
     progress: progressRows,
     submissions: submissionRows,
     evidence: evidenceRows.map(summarizeEvidence),
+    feedback,
   });
 };
 
@@ -226,6 +249,37 @@ async function loadActiveMentor(env: Env, studentId: string): Promise<MentorSupp
      ORDER BY mentor_assignments.created_at DESC
      LIMIT 1`,
   ).bind(studentId).first<MentorSupportRow>();
+}
+
+async function loadStudentVisibleFeedback(env: Env, studentId: string): Promise<StudentFeedback[]> {
+  const rows = await env.DB.prepare(
+    `SELECT
+       reviews.id,
+       reviews.submission_id,
+       requirements.title AS requirement_title,
+       reviews.decision,
+       reviews.feedback,
+       reviews.created_at,
+       reviewer.display_name AS reviewer_name
+     FROM reviews
+     JOIN submissions ON submissions.id = reviews.submission_id
+     LEFT JOIN requirements ON requirements.id = submissions.requirement_id
+     LEFT JOIN user_accounts reviewer ON reviewer.id = reviews.reviewer_user_id
+     WHERE submissions.student_id = ?
+     ORDER BY reviews.created_at DESC
+     LIMIT 5`,
+  ).bind(studentId).all<FeedbackRow>();
+
+  return (rows.results || []).map((row) => ({
+    id: row.id,
+    kind: "review",
+    submissionId: row.submission_id,
+    requirementTitle: safeStudentText(row.requirement_title, "Senior Project submission", 180),
+    status: studentFeedbackStatus(row.decision),
+    message: safeStudentText(row.feedback, "Teacher feedback was recorded for this submission.", 420),
+    authorName: safeStudentText(row.reviewer_name, "Program teacher", 120),
+    createdAt: row.created_at,
+  }));
 }
 
 function buildStudentProgressSummary(
@@ -426,6 +480,21 @@ function statusTextForStudent(value: string): string {
   if (value === "submitted") return "Waiting for Review";
   if (value === "approved" || value === "archived") return "Complete";
   return phaseLabel(value);
+}
+
+function studentFeedbackStatus(value: string): string {
+  if (value === "revision_requested") return "revision_requested";
+  if (value === "approved") return "approved";
+  if (value === "comment_only") return "under_review";
+  return "under_review";
+}
+
+function safeStudentText(value: string | null | undefined, fallback: string, maxLength: number): string {
+  const normalized = String(value || "")
+    .replace(/\s+/g, " ")
+    .trim();
+  const output = normalized || fallback;
+  return output.length > maxLength ? `${output.slice(0, Math.max(0, maxLength - 1)).trim()}...` : output;
 }
 
 function deriveNextAction(submissions: SubmissionSummaryRow[], evidence: EvidenceSummaryRow[]): string {

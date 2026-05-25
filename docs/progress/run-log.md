@@ -1696,3 +1696,14 @@ Future productive runs should append compact entries that name the master-plan s
 - `changes`: Operations program rows now expose a real `View program rows` action, `openWorkspaceSection()` handles `data-section-preset="program-breakdown"`, applies `programId`, resets offset, syncs the Operations URL, and reloads the scoped worklist. The workspace test and dashboard-action verifier now guard the preset.
 - `validation`: focused verifier/test and final validation passed; final validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
 - `commit/push status`: pending closeout commit.
+
+## 2026-05-25 PT - Functionality UX Upgrade Student Latest Feedback
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 6 student progress drill-down / latest feedback visibility.
+- `starting HEAD`: `383c843130a6a8eff45637c69b27358c1cad68c1`.
+- `selected slice`: Add a student-home Latest Feedback panel backed by `/api/student/dashboard` review rows already scoped to the viewed student's own submissions.
+- `repo-grounded findings`: the previous handoff pointed toward student feedback after archive guidance. Current source showed students only generic "Needs Revision" guidance, while review feedback was persisted in `reviews` and already joined to submissions for staff detail/history surfaces.
+- `changes`: `/api/student/dashboard` now returns a bounded `feedback` array from review rows joined through the student's own submissions; the student home renders a read-only Latest Feedback panel with requirement, teacher note, reviewer, date, and status; tests prove own-student scoping and workspace rendering.
+- `validation`: focused route/UI tests and functionality language verifier passed before final validation; final validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit.

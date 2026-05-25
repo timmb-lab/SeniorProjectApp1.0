@@ -2072,6 +2072,18 @@ test("workspace renders a progress-first student homepage with safe language", a
           { id: "submission-proposal", requirement_id: "req-proposal", requirement_title: "Senior Project Proposal", status: "revision_requested", version: 2, updated_at: "2026-05-24T18:00:00.000Z" },
         ],
         evidence: [],
+        feedback: [
+          {
+            id: "review-proposal",
+            kind: "review",
+            submissionId: "submission-proposal",
+            requirementTitle: "Senior Project Proposal",
+            status: "revision_requested",
+            message: "Add one measurable success target before resubmitting.",
+            authorName: "Ms. Garcia",
+            createdAt: "2026-05-24T18:30:00.000Z",
+          },
+        ],
       },
     },
     "/api/student/archive/readiness": {
@@ -2120,6 +2132,9 @@ test("workspace renders a progress-first student homepage with safe language", a
   assert.match(student, /Senior Project Proposal/);
   assert.match(student, /Your action/);
   assert.match(student, /What to Work On Next/);
+  assert.match(student, /data-student-feedback-panel="true"/);
+  assert.match(student, /Latest Feedback/);
+  assert.match(student, /Add one measurable success target before resubmitting/);
   assert.match(student, /Progress Details/);
   assert.match(student, /May 5 archive/);
   assert.match(student, /Finish Reflections and portfolio/);

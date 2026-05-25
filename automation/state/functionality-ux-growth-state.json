@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-05-25T00:08:30-07:00",
-  "lastStartingSha": "152e6cffeb3f096b67333f1cca4e191d3567693a",
+  "lastRunAt": "2026-05-25T00:36:00-07:00",
+  "lastStartingSha": "383c843130a6a8eff45637c69b27358c1cad68c1",
   "lastEndingSha": null,
   "currentLadderFocus": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN",
   "completedWorkOrders": [
@@ -241,6 +241,14 @@
       "type": "TYPE_D_ROLE_WORKSPACE",
       "summary": "Student home and Archive tab now turn own-student archive readiness checks into clear next-step guidance without adding fake request actions.",
       "commit": "pending-closeout-commit"
+    },
+    {
+      "id": "student-feedback-latest-panel",
+      "completedAt": "2026-05-25T00:36:00-07:00",
+      "ladderLevel": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN",
+      "type": "TYPE_C_STUDENT_DETAIL_DRILL_DOWN",
+      "summary": "Student home now shows latest teacher feedback from review rows already scoped to the student's own submissions, without staff-only comments or fake links.",
+      "commit": "pending-closeout-commit"
     }
   ],
   "deferredWorkOrders": [
@@ -274,10 +282,10 @@
       "summary": "Map missing-submission or evidence-attention counts to a supported scoped Review Queue or Student Directory filter, then add the drill-down only if the mapping is exact."
     },
     {
-      "id": "student-feedback-revision-drilldown",
+      "id": "student-feedback-history-detail",
       "ladderLevel": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN",
       "type": "TYPE_C_STUDENT_DETAIL_DRILL_DOWN",
-      "summary": "Inspect student-visible review/comment data and add a feedback drill-down only if visibility is already safe and exact."
+      "summary": "Add a deeper student-safe feedback history view only after staff-only comment boundaries and route shape are proven."
     }
   ],
   "doNotRepeat": [
@@ -303,19 +311,21 @@
     "Do not re-add Program Teacher Dashboard or Mentor Assignments detail source preservation; both now open and close inside their originating worklists.",
     "Do not re-add Site Dashboard top-risk detail source preservation; top-risk rows now open and close inside Site Dashboard with current-site detail scope.",
     "Do not re-add Operations Program Breakdown programId filtering; Operations program rows now open the scoped worklist with shareable URL state.",
-    "Do not re-add student archive blocked guidance; extend it only if the archive readiness API adds a new student-safe status or action."
+    "Do not re-add student archive blocked guidance; extend it only if the archive readiness API adds a new student-safe status or action.",
+    "Do not re-add the student home Latest Feedback panel; extend it only into a deeper feedback history after comment visibility and route shape are proven."
   ],
   "lastValidationStatus": {
     "status": "passed",
-    "completedAt": "2026-05-25T00:08:30-07:00",
+    "completedAt": "2026-05-25T00:36:00-07:00",
     "commands": [
       "npm run verify:dashboard-actions",
       "npm run verify:review-queue-deeplinks",
       "npm run verify:workspace-navigation",
       "npm run verify:functionality-language",
       "npm run verify:functionality-ux-automation",
+      "node --test tests/student-dashboard-access.integration.test.mjs",
       "node --test tests/workspace-app.test.mjs",
-      "node --test tests/archive-readiness.integration.test.mjs",
+      "node --test tests/site-student-detail.integration.test.mjs",
       "node --test tests/functionality-language-audit.test.mjs",
       "node -e JSON.parse automation/state/functionality-ux-growth-state.json",
       "npm run check:route-inventory",
@@ -326,7 +336,7 @@
       "git diff --check",
       "git status --short"
     ],
-    "notes": "Full required validation passed for student archive blocked guidance. git diff --check reported CRLF normalization warnings only. No browser smoke was run because this slice is covered by render/source tests and no credentials were used. No remote seed/reset/migration, live data write, deploy, credential repair, domain/OAuth, or Cloudflare config change was run."
+    "notes": "Full required validation passed for the student latest feedback panel. git diff --check reported CRLF normalization warnings only. No browser smoke was run because this slice is covered by route/render/source tests and no credentials were used. No remote seed/reset/migration, live data write, deploy, credential repair, domain/OAuth, or Cloudflare config change was run."
   },
   "lastProductReadinessScorecardSummary": {
     "homepageClarity": "4 to 4",

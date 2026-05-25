@@ -23,6 +23,7 @@ The dashboard uses existing student-scoped data only:
 - `requirements` for required project work and phase groups.
 - `progress_records` for approved/archived completion, current phase, and last updated signals.
 - `submissions` for submitted, missing, waiting-for-review, and revision-needed counts.
+- `reviews` joined through the student's own submissions for latest teacher feedback.
 - `evidence_artifacts` for evidence counts and safe download/link actions already returned by the student dashboard route.
 - `mentor_assignments` joined to active mentor display names for support status.
 
@@ -52,6 +53,7 @@ Status uses simple rules:
 - Progress hero with title, percentage, status badge, and accessible progress bar.
 - Four summary cards: Project Phases, Required Submissions, Review Status, and Mentor / Support.
 - What to Work On Next, prioritized by revision items, missing submissions, current-phase work, waiting review, then next remaining requirement.
+- Latest Feedback, showing the newest teacher review notes already tied to the student's own submissions.
 - Progress Details with current phase, completed requirements, missing submissions, review counts, last updated, evidence count, and feedback action status.
 - May 5 archive status fact when the student-owned archive readiness response has closeout checks to summarize.
 - Support note that shows the assigned mentor name when available or a safe no-mentor fallback.
@@ -77,6 +79,8 @@ No new fake links were added. The dashboard keeps existing real actions only:
 
 Future student drill-down links were not added because there is not yet a dedicated student-safe requirement detail page.
 
+Latest teacher feedback is read-only and comes from review rows already scoped to the student's own submissions. Staff-only comments are not added to the student dashboard response.
+
 ## Language Cleanup
 
 Student-facing copy on this route now uses "work," "evidence," "submitted work," and "project progress" instead of technical labels such as "progress items" or "artifact type." The student-primary homepage no longer shows the staff-oriented product posture header. Tests cover the student homepage for banned developer/prototype language and technical posture copy.
@@ -85,7 +89,7 @@ Student-facing copy on this route now uses "work," "evidence," "submitted work,"
 
 1. Add a student-safe requirement detail page.
 2. Add phase-specific student progress pages.
-3. Add a student-visible feedback drill-down after confirming comment visibility rules.
+3. Add a deeper student-safe feedback history view after confirming comment visibility and whether staff-only notes remain outside that surface.
 4. Add mentor contact/support workflow without exposing unsafe contact data.
 5. Add a richer due-date timeline from `deadlines`.
 6. Add a downloadable student progress summary.
