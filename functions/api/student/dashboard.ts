@@ -53,6 +53,8 @@ interface FeedbackRow {
   id: string;
   submission_id: string;
   requirement_title: string | null;
+  submission_status: string;
+  submission_version: number;
   decision: string;
   feedback: string | null;
   created_at: string;
@@ -64,6 +66,8 @@ interface StudentFeedback {
   kind: "review";
   submissionId: string;
   requirementTitle: string;
+  submissionStatus: string;
+  submissionVersion: number;
   status: string;
   message: string;
   authorName: string;
@@ -257,6 +261,8 @@ async function loadStudentVisibleFeedback(env: Env, studentId: string): Promise<
        reviews.id,
        reviews.submission_id,
        requirements.title AS requirement_title,
+       submissions.status AS submission_status,
+       submissions.version AS submission_version,
        reviews.decision,
        reviews.feedback,
        reviews.created_at,
@@ -275,6 +281,8 @@ async function loadStudentVisibleFeedback(env: Env, studentId: string): Promise<
     kind: "review",
     submissionId: row.submission_id,
     requirementTitle: safeStudentText(row.requirement_title, "Senior Project submission", 180),
+    submissionStatus: row.submission_status,
+    submissionVersion: row.submission_version || 1,
     status: studentFeedbackStatus(row.decision),
     message: safeStudentText(row.feedback, "Teacher feedback was recorded for this submission.", 420),
     authorName: safeStudentText(row.reviewer_name, "Program teacher", 120),

@@ -21,6 +21,17 @@ This is the compact run log for the current Functionality UX Upgrade automation 
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-05-25 04:05 PT - Functionality UX Upgrade Student Feedback Context
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 6 student progress drill-down / student feedback context.
+- `starting HEAD`: `d85d13d95eb32097c9c185c07edf93fb9ec2f8c4`.
+- `selected slice`: Add submission version and current-status context to student `Feedback History` rows.
+- `repo-grounded findings`: the previous run made `/api/reviews/:submissionId/history` safe for student and assigned-mentor readers, and the student dashboard already returned own-submission feedback rows. Current feedback rows showed teacher notes but not which submitted version/current status they belonged to.
+- `changes`: `/api/student/dashboard` now includes `submissionStatus` and `submissionVersion` on feedback rows; `workspace.js` renders a read-only version/current-status context line in the student feedback panel; focused route/UI tests and docs/state were updated.
+- `validation`: focused student-dashboard route test, workspace render test, and functionality-language verifier passed before final validation. Final validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.
+
 ## 2026-05-25 00:08 PT - Functionality UX Upgrade Student Archive Guidance
 
 - `automation ID`: functionality-ux-upgrade-hourly.

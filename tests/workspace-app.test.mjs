@@ -2147,6 +2147,8 @@ test("workspace renders a progress-first student homepage with safe language", a
             kind: "review",
             submissionId: "submission-proposal",
             requirementTitle: "Senior Project Proposal",
+            submissionStatus: "revision_requested",
+            submissionVersion: 2,
             status: "revision_requested",
             message: "Add one measurable success target before resubmitting.",
             authorName: "Ms. Garcia",
@@ -2207,6 +2209,8 @@ test("workspace renders a progress-first student homepage with safe language", a
   assert.match(student, /Feedback History/);
   assert.match(student, /Showing the latest 1 teacher note meant for you/);
   assert.match(student, /Add one measurable success target before resubmitting/);
+  assert.match(student, /data-student-feedback-context="true"/);
+  assert.match(student, /Version 2 \/ Current status: Revision requested/);
   assert.match(student, /data-submission-feedback="true"/);
   assert.match(student, /Latest teacher feedback: Add one measurable success target before resubmitting/);
   assert.match(student, /Progress Details/);

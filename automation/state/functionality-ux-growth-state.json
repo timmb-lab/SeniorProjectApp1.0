@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-05-25T03:36:00-07:00",
-  "lastStartingSha": "53647f8cfeecf165e08b99cd0e4c7d6300359161",
+  "lastRunAt": "2026-05-25T04:05:00-07:00",
+  "lastStartingSha": "d85d13d95eb32097c9c185c07edf93fb9ec2f8c4",
   "lastEndingSha": null,
-  "currentLadderFocus": "LEVEL_7_AUDITABILITY_AND_TRUST",
+  "currentLadderFocus": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN",
   "completedWorkOrders": [
     {
       "id": "workspace-header-product-language-cleanup",
@@ -297,6 +297,14 @@
       "type": "TYPE_G_VERIFICATION_REGRESSION_PROTECTION",
       "summary": "Review history now hides staff-only comments from student and assigned-mentor readers while preserving staff-visible history; student feedback copy now presents the bounded review list as Feedback History.",
       "commit": "pending-closeout-commit"
+    },
+    {
+      "id": "student-feedback-version-status-context",
+      "completedAt": "2026-05-25T04:05:00-07:00",
+      "ladderLevel": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN",
+      "type": "TYPE_C_STUDENT_DETAIL_DRILL_DOWN",
+      "summary": "Student Feedback History rows now show the matching submission version and current status from the existing own-student dashboard payload.",
+      "commit": "pending-closeout-commit"
     }
   ],
   "deferredWorkOrders": [
@@ -323,16 +331,16 @@
     {
       "id": "student-feedback-history-detail",
       "ladderLevel": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN",
-      "reason": "A deeper student feedback history surface still needs UI shape and version/status context; staff-only comment exclusion is now covered by review-history route tests."
+      "reason": "A deeper student feedback history surface still needs full timeline/version-history UI shape; dashboard version/status context and staff-only comment exclusion are now covered."
     }
   ],
   "blockedWorkOrders": [],
   "nextRecommendedWorkOrders": [
     {
-      "id": "student-feedback-history-version-summary",
+      "id": "student-feedback-history-timeline-detail",
       "ladderLevel": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN",
       "type": "TYPE_C_STUDENT_DETAIL_DRILL_DOWN",
-      "summary": "Use the now-filtered review-history route for a student-safe feedback detail with status/version context."
+      "summary": "Use the now-filtered review-history route for a student-safe feedback detail with full status timeline and version history."
     },
     {
       "id": "missing-submission-drilldown",
@@ -371,18 +379,19 @@
     "Do not re-add Operations category filtering or Next Actions category drill-downs; extend only if the route adds a new safe category or exact next-action filter.",
     "Do not re-add Operations Needs Attention filtering; extend only if a regression removes needsAttention=true or a new exact attention subtype is added by the route.",
     "Do not re-add Operations Outline Pending filtering; extend only if a regression removes outlineAttention=true or a new exact outline subtype is added by the route.",
-    "Do not re-add the review-history staff-only comment filter; extend only if a new comment visibility value or feedback source is added."
+    "Do not re-add the review-history staff-only comment filter; extend only if a new comment visibility value or feedback source is added.",
+    "Do not re-add student Feedback History version/status context; extend next with a full student-safe timeline only if the review-history route UI shape is proven."
   ],
   "lastValidationStatus": {
     "status": "passed",
-    "completedAt": "2026-05-25T03:36:00-07:00",
+    "completedAt": "2026-05-25T04:05:00-07:00",
     "commands": [
       "npm run verify:dashboard-actions",
       "npm run verify:review-queue-deeplinks",
       "npm run verify:workspace-navigation",
       "npm run verify:functionality-language",
       "npm run verify:functionality-ux-automation",
-      "node --test tests/review-loop.integration.test.mjs",
+      "node --test tests/student-dashboard-access.integration.test.mjs",
       "node --test tests/workspace-app.test.mjs",
       "node --test tests/functionality-language-audit.test.mjs",
       "node -e JSON.parse automation/state/functionality-ux-growth-state.json",
@@ -394,7 +403,7 @@
       "git diff --check",
       "git status --short"
     ],
-    "notes": "Full required validation passed for the review-history staff-only comment filter slice. git diff --check reported CRLF normalization warnings only. No browser smoke was run because this API/UI privacy path is covered by review-loop integration tests, workspace render tests, and source verifiers. No remote seed/reset/migration, live data write, deploy, credential repair, domain/OAuth, or Cloudflare config change was run."
+    "notes": "Full required validation passed for the student feedback version/status context slice. git diff --check reported CRLF normalization warnings only. No browser smoke was run because this API/UI student dashboard path is covered by student-dashboard integration tests, workspace render tests, and source verifiers. No remote seed/reset/migration, live data write, deploy, credential repair, domain/OAuth, or Cloudflare config change was run."
   },
   "lastProductReadinessScorecardSummary": {
     "homepageClarity": "4 to 4",

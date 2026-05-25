@@ -3397,16 +3397,26 @@ function renderStudentFeedbackPanel(feedback = [], summary = {}) {
 }
 
 function renderStudentFeedbackRow(item) {
+  const submissionMeta = studentFeedbackSubmissionMeta(item);
   return `
     <article class="workspace-row workspace-student-feedback-row" data-student-feedback-item="${escapeHtml(item.id || "")}">
       <div>
         <strong>${escapeHtml(item.requirementTitle || "Senior Project submission")}</strong>
         <p>${escapeHtml(item.message || "Teacher feedback was recorded for this submission.")}</p>
+        ${submissionMeta ? `<p class="workspace-muted" data-student-feedback-context="true">${escapeHtml(submissionMeta)}</p>` : ""}
         <p class="workspace-muted">${escapeHtml(item.authorName || "Program teacher")} / ${escapeHtml(formatDate(item.createdAt))}</p>
       </div>
       ${statusPill(item.status || "under_review")}
     </article>
   `;
+}
+
+function studentFeedbackSubmissionMeta(item) {
+  const parts = [];
+  const version = safeNumber(item?.submissionVersion);
+  if (version > 0) parts.push(`Version ${version}`);
+  if (item?.submissionStatus) parts.push(`Current status: ${statusText(item.submissionStatus)}`);
+  return parts.join(" / ");
 }
 
 function renderStudentProgressDetails(summary, dashboard) {
