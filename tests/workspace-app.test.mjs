@@ -1375,10 +1375,29 @@ test("workspace renders site-scoped Operations readiness worklists without mutat
     "/api/site/operations-readiness": { status: 200, body: siteOperationsReadinessFixture({ role: "site_admin" }) },
     "/api/site/students/demo-student-054": { status: 200, body: siteStudentDetailFixture({ readOnly: false }) },
   });
-  await vm.runInContext('activeSection = "operations"; renderAppShell(); openSiteStudentDetail("demo-student-054")', context);
+  await vm.runInContext(`
+    activeSection = "operations";
+    renderAppShell();
+    handleOperationsReadinessAction({
+      currentTarget: {
+        dataset: {
+          operationsAction: "open-student",
+          operationsStudentId: "demo-student-054"
+        }
+      }
+    });
+  `, context);
   assert.match(workspaceRoot.innerHTML, /Student detail loaded/);
   assert.match(workspaceRoot.innerHTML, /workspace-detail-drawer/);
+  assert.match(workspaceRoot.innerHTML, /data-operations-archive-rows="true"/);
   assert.match(workspaceRoot.innerHTML, /Operations/);
+  assert.deepEqual(
+    JSON.parse(vm.runInContext('JSON.stringify({ activeSection, sourceSection: siteStudentDetailState.sourceSection })', context)),
+    { activeSection: "operations", sourceSection: "operations" },
+  );
+  vm.runInContext('handleSiteStudentDetailAction({ currentTarget: { dataset: { studentDetailAction: "close" } } })', context);
+  assert.equal(vm.runInContext("activeSection", context), "operations");
+  assert.doesNotMatch(workspaceRoot.innerHTML, /workspace-detail-drawer/);
 });
 
 test("workspace gates student directory visibility by role", () => {

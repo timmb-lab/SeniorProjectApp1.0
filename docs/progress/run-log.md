@@ -1619,3 +1619,14 @@ Future productive runs should append compact entries that name the master-plan s
 - `changes`: added a `status-breakdown` dashboard preset, rendered supported status rows with `View students` buttons, set `siteStudentFilters.status`, synced the filtered Student Directory URL, and extended workspace render/source tests plus dashboard/navigation verifiers.
 - `validation`: focused and final validation passed: dashboard/review/workspace/language/automation verifiers, workspace and audit tests, JSON state parse, route inventory, full test suite, typecheck, production-surface check, aggregate `npm run check`, and `git diff --check` with CRLF normalization warnings only.
 - `commit/push status`: pending closeout commit.
+
+## 2026-05-24 PT - Functionality UX Upgrade Operations Detail Context
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 2 student detail depth / Operations worklist detail context.
+- `starting HEAD`: `a555d428090129e2acf7049cb407310d3efe8353`.
+- `selected slice`: Preserve Operations as the source section when staff open a student detail drawer from presentation, archive, or readiness rows.
+- `repo-grounded findings`: `handleOperationsReadinessAction()` set `activeSection = "operations"`, but `openSiteStudentDetail()` immediately forced `activeSection = "students"`, so a real Operations detail action jumped users out of the worklist context.
+- `changes`: added explicit student-detail source-section state, passed `{ sourceSection: "operations" }` from Operations row actions, returned to the source section on drawer close, clarified generic detail loading/error language, and extended the workspace test plus dashboard-action verifier.
+- `validation`: full validation passed: dashboard/review/workspace/language/automation verifiers, workspace/operations/audit tests, JSON state parse, route inventory, full test suite, typecheck, production-surface check, aggregate `npm run check`, and `git diff --check` with CRLF normalization warnings only.
+- `commit/push status`: pending closeout commit.

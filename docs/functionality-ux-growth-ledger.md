@@ -481,3 +481,54 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: missing/evidence route/filter mapping remains unproven; browser QA still needs credentialed runtime.
   - Do not repeat: do not rebuild this Program Teacher detail button.
   - First file to inspect next run: `workspace.js` `renderScopedStudentList()`
+
+## Run 2026-05-24 21:05 PT
+
+- Starting SHA: `a555d428090129e2acf7049cb407310d3efe8353`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Branch policy: work stayed on clean local `main`; local `main` was two commits ahead of `origin/main`, `origin/main` was not ahead, and no push was run
+- Ladder level targeted: `LEVEL_2_STUDENT_DETAIL_DEPTH`
+- Backlog item: `operations-detail-context-preservation`
+- Work order selected: Preserve Operations worklist context when opening student detail from Operations rows.
+- Selection reason: The current code passed Operations row actions through the real site student detail route, but `openSiteStudentDetail()` always switched the UI back to the broader Student Directory. The fix was bounded, route-backed, and verifier-friendly.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Operations detail context preservation | `LEVEL_2_STUDENT_DETAIL_DEPTH` | site staff, viewer, program teacher | 4 | 5 | 5 | XS | 55 | selected |
+| Mentor assigned-student detail action | `LEVEL_2_STUDENT_DETAIL_DEPTH` | mentor | 4 | 3 | 4 | S | 46 | deferred: mentor source/site context needs one more audit |
+| Operations Program Breakdown filter action | `LEVEL_1_NAVIGABLE_DASHBOARDS` | staff | 4 | 5 | 4 | S | 48 | rejected this run: detail context bug was clearer and smaller |
+| Operations empty-state wording | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | staff, viewer | 3 | 5 | 4 | XS | 44 | rejected: lower workflow value |
+| Student archive blocked guidance | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 4 | 5 | 4 | S | 46 | rejected: less aligned to current Level 2 handoff |
+| Public `Future App Workflow` copy cleanup | `LEVEL_0_PROTOTYPE_CLEANUP` | public | 3 | 5 | 4 | S | 42 | rejected: protected workflow depth had higher value |
+| Program dashboard `Source record counts` copy | `LEVEL_0_PROTOTYPE_CLEANUP` | program teacher | 2 | 5 | 4 | XS | 39 | rejected: isolated language cleanup |
+| Permission detail role-scope copy cleanup | `LEVEL_0_PROTOTYPE_CLEANUP` | denied users | 3 | 5 | 4 | XS | 41 | rejected: no workflow unlock |
+| Assignment form unavailable copy | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | site admin | 3 | 5 | 4 | XS | 43 | rejected: safe but lower impact |
+| Review Queue detail source preservation | `LEVEL_2_STUDENT_DETAIL_DEPTH` | staff, teacher | 4 | 3 | 3 | M | 40 | deferred: Review Queue does not yet render a detail surface |
+| Missing/evidence drill-down mapping | `LEVEL_1_NAVIGABLE_DASHBOARDS` | staff | 5 | 2 | 3 | M | 38 | deferred: exact supported route/filter mapping remains unproven |
+| Credentialed browser QA for worklist URLs | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all | 4 | 4 | 3 | M | 39 | blocked: needs credentialed runtime |
+
+- User-facing improvement: Staff can open presentation, archive, or readiness student details without losing the Operations worklist and filters they were reviewing.
+- Roles affected: platform admin, admin, org admin, site admin, viewer/read-only staff, program teacher
+- Files changed: `workspace.js`, `tests/workspace-app.test.mjs`, `scripts/verify-dashboard-actions.mjs`, `docs/functionality-language-audit.md`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`, `docs/progress/run-log.md`
+- Tests/verifiers added or updated: workspace render/handler test now asserts Operations stays active and closes back to Operations; dashboard-action verifier now guards explicit source-section preservation.
+- Validation commands:
+  - Focused: `node --test tests/workspace-app.test.mjs`; `npm run verify:dashboard-actions`
+  - Final: `npm run verify:dashboard-actions`; `npm run verify:review-queue-deeplinks`; `npm run verify:workspace-navigation`; `npm run verify:functionality-language`; `npm run verify:functionality-ux-automation`; `node --test tests/workspace-app.test.mjs`; `node --test tests/site-operations-readiness.integration.test.mjs`; `node --test tests/functionality-language-audit.test.mjs`; JSON parse for `automation/state/functionality-ux-growth-state.json`; `npm run check:route-inventory`; `npm run test`; `npm run typecheck`; `npm run check:production-surfaces`; `npm run check`; `git diff --check`; `git status --short`
+- Validation result: passed; `git diff --check` reported CRLF normalization warnings only
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: mentor assigned-student detail action; missing/evidence drill-down; credentialed browser QA; Review Queue detail surface/context preservation
+- New backlog items: none
+- Next recommended work order: inspect mentor assigned-student cards and add a scoped detail action only if the source section and site resolution remain safe.
+- Do-not-repeat notes: do not re-add Operations detail source preservation; extend it only if another worklist gets its own detail surface.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_2_STUDENT_DETAIL_DEPTH`
+  - Advanced: yes
+  - Evidence: Operations row student-detail actions call `openSiteStudentDetail(..., { sourceSection: "operations" })`; close returns to the opening worklist; focused test and verifier cover it.
+  - Unlocks: other non-directory worklists can safely add detail surfaces without losing context.
+  - Next: mentor assigned-student detail action after confirming mentor source/site behavior, or Operations Program Breakdown filter action if Level 1 is prioritized.
+  - Blockers: missing/evidence drill-down mapping remains unproven; browser QA still needs credentialed runtime.
+  - Do not repeat: do not rework this Operations context handoff unless a regression appears.
+  - First file to inspect next run: `workspace.js` `renderMentorStudentCards()`

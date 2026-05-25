@@ -1457,7 +1457,7 @@ function renderSiteStudentDetailSurface(directory) {
           ${renderProblemState({
             reason: "Loading the site-scoped student record.",
             owner: "Assigned staff workspace.",
-            nextAction: "Keep the directory open while the detail response returns.",
+            nextAction: "Keep this worklist open while the detail response returns.",
           })}
         </div>
       </aside>
@@ -1480,7 +1480,7 @@ function renderSiteStudentDetailSurface(directory) {
           ${renderProblemState({
             reason: "This student detail is unavailable for the current site and role scope.",
             owner: "Administration or platform support.",
-            nextAction: "Use the visible directory rows or confirm the selected site assignment.",
+            nextAction: "Use the visible rows or confirm the selected site assignment.",
           })}
         </div>
       </aside>
@@ -4104,7 +4104,7 @@ async function handleOperationsReadinessAction(event) {
   if (!action) return;
   if (action === "open-student") {
     activeSection = "operations";
-    await openSiteStudentDetail(event.currentTarget?.dataset?.operationsStudentId || "");
+    await openSiteStudentDetail(event.currentTarget?.dataset?.operationsStudentId || "", { sourceSection: "operations" });
     return;
   }
   if (action === "reset-filters") {
@@ -4405,10 +4405,11 @@ async function handleSiteStudentAction(event) {
   }
 }
 
-async function openSiteStudentDetail(studentId) {
+async function openSiteStudentDetail(studentId, options = {}) {
   const selectedStudentId = cleanDirectoryFilter(studentId);
   if (!selectedStudentId) return;
   const directory = unwrap(currentData.siteStudents);
+  const sourceSection = cleanWorkspaceSection(options.sourceSection) || "students";
   const siteId = selectedSiteQueryValue()
     || directory?.scope?.siteId
     || unwrap(currentData.operationsReadiness)?.scope?.siteId
@@ -4419,9 +4420,10 @@ async function openSiteStudentDetail(studentId) {
   siteStudentDetailState = {
     ...defaultSiteStudentDetailState(),
     studentId: selectedStudentId,
+    sourceSection,
     loading: true,
   };
-  activeSection = "students";
+  activeSection = sourceSection;
   renderAppShell("Loading student detail...");
   const result = await settleApi(apiJson(`/api/site/students/${encodeURIComponent(selectedStudentId)}${query}`));
   siteStudentDetailState = {
@@ -4436,8 +4438,9 @@ async function openSiteStudentDetail(studentId) {
 function handleSiteStudentDetailAction(event) {
   const action = event?.currentTarget?.dataset?.studentDetailAction;
   if (action === "close") {
+    const sourceSection = cleanWorkspaceSection(siteStudentDetailState.sourceSection) || "students";
     siteStudentDetailState = defaultSiteStudentDetailState();
-    activeSection = "students";
+    activeSection = sourceSection;
     renderAppShell();
   }
 }
@@ -5613,6 +5616,7 @@ function defaultOperationsReadinessFilters() {
 function defaultSiteStudentDetailState() {
   return {
     studentId: "",
+    sourceSection: "students",
     activeTab: "summary",
     loading: false,
     loadingTimeline: false,

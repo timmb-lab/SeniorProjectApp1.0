@@ -182,6 +182,22 @@ for (const [handler, action, loader] of [
 
 assertMatches(
   "workspaceJs",
+  /function handleOperationsReadinessAction\([\s\S]*?openSiteStudentDetail\(event\.currentTarget\?\.dataset\?\.operationsStudentId \|\| "", \{ sourceSection: "operations" \}\)/,
+  "Operations student-detail actions must keep the Operations worklist as the detail source",
+);
+assertMatches(
+  "workspaceJs",
+  /async function openSiteStudentDetail\(studentId, options = \{\}\)[\s\S]*const sourceSection = cleanWorkspaceSection\(options\.sourceSection\) \|\| "students"[\s\S]*activeSection = sourceSection/,
+  "student detail loader must preserve an explicit source section",
+);
+assertMatches(
+  "workspaceJs",
+  /function handleSiteStudentDetailAction\([\s\S]*const sourceSection = cleanWorkspaceSection\(siteStudentDetailState\.sourceSection\) \|\| "students"[\s\S]*activeSection = sourceSection/,
+  "closing student detail must return to the opening worklist",
+);
+
+assertMatches(
+  "workspaceJs",
   /function renderScopedStudentList\([\s\S]*data-site-student-action="view-detail"[\s\S]*data-student-detail-id="\$\{escapeHtml\(row\.studentId\)\}"/,
   "Program Teacher scoped student rows must use the existing student detail handler",
 );
