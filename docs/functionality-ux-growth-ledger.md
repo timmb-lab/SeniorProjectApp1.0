@@ -1848,3 +1848,58 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: Review Queue and Student Directory still lack exact missing/evidence filters; browser QA still needs credentialed runtime; admin import scope fields still intentionally use technical role/scope inputs.
   - Do not repeat: do not rebuild the Program Teacher dashboard language cluster unless regression evidence appears.
   - First file to inspect next run: `workspace.js` `roleScopeSummary()` and `roleChips()`
+
+## Run 2026-05-25 09:31 PT
+
+- Starting SHA: `fdca2a3d8a5393b5da1dbd3075318d59b60d3438`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Branch policy: work stayed on clean local `main`; local `main` was twenty-seven commits ahead of `origin/main`, `origin/main` was not ahead, and no push was run
+- Ladder level targeted: `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` with `LEVEL_0_PROTOTYPE_CLEANUP` language cleanup support
+- Backlog item: `workspace-role-scope-chip-language`; advances `MVP-033` and `MVP-034` role-selected, production-safe workspace copy
+- Work order selected: Replace shared workspace access chips and related scope wording with school-facing assignment labels.
+- Selection reason: The previous handoff pointed directly to `roleScopeSummary()` and `roleChips()`. Current source still rendered raw access text such as `site:site-desert-valley-high`, `program:it`, `global`, `total in scope`, `role scope`, and `scoped program teachers` in protected workspace surfaces. This was bounded, safe, testable, and did not require API or permission changes.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Shared access scope chips | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | all roles | 4 | 5 | 5 | S | 57 | selected |
+| Student Directory scope result language | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | staff, viewer, program teacher | 3 | 5 | 5 | XS | 51 | included |
+| Student Detail scope error language | `LEVEL_2_STUDENT_DETAIL_DEPTH` | staff, viewer, mentor | 4 | 5 | 4 | XS | 50 | included |
+| Review Queue assigned-teacher language | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | viewer, program teacher, staff | 4 | 5 | 4 | XS | 50 | included |
+| Mentor Dashboard `Active mentor scope` copy | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | mentor | 3 | 5 | 4 | XS | 44 | included |
+| Operations total scope language | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | staff, viewer | 3 | 5 | 4 | XS | 45 | included |
+| Admin command center global label | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | admin | 2 | 5 | 4 | XS | 40 | included |
+| Archive protected delivery copy | `LEVEL_7_AUDITABILITY_AND_TRUST` | student, staff | 3 | 5 | 4 | XS | 43 | included |
+| Public app-preview language cleanup | `LEVEL_0_PROTOTYPE_CLEANUP` | public | 3 | 5 | 4 | S | 40 | rejected: protected workspace handoff was more direct |
+| Review Queue missing-evidence filter | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | program teacher, site staff | 5 | 2 | 3 | M | 37 | deferred: route still lacks exact missing/evidence param |
+| Student Directory missing-evidence filter | `LEVEL_1_NAVIGABLE_DASHBOARDS` | site staff, viewer | 4 | 2 | 3 | M | 35 | deferred: directory still lacks exact evidence-missing filter |
+| Student requirement detail extension | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 4 | 4 | 4 | S | 44 | rejected: no new persisted field identified |
+| Mentor assignment history in student detail | `LEVEL_7_AUDITABILITY_AND_TRUST` | staff, mentor | 4 | 3 | 3 | M | 38 | deferred: persisted history shape needs confirmation |
+| Admin import scope terminology | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | admin | 2 | 4 | 3 | S | 38 | rejected: admin import intentionally uses technical role/scope controls |
+| Credentialed browser QA | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all | 4 | 4 | 3 | M | 39 | blocked: needs credentialed runtime |
+| Org-admin tenant rollup | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | org admin | 4 | 2 | 2 | L | 30 | blocked: needs backend aggregate and RBAC design |
+
+- User-facing improvement: The access rail and workspace header now show plain labels such as `Assigned school: Desert Valley High School`, `Assigned program: IT`, `Own student workspace`, and `All assigned records` instead of raw scope ids. Related list, detail, review, mentor, operations, and archive copy now says assigned/protected language instead of `scope` wording.
+- Roles affected: `platform_admin`, `admin`, `org_admin`, `site_admin`, `viewer`, `program_teacher`, `mentor`, `student`, and `misc_admin` through shared shell labels and protected worklist copy.
+- Files changed: `workspace.js`, `tests/workspace-app.test.mjs`, `scripts/verify-functionality-language.mjs`, `docs/functionality-language-audit.md`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`, `docs/progress/run-log.md`, `docs/progress/runs/2026-05-25-0931-workspace-access-scope-language.json`
+- Tests/verifiers added or updated: workspace render tests now assert assigned-school/program access labels and block raw `site:`/`program:`/`global scope` output; language verifier now blocks raw access-scope phrases, scope-total labels, role-scope errors, scoped teacher copy, active mentor scope copy, and scoped app delivery copy.
+- Validation commands:
+  - Focused passed before docs/state closeout: `node --test tests/workspace-app.test.mjs`; `npm run verify:functionality-language`; `npm run verify:workspace-navigation`; `npm run verify:dashboard-actions`
+  - Final passed: `npm run verify:review-queue-deeplinks`; `npm run verify:functionality-language`; `npm run verify:functionality-ux-automation`; `node --test tests/workspace-app.test.mjs`; `node --test tests/functionality-language-audit.test.mjs`; JSON parse for `automation/state/functionality-ux-growth-state.json` and `docs/progress/runs/2026-05-25-0931-workspace-access-scope-language.json`; `npm run check:route-inventory`; `npm run typecheck`; `npm run check:production-surfaces`; `git diff --check`; `npm run test`; `npm run check`
+- Validation result: passed; `git diff --check` reported only CRLF normalization warnings during closeout, with no whitespace errors.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: Review Queue and Student Directory missing/evidence params remain unsupported; credentialed browser QA still needs runtime; admin import scope controls intentionally remain technical/admin-only.
+- New backlog items: none
+- Next recommended work order: inspect Review Queue empty/history states for remaining assigned-work wording, or only add missing/evidence filters after backend support and privacy tests exist.
+- Do-not-repeat notes: do not re-clean shared workspace access chips for raw site/program/global scope ids unless regression evidence appears; the verifier now guards those phrases.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_4_ROLE_SPECIFIC_WORKSPACES`
+  - Advanced: yes
+  - Evidence: `workspace.js` now renders assignment labels through `assignmentScopeLabel()`, workspace tests prove assigned-school/program labels and no raw scope ids, and the functionality-language verifier blocks the removed phrases.
+  - Unlocks: future role-workspace copy can move into queue-specific empty/history states instead of repeating shared access-chip cleanup.
+  - Next: inspect `reviewQueueEmptyState()`, `renderReviewSubmissionPanel()`, and `renderReviewHistorySummary()` for any remaining owner/empty-state wording that should become assigned-work language.
+  - Blockers: Review Queue and Student Directory still lack exact missing/evidence filters; browser QA still needs credentialed runtime; admin import scope fields intentionally remain technical.
+  - Do not repeat: do not rebuild shared access-chip assignment labels unless regression evidence appears.
+  - First file to inspect next run: `workspace.js` `reviewQueueEmptyState()` and `renderReviewSubmissionPanel()`

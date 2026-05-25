@@ -81,6 +81,54 @@ const hardFailures = [
     message: "Program Teacher dashboard heading should use assigned-student language.",
   },
   {
+    pattern: /\bGlobal scope\b/i,
+    message: "Protected workspace access chips should not show raw global-scope language.",
+  },
+  {
+    pattern: /\bsite:[a-z0-9_-]+\b/i,
+    message: "Protected workspace access chips should not show raw site scope ids.",
+  },
+  {
+    pattern: /\bprogram:[a-z0-9_-]+\b/i,
+    message: "Protected workspace access chips should not show raw program scope ids.",
+  },
+  {
+    pattern: /\btotal in scope\b/i,
+    message: "Protected workspace list totals should use plain availability language instead of scope jargon.",
+  },
+  {
+    pattern: /\bcurrent site and role scope\b/i,
+    message: "Student detail errors should use school-assignment language instead of role-scope jargon.",
+  },
+  {
+    pattern: /\brole and site scope\b/i,
+    message: "Student timeline errors should use account and school-assignment language.",
+  },
+  {
+    pattern: /\brole scope\b/i,
+    message: "Protected workspace should not ask users to check role scope.",
+  },
+  {
+    pattern: /\bteacher scope\b/i,
+    message: "Protected workspace should say assigned teacher list instead of teacher scope.",
+  },
+  {
+    pattern: /\bscoped program teachers\b/i,
+    message: "Read-only review copy should say assigned program teachers.",
+  },
+  {
+    pattern: /\bScoped program teacher\b/i,
+    message: "Review panels should say assigned program teacher instead of scoped program teacher.",
+  },
+  {
+    pattern: /\bActive mentor scope\b/i,
+    message: "Mentor dashboard cards should say active mentor assignments.",
+  },
+  {
+    pattern: /\bscoped app delivery\b/i,
+    message: "Archive file copy should say protected app delivery instead of scoped app delivery.",
+  },
+  {
     pattern: /\bstorage identifiers redacted\b/i,
     message: "Protected workspace should say private file details are protected instead of showing storage jargon.",
   },

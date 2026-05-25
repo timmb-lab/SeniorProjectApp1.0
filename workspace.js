@@ -973,7 +973,7 @@ function availableSections() {
   if (roles.has("student") || roles.has("mentor") || roles.has("program_teacher") || roles.has("admin")) {
     sections.push({ id: "presentation", label: "Presentation", detail: "Schedule, outline, and day-of status" });
   }
-  if (roles.has("admin")) sections.push({ id: "adminDashboard", label: "Admin Command Center", detail: "Legacy global operations" });
+  if (roles.has("admin")) sections.push({ id: "adminDashboard", label: "Admin Command Center", detail: "Platform operations" });
   if (roles.has("admin") || roles.has("misc_admin")) sections.push({ id: "readiness", label: "Readiness", detail: "Aggregate project readiness" });
   if (roles.has("admin")) sections.push({ id: "adminUsers", label: "Users & Access", detail: "Import accounts and setup access" });
   if (roles.has("admin")) sections.push({ id: "audit", label: "Audit", detail: "Recent protected-record activity" });
@@ -1034,7 +1034,7 @@ function renderOverviewSection() {
         <article class="workspace-row">
           <div>
             <strong>Review and mentor work</strong>
-            <p>Open assigned review or mentor sections when this account has scoped access.</p>
+            <p>Open assigned review or mentor sections when this account has access.</p>
           </div>
         </article>
         <article class="workspace-row">
@@ -1123,7 +1123,7 @@ function renderReadOnlyBanner() {
 function renderSiteDashboardSection() {
   const result = currentData.siteDashboard;
   if (result?.status === 403) {
-    return renderPermissionDeniedSection("Site dashboard", "assigned site operating records");
+    return renderPermissionDeniedSection("Site dashboard", "records for this assigned school");
   }
   if (result?.status === 409 && result.body?.selectionRequired) {
     return renderSiteSelectionRequired(result.body);
@@ -1167,7 +1167,7 @@ function renderSiteDashboardSection() {
         </div>
         <div class="workspace-command-hero-grid">
           ${statusPill(readOnly ? "configured" : "approved")}
-          <span class="workspace-chip">${escapeHtml(statusText(scope.selectionMode || "site_scope"))}</span>
+          <span class="workspace-chip">${escapeHtml(statusText(scope.selectionMode || "current_school"))}</span>
         </div>
       </div>
       <div class="workspace-dashboard-grid">
@@ -1416,10 +1416,10 @@ function renderStudentDirectoryResultSummary(directory) {
             ? `Showing ${escapeHtml(returned)} of ${escapeHtml(filteredTotal)} students missing mentors`
             : `Showing ${escapeHtml(returned)} of ${escapeHtml(filteredTotal)}`}</h2>
           <p class="workspace-muted">${filters.noMentor
-            ? "The list is filtered to students without active mentor assignments in the current school scope."
-            : "Returned rows respect pagination; total and filtered totals stay tied to the selected site or program scope."}</p>
+            ? "The list is filtered to students without active mentor assignments in the current school."
+            : "Returned rows respect pagination; total and filtered totals stay tied to the selected school or program."}</p>
         </div>
-        <span class="workspace-site-context-badge">${escapeHtml(total)} total in scope</span>
+        <span class="workspace-site-context-badge">${escapeHtml(total)} total available</span>
       </div>
       <div class="workspace-directory-pagination">
         <button class="workspace-button workspace-button-secondary" type="button" data-site-student-action="previous-page" ${offset <= 0 ? "disabled" : ""}>Previous</button>
@@ -1493,7 +1493,7 @@ function renderStudentDirectoryEmptyState(directory) {
       ${renderProblemState({
         reason: filtered ? "No students match these filters." : emptyState.reason || "No student records are visible in this view.",
         owner: emptyState.owner || "Assigned staff or site administrator.",
-        nextAction: filtered ? "Clear filters to see all students you can access." : emptyState.nextAction || "Check the assigned site or program scope.",
+        nextAction: filtered ? "Clear filters to see all students you can access." : emptyState.nextAction || "Check the assigned school or program.",
       })}
     </section>
   `;
@@ -1517,7 +1517,7 @@ function renderSiteStudentDetailSurface(directory) {
             <button class="workspace-link-button workspace-link-button-small" type="button" data-student-detail-action="close">Close</button>
           </div>
           ${renderProblemState({
-            reason: "Loading the site-scoped student record.",
+            reason: "Loading the student record for this school.",
             owner: "Assigned staff workspace.",
             nextAction: "Keep this worklist open while the detail response returns.",
           })}
@@ -1540,7 +1540,7 @@ function renderSiteStudentDetailSurface(directory) {
           </div>
           ${renderApiNotice(state.result)}
           ${renderProblemState({
-            reason: "This student detail is unavailable for the current site and role scope.",
+            reason: "This student detail is unavailable for the current school assignment.",
             owner: "Administration or platform support.",
             nextAction: "Use the visible rows or confirm the selected site assignment.",
           })}
@@ -1565,7 +1565,7 @@ function renderSiteStudentDetailSurface(directory) {
           <button class="workspace-link-button workspace-link-button-small" type="button" data-student-detail-action="close">Close</button>
         </div>
         <div class="workspace-chip-row">
-          <span class="workspace-site-context-badge">${escapeHtml(scope.siteName || directory.scope?.siteName || "Selected site")}</span>
+          <span class="workspace-site-context-badge">${escapeHtml(scope.siteName || directory.scope?.siteName || "Selected school")}</span>
           <span class="workspace-site-context-badge">${escapeHtml(student.programName || "Unassigned")}</span>
           <span class="workspace-site-context-badge">${escapeHtml(student.cohortName || "No cohort")}</span>
           ${scope.readOnly ? `<span class="workspace-chip" data-workspace-mode="read-only">Read-only viewer</span>` : ""}
@@ -1879,7 +1879,7 @@ function renderStudentDetailTimeline(detail, state) {
           <strong>Timeline unavailable</strong>
           ${renderApiNotice(state.timelineResult)}
           ${renderProblemState({
-            reason: "The full timeline could not be loaded for this role and site scope.",
+            reason: "The full timeline could not be loaded for this account and school assignment.",
             owner: "Administration or platform support.",
             nextAction: "Use the preview or confirm the site assignment.",
           })}
@@ -2013,7 +2013,7 @@ function renderSiteContextBlock(dashboard) {
       <div class="workspace-card-head">
         <div>
           <p class="workspace-kicker">Current site</p>
-          <h2>${escapeHtml(scope.siteName || "Assigned site")} / ${escapeHtml(scope.schoolYear || "School year")}</h2>
+          <h2>${escapeHtml(scope.siteName || "Assigned school")} / ${escapeHtml(scope.schoolYear || "School year")}</h2>
         </div>
         ${statusPill(scope.readOnly ? "configured" : "approved")}
       </div>
@@ -2026,7 +2026,7 @@ function renderSiteContextBlock(dashboard) {
       ${accessibleSites.length > 1 ? `
         <p class="workspace-muted">
           ${safeNumber(accessibleSites.length)} accessible site${accessibleSites.length === 1 ? "" : "s"} are available.
-          This view is scoped to ${escapeHtml(scope.siteName || "the current site")} only.
+          This view shows ${escapeHtml(scope.siteName || "the current school")} only.
         </p>
       ` : ""}
     </section>
@@ -2043,7 +2043,7 @@ function renderSitePermissionRules(dashboard) {
     : "This account is limited to dashboard review.";
   const reviewQueueCopy = permissions.canViewReviewQueue
     ? readOnly
-      ? "You can review submitted work context; decisions stay with scoped program teachers."
+      ? "You can review submitted work context; decisions stay with assigned program teachers."
       : "Review queue visibility is available for this site."
     : "Review queue action remains with assigned staff.";
   return `
@@ -2336,7 +2336,7 @@ function renderMentorDashboardSection() {
         ${renderMetricTile("Presentations", summary.presentationPending, "Pending readiness", "teacher", "presentation")}
       </div>
       ${assigned.length ? `
-        ${renderDashboardCard("Assigned Students", "Active mentor scope", renderMentorStudentCards(assigned))}
+        ${renderDashboardCard("Assigned Students", "Active mentor assignments", renderMentorStudentCards(assigned))}
         ${siteStudentDetailState?.sourceSection === "mentorDashboard" ? renderSiteStudentDetailSurface({
           students: assigned.map((row) => ({
             studentId: row.studentId,
@@ -2432,7 +2432,7 @@ function renderMentorAssignmentsSection() {
               <h2>Unassigned students</h2>
               <p>${safeNumber(unassignedStudents.length)} shown of ${safeNumber(pagination.filteredTotal)} matching students at this school.</p>
             </div>
-            <span class="workspace-site-context-badge">${safeNumber(pagination.total)} scoped</span>
+            <span class="workspace-site-context-badge">${safeNumber(pagination.total)} assigned records</span>
           </div>
           ${unassignedStudents.length ? renderMentorUnassignedStudents(unassignedStudents, permissions) : `
             <section class="workspace-empty-state-card" data-mentor-assignments-empty="true">
@@ -2667,7 +2667,7 @@ function renderMentorCoverageRows(mentors = []) {
           <div>
             <strong>${escapeHtml(mentor.mentorName || "Mentor")}</strong>
             <p>${escapeHtml(mentor.email || "")}</p>
-            <p class="workspace-muted">${escapeHtml(mentor.siteName || "Selected site")} / ${safeNumber(mentor.activeAssignmentCount)} active assignment${safeNumber(mentor.activeAssignmentCount) === 1 ? "" : "s"}</p>
+            <p class="workspace-muted">${escapeHtml(mentor.siteName || "Selected school")} / ${safeNumber(mentor.activeAssignmentCount)} active assignment${safeNumber(mentor.activeAssignmentCount) === 1 ? "" : "s"}</p>
           </div>
           ${statusPill(mentor.loadStatus || "available")}
         </article>
@@ -2772,7 +2772,7 @@ function renderOperationsReadinessSection() {
             <h2>Showing ${safeNumber(pagination.returned)} of ${safeNumber(pagination.filteredTotal)}</h2>
             <p class="workspace-muted">Rows are limited to the current school and sorted with blocked or pending attention first.</p>
           </div>
-          <span class="workspace-site-context-badge">${safeNumber(pagination.total)} total in scope</span>
+          <span class="workspace-site-context-badge">${safeNumber(pagination.total)} total available</span>
         </div>
         ${renderOperationsPagination(pagination)}
       </section>
@@ -3941,7 +3941,7 @@ function renderTeacherSection() {
           </p>
         </div>
         <div class="workspace-site-context">
-          <span class="workspace-site-context-badge">${escapeHtml(scope.siteName || "Selected site")}</span>
+          <span class="workspace-site-context-badge">${escapeHtml(scope.siteName || "Selected school")}</span>
           <span class="workspace-site-context-badge">${escapeHtml(scope.schoolYear || "School year")}</span>
           ${readOnly ? `<span class="workspace-site-context-badge">Read-only</span>` : `<span class="workspace-site-context-badge">Teacher decisions enabled</span>`}
         </div>
@@ -3950,7 +3950,7 @@ function renderTeacherSection() {
       ${readOnly ? `
         <section class="workspace-read-only-banner" data-review-queue-read-only="true">
           <strong>Read-only review queue</strong>
-          <p>This view is for review context. Approval, revision request, and comment decisions stay with scoped program teachers.</p>
+          <p>This view is for review context. Approval, revision request, and comment decisions stay with assigned program teachers.</p>
         </section>
       ` : ""}
       <div class="workspace-metric-grid">
@@ -3968,7 +3968,7 @@ function renderTeacherSection() {
               <h2>Submitted work</h2>
               <p>${safeNumber(pagination.returned)} shown of ${safeNumber(pagination.filteredTotal)} matching records</p>
             </div>
-            <span class="workspace-chip">${safeNumber(pagination.total)} scoped</span>
+            <span class="workspace-chip">${safeNumber(pagination.total)} available</span>
           </div>
           ${queue.length ? `
             <div class="workspace-list">
@@ -4080,7 +4080,7 @@ function reviewQueueEmptyState(body, filters = {}) {
     };
   }
   return body?.emptyState || {
-    reason: "No submitted or revision-requested records are available for this site and role scope.",
+    reason: "No submitted or revision-requested records are available for this school and assigned access.",
     owner: "Program teacher or site staff.",
     nextAction: "Check the student directory or continue monitoring new submissions.",
   };
@@ -4189,8 +4189,8 @@ function renderReviewSubmissionPanel(selected, body) {
           <h2>Review actions unavailable</h2>
           ${renderProblemState({
             reason: permissions.canReview ? "Status-changing reviews are limited to submitted work." : "This workspace is read-only for review decisions.",
-            owner: "Scoped program teacher",
-            nextAction: "Use the queue for context or wait for a submitted item assigned to this teacher scope.",
+            owner: "Assigned program teacher",
+            nextAction: "Use the queue for context or wait for a submitted item assigned to this teacher list.",
           })}
         </section>
       `}
@@ -4206,7 +4206,7 @@ function renderReviewHistorySummary(historyResult, history) {
         ${renderProblemState({
           reason: "The review history could not load for this submission.",
           owner: "Teacher review queue",
-          nextAction: "Refresh the queue or check role scope.",
+          nextAction: "Refresh the queue or check assigned access.",
         })}
       </section>
     `;
@@ -5172,7 +5172,7 @@ function renderArchiveSection() {
         <article class="workspace-row" data-archive-drive-package="${escapeHtml(drivePackageStatus)}">
           <div>
             <strong>Drive package file</strong>
-            <p>${escapeHtml(drivePackageStatus === "ready" ? "Drive-backed archive package is stored for scoped app delivery." : "Drive package file is pending until staff generates the archive after storage is ready.")}</p>
+            <p>${escapeHtml(drivePackageStatus === "ready" ? "Drive-backed archive package is stored for protected app delivery." : "Drive package file is pending until staff generates the archive after storage is ready.")}</p>
           </div>
           ${statusPill(drivePackageStatus)}
         </article>
@@ -6857,9 +6857,62 @@ function roleScopeSummary(user) {
   const primary = primaryRoleForUser(user);
   if (primary === "role_pending") return "Awaiting workspace role";
   const role = (user?.roles || []).find((assignment) => assignment.role_id === primary);
-  if (!role) return "Global scope";
-  const scope = role.scope_id ? `${role.scope_type}:${role.scope_id}` : role.scope_type || "global";
-  return `${roleLabel(primary)} / ${scope}`;
+  if (!role) return "Assigned workspace";
+  return assignmentScopeLabel(role);
+}
+
+function assignmentScopeLabel(role) {
+  const roleId = String(role?.role_id || "");
+  const scopeType = normalizeStatus(role?.scope_type || "global");
+  const scopeId = String(role?.scope_id || "").trim();
+  const siteName = siteNameForAssignment(role);
+  const tenantName = tenantNameForWorkspace();
+
+  if (roleId === "student") return "Own student workspace";
+  if (roleId === "mentor") return "Assigned students";
+  if (roleId === "misc_admin") return "Readiness reporting";
+
+  if (scopeType === "site") {
+    return siteName ? `Assigned school: ${siteName}` : "Assigned school";
+  }
+  if (scopeType === "tenant") {
+    return tenantName ? `Assigned organization: ${tenantName}` : "Assigned organization";
+  }
+  if (scopeType === "program") {
+    const label = scopeIdDisplay(scopeId);
+    return label ? `Assigned program: ${label}` : "Assigned program";
+  }
+  if (scopeType === "cohort") {
+    const label = scopeIdDisplay(scopeId);
+    return label ? `Assigned cohort: ${label}` : "Assigned cohort";
+  }
+  if (scopeType === "reporting") return "Readiness reporting";
+  if (scopeType === "global") {
+    if (roleId === "program_teacher") return "Assigned programs";
+    return "All assigned records";
+  }
+  return "Assigned workspace";
+}
+
+function siteNameForAssignment(role) {
+  const siteId = String(role?.scope_id || "").trim();
+  const sites = accessibleSitesForWorkspace();
+  const match = siteId ? sites.find((site) => site.siteId === siteId) : null;
+  if (match?.siteName) return match.siteName;
+  const context = currentSiteWorkspaceContext();
+  if (context.siteName && (!siteId || context.siteId === siteId)) return context.siteName;
+  return "";
+}
+
+function tenantNameForWorkspace() {
+  return currentSiteWorkspaceContext()?.tenantName || "";
+}
+
+function scopeIdDisplay(scopeId) {
+  const value = String(scopeId || "").trim();
+  if (!value) return "";
+  if (/^[a-z]{2,4}$/i.test(value)) return value.toUpperCase();
+  return statusText(value);
 }
 
 function authConfigForUi() {
@@ -6885,8 +6938,7 @@ function roleChips(user) {
   const roles = user?.roles || [];
   if (!roles.length) return `<span class="workspace-chip">Role pending</span>`;
   return roles.map((role) => {
-    const scope = role.scope_id ? `${role.scope_type}:${role.scope_id}` : role.scope_type || "global";
-    return `<span class="workspace-chip workspace-role-chip" data-role-id="${escapeHtml(role.role_id)}">${escapeHtml(roleLabel(role.role_id))} / ${escapeHtml(scope)}</span>`;
+    return `<span class="workspace-chip workspace-role-chip" data-role-id="${escapeHtml(role.role_id)}">${escapeHtml(roleLabel(role.role_id))} / ${escapeHtml(assignmentScopeLabel(role))}</span>`;
   }).join("");
 }
 
@@ -6931,7 +6983,7 @@ function buildAdminImportBody(form) {
   }
   if (!["global", "program", "cohort"].includes(scopeType)) scopeType = "global";
   if (roleId === "program_teacher" && scopeType !== "global" && !scopeId) {
-    return { ok: false, message: "Add the program or cohort id for that teacher scope." };
+    return { ok: false, message: "Add the program or cohort id for that teacher assignment." };
   }
   if (roleId !== "program_teacher") {
     scopeType = "global";
@@ -7016,7 +7068,7 @@ function messageForAdminImportError(error, status) {
 
 function messageForReviewDecisionError(error, status) {
   if (error === "submission_not_in_review") return "This submission is no longer in a submitted review state.";
-  if (error === "not_found") return "This submission is outside the current site or teacher scope.";
+  if (error === "not_found") return "This submission is outside the current school or assigned teacher list.";
   if (status === 401) return "Sign in again before saving review feedback.";
   if (status === 403) return "This role cannot save review decisions for this submission.";
   return "Review feedback could not be saved right now.";
@@ -7025,7 +7077,7 @@ function messageForReviewDecisionError(error, status) {
 function messageForMentorAssignmentError(error, status) {
   if (error === "active_assignment_exists") return "This student already has an active mentor assignment.";
   if (error === "reason_required") return "Add a reason before assigning a mentor.";
-  if (error === "not_found") return "That student or mentor is outside the selected site assignment scope.";
+  if (error === "not_found") return "That student or mentor is outside the selected school assignment.";
   if (status === 401) return "Sign in again before assigning a mentor.";
   if (status === 403) return "This role cannot change mentor assignments for this site.";
   return "Mentor assignment could not be saved right now.";

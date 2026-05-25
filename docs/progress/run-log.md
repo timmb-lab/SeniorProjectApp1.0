@@ -1894,3 +1894,14 @@ Future productive runs should append compact entries that name the master-plan s
 - `changes`: Program Teacher dashboard now renders `Assigned Student Progress`, `Assigned Students`, `Visible in your assigned program or cohort`, `Students by program`, and `Assigned student list`; scope chips now use plain assignment labels. The language verifier blocks the removed phrases.
 - `validation`: focused `node --test tests/workspace-app.test.mjs` and `npm run verify:functionality-language` passed before final validation. Final validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
 - `commit/push status`: pending closeout commit; not pushed by this automation run.
+
+## 2026-05-25 PT - Functionality UX Upgrade Workspace Access Labels
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 4 role-specific workspaces / shared access-label clarity.
+- `starting HEAD`: `fdca2a3d8a5393b5da1dbd3075318d59b60d3438`.
+- `selected slice`: Replace shared workspace access chips and related list/detail/review wording that exposed raw scope terms.
+- `repo-grounded findings`: the previous handoff named `roleScopeSummary()` and `roleChips()`. Current source still rendered `site:site-desert-valley-high`, `program:it`, `global`, `total in scope`, and `role scope` in protected workspace UI.
+- `changes`: access chips now render assigned-school/program/cohort/student labels; Student Directory, Student Detail, Review Queue, Mentor Dashboard, Mentor Assignments, Operations, and Archive copy now use plain assignment/protected-app language. The language verifier blocks the removed raw-scope phrases.
+- `validation`: focused workspace test plus language, dashboard-action, and workspace-navigation verifiers passed before final validation. Final validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.

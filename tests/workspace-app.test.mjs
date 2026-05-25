@@ -320,6 +320,8 @@ test("workspace renders route-connected site dashboard with Figma product-system
   assert.match(siteDashboard, /School workspace/);
   assert.match(siteDashboard, /Student progress/);
   assert.match(siteDashboard, /Mentor coverage/);
+  assert.match(siteDashboard, /Administration \/ Assigned school: Desert Valley High School/);
+  assert.doesNotMatch(siteDashboard, /site:site-desert-valley-high|Global scope|role scope|total in scope/);
   assert.doesNotMatch(siteDashboard, /Database-backed MVP|Cloudflare target|Audit-sensitive admin|Senior Capstone Product/);
   assert.match(siteDashboard, /workspace-site-context-badge/);
   assert.match(siteDashboard, /workspace-metric-tile/);
@@ -376,8 +378,8 @@ test("workspace renders route-connected site dashboard with Figma product-system
   assert.match(viewer, /monitor assigned school progress/);
   assert.match(viewer, /Approvals, assignment changes, and account updates stay with authorized staff/);
   assert.match(viewer, /You can open assigned student records for context; changes stay with authorized staff/);
-  assert.match(viewer, /You can review submitted work context; decisions stay with scoped program teachers/);
-  assert.match(viewer, /This view is scoped to Desert Valley High School only/);
+  assert.match(viewer, /You can review submitted work context; decisions stay with assigned program teachers/);
+  assert.match(viewer, /This view shows Desert Valley High School only/);
 
   const selectionRequired = await renderWorkspaceWithFetch({
     "/api/auth/me": {
@@ -526,12 +528,13 @@ test("program teacher dashboard rows open existing student detail", async () => 
   assert.match(programTeacher, /Assigned Student Progress/);
   assert.match(programTeacher, /Assigned Students/);
   assert.match(programTeacher, /Visible in your assigned program or cohort/);
+  assert.match(programTeacher, /Program Teacher \/ Assigned program: IT/);
   assert.match(programTeacher, /Students by program/);
   assert.match(programTeacher, /Assigned student list/);
   assert.match(programTeacher, /Program Student One/);
   assert.match(programTeacher, /data-site-student-action="view-detail"/);
   assert.match(programTeacher, /data-student-detail-id="demo-program-student-001"/);
-  assert.doesNotMatch(programTeacher, /Source record counts|Visible in this role scope|assigned scope|Scoped Student Progress/);
+  assert.doesNotMatch(programTeacher, /Source record counts|Visible in this role scope|assigned scope|Scoped Student Progress|program:it/);
   assert.doesNotMatch(programTeacher, /href="[^"]*\/api\/site\/students\/|data-section="studentDetail"|Detail view coming soon/);
 });
 
@@ -655,7 +658,7 @@ test("workspace renders route-connected student directory with filters and real 
   assert.match(siteAdmin, /workspace-filter-bar/);
   assert.match(siteAdmin, /workspace-directory-summary/);
   assert.match(siteAdmin, /Showing 2 of 250/);
-  assert.match(siteAdmin, /250 total in scope/);
+  assert.match(siteAdmin, /250 total available/);
   assert.match(siteAdmin, /workspace-student-row/);
   assert.match(siteAdmin, /workspace-student-card/);
   assert.match(siteAdmin, /Missing Mentor Demo 001/);
@@ -732,7 +735,7 @@ test("workspace renders route-connected student directory with filters and real 
     },
   }, "students");
   assert.match(teacher, /Program Teacher/);
-  assert.match(teacher, /45 total in scope/);
+  assert.match(teacher, /45 total available/);
   assert.match(teacher, />Information Technology \(45\)</);
   assert.doesNotMatch(teacher, /Culinary/);
 
