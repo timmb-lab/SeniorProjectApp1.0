@@ -1505,6 +1505,7 @@ function renderStudentDetailSummary(detail) {
   const student = detail.student || {};
   const mentor = detail.mentor || {};
   const progress = detail.progress || {};
+  const latestFeedback = latestStudentDetailFeedback(detail);
   return `
     <section class="workspace-detail-section" data-student-detail-section="summary">
       <div class="workspace-dashboard-grid workspace-dashboard-grid-two">
@@ -1521,7 +1522,15 @@ function renderStudentDetailSummary(detail) {
           <p>${escapeHtml(mentor.nextAction || "Continue mentor support.")}</p>
           ${statusPill(mentor.active ? "approved" : "blocked")}
         `)}
-        ${renderDashboardCard("Progress", "Bounded section summary", `
+        ${renderDashboardCard("Latest Feedback", latestFeedback.kind, `
+          <div data-student-detail-feedback="latest">
+            <strong>${escapeHtml(latestFeedback.title)}</strong>
+            <p>${escapeHtml(latestFeedback.text)}</p>
+            <p class="workspace-muted">${escapeHtml(latestFeedback.meta)}</p>
+            ${statusPill(latestFeedback.status)}
+          </div>
+        `)}
+        ${renderDashboardCard("Progress", "Progress summary", `
           <p>${escapeHtml(safeNumber(progress.requirementsComplete))} of ${escapeHtml(safeNumber(progress.requirementsTotal))} requirements complete.</p>
           <p>${escapeHtml(safeNumber(progress.percentComplete))}% complete / ${escapeHtml(progress.currentStage || "proposal")}</p>
           ${statusPill(progress.blockedReasons?.length ? "blocked" : "ready")}
@@ -1534,6 +1543,54 @@ function renderStudentDetailSummary(detail) {
       </div>
     </section>
   `;
+}
+
+function latestStudentDetailFeedback(detail) {
+  const reviews = Array.isArray(detail.reviews) ? detail.reviews : [];
+  const comments = Array.isArray(detail.comments) ? detail.comments : [];
+  const items = [
+    ...reviews.map((row) => ({
+      kind: "Teacher review",
+      title: row.requirementTitle || "Senior Project submission",
+      text: row.feedback || row.nextAction || "Review recorded.",
+      actor: row.reviewerName || "Reviewer",
+      occurredAt: row.createdAt || "",
+      status: row.decision || "under_review",
+    })),
+    ...comments.map((row) => ({
+      kind: "Visible note",
+      title: row.authorName || "Staff",
+      text: row.body || "Comment recorded.",
+      actor: row.authorName || "Staff",
+      occurredAt: row.createdAt || "",
+      status: row.visibility || "configured",
+    })),
+  ];
+
+  items.sort((left, right) => {
+    const leftTime = Date.parse(left.occurredAt || "");
+    const rightTime = Date.parse(right.occurredAt || "");
+    return (Number.isFinite(rightTime) ? rightTime : 0) - (Number.isFinite(leftTime) ? leftTime : 0);
+  });
+
+  const item = items[0];
+  if (!item) {
+    return {
+      kind: "Visible feedback",
+      title: "No feedback recorded yet",
+      text: "No visible review or comment has been recorded for this student yet.",
+      meta: "Use the timeline or review queue when new feedback is added.",
+      status: "configured",
+    };
+  }
+
+  return {
+    kind: item.kind,
+    title: item.title,
+    text: item.text,
+    meta: `${item.actor} / ${formatDate(item.occurredAt)}`,
+    status: item.status,
+  };
 }
 
 function renderStudentDetailProgress(detail) {

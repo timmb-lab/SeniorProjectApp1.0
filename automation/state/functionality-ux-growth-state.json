@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-05-24T18:35:17-07:00",
-  "lastStartingSha": "b9c347c46d59c31c82a63b70ea027025c6cc4eb8",
+  "lastRunAt": "2026-05-24T19:05:49-07:00",
+  "lastStartingSha": "5a28b1ac309ce26839faed69296b9312561ce6db",
   "lastEndingSha": null,
-  "currentLadderFocus": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+  "currentLadderFocus": "LEVEL_2_STUDENT_DETAIL_DEPTH",
   "completedWorkOrders": [
     {
       "id": "workspace-header-product-language-cleanup",
@@ -153,6 +153,14 @@
       "type": "TYPE_G_VERIFICATION_REGRESSION_PROTECTION",
       "summary": "Workspace URL/history tests and dashboard/navigation verifiers now guard shareable worklist URLs, stale-param cleanup, URL-synced dashboard presets, and site-switch filter cleanup.",
       "commit": "pending-closeout-commit"
+    },
+    {
+      "id": "student-detail-latest-feedback-context",
+      "completedAt": "2026-05-24T19:05:49-07:00",
+      "ladderLevel": "LEVEL_2_STUDENT_DETAIL_DEPTH",
+      "type": "TYPE_C_STUDENT_DETAIL_DRILL_DOWN",
+      "summary": "Authorized student detail summaries now surface the latest visible review/comment context already returned by the scoped detail API, with render test coverage.",
+      "commit": "pending-closeout-commit"
     }
   ],
   "deferredWorkOrders": [
@@ -192,12 +200,6 @@
       "summary": "Run credentialed browser QA for Review Queue deep links, active filters, collapsed navigation, mobile wrapping, and multi-site switching."
     },
     {
-      "id": "student-detail-latest-feedback-context",
-      "ladderLevel": "LEVEL_2_STUDENT_DETAIL_DEPTH",
-      "type": "TYPE_C_STUDENT_DETAIL_DRILL_DOWN",
-      "summary": "Improve student detail section headings and latest feedback context using fields already returned by the authorized detail API."
-    },
-    {
       "id": "student-directory-mentor-filter-options",
       "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
       "type": "TYPE_D_ROLE_WORKSPACE",
@@ -217,11 +219,12 @@
     "Do not re-add Review Queue URL-state support; extend it only when a newly supported filter has backend, UI, tests, and verifier coverage.",
     "Do not emit Review Queue missing/evidence/mentor/student query params until full scoped support exists.",
     "Do not rebuild Student Directory, Mentor Assignments, or Operations URL-state unless adding a newly supported filter.",
-    "Do not reintroduce retired builder cadence checks."
+    "Do not reintroduce retired builder cadence checks.",
+    "Do not re-add the student detail latest feedback summary; extend it only if the authorized detail API adds a new visible feedback source."
   ],
   "lastValidationStatus": {
     "status": "passed",
-    "completedAt": "2026-05-24T18:32:00-07:00",
+    "completedAt": "2026-05-24T19:05:49-07:00",
     "commands": [
       "npm run verify:dashboard-actions",
       "npm run verify:review-queue-deeplinks",
@@ -229,6 +232,7 @@
       "npm run verify:functionality-language",
       "npm run verify:functionality-ux-automation",
       "node --test tests/workspace-app.test.mjs",
+      "node --test tests/site-student-detail.integration.test.mjs",
       "node --test tests/functionality-language-audit.test.mjs",
       "node --test tests/account-and-evidence-access.test.mjs",
       "npm run test",
@@ -238,7 +242,7 @@
       "git diff --check",
       "git status --short"
     ],
-    "notes": "Full required validation passed before docs/state closeout. git diff --check reported CRLF normalization warnings only. No browser QA, remote checks, live data writes, deployment, migrations, or destructive commands were run."
+    "notes": "Full required validation passed for the student detail latest feedback summary. git diff --check reported CRLF normalization warnings only. No browser QA, remote checks, live data writes, deployment, migrations, or destructive commands were run."
   },
   "lastProductReadinessScorecardSummary": {
     "homepageClarity": "4 to 4",

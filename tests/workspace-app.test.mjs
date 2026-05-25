@@ -622,6 +622,10 @@ test("workspace opens real student detail, loads timeline, and preserves directo
   assert.match(workspaceRoot.innerHTML, /Evidence/);
   assert.match(workspaceRoot.innerHTML, /Reviews &amp; Comments/);
   assert.match(workspaceRoot.innerHTML, /Timeline/);
+  assert.match(workspaceRoot.innerHTML, /Latest Feedback/);
+  assert.match(workspaceRoot.innerHTML, /data-student-detail-feedback="latest"/);
+  assert.match(workspaceRoot.innerHTML, /Visible note/);
+  assert.match(workspaceRoot.innerHTML, /Use the rubric to tighten the next draft/);
   assert.match(workspaceRoot.innerHTML, /workspace-status-pill/);
   assert.match(workspaceRoot.innerHTML, /value="Revision Loop Demo"/);
   assert.match(workspaceRoot.innerHTML, /Offset 50 \/ Limit 50/);

@@ -331,3 +331,51 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: missing/evidence mapping remains unproven; browser QA needs credentials/runtime
   - Do not repeat: do not rebuild URL-state for these three worklists unless adding a new supported filter
   - First files to inspect next run: `workspace.js`, `tests/workspace-app.test.mjs`, `scripts/verify-workspace-navigation-integrity.mjs`
+
+## Run 2026-05-24 19:05 PT
+
+- Starting SHA: `5a28b1ac309ce26839faed69296b9312561ce6db`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Ladder level targeted: `LEVEL_2_STUDENT_DETAIL_DEPTH`
+- Backlog item: `student-detail-latest-feedback-context`
+- Work order selected: Add latest visible feedback context to the authorized student detail summary.
+- Selection reason: Missing/evidence drill-downs remain unsafe without exact route/filter support, while the student detail API already returns scoped review/comment rows with server-owned staff-only filtering. This was the safest product-readiness slice that improves staff drill-down usefulness without changing access.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Student detail latest feedback context | `LEVEL_2_STUDENT_DETAIL_DEPTH` | staff, viewer, teacher, mentor-scoped | 5 | 5 | 5 | S | 55 | selected |
+| Missing/evidence dashboard drill-down mapping | `LEVEL_1_NAVIGABLE_DASHBOARDS` | staff | 5 | 2 | 3 | M | 40 | deferred: unsupported mapping still unproven |
+| Credentialed browser QA for worklist URLs | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all | 4 | 4 | 3 | M | 41 | deferred: needs credentialed runtime |
+| Student Directory mentor filter options | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | staff | 4 | 3 | 4 | M | 42 | deferred: API lacks safe mentor option labels |
+| Program Teacher row detail actions | `LEVEL_2_STUDENT_DETAIL_DEPTH` | program teacher | 4 | 4 | 4 | S | 48 | rejected this run: feedback context was lower risk |
+| Student archive blocked guidance | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 4 | 5 | 4 | S | 47 | rejected: less tied to current handoff |
+| Mentor assigned-student meeting summary | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | mentor | 4 | 4 | 4 | S | 46 | rejected: needs mentor dashboard field audit |
+| Viewer read-only homepage clarity | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | viewer | 3 | 5 | 4 | XS | 44 | rejected: already verifier-covered |
+| Detail privacy/redaction verifier extension | `LEVEL_7_AUDITABILITY_AND_TRUST` | staff, students | 4 | 5 | 5 | S | 50 | rejected: app UX slice was ready |
+| Public guide workflow-copy cleanup | `LEVEL_0_PROTOTYPE_CLEANUP` | public | 3 | 5 | 4 | S | 43 | rejected: protected app depth had higher value |
+| Status breakdown click-through | `LEVEL_1_NAVIGABLE_DASHBOARDS` | staff | 4 | 3 | 4 | S | 43 | deferred: exact status-to-route mapping needs review |
+| Student phase/detail drill-down | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 5 | 2 | 3 | M | 38 | deferred: no dedicated student-safe detail route |
+
+- User-facing improvement: Staff opening a student detail drawer now see the latest visible review/comment in the summary instead of switching tabs before understanding the current feedback context.
+- Roles affected: site admin, org admin, platform/admin, viewer, program teacher, mentor assigned-student detail where already authorized
+- Files changed: `workspace.js`, `tests/workspace-app.test.mjs`, `docs/product-readiness-upgrade-sprint.md`, `docs/functionality-language-audit.md`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`
+- Tests/verifiers added or updated: workspace render test now asserts the latest feedback summary marker and visible note copy
+- Validation commands: `npm run verify:dashboard-actions`; `npm run verify:review-queue-deeplinks`; `npm run verify:workspace-navigation`; `npm run verify:functionality-language`; `npm run verify:functionality-ux-automation`; `node --test tests/workspace-app.test.mjs`; `node --test tests/site-student-detail.integration.test.mjs`; `node --test tests/functionality-language-audit.test.mjs`; `node --test tests/account-and-evidence-access.test.mjs`; `npm run test`; `npm run typecheck`; `npm run check:production-surfaces`; `npm run check`; `git diff --check`; `git status --short`
+- Validation result: passed; `git diff --check` reported CRLF normalization warnings only
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: missing-submission/evidence drill-down; browser visual QA; Student Directory mentor filter options; student-safe phase/detail pages
+- New backlog items: none
+- Next recommended work order: inspect Program Teacher scoped student rows or mentor assigned-student cards for a safe existing-detail action/context improvement; keep missing/evidence drill-down deferred until the mapping is exact
+- Do-not-repeat notes: student detail latest feedback summary is complete; do not re-add it unless the authorized detail API adds a new visible feedback source
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_2_STUDENT_DETAIL_DEPTH`
+  - Advanced: yes
+  - Evidence: student detail summary renders `data-student-detail-feedback="latest"` from scoped review/comment data and tests cover the rendered context
+  - Unlocks: more useful staff/teacher detail drill-downs before adding deeper tabs or URL state
+  - Next: add one more safe detail entry/context improvement, or run credentialed browser QA if credentials/runtime are available
+  - Blockers: missing/evidence dashboard drill-down still lacks exact supported filter mapping; browser QA still needs credentialed runtime
+  - Do not repeat: do not re-add latest feedback summary
+  - First file to inspect next run: `workspace.js` `renderStudentDetailSummary()`

@@ -21,6 +21,17 @@ This is the compact run log for the current Functionality UX Upgrade automation 
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-05-24 19:05 PT - Student Detail Latest Feedback Context
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Functionality UX Upgrade / student detail depth.
+- `starting HEAD`: `5a28b1ac309ce26839faed69296b9312561ce6db`.
+- `selected slice`: Add latest visible feedback context to the existing authorized student detail summary without changing auth, RBAC, tenant/site/program/mentor/student scope, API routes, migrations, live data, or deployment config.
+- `what changed`: `workspace.js` now summarizes the newest visible review/comment already returned by the scoped student detail API; `tests/workspace-app.test.mjs` asserts the summary marker and visible feedback copy. Audit/planner/ledger/state docs were updated.
+- `validation`: targeted verifiers and full closeout validation passed; `git diff --check` reported CRLF normalization warnings only.
+- `blockers`: missing-submission/evidence drill-down remains deferred until exact supported route/filter mapping exists; credentialed browser QA still needs runtime/credentials.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.
+
 ## 2026-05-22 PT - Remote Demo Workspace Seed
 
 - `automation ID`: manual Codex remote demo-data pass.
