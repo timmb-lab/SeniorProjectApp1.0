@@ -2687,10 +2687,10 @@ function renderOperationsReadinessSection() {
       </section>
       <div class="workspace-dashboard-grid">
         ${renderMetricTile("Presentation Ready", summary.presentationReady, "Ready or complete signals", "teacher")}
-        ${renderMetricTile("Presentation Pending", summary.presentationPending, "Outline or schedule attention", safeNumber(summary.presentationPending) ? "warning" : "teacher")}
+        ${renderMetricTile("Presentation Pending", summary.presentationPending, "Outline or schedule attention", safeNumber(summary.presentationPending) ? "warning" : "teacher", "operations", { label: "Review rows", preset: "presentation-pending" })}
         ${renderMetricTile("Outline Pending", summary.outlinePending, "Needs outline approval", safeNumber(summary.outlinePending) ? "warning" : "teacher")}
         ${renderMetricTile("Archive Ready", summary.archiveReady, "Ready or complete package state", "mentor")}
-        ${renderMetricTile("Archive Failed", summary.archiveFailed, "Needs archive follow-up", safeNumber(summary.archiveFailed) ? "danger" : "admin")}
+        ${renderMetricTile("Archive Failed", summary.archiveFailed, "Needs archive follow-up", safeNumber(summary.archiveFailed) ? "danger" : "admin", "operations", { label: "Review rows", preset: "archive-failed" })}
         ${renderMetricTile("Needs Attention", summary.needsAttention, "Blocked, missing, or high-risk rows", safeNumber(summary.needsAttention) ? "danger" : "admin")}
       </div>
       ${renderOperationsFilters(body)}

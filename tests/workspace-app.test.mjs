@@ -1533,6 +1533,8 @@ test("workspace renders site-scoped Operations readiness worklists without mutat
   assert.match(siteAdmin, /Archive Ready/);
   assert.match(siteAdmin, /Archive Failed/);
   assert.match(siteAdmin, /Needs Attention/);
+  assert.match(siteAdmin, /data-section="operations" data-section-preset="presentation-pending">Review rows/);
+  assert.match(siteAdmin, /data-section="operations" data-section-preset="archive-failed">Review rows/);
   assert.match(siteAdmin, /Presentation Pending Demo 001/);
   assert.match(siteAdmin, /Archive Failed Demo 001/);
   assert.match(siteAdmin, /Archive Ready Demo 001/);
@@ -1646,6 +1648,24 @@ test("workspace renders site-scoped Operations readiness worklists without mutat
   assert.match(window.location.href, /section=operations/);
   assert.match(window.location.href, /programId=it/);
   assert.equal(vm.runInContext("activeSection", context), "operations");
+
+  await vm.runInContext('openWorkspaceSection({ dataset: { section: "operations", sectionPreset: "presentation-pending" } })', context);
+  const presentationFetch = fetchLog.findLast((entry) => entry.startsWith("/api/site/operations-readiness?"));
+  assert.ok(presentationFetch, "expected Operations fetch with presentation filter");
+  const presentationUrl = new URL(presentationFetch, "https://workspace.example");
+  assert.equal(presentationUrl.searchParams.get("presentationStatus"), "pending");
+  assert.equal(presentationUrl.searchParams.get("readiness"), "attention_required");
+  assert.equal(presentationUrl.searchParams.has("programId"), false);
+  assert.match(window.location.href, /presentationStatus=pending/);
+
+  await vm.runInContext('openWorkspaceSection({ dataset: { section: "operations", sectionPreset: "archive-failed" } })', context);
+  const archiveFetch = fetchLog.findLast((entry) => entry.startsWith("/api/site/operations-readiness?"));
+  assert.ok(archiveFetch, "expected Operations fetch with archive filter");
+  const archiveUrl = new URL(archiveFetch, "https://workspace.example");
+  assert.equal(archiveUrl.searchParams.get("archiveStatus"), "failed");
+  assert.equal(archiveUrl.searchParams.get("readiness"), "blocked");
+  assert.equal(archiveUrl.searchParams.has("programId"), false);
+  assert.match(window.location.href, /archiveStatus=failed/);
 });
 
 test("mentor dashboard assigned students open student detail without leaving mentor context", async () => {

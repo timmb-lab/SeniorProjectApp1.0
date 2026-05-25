@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-05-25T01:06:13-07:00",
-  "lastStartingSha": "22d646310fb86d7f312bf50aab8fd1982aab3d07",
+  "lastRunAt": "2026-05-25T01:36:24-07:00",
+  "lastStartingSha": "687406ba7df36f9c667dcefd660198f5161e19f8",
   "lastEndingSha": null,
-  "currentLadderFocus": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN",
+  "currentLadderFocus": "LEVEL_1_NAVIGABLE_DASHBOARDS",
   "completedWorkOrders": [
     {
       "id": "workspace-header-product-language-cleanup",
@@ -257,6 +257,14 @@
       "type": "TYPE_C_STUDENT_DETAIL_DRILL_DOWN",
       "summary": "Student Submitted Work rows now repeat the latest matching teacher feedback from the existing student-scoped dashboard payload.",
       "commit": "pending-closeout-commit"
+    },
+    {
+      "id": "operations-summary-metric-filter-actions",
+      "completedAt": "2026-05-25T01:36:24-07:00",
+      "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS",
+      "type": "TYPE_B_DASHBOARD_CLICK_THROUGH",
+      "summary": "Operations Presentation Pending and Archive Failed summary tiles now open existing scoped Operations filters with shareable URL state.",
+      "commit": "pending-closeout-commit"
     }
   ],
   "deferredWorkOrders": [
@@ -283,6 +291,12 @@
   ],
   "blockedWorkOrders": [],
   "nextRecommendedWorkOrders": [
+    {
+      "id": "operations-next-action-category-filter",
+      "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
+      "type": "TYPE_F_REVIEW_INTERVENTION_QUEUE",
+      "summary": "Add an exact Operations next-action/category drill-down only after the route supports category-safe filtering."
+    },
     {
       "id": "student-feedback-history-detail",
       "ladderLevel": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN",
@@ -321,19 +335,20 @@
     "Do not re-add Operations Program Breakdown programId filtering; Operations program rows now open the scoped worklist with shareable URL state.",
     "Do not re-add student archive blocked guidance; extend it only if the archive readiness API adds a new student-safe status or action.",
     "Do not re-add the student home Latest Feedback panel; extend it only into a deeper feedback history after comment visibility and route shape are proven.",
-    "Do not re-add student Submitted Work feedback context; extend only if a dedicated student-safe feedback history or new feedback source is proven."
+    "Do not re-add student Submitted Work feedback context; extend only if a dedicated student-safe feedback history or new feedback source is proven.",
+    "Do not re-add Operations Presentation Pending or Archive Failed metric filter actions; extend only when another Operations metric has an exact supported route filter."
   ],
   "lastValidationStatus": {
     "status": "passed",
-    "completedAt": "2026-05-25T01:06:13-07:00",
+    "completedAt": "2026-05-25T01:39:28-07:00",
     "commands": [
       "npm run verify:dashboard-actions",
       "npm run verify:review-queue-deeplinks",
       "npm run verify:workspace-navigation",
       "npm run verify:functionality-language",
       "npm run verify:functionality-ux-automation",
-      "node --test tests/student-dashboard-access.integration.test.mjs",
       "node --test tests/workspace-app.test.mjs",
+      "node --test tests/site-operations-readiness.integration.test.mjs",
       "node --test tests/functionality-language-audit.test.mjs",
       "node -e JSON.parse automation/state/functionality-ux-growth-state.json",
       "npm run check:route-inventory",
@@ -344,7 +359,7 @@
       "git diff --check",
       "git status --short"
     ],
-    "notes": "Full required validation passed for the student submission feedback context slice. git diff --check reported CRLF normalization warnings only. No browser smoke was run because this slice is covered by route/render/source tests and no credentials were used. No remote seed/reset/migration, live data write, deploy, credential repair, domain/OAuth, or Cloudflare config change was run."
+    "notes": "Full required validation passed for the Operations summary metric filter action slice. git diff --check reported CRLF normalization warnings only. No browser smoke was run because this source/handler path is covered by workspace render tests and dashboard-action verifier. No remote seed/reset/migration, live data write, deploy, credential repair, domain/OAuth, or Cloudflare config change was run."
   },
   "lastProductReadinessScorecardSummary": {
     "homepageClarity": "4 to 4",

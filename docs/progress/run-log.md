@@ -1718,3 +1718,14 @@ Future productive runs should append compact entries that name the master-plan s
 - `changes`: `renderSubmissionRow()` now accepts scoped feedback, finds the first matching feedback row for that submission ID, and renders a read-only latest feedback line without adding new links, routes, permissions, or API fields. The workspace test now guards the submitted-work feedback marker and copy.
 - `validation`: focused workspace render test and functionality language verifier passed before final validation; final validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
 - `commit/push status`: pending closeout commit.
+
+## 2026-05-25 PT - Functionality UX Upgrade Operations Metric Drill-Downs
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 1 navigable dashboards / Operations readiness metric click-throughs.
+- `starting HEAD`: `687406ba7df36f9c667dcefd660198f5161e19f8`.
+- `selected slice`: Link Operations `Presentation Pending` and `Archive Failed` summary tiles to the existing scoped Operations readiness filters.
+- `repo-grounded findings`: the Operations page already had exact route-backed presets for `presentationStatus=pending` with `readiness=attention_required` and `archiveStatus=failed` with `readiness=blocked`, but the Operations summary metric tiles rendered as summary-only.
+- `changes`: Operations metric tiles now render `Review rows` actions using the existing `presentation-pending` and `archive-failed` presets. Workspace tests prove the buttons render and sync the exact filter URLs; the dashboard-action verifier now guards the metric-to-filter wiring.
+- `validation`: dashboard/review/workspace/language/automation verifiers, focused workspace/operations/audit tests, JSON parse, route inventory, full `npm run test`, `npm run typecheck`, `npm run check:production-surfaces`, aggregate `npm run check`, and `git diff --check` passed. `git diff --check` reported CRLF normalization warnings only.
+- `commit/push status`: pending closeout commit.

@@ -164,8 +164,18 @@ assertMatches(
 );
 assertMatches(
   "workspaceJs",
+  /renderMetricTile\("Presentation Pending"[\s\S]*"operations", \{ label: "Review rows", preset: "presentation-pending" \}\)/,
+  "Operations Presentation Pending metric must open the existing presentation-pending worklist filter",
+);
+assertMatches(
+  "workspaceJs",
   /section === "operations" && button\.dataset\.sectionPreset === "archive-failed"[\s\S]*archiveStatus: "failed"[\s\S]*syncOperationsReadinessUrlState\(\)/,
   "archive dashboard preset must be backed by an operations archive filter and sync URL state",
+);
+assertMatches(
+  "workspaceJs",
+  /renderMetricTile\("Archive Failed"[\s\S]*"operations", \{ label: "Review rows", preset: "archive-failed" \}\)/,
+  "Operations Archive Failed metric must open the existing archive-failed worklist filter",
 );
 assertMatches(
   "workspaceJs",
