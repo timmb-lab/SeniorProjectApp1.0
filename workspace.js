@@ -128,6 +128,48 @@ const STATUS_LABELS = {
   not_requested: "Pending",
   policy_review_required: "Pending",
 };
+const WORKSPACE_SECTION_IDS = new Set([
+  "overview",
+  "siteDashboard",
+  "students",
+  "student",
+  "archive",
+  "mentorDashboard",
+  "mentor",
+  "programDashboard",
+  "teacher",
+  "mentorAssignments",
+  "operations",
+  "presentation",
+  "adminDashboard",
+  "readiness",
+  "adminUsers",
+  "audit",
+  "archiveExports",
+  "security",
+]);
+const REVIEW_QUEUE_STATUS_VALUES = new Set(["submitted", "revision_requested", "approved"]);
+const REVIEW_QUEUE_STORY_VALUES = new Set(["model_excellent", "missing_mentor", "awaiting_review", "revision_requested", "presentation_pending", "archive_ready", "archive_failed", "high_risk", "rich_timeline"]);
+const REVIEW_QUEUE_RISK_VALUES = new Set(["any", "high", "medium", "low", "stale", "no_mentor"]);
+const REVIEW_QUEUE_URL_FILTER_PARAMS = [
+  "status",
+  "reviewStatus",
+  "submissionStatus",
+  "programId",
+  "search",
+  "story",
+  "risk",
+  "limit",
+  "offset",
+  "needsReview",
+  "unassigned",
+  "overdue",
+  "missing",
+  "evidenceStatus",
+  "mentorUserId",
+  "studentUserId",
+  "studentId",
+];
 let uploadState = {
   state: "idle",
   progress: 0,
@@ -141,6 +183,8 @@ let lastUploadAttempt = null;
 init();
 
 async function init() {
+  initializeWorkspaceUrlState();
+  bindWorkspaceUrlEvents();
   await loadSession();
 }
 
@@ -721,6 +765,7 @@ async function openWorkspaceSection(button) {
       status: "submitted",
     };
     reviewQueueState = defaultReviewQueueState();
+    syncReviewQueueUrlState();
     await loadReviewQueueResult("Showing submitted work ready for review.");
     return;
   }
@@ -730,6 +775,7 @@ async function openWorkspaceSection(button) {
       status: "revision_requested",
     };
     reviewQueueState = defaultReviewQueueState();
+    syncReviewQueueUrlState();
     await loadReviewQueueResult("Showing revision follow-up.");
     return;
   }
@@ -1053,6 +1099,7 @@ function renderSiteStudentDirectorySection() {
       </div>
       ${renderStudentDirectoryOperatingPosture(readOnly)}
       ${renderStudentDirectoryFilterBar(directory)}
+      ${renderStudentDirectoryActiveFilters(filters, directory.filterOptions || {})}
       ${renderStudentDirectoryResultSummary(directory)}
       ${students.length ? renderStudentRows(students, readOnly) : renderStudentDirectoryEmptyState(directory)}
       ${renderSiteStudentDetailSurface(directory)}
@@ -1169,6 +1216,19 @@ function renderStudentDirectoryFilterBar(directory) {
   `;
 }
 
+function renderStudentDirectoryActiveFilters(filters = {}, options = {}) {
+  const chips = [];
+  if (filters.search) chips.push(activeFilterChip("Search", filters.search));
+  if (filters.programId) chips.push(activeFilterChip("Program", programLabel(options.programs, filters.programId)));
+  if (filters.status) chips.push(activeFilterChip("Status", statusText(filters.status)));
+  if (filters.risk && filters.risk !== "any") chips.push(activeFilterChip("Risk", riskLabel(filters.risk)));
+  if (filters.story) chips.push(activeFilterChip("Story", storyLabel(filters.story)));
+  if (filters.presentationStatus && filters.presentationStatus !== "any") chips.push(activeFilterChip("Presentation", statusText(filters.presentationStatus)));
+  if (filters.archiveStatus && filters.archiveStatus !== "any") chips.push(activeFilterChip("Archive", statusText(filters.archiveStatus)));
+  if (filters.noMentor) chips.push(activeFilterChip("Mentor", "No active mentor"));
+  return renderActiveFilterSummary("Student directory", chips, 'data-site-student-action="reset-filters"');
+}
+
 function renderStudentDirectoryResultSummary(directory) {
   const pagination = directory.pagination || {};
   const filters = directory.filters || {};
@@ -1242,13 +1302,24 @@ function renderStudentRow(student, readOnly = false) {
 
 function renderStudentDirectoryEmptyState(directory) {
   const emptyState = directory.emptyState || {};
+  const filters = directory.filters || {};
+  const filtered = Boolean(
+    filters.search
+    || filters.programId
+    || filters.status
+    || filters.noMentor
+    || (filters.risk && filters.risk !== "any")
+    || filters.story
+    || (filters.presentationStatus && filters.presentationStatus !== "any")
+    || (filters.archiveStatus && filters.archiveStatus !== "any")
+  );
   return `
     <section class="workspace-empty-state-card" data-student-directory-empty="true">
       <strong>No student records match these filters</strong>
       ${renderProblemState({
-        reason: emptyState.reason || "No records match this view.",
+        reason: filtered ? "No students match these filters." : emptyState.reason || "No student records are visible in this view.",
         owner: emptyState.owner || "Assigned staff or site administrator.",
-        nextAction: emptyState.nextAction || "Adjust filters or check the student's project status.",
+        nextAction: filtered ? "Clear filters to see all students you can access." : emptyState.nextAction || "Check the assigned site or program scope.",
       })}
     </section>
   `;
@@ -1643,6 +1714,38 @@ function renderValueOptions(values = [], selected = "", anyLabel = "Any", labele
     const label = value === "any" ? anyLabel : labeler(value);
     return `<option value="${escapeHtml(optionValue)}" ${isSelected ? "selected" : ""}>${escapeHtml(label)}</option>`;
   }).join("");
+}
+
+function renderActiveFilterSummary(label, chips = [], resetAttribute = "") {
+  if (!chips.length) return "";
+  return `
+    <section class="workspace-active-filters" data-active-filters="true" aria-label="${escapeHtml(label)} active filters">
+      <div>
+        <strong>Active filters</strong>
+        <div class="workspace-active-filter-chip-row">${chips.join("")}</div>
+      </div>
+      <button class="workspace-button workspace-button-secondary" type="button" ${resetAttribute}>Clear filters</button>
+    </section>
+  `;
+}
+
+function activeFilterChip(label, value) {
+  return `
+    <span class="workspace-active-filter-chip">
+      <strong>${escapeHtml(label)}</strong>
+      ${escapeHtml(value || "Selected")}
+    </span>
+  `;
+}
+
+function programLabel(programs = [], programId = "") {
+  const match = (Array.isArray(programs) ? programs : []).find((program) => program.programId === programId);
+  return match?.programName || programId || "Selected program";
+}
+
+function mentorLabel(mentors = [], mentorUserId = "") {
+  const match = (Array.isArray(mentors) ? mentors : []).find((mentor) => mentor.mentorUserId === mentorUserId);
+  return match?.mentorName || mentorUserId || "Selected mentor";
 }
 
 function renderSiteSelectionRequired(body = {}) {
@@ -2045,6 +2148,7 @@ function renderMentorAssignmentsSection() {
         ${renderMetricTile("Overloaded Mentors", summary.overloadedMentors, "Review load before assigning", safeNumber(summary.overloadedMentors) ? "danger" : "admin")}
       </div>
       ${renderMentorAssignmentFilters(body)}
+      ${renderMentorAssignmentActiveFilters(mentorAssignmentFiltersForBody(body), body?.filterOptions || {})}
       <div class="workspace-mentor-assignment-layout">
         <section class="workspace-dashboard-card">
           <div class="workspace-card-head">
@@ -2166,6 +2270,20 @@ function renderMentorAssignmentFilters(body) {
       </div>
     </form>
   `;
+}
+
+function mentorAssignmentFiltersForBody(body = {}) {
+  return body?.filters || mentorAssignmentFilters || defaultMentorAssignmentFilters();
+}
+
+function renderMentorAssignmentActiveFilters(filters = {}, options = {}) {
+  const chips = [];
+  if (filters.programId) chips.push(activeFilterChip("Program", programLabel(options.programs, filters.programId)));
+  if (filters.mentorUserId) chips.push(activeFilterChip("Mentor", mentorLabel(options.mentors, filters.mentorUserId)));
+  if (filters.status) chips.push(activeFilterChip("Coverage", statusText(filters.status)));
+  if (filters.studentSearch) chips.push(activeFilterChip("Student search", filters.studentSearch));
+  if (filters.noMentor) chips.push(activeFilterChip("Mentor", "No active mentor"));
+  return renderActiveFilterSummary("Mentor assignments", chips, 'data-mentor-assignment-action="reset-filters"');
 }
 
 function renderMentorUnassignedStudents(students = [], permissions = {}) {
@@ -2356,6 +2474,7 @@ function renderOperationsReadinessSection() {
         ${renderMetricTile("Needs Attention", summary.needsAttention, "Blocked, missing, or high-risk rows", safeNumber(summary.needsAttention) ? "danger" : "admin")}
       </div>
       ${renderOperationsFilters(body)}
+      ${renderOperationsActiveFilters(body?.filters || operationsReadinessFilters || defaultOperationsReadinessFilters(), body?.filterOptions || {})}
       <section class="workspace-card workspace-directory-summary" aria-label="Operations readiness results">
         <div class="workspace-card-head">
           <div>
@@ -2453,6 +2572,17 @@ function renderOperationsFilters(body) {
       </div>
     </form>
   `;
+}
+
+function renderOperationsActiveFilters(filters = {}, options = {}) {
+  const chips = [];
+  if (filters.programId) chips.push(activeFilterChip("Program", programLabel(options.programs, filters.programId)));
+  if (filters.presentationStatus) chips.push(activeFilterChip("Presentation", statusText(filters.presentationStatus)));
+  if (filters.archiveStatus) chips.push(activeFilterChip("Archive", statusText(filters.archiveStatus)));
+  if (filters.readiness) chips.push(activeFilterChip("Readiness", statusText(filters.readiness)));
+  if (filters.story) chips.push(activeFilterChip("Story", storyLabel(filters.story)));
+  if (filters.risk && filters.risk !== "any") chips.push(activeFilterChip("Risk", riskLabel(filters.risk)));
+  return renderActiveFilterSummary("Operations readiness", chips, 'data-operations-action="reset-filters"');
 }
 
 function renderPresentationWorklistRows(rows = [], permissions = {}) {
@@ -3186,6 +3316,7 @@ function renderTeacherSection() {
         ${renderMetricTile("High Risk", summary.highRisk, "Prioritize follow-up", safeNumber(summary.highRisk) ? "danger" : "admin")}
       </div>
       ${renderReviewQueueFilters(body)}
+      ${renderReviewQueueActiveFilters(filters, body?.filterOptions || {})}
       <div class="workspace-review-layout">
         <section class="workspace-dashboard-card">
           <div class="workspace-card-head">
@@ -3207,11 +3338,7 @@ function renderTeacherSection() {
           ` : `
             <section class="workspace-empty-state-card" data-review-queue-empty="true">
               <h2>No review rows match</h2>
-              ${renderProblemState(body?.emptyState || {
-                reason: "No submitted or revision-requested records are available for this site and role scope.",
-                owner: "Program teacher or site staff.",
-                nextAction: "Adjust filters or check the student directory.",
-              })}
+              ${renderProblemState(reviewQueueEmptyState(body, filters))}
             </section>
           `}
         </section>
@@ -3278,6 +3405,44 @@ function renderReviewQueueFilters(body) {
       <button class="workspace-button workspace-button-secondary" type="button" data-review-queue-action="reset-filters">Reset</button>
     </form>
   `;
+}
+
+function renderReviewQueueActiveFilters(filters = {}, options = {}) {
+  const chips = [];
+  if (filters.status) chips.push(activeFilterChip("Status", statusText(filters.status)));
+  if (filters.programId) chips.push(activeFilterChip("Program", programLabel(options.programs, filters.programId)));
+  if (filters.story) chips.push(activeFilterChip("Story", storyLabel(filters.story)));
+  if (filters.risk && filters.risk !== "any") chips.push(activeFilterChip("Risk", riskLabel(filters.risk)));
+  if (filters.search) chips.push(activeFilterChip("Search", filters.search));
+  return renderActiveFilterSummary("Review queue", chips, 'data-review-queue-action="reset-filters"');
+}
+
+function reviewQueueEmptyState(body, filters = {}) {
+  const hasFilters = hasActiveReviewQueueFilters(filters);
+  if (hasFilters) {
+    return {
+      reason: "No review items match these filters.",
+      owner: "Program teacher or site staff.",
+      nextAction: "Clear filters to see submitted and revision-requested work you can access.",
+    };
+  }
+  return body?.emptyState || {
+    reason: "No submitted or revision-requested records are available for this site and role scope.",
+    owner: "Program teacher or site staff.",
+    nextAction: "Check the student directory or continue monitoring new submissions.",
+  };
+}
+
+function hasActiveReviewQueueFilters(filters = {}) {
+  return Boolean(
+    filters.status
+    || filters.programId
+    || filters.search
+    || filters.story
+    || (filters.risk && filters.risk !== "any")
+    || safeNumber(filters.offset) > 0
+    || safeNumber(filters.limit) !== 50
+  );
 }
 
 function renderReviewQueueRow(item, selectedId, permissions = {}) {
@@ -3704,6 +3869,7 @@ async function applyReviewQueueFilters(event) {
   };
   reviewQueueState = defaultReviewQueueState();
   activeSection = "teacher";
+  syncReviewQueueUrlState();
   await loadReviewQueueResult("Review queue filters applied.");
 }
 
@@ -3819,6 +3985,7 @@ async function handleReviewQueueAction(event) {
     reviewQueueFilters = defaultReviewQueueFilters();
     reviewQueueState = defaultReviewQueueState();
     activeSection = "teacher";
+    syncReviewQueueUrlState({ clearFilters: true });
     await loadReviewQueueResult("Review queue filters reset.");
     return;
   }
@@ -3834,6 +4001,7 @@ async function handleReviewQueueAction(event) {
     };
     reviewQueueState = defaultReviewQueueState();
     activeSection = "teacher";
+    syncReviewQueueUrlState();
     await loadReviewQueueResult("Review queue page updated.");
   }
 }
@@ -3900,7 +4068,7 @@ async function submitReviewDecision(event) {
   }
 }
 
-async function loadReviewQueueResult(message = "") {
+async function loadReviewQueueResult(message = "", options = {}) {
   const result = await settleApi(apiJson(`/api/site/review-queue${siteReviewQueueQueryString()}`));
   currentData.reviewQueue = result;
   const rows = unwrap(result)?.queue || [];
@@ -3913,6 +4081,7 @@ async function loadReviewQueueResult(message = "") {
     };
   }
   activeSection = "teacher";
+  if (options.syncUrl !== false) syncReviewQueueUrlState({ replace: Boolean(options.replaceUrl) });
   renderAppShell(result.ok ? (message || "Review queue loaded.") : "Review queue unavailable.", result.ok ? "success" : "error");
 }
 
@@ -5224,6 +5393,147 @@ function defaultReviewQueueState() {
     loadingHistory: false,
     decisionResult: null,
   };
+}
+
+function initializeWorkspaceUrlState() {
+  applyWorkspaceUrlState(workspaceUrlStateFromLocation(), { initial: true });
+}
+
+function bindWorkspaceUrlEvents() {
+  if (typeof window === "undefined" || !window.addEventListener) return;
+  window.addEventListener("popstate", () => {
+    handleWorkspaceUrlPopState();
+  });
+}
+
+async function handleWorkspaceUrlPopState() {
+  const state = workspaceUrlStateFromLocation();
+  applyWorkspaceUrlState(state);
+  if (state.hasReviewQueueState && currentUser && hasSiteReviewQueueRole(roleIds(currentUser))) {
+    reviewQueueState = defaultReviewQueueState();
+    await loadReviewQueueResult("Review queue link restored.", { syncUrl: false });
+    return;
+  }
+  renderAppShell();
+}
+
+function applyWorkspaceUrlState(state, options = {}) {
+  if (!state) return;
+  if (state.siteId) selectedSiteId = state.siteId;
+  if (state.section && (options.initial || availableSectionIds().has(state.section))) {
+    activeSection = state.section;
+  }
+  if (state.hasReviewQueueState) {
+    reviewQueueFilters = state.reviewQueueFilters;
+    reviewQueueState = defaultReviewQueueState();
+    if (!state.section) activeSection = "teacher";
+  }
+}
+
+function workspaceUrlStateFromLocation() {
+  const url = currentWorkspaceUrl();
+  if (!url) return null;
+  const params = url.searchParams;
+  const requestedSection = cleanWorkspaceSection(params.get("section"));
+  const requestedView = cleanDirectoryFilter(params.get("view"));
+  const reviewQueueViewRequested = requestedSection === "teacher" || requestedView === "reviewQueue" || requestedView === "review-queue";
+  const hasReviewQueueState = reviewQueueViewRequested || hasReviewQueueFilterParams(params);
+  return {
+    section: reviewQueueViewRequested ? "teacher" : requestedSection,
+    siteId: cleanDirectoryFilter(params.get("siteId")),
+    hasReviewQueueState,
+    reviewQueueFilters: hasReviewQueueState ? reviewQueueFiltersFromSearchParams(params) : defaultReviewQueueFilters(),
+  };
+}
+
+function currentWorkspaceUrl() {
+  if (typeof window === "undefined" || !window.location?.href) return null;
+  try {
+    return new URL(window.location.href);
+  } catch {
+    return null;
+  }
+}
+
+function hasReviewQueueFilterParams(params) {
+  return [
+    "status",
+    "reviewStatus",
+    "submissionStatus",
+    "programId",
+    "search",
+    "story",
+    "risk",
+    "limit",
+    "offset",
+    "needsReview",
+    "unassigned",
+    "overdue",
+  ].some((param) => params.has(param));
+}
+
+function reviewQueueFiltersFromSearchParams(params) {
+  const filters = defaultReviewQueueFilters();
+  const rawStatus = params.get("status") || params.get("reviewStatus") || params.get("submissionStatus");
+  filters.status = canonicalReviewQueueValue(rawStatus, REVIEW_QUEUE_STATUS_VALUES);
+  if (!filters.status && booleanQueryValue(params.get("needsReview"))) filters.status = "submitted";
+  filters.programId = cleanDirectoryFilter(params.get("programId"));
+  filters.search = cleanSearchFilter(params.get("search"));
+  filters.story = canonicalReviewQueueValue(params.get("story"), REVIEW_QUEUE_STORY_VALUES);
+  filters.risk = canonicalReviewQueueValue(params.get("risk"), REVIEW_QUEUE_RISK_VALUES, "any");
+  if (booleanQueryValue(params.get("unassigned"))) filters.risk = "no_mentor";
+  if (booleanQueryValue(params.get("overdue"))) filters.risk = "stale";
+  filters.limit = clampDirectoryNumber(params.get("limit"), 50, 1, 100);
+  filters.offset = clampDirectoryNumber(params.get("offset"), 0, 0, 100000);
+  return filters;
+}
+
+function syncReviewQueueUrlState(options = {}) {
+  const url = currentWorkspaceUrl();
+  if (!url || typeof window === "undefined" || !window.history) return;
+  const filters = reviewQueueFilters || defaultReviewQueueFilters();
+  for (const param of REVIEW_QUEUE_URL_FILTER_PARAMS) {
+    url.searchParams.delete(param);
+  }
+  url.searchParams.set("section", "teacher");
+  const siteId = selectedSiteQueryValue() || unwrap(currentData.reviewQueue)?.scope?.siteId || "";
+  if (siteId) url.searchParams.set("siteId", siteId);
+  if (!options.clearFilters) {
+    if (filters.status) url.searchParams.set("status", filters.status);
+    if (filters.programId) url.searchParams.set("programId", filters.programId);
+    if (filters.search) url.searchParams.set("search", filters.search);
+    if (filters.story) url.searchParams.set("story", filters.story);
+    if (filters.risk && filters.risk !== "any") url.searchParams.set("risk", filters.risk);
+    if (safeNumber(filters.limit) !== 50) url.searchParams.set("limit", String(filters.limit));
+    if (safeNumber(filters.offset) > 0) url.searchParams.set("offset", String(filters.offset));
+  }
+  const nextUrl = `${url.pathname}${url.search}${url.hash}`;
+  const currentPath = `${window.location.pathname || url.pathname}${window.location.search || ""}${window.location.hash || ""}`;
+  if (nextUrl === currentPath) return;
+  const method = options.replace ? "replaceState" : "pushState";
+  window.history[method]?.({ section: "teacher" }, "", nextUrl);
+}
+
+function cleanWorkspaceSection(value) {
+  const section = cleanDirectoryFilter(value);
+  return WORKSPACE_SECTION_IDS.has(section) ? section : "";
+}
+
+function availableSectionIds() {
+  return new Set(availableSections().map((section) => section.id));
+}
+
+function canonicalReviewQueueValue(value, allowed, fallback = "") {
+  const cleaned = cleanDirectoryFilter(value);
+  return allowed.has(cleaned) ? cleaned : fallback;
+}
+
+function booleanQueryValue(value) {
+  return ["1", "true", "yes", "y"].includes(String(value || "").trim().toLowerCase());
+}
+
+function cleanSearchFilter(value) {
+  return String(value || "").trim().replace(/\s+/g, " ").slice(0, 80);
 }
 
 function selectedSiteQueryValue() {

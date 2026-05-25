@@ -58,6 +58,8 @@
   "verify:functionality-ux-automation": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-npm-script.ps1 verify:functionality-ux-automation",
   "verify:functionality-language": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-node-script.ps1 scripts/verify-functionality-language.mjs",
   "verify:dashboard-actions": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-node-script.ps1 scripts/verify-dashboard-actions.mjs",
+  "verify:review-queue-deeplinks": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-node-script.ps1 scripts/verify-review-queue-deeplinks.mjs",
+  "verify:workspace-navigation": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-node-script.ps1 scripts/verify-workspace-navigation-integrity.mjs",
   "verify:automation-cadence": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-npm-script.ps1 verify:automation-cadence",
     "inventory:production-routes": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-npm-script.ps1 inventory:production-routes",
     "typecheck": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-npm-script.ps1 typecheck",

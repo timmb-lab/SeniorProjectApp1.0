@@ -7,12 +7,16 @@ const auditPath = "docs/functionality-language-audit.md";
 const promptPath = "automation/prompts/functionality-ux-upgrade-hourly.md";
 const verifierPath = "scripts/verify-functionality-language.mjs";
 const dashboardActionVerifierPath = "scripts/verify-dashboard-actions.mjs";
+const reviewQueueDeeplinkVerifierPath = "scripts/verify-review-queue-deeplinks.mjs";
+const workspaceNavigationVerifierPath = "scripts/verify-workspace-navigation-integrity.mjs";
 const packagePath = "package.json";
 
 const audit = await readFile(auditPath, "utf8");
 const prompt = await readFile(promptPath, "utf8");
 const verifier = await readFile(verifierPath, "utf8");
 const dashboardActionVerifier = await readFile(dashboardActionVerifierPath, "utf8");
+const reviewQueueDeeplinkVerifier = await readFile(reviewQueueDeeplinkVerifierPath, "utf8");
+const workspaceNavigationVerifier = await readFile(workspaceNavigationVerifierPath, "utf8");
 const packageJson = JSON.parse(await readFile(packagePath, "utf8"));
 
 test("functionality and language audit artifacts exist", () => {
@@ -20,6 +24,8 @@ test("functionality and language audit artifacts exist", () => {
   assert.equal(existsSync(promptPath), true);
   assert.equal(existsSync(verifierPath), true);
   assert.equal(existsSync(dashboardActionVerifierPath), true);
+  assert.equal(existsSync(reviewQueueDeeplinkVerifierPath), true);
+  assert.equal(existsSync(workspaceNavigationVerifierPath), true);
 });
 
 test("functionality and language audit includes required sections and enough repo-grounded findings", () => {
@@ -72,6 +78,21 @@ test("dashboard action verifier is registered and guards route-backed actions", 
   assert.match(dashboardActionVerifier, /Read-only workspace/);
 });
 
+test("workspace navigation and review queue deep-link verifiers are registered", () => {
+  assert.equal(
+    packageJson.scripts["verify:review-queue-deeplinks"],
+    "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-node-script.ps1 scripts/verify-review-queue-deeplinks.mjs",
+  );
+  assert.equal(
+    packageJson.scripts["verify:workspace-navigation"],
+    "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-node-script.ps1 scripts/verify-workspace-navigation-integrity.mjs",
+  );
+  assert.match(reviewQueueDeeplinkVerifier, /Review Queue deep-link verification/);
+  assert.match(reviewQueueDeeplinkVerifier, /unknown=keep/);
+  assert.match(workspaceNavigationVerifier, /Workspace navigation integrity verification/);
+  assert.match(workspaceNavigationVerifier, /Read-only Review Queue/);
+});
+
 test("functionality language verifier is registered and avoids credential exposure", () => {
   assert.equal(
     packageJson.scripts["verify:functionality-language"],
@@ -80,5 +101,5 @@ test("functionality language verifier is registered and avoids credential exposu
   assert.match(verifier, /Database-backed MVP/);
   assert.match(verifier, /Cloudflare target/);
   assert.match(verifier, /workspace\.js/);
-  assert.doesNotMatch(`${audit}\n${prompt}\n${verifier}\n${dashboardActionVerifier}`, /BEGIN PRIVATE KEY|client_secret["':=]|refresh_token["':=]|access_token["':=]|temporaryPassword|password_hash|password_salt/i);
+  assert.doesNotMatch(`${audit}\n${prompt}\n${verifier}\n${dashboardActionVerifier}\n${reviewQueueDeeplinkVerifier}\n${workspaceNavigationVerifier}`, /BEGIN PRIVATE KEY|client_secret["':=]|refresh_token["':=]|access_token["':=]|temporaryPassword|password_hash|password_salt/i);
 });

@@ -1082,6 +1082,50 @@
   padding: 1rem;
 }
 
+.workspace-active-filters {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  border: 1px solid color-mix(in srgb, var(--workspace-primary) 30%, white);
+  border-radius: var(--radius-card);
+  background: color-mix(in srgb, var(--workspace-soft) 72%, white);
+  padding: 0.75rem 0.9rem;
+}
+
+.workspace-active-filters > div {
+  display: grid;
+  gap: 0.45rem;
+  min-width: 0;
+}
+
+.workspace-active-filter-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.workspace-active-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 30px;
+  border: 1px solid color-mix(in srgb, var(--workspace-primary) 24%, white);
+  border-radius: var(--radius-pill);
+  background: var(--surface-card);
+  color: var(--abc-charcoal);
+  font-size: var(--font-size-caption);
+  font-weight: 800;
+  padding: 0.24rem 0.58rem;
+}
+
+.workspace-active-filter-chip strong {
+  color: var(--abc-muted);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+}
+
 .workspace-metric-tile {
   display: flex;
   min-height: 132px;

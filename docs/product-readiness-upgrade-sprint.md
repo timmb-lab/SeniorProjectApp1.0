@@ -335,3 +335,97 @@ Do-not-repeat notes:
 - Do not relink Program Breakdown rows to Student Directory; the `program` preset is now complete.
 - Do not relink Mentor Coverage rows to Mentor Assignments; the `mentor-workload` preset is now complete.
 - Do not add fake retry, all-sites, intervention, or missing-submission controls without backend/filter support.
+
+## Product Functionality Megasprint 3.0 - 2026-05-24 16:59 PT
+
+Branch: `product-functionality-megasprint-3-20260524`
+
+Starting branch/SHA: `functionality-usability-continuation-20260524` / `1e2e22c63a7b0a71320ff7099e014e6ae7a00835`
+
+Ending branch/SHA: `product-functionality-megasprint-3-20260524` / pending closeout commit; final commit hash is recorded in the completion report because the hash is produced after this documentation is written.
+
+Origin confirmed: `https://github.com/timmb-lab/SeniorProjectApp1.0.git`
+
+Package confirmed: `senior-capstone-app`
+
+Candidate opportunities inspected: 118 real opportunities. This run re-inspected the existing 100-item product-readiness table above and added 18 Megasprint 3 candidates below. The repo exposed at least 100 real candidates, so no candidates were invented to satisfy the count.
+
+### Candidate Scoring Addendum
+
+| # | Area | Role | Severity | Value | Risk | Effort | Confidence | Testability | Verifier potential | Decision | Reason |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 101 | Review Queue URL state | program teacher, admin, viewer | high | high | low | medium | high | high | high | implement | Backend already supports scoped `status`, `programId`, `search`, `story`, `risk`, `limit`, and `offset`; URL state makes queue links durable. |
+| 102 | Review Queue malformed URL handling | staff | high | high | low | small | high | high | high | implement | Bad `risk`, too-large `limit`, and negative `offset` can be safely canonicalized before API calls. |
+| 103 | Review Queue unknown query params | all staff | medium | medium | low | small | high | high | high | implement | Unknown params should not crash or become API filters. |
+| 104 | Review Queue clear filters URL sync | staff | high | high | low | small | high | high | high | implement | Clearing filters must remove queue filter params so the URL and visible filters agree. |
+| 105 | Review Queue back/forward sync | staff | high | high | medium | medium | high | high | high | implement | Browser navigation should restore visible filters instead of leaving stale UI state. |
+| 106 | Review Queue active filter UI | staff | medium | high | low | small | high | high | high | implement | Staff need to see what is narrowing the queue. |
+| 107 | Review Queue filtered empty state | staff | medium | medium | low | small | high | high | medium | implement | A filtered zero-result queue should tell staff to clear filters rather than implying no work exists. |
+| 108 | Student Directory active filter UI | admin, viewer, program teacher | medium | medium | low | small | high | high | medium | implement | Directory rows already support filters; visible chips make the filtered list understandable. |
+| 109 | Student Directory no-results guidance | admin, viewer, program teacher | medium | medium | low | small | high | high | medium | implement | No-results copy should distinguish filtered zero results from no accessible records. |
+| 110 | Mentor Assignments active filter UI | admin, viewer, program teacher | medium | medium | low | small | high | high | medium | implement | Mentor coverage filters are operationally important and should be visible after dashboard drill-downs. |
+| 111 | Operations active filter UI | admin, viewer, program teacher | medium | medium | low | small | high | medium | medium | implement | Presentation/archive dashboard presets need visible filter context in the worklist. |
+| 112 | Workspace route constants | all | medium | medium | low | small | high | high | high | implement | Central section ids let URL parsing and verifiers agree on real workspace routes. |
+| 113 | Workspace navigation verifier | all | high | high | low | medium | high | high | high | implement | Static regression check now guards known sections, route-backed presets, read-only states, and active-filter UI. |
+| 114 | Review Queue deep-link verifier | staff | high | high | low | medium | high | high | high | implement | Static check prevents unsupported queue params and missing URL tests from returning. |
+| 115 | Workspace test harness URL/history support | all | medium | medium | low | medium | high | high | medium | implement | Review Queue URL behavior needs deterministic tests without a live browser session. |
+| 116 | Functionality-language audit test coverage | automation | medium | medium | low | small | high | high | high | implement | The audit test now confirms both new verifiers stay registered. |
+| 117 | Missing/evidence/student/mentor Review Queue params | staff | high | high | medium | medium | medium | medium | high | defer | `missing`, `evidenceStatus`, `mentorUserId`, `studentUserId`, and `studentId` do not have a full supported visible filter path in this sprint; unsupported/stale params are stripped from generated queue URLs. |
+| 118 | Browser screenshot QA | all | medium | medium | low | medium | medium | medium | low | defer | Credentialed local runtime and seeded browser session are still needed before honestly claiming browser QA. |
+
+### Implemented Improvements By Area
+
+- Review Queue: URL deep links now parse `section=teacher`, `view=reviewQueue`, `siteId`, `status`, `reviewStatus`, `submissionStatus`, `programId`, `search`, `story`, `risk`, `limit`, `offset`, `needsReview`, `unassigned`, and `overdue` where they map to real existing queue filters. Unknown params are ignored, malformed values are canonicalized or clamped, filter changes push URL state, clear filters removes queue filter params, and popstate restores queue filters.
+- Dashboard/workspace navigation: real route ids are centralized in `WORKSPACE_SECTION_IDS`; `verify:workspace-navigation` checks known sections, supported dashboard presets, read-only review/mentor/operations boundaries, and active-filter UI.
+- Student Directory: active filter chips now summarize search, program, status, risk, story, presentation, archive, and no-mentor filters; filtered no-results guidance now points users to clear filters.
+- Mentor Assignments: active filter chips now summarize program, mentor, coverage status, student search, and no-mentor filters.
+- Evidence/review flow: Review Queue active filters and empty states make evidence/revision review context clearer without changing evidence access or review decision semantics.
+- Student experience: no student-only surface changed in this run; prior own-student next-action card was preserved and revalidated.
+- Admin/program/mentor experience: staff worklists now state active filters after dashboard drill-downs so users can tell why a list is narrowed.
+- Viewer/Administration read-only surfaces: existing read-only banners and hidden mutation controls were preserved and added to navigation verifier coverage.
+- Language/accessibility/empty states: active-filter sections have accessible labels, clear filter actions, and stable CSS wrapping; no production placeholder controls were added.
+- Tests/verifiers: added `scripts/verify-review-queue-deeplinks.mjs`, `scripts/verify-workspace-navigation-integrity.mjs`, registered `npm run verify:review-queue-deeplinks` and `npm run verify:workspace-navigation`, extended `tests/workspace-app.test.mjs`, and extended `tests/functionality-language-audit.test.mjs`.
+- Docs/state: this section, the growth ledger, and automation state were updated for Megasprint 3.0 handoff.
+
+### Supported Routes And Query Params
+
+- Workspace sections confirmed: `overview`, `siteDashboard`, `students`, `student`, `archive`, `mentorDashboard`, `mentor`, `programDashboard`, `teacher`, `mentorAssignments`, `operations`, `presentation`, `adminDashboard`, `readiness`, `adminUsers`, `audit`, `archiveExports`, `security`.
+- Review Queue route confirmed: `/api/site/review-queue`.
+- Review Queue URL params implemented or confirmed: `section=teacher`, `view=reviewQueue`, `siteId`, `status`, `reviewStatus`, `submissionStatus`, `programId`, `search`, `story`, `risk`, `limit`, `offset`, `needsReview`, `unassigned`, `overdue`.
+- Review Queue params rejected/deferred: `missing`, `evidenceStatus`, `mentorUserId`, `studentUserId`, `studentId`; they are not emitted in generated queue URLs and remain deferred until a complete scoped backend/filter/UI path exists.
+
+### Validation Notes
+
+Final validation passed:
+
+- `npm run verify:dashboard-actions`
+- `npm run verify:review-queue-deeplinks`
+- `npm run verify:workspace-navigation`
+- `npm run verify:functionality-language`
+- `npm run verify:functionality-ux-automation`
+- `node --test tests/workspace-app.test.mjs`
+- `node --test tests/functionality-language-audit.test.mjs`
+- `node --test tests/account-and-evidence-access.test.mjs`
+- `npm run test`
+- `npm run typecheck`
+- `npm run check:production-surfaces`
+- `npm run check`
+- `git diff --check`
+- `git diff --cached --check`
+
+Validation notes: the first `npm run test` attempt failed only because the newly created local branch had no upstream; after setting a temporary upstream to the prior sprint branch for the guardrail wrapper, the same suite passed. `git diff --check` reported CRLF normalization warnings only; `git diff --cached --check` passed cleanly.
+
+RBAC/privacy notes:
+
+- No authentication, authorization helper, tenant/site/program/mentor/student boundary, migration, D1 config, secret, account reset, Cloudflare production, Google OAuth, live data, or deployment file was changed.
+- Review Queue URL filters only feed the existing scoped `/api/site/review-queue` request path.
+- Viewer read-only behavior remains visible and mutation controls remain hidden by existing UI checks plus the new workspace-navigation verifier.
+
+Browser QA status: not run. This run used deterministic source/render tests only; credentialed local browser QA remains a next sprint item.
+
+Recommended next sprint:
+
+1. Add missing-submission/evidence-attention drill-down only after mapping the exact source metric to a real supported route/filter.
+2. Run credentialed browser QA for Review Queue deep links, active filters, collapsed navigation, mobile wrapping, and multi-site switching.
+3. Consider a scoped student-specific Review Queue link only after backend, UI label, and privacy review confirm it will not expose raw IDs or bypass student boundaries.
+4. Add URL-state support to Student Directory or Mentor Assignments only if the product wants reloadable staff worklist URLs beyond Review Queue.
