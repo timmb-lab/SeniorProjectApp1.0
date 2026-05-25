@@ -1872,3 +1872,14 @@ Future productive runs should append compact entries that name the master-plan s
 - `changes`: `/api/site/operations-readiness` now returns `summary.evidenceMissing`; `workspace.js` adds an `Evidence Missing` metric action that opens `category=evidence&readiness=missing`; workspace/route tests and dashboard/navigation verifiers guard the preset and scoped rows.
 - `validation`: focused Operations route test, workspace render/navigation test, dashboard-action verifier, workspace-navigation verifier, full test, typecheck, production-surface check, route inventory, aggregate check, automation/language verifiers, JSON parse, and diff check passed. `git diff --check` reported CRLF normalization warnings only.
 - `commit/push status`: pending closeout commit; not pushed by this automation run.
+
+## 2026-05-25 PT - Functionality UX Upgrade Viewer Read-Only Worklist Language
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 4 role-specific workspaces / Viewer read-only clarity.
+- `starting HEAD`: `dbe3fe74ae16100e67117692f114883fa3794724`.
+- `selected slice`: Clarify Viewer/read-only workspace and worklist language without changing permissions or adding mutation controls.
+- `repo-grounded findings`: the prior handoff recommended Viewer read-only homepage/worklist language. Current source still showed `role or scope`, `Assignment action`, `Assignment form unavailable`, and read-only worklist copy that did not clearly separate monitoring/escalation from authorized staff actions.
+- `changes`: `workspace.js` now explains Viewer read-only monitoring, student-detail context, Site Dashboard permission-card boundaries, Review Queue decision ownership, Mentor Assignments coverage context, and Operations monitoring-only behavior. The mentor assignment no-data state now says no assignment can be made right now. The language verifier blocks the removed confusing phrases.
+- `validation`: focused `node --test tests/workspace-app.test.mjs`, `npm run verify:functionality-language`, `npm run verify:dashboard-actions`, and `npm run verify:workspace-navigation` passed before final validation. Final validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.

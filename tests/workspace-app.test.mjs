@@ -373,6 +373,10 @@ test("workspace renders route-connected site dashboard with Figma product-system
   assert.match(viewer, /data-workspace-mode="read-only"/);
   assert.match(viewer, /Read-only workspace/);
   assert.match(viewer, /Read-only viewer/);
+  assert.match(viewer, /monitor assigned school progress/);
+  assert.match(viewer, /Approvals, assignment changes, and account updates stay with authorized staff/);
+  assert.match(viewer, /You can open assigned student records for context; changes stay with authorized staff/);
+  assert.match(viewer, /You can review submitted work context; decisions stay with scoped program teachers/);
   assert.match(viewer, /This view is scoped to Desert Valley High School only/);
 
   const selectionRequired = await renderWorkspaceWithFetch({
@@ -943,7 +947,8 @@ test("workspace renders site-aware Review Queue with teacher decisions and read-
   `);
   assert.match(viewer, /data-workspace-mode="read-only"/);
   assert.match(viewer, /Read-only review queue/);
-  assert.match(viewer, /This role has a read-only review queue view/);
+  assert.match(viewer, /This view is for review context/);
+  assert.match(viewer, /This workspace is read-only for review decisions/);
   assert.doesNotMatch(viewer, /data-review-decision="approved"|data-review-decision="revision_requested"|data-review-decision="comment_only"|<textarea name="feedback"/);
 
   const { context, workspaceRoot } = await createWorkspaceContextWithFetch({
@@ -1388,8 +1393,9 @@ test("workspace renders site-scoped Mentor Assignments with role-safe assignment
 
   assert.match(viewer, /data-workspace-mode="read-only"/);
   assert.match(viewer, /Read-only mentor coverage/);
-  assert.match(viewer, /Assignment controls are hidden for this role/);
-  assert.match(viewer, /This role has a read-only mentor coverage view/);
+  assert.match(viewer, /This view is for coverage monitoring/);
+  assert.match(viewer, /Coverage context/);
+  assert.match(viewer, /This workspace is read-only for mentor coverage/);
   assert.doesNotMatch(viewer, /data-mentor-assignment-form="true"|Assign mentor/);
 
   const teacher = await renderWorkspaceWithFetch({
@@ -1610,6 +1616,8 @@ test("workspace renders site-scoped Operations readiness worklists without mutat
 
   assert.match(viewer, /data-workspace-mode="read-only"/);
   assert.match(viewer, /Read-only operations worklists/);
+  assert.match(viewer, /monitoring-only/);
+  assert.match(viewer, /status changes stay with authorized staff/);
   assert.doesNotMatch(viewer, /data-presentation-action|data-archive-action|<button[^>]*>\s*(?:Archive retry|Retry archive|Schedule presentation)/i);
 
   const { context, workspaceRoot, fetchLog, window } = await createWorkspaceContextWithFetch({

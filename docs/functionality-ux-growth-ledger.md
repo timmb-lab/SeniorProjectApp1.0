@@ -1738,3 +1738,58 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: Review Queue and Student Directory still lack exact missing/evidence filters; browser QA still needs credentialed runtime.
   - Do not repeat: do not rebuild the same Operations evidence-missing metric or route-backed preset unless regression evidence appears.
   - First file to inspect next run: `workspace.js` `renderReadOnlyBanner()` and `renderSiteDashboardSection()`
+
+## Run 2026-05-25 08:36 PT
+
+- Starting SHA: `dbe3fe74ae16100e67117692f114883fa3794724`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Branch policy: work stayed on clean local `main`; local `main` was twenty-five commits ahead of `origin/main`, `origin/main` was not ahead, and no push was run
+- Ladder level targeted: `LEVEL_4_ROLE_SPECIFIC_WORKSPACES`
+- Backlog item: `viewer-read-only-homepage-clarity`; also closes the mentor assignment empty-state copy item from the functionality-language audit
+- Work order selected: Clarify Viewer/read-only workspace and worklist language across the protected workspace without changing permissions or adding mutation controls.
+- Selection reason: The previous handoff explicitly recommended Viewer read-only homepage/worklist language after Operations evidence-missing drill-down shipped. Current source still contained `role or scope`, `Assignment action`, `Assignment form unavailable`, and read-only review/coverage/operations copy that described hidden controls without clearly naming monitoring, escalation, and authorized-action ownership.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Viewer read-only worklist language | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | viewer, site staff | 4 | 5 | 5 | S | 57 | selected |
+| Assignment form unavailable copy cleanup | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | site admin | 3 | 5 | 5 | XS | 51 | included: same mentor-coverage language cluster |
+| Review Queue read-only decision copy | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | viewer, program teacher | 4 | 5 | 5 | XS | 52 | included: read-only boundary copy only |
+| Operations monitoring-only banner | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | viewer, staff | 4 | 5 | 5 | XS | 52 | included: monitoring-only language only |
+| Site Dashboard viewer permission cards | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | viewer | 4 | 5 | 5 | XS | 53 | included: exact read-only homepage surface |
+| Program dashboard `Source record counts` copy | `LEVEL_0_PROTOTYPE_CLEANUP` | program teacher | 2 | 5 | 4 | XS | 39 | rejected: lower value than read-only handoff |
+| Review Queue missing-evidence filter | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | program teacher, site staff | 5 | 2 | 3 | M | 37 | deferred: route still lacks exact missing/evidence param |
+| Student Directory missing-evidence filter | `LEVEL_1_NAVIGABLE_DASHBOARDS` | site staff, viewer | 4 | 2 | 3 | M | 35 | deferred: directory still lacks exact evidence-missing filter |
+| Student requirement detail extension | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 4 | 4 | 4 | S | 44 | rejected: no new persisted field identified |
+| Student phase-specific progress page | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 4 | 3 | 3 | M | 40 | deferred: grouped checklist already covers first need |
+| Student feedback timeline filters | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 3 | 4 | 3 | M | 36 | rejected: current timeline remains usable |
+| Mentor assignment permission regression test | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | viewer, mentor, site admin | 4 | 4 | 5 | S | 46 | rejected: existing tests still cover current boundary |
+| Mentor assignment history in student detail | `LEVEL_7_AUDITABILITY_AND_TRUST` | staff, mentor | 4 | 3 | 3 | M | 38 | deferred: persisted history shape needs confirmation |
+| Public app-preview language cleanup | `LEVEL_0_PROTOTYPE_CLEANUP` | public | 3 | 5 | 4 | S | 40 | rejected: protected role workspace had clearer handoff |
+| Credentialed browser QA | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all | 4 | 4 | 3 | M | 39 | blocked: needs credentialed runtime |
+| Org-admin tenant rollup | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | org admin | 4 | 2 | 2 | L | 30 | blocked: needs backend aggregate and RBAC design |
+
+- User-facing improvement: Viewers now get a clearer read-only banner and Site Dashboard permission cards explaining what they can monitor and which changes stay with authorized staff. Read-only Review Queue, Mentor Assignments, and Operations copy now describes monitoring/escalation context instead of implying hidden action controls, and mentor assignment no-data states no longer say the form is unavailable.
+- Roles affected: `viewer` primarily; `program_teacher` and site staff also see clearer read-only/no-action copy in shared worklists. No data access, mutation permission, route, backend, tenant, site, program, mentor-assignment, or student privacy behavior changed.
+- Files changed: `workspace.js`, `tests/workspace-app.test.mjs`, `scripts/verify-functionality-language.mjs`, `docs/functionality-language-audit.md`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`, `docs/progress/run-log.md`, `docs/progress/runs/2026-05-25-0836-viewer-read-only-worklist-language.json`
+- Tests/verifiers added or updated: workspace render tests now assert the read-only viewer banner, Site Dashboard permission-card copy, Review Queue read-only decision copy, Mentor Assignments coverage-context copy, and Operations monitoring-only copy; language verifier now blocks `role or scope`, `Assignment form unavailable`, and `Assignment action` from protected workspace source.
+- Validation commands:
+  - Focused passed: `node --test tests/workspace-app.test.mjs`; `npm run verify:functionality-language`; `npm run verify:dashboard-actions`; `npm run verify:workspace-navigation`
+  - Final passed: `npm run verify:review-queue-deeplinks`; `npm run verify:functionality-ux-automation`; `node --test tests/functionality-language-audit.test.mjs`; JSON parse for `automation/state/functionality-ux-growth-state.json` and `docs/progress/runs/2026-05-25-0836-viewer-read-only-worklist-language.json`; `npm run check:route-inventory`; `npm run test`; `npm run typecheck`; `npm run check:production-surfaces`; `npm run check`; `git diff --check`; `git status --short`
+- Validation result: passed; `git diff --check` reported CRLF normalization warnings only
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: Review Queue missing/evidence params remain unsupported; Student Directory exact evidence-missing filtering remains unsupported; credentialed browser QA still needs runtime.
+- New backlog items: none
+- Next recommended work order: clean the Program Teacher dashboard `Source record counts` language, or add a new Review Queue/Student Directory filter only after route support and privacy tests exist.
+- Do-not-repeat notes: do not rework the same Viewer/read-only banner and worklist language unless a regression reintroduces `role or scope`, `Assignment action`, or `Assignment form unavailable`.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_4_ROLE_SPECIFIC_WORKSPACES`
+  - Advanced: yes
+  - Evidence: `workspace.js` now renders explicit viewer monitoring copy, read-only Site Dashboard permission cards, read-only Review Queue/Mentor Assignments/Operations boundary language, and the language verifier blocks the removed confusing phrases.
+  - Unlocks: future role-workspace language cleanup can move to Program Teacher copy instead of repeating Viewer read-only boundaries.
+  - Next: clean Program Teacher dashboard `Source record counts` wording, or only add missing/evidence queue filters after backend support exists.
+  - Blockers: Review Queue and Student Directory still lack exact missing/evidence filters; browser QA still needs credentialed runtime.
+  - Do not repeat: do not re-add the read-only copy cluster unless regression evidence appears.
+  - First file to inspect next run: `workspace.js` `renderProgramTeacherDashboardSection()`

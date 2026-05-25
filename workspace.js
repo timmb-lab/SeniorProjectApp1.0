@@ -1093,16 +1093,16 @@ function renderAccessBoundarySummary() {
       <p class="workspace-kicker">Access needed</p>
       <h2>Some workspace sections need different access</h2>
       <p>
-        Your account is signed in, but the role or scope on this account does not permit the
-        requested section.
+        Your account is signed in, but this account does not have access to the
+        requested section for this school.
       </p>
       <ul class="workspace-compact-list">
         ${deniedSections.map((label) => `<li>${escapeHtml(label)}</li>`).join("")}
       </ul>
       ${renderProblemState({
-        reason: "The current role does not include every requested workspace section.",
+        reason: "The current account does not include every requested workspace section.",
         owner: "Project coordinator or site administrator.",
-        nextAction: "Use an assigned account or request access for this site and role.",
+        nextAction: "Use an assigned account or ask the project coordinator for access to this school.",
       })}
     </section>
     ` : ""}
@@ -1115,7 +1115,7 @@ function renderReadOnlyBanner() {
   return `
     <section class="workspace-read-only-banner" data-workspace-mode="read-only" aria-label="Viewer read-only mode">
       <span class="workspace-chip workspace-role-chip" data-role-id="viewer">Viewer</span>
-      <p>Read-only workspace. You can review assigned site information and private-evidence status, but changes stay with authorized staff.</p>
+      <p>Read-only workspace. You can monitor assigned school progress, open student details, and review queue or operations context. Approvals, assignment changes, and account updates stay with authorized staff.</p>
     </section>
   `;
 }
@@ -2035,6 +2035,17 @@ function renderSiteContextBlock(dashboard) {
 
 function renderSitePermissionRules(dashboard) {
   const permissions = dashboard.permissions || {};
+  const readOnly = Boolean(dashboard.scope?.readOnly);
+  const studentRecordCopy = permissions.canViewStudentDirectory
+      ? readOnly
+        ? "You can open assigned student records for context; changes stay with authorized staff."
+      : "This account can view assigned student records."
+    : "This account is limited to dashboard review.";
+  const reviewQueueCopy = permissions.canViewReviewQueue
+    ? readOnly
+      ? "You can review submitted work context; decisions stay with scoped program teachers."
+      : "Review queue visibility is available for this site."
+    : "Review queue action remains with assigned staff.";
   return `
     <div class="workspace-dashboard-grid workspace-dashboard-grid-two">
       <article class="workspace-empty-state-card">
@@ -2044,7 +2055,7 @@ function renderSitePermissionRules(dashboard) {
       </article>
       <article class="workspace-empty-state-card">
         <strong>Assigned student records</strong>
-        <span>${permissions.canViewStudentDirectory ? "This role can view assigned student records." : "This role is limited to dashboard review."}</span>
+        <span>${studentRecordCopy}</span>
         ${statusPill(permissions.canViewStudentDirectory ? "approved" : "blocked")}
       </article>
       <article class="workspace-empty-state-card">
@@ -2054,7 +2065,7 @@ function renderSitePermissionRules(dashboard) {
       </article>
       <article class="workspace-empty-state-card">
         <strong>Teacher follow-up</strong>
-        <span>${permissions.canViewReviewQueue ? "Review queue visibility is available for this site." : "Review queue action remains with assigned staff."}</span>
+        <span>${reviewQueueCopy}</span>
         ${statusPill(permissions.canViewReviewQueue ? "submitted" : "pending")}
       </article>
     </div>
@@ -2386,7 +2397,7 @@ function renderMentorAssignmentsSection() {
       ${readOnly ? `
         <section class="workspace-read-only-banner" data-mentor-assignment-read-only="true">
           <strong>Read-only mentor coverage</strong>
-          <p>This role can inspect mentor coverage for this school, but assignment changes stay with authorized site operations.</p>
+          <p>This view is for coverage monitoring. Assignment changes stay with authorized site operations.</p>
         </section>
       ` : ""}
       <div class="workspace-dashboard-grid">
@@ -2422,16 +2433,16 @@ function renderMentorAssignmentsSection() {
         <section class="workspace-dashboard-card">
           <div class="workspace-card-head">
             <div>
-              <p class="workspace-kicker">Assignment action</p>
-              <h2>${canManage ? "Assign Mentor" : "Assignment Controls"}</h2>
-              <p>${canManage ? "Assign one mentor to one currently unassigned student at this school." : "Assignment controls are hidden for this role."}</p>
+              <p class="workspace-kicker">${canManage ? "Assign mentor" : "Coverage context"}</p>
+              <h2>${canManage ? "Assign Mentor" : "Assignment Changes"}</h2>
+              <p>${canManage ? "Assign one mentor to one currently unassigned student at this school." : "Use this panel to see why changes are unavailable for this account."}</p>
             </div>
           </div>
           ${canManage ? renderMentorAssignmentForm(body) : `
             <section class="workspace-empty-state-card" data-mentor-assignment-controls-hidden="true">
               <h2>Assignment changes unavailable</h2>
               ${renderProblemState({
-                reason: "This role has a read-only mentor coverage view.",
+                reason: "This workspace is read-only for mentor coverage.",
                 owner: "Authorized site administrator.",
                 nextAction: "Use this section for coverage context, or ask a site administrator to assign mentors.",
               })}
@@ -2608,11 +2619,11 @@ function renderMentorAssignmentForm(body) {
     </form>
   ` : `
     <section class="workspace-empty-state-card" data-mentor-assignment-form-empty="true">
-      <h2>Assignment form unavailable</h2>
+      <h2>No assignment can be made right now</h2>
       ${renderProblemState({
         reason: students.length ? "No active mentors are available at this school." : "No currently unassigned students are visible in this page.",
         owner: "Site administration.",
-        nextAction: "Adjust filters or confirm mentor and student site memberships.",
+        nextAction: "Adjust filters or confirm active mentor and student memberships for this school.",
       })}
     </section>
   `;
@@ -2725,7 +2736,7 @@ function renderOperationsReadinessSection() {
       ${renderApiNotice(result)}
       <section class="workspace-read-only-banner" data-operations-read-only="true">
         <strong>Read-only operations worklists</strong>
-        <p>This view is for monitoring and follow-up. Open student detail for blocker context.</p>
+        <p>These worklists are monitoring-only. Open student detail for blocker context; status changes stay with authorized staff.</p>
       </section>
       <div class="workspace-dashboard-grid">
         ${renderMetricTile("Presentation Ready", summary.presentationReady, "Ready or complete signals", "teacher")}
@@ -3923,7 +3934,7 @@ function renderTeacherSection() {
       ${readOnly ? `
         <section class="workspace-read-only-banner" data-review-queue-read-only="true">
           <strong>Read-only review queue</strong>
-          <p>This role can inspect submitted work and review context, but approve, revision, and comment-only decisions stay with scoped program teachers.</p>
+          <p>This view is for review context. Approval, revision request, and comment decisions stay with scoped program teachers.</p>
         </section>
       ` : ""}
       <div class="workspace-metric-grid">
@@ -4161,7 +4172,7 @@ function renderReviewSubmissionPanel(selected, body) {
         <section class="workspace-empty-state-card" data-review-mutation-disabled="true">
           <h2>Review actions unavailable</h2>
           ${renderProblemState({
-            reason: permissions.canReview ? "Status-changing reviews are limited to submitted work." : "This role has a read-only review queue view.",
+            reason: permissions.canReview ? "Status-changing reviews are limited to submitted work." : "This workspace is read-only for review decisions.",
             owner: "Scoped program teacher",
             nextAction: "Use the queue for context or wait for a submitted item assigned to this teacher scope.",
           })}

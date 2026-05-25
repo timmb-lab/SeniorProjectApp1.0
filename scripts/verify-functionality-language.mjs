@@ -49,6 +49,18 @@ const hardFailures = [
     message: "Protected workspace should say current school or current site, not selected-site.",
   },
   {
+    pattern: /\brole or scope\b/i,
+    message: "Protected workspace should explain missing access without role/scope jargon.",
+  },
+  {
+    pattern: /\bAssignment form unavailable\b/i,
+    message: "Mentor assignment empty states should explain that no assignment can be made right now.",
+  },
+  {
+    pattern: /\bAssignment action\b/i,
+    message: "Read-only mentor coverage should not imply assignment action is available.",
+  },
+  {
     pattern: /\bstorage identifiers redacted\b/i,
     message: "Protected workspace should say private file details are protected instead of showing storage jargon.",
   },
