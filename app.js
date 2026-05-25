@@ -929,6 +929,55 @@ const homeCadenceHighlights = [
   }
 ];
 
+const noHiddenCoreContentRoutes = [
+  {
+    title: "Plan the right project",
+    student: "Requirements, program expectations, due windows, and the first proposal move.",
+    teacher: "Program rules, collaboration boundaries, and review checkpoints to confirm early.",
+    links: [
+      ["Program Requirements", "program.html"],
+      ["Process", "process.html"],
+      ["Calendar", "calendar.html"]
+    ]
+  },
+  {
+    title: "Build with evidence",
+    student: "Phase work, supplies, vision checks, drafts, artifacts, and evidence to save.",
+    teacher: "Places to redirect students when work is vague, under-scoped, or missing proof.",
+    links: [
+      ["Phase 1", "phase-1.html"],
+      ["Phase 2A", "phase-2a.html"],
+      ["Phase 2B", "phase-2b.html"],
+      ["Gathering Supplies", "gathering-supplies.html"],
+      ["Managing Your Vision", "managing-your-vision.html"]
+    ]
+  },
+  {
+    title: "Prepare to present",
+    student: "Mentor meeting prep, outline readiness, presentation day, and showcase expectations.",
+    teacher: "Meeting duties, missed-meeting follow-up, outline approval, schedule, and grading flow.",
+    links: [
+      ["Mentor Meeting 1", "mentor-meeting-1.html"],
+      ["Mentor Meeting 2", "mentor-meeting-2.html"],
+      ["Present", "present.html"],
+      ["Project Showcase", "project-showcase.html"]
+    ]
+  },
+  {
+    title: "Finish and archive",
+    student: "Celebration display, gratitude, reflections, portfolio path, grades, and May 5 archive reminder.",
+    teacher: "Rubric checks, paper-rubric option, portfolio week support, recognition, and final evidence expectations.",
+    links: [
+      ["Celebration", "celebrate.html"],
+      ["Portfolio", "portfolio.html"],
+      ["Finish", "finish.html"],
+      ["Rubrics", "rubrics.html"],
+      ["Grades", "grades.html"],
+      ["Templates", "templates.html"]
+    ]
+  }
+];
+
 const siteMenuPreviewNotes = {
   "Program Requirements": "Front-load the rules, support expectations, and calendar windows.",
   Phases: "Guide students through the real sequence instead of making them guess the right page.",
@@ -3275,6 +3324,38 @@ function guideModeHomeHtml() {
   `;
 }
 
+function noHiddenCoreContentHtml() {
+  return `
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">Core guide coverage</p>
+        <h2 id="core-coverage-title">Required Content Has A Visible Path</h2>
+      </div>
+      <p class="section-note">
+        These public pages keep the required directions, due dates, rubrics, responsibilities, and actions easy to find without asking students or teachers to open hidden panels first.
+      </p>
+    </div>
+    <div class="section-card-grid" data-no-hidden-core-content="true" aria-label="Visible public guide route coverage">
+      ${noHiddenCoreContentRoutes
+        .map(
+          (item) => `
+            <article class="content-card resource-focus-card">
+              <h3>${item.title}</h3>
+              <p><strong>Students:</strong> ${item.student}</p>
+              <p><strong>Teachers:</strong> ${item.teacher}</p>
+              <div class="template-link-list" aria-label="${item.title} pages">
+                ${item.links
+                  .map(([label, href]) => `<a class="mini-link" href="${href}">${label}</a>`)
+                  .join("")}
+              </div>
+            </article>
+          `
+        )
+        .join("")}
+    </div>
+  `;
+}
+
 function homeAudienceCardsHtml() {
   return `
     <div class="hero-role-grid" aria-label="Audience quick starts">
@@ -4281,6 +4362,9 @@ function renderHomePage(root) {
     </section>
     <section class="section section-tight guide-mode-section" aria-labelledby="guide-mode-title">
       ${guideModeHomeHtml()}
+    </section>
+    <section class="section section-tight" aria-labelledby="core-coverage-title">
+      ${noHiddenCoreContentHtml()}
     </section>
     <section class="section section-tight" aria-labelledby="home-essentials-title">
       <div class="section-head">

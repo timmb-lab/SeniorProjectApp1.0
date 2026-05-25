@@ -81,6 +81,47 @@ test("public site exposes Student and Teacher guide modes without treating them 
   assert.match(appJs, /not login, permission, or a private workflow/);
 });
 
+test("public guide home exposes no-hidden-core-content route coverage", () => {
+  assert.match(appJs, /data-no-hidden-core-content="true"/);
+  assert.match(appJs, /Required Content Has A Visible Path/);
+  assert.match(appJs, /required directions, due dates, rubrics, responsibilities, and actions/);
+  assert.match(appJs, /const noHiddenCoreContentRoutes = \[/);
+  for (const phrase of [
+    "Plan the right project",
+    "Build with evidence",
+    "Prepare to present",
+    "Finish and archive",
+    "Requirements, program expectations, due windows",
+    "Meeting duties, missed-meeting follow-up",
+    "paper-rubric option",
+    "May 5 archive reminder"
+  ]) {
+    assert.match(appJs, new RegExp(phrase.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  }
+  for (const href of [
+    "program.html",
+    "process.html",
+    "calendar.html",
+    "phase-1.html",
+    "phase-2a.html",
+    "phase-2b.html",
+    "gathering-supplies.html",
+    "managing-your-vision.html",
+    "mentor-meeting-1.html",
+    "mentor-meeting-2.html",
+    "present.html",
+    "project-showcase.html",
+    "celebrate.html",
+    "portfolio.html",
+    "finish.html",
+    "rubrics.html",
+    "grades.html",
+    "templates.html"
+  ]) {
+    assert.match(appJs, new RegExp(href.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  }
+});
+
 test("public workspace workflow guide avoids stale future-app and implementation copy", () => {
   assert.match(appJs, /Workspace Workflow/);
   assert.match(appJs, /How The Signed-In Workspace Works/);

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-05-25T15:05:59-07:00",
-  "lastStartingSha": "4dace7b5f00f3726ed830fb69e159578505395fb",
+  "lastRunAt": "2026-05-25T15:33:24-07:00",
+  "lastStartingSha": "3e5dc151d6b7e8f94c470f7f43164f2acbac1b51",
   "lastEndingSha": null,
   "currentLadderFocus": "LEVEL_0_PROTOTYPE_CLEANUP",
   "completedWorkOrders": [
@@ -497,6 +497,14 @@
       "type": "TYPE_G_VERIFICATION_REGRESSION_PROTECTION",
       "summary": "Functionality language verifier now blocks stale public app-preview phrases in source and generated output.",
       "commit": "pending-closeout-commit"
+    },
+    {
+      "id": "public-no-hidden-core-content-route-map",
+      "completedAt": "2026-05-25T15:33:24-07:00",
+      "ladderLevel": "LEVEL_0_PROTOTYPE_CLEANUP",
+      "type": "TYPE_G_VERIFICATION_REGRESSION_PROTECTION",
+      "summary": "Public guide home now exposes a visible route map for required student and teacher content across existing public pages, with source-test and generated-output coverage.",
+      "commit": "pending-closeout-commit"
     }
   ],
   "deferredWorkOrders": [
@@ -529,10 +537,10 @@
   "blockedWorkOrders": [],
   "nextRecommendedWorkOrders": [
     {
-      "id": "public-no-hidden-core-content-coverage",
+      "id": "public-route-page-student-teacher-emphasis",
       "ladderLevel": "LEVEL_0_PROTOTYPE_CLEANUP",
-      "type": "TYPE_G_VERIFICATION_REGRESSION_PROTECTION",
-      "summary": "Inspect public guide route set for no-hidden-core-content coverage and add focused proof if bounded."
+      "type": "TYPE_A_LANGUAGE_PRODUCT_READINESS",
+      "summary": "Extend page-level Student/Teacher emphasis beyond the home route map if source review finds hidden or weak content."
     },
     {
       "id": "hosted-section-permission-proof",
@@ -602,26 +610,28 @@
     "Do not re-add the Mentor Dashboard meeting-history action unless regression removes data-mentor-dashboard-action=\"open-meetings\" or the Mentor-tab target behavior.",
     "Do not re-add linked-work context to student-detail Mentor Meeting rows unless regression removes submissionTitle or Linked work rendering.",
     "Do not re-add the mentor meeting record form unless regression removes data-mentor-meeting-form=\"true\" or submitMentorMeeting().",
-    "Do not re-add the mentor meeting linked-submission scope guard unless regression removes submission_scope_denied coverage from /api/mentor/meetings."
+    "Do not re-add the mentor meeting linked-submission scope guard unless regression removes submission_scope_denied coverage from /api/mentor/meetings.",
+    "Do not re-add the public no-hidden-core-content route map unless regression removes data-no-hidden-core-content or Required Content Has A Visible Path from app.js/public-companion app output."
   ],
   "lastValidationStatus": {
     "status": "passed",
-    "completedAt": "2026-05-25T15:10:28-07:00",
+    "completedAt": "2026-05-25T15:33:24-07:00",
     "commands": [
       "node --test tests/account-and-evidence-access.test.mjs",
-      "npm run verify:functionality-language",
+      "npm run build:public-site",
       "npm run check:generated-output-drift",
+      "npm run verify:functionality-language",
       "npm run check:production-surfaces",
-      "node -e JSON.parse automation/state/functionality-ux-growth-state.json and docs/progress/runs/2026-05-25-1505-public-workspace-workflow-copy.json",
       "git diff --check",
       "npm run verify:functionality-ux-automation",
       "node --test tests/functionality-language-audit.test.mjs",
+      "node -e JSON.parse automation/state/functionality-ux-growth-state.json and docs/progress/runs/2026-05-25-1533-public-core-content-route-map.json",
       "npm run check:route-inventory",
       "npm run typecheck",
       "npm run test",
       "npm run check"
     ],
-    "notes": "Full validation passed for the public Workspace Workflow copy cleanup and verifier guard. git diff --check reported only CRLF normalization warnings. This run changes public guide copy, generated public companion output, focused language verifier/test coverage, and run records only; it does not change auth role grants, tenant/site/program/student privacy boundaries, migrations, secrets/env files, Cloudflare/OAuth/domain config, deploy settings, or live data."
+    "notes": "Full validation passed for the public no-hidden-core-content route map. git diff --check reported only CRLF normalization warnings. This run changes public guide source, generated public companion output, focused public source test coverage, and run records only; it does not change auth role grants, tenant/site/program/student privacy boundaries, migrations, secrets/env files, Cloudflare/OAuth/domain config, deploy settings, or live data."
   },
   "lastProductReadinessScorecardSummary": {
     "homepageClarity": "4 to 4",

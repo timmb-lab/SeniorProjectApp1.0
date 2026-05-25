@@ -2026,3 +2026,14 @@ Future productive runs should append compact entries that name the master-plan s
 - `changes`: updated public guide source copy, rebuilt `public-companion/app.js`, added functionality-language verifier rules for the removed phrases, and added a focused public source test.
 - `validation`: focused validation and full validation results are recorded in `docs/functionality-ux-growth-ledger.md`.
 - `commit/push status`: pending closeout commit; not pushed by this automation run.
+
+## 2026-05-25 PT - Functionality UX Upgrade Public Core Content Route Map
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 0 prototype cleanup / public no-hidden-core-content coverage, supporting MVP-036 and MVP-037.
+- `starting HEAD`: `3e5dc151d6b7e8f94c470f7f43164f2acbac1b51`.
+- `selected slice`: Add a visible public guide route map for required Student Guide and Teacher Guide content across existing public pages.
+- `repo-grounded findings`: the prior handoff recommended no-hidden-core-content coverage. Current source kept Student/Teacher guide summaries visible on the home page, but there was no explicit visible route map that connected required directions, due dates, rubrics, responsibilities, and actions to the existing public route set.
+- `changes`: `app.js` now renders `Core guide coverage` with `data-no-hidden-core-content="true"` and links to existing public pages for planning, evidence/build work, presentation preparation, and finish/archive work. `public-companion/app.js` was rebuilt from source, and `tests/account-and-evidence-access.test.mjs` now guards the marker, content clusters, and route links.
+- `validation`: focused public-source test, public-site build, generated-output drift check, and functionality-language verifier passed before final validation. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.

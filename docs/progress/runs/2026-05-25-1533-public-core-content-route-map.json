@@ -1,0 +1,96 @@
+{
+  "runId": "2026-05-25-1533-public-core-content-route-map",
+  "automationId": "functionality-ux-upgrade-hourly",
+  "startedAt": "2026-05-25T15:33:24-07:00",
+  "startingSha": "3e5dc151d6b7e8f94c470f7f43164f2acbac1b51",
+  "branch": "main",
+  "originMainAhead": 0,
+  "localMainAhead": 9,
+  "ladderLevel": "LEVEL_0_PROTOTYPE_CLEANUP",
+  "supportingLadderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
+  "mvpRequirements": ["MVP-036", "MVP-037", "MVP-039"],
+  "selectedWorkOrder": {
+    "id": "public-no-hidden-core-content-route-map",
+    "title": "Public no-hidden-core-content route map",
+    "type": "TYPE_G_VERIFICATION_REGRESSION_PROTECTION",
+    "reason": "The previous handoff named public no-hidden-core-content coverage, and current source lacked a visible route map that connected required student/teacher content to existing public pages."
+  },
+  "candidateSummary": [
+    {
+      "id": "public-no-hidden-core-content-route-map",
+      "score": 55,
+      "decision": "selected"
+    },
+    {
+      "id": "public-route-map-source-test",
+      "score": 52,
+      "decision": "included"
+    },
+    {
+      "id": "hosted-section-permission-proof",
+      "score": 40,
+      "decision": "rejected: credentialed runtime dependency"
+    },
+    {
+      "id": "page-level-student-teacher-emphasis-pass",
+      "score": 45,
+      "decision": "rejected: broader than one safe slice"
+    },
+    {
+      "id": "review-queue-missing-evidence-filter",
+      "score": 37,
+      "decision": "deferred: backend/privacy support missing"
+    }
+  ],
+  "changes": [
+    "Added noHiddenCoreContentRoutes to app.js with visible public page groupings for planning, evidence/build work, presentation preparation, and finish/archive work.",
+    "Rendered a Core guide coverage section on the public home page with data-no-hidden-core-content=true.",
+    "Rebuilt public-companion/app.js from source.",
+    "Added source test coverage for the marker, required content clusters, and existing public route links.",
+    "Updated MVP catalog, functionality audit, growth ledger/state, run log, and this manifest."
+  ],
+  "filesChanged": [
+    "app.js",
+    "public-companion/app.js",
+    "tests/account-and-evidence-access.test.mjs",
+    "docs/functionality-language-audit.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/functionality-ux-growth-ledger.md",
+    "automation/state/functionality-ux-growth-state.json",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-25-1533-public-core-content-route-map.json"
+  ],
+  "privacyAndPermissions": {
+    "authChanged": false,
+    "rbacChanged": false,
+    "tenantOrSiteScopeChanged": false,
+    "studentPrivacyChanged": false,
+    "routesChanged": false,
+    "migrationsChanged": false,
+    "secretsOrEnvChanged": false,
+    "cloudflareOrOAuthChanged": false,
+    "liveDataChanged": false
+  },
+  "validation": {
+    "focusedPassed": [
+      "node --test tests/account-and-evidence-access.test.mjs",
+      "npm run build:public-site",
+      "npm run check:generated-output-drift",
+      "npm run verify:functionality-language"
+    ],
+    "finalPassed": [
+      "git diff --check",
+      "npm run check:production-surfaces",
+      "npm run verify:functionality-ux-automation",
+      "node --test tests/functionality-language-audit.test.mjs",
+      "node -e JSON.parse automation/state/functionality-ux-growth-state.json and this manifest",
+      "npm run check:route-inventory",
+      "npm run typecheck",
+      "npm run test",
+      "npm run check"
+    ],
+    "notes": "git diff --check reported only CRLF normalization warnings."
+  },
+  "nextRecommendedWorkOrder": "Inspect page-level Student/Teacher emphasis across the public route set, or run hosted section-level permission proof when credentialed runtime is available.",
+  "doNotRepeat": "Do not re-add the public no-hidden-core-content route map unless regression removes data-no-hidden-core-content or Required Content Has A Visible Path from source/generated output."
+}

@@ -2499,3 +2499,57 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: browser/hosted proof requires credentialed runtime; app-preview structural rename/removal needs product decision.
   - Do not repeat: do not redo this copy cluster unless `Future App Workflow`, `Non-production workflow preview`, `when the backend is ready`, `Search preview data`, `source counts`, `Audit-sensitive`, or `No localStorage source of truth` returns to `app.js` or `public-companion/app.js`.
   - First file to inspect next run: `tests/account-and-evidence-access.test.mjs`
+
+## Run 2026-05-25 15:33 PT
+
+- Starting SHA: `3e5dc151d6b7e8f94c470f7f43164f2acbac1b51`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Branch policy: work stayed on clean local `main`; local `main` was nine commits ahead of `origin/main`, `origin/main` was not ahead, and no push was run
+- Ladder level targeted: `LEVEL_0_PROTOTYPE_CLEANUP` with `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` source-test support
+- Backlog item: `public-no-hidden-core-content-coverage`; advances `MVP-036`, supports `MVP-037` and `SC-007`
+- Work order selected: Add a visible public guide route map for required student and teacher content across existing public pages.
+- Selection reason: The previous handoff named no-hidden-core-content coverage. Current repo evidence showed Student/Teacher guide summaries were visible, but the home page did not yet give students/teachers a visible route map for required directions, due dates, rubrics, responsibilities, and actions across the route set. Hosted permission proof remained credentialed-runtime dependent, making the route map the safest bounded product-readiness slice.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Public no-hidden-core-content route map | `LEVEL_0_PROTOTYPE_CLEANUP` | public students, teachers | 4 | 5 | 5 | S | 55 | selected |
+| Public route-map source test | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | public students, teachers | 3 | 5 | 5 | XS | 52 | included |
+| Hosted section-level permission proof | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all roles | 4 | 4 | 3 | M | 40 | rejected: credentialed runtime dependency |
+| Page-level Student/Teacher emphasis pass | `LEVEL_0_PROTOTYPE_CLEANUP` | public students, teachers | 4 | 4 | 4 | M | 45 | rejected: broader than one safe slice |
+| Public app-preview structural rename | `LEVEL_0_PROTOTYPE_CLEANUP` | public stakeholders | 3 | 2 | 3 | M | 31 | rejected: unnecessary route/link churn |
+| Public app-preview copy cleanup | `LEVEL_0_PROTOTYPE_CLEANUP` | public stakeholders | 2 | 5 | 5 | XS | 40 | rejected: completed by prior run |
+| Student Guide visual browser QA | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | public students | 3 | 4 | 3 | M | 39 | rejected: browser pane/runtime not part of bounded source slice |
+| Teacher Guide visual browser QA | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | public teachers | 3 | 4 | 3 | M | 39 | rejected: browser pane/runtime not part of bounded source slice |
+| Public route inventory regeneration | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | public stakeholders | 2 | 5 | 4 | XS | 39 | rejected: no route files changed |
+| Review Queue missing-evidence filter | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | site staff, program teacher | 5 | 2 | 3 | M | 37 | deferred: backend/privacy support missing |
+| Student Directory missing-evidence filter | `LEVEL_1_NAVIGABLE_DASHBOARDS` | site staff, viewer | 4 | 2 | 3 | M | 35 | deferred: exact route filter missing |
+| Mentor meeting scheduled date UI | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | mentor | 3 | 3 | 4 | S | 42 | rejected: schedule semantics need product decision |
+| Staff mentor meeting controls | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | site staff | 4 | 2 | 3 | M | 35 | rejected: endpoint/policy is mentor-only |
+| Downloadable student progress summary | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | student, staff | 4 | 2 | 3 | L | 31 | rejected: export/privacy policy needed |
+| Org-admin tenant rollup | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | org_admin | 4 | 2 | 2 | L | 30 | blocked: backend aggregate and RBAC design needed |
+
+- User-facing improvement: The public guide home now shows a visible `Core guide coverage` map that points students and teachers to existing pages for planning, evidence/build work, presentation preparation, and finish/archive work instead of relying only on details panels or page-name guessing.
+- Roles affected: public students, teachers, mentors/families as guide readers; no authenticated app role, permission, route, or data path changed
+- Files changed: `app.js`, `public-companion/app.js`, `tests/account-and-evidence-access.test.mjs`, `docs/functionality-language-audit.md`, `docs/mvp-requirements-catalog.md`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`, `docs/progress/run-log.md`, `docs/progress/runs/2026-05-25-1533-public-core-content-route-map.json`
+- Tests/verifiers added or updated: public source test now guards `data-no-hidden-core-content="true"`, required content clusters, and route links; generated public output was rebuilt.
+- Validation commands:
+  - Focused passed before docs/state closeout: `node --test tests/account-and-evidence-access.test.mjs`; `npm run build:public-site`; `npm run check:generated-output-drift`; `npm run verify:functionality-language`
+  - Final passed: `git diff --check`; `npm run check:production-surfaces`; `npm run verify:functionality-ux-automation`; `node --test tests/functionality-language-audit.test.mjs`; JSON parse for state and manifest; `npm run check:route-inventory`; `npm run typecheck`; `npm run test`; `npm run check`
+- Validation result: passed; `git diff --check` reported only CRLF normalization warnings, with no whitespace errors.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: page-level Student/Teacher emphasis review, hosted section-level permission proof, Review Queue/Student Directory missing-evidence filters, and export-style progress summaries remain deferred.
+- New backlog items: none
+- Next recommended work order: inspect page-level Student/Teacher emphasis beyond the home route map, or run hosted section-level permission proof when credentialed runtime is available.
+- Do-not-repeat notes: do not re-add the public no-hidden-core-content route map unless regression removes `data-no-hidden-core-content` or `Required Content Has A Visible Path` from source/generated output.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_0_PROTOTYPE_CLEANUP`
+  - Advanced: yes
+  - Evidence: public guide source and generated companion now expose a visible route map for required public content; focused source test and generated-output drift check passed.
+  - Unlocks: future public work can shift from home-level route discovery to page-level Student/Teacher emphasis and visual QA.
+  - Next: inspect page-level Student/Teacher emphasis across the public route set.
+  - Blockers: hosted permission/browser proof still needs credentialed runtime; exports and staff scheduling controls need policy decisions.
+  - Do not repeat: do not rebuild this home route map unless regression evidence appears.
+  - First file to inspect next run: `app.js` `noHiddenCoreContentRoutes`
