@@ -1,0 +1,88 @@
+{
+  "automationId": "functionality-ux-upgrade-hourly",
+  "runStartedAt": "2026-05-25T16:04:26-07:00",
+  "branch": "main",
+  "startingSha": "3820dbc47ab3f05455e998540130f8114a0b6366",
+  "endingSha": null,
+  "originMainAheadBehind": {
+    "originAhead": 0,
+    "localAhead": 10
+  },
+  "ladderLevel": "LEVEL_0_PROTOTYPE_CLEANUP",
+  "workOrder": {
+    "id": "public-resource-teacher-mentor-checkpoints",
+    "type": "TYPE_A_LANGUAGE_PRODUCT_READINESS",
+    "title": "Public support-page teacher and mentor checkpoints",
+    "selectedReason": "Public resource pages had visible student actions but lacked matching page-level adult support checkpoints; this directly advanced the previous no-hidden-core-content handoff without adding routes, auth changes, or fake controls.",
+    "mvpRequirements": ["MVP-036", "MVP-037"]
+  },
+  "candidateSummary": [
+    { "id": "public-resource-teacher-mentor-checkpoints", "score": 56, "decision": "selected" },
+    { "id": "public-support-page-source-test", "score": 52, "decision": "included" },
+    { "id": "phase-page-teacher-emphasis", "score": 45, "decision": "rejected_broader_than_slice" },
+    { "id": "rubrics-grades-teacher-emphasis", "score": 44, "decision": "next_candidate" },
+    { "id": "student-due-date-timeline", "score": 44, "decision": "rejected_recent_student_work_healthy" },
+    { "id": "mentor-meeting-scheduled-date-ui", "score": 42, "decision": "rejected_policy_needed" },
+    { "id": "hosted-section-permission-proof", "score": 40, "decision": "blocked_credentialed_runtime" },
+    { "id": "public-guide-visual-browser-qa", "score": 39, "decision": "rejected_runtime_not_needed_for_source_slice" },
+    { "id": "review-queue-missing-evidence-filter", "score": 37, "decision": "deferred_backend_privacy_support_missing" },
+    { "id": "student-directory-missing-evidence-filter", "score": 35, "decision": "deferred_exact_filter_missing" },
+    { "id": "staff-mentor-meeting-controls", "score": 35, "decision": "rejected_mentor_only_endpoint_policy" },
+    { "id": "student-guided-requirement-form", "score": 34, "decision": "rejected_write_path_design_needed" },
+    { "id": "mentor-reassignment-remove-controls", "score": 33, "decision": "rejected_mutation_policy_needed" },
+    { "id": "downloadable-student-progress-summary", "score": 31, "decision": "rejected_export_privacy_policy_needed" },
+    { "id": "org-admin-tenant-rollup", "score": 30, "decision": "blocked_backend_aggregate_rbac_design" }
+  ],
+  "filesChanged": [
+    "app.js",
+    "styles.css",
+    "public-companion/app.js",
+    "public-companion/styles.css",
+    "tests/account-and-evidence-access.test.mjs",
+    "docs/functionality-language-audit.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/functionality-ux-growth-ledger.md",
+    "automation/state/functionality-ux-growth-state.json",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-25-1604-public-resource-teacher-mentor-checkpoints.json"
+  ],
+  "validation": {
+    "status": "passed",
+    "commands": [
+      "node --test tests/account-and-evidence-access.test.mjs",
+      "npm run build:public-site",
+      "npm run check:generated-output-drift",
+      "git diff --check",
+      "npm run verify:functionality-language",
+      "npm run verify:functionality-ux-automation",
+      "node --test tests/functionality-language-audit.test.mjs",
+      "node -e \"const fs=require('fs'); JSON.parse(fs.readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(fs.readFileSync('docs/progress/runs/2026-05-25-1604-public-resource-teacher-mentor-checkpoints.json','utf8'));\"",
+      "npm run check:route-inventory",
+      "npm run check:production-surfaces",
+      "npm run test",
+      "npm run typecheck",
+      "npm run check"
+    ],
+    "notes": "git diff --check reported only CRLF normalization warnings."
+  },
+  "safety": {
+    "authChanged": false,
+    "rbacChanged": false,
+    "tenantOrSitePrivacyChanged": false,
+    "migrationsChanged": false,
+    "secretsOrEnvChanged": false,
+    "cloudflareOauthDomainDeployChanged": false,
+    "liveDataTouched": false
+  },
+  "handoff": {
+    "advanced": true,
+    "evidence": "Public support pages now expose visible adult-support checkpoints and generated public output was rebuilt.",
+    "next": "Inspect phase, rubric, grade, template, and portfolio pages for remaining page-level Student/Teacher emphasis gaps.",
+    "blockers": [
+      "Hosted section-level permission proof needs credentialed runtime.",
+      "Exports and staff scheduling controls need policy decisions."
+    ],
+    "doNotRepeat": "Do not re-add the support-page checkpoint panel unless data-resource-teacher-support or How Adults Can Support This Page regresses.",
+    "firstFileNextRun": "app.js"
+  }
+}

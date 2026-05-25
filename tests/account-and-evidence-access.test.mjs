@@ -122,6 +122,24 @@ test("public guide home exposes no-hidden-core-content route coverage", () => {
   }
 });
 
+test("public support pages expose page-level teacher and mentor checkpoints", () => {
+  assert.match(appJs, /data-resource-teacher-support="true"/);
+  assert.match(appJs, /How Adults Can Support This Page/);
+  assert.match(appJs, /teacherMoves: \[/);
+  for (const phrase of [
+    "Approve the sponsor contact plan",
+    "Use the calendar to spot late proposal",
+    "Review supply, safety, cost, space, and outside-contact needs",
+    "Listen for scope creep",
+    "Watch for missed meetings and make-up needs",
+    "Help students sort finished work, partial work, blockers, and cuts",
+    "Check final build evidence and presentation outline together",
+    "Use a quick visitor test"
+  ]) {
+    assert.match(appJs, new RegExp(phrase.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  }
+});
+
 test("public workspace workflow guide avoids stale future-app and implementation copy", () => {
   assert.match(appJs, /Workspace Workflow/);
   assert.match(appJs, /How The Signed-In Workspace Works/);

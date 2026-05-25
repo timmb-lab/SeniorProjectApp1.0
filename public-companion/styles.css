@@ -1961,6 +1961,22 @@ li + li {
   background: #fffaf0;
 }
 
+.teacher-section {
+  display: grid;
+  gap: 0.75rem;
+  border-left: 6px solid var(--teal);
+  background: #f7fcfb;
+}
+
+.teacher-section h2 {
+  font-size: 1.7rem;
+  line-height: 1.08;
+}
+
+.teacher-section li {
+  font-size: 1rem;
+}
+
 .resource-jump-grid {
   display: grid;
   gap: 0.5rem;

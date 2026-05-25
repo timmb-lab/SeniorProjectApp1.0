@@ -1985,6 +1985,11 @@ const resourcePages = {
       "Prepare a short explanation of the project, CTE connection, student benefit, and exact request.",
       "Save every approval, email, receipt, donation note, and thank-you follow-up as project evidence."
     ],
+    teacherMoves: [
+      "Approve the sponsor contact plan before a student asks for money, supplies, space, or public support.",
+      "Check that the request matches the approved project and does not create safety, cost, or communication problems.",
+      "Tell students which sponsor replies, receipts, approvals, and thank-you evidence should be saved."
+    ],
     cards: [
       {
         title: "Before Asking",
@@ -2016,6 +2021,11 @@ const resourcePages = {
       "Use October through December for gathering supplies, building, check-ins, and Mentor Meeting 1.",
       "Use January and February to finish the build, meet with the mentor again, and prepare the presentation.",
       "Use spring for presentation, showcase, gratitude, reflections, and portfolio completion."
+    ],
+    teacherMoves: [
+      "Name the current window for students and connect it to the next required evidence or review checkpoint.",
+      "Use the calendar to spot late proposal, build, mentor, presentation, or portfolio work before it becomes urgent.",
+      "Keep due-date directions aligned with the class website and the signed-in workspace."
     ],
     cards: [
       {
@@ -2049,6 +2059,11 @@ const resourcePages = {
       "Save receipts, screenshots, safety notes, approvals, and sponsor communication as evidence.",
       "Build a fallback plan for expensive, delayed, unavailable, or unsafe items."
     ],
+    teacherMoves: [
+      "Review supply, safety, cost, space, and outside-contact needs before the build phase starts.",
+      "Ask for a fallback plan when an item is expensive, delayed, unsafe, or unavailable.",
+      "Point students back to evidence saving so receipts, approvals, photos, and safety notes do not disappear."
+    ],
     cards: [
       {
         title: "Supply Map",
@@ -2080,6 +2095,11 @@ const resourcePages = {
       "Choose the next visible proof: sketch, prototype, recipe test, code screen, interview, photo, draft, or log.",
       "Use check-ins to name what changed, what is blocked, and what support is needed.",
       "Remove features that make the project bigger without making the CTE evidence stronger."
+    ],
+    teacherMoves: [
+      "Listen for scope creep and help students cut features that do not strengthen the required evidence.",
+      "Ask for the next visible proof when a student describes progress without artifacts.",
+      "Use check-ins to separate normal confusion from blockers that need adult support."
     ],
     cards: [
       {
@@ -2113,6 +2133,11 @@ const resourcePages = {
       "Write down decisions, risks, and next actions during or immediately after the meeting.",
       "Save meeting notes as evidence and update the build plan."
     ],
+    teacherMoves: [
+      "Confirm students arrive with a proposal, timeline, current evidence, and questions instead of an empty check-in.",
+      "Watch for missed meetings and make-up needs early enough to recover.",
+      "Ask students to turn mentor feedback into one change, one deadline, and one saved note."
+    ],
     cards: [
       {
         title: "Best Questions",
@@ -2144,6 +2169,11 @@ const resourcePages = {
       "Choose the final evidence set that proves planning, build, feedback, revision, and outcome.",
       "Finish the strongest possible version before polishing the presentation.",
       "Ask an adult what is still unclear before the presentation outline is due."
+    ],
+    teacherMoves: [
+      "Help students sort finished work, partial work, blockers, and cuts before presentation prep takes over.",
+      "Check that the final evidence set proves planning, build, feedback, revision, and outcome.",
+      "Redirect students from slide polish back to unfinished project evidence when needed."
     ],
     cards: [
       {
@@ -2177,6 +2207,11 @@ const resourcePages = {
       "Confirm date, period, room, technology, artifacts, and any make-up plan.",
       "Record feedback and revise the outline before practicing."
     ],
+    teacherMoves: [
+      "Check final build evidence and presentation outline together so the story matches the actual work.",
+      "Confirm date, period, room, technology, artifacts, and make-up needs before practice begins.",
+      "Ask students to revise the outline from mentor feedback before they memorize or decorate slides."
+    ],
     cards: [
       {
         title: "Review The Story",
@@ -2208,6 +2243,11 @@ const resourcePages = {
       "Use clean labels, readable type, strong evidence, and intentional visual hierarchy.",
       "Test the display with someone who does not already know the project.",
       "Save final showcase photos and feedback for the portfolio."
+    ],
+    teacherMoves: [
+      "Use a quick visitor test: can someone understand the project purpose, process, and result in 30 seconds?",
+      "Check program display expectations before students spend time decorating.",
+      "Remind students to save final display photos, audience feedback, and recognition evidence for the portfolio."
     ],
     cards: [
       {
@@ -3497,6 +3537,18 @@ function resourceLeadCardsHtml(page) {
   `;
 }
 
+function resourceTeacherMovesHtml(page) {
+  if (!Array.isArray(page.teacherMoves) || !page.teacherMoves.length) return "";
+
+  return `
+    <section class="content-card teacher-section" data-resource-teacher-support="true">
+      <p class="eyebrow">Teacher and mentor checks</p>
+      <h2>How Adults Can Support This Page</h2>
+      ${numberListHtml(page.teacherMoves)}
+    </section>
+  `;
+}
+
 function productStatusClass(status) {
   return slug(status).replace("locked", "blocked");
 }
@@ -4285,6 +4337,7 @@ function renderResourcePage(root) {
             <h2>What To Do First</h2>
             ${numberListHtml(page.actions)}
           </section>
+          ${resourceTeacherMovesHtml(page)}
           <section class="section-card-grid" aria-label="${page.title} supports">
             ${page.cards
               .map(

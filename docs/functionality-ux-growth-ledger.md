@@ -2553,3 +2553,57 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: hosted permission/browser proof still needs credentialed runtime; exports and staff scheduling controls need policy decisions.
   - Do not repeat: do not rebuild this home route map unless regression evidence appears.
   - First file to inspect next run: `app.js` `noHiddenCoreContentRoutes`
+
+## Run 2026-05-25 16:04 PT
+
+- Starting SHA: `3820dbc47ab3f05455e998540130f8114a0b6366`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Branch policy: work stayed on clean local `main`; local `main` was ten commits ahead of `origin/main`, `origin/main` was not ahead, and no push was run
+- Ladder level targeted: `LEVEL_0_PROTOTYPE_CLEANUP` with `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` source-test support
+- Backlog item: `public-route-page-student-teacher-emphasis`; advances `MVP-036` and `MVP-037`
+- Work order selected: Add page-level teacher/mentor checkpoint panels to public support pages.
+- Selection reason: The previous handoff named page-level Student/Teacher emphasis after the home route map. Current source showed public resource pages already had visible `Student moves`, but no matching visible teacher/mentor checkpoint panel on the same pages. Hosted permission proof remained credentialed-runtime dependent, and app-side mentor/read-only/dashboard basics were recently completed, making this the safest bounded product-readiness slice.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Public support-page teacher/mentor checkpoints | `LEVEL_0_PROTOTYPE_CLEANUP` | public teachers, mentors, students | 4 | 5 | 5 | S | 56 | selected |
+| Public support-page source test | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | public teachers, mentors | 3 | 5 | 5 | XS | 52 | included |
+| Phase-page teacher emphasis pass | `LEVEL_0_PROTOTYPE_CLEANUP` | public teachers, students | 4 | 4 | 4 | M | 45 | rejected: broader than one safe support-page slice |
+| Rubrics/grades teacher emphasis | `LEVEL_0_PROTOTYPE_CLEANUP` | public teachers, students | 4 | 4 | 4 | M | 44 | rejected: next safe public slice after support pages |
+| Public guide visual browser QA | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | public users | 3 | 4 | 3 | M | 39 | rejected: source/build proof was available without runtime dependency |
+| Hosted section-level permission proof | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all protected roles | 4 | 4 | 3 | M | 40 | blocked: needs credentialed hosted/browser runtime |
+| Review Queue missing-evidence filter | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | site staff, program teacher | 5 | 2 | 3 | M | 37 | deferred: backend/privacy support missing |
+| Student Directory missing-evidence filter | `LEVEL_1_NAVIGABLE_DASHBOARDS` | site staff, viewer | 4 | 2 | 3 | M | 35 | deferred: exact route filter missing |
+| Student guided requirement form | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 5 | 2 | 3 | L | 34 | rejected: write-path/product design needed |
+| Student due-date timeline | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 4 | 4 | 4 | S | 44 | rejected: recent student checklist/deadline work is healthy |
+| Mentor meeting scheduled-date UI | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | mentor | 3 | 3 | 4 | S | 42 | rejected: scheduling semantics need policy |
+| Staff mentor meeting controls | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | site staff | 4 | 2 | 3 | M | 35 | rejected: endpoint/policy is mentor-only |
+| Mentor reassignment/remove controls | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | site admin | 5 | 2 | 3 | L | 33 | rejected: mutation/audit policy needed |
+| Downloadable student progress summary | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | student, staff | 4 | 2 | 3 | L | 31 | rejected: export/privacy policy needed |
+| Org-admin tenant rollup | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | org_admin | 4 | 2 | 2 | L | 30 | blocked: backend aggregate and RBAC design needed |
+
+- User-facing improvement: Existing public support pages now show `Teacher and mentor checks` beside `Student moves`, giving adults concrete ways to approve sponsor plans, watch calendar risk, review supply/safety needs, coach scope, recover missed meetings, sort final evidence, confirm outline/logistics, and test showcase clarity.
+- Roles affected: public teachers, mentors, students, families as guide readers; no authenticated app role, permission, route, or data path changed
+- Files changed: `app.js`, `styles.css`, `public-companion/app.js`, `public-companion/styles.css`, `tests/account-and-evidence-access.test.mjs`, `docs/functionality-language-audit.md`, `docs/mvp-requirements-catalog.md`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`, `docs/progress/run-log.md`, `docs/progress/runs/2026-05-25-1604-public-resource-teacher-mentor-checkpoints.json`
+- Tests/verifiers added or updated: public source test now guards `data-resource-teacher-support`, `How Adults Can Support This Page`, and representative adult checkpoint phrases; generated public output was rebuilt.
+- Validation commands:
+  - Focused passed before docs/state closeout: `node --test tests/account-and-evidence-access.test.mjs`; `npm run build:public-site`; `npm run check:generated-output-drift`
+  - Final passed: `git diff --check`; `npm run verify:functionality-language`; `npm run verify:functionality-ux-automation`; `node --test tests/functionality-language-audit.test.mjs`; JSON parse for state and manifest; `npm run check:route-inventory`; `npm run check:production-surfaces`; `npm run test`; `npm run typecheck`; `npm run check`
+- Validation result: passed; `git diff --check` reported only CRLF normalization warnings, with no whitespace errors.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: phase/rubric/grade/template/portfolio page-level Student/Teacher emphasis review, hosted section-level permission proof, Review Queue/Student Directory missing-evidence filters, and export-style progress summaries remain deferred.
+- New backlog items: none
+- Next recommended work order: inspect phase pages, rubrics, grades, templates, and portfolio for page-level Student/Teacher emphasis gaps, or run hosted section-level permission proof when credentialed runtime is available.
+- Do-not-repeat notes: do not re-add the public support-page teacher/mentor checkpoint panel unless regression removes `data-resource-teacher-support` or `How Adults Can Support This Page` from source/generated output.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_0_PROTOTYPE_CLEANUP`
+  - Advanced: yes
+  - Evidence: public support pages now expose visible adult-support checkpoints and focused source/generated-output checks passed.
+  - Unlocks: remaining public work can shift to phase/rubric/grade/template/portfolio page emphasis or visual QA.
+  - Next: inspect phase pages and rubric/grade/template/portfolio pages for teacher-visible responsibilities that are still buried.
+  - Blockers: hosted permission/browser proof still needs credentialed runtime; exports and staff scheduling controls need policy decisions.
+  - Do not repeat: do not rebuild this support-page adult checkpoint panel unless regression evidence appears.
+  - First file to inspect next run: `app.js` `renderPhaseDetail()`, `goingFurtherHtml()`, and rubric/grades renderers

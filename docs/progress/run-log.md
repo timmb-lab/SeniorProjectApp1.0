@@ -21,6 +21,17 @@ This is the compact run log for the current Functionality UX Upgrade automation 
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-05-25 16:04 PT - Functionality UX Upgrade Public Support Page Teacher Checkpoints
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 0 prototype cleanup / public page-level Student and Teacher guide emphasis, supporting MVP-036 and MVP-037.
+- `starting HEAD`: `3820dbc47ab3f05455e998540130f8114a0b6366`.
+- `selected slice`: Add visible teacher/mentor checkpoint panels to existing public support pages.
+- `repo-grounded findings`: the previous handoff recommended page-level Student/Teacher emphasis beyond the home route map. Current public support pages already rendered visible `Student moves`, but adult support responsibilities were not paired on those pages; hosted permission proof remained credentialed-runtime dependent.
+- `changes`: `app.js` now adds page-specific `teacherMoves` and renders `How Adults Can Support This Page` with `data-resource-teacher-support="true"` on public support pages. `styles.css` styles the panel, generated `public-companion/` output was rebuilt, and the focused public source test guards the marker and representative checkpoint phrases.
+- `validation`: focused public-source test, public-site build, generated-output drift check, full functionality/language/automation validation, route inventory, production-surface check, full test, typecheck, aggregate check, and diff check passed. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.
+
 ## 2026-05-25 12:33 PT - Functionality UX Upgrade Mentor Dashboard Attention Ordering
 
 - `automation ID`: functionality-ux-upgrade-hourly.
