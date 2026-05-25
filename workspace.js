@@ -3374,12 +3374,14 @@ function renderStudentNextStepRow(item) {
 
 function renderStudentFeedbackPanel(feedback = [], summary = {}) {
   const rows = Array.isArray(feedback) ? feedback : [];
+  const countLabel = `${rows.length} teacher note${rows.length === 1 ? "" : "s"}`;
   return `
-    <section class="workspace-dashboard-card workspace-student-feedback-panel" data-student-feedback-panel="true" aria-labelledby="studentFeedbackTitle">
+    <section class="workspace-dashboard-card workspace-student-feedback-panel" data-student-feedback-panel="true" data-student-feedback-history="true" data-student-feedback-count="${escapeHtml(rows.length)}" aria-labelledby="studentFeedbackTitle">
       <div class="workspace-card-head">
         <div>
           <p class="workspace-kicker">Teacher feedback</p>
-          <h2 id="studentFeedbackTitle">Latest Feedback</h2>
+          <h2 id="studentFeedbackTitle">Feedback History</h2>
+          <p>${escapeHtml(rows.length ? `Showing the latest ${countLabel} meant for you.` : "Teacher review notes meant for you will appear here.")}</p>
         </div>
       </div>
       <div class="workspace-list">

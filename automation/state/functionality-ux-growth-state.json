@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-05-25T03:10:00-07:00",
-  "lastStartingSha": "a8b2518a8dde99de8f1c3ffb67b169956422be93",
+  "lastRunAt": "2026-05-25T03:36:00-07:00",
+  "lastStartingSha": "53647f8cfeecf165e08b99cd0e4c7d6300359161",
   "lastEndingSha": null,
-  "currentLadderFocus": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
+  "currentLadderFocus": "LEVEL_7_AUDITABILITY_AND_TRUST",
   "completedWorkOrders": [
     {
       "id": "workspace-header-product-language-cleanup",
@@ -289,6 +289,14 @@
       "type": "TYPE_F_REVIEW_INTERVENTION_QUEUE",
       "summary": "Operations Outline Pending now opens a scoped outlineAttention=true worklist filter with shareable URL state.",
       "commit": "pending-closeout-commit"
+    },
+    {
+      "id": "review-history-staff-only-comment-filter",
+      "completedAt": "2026-05-25T03:36:00-07:00",
+      "ladderLevel": "LEVEL_7_AUDITABILITY_AND_TRUST",
+      "type": "TYPE_G_VERIFICATION_REGRESSION_PROTECTION",
+      "summary": "Review history now hides staff-only comments from student and assigned-mentor readers while preserving staff-visible history; student feedback copy now presents the bounded review list as Feedback History.",
+      "commit": "pending-closeout-commit"
     }
   ],
   "deferredWorkOrders": [
@@ -315,16 +323,16 @@
     {
       "id": "student-feedback-history-detail",
       "ladderLevel": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN",
-      "reason": "Needs route shape and explicit staff-only comment exclusion before adding a deeper student feedback history surface."
+      "reason": "A deeper student feedback history surface still needs UI shape and version/status context; staff-only comment exclusion is now covered by review-history route tests."
     }
   ],
   "blockedWorkOrders": [],
   "nextRecommendedWorkOrders": [
     {
-      "id": "student-feedback-history-detail",
+      "id": "student-feedback-history-version-summary",
       "ladderLevel": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN",
       "type": "TYPE_C_STUDENT_DETAIL_DRILL_DOWN",
-      "summary": "Add a deeper student-safe feedback history view only after staff-only comment boundaries and route shape are proven."
+      "summary": "Use the now-filtered review-history route for a student-safe feedback detail with status/version context."
     },
     {
       "id": "missing-submission-drilldown",
@@ -362,19 +370,20 @@
     "Do not re-add Operations Presentation Pending or Archive Failed metric filter actions; extend only when another Operations metric has an exact supported route filter.",
     "Do not re-add Operations category filtering or Next Actions category drill-downs; extend only if the route adds a new safe category or exact next-action filter.",
     "Do not re-add Operations Needs Attention filtering; extend only if a regression removes needsAttention=true or a new exact attention subtype is added by the route.",
-    "Do not re-add Operations Outline Pending filtering; extend only if a regression removes outlineAttention=true or a new exact outline subtype is added by the route."
+    "Do not re-add Operations Outline Pending filtering; extend only if a regression removes outlineAttention=true or a new exact outline subtype is added by the route.",
+    "Do not re-add the review-history staff-only comment filter; extend only if a new comment visibility value or feedback source is added."
   ],
   "lastValidationStatus": {
     "status": "passed",
-    "completedAt": "2026-05-25T03:10:00-07:00",
+    "completedAt": "2026-05-25T03:36:00-07:00",
     "commands": [
       "npm run verify:dashboard-actions",
       "npm run verify:review-queue-deeplinks",
       "npm run verify:workspace-navigation",
       "npm run verify:functionality-language",
       "npm run verify:functionality-ux-automation",
+      "node --test tests/review-loop.integration.test.mjs",
       "node --test tests/workspace-app.test.mjs",
-      "node --test tests/site-operations-readiness.integration.test.mjs",
       "node --test tests/functionality-language-audit.test.mjs",
       "node -e JSON.parse automation/state/functionality-ux-growth-state.json",
       "npm run check:route-inventory",
@@ -385,7 +394,7 @@
       "git diff --check",
       "git status --short"
     ],
-    "notes": "Full required validation passed for the Operations Outline Pending filter slice. git diff --check reported CRLF normalization warnings only. No browser smoke was run because this route/UI path is covered by workspace render tests, site operations integration tests, and dashboard/navigation verifiers. No remote seed/reset/migration, live data write, deploy, credential repair, domain/OAuth, or Cloudflare config change was run."
+    "notes": "Full required validation passed for the review-history staff-only comment filter slice. git diff --check reported CRLF normalization warnings only. No browser smoke was run because this API/UI privacy path is covered by review-loop integration tests, workspace render tests, and source verifiers. No remote seed/reset/migration, live data write, deploy, credential repair, domain/OAuth, or Cloudflare config change was run."
   },
   "lastProductReadinessScorecardSummary": {
     "homepageClarity": "4 to 4",

@@ -53,7 +53,7 @@ Status uses simple rules:
 - Progress hero with title, percentage, status badge, and accessible progress bar.
 - Four summary cards: Project Phases, Required Submissions, Review Status, and Mentor / Support.
 - What to Work On Next, prioritized by revision items, missing submissions, current-phase work, waiting review, then next remaining requirement.
-- Latest Feedback, showing the newest teacher review notes already tied to the student's own submissions.
+- Feedback History, showing bounded teacher review notes already tied to the student's own submissions.
 - Submitted Work rows now repeat the latest teacher feedback beside the matching submission when the scoped dashboard response includes a review for that submission.
 - Progress Details with current phase, completed requirements, missing submissions, review counts, last updated, evidence count, and feedback action status.
 - May 5 archive status fact when the student-owned archive readiness response has closeout checks to summarize.
@@ -80,7 +80,7 @@ No new fake links were added. The dashboard keeps existing real actions only:
 
 Future student drill-down links were not added because there is not yet a dedicated student-safe requirement detail page.
 
-Latest teacher feedback is read-only and comes from review rows already scoped to the student's own submissions. The submitted-work list only repeats feedback that matches that submission ID. Staff-only comments are not added to the student dashboard response.
+Teacher feedback history is read-only and comes from review rows already scoped to the student's own submissions. The submitted-work list only repeats feedback that matches that submission ID. Staff-only comments are not added to the student dashboard response, and the shared review-history route now filters `staff_only` comments out for student and assigned-mentor readers.
 
 ## Language Cleanup
 
@@ -90,7 +90,7 @@ Student-facing copy on this route now uses "work," "evidence," "submitted work,"
 
 1. Add a student-safe requirement detail page.
 2. Add phase-specific student progress pages.
-3. Add a deeper student-safe feedback history view after confirming comment visibility and whether staff-only notes remain outside that surface.
+3. Add a deeper student-safe feedback history view with status/version context now that staff-only comment filtering is covered.
 4. Add mentor contact/support workflow without exposing unsafe contact data.
 5. Add a richer due-date timeline from `deadlines`.
 6. Add a downloadable student progress summary.

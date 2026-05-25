@@ -2202,7 +2202,10 @@ test("workspace renders a progress-first student homepage with safe language", a
   assert.match(student, /Your action/);
   assert.match(student, /What to Work On Next/);
   assert.match(student, /data-student-feedback-panel="true"/);
-  assert.match(student, /Latest Feedback/);
+  assert.match(student, /data-student-feedback-history="true"/);
+  assert.match(student, /data-student-feedback-count="1"/);
+  assert.match(student, /Feedback History/);
+  assert.match(student, /Showing the latest 1 teacher note meant for you/);
   assert.match(student, /Add one measurable success target before resubmitting/);
   assert.match(student, /data-submission-feedback="true"/);
   assert.match(student, /Latest teacher feedback: Add one measurable success target before resubmitting/);

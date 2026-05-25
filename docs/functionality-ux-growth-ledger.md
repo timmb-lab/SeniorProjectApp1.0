@@ -1186,3 +1186,59 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: browser QA still needs credentialed runtime; student feedback history still needs route/visibility decision; missing/evidence drill-down still lacks exact route mapping.
   - Do not repeat: do not rebuild `outlineAttention=true` unless a regression removes it from route/UI/tests.
   - First file to inspect next run: `workspace.js` `renderStudentFeedbackPanel()` and `functions/api/student/dashboard.ts` feedback query
+
+## Run 2026-05-25 03:36 PT
+
+- Starting SHA: `53647f8cfeecf165e08b99cd0e4c7d6300359161`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Branch policy: work stayed on clean local `main`; local `main` was fifteen commits ahead of `origin/main`, `origin/main` was not ahead, and no push was run
+- Ladder level targeted: `LEVEL_7_AUDITABILITY_AND_TRUST` with `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` support
+- Backlog item: `review-history-staff-only-comment-filter`; supports `MVP-016` immutable review history and student-safe feedback visibility from `docs/master-plan.md`
+- Work order selected: Filter `staff_only` comments out of `/api/reviews/:submissionId/history` for student and assigned-mentor readers while preserving staff-visible review history.
+- Selection reason: The previous handoff named student-safe feedback history with explicit staff-only comment exclusion. Current source showed `/api/student/dashboard` was already safe because it exposes bounded review rows only, but the shared review-history route returned all submission comments after `canViewSubmission()` allowed student-own or assigned-mentor access. The selected slice closes that privacy boundary before adding any deeper student feedback drill-down.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Review history staff-only comment filter | `LEVEL_7_AUDITABILITY_AND_TRUST` | student, mentor, staff | 5 | 5 | 5 | S | 60 | selected |
+| Student feedback panel history clarity | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 4 | 5 | 5 | XS | 55 | selected as supporting copy |
+| Student-safe review-history versions | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 5 | 4 | 4 | M | 48 | deferred: route boundary needed first |
+| Student detail visible-note labels | `LEVEL_7_AUDITABILITY_AND_TRUST` | staff, students | 4 | 5 | 4 | S | 45 | rejected: lower immediate privacy value |
+| Student requirement detail panel | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 4 | 4 | 4 | M | 44 | deferred: needs bounded design from existing dashboard data |
+| Operations empty-state wording | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | staff, viewer | 3 | 5 | 4 | XS | 43 | rejected: copy-only while route privacy was ready |
+| Assignment form unavailable copy cleanup | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | site admin | 3 | 5 | 4 | XS | 43 | rejected: lower privacy/workflow value |
+| Viewer read-only homepage clarity | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | viewer | 3 | 5 | 4 | XS | 42 | rejected: read-only controls already guarded |
+| Student Directory mentor filter labels | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | staff | 4 | 3 | 4 | M | 42 | deferred: needs safe API-provided mentor labels |
+| Public app-preview language cleanup | `LEVEL_0_PROTOTYPE_CLEANUP` | public | 3 | 5 | 4 | S | 40 | rejected: protected API privacy had higher value |
+| Credentialed browser QA for worklist URLs | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all | 4 | 4 | 3 | M | 39 | blocked: needs credentialed local or hosted runtime |
+| Missing/evidence drill-down mapping | `LEVEL_1_NAVIGABLE_DASHBOARDS` | staff | 5 | 2 | 3 | M | 38 | deferred: exact Review Queue or Directory mapping remains unproven |
+| Site Admin mentor POST default alignment | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | site admin | 4 | 2 | 4 | M | 37 | deferred: mutation policy risk is too high |
+| Program teacher missing-submission queue | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | program teacher | 4 | 3 | 3 | M | 37 | deferred: needs scoped route mapping |
+| Mentor assigned-student meeting depth | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | mentor | 4 | 3 | 3 | M | 36 | deferred: needs route/data shape design |
+| Student due-date timeline | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 4 | 3 | 3 | M | 35 | deferred: due-date source mapping remains unclear |
+| Org-admin tenant rollup | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | org admin | 4 | 2 | 2 | L | 30 | blocked: needs backend aggregate/RBAC design |
+
+- User-facing improvement: Students and assigned mentors can safely use review history without receiving private staff-only comments; students also see their bounded teacher-review panel labeled as feedback history instead of a single latest note.
+- Roles affected: student, mentor, program teacher, viewer, site/org/platform/admin staff; tenant, site, program, mentor-assignment, and own-student access boundaries were not broadened.
+- Files changed: `functions/api/reviews/[submissionId]/history.ts`, `workspace.js`, `tests/review-loop.integration.test.mjs`, `tests/workspace-app.test.mjs`, `docs/student-progress-dashboard.md`, `docs/functionality-language-audit.md`, `docs/mvp-requirements-catalog.md`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`, `docs/progress/run-log.md`
+- Tests/verifiers added or updated: review-loop integration test now proves student and assigned-mentor redaction of `staff_only` comments while staff still receive them; workspace test guards `Feedback History` panel markers and bounded copy.
+- Validation commands:
+  - Focused: `node --test tests/review-loop.integration.test.mjs`; `node --test tests/workspace-app.test.mjs`; `npm run verify:functionality-language`
+  - Final planned: `npm run verify:dashboard-actions`; `npm run verify:review-queue-deeplinks`; `npm run verify:workspace-navigation`; `npm run verify:functionality-language`; `npm run verify:functionality-ux-automation`; `node --test tests/review-loop.integration.test.mjs`; `node --test tests/workspace-app.test.mjs`; `node --test tests/functionality-language-audit.test.mjs`; JSON parse for `automation/state/functionality-ux-growth-state.json`; `npm run check:route-inventory`; `npm run test`; `npm run typecheck`; `npm run check:production-surfaces`; `npm run check`; `git diff --check`; `git status --short`
+- Validation result: passed; `git diff --check` reported CRLF normalization warnings only
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: student-safe review-history version/status drill-down; missing/evidence drill-down mapping; credentialed browser QA
+- New backlog items: none
+- Next recommended work order: add a student-safe review-history detail using the now-filtered route only if the UI clearly limits comments to student-visible feedback, or return to missing/evidence drill-down mapping if route support is exact.
+- Do-not-repeat notes: do not re-add the review-history staff-only comment filter; extend only if a new comment visibility value or feedback source is added.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_7_AUDITABILITY_AND_TRUST`
+  - Advanced: yes
+  - Evidence: `/api/reviews/:submissionId/history` now applies `comments.visibility != 'staff_only'` for student and mentor readers, while focused tests prove staff-visible history still includes staff-only comments.
+  - Unlocks: a deeper student-safe feedback history/detail surface can now use the review-history route without leaking staff-only comments.
+  - Next: add student-safe review-history detail with version/status context, or prove the missing/evidence drill-down mapping.
+  - Blockers: deeper student feedback history still needs UI shape; missing/evidence drill-down still lacks exact route mapping; browser QA still needs credentialed runtime.
+  - Do not repeat: do not rebuild the comment filter unless a regression removes it.
+  - First file to inspect next run: `workspace.js` `renderStudentFeedbackPanel()` and `functions/api/reviews/[submissionId]/history.ts`

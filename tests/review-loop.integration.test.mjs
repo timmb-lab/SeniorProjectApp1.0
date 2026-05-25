@@ -590,6 +590,81 @@ test("review history audits unauthorized, denied, and viewed access", async () =
   }
 });
 
+test("review history hides staff-only comments from student and mentor readers", async () => {
+  const fixture = await createFixture();
+  fixture.db.data.comments.push(
+    {
+      id: "comment-student-visible",
+      entity_type: "submission",
+      entity_id: "submission-1",
+      author_user_id: "teacher-a",
+      visibility: "student_and_staff",
+      body: "Use the rubric examples before resubmitting.",
+      created_at: "2026-05-20T01:00:00.000Z",
+      deleted_at: null,
+    },
+    {
+      id: "comment-staff-only",
+      entity_type: "submission",
+      entity_id: "submission-1",
+      author_user_id: "teacher-a",
+      visibility: "staff_only",
+      body: "Private staff note about intervention planning.",
+      created_at: "2026-05-20T01:05:00.000Z",
+      deleted_at: null,
+    },
+  );
+
+  const studentResponse = await onReviewHistory({
+    request: buildAuthedRequest("https://example.test/api/reviews/submission-1/history", fixture.studentToken),
+    env: fixture.env,
+    params: { submissionId: "submission-1" },
+  });
+
+  assert.equal(studentResponse.status, 200);
+  const studentBody = await studentResponse.json();
+  assert.deepEqual(studentBody.comments.map((row) => row.body), [
+    "Use the rubric examples before resubmitting.",
+  ]);
+  assert.doesNotMatch(JSON.stringify(studentBody), /Private staff note|staff_only/);
+  assert.equal(fixture.db.data.auditEvents.at(-1).metadata.commentCount, 1);
+
+  const mentorToken = await addAuthedUser(fixture.db, {
+    userId: "mentor-history",
+    displayName: "Mentor History",
+    roleId: "mentor",
+  });
+  fixture.db.data.mentorAssignments.push({
+    mentor_user_id: "mentor-history",
+    student_user_id: "student-a",
+    active: 1,
+  });
+
+  const mentorResponse = await onReviewHistory({
+    request: buildAuthedRequest("https://example.test/api/reviews/submission-1/history", mentorToken),
+    env: fixture.env,
+    params: { submissionId: "submission-1" },
+  });
+
+  assert.equal(mentorResponse.status, 200);
+  const mentorBody = await mentorResponse.json();
+  assert.deepEqual(mentorBody.comments.map((row) => row.visibility), ["student_and_staff"]);
+  assert.doesNotMatch(JSON.stringify(mentorBody), /Private staff note|staff_only/);
+  assert.equal(fixture.db.data.auditEvents.at(-1).metadata.commentCount, 1);
+
+  const teacherResponse = await onReviewHistory({
+    request: buildAuthedRequest("https://example.test/api/reviews/submission-1/history", fixture.teacherToken),
+    env: fixture.env,
+    params: { submissionId: "submission-1" },
+  });
+
+  assert.equal(teacherResponse.status, 200);
+  const teacherBody = await teacherResponse.json();
+  assert.deepEqual(teacherBody.comments.map((row) => row.visibility), ["staff_only", "student_and_staff"]);
+  assert.match(JSON.stringify(teacherBody), /Private staff note about intervention planning/);
+  assert.equal(fixture.db.data.auditEvents.at(-1).metadata.commentCount, 2);
+});
+
 test("review decisions audit unauthorized and denied reviewer access", async () => {
   {
     const fixture = await createFixture();
@@ -995,9 +1070,10 @@ class MockPreparedStatement {
     }
 
     if (this.sql.includes("from comments")) {
-      const [entityId] = this.params;
+      const [entityId, includeStaffOnly] = this.params;
       const results = this.data.comments
         .filter((row) => row.entity_type === "submission" && row.entity_id === entityId && !row.deleted_at)
+        .filter((row) => Number(includeStaffOnly) === 1 || row.visibility !== "staff_only")
         .map((row) => {
           const author = this.data.userAccounts.find((account) => account.id === row.author_user_id);
           return {

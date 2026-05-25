@@ -1762,3 +1762,14 @@ Future productive runs should append compact entries that name the master-plan s
 - `changes`: added `outlineAttention` parsing/filtering to the Operations readiness route; exposed the Operations `Outline Pending` metric action; synced `outlineAttention=true` in workspace URL state; added active-filter copy; updated workspace/route tests and dashboard/navigation verifiers.
 - `validation`: focused dashboard/navigation verifiers plus `tests/workspace-app.test.mjs` and `tests/site-operations-readiness.integration.test.mjs` passed before final validation; final validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
 - `commit/push status`: pending closeout commit.
+
+## 2026-05-25 PT - Functionality UX Upgrade Review History Comment Privacy
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 7 auditability and trust / Level 6 student feedback history safety.
+- `starting HEAD`: `53647f8cfeecf165e08b99cd0e4c7d6300359161`.
+- `selected slice`: Filter `staff_only` comments out of `/api/reviews/:submissionId/history` for student and assigned-mentor readers while preserving staff-visible review history.
+- `repo-grounded findings`: the student dashboard feedback array was already scoped to review rows from the viewed student's own submissions, but the shared review-history route returned all submission comments after `canViewSubmission()` allowed student-own or assigned-mentor access. The site student detail route already had the intended visibility rule: students/mentors should not receive staff-only comments.
+- `changes`: added a staff-comment role allowlist to the review-history route, filtered comments with `comments.visibility != 'staff_only'` for non-staff readers, relabeled the student home feedback panel as `Feedback History`, and added route/UI tests proving student and mentor redaction plus staff preservation.
+- `validation`: focused `tests/review-loop.integration.test.mjs`, `tests/workspace-app.test.mjs`, and `npm run verify:functionality-language` passed before final validation; final validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit.

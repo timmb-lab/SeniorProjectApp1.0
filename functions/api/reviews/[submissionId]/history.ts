@@ -45,6 +45,8 @@ interface CommentHistoryRow {
   author_name: string | null;
 }
 
+const STAFF_COMMENT_ROLES = new Set(["platform_admin", "admin", "org_admin", "site_admin", "viewer", "program_teacher"]);
+
 export const onRequestGet: PagesFunction<Env> = async ({ request, env, params }) => {
   const submissionId = String(params?.submissionId || "").trim();
   if (!submissionId) return workflowError("missing_submission_id", 400);
@@ -132,6 +134,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env, params })
      LIMIT 20`,
   ).bind(submission.id).all<SubmissionVersionRow>();
 
+  const includeStaffOnlyComments = await canViewStaffOnlyComments(env, user);
   const comments = await env.DB.prepare(
     `SELECT
        comments.id,
@@ -144,9 +147,10 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env, params })
      WHERE comments.entity_type = 'submission'
        AND comments.entity_id = ?
        AND comments.deleted_at IS NULL
+       AND (? = 1 OR comments.visibility != 'staff_only')
      ORDER BY comments.created_at DESC
      LIMIT 30`,
-  ).bind(submission.id).all<CommentHistoryRow>();
+  ).bind(submission.id, includeStaffOnlyComments ? 1 : 0).all<CommentHistoryRow>();
 
   await auditReviewHistoryAccess(env, request, user, "review_history_viewed", submission.id, {
     studentId: submission.student_id,
@@ -206,6 +210,11 @@ async function canViewSubmissionHistoryForSite(
   }
 
   return { ok: true };
+}
+
+async function canViewStaffOnlyComments(env: Env, user: UserAccount): Promise<boolean> {
+  const assignments = await getRoleAssignments(env, user.id);
+  return assignments.some((assignment) => STAFF_COMMENT_ROLES.has(assignment.role_id));
 }
 
 async function studentHasActiveSite(env: Env, studentId: string, siteId: string): Promise<boolean> {
