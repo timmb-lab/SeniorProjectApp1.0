@@ -211,6 +211,7 @@ const OPERATIONS_URL_FILTER_PARAMS = [
   "archiveStatus",
   "readiness",
   "category",
+  "needsAttention",
   "limit",
   "offset",
 ];
@@ -898,6 +899,15 @@ async function openWorkspaceSection(button) {
     };
     syncOperationsReadinessUrlState();
     await loadOperationsReadinessResult("Showing archive follow-up.");
+    return;
+  }
+  if (section === "operations" && button.dataset.sectionPreset === "needs-attention") {
+    operationsReadinessFilters = {
+      ...defaultOperationsReadinessFilters(),
+      needsAttention: true,
+    };
+    syncOperationsReadinessUrlState();
+    await loadOperationsReadinessResult("Showing operations rows that need attention.");
     return;
   }
   if (section === "operations" && button.dataset.sectionPreset === "program-breakdown") {
@@ -2693,7 +2703,7 @@ function renderOperationsReadinessSection() {
         ${renderMetricTile("Outline Pending", summary.outlinePending, "Needs outline approval", safeNumber(summary.outlinePending) ? "warning" : "teacher")}
         ${renderMetricTile("Archive Ready", summary.archiveReady, "Ready or complete package state", "mentor")}
         ${renderMetricTile("Archive Failed", summary.archiveFailed, "Needs archive follow-up", safeNumber(summary.archiveFailed) ? "danger" : "admin", "operations", { label: "Review rows", preset: "archive-failed" })}
-        ${renderMetricTile("Needs Attention", summary.needsAttention, "Blocked, missing, or high-risk rows", safeNumber(summary.needsAttention) ? "danger" : "admin")}
+        ${renderMetricTile("Needs Attention", summary.needsAttention, "Blocked, missing, or high-risk rows", safeNumber(summary.needsAttention) ? "danger" : "admin", "operations", { label: "Review rows", preset: "needs-attention" })}
       </div>
       ${renderOperationsFilters(body)}
       ${renderOperationsActiveFilters(body?.filters || operationsReadinessFilters || defaultOperationsReadinessFilters(), body?.filterOptions || {})}
@@ -2816,6 +2826,7 @@ function renderOperationsActiveFilters(filters = {}, options = {}) {
   if (filters.archiveStatus) chips.push(activeFilterChip("Archive", statusText(filters.archiveStatus)));
   if (filters.readiness) chips.push(activeFilterChip("Readiness", statusText(filters.readiness)));
   if (filters.category) chips.push(activeFilterChip("Category", categoryLabel(filters.category)));
+  if (filters.needsAttention) chips.push(activeFilterChip("Needs attention", "Blocked, missing, or high-risk rows"));
   if (filters.story) chips.push(activeFilterChip("Story", storyLabel(filters.story)));
   if (filters.risk && filters.risk !== "any") chips.push(activeFilterChip("Risk", riskLabel(filters.risk)));
   if (safeNumber(filters.limit) !== 50) chips.push(activeFilterChip("Page size", filters.limit));
@@ -4207,6 +4218,7 @@ async function applyOperationsReadinessFilters(event) {
     archiveStatus: cleanDirectoryFilter(data.get("archiveStatus")),
     readiness: cleanDirectoryFilter(data.get("readiness")),
     category: cleanDirectoryFilter(data.get("category")),
+    needsAttention: false,
     limit: clampDirectoryNumber(data.get("limit"), 50, 1, 100),
     offset: 0,
   };
@@ -5914,6 +5926,7 @@ function defaultOperationsReadinessFilters() {
     archiveStatus: "",
     readiness: "",
     category: "",
+    needsAttention: false,
     limit: 50,
     offset: 0,
   };
@@ -6119,6 +6132,7 @@ function operationsReadinessFiltersFromSearchParams(params) {
   filters.archiveStatus = canonicalReviewQueueValue(params.get("archiveStatus"), OPERATIONS_ARCHIVE_STATUS_VALUES);
   filters.readiness = canonicalReviewQueueValue(params.get("readiness"), OPERATIONS_READINESS_VALUES);
   filters.category = canonicalReviewQueueValue(params.get("category"), OPERATIONS_CATEGORY_VALUES);
+  filters.needsAttention = booleanQueryValue(params.get("needsAttention"));
   filters.limit = clampDirectoryNumber(params.get("limit"), 50, 1, 100);
   filters.offset = clampDirectoryNumber(params.get("offset"), 0, 0, 100000);
   return filters;
@@ -6208,6 +6222,7 @@ function syncOperationsReadinessUrlState(options = {}) {
     if (filters.archiveStatus) url.searchParams.set("archiveStatus", filters.archiveStatus);
     if (filters.readiness) url.searchParams.set("readiness", filters.readiness);
     if (filters.category) url.searchParams.set("category", filters.category);
+    if (filters.needsAttention) url.searchParams.set("needsAttention", "true");
     if (safeNumber(filters.limit) !== 50) url.searchParams.set("limit", String(filters.limit));
     if (safeNumber(filters.offset) > 0) url.searchParams.set("offset", String(filters.offset));
   });
@@ -6361,6 +6376,7 @@ function siteOperationsReadinessQueryString() {
   if (filters.archiveStatus) params.set("archiveStatus", filters.archiveStatus);
   if (filters.readiness) params.set("readiness", filters.readiness);
   if (filters.category) params.set("category", filters.category);
+  if (filters.needsAttention) params.set("needsAttention", "true");
   if (safeNumber(filters.limit) !== 50) params.set("limit", String(filters.limit));
   if (safeNumber(filters.offset) > 0) params.set("offset", String(filters.offset));
   const query = params.toString();

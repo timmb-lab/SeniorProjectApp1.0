@@ -69,6 +69,7 @@ interface OperationFilters {
   archiveStatus: string;
   readiness: string;
   category: string;
+  needsAttention: boolean;
   limit: number;
   offset: number;
 }
@@ -277,6 +278,7 @@ async function buildOperationsPayload({
       archiveStatus: filters.archiveStatus,
       readiness: filters.readiness,
       category: filters.category,
+      needsAttention: filters.needsAttention,
       limit: filters.limit,
       offset: filters.offset,
     },
@@ -816,6 +818,7 @@ function matchesFilters(row: OperationStudentRow, filters: OperationFilters): bo
   if (filters.archiveStatus && !matchesArchiveStatus(row.archiveStatus, filters.archiveStatus)) return false;
   if (filters.readiness && row.readinessStatus !== filters.readiness) return false;
   if (filters.category && row.readinessCategory !== filters.category) return false;
+  if (filters.needsAttention && !shouldShowAttentionRow(row)) return false;
   return true;
 }
 
@@ -1095,6 +1098,7 @@ function parseFilters(params: URLSearchParams): OperationFilters {
     archiveStatus: canonical(params.get("archiveStatus"), ARCHIVE_STATUS_VALUES),
     readiness: canonical(params.get("readiness"), READINESS_VALUES),
     category: canonical(params.get("category"), CATEGORY_VALUES),
+    needsAttention: booleanFilter(params.get("needsAttention")),
     limit: clampNumber(params.get("limit"), DEFAULT_LIMIT, 1, MAX_LIMIT),
     offset: clampNumber(params.get("offset"), 0, 0, 100000),
   };
@@ -1138,6 +1142,10 @@ function clampNumber(value: string | null, fallback: number, min: number, max: n
   return Math.max(min, Math.min(max, parsed));
 }
 
+function booleanFilter(value: string | null): boolean {
+  return ["1", "true", "yes", "on"].includes(String(value || "").trim().toLowerCase());
+}
+
 function safeText(value: string | null | undefined, maxLength: number): string {
   return String(value || "").replace(/[\r\n]+/g, " ").replace(/\s+/g, " ").trim().slice(0, maxLength);
 }
@@ -1152,6 +1160,7 @@ function safeFilterSummary(filters: OperationFilters) {
     archiveStatus: filters.archiveStatus,
     readiness: filters.readiness,
     category: filters.category,
+    needsAttention: filters.needsAttention,
     limit: filters.limit,
     offset: filters.offset,
   };

@@ -1740,3 +1740,14 @@ Future productive runs should append compact entries that name the master-plan s
 - `changes`: added the backend category allowlist/filter/response option; added Operations Category filter UI, active-filter chip, query parsing/sync, and `View risk/archive/... rows` Next Action buttons; updated dashboard/navigation verifiers plus workspace and site-operations tests.
 - `validation`: focused dashboard/navigation verifiers plus `tests/workspace-app.test.mjs` and `tests/site-operations-readiness.integration.test.mjs` passed before final validation; final validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
 - `commit/push status`: pending closeout commit.
+
+## 2026-05-25 PT - Functionality UX Upgrade Operations Needs Attention Filter
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 5 review/intervention queues / Operations readiness attention filtering.
+- `starting HEAD`: `d96a5c2ee10ae4006e6d7fc1b28822273b64e0c3`.
+- `selected slice`: Link Operations `Needs Attention` to a real scoped `needsAttention=true` filter and shareable URL state.
+- `repo-grounded findings`: the previous handoff named the Operations `Needs Attention` mapping. Current source rendered the metric as summary-only, while `/api/site/operations-readiness` already had the exact attention-row definition through `shouldShowAttentionRow()` for blocked, missing, or attention-required rows.
+- `changes`: added `needsAttention` parsing/filtering to the Operations readiness route; exposed the Operations metric action; synced `needsAttention=true` in workspace URL state; added active-filter copy; updated workspace/route tests and dashboard/navigation verifiers.
+- `validation`: focused dashboard/navigation verifiers plus `tests/workspace-app.test.mjs` and `tests/site-operations-readiness.integration.test.mjs` passed before final validation; final validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit.

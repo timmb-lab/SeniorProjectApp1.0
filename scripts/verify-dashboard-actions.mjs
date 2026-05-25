@@ -82,6 +82,7 @@ const allowedPresets = new Map([
   ["revision-requested", "teacher"],
   ["presentation-pending", "operations"],
   ["archive-failed", "operations"],
+  ["needs-attention", "operations"],
   ["program-breakdown", "operations"],
 ]);
 
@@ -176,6 +177,16 @@ assertMatches(
   "workspaceJs",
   /renderMetricTile\("Archive Failed"[\s\S]*"operations", \{ label: "Review rows", preset: "archive-failed" \}\)/,
   "Operations Archive Failed metric must open the existing archive-failed worklist filter",
+);
+assertMatches(
+  "workspaceJs",
+  /section === "operations" && button\.dataset\.sectionPreset === "needs-attention"[\s\S]*needsAttention: true[\s\S]*syncOperationsReadinessUrlState\(\)/,
+  "needs-attention dashboard preset must be backed by the Operations attention filter and sync URL state",
+);
+assertMatches(
+  "workspaceJs",
+  /renderMetricTile\("Needs Attention"[\s\S]*"operations", \{ label: "Review rows", preset: "needs-attention" \}\)/,
+  "Operations Needs Attention metric must open the existing attention worklist filter",
 );
 assertMatches(
   "workspaceJs",

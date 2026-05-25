@@ -1234,6 +1234,7 @@ test("workspace applies shareable URL filters for site worklists safely", async 
     archiveStatus: "provider_unavailable",
     readiness: "blocked",
     category: "archive",
+    needsAttention: true,
     limit: 25,
     offset: 0,
   };
@@ -1245,7 +1246,7 @@ test("workspace applies shareable URL filters for site worklists safely", async 
       body: siteOperationsReadinessFixture({ role: "site_admin", filters: operationsFilters }),
     },
   }, {
-    url: "https://workspace.example/workspace.html?section=operations&siteId=site-desert-valley-high&programId=it&status=revision_requested&story=archive_failed&risk=high&presentationStatus=bogus&archiveStatus=provider_unavailable&readiness=blocked&category=archive&limit=25&offset=-4&unknown=keep&studentId=stale",
+    url: "https://workspace.example/workspace.html?section=operations&siteId=site-desert-valley-high&programId=it&status=revision_requested&story=archive_failed&risk=high&presentationStatus=bogus&archiveStatus=provider_unavailable&readiness=blocked&category=archive&needsAttention=true&limit=25&offset=-4&unknown=keep&studentId=stale",
   });
   const operationsFetch = operationsContext.fetchLog.find((entry) => entry.startsWith("/api/site/operations-readiness?"));
   assert.ok(operationsFetch, "expected Operations fetch with URL filters");
@@ -1257,6 +1258,7 @@ test("workspace applies shareable URL filters for site worklists safely", async 
   assert.equal(operationsUrl.searchParams.get("archiveStatus"), "provider_unavailable");
   assert.equal(operationsUrl.searchParams.get("readiness"), "blocked");
   assert.equal(operationsUrl.searchParams.get("category"), "archive");
+  assert.equal(operationsUrl.searchParams.get("needsAttention"), "true");
   assert.equal(operationsUrl.searchParams.get("limit"), "25");
   assert.equal(operationsUrl.searchParams.has("presentationStatus"), false);
   assert.equal(operationsUrl.searchParams.has("offset"), false);
@@ -1266,11 +1268,12 @@ test("workspace applies shareable URL filters for site worklists safely", async 
   assert.match(operationsContext.workspaceRoot.innerHTML, /Submission/);
   assert.match(operationsContext.workspaceRoot.innerHTML, /Any category/);
   assert.match(operationsContext.workspaceRoot.innerHTML, /Category/);
+  assert.match(operationsContext.workspaceRoot.innerHTML, /Needs attention/);
   assert.match(operationsContext.workspaceRoot.innerHTML, /Reload or share this view with the current browser URL/);
   await vm.runInContext('handleOperationsReadinessAction({ currentTarget: { dataset: { operationsAction: "reset-filters" } } })', operationsContext.context);
   assert.match(operationsContext.window.location.href, /unknown=keep/);
   assert.match(operationsContext.window.location.href, /section=operations/);
-  assert.doesNotMatch(operationsContext.window.location.href, /programId=|status=|story=|risk=|archiveStatus=|readiness=|category=|limit=|studentId=/);
+  assert.doesNotMatch(operationsContext.window.location.href, /programId=|status=|story=|risk=|archiveStatus=|readiness=|category=|needsAttention=|limit=|studentId=/);
 });
 
 test("workspace renders site-scoped Mentor Assignments with role-safe assignment controls", async () => {
@@ -1539,6 +1542,7 @@ test("workspace renders site-scoped Operations readiness worklists without mutat
   assert.match(siteAdmin, /Needs Attention/);
   assert.match(siteAdmin, /data-section="operations" data-section-preset="presentation-pending">Review rows/);
   assert.match(siteAdmin, /data-section="operations" data-section-preset="archive-failed">Review rows/);
+  assert.match(siteAdmin, /data-section="operations" data-section-preset="needs-attention">Review rows/);
   assert.match(siteAdmin, /Presentation Pending Demo 001/);
   assert.match(siteAdmin, /Archive Failed Demo 001/);
   assert.match(siteAdmin, /Archive Ready Demo 001/);
@@ -1672,6 +1676,15 @@ test("workspace renders site-scoped Operations readiness worklists without mutat
   assert.equal(archiveUrl.searchParams.get("readiness"), "blocked");
   assert.equal(archiveUrl.searchParams.has("programId"), false);
   assert.match(window.location.href, /archiveStatus=failed/);
+
+  await vm.runInContext('openWorkspaceSection({ dataset: { section: "operations", sectionPreset: "needs-attention" } })', context);
+  const attentionFetch = fetchLog.findLast((entry) => entry.startsWith("/api/site/operations-readiness?"));
+  assert.ok(attentionFetch, "expected Operations fetch with needs-attention filter");
+  const attentionUrl = new URL(attentionFetch, "https://workspace.example");
+  assert.equal(attentionUrl.searchParams.get("needsAttention"), "true");
+  assert.equal(attentionUrl.searchParams.has("archiveStatus"), false);
+  assert.equal(attentionUrl.searchParams.has("readiness"), false);
+  assert.match(window.location.href, /needsAttention=true/);
 
   await vm.runInContext('handleOperationsReadinessAction({ currentTarget: { dataset: { operationsAction: "filter-category", operationsCategory: "risk" } } })', context);
   const categoryFetch = fetchLog.findLast((entry) => entry.startsWith("/api/site/operations-readiness?"));
@@ -1839,6 +1852,7 @@ test("workspace gates operations readiness visibility and keeps it read-only", (
   assert.match(workspaceJs, /function loadOperationsReadinessResult/);
   assert.match(workspaceJs, /button\.dataset\.sectionPreset === "presentation-pending"/);
   assert.match(workspaceJs, /button\.dataset\.sectionPreset === "archive-failed"/);
+  assert.match(workspaceJs, /button\.dataset\.sectionPreset === "needs-attention"/);
   assert.match(workspaceJs, /data-operations-action="filter-category"/);
   assert.match(workspaceJs, /data-operations-action="open-student"/);
   assert.match(workspaceJs, /openSiteStudentDetail\(event\.currentTarget\?\.dataset\?\.operationsStudentId/);
@@ -1893,6 +1907,7 @@ test("workspace dashboard actions use supported filters and loaders", () => {
   assert.match(workspaceJs, /data-operations-action="filter-category"/);
   assert.match(workspaceJs, /const category = canonicalReviewQueueValue\(event\.currentTarget\?\.dataset\?\.operationsCategory, OPERATIONS_CATEGORY_VALUES\)/);
   assert.match(workspaceJs, /params\.set\("category", filters\.category\)/);
+  assert.match(workspaceJs, /params\.set\("needsAttention", "true"\)/);
   assert.match(workspaceJs, /function siteStudentQueryString/);
   assert.match(workspaceJs, /params\.set\("programId", filters\.programId\)/);
   assert.match(workspaceJs, /params\.set\("status", filters\.status\)/);
@@ -3467,6 +3482,7 @@ function siteOperationsReadinessFixture({
       archiveStatus: "",
       readiness: "",
       category: "",
+      needsAttention: false,
       limit: 50,
       offset: 0,
     },

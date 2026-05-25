@@ -127,6 +127,15 @@ test("site operations readiness route is scoped, read-only, audited, bounded, an
   assert.equal(archiveCategory.readiness.attentionRows.every((row) => row.category === "archive"), true);
   assert.equal(archiveCategory.readiness.nextActions.every((row) => row.category === "archive"), true);
 
+  const needsAttention = await expectOperations(env, tokens.siteAdminPrimary, `?siteId=${PRIMARY_SITE_ID}&needsAttention=true&limit=100`);
+  assert.equal(needsAttention.filters.needsAttention, true);
+  assert.equal(needsAttention.pagination.filteredTotal, needsAttention.summary.needsAttention);
+  assert.equal(
+    needsAttention.readiness.attentionRows.every((row) => ["blocked", "attention_required", "missing"].includes(row.status)),
+    true,
+  );
+  assert.equal(needsAttention.readiness.nextActions.length > 0, true);
+
   for (const story of ["presentation_pending", "archive_ready", "archive_failed", "high_risk"]) {
     const body = await expectOperations(env, tokens.siteAdminPrimary, `?siteId=${PRIMARY_SITE_ID}&story=${story}&limit=100`);
     assert.equal(body.pagination.filteredTotal > 0, true, story);
@@ -149,7 +158,7 @@ test("site operations readiness route is scoped, read-only, audited, bounded, an
   assert.equal(detail.response.status, 200);
   assert.equal(detail.body.student.studentId, richStudentId);
 
-  for (const body of [platform, secondary, legacy, org, siteAdmin, viewer, teacher, archiveFailed, archiveReady, presentationPending, highRisk, paged, offset, capped, richTimeline, detail.body]) {
+  for (const body of [platform, secondary, legacy, org, siteAdmin, viewer, teacher, archiveFailed, archiveReady, presentationPending, highRisk, archiveCategory, needsAttention, paged, offset, capped, richTimeline, detail.body]) {
     assert.doesNotMatch(JSON.stringify(body), FORBIDDEN_RESPONSE_FIELDS);
   }
 

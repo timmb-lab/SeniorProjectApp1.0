@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-05-25T02:06:23-07:00",
-  "lastStartingSha": "a8e80c42e90cdedec7b72eabb3c8ebadac85f76b",
+  "lastRunAt": "2026-05-25T02:36:14-07:00",
+  "lastStartingSha": "d96a5c2ee10ae4006e6d7fc1b28822273b64e0c3",
   "lastEndingSha": null,
   "currentLadderFocus": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
   "completedWorkOrders": [
@@ -273,6 +273,14 @@
       "type": "TYPE_F_REVIEW_INTERVENTION_QUEUE",
       "summary": "Operations readiness now supports scoped category filters and Next Actions category drill-downs with shareable URL state.",
       "commit": "pending-closeout-commit"
+    },
+    {
+      "id": "operations-needs-attention-filter",
+      "completedAt": "2026-05-25T02:36:14-07:00",
+      "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
+      "type": "TYPE_F_REVIEW_INTERVENTION_QUEUE",
+      "summary": "Operations Needs Attention now opens a scoped needsAttention=true worklist filter with shareable URL state.",
+      "commit": "pending-closeout-commit"
     }
   ],
   "deferredWorkOrders": [
@@ -295,15 +303,25 @@
       "id": "product-admin-all-sites-rollup",
       "ladderLevel": "LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS",
       "reason": "All-sites rollup needs backend aggregate and authorization design; this sprint intentionally avoided fake cross-site controls."
+    },
+    {
+      "id": "operations-outline-pending-exact-filter",
+      "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS",
+      "reason": "Outline Pending needs exact route/filter mapping before exposing a visible metric action."
+    },
+    {
+      "id": "student-feedback-history-detail",
+      "ladderLevel": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN",
+      "reason": "Needs route shape and explicit staff-only comment exclusion before adding a deeper student feedback history surface."
     }
   ],
   "blockedWorkOrders": [],
   "nextRecommendedWorkOrders": [
     {
-      "id": "operations-needs-attention-exact-filter",
-      "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
-      "type": "TYPE_F_REVIEW_INTERVENTION_QUEUE",
-      "summary": "Evaluate whether the Operations Needs Attention total can map to one exact supported filter without hiding categories."
+      "id": "operations-outline-pending-exact-filter",
+      "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS",
+      "type": "TYPE_B_DASHBOARD_CLICK_THROUGH",
+      "summary": "Prove whether Operations Outline Pending can map to an exact scoped route filter before adding a visible action."
     },
     {
       "id": "student-feedback-history-detail",
@@ -345,11 +363,12 @@
     "Do not re-add the student home Latest Feedback panel; extend it only into a deeper feedback history after comment visibility and route shape are proven.",
     "Do not re-add student Submitted Work feedback context; extend only if a dedicated student-safe feedback history or new feedback source is proven.",
     "Do not re-add Operations Presentation Pending or Archive Failed metric filter actions; extend only when another Operations metric has an exact supported route filter.",
-    "Do not re-add Operations category filtering or Next Actions category drill-downs; extend only if the route adds a new safe category or exact next-action filter."
+    "Do not re-add Operations category filtering or Next Actions category drill-downs; extend only if the route adds a new safe category or exact next-action filter.",
+    "Do not re-add Operations Needs Attention filtering; extend only if a regression removes needsAttention=true or a new exact attention subtype is added by the route."
   ],
   "lastValidationStatus": {
     "status": "passed",
-    "completedAt": "2026-05-25T02:09:19-07:00",
+    "completedAt": "2026-05-25T02:39:07-07:00",
     "commands": [
       "npm run verify:dashboard-actions",
       "npm run verify:review-queue-deeplinks",
@@ -368,7 +387,7 @@
       "git diff --check",
       "git status --short"
     ],
-    "notes": "Full required validation passed for the Operations category filter slice. git diff --check reported CRLF normalization warnings only. No browser smoke was run because this route/UI path is covered by workspace render tests, site operations integration tests, and dashboard/navigation verifiers. No remote seed/reset/migration, live data write, deploy, credential repair, domain/OAuth, or Cloudflare config change was run."
+    "notes": "Full required validation passed for the Operations Needs Attention filter slice. git diff --check reported CRLF normalization warnings only. No browser smoke was run because this route/UI path is covered by workspace render tests, site operations integration tests, and dashboard/navigation verifiers. No remote seed/reset/migration, live data write, deploy, credential repair, domain/OAuth, or Cloudflare config change was run."
   },
   "lastProductReadinessScorecardSummary": {
     "homepageClarity": "4 to 4",
