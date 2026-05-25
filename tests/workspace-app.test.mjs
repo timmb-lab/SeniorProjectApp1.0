@@ -410,6 +410,64 @@ test("workspace renders route-connected site dashboard with Figma product-system
   assert.match(selectionRequired, /Next action/);
 });
 
+test("program teacher dashboard rows open existing student detail", async () => {
+  const programTeacher = await renderWorkspaceWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "program-teacher-detail",
+          email: "program.teacher.detail@example.edu",
+          displayName: "Program Teacher Detail",
+          roles: [{ role_id: "program_teacher", scope_type: "program", scope_id: "it" }],
+        },
+      },
+    },
+    "/api/site/students": {
+      status: 200,
+      body: siteStudentsFixture({ role: "program_teacher", total: 1 }),
+    },
+    "/api/program-teacher/dashboard": {
+      status: 200,
+      body: {
+        ok: true,
+        scope: { role: "program_teacher", scopeType: "program", scopeId: "it" },
+        summary: {
+          scopedStudents: 1,
+          submitted: 1,
+          revisionRequested: 0,
+          approved: 0,
+          evidenceArtifacts: 2,
+          noMentor: 0,
+          meetingsMakeupRequired: 0,
+          presentationsPending: 0,
+        },
+        needsAttention: [],
+        needsReview: [],
+        programBreakdown: [],
+        students: [
+          {
+            studentId: "demo-program-student-001",
+            studentName: "Program Student One",
+            submissionStatus: "submitted",
+            evidenceCount: 2,
+            noMentor: false,
+            updatedAt: "2026-05-24T18:00:00.000Z",
+          },
+        ],
+      },
+    },
+  }, "programDashboard");
+
+  assert.match(programTeacher, /Program Dashboard/);
+  assert.match(programTeacher, /Scoped student list/);
+  assert.match(programTeacher, /Program Student One/);
+  assert.match(programTeacher, /data-site-student-action="view-detail"/);
+  assert.match(programTeacher, /data-student-detail-id="demo-program-student-001"/);
+  assert.doesNotMatch(programTeacher, /href="[^"]*\/api\/site\/students\/|data-section="studentDetail"|Detail view coming soon/);
+});
+
 test("workspace renders route-connected student directory with filters and real detail action", async () => {
   const directoryBody = siteStudentsFixture();
   const siteAdmin = await renderWorkspaceWithFetch({

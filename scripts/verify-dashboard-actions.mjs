@@ -180,6 +180,12 @@ for (const [handler, action, loader] of [
   );
 }
 
+assertMatches(
+  "workspaceJs",
+  /function renderScopedStudentList\([\s\S]*data-site-student-action="view-detail"[\s\S]*data-student-detail-id="\$\{escapeHtml\(row\.studentId\)\}"/,
+  "Program Teacher scoped student rows must use the existing student detail handler",
+);
+
 assertMatches("workspaceJs", /function renderReadOnlyBanner\(\)[\s\S]*Read-only workspace/, "viewer read-only banner must remain visible");
 assertMatches("workspaceJs", /data-review-queue-read-only="true"[\s\S]*Review actions unavailable/, "read-only review queue must not expose mutation actions as available");
 assertMatches("workspaceJs", /data-mentor-assignment-controls-hidden="true"[\s\S]*Assignment changes unavailable/, "read-only mentor coverage must hide assignment controls");

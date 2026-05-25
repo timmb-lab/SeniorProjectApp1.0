@@ -430,3 +430,54 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: missing/evidence mapping remains unproven; browser QA still needs credentialed runtime.
   - Do not repeat: do not rebuild the status-breakdown click-through unless a regression appears.
   - First file to inspect next run: `workspace.js` `renderStatusBreakdown()`
+
+## Run 2026-05-24 20:38 PT
+
+- Starting SHA: `2fe656a67c671a2e164a3b3bcd68929b9646f8cf`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Branch policy: work stayed on clean local `main`; local `main` was already one commit ahead of `origin/main`, and no push was run
+- Ladder level targeted: `LEVEL_2_STUDENT_DETAIL_DEPTH`
+- Backlog item: `program-teacher-scoped-student-detail-action`
+- Work order selected: Add a real detail action to Program Teacher dashboard scoped-student rows.
+- Selection reason: Missing/evidence dashboard drill-downs remain unsafe without exact filter mapping, while Program Teacher dashboard rows already expose scoped student IDs and the existing student detail route/handler already enforces program scope.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Program Teacher scoped student detail action | `LEVEL_2_STUDENT_DETAIL_DEPTH` | program teacher | 4 | 5 | 5 | S | 53 | selected |
+| Missing/evidence dashboard drill-down mapping | `LEVEL_1_NAVIGABLE_DASHBOARDS` | staff | 5 | 2 | 3 | M | 40 | deferred: exact route/filter support still unproven |
+| Credentialed browser QA for worklist URLs | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all | 4 | 4 | 3 | M | 41 | deferred: needs approved credentials/runtime |
+| Student Directory mentor filter options | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | staff | 4 | 3 | 4 | M | 42 | deferred: needs safe API-provided mentor labels |
+| Mentor assigned-student detail action | `LEVEL_2_STUDENT_DETAIL_DEPTH` | mentor | 4 | 3 | 3 | M | 39 | deferred: source-section/site-selection behavior needs audit |
+| Operations row detail context preservation | `LEVEL_2_STUDENT_DETAIL_DEPTH` | staff | 3 | 5 | 4 | S | 45 | rejected this run: teacher dashboard gap was clearer |
+| Program Teacher review affordance cleanup | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | program teacher | 4 | 4 | 4 | S | 43 | rejected: detail entry was smaller and safer |
+| Viewer read-only homepage clarity | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | viewer | 3 | 5 | 4 | XS | 42 | rejected: lower workflow impact |
+| Student archive blocked guidance | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 4 | 5 | 4 | S | 46 | rejected: less aligned to staff detail-depth handoff |
+| Public guide app-boundary cleanup | `LEVEL_0_PROTOTYPE_CLEANUP` | public | 3 | 5 | 4 | S | 40 | rejected: protected app workflow had higher value |
+| Site Admin mentor POST default alignment | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | site admin | 4 | 2 | 4 | M | 38 | deferred: mutation policy/risk higher than this lane slice |
+| Unsupported Review Queue params | `LEVEL_1_NAVIGABLE_DASHBOARDS` | staff | 4 | 2 | 3 | M | 35 | deferred: missing/evidence/mentor/student params remain intentionally blocked |
+
+- User-facing improvement: Program Teachers can move from their scoped dashboard student list directly to authorized student detail instead of switching sections and searching again.
+- Roles affected: Program Teacher; existing site/student/detail roles were preserved
+- Files changed: `workspace.js`, `tests/workspace-app.test.mjs`, `scripts/verify-dashboard-actions.mjs`, `docs/functionality-language-audit.md`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`, `docs/progress/run-log.md`
+- Tests/verifiers added or updated: workspace render test for Program Teacher detail action; dashboard-action verifier guard for scoped-student detail buttons
+- Validation commands:
+  - Focused: `npm run verify:dashboard-actions`; `node --test tests/workspace-app.test.mjs`; `npm run verify:functionality-language`
+  - Final: `npm run verify:dashboard-actions`; `npm run verify:review-queue-deeplinks`; `npm run verify:workspace-navigation`; `npm run verify:functionality-language`; `npm run verify:functionality-ux-automation`; `node --test tests/workspace-app.test.mjs`; `node --test tests/functionality-language-audit.test.mjs`; JSON parse for `automation/state/functionality-ux-growth-state.json`; `npm run check:route-inventory`; `npm run test`; `npm run typecheck`; `npm run check:production-surfaces`; `npm run check`; `git diff --check`; `git status --short`
+- Validation result: passed; `git diff --check` reported CRLF normalization warnings only
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: missing/evidence drill-down; credentialed browser QA; Student Directory mentor filter options; mentor assigned-student detail action; operations detail-context preservation
+- New backlog items: none
+- Next recommended work order: inspect Operations row detail context or Mentor assigned-student cards for the next safe existing-detail action; keep missing/evidence drill-down deferred until exact filter support exists.
+- Do-not-repeat notes: do not re-add Program Teacher dashboard scoped-student detail buttons unless a regression removes them.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_2_STUDENT_DETAIL_DEPTH`
+  - Advanced: yes
+  - Evidence: Program Teacher dashboard rows now render `data-site-student-action="view-detail"` with scoped student IDs, and the verifier/test guard the route-backed detail action.
+  - Unlocks: smoother teacher workflow from dashboard summary to student context before deeper feedback/revision affordances.
+  - Next: preserve Operations detail context or audit Mentor assigned-student detail entry.
+  - Blockers: missing/evidence route/filter mapping remains unproven; browser QA still needs credentialed runtime.
+  - Do not repeat: do not rebuild this Program Teacher detail button.
+  - First file to inspect next run: `workspace.js` `renderScopedStudentList()`

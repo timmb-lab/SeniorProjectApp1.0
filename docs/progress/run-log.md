@@ -21,6 +21,17 @@ This is the compact run log for the current Functionality UX Upgrade automation 
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-05-24 20:38 PT - Program Teacher Dashboard Detail Action
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Functionality UX Upgrade / student detail depth.
+- `starting HEAD`: `2fe656a67c671a2e164a3b3bcd68929b9646f8cf`.
+- `selected slice`: Add a route-backed `View detail` action to Program Teacher dashboard scoped-student rows.
+- `what changed`: `workspace.js` now renders Program Teacher scoped students with the existing `data-site-student-action="view-detail"` handler; `tests/workspace-app.test.mjs` covers the rendered action, and `scripts/verify-dashboard-actions.mjs` guards the pattern.
+- `validation`: focused checks passed before closeout; full validation passed with CRLF-only `git diff --check` warnings.
+- `blockers`: missing/evidence dashboard drill-down remains deferred until exact route/filter mapping exists; mentor assigned-student detail needs a source-section/site-selection audit.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.
+
 ## 2026-05-24 19:05 PT - Student Detail Latest Feedback Context
 
 - `automation ID`: functionality-ux-upgrade-hourly.

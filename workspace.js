@@ -5368,7 +5368,14 @@ function renderScopedStudentList(rows = []) {
             <strong>${escapeHtml(row.studentName || "Student")}</strong>
             <p>${safeNumber(row.evidenceCount)} evidence / ${row.noMentor ? "mentor needed" : "mentor assigned"}</p>
           </div>
-          ${statusPill(row.submissionStatus || "not_started")}
+          <div class="workspace-row-actions">
+            ${statusPill(row.submissionStatus || "not_started")}
+            ${row.studentId ? `
+              <button class="workspace-link-button workspace-link-button-small" type="button" data-site-student-action="view-detail" data-student-detail-id="${escapeHtml(row.studentId)}">
+                View detail
+              </button>
+            ` : ""}
+          </div>
         </article>
       `).join("")}
     </div>
