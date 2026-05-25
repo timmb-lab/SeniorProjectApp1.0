@@ -203,6 +203,26 @@ assertMatches(
 );
 assertMatches(
   "workspaceJs",
+  /function handleSiteStudentAction\([\s\S]*?const sourceSection = activeSection === "programDashboard" \? "programDashboard" : "students"[\s\S]*?openSiteStudentDetail\(event\.currentTarget\?\.dataset\?\.studentDetailId \|\| "", \{ sourceSection \}\)/,
+  "Program Teacher dashboard student-detail actions must keep the Program Dashboard as the detail source",
+);
+assertMatches(
+  "workspaceJs",
+  /function renderProgramTeacherDashboardSection\([\s\S]*?siteStudentDetailState\?\.sourceSection === "programDashboard"[\s\S]*?renderSiteStudentDetailSurface/,
+  "Program Teacher dashboard must render the existing student detail surface inside the dashboard context",
+);
+assertMatches(
+  "workspaceJs",
+  /function handleMentorAssignmentAction\([\s\S]*?openSiteStudentDetail\(event\.currentTarget\?\.dataset\?\.mentorStudentId \|\| "", \{ sourceSection: "mentorAssignments" \}\)/,
+  "Mentor Assignment student-detail actions must keep Mentor Assignments as the detail source",
+);
+assertMatches(
+  "workspaceJs",
+  /function renderMentorAssignmentsSection\([\s\S]*?siteStudentDetailState\?\.sourceSection === "mentorAssignments"[\s\S]*?renderSiteStudentDetailSurface/,
+  "Mentor Assignments must render the existing student detail surface inside the coverage context",
+);
+assertMatches(
+  "workspaceJs",
   /async function openSiteStudentDetail\(studentId, options = \{\}\)[\s\S]*const sourceSection = cleanWorkspaceSection\(options\.sourceSection\) \|\| "students"[\s\S]*activeSection = sourceSection/,
   "student detail loader must preserve an explicit source section",
 );

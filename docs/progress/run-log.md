@@ -1652,3 +1652,14 @@ Future productive runs should append compact entries that name the master-plan s
 - `changes`: Review Queue student-detail actions now call `openSiteStudentDetail(..., { sourceSection: "teacher" })`; `renderTeacherSection()` renders the existing student detail drawer inside the Review Queue when that source is active; close returns to the Review Queue.
 - `validation`: focused verifier and workspace render/handler test passed before final validation; final validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
 - `commit/push status`: pending closeout commit.
+
+## 2026-05-24 PT - Functionality UX Upgrade Remaining Detail Context
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 2 student detail depth / Program Teacher and Mentor Assignments detail context.
+- `starting HEAD`: `853bae590d09a957c2b4c394076efd482d6c6c64`.
+- `selected slice`: Preserve Program Teacher Dashboard and Mentor Assignments as source sections when users open the existing authorized student detail drawer.
+- `repo-grounded findings`: Review Queue, Operations, and Mentor Dashboard detail context were already repaired. Current source still routed Program Teacher dashboard rows through `handleSiteStudentAction()` without a source section and Mentor Assignments rows through `handleMentorAssignmentAction()` back to the generic Students section.
+- `changes`: Program Teacher dashboard and Mentor Assignments now render the existing student detail drawer inside their own sections when they are the source; their detail handlers pass explicit `sourceSection` values and close back to the originating worklist.
+- `validation`: focused `npm run verify:dashboard-actions` and `node --test tests/workspace-app.test.mjs` passed before final validation; final validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit.

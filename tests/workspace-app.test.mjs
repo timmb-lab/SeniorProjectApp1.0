@@ -468,6 +468,95 @@ test("program teacher dashboard rows open existing student detail", async () => 
   assert.doesNotMatch(programTeacher, /href="[^"]*\/api\/site\/students\/|data-section="studentDetail"|Detail view coming soon/);
 });
 
+test("program teacher dashboard detail actions preserve program dashboard context", async () => {
+  const { context, workspaceRoot } = await createWorkspaceContextWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "program-teacher-context",
+          email: "program.teacher.context@example.edu",
+          displayName: "Program Teacher Context",
+          roles: [{ role_id: "program_teacher", scope_type: "program", scope_id: "it" }],
+        },
+      },
+    },
+    "/api/site/students": {
+      status: 200,
+      body: siteStudentsFixture({ role: "program_teacher", total: 1 }),
+    },
+    "/api/site/review-queue": {
+      status: 200,
+      body: siteReviewQueueFixture({ role: "program_teacher" }),
+    },
+    "/api/site/mentor-assignments": {
+      status: 200,
+      body: siteMentorAssignmentsFixture({ role: "program_teacher", readOnly: true, canManage: false }),
+    },
+    "/api/program-teacher/dashboard": {
+      status: 200,
+      body: {
+        ok: true,
+        scope: { role: "program_teacher", scopeType: "program", scopeId: "it" },
+        summary: {
+          scopedStudents: 1,
+          submitted: 1,
+          revisionRequested: 0,
+          approved: 0,
+          evidenceArtifacts: 2,
+          noMentor: 0,
+          meetingsMakeupRequired: 0,
+          presentationsPending: 0,
+        },
+        needsAttention: [],
+        needsReview: [],
+        programBreakdown: [],
+        students: [
+          {
+            studentId: "demo-student-101",
+            studentName: "Program Student One",
+            submissionStatus: "submitted",
+            evidenceCount: 2,
+            noMentor: false,
+            updatedAt: "2026-05-24T18:00:00.000Z",
+          },
+        ],
+      },
+    },
+    "/api/site/students/demo-student-101": {
+      status: 200,
+      body: siteStudentDetailFixture({ readOnly: false }),
+    },
+  });
+
+  vm.runInContext('activeSection = "programDashboard"; renderAppShell();', context);
+  assert.match(workspaceRoot.innerHTML, /Program Student One/);
+  assert.doesNotMatch(workspaceRoot.innerHTML, /workspace-detail-drawer/);
+
+  await vm.runInContext(`
+    handleSiteStudentAction({
+      currentTarget: {
+        dataset: {
+          siteStudentAction: "view-detail",
+          studentDetailId: "demo-student-101"
+        }
+      }
+    });
+  `, context);
+
+  assert.match(workspaceRoot.innerHTML, /Program Dashboard/);
+  assert.match(workspaceRoot.innerHTML, /workspace-detail-drawer/);
+  assert.match(workspaceRoot.innerHTML, /Missing Mentor Demo 001/);
+  assert.deepEqual(
+    JSON.parse(vm.runInContext('JSON.stringify({ activeSection, sourceSection: siteStudentDetailState.sourceSection })', context)),
+    { activeSection: "programDashboard", sourceSection: "programDashboard" },
+  );
+  vm.runInContext('handleSiteStudentDetailAction({ currentTarget: { dataset: { studentDetailAction: "close" } } })', context);
+  assert.equal(vm.runInContext("activeSection", context), "programDashboard");
+  assert.doesNotMatch(workspaceRoot.innerHTML, /workspace-detail-drawer/);
+});
+
 test("workspace renders route-connected student directory with filters and real detail action", async () => {
   const directoryBody = siteStudentsFixture();
   const siteAdmin = await renderWorkspaceWithFetch({
@@ -1272,6 +1361,70 @@ test("workspace renders site-scoped Mentor Assignments with role-safe assignment
   assert.match(teacher, /Program Teacher/);
   assert.match(teacher, /Read-only mentor coverage/);
   assert.doesNotMatch(teacher, /data-mentor-assignment-form="true"|Assign mentor/);
+});
+
+test("mentor assignment detail actions preserve mentor assignment context", async () => {
+  const { context, workspaceRoot } = await createWorkspaceContextWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "site-admin-mentor-detail-context",
+          email: "site.mentor.detail.context@example.edu",
+          displayName: "Mentor Detail Context Admin",
+          roles: [{ role_id: "site_admin", scope_type: "site", scope_id: "site-desert-valley-high" }],
+        },
+      },
+    },
+    "/api/site/dashboard": {
+      status: 200,
+      body: siteDashboardFixture({ readOnly: false }),
+    },
+    "/api/site/students": {
+      status: 200,
+      body: siteStudentsFixture({ readOnly: false }),
+    },
+    "/api/site/review-queue": {
+      status: 200,
+      body: siteReviewQueueFixture({ role: "site_admin", readOnly: true }),
+    },
+    "/api/site/mentor-assignments": {
+      status: 200,
+      body: siteMentorAssignmentsFixture({ role: "site_admin", canManage: true }),
+    },
+    "/api/site/students/demo-student-101": {
+      status: 200,
+      body: siteStudentDetailFixture({ readOnly: false }),
+    },
+  });
+
+  vm.runInContext('activeSection = "mentorAssignments"; renderAppShell();', context);
+  assert.match(workspaceRoot.innerHTML, /workspace-mentor-assignments/);
+  assert.match(workspaceRoot.innerHTML, /Missing Mentor Demo 001/);
+  assert.doesNotMatch(workspaceRoot.innerHTML, /workspace-detail-drawer/);
+
+  await vm.runInContext(`
+    handleMentorAssignmentAction({
+      currentTarget: {
+        dataset: {
+          mentorAssignmentAction: "open-student",
+          mentorStudentId: "demo-student-101"
+        }
+      }
+    });
+  `, context);
+
+  assert.match(workspaceRoot.innerHTML, /workspace-mentor-assignments/);
+  assert.match(workspaceRoot.innerHTML, /workspace-detail-drawer/);
+  assert.match(workspaceRoot.innerHTML, /Missing Mentor Demo 001/);
+  assert.deepEqual(
+    JSON.parse(vm.runInContext('JSON.stringify({ activeSection, sourceSection: siteStudentDetailState.sourceSection })', context)),
+    { activeSection: "mentorAssignments", sourceSection: "mentorAssignments" },
+  );
+  vm.runInContext('handleSiteStudentDetailAction({ currentTarget: { dataset: { studentDetailAction: "close" } } })', context);
+  assert.equal(vm.runInContext("activeSection", context), "mentorAssignments");
+  assert.doesNotMatch(workspaceRoot.innerHTML, /workspace-detail-drawer/);
 });
 
 test("workspace renders site-scoped Operations readiness worklists without mutation controls", async () => {

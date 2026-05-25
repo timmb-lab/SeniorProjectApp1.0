@@ -2193,6 +2193,12 @@ function renderProgramTeacherDashboardSection() {
         ${renderDashboardCard("Program Breakdown", "Source record counts", renderProgramBreakdown(dashboard.programBreakdown))}
         ${renderDashboardCard("Students", "Scoped student list", renderScopedStudentList(dashboard.students))}
       </div>
+      ${siteStudentDetailState?.sourceSection === "programDashboard" ? renderSiteStudentDetailSurface({
+        students: (dashboard.students || []).map((row) => ({
+          studentId: row.studentId,
+          displayName: row.studentName,
+        })),
+      }) : ""}
     </section>
   `;
 }
@@ -2375,6 +2381,18 @@ function renderMentorAssignmentsSection() {
         ${renderDashboardCard("Mentor Coverage", "Mentor workload at this school", renderMentorCoverageRows(mentors))}
         ${renderDashboardCard("Active Assignments", "Current assignments", renderMentorActiveAssignments(assignments, permissions))}
       </div>
+      ${siteStudentDetailState?.sourceSection === "mentorAssignments" ? renderSiteStudentDetailSurface({
+        students: [
+          ...unassignedStudents.map((row) => ({
+            studentId: row.studentId,
+            displayName: row.displayName,
+          })),
+          ...assignments.map((row) => ({
+            studentId: row.studentId,
+            displayName: row.studentName,
+          })),
+        ],
+      }) : ""}
     </section>
   `;
 }
@@ -4152,8 +4170,8 @@ async function handleMentorAssignmentAction(event) {
   const action = event?.currentTarget?.dataset?.mentorAssignmentAction;
   if (!action) return;
   if (action === "open-student") {
-    activeSection = "students";
-    await openSiteStudentDetail(event.currentTarget?.dataset?.mentorStudentId || "");
+    activeSection = "mentorAssignments";
+    await openSiteStudentDetail(event.currentTarget?.dataset?.mentorStudentId || "", { sourceSection: "mentorAssignments" });
     return;
   }
   if (action === "reset-filters") {
@@ -4405,7 +4423,8 @@ async function handleSiteStudentAction(event) {
   const action = event?.currentTarget?.dataset?.siteStudentAction;
   if (!action) return;
   if (action === "view-detail") {
-    await openSiteStudentDetail(event.currentTarget?.dataset?.studentDetailId || "");
+    const sourceSection = activeSection === "programDashboard" ? "programDashboard" : "students";
+    await openSiteStudentDetail(event.currentTarget?.dataset?.studentDetailId || "", { sourceSection });
     return;
   }
   if (action === "reset-filters") {
