@@ -1982,3 +1982,14 @@ Future productive runs should append compact entries that name the master-plan s
 - `changes`: `/api/site/students/:studentId` now returns a limited `mentorAssignmentHistory` array after existing site/program/mentor access checks; `workspace.js` renders it in the Mentor tab without IDs; route/UI tests prove limits, inactive history visibility, and assigner-name redaction for mentors.
 - `validation`: focused site-student-detail and workspace tests plus functionality-language, dashboard-action, and workspace-navigation verifiers passed before final validation. Final validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
 - `commit/push status`: pending closeout commit; not pushed by this automation run.
+
+## 2026-05-25 PT - Functionality UX Upgrade Mentor Meeting History
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 4 role-specific workspaces / mentor dashboard drill-down.
+- `starting HEAD`: `171cc4dbb6ac9dfbcafa6bd99c97965d09cf400e`.
+- `selected slice`: Add a Mentor Dashboard `Open meeting history` action that opens the existing authorized student-detail Mentor tab.
+- `repo-grounded findings`: the prior handoff asked whether mentor meeting detail could use existing scoped meeting rows. `functions/_lib/site-student-detail.ts` already returns bounded `mentorMeetings` after existing student-detail authorization, and `workspace.js` already renders those rows in `renderStudentDetailMentor()`. The gap was navigation from the assigned-student mentor card into that real meeting history.
+- `changes`: `workspace.js` now supports an `open-meetings` mentor dashboard action and an optional initial student-detail tab; Mentor Dashboard rows render `Open meeting history` beside the existing detail action. `tests/workspace-app.test.mjs` proves the action opens the Mentor tab, keeps the Mentor Dashboard source context, and renders scoped meeting history.
+- `validation`: focused workspace test plus functionality-language, dashboard-action, and workspace-navigation verifiers passed before final validation. Full validation passed; final status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.

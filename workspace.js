@@ -4841,6 +4841,14 @@ async function handleMentorDashboardAction(event) {
   if (action === "open-student") {
     activeSection = "mentorDashboard";
     await openSiteStudentDetail(event.currentTarget?.dataset?.mentorDashboardStudentId || "", { sourceSection: "mentorDashboard" });
+    return;
+  }
+  if (action === "open-meetings") {
+    activeSection = "mentorDashboard";
+    await openSiteStudentDetail(event.currentTarget?.dataset?.mentorDashboardStudentId || "", {
+      sourceSection: "mentorDashboard",
+      activeTab: "mentor",
+    });
   }
 }
 
@@ -5094,6 +5102,7 @@ async function openSiteStudentDetail(studentId, options = {}) {
   if (!selectedStudentId) return;
   const directory = unwrap(currentData.siteStudents);
   const sourceSection = cleanWorkspaceSection(options.sourceSection) || "students";
+  const requestedTab = cleanStudentDetailTab(options.activeTab);
   const siteId = selectedSiteQueryValue()
     || directory?.scope?.siteId
     || unwrap(currentData.siteDashboard)?.scope?.siteId
@@ -5106,6 +5115,7 @@ async function openSiteStudentDetail(studentId, options = {}) {
     ...defaultSiteStudentDetailState(),
     studentId: selectedStudentId,
     sourceSection,
+    activeTab: requestedTab || "summary",
     loading: true,
   };
   activeSection = sourceSection;
@@ -5128,6 +5138,12 @@ function handleSiteStudentDetailAction(event) {
     activeSection = sourceSection;
     renderAppShell();
   }
+}
+
+function cleanStudentDetailTab(value) {
+  const requested = String(value || "").trim();
+  const allowedTabs = new Set(["summary", "progress", "submissions", "evidence", "reviews", "mentor", "presentation", "archive", "timeline"]);
+  return allowedTabs.has(requested) ? requested : "";
 }
 
 async function selectSiteStudentDetailTab(event) {
@@ -6231,6 +6247,9 @@ function renderMentorStudentCards(rows = []) {
             <div class="workspace-row-actions">
               ${statusPill(row.submissionStatus || "not_started")}
               ${row.studentId ? `
+                <button class="workspace-link-button workspace-link-button-small" type="button" data-mentor-dashboard-action="open-meetings" data-mentor-dashboard-student-id="${escapeHtml(row.studentId)}">
+                  Open meeting history
+                </button>
                 <button class="workspace-link-button workspace-link-button-small" type="button" data-mentor-dashboard-action="open-student" data-mentor-dashboard-student-id="${escapeHtml(row.studentId)}">
                   View detail
                 </button>

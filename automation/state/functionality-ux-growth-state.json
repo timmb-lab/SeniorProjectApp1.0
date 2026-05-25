@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-05-25T13:04:51-07:00",
-  "lastStartingSha": "1712c115e28bbcf938396a655961bbbd6973d0fc",
+  "lastRunAt": "2026-05-25T13:34:50-07:00",
+  "lastStartingSha": "171cc4dbb6ac9dfbcafa6bd99c97965d09cf400e",
   "lastEndingSha": null,
-  "currentLadderFocus": "LEVEL_7_AUDITABILITY_AND_TRUST",
+  "currentLadderFocus": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
   "completedWorkOrders": [
     {
       "id": "workspace-header-product-language-cleanup",
@@ -449,6 +449,14 @@
       "type": "TYPE_C_STUDENT_DETAIL_DRILL_DOWN",
       "summary": "Authorized student detail now shows limited mentor coverage history from existing assignment rows, with assigner names hidden from mentor-support detail.",
       "commit": "pending-closeout-commit"
+    },
+    {
+      "id": "mentor-dashboard-meeting-history-drilldown",
+      "completedAt": "2026-05-25T13:34:50-07:00",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "type": "TYPE_D_ROLE_WORKSPACE",
+      "summary": "Mentor Dashboard assigned-student rows now open existing authorized student detail on the Mentor tab for scoped meeting history.",
+      "commit": "pending-closeout-commit"
     }
   ],
   "deferredWorkOrders": [
@@ -481,10 +489,10 @@
   "blockedWorkOrders": [],
   "nextRecommendedWorkOrders": [
     {
-      "id": "mentor-meeting-detail-drilldown-contract",
-      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "id": "student-detail-mentor-meeting-context",
+      "ladderLevel": "LEVEL_2_STUDENT_DETAIL_DEPTH",
       "type": "TYPE_C_STUDENT_DETAIL_DRILL_DOWN",
-      "summary": "Inspect whether mentor meeting detail can use existing scoped meeting rows without adding a fake section."
+      "summary": "Inspect whether Mentor Meeting rows can safely show submission or outline context without raw IDs."
     },
     {
       "id": "review-queue-missing-evidence-filter-proof",
@@ -543,13 +551,13 @@
     "Do not re-clean Mentor Assignments `No missing mentor rows match`; filter-aware student coverage language and verifier coverage now guard that cluster.",
     "Do not broaden mentor assignment permissions while improving Mentor Assignments copy.",
     "Do not re-add Mentor Dashboard attention-first ordering unless regression evidence appears.",
-    "Do not re-add mentor assignment history to student detail unless regression removes mentorAssignmentHistory or the Mentor Coverage History panel."
+    "Do not re-add mentor assignment history to student detail unless regression removes mentorAssignmentHistory or the Mentor Coverage History panel.",
+    "Do not re-add the Mentor Dashboard meeting-history action unless regression removes data-mentor-dashboard-action=\"open-meetings\" or the Mentor-tab target behavior."
   ],
   "lastValidationStatus": {
     "status": "passed",
-    "completedAt": "2026-05-25T13:04:51-07:00",
+    "completedAt": "2026-05-25T13:37:49-07:00",
     "commands": [
-      "node --test tests/site-student-detail.integration.test.mjs",
       "node --test tests/workspace-app.test.mjs",
       "npm run verify:functionality-language",
       "npm run verify:dashboard-actions",
@@ -557,7 +565,7 @@
       "npm run verify:review-queue-deeplinks",
       "npm run verify:functionality-ux-automation",
       "node --test tests/functionality-language-audit.test.mjs",
-      "node -e JSON.parse automation/state/functionality-ux-growth-state.json and docs/progress/runs/2026-05-25-1304-mentor-assignment-history-detail.json",
+      "node -e JSON.parse automation/state/functionality-ux-growth-state.json and docs/progress/runs/2026-05-25-1334-mentor-dashboard-meeting-history.json",
       "npm run check:route-inventory",
       "npm run test",
       "npm run typecheck",
@@ -565,7 +573,7 @@
       "npm run check",
       "git diff --check"
     ],
-    "notes": "Full validation passed for the mentor assignment history student-detail slice. git diff --check reported only CRLF normalization warnings. This run changes a read-only student detail payload/UI, focused tests, and run records only; it does not broaden auth, RBAC, tenant, site, program, mentor assignment mutation, or student privacy boundaries. No remote seed/reset/migration, live data write, deploy, credential repair, domain/OAuth, or Cloudflare config change was run."
+    "notes": "Full validation passed for the Mentor Dashboard meeting-history drill-down slice. git diff --check reported only CRLF normalization warnings. This run changes a route-safe UI action, focused workspace test, and run records only; it does not change auth, RBAC, tenant, site, program, mentor assignment mutation, student privacy boundaries, migrations, secrets/env files, Cloudflare/OAuth/domain config, deploy settings, or live data."
   },
   "lastProductReadinessScorecardSummary": {
     "homepageClarity": "4 to 4",

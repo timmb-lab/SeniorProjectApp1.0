@@ -2282,3 +2282,58 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: meeting detail drill-down needs a real section/route contract; assignment reassignment/remove workflows need product/security policy; browser QA still needs credentialed runtime.
   - Do not repeat: do not rebuild this student-detail mentor assignment history panel unless regression evidence appears.
   - First file to inspect next run: `workspace.js` `renderStudentDetailMentor()`
+
+## Run 2026-05-25 13:34 PT
+
+- Starting SHA: `171cc4dbb6ac9dfbcafa6bd99c97965d09cf400e`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Branch policy: work stayed on clean local `main`; local `main` was five commits ahead of `origin/main`, `origin/main` was not ahead, and no push was run
+- Ladder level targeted: `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` with `LEVEL_2_STUDENT_DETAIL_DEPTH` support
+- Backlog item: `mentor-dashboard-meeting-history-drilldown`; advances `MVP-032`, `MVP-033`, `MVP-017`, and mentor-flow evidence in the MVP catalog
+- Work order selected: Add a real Mentor Dashboard action that opens assigned-student meeting history in the existing student-detail Mentor tab.
+- Selection reason: The previous handoff asked whether mentor meeting detail could use existing scoped meeting rows without a fake section. Current source already loads `mentorMeetings` through the authorized student-detail route and renders them in `renderStudentDetailMentor()`, while Mentor Dashboard rows only opened the default summary tab. A direct action to that existing tab is route-backed, mentor-assigned scoped, testable, and does not add a new route or mutation control.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Mentor Dashboard meeting-history drill-down | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | mentor | 4 | 5 | 5 | XS | 58 | selected |
+| Mentor meeting route-backed standalone section | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | mentor, teacher | 4 | 3 | 3 | M | 39 | rejected: existing detail tab is safer than a new section |
+| Mentor meeting POST workflow polish | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | mentor | 5 | 2 | 3 | M | 35 | rejected: mutation UX needs product decision and form design |
+| Mentor assignment reassignment controls | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | site admin | 5 | 2 | 3 | L | 33 | rejected: mutation policy and audit design needed |
+| Mentor assignment remove workflow | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | site admin | 4 | 2 | 3 | M | 33 | rejected: dangerous control without explicit policy |
+| Mentor Dashboard meeting filter toggle | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | mentor | 3 | 4 | 4 | S | 43 | rejected: direct drill-down is simpler and more useful |
+| Student detail mentor meeting copy cleanup | `LEVEL_2_STUDENT_DETAIL_DEPTH` | staff, mentor | 3 | 5 | 4 | XS | 45 | rejected: no current stale language found |
+| Review Queue missing-evidence filter proof | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | site staff, program teacher | 5 | 2 | 3 | M | 37 | deferred: backend/privacy support missing |
+| Student Directory missing-evidence filter | `LEVEL_1_NAVIGABLE_DASHBOARDS` | site staff, viewer | 4 | 2 | 3 | M | 35 | deferred: exact route filter missing |
+| Review Queue comment body rendering | `LEVEL_7_AUDITABILITY_AND_TRUST` | site staff, program teacher, viewer | 4 | 2 | 3 | M | 34 | deferred: product/privacy decision needed |
+| Public app-preview language cleanup | `LEVEL_0_PROTOTYPE_CLEANUP` | public stakeholders | 3 | 5 | 4 | S | 40 | rejected: protected mentor workflow had higher current value |
+| Student requirement detail extension | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 4 | 4 | 4 | S | 44 | rejected: no new persisted field identified |
+| Operations report filter polish | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | site staff, viewer | 3 | 4 | 4 | S | 42 | rejected: recent Operations slices already covered exact safe filters |
+| Downloadable student progress summary | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | student, staff | 4 | 2 | 3 | L | 31 | rejected: export/privacy policy needed |
+| Credentialed browser QA | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all | 4 | 4 | 3 | M | 39 | blocked: needs credentialed runtime |
+| Org-admin tenant rollup | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | org_admin | 4 | 2 | 2 | L | 30 | blocked: backend aggregate and RBAC design needed |
+
+- User-facing improvement: Mentors can now choose `Open meeting history` from an assigned-student row and land directly on the Mentor tab with the real meeting timeline already returned by the authorized detail API.
+- Roles affected: `mentor` in the existing Mentor Dashboard surface; staff/student-detail route authorization remains server-owned and unchanged.
+- Files changed: `workspace.js`, `tests/workspace-app.test.mjs`, `docs/functionality-language-audit.md`, `docs/mvp-requirements-catalog.md`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`, `docs/progress/run-log.md`, `docs/progress/runs/2026-05-25-1334-mentor-dashboard-meeting-history.json`
+- Tests/verifiers added or updated: workspace render/handler test now proves the Mentor Dashboard meeting-history button opens the existing student-detail drawer on the Mentor tab, preserves Mentor Dashboard source context, and renders a scoped mentor meeting row.
+- Validation commands:
+  - Focused passed before docs/state closeout: `node --test tests/workspace-app.test.mjs`; `npm run verify:functionality-language`; `npm run verify:dashboard-actions`; `npm run verify:workspace-navigation`
+  - Final passed: `npm run verify:review-queue-deeplinks`; `npm run verify:functionality-language`; `npm run verify:functionality-ux-automation`; `node --test tests/workspace-app.test.mjs`; `node --test tests/functionality-language-audit.test.mjs`; JSON parse for state and manifest; `npm run check:route-inventory`; `npm run test`; `npm run typecheck`; `npm run check:production-surfaces`; `npm run check`; `git diff --check`
+- Validation result: passed; `git diff --check` reported only CRLF normalization warnings during closeout, with no whitespace errors.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: standalone mentor meeting section remains unnecessary until a real route/UI contract is needed; meeting mutation polish, reassignment, and remove controls remain deferred pending product/security policy; Review Queue and Student Directory missing/evidence filters remain unsupported.
+- New backlog items: none
+- Next recommended work order: inspect whether student-detail Mentor Meeting rows should show submission/outline context from existing meeting rows, without exposing raw submission IDs or staff-only notes.
+- Do-not-repeat notes: do not re-add the Mentor Dashboard meeting-history action unless regression removes `data-mentor-dashboard-action="open-meetings"` or the Mentor-tab target behavior.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_4_ROLE_SPECIFIC_WORKSPACES`
+  - Advanced: yes
+  - Evidence: Mentor Dashboard assigned-student rows now include a route-safe `Open meeting history` action that opens authorized student detail on the Mentor tab; the focused workspace test proves source-section preservation, active tab selection, and scoped meeting row rendering.
+  - Unlocks: future mentor work can deepen meeting-row context or form workflows only after product/security policy is clear.
+  - Next: inspect `renderStudentDetailMentor()` and `loadMentorMeetings()` for safe submission/outline context that can be shown without raw IDs.
+  - Blockers: meeting mutation UX, mentor reassignment/remove controls, and student progress exports need product/security decisions; browser QA still needs credentialed runtime.
+  - Do not repeat: do not rebuild this Mentor Dashboard meeting-history action unless regression evidence appears.
+  - First file to inspect next run: `workspace.js` `renderStudentDetailMentor()`

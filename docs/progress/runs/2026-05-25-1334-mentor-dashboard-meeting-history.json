@@ -1,0 +1,249 @@
+{
+  "runId": "2026-05-25-1334-mentor-dashboard-meeting-history",
+  "automationId": "functionality-ux-upgrade-hourly",
+  "startedAt": "2026-05-25T13:34:50-07:00",
+  "startingSha": "171cc4dbb6ac9dfbcafa6bd99c97965d09cf400e",
+  "branch": "main",
+  "originMain": "cfec0951f10f56ee19476b5384d18e4074cbfcd4",
+  "branchAhead": 5,
+  "branchBehind": 0,
+  "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+  "supportingLevel": "LEVEL_2_STUDENT_DETAIL_DEPTH",
+  "mvpRequirements": [
+    "MVP-032",
+    "MVP-033",
+    "MVP-017"
+  ],
+  "selectedWorkOrder": {
+    "id": "mentor-dashboard-meeting-history-drilldown",
+    "title": "Open meeting history from Mentor Dashboard",
+    "type": "TYPE_D_ROLE_WORKSPACE",
+    "reason": "Student detail already returns and renders scoped mentor meeting rows; Mentor Dashboard needed a direct real action into that existing Mentor tab."
+  },
+  "candidateScores": [
+    {
+      "id": "mentor-dashboard-meeting-history-drilldown",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "roles": "mentor",
+      "impact": 4,
+      "safety": 5,
+      "testability": 5,
+      "size": "XS",
+      "score": 58,
+      "decision": "selected"
+    },
+    {
+      "id": "mentor-meeting-standalone-section",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "roles": "mentor, teacher",
+      "impact": 4,
+      "safety": 3,
+      "testability": 3,
+      "size": "M",
+      "score": 39,
+      "decision": "rejected-existing-detail-tab-safer"
+    },
+    {
+      "id": "mentor-meeting-post-polish",
+      "ladderLevel": "LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW",
+      "roles": "mentor",
+      "impact": 5,
+      "safety": 2,
+      "testability": 3,
+      "size": "M",
+      "score": 35,
+      "decision": "rejected-mutation-policy-needed"
+    },
+    {
+      "id": "mentor-assignment-reassignment-controls",
+      "ladderLevel": "LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW",
+      "roles": "site admin",
+      "impact": 5,
+      "safety": 2,
+      "testability": 3,
+      "size": "L",
+      "score": 33,
+      "decision": "rejected-policy-and-audit-needed"
+    },
+    {
+      "id": "mentor-assignment-remove-workflow",
+      "ladderLevel": "LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW",
+      "roles": "site admin",
+      "impact": 4,
+      "safety": 2,
+      "testability": 3,
+      "size": "M",
+      "score": 33,
+      "decision": "rejected-dangerous-control"
+    },
+    {
+      "id": "mentor-dashboard-meeting-filter-toggle",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "roles": "mentor",
+      "impact": 3,
+      "safety": 4,
+      "testability": 4,
+      "size": "S",
+      "score": 43,
+      "decision": "rejected-direct-drilldown-simpler"
+    },
+    {
+      "id": "student-detail-meeting-copy-cleanup",
+      "ladderLevel": "LEVEL_2_STUDENT_DETAIL_DEPTH",
+      "roles": "staff, mentor",
+      "impact": 3,
+      "safety": 5,
+      "testability": 4,
+      "size": "XS",
+      "score": 45,
+      "decision": "rejected-no-current-stale-language"
+    },
+    {
+      "id": "review-queue-missing-evidence-filter-proof",
+      "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
+      "roles": "site staff, program teacher",
+      "impact": 5,
+      "safety": 2,
+      "testability": 3,
+      "size": "M",
+      "score": 37,
+      "decision": "deferred-backend-privacy-support-missing"
+    },
+    {
+      "id": "student-directory-missing-evidence-filter",
+      "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS",
+      "roles": "site staff, viewer",
+      "impact": 4,
+      "safety": 2,
+      "testability": 3,
+      "size": "M",
+      "score": 35,
+      "decision": "deferred-route-filter-missing"
+    },
+    {
+      "id": "review-queue-comment-body-rendering",
+      "ladderLevel": "LEVEL_7_AUDITABILITY_AND_TRUST",
+      "roles": "site staff, program teacher, viewer",
+      "impact": 4,
+      "safety": 2,
+      "testability": 3,
+      "size": "M",
+      "score": 34,
+      "decision": "deferred-product-privacy-decision"
+    },
+    {
+      "id": "public-app-preview-language-cleanup",
+      "ladderLevel": "LEVEL_0_PROTOTYPE_CLEANUP",
+      "roles": "public stakeholders",
+      "impact": 3,
+      "safety": 5,
+      "testability": 4,
+      "size": "S",
+      "score": 40,
+      "decision": "rejected-protected-workflow-higher-value"
+    },
+    {
+      "id": "student-requirement-detail-extension",
+      "ladderLevel": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN",
+      "roles": "student",
+      "impact": 4,
+      "safety": 4,
+      "testability": 4,
+      "size": "S",
+      "score": 44,
+      "decision": "rejected-no-new-persisted-field"
+    },
+    {
+      "id": "operations-report-filter-polish",
+      "ladderLevel": "LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS",
+      "roles": "site staff, viewer",
+      "impact": 3,
+      "safety": 4,
+      "testability": 4,
+      "size": "S",
+      "score": 42,
+      "decision": "rejected-recent-safe-filters-complete"
+    },
+    {
+      "id": "downloadable-student-progress-summary",
+      "ladderLevel": "LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS",
+      "roles": "student, staff",
+      "impact": 4,
+      "safety": 2,
+      "testability": 3,
+      "size": "L",
+      "score": 31,
+      "decision": "rejected-export-privacy-policy-needed"
+    },
+    {
+      "id": "credentialed-browser-qa",
+      "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
+      "roles": "all",
+      "impact": 4,
+      "safety": 4,
+      "testability": 3,
+      "size": "M",
+      "score": 39,
+      "decision": "blocked-credentialed-runtime-needed"
+    },
+    {
+      "id": "org-admin-tenant-rollup",
+      "ladderLevel": "LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS",
+      "roles": "org_admin",
+      "impact": 4,
+      "safety": 2,
+      "testability": 2,
+      "size": "L",
+      "score": 30,
+      "decision": "blocked-backend-rbac-design-needed"
+    }
+  ],
+  "filesChanged": [
+    "workspace.js",
+    "tests/workspace-app.test.mjs",
+    "docs/functionality-language-audit.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/functionality-ux-growth-ledger.md",
+    "automation/state/functionality-ux-growth-state.json",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-25-1334-mentor-dashboard-meeting-history.json"
+  ],
+  "privacyAndPermissions": [
+    "No auth, RBAC, tenant, site, program, mentor assignment, or student privacy rules were changed.",
+    "The new action reuses the existing student-detail authorization path and existing scoped mentor meeting rows.",
+    "No raw meeting, assignment, user, storage, token, or private file identifiers are rendered by the new path."
+  ],
+  "focusedValidation": [
+    "node --test tests/workspace-app.test.mjs",
+    "npm run verify:functionality-language",
+    "npm run verify:dashboard-actions",
+    "npm run verify:workspace-navigation"
+  ],
+  "finalValidation": [
+    "node --test tests/workspace-app.test.mjs",
+    "npm run verify:functionality-language",
+    "npm run verify:dashboard-actions",
+    "npm run verify:workspace-navigation",
+    "npm run verify:review-queue-deeplinks",
+    "npm run verify:functionality-ux-automation",
+    "node --test tests/functionality-language-audit.test.mjs",
+    "node -e JSON.parse automation/state/functionality-ux-growth-state.json and docs/progress/runs/2026-05-25-1334-mentor-dashboard-meeting-history.json",
+    "npm run check:route-inventory",
+    "npm run test",
+    "npm run typecheck",
+    "npm run check:production-surfaces",
+    "npm run check",
+    "git diff --check"
+  ],
+  "validationStatus": "passed",
+  "commit": null,
+  "pushStatus": "not pushed",
+  "nextRecommendedWorkOrder": {
+    "id": "student-detail-mentor-meeting-context",
+    "ladderLevel": "LEVEL_2_STUDENT_DETAIL_DEPTH",
+    "summary": "Inspect whether Mentor Meeting rows can safely show submission or outline context without raw IDs."
+  },
+  "doNotRepeat": "Do not re-add the Mentor Dashboard meeting-history action unless regression removes the open-meetings action or Mentor-tab target behavior.",
+  "completedAt": "2026-05-25T13:37:49-07:00",
+  "validationNotes": "Full validation passed. git diff --check reported CRLF normalization warnings only."
+}

@@ -2074,7 +2074,8 @@ test("workspace clarifies Operations empty states for active filters and true no
   assert.doesNotMatch(unfiltered, /No presentation rows match|No archive rows match|No attention rows match/);
 });
 
-test("mentor dashboard assigned students open student detail without leaving mentor context", async () => {
+test("mentor dashboard assigned students open detail and meeting history without leaving mentor context", async () => {
+  const detailFixture = siteStudentDetailFixture({ readOnly: true });
   const { context, workspaceRoot } = await createWorkspaceContextWithFetch({
     "/api/auth/me": {
       status: 200,
@@ -2137,7 +2138,31 @@ test("mentor dashboard assigned students open student detail without leaving men
     },
     "/api/site/students/demo-student-101": {
       status: 200,
-      body: siteStudentDetailFixture({ readOnly: true }),
+      body: {
+        ...detailFixture,
+        mentor: {
+          ...detailFixture.mentor,
+          mentorName: "Mentor Detail",
+          active: true,
+          meetingCount: 1,
+          latestMeetingStatus: "makeup_required",
+        },
+        mentorMeetings: [
+          {
+            mentorMeetingId: "meeting-safe-101",
+            mentorUserId: "mentor-detail-user",
+            mentorName: "Mentor Detail",
+            submissionId: "submission-101",
+            status: "makeup_required",
+            scheduledFor: "2026-05-27T15:30:00.000Z",
+            heldAt: "",
+            notes: "Confirm a make-up check-in before presentation practice.",
+            createdAt: "2026-05-24T15:30:00.000Z",
+            updatedAt: "2026-05-24T15:30:00.000Z",
+            nextAction: "Follow up on the mentor meeting.",
+          },
+        ],
+      },
     },
   });
 
@@ -2155,13 +2180,15 @@ test("mentor dashboard assigned students open student detail without leaving men
   assert.match(workspaceRoot.innerHTML, /Evidence[\s\S]*3 items/);
   assert.match(workspaceRoot.innerHTML, /Update the mentor meeting plan or make-up status before the next check-in/);
   assert.match(workspaceRoot.innerHTML, /data-mentor-dashboard-action="open-student"/);
+  assert.match(workspaceRoot.innerHTML, /data-mentor-dashboard-action="open-meetings"/);
+  assert.match(workspaceRoot.innerHTML, /Open meeting history/);
   assert.match(workspaceRoot.innerHTML, /data-mentor-dashboard-student-id="demo-student-101"/);
 
   await vm.runInContext(`
     handleMentorDashboardAction({
       currentTarget: {
         dataset: {
-          mentorDashboardAction: "open-student",
+          mentorDashboardAction: "open-meetings",
           mentorDashboardStudentId: "demo-student-101"
         }
       }
@@ -2170,10 +2197,13 @@ test("mentor dashboard assigned students open student detail without leaving men
 
   assert.match(workspaceRoot.innerHTML, /Student detail loaded/);
   assert.match(workspaceRoot.innerHTML, /workspace-detail-drawer/);
+  assert.match(workspaceRoot.innerHTML, /data-student-detail-section="mentor"/);
+  assert.match(workspaceRoot.innerHTML, /Mentor Meetings/);
+  assert.match(workspaceRoot.innerHTML, /Confirm a make-up check-in before presentation practice/);
   assert.match(workspaceRoot.innerHTML, /Assigned Students/);
   assert.deepEqual(
-    JSON.parse(vm.runInContext('JSON.stringify({ activeSection, sourceSection: siteStudentDetailState.sourceSection })', context)),
-    { activeSection: "mentorDashboard", sourceSection: "mentorDashboard" },
+    JSON.parse(vm.runInContext('JSON.stringify({ activeSection, sourceSection: siteStudentDetailState.sourceSection, activeTab: siteStudentDetailState.activeTab })', context)),
+    { activeSection: "mentorDashboard", sourceSection: "mentorDashboard", activeTab: "mentor" },
   );
 
   vm.runInContext('handleSiteStudentDetailAction({ currentTarget: { dataset: { studentDetailAction: "close" } } })', context);
