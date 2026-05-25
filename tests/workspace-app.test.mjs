@@ -2134,6 +2134,32 @@ test("workspace renders a progress-first student homepage with safe language", a
             dueDate: null,
           },
         ],
+        requirements: [
+          {
+            requirementId: "req-proposal",
+            title: "Senior Project Proposal",
+            phase: "proposal-and-research",
+            phaseLabel: "Proposal And Research",
+            status: "revision_requested",
+            progressStatus: "revision_requested",
+            submissionStatus: "revision_requested",
+            submissionVersion: 2,
+            lastUpdatedAt: "2026-05-24T18:00:00.000Z",
+            nextAction: "Revise Senior Project Proposal and send it back for review.",
+          },
+          {
+            requirementId: "req-mentor-plan",
+            title: "Mentor Meeting One Plan",
+            phase: "mentor-meetings",
+            phaseLabel: "Mentor Meetings",
+            status: "missing",
+            progressStatus: null,
+            submissionStatus: null,
+            submissionVersion: null,
+            lastUpdatedAt: null,
+            nextAction: "Start Mentor Meeting One Plan when your teacher is ready for this step.",
+          },
+        ],
         progress: [
           { requirement_id: "req-proposal", phase: "proposal-and-research", status: "revision_requested", updated_at: "2026-05-24T18:00:00.000Z", requirement_title: "Senior Project Proposal" },
         ],
@@ -2203,6 +2229,12 @@ test("workspace renders a progress-first student homepage with safe language", a
   assert.match(student, /Senior Project Proposal/);
   assert.match(student, /Your action/);
   assert.match(student, /What to Work On Next/);
+  assert.match(student, /data-student-requirements-panel="true"/);
+  assert.match(student, /data-student-requirements-count="2"/);
+  assert.match(student, /Your Required Work/);
+  assert.match(student, /data-student-requirement-row="true"/);
+  assert.match(student, /Revise Senior Project Proposal and send it back for review/);
+  assert.match(student, /Version 2/);
   assert.match(student, /data-student-feedback-panel="true"/);
   assert.match(student, /data-student-feedback-history="true"/);
   assert.match(student, /data-student-feedback-count="1"/);

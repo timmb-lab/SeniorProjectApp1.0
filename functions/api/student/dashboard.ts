@@ -117,6 +117,19 @@ interface StudentNextStep {
   dueDate: string | null;
 }
 
+interface StudentRequirementDetail {
+  requirementId: string;
+  title: string;
+  phase: string;
+  phaseLabel: string;
+  status: string;
+  progressStatus: string | null;
+  submissionStatus: string | null;
+  submissionVersion: number | null;
+  lastUpdatedAt: string | null;
+  nextAction: string;
+}
+
 export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
   const url = new URL(request.url);
   const requestedStudentId = url.searchParams.get("studentId") || null;
@@ -186,6 +199,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
   const feedback = await loadStudentVisibleFeedback(env, studentId);
   const summary = buildStudentProgressSummary(requirementRows, progressRows, submissionRows, evidenceRows, mentor);
   const nextSteps = buildStudentNextSteps(requirementRows, progressRows, submissionRows, summary);
+  const requirementDetails = buildStudentRequirementDetails(requirementRows, progressRows, submissionRows);
 
   await auditDashboardAccess(env, request, user, "student_dashboard_viewed", studentId, {
     self: isStudentSelf,
@@ -205,6 +219,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
     nextAction: nextSteps[0]?.detail || deriveNextAction(submissionRows, evidenceRows),
     summary,
     nextSteps,
+    requirements: requirementDetails,
     progress: progressRows,
     submissions: submissionRows,
     evidence: evidenceRows.map(summarizeEvidence),
@@ -424,6 +439,64 @@ function buildStudentNextSteps(
   }
 
   return output.slice(0, 5);
+}
+
+function buildStudentRequirementDetails(
+  requirements: RequirementRow[],
+  progressRows: ProgressRow[],
+  submissions: SubmissionSummaryRow[],
+): StudentRequirementDetail[] {
+  const progressByRequirement = latestByRequirement(progressRows);
+  const submissionsByRequirement = latestByRequirement(submissions);
+  return requirements.map((requirement) => {
+    const progress = progressByRequirement.get(requirement.id) || null;
+    const submission = submissionsByRequirement.get(requirement.id) || null;
+    const status = studentRequirementStatus(progress, submission);
+    return {
+      requirementId: requirement.id,
+      title: safeStudentText(requirement.title, "Senior Project requirement", 180),
+      phase: requirement.phase || "",
+      phaseLabel: requirement.phase ? phaseLabel(requirement.phase) : "Not available yet",
+      status,
+      progressStatus: progress?.status || null,
+      submissionStatus: submission?.status || null,
+      submissionVersion: submission?.version || null,
+      lastUpdatedAt: latestTimestamp([
+        progress?.updated_at || null,
+        submission?.updated_at || null,
+        submission?.submitted_at || null,
+      ]),
+      nextAction: studentRequirementNextAction(requirement, progress, submission, status),
+    };
+  });
+}
+
+function studentRequirementStatus(
+  progress: ProgressRow | null,
+  submission: SubmissionSummaryRow | null,
+): string {
+  if (submission?.status === "revision_requested") return "revision_requested";
+  if (submission?.status === "submitted") return "submitted";
+  if (progress?.status === "approved" || progress?.status === "archived") return progress.status;
+  if (submission?.status) return submission.status;
+  if (progress?.status) return progress.status;
+  return "missing";
+}
+
+function studentRequirementNextAction(
+  requirement: RequirementRow,
+  progress: ProgressRow | null,
+  submission: SubmissionSummaryRow | null,
+  status: string,
+): string {
+  const title = safeStudentText(requirement.title || submission?.requirement_title || progress?.requirement_title, "this requirement", 180);
+  if (status === "revision_requested") return `Revise ${title} and send it back for review.`;
+  if (status === "submitted") return `${title} is waiting for teacher review.`;
+  if (status === "approved" || status === "archived") return `${title} is complete for now.`;
+  if (status === "draft") return `Finish ${title} and attach the work your teacher requested.`;
+  if (status === "in_progress") return `Keep working on ${title}.`;
+  if (status === "missing") return `Start ${title} when your teacher is ready for this step.`;
+  return `Review ${title} and ask your program teacher what to do next.`;
 }
 
 function latestByRequirement<T extends { requirement_id: string | null; updated_at?: string | null; submitted_at?: string | null }>(rows: T[]): Map<string, T> {

@@ -3161,6 +3161,7 @@ function renderStudentSection() {
     </section>
     ${renderStudentPrimaryNextAction(summary, nextSteps)}
     ${renderStudentNextSteps(nextSteps, summary)}
+    ${renderStudentRequirementPanel(dashboard.requirements || [], summary)}
     ${renderStudentFeedbackPanel(dashboard.feedback || [], summary, studentFeedbackHistoryState)}
     ${renderStudentProgressDetails(summary, dashboard)}
     <section class="workspace-card">
@@ -3374,6 +3375,47 @@ function renderStudentNextStepRow(item) {
         <p class="workspace-muted">Due date: ${escapeHtml(item.dueDate ? formatDate(item.dueDate) : "Not available yet")}</p>
       </div>
       ${statusPill(item.status || "not_started")}
+    </article>
+  `;
+}
+
+function renderStudentRequirementPanel(requirements = [], summary = {}) {
+  const rows = Array.isArray(requirements) ? requirements : [];
+  return `
+    <section class="workspace-dashboard-card workspace-student-requirements-panel" data-student-requirements-panel="true" data-student-requirements-count="${escapeHtml(rows.length)}" aria-labelledby="studentRequirementChecklistTitle">
+      <div class="workspace-card-head">
+        <div>
+          <p class="workspace-kicker">Requirement checklist</p>
+          <h2 id="studentRequirementChecklistTitle">Your Required Work</h2>
+          <p>${escapeHtml(rows.length ? "Review each project requirement and the next step for that item." : "Required work will appear after your teacher adds project requirements.")}</p>
+        </div>
+      </div>
+      <div class="workspace-list">
+        ${rows.length ? rows.map(renderStudentRequirementRow).join("") : `
+          <article class="workspace-empty-state-card" data-student-requirements-empty="true">
+            <strong>No project requirements yet.</strong>
+            <p>${escapeHtml(summary.waitingForReviewCount ? "Check back after your teacher updates your project requirements." : "Ask your program teacher when your project requirements will be ready.")}</p>
+          </article>
+        `}
+      </div>
+    </section>
+  `;
+}
+
+function renderStudentRequirementRow(item) {
+  const version = safeNumber(item?.submissionVersion);
+  const updatedAt = item?.lastUpdatedAt ? formatDate(item.lastUpdatedAt) : "Not available yet";
+  return `
+    <article class="workspace-row workspace-student-requirement-row" data-student-requirement-row="true">
+      <div>
+        <strong>${escapeHtml(item?.title || "Senior Project requirement")}</strong>
+        <p>${escapeHtml(item?.phaseLabel || "Not available yet")} / Last updated ${escapeHtml(updatedAt)}</p>
+        <p class="workspace-muted" data-student-requirement-next="true">${escapeHtml(item?.nextAction || "Ask your program teacher what to do next.")}</p>
+      </div>
+      <div class="workspace-row-actions">
+        ${version > 0 ? `<span class="workspace-site-context-badge" data-student-requirement-version="true">Version ${escapeHtml(version)}</span>` : ""}
+        ${statusPill(item?.status || "missing")}
+      </div>
     </article>
   `;
 }

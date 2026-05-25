@@ -53,6 +53,7 @@ Status uses simple rules:
 - Progress hero with title, percentage, status badge, and accessible progress bar.
 - Four summary cards: Project Phases, Required Submissions, Review Status, and Mentor / Support.
 - What to Work On Next, prioritized by revision items, missing submissions, current-phase work, waiting review, then next remaining requirement.
+- Your Required Work, a read-only requirement checklist from the existing student-scoped dashboard data, showing each required item, phase, status, submitted version when present, last update, and next step.
 - Feedback History, showing bounded teacher review notes already tied to the student's own submissions, with submission version and current status context.
 - Submission timeline inside Feedback History, loaded from the filtered review-history route when a student opens a feedback row, showing versions, status changes, and student-visible teacher notes.
 - Submitted Work rows now repeat the latest teacher feedback beside the matching submission when the scoped dashboard response includes a review for that submission.
@@ -77,10 +78,11 @@ No new fake links were added. The dashboard keeps existing real actions only:
 - Attach evidence link through the existing student evidence form.
 - Upload evidence file through the existing student upload form.
 - Download or open evidence using existing safe evidence URLs when present.
+- Review the inline requirement checklist from the existing student dashboard response; it does not add a fake requirement page or unbacked action.
 - Review archive readiness through the existing Archive workspace section; the student home only summarizes the next archive blocker and does not add a fake archive request action.
 - Open a feedback-row timeline through the existing `/api/reviews/:submissionId/history` route. The route already enforces own-student or assigned-scope access and filters staff-only comments before the workspace renders the timeline.
 
-Future requirement drill-down links were not added because there is not yet a dedicated student-safe requirement detail page.
+Future requirement drill-down links were not added because there is not yet a dedicated student-safe requirement detail page or guided requirement form.
 
 Teacher feedback history is read-only and comes from review rows already scoped to the student's own submissions. Each feedback row includes the matching submission version and current status so students can connect the note to the work they most recently sent back. Students can open a row timeline to see submitted versions, status changes, and student-visible teacher notes from the shared review-history route. The submitted-work list only repeats feedback that matches that submission ID. Staff-only comments are not added to the student dashboard response, and the shared review-history route filters `staff_only` comments out for student and assigned-mentor readers.
 
@@ -90,7 +92,7 @@ Student-facing copy on this route now uses "work," "evidence," "submitted work,"
 
 ## Backlog
 
-1. Add a student-safe requirement detail page.
+1. Add a student-safe requirement detail page or guided requirement form from persisted requirement/progress records.
 2. Add phase-specific student progress pages.
 3. Add richer student-safe feedback timeline affordances only if students need compare/filter controls beyond the current in-row timeline.
 4. Add mentor contact/support workflow without exposing unsafe contact data.

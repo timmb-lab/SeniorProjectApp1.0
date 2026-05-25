@@ -80,6 +80,20 @@ test("student dashboard returns own rows without storage ids and audits the view
       dueDate: null,
     },
   ]);
+  assert.deepEqual(body.requirements, [
+    {
+      requirementId: "req-proposal-draft",
+      title: "Core Concept Proposal",
+      phase: "proposal",
+      phaseLabel: "Proposal",
+      status: "draft",
+      progressStatus: "draft",
+      submissionStatus: "draft",
+      submissionVersion: 1,
+      lastUpdatedAt: "2026-05-20T08:10:00.000Z",
+      nextAction: "Finish Core Concept Proposal and attach the work your teacher requested.",
+    },
+  ]);
   assert.equal(body.progress.length, 1);
   assert.equal(body.submissions.length, 1);
   assert.equal(body.evidence.length, 1);

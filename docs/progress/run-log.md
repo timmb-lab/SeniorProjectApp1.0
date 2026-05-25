@@ -1795,3 +1795,14 @@ Future productive runs should append compact entries that name the master-plan s
 - `changes`: added a staff-comment role allowlist to the review-history route, filtered comments with `comments.visibility != 'staff_only'` for non-staff readers, relabeled the student home feedback panel as `Feedback History`, and added route/UI tests proving student and mentor redaction plus staff preservation.
 - `validation`: focused `tests/review-loop.integration.test.mjs`, `tests/workspace-app.test.mjs`, and `npm run verify:functionality-language` passed before final validation; final validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
 - `commit/push status`: pending closeout commit.
+
+## 2026-05-25 PT - Functionality UX Upgrade Student Requirement Checklist
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 6 student progress drill-down / requirement checklist.
+- `starting HEAD`: `5f949b702afdbbe3700043a22a7963fc992f50ef`.
+- `selected slice`: Add a read-only student `Your Required Work` checklist backed by existing `/api/student/dashboard` requirement, progress, and submission rows.
+- `repo-grounded findings`: the previous handoff pointed to student requirement detail after feedback history. Current source showed the student dashboard already loaded scoped requirements but only rendered aggregate progress details and next steps, so students could not scan every required item without guessing from submissions.
+- `changes`: `/api/student/dashboard` now returns a bounded `requirements` checklist with title, phase, status, submitted version, last update, and next action. `workspace.js` renders that checklist on the student home without a new route, fake page, URL state, or mutation control. Focused route/UI tests guard the payload and rendered panel.
+- `validation`: focused student-dashboard/workspace tests and functionality-language verifier passed. Final validation passed: dashboard/review/workspace/language/automation verifiers, focused route/UI/audit tests, JSON state parse, route inventory, full `npm run test`, `npm run typecheck`, `npm run check:production-surfaces`, aggregate `npm run check`, and `git diff --check` with CRLF normalization warnings only. The local Codex GUI automation rrule was corrected to the documented HH:00/HH:30 cadence before the automation verifier passed.
+- `commit/push status`: pending closeout commit.

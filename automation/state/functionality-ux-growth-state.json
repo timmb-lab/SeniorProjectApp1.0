@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-05-25T04:38:00-07:00",
-  "lastStartingSha": "d3b010055d66b2168adee7107a5bdb076e8c7c58",
+  "lastRunAt": "2026-05-25T05:06:27-07:00",
+  "lastStartingSha": "5f949b702afdbbe3700043a22a7963fc992f50ef",
   "lastEndingSha": null,
   "currentLadderFocus": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN",
   "completedWorkOrders": [
@@ -313,6 +313,14 @@
       "type": "TYPE_C_STUDENT_DETAIL_DRILL_DOWN",
       "summary": "Student Feedback History rows now open a real student-safe submission timeline from the already filtered review-history route.",
       "commit": "pending-closeout-commit"
+    },
+    {
+      "id": "student-requirement-checklist-panel",
+      "completedAt": "2026-05-25T05:06:27-07:00",
+      "ladderLevel": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN",
+      "type": "TYPE_C_STUDENT_DETAIL_DRILL_DOWN",
+      "summary": "Student dashboard now shows a scoped Your Required Work checklist from existing requirement, progress, and submission records.",
+      "commit": "pending-closeout-commit"
     }
   ],
   "deferredWorkOrders": [
@@ -340,10 +348,16 @@
   "blockedWorkOrders": [],
   "nextRecommendedWorkOrders": [
     {
-      "id": "student-requirement-detail-panel",
+      "id": "student-guided-requirement-detail-form",
       "ladderLevel": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN",
       "type": "TYPE_C_STUDENT_DETAIL_DRILL_DOWN",
-      "summary": "Add a bounded student-safe requirement detail panel from existing dashboard requirement/progress data."
+      "summary": "Add a deeper student-safe requirement detail page or guided form from persisted requirement/progress records."
+    },
+    {
+      "id": "student-phase-progress-panel",
+      "ladderLevel": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN",
+      "type": "TYPE_D_ROLE_WORKSPACE",
+      "summary": "Group the student checklist by project phase and show phase-level progress using existing dashboard data."
     },
     {
       "id": "missing-submission-drilldown",
@@ -384,17 +398,19 @@
     "Do not re-add Operations Outline Pending filtering; extend only if a regression removes outlineAttention=true or a new exact outline subtype is added by the route.",
     "Do not re-add the review-history staff-only comment filter; extend only if a new comment visibility value or feedback source is added.",
     "Do not re-add student Feedback History version/status context; extend next with a full student-safe timeline only if the review-history route UI shape is proven.",
-    "Do not re-add the student Feedback History timeline action; extend only if students need compare/filter controls or new route-backed timeline fields."
+    "Do not re-add the student Feedback History timeline action; extend only if students need compare/filter controls or new route-backed timeline fields.",
+    "Do not re-add the student requirement checklist panel; extend next only with a guided requirement detail/form or phase grouping backed by real route data."
   ],
   "lastValidationStatus": {
     "status": "passed",
-    "completedAt": "2026-05-25T04:38:00-07:00",
+    "completedAt": "2026-05-25T05:06:27-07:00",
     "commands": [
       "npm run verify:dashboard-actions",
       "npm run verify:review-queue-deeplinks",
       "npm run verify:workspace-navigation",
       "npm run verify:functionality-language",
       "npm run verify:functionality-ux-automation",
+      "node --test tests/student-dashboard-access.integration.test.mjs",
       "node --test tests/workspace-app.test.mjs",
       "node --test tests/functionality-language-audit.test.mjs",
       "node -e JSON.parse automation/state/functionality-ux-growth-state.json",
@@ -406,7 +422,7 @@
       "git diff --check",
       "git status --short"
     ],
-    "notes": "Full required validation passed for the student feedback timeline slice. git diff --check reported CRLF normalization warnings only. No browser smoke was run because this API/UI student dashboard path is covered by review-history route tests, workspace render/handler tests, and source verifiers. No remote seed/reset/migration, live data write, deploy, credential repair, domain/OAuth, or Cloudflare config change was run."
+    "notes": "Full required validation passed for the student requirement checklist slice. git diff --check reported CRLF normalization warnings only. The local Codex GUI automation rrule was corrected to the documented HH:00/HH:30 cadence before the automation verifier passed. No browser smoke was run because this API/UI student dashboard path is covered by student dashboard route tests, workspace render tests, and source verifiers. No remote seed/reset/migration, live data write, deploy, credential repair, domain/OAuth, or Cloudflare config change was run."
   },
   "lastProductReadinessScorecardSummary": {
     "homepageClarity": "4 to 4",
