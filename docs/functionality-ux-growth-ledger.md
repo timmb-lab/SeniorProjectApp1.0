@@ -532,3 +532,57 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: missing/evidence drill-down mapping remains unproven; browser QA still needs credentialed runtime.
   - Do not repeat: do not rework this Operations context handoff unless a regression appears.
   - First file to inspect next run: `workspace.js` `renderMentorStudentCards()`
+
+## Run 2026-05-24 21:38 PT
+
+- Starting SHA: `d98cedef101cefb189e2f8c459752416164bf19d`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Branch policy: work stayed on clean local `main`; local `main` was three commits ahead of `origin/main`, `origin/main` was not ahead, and no push was run
+- Ladder level targeted: `LEVEL_2_STUDENT_DETAIL_DEPTH`
+- Backlog item: `mentor-dashboard-assigned-student-detail-action`
+- Work order selected: Add a real detail action to Mentor Dashboard assigned-student rows while preserving Mentor Dashboard as the source section.
+- Selection reason: The previous handoff pointed at `renderMentorStudentCards()`. Current code still rendered assigned-student cards without a detail action, while `/api/site/students/:studentId` already authorizes mentor-assigned student detail and returns generic denial/not-found responses for out-of-scope students.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Mentor Dashboard assigned-student detail action | `LEVEL_2_STUDENT_DETAIL_DEPTH` | mentor | 5 | 5 | 5 | S | 55 | selected |
+| Operations Program Breakdown filter action | `LEVEL_1_NAVIGABLE_DASHBOARDS` | staff, viewer | 4 | 5 | 4 | S | 48 | rejected: current handoff favored mentor detail depth |
+| Program Teacher detail context preservation | `LEVEL_2_STUDENT_DETAIL_DEPTH` | program teacher | 4 | 4 | 4 | S | 47 | rejected: mentor gap was clearer and next in handoff |
+| Review Queue detail source preservation | `LEVEL_2_STUDENT_DETAIL_DEPTH` | staff, teacher | 4 | 4 | 4 | S | 46 | deferred: add review-panel drawer context in a separate slice |
+| Legacy Assigned Students detail action | `LEVEL_2_STUDENT_DETAIL_DEPTH` | mentor | 3 | 4 | 4 | S | 44 | rejected: Mentor Dashboard is the primary richer mentor surface |
+| Student archive blocked guidance | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 4 | 5 | 4 | S | 46 | rejected: less aligned to current Level 2 handoff |
+| Student detail visible-note labels | `LEVEL_7_AUDITABILITY_AND_TRUST` | staff, students | 4 | 5 | 4 | S | 45 | rejected: current drill-down entry point had higher workflow value |
+| Operations empty-state wording | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | staff, viewer | 3 | 5 | 4 | XS | 43 | rejected: safe but lower workflow impact |
+| Assignment form unavailable copy | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | site admin | 3 | 5 | 4 | XS | 43 | rejected: lower impact than real mentor detail action |
+| Student Directory mentor filter options | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | staff | 4 | 3 | 4 | M | 42 | deferred: needs safe API-provided mentor option labels |
+| Viewer read-only homepage clarity | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | viewer | 3 | 5 | 4 | XS | 42 | rejected: already covered by existing read-only affordances |
+| Public `Future App Workflow` copy cleanup | `LEVEL_0_PROTOTYPE_CLEANUP` | public | 3 | 5 | 4 | S | 40 | rejected: protected app workflow had higher value |
+| Credentialed browser QA for worklist URLs | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all | 4 | 4 | 3 | M | 39 | blocked: needs credentialed runtime |
+| Missing/evidence drill-down mapping | `LEVEL_1_NAVIGABLE_DASHBOARDS` | staff | 5 | 2 | 3 | M | 38 | deferred: exact supported route/filter mapping remains unproven |
+| Site Admin mentor POST default alignment | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | site admin | 4 | 2 | 4 | M | 37 | deferred: mutation policy/risk is higher than this lane slice |
+
+- User-facing improvement: Mentors can open assigned-student detail directly from their dashboard and close back to the assigned-student worklist instead of losing context or switching to an unavailable directory.
+- Roles affected: mentor; existing admin/staff/student detail visibility remains server-owned by the site student detail route
+- Files changed: `workspace.js`, `tests/workspace-app.test.mjs`, `scripts/verify-dashboard-actions.mjs`, `docs/functionality-language-audit.md`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`, `docs/progress/run-log.md`
+- Tests/verifiers added or updated: workspace render/handler test now asserts Mentor Dashboard detail open/close context; dashboard-action verifier guards the mentor dashboard detail source section.
+- Validation commands:
+  - Focused: `node --test tests/workspace-app.test.mjs`; `npm run verify:dashboard-actions`
+  - Final: `npm run verify:dashboard-actions`; `npm run verify:review-queue-deeplinks`; `npm run verify:workspace-navigation`; `npm run verify:functionality-language`; `npm run verify:functionality-ux-automation`; `node --test tests/workspace-app.test.mjs`; `node --test tests/site-student-detail.integration.test.mjs`; `node --test tests/mentor-dashboard.integration.test.mjs`; `node --test tests/functionality-language-audit.test.mjs`; JSON parse for `automation/state/functionality-ux-growth-state.json`; `npm run check:route-inventory`; `npm run test`; `npm run typecheck`; `npm run check:production-surfaces`; `npm run check`; `git diff --check`; `git status --short`
+- Validation result: passed; `git diff --check` reported CRLF normalization warnings only
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: Review Queue detail source preservation; Program Teacher detail context preservation; Operations Program Breakdown filter action; missing/evidence drill-down; credentialed browser QA
+- New backlog items: none
+- Next recommended work order: preserve Review Queue or Program Teacher dashboard detail context using the same explicit source-section pattern, or inspect Operations Program Breakdown for a safe existing operations filter.
+- Do-not-repeat notes: do not re-add Mentor Dashboard assigned-student detail buttons; extend only if another mentor surface needs the same existing detail route.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_2_STUDENT_DETAIL_DEPTH`
+  - Advanced: yes
+  - Evidence: Mentor Dashboard assigned-student rows now render `data-mentor-dashboard-action="open-student"` and call `openSiteStudentDetail(..., { sourceSection: "mentorDashboard" })`; close returns to Mentor Dashboard.
+  - Unlocks: other non-directory worklists can preserve their own detail context with the same explicit source-section pattern.
+  - Next: Review Queue detail source preservation or Program Teacher dashboard detail context preservation.
+  - Blockers: missing/evidence drill-down mapping remains unproven; browser QA still needs credentialed runtime.
+  - Do not repeat: do not rebuild Mentor Dashboard detail entry unless a regression removes it.
+  - First file to inspect next run: `workspace.js` `handleReviewQueueAction()` and `renderTeacherSection()`

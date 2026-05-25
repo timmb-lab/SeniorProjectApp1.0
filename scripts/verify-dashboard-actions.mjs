@@ -170,6 +170,7 @@ assertMatches(
 for (const [handler, action, loader] of [
   ["handleSiteStudentAction", "view-detail", "openSiteStudentDetail"],
   ["handleMentorAssignmentAction", "open-student", "openSiteStudentDetail"],
+  ["handleMentorDashboardAction", "open-student", "openSiteStudentDetail"],
   ["handleOperationsReadinessAction", "open-student", "openSiteStudentDetail"],
   ["handleReviewQueueAction", "open-student", "openSiteStudentDetail"],
 ]) {
@@ -187,6 +188,11 @@ assertMatches(
 );
 assertMatches(
   "workspaceJs",
+  /function handleMentorDashboardAction\([\s\S]*?openSiteStudentDetail\(event\.currentTarget\?\.dataset\?\.mentorDashboardStudentId \|\| "", \{ sourceSection: "mentorDashboard" \}\)/,
+  "Mentor Dashboard student-detail actions must keep the Mentor Dashboard as the detail source",
+);
+assertMatches(
+  "workspaceJs",
   /async function openSiteStudentDetail\(studentId, options = \{\}\)[\s\S]*const sourceSection = cleanWorkspaceSection\(options\.sourceSection\) \|\| "students"[\s\S]*activeSection = sourceSection/,
   "student detail loader must preserve an explicit source section",
 );
@@ -200,6 +206,11 @@ assertMatches(
   "workspaceJs",
   /function renderScopedStudentList\([\s\S]*data-site-student-action="view-detail"[\s\S]*data-student-detail-id="\$\{escapeHtml\(row\.studentId\)\}"/,
   "Program Teacher scoped student rows must use the existing student detail handler",
+);
+assertMatches(
+  "workspaceJs",
+  /function renderMentorStudentCards\([\s\S]*data-mentor-dashboard-action="open-student"[\s\S]*data-mentor-dashboard-student-id="\$\{escapeHtml\(row\.studentId\)\}"/,
+  "Mentor Dashboard assigned-student rows must use the existing student detail route through a mentor-scoped handler",
 );
 
 assertMatches("workspaceJs", /function renderReadOnlyBanner\(\)[\s\S]*Read-only workspace/, "viewer read-only banner must remain visible");

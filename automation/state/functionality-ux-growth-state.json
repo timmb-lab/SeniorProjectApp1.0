@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-05-24T21:05:14-07:00",
-  "lastStartingSha": "a555d428090129e2acf7049cb407310d3efe8353",
+  "lastRunAt": "2026-05-24T21:38:00-07:00",
+  "lastStartingSha": "d98cedef101cefb189e2f8c459752416164bf19d",
   "lastEndingSha": null,
   "currentLadderFocus": "LEVEL_2_STUDENT_DETAIL_DEPTH",
   "completedWorkOrders": [
@@ -193,6 +193,14 @@
       "type": "TYPE_C_STUDENT_DETAIL_DRILL_DOWN",
       "summary": "Operations worklist student-detail actions now keep and close back to the Operations source context instead of jumping to the Student Directory.",
       "commit": "pending-closeout-commit"
+    },
+    {
+      "id": "mentor-dashboard-assigned-student-detail-action",
+      "completedAt": "2026-05-24T21:38:00-07:00",
+      "ladderLevel": "LEVEL_2_STUDENT_DETAIL_DEPTH",
+      "type": "TYPE_C_STUDENT_DETAIL_DRILL_DOWN",
+      "summary": "Mentor Dashboard assigned-student rows now open the existing authorized student detail drawer and close back to Mentor Dashboard.",
+      "commit": "pending-closeout-commit"
     }
   ],
   "deferredWorkOrders": [
@@ -220,10 +228,16 @@
   "blockedWorkOrders": [],
   "nextRecommendedWorkOrders": [
     {
-      "id": "mentor-assigned-student-detail-action",
+      "id": "review-queue-detail-source-preservation",
       "ladderLevel": "LEVEL_2_STUDENT_DETAIL_DEPTH",
       "type": "TYPE_C_STUDENT_DETAIL_DRILL_DOWN",
-      "summary": "Audit mentor assigned-student cards and add scoped detail entry only if source-section and site-selection behavior stay safe."
+      "summary": "Keep Review Queue student-detail actions inside the Review Queue panel if the detail surface can be added safely."
+    },
+    {
+      "id": "program-teacher-dashboard-detail-context-preservation",
+      "ladderLevel": "LEVEL_2_STUDENT_DETAIL_DEPTH",
+      "type": "TYPE_C_STUDENT_DETAIL_DRILL_DOWN",
+      "summary": "Keep Program Teacher dashboard detail actions inside the Program Dashboard context instead of switching to Students."
     },
     {
       "id": "missing-submission-drilldown",
@@ -255,11 +269,12 @@
     "Do not re-add the student detail latest feedback summary; extend it only if the authorized detail API adds a new visible feedback source.",
     "Do not re-add Site Dashboard Status Breakdown status-filter actions; extend only if new dashboard status values gain a supported Student Directory mapping.",
     "Do not re-add Program Teacher dashboard scoped-student detail buttons unless a regression removes the existing View detail action.",
-    "Do not re-add Operations detail source preservation; Operations row details now open and close inside Operations."
+    "Do not re-add Operations detail source preservation; Operations row details now open and close inside Operations.",
+    "Do not re-add Mentor Dashboard assigned-student detail buttons; Mentor Dashboard rows now open and close inside that dashboard context."
   ],
   "lastValidationStatus": {
     "status": "passed",
-    "completedAt": "2026-05-24T21:05:14-07:00",
+    "completedAt": "2026-05-24T21:50:00-07:00",
     "commands": [
       "npm run verify:dashboard-actions",
       "npm run verify:review-queue-deeplinks",
@@ -267,7 +282,8 @@
       "npm run verify:functionality-language",
       "npm run verify:functionality-ux-automation",
       "node --test tests/workspace-app.test.mjs",
-      "node --test tests/site-operations-readiness.integration.test.mjs",
+      "node --test tests/site-student-detail.integration.test.mjs",
+      "node --test tests/mentor-dashboard.integration.test.mjs",
       "node --test tests/functionality-language-audit.test.mjs",
       "node -e JSON.parse automation/state/functionality-ux-growth-state.json",
       "npm run check:route-inventory",
@@ -278,7 +294,7 @@
       "git diff --check",
       "git status --short"
     ],
-    "notes": "Full required validation passed for Operations detail context preservation. git diff --check reported CRLF normalization warnings only. No browser smoke was run because this slice is covered by render/source tests and no credentials were used. No remote seed/reset/migration, live data write, deploy, credential repair, domain/OAuth, or Cloudflare config change was run."
+    "notes": "Full required validation passed for Mentor Dashboard assigned-student detail action. git diff --check reported CRLF normalization warnings only. No browser smoke was run because this slice is covered by render/source tests and no credentials were used. No remote seed/reset/migration, live data write, deploy, credential repair, domain/OAuth, or Cloudflare config change was run."
   },
   "lastProductReadinessScorecardSummary": {
     "homepageClarity": "4 to 4",

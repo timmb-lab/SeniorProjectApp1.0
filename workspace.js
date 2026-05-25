@@ -2240,7 +2240,15 @@ function renderMentorDashboardSection() {
         ${renderMetricTile("Meetings", summary.missingMeeting, "Need meeting attention", "warning")}
         ${renderMetricTile("Presentations", summary.presentationPending, "Pending readiness", "teacher", "presentation")}
       </div>
-      ${assigned.length ? renderDashboardCard("Assigned Students", "Active mentor scope", renderMentorStudentCards(assigned)) : `
+      ${assigned.length ? `
+        ${renderDashboardCard("Assigned Students", "Active mentor scope", renderMentorStudentCards(assigned))}
+        ${siteStudentDetailState?.sourceSection === "mentorDashboard" ? renderSiteStudentDetailSurface({
+          students: assigned.map((row) => ({
+            studentId: row.studentId,
+            displayName: row.studentName,
+          })),
+        }) : ""}
+      ` : `
         <section class="workspace-dashboard-card workspace-empty" data-workspace-state="no-active-assignment">
           <strong>No students are assigned to you yet</strong>
           <span>Mentor students</span>
@@ -4006,6 +4014,9 @@ function bindWorkspaceForms() {
   document.querySelectorAll("[data-mentor-assignment-action]").forEach((button) => {
     button.addEventListener("click", handleMentorAssignmentAction);
   });
+  document.querySelectorAll("[data-mentor-dashboard-action]").forEach((button) => {
+    button.addEventListener("click", handleMentorDashboardAction);
+  });
   document.querySelector("#mentorAssignmentForm")?.addEventListener("submit", submitMentorAssignment);
   document.querySelector("#operationsReadinessFilterForm")?.addEventListener("submit", applyOperationsReadinessFilters);
   document.querySelectorAll("[data-operations-action]").forEach((button) => {
@@ -4158,6 +4169,15 @@ async function handleMentorAssignmentAction(event) {
     activeSection = "mentorAssignments";
     syncMentorAssignmentUrlState();
     await loadMentorAssignmentsResult("Mentor assignment page updated.");
+  }
+}
+
+async function handleMentorDashboardAction(event) {
+  const action = event?.currentTarget?.dataset?.mentorDashboardAction;
+  if (!action) return;
+  if (action === "open-student") {
+    activeSection = "mentorDashboard";
+    await openSiteStudentDetail(event.currentTarget?.dataset?.mentorDashboardStudentId || "", { sourceSection: "mentorDashboard" });
   }
 }
 
@@ -5397,7 +5417,14 @@ function renderMentorStudentCards(rows = []) {
               <p>${safeNumber(row.evidenceCount)} evidence / meeting ${escapeHtml(statusText(row.mentorMeetingStatus || "not_recorded"))} / presentation ${escapeHtml(statusText(row.presentationStatus || "not_scheduled"))}</p>
               ${attention.length ? `<p class="workspace-muted">${escapeHtml(attention.map(statusText).join(", "))}</p>` : ""}
             </div>
-            ${statusPill(row.submissionStatus || "not_started")}
+            <div class="workspace-row-actions">
+              ${statusPill(row.submissionStatus || "not_started")}
+              ${row.studentId ? `
+                <button class="workspace-link-button workspace-link-button-small" type="button" data-mentor-dashboard-action="open-student" data-mentor-dashboard-student-id="${escapeHtml(row.studentId)}">
+                  View detail
+                </button>
+              ` : ""}
+            </div>
           </article>
         `;
       }).join("")}

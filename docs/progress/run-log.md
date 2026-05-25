@@ -1630,3 +1630,14 @@ Future productive runs should append compact entries that name the master-plan s
 - `changes`: added explicit student-detail source-section state, passed `{ sourceSection: "operations" }` from Operations row actions, returned to the source section on drawer close, clarified generic detail loading/error language, and extended the workspace test plus dashboard-action verifier.
 - `validation`: full validation passed: dashboard/review/workspace/language/automation verifiers, workspace/operations/audit tests, JSON state parse, route inventory, full test suite, typecheck, production-surface check, aggregate `npm run check`, and `git diff --check` with CRLF normalization warnings only.
 - `commit/push status`: pending closeout commit.
+
+## 2026-05-24 PT - Functionality UX Upgrade Mentor Dashboard Detail Action
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 2 student detail depth / mentor assigned-student dashboard.
+- `starting HEAD`: `d98cedef101cefb189e2f8c459752416164bf19d`.
+- `selected slice`: Add a real student-detail action to Mentor Dashboard assigned-student rows and keep the detail drawer inside Mentor Dashboard.
+- `repo-grounded findings`: `renderMentorStudentCards()` showed assigned students with submission, meeting, presentation, and evidence signals but no detail action; the existing `/api/site/students/:studentId` route already supports mentor-assigned student detail with server-owned access checks and generic out-of-scope denial behavior.
+- `changes`: added mentor dashboard `View detail` buttons, a mentor-specific detail handler using `sourceSection: "mentorDashboard"`, a Mentor Dashboard detail surface, and verifier/test coverage for open/close context preservation.
+- `validation`: full validation passed: dashboard/review/workspace/language/automation verifiers, workspace/site-detail/mentor-dashboard/audit focused tests, JSON state parse, route inventory, full test suite, typecheck, production-surface check, aggregate `npm run check`, and `git diff --check` with CRLF normalization warnings only.
+- `commit/push status`: pending closeout commit.
