@@ -916,10 +916,15 @@ test("workspace renders site-aware Review Queue with teacher decisions and read-
   assert.match(teacher, /workspace-risk-chip/);
   assert.match(teacher, /data-review-queue-action="open-student"/);
   assert.match(teacher, /data-review-history-section="true"/);
+  assert.match(teacher, /data-review-comment-visibility-summary="true"/);
+  assert.match(teacher, /Student-visible comments: 1/);
+  assert.match(teacher, /Staff-only comments: 1/);
+  assert.match(teacher, /Only counts are shown here; teacher note text stays protected/);
   assert.match(teacher, /data-review-decision="approved"/);
   assert.match(teacher, /data-review-decision="revision_requested"/);
   assert.match(teacher, /data-review-decision="comment_only"/);
   assert.match(teacher, /<textarea name="feedback"/);
+  assert.doesNotMatch(teacher, /Bounded teacher comment|Private staff planning note/);
 
   const viewer = await renderWorkspaceWithFetch({
     "/api/auth/me": {
@@ -4115,8 +4120,16 @@ function reviewHistoryFixture() {
       {
         id: "comment-review-001",
         body: "Bounded teacher comment.",
+        visibility: "student_and_staff",
         authorName: "Program Teacher",
         createdAt: "2026-05-21T12:35:00.000Z",
+      },
+      {
+        id: "comment-review-staff-001",
+        body: "Private staff planning note.",
+        visibility: "staff_only",
+        authorName: "Program Teacher",
+        createdAt: "2026-05-21T12:40:00.000Z",
       },
     ],
     statusHistory: [],

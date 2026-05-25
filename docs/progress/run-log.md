@@ -1892,7 +1892,7 @@ Future productive runs should append compact entries that name the master-plan s
 - `selected slice`: Replace Program Teacher dashboard source/scope wording with assigned-program/cohort language.
 - `repo-grounded findings`: the previous handoff named `Source record counts`, and current `workspace.js` also still rendered `Scoped Student Progress`, `Visible in this role scope`, and `assigned scope` in the protected Program Teacher dashboard.
 - `changes`: Program Teacher dashboard now renders `Assigned Student Progress`, `Assigned Students`, `Visible in your assigned program or cohort`, `Students by program`, and `Assigned student list`; scope chips now use plain assignment labels. The language verifier blocks the removed phrases.
-- `validation`: focused `node --test tests/workspace-app.test.mjs` and `npm run verify:functionality-language` passed before final validation. Final validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `validation`: focused `node --test tests/workspace-app.test.mjs` and `npm run verify:functionality-language` passed before final validation. Full validation passed; the automation verifier initially caught a local GUI schedule drift and passed after the local TOML was corrected to HH:00/HH:30.
 - `commit/push status`: pending closeout commit; not pushed by this automation run.
 
 ## 2026-05-25 PT - Functionality UX Upgrade Workspace Access Labels
@@ -1915,4 +1915,15 @@ Future productive runs should append compact entries that name the master-plan s
 - `repo-grounded findings`: the previous handoff named `reviewQueueEmptyState()`, `renderReviewSubmissionPanel()`, and `renderReviewHistorySummary()`. Current source still rendered `assigned access`, `No review rows match`, `No review items match these filters`, `Review actions unavailable`, and `No review history is loaded yet`.
 - `changes`: Review Queue now distinguishes active-filter mismatch from true no-data, route `emptyState` uses assigned-review-staff language, empty history says no decisions/comments are recorded, and read-only/non-submitted rows explain why no teacher decision is available. Focused route/UI tests and language/dashboard/navigation verifiers guard the removed stale wording.
 - `validation`: focused `node --test tests/workspace-app.test.mjs`, `node --test tests/site-review-queue.integration.test.mjs`, `npm run verify:functionality-language`, `npm run verify:dashboard-actions`, and `npm run verify:workspace-navigation` passed before final validation. Final validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.
+
+## 2026-05-25 PT - Functionality UX Upgrade Review Comment Visibility Labels
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 7 auditability and trust / Review Queue selected-submission visibility clarity.
+- `starting HEAD`: `4cf0989f9558f17ef20f6bf56995a655a917adec`.
+- `selected slice`: Add Review Queue selected-submission comment visibility labels without rendering comment bodies.
+- `repo-grounded findings`: the prior handoff named `renderReviewHistorySummary()`. Current source rendered only a vague protected-comment count, while `/api/reviews/:submissionId/history` already returns role-filtered comment rows with `visibility` values and route tests prove staff-only comments are hidden from student/mentor readers.
+- `changes`: `workspace.js` now summarizes Review Queue selected-submission comments by student-visible, staff-only, or protected visibility counts and explicitly keeps teacher note text protected. Workspace tests assert those labels and prove comment bodies are not rendered in the selected-submission panel. The functionality-language verifier now blocks the old vague phrase.
+- `validation`: focused `node --test tests/workspace-app.test.mjs` and `npm run verify:functionality-language` passed before final validation. Final validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
 - `commit/push status`: pending closeout commit; not pushed by this automation run.

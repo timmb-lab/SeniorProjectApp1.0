@@ -149,6 +149,10 @@ const hardFailures = [
     message: "Review Queue disabled decisions should explain whether the row is read-only or not submitted for review.",
   },
   {
+    pattern: /\bprotected comments? available for this submission\b/i,
+    message: "Review Queue comment history should show visibility counts instead of vague protected-comment availability copy.",
+  },
+  {
     pattern: /\bstorage identifiers redacted\b/i,
     message: "Protected workspace should say private file details are protected instead of showing storage jargon.",
   },

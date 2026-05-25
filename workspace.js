@@ -4230,12 +4230,46 @@ function renderReviewHistorySummary(historyResult, history) {
           `).join("")}
         </div>
       ` : `<div class="workspace-empty" data-review-history-empty="true">No review decisions recorded yet.</div>`}
-      <p class="workspace-muted">${
-        safeNumber(comments.length)
-          ? `${safeNumber(comments.length)} protected comment${safeNumber(comments.length) === 1 ? "" : "s"} available for this submission.`
-          : "No protected comments recorded for this submission yet."
-      }</p>
+      ${renderReviewCommentVisibilitySummary(comments)}
     </section>
+  `;
+}
+
+function renderReviewCommentVisibilitySummary(comments = []) {
+  if (!comments.length) {
+    return `<p class="workspace-muted">No protected comments recorded for this submission yet.</p>`;
+  }
+
+  const counts = comments.reduce((summary, row) => {
+    const visibility = String(row.visibility || "").toLowerCase();
+    if (visibility === "staff_only") {
+      summary.staffOnly += 1;
+    } else if (visibility === "student_and_staff" || visibility === "student_visible") {
+      summary.studentVisible += 1;
+    } else {
+      summary.protectedOnly += 1;
+    }
+    return summary;
+  }, { studentVisible: 0, staffOnly: 0, protectedOnly: 0 });
+
+  const badges = [
+    counts.studentVisible
+      ? `<span class="workspace-site-context-badge" data-review-comment-visibility="student-visible">Student-visible comments: ${safeNumber(counts.studentVisible)}</span>`
+      : "",
+    counts.staffOnly
+      ? `<span class="workspace-site-context-badge" data-review-comment-visibility="staff-only">Staff-only comments: ${safeNumber(counts.staffOnly)}</span>`
+      : "",
+    counts.protectedOnly
+      ? `<span class="workspace-site-context-badge" data-review-comment-visibility="protected">Protected comments: ${safeNumber(counts.protectedOnly)}</span>`
+      : "",
+  ].filter(Boolean).join("");
+
+  return `
+    <div class="workspace-review-comment-summary" data-review-comment-visibility-summary="true">
+      <p class="workspace-muted">Comment visibility</p>
+      <div class="workspace-detail-grid">${badges}</div>
+      <p class="workspace-muted">Only counts are shown here; teacher note text stays protected.</p>
+    </div>
   `;
 }
 

@@ -1958,3 +1958,57 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: Review Queue and Student Directory still lack exact missing/evidence filters; browser QA still needs credentialed runtime; full comment rendering needs product/privacy review.
   - Do not repeat: do not rebuild this Review Queue empty/history copy cluster unless regression evidence appears.
   - First file to inspect next run: `workspace.js` `renderReviewHistorySummary()`
+
+## Run 2026-05-25 10:25 PT
+
+- Starting SHA: `4cf0989f9558f17ef20f6bf56995a655a917adec`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Branch policy: work stayed on clean local `main`; local `main` was twenty-nine commits ahead of `origin/main`, `origin/main` was not ahead, and no push was run
+- Ladder level targeted: `LEVEL_7_AUDITABILITY_AND_TRUST` with `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` support
+- Backlog item: `review-history-comment-visibility-labels`; advances `MVP-033`, `MVP-034`, and `MVP-039`
+- Work order selected: Add Review Queue selected-submission comment visibility labels without rendering comment bodies.
+- Selection reason: The previous handoff named `renderReviewHistorySummary()` and asked whether Review Queue selected-submission comments should remain count-only or gain protected visibility labels. Current source still rendered the vague line `protected comments available for this submission`, while the review-history route already returns role-filtered comment rows with `visibility` values. A UI-only count summary was safe, useful, and testable.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Review Queue comment visibility labels | `LEVEL_7_AUDITABILITY_AND_TRUST` | program teacher, viewer, site staff | 4 | 5 | 5 | XS | 57 | selected |
+| Keep Review Queue comments count-only | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | program teacher, viewer | 2 | 5 | 4 | XS | 39 | rejected: leaves unclear visibility boundary |
+| Render full Review Queue comment bodies | `LEVEL_7_AUDITABILITY_AND_TRUST` | program teacher, viewer, site staff | 4 | 2 | 3 | M | 34 | deferred: needs product/privacy design |
+| Review Queue comment route visibility proof | `LEVEL_7_AUDITABILITY_AND_TRUST` | student, mentor, staff | 4 | 5 | 5 | XS | 51 | rejected: existing route test already covers staff-only filtering |
+| Review Queue missing-evidence filter | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | program teacher, site staff | 5 | 2 | 3 | M | 37 | deferred: route still lacks exact missing/evidence param |
+| Student Directory missing-evidence filter | `LEVEL_1_NAVIGABLE_DASHBOARDS` | site staff, viewer | 4 | 2 | 3 | M | 35 | deferred: directory still lacks exact evidence-missing filter |
+| Operations no-results language cleanup | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | staff, viewer | 3 | 5 | 4 | XS | 43 | rejected: Review Queue handoff was more direct |
+| Site Dashboard summary-only affordance styling | `LEVEL_1_NAVIGABLE_DASHBOARDS` | staff, viewer | 3 | 4 | 3 | S | 39 | rejected: broader design surface |
+| Mentor assignment history in student detail | `LEVEL_7_AUDITABILITY_AND_TRUST` | staff, mentor | 4 | 3 | 3 | M | 38 | deferred: persisted history shape needs confirmation |
+| Mentor dashboard meeting/status depth | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | mentor | 4 | 3 | 3 | M | 39 | deferred: needs route/data shape review |
+| Student requirement detail extension | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 4 | 4 | 4 | S | 44 | rejected: no new persisted field identified |
+| Public app-preview language cleanup | `LEVEL_0_PROTOTYPE_CLEANUP` | public | 3 | 5 | 4 | S | 40 | rejected: protected Review Queue work had clearer workflow value |
+| Admin import scope terminology | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | admin | 2 | 4 | 3 | S | 38 | rejected: admin import intentionally uses technical role/scope controls |
+| Credentialed browser QA | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all | 4 | 4 | 3 | M | 39 | blocked: needs credentialed runtime |
+| Org-admin tenant rollup | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | org admin | 4 | 2 | 2 | L | 30 | blocked: needs backend aggregate and RBAC design |
+
+- User-facing improvement: Selected Review Queue submissions now show `Student-visible comments`, `Staff-only comments`, or fallback protected-comment counts, with a clear note that only counts are shown and teacher note text stays protected.
+- Roles affected: `platform_admin`, `admin`, `org_admin`, `site_admin`, `viewer`, and `program_teacher` in the existing scoped Review Queue.
+- Files changed: `workspace.js`, `tests/workspace-app.test.mjs`, `scripts/verify-functionality-language.mjs`, `docs/functionality-language-audit.md`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`, `docs/progress/run-log.md`, `docs/progress/runs/2026-05-25-1025-review-comment-visibility-labels.json`
+- Tests/verifiers added or updated: workspace render test now asserts the visibility summary and confirms comment bodies are not rendered in the selected-submission panel; language verifier blocks the vague protected-comment availability phrase.
+- Validation commands:
+  - Focused passed before docs/state closeout: `node --test tests/workspace-app.test.mjs`; `npm run verify:functionality-language`
+  - Final passed: `npm run verify:dashboard-actions`; `npm run verify:workspace-navigation`; `npm run verify:review-queue-deeplinks`; `npm run verify:functionality-language`; `npm run verify:functionality-ux-automation`; `node --test tests/workspace-app.test.mjs`; `node --test tests/functionality-language-audit.test.mjs`; JSON parse for `automation/state/functionality-ux-growth-state.json` and `docs/progress/runs/2026-05-25-1025-review-comment-visibility-labels.json`; `npm run check:route-inventory`; `npm run test`; `npm run typecheck`; `npm run check:production-surfaces`; `npm run check`; `git diff --check`
+- Validation result: passed; `git diff --check` reported CRLF normalization warnings only. The first `npm run verify:functionality-ux-automation` run caught the local GUI automation TOML schedule at minutes `0,20,40`; the local non-repo TOML was corrected back to the documented HH:00/HH:30 cadence and the verifier then passed.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: full Review Queue comment body rendering remains deferred pending product/privacy design; Review Queue and Student Directory missing/evidence params remain unsupported; credentialed browser QA still needs runtime.
+- New backlog items: none
+- Next recommended work order: inspect Operations no-results and active-filter empty states for remaining vague worklist language, or only add missing/evidence filters after backend support and privacy tests exist.
+- Do-not-repeat notes: do not re-add vague `protected comments available for this submission` copy; the selected-submission panel now shows visibility counts and keeps note bodies out.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_7_AUDITABILITY_AND_TRUST`
+  - Advanced: yes
+  - Evidence: `workspace.js` now summarizes Review Queue comment visibility counts by student-visible/staff-only/protected categories, with tests proving labels render and comment bodies remain hidden from the selected-submission panel.
+  - Unlocks: future Review Queue work can make a deliberate product/privacy decision about rendering comment text instead of leaving ambiguous count-only copy.
+  - Next: inspect Operations no-results and active-filter empty states for remaining vague worklist language, or add missing/evidence queue filters only after backend support exists.
+  - Blockers: full comment body rendering needs product/privacy design; Review Queue and Student Directory still lack exact missing/evidence filters; browser QA still needs credentialed runtime.
+  - Do not repeat: do not rebuild this comment visibility summary unless regression evidence appears.
+  - First file to inspect next run: `workspace.js` `renderOperationsReadinessRows()`
