@@ -739,6 +739,20 @@
   font-size: 1rem;
 }
 
+.workspace-student-requirement-row > div:first-child {
+  display: grid;
+  gap: 0.28rem;
+}
+
+.workspace-student-requirement-guidance,
+.workspace-student-requirement-nudge {
+  max-width: 68ch;
+}
+
+.workspace-student-requirement-guidance {
+  color: var(--text);
+}
+
 .workspace-student-feedback-timeline {
   grid-column: 1 / -1;
   display: grid;

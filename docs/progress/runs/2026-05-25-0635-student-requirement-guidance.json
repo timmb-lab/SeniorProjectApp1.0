@@ -1,0 +1,75 @@
+{
+  "runId": "2026-05-25-0635-student-requirement-guidance",
+  "automationId": "functionality-ux-upgrade-hourly",
+  "startedAt": "2026-05-25T06:35:00-07:00",
+  "branch": "main",
+  "startingSha": "9f0aff878803c160d9ee4ff6d74fe94bcb6ee3a9",
+  "endingSha": null,
+  "ladderLevel": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN",
+  "mvpRequirements": [
+    "MVP-009",
+    "MVP-032",
+    "MVP-033"
+  ],
+  "workOrder": {
+    "id": "student-requirement-guidance-nudges",
+    "title": "Student requirement guidance nudges",
+    "summary": "Show student-safe requirement descriptions and one quality nudge in the Your Required Work checklist."
+  },
+  "repoGroundedFindings": [
+    "The student dashboard route already loaded scoped requirements and returned a read-only checklist.",
+    "The checklist showed phase, status, due label, version, and next action, but not persisted requirement descriptions.",
+    "Seeded quality_checks.prompt records already provide student-facing guidance without adding a route, fake page, or write path."
+  ],
+  "changedFiles": [
+    "functions/api/student/dashboard.ts",
+    "workspace.js",
+    "workspace.css",
+    "tests/student-dashboard-access.integration.test.mjs",
+    "tests/workspace-app.test.mjs",
+    "docs/student-progress-dashboard.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/functionality-language-audit.md",
+    "docs/functionality-ux-growth-ledger.md",
+    "automation/state/functionality-ux-growth-state.json",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-25-0635-student-requirement-guidance.json"
+  ],
+  "privacyAndPermissionNotes": [
+    "No auth, RBAC, tenant, site, program, mentor assignment, student access, migration, D1 config, secret, OAuth, Cloudflare, deploy, or live-data behavior changed.",
+    "Requirement descriptions and quality prompts come from existing requirement metadata already scoped through /api/student/dashboard."
+  ],
+  "validation": {
+    "focusedPassed": [
+      "node --test tests/student-dashboard-access.integration.test.mjs",
+      "node --test tests/workspace-app.test.mjs",
+      "npm run verify:functionality-language"
+    ],
+    "finalPassed": [
+      "npm run verify:dashboard-actions",
+      "npm run verify:review-queue-deeplinks",
+      "npm run verify:workspace-navigation",
+      "npm run verify:functionality-language",
+      "npm run verify:functionality-ux-automation",
+      "node --test tests/student-dashboard-access.integration.test.mjs",
+      "node --test tests/workspace-app.test.mjs",
+      "node --test tests/functionality-language-audit.test.mjs",
+      "node -e JSON.parse automation/state/functionality-ux-growth-state.json and docs/progress/runs/2026-05-25-0635-student-requirement-guidance.json",
+      "npm run check:route-inventory",
+      "npm run test",
+      "npm run typecheck",
+      "npm run check:production-surfaces",
+      "npm run check",
+      "git diff --check"
+    ],
+    "status": "passed",
+    "notes": "Full required validation passed for the student requirement guidance slice. npm run verify:functionality-ux-automation initially failed because nextRecommendedWorkOrders lost a required Review Queue handoff phrase; the state summary was corrected and the verifier passed. git diff --check reported CRLF normalization warnings only. No browser smoke was run because this read-only student dashboard UI change is covered by focused route and workspace render tests plus source verifiers. No remote seed/reset/migration, live data write, deploy, credential repair, domain/OAuth, or Cloudflare config change was run."
+  },
+  "nextRecommendedWork": [
+    "Add a guided student-safe requirement form only if it uses persisted requirement/progress/deadline records and existing authorized submission/evidence endpoints.",
+    "Prove exact missing/evidence drill-down mapping before exposing a staff control."
+  ],
+  "doNotRepeat": [
+    "Do not re-add student requirement descriptions or quality nudges unless a regression removes the route payload or UI markers."
+  ]
+}

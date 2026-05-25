@@ -1828,3 +1828,14 @@ Future productive runs should append compact entries that name the master-plan s
 - `changes`: `/api/student/dashboard` now resolves the earliest active, student-program/cohort-compatible deadline for each required requirement and returns `dueDate`/`dueLabel`; `workspace.js` renders due labels in primary next-step, next-step rows, and requirement rows without adding a fake calendar/detail route; focused route/UI tests guard the payload and markers.
 - `validation`: full validation passed: dashboard/review/workspace/language/automation verifiers, focused student-dashboard/workspace/audit tests, JSON state parse, route inventory, full `npm run test`, `npm run typecheck`, production-surface check, aggregate `npm run check`, and `git diff --check` with CRLF normalization warnings only.
 - `commit/push status`: pending closeout commit.
+
+## 2026-05-25 PT - Functionality UX Upgrade Student Requirement Guidance
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 6 student progress drill-down / requirement checklist guidance.
+- `starting HEAD`: `9f0aff878803c160d9ee4ff6d74fe94bcb6ee3a9`.
+- `selected slice`: Show student-safe requirement descriptions and one quality nudge in `Your Required Work`.
+- `repo-grounded findings`: the student dashboard already returned a scoped requirement checklist with phase grouping and due labels, while seeded `requirements.description` and `quality_checks.prompt` records were still unused in the student checklist.
+- `changes`: `/api/student/dashboard` now returns `description` and `qualityPrompt` for each scoped required item; `workspace.js` renders the guidance as read-only checklist text; `workspace.css` keeps the added guidance stable in compact rows; focused route/UI tests and student-dashboard docs were updated.
+- `validation`: full validation passed: dashboard/review/workspace/language/automation verifiers, focused route/UI/audit tests, JSON parse, route inventory, full `npm run test`, `npm run typecheck`, production-surface check, aggregate `npm run check`, and `git diff --check` with CRLF normalization warnings only.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.

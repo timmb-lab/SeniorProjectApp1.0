@@ -79,10 +79,12 @@ interface RequirementRow {
   program_id: string | null;
   phase: string;
   title: string;
+  description: string | null;
   required: number;
   sort_order: number;
   due_at: string | null;
   due_label: string | null;
+  quality_prompt: string | null;
 }
 
 interface MentorSupportRow {
@@ -123,6 +125,7 @@ interface StudentNextStep {
 interface StudentRequirementDetail {
   requirementId: string;
   title: string;
+  description: string | null;
   phase: string;
   phaseLabel: string;
   status: string;
@@ -131,6 +134,7 @@ interface StudentRequirementDetail {
   submissionVersion: number | null;
   dueDate: string | null;
   dueLabel: string | null;
+  qualityPrompt: string | null;
   lastUpdatedAt: string | null;
   nextAction: string;
 }
@@ -239,6 +243,7 @@ function loadRequiredRequirements(env: Env, studentId: string) {
        requirements.program_id,
        requirements.phase,
        requirements.title,
+       requirements.description,
        requirements.required,
        requirements.sort_order,
        (
@@ -300,7 +305,15 @@ function loadRequiredRequirements(env: Env, studentId: string) {
            )
          ORDER BY candidate.due_at ASC, candidate.title ASC
          LIMIT 1
-       ) AS due_label
+      ) AS due_label,
+      (
+        SELECT candidate.prompt
+        FROM quality_checks candidate
+        WHERE candidate.requirement_id = requirements.id
+          AND candidate.active = 1
+        ORDER BY candidate.sort_order ASC, candidate.id ASC
+        LIMIT 1
+      ) AS quality_prompt
      FROM requirements
      WHERE requirements.required = 1
        AND (
@@ -521,6 +534,7 @@ function buildStudentRequirementDetails(
     return {
       requirementId: requirement.id,
       title: safeStudentText(requirement.title, "Senior Project requirement", 180),
+      description: safeStudentText(requirement.description, "", 240) || null,
       phase: requirement.phase || "",
       phaseLabel: requirement.phase ? phaseLabel(requirement.phase) : "Not available yet",
       status,
@@ -529,6 +543,7 @@ function buildStudentRequirementDetails(
       submissionVersion: submission?.version || null,
       dueDate: requirement.due_at || null,
       dueLabel: safeStudentText(requirement.due_label, "", 80) || null,
+      qualityPrompt: safeStudentText(requirement.quality_prompt, "", 240) || null,
       lastUpdatedAt: latestTimestamp([
         progress?.updated_at || null,
         submission?.updated_at || null,

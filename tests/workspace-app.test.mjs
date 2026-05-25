@@ -2140,6 +2140,7 @@ test("workspace renders a progress-first student homepage with safe language", a
           {
             requirementId: "req-proposal",
             title: "Senior Project Proposal",
+            description: "Explain the problem, solution, audience, and evidence for your capstone project.",
             phase: "proposal-and-research",
             phaseLabel: "Proposal And Research",
             status: "revision_requested",
@@ -2148,12 +2149,14 @@ test("workspace renders a progress-first student homepage with safe language", a
             submissionVersion: 2,
             dueDate: "2025-10-09T00:00:00Z",
             dueLabel: "October 9 and 10",
+            qualityPrompt: "Add one measurable success target before you send the proposal back.",
             lastUpdatedAt: "2026-05-24T18:00:00.000Z",
             nextAction: "Revise Senior Project Proposal and send it back for review.",
           },
           {
             requirementId: "req-mentor-plan",
             title: "Mentor Meeting One Plan",
+            description: "Bring your proposal and ask your mentor for help with scope, evidence, and timeline.",
             phase: "mentor-meetings",
             phaseLabel: "Mentor Meetings",
             status: "missing",
@@ -2162,12 +2165,14 @@ test("workspace renders a progress-first student homepage with safe language", a
             submissionVersion: null,
             dueDate: "2026-01-14T00:00:00Z",
             dueLabel: "January 14, make-up January 16",
+            qualityPrompt: "Write down the strongest advice you heard and your next step.",
             lastUpdatedAt: null,
             nextAction: "Start Mentor Meeting One Plan when your teacher is ready for this step.",
           },
           {
             requirementId: "req-reflection",
             title: "Final Reflection",
+            description: "Choose evidence that shows growth, skill, effort, or impact.",
             phase: "portfolio",
             phaseLabel: "Portfolio",
             status: "approved",
@@ -2176,6 +2181,7 @@ test("workspace renders a progress-first student homepage with safe language", a
             submissionVersion: 1,
             dueDate: "2026-04-08T00:00:00Z",
             dueLabel: "April 8 and 9",
+            qualityPrompt: "Explain why this work shows your best effort.",
             lastUpdatedAt: "2026-05-23T18:00:00.000Z",
             nextAction: "You are done with Final Reflection.",
           },
@@ -2262,6 +2268,10 @@ test("workspace renders a progress-first student homepage with safe language", a
   assert.match(student, /0 of 1 complete \/ 1 still need work/);
   assert.match(student, /1 of 1 complete/);
   assert.match(student, /data-student-requirement-row="true"/);
+  assert.match(student, /data-student-requirement-description="true"/);
+  assert.match(student, /Explain the problem, solution, audience, and evidence for your capstone project/);
+  assert.match(student, /data-student-requirement-quality="true"/);
+  assert.match(student, /Try this: Add one measurable success target before you send the proposal back/);
   assert.match(student, /Revise Senior Project Proposal and send it back for review/);
   assert.match(student, /data-student-next-step-due="true"/);
   assert.match(student, /data-student-requirement-due="true"/);

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-05-25T06:06:44-07:00",
-  "lastStartingSha": "872a347301a4ffc3e8e1327eb91e21d1e7539524",
+  "lastRunAt": "2026-05-25T06:35:00-07:00",
+  "lastStartingSha": "9f0aff878803c160d9ee4ff6d74fe94bcb6ee3a9",
   "lastEndingSha": null,
   "currentLadderFocus": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN",
   "completedWorkOrders": [
@@ -337,6 +337,14 @@
       "type": "TYPE_C_STUDENT_DETAIL_DRILL_DOWN",
       "summary": "Student next steps and requirement checklist rows now show persisted deadline labels/dates from existing requirement deadline records.",
       "commit": "pending-closeout-commit"
+    },
+    {
+      "id": "student-requirement-guidance-nudges",
+      "completedAt": "2026-05-25T06:35:00-07:00",
+      "ladderLevel": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN",
+      "type": "TYPE_C_STUDENT_DETAIL_DRILL_DOWN",
+      "summary": "Student requirement checklist rows now show student-safe requirement descriptions and one quality nudge from existing requirement/quality-check records.",
+      "commit": "pending-closeout-commit"
     }
   ],
   "deferredWorkOrders": [
@@ -359,21 +367,26 @@
       "id": "product-admin-all-sites-rollup",
       "ladderLevel": "LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS",
       "reason": "All-sites rollup needs backend aggregate and authorization design; this sprint intentionally avoided fake cross-site controls."
+    },
+    {
+      "id": "student-guided-requirement-form",
+      "ladderLevel": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN",
+      "reason": "Needs a bounded write-path design using existing authorized submission/evidence endpoints; this run stayed read-only."
     }
   ],
   "blockedWorkOrders": [],
   "nextRecommendedWorkOrders": [
     {
-      "id": "student-guided-requirement-detail-form",
+      "id": "student-guided-requirement-form",
       "ladderLevel": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN",
       "type": "TYPE_C_STUDENT_DETAIL_DRILL_DOWN",
-      "summary": "Add a deeper student-safe requirement detail page or guided form from persisted requirement/progress/deadline records."
+      "summary": "Add a guided student-safe requirement form only if it uses persisted records and existing authorized submission/evidence endpoints."
     },
     {
       "id": "missing-submission-drilldown",
       "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS",
       "type": "TYPE_B_DASHBOARD_CLICK_THROUGH",
-      "summary": "Map missing-submission or evidence-attention counts to a supported scoped Review Queue or Student Directory filter, then add the drill-down only if the mapping is exact."
+      "summary": "Map missing-submission or evidence-attention counts to a supported scoped Review Queue or Student Directory filter before exposing a staff control."
     }
   ],
   "doNotRepeat": [
@@ -411,29 +424,30 @@
     "Do not re-add the student Feedback History timeline action; extend only if students need compare/filter controls or new route-backed timeline fields.",
     "Do not re-add the student requirement checklist panel; extend next only with a guided requirement detail/form or deeper phase page backed by real route data.",
     "Do not re-add student requirement phase grouping; extend only with a real requirement detail/form, due-date detail, or deeper phase page backed by existing route data.",
-    "Do not re-add student requirement deadline labels; extend only with a real requirement detail/form or richer due-date timeline backed by existing deadlines."
+    "Do not re-add student requirement deadline labels; extend only with a real requirement detail/form or richer due-date timeline backed by existing deadlines.",
+    "Do not re-add student requirement descriptions or quality nudges; extend next only with a real guided requirement form or additional persisted guidance fields."
   ],
   "lastValidationStatus": {
     "status": "passed",
-    "completedAt": "2026-05-25T06:06:44-07:00",
+    "completedAt": "2026-05-25T06:39:13-07:00",
     "commands": [
       "npm run verify:dashboard-actions",
       "npm run verify:review-queue-deeplinks",
       "npm run verify:workspace-navigation",
       "npm run verify:functionality-language",
       "npm run verify:functionality-ux-automation",
+      "node --test tests/student-dashboard-access.integration.test.mjs",
       "node --test tests/workspace-app.test.mjs",
       "node --test tests/functionality-language-audit.test.mjs",
-      "node -e JSON.parse automation/state/functionality-ux-growth-state.json",
+      "node -e JSON.parse automation/state/functionality-ux-growth-state.json and docs/progress/runs/2026-05-25-0635-student-requirement-guidance.json",
       "npm run check:route-inventory",
       "npm run test",
       "npm run typecheck",
       "npm run check:production-surfaces",
       "npm run check",
-      "git diff --check",
-      "git status --short"
+      "git diff --check"
     ],
-    "notes": "Full required validation passed for the student requirement deadline label slice. git diff --check reported CRLF normalization warnings only. No browser smoke was run because this read-only student dashboard UI change is covered by focused route and workspace render tests plus source verifiers. No remote seed/reset/migration, live data write, deploy, credential repair, domain/OAuth, or Cloudflare config change was run."
+    "notes": "Full required validation passed for the student requirement guidance slice. npm run verify:functionality-ux-automation initially failed because nextRecommendedWorkOrders lost a required Review Queue handoff phrase; the state summary was corrected and the verifier passed. git diff --check reported CRLF normalization warnings only. No browser smoke was run because this read-only student dashboard UI change is covered by focused route and workspace render tests plus source verifiers. No remote seed/reset/migration, live data write, deploy, credential repair, domain/OAuth, or Cloudflare config change was run."
   },
   "lastProductReadinessScorecardSummary": {
     "homepageClarity": "4 to 4",

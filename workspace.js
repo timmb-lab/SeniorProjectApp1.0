@@ -3451,10 +3451,14 @@ function isStudentRequirementComplete(status) {
 function renderStudentRequirementRow(item) {
   const version = safeNumber(item?.submissionVersion);
   const updatedAt = item?.lastUpdatedAt ? formatDate(item.lastUpdatedAt) : "Not available yet";
+  const description = String(item?.description || "").trim();
+  const qualityPrompt = String(item?.qualityPrompt || "").trim();
   return `
     <article class="workspace-row workspace-student-requirement-row" data-student-requirement-row="true">
       <div>
         <strong>${escapeHtml(item?.title || "Senior Project requirement")}</strong>
+        ${description ? `<p class="workspace-student-requirement-guidance" data-student-requirement-description="true">${escapeHtml(description)}</p>` : ""}
+        ${qualityPrompt ? `<p class="workspace-muted workspace-student-requirement-nudge" data-student-requirement-quality="true">Try this: ${escapeHtml(qualityPrompt)}</p>` : ""}
         <p>${escapeHtml(item?.phaseLabel || "Not available yet")} / Last updated ${escapeHtml(updatedAt)}</p>
         <p class="workspace-muted" data-student-requirement-due="true">${escapeHtml(studentDueText(item))}</p>
         <p class="workspace-muted" data-student-requirement-next="true">${escapeHtml(item?.nextAction || "Ask your program teacher what to do next.")}</p>

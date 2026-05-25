@@ -85,6 +85,7 @@ test("student dashboard returns own rows without storage ids and audits the view
     {
       requirementId: "req-proposal-draft",
       title: "Core Concept Proposal",
+      description: "Draft the proposal with a clear problem, solution, audience, and proof of work.",
       phase: "proposal",
       phaseLabel: "Proposal",
       status: "draft",
@@ -93,6 +94,7 @@ test("student dashboard returns own rows without storage ids and audits the view
       submissionVersion: 1,
       dueDate: "2025-10-09T00:00:00Z",
       dueLabel: "October 9 and 10",
+      qualityPrompt: "Name the problem, who benefits, and the evidence that proves your work.",
       lastUpdatedAt: "2026-05-20T08:10:00.000Z",
       nextAction: "Finish Core Concept Proposal and attach the work your teacher requested.",
     },
@@ -321,6 +323,15 @@ function createFixture() {
     groups: [],
     requirements: [
       { id: "req-proposal-draft", program_id: null, phase: "proposal", title: "Core Concept Proposal", required: 1, sort_order: 1 },
+    ],
+    qualityChecks: [
+      {
+        id: "qc-proposal-draft-1",
+        requirement_id: "req-proposal-draft",
+        prompt: "Name the problem, who benefits, and the evidence that proves your work.",
+        sort_order: 1,
+        active: 1,
+      },
     ],
     deadlines: [
       {
@@ -586,10 +597,14 @@ class MockPreparedStatement {
               program_id: row.program_id ?? null,
               phase: row.phase || "proposal",
               title: row.title,
+              description: row.description || "Draft the proposal with a clear problem, solution, audience, and proof of work.",
               required: row.required ?? 1,
               sort_order: row.sort_order ?? 0,
               due_at: deadline?.due_at || null,
               due_label: deadline?.title || null,
+              quality_prompt: (this.data.qualityChecks || [])
+                .filter((qualityRow) => qualityRow.requirement_id === row.id && Number(qualityRow.active ?? 1) === 1)
+                .sort((a, b) => Number(a.sort_order || 0) - Number(b.sort_order || 0) || String(a.id || "").localeCompare(String(b.id || "")))[0]?.prompt || null,
             };
           }),
       };
