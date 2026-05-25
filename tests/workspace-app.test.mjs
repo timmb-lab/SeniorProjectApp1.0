@@ -2240,6 +2240,128 @@ test("workspace renders a progress-first student homepage with safe language", a
   }
 });
 
+test("student feedback rows open a student-safe review timeline", async () => {
+  const { context, workspaceRoot, fetchLog } = await createWorkspaceContextWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "student-feedback-history",
+          email: "student.feedback.history@senior-capstone.test",
+          displayName: "Feedback History Student",
+          roles: [{ role_id: "student", scope_type: "global", scope_id: "" }],
+        },
+      },
+    },
+    "/api/student/dashboard": {
+      status: 200,
+      body: {
+        ok: true,
+        viewer: { self: true },
+        summary: {
+          requirementsTotal: 2,
+          requirementsComplete: 1,
+          completionPercent: 50,
+          submittedRequiredCount: 1,
+          missingRequiredCount: 1,
+          revisionRequestedCount: 1,
+        },
+        progress: [],
+        submissions: [
+          { id: "submission-proposal", requirement_id: "req-proposal", requirement_title: "Senior Project Proposal", status: "revision_requested", version: 2, updated_at: "2026-05-24T18:00:00.000Z" },
+        ],
+        evidence: [],
+        feedback: [
+          {
+            id: "review-proposal",
+            submissionId: "submission-proposal",
+            requirementTitle: "Senior Project Proposal",
+            submissionStatus: "revision_requested",
+            submissionVersion: 2,
+            status: "revision_requested",
+            message: "Add one measurable success target before resubmitting.",
+            authorName: "Ms. Garcia",
+            createdAt: "2026-05-24T18:30:00.000Z",
+          },
+        ],
+      },
+    },
+    "/api/reviews/submission-proposal/history": {
+      status: 200,
+      body: {
+        ok: true,
+        submission: { id: "submission-proposal", studentId: "student-feedback-history", status: "revision_requested", version: 2 },
+        reviews: [
+          {
+            id: "review-proposal",
+            decision: "revision_requested",
+            feedback: "Add one measurable success target before resubmitting.",
+            created_at: "2026-05-24T18:30:00.000Z",
+            reviewer_name: "Ms. Garcia",
+          },
+        ],
+        statusHistory: [
+          {
+            id: "status-proposal",
+            from_status: "submitted",
+            to_status: "revision_requested",
+            reason: "Sent back for revision.",
+            created_at: "2026-05-24T18:31:00.000Z",
+            changed_by_name: "Ms. Garcia",
+          },
+        ],
+        versions: [
+          {
+            id: "version-proposal-2",
+            version: 2,
+            status: "submitted",
+            submittedAt: "2026-05-24T18:00:00.000Z",
+            submittedByName: "Feedback History Student",
+            notes: "",
+            evidence: [],
+          },
+        ],
+        comments: [
+          {
+            id: "comment-proposal",
+            body: "Thanks for resubmitting the outline.",
+            visibility: "student_visible",
+            created_at: "2026-05-24T18:35:00.000Z",
+            author_name: "Ms. Garcia",
+          },
+        ],
+      },
+    },
+    "/api/student/archive/readiness": {
+      status: 200,
+      body: { ok: true, summary: {}, checks: [], archive: {}, storage: {}, retention: {} },
+    },
+    "/api/presentation-slots": {
+      status: 200,
+      body: { ok: true, slots: [] },
+    },
+  });
+
+  assert.match(workspaceRoot.innerHTML, /data-student-feedback-action="open-history"/);
+  assert.match(workspaceRoot.innerHTML, /data-student-feedback-submission-id="submission-proposal"/);
+
+  await vm.runInContext(
+    'handleStudentFeedbackAction({ currentTarget: { dataset: { studentFeedbackAction: "open-history", studentFeedbackSubmissionId: "submission-proposal" } } })',
+    context,
+  );
+
+  assert.ok(fetchLog.includes("/api/reviews/submission-proposal/history"));
+  assert.match(workspaceRoot.innerHTML, /data-student-feedback-timeline="true"/);
+  assert.match(workspaceRoot.innerHTML, /Submission timeline/);
+  assert.match(workspaceRoot.innerHTML, /Only feedback meant for you is shown here/);
+  assert.match(workspaceRoot.innerHTML, /Version 2 submitted/);
+  assert.match(workspaceRoot.innerHTML, /Sent back for revision/);
+  assert.match(workspaceRoot.innerHTML, /Add one measurable success target before resubmitting/);
+  assert.match(workspaceRoot.innerHTML, /Thanks for resubmitting the outline/);
+  assert.doesNotMatch(workspaceRoot.innerHTML, /staff_only|Private staff note|drive_file_id|driveFileId/i);
+});
+
 test("workspace renders role-pending and permission-denied access states", async () => {
   const expiredSession = await renderWorkspaceWithFetch({
     "/api/auth/me": {

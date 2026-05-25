@@ -1297,3 +1297,58 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: full feedback timeline needs UI shape; missing/evidence drill-down still lacks exact route mapping; browser QA still needs credentialed runtime.
   - Do not repeat: do not re-add the feedback row version/status context.
   - First file to inspect next run: `workspace.js` `renderStudentFeedbackPanel()` and `functions/api/reviews/[submissionId]/history.ts`
+
+## Run 2026-05-25 04:38 PT
+
+- Starting SHA: `d3b010055d66b2168adee7107a5bdb076e8c7c58`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Branch policy: work stayed on clean local `main`; local `main` was seventeen commits ahead of `origin/main`, `origin/main` was not ahead, and no push was run
+- Ladder level targeted: `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN`
+- Backlog item: `student-feedback-history-timeline-detail`; supports the student dashboard backlog item for deeper student-safe feedback history.
+- Work order selected: Add a real student `View timeline` action to `Feedback History` rows using the already filtered review-history route.
+- Selection reason: The previous handoff pointed at this exact slice. Current source showed each student feedback row already carried a submission ID and `/api/reviews/:submissionId/history` now filters staff-only comments for student and assigned-mentor readers, but the student UI still stopped at a latest-note summary.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Student feedback timeline action | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 5 | 5 | 5 | S | 59 | selected |
+| Student requirement detail panel | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 4 | 4 | 4 | M | 45 | deferred: needs bounded requirement-detail UI shape |
+| Student detail visible-note labels | `LEVEL_7_AUDITABILITY_AND_TRUST` | staff, student | 4 | 5 | 4 | S | 45 | rejected: feedback timeline had direct handoff evidence |
+| Phase-specific progress panel | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 4 | 4 | 4 | M | 44 | deferred: less immediate than feedback timeline |
+| Operations empty-state wording | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | staff, viewer | 3 | 5 | 4 | XS | 43 | rejected: copy-only while route-backed student slice was ready |
+| Assignment form unavailable copy cleanup | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | site admin | 3 | 5 | 4 | XS | 43 | rejected: lower student workflow value |
+| Viewer read-only homepage clarity | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | viewer | 3 | 5 | 4 | XS | 42 | rejected: read-only controls already guarded |
+| Student Directory mentor filter labels | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | staff | 4 | 3 | 4 | M | 42 | deferred: needs safe API-provided mentor labels |
+| Public app-preview language cleanup | `LEVEL_0_PROTOTYPE_CLEANUP` | public | 3 | 5 | 4 | S | 40 | rejected: protected student functionality had higher value |
+| Credentialed browser QA for worklist URLs | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all | 4 | 4 | 3 | M | 39 | blocked: needs credentialed local or hosted runtime |
+| Missing/evidence drill-down mapping | `LEVEL_1_NAVIGABLE_DASHBOARDS` | staff | 5 | 2 | 3 | M | 38 | deferred: exact scoped route/filter mapping remains unproven |
+| Site Admin mentor POST default alignment | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | site admin | 4 | 2 | 4 | M | 37 | deferred: mutation policy risk is too high |
+| Program teacher missing-submission queue | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | program teacher | 4 | 3 | 3 | M | 37 | deferred: needs scoped route mapping |
+| Mentor assigned-student meeting depth | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | mentor | 4 | 3 | 3 | M | 36 | deferred: needs route/data shape design |
+| Student due-date timeline | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 4 | 3 | 3 | M | 35 | deferred: deadline source mapping remains unclear |
+| Org-admin tenant rollup | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | org admin | 4 | 2 | 2 | L | 30 | blocked: needs backend aggregate/RBAC design |
+
+- User-facing improvement: Students can open a feedback row and see the real submission timeline - submitted versions, status changes, and teacher notes meant for them - without leaving the student dashboard or opening a fake page.
+- Roles affected: `student`; staff, mentor, admin, tenant, site, program, and assignment access behavior was not changed.
+- Files changed: `workspace.js`, `workspace.css`, `tests/workspace-app.test.mjs`, `docs/student-progress-dashboard.md`, `docs/functionality-language-audit.md`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`, `docs/progress/run-log.md`
+- Tests/verifiers added or updated: workspace render/handler test proves the student feedback timeline action calls `/api/reviews/:submissionId/history`, renders versions/status changes/student-visible notes, and does not render staff-only/storage identifier text.
+- Validation commands:
+  - Focused: `node --test tests/workspace-app.test.mjs`; `npm run verify:functionality-language`
+  - Final planned: `npm run verify:dashboard-actions`; `npm run verify:review-queue-deeplinks`; `npm run verify:workspace-navigation`; `npm run verify:functionality-language`; `npm run verify:functionality-ux-automation`; `node --test tests/workspace-app.test.mjs`; `node --test tests/functionality-language-audit.test.mjs`; JSON parse for `automation/state/functionality-ux-growth-state.json`; `npm run check:route-inventory`; `npm run test`; `npm run typecheck`; `npm run check:production-surfaces`; `npm run check`; `git diff --check`; `git status --short`
+- Validation result: passed; `git diff --check` reported CRLF normalization warnings only
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: student requirement detail panel; missing/evidence drill-down mapping; credentialed browser QA
+- New backlog items: none
+- Next recommended work order: add a bounded student-safe requirement detail panel from existing `/api/student/dashboard` requirement/progress data, or prove missing/evidence drill-down mapping before exposing a staff control.
+- Do-not-repeat notes: do not re-add the student Feedback History timeline action; extend only if students need compare/filter controls or additional route-backed timeline fields.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN`
+  - Advanced: yes
+  - Evidence: `workspace.js` renders `data-student-feedback-action="open-history"` and `data-student-feedback-timeline="true"` from `/api/reviews/:submissionId/history`; focused test proves the route call and safe timeline rendering.
+  - Unlocks: student progress work can now move from feedback-history basics into requirement/phase drill-downs.
+  - Next: add a student-safe requirement detail panel using existing dashboard requirement/progress data, or return to missing/evidence drill-down only after exact route mapping is proven.
+  - Blockers: no dedicated student requirement detail route; missing/evidence drill-down still lacks exact scoped route mapping; browser QA still needs credentialed runtime.
+  - Do not repeat: do not rebuild the feedback timeline action unless a regression removes the real route call or student-safe rendering.
+  - First file to inspect next run: `workspace.js` `renderStudentProgressDetails()` and `functions/api/student/dashboard.ts`

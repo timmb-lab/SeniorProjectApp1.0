@@ -21,6 +21,17 @@ This is the compact run log for the current Functionality UX Upgrade automation 
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-05-25 04:38 PT - Functionality UX Upgrade Student Feedback Timeline
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 6 student progress drill-down / student feedback timeline.
+- `starting HEAD`: `d3b010055d66b2168adee7107a5bdb076e8c7c58`.
+- `selected slice`: Add a real `View timeline` action to student `Feedback History` rows using the existing filtered review-history route.
+- `repo-grounded findings`: prior runs already made `/api/reviews/:submissionId/history` hide `staff_only` comments from student and assigned-mentor readers and added submission version/status context to student feedback rows. Current `workspace.js` still showed only the latest note, even though each feedback row carried the submission ID needed to call the real route.
+- `changes`: `workspace.js` now tracks a selected student feedback submission, loads `/api/reviews/:submissionId/history`, and renders an in-row Submission timeline with versions, status changes, and student-visible teacher notes; `workspace.css` adds responsive timeline layout; `tests/workspace-app.test.mjs` proves the route call and rendered safe timeline.
+- `validation`: focused workspace test and functionality-language verifier passed before docs/state closeout. Final validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.
+
 ## 2026-05-25 04:05 PT - Functionality UX Upgrade Student Feedback Context
 
 - `automation ID`: functionality-ux-upgrade-hourly.

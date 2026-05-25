@@ -711,6 +711,44 @@
   flex-wrap: wrap;
 }
 
+.workspace-student-feedback-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.workspace-student-feedback-timeline {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 0.6rem;
+  border-top: 1px solid var(--border-soft);
+  padding-top: 0.75rem;
+}
+
+.workspace-student-feedback-timeline-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+.workspace-student-feedback-timeline-list {
+  display: grid;
+  gap: 0.45rem;
+  min-width: 0;
+}
+
+.workspace-mini-row {
+  display: grid;
+  gap: 0.15rem;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-card);
+  background: #fff;
+  padding: 0.55rem 0.65rem;
+}
+
+.workspace-mini-row small {
+  color: var(--text-muted);
+}
+
 .workspace-row p,
 .workspace-card p,
 .workspace-panel p,
@@ -1818,6 +1856,10 @@ button.workspace-metric-tile,
   .workspace-problem-state-grid {
     grid-template-columns: 1fr;
   }
+
+  .workspace-student-feedback-timeline-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 620px) {
@@ -1868,6 +1910,10 @@ button.workspace-metric-tile,
   }
 
   .workspace-quick-action-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .workspace-student-feedback-row {
     grid-template-columns: 1fr;
   }
 

@@ -27,6 +27,7 @@ let workspaceNavCollapsed = false;
 let selectedSiteId = "";
 let siteStudentFilters = defaultSiteStudentFilters();
 let siteStudentDetailState = defaultSiteStudentDetailState();
+let studentFeedbackHistoryState = defaultStudentFeedbackHistoryState();
 let reviewQueueFilters = defaultReviewQueueFilters();
 let reviewQueueState = defaultReviewQueueState();
 let mentorAssignmentFilters = defaultMentorAssignmentFilters();
@@ -249,6 +250,7 @@ async function loadSession() {
     if (!response.ok || !data?.authenticated) {
       currentUser = null;
       currentData = defaultCurrentData(authConfig);
+      studentFeedbackHistoryState = defaultStudentFeedbackHistoryState();
       renderSignIn(
         messageForSessionStateError(data?.error, response.status),
         data?.error ? "error" : "neutral",
@@ -256,11 +258,15 @@ async function loadSession() {
       );
       return;
     }
+    if (currentUser?.id !== data.user?.id) {
+      studentFeedbackHistoryState = defaultStudentFeedbackHistoryState();
+    }
     currentUser = data.user;
     await loadWorkspaceData();
   } catch (error) {
     currentUser = null;
     currentData = defaultCurrentData(authConfig);
+    studentFeedbackHistoryState = defaultStudentFeedbackHistoryState();
     renderSignIn(messageForNetworkError(error), "error");
   }
 }
@@ -3155,7 +3161,7 @@ function renderStudentSection() {
     </section>
     ${renderStudentPrimaryNextAction(summary, nextSteps)}
     ${renderStudentNextSteps(nextSteps, summary)}
-    ${renderStudentFeedbackPanel(dashboard.feedback || [], summary)}
+    ${renderStudentFeedbackPanel(dashboard.feedback || [], summary, studentFeedbackHistoryState)}
     ${renderStudentProgressDetails(summary, dashboard)}
     <section class="workspace-card">
       <div class="workspace-card-head">
@@ -3372,7 +3378,7 @@ function renderStudentNextStepRow(item) {
   `;
 }
 
-function renderStudentFeedbackPanel(feedback = [], summary = {}) {
+function renderStudentFeedbackPanel(feedback = [], summary = {}, historyState = defaultStudentFeedbackHistoryState()) {
   const rows = Array.isArray(feedback) ? feedback : [];
   const countLabel = `${rows.length} teacher note${rows.length === 1 ? "" : "s"}`;
   return `
@@ -3385,7 +3391,7 @@ function renderStudentFeedbackPanel(feedback = [], summary = {}) {
         </div>
       </div>
       <div class="workspace-list">
-        ${rows.length ? rows.map(renderStudentFeedbackRow).join("") : `
+        ${rows.length ? rows.map((row) => renderStudentFeedbackRow(row, historyState)).join("") : `
           <article class="workspace-empty-state-card" data-student-feedback-empty="true">
             <strong>${escapeHtml(summary.revisionRequestedCount ? "No feedback details are available here yet." : "No teacher feedback yet.")}</strong>
             <p>${escapeHtml(summary.revisionRequestedCount ? "Check the submission list below and ask your program teacher what to revise." : "Feedback will appear here after your teacher reviews or comments on your work.")}</p>
@@ -3396,8 +3402,10 @@ function renderStudentFeedbackPanel(feedback = [], summary = {}) {
   `;
 }
 
-function renderStudentFeedbackRow(item) {
+function renderStudentFeedbackRow(item, historyState = defaultStudentFeedbackHistoryState()) {
   const submissionMeta = studentFeedbackSubmissionMeta(item);
+  const submissionId = cleanDirectoryFilter(item?.submissionId);
+  const isSelected = submissionId && historyState?.selectedSubmissionId === submissionId;
   return `
     <article class="workspace-row workspace-student-feedback-row" data-student-feedback-item="${escapeHtml(item.id || "")}">
       <div>
@@ -3406,7 +3414,11 @@ function renderStudentFeedbackRow(item) {
         ${submissionMeta ? `<p class="workspace-muted" data-student-feedback-context="true">${escapeHtml(submissionMeta)}</p>` : ""}
         <p class="workspace-muted">${escapeHtml(item.authorName || "Program teacher")} / ${escapeHtml(formatDate(item.createdAt))}</p>
       </div>
-      ${statusPill(item.status || "under_review")}
+      <div class="workspace-row-actions">
+        ${submissionId ? `<button class="workspace-link-button workspace-link-button-small" type="button" data-student-feedback-action="open-history" data-student-feedback-submission-id="${escapeHtml(submissionId)}">${escapeHtml(isSelected ? "Refresh timeline" : "View timeline")}</button>` : ""}
+        ${statusPill(item.status || "under_review")}
+      </div>
+      ${isSelected ? renderStudentFeedbackTimeline(historyState) : ""}
     </article>
   `;
 }
@@ -3417,6 +3429,92 @@ function studentFeedbackSubmissionMeta(item) {
   if (version > 0) parts.push(`Version ${version}`);
   if (item?.submissionStatus) parts.push(`Current status: ${statusText(item.submissionStatus)}`);
   return parts.join(" / ");
+}
+
+function renderStudentFeedbackTimeline(historyState = defaultStudentFeedbackHistoryState()) {
+  if (historyState.loading) {
+    return `
+      <section class="workspace-student-feedback-timeline" data-student-feedback-timeline-loading="true">
+        <h3>Submission timeline</h3>
+        <p class="workspace-muted">Loading the review timeline for this submission.</p>
+      </section>
+    `;
+  }
+  if (historyState.result && !historyState.result.ok) {
+    return `
+      <section class="workspace-empty-state-card workspace-student-feedback-timeline" data-student-feedback-timeline-error="true">
+        <h3>Submission timeline unavailable</h3>
+        ${renderProblemState({
+          reason: "We could not load this feedback timeline right now.",
+          owner: "Program teacher",
+          nextAction: "Try again later or ask your teacher which version to update.",
+        })}
+      </section>
+    `;
+  }
+  const history = unwrap(historyState.result);
+  if (!history) return "";
+  const reviews = Array.isArray(history.reviews) ? history.reviews : [];
+  const versions = Array.isArray(history.versions) ? history.versions : [];
+  const statusHistory = Array.isArray(history.statusHistory) ? history.statusHistory : [];
+  const comments = Array.isArray(history.comments) ? history.comments : [];
+  const hasTimeline = reviews.length || versions.length || statusHistory.length || comments.length;
+  return `
+    <section class="workspace-student-feedback-timeline" data-student-feedback-timeline="true">
+      <div>
+        <h3>Submission timeline</h3>
+        <p class="workspace-muted">Only feedback meant for you is shown here.</p>
+      </div>
+      ${hasTimeline ? `
+        <div class="workspace-student-feedback-timeline-grid">
+          ${renderStudentTimelineList("Versions", versions, "No submitted versions are listed yet.", renderStudentVersionTimelineItem)}
+          ${renderStudentTimelineList("Status changes", statusHistory, "No status changes are listed yet.", renderStudentStatusTimelineItem)}
+          ${renderStudentTimelineList("Teacher notes", [...reviews, ...comments], "No teacher notes are listed yet.", renderStudentNoteTimelineItem)}
+        </div>
+      ` : `<div class="workspace-empty">No timeline entries are available for this submission yet.</div>`}
+    </section>
+  `;
+}
+
+function renderStudentTimelineList(title, rows, emptyText, renderer) {
+  const safeRows = Array.isArray(rows) ? rows : [];
+  return `
+    <div class="workspace-student-feedback-timeline-list">
+      <strong>${escapeHtml(title)}</strong>
+      ${safeRows.length ? safeRows.slice(0, 5).map(renderer).join("") : `<p class="workspace-muted">${escapeHtml(emptyText)}</p>`}
+    </div>
+  `;
+}
+
+function renderStudentVersionTimelineItem(row) {
+  const version = safeNumber(row?.version);
+  return `
+    <article class="workspace-mini-row" data-student-feedback-version="${escapeHtml(version || "")}">
+      <span>${escapeHtml(version ? `Version ${version} submitted` : "Version submitted")}</span>
+      <small>${escapeHtml(statusText(row?.status || "submitted"))} / ${escapeHtml(formatDate(row?.submittedAt || row?.submitted_at))}</small>
+    </article>
+  `;
+}
+
+function renderStudentStatusTimelineItem(row) {
+  return `
+    <article class="workspace-mini-row" data-student-feedback-status-change="true">
+      <span>${escapeHtml(statusText(row?.to_status || row?.toStatus || "under_review"))}</span>
+      <small>${escapeHtml(row?.reason || "Status updated.")} / ${escapeHtml(formatDate(row?.created_at || row?.createdAt))}</small>
+    </article>
+  `;
+}
+
+function renderStudentNoteTimelineItem(row) {
+  const message = row?.feedback || row?.body || "Teacher note recorded.";
+  const author = row?.reviewer_name || row?.reviewerName || row?.author_name || row?.authorName || "Program teacher";
+  const createdAt = row?.created_at || row?.createdAt;
+  return `
+    <article class="workspace-mini-row" data-student-feedback-note="true">
+      <span>${escapeHtml(message)}</span>
+      <small>${escapeHtml(author)} / ${escapeHtml(formatDate(createdAt))}</small>
+    </article>
+  `;
 }
 
 function renderStudentProgressDetails(summary, dashboard) {
@@ -4133,6 +4231,9 @@ function bindWorkspaceForms() {
   document.querySelectorAll("[data-presentation-action]").forEach((button) => {
     button.addEventListener("click", updatePresentationSlot);
   });
+  document.querySelectorAll("[data-student-feedback-action]").forEach((button) => {
+    button.addEventListener("click", handleStudentFeedbackAction);
+  });
   document.querySelector("#siteStudentFilterForm")?.addEventListener("submit", applySiteStudentFilters);
   document.querySelectorAll("[data-site-student-action]").forEach((button) => {
     button.addEventListener("click", handleSiteStudentAction);
@@ -4164,6 +4265,31 @@ function bindWorkspaceForms() {
 
 function bindUploadRetryButton() {
   document.querySelector('[data-upload-action="retry"]')?.addEventListener("click", retryEvidenceUpload);
+}
+
+async function handleStudentFeedbackAction(event) {
+  const action = event?.currentTarget?.dataset?.studentFeedbackAction;
+  if (action !== "open-history") return;
+  await openStudentFeedbackHistory(event.currentTarget?.dataset?.studentFeedbackSubmissionId || "");
+}
+
+async function openStudentFeedbackHistory(submissionId) {
+  const selectedSubmissionId = cleanDirectoryFilter(submissionId);
+  if (!selectedSubmissionId) return;
+  studentFeedbackHistoryState = {
+    ...defaultStudentFeedbackHistoryState(),
+    selectedSubmissionId,
+    loading: true,
+  };
+  activeSection = "student";
+  renderAppShell("Loading feedback timeline...");
+  const historyResult = await settleApi(apiJson(`/api/reviews/${encodeURIComponent(selectedSubmissionId)}/history`));
+  studentFeedbackHistoryState = {
+    ...studentFeedbackHistoryState,
+    loading: false,
+    result: historyResult,
+  };
+  renderAppShell(historyResult.ok ? "Feedback timeline loaded." : "Feedback timeline unavailable.", historyResult.ok ? "success" : "error");
 }
 
 async function applySiteStudentFilters(event) {
@@ -5379,6 +5505,7 @@ async function signOut() {
     currentUser = null;
     currentData = defaultCurrentData(currentData.authConfig);
     lastAdminImportResult = null;
+    studentFeedbackHistoryState = defaultStudentFeedbackHistoryState();
     renderSignIn("You have signed out.", "success");
   }
 }
@@ -5966,6 +6093,14 @@ function defaultSiteStudentDetailState() {
     loadingTimeline: false,
     result: null,
     timelineResult: null,
+  };
+}
+
+function defaultStudentFeedbackHistoryState() {
+  return {
+    selectedSubmissionId: "",
+    loading: false,
+    result: null,
   };
 }
 
