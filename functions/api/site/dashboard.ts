@@ -667,23 +667,23 @@ function buildNextActions(summary: Record<string, number>, readOnly: boolean) {
   const prefix = readOnly ? "Review" : "Act on";
   return [
     {
-      label: `${prefix} role scoped views`,
-      detail: `${summary.studentsActive} active student record(s) are visible for this site only.`,
+      label: `${prefix} assigned site records`,
+      detail: `${summary.studentsActive} active student record(s) are visible for this site.`,
       status: "ready",
     },
     {
       label: "Teacher intervention",
-      detail: `${summary.submissionsSubmitted + summary.revisionRequested} submitted or revision-requested record(s) need review posture.`,
+      detail: `${summary.submissionsSubmitted + summary.revisionRequested} submitted or revision-requested record(s) need teacher follow-up.`,
       status: summary.revisionRequested > 0 ? "revision_requested" : "submitted",
     },
     {
       label: "Private evidence",
-      detail: `${summary.evidenceArtifacts} private evidence artifact(s) are counted without exposing storage identifiers.`,
+      detail: `${summary.evidenceArtifacts} private evidence item(s) are counted without showing private file details.`,
       status: "configured",
     },
     {
-      label: "Audited changes",
-      detail: "Dashboard access is audited for viewed, denied, and unauthorized paths.",
+      label: "Protected access",
+      detail: "Dashboard access is logged for protected school records.",
       status: "approved",
     },
   ];

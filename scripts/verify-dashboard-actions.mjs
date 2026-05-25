@@ -1,0 +1,178 @@
+import { readFileSync } from "node:fs";
+
+const files = {
+  workspaceHtml: "workspace.html",
+  workspaceJs: "workspace.js",
+  siteDashboardApi: "functions/api/site/dashboard.ts",
+};
+
+const source = Object.fromEntries(
+  Object.entries(files).map(([key, file]) => [key, readFileSync(file, "utf8")]),
+);
+
+const failures = [];
+
+function fail(message) {
+  failures.push(message);
+}
+
+function assertIncludes(fileKey, needle, message) {
+  if (!source[fileKey].includes(needle)) fail(`${files[fileKey]}: ${message}`);
+}
+
+function assertMatches(fileKey, pattern, message) {
+  if (!pattern.test(source[fileKey])) fail(`${files[fileKey]}: ${message}`);
+}
+
+function scanForbiddenText(fileKey) {
+  const rules = [
+    [/\bhref=(['"])#\1/i, "dead href=\"#\" link"],
+    [/\bhref=(['"])\1/i, "empty href"],
+    [/\bcoming soon\b/i, "placeholder text: coming soon"],
+    [/\bTODO\b/i, "placeholder text: TODO"],
+    [/\bFIXME\b/i, "placeholder text: FIXME"],
+    [/\bwire later\b/i, "placeholder text: wire later"],
+    [/\bprototype-only\b/i, "placeholder text: prototype-only"],
+    [/\bmock only\b/i, "placeholder text: mock only"],
+    [/\bnot implemented\b/i, "placeholder text: not implemented"],
+  ];
+  for (const [pattern, message] of rules) {
+    if (pattern.test(source[fileKey])) fail(`${files[fileKey]}: ${message}`);
+  }
+}
+
+for (const key of ["workspaceHtml", "workspaceJs"]) scanForbiddenText(key);
+
+const allowedSections = new Set([
+  "overview",
+  "siteDashboard",
+  "students",
+  "student",
+  "archive",
+  "mentorDashboard",
+  "mentor",
+  "programDashboard",
+  "teacher",
+  "mentorAssignments",
+  "operations",
+  "presentation",
+  "adminDashboard",
+  "readiness",
+  "adminUsers",
+  "audit",
+  "archiveExports",
+  "security",
+]);
+
+for (const match of source.workspaceJs.matchAll(/data-section="([a-zA-Z][a-zA-Z0-9]*)"/g)) {
+  const section = match[1];
+  if (!allowedSections.has(section)) {
+    fail(`${files.workspaceJs}: workspace action uses unsupported section "${section}"`);
+  }
+}
+
+const allowedPresets = new Map([
+  ["no-mentor", "mentorAssignments"],
+  ["mentor-workload", "mentorAssignments"],
+  ["program", "students"],
+  ["submitted", "teacher"],
+  ["revision-requested", "teacher"],
+  ["presentation-pending", "operations"],
+  ["archive-failed", "operations"],
+]);
+
+const presetMatches = [
+  ...source.workspaceJs.matchAll(/preset:\s*"([^"]+)"/g),
+  ...source.workspaceJs.matchAll(/data-section-preset="([a-z0-9-]+)"/g),
+];
+
+for (const match of presetMatches) {
+  const preset = match[1];
+  if (!allowedPresets.has(preset)) {
+    fail(`${files.workspaceJs}: unsupported dashboard action preset "${preset}"`);
+  }
+}
+
+for (const [preset, section] of allowedPresets) {
+  if (!source.workspaceJs.includes(`data-section-preset="${preset}"`) && !source.workspaceJs.includes(`preset: "${preset}"`)) {
+    continue;
+  }
+  assertIncludes(
+    "workspaceJs",
+    `section === "${section}" && button.dataset.sectionPreset === "${preset}"`,
+    `preset "${preset}" must be handled by openWorkspaceSection()`,
+  );
+}
+
+assertIncludes("workspaceJs", "function siteStudentQueryString()", "Student Directory query helper must exist");
+assertIncludes("workspaceJs", 'params.set("programId", filters.programId)', "Student Directory must support programId filters");
+assertMatches(
+  "workspaceJs",
+  /section === "students" && button\.dataset\.sectionPreset === "program"[\s\S]*const programId = cleanDirectoryFilter\(button\.dataset\.programId\)[\s\S]*programId,/,
+  "program drill-down must set the Student Directory program filter",
+);
+
+assertIncludes("workspaceJs", "function siteMentorAssignmentQueryString()", "Mentor Assignments query helper must exist");
+assertIncludes("workspaceJs", 'params.set("mentorUserId", filters.mentorUserId)', "Mentor Assignments must support mentorUserId filters");
+assertMatches(
+  "workspaceJs",
+  /section === "mentorAssignments" && button\.dataset\.sectionPreset === "mentor-workload"[\s\S]*const mentorUserId = cleanDirectoryFilter\(button\.dataset\.mentorId\)[\s\S]*mentorUserId,/,
+  "mentor workload drill-down must set the Mentor Assignments mentor filter",
+);
+
+assertMatches(
+  "workspaceJs",
+  /section === "teacher" && button\.dataset\.sectionPreset === "submitted"[\s\S]*status: "submitted"/,
+  "submitted dashboard preset must be backed by a review queue status filter",
+);
+assertMatches(
+  "workspaceJs",
+  /section === "teacher" && button\.dataset\.sectionPreset === "revision-requested"[\s\S]*status: "revision_requested"/,
+  "revision dashboard preset must be backed by a review queue status filter",
+);
+assertMatches(
+  "workspaceJs",
+  /section === "operations" && button\.dataset\.sectionPreset === "presentation-pending"[\s\S]*presentationStatus: "pending"/,
+  "presentation dashboard preset must be backed by an operations presentation filter",
+);
+assertMatches(
+  "workspaceJs",
+  /section === "operations" && button\.dataset\.sectionPreset === "archive-failed"[\s\S]*archiveStatus: "failed"/,
+  "archive dashboard preset must be backed by an operations archive filter",
+);
+
+for (const [handler, action, loader] of [
+  ["handleSiteStudentAction", "view-detail", "openSiteStudentDetail"],
+  ["handleMentorAssignmentAction", "open-student", "openSiteStudentDetail"],
+  ["handleOperationsReadinessAction", "open-student", "openSiteStudentDetail"],
+  ["handleReviewQueueAction", "open-student", "openSiteStudentDetail"],
+]) {
+  assertMatches(
+    "workspaceJs",
+    new RegExp(`function ${handler}\\([\\s\\S]*?action === "${action}"[\\s\\S]*?${loader}\\(`),
+    `${handler} must route "${action}" through ${loader}()`,
+  );
+}
+
+assertMatches("workspaceJs", /function renderReadOnlyBanner\(\)[\s\S]*Read-only workspace/, "viewer read-only banner must remain visible");
+assertMatches("workspaceJs", /data-review-queue-read-only="true"[\s\S]*Review actions unavailable/, "read-only review queue must not expose mutation actions as available");
+assertMatches("workspaceJs", /data-mentor-assignment-controls-hidden="true"[\s\S]*Assignment changes unavailable/, "read-only mentor coverage must hide assignment controls");
+assertMatches("workspaceJs", /data-operations-read-only="true"[\s\S]*Read-only operations worklists/, "operations read-only state must remain explicit");
+
+for (const [fileKey, pattern, message] of [
+  ["workspaceJs", /\brole scoped views\b/i, "workspace copy must not expose role-scope jargon"],
+  ["workspaceJs", /\bstorage identifiers\b/i, "workspace copy must not expose storage-identifier jargon"],
+  ["siteDashboardApi", /\brole scoped views\b/i, "site dashboard API copy must not expose role-scope jargon"],
+  ["siteDashboardApi", /\bstorage identifiers\b/i, "site dashboard API copy must not expose storage-identifier jargon"],
+]) {
+  if (pattern.test(source[fileKey])) fail(`${files[fileKey]}: ${message}`);
+}
+
+if (failures.length) {
+  console.error("Dashboard/action verification failed.");
+  for (const failure of failures) console.error(`- ${failure}`);
+  process.exit(1);
+}
+
+console.log("Dashboard/action verification passed.");
+console.log(`Checked protected workspace actions in ${Object.values(files).join(", ")}.`);

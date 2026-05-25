@@ -280,3 +280,58 @@ All final validation passed:
 13. Add current program/cohort scope summary for program teachers.
 14. Add mentor assigned-student meeting detail if existing API returns it.
 15. Add all-sites Product Admin rollup only after backend aggregate/RBAC design.
+
+## Functionality Usability Continuation 2026-05-24 16:37 PT
+
+Starting SHA: `f278233c8ba309dd9aee3a3711aa8803810a523b`
+
+Ending SHA: pending closeout commit
+
+Branch: `functionality-usability-continuation-20260524`
+
+Selected work order: standalone dashboard/action verifier plus safe route-backed drill-downs.
+
+What changed:
+
+- Added `scripts/verify-dashboard-actions.mjs` and `npm run verify:dashboard-actions`.
+- The verifier checks protected workspace `href` values, placeholder action text, unsupported dashboard presets, review queue presets, operations presets, student-detail action routing, read-only viewer/action boundaries, and dashboard copy that leaks route/scope/storage jargon.
+- Site Dashboard program breakdown rows now open Student Directory using the existing `programId` filter.
+- Site Dashboard mentor coverage rows now open Mentor Assignments using the existing `mentorUserId` filter.
+- Student home now shows a "Do this next" card derived from the student's own `nextSteps` or summary counts.
+- Site Dashboard next-action API copy now uses school-facing language instead of role-scope or storage-identifier phrasing.
+- Workspace role labels now avoid normal-user-facing legacy wording for `admin` and `misc_admin`.
+
+Tests and verifiers:
+
+- Baseline `npm run verify:functionality-language`, `npm run typecheck`, `npm run check:production-surfaces`, and `git diff --check` passed before edits.
+- Baseline `npm run test` initially failed because the new local branch had no upstream; setting temporary upstream to `origin/main` made the same suite pass before edits.
+- Targeted after edits: `npm run verify:dashboard-actions`, `node --test tests/workspace-app.test.mjs`, and `node --test tests/functionality-language-audit.test.mjs` passed.
+- Final validation passed: `npm run verify:dashboard-actions`, `npm run verify:functionality-language`, `npm run verify:functionality-ux-automation`, `node --test tests/workspace-app.test.mjs`, `node --test tests/functionality-language-audit.test.mjs`, `node --test tests/account-and-evidence-access.test.mjs`, `npm run test`, `npm run typecheck`, `npm run check:production-surfaces`, `npm run check`, and `git diff --check`.
+
+RBAC/privacy boundaries confirmed:
+
+- No auth, role helper, migration, or D1 configuration files were changed.
+- Program drill-down uses the existing scoped Student Directory loader and `programId` query support.
+- Mentor workload drill-down uses the existing scoped Mentor Assignments loader and `mentorUserId` query support.
+- Student next-action content uses only the current student's dashboard summary and next-step records.
+- Viewer read-only banners and hidden mutation-control checks are now guarded by the dashboard/action verifier.
+
+Deferred intentionally:
+
+- Missing-submission drill-down remains deferred because there is no single confirmed dashboard source and filter mapping for that count in this slice.
+- Product Admin all-sites rollup remains deferred until a real aggregate API and authorization design exist.
+- Browser screenshot QA remains deferred because the browser smoke path is credential/environment gated.
+
+Next recommended work orders:
+
+1. Add missing-submission or evidence-attention drill-down only after mapping the exact source metric to a supported filter.
+2. Run credentialed browser QA for expanded/collapsed navigation, mobile width, and multi-site switching.
+3. Add richer student detail section headings for latest feedback, mentor, presentation, and archive context using existing fields.
+4. Add URL/query persistence for review queue filters after privacy review.
+5. Keep expanding `verify:dashboard-actions` when new dashboard action types are added.
+
+Do-not-repeat notes:
+
+- Do not relink Program Breakdown rows to Student Directory; the `program` preset is now complete.
+- Do not relink Mentor Coverage rows to Mentor Assignments; the `mentor-workload` preset is now complete.
+- Do not add fake retry, all-sites, intervention, or missing-submission controls without backend/filter support.

@@ -6,17 +6,20 @@ import test from "node:test";
 const auditPath = "docs/functionality-language-audit.md";
 const promptPath = "automation/prompts/functionality-ux-upgrade-hourly.md";
 const verifierPath = "scripts/verify-functionality-language.mjs";
+const dashboardActionVerifierPath = "scripts/verify-dashboard-actions.mjs";
 const packagePath = "package.json";
 
 const audit = await readFile(auditPath, "utf8");
 const prompt = await readFile(promptPath, "utf8");
 const verifier = await readFile(verifierPath, "utf8");
+const dashboardActionVerifier = await readFile(dashboardActionVerifierPath, "utf8");
 const packageJson = JSON.parse(await readFile(packagePath, "utf8"));
 
 test("functionality and language audit artifacts exist", () => {
   assert.equal(existsSync(auditPath), true);
   assert.equal(existsSync(promptPath), true);
   assert.equal(existsSync(verifierPath), true);
+  assert.equal(existsSync(dashboardActionVerifierPath), true);
 });
 
 test("functionality and language audit includes required sections and enough repo-grounded findings", () => {
@@ -56,6 +59,19 @@ test("functionality UX automation prompt is bounded and safety-focused", () => {
   assert.doesNotMatch(prompt, /seed:demo:remote|db:migrate:remote|reset:accounts:remote|npm run deploy/);
 });
 
+test("dashboard action verifier is registered and guards route-backed actions", () => {
+  assert.equal(
+    packageJson.scripts["verify:dashboard-actions"],
+    "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-node-script.ps1 scripts/verify-dashboard-actions.mjs",
+  );
+  assert.match(dashboardActionVerifier, /href=\(\['"\]\)#/);
+  assert.match(dashboardActionVerifier, /unsupported dashboard action preset/);
+  assert.match(dashboardActionVerifier, /mentor-workload/);
+  assert.match(dashboardActionVerifier, /program drill-down/);
+  assert.match(dashboardActionVerifier, /openSiteStudentDetail/);
+  assert.match(dashboardActionVerifier, /Read-only workspace/);
+});
+
 test("functionality language verifier is registered and avoids credential exposure", () => {
   assert.equal(
     packageJson.scripts["verify:functionality-language"],
@@ -64,5 +80,5 @@ test("functionality language verifier is registered and avoids credential exposu
   assert.match(verifier, /Database-backed MVP/);
   assert.match(verifier, /Cloudflare target/);
   assert.match(verifier, /workspace\.js/);
-  assert.doesNotMatch(`${audit}\n${prompt}\n${verifier}`, /BEGIN PRIVATE KEY|client_secret["':=]|refresh_token["':=]|access_token["':=]|temporaryPassword|password_hash|password_salt/i);
+  assert.doesNotMatch(`${audit}\n${prompt}\n${verifier}\n${dashboardActionVerifier}`, /BEGIN PRIVATE KEY|client_secret["':=]|refresh_token["':=]|access_token["':=]|temporaryPassword|password_hash|password_salt/i);
 });

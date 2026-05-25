@@ -692,6 +692,29 @@ async function openWorkspaceSection(button) {
     await loadMentorAssignmentsResult("Showing students without mentors.");
     return;
   }
+  if (section === "mentorAssignments" && button.dataset.sectionPreset === "mentor-workload") {
+    const mentorUserId = cleanDirectoryFilter(button.dataset.mentorId);
+    if (!mentorUserId) return;
+    mentorAssignmentFilters = {
+      ...defaultMentorAssignmentFilters(),
+      mentorUserId,
+      status: "active",
+    };
+    await loadMentorAssignmentsResult("Showing this mentor's active student load.");
+    return;
+  }
+  if (section === "students" && button.dataset.sectionPreset === "program") {
+    const programId = cleanDirectoryFilter(button.dataset.programId);
+    if (!programId) return;
+    siteStudentFilters = {
+      ...defaultSiteStudentFilters(),
+      programId,
+    };
+    siteStudentDetailState = defaultSiteStudentDetailState();
+    activeSection = "students";
+    await loadWorkspaceData("Showing students in the selected program.");
+    return;
+  }
   if (section === "teacher" && button.dataset.sectionPreset === "submitted") {
     reviewQueueFilters = {
       ...defaultReviewQueueFilters(),
@@ -2728,6 +2751,7 @@ function renderStudentSection() {
         ${renderStudentSummaryTile("Mentor / Support", summary.mentor.assigned ? `Mentor: ${summary.mentor.name}` : "No mentor assigned yet", summary.mentor.assigned ? "Ask your mentor or program teacher if something looks wrong." : "Ask your program teacher who can help with mentor questions.", summary.mentor.assigned ? "mentor" : "warning")}
       </div>
     </section>
+    ${renderStudentPrimaryNextAction(summary, nextSteps)}
     ${renderStudentNextSteps(nextSteps, summary)}
     ${renderStudentProgressDetails(summary, dashboard)}
     <section class="workspace-card">
@@ -2762,6 +2786,73 @@ function renderStudentSection() {
       </div>
     </section>
   `;
+}
+
+function renderStudentPrimaryNextAction(summary, nextSteps = []) {
+  const action = studentPrimaryNextAction(summary, nextSteps);
+  return `
+    <section class="workspace-dashboard-card workspace-student-primary-action" aria-labelledby="studentPrimaryNextActionTitle">
+      <div class="workspace-card-head">
+        <div>
+          <p class="workspace-kicker">Do this next</p>
+          <h2 id="studentPrimaryNextActionTitle">${escapeHtml(action.title)}</h2>
+          <p>${escapeHtml(action.detail)}</p>
+        </div>
+        ${statusPill(action.status)}
+      </div>
+      <div class="workspace-student-action-focus">
+        <strong>${escapeHtml(action.owner)}</strong>
+        <span>${escapeHtml(action.when)}</span>
+      </div>
+    </section>
+  `;
+}
+
+function studentPrimaryNextAction(summary, nextSteps = []) {
+  const firstStep = Array.isArray(nextSteps) ? nextSteps[0] : null;
+  if (firstStep) {
+    return {
+      title: firstStep.title || "Continue your next requirement",
+      detail: firstStep.detail || "Open the requirement in the list below and continue your project work.",
+      status: firstStep.status || "pending",
+      owner: "Your action",
+      when: firstStep.dueDate ? `Due ${formatDate(firstStep.dueDate)}` : "Use the next-steps list below.",
+    };
+  }
+  if (summary.revisionRequestedCount) {
+    return {
+      title: "Revise submitted work",
+      detail: "Review the item marked Needs Revision and update your evidence or submission before moving forward.",
+      status: "revision_requested",
+      owner: "Your action",
+      when: "Start with the submission list below.",
+    };
+  }
+  if (summary.missingRequiredCount) {
+    return {
+      title: "Finish a missing submission",
+      detail: "Choose a draft or missing requirement and attach the work your teacher requested.",
+      status: "draft",
+      owner: "Your action",
+      when: "Use Submit Evidence after choosing the requirement.",
+    };
+  }
+  if (summary.waitingForReviewCount) {
+    return {
+      title: "Wait for teacher review",
+      detail: "Your submitted work is waiting for review. Check back for feedback before changing direction.",
+      status: "submitted",
+      owner: "Teacher review",
+      when: "No extra upload is needed right now.",
+    };
+  }
+  return {
+    title: "Keep your project moving",
+    detail: "Review your progress details and ask your mentor or program teacher if anything looks missing.",
+    status: summary.requirementsTotal ? "ready" : "pending",
+    owner: summary.mentor.assigned ? "You and your mentor" : "You and your program teacher",
+    when: summary.lastUpdatedAt ? `Last updated ${formatDate(summary.lastUpdatedAt)}` : "Check back after requirements are added.",
+  };
 }
 
 function studentProgressSummary(dashboard) {
@@ -4775,6 +4866,11 @@ function renderProgramBreakdown(rows = []) {
           <span>${safeNumber(row.revisionRequested)} revision</span>
           <span>${safeNumber(row.approved)} approved</span>
           <span>${safeNumber(row.noMentor)} no mentor</span>
+          ${row.programId ? `
+            <button class="workspace-link-button workspace-link-button-small" type="button" data-section="students" data-section-preset="program" data-program-id="${escapeHtml(row.programId)}">
+              View students
+            </button>
+          ` : ""}
         </article>
       `).join("")}
     </div>
@@ -4817,7 +4913,14 @@ function renderMentorCoverage(rows = [], summary = {}) {
             <strong>${escapeHtml(row.mentorName || "Mentor")}</strong>
             <p>${safeNumber(row.activeAssignments)} active ${escapeHtml(pluralize(row.activeAssignments, "assignment"))}</p>
           </div>
-          ${statusPill(safeNumber(row.activeAssignments) ? "active" : "no_active_assignments")}
+          <div class="workspace-row-actions">
+            ${statusPill(safeNumber(row.activeAssignments) ? "active" : "no_active_assignments")}
+            ${row.mentorId ? `
+              <button class="workspace-link-button workspace-link-button-small" type="button" data-section="mentorAssignments" data-section-preset="mentor-workload" data-mentor-id="${escapeHtml(row.mentorId)}">
+                View load
+              </button>
+            ` : ""}
+          </div>
         </article>
       `).join("") : `<div class="workspace-empty">No mentor coverage records are available yet.</div>`}
     </div>
@@ -5011,14 +5114,14 @@ function normalizeStatus(value) {
 
 const ROLE_LABELS = {
   platform_admin: "Platform Admin",
-  admin: "Admin",
+  admin: "Platform Admin",
   org_admin: "Organization Admin",
   site_admin: "Administration",
   program_teacher: "Program Teacher",
   mentor: "Mentor",
   viewer: "Viewer",
   student: "Student",
-  misc_admin: "Reporting Admin (legacy)",
+  misc_admin: "Reporting Viewer",
   role_pending: "Role pending",
 };
 

@@ -223,3 +223,37 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: browser screenshots need credentialed local runtime; all-sites rollup needs backend aggregate design
   - Do not repeat: do not redo the explicit fixed items unless regression evidence appears
   - First file to inspect next run: `docs/product-readiness-upgrade-sprint.md`
+
+## Run 2026-05-24 16:37 PT
+
+- Starting SHA: `f278233c8ba309dd9aee3a3711aa8803810a523b`
+- Ending SHA: pending closeout commit
+- Branch: `functionality-usability-continuation-20260524`
+- Ladder level targeted: `LEVEL_1_NAVIGABLE_DASHBOARDS` with `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` regression protection
+- Backlog item: `dashboard-action-link-verifier`, `program-row-directory-clickthrough`, `mentor-workload-clickthrough`, and `student-next-action-card`
+- Work order selected: Add the standalone dashboard/action verifier, then complete route-backed program and mentor workload drill-downs plus a student-owned next-action focus card.
+- Selection reason: The previous sprint named the verifier as the safest next compounding slice, and the existing Student Directory and Mentor Assignments filters already supported the two highest-confidence drill-downs.
+- User-facing improvement: Staff can open program-scoped student lists and mentor-specific workload lists from dashboard rows; students see one clear top next action before the longer task list.
+- Roles affected: site/admin staff, viewer/read-only staff, program teacher scoped staff, students
+- Files changed: `workspace.js`, `workspace.css`, `functions/api/site/dashboard.ts`, `scripts/verify-dashboard-actions.mjs`, `package.json`, `tests/workspace-app.test.mjs`, `tests/functionality-language-audit.test.mjs`, sprint docs, ledger, and JSON state
+- Tests/verifiers added or updated: added `verify:dashboard-actions`; updated workspace render/source assertions; updated functionality audit verifier-registration test
+- Validation commands:
+  - Baseline before edits: `npm run verify:functionality-language`; `npm run typecheck`; `npm run check:production-surfaces`; `git diff --check`; `npm run test`
+  - Targeted after edits: `npm run verify:dashboard-actions`; `npm run verify:functionality-language`; `npm run verify:functionality-ux-automation`; `node --test tests/workspace-app.test.mjs`; `node --test tests/functionality-language-audit.test.mjs`; `node --test tests/account-and-evidence-access.test.mjs`
+  - Final validation: `npm run test`; `npm run typecheck`; `npm run check:production-surfaces`; `npm run check`; `git diff --check`
+- Validation result: passed; baseline `npm run test` first failed only because the brand-new local branch had no upstream, then passed after setting temporary upstream to `origin/main`; `git diff --check` reported CRLF normalization warnings only
+- Commit: pending closeout commit; see final report or `git log -1`
+- Push status: pending
+- Deferred items: missing-submission drill-down, all-sites Product Admin rollup, and browser screenshot QA remain deferred for the safety reasons in `docs/product-readiness-upgrade-sprint.md`
+- New backlog items: extend `verify:dashboard-actions` whenever new dashboard action types are introduced
+- Next recommended work order: map the missing-submission/evidence-attention count to a supported filter, then add the drill-down only if the mapping is exact and scoped
+- Do-not-repeat notes: do not relink Program Breakdown or Mentor Coverage dashboard rows; do not add fake controls for missing submissions, retry, intervention, or all-sites rollups
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_1_NAVIGABLE_DASHBOARDS`
+  - Advanced: yes
+  - Evidence: dashboard verifier added, Program Breakdown opens Student Directory with `programId`, Mentor Coverage opens Mentor Assignments with `mentorUserId`, and student home has a first next-action card
+  - Unlocks: safer future dashboard drill-downs because unsupported presets now fail verification
+  - Next: missing-submission/evidence-attention drill-down after route/filter mapping
+  - Blockers: browser screenshot QA still needs credentialed local runtime; all-sites rollup still needs backend aggregate design
+  - Do not repeat: do not redo the verifier, program preset, or mentor-workload preset unless a regression appears
+  - First file to inspect next run: `scripts/verify-dashboard-actions.mjs`

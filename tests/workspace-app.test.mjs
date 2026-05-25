@@ -324,6 +324,10 @@ test("workspace renders route-connected site dashboard with Figma product-system
   assert.match(siteDashboard, /Students/);
   assert.match(siteDashboard, /No Mentor/);
   assert.match(siteDashboard, /data-section="mentorAssignments" data-section-preset="no-mentor">Review/);
+  assert.match(siteDashboard, /data-section="mentorAssignments" data-section-preset="mentor-workload" data-mentor-id="demo-mentor-001"/);
+  assert.match(siteDashboard, /View load/);
+  assert.match(siteDashboard, /data-section="students" data-section-preset="program" data-program-id="it"/);
+  assert.match(siteDashboard, /View students/);
   assert.match(siteDashboard, /data-section="teacher" data-section-preset="submitted">Review/);
   assert.match(siteDashboard, /data-section="teacher" data-section-preset="revision-requested">Review/);
   assert.match(siteDashboard, /data-section="operations" data-section-preset="presentation-pending">Review/);
@@ -1074,6 +1078,10 @@ test("workspace gates mentor assignment visibility and refresh behavior by role"
   assert.match(sectionOpenBlock, /status:\s*"unassigned"/);
   assert.match(sectionOpenBlock, /noMentor:\s*true/);
   assert.match(sectionOpenBlock, /loadMentorAssignmentsResult\("Showing students without mentors\."\)/);
+  assert.match(sectionOpenBlock, /section === "mentorAssignments" && button\.dataset\.sectionPreset === "mentor-workload"/);
+  assert.match(sectionOpenBlock, /const mentorUserId = cleanDirectoryFilter\(button\.dataset\.mentorId\)/);
+  assert.match(sectionOpenBlock, /mentorUserId,/);
+  assert.match(sectionOpenBlock, /loadMentorAssignmentsResult\("Showing this mentor's active student load\."\)/);
   assert.match(workspaceJs, /function submitMentorAssignment/);
   assert.match(workspaceJs, /\/api\/site\/mentor-assignments/);
   assert.match(workspaceJs, /function refreshConnectedSurfacesAfterMentorAssignment/);
@@ -1124,6 +1132,21 @@ test("workspace exposes a real admin site switcher and collapsible navigation", 
   assert.match(workspaceCss, /width: min\(1600px, calc\(100% - 32px\)\)/);
   assert.match(workspaceCss, /\.workspace-app\[data-nav-state="collapsed"\] \.workspace-content/);
   assert.match(workspaceCss, /\.workspace-app\[data-nav-state="collapsed"\] \.workspace-tab-short/);
+});
+
+test("workspace dashboard actions use supported filters and loaders", () => {
+  const sectionOpenBlock = workspaceJs.match(/async function openWorkspaceSection[\s\S]*?function availableSections/)?.[0] || "";
+  assert.match(sectionOpenBlock, /section === "students" && button\.dataset\.sectionPreset === "program"/);
+  assert.match(sectionOpenBlock, /const programId = cleanDirectoryFilter\(button\.dataset\.programId\)/);
+  assert.match(sectionOpenBlock, /programId,/);
+  assert.match(sectionOpenBlock, /loadWorkspaceData\("Showing students in the selected program\."\)/);
+  assert.match(workspaceJs, /function siteStudentQueryString/);
+  assert.match(workspaceJs, /params\.set\("programId", filters\.programId\)/);
+  assert.match(workspaceJs, /function siteMentorAssignmentQueryString/);
+  assert.match(workspaceJs, /params\.set\("mentorUserId", filters\.mentorUserId\)/);
+  assert.match(workspaceJs, /data-section-preset="program"/);
+  assert.match(workspaceJs, /data-section-preset="mentor-workload"/);
+  assert.doesNotMatch(workspaceJs, /href="#"/);
 });
 
 test("production surface checker includes the authenticated workspace", () => {
@@ -1330,6 +1353,10 @@ test("workspace renders a progress-first student homepage with safe language", a
   assert.match(student, /Review Status/);
   assert.match(student, /1 needs revision/);
   assert.match(student, /Mentor: Ms\. Garcia/);
+  assert.match(student, /workspace-student-primary-action/);
+  assert.match(student, /Do this next/);
+  assert.match(student, /Senior Project Proposal/);
+  assert.match(student, /Your action/);
   assert.match(student, /What to Work On Next/);
   assert.match(student, /Progress Details/);
   assert.match(student, /Need help/);
@@ -2018,12 +2045,12 @@ function siteDashboardFixture({ readOnly = false } = {}) {
     nextActions: [
       {
         label: "Teacher follow-up",
-        detail: "84 submitted or revision-requested records need review posture.",
+        detail: "84 submitted or revision-requested records need teacher follow-up.",
         status: "revision_requested",
       },
       {
         label: "Private evidence",
-        detail: "690 private evidence artifacts are counted without exposing storage identifiers.",
+        detail: "690 private evidence items are counted without showing private file details.",
         status: "configured",
       },
     ],
