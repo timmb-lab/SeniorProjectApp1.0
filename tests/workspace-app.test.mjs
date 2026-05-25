@@ -957,6 +957,7 @@ test("workspace renders site-aware Review Queue with teacher decisions and read-
   assert.match(viewer, /Read-only review queue/);
   assert.match(viewer, /This view is for review context/);
   assert.match(viewer, /This workspace is read-only for review decisions/);
+  assert.match(viewer, /No teacher decision available for this row/);
   assert.doesNotMatch(viewer, /data-review-decision="approved"|data-review-decision="revision_requested"|data-review-decision="comment_only"|<textarea name="feedback"/);
 
   const { context, workspaceRoot } = await createWorkspaceContextWithFetch({
@@ -1022,6 +1023,137 @@ test("workspace renders site-aware Review Queue with teacher decisions and read-
   vm.runInContext('handleSiteStudentDetailAction({ currentTarget: { dataset: { studentDetailAction: "close" } } })', context);
   assert.equal(vm.runInContext("activeSection", context), "teacher");
   assert.doesNotMatch(workspaceRoot.innerHTML, /workspace-detail-drawer/);
+});
+
+test("workspace renders Review Queue empty and history states with assigned-work language", async () => {
+  const emptyFilters = {
+    status: "approved",
+    programId: "",
+    search: "no matching proposal",
+    story: "",
+    risk: "any",
+    limit: 50,
+    offset: 0,
+  };
+  const filteredEmpty = await renderWorkspaceWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "teacher-review-empty",
+          email: "teacher.review.empty@example.edu",
+          displayName: "Program Teacher Review Empty",
+          roles: [{ role_id: "program_teacher", scope_type: "program", scope_id: "it" }],
+        },
+      },
+    },
+    "/api/site/students": {
+      status: 200,
+      body: siteStudentsFixture({ role: "program_teacher", total: 45 }),
+    },
+    "/api/site/review-queue": {
+      status: 200,
+      body: siteReviewQueueFixture({ role: "program_teacher", queue: [], filters: emptyFilters }),
+    },
+    "/api/program-teacher/dashboard": {
+      status: 200,
+      body: { ok: true, summary: { scopedStudents: 45, submissionsAwaitingReview: 0 }, students: [], programBreakdown: [] },
+    },
+    "/api/presentation-slots": {
+      status: 200,
+      body: { ok: true, slots: [] },
+    },
+  }, "teacher");
+
+  assert.match(filteredEmpty, /No matching review work/);
+  assert.match(filteredEmpty, /No submitted or revision-requested work matches these filters/);
+  assert.match(filteredEmpty, /Assigned review staff/);
+  assert.match(filteredEmpty, /Clear filters to return to review work assigned to this view/);
+  assert.doesNotMatch(filteredEmpty, /No review rows match|No review items match|assigned access|Program teacher or site staff/);
+
+  const unfilteredEmpty = await renderWorkspaceWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "teacher-review-no-work",
+          email: "teacher.review.no-work@example.edu",
+          displayName: "Program Teacher Review No Work",
+          roles: [{ role_id: "program_teacher", scope_type: "program", scope_id: "it" }],
+        },
+      },
+    },
+    "/api/site/students": {
+      status: 200,
+      body: siteStudentsFixture({ role: "program_teacher", total: 45 }),
+    },
+    "/api/site/review-queue": {
+      status: 200,
+      body: siteReviewQueueFixture({ role: "program_teacher", queue: [] }),
+    },
+    "/api/program-teacher/dashboard": {
+      status: 200,
+      body: { ok: true, summary: { scopedStudents: 45, submissionsAwaitingReview: 0 }, students: [], programBreakdown: [] },
+    },
+    "/api/presentation-slots": {
+      status: 200,
+      body: { ok: true, slots: [] },
+    },
+  }, "teacher");
+
+  assert.match(unfilteredEmpty, /No review work waiting/);
+  assert.match(unfilteredEmpty, /No submitted or revision-requested work is waiting in this review queue right now/);
+  assert.match(unfilteredEmpty, /Open Students for context or keep monitoring new submissions/);
+  assert.doesNotMatch(unfilteredEmpty, /No review rows match|assigned access/);
+
+  const noHistory = {
+    ...reviewHistoryFixture(),
+    reviews: [],
+    comments: [],
+  };
+  const historyEmpty = await renderWorkspaceWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "teacher-review-history-empty",
+          email: "teacher.review.history.empty@example.edu",
+          displayName: "Program Teacher Review History Empty",
+          roles: [{ role_id: "program_teacher", scope_type: "program", scope_id: "it" }],
+        },
+      },
+    },
+    "/api/site/students": {
+      status: 200,
+      body: siteStudentsFixture({ role: "program_teacher", total: 45 }),
+    },
+    "/api/site/review-queue": {
+      status: 200,
+      body: siteReviewQueueFixture({ role: "program_teacher" }),
+    },
+    "/api/program-teacher/dashboard": {
+      status: 200,
+      body: { ok: true, summary: { scopedStudents: 45, submissionsAwaitingReview: 1 }, students: [], programBreakdown: [] },
+    },
+    "/api/presentation-slots": {
+      status: 200,
+      body: { ok: true, slots: [] },
+    },
+  }, "teacher", `
+    reviewQueueState = {
+      ...defaultReviewQueueState(),
+      selectedSubmissionId: "submission-review-001",
+      historyResult: { ok: true, status: 200, body: ${JSON.stringify(noHistory)} }
+    };
+  `);
+
+  assert.match(historyEmpty, /data-review-history-empty="true"/);
+  assert.match(historyEmpty, /No review decisions recorded yet/);
+  assert.match(historyEmpty, /No protected comments recorded for this submission yet/);
+  assert.doesNotMatch(historyEmpty, /No review history is loaded yet|comments available for this submission/);
 });
 
 test("workspace applies Review Queue URL filters safely and syncs filter URLs", async () => {
@@ -3614,9 +3746,9 @@ function siteReviewQueueFixture({
       canManageSecurity: false,
     },
     emptyState: rows.length === 0 ? {
-      reason: "No submitted or revision-requested work matches the selected filters.",
-      owner: "Program teacher or site staff.",
-      nextAction: "Adjust filters or review the student detail timeline for context.",
+      reason: "No submitted or revision-requested work matches the current review filters.",
+      owner: "Assigned review staff.",
+      nextAction: "Clear or adjust filters to return to submitted work this view can access.",
     } : null,
   };
 }

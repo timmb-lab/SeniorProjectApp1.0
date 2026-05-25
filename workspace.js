@@ -3981,7 +3981,7 @@ function renderTeacherSection() {
             </div>
           ` : `
             <section class="workspace-empty-state-card" data-review-queue-empty="true">
-              <h2>No review rows match</h2>
+              <h2>${hasActiveReviewQueueFilters(filters) ? "No matching review work" : "No review work waiting"}</h2>
               ${renderProblemState(reviewQueueEmptyState(body, filters))}
             </section>
           `}
@@ -4074,15 +4074,15 @@ function reviewQueueEmptyState(body, filters = {}) {
   const hasFilters = hasActiveReviewQueueFilters(filters);
   if (hasFilters) {
     return {
-      reason: "No review items match these filters.",
-      owner: "Program teacher or site staff.",
-      nextAction: "Clear filters to see submitted and revision-requested work you can access.",
+      reason: "No submitted or revision-requested work matches these filters.",
+      owner: "Assigned review staff.",
+      nextAction: "Clear filters to return to review work assigned to this view.",
     };
   }
-  return body?.emptyState || {
-    reason: "No submitted or revision-requested records are available for this school and assigned access.",
-    owner: "Program teacher or site staff.",
-    nextAction: "Check the student directory or continue monitoring new submissions.",
+  return {
+    reason: "No submitted or revision-requested work is waiting in this review queue right now.",
+    owner: "Assigned review staff.",
+    nextAction: "Open Students for context or keep monitoring new submissions.",
   };
 }
 
@@ -4143,7 +4143,7 @@ function renderReviewSubmissionPanel(selected, body) {
         <h2>Loading submission</h2>
         ${renderProblemState({
           reason: "Review history is loading.",
-          owner: "Teacher review queue",
+          owner: "Review queue.",
           nextAction: "Keep the selected row open.",
         })}
       </section>
@@ -4155,8 +4155,8 @@ function renderReviewSubmissionPanel(selected, body) {
         <h2>Select a submission</h2>
         ${renderProblemState({
           reason: "No review row is selected.",
-          owner: "Program teacher or site staff",
-          nextAction: "Open a submitted row to view evidence summaries, history, and available teacher decisions.",
+          owner: "Assigned review staff.",
+          nextAction: "Select a submitted or revision row to view evidence summaries, protected history, and available teacher decisions.",
         })}
       </section>
     `;
@@ -4186,11 +4186,11 @@ function renderReviewSubmissionPanel(selected, body) {
       ${renderReviewHistorySummary(historyResult, history)}
       ${canDecide ? renderReviewDecisionForm(selected) : `
         <section class="workspace-empty-state-card" data-review-mutation-disabled="true">
-          <h2>Review actions unavailable</h2>
+          <h2>No teacher decision available for this row</h2>
           ${renderProblemState({
-            reason: permissions.canReview ? "Status-changing reviews are limited to submitted work." : "This workspace is read-only for review decisions.",
-            owner: "Assigned program teacher",
-            nextAction: "Use the queue for context or wait for a submitted item assigned to this teacher list.",
+            reason: permissions.canReview ? "Teacher decisions are only available while work is submitted for review." : "This workspace is read-only for review decisions.",
+            owner: permissions.canReview ? "Assigned program teacher." : "Assigned review staff.",
+            nextAction: permissions.canReview ? "Use the history and student detail for context, or select submitted work from this teacher list." : "Use this queue for context; assigned program teachers handle decisions.",
           })}
         </section>
       `}
@@ -4205,8 +4205,8 @@ function renderReviewHistorySummary(historyResult, history) {
         <h2>Review history unavailable</h2>
         ${renderProblemState({
           reason: "The review history could not load for this submission.",
-          owner: "Teacher review queue",
-          nextAction: "Refresh the queue or check assigned access.",
+          owner: "Review queue.",
+          nextAction: "Refresh the queue or confirm this submission still belongs to your assigned review list.",
         })}
       </section>
     `;
@@ -4229,8 +4229,12 @@ function renderReviewHistorySummary(historyResult, history) {
             </article>
           `).join("")}
         </div>
-      ` : `<div class="workspace-empty">No review history is loaded yet.</div>`}
-      <p class="workspace-muted">${safeNumber(comments.length)} comment${safeNumber(comments.length) === 1 ? "" : "s"} available for this submission.</p>
+      ` : `<div class="workspace-empty" data-review-history-empty="true">No review decisions recorded yet.</div>`}
+      <p class="workspace-muted">${
+        safeNumber(comments.length)
+          ? `${safeNumber(comments.length)} protected comment${safeNumber(comments.length) === 1 ? "" : "s"} available for this submission.`
+          : "No protected comments recorded for this submission yet."
+      }</p>
     </section>
   `;
 }

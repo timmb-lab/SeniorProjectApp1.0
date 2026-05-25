@@ -129,6 +129,26 @@ const hardFailures = [
     message: "Archive file copy should say protected app delivery instead of scoped app delivery.",
   },
   {
+    pattern: /\bNo review rows match\b/i,
+    message: "Review Queue empty states should describe matching review work, not data rows.",
+  },
+  {
+    pattern: /\bNo review items match these filters\b/i,
+    message: "Review Queue empty states should use work/submission language instead of item language.",
+  },
+  {
+    pattern: /\bNo review history is loaded yet\b/i,
+    message: "Review history empty states should separate true no-data from load failure.",
+  },
+  {
+    pattern: /\bassigned access\b/i,
+    message: "Review Queue empty states should say assigned school/program review work instead of assigned access.",
+  },
+  {
+    pattern: /\bReview actions unavailable\b/i,
+    message: "Review Queue disabled decisions should explain whether the row is read-only or not submitted for review.",
+  },
+  {
     pattern: /\bstorage identifiers redacted\b/i,
     message: "Protected workspace should say private file details are protected instead of showing storage jargon.",
   },

@@ -232,9 +232,9 @@ export async function handleSiteReviewQueueRequest({
     },
     permissions,
     emptyState: filteredTotal === 0 ? {
-      reason: "No submitted or revision-requested work matches the selected filters.",
-      owner: "Program teacher or site staff.",
-      nextAction: "Adjust filters or review the student detail timeline for context.",
+      reason: "No submitted or revision-requested work matches the current review filters.",
+      owner: "Assigned review staff.",
+      nextAction: "Clear or adjust filters to return to submitted work this view can access.",
     } : null,
   });
 }

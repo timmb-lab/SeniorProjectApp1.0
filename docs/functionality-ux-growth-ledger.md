@@ -1903,3 +1903,58 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: Review Queue and Student Directory still lack exact missing/evidence filters; browser QA still needs credentialed runtime; admin import scope fields intentionally remain technical.
   - Do not repeat: do not rebuild shared access-chip assignment labels unless regression evidence appears.
   - First file to inspect next run: `workspace.js` `reviewQueueEmptyState()` and `renderReviewSubmissionPanel()`
+
+## Run 2026-05-25 10:07 PT
+
+- Starting SHA: `309e8df05aab5f07451fd76b5013f11117d68f39`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Branch policy: work stayed on clean local `main`; local `main` was twenty-eight commits ahead of `origin/main`, `origin/main` was not ahead, and no push was run
+- Ladder level targeted: `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` with `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` language support
+- Backlog item: `review-queue-empty-state-language`; advances `MVP-033`, `MVP-034`, and `MVP-039` role-selected, production-safe workspace copy
+- Work order selected: Clarify Review Queue empty, history, and disabled-decision states.
+- Selection reason: The previous handoff named `reviewQueueEmptyState()`, `renderReviewSubmissionPanel()`, and `renderReviewHistorySummary()`. Current source still rendered `assigned access`, `No review rows match`, `No review items match these filters`, `Review actions unavailable`, and `No review history is loaded yet`; this was bounded, user-facing, testable, and did not require new filters, routes, permissions, or data paths.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Review Queue empty/history language | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | program teacher, viewer, site staff | 4 | 5 | 5 | S | 57 | selected |
+| Review Queue route emptyState language | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | program teacher, viewer, site staff | 3 | 5 | 5 | XS | 52 | included |
+| Review Queue disabled-decision copy | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | viewer, site staff, program teacher | 4 | 5 | 5 | XS | 54 | included |
+| Review history comment visibility labels | `LEVEL_7_AUDITABILITY_AND_TRUST` | program teacher, viewer | 4 | 4 | 4 | S | 48 | included only as count/empty copy; full comment rendering deferred |
+| Review Queue missing-evidence filter | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | program teacher, site staff | 5 | 2 | 3 | M | 37 | deferred: route still lacks exact missing/evidence param |
+| Student Directory missing-evidence filter | `LEVEL_1_NAVIGABLE_DASHBOARDS` | site staff, viewer | 4 | 2 | 3 | M | 35 | deferred: directory still lacks exact evidence-missing filter |
+| Mentor assignment history in student detail | `LEVEL_7_AUDITABILITY_AND_TRUST` | staff, mentor | 4 | 3 | 3 | M | 38 | deferred: persisted history shape needs confirmation |
+| Public app-preview language cleanup | `LEVEL_0_PROTOTYPE_CLEANUP` | public | 3 | 5 | 4 | S | 40 | rejected: protected Review Queue handoff had higher immediate value |
+| Student requirement detail extension | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 4 | 4 | 4 | S | 44 | rejected: no new persisted field identified |
+| Operations no-results language cleanup | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | staff, viewer | 3 | 5 | 4 | XS | 43 | rejected: Review Queue was the named handoff |
+| Site Dashboard summary-only affordance styling | `LEVEL_1_NAVIGABLE_DASHBOARDS` | staff, viewer | 3 | 4 | 3 | S | 39 | rejected: broader design surface than this queue-language slice |
+| Mentor dashboard meeting/status depth | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | mentor | 4 | 3 | 3 | M | 39 | deferred: needs route/data shape review |
+| Program teacher review workload cards | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | program teacher | 3 | 4 | 4 | S | 42 | rejected: existing dashboard and Review Queue already cover the safer first need |
+| Admin import scope terminology | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | admin | 2 | 4 | 3 | S | 38 | rejected: admin import intentionally uses technical role/scope controls |
+| Credentialed browser QA | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all | 4 | 4 | 3 | M | 39 | blocked: needs credentialed runtime |
+| Org-admin tenant rollup | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | org admin | 4 | 2 | 2 | L | 30 | blocked: needs backend aggregate and RBAC design |
+
+- User-facing improvement: Review Queue no-results states now distinguish active-filter mismatch from true no-data; history empty states say no review decisions/comments are recorded instead of sounding like a loading problem; read-only or non-submitted rows explain why teacher decisions are not available.
+- Roles affected: `platform_admin`, `admin`, `org_admin`, `site_admin`, `viewer`, and `program_teacher` in the existing scoped Review Queue. No student, mentor, tenant, site, program, or review visibility changed.
+- Files changed: `functions/_lib/site-review-queue.ts`, `workspace.js`, `tests/workspace-app.test.mjs`, `tests/site-review-queue.integration.test.mjs`, `scripts/verify-functionality-language.mjs`, `scripts/verify-dashboard-actions.mjs`, `scripts/verify-workspace-navigation-integrity.mjs`, `docs/functionality-language-audit.md`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`, `docs/progress/run-log.md`, `docs/progress/runs/2026-05-25-1007-review-queue-empty-history-language.json`
+- Tests/verifiers added or updated: workspace render tests now assert filtered/unfiltered Review Queue empty states, empty protected history language, read-only disabled-decision language, and removed stale phrases; site Review Queue integration test now asserts route `emptyState`; language verifier blocks the removed Review Queue phrases; dashboard/navigation verifiers were updated for the new read-only disabled-decision copy.
+- Validation commands:
+  - Focused passed before docs/state closeout: `node --test tests/workspace-app.test.mjs`; `node --test tests/site-review-queue.integration.test.mjs`; `npm run verify:functionality-language`; `npm run verify:dashboard-actions`; `npm run verify:workspace-navigation`
+  - Final passed: `npm run verify:dashboard-actions`; `npm run verify:workspace-navigation`; `npm run verify:review-queue-deeplinks`; `npm run verify:functionality-language`; `npm run verify:functionality-ux-automation`; `node --test tests/workspace-app.test.mjs`; `node --test tests/site-review-queue.integration.test.mjs`; `node --test tests/functionality-language-audit.test.mjs`; JSON parse for `automation/state/functionality-ux-growth-state.json` and `docs/progress/runs/2026-05-25-1007-review-queue-empty-history-language.json`; `npm run check:route-inventory`; `npm run test`; `npm run typecheck`; `npm run check:production-surfaces`; `npm run check`; `git diff --check`
+- Validation result: passed; `git diff --check` reported only CRLF normalization warnings during closeout, with no whitespace errors.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: Review Queue and Student Directory missing/evidence params remain unsupported; full review-comment rendering remains deferred until privacy/visibility labels are intentionally designed; credentialed browser QA still needs runtime.
+- New backlog items: none
+- Next recommended work order: inspect whether Review Queue selected-submission context should show protected comment visibility labels or keep comments count-only; only add missing/evidence filters after backend support and privacy tests exist.
+- Do-not-repeat notes: do not re-clean Review Queue empty/history/disabled-decision phrases unless regression evidence appears; the verifier now blocks the removed stale wording.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES`
+  - Advanced: yes
+  - Evidence: `workspace.js` now renders `No matching review work`, `No review work waiting`, `No review decisions recorded yet`, and `No teacher decision available for this row`; `/api/site/review-queue` route emptyState uses assigned-review-staff language; focused route/UI tests and language/navigation verifiers passed.
+  - Unlocks: future Review Queue work can focus on real queue depth or comment visibility labels instead of repeating empty/history language cleanup.
+  - Next: inspect whether selected-submission comments should remain count-only or gain protected visibility labels; do not add missing/evidence filters until backend and privacy tests support them.
+  - Blockers: Review Queue and Student Directory still lack exact missing/evidence filters; browser QA still needs credentialed runtime; full comment rendering needs product/privacy review.
+  - Do not repeat: do not rebuild this Review Queue empty/history copy cluster unless regression evidence appears.
+  - First file to inspect next run: `workspace.js` `renderReviewHistorySummary()`

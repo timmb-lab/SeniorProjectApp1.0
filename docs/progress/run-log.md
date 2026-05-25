@@ -1905,3 +1905,14 @@ Future productive runs should append compact entries that name the master-plan s
 - `changes`: access chips now render assigned-school/program/cohort/student labels; Student Directory, Student Detail, Review Queue, Mentor Dashboard, Mentor Assignments, Operations, and Archive copy now use plain assignment/protected-app language. The language verifier blocks the removed raw-scope phrases.
 - `validation`: focused workspace test plus language, dashboard-action, and workspace-navigation verifiers passed before final validation. Final validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
 - `commit/push status`: pending closeout commit; not pushed by this automation run.
+
+## 2026-05-25 PT - Functionality UX Upgrade Review Queue Empty States
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 5 review/intervention queues / Review Queue language and empty-state clarity.
+- `starting HEAD`: `309e8df05aab5f07451fd76b5013f11117d68f39`.
+- `selected slice`: Clarify Review Queue empty, history, and disabled-decision states without adding routes, filters, permissions, or mutation controls.
+- `repo-grounded findings`: the previous handoff named `reviewQueueEmptyState()`, `renderReviewSubmissionPanel()`, and `renderReviewHistorySummary()`. Current source still rendered `assigned access`, `No review rows match`, `No review items match these filters`, `Review actions unavailable`, and `No review history is loaded yet`.
+- `changes`: Review Queue now distinguishes active-filter mismatch from true no-data, route `emptyState` uses assigned-review-staff language, empty history says no decisions/comments are recorded, and read-only/non-submitted rows explain why no teacher decision is available. Focused route/UI tests and language/dashboard/navigation verifiers guard the removed stale wording.
+- `validation`: focused `node --test tests/workspace-app.test.mjs`, `node --test tests/site-review-queue.integration.test.mjs`, `npm run verify:functionality-language`, `npm run verify:dashboard-actions`, and `npm run verify:workspace-navigation` passed before final validation. Final validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.

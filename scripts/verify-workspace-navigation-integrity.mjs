@@ -90,7 +90,7 @@ assertMatches("workspaceCss", /\.workspace-app\[data-nav-state="collapsed"\] \.w
 assertMatches("workspaceCss", /\.workspace-app\[data-nav-state="collapsed"\] \.workspace-content[\s\S]*grid-template-columns: minmax\(0, 1fr\)/, "Collapsed workspace content must use the freed navigation width");
 
 assertMatches("workspaceJs", /renderReadOnlyBanner\(\)[\s\S]*Read-only workspace/, "Viewer read-only banner must stay visible");
-assertMatches("workspaceJs", /data-review-queue-read-only="true"[\s\S]*Review actions unavailable/, "Read-only Review Queue must not expose decision controls");
+assertMatches("workspaceJs", /data-review-queue-read-only="true"[\s\S]*No teacher decision available for this row/, "Read-only Review Queue must not expose decision controls");
 assertMatches("workspaceJs", /data-mentor-assignment-controls-hidden="true"[\s\S]*Assignment changes unavailable/, "Read-only Mentor Assignments must hide mutation controls");
 assertMatches("workspaceJs", /data-operations-read-only="true"[\s\S]*Read-only operations worklists/, "Operations view must remain monitoring-only");
 

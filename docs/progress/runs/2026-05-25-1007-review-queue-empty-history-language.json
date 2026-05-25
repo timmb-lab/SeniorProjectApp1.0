@@ -1,0 +1,109 @@
+{
+  "automationId": "functionality-ux-upgrade-hourly",
+  "runStartedAt": "2026-05-25T10:07:17-07:00",
+  "startingSha": "309e8df05aab5f07451fd76b5013f11117d68f39",
+  "endingSha": null,
+  "branch": "main",
+  "originAhead": 0,
+  "localAhead": 28,
+  "workOrder": {
+    "id": "review-queue-empty-history-language",
+    "type": "TYPE_A_LANGUAGE_PRODUCT_READINESS",
+    "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
+    "title": "Review Queue empty and history language",
+    "selectedReason": "The prior handoff named Review Queue empty/history states. Current source still rendered stale staff-facing copy including assigned access, No review rows match, No review items match these filters, Review actions unavailable, and No review history is loaded yet.",
+    "rolesAffected": [
+      "platform_admin",
+      "admin",
+      "org_admin",
+      "site_admin",
+      "viewer",
+      "program_teacher"
+    ],
+    "surfaces": [
+      "workspace.html Review Queue",
+      "/api/site/review-queue emptyState"
+    ],
+    "mvpRequirements": [
+      "MVP-033",
+      "MVP-034",
+      "MVP-039"
+    ]
+  },
+  "candidateScoring": [
+    { "candidate": "Review Queue empty/history language", "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES", "roles": "program teacher, viewer, site staff", "impact": 4, "safety": 5, "testability": 5, "size": "S", "score": 57, "decision": "selected" },
+    { "candidate": "Review Queue route emptyState language", "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES", "roles": "program teacher, viewer, site staff", "impact": 3, "safety": 5, "testability": 5, "size": "XS", "score": 52, "decision": "included" },
+    { "candidate": "Review Queue disabled-decision copy", "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES", "roles": "viewer, site staff, program teacher", "impact": 4, "safety": 5, "testability": 5, "size": "XS", "score": 54, "decision": "included" },
+    { "candidate": "Review history comment visibility labels", "ladderLevel": "LEVEL_7_AUDITABILITY_AND_TRUST", "roles": "program teacher, viewer", "impact": 4, "safety": 4, "testability": 4, "size": "S", "score": 48, "decision": "included only as count/empty copy; full comment rendering deferred" },
+    { "candidate": "Review Queue missing-evidence filter", "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES", "roles": "program teacher, site staff", "impact": 5, "safety": 2, "testability": 3, "size": "M", "score": 37, "decision": "deferred: route still lacks exact missing/evidence param" },
+    { "candidate": "Student Directory missing-evidence filter", "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS", "roles": "site staff, viewer", "impact": 4, "safety": 2, "testability": 3, "size": "M", "score": 35, "decision": "deferred: directory still lacks exact evidence-missing filter" },
+    { "candidate": "Mentor assignment history in student detail", "ladderLevel": "LEVEL_7_AUDITABILITY_AND_TRUST", "roles": "staff, mentor", "impact": 4, "safety": 3, "testability": 3, "size": "M", "score": 38, "decision": "deferred: persisted history shape needs confirmation" },
+    { "candidate": "Public app-preview language cleanup", "ladderLevel": "LEVEL_0_PROTOTYPE_CLEANUP", "roles": "public", "impact": 3, "safety": 5, "testability": 4, "size": "S", "score": 40, "decision": "rejected: protected Review Queue handoff had higher immediate value" },
+    { "candidate": "Student requirement detail extension", "ladderLevel": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN", "roles": "student", "impact": 4, "safety": 4, "testability": 4, "size": "S", "score": 44, "decision": "rejected: no new persisted field identified" },
+    { "candidate": "Operations no-results language cleanup", "ladderLevel": "LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS", "roles": "staff, viewer", "impact": 3, "safety": 5, "testability": 4, "size": "XS", "score": 43, "decision": "rejected: Review Queue was the named handoff" },
+    { "candidate": "Site Dashboard summary-only affordance styling", "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS", "roles": "staff, viewer", "impact": 3, "safety": 4, "testability": 3, "size": "S", "score": 39, "decision": "rejected: broader design surface than this queue-language slice" },
+    { "candidate": "Mentor dashboard meeting/status depth", "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES", "roles": "mentor", "impact": 4, "safety": 3, "testability": 3, "size": "M", "score": 39, "decision": "deferred: needs route/data shape review" },
+    { "candidate": "Program teacher review workload cards", "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES", "roles": "program teacher", "impact": 3, "safety": 4, "testability": 4, "size": "S", "score": 42, "decision": "rejected: existing dashboard and Review Queue already cover the safer first need" },
+    { "candidate": "Admin import scope terminology", "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES", "roles": "admin", "impact": 2, "safety": 4, "testability": 3, "size": "S", "score": 38, "decision": "rejected: admin import intentionally uses technical role/scope controls" },
+    { "candidate": "Credentialed browser QA", "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT", "roles": "all", "impact": 4, "safety": 4, "testability": 3, "size": "M", "score": 39, "decision": "blocked: needs credentialed runtime" },
+    { "candidate": "Org-admin tenant rollup", "ladderLevel": "LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS", "roles": "org admin", "impact": 4, "safety": 2, "testability": 2, "size": "L", "score": 30, "decision": "blocked: needs backend aggregate and RBAC design" }
+  ],
+  "filesChanged": [
+    "functions/_lib/site-review-queue.ts",
+    "workspace.js",
+    "scripts/verify-dashboard-actions.mjs",
+    "scripts/verify-functionality-language.mjs",
+    "scripts/verify-workspace-navigation-integrity.mjs",
+    "tests/site-review-queue.integration.test.mjs",
+    "tests/workspace-app.test.mjs",
+    "docs/functionality-language-audit.md",
+    "docs/functionality-ux-growth-ledger.md",
+    "automation/state/functionality-ux-growth-state.json",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-25-1007-review-queue-empty-history-language.json"
+  ],
+  "focusedValidation": [
+    "node --test tests/workspace-app.test.mjs",
+    "node --test tests/site-review-queue.integration.test.mjs",
+    "npm run verify:functionality-language",
+    "npm run verify:dashboard-actions",
+    "npm run verify:workspace-navigation"
+  ],
+  "finalValidation": [
+    "npm run verify:dashboard-actions",
+    "npm run verify:workspace-navigation",
+    "npm run verify:review-queue-deeplinks",
+    "npm run verify:functionality-language",
+    "npm run verify:functionality-ux-automation",
+    "node --test tests/workspace-app.test.mjs",
+    "node --test tests/site-review-queue.integration.test.mjs",
+    "node --test tests/functionality-language-audit.test.mjs",
+    "node -e JSON.parse automation/state/functionality-ux-growth-state.json and docs/progress/runs/2026-05-25-1007-review-queue-empty-history-language.json",
+    "npm run check:route-inventory",
+    "npm run test",
+    "npm run typecheck",
+    "npm run check:production-surfaces",
+    "npm run check",
+    "git diff --check"
+  ],
+  "validationResult": {
+    "status": "passed",
+    "completedAt": "2026-05-25T10:11:13-07:00",
+    "notes": "Full required validation passed for the Review Queue empty/history language slice. git diff --check reported only CRLF normalization warnings during closeout, with no whitespace errors."
+  },
+  "privacyAndSafety": {
+    "authChanged": false,
+    "rbacChanged": false,
+    "tenantScopeChanged": false,
+    "siteScopeChanged": false,
+    "programScopeChanged": false,
+    "studentPrivacyChanged": false,
+    "mutationsAdded": false,
+    "fakeLinksAdded": false,
+    "migrationsChanged": false,
+    "secretsOrConfigChanged": false,
+    "deploysRun": false
+  },
+  "nextRecommendedWorkOrder": "Inspect whether Review Queue selected-submission context should show protected comment visibility labels or keep comments count-only; only add filters after backend support and privacy tests exist.",
+  "doNotRepeat": "Do not re-clean Review Queue empty/history/disabled-decision phrases unless regression evidence appears; verifier coverage now blocks the removed stale wording."
+}

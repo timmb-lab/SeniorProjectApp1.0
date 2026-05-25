@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-05-25T09:42:03-07:00",
-  "lastStartingSha": "fdca2a3d8a5393b5da1dbd3075318d59b60d3438",
+  "lastRunAt": "2026-05-25T10:07:17-07:00",
+  "lastStartingSha": "309e8df05aab5f07451fd76b5013f11117d68f39",
   "lastEndingSha": null,
-  "currentLadderFocus": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+  "currentLadderFocus": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
   "completedWorkOrders": [
     {
       "id": "workspace-header-product-language-cleanup",
@@ -393,6 +393,14 @@
       "type": "TYPE_A_LANGUAGE_PRODUCT_READINESS",
       "summary": "Shared workspace access chips and related list/detail/review states now use assignment labels instead of raw scope ids or role-scope wording.",
       "commit": "pending-closeout-commit"
+    },
+    {
+      "id": "review-queue-empty-history-language",
+      "completedAt": "2026-05-25T10:07:17-07:00",
+      "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
+      "type": "TYPE_A_LANGUAGE_PRODUCT_READINESS",
+      "summary": "Review Queue empty, history, and disabled-decision states now use matching-work, true no-data, protected-history, and assigned-review-staff language.",
+      "commit": "pending-closeout-commit"
     }
   ],
   "deferredWorkOrders": [
@@ -425,10 +433,10 @@
   "blockedWorkOrders": [],
   "nextRecommendedWorkOrders": [
     {
-      "id": "review-queue-empty-state-language",
-      "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
+      "id": "review-history-comment-visibility-labels",
+      "ladderLevel": "LEVEL_7_AUDITABILITY_AND_TRUST",
       "type": "TYPE_A_LANGUAGE_PRODUCT_READINESS",
-      "summary": "Inspect Review Queue empty/history states for any remaining staff-facing scope or owner wording that should become assigned-work language."
+      "summary": "Inspect whether Review Queue selected submissions should keep comments count-only or show protected visibility labels."
     },
     {
       "id": "review-queue-missing-evidence-filter-proof",
@@ -485,20 +493,22 @@
     "Do not re-add Operations Evidence Missing filtering; it now uses category=evidence and readiness=missing with route/UI/verifier coverage.",
     "Do not rework the Viewer/read-only workspace and worklist language unless a regression reintroduces role or scope, Assignment action, Assignment form unavailable, or unclear action ownership.",
     "Do not re-clean Program Teacher Source record counts, Scoped Student Progress, Visible in this role scope, assigned scope, or Scoped dashboard unavailable language unless regression evidence appears.",
-    "Do not re-clean shared workspace access chips for raw site/program/global scope ids; assignment labels and verifier coverage now guard that cluster."
+    "Do not re-clean shared workspace access chips for raw site/program/global scope ids; assignment labels and verifier coverage now guard that cluster.",
+    "Do not re-clean Review Queue empty/history/disabled-decision phrases unless regression evidence appears; the verifier now blocks the removed stale wording."
   ],
   "lastValidationStatus": {
     "status": "passed",
-    "completedAt": "2026-05-25T09:42:03-07:00",
+    "completedAt": "2026-05-25T10:11:13-07:00",
     "commands": [
       "node --test tests/workspace-app.test.mjs",
+      "node --test tests/site-review-queue.integration.test.mjs",
       "npm run verify:functionality-language",
       "npm run verify:dashboard-actions",
       "npm run verify:workspace-navigation",
       "npm run verify:review-queue-deeplinks",
       "node --test tests/functionality-language-audit.test.mjs",
       "npm run verify:functionality-ux-automation",
-      "node -e JSON.parse automation/state/functionality-ux-growth-state.json and docs/progress/runs/2026-05-25-0931-workspace-access-scope-language.json",
+      "node -e JSON.parse automation/state/functionality-ux-growth-state.json and docs/progress/runs/2026-05-25-1007-review-queue-empty-history-language.json",
       "npm run check:route-inventory",
       "npm run typecheck",
       "npm run check:production-surfaces",
@@ -506,7 +516,7 @@
       "npm run test",
       "npm run check"
     ],
-    "notes": "Full required validation passed for the shared workspace access-label language slice. git diff --check reported only CRLF normalization warnings during closeout, with no whitespace errors. This run changed protected workspace language, tests, verifiers, and run records only; it did not broaden auth, RBAC, tenant, site, program, mentor assignment, or student privacy boundaries. No remote seed/reset/migration, live data write, deploy, credential repair, domain/OAuth, or Cloudflare config change was run."
+    "notes": "Full required validation passed for the Review Queue empty/history language slice. git diff --check reported only CRLF normalization warnings during closeout, with no whitespace errors. This run changed Review Queue language, tests, verifiers, and run records only; it did not broaden auth, RBAC, tenant, site, program, mentor assignment, or student privacy boundaries. No remote seed/reset/migration, live data write, deploy, credential repair, domain/OAuth, or Cloudflare config change was run."
   },
   "lastProductReadinessScorecardSummary": {
     "homepageClarity": "4 to 4",
