@@ -1136,6 +1136,13 @@ function renderSiteDashboardSection() {
         ${renderDashboardCard("Archive / Export Snapshot", "Closeout package status", renderSnapshotRows(dashboard.archiveSnapshot))}
         ${renderDashboardCard("Next Actions", "Recommended follow-up", renderSiteNextActions(dashboard.nextActions, readOnly))}
       </div>
+      ${siteStudentDetailState?.sourceSection === "siteDashboard" ? renderSiteStudentDetailSurface({
+        students: (dashboard.topRiskStudents || []).map((row) => ({
+          studentId: row.studentId,
+          displayName: row.studentName,
+        })),
+        scope,
+      }) : ""}
     </section>
   `;
 }
@@ -4423,7 +4430,7 @@ async function handleSiteStudentAction(event) {
   const action = event?.currentTarget?.dataset?.siteStudentAction;
   if (!action) return;
   if (action === "view-detail") {
-    const sourceSection = activeSection === "programDashboard" ? "programDashboard" : "students";
+    const sourceSection = activeSection === "programDashboard" || activeSection === "siteDashboard" ? activeSection : "students";
     await openSiteStudentDetail(event.currentTarget?.dataset?.studentDetailId || "", { sourceSection });
     return;
   }
@@ -4458,6 +4465,7 @@ async function openSiteStudentDetail(studentId, options = {}) {
   const sourceSection = cleanWorkspaceSection(options.sourceSection) || "students";
   const siteId = selectedSiteQueryValue()
     || directory?.scope?.siteId
+    || unwrap(currentData.siteDashboard)?.scope?.siteId
     || unwrap(currentData.operationsReadiness)?.scope?.siteId
     || unwrap(currentData.mentorAssignments)?.scope?.siteId
     || unwrap(currentData.reviewQueue)?.scope?.siteId

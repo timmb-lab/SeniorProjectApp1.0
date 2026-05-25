@@ -693,3 +693,58 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: missing/evidence drill-down mapping remains unproven; browser QA still needs credentialed runtime.
   - Do not repeat: do not rebuild the completed detail-context source sections.
   - First file to inspect next run: `workspace.js` `renderSiteTopRiskStudents()` and `renderSiteDashboardSection()`
+
+## Run 2026-05-24 23:07 PT
+
+- Starting SHA: `3dd4af21e4db710cced646efb2c780c201c62f53`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Branch policy: work stayed on clean local `main`; local `main` was six commits ahead of `origin/main`, `origin/main` was not ahead, and no push was run
+- Ladder level targeted: `LEVEL_2_STUDENT_DETAIL_DEPTH`
+- Backlog item: `site-dashboard-top-risk-detail-context`
+- Work order selected: Preserve Site Dashboard context when opening the existing authorized student detail drawer from Top Risk Students.
+- Selection reason: The previous handoff pointed at `renderSiteTopRiskStudents()` and `renderSiteDashboardSection()`. Current source still sent top-risk detail actions through the generic Students source, so closing the detail drawer left the dashboard context even though the button was rendered from the Site Dashboard.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Site Dashboard top-risk detail context | `LEVEL_2_STUDENT_DETAIL_DEPTH` | site staff, viewer | 4 | 5 | 5 | XS | 57 | selected |
+| Operations Program Breakdown filter action | `LEVEL_1_NAVIGABLE_DASHBOARDS` | staff, viewer, program teacher | 4 | 5 | 4 | S | 50 | next candidate |
+| Operations readiness category filter action | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | staff, viewer | 4 | 4 | 4 | S | 47 | rejected: needs clearer row-to-filter mapping |
+| Student archive blocked guidance | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 4 | 5 | 4 | S | 46 | rejected: less aligned with current handoff |
+| Student detail visible-note labels | `LEVEL_7_AUDITABILITY_AND_TRUST` | staff, students | 4 | 5 | 4 | S | 45 | rejected: lower workflow impact than context loss |
+| Operations empty-state wording | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | staff, viewer | 3 | 5 | 4 | XS | 43 | rejected: safe but copy-only |
+| Assignment form unavailable copy cleanup | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | site admin | 3 | 5 | 4 | XS | 43 | rejected: safe but lower value than real workflow context |
+| Viewer read-only homepage clarity | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | viewer | 3 | 5 | 4 | XS | 42 | rejected: read-only banners already have guard coverage |
+| Student Directory mentor filter options | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | staff | 4 | 3 | 4 | M | 42 | deferred: needs safe API-provided mentor labels |
+| Public `Future App Workflow` copy cleanup | `LEVEL_0_PROTOTYPE_CLEANUP` | public | 3 | 5 | 4 | S | 40 | rejected: protected app workflow had higher value |
+| Credentialed browser QA for worklist URLs | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all | 4 | 4 | 3 | M | 39 | blocked: needs credentialed runtime |
+| Missing/evidence drill-down mapping | `LEVEL_1_NAVIGABLE_DASHBOARDS` | staff | 5 | 2 | 3 | M | 38 | deferred: exact supported route/filter mapping remains unproven |
+| Site Admin mentor POST default alignment | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | site admin | 4 | 2 | 4 | M | 37 | deferred: mutation policy/risk is too high for this slice |
+| Mentor assigned-student meeting depth | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | mentor | 4 | 3 | 3 | M | 36 | deferred: needs API/data shape inspection |
+| Student due-date detail | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 4 | 3 | 3 | M | 35 | deferred: due-date source mapping needs a separate proof slice |
+
+- User-facing improvement: Site staff and viewers can open a top-risk student's detail from the Site Dashboard and close back to the same dashboard context instead of being moved to the broader Student Directory.
+- Roles affected: `platform_admin`, `admin`, `org_admin`, `site_admin`, and `viewer`; student, mentor, and program-teacher access boundaries were not expanded.
+- Files changed: `workspace.js`, `tests/workspace-app.test.mjs`, `scripts/verify-dashboard-actions.mjs`, `docs/functionality-language-audit.md`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`, `docs/progress/run-log.md`
+- Tests/verifiers added or updated: workspace render/handler test now asserts Site Dashboard top-risk detail open/close context and current-site detail query; dashboard-action verifier guards Site Dashboard detail source rendering.
+- Validation commands:
+  - Baseline focused: `npm run verify:dashboard-actions`; `node --test tests/workspace-app.test.mjs`
+  - Focused after edits: `npm run verify:dashboard-actions`; `node --test tests/workspace-app.test.mjs`
+  - Final: `npm run verify:dashboard-actions`; `npm run verify:review-queue-deeplinks`; `npm run verify:workspace-navigation`; `npm run verify:functionality-language`; `npm run verify:functionality-ux-automation`; `node --test tests/workspace-app.test.mjs`; `node --test tests/site-student-detail.integration.test.mjs`; `node --test tests/functionality-language-audit.test.mjs`; JSON parse for `automation/state/functionality-ux-growth-state.json`; `npm run check:route-inventory`; `npm run test`; `npm run typecheck`; `npm run check:production-surfaces`; `npm run check`; `git diff --check`; `git status --short`
+- Validation result: passed; `git diff --check` reported CRLF normalization warnings only
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: Operations Program Breakdown filter action; missing/evidence drill-down mapping; credentialed browser QA; student archive blocked guidance
+- New backlog items: none
+- Next recommended work order: add a route-backed Operations Program Breakdown program filter action, because `/api/site/operations-readiness` and URL state already support `programId`.
+- Do-not-repeat notes: do not re-add Site Dashboard top-risk detail context preservation; extend only if another dashboard row needs explicit source-section handling.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_2_STUDENT_DETAIL_DEPTH`
+  - Advanced: yes
+  - Evidence: Top Risk Student detail actions now keep `sourceSection: "siteDashboard"`, render the existing detail drawer inside Site Dashboard, include the current site id in the detail request, and close back to Site Dashboard.
+  - Unlocks: remaining dashboard work can move back to Level 1 Operations program drill-downs instead of repairing detail-context loss.
+  - Next: add Operations Program Breakdown `programId` filter action if the current source still renders those rows summary-only.
+  - Blockers: missing/evidence drill-down mapping remains unproven; browser QA still needs credentialed runtime.
+  - Do not repeat: do not rebuild Site Dashboard top-risk detail context unless a regression removes it.
+  - First file to inspect next run: `workspace.js` `renderOperationsProgramBreakdown()` and `handleOperationsReadinessAction()`

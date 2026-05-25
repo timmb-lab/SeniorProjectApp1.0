@@ -1663,3 +1663,14 @@ Future productive runs should append compact entries that name the master-plan s
 - `changes`: Program Teacher dashboard and Mentor Assignments now render the existing student detail drawer inside their own sections when they are the source; their detail handlers pass explicit `sourceSection` values and close back to the originating worklist.
 - `validation`: focused `npm run verify:dashboard-actions` and `node --test tests/workspace-app.test.mjs` passed before final validation; final validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
 - `commit/push status`: pending closeout commit.
+
+## 2026-05-24 PT - Functionality UX Upgrade Site Dashboard Detail Context
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 2 student detail depth / Site Dashboard top-risk detail context.
+- `starting HEAD`: `3dd4af21e4db710cced646efb2c780c201c62f53`.
+- `selected slice`: Preserve Site Dashboard as the source section when staff open the existing authorized student detail drawer from Top Risk Students.
+- `repo-grounded findings`: `renderSiteTopRiskStudents()` already exposed a real `View detail` action backed by `/api/site/students/:studentId`, but `handleSiteStudentAction()` only preserved Program Teacher Dashboard context and otherwise opened detail through the generic Students source.
+- `changes`: Site Dashboard top-risk detail actions now keep `sourceSection: "siteDashboard"`, render the existing student detail drawer inside Site Dashboard, include the current dashboard site id in the detail request, and close back to Site Dashboard.
+- `validation`: focused `npm run verify:dashboard-actions` and `node --test tests/workspace-app.test.mjs` passed before final validation; final validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit.

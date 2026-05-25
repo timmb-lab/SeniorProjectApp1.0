@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-05-24T22:39:35-07:00",
-  "lastStartingSha": "853bae590d09a957c2b4c394076efd482d6c6c64",
+  "lastRunAt": "2026-05-24T23:11:00-07:00",
+  "lastStartingSha": "3dd4af21e4db710cced646efb2c780c201c62f53",
   "lastEndingSha": null,
   "currentLadderFocus": "LEVEL_2_STUDENT_DETAIL_DEPTH",
   "completedWorkOrders": [
@@ -217,6 +217,14 @@
       "type": "TYPE_C_STUDENT_DETAIL_DRILL_DOWN",
       "summary": "Program Teacher Dashboard and Mentor Assignments student-detail actions now open the existing authorized drawer and close back to their originating worklists.",
       "commit": "pending-closeout-commit"
+    },
+    {
+      "id": "site-dashboard-top-risk-detail-context",
+      "completedAt": "2026-05-24T23:07:14-07:00",
+      "ladderLevel": "LEVEL_2_STUDENT_DETAIL_DEPTH",
+      "type": "TYPE_C_STUDENT_DETAIL_DRILL_DOWN",
+      "summary": "Site Dashboard top-risk student detail actions now open the existing authorized drawer inside the dashboard context and close back to Site Dashboard.",
+      "commit": "pending-closeout-commit"
     }
   ],
   "deferredWorkOrders": [
@@ -244,22 +252,22 @@
   "blockedWorkOrders": [],
   "nextRecommendedWorkOrders": [
     {
-      "id": "missing-submission-drilldown",
-      "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS",
-      "type": "TYPE_B_DASHBOARD_CLICK_THROUGH",
-      "summary": "Map missing-submission or evidence-attention counts to a supported scoped Review Queue or Student Directory filter, then add the drill-down only if the mapping is exact."
-    },
-    {
       "id": "operations-program-breakdown-filter-action",
       "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS",
       "type": "TYPE_B_DASHBOARD_CLICK_THROUGH",
       "summary": "Inspect Operations Program Breakdown rows for a safe programId filter action backed by the existing Operations route."
     },
     {
-      "id": "site-dashboard-top-risk-detail-context",
-      "ladderLevel": "LEVEL_2_STUDENT_DETAIL_DEPTH",
-      "type": "TYPE_C_STUDENT_DETAIL_DRILL_DOWN",
-      "summary": "Inspect whether Site Dashboard top-risk detail actions should render detail in dashboard context or intentionally switch to Students."
+      "id": "missing-submission-drilldown",
+      "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS",
+      "type": "TYPE_B_DASHBOARD_CLICK_THROUGH",
+      "summary": "Map missing-submission or evidence-attention counts to a supported scoped Review Queue or Student Directory filter, then add the drill-down only if the mapping is exact."
+    },
+    {
+      "id": "student-archive-blocked-guidance",
+      "ladderLevel": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN",
+      "type": "TYPE_D_ROLE_WORKSPACE",
+      "summary": "Improve student-safe archive blocked guidance using existing own-student archive readiness data."
     }
   ],
   "doNotRepeat": [
@@ -282,11 +290,12 @@
     "Do not re-add Operations detail source preservation; Operations row details now open and close inside Operations.",
     "Do not re-add Mentor Dashboard assigned-student detail buttons; Mentor Dashboard rows now open and close inside that dashboard context.",
     "Do not re-add Review Queue detail source preservation; Review Queue student-detail actions now open and close inside the Review Queue.",
-    "Do not re-add Program Teacher Dashboard or Mentor Assignments detail source preservation; both now open and close inside their originating worklists."
+    "Do not re-add Program Teacher Dashboard or Mentor Assignments detail source preservation; both now open and close inside their originating worklists.",
+    "Do not re-add Site Dashboard top-risk detail source preservation; top-risk rows now open and close inside Site Dashboard with current-site detail scope."
   ],
   "lastValidationStatus": {
     "status": "passed",
-    "completedAt": "2026-05-24T22:39:35-07:00",
+    "completedAt": "2026-05-24T23:11:00-07:00",
     "commands": [
       "npm run verify:dashboard-actions",
       "npm run verify:review-queue-deeplinks",
@@ -295,7 +304,6 @@
       "npm run verify:functionality-ux-automation",
       "node --test tests/workspace-app.test.mjs",
       "node --test tests/site-student-detail.integration.test.mjs",
-      "node --test tests/site-mentor-assignments.integration.test.mjs",
       "node --test tests/functionality-language-audit.test.mjs",
       "node -e JSON.parse automation/state/functionality-ux-growth-state.json",
       "npm run check:route-inventory",
@@ -306,7 +314,7 @@
       "git diff --check",
       "git status --short"
     ],
-    "notes": "Full required validation passed for remaining worklist detail context preservation. git diff --check reported CRLF normalization warnings only. No browser smoke was run because this slice is covered by render/source tests and no credentials were used. No remote seed/reset/migration, live data write, deploy, credential repair, domain/OAuth, or Cloudflare config change was run."
+    "notes": "Full required validation passed for Site Dashboard top-risk detail context preservation. git diff --check reported CRLF normalization warnings only. No browser smoke was run because this slice is covered by render/source tests and no credentials were used. No remote seed/reset/migration, live data write, deploy, credential repair, domain/OAuth, or Cloudflare config change was run."
   },
   "lastProductReadinessScorecardSummary": {
     "homepageClarity": "4 to 4",

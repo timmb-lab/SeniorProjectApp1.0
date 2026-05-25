@@ -203,8 +203,13 @@ assertMatches(
 );
 assertMatches(
   "workspaceJs",
-  /function handleSiteStudentAction\([\s\S]*?const sourceSection = activeSection === "programDashboard" \? "programDashboard" : "students"[\s\S]*?openSiteStudentDetail\(event\.currentTarget\?\.dataset\?\.studentDetailId \|\| "", \{ sourceSection \}\)/,
-  "Program Teacher dashboard student-detail actions must keep the Program Dashboard as the detail source",
+  /function handleSiteStudentAction\([\s\S]*?const sourceSection = activeSection === "programDashboard" \|\| activeSection === "siteDashboard" \? activeSection : "students"[\s\S]*?openSiteStudentDetail\(event\.currentTarget\?\.dataset\?\.studentDetailId \|\| "", \{ sourceSection \}\)/,
+  "Program Teacher and Site Dashboard student-detail actions must keep their dashboard as the detail source",
+);
+assertMatches(
+  "workspaceJs",
+  /function renderSiteDashboardSection\([\s\S]*?siteStudentDetailState\?\.sourceSection === "siteDashboard"[\s\S]*?renderSiteStudentDetailSurface/,
+  "Site Dashboard must render the existing student detail surface inside the dashboard context",
 );
 assertMatches(
   "workspaceJs",

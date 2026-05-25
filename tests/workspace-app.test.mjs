@@ -410,6 +410,62 @@ test("workspace renders route-connected site dashboard with Figma product-system
   assert.match(selectionRequired, /Next action/);
 });
 
+test("site dashboard top-risk detail stays in dashboard context", async () => {
+  const { context, workspaceRoot, fetchLog } = await createWorkspaceContextWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "site-admin-dashboard-detail",
+          email: "site.dashboard.detail@example.edu",
+          displayName: "Site Dashboard Detail Admin",
+          roles: [{ role_id: "site_admin", scope_type: "site", scope_id: "site-desert-valley-high" }],
+        },
+      },
+    },
+    "/api/site/dashboard": {
+      status: 200,
+      body: siteDashboardFixture({ readOnly: false }),
+    },
+    "/api/site/students/demo-student-101": {
+      status: 200,
+      body: siteStudentDetailFixture({ readOnly: false }),
+    },
+  });
+
+  vm.runInContext('activeSection = "siteDashboard"; renderAppShell();', context);
+  assert.match(workspaceRoot.innerHTML, /Top Risk Students/);
+  assert.doesNotMatch(workspaceRoot.innerHTML, /workspace-detail-drawer/);
+
+  await vm.runInContext(`
+    handleSiteStudentAction({
+      currentTarget: {
+        dataset: {
+          siteStudentAction: "view-detail",
+          studentDetailId: "demo-student-101"
+        }
+      }
+    });
+  `, context);
+
+  assert.match(workspaceRoot.innerHTML, /Student detail loaded/);
+  assert.match(workspaceRoot.innerHTML, /School-wide capstone health/);
+  assert.match(workspaceRoot.innerHTML, /workspace-detail-drawer/);
+  assert.match(workspaceRoot.innerHTML, /Missing Mentor Demo 001/);
+  assert.ok(
+    fetchLog.some((entry) => entry === "/api/site/students/demo-student-101?siteId=site-desert-valley-high"),
+    "expected dashboard detail request to preserve the current site id",
+  );
+  assert.deepEqual(
+    JSON.parse(vm.runInContext('JSON.stringify({ activeSection, sourceSection: siteStudentDetailState.sourceSection })', context)),
+    { activeSection: "siteDashboard", sourceSection: "siteDashboard" },
+  );
+  vm.runInContext('handleSiteStudentDetailAction({ currentTarget: { dataset: { studentDetailAction: "close" } } })', context);
+  assert.equal(vm.runInContext("activeSection", context), "siteDashboard");
+  assert.doesNotMatch(workspaceRoot.innerHTML, /workspace-detail-drawer/);
+});
+
 test("program teacher dashboard rows open existing student detail", async () => {
   const programTeacher = await renderWorkspaceWithFetch({
     "/api/auth/me": {
