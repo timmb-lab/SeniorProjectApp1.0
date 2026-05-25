@@ -1,0 +1,72 @@
+{
+  "runId": "2026-05-25-1304-mentor-assignment-history-detail",
+  "automationId": "functionality-ux-upgrade-hourly",
+  "startedAt": "2026-05-25T13:04:51-07:00",
+  "startingSha": "1712c115e28bbcf938396a655961bbbd6973d0fc",
+  "branch": "main",
+  "workOrder": {
+    "id": "mentor-assignment-history-student-detail",
+    "ladderLevel": "LEVEL_7_AUDITABILITY_AND_TRUST",
+    "type": "TYPE_C_STUDENT_DETAIL_DRILL_DOWN",
+    "title": "Show mentor assignment history in student detail",
+    "selectedReason": "The current handoff requested persisted mentor assignment history proof. The schema already had bounded assignment rows, and the authorized student-detail route already enforced site, program, and assigned-mentor access."
+  },
+  "candidateScoring": [
+    { "id": "mentor-assignment-history-student-detail", "ladderLevel": "LEVEL_7_AUDITABILITY_AND_TRUST", "roles": "site staff, viewer, program teacher, mentor", "impact": 4, "safety": 4, "testability": 5, "size": "S", "score": 55, "decision": "selected" },
+    { "id": "mentor-assignment-history-route-only", "ladderLevel": "LEVEL_7_AUDITABILITY_AND_TRUST", "roles": "site staff, mentor", "impact": 3, "safety": 5, "testability": 5, "size": "XS", "score": 49, "decision": "rejected-ui-value-needed" },
+    { "id": "mentor-assignment-history-ui-only", "ladderLevel": "LEVEL_7_AUDITABILITY_AND_TRUST", "roles": "site staff, mentor", "impact": 3, "safety": 3, "testability": 3, "size": "XS", "score": 36, "decision": "rejected-would-fake-data" },
+    { "id": "mentor-assignment-history-with-reassignment", "ladderLevel": "LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW", "roles": "site admin", "impact": 5, "safety": 2, "testability": 3, "size": "L", "score": 33, "decision": "rejected-mutation-policy-needed" },
+    { "id": "mentor-assignment-remove-workflow", "ladderLevel": "LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW", "roles": "site admin", "impact": 4, "safety": 2, "testability": 3, "size": "M", "score": 33, "decision": "rejected-dangerous-control" },
+    { "id": "mentor-meeting-detail-drilldown", "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES", "roles": "mentor", "impact": 4, "safety": 3, "testability": 3, "size": "M", "score": 39, "decision": "deferred-no-real-section" },
+    { "id": "mentor-dashboard-filter-toggle", "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES", "roles": "mentor", "impact": 3, "safety": 4, "testability": 4, "size": "S", "score": 43, "decision": "rejected-attention-ordering-complete" },
+    { "id": "review-queue-missing-evidence-filter-proof", "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES", "roles": "site staff, program teacher", "impact": 5, "safety": 2, "testability": 3, "size": "M", "score": 37, "decision": "deferred-backend-privacy-support-missing" },
+    { "id": "student-directory-missing-evidence-filter", "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS", "roles": "site staff, viewer", "impact": 4, "safety": 2, "testability": 3, "size": "M", "score": 35, "decision": "deferred-route-filter-missing" },
+    { "id": "review-queue-comment-body-rendering", "ladderLevel": "LEVEL_7_AUDITABILITY_AND_TRUST", "roles": "site staff, program teacher, viewer", "impact": 4, "safety": 2, "testability": 3, "size": "M", "score": 34, "decision": "deferred-product-privacy-decision" },
+    { "id": "public-app-preview-language-cleanup", "ladderLevel": "LEVEL_0_PROTOTYPE_CLEANUP", "roles": "public stakeholders", "impact": 3, "safety": 5, "testability": 4, "size": "S", "score": 40, "decision": "rejected-protected-detail-depth-higher-value" },
+    { "id": "student-requirement-detail-extension", "ladderLevel": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN", "roles": "student", "impact": 4, "safety": 4, "testability": 4, "size": "S", "score": 44, "decision": "rejected-no-new-persisted-field" },
+    { "id": "downloadable-student-progress-summary", "ladderLevel": "LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS", "roles": "student, staff", "impact": 4, "safety": 2, "testability": 3, "size": "L", "score": 31, "decision": "rejected-export-policy-needed" },
+    { "id": "credentialed-browser-qa", "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT", "roles": "all", "impact": 4, "safety": 4, "testability": 3, "size": "M", "score": 39, "decision": "blocked-credentialed-runtime" },
+    { "id": "org-admin-tenant-rollup", "ladderLevel": "LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS", "roles": "org admin", "impact": 4, "safety": 2, "testability": 2, "size": "L", "score": 30, "decision": "blocked-backend-rbac-design" }
+  ],
+  "changes": [
+    "functions/_lib/site-student-detail.ts returns a limited mentorAssignmentHistory array from existing mentor_assignments rows after the existing student-detail authorization checks.",
+    "workspace.js renders Mentor Coverage History in the existing student detail Mentor tab without raw assignment or user identifiers.",
+    "tests/site-student-detail.integration.test.mjs proves inactive assignment history is returned for admin-operational detail and assigner names are redacted from mentor-support detail.",
+    "tests/workspace-app.test.mjs proves the Mentor tab renders coverage history and keeps raw assignment/user IDs out of the DOM."
+  ],
+  "privacyAndPermissions": [
+    "No auth, RBAC, tenant, site, program, mentor assignment mutation, or student privacy boundary changed.",
+    "The history uses only rows already scoped through the authorized student-detail route.",
+    "Assigned-by names are returned only when the existing detail visibility policy includes admin context; mentor-support detail gets an empty assignedByName.",
+    "No raw Drive/storage identifiers, credentials, staff-only comments, fake pages, fake routes, or mutation controls were added."
+  ],
+  "validation": {
+    "focusedPassed": [
+      "node --test tests/site-student-detail.integration.test.mjs",
+      "node --test tests/workspace-app.test.mjs",
+      "npm run verify:functionality-language",
+      "npm run verify:dashboard-actions",
+      "npm run verify:workspace-navigation"
+    ],
+    "finalPassed": [
+      "npm run verify:review-queue-deeplinks",
+      "npm run verify:functionality-language",
+      "npm run verify:functionality-ux-automation",
+      "node --test tests/functionality-language-audit.test.mjs",
+      "node -e JSON.parse automation/state/functionality-ux-growth-state.json and docs/progress/runs/2026-05-25-1304-mentor-assignment-history-detail.json",
+      "npm run check:route-inventory",
+      "npm run test",
+      "npm run typecheck",
+      "npm run check:production-surfaces",
+      "npm run check",
+      "git diff --check"
+    ],
+    "finalStatus": "passed",
+    "notes": "git diff --check reported CRLF normalization warnings only."
+  },
+  "nextRecommended": {
+    "id": "mentor-meeting-detail-drilldown-contract",
+    "summary": "Inspect whether mentor meeting detail can use existing scoped meeting rows without adding a fake section."
+  },
+  "doNotRepeat": "Do not re-add mentor assignment history to student detail unless regression removes mentorAssignmentHistory or the Mentor Coverage History panel."
+}

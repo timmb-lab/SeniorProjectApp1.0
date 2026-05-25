@@ -2228,3 +2228,57 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: meeting detail drill-down needs a real section/route; assignment history needs schema/route proof; browser QA still needs credentialed runtime.
   - Do not repeat: do not rebuild the mentor dashboard signal grid, detail action, empty-state copy, or attention-first ordering without regression evidence.
   - First file to inspect next run: `functions/_lib/site-student-detail.ts`
+
+## Run 2026-05-25 13:04 PT
+
+- Starting SHA: `1712c115e28bbcf938396a655961bbbd6973d0fc`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Branch policy: work stayed on clean local `main`; local `main` was four commits ahead of `origin/main`, `origin/main` was not ahead, and no push was run
+- Ladder level targeted: `LEVEL_7_AUDITABILITY_AND_TRUST` with `LEVEL_2_STUDENT_DETAIL_DEPTH` support
+- Backlog item: `mentor-assignment-history-student-detail-proof`
+- Work order selected: Add bounded read-only mentor assignment history to authorized student detail.
+- Selection reason: The previous handoff named `functions/_lib/site-student-detail.ts`. Current schema stores mentor assignment rows with mentor, student, assigned-by, active, and created-at fields, and the existing student-detail route already enforces site/program/assigned-mentor visibility before returning detail.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Mentor assignment history in student detail | `LEVEL_7_AUDITABILITY_AND_TRUST` | site staff, viewer, program teacher, mentor | 4 | 4 | 5 | S | 55 | selected |
+| Mentor assignment history route-only | `LEVEL_7_AUDITABILITY_AND_TRUST` | site staff, mentor | 3 | 5 | 5 | XS | 49 | rejected: UI value needed |
+| Mentor assignment history UI-only | `LEVEL_7_AUDITABILITY_AND_TRUST` | site staff, mentor | 3 | 3 | 3 | XS | 36 | rejected: would fake data |
+| Mentor assignment history plus reassignment | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | site admin | 5 | 2 | 3 | L | 33 | rejected: mutation policy needed |
+| Mentor assignment remove workflow | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | site admin | 4 | 2 | 3 | M | 33 | rejected: dangerous control |
+| Mentor meeting detail drill-down | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | mentor | 4 | 3 | 3 | M | 39 | deferred: no real section |
+| Mentor dashboard filter toggle | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | mentor | 3 | 4 | 4 | S | 43 | rejected: attention ordering complete |
+| Review Queue missing-evidence filter proof | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | site staff, program teacher | 5 | 2 | 3 | M | 37 | deferred: backend/privacy support missing |
+| Student Directory missing-evidence filter | `LEVEL_1_NAVIGABLE_DASHBOARDS` | site staff, viewer | 4 | 2 | 3 | M | 35 | deferred: route filter missing |
+| Review Queue comment body rendering | `LEVEL_7_AUDITABILITY_AND_TRUST` | site staff, program teacher, viewer | 4 | 2 | 3 | M | 34 | deferred: product/privacy decision needed |
+| Public app-preview language cleanup | `LEVEL_0_PROTOTYPE_CLEANUP` | public stakeholders | 3 | 5 | 4 | S | 40 | rejected: protected detail depth had higher value |
+| Student requirement detail extension | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 4 | 4 | 4 | S | 44 | rejected: no new persisted field |
+| Downloadable student progress summary | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | student, staff | 4 | 2 | 3 | L | 31 | rejected: export/privacy policy needed |
+| Credentialed browser QA | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all | 4 | 4 | 3 | M | 39 | blocked: needs credentialed runtime |
+| Org-admin tenant rollup | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | org_admin | 4 | 2 | 2 | L | 30 | blocked: backend/RBAC design needed |
+
+- User-facing improvement: Authorized student detail now has a `Mentor Coverage History` panel in the Mentor tab, showing current and prior mentor coverage from real assignment rows without exposing raw IDs.
+- Roles affected: `platform_admin`, `admin`, `org_admin`, `site_admin`, `viewer`, `program_teacher`, and assigned `mentor` users through the existing student-detail authorization path.
+- Files changed: `functions/_lib/site-student-detail.ts`, `workspace.js`, `tests/site-student-detail.integration.test.mjs`, `tests/workspace-app.test.mjs`, `docs/functionality-language-audit.md`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`, `docs/progress/run-log.md`, `docs/progress/runs/2026-05-25-1304-mentor-assignment-history-detail.json`
+- Tests/verifiers added or updated: site student-detail route test now proves bounded mentor assignment history and mentor assigner-name redaction; workspace render test now proves the Mentor tab history panel and no raw assignment/user IDs in the DOM.
+- Validation commands:
+  - Focused passed before docs/state closeout: `node --test tests/site-student-detail.integration.test.mjs`; `node --test tests/workspace-app.test.mjs`; `npm run verify:functionality-language`; `npm run verify:dashboard-actions`; `npm run verify:workspace-navigation`
+  - Final passed: `npm run verify:review-queue-deeplinks`; `npm run verify:functionality-language`; `npm run verify:functionality-ux-automation`; `node --test tests/functionality-language-audit.test.mjs`; JSON parse for state and manifest; `npm run check:route-inventory`; `npm run test`; `npm run typecheck`; `npm run check:production-surfaces`; `npm run check`; `git diff --check`
+- Validation result: passed; `git diff --check` reported only CRLF normalization warnings during closeout, with no whitespace errors.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: mentor meeting detail drill-down still needs a real route/section contract; reassignment/remove controls remain deferred pending product/security policy; Review Queue and Student Directory missing/evidence filters remain unsupported.
+- New backlog items: none
+- Next recommended work order: inspect whether mentor meeting detail can use existing scoped meeting rows without adding a fake section.
+- Do-not-repeat notes: do not re-add mentor assignment history unless regression removes `mentorAssignmentHistory` or the `Mentor Coverage History` panel.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_7_AUDITABILITY_AND_TRUST`
+  - Advanced: yes
+  - Evidence: student detail route returns limited mentor assignment history from existing rows after authorization; workspace renders it in the Mentor tab; tests prove history limits, inactive row visibility, assigner-name redaction for mentor support, and no raw assignment/user IDs in the DOM.
+  - Unlocks: future mentor work can consider meeting detail or coverage audit depth without first proving assignment-history data shape.
+  - Next: inspect whether mentor meeting detail can use existing scoped meeting rows without adding a fake section.
+  - Blockers: meeting detail drill-down needs a real section/route contract; assignment reassignment/remove workflows need product/security policy; browser QA still needs credentialed runtime.
+  - Do not repeat: do not rebuild this student-detail mentor assignment history panel unless regression evidence appears.
+  - First file to inspect next run: `workspace.js` `renderStudentDetailMentor()`

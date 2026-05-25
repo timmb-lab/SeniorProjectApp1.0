@@ -49,6 +49,23 @@ test("site student detail and timeline are scoped, bounded, role-aware, and reda
   const secondaryStudent = await findSiteStudent(env, CANYON_SITE_ID);
   const nonItStudent = await findPrimaryNonItStudent(env);
 
+  await db.prepare(
+    `INSERT INTO user_accounts (id, email, email_norm, display_name, status)
+     VALUES ('history-mentor-detail', 'history.mentor.detail@senior-capstone.test', 'history.mentor.detail@senior-capstone.test', 'History Mentor', 'active')`,
+  ).run();
+  await db.prepare(
+    `INSERT INTO user_roles (user_id, role_id, scope_type, scope_id)
+     VALUES ('history-mentor-detail', 'mentor', 'site', ?)`,
+  ).bind(PRIMARY_SITE_ID).run();
+  await db.prepare(
+    `INSERT INTO site_users (site_id, user_id, membership_status)
+     VALUES (?, 'history-mentor-detail', 'active')`,
+  ).bind(PRIMARY_SITE_ID).run();
+  await db.prepare(
+    `INSERT INTO mentor_assignments (id, mentor_user_id, student_user_id, assigned_by, active, created_at)
+     VALUES ('history-assignment-detail', 'history-mentor-detail', ?, 'protected-admin-primary', 0, '2026-05-01T12:00:00.000Z')`,
+  ).bind(stories.modelExcellent.id).run();
+
   {
     const { response, body } = await routeDetail(env, null, stories.modelExcellent.id, `?siteId=${PRIMARY_SITE_ID}`);
     assert.equal(response.status, 401);
@@ -68,6 +85,16 @@ test("site student detail and timeline are scoped, bounded, role-aware, and reda
   assert.equal(platform.reviews.length <= platform.limits.reviews, true);
   assert.equal(platform.comments.length <= platform.limits.comments, true);
   assert.equal(platform.statusHistory.length <= platform.limits.statusHistory, true);
+  assert.equal(platform.mentorAssignmentHistory.length <= platform.limits.mentorAssignmentHistory, true);
+  assert.equal(
+    platform.mentorAssignmentHistory.some((assignment) => (
+      assignment.assignmentId === "history-assignment-detail"
+      && assignment.mentorName === "History Mentor"
+      && assignment.active === false
+      && assignment.assignedByName === "Bryan Timm"
+    )),
+    true,
+  );
   assert.equal(platform.mentorMeetings.length <= platform.limits.mentorMeetings, true);
   assert.deepEqual(platform.canonicalValues.storyBuckets, [
     "model_excellent",
@@ -123,6 +150,7 @@ test("site student detail and timeline are scoped, bounded, role-aware, and reda
   const mentor = await expectDetail(env, tokens.mentor, mentorAssignedStudent.id, `?siteId=${PRIMARY_SITE_ID}`);
   assert.equal(mentor.scope.role, "mentor");
   assert.equal(mentor.visibility.staffOnlyComments, "omitted");
+  assert.equal(mentor.mentorAssignmentHistory.every((assignment) => !assignment.assignedByName), true);
   for (const key of MUTATION_PERMISSION_KEYS) assert.equal(mentor.permissions[key], false, `mentor ${key}`);
   const mentorDenied = await routeDetail(env, tokens.mentor, stories.missingMentor.id, `?siteId=${PRIMARY_SITE_ID}`);
   assert.equal(mentorDenied.response.status, 404);

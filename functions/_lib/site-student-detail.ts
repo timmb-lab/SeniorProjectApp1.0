@@ -38,6 +38,7 @@ const DETAIL_LIMITS = {
   reviews: 10,
   comments: 10,
   statusHistory: 10,
+  mentorAssignmentHistory: 5,
   mentorMeetings: 5,
   timelinePreview: 10,
 };
@@ -162,6 +163,15 @@ interface MentorMeetingRow {
   notes: string | null;
   created_at: string;
   updated_at: string;
+}
+
+interface MentorAssignmentHistoryRow {
+  id: string;
+  mentor_user_id: string;
+  mentor_name: string | null;
+  assigned_by_name: string | null;
+  active: number;
+  created_at: string;
 }
 
 interface PresentationRow {
@@ -361,6 +371,7 @@ export async function handleSiteStudentDetailRequest({
     reviews,
     comments,
     statusHistory,
+    mentorAssignmentHistory,
     mentorMeetings,
     presentation,
     archive,
@@ -374,6 +385,7 @@ export async function handleSiteStudentDetailRequest({
     loadReviews(env, studentId, DETAIL_LIMITS.reviews, visibility),
     loadComments(env, studentId, DETAIL_LIMITS.comments, visibility),
     loadStatusHistory(env, studentId, DETAIL_LIMITS.statusHistory, visibility),
+    loadMentorAssignmentHistory(env, studentId, DETAIL_LIMITS.mentorAssignmentHistory, visibility),
     loadMentorMeetings(env, studentId, DETAIL_LIMITS.mentorMeetings, visibility),
     loadPresentation(env, studentId),
     loadArchive(env, studentId, studentRow.archive_status),
@@ -386,7 +398,7 @@ export async function handleSiteStudentDetailRequest({
     siteId: site.id,
     studentId,
     role: context.primaryRole,
-    sectionsIncluded: ["student", "mentor", "progress", "submissions", "evidence", "reviews", "comments", "statusHistory", "mentorMeetings", "presentation", "archive", "timelinePreview"],
+    sectionsIncluded: ["student", "mentor", "progress", "submissions", "evidence", "reviews", "comments", "statusHistory", "mentorAssignmentHistory", "mentorMeetings", "presentation", "archive", "timelinePreview"],
     timelineReturnedCount: preview.length,
     limits: DETAIL_LIMITS,
   });
@@ -416,6 +428,7 @@ export async function handleSiteStudentDetailRequest({
     reviews,
     comments,
     statusHistory,
+    mentorAssignmentHistory,
     mentorMeetings,
     presentation,
     archive,
@@ -1026,6 +1039,35 @@ async function loadMentorSummary(env: Env, row: DetailStudentRow) {
     latestMeetingStatus: latestMeeting?.status || "",
     nextAction: mentorNextAction(active, latestMeeting || null),
   };
+}
+
+async function loadMentorAssignmentHistory(env: Env, studentId: string, limit: number, visibility: VisibilityPolicy) {
+  const rows = await env.DB.prepare(
+    `SELECT
+       mentor_assignments.id,
+       mentor_assignments.mentor_user_id,
+       mentor.display_name AS mentor_name,
+       assigned_by.display_name AS assigned_by_name,
+       mentor_assignments.active,
+       mentor_assignments.created_at
+     FROM mentor_assignments
+     LEFT JOIN user_accounts mentor ON mentor.id = mentor_assignments.mentor_user_id
+     LEFT JOIN user_accounts assigned_by ON assigned_by.id = mentor_assignments.assigned_by
+     WHERE mentor_assignments.student_user_id = ?
+     ORDER BY mentor_assignments.active DESC, mentor_assignments.created_at DESC
+     LIMIT ?`,
+  ).bind(studentId, limit).all<MentorAssignmentHistoryRow>();
+  return (rows.results || []).map((row) => ({
+    assignmentId: row.id,
+    mentorUserId: row.mentor_user_id,
+    mentorName: row.mentor_name || "Mentor",
+    active: Number(row.active || 0) === 1,
+    assignedAt: row.created_at,
+    assignedByName: visibility.includeAdminContext ? row.assigned_by_name || "" : "",
+    nextAction: Number(row.active || 0) === 1
+      ? "Current mentor coverage is active."
+      : "This previous mentor assignment is inactive.",
+  }));
 }
 
 async function loadProgress(env: Env, studentId: string, programId: string | null) {

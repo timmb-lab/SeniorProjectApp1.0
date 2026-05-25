@@ -1800,6 +1800,7 @@ function renderStudentDetailReviews(detail) {
 
 function renderStudentDetailMentor(detail) {
   const mentor = detail.mentor || {};
+  const history = detail.mentorAssignmentHistory || [];
   const meetings = detail.mentorMeetings || [];
   return `
     <section class="workspace-detail-section" data-student-detail-section="mentor">
@@ -1810,6 +1811,16 @@ function renderStudentDetailMentor(detail) {
           <span class="workspace-site-context-badge">${escapeHtml(safeNumber(mentor.meetingCount))} meeting${safeNumber(mentor.meetingCount) === 1 ? "" : "s"}</span>
           ${statusPill(mentor.latestMeetingStatus || (mentor.active ? "approved" : "blocked"))}
         </div>
+      `)}
+      ${renderStudentDetailList("Mentor Coverage History", "Assignment timeline", history, "No mentor assignment history is available for this student.", (row) => `
+        <article class="workspace-row">
+          <div>
+            <strong>${escapeHtml(row.mentorName || "Mentor")}</strong>
+            <p>${escapeHtml(row.nextAction || (row.active ? "Current mentor coverage is active." : "Previous mentor assignment."))}</p>
+            <p class="workspace-muted">Assigned ${escapeHtml(formatDate(row.assignedAt))}${row.assignedByName ? ` by ${escapeHtml(row.assignedByName)}` : ""}</p>
+          </div>
+          ${statusPill(row.active ? "approved" : "configured")}
+        </article>
       `)}
       ${renderStudentDetailList("Mentor Meetings", "Support timeline", meetings, "No mentor meetings are available for this student.", (row) => `
         <article class="workspace-row">

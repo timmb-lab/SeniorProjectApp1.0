@@ -850,6 +850,15 @@ test("workspace opens real student detail, loads timeline, and preserves directo
   assert.match(workspaceRoot.innerHTML, /Offset 50 \/ Limit 50/);
   assert.doesNotMatch(workspaceRoot.innerHTML, /data-review-decision|data-mentor-assignment|data-archive-retry|Request revision|Assign mentor|Archive retry|Download file|Download archive/);
 
+  await vm.runInContext('selectSiteStudentDetailTab({ currentTarget: { dataset: { studentDetailTab: "mentor" } } })', context);
+  assert.match(workspaceRoot.innerHTML, /data-student-detail-section="mentor"/);
+  assert.match(workspaceRoot.innerHTML, /Mentor Coverage History/);
+  assert.match(workspaceRoot.innerHTML, /Assignment timeline/);
+  assert.match(workspaceRoot.innerHTML, /Previous Mentor/);
+  assert.match(workspaceRoot.innerHTML, /This previous mentor assignment is inactive/);
+  assert.match(workspaceRoot.innerHTML, /Assigned May 1/);
+  assert.doesNotMatch(workspaceRoot.innerHTML, /assignment-previous-101|mentor-previous-101|assigned-by-101/);
+
   await vm.runInContext('selectSiteStudentDetailTab({ currentTarget: { dataset: { studentDetailTab: "timeline" } } })', context);
   assert.match(workspaceRoot.innerHTML, /data-student-detail-section="timeline"/);
   assert.match(workspaceRoot.innerHTML, /Timeline event/);
@@ -4458,6 +4467,17 @@ function siteStudentDetailFixture({ readOnly = false } = {}) {
         reason: "Revision requested after teacher feedback.",
         changedByName: "Program Teacher",
         createdAt: "2026-05-20T12:00:00.000Z",
+      },
+    ],
+    mentorAssignmentHistory: [
+      {
+        assignmentId: "assignment-previous-101",
+        mentorUserId: "mentor-previous-101",
+        mentorName: "Previous Mentor",
+        active: false,
+        assignedAt: "2026-05-01T12:00:00.000Z",
+        assignedByName: "",
+        nextAction: "This previous mentor assignment is inactive.",
       },
     ],
     mentorMeetings: [],

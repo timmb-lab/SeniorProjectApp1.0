@@ -1971,3 +1971,14 @@ Future productive runs should append compact entries that name the master-plan s
 - `changes`: `workspace.js` now distinguishes filtered no-matches (`No matching students need mentors`) from true no-coverage-needed state (`No students need mentors right now`); the workspace test covers both states and the language verifier blocks the removed phrase.
 - `validation`: focused workspace test plus functionality-language, dashboard-action, and workspace-navigation verifiers passed before final validation. Final validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
 - `commit/push status`: pending closeout commit; not pushed by this automation run.
+
+## 2026-05-25 PT - Functionality UX Upgrade Mentor Assignment History
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 7 auditability and trust / student detail mentor coverage history.
+- `starting HEAD`: `1712c115e28bbcf938396a655961bbbd6973d0fc`.
+- `selected slice`: Add bounded read-only mentor assignment history to authorized student detail using existing `mentor_assignments` rows.
+- `repo-grounded findings`: the previous handoff named `functions/_lib/site-student-detail.ts`. Current schema already stores mentor, student, assigned-by, active, and created-at fields, while student detail only showed current mentor coverage and meeting history.
+- `changes`: `/api/site/students/:studentId` now returns a limited `mentorAssignmentHistory` array after existing site/program/mentor access checks; `workspace.js` renders it in the Mentor tab without IDs; route/UI tests prove limits, inactive history visibility, and assigner-name redaction for mentors.
+- `validation`: focused site-student-detail and workspace tests plus functionality-language, dashboard-action, and workspace-navigation verifiers passed before final validation. Final validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.
