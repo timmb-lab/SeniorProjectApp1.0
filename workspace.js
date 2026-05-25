@@ -3535,6 +3535,13 @@ function renderTeacherSection() {
         </section>
         ${renderReviewSubmissionPanel(selected, body)}
       </div>
+      ${siteStudentDetailState?.sourceSection === "teacher" ? renderSiteStudentDetailSurface({
+        students: queue.map((row) => ({
+          studentId: row.studentId,
+          displayName: row.studentName,
+        })),
+        scope,
+      }) : ""}
     </section>
   `;
 }
@@ -4189,8 +4196,8 @@ async function handleReviewQueueAction(event) {
     return;
   }
   if (action === "open-student") {
-    activeSection = "students";
-    await openSiteStudentDetail(event.currentTarget?.dataset?.reviewStudentId || "");
+    activeSection = "teacher";
+    await openSiteStudentDetail(event.currentTarget?.dataset?.reviewStudentId || "", { sourceSection: "teacher" });
     return;
   }
   if (action === "reset-filters") {

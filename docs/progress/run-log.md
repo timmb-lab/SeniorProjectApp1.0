@@ -1641,3 +1641,14 @@ Future productive runs should append compact entries that name the master-plan s
 - `changes`: added mentor dashboard `View detail` buttons, a mentor-specific detail handler using `sourceSection: "mentorDashboard"`, a Mentor Dashboard detail surface, and verifier/test coverage for open/close context preservation.
 - `validation`: full validation passed: dashboard/review/workspace/language/automation verifiers, workspace/site-detail/mentor-dashboard/audit focused tests, JSON state parse, route inventory, full test suite, typecheck, production-surface check, aggregate `npm run check`, and `git diff --check` with CRLF normalization warnings only.
 - `commit/push status`: pending closeout commit.
+
+## 2026-05-24 PT - Functionality UX Upgrade Review Queue Detail Context
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 2 student detail depth / Review Queue detail context.
+- `starting HEAD`: `2445e59447111b814711b728e0ee3a52584d8680`.
+- `selected slice`: Preserve Review Queue as the source section when staff open a student detail drawer from a selected submission.
+- `repo-grounded findings`: `renderReviewSubmissionPanel()` already exposed a real `View student detail` action backed by `/api/site/students/:studentId`, but `handleReviewQueueAction()` called `openSiteStudentDetail()` without a source section, so the existing authorized detail action switched the UI to the broader Student Directory.
+- `changes`: Review Queue student-detail actions now call `openSiteStudentDetail(..., { sourceSection: "teacher" })`; `renderTeacherSection()` renders the existing student detail drawer inside the Review Queue when that source is active; close returns to the Review Queue.
+- `validation`: focused verifier and workspace render/handler test passed before final validation; final validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit.

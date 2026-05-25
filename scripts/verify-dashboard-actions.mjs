@@ -193,6 +193,16 @@ assertMatches(
 );
 assertMatches(
   "workspaceJs",
+  /function handleReviewQueueAction\([\s\S]*?openSiteStudentDetail\(event\.currentTarget\?\.dataset\?\.reviewStudentId \|\| "", \{ sourceSection: "teacher" \}\)/,
+  "Review Queue student-detail actions must keep the Review Queue as the detail source",
+);
+assertMatches(
+  "workspaceJs",
+  /function renderTeacherSection\([\s\S]*?siteStudentDetailState\?\.sourceSection === "teacher"[\s\S]*?renderSiteStudentDetailSurface/,
+  "Review Queue must render the existing student detail surface inside the queue context",
+);
+assertMatches(
+  "workspaceJs",
   /async function openSiteStudentDetail\(studentId, options = \{\}\)[\s\S]*const sourceSection = cleanWorkspaceSection\(options\.sourceSection\) \|\| "students"[\s\S]*activeSection = sourceSection/,
   "student detail loader must preserve an explicit source section",
 );

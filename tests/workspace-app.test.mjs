@@ -832,10 +832,36 @@ test("workspace renders site-aware Review Queue with teacher decisions and read-
       status: 200,
       body: teacherHistory,
     },
+    "/api/site/students/demo-student-101": {
+      status: 200,
+      body: siteStudentDetailFixture({ readOnly: false }),
+    },
   });
   await vm.runInContext('openReviewSubmission("submission-review-001")', context);
   assert.match(workspaceRoot.innerHTML, /Review history loaded/);
   assert.match(workspaceRoot.innerHTML, /Improve scope and cite the private evidence summary/);
+
+  await vm.runInContext(`
+    handleReviewQueueAction({
+      currentTarget: {
+        dataset: {
+          reviewQueueAction: "open-student",
+          reviewStudentId: "demo-student-101"
+        }
+      }
+    });
+  `, context);
+  assert.match(workspaceRoot.innerHTML, /Student detail loaded/);
+  assert.match(workspaceRoot.innerHTML, /workspace-review-queue/);
+  assert.match(workspaceRoot.innerHTML, /workspace-detail-drawer/);
+  assert.match(workspaceRoot.innerHTML, /Submitted work/);
+  assert.deepEqual(
+    JSON.parse(vm.runInContext('JSON.stringify({ activeSection, sourceSection: siteStudentDetailState.sourceSection })', context)),
+    { activeSection: "teacher", sourceSection: "teacher" },
+  );
+  vm.runInContext('handleSiteStudentDetailAction({ currentTarget: { dataset: { studentDetailAction: "close" } } })', context);
+  assert.equal(vm.runInContext("activeSection", context), "teacher");
+  assert.doesNotMatch(workspaceRoot.innerHTML, /workspace-detail-drawer/);
 });
 
 test("workspace applies Review Queue URL filters safely and syncs filter URLs", async () => {
