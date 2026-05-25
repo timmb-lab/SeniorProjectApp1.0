@@ -1540,6 +1540,8 @@ test("workspace renders site-scoped Operations readiness worklists without mutat
   assert.match(siteAdmin, /data-operations-archive-rows="true"/);
   assert.match(siteAdmin, /data-operations-readiness-rows="true"/);
   assert.match(siteAdmin, /data-operations-program-breakdown="true"/);
+  assert.match(siteAdmin, /data-section="operations" data-section-preset="program-breakdown" data-program-id="it"/);
+  assert.match(siteAdmin, /View program rows/);
   assert.match(siteAdmin, /data-operations-next-actions="true"/);
   assert.match(siteAdmin, /View student detail/);
   assert.match(siteAdmin, /workspace-story-chip/);
@@ -1590,7 +1592,7 @@ test("workspace renders site-scoped Operations readiness worklists without mutat
   assert.match(viewer, /Read-only operations worklists/);
   assert.doesNotMatch(viewer, /data-presentation-action|data-archive-action|<button[^>]*>\s*(?:Archive retry|Retry archive|Schedule presentation)/i);
 
-  const { context, workspaceRoot } = await createWorkspaceContextWithFetch({
+  const { context, workspaceRoot, fetchLog, window } = await createWorkspaceContextWithFetch({
     "/api/auth/me": {
       status: 200,
       body: {
@@ -1633,6 +1635,16 @@ test("workspace renders site-scoped Operations readiness worklists without mutat
   vm.runInContext('handleSiteStudentDetailAction({ currentTarget: { dataset: { studentDetailAction: "close" } } })', context);
   assert.equal(vm.runInContext("activeSection", context), "operations");
   assert.doesNotMatch(workspaceRoot.innerHTML, /workspace-detail-drawer/);
+
+  await vm.runInContext('openWorkspaceSection({ dataset: { section: "operations", sectionPreset: "program-breakdown", programId: "it" } })', context);
+  const programFetch = fetchLog.findLast((entry) => entry.startsWith("/api/site/operations-readiness?"));
+  assert.ok(programFetch, "expected Operations fetch with selected program filter");
+  const programUrl = new URL(programFetch, "https://workspace.example");
+  assert.equal(programUrl.searchParams.get("programId"), "it");
+  assert.equal(programUrl.searchParams.get("offset"), null);
+  assert.match(window.location.href, /section=operations/);
+  assert.match(window.location.href, /programId=it/);
+  assert.equal(vm.runInContext("activeSection", context), "operations");
 });
 
 test("mentor dashboard assigned students open student detail without leaving mentor context", async () => {
@@ -1839,6 +1851,9 @@ test("workspace dashboard actions use supported filters and loaders", () => {
   assert.match(sectionOpenBlock, /const status = canonicalReviewQueueValue\(normalizeStatus\(button\.dataset\.statusFilter\), SITE_STUDENT_STATUS_VALUES\)/);
   assert.match(sectionOpenBlock, /status,/);
   assert.match(sectionOpenBlock, /loadWorkspaceData\(`Showing \$\{statusText\(status\)\} students\.`\)/);
+  assert.match(sectionOpenBlock, /section === "operations" && button\.dataset\.sectionPreset === "program-breakdown"/);
+  assert.match(sectionOpenBlock, /programId,/);
+  assert.match(sectionOpenBlock, /loadOperationsReadinessResult\("Showing operations rows for the selected program\."\)/);
   assert.match(workspaceJs, /function siteStudentQueryString/);
   assert.match(workspaceJs, /params\.set\("programId", filters\.programId\)/);
   assert.match(workspaceJs, /params\.set\("status", filters\.status\)/);
@@ -1850,6 +1865,7 @@ test("workspace dashboard actions use supported filters and loaders", () => {
   assert.match(workspaceJs, /data-section-preset="program"/);
   assert.match(workspaceJs, /data-section-preset="status-breakdown"/);
   assert.match(workspaceJs, /data-section-preset="mentor-workload"/);
+  assert.match(workspaceJs, /data-section-preset="program-breakdown"/);
   assert.match(workspaceJs, /Showing students missing mentors/);
   assert.doesNotMatch(workspaceJs, /href="#"/);
 });

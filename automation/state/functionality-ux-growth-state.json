@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-05-24T23:11:00-07:00",
-  "lastStartingSha": "3dd4af21e4db710cced646efb2c780c201c62f53",
+  "lastRunAt": "2026-05-24T23:42:00-07:00",
+  "lastStartingSha": "c3907702a41a8ac0247ab64858e427d494a7265f",
   "lastEndingSha": null,
-  "currentLadderFocus": "LEVEL_2_STUDENT_DETAIL_DEPTH",
+  "currentLadderFocus": "LEVEL_1_NAVIGABLE_DASHBOARDS",
   "completedWorkOrders": [
     {
       "id": "workspace-header-product-language-cleanup",
@@ -225,6 +225,14 @@
       "type": "TYPE_C_STUDENT_DETAIL_DRILL_DOWN",
       "summary": "Site Dashboard top-risk student detail actions now open the existing authorized drawer inside the dashboard context and close back to Site Dashboard.",
       "commit": "pending-closeout-commit"
+    },
+    {
+      "id": "operations-program-breakdown-filter-action",
+      "completedAt": "2026-05-24T23:42:00-07:00",
+      "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS",
+      "type": "TYPE_B_DASHBOARD_CLICK_THROUGH",
+      "summary": "Operations Program Breakdown rows now open scoped Operations readiness rows with the existing programId filter and shareable URL state.",
+      "commit": "pending-closeout-commit"
     }
   ],
   "deferredWorkOrders": [
@@ -251,12 +259,6 @@
   ],
   "blockedWorkOrders": [],
   "nextRecommendedWorkOrders": [
-    {
-      "id": "operations-program-breakdown-filter-action",
-      "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS",
-      "type": "TYPE_B_DASHBOARD_CLICK_THROUGH",
-      "summary": "Inspect Operations Program Breakdown rows for a safe programId filter action backed by the existing Operations route."
-    },
     {
       "id": "missing-submission-drilldown",
       "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS",
@@ -291,11 +293,12 @@
     "Do not re-add Mentor Dashboard assigned-student detail buttons; Mentor Dashboard rows now open and close inside that dashboard context.",
     "Do not re-add Review Queue detail source preservation; Review Queue student-detail actions now open and close inside the Review Queue.",
     "Do not re-add Program Teacher Dashboard or Mentor Assignments detail source preservation; both now open and close inside their originating worklists.",
-    "Do not re-add Site Dashboard top-risk detail source preservation; top-risk rows now open and close inside Site Dashboard with current-site detail scope."
+    "Do not re-add Site Dashboard top-risk detail source preservation; top-risk rows now open and close inside Site Dashboard with current-site detail scope.",
+    "Do not re-add Operations Program Breakdown programId filtering; Operations program rows now open the scoped worklist with shareable URL state."
   ],
   "lastValidationStatus": {
     "status": "passed",
-    "completedAt": "2026-05-24T23:11:00-07:00",
+    "completedAt": "2026-05-24T23:42:00-07:00",
     "commands": [
       "npm run verify:dashboard-actions",
       "npm run verify:review-queue-deeplinks",
@@ -303,7 +306,7 @@
       "npm run verify:functionality-language",
       "npm run verify:functionality-ux-automation",
       "node --test tests/workspace-app.test.mjs",
-      "node --test tests/site-student-detail.integration.test.mjs",
+      "node --test tests/site-operations-readiness.integration.test.mjs",
       "node --test tests/functionality-language-audit.test.mjs",
       "node -e JSON.parse automation/state/functionality-ux-growth-state.json",
       "npm run check:route-inventory",
@@ -314,7 +317,7 @@
       "git diff --check",
       "git status --short"
     ],
-    "notes": "Full required validation passed for Site Dashboard top-risk detail context preservation. git diff --check reported CRLF normalization warnings only. No browser smoke was run because this slice is covered by render/source tests and no credentials were used. No remote seed/reset/migration, live data write, deploy, credential repair, domain/OAuth, or Cloudflare config change was run."
+    "notes": "Full required validation passed for Operations Program Breakdown programId filtering. git diff --check reported CRLF normalization warnings only. No browser smoke was run because this slice is covered by render/source tests and no credentials were used. No remote seed/reset/migration, live data write, deploy, credential repair, domain/OAuth, or Cloudflare config change was run."
   },
   "lastProductReadinessScorecardSummary": {
     "homepageClarity": "4 to 4",

@@ -1674,3 +1674,14 @@ Future productive runs should append compact entries that name the master-plan s
 - `changes`: Site Dashboard top-risk detail actions now keep `sourceSection: "siteDashboard"`, render the existing student detail drawer inside Site Dashboard, include the current dashboard site id in the detail request, and close back to Site Dashboard.
 - `validation`: focused `npm run verify:dashboard-actions` and `node --test tests/workspace-app.test.mjs` passed before final validation; final validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
 - `commit/push status`: pending closeout commit.
+
+## 2026-05-24 PT - Functionality UX Upgrade Operations Program Drill-Down
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 1 navigable dashboards / Operations Program Breakdown drill-down.
+- `starting HEAD`: `c3907702a41a8ac0247ab64858e427d494a7265f`.
+- `selected slice`: Link Operations `Program Breakdown` rows to the existing scoped Operations readiness `programId` filter and shareable URL state.
+- `repo-grounded findings`: `renderOperationsProgramBreakdown()` still rendered program rows as summary-only, while `/api/site/operations-readiness` already parsed and applied `programId`, returned filtered program summaries, and the workspace already synced Operations filters into the URL.
+- `changes`: Operations program rows now expose a real `View program rows` action, `openWorkspaceSection()` handles `data-section-preset="program-breakdown"`, applies `programId`, resets offset, syncs the Operations URL, and reloads the scoped worklist. The workspace test and dashboard-action verifier now guard the preset.
+- `validation`: focused verifier/test and final validation passed; final validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit.

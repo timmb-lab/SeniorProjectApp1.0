@@ -748,3 +748,58 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: missing/evidence drill-down mapping remains unproven; browser QA still needs credentialed runtime.
   - Do not repeat: do not rebuild Site Dashboard top-risk detail context unless a regression removes it.
   - First file to inspect next run: `workspace.js` `renderOperationsProgramBreakdown()` and `handleOperationsReadinessAction()`
+
+## Run 2026-05-24 23:38 PT
+
+- Starting SHA: `c3907702a41a8ac0247ab64858e427d494a7265f`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Branch policy: work stayed on clean local `main`; local `main` was seven commits ahead of `origin/main`, `origin/main` was not ahead, and no push was run
+- Ladder level targeted: `LEVEL_1_NAVIGABLE_DASHBOARDS`
+- Backlog item: `operations-program-breakdown-filter-action`
+- Work order selected: Link Operations `Program Breakdown` rows to the existing scoped Operations readiness `programId` filter.
+- Selection reason: The previous handoff pointed at `renderOperationsProgramBreakdown()` and `handleOperationsReadinessAction()`. Current source still rendered Operations program rows as summary-only, while `/api/site/operations-readiness` already parsed, applied, returned, and synced `programId` filters.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Operations Program Breakdown filter action | `LEVEL_1_NAVIGABLE_DASHBOARDS` | staff, viewer, program teacher | 4 | 5 | 5 | XS | 56 | selected |
+| Student archive blocked guidance | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 4 | 5 | 4 | S | 46 | next candidate |
+| Operations readiness category filter action | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | staff, viewer | 4 | 4 | 4 | S | 47 | rejected: category-to-filter mapping needs separate proof |
+| Student detail visible-note labels | `LEVEL_7_AUDITABILITY_AND_TRUST` | staff, students | 4 | 5 | 4 | S | 45 | rejected: lower current handoff alignment |
+| Operations empty-state wording | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | staff, viewer | 3 | 5 | 4 | XS | 43 | rejected: safe but lower workflow value |
+| Assignment form unavailable copy cleanup | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | site admin | 3 | 5 | 4 | XS | 43 | rejected: copy-only and lower value |
+| Viewer read-only homepage clarity | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | viewer | 3 | 5 | 4 | XS | 42 | rejected: existing read-only banners are already guarded |
+| Student Directory mentor filter labels | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | staff | 4 | 3 | 4 | M | 42 | deferred: needs safe API-provided mentor option labels |
+| Program Teacher dashboard language cleanup | `LEVEL_0_PROTOTYPE_CLEANUP` | program teacher | 2 | 5 | 4 | XS | 41 | rejected: lower impact than route-backed action |
+| Operations next-actions category filter | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | staff, viewer | 3 | 3 | 3 | S | 40 | deferred: no supported category query param yet |
+| Public `Future App Workflow` copy cleanup | `LEVEL_0_PROTOTYPE_CLEANUP` | public | 3 | 5 | 4 | S | 40 | rejected: protected app workflow had higher value |
+| Credentialed browser QA for worklist URLs | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all | 4 | 4 | 3 | M | 39 | blocked: needs credentialed runtime |
+| Missing/evidence drill-down mapping | `LEVEL_1_NAVIGABLE_DASHBOARDS` | staff | 5 | 2 | 3 | M | 38 | deferred: exact supported route/filter mapping remains unproven |
+| Site Admin mentor POST default alignment | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | site admin | 4 | 2 | 4 | M | 37 | deferred: mutation policy/risk is too high for this slice |
+| Mentor assigned-student meeting depth | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | mentor | 4 | 3 | 3 | M | 36 | deferred: needs API/data shape inspection |
+| Student due-date detail | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 4 | 3 | 3 | M | 35 | deferred: due-date source mapping needs a separate proof slice |
+
+- User-facing improvement: Staff, viewers, and scoped program teachers can move from an Operations program summary to the matching presentation/archive/readiness rows for that program with the existing scoped filter and shareable URL state.
+- Roles affected: `platform_admin`, `admin`, `org_admin`, `site_admin`, `viewer`, and `program_teacher`; student, mentor, and misc-admin access boundaries were not expanded.
+- Files changed: `workspace.js`, `tests/workspace-app.test.mjs`, `scripts/verify-dashboard-actions.mjs`, `docs/functionality-language-audit.md`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`, `docs/progress/run-log.md`
+- Tests/verifiers added or updated: workspace render/handler test now asserts Operations program-row action rendering, `programId` URL sync, and scoped Operations fetch; dashboard-action verifier now allowlists and requires the Operations `program-breakdown` preset.
+- Validation commands:
+  - Focused: `npm run verify:dashboard-actions`; `node --test tests/workspace-app.test.mjs`; JSON parse for `automation/state/functionality-ux-growth-state.json`
+  - Final planned: `npm run verify:dashboard-actions`; `npm run verify:review-queue-deeplinks`; `npm run verify:workspace-navigation`; `npm run verify:functionality-language`; `npm run verify:functionality-ux-automation`; `node --test tests/workspace-app.test.mjs`; `node --test tests/site-operations-readiness.integration.test.mjs`; `node --test tests/functionality-language-audit.test.mjs`; JSON parse for `automation/state/functionality-ux-growth-state.json`; `npm run check:route-inventory`; `npm run test`; `npm run typecheck`; `npm run check:production-surfaces`; `npm run check`; `git diff --check`; `git status --short`
+- Validation result: passed; `git diff --check` reported CRLF normalization warnings only
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: missing/evidence drill-down mapping; Operations category/next-action filter mapping; student archive blocked guidance; credentialed browser QA
+- New backlog items: none
+- Next recommended work order: improve student-safe archive blocked guidance using existing own-student archive readiness data, or prove a safe missing/evidence drill-down mapping before adding a visible control.
+- Do-not-repeat notes: do not re-add Operations Program Breakdown programId filtering; extend only if new Operations breakdown row types gain supported filters.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_1_NAVIGABLE_DASHBOARDS`
+  - Advanced: yes
+  - Evidence: Operations Program Breakdown rows now render `data-section="operations" data-section-preset="program-breakdown"` actions; `openWorkspaceSection()` applies `programId`, syncs URL state, and reloads scoped Operations readiness rows.
+  - Unlocks: Operations can now move from program-level summaries to exact scoped worklists.
+  - Next: student archive blocked guidance, or missing/evidence drill-down only after exact route/filter mapping is proven.
+  - Blockers: missing/evidence drill-down mapping remains unproven; browser QA still needs credentialed runtime.
+  - Do not repeat: do not rebuild Operations Program Breakdown filtering unless a regression removes it.
+  - First file to inspect next run: `workspace.js` `renderStudentArchiveSection()` and `renderStudentProgressDetails()`

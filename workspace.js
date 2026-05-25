@@ -898,6 +898,19 @@ async function openWorkspaceSection(button) {
     await loadOperationsReadinessResult("Showing archive follow-up.");
     return;
   }
+  if (section === "operations" && button.dataset.sectionPreset === "program-breakdown") {
+    const programId = cleanDirectoryFilter(button.dataset.programId);
+    if (!programId) return;
+    operationsReadinessFilters = {
+      ...operationsReadinessFilters,
+      programId,
+      offset: 0,
+    };
+    activeSection = "operations";
+    syncOperationsReadinessUrlState();
+    await loadOperationsReadinessResult("Showing operations rows for the selected program.");
+    return;
+  }
   activeSection = section;
   renderAppShell();
 }
@@ -2925,6 +2938,11 @@ function renderOperationsProgramBreakdown(rows = []) {
           <span>${safeNumber(row.presentationPending)} presentation</span>
           <span>${safeNumber(row.archiveFailed)} archive failed</span>
           <span>${safeNumber(row.needsAttention)} attention</span>
+          ${row.programId ? `
+            <button class="workspace-link-button workspace-link-button-small" type="button" data-section="operations" data-section-preset="program-breakdown" data-program-id="${escapeHtml(row.programId)}">
+              View program rows
+            </button>
+          ` : ""}
         </article>
       `).join("")}
     </div>

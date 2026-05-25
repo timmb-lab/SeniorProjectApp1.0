@@ -82,6 +82,7 @@ const allowedPresets = new Map([
   ["revision-requested", "teacher"],
   ["presentation-pending", "operations"],
   ["archive-failed", "operations"],
+  ["program-breakdown", "operations"],
 ]);
 
 const presetMatches = [
@@ -166,6 +167,11 @@ assertMatches(
   /section === "operations" && button\.dataset\.sectionPreset === "archive-failed"[\s\S]*archiveStatus: "failed"[\s\S]*syncOperationsReadinessUrlState\(\)/,
   "archive dashboard preset must be backed by an operations archive filter and sync URL state",
 );
+assertMatches(
+  "workspaceJs",
+  /section === "operations" && button\.dataset\.sectionPreset === "program-breakdown"[\s\S]*const programId = cleanDirectoryFilter\(button\.dataset\.programId\)[\s\S]*programId,[\s\S]*syncOperationsReadinessUrlState\(\)/,
+  "operations program breakdown rows must be backed by a scoped Operations program filter and sync URL state",
+);
 
 for (const [handler, action, loader] of [
   ["handleSiteStudentAction", "view-detail", "openSiteStudentDetail"],
@@ -185,6 +191,11 @@ assertMatches(
   "workspaceJs",
   /function handleOperationsReadinessAction\([\s\S]*?openSiteStudentDetail\(event\.currentTarget\?\.dataset\?\.operationsStudentId \|\| "", \{ sourceSection: "operations" \}\)/,
   "Operations student-detail actions must keep the Operations worklist as the detail source",
+);
+assertMatches(
+  "workspaceJs",
+  /function renderOperationsProgramBreakdown\([\s\S]*data-section="operations" data-section-preset="program-breakdown" data-program-id="\$\{escapeHtml\(row\.programId\)\}"/,
+  "Operations Program Breakdown rows must render a real program filter action",
 );
 assertMatches(
   "workspaceJs",
