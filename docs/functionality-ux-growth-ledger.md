@@ -2174,3 +2174,57 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: mentor meeting detail drill-down needs a real section/route contract; assignment history needs persisted shape confirmation; browser QA still needs credentialed runtime.
   - Do not repeat: do not rebuild this Mentor Assignments empty-state language cluster unless regression evidence appears.
   - First file to inspect next run: `workspace.js` `renderMentorStudentCards()`
+
+## Run 2026-05-25 12:33 PT
+
+- Starting SHA: `3efe9c808bc64d65b2b96a1f4472034d1dce1d3f`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Branch policy: work stayed on clean local `main`; local `main` was three commits ahead of `origin/main`, `origin/main` was not ahead, and no push was run
+- Ladder level targeted: `LEVEL_4_ROLE_SPECIFIC_WORKSPACES`
+- Backlog item: `mentor-dashboard-attention-sorting-review`; advances `MVP-032`, `MVP-033`, and `MVP-034`
+- Work order selected: Sort Mentor Dashboard assigned-student rows so attention-needed students appear first.
+- Selection reason: The prior memory and state handoff named mentor dashboard attention sorting. Current source already rendered mentor meeting, presentation, outline, evidence, and next-step context from `/api/mentor/dashboard`, and the route already returned `needsAttention`; the UI still rendered assigned students in incoming order, making mentors scan for urgent rows.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Mentor dashboard attention-first ordering | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | mentor | 4 | 5 | 5 | XS | 58 | selected |
+| Mentor dashboard attention filter toggle | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | mentor | 4 | 4 | 4 | S | 49 | rejected: sorting gives priority without adding state |
+| Mentor dashboard meeting route drill-down | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | mentor | 4 | 3 | 3 | M | 39 | deferred: no real meeting detail section exists |
+| Mentor assignment history in student detail | `LEVEL_7_AUDITABILITY_AND_TRUST` | staff, mentor | 4 | 3 | 3 | M | 38 | deferred: persisted history shape still needs confirmation |
+| Mentor assignment reassignment controls | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | site admin | 5 | 2 | 3 | L | 32 | rejected: mutation policy and audit design needed |
+| Mentor assignment remove workflow | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | site admin | 4 | 2 | 3 | M | 33 | rejected: dangerous control without explicit policy |
+| Review Queue missing-evidence filter proof | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | site staff, program teacher | 5 | 2 | 3 | M | 37 | deferred: backend/privacy support missing |
+| Student Directory missing-evidence filter | `LEVEL_1_NAVIGABLE_DASHBOARDS` | site staff, viewer | 4 | 2 | 3 | M | 35 | deferred: exact route filter missing |
+| Full Review Queue comment body rendering | `LEVEL_7_AUDITABILITY_AND_TRUST` | site staff, program teacher, viewer | 4 | 2 | 3 | M | 34 | deferred: product/privacy decision needed |
+| Public app-preview language cleanup | `LEVEL_0_PROTOTYPE_CLEANUP` | public stakeholders | 3 | 5 | 4 | S | 40 | rejected: protected mentor workflow had clearer app value |
+| Site Dashboard summary-only affordance styling | `LEVEL_1_NAVIGABLE_DASHBOARDS` | staff, viewer | 3 | 4 | 3 | S | 39 | rejected: broader visual surface |
+| Student requirement detail extension | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 4 | 4 | 4 | S | 44 | rejected: no new persisted field identified |
+| Downloadable student progress summary | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | student, staff | 4 | 2 | 3 | L | 31 | rejected: export/privacy policy needed |
+| Credentialed browser QA | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all | 4 | 4 | 3 | M | 39 | blocked: needs credentialed runtime |
+| Org-admin tenant rollup | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | org_admin | 4 | 2 | 2 | L | 30 | blocked: backend aggregate and RBAC design needed |
+
+- User-facing improvement: Mentors see revision, meeting, and presentation attention students before on-track students in the existing assigned-student list, and the card says the list is attention-first.
+- Roles affected: `mentor` in the existing Mentor Dashboard surface; admin inspection of mentor dashboard data remains route-owned and unchanged.
+- Files changed: `workspace.js`, `tests/workspace-app.test.mjs`, `docs/functionality-language-audit.md`, `docs/mvp-requirements-catalog.md`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`, `docs/progress/run-log.md`, `docs/progress/runs/2026-05-25-1233-mentor-dashboard-attention-ordering.json`
+- Tests/verifiers added or updated: workspace render test now proves attention-needed mentor rows render before on-track rows while preserving the existing detail action/source-section behavior.
+- Validation commands:
+  - Focused passed before docs/state closeout: `node --test tests/workspace-app.test.mjs`; `node --test tests/mentor-dashboard.integration.test.mjs`; `npm run verify:functionality-language`; `npm run verify:dashboard-actions`; `npm run verify:workspace-navigation`
+  - Final passed: `npm run verify:review-queue-deeplinks`; `npm run verify:functionality-language`; `npm run verify:functionality-ux-automation`; `node --test tests/functionality-language-audit.test.mjs`; JSON parse for `automation/state/functionality-ux-growth-state.json` and `docs/progress/runs/2026-05-25-1233-mentor-dashboard-attention-ordering.json`; `npm run check:route-inventory`; `npm run typecheck`; `npm run check:production-surfaces`; `npm run check`; `npm run test`; `git diff --check`
+- Validation result: passed; `git diff --check` reported only CRLF normalization warnings during closeout, with no whitespace errors.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: mentor meeting drill-down still needs a real section/route contract; assignment history still needs persisted shape confirmation; Review Queue and Student Directory missing/evidence filters remain unsupported.
+- New backlog items: none
+- Next recommended work order: inspect persisted mentor assignment history shape before adding it to authorized student detail, or defer if no stable history rows exist.
+- Do-not-repeat notes: do not re-add attention-first Mentor Dashboard ordering unless regression evidence appears.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_4_ROLE_SPECIFIC_WORKSPACES`
+  - Advanced: yes
+  - Evidence: `workspace.js` now uses `prioritizeMentorDashboardStudents()` before rendering Mentor Dashboard rows, the card labels attention-first ordering, and the focused workspace test proves an attention row renders before an alphabetically earlier on-track row.
+  - Unlocks: future mentor work can focus on real drill-down or assignment-history depth instead of basic priority scanning.
+  - Next: inspect mentor assignment history persistence and student-detail API shape before rendering history.
+  - Blockers: meeting detail drill-down needs a real section/route; assignment history needs schema/route proof; browser QA still needs credentialed runtime.
+  - Do not repeat: do not rebuild the mentor dashboard signal grid, detail action, empty-state copy, or attention-first ordering without regression evidence.
+  - First file to inspect next run: `functions/_lib/site-student-detail.ts`

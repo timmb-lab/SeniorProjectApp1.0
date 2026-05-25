@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-05-25T12:04:27-07:00",
-  "lastStartingSha": "ac2829fb45a2ef8cfb5342206b622827b3a083e4",
+  "lastRunAt": "2026-05-25T12:33:19-07:00",
+  "lastStartingSha": "3efe9c808bc64d65b2b96a1f4472034d1dce1d3f",
   "lastEndingSha": null,
-  "currentLadderFocus": "LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW",
+  "currentLadderFocus": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
   "completedWorkOrders": [
     {
       "id": "workspace-header-product-language-cleanup",
@@ -433,6 +433,14 @@
       "type": "TYPE_A_LANGUAGE_PRODUCT_READINESS",
       "summary": "Mentor Assignments empty states now use student coverage language for filtered no-matches and true no-data instead of row jargon.",
       "commit": "pending-closeout-commit"
+    },
+    {
+      "id": "mentor-dashboard-attention-ordering",
+      "completedAt": "2026-05-25T12:33:19-07:00",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "type": "TYPE_D_ROLE_WORKSPACE",
+      "summary": "Mentor Dashboard assigned-student rows now render attention-needed students before on-track students using existing scoped attention/status fields.",
+      "commit": "pending-closeout-commit"
     }
   ],
   "deferredWorkOrders": [
@@ -465,16 +473,10 @@
   "blockedWorkOrders": [],
   "nextRecommendedWorkOrders": [
     {
-      "id": "mentor-dashboard-attention-sorting-review",
-      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
-      "type": "TYPE_D_ROLE_WORKSPACE",
-      "summary": "Review whether assigned-student rows should sort by needsAttention after route/test design."
-    },
-    {
-      "id": "mentor-assignment-history-student-detail",
+      "id": "mentor-assignment-history-student-detail-proof",
       "ladderLevel": "LEVEL_7_AUDITABILITY_AND_TRUST",
       "type": "TYPE_C_STUDENT_DETAIL_DRILL_DOWN",
-      "summary": "Confirm persisted assignment history shape before adding it to authorized student detail."
+      "summary": "Inspect persisted mentor assignment history shape before adding authorized student-detail history."
     },
     {
       "id": "review-queue-missing-evidence-filter-proof",
@@ -531,13 +533,15 @@
     "Do not re-clean Operations No presentation/archive/attention rows match phrases; filter-aware work/no-data copy and verifier coverage now guard that cluster.",
     "Do not re-add the Mentor Dashboard assigned-student signal grid or next-step copy unless regression evidence appears.",
     "Do not re-clean Mentor Assignments `No missing mentor rows match`; filter-aware student coverage language and verifier coverage now guard that cluster.",
-    "Do not broaden mentor assignment permissions while improving Mentor Assignments copy."
+    "Do not broaden mentor assignment permissions while improving Mentor Assignments copy.",
+    "Do not re-add Mentor Dashboard attention-first ordering unless regression evidence appears."
   ],
   "lastValidationStatus": {
     "status": "passed",
-    "completedAt": "2026-05-25T12:14:00-07:00",
+    "completedAt": "2026-05-25T12:33:19-07:00",
     "commands": [
       "node --test tests/workspace-app.test.mjs",
+      "node --test tests/mentor-dashboard.integration.test.mjs",
       "npm run verify:functionality-language",
       "npm run verify:dashboard-actions",
       "npm run verify:workspace-navigation",
@@ -552,7 +556,7 @@
       "npm run check",
       "git diff --check"
     ],
-    "notes": "Full required validation passed for the Mentor Assignments empty-state language slice. git diff --check reported only CRLF normalization warnings. This run changes mentor assignment UI copy, workspace tests, language verifier coverage, and run records only; it does not broaden auth, RBAC, tenant, site, program, mentor assignment, or student privacy boundaries. No remote seed/reset/migration, live data write, deploy, credential repair, domain/OAuth, or Cloudflare config change was run."
+    "notes": "Full required validation passed for the Mentor Dashboard attention ordering slice. git diff --check reported only CRLF normalization warnings. This run changes mentor dashboard UI ordering/copy, focused workspace coverage, and run records only; it does not broaden auth, RBAC, tenant, site, program, mentor assignment, or student privacy boundaries. No remote seed/reset/migration, live data write, deploy, credential repair, domain/OAuth, or Cloudflare config change was run."
   },
   "lastProductReadinessScorecardSummary": {
     "homepageClarity": "4 to 4",

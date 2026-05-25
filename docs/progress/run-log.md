@@ -21,6 +21,17 @@ This is the compact run log for the current Functionality UX Upgrade automation 
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-05-25 12:33 PT - Functionality UX Upgrade Mentor Dashboard Attention Ordering
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 4 role-specific workspaces / mentor assigned-student prioritization.
+- `starting HEAD`: `3efe9c808bc64d65b2b96a1f4472034d1dce1d3f`.
+- `selected slice`: Sort Mentor Dashboard assigned-student rows so attention-needed students appear before on-track students.
+- `repo-grounded findings`: the previous state handoff named mentor dashboard attention sorting. Current `/api/mentor/dashboard` already returned `needsAttention` plus meeting, presentation, outline, and submission status fields, and `workspace.js` already rendered those signals, but the assigned-student list still used incoming order.
+- `changes`: `workspace.js` now renders mentor assigned students through an attention rank that prioritizes revision, meeting, and presentation needs, labels the card as attention-first, and keeps the existing detail drawer/source-section behavior. `tests/workspace-app.test.mjs` proves an attention-needed row appears before an alphabetically earlier on-track row.
+- `validation`: focused workspace, mentor-dashboard route, functionality-language, dashboard-action, and workspace-navigation checks passed before docs/state closeout. Final validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.
+
 ## 2026-05-25 11:34 PT - Functionality UX Upgrade Mentor Dashboard Status Depth
 
 - `automation ID`: functionality-ux-upgrade-hourly.

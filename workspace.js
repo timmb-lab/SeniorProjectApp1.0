@@ -2313,7 +2313,7 @@ function renderMentorDashboardSection() {
       </section>
     `;
   }
-  const assigned = body.assignedStudents || [];
+  const assigned = prioritizeMentorDashboardStudents(body.assignedStudents || []);
   const summary = body.summary || {
     assignedCount: assigned.length,
     needsRevision: assigned.filter((student) => student.submissionStatus === "revision_requested").length,
@@ -2340,7 +2340,7 @@ function renderMentorDashboardSection() {
         ${renderMetricTile("Presentations", summary.presentationPending, "Pending readiness", "teacher", "presentation")}
       </div>
       ${assigned.length ? `
-        ${renderDashboardCard("Assigned Students", "Active mentor assignments", renderMentorStudentCards(assigned))}
+        ${renderDashboardCard("Assigned Students", "Attention-needed assignments first", renderMentorStudentCards(assigned))}
         ${siteStudentDetailState?.sourceSection === "mentorDashboard" ? renderSiteStudentDetailSurface({
           students: assigned.map((row) => ({
             studentId: row.studentId,
@@ -6230,6 +6230,24 @@ function renderMentorStudentCards(rows = []) {
       }).join("")}
     </div>
   `;
+}
+
+function prioritizeMentorDashboardStudents(rows = []) {
+  const safeRows = Array.isArray(rows) ? rows : [];
+  return [...safeRows].sort((left, right) => {
+    const leftRank = mentorDashboardAttentionRank(left);
+    const rightRank = mentorDashboardAttentionRank(right);
+    if (leftRank !== rightRank) return leftRank - rightRank;
+    return String(left?.studentName || "").localeCompare(String(right?.studentName || ""));
+  });
+}
+
+function mentorDashboardAttentionRank(row = {}) {
+  const attention = Array.isArray(row.needsAttention) ? row.needsAttention : [];
+  if (attention.includes("revision_requested") || row.submissionStatus === "revision_requested") return 0;
+  if (attention.includes("mentor_meeting")) return 1;
+  if (attention.includes("presentation") || row.presentationStatus === "not_scheduled" || row.outlineStatus !== "approved") return 2;
+  return 3;
 }
 
 function renderMentorDashboardSignal(label, value) {

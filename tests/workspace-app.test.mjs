@@ -2085,15 +2085,25 @@ test("mentor dashboard assigned students open student detail without leaving men
         ok: true,
         scope: "mentor_assigned",
         summary: {
-          assignedCount: 1,
+          assignedCount: 2,
           needsRevision: 1,
           missingMeeting: 1,
           presentationPending: 1,
         },
         assignedStudents: [
           {
+            studentId: "demo-student-102",
+            studentName: "Avery On Track",
+            submissionStatus: "approved",
+            evidenceCount: 5,
+            mentorMeetingStatus: "completed",
+            presentationStatus: "completed",
+            outlineStatus: "approved",
+            needsAttention: [],
+          },
+          {
             studentId: "demo-student-101",
-            studentName: "Missing Mentor Demo 001",
+            studentName: "Zoe Needs Help",
             submissionStatus: "revision_requested",
             evidenceCount: 3,
             mentorMeetingStatus: "makeup_required",
@@ -2124,6 +2134,11 @@ test("mentor dashboard assigned students open student detail without leaving men
 
   vm.runInContext('activeSection = "mentorDashboard"; renderAppShell();', context);
   assert.match(workspaceRoot.innerHTML, /Assigned Student Focus/);
+  assert.match(workspaceRoot.innerHTML, /Attention-needed assignments first/);
+  assert.ok(
+    workspaceRoot.innerHTML.indexOf("Zoe Needs Help") < workspaceRoot.innerHTML.indexOf("Avery On Track"),
+    "mentor dashboard should show attention-needed students before on-track students",
+  );
   assert.match(workspaceRoot.innerHTML, /data-mentor-dashboard-signals="true"/);
   assert.match(workspaceRoot.innerHTML, /Meeting[\s\S]*Make-up required/);
   assert.match(workspaceRoot.innerHTML, /Presentation[\s\S]*Not scheduled/);
