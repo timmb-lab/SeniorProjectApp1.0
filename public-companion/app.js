@@ -4211,6 +4211,28 @@ function phaseQuickLayerHtml(phase, relatedTemplates) {
   `;
 }
 
+function phaseTeacherSupportHtml(phase) {
+  const adultMoves = phase.adultRoles.filter((item) => !/^Student(?: or group)?:/.test(item) && !/^This guide:/.test(item));
+  const firstEvidence = phase.evidence[0];
+  const firstQuestion = phase.questions[0];
+  const supportMoves = [
+    ...adultMoves,
+    firstEvidence ? `Ask students to show or name this evidence before moving on: ${firstEvidence}` : "",
+    firstQuestion ? `Use this check-in question when a student is stuck: ${firstQuestion}` : ""
+  ].filter(Boolean);
+
+  if (!supportMoves.length) return "";
+
+  return `
+    <section class="content-card teacher-section" data-phase-teacher-support="true">
+      <p class="eyebrow">Teacher and mentor checks</p>
+      <h2>How Adults Can Support This Step</h2>
+      <p>Use these checks to keep students moving without taking over the work.</p>
+      ${numberListHtml(supportMoves)}
+    </section>
+  `;
+}
+
 function phaseNoteCardHtml(phase) {
   return sectionCard(
     "Draft Notes",
@@ -4811,6 +4833,7 @@ function renderPhasePage(root) {
         </div>
         <aside class="student-aside" aria-label="Phase tools">
           ${sideMinimumHtml(phase)}
+          ${phaseTeacherSupportHtml(phase)}
           <section class="content-card">
             <h2>Checklist</h2>
             ${checklistHtml(phase)}

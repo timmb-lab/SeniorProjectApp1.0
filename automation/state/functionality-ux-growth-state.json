@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-05-25T16:04:26-07:00",
-  "lastStartingSha": "3820dbc47ab3f05455e998540130f8114a0b6366",
+  "lastRunAt": "2026-05-25T16:36:07-07:00",
+  "lastStartingSha": "71c99435fa9e41d653c4a919c0a79f33632cc1e9",
   "lastEndingSha": null,
   "currentLadderFocus": "LEVEL_0_PROTOTYPE_CLEANUP",
   "completedWorkOrders": [
@@ -513,6 +513,14 @@
       "type": "TYPE_A_LANGUAGE_PRODUCT_READINESS",
       "summary": "Public support pages now pair student first moves with visible teacher and mentor checkpoint actions from existing source-guide content.",
       "commit": "pending-closeout-commit"
+    },
+    {
+      "id": "public-phase-page-adult-support-checks",
+      "completedAt": "2026-05-25T16:36:07-07:00",
+      "ladderLevel": "LEVEL_0_PROTOTYPE_CLEANUP",
+      "type": "TYPE_A_LANGUAGE_PRODUCT_READINESS",
+      "summary": "Public phase pages now show visible teacher/mentor support checks from existing phase adult-role, evidence, and check-in-question data.",
+      "commit": "pending-closeout-commit"
     }
   ],
   "deferredWorkOrders": [
@@ -545,10 +553,10 @@
   "blockedWorkOrders": [],
   "nextRecommendedWorkOrders": [
     {
-      "id": "public-route-page-student-teacher-emphasis",
+      "id": "public-rubric-grade-template-portfolio-emphasis",
       "ladderLevel": "LEVEL_0_PROTOTYPE_CLEANUP",
       "type": "TYPE_A_LANGUAGE_PRODUCT_READINESS",
-      "summary": "Continue page-level Student/Teacher emphasis on phase, rubric, grade, template, and portfolio pages."
+      "summary": "Inspect rubric, grade, template, and portfolio pages for visible Student/Teacher responsibility gaps."
     },
     {
       "id": "hosted-section-permission-proof",
@@ -561,6 +569,12 @@
       "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
       "type": "TYPE_F_REVIEW_INTERVENTION_QUEUE",
       "summary": "Add a Review Queue missing-evidence filter only after backend support and privacy tests exist."
+    },
+    {
+      "id": "public-route-page-student-teacher-emphasis",
+      "ladderLevel": "LEVEL_0_PROTOTYPE_CLEANUP",
+      "type": "TYPE_A_LANGUAGE_PRODUCT_READINESS",
+      "summary": "Continue remaining page-level Student/Teacher emphasis after phase pages: rubrics, grades, templates, and portfolio."
     }
   ],
   "doNotRepeat": [
@@ -620,27 +634,28 @@
     "Do not re-add the mentor meeting record form unless regression removes data-mentor-meeting-form=\"true\" or submitMentorMeeting().",
     "Do not re-add the mentor meeting linked-submission scope guard unless regression removes submission_scope_denied coverage from /api/mentor/meetings.",
     "Do not re-add the public no-hidden-core-content route map unless regression removes data-no-hidden-core-content or Required Content Has A Visible Path from app.js/public-companion app output.",
-    "Do not re-add public support-page teacher/mentor checkpoint panels unless regression removes data-resource-teacher-support or How Adults Can Support This Page from app.js/public-companion output."
+    "Do not re-add public support-page teacher/mentor checkpoint panels unless regression removes data-resource-teacher-support or How Adults Can Support This Page from app.js/public-companion output.",
+    "Do not re-add public phase-page teacher/mentor support checks unless regression removes data-phase-teacher-support or How Adults Can Support This Step from source/generated output."
   ],
   "lastValidationStatus": {
     "status": "passed",
-    "completedAt": "2026-05-25T16:04:26-07:00",
+    "completedAt": "2026-05-25T16:36:07-07:00",
     "commands": [
       "node --test tests/account-and-evidence-access.test.mjs",
       "npm run build:public-site",
       "npm run check:generated-output-drift",
-      "git diff --check",
       "npm run verify:functionality-language",
       "npm run verify:functionality-ux-automation",
       "node --test tests/functionality-language-audit.test.mjs",
-      "node -e JSON.parse automation/state/functionality-ux-growth-state.json and docs/progress/runs/2026-05-25-1604-public-resource-teacher-mentor-checkpoints.json",
+      "node -e JSON.parse automation/state/functionality-ux-growth-state.json and docs/progress/runs/2026-05-25-1636-public-phase-page-adult-support-checks.json",
+      "git diff --check",
       "npm run check:route-inventory",
       "npm run check:production-surfaces",
       "npm run test",
       "npm run typecheck",
       "npm run check"
     ],
-    "notes": "Full validation passed for public support-page teacher and mentor checkpoints. git diff --check reported only CRLF normalization warnings. This run changes public guide source, generated public companion output, focused public source test coverage, and run records only; it does not change auth role grants, tenant/site/program/student privacy boundaries, migrations, secrets/env files, Cloudflare/OAuth/domain config, deploy settings, or live data."
+    "notes": "Full validation passed for public phase-page adult support checks. git diff --check reported only CRLF normalization warnings. This run changes public guide source, generated public companion output, focused public source test coverage, and run records only; it does not change auth role grants, tenant/site/program/student privacy boundaries, migrations, secrets/env files, Cloudflare/OAuth/domain config, deploy settings, or live data."
   },
   "lastProductReadinessScorecardSummary": {
     "homepageClarity": "4 to 4",

@@ -140,6 +140,22 @@ test("public support pages expose page-level teacher and mentor checkpoints", ()
   }
 });
 
+test("public phase pages expose page-level adult support checks", () => {
+  assert.match(appJs, /data-phase-teacher-support="true"/);
+  assert.match(appJs, /How Adults Can Support This Step/);
+  assert.match(appJs, /function phaseTeacherSupportHtml\(phase\)/);
+  assert.match(appJs, /phaseTeacherSupportHtml\(phase\)/);
+  for (const phrase of [
+    "Use these checks to keep students moving without taking over the work.",
+    "Ask students to show or name this evidence before moving on",
+    "Use this check-in question when a student is stuck",
+    "Senior program teacher: checks program fit",
+    "Mentor: reviews progress, presentation outline, and logistics"
+  ]) {
+    assert.match(appJs, new RegExp(phrase.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  }
+});
+
 test("public workspace workflow guide avoids stale future-app and implementation copy", () => {
   assert.match(appJs, /Workspace Workflow/);
   assert.match(appJs, /How The Signed-In Workspace Works/);

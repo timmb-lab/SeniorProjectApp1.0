@@ -1,0 +1,126 @@
+{
+  "automationId": "functionality-ux-upgrade-hourly",
+  "runStartedAt": "2026-05-25T16:36:07-07:00",
+  "startingSha": "71c99435fa9e41d653c4a919c0a79f33632cc1e9",
+  "endingSha": null,
+  "branch": "main",
+  "branchPolicy": {
+    "localAheadOfOrigin": 11,
+    "originAheadOfLocal": 0,
+    "pushRun": false
+  },
+  "ladderLevel": "LEVEL_0_PROTOTYPE_CLEANUP",
+  "supportingLadderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
+  "workOrder": {
+    "id": "public-phase-page-adult-support-checks",
+    "type": "TYPE_A_LANGUAGE_PRODUCT_READINESS",
+    "title": "Public phase-page adult support checks",
+    "roles": [
+      "public students",
+      "public teachers",
+      "public mentors",
+      "families"
+    ],
+    "mvpRequirements": [
+      "MVP-036",
+      "MVP-037"
+    ],
+    "selectionReason": "Phase pages still buried adult responsibilities while recent public support-page teacher and mentor checkpoints were already complete. Existing phase adult-role, evidence, and question data made a visible phase-page support panel safe and testable without new routes or private app claims."
+  },
+  "candidateSummary": [
+    {
+      "id": "public-phase-page-adult-support-checks",
+      "score": 56,
+      "decision": "selected"
+    },
+    {
+      "id": "public-phase-page-source-test",
+      "score": 52,
+      "decision": "included"
+    },
+    {
+      "id": "public-rubrics-teacher-scoring-cues",
+      "score": 49,
+      "decision": "rejected-next-safe-slice"
+    },
+    {
+      "id": "public-grades-official-evidence-clarity",
+      "score": 46,
+      "decision": "rejected-lower-immediate-value"
+    },
+    {
+      "id": "public-templates-official-version-guidance",
+      "score": 45,
+      "decision": "rejected-lower-immediate-value"
+    },
+    {
+      "id": "public-portfolio-adult-checkpoint-panel",
+      "score": 47,
+      "decision": "rejected-next-remaining-page-batch"
+    },
+    {
+      "id": "hosted-section-permission-proof",
+      "score": 40,
+      "decision": "blocked-credentialed-runtime"
+    },
+    {
+      "id": "review-queue-missing-evidence-filter",
+      "score": 37,
+      "decision": "deferred-backend-privacy-support-missing"
+    }
+  ],
+  "filesChanged": [
+    "app.js",
+    "public-companion/app.js",
+    "tests/account-and-evidence-access.test.mjs",
+    "docs/functionality-language-audit.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/functionality-ux-growth-ledger.md",
+    "automation/state/functionality-ux-growth-state.json",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-25-1636-public-phase-page-adult-support-checks.json"
+  ],
+  "validation": {
+    "status": "passed",
+    "focusedPassed": [
+      "node --test tests/account-and-evidence-access.test.mjs",
+      "npm run build:public-site",
+      "npm run check:generated-output-drift",
+      "npm run verify:functionality-language",
+      "npm run verify:functionality-ux-automation",
+      "node --test tests/functionality-language-audit.test.mjs",
+      "node -e JSON.parse automation/state/functionality-ux-growth-state.json"
+    ],
+    "finalPassed": [
+      "git diff --check",
+      "npm run check:route-inventory",
+      "npm run check:production-surfaces",
+      "npm run test",
+      "npm run typecheck",
+      "npm run check"
+    ],
+    "notes": "git diff --check reported only CRLF normalization warnings, with no whitespace errors."
+  },
+  "privacyAndSafety": {
+    "authChanged": false,
+    "rbacChanged": false,
+    "tenantOrSiteScopeChanged": false,
+    "studentPrivacyChanged": false,
+    "migrationsChanged": false,
+    "secretsOrEnvChanged": false,
+    "cloudflareOrOauthChanged": false,
+    "liveDataChanged": false,
+    "fakeFunctionalityAdded": false
+  },
+  "handoff": {
+    "advanced": "yes",
+    "evidence": "Phase pages expose data-phase-teacher-support and How Adults Can Support This Step in source and generated output.",
+    "next": "Inspect rubric, grades, templates, and portfolio pages for visible Student/Teacher responsibility gaps.",
+    "blockers": [
+      "Hosted permission proof needs credentialed runtime.",
+      "Exports and staff scheduling controls need policy decisions."
+    ],
+    "doNotRepeat": "Do not re-add public phase-page adult-support checks unless regression removes data-phase-teacher-support or How Adults Can Support This Step.",
+    "firstFileToInspectNextRun": "app.js renderRubricsPage() and renderGradesPage()"
+  }
+}

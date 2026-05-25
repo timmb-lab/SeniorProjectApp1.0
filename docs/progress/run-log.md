@@ -2048,3 +2048,14 @@ Future productive runs should append compact entries that name the master-plan s
 - `changes`: `app.js` now renders `Core guide coverage` with `data-no-hidden-core-content="true"` and links to existing public pages for planning, evidence/build work, presentation preparation, and finish/archive work. `public-companion/app.js` was rebuilt from source, and `tests/account-and-evidence-access.test.mjs` now guards the marker, content clusters, and route links.
 - `validation`: focused public-source test, public-site build, generated-output drift check, and functionality-language verifier passed before final validation. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
 - `commit/push status`: pending closeout commit; not pushed by this automation run.
+
+## 2026-05-25 PT - Functionality UX Upgrade Public Phase Adult Support
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 0 prototype cleanup / public phase-page Student/Teacher emphasis, supporting MVP-036 and MVP-037.
+- `starting HEAD`: `71c99435fa9e41d653c4a919c0a79f33632cc1e9`.
+- `selected slice`: Add visible `How Adults Can Support This Step` panels to existing public phase pages.
+- `repo-grounded findings`: the previous handoff pointed to phase pages, rubrics, grades, templates, and portfolio after support pages were completed. Current source already had `phase.adultRoles`, `phase.evidence`, and `phase.questions`, but phase pages only showed adult responsibilities in deeper panels or broad phase text; `data-phase-teacher-support` did not exist in source or generated output.
+- `changes`: `app.js` now derives a phase adult-support panel from existing phase data and renders it in the phase-page tool aside; `public-companion/app.js` was rebuilt from source; `tests/account-and-evidence-access.test.mjs` guards the marker and representative support phrases.
+- `validation`: focused public-source test, public-site build, generated-output drift check, language verifier, automation verifier, audit test, and state JSON parse passed before final validation. Final validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.
