@@ -3136,7 +3136,7 @@ function renderStudentSection() {
         </div>
       </div>
       <div class="workspace-list">
-        ${submissions.length ? submissions.map(renderSubmissionRow).join("") : `<div class="workspace-empty">No submissions have been started yet.</div>`}
+        ${submissions.length ? submissions.map((submission) => renderSubmissionRow(submission, dashboard.feedback || [])).join("") : `<div class="workspace-empty">No submissions have been started yet.</div>`}
       </div>
     </section>
     <section class="workspace-card">
@@ -5676,16 +5676,24 @@ function pluralize(count, singular, plural = `${singular}s`) {
   return safeNumber(count) === 1 ? singular : plural;
 }
 
-function renderSubmissionRow(submission) {
+function renderSubmissionRow(submission, feedback = []) {
+  const latestFeedback = latestFeedbackForSubmission(submission, feedback);
   return `
     <article class="workspace-row">
       <div>
         <strong>${escapeHtml(submission.requirement_title || "Capstone Project submission")}</strong>
         <p>Version ${escapeHtml(submission.version || 1)}. Updated ${escapeHtml(formatDate(submission.updated_at))}.</p>
+        ${latestFeedback ? `<p class="workspace-muted" data-submission-feedback="true">Latest teacher feedback: ${escapeHtml(latestFeedback.message || "Teacher feedback was recorded for this submission.")}</p>` : ""}
       </div>
       ${statusPill(submission.status)}
     </article>
   `;
+}
+
+function latestFeedbackForSubmission(submission, feedback = []) {
+  const submissionId = String(submission?.id || "");
+  if (!submissionId || !Array.isArray(feedback)) return null;
+  return feedback.find((item) => item?.submissionId === submissionId) || null;
 }
 
 function renderEvidenceRow(item) {
