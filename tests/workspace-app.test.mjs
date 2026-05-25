@@ -1875,6 +1875,103 @@ test("workspace renders site-scoped Operations readiness worklists without mutat
   assert.match(window.location.href, /category=risk/);
 });
 
+test("workspace clarifies Operations empty states for active filters and true no-data", async () => {
+  const filteredOperations = siteOperationsReadinessFixture({
+    role: "site_admin",
+    filters: {
+      siteId: "site-desert-valley-high",
+      programId: "culinary",
+      status: "",
+      story: "",
+      risk: "any",
+      presentationStatus: "pending",
+      archiveStatus: "",
+      readiness: "attention_required",
+      category: "",
+      needsAttention: false,
+      outlineAttention: false,
+      limit: 50,
+      offset: 0,
+    },
+  });
+  filteredOperations.pagination.returned = 0;
+  filteredOperations.pagination.filteredTotal = 0;
+  filteredOperations.presentation.rows = [];
+  filteredOperations.archive.rows = [];
+  filteredOperations.readiness.attentionRows = [];
+  filteredOperations.readiness.filteredProgramBreakdown = [];
+  filteredOperations.readiness.nextActions = [];
+
+  const filtered = await renderWorkspaceWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "site-admin-operations-empty",
+          email: "site.operations.empty@example.edu",
+          displayName: "Operations Empty Admin",
+          roles: [{ role_id: "site_admin", scope_type: "site", scope_id: "site-desert-valley-high" }],
+        },
+      },
+    },
+    "/api/site/dashboard": { status: 200, body: siteDashboardFixture({ readOnly: false }) },
+    "/api/site/students": { status: 200, body: siteStudentsFixture({ readOnly: false }) },
+    "/api/site/review-queue": { status: 200, body: siteReviewQueueFixture({ role: "site_admin", readOnly: true }) },
+    "/api/site/mentor-assignments": { status: 200, body: siteMentorAssignmentsFixture({ role: "site_admin", canManage: true }) },
+    "/api/site/operations-readiness": { status: 200, body: filteredOperations },
+  }, "operations");
+
+  assert.match(filtered, /No matching presentation work/);
+  assert.match(filtered, /No presentation readiness work matches these filters for this school/);
+  assert.match(filtered, /No matching archive work/);
+  assert.match(filtered, /No archive readiness work matches these filters for this school/);
+  assert.match(filtered, /No matching operations attention/);
+  assert.match(filtered, /No blocked, missing, or attention-required readiness work matches these filters/);
+  assert.match(filtered, /Clear filters or continue monitoring ready work/);
+  assert.doesNotMatch(filtered, /No presentation rows match|No archive rows match|No attention rows match/);
+
+  const unfilteredOperations = siteOperationsReadinessFixture({ role: "viewer", readOnly: true });
+  unfilteredOperations.pagination.returned = 0;
+  unfilteredOperations.pagination.filteredTotal = 0;
+  unfilteredOperations.pagination.total = 0;
+  unfilteredOperations.summary.studentsTotal = 0;
+  unfilteredOperations.presentation.rows = [];
+  unfilteredOperations.archive.rows = [];
+  unfilteredOperations.readiness.attentionRows = [];
+  unfilteredOperations.readiness.filteredProgramBreakdown = [];
+  unfilteredOperations.readiness.programBreakdown = [];
+  unfilteredOperations.readiness.nextActions = [];
+
+  const unfiltered = await renderWorkspaceWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "viewer-operations-empty",
+          email: "viewer.operations.empty@example.edu",
+          displayName: "Operations Empty Viewer",
+          roles: [{ role_id: "viewer", scope_type: "site", scope_id: "site-desert-valley-high" }],
+        },
+      },
+    },
+    "/api/site/dashboard": { status: 200, body: siteDashboardFixture({ readOnly: true }) },
+    "/api/site/students": { status: 200, body: siteStudentsFixture({ readOnly: true }) },
+    "/api/site/review-queue": { status: 200, body: siteReviewQueueFixture({ role: "viewer", readOnly: true }) },
+    "/api/site/mentor-assignments": { status: 200, body: siteMentorAssignmentsFixture({ role: "viewer", readOnly: true, canManage: false }) },
+    "/api/site/operations-readiness": { status: 200, body: unfilteredOperations },
+  }, "operations");
+
+  assert.match(unfiltered, /No presentation work waiting/);
+  assert.match(unfiltered, /No presentation readiness work is waiting in this view/);
+  assert.match(unfiltered, /No archive work waiting/);
+  assert.match(unfiltered, /No archive readiness or export failures are waiting in this view/);
+  assert.match(unfiltered, /No operations attention waiting/);
+  assert.match(unfiltered, /No blocked, missing, or attention-required work is waiting right now/);
+  assert.doesNotMatch(unfiltered, /No presentation rows match|No archive rows match|No attention rows match/);
+});
+
 test("mentor dashboard assigned students open student detail without leaving mentor context", async () => {
   const { context, workspaceRoot } = await createWorkspaceContextWithFetch({
     "/api/auth/me": {

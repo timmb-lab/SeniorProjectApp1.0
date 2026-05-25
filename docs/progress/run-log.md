@@ -21,6 +21,17 @@ This is the compact run log for the current Functionality UX Upgrade automation 
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-05-25 11:06 PT - Functionality UX Upgrade Operations Empty States
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 8 reporting and operational readiness / Operations empty-state clarity.
+- `starting HEAD`: `cfec0951f10f56ee19476b5384d18e4074cbfcd4`.
+- `selected slice`: Clarify Operations presentation, archive, and attention empty states for active filters versus true no-data.
+- `repo-grounded findings`: the previous memory/state handoff named Operations no-results and active-filter empty states. Current `workspace.js` still rendered `No presentation rows match`, `No archive rows match`, and `No attention rows match`, with filter-only guidance even when a pane simply had no work waiting.
+- `changes`: `workspace.js` now uses filter-aware `No matching ... work` vs `No ... work waiting` copy for Operations panes; `tests/workspace-app.test.mjs` covers active-filter and true no-data variants; `scripts/verify-functionality-language.mjs` blocks the old row-based phrases.
+- `validation`: focused workspace, language, dashboard-action, and workspace-navigation verifiers passed before docs/state closeout. Final validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.
+
 ## 2026-05-25 07:38 PT - Functionality UX Upgrade Student Requirement Detail Disclosure
 
 - `automation ID`: functionality-ux-upgrade-hourly.

@@ -2777,9 +2777,9 @@ function renderOperationsReadinessSection() {
         ${renderOperationsPagination(pagination)}
       </section>
       <div class="workspace-operations-layout">
-        ${renderDashboardCard("Presentation", "Schedule, outline, and day-of readiness", renderPresentationWorklistRows(presentation.rows || [], permissions))}
-        ${renderDashboardCard("Archive", "Package readiness and export failures", renderArchiveWorklistRows(archive.rows || [], permissions))}
-        ${renderDashboardCard("Readiness", "Attention rows and next actions", renderReadinessAttentionRows(readiness.attentionRows || [], permissions))}
+        ${renderDashboardCard("Presentation", "Schedule, outline, and day-of readiness", renderPresentationWorklistRows(presentation.rows || [], permissions, body.filters || operationsReadinessFilters))}
+        ${renderDashboardCard("Archive", "Package readiness and export failures", renderArchiveWorklistRows(archive.rows || [], permissions, body.filters || operationsReadinessFilters))}
+        ${renderDashboardCard("Readiness", "Attention rows and next actions", renderReadinessAttentionRows(readiness.attentionRows || [], permissions, body.filters || operationsReadinessFilters))}
       </div>
       <div class="workspace-dashboard-grid workspace-dashboard-grid-two">
         ${renderDashboardCard("Program Breakdown", "Readiness by visible program", renderOperationsProgramBreakdown(readiness.filteredProgramBreakdown || readiness.programBreakdown || []))}
@@ -2893,7 +2893,24 @@ function renderOperationsActiveFilters(filters = {}, options = {}) {
   return renderActiveFilterSummary("Operations readiness", chips, 'data-operations-action="reset-filters"');
 }
 
-function renderPresentationWorklistRows(rows = [], permissions = {}) {
+function hasActiveOperationsFilters(filters = {}) {
+  const active = filters || {};
+  return Boolean(
+    active.programId
+      || active.status
+      || active.presentationStatus
+      || active.archiveStatus
+      || active.readiness
+      || active.category
+      || active.needsAttention
+      || active.outlineAttention
+      || active.story
+      || (active.risk && active.risk !== "any")
+  );
+}
+
+function renderPresentationWorklistRows(rows = [], permissions = {}, filters = {}) {
+  const filtered = hasActiveOperationsFilters(filters);
   return rows.length ? `
     <div class="workspace-list" data-operations-presentation-rows="true">
       ${rows.map((row) => `
@@ -2925,17 +2942,22 @@ function renderPresentationWorklistRows(rows = [], permissions = {}) {
     </div>
   ` : `
     <section class="workspace-empty-state-card" data-operations-presentation-empty="true">
-      <h2>No presentation rows match</h2>
+      <h2>${filtered ? "No matching presentation work" : "No presentation work waiting"}</h2>
       ${renderProblemState({
-        reason: "No presentation readiness rows match the current filters at this school.",
+        reason: filtered
+          ? "No presentation readiness work matches these filters for this school."
+          : "No presentation readiness work is waiting in this view.",
         owner: "Site administration.",
-        nextAction: "Adjust filters or review the student directory.",
+        nextAction: filtered
+          ? "Clear filters or review the student directory."
+          : "Continue monitoring presentation readiness.",
       })}
     </section>
   `;
 }
 
-function renderArchiveWorklistRows(rows = [], permissions = {}) {
+function renderArchiveWorklistRows(rows = [], permissions = {}, filters = {}) {
+  const filtered = hasActiveOperationsFilters(filters);
   return rows.length ? `
     <div class="workspace-list" data-operations-archive-rows="true">
       ${rows.map((row) => `
@@ -2967,17 +2989,22 @@ function renderArchiveWorklistRows(rows = [], permissions = {}) {
     </div>
   ` : `
     <section class="workspace-empty-state-card" data-operations-archive-empty="true">
-      <h2>No archive rows match</h2>
+      <h2>${filtered ? "No matching archive work" : "No archive work waiting"}</h2>
       ${renderProblemState({
-        reason: "No archive readiness rows match the current filters at this school.",
+        reason: filtered
+          ? "No archive readiness work matches these filters for this school."
+          : "No archive readiness or export failures are waiting in this view.",
         owner: "Site administration.",
-        nextAction: "Adjust filters or open student detail from the directory.",
+        nextAction: filtered
+          ? "Clear filters or open student detail from the directory."
+          : "Continue monitoring archive readiness.",
       })}
     </section>
   `;
 }
 
-function renderReadinessAttentionRows(rows = [], permissions = {}) {
+function renderReadinessAttentionRows(rows = [], permissions = {}, filters = {}) {
+  const filtered = hasActiveOperationsFilters(filters);
   return rows.length ? `
     <div class="workspace-list" data-operations-readiness-rows="true">
       ${rows.map((row) => `
@@ -2997,11 +3024,15 @@ function renderReadinessAttentionRows(rows = [], permissions = {}) {
     </div>
   ` : `
     <section class="workspace-empty-state-card" data-operations-readiness-empty="true">
-      <h2>No attention rows match</h2>
+      <h2>${filtered ? "No matching operations attention" : "No operations attention waiting"}</h2>
       ${renderProblemState({
-        reason: "No blocked, missing, or attention-required readiness rows match the current filters.",
+        reason: filtered
+          ? "No blocked, missing, or attention-required readiness work matches these filters."
+          : "No blocked, missing, or attention-required work is waiting right now.",
         owner: "Site administration.",
-        nextAction: "Adjust filters or continue monitoring ready rows.",
+        nextAction: filtered
+          ? "Clear filters or continue monitoring ready work."
+          : "Continue monitoring ready and in-progress work.",
       })}
     </section>
   `;

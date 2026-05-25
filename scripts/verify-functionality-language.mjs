@@ -153,6 +153,18 @@ const hardFailures = [
     message: "Review Queue comment history should show visibility counts instead of vague protected-comment availability copy.",
   },
   {
+    pattern: /\bNo presentation rows match\b/i,
+    message: "Operations empty states should describe matching presentation work, not data rows.",
+  },
+  {
+    pattern: /\bNo archive rows match\b/i,
+    message: "Operations empty states should describe matching archive work, not data rows.",
+  },
+  {
+    pattern: /\bNo attention rows match\b/i,
+    message: "Operations empty states should describe matching attention work, not data rows.",
+  },
+  {
     pattern: /\bstorage identifiers redacted\b/i,
     message: "Protected workspace should say private file details are protected instead of showing storage jargon.",
   },
