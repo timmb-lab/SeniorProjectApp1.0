@@ -81,6 +81,8 @@ interface RequirementRow {
   title: string;
   required: number;
   sort_order: number;
+  due_at: string | null;
+  due_label: string | null;
 }
 
 interface MentorSupportRow {
@@ -107,7 +109,7 @@ interface StudentProgressSummary {
     name: string | null;
     message: string;
   };
-  dueDatesAvailable: false;
+  dueDatesAvailable: boolean;
 }
 
 interface StudentNextStep {
@@ -115,6 +117,7 @@ interface StudentNextStep {
   status: string;
   detail: string;
   dueDate: string | null;
+  dueLabel: string | null;
 }
 
 interface StudentRequirementDetail {
@@ -126,6 +129,8 @@ interface StudentRequirementDetail {
   progressStatus: string | null;
   submissionStatus: string | null;
   submissionVersion: number | null;
+  dueDate: string | null;
+  dueLabel: string | null;
   lastUpdatedAt: string | null;
   nextAction: string;
 }
@@ -235,7 +240,67 @@ function loadRequiredRequirements(env: Env, studentId: string) {
        requirements.phase,
        requirements.title,
        requirements.required,
-       requirements.sort_order
+       requirements.sort_order,
+       (
+         SELECT candidate.due_at
+         FROM deadlines candidate
+         WHERE candidate.requirement_id = requirements.id
+           AND candidate.active = 1
+           AND (
+             candidate.program_id IS NULL
+             OR candidate.program_id IN (
+               SELECT DISTINCT groups.program_id
+               FROM group_memberships
+               JOIN groups ON groups.id = group_memberships.group_id
+               WHERE group_memberships.user_id = ?
+                 AND groups.program_id IS NOT NULL
+                 AND groups.program_id != ''
+             )
+           )
+           AND (
+             candidate.cohort_id IS NULL
+             OR candidate.cohort_id IN (
+               SELECT DISTINCT groups.cohort_id
+               FROM group_memberships
+               JOIN groups ON groups.id = group_memberships.group_id
+               WHERE group_memberships.user_id = ?
+                 AND groups.cohort_id IS NOT NULL
+                 AND groups.cohort_id != ''
+             )
+           )
+         ORDER BY candidate.due_at ASC, candidate.title ASC
+         LIMIT 1
+       ) AS due_at,
+       (
+         SELECT candidate.title
+         FROM deadlines candidate
+         WHERE candidate.requirement_id = requirements.id
+           AND candidate.active = 1
+           AND (
+             candidate.program_id IS NULL
+             OR candidate.program_id IN (
+               SELECT DISTINCT groups.program_id
+               FROM group_memberships
+               JOIN groups ON groups.id = group_memberships.group_id
+               WHERE group_memberships.user_id = ?
+                 AND groups.program_id IS NOT NULL
+                 AND groups.program_id != ''
+             )
+           )
+           AND (
+             candidate.cohort_id IS NULL
+             OR candidate.cohort_id IN (
+               SELECT DISTINCT groups.cohort_id
+               FROM group_memberships
+               JOIN groups ON groups.id = group_memberships.group_id
+               WHERE group_memberships.user_id = ?
+                 AND groups.cohort_id IS NOT NULL
+                 AND groups.cohort_id != ''
+             )
+           )
+         ORDER BY candidate.due_at ASC, candidate.title ASC
+         LIMIT 1
+       ) AS due_label
      FROM requirements
      WHERE requirements.required = 1
        AND (
@@ -250,7 +315,7 @@ function loadRequiredRequirements(env: Env, studentId: string) {
          )
        )
      ORDER BY requirements.sort_order ASC, requirements.title ASC`,
-  ).bind(studentId).all<RequirementRow>();
+  ).bind(studentId, studentId, studentId, studentId, studentId).all<RequirementRow>();
 }
 
 async function loadActiveMentor(env: Env, studentId: string): Promise<MentorSupportRow | null> {
@@ -375,7 +440,7 @@ function buildStudentProgressSummary(
         ? `${mentor.mentor_name} can help with project questions.`
         : "No mentor assigned yet.",
     },
-    dueDatesAvailable: false,
+    dueDatesAvailable: requirements.some((requirement) => Boolean(requirement.due_at || requirement.due_label)),
   };
 }
 
@@ -396,7 +461,8 @@ function buildStudentNextSteps(
       title: requirement.title || "Senior Project requirement",
       status,
       detail,
-      dueDate: null,
+      dueDate: requirement.due_at || null,
+      dueLabel: safeStudentText(requirement.due_label, "", 80) || null,
     });
   };
 
@@ -461,6 +527,8 @@ function buildStudentRequirementDetails(
       progressStatus: progress?.status || null,
       submissionStatus: submission?.status || null,
       submissionVersion: submission?.version || null,
+      dueDate: requirement.due_at || null,
+      dueLabel: safeStudentText(requirement.due_label, "", 80) || null,
       lastUpdatedAt: latestTimestamp([
         progress?.updated_at || null,
         submission?.updated_at || null,

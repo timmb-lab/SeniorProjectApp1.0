@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-05-25T05:35:45-07:00",
-  "lastStartingSha": "c5855e238f7307d0a0b70b5a9c6480606ebfa6a6",
+  "lastRunAt": "2026-05-25T06:06:44-07:00",
+  "lastStartingSha": "872a347301a4ffc3e8e1327eb91e21d1e7539524",
   "lastEndingSha": null,
   "currentLadderFocus": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN",
   "completedWorkOrders": [
@@ -329,6 +329,14 @@
       "type": "TYPE_D_ROLE_WORKSPACE",
       "summary": "Student dashboard requirement checklist rows are now grouped by project phase with per-phase complete and remaining counts.",
       "commit": "pending-closeout-commit"
+    },
+    {
+      "id": "student-requirement-deadline-labels",
+      "completedAt": "2026-05-25T06:06:44-07:00",
+      "ladderLevel": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN",
+      "type": "TYPE_C_STUDENT_DETAIL_DRILL_DOWN",
+      "summary": "Student next steps and requirement checklist rows now show persisted deadline labels/dates from existing requirement deadline records.",
+      "commit": "pending-closeout-commit"
     }
   ],
   "deferredWorkOrders": [
@@ -359,7 +367,7 @@
       "id": "student-guided-requirement-detail-form",
       "ladderLevel": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN",
       "type": "TYPE_C_STUDENT_DETAIL_DRILL_DOWN",
-      "summary": "Add a deeper student-safe requirement detail page or guided form from persisted requirement/progress records."
+      "summary": "Add a deeper student-safe requirement detail page or guided form from persisted requirement/progress/deadline records."
     },
     {
       "id": "missing-submission-drilldown",
@@ -401,12 +409,13 @@
     "Do not re-add the review-history staff-only comment filter; extend only if a new comment visibility value or feedback source is added.",
     "Do not re-add student Feedback History version/status context; extend next with a full student-safe timeline only if the review-history route UI shape is proven.",
     "Do not re-add the student Feedback History timeline action; extend only if students need compare/filter controls or new route-backed timeline fields.",
-    "Do not re-add the student requirement checklist panel; extend next only with a guided requirement detail/form, due-date source, or deeper phase page backed by real route data.",
-    "Do not re-add student requirement phase grouping; extend only with a real requirement detail/form, due-date source, or deeper phase page backed by existing route data."
+    "Do not re-add the student requirement checklist panel; extend next only with a guided requirement detail/form or deeper phase page backed by real route data.",
+    "Do not re-add student requirement phase grouping; extend only with a real requirement detail/form, due-date detail, or deeper phase page backed by existing route data.",
+    "Do not re-add student requirement deadline labels; extend only with a real requirement detail/form or richer due-date timeline backed by existing deadlines."
   ],
   "lastValidationStatus": {
     "status": "passed",
-    "completedAt": "2026-05-25T05:35:45-07:00",
+    "completedAt": "2026-05-25T06:06:44-07:00",
     "commands": [
       "npm run verify:dashboard-actions",
       "npm run verify:review-queue-deeplinks",
@@ -424,7 +433,7 @@
       "git diff --check",
       "git status --short"
     ],
-    "notes": "Full required validation passed for the student requirement phase grouping slice. git diff --check reported CRLF normalization warnings only. No browser smoke was run because this read-only student dashboard UI grouping is covered by workspace render tests and source verifiers. No remote seed/reset/migration, live data write, deploy, credential repair, domain/OAuth, or Cloudflare config change was run."
+    "notes": "Full required validation passed for the student requirement deadline label slice. git diff --check reported CRLF normalization warnings only. No browser smoke was run because this read-only student dashboard UI change is covered by focused route and workspace render tests plus source verifiers. No remote seed/reset/migration, live data write, deploy, credential repair, domain/OAuth, or Cloudflare config change was run."
   },
   "lastProductReadinessScorecardSummary": {
     "homepageClarity": "4 to 4",

@@ -3226,7 +3226,7 @@ function studentPrimaryNextAction(summary, nextSteps = []) {
       detail: firstStep.detail || "Open the requirement in the list below and continue your project work.",
       status: firstStep.status || "pending",
       owner: "Your action",
-      when: firstStep.dueDate ? `Due ${formatDate(firstStep.dueDate)}` : "Use the next-steps list below.",
+      when: studentDueText(firstStep, "Use the next-steps list below."),
     };
   }
   if (summary.revisionRequestedCount) {
@@ -3372,7 +3372,7 @@ function renderStudentNextStepRow(item) {
       <div>
         <strong>${escapeHtml(item.title || "Senior Project requirement")}</strong>
         <p>${escapeHtml(item.detail || "Review this requirement and continue your next step.")}</p>
-        <p class="workspace-muted">Due date: ${escapeHtml(item.dueDate ? formatDate(item.dueDate) : "Not available yet")}</p>
+        <p class="workspace-muted" data-student-next-step-due="true">${escapeHtml(studentDueText(item))}</p>
       </div>
       ${statusPill(item.status || "not_started")}
     </article>
@@ -3456,6 +3456,7 @@ function renderStudentRequirementRow(item) {
       <div>
         <strong>${escapeHtml(item?.title || "Senior Project requirement")}</strong>
         <p>${escapeHtml(item?.phaseLabel || "Not available yet")} / Last updated ${escapeHtml(updatedAt)}</p>
+        <p class="workspace-muted" data-student-requirement-due="true">${escapeHtml(studentDueText(item))}</p>
         <p class="workspace-muted" data-student-requirement-next="true">${escapeHtml(item?.nextAction || "Ask your program teacher what to do next.")}</p>
       </div>
       <div class="workspace-row-actions">
@@ -3464,6 +3465,13 @@ function renderStudentRequirementRow(item) {
       </div>
     </article>
   `;
+}
+
+function studentDueText(item, fallback = "Due date: Not available yet") {
+  const label = String(item?.dueLabel || "").trim();
+  if (label) return /^due\b/i.test(label) ? label : `Due ${label}`;
+  if (item?.dueDate) return `Due ${formatDate(item.dueDate)}`;
+  return fallback;
 }
 
 function renderStudentFeedbackPanel(feedback = [], summary = {}, historyState = defaultStudentFeedbackHistoryState()) {

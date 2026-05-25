@@ -70,14 +70,15 @@ test("student dashboard returns own rows without storage ids and audits the view
       name: "Mentor A",
       message: "Mentor A can help with project questions.",
     },
-    dueDatesAvailable: false,
+    dueDatesAvailable: true,
   });
   assert.deepEqual(body.nextSteps, [
     {
       title: "Core Concept Proposal",
       status: "Missing",
       detail: "Start or finish Core Concept Proposal.",
-      dueDate: null,
+      dueDate: "2025-10-09T00:00:00Z",
+      dueLabel: "October 9 and 10",
     },
   ]);
   assert.deepEqual(body.requirements, [
@@ -90,6 +91,8 @@ test("student dashboard returns own rows without storage ids and audits the view
       progressStatus: "draft",
       submissionStatus: "draft",
       submissionVersion: 1,
+      dueDate: "2025-10-09T00:00:00Z",
+      dueLabel: "October 9 and 10",
       lastUpdatedAt: "2026-05-20T08:10:00.000Z",
       nextAction: "Finish Core Concept Proposal and attach the work your teacher requested.",
     },
@@ -318,6 +321,17 @@ function createFixture() {
     groups: [],
     requirements: [
       { id: "req-proposal-draft", program_id: null, phase: "proposal", title: "Core Concept Proposal", required: 1, sort_order: 1 },
+    ],
+    deadlines: [
+      {
+        id: "deadline-proposal-draft-1",
+        requirement_id: "req-proposal-draft",
+        program_id: null,
+        cohort_id: null,
+        title: "October 9 and 10",
+        due_at: "2025-10-09T00:00:00Z",
+        active: 1,
+      },
     ],
     progressRecords: [],
     submissions: [],
@@ -550,19 +564,34 @@ class MockPreparedStatement {
           .map((membership) => this.data.groups.find((group) => group.id === membership.group_id)?.program_id)
           .filter(Boolean),
       );
+      const studentCohortIds = new Set(
+        this.data.groupMemberships
+          .filter((membership) => membership.user_id === studentId)
+          .map((membership) => this.data.groups.find((group) => group.id === membership.group_id)?.cohort_id)
+          .filter(Boolean),
+      );
       return {
         results: this.data.requirements
           .filter((row) => Number(row.required ?? 1) === 1)
           .filter((row) => !row.program_id || studentProgramIds.has(row.program_id))
           .sort((a, b) => Number(a.sort_order || 0) - Number(b.sort_order || 0))
-          .map((row) => ({
-            id: row.id,
-            program_id: row.program_id ?? null,
-            phase: row.phase || "proposal",
-            title: row.title,
-            required: row.required ?? 1,
-            sort_order: row.sort_order ?? 0,
-          })),
+          .map((row) => {
+            const deadline = (this.data.deadlines || [])
+              .filter((deadlineRow) => deadlineRow.requirement_id === row.id && Number(deadlineRow.active ?? 1) === 1)
+              .filter((deadlineRow) => !deadlineRow.program_id || studentProgramIds.has(deadlineRow.program_id))
+              .filter((deadlineRow) => !deadlineRow.cohort_id || studentCohortIds.has(deadlineRow.cohort_id))
+              .sort((a, b) => String(a.due_at || "").localeCompare(String(b.due_at || "")) || String(a.title || "").localeCompare(String(b.title || "")))[0] || null;
+            return {
+              id: row.id,
+              program_id: row.program_id ?? null,
+              phase: row.phase || "proposal",
+              title: row.title,
+              required: row.required ?? 1,
+              sort_order: row.sort_order ?? 0,
+              due_at: deadline?.due_at || null,
+              due_label: deadline?.title || null,
+            };
+          }),
       };
     }
 

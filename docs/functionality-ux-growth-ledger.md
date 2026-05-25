@@ -1464,3 +1464,58 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: no dedicated student requirement detail route or write policy; due-date source mapping remains unclear; missing/evidence drill-down still lacks exact scoped route mapping; browser QA still needs credentialed runtime.
   - Do not repeat: do not rebuild the phase grouping unless a regression removes the grouped checklist.
   - First file to inspect next run: `workspace.js` `renderStudentRequirementPanel()` and `functions/api/student/dashboard.ts` `buildStudentRequirementDetails()`
+
+## Run 2026-05-25 06:06 PT
+
+- Starting SHA: `872a347301a4ffc3e8e1327eb91e21d1e7539524`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Branch policy: work stayed on clean local `main`; local `main` was twenty commits ahead of `origin/main`, `origin/main` was not ahead, and no push was run
+- Ladder level targeted: `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN`
+- Backlog item: `student-requirement-deadline-labels`; supports the student workspace/proposal progress row in `docs/mvp-requirements-catalog.md`
+- Work order selected: Add persisted deadline labels/dates to student next steps and `Your Required Work` rows using existing requirement/deadline records.
+- Selection reason: The previous handoff pointed to deeper requirement detail after phase grouping. Current source showed `deadlines` already persisted for requirements while `/api/student/dashboard` still returned `dueDatesAvailable: false` and the student UI rendered `Due date: Not available yet`. The selected slice exposes real deadline context without a new route, fake calendar page, mutation path, migration, or access expansion.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Student requirement deadline labels | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 5 | 5 | 5 | S | 58 | selected |
+| Student guided requirement form | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 5 | 3 | 4 | M | 45 | deferred: needs write-path design |
+| Student requirement detail page | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 5 | 3 | 4 | M | 44 | deferred: no dedicated route yet |
+| Richer due-date timeline | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 4 | 4 | 4 | M | 44 | deferred: labels are the safer first deadline slice |
+| Student requirement description details | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 4 | 4 | 4 | S | 43 | rejected: deadline visibility had clearer persisted value |
+| Student detail visible-note labels | `LEVEL_7_AUDITABILITY_AND_TRUST` | staff, student | 4 | 5 | 4 | S | 45 | rejected: less aligned to current student handoff |
+| Viewer read-only homepage clarity | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | viewer | 3 | 5 | 4 | XS | 42 | rejected: read-only controls already guarded |
+| Operations empty-state wording | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | staff, viewer | 3 | 5 | 4 | XS | 43 | rejected: copy-only while student data slice was ready |
+| Assignment form unavailable copy cleanup | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | site admin | 3 | 5 | 4 | XS | 43 | rejected: lower current student workflow value |
+| Student Directory mentor filter labels | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | staff | 4 | 3 | 4 | M | 42 | deferred: needs safe API-provided mentor labels |
+| Public app-preview language cleanup | `LEVEL_0_PROTOTYPE_CLEANUP` | public | 3 | 5 | 4 | S | 40 | rejected: protected student workflow had higher value |
+| Missing/evidence drill-down mapping | `LEVEL_1_NAVIGABLE_DASHBOARDS` | staff | 5 | 2 | 3 | M | 38 | deferred: exact scoped route/filter mapping remains unproven |
+| Program teacher missing-submission queue | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | program teacher | 4 | 3 | 3 | M | 37 | deferred: needs scoped route mapping |
+| Site Admin mentor POST default alignment | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | site admin | 4 | 2 | 4 | M | 37 | deferred: mutation policy risk is too high |
+| Mentor assigned-student meeting depth | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | mentor | 4 | 3 | 3 | M | 36 | deferred: needs route/data shape design |
+| Org-admin tenant rollup | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | org admin | 4 | 2 | 2 | L | 30 | blocked: needs backend aggregate/RBAC design |
+
+- User-facing improvement: Students now see persisted due labels such as `Due October 9 and 10` in the primary next step, next-steps list, and phase-grouped `Your Required Work` checklist.
+- Roles affected: `student`; staff, mentor, admin, tenant, site, program, and assignment access behavior was not changed.
+- Files changed: `functions/api/student/dashboard.ts`, `workspace.js`, `tests/student-dashboard-access.integration.test.mjs`, `tests/workspace-app.test.mjs`, `docs/student-progress-dashboard.md`, `docs/mvp-requirements-catalog.md`, `docs/functionality-language-audit.md`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`, `docs/progress/run-log.md`
+- Tests/verifiers added or updated: student dashboard integration test now asserts deadline labels/dates in the requirement payload and next steps; workspace render test now guards next-step and requirement due-date markers and visible deadline copy.
+- Validation commands:
+  - Focused: `node --test tests/student-dashboard-access.integration.test.mjs`; `node --test tests/workspace-app.test.mjs`; `npm run verify:functionality-language`
+  - Final: `npm run verify:dashboard-actions`; `npm run verify:review-queue-deeplinks`; `npm run verify:workspace-navigation`; `npm run verify:functionality-language`; `npm run verify:functionality-ux-automation`; `node --test tests/student-dashboard-access.integration.test.mjs`; `node --test tests/workspace-app.test.mjs`; `node --test tests/functionality-language-audit.test.mjs`; JSON parse for `automation/state/functionality-ux-growth-state.json`; `npm run check:route-inventory`; `npm run test`; `npm run typecheck`; `npm run check:production-surfaces`; `npm run check`; `git diff --check`; `git status --short`
+- Validation result: passed; `git diff --check` reported CRLF normalization warnings only
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: guided requirement form/detail page; richer due-date timeline; missing/evidence drill-down mapping; credentialed browser QA
+- New backlog items: none
+- Next recommended work order: add a guided student-safe requirement detail/form only if it uses persisted requirement/progress/deadline records and existing authorized submission/evidence endpoints, or prove exact missing/evidence drill-down mapping before exposing a staff control.
+- Do-not-repeat notes: do not re-add student requirement deadline labels; extend only with a real requirement detail/form or richer due-date timeline backed by existing deadlines.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN`
+  - Advanced: yes
+  - Evidence: `/api/student/dashboard` now resolves matching active `deadlines` for each required requirement and returns `dueDate`/`dueLabel`; `workspace.js` renders `data-student-next-step-due="true"` and `data-student-requirement-due="true"` with persisted due labels.
+  - Unlocks: a future guided requirement detail/form can include deadline context without first proving deadline source mapping.
+  - Next: add a guided student-safe requirement detail/form using persisted records and existing authorized submission/evidence endpoints, or prove missing/evidence drill-down mapping.
+  - Blockers: no dedicated student requirement detail route or write policy; missing/evidence drill-down still lacks exact scoped route mapping; browser QA still needs credentialed runtime.
+  - Do not repeat: do not rebuild deadline labels unless a regression removes the route payload or UI markers.
+  - First file to inspect next run: `workspace.js` `renderStudentRequirementPanel()` and `functions/api/student/dashboard.ts` `loadRequiredRequirements()`

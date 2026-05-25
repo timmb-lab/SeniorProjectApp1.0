@@ -1817,3 +1817,14 @@ Future productive runs should append compact entries that name the master-plan s
 - `changes`: `workspace.js` now groups requirement rows by phase and renders per-phase complete/remaining counts; `workspace.css` adds unframed phase spacing; `tests/workspace-app.test.mjs` guards phase keys, labels, and complete/incomplete counts.
 - `validation`: focused workspace test plus functionality-language, dashboard-action, and workspace-navigation verifiers passed before final validation; final validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
 - `commit/push status`: pending closeout commit.
+
+## 2026-05-25 PT - Functionality UX Upgrade Student Requirement Deadlines
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 6 student progress drill-down / requirement deadline labels.
+- `starting HEAD`: `872a347301a4ffc3e8e1327eb91e21d1e7539524`.
+- `selected slice`: Show persisted deadline labels/dates in the student next-step and phase-grouped `Your Required Work` surfaces.
+- `repo-grounded findings`: the previous handoff pointed to deeper requirement detail. Current source already had seeded `deadlines` records tied to requirements, but `/api/student/dashboard` returned `dueDatesAvailable: false` and the student UI rendered `Due date: Not available yet`.
+- `changes`: `/api/student/dashboard` now resolves the earliest active, student-program/cohort-compatible deadline for each required requirement and returns `dueDate`/`dueLabel`; `workspace.js` renders due labels in primary next-step, next-step rows, and requirement rows without adding a fake calendar/detail route; focused route/UI tests guard the payload and markers.
+- `validation`: full validation passed: dashboard/review/workspace/language/automation verifiers, focused student-dashboard/workspace/audit tests, JSON state parse, route inventory, full `npm run test`, `npm run typecheck`, production-surface check, aggregate `npm run check`, and `git diff --check` with CRLF normalization warnings only.
+- `commit/push status`: pending closeout commit.

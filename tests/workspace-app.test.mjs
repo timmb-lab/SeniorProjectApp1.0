@@ -2118,20 +2118,22 @@ test("workspace renders a progress-first student homepage with safe language", a
             name: "Ms. Garcia",
             message: "Ms. Garcia can help with project questions.",
           },
-          dueDatesAvailable: false,
+          dueDatesAvailable: true,
         },
         nextSteps: [
           {
             title: "Senior Project Proposal",
             status: "Needs Revision",
             detail: "Revise Senior Project Proposal and send it back for review.",
-            dueDate: null,
+            dueDate: "2025-10-09T00:00:00Z",
+            dueLabel: "October 9 and 10",
           },
           {
             title: "Mentor Meeting One Plan",
             status: "Missing",
             detail: "Start or finish Mentor Meeting One Plan.",
-            dueDate: null,
+            dueDate: "2026-01-14T00:00:00Z",
+            dueLabel: "January 14, make-up January 16",
           },
         ],
         requirements: [
@@ -2144,6 +2146,8 @@ test("workspace renders a progress-first student homepage with safe language", a
             progressStatus: "revision_requested",
             submissionStatus: "revision_requested",
             submissionVersion: 2,
+            dueDate: "2025-10-09T00:00:00Z",
+            dueLabel: "October 9 and 10",
             lastUpdatedAt: "2026-05-24T18:00:00.000Z",
             nextAction: "Revise Senior Project Proposal and send it back for review.",
           },
@@ -2156,6 +2160,8 @@ test("workspace renders a progress-first student homepage with safe language", a
             progressStatus: null,
             submissionStatus: null,
             submissionVersion: null,
+            dueDate: "2026-01-14T00:00:00Z",
+            dueLabel: "January 14, make-up January 16",
             lastUpdatedAt: null,
             nextAction: "Start Mentor Meeting One Plan when your teacher is ready for this step.",
           },
@@ -2168,6 +2174,8 @@ test("workspace renders a progress-first student homepage with safe language", a
             progressStatus: "approved",
             submissionStatus: "approved",
             submissionVersion: 1,
+            dueDate: "2026-04-08T00:00:00Z",
+            dueLabel: "April 8 and 9",
             lastUpdatedAt: "2026-05-23T18:00:00.000Z",
             nextAction: "You are done with Final Reflection.",
           },
@@ -2255,6 +2263,10 @@ test("workspace renders a progress-first student homepage with safe language", a
   assert.match(student, /1 of 1 complete/);
   assert.match(student, /data-student-requirement-row="true"/);
   assert.match(student, /Revise Senior Project Proposal and send it back for review/);
+  assert.match(student, /data-student-next-step-due="true"/);
+  assert.match(student, /data-student-requirement-due="true"/);
+  assert.match(student, /Due October 9 and 10/);
+  assert.match(student, /Due January 14, make-up January 16/);
   assert.match(student, /Version 2/);
   assert.match(student, /data-student-feedback-panel="true"/);
   assert.match(student, /data-student-feedback-history="true"/);
@@ -2270,7 +2282,7 @@ test("workspace renders a progress-first student homepage with safe language", a
   assert.match(student, /May 5 archive/);
   assert.match(student, /Finish Reflections and portfolio/);
   assert.match(student, /Need help/);
-  assert.match(student, /Due date: Not available yet/);
+  assert.doesNotMatch(student, /Due date: Not available yet/);
   assert.doesNotMatch(student, /Database-backed MVP/);
   assert.doesNotMatch(student, /Cloudflare target/);
   assert.doesNotMatch(student, /Audit-sensitive admin/);
