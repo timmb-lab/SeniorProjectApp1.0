@@ -1812,6 +1812,7 @@ function renderStudentDetailMentor(detail) {
           ${statusPill(mentor.latestMeetingStatus || (mentor.active ? "approved" : "blocked"))}
         </div>
       `)}
+      ${renderMentorMeetingForm(detail, mentor)}
       ${renderStudentDetailList("Mentor Coverage History", "Assignment timeline", history, "No mentor assignment history is available for this student.", (row) => `
         <article class="workspace-row">
           <div>
@@ -1835,6 +1836,41 @@ function renderStudentDetailMentor(detail) {
       `)}
     </section>
   `;
+}
+
+function renderMentorMeetingForm(detail, mentor = {}) {
+  if (!canRecordMentorMeeting(detail, mentor)) return "";
+  const student = detail.student || {};
+  const studentId = student.studentId || "";
+  return `
+    <form id="mentorMeetingForm" class="workspace-review-feedback" data-mentor-meeting-form="true">
+      <input type="hidden" name="studentId" value="${escapeHtml(studentId)}">
+      <label>
+        Meeting result
+        <select class="workspace-select" name="status" required>
+          <option value="held" selected>Held</option>
+          <option value="missed">Missed</option>
+          <option value="makeup_required">Make-up required</option>
+        </select>
+      </label>
+      <label>
+        Meeting notes
+        <textarea name="notes" rows="4" maxlength="1200" required></textarea>
+      </label>
+      <p class="workspace-muted">Only actively assigned mentors can record meetings for their assigned students.</p>
+      <button class="workspace-button workspace-button-primary" type="submit" data-mentor-meeting-action="record">Record meeting</button>
+    </form>
+  `;
+}
+
+function canRecordMentorMeeting(detail, mentor = {}) {
+  const roles = roleIds(currentUser);
+  const studentId = detail?.student?.studentId || "";
+  return roles.has("mentor")
+    && Boolean(studentId)
+    && Boolean(mentor.active)
+    && Boolean(mentor.mentorUserId)
+    && mentor.mentorUserId === currentUser?.id;
 }
 
 function renderMentorMeetingLinkedWork(row) {
@@ -4588,6 +4624,7 @@ function bindWorkspaceForms() {
   document.querySelectorAll("[data-student-detail-action]").forEach((button) => {
     button.addEventListener("click", handleSiteStudentDetailAction);
   });
+  document.querySelector("#mentorMeetingForm")?.addEventListener("submit", submitMentorMeeting);
   document.querySelector("#reviewQueueFilterForm")?.addEventListener("submit", applyReviewQueueFilters);
   document.querySelectorAll("[data-review-queue-action]").forEach((button) => {
     button.addEventListener("click", handleReviewQueueAction);
@@ -5031,6 +5068,42 @@ async function submitMentorAssignment(event) {
   }
 }
 
+async function submitMentorMeeting(event) {
+  event?.preventDefault?.();
+  if (busy) return;
+  const form = event?.currentTarget;
+  if (!form) return;
+  const data = new FormData(form);
+  const studentId = cleanDirectoryFilter(data.get("studentId"));
+  const status = cleanDirectoryFilter(data.get("status")) || "held";
+  const notes = String(data.get("notes") || "").trim().slice(0, 1200);
+  if (!studentId || !["held", "missed", "makeup_required"].includes(status) || !notes) {
+    renderAppShell("Choose a meeting result and add notes before saving.", "error");
+    return;
+  }
+  busy = true;
+  setFormBusy(form, true);
+  try {
+    const result = await settleApi(apiJson("/api/mentor/meetings", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ studentId, status, notes }),
+    }));
+    if (!result.ok) {
+      renderAppShell(messageForMentorMeetingError(result.body?.error || result.error, result.status), "error");
+      return;
+    }
+    await refreshConnectedSurfacesAfterMentorMeeting(studentId);
+    siteStudentDetailState = {
+      ...siteStudentDetailState,
+      activeTab: "mentor",
+    };
+    renderAppShell("Mentor meeting recorded.", "success");
+  } finally {
+    busy = false;
+  }
+}
+
 async function loadMentorAssignmentsResult(message = "") {
   const result = await settleApi(apiJson(`/api/site/mentor-assignments${siteMentorAssignmentQueryString()}`));
   currentData.mentorAssignments = result;
@@ -5043,6 +5116,40 @@ async function loadOperationsReadinessResult(message = "") {
   currentData.operationsReadiness = result;
   activeSection = "operations";
   renderAppShell(result.ok ? (message || "Operations readiness loaded.") : "Operations readiness unavailable.", result.ok ? "success" : "error");
+}
+
+async function refreshConnectedSurfacesAfterMentorMeeting(studentId) {
+  const detail = unwrap(siteStudentDetailState.result);
+  const siteId = selectedSiteQueryValue()
+    || detail?.scope?.siteId
+    || unwrap(currentData.siteStudents)?.scope?.siteId
+    || "";
+  const query = siteId ? `?siteId=${encodeURIComponent(siteId)}` : "";
+  const refreshes = [];
+  if (studentId) {
+    refreshes.push(settleApi(apiJson(`/api/site/students/${encodeURIComponent(studentId)}${query}`)).then((result) => {
+      if (result.ok) {
+        siteStudentDetailState = {
+          ...siteStudentDetailState,
+          studentId,
+          result,
+          timelineResult: null,
+        };
+        currentData.siteStudentDetail = result;
+      }
+    }));
+  }
+  if (currentData.mentorDashboard) {
+    refreshes.push(settleApi(apiJson("/api/mentor/dashboard")).then((result) => {
+      currentData.mentorDashboard = result;
+    }));
+  }
+  if (currentData.mentorAssigned) {
+    refreshes.push(settleApi(apiJson("/api/mentor/assigned")).then((result) => {
+      currentData.mentorAssigned = result;
+    }));
+  }
+  await Promise.all(refreshes);
 }
 
 async function refreshConnectedSurfacesAfterMentorAssignment(studentId, siteId) {
@@ -7263,6 +7370,15 @@ function messageForMentorAssignmentError(error, status) {
   if (status === 401) return "Sign in again before assigning a mentor.";
   if (status === 403) return "This role cannot change mentor assignments for this site.";
   return "Mentor assignment could not be saved right now.";
+}
+
+function messageForMentorMeetingError(error, status) {
+  if (error === "invalid_status") return "Choose a supported meeting result before saving.";
+  if (error === "missing_student_id") return "Open an assigned student before recording a meeting.";
+  if (error === "submission_scope_denied") return "The linked work is outside this student's record.";
+  if (status === 401) return "Sign in again before recording a mentor meeting.";
+  if (status === 403) return "Only the actively assigned mentor can record a meeting for this student.";
+  return "Mentor meeting could not be saved right now.";
 }
 
 function messageForSessionStateError(error, status) {

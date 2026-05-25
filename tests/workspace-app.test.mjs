@@ -25,6 +25,7 @@ test("workspace route is a real authenticated app surface", () => {
   assert.match(workspaceJs, /\/api\/admin\/dashboard/);
   assert.match(workspaceJs, /\/api\/program-teacher\/dashboard/);
   assert.match(workspaceJs, /\/api\/mentor\/dashboard/);
+  assert.match(workspaceJs, /\/api\/mentor\/meetings/);
   assert.match(workspaceJs, /\/api\/student\/dashboard/);
   assert.match(workspaceJs, /\/api\/student\/archive\/readiness/);
   assert.match(workspaceJs, /\/api\/site\/review-queue/);
@@ -75,6 +76,7 @@ test("workspace route is a real authenticated app surface", () => {
   assert.match(workspaceJs, /function renderSiteStudentDirectorySection/);
   assert.match(workspaceJs, /function renderProgramTeacherDashboardSection/);
   assert.match(workspaceJs, /function renderMentorDashboardSection/);
+  assert.match(workspaceJs, /function submitMentorMeeting/);
   assert.match(workspaceJs, /\/api\/site\/students\/\$\{encodeURIComponent\(selectedStudentId\)\}/);
   assert.match(workspaceJs, /\/api\/site\/students\/\$\{encodeURIComponent\(siteStudentDetailState\.studentId\)\}\/timeline/);
   assert.match(workspaceJs, /Continue with Google Workspace/);
@@ -2076,7 +2078,87 @@ test("workspace clarifies Operations empty states for active filters and true no
 
 test("mentor dashboard assigned students open detail and meeting history without leaving mentor context", async () => {
   const detailFixture = siteStudentDetailFixture({ readOnly: true });
-  const { context, workspaceRoot } = await createWorkspaceContextWithFetch({
+  let meetingRecorded = false;
+  let mentorMeetingPostBody = null;
+  const mentorDashboardBody = {
+    ok: true,
+    scope: "mentor_assigned",
+    summary: {
+      assignedCount: 2,
+      needsRevision: 1,
+      missingMeeting: 1,
+      presentationPending: 1,
+    },
+    assignedStudents: [
+      {
+        studentId: "demo-student-102",
+        studentName: "Avery On Track",
+        submissionStatus: "approved",
+        evidenceCount: 5,
+        mentorMeetingStatus: "completed",
+        presentationStatus: "completed",
+        outlineStatus: "approved",
+        needsAttention: [],
+      },
+      {
+        studentId: "demo-student-101",
+        studentName: "Zoe Needs Help",
+        submissionStatus: "revision_requested",
+        evidenceCount: 3,
+        mentorMeetingStatus: "makeup_required",
+        presentationStatus: "not_scheduled",
+        outlineStatus: "pending",
+        needsAttention: ["mentor_meeting", "presentation"],
+      },
+    ],
+  };
+  const mentorAssignedBody = {
+    ok: true,
+    mentorId: "mentor-detail-user",
+    assignedStudents: [],
+  };
+  const detailWithMeetings = () => ({
+    ...detailFixture,
+    mentor: {
+      ...detailFixture.mentor,
+      mentorUserId: "mentor-detail-user",
+      mentorName: "Mentor Detail",
+      active: true,
+      meetingCount: meetingRecorded ? 2 : 1,
+      latestMeetingStatus: meetingRecorded ? "held" : "makeup_required",
+    },
+    mentorMeetings: [
+      ...(meetingRecorded ? [{
+        mentorMeetingId: "meeting-new-101",
+        mentorUserId: "mentor-detail-user",
+        mentorName: "Mentor Detail",
+        status: "held",
+        scheduledFor: "",
+        heldAt: "2026-05-28T15:30:00.000Z",
+        notes: "Reviewed the updated evidence plan and next presentation step.",
+        createdAt: "2026-05-28T15:30:00.000Z",
+        updatedAt: "2026-05-28T15:30:00.000Z",
+        nextAction: "Meeting recorded.",
+      }] : []),
+      {
+        mentorMeetingId: "meeting-safe-101",
+        mentorUserId: "mentor-detail-user",
+        mentorName: "Mentor Detail",
+        submissionId: "submission-101",
+        submissionTitle: "Senior Project Proposal Draft",
+        submissionStatus: "revision_requested",
+        submissionVersion: 3,
+        status: "makeup_required",
+        scheduledFor: "2026-05-27T15:30:00.000Z",
+        heldAt: "",
+        notes: "Confirm a make-up check-in before presentation practice.",
+        createdAt: "2026-05-24T15:30:00.000Z",
+        updatedAt: "2026-05-24T15:30:00.000Z",
+        nextAction: "Follow up on the mentor meeting.",
+      },
+    ],
+  });
+  const { context, workspaceRoot, fetchRequests } = await createWorkspaceContextWithFetch({
     "/api/auth/me": {
       status: 200,
       body: {
@@ -2089,83 +2171,32 @@ test("mentor dashboard assigned students open detail and meeting history without
         },
       },
     },
-    "/api/mentor/dashboard": {
-      status: 200,
-      body: {
-        ok: true,
-        scope: "mentor_assigned",
-        summary: {
-          assignedCount: 2,
-          needsRevision: 1,
-          missingMeeting: 1,
-          presentationPending: 1,
-        },
-        assignedStudents: [
-          {
-            studentId: "demo-student-102",
-            studentName: "Avery On Track",
-            submissionStatus: "approved",
-            evidenceCount: 5,
-            mentorMeetingStatus: "completed",
-            presentationStatus: "completed",
-            outlineStatus: "approved",
-            needsAttention: [],
-          },
-          {
-            studentId: "demo-student-101",
-            studentName: "Zoe Needs Help",
-            submissionStatus: "revision_requested",
-            evidenceCount: 3,
-            mentorMeetingStatus: "makeup_required",
-            presentationStatus: "not_scheduled",
-            outlineStatus: "pending",
-            needsAttention: ["mentor_meeting", "presentation"],
-          },
-        ],
-      },
-    },
-    "/api/mentor/assigned": {
-      status: 200,
-      body: {
-        ok: true,
-        mentorId: "mentor-detail-user",
-        assignedStudents: [],
-      },
-    },
+    "/api/mentor/dashboard": () => ({ status: 200, body: mentorDashboardBody }),
+    "/api/mentor/assigned": () => ({ status: 200, body: mentorAssignedBody }),
     "/api/presentation-slots": {
       status: 200,
       body: { ok: true, slots: [], summary: {} },
     },
-    "/api/site/students/demo-student-101": {
-      status: 200,
-      body: {
-        ...detailFixture,
-        mentor: {
-          ...detailFixture.mentor,
-          mentorName: "Mentor Detail",
-          active: true,
-          meetingCount: 1,
-          latestMeetingStatus: "makeup_required",
-        },
-        mentorMeetings: [
-          {
-            mentorMeetingId: "meeting-safe-101",
-            mentorUserId: "mentor-detail-user",
-            mentorName: "Mentor Detail",
-            submissionId: "submission-101",
-            submissionTitle: "Senior Project Proposal Draft",
-            submissionStatus: "revision_requested",
-            submissionVersion: 3,
-            status: "makeup_required",
-            scheduledFor: "2026-05-27T15:30:00.000Z",
-            heldAt: "",
-            notes: "Confirm a make-up check-in before presentation practice.",
-            createdAt: "2026-05-24T15:30:00.000Z",
-            updatedAt: "2026-05-24T15:30:00.000Z",
-            nextAction: "Follow up on the mentor meeting.",
+    "/api/site/students/demo-student-101": () => ({ status: 200, body: detailWithMeetings() }),
+    "/api/mentor/meetings": ({ options }) => {
+      mentorMeetingPostBody = JSON.parse(String(options.body || "{}"));
+      meetingRecorded = true;
+      return {
+        status: 200,
+        body: {
+          ok: true,
+          meeting: {
+            id: "meeting-new-101",
+            mentorId: "mentor-detail-user",
+            studentId: "demo-student-101",
+            status: "held",
+            heldAt: "2026-05-28T15:30:00.000Z",
+            scheduledFor: null,
+            notes: "Reviewed the updated evidence plan and next presentation step.",
+            submissionId: null,
           },
-        ],
-      },
+        },
+      };
     },
   });
 
@@ -2202,6 +2233,9 @@ test("mentor dashboard assigned students open detail and meeting history without
   assert.match(workspaceRoot.innerHTML, /workspace-detail-drawer/);
   assert.match(workspaceRoot.innerHTML, /data-student-detail-section="mentor"/);
   assert.match(workspaceRoot.innerHTML, /Mentor Meetings/);
+  assert.match(workspaceRoot.innerHTML, /data-mentor-meeting-form="true"/);
+  assert.match(workspaceRoot.innerHTML, /Record meeting/);
+  assert.match(workspaceRoot.innerHTML, /Only actively assigned mentors can record meetings for their assigned students/);
   assert.match(workspaceRoot.innerHTML, /Confirm a make-up check-in before presentation practice/);
   assert.match(workspaceRoot.innerHTML, /Linked work: Senior Project Proposal Draft \(version 3, Revision requested\)/);
   assert.doesNotMatch(workspaceRoot.innerHTML, /submission-101/);
@@ -2210,6 +2244,34 @@ test("mentor dashboard assigned students open detail and meeting history without
     JSON.parse(vm.runInContext('JSON.stringify({ activeSection, sourceSection: siteStudentDetailState.sourceSection, activeTab: siteStudentDetailState.activeTab })', context)),
     { activeSection: "mentorDashboard", sourceSection: "mentorDashboard", activeTab: "mentor" },
   );
+
+  await vm.runInContext(`
+    FormData = class {
+      get(name) {
+        return {
+          studentId: "demo-student-101",
+          status: "held",
+          notes: "Reviewed the updated evidence plan and next presentation step."
+        }[name] || "";
+      }
+    };
+    submitMentorMeeting({
+      preventDefault() {},
+      currentTarget: {
+        querySelectorAll() { return []; }
+      }
+    });
+  `, context);
+
+  assert.deepEqual(mentorMeetingPostBody, {
+    studentId: "demo-student-101",
+    status: "held",
+    notes: "Reviewed the updated evidence plan and next presentation step.",
+  });
+  assert.ok(fetchRequests.some((entry) => entry.url === "/api/mentor/meetings" && entry.method === "POST"));
+  assert.match(workspaceRoot.innerHTML, /Mentor meeting recorded/);
+  assert.match(workspaceRoot.innerHTML, /Reviewed the updated evidence plan and next presentation step/);
+  assert.match(workspaceRoot.innerHTML, /2 meetings/);
 
   vm.runInContext('handleSiteStudentDetailAction({ currentTarget: { dataset: { studentDetailAction: "close" } } })', context);
   assert.equal(vm.runInContext("activeSection", context), "mentorDashboard");
@@ -4649,6 +4711,7 @@ async function createWorkspaceContextWithFetch(routes, options = {}) {
   let currentHref = initialUrl;
   const listeners = new Map();
   const fetchLog = [];
+  const fetchRequests = [];
   const locationChanges = [];
   const location = {};
   const updateLocation = (nextUrl) => {
@@ -4703,15 +4766,21 @@ async function createWorkspaceContextWithFetch(routes, options = {}) {
       querySelectorAll: () => [],
     },
     encodeURIComponent,
-    fetch: async (url) => {
+    fetch: async (url, options = {}) => {
       const rawPath = typeof url === "string" ? url : url?.pathname;
       fetchLog.push(String(rawPath || ""));
+      fetchRequests.push({
+        url: String(rawPath || ""),
+        method: String(options?.method || "GET").toUpperCase(),
+        body: options?.body || "",
+      });
       const pathname = String(rawPath || "").startsWith("http")
         ? new URL(rawPath).pathname
         : String(rawPath || "").split("?")[0];
-      const route = routes[pathname] || (pathname === "/api/site/operations-readiness"
+      const routeMatch = routes[pathname] || (pathname === "/api/site/operations-readiness"
         ? { status: 200, body: siteOperationsReadinessFixture() }
         : null);
+      const route = typeof routeMatch === "function" ? await routeMatch({ url: String(rawPath || ""), options }) : routeMatch;
       if (!route) throw new Error(`Unexpected workspace fetch: ${pathname}`);
       return {
         ok: route.status >= 200 && route.status < 300,
@@ -4729,5 +4798,5 @@ async function createWorkspaceContextWithFetch(routes, options = {}) {
   for (let index = 0; index < 8; index += 1) {
     await new Promise((resolve) => setTimeout(resolve, 0));
   }
-  return { context, workspaceRoot, fetchLog, locationChanges, window };
+  return { context, workspaceRoot, fetchLog, fetchRequests, locationChanges, window };
 }

@@ -192,12 +192,37 @@ test("mentor meetings endpoint enforces mutation auth, assignment scope, and aud
     });
   }
 
+  // POST rejects linked submissions that do not belong to the assigned student.
+  {
+    const response = await onMentorMeetingsPost({
+      request: buildJsonRequest("https://example.test/api/mentor/meetings", fixture.tokens.mentorA, {
+        studentId: "student-a",
+        status: "held",
+        submissionId: "submission-b",
+        notes: "Tried to link work from another student.",
+      }),
+      env: fixture.env,
+    });
+    assert.equal(response.status, 403);
+    const body = await response.json();
+    assert.deepEqual(body, { ok: false, error: "submission_scope_denied" });
+    assert.equal(fixture.db.data.mentorMeetings.length, 2);
+    assert.equal(fixture.db.data.auditEvents.at(-1).action, "mentor_meeting_denied");
+    assert.deepEqual(readAuditMetadata(fixture), {
+      reason: "submission_scope_denied",
+      studentId: "student-a",
+      status: "held",
+      actorRoleScopes: [{ roleId: "mentor", scopeType: "global", scopeId: "" }],
+    });
+  }
+
   // POST succeeds for assigned student and writes a meeting row plus audit row.
   {
     const response = await onMentorMeetingsPost({
       request: buildJsonRequest("https://example.test/api/mentor/meetings", fixture.tokens.mentorA, {
         studentId: "student-a",
         status: "held",
+        submissionId: "submission-a",
         notes: "Met to review evidence plan and presentation outline.",
       }),
       env: fixture.env,
@@ -209,9 +234,11 @@ test("mentor meetings endpoint enforces mutation auth, assignment scope, and aud
     assert.equal(body.meeting.status, "held");
     assert.equal(typeof body.meeting.id, "string");
     assert.equal(typeof body.meeting.heldAt, "string");
+    assert.equal(body.meeting.submissionId, "submission-a");
 
     assert.equal(fixture.db.data.mentorMeetings.length, 3);
     assert.equal(fixture.db.data.mentorMeetings.at(-1).id, body.meeting.id);
+    assert.equal(fixture.db.data.mentorMeetings.at(-1).submission_id, "submission-a");
     assert.equal(fixture.db.data.auditEvents.at(-1).action, "mentor_meeting_held");
     assert.deepEqual(readAuditMetadata(fixture).actorRoleScopes, [
       { roleId: "mentor", scopeType: "global", scopeId: "" },
@@ -226,6 +253,7 @@ async function createFixture() {
     userRoles: [],
     groups: [],
     groupMemberships: [],
+    submissions: [],
     mentorAssignments: [],
     mentorMeetings: [],
     auditEvents: [],
@@ -268,6 +296,8 @@ async function createFixture() {
   db.data.mentorAssignments.push({ id: "assign-a", mentor_user_id: "mentor-a", student_user_id: "student-a", active: 1 });
   db.data.mentorAssignments.push({ id: "assign-b", mentor_user_id: "mentor-b", student_user_id: "student-b", active: 1 });
   db.data.mentorAssignments.push({ id: "assign-inactive", mentor_user_id: "mentor-inactive", student_user_id: "student-a", active: 0 });
+  db.data.submissions.push({ id: "submission-a", student_id: "student-a" });
+  db.data.submissions.push({ id: "submission-b", student_id: "student-b" });
 
   db.data.mentorMeetings.push(buildMeeting({
     id: "meeting-a",
@@ -456,6 +486,12 @@ class MockD1PreparedStatement {
         (entry) => entry.mentor_user_id === mentorUserId && entry.student_user_id === studentUserId && Number(entry.active) === 1,
       );
       return row ? { id: row.id } : null;
+    }
+
+    if (sql.startsWith("select student_id from submissions where id = ?")) {
+      const [submissionId] = this.params;
+      const row = this.db.data.submissions.find((entry) => entry.id === submissionId);
+      return row ? { student_id: row.student_id } : null;
     }
 
     if (sql.includes("from user_roles teacher_role") && sql.includes("join group_memberships student_group")) {

@@ -2391,3 +2391,57 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: mentor meeting mutation UX, mentor reassignment/remove controls, student progress exports, and real-user credential delivery need product/security decisions; browser QA still needs credentialed runtime.
   - Do not repeat: do not rebuild this Mentor Meeting linked-work context unless regression evidence appears.
   - First file to inspect next run: `functions/api/mentor/meetings.ts` `onRequestPost()`
+
+## Run 2026-05-25 14:39 PT
+
+- Starting SHA: `b065512f2aabc8c14c0db621fd8af3987247a8d4`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Branch policy: work stayed on clean local `main`; local `main` was seven commits ahead of `origin/main`, `origin/main` was not ahead, and no push was run
+- Ladder level targeted: `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` with `LEVEL_7_AUDITABILITY_AND_TRUST` support
+- Backlog item: `mentor-meeting-record-form`; advances `MVP-017`, `MVP-020`, `MVP-032`, and `MVP-033`
+- Work order selected: Add a real mentor-only meeting record form to the existing authorized student-detail Mentor tab.
+- Selection reason: The previous handoff named `/api/mentor/meetings` `onRequestPost()`. Current source already had a scoped meeting mutation endpoint for active assigned mentors, and the Mentor Dashboard already opens the authorized Mentor tab; the missing product slice was a safe UI path plus submission-link privacy hardening before exposing the existing mutation.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Mentor meeting record form | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | mentor | 4 | 4 | 5 | S | 56 | selected |
+| Mentor meeting linked-submission scope guard | `LEVEL_7_AUDITABILITY_AND_TRUST` | mentor, student | 4 | 5 | 5 | XS | 55 | included |
+| Mentor meeting scheduled-date UI | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | mentor | 3 | 3 | 4 | S | 42 | rejected: date/time policy and schedule semantics need product decision |
+| Staff mentor meeting record controls | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | site staff, program teacher | 4 | 2 | 3 | M | 35 | rejected: endpoint is mentor-only and staff mutation policy is not defined |
+| Mentor meeting standalone section | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | mentor | 3 | 3 | 3 | M | 38 | rejected: existing student-detail Mentor tab is safer |
+| Mentor assignment reassignment controls | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | site admin | 5 | 2 | 3 | L | 33 | rejected: mutation policy and audit design needed |
+| Mentor assignment remove workflow | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | site admin | 4 | 2 | 3 | M | 33 | rejected: dangerous control without policy |
+| Review Queue missing-evidence filter proof | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | site staff, program teacher | 5 | 2 | 3 | M | 37 | deferred: backend/privacy support missing |
+| Student Directory missing-evidence filter | `LEVEL_1_NAVIGABLE_DASHBOARDS` | site staff, viewer | 4 | 2 | 3 | M | 35 | deferred: exact route filter missing |
+| Public app-preview language cleanup | `LEVEL_0_PROTOTYPE_CLEANUP` | public stakeholders | 3 | 5 | 4 | S | 40 | rejected: protected mentor workflow had higher current value |
+| Student requirement detail extension | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 4 | 4 | 4 | S | 44 | rejected: no new persisted field identified |
+| Operations report filter polish | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | site staff, viewer | 3 | 4 | 4 | S | 42 | rejected: recent Operations filter work is complete |
+| Downloadable student progress summary | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | student, staff | 4 | 2 | 3 | L | 31 | rejected: export/privacy policy needed |
+| Credentialed browser QA | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all | 4 | 4 | 3 | M | 39 | blocked: needs credentialed runtime |
+| Org-admin tenant rollup | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | org_admin | 4 | 2 | 2 | L | 30 | blocked: backend aggregate and RBAC design needed |
+
+- User-facing improvement: Active assigned mentors can record held, missed, or make-up-required meetings from the student-detail Mentor tab, and the page refreshes the Mentor tab/dashboard context after save.
+- Roles affected: `mentor` through the existing active-assignment authorization path. Staff/viewer/program-teacher/admin read paths remain read-only for this form.
+- Files changed: `functions/api/mentor/meetings.ts`, `workspace.js`, `tests/mentor-meetings.integration.test.mjs`, `tests/workspace-app.test.mjs`, `docs/functionality-language-audit.md`, `docs/mvp-requirements-catalog.md`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`, `docs/progress/run-log.md`, `docs/progress/runs/2026-05-25-1439-mentor-meeting-record-form.json`
+- Tests/verifiers added or updated: mentor meeting route test now blocks linked submissions outside the selected student; workspace render/handler test proves the mentor-only record form posts to `/api/mentor/meetings`, refreshes detail, and preserves Mentor Dashboard context.
+- Validation commands:
+  - Focused passed before docs/state closeout: `node --test tests/mentor-meetings.integration.test.mjs`; `node --test tests/workspace-app.test.mjs`; `npm run verify:functionality-language`; `npm run verify:dashboard-actions`; `npm run verify:workspace-navigation`
+  - Final passed: `git diff --check`; `npm run verify:review-queue-deeplinks`; `npm run verify:dashboard-actions`; `npm run verify:workspace-navigation`; `npm run verify:functionality-language`; `npm run verify:functionality-ux-automation`; `node --test tests/functionality-language-audit.test.mjs`; JSON parse for state and manifest; `npm run check:route-inventory`; `npm run test`; `npm run typecheck`; `npm run check:production-surfaces`; `npm run check`
+- Validation result: passed; `git diff --check` reported only CRLF normalization warnings, with no whitespace errors.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: staff meeting record controls, scheduled-meeting date/time UI, mentor reassignment/remove controls, Review Queue and Student Directory missing/evidence filters, and exports remain deferred.
+- New backlog items: none
+- Next recommended work order: inspect public app-preview language cleanup or hosted/browser permission proof; protected mentor meeting read/create depth is now healthy enough to avoid another adjacent mentor slice unless regression appears.
+- Do-not-repeat notes: do not re-add the mentor meeting record form or linked-submission scope guard unless regression removes `data-mentor-meeting-form="true"`, `submitMentorMeeting()`, or `submission_scope_denied`.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW`
+  - Advanced: yes
+  - Evidence: actively assigned mentors can save real meeting records from the authorized Mentor tab, route tests enforce assignment and linked-submission scope, and workspace tests prove refresh/context preservation.
+  - Unlocks: future mentor work can move to hosted proof or policy-backed staff scheduling instead of basic record creation.
+  - Next: inspect public app-preview language cleanup or hosted section-level permission-denied proof.
+  - Blockers: staff meeting creation, scheduling semantics, reassignment/remove controls, and exports need product/security policy; browser QA still needs credentialed runtime.
+  - Do not repeat: do not rebuild this mentor meeting record form or submission guard without regression evidence.
+  - First file to inspect next run: `app.js` `app-preview` copy, or `tests/workspace-browser-smoke.test.mjs` for hosted permission proof

@@ -108,7 +108,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   const scheduledFor = typeof body.scheduledFor === "string" ? body.scheduledFor.trim() : "";
   const heldAt = status === "held" ? new Date().toISOString() : null;
   const notes = cleanWorkflowText(body.notes, "", 1200) || null;
-  const submissionId = typeof body.submissionId === "string" ? body.submissionId.trim() : null;
+  const submissionId = cleanWorkflowText(body.submissionId, "", 160) || null;
 
   const user = await getCurrentUser(request, env);
   if (!user) {
@@ -150,6 +150,23 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
       },
     });
     return workflowError("forbidden", 403);
+  }
+
+  if (submissionId && !await submissionBelongsToStudent(env, submissionId, studentId)) {
+    await writeAudit(env, {
+      actorUserId: user.id,
+      action: "mentor_meeting_denied",
+      entityType: "mentor_meeting",
+      entityId: null,
+      request,
+      metadata: {
+        reason: "submission_scope_denied",
+        studentId,
+        status,
+        actorRoleScopes: serializeRoleScopes(await getRoleAssignments(env, user.id)),
+      },
+    });
+    return workflowError("submission_scope_denied", 403);
   }
 
   const meetingId = randomId("meeting");
@@ -281,6 +298,13 @@ function formatMeeting(row: MeetingRow) {
     notes: row.notes,
     createdAt: row.created_at,
   };
+}
+
+async function submissionBelongsToStudent(env: Env, submissionId: string, studentId: string): Promise<boolean> {
+  const row = await env.DB.prepare(
+    "SELECT student_id FROM submissions WHERE id = ? LIMIT 1",
+  ).bind(submissionId).first<{ student_id: string }>();
+  return row?.student_id === studentId;
 }
 
 async function auditMentorMeetingsAccess(

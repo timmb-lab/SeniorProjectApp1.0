@@ -2004,3 +2004,14 @@ Future productive runs should append compact entries that name the master-plan s
 - `changes`: `/api/site/students/:studentId` now joins mentor meetings to existing submissions and requirements and returns safe linked-work title, submission status, and version context. The Mentor tab renders that context as `Linked work` while the workspace test proves the raw linked submission ID is not rendered in the meeting row.
 - `validation`: focused student-detail route test, workspace render/handler test, and functionality-language verifier passed before final validation. Final validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
 - `commit/push status`: pending closeout commit; not pushed by this automation run.
+
+## 2026-05-25 PT - Functionality UX Upgrade Mentor Meeting Record Form
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 3 mentor assignment workflow / mentor meeting creation.
+- `starting HEAD`: `b065512f2aabc8c14c0db621fd8af3987247a8d4`.
+- `selected slice`: Add a mentor-only `Record meeting` form to the existing authorized student-detail Mentor tab.
+- `repo-grounded findings`: the previous handoff named `/api/mentor/meetings` `onRequestPost()`. Current source already enforced active assigned-mentor POST access, but the workspace exposed only meeting history; the endpoint also accepted optional linked submission IDs without proving the linked submission belonged to the selected student.
+- `changes`: `workspace.js` renders the record form only for the actively assigned mentor, posts held/missed/make-up-required results to `/api/mentor/meetings`, refreshes mentor detail/dashboard context after save, and keeps staff/viewer read paths unchanged. `/api/mentor/meetings` now rejects optional linked submissions outside the selected student with `submission_scope_denied`.
+- `validation`: focused mentor-meeting route test, workspace render/handler test, and language/dashboard/navigation verifiers passed before final validation. Final validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.
