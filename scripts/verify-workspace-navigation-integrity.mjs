@@ -84,7 +84,22 @@ assertMatches("workspaceJs", /data-mentor-assignment-controls-hidden="true"[\s\S
 assertMatches("workspaceJs", /data-operations-read-only="true"[\s\S]*Read-only operations worklists/, "Operations view must remain monitoring-only");
 
 assertMatches("workspaceJs", /renderActiveFilterSummary\(/, "Workspace lists must expose active filter summaries");
+assertMatches("workspaceJs", /Reload or share this view with the current browser URL/, "Filtered worklists must explain reloadable/shareable URL state");
+for (const fn of [
+  "siteStudentFiltersFromSearchParams",
+  "mentorAssignmentFiltersFromSearchParams",
+  "operationsReadinessFiltersFromSearchParams",
+  "syncSiteStudentUrlState",
+  "syncMentorAssignmentUrlState",
+  "syncOperationsReadinessUrlState",
+  "syncCurrentWorkspaceUrlState",
+  "syncWorkspaceSectionOnlyUrlState",
+]) {
+  assertMatches("workspaceJs", new RegExp(`function ${fn}\\b`), `${fn} must exist for shareable worklist URL state`);
+}
+assertMatches("workspaceJs", /selectWorkspaceSite\(siteId\)[\s\S]*syncCurrentWorkspaceUrlState\(\{ clearFilters: true, replace: true \}\)/, "Site switching must clear stale worklist filters from URL state");
 assertMatches("workspaceCss", /\.workspace-active-filters/, "Active filter summaries must have stable styling");
+assertMatches("workspaceCss", /\.workspace-active-filter-note/, "Shareable filter URL note must have stable styling");
 assertIncludes("dashboardVerifier", "unsupported dashboard action preset", "dashboard verifier should still guard unsupported presets");
 assertIncludes("reviewQueueVerifier", "Review Queue URL parsing", "review queue deep-link verifier should be present");
 

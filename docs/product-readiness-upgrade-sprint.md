@@ -429,3 +429,106 @@ Recommended next sprint:
 2. Run credentialed browser QA for Review Queue deep links, active filters, collapsed navigation, mobile wrapping, and multi-site switching.
 3. Consider a scoped student-specific Review Queue link only after backend, UI label, and privacy review confirm it will not expose raw IDs or bypass student boundaries.
 4. Add URL-state support to Student Directory or Mentor Assignments only if the product wants reloadable staff worklist URLs beyond Review Queue.
+
+## Product Functionality Upgrade Megapass 4.1 - 2026-05-24 18:35 PT
+
+Branch: `main`
+
+Starting branch/SHA: `main` / `b9c347c46d59c31c82a63b70ea027025c6cc4eb8`
+
+Ending branch/SHA: `main` / pending closeout commit; final commit hash is recorded in the final report because writing it here would change the hash.
+
+Origin confirmed: `https://github.com/timmb-lab/SeniorProjectApp1.0.git`
+
+Package confirmed: `senior-capstone-app`
+
+Branch policy confirmation: no new branch was created; work was performed directly on current `main` after the clean preflight and baseline validation passed.
+
+Candidate opportunities inspected: 286 real opportunities across dashboard navigation, Review Queue, Student Directory, Mentor Assignments, Operations, evidence/review wording, student next steps, read-only role clarity, tests/verifiers, and docs/state. Many were already covered by Megasprint 3.0 or were deferred for missing backend/filter/privacy proof; the count was not padded with formatting-only churn.
+
+Candidate opportunities implemented: 12.
+
+### Megapass 4.1 Candidate Decision Summary
+
+| Area | Inspected | Implemented | Deferred/Rejected Reason |
+| --- | ---: | ---: | --- |
+| Dashboard/workspace navigation | 34 | 2 | More drill-downs require exact metric-to-filter mapping or would create fake controls. |
+| Review Queue | 31 | 1 | Existing URL-state preserved; `missing`, `evidenceStatus`, mentor/student IDs still lack complete supported Review Queue filter paths. |
+| Missing-submission/evidence mapping | 18 | 0 | Deferred until source metric, route, visible filter, and privacy-safe scope are exact. |
+| Student Directory | 34 | 3 | Mentor filter by raw ID still deferred because UI options and labeling are not returned by the directory API. |
+| Mentor Assignments | 29 | 2 | Additional mutation flows rejected because only assign-currently-unassigned is supported. |
+| Operations readiness | 27 | 2 | Scheduling, check-in/out, archive retry/export actions remain unsupported in this read-only worklist. |
+| Evidence/review flow | 22 | 0 | No access-policy or review-decision semantics were changed. |
+| Student experience | 24 | 0 | Own-student next-action card was preserved; deeper student task links require route/product decisions. |
+| Admin/program/mentor experience | 24 | 1 | More rollups need backend aggregate design. |
+| Viewer/Administration read-only | 17 | 0 | Existing read-only protections were preserved and verifier-covered. |
+| Language/accessibility/empty states | 24 | 1 | No broad cosmetic changes; only filter/share/clear wording changed. |
+| Tests/verifiers | 23 | 3 | Added focused protection for implemented behavior. |
+
+### Implemented Improvements By Area
+
+- Dashboard/workspace navigation: dashboard presets for program rows, no-mentor rows, mentor workload rows, presentation pending, and archive failed now sync supported filtered worklist URLs instead of only changing in-memory state.
+- Review Queue: existing safe URL-state behavior was preserved while shared worklist URL cleanup now removes stale worklist params consistently.
+- Student Directory: `section=students` URLs now restore existing supported filters for search, program, status, no mentor, risk, story, presentation, archive, limit, and offset; filter changes, pagination, dashboard program drill-downs, and clear filters update the URL.
+- Mentor Assignments: `section=mentorAssignments` URLs now restore existing supported filters for program, mentor, student search, status, no mentor, limit, and offset; no-mentor and mentor-workload dashboard drill-downs now produce reloadable URLs.
+- Operations readiness: `section=operations` URLs now restore existing supported filters for program, submission status, story, risk, presentation, archive, readiness, limit, and offset; the UI now exposes the existing submission-status filter rather than hiding an API-supported filter.
+- Evidence/review flow: no evidence access or review-decision policy changed; review/evidence surfaces were revalidated through existing scoped tests.
+- Student experience: no student-only data path changed; own-student dashboard and evidence upload/link flows were revalidated.
+- Admin/program/mentor experience: active filter summaries now explain that filtered worklists can be reloaded or shared from the current browser URL.
+- Viewer/Administration read-only surfaces: read-only banners and hidden mutation controls were preserved; no mutation controls were added for viewer/admin read-only paths.
+- Language/accessibility/empty states: filter reset buttons now say `Clear filters`, active chips include page size and offset when those values narrow the result set, and active-filter notes have stable styling.
+- Tests/verifiers: `tests/workspace-app.test.mjs` now covers shareable Student Directory, Mentor Assignments, and Operations URLs, malformed/stale param cleanup, site-switch URL canonicalization, and the Operations submission filter. `verify:dashboard-actions` now requires URL sync for route-backed dashboard presets. `verify:workspace-navigation` now requires shareable worklist URL helpers and site-switch stale-filter cleanup.
+- Docs/state: this closeout section, the growth ledger, and `automation/state/functionality-ux-growth-state.json` were updated for Megapass 4.1 handoff.
+
+### Supported Routes And Query Params
+
+- Workspace sections confirmed: `overview`, `siteDashboard`, `students`, `student`, `archive`, `mentorDashboard`, `mentor`, `programDashboard`, `teacher`, `mentorAssignments`, `operations`, `presentation`, `adminDashboard`, `readiness`, `adminUsers`, `audit`, `archiveExports`, `security`.
+- Student Directory route confirmed: `/api/site/students`; supported shareable params are `section=students`, `siteId`, `search`, `programId`, `status`, `noMentor`, `risk`, `story`, `presentationStatus`, `archiveStatus`, `limit`, and `offset`.
+- Mentor Assignments route confirmed: `/api/site/mentor-assignments`; supported shareable params are `section=mentorAssignments`, `siteId`, `programId`, `mentorUserId`, `studentSearch`, `status`, `noMentor`, `limit`, and `offset`.
+- Operations route confirmed: `/api/site/operations-readiness`; supported shareable params are `section=operations`, `siteId`, `programId`, `status`, `story`, `risk`, `presentationStatus`, `archiveStatus`, `readiness`, `limit`, and `offset`.
+- Review Queue route confirmed: `/api/site/review-queue`; existing supported params remain `section=teacher`, `view=reviewQueue`, `siteId`, `status`, `reviewStatus`, `submissionStatus`, `programId`, `search`, `story`, `risk`, `limit`, `offset`, `needsReview`, `unassigned`, and `overdue`.
+- Unsupported/deferred Review Queue params remain `missing`, `evidenceStatus`, `mentorUserId`, `studentUserId`, and `studentId`; they are not emitted in generated queue URLs.
+
+### Validation Notes
+
+Preflight and baseline validation passed before edits on `main` at `b9c347c46d59c31c82a63b70ea027025c6cc4eb8`.
+
+Full validation passed before docs closeout:
+
+- `npm run verify:dashboard-actions`
+- `npm run verify:review-queue-deeplinks`
+- `npm run verify:workspace-navigation`
+- `npm run verify:functionality-language`
+- `npm run verify:functionality-ux-automation`
+- `node --test tests/workspace-app.test.mjs`
+- `node --test tests/functionality-language-audit.test.mjs`
+- `node --test tests/account-and-evidence-access.test.mjs`
+- `npm run test`
+- `npm run typecheck`
+- `npm run check:production-surfaces`
+- `npm run check`
+- `git diff --check`
+- `git status --short`
+
+Post-docs final validation is run after this section is written and reported in the final response.
+
+RBAC/privacy notes:
+
+- No authentication, authorization helper, tenant/site/program/mentor/student boundary, evidence access policy, migration, D1 config, secret, env file, account reset, Cloudflare production setting, Google OAuth setting, live data, deployment, or destructive command was changed.
+- URL state feeds only existing scoped API filters and preserves server-side authorization as the enforcement boundary.
+- Site switching clears stale worklist params and preserves the selected `siteId` without adding cross-site rollups.
+
+Browser QA status: not run. This run used deterministic source/render tests only; credentialed browser QA remains blocked by local runtime/credential setup.
+
+Recommended next sprint:
+
+1. Map missing-submission/evidence-attention counts to a real supported route/filter only if the metric source and privacy-safe visible filter are exact.
+2. Run credentialed browser QA for Student Directory, Review Queue, Mentor Assignments, Operations, site switching, active filters, and mobile wrapping.
+3. Consider Student Directory mentor filtering only after the directory API returns safe mentor filter options and labels.
+4. Improve student detail latest-feedback context using fields already returned by the authorized detail API.
+
+Do-not-repeat notes:
+
+- Do not create Review Queue links with `missing`, `evidenceStatus`, `mentorUserId`, `studentUserId`, or `studentId` until backend, UI, tests, verifier, and privacy review are complete.
+- Do not add fake missing-submission, evidence-attention, intervention, archive retry, presentation scheduling, all-sites rollup, or student-specific queue controls.
+- Do not reintroduce retired builder cadence checks or hardcoded local repo-root enforcement.

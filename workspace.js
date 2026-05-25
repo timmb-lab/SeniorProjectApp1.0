@@ -151,6 +151,16 @@ const WORKSPACE_SECTION_IDS = new Set([
 const REVIEW_QUEUE_STATUS_VALUES = new Set(["submitted", "revision_requested", "approved"]);
 const REVIEW_QUEUE_STORY_VALUES = new Set(["model_excellent", "missing_mentor", "awaiting_review", "revision_requested", "presentation_pending", "archive_ready", "archive_failed", "high_risk", "rich_timeline"]);
 const REVIEW_QUEUE_RISK_VALUES = new Set(["any", "high", "medium", "low", "stale", "no_mentor"]);
+const SITE_STUDENT_STATUS_VALUES = new Set(["draft", "submitted", "under_review", "revision_requested", "approved", "blocked", "archived", "complete"]);
+const SITE_STUDENT_RISK_VALUES = new Set(["any", "high", "medium", "low", "stale", "no_mentor"]);
+const SITE_STUDENT_PRESENTATION_STATUS_VALUES = new Set(["any", "pending", "scheduled", "completed", "missing"]);
+const SITE_STUDENT_ARCHIVE_STATUS_VALUES = new Set(["any", "ready", "complete", "failed", "missing"]);
+const MENTOR_ASSIGNMENT_STATUS_VALUES = new Set(["active", "unassigned", "all"]);
+const OPERATIONS_STUDENT_STATUS_VALUES = new Set(["draft", "submitted", "under_review", "revision_requested", "approved", "blocked", "archived", "complete"]);
+const OPERATIONS_RISK_VALUES = new Set(["any", "high", "medium", "low", "stale", "no_mentor"]);
+const OPERATIONS_PRESENTATION_STATUS_VALUES = new Set(["ready", "pending", "scheduled", "completed", "missing", "outline_pending", "outline_revision_needed", "attention_required"]);
+const OPERATIONS_ARCHIVE_STATUS_VALUES = new Set(["ready", "complete", "failed", "missing", "queued", "running", "expired", "expiring_soon", "provider_unavailable"]);
+const OPERATIONS_READINESS_VALUES = new Set(["ready", "in_progress", "attention_required", "blocked", "missing", "complete"]);
 const REVIEW_QUEUE_URL_FILTER_PARAMS = [
   "status",
   "reviewStatus",
@@ -170,6 +180,44 @@ const REVIEW_QUEUE_URL_FILTER_PARAMS = [
   "studentUserId",
   "studentId",
 ];
+const SITE_STUDENT_URL_FILTER_PARAMS = [
+  "search",
+  "programId",
+  "status",
+  "noMentor",
+  "risk",
+  "story",
+  "presentationStatus",
+  "archiveStatus",
+  "limit",
+  "offset",
+];
+const MENTOR_ASSIGNMENT_URL_FILTER_PARAMS = [
+  "programId",
+  "mentorUserId",
+  "studentSearch",
+  "status",
+  "noMentor",
+  "limit",
+  "offset",
+];
+const OPERATIONS_URL_FILTER_PARAMS = [
+  "programId",
+  "status",
+  "story",
+  "risk",
+  "presentationStatus",
+  "archiveStatus",
+  "readiness",
+  "limit",
+  "offset",
+];
+const WORKLIST_URL_FILTER_PARAMS = Array.from(new Set([
+  ...REVIEW_QUEUE_URL_FILTER_PARAMS,
+  ...SITE_STUDENT_URL_FILTER_PARAMS,
+  ...MENTOR_ASSIGNMENT_URL_FILTER_PARAMS,
+  ...OPERATIONS_URL_FILTER_PARAMS,
+]));
 let uploadState = {
   state: "idle",
   progress: 0,
@@ -721,6 +769,7 @@ async function selectWorkspaceSite(siteId) {
   reviewQueueState = defaultReviewQueueState();
   mentorAssignmentFilters = defaultMentorAssignmentFilters();
   operationsReadinessFilters = defaultOperationsReadinessFilters();
+  syncCurrentWorkspaceUrlState({ clearFilters: true, replace: true });
   await loadWorkspaceData("Current site updated.");
 }
 
@@ -733,6 +782,7 @@ async function openWorkspaceSection(button) {
       status: "unassigned",
       noMentor: true,
     };
+    syncMentorAssignmentUrlState();
     await loadMentorAssignmentsResult("Showing students without mentors.");
     return;
   }
@@ -744,6 +794,7 @@ async function openWorkspaceSection(button) {
       mentorUserId,
       status: "active",
     };
+    syncMentorAssignmentUrlState();
     await loadMentorAssignmentsResult("Showing this mentor's active student load.");
     return;
   }
@@ -756,6 +807,7 @@ async function openWorkspaceSection(button) {
     };
     siteStudentDetailState = defaultSiteStudentDetailState();
     activeSection = "students";
+    syncSiteStudentUrlState();
     await loadWorkspaceData("Showing students in the selected program.");
     return;
   }
@@ -785,6 +837,7 @@ async function openWorkspaceSection(button) {
       presentationStatus: "pending",
       readiness: "attention_required",
     };
+    syncOperationsReadinessUrlState();
     await loadOperationsReadinessResult("Showing presentation readiness follow-up.");
     return;
   }
@@ -794,6 +847,7 @@ async function openWorkspaceSection(button) {
       archiveStatus: "failed",
       readiness: "blocked",
     };
+    syncOperationsReadinessUrlState();
     await loadOperationsReadinessResult("Showing archive follow-up.");
     return;
   }
@@ -1210,7 +1264,7 @@ function renderStudentDirectoryFilterBar(directory) {
       <input name="limit" type="hidden" value="${escapeHtml(filters.limit || 50)}">
       <div class="workspace-form-actions">
         <button class="workspace-button workspace-button-primary" type="submit">Apply filters</button>
-        <button class="workspace-button workspace-button-secondary" type="button" data-site-student-action="reset-filters">Reset</button>
+        <button class="workspace-button workspace-button-secondary" type="button" data-site-student-action="reset-filters">Clear filters</button>
       </div>
     </form>
   `;
@@ -1226,6 +1280,8 @@ function renderStudentDirectoryActiveFilters(filters = {}, options = {}) {
   if (filters.presentationStatus && filters.presentationStatus !== "any") chips.push(activeFilterChip("Presentation", statusText(filters.presentationStatus)));
   if (filters.archiveStatus && filters.archiveStatus !== "any") chips.push(activeFilterChip("Archive", statusText(filters.archiveStatus)));
   if (filters.noMentor) chips.push(activeFilterChip("Mentor", "No active mentor"));
+  if (safeNumber(filters.limit) !== 50) chips.push(activeFilterChip("Page size", filters.limit));
+  if (safeNumber(filters.offset) > 0) chips.push(activeFilterChip("Offset", filters.offset));
   return renderActiveFilterSummary("Student directory", chips, 'data-site-student-action="reset-filters"');
 }
 
@@ -1722,6 +1778,7 @@ function renderActiveFilterSummary(label, chips = [], resetAttribute = "") {
     <section class="workspace-active-filters" data-active-filters="true" aria-label="${escapeHtml(label)} active filters">
       <div>
         <strong>Active filters</strong>
+        <span class="workspace-active-filter-note">Reload or share this view with the current browser URL.</span>
         <div class="workspace-active-filter-chip-row">${chips.join("")}</div>
       </div>
       <button class="workspace-button workspace-button-secondary" type="button" ${resetAttribute}>Clear filters</button>
@@ -2266,7 +2323,7 @@ function renderMentorAssignmentFilters(body) {
       <input name="limit" type="hidden" value="${escapeHtml(filters.limit || 50)}">
       <div class="workspace-form-actions">
         <button class="workspace-button workspace-button-primary" type="submit">Apply filters</button>
-        <button class="workspace-button workspace-button-secondary" type="button" data-mentor-assignment-action="reset-filters">Reset</button>
+        <button class="workspace-button workspace-button-secondary" type="button" data-mentor-assignment-action="reset-filters">Clear filters</button>
       </div>
     </form>
   `;
@@ -2283,6 +2340,8 @@ function renderMentorAssignmentActiveFilters(filters = {}, options = {}) {
   if (filters.status) chips.push(activeFilterChip("Coverage", statusText(filters.status)));
   if (filters.studentSearch) chips.push(activeFilterChip("Student search", filters.studentSearch));
   if (filters.noMentor) chips.push(activeFilterChip("Mentor", "No active mentor"));
+  if (safeNumber(filters.limit) !== 50) chips.push(activeFilterChip("Page size", filters.limit));
+  if (safeNumber(filters.offset) > 0) chips.push(activeFilterChip("Offset", filters.offset));
   return renderActiveFilterSummary("Mentor assignments", chips, 'data-mentor-assignment-action="reset-filters"');
 }
 
@@ -2535,6 +2594,12 @@ function renderOperationsFilters(body) {
         </select>
       </label>
       <label class="workspace-label">
+        <span>Submission</span>
+        <select class="workspace-select" name="status">
+          ${renderValueOptions(options.statuses || [], filters.status || "", "Any submission", statusText)}
+        </select>
+      </label>
+      <label class="workspace-label">
         <span>Presentation</span>
         <select class="workspace-select" name="presentationStatus">
           ${renderValueOptions(options.presentationStatuses || [], filters.presentationStatus || "", "Any presentation", statusText)}
@@ -2568,7 +2633,7 @@ function renderOperationsFilters(body) {
       <input name="limit" type="hidden" value="${escapeHtml(filters.limit || 50)}">
       <div class="workspace-form-actions">
         <button class="workspace-button workspace-button-primary" type="submit">Apply filters</button>
-        <button class="workspace-button workspace-button-secondary" type="button" data-operations-action="reset-filters">Reset</button>
+        <button class="workspace-button workspace-button-secondary" type="button" data-operations-action="reset-filters">Clear filters</button>
       </div>
     </form>
   `;
@@ -2577,11 +2642,14 @@ function renderOperationsFilters(body) {
 function renderOperationsActiveFilters(filters = {}, options = {}) {
   const chips = [];
   if (filters.programId) chips.push(activeFilterChip("Program", programLabel(options.programs, filters.programId)));
+  if (filters.status) chips.push(activeFilterChip("Submission", statusText(filters.status)));
   if (filters.presentationStatus) chips.push(activeFilterChip("Presentation", statusText(filters.presentationStatus)));
   if (filters.archiveStatus) chips.push(activeFilterChip("Archive", statusText(filters.archiveStatus)));
   if (filters.readiness) chips.push(activeFilterChip("Readiness", statusText(filters.readiness)));
   if (filters.story) chips.push(activeFilterChip("Story", storyLabel(filters.story)));
   if (filters.risk && filters.risk !== "any") chips.push(activeFilterChip("Risk", riskLabel(filters.risk)));
+  if (safeNumber(filters.limit) !== 50) chips.push(activeFilterChip("Page size", filters.limit));
+  if (safeNumber(filters.offset) > 0) chips.push(activeFilterChip("Offset", filters.offset));
   return renderActiveFilterSummary("Operations readiness", chips, 'data-operations-action="reset-filters"');
 }
 
@@ -3402,7 +3470,7 @@ function renderReviewQueueFilters(body) {
         </select>
       </label>
       <button class="workspace-button workspace-button-primary" type="submit">Apply filters</button>
-      <button class="workspace-button workspace-button-secondary" type="button" data-review-queue-action="reset-filters">Reset</button>
+      <button class="workspace-button workspace-button-secondary" type="button" data-review-queue-action="reset-filters">Clear filters</button>
     </form>
   `;
 }
@@ -3414,6 +3482,8 @@ function renderReviewQueueActiveFilters(filters = {}, options = {}) {
   if (filters.story) chips.push(activeFilterChip("Story", storyLabel(filters.story)));
   if (filters.risk && filters.risk !== "any") chips.push(activeFilterChip("Risk", riskLabel(filters.risk)));
   if (filters.search) chips.push(activeFilterChip("Search", filters.search));
+  if (safeNumber(filters.limit) !== 50) chips.push(activeFilterChip("Page size", filters.limit));
+  if (safeNumber(filters.offset) > 0) chips.push(activeFilterChip("Offset", filters.offset));
   return renderActiveFilterSummary("Review queue", chips, 'data-review-queue-action="reset-filters"');
 }
 
@@ -3850,6 +3920,7 @@ async function applySiteStudentFilters(event) {
     offset: 0,
   };
   activeSection = "students";
+  syncSiteStudentUrlState();
   await loadWorkspaceData("Student directory filters applied.");
 }
 
@@ -3888,6 +3959,7 @@ async function applyMentorAssignmentFilters(event) {
     offset: 0,
   };
   activeSection = "mentorAssignments";
+  syncMentorAssignmentUrlState();
   await loadMentorAssignmentsResult("Mentor assignment filters applied.");
 }
 
@@ -3908,6 +3980,7 @@ async function applyOperationsReadinessFilters(event) {
     offset: 0,
   };
   activeSection = "operations";
+  syncOperationsReadinessUrlState();
   await loadOperationsReadinessResult("Operations filters applied.");
 }
 
@@ -3922,6 +3995,7 @@ async function handleOperationsReadinessAction(event) {
   if (action === "reset-filters") {
     operationsReadinessFilters = defaultOperationsReadinessFilters();
     activeSection = "operations";
+    syncOperationsReadinessUrlState({ clearFilters: true });
     await loadOperationsReadinessResult("Operations filters reset.");
     return;
   }
@@ -3936,6 +4010,7 @@ async function handleOperationsReadinessAction(event) {
       offset: action === "previous-page" ? Math.max(0, offset - limit) : offset + limit,
     };
     activeSection = "operations";
+    syncOperationsReadinessUrlState();
     await loadOperationsReadinessResult("Operations page updated.");
   }
 }
@@ -3951,6 +4026,7 @@ async function handleMentorAssignmentAction(event) {
   if (action === "reset-filters") {
     mentorAssignmentFilters = defaultMentorAssignmentFilters();
     activeSection = "mentorAssignments";
+    syncMentorAssignmentUrlState({ clearFilters: true });
     await loadMentorAssignmentsResult("Mentor assignment filters reset.");
     return;
   }
@@ -3965,6 +4041,7 @@ async function handleMentorAssignmentAction(event) {
       offset: action === "previous-page" ? Math.max(0, offset - limit) : offset + limit,
     };
     activeSection = "mentorAssignments";
+    syncMentorAssignmentUrlState();
     await loadMentorAssignmentsResult("Mentor assignment page updated.");
   }
 }
@@ -4193,6 +4270,7 @@ async function handleSiteStudentAction(event) {
     siteStudentFilters = defaultSiteStudentFilters();
     siteStudentDetailState = defaultSiteStudentDetailState();
     activeSection = "students";
+    syncSiteStudentUrlState({ clearFilters: true });
     await loadWorkspaceData("Student directory filters reset.");
     return;
   }
@@ -4207,6 +4285,7 @@ async function handleSiteStudentAction(event) {
       offset: action === "previous-page" ? Math.max(0, offset - limit) : offset + limit,
     };
     activeSection = "students";
+    syncSiteStudentUrlState();
     await loadWorkspaceData("Student directory page updated.");
   }
 }
@@ -5409,9 +5488,23 @@ function bindWorkspaceUrlEvents() {
 async function handleWorkspaceUrlPopState() {
   const state = workspaceUrlStateFromLocation();
   applyWorkspaceUrlState(state);
-  if (state.hasReviewQueueState && currentUser && hasSiteReviewQueueRole(roleIds(currentUser))) {
+  const roles = roleIds(currentUser);
+  if (state.hasReviewQueueState && currentUser && hasSiteReviewQueueRole(roles)) {
     reviewQueueState = defaultReviewQueueState();
     await loadReviewQueueResult("Review queue link restored.", { syncUrl: false });
+    return;
+  }
+  if (state.hasSiteStudentState && currentUser && hasSiteStudentDirectoryRole(roles)) {
+    siteStudentDetailState = defaultSiteStudentDetailState();
+    await loadWorkspaceData("Student directory link restored.");
+    return;
+  }
+  if (state.hasMentorAssignmentState && currentUser && hasSiteMentorAssignmentRole(roles)) {
+    await loadMentorAssignmentsResult("Mentor assignment link restored.");
+    return;
+  }
+  if (state.hasOperationsReadinessState && currentUser && hasSiteOperationsRole(roles)) {
+    await loadOperationsReadinessResult("Operations readiness link restored.");
     return;
   }
   renderAppShell();
@@ -5428,6 +5521,19 @@ function applyWorkspaceUrlState(state, options = {}) {
     reviewQueueState = defaultReviewQueueState();
     if (!state.section) activeSection = "teacher";
   }
+  if (state.hasSiteStudentState) {
+    siteStudentFilters = state.siteStudentFilters;
+    siteStudentDetailState = defaultSiteStudentDetailState();
+    if (!state.section) activeSection = "students";
+  }
+  if (state.hasMentorAssignmentState) {
+    mentorAssignmentFilters = state.mentorAssignmentFilters;
+    if (!state.section) activeSection = "mentorAssignments";
+  }
+  if (state.hasOperationsReadinessState) {
+    operationsReadinessFilters = state.operationsReadinessFilters;
+    if (!state.section) activeSection = "operations";
+  }
 }
 
 function workspaceUrlStateFromLocation() {
@@ -5437,12 +5543,32 @@ function workspaceUrlStateFromLocation() {
   const requestedSection = cleanWorkspaceSection(params.get("section"));
   const requestedView = cleanDirectoryFilter(params.get("view"));
   const reviewQueueViewRequested = requestedSection === "teacher" || requestedView === "reviewQueue" || requestedView === "review-queue";
-  const hasReviewQueueState = reviewQueueViewRequested || hasReviewQueueFilterParams(params);
+  const studentDirectoryViewRequested = requestedSection === "students" || requestedView === "students" || requestedView === "studentDirectory" || requestedView === "student-directory";
+  const mentorAssignmentsViewRequested = requestedSection === "mentorAssignments" || requestedView === "mentorAssignments" || requestedView === "mentor-assignments";
+  const operationsReadinessViewRequested = requestedSection === "operations" || requestedView === "operations" || requestedView === "operationsReadiness" || requestedView === "operations-readiness";
+  const hasReviewQueueState = reviewQueueViewRequested || (!requestedSection && !requestedView && hasReviewQueueFilterParams(params));
+  const hasSiteStudentState = studentDirectoryViewRequested;
+  const hasMentorAssignmentState = mentorAssignmentsViewRequested;
+  const hasOperationsReadinessState = operationsReadinessViewRequested;
   return {
-    section: reviewQueueViewRequested ? "teacher" : requestedSection,
+    section: reviewQueueViewRequested
+      ? "teacher"
+      : studentDirectoryViewRequested
+        ? "students"
+        : mentorAssignmentsViewRequested
+          ? "mentorAssignments"
+          : operationsReadinessViewRequested
+            ? "operations"
+            : requestedSection,
     siteId: cleanDirectoryFilter(params.get("siteId")),
     hasReviewQueueState,
     reviewQueueFilters: hasReviewQueueState ? reviewQueueFiltersFromSearchParams(params) : defaultReviewQueueFilters(),
+    hasSiteStudentState,
+    siteStudentFilters: hasSiteStudentState ? siteStudentFiltersFromSearchParams(params) : defaultSiteStudentFilters(),
+    hasMentorAssignmentState,
+    mentorAssignmentFilters: hasMentorAssignmentState ? mentorAssignmentFiltersFromSearchParams(params) : defaultMentorAssignmentFilters(),
+    hasOperationsReadinessState,
+    operationsReadinessFilters: hasOperationsReadinessState ? operationsReadinessFiltersFromSearchParams(params) : defaultOperationsReadinessFilters(),
   };
 }
 
@@ -5488,13 +5614,57 @@ function reviewQueueFiltersFromSearchParams(params) {
   return filters;
 }
 
+function siteStudentFiltersFromSearchParams(params) {
+  const filters = defaultSiteStudentFilters();
+  filters.search = cleanSearchFilter(params.get("search"));
+  filters.programId = cleanDirectoryFilter(params.get("programId"));
+  filters.status = canonicalReviewQueueValue(params.get("status"), SITE_STUDENT_STATUS_VALUES);
+  filters.noMentor = booleanQueryValue(params.get("noMentor"));
+  filters.risk = canonicalReviewQueueValue(params.get("risk"), SITE_STUDENT_RISK_VALUES, "any");
+  filters.story = canonicalReviewQueueValue(params.get("story"), REVIEW_QUEUE_STORY_VALUES);
+  filters.presentationStatus = canonicalReviewQueueValue(params.get("presentationStatus"), SITE_STUDENT_PRESENTATION_STATUS_VALUES, "any");
+  filters.archiveStatus = canonicalReviewQueueValue(params.get("archiveStatus"), SITE_STUDENT_ARCHIVE_STATUS_VALUES, "any");
+  filters.limit = clampDirectoryNumber(params.get("limit"), 50, 1, 100);
+  filters.offset = clampDirectoryNumber(params.get("offset"), 0, 0, 100000);
+  return filters;
+}
+
+function mentorAssignmentFiltersFromSearchParams(params) {
+  const filters = defaultMentorAssignmentFilters();
+  filters.programId = cleanDirectoryFilter(params.get("programId"));
+  filters.mentorUserId = cleanDirectoryFilter(params.get("mentorUserId"));
+  filters.studentSearch = cleanSearchFilter(params.get("studentSearch"));
+  filters.noMentor = booleanQueryValue(params.get("noMentor"));
+  filters.status = filters.noMentor
+    ? "unassigned"
+    : canonicalReviewQueueValue(params.get("status"), MENTOR_ASSIGNMENT_STATUS_VALUES);
+  filters.limit = clampDirectoryNumber(params.get("limit"), 50, 1, 100);
+  filters.offset = clampDirectoryNumber(params.get("offset"), 0, 0, 100000);
+  return filters;
+}
+
+function operationsReadinessFiltersFromSearchParams(params) {
+  const filters = defaultOperationsReadinessFilters();
+  filters.programId = cleanDirectoryFilter(params.get("programId"));
+  filters.status = canonicalReviewQueueValue(params.get("status"), OPERATIONS_STUDENT_STATUS_VALUES);
+  filters.story = canonicalReviewQueueValue(params.get("story"), REVIEW_QUEUE_STORY_VALUES);
+  filters.risk = canonicalReviewQueueValue(params.get("risk"), OPERATIONS_RISK_VALUES, "any");
+  filters.presentationStatus = canonicalReviewQueueValue(params.get("presentationStatus"), OPERATIONS_PRESENTATION_STATUS_VALUES);
+  filters.archiveStatus = canonicalReviewQueueValue(params.get("archiveStatus"), OPERATIONS_ARCHIVE_STATUS_VALUES);
+  filters.readiness = canonicalReviewQueueValue(params.get("readiness"), OPERATIONS_READINESS_VALUES);
+  filters.limit = clampDirectoryNumber(params.get("limit"), 50, 1, 100);
+  filters.offset = clampDirectoryNumber(params.get("offset"), 0, 0, 100000);
+  return filters;
+}
+
 function syncReviewQueueUrlState(options = {}) {
   const url = currentWorkspaceUrl();
   if (!url || typeof window === "undefined" || !window.history) return;
   const filters = reviewQueueFilters || defaultReviewQueueFilters();
-  for (const param of REVIEW_QUEUE_URL_FILTER_PARAMS) {
+  for (const param of WORKLIST_URL_FILTER_PARAMS) {
     url.searchParams.delete(param);
   }
+  url.searchParams.delete("view");
   url.searchParams.set("section", "teacher");
   const siteId = selectedSiteQueryValue() || unwrap(currentData.reviewQueue)?.scope?.siteId || "";
   if (siteId) url.searchParams.set("siteId", siteId);
@@ -5512,6 +5682,109 @@ function syncReviewQueueUrlState(options = {}) {
   if (nextUrl === currentPath) return;
   const method = options.replace ? "replaceState" : "pushState";
   window.history[method]?.({ section: "teacher" }, "", nextUrl);
+}
+
+function syncCurrentWorkspaceUrlState(options = {}) {
+  if (activeSection === "teacher") {
+    syncReviewQueueUrlState(options);
+    return;
+  }
+  if (activeSection === "students") {
+    syncSiteStudentUrlState(options);
+    return;
+  }
+  if (activeSection === "mentorAssignments") {
+    syncMentorAssignmentUrlState(options);
+    return;
+  }
+  if (activeSection === "operations") {
+    syncOperationsReadinessUrlState(options);
+    return;
+  }
+  syncWorkspaceSectionOnlyUrlState(activeSection, options);
+}
+
+function syncSiteStudentUrlState(options = {}) {
+  syncFilteredWorkspaceUrlState("students", siteStudentFilters || defaultSiteStudentFilters(), options, (url, filters) => {
+    if (filters.search) url.searchParams.set("search", filters.search);
+    if (filters.programId) url.searchParams.set("programId", filters.programId);
+    if (filters.status) url.searchParams.set("status", filters.status);
+    if (filters.noMentor) url.searchParams.set("noMentor", "true");
+    if (filters.risk && filters.risk !== "any") url.searchParams.set("risk", filters.risk);
+    if (filters.story) url.searchParams.set("story", filters.story);
+    if (filters.presentationStatus && filters.presentationStatus !== "any") url.searchParams.set("presentationStatus", filters.presentationStatus);
+    if (filters.archiveStatus && filters.archiveStatus !== "any") url.searchParams.set("archiveStatus", filters.archiveStatus);
+    if (safeNumber(filters.limit) !== 50) url.searchParams.set("limit", String(filters.limit));
+    if (safeNumber(filters.offset) > 0) url.searchParams.set("offset", String(filters.offset));
+  });
+}
+
+function syncMentorAssignmentUrlState(options = {}) {
+  syncFilteredWorkspaceUrlState("mentorAssignments", mentorAssignmentFilters || defaultMentorAssignmentFilters(), options, (url, filters) => {
+    if (filters.programId) url.searchParams.set("programId", filters.programId);
+    if (filters.mentorUserId) url.searchParams.set("mentorUserId", filters.mentorUserId);
+    if (filters.studentSearch) url.searchParams.set("studentSearch", filters.studentSearch);
+    if (filters.status) url.searchParams.set("status", filters.status);
+    if (filters.noMentor) url.searchParams.set("noMentor", "true");
+    if (safeNumber(filters.limit) !== 50) url.searchParams.set("limit", String(filters.limit));
+    if (safeNumber(filters.offset) > 0) url.searchParams.set("offset", String(filters.offset));
+  });
+}
+
+function syncOperationsReadinessUrlState(options = {}) {
+  syncFilteredWorkspaceUrlState("operations", operationsReadinessFilters || defaultOperationsReadinessFilters(), options, (url, filters) => {
+    if (filters.programId) url.searchParams.set("programId", filters.programId);
+    if (filters.status) url.searchParams.set("status", filters.status);
+    if (filters.story) url.searchParams.set("story", filters.story);
+    if (filters.risk && filters.risk !== "any") url.searchParams.set("risk", filters.risk);
+    if (filters.presentationStatus) url.searchParams.set("presentationStatus", filters.presentationStatus);
+    if (filters.archiveStatus) url.searchParams.set("archiveStatus", filters.archiveStatus);
+    if (filters.readiness) url.searchParams.set("readiness", filters.readiness);
+    if (safeNumber(filters.limit) !== 50) url.searchParams.set("limit", String(filters.limit));
+    if (safeNumber(filters.offset) > 0) url.searchParams.set("offset", String(filters.offset));
+  });
+}
+
+function syncFilteredWorkspaceUrlState(section, filters, options = {}, writeFilters = () => {}) {
+  const url = currentWorkspaceUrl();
+  if (!url || typeof window === "undefined" || !window.history) return;
+  for (const param of WORKLIST_URL_FILTER_PARAMS) {
+    url.searchParams.delete(param);
+  }
+  url.searchParams.delete("view");
+  url.searchParams.set("section", section);
+  const siteId = selectedSiteQueryValue()
+    || unwrap(currentData.siteDashboard)?.scope?.siteId
+    || unwrap(currentData.siteStudents)?.scope?.siteId
+    || unwrap(currentData.reviewQueue)?.scope?.siteId
+    || unwrap(currentData.mentorAssignments)?.scope?.siteId
+    || unwrap(currentData.operationsReadiness)?.scope?.siteId
+    || "";
+  if (siteId) url.searchParams.set("siteId", siteId);
+  if (!options.clearFilters) writeFilters(url, filters || {});
+  const nextUrl = `${url.pathname}${url.search}${url.hash}`;
+  const currentPath = `${window.location.pathname || url.pathname}${window.location.search || ""}${window.location.hash || ""}`;
+  if (nextUrl === currentPath) return;
+  const method = options.replace ? "replaceState" : "pushState";
+  window.history[method]?.({ section }, "", nextUrl);
+}
+
+function syncWorkspaceSectionOnlyUrlState(section, options = {}) {
+  const url = currentWorkspaceUrl();
+  if (!url || typeof window === "undefined" || !window.history) return;
+  for (const param of WORKLIST_URL_FILTER_PARAMS) {
+    url.searchParams.delete(param);
+  }
+  url.searchParams.delete("view");
+  const sectionId = cleanWorkspaceSection(section) || "overview";
+  url.searchParams.set("section", sectionId);
+  const siteId = selectedSiteQueryValue();
+  if (siteId) url.searchParams.set("siteId", siteId);
+  const nextUrl = `${url.pathname}${url.search}${url.hash}`;
+  const currentPath = `${window.location.pathname || url.pathname}${window.location.search || ""}${window.location.hash || ""}`;
+  if (nextUrl === currentPath) return;
+  const method = options.replace ? "replaceState" : "pushState";
+  window.history[method]?.({ section: sectionId }, "", nextUrl);
 }
 
 function cleanWorkspaceSection(value) {

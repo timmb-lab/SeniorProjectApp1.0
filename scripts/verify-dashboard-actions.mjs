@@ -105,19 +105,26 @@ for (const [preset, section] of allowedPresets) {
 }
 
 assertIncludes("workspaceJs", "function siteStudentQueryString()", "Student Directory query helper must exist");
+assertIncludes("workspaceJs", "function syncSiteStudentUrlState", "Student Directory filtered actions must sync shareable URL state");
 assertIncludes("workspaceJs", 'params.set("programId", filters.programId)', "Student Directory must support programId filters");
 assertMatches(
   "workspaceJs",
-  /section === "students" && button\.dataset\.sectionPreset === "program"[\s\S]*const programId = cleanDirectoryFilter\(button\.dataset\.programId\)[\s\S]*programId,/,
-  "program drill-down must set the Student Directory program filter",
+  /section === "students" && button\.dataset\.sectionPreset === "program"[\s\S]*const programId = cleanDirectoryFilter\(button\.dataset\.programId\)[\s\S]*programId,[\s\S]*syncSiteStudentUrlState\(\)/,
+  "program drill-down must set the Student Directory program filter and sync URL state",
 );
 
 assertIncludes("workspaceJs", "function siteMentorAssignmentQueryString()", "Mentor Assignments query helper must exist");
+assertIncludes("workspaceJs", "function syncMentorAssignmentUrlState", "Mentor Assignments filtered actions must sync shareable URL state");
 assertIncludes("workspaceJs", 'params.set("mentorUserId", filters.mentorUserId)', "Mentor Assignments must support mentorUserId filters");
 assertMatches(
   "workspaceJs",
-  /section === "mentorAssignments" && button\.dataset\.sectionPreset === "mentor-workload"[\s\S]*const mentorUserId = cleanDirectoryFilter\(button\.dataset\.mentorId\)[\s\S]*mentorUserId,/,
-  "mentor workload drill-down must set the Mentor Assignments mentor filter",
+  /section === "mentorAssignments" && button\.dataset\.sectionPreset === "no-mentor"[\s\S]*status: "unassigned"[\s\S]*noMentor: true[\s\S]*syncMentorAssignmentUrlState\(\)/,
+  "no-mentor drill-down must set the Mentor Assignments unassigned filter and sync URL state",
+);
+assertMatches(
+  "workspaceJs",
+  /section === "mentorAssignments" && button\.dataset\.sectionPreset === "mentor-workload"[\s\S]*const mentorUserId = cleanDirectoryFilter\(button\.dataset\.mentorId\)[\s\S]*mentorUserId,[\s\S]*syncMentorAssignmentUrlState\(\)/,
+  "mentor workload drill-down must set the Mentor Assignments mentor filter and sync URL state",
 );
 
 assertMatches(
@@ -132,13 +139,13 @@ assertMatches(
 );
 assertMatches(
   "workspaceJs",
-  /section === "operations" && button\.dataset\.sectionPreset === "presentation-pending"[\s\S]*presentationStatus: "pending"/,
-  "presentation dashboard preset must be backed by an operations presentation filter",
+  /section === "operations" && button\.dataset\.sectionPreset === "presentation-pending"[\s\S]*presentationStatus: "pending"[\s\S]*syncOperationsReadinessUrlState\(\)/,
+  "presentation dashboard preset must be backed by an operations presentation filter and sync URL state",
 );
 assertMatches(
   "workspaceJs",
-  /section === "operations" && button\.dataset\.sectionPreset === "archive-failed"[\s\S]*archiveStatus: "failed"/,
-  "archive dashboard preset must be backed by an operations archive filter",
+  /section === "operations" && button\.dataset\.sectionPreset === "archive-failed"[\s\S]*archiveStatus: "failed"[\s\S]*syncOperationsReadinessUrlState\(\)/,
+  "archive dashboard preset must be backed by an operations archive filter and sync URL state",
 );
 
 for (const [handler, action, loader] of [

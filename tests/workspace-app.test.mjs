@@ -867,6 +867,171 @@ test("workspace applies Review Queue URL filters safely and syncs filter URLs", 
   assert.equal(restored.risk, "stale");
 });
 
+test("workspace applies shareable URL filters for site worklists safely", async () => {
+  const baseRoutes = {
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "site-admin-worklist-url",
+          email: "site.worklist.url@example.edu",
+          displayName: "Site Worklist URL Admin",
+          roles: [{ role_id: "site_admin", scope_type: "site", scope_id: "site-desert-valley-high" }],
+        },
+      },
+    },
+    "/api/site/dashboard": {
+      status: 200,
+      body: siteDashboardFixture({ readOnly: false }),
+    },
+    "/api/site/review-queue": {
+      status: 200,
+      body: siteReviewQueueFixture({ role: "site_admin", readOnly: true }),
+    },
+    "/api/site/mentor-assignments": {
+      status: 200,
+      body: siteMentorAssignmentsFixture({ role: "site_admin", canManage: true }),
+    },
+  };
+
+  const studentFilters = {
+    search: "Revision Loop",
+    programId: "it",
+    status: "revision_requested",
+    noMentor: true,
+    risk: "any",
+    story: "missing_mentor",
+    presentationStatus: "pending",
+    archiveStatus: "failed",
+    limit: 100,
+    offset: 25,
+  };
+  const studentContext = await createWorkspaceContextWithFetch({
+    ...baseRoutes,
+    "/api/site/students": {
+      status: 200,
+      body: siteStudentsFixture({ filters: studentFilters }),
+    },
+  }, {
+    url: "https://workspace.example/workspace.html?section=students&siteId=site-desert-valley-high&search=%20Revision%20%20Loop%20&programId=it&status=revision_requested&risk=bogus&story=missing_mentor&presentationStatus=pending&archiveStatus=failed&noMentor=true&limit=999&offset=25&unknown=keep&mentorUserId=stale",
+  });
+  const studentFetch = studentContext.fetchLog.find((entry) => entry.startsWith("/api/site/students?"));
+  assert.ok(studentFetch, "expected Student Directory fetch with URL filters");
+  const studentUrl = new URL(studentFetch, "https://workspace.example");
+  assert.equal(studentUrl.searchParams.get("siteId"), "site-desert-valley-high");
+  assert.equal(studentUrl.searchParams.get("search"), "Revision Loop");
+  assert.equal(studentUrl.searchParams.get("programId"), "it");
+  assert.equal(studentUrl.searchParams.get("status"), "revision_requested");
+  assert.equal(studentUrl.searchParams.get("story"), "missing_mentor");
+  assert.equal(studentUrl.searchParams.get("presentationStatus"), "pending");
+  assert.equal(studentUrl.searchParams.get("archiveStatus"), "failed");
+  assert.equal(studentUrl.searchParams.get("noMentor"), "true");
+  assert.equal(studentUrl.searchParams.get("limit"), "100");
+  assert.equal(studentUrl.searchParams.get("offset"), "25");
+  assert.equal(studentUrl.searchParams.has("risk"), false);
+  assert.equal(studentUrl.searchParams.has("mentorUserId"), false);
+  assert.match(studentContext.workspaceRoot.innerHTML, /data-section="students"/);
+  assert.match(studentContext.workspaceRoot.innerHTML, /Reload or share this view with the current browser URL/);
+  assert.match(studentContext.workspaceRoot.innerHTML, /Page size/);
+  assert.match(studentContext.workspaceRoot.innerHTML, /Offset/);
+  await vm.runInContext('handleSiteStudentAction({ currentTarget: { dataset: { siteStudentAction: "reset-filters" } } })', studentContext.context);
+  assert.match(studentContext.window.location.href, /unknown=keep/);
+  assert.match(studentContext.window.location.href, /section=students/);
+  assert.doesNotMatch(studentContext.window.location.href, /search=|programId=|status=|story=|presentationStatus=|archiveStatus=|noMentor=|limit=|offset=|mentorUserId=/);
+  studentContext.window.history.pushState({}, "", "/workspace.html?section=students&siteId=site-desert-valley-high&view=studentDirectory&search=Old&status=submitted&unknown=keep");
+  await vm.runInContext('activeSection = "students"; selectWorkspaceSite("site-canyon-ridge-career")', studentContext.context);
+  const switchedStudentUrl = new URL(studentContext.window.location.href);
+  assert.equal(switchedStudentUrl.searchParams.get("section"), "students");
+  assert.equal(switchedStudentUrl.searchParams.get("siteId"), "site-canyon-ridge-career");
+  assert.equal(switchedStudentUrl.searchParams.get("unknown"), "keep");
+  assert.equal(switchedStudentUrl.searchParams.has("view"), false);
+  assert.equal(switchedStudentUrl.searchParams.has("search"), false);
+  assert.equal(switchedStudentUrl.searchParams.has("status"), false);
+
+  const mentorFilters = {
+    siteId: "site-desert-valley-high",
+    programId: "it",
+    mentorUserId: "demo-mentor-001",
+    studentSearch: "Archive Demo",
+    status: "unassigned",
+    noMentor: true,
+    limit: 25,
+    offset: 50,
+  };
+  const mentorContext = await createWorkspaceContextWithFetch({
+    ...baseRoutes,
+    "/api/site/students": { status: 200, body: siteStudentsFixture({ readOnly: false }) },
+    "/api/site/mentor-assignments": {
+      status: 200,
+      body: siteMentorAssignmentsFixture({ role: "site_admin", canManage: true, filters: mentorFilters }),
+    },
+  }, {
+    url: "https://workspace.example/workspace.html?section=mentorAssignments&siteId=site-desert-valley-high&programId=it&mentorUserId=demo-mentor-001&studentSearch=%20Archive%20Demo%20&status=bogus&noMentor=true&limit=25&offset=50&unknown=keep&evidenceStatus=approved",
+  });
+  const mentorFetch = mentorContext.fetchLog.find((entry) => entry.startsWith("/api/site/mentor-assignments?"));
+  assert.ok(mentorFetch, "expected Mentor Assignments fetch with URL filters");
+  const mentorUrl = new URL(mentorFetch, "https://workspace.example");
+  assert.equal(mentorUrl.searchParams.get("programId"), "it");
+  assert.equal(mentorUrl.searchParams.get("mentorUserId"), "demo-mentor-001");
+  assert.equal(mentorUrl.searchParams.get("studentSearch"), "Archive Demo");
+  assert.equal(mentorUrl.searchParams.get("status"), "unassigned");
+  assert.equal(mentorUrl.searchParams.get("noMentor"), "true");
+  assert.equal(mentorUrl.searchParams.get("limit"), "25");
+  assert.equal(mentorUrl.searchParams.get("offset"), "50");
+  assert.equal(mentorUrl.searchParams.has("evidenceStatus"), false);
+  assert.match(mentorContext.workspaceRoot.innerHTML, /data-section="mentorAssignments"/);
+  assert.match(mentorContext.workspaceRoot.innerHTML, /Reload or share this view with the current browser URL/);
+  await vm.runInContext('handleMentorAssignmentAction({ currentTarget: { dataset: { mentorAssignmentAction: "reset-filters" } } })', mentorContext.context);
+  assert.match(mentorContext.window.location.href, /unknown=keep/);
+  assert.match(mentorContext.window.location.href, /section=mentorAssignments/);
+  assert.doesNotMatch(mentorContext.window.location.href, /programId=|mentorUserId=|studentSearch=|status=|noMentor=|limit=|offset=|evidenceStatus=/);
+
+  const operationsFilters = {
+    siteId: "site-desert-valley-high",
+    programId: "it",
+    status: "revision_requested",
+    story: "archive_failed",
+    risk: "high",
+    presentationStatus: "",
+    archiveStatus: "provider_unavailable",
+    readiness: "blocked",
+    limit: 25,
+    offset: 0,
+  };
+  const operationsContext = await createWorkspaceContextWithFetch({
+    ...baseRoutes,
+    "/api/site/students": { status: 200, body: siteStudentsFixture({ readOnly: false }) },
+    "/api/site/operations-readiness": {
+      status: 200,
+      body: siteOperationsReadinessFixture({ role: "site_admin", filters: operationsFilters }),
+    },
+  }, {
+    url: "https://workspace.example/workspace.html?section=operations&siteId=site-desert-valley-high&programId=it&status=revision_requested&story=archive_failed&risk=high&presentationStatus=bogus&archiveStatus=provider_unavailable&readiness=blocked&limit=25&offset=-4&unknown=keep&studentId=stale",
+  });
+  const operationsFetch = operationsContext.fetchLog.find((entry) => entry.startsWith("/api/site/operations-readiness?"));
+  assert.ok(operationsFetch, "expected Operations fetch with URL filters");
+  const operationsUrl = new URL(operationsFetch, "https://workspace.example");
+  assert.equal(operationsUrl.searchParams.get("programId"), "it");
+  assert.equal(operationsUrl.searchParams.get("status"), "revision_requested");
+  assert.equal(operationsUrl.searchParams.get("story"), "archive_failed");
+  assert.equal(operationsUrl.searchParams.get("risk"), "high");
+  assert.equal(operationsUrl.searchParams.get("archiveStatus"), "provider_unavailable");
+  assert.equal(operationsUrl.searchParams.get("readiness"), "blocked");
+  assert.equal(operationsUrl.searchParams.get("limit"), "25");
+  assert.equal(operationsUrl.searchParams.has("presentationStatus"), false);
+  assert.equal(operationsUrl.searchParams.has("offset"), false);
+  assert.equal(operationsUrl.searchParams.has("studentId"), false);
+  assert.match(operationsContext.workspaceRoot.innerHTML, /data-section="operations"/);
+  assert.match(operationsContext.workspaceRoot.innerHTML, /Any submission/);
+  assert.match(operationsContext.workspaceRoot.innerHTML, /Submission/);
+  assert.match(operationsContext.workspaceRoot.innerHTML, /Reload or share this view with the current browser URL/);
+  await vm.runInContext('handleOperationsReadinessAction({ currentTarget: { dataset: { operationsAction: "reset-filters" } } })', operationsContext.context);
+  assert.match(operationsContext.window.location.href, /unknown=keep/);
+  assert.match(operationsContext.window.location.href, /section=operations/);
+  assert.doesNotMatch(operationsContext.window.location.href, /programId=|status=|story=|risk=|archiveStatus=|readiness=|limit=|studentId=/);
+});
+
 test("workspace renders site-scoped Mentor Assignments with role-safe assignment controls", async () => {
   const siteAdmin = await renderWorkspaceWithFetch({
     "/api/auth/me": {
@@ -2561,6 +2726,7 @@ function siteOperationsReadinessFixture({
   role = "site_admin",
   readOnly = true,
   total = role === "program_teacher" ? 45 : 250,
+  filters = null,
 } = {}) {
   const presentationRows = [
     {
@@ -2655,7 +2821,7 @@ function siteOperationsReadinessFixture({
         { siteId: "site-desert-valley-high", siteName: "Desert Valley High School" },
       ],
     },
-    filters: {
+    filters: filters || {
       siteId: "site-desert-valley-high",
       programId: "",
       status: "",

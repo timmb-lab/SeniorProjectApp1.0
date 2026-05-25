@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-05-24T17:05:30-07:00",
-  "lastStartingSha": "1e2e22c63a7b0a71320ff7099e014e6ae7a00835",
+  "lastRunAt": "2026-05-24T18:35:17-07:00",
+  "lastStartingSha": "b9c347c46d59c31c82a63b70ea027025c6cc4eb8",
   "lastEndingSha": null,
-  "currentLadderFocus": "LEVEL_1_NAVIGABLE_DASHBOARDS",
+  "currentLadderFocus": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
   "completedWorkOrders": [
     {
       "id": "workspace-header-product-language-cleanup",
@@ -121,6 +121,38 @@
       "type": "TYPE_G_VERIFICATION_REGRESSION_PROTECTION",
       "summary": "Added npm run verify:workspace-navigation to guard known workspace sections, route-backed dashboard presets, read-only boundaries, and active-filter UI.",
       "commit": "pending-closeout-commit"
+    },
+    {
+      "id": "student-directory-url-state",
+      "completedAt": "2026-05-24T18:35:17-07:00",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "type": "TYPE_D_ROLE_WORKSPACE",
+      "summary": "Student Directory now restores and syncs safe shareable URL state for existing scoped filters, clear filters, pagination, and dashboard program drill-downs.",
+      "commit": "pending-closeout-commit"
+    },
+    {
+      "id": "mentor-assignments-url-state",
+      "completedAt": "2026-05-24T18:35:17-07:00",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "type": "TYPE_D_ROLE_WORKSPACE",
+      "summary": "Mentor Assignments now restores and syncs safe shareable URL state for existing scoped filters, no-mentor and mentor-workload drill-downs, clear filters, and pagination.",
+      "commit": "pending-closeout-commit"
+    },
+    {
+      "id": "operations-readiness-url-state-and-status-filter",
+      "completedAt": "2026-05-24T18:35:17-07:00",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "type": "TYPE_D_ROLE_WORKSPACE",
+      "summary": "Operations readiness now restores and syncs safe shareable URL state, exposes the existing submission-status filter, and preserves read-only behavior.",
+      "commit": "pending-closeout-commit"
+    },
+    {
+      "id": "worklist-url-regression-coverage",
+      "completedAt": "2026-05-24T18:35:17-07:00",
+      "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
+      "type": "TYPE_G_VERIFICATION_REGRESSION_PROTECTION",
+      "summary": "Workspace URL/history tests and dashboard/navigation verifiers now guard shareable worklist URLs, stale-param cleanup, URL-synced dashboard presets, and site-switch filter cleanup.",
+      "commit": "pending-closeout-commit"
     }
   ],
   "deferredWorkOrders": [
@@ -143,11 +175,6 @@
       "id": "product-admin-all-sites-rollup",
       "ladderLevel": "LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS",
       "reason": "All-sites rollup needs backend aggregate and authorization design; this sprint intentionally avoided fake cross-site controls."
-    },
-    {
-      "id": "other-worklist-url-state",
-      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
-      "reason": "Student Directory and Mentor Assignments received visible active filters, but reloadable URL state should be a separate product decision."
     }
   ],
   "blockedWorkOrders": [],
@@ -171,10 +198,10 @@
       "summary": "Improve student detail section headings and latest feedback context using fields already returned by the authorized detail API."
     },
     {
-      "id": "other-worklist-url-state-decision",
+      "id": "student-directory-mentor-filter-options",
       "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
       "type": "TYPE_D_ROLE_WORKSPACE",
-      "summary": "Decide whether Student Directory and Mentor Assignments need reloadable URL-state beyond visible active filters."
+      "summary": "Add a Student Directory mentor filter only after the API returns safe mentor options and labels for the current scoped site/program view."
     }
   ],
   "doNotRepeat": [
@@ -188,11 +215,13 @@
     "Do not relink Program Breakdown rows to Student Directory; the program preset is complete.",
     "Do not relink Mentor Coverage rows to Mentor Assignments; the mentor-workload preset is complete.",
     "Do not re-add Review Queue URL-state support; extend it only when a newly supported filter has backend, UI, tests, and verifier coverage.",
-    "Do not emit Review Queue missing/evidence/mentor/student query params until full scoped support exists."
+    "Do not emit Review Queue missing/evidence/mentor/student query params until full scoped support exists.",
+    "Do not rebuild Student Directory, Mentor Assignments, or Operations URL-state unless adding a newly supported filter.",
+    "Do not reintroduce retired builder cadence checks."
   ],
   "lastValidationStatus": {
     "status": "passed",
-    "completedAt": "2026-05-24T17:05:30-07:00",
+    "completedAt": "2026-05-24T18:32:00-07:00",
     "commands": [
       "npm run verify:dashboard-actions",
       "npm run verify:review-queue-deeplinks",
@@ -207,23 +236,24 @@
       "npm run check:production-surfaces",
       "npm run check",
       "git diff --check",
-      "git diff --cached --check"
+      "git status --short"
     ],
-    "notes": "Full required validation passed. The first npm run test attempt failed only because the new local branch had no upstream; after setting a temporary upstream to the prior sprint branch, the same suite passed. git diff --check reported CRLF normalization warnings only; git diff --cached --check passed cleanly."
+    "notes": "Full required validation passed before docs/state closeout. git diff --check reported CRLF normalization warnings only. No browser QA, remote checks, live data writes, deployment, migrations, or destructive commands were run."
   },
   "lastProductReadinessScorecardSummary": {
     "homepageClarity": "4 to 4",
     "dashboardLanguageQuality": "4 to 4",
     "dashboardClickThroughDepth": "3 to 3",
-    "reviewQueueUrlState": "1 to 4",
-    "activeFilterClarity": "2 to 4",
+    "reviewQueueUrlState": "4 to 4",
+    "shareableStaffWorklistUrlState": "1 to 4",
+    "activeFilterClarity": "4 to 4",
     "studentDetailUsability": "4 to 4",
     "siteContextClarity": "4 to 4",
     "layoutWidthUsage": "4 to 4",
     "navigationMenuEfficiency": "4 to 4",
     "roleSpecificWorkspaceClarity": "4 to 4",
     "studentPrivacyConfidence": "4 to 4",
-    "staffWorkflowUsefulness": "3 to 4",
+    "staffWorkflowUsefulness": "4 to 4",
     "emptyErrorStateQuality": "3 to 4",
     "regressionTestCoverage": "4 to 4"
   }

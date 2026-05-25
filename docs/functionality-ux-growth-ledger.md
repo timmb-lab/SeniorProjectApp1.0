@@ -288,3 +288,46 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: missing-submission route/filter mapping remains unconfirmed; browser QA needs credentialed local runtime.
   - Do not repeat: do not re-add already-supported dashboard presets or active-filter UI unless a new list view is added.
   - First file to inspect next run: `workspace.js`
+
+## Run 2026-05-24 18:35 PT
+
+- Starting SHA: `b9c347c46d59c31c82a63b70ea027025c6cc4eb8`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Branch policy: no new branch was created; work stayed directly on synced `main`
+- Ladder level targeted: `LEVEL_1_NAVIGABLE_DASHBOARDS`, `LEVEL_4_ROLE_SPECIFIC_WORKSPACES`, `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT`
+- Backlog item: Product Functionality Upgrade Megapass 4.1
+- Candidate opportunities inspected: 286
+- Candidate opportunities implemented: 12
+- Work order selected: Add reloadable/shareable URL state for existing Student Directory, Mentor Assignments, and Operations filters; make dashboard presets sync those URLs; expose the existing Operations submission-status filter; and harden tests/verifiers.
+- Selection reason: Review Queue URL-state was complete, and the remaining safe staff worklists already had scoped backend filters and visible UI patterns. This was the highest-value path that avoided auth/RBAC changes, migrations, fake routes, and unsupported Review Queue params.
+- User-facing improvement: Staff can reload or share filtered Student Directory, Mentor Assignments, and Operations views; active filters explain the URL behavior; page size/offset filters are visible; school switching clears stale filter params; Operations users can filter by submission status.
+- Roles affected: platform admin, admin, org admin, site admin, viewer, program teacher. Mentor and student surfaces were preserved and revalidated but not changed.
+- Files changed: `workspace.js`, `workspace.css`, `tests/workspace-app.test.mjs`, `scripts/verify-dashboard-actions.mjs`, `scripts/verify-workspace-navigation-integrity.mjs`, `docs/product-readiness-upgrade-sprint.md`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`
+- Tests/verifiers added or updated: extended workspace URL/history render tests; hardened `verify:dashboard-actions` for URL-synced dashboard presets; hardened `verify:workspace-navigation` for shareable worklist URL helpers and site-switch stale-filter cleanup.
+- Supported routes/query params confirmed:
+  - Student Directory: `/api/site/students` with `section=students`, `siteId`, `search`, `programId`, `status`, `noMentor`, `risk`, `story`, `presentationStatus`, `archiveStatus`, `limit`, `offset`
+  - Mentor Assignments: `/api/site/mentor-assignments` with `section=mentorAssignments`, `siteId`, `programId`, `mentorUserId`, `studentSearch`, `status`, `noMentor`, `limit`, `offset`
+  - Operations: `/api/site/operations-readiness` with `section=operations`, `siteId`, `programId`, `status`, `story`, `risk`, `presentationStatus`, `archiveStatus`, `readiness`, `limit`, `offset`
+- Unsupported/deferred params: Review Queue `missing`, `evidenceStatus`, `mentorUserId`, `studentUserId`, and `studentId` remain deferred; Student Directory mentor filter remains deferred until safe mentor options/labels are returned by that API.
+- Validation commands:
+  - Baseline before edits: `npm run verify:dashboard-actions`; `npm run verify:review-queue-deeplinks`; `npm run verify:workspace-navigation`; `npm run verify:functionality-language`; `npm run verify:functionality-ux-automation`; `node --test tests/workspace-app.test.mjs`; `node --test tests/functionality-language-audit.test.mjs`; `node --test tests/account-and-evidence-access.test.mjs`; `npm run test`; `npm run typecheck`; `npm run check:production-surfaces`; `npm run check`; `git diff --check`; `git status --short`
+  - Targeted after edits: `node --test tests/workspace-app.test.mjs`; `node --test tests/account-and-evidence-access.test.mjs`; `node --test tests/functionality-language-audit.test.mjs`; `npm run verify:dashboard-actions`; `npm run verify:review-queue-deeplinks`; `npm run verify:workspace-navigation`; `npm run verify:functionality-language`; `npm run verify:functionality-ux-automation`
+  - Full before docs closeout: `npm run verify:dashboard-actions`; `npm run verify:review-queue-deeplinks`; `npm run verify:workspace-navigation`; `npm run verify:functionality-language`; `npm run verify:functionality-ux-automation`; `node --test tests/workspace-app.test.mjs`; `node --test tests/functionality-language-audit.test.mjs`; `node --test tests/account-and-evidence-access.test.mjs`; `npm run test`; `npm run typecheck`; `npm run check:production-surfaces`; `npm run check`; `git diff --check`; `git status --short`
+- Validation result before docs: passed; `git diff --check` reported CRLF normalization warnings only
+- Commit: pending closeout commit
+- Push status: pending
+- Browser QA status: not run; credentialed browser QA remains a separate blocked/manual task
+- RBAC/privacy notes: no auth/RBAC, tenant/site/program/mentor/student scoping, evidence access, D1 config, migrations, secrets, env, Cloudflare production settings, Google OAuth settings, live data, deployment, or destructive commands changed
+- Deferred items: missing-submission/evidence-attention drill-down; browser QA; Student Directory mentor filter options; all-sites product admin rollup; unsupported Review Queue params
+- Next recommended work order: either run credentialed browser QA for shareable worklist URLs, or map missing-submission/evidence-attention counts to an exact supported route/filter before adding any drill-down
+- Do-not-repeat notes: do not add fake dashboard actions or unsupported Review Queue params; do not reintroduce retired builder cadence checks; do not hardcode `C:\SeniorProjectApp1.0` as a verifier requirement
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_4_ROLE_SPECIFIC_WORKSPACES`
+  - Advanced: yes
+  - Evidence: shareable URL-state for three staff worklists, URL-synced dashboard presets, active filter URL notes, operations submission filter, and verifier/test coverage
+  - Unlocks: browser QA can now test stable shareable worklist URLs across staff roles
+  - Next: credentialed browser QA or exact missing/evidence drill-down mapping
+  - Blockers: missing/evidence mapping remains unproven; browser QA needs credentials/runtime
+  - Do not repeat: do not rebuild URL-state for these three worklists unless adding a new supported filter
+  - First files to inspect next run: `workspace.js`, `tests/workspace-app.test.mjs`, `scripts/verify-workspace-navigation-integrity.mjs`

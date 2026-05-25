@@ -1100,6 +1100,11 @@
   min-width: 0;
 }
 
+.workspace-active-filter-note {
+  color: var(--workspace-muted);
+  font-size: 0.84rem;
+}
+
 .workspace-active-filter-chip-row {
   display: flex;
   flex-wrap: wrap;
