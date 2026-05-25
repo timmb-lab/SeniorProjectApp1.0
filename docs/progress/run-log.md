@@ -1586,3 +1586,14 @@ Future productive runs should append compact entries that name the master-plan s
 - `validation`: focused Phase 14/remote seed/sales-doc tests passed; `npm run test` passed with 323 passing tests and 4 expected opt-in skips; `npm run typecheck`, `npm run check`, and `npm run check:production-surfaces` passed; read-only `npm run prove:remote:migration-0011`, `npm run prove:demo:remote`, and `npm run prove:sales-demo:hosted` passed; `git diff --check` passed with CRLF normalization warnings only.
 - `blockers`: generated remote staff credential browser login remains blocked; viewer browser proof remains blocked by missing safe viewer credential; mentor fallback account has no assigned-student browser rows.
 - `commit/push status`: pending.
+
+## 2026-05-24 PT - Functionality UX Upgrade Admin Workspace Drill-Down And Nav Repair
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: admin workspace functionality, click-through, responsive navigation, and product-readiness repair.
+- `starting HEAD`: `38cde8d763f603496dae237ab0267d79ec023087`.
+- `selected slice`: Repair the existing workspace shell and dashboard actions without changing auth, RBAC, tenant/site/program/student scoping, migrations, D1 config, secrets, OAuth, Cloudflare settings, deploy settings, or live data.
+- `repo-grounded findings`: the workspace is a plain `workspace.html` / `workspace.js` / `workspace.css` app backed by Cloudflare Pages Functions; the old collapsed state left a compact text rail visible; Site Dashboard `No Mentor` led to Mentor Assignments rather than the actual student list; legacy admin `Students` opened coverage instead of Students; Evidence and some role-blocked metrics looked similar to actionable cards.
+- `changes`: moved the menu button to the top-left header group with Open/Close labels, `aria-expanded`, and controlled nav; collapsed state hides the full nav rail and gives content the full grid; mobile uses an overlay drawer; Site Dashboard/Admin `Students` opens Student Directory; `No Mentor` and Mentor Coverage open Student Directory with `noMentor=true`; admin Submitted/Needs Revision/Presentations use existing filtered sections; unavailable metric actions render as summary-only.
+- `validation`: `git diff --check` passed with CRLF normalization warnings only; focused workspace render tests, functionality audit test, dashboard/navigation/review/language/automation verifiers, route inventory check, full `npm run test`, `npm run typecheck`, `npm run check:production-surfaces`, and aggregate `npm run check` passed. Local browser smoke loaded `/workspace` sign-in with zero console errors; authenticated dashboard click-throughs are covered by tests because no credentials were used.
+- `commit/push status`: pending closeout commit.

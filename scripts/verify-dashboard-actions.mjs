@@ -74,6 +74,8 @@ for (const match of source.workspaceJs.matchAll(/data-section="([a-zA-Z][a-zA-Z0
 const allowedPresets = new Map([
   ["no-mentor", "mentorAssignments"],
   ["mentor-workload", "mentorAssignments"],
+  ["all-students", "students"],
+  ["missing-mentors", "students"],
   ["program", "students"],
   ["submitted", "teacher"],
   ["revision-requested", "teacher"],
@@ -107,6 +109,17 @@ for (const [preset, section] of allowedPresets) {
 assertIncludes("workspaceJs", "function siteStudentQueryString()", "Student Directory query helper must exist");
 assertIncludes("workspaceJs", "function syncSiteStudentUrlState", "Student Directory filtered actions must sync shareable URL state");
 assertIncludes("workspaceJs", 'params.set("programId", filters.programId)', "Student Directory must support programId filters");
+assertIncludes("workspaceJs", 'params.set("noMentor", "true")', "Student Directory must support missing-mentor filters");
+assertMatches(
+  "workspaceJs",
+  /section === "students" && button\.dataset\.sectionPreset === "all-students"[\s\S]*siteStudentFilters = defaultSiteStudentFilters\(\)[\s\S]*syncSiteStudentUrlState\(\{ clearFilters: true \}\)/,
+  "all-students drill-down must clear Student Directory filters and sync URL state",
+);
+assertMatches(
+  "workspaceJs",
+  /section === "students" && button\.dataset\.sectionPreset === "missing-mentors"[\s\S]*noMentor: true[\s\S]*syncSiteStudentUrlState\(\)/,
+  "missing-mentors drill-down must set the Student Directory missing mentor filter and sync URL state",
+);
 assertMatches(
   "workspaceJs",
   /section === "students" && button\.dataset\.sectionPreset === "program"[\s\S]*const programId = cleanDirectoryFilter\(button\.dataset\.programId\)[\s\S]*programId,[\s\S]*syncSiteStudentUrlState\(\)/,

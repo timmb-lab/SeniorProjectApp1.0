@@ -138,10 +138,12 @@ Not counted as normal-user leaks:
 ## 9. Button/Card/Link Clarity Issues
 
 - `renderMetricTile` has optional `actionSection`; only some counts are linked.
-- Admin `Students` count links to `mentorAssignments`, not the student directory. It should likely open students filtered to no mentor when that filter can be encoded safely.
-- Site dashboard `No Mentor` has no action link even though `Mentor Assignments` exists.
-- Site dashboard `Submitted` and `Needs Revision` have no review queue action link even though the review queue exists.
-- Site dashboard presentation/archive metrics do not link into operations filters.
+- Admin and Site Dashboard `Students` counts now open the Student Directory through the supported `students` section.
+- Site dashboard `No Mentor` now opens the Student Directory with `noMentor=true`, and the Mentor Coverage card also offers a missing-mentor student-list drill-down.
+- Site dashboard `Submitted` and `Needs Revision` open Review Queue filters.
+- Site dashboard presentation/archive metrics open Operations filters.
+- Metrics without a supported route, such as Evidence for roles without a dedicated evidence-record surface, are marked as summary-only instead of receiving fake action buttons.
+- Site dashboard `Recent Activity` opens Audit only when the signed-in role already has the Audit section; otherwise it remains summary-only.
 - Student directory rows have a real `View detail` button, which should be preserved and expanded to other staff lists.
 - Mentor assignment active rows and unassigned rows have real `View student detail` buttons where permission allows.
 - Review queue selected submission has `Open student detail`, which should be preserved.
@@ -345,3 +347,4 @@ Every automation run must re-scan the current repo, verify the chosen issue stil
 | 2026-05-24 | Replaced the protected workspace product header and posture chips so normal authenticated users no longer see `Database-backed MVP`, `Cloudflare target`, `Audit-sensitive admin`, or `Senior Capstone Product` in the app header. | `workspace.js`, `tests/workspace-app.test.mjs`, `scripts/verify-functionality-language.mjs`, `npm run verify:functionality-language` | Complete |
 | 2026-05-24 | Linked the Site Dashboard `No Mentor` metric to the real Mentor Assignments workflow with the missing-mentor filter applied, so site staff and read-only viewers can move from coverage summary to scoped assignment rows without a dead route. | `workspace.js`, `tests/workspace-app.test.mjs`, `npm run verify:functionality-language`, `node --test tests/workspace-app.test.mjs` | Complete |
 | 2026-05-24 | Added latest visible feedback context to the authorized student detail summary, using review/comment rows already returned by the scoped detail API and keeping staff-only visibility rules server-owned. | `workspace.js`, `tests/workspace-app.test.mjs`, `npm run verify:functionality-language`, `node --test tests/workspace-app.test.mjs` | Complete |
+| 2026-05-24 | Repaired the admin workspace drill-down lane: hamburger close now hides the full nav and frees desktop width, dashboard `Students` opens the Student Directory, `No Mentor` and Mentor Coverage open the actual missing-mentor student list, admin review/presentation counts use real filtered sections, and route-less evidence/activity counts are summary-only unless the role has the target section. | `workspace.js`, `workspace.css`, `tests/workspace-app.test.mjs`, `scripts/verify-dashboard-actions.mjs`, `scripts/verify-workspace-navigation-integrity.mjs`, focused workspace tests/verifiers | Complete |

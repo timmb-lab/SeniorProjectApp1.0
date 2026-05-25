@@ -570,15 +570,18 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
   workspaceMain.innerHTML = `
     <section class="workspace-app" data-primary-role="${escapeHtml(primaryRole)}" data-nav-state="${workspaceNavCollapsed ? "collapsed" : "expanded"}">
       <header class="workspace-topbar">
-        <a class="workspace-brand" href="index.html">
-          <span class="workspace-mark">SC</span>
-          <span class="workspace-abc-motif" aria-hidden="true"><span></span><span></span><span></span></span>
-          <span>Capstone Project Workspace</span>
-        </a>
-        <div class="workspace-user">
-          <button class="workspace-menu-toggle" id="workspaceMenuToggle" type="button" aria-controls="workspaceNavigationRail" aria-expanded="${workspaceNavCollapsed ? "false" : "true"}">
-            <span>${workspaceNavCollapsed ? "Open menu" : "Collapse menu"}</span>
+        <div class="workspace-topbar-start">
+          <button class="workspace-menu-toggle" id="workspaceMenuToggle" type="button" aria-controls="workspaceNavigationRail" aria-expanded="${workspaceNavCollapsed ? "false" : "true"}" aria-label="${workspaceNavCollapsed ? "Open menu" : "Close menu"}">
+            <span class="workspace-menu-icon" aria-hidden="true"><span></span><span></span><span></span></span>
+            <span class="workspace-menu-toggle-label">${workspaceNavCollapsed ? "Open menu" : "Close menu"}</span>
           </button>
+          <a class="workspace-brand" href="index.html">
+            <span class="workspace-mark">SC</span>
+            <span class="workspace-abc-motif" aria-hidden="true"><span></span><span></span><span></span></span>
+            <span>Capstone Project Workspace</span>
+          </a>
+        </div>
+        <div class="workspace-user">
           ${renderSiteSwitcherControl()}
           <div class="workspace-user-text">
             <strong>${escapeHtml(currentUser.displayName || "Signed in")}</strong>
@@ -589,7 +592,7 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
         </div>
       </header>
       <div class="workspace-content">
-        <aside class="workspace-rail" id="workspaceNavigationRail" aria-label="Workspace navigation">
+        <aside class="workspace-rail" id="workspaceNavigationRail" aria-label="Workspace navigation" ${workspaceNavCollapsed ? 'hidden aria-hidden="true"' : ""}>
           <section class="workspace-rail-card">
             <p class="workspace-kicker">Your access</p>
             <div class="workspace-role-banner">
@@ -628,6 +631,8 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
   `;
 
   document.querySelector("#workspaceMenuToggle")?.addEventListener("click", toggleWorkspaceMenu);
+  document.removeEventListener?.("keydown", handleWorkspaceKeydown);
+  document.addEventListener?.("keydown", handleWorkspaceKeydown);
   document.querySelector("#workspaceSiteSelect")?.addEventListener("change", (event) => selectWorkspaceSite(event.currentTarget?.value || ""));
   document.querySelectorAll("[data-site-switch-id]").forEach((button) => {
     button.addEventListener("click", () => selectWorkspaceSite(button.dataset.siteSwitchId || ""));
@@ -642,7 +647,13 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
 
 function toggleWorkspaceMenu() {
   workspaceNavCollapsed = !workspaceNavCollapsed;
-  renderAppShell(workspaceNavCollapsed ? "Menu collapsed." : "Menu opened.", "success");
+  renderAppShell(workspaceNavCollapsed ? "Menu closed." : "Menu opened.", "success");
+}
+
+function handleWorkspaceKeydown(event) {
+  if (event?.key !== "Escape" || workspaceNavCollapsed) return;
+  workspaceNavCollapsed = true;
+  renderAppShell("Menu closed.", "success");
 }
 
 function sectionShortLabel(section) {
@@ -776,6 +787,10 @@ async function selectWorkspaceSite(siteId) {
 async function openWorkspaceSection(button) {
   const section = button?.dataset?.section;
   if (!section) return;
+  if (!availableSectionIds().has(section)) {
+    renderAppShell("This workspace section is not available for your account.", "error");
+    return;
+  }
   if (section === "mentorAssignments" && button.dataset.sectionPreset === "no-mentor") {
     mentorAssignmentFilters = {
       ...defaultMentorAssignmentFilters(),
@@ -796,6 +811,25 @@ async function openWorkspaceSection(button) {
     };
     syncMentorAssignmentUrlState();
     await loadMentorAssignmentsResult("Showing this mentor's active student load.");
+    return;
+  }
+  if (section === "students" && button.dataset.sectionPreset === "all-students") {
+    siteStudentFilters = defaultSiteStudentFilters();
+    siteStudentDetailState = defaultSiteStudentDetailState();
+    activeSection = "students";
+    syncSiteStudentUrlState({ clearFilters: true });
+    await loadWorkspaceData("Showing all students in this school workspace.");
+    return;
+  }
+  if (section === "students" && button.dataset.sectionPreset === "missing-mentors") {
+    siteStudentFilters = {
+      ...defaultSiteStudentFilters(),
+      noMentor: true,
+    };
+    siteStudentDetailState = defaultSiteStudentDetailState();
+    activeSection = "students";
+    syncSiteStudentUrlState();
+    await loadWorkspaceData("Showing students missing mentors.");
     return;
   }
   if (section === "students" && button.dataset.sectionPreset === "program") {
@@ -1069,14 +1103,14 @@ function renderSiteDashboardSection() {
         </div>
       </div>
       <div class="workspace-dashboard-grid">
-        ${renderMetricTile("Students", summary.studentsActive, `${safeNumber(summary.studentsTotal)} visible at this site`, "admin", "students")}
-        ${renderMetricTile("No Mentor", summary.studentsNoMentor, "Need assigned mentor coverage", safeNumber(summary.studentsNoMentor) ? "warning" : "mentor", "mentorAssignments", { label: "Review", preset: "no-mentor" })}
+        ${renderMetricTile("Students", summary.studentsActive, `${safeNumber(summary.studentsTotal)} visible at this site`, "admin", "students", { label: "Open", preset: "all-students" })}
+        ${renderMetricTile("No Mentor", summary.studentsNoMentor, "Students missing active mentor assignments", safeNumber(summary.studentsNoMentor) ? "warning" : "mentor", "students", { label: "View students", preset: "missing-mentors" })}
         ${renderMetricTile("Submitted", summary.submissionsSubmitted, "Awaiting teacher review", "teacher", "teacher", { label: "Review", preset: "submitted" })}
         ${renderMetricTile("Needs Revision", summary.revisionRequested, "Teacher follow-up needed", safeNumber(summary.revisionRequested) ? "warning" : "student", "teacher", { label: "Review", preset: "revision-requested" })}
-        ${renderMetricTile("Evidence", summary.evidenceArtifacts, "Protected evidence records", "mentor")}
+        ${renderMetricTile("Evidence", summary.evidenceArtifacts, "Summary only; open student detail for evidence records", "mentor")}
         ${renderMetricTile("Presentations", presentationsTotal, `${safeNumber(summary.presentationsPending)} pending readiness`, "teacher", "operations", { label: "Review", preset: "presentation-pending" })}
         ${renderMetricTile("Archive / Exports", archiveTotal, `${safeNumber(summary.exportsFailed)} failed`, safeNumber(summary.exportsFailed) ? "danger" : "admin", "operations", { label: "Review", preset: "archive-failed" })}
-        ${renderMetricTile("Recent Activity", summary.recentActivityCount, "Recent site activity", "admin")}
+        ${renderMetricTile("Recent Activity", summary.recentActivityCount, "Recent site activity", "admin", "audit")}
       </div>
       ${renderSitePermissionRules(dashboard)}
       ${renderDashboardCard("Needs Attention", "Teacher follow-up and operations", renderNeedsAttention(dashboard.needsAttention))}
@@ -1279,10 +1313,15 @@ function renderStudentDirectoryActiveFilters(filters = {}, options = {}) {
   if (filters.story) chips.push(activeFilterChip("Story", storyLabel(filters.story)));
   if (filters.presentationStatus && filters.presentationStatus !== "any") chips.push(activeFilterChip("Presentation", statusText(filters.presentationStatus)));
   if (filters.archiveStatus && filters.archiveStatus !== "any") chips.push(activeFilterChip("Archive", statusText(filters.archiveStatus)));
-  if (filters.noMentor) chips.push(activeFilterChip("Mentor", "No active mentor"));
+  if (filters.noMentor) chips.push(activeFilterChip("Mentor", "Missing mentor assignment"));
   if (safeNumber(filters.limit) !== 50) chips.push(activeFilterChip("Page size", filters.limit));
   if (safeNumber(filters.offset) > 0) chips.push(activeFilterChip("Offset", filters.offset));
-  return renderActiveFilterSummary("Student directory", chips, 'data-site-student-action="reset-filters"');
+  return renderActiveFilterSummary("Student directory", chips, 'data-site-student-action="reset-filters"', filters.noMentor
+    ? {
+        heading: "Showing students missing mentors",
+        note: "Only students without an active mentor assignment are listed.",
+      }
+    : {});
 }
 
 function renderStudentDirectoryResultSummary(directory) {
@@ -1298,8 +1337,12 @@ function renderStudentDirectoryResultSummary(directory) {
       <div class="workspace-card-head">
         <div>
           <p class="workspace-kicker">Results</p>
-          <h2>Showing ${escapeHtml(returned)} of ${escapeHtml(filteredTotal)}</h2>
-          <p class="workspace-muted">Returned rows respect pagination; total and filtered totals stay tied to the selected site or program scope.</p>
+          <h2>${filters.noMentor
+            ? `Showing ${escapeHtml(returned)} of ${escapeHtml(filteredTotal)} students missing mentors`
+            : `Showing ${escapeHtml(returned)} of ${escapeHtml(filteredTotal)}`}</h2>
+          <p class="workspace-muted">${filters.noMentor
+            ? "The list is filtered to students without active mentor assignments in the current school scope."
+            : "Returned rows respect pagination; total and filtered totals stay tied to the selected site or program scope."}</p>
         </div>
         <span class="workspace-site-context-badge">${escapeHtml(total)} total in scope</span>
       </div>
@@ -1829,13 +1872,15 @@ function renderValueOptions(values = [], selected = "", anyLabel = "Any", labele
   }).join("");
 }
 
-function renderActiveFilterSummary(label, chips = [], resetAttribute = "") {
+function renderActiveFilterSummary(label, chips = [], resetAttribute = "", options = {}) {
   if (!chips.length) return "";
+  const heading = options.heading || "Active filters";
+  const note = options.note || "Reload or share this view with the current browser URL.";
   return `
     <section class="workspace-active-filters" data-active-filters="true" aria-label="${escapeHtml(label)} active filters">
       <div>
-        <strong>Active filters</strong>
-        <span class="workspace-active-filter-note">Reload or share this view with the current browser URL.</span>
+        <strong>${escapeHtml(heading)}</strong>
+        <span class="workspace-active-filter-note">${escapeHtml(note)}</span>
         <div class="workspace-active-filter-chip-row">${chips.join("")}</div>
       </div>
       <button class="workspace-button workspace-button-secondary" type="button" ${resetAttribute}>Clear filters</button>
@@ -2062,12 +2107,12 @@ function renderAdminOverviewSection() {
         </div>
       </div>
       <div class="workspace-dashboard-grid">
-        ${renderMetricTile("Students", summary.studentsActive, `${safeNumber(summary.studentsNoMentor)} without active mentor`, "admin", "mentorAssignments")}
-        ${renderMetricTile("Submitted", summary.submissionsSubmitted, "Ready for review", "teacher", "teacher")}
-        ${renderMetricTile("Needs Revision", summary.revisionRequested, "Open revision loops", "warning", "teacher")}
+        ${renderMetricTile("Students", summary.studentsActive, `${safeNumber(summary.studentsNoMentor)} without active mentor`, "admin", "students", { label: "Open", preset: "all-students" })}
+        ${renderMetricTile("Submitted", summary.submissionsSubmitted, "Ready for review", "teacher", "teacher", { label: "Review", preset: "submitted" })}
+        ${renderMetricTile("Needs Revision", summary.revisionRequested, "Open revision loops", "warning", "teacher", { label: "Review", preset: "revision-requested" })}
         ${renderMetricTile("Approved", summary.approved, "Accepted submissions", "student")}
-        ${renderMetricTile("Evidence", summary.evidenceArtifacts, "Evidence records", "mentor")}
-        ${renderMetricTile("Presentations", summary.presentationScheduled, "Scheduled slots", "teacher", "presentation")}
+        ${renderMetricTile("Evidence", summary.evidenceArtifacts, "Summary only; open student detail for evidence records", "mentor")}
+        ${renderMetricTile("Presentations", summary.presentationScheduled, "Scheduled slots", "teacher", "operations", { label: "Review", preset: "presentation-pending" })}
         ${renderMetricTile("Exports", summary.exportsQueued, exportsAttention, safeNumber(summary.exportsFailed) ? "danger" : "admin", "archiveExports")}
         ${renderMetricTile("Audit", summary.recentAuditEvents, "Recent protected activity", "admin", "audit")}
       </div>
@@ -5096,9 +5141,9 @@ function renderMetricTile(label, value, detail = "", tone = "", actionSection = 
   const actionPreset = actionOptions.preset
     ? ` data-section-preset="${escapeHtml(actionOptions.preset)}"`
     : "";
-  const action = actionSection
+  const action = actionSection && availableSectionIds().has(actionSection)
     ? `<button class="workspace-link-button workspace-link-button-small" type="button" data-section="${escapeHtml(actionSection)}"${actionPreset}>${escapeHtml(actionLabel)}</button>`
-    : "";
+    : `<span class="workspace-summary-badge">Summary only</span>`;
   return `
     <article class="workspace-metric-tile ${escapeHtml(tone)}">
       <div>
@@ -5209,7 +5254,12 @@ function renderMentorCoverage(rows = [], summary = {}) {
             <strong>Students without active mentors</strong>
             <p>${noMentor} ${escapeHtml(pluralize(noMentor, "student"))} need coverage.</p>
           </div>
-          ${statusPill("attention_required")}
+          <div class="workspace-row-actions">
+            ${statusPill("attention_required")}
+            <button class="workspace-link-button workspace-link-button-small" type="button" data-section="students" data-section-preset="missing-mentors">
+              View students
+            </button>
+          </div>
         </article>
       ` : ""}
       ${rows.length ? rows.slice(0, 8).map((row) => `

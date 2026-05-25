@@ -73,10 +73,15 @@ for (const pattern of [
 
 assertMatches("workspaceJs", /function openWorkspaceSection\(button\)[\s\S]*sectionPreset === "submitted"[\s\S]*status: "submitted"/, "Submitted dashboard preset must open a real Review Queue filter");
 assertMatches("workspaceJs", /sectionPreset === "revision-requested"[\s\S]*status: "revision_requested"/, "Needs Revision dashboard preset must open a real Review Queue filter");
+assertMatches("workspaceJs", /sectionPreset === "all-students"[\s\S]*siteStudentFilters = defaultSiteStudentFilters\(\)/, "Students dashboard preset must open the Student Directory without stale filters");
+assertMatches("workspaceJs", /sectionPreset === "missing-mentors"[\s\S]*noMentor: true[\s\S]*syncSiteStudentUrlState\(\)/, "Missing mentor dashboard preset must open Student Directory with a missing-mentor filter");
 assertMatches("workspaceJs", /sectionPreset === "program"[\s\S]*siteStudentFilters = [\s\S]*programId/, "Program dashboard rows must open Student Directory with a program filter");
 assertMatches("workspaceJs", /sectionPreset === "mentor-workload"[\s\S]*mentorAssignmentFilters = [\s\S]*mentorUserId/, "Mentor workload rows must open Mentor Assignments with a mentor filter");
 assertMatches("workspaceJs", /sectionPreset === "presentation-pending"[\s\S]*presentationStatus: "pending"/, "Presentation dashboard preset must open Operations with a supported filter");
 assertMatches("workspaceJs", /sectionPreset === "archive-failed"[\s\S]*archiveStatus: "failed"/, "Archive dashboard preset must open Operations with a supported filter");
+assertMatches("workspaceJs", /aria-label="\$\{workspaceNavCollapsed \? "Open menu" : "Close menu"\}"/, "Menu toggle must expose an accessible open/close label");
+assertMatches("workspaceCss", /\.workspace-app\[data-nav-state="collapsed"\] \.workspace-rail[\s\S]*display: none/, "Collapsed workspace nav must hide the full navigation rail");
+assertMatches("workspaceCss", /\.workspace-app\[data-nav-state="collapsed"\] \.workspace-content[\s\S]*grid-template-columns: minmax\(0, 1fr\)/, "Collapsed workspace content must use the freed navigation width");
 
 assertMatches("workspaceJs", /renderReadOnlyBanner\(\)[\s\S]*Read-only workspace/, "Viewer read-only banner must stay visible");
 assertMatches("workspaceJs", /data-review-queue-read-only="true"[\s\S]*Review actions unavailable/, "Read-only Review Queue must not expose decision controls");

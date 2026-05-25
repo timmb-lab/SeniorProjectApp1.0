@@ -323,7 +323,7 @@ test("workspace renders route-connected site dashboard with Figma product-system
   assert.match(siteDashboard, /workspace-metric-tile/);
   assert.match(siteDashboard, /Students/);
   assert.match(siteDashboard, /No Mentor/);
-  assert.match(siteDashboard, /data-section="mentorAssignments" data-section-preset="no-mentor">Review/);
+  assert.match(siteDashboard, /data-section="students" data-section-preset="missing-mentors">View students/);
   assert.match(siteDashboard, /data-section="mentorAssignments" data-section-preset="mentor-workload" data-mentor-id="demo-mentor-001"/);
   assert.match(siteDashboard, /View load/);
   assert.match(siteDashboard, /data-section="students" data-section-preset="program" data-program-id="it"/);
@@ -936,7 +936,8 @@ test("workspace applies shareable URL filters for site worklists safely", async 
   assert.equal(studentUrl.searchParams.has("risk"), false);
   assert.equal(studentUrl.searchParams.has("mentorUserId"), false);
   assert.match(studentContext.workspaceRoot.innerHTML, /data-section="students"/);
-  assert.match(studentContext.workspaceRoot.innerHTML, /Reload or share this view with the current browser URL/);
+  assert.match(studentContext.workspaceRoot.innerHTML, /Showing students missing mentors/);
+  assert.match(studentContext.workspaceRoot.innerHTML, /Only students without an active mentor assignment are listed/);
   assert.match(studentContext.workspaceRoot.innerHTML, /Page size/);
   assert.match(studentContext.workspaceRoot.innerHTML, /Offset/);
   await vm.runInContext('handleSiteStudentAction({ currentTarget: { dataset: { siteStudentAction: "reset-filters" } } })', studentContext.context);
@@ -1402,9 +1403,13 @@ test("workspace exposes a real admin site switcher and collapsible navigation", 
   const siteSwitcherRoleBlock = workspaceJs.match(/function canUseSiteSwitcher[\s\S]*?function currentSiteWorkspaceContext/)?.[0] || "";
   assert.match(workspaceJs, /let selectedSiteId = ""/);
   assert.match(workspaceJs, /id="workspaceMenuToggle"/);
+  assert.match(workspaceJs, /aria-label="\$\{workspaceNavCollapsed \? "Open menu" : "Close menu"\}"/);
+  assert.match(workspaceJs, /workspace-menu-icon/);
+  assert.match(workspaceJs, /workspace-topbar-start/);
   assert.match(workspaceJs, /data-nav-state="\$\{workspaceNavCollapsed \? "collapsed" : "expanded"\}"/);
   assert.match(workspaceJs, /function toggleWorkspaceMenu/);
-  assert.match(workspaceJs, /workspace-tab-short/);
+  assert.match(workspaceJs, /Menu closed\./);
+  assert.match(workspaceJs, /hidden aria-hidden="true"/);
   assert.match(siteSwitcherBlock, /id="workspaceSiteSelect"/);
   assert.match(workspaceJs, /data-site-switch-id/);
   assert.match(siteSwitcherRoleBlock, /roles\.has\("platform_admin"\)/);
@@ -1414,23 +1419,32 @@ test("workspace exposes a real admin site switcher and collapsible navigation", 
   assert.doesNotMatch(siteSwitcherRoleBlock, /roles\.has\("viewer"\)|roles\.has\("student"\)|roles\.has\("mentor"\)/);
   assert.match(workspaceJs, /function siteDashboardQueryString/);
   assert.match(workspaceJs, /selectedSiteQueryValue\(\)/);
-  assert.match(workspaceCss, /width: min\(1600px, calc\(100% - 32px\)\)/);
-  assert.match(workspaceCss, /\.workspace-app\[data-nav-state="collapsed"\] \.workspace-content/);
-  assert.match(workspaceCss, /\.workspace-app\[data-nav-state="collapsed"\] \.workspace-tab-short/);
+  assert.match(workspaceCss, /max-width: none/);
+  assert.match(workspaceCss, /\.workspace-app\[data-nav-state="collapsed"\] \.workspace-content[\s\S]*grid-template-columns: minmax\(0, 1fr\)/);
+  assert.match(workspaceCss, /\.workspace-app\[data-nav-state="collapsed"\] \.workspace-rail[\s\S]*display: none/);
 });
 
 test("workspace dashboard actions use supported filters and loaders", () => {
   const sectionOpenBlock = workspaceJs.match(/async function openWorkspaceSection[\s\S]*?function availableSections/)?.[0] || "";
+  assert.match(sectionOpenBlock, /section === "students" && button\.dataset\.sectionPreset === "all-students"/);
+  assert.match(sectionOpenBlock, /syncSiteStudentUrlState\(\{ clearFilters: true \}\)/);
+  assert.match(sectionOpenBlock, /section === "students" && button\.dataset\.sectionPreset === "missing-mentors"/);
+  assert.match(sectionOpenBlock, /noMentor:\s*true/);
+  assert.match(sectionOpenBlock, /loadWorkspaceData\("Showing students missing mentors\."\)/);
   assert.match(sectionOpenBlock, /section === "students" && button\.dataset\.sectionPreset === "program"/);
   assert.match(sectionOpenBlock, /const programId = cleanDirectoryFilter\(button\.dataset\.programId\)/);
   assert.match(sectionOpenBlock, /programId,/);
   assert.match(sectionOpenBlock, /loadWorkspaceData\("Showing students in the selected program\."\)/);
   assert.match(workspaceJs, /function siteStudentQueryString/);
   assert.match(workspaceJs, /params\.set\("programId", filters\.programId\)/);
+  assert.match(workspaceJs, /params\.set\("noMentor", "true"\)/);
   assert.match(workspaceJs, /function siteMentorAssignmentQueryString/);
   assert.match(workspaceJs, /params\.set\("mentorUserId", filters\.mentorUserId\)/);
+  assert.match(workspaceJs, /preset: "all-students"/);
+  assert.match(workspaceJs, /preset: "missing-mentors"|data-section-preset="missing-mentors"/);
   assert.match(workspaceJs, /data-section-preset="program"/);
   assert.match(workspaceJs, /data-section-preset="mentor-workload"/);
+  assert.match(workspaceJs, /Showing students missing mentors/);
   assert.doesNotMatch(workspaceJs, /href="#"/);
 });
 

@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-05-24T19:05:49-07:00",
-  "lastStartingSha": "5a28b1ac309ce26839faed69296b9312561ce6db",
+  "lastRunAt": "2026-05-24T19:22:39-07:00",
+  "lastStartingSha": "38cde8d763f603496dae237ab0267d79ec023087",
   "lastEndingSha": null,
-  "currentLadderFocus": "LEVEL_2_STUDENT_DETAIL_DEPTH",
+  "currentLadderFocus": "LEVEL_1_NAVIGABLE_DASHBOARDS",
   "completedWorkOrders": [
     {
       "id": "workspace-header-product-language-cleanup",
@@ -161,6 +161,14 @@
       "type": "TYPE_C_STUDENT_DETAIL_DRILL_DOWN",
       "summary": "Authorized student detail summaries now surface the latest visible review/comment context already returned by the scoped detail API, with render test coverage.",
       "commit": "pending-closeout-commit"
+    },
+    {
+      "id": "admin-workspace-clickthrough-nav-repair",
+      "completedAt": "2026-05-24T19:22:39-07:00",
+      "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS",
+      "type": "TYPE_B_DASHBOARD_CLICK_THROUGH",
+      "summary": "Admin workspace hamburger close now hides the full navigation and frees content width; Students and No Mentor dashboard counts open the Student Directory, with No Mentor and Mentor Coverage using the supported noMentor=true filter.",
+      "commit": "pending-closeout-commit"
     }
   ],
   "deferredWorkOrders": [
@@ -208,7 +216,7 @@
   ],
   "doNotRepeat": [
     "Do not repeat protected workspace header/posture chip cleanup unless new leaked phrases are found.",
-    "Do not relink the Site Dashboard No Mentor metric; it already opens Mentor Assignments filtered to unassigned students.",
+    "Do not relink the Site Dashboard No Mentor metric back to Mentor Assignments only; it now opens the Student Directory with noMentor=true so staff see the actual missing-mentor students before assignment actions.",
     "Do not repeat public preview implementation-language cleanup unless the verifier reports a new public review-only leak.",
     "Do not spend a run on generic docs churn when a concrete ladder work order is safe and testable.",
     "Do not replace the functionality UX growth system with a short generic checklist; preserve ladder, ledger, state, scoring, and handoff requirements.",
@@ -224,7 +232,7 @@
   ],
   "lastValidationStatus": {
     "status": "passed",
-    "completedAt": "2026-05-24T19:05:49-07:00",
+    "completedAt": "2026-05-24T19:26:50-07:00",
     "commands": [
       "npm run verify:dashboard-actions",
       "npm run verify:review-queue-deeplinks",
@@ -232,22 +240,23 @@
       "npm run verify:functionality-language",
       "npm run verify:functionality-ux-automation",
       "node --test tests/workspace-app.test.mjs",
-      "node --test tests/site-student-detail.integration.test.mjs",
       "node --test tests/functionality-language-audit.test.mjs",
-      "node --test tests/account-and-evidence-access.test.mjs",
+      "node -e JSON.parse automation/state/functionality-ux-growth-state.json",
+      "npm run check:route-inventory",
       "npm run test",
       "npm run typecheck",
       "npm run check:production-surfaces",
       "npm run check",
       "git diff --check",
+      "browser smoke: local /workspace sign-in route loaded with zero console errors",
       "git status --short"
     ],
-    "notes": "Full required validation passed for the student detail latest feedback summary. git diff --check reported CRLF normalization warnings only. No browser QA, remote checks, live data writes, deployment, migrations, or destructive commands were run."
+    "notes": "Full required validation passed for the admin workspace click-through and responsive navigation repair. git diff --check reported CRLF normalization warnings only. Local browser smoke loaded the protected workspace sign-in route without console errors; authenticated dashboard click-through behavior is covered by render/integration tests. No remote seed/reset/migration, live data write, deploy, credential repair, domain/OAuth, or Cloudflare config change was run."
   },
   "lastProductReadinessScorecardSummary": {
     "homepageClarity": "4 to 4",
     "dashboardLanguageQuality": "4 to 4",
-    "dashboardClickThroughDepth": "3 to 3",
+    "dashboardClickThroughDepth": "3 to 4",
     "reviewQueueUrlState": "4 to 4",
     "shareableStaffWorklistUrlState": "1 to 4",
     "activeFilterClarity": "4 to 4",
