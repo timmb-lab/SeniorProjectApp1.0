@@ -117,6 +117,15 @@ test("site operations readiness route is scoped, read-only, audited, bounded, an
   assert.equal(presentationPending.presentation.rows.some((row) => /^Presentation Pending Demo/i.test(row.studentName)), true);
   assert.equal(presentationPending.presentation.rows.every((row) => ["pending", "outline_pending", "outline_revision_needed", "attention_required"].includes(row.presentationStatus)), true);
 
+  const outlineAttention = await expectOperations(env, tokens.siteAdminPrimary, `?siteId=${PRIMARY_SITE_ID}&outlineAttention=true&limit=100`);
+  assert.equal(outlineAttention.filters.outlineAttention, true);
+  assert.equal(outlineAttention.pagination.filteredTotal, outlineAttention.summary.outlinePending);
+  assert.equal(outlineAttention.presentation.rows.length > 0, true);
+  assert.equal(
+    outlineAttention.presentation.rows.every((row) => ["outline_pending", "outline_revision_needed"].includes(row.presentationStatus)),
+    true,
+  );
+
   const highRisk = await expectOperations(env, tokens.siteAdminPrimary, `?siteId=${PRIMARY_SITE_ID}&story=high_risk&limit=100`);
   assert.equal(highRisk.pagination.filteredTotal, 5);
   assert.equal(highRisk.readiness.attentionRows.every((row) => row.category === "risk" && row.status === "attention_required"), true);
@@ -158,7 +167,7 @@ test("site operations readiness route is scoped, read-only, audited, bounded, an
   assert.equal(detail.response.status, 200);
   assert.equal(detail.body.student.studentId, richStudentId);
 
-  for (const body of [platform, secondary, legacy, org, siteAdmin, viewer, teacher, archiveFailed, archiveReady, presentationPending, highRisk, archiveCategory, needsAttention, paged, offset, capped, richTimeline, detail.body]) {
+  for (const body of [platform, secondary, legacy, org, siteAdmin, viewer, teacher, archiveFailed, archiveReady, presentationPending, outlineAttention, highRisk, archiveCategory, needsAttention, paged, offset, capped, richTimeline, detail.body]) {
     assert.doesNotMatch(JSON.stringify(body), FORBIDDEN_RESPONSE_FIELDS);
   }
 

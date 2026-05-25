@@ -1131,3 +1131,58 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: Outline Pending still needs exact route mapping; browser QA still needs credentialed runtime; student feedback history still needs route/visibility decision.
   - Do not repeat: do not rebuild `needsAttention=true` unless a regression removes it from route/UI/tests.
   - First file to inspect next run: `workspace.js` `renderOperationsReadinessSection()` and `functions/_lib/site-operations-readiness.ts` `matchesPresentationStatus()`
+
+## Run 2026-05-25 03:10 PT
+
+- Starting SHA: `a8b2518a8dde99de8f1c3ffb67b169956422be93`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Branch policy: work stayed on clean local `main`; local `main` was fourteen commits ahead of `origin/main`, `origin/main` was not ahead, and no push was run
+- Ladder level targeted: `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` with Level 1 dashboard navigation support
+- Backlog item: `operations-outline-attention-filter`; supports `MVP-032`, `MVP-033`, and dashboard/reporting drill-down from `docs/master-plan.md`
+- Work order selected: Link the Operations `Outline Pending` summary tile to a real scoped `outlineAttention=true` Operations readiness filter.
+- Selection reason: The previous handoff named Operations `Outline Pending` as the next exact mapping to prove. Current source showed the metric as summary-only while `/api/site/operations-readiness` already counted `outline_pending` plus `outline_revision_needed`. A dedicated boolean filter preserved exact `presentationStatus` semantics and avoided overloading the existing status dropdown.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Operations Outline Pending exact filter | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | staff, viewer, program teacher | 4 | 5 | 5 | S | 60 | selected |
+| Student feedback history detail | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 5 | 3 | 3 | M | 42 | deferred: needs route/comment-visibility decision |
+| Missing/evidence drill-down mapping | `LEVEL_1_NAVIGABLE_DASHBOARDS` | staff | 5 | 2 | 3 | M | 38 | deferred: exact Review Queue or Directory mapping remains unproven |
+| Student detail visible-note labels | `LEVEL_7_AUDITABILITY_AND_TRUST` | staff, students | 4 | 5 | 4 | S | 45 | rejected: useful but less aligned to handoff |
+| Operations empty-state wording | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | staff, viewer | 3 | 5 | 4 | XS | 43 | rejected: copy-only while route-backed functionality was ready |
+| Assignment form unavailable copy cleanup | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | site admin | 3 | 5 | 4 | XS | 43 | rejected: lower workflow value this run |
+| Viewer read-only homepage clarity | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | viewer | 3 | 5 | 4 | XS | 42 | rejected: existing read-only coverage is guarded |
+| Student Directory mentor filter labels | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | staff | 4 | 3 | 4 | M | 42 | deferred: needs safe API-provided mentor labels |
+| Public app-preview language cleanup | `LEVEL_0_PROTOTYPE_CLEANUP` | public | 3 | 5 | 4 | S | 40 | rejected: protected app functionality had higher value |
+| Credentialed browser QA for worklist URLs | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all | 4 | 4 | 3 | M | 39 | blocked: needs credentialed local or hosted runtime |
+| Site Admin mentor POST default alignment | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | site admin | 4 | 2 | 4 | M | 37 | deferred: mutation policy risk is too high |
+| Program teacher missing-submission queue | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | program teacher | 4 | 3 | 3 | M | 37 | deferred: needs scoped route mapping |
+| Mentor assigned-student meeting depth | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | mentor | 4 | 3 | 3 | M | 36 | deferred: needs route/data shape design |
+| Student due-date timeline | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 4 | 3 | 3 | M | 35 | deferred: due-date source mapping remains unclear |
+| Org-admin tenant rollup | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | org admin | 4 | 2 | 2 | L | 30 | blocked: needs backend aggregate/RBAC design |
+| Public no-hidden-core-content route proof | `LEVEL_0_PROTOTYPE_CLEANUP` | public | 3 | 4 | 4 | M | 39 | rejected: app workflow drill-down had higher value |
+
+- User-facing improvement: Staff, viewers, and scoped program teachers can click Operations `Outline Pending` and land on the matching outline-pending or outline-revision scoped worklist rows with shareable URL state.
+- Roles affected: `platform_admin`, `admin`, `org_admin`, `site_admin`, `viewer`, and `program_teacher`; student, mentor, misc-admin, tenant, site, and program access boundaries were not expanded.
+- Files changed: `functions/_lib/site-operations-readiness.ts`, `workspace.js`, `tests/site-operations-readiness.integration.test.mjs`, `tests/workspace-app.test.mjs`, `scripts/verify-dashboard-actions.mjs`, `scripts/verify-workspace-navigation-integrity.mjs`, `docs/functionality-language-audit.md`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`, `docs/progress/run-log.md`
+- Tests/verifiers added or updated: site operations integration test proves `outlineAttention=true`; workspace tests prove URL parsing/sync, active filter copy, metric button rendering, and preset handling; dashboard and navigation verifiers guard the new preset.
+- Validation commands:
+  - Focused: `npm run verify:dashboard-actions`; `npm run verify:workspace-navigation`; `node --test tests/workspace-app.test.mjs`; `node --test tests/site-operations-readiness.integration.test.mjs`
+  - Final planned: `npm run verify:dashboard-actions`; `npm run verify:review-queue-deeplinks`; `npm run verify:workspace-navigation`; `npm run verify:functionality-language`; `npm run verify:functionality-ux-automation`; `node --test tests/workspace-app.test.mjs`; `node --test tests/site-operations-readiness.integration.test.mjs`; `node --test tests/functionality-language-audit.test.mjs`; JSON parse for `automation/state/functionality-ux-growth-state.json`; `npm run check:route-inventory`; `npm run test`; `npm run typecheck`; `npm run check:production-surfaces`; `npm run check`; `git diff --check`; `git status --short`
+- Validation result: passed; `git diff --check` reported CRLF normalization warnings only
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: missing/evidence drill-down mapping; student feedback history route; credentialed browser QA
+- New backlog items: none
+- Next recommended work order: inspect a student-safe feedback history surface with explicit staff-only comment exclusion, or prove the missing/evidence drill-down mapping before exposing a visible staff control.
+- Do-not-repeat notes: do not re-add Operations `Outline Pending` filtering; extend only if a regression removes `outlineAttention=true` or a new exact outline subtype is added by the route.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES`
+  - Advanced: yes
+  - Evidence: `/api/site/operations-readiness` now parses `outlineAttention=true`, `matchesFilters()` applies `shouldShowOutlineAttentionRow()` for `outline_pending` and `outline_revision_needed`, and the Operations metric renders `data-section="operations" data-section-preset="outline-pending"`.
+  - Unlocks: staff can move from outline approval totals to exact rows without blurring the broader presentation-pending queue.
+  - Next: design or prove the student-safe feedback history surface, or map missing/evidence drill-down to a supported scoped route.
+  - Blockers: browser QA still needs credentialed runtime; student feedback history still needs route/visibility decision; missing/evidence drill-down still lacks exact route mapping.
+  - Do not repeat: do not rebuild `outlineAttention=true` unless a regression removes it from route/UI/tests.
+  - First file to inspect next run: `workspace.js` `renderStudentFeedbackPanel()` and `functions/api/student/dashboard.ts` feedback query

@@ -83,6 +83,7 @@ const allowedPresets = new Map([
   ["presentation-pending", "operations"],
   ["archive-failed", "operations"],
   ["needs-attention", "operations"],
+  ["outline-pending", "operations"],
   ["program-breakdown", "operations"],
 ]);
 
@@ -187,6 +188,16 @@ assertMatches(
   "workspaceJs",
   /renderMetricTile\("Needs Attention"[\s\S]*"operations", \{ label: "Review rows", preset: "needs-attention" \}\)/,
   "Operations Needs Attention metric must open the existing attention worklist filter",
+);
+assertMatches(
+  "workspaceJs",
+  /section === "operations" && button\.dataset\.sectionPreset === "outline-pending"[\s\S]*outlineAttention: true[\s\S]*syncOperationsReadinessUrlState\(\)/,
+  "outline-pending dashboard preset must be backed by the Operations outline filter and sync URL state",
+);
+assertMatches(
+  "workspaceJs",
+  /renderMetricTile\("Outline Pending"[\s\S]*"operations", \{ label: "Review rows", preset: "outline-pending" \}\)/,
+  "Operations Outline Pending metric must open the existing outline worklist filter",
 );
 assertMatches(
   "workspaceJs",

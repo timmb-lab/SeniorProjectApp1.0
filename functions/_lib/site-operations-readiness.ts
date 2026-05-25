@@ -70,6 +70,7 @@ interface OperationFilters {
   readiness: string;
   category: string;
   needsAttention: boolean;
+  outlineAttention: boolean;
   limit: number;
   offset: number;
 }
@@ -279,6 +280,7 @@ async function buildOperationsPayload({
       readiness: filters.readiness,
       category: filters.category,
       needsAttention: filters.needsAttention,
+      outlineAttention: filters.outlineAttention,
       limit: filters.limit,
       offset: filters.offset,
     },
@@ -819,6 +821,7 @@ function matchesFilters(row: OperationStudentRow, filters: OperationFilters): bo
   if (filters.readiness && row.readinessStatus !== filters.readiness) return false;
   if (filters.category && row.readinessCategory !== filters.category) return false;
   if (filters.needsAttention && !shouldShowAttentionRow(row)) return false;
+  if (filters.outlineAttention && !shouldShowOutlineAttentionRow(row)) return false;
   return true;
 }
 
@@ -1037,6 +1040,10 @@ function shouldShowAttentionRow(row: OperationStudentRow): boolean {
   return ["blocked", "attention_required", "missing"].includes(row.readinessStatus);
 }
 
+function shouldShowOutlineAttentionRow(row: OperationStudentRow): boolean {
+  return ["outline_pending", "outline_revision_needed"].includes(row.presentationStatus);
+}
+
 function riskFlagsFor(row: RawOperationRow): string[] {
   const flags = [];
   if (!Number(row.has_active_mentor || 0)) flags.push("no_mentor");
@@ -1099,6 +1106,7 @@ function parseFilters(params: URLSearchParams): OperationFilters {
     readiness: canonical(params.get("readiness"), READINESS_VALUES),
     category: canonical(params.get("category"), CATEGORY_VALUES),
     needsAttention: booleanFilter(params.get("needsAttention")),
+    outlineAttention: booleanFilter(params.get("outlineAttention")),
     limit: clampNumber(params.get("limit"), DEFAULT_LIMIT, 1, MAX_LIMIT),
     offset: clampNumber(params.get("offset"), 0, 0, 100000),
   };
@@ -1161,6 +1169,7 @@ function safeFilterSummary(filters: OperationFilters) {
     readiness: filters.readiness,
     category: filters.category,
     needsAttention: filters.needsAttention,
+    outlineAttention: filters.outlineAttention,
     limit: filters.limit,
     offset: filters.offset,
   };

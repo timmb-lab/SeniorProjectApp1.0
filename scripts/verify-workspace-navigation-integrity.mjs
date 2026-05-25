@@ -81,6 +81,7 @@ assertMatches("workspaceJs", /sectionPreset === "mentor-workload"[\s\S]*mentorAs
 assertMatches("workspaceJs", /sectionPreset === "presentation-pending"[\s\S]*presentationStatus: "pending"/, "Presentation dashboard preset must open Operations with a supported filter");
 assertMatches("workspaceJs", /sectionPreset === "archive-failed"[\s\S]*archiveStatus: "failed"/, "Archive dashboard preset must open Operations with a supported filter");
 assertMatches("workspaceJs", /sectionPreset === "needs-attention"[\s\S]*needsAttention: true/, "Needs Attention dashboard preset must open Operations with a supported attention filter");
+assertMatches("workspaceJs", /sectionPreset === "outline-pending"[\s\S]*outlineAttention: true/, "Outline Pending dashboard preset must open Operations with a supported outline filter");
 assertMatches("workspaceJs", /data-operations-action="filter-category"[\s\S]*data-operations-category/, "Operations Next Actions must expose route-backed category filter controls");
 assertMatches("workspaceJs", /action === "filter-category"[\s\S]*category,[\s\S]*syncOperationsReadinessUrlState\(\)/, "Operations category controls must sync shareable URL state");
 assertMatches("workspaceJs", /aria-label="\$\{workspaceNavCollapsed \? "Open menu" : "Close menu"\}"/, "Menu toggle must expose an accessible open/close label");

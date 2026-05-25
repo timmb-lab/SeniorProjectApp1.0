@@ -1751,3 +1751,14 @@ Future productive runs should append compact entries that name the master-plan s
 - `changes`: added `needsAttention` parsing/filtering to the Operations readiness route; exposed the Operations metric action; synced `needsAttention=true` in workspace URL state; added active-filter copy; updated workspace/route tests and dashboard/navigation verifiers.
 - `validation`: focused dashboard/navigation verifiers plus `tests/workspace-app.test.mjs` and `tests/site-operations-readiness.integration.test.mjs` passed before final validation; final validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
 - `commit/push status`: pending closeout commit.
+
+## 2026-05-25 PT - Functionality UX Upgrade Operations Outline Filter
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 5 review/intervention queues / Operations readiness outline filtering.
+- `starting HEAD`: `a8b2518a8dde99de8f1c3ffb67b169956422be93`.
+- `selected slice`: Link Operations `Outline Pending` to a real scoped `outlineAttention=true` filter and shareable URL state.
+- `repo-grounded findings`: the previous handoff named Operations `Outline Pending`. Current source rendered the metric as summary-only, while `/api/site/operations-readiness` already counted `outline_pending` plus `outline_revision_needed` and exposed both presentation statuses safely.
+- `changes`: added `outlineAttention` parsing/filtering to the Operations readiness route; exposed the Operations `Outline Pending` metric action; synced `outlineAttention=true` in workspace URL state; added active-filter copy; updated workspace/route tests and dashboard/navigation verifiers.
+- `validation`: focused dashboard/navigation verifiers plus `tests/workspace-app.test.mjs` and `tests/site-operations-readiness.integration.test.mjs` passed before final validation; final validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit.
