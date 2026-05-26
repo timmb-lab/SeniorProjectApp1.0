@@ -157,8 +157,18 @@ assertMatches(
 );
 assertMatches(
   "workspaceJs",
+  /function renderProgramTeacherDashboardSection\([\s\S]*renderMetricTile\("Submitted"[\s\S]*"teacher", \{ label: "Review", preset: "submitted" \}\)/,
+  "Program Teacher Submitted metric must open the existing submitted Review Queue filter",
+);
+assertMatches(
+  "workspaceJs",
   /section === "teacher" && button\.dataset\.sectionPreset === "revision-requested"[\s\S]*status: "revision_requested"/,
   "revision dashboard preset must be backed by a review queue status filter",
+);
+assertMatches(
+  "workspaceJs",
+  /function renderProgramTeacherDashboardSection\([\s\S]*renderMetricTile\("Needs Revision"[\s\S]*"teacher", \{ label: "Review", preset: "revision-requested" \}\)/,
+  "Program Teacher Needs Revision metric must open the existing revision Review Queue filter",
 );
 assertMatches(
   "workspaceJs",

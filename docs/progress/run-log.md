@@ -2070,3 +2070,14 @@ Future productive runs should append compact entries that name the master-plan s
 - `changes`: `app.js` now uses `publicPageResponsibilityHtml()` for templates, portfolio, rubrics, and grades pages; generated `public-companion/` output was rebuilt; `tests/account-and-evidence-access.test.mjs` guards the markers and representative responsibility phrases.
 - `validation`: focused public-source test, public-site build, and generated-output drift check passed before final validation. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
 - `commit/push status`: pending closeout commit; not pushed by this automation run.
+
+## 2026-05-25 PT - Functionality UX Upgrade Program Teacher Review Metrics
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 1 navigable dashboards / Program Teacher review queue drill-down.
+- `starting HEAD`: `d4a6a1fe13aaec6ba0ea4be7f0589870c7378ef5`.
+- `selected slice`: Link Program Teacher dashboard `Submitted` and `Needs Revision` metrics to existing Review Queue status filters.
+- `repo-grounded findings`: site/admin dashboard review counts already used `teacher` section presets, while `renderProgramTeacherDashboardSection()` passed only the generic `teacher` section to these two tiles, opening an unfiltered queue despite supported `submitted` and `revision-requested` presets.
+- `changes`: `workspace.js` now renders Program Teacher review metrics with `Review` actions and the supported `submitted` / `revision-requested` presets; workspace coverage proves both clicks fetch `/api/site/review-queue` with the expected status and URL state; the dashboard-action verifier guards the presets.
+- `validation`: focused `node --test tests/workspace-app.test.mjs`, `npm run verify:dashboard-actions`, and `npm run verify:workspace-navigation` passed before final validation. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.

@@ -1,0 +1,83 @@
+{
+  "runId": "2026-05-25-1734-program-teacher-review-metric-filters",
+  "automationId": "functionality-ux-upgrade-hourly",
+  "startedAt": "2026-05-25T17:34:00-07:00",
+  "startingSha": "d4a6a1fe13aaec6ba0ea4be7f0589870c7378ef5",
+  "endingSha": null,
+  "branch": "main",
+  "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS",
+  "mvpRequirements": ["MVP-015"],
+  "workOrder": {
+    "id": "program-teacher-review-metric-filters",
+    "type": "TYPE_B_DASHBOARD_CLICK_THROUGH",
+    "title": "Program Teacher review metric filters",
+    "selected": true,
+    "selectionReason": "Program Teacher dashboard review metrics already had a real Review Queue destination but lacked the supported status presets that site/admin dashboard metrics use."
+  },
+  "candidateScores": [
+    { "id": "program-teacher-review-metric-filters", "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS", "roles": ["program_teacher"], "score": 58, "decision": "selected" },
+    { "id": "program-teacher-dashboard-verifier-guard", "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT", "roles": ["program_teacher"], "score": 52, "decision": "included" },
+    { "id": "public-route-visual-browser-qa", "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT", "roles": ["public_student", "public_teacher"], "score": 40, "decision": "rejected-runtime-proof" },
+    { "id": "hosted-section-permission-proof", "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT", "roles": ["all_protected_roles"], "score": 40, "decision": "blocked-credentialed-runtime" },
+    { "id": "review-queue-missing-evidence-filter", "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES", "roles": ["site_staff", "program_teacher"], "score": 37, "decision": "deferred-backend-privacy-support" },
+    { "id": "student-directory-missing-evidence-filter", "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS", "roles": ["site_staff", "viewer"], "score": 35, "decision": "deferred-missing-route-filter" },
+    { "id": "site-dashboard-snapshot-row-filters", "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS", "roles": ["site_staff", "viewer"], "score": 39, "decision": "rejected-needs-route-inspection" },
+    { "id": "operations-stale-conflict-transition-checks", "ladderLevel": "LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS", "roles": ["site_staff"], "score": 42, "decision": "rejected-larger-slice" },
+    { "id": "student-blocked-submit-state-polish", "ladderLevel": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN", "roles": ["student"], "score": 44, "decision": "rejected-recent-area-healthy" },
+    { "id": "mentor-scheduled-date-semantics", "ladderLevel": "LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW", "roles": ["mentor"], "score": 42, "decision": "rejected-policy-needed" },
+    { "id": "staff-mentor-meeting-controls", "ladderLevel": "LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW", "roles": ["site_staff"], "score": 35, "decision": "rejected-endpoint-mentor-only" },
+    { "id": "downloadable-student-progress-summary", "ladderLevel": "LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS", "roles": ["student", "staff"], "score": 31, "decision": "rejected-export-privacy-policy" },
+    { "id": "org-admin-tenant-rollup", "ladderLevel": "LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS", "roles": ["org_admin"], "score": 30, "decision": "blocked-backend-rbac-design" }
+  ],
+  "changes": [
+    "Program Teacher dashboard Submitted metric now opens the existing Review Queue with status=submitted.",
+    "Program Teacher dashboard Needs Revision metric now opens the existing Review Queue with status=revision_requested.",
+    "Focused workspace test and dashboard-action verifier guard the route-backed presets."
+  ],
+  "filesChanged": [
+    "workspace.js",
+    "tests/workspace-app.test.mjs",
+    "scripts/verify-dashboard-actions.mjs",
+    "docs/functionality-language-audit.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/functionality-ux-growth-ledger.md",
+    "automation/state/functionality-ux-growth-state.json",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-25-1734-program-teacher-review-metric-filters.json"
+  ],
+  "privacyAndPermissions": {
+    "authChanged": false,
+    "rbacChanged": false,
+    "tenantOrSiteScopeChanged": false,
+    "studentPrivacyChanged": false,
+    "notes": "The change reuses the existing scoped Review Queue section and status filters available to program_teacher users."
+  },
+  "validation": {
+    "focusedPassed": [
+      "node --test tests/workspace-app.test.mjs",
+      "npm run verify:dashboard-actions",
+      "npm run verify:workspace-navigation"
+    ],
+    "finalPassed": [
+      "npm run verify:functionality-language",
+      "npm run verify:functionality-ux-automation",
+      "node --test tests/functionality-language-audit.test.mjs",
+      "node -e JSON.parse automation/state/functionality-ux-growth-state.json and docs/progress/runs/2026-05-25-1734-program-teacher-review-metric-filters.json",
+      "git diff --check",
+      "npm run check:route-inventory",
+      "npm run check:production-surfaces",
+      "npm run test",
+      "npm run typecheck",
+      "npm run check"
+    ],
+    "notes": "Final validation passed; git diff --check reported CRLF normalization warnings only."
+  },
+  "nextRecommended": [
+    "Inspect Site Dashboard presentation/archive snapshot rows for exact Operations filters before adding drill-downs.",
+    "Run hosted section-level permission proof when credentialed runtime is available.",
+    "Run public route visual browser QA when runtime is available."
+  ],
+  "doNotRepeat": [
+    "Do not re-add Program Teacher dashboard Submitted/Needs Revision Review Queue presets unless regression removes preset: \"submitted\" or preset: \"revision-requested\" from renderProgramTeacherDashboardSection()."
+  ]
+}

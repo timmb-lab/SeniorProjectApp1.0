@@ -2715,3 +2715,55 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: hosted permission/browser proof still needs credentialed runtime; exports and staff scheduling controls need policy decisions.
   - Do not repeat: do not rebuild these remaining-page panels unless regression evidence appears.
   - First file to inspect next run: `app.js` `publicPageResponsibilityHtml()` and public route browser QA harness
+
+## Run 2026-05-25 17:34 PT
+
+- Starting SHA: `d4a6a1fe13aaec6ba0ea4be7f0589870c7378ef5`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Branch policy: work stayed on clean local `main`; local `main` was thirteen commits ahead of `origin/main`, `origin/main` was not ahead, and no push was run
+- Ladder level targeted: `LEVEL_1_NAVIGABLE_DASHBOARDS` with `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` support and `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` verifier coverage
+- Backlog item: `program-teacher-dashboard-review-filter-clickthrough`; advances dashboard/reporting evidence in `MVP-015`
+- Work order selected: Link Program Teacher dashboard `Submitted` and `Needs Revision` metrics to existing scoped Review Queue status filters.
+- Selection reason: Current source showed site/admin dashboard review counts already used the real `teacher` section presets, but Program Teacher dashboard review metrics opened the Review Queue without a status preset. The role already has the scoped Review Queue route, supported status filters, URL sync, and tests, making this a safe high-value click-through slice after the public guide emphasis work completed.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Program Teacher review metric filters | `LEVEL_1_NAVIGABLE_DASHBOARDS` | program_teacher | 5 | 5 | 5 | XS | 58 | selected |
+| Program Teacher dashboard verifier guard | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | program_teacher | 3 | 5 | 5 | XS | 52 | included |
+| Public route desktop/mobile visual QA | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | public students, teachers | 3 | 4 | 3 | M | 40 | rejected: no source defect found before browser proof |
+| Hosted section-level permission proof | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all protected roles | 4 | 4 | 3 | M | 40 | blocked: credentialed hosted runtime dependency |
+| Review Queue missing-evidence filter | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | site staff, program_teacher | 5 | 2 | 3 | M | 37 | deferred: backend/privacy support still missing |
+| Student Directory missing-evidence filter | `LEVEL_1_NAVIGABLE_DASHBOARDS` | site staff, viewer | 4 | 2 | 3 | M | 35 | deferred: exact route filter missing |
+| Site Dashboard snapshot row filters | `LEVEL_1_NAVIGABLE_DASHBOARDS` | site staff, viewer | 4 | 3 | 3 | M | 39 | rejected: status-to-filter mapping needs more route inspection |
+| Operations stale/conflict transition checks | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | site staff | 4 | 3 | 4 | S | 42 | rejected: larger than review metric slice |
+| Student blocked-submit state polish | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 4 | 4 | 4 | S | 44 | rejected: recent student requirement work is healthy |
+| Mentor scheduled-date semantics | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | mentor | 3 | 3 | 4 | S | 42 | rejected: scheduling semantics need policy |
+| Staff mentor meeting controls | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | site staff | 4 | 2 | 3 | M | 35 | rejected: endpoint/policy is mentor-only |
+| Downloadable student progress summary | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | student, staff | 4 | 2 | 3 | L | 31 | rejected: export/privacy policy needed |
+| Org-admin tenant rollup | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | org_admin | 4 | 2 | 2 | L | 30 | blocked: backend aggregate and RBAC design needed |
+
+- User-facing improvement: Program Teachers can now click `Submitted` or `Needs Revision` directly from their assigned-program dashboard and land in the real Review Queue filtered to that status, with URL state reflecting the filter.
+- Roles affected: `program_teacher`; no student, mentor, viewer, admin, tenant, site, or program visibility was broadened.
+- Files changed: `workspace.js`, `tests/workspace-app.test.mjs`, `scripts/verify-dashboard-actions.mjs`, `docs/functionality-language-audit.md`, `docs/mvp-requirements-catalog.md`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`, `docs/progress/run-log.md`, `docs/progress/runs/2026-05-25-1734-program-teacher-review-metric-filters.json`
+- Tests/verifiers added or updated: workspace render/handler test proves Program Teacher review metric clicks fetch `/api/site/review-queue` with `status=submitted` or `status=revision_requested`; dashboard verifier guards the Program Teacher tile presets.
+- Validation commands:
+  - Focused passed before docs/state closeout: `node --test tests/workspace-app.test.mjs`; `npm run verify:dashboard-actions`; `npm run verify:workspace-navigation`
+  - Final passed: `npm run verify:functionality-language`; `npm run verify:functionality-ux-automation`; `node --test tests/functionality-language-audit.test.mjs`; JSON parse for state and manifest; `git diff --check`; `npm run check:route-inventory`; `npm run check:production-surfaces`; `npm run test`; `npm run typecheck`; `npm run check`
+- Validation result: passed; `git diff --check` reported only CRLF normalization warnings, with no whitespace errors.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: public-route visual QA, hosted section-level permission proof, Review Queue/Student Directory missing-evidence filters, snapshot row filters, exports, staff scheduling/reassignment controls, and org rollups remain deferred.
+- New backlog items: none
+- Next recommended work order: inspect Site Dashboard presentation/archive snapshot rows for exact route-backed Operations filters, or run public route visual QA when browser/runtime is available.
+- Do-not-repeat notes: do not re-add Program Teacher dashboard submitted/revision metric presets unless regression removes `preset: "submitted"` or `preset: "revision-requested"` from `renderProgramTeacherDashboardSection()`.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_1_NAVIGABLE_DASHBOARDS`
+  - Advanced: yes
+  - Evidence: Program Teacher dashboard review metrics now use existing Review Queue presets and focused tests/verifier coverage passed.
+  - Unlocks: next dashboard work can focus on exact snapshot-row filters or hosted/browser proof instead of generic review-count navigation.
+  - Next: inspect `renderSnapshotRows()` and Operations filter support for route-safe presentation/archive snapshot drill-downs.
+  - Blockers: hosted permission/browser proof still needs credentialed runtime; missing-evidence Review Queue filters need backend/privacy support; exports and staff scheduling controls need policy decisions.
+  - Do not repeat: do not re-add these Program Teacher metric presets unless regression evidence appears.
+  - First file to inspect next run: `workspace.js` `renderSnapshotRows()` and `functions/api/site/operations-readiness.ts`

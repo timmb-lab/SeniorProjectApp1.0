@@ -2320,8 +2320,8 @@ function renderProgramTeacherDashboardSection() {
       </div>
       <div class="workspace-dashboard-grid">
         ${renderMetricTile("Assigned Students", summary.scopedStudents, "Visible in your assigned program or cohort", "teacher")}
-        ${renderMetricTile("Submitted", summary.submitted, "Ready for review", "teacher", "teacher")}
-        ${renderMetricTile("Needs Revision", summary.revisionRequested, "Follow-up needed", "warning", "teacher")}
+        ${renderMetricTile("Submitted", summary.submitted, "Ready for review", "teacher", "teacher", { label: "Review", preset: "submitted" })}
+        ${renderMetricTile("Needs Revision", summary.revisionRequested, "Follow-up needed", "warning", "teacher", { label: "Review", preset: "revision-requested" })}
         ${renderMetricTile("Approved", summary.approved, "Accepted submissions", "student")}
         ${renderMetricTile("Evidence", summary.evidenceArtifacts, "Evidence records", "mentor")}
         ${renderMetricTile("Presentations", summary.presentationsPending, "Pending readiness", "warning", "presentation")}

@@ -629,6 +629,91 @@ test("program teacher dashboard detail actions preserve program dashboard contex
   assert.doesNotMatch(workspaceRoot.innerHTML, /workspace-detail-drawer/);
 });
 
+test("program teacher dashboard review metrics open filtered Review Queue", async () => {
+  const { context, workspaceRoot, fetchLog, window } = await createWorkspaceContextWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "program-teacher-review-drilldown",
+          email: "program.teacher.review.drilldown@example.edu",
+          displayName: "Program Teacher Review Drilldown",
+          roles: [{ role_id: "program_teacher", scope_type: "program", scope_id: "it" }],
+        },
+      },
+    },
+    "/api/site/students": {
+      status: 200,
+      body: siteStudentsFixture({ role: "program_teacher", total: 45 }),
+    },
+    "/api/site/review-queue": ({ url }) => {
+      const parsed = new URL(url, "https://workspace.example");
+      const status = parsed.searchParams.get("status") || "";
+      return {
+        status: 200,
+        body: siteReviewQueueFixture({
+          role: "program_teacher",
+          filters: {
+            programId: "",
+            search: "",
+            story: "",
+            risk: "any",
+            limit: 50,
+            offset: 0,
+            status,
+          },
+        }),
+      };
+    },
+    "/api/program-teacher/dashboard": {
+      status: 200,
+      body: {
+        ok: true,
+        scope: { role: "program_teacher", scopeType: "program", scopeId: "it" },
+        summary: {
+          scopedStudents: 45,
+          submitted: 3,
+          revisionRequested: 2,
+          approved: 8,
+          evidenceArtifacts: 12,
+          noMentor: 1,
+          meetingsMakeupRequired: 0,
+          presentationsPending: 1,
+        },
+        needsAttention: [],
+        needsReview: [],
+        programBreakdown: [],
+        students: [],
+      },
+    },
+    "/api/presentation-slots": {
+      status: 200,
+      body: { ok: true, slots: [] },
+    },
+  });
+
+  vm.runInContext('activeSection = "programDashboard"; renderAppShell();', context);
+  assert.match(workspaceRoot.innerHTML, /data-section="teacher" data-section-preset="submitted"/);
+  assert.match(workspaceRoot.innerHTML, /data-section="teacher" data-section-preset="revision-requested"/);
+
+  await vm.runInContext('openWorkspaceSection({ dataset: { section: "teacher", sectionPreset: "submitted" } })', context);
+  const submittedFetch = fetchLog.findLast((entry) => entry.startsWith("/api/site/review-queue?"));
+  assert.ok(submittedFetch, "expected submitted dashboard metric to load Review Queue");
+  const submittedUrl = new URL(submittedFetch, "https://workspace.example");
+  assert.equal(submittedUrl.searchParams.get("status"), "submitted");
+  assert.equal(vm.runInContext("activeSection", context), "teacher");
+  assert.match(window.location.href, /section=teacher/);
+  assert.match(window.location.href, /status=submitted/);
+
+  await vm.runInContext('openWorkspaceSection({ dataset: { section: "teacher", sectionPreset: "revision-requested" } })', context);
+  const revisionFetch = fetchLog.findLast((entry) => entry.startsWith("/api/site/review-queue?"));
+  assert.ok(revisionFetch, "expected revision dashboard metric to load Review Queue");
+  const revisionUrl = new URL(revisionFetch, "https://workspace.example");
+  assert.equal(revisionUrl.searchParams.get("status"), "revision_requested");
+  assert.match(window.location.href, /status=revision_requested/);
+});
+
 test("workspace renders route-connected student directory with filters and real detail action", async () => {
   const directoryBody = siteStudentsFixture();
   const siteAdmin = await renderWorkspaceWithFetch({

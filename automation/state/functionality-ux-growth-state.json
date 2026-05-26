@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-05-25T17:05:15-07:00",
-  "lastStartingSha": "48c5ba6ce3e947d4acd0413518185023657fcdae",
+  "lastRunAt": "2026-05-25T17:34:00-07:00",
+  "lastStartingSha": "d4a6a1fe13aaec6ba0ea4be7f0589870c7378ef5",
   "lastEndingSha": null,
-  "currentLadderFocus": "LEVEL_0_PROTOTYPE_CLEANUP",
+  "currentLadderFocus": "LEVEL_1_NAVIGABLE_DASHBOARDS",
   "completedWorkOrders": [
     {
       "id": "workspace-header-product-language-cleanup",
@@ -529,6 +529,14 @@
       "type": "TYPE_A_LANGUAGE_PRODUCT_READINESS",
       "summary": "Public templates, portfolio, rubrics, and grades pages now pair student proof actions with visible teacher and mentor responsibility checks.",
       "commit": "pending-closeout-commit"
+    },
+    {
+      "id": "program-teacher-review-metric-filters",
+      "completedAt": "2026-05-25T17:34:00-07:00",
+      "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS",
+      "type": "TYPE_B_DASHBOARD_CLICK_THROUGH",
+      "summary": "Program Teacher dashboard Submitted and Needs Revision metrics now open the existing scoped Review Queue status filters.",
+      "commit": "pending-closeout-commit"
     }
   ],
   "deferredWorkOrders": [
@@ -561,16 +569,22 @@
   "blockedWorkOrders": [],
   "nextRecommendedWorkOrders": [
     {
-      "id": "public-route-visual-browser-qa",
-      "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
-      "type": "TYPE_G_VERIFICATION_REGRESSION_PROTECTION",
-      "summary": "Run desktop/mobile browser QA for public route panels and guide-mode layout when runtime is available."
+      "id": "site-dashboard-snapshot-row-filter-proof",
+      "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS",
+      "type": "TYPE_B_DASHBOARD_CLICK_THROUGH",
+      "summary": "Inspect presentation/archive snapshot rows for exact Operations filters before adding any drill-down."
     },
     {
       "id": "hosted-section-permission-proof",
       "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
       "type": "TYPE_G_VERIFICATION_REGRESSION_PROTECTION",
       "summary": "Add hosted section-level permission-denied browser proof when credentialed runtime is available."
+    },
+    {
+      "id": "public-route-visual-browser-qa",
+      "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
+      "type": "TYPE_G_VERIFICATION_REGRESSION_PROTECTION",
+      "summary": "Run desktop/mobile browser QA for public route panels and guide-mode layout when runtime is available."
     },
     {
       "id": "review-queue-missing-evidence-filter-proof",
@@ -638,19 +652,20 @@
     "Do not re-add the public no-hidden-core-content route map unless regression removes data-no-hidden-core-content or Required Content Has A Visible Path from app.js/public-companion app output.",
     "Do not re-add public support-page teacher/mentor checkpoint panels unless regression removes data-resource-teacher-support or How Adults Can Support This Page from app.js/public-companion output.",
     "Do not re-add public phase-page teacher/mentor support checks unless regression removes data-phase-teacher-support or How Adults Can Support This Step from source/generated output.",
-    "Do not re-add public template/portfolio/rubric/grade responsibility panels unless regression removes data-public-page-responsibilities or the remaining-page responsibility test."
+    "Do not re-add public template/portfolio/rubric/grade responsibility panels unless regression removes data-public-page-responsibilities or the remaining-page responsibility test.",
+    "Do not re-add Program Teacher dashboard Submitted/Needs Revision Review Queue presets unless regression removes preset: \"submitted\" or preset: \"revision-requested\" from renderProgramTeacherDashboardSection()."
   ],
   "lastValidationStatus": {
     "status": "passed",
-    "completedAt": "2026-05-25T17:05:15-07:00",
+    "completedAt": "2026-05-25T17:34:00-07:00",
     "commands": [
-      "node --test tests/account-and-evidence-access.test.mjs",
-      "npm run build:public-site",
-      "npm run check:generated-output-drift",
+      "node --test tests/workspace-app.test.mjs",
+      "npm run verify:dashboard-actions",
+      "npm run verify:workspace-navigation",
       "npm run verify:functionality-language",
       "npm run verify:functionality-ux-automation",
       "node --test tests/functionality-language-audit.test.mjs",
-      "node -e JSON.parse automation/state/functionality-ux-growth-state.json and docs/progress/runs/2026-05-25-1705-public-remaining-page-responsibilities.json",
+      "node -e JSON.parse automation/state/functionality-ux-growth-state.json and docs/progress/runs/2026-05-25-1734-program-teacher-review-metric-filters.json",
       "git diff --check",
       "npm run check:route-inventory",
       "npm run check:production-surfaces",
@@ -658,7 +673,7 @@
       "npm run typecheck",
       "npm run check"
     ],
-    "notes": "Full validation passed for public template, portfolio, rubric, and grade responsibility panels. git diff --check reported only CRLF normalization warnings. This run changes public guide source, generated public companion output, focused public source test coverage, and run records only; it does not change auth role grants, tenant/site/program/student privacy boundaries, migrations, secrets/env files, Cloudflare/OAuth/domain config, deploy settings, or live data."
+    "notes": "Full validation passed for Program Teacher dashboard review metric filters. git diff --check reported only CRLF normalization warnings. This run changes protected workspace dashboard actions, focused workspace/dashboard verifier coverage, and run records only; it does not change auth role grants, tenant/site/program/student privacy boundaries, migrations, secrets/env files, Cloudflare/OAuth/domain config, deploy settings, or live data."
   },
   "lastProductReadinessScorecardSummary": {
     "homepageClarity": "4 to 4",
