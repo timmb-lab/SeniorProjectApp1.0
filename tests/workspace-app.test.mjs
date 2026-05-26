@@ -1392,11 +1392,109 @@ test("workspace renders Review Queue empty and history states with assigned-work
     },
   }, "teacher");
 
-  assert.match(filteredEmpty, /No matching review work/);
-  assert.match(filteredEmpty, /No submitted or revision-requested work matches these filters/);
+  assert.match(filteredEmpty, /No matching approved work/);
+  assert.match(filteredEmpty, /No approved review records match these filters/);
   assert.match(filteredEmpty, /Assigned review staff/);
-  assert.match(filteredEmpty, /Clear filters to return to review work assigned to this view/);
+  assert.match(filteredEmpty, /Clear filters to return to submitted and revision work/);
   assert.doesNotMatch(filteredEmpty, /No review rows match|No review items match|assigned access|Program teacher or site staff/);
+
+  const evidenceMissingEmpty = await renderWorkspaceWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "teacher-review-evidence-empty",
+          email: "teacher.review.evidence.empty@example.edu",
+          displayName: "Program Teacher Review Evidence Empty",
+          roles: [{ role_id: "program_teacher", scope_type: "program", scope_id: "it" }],
+        },
+      },
+    },
+    "/api/site/students": {
+      status: 200,
+      body: siteStudentsFixture({ role: "program_teacher", total: 45 }),
+    },
+    "/api/site/review-queue": {
+      status: 200,
+      body: siteReviewQueueFixture({
+        role: "program_teacher",
+        queue: [],
+        filters: {
+          status: "",
+          programId: "",
+          search: "",
+          story: "",
+          risk: "any",
+          evidenceStatus: "missing",
+          limit: 50,
+          offset: 0,
+        },
+      }),
+    },
+    "/api/program-teacher/dashboard": {
+      status: 200,
+      body: { ok: true, summary: { scopedStudents: 45, submissionsAwaitingReview: 0 }, students: [], programBreakdown: [] },
+    },
+    "/api/presentation-slots": {
+      status: 200,
+      body: { ok: true, slots: [] },
+    },
+  }, "teacher");
+
+  assert.match(evidenceMissingEmpty, /No matching evidence follow-up/);
+  assert.match(evidenceMissingEmpty, /No submitted or revision-requested work without attached evidence matches these filters/);
+  assert.match(evidenceMissingEmpty, /Clear the evidence filter or check Operations Evidence Missing/);
+  assert.doesNotMatch(evidenceMissingEmpty, /No submitted or revision-requested work matches these filters/);
+
+  const revisionEmpty = await renderWorkspaceWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "teacher-review-revision-empty",
+          email: "teacher.review.revision.empty@example.edu",
+          displayName: "Program Teacher Review Revision Empty",
+          roles: [{ role_id: "program_teacher", scope_type: "program", scope_id: "it" }],
+        },
+      },
+    },
+    "/api/site/students": {
+      status: 200,
+      body: siteStudentsFixture({ role: "program_teacher", total: 45 }),
+    },
+    "/api/site/review-queue": {
+      status: 200,
+      body: siteReviewQueueFixture({
+        role: "program_teacher",
+        queue: [],
+        filters: {
+          status: "revision_requested",
+          programId: "",
+          search: "",
+          story: "",
+          risk: "any",
+          evidenceStatus: "",
+          limit: 50,
+          offset: 0,
+        },
+      }),
+    },
+    "/api/program-teacher/dashboard": {
+      status: 200,
+      body: { ok: true, summary: { scopedStudents: 45, submissionsAwaitingReview: 0 }, students: [], programBreakdown: [] },
+    },
+    "/api/presentation-slots": {
+      status: 200,
+      body: { ok: true, slots: [] },
+    },
+  }, "teacher");
+
+  assert.match(revisionEmpty, /No matching revision follow-up/);
+  assert.match(revisionEmpty, /No work needing revision follow-up matches these filters/);
+  assert.match(revisionEmpty, /Clear filters or check Submitted for newly sent work/);
+  assert.doesNotMatch(revisionEmpty, /No submitted or revision-requested work matches these filters/);
 
   const unfilteredEmpty = await renderWorkspaceWithFetch({
     "/api/auth/me": {

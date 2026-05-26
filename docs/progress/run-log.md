@@ -21,6 +21,17 @@ This is the compact run log for the current Functionality UX Upgrade automation 
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-05-26 01:34 PT - Functionality UX Upgrade Review Queue Empty States
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 5 review/intervention queues / Review Queue filter guidance.
+- `starting HEAD`: `d2a45fb908ee321e021a517ed5f1df7b6e784d94`.
+- `selected slice`: Clarify Review Queue no-result states for evidence/status/risk/program/story/search filter combinations.
+- `repo-grounded findings`: after the Review Queue gained exact evidence, risk, status, URL, and metric filters, `reviewQueueEmptyState()` still rendered a generic filtered no-results message for every filter mismatch.
+- `changes`: `workspace.js` now names evidence-missing, evidence-ready, submitted, revision, approved, risk, program, story, and search no-match states; `tests/workspace-app.test.mjs` covers approved, evidence-missing, and revision empty states.
+- `validation`: focused workspace test and functionality-language verifier passed before final validation. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.
+
 ## 2026-05-26 01:06 PT - Functionality UX Upgrade Review Queue Evidence Missing
 
 - `automation ID`: functionality-ux-upgrade-hourly.

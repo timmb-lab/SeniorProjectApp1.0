@@ -3489,3 +3489,54 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: hosted permission/browser proof still needs credentialed runtime; missing-submission filters still lack exact product-safe queue semantics.
   - Do not repeat: Review Queue evidence-missing filter and metric are complete for submitted/revision rows.
   - First file to inspect next run: `scripts/check-workspace-hosted-permissions.mjs` if credentials/runtime are available; otherwise `workspace.js` `reviewQueueEmptyState()`
+
+## Run 2026-05-26 01:34 PT
+
+- Starting SHA: `d2a45fb908ee321e021a517ed5f1df7b6e784d94`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Branch policy: work stayed on clean local `main`; local `main` was twenty-eight commits ahead of `origin/main`, `origin/main` was not ahead, and no push was run
+- Ladder level targeted: `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` with `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` empty-state support
+- Backlog item: `review-queue-evidence-status-empty-state-guidance`; supports `MVP-015` through `MVP-018` and `MVP-022`
+- Work order selected: Clarify Review Queue filtered empty states for evidence/status/risk/program/story/search combinations.
+- Selection reason: The previous run added the exact evidence-missing route and UI filter, but current source still rendered one generic filtered no-results message for all Review Queue filter mismatches. Filter-specific guidance was safer than adding more filters or mutation controls because it only improves the existing scoped UI.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Review Queue evidence/status empty-state guidance | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | program_teacher, site staff, viewer | 4 | 5 | 5 | XS | 55 | selected |
+| Hosted section-level permission proof | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all protected roles | 4 | 4 | 3 | M | 40 | blocked: credentialed runtime |
+| Viewer-specific overview depth | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | viewer | 4 | 4 | 4 | S | 42 | rejected: read-only copy recently hardened |
+| Review Queue missing-submission filter | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | program_teacher, site staff | 5 | 2 | 3 | M | 34 | deferred: no exact queue semantics |
+| Student Directory missing-evidence filter | `LEVEL_1_NAVIGABLE_DASHBOARDS` | site staff, viewer | 4 | 2 | 3 | M | 35 | deferred: directory route filter missing |
+| Operations provider-unavailable metric | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | site staff, viewer | 4 | 3 | 3 | S | 41 | rejected: product/security semantics needed |
+| Admin recent activity drill-down | `LEVEL_7_AUDITABILITY_AND_TRUST` | admin, site staff | 4 | 3 | 3 | M | 38 | rejected: permission shape needs review |
+| Mentor assignment workload threshold | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | site_admin, viewer | 4 | 3 | 3 | M | 39 | rejected: policy threshold unclear |
+| Student guided requirement form | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 5 | 2 | 3 | L | 32 | rejected: write-path design needed |
+| Staff archive retry/regenerate controls | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | site_admin | 5 | 2 | 3 | M | 34 | rejected: mutation policy |
+| Public route browser/mobile visual QA | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | public students, teachers | 3 | 4 | 3 | M | 40 | rejected: lower protected-app value |
+| Summary-only metric affordance styling | `LEVEL_1_NAVIGABLE_DASHBOARDS` | staff, viewer | 3 | 4 | 3 | S | 39 | rejected: broader visual surface |
+
+- User-facing improvement: Program teachers, school staff, and read-only viewers now see Review Queue no-result messages that name the active workflow: evidence follow-up, evidence-ready reviews, submitted work, revision follow-up, approved records, risk, program, story, or search.
+- Roles affected: `platform_admin`, `admin`, `org_admin`, `site_admin`, `viewer`, and `program_teacher`; no student, mentor, tenant, site, program, or record visibility was broadened.
+- Files changed: `workspace.js`, `tests/workspace-app.test.mjs`, `docs/functionality-language-audit.md`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`, `docs/progress/run-log.md`, `docs/progress/runs/2026-05-26-0134-review-queue-empty-state-guidance.json`
+- Tests/verifiers added or updated: workspace coverage proves approved, evidence-missing, and revision no-match states no longer fall back to the generic Review Queue filtered copy.
+- Validation commands:
+  - Focused passed before docs/state closeout: `node --test tests/workspace-app.test.mjs`; `npm run verify:functionality-language`
+  - Final passed: `npm run verify:dashboard-actions`; `npm run verify:workspace-navigation`; `npm run verify:functionality-ux-automation`; `node --test tests/functionality-language-audit.test.mjs`; `npm run check:production-surfaces`; `npm run check:route-inventory`; `npm run verify:review-queue-deeplinks`; JSON parse for state and manifest; `git diff --check`; `npm run test`; `npm run typecheck`; `npm run check`
+- Validation result: passed; `git diff --check` reported only CRLF normalization warnings, with no whitespace errors.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: hosted section-level permission proof, hosted account-state/no-assignment proof, Review Queue missing-submission semantics, Student Directory missing-evidence filter, staff archive retry/regenerate controls, provider-unavailable route semantics, org rollups, and public-route visual QA remain deferred.
+- New backlog items: none
+- Next recommended work order: run hosted section-level permission proof when credentialed runtime is available; otherwise inspect whether Viewer overview depth needs a concrete read-only snapshot beyond the recently hardened read-only copy.
+- Do-not-repeat notes: do not re-clean Review Queue filter-specific empty states unless regression removes `reviewQueueFilteredEmptyStateCopy()` or reintroduces the generic filtered copy for evidence/status no-match states.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES`
+  - Advanced: yes
+  - Evidence: Review Queue no-match states now name evidence/status/risk/program/story/search filter intent and focused workspace tests cover approved, evidence-missing, and revision cases.
+  - Unlocks: Staff can use the newly deepened Review Queue filters without confusing generic no-results feedback.
+  - Next: hosted section-level permission proof, or Viewer-specific overview depth if hosted credentials/runtime remain unavailable.
+  - Blockers: hosted permission/browser proof still needs credentialed runtime; missing-submission filters still lack exact product-safe queue semantics.
+  - Do not repeat: Review Queue filter-specific empty-state guidance is complete for current filters.
+  - First file to inspect next run: `scripts/check-workspace-hosted-permissions.mjs` if credentials/runtime are available; otherwise `workspace.js` `renderOverviewSection()` for viewer-specific depth.

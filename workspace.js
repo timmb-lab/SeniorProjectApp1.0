@@ -4328,6 +4328,7 @@ function renderTeacherSection() {
   const selectedId = reviewQueueState.selectedSubmissionId;
   const selected = queue.find((item) => item.submissionId === selectedId) || null;
   const readOnly = scope.readOnly || !permissions.canReview;
+  const emptyState = queue.length ? null : reviewQueueEmptyState(body, filters);
   return `
     <section class="workspace-command-center workspace-review-queue" aria-labelledby="reviewQueueTitle">
       <div class="workspace-section-heading">
@@ -4383,8 +4384,8 @@ function renderTeacherSection() {
             </div>
           ` : `
             <section class="workspace-empty-state-card" data-review-queue-empty="true">
-              <h2>${hasActiveReviewQueueFilters(filters) ? "No matching review work" : "No review work waiting"}</h2>
-              ${renderProblemState(reviewQueueEmptyState(body, filters))}
+              <h2>${escapeHtml(emptyState?.heading || (hasActiveReviewQueueFilters(filters) ? "No matching review work" : "No review work waiting"))}</h2>
+              ${renderProblemState(emptyState)}
             </section>
           `}
         </section>
@@ -4485,16 +4486,90 @@ function renderReviewQueueActiveFilters(filters = {}, options = {}) {
 function reviewQueueEmptyState(body, filters = {}) {
   const hasFilters = hasActiveReviewQueueFilters(filters);
   if (hasFilters) {
+    const filteredCopy = reviewQueueFilteredEmptyStateCopy(filters, body?.filterOptions || {});
     return {
-      reason: "No submitted or revision-requested work matches these filters.",
+      heading: filteredCopy.heading,
+      reason: filteredCopy.reason,
       owner: "Assigned review staff.",
-      nextAction: "Clear filters to return to review work assigned to this view.",
+      nextAction: filteredCopy.nextAction,
     };
   }
   return {
+    heading: "No review work waiting",
     reason: "No submitted or revision-requested work is waiting in this review queue right now.",
     owner: "Assigned review staff.",
     nextAction: "Open Students for context or keep monitoring new submissions.",
+  };
+}
+
+function reviewQueueFilteredEmptyStateCopy(filters = {}, options = {}) {
+  if (filters.evidenceStatus === "missing") {
+    return {
+      heading: "No matching evidence follow-up",
+      reason: "No submitted or revision-requested work without attached evidence matches these filters.",
+      nextAction: "Clear the evidence filter or check Operations Evidence Missing for broader readiness follow-up.",
+    };
+  }
+  if (filters.evidenceStatus === "attached") {
+    return {
+      heading: "No matching evidence-ready reviews",
+      reason: "No submitted or revision-requested work with attached evidence matches these filters.",
+      nextAction: "Clear the evidence filter or adjust status and risk filters.",
+    };
+  }
+  if (filters.status === "submitted") {
+    return {
+      heading: "No matching submitted work",
+      reason: "No submitted work waiting for teacher review matches these filters.",
+      nextAction: "Clear filters or check Needs Revision for work already returned to students.",
+    };
+  }
+  if (filters.status === "revision_requested") {
+    return {
+      heading: "No matching revision follow-up",
+      reason: "No work needing revision follow-up matches these filters.",
+      nextAction: "Clear filters or check Submitted for newly sent work.",
+    };
+  }
+  if (filters.status === "approved") {
+    return {
+      heading: "No matching approved work",
+      reason: "No approved review records match these filters.",
+      nextAction: "Clear filters to return to submitted and revision work.",
+    };
+  }
+  if (filters.risk && filters.risk !== "any") {
+    return {
+      heading: `No matching ${riskLabel(filters.risk).toLowerCase()} review work`,
+      reason: `No ${riskLabel(filters.risk).toLowerCase()} review work matches these filters.`,
+      nextAction: "Clear the risk filter or adjust status, evidence, and program filters.",
+    };
+  }
+  if (filters.programId) {
+    return {
+      heading: "No matching program review work",
+      reason: `No review work in ${programLabel(options.programs, filters.programId)} matches these filters.`,
+      nextAction: "Clear the program filter or choose another visible program.",
+    };
+  }
+  if (filters.story) {
+    return {
+      heading: "No matching story review work",
+      reason: `No ${storyLabel(filters.story).toLowerCase()} review work matches these filters.`,
+      nextAction: "Clear the story filter or adjust status and risk filters.",
+    };
+  }
+  if (filters.search) {
+    return {
+      heading: "No matching review search results",
+      reason: "No visible review work matches this search and filter set.",
+      nextAction: "Try a student name, requirement title, or program name from this school.",
+    };
+  }
+  return {
+    heading: "No matching review work",
+    reason: "No submitted or revision-requested work matches these filters.",
+    nextAction: "Clear filters to return to review work assigned to this view.",
   };
 }
 
