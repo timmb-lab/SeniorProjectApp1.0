@@ -2136,3 +2136,14 @@ Future productive runs should append compact entries that name the master-plan s
 - `changes`: `/api/site/operations-readiness` now returns `summary.archiveExpiringSoon` and `summary.archiveExpired`; `workspace.js` renders both metrics and opens exact scoped Operations filters with URL state; route/UI tests and dashboard/navigation verifiers guard both presets.
 - `validation`: focused route/UI/verifier checks passed before final validation. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
 - `commit/push status`: pending closeout commit; not pushed by this automation run.
+
+## 2026-05-25 PT - Functionality UX Upgrade Operations Storage Status Language
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 0 product-readiness language supporting Level 8 operations readiness.
+- `starting HEAD`: `e9fa1a79841dc47078f683e08ff91f13ba8600f5`.
+- `selected slice`: Replace raw Operations archive provider status rendering with school-facing storage status labels.
+- `repo-grounded findings`: The previous handoff named provider-unavailable archive semantics. Current source showed `renderArchiveWorklistRows()` rendering `row.providerStatus` directly, which could expose implementation values such as `drive_config_missing` in normal Operations archive rows.
+- `changes`: `workspace.js` now renders archive provider readiness as `Storage ready`, `Storage setup needed`, `Storage unavailable`, or `Storage status not available`; workspace tests prove raw provider values are not rendered; the functionality-language verifier blocks the direct provider-status render path.
+- `validation`: focused `node --test tests/workspace-app.test.mjs` and `npm run verify:functionality-language` passed before final validation. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.

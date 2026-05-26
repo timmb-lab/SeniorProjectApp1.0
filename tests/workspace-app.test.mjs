@@ -1906,6 +1906,8 @@ test("workspace renders site-scoped Operations readiness worklists without mutat
   assert.match(siteAdmin, /Presentation Pending Demo 001/);
   assert.match(siteAdmin, /Archive Failed Demo 001/);
   assert.match(siteAdmin, /Archive Ready Demo 001/);
+  assert.match(siteAdmin, /Storage setup needed/);
+  assert.doesNotMatch(siteAdmin, /drive_config_missing|drive_credentials_missing|drive_token_exchange_failed|drive_provider_error|drive_access_denied/);
   assert.match(siteAdmin, /High Risk Demo 001/);
   assert.match(siteAdmin, /data-operations-presentation-rows="true"/);
   assert.match(siteAdmin, /data-operations-archive-rows="true"/);

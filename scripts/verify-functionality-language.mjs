@@ -173,6 +173,10 @@ const hardFailures = [
     message: "Protected workspace should say private file details are protected instead of showing storage jargon.",
   },
   {
+    pattern: /row\.providerStatus\s*\|\|\s*["']archive provider["']/i,
+    message: "Operations archive rows should render school-facing storage status labels, not raw provider status values.",
+  },
+  {
     pattern: /\bhref=(['"])#\1/i,
     message: "Protected workspace must not include dead hash links.",
   },

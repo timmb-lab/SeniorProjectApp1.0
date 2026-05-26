@@ -3119,7 +3119,7 @@ function renderArchiveWorklistRows(rows = [], permissions = {}, filters = {}) {
         <article class="workspace-student-row workspace-student-card">
           <div>
             <strong>${escapeHtml(row.studentName || "Student")}</strong>
-            <p>${escapeHtml(row.programName || "Unassigned")} / ${escapeHtml(row.providerStatus || "archive provider")}</p>
+            <p>${escapeHtml(row.programName || "Unassigned")} / ${escapeHtml(archiveProviderStatusText(row.providerStatus))}</p>
             <div class="workspace-chip-row">
               ${row.storyBucket ? `<span class="workspace-story-chip">${escapeHtml(storyLabel(row.storyBucket))}</span>` : `<span class="workspace-story-chip">Archive readiness</span>`}
               ${renderRiskChips(row.riskFlags || [])}
@@ -6606,6 +6606,14 @@ function statusClassFor(status) {
 function statusText(value) {
   const normalized = normalizeStatus(value);
   return STATUS_LABELS[normalized] || String(value || "Unknown").replace(/_/g, " ");
+}
+
+function archiveProviderStatusText(value) {
+  const normalized = normalizeStatus(value);
+  if (normalized === "ready") return "Storage ready";
+  if (normalized === "drive_config_missing" || normalized === "drive_credentials_missing") return "Storage setup needed";
+  if (normalized === "drive_token_exchange_failed" || normalized === "drive_provider_error" || normalized === "drive_access_denied") return "Storage unavailable";
+  return "Storage status not available";
 }
 
 function storyLabel(value) {

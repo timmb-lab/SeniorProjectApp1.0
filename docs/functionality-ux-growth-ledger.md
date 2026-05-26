@@ -3027,3 +3027,54 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: hosted permission/browser proof still needs credentialed runtime; archive retry/regenerate controls and downloadable summaries need product/security policy decisions.
   - Do not repeat: do not re-add archive expiring/expired metrics unless regression evidence appears.
   - First file to inspect next run: `functions/_lib/site-operations-readiness.ts` `archiveStatusFor()` and `workspace.js` `renderOperationsReadinessSection()`
+
+## Run 2026-05-25 21:03 PT
+
+- Starting SHA: `e9fa1a79841dc47078f683e08ff91f13ba8600f5`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Branch policy: work stayed on clean local `main`; local `main` was nineteen commits ahead of `origin/main`, `origin/main` was not ahead, and no push was run
+- Ladder level targeted: `LEVEL_0_PROTOTYPE_CLEANUP` with `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` operations support and `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` verifier coverage
+- Backlog item: `operations-archive-storage-status-language`; advances MVP-015, MVP-022, and MVP-039 user-facing operations clarity
+- Work order selected: Replace raw Operations archive provider status rendering with school-facing storage labels.
+- Selection reason: The previous handoff named provider-unavailable archive semantics. Current source showed `renderArchiveWorklistRows()` printing `row.providerStatus` directly, which could expose implementation values like `drive_config_missing` in the normal Operations archive worklist. This was the smallest real product-readiness slice that improved the named area without changing route semantics or permissions.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Operations archive storage status language | `LEVEL_0_PROTOTYPE_CLEANUP` | site staff, viewer, program_teacher | 4 | 5 | 5 | XS | 55 | selected |
+| Operations provider-unavailable metric | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | site staff, viewer | 4 | 3 | 3 | S | 41 | rejected: route semantics need design |
+| Operations archive failed label rename | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | site staff, viewer | 3 | 4 | 4 | XS | 44 | rejected: existing filter name is verifier-backed |
+| Operations provider filter active copy | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | site staff, viewer | 3 | 5 | 4 | XS | 47 | rejected: raw row label was higher-impact |
+| Hosted section-level permission proof | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all protected roles | 4 | 4 | 3 | M | 40 | blocked: credentialed runtime dependency |
+| Public route visual browser QA | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | public students, teachers | 3 | 4 | 3 | M | 40 | rejected: no source defect found |
+| Review Queue missing-evidence filter | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | site staff, program_teacher | 5 | 2 | 3 | M | 37 | deferred: backend/privacy support missing |
+| Student Directory missing-evidence filter | `LEVEL_1_NAVIGABLE_DASHBOARDS` | site staff, viewer | 4 | 2 | 3 | M | 35 | deferred: exact route filter missing |
+| Student archive expired guidance | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 4 | 5 | 4 | XS | 49 | rejected: existing guidance present |
+| Operations high-risk direct metric | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | site staff, viewer | 4 | 5 | 4 | XS | 50 | rejected: risk paths already linked |
+| Staff archive retry controls | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | site_admin | 5 | 2 | 3 | M | 34 | rejected: mutation/control policy |
+| Downloadable student progress summary | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | student, staff | 4 | 2 | 3 | L | 31 | rejected: export/privacy policy needed |
+
+- User-facing improvement: Staff and read-only viewers no longer see raw archive provider status values in Operations archive rows; they see plain storage readiness language.
+- Roles affected: `site_admin`, `org_admin`/site-scoped administration users, `viewer` read-only staff, and `program_teacher` scoped staff; no student, mentor, tenant, site, program, or record visibility was broadened.
+- Files changed: `workspace.js`, `tests/workspace-app.test.mjs`, `scripts/verify-functionality-language.mjs`, `docs/functionality-language-audit.md`, `docs/mvp-requirements-catalog.md`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`, `docs/progress/run-log.md`, `docs/progress/runs/2026-05-25-2103-operations-archive-storage-status-language.json`
+- Tests/verifiers added or updated: workspace render test proves raw provider values are not rendered; functionality language verifier blocks direct provider-status rendering in archive rows.
+- Validation commands:
+  - Focused passed before final validation: `node --test tests/workspace-app.test.mjs`; `npm run verify:functionality-language`
+  - Final passed: `npm run verify:functionality-ux-automation`; `node --test tests/functionality-language-audit.test.mjs`; `npm run check:production-surfaces`; `npm run verify:dashboard-actions`; `npm run verify:workspace-navigation`; JSON parse for state and manifest; `git diff --check`; `npm run check:route-inventory`; `npm run test`; `npm run typecheck`; `npm run check`
+- Validation result: passed; `git diff --check` reported only CRLF normalization warnings, with no whitespace errors.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: hosted section-level permission proof, public-route visual QA, Review Queue/Student Directory missing-evidence filters, export-style progress summaries, staff archive retry/regenerate controls, and org rollups remain deferred.
+- New backlog items: none
+- Next recommended work order: run hosted section-level permission-denied proof when credentialed runtime is available, or inspect whether provider-unavailable route semantics need a dedicated status only after product/security design clarifies expected behavior.
+- Do-not-repeat notes: do not re-clean Operations archive provider-status rendering unless regression reintroduces raw values like `drive_config_missing` in archive worklist rows.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_0_PROTOTYPE_CLEANUP`
+  - Advanced: yes
+  - Evidence: Operations archive rows now use `archiveProviderStatusText()` and focused tests prove raw Drive provider status values are not rendered.
+  - Unlocks: Operations provider-unavailable semantics can be revisited from a cleaner UI baseline without exposing implementation jargon.
+  - Next: run hosted section-level permission proof when credentials/runtime are available.
+  - Blockers: hosted permission/browser proof still needs credentialed runtime; archive retry/regenerate controls and downloadable summaries need product/security policy decisions.
+  - Do not repeat: do not re-clean archive provider-status row language unless regression evidence appears.
+  - First file to inspect next run: `workspace.js` `renderArchiveWorklistRows()`
