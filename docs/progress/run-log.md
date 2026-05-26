@@ -2169,3 +2169,14 @@ Future productive runs should append compact entries that name the master-plan s
 - `changes`: `workspace.js` adds a `high-risk` Review Queue preset and renders the `High Risk` tile with a real `Review rows` action; focused workspace coverage proves the tile loads `/api/site/review-queue?risk=high` and syncs URL state; dashboard/navigation verifiers guard the new preset.
 - `validation`: focused `node --test tests/workspace-app.test.mjs`, `npm run verify:dashboard-actions`, and `npm run verify:workspace-navigation` passed before final validation. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
 - `commit/push status`: pending closeout commit; not pushed by this automation run.
+
+## 2026-05-25 PT - Functionality UX Upgrade Review Queue Missing Mentor Filter
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 5 review/intervention queues / Level 1 route-backed dashboard navigation.
+- `starting HEAD`: `7f255ee35e188cf4a26e402b0303eb9c671b5ef5`.
+- `selected slice`: Link the Review Queue `Missing Mentor` summary tile to the existing scoped `risk=no_mentor` filter.
+- `repo-grounded findings`: the previous handoff named the no-mentor review gap. Current `/api/site/review-queue` already accepted `risk=no_mentor`, filtered scoped rows through `has_active_mentor = 0`, and returned `no_mentor` row flags, but `loadSummary()` did not expose a matching count and the Review Queue summary had no direct route-backed action.
+- `changes`: `functions/_lib/site-review-queue.ts` now returns `summary.noMentor`; `workspace.js` renders `Missing Mentor` with a `missing-mentor-review` preset and URL-synced `risk=no_mentor`; focused route/UI tests and dashboard/navigation verifiers guard the exact path.
+- `validation`: focused `node --test tests/site-review-queue.integration.test.mjs`, `node --test tests/workspace-app.test.mjs`, `npm run verify:dashboard-actions`, and `npm run verify:workspace-navigation` passed before final validation. Final validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.

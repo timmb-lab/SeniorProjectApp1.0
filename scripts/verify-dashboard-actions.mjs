@@ -82,6 +82,7 @@ const allowedPresets = new Map([
   ["revision-requested", "teacher"],
   ["high-risk", "teacher"],
   ["stale-review", "teacher"],
+  ["missing-mentor-review", "teacher"],
   ["presentation-pending", "operations"],
   ["presentation-attention", "operations"],
   ["archive-failed", "operations"],
@@ -193,6 +194,16 @@ assertMatches(
   "workspaceJs",
   /function renderTeacherSection\([\s\S]*renderMetricTile\("Stale Activity"[\s\S]*"teacher", \{ label: "Review rows", preset: "stale-review" \}\)/,
   "Review Queue Stale Activity metric must open the existing stale Review Queue filter",
+);
+assertMatches(
+  "workspaceJs",
+  /section === "teacher" && button\.dataset\.sectionPreset === "missing-mentor-review"[\s\S]*risk: "no_mentor"[\s\S]*syncReviewQueueUrlState\(\)/,
+  "missing-mentor-review dashboard preset must be backed by a Review Queue no-mentor risk filter and sync URL state",
+);
+assertMatches(
+  "workspaceJs",
+  /function renderTeacherSection\([\s\S]*renderMetricTile\("Missing Mentor"[\s\S]*"teacher", \{ label: "Review rows", preset: "missing-mentor-review" \}\)/,
+  "Review Queue Missing Mentor metric must open the existing no-mentor Review Queue filter",
 );
 assertMatches(
   "workspaceJs",

@@ -32,6 +32,7 @@ interface SummaryRow {
   overdue_or_stale: number;
   evidence_attached: number;
   high_risk: number;
+  no_mentor: number;
 }
 
 interface ProgramOptionRow {
@@ -435,7 +436,8 @@ async function loadSummary(env: Env, scopeSql: ReturnType<typeof buildQueueScope
        SUM(CASE WHEN status = 'submitted' AND evidence_count > 0 THEN 1 ELSE 0 END) AS ready_to_review,
        SUM(CASE WHEN stale_flag = 1 THEN 1 ELSE 0 END) AS overdue_or_stale,
        SUM(CASE WHEN evidence_count > 0 THEN 1 ELSE 0 END) AS evidence_attached,
-       SUM(CASE WHEN risk_score >= 7 THEN 1 ELSE 0 END) AS high_risk
+       SUM(CASE WHEN risk_score >= 7 THEN 1 ELSE 0 END) AS high_risk,
+       SUM(CASE WHEN has_active_mentor = 0 THEN 1 ELSE 0 END) AS no_mentor
      FROM queue_rows
      ${filterWhere.sql}`,
   ).bind(...scopeSql.binds, ...filterWhere.binds).first<SummaryRow>();
@@ -447,6 +449,7 @@ async function loadSummary(env: Env, scopeSql: ReturnType<typeof buildQueueScope
     overdueOrStale: Number(row?.overdue_or_stale || 0),
     evidenceAttached: Number(row?.evidence_attached || 0),
     highRisk: Number(row?.high_risk || 0),
+    noMentor: Number(row?.no_mentor || 0),
   };
 }
 

@@ -1011,6 +1011,7 @@ test("workspace renders site-aware Review Queue with teacher decisions and read-
   assert.match(teacher, /workspace-filter-bar/);
   assert.match(teacher, /data-section="teacher" data-section-preset="high-risk">Review rows/);
   assert.match(teacher, /data-section="teacher" data-section-preset="stale-review">Review rows/);
+  assert.match(teacher, /data-section="teacher" data-section-preset="missing-mentor-review">Review rows/);
   assert.match(teacher, /workspace-student-row is-selected/);
   assert.match(teacher, /workspace-status-pill submitted/);
   assert.match(teacher, /workspace-story-chip/);
@@ -1147,6 +1148,15 @@ test("workspace renders site-aware Review Queue with teacher decisions and read-
   assert.equal(staleReviewUrl.searchParams.has("status"), false);
   assert.match(window.location.href, /section=teacher/);
   assert.match(window.location.href, /risk=stale/);
+
+  await vm.runInContext('openWorkspaceSection({ dataset: { section: "teacher", sectionPreset: "missing-mentor-review" } })', context);
+  const missingMentorReviewFetch = fetchLog.findLast((entry) => entry.startsWith("/api/site/review-queue?"));
+  assert.ok(missingMentorReviewFetch, "expected missing-mentor Review Queue metric to load Review Queue");
+  const missingMentorReviewUrl = new URL(missingMentorReviewFetch, "https://workspace.example");
+  assert.equal(missingMentorReviewUrl.searchParams.get("risk"), "no_mentor");
+  assert.equal(missingMentorReviewUrl.searchParams.has("status"), false);
+  assert.match(window.location.href, /section=teacher/);
+  assert.match(window.location.href, /risk=no_mentor/);
 });
 
 test("workspace renders Review Queue empty and history states with assigned-work language", async () => {
@@ -4235,6 +4245,7 @@ function siteReviewQueueFixture({
       overdueOrStale: 1,
       evidenceAttached: rows.filter((row) => row.evidenceCount > 0).length,
       highRisk: rows.filter((row) => row.riskScore >= 7).length,
+      noMentor: rows.filter((row) => Array.isArray(row.riskFlags) && row.riskFlags.includes("no_mentor")).length,
     },
     queue: rows,
     filterOptions: {

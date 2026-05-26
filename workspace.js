@@ -916,6 +916,16 @@ async function openWorkspaceSection(button) {
     await loadReviewQueueResult("Showing review work with stale activity.");
     return;
   }
+  if (section === "teacher" && button.dataset.sectionPreset === "missing-mentor-review") {
+    reviewQueueFilters = {
+      ...defaultReviewQueueFilters(),
+      risk: "no_mentor",
+    };
+    reviewQueueState = defaultReviewQueueState();
+    syncReviewQueueUrlState();
+    await loadReviewQueueResult("Showing review work for students missing mentor coverage.");
+    return;
+  }
   if (section === "operations" && button.dataset.sectionPreset === "presentation-pending") {
     operationsReadinessFilters = {
       ...defaultOperationsReadinessFilters(),
@@ -4165,6 +4175,7 @@ function renderTeacherSection() {
         ${renderMetricTile("Evidence Attached", summary.evidenceAttached, "Private evidence summaries", "admin")}
         ${renderMetricTile("High Risk", summary.highRisk, "Prioritize follow-up", safeNumber(summary.highRisk) ? "danger" : "admin", "teacher", { label: "Review rows", preset: "high-risk" })}
         ${renderMetricTile("Stale Activity", summary.overdueOrStale, "Check-ins may be needed", safeNumber(summary.overdueOrStale) ? "warning" : "admin", "teacher", { label: "Review rows", preset: "stale-review" })}
+        ${renderMetricTile("Missing Mentor", summary.noMentor, "Needs mentor coverage", safeNumber(summary.noMentor) ? "warning" : "mentor", "teacher", { label: "Review rows", preset: "missing-mentor-review" })}
       </div>
       ${renderReviewQueueFilters(body)}
       ${renderReviewQueueActiveFilters(filters, body?.filterOptions || {})}

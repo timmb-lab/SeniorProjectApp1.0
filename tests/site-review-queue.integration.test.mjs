@@ -86,6 +86,10 @@ test("site review queue is scoped, read-only by role, mutable for program teache
 
   const submitted = await expectQueue(env, tokens.programTeacher, `?siteId=${PRIMARY_SITE_ID}&status=submitted&limit=100`);
   assert.equal(submitted.queue.every((row) => row.status === "submitted"), true);
+  const missingMentor = await expectQueue(env, tokens.programTeacher, `?siteId=${PRIMARY_SITE_ID}&risk=no_mentor&limit=100`);
+  assert.equal(missingMentor.queue.length > 0, true);
+  assert.equal(missingMentor.queue.every((row) => row.riskFlags.includes("no_mentor")), true);
+  assert.equal(missingMentor.pagination.filteredTotal, missingMentor.summary.noMentor);
   const searched = await expectQueue(env, tokens.programTeacher, `?siteId=${PRIMARY_SITE_ID}&search=${encodeURIComponent("Revision Loop Demo")}&limit=100`);
   assert.equal(searched.queue.every((row) => /Revision Loop Demo/i.test(row.studentName)), true);
   const noMatches = await expectQueue(env, tokens.programTeacher, `?siteId=${PRIMARY_SITE_ID}&search=${encodeURIComponent("No Matching Review Work")}`);
@@ -151,7 +155,7 @@ test("site review queue is scoped, read-only by role, mutable for program teache
   assert.equal(legacyCompat.response.status, 200);
   assert.equal(legacyCompat.body.review.decision, "comment_only");
 
-  for (const body of [platform, legacy, org, siteAdmin, viewer, teacher, paged, offset, submitted, searched, noMatches, approved.body, revision.body, comment.body, legacyCompat.body]) {
+  for (const body of [platform, legacy, org, siteAdmin, viewer, teacher, paged, offset, submitted, missingMentor, searched, noMatches, approved.body, revision.body, comment.body, legacyCompat.body]) {
     assert.doesNotMatch(JSON.stringify(body), FORBIDDEN_RESPONSE_FIELDS);
   }
 

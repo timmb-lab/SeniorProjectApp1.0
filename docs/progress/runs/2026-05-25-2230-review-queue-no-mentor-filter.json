@@ -1,0 +1,201 @@
+{
+  "automationId": "functionality-ux-upgrade-hourly",
+  "runStartedAt": "2026-05-25T22:30:59-07:00",
+  "branch": "main",
+  "startingSha": "7f255ee35e188cf4a26e402b0303eb9c671b5ef5",
+  "endingSha": null,
+  "selectedWorkOrder": {
+    "id": "review-queue-no-mentor-filter-action",
+    "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
+    "type": "TYPE_F_REVIEW_INTERVENTION_QUEUE",
+    "summary": "Link the Review Queue Missing Mentor summary tile to the existing scoped risk=no_mentor filter.",
+    "selectionReason": "The route already supports risk=no_mentor and returns no_mentor row flags, while the workspace did not expose a matching summary count or direct queue action."
+  },
+  "candidateScores": [
+    {
+      "candidate": "Review Queue Missing Mentor metric filter",
+      "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
+      "roles": "site staff, viewer, program_teacher",
+      "impact": 5,
+      "safety": 5,
+      "testability": 5,
+      "size": "S",
+      "score": 57,
+      "decision": "selected"
+    },
+    {
+      "candidate": "Review Queue Evidence Attached filter",
+      "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
+      "roles": "site staff, program_teacher",
+      "impact": 4,
+      "safety": 3,
+      "testability": 3,
+      "size": "S",
+      "score": 40,
+      "decision": "deferred: exact route filter does not exist"
+    },
+    {
+      "candidate": "Review Queue missing-evidence filter",
+      "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
+      "roles": "site staff, program_teacher",
+      "impact": 5,
+      "safety": 2,
+      "testability": 3,
+      "size": "M",
+      "score": 37,
+      "decision": "deferred: backend/privacy support missing"
+    },
+    {
+      "candidate": "Student Directory missing-evidence filter",
+      "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS",
+      "roles": "site staff, viewer",
+      "impact": 4,
+      "safety": 2,
+      "testability": 3,
+      "size": "M",
+      "score": 35,
+      "decision": "deferred: exact route filter missing"
+    },
+    {
+      "candidate": "Hosted section-level permission proof",
+      "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
+      "roles": "all protected roles",
+      "impact": 4,
+      "safety": 4,
+      "testability": 3,
+      "size": "M",
+      "score": 40,
+      "decision": "blocked: credentialed hosted runtime dependency"
+    },
+    {
+      "candidate": "Public route visual browser QA",
+      "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
+      "roles": "public students, teachers",
+      "impact": 3,
+      "safety": 4,
+      "testability": 3,
+      "size": "M",
+      "score": 40,
+      "decision": "rejected: lower app-functionality value this run"
+    },
+    {
+      "candidate": "Operations provider-unavailable metric",
+      "ladderLevel": "LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS",
+      "roles": "site staff, viewer",
+      "impact": 4,
+      "safety": 3,
+      "testability": 3,
+      "size": "S",
+      "score": 41,
+      "decision": "rejected: route semantics need product/security design"
+    },
+    {
+      "candidate": "Operations archive failed label rename",
+      "ladderLevel": "LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS",
+      "roles": "site staff, viewer",
+      "impact": 3,
+      "safety": 4,
+      "testability": 4,
+      "size": "XS",
+      "score": 44,
+      "decision": "rejected: existing filter name is verifier-backed"
+    },
+    {
+      "candidate": "Operations high-risk direct metric",
+      "ladderLevel": "LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS",
+      "roles": "site staff, viewer",
+      "impact": 4,
+      "safety": 5,
+      "testability": 4,
+      "size": "XS",
+      "score": 50,
+      "decision": "rejected: risk category and stale metric already cover route-backed risk paths"
+    },
+    {
+      "candidate": "Student guided requirement form",
+      "ladderLevel": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN",
+      "roles": "student",
+      "impact": 5,
+      "safety": 2,
+      "testability": 3,
+      "size": "L",
+      "score": 32,
+      "decision": "rejected: write-path/product design beyond existing safe actions"
+    },
+    {
+      "candidate": "Staff archive retry/regenerate controls",
+      "ladderLevel": "LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS",
+      "roles": "site_admin",
+      "impact": 5,
+      "safety": 2,
+      "testability": 3,
+      "size": "M",
+      "score": 34,
+      "decision": "rejected: mutation/control policy outside this lane"
+    },
+    {
+      "candidate": "Downloadable student progress summary",
+      "ladderLevel": "LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS",
+      "roles": "student, staff",
+      "impact": 4,
+      "safety": 2,
+      "testability": 3,
+      "size": "L",
+      "score": 31,
+      "decision": "rejected: export/privacy policy needed"
+    }
+  ],
+  "filesChanged": [
+    "functions/_lib/site-review-queue.ts",
+    "workspace.js",
+    "tests/site-review-queue.integration.test.mjs",
+    "tests/workspace-app.test.mjs",
+    "scripts/verify-dashboard-actions.mjs",
+    "scripts/verify-workspace-navigation-integrity.mjs",
+    "docs/functionality-language-audit.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/functionality-ux-growth-ledger.md",
+    "automation/state/functionality-ux-growth-state.json",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-25-2230-review-queue-no-mentor-filter.json"
+  ],
+  "validation": {
+    "focusedPassed": [
+      "node --test tests/site-review-queue.integration.test.mjs",
+      "node --test tests/workspace-app.test.mjs",
+      "npm run verify:dashboard-actions",
+      "npm run verify:workspace-navigation"
+    ],
+    "finalPassed": [
+      "npm run verify:functionality-language",
+      "npm run verify:functionality-ux-automation",
+      "node --test tests/functionality-language-audit.test.mjs",
+      "npm run check:production-surfaces",
+      "npm run check:route-inventory",
+      "node -e JSON.parse automation/state/functionality-ux-growth-state.json and docs/progress/runs/2026-05-25-2230-review-queue-no-mentor-filter.json",
+      "git diff --check",
+      "npm run test",
+      "npm run typecheck",
+      "npm run check"
+    ],
+    "notes": "Full validation passed. git diff --check reported only CRLF normalization warnings."
+  },
+  "privacyAndPermissionNotes": [
+    "No auth, RBAC, tenant, site, program, mentor, or student scope logic was broadened.",
+    "The new action uses the existing scoped Review Queue risk=no_mentor filter.",
+    "No migrations, D1 config, secrets/env files, Cloudflare/OAuth/domain config, deploy settings, or live data changed."
+  ],
+  "handoff": {
+    "targetedLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
+    "advanced": true,
+    "evidence": "Review Queue Missing Mentor opens risk=no_mentor with URL state and verifier coverage.",
+    "next": "Inspect whether Review Queue evidence-attached deserves a real backend filter or should stay summary-only.",
+    "blockers": [
+      "Hosted permission proof needs credentialed runtime.",
+      "Missing-evidence filters need backend/privacy support.",
+      "Provider-unavailable metrics need product/security design."
+    ],
+    "doNotRepeat": "Do not re-add missing-mentor-review unless regression evidence appears.",
+    "firstFileToInspectNextRun": "functions/_lib/site-review-queue.ts"
+  }
+}

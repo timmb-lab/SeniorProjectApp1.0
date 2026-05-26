@@ -3182,3 +3182,54 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: hosted permission/browser proof still needs credentialed runtime; missing-evidence filters need backend/privacy support; provider-unavailable metrics need product/security design.
   - Do not repeat: do not re-add the stale-review preset unless regression evidence appears.
   - First file to inspect next run: `functions/_lib/site-review-queue.ts` `loadSummary()` and `workspace.js` `renderTeacherSection()`
+
+## Run 2026-05-25 22:30 PT
+
+- Starting SHA: `7f255ee35e188cf4a26e402b0303eb9c671b5ef5`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Branch policy: work stayed on clean local `main`; local `main` was twenty-two commits ahead of `origin/main`, `origin/main` was not ahead, and no push was run
+- Ladder level targeted: `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` with `LEVEL_1_NAVIGABLE_DASHBOARDS` queue click-through support and `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` verifier coverage
+- Backlog item: `review-queue-no-mentor-filter-action`; advances dashboard/reporting evidence in `MVP-015`
+- Work order selected: Link the Review Queue `Missing Mentor` summary tile to the existing scoped `risk=no_mentor` filter.
+- Selection reason: The prior handoff named `risk=no_mentor`. Current source showed `/api/site/review-queue` already parsed `risk=no_mentor`, filtered on `has_active_mentor = 0`, returned `no_mentor` row flags, and preserved risk filters in URL state, but the summary did not expose a matching count and the workspace had no direct Review Queue action for that risk. This was the safest exact queue-depth slice after high-risk and stale activity.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Review Queue Missing Mentor metric filter | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | site staff, viewer, program_teacher | 5 | 5 | 5 | S | 57 | selected |
+| Review Queue Evidence Attached filter | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | site staff, program_teacher | 4 | 3 | 3 | S | 40 | deferred: exact route filter does not exist |
+| Review Queue missing-evidence filter | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | site staff, program_teacher | 5 | 2 | 3 | M | 37 | deferred: backend/privacy support missing |
+| Student Directory missing-evidence filter | `LEVEL_1_NAVIGABLE_DASHBOARDS` | site staff, viewer | 4 | 2 | 3 | M | 35 | deferred: exact route filter missing |
+| Hosted section-level permission proof | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all protected roles | 4 | 4 | 3 | M | 40 | blocked: credentialed hosted runtime dependency |
+| Public route visual browser QA | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | public students, teachers | 3 | 4 | 3 | M | 40 | rejected: lower app-functionality value this run |
+| Operations provider-unavailable metric | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | site staff, viewer | 4 | 3 | 3 | S | 41 | rejected: route semantics need product/security design |
+| Operations archive failed label rename | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | site staff, viewer | 3 | 4 | 4 | XS | 44 | rejected: existing filter name is verifier-backed |
+| Operations high-risk direct metric | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | site staff, viewer | 4 | 5 | 4 | XS | 50 | rejected: risk category and stale metric already cover route-backed risk paths |
+| Student guided requirement form | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 5 | 2 | 3 | L | 32 | rejected: write-path/product design beyond existing safe actions |
+| Staff archive retry/regenerate controls | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | site_admin | 5 | 2 | 3 | M | 34 | rejected: mutation/control policy outside this lane |
+| Downloadable student progress summary | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | student, staff | 4 | 2 | 3 | L | 31 | rejected: export/privacy policy needed |
+
+- User-facing improvement: Staff and read-only viewers can open submitted/revision review work for students missing active mentor coverage directly from the Review Queue summary, using the existing scoped queue filter.
+- Roles affected: `site_admin`, `org_admin`/site-scoped administration users, `viewer` read-only staff, and `program_teacher` scoped staff; no student, mentor, tenant, site, program, or record visibility was broadened.
+- Files changed: `functions/_lib/site-review-queue.ts`, `workspace.js`, `tests/site-review-queue.integration.test.mjs`, `tests/workspace-app.test.mjs`, `scripts/verify-dashboard-actions.mjs`, `scripts/verify-workspace-navigation-integrity.mjs`, `docs/functionality-language-audit.md`, `docs/mvp-requirements-catalog.md`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`, `docs/progress/run-log.md`, `docs/progress/runs/2026-05-25-2230-review-queue-no-mentor-filter.json`
+- Tests/verifiers added or updated: route test proves `risk=no_mentor` returns scoped no-mentor review rows and matching summary count; workspace test proves the metric loads `risk=no_mentor` with URL state; dashboard and navigation verifiers register and guard the new preset.
+- Validation commands:
+  - Focused passed before docs/state closeout: `node --test tests/site-review-queue.integration.test.mjs`; `node --test tests/workspace-app.test.mjs`; `npm run verify:dashboard-actions`; `npm run verify:workspace-navigation`
+  - Final passed: `npm run verify:functionality-language`; `npm run verify:functionality-ux-automation`; `node --test tests/functionality-language-audit.test.mjs`; `npm run check:production-surfaces`; `npm run check:route-inventory`; JSON parse for state and manifest; `git diff --check`; `npm run test`; `npm run typecheck`; `npm run check`
+- Validation result: passed; `git diff --check` reported only CRLF normalization warnings, with no whitespace errors.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: hosted section-level permission proof, public-route visual QA, Review Queue/Student Directory missing-evidence filters, Review Queue evidence-attached exact filter, export-style progress summaries, staff archive retry/regenerate controls, provider-unavailable route semantics, and org rollups remain deferred.
+- New backlog items: none
+- Next recommended work order: inspect whether Review Queue evidence-attached should remain summary-only or gain an exact privacy-safe filter; otherwise run hosted section-level permission proof when credentials/runtime are available.
+- Do-not-repeat notes: do not re-add the Review Queue `Missing Mentor` metric action unless regression removes the `missing-mentor-review` preset, `summary.noMentor`, or `risk=no_mentor` Review Queue URL proof.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES`
+  - Advanced: yes
+  - Evidence: Review Queue `Missing Mentor` now opens a scoped `risk=no_mentor` worklist with URL state and route/UI/verifier coverage.
+  - Unlocks: future Review Queue work can focus on evidence-attached/missing-evidence only after exact route support and privacy tests exist.
+  - Next: inspect whether evidence-attached deserves a real backend filter or should stay summary-only.
+  - Blockers: hosted permission/browser proof still needs credentialed runtime; missing-evidence filters need backend/privacy support; provider-unavailable metrics need product/security design.
+  - Do not repeat: do not re-add the missing-mentor-review preset unless regression evidence appears.
+  - First file to inspect next run: `functions/_lib/site-review-queue.ts` `loadSummary()` and `workspace.js` `renderTeacherSection()`
