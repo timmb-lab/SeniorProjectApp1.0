@@ -1977,6 +1977,16 @@ li + li {
   font-size: 1rem;
 }
 
+.role-support-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.role-support-grid h3 {
+  margin-top: 0;
+}
+
 .resource-jump-grid {
   display: grid;
   gap: 0.5rem;
@@ -3407,6 +3417,7 @@ li + li {
   .chooser-grid,
   .route-grid,
   .quality-grid,
+  .role-support-grid,
   .exemplar-comparison {
     grid-template-columns: 1fr;
   }

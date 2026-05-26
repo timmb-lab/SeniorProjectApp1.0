@@ -2059,3 +2059,14 @@ Future productive runs should append compact entries that name the master-plan s
 - `changes`: `app.js` now derives a phase adult-support panel from existing phase data and renders it in the phase-page tool aside; `public-companion/app.js` was rebuilt from source; `tests/account-and-evidence-access.test.mjs` guards the marker and representative support phrases.
 - `validation`: focused public-source test, public-site build, generated-output drift check, language verifier, automation verifier, audit test, and state JSON parse passed before final validation. Final validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
 - `commit/push status`: pending closeout commit; not pushed by this automation run.
+
+## 2026-05-25 PT - Functionality UX Upgrade Public Remaining Page Responsibilities
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 0 prototype cleanup / public page-level Student/Teacher emphasis, supporting MVP-036 and MVP-037.
+- `starting HEAD`: `48c5ba6ce3e947d4acd0413518185023657fcdae`.
+- `selected slice`: Add visible student/teacher responsibility panels to public templates, portfolio, rubrics, and grades pages.
+- `repo-grounded findings`: the previous handoff pointed to `renderRubricsPage()` and `renderGradesPage()` plus templates and portfolio. Current source had phase and support-page adult panels, but these four remaining high-value public resource pages had no `data-public-page-responsibilities` marker or paired student/teacher responsibilities before the detailed cards.
+- `changes`: `app.js` now uses `publicPageResponsibilityHtml()` for templates, portfolio, rubrics, and grades pages; generated `public-companion/` output was rebuilt; `tests/account-and-evidence-access.test.mjs` guards the markers and representative responsibility phrases.
+- `validation`: focused public-source test, public-site build, and generated-output drift check passed before final validation. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.

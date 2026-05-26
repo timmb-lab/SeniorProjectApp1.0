@@ -1,0 +1,53 @@
+{
+  "automationId": "functionality-ux-upgrade-hourly",
+  "runStartedAt": "2026-05-25T17:05:15-07:00",
+  "branch": "main",
+  "startingSha": "48c5ba6ce3e947d4acd0413518185023657fcdae",
+  "endingSha": null,
+  "workOrderId": "public-rubric-grade-template-portfolio-responsibilities",
+  "ladderLevel": "LEVEL_0_PROTOTYPE_CLEANUP",
+  "mvpRequirements": ["MVP-036", "MVP-037"],
+  "selectedCandidate": "Public remaining-page student/teacher responsibility panels",
+  "selectionReason": "The prior handoff named rubric, grade, template, and portfolio pages. Current source had support-page and phase-page adult panels, while these four public resource pages still lacked visible paired student and teacher responsibilities.",
+  "candidateCount": 15,
+  "filesChanged": [
+    "app.js",
+    "styles.css",
+    "public-companion/app.js",
+    "public-companion/styles.css",
+    "tests/account-and-evidence-access.test.mjs",
+    "docs/functionality-language-audit.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/functionality-ux-growth-ledger.md",
+    "automation/state/functionality-ux-growth-state.json",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-25-1705-public-remaining-page-responsibilities.json"
+  ],
+  "privacyAndSafety": [
+    "No authenticated app routes, roles, permissions, tenant/site/program/student data paths, migrations, secrets, deploy settings, Cloudflare/OAuth config, or live data changed.",
+    "The slice uses existing public-guide source content and adds no fake links, fake metrics, mock pages, or private-workspace claims."
+  ],
+  "validation": {
+    "focusedPassed": [
+      "node --test tests/account-and-evidence-access.test.mjs",
+      "npm run build:public-site",
+      "npm run check:generated-output-drift"
+    ],
+    "finalPlanned": [
+      "git diff --check",
+      "npm run verify:functionality-language",
+      "npm run verify:functionality-ux-automation",
+      "node --test tests/functionality-language-audit.test.mjs",
+      "node -e JSON.parse automation/state/functionality-ux-growth-state.json and this manifest",
+      "npm run check:route-inventory",
+      "npm run check:production-surfaces",
+      "npm run test",
+      "npm run typecheck",
+      "npm run check"
+    ],
+    "status": "passed",
+    "notes": "git diff --check reported only CRLF normalization warnings; all focused and broad validation commands exited 0."
+  },
+  "nextRecommended": "Run desktop/mobile public-route visual QA for guide-mode and responsibility-panel layout, or run hosted section-level permission proof when credentialed runtime is available.",
+  "doNotRepeat": "Do not re-add public template/portfolio/rubric/grade responsibility panels unless regression removes data-public-page-responsibilities or focused source coverage."
+}

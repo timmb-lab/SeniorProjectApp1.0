@@ -4233,6 +4233,31 @@ function phaseTeacherSupportHtml(phase) {
   `;
 }
 
+function publicPageResponsibilityHtml({ id, title, intro, studentMoves, teacherMoves }) {
+  if (!id || !Array.isArray(studentMoves) || !studentMoves.length || !Array.isArray(teacherMoves) || !teacherMoves.length) {
+    return "";
+  }
+  return `
+    <section class="section section-tight" data-public-page-responsibilities="${id}">
+      <div class="content-card teacher-section">
+        <p class="eyebrow">Student and teacher checks</p>
+        <h2>${title}</h2>
+        <p>${intro}</p>
+        <div class="role-support-grid">
+          <div>
+            <h3>Students</h3>
+            ${listHtml(studentMoves)}
+          </div>
+          <div>
+            <h3>Teachers and mentors</h3>
+            ${listHtml(teacherMoves)}
+          </div>
+        </div>
+      </div>
+    </section>
+  `;
+}
+
 function phaseNoteCardHtml(phase) {
   return sectionCard(
     "Draft Notes",
@@ -4885,6 +4910,22 @@ function renderTemplatesPage(root) {
         </p>
       </div>
     </section>
+    ${publicPageResponsibilityHtml({
+      id: "templates",
+      title: "Use Starter Files Without Losing The Official Version",
+      intro:
+        "Starter files help students begin the work; official classroom links, forms, and teacher-owned documents remain the version that counts.",
+      studentMoves: [
+        "Pick the starter that matches the milestone before opening a blank document.",
+        "Move your final work into the official Google Doc, Form, PDF, or class website link your teacher gives you.",
+        "Save the confirmation, link, or screenshot that proves the official version was submitted."
+      ],
+      teacherMoves: [
+        "Point students to the current official version before they submit from a starter file.",
+        "Check that students know which file is practice support and which one counts for grading.",
+        "Remind students to preserve submission proof when they move from a starter into the official workflow."
+      ]
+    })}
     <section class="section" aria-labelledby="template-groups-title">
       <div class="section-head">
         <div>
@@ -4916,6 +4957,22 @@ function renderPortfolioPage(root) {
         ${featureCardsHtml(portfolioWhyCards)}
       </div>
     </section>
+    ${publicPageResponsibilityHtml({
+      id: "portfolio",
+      title: "Choose A Path Early And Save Proof As You Go",
+      intro:
+        "The portfolio is easier and stronger when students know the minimum and maximum paths before the final week.",
+      studentMoves: [
+        "Choose the minimum or maximum portfolio path before final project week.",
+        "Collect resume, reflections, thank-you work, photos, drafts, feedback, and best-work evidence as each phase ends.",
+        "Keep the Google Form confirmation or folder evidence that proves the final portfolio was submitted."
+      ],
+      teacherMoves: [
+        "Help students choose the right portfolio path instead of deciding during the final rush.",
+        "Check for the required resume, reflections, formal thank-you letter copy, and mentor handwritten-note reminder.",
+        "Use evidence quality, not file volume, when coaching students toward a stronger professional story."
+      ]
+    })}
     <section class="section section-tight">
       <div class="compare-grid">
         <article class="compare-panel">
@@ -4966,6 +5023,22 @@ function renderRubricsPage(root) {
       title: "Rubrics",
       summary:
         "Rubrics are not just for teachers after you submit. Use them before you turn things in so you can fix weak spots early."
+    })}
+    ${publicPageResponsibilityHtml({
+      id: "rubrics",
+      title: "Use The Rubric Before The Grade",
+      intro:
+        "Rubrics work best when they guide revision before students submit, present, display, or finish the portfolio.",
+      studentMoves: [
+        "Read the matching rubric before the deadline, not only after a grade is posted.",
+        "Mark one weak criterion and revise the work or evidence before submitting.",
+        "Use rubric language when explaining how the project shows skill, growth, and readiness."
+      ],
+      teacherMoves: [
+        "Coach students to name the criterion they are improving before they ask for a final check.",
+        "Use the same rubric language during proposal, presentation, display, and portfolio conferences.",
+        "Point students to evidence that proves the score instead of letting the rubric feel like a surprise."
+      ]
     })}
     <section class="section section-tight">
       <div class="rubric-grid">
@@ -5020,6 +5093,22 @@ function renderGradesPage(root) {
       title: "Grades And Recognition",
       summary:
         "This project counts in more than one class. This page shows where work counts and what exceptional projects may earn."
+    })}
+    ${publicPageResponsibilityHtml({
+      id: "grades",
+      title: "Know Where The Work Counts",
+      intro:
+        "Grade and recognition guidance should help students submit the right evidence to the right class at the right time.",
+      studentMoves: [
+        "Confirm which class receives each proposal, presentation, display, portfolio, and reflection grade.",
+        "Save the evidence that shows service, CTE mastery, presentation readiness, and final portfolio completion.",
+        "Ask about recognition only after you can point to specific evidence, not just effort or ambition."
+      ],
+      teacherMoves: [
+        "Clarify which teacher or class owns each grade before students submit final work.",
+        "Remind students when Google Form grading, paper rubric options, or program-specific evidence is required.",
+        "Use recognition conversations to ask for proof of community service, CTE growth, and professional promise."
+      ]
     })}
     <section class="section section-tight">
       <div class="grade-grid">

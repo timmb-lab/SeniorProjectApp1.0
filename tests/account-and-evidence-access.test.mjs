@@ -156,6 +156,25 @@ test("public phase pages expose page-level adult support checks", () => {
   }
 });
 
+test("remaining public resource pages expose student and teacher responsibilities", () => {
+  assert.match(appJs, /function publicPageResponsibilityHtml/);
+  for (const pageId of ["templates", "portfolio", "rubrics", "grades"]) {
+    assert.match(appJs, new RegExp(`data-public-page-responsibilities="\\$\\{id\\}"[\\s\\S]*id: "${pageId}"`));
+  }
+  for (const phrase of [
+    "Use Starter Files Without Losing The Official Version",
+    "Save the confirmation, link, or screenshot",
+    "Choose A Path Early And Save Proof As You Go",
+    "mentor handwritten-note reminder",
+    "Use The Rubric Before The Grade",
+    "Coach students to name the criterion",
+    "Know Where The Work Counts",
+    "Google Form grading, paper rubric options, or program-specific evidence"
+  ]) {
+    assert.match(appJs, new RegExp(phrase.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  }
+});
+
 test("public workspace workflow guide avoids stale future-app and implementation copy", () => {
   assert.match(appJs, /Workspace Workflow/);
   assert.match(appJs, /How The Signed-In Workspace Works/);

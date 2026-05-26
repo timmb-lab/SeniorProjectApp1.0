@@ -2661,3 +2661,57 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: hosted permission/browser proof still needs credentialed runtime; exports and staff scheduling controls need policy decisions.
   - Do not repeat: do not rebuild this phase-page support panel unless regression evidence appears.
   - First file to inspect next run: `app.js` `renderRubricsPage()` and `renderGradesPage()`
+
+## Run 2026-05-25 17:05 PT
+
+- Starting SHA: `48c5ba6ce3e947d4acd0413518185023657fcdae`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Branch policy: work stayed on clean local `main`; local `main` was twelve commits ahead of `origin/main`, `origin/main` was not ahead, and no push was run
+- Ladder level targeted: `LEVEL_0_PROTOTYPE_CLEANUP` with `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` source-test support
+- Backlog item: `public-rubric-grade-template-portfolio-responsibilities`; advances `MVP-036` and `MVP-037`
+- Work order selected: Add visible student/teacher responsibility panels to the public templates, portfolio, rubrics, and grades pages.
+- Selection reason: The previous handoff named rubric, grade, template, and portfolio pages after phase pages. Current source showed support-page and phase-page adult panels were complete, while these four remaining high-value public pages still lacked paired student responsibility and teacher/mentor check panels. The slice was route-safe, source-testable, and did not touch private app permissions.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Remaining public page responsibility panels | `LEVEL_0_PROTOTYPE_CLEANUP` | public students, teachers, mentors | 4 | 5 | 5 | S | 56 | selected |
+| Remaining-page source/generated test | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | public students, teachers | 3 | 5 | 5 | XS | 52 | included |
+| Public route visual browser QA | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | public users | 3 | 4 | 3 | M | 40 | rejected: runtime/browser proof is useful next, but source/build proof was available now |
+| Hosted section-level permission proof | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all protected roles | 4 | 4 | 3 | M | 40 | blocked: needs credentialed hosted/browser runtime |
+| Review Queue missing-evidence filter | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | site staff, program teacher | 5 | 2 | 3 | M | 37 | deferred: backend/privacy support missing |
+| Student Directory missing-evidence filter | `LEVEL_1_NAVIGABLE_DASHBOARDS` | site staff, viewer | 4 | 2 | 3 | M | 35 | deferred: exact route filter missing |
+| Student guided requirement form | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 5 | 2 | 3 | L | 34 | rejected: write-path/product design needed |
+| Student due-date timeline | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 4 | 4 | 4 | S | 44 | rejected: recent student deadline/checklist work is healthy |
+| Mentor scheduled-date semantics | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | mentor | 3 | 3 | 4 | S | 42 | rejected: scheduling semantics need policy |
+| Staff mentor meeting controls | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | site staff | 4 | 2 | 3 | M | 35 | rejected: endpoint/policy is mentor-only |
+| Mentor reassignment/remove controls | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | site admin | 5 | 2 | 3 | L | 33 | rejected: mutation/audit policy needed |
+| Downloadable student progress summary | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | student, staff | 4 | 2 | 3 | L | 31 | rejected: export/privacy policy needed |
+| Org-admin tenant rollup | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | org_admin | 4 | 2 | 2 | L | 30 | blocked: backend aggregate and RBAC design needed |
+| Public source crosswalk refresh | `LEVEL_0_PROTOTYPE_CLEANUP` | public students, teachers | 2 | 5 | 4 | XS | 39 | rejected: implementation evidence was more valuable than docs-only churn |
+| Public generated route inventory refresh | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | public stakeholders | 2 | 5 | 4 | XS | 38 | rejected: no route files changed |
+
+- User-facing improvement: Templates, Portfolio, Rubrics, and Grades now each show a visible `Student and teacher checks` panel before the detailed cards, helping students understand proof actions and helping teachers/mentors reinforce official versions, portfolio evidence, rubric revision, grading ownership, and recognition evidence.
+- Roles affected: public students, teachers, mentors, and families as guide readers; no authenticated app role, permission, route, or data path changed
+- Files changed: `app.js`, `styles.css`, `public-companion/app.js`, `public-companion/styles.css`, `tests/account-and-evidence-access.test.mjs`, `docs/functionality-language-audit.md`, `docs/mvp-requirements-catalog.md`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`, `docs/progress/run-log.md`, `docs/progress/runs/2026-05-25-1705-public-remaining-page-responsibilities.json`
+- Tests/verifiers added or updated: public source test now guards `publicPageResponsibilityHtml`, `data-public-page-responsibilities`, and representative responsibility phrases; generated public output was rebuilt.
+- Validation commands:
+  - Focused passed before docs/state closeout: `node --test tests/account-and-evidence-access.test.mjs`; `npm run build:public-site`; `npm run check:generated-output-drift`
+  - Final passed: `git diff --check`; `npm run verify:functionality-language`; `npm run verify:functionality-ux-automation`; `node --test tests/functionality-language-audit.test.mjs`; JSON parse for state and manifest; `npm run check:route-inventory`; `npm run check:production-surfaces`; `npm run test`; `npm run typecheck`; `npm run check`
+- Validation result: passed; `git diff --check` reported only CRLF normalization warnings, with no whitespace errors.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: public-route visual browser QA, hosted section-level permission proof, Review Queue/Student Directory missing-evidence filters, export-style progress summaries, and staff scheduling/reassignment controls remain deferred.
+- New backlog items: public-route desktop/mobile visual QA for guide-mode and responsibility-panel layout when browser/runtime is available.
+- Next recommended work order: run public route visual QA across desktop/mobile, or run hosted section-level permission proof when credentialed runtime is available.
+- Do-not-repeat notes: do not re-add public template/portfolio/rubric/grade responsibility panels unless regression removes `data-public-page-responsibilities` or the focused remaining-page responsibility test.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_0_PROTOTYPE_CLEANUP`
+  - Advanced: yes
+  - Evidence: templates, portfolio, rubrics, and grades now expose visible paired student/teacher responsibility panels in source and generated output, with focused source-test coverage.
+  - Unlocks: remaining public work can shift from source emphasis to visual/browser QA and crosswalk upkeep.
+  - Next: run desktop/mobile browser QA for public guide-mode and responsibility-panel layout, or hosted section-level permission proof when credentials/runtime are available.
+  - Blockers: hosted permission/browser proof still needs credentialed runtime; exports and staff scheduling controls need policy decisions.
+  - Do not repeat: do not rebuild these remaining-page panels unless regression evidence appears.
+  - First file to inspect next run: `app.js` `publicPageResponsibilityHtml()` and public route browser QA harness
