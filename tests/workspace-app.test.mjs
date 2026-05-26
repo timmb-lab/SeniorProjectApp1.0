@@ -1885,6 +1885,7 @@ test("workspace renders site-scoped Operations readiness worklists without mutat
   assert.match(siteAdmin, /Presentation Pending/);
   assert.match(siteAdmin, /Outline Pending/);
   assert.match(siteAdmin, /Archive Ready/);
+  assert.match(siteAdmin, /Archive In Progress/);
   assert.match(siteAdmin, /Archive Failed/);
   assert.match(siteAdmin, /Needs Attention/);
   assert.match(siteAdmin, /Stale Activity/);
@@ -1893,6 +1894,7 @@ test("workspace renders site-scoped Operations readiness worklists without mutat
   assert.match(siteAdmin, /Check-In Needed/);
   assert.match(siteAdmin, /data-section="operations" data-section-preset="presentation-attention">Review rows/);
   assert.match(siteAdmin, /data-section="operations" data-section-preset="outline-pending">Review rows/);
+  assert.match(siteAdmin, /data-section="operations" data-section-preset="archive-in-progress">Review rows/);
   assert.match(siteAdmin, /data-section="operations" data-section-preset="archive-failed">Review rows/);
   assert.match(siteAdmin, /data-section="operations" data-section-preset="needs-attention">Review rows/);
   assert.match(siteAdmin, /data-section="operations" data-section-preset="stale-activity">Review rows/);
@@ -2059,6 +2061,15 @@ test("workspace renders site-scoped Operations readiness worklists without mutat
   assert.equal(archiveUrl.searchParams.get("readiness"), "blocked");
   assert.equal(archiveUrl.searchParams.has("programId"), false);
   assert.match(window.location.href, /archiveStatus=failed/);
+
+  await vm.runInContext('openWorkspaceSection({ dataset: { section: "operations", sectionPreset: "archive-in-progress" } })', context);
+  const archiveProgressFetch = fetchLog.findLast((entry) => entry.startsWith("/api/site/operations-readiness?"));
+  assert.ok(archiveProgressFetch, "expected Operations fetch with archive in-progress filter");
+  const archiveProgressUrl = new URL(archiveProgressFetch, "https://workspace.example");
+  assert.equal(archiveProgressUrl.searchParams.get("archiveStatus"), "in_progress");
+  assert.equal(archiveProgressUrl.searchParams.has("readiness"), false);
+  assert.equal(archiveProgressUrl.searchParams.has("programId"), false);
+  assert.match(window.location.href, /archiveStatus=in_progress/);
 
   await vm.runInContext('openWorkspaceSection({ dataset: { section: "operations", sectionPreset: "needs-attention" } })', context);
   const attentionFetch = fetchLog.findLast((entry) => entry.startsWith("/api/site/operations-readiness?"));
@@ -4460,6 +4471,7 @@ function siteOperationsReadinessFixture({
       presentationScheduled: 6,
       outlinePending: 5,
       archiveReady: 10,
+      archiveInProgress: 3,
       archiveFailed: 5,
       archiveMissing: 20,
       evidenceMissing: 7,
@@ -4486,8 +4498,8 @@ function siteOperationsReadinessFixture({
         missing: 20,
         failed: 5,
         complete: 6,
-        queued: 0,
-        running: 0,
+        queued: 2,
+        running: 1,
         expired: 0,
         expiringSoon: 0,
         providerUnavailable: 0,
@@ -4543,7 +4555,7 @@ function siteOperationsReadinessFixture({
       storyBuckets: ["model_excellent", "missing_mentor", "awaiting_review", "revision_requested", "presentation_pending", "archive_ready", "archive_failed", "high_risk", "rich_timeline"],
       risks: ["high", "medium", "low", "stale", "no_mentor"],
       presentationStatuses: ["ready", "pending", "scheduled", "completed", "missing", "outline_pending", "outline_revision_needed", "attention_required"],
-      archiveStatuses: ["ready", "complete", "failed", "missing", "queued", "running", "expired", "expiring_soon", "provider_unavailable"],
+      archiveStatuses: ["ready", "complete", "failed", "missing", "queued", "running", "in_progress", "expired", "expiring_soon", "provider_unavailable"],
       readiness: ["ready", "in_progress", "attention_required", "blocked", "missing", "complete"],
       categories: ["archive", "risk", "mentor", "review", "presentation", "completion", "evidence", "readiness"],
     },

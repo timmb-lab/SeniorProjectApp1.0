@@ -83,6 +83,7 @@ const allowedPresets = new Map([
   ["presentation-pending", "operations"],
   ["presentation-attention", "operations"],
   ["archive-failed", "operations"],
+  ["archive-in-progress", "operations"],
   ["needs-attention", "operations"],
   ["stale-activity", "operations"],
   ["outline-pending", "operations"],
@@ -203,6 +204,16 @@ assertMatches(
   "workspaceJs",
   /renderMetricTile\("Archive Failed"[\s\S]*"operations", \{ label: "Review rows", preset: "archive-failed" \}\)/,
   "Operations Archive Failed metric must open the existing archive-failed worklist filter",
+);
+assertMatches(
+  "workspaceJs",
+  /section === "operations" && button\.dataset\.sectionPreset === "archive-in-progress"[\s\S]*archiveStatus: "in_progress"[\s\S]*syncOperationsReadinessUrlState\(\)/,
+  "archive in-progress dashboard preset must be backed by the Operations queued/running archive filter and sync URL state",
+);
+assertMatches(
+  "workspaceJs",
+  /renderMetricTile\("Archive In Progress"[\s\S]*"operations", \{ label: "Review rows", preset: "archive-in-progress" \}\)/,
+  "Operations Archive In Progress metric must open the existing queued/running archive worklist filter",
 );
 assertMatches(
   "workspaceJs",

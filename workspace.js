@@ -165,7 +165,7 @@ const MENTOR_ASSIGNMENT_STATUS_VALUES = new Set(["active", "unassigned", "all"])
 const OPERATIONS_STUDENT_STATUS_VALUES = new Set(["draft", "submitted", "under_review", "revision_requested", "approved", "blocked", "archived", "complete"]);
 const OPERATIONS_RISK_VALUES = new Set(["any", "high", "medium", "low", "stale", "no_mentor"]);
 const OPERATIONS_PRESENTATION_STATUS_VALUES = new Set(["ready", "pending", "scheduled", "completed", "missing", "outline_pending", "outline_revision_needed", "attention_required"]);
-const OPERATIONS_ARCHIVE_STATUS_VALUES = new Set(["ready", "complete", "failed", "missing", "queued", "running", "expired", "expiring_soon", "provider_unavailable"]);
+const OPERATIONS_ARCHIVE_STATUS_VALUES = new Set(["ready", "complete", "failed", "missing", "queued", "running", "in_progress", "expired", "expiring_soon", "provider_unavailable"]);
 const OPERATIONS_READINESS_VALUES = new Set(["ready", "in_progress", "attention_required", "blocked", "missing", "complete"]);
 const OPERATIONS_CATEGORY_VALUES = new Set(["archive", "risk", "mentor", "review", "presentation", "completion", "evidence", "readiness"]);
 const REVIEW_QUEUE_URL_FILTER_PARAMS = [
@@ -923,6 +923,15 @@ async function openWorkspaceSection(button) {
     };
     syncOperationsReadinessUrlState();
     await loadOperationsReadinessResult("Showing archive follow-up.");
+    return;
+  }
+  if (section === "operations" && button.dataset.sectionPreset === "archive-in-progress") {
+    operationsReadinessFilters = {
+      ...defaultOperationsReadinessFilters(),
+      archiveStatus: "in_progress",
+    };
+    syncOperationsReadinessUrlState();
+    await loadOperationsReadinessResult("Showing archive packages being prepared.");
     return;
   }
   if (section === "operations" && button.dataset.sectionPreset === "needs-attention") {
@@ -2883,6 +2892,7 @@ function renderOperationsReadinessSection() {
         ${renderMetricTile("Check-In Needed", presentation.summary?.attentionRequired, "Presentation checked out but not checked in", safeNumber(presentation.summary?.attentionRequired) ? "danger" : "teacher", "operations", { label: "Review rows", preset: "presentation-attention" })}
         ${renderMetricTile("Outline Pending", summary.outlinePending, "Needs outline approval", safeNumber(summary.outlinePending) ? "warning" : "teacher", "operations", { label: "Review rows", preset: "outline-pending" })}
         ${renderMetricTile("Archive Ready", summary.archiveReady, "Ready or complete package state", "mentor")}
+        ${renderMetricTile("Archive In Progress", summary.archiveInProgress, "Packages being prepared", safeNumber(summary.archiveInProgress) ? "warning" : "admin", "operations", { label: "Review rows", preset: "archive-in-progress" })}
         ${renderMetricTile("Archive Failed", summary.archiveFailed, "Needs archive follow-up", safeNumber(summary.archiveFailed) ? "danger" : "admin", "operations", { label: "Review rows", preset: "archive-failed" })}
         ${renderMetricTile("Needs Attention", summary.needsAttention, "Blocked, missing, or high-risk rows", safeNumber(summary.needsAttention) ? "danger" : "admin", "operations", { label: "Review rows", preset: "needs-attention" })}
         ${renderMetricTile("Stale Activity", summary.staleActivity, "No recent student progress", safeNumber(summary.staleActivity) ? "warning" : "admin", "operations", { label: "Review rows", preset: "stale-activity" })}

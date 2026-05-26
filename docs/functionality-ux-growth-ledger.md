@@ -2923,3 +2923,55 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: hosted permission/browser proof still needs credentialed runtime; missing-evidence Review Queue filters need backend/privacy support; exports and staff scheduling/check-in controls need policy decisions.
   - Do not repeat: do not re-add the stale metric unless regression evidence appears.
   - First file to inspect next run: `functions/_lib/site-operations-readiness.ts` `archiveStatusFor()` and `workspace.js` `renderOperationsReadinessSection()`
+
+## Run 2026-05-25 20:05 PT
+
+- Starting SHA: `4c698cc92ca6f9257cdac2a25feef9d8312b23e8`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Branch policy: work stayed on clean local `main`; local `main` was seventeen commits ahead of `origin/main`, `origin/main` was not ahead, and no push was run
+- Ladder level targeted: `LEVEL_1_NAVIGABLE_DASHBOARDS` with `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` archive monitoring support and `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` verifier coverage
+- Backlog item: `operations-archive-in-progress-filter`; advances dashboard/reporting evidence in `MVP-015`
+- Work order selected: Add an Operations `Archive In Progress` metric backed by a scoped `archiveStatus=in_progress` queued/running filter alias.
+- Selection reason: The previous handoff named archive expiration and queued/running states. Current route evidence showed queued and running archive statuses already existed, were returned in filter options, and were server-scoped, but users had to choose separate raw status filters or rely on snapshot rows. A combined in-progress alias gives staff a single truthful worklist without mutation controls or fake retry actions.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Operations archive in-progress filter | `LEVEL_1_NAVIGABLE_DASHBOARDS` | site staff, viewer, program_teacher | 5 | 5 | 5 | XS | 58 | selected |
+| Archive in-progress verifier guard | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | site staff | 3 | 5 | 5 | XS | 52 | included |
+| Operations archive expiration metric | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | site staff, viewer | 4 | 4 | 4 | S | 45 | rejected: queued/running was more directly proven by fixtures this run |
+| Operations expired package guidance | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | site staff, student | 4 | 4 | 4 | S | 44 | rejected: needs closer expired-window UX inspection after this filter |
+| Operations archive provider-unavailable metric | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | site staff | 4 | 4 | 4 | S | 43 | rejected: failed/provider-unavailable is already covered by Archive Failed |
+| Operations high-risk direct metric | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | site staff, viewer | 4 | 5 | 4 | XS | 50 | rejected: risk category and stale metric already cover current route-backed risk paths |
+| Hosted section-level permission proof | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all protected roles | 4 | 4 | 3 | M | 40 | blocked: credentialed hosted runtime dependency |
+| Public route desktop/mobile visual QA | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | public students, teachers | 3 | 4 | 3 | M | 40 | rejected: no source defect found before browser proof |
+| Review Queue missing-evidence filter | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | site staff, program_teacher | 5 | 2 | 3 | M | 37 | deferred: backend/privacy support still missing |
+| Student Directory missing-evidence filter | `LEVEL_1_NAVIGABLE_DASHBOARDS` | site staff, viewer | 4 | 2 | 3 | M | 35 | deferred: exact route filter missing |
+| Staff archive retry controls | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | site_admin | 5 | 2 | 3 | M | 34 | rejected: mutation/control policy outside this lane |
+| Downloadable student progress summary | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | student, staff | 4 | 2 | 3 | L | 31 | rejected: export/privacy policy needed |
+| Org-admin tenant rollup | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | org_admin | 4 | 2 | 2 | L | 30 | blocked: backend aggregate and RBAC design needed |
+
+- User-facing improvement: Staff and read-only viewers can now open a single Operations worklist for archive packages being prepared, covering queued and running archive rows through URL state.
+- Roles affected: `site_admin`, `org_admin`/site-scoped administration users, `viewer` read-only staff, and `program_teacher` scoped staff; no student, mentor, tenant, site, program, or record visibility was broadened.
+- Files changed: `functions/_lib/site-operations-readiness.ts`, `workspace.js`, `tests/site-operations-readiness.integration.test.mjs`, `tests/workspace-app.test.mjs`, `scripts/verify-dashboard-actions.mjs`, `scripts/verify-workspace-navigation-integrity.mjs`, `docs/functionality-language-audit.md`, `docs/mvp-requirements-catalog.md`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`, `docs/progress/run-log.md`, `docs/progress/runs/2026-05-25-2005-operations-archive-in-progress-filter.json`
+- Tests/verifiers added or updated: route test proves `archiveStatus=in_progress` returns scoped queued/running archive rows and matches the summary count; workspace test proves the metric and URL/filter behavior; dashboard and navigation verifiers register the preset.
+- Validation commands:
+  - Focused passed before docs/state closeout: `node --test tests/site-operations-readiness.integration.test.mjs`; `node --test tests/workspace-app.test.mjs`; `npm run verify:dashboard-actions`; `npm run verify:workspace-navigation`
+  - Final passed: `npm run verify:functionality-language`; `npm run verify:functionality-ux-automation`; `node --test tests/functionality-language-audit.test.mjs`; JSON parse for state and manifest; `git diff --check`; `npm run check:route-inventory`; `npm run check:production-surfaces`; `npm run test`; `npm run typecheck`; `npm run check`
+- Validation result: passed; `git diff --check` reported only CRLF normalization warnings, with no whitespace errors.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: hosted section-level permission proof, public-route visual QA, Review Queue/Student Directory missing-evidence filters, export-style progress summaries, staff archive retry controls, expired/expiring archive guidance, and org rollups remain deferred.
+- New backlog items: refine Operations expired/expiring archive window guidance if route fixtures prove a safe exact summary.
+- Next recommended work order: inspect Operations expired and expiring archive package states for exact route-backed guidance and student/staff copy alignment.
+- Do-not-repeat notes: do not re-add the Operations `Archive In Progress` metric unless regression removes the `archive-in-progress` preset or `archiveStatus=in_progress` queued/running route proof.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_1_NAVIGABLE_DASHBOARDS`
+  - Advanced: yes
+  - Evidence: Operations now exposes a precise `Archive In Progress` metric backed by a scoped `archiveStatus=in_progress` alias that returns queued/running archive rows, with route/UI/verifier coverage.
+  - Unlocks: next Operations archive work can focus on expired/expiring-window clarity instead of queued/running discoverability.
+  - Next: inspect expired and expiring archive rows for exact summary guidance and student/staff copy alignment.
+  - Blockers: hosted permission/browser proof still needs credentialed runtime; export retry controls and downloadable summaries need policy decisions.
+  - Do not repeat: do not re-add archive in-progress unless regression evidence appears.
+  - First file to inspect next run: `functions/_lib/site-operations-readiness.ts` `archiveStatusFor()` and `workspace.js` `renderArchiveWorklistRows()`

@@ -81,6 +81,7 @@ assertMatches("workspaceJs", /sectionPreset === "mentor-workload"[\s\S]*mentorAs
 assertMatches("workspaceJs", /sectionPreset === "presentation-pending"[\s\S]*presentationStatus: "pending"/, "Presentation dashboard preset must open Operations with a supported filter");
 assertMatches("workspaceJs", /sectionPreset === "presentation-attention"[\s\S]*presentationStatus: "attention_required"/, "Check-In Needed dashboard preset must open Operations with the supported presentation attention filter");
 assertMatches("workspaceJs", /sectionPreset === "archive-failed"[\s\S]*archiveStatus: "failed"/, "Archive dashboard preset must open Operations with a supported filter");
+assertMatches("workspaceJs", /sectionPreset === "archive-in-progress"[\s\S]*archiveStatus: "in_progress"/, "Archive In Progress dashboard preset must open Operations with the supported queued/running filter");
 assertMatches("workspaceJs", /sectionPreset === "needs-attention"[\s\S]*needsAttention: true/, "Needs Attention dashboard preset must open Operations with a supported attention filter");
 assertMatches("workspaceJs", /sectionPreset === "stale-activity"[\s\S]*risk: "stale"/, "Stale Activity dashboard preset must open Operations with the supported stale risk filter");
 assertMatches("workspaceJs", /sectionPreset === "outline-pending"[\s\S]*outlineAttention: true/, "Outline Pending dashboard preset must open Operations with a supported outline filter");

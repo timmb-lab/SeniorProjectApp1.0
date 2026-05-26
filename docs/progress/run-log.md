@@ -2114,3 +2114,14 @@ Future productive runs should append compact entries that name the master-plan s
 - `changes`: `functions/_lib/site-operations-readiness.ts` now returns `summary.staleActivity`; `workspace.js` renders `Stale Activity` with a route-backed `stale-activity` preset; focused route/UI tests and dashboard/navigation verifiers guard the exact `risk=stale` path.
 - `validation`: focused route/UI/verifier checks passed before final validation. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
 - `commit/push status`: pending closeout commit; not pushed by this automation run.
+
+## 2026-05-25 PT - Functionality UX Upgrade Operations Archive In Progress
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 1 navigable dashboards / Level 8 operations readiness archive monitoring.
+- `starting HEAD`: `4c698cc92ca6f9257cdac2a25feef9d8312b23e8`.
+- `selected slice`: Add an Operations `Archive In Progress` metric backed by `archiveStatus=in_progress`.
+- `repo-grounded findings`: the previous handoff named archive expiration and queued/running states. Current source already had queued and running archive statuses in `/api/site/operations-readiness`, filter options, and demo fixture proof, but no single summary click-through for packages being prepared.
+- `changes`: `/api/site/operations-readiness` now treats `archiveStatus=in_progress` as queued or running archive rows and returns `summary.archiveInProgress`; `workspace.js` renders the metric and opens the scoped worklist with URL state; route/UI tests and dashboard/navigation verifiers guard the path.
+- `validation`: focused route/UI/verifier checks passed before final validation. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.

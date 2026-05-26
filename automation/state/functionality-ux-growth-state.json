@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-05-25T19:34:04-07:00",
-  "lastStartingSha": "589e6f1210b93c3b0d453ee38eeb212edd35b659",
+  "lastRunAt": "2026-05-25T20:05:26-07:00",
+  "lastStartingSha": "4c698cc92ca6f9257cdac2a25feef9d8312b23e8",
   "lastEndingSha": null,
   "currentLadderFocus": "LEVEL_1_NAVIGABLE_DASHBOARDS",
   "completedWorkOrders": [
@@ -561,6 +561,14 @@
       "type": "TYPE_B_DASHBOARD_CLICK_THROUGH",
       "summary": "Operations Stale Activity now opens the existing scoped risk=stale worklist for students with no recent progress.",
       "commit": "pending-closeout-commit"
+    },
+    {
+      "id": "operations-archive-in-progress-filter",
+      "completedAt": "2026-05-25T20:05:26-07:00",
+      "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS",
+      "type": "TYPE_B_DASHBOARD_CLICK_THROUGH",
+      "summary": "Operations Archive In Progress now opens a scoped archiveStatus=in_progress worklist for queued or running archive packages.",
+      "commit": "pending-closeout-commit"
     }
   ],
   "deferredWorkOrders": [
@@ -614,7 +622,7 @@
       "id": "operations-archive-expiration-guidance",
       "ladderLevel": "LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS",
       "type": "TYPE_F_REVIEW_INTERVENTION_QUEUE",
-      "summary": "Inspect Operations archive expiration and queued/running states for exact route-backed filter guidance."
+      "summary": "Inspect expired and expiring archive package states for exact route-backed guidance."
     }
   ],
   "doNotRepeat": [
@@ -680,11 +688,12 @@
     "Do not re-add Program Teacher dashboard Submitted/Needs Revision Review Queue presets unless regression removes preset: \"submitted\" or preset: \"revision-requested\" from renderProgramTeacherDashboardSection().",
     "Do not re-add Site Dashboard snapshot-row Operations filters unless regression removes presentation-snapshot/archive-snapshot handling or the exact-status summary-only guard.",
     "Do not re-add the Operations Check-In Needed metric unless regression removes the presentation-attention preset or presentationStatus=attention_required route proof.",
-    "Do not re-add the Operations Stale Activity metric unless regression removes the stale-activity preset or risk=stale route proof."
+    "Do not re-add the Operations Stale Activity metric unless regression removes the stale-activity preset or risk=stale route proof.",
+    "Do not re-add the Operations Archive In Progress metric unless regression removes the archive-in-progress preset or archiveStatus=in_progress queued/running route proof."
   ],
   "lastValidationStatus": {
     "status": "passed",
-    "completedAt": "2026-05-25T19:46:00-07:00",
+    "completedAt": "2026-05-25T20:24:00-07:00",
     "commands": [
       "node --test tests/site-operations-readiness.integration.test.mjs",
       "node --test tests/workspace-app.test.mjs",
@@ -693,7 +702,7 @@
       "npm run verify:functionality-language",
       "npm run verify:functionality-ux-automation",
       "node --test tests/functionality-language-audit.test.mjs",
-      "node -e JSON.parse automation/state/functionality-ux-growth-state.json and docs/progress/runs/2026-05-25-1934-operations-stale-activity-filter.json",
+      "node -e JSON.parse automation/state/functionality-ux-growth-state.json and docs/progress/runs/2026-05-25-2005-operations-archive-in-progress-filter.json",
       "git diff --check",
       "npm run check:route-inventory",
       "npm run check:production-surfaces",
@@ -701,7 +710,7 @@
       "npm run typecheck",
       "npm run check"
     ],
-    "notes": "Full validation passed for the Operations Stale Activity metric. git diff --check reported only CRLF normalization warnings. This run changes scoped Operations summary/UI, focused route/UI/dashboard verifier coverage, and run records only; it does not change auth role grants, tenant/site/program/student privacy boundaries, migrations, secrets/env files, Cloudflare/OAuth/domain config, deploy settings, or live data."
+    "notes": "Full validation passed for the Operations Archive In Progress metric. git diff --check reported only CRLF normalization warnings. This run changes scoped Operations summary/UI, focused route/UI/dashboard verifier coverage, and run records only; it does not change auth role grants, tenant/site/program/student privacy boundaries, migrations, secrets/env files, Cloudflare/OAuth/domain config, deploy settings, or live data."
   },
   "lastProductReadinessScorecardSummary": {
     "homepageClarity": "4 to 4",

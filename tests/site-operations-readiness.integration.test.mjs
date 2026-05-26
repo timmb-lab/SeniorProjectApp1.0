@@ -112,6 +112,12 @@ test("site operations readiness route is scoped, read-only, audited, bounded, an
   assert.equal(archiveReady.archive.rows.some((row) => /^Archive Ready Demo/i.test(row.studentName)), true);
   assert.equal(archiveReady.archive.rows.every((row) => row.storageIdentifiersRedacted === true), true);
 
+  const archiveInProgress = await expectOperations(env, tokens.siteAdminPrimary, `?siteId=${PRIMARY_SITE_ID}&archiveStatus=in_progress&limit=100`);
+  assert.equal(archiveInProgress.filters.archiveStatus, "in_progress");
+  assert.equal(archiveInProgress.summary.archiveInProgress > 0, true);
+  assert.equal(archiveInProgress.pagination.filteredTotal, archiveInProgress.summary.archiveInProgress);
+  assert.equal(archiveInProgress.archive.rows.every((row) => ["queued", "running"].includes(row.archiveStatus)), true);
+
   const presentationPending = await expectOperations(env, tokens.siteAdminPrimary, `?siteId=${PRIMARY_SITE_ID}&presentationStatus=pending&limit=100`);
   assert.equal(presentationPending.pagination.filteredTotal > 0, true);
   assert.equal(presentationPending.presentation.rows.some((row) => /^Presentation Pending Demo/i.test(row.studentName)), true);
@@ -189,7 +195,7 @@ test("site operations readiness route is scoped, read-only, audited, bounded, an
   assert.equal(detail.response.status, 200);
   assert.equal(detail.body.student.studentId, richStudentId);
 
-  for (const body of [platform, secondary, legacy, org, siteAdmin, viewer, teacher, archiveFailed, archiveReady, presentationPending, presentationAttention, outlineAttention, highRisk, staleActivity, archiveCategory, needsAttention, evidenceMissing, paged, offset, capped, richTimeline, detail.body]) {
+  for (const body of [platform, secondary, legacy, org, siteAdmin, viewer, teacher, archiveFailed, archiveReady, archiveInProgress, presentationPending, presentationAttention, outlineAttention, highRisk, staleActivity, archiveCategory, needsAttention, evidenceMissing, paged, offset, capped, richTimeline, detail.body]) {
     assert.doesNotMatch(JSON.stringify(body), FORBIDDEN_RESPONSE_FIELDS);
   }
 

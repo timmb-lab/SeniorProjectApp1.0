@@ -25,7 +25,7 @@ const STUDENT_STATUS_VALUES = ["draft", "submitted", "under_review", "revision_r
 const STORY_VALUES = ["model_excellent", "missing_mentor", "awaiting_review", "revision_requested", "presentation_pending", "archive_ready", "archive_failed", "high_risk", "rich_timeline"];
 const RISK_VALUES = ["high", "medium", "low", "stale", "no_mentor"];
 const PRESENTATION_STATUS_VALUES = ["ready", "pending", "scheduled", "completed", "missing", "outline_pending", "outline_revision_needed", "attention_required"];
-const ARCHIVE_STATUS_VALUES = ["ready", "complete", "failed", "missing", "queued", "running", "expired", "expiring_soon", "provider_unavailable"];
+const ARCHIVE_STATUS_VALUES = ["ready", "complete", "failed", "missing", "queued", "running", "in_progress", "expired", "expiring_soon", "provider_unavailable"];
 const READINESS_VALUES = ["ready", "in_progress", "attention_required", "blocked", "missing", "complete"];
 const CATEGORY_VALUES = ["archive", "risk", "mentor", "review", "presentation", "completion", "evidence", "readiness"];
 
@@ -298,6 +298,7 @@ async function buildOperationsPayload({
       presentationScheduled: summary.presentation.scheduled,
       outlinePending: summary.presentation.outlinePending + summary.presentation.outlineRevisionNeeded,
       archiveReady: summary.archive.ready + summary.archive.complete + summary.archive.expiringSoon,
+      archiveInProgress: summary.archive.queued + summary.archive.running,
       archiveFailed: summary.archive.failed + summary.archive.providerUnavailable,
       archiveMissing: summary.archive.missing,
       evidenceMissing: summary.evidenceMissing,
@@ -844,6 +845,7 @@ function matchesPresentationStatus(actual: string, filter: string): boolean {
 function matchesArchiveStatus(actual: string, filter: string): boolean {
   if (filter === "failed") return ["failed", "provider_unavailable"].includes(actual);
   if (filter === "ready") return ["ready", "complete", "expiring_soon"].includes(actual);
+  if (filter === "in_progress") return ["queued", "running"].includes(actual);
   return actual === filter;
 }
 
