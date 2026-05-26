@@ -2871,3 +2871,55 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: hosted permission/browser proof still needs credentialed runtime; missing-evidence Review Queue filters need backend/privacy support; exports and staff scheduling/check-in controls need policy decisions.
   - Do not repeat: do not re-add the check-in metric unless regression evidence appears.
   - First file to inspect next run: `workspace.js` `renderOperationsReadinessSection()` and `functions/_lib/site-operations-readiness.ts` `readinessFor()`
+
+## Run 2026-05-25 19:34 PT
+
+- Starting SHA: `589e6f1210b93c3b0d453ee38eeb212edd35b659`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Branch policy: work stayed on clean local `main`; local `main` was sixteen commits ahead of `origin/main`, `origin/main` was not ahead, and no push was run
+- Ladder level targeted: `LEVEL_1_NAVIGABLE_DASHBOARDS` with `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` stale-activity triage support and `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` verifier coverage
+- Backlog item: `operations-stale-activity-filter`; advances dashboard/reporting evidence in `MVP-015`
+- Work order selected: Add an Operations `Stale Activity` metric that opens the existing scoped `risk=stale` worklist.
+- Selection reason: The previous handoff named Operations stale/high-risk rows. Current route/UI evidence showed `/api/site/operations-readiness` already supports `risk=stale`, URL sync already preserves risk filters, and stale rows are already scoped through selected-site/program-teacher visibility. The missing product step was a visible metric and guarded preset.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Operations Stale Activity metric | `LEVEL_1_NAVIGABLE_DASHBOARDS` | site staff, viewer, program_teacher | 5 | 5 | 5 | XS | 58 | selected |
+| Stale activity verifier guard | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | site staff | 3 | 5 | 5 | XS | 52 | included |
+| Operations High Risk direct metric | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | site staff, viewer | 4 | 5 | 4 | XS | 50 | rejected: risk Next Actions already links category, stale was the named handoff gap |
+| Operations archive expiring filter | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | site staff | 4 | 4 | 4 | S | 44 | rejected: needs stronger fixture/seed proof for expiring windows |
+| Operations queued/running archive metric | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | site staff | 3 | 4 | 4 | S | 42 | rejected: lower urgency than stale activity triage |
+| Hosted section-level permission proof | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all protected roles | 4 | 4 | 3 | M | 40 | blocked: credentialed hosted runtime dependency |
+| Public route desktop/mobile visual QA | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | public students, teachers | 3 | 4 | 3 | M | 40 | rejected: no source defect found before browser proof |
+| Review Queue missing-evidence filter | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | site staff, program_teacher | 5 | 2 | 3 | M | 37 | deferred: backend/privacy support still missing |
+| Student Directory missing-evidence filter | `LEVEL_1_NAVIGABLE_DASHBOARDS` | site staff, viewer | 4 | 2 | 3 | M | 35 | deferred: exact route filter missing |
+| Staff presentation check-in controls | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | program_teacher, site_admin | 5 | 2 | 3 | M | 35 | rejected: mutation/control policy outside this lane |
+| Mentor scheduled-date semantics | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | mentor | 3 | 3 | 4 | S | 42 | rejected: scheduling semantics need policy |
+| Downloadable student progress summary | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | student, staff | 4 | 2 | 3 | L | 31 | rejected: export/privacy policy needed |
+| Org-admin tenant rollup | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | org_admin | 4 | 2 | 2 | L | 30 | blocked: backend aggregate and RBAC design needed |
+
+- User-facing improvement: Staff and read-only viewers can now open a precise Operations worklist for stale student activity directly from the Operations summary instead of hunting through broader attention rows.
+- Roles affected: `site_admin`, `org_admin`/site-scoped administration users, `viewer` read-only staff, and `program_teacher` scoped staff; no student, mentor, tenant, site, program, or record visibility was broadened.
+- Files changed: `functions/_lib/site-operations-readiness.ts`, `workspace.js`, `tests/site-operations-readiness.integration.test.mjs`, `tests/workspace-app.test.mjs`, `scripts/verify-dashboard-actions.mjs`, `scripts/verify-workspace-navigation-integrity.mjs`, `docs/functionality-language-audit.md`, `docs/mvp-requirements-catalog.md`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`, `docs/progress/run-log.md`, `docs/progress/runs/2026-05-25-1934-operations-stale-activity-filter.json`
+- Tests/verifiers added or updated: route test proves `risk=stale` returns scoped stale rows and summary count; workspace test proves the new metric and URL/filter behavior; dashboard and navigation verifiers register the preset.
+- Validation commands:
+  - Focused passed before docs/state closeout: `node --test tests/site-operations-readiness.integration.test.mjs`; `node --test tests/workspace-app.test.mjs`; `npm run verify:dashboard-actions`; `npm run verify:workspace-navigation`; `npm run verify:functionality-language`
+  - Final passed: `npm run verify:functionality-ux-automation`; `node --test tests/functionality-language-audit.test.mjs`; JSON parse for state and manifest; `git diff --check`; `npm run check:route-inventory`; `npm run check:production-surfaces`; `npm run test`; `npm run typecheck`; `npm run check`
+- Validation result: passed; `git diff --check` reported only CRLF normalization warnings, with no whitespace errors.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: hosted section-level permission proof, public-route visual QA, Review Queue/Student Directory missing-evidence filters, export-style progress summaries, staff presentation mutation controls, archive expiration/queued/running filters, and org rollups remain deferred.
+- New backlog items: inspect archive expiration and queued/running archive status counts for exact route-backed guidance.
+- Next recommended work order: inspect Operations archive expiration/queued/running states for exact route-backed filter guidance, or run hosted section-level permission proof when credentialed runtime is available.
+- Do-not-repeat notes: do not re-add the Operations `Stale Activity` metric unless regression removes the `stale-activity` preset or `risk=stale` route proof.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_1_NAVIGABLE_DASHBOARDS`
+  - Advanced: yes
+  - Evidence: Operations now exposes a precise `Stale Activity` metric backed by the existing scoped `risk=stale` filter, with route/UI/verifier coverage.
+  - Unlocks: next Operations work can move from stale triage toward archive expiration/queued/running guidance or hosted permission proof.
+  - Next: inspect archive expiration and queued/running Operations statuses for exact route-backed filter guidance.
+  - Blockers: hosted permission/browser proof still needs credentialed runtime; missing-evidence Review Queue filters need backend/privacy support; exports and staff scheduling/check-in controls need policy decisions.
+  - Do not repeat: do not re-add the stale metric unless regression evidence appears.
+  - First file to inspect next run: `functions/_lib/site-operations-readiness.ts` `archiveStatusFor()` and `workspace.js` `renderOperationsReadinessSection()`

@@ -2103,3 +2103,14 @@ Future productive runs should append compact entries that name the master-plan s
 - `changes`: `workspace.js` now renders Program Teacher review metrics with `Review` actions and the supported `submitted` / `revision-requested` presets; workspace coverage proves both clicks fetch `/api/site/review-queue` with the expected status and URL state; the dashboard-action verifier guards the presets.
 - `validation`: focused `node --test tests/workspace-app.test.mjs`, `npm run verify:dashboard-actions`, and `npm run verify:workspace-navigation` passed before final validation. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
 - `commit/push status`: pending closeout commit; not pushed by this automation run.
+
+## 2026-05-25 PT - Functionality UX Upgrade Operations Stale Activity
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 1 navigable dashboards / Level 8 operations readiness guidance.
+- `starting HEAD`: `589e6f1210b93c3b0d453ee38eeb212edd35b659`.
+- `selected slice`: Add an Operations `Stale Activity` metric that opens the existing scoped `risk=stale` worklist.
+- `repo-grounded findings`: the previous handoff named Operations stale/high-risk rows. Current source already supported `risk=stale` in `/api/site/operations-readiness`, URL state, filter forms, and route scoping, but the Operations summary did not expose a direct stale-activity count or click-through.
+- `changes`: `functions/_lib/site-operations-readiness.ts` now returns `summary.staleActivity`; `workspace.js` renders `Stale Activity` with a route-backed `stale-activity` preset; focused route/UI tests and dashboard/navigation verifiers guard the exact `risk=stale` path.
+- `validation`: focused route/UI/verifier checks passed before final validation. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.

@@ -84,6 +84,7 @@ const allowedPresets = new Map([
   ["presentation-attention", "operations"],
   ["archive-failed", "operations"],
   ["needs-attention", "operations"],
+  ["stale-activity", "operations"],
   ["outline-pending", "operations"],
   ["evidence-missing", "operations"],
   ["program-breakdown", "operations"],
@@ -212,6 +213,16 @@ assertMatches(
   "workspaceJs",
   /renderMetricTile\("Needs Attention"[\s\S]*"operations", \{ label: "Review rows", preset: "needs-attention" \}\)/,
   "Operations Needs Attention metric must open the existing attention worklist filter",
+);
+assertMatches(
+  "workspaceJs",
+  /section === "operations" && button\.dataset\.sectionPreset === "stale-activity"[\s\S]*risk: "stale"[\s\S]*syncOperationsReadinessUrlState\(\)/,
+  "stale-activity dashboard preset must be backed by the Operations stale risk filter and sync URL state",
+);
+assertMatches(
+  "workspaceJs",
+  /renderMetricTile\("Stale Activity"[\s\S]*"operations", \{ label: "Review rows", preset: "stale-activity" \}\)/,
+  "Operations Stale Activity metric must open the existing stale activity worklist filter",
 );
 assertMatches(
   "workspaceJs",

@@ -1887,6 +1887,7 @@ test("workspace renders site-scoped Operations readiness worklists without mutat
   assert.match(siteAdmin, /Archive Ready/);
   assert.match(siteAdmin, /Archive Failed/);
   assert.match(siteAdmin, /Needs Attention/);
+  assert.match(siteAdmin, /Stale Activity/);
   assert.match(siteAdmin, /Evidence Missing/);
   assert.match(siteAdmin, /data-section="operations" data-section-preset="presentation-pending">Review rows/);
   assert.match(siteAdmin, /Check-In Needed/);
@@ -1894,6 +1895,7 @@ test("workspace renders site-scoped Operations readiness worklists without mutat
   assert.match(siteAdmin, /data-section="operations" data-section-preset="outline-pending">Review rows/);
   assert.match(siteAdmin, /data-section="operations" data-section-preset="archive-failed">Review rows/);
   assert.match(siteAdmin, /data-section="operations" data-section-preset="needs-attention">Review rows/);
+  assert.match(siteAdmin, /data-section="operations" data-section-preset="stale-activity">Review rows/);
   assert.match(siteAdmin, /data-section="operations" data-section-preset="evidence-missing">Review rows/);
   assert.match(siteAdmin, /Presentation Pending Demo 001/);
   assert.match(siteAdmin, /Archive Failed Demo 001/);
@@ -2066,6 +2068,15 @@ test("workspace renders site-scoped Operations readiness worklists without mutat
   assert.equal(attentionUrl.searchParams.has("archiveStatus"), false);
   assert.equal(attentionUrl.searchParams.has("readiness"), false);
   assert.match(window.location.href, /needsAttention=true/);
+
+  await vm.runInContext('openWorkspaceSection({ dataset: { section: "operations", sectionPreset: "stale-activity" } })', context);
+  const staleFetch = fetchLog.findLast((entry) => entry.startsWith("/api/site/operations-readiness?"));
+  assert.ok(staleFetch, "expected Operations fetch with stale activity filter");
+  const staleUrl = new URL(staleFetch, "https://workspace.example");
+  assert.equal(staleUrl.searchParams.get("risk"), "stale");
+  assert.equal(staleUrl.searchParams.has("needsAttention"), false);
+  assert.equal(staleUrl.searchParams.has("readiness"), false);
+  assert.match(window.location.href, /risk=stale/);
 
   await vm.runInContext('openWorkspaceSection({ dataset: { section: "operations", sectionPreset: "outline-pending" } })', context);
   const outlineFetch = fetchLog.findLast((entry) => entry.startsWith("/api/site/operations-readiness?"));
@@ -4453,6 +4464,7 @@ function siteOperationsReadinessFixture({
       archiveMissing: 20,
       evidenceMissing: 7,
       highRisk: 5,
+      staleActivity: 5,
       needsAttention: 15,
     },
     presentation: {

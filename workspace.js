@@ -934,6 +934,15 @@ async function openWorkspaceSection(button) {
     await loadOperationsReadinessResult("Showing operations rows that need attention.");
     return;
   }
+  if (section === "operations" && button.dataset.sectionPreset === "stale-activity") {
+    operationsReadinessFilters = {
+      ...defaultOperationsReadinessFilters(),
+      risk: "stale",
+    };
+    syncOperationsReadinessUrlState();
+    await loadOperationsReadinessResult("Showing students with stale activity.");
+    return;
+  }
   if (section === "operations" && button.dataset.sectionPreset === "outline-pending") {
     operationsReadinessFilters = {
       ...defaultOperationsReadinessFilters(),
@@ -2876,6 +2885,7 @@ function renderOperationsReadinessSection() {
         ${renderMetricTile("Archive Ready", summary.archiveReady, "Ready or complete package state", "mentor")}
         ${renderMetricTile("Archive Failed", summary.archiveFailed, "Needs archive follow-up", safeNumber(summary.archiveFailed) ? "danger" : "admin", "operations", { label: "Review rows", preset: "archive-failed" })}
         ${renderMetricTile("Needs Attention", summary.needsAttention, "Blocked, missing, or high-risk rows", safeNumber(summary.needsAttention) ? "danger" : "admin", "operations", { label: "Review rows", preset: "needs-attention" })}
+        ${renderMetricTile("Stale Activity", summary.staleActivity, "No recent student progress", safeNumber(summary.staleActivity) ? "warning" : "admin", "operations", { label: "Review rows", preset: "stale-activity" })}
         ${renderMetricTile("Evidence Missing", summary.evidenceMissing, "Evidence or submission progress missing", safeNumber(summary.evidenceMissing) ? "warning" : "mentor", "operations", { label: "Review rows", preset: "evidence-missing" })}
       </div>
       ${renderOperationsFilters(body)}

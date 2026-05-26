@@ -302,6 +302,7 @@ async function buildOperationsPayload({
       archiveMissing: summary.archive.missing,
       evidenceMissing: summary.evidenceMissing,
       highRisk: summary.highRisk,
+      staleActivity: summary.staleActivity,
       needsAttention: summary.needsAttention,
     },
     presentation: {
@@ -927,6 +928,7 @@ function summarizeRows(rows: OperationStudentRow[]) {
     archive,
     readiness,
     highRisk: rows.filter((row) => row.riskScore >= 7 || row.riskFlags.includes("high")).length,
+    staleActivity: rows.filter((row) => row.riskFlags.includes("stale")).length,
     evidenceMissing: rows.filter((row) => row.readinessCategory === "evidence" && row.readinessStatus === "missing").length,
     needsAttention: rows.filter((row) => ["blocked", "attention_required", "missing"].includes(row.readinessStatus)).length,
   };
