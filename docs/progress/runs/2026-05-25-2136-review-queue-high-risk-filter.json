@@ -1,0 +1,139 @@
+{
+  "automationId": "functionality-ux-upgrade-hourly",
+  "runStartedAt": "2026-05-25T21:36:12-07:00",
+  "branch": "main",
+  "startingSha": "97cd2fb0d8c2b103f743b83eb9dfd6e6faa076f3",
+  "endingSha": null,
+  "originMainSha": "cfec0951f10f56ee19476b5384d18e4074cbfcd4",
+  "localAhead": 20,
+  "remoteAhead": 0,
+  "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
+  "supportingLevels": [
+    "LEVEL_1_NAVIGABLE_DASHBOARDS",
+    "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT"
+  ],
+  "workOrder": {
+    "id": "review-queue-high-risk-filter-action",
+    "type": "TYPE_F_REVIEW_INTERVENTION_QUEUE",
+    "title": "Review Queue High Risk metric opens scoped risk filter",
+    "selectedReason": "The Review Queue route already supports risk=high and URL state already preserves Review Queue risk filters, but the visible High Risk summary tile was summary-only."
+  },
+  "candidateScoring": [
+    {
+      "candidate": "Review Queue High Risk metric filter",
+      "score": 57,
+      "decision": "selected"
+    },
+    {
+      "candidate": "Review Queue Submitted/Revision in-queue metric filters",
+      "score": 49,
+      "decision": "rejected-existing-dashboard-presets"
+    },
+    {
+      "candidate": "Review Queue stale risk metric",
+      "score": 50,
+      "decision": "rejected-no-visible-summary-tile"
+    },
+    {
+      "candidate": "Review Queue Evidence Attached filter",
+      "score": 40,
+      "decision": "deferred-no-exact-filter"
+    },
+    {
+      "candidate": "Review Queue missing-evidence filter",
+      "score": 37,
+      "decision": "deferred-backend-privacy-support"
+    },
+    {
+      "candidate": "Student Directory missing-evidence filter",
+      "score": 35,
+      "decision": "deferred-no-exact-route-filter"
+    },
+    {
+      "candidate": "Operations provider-unavailable metric",
+      "score": 41,
+      "decision": "rejected-needs-product-design"
+    },
+    {
+      "candidate": "Operations provider-unavailable copy only",
+      "score": 45,
+      "decision": "rejected-recently-completed-row-language"
+    },
+    {
+      "candidate": "Hosted section-level permission proof",
+      "score": 40,
+      "decision": "blocked-credentialed-runtime"
+    },
+    {
+      "candidate": "Public route visual browser QA",
+      "score": 40,
+      "decision": "rejected-lower-app-functionality-value"
+    },
+    {
+      "candidate": "Student guided requirement form",
+      "score": 32,
+      "decision": "rejected-write-path-design"
+    },
+    {
+      "candidate": "Staff archive retry/regenerate controls",
+      "score": 34,
+      "decision": "rejected-policy-mutation-control"
+    },
+    {
+      "candidate": "Downloadable student progress summary",
+      "score": 31,
+      "decision": "rejected-export-privacy-policy"
+    },
+    {
+      "candidate": "Org-admin tenant rollup",
+      "score": 30,
+      "decision": "blocked-rbac-aggregate-design"
+    }
+  ],
+  "userFacingChange": "Review Queue High Risk now opens the existing scoped risk=high worklist and syncs the URL.",
+  "rolesAffected": [
+    "site_admin",
+    "org_admin",
+    "viewer",
+    "program_teacher"
+  ],
+  "filesChanged": [
+    "workspace.js",
+    "tests/workspace-app.test.mjs",
+    "scripts/verify-dashboard-actions.mjs",
+    "scripts/verify-workspace-navigation-integrity.mjs",
+    "docs/functionality-language-audit.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/functionality-ux-growth-ledger.md",
+    "automation/state/functionality-ux-growth-state.json",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-25-2136-review-queue-high-risk-filter.json"
+  ],
+  "privacyAndPermissionNotes": "No API authorization, role grants, tenant/site/program/student scoping, migrations, secrets, deploy settings, or live data changed. The UI reuses the existing Review Queue route and risk filter.",
+  "validation": {
+    "focusedPassed": [
+      "node --test tests/workspace-app.test.mjs",
+      "npm run verify:dashboard-actions",
+      "npm run verify:workspace-navigation"
+    ],
+    "finalPassed": [
+      "npm run verify:functionality-language",
+      "npm run verify:functionality-ux-automation",
+      "node --test tests/functionality-language-audit.test.mjs",
+      "npm run check:production-surfaces",
+      "npm run check:route-inventory",
+      "node -e JSON.parse automation/state/functionality-ux-growth-state.json and docs/progress/runs/2026-05-25-2136-review-queue-high-risk-filter.json",
+      "git diff --check",
+      "npm run test",
+      "npm run typecheck",
+      "npm run check"
+    ],
+    "status": "passed",
+    "notes": "Full validation passed for the Review Queue high-risk metric filter. git diff --check reported only CRLF normalization warnings. This run changes protected workspace navigation, verifiers, focused workspace coverage, and run records only; it does not change auth role grants, tenant/site/program/student privacy boundaries, migrations, secrets/env files, Cloudflare/OAuth/domain config, deploy settings, or live data."
+  },
+  "commit": null,
+  "pushStatus": "not_pushed",
+  "nextRecommendedWorkOrder": "Inspect Review Queue summary/filter gaps for another exact supported filter, or run hosted section-level permission proof when credentialed runtime is available.",
+  "doNotRepeat": "Do not re-add the Review Queue High Risk metric action unless regression removes the high-risk preset or risk=high URL proof.",
+  "firstFileToInspectNextRun": "workspace.js renderTeacherSection() and functions/_lib/site-review-queue.ts buildFilterWhere()"
+}

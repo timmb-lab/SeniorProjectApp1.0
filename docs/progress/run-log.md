@@ -2147,3 +2147,14 @@ Future productive runs should append compact entries that name the master-plan s
 - `changes`: `workspace.js` now renders archive provider readiness as `Storage ready`, `Storage setup needed`, `Storage unavailable`, or `Storage status not available`; workspace tests prove raw provider values are not rendered; the functionality-language verifier blocks the direct provider-status render path.
 - `validation`: focused `node --test tests/workspace-app.test.mjs` and `npm run verify:functionality-language` passed before final validation. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
 - `commit/push status`: pending closeout commit; not pushed by this automation run.
+
+## 2026-05-25 PT - Functionality UX Upgrade Review Queue High Risk Filter
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 5 review/intervention queues / Level 1 route-backed dashboard navigation.
+- `starting HEAD`: `97cd2fb0d8c2b103f743b83eb9dfd6e6faa076f3`.
+- `selected slice`: Link the Review Queue `High Risk` summary tile to the existing scoped `risk=high` filter.
+- `repo-grounded findings`: current `/api/site/review-queue` already supports `risk=high`, Review Queue URL state already preserves risk filters, and the Review Queue summary rendered `High Risk` as a summary-only tile even though matching rows can be reached safely through the existing queue.
+- `changes`: `workspace.js` adds a `high-risk` Review Queue preset and renders the `High Risk` tile with a real `Review rows` action; focused workspace coverage proves the tile loads `/api/site/review-queue?risk=high` and syncs URL state; dashboard/navigation verifiers guard the new preset.
+- `validation`: focused `node --test tests/workspace-app.test.mjs`, `npm run verify:dashboard-actions`, and `npm run verify:workspace-navigation` passed before final validation. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.

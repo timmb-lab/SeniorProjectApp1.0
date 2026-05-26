@@ -3078,3 +3078,56 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: hosted permission/browser proof still needs credentialed runtime; archive retry/regenerate controls and downloadable summaries need product/security policy decisions.
   - Do not repeat: do not re-clean archive provider-status row language unless regression evidence appears.
   - First file to inspect next run: `workspace.js` `renderArchiveWorklistRows()`
+
+## Run 2026-05-25 21:36 PT
+
+- Starting SHA: `97cd2fb0d8c2b103f743b83eb9dfd6e6faa076f3`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Branch policy: work stayed on clean local `main`; local `main` was twenty commits ahead of `origin/main`, `origin/main` was not ahead, and no push was run
+- Ladder level targeted: `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` with `LEVEL_1_NAVIGABLE_DASHBOARDS` Review Queue click-through support and `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` verifier coverage
+- Backlog item: `review-queue-high-risk-filter-action`; advances dashboard/reporting evidence in `MVP-015`
+- Work order selected: Link the Review Queue `High Risk` summary tile to the existing scoped `risk=high` filter.
+- Selection reason: Current source showed `/api/site/review-queue` already supports `risk=high`, Review Queue URL parsing/sync already preserves risk filters, and the Review Queue summary rendered `High Risk` as summary-only. This was a safe, route-backed queue-depth improvement that did not require provider semantics, hosted credentials, new API filters, or policy decisions.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Review Queue High Risk metric filter | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | site staff, viewer, program_teacher | 5 | 5 | 5 | XS | 57 | selected |
+| Review Queue Submitted/Revision in-queue metric filters | `LEVEL_1_NAVIGABLE_DASHBOARDS` | site staff, program_teacher | 3 | 5 | 5 | XS | 49 | rejected: already reachable from dashboard presets and filter bar |
+| Review Queue stale risk metric | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | site staff, program_teacher | 4 | 5 | 4 | XS | 50 | rejected: no dedicated summary tile yet; high-risk count already visible |
+| Review Queue Evidence Attached filter | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | site staff, program_teacher | 4 | 3 | 3 | S | 40 | deferred: route has summary count but no exact evidence filter |
+| Review Queue missing-evidence filter | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | site staff, program_teacher | 5 | 2 | 3 | M | 37 | deferred: backend/privacy support still missing |
+| Student Directory missing-evidence filter | `LEVEL_1_NAVIGABLE_DASHBOARDS` | site staff, viewer | 4 | 2 | 3 | M | 35 | deferred: exact route filter missing |
+| Operations provider-unavailable metric | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | site staff, viewer | 4 | 3 | 3 | S | 41 | rejected: route semantics need product/security design |
+| Operations provider-unavailable copy only | `LEVEL_0_PROTOTYPE_CLEANUP` | site staff, viewer | 3 | 5 | 4 | XS | 45 | rejected: previous run already cleaned raw provider row language |
+| Hosted section-level permission proof | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all protected roles | 4 | 4 | 3 | M | 40 | blocked: credentialed hosted runtime dependency |
+| Public route visual browser QA | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | public students, teachers | 3 | 4 | 3 | M | 40 | rejected: useful, but lower app-functionality value this run |
+| Student guided requirement form | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 5 | 2 | 3 | L | 32 | rejected: write-path/product design beyond existing safe actions |
+| Staff archive retry/regenerate controls | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | site_admin | 5 | 2 | 3 | M | 34 | rejected: mutation/control policy outside this lane |
+| Downloadable student progress summary | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | student, staff | 4 | 2 | 3 | L | 31 | rejected: export/privacy policy needed |
+| Org-admin tenant rollup | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | org_admin | 4 | 2 | 2 | L | 30 | blocked: backend aggregate and RBAC design needed |
+
+- User-facing improvement: Staff and read-only viewers can open high-risk submitted/revision review rows directly from the Review Queue summary instead of manually choosing the Risk filter.
+- Roles affected: `site_admin`, `org_admin`/site-scoped administration users, `viewer` read-only staff, and `program_teacher` scoped staff; no student, mentor, tenant, site, program, or record visibility was broadened.
+- Files changed: `workspace.js`, `tests/workspace-app.test.mjs`, `scripts/verify-dashboard-actions.mjs`, `scripts/verify-workspace-navigation-integrity.mjs`, `docs/functionality-language-audit.md`, `docs/mvp-requirements-catalog.md`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`, `docs/progress/run-log.md`, `docs/progress/runs/2026-05-25-2136-review-queue-high-risk-filter.json`
+- Tests/verifiers added or updated: workspace test proves the Review Queue high-risk tile loads `risk=high` and syncs URL state; dashboard and navigation verifiers register and guard the `high-risk` preset.
+- Validation commands:
+  - Focused passed before docs/state closeout: `node --test tests/workspace-app.test.mjs`; `npm run verify:dashboard-actions`; `npm run verify:workspace-navigation`
+  - Final passed: `npm run verify:functionality-language`; `npm run verify:functionality-ux-automation`; `node --test tests/functionality-language-audit.test.mjs`; `npm run check:production-surfaces`; `npm run check:route-inventory`; JSON parse for state and manifest; `git diff --check`; `npm run test`; `npm run typecheck`; `npm run check`
+- Validation result: passed; `git diff --check` reported only CRLF normalization warnings, with no whitespace errors.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: hosted section-level permission proof, public-route visual QA, Review Queue/Student Directory missing-evidence filters, export-style progress summaries, staff archive retry/regenerate controls, provider-unavailable route semantics, and org rollups remain deferred.
+- New backlog items: none
+- Next recommended work order: inspect whether another visible Review Queue summary has an exact existing filter before adding any new backend filters; otherwise run hosted section-level permission proof when credentialed runtime is available.
+- Do-not-repeat notes: do not re-add the Review Queue `High Risk` metric action unless regression removes the `high-risk` preset or `risk=high` Review Queue URL proof.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES`
+  - Advanced: yes
+  - Evidence: Review Queue `High Risk` now opens a scoped `risk=high` worklist with URL state and verifier coverage.
+  - Unlocks: future Review Queue work can focus on stale/missing-evidence filters only if exact route support exists.
+  - Next: inspect Review Queue summary/filter gaps for exact supported filters, or run hosted permission proof when credentials/runtime are available.
+  - Blockers: hosted permission/browser proof still needs credentialed runtime; missing-evidence filters need backend/privacy support; provider-unavailable metrics need product/security design.
+  - Do not repeat: do not re-add the high-risk preset unless regression evidence appears.
+  - First file to inspect next run: `workspace.js` `renderTeacherSection()` and `functions/_lib/site-review-queue.ts` `buildFilterWhere()`

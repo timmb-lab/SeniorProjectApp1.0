@@ -1009,6 +1009,7 @@ test("workspace renders site-aware Review Queue with teacher decisions and read-
   assert.match(teacher, /No student messaging/);
   assert.match(teacher, /workspace-review-queue/);
   assert.match(teacher, /workspace-filter-bar/);
+  assert.match(teacher, /data-section="teacher" data-section-preset="high-risk">Review rows/);
   assert.match(teacher, /workspace-student-row is-selected/);
   assert.match(teacher, /workspace-status-pill submitted/);
   assert.match(teacher, /workspace-story-chip/);
@@ -1064,7 +1065,7 @@ test("workspace renders site-aware Review Queue with teacher decisions and read-
   assert.match(viewer, /No teacher decision available for this row/);
   assert.doesNotMatch(viewer, /data-review-decision="approved"|data-review-decision="revision_requested"|data-review-decision="comment_only"|<textarea name="feedback"/);
 
-  const { context, workspaceRoot } = await createWorkspaceContextWithFetch({
+  const { context, workspaceRoot, fetchLog, window } = await createWorkspaceContextWithFetch({
     "/api/auth/me": {
       status: 200,
       body: {
@@ -1127,6 +1128,15 @@ test("workspace renders site-aware Review Queue with teacher decisions and read-
   vm.runInContext('handleSiteStudentDetailAction({ currentTarget: { dataset: { studentDetailAction: "close" } } })', context);
   assert.equal(vm.runInContext("activeSection", context), "teacher");
   assert.doesNotMatch(workspaceRoot.innerHTML, /workspace-detail-drawer/);
+
+  await vm.runInContext('openWorkspaceSection({ dataset: { section: "teacher", sectionPreset: "high-risk" } })', context);
+  const highRiskFetch = fetchLog.findLast((entry) => entry.startsWith("/api/site/review-queue?"));
+  assert.ok(highRiskFetch, "expected high-risk Review Queue metric to load Review Queue");
+  const highRiskUrl = new URL(highRiskFetch, "https://workspace.example");
+  assert.equal(highRiskUrl.searchParams.get("risk"), "high");
+  assert.equal(highRiskUrl.searchParams.has("status"), false);
+  assert.match(window.location.href, /section=teacher/);
+  assert.match(window.location.href, /risk=high/);
 });
 
 test("workspace renders Review Queue empty and history states with assigned-work language", async () => {

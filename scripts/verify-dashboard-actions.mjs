@@ -80,6 +80,7 @@ const allowedPresets = new Map([
   ["status-breakdown", "students"],
   ["submitted", "teacher"],
   ["revision-requested", "teacher"],
+  ["high-risk", "teacher"],
   ["presentation-pending", "operations"],
   ["presentation-attention", "operations"],
   ["archive-failed", "operations"],
@@ -171,6 +172,16 @@ assertMatches(
   "workspaceJs",
   /section === "teacher" && button\.dataset\.sectionPreset === "revision-requested"[\s\S]*status: "revision_requested"/,
   "revision dashboard preset must be backed by a review queue status filter",
+);
+assertMatches(
+  "workspaceJs",
+  /section === "teacher" && button\.dataset\.sectionPreset === "high-risk"[\s\S]*risk: "high"[\s\S]*syncReviewQueueUrlState\(\)/,
+  "high-risk dashboard preset must be backed by a Review Queue risk filter and sync URL state",
+);
+assertMatches(
+  "workspaceJs",
+  /function renderTeacherSection\([\s\S]*renderMetricTile\("High Risk"[\s\S]*"teacher", \{ label: "Review rows", preset: "high-risk" \}\)/,
+  "Review Queue High Risk metric must open the existing high-risk Review Queue filter",
 );
 assertMatches(
   "workspaceJs",
