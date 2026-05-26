@@ -3284,3 +3284,54 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: hosted permission/browser proof still needs credentialed runtime; missing-evidence filters need product-safe semantics; provider-unavailable metrics need product/security design.
   - Do not repeat: do not re-add the evidence-attached-review preset unless regression evidence appears.
   - First file to inspect next run: `workspace.js` `renderTeacherSection()` and `functions/_lib/site-review-queue.ts` `buildFilterWhere()`
+
+## Run 2026-05-25 23:34 PT
+
+- Starting SHA: `a8febedee6b942c4ce6fee6582dc25db38e52724`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Branch policy: work stayed on clean local `main`; local `main` was twenty-four commits ahead of `origin/main`, `origin/main` was not ahead, and no push was run
+- Ladder level targeted: `LEVEL_1_NAVIGABLE_DASHBOARDS`
+- Backlog item: `student-directory-summary-filter-actions`; advances Student Directory navigation depth for `MVP-032`, `MVP-041`, and `MVP-045`
+- Work order selected: Link Student Directory summary tiles to existing scoped directory filters.
+- Selection reason: The Student Directory route already supported status, risk, presentation, archive, and missing-mentor filters, but its own summary tiles stayed summary-only. This was safer than adding new Review Queue missing-evidence semantics or any mutation/control surface.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Student Directory summary filters | `LEVEL_1_NAVIGABLE_DASHBOARDS` | site staff, viewer, program_teacher | 5 | 5 | 5 | S | 53 | selected |
+| Review Queue missing-evidence semantics | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | site staff, program_teacher | 5 | 3 | 4 | M | 43 | deferred: product semantics need care |
+| Hosted section-level permission proof | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all protected roles | 4 | 4 | 3 | M | 40 | blocked: credentialed hosted runtime dependency |
+| Student Directory missing-evidence filter | `LEVEL_1_NAVIGABLE_DASHBOARDS` | site staff, viewer | 4 | 2 | 3 | M | 35 | deferred: exact route filter missing |
+| Public route visual browser QA | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | public students, teachers | 3 | 4 | 3 | M | 40 | rejected: lower app-functionality value this run |
+| Operations provider-unavailable metric | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | site staff, viewer | 4 | 3 | 3 | S | 41 | rejected: provider semantics need product/security design |
+| Operations high-risk direct metric | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | site staff, viewer | 4 | 5 | 4 | XS | 50 | rejected: risk category and stale metric already cover route-backed risk paths |
+| Student guided requirement form | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 5 | 2 | 3 | L | 32 | rejected: write-path/product design beyond existing safe actions |
+| Staff archive retry/regenerate controls | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | site_admin | 5 | 2 | 3 | M | 34 | rejected: mutation/control policy outside this lane |
+| Downloadable student progress summary | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | student, staff | 4 | 2 | 3 | L | 31 | rejected: export/privacy policy needed |
+| Org-admin tenant rollup | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | org_admin | 4 | 2 | 2 | L | 30 | blocked: backend aggregate and RBAC design needed |
+| Filter-specific directory empty states | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | site staff, viewer | 3 | 5 | 4 | XS | 45 | rejected: useful follow-up, less navigation value than route-backed actions |
+
+- User-facing improvement: Staff and read-only viewers can move from Student Directory summary counts to matching student rows for Submitted, Needs Revision, High Risk, Presentation Pending, Archive Ready, Archive Failed, and No Mentor.
+- Roles affected: `platform_admin`, `admin`, `org_admin`, `site_admin`, `viewer`, and `program_teacher`; no student, mentor, tenant, site, program, or record visibility was broadened.
+- Files changed: `workspace.js`, `tests/workspace-app.test.mjs`, `scripts/verify-dashboard-actions.mjs`, `scripts/verify-workspace-navigation-integrity.mjs`, `docs/functionality-language-audit.md`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`, `docs/progress/run-log.md`, `docs/progress/runs/2026-05-25-2334-student-directory-summary-filters.json`
+- Tests/verifiers added or updated: workspace test proves the summary tiles load `/api/site/students` with exact scoped filters and URL state; dashboard/navigation verifiers allowlist and guard the new presets.
+- Validation commands:
+  - Focused passed before docs/state closeout: `node --test tests/workspace-app.test.mjs`; `npm run verify:dashboard-actions`; `npm run verify:workspace-navigation`
+  - Final passed: `npm run verify:functionality-language`; `npm run verify:functionality-ux-automation`; `node --test tests/functionality-language-audit.test.mjs`; `npm run check:production-surfaces`; `npm run check:route-inventory`; JSON parse for state and manifest; `git diff --check`; `npm run test`; `npm run typecheck`; `npm run check`
+- Validation result: passed; `git diff --check` reported only CRLF normalization warnings, with no whitespace errors.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: hosted section-level permission proof, Review Queue missing-evidence semantics, public-route visual QA, Student Directory missing-evidence filter, staff archive retry/regenerate controls, provider-unavailable route semantics, and org rollups remain deferred.
+- New backlog items: Consider filter-specific Student Directory empty-state guidance for non-mentor filters only if user testing shows confusion.
+- Next recommended work order: Run hosted section-level permission proof when credentialed runtime is available; otherwise inspect Review Queue missing-evidence semantics before implementing any new queue filter.
+- Do-not-repeat notes: Do not re-add Student Directory summary filter actions unless regression removes the new presets or URL-filter behavior.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_1_NAVIGABLE_DASHBOARDS`
+  - Advanced: yes
+  - Evidence: Student Directory summary tiles now narrow the existing scoped directory through real URL-synced filters.
+  - Unlocks: Staff can scan filtered student rows before opening detail, Review Queue, or Operations.
+  - Next: Hosted section-level permission proof or Review Queue missing-evidence semantics.
+  - Blockers: Hosted proof still needs credentialed runtime; missing-evidence filters need product-safe semantics.
+  - Do not repeat: Student Directory summary filters are complete for the currently supported route filters.
+  - First file to inspect next run: `workspace.js` `renderSiteStudentDirectorySection()` only if adding filter-specific empty states; otherwise inspect hosted permission proof scripts.

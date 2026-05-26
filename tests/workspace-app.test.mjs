@@ -749,6 +749,13 @@ test("workspace renders route-connected student directory with filters and real 
   assert.match(siteAdmin, /workspace-directory-summary/);
   assert.match(siteAdmin, /Showing 2 of 250/);
   assert.match(siteAdmin, /250 total available/);
+  assert.match(siteAdmin, /data-section="students" data-section-preset="missing-mentors">View students/);
+  assert.match(siteAdmin, /data-section="students" data-section-preset="submitted-students">View students/);
+  assert.match(siteAdmin, /data-section="students" data-section-preset="revision-students">View students/);
+  assert.match(siteAdmin, /data-section="students" data-section-preset="presentation-pending-students">View students/);
+  assert.match(siteAdmin, /data-section="students" data-section-preset="archive-ready-students">View students/);
+  assert.match(siteAdmin, /data-section="students" data-section-preset="archive-failed-students">View students/);
+  assert.match(siteAdmin, /data-section="students" data-section-preset="high-risk-students">View students/);
   assert.match(siteAdmin, /workspace-student-row/);
   assert.match(siteAdmin, /workspace-student-card/);
   assert.match(siteAdmin, /Missing Mentor Demo 001/);
@@ -857,6 +864,86 @@ test("workspace renders route-connected student directory with filters and real 
   assert.match(empty, /Reason/);
   assert.match(empty, /Owner/);
   assert.match(empty, /Next action/);
+});
+
+test("student directory summary tiles apply real directory filters", async () => {
+  const { context, fetchLog, window } = await createWorkspaceContextWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "site-admin-directory-summary",
+          email: "site.directory.summary@example.edu",
+          displayName: "Site Directory Summary",
+          roles: [{ role_id: "site_admin", scope_type: "site", scope_id: "site-desert-valley-high" }],
+        },
+      },
+    },
+    "/api/site/dashboard": {
+      status: 200,
+      body: siteDashboardFixture({ readOnly: false }),
+    },
+    "/api/site/students": ({ url }) => {
+      const parsed = new URL(url, "https://workspace.example");
+      return {
+        status: 200,
+        body: siteStudentsFixture({
+          filters: {
+            search: "",
+            programId: "",
+            status: parsed.searchParams.get("status") || "",
+            noMentor: parsed.searchParams.get("noMentor") === "true",
+            risk: parsed.searchParams.get("risk") || "any",
+            story: "",
+            presentationStatus: parsed.searchParams.get("presentationStatus") || "any",
+            archiveStatus: parsed.searchParams.get("archiveStatus") || "any",
+            limit: 50,
+            offset: 0,
+          },
+        }),
+      };
+    },
+  }, "students");
+
+  await vm.runInContext('openWorkspaceSection({ dataset: { section: "students", sectionPreset: "submitted-students" } })', context);
+  let studentFetch = fetchLog.findLast((entry) => entry.startsWith("/api/site/students?"));
+  assert.ok(studentFetch, "expected submitted Student Directory tile to reload directory");
+  let studentUrl = new URL(studentFetch, "https://workspace.example");
+  assert.equal(studentUrl.searchParams.get("status"), "submitted");
+  assert.equal(vm.runInContext("activeSection", context), "students");
+  assert.match(window.location.href, /section=students/);
+  assert.match(window.location.href, /status=submitted/);
+
+  await vm.runInContext('openWorkspaceSection({ dataset: { section: "students", sectionPreset: "revision-students" } })', context);
+  studentFetch = fetchLog.findLast((entry) => entry.startsWith("/api/site/students?"));
+  studentUrl = new URL(studentFetch, "https://workspace.example");
+  assert.equal(studentUrl.searchParams.get("status"), "revision_requested");
+  assert.match(window.location.href, /status=revision_requested/);
+
+  await vm.runInContext('openWorkspaceSection({ dataset: { section: "students", sectionPreset: "high-risk-students" } })', context);
+  studentFetch = fetchLog.findLast((entry) => entry.startsWith("/api/site/students?"));
+  studentUrl = new URL(studentFetch, "https://workspace.example");
+  assert.equal(studentUrl.searchParams.get("risk"), "high");
+  assert.match(window.location.href, /risk=high/);
+
+  await vm.runInContext('openWorkspaceSection({ dataset: { section: "students", sectionPreset: "presentation-pending-students" } })', context);
+  studentFetch = fetchLog.findLast((entry) => entry.startsWith("/api/site/students?"));
+  studentUrl = new URL(studentFetch, "https://workspace.example");
+  assert.equal(studentUrl.searchParams.get("presentationStatus"), "pending");
+  assert.match(window.location.href, /presentationStatus=pending/);
+
+  await vm.runInContext('openWorkspaceSection({ dataset: { section: "students", sectionPreset: "archive-ready-students" } })', context);
+  studentFetch = fetchLog.findLast((entry) => entry.startsWith("/api/site/students?"));
+  studentUrl = new URL(studentFetch, "https://workspace.example");
+  assert.equal(studentUrl.searchParams.get("archiveStatus"), "ready");
+  assert.match(window.location.href, /archiveStatus=ready/);
+
+  await vm.runInContext('openWorkspaceSection({ dataset: { section: "students", sectionPreset: "archive-failed-students" } })', context);
+  studentFetch = fetchLog.findLast((entry) => entry.startsWith("/api/site/students?"));
+  studentUrl = new URL(studentFetch, "https://workspace.example");
+  assert.equal(studentUrl.searchParams.get("archiveStatus"), "failed");
+  assert.match(window.location.href, /archiveStatus=failed/);
 });
 
 test("workspace opens real student detail, loads timeline, and preserves directory state", async () => {

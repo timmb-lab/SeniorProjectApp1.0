@@ -851,6 +851,72 @@ async function openWorkspaceSection(button) {
     await loadWorkspaceData("Showing students missing mentors.");
     return;
   }
+  if (section === "students" && button.dataset.sectionPreset === "submitted-students") {
+    siteStudentFilters = {
+      ...defaultSiteStudentFilters(),
+      status: "submitted",
+    };
+    siteStudentDetailState = defaultSiteStudentDetailState();
+    activeSection = "students";
+    syncSiteStudentUrlState();
+    await loadWorkspaceData("Showing students with submitted work.");
+    return;
+  }
+  if (section === "students" && button.dataset.sectionPreset === "revision-students") {
+    siteStudentFilters = {
+      ...defaultSiteStudentFilters(),
+      status: "revision_requested",
+    };
+    siteStudentDetailState = defaultSiteStudentDetailState();
+    activeSection = "students";
+    syncSiteStudentUrlState();
+    await loadWorkspaceData("Showing students who need revision follow-up.");
+    return;
+  }
+  if (section === "students" && button.dataset.sectionPreset === "high-risk-students") {
+    siteStudentFilters = {
+      ...defaultSiteStudentFilters(),
+      risk: "high",
+    };
+    siteStudentDetailState = defaultSiteStudentDetailState();
+    activeSection = "students";
+    syncSiteStudentUrlState();
+    await loadWorkspaceData("Showing high-risk students.");
+    return;
+  }
+  if (section === "students" && button.dataset.sectionPreset === "presentation-pending-students") {
+    siteStudentFilters = {
+      ...defaultSiteStudentFilters(),
+      presentationStatus: "pending",
+    };
+    siteStudentDetailState = defaultSiteStudentDetailState();
+    activeSection = "students";
+    syncSiteStudentUrlState();
+    await loadWorkspaceData("Showing students with presentation follow-up.");
+    return;
+  }
+  if (section === "students" && button.dataset.sectionPreset === "archive-ready-students") {
+    siteStudentFilters = {
+      ...defaultSiteStudentFilters(),
+      archiveStatus: "ready",
+    };
+    siteStudentDetailState = defaultSiteStudentDetailState();
+    activeSection = "students";
+    syncSiteStudentUrlState();
+    await loadWorkspaceData("Showing students ready for archive closeout.");
+    return;
+  }
+  if (section === "students" && button.dataset.sectionPreset === "archive-failed-students") {
+    siteStudentFilters = {
+      ...defaultSiteStudentFilters(),
+      archiveStatus: "failed",
+    };
+    siteStudentDetailState = defaultSiteStudentDetailState();
+    activeSection = "students";
+    syncSiteStudentUrlState();
+    await loadWorkspaceData("Showing students needing archive follow-up.");
+    return;
+  }
   if (section === "students" && button.dataset.sectionPreset === "program") {
     const programId = cleanDirectoryFilter(button.dataset.programId);
     if (!programId) return;
@@ -1366,13 +1432,13 @@ function renderSiteStudentDirectorySection() {
       </div>
       <div class="workspace-dashboard-grid">
         ${renderMetricTile("Students", summary.studentsTotal, `${safeNumber(pagination.returned)} shown now`, "admin")}
-        ${renderMetricTile("No Mentor", summary.noMentor, "Needs mentor coverage", safeNumber(summary.noMentor) ? "warning" : "mentor")}
-        ${renderMetricTile("Submitted", summary.submitted, "Teacher review queue signal", "teacher")}
-        ${renderMetricTile("Needs Revision", summary.revisionRequested, "Teacher follow-up", safeNumber(summary.revisionRequested) ? "warning" : "student")}
-        ${renderMetricTile("Presentation Pending", summary.presentationPending, "Readiness follow-up", "teacher")}
-        ${renderMetricTile("Archive Ready", summary.archiveReady, "Closeout candidates", "mentor")}
-        ${renderMetricTile("Archive Failed", summary.archiveFailed, "Export follow-up", safeNumber(summary.archiveFailed) ? "danger" : "admin")}
-        ${renderMetricTile("High Risk", summary.highRisk, "Prioritize outreach", safeNumber(summary.highRisk) ? "danger" : "admin")}
+        ${renderMetricTile("No Mentor", summary.noMentor, "Needs mentor coverage", safeNumber(summary.noMentor) ? "warning" : "mentor", "students", { label: "View students", preset: "missing-mentors" })}
+        ${renderMetricTile("Submitted", summary.submitted, "Teacher review queue signal", "teacher", "students", { label: "View students", preset: "submitted-students" })}
+        ${renderMetricTile("Needs Revision", summary.revisionRequested, "Teacher follow-up", safeNumber(summary.revisionRequested) ? "warning" : "student", "students", { label: "View students", preset: "revision-students" })}
+        ${renderMetricTile("Presentation Pending", summary.presentationPending, "Readiness follow-up", "teacher", "students", { label: "View students", preset: "presentation-pending-students" })}
+        ${renderMetricTile("Archive Ready", summary.archiveReady, "Closeout candidates", "mentor", "students", { label: "View students", preset: "archive-ready-students" })}
+        ${renderMetricTile("Archive Failed", summary.archiveFailed, "Export follow-up", safeNumber(summary.archiveFailed) ? "danger" : "admin", "students", { label: "View students", preset: "archive-failed-students" })}
+        ${renderMetricTile("High Risk", summary.highRisk, "Prioritize outreach", safeNumber(summary.highRisk) ? "danger" : "admin", "students", { label: "View students", preset: "high-risk-students" })}
       </div>
       ${renderStudentDirectoryOperatingPosture(readOnly)}
       ${renderStudentDirectoryFilterBar(directory)}

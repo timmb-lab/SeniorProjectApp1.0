@@ -76,6 +76,12 @@ const allowedPresets = new Map([
   ["mentor-workload", "mentorAssignments"],
   ["all-students", "students"],
   ["missing-mentors", "students"],
+  ["submitted-students", "students"],
+  ["revision-students", "students"],
+  ["high-risk-students", "students"],
+  ["presentation-pending-students", "students"],
+  ["archive-ready-students", "students"],
+  ["archive-failed-students", "students"],
   ["program", "students"],
   ["status-breakdown", "students"],
   ["submitted", "teacher"],
@@ -135,6 +141,46 @@ assertMatches(
   "workspaceJs",
   /section === "students" && button\.dataset\.sectionPreset === "missing-mentors"[\s\S]*noMentor: true[\s\S]*syncSiteStudentUrlState\(\)/,
   "missing-mentors drill-down must set the Student Directory missing mentor filter and sync URL state",
+);
+assertMatches(
+  "workspaceJs",
+  /section === "students" && button\.dataset\.sectionPreset === "submitted-students"[\s\S]*status: "submitted"[\s\S]*syncSiteStudentUrlState\(\)/,
+  "submitted-students drill-down must set the Student Directory submitted filter and sync URL state",
+);
+assertMatches(
+  "workspaceJs",
+  /section === "students" && button\.dataset\.sectionPreset === "revision-students"[\s\S]*status: "revision_requested"[\s\S]*syncSiteStudentUrlState\(\)/,
+  "revision-students drill-down must set the Student Directory revision filter and sync URL state",
+);
+assertMatches(
+  "workspaceJs",
+  /section === "students" && button\.dataset\.sectionPreset === "high-risk-students"[\s\S]*risk: "high"[\s\S]*syncSiteStudentUrlState\(\)/,
+  "high-risk-students drill-down must set the Student Directory risk filter and sync URL state",
+);
+assertMatches(
+  "workspaceJs",
+  /section === "students" && button\.dataset\.sectionPreset === "presentation-pending-students"[\s\S]*presentationStatus: "pending"[\s\S]*syncSiteStudentUrlState\(\)/,
+  "presentation-pending-students drill-down must set the Student Directory presentation filter and sync URL state",
+);
+assertMatches(
+  "workspaceJs",
+  /section === "students" && button\.dataset\.sectionPreset === "archive-ready-students"[\s\S]*archiveStatus: "ready"[\s\S]*syncSiteStudentUrlState\(\)/,
+  "archive-ready-students drill-down must set the Student Directory archive-ready filter and sync URL state",
+);
+assertMatches(
+  "workspaceJs",
+  /section === "students" && button\.dataset\.sectionPreset === "archive-failed-students"[\s\S]*archiveStatus: "failed"[\s\S]*syncSiteStudentUrlState\(\)/,
+  "archive-failed-students drill-down must set the Student Directory archive-failed filter and sync URL state",
+);
+assertMatches(
+  "workspaceJs",
+  /function renderSiteStudentDirectorySection\([\s\S]*renderMetricTile\("Submitted"[\s\S]*"students", \{ label: "View students", preset: "submitted-students" \}\)/,
+  "Student Directory Submitted summary must expose a real submitted filter action",
+);
+assertMatches(
+  "workspaceJs",
+  /function renderSiteStudentDirectorySection\([\s\S]*renderMetricTile\("High Risk"[\s\S]*"students", \{ label: "View students", preset: "high-risk-students" \}\)/,
+  "Student Directory High Risk summary must expose a real high-risk filter action",
 );
 assertMatches(
   "workspaceJs",

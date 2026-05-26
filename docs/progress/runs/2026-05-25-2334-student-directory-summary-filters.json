@@ -1,0 +1,72 @@
+{
+  "automationId": "functionality-ux-upgrade-hourly",
+  "runStartedAt": "2026-05-25T23:31:27-07:00",
+  "runCompletedAt": "2026-05-25T23:37:46-07:00",
+  "branch": "main",
+  "startingSha": "a8febedee6b942c4ce6fee6582dc25db38e52724",
+  "endingSha": null,
+  "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS",
+  "workOrderId": "student-directory-summary-filter-actions",
+  "selectedCandidate": "Student Directory summary filters",
+  "mvpRequirements": [
+    "MVP-032",
+    "MVP-041",
+    "MVP-045"
+  ],
+  "summary": "Student Directory summary tiles now filter the existing scoped directory for submitted, revision, high-risk, presentation-pending, archive-ready, and archive-failed student rows.",
+  "repoEvidence": [
+    "The Student Directory route already supported status, risk, presentationStatus, archiveStatus, and noMentor filters.",
+    "The Student Directory summary rendered No Mentor, Submitted, Needs Revision, Presentation Pending, Archive Ready, Archive Failed, and High Risk as summary-only tiles.",
+    "Existing URL-state helpers already persisted scoped Student Directory filters."
+  ],
+  "changes": [
+    "Added Student Directory summary tile actions for submitted, revision, high-risk, presentation-pending, archive-ready, and archive-failed filters.",
+    "Reused the existing scoped /api/site/students filter route and Student Directory URL sync.",
+    "Updated focused workspace coverage plus dashboard and navigation verifiers."
+  ],
+  "rolesAffected": [
+    "platform_admin",
+    "admin",
+    "org_admin",
+    "site_admin",
+    "viewer",
+    "program_teacher"
+  ],
+  "privacyAndPermissionNotes": [
+    "No auth, RBAC, tenant, site, program, mentor, or student visibility boundaries changed.",
+    "The actions only narrow the already authorized Student Directory result set.",
+    "No mutations, migrations, secrets/env files, Cloudflare/OAuth/domain config, deploys, or live data changed."
+  ],
+  "focusedValidation": [
+    "node --test tests/workspace-app.test.mjs",
+    "npm run verify:dashboard-actions",
+    "npm run verify:workspace-navigation"
+  ],
+  "finalValidation": [
+    "npm run verify:functionality-language",
+    "npm run verify:functionality-ux-automation",
+    "node --test tests/functionality-language-audit.test.mjs",
+    "npm run check:production-surfaces",
+    "npm run check:route-inventory",
+    "node -e JSON.parse automation/state/functionality-ux-growth-state.json and docs/progress/runs/2026-05-25-2334-student-directory-summary-filters.json",
+    "git diff --check",
+    "npm run test",
+    "npm run typecheck",
+    "npm run check"
+  ],
+  "validationStatus": "passed",
+  "commit": null,
+  "pushStatus": "not_pushed",
+  "deferred": [
+    "hosted-section-permission-proof",
+    "review-queue-missing-evidence-filter-semantics",
+    "public-route-visual-browser-qa"
+  ],
+  "nextRecommended": [
+    "Run hosted section-level permission proof when credentialed runtime is available.",
+    "Inspect Review Queue missing-evidence semantics before adding any new queue filter."
+  ],
+  "doNotRepeat": [
+    "Do not re-add Student Directory summary filter actions unless regression removes submitted-students, revision-students, high-risk-students, presentation-pending-students, archive-ready-students, or archive-failed-students presets."
+  ]
+}

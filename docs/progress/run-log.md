@@ -2191,3 +2191,14 @@ Future productive runs should append compact entries that name the master-plan s
 - `changes`: `functions/_lib/site-review-queue.ts` now accepts canonical `evidenceStatus=attached` and filters scoped queue rows with `evidence_count > 0`; `workspace.js` renders the metric with an `evidence-attached-review` preset, filter select, active-filter chip, URL parsing, and URL sync; focused route/UI tests and dashboard/navigation/deeplink verifiers guard the path.
 - `validation`: focused route/UI/verifier checks passed before final validation. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
 - `commit/push status`: pending closeout commit; not pushed by this automation run.
+
+## 2026-05-25 PT - Functionality UX Upgrade Student Directory Summary Filters
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 1 navigable dashboards / Student Directory filtered rows.
+- `starting HEAD`: `a8febedee6b942c4ce6fee6582dc25db38e52724`.
+- `selected slice`: Link Student Directory summary tiles to existing scoped directory filters.
+- `repo-grounded findings`: `/api/site/students` already supported status, risk, presentationStatus, archiveStatus, and noMentor filters with URL state, but the Student Directory summary rendered Submitted, Needs Revision, Presentation Pending, Archive Ready, Archive Failed, and High Risk as summary-only tiles.
+- `changes`: `workspace.js` now gives those summary tiles real `students` presets that narrow the existing directory; `tests/workspace-app.test.mjs` proves exact filter URLs and URL state; dashboard/navigation verifiers guard the presets.
+- `validation`: focused workspace test, dashboard action verifier, and workspace navigation verifier passed before final validation. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.
