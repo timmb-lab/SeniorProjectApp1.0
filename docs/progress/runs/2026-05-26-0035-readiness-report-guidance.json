@@ -1,0 +1,85 @@
+{
+  "runId": "2026-05-26-0035-readiness-report-guidance",
+  "automationId": "functionality-ux-upgrade-hourly",
+  "startedAt": "2026-05-26T00:35:26-07:00",
+  "branch": "main",
+  "startingSha": "78b4452f6db3f33e10a84b6323ccc1e3cdeb04d2",
+  "endingSha": null,
+  "originMain": "cfec0951f10f56ee19476b5384d18e4074cbfcd4",
+  "localAhead": 26,
+  "remoteAhead": 0,
+  "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+  "supportingLadderLevel": "LEVEL_0_PROTOTYPE_CLEANUP",
+  "workOrder": {
+    "id": "readiness-report-aggregate-scope-guidance",
+    "title": "Clarify aggregate Readiness report guidance",
+    "type": "TYPE_D_ROLE_WORKSPACE",
+    "selectedReason": "The misc-admin/admin Readiness surface still rendered raw API scope values such as aggregate_only and did not clearly explain the aggregate-only reporting boundary."
+  },
+  "candidateScores": [
+    { "candidate": "Readiness report aggregate-only guidance", "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES", "roles": "misc_admin, admin", "impact": 4, "safety": 5, "testability": 5, "size": "XS", "score": 54, "decision": "selected" },
+    { "candidate": "Hosted section-level permission proof", "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT", "roles": "all protected roles", "impact": 4, "safety": 4, "testability": 3, "size": "M", "score": 40, "decision": "blocked-credentialed-runtime" },
+    { "candidate": "Review Queue missing-evidence semantics", "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES", "roles": "site staff, program_teacher", "impact": 5, "safety": 3, "testability": 4, "size": "M", "score": 43, "decision": "deferred-product-semantics" },
+    { "candidate": "Student Directory missing-evidence filter", "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS", "roles": "site staff, viewer", "impact": 4, "safety": 2, "testability": 3, "size": "M", "score": 35, "decision": "deferred-missing-route-filter" },
+    { "candidate": "Viewer-specific overview depth", "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES", "roles": "viewer", "impact": 4, "safety": 4, "testability": 4, "size": "S", "score": 42, "decision": "rejected-read-only-copy-recently-hardened" },
+    { "candidate": "Operations provider-unavailable metric", "ladderLevel": "LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS", "roles": "site staff, viewer", "impact": 4, "safety": 3, "testability": 3, "size": "S", "score": 41, "decision": "rejected-needs-product-security-semantics" },
+    { "candidate": "Operations high-risk direct metric", "ladderLevel": "LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS", "roles": "site staff, viewer", "impact": 4, "safety": 5, "testability": 4, "size": "XS", "score": 50, "decision": "rejected-already-covered-by-risk-category" },
+    { "candidate": "Admin recent activity drill-down", "ladderLevel": "LEVEL_7_AUDITABILITY_AND_TRUST", "roles": "admin, site staff", "impact": 4, "safety": 3, "testability": 3, "size": "M", "score": 38, "decision": "rejected-permission-shape-needs-review" },
+    { "candidate": "Student guided requirement form", "ladderLevel": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN", "roles": "student", "impact": 5, "safety": 2, "testability": 3, "size": "L", "score": 32, "decision": "rejected-write-path-design-needed" },
+    { "candidate": "Staff archive retry/regenerate controls", "ladderLevel": "LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS", "roles": "site_admin", "impact": 5, "safety": 2, "testability": 3, "size": "M", "score": 34, "decision": "rejected-mutation-policy" },
+    { "candidate": "Downloadable student progress summary", "ladderLevel": "LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS", "roles": "student, staff", "impact": 4, "safety": 2, "testability": 3, "size": "L", "score": 31, "decision": "rejected-export-privacy-policy" },
+    { "candidate": "Org-admin tenant rollup", "ladderLevel": "LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS", "roles": "org_admin", "impact": 4, "safety": 2, "testability": 2, "size": "L", "score": 30, "decision": "blocked-backend-rbac-design" },
+    { "candidate": "Summary-only metric affordance styling", "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS", "roles": "staff, viewer", "impact": 3, "safety": 4, "testability": 3, "size": "S", "score": 39, "decision": "rejected-broader-visual-surface" }
+  ],
+  "changes": [
+    "workspace.js maps readiness report scope values to school-facing labels and adds aggregate-only guidance.",
+    "Readiness report metrics now include short purpose text and no longer say Exports Queued.",
+    "tests/workspace-app.test.mjs proves misc-admin readiness reporting does not render aggregate_only or student-detail controls.",
+    "scripts/verify-functionality-language.mjs guards against reintroducing the raw scope fallback render path."
+  ],
+  "filesChanged": [
+    "workspace.js",
+    "workspace.css",
+    "tests/workspace-app.test.mjs",
+    "scripts/verify-functionality-language.mjs",
+    "docs/functionality-language-audit.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/functionality-ux-growth-ledger.md",
+    "automation/state/functionality-ux-growth-state.json",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-26-0035-readiness-report-guidance.json"
+  ],
+  "validation": {
+    "focusedPassed": [
+      "node --test tests/workspace-app.test.mjs",
+      "npm run verify:functionality-language"
+    ],
+    "finalPassed": [
+      "npm run verify:dashboard-actions",
+      "npm run verify:workspace-navigation",
+      "npm run verify:functionality-ux-automation",
+      "node --test tests/functionality-language-audit.test.mjs",
+      "npm run check:production-surfaces",
+      "npm run check:route-inventory",
+      "node -e JSON.parse automation/state/functionality-ux-growth-state.json and docs/progress/runs/2026-05-26-0035-readiness-report-guidance.json",
+      "git diff --check",
+      "npm run test",
+      "npm run typecheck",
+      "npm run check"
+    ],
+    "status": "passed",
+    "notes": "git diff --check reported only CRLF normalization warnings."
+  },
+  "privacyAndPermissions": "No auth, RBAC, tenant, site, program, mentor-assignment, student privacy, migrations, secrets, Cloudflare/OAuth/deployment settings, or live data changed.",
+  "deferred": [
+    "hosted-section-permission-proof",
+    "hosted-workspace-account-state-proof",
+    "review-queue-missing-evidence-filter-semantics",
+    "student-directory-missing-evidence-filter",
+    "staff-archive-retry-regenerate-controls",
+    "operations-provider-unavailable-semantics",
+    "org-admin-tenant-rollup"
+  ],
+  "nextRecommended": "Run hosted section-level permission proof when credentialed runtime is available; otherwise inspect Review Queue missing-evidence semantics without implementing a fake queue filter.",
+  "doNotRepeat": "Do not re-clean aggregate Readiness report scope labels or metric-purpose copy unless regression reintroduces aggregate_only rendering or removes data-readiness-report=\"aggregate\" coverage."
+}

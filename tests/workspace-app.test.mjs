@@ -3835,6 +3835,47 @@ test("workspace keeps admin import setup output memory-only and gates non-admin 
   assert.doesNotMatch(nonAdminImport, /data-admin-action="import-users"/);
 });
 
+test("workspace renders readiness report with aggregate-only role guidance", async () => {
+  const readiness = await renderWorkspaceWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "readiness-viewer",
+          email: "readiness.viewer@example.edu",
+          displayName: "Readiness Viewer",
+          roles: [{ role_id: "misc_admin", scope_type: "reporting", scope_id: "alpha-readiness" }],
+        },
+      },
+    },
+    "/api/reports/readiness": {
+      status: 200,
+      body: {
+        ok: true,
+        scope: "aggregate_only",
+        report: {
+          submitted: 8,
+          revisionRequested: 3,
+          approved: 12,
+          evidence: 41,
+          exportsQueued: 2,
+        },
+      },
+    },
+  }, "readiness");
+
+  assert.match(readiness, /data-readiness-report="aggregate"/);
+  assert.match(readiness, /Aggregate Project Readiness/);
+  assert.match(readiness, /Aggregate reporting only/);
+  assert.match(readiness, /aggregate project activity only/);
+  assert.match(readiness, /does not open individual student records/);
+  assert.match(readiness, /Archive Packages Queued/);
+  assert.match(readiness, /Closeout packages waiting to finish/);
+  assert.doesNotMatch(readiness, /aggregate_only|Project Snapshot|Exports Queued/);
+  assert.doesNotMatch(readiness, /data-admin-action="import-users"|View student detail/);
+});
+
 test("workspace renders presentation schedule and day-of actions", async () => {
   const presentation = await renderWorkspaceWithFetch({
     "/api/auth/me": {

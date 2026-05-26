@@ -4728,29 +4728,39 @@ function renderMentorSection() {
 function renderReadinessSection() {
   const result = currentData.readiness;
   if (result?.status === 403) {
-    return renderPermissionDeniedSection("Readiness report", "aggregate project reporting");
+    return renderPermissionDeniedSection("Readiness report", "aggregate readiness reporting");
   }
   const body = unwrap(result);
-  const report = body?.report || {};
+  const report = body?.report || body?.metrics || {};
+  const scopeLabel = readinessScopeLabel(body?.scope);
   return `
-    <section class="workspace-card">
+    <section class="workspace-card" data-readiness-report="aggregate">
       <div class="workspace-card-head">
         <div>
-          <p class="workspace-kicker">Readiness</p>
-          <h2>Project Snapshot</h2>
+          <p class="workspace-kicker">Readiness reporting</p>
+          <h2>Aggregate Project Readiness</h2>
         </div>
-        <span class="workspace-chip">${escapeHtml(body?.scope || "aggregate")}</span>
+        <span class="workspace-chip">${escapeHtml(scopeLabel)}</span>
       </div>
       ${renderApiNotice(result)}
+      <p class="workspace-muted">This report shows aggregate project activity only. It does not open individual student records; school staff handle student follow-up in their assigned workspaces.</p>
       <div class="workspace-grid">
-        ${metric("Submitted", report.submitted || 0)}
-        ${metric("Needs Revision", report.revisionRequested || 0)}
-        ${metric("Approved", report.approved || 0)}
-        ${metric("Evidence", report.evidence || 0)}
-        ${metric("Exports Queued", report.exportsQueued || 0)}
+        ${metric("Submitted", report.submitted || 0, "Work waiting for teacher review")}
+        ${metric("Needs Revision", report.revisionRequested || 0, "Follow-up requested by reviewers")}
+        ${metric("Approved", report.approved || 0, "Work marked complete")}
+        ${metric("Evidence", report.evidence || 0, "Attached project evidence")}
+        ${metric("Archive Packages Queued", report.exportsQueued || 0, "Closeout packages waiting to finish")}
       </div>
     </section>
   `;
+}
+
+function readinessScopeLabel(scope) {
+  const normalized = normalizeStatus(scope);
+  if (normalized === "aggregate_only") return "Aggregate reporting only";
+  if (normalized === "all_programs") return "All programs";
+  if (!normalized || normalized === "aggregate") return "Aggregate reporting";
+  return statusText(normalized);
 }
 
 function renderSecuritySection() {
@@ -6392,11 +6402,12 @@ function nextStepText() {
   return "Ask your instructor to confirm your workspace role.";
 }
 
-function metric(label, value) {
+function metric(label, value, detail = "") {
   return `
     <article class="workspace-metric">
       <strong>${escapeHtml(value)}</strong>
       <span>${escapeHtml(label)}</span>
+      ${detail ? `<small>${escapeHtml(detail)}</small>` : ""}
     </article>
   `;
 }

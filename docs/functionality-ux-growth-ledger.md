@@ -3386,3 +3386,55 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: hosted permission/browser proof still needs credentialed runtime; missing-evidence filters need product-safe semantics.
   - Do not repeat: Student Directory filter-specific empty states are complete for current supported filters.
   - First file to inspect next run: `scripts/check-workspace-hosted-permissions.mjs` if credentials/runtime are available; otherwise `functions/_lib/site-review-queue.ts` `buildFilterWhere()`
+
+## Run 2026-05-26 00:35 PT
+
+- Starting SHA: `78b4452f6db3f33e10a84b6323ccc1e3cdeb04d2`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Branch policy: work stayed on clean local `main`; local `main` was twenty-six commits ahead of `origin/main`, `origin/main` was not ahead, and no push was run
+- Ladder level targeted: `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` with `LEVEL_0_PROTOTYPE_CLEANUP` reporting-language support
+- Backlog item: `readiness-report-aggregate-scope-guidance`; supports `MVP-019` narrow reporting view and dashboard/reporting clarity
+- Work order selected: Clarify aggregate Readiness report scope and metric guidance for `misc_admin`/admin reporting users.
+- Selection reason: Current source still rendered the raw readiness API scope fallback (`body?.scope || "aggregate"`), which could display `aggregate_only` to reporting users, and the report did not state that it does not open individual student records. This was safer than new filters, exports, or reporting routes because it only improves an existing allowed read-only surface.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Readiness report aggregate-only guidance | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | misc_admin, admin | 4 | 5 | 5 | XS | 54 | selected |
+| Hosted section-level permission proof | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all protected roles | 4 | 4 | 3 | M | 40 | blocked: credentialed runtime |
+| Review Queue missing-evidence semantics | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | site staff, program_teacher | 5 | 3 | 4 | M | 43 | deferred: product semantics |
+| Student Directory missing-evidence filter | `LEVEL_1_NAVIGABLE_DASHBOARDS` | site staff, viewer | 4 | 2 | 3 | M | 35 | deferred: route filter missing |
+| Viewer-specific overview depth | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | viewer | 4 | 4 | 4 | S | 42 | rejected: read-only copy recently hardened |
+| Operations provider-unavailable metric | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | site staff, viewer | 4 | 3 | 3 | S | 41 | rejected: needs product/security semantics |
+| Operations high-risk direct metric | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | site staff, viewer | 4 | 5 | 4 | XS | 50 | rejected: risk category already covers path |
+| Admin recent activity drill-down | `LEVEL_7_AUDITABILITY_AND_TRUST` | admin, site staff | 4 | 3 | 3 | M | 38 | rejected: permission shape needs review |
+| Student guided requirement form | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 5 | 2 | 3 | L | 32 | rejected: write-path design needed |
+| Staff archive retry/regenerate controls | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | site_admin | 5 | 2 | 3 | M | 34 | rejected: mutation policy |
+| Downloadable student progress summary | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | student, staff | 4 | 2 | 3 | L | 31 | rejected: export/privacy policy |
+| Org-admin tenant rollup | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | org_admin | 4 | 2 | 2 | L | 30 | blocked: backend/RBAC design |
+| Summary-only metric affordance styling | `LEVEL_1_NAVIGABLE_DASHBOARDS` | staff, viewer | 3 | 4 | 3 | S | 39 | rejected: broader visual surface |
+
+- User-facing improvement: Reporting users now see `Aggregate reporting only`, a clear no-individual-student-records boundary, and purpose text for submitted, revision, approved, evidence, and archive-package counts.
+- Roles affected: `misc_admin` and `admin`; no student, mentor, viewer, teacher, tenant, site, program, or record visibility was broadened.
+- Files changed: `workspace.js`, `workspace.css`, `tests/workspace-app.test.mjs`, `scripts/verify-functionality-language.mjs`, `docs/functionality-language-audit.md`, `docs/mvp-requirements-catalog.md`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`, `docs/progress/run-log.md`, `docs/progress/runs/2026-05-26-0035-readiness-report-guidance.json`
+- Tests/verifiers added or updated: workspace coverage proves the report renders aggregate-only guidance, blocks raw `aggregate_only`, and keeps student-detail/admin-import controls absent; language verifier blocks reintroducing the raw scope fallback.
+- Validation commands:
+  - Focused passed before docs/state closeout: `node --test tests/workspace-app.test.mjs`; `npm run verify:functionality-language`
+  - Final passed: `npm run verify:dashboard-actions`; `npm run verify:workspace-navigation`; `npm run verify:functionality-ux-automation`; `node --test tests/functionality-language-audit.test.mjs`; `npm run check:production-surfaces`; `npm run check:route-inventory`; JSON parse for state and manifest; `git diff --check`; `npm run test`; `npm run typecheck`; `npm run check`
+- Validation result: passed; `git diff --check` reported only CRLF normalization warnings, with no whitespace errors.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: hosted section-level permission proof, hosted account-state/no-assignment proof, Review Queue missing-evidence semantics, Student Directory missing-evidence filter, staff archive retry/regenerate controls, provider-unavailable route semantics, and org rollups remain deferred.
+- New backlog items: none
+- Next recommended work order: run hosted section-level permission proof when credentialed runtime is available; otherwise inspect Review Queue missing-evidence semantics without implementing a fake queue filter.
+- Do-not-repeat notes: do not re-clean the aggregate Readiness report scope label or metric-purpose copy unless regression reintroduces `aggregate_only` rendering or removes `data-readiness-report="aggregate"` coverage.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_4_ROLE_SPECIFIC_WORKSPACES`
+  - Advanced: yes
+  - Evidence: Readiness report renders aggregate-only guidance and focused tests/verifier block raw scope fallback regression.
+  - Unlocks: Reporting Viewer/misc-admin role feels intentionally narrow instead of like an internal aggregate endpoint.
+  - Next: hosted section-level permission proof, or Review Queue missing-evidence semantics only after product-safe queue behavior is clear.
+  - Blockers: hosted permission/browser proof still needs credentialed runtime; missing-evidence filters need product-safe semantics.
+  - Do not repeat: aggregate Readiness report copy is complete unless regression evidence appears.
+  - First file to inspect next run: `scripts/check-workspace-hosted-permissions.mjs` if credentials/runtime are available; otherwise `functions/_lib/site-review-queue.ts` `buildFilterWhere()`

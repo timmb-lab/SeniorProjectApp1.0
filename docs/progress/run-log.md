@@ -2213,3 +2213,14 @@ Future productive runs should append compact entries that name the master-plan s
 - `changes`: `workspace.js` now centralizes Student Directory empty-state copy and names submitted work, revision follow-up, high-risk, presentation, archive, program, search, and missing-mentor no-match states without changing route filters or permissions. `tests/workspace-app.test.mjs` covers unfiltered, submitted, and archive-failed empty states.
 - `validation`: focused workspace test plus functionality-language, dashboard-action, and workspace-navigation verifiers passed before final validation. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
 - `commit/push status`: pending closeout commit; not pushed by this automation run.
+
+## 2026-05-26 PT - Functionality UX Upgrade Readiness Report Guidance
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 4 role-specific workspaces / aggregate reporting clarity.
+- `starting HEAD`: `78b4452f6db3f33e10a84b6323ccc1e3cdeb04d2`.
+- `selected slice`: Clarify the aggregate Readiness report for `misc_admin`/admin reporting users.
+- `repo-grounded findings`: `workspace.js` rendered the readiness API scope fallback directly as `body?.scope || "aggregate"`, so the `/api/reports/readiness` value `aggregate_only` could appear in normal UI. The report also showed bare counts without explaining that it is aggregate-only and does not open individual student records.
+- `changes`: `workspace.js` now maps readiness scope values to school-facing labels, renders `Aggregate reporting only`, adds metric-purpose text, and states that individual student follow-up stays in assigned school workspaces. `tests/workspace-app.test.mjs` proves raw `aggregate_only` and student-detail controls are absent, and the language verifier guards the raw fallback path.
+- `validation`: focused workspace test and functionality-language verifier passed before final validation. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.

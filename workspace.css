@@ -675,6 +675,11 @@
   line-height: 1;
 }
 
+.workspace-metric small {
+  color: var(--text-muted);
+  line-height: 1.35;
+}
+
 .workspace-list {
   display: grid;
   gap: 0.65rem;

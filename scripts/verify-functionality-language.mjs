@@ -177,6 +177,10 @@ const hardFailures = [
     message: "Operations archive rows should render school-facing storage status labels, not raw provider status values.",
   },
   {
+    pattern: /body\?\.scope\s*\|\|\s*["']aggregate["']/i,
+    message: "Readiness reports should map raw API scope values to school-facing reporting labels.",
+  },
+  {
     pattern: /\bhref=(['"])#\1/i,
     message: "Protected workspace must not include dead hash links.",
   },
