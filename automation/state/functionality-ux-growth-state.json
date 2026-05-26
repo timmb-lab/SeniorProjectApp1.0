@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-05-25T18:04:51-07:00",
-  "lastStartingSha": "179d01308a96c41812f3e6389d96d2298c12aeac",
+  "lastRunAt": "2026-05-25T19:04:37-07:00",
+  "lastStartingSha": "d2c6070a8c255f0099ba7e7fd0a0948e8278a1f5",
   "lastEndingSha": null,
   "currentLadderFocus": "LEVEL_1_NAVIGABLE_DASHBOARDS",
   "completedWorkOrders": [
@@ -545,6 +545,14 @@
       "type": "TYPE_B_DASHBOARD_CLICK_THROUGH",
       "summary": "Site Dashboard presentation/archive snapshot rows now open exact scoped Operations filters for supported statuses while unsupported raw statuses remain summary-only.",
       "commit": "pending-closeout-commit"
+    },
+    {
+      "id": "operations-check-in-needed-filter",
+      "completedAt": "2026-05-25T19:04:37-07:00",
+      "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS",
+      "type": "TYPE_B_DASHBOARD_CLICK_THROUGH",
+      "summary": "Operations Check-In Needed now opens the existing scoped presentationStatus=attention_required worklist for checked-out presentations needing follow-up.",
+      "commit": "pending-closeout-commit"
     }
   ],
   "deferredWorkOrders": [
@@ -662,19 +670,21 @@
     "Do not re-add public phase-page teacher/mentor support checks unless regression removes data-phase-teacher-support or How Adults Can Support This Step from source/generated output.",
     "Do not re-add public template/portfolio/rubric/grade responsibility panels unless regression removes data-public-page-responsibilities or the remaining-page responsibility test.",
     "Do not re-add Program Teacher dashboard Submitted/Needs Revision Review Queue presets unless regression removes preset: \"submitted\" or preset: \"revision-requested\" from renderProgramTeacherDashboardSection().",
-    "Do not re-add Site Dashboard snapshot-row Operations filters unless regression removes presentation-snapshot/archive-snapshot handling or the exact-status summary-only guard."
+    "Do not re-add Site Dashboard snapshot-row Operations filters unless regression removes presentation-snapshot/archive-snapshot handling or the exact-status summary-only guard.",
+    "Do not re-add the Operations Check-In Needed metric unless regression removes the presentation-attention preset or presentationStatus=attention_required route proof."
   ],
   "lastValidationStatus": {
     "status": "passed",
-    "completedAt": "2026-05-25T18:04:51-07:00",
+    "completedAt": "2026-05-25T19:04:37-07:00",
     "commands": [
+      "node --test tests/site-operations-readiness.integration.test.mjs",
       "node --test tests/workspace-app.test.mjs",
       "npm run verify:dashboard-actions",
       "npm run verify:workspace-navigation",
       "npm run verify:functionality-language",
       "npm run verify:functionality-ux-automation",
       "node --test tests/functionality-language-audit.test.mjs",
-      "node -e JSON.parse automation/state/functionality-ux-growth-state.json and docs/progress/runs/2026-05-25-1804-site-dashboard-snapshot-row-filters.json",
+      "node -e JSON.parse automation/state/functionality-ux-growth-state.json and docs/progress/runs/2026-05-25-1904-operations-check-in-needed-filter.json",
       "git diff --check",
       "npm run check:route-inventory",
       "npm run check:production-surfaces",
@@ -682,7 +692,7 @@
       "npm run typecheck",
       "npm run check"
     ],
-    "notes": "Full validation passed for Site Dashboard snapshot-row Operations filters. git diff --check reported only CRLF normalization warnings. This run changes protected workspace dashboard actions, focused workspace/dashboard verifier coverage, and run records only; it does not change auth role grants, tenant/site/program/student privacy boundaries, migrations, secrets/env files, Cloudflare/OAuth/domain config, deploy settings, or live data."
+    "notes": "Full validation passed for the Operations Check-In Needed filter. git diff --check reported only CRLF normalization warnings. This run changes protected workspace dashboard actions, focused route/UI/dashboard verifier coverage, and run records only; it does not change auth role grants, tenant/site/program/student privacy boundaries, migrations, secrets/env files, Cloudflare/OAuth/domain config, deploy settings, or live data."
   },
   "lastProductReadinessScorecardSummary": {
     "homepageClarity": "4 to 4",

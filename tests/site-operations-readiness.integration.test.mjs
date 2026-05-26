@@ -117,6 +117,11 @@ test("site operations readiness route is scoped, read-only, audited, bounded, an
   assert.equal(presentationPending.presentation.rows.some((row) => /^Presentation Pending Demo/i.test(row.studentName)), true);
   assert.equal(presentationPending.presentation.rows.every((row) => ["pending", "outline_pending", "outline_revision_needed", "attention_required"].includes(row.presentationStatus)), true);
 
+  const presentationAttention = await expectOperations(env, tokens.siteAdminPrimary, `?siteId=${PRIMARY_SITE_ID}&presentationStatus=attention_required&limit=100`);
+  assert.equal(presentationAttention.pagination.filteredTotal > 0, true);
+  assert.equal(presentationAttention.presentation.rows.every((row) => row.presentationStatus === "attention_required"), true);
+  assert.equal(presentationAttention.presentation.rows.some((row) => row.checkInStatus === "checked_out"), true);
+
   const outlineAttention = await expectOperations(env, tokens.siteAdminPrimary, `?siteId=${PRIMARY_SITE_ID}&outlineAttention=true&limit=100`);
   assert.equal(outlineAttention.filters.outlineAttention, true);
   assert.equal(outlineAttention.pagination.filteredTotal, outlineAttention.summary.outlinePending);
@@ -178,7 +183,7 @@ test("site operations readiness route is scoped, read-only, audited, bounded, an
   assert.equal(detail.response.status, 200);
   assert.equal(detail.body.student.studentId, richStudentId);
 
-  for (const body of [platform, secondary, legacy, org, siteAdmin, viewer, teacher, archiveFailed, archiveReady, presentationPending, outlineAttention, highRisk, archiveCategory, needsAttention, evidenceMissing, paged, offset, capped, richTimeline, detail.body]) {
+  for (const body of [platform, secondary, legacy, org, siteAdmin, viewer, teacher, archiveFailed, archiveReady, presentationPending, presentationAttention, outlineAttention, highRisk, archiveCategory, needsAttention, evidenceMissing, paged, offset, capped, richTimeline, detail.body]) {
     assert.doesNotMatch(JSON.stringify(body), FORBIDDEN_RESPONSE_FIELDS);
   }
 

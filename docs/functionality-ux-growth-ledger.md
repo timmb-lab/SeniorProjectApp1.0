@@ -2819,3 +2819,55 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: hosted permission/browser proof still needs credentialed runtime; missing-evidence Review Queue filters need backend/privacy support; exports and staff scheduling controls need policy decisions.
   - Do not repeat: do not re-add snapshot-row filters unless regression evidence appears.
   - First file to inspect next run: `workspace.js` `renderOperationsReadinessSection()` and `functions/_lib/site-operations-readiness.ts`
+
+## Run 2026-05-25 19:04 PT
+
+- Starting SHA: `d2c6070a8c255f0099ba7e7fd0a0948e8278a1f5`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Branch policy: work stayed on clean local `main`; local `main` was fifteen commits ahead of `origin/main`, `origin/main` was not ahead, and no push was run
+- Ladder level targeted: `LEVEL_1_NAVIGABLE_DASHBOARDS` with `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` day-of transition support and `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` verifier coverage
+- Backlog item: `operations-check-in-needed-filter`; advances dashboard/reporting evidence in `MVP-015`
+- Work order selected: Add an Operations `Check-In Needed` metric that opens the existing scoped `presentationStatus=attention_required` worklist.
+- Selection reason: The previous handoff named Operations stale/conflict transition checks. Current source showed `/api/site/operations-readiness` already supports exact `attention_required` presentation filtering, seeded data includes checked-out presentations needing check-in, and the workspace only exposed that work through broader presentation/attention filters.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Operations Check-In Needed filter | `LEVEL_1_NAVIGABLE_DASHBOARDS` | site staff, viewer, program_teacher | 5 | 5 | 5 | XS | 58 | selected |
+| Operations check-in verifier guard | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | site staff | 3 | 5 | 5 | XS | 52 | included |
+| Operations stale-risk guidance | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | site staff, viewer | 4 | 4 | 4 | S | 46 | rejected: useful next, but check-in filter had exact route support now |
+| Operations archive expiring filter | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | site staff | 4 | 4 | 4 | S | 44 | rejected: needs seed/fixture proof for expiring windows |
+| Operations queued/running archive filter tile | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | site staff | 3 | 4 | 4 | S | 42 | rejected: lower urgency than day-of check-in |
+| Hosted section-level permission proof | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all protected roles | 4 | 4 | 3 | M | 40 | blocked: credentialed hosted runtime dependency |
+| Public route desktop/mobile visual QA | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | public students, teachers | 3 | 4 | 3 | M | 40 | rejected: no source defect found before browser proof |
+| Review Queue missing-evidence filter | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | site staff, program_teacher | 5 | 2 | 3 | M | 37 | deferred: backend/privacy support still missing |
+| Student Directory missing-evidence filter | `LEVEL_1_NAVIGABLE_DASHBOARDS` | site staff, viewer | 4 | 2 | 3 | M | 35 | deferred: exact route filter missing |
+| Staff presentation check-in controls | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | program_teacher, site_admin | 5 | 2 | 3 | M | 35 | rejected: mutation/control policy outside this lane |
+| Mentor scheduled-date semantics | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | mentor | 3 | 3 | 4 | S | 42 | rejected: scheduling semantics need policy |
+| Downloadable student progress summary | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | student, staff | 4 | 2 | 3 | L | 31 | rejected: export/privacy policy needed |
+| Org-admin tenant rollup | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | org_admin | 4 | 2 | 2 | L | 30 | blocked: backend aggregate and RBAC design needed |
+
+- User-facing improvement: Staff and read-only viewers can now open a precise Operations worklist for presentations that were checked out but still need check-in follow-up, instead of hunting through broader presentation or attention queues.
+- Roles affected: `site_admin`, `org_admin`/site-scoped administration users, `viewer` read-only staff, and `program_teacher` scoped staff; no student, mentor, tenant, site, program, or record visibility was broadened.
+- Files changed: `workspace.js`, `tests/workspace-app.test.mjs`, `tests/site-operations-readiness.integration.test.mjs`, `scripts/verify-dashboard-actions.mjs`, `scripts/verify-workspace-navigation-integrity.mjs`, `docs/functionality-language-audit.md`, `docs/mvp-requirements-catalog.md`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`, `docs/progress/run-log.md`, `docs/progress/runs/2026-05-25-1904-operations-check-in-needed-filter.json`
+- Tests/verifiers added or updated: route test proves `presentationStatus=attention_required` returns scoped checked-out rows; workspace test proves the new metric and URL/filter behavior; dashboard and navigation verifiers register the preset.
+- Validation commands:
+  - Baseline/focused passed: `node --test tests/site-operations-readiness.integration.test.mjs`; `node --test tests/workspace-app.test.mjs`; `npm run verify:dashboard-actions`; `npm run verify:workspace-navigation`; `npm run verify:functionality-language`
+  - Final passed: `npm run verify:functionality-ux-automation`; `node --test tests/functionality-language-audit.test.mjs`; JSON parse for state and manifest; `git diff --check`; `npm run check:route-inventory`; `npm run check:production-surfaces`; `npm run test`; `npm run typecheck`; `npm run check`
+- Validation result: passed; `git diff --check` reported only CRLF normalization warnings, with no whitespace errors.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: hosted section-level permission proof, public-route visual QA, Review Queue/Student Directory missing-evidence filters, export-style progress summaries, staff presentation mutation controls, deeper stale-risk guidance, and org rollups remain deferred.
+- New backlog items: inspect Operations stale-risk rows for exact route-backed stale-activity guidance or safer active-filter copy.
+- Next recommended work order: inspect Operations stale/high-risk rows for exact route-backed stale-activity guidance, or run hosted section-level permission proof when credentialed runtime is available.
+- Do-not-repeat notes: do not re-add the Operations `Check-In Needed` metric unless regression removes the `presentation-attention` preset or `presentationStatus=attention_required` route proof.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_1_NAVIGABLE_DASHBOARDS`
+  - Advanced: yes
+  - Evidence: Operations now exposes a precise `Check-In Needed` metric backed by the existing scoped `presentationStatus=attention_required` filter, with route/UI/verifier coverage.
+  - Unlocks: next Operations work can focus on stale-risk explanation, archive expiration windows, or hosted permission proof instead of basic day-of check-in discoverability.
+  - Next: inspect stale/high-risk Operations rows for exact stale-activity filter guidance.
+  - Blockers: hosted permission/browser proof still needs credentialed runtime; missing-evidence Review Queue filters need backend/privacy support; exports and staff scheduling/check-in controls need policy decisions.
+  - Do not repeat: do not re-add the check-in metric unless regression evidence appears.
+  - First file to inspect next run: `workspace.js` `renderOperationsReadinessSection()` and `functions/_lib/site-operations-readiness.ts` `readinessFor()`

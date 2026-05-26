@@ -79,6 +79,7 @@ assertMatches("workspaceJs", /sectionPreset === "program"[\s\S]*siteStudentFilte
 assertMatches("workspaceJs", /sectionPreset === "status-breakdown"[\s\S]*siteStudentFilters = [\s\S]*status/, "Status Breakdown rows must open Student Directory with a status filter");
 assertMatches("workspaceJs", /sectionPreset === "mentor-workload"[\s\S]*mentorAssignmentFilters = [\s\S]*mentorUserId/, "Mentor workload rows must open Mentor Assignments with a mentor filter");
 assertMatches("workspaceJs", /sectionPreset === "presentation-pending"[\s\S]*presentationStatus: "pending"/, "Presentation dashboard preset must open Operations with a supported filter");
+assertMatches("workspaceJs", /sectionPreset === "presentation-attention"[\s\S]*presentationStatus: "attention_required"/, "Check-In Needed dashboard preset must open Operations with the supported presentation attention filter");
 assertMatches("workspaceJs", /sectionPreset === "archive-failed"[\s\S]*archiveStatus: "failed"/, "Archive dashboard preset must open Operations with a supported filter");
 assertMatches("workspaceJs", /sectionPreset === "needs-attention"[\s\S]*needsAttention: true/, "Needs Attention dashboard preset must open Operations with a supported attention filter");
 assertMatches("workspaceJs", /sectionPreset === "outline-pending"[\s\S]*outlineAttention: true/, "Outline Pending dashboard preset must open Operations with a supported outline filter");

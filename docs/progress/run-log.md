@@ -21,6 +21,17 @@ This is the compact run log for the current Functionality UX Upgrade automation 
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-05-25 19:04 PT - Functionality UX Upgrade Operations Check-In Filter
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 1 navigable dashboards / Operations day-of presentation drill-downs.
+- `starting HEAD`: `d2c6070a8c255f0099ba7e7fd0a0948e8278a1f5`.
+- `selected slice`: Add an Operations `Check-In Needed` dashboard metric that opens the existing `presentationStatus=attention_required` worklist.
+- `repo-grounded findings`: the prior handoff named Operations stale/conflict transition checks. Current `/api/site/operations-readiness` already supports `presentationStatus=attention_required`, seeded data includes checked-out presentation rows, and the workspace only exposed those rows through broader presentation or attention filters.
+- `changes`: `workspace.js` now renders a route-backed `Check-In Needed` metric and preset; route/UI tests prove the filter opens scoped checked-out rows, and dashboard/navigation verifiers register the preset.
+- `validation`: focused route, workspace, dashboard-action, workspace-navigation, and functionality-language checks passed before final validation. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.
+
 ## 2026-05-25 18:04 PT - Functionality UX Upgrade Site Dashboard Snapshot Filters
 
 - `automation ID`: functionality-ux-upgrade-hourly.

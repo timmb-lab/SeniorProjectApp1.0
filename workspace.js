@@ -906,6 +906,15 @@ async function openWorkspaceSection(button) {
     await loadOperationsReadinessResult("Showing presentation readiness follow-up.");
     return;
   }
+  if (section === "operations" && button.dataset.sectionPreset === "presentation-attention") {
+    operationsReadinessFilters = {
+      ...defaultOperationsReadinessFilters(),
+      presentationStatus: "attention_required",
+    };
+    syncOperationsReadinessUrlState();
+    await loadOperationsReadinessResult("Showing presentation check-in follow-up.");
+    return;
+  }
   if (section === "operations" && button.dataset.sectionPreset === "archive-failed") {
     operationsReadinessFilters = {
       ...defaultOperationsReadinessFilters(),
@@ -2862,6 +2871,7 @@ function renderOperationsReadinessSection() {
       <div class="workspace-dashboard-grid">
         ${renderMetricTile("Presentation Ready", summary.presentationReady, "Ready or complete signals", "teacher")}
         ${renderMetricTile("Presentation Pending", summary.presentationPending, "Outline or schedule attention", safeNumber(summary.presentationPending) ? "warning" : "teacher", "operations", { label: "Review rows", preset: "presentation-pending" })}
+        ${renderMetricTile("Check-In Needed", presentation.summary?.attentionRequired, "Presentation checked out but not checked in", safeNumber(presentation.summary?.attentionRequired) ? "danger" : "teacher", "operations", { label: "Review rows", preset: "presentation-attention" })}
         ${renderMetricTile("Outline Pending", summary.outlinePending, "Needs outline approval", safeNumber(summary.outlinePending) ? "warning" : "teacher", "operations", { label: "Review rows", preset: "outline-pending" })}
         ${renderMetricTile("Archive Ready", summary.archiveReady, "Ready or complete package state", "mentor")}
         ${renderMetricTile("Archive Failed", summary.archiveFailed, "Needs archive follow-up", safeNumber(summary.archiveFailed) ? "danger" : "admin", "operations", { label: "Review rows", preset: "archive-failed" })}
