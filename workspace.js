@@ -906,6 +906,16 @@ async function openWorkspaceSection(button) {
     await loadReviewQueueResult("Showing high-risk review work.");
     return;
   }
+  if (section === "teacher" && button.dataset.sectionPreset === "stale-review") {
+    reviewQueueFilters = {
+      ...defaultReviewQueueFilters(),
+      risk: "stale",
+    };
+    reviewQueueState = defaultReviewQueueState();
+    syncReviewQueueUrlState();
+    await loadReviewQueueResult("Showing review work with stale activity.");
+    return;
+  }
   if (section === "operations" && button.dataset.sectionPreset === "presentation-pending") {
     operationsReadinessFilters = {
       ...defaultOperationsReadinessFilters(),
@@ -4154,6 +4164,7 @@ function renderTeacherSection() {
         ${renderMetricTile("Needs Revision", summary.revisionRequested, "Open revision loops", "warning")}
         ${renderMetricTile("Evidence Attached", summary.evidenceAttached, "Private evidence summaries", "admin")}
         ${renderMetricTile("High Risk", summary.highRisk, "Prioritize follow-up", safeNumber(summary.highRisk) ? "danger" : "admin", "teacher", { label: "Review rows", preset: "high-risk" })}
+        ${renderMetricTile("Stale Activity", summary.overdueOrStale, "Check-ins may be needed", safeNumber(summary.overdueOrStale) ? "warning" : "admin", "teacher", { label: "Review rows", preset: "stale-review" })}
       </div>
       ${renderReviewQueueFilters(body)}
       ${renderReviewQueueActiveFilters(filters, body?.filterOptions || {})}

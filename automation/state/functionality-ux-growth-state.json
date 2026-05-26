@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-05-25T21:36:12-07:00",
-  "lastStartingSha": "97cd2fb0d8c2b103f743b83eb9dfd6e6faa076f3",
+  "lastRunAt": "2026-05-25T22:03:22-07:00",
+  "lastStartingSha": "393c5026fecac98b72daec5f832c7bfb1c770ddd",
   "lastEndingSha": null,
   "currentLadderFocus": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
   "completedWorkOrders": [
@@ -593,6 +593,14 @@
       "type": "TYPE_F_REVIEW_INTERVENTION_QUEUE",
       "summary": "Review Queue High Risk now opens the existing scoped risk=high worklist with URL state.",
       "commit": "pending-closeout-commit"
+    },
+    {
+      "id": "review-queue-stale-activity-filter-action",
+      "completedAt": "2026-05-25T22:03:22-07:00",
+      "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
+      "type": "TYPE_F_REVIEW_INTERVENTION_QUEUE",
+      "summary": "Review Queue Stale Activity now opens the existing scoped risk=stale worklist with URL state.",
+      "commit": "pending-closeout-commit"
     }
   ],
   "deferredWorkOrders": [
@@ -628,7 +636,7 @@
       "id": "review-queue-exact-filter-gap-inspection",
       "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
       "type": "TYPE_F_REVIEW_INTERVENTION_QUEUE",
-      "summary": "Inspect visible Review Queue summaries for another exact existing route filter before adding backend filters."
+      "summary": "Inspect whether Review Queue no-mentor summary counts are worth adding before backend filters."
     },
     {
       "id": "hosted-section-permission-proof",
@@ -716,11 +724,12 @@
     "Do not re-add the Operations Archive In Progress metric unless regression removes the archive-in-progress preset or archiveStatus=in_progress queued/running route proof.",
     "Do not re-add the Operations Archive Expiring Soon or Archive Expired metrics unless regression removes the archive-expiring-soon/archive-expired presets or archiveStatus=expiring_soon/archiveStatus=expired route proof.",
     "Do not re-clean Operations archive provider-status rendering unless regression reintroduces raw values like drive_config_missing in archive worklist rows.",
-    "Do not re-add the Review Queue High Risk metric action unless regression removes the high-risk preset or risk=high Review Queue URL proof."
+    "Do not re-add the Review Queue High Risk metric action unless regression removes the high-risk preset or risk=high Review Queue URL proof.",
+    "Do not re-add the Review Queue Stale Activity metric action unless regression removes the stale-review preset or risk=stale Review Queue URL proof."
   ],
   "lastValidationStatus": {
     "status": "passed",
-    "completedAt": "2026-05-25T21:44:00-07:00",
+    "completedAt": "2026-05-25T22:06:20-07:00",
     "commands": [
       "node --test tests/workspace-app.test.mjs",
       "npm run verify:dashboard-actions",
@@ -730,13 +739,13 @@
       "node --test tests/functionality-language-audit.test.mjs",
       "npm run check:production-surfaces",
       "npm run check:route-inventory",
-      "node -e JSON.parse automation/state/functionality-ux-growth-state.json and docs/progress/runs/2026-05-25-2136-review-queue-high-risk-filter.json",
+      "node -e JSON.parse automation/state/functionality-ux-growth-state.json and docs/progress/runs/2026-05-25-2203-review-queue-stale-activity-filter.json",
       "git diff --check",
       "npm run test",
       "npm run typecheck",
       "npm run check"
     ],
-    "notes": "Full validation passed for the Review Queue high-risk metric filter. git diff --check reported only CRLF normalization warnings. This run changes protected workspace navigation, verifiers, focused workspace coverage, and run records only; it does not change auth role grants, tenant/site/program/student privacy boundaries, migrations, secrets/env files, Cloudflare/OAuth/domain config, deploy settings, or live data."
+    "notes": "Full validation passed for the Review Queue stale activity metric filter. git diff --check reported only CRLF normalization warnings. This run changes protected workspace navigation, verifiers, focused workspace coverage, and run records only; it does not change auth role grants, tenant/site/program/student privacy boundaries, migrations, secrets/env files, Cloudflare/OAuth/domain config, deploy settings, or live data."
   },
   "lastProductReadinessScorecardSummary": {
     "homepageClarity": "4 to 4",

@@ -74,6 +74,7 @@ for (const pattern of [
 assertMatches("workspaceJs", /function openWorkspaceSection\(button\)[\s\S]*sectionPreset === "submitted"[\s\S]*status: "submitted"/, "Submitted dashboard preset must open a real Review Queue filter");
 assertMatches("workspaceJs", /sectionPreset === "revision-requested"[\s\S]*status: "revision_requested"/, "Needs Revision dashboard preset must open a real Review Queue filter");
 assertMatches("workspaceJs", /sectionPreset === "high-risk"[\s\S]*risk: "high"[\s\S]*syncReviewQueueUrlState\(\)/, "High Risk review metric must open Review Queue with the supported risk filter");
+assertMatches("workspaceJs", /sectionPreset === "stale-review"[\s\S]*risk: "stale"[\s\S]*syncReviewQueueUrlState\(\)/, "Stale Activity review metric must open Review Queue with the supported stale risk filter");
 assertMatches("workspaceJs", /sectionPreset === "all-students"[\s\S]*siteStudentFilters = defaultSiteStudentFilters\(\)/, "Students dashboard preset must open the Student Directory without stale filters");
 assertMatches("workspaceJs", /sectionPreset === "missing-mentors"[\s\S]*noMentor: true[\s\S]*syncSiteStudentUrlState\(\)/, "Missing mentor dashboard preset must open Student Directory with a missing-mentor filter");
 assertMatches("workspaceJs", /sectionPreset === "program"[\s\S]*siteStudentFilters = [\s\S]*programId/, "Program dashboard rows must open Student Directory with a program filter");

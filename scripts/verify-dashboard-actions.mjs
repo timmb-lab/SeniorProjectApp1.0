@@ -81,6 +81,7 @@ const allowedPresets = new Map([
   ["submitted", "teacher"],
   ["revision-requested", "teacher"],
   ["high-risk", "teacher"],
+  ["stale-review", "teacher"],
   ["presentation-pending", "operations"],
   ["presentation-attention", "operations"],
   ["archive-failed", "operations"],
@@ -182,6 +183,16 @@ assertMatches(
   "workspaceJs",
   /function renderTeacherSection\([\s\S]*renderMetricTile\("High Risk"[\s\S]*"teacher", \{ label: "Review rows", preset: "high-risk" \}\)/,
   "Review Queue High Risk metric must open the existing high-risk Review Queue filter",
+);
+assertMatches(
+  "workspaceJs",
+  /section === "teacher" && button\.dataset\.sectionPreset === "stale-review"[\s\S]*risk: "stale"[\s\S]*syncReviewQueueUrlState\(\)/,
+  "stale-review dashboard preset must be backed by a Review Queue stale risk filter and sync URL state",
+);
+assertMatches(
+  "workspaceJs",
+  /function renderTeacherSection\([\s\S]*renderMetricTile\("Stale Activity"[\s\S]*"teacher", \{ label: "Review rows", preset: "stale-review" \}\)/,
+  "Review Queue Stale Activity metric must open the existing stale Review Queue filter",
 );
 assertMatches(
   "workspaceJs",

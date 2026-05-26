@@ -21,6 +21,17 @@ This is the compact run log for the current Functionality UX Upgrade automation 
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-05-25 22:03 PT - Functionality UX Upgrade Review Queue Stale Activity
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 5 review/intervention queues / Level 1 route-backed queue navigation.
+- `starting HEAD`: `393c5026fecac98b72daec5f832c7bfb1c770ddd`.
+- `selected slice`: Link the Review Queue `Stale Activity` summary tile to the existing `risk=stale` filter.
+- `repo-grounded findings`: the prior handoff asked for exact Review Queue filter gaps. Current `/api/site/review-queue` already returns `summary.overdueOrStale`, the filter bar and URL parser already support `risk=stale`, and the workspace did not expose that summary count as a direct queue action.
+- `changes`: `workspace.js` now renders `Stale Activity` with a `stale-review` preset that loads `/api/site/review-queue?risk=stale` and syncs URL state; focused workspace coverage and dashboard/navigation verifiers guard the preset.
+- `validation`: focused workspace, dashboard-action, and workspace-navigation checks passed before final validation. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.
+
 ## 2026-05-25 19:04 PT - Functionality UX Upgrade Operations Check-In Filter
 
 - `automation ID`: functionality-ux-upgrade-hourly.

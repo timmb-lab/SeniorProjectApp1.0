@@ -3131,3 +3131,54 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: hosted permission/browser proof still needs credentialed runtime; missing-evidence filters need backend/privacy support; provider-unavailable metrics need product/security design.
   - Do not repeat: do not re-add the high-risk preset unless regression evidence appears.
   - First file to inspect next run: `workspace.js` `renderTeacherSection()` and `functions/_lib/site-review-queue.ts` `buildFilterWhere()`
+
+## Run 2026-05-25 22:03 PT
+
+- Starting SHA: `393c5026fecac98b72daec5f832c7bfb1c770ddd`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Branch policy: work stayed on clean local `main`; local `main` was twenty-one commits ahead of `origin/main`, `origin/main` was not ahead, and no push was run
+- Ladder level targeted: `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` with `LEVEL_1_NAVIGABLE_DASHBOARDS` queue click-through support and `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` verifier coverage
+- Backlog item: `review-queue-stale-activity-filter-action`; advances dashboard/reporting evidence in `MVP-015`
+- Work order selected: Link the Review Queue `Stale Activity` summary tile to the existing scoped `risk=stale` filter.
+- Selection reason: Current source showed `/api/site/review-queue` already supports `risk=stale`, Review Queue URL parsing/sync already preserves risk filters, and the API already returns `summary.overdueOrStale`. The workspace rendered that count nowhere, so this was the safest exact filter gap after the previous high-risk slice.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Review Queue Stale Activity metric filter | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | site staff, viewer, program_teacher | 5 | 5 | 5 | XS | 57 | selected |
+| Review Queue no-mentor metric | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | site staff, viewer, program_teacher | 4 | 4 | 4 | S | 48 | rejected: needs new summary count despite existing risk filter |
+| Review Queue submitted in-queue metric filter | `LEVEL_1_NAVIGABLE_DASHBOARDS` | site staff, program_teacher | 3 | 5 | 5 | XS | 49 | rejected: already reachable from dashboard presets and filter bar |
+| Review Queue revision in-queue metric filter | `LEVEL_1_NAVIGABLE_DASHBOARDS` | site staff, program_teacher | 3 | 5 | 5 | XS | 49 | rejected: already reachable from dashboard presets and filter bar |
+| Review Queue evidence-attached filter | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | site staff, program_teacher | 4 | 3 | 3 | S | 40 | deferred: summary exists but exact route filter does not |
+| Review Queue missing-evidence filter | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | site staff, program_teacher | 5 | 2 | 3 | M | 37 | deferred: backend/privacy support still missing |
+| Student Directory missing-evidence filter | `LEVEL_1_NAVIGABLE_DASHBOARDS` | site staff, viewer | 4 | 2 | 3 | M | 35 | deferred: exact route filter missing |
+| Hosted section-level permission proof | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all protected roles | 4 | 4 | 3 | M | 40 | blocked: credentialed hosted runtime dependency |
+| Public route visual browser QA | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | public students, teachers | 3 | 4 | 3 | M | 40 | rejected: useful but lower app-functionality value this run |
+| Operations provider-unavailable metric | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | site staff, viewer | 4 | 3 | 3 | S | 41 | rejected: route semantics need product/security design |
+| Student guided requirement form | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 5 | 2 | 3 | L | 32 | rejected: write-path/product design beyond existing safe actions |
+| Staff archive retry/regenerate controls | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | site_admin | 5 | 2 | 3 | M | 34 | rejected: mutation/control policy outside this lane |
+
+- User-facing improvement: Staff and read-only viewers can open submitted/revision review work with stale activity directly from the Review Queue summary instead of manually choosing the Risk filter.
+- Roles affected: `site_admin`, `org_admin`/site-scoped administration users, `viewer` read-only staff, and `program_teacher` scoped staff; no student, mentor, tenant, site, program, or record visibility was broadened.
+- Files changed: `workspace.js`, `tests/workspace-app.test.mjs`, `scripts/verify-dashboard-actions.mjs`, `scripts/verify-workspace-navigation-integrity.mjs`, `docs/functionality-language-audit.md`, `docs/mvp-requirements-catalog.md`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`, `docs/progress/run-log.md`, `docs/progress/runs/2026-05-25-2203-review-queue-stale-activity-filter.json`
+- Tests/verifiers added or updated: workspace test proves the Review Queue stale tile loads `risk=stale` and syncs URL state; dashboard and navigation verifiers register and guard the `stale-review` preset.
+- Validation commands:
+  - Focused passed before docs/state closeout: `node --test tests/workspace-app.test.mjs`; `npm run verify:dashboard-actions`; `npm run verify:workspace-navigation`
+  - Final passed: `npm run verify:functionality-language`; `npm run verify:functionality-ux-automation`; `node --test tests/functionality-language-audit.test.mjs`; JSON parse for state and manifest; `npm run check:production-surfaces`; `npm run check:route-inventory`; `git diff --check`; `npm run test`; `npm run typecheck`; `npm run check`
+- Validation result: passed; `git diff --check` reported only CRLF normalization warnings, with no whitespace errors.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: hosted section-level permission proof, public-route visual QA, Review Queue/Student Directory missing-evidence filters, export-style progress summaries, staff archive retry/regenerate controls, provider-unavailable route semantics, and org rollups remain deferred.
+- New backlog items: none
+- Next recommended work order: inspect whether Review Queue no-mentor deserves a summary metric backed by the existing `risk=no_mentor` filter, or run hosted section-level permission proof when credentials/runtime are available.
+- Do-not-repeat notes: do not re-add the Review Queue `Stale Activity` metric action unless regression removes the `stale-review` preset or `risk=stale` Review Queue URL proof.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES`
+  - Advanced: yes
+  - Evidence: Review Queue `Stale Activity` now opens a scoped `risk=stale` worklist with URL state and verifier coverage.
+  - Unlocks: future Review Queue work can focus on no-mentor summary support or missing-evidence only after exact route support exists.
+  - Next: inspect whether `summary.noMentor` should be added for the existing `risk=no_mentor` filter.
+  - Blockers: hosted permission/browser proof still needs credentialed runtime; missing-evidence filters need backend/privacy support; provider-unavailable metrics need product/security design.
+  - Do not repeat: do not re-add the stale-review preset unless regression evidence appears.
+  - First file to inspect next run: `functions/_lib/site-review-queue.ts` `loadSummary()` and `workspace.js` `renderTeacherSection()`

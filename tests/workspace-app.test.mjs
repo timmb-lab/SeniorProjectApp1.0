@@ -1010,6 +1010,7 @@ test("workspace renders site-aware Review Queue with teacher decisions and read-
   assert.match(teacher, /workspace-review-queue/);
   assert.match(teacher, /workspace-filter-bar/);
   assert.match(teacher, /data-section="teacher" data-section-preset="high-risk">Review rows/);
+  assert.match(teacher, /data-section="teacher" data-section-preset="stale-review">Review rows/);
   assert.match(teacher, /workspace-student-row is-selected/);
   assert.match(teacher, /workspace-status-pill submitted/);
   assert.match(teacher, /workspace-story-chip/);
@@ -1137,6 +1138,15 @@ test("workspace renders site-aware Review Queue with teacher decisions and read-
   assert.equal(highRiskUrl.searchParams.has("status"), false);
   assert.match(window.location.href, /section=teacher/);
   assert.match(window.location.href, /risk=high/);
+
+  await vm.runInContext('openWorkspaceSection({ dataset: { section: "teacher", sectionPreset: "stale-review" } })', context);
+  const staleReviewFetch = fetchLog.findLast((entry) => entry.startsWith("/api/site/review-queue?"));
+  assert.ok(staleReviewFetch, "expected stale Review Queue metric to load Review Queue");
+  const staleReviewUrl = new URL(staleReviewFetch, "https://workspace.example");
+  assert.equal(staleReviewUrl.searchParams.get("risk"), "stale");
+  assert.equal(staleReviewUrl.searchParams.has("status"), false);
+  assert.match(window.location.href, /section=teacher/);
+  assert.match(window.location.href, /risk=stale/);
 });
 
 test("workspace renders Review Queue empty and history states with assigned-work language", async () => {
