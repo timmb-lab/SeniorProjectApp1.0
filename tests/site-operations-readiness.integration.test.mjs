@@ -118,6 +118,18 @@ test("site operations readiness route is scoped, read-only, audited, bounded, an
   assert.equal(archiveInProgress.pagination.filteredTotal, archiveInProgress.summary.archiveInProgress);
   assert.equal(archiveInProgress.archive.rows.every((row) => ["queued", "running"].includes(row.archiveStatus)), true);
 
+  const archiveExpiringSoon = await expectOperations(env, tokens.siteAdminPrimary, `?siteId=${PRIMARY_SITE_ID}&archiveStatus=expiring_soon&limit=100`);
+  assert.equal(archiveExpiringSoon.filters.archiveStatus, "expiring_soon");
+  assert.equal(archiveExpiringSoon.summary.archiveExpiringSoon > 0, true);
+  assert.equal(archiveExpiringSoon.pagination.filteredTotal, archiveExpiringSoon.summary.archiveExpiringSoon);
+  assert.equal(archiveExpiringSoon.archive.rows.every((row) => row.archiveStatus === "expiring_soon" && row.downloadExpiresSoon === true), true);
+
+  const archiveExpired = await expectOperations(env, tokens.siteAdminPrimary, `?siteId=${PRIMARY_SITE_ID}&archiveStatus=expired&limit=100`);
+  assert.equal(archiveExpired.filters.archiveStatus, "expired");
+  assert.equal(archiveExpired.summary.archiveExpired > 0, true);
+  assert.equal(archiveExpired.pagination.filteredTotal, archiveExpired.summary.archiveExpired);
+  assert.equal(archiveExpired.archive.rows.every((row) => row.archiveStatus === "expired" && row.downloadReady === false), true);
+
   const presentationPending = await expectOperations(env, tokens.siteAdminPrimary, `?siteId=${PRIMARY_SITE_ID}&presentationStatus=pending&limit=100`);
   assert.equal(presentationPending.pagination.filteredTotal > 0, true);
   assert.equal(presentationPending.presentation.rows.some((row) => /^Presentation Pending Demo/i.test(row.studentName)), true);
@@ -195,7 +207,7 @@ test("site operations readiness route is scoped, read-only, audited, bounded, an
   assert.equal(detail.response.status, 200);
   assert.equal(detail.body.student.studentId, richStudentId);
 
-  for (const body of [platform, secondary, legacy, org, siteAdmin, viewer, teacher, archiveFailed, archiveReady, archiveInProgress, presentationPending, presentationAttention, outlineAttention, highRisk, staleActivity, archiveCategory, needsAttention, evidenceMissing, paged, offset, capped, richTimeline, detail.body]) {
+  for (const body of [platform, secondary, legacy, org, siteAdmin, viewer, teacher, archiveFailed, archiveReady, archiveInProgress, archiveExpiringSoon, archiveExpired, presentationPending, presentationAttention, outlineAttention, highRisk, staleActivity, archiveCategory, needsAttention, evidenceMissing, paged, offset, capped, richTimeline, detail.body]) {
     assert.doesNotMatch(JSON.stringify(body), FORBIDDEN_RESPONSE_FIELDS);
   }
 
@@ -239,6 +251,7 @@ async function createSeededDemoFixture() {
     verifyRepo: false,
     writeCredentials: false,
   });
+  await seedArchiveWindowFixtures(db);
 
   await seedUser(db, {
     id: "misc-operations-user",
@@ -261,6 +274,28 @@ async function createSeededDemoFixture() {
   };
 
   return { db, env, tokens };
+}
+
+async function seedArchiveWindowFixtures(db) {
+  const rows = (await db.prepare(
+    `SELECT export_artifacts.id
+     FROM export_artifacts
+     INNER JOIN exports ON exports.id = export_artifacts.export_id
+     WHERE exports.status = 'complete'
+       AND export_artifacts.artifact_type = 'archive_manifest'
+     ORDER BY export_artifacts.id
+     LIMIT 2`,
+  ).all()).results;
+  assert.equal(rows.length >= 2, true, "expected complete archive artifact fixtures");
+
+  await db.prepare(`UPDATE export_artifacts SET artifact_type = 'student_archive_manifest_json', expires_at = ? WHERE id = ?`).bind(
+    new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+    rows[0].id,
+  ).run();
+  await db.prepare(`UPDATE export_artifacts SET artifact_type = 'student_archive_manifest_json', expires_at = ? WHERE id = ?`).bind(
+    "2000-01-01T00:00:00.000Z",
+    rows[1].id,
+  ).run();
 }
 
 async function expectOperations(env, token, query = "") {

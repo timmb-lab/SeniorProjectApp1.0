@@ -2975,3 +2975,55 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: hosted permission/browser proof still needs credentialed runtime; export retry controls and downloadable summaries need policy decisions.
   - Do not repeat: do not re-add archive in-progress unless regression evidence appears.
   - First file to inspect next run: `functions/_lib/site-operations-readiness.ts` `archiveStatusFor()` and `workspace.js` `renderArchiveWorklistRows()`
+
+## Run 2026-05-25 20:30 PT
+
+- Starting SHA: `d2093c735b66006bdbb936df582c889d0f13fe86`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Branch policy: work stayed on clean local `main`; local `main` was eighteen commits ahead of `origin/main`, `origin/main` was not ahead, and no push was run
+- Ladder level targeted: `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` with `LEVEL_1_NAVIGABLE_DASHBOARDS` archive-window click-through support and `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` verifier coverage
+- Backlog item: `operations-archive-window-filters`; advances dashboard/reporting evidence in `MVP-015` and archive readiness evidence in `MVP-022`
+- Work order selected: Add Operations `Archive Expiring Soon` and `Archive Expired` metrics backed by scoped `archiveStatus=expiring_soon` and `archiveStatus=expired` filters.
+- Selection reason: The previous handoff named expired and expiring archive rows. Current route evidence showed `/api/site/operations-readiness` already computed exact `expired` and `expiring_soon` archive statuses, exposed both as supported filters, and already rendered row-level reasons, but the summary grid only exposed ready/in-progress/failed archive states. The safe slice was to add truthful route-backed metrics and verifier/test coverage without adding retry controls or new permissions.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Operations archive window filters | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | site staff, viewer, program_teacher | 5 | 5 | 5 | S | 58 | selected |
+| Archive window verifier guard | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | site staff | 3 | 5 | 5 | XS | 52 | included |
+| Student archive expired guidance | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 4 | 5 | 4 | XS | 49 | rejected: existing student guidance already covers expired downloads |
+| Operations provider-unavailable direct metric | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | site staff, viewer | 4 | 4 | 4 | S | 44 | rejected: failed/provider-unavailable is already covered by Archive Failed |
+| Operations archive retry controls | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | site_admin | 5 | 2 | 3 | M | 34 | rejected: mutation/control policy outside this lane |
+| Operations high-risk direct metric | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | site staff, viewer | 4 | 5 | 4 | XS | 50 | rejected: risk category and stale metric already cover current route-backed risk paths |
+| Hosted section-level permission proof | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all protected roles | 4 | 4 | 3 | M | 40 | blocked: credentialed hosted runtime dependency |
+| Public route desktop/mobile visual QA | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | public students, teachers | 3 | 4 | 3 | M | 40 | rejected: no source defect found before browser proof |
+| Review Queue missing-evidence filter | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | site staff, program_teacher | 5 | 2 | 3 | M | 37 | deferred: backend/privacy support still missing |
+| Student Directory missing-evidence filter | `LEVEL_1_NAVIGABLE_DASHBOARDS` | site staff, viewer | 4 | 2 | 3 | M | 35 | deferred: exact route filter missing |
+| Staff archive download/regenerate workflow | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | site_admin | 5 | 2 | 3 | L | 32 | rejected: write path and policy decision needed |
+| Downloadable student progress summary | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | student, staff | 4 | 2 | 3 | L | 31 | rejected: export/privacy policy needed |
+| Org-admin tenant rollup | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | org_admin | 4 | 2 | 2 | L | 30 | blocked: backend aggregate and RBAC design needed |
+
+- User-facing improvement: Staff and read-only viewers can open exact Operations worklists for archive packages whose app-scoped download window is ending soon or has expired, instead of inferring those rows from broader ready/archive snapshots.
+- Roles affected: `site_admin`, `org_admin`/site-scoped administration users, `viewer` read-only staff, and `program_teacher` scoped staff; no student, mentor, tenant, site, program, or record visibility was broadened.
+- Files changed: `functions/_lib/site-operations-readiness.ts`, `workspace.js`, `tests/site-operations-readiness.integration.test.mjs`, `tests/workspace-app.test.mjs`, `scripts/verify-dashboard-actions.mjs`, `scripts/verify-workspace-navigation-integrity.mjs`, `docs/functionality-language-audit.md`, `docs/mvp-requirements-catalog.md`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`, `docs/progress/run-log.md`, `docs/progress/runs/2026-05-25-2030-operations-archive-window-filters.json`
+- Tests/verifiers added or updated: route test proves `archiveStatus=expiring_soon` and `archiveStatus=expired` return scoped rows and matching summary counts; workspace test proves both new metrics and URL/filter behavior; dashboard and navigation verifiers register both presets.
+- Validation commands:
+  - Focused passed before docs/state closeout: `node --test tests/site-operations-readiness.integration.test.mjs`; `node --test tests/workspace-app.test.mjs`; `npm run verify:dashboard-actions`; `npm run verify:workspace-navigation`
+  - Final passed: `npm run verify:functionality-language`; `npm run verify:functionality-ux-automation`; `node --test tests/functionality-language-audit.test.mjs`; JSON parse for state and manifest; `git diff --check`; `npm run check:route-inventory`; `npm run check:production-surfaces`; `npm run test`; `npm run typecheck`; `npm run check`
+- Validation result: passed; `git diff --check` reported only CRLF normalization warnings, with no whitespace errors.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: hosted section-level permission proof, public-route visual QA, Review Queue/Student Directory missing-evidence filters, export-style progress summaries, staff archive retry/regenerate controls, and org rollups remain deferred.
+- New backlog items: none
+- Next recommended work order: inspect Operations provider-unavailable semantics or run hosted section-level permission proof when credentialed runtime is available.
+- Do-not-repeat notes: do not re-add the Operations `Archive Expiring Soon` or `Archive Expired` metrics unless regression removes `archive-expiring-soon`/`archive-expired` presets or the `archiveStatus=expiring_soon`/`archiveStatus=expired` route proof.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS`
+  - Advanced: yes
+  - Evidence: Operations now exposes precise archive download-window metrics backed by scoped `archiveStatus=expiring_soon` and `archiveStatus=expired` filters, with route/UI/verifier coverage.
+  - Unlocks: next Operations work can focus on provider-unavailable semantics, hosted permission proof, or policy-approved archive retry/regeneration instead of basic download-window discoverability.
+  - Next: inspect whether provider-unavailable archive readiness should remain folded into Archive Failed or receive clearer route-backed summary language.
+  - Blockers: hosted permission/browser proof still needs credentialed runtime; archive retry/regenerate controls and downloadable summaries need product/security policy decisions.
+  - Do not repeat: do not re-add archive expiring/expired metrics unless regression evidence appears.
+  - First file to inspect next run: `functions/_lib/site-operations-readiness.ts` `archiveStatusFor()` and `workspace.js` `renderOperationsReadinessSection()`

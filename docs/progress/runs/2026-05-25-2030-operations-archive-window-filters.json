@@ -1,0 +1,95 @@
+{
+  "runId": "2026-05-25-2030-operations-archive-window-filters",
+  "automationId": "functionality-ux-upgrade-hourly",
+  "startedAt": "2026-05-25T20:30:48-07:00",
+  "startingSha": "d2093c735b66006bdbb936df582c889d0f13fe86",
+  "endingSha": null,
+  "branch": "main",
+  "branchStatus": {
+    "aheadOfOriginMain": 18,
+    "behindOriginMain": 0,
+    "pushed": false
+  },
+  "ladderLevel": "LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS",
+  "supportingLevels": [
+    "LEVEL_1_NAVIGABLE_DASHBOARDS",
+    "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT"
+  ],
+  "mvpRequirements": [
+    "MVP-015",
+    "MVP-022"
+  ],
+  "selectedWorkOrder": {
+    "id": "operations-archive-window-filters",
+    "title": "Add route-backed Operations archive window metrics",
+    "reason": "Expired and expiring archive package states already existed in the scoped Operations route and filter options, but staff had no summary click-through for download-window follow-up.",
+    "risk": "low",
+    "size": "S"
+  },
+  "candidateScores": [
+    { "id": "operations-archive-window-filters", "ladderLevel": "LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS", "roles": "site staff, viewer, program_teacher", "impact": 5, "safety": 5, "testability": 5, "size": "S", "score": 58, "decision": "selected" },
+    { "id": "archive-window-verifier-guard", "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT", "roles": "site staff", "impact": 3, "safety": 5, "testability": 5, "size": "XS", "score": 52, "decision": "included" },
+    { "id": "student-archive-expired-guidance", "ladderLevel": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN", "roles": "student", "impact": 4, "safety": 5, "testability": 4, "size": "XS", "score": 49, "decision": "rejected-existing-guidance-present" },
+    { "id": "operations-provider-unavailable-metric", "ladderLevel": "LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS", "roles": "site staff, viewer", "impact": 4, "safety": 4, "testability": 4, "size": "S", "score": 44, "decision": "rejected-covered-by-archive-failed" },
+    { "id": "operations-archive-retry-controls", "ladderLevel": "LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS", "roles": "site_admin", "impact": 5, "safety": 2, "testability": 3, "size": "M", "score": 34, "decision": "rejected-mutation-policy" },
+    { "id": "operations-high-risk-direct-metric", "ladderLevel": "LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS", "roles": "site staff, viewer", "impact": 4, "safety": 5, "testability": 4, "size": "XS", "score": 50, "decision": "rejected-risk-paths-already-linked" },
+    { "id": "hosted-section-permission-proof", "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT", "roles": "all protected roles", "impact": 4, "safety": 4, "testability": 3, "size": "M", "score": 40, "decision": "blocked-credentialed-runtime" },
+    { "id": "public-route-visual-browser-qa", "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT", "roles": "public students, teachers", "impact": 3, "safety": 4, "testability": 3, "size": "M", "score": 40, "decision": "rejected-no-source-defect" },
+    { "id": "review-queue-missing-evidence-filter", "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES", "roles": "site staff, program_teacher", "impact": 5, "safety": 2, "testability": 3, "size": "M", "score": 37, "decision": "deferred-backend-privacy-support-missing" },
+    { "id": "student-directory-missing-evidence-filter", "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS", "roles": "site staff, viewer", "impact": 4, "safety": 2, "testability": 3, "size": "M", "score": 35, "decision": "deferred-exact-route-filter-missing" },
+    { "id": "staff-archive-download-regenerate-workflow", "ladderLevel": "LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS", "roles": "site_admin", "impact": 5, "safety": 2, "testability": 3, "size": "L", "score": 32, "decision": "rejected-write-path-policy-needed" },
+    { "id": "downloadable-student-progress-summary", "ladderLevel": "LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS", "roles": "student, staff", "impact": 4, "safety": 2, "testability": 3, "size": "L", "score": 31, "decision": "rejected-export-privacy-policy" },
+    { "id": "org-admin-tenant-rollup", "ladderLevel": "LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS", "roles": "org_admin", "impact": 4, "safety": 2, "testability": 2, "size": "L", "score": 30, "decision": "blocked-backend-rbac-design" }
+  ],
+  "changes": [
+    "functions/_lib/site-operations-readiness.ts returns summary.archiveExpiringSoon and summary.archiveExpired from existing archive status calculations.",
+    "workspace.js renders Operations Archive Expiring Soon and Archive Expired metrics and opens scoped archiveStatus=expiring_soon or archiveStatus=expired worklists with URL state.",
+    "tests and verifiers guard the scoped route filters, metric rendering, preset handling, and navigation integrity."
+  ],
+  "filesChanged": [
+    "functions/_lib/site-operations-readiness.ts",
+    "workspace.js",
+    "tests/site-operations-readiness.integration.test.mjs",
+    "tests/workspace-app.test.mjs",
+    "scripts/verify-dashboard-actions.mjs",
+    "scripts/verify-workspace-navigation-integrity.mjs",
+    "docs/functionality-language-audit.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/functionality-ux-growth-ledger.md",
+    "automation/state/functionality-ux-growth-state.json",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-25-2030-operations-archive-window-filters.json"
+  ],
+  "privacyAndPermissions": [
+    "No auth, RBAC, tenant, site, program, mentor, or student visibility was broadened.",
+    "The new UI actions use the existing /api/site/operations-readiness route and server-owned scoping.",
+    "No mutations, migrations, secrets, deploys, remote writes, fake routes, or mock data were added."
+  ],
+  "validation": {
+    "status": "passed",
+    "focusedPassed": [
+      "node --test tests/site-operations-readiness.integration.test.mjs",
+      "node --test tests/workspace-app.test.mjs",
+      "npm run verify:dashboard-actions",
+      "npm run verify:workspace-navigation"
+    ],
+    "finalPassed": [
+      "npm run verify:functionality-language",
+      "npm run verify:functionality-ux-automation",
+      "node --test tests/functionality-language-audit.test.mjs",
+      "node -e JSON.parse automation/state/functionality-ux-growth-state.json and docs/progress/runs/2026-05-25-2030-operations-archive-window-filters.json",
+      "git diff --check",
+      "npm run check:route-inventory",
+      "npm run check:production-surfaces",
+      "npm run test",
+      "npm run typecheck",
+      "npm run check"
+    ],
+    "notes": "git diff --check reported only CRLF normalization warnings, with no whitespace errors."
+  },
+  "nextRecommended": {
+    "id": "operations-provider-unavailable-clarity",
+    "summary": "Inspect provider-unavailable archive semantics or run hosted permission proof."
+  },
+  "doNotRepeat": "Do not re-add the Operations Archive Expiring Soon or Archive Expired metrics unless regression removes archive-expiring-soon/archive-expired presets or archiveStatus=expiring_soon/archiveStatus=expired route proof."
+}

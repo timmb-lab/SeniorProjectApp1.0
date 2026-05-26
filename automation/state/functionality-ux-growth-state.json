@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-05-25T20:05:26-07:00",
-  "lastStartingSha": "4c698cc92ca6f9257cdac2a25feef9d8312b23e8",
+  "lastRunAt": "2026-05-25T20:30:48-07:00",
+  "lastStartingSha": "d2093c735b66006bdbb936df582c889d0f13fe86",
   "lastEndingSha": null,
-  "currentLadderFocus": "LEVEL_1_NAVIGABLE_DASHBOARDS",
+  "currentLadderFocus": "LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS",
   "completedWorkOrders": [
     {
       "id": "workspace-header-product-language-cleanup",
@@ -569,6 +569,14 @@
       "type": "TYPE_B_DASHBOARD_CLICK_THROUGH",
       "summary": "Operations Archive In Progress now opens a scoped archiveStatus=in_progress worklist for queued or running archive packages.",
       "commit": "pending-closeout-commit"
+    },
+    {
+      "id": "operations-archive-window-filters",
+      "completedAt": "2026-05-25T20:30:48-07:00",
+      "ladderLevel": "LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS",
+      "type": "TYPE_F_REVIEW_INTERVENTION_QUEUE",
+      "summary": "Operations Archive Expiring Soon and Archive Expired now open scoped archiveStatus=expiring_soon and archiveStatus=expired worklists for archive download-window follow-up.",
+      "commit": "pending-closeout-commit"
     }
   ],
   "deferredWorkOrders": [
@@ -619,10 +627,10 @@
       "summary": "Add a Review Queue missing-evidence filter only after backend support and privacy tests exist."
     },
     {
-      "id": "operations-archive-expiration-guidance",
+      "id": "operations-provider-unavailable-clarity",
       "ladderLevel": "LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS",
       "type": "TYPE_F_REVIEW_INTERVENTION_QUEUE",
-      "summary": "Inspect expired and expiring archive package states for exact route-backed guidance."
+      "summary": "Inspect whether provider-unavailable archive readiness needs clearer route-backed summary language."
     }
   ],
   "doNotRepeat": [
@@ -689,11 +697,12 @@
     "Do not re-add Site Dashboard snapshot-row Operations filters unless regression removes presentation-snapshot/archive-snapshot handling or the exact-status summary-only guard.",
     "Do not re-add the Operations Check-In Needed metric unless regression removes the presentation-attention preset or presentationStatus=attention_required route proof.",
     "Do not re-add the Operations Stale Activity metric unless regression removes the stale-activity preset or risk=stale route proof.",
-    "Do not re-add the Operations Archive In Progress metric unless regression removes the archive-in-progress preset or archiveStatus=in_progress queued/running route proof."
+    "Do not re-add the Operations Archive In Progress metric unless regression removes the archive-in-progress preset or archiveStatus=in_progress queued/running route proof.",
+    "Do not re-add the Operations Archive Expiring Soon or Archive Expired metrics unless regression removes the archive-expiring-soon/archive-expired presets or archiveStatus=expiring_soon/archiveStatus=expired route proof."
   ],
   "lastValidationStatus": {
     "status": "passed",
-    "completedAt": "2026-05-25T20:24:00-07:00",
+    "completedAt": "2026-05-25T20:39:43-07:00",
     "commands": [
       "node --test tests/site-operations-readiness.integration.test.mjs",
       "node --test tests/workspace-app.test.mjs",
@@ -702,7 +711,7 @@
       "npm run verify:functionality-language",
       "npm run verify:functionality-ux-automation",
       "node --test tests/functionality-language-audit.test.mjs",
-      "node -e JSON.parse automation/state/functionality-ux-growth-state.json and docs/progress/runs/2026-05-25-2005-operations-archive-in-progress-filter.json",
+      "node -e JSON.parse automation/state/functionality-ux-growth-state.json and docs/progress/runs/2026-05-25-2030-operations-archive-window-filters.json",
       "git diff --check",
       "npm run check:route-inventory",
       "npm run check:production-surfaces",
@@ -710,7 +719,7 @@
       "npm run typecheck",
       "npm run check"
     ],
-    "notes": "Full validation passed for the Operations Archive In Progress metric. git diff --check reported only CRLF normalization warnings. This run changes scoped Operations summary/UI, focused route/UI/dashboard verifier coverage, and run records only; it does not change auth role grants, tenant/site/program/student privacy boundaries, migrations, secrets/env files, Cloudflare/OAuth/domain config, deploy settings, or live data."
+    "notes": "Full validation passed for the Operations Archive Expiring Soon and Archive Expired metrics. git diff --check reported only CRLF normalization warnings. This run changes scoped Operations summary/UI, focused route/UI/dashboard verifier coverage, and run records only; it does not change auth role grants, tenant/site/program/student privacy boundaries, migrations, secrets/env files, Cloudflare/OAuth/domain config, deploy settings, or live data."
   },
   "lastProductReadinessScorecardSummary": {
     "homepageClarity": "4 to 4",

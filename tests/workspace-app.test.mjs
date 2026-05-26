@@ -1886,6 +1886,8 @@ test("workspace renders site-scoped Operations readiness worklists without mutat
   assert.match(siteAdmin, /Outline Pending/);
   assert.match(siteAdmin, /Archive Ready/);
   assert.match(siteAdmin, /Archive In Progress/);
+  assert.match(siteAdmin, /Archive Expiring Soon/);
+  assert.match(siteAdmin, /Archive Expired/);
   assert.match(siteAdmin, /Archive Failed/);
   assert.match(siteAdmin, /Needs Attention/);
   assert.match(siteAdmin, /Stale Activity/);
@@ -1895,6 +1897,8 @@ test("workspace renders site-scoped Operations readiness worklists without mutat
   assert.match(siteAdmin, /data-section="operations" data-section-preset="presentation-attention">Review rows/);
   assert.match(siteAdmin, /data-section="operations" data-section-preset="outline-pending">Review rows/);
   assert.match(siteAdmin, /data-section="operations" data-section-preset="archive-in-progress">Review rows/);
+  assert.match(siteAdmin, /data-section="operations" data-section-preset="archive-expiring-soon">Review rows/);
+  assert.match(siteAdmin, /data-section="operations" data-section-preset="archive-expired">Review rows/);
   assert.match(siteAdmin, /data-section="operations" data-section-preset="archive-failed">Review rows/);
   assert.match(siteAdmin, /data-section="operations" data-section-preset="needs-attention">Review rows/);
   assert.match(siteAdmin, /data-section="operations" data-section-preset="stale-activity">Review rows/);
@@ -2070,6 +2074,24 @@ test("workspace renders site-scoped Operations readiness worklists without mutat
   assert.equal(archiveProgressUrl.searchParams.has("readiness"), false);
   assert.equal(archiveProgressUrl.searchParams.has("programId"), false);
   assert.match(window.location.href, /archiveStatus=in_progress/);
+
+  await vm.runInContext('openWorkspaceSection({ dataset: { section: "operations", sectionPreset: "archive-expiring-soon" } })', context);
+  const archiveExpiringFetch = fetchLog.findLast((entry) => entry.startsWith("/api/site/operations-readiness?"));
+  assert.ok(archiveExpiringFetch, "expected Operations fetch with archive expiring-soon filter");
+  const archiveExpiringUrl = new URL(archiveExpiringFetch, "https://workspace.example");
+  assert.equal(archiveExpiringUrl.searchParams.get("archiveStatus"), "expiring_soon");
+  assert.equal(archiveExpiringUrl.searchParams.has("readiness"), false);
+  assert.equal(archiveExpiringUrl.searchParams.has("programId"), false);
+  assert.match(window.location.href, /archiveStatus=expiring_soon/);
+
+  await vm.runInContext('openWorkspaceSection({ dataset: { section: "operations", sectionPreset: "archive-expired" } })', context);
+  const archiveExpiredFetch = fetchLog.findLast((entry) => entry.startsWith("/api/site/operations-readiness?"));
+  assert.ok(archiveExpiredFetch, "expected Operations fetch with archive expired filter");
+  const archiveExpiredUrl = new URL(archiveExpiredFetch, "https://workspace.example");
+  assert.equal(archiveExpiredUrl.searchParams.get("archiveStatus"), "expired");
+  assert.equal(archiveExpiredUrl.searchParams.has("readiness"), false);
+  assert.equal(archiveExpiredUrl.searchParams.has("programId"), false);
+  assert.match(window.location.href, /archiveStatus=expired/);
 
   await vm.runInContext('openWorkspaceSection({ dataset: { section: "operations", sectionPreset: "needs-attention" } })', context);
   const attentionFetch = fetchLog.findLast((entry) => entry.startsWith("/api/site/operations-readiness?"));
@@ -4411,6 +4433,46 @@ function siteOperationsReadinessFixture({
       owner: "Site administration",
       nextAction: "Continue closeout monitoring.",
     },
+    {
+      studentId: "demo-student-051",
+      studentName: "Archive Expiring Demo 001",
+      programId: "it",
+      programName: "Information Technology",
+      storyBucket: "archive_ready",
+      riskScore: 2,
+      riskFlags: [],
+      archiveStatus: "expiring_soon",
+      exportStatus: "complete",
+      ready: true,
+      failed: false,
+      providerStatus: "ready",
+      downloadReady: true,
+      downloadExpiresSoon: true,
+      storageIdentifiersRedacted: true,
+      reason: "Archive package is ready, but its download window is expiring soon.",
+      owner: "Site administration",
+      nextAction: "Confirm archive download window before it expires.",
+    },
+    {
+      studentId: "demo-student-052",
+      studentName: "Archive Expired Demo 001",
+      programId: "it",
+      programName: "Information Technology",
+      storyBucket: "archive_ready",
+      riskScore: 3,
+      riskFlags: [],
+      archiveStatus: "expired",
+      exportStatus: "complete",
+      ready: false,
+      failed: false,
+      providerStatus: "ready",
+      downloadReady: false,
+      downloadExpiresSoon: false,
+      storageIdentifiersRedacted: true,
+      reason: "Archive package download window expired.",
+      owner: "Site administration",
+      nextAction: "Ask authorized staff to generate a fresh archive package.",
+    },
   ];
   const attentionRows = [
     {
@@ -4460,9 +4522,9 @@ function siteOperationsReadinessFixture({
     pagination: {
       limit: 50,
       offset: 0,
-      returned: 3,
+      returned: 5,
       total,
-      filteredTotal: 3,
+      filteredTotal: 5,
     },
     summary: {
       studentsTotal: total,
@@ -4472,6 +4534,8 @@ function siteOperationsReadinessFixture({
       outlinePending: 5,
       archiveReady: 10,
       archiveInProgress: 3,
+      archiveExpiringSoon: 1,
+      archiveExpired: 1,
       archiveFailed: 5,
       archiveMissing: 20,
       evidenceMissing: 7,
@@ -4500,8 +4564,8 @@ function siteOperationsReadinessFixture({
         complete: 6,
         queued: 2,
         running: 1,
-        expired: 0,
-        expiringSoon: 0,
+        expired: 1,
+        expiringSoon: 1,
         providerUnavailable: 0,
       },
       rows: archiveRows,

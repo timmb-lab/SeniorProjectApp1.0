@@ -84,6 +84,8 @@ const allowedPresets = new Map([
   ["presentation-attention", "operations"],
   ["archive-failed", "operations"],
   ["archive-in-progress", "operations"],
+  ["archive-expiring-soon", "operations"],
+  ["archive-expired", "operations"],
   ["needs-attention", "operations"],
   ["stale-activity", "operations"],
   ["outline-pending", "operations"],
@@ -214,6 +216,26 @@ assertMatches(
   "workspaceJs",
   /renderMetricTile\("Archive In Progress"[\s\S]*"operations", \{ label: "Review rows", preset: "archive-in-progress" \}\)/,
   "Operations Archive In Progress metric must open the existing queued/running archive worklist filter",
+);
+assertMatches(
+  "workspaceJs",
+  /section === "operations" && button\.dataset\.sectionPreset === "archive-expiring-soon"[\s\S]*archiveStatus: "expiring_soon"[\s\S]*syncOperationsReadinessUrlState\(\)/,
+  "archive expiring soon dashboard preset must be backed by the Operations expiring-soon archive filter and sync URL state",
+);
+assertMatches(
+  "workspaceJs",
+  /renderMetricTile\("Archive Expiring Soon"[\s\S]*"operations", \{ label: "Review rows", preset: "archive-expiring-soon" \}\)/,
+  "Operations Archive Expiring Soon metric must open the existing expiring-soon archive worklist filter",
+);
+assertMatches(
+  "workspaceJs",
+  /section === "operations" && button\.dataset\.sectionPreset === "archive-expired"[\s\S]*archiveStatus: "expired"[\s\S]*syncOperationsReadinessUrlState\(\)/,
+  "archive expired dashboard preset must be backed by the Operations expired archive filter and sync URL state",
+);
+assertMatches(
+  "workspaceJs",
+  /renderMetricTile\("Archive Expired"[\s\S]*"operations", \{ label: "Review rows", preset: "archive-expired" \}\)/,
+  "Operations Archive Expired metric must open the existing expired archive worklist filter",
 );
 assertMatches(
   "workspaceJs",

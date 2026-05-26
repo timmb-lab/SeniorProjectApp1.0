@@ -299,6 +299,8 @@ async function buildOperationsPayload({
       outlinePending: summary.presentation.outlinePending + summary.presentation.outlineRevisionNeeded,
       archiveReady: summary.archive.ready + summary.archive.complete + summary.archive.expiringSoon,
       archiveInProgress: summary.archive.queued + summary.archive.running,
+      archiveExpiringSoon: summary.archive.expiringSoon,
+      archiveExpired: summary.archive.expired,
       archiveFailed: summary.archive.failed + summary.archive.providerUnavailable,
       archiveMissing: summary.archive.missing,
       evidenceMissing: summary.evidenceMissing,

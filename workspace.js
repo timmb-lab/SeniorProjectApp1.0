@@ -934,6 +934,24 @@ async function openWorkspaceSection(button) {
     await loadOperationsReadinessResult("Showing archive packages being prepared.");
     return;
   }
+  if (section === "operations" && button.dataset.sectionPreset === "archive-expiring-soon") {
+    operationsReadinessFilters = {
+      ...defaultOperationsReadinessFilters(),
+      archiveStatus: "expiring_soon",
+    };
+    syncOperationsReadinessUrlState();
+    await loadOperationsReadinessResult("Showing archive packages with download windows ending soon.");
+    return;
+  }
+  if (section === "operations" && button.dataset.sectionPreset === "archive-expired") {
+    operationsReadinessFilters = {
+      ...defaultOperationsReadinessFilters(),
+      archiveStatus: "expired",
+    };
+    syncOperationsReadinessUrlState();
+    await loadOperationsReadinessResult("Showing archive packages with expired download windows.");
+    return;
+  }
   if (section === "operations" && button.dataset.sectionPreset === "needs-attention") {
     operationsReadinessFilters = {
       ...defaultOperationsReadinessFilters(),
@@ -2893,6 +2911,8 @@ function renderOperationsReadinessSection() {
         ${renderMetricTile("Outline Pending", summary.outlinePending, "Needs outline approval", safeNumber(summary.outlinePending) ? "warning" : "teacher", "operations", { label: "Review rows", preset: "outline-pending" })}
         ${renderMetricTile("Archive Ready", summary.archiveReady, "Ready or complete package state", "mentor")}
         ${renderMetricTile("Archive In Progress", summary.archiveInProgress, "Packages being prepared", safeNumber(summary.archiveInProgress) ? "warning" : "admin", "operations", { label: "Review rows", preset: "archive-in-progress" })}
+        ${renderMetricTile("Archive Expiring Soon", summary.archiveExpiringSoon, "Download windows ending soon", safeNumber(summary.archiveExpiringSoon) ? "warning" : "admin", "operations", { label: "Review rows", preset: "archive-expiring-soon" })}
+        ${renderMetricTile("Archive Expired", summary.archiveExpired, "Download windows expired", safeNumber(summary.archiveExpired) ? "danger" : "admin", "operations", { label: "Review rows", preset: "archive-expired" })}
         ${renderMetricTile("Archive Failed", summary.archiveFailed, "Needs archive follow-up", safeNumber(summary.archiveFailed) ? "danger" : "admin", "operations", { label: "Review rows", preset: "archive-failed" })}
         ${renderMetricTile("Needs Attention", summary.needsAttention, "Blocked, missing, or high-risk rows", safeNumber(summary.needsAttention) ? "danger" : "admin", "operations", { label: "Review rows", preset: "needs-attention" })}
         ${renderMetricTile("Stale Activity", summary.staleActivity, "No recent student progress", safeNumber(summary.staleActivity) ? "warning" : "admin", "operations", { label: "Review rows", preset: "stale-activity" })}

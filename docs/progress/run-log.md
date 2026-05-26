@@ -2125,3 +2125,14 @@ Future productive runs should append compact entries that name the master-plan s
 - `changes`: `/api/site/operations-readiness` now treats `archiveStatus=in_progress` as queued or running archive rows and returns `summary.archiveInProgress`; `workspace.js` renders the metric and opens the scoped worklist with URL state; route/UI tests and dashboard/navigation verifiers guard the path.
 - `validation`: focused route/UI/verifier checks passed before final validation. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
 - `commit/push status`: pending closeout commit; not pushed by this automation run.
+
+## 2026-05-25 PT - Functionality UX Upgrade Operations Archive Window Filters
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 8 operations readiness / Level 1 route-backed dashboard navigation.
+- `starting HEAD`: `d2093c735b66006bdbb936df582c889d0f13fe86`.
+- `selected slice`: Add Operations `Archive Expiring Soon` and `Archive Expired` metrics backed by existing `archiveStatus=expiring_soon` and `archiveStatus=expired` filters.
+- `repo-grounded findings`: the previous handoff named expired/expiring archive rows. Current source already computed both statuses in `/api/site/operations-readiness`, exposed them as filter options, and rendered row-level archive reasons, but the Operations summary did not give staff a direct worklist entry for download-window follow-up.
+- `changes`: `/api/site/operations-readiness` now returns `summary.archiveExpiringSoon` and `summary.archiveExpired`; `workspace.js` renders both metrics and opens exact scoped Operations filters with URL state; route/UI tests and dashboard/navigation verifiers guard both presets.
+- `validation`: focused route/UI/verifier checks passed before final validation. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.
