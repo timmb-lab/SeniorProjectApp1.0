@@ -21,6 +21,17 @@ This is the compact run log for the current Functionality UX Upgrade automation 
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-05-25 18:04 PT - Functionality UX Upgrade Site Dashboard Snapshot Filters
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 1 navigable dashboards / Site Dashboard Operations drill-downs.
+- `starting HEAD`: `179d01308a96c41812f3e6389d96d2298c12aeac`.
+- `selected slice`: Link exact Site Dashboard `Presentation Snapshot` and `Archive / Export Snapshot` rows to existing scoped Operations filters.
+- `repo-grounded findings`: the previous handoff named `renderSnapshotRows()` and Operations filter support. Current source showed Operations already supports exact `presentationStatus` and `archiveStatus` filters, while Site Dashboard snapshot rows were summary-only.
+- `changes`: `workspace.js` now renders snapshot-row Operations buttons only for exact supported statuses and leaves unsupported raw presentation statuses summary-only. Workspace tests prove the rendered actions and URL/filter behavior; `scripts/verify-dashboard-actions.mjs` guards the new presets.
+- `validation`: focused `node --test tests/workspace-app.test.mjs`, `npm run verify:dashboard-actions`, and `npm run verify:workspace-navigation` passed before final validation. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.
+
 ## 2026-05-25 16:04 PT - Functionality UX Upgrade Public Support Page Teacher Checkpoints
 
 - `automation ID`: functionality-ux-upgrade-hourly.

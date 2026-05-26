@@ -128,7 +128,7 @@ Not counted as normal-user leaks:
 ## 8. Dead-End or Misleading UI Language
 
 - Dashboard metric tiles often have `Open` buttons only when an `actionSection` is wired. That is good, but many non-clickable metric cards look visually similar to clickable ones. Future slices should add clearer non-interactive styling or route links when a real section exists.
-- Site dashboard cards such as `Top Risk Students`, `Mentor Coverage`, `Presentation Snapshot`, and `Archive / Export Snapshot` summarize records but do not always let staff filter into matching rows.
+- Site dashboard cards such as `Top Risk Students` and `Mentor Coverage` now have route-backed drill-downs. `Presentation Snapshot` and `Archive / Export Snapshot` now expose row-level Operations drill-downs only for exact supported status filters; unsupported raw statuses remain summary-only.
 - Program teacher `Students` card renders scoped student rows, but the best drill-down is still the site student detail drawer through other surfaces. Add direct open-detail affordances where route-safe.
 - Viewer read-only sections sometimes show operational words like `Teacher intervention` and `Assignment action`; the controls are hidden, but the copy can better emphasize observation and escalation.
 - Mentor dashboard assigned-student cards need richer open-detail and recent activity groupings for mentors to know what to do next.
@@ -140,6 +140,7 @@ Not counted as normal-user leaks:
 - Site dashboard `No Mentor` now opens the Student Directory with `noMentor=true`, and the Mentor Coverage card also offers a missing-mentor student-list drill-down.
 - Site dashboard `Submitted` and `Needs Revision` open Review Queue filters.
 - Site dashboard presentation/archive metrics open Operations filters.
+- Site dashboard `Presentation Snapshot` scheduled/completed rows and `Archive / Export Snapshot` supported status rows open exact Operations filters; unsupported raw presentation statuses remain summary-only.
 - Metrics without a supported route, such as Evidence for roles without a dedicated evidence-record surface, are marked as summary-only instead of receiving fake action buttons.
 - Site dashboard `Recent Activity` opens Audit only when the signed-in role already has the Audit section; otherwise it remains summary-only.
 - Student directory rows have a real `View detail` button, which should be preserved and expanded to other staff lists.
@@ -390,3 +391,4 @@ Every automation run must re-scan the current repo, verify the chosen issue stil
 | 2026-05-25 | Added visible teacher/mentor support checks to public phase pages from existing phase adult-role, evidence, and question data, so each phase page surfaces how adults can keep students moving without taking over the work. | `app.js`, `public-companion/app.js`, `tests/account-and-evidence-access.test.mjs`, `npm run build:public-site`, `npm run check:generated-output-drift` | Complete |
 | 2026-05-25 | Added visible student/teacher responsibility panels to the public templates, portfolio, rubrics, and grades pages, so remaining high-value public resource pages pair student proof actions with teacher/mentor checks before the detailed cards. | `app.js`, `styles.css`, `public-companion/app.js`, `public-companion/styles.css`, `tests/account-and-evidence-access.test.mjs`, `npm run build:public-site`, `npm run check:generated-output-drift` | Complete |
 | 2026-05-25 | Linked Program Teacher dashboard `Submitted` and `Needs Revision` metrics to the existing scoped Review Queue status filters, so assigned-program teachers move from workload counts to the exact review worklist without a fake route or broadening access. | `workspace.js`, `tests/workspace-app.test.mjs`, `scripts/verify-dashboard-actions.mjs`, focused workspace/dashboard/navigation verifiers | Complete |
+| 2026-05-25 | Linked exact Site Dashboard snapshot rows to existing scoped Operations filters, so scheduled/completed presentation rows and supported archive-status rows open matching Operations worklists while unsupported raw presentation statuses stay summary-only. | `workspace.js`, `tests/workspace-app.test.mjs`, `scripts/verify-dashboard-actions.mjs`, focused workspace/dashboard/navigation verifiers | Complete |

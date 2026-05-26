@@ -86,6 +86,8 @@ const allowedPresets = new Map([
   ["outline-pending", "operations"],
   ["evidence-missing", "operations"],
   ["program-breakdown", "operations"],
+  ["presentation-snapshot", "operations"],
+  ["archive-snapshot", "operations"],
 ]);
 
 const presetMatches = [
@@ -224,6 +226,26 @@ assertMatches(
   "workspaceJs",
   /section === "operations" && button\.dataset\.sectionPreset === "program-breakdown"[\s\S]*const programId = cleanDirectoryFilter\(button\.dataset\.programId\)[\s\S]*programId,[\s\S]*syncOperationsReadinessUrlState\(\)/,
   "operations program breakdown rows must be backed by a scoped Operations program filter and sync URL state",
+);
+assertMatches(
+  "workspaceJs",
+  /section === "operations" && button\.dataset\.sectionPreset === "presentation-snapshot"[\s\S]*const presentationStatus = canonicalReviewQueueValue\(button\.dataset\.presentationStatus, OPERATIONS_PRESENTATION_STATUS_VALUES\)[\s\S]*presentationStatus,[\s\S]*syncOperationsReadinessUrlState\(\)/,
+  "presentation snapshot rows must be backed by exact Operations presentation filters and sync URL state",
+);
+assertMatches(
+  "workspaceJs",
+  /renderSnapshotRows\(dashboard\.presentationSnapshot, "presentation"\)/,
+  "Site Dashboard presentation snapshot rows must opt in to route-backed Operations actions",
+);
+assertMatches(
+  "workspaceJs",
+  /section === "operations" && button\.dataset\.sectionPreset === "archive-snapshot"[\s\S]*const archiveStatus = canonicalReviewQueueValue\(button\.dataset\.archiveStatus, OPERATIONS_ARCHIVE_STATUS_VALUES\)[\s\S]*archiveStatus,[\s\S]*syncOperationsReadinessUrlState\(\)/,
+  "archive snapshot rows must be backed by exact Operations archive filters and sync URL state",
+);
+assertMatches(
+  "workspaceJs",
+  /renderSnapshotRows\(dashboard\.archiveSnapshot, "archive"\)/,
+  "Site Dashboard archive snapshot rows must opt in to route-backed Operations actions",
 );
 
 for (const [handler, action, loader] of [

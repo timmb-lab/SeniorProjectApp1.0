@@ -957,6 +957,30 @@ async function openWorkspaceSection(button) {
     await loadOperationsReadinessResult("Showing operations rows for the selected program.");
     return;
   }
+  if (section === "operations" && button.dataset.sectionPreset === "presentation-snapshot") {
+    const presentationStatus = canonicalReviewQueueValue(button.dataset.presentationStatus, OPERATIONS_PRESENTATION_STATUS_VALUES);
+    if (!presentationStatus) return;
+    operationsReadinessFilters = {
+      ...defaultOperationsReadinessFilters(),
+      presentationStatus,
+    };
+    activeSection = "operations";
+    syncOperationsReadinessUrlState();
+    await loadOperationsReadinessResult(`Showing ${statusText(presentationStatus).toLowerCase()} presentation rows.`);
+    return;
+  }
+  if (section === "operations" && button.dataset.sectionPreset === "archive-snapshot") {
+    const archiveStatus = canonicalReviewQueueValue(button.dataset.archiveStatus, OPERATIONS_ARCHIVE_STATUS_VALUES);
+    if (!archiveStatus) return;
+    operationsReadinessFilters = {
+      ...defaultOperationsReadinessFilters(),
+      archiveStatus,
+    };
+    activeSection = "operations";
+    syncOperationsReadinessUrlState();
+    await loadOperationsReadinessResult(`Showing ${statusText(archiveStatus).toLowerCase()} archive rows.`);
+    return;
+  }
   activeSection = section;
   renderAppShell();
 }
@@ -1191,8 +1215,8 @@ function renderSiteDashboardSection() {
         ${renderDashboardCard("Status Breakdown", "Student status", renderStatusBreakdown(dashboard.statusBreakdown))}
         ${renderDashboardCard("Top Risk Students", "Priority student signals", renderSiteTopRiskStudents(dashboard.topRiskStudents))}
         ${renderDashboardCard("Mentor Coverage", "Mentor assignment load", renderMentorCoverage(dashboard.mentorCoverage, summary))}
-        ${renderDashboardCard("Presentation Snapshot", "Readiness and day-of status", renderSnapshotRows(dashboard.presentationSnapshot))}
-        ${renderDashboardCard("Archive / Export Snapshot", "Closeout package status", renderSnapshotRows(dashboard.archiveSnapshot))}
+        ${renderDashboardCard("Presentation Snapshot", "Readiness and day-of status", renderSnapshotRows(dashboard.presentationSnapshot, "presentation"))}
+        ${renderDashboardCard("Archive / Export Snapshot", "Closeout package status", renderSnapshotRows(dashboard.archiveSnapshot, "archive"))}
         ${renderDashboardCard("Next Actions", "Recommended follow-up", renderSiteNextActions(dashboard.nextActions, readOnly))}
       </div>
       ${siteStudentDetailState?.sourceSection === "siteDashboard" ? renderSiteStudentDetailSurface({
@@ -6285,21 +6309,48 @@ function renderStatusBreakdown(rows = []) {
   `;
 }
 
-function renderSnapshotRows(rows = []) {
+function renderSnapshotRows(rows = [], type = "") {
   if (!rows.length) return `<div class="workspace-empty">No status rows are available yet.</div>`;
   return `
     <div class="workspace-list">
-      ${rows.map((row) => `
-        <article class="workspace-row">
-          <div>
-            <strong>${escapeHtml(statusText(row.status))}</strong>
-            <p>${safeNumber(row.count)} ${escapeHtml(pluralize(row.count, "record"))}</p>
-          </div>
-          ${statusPill(row.status)}
-        </article>
-      `).join("")}
+      ${rows.map((row) => renderSnapshotRow(row, type)).join("")}
     </div>
   `;
+}
+
+function renderSnapshotRow(row = {}, type = "") {
+  const action = snapshotRowAction(row, type);
+  return `
+    <article class="workspace-row">
+      <div>
+        <strong>${escapeHtml(statusText(row.status))}</strong>
+        <p>${safeNumber(row.count)} ${escapeHtml(pluralize(row.count, "record"))}</p>
+      </div>
+      <div class="workspace-row-actions">
+        ${statusPill(row.status)}
+        ${action || `<span class="workspace-summary-badge">Summary only</span>`}
+      </div>
+    </article>
+  `;
+}
+
+function snapshotRowAction(row = {}, type = "") {
+  const status = normalizeStatus(row.status);
+  if (type === "presentation" && ["scheduled", "completed"].includes(status)) {
+    return `
+      <button class="workspace-link-button workspace-link-button-small" type="button" data-section="operations" data-section-preset="presentation-snapshot" data-presentation-status="${escapeHtml(status)}">
+        Review rows
+      </button>
+    `;
+  }
+  if (type === "archive" && ["queued", "running", "complete", "failed", "expired", "expiring_soon", "provider_unavailable"].includes(status)) {
+    return `
+      <button class="workspace-link-button workspace-link-button-small" type="button" data-section="operations" data-section-preset="archive-snapshot" data-archive-status="${escapeHtml(status)}">
+        Review rows
+      </button>
+    `;
+  }
+  return "";
 }
 
 function renderAuditSummary(rows = []) {

@@ -340,6 +340,9 @@ test("workspace renders route-connected site dashboard with Figma product-system
   assert.match(siteDashboard, /data-section="teacher" data-section-preset="revision-requested">Review/);
   assert.match(siteDashboard, /data-section="operations" data-section-preset="presentation-pending">Review/);
   assert.match(siteDashboard, /data-section="operations" data-section-preset="archive-failed">Review/);
+  assert.match(siteDashboard, /data-section="operations" data-section-preset="presentation-snapshot" data-presentation-status="scheduled">[\s\S]*Review rows/);
+  assert.match(siteDashboard, /data-section="operations" data-section-preset="archive-snapshot" data-archive-status="failed">[\s\S]*Review rows/);
+  assert.match(siteDashboard, /Checked out[\s\S]*Summary only/);
   assert.match(siteDashboard, /Submitted/);
   assert.match(siteDashboard, /Needs Revision/);
   assert.match(siteDashboard, /Evidence/);
@@ -2007,6 +2010,24 @@ test("workspace renders site-scoped Operations readiness worklists without mutat
   assert.match(window.location.href, /section=operations/);
   assert.match(window.location.href, /programId=it/);
   assert.equal(vm.runInContext("activeSection", context), "operations");
+
+  await vm.runInContext('openWorkspaceSection({ dataset: { section: "operations", sectionPreset: "presentation-snapshot", presentationStatus: "scheduled" } })', context);
+  const presentationSnapshotFetch = fetchLog.findLast((entry) => entry.startsWith("/api/site/operations-readiness?"));
+  assert.ok(presentationSnapshotFetch, "expected Operations fetch with presentation snapshot filter");
+  const presentationSnapshotUrl = new URL(presentationSnapshotFetch, "https://workspace.example");
+  assert.equal(presentationSnapshotUrl.searchParams.get("presentationStatus"), "scheduled");
+  assert.equal(presentationSnapshotUrl.searchParams.has("readiness"), false);
+  assert.equal(presentationSnapshotUrl.searchParams.has("programId"), false);
+  assert.match(window.location.href, /presentationStatus=scheduled/);
+
+  await vm.runInContext('openWorkspaceSection({ dataset: { section: "operations", sectionPreset: "archive-snapshot", archiveStatus: "complete" } })', context);
+  const archiveSnapshotFetch = fetchLog.findLast((entry) => entry.startsWith("/api/site/operations-readiness?"));
+  assert.ok(archiveSnapshotFetch, "expected Operations fetch with archive snapshot filter");
+  const archiveSnapshotUrl = new URL(archiveSnapshotFetch, "https://workspace.example");
+  assert.equal(archiveSnapshotUrl.searchParams.get("archiveStatus"), "complete");
+  assert.equal(archiveSnapshotUrl.searchParams.has("readiness"), false);
+  assert.equal(archiveSnapshotUrl.searchParams.has("programId"), false);
+  assert.match(window.location.href, /archiveStatus=complete/);
 
   await vm.runInContext('openWorkspaceSection({ dataset: { section: "operations", sectionPreset: "presentation-pending" } })', context);
   const presentationFetch = fetchLog.findLast((entry) => entry.startsWith("/api/site/operations-readiness?"));

@@ -2767,3 +2767,55 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: hosted permission/browser proof still needs credentialed runtime; missing-evidence Review Queue filters need backend/privacy support; exports and staff scheduling controls need policy decisions.
   - Do not repeat: do not re-add these Program Teacher metric presets unless regression evidence appears.
   - First file to inspect next run: `workspace.js` `renderSnapshotRows()` and `functions/api/site/operations-readiness.ts`
+
+## Run 2026-05-25 18:04 PT
+
+- Starting SHA: `179d01308a96c41812f3e6389d96d2298c12aeac`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Branch policy: work stayed on clean local `main`; local `main` was fourteen commits ahead of `origin/main`, `origin/main` was not ahead, and no push was run
+- Ladder level targeted: `LEVEL_1_NAVIGABLE_DASHBOARDS` with `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` verifier coverage
+- Backlog item: `site-dashboard-snapshot-row-filter-proof`; advances dashboard/reporting evidence in `MVP-015`
+- Work order selected: Link exact Site Dashboard presentation/archive snapshot rows to existing scoped Operations filters.
+- Selection reason: The previous handoff named `renderSnapshotRows()` and Operations filter support. Current source showed Site Dashboard snapshot rows were summary-only while `/api/site/operations-readiness` already supported exact `presentationStatus` and `archiveStatus` filters. The safe slice was to add row actions only for exact supported status mappings and keep unsupported raw presentation statuses summary-only.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Site Dashboard snapshot row filters | `LEVEL_1_NAVIGABLE_DASHBOARDS` | site_admin, viewer | 5 | 5 | 5 | S | 57 | selected |
+| Snapshot-row verifier guard | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | site_admin, viewer | 3 | 5 | 5 | XS | 52 | included |
+| Admin dashboard snapshot row filters | `LEVEL_1_NAVIGABLE_DASHBOARDS` | platform_admin | 3 | 3 | 3 | S | 39 | rejected: global dashboard lacks exact selected-site Operations context |
+| Operations stale/conflict transition checks | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | site staff | 4 | 4 | 4 | S | 43 | rejected: useful next, larger than snapshot-row slice |
+| Public route visual browser QA | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | public students, teachers | 3 | 4 | 3 | M | 40 | rejected: no source defect found before browser proof |
+| Hosted section-level permission proof | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all protected roles | 4 | 4 | 3 | M | 40 | blocked: credentialed hosted runtime dependency |
+| Review Queue missing-evidence filter | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | site staff, program_teacher | 5 | 2 | 3 | M | 37 | deferred: backend/privacy support still missing |
+| Student Directory missing-evidence filter | `LEVEL_1_NAVIGABLE_DASHBOARDS` | site staff, viewer | 4 | 2 | 3 | M | 35 | deferred: exact route filter missing |
+| Student blocked-submit state polish | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 4 | 4 | 4 | S | 44 | rejected: recent student requirement flow is healthy |
+| Mentor scheduled-date semantics | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | mentor | 3 | 3 | 4 | S | 42 | rejected: scheduling semantics need policy |
+| Staff mentor meeting controls | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | site staff | 4 | 2 | 3 | M | 35 | rejected: endpoint/policy is mentor-only |
+| Downloadable student progress summary | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | student, staff | 4 | 2 | 3 | L | 31 | rejected: export/privacy policy needed |
+| Org-admin tenant rollup | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | org_admin | 4 | 2 | 2 | L | 30 | blocked: backend aggregate and RBAC design needed |
+
+- User-facing improvement: Site Dashboard `Presentation Snapshot` scheduled/completed rows and `Archive / Export Snapshot` supported status rows now open matching Operations worklists with URL state. Unsupported raw presentation statuses such as checked-out rows stay visibly summary-only instead of linking to an approximate filter.
+- Roles affected: `site_admin`, `org_admin`/site-scoped administration users, `viewer` read-only staff; no student, mentor, tenant, site, program, or record visibility was broadened.
+- Files changed: `workspace.js`, `tests/workspace-app.test.mjs`, `scripts/verify-dashboard-actions.mjs`, `docs/functionality-language-audit.md`, `docs/mvp-requirements-catalog.md`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`, `docs/progress/run-log.md`, `docs/progress/runs/2026-05-25-1804-site-dashboard-snapshot-row-filters.json`
+- Tests/verifiers added or updated: workspace tests prove snapshot buttons render only for exact supported statuses and fetch Operations with `presentationStatus`/`archiveStatus`; dashboard-action verifier guards the new presets and Site Dashboard opt-in.
+- Validation commands:
+  - Focused passed before docs/state closeout: `node --test tests/workspace-app.test.mjs`; `npm run verify:dashboard-actions`; `npm run verify:workspace-navigation`
+  - Final passed: `npm run verify:functionality-language`; `npm run verify:functionality-ux-automation`; `node --test tests/functionality-language-audit.test.mjs`; JSON parse for state and manifest; `git diff --check`; `npm run check:route-inventory`; `npm run check:production-surfaces`; `npm run test`; `npm run typecheck`; `npm run check`
+- Validation result: passed; `git diff --check` reported only CRLF normalization warnings, with no whitespace errors.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: hosted section-level permission proof, public-route visual QA, Review Queue/Student Directory missing-evidence filters, export-style progress summaries, staff scheduling/reassignment controls, admin global snapshot drill-downs, and org rollups remain deferred.
+- New backlog items: inspect Operations stale/conflict transition states for exact filters or safer status guidance.
+- Next recommended work order: inspect Operations stale/conflict transition states for exact route-backed filters or safer empty-state guidance.
+- Do-not-repeat notes: do not re-add Site Dashboard snapshot-row Operations filters unless regression removes `presentation-snapshot`/`archive-snapshot` handling or the exact-status summary-only guard.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_1_NAVIGABLE_DASHBOARDS`
+  - Advanced: yes
+  - Evidence: Site Dashboard snapshot rows now opt into exact Operations filters with focused tests/verifier coverage, while unsupported raw statuses remain summary-only.
+  - Unlocks: next dashboard work can move from basic click-throughs toward Operations status accuracy and hosted proof.
+  - Next: inspect Operations stale/conflict transition states for exact route-backed filters or safer status guidance.
+  - Blockers: hosted permission/browser proof still needs credentialed runtime; missing-evidence Review Queue filters need backend/privacy support; exports and staff scheduling controls need policy decisions.
+  - Do not repeat: do not re-add snapshot-row filters unless regression evidence appears.
+  - First file to inspect next run: `workspace.js` `renderOperationsReadinessSection()` and `functions/_lib/site-operations-readiness.ts`
