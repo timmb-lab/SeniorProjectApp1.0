@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-05-25T23:34:56-07:00",
-  "lastStartingSha": "a8febedee6b942c4ce6fee6582dc25db38e52724",
+  "lastRunAt": "2026-05-26T00:03:39-07:00",
+  "lastStartingSha": "3b705a9c37d553aa46d5b798d33061271202b644",
   "lastEndingSha": null,
-  "currentLadderFocus": "LEVEL_1_NAVIGABLE_DASHBOARDS",
+  "currentLadderFocus": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
   "completedWorkOrders": [
     {
       "id": "workspace-header-product-language-cleanup",
@@ -625,6 +625,14 @@
       "type": "TYPE_B_DASHBOARD_CLICK_THROUGH",
       "summary": "Student Directory summary tiles now filter the existing scoped directory for submitted, revision, high-risk, presentation-pending, archive-ready, and archive-failed student rows.",
       "commit": "pending-closeout-commit"
+    },
+    {
+      "id": "student-directory-filter-empty-state-depth",
+      "completedAt": "2026-05-26T00:03:39-07:00",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "type": "TYPE_D_ROLE_WORKSPACE",
+      "summary": "Student Directory filtered empty states now name the active workflow, including submitted work, revision follow-up, high-risk, presentation, archive, program, search, and missing-mentor views.",
+      "commit": "pending-closeout-commit"
     }
   ],
   "deferredWorkOrders": [
@@ -674,10 +682,10 @@
       "summary": "Inspect Review Queue missing-evidence semantics before implementing any new filter."
     },
     {
-      "id": "student-directory-filter-empty-state-depth",
-      "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS",
-      "type": "TYPE_D_ROLE_WORKSPACE",
-      "summary": "Review whether non-mentor Student Directory filters need filter-specific empty-state guidance."
+      "id": "hosted-workspace-account-state-proof",
+      "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
+      "type": "TYPE_G_VERIFICATION_REGRESSION_PROTECTION",
+      "summary": "Prove latest account-state and no-assignment workspace markers after hosted deployment."
     }
   ],
   "doNotRepeat": [
@@ -751,27 +759,28 @@
     "Do not re-add the Review Queue Stale Activity metric action unless regression removes the stale-review preset or risk=stale Review Queue URL proof.",
     "Do not re-add the Review Queue Missing Mentor metric action unless regression removes the missing-mentor-review preset, summary.noMentor, or risk=no_mentor Review Queue URL proof.",
     "Do not re-add the Review Queue Evidence Attached metric action unless regression removes the evidence-attached-review preset, evidenceStatus=attached route support, or Review Queue URL proof.",
-    "Do not re-add Student Directory summary filter actions unless regression removes submitted-students, revision-students, high-risk-students, presentation-pending-students, archive-ready-students, or archive-failed-students presets."
+    "Do not re-add Student Directory summary filter actions unless regression removes submitted-students, revision-students, high-risk-students, presentation-pending-students, archive-ready-students, or archive-failed-students presets.",
+    "Do not re-clean Student Directory filtered empty states unless regression removes studentDirectoryEmptyStateCopy() or reintroduces generic filtered no-data copy for submitted, revision, high-risk, presentation, archive, program, search, or missing-mentor views."
   ],
   "lastValidationStatus": {
     "status": "passed",
-    "completedAt": "2026-05-25T23:37:46-07:00",
+    "completedAt": "2026-05-26T00:07:08-07:00",
     "commands": [
       "node --test tests/workspace-app.test.mjs",
+      "npm run verify:functionality-language",
       "npm run verify:dashboard-actions",
       "npm run verify:workspace-navigation",
-      "npm run verify:functionality-language",
       "npm run verify:functionality-ux-automation",
       "node --test tests/functionality-language-audit.test.mjs",
       "npm run check:production-surfaces",
       "npm run check:route-inventory",
-      "node -e JSON.parse automation/state/functionality-ux-growth-state.json and docs/progress/runs/2026-05-25-2334-student-directory-summary-filters.json",
+      "node -e JSON.parse automation/state/functionality-ux-growth-state.json and docs/progress/runs/2026-05-26-0003-student-directory-filter-empty-states.json",
       "git diff --check",
       "npm run test",
       "npm run typecheck",
       "npm run check"
     ],
-    "notes": "Full validation passed for Student Directory summary filter actions. git diff --check reported only CRLF normalization warnings. This run changes scoped directory UI filtering/navigation, verifiers, focused workspace coverage, and run records only; it does not change auth role grants, tenant/site/program/student privacy boundaries, migrations, secrets/env files, Cloudflare/OAuth/domain config, deploy settings, or live data."
+    "notes": "Full validation passed for Student Directory filter-specific empty states. git diff --check reported only CRLF normalization warnings. This run changes protected workspace empty-state copy, focused workspace coverage, and run records only; it does not change auth role grants, tenant/site/program/student privacy boundaries, migrations, secrets/env files, Cloudflare/OAuth/domain config, deploy settings, or live data."
   },
   "lastProductReadinessScorecardSummary": {
     "homepageClarity": "4 to 4",
@@ -787,7 +796,7 @@
     "roleSpecificWorkspaceClarity": "4 to 4",
     "studentPrivacyConfidence": "4 to 4",
     "staffWorkflowUsefulness": "4 to 4",
-    "emptyErrorStateQuality": "3 to 4",
+    "emptyErrorStateQuality": "4 to 4",
     "regressionTestCoverage": "4 to 4",
     "mentorWorkspaceDepth": "3 to 4"
   }

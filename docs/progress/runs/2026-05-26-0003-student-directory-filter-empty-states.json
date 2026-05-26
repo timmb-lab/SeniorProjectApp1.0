@@ -1,0 +1,81 @@
+{
+  "runId": "2026-05-26-0003-student-directory-filter-empty-states",
+  "automationId": "functionality-ux-upgrade-hourly",
+  "startedAt": "2026-05-26T00:03:39-07:00",
+  "branch": "main",
+  "startingSha": "3b705a9c37d553aa46d5b798d33061271202b644",
+  "endingSha": null,
+  "originMain": "cfec0951f10f56ee19476b5384d18e4074cbfcd4",
+  "localAhead": 25,
+  "remoteAhead": 0,
+  "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+  "supportingLadderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS",
+  "workOrder": {
+    "id": "student-directory-filter-empty-state-depth",
+    "title": "Clarify Student Directory filtered empty states",
+    "type": "TYPE_D_ROLE_WORKSPACE",
+    "selectedReason": "Student Directory summary filters were route-backed, but zero-result filtered views still rendered generic no-match language."
+  },
+  "candidateScores": [
+    { "candidate": "Student Directory filter-specific empty states", "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES", "roles": "site staff, viewer, program_teacher", "impact": 4, "safety": 5, "testability": 5, "size": "XS", "score": 55, "decision": "selected" },
+    { "candidate": "Hosted section-level permission proof", "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT", "roles": "all protected roles", "impact": 4, "safety": 4, "testability": 3, "size": "M", "score": 40, "decision": "blocked-credentialed-runtime" },
+    { "candidate": "Review Queue missing-evidence semantics", "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES", "roles": "site staff, program_teacher", "impact": 5, "safety": 3, "testability": 4, "size": "M", "score": 43, "decision": "deferred-product-semantics" },
+    { "candidate": "Student Directory missing-evidence filter", "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS", "roles": "site staff, viewer", "impact": 4, "safety": 2, "testability": 3, "size": "M", "score": 35, "decision": "deferred-missing-route-filter" },
+    { "candidate": "Public route visual browser QA", "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT", "roles": "public students, teachers", "impact": 3, "safety": 4, "testability": 3, "size": "M", "score": 40, "decision": "rejected-lower-protected-app-value" },
+    { "candidate": "Operations provider-unavailable metric", "ladderLevel": "LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS", "roles": "site staff, viewer", "impact": 4, "safety": 3, "testability": 3, "size": "S", "score": 41, "decision": "rejected-needs-product-security-semantics" },
+    { "candidate": "Operations high-risk direct metric", "ladderLevel": "LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS", "roles": "site staff, viewer", "impact": 4, "safety": 5, "testability": 4, "size": "XS", "score": 50, "decision": "rejected-already-covered-by-risk-category" },
+    { "candidate": "Student guided requirement form", "ladderLevel": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN", "roles": "student", "impact": 5, "safety": 2, "testability": 3, "size": "L", "score": 32, "decision": "rejected-write-path-design-needed" },
+    { "candidate": "Staff archive retry/regenerate controls", "ladderLevel": "LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS", "roles": "site_admin", "impact": 5, "safety": 2, "testability": 3, "size": "M", "score": 34, "decision": "rejected-mutation-policy" },
+    { "candidate": "Downloadable student progress summary", "ladderLevel": "LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS", "roles": "student, staff", "impact": 4, "safety": 2, "testability": 3, "size": "L", "score": 31, "decision": "rejected-export-privacy-policy" },
+    { "candidate": "Org-admin tenant rollup", "ladderLevel": "LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS", "roles": "org_admin", "impact": 4, "safety": 2, "testability": 2, "size": "L", "score": 30, "decision": "blocked-backend-rbac-design" },
+    { "candidate": "Summary-only metric affordance styling", "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS", "roles": "staff, viewer", "impact": 3, "safety": 4, "testability": 3, "size": "S", "score": 39, "decision": "rejected-broader-visual-surface" }
+  ],
+  "changes": [
+    "workspace.js centralizes Student Directory empty-state copy in studentDirectoryEmptyStateCopy().",
+    "Filtered no-result states now name submitted work, revision follow-up, high-risk, presentation, archive, program, search, and missing-mentor contexts.",
+    "tests/workspace-app.test.mjs covers unfiltered, submitted, and archive-failed empty states."
+  ],
+  "filesChanged": [
+    "workspace.js",
+    "tests/workspace-app.test.mjs",
+    "docs/functionality-language-audit.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/functionality-ux-growth-ledger.md",
+    "automation/state/functionality-ux-growth-state.json",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-26-0003-student-directory-filter-empty-states.json"
+  ],
+  "validation": {
+    "focusedPassed": [
+      "node --test tests/workspace-app.test.mjs",
+      "npm run verify:functionality-language",
+      "npm run verify:dashboard-actions",
+      "npm run verify:workspace-navigation"
+    ],
+    "finalPassed": [
+      "npm run verify:functionality-ux-automation",
+      "node --test tests/functionality-language-audit.test.mjs",
+      "npm run check:production-surfaces",
+      "npm run check:route-inventory",
+      "node -e JSON.parse automation/state/functionality-ux-growth-state.json and docs/progress/runs/2026-05-26-0003-student-directory-filter-empty-states.json",
+      "git diff --check",
+      "npm run test",
+      "npm run typecheck",
+      "npm run check"
+    ],
+    "status": "passed",
+    "notes": "git diff --check reported only CRLF normalization warnings."
+  },
+  "privacyAndPermissions": "No auth, RBAC, tenant, site, program, mentor-assignment, student privacy, migrations, secrets, Cloudflare/OAuth/deployment settings, or live data changed.",
+  "deferred": [
+    "hosted-section-permission-proof",
+    "hosted-workspace-account-state-proof",
+    "review-queue-missing-evidence-filter-semantics",
+    "student-directory-missing-evidence-filter",
+    "staff-archive-retry-regenerate-controls",
+    "operations-provider-unavailable-semantics",
+    "org-admin-tenant-rollup"
+  ],
+  "nextRecommended": "Run hosted section-level permission proof when credentialed runtime is available; otherwise inspect Review Queue missing-evidence semantics without implementing a fake queue filter.",
+  "doNotRepeat": "Do not re-clean Student Directory filtered empty states unless regression removes studentDirectoryEmptyStateCopy() or reintroduces generic filtered no-data copy for covered workflows."
+}

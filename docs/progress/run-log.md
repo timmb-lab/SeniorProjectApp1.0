@@ -2202,3 +2202,14 @@ Future productive runs should append compact entries that name the master-plan s
 - `changes`: `workspace.js` now gives those summary tiles real `students` presets that narrow the existing directory; `tests/workspace-app.test.mjs` proves exact filter URLs and URL state; dashboard/navigation verifiers guard the presets.
 - `validation`: focused workspace test, dashboard action verifier, and workspace navigation verifier passed before final validation. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
 - `commit/push status`: pending closeout commit; not pushed by this automation run.
+
+## 2026-05-26 PT - Functionality UX Upgrade Student Directory Empty States
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 4 role-specific workspaces / Student Directory no-results clarity.
+- `starting HEAD`: `3b705a9c37d553aa46d5b798d33061271202b644`.
+- `selected slice`: Add filter-specific Student Directory empty states for route-backed and common manual filters.
+- `repo-grounded findings`: the previous run linked Student Directory summary tiles to real scoped filters, but `renderStudentDirectoryEmptyState()` still rendered generic no-match copy when filtered views returned zero rows.
+- `changes`: `workspace.js` now centralizes Student Directory empty-state copy and names submitted work, revision follow-up, high-risk, presentation, archive, program, search, and missing-mentor no-match states without changing route filters or permissions. `tests/workspace-app.test.mjs` covers unfiltered, submitted, and archive-failed empty states.
+- `validation`: focused workspace test plus functionality-language, dashboard-action, and workspace-navigation verifiers passed before final validation. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.

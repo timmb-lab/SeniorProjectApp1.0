@@ -1657,7 +1657,22 @@ function renderStudentRow(student, readOnly = false) {
 function renderStudentDirectoryEmptyState(directory) {
   const emptyState = directory.emptyState || {};
   const filters = directory.filters || {};
-  const filtered = Boolean(
+  const options = directory.filterOptions || {};
+  const copy = studentDirectoryEmptyStateCopy(filters, options, emptyState);
+  return `
+    <section class="workspace-empty-state-card" data-student-directory-empty="true">
+      <strong>${escapeHtml(copy.heading)}</strong>
+      ${renderProblemState({
+        reason: copy.reason,
+        owner: copy.owner,
+        nextAction: copy.nextAction,
+      })}
+    </section>
+  `;
+}
+
+function hasActiveStudentDirectoryFilters(filters = {}) {
+  return Boolean(
     filters.search
     || filters.programId
     || filters.status
@@ -1667,16 +1682,97 @@ function renderStudentDirectoryEmptyState(directory) {
     || (filters.presentationStatus && filters.presentationStatus !== "any")
     || (filters.archiveStatus && filters.archiveStatus !== "any")
   );
-  return `
-    <section class="workspace-empty-state-card" data-student-directory-empty="true">
-      <strong>No student records match these filters</strong>
-      ${renderProblemState({
-        reason: filtered ? "No students match these filters." : emptyState.reason || "No student records are visible in this view.",
-        owner: emptyState.owner || "Assigned staff or site administrator.",
-        nextAction: filtered ? "Clear filters to see all students you can access." : emptyState.nextAction || "Check the assigned school or program.",
-      })}
-    </section>
-  `;
+}
+
+function studentDirectoryEmptyStateCopy(filters = {}, options = {}, emptyState = {}) {
+  const owner = emptyState.owner || "Assigned staff or site administrator.";
+  if (!hasActiveStudentDirectoryFilters(filters)) {
+    return {
+      heading: "No student records are visible right now",
+      reason: emptyState.reason || "No student records are visible in this view.",
+      owner,
+      nextAction: emptyState.nextAction || "Check the assigned school or program.",
+    };
+  }
+  if (filters.noMentor) {
+    return {
+      heading: "No matching students need mentors",
+      reason: "No students without active mentor assignments match these filters for this school.",
+      owner,
+      nextAction: "Clear filters or review active mentor coverage.",
+    };
+  }
+  if (filters.status === "submitted") {
+    return {
+      heading: "No matching submitted work",
+      reason: "No students with submitted work match these filters.",
+      owner,
+      nextAction: "Clear filters or check the Review Queue for broader review work.",
+    };
+  }
+  if (filters.status === "revision_requested") {
+    return {
+      heading: "No matching revision follow-up",
+      reason: "No students needing revision follow-up match these filters.",
+      owner,
+      nextAction: "Clear filters or check the Review Queue for current revision work.",
+    };
+  }
+  if (filters.risk === "high") {
+    return {
+      heading: "No matching high-risk students",
+      reason: "No high-risk students match these filters for this school.",
+      owner,
+      nextAction: "Clear filters or continue monitoring the full student list.",
+    };
+  }
+  if (filters.presentationStatus === "pending") {
+    return {
+      heading: "No matching presentation follow-up",
+      reason: "No students with pending presentation readiness match these filters.",
+      owner,
+      nextAction: "Clear filters or open Operations for broader presentation work.",
+    };
+  }
+  if (filters.archiveStatus === "ready") {
+    return {
+      heading: "No matching archive-ready students",
+      reason: "No students ready for archive closeout match these filters.",
+      owner,
+      nextAction: "Clear filters or open Operations for broader archive work.",
+    };
+  }
+  if (filters.archiveStatus === "failed") {
+    return {
+      heading: "No matching archive follow-up",
+      reason: "No students with archive export follow-up match these filters.",
+      owner,
+      nextAction: "Clear filters or open Operations for archive readiness work.",
+    };
+  }
+  if (filters.programId) {
+    const label = programLabel(options.programs, filters.programId);
+    return {
+      heading: "No matching students in this program",
+      reason: `No visible students in ${label} match these filters.`,
+      owner,
+      nextAction: "Clear filters or choose another visible program.",
+    };
+  }
+  if (filters.search) {
+    return {
+      heading: "No matching student search results",
+      reason: "No visible students match this search and filter set.",
+      owner,
+      nextAction: "Clear filters or try a different student name or email.",
+    };
+  }
+  return {
+    heading: "No matching student records",
+    reason: "No students match these filters for this school.",
+    owner,
+    nextAction: "Clear filters to see all students you can access.",
+  };
 }
 
 function renderSiteStudentDetailSurface(directory) {

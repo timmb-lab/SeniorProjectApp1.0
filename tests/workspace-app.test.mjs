@@ -860,10 +860,95 @@ test("workspace renders route-connected student directory with filters and real 
   }, "students");
   assert.match(empty, /data-student-directory-empty="true"/);
   assert.match(empty, /workspace-problem-state/);
-  assert.match(empty, /No student records match these filters/);
+  assert.match(empty, /No student records are visible right now/);
   assert.match(empty, /Reason/);
   assert.match(empty, /Owner/);
   assert.match(empty, /Next action/);
+
+  const filteredSubmittedEmpty = await renderWorkspaceWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "site-admin-empty-submitted-students",
+          email: "site.empty.submitted@example.edu",
+          displayName: "Site Empty Submitted Admin",
+          roles: [{ role_id: "site_admin", scope_type: "site", scope_id: "site-desert-valley-high" }],
+        },
+      },
+    },
+    "/api/site/dashboard": {
+      status: 200,
+      body: siteDashboardFixture({ readOnly: false }),
+    },
+    "/api/site/students": {
+      status: 200,
+      body: siteStudentsFixture({
+        filteredTotal: 0,
+        students: [],
+        filters: {
+          search: "",
+          programId: "",
+          status: "submitted",
+          noMentor: false,
+          risk: "any",
+          story: "",
+          presentationStatus: "any",
+          archiveStatus: "any",
+          limit: 50,
+          offset: 0,
+        },
+      }),
+    },
+  }, "students");
+  assert.match(filteredSubmittedEmpty, /No matching submitted work/);
+  assert.match(filteredSubmittedEmpty, /No students with submitted work match these filters/);
+  assert.match(filteredSubmittedEmpty, /check the Review Queue for broader review work/);
+  assert.doesNotMatch(filteredSubmittedEmpty, /No student records match these filters|No students match these filters/);
+
+  const filteredArchiveEmpty = await renderWorkspaceWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "viewer-empty-archive-students",
+          email: "viewer.empty.archive@example.edu",
+          displayName: "Viewer Empty Archive",
+          roles: [{ role_id: "viewer", scope_type: "site", scope_id: "site-desert-valley-high" }],
+        },
+      },
+    },
+    "/api/site/dashboard": {
+      status: 200,
+      body: siteDashboardFixture({ readOnly: true }),
+    },
+    "/api/site/students": {
+      status: 200,
+      body: siteStudentsFixture({
+        readOnly: true,
+        filteredTotal: 0,
+        students: [],
+        filters: {
+          search: "",
+          programId: "",
+          status: "",
+          noMentor: false,
+          risk: "any",
+          story: "",
+          presentationStatus: "any",
+          archiveStatus: "failed",
+          limit: 50,
+          offset: 0,
+        },
+      }),
+    },
+  }, "students");
+  assert.match(filteredArchiveEmpty, /No matching archive follow-up/);
+  assert.match(filteredArchiveEmpty, /No students with archive export follow-up match these filters/);
+  assert.match(filteredArchiveEmpty, /open Operations for archive readiness work/i);
+  assert.doesNotMatch(filteredArchiveEmpty, /No student records match these filters|No students match these filters/);
 });
 
 test("student directory summary tiles apply real directory filters", async () => {
