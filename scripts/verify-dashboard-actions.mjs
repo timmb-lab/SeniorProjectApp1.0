@@ -90,6 +90,7 @@ const allowedPresets = new Map([
   ["stale-review", "teacher"],
   ["missing-mentor-review", "teacher"],
   ["evidence-attached-review", "teacher"],
+  ["evidence-missing-review", "teacher"],
   ["presentation-pending", "operations"],
   ["presentation-attention", "operations"],
   ["archive-failed", "operations"],
@@ -261,6 +262,16 @@ assertMatches(
   "workspaceJs",
   /function renderTeacherSection\([\s\S]*renderMetricTile\("Evidence Attached"[\s\S]*"teacher", \{ label: "Review rows", preset: "evidence-attached-review" \}\)/,
   "Review Queue Evidence Attached metric must open the existing evidence-attached Review Queue filter",
+);
+assertMatches(
+  "workspaceJs",
+  /section === "teacher" && button\.dataset\.sectionPreset === "evidence-missing-review"[\s\S]*evidenceStatus: "missing"[\s\S]*syncReviewQueueUrlState\(\)/,
+  "evidence-missing-review dashboard preset must be backed by a Review Queue evidenceStatus filter and sync URL state",
+);
+assertMatches(
+  "workspaceJs",
+  /function renderTeacherSection\([\s\S]*renderMetricTile\("Evidence Missing"[\s\S]*"teacher", \{ label: "Review rows", preset: "evidence-missing-review" \}\)/,
+  "Review Queue Evidence Missing metric must open the existing evidence-missing Review Queue filter",
 );
 assertMatches(
   "workspaceJs",

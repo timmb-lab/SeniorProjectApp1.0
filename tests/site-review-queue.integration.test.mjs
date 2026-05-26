@@ -35,6 +35,9 @@ test("site review queue is scoped, read-only by role, mutable for program teache
   const submittedIt = await findSubmittedProgramSubmissions(env, "it", 4);
   const revisionIt = await findSubmissionByStatusAndProgram(env, "revision_requested", "it");
   const nonItSubmitted = await findSubmittedOutsideProgram(env, "it");
+  await env.DB.prepare(
+    "DELETE FROM evidence_artifacts WHERE submission_id = ?",
+  ).bind(submittedIt[3].id).run();
 
   {
     const { response, body } = await routeQueue(env, null, `?siteId=${PRIMARY_SITE_ID}`);
@@ -90,6 +93,11 @@ test("site review queue is scoped, read-only by role, mutable for program teache
   assert.equal(evidenceAttached.queue.length > 0, true);
   assert.equal(evidenceAttached.queue.every((row) => row.evidenceCount > 0), true);
   assert.equal(evidenceAttached.pagination.filteredTotal, evidenceAttached.summary.evidenceAttached);
+  const evidenceMissing = await expectQueue(env, tokens.programTeacher, `?siteId=${PRIMARY_SITE_ID}&evidenceStatus=missing&limit=100`);
+  assert.equal(evidenceMissing.queue.length > 0, true);
+  assert.equal(evidenceMissing.queue.every((row) => row.evidenceCount === 0), true);
+  assert.equal(evidenceMissing.queue.every((row) => row.riskFlags.includes("missing_evidence")), true);
+  assert.equal(evidenceMissing.pagination.filteredTotal, evidenceMissing.summary.evidenceMissing);
   const missingMentor = await expectQueue(env, tokens.programTeacher, `?siteId=${PRIMARY_SITE_ID}&risk=no_mentor&limit=100`);
   assert.equal(missingMentor.queue.length > 0, true);
   assert.equal(missingMentor.queue.every((row) => row.riskFlags.includes("no_mentor")), true);
@@ -159,7 +167,7 @@ test("site review queue is scoped, read-only by role, mutable for program teache
   assert.equal(legacyCompat.response.status, 200);
   assert.equal(legacyCompat.body.review.decision, "comment_only");
 
-  for (const body of [platform, legacy, org, siteAdmin, viewer, teacher, paged, offset, submitted, missingMentor, searched, noMatches, approved.body, revision.body, comment.body, legacyCompat.body]) {
+  for (const body of [platform, legacy, org, siteAdmin, viewer, teacher, paged, offset, submitted, evidenceAttached, evidenceMissing, missingMentor, searched, noMatches, approved.body, revision.body, comment.body, legacyCompat.body]) {
     assert.doesNotMatch(JSON.stringify(body), FORBIDDEN_RESPONSE_FIELDS);
   }
 

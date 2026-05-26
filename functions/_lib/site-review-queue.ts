@@ -20,7 +20,7 @@ const MAX_LIMIT = 100;
 const REVIEW_STATUS_VALUES = ["submitted", "revision_requested", "approved"];
 const CANONICAL_STORY_VALUES = ["model_excellent", "missing_mentor", "awaiting_review", "revision_requested", "presentation_pending", "archive_ready", "archive_failed", "high_risk", "rich_timeline"];
 const RISK_VALUES = ["any", "high", "medium", "low", "stale", "no_mentor"];
-const EVIDENCE_STATUS_VALUES = ["attached"];
+const EVIDENCE_STATUS_VALUES = ["attached", "missing"];
 
 interface CountRow {
   count: number;
@@ -32,6 +32,7 @@ interface SummaryRow {
   ready_to_review: number;
   overdue_or_stale: number;
   evidence_attached: number;
+  evidence_missing: number;
   high_risk: number;
   no_mentor: number;
 }
@@ -439,6 +440,7 @@ async function loadSummary(env: Env, scopeSql: ReturnType<typeof buildQueueScope
        SUM(CASE WHEN status = 'submitted' AND evidence_count > 0 THEN 1 ELSE 0 END) AS ready_to_review,
        SUM(CASE WHEN stale_flag = 1 THEN 1 ELSE 0 END) AS overdue_or_stale,
        SUM(CASE WHEN evidence_count > 0 THEN 1 ELSE 0 END) AS evidence_attached,
+       SUM(CASE WHEN evidence_count = 0 THEN 1 ELSE 0 END) AS evidence_missing,
        SUM(CASE WHEN risk_score >= 7 THEN 1 ELSE 0 END) AS high_risk,
        SUM(CASE WHEN has_active_mentor = 0 THEN 1 ELSE 0 END) AS no_mentor
      FROM queue_rows
@@ -451,6 +453,7 @@ async function loadSummary(env: Env, scopeSql: ReturnType<typeof buildQueueScope
     readyToReview: Number(row?.ready_to_review || 0),
     overdueOrStale: Number(row?.overdue_or_stale || 0),
     evidenceAttached: Number(row?.evidence_attached || 0),
+    evidenceMissing: Number(row?.evidence_missing || 0),
     highRisk: Number(row?.high_risk || 0),
     noMentor: Number(row?.no_mentor || 0),
   };
@@ -558,6 +561,9 @@ function buildFilterWhere(filters: ReviewQueueFilters): FilterWhere {
 
   if (filters.evidenceStatus === "attached") {
     clauses.push("evidence_count > 0");
+  }
+  if (filters.evidenceStatus === "missing") {
+    clauses.push("evidence_count = 0");
   }
 
   return {

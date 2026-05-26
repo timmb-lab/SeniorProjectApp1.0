@@ -1182,6 +1182,7 @@ test("workspace renders site-aware Review Queue with teacher decisions and read-
   assert.match(teacher, /workspace-review-queue/);
   assert.match(teacher, /workspace-filter-bar/);
   assert.match(teacher, /data-section="teacher" data-section-preset="evidence-attached-review">Review rows/);
+  assert.match(teacher, /data-section="teacher" data-section-preset="evidence-missing-review">Review rows/);
   assert.match(teacher, /data-section="teacher" data-section-preset="high-risk">Review rows/);
   assert.match(teacher, /data-section="teacher" data-section-preset="stale-review">Review rows/);
   assert.match(teacher, /data-section="teacher" data-section-preset="missing-mentor-review">Review rows/);
@@ -1339,6 +1340,15 @@ test("workspace renders site-aware Review Queue with teacher decisions and read-
   assert.equal(evidenceAttachedUrl.searchParams.has("status"), false);
   assert.match(window.location.href, /section=teacher/);
   assert.match(window.location.href, /evidenceStatus=attached/);
+
+  await vm.runInContext('openWorkspaceSection({ dataset: { section: "teacher", sectionPreset: "evidence-missing-review" } })', context);
+  const evidenceMissingFetch = fetchLog.findLast((entry) => entry.startsWith("/api/site/review-queue?"));
+  assert.ok(evidenceMissingFetch, "expected evidence-missing Review Queue metric to load Review Queue");
+  const evidenceMissingUrl = new URL(evidenceMissingFetch, "https://workspace.example");
+  assert.equal(evidenceMissingUrl.searchParams.get("evidenceStatus"), "missing");
+  assert.equal(evidenceMissingUrl.searchParams.has("status"), false);
+  assert.match(window.location.href, /section=teacher/);
+  assert.match(window.location.href, /evidenceStatus=missing/);
 });
 
 test("workspace renders Review Queue empty and history states with assigned-work language", async () => {
@@ -4473,6 +4483,7 @@ function siteReviewQueueFixture({
       readyToReview: rows.filter((row) => row.status === "submitted" && row.evidenceCount > 0).length,
       overdueOrStale: 1,
       evidenceAttached: rows.filter((row) => row.evidenceCount > 0).length,
+      evidenceMissing: rows.filter((row) => row.evidenceCount === 0).length,
       highRisk: rows.filter((row) => row.riskScore >= 7).length,
       noMentor: rows.filter((row) => Array.isArray(row.riskFlags) && row.riskFlags.includes("no_mentor")).length,
     },
@@ -4482,7 +4493,7 @@ function siteReviewQueueFixture({
       statuses: ["submitted", "revision_requested", "approved"],
       storyBuckets: ["model_excellent", "missing_mentor", "awaiting_review", "revision_requested", "presentation_pending", "archive_ready", "archive_failed", "high_risk", "rich_timeline"],
       risks: ["any", "high", "medium", "low", "stale", "no_mentor"],
-      evidenceStatuses: ["attached"],
+      evidenceStatuses: ["attached", "missing"],
     },
     permissions: {
       canReview,

@@ -1,0 +1,86 @@
+{
+  "runId": "2026-05-26-0106-review-queue-evidence-missing-filter",
+  "automationId": "functionality-ux-upgrade-hourly",
+  "startedAt": "2026-05-26T01:06:57-07:00",
+  "startingSha": "13dbe99650ba8aafaef1eb57b414d49b405c9d63",
+  "branch": "main",
+  "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
+  "mvpRequirements": ["MVP-015", "MVP-016", "MVP-017", "MVP-018", "MVP-022"],
+  "selectedWorkOrder": {
+    "id": "review-queue-evidence-missing-filter-action",
+    "title": "Link Review Queue Evidence Missing to a real filter",
+    "type": "TYPE_F_REVIEW_INTERVENTION_QUEUE",
+    "selectedReason": "The route already computed zero-evidence review rows and supported evidenceStatus=attached, so evidenceStatus=missing was an exact, scoped complement without changing permissions or evidence visibility."
+  },
+  "candidateScores": [
+    { "id": "review-queue-evidence-missing-filter", "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES", "roles": "program_teacher, site staff, viewer", "impact": 5, "safety": 5, "testability": 5, "size": "S", "score": 58, "decision": "selected" },
+    { "id": "hosted-section-permission-proof", "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT", "roles": "all protected roles", "impact": 4, "safety": 4, "testability": 3, "size": "M", "score": 40, "decision": "blocked: credentialed runtime" },
+    { "id": "viewer-specific-overview-depth", "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES", "roles": "viewer", "impact": 4, "safety": 4, "testability": 4, "size": "S", "score": 42, "decision": "rejected: read-only copy recently hardened" },
+    { "id": "review-queue-status-specific-empty-states", "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES", "roles": "program_teacher, viewer", "impact": 4, "safety": 5, "testability": 4, "size": "XS", "score": 49, "decision": "rejected: less workflow value than route-backed filter" },
+    { "id": "review-queue-missing-submission-filter", "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES", "roles": "program_teacher, site staff", "impact": 5, "safety": 2, "testability": 3, "size": "M", "score": 34, "decision": "deferred: no exact queue semantics" },
+    { "id": "student-directory-missing-evidence-filter", "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS", "roles": "site staff, viewer", "impact": 4, "safety": 2, "testability": 3, "size": "M", "score": 35, "decision": "deferred: directory route filter missing" },
+    { "id": "operations-provider-unavailable-metric", "ladderLevel": "LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS", "roles": "site staff, viewer", "impact": 4, "safety": 3, "testability": 3, "size": "S", "score": 41, "decision": "rejected: product/security semantics needed" },
+    { "id": "admin-recent-activity-drilldown", "ladderLevel": "LEVEL_7_AUDITABILITY_AND_TRUST", "roles": "admin, site staff", "impact": 4, "safety": 3, "testability": 3, "size": "M", "score": 38, "decision": "rejected: permission shape needs review" },
+    { "id": "mentor-assignment-workload-threshold", "ladderLevel": "LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW", "roles": "site_admin, viewer", "impact": 4, "safety": 3, "testability": 3, "size": "M", "score": 39, "decision": "rejected: policy threshold unclear" },
+    { "id": "student-guided-requirement-form", "ladderLevel": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN", "roles": "student", "impact": 5, "safety": 2, "testability": 3, "size": "L", "score": 32, "decision": "rejected: write-path design needed" },
+    { "id": "staff-archive-retry-controls", "ladderLevel": "LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS", "roles": "site_admin", "impact": 5, "safety": 2, "testability": 3, "size": "M", "score": 34, "decision": "rejected: mutation policy" },
+    { "id": "public-route-browser-mobile-qa", "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT", "roles": "public students, teachers", "impact": 3, "safety": 4, "testability": 3, "size": "M", "score": 40, "decision": "rejected: lower protected-app value" }
+  ],
+  "changes": [
+    "Added evidenceStatus=missing parsing/filtering and summary.evidenceMissing to /api/site/review-queue.",
+    "Added a Review Queue Evidence Missing metric and preset that syncs evidenceStatus=missing into URL state.",
+    "Updated focused route/UI/dashboard/navigation/deeplink verifiers and run documentation."
+  ],
+  "privacyAndPermissionNotes": [
+    "No roles, permissions, auth checks, tenant scope, site scope, program scope, mentor scope, or student visibility were broadened.",
+    "The filter only narrows the existing submitted/revision Review Queue rows already authorized for the current role.",
+    "Evidence bodies and storage identifiers remain hidden; the UI shows counts and row context only."
+  ],
+  "validation": {
+    "focusedPassed": [
+      "node --test tests/site-review-queue.integration.test.mjs",
+      "node --test tests/workspace-app.test.mjs",
+      "npm run verify:dashboard-actions",
+      "npm run verify:workspace-navigation",
+      "npm run verify:review-queue-deeplinks",
+      "npm run verify:functionality-language"
+    ],
+    "finalPassed": [
+      "npm run verify:functionality-ux-automation",
+      "node --test tests/functionality-language-audit.test.mjs",
+      "npm run check:production-surfaces",
+      "npm run check:route-inventory",
+      "JSON parse for state and this manifest",
+      "git diff --check",
+      "npm run test",
+      "npm run typecheck",
+      "npm run check"
+    ],
+    "notes": "git diff --check reported CRLF normalization warnings only."
+  },
+  "filesChanged": [
+    "functions/_lib/site-review-queue.ts",
+    "workspace.js",
+    "tests/site-review-queue.integration.test.mjs",
+    "tests/workspace-app.test.mjs",
+    "scripts/verify-dashboard-actions.mjs",
+    "scripts/verify-review-queue-deeplinks.mjs",
+    "scripts/verify-workspace-navigation-integrity.mjs",
+    "docs/functionality-language-audit.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/functionality-ux-growth-ledger.md",
+    "automation/state/functionality-ux-growth-state.json",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-26-0106-review-queue-evidence-missing-filter.json"
+  ],
+  "handoff": {
+    "targetedLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
+    "advanced": true,
+    "evidence": "Review Queue supports evidenceStatus=missing, surfaces an Evidence Missing metric, syncs URL state, and verifies zero-evidence scoped rows.",
+    "unlocks": "Staff can distinguish evidence-ready review work from review rows that need evidence confirmation before approval.",
+    "next": "Run hosted section-level permission proof when credentialed runtime is available, or inspect Review Queue evidence/status empty-state guidance.",
+    "blockers": "Hosted permission/browser proof still needs credentialed runtime; missing-submission filters still lack exact product-safe queue semantics.",
+    "doNotRepeat": "Do not re-add Review Queue Evidence Missing unless regression removes evidenceStatus=missing, summary.evidenceMissing, or evidence-missing-review verifier coverage.",
+    "firstFileToInspectNextRun": "scripts/check-workspace-hosted-permissions.mjs if credentials/runtime are available; otherwise workspace.js reviewQueueEmptyState()"
+  }
+}

@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-05-26T00:35:26-07:00",
-  "lastStartingSha": "78b4452f6db3f33e10a84b6323ccc1e3cdeb04d2",
+  "lastRunAt": "2026-05-26T01:06:57-07:00",
+  "lastStartingSha": "13dbe99650ba8aafaef1eb57b414d49b405c9d63",
   "lastEndingSha": null,
-  "currentLadderFocus": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+  "currentLadderFocus": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
   "completedWorkOrders": [
     {
       "id": "workspace-header-product-language-cleanup",
@@ -641,6 +641,14 @@
       "type": "TYPE_D_ROLE_WORKSPACE",
       "summary": "Aggregate Readiness report now maps raw scope values to school-facing reporting labels, adds metric context, and explains that individual student records stay out of the reporting view.",
       "commit": "pending-closeout-commit"
+    },
+    {
+      "id": "review-queue-evidence-missing-filter-action",
+      "completedAt": "2026-05-26T01:06:57-07:00",
+      "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
+      "type": "TYPE_F_REVIEW_INTERVENTION_QUEUE",
+      "summary": "Review Queue Evidence Missing now opens a scoped evidenceStatus=missing worklist with URL state for submitted or revision rows without attached evidence.",
+      "commit": "pending-closeout-commit"
     }
   ],
   "deferredWorkOrders": [
@@ -668,11 +676,6 @@
       "id": "student-guided-requirement-form",
       "ladderLevel": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN",
       "reason": "The first safe in-page action path now exists; a deeper requirement detail/draft form still needs product and write-path design beyond existing evidence and submit endpoints."
-    },
-    {
-      "id": "review-queue-missing-evidence-filter-semantics",
-      "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
-      "reason": "Operations evidence-missing worklist exists; Review Queue missing-evidence needs explicit product-safe semantics before adding another queue filter."
     }
   ],
   "blockedWorkOrders": [],
@@ -684,10 +687,10 @@
       "summary": "Run hosted section-level permission-denied proof when credentialed runtime is available."
     },
     {
-      "id": "review-queue-missing-evidence-filter-semantics",
+      "id": "review-queue-evidence-status-empty-state-guidance",
       "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
       "type": "TYPE_F_REVIEW_INTERVENTION_QUEUE",
-      "summary": "Inspect Review Queue missing-evidence semantics before implementing any new filter."
+      "summary": "Inspect Review Queue empty-state guidance for evidence/status filter combinations before adding more queue filters."
     },
     {
       "id": "viewer-specific-overview-depth",
@@ -769,27 +772,30 @@
     "Do not re-add the Review Queue Evidence Attached metric action unless regression removes the evidence-attached-review preset, evidenceStatus=attached route support, or Review Queue URL proof.",
     "Do not re-add Student Directory summary filter actions unless regression removes submitted-students, revision-students, high-risk-students, presentation-pending-students, archive-ready-students, or archive-failed-students presets.",
     "Do not re-clean Student Directory filtered empty states unless regression removes studentDirectoryEmptyStateCopy() or reintroduces generic filtered no-data copy for submitted, revision, high-risk, presentation, archive, program, search, or missing-mentor views.",
-    "Do not re-clean the aggregate Readiness report scope label or metric-purpose copy unless regression reintroduces aggregate_only rendering or removes data-readiness-report=\"aggregate\" coverage."
+    "Do not re-clean the aggregate Readiness report scope label or metric-purpose copy unless regression reintroduces aggregate_only rendering or removes data-readiness-report=\"aggregate\" coverage.",
+    "Do not re-add Review Queue Evidence Missing unless regression removes evidenceStatus=missing, summary.evidenceMissing, or evidence-missing-review verifier coverage."
   ],
   "lastValidationStatus": {
     "status": "passed",
-    "completedAt": "2026-05-26T00:35:26-07:00",
+    "completedAt": "2026-05-26T01:06:57-07:00",
     "commands": [
+      "node --test tests/site-review-queue.integration.test.mjs",
       "node --test tests/workspace-app.test.mjs",
-      "npm run verify:functionality-language",
       "npm run verify:dashboard-actions",
       "npm run verify:workspace-navigation",
+      "npm run verify:review-queue-deeplinks",
+      "npm run verify:functionality-language",
       "npm run verify:functionality-ux-automation",
       "node --test tests/functionality-language-audit.test.mjs",
       "npm run check:production-surfaces",
       "npm run check:route-inventory",
-      "node -e JSON.parse automation/state/functionality-ux-growth-state.json and docs/progress/runs/2026-05-26-0035-readiness-report-guidance.json",
+      "node -e JSON.parse automation/state/functionality-ux-growth-state.json and docs/progress/runs/2026-05-26-0106-review-queue-evidence-missing-filter.json",
       "git diff --check",
       "npm run test",
       "npm run typecheck",
       "npm run check"
     ],
-    "notes": "Full validation passed for aggregate Readiness report guidance. git diff --check reported only CRLF normalization warnings. This run changes protected workspace reporting copy, focused workspace coverage, a language verifier guard, and run records only; it does not change auth role grants, tenant/site/program/student privacy boundaries, migrations, secrets/env files, Cloudflare/OAuth/domain config, deploy settings, or live data."
+    "notes": "Full validation passed for Review Queue evidence-missing filter action. git diff --check reported only CRLF normalization warnings. This run changes a scoped Review Queue filter, protected workspace metric/action, focused verifiers/tests, and run records only; it does not change auth role grants, tenant/site/program/student privacy boundaries, migrations, secrets/env files, Cloudflare/OAuth/domain config, deploy settings, or live data."
   },
   "lastProductReadinessScorecardSummary": {
     "homepageClarity": "4 to 4",

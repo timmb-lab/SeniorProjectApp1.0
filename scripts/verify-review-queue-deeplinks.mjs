@@ -75,6 +75,11 @@ assertMatches(
   /filters\.evidenceStatus = canonicalReviewQueueValue\(params\.get\("evidenceStatus"\), REVIEW_QUEUE_EVIDENCE_STATUS_VALUES\)/,
   "review queue evidence-status deep links must be canonicalized",
 );
+assertIncludes(
+  workspaceJs,
+  'const REVIEW_QUEUE_EVIDENCE_STATUS_VALUES = new Set(["attached", "missing"])',
+  "review queue evidence-status values must support attached and missing filters",
+);
 assertMatches(
   workspaceJs,
   /if \(filters\.evidenceStatus\) params\.set\("evidenceStatus", filters\.evidenceStatus\)/,

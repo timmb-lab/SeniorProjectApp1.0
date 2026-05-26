@@ -21,6 +21,17 @@ This is the compact run log for the current Functionality UX Upgrade automation 
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-05-26 01:06 PT - Functionality UX Upgrade Review Queue Evidence Missing
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 5 review/intervention queues / Review Queue evidence filter depth.
+- `starting HEAD`: `13dbe99650ba8aafaef1eb57b414d49b405c9d63`.
+- `selected slice`: Link the Review Queue `Evidence Missing` summary tile to a scoped `evidenceStatus=missing` filter.
+- `repo-grounded findings`: current `/api/site/review-queue` already tagged zero-evidence rows with `missing_evidence` and supported the paired `evidenceStatus=attached` filter, but staff could not open the missing-evidence side directly from the queue summary.
+- `changes`: `functions/_lib/site-review-queue.ts` now supports `evidenceStatus=missing` and `summary.evidenceMissing`; `workspace.js` renders an `Evidence Missing` metric and URL-synced preset; route/UI/dashboard/navigation/deeplink verifiers guard the path.
+- `validation`: focused route, workspace, dashboard-action, workspace-navigation, review-queue-deeplink, and language checks passed before final validation. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.
+
 ## 2026-05-25 22:03 PT - Functionality UX Upgrade Review Queue Stale Activity
 
 - `automation ID`: functionality-ux-upgrade-hourly.

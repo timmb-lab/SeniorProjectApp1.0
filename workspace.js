@@ -157,7 +157,7 @@ const WORKSPACE_SECTION_IDS = new Set([
 const REVIEW_QUEUE_STATUS_VALUES = new Set(["submitted", "revision_requested", "approved"]);
 const REVIEW_QUEUE_STORY_VALUES = new Set(["model_excellent", "missing_mentor", "awaiting_review", "revision_requested", "presentation_pending", "archive_ready", "archive_failed", "high_risk", "rich_timeline"]);
 const REVIEW_QUEUE_RISK_VALUES = new Set(["any", "high", "medium", "low", "stale", "no_mentor"]);
-const REVIEW_QUEUE_EVIDENCE_STATUS_VALUES = new Set(["attached"]);
+const REVIEW_QUEUE_EVIDENCE_STATUS_VALUES = new Set(["attached", "missing"]);
 const SITE_STUDENT_STATUS_VALUES = new Set(["draft", "submitted", "under_review", "revision_requested", "approved", "blocked", "archived", "complete"]);
 const SITE_STUDENT_RISK_VALUES = new Set(["any", "high", "medium", "low", "stale", "no_mentor"]);
 const SITE_STUDENT_PRESENTATION_STATUS_VALUES = new Set(["any", "pending", "scheduled", "completed", "missing"]);
@@ -1001,6 +1001,16 @@ async function openWorkspaceSection(button) {
     reviewQueueState = defaultReviewQueueState();
     syncReviewQueueUrlState();
     await loadReviewQueueResult("Showing review work with evidence attached.");
+    return;
+  }
+  if (section === "teacher" && button.dataset.sectionPreset === "evidence-missing-review") {
+    reviewQueueFilters = {
+      ...defaultReviewQueueFilters(),
+      evidenceStatus: "missing",
+    };
+    reviewQueueState = defaultReviewQueueState();
+    syncReviewQueueUrlState();
+    await loadReviewQueueResult("Showing review work missing evidence.");
     return;
   }
   if (section === "operations" && button.dataset.sectionPreset === "presentation-pending") {
@@ -4346,6 +4356,7 @@ function renderTeacherSection() {
         ${renderMetricTile("Submitted", summary.submitted, "Ready for teacher review", "teacher")}
         ${renderMetricTile("Needs Revision", summary.revisionRequested, "Open revision loops", "warning")}
         ${renderMetricTile("Evidence Attached", summary.evidenceAttached, "Private evidence summaries", "admin", "teacher", { label: "Review rows", preset: "evidence-attached-review" })}
+        ${renderMetricTile("Evidence Missing", summary.evidenceMissing, "Confirm evidence before approval", safeNumber(summary.evidenceMissing) ? "warning" : "mentor", "teacher", { label: "Review rows", preset: "evidence-missing-review" })}
         ${renderMetricTile("High Risk", summary.highRisk, "Prioritize follow-up", safeNumber(summary.highRisk) ? "danger" : "admin", "teacher", { label: "Review rows", preset: "high-risk" })}
         ${renderMetricTile("Stale Activity", summary.overdueOrStale, "Check-ins may be needed", safeNumber(summary.overdueOrStale) ? "warning" : "admin", "teacher", { label: "Review rows", preset: "stale-review" })}
         ${renderMetricTile("Missing Mentor", summary.noMentor, "Needs mentor coverage", safeNumber(summary.noMentor) ? "warning" : "mentor", "teacher", { label: "Review rows", preset: "missing-mentor-review" })}
@@ -4437,7 +4448,7 @@ function renderReviewQueueFilters(body) {
         <span>Evidence</span>
         <select name="evidenceStatus">
           <option value="" ${!filters.evidenceStatus ? "selected" : ""}>Any evidence status</option>
-          ${(options.evidenceStatuses || ["attached"]).map((status) => `
+          ${(options.evidenceStatuses || ["attached", "missing"]).map((status) => `
             <option value="${escapeHtml(status)}" ${filters.evidenceStatus === status ? "selected" : ""}>${escapeHtml(evidenceStatusFilterLabel(status))}</option>
           `).join("")}
         </select>
@@ -6880,6 +6891,7 @@ function riskLabel(value) {
 function evidenceStatusFilterLabel(value) {
   const normalized = normalizeStatus(value);
   if (normalized === "attached") return "Evidence attached";
+  if (normalized === "missing") return "Evidence missing";
   return statusText(value || "Any evidence status");
 }
 
