@@ -42,6 +42,7 @@ for (const param of [
   "search",
   "story",
   "risk",
+  "evidenceStatus",
   "limit",
   "offset",
   "needsReview",
@@ -53,7 +54,6 @@ for (const param of [
 
 for (const unsupported of [
   "missing",
-  "evidenceStatus",
   "mentorUserId",
   "studentUserId",
   "studentId",
@@ -69,6 +69,16 @@ assertMatches(
   workspaceJs,
   /canonicalReviewQueueValue\(rawStatus, REVIEW_QUEUE_STATUS_VALUES\)/,
   "review queue status deep links must be canonicalized",
+);
+assertMatches(
+  workspaceJs,
+  /filters\.evidenceStatus = canonicalReviewQueueValue\(params\.get\("evidenceStatus"\), REVIEW_QUEUE_EVIDENCE_STATUS_VALUES\)/,
+  "review queue evidence-status deep links must be canonicalized",
+);
+assertMatches(
+  workspaceJs,
+  /if \(filters\.evidenceStatus\) params\.set\("evidenceStatus", filters\.evidenceStatus\)/,
+  "review queue evidence-status filters must sync to shareable URLs",
 );
 assertMatches(
   workspaceJs,

@@ -1009,6 +1009,7 @@ test("workspace renders site-aware Review Queue with teacher decisions and read-
   assert.match(teacher, /No student messaging/);
   assert.match(teacher, /workspace-review-queue/);
   assert.match(teacher, /workspace-filter-bar/);
+  assert.match(teacher, /data-section="teacher" data-section-preset="evidence-attached-review">Review rows/);
   assert.match(teacher, /data-section="teacher" data-section-preset="high-risk">Review rows/);
   assert.match(teacher, /data-section="teacher" data-section-preset="stale-review">Review rows/);
   assert.match(teacher, /data-section="teacher" data-section-preset="missing-mentor-review">Review rows/);
@@ -1157,6 +1158,15 @@ test("workspace renders site-aware Review Queue with teacher decisions and read-
   assert.equal(missingMentorReviewUrl.searchParams.has("status"), false);
   assert.match(window.location.href, /section=teacher/);
   assert.match(window.location.href, /risk=no_mentor/);
+
+  await vm.runInContext('openWorkspaceSection({ dataset: { section: "teacher", sectionPreset: "evidence-attached-review" } })', context);
+  const evidenceAttachedFetch = fetchLog.findLast((entry) => entry.startsWith("/api/site/review-queue?"));
+  assert.ok(evidenceAttachedFetch, "expected evidence-attached Review Queue metric to load Review Queue");
+  const evidenceAttachedUrl = new URL(evidenceAttachedFetch, "https://workspace.example");
+  assert.equal(evidenceAttachedUrl.searchParams.get("evidenceStatus"), "attached");
+  assert.equal(evidenceAttachedUrl.searchParams.has("status"), false);
+  assert.match(window.location.href, /section=teacher/);
+  assert.match(window.location.href, /evidenceStatus=attached/);
 });
 
 test("workspace renders Review Queue empty and history states with assigned-work language", async () => {
@@ -1297,6 +1307,7 @@ test("workspace applies Review Queue URL filters safely and syncs filter URLs", 
     search: "proposal scope",
     story: "",
     risk: "stale",
+    evidenceStatus: "attached",
     limit: 100,
     offset: 0,
   };
@@ -1330,7 +1341,7 @@ test("workspace applies Review Queue URL filters safely and syncs filter URLs", 
       body: { ok: true, slots: [] },
     },
   }, {
-    url: "https://workspace.example/workspace.html?section=teacher&siteId=site-desert-valley-high&status=revision_requested&search=%20proposal%20scope%20&risk=bogus&overdue=true&limit=999&offset=-50&unknown=keep&evidenceStatus=approved",
+    url: "https://workspace.example/workspace.html?section=teacher&siteId=site-desert-valley-high&status=revision_requested&search=%20proposal%20scope%20&risk=bogus&overdue=true&evidenceStatus=attached&limit=999&offset=-50&unknown=keep",
   });
 
   const reviewFetch = fetchLog.find((entry) => entry.startsWith("/api/site/review-queue?"));
@@ -1340,13 +1351,14 @@ test("workspace applies Review Queue URL filters safely and syncs filter URLs", 
   assert.equal(fetched.searchParams.get("status"), "revision_requested");
   assert.equal(fetched.searchParams.get("search"), "proposal scope");
   assert.equal(fetched.searchParams.get("risk"), "stale");
+  assert.equal(fetched.searchParams.get("evidenceStatus"), "attached");
   assert.equal(fetched.searchParams.get("limit"), "100");
   assert.equal(fetched.searchParams.has("offset"), false);
-  assert.equal(fetched.searchParams.has("evidenceStatus"), false);
   assert.match(workspaceRoot.innerHTML, /data-section="teacher"/);
   assert.match(workspaceRoot.innerHTML, /Active filters/);
   assert.match(workspaceRoot.innerHTML, /Revision requested/);
   assert.match(workspaceRoot.innerHTML, /Stale activity/);
+  assert.match(workspaceRoot.innerHTML, /Evidence attached/);
   assert.match(workspaceRoot.innerHTML, /proposal scope/);
   assert.match(workspaceRoot.innerHTML, /Clear filters/);
 
@@ -1362,6 +1374,7 @@ test("workspace applies Review Queue URL filters safely and syncs filter URLs", 
       programId: "it",
       search: "senior proposal",
       risk: "high",
+      evidenceStatus: "attached",
       limit: 25
     };
     syncReviewQueueUrlState();
@@ -1372,15 +1385,17 @@ test("workspace applies Review Queue URL filters safely and syncs filter URLs", 
   assert.equal(synced.searchParams.get("programId"), "it");
   assert.equal(synced.searchParams.get("search"), "senior proposal");
   assert.equal(synced.searchParams.get("risk"), "high");
+  assert.equal(synced.searchParams.get("evidenceStatus"), "attached");
   assert.equal(synced.searchParams.get("limit"), "25");
   assert.equal(synced.searchParams.get("unknown"), "keep");
 
-  window.history.pushState({}, "", "/workspace.html?section=teacher&status=revision_requested&risk=stale&unknown=keep");
+  window.history.pushState({}, "", "/workspace.html?section=teacher&status=revision_requested&risk=stale&evidenceStatus=attached&unknown=keep");
   window.dispatchEvent({ type: "popstate" });
   await new Promise((resolve) => setTimeout(resolve, 0));
   const restored = JSON.parse(vm.runInContext("JSON.stringify(reviewQueueFilters)", context));
   assert.equal(restored.status, "revision_requested");
   assert.equal(restored.risk, "stale");
+  assert.equal(restored.evidenceStatus, "attached");
 });
 
 test("workspace applies shareable URL filters for site worklists safely", async () => {
@@ -4228,6 +4243,7 @@ function siteReviewQueueFixture({
       search: "",
       story: "",
       risk: "any",
+      evidenceStatus: "",
       limit: 50,
       offset: 0,
     },
@@ -4253,6 +4269,7 @@ function siteReviewQueueFixture({
       statuses: ["submitted", "revision_requested", "approved"],
       storyBuckets: ["model_excellent", "missing_mentor", "awaiting_review", "revision_requested", "presentation_pending", "archive_ready", "archive_failed", "high_risk", "rich_timeline"],
       risks: ["any", "high", "medium", "low", "stale", "no_mentor"],
+      evidenceStatuses: ["attached"],
     },
     permissions: {
       canReview,

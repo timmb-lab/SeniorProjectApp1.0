@@ -20,6 +20,7 @@ const MAX_LIMIT = 100;
 const REVIEW_STATUS_VALUES = ["submitted", "revision_requested", "approved"];
 const CANONICAL_STORY_VALUES = ["model_excellent", "missing_mentor", "awaiting_review", "revision_requested", "presentation_pending", "archive_ready", "archive_failed", "high_risk", "rich_timeline"];
 const RISK_VALUES = ["any", "high", "medium", "low", "stale", "no_mentor"];
+const EVIDENCE_STATUS_VALUES = ["attached"];
 
 interface CountRow {
   count: number;
@@ -72,6 +73,7 @@ interface ReviewQueueFilters {
   search: string;
   story: string;
   risk: string;
+  evidenceStatus: string;
   limit: number;
   offset: number;
 }
@@ -230,6 +232,7 @@ export async function handleSiteReviewQueueRequest({
       statuses: REVIEW_STATUS_VALUES,
       storyBuckets: CANONICAL_STORY_VALUES,
       risks: RISK_VALUES,
+      evidenceStatuses: EVIDENCE_STATUS_VALUES,
     },
     permissions,
     emptyState: filteredTotal === 0 ? {
@@ -508,6 +511,7 @@ function parseFilters(params: URLSearchParams): ReviewQueueFilters {
     search: cleanSearch(params.get("search")),
     story: canonical(params.get("story"), CANONICAL_STORY_VALUES),
     risk: canonical(params.get("risk"), RISK_VALUES, "any"),
+    evidenceStatus: canonical(params.get("evidenceStatus"), EVIDENCE_STATUS_VALUES),
     limit: clampNumber(params.get("limit"), DEFAULT_LIMIT, 1, MAX_LIMIT),
     offset: clampNumber(params.get("offset"), 0, 0, 100000),
   };
@@ -550,6 +554,10 @@ function buildFilterWhere(filters: ReviewQueueFilters): FilterWhere {
     if (filters.risk === "low") clauses.push("risk_score BETWEEN 1 AND 3");
     if (filters.risk === "stale") clauses.push("stale_flag = 1");
     if (filters.risk === "no_mentor") clauses.push("has_active_mentor = 0");
+  }
+
+  if (filters.evidenceStatus === "attached") {
+    clauses.push("evidence_count > 0");
   }
 
   return {
@@ -612,6 +620,7 @@ function responseFilters(filters: ReviewQueueFilters) {
     search: filters.search,
     story: filters.story,
     risk: filters.risk,
+    evidenceStatus: filters.evidenceStatus,
     limit: filters.limit,
     offset: filters.offset,
   };
@@ -624,6 +633,7 @@ function safeFilterSummary(filters: ReviewQueueFilters) {
     hasSearch: Boolean(filters.search),
     story: filters.story,
     risk: filters.risk,
+    evidenceStatus: filters.evidenceStatus,
     limit: filters.limit,
     offset: filters.offset,
   };

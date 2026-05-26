@@ -86,6 +86,10 @@ test("site review queue is scoped, read-only by role, mutable for program teache
 
   const submitted = await expectQueue(env, tokens.programTeacher, `?siteId=${PRIMARY_SITE_ID}&status=submitted&limit=100`);
   assert.equal(submitted.queue.every((row) => row.status === "submitted"), true);
+  const evidenceAttached = await expectQueue(env, tokens.programTeacher, `?siteId=${PRIMARY_SITE_ID}&evidenceStatus=attached&limit=100`);
+  assert.equal(evidenceAttached.queue.length > 0, true);
+  assert.equal(evidenceAttached.queue.every((row) => row.evidenceCount > 0), true);
+  assert.equal(evidenceAttached.pagination.filteredTotal, evidenceAttached.summary.evidenceAttached);
   const missingMentor = await expectQueue(env, tokens.programTeacher, `?siteId=${PRIMARY_SITE_ID}&risk=no_mentor&limit=100`);
   assert.equal(missingMentor.queue.length > 0, true);
   assert.equal(missingMentor.queue.every((row) => row.riskFlags.includes("no_mentor")), true);

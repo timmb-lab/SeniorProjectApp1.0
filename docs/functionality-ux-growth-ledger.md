@@ -3233,3 +3233,54 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: hosted permission/browser proof still needs credentialed runtime; missing-evidence filters need backend/privacy support; provider-unavailable metrics need product/security design.
   - Do not repeat: do not re-add the missing-mentor-review preset unless regression evidence appears.
   - First file to inspect next run: `functions/_lib/site-review-queue.ts` `loadSummary()` and `workspace.js` `renderTeacherSection()`
+
+## Run 2026-05-25 23:05 PT
+
+- Starting SHA: `20a6a12dff1e7ec2e5fddd9241998156e5edc2b2`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Branch policy: work stayed on clean local `main`; local `main` was twenty-three commits ahead of `origin/main`, `origin/main` was not ahead, and no push was run
+- Ladder level targeted: `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` with `LEVEL_1_NAVIGABLE_DASHBOARDS` queue click-through support and `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` verifier coverage
+- Backlog item: `review-queue-evidence-attached-filter-action`; advances Review Queue depth for `MVP-015`
+- Work order selected: Link the Review Queue `Evidence Attached` summary tile to a new scoped `evidenceStatus=attached` filter.
+- Selection reason: The previous handoff named Evidence Attached inspection. Current source showed `/api/site/review-queue` already computed scoped per-row `evidence_count` and `summary.evidenceAttached`, but the workspace rendered that metric as summary-only and URL cleanup treated `evidenceStatus` as unsupported. Filtering `evidence_count > 0` is exact, bounded, and uses the existing authorized queue scope.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Review Queue Evidence Attached filter | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | site staff, viewer, program_teacher | 5 | 5 | 5 | S | 58 | selected |
+| Review Queue missing-evidence filter | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | site staff, program_teacher | 5 | 3 | 4 | M | 43 | deferred: product semantics need care; Operations evidence-missing path already exists |
+| Student Directory missing-evidence filter | `LEVEL_1_NAVIGABLE_DASHBOARDS` | site staff, viewer | 4 | 2 | 3 | M | 35 | deferred: exact directory route filter is still missing |
+| Hosted section-level permission proof | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all protected roles | 4 | 4 | 3 | M | 40 | blocked: credentialed hosted runtime dependency |
+| Public route visual browser QA | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | public students, teachers | 3 | 4 | 3 | M | 40 | rejected: useful, but lower app-functionality value this run |
+| Operations provider-unavailable metric | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | site staff, viewer | 4 | 3 | 3 | S | 41 | rejected: provider semantics need product/security design |
+| Operations high-risk direct metric | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | site staff, viewer | 4 | 5 | 4 | XS | 50 | rejected: existing risk category and stale metrics already cover the route-backed risk path |
+| Review Queue Submitted/Revision in-queue filters | `LEVEL_1_NAVIGABLE_DASHBOARDS` | site staff, program_teacher | 3 | 5 | 5 | XS | 49 | rejected: already reachable from dashboard presets and filter bar |
+| Student guided requirement form | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 5 | 2 | 3 | L | 32 | rejected: write-path/product design beyond existing safe actions |
+| Staff archive retry/regenerate controls | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | site_admin | 5 | 2 | 3 | M | 34 | rejected: mutation/control policy outside this lane |
+| Downloadable student progress summary | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | student, staff | 4 | 2 | 3 | L | 31 | rejected: export/privacy policy needed |
+| Org-admin tenant rollup | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | org_admin | 4 | 2 | 2 | L | 30 | blocked: backend aggregate and RBAC design needed |
+
+- User-facing improvement: Staff and read-only viewers can open submitted or revision review work that already has evidence attached directly from the Review Queue summary, with shareable URL state.
+- Roles affected: `site_admin`, `org_admin`/site-scoped administration users, `viewer` read-only staff, and `program_teacher` scoped staff; no student, mentor, tenant, site, program, or record visibility was broadened.
+- Files changed: `functions/_lib/site-review-queue.ts`, `workspace.js`, `tests/site-review-queue.integration.test.mjs`, `tests/workspace-app.test.mjs`, `scripts/verify-dashboard-actions.mjs`, `scripts/verify-review-queue-deeplinks.mjs`, `scripts/verify-workspace-navigation-integrity.mjs`, `docs/functionality-language-audit.md`, `docs/mvp-requirements-catalog.md`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`, `docs/progress/run-log.md`, `docs/progress/runs/2026-05-25-2305-review-queue-evidence-attached-filter.json`
+- Tests/verifiers added or updated: route test proves `evidenceStatus=attached` returns scoped rows with evidence and matching summary count; workspace test proves the metric loads `evidenceStatus=attached` and syncs URL state; dashboard, navigation, and review-queue deeplink verifiers guard the preset and query parameter.
+- Validation commands:
+  - Focused passed before docs/state closeout: `node --test tests/site-review-queue.integration.test.mjs`; `node --test tests/workspace-app.test.mjs`; `npm run verify:dashboard-actions`; `npm run verify:workspace-navigation`; `npm run verify:review-queue-deeplinks`
+  - Final passed: `npm run verify:functionality-language`; `npm run verify:functionality-ux-automation`; `node --test tests/functionality-language-audit.test.mjs`; `npm run check:production-surfaces`; `npm run check:route-inventory`; JSON parse for state and manifest; `git diff --check`; `npm run test`; `npm run typecheck`; `npm run check`
+- Validation result: passed; `git diff --check` reported only CRLF normalization warnings, with no whitespace errors.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: Review Queue missing-evidence filter, Student Directory missing-evidence filter, hosted section-level permission proof, public-route visual QA, provider-unavailable metric semantics, export-style progress summaries, staff archive retry/regenerate controls, and org rollups remain deferred.
+- New backlog items: keep Review Queue missing-evidence deferred until product-safe semantics are exact and tested; Operations evidence-missing already covers the staff worklist path.
+- Next recommended work order: run hosted section-level permission proof when credentialed runtime is available, or inspect whether Review Queue missing-evidence needs an explicit summary/filter after product semantics are settled.
+- Do-not-repeat notes: do not re-add the Review Queue `Evidence Attached` metric action unless regression removes the `evidence-attached-review` preset, `evidenceStatus=attached` route support, or URL/deeplink proof.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES`
+  - Advanced: yes
+  - Evidence: Review Queue `Evidence Attached` now opens a scoped `evidenceStatus=attached` worklist with URL state and route/UI/verifier coverage.
+  - Unlocks: Review Queue summary tiles now cover the exact safe status/risk/evidence filters; future queue work can focus on missing-evidence only after product semantics are explicit.
+  - Next: hosted section-level permission proof when credentials/runtime are available, otherwise inspect missing-evidence semantics without implementing a fake route.
+  - Blockers: hosted permission/browser proof still needs credentialed runtime; missing-evidence filters need product-safe semantics; provider-unavailable metrics need product/security design.
+  - Do not repeat: do not re-add the evidence-attached-review preset unless regression evidence appears.
+  - First file to inspect next run: `workspace.js` `renderTeacherSection()` and `functions/_lib/site-review-queue.ts` `buildFilterWhere()`

@@ -157,6 +157,7 @@ const WORKSPACE_SECTION_IDS = new Set([
 const REVIEW_QUEUE_STATUS_VALUES = new Set(["submitted", "revision_requested", "approved"]);
 const REVIEW_QUEUE_STORY_VALUES = new Set(["model_excellent", "missing_mentor", "awaiting_review", "revision_requested", "presentation_pending", "archive_ready", "archive_failed", "high_risk", "rich_timeline"]);
 const REVIEW_QUEUE_RISK_VALUES = new Set(["any", "high", "medium", "low", "stale", "no_mentor"]);
+const REVIEW_QUEUE_EVIDENCE_STATUS_VALUES = new Set(["attached"]);
 const SITE_STUDENT_STATUS_VALUES = new Set(["draft", "submitted", "under_review", "revision_requested", "approved", "blocked", "archived", "complete"]);
 const SITE_STUDENT_RISK_VALUES = new Set(["any", "high", "medium", "low", "stale", "no_mentor"]);
 const SITE_STUDENT_PRESENTATION_STATUS_VALUES = new Set(["any", "pending", "scheduled", "completed", "missing"]);
@@ -924,6 +925,16 @@ async function openWorkspaceSection(button) {
     reviewQueueState = defaultReviewQueueState();
     syncReviewQueueUrlState();
     await loadReviewQueueResult("Showing review work for students missing mentor coverage.");
+    return;
+  }
+  if (section === "teacher" && button.dataset.sectionPreset === "evidence-attached-review") {
+    reviewQueueFilters = {
+      ...defaultReviewQueueFilters(),
+      evidenceStatus: "attached",
+    };
+    reviewQueueState = defaultReviewQueueState();
+    syncReviewQueueUrlState();
+    await loadReviewQueueResult("Showing review work with evidence attached.");
     return;
   }
   if (section === "operations" && button.dataset.sectionPreset === "presentation-pending") {
@@ -4172,7 +4183,7 @@ function renderTeacherSection() {
       <div class="workspace-metric-grid">
         ${renderMetricTile("Submitted", summary.submitted, "Ready for teacher review", "teacher")}
         ${renderMetricTile("Needs Revision", summary.revisionRequested, "Open revision loops", "warning")}
-        ${renderMetricTile("Evidence Attached", summary.evidenceAttached, "Private evidence summaries", "admin")}
+        ${renderMetricTile("Evidence Attached", summary.evidenceAttached, "Private evidence summaries", "admin", "teacher", { label: "Review rows", preset: "evidence-attached-review" })}
         ${renderMetricTile("High Risk", summary.highRisk, "Prioritize follow-up", safeNumber(summary.highRisk) ? "danger" : "admin", "teacher", { label: "Review rows", preset: "high-risk" })}
         ${renderMetricTile("Stale Activity", summary.overdueOrStale, "Check-ins may be needed", safeNumber(summary.overdueOrStale) ? "warning" : "admin", "teacher", { label: "Review rows", preset: "stale-review" })}
         ${renderMetricTile("Missing Mentor", summary.noMentor, "Needs mentor coverage", safeNumber(summary.noMentor) ? "warning" : "mentor", "teacher", { label: "Review rows", preset: "missing-mentor-review" })}
@@ -4261,6 +4272,15 @@ function renderReviewQueueFilters(body) {
         </select>
       </label>
       <label>
+        <span>Evidence</span>
+        <select name="evidenceStatus">
+          <option value="" ${!filters.evidenceStatus ? "selected" : ""}>Any evidence status</option>
+          ${(options.evidenceStatuses || ["attached"]).map((status) => `
+            <option value="${escapeHtml(status)}" ${filters.evidenceStatus === status ? "selected" : ""}>${escapeHtml(evidenceStatusFilterLabel(status))}</option>
+          `).join("")}
+        </select>
+      </label>
+      <label>
         <span>Search</span>
         <input name="search" type="search" value="${escapeHtml(filters.search || "")}">
       </label>
@@ -4282,6 +4302,7 @@ function renderReviewQueueActiveFilters(filters = {}, options = {}) {
   if (filters.programId) chips.push(activeFilterChip("Program", programLabel(options.programs, filters.programId)));
   if (filters.story) chips.push(activeFilterChip("Story", storyLabel(filters.story)));
   if (filters.risk && filters.risk !== "any") chips.push(activeFilterChip("Risk", riskLabel(filters.risk)));
+  if (filters.evidenceStatus) chips.push(activeFilterChip("Evidence", evidenceStatusFilterLabel(filters.evidenceStatus)));
   if (filters.search) chips.push(activeFilterChip("Search", filters.search));
   if (safeNumber(filters.limit) !== 50) chips.push(activeFilterChip("Page size", filters.limit));
   if (safeNumber(filters.offset) > 0) chips.push(activeFilterChip("Offset", filters.offset));
@@ -4311,6 +4332,7 @@ function hasActiveReviewQueueFilters(filters = {}) {
     || filters.search
     || filters.story
     || (filters.risk && filters.risk !== "any")
+    || filters.evidenceStatus
     || safeNumber(filters.offset) > 0
     || safeNumber(filters.limit) !== 50
   );
@@ -4864,6 +4886,7 @@ async function applyReviewQueueFilters(event) {
     search: cleanDirectoryFilter(data.get("search")),
     story: cleanDirectoryFilter(data.get("story")),
     risk: cleanDirectoryFilter(data.get("risk")) || "any",
+    evidenceStatus: cleanDirectoryFilter(data.get("evidenceStatus")),
     limit: clampDirectoryNumber(data.get("limit"), 50, 1, 100),
     offset: 0,
   };
@@ -6681,6 +6704,12 @@ function riskLabel(value) {
   return labels[normalized] || statusText(value);
 }
 
+function evidenceStatusFilterLabel(value) {
+  const normalized = normalizeStatus(value);
+  if (normalized === "attached") return "Evidence attached";
+  return statusText(value || "Any evidence status");
+}
+
 function categoryLabel(value) {
   const labels = {
     archive: "Archive",
@@ -6775,6 +6804,7 @@ function defaultReviewQueueFilters() {
     search: "",
     story: "",
     risk: "any",
+    evidenceStatus: "",
     limit: 50,
     offset: 0,
   };
@@ -6948,6 +6978,7 @@ function hasReviewQueueFilterParams(params) {
     "search",
     "story",
     "risk",
+    "evidenceStatus",
     "limit",
     "offset",
     "needsReview",
@@ -6965,6 +6996,7 @@ function reviewQueueFiltersFromSearchParams(params) {
   filters.search = cleanSearchFilter(params.get("search"));
   filters.story = canonicalReviewQueueValue(params.get("story"), REVIEW_QUEUE_STORY_VALUES);
   filters.risk = canonicalReviewQueueValue(params.get("risk"), REVIEW_QUEUE_RISK_VALUES, "any");
+  filters.evidenceStatus = canonicalReviewQueueValue(params.get("evidenceStatus"), REVIEW_QUEUE_EVIDENCE_STATUS_VALUES);
   if (booleanQueryValue(params.get("unassigned"))) filters.risk = "no_mentor";
   if (booleanQueryValue(params.get("overdue"))) filters.risk = "stale";
   filters.limit = clampDirectoryNumber(params.get("limit"), 50, 1, 100);
@@ -7035,6 +7067,7 @@ function syncReviewQueueUrlState(options = {}) {
     if (filters.search) url.searchParams.set("search", filters.search);
     if (filters.story) url.searchParams.set("story", filters.story);
     if (filters.risk && filters.risk !== "any") url.searchParams.set("risk", filters.risk);
+    if (filters.evidenceStatus) url.searchParams.set("evidenceStatus", filters.evidenceStatus);
     if (safeNumber(filters.limit) !== 50) url.searchParams.set("limit", String(filters.limit));
     if (safeNumber(filters.offset) > 0) url.searchParams.set("offset", String(filters.offset));
   }
@@ -7214,6 +7247,7 @@ function siteReviewQueueQueryString() {
   if (filters.search) params.set("search", filters.search);
   if (filters.story) params.set("story", filters.story);
   if (filters.risk && filters.risk !== "any") params.set("risk", filters.risk);
+  if (filters.evidenceStatus) params.set("evidenceStatus", filters.evidenceStatus);
   if (safeNumber(filters.limit) !== 50) params.set("limit", String(filters.limit));
   if (safeNumber(filters.offset) > 0) params.set("offset", String(filters.offset));
   const query = params.toString();

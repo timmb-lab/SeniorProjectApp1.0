@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-05-25T22:30:59-07:00",
-  "lastStartingSha": "7f255ee35e188cf4a26e402b0303eb9c671b5ef5",
+  "lastRunAt": "2026-05-25T23:05:54-07:00",
+  "lastStartingSha": "20a6a12dff1e7ec2e5fddd9241998156e5edc2b2",
   "lastEndingSha": null,
   "currentLadderFocus": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
   "completedWorkOrders": [
@@ -609,6 +609,14 @@
       "type": "TYPE_F_REVIEW_INTERVENTION_QUEUE",
       "summary": "Review Queue Missing Mentor now opens the existing scoped risk=no_mentor worklist with URL state.",
       "commit": "pending-closeout-commit"
+    },
+    {
+      "id": "review-queue-evidence-attached-filter-action",
+      "completedAt": "2026-05-25T23:05:54-07:00",
+      "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
+      "type": "TYPE_F_REVIEW_INTERVENTION_QUEUE",
+      "summary": "Review Queue Evidence Attached now opens the scoped evidenceStatus=attached worklist with URL state.",
+      "commit": "pending-closeout-commit"
     }
   ],
   "deferredWorkOrders": [
@@ -636,33 +644,32 @@
       "id": "student-guided-requirement-form",
       "ladderLevel": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN",
       "reason": "The first safe in-page action path now exists; a deeper requirement detail/draft form still needs product and write-path design beyond existing evidence and submit endpoints."
+    },
+    {
+      "id": "review-queue-missing-evidence-filter-semantics",
+      "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
+      "reason": "Operations evidence-missing worklist exists; Review Queue missing-evidence needs explicit product-safe semantics before adding another queue filter."
     }
   ],
   "blockedWorkOrders": [],
   "nextRecommendedWorkOrders": [
     {
-      "id": "review-queue-evidence-attached-filter-inspection",
-      "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
-      "type": "TYPE_F_REVIEW_INTERVENTION_QUEUE",
-      "summary": "Inspect whether Review Queue evidence-attached should remain summary-only or gain an exact privacy-safe filter."
-    },
-    {
       "id": "hosted-section-permission-proof",
       "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
       "type": "TYPE_G_VERIFICATION_REGRESSION_PROTECTION",
-      "summary": "Add hosted section-level permission-denied browser proof when credentialed runtime is available."
+      "summary": "Run hosted section-level permission-denied proof when credentialed runtime is available."
+    },
+    {
+      "id": "review-queue-missing-evidence-filter-semantics",
+      "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
+      "type": "TYPE_F_REVIEW_INTERVENTION_QUEUE",
+      "summary": "Inspect Review Queue missing-evidence semantics before implementing any new filter."
     },
     {
       "id": "public-route-visual-browser-qa",
       "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
       "type": "TYPE_G_VERIFICATION_REGRESSION_PROTECTION",
       "summary": "Run desktop/mobile browser QA for public route panels and guide-mode layout when runtime is available."
-    },
-    {
-      "id": "review-queue-missing-evidence-filter-proof",
-      "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
-      "type": "TYPE_F_REVIEW_INTERVENTION_QUEUE",
-      "summary": "Add a Review Queue missing-evidence filter only after backend support and privacy tests exist."
     }
   ],
   "doNotRepeat": [
@@ -734,28 +741,30 @@
     "Do not re-clean Operations archive provider-status rendering unless regression reintroduces raw values like drive_config_missing in archive worklist rows.",
     "Do not re-add the Review Queue High Risk metric action unless regression removes the high-risk preset or risk=high Review Queue URL proof.",
     "Do not re-add the Review Queue Stale Activity metric action unless regression removes the stale-review preset or risk=stale Review Queue URL proof.",
-    "Do not re-add the Review Queue Missing Mentor metric action unless regression removes the missing-mentor-review preset, summary.noMentor, or risk=no_mentor Review Queue URL proof."
+    "Do not re-add the Review Queue Missing Mentor metric action unless regression removes the missing-mentor-review preset, summary.noMentor, or risk=no_mentor Review Queue URL proof.",
+    "Do not re-add the Review Queue Evidence Attached metric action unless regression removes the evidence-attached-review preset, evidenceStatus=attached route support, or Review Queue URL proof."
   ],
   "lastValidationStatus": {
     "status": "passed",
-    "completedAt": "2026-05-25T22:45:00-07:00",
+    "completedAt": "2026-05-25T23:22:00-07:00",
     "commands": [
       "node --test tests/site-review-queue.integration.test.mjs",
       "node --test tests/workspace-app.test.mjs",
       "npm run verify:dashboard-actions",
       "npm run verify:workspace-navigation",
+      "npm run verify:review-queue-deeplinks",
       "npm run verify:functionality-language",
       "npm run verify:functionality-ux-automation",
       "node --test tests/functionality-language-audit.test.mjs",
       "npm run check:production-surfaces",
       "npm run check:route-inventory",
-      "node -e JSON.parse automation/state/functionality-ux-growth-state.json and docs/progress/runs/2026-05-25-2230-review-queue-no-mentor-filter.json",
+      "node -e JSON.parse automation/state/functionality-ux-growth-state.json and docs/progress/runs/2026-05-25-2305-review-queue-evidence-attached-filter.json",
       "git diff --check",
       "npm run test",
       "npm run typecheck",
       "npm run check"
     ],
-    "notes": "Full validation passed for the Review Queue Missing Mentor metric filter. git diff --check reported only CRLF normalization warnings. This run changes scoped review-queue summary/navigation, verifiers, focused route/UI coverage, and run records only; it does not change auth role grants, tenant/site/program/student privacy boundaries, migrations, secrets/env files, Cloudflare/OAuth/domain config, deploy settings, or live data."
+    "notes": "Full validation passed for the Review Queue Evidence Attached filter. git diff --check reported only CRLF normalization warnings. This run changes scoped review-queue filtering/navigation, verifiers, focused route/UI coverage, and run records only; it does not change auth role grants, tenant/site/program/student privacy boundaries, migrations, secrets/env files, Cloudflare/OAuth/domain config, deploy settings, or live data."
   },
   "lastProductReadinessScorecardSummary": {
     "homepageClarity": "4 to 4",

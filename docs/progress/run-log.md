@@ -2180,3 +2180,14 @@ Future productive runs should append compact entries that name the master-plan s
 - `changes`: `functions/_lib/site-review-queue.ts` now returns `summary.noMentor`; `workspace.js` renders `Missing Mentor` with a `missing-mentor-review` preset and URL-synced `risk=no_mentor`; focused route/UI tests and dashboard/navigation verifiers guard the exact path.
 - `validation`: focused `node --test tests/site-review-queue.integration.test.mjs`, `node --test tests/workspace-app.test.mjs`, `npm run verify:dashboard-actions`, and `npm run verify:workspace-navigation` passed before final validation. Final validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
 - `commit/push status`: pending closeout commit; not pushed by this automation run.
+
+## 2026-05-25 PT - Functionality UX Upgrade Review Queue Evidence Filter
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 5 review/intervention queues / Level 1 route-backed dashboard navigation.
+- `starting HEAD`: `20a6a12dff1e7ec2e5fddd9241998156e5edc2b2`.
+- `selected slice`: Link the Review Queue `Evidence Attached` summary tile to a scoped `evidenceStatus=attached` filter.
+- `repo-grounded findings`: the previous handoff named Evidence Attached inspection. Current `/api/site/review-queue` already computed `evidence_count` and `summary.evidenceAttached`, while the workspace rendered the metric as summary-only and URL cleanup treated `evidenceStatus` as unsupported.
+- `changes`: `functions/_lib/site-review-queue.ts` now accepts canonical `evidenceStatus=attached` and filters scoped queue rows with `evidence_count > 0`; `workspace.js` renders the metric with an `evidence-attached-review` preset, filter select, active-filter chip, URL parsing, and URL sync; focused route/UI tests and dashboard/navigation/deeplink verifiers guard the path.
+- `validation`: focused route/UI/verifier checks passed before final validation. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.
