@@ -215,6 +215,11 @@ assertMatches(
 );
 assertMatches(
   "workspaceJs",
+  /function renderViewerMonitoringOverview\([\s\S]*data-viewer-monitoring-overview="true"[\s\S]*data-section="teacher" data-section-preset="\$\{escapeHtml\(reviewPreset\)\}"[\s\S]*data-section="students" data-section-preset="missing-mentors"[\s\S]*data-section="operations" data-section-preset="\$\{escapeHtml\(operationsPreset\)\}"/,
+  "Viewer monitoring overview must use existing route-backed Review Queue, Student Directory, and Operations presets",
+);
+assertMatches(
+  "workspaceJs",
   /function renderProgramTeacherDashboardSection\([\s\S]*renderMetricTile\("Submitted"[\s\S]*"teacher", \{ label: "Review", preset: "submitted" \}\)/,
   "Program Teacher Submitted metric must open the existing submitted Review Queue filter",
 );

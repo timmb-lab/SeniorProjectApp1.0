@@ -3540,3 +3540,54 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: hosted permission/browser proof still needs credentialed runtime; missing-submission filters still lack exact product-safe queue semantics.
   - Do not repeat: Review Queue filter-specific empty-state guidance is complete for current filters.
   - First file to inspect next run: `scripts/check-workspace-hosted-permissions.mjs` if credentials/runtime are available; otherwise `workspace.js` `renderOverviewSection()` for viewer-specific depth.
+
+## Run 2026-05-28 11:03 PT
+
+- Starting SHA: `584f477aecb140248d718a4f7a9bdc0cf95ce050`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Branch policy: work stayed on clean local `main`; local `main` was aligned with `origin/main`, and no push was run
+- Ladder level targeted: `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` with `LEVEL_1_NAVIGABLE_DASHBOARDS` route-backed action support
+- Backlog item: `viewer-specific-overview-depth`; supports `MVP-032`, `MVP-033`, and dashboard/reporting role-specific readiness
+- Work order selected: Add a viewer-only read-only monitoring queue to the Site Dashboard.
+- Selection reason: Hosted section-level permission proof still depends on credentialed runtime, and prior Review Queue/readiness cleanup is complete. Current source sent viewers into the same dense Site Dashboard as school operations staff; a bounded viewer-only panel could use existing scoped Review Queue, Student Directory, and Operations presets without adding routes, permissions, fake data, or mutation controls.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Viewer monitoring queue | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | viewer | 4 | 5 | 5 | S | 56 | selected |
+| Hosted section-level permission proof | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all protected roles | 4 | 4 | 3 | M | 40 | blocked: credentialed runtime path only |
+| Correct stale hosted-proof handoff path | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | automation | 2 | 5 | 4 | XS | 39 | rejected: lower user-facing value |
+| Review Queue missing-submission semantics | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | program_teacher, site staff | 5 | 2 | 3 | M | 34 | deferred: no exact queue semantics |
+| Student Directory missing-evidence filter | `LEVEL_1_NAVIGABLE_DASHBOARDS` | site staff, viewer | 4 | 2 | 3 | M | 35 | deferred: route filter missing |
+| Operations provider-unavailable metric | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | site staff, viewer | 4 | 3 | 3 | S | 41 | rejected: product/security semantics needed |
+| Admin recent activity drill-down | `LEVEL_7_AUDITABILITY_AND_TRUST` | admin, site staff | 4 | 3 | 3 | M | 38 | rejected: permission shape needs review |
+| Mentor workload threshold guidance | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | site_admin, viewer | 4 | 3 | 3 | M | 39 | rejected: policy threshold unclear |
+| Student guided requirement form | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 5 | 2 | 3 | L | 32 | rejected: write-path design needed |
+| Staff archive retry/regenerate controls | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | site_admin | 5 | 2 | 3 | M | 34 | rejected: mutation policy |
+| Public route browser/mobile QA | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | public students, teachers | 3 | 4 | 3 | M | 40 | rejected: lower protected-app value |
+| Summary-only metric affordance styling | `LEVEL_1_NAVIGABLE_DASHBOARDS` | staff, viewer | 3 | 4 | 3 | S | 39 | rejected: broader visual surface |
+
+- User-facing improvement: Viewer users now land on a concise read-only monitoring queue for submitted/revision work, mentor coverage gaps, and operations follow-up, with direct route-backed actions to the existing scoped worklists.
+- Roles affected: `viewer`; no student, mentor, program teacher, admin, misc-admin, tenant, site, program, or record visibility was broadened.
+- Files changed: `workspace.js`, `tests/workspace-app.test.mjs`, `scripts/verify-dashboard-actions.mjs`, `docs/functionality-language-audit.md`, `docs/mvp-requirements-catalog.md`, `docs/progress/run-log.md`, `docs/progress/runs/2026-05-28-1103-viewer-monitoring-queue.json`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`
+- Tests/verifiers added or updated: workspace coverage proves the viewer-only panel, route-backed presets, and no mutation controls; dashboard-action verifier guards the new panel's supported preset usage.
+- Validation commands:
+  - Focused passed before docs/state closeout: `node --test tests/workspace-app.test.mjs`; `npm run verify:dashboard-actions`; `npm run verify:functionality-language`
+  - Final passed: `node --test tests/functionality-language-audit.test.mjs`; `npm run verify:functionality-ux-automation`; `npm run verify:workspace-navigation`; `npm run check:production-surfaces`; `npm run check:route-inventory`; `npm run verify:review-queue-deeplinks`; JSON parse for state and manifest; `git diff --check`; `npm run test`; `npm run typecheck`; `npm run check`
+- Validation result: passed; `git diff --check` reported only CRLF normalization warnings, with no whitespace errors.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: hosted section-level permission proof, Review Queue missing-submission semantics, Student Directory missing-evidence filter, provider-unavailable route semantics, archive retry/regenerate controls, org rollups, and public-route browser/mobile QA remain deferred.
+- New backlog items: none
+- Next recommended work order: run `npm run check:workspace:hosted-permissions` when fake `.test` credentials/runtime are available; otherwise inspect whether provider-unavailable Operations semantics can be documented without adding fake controls.
+- Do-not-repeat notes: do not re-add the viewer monitoring queue unless regression removes `data-viewer-monitoring-overview="true"` or the route-backed viewer panel actions.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_4_ROLE_SPECIFIC_WORKSPACES`
+  - Advanced: yes
+  - Evidence: Viewer Site Dashboard now renders `data-viewer-monitoring-overview="true"` with Review Queue, Student Directory, and Operations actions and focused tests/verifier coverage.
+  - Unlocks: Viewer users can monitor school progress from a role-specific queue without implying they can approve, assign, retry exports, or change accounts.
+  - Next: hosted section-level permission proof with `npm run check:workspace:hosted-permissions`, or provider-unavailable Operations semantics if hosted credentials remain unavailable.
+  - Blockers: hosted permission/browser proof still needs fake `.test` credentials and available hosted runtime.
+  - Do not repeat: Viewer monitoring queue is complete unless regression evidence appears.
+  - First file to inspect next run: `scripts/check-hosted-workspace-permissions.mjs`

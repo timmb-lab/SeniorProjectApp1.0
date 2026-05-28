@@ -32,6 +32,17 @@ Future productive runs should append compact entries that name the master-plan s
 - `validation`: focused workspace test and functionality-language verifier passed before final validation. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
 - `commit/push status`: pending closeout commit; not pushed by this automation run.
 
+## 2026-05-28 PT - Functionality UX Upgrade Viewer Monitoring Queue
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 4 role-specific workspaces / Viewer read-only dashboard depth.
+- `starting HEAD`: `584f477aecb140248d718a4f7a9bdc0cf95ce050`.
+- `selected slice`: Add a viewer-only read-only monitoring queue to the Site Dashboard.
+- `repo-grounded findings`: hosted section-level permission proof depends on credentialed runtime, and the prior Review Queue/readiness slices are complete. Current `renderOverviewSection()` still sends `viewer` users into the dense Site Dashboard with read-only warnings but no concise role-specific monitoring queue.
+- `changes`: `workspace.js` now renders `data-viewer-monitoring-overview="true"` only for read-only Site Dashboard viewers, with route-backed Review Queue, missing-mentor Student Directory, and Operations actions from existing presets. `tests/workspace-app.test.mjs` proves the viewer panel/actions and absence of mutation controls; `scripts/verify-dashboard-actions.mjs` guards the panel against unsupported presets.
+- `validation`: focused workspace test, dashboard-action verifier, and functionality-language verifier passed before final validation. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.
+
 ## 2026-05-26 01:06 PT - Functionality UX Upgrade Review Queue Evidence Missing
 
 - `automation ID`: functionality-ux-upgrade-hourly.

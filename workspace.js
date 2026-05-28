@@ -1310,6 +1310,66 @@ function renderReadOnlyBanner() {
   `;
 }
 
+function renderViewerMonitoringOverview(dashboard = {}) {
+  const summary = dashboard.summary || {};
+  const reviewFollowUp = safeNumber(summary.submissionsSubmitted) + safeNumber(summary.revisionRequested);
+  const noMentor = safeNumber(summary.studentsNoMentor);
+  const operationsAttention = safeNumber(summary.presentationsPending) + safeNumber(summary.exportsFailed);
+  const reviewPreset = safeNumber(summary.revisionRequested) > 0 ? "revision-requested" : "submitted";
+  const operationsPreset = safeNumber(summary.exportsFailed) > 0 ? "archive-failed" : "presentation-pending";
+
+  return `
+    <section class="workspace-card" data-viewer-monitoring-overview="true" aria-label="Read-only monitoring priorities">
+      <div class="workspace-card-head">
+        <div>
+          <p class="workspace-kicker">Viewer priorities</p>
+          <h2>Read-only monitoring queue</h2>
+          <p class="workspace-muted">Open the exact school worklists for context; assigned staff handle approvals, assignments, account changes, and status updates.</p>
+        </div>
+        <span class="workspace-chip" data-workspace-mode="read-only">Read-only</span>
+      </div>
+      <div class="workspace-list">
+        <article class="workspace-row">
+          <div>
+            <strong>Review work to monitor</strong>
+            <p>${escapeHtml(reviewFollowUp)} submitted or revision records may need teacher follow-up.</p>
+          </div>
+          <div class="workspace-row-actions">
+            ${statusPill(reviewFollowUp ? "pending" : "ready")}
+            <button class="workspace-link-button workspace-link-button-small" type="button" data-section="teacher" data-section-preset="${escapeHtml(reviewPreset)}">
+              Open review queue
+            </button>
+          </div>
+        </article>
+        <article class="workspace-row">
+          <div>
+            <strong>Mentor coverage to monitor</strong>
+            <p>${escapeHtml(noMentor)} ${escapeHtml(pluralize(noMentor, "student"))} currently lack active mentor coverage.</p>
+          </div>
+          <div class="workspace-row-actions">
+            ${statusPill(noMentor ? "attention_required" : "ready")}
+            <button class="workspace-link-button workspace-link-button-small" type="button" data-section="students" data-section-preset="missing-mentors">
+              View students
+            </button>
+          </div>
+        </article>
+        <article class="workspace-row">
+          <div>
+            <strong>Operations to monitor</strong>
+            <p>${escapeHtml(operationsAttention)} presentation or archive records need school follow-up.</p>
+          </div>
+          <div class="workspace-row-actions">
+            ${statusPill(operationsAttention ? "attention_required" : "ready")}
+            <button class="workspace-link-button workspace-link-button-small" type="button" data-section="operations" data-section-preset="${escapeHtml(operationsPreset)}">
+              Open operations
+            </button>
+          </div>
+        </article>
+      </div>
+    </section>
+  `;
+}
+
 function renderSiteDashboardSection() {
   const result = currentData.siteDashboard;
   if (result?.status === 403) {
@@ -1360,6 +1420,7 @@ function renderSiteDashboardSection() {
           <span class="workspace-chip">${escapeHtml(statusText(scope.selectionMode || "current_school"))}</span>
         </div>
       </div>
+      ${readOnly ? renderViewerMonitoringOverview(dashboard) : ""}
       <div class="workspace-dashboard-grid">
         ${renderMetricTile("Students", summary.studentsActive, `${safeNumber(summary.studentsTotal)} visible at this site`, "admin", "students", { label: "Open", preset: "all-students" })}
         ${renderMetricTile("No Mentor", summary.studentsNoMentor, "Students missing active mentor assignments", safeNumber(summary.studentsNoMentor) ? "warning" : "mentor", "students", { label: "View students", preset: "missing-mentors" })}

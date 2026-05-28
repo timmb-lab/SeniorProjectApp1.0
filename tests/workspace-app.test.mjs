@@ -357,6 +357,7 @@ test("workspace renders route-connected site dashboard with Figma product-system
   assert.match(siteDashboard, /data-site-student-action="view-detail"/);
   assert.match(siteDashboard, /workspace-status-pill/);
   assert.match(siteDashboard, /workspace-risk-chip/);
+  assert.doesNotMatch(siteDashboard, /data-viewer-monitoring-overview="true"/);
   assert.doesNotMatch(siteDashboard, /data-section="studentDirectory"|\/api\/site\/students/);
 
   const viewer = await renderWorkspaceWithFetch({
@@ -385,6 +386,15 @@ test("workspace renders route-connected site dashboard with Figma product-system
   assert.match(viewer, /You can open assigned student records for context; changes stay with authorized staff/);
   assert.match(viewer, /You can review submitted work context; decisions stay with assigned program teachers/);
   assert.match(viewer, /This view shows Desert Valley High School only/);
+  assert.match(viewer, /data-viewer-monitoring-overview="true"/);
+  assert.match(viewer, /Read-only monitoring queue/);
+  assert.match(viewer, /84 submitted or revision records may need teacher follow-up/);
+  assert.match(viewer, /data-section="teacher" data-section-preset="revision-requested">[\s\S]*Open review queue/);
+  assert.match(viewer, /17 students currently lack active mentor coverage/);
+  assert.match(viewer, /data-section="students" data-section-preset="missing-mentors">[\s\S]*View students/);
+  assert.match(viewer, /15 presentation or archive records need school follow-up/);
+  assert.match(viewer, /data-section="operations" data-section-preset="archive-failed">[\s\S]*Open operations/);
+  assert.doesNotMatch(viewer, /data-admin-action="import-users"|Assign mentor|data-review-decision="approved"|data-archive-action/);
 
   const selectionRequired = await renderWorkspaceWithFetch({
     "/api/auth/me": {
