@@ -4561,3 +4561,52 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: hosted proof needs safe hosted fake-account/audit runtime; site-scoped audit route shape still needs visibility review; missing-submission queue rows do not exist; archive retry/regenerate needs mutation policy.
   - Do not repeat: do not re-add site-admin audit/export nav without a backed route and focused coverage.
   - First file to inspect next run: `workspace.js`
+
+## Run 2026-05-31 16:08 PT
+
+- Starting SHA: `255f7ea67c79a86f33679f1c3b9fbc53c069d2fd`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Branch policy: work stayed on clean local `main`; local `main` remained ahead of `origin/main`, `origin/main` was not ahead, and no sync or push was run
+- Ladder level targeted: `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` with `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` support
+- Backlog item: `student-next-step-quick-actions`; supports `MVP-003`, `MVP-032`, and the student workspace line in `docs/mvp-requirements-catalog.md`
+- Work order selected: Turn the student home primary action and next-steps list into real in-page actions.
+- Selection reason: `/api/student/dashboard` already returned requirement-backed `nextSteps`, requirement detail rows, and student-scoped submission ids, but `workspace.js` rendered the student guidance as static text. This was the highest-value safe slice because it reuses the current student-only payload, requirement detail disclosure, evidence focus, and submit behavior without adding routes, visibility, or fake workflow claims.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Student home next-step quick actions | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 5 | 5 | 5 | S | 56 | selected |
+| Student submission row timeline shortcut | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 4 | 5 | 4 | S | 49 | not selected: follow-up after the main next-step lane |
+| Presentation schedule URL state | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | student, mentor, teacher, admin | 3 | 4 | 4 | S | 41 | deferred: add only if shareable filter links are clearly needed |
+| Mentor Dashboard URL state | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | mentor | 3 | 4 | 4 | S | 40 | deferred: add only if mentors need shareable focus filters |
+| Site-scoped audit destination | `LEVEL_7_AUDITABILITY_AND_TRUST` | site_admin, org_admin | 4 | 3 | 4 | M | 38 | deferred: route shape and visibility review still needed |
+| Review Queue missing-submission semantics | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | program_teacher, site staff | 5 | 2 | 3 | M | 34 | deferred: backend queue rows are still absent |
+| Site-admin assignment removal workflow | `LEVEL_7_AUDITABILITY_AND_TRUST` | site_admin | 3 | 2 | 3 | M | 33 | deferred: mutation policy and audit UX still need review |
+| Mentor workload threshold filter | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | site staff, viewer | 4 | 3 | 3 | M | 39 | deferred: threshold policy is still unclear |
+| Hosted section-level permission proof | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all protected roles | 4 | 3 | 3 | M | 39 | deferred: hosted fake-account proof and audit writes are not allowed in this run |
+| Student guided requirement form | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 5 | 3 | 3 | L | 37 | deferred: write-path and product-shape work is broader than one safe run |
+
+- User-facing improvement: Students can now go from `Do this next` or `What to Work On Next` directly into the matching requirement, then reuse the current `Add evidence`, `Send revision`, or `Send for review` action instead of scanning the longer checklist to find the same work item.
+- Roles affected: `student`
+- Files changed: `functions/api/student/dashboard.ts`, `workspace.js`, `tests/student-dashboard-access.integration.test.mjs`, `tests/workspace-app.test.mjs`, `docs/functionality-language-audit.md`, `docs/progress/run-log.md`, `docs/progress/runs/2026-05-31-1608-student-next-step-actions.json`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`
+- Tests/verifiers added or updated: `tests/student-dashboard-access.integration.test.mjs` now proves next-step requirement/submission metadata; `tests/workspace-app.test.mjs` now proves student-home `Open requirement` actions and the reused open-detail behavior without extra route fetches.
+- Validation commands:
+  - Focused passed before docs/state closeout: `node --test tests/student-dashboard-access.integration.test.mjs`; `node --test tests/workspace-app.test.mjs`
+  - Final passed: `node --test tests/functionality-language-audit.test.mjs`, `npm run verify:functionality-language`, `npm run verify:functionality-ux-automation`, JSON parse for `automation/state/functionality-ux-growth-state.json` and `docs/progress/runs/2026-05-31-1608-student-next-step-actions.json`, `git diff --check`, `npm run test`, `npm run typecheck`
+- Validation result: passed; `git diff --check` reported only CRLF normalization warnings, with no whitespace errors.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: hosted section-level permission proof, site-scoped audit destination, Review Queue missing-submission semantics, Presentation schedule URL-state filters, Mentor Dashboard URL-state filters, site-admin assignment removal workflow, mentor workload threshold policy, org rollups, and student guided requirement write path remain deferred.
+- New backlog items: none
+- Next recommended work order: run hosted section-level permission proof when hosted fake-account proof and audit-event writes are allowed; otherwise inspect whether student submission rows need a second `View timeline` shortcut into the existing student-safe feedback history.
+- Do-not-repeat notes: do not re-add student next-step quick actions unless regression removes `Open requirement` or the reused add-evidence/send-for-review controls from the student home primary action and next-steps list.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN`
+  - Advanced: yes
+  - Evidence: student-home next-step guidance now opens the matching requirement and reuses current evidence/submit actions with scoped payload metadata only.
+  - Unlocks: a follow-up student submission/timeline shortcut can now build on a clearer actionable student home instead of static guidance.
+  - Next: hosted permission proof when allowed; otherwise consider a second student-safe timeline shortcut from submission rows.
+  - Blockers: hosted proof still needs allowed fake-account/audit writes, and broader student guided write-path work still needs product-shape decisions.
+  - Do not repeat: do not re-add this quick-action slice unless regression removes the buttons or the in-page requirement focus path.
+  - First file to inspect next run: `workspace.js` student submission rows if staying in the student workspace; otherwise `scripts/check-hosted-workspace-permissions.mjs`

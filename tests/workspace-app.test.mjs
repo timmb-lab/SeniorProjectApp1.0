@@ -3636,6 +3636,10 @@ test("workspace renders a progress-first student homepage with safe language", a
             detail: "Revise Senior Project Proposal and send it back for review.",
             dueDate: "2025-10-09T00:00:00Z",
             dueLabel: "October 9 and 10",
+            requirementId: "req-proposal",
+            submissionId: "submission-proposal",
+            submissionStatus: "revision_requested",
+            evidenceCount: 1,
           },
           {
             title: "Mentor Meeting One Plan",
@@ -3643,6 +3647,10 @@ test("workspace renders a progress-first student homepage with safe language", a
             detail: "Start or finish Mentor Meeting One Plan.",
             dueDate: "2026-01-14T00:00:00Z",
             dueLabel: "January 14, make-up January 16",
+            requirementId: "req-mentor-plan",
+            submissionId: null,
+            submissionStatus: null,
+            evidenceCount: 0,
           },
         ],
         requirements: [
@@ -3772,6 +3780,8 @@ test("workspace renders a progress-first student homepage with safe language", a
   assert.match(student, /Senior Project Proposal/);
   assert.match(student, /Your action/);
   assert.match(student, /What to Work On Next/);
+  assert.match(student, /data-student-requirement-action="open-detail"/);
+  assert.match(student, /Open requirement/);
   assert.match(student, /data-student-requirements-panel="true"/);
   assert.match(student, /data-student-requirements-count="3"/);
   assert.match(student, /Your Required Work/);
@@ -3868,7 +3878,18 @@ test("student requirement rows open in-page details without another route", asyn
           waitingForReviewCount: 0,
           currentStatus: "Needs Revision",
         },
-        nextSteps: [],
+        nextSteps: [
+          {
+            title: "Senior Project Proposal",
+            status: "Needs Revision",
+            detail: "Revise Senior Project Proposal and send it back for review.",
+            dueLabel: "October 9 and 10",
+            requirementId: "req-proposal",
+            submissionId: "submission-proposal",
+            submissionStatus: "revision_requested",
+            evidenceCount: 1,
+          },
+        ],
         requirements: [
           {
             requirementId: "req-proposal",
@@ -3925,12 +3946,14 @@ test("student requirement rows open in-page details without another route", asyn
     },
   };
   const { context, workspaceRoot, fetchLog } = await createWorkspaceContextWithFetch(routes);
+  assert.match(workspaceRoot.innerHTML, /data-student-requirement-action="open-detail"/);
+  assert.match(workspaceRoot.innerHTML, /Open requirement/);
   assert.match(workspaceRoot.innerHTML, /data-student-requirement-action="toggle-detail"/);
   assert.match(workspaceRoot.innerHTML, /Review details/);
   assert.doesNotMatch(workspaceRoot.innerHTML, /data-student-requirement-detail="true"/);
 
   const fetchCountBeforeDetail = fetchLog.length;
-  vm.runInContext('studentRequirementDetailState = { selectedRequirementId: "req-proposal" }; activeSection = "student"; renderAppShell();', context);
+  vm.runInContext('handleStudentRequirementAction({ currentTarget: { dataset: { studentRequirementAction: "open-detail", studentRequirementId: "req-proposal" } } })', context);
   assert.equal(fetchLog.length, fetchCountBeforeDetail);
   assert.match(workspaceRoot.innerHTML, /data-student-requirement-detail="true"/);
   assert.match(workspaceRoot.innerHTML, /Requirement details/);

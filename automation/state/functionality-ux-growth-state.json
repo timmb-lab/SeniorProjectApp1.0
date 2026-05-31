@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-05-31T15:32:31-07:00",
-  "lastStartingSha": "70a2d22f64b257776d53aace006b9b6049cc67fd",
+  "lastRunAt": "2026-05-31T16:12:03-07:00",
+  "lastStartingSha": "255f7ea67c79a86f33679f1c3b9fbc53c069d2fd",
   "lastEndingSha": null,
-  "currentLadderFocus": "LEVEL_1_NAVIGABLE_DASHBOARDS",
+  "currentLadderFocus": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN",
   "completedWorkOrders": [
     {
       "id": "workspace-header-product-language-cleanup",
@@ -817,6 +817,14 @@
       "type": "TYPE_B_DASHBOARD_CLICK_THROUGH",
       "summary": "Site-admin workspaces no longer expose unsupported Global Admin-only Audit or Archive / Exports sections, and Site Dashboard Recent Activity stays summary-only when no backed audit surface exists.",
       "commit": "pending-closeout-commit"
+    },
+    {
+      "id": "student-next-step-quick-actions",
+      "completedAt": "2026-05-31T16:07:54-07:00",
+      "ladderLevel": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN",
+      "type": "TYPE_D_ROLE_WORKSPACE",
+      "summary": "Student home primary and next-step guidance now opens the matching requirement and reuses existing add-evidence or send-for-review actions from already scoped nextSteps and submission data.",
+      "commit": "pending-closeout-commit"
     }
   ],
   "deferredWorkOrders": [
@@ -999,27 +1007,24 @@
     "Do not re-add the Users & Access current assignment summary unless data-site-access-assignment-summary=\"true\" or focused workspace coverage regresses.",
     "Do not re-add Users & Access Assign/Remove guidance unless data-site-access-action-guidance or Save access change regresses.",
     "Do not re-add Users & Access recent access changes unless data-site-access-history=\"true\" or the focused route/workspace coverage regresses.",
-    "Do not re-add site-admin Audit or Archive / Exports navigation unless a real backed site-scoped surface exists and focused coverage proves it."
+    "Do not re-add site-admin Audit or Archive / Exports navigation unless a real backed site-scoped surface exists and focused coverage proves it.",
+    "Do not re-add student next-step quick actions unless regression removes Open requirement or the reused add-evidence/send-for-review controls from the student home primary action and next-steps list."
   ],
   "lastValidationStatus": {
     "status": "passed",
-    "completedAt": "2026-05-31T15:35:00-07:00",
+    "completedAt": "2026-05-31T16:12:03-07:00",
     "commands": [
+      "node --test tests/student-dashboard-access.integration.test.mjs",
       "node --test tests/workspace-app.test.mjs",
       "node --test tests/functionality-language-audit.test.mjs",
       "npm run verify:functionality-language",
-      "npm run verify:dashboard-actions",
-      "npm run verify:workspace-navigation",
       "npm run verify:functionality-ux-automation",
-      "JSON parse for automation/state/functionality-ux-growth-state.json and docs/progress/runs/2026-05-31-1532-site-admin-nav-integrity.json",
+      "JSON parse for automation/state/functionality-ux-growth-state.json and docs/progress/runs/2026-05-31-1608-student-next-step-actions.json",
       "git diff --check",
-      "npm run check:production-surfaces",
-      "npm run check:route-inventory",
       "npm run test",
-      "npm run typecheck",
-      "npm run check"
+      "npm run typecheck"
     ],
-    "notes": "Full validation passed for the site-admin navigation integrity repair. git diff --check reported only CRLF normalization warnings. This run removes unsupported site-admin audit/export navigation, keeps Recent Activity summary-only until a backed audit surface exists, and does not change auth role grants, tenant/site/program/student privacy boundaries, migrations, secrets/env files, Cloudflare/OAuth/domain config, deploy settings, or live data."
+    "notes": "Focused and full validation passed for the student next-step action upgrade. git diff --check reported only CRLF normalization warnings. This run adds student-home quick actions by enriching already scoped nextSteps metadata and reusing existing requirement detail, evidence focus, and submit behavior without changing auth grants, RBAC, tenant/site/program/student privacy boundaries, migrations, secrets/env files, Cloudflare/OAuth/domain config, deploy settings, or live data."
   },
   "lastProductReadinessScorecardSummary": {
     "homepageClarity": "4 to 4",

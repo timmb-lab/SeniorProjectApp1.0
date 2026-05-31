@@ -2466,3 +2466,14 @@ Future productive runs should append compact entries that name the master-plan s
 - `changes`: `workspace.js` now limits `Audit` and `Archive / Exports` navigation to Global Admin users and renders Site Dashboard `Recent Activity` as summary-only when the backed audit section is unavailable. `tests/workspace-app.test.mjs` proves site-admin workspaces no longer expose those unsupported sections while Global Admin source gating remains intact.
 - `validation`: focused `node --test tests/workspace-app.test.mjs` passed before docs/state closeout. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
 - `commit/push status`: pending closeout commit; not pushed by this automation run.
+
+## 2026-05-31 PT - Functionality UX Upgrade Student Next-Step Actions
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 6 student progress drill-down / Level 4 role-specific workspace clarity.
+- `starting HEAD`: `255f7ea67c79a86f33679f1c3b9fbc53c069d2fd`.
+- `selected slice`: Turn the student home primary next action and next-steps list into real in-page actions.
+- `repo-grounded findings`: `/api/student/dashboard` already returned requirement-backed `nextSteps`, requirement detail rows, and student-scoped submission ids, but `workspace.js` rendered the primary action and next-steps list as static text. Students still had to scan the longer requirement list to find the exact requirement or evidence action named in the guidance.
+- `changes`: `functions/api/student/dashboard.ts` now includes requirement/submission metadata on each student next-step row. `workspace.js` now renders `Open requirement` plus existing `Add evidence` / `Send revision` / `Send for review` actions from the student home primary action card and next-steps rows, and focuses the existing in-page requirement detail after opening it. `tests/student-dashboard-access.integration.test.mjs` and `tests/workspace-app.test.mjs` prove the enriched payload shape, rendered actions, and open-detail behavior without extra route fetches.
+- `validation`: focused student-dashboard and workspace tests passed before docs/state closeout. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.

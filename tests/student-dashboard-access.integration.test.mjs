@@ -79,6 +79,10 @@ test("student dashboard returns own rows without storage ids and audits the view
       detail: "Start or finish Core Concept Proposal.",
       dueDate: "2025-10-09T00:00:00Z",
       dueLabel: "October 9 and 10",
+      requirementId: "req-proposal-draft",
+      submissionId: "submission-student-a",
+      submissionStatus: "draft",
+      evidenceCount: 1,
     },
   ]);
   assert.deepEqual(body.requirements, [

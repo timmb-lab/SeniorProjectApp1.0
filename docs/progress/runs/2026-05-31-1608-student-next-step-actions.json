@@ -1,0 +1,101 @@
+{
+  "automationId": "functionality-ux-upgrade-hourly",
+  "runAt": "2026-05-31T16:08:00-07:00",
+  "startingSha": "255f7ea67c79a86f33679f1c3b9fbc53c069d2fd",
+  "endingSha": null,
+  "branch": "main",
+  "ladderLevel": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN",
+  "workOrder": {
+    "id": "student-next-step-quick-actions",
+    "summary": "Turn the student home primary action and next-steps list into real in-page actions.",
+    "selectionReason": "The student dashboard already returned requirement-backed next steps, scoped submission ids, and an in-page requirement detail panel, but the student home still rendered that guidance as static text."
+  },
+  "repoGroundedFindings": [
+    "functions/api/student/dashboard.ts already builds nextSteps from required requirements plus latest submission state.",
+    "workspace.js rendered Do this next and What to Work On Next as static text with no path back to the matching requirement.",
+    "workspace.js already had student-safe requirement detail disclosure, evidence focus behavior, and submit actions that could be reused."
+  ],
+  "changes": [
+    "Added requirementId, submissionId, submissionStatus, and evidenceCount to student dashboard next-step rows.",
+    "Rendered Open requirement plus existing Add evidence / Send revision / Send for review actions from the student home primary action card and next-steps rows.",
+    "Focused the existing in-page requirement detail after opening it from a student-home quick action.",
+    "Added focused route and workspace coverage for the enriched next-step payload and open-detail behavior."
+  ],
+  "filesChanged": [
+    "functions/api/student/dashboard.ts",
+    "workspace.js",
+    "tests/student-dashboard-access.integration.test.mjs",
+    "tests/workspace-app.test.mjs",
+    "docs/functionality-language-audit.md",
+    "docs/functionality-ux-growth-ledger.md",
+    "automation/state/functionality-ux-growth-state.json",
+    "docs/progress/run-log.md"
+  ],
+  "candidates": [
+    {
+      "candidate": "Student home next-step quick actions",
+      "score": 56,
+      "decision": "selected"
+    },
+    {
+      "candidate": "Student submission row timeline shortcut",
+      "score": 49,
+      "decision": "follow_up"
+    },
+    {
+      "candidate": "Presentation schedule URL state",
+      "score": 41,
+      "decision": "deferred_need_unproven"
+    },
+    {
+      "candidate": "Mentor Dashboard URL state",
+      "score": 40,
+      "decision": "deferred_need_unproven"
+    },
+    {
+      "candidate": "Site-scoped audit destination",
+      "score": 38,
+      "decision": "deferred_route_review"
+    },
+    {
+      "candidate": "Review Queue missing-submission semantics",
+      "score": 34,
+      "decision": "deferred_backend_gap"
+    },
+    {
+      "candidate": "Site-admin assignment removal workflow",
+      "score": 33,
+      "decision": "deferred_policy_review"
+    },
+    {
+      "candidate": "Mentor workload threshold filter",
+      "score": 39,
+      "decision": "deferred_policy_unclear"
+    },
+    {
+      "candidate": "Hosted section-level permission proof",
+      "score": 39,
+      "decision": "deferred_hosted_boundary"
+    },
+    {
+      "candidate": "Student guided requirement form",
+      "score": 37,
+      "decision": "deferred_broad_write_path"
+    }
+  ],
+  "validation": {
+    "status": "passed",
+    "commands": [
+      "node --test tests/student-dashboard-access.integration.test.mjs",
+      "node --test tests/workspace-app.test.mjs",
+      "node --test tests/functionality-language-audit.test.mjs",
+      "npm run verify:functionality-language",
+      "npm run verify:functionality-ux-automation",
+      "git diff --check",
+      "JSON parse for automation/state/functionality-ux-growth-state.json and docs/progress/runs/2026-05-31-1608-student-next-step-actions.json",
+      "npm run test",
+      "npm run typecheck"
+    ]
+  },
+  "nextRecommended": "Run hosted section-level permission proof when hosted fake-account proof and audit-event writes are allowed; otherwise inspect student submission rows for a second View timeline shortcut into the existing student-safe feedback history."
+}

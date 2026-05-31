@@ -121,6 +121,10 @@ interface StudentNextStep {
   detail: string;
   dueDate: string | null;
   dueLabel: string | null;
+  requirementId: string | null;
+  submissionId: string | null;
+  submissionStatus: string | null;
+  evidenceCount: number;
 }
 
 interface StudentRequirementDetail {
@@ -479,6 +483,7 @@ function buildStudentNextSteps(
   const seen = new Set<string>();
   const addStep = (requirement: RequirementRow | null, status: string, detail: string) => {
     if (!requirement || seen.has(requirement.id)) return;
+    const submission = submissionsByRequirement.get(requirement.id) || null;
     seen.add(requirement.id);
     output.push({
       title: requirement.title || "Senior Project requirement",
@@ -486,6 +491,10 @@ function buildStudentNextSteps(
       detail,
       dueDate: requirement.due_at || null,
       dueLabel: safeStudentText(requirement.due_label, "", 80) || null,
+      requirementId: requirement.id,
+      submissionId: submission?.id || null,
+      submissionStatus: submission?.status || null,
+      evidenceCount: safeNumber(submission?.evidence_count),
     });
   };
 

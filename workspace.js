@@ -29,6 +29,7 @@ let selectedSiteId = "";
 let siteStudentFilters = defaultSiteStudentFilters();
 let siteStudentDetailState = defaultSiteStudentDetailState();
 let pendingSiteStudentDetailFocus = false;
+let pendingStudentRequirementFocusId = "";
 let studentRequirementDetailState = defaultStudentRequirementDetailState();
 let studentFeedbackHistoryState = defaultStudentFeedbackHistoryState();
 let reviewQueueFilters = defaultReviewQueueFilters();
@@ -714,10 +715,15 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
   });
   bindWorkspaceForms();
   flushPendingSiteStudentDetailFocus();
+  flushPendingStudentRequirementFocus();
 }
 
 function requestSiteStudentDetailFocus() {
   pendingSiteStudentDetailFocus = true;
+}
+
+function requestStudentRequirementFocus(requirementId) {
+  pendingStudentRequirementFocusId = cleanDirectoryFilter(requirementId);
 }
 
 function flushPendingSiteStudentDetailFocus() {
@@ -739,6 +745,26 @@ function flushPendingSiteStudentDetailFocus() {
     requestAnimationFrame(focusPanel);
   } else {
     focusPanel();
+  }
+}
+
+function flushPendingStudentRequirementFocus() {
+  const requirementId = pendingStudentRequirementFocusId;
+  if (!requirementId) return;
+  pendingStudentRequirementFocusId = "";
+  const focusRequirement = () => {
+    const detailDomId = studentRequirementDetailDomId(requirementId);
+    const detail = document.querySelector(`[id="${escapeHtml(detailDomId)}"]`);
+    const row = detail?.closest?.("[data-student-requirement-row]") || document.querySelector(`[data-student-requirement-id="${escapeHtml(requirementId)}"]`);
+    (detail || row)?.scrollIntoView?.({ block: "start", behavior: "auto" });
+    row?.querySelector?.('[data-student-requirement-action="toggle-detail"]')?.focus?.();
+  };
+  if (typeof setTimeout === "function") {
+    setTimeout(focusRequirement, 0);
+  } else if (typeof requestAnimationFrame === "function") {
+    requestAnimationFrame(focusRequirement);
+  } else {
+    focusRequirement();
   }
 }
 
@@ -4135,6 +4161,7 @@ function renderStudentSection() {
 
 function renderStudentPrimaryNextAction(summary, nextSteps = []) {
   const action = studentPrimaryNextAction(summary, nextSteps);
+  const actionButtons = renderStudentStepButtons(action);
   return `
     <section class="workspace-dashboard-card workspace-student-primary-action" aria-labelledby="studentPrimaryNextActionTitle">
       <div class="workspace-card-head">
@@ -4149,6 +4176,7 @@ function renderStudentPrimaryNextAction(summary, nextSteps = []) {
         <strong>${escapeHtml(action.owner)}</strong>
         <span>${escapeHtml(action.when)}</span>
       </div>
+      ${actionButtons ? `<div class="workspace-row-actions">${actionButtons}</div>` : ""}
     </section>
   `;
 }
@@ -4157,6 +4185,10 @@ function studentPrimaryNextAction(summary, nextSteps = []) {
   const firstStep = Array.isArray(nextSteps) ? nextSteps[0] : null;
   if (firstStep) {
     return {
+      requirementId: firstStep.requirementId || null,
+      submissionId: firstStep.submissionId || null,
+      submissionStatus: firstStep.submissionStatus || null,
+      evidenceCount: safeNumber(firstStep.evidenceCount),
       title: firstStep.title || "Continue your next requirement",
       detail: firstStep.detail || "Open the requirement in the list below and continue your project work.",
       status: firstStep.status || "pending",
@@ -4166,6 +4198,10 @@ function studentPrimaryNextAction(summary, nextSteps = []) {
   }
   if (summary.revisionRequestedCount) {
     return {
+      requirementId: null,
+      submissionId: null,
+      submissionStatus: null,
+      evidenceCount: 0,
       title: "Revise submitted work",
       detail: "Review the item marked Needs Revision and update your evidence or submission before moving forward.",
       status: "revision_requested",
@@ -4175,6 +4211,10 @@ function studentPrimaryNextAction(summary, nextSteps = []) {
   }
   if (summary.missingRequiredCount) {
     return {
+      requirementId: null,
+      submissionId: null,
+      submissionStatus: null,
+      evidenceCount: 0,
       title: "Finish a missing submission",
       detail: "Choose a draft or missing requirement and attach the work your teacher requested.",
       status: "draft",
@@ -4184,6 +4224,10 @@ function studentPrimaryNextAction(summary, nextSteps = []) {
   }
   if (summary.waitingForReviewCount) {
     return {
+      requirementId: null,
+      submissionId: null,
+      submissionStatus: null,
+      evidenceCount: 0,
       title: "Wait for teacher review",
       detail: "Your submitted work is waiting for review. Check back for feedback before changing direction.",
       status: "submitted",
@@ -4192,6 +4236,10 @@ function studentPrimaryNextAction(summary, nextSteps = []) {
     };
   }
   return {
+    requirementId: null,
+    submissionId: null,
+    submissionStatus: null,
+    evidenceCount: 0,
     title: "Keep your project moving",
     detail: "Review your progress details and ask your mentor or program teacher if anything looks missing.",
     status: summary.requirementsTotal ? "ready" : "pending",
@@ -4302,6 +4350,7 @@ function renderStudentNextSteps(nextSteps, summary) {
 }
 
 function renderStudentNextStepRow(item) {
+  const stepButtons = renderStudentStepButtons(item);
   return `
     <article class="workspace-row workspace-student-next-step">
       <div>
@@ -4309,9 +4358,18 @@ function renderStudentNextStepRow(item) {
         <p>${escapeHtml(item.detail || "Review this requirement and continue your next step.")}</p>
         <p class="workspace-muted" data-student-next-step-due="true">${escapeHtml(studentDueText(item))}</p>
       </div>
-      ${statusPill(item.status || "not_started")}
+      <div class="workspace-row-actions">
+        ${stepButtons}
+        ${statusPill(item.status || "not_started")}
+      </div>
     </article>
   `;
+}
+
+function renderStudentStepButtons(item, openLabel = "Open requirement") {
+  const openRequirementButton = renderStudentRequirementOpenButton(item, openLabel);
+  const submissionActionButton = renderStudentSubmissionActionButton(item);
+  return `${openRequirementButton}${submissionActionButton}`;
 }
 
 function renderStudentRequirementPanel(requirements = [], summary = {}, feedback = [], detailState = defaultStudentRequirementDetailState()) {
@@ -4478,10 +4536,25 @@ function renderStudentRequirementDetailFact(label, value) {
 }
 
 function renderStudentRequirementAction(item, evidenceCount = 0) {
+  return renderStudentSubmissionActionButton({
+    submissionId: item?.submissionId || "",
+    submissionStatus: item?.submissionStatus || item?.status || "",
+    evidenceCount,
+  });
+}
+
+function renderStudentRequirementOpenButton(item, label = "Open requirement") {
+  const requirementId = cleanDirectoryFilter(item?.requirementId || "");
+  if (!requirementId) return "";
+  return `<button class="workspace-link-button workspace-link-button-small" type="button" data-student-requirement-action="open-detail" data-student-requirement-id="${escapeHtml(requirementId)}">${escapeHtml(label)}</button>`;
+}
+
+function renderStudentSubmissionActionButton(item) {
   const submissionId = String(item?.submissionId || "").trim();
   const status = normalizeStatus(item?.submissionStatus || item?.status);
+  const evidenceCount = safeNumber(item?.evidenceCount);
   if (!submissionId || !["draft", "revision_requested"].includes(status)) return "";
-  if (safeNumber(evidenceCount) <= 0) {
+  if (evidenceCount <= 0) {
     return `<button class="workspace-button workspace-button-small workspace-button-secondary" type="button" data-student-submission-action="focus-evidence" data-student-submission-id="${escapeHtml(submissionId)}">Add evidence</button>`;
   }
   const label = status === "revision_requested" ? "Send revision" : "Send for review";
@@ -5997,13 +6070,14 @@ async function handleStudentFeedbackAction(event) {
 
 function handleStudentRequirementAction(event) {
   const action = event?.currentTarget?.dataset?.studentRequirementAction;
-  if (action !== "toggle-detail") return;
+  if (!["toggle-detail", "open-detail"].includes(action)) return;
   const requirementId = cleanDirectoryFilter(event.currentTarget?.dataset?.studentRequirementId || "");
   if (!requirementId) return;
-  const opening = studentRequirementDetailState.selectedRequirementId !== requirementId;
+  const opening = action === "open-detail" || studentRequirementDetailState.selectedRequirementId !== requirementId;
   studentRequirementDetailState = {
     selectedRequirementId: opening ? requirementId : "",
   };
+  if (opening) requestStudentRequirementFocus(requirementId);
   activeSection = "student";
   renderAppShell(opening ? "Requirement details opened." : "Requirement details closed.", "success");
 }
