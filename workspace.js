@@ -768,7 +768,7 @@ function sectionShortLabel(section) {
     adminUsers: "Users",
     audit: "Audit",
     archiveExports: "Exports",
-    security: "Security",
+    security: section?.label === "Account" ? "Account" : "Security",
   };
   return labels[section.id] || section.label || "Open";
 }
@@ -1309,7 +1309,9 @@ function availableSections() {
   if (canUseUsersAccess(roles)) sections.push({ id: "adminUsers", label: "Users & Access", detail: "Create users and manage access" });
   if (hasGlobalAdminRole(roles) || roles.has("site_admin")) sections.push({ id: "audit", label: "Audit", detail: "Recent protected-record activity" });
   if (hasGlobalAdminRole(roles) || roles.has("site_admin")) sections.push({ id: "archiveExports", label: "Archive / Exports", detail: "Closeout package status" });
-  sections.push({ id: "security", label: "Security", detail: "Password and session controls" });
+  sections.push(hasGlobalAdminRole(roles)
+    ? { id: "security", label: "Security", detail: "Password and session controls" }
+    : { id: "security", label: "Account", detail: "Password and sessions" });
   return sections;
 }
 
@@ -5348,16 +5350,19 @@ function readinessScopeLabel(scope) {
 }
 
 function renderSecuritySection() {
+  const globalAdmin = hasGlobalAdminRole(roleIds(currentUser));
   return `
     <section class="workspace-card">
       <div class="workspace-card-head">
         <div>
-          <p class="workspace-kicker">Account security</p>
+          <p class="workspace-kicker">${globalAdmin ? "Account security" : "Account settings"}</p>
           <h2>Password And Sessions</h2>
         </div>
         <span class="workspace-chip">Signed in</span>
       </div>
-      <p>Update your password from this workspace when you know the current password.</p>
+      <p>${globalAdmin
+        ? "Update your password from this workspace when you know the current password."
+        : "Update your own password and close other active sessions without access to admin security tools."}</p>
       <form id="workspaceChangePasswordForm" class="workspace-form" data-auth-action="change-password" data-auth-endpoint="/api/auth/change-password">
         <div class="workspace-form-grid">
           <label class="workspace-label">

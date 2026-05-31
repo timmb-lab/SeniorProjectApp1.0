@@ -1343,7 +1343,7 @@ async function buildDemoDataset({
 
   for (const student of students) {
     if (!student.submissionId) continue;
-    const count = evidenceCountForStage(student.stage, student.number);
+    const count = evidenceCountForStudent(student);
     for (let index = 0; index < count; index += 1) {
       const template = EVIDENCE_TEMPLATES[index % EVIDENCE_TEMPLATES.length];
       rows.evidenceArtifacts.push({
@@ -1406,7 +1406,7 @@ async function buildDemoDataset({
         stage.ageDays - 1,
       ));
     }
-    if (evidenceCountForStage(student.stage, student.number) === 0 || student.stage === "high_risk") {
+    if (evidenceCountForStudent(student) === 0 || student.stage === "high_risk") {
       rows.comments.push(commentRow(
         `demo-comment-${student.id}-intervention`,
         "progress_record",
@@ -1687,6 +1687,18 @@ function evidenceCountForStage(stage, studentNumber) {
   if (stage === "presentation") return 3 + (studentNumber % 4);
   if (stage === "completed") return 5 + (studentNumber % 2);
   return 1;
+}
+
+function evidenceCountForStudent(student) {
+  if (
+    student.siteId === PRIMARY_SITE_ID
+    && student.program?.id === "it"
+    && student.storyBucket === "missing_mentor"
+    && student.number % 3 === 0
+  ) {
+    return 0;
+  }
+  return evidenceCountForStage(student.stage, student.number);
 }
 
 function evidenceStatusFor(stage, index) {

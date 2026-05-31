@@ -10,6 +10,9 @@ import { onRequestGet as onProgramTeacherDashboard } from "../functions/api/prog
 import { onRequestGet as onMentorDashboard } from "../functions/api/mentor/dashboard.ts";
 import { onRequestGet as onTeacherReviewQueue } from "../functions/api/teacher/review-queue.ts";
 import { onRequestGet as onReadinessReport } from "../functions/api/reports/readiness.ts";
+import { onRequestGet as onSiteStudents } from "../functions/api/site/students.ts";
+import { onRequestGet as onSiteStudentDetail } from "../functions/api/site/students/[studentId].ts";
+import { onRequestGet as onSiteReviewQueue } from "../functions/api/site/review-queue.ts";
 import {
   DirectD1Adapter,
   parseArgs,
@@ -89,7 +92,7 @@ test("demo seed creates deterministic fake workspace rows and preserves admins",
   assert.equal(result.finalVerification.studentsWithMentors, 320);
   assert.equal(result.finalVerification.studentsWithoutMentors, 50);
   assert.equal(result.finalVerification.submissions, 344);
-  assert.equal(result.finalVerification.evidenceMetadata, 968);
+  assert.equal(result.finalVerification.evidenceMetadata, 964);
   assert.equal(result.finalVerification.mentorMeetings, 200);
   assert.equal(result.finalVerification.presentationSlots, 72);
   assert.equal(result.finalVerification.globalAdmins, 1);
@@ -131,7 +134,7 @@ test("demo seed creates deterministic fake workspace rows and preserves admins",
   assert.equal(await count(db, "SELECT COUNT(*) AS count FROM user_accounts u JOIN user_roles r ON r.user_id = u.id AND r.role_id = 'student' WHERE u.email_norm LIKE '%@demo-student.capstone.test'"), 370);
   assert.equal(await count(db, "SELECT COUNT(*) AS count FROM user_accounts u JOIN user_roles r ON r.user_id = u.id AND r.role_id = 'mentor' WHERE u.email_norm LIKE '%@demo-staff.capstone.test'"), 41);
   assert.equal(await count(db, "SELECT COUNT(*) AS count FROM user_accounts u JOIN user_roles r ON r.user_id = u.id AND r.role_id = 'program_teacher' WHERE u.email_norm LIKE '%@demo-staff.capstone.test'"), 22);
-  assert.equal(await count(db, "SELECT COUNT(*) AS count FROM evidence_artifacts WHERE id LIKE 'demo-%' AND source_kind = 'external_link' AND external_url LIKE 'https://example.com/capstone-demo/%' AND drive_file_id IS NULL AND drive_parent_folder_id IS NULL"), 968);
+  assert.equal(await count(db, "SELECT COUNT(*) AS count FROM evidence_artifacts WHERE id LIKE 'demo-%' AND source_kind = 'external_link' AND external_url LIKE 'https://example.com/capstone-demo/%' AND drive_file_id IS NULL AND drive_parent_folder_id IS NULL"), 964);
 
   const statuses = await db.prepare(
     `SELECT COALESCE(s.status, 'not_started') AS status, COUNT(*) AS count
@@ -224,8 +227,52 @@ test("demo APIs can see seeded admin, teacher, mentor, and readiness data", asyn
   assert.equal(teacherMe.user.roles.some((role) => role.role_id === "program_teacher" && role.scope_id === "it"), true);
   const teacherDashboard = await routeJson(onProgramTeacherDashboard, env, "/api/program-teacher/dashboard", teacherToken);
   assert.equal(teacherDashboard.summary.scopedStudents, 69);
+  assert.equal(teacherDashboard.summary.totalStudents, 69);
+  assert.equal(teacherDashboard.summary.onTrack > 0, true);
+  assert.equal(teacherDashboard.summary.behindSupport > 0, true);
+  assert.equal(teacherDashboard.summary.missingEvidence > 0, true);
+  assert.equal(teacherDashboard.summary.needsReview > 0, true);
+  assert.equal(teacherDashboard.summary.missingMentor > 0, true);
+  assert.equal(teacherDashboard.summary.readyComplete > 0, true);
   assert.equal(teacherDashboard.programBreakdown.some((row) => row.programId === "it" && row.studentCount === 69), true);
   assert.equal(teacherDashboard.students.length > 0, true);
+  assert.equal(
+    teacherDashboard.needsAttention.some((item) => item.actionSection === "students" && item.actionPreset === "missing-mentors"),
+    true,
+  );
+  assert.equal(
+    teacherDashboard.needsAttention.some((item) => item.actionSection === "teacher" && item.actionPreset === "submitted"),
+    true,
+  );
+
+  const missingMentor = await routeJson(onSiteStudents, env, "/api/site/students?siteId=site-desert-valley-high&noMentor=true&progressStatus=missing_mentor&limit=25", teacherToken);
+  assert.equal(missingMentor.pagination.filteredTotal > 0, true);
+  assert.equal(missingMentor.students.every((student) => student.siteId === "site-desert-valley-high" && student.programId === "it"), true);
+  assert.equal(missingMentor.students.every((student) => student.hasActiveMentor === false || student.progressStatus === "missing_mentor"), true);
+
+  const missingEvidence = await routeJson(onSiteStudents, env, "/api/site/students?siteId=site-desert-valley-high&evidenceStatus=missing&limit=25", teacherToken);
+  assert.equal(missingEvidence.pagination.filteredTotal > 0, true);
+  assert.equal(missingEvidence.students.every((student) => student.programId === "it" && student.evidenceStatus === "missing"), true);
+
+  const needsReview = await routeJson(onSiteReviewQueue, env, "/api/site/review-queue?siteId=site-desert-valley-high&status=submitted&limit=25", teacherToken);
+  assert.equal(needsReview.pagination.filteredTotal > 0, true);
+  assert.equal(needsReview.queue.every((row) => row.siteId === "site-desert-valley-high" && row.programId === "it" && row.status === "submitted"), true);
+  assert.equal(needsReview.permissions.canApprove, true);
+
+  const detailStudentId = missingMentor.students[0].studentId;
+  const teacherDetail = await routeJson(
+    onSiteStudentDetail,
+    env,
+    `/api/site/students/${detailStudentId}?siteId=site-desert-valley-high`,
+    teacherToken,
+    { studentId: detailStudentId },
+  );
+  assert.equal(teacherDetail.scope.role, "program_teacher");
+  assert.equal(teacherDetail.student.programId, "it");
+  assert.equal(teacherDetail.mentor.active, false);
+  assert.match(`${teacherDetail.student.nextAction} ${teacherDetail.mentor.nextAction}`, /mentor/i);
+  assert.equal(teacherDetail.permissions.canManageSecurity, false);
+  assert.equal(teacherDetail.permissions.canManageUsers, false);
 
   const mentorToken = await seedSession(db, env, "demo-mentor-001", "mentor-demo-token");
   const mentorMe = await routeJson(onMe, env, "/api/auth/me", mentorToken);
@@ -238,7 +285,8 @@ test("demo APIs can see seeded admin, teacher, mentor, and readiness data", asyn
 test("demo persona and story docs stay sanitized and match multisite shape", () => {
   const personas = readFileSync("docs/demo/personas.md", "utf8");
   const storyMap = readFileSync("docs/demo/story-map.md", "utf8");
-  const docs = `${personas}\n${storyMap}`;
+  const programTeacherHandoff = readFileSync("docs/demo/program-teacher-demo-handoff.md", "utf8");
+  const docs = `${personas}\n${storyMap}\n${programTeacherHandoff}`;
 
   for (const text of [
     "Desert Valley School District",
@@ -255,6 +303,10 @@ test("demo persona and story docs stay sanitized and match multisite shape", () 
     "High Risk Demo",
     "Rich Timeline Demo",
     ".secrets/demo-staff-logins-*.json",
+    "Program Teacher Demo Handoff",
+    "teacher-it-01@demo-staff.capstone.test",
+    "Missing Evidence",
+    "Needs Review",
   ]) {
     assert.match(docs, new RegExp(text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
   }
@@ -302,10 +354,11 @@ async function finalCounts(db) {
   };
 }
 
-async function routeJson(handler, env, route, token) {
+async function routeJson(handler, env, route, token, params = undefined) {
   const response = await handler({
     request: buildRequest(`https://local.capstone.test${route}`, token),
     env,
+    params,
   });
   assert.equal(response.status, 200);
   const body = await response.json();

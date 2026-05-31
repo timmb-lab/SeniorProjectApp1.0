@@ -60,6 +60,7 @@ test("workspace route is a real authenticated app surface", () => {
   assert.match(workspaceJs, /Sign in to continue/);
   assert.match(workspaceJs, /data-auth-action="complete-reset"/);
   assert.match(workspaceJs, /data-auth-action="change-password"/);
+  assert.match(workspaceJs, /label: "Account", detail: "Password and sessions"/);
   assert.match(workspaceJs, /data-admin-action="import-users"/);
   assert.match(workspaceJs, /data-admin-import-result="one-time-setup-passwords"/);
   assert.match(workspaceJs, /credential_delivery_policy_required/);
@@ -4199,9 +4200,13 @@ test("workspace renders self-service password rotation controls", async () => {
   }, "security");
 
   assert.match(security, /Password And Sessions/);
+  assert.match(security, /<strong>Account<\/strong>/);
+  assert.match(security, /Account settings/);
   assert.match(security, /data-auth-action="change-password"/);
   assert.match(security, /\/api\/auth\/change-password/);
+  assert.match(security, /without access to admin security tools/);
   assert.match(security, /other active sessions for this account are closed/);
+  assert.doesNotMatch(security, /<strong>Security<\/strong>/);
 });
 
 test("workspace renders evidence download and external-link actions without storage ids", async () => {

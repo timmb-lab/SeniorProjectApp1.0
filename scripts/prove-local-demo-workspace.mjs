@@ -316,6 +316,7 @@ async function runDemoProof(args = {}, options = {}) {
   const siteReviewQueueRoleProof = await verifySiteReviewQueueRouteProof(env, demoCredentials);
   const siteMentorAssignmentRoleProof = await verifySiteMentorAssignmentRouteProof(env, demoCredentials);
   const siteOperationsReadinessRoleProof = await verifySiteOperationsReadinessRouteProof(env, demoCredentials);
+  const programTeacherDemoPath = await verifyProgramTeacherDemoPath(env, demoCredentials);
 
   const adminChecks = {
     authMe: adminMe.authenticated === true,
@@ -379,6 +380,7 @@ async function runDemoProof(args = {}, options = {}) {
     siteReviewQueueRoleProof: siteReviewQueueRoleProof.ok === true,
     siteMentorAssignmentRoleProof: siteMentorAssignmentRoleProof.ok === true,
     siteOperationsReadinessRoleProof: siteOperationsReadinessRoleProof.ok === true,
+    programTeacherDemoPath: programTeacherDemoPath.ok === true,
   };
   assertChecks("ADMIN_API_PROOF_FAILED", adminChecks);
 
@@ -504,8 +506,8 @@ async function runDemoProof(args = {}, options = {}) {
       primarySiteStudents: Number(siteDashboardPrimary.summary.studentsTotal || 0),
       secondarySiteId: SECONDARY_SITE_IDS[0],
       secondarySiteStudents: Number(siteDashboardSecondary.summary.studentsTotal || 0),
-      viewerReadOnly: siteDashboardRoleProof.viewerReadOnly,
-      viewerMutationPermissionsFalse: siteDashboardRoleProof.viewerMutationPermissionsFalse,
+      administrationReadOnly: siteDashboardRoleProof.administrationReadOnly,
+      administrationMutationPermissionsFalse: siteDashboardRoleProof.administrationMutationPermissionsFalse,
       siteAdminCannotAccessSecondary: siteDashboardRoleProof.siteAdminCannotAccessSecondary,
     },
     siteStudentDirectory: {
@@ -524,6 +526,7 @@ async function runDemoProof(args = {}, options = {}) {
         archiveFailed: Number(siteStudentDirectoryArchiveFailed.pagination.filteredTotal || 0),
       },
       searchPrefixFilteredTotal: Number(siteStudentDirectorySearch.pagination.filteredTotal || 0),
+      viewerAssignedOnly: siteStudentDirectoryRoleProof.viewerAssignedOnly,
       viewerReadOnly: siteStudentDirectoryRoleProof.viewerReadOnly,
       viewerMutationPermissionsFalse: siteStudentDirectoryRoleProof.viewerMutationPermissionsFalse,
       siteAdminCannotAccessSecondary: siteStudentDirectoryRoleProof.siteAdminCannotAccessSecondary,
@@ -541,6 +544,7 @@ async function runDemoProof(args = {}, options = {}) {
       siteAdminCannotAccessSecondary: siteStudentDetailRoleProof.siteAdminCannotAccessSecondary,
       programTeacherScoped: siteStudentDetailRoleProof.programTeacherScoped,
       mentorAssignedOnly: siteStudentDetailRoleProof.mentorAssignedOnly,
+      studentOwnScoped: siteStudentDetailRoleProof.studentOwnScoped,
       noSensitiveDetailFields: siteStudentDetailRoleProof.noSensitiveDetailFields,
     },
     siteReviewQueue: {
@@ -549,8 +553,7 @@ async function runDemoProof(args = {}, options = {}) {
       primarySiteId: PRIMARY_SITE_ID,
       primarySiteReturned: Number(siteReviewQueueAdmin.pagination.returned || 0),
       defaultLimit: Number(siteReviewQueueAdmin.pagination.limit || 0),
-      viewerReadOnly: siteReviewQueueRoleProof.viewerReadOnly,
-      viewerMutationPermissionsFalse: siteReviewQueueRoleProof.viewerMutationPermissionsFalse,
+      viewerDenied: siteReviewQueueRoleProof.viewerDenied,
       siteAdminReadOnly: siteReviewQueueRoleProof.siteAdminReadOnly,
       siteAdminCannotAccessSecondary: siteReviewQueueRoleProof.siteAdminCannotAccessSecondary,
       programTeacherScoped: siteReviewQueueRoleProof.programTeacherScoped,
@@ -570,8 +573,7 @@ async function runDemoProof(args = {}, options = {}) {
       missingMentorStudents: Number(siteMentorAssignmentsAdmin.summary.studentsWithoutActiveMentor || 0),
       activeMentors: Number(siteMentorAssignmentsAdmin.summary.activeMentors || 0),
       noMentorFilteredTotal: Number(siteMentorAssignmentsNoMentor.pagination.filteredTotal || 0),
-      viewerReadOnly: siteMentorAssignmentRoleProof.viewerReadOnly,
-      viewerMutationPermissionsFalse: siteMentorAssignmentRoleProof.viewerMutationPermissionsFalse,
+      viewerDenied: siteMentorAssignmentRoleProof.viewerDenied,
       siteAdminCanManage: siteMentorAssignmentRoleProof.siteAdminCanManage,
       siteAdminCannotAccessSecondary: siteMentorAssignmentRoleProof.siteAdminCannotAccessSecondary,
       programTeacherReadOnlyScoped: siteMentorAssignmentRoleProof.programTeacherReadOnlyScoped,
@@ -591,8 +593,8 @@ async function runDemoProof(args = {}, options = {}) {
       archiveReadyRows: Number(siteOperationsArchiveReady.pagination.filteredTotal || 0),
       presentationPendingRows: Number(siteOperationsPresentationPending.pagination.filteredTotal || 0),
       highRiskAttentionRows: Number(siteOperationsHighRisk.pagination.filteredTotal || 0),
-      viewerReadOnly: siteOperationsReadinessRoleProof.viewerReadOnly,
-      viewerMutationPermissionsFalse: siteOperationsReadinessRoleProof.viewerMutationPermissionsFalse,
+      administrationReadOnly: siteOperationsReadinessRoleProof.administrationReadOnly,
+      administrationMutationPermissionsFalse: siteOperationsReadinessRoleProof.administrationMutationPermissionsFalse,
       siteAdminCannotAccessSecondary: siteOperationsReadinessRoleProof.siteAdminCannotAccessSecondary,
       programTeacherScopedReadOnly: siteOperationsReadinessRoleProof.programTeacherScopedReadOnly,
       mentorDenied: siteOperationsReadinessRoleProof.mentorDenied,
@@ -600,6 +602,7 @@ async function runDemoProof(args = {}, options = {}) {
       miscDeniedProofLocation: "integration_tests",
       noSensitiveOperationsFields: siteOperationsReadinessRoleProof.noSensitiveOperationsFields,
     },
+    programTeacherDemoPath,
     programTeachers: teacherProofs,
     mentors: mentorProofs,
     googleSsoRequired: false,
@@ -630,7 +633,7 @@ async function verifyMultisiteShape(env) {
     env.DB.prepare(
       `SELECT role_id, COUNT(*) AS count
        FROM user_roles
-       WHERE role_id IN ('platform_admin', 'org_admin', 'site_admin', 'viewer')
+       WHERE role_id IN ('global_admin', 'administration', 'site_admin', 'viewer')
          AND user_id IN (SELECT id FROM user_accounts WHERE email_norm LIKE '%@demo-staff.capstone.test')
        GROUP BY role_id`,
     ).all(),
@@ -673,8 +676,8 @@ async function verifyMultisiteShape(env) {
     && Number(primarySite?.count || 0) === 250
     && Object.values(secondarySiteCounts).every((count) => count >= 40 && count <= 75)
     && Number(siteProgramCounts[PRIMARY_SITE_ID] || 0) === 9
-    && Number(roles.platform_admin || 0) === 1
-    && Number(roles.org_admin || 0) === 1
+    && Number(roles.global_admin || 0) === 1
+    && Number(roles.administration || 0) === 1
     && Number(roles.site_admin || 0) === 3
     && Number(roles.viewer || 0) === 1
     && Number(storyBuckets.model_excellent || 0) >= 3
@@ -716,6 +719,139 @@ async function verifyMultisiteShape(env) {
   };
 }
 
+async function verifyProgramTeacherDemoPath(env, demoCredentials) {
+  const teacherAccount = (demoCredentials.programTeacherLogins || []).find((account) => account.scope === "program:it");
+  if (!teacherAccount) {
+    throw new DemoProofError("PROGRAM_TEACHER_DEMO_CREDENTIAL_MISSING", "Missing primary IT Program Teacher credential for the demo walkthrough proof.");
+  }
+
+  const cookie = await login(env, teacherAccount);
+  const me = await getMe(env, cookie, teacherAccount.email, "program_teacher");
+  const dashboard = await routeJson(onProgramTeacherDashboard, env, cookie, "https://local.capstone.test/api/program-teacher/dashboard");
+  const missingMentor = await routeJson(onSiteStudents, env, cookie, `https://local.capstone.test/api/site/students?siteId=${PRIMARY_SITE_ID}&noMentor=true&progressStatus=missing_mentor&limit=25`);
+  const missingEvidence = await routeJson(onSiteStudents, env, cookie, `https://local.capstone.test/api/site/students?siteId=${PRIMARY_SITE_ID}&evidenceStatus=missing&limit=25`);
+  const behind = await routeJson(onSiteStudents, env, cookie, `https://local.capstone.test/api/site/students?siteId=${PRIMARY_SITE_ID}&progressStatus=behind&limit=25`);
+  const onTrack = await routeJson(onSiteStudents, env, cookie, `https://local.capstone.test/api/site/students?siteId=${PRIMARY_SITE_ID}&progressStatus=on_track&limit=25`);
+  const submittedReview = await routeJson(onSiteReviewQueue, env, cookie, `https://local.capstone.test/api/site/review-queue?siteId=${PRIMARY_SITE_ID}&status=submitted&limit=25`);
+  const revisionReview = await routeJson(onSiteReviewQueue, env, cookie, `https://local.capstone.test/api/site/review-queue?siteId=${PRIMARY_SITE_ID}&status=revision_requested&limit=25`);
+
+  const missingMentorStudent = (missingMentor.students || [])[0];
+  const reviewRow = (submittedReview.queue || [])[0];
+  if (!missingMentorStudent || !reviewRow) {
+    throw new DemoProofError("PROGRAM_TEACHER_DEMO_STORY_MISSING", "The Program Teacher demo proof could not find both a missing-mentor row and a submitted review row.");
+  }
+
+  const missingMentorDetail = await routeStudentDetail(env, cookie, missingMentorStudent.studentId);
+  const reviewDetail = await routeStudentDetail(env, cookie, reviewRow.studentId);
+  const summary = dashboard.summary || {};
+
+  const filterRows = [
+    ...(missingMentor.students || []),
+    ...(missingEvidence.students || []),
+    ...(behind.students || []),
+    ...(onTrack.students || []),
+  ];
+  const reviewRows = [
+    ...(submittedReview.queue || []),
+    ...(revisionReview.queue || []),
+  ];
+  const actionItems = dashboard.needsAttention || [];
+
+  const checks = {
+    authMe: me.authenticated === true,
+    dashboardScopedToIt: dashboard.scope?.role === "program_teacher"
+      && dashboard.scope?.scopeType === "program"
+      && dashboard.scope?.scopeId === "it"
+      && Number(summary.totalStudents ?? summary.scopedStudents ?? 0) > 0,
+    dashboardStoryMetrics: Number(summary.onTrack || 0) > 0
+      && Number(summary.behindSupport || 0) > 0
+      && Number(summary.missingEvidence || 0) > 0
+      && Number(summary.needsReview || summary.submitted || 0) > 0
+      && Number(summary.missingMentor || summary.noMentor || 0) > 0
+      && Number(summary.readyComplete || 0) > 0,
+    dashboardActionsRouteBacked: actionItems.some((item) => item.actionSection === "students" && item.actionPreset === "missing-mentors")
+      && actionItems.some((item) => item.actionSection === "teacher" && item.actionPreset === "submitted")
+      && actionItems.some((item) => item.actionSection === "students" && item.actionPreset === "missing-evidence-students")
+      && actionItems.every((item) => !item.actionLabel || item.actionSection),
+    filteredRosterRowsScoped: filterRows.length > 0
+      && filterRows.every((row) => row.siteId === PRIMARY_SITE_ID && row.programId === "it"),
+    missingMentorFilter: Number(missingMentor.pagination?.filteredTotal || 0) > 0
+      && (missingMentor.students || []).every((row) => row.hasActiveMentor === false || row.progressStatus === "missing_mentor"),
+    missingEvidenceFilter: Number(missingEvidence.pagination?.filteredTotal || 0) > 0
+      && (missingEvidence.students || []).every((row) => row.evidenceStatus === "missing"),
+    progressFilters: Number(behind.pagination?.filteredTotal || 0) > 0
+      && Number(onTrack.pagination?.filteredTotal || 0) > 0
+      && (behind.students || []).every((row) => Number(row.riskScore || 0) >= 7 || (row.riskFlags || []).includes("stale"))
+      && (onTrack.students || []).every((row) => Number(row.riskScore || 0) === 0
+        && row.hasActiveMentor === true
+        && Number(row.evidenceCount || 0) > 0
+        && !["submitted", "revision_requested"].includes(row.latestSubmissionStatus)),
+    reviewQueueScoped: reviewRows.length > 0
+      && submittedReview.permissions?.canApprove === true
+      && revisionReview.permissions?.canApprove === true
+      && reviewRows.every((row) => row.siteId === PRIMARY_SITE_ID && row.programId === "it"),
+    detailMissingMentorStory: missingMentorDetail.scope?.role === "program_teacher"
+      && missingMentorDetail.student?.programId === "it"
+      && missingMentorDetail.mentor?.active === false
+      && /mentor/i.test(String(missingMentorDetail.student?.nextAction || missingMentorDetail.mentor?.nextAction || "")),
+    detailReviewStory: reviewDetail.scope?.role === "program_teacher"
+      && reviewDetail.student?.programId === "it"
+      && (reviewDetail.evidence || []).length > 0
+      && (reviewDetail.submissions || []).length > 0
+      && String(reviewDetail.student?.nextAction || "").length > 0,
+    noForbiddenPermissions: [
+      missingMentorDetail.permissions,
+      reviewDetail.permissions,
+      submittedReview.permissions,
+      missingMentor.permissions,
+    ].every((permissions = {}) => permissions.canManageSecurity === false && permissions.canManageUsers === false),
+    noSensitiveDemoFields: !directoryHasForbiddenOutput([
+      dashboard,
+      missingMentor,
+      missingEvidence,
+      behind,
+      onTrack,
+      submittedReview,
+      revisionReview,
+      missingMentorDetail,
+      reviewDetail,
+    ]),
+  };
+  assertChecks("PROGRAM_TEACHER_DEMO_PATH_PROOF_FAILED", checks);
+
+  return {
+    ok: true,
+    demoAccount: {
+      email: teacherAccount.email,
+      role: "program_teacher",
+      scope: "program:it",
+      credentialValuesPrinted: false,
+    },
+    dashboardSummary: {
+      totalStudents: Number(summary.totalStudents ?? summary.scopedStudents ?? 0),
+      onTrack: Number(summary.onTrack || 0),
+      behindSupport: Number(summary.behindSupport || 0),
+      missingEvidence: Number(summary.missingEvidence || 0),
+      needsReview: Number(summary.needsReview || summary.submitted || 0),
+      missingMentor: Number(summary.missingMentor || summary.noMentor || 0),
+      readyComplete: Number(summary.readyComplete || 0),
+    },
+    filters: {
+      missingMentor: Number(missingMentor.pagination?.filteredTotal || 0),
+      missingEvidence: Number(missingEvidence.pagination?.filteredTotal || 0),
+      behind: Number(behind.pagination?.filteredTotal || 0),
+      onTrack: Number(onTrack.pagination?.filteredTotal || 0),
+      submittedReview: Number(submittedReview.pagination?.filteredTotal || 0),
+      revisionReview: Number(revisionReview.pagination?.filteredTotal || 0),
+    },
+    clickPathExamples: {
+      missingMentorStudent: missingMentorStudent.displayName,
+      reviewStudent: reviewRow.studentName,
+    },
+    checks,
+  };
+}
+
 async function verifySiteAwarePermissions(env) {
   const users = await loadProofUsers(env);
   const sampleSubmission = await env.DB.prepare(
@@ -724,15 +860,15 @@ async function verifySiteAwarePermissions(env) {
   const checks = {
     platformTenant: await canAccessTenant(env, users.platform, DEMO_TENANT_ID),
     platformSecurity: await canManageSecurity(env, users.platform),
-    orgTenant: await canAccessTenant(env, users.org, DEMO_TENANT_ID),
-    orgPrimarySite: await canAccessSite(env, users.org, PRIMARY_SITE_ID),
-    orgNotSecurity: !await canManageSecurity(env, users.org),
+    administrationPrimarySite: await canAccessSite(env, users.administration, PRIMARY_SITE_ID),
+    administrationNotSecurity: !await canManageSecurity(env, users.administration),
     siteDashboard: await canViewSiteDashboard(env, users.siteAdmin, PRIMARY_SITE_ID),
     siteDirectory: await canViewStudentDirectory(env, users.siteAdmin, PRIMARY_SITE_ID),
     siteStudentDetail: await canViewSiteStudentDetail(env, users.siteAdmin, "demo-student-001", PRIMARY_SITE_ID),
     siteUnrelatedDenied: !await canAccessSite(env, users.siteAdmin, SECONDARY_SITE_IDS[0]),
-    viewerReadOnly: await canViewSiteDashboard(env, users.viewer, PRIMARY_SITE_ID)
+    viewerAssignedDirectory: await canViewStudentDirectory(env, users.viewer, PRIMARY_SITE_ID)
       && !await canMutateReviewDecision(env, users.viewer, sampleSubmission?.id || ""),
+    viewerNoSiteDashboard: !await canViewSiteDashboard(env, users.viewer, PRIMARY_SITE_ID),
     teacherSiteAccess: (await getAccessibleSiteIds(env, users.teacher)).includes(PRIMARY_SITE_ID),
     mentorAssignedSites: (await getAccessibleSiteIds(env, users.mentor)).includes(PRIMARY_SITE_ID),
     studentSiteDashboardDenied: !await canViewSiteDashboard(env, users.student, PRIMARY_SITE_ID),
@@ -742,19 +878,19 @@ async function verifySiteAwarePermissions(env) {
 }
 
 async function verifySiteDashboardRouteProof(env, demoCredentials) {
-  const viewerAccount = (demoCredentials.personaLogins || []).find((account) => (
-    account.role === "viewer" && account.scope === `site:${PRIMARY_SITE_ID}`
+  const administrationAccount = (demoCredentials.personaLogins || []).find((account) => (
+    account.role === "administration" && account.scope === `site:${PRIMARY_SITE_ID}`
   ));
   const siteAdminAccount = (demoCredentials.personaLogins || []).find((account) => (
     account.role === "site_admin" && account.scope === `site:${PRIMARY_SITE_ID}`
   ));
-  if (!viewerAccount || !siteAdminAccount) {
-    throw new DemoProofError("SITE_DASHBOARD_CREDENTIALS_MISSING", "Missing demo viewer or site-admin credential for site dashboard proof.");
+  if (!administrationAccount || !siteAdminAccount) {
+    throw new DemoProofError("SITE_DASHBOARD_CREDENTIALS_MISSING", "Missing demo Administration or site-admin credential for site dashboard proof.");
   }
 
-  const viewerCookie = await login(env, viewerAccount);
-  await getMe(env, viewerCookie, viewerAccount.email, "viewer");
-  const viewerDashboard = await routeJson(onSiteDashboard, env, viewerCookie, `https://local.capstone.test/api/site/dashboard?siteId=${PRIMARY_SITE_ID}`);
+  const administrationCookie = await login(env, administrationAccount);
+  await getMe(env, administrationCookie, administrationAccount.email, "administration");
+  const administrationDashboard = await routeJson(onSiteDashboard, env, administrationCookie, `https://local.capstone.test/api/site/dashboard?siteId=${PRIMARY_SITE_ID}`);
 
   const siteAdminCookie = await login(env, siteAdminAccount);
   await getMe(env, siteAdminCookie, siteAdminAccount.email, "site_admin");
@@ -762,13 +898,13 @@ async function verifySiteDashboardRouteProof(env, demoCredentials) {
   const siteAdminSecondary = await routeStatus(onSiteDashboard, env, siteAdminCookie, `https://local.capstone.test/api/site/dashboard?siteId=${SECONDARY_SITE_IDS[0]}`);
 
   const checks = {
-    viewerPrimary250: Number(viewerDashboard.summary?.studentsTotal || 0) === 250,
-    viewerReadOnly: viewerDashboard.scope?.readOnly === true,
-    viewerMutationPermissionsFalse: viewerDashboard.permissions?.canManageMentorAssignments === false
-      && viewerDashboard.permissions?.canManagePresentationOperations === false
-      && viewerDashboard.permissions?.canManageArchiveOperations === false
-      && viewerDashboard.permissions?.canManageUsers === false
-      && viewerDashboard.permissions?.canManageSecurity === false,
+    administrationPrimary250: Number(administrationDashboard.summary?.studentsTotal || 0) === 250,
+    administrationReadOnly: administrationDashboard.scope?.readOnly === true,
+    administrationMutationPermissionsFalse: administrationDashboard.permissions?.canManageMentorAssignments === false
+      && administrationDashboard.permissions?.canManagePresentationOperations === false
+      && administrationDashboard.permissions?.canManageArchiveOperations === false
+      && administrationDashboard.permissions?.canManageUsers === false
+      && administrationDashboard.permissions?.canManageSecurity === false,
     siteAdminPrimary250: Number(siteAdminPrimary.summary?.studentsTotal || 0) === 250,
     siteAdminCannotAccessSecondary: siteAdminSecondary.status === 403,
   };
@@ -802,7 +938,9 @@ async function verifySiteStudentDirectoryRouteProof(env, demoCredentials) {
   const teacherDirectory = await routeJson(onSiteStudents, env, teacherCookie, `https://local.capstone.test/api/site/students?siteId=${PRIMARY_SITE_ID}&limit=100`);
 
   const checks = {
-    viewerPrimary250: Number(viewerDirectory.pagination?.total || 0) === 250,
+    viewerAssignedOnly: Number(viewerDirectory.pagination?.total || 0) === 3
+      && Number(viewerDirectory.summary?.studentsTotal || 0) === 3
+      && (viewerDirectory.students || []).every((student) => student.siteId === PRIMARY_SITE_ID && student.programId === "it"),
     viewerReadOnly: viewerDirectory.scope?.readOnly === true,
     viewerMutationPermissionsFalse: viewerDirectory.permissions?.canManageMentorAssignments === false
       && viewerDirectory.permissions?.canManageUsers === false
@@ -875,7 +1013,7 @@ async function verifySiteStudentDetailRouteProof(env, demoCredentials, adminCook
   const mentorDetail = await routeStudentDetail(env, mentorCookie, mentorAssigned.id);
   const mentorDenied = await routeStudentDetailStatus(env, mentorCookie, storyStudents.missingMentor.id, `?siteId=${PRIMARY_SITE_ID}`);
 
-  const studentDenied = await routeStudentDetailStatus(env, await seedExistingSession(env, "demo-student-001", "detail-proof-student"), storyStudents.modelExcellent.id, `?siteId=${PRIMARY_SITE_ID}`);
+  const studentOwnDetail = await routeStudentDetail(env, await seedExistingSession(env, "demo-student-001", "detail-proof-student"), storyStudents.modelExcellent.id, `?siteId=${PRIMARY_SITE_ID}`);
 
   const mutationPermissionsFalse = (permissions = {}) => [
     "canMutateReviewDecision",
@@ -914,7 +1052,9 @@ async function verifySiteStudentDetailRouteProof(env, demoCredentials, adminCook
     mentorAssignedOnly: mentorDetail.scope?.role === "mentor"
       && mentorDenied.status === 404
       && mutationPermissionsFalse(mentorDetail.permissions),
-    studentDenied: studentDenied.status === 403,
+    studentOwnScoped: studentOwnDetail.scope?.role === "student"
+      && studentOwnDetail.student?.studentId === storyStudents.modelExcellent.id
+      && mutationPermissionsFalse(studentOwnDetail.permissions),
     timelinePagination: Number(richTimeline.pagination?.limit || 0) === 20
       && (richTimeline.events || []).length <= 20,
     noSensitiveDetailFields: !directoryHasForbiddenOutput([
@@ -926,7 +1066,7 @@ async function verifySiteStudentDetailRouteProof(env, demoCredentials, adminCook
       teacherDenied.body,
       mentorDetail,
       mentorDenied.body,
-      studentDenied.body,
+      studentOwnDetail,
     ]),
   };
   assertChecks("SITE_STUDENT_DETAIL_ROUTE_PROOF_FAILED", checks);
@@ -954,7 +1094,7 @@ async function verifySiteReviewQueueRouteProof(env, demoCredentials) {
 
   const viewerCookie = await login(env, viewerAccount);
   await getMe(env, viewerCookie, viewerAccount.email, "viewer");
-  const viewerQueue = await routeJson(onSiteReviewQueue, env, viewerCookie, `https://local.capstone.test/api/site/review-queue?siteId=${PRIMARY_SITE_ID}`);
+  const viewerQueue = await routeStatus(onSiteReviewQueue, env, viewerCookie, `https://local.capstone.test/api/site/review-queue?siteId=${PRIMARY_SITE_ID}`);
 
   const siteAdminCookie = await login(env, siteAdminAccount);
   await getMe(env, siteAdminCookie, siteAdminAccount.email, "site_admin");
@@ -981,8 +1121,7 @@ async function verifySiteReviewQueueRouteProof(env, demoCredentials) {
   ].every((key) => permissions[key] === false);
 
   const checks = {
-    viewerReadOnly: viewerQueue.scope?.readOnly === true,
-    viewerMutationPermissionsFalse: mutationPermissionsFalse(viewerQueue.permissions),
+    viewerDenied: viewerQueue.status === 403,
     siteAdminReadOnly: siteAdminQueue.scope?.readOnly === true,
     siteAdminMutationPermissionsFalse: mutationPermissionsFalse(siteAdminQueue.permissions),
     siteAdminCannotAccessSecondary: siteAdminSecondary.status === 403,
@@ -997,7 +1136,7 @@ async function verifySiteReviewQueueRouteProof(env, demoCredentials) {
     mentorDenied: mentorDenied.status === 403,
     studentDenied: studentDenied.status === 403,
     noSensitiveQueueFields: !directoryHasForbiddenOutput([
-      viewerQueue,
+      viewerQueue.body,
       siteAdminQueue,
       siteAdminSecondary.body,
       teacherQueue,
@@ -1025,7 +1164,7 @@ async function verifySiteMentorAssignmentRouteProof(env, demoCredentials) {
 
   const viewerCookie = await login(env, viewerAccount);
   await getMe(env, viewerCookie, viewerAccount.email, "viewer");
-  const viewerAssignments = await routeJson(onSiteMentorAssignments, env, viewerCookie, `https://local.capstone.test/api/site/mentor-assignments?siteId=${PRIMARY_SITE_ID}`);
+  const viewerAssignments = await routeStatus(onSiteMentorAssignments, env, viewerCookie, `https://local.capstone.test/api/site/mentor-assignments?siteId=${PRIMARY_SITE_ID}`);
 
   const siteAdminCookie = await login(env, siteAdminAccount);
   await getMe(env, siteAdminCookie, siteAdminAccount.email, "site_admin");
@@ -1049,8 +1188,7 @@ async function verifySiteMentorAssignmentRouteProof(env, demoCredentials) {
   ].every((key) => permissions[key] === false);
 
   const checks = {
-    viewerReadOnly: viewerAssignments.scope?.readOnly === true,
-    viewerMutationPermissionsFalse: mutationPermissionsFalse(viewerAssignments.permissions),
+    viewerDenied: viewerAssignments.status === 403,
     siteAdminCanManage: siteAdminAssignments.scope?.role === "site_admin"
       && siteAdminAssignments.permissions?.canManageMentorAssignments === true
       && Number(siteAdminAssignments.summary?.studentsTotal || 0) === 250
@@ -1070,7 +1208,7 @@ async function verifySiteMentorAssignmentRouteProof(env, demoCredentials) {
     mentorDenied: mentorDenied.status === 403,
     studentDenied: studentDenied.status === 403,
     noSensitiveAssignmentFields: !directoryHasForbiddenOutput([
-      viewerAssignments,
+      viewerAssignments.body,
       siteAdminAssignments,
       siteAdminNoMentor,
       siteAdminSecondary.body,
@@ -1084,21 +1222,21 @@ async function verifySiteMentorAssignmentRouteProof(env, demoCredentials) {
 }
 
 async function verifySiteOperationsReadinessRouteProof(env, demoCredentials) {
-  const viewerAccount = (demoCredentials.personaLogins || []).find((account) => (
-    account.role === "viewer" && account.scope === `site:${PRIMARY_SITE_ID}`
+  const administrationAccount = (demoCredentials.personaLogins || []).find((account) => (
+    account.role === "administration" && account.scope === `site:${PRIMARY_SITE_ID}`
   ));
   const siteAdminAccount = (demoCredentials.personaLogins || []).find((account) => (
     account.role === "site_admin" && account.scope === `site:${PRIMARY_SITE_ID}`
   ));
   const teacherAccount = (demoCredentials.programTeacherLogins || []).find((account) => account.scope === "program:it");
   const mentorAccount = (demoCredentials.mentorLogins || []).find((account) => account.email.includes("mentor001"));
-  if (!viewerAccount || !siteAdminAccount || !teacherAccount || !mentorAccount) {
-    throw new DemoProofError("SITE_OPERATIONS_READINESS_CREDENTIALS_MISSING", "Missing demo viewer, site-admin, program-teacher, or mentor credential for operations readiness proof.");
+  if (!administrationAccount || !siteAdminAccount || !teacherAccount || !mentorAccount) {
+    throw new DemoProofError("SITE_OPERATIONS_READINESS_CREDENTIALS_MISSING", "Missing demo Administration, site-admin, program-teacher, or mentor credential for operations readiness proof.");
   }
 
-  const viewerCookie = await login(env, viewerAccount);
-  await getMe(env, viewerCookie, viewerAccount.email, "viewer");
-  const viewerOperations = await routeJson(onSiteOperationsReadiness, env, viewerCookie, `https://local.capstone.test/api/site/operations-readiness?siteId=${PRIMARY_SITE_ID}`);
+  const administrationCookie = await login(env, administrationAccount);
+  await getMe(env, administrationCookie, administrationAccount.email, "administration");
+  const administrationOperations = await routeJson(onSiteOperationsReadiness, env, administrationCookie, `https://local.capstone.test/api/site/operations-readiness?siteId=${PRIMARY_SITE_ID}`);
 
   const siteAdminCookie = await login(env, siteAdminAccount);
   await getMe(env, siteAdminCookie, siteAdminAccount.email, "site_admin");
@@ -1126,8 +1264,9 @@ async function verifySiteOperationsReadinessRouteProof(env, demoCredentials) {
     ...(teacherOperations.readiness?.attentionRows || []),
   ];
   const checks = {
-    viewerReadOnly: viewerOperations.scope?.readOnly === true,
-    viewerMutationPermissionsFalse: mutationPermissionsFalse(viewerOperations.permissions),
+    administrationReadOnly: administrationOperations.scope?.role === "administration"
+      && administrationOperations.scope?.readOnly === true,
+    administrationMutationPermissionsFalse: mutationPermissionsFalse(administrationOperations.permissions),
     siteAdminReadOnly: siteAdminOperations.scope?.role === "site_admin"
       && siteAdminOperations.scope?.readOnly === true
       && mutationPermissionsFalse(siteAdminOperations.permissions)
@@ -1143,7 +1282,7 @@ async function verifySiteOperationsReadinessRouteProof(env, demoCredentials) {
     mentorDenied: mentorDenied.status === 403,
     studentDenied: studentDenied.status === 403,
     noSensitiveOperationsFields: !directoryHasForbiddenOutput([
-      viewerOperations,
+      administrationOperations,
       siteAdminOperations,
       siteAdminSecondary.body,
       teacherOperations,
@@ -1260,7 +1399,7 @@ async function findAssignedStudentForMentor(env, mentorId) {
 async function loadProofUsers(env) {
   const ids = {
     platform: "demo-platform-admin-001",
-    org: "demo-org-admin-desert-valley",
+    administration: "demo-administration-desert-valley-high",
     siteAdmin: "demo-site-admin-desert-valley-high",
     viewer: "demo-viewer-desert-valley-high",
     teacher: "demo-teacher-it-01",

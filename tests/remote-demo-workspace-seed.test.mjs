@@ -52,8 +52,8 @@ test("remote demo dry run builds remote-shaped fake data without writing", async
   assert.equal(result.generatedCounts.passwordCredentials, 64);
   assert.equal(result.generatedCounts.mentorAssignments, 320);
   assert.equal(result.generatedCounts.submissions, 345);
-  assert.equal(result.generatedCounts.evidenceArtifacts, 938);
-  assert.equal(result.generatedCounts.comments, 367);
+  assert.equal(result.generatedCounts.evidenceArtifacts, 934);
+  assert.equal(result.generatedCounts.comments, 370);
   assert.equal(result.generatedCounts.reviews, 268);
   assert.equal(result.generatedCounts.mentorMeetings, 200);
   assert.equal(result.siteDistribution["site-desert-valley-high"].students, 250);
