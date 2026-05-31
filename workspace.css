@@ -1052,6 +1052,32 @@
   gap: 0.85rem;
 }
 
+.workspace-assignment-summary {
+  display: grid;
+  gap: 0.75rem;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-card);
+  background: #f8faf9;
+  padding: 0.85rem;
+}
+
+.workspace-assignment-summary h3,
+.workspace-assignment-summary h4 {
+  margin: 0;
+}
+
+.workspace-assignment-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 0.75rem;
+}
+
+.workspace-assignment-summary-group {
+  display: grid;
+  align-content: start;
+  gap: 0.55rem;
+}
+
 .workspace-assignment-form {
   align-content: start;
   border: 1px solid var(--border-soft);

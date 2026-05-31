@@ -2422,3 +2422,14 @@ Future productive runs should append compact entries that name the master-plan s
 - `changes`: `workspace.js` now renders Mentor Dashboard filters for All, Needs revision, Meeting attention, and Presentation follow-up over already loaded assigned-student rows, with a filter-specific empty state and invalid-filter fallback. `tests/workspace-app.test.mjs` proves counts, row narrowing, fallback, and the existing meeting-history detail action.
 - `validation`: focused `node --test tests/workspace-app.test.mjs` passed before docs/state closeout. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
 - `commit/push status`: pending closeout commit; not pushed by this automation run.
+
+## 2026-05-31 PT - Functionality UX Upgrade Site Access Assignment Summary
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 4 role-specific workspace clarity / Level 7 access trust.
+- `starting HEAD`: `8291b758c5fed956b450be542b06fcdb36761612`.
+- `selected slice`: Render current site access assignments before Users & Access management forms.
+- `repo-grounded findings`: `/api/site/access-assignments` already returned active mentor-student, viewer-student, program-teacher-program, administration-site, and site-admin-site rows, but `workspace.js` only rendered save/remove forms, making admins choose changes without seeing the current access state in the same panel.
+- `changes`: `workspace.js` now renders a `Current access` summary from the already scoped response before the management forms, with role-safe notes for mentor, viewer, program teacher, administration, and site-admin access. `workspace.css` adds compact summary layout styles, and `tests/workspace-app.test.mjs` proves the summary appears before forms without secret/storage fields.
+- `validation`: focused `node --test tests/workspace-app.test.mjs` passed before docs/state closeout. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.

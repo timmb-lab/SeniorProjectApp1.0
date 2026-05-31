@@ -1,0 +1,153 @@
+{
+  "automationId": "functionality-ux-upgrade-hourly",
+  "runStartedAt": "2026-05-31T14:05:35-07:00",
+  "branch": "main",
+  "startingSha": "8291b758c5fed956b450be542b06fcdb36761612",
+  "endingSha": null,
+  "targetedLadderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+  "workOrder": {
+    "id": "site-access-current-assignment-summary",
+    "type": "TYPE_D_ROLE_WORKSPACE",
+    "title": "Render current site access assignments before management forms",
+    "roles": [
+      "site_admin",
+      "global_admin",
+      "admin",
+      "platform_admin"
+    ],
+    "surfaces": [
+      "workspace.html#adminUsers",
+      "/api/site/access-assignments"
+    ],
+    "requirementIds": [
+      "MVP-004",
+      "MVP-006",
+      "MVP-032",
+      "MVP-033"
+    ]
+  },
+  "selectionReason": "The scoped site-access route already returned active assignment rows, but the workspace only showed save/remove forms. Rendering the current assignments first improves site-admin workflow without route, permission, or mutation changes.",
+  "userFacingImprovement": "Site admins can confirm active mentor, viewer, program teacher, administration, and site-admin access before changing assignments.",
+  "privacyAndPermissionNotes": [
+    "No API route, query parameter, role grant, permission helper, mutation behavior, tenant boundary, site boundary, program scope, mentor assignment scope, or student visibility changed.",
+    "The summary uses only rows already returned by the scoped /api/site/access-assignments response.",
+    "Viewer rows are labeled read-only; mentor rows remain assigned-student only; site-admin assignment controls remain hidden when permissions.canAssignSiteAdmins is false."
+  ],
+  "candidateSummary": [
+    {
+      "candidate": "Site access current assignment summary",
+      "score": 56,
+      "decision": "selected"
+    },
+    {
+      "candidate": "Hosted section-level permission proof",
+      "score": 39,
+      "decision": "deferred; hosted audit writes not allowed"
+    },
+    {
+      "candidate": "Review Queue missing-submission semantics",
+      "score": 34,
+      "decision": "deferred; backend rows absent"
+    },
+    {
+      "candidate": "Presentation schedule URL state",
+      "score": 44,
+      "decision": "not selected; shareable need unproven"
+    },
+    {
+      "candidate": "Mentor Dashboard URL state",
+      "score": 41,
+      "decision": "not selected; shareable need unproven"
+    },
+    {
+      "candidate": "Site access assignment history timeline",
+      "score": 38,
+      "decision": "deferred; audit visibility needs review"
+    },
+    {
+      "candidate": "Site admin assignment removal guidance",
+      "score": 43,
+      "decision": "not selected; summary is prerequisite"
+    },
+    {
+      "candidate": "Admin recent audit deep link",
+      "score": 38,
+      "decision": "deferred; audit destination shape needs review"
+    },
+    {
+      "candidate": "Archive retry/regenerate controls",
+      "score": 34,
+      "decision": "rejected; mutation policy not approved"
+    },
+    {
+      "candidate": "Mentor workload threshold filter",
+      "score": 39,
+      "decision": "deferred; threshold policy unclear"
+    },
+    {
+      "candidate": "Org admin all-sites rollup",
+      "score": 29,
+      "decision": "rejected; aggregate backend absent"
+    },
+    {
+      "candidate": "Student guided requirement form",
+      "score": 37,
+      "decision": "deferred; write-path design needed"
+    }
+  ],
+  "filesChanged": [
+    "workspace.js",
+    "workspace.css",
+    "tests/workspace-app.test.mjs",
+    "docs/functionality-language-audit.md",
+    "docs/functionality-ux-growth-ledger.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-31-1405-site-access-assignment-summary.json",
+    "automation/state/functionality-ux-growth-state.json"
+  ],
+  "validation": {
+    "focusedPassedBeforeCloseout": [
+      "node --test tests/workspace-app.test.mjs"
+    ],
+    "finalCommands": [
+      "node --test tests/workspace-app.test.mjs",
+      "node --test tests/functionality-language-audit.test.mjs",
+      "npm run verify:functionality-language",
+      "npm run verify:dashboard-actions",
+      "npm run verify:workspace-navigation",
+      "npm run verify:functionality-ux-automation",
+      "JSON parse for automation/state/functionality-ux-growth-state.json and docs/progress/runs/2026-05-31-1405-site-access-assignment-summary.json",
+      "git diff --check",
+      "npm run check:production-surfaces",
+      "npm run check:route-inventory",
+      "npm run test",
+      "npm run typecheck",
+      "npm run check"
+    ],
+    "status": "passed",
+    "notes": "Full validation passed; git diff --check reported only CRLF normalization warnings."
+  },
+  "deferred": [
+    "hosted-section-permission-proof",
+    "review-queue-missing-submission-semantics",
+    "presentation-schedule-url-state",
+    "mentor-dashboard-url-state",
+    "site-access-assignment-history-timeline",
+    "archive-retry-regenerate-controls",
+    "mentor-workload-threshold-policy",
+    "org-admin-all-sites-rollup",
+    "student-guided-requirement-form"
+  ],
+  "doNotRepeat": [
+    "Do not re-add the Users & Access current assignment summary unless data-site-access-assignment-summary=\"true\" or focused workspace coverage regresses."
+  ],
+  "ladderHandoff": {
+    "targetedLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+    "advanced": true,
+    "evidence": "Users & Access now renders current scoped assignment rows before save/remove forms from the existing /api/site/access-assignments response.",
+    "unlocks": "Site admins can verify current access before changing it, and future access-history work has a visible read-only summary to build from.",
+    "next": "Run hosted section-level permission proof when allowed; otherwise review access-assignment audit history shape before exposing any timeline.",
+    "blockers": "Hosted proof needs safe fake-account/audit runtime; access-history UI needs audit visibility review; missing-submission queue rows do not exist; archive retry/regenerate needs mutation policy.",
+    "firstFileNextRun": "scripts/check-hosted-workspace-permissions.mjs"
+  }
+}

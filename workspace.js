@@ -5538,6 +5538,7 @@ function renderAdminAccessAssignmentPanel() {
   const permissions = body.permissions || {};
   const programs = Array.isArray(body.programs) ? body.programs : [];
   const students = Array.isArray(users.students) ? users.students : [];
+  const assignments = body.assignments || {};
   return `
     <section class="workspace-card" data-admin-section="site-assignments">
       <div class="workspace-card-head">
@@ -5548,6 +5549,7 @@ function renderAdminAccessAssignmentPanel() {
         <span class="workspace-chip">${escapeHtml(body.scope?.siteName || "Current site")}</span>
       </div>
       ${renderApiNotice(result)}
+      ${renderSiteAccessAssignmentSummary(users, programs, assignments, permissions)}
       <div class="workspace-assignment-tabs">
         ${renderAccessAssignmentForm("mentor_student", "Mentors", users.mentors, students, "mentorUserId", "studentId")}
         ${renderAccessAssignmentForm("viewer_student", "Viewers", users.viewers, students, "viewerUserId", "studentId")}
@@ -5557,6 +5559,135 @@ function renderAdminAccessAssignmentPanel() {
       </div>
     </section>
   `;
+}
+
+function renderSiteAccessAssignmentSummary(users = {}, programs = [], assignments = {}, permissions = {}) {
+  const labels = accessAssignmentLabels(users, programs);
+  const sections = [
+    renderAccessAssignmentSummaryRows({
+      title: "Mentor student coverage",
+      rows: assignments.mentorStudent,
+      empty: "No mentor-student assignments are active for this school.",
+      renderRow: (row) => accessAssignmentRow(
+        labels.user(row.mentorUserId),
+        labels.student(row.studentId),
+        "Mentor can view this assigned student's progress and support context.",
+      ),
+    }),
+    renderAccessAssignmentSummaryRows({
+      title: "Viewer student access",
+      rows: assignments.viewerStudent,
+      empty: "No viewer-student access is active for this school.",
+      renderRow: (row) => accessAssignmentRow(
+        labels.user(row.viewerUserId),
+        labels.student(row.studentId),
+        "Viewer access is read-only and limited to this student.",
+      ),
+    }),
+    renderAccessAssignmentSummaryRows({
+      title: "Program teacher access",
+      rows: assignments.programTeacherProgram,
+      empty: "No program teacher program access is active for this school.",
+      renderRow: (row) => accessAssignmentRow(
+        labels.user(row.programTeacherUserId),
+        labels.program(row.programId),
+        "Program teachers can review assigned program records.",
+      ),
+    }),
+    renderAccessAssignmentSummaryRows({
+      title: "Administration access",
+      rows: assignments.administrationSite,
+      empty: "No administration access is active for this school.",
+      renderRow: (row) => accessAssignmentRow(
+        labels.user(row.userId),
+        labels.site(row.siteId),
+        "Leadership visibility is read-only for this school.",
+      ),
+    }),
+  ];
+  if (permissions.canAssignSiteAdmins || Array.isArray(assignments.siteAdminSite)) {
+    sections.push(renderAccessAssignmentSummaryRows({
+      title: "Site admin access",
+      rows: assignments.siteAdminSite,
+      empty: "No site admin access is active for this school.",
+      renderRow: (row) => accessAssignmentRow(
+        labels.user(row.userId),
+        labels.site(row.siteId),
+        "Site admins can manage users and assignments inside this school.",
+      ),
+    }));
+  }
+
+  return `
+    <div class="workspace-assignment-summary" data-site-access-assignment-summary="true">
+      <div>
+        <p class="workspace-kicker">Current access</p>
+        <h3>Active Assignments</h3>
+        <p class="workspace-muted">Use these rows to confirm current access before saving changes below.</p>
+      </div>
+      <div class="workspace-assignment-summary-grid">
+        ${sections.join("")}
+      </div>
+    </div>
+  `;
+}
+
+function renderAccessAssignmentSummaryRows({ title, rows = [], empty, renderRow }) {
+  const safeRows = Array.isArray(rows) ? rows : [];
+  return `
+    <section class="workspace-assignment-summary-group">
+      <h4>${escapeHtml(title)}</h4>
+      ${safeRows.length ? `
+        <div class="workspace-list">
+          ${safeRows.map(renderRow).join("")}
+        </div>
+      ` : `<div class="workspace-empty">${escapeHtml(empty)}</div>`}
+    </section>
+  `;
+}
+
+function accessAssignmentRow(primary, secondary, detail) {
+  return `
+    <article class="workspace-row">
+      <div>
+        <strong>${escapeHtml(primary)}</strong>
+        <p>${escapeHtml(secondary)}</p>
+        <p class="workspace-muted">${escapeHtml(detail)}</p>
+      </div>
+      ${activeAccessPill()}
+    </article>
+  `;
+}
+
+function activeAccessPill() {
+  return `<span class="workspace-status-pill configured" data-status="active">Active</span>`;
+}
+
+function accessAssignmentLabels(users = {}, programs = []) {
+  const userLookup = new Map();
+  for (const group of Object.values(users || {})) {
+    if (!Array.isArray(group)) continue;
+    for (const user of group) {
+      const id = user.userId || user.studentId || user.id || "";
+      if (!id || userLookup.has(id)) continue;
+      const name = user.displayName || user.studentName || user.email || id;
+      userLookup.set(id, name);
+    }
+  }
+  const programLookup = new Map((Array.isArray(programs) ? programs : []).map((program) => [
+    program.programId,
+    program.programName || program.programId,
+  ]));
+  const siteLookup = new Map((accessibleSitesForWorkspace() || []).map((site) => [
+    site.siteId,
+    site.siteName || site.siteId,
+  ]));
+  return {
+    user: (id) => userLookup.get(id) || id || "Selected user",
+    student: (id) => userLookup.get(id) || id || "Selected student",
+    program: (id) => programLookup.get(id) || id || "Selected program",
+    site: (id) => siteLookup.get(id) || id || "Current school",
+  };
 }
 
 function renderAccessAssignmentForm(type, title, targets = [], students = []) {

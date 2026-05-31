@@ -4356,3 +4356,54 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: hosted permission proof needs safe hosted fake-account/audit runtime; Review Queue missing-submission rows do not exist; archive retry/regenerate needs mutation policy.
   - Do not repeat: Mentor Dashboard focus filters are complete unless the marker/test coverage regresses.
   - First file to inspect next run: `scripts/check-hosted-workspace-permissions.mjs` if hosted proof is allowed; otherwise `automation/state/functionality-ux-growth-state.json` for stale deferred missing-evidence notes.
+
+## Run 2026-05-31 14:05 PT
+
+- Starting SHA: `8291b758c5fed956b450be542b06fcdb36761612`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Branch policy: work stayed on clean local `main`; local `main` was one commit ahead of `origin/main`, `origin/main` was not ahead, and no push was run
+- Ladder level targeted: `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` with `LEVEL_7_AUDITABILITY_AND_TRUST` access-management support
+- Backlog item: `site-access-current-assignment-summary`; supports `MVP-004`, `MVP-006`, `MVP-032`, and `MVP-033`
+- Work order selected: Render current site access assignments before Users & Access management forms.
+- Selection reason: A recent users/access V5 change added a scoped `/api/site/access-assignments` payload with active assignment rows, but the workspace only showed save/remove forms. Showing current scoped access before forms improves real admin workflow and trust without new routes, mutations, role grants, or data exposure.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Site access current assignment summary | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | site_admin, global_admin | 4 | 5 | 5 | S | 56 | selected |
+| Hosted section-level permission proof | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all protected roles | 4 | 3 | 3 | M | 39 | deferred: hosted fake-account/audit writes not allowed in this lane run |
+| Review Queue missing-submission semantics | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | program_teacher, site staff | 5 | 2 | 3 | M | 34 | deferred: backend queue rows absent |
+| Presentation schedule URL state | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | student, mentor, program_teacher, admin | 4 | 4 | 4 | M | 44 | not selected: shareable need still unproven |
+| Mentor Dashboard URL state | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | mentor | 3 | 4 | 4 | M | 41 | not selected: shareable need still unproven |
+| Site access assignment history timeline | `LEVEL_7_AUDITABILITY_AND_TRUST` | site_admin, global_admin | 4 | 3 | 3 | M | 38 | deferred: audit-query UI shape needs review |
+| Site admin assignment removal guidance | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | site_admin | 3 | 4 | 4 | S | 43 | not selected: summary is prerequisite and lower risk |
+| Admin recent audit deep link | `LEVEL_7_AUDITABILITY_AND_TRUST` | admin, site_admin | 4 | 3 | 3 | M | 38 | deferred: audit destination shape needs review |
+| Archive retry/regenerate controls | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | site_admin, admin | 5 | 2 | 3 | M | 34 | rejected: mutation policy not approved |
+| Mentor workload threshold filter | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | site staff, viewer | 4 | 3 | 3 | M | 39 | deferred: threshold policy unclear |
+| Org admin all-sites rollup | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | org_admin | 5 | 2 | 2 | L | 29 | rejected: aggregate backend design absent |
+| Student guided requirement form | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 5 | 3 | 3 | L | 37 | deferred: write-path/product design needed |
+
+- User-facing improvement: Site admins now see active mentor, viewer, program teacher, administration, and site-admin access before the save/remove forms in Users & Access.
+- Roles affected: `site_admin`, `global_admin`, `admin`, and `platform_admin` where Users & Access is already available; no student, mentor, viewer, program teacher, tenant, site, program, or student visibility was broadened.
+- Files changed: `workspace.js`, `workspace.css`, `tests/workspace-app.test.mjs`, `docs/functionality-language-audit.md`, `docs/progress/run-log.md`, `docs/progress/runs/2026-05-31-1405-site-access-assignment-summary.json`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`
+- Tests/verifiers added or updated: workspace coverage proves `data-site-access-assignment-summary="true"` renders before assignment forms, resolves user/program/site labels from the scoped payload, shows role-safe current-access notes, and does not expose secret/storage fields.
+- Validation commands:
+  - Focused passed before docs/state closeout: `node --test tests/workspace-app.test.mjs`
+  - Final passed: JSON parse for state/run manifest, `node --test tests/functionality-language-audit.test.mjs`, `npm run verify:functionality-language`, `npm run verify:dashboard-actions`, `npm run verify:workspace-navigation`, `npm run verify:functionality-ux-automation`, `git diff --check`, `npm run check:production-surfaces`, `npm run check:route-inventory`, `npm run test`, `npm run typecheck`, `npm run check`
+- Validation result: passed; `git diff --check` reported only CRLF normalization warnings, with no whitespace errors.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: hosted section-level permission proof, Review Queue missing-submission semantics, Presentation schedule URL-state filters, Mentor Dashboard URL-state filters, archive retry/regenerate controls, mentor workload threshold policy, org rollups, student guided requirement write path, and public-route browser/mobile QA remain deferred.
+- New backlog items: consider a read-only site access assignment history timeline only after audit destination shape and role visibility are explicitly reviewed.
+- Next recommended work order: run hosted section-level permission proof when hosted fake-account proof and audit-event writes are allowed; otherwise inspect whether access-assignment history can be safely exposed from existing audit rows without broadening visibility.
+- Do-not-repeat notes: do not re-add the Users & Access current assignment summary unless `data-site-access-assignment-summary="true"` or the focused workspace coverage regresses.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_4_ROLE_SPECIFIC_WORKSPACES`
+  - Advanced: yes
+  - Evidence: Users & Access now renders current scoped assignment rows before save/remove forms from the existing `/api/site/access-assignments` response.
+  - Unlocks: Site admins can verify current access before changing it; a future access-history view can build on this read-only summary if audit visibility is approved.
+  - Next: hosted section-level permission proof when allowed; otherwise review access-assignment audit history shape before exposing any timeline.
+  - Blockers: hosted permission proof needs safe hosted fake-account/audit runtime; access-history UI needs audit visibility review; missing-submission queue rows do not exist; archive retry/regenerate needs mutation policy.
+  - Do not repeat: current assignment summary is complete unless marker/test coverage regresses.
+  - First file to inspect next run: `scripts/check-hosted-workspace-permissions.mjs` if hosted proof is allowed; otherwise `functions/api/site/access-assignments.ts` and admin audit route shape.

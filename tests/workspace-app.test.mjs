@@ -4363,6 +4363,54 @@ test("workspace renders admin import controls and one-time setup output", async 
   assert.match(adminUsers, /will create a new password at first sign-in/i);
 });
 
+test("workspace renders current site access assignments before management forms", async () => {
+  const adminUsers = await renderWorkspaceWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "site-access-admin",
+          email: "site.access@example.edu",
+          displayName: "Site Access Admin",
+          roles: [{ role_id: "site_admin", scope_type: "site", scope_id: "site-desert-valley-high" }],
+        },
+      },
+    },
+    "/api/site/access-assignments": {
+      status: 200,
+      body: siteAccessAssignmentsFixture(),
+    },
+    "/api/presentation-slots": {
+      status: 200,
+      body: { ok: true, slots: [] },
+    },
+    "/api/reports/readiness": {
+      status: 200,
+      body: { ok: true, scope: "all-programs", metrics: {} },
+    },
+  }, "adminUsers");
+
+  assert.match(adminUsers, /data-site-access-assignment-summary="true"/);
+  assert.match(adminUsers, /Active Assignments/);
+  assert.match(adminUsers, /Use these rows to confirm current access before saving changes below/);
+  assert.match(adminUsers, /Mentor student coverage/);
+  assert.match(adminUsers, /Mentor One/);
+  assert.match(adminUsers, /Missing Mentor Demo 001/);
+  assert.match(adminUsers, /Viewer student access/);
+  assert.match(adminUsers, /Read-only Viewer/);
+  assert.match(adminUsers, /Viewer access is read-only and limited to this student/);
+  assert.match(adminUsers, /Program teacher access/);
+  assert.match(adminUsers, /Program Teacher One/);
+  assert.match(adminUsers, /Information Technology/);
+  assert.match(adminUsers, /Administration access/);
+  assert.match(adminUsers, /Principal One/);
+  assert.match(adminUsers, /Desert Valley High School/);
+  assert.match(adminUsers, /No site admin access is active for this school/);
+  assertMarkupOrder(adminUsers, "Active Assignments", "data-site-access-assignment-form", "current access summary should render before assignment forms");
+  assert.doesNotMatch(adminUsers, /password_hash|temporaryPassword|drive_file_id|access_token|refresh_token/i);
+});
+
 test("workspace keeps admin import setup output memory-only and gates non-admin import UI", async () => {
   const adminRoutes = {
     "/api/auth/me": {
@@ -4964,6 +5012,102 @@ function siteDashboardFixture({ readOnly = false } = {}) {
         status: "configured",
       },
     ],
+  };
+}
+
+function siteAccessAssignmentsFixture() {
+  return {
+    ok: true,
+    generatedAt: "2026-05-31T14:05:00.000Z",
+    scope: {
+      tenantId: "tenant-desert-valley",
+      tenantName: "Desert Valley School District",
+      siteId: "site-desert-valley-high",
+      siteName: "Desert Valley High School",
+      schoolYear: "2025-2026",
+      role: "site_admin",
+      accessibleSites: [
+        { siteId: "site-desert-valley-high", siteName: "Desert Valley High School" },
+      ],
+    },
+    users: {
+      students: [
+        {
+          userId: "demo-student-101",
+          displayName: "Missing Mentor Demo 001",
+          email: "missing.mentor.001@demo-student.capstone.test",
+        },
+      ],
+      mentors: [
+        {
+          userId: "demo-mentor-001",
+          displayName: "Mentor One",
+          email: "mentor.one@demo-staff.capstone.test",
+        },
+      ],
+      viewers: [
+        {
+          userId: "demo-viewer-001",
+          displayName: "Read-only Viewer",
+          email: "viewer.one@demo-staff.capstone.test",
+        },
+      ],
+      programTeachers: [
+        {
+          userId: "demo-teacher-001",
+          displayName: "Program Teacher One",
+          email: "teacher.one@demo-staff.capstone.test",
+        },
+      ],
+      administration: [
+        {
+          userId: "demo-principal-001",
+          displayName: "Principal One",
+          email: "principal.one@demo-staff.capstone.test",
+        },
+      ],
+      siteAdmins: [],
+    },
+    programs: [
+      { programId: "it", programName: "Information Technology" },
+    ],
+    assignments: {
+      mentorStudent: [
+        {
+          assignmentId: "mentor-student-001",
+          mentorUserId: "demo-mentor-001",
+          studentId: "demo-student-101",
+        },
+      ],
+      viewerStudent: [
+        {
+          assignmentId: "viewer-student-001",
+          viewerUserId: "demo-viewer-001",
+          studentId: "demo-student-101",
+        },
+      ],
+      programTeacherProgram: [
+        {
+          programTeacherUserId: "demo-teacher-001",
+          programId: "it",
+        },
+      ],
+      administrationSite: [
+        {
+          userId: "demo-principal-001",
+          siteId: "site-desert-valley-high",
+        },
+      ],
+      siteAdminSite: [],
+    },
+    permissions: {
+      canAssignMentors: true,
+      canAssignViewers: true,
+      canAssignProgramTeachers: true,
+      canAssignAdministration: true,
+      canAssignSiteAdmins: false,
+      canCreateGlobalAdmin: false,
+    },
   };
 }
 
