@@ -18,6 +18,7 @@ import {
   getProgramTeacherScopedStudentIds,
   getViewerRoleContext,
 } from "../../_lib/permissions.ts";
+import { getViewerAssignedStudentIds } from "../../_lib/effective-access.ts";
 
 const DEFAULT_LIMIT = 50;
 const MAX_LIMIT = 100;
@@ -114,7 +115,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
     context,
     requestedSiteId,
     canViewSite: (siteId) => canViewDirectoryPermission(env, user, siteId),
-    defaultSiteRoleIds: ["platform_admin", "admin", "org_admin", "program_teacher"],
+    defaultSiteRoleIds: ["platform_admin", "global_admin", "admin", "org_admin", "program_teacher"],
   });
 
   if (selection.kind === "denied") {
@@ -147,6 +148,9 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
   const teacherScope = context.roleIds.includes("program_teacher")
     ? await getProgramTeacherScopedStudentIds(env, user)
     : null;
+  const viewerAssignedStudentIds = context.roleIds.includes("viewer")
+    ? await getViewerAssignedStudentIds(env, user.id)
+    : null;
   if (teacherScope && !teacherScope.valid) {
     await auditStudentDirectory(env, request, user, context, "site_student_directory_denied", {
       reason: "invalid_program_teacher_scope",
@@ -156,7 +160,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
     return json({ error: "forbidden", reason: "invalid_program_teacher_scope" }, { status: 403 });
   }
 
-  const scopedStudentIds = teacherScope ? teacherScope.studentIds : null;
+  const scopedStudentIds = teacherScope ? teacherScope.studentIds : viewerAssignedStudentIds;
   const readOnly = isReadOnlyViewer(context.roleIds);
   const scopeSql = buildDirectoryScopeSql(site.id, scopedStudentIds);
   const filterWhere = buildFilterWhere(filters);
@@ -191,6 +195,8 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
       readOnly,
       selectionMode: selection.selectionMode,
       accessibleSites: teacherScope
+        ? selection.accessibleSites.filter((accessibleSite) => accessibleSite.siteId === site.id)
+        : viewerAssignedStudentIds
         ? selection.accessibleSites.filter((accessibleSite) => accessibleSite.siteId === site.id)
         : selection.accessibleSites,
     },
@@ -228,9 +234,11 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
 function canUseDirectoryRole(roleIds: RoleId[]): boolean {
   return roleIds.some((roleId) => (
     roleId === "platform_admin"
+    || roleId === "global_admin"
     || roleId === "admin"
     || roleId === "org_admin"
     || roleId === "site_admin"
+    || roleId === "administration"
     || roleId === "viewer"
     || roleId === "program_teacher"
   ));

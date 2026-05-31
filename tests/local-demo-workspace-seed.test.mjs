@@ -30,6 +30,7 @@ const MIGRATIONS = [
   "migrations/0009_update_drive_shared_drive_root.sql",
   "migrations/0010_tenant_google_sso.sql",
   "migrations/0011_multisite_site_role_foundation.sql",
+  "migrations/0012_users_access_v5.sql",
 ];
 
 test("demo seeder refuses remote mode", () => {
@@ -91,10 +92,11 @@ test("demo seed creates deterministic fake workspace rows and preserves admins",
   assert.equal(result.finalVerification.evidenceMetadata, 968);
   assert.equal(result.finalVerification.mentorMeetings, 200);
   assert.equal(result.finalVerification.presentationSlots, 72);
-  assert.equal(result.finalVerification.platformAdmins, 1);
-  assert.equal(result.finalVerification.orgAdmins, 1);
+  assert.equal(result.finalVerification.globalAdmins, 1);
+  assert.equal(result.finalVerification.administrationUsers, 1);
   assert.equal(result.finalVerification.siteAdmins, 3);
   assert.equal(result.finalVerification.viewers, 1);
+  assert.equal(result.finalVerification.viewerStudentAssignments, 3);
   assert.equal(result.finalVerification.studentCredentials, 0);
   assert.equal("announcements" in result.generatedCounts, false);
   assert.equal(result.finalVerification.announcements, 0);

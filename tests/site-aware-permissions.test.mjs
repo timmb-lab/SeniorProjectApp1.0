@@ -127,20 +127,23 @@ test("site admin gets assigned site operations without becoming platform or user
   assert.equal(await canManageTenantConfig(env, users.siteAdminA1, "tenant-a"), false);
 });
 
-test("viewer has assigned-site read-only capabilities and no mutation or security powers", async () => {
+test("viewer has assigned-student read-only capabilities and no mutation or security powers", async () => {
   const { env, users } = await createSitePermissionFixture();
 
   assert.equal(await isViewer(env, users.viewerA1.id), true);
+  assert.equal(await canAccessStudent(env, users.viewerA1, "student-a1"), true);
+  assert.equal(await canAccessStudent(env, users.viewerA1, "student-a2"), false);
   assert.equal(await canAccessSite(env, users.viewerA1, "site-a1"), true);
   assert.equal(await canAccessSite(env, users.viewerA1, "site-b1"), false);
-  assert.equal(await canViewSiteDashboard(env, users.viewerA1, "site-a1"), true);
+  assert.equal(await canViewSiteDashboard(env, users.viewerA1, "site-a1"), false);
   assert.equal(await canViewStudentDirectory(env, users.viewerA1, "site-a1"), true);
   assert.equal(await canViewSiteStudentDetail(env, users.viewerA1, "student-a1", "site-a1"), true);
-  assert.equal(await canViewReviewQueue(env, users.viewerA1, "site-a1"), true);
-  assert.equal(await canViewMentorAssignments(env, users.viewerA1, "site-a1"), true);
-  assert.equal(await canViewPresentationOperations(env, users.viewerA1, "site-a1"), true);
-  assert.equal(await canViewArchiveOperations(env, users.viewerA1, "site-a1"), true);
-  assert.equal(await canViewReadinessReports(env, users.viewerA1, "site-a1"), true);
+  assert.equal(await canViewSiteStudentDetail(env, users.viewerA1, "student-a2", "site-a2"), false);
+  assert.equal(await canViewReviewQueue(env, users.viewerA1, "site-a1"), false);
+  assert.equal(await canViewMentorAssignments(env, users.viewerA1, "site-a1"), false);
+  assert.equal(await canViewPresentationOperations(env, users.viewerA1, "site-a1"), false);
+  assert.equal(await canViewArchiveOperations(env, users.viewerA1, "site-a1"), false);
+  assert.equal(await canViewReadinessReports(env, users.viewerA1, "site-a1"), false);
 
   assert.equal(await canMutateReviewDecision(env, users.viewerA1, "submission-a1"), false);
   assert.equal(await canAddStaffNote(env, users.viewerA1, "student-a1", "site-a1"), false);
@@ -314,6 +317,7 @@ async function createSitePermissionFixture() {
   ).run();
 
   await db.prepare("INSERT INTO mentor_assignments (id, mentor_user_id, student_user_id, active) VALUES ('assign-a1', 'mentor-a1', 'student-a1', 1)").run();
+  await db.prepare("INSERT INTO viewer_student_assignments (id, viewer_user_id, student_user_id, active) VALUES ('viewer-a1-student-a1', 'viewer-a1', 'student-a1', 1)").run();
   await db.prepare("INSERT OR IGNORE INTO requirements (id, phase, title) VALUES ('req-proposal', 'proposal', 'Core Proposal')").run();
   await db.prepare(
     `INSERT INTO submissions (id, student_id, requirement_id, status)

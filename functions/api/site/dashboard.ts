@@ -210,10 +210,11 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
 function canUseSiteDashboardRole(roleIds: RoleId[]): boolean {
   return roleIds.some((roleId) => (
     roleId === "platform_admin"
+    || roleId === "global_admin"
     || roleId === "admin"
     || roleId === "org_admin"
     || roleId === "site_admin"
-    || roleId === "viewer"
+    || roleId === "administration"
   ));
 }
 

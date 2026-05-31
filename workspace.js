@@ -13,6 +13,7 @@ let currentData = {
   mentorDashboard: null,
   reviewQueue: null,
   mentorAssignments: null,
+  accessAssignments: null,
   operationsReadiness: null,
   mentorAssigned: null,
   presentationSlots: null,
@@ -317,6 +318,7 @@ function defaultCurrentData(authConfig = currentData.authConfig) {
     mentorDashboard: null,
     reviewQueue: null,
     mentorAssignments: null,
+    accessAssignments: null,
     operationsReadiness: null,
     mentorAssigned: null,
     presentationSlots: null,
@@ -343,15 +345,16 @@ async function loadWorkspaceData(statusMessage = "") {
   if (hasSiteStudentDirectoryRole(roles)) loaders.push(["siteStudents", apiJson(`/api/site/students${siteStudentQueryString()}`)]);
   if (hasSiteReviewQueueRole(roles)) loaders.push(["reviewQueue", apiJson(`/api/site/review-queue${siteReviewQueueQueryString()}`)]);
   if (hasSiteMentorAssignmentRole(roles)) loaders.push(["mentorAssignments", apiJson(`/api/site/mentor-assignments${siteMentorAssignmentQueryString()}`)]);
+  if (canUseUsersAccess(roles)) loaders.push(["accessAssignments", apiJson(`/api/site/access-assignments${siteDashboardQueryString()}`)]);
   if (hasSiteOperationsRole(roles)) loaders.push(["operationsReadiness", apiJson(`/api/site/operations-readiness${siteOperationsReadinessQueryString()}`)]);
-  if (roles.has("admin")) loaders.push(["adminDashboard", apiJson("/api/admin/dashboard")]);
+  if (hasGlobalAdminRole(roles)) loaders.push(["adminDashboard", apiJson("/api/admin/dashboard")]);
   if (roles.has("program_teacher")) loaders.push(["programTeacherDashboard", apiJson("/api/program-teacher/dashboard")]);
-  if (roles.has("mentor") || roles.has("admin")) loaders.push(["mentorDashboard", apiJson("/api/mentor/dashboard")]);
+  if (roles.has("mentor") || hasGlobalAdminRole(roles)) loaders.push(["mentorDashboard", apiJson("/api/mentor/dashboard")]);
   if (roles.has("mentor")) loaders.push(["mentorAssigned", apiJson("/api/mentor/assigned")]);
-  if (roles.has("student") || roles.has("mentor") || roles.has("program_teacher") || roles.has("admin")) {
+  if (roles.has("student") || roles.has("mentor") || roles.has("program_teacher") || hasGlobalAdminRole(roles) || roles.has("site_admin") || roles.has("administration")) {
     loaders.push(["presentationSlots", apiJson("/api/presentation-slots")]);
   }
-  if (roles.has("admin") || roles.has("misc_admin")) loaders.push(["readiness", apiJson("/api/reports/readiness")]);
+  if (hasGlobalAdminRole(roles) || roles.has("site_admin") || roles.has("administration") || roles.has("misc_admin")) loaders.push(["readiness", apiJson("/api/reports/readiness")]);
 
   const results = await Promise.all(loaders.map(async ([key, promise]) => [key, await settleApi(promise)]));
   currentData = defaultCurrentData(authConfig);
@@ -761,9 +764,11 @@ function renderSiteSwitcherControl() {
 
 function canUseSiteSwitcher(roles) {
   return roles.has("platform_admin")
+    || roles.has("global_admin")
     || roles.has("admin")
     || roles.has("org_admin")
-    || roles.has("site_admin");
+    || roles.has("site_admin")
+    || roles.has("administration");
 }
 
 function currentSiteWorkspaceContext() {
@@ -788,6 +793,8 @@ function accessibleSitesForWorkspace() {
     currentData.reviewQueue?.body?.accessibleSites,
     unwrap(currentData.mentorAssignments)?.scope?.accessibleSites,
     currentData.mentorAssignments?.body?.accessibleSites,
+    unwrap(currentData.accessAssignments)?.scope?.accessibleSites,
+    currentData.accessAssignments?.body?.accessibleSites,
     unwrap(currentData.operationsReadiness)?.scope?.accessibleSites,
     currentData.operationsReadiness?.body?.accessibleSites,
   ];
@@ -1199,14 +1206,14 @@ function availableSections() {
   if (hasSiteReviewQueueRole(roles)) sections.push({ id: "teacher", label: "Review Queue", detail: "Teacher review and submitted work" });
   if (hasSiteMentorAssignmentRole(roles)) sections.push({ id: "mentorAssignments", label: "Mentor Assignments", detail: "Coverage and assignment workflow" });
   if (hasSiteOperationsRole(roles)) sections.push({ id: "operations", label: "Operations", detail: "Presentation, archive, and readiness" });
-  if (roles.has("student") || roles.has("mentor") || roles.has("program_teacher") || roles.has("admin")) {
+  if (roles.has("student") || roles.has("mentor") || roles.has("program_teacher") || hasGlobalAdminRole(roles) || roles.has("site_admin") || roles.has("administration")) {
     sections.push({ id: "presentation", label: "Presentation", detail: "Schedule, outline, and day-of status" });
   }
-  if (roles.has("admin")) sections.push({ id: "adminDashboard", label: "Admin Command Center", detail: "Platform operations" });
-  if (roles.has("admin") || roles.has("misc_admin")) sections.push({ id: "readiness", label: "Readiness", detail: "Aggregate project readiness" });
-  if (roles.has("admin")) sections.push({ id: "adminUsers", label: "Users & Access", detail: "Import accounts and setup access" });
-  if (roles.has("admin")) sections.push({ id: "audit", label: "Audit", detail: "Recent protected-record activity" });
-  if (roles.has("admin")) sections.push({ id: "archiveExports", label: "Archive / Exports", detail: "Closeout package status" });
+  if (hasGlobalAdminRole(roles)) sections.push({ id: "adminDashboard", label: "Admin Command Center", detail: "Platform operations" });
+  if (hasGlobalAdminRole(roles) || roles.has("site_admin") || roles.has("administration") || roles.has("misc_admin")) sections.push({ id: "readiness", label: "Readiness", detail: "Aggregate project readiness" });
+  if (canUseUsersAccess(roles)) sections.push({ id: "adminUsers", label: "Users & Access", detail: "Create users and manage access" });
+  if (hasGlobalAdminRole(roles) || roles.has("site_admin")) sections.push({ id: "audit", label: "Audit", detail: "Recent protected-record activity" });
+  if (hasGlobalAdminRole(roles) || roles.has("site_admin")) sections.push({ id: "archiveExports", label: "Archive / Exports", detail: "Closeout package status" });
   sections.push({ id: "security", label: "Security", detail: "Password and session controls" });
   return sections;
 }
@@ -1234,7 +1241,8 @@ function renderActiveSection() {
 
 function renderOverviewSection() {
   const primaryRole = primaryRoleForUser(currentUser);
-  if (["platform_admin", "admin", "org_admin", "site_admin", "viewer"].includes(primaryRole)) return renderSiteDashboardSection();
+  if (["platform_admin", "global_admin", "admin", "org_admin", "site_admin", "administration"].includes(primaryRole)) return renderSiteDashboardSection();
+  if (primaryRole === "viewer") return renderSiteStudentDirectorySection();
   if (primaryRole === "program_teacher") return renderProgramTeacherDashboardSection();
   if (primaryRole === "mentor") return renderMentorDashboardSection();
   if (primaryRole === "student") return renderStudentSection();
@@ -1344,7 +1352,7 @@ function renderReadOnlyBanner() {
   return `
     <section class="workspace-read-only-banner" data-workspace-mode="read-only" aria-label="Viewer read-only mode">
       <span class="workspace-chip workspace-role-chip" data-role-id="viewer">Viewer</span>
-      <p>Read-only workspace. You can monitor assigned school progress, open student details, and review queue or operations context. Approvals, assignment changes, and account updates stay with authorized staff.</p>
+      <p>Read-only workspace. You can open assigned student records for context. Site-wide dashboards, approvals, assignment changes, and account updates stay with authorized staff.</p>
     </section>
   `;
 }
@@ -1410,6 +1418,9 @@ function renderViewerMonitoringOverview(dashboard = {}) {
 }
 
 function renderSiteDashboardSection() {
+  if (!hasSiteDashboardRole(roleIds(currentUser))) {
+    return renderPermissionDeniedSection("Site dashboard", "assigned site dashboard records");
+  }
   const result = currentData.siteDashboard;
   if (result?.status === 403) {
     return renderPermissionDeniedSection("Site dashboard", "records for this assigned school");
@@ -2694,7 +2705,7 @@ function renderAdminOverviewSection() {
           { label: "Teacher Review", detail: "Open submitted work", section: "teacher" },
           { label: "Presentation", detail: "Review schedule", section: "presentation" },
           { label: "Reports", detail: "Open readiness", section: "readiness" },
-          { label: "Users & Access", detail: "Import accounts", section: "adminUsers" },
+          { label: "Users & Access", detail: "Create users", section: "adminUsers" },
           { label: "Audit", detail: "Review activity", section: "audit" },
           { label: "Archive / Exports", detail: "Check packages", section: "archiveExports" },
         ]))}
@@ -2840,6 +2851,9 @@ function renderMentorDashboardSection() {
 }
 
 function renderMentorAssignmentsSection() {
+  if (!hasSiteMentorAssignmentRole(roleIds(currentUser))) {
+    return renderPermissionDeniedSection("Mentor assignments", "assigned site mentor coverage records");
+  }
   const result = currentData.mentorAssignments;
   if (result?.status === 403) {
     return renderPermissionDeniedSection("Mentor assignments", "assigned site mentor coverage records");
@@ -3245,6 +3259,9 @@ function renderMentorActiveAssignments(assignments = [], permissions = {}) {
 }
 
 function renderOperationsReadinessSection() {
+  if (!hasSiteOperationsRole(roleIds(currentUser))) {
+    return renderPermissionDeniedSection("Operations readiness", "site presentation, archive, and readiness worklists");
+  }
   const result = currentData.operationsReadiness;
   if (result?.status === 403) {
     return renderPermissionDeniedSection("Operations readiness", "site presentation, archive, and readiness worklists");
@@ -4616,6 +4633,9 @@ function formatBytes(bytes) {
 }
 
 function renderTeacherSection() {
+  if (!hasSiteReviewQueueRole(roleIds(currentUser))) {
+    return renderPermissionDeniedSection("Teacher review queue", "submitted student work");
+  }
   const result = currentData.reviewQueue;
   if (result?.status === 403) {
     return renderPermissionDeniedSection("Teacher review queue", "submitted student work");
@@ -5200,63 +5220,99 @@ function renderSecuritySection() {
 }
 
 function renderAdminUsersSection() {
-  if (!roleIds(currentUser).has("admin")) {
-    return renderPermissionDeniedSection("User import", "account provisioning records");
+  const roles = roleIds(currentUser);
+  if (!canUseUsersAccess(roles)) {
+    return renderPermissionDeniedSection("Users & Access", "account provisioning records");
   }
+  const canCreateGlobal = hasGlobalAdminRole(roles);
 
   return `
     <section class="workspace-card" data-admin-section="users">
       <div class="workspace-card-head">
         <div>
-          <p class="workspace-kicker">Admin users</p>
-          <h2>Import Account</h2>
+          <p class="workspace-kicker">Users & Access</p>
+          <h2>Add User</h2>
         </div>
-        <span class="workspace-chip">Admin only</span>
+        <span class="workspace-chip">${canCreateGlobal ? "Global Admin" : "Site Admin"}</span>
       </div>
       <form id="workspaceAdminImportForm" class="workspace-form" data-admin-action="import-users" data-admin-endpoint="/api/admin/users/import" data-admin-cache="no-store-response">
-        <label class="workspace-label">
-          Import reason
-          <textarea class="workspace-textarea" name="reason" maxlength="500" required></textarea>
-        </label>
-        <div class="workspace-form-grid">
-          <label class="workspace-label">
-            Email
-            <input class="workspace-input" name="email" type="email" autocomplete="off" required>
-          </label>
-          <label class="workspace-label">
-            Display name
-            <input class="workspace-input" name="displayName" autocomplete="off" maxlength="120" required>
-          </label>
-          <label class="workspace-label">
-            Role
-            <select class="workspace-select" name="roleId" required>
-              <option value="student">Student</option>
-              <option value="mentor">Mentor</option>
-              <option value="program_teacher">Program teacher</option>
-              <option value="admin">Admin</option>
-              <option value="misc_admin">Misc admin</option>
-            </select>
-          </label>
-          <label class="workspace-label">
-            Scope type
-            <select class="workspace-select" name="scopeType">
-              <option value="global">Global</option>
-              <option value="program">Program</option>
-              <option value="cohort">Cohort</option>
-            </select>
-          </label>
-          <label class="workspace-label workspace-label-wide">
-            Scope id
-            <input class="workspace-input" name="scopeId" autocomplete="off" pattern="[A-Za-z0-9_-]*">
+        <div class="workspace-form-section">
+          <p class="workspace-kicker">User details</p>
+          <div class="workspace-form-grid">
+            <label class="workspace-label">
+              Email
+              <input class="workspace-input" name="email" type="email" autocomplete="off" required>
+            </label>
+            <label class="workspace-label">
+              Full name
+              <input class="workspace-input" name="fullName" autocomplete="off" maxlength="120" required>
+            </label>
+            <label class="workspace-label workspace-label-wide">
+              Sign-in method
+              <select class="workspace-select" name="identityType" required>
+                <option value="local">Local account</option>
+                <option value="sso">SSO account</option>
+              </select>
+            </label>
+          </div>
+        </div>
+        <div class="workspace-form-section">
+          <p class="workspace-kicker">Role</p>
+          <div class="workspace-form-grid">
+            <label class="workspace-label">
+              Role
+              <select class="workspace-select" name="roleId" required>
+                ${adminRoleOptions(canCreateGlobal)}
+              </select>
+            </label>
+            <div class="workspace-access-preview" data-admin-role-copy aria-live="polite"></div>
+          </div>
+        </div>
+        <div class="workspace-form-section">
+          <p class="workspace-kicker">Access / assignment</p>
+          <div class="workspace-form-grid">
+            <label class="workspace-label" data-access-group="site">
+              Site
+              <select class="workspace-select" name="siteIds" multiple size="4">
+                ${siteOptionsForAdminForm()}
+              </select>
+            </label>
+            <label class="workspace-label" data-access-group="program">
+              Program
+              <select class="workspace-select" name="programIds" multiple size="4">
+                ${programOptionsForAdminForm()}
+              </select>
+            </label>
+            <label class="workspace-label workspace-label-wide" data-access-group="student">
+              Specific access
+              <select class="workspace-select" name="studentIds" multiple size="6">
+                ${studentOptionsForAdminForm()}
+              </select>
+            </label>
+          </div>
+        </div>
+        <div class="workspace-form-section">
+          <p class="workspace-kicker">Access preview</p>
+          <div class="workspace-access-preview" data-admin-access-preview aria-live="polite"></div>
+          <label class="workspace-checkbox" data-access-group="global-confirmation">
+            <input type="checkbox" name="globalAdminConfirmation" value="true">
+            <span>I understand this account can manage every site.</span>
           </label>
         </div>
-        <p class="workspace-muted">Imported accounts must create a new password at first sign-in. Setup passwords are shown once.</p>
+        <div class="workspace-form-grid">
+          <label class="workspace-label workspace-label-wide">
+            Admin note
+            <textarea class="workspace-textarea" name="adminNote" maxlength="500" required></textarea>
+            <span class="workspace-muted">This note is saved in the audit log and is only visible to admins.</span>
+          </label>
+        </div>
         <div class="workspace-form-actions">
-          <button class="workspace-button workspace-button-primary" type="submit">Import account</button>
+          <button class="workspace-button workspace-button-primary" type="submit">Create account</button>
         </div>
       </form>
     </section>
     ${renderAdminImportResult()}
+    ${renderAdminAccessAssignmentPanel()}
   `;
 }
 
@@ -5268,8 +5324,8 @@ function renderAdminImportResult() {
     <section class="workspace-card" data-admin-import-result="one-time-setup-passwords">
       <div class="workspace-card-head">
         <div>
-          <p class="workspace-kicker">Imported accounts</p>
-          <h2>Setup Access</h2>
+          <p class="workspace-kicker">Account created</p>
+          <h2>Account created</h2>
         </div>
         <span class="workspace-chip">${users.length} account${users.length === 1 ? "" : "s"}</span>
       </div>
@@ -5277,11 +5333,15 @@ function renderAdminImportResult() {
         ${users.map((user) => `
           <article class="workspace-row">
             <div>
-              <strong>${escapeHtml(user.displayName || user.email || "Imported account")}</strong>
+              <strong>${escapeHtml(user.displayName || user.email || "Created account")}</strong>
               <p>${escapeHtml(user.email || "")}</p>
-              <p class="workspace-muted">${escapeHtml(statusText(user.role?.roleId || "role"))} / ${escapeHtml(scopeLabel(user.role))}</p>
-              <span class="workspace-secret-output" data-admin-import-credential="setup-password">${escapeHtml(user.temporaryPassword || "")}</span>
-              <p class="workspace-muted">Share through the approved school process. This person must create a new password at first sign-in.</p>
+              <p class="workspace-muted">${escapeHtml(roleLabel(user.role?.roleId || "role"))} / ${escapeHtml(user.access || scopeLabel(user.role))}</p>
+              ${user.temporaryPassword ? `
+                <span class="workspace-secret-output" data-admin-import-credential="setup-password">${escapeHtml(user.temporaryPassword || "")}</span>
+                <p class="workspace-muted">This password is shown once. The user will create a new password at first sign-in.</p>
+                <button class="workspace-button workspace-button-secondary" type="button" data-copy-secret="${escapeHtml(user.temporaryPassword || "")}">Copy temporary password</button>
+              ` : `<p class="workspace-muted">SSO account. The user signs in through the approved school identity provider.</p>`}
+              ${Array.isArray(user.nextSteps) && user.nextSteps.length ? `<p class="workspace-muted">${escapeHtml(user.nextSteps.join(" "))}</p>` : ""}
             </div>
             ${statusPill(user.status || "pending_reset")}
           </article>
@@ -5291,13 +5351,203 @@ function renderAdminImportResult() {
   `;
 }
 
+function renderAdminAccessAssignmentPanel() {
+  const result = currentData.accessAssignments;
+  if (!result) return "";
+  if (result.status === 403) return renderPermissionDeniedSection("Assignment management", "site user assignment records");
+  const body = unwrap(result);
+  if (!body?.ok) return renderApiNotice(result);
+  const users = body.users || {};
+  const permissions = body.permissions || {};
+  const programs = Array.isArray(body.programs) ? body.programs : [];
+  const students = Array.isArray(users.students) ? users.students : [];
+  return `
+    <section class="workspace-card" data-admin-section="site-assignments">
+      <div class="workspace-card-head">
+        <div>
+          <p class="workspace-kicker">Site Admin management</p>
+          <h2>Manage Site Access</h2>
+        </div>
+        <span class="workspace-chip">${escapeHtml(body.scope?.siteName || "Current site")}</span>
+      </div>
+      ${renderApiNotice(result)}
+      <div class="workspace-assignment-tabs">
+        ${renderAccessAssignmentForm("mentor_student", "Mentors", users.mentors, students, "mentorUserId", "studentId")}
+        ${renderAccessAssignmentForm("viewer_student", "Viewers", users.viewers, students, "viewerUserId", "studentId")}
+        ${renderProgramTeacherAssignmentForm(users.programTeachers, programs)}
+        ${renderSiteRoleAssignmentForm("administration_site", "Administration", users.administration, body.scope?.siteId)}
+        ${permissions.canAssignSiteAdmins ? renderSiteRoleAssignmentForm("site_admin_site", "Site Admins", users.siteAdmins, body.scope?.siteId) : ""}
+      </div>
+    </section>
+  `;
+}
+
+function renderAccessAssignmentForm(type, title, targets = [], students = []) {
+  return `
+    <form class="workspace-form workspace-assignment-form" data-site-access-assignment-form data-assignment-type="${escapeHtml(type)}">
+      <input type="hidden" name="siteId" value="${escapeHtml(currentAccessSiteId())}">
+      <input type="hidden" name="assignmentType" value="${escapeHtml(type)}">
+      <p class="workspace-kicker">${escapeHtml(title)}</p>
+      <div class="workspace-form-grid">
+        <label class="workspace-label">
+          User
+          <select class="workspace-select" name="targetUserId" required>
+            ${userOptions(targets)}
+          </select>
+        </label>
+        <label class="workspace-label">
+          Student
+          <select class="workspace-select" name="studentId" required>
+            ${userOptions(students)}
+          </select>
+        </label>
+        ${assignmentActionSelect()}
+        ${assignmentNoteField()}
+      </div>
+      <div class="workspace-form-actions">
+        <button class="workspace-button workspace-button-secondary" type="submit">Save assignment</button>
+      </div>
+    </form>
+  `;
+}
+
+function renderProgramTeacherAssignmentForm(targets = [], programs = []) {
+  return `
+    <form class="workspace-form workspace-assignment-form" data-site-access-assignment-form data-assignment-type="program_teacher_program">
+      <input type="hidden" name="siteId" value="${escapeHtml(currentAccessSiteId())}">
+      <input type="hidden" name="assignmentType" value="program_teacher_program">
+      <p class="workspace-kicker">Program Teachers</p>
+      <div class="workspace-form-grid">
+        <label class="workspace-label">
+          User
+          <select class="workspace-select" name="targetUserId" required>
+            ${userOptions(targets)}
+          </select>
+        </label>
+        <label class="workspace-label">
+          Program
+          <select class="workspace-select" name="programId" required>
+            ${programs.map((program) => `<option value="${escapeHtml(program.programId)}">${escapeHtml(program.programName || program.programId)}</option>`).join("")}
+          </select>
+        </label>
+        ${assignmentActionSelect()}
+        ${assignmentNoteField()}
+      </div>
+      <div class="workspace-form-actions">
+        <button class="workspace-button workspace-button-secondary" type="submit">Save assignment</button>
+      </div>
+    </form>
+  `;
+}
+
+function renderSiteRoleAssignmentForm(type, title, targets = [], siteId = "") {
+  return `
+    <form class="workspace-form workspace-assignment-form" data-site-access-assignment-form data-assignment-type="${escapeHtml(type)}">
+      <input type="hidden" name="siteId" value="${escapeHtml(siteId || currentAccessSiteId())}">
+      <input type="hidden" name="assignmentType" value="${escapeHtml(type)}">
+      <p class="workspace-kicker">${escapeHtml(title)}</p>
+      <div class="workspace-form-grid">
+        <label class="workspace-label">
+          User
+          <select class="workspace-select" name="targetUserId" required>
+            ${userOptions(targets)}
+          </select>
+        </label>
+        ${assignmentActionSelect()}
+        ${assignmentNoteField()}
+      </div>
+      <div class="workspace-form-actions">
+        <button class="workspace-button workspace-button-secondary" type="submit">Save assignment</button>
+      </div>
+    </form>
+  `;
+}
+
+function adminRoleOptions(canCreateGlobal) {
+  const roles = [
+    ["student", "Student"],
+    ["mentor", "Mentor"],
+    ["viewer", "Viewer"],
+    ["program_teacher", "Program Teacher"],
+    ["administration", "Administration"],
+    ["site_admin", "Site Admin"],
+  ];
+  if (canCreateGlobal) roles.push(["global_admin", "Global Admin"]);
+  return roles.map(([value, label]) => `<option value="${value}">${label}</option>`).join("");
+}
+
+function siteOptionsForAdminForm() {
+  const sites = accessibleSitesForWorkspace();
+  const context = currentSiteWorkspaceContext();
+  if (!sites.length && context.siteId) {
+    sites.push({ siteId: context.siteId, siteName: context.siteName || context.siteId });
+  }
+  return sites.map((site) => `<option value="${escapeHtml(site.siteId)}">${escapeHtml(site.siteName || site.siteId)}</option>`).join("");
+}
+
+function programOptionsForAdminForm() {
+  const access = unwrap(currentData.accessAssignments);
+  const programs = Array.isArray(access?.programs) ? access.programs : [];
+  return programs.map((program) => `<option value="${escapeHtml(program.programId)}">${escapeHtml(program.programName || program.programId)}</option>`).join("");
+}
+
+function studentOptionsForAdminForm() {
+  const access = unwrap(currentData.accessAssignments);
+  const students = Array.isArray(access?.users?.students) ? access.users.students : [];
+  return userOptions(students);
+}
+
+function userOptions(users = []) {
+  if (!Array.isArray(users) || users.length === 0) return `<option value="">No available records</option>`;
+  return users.map((user) => {
+    const value = user.userId || user.studentId || user.id || "";
+    const label = user.displayName || user.studentName || user.email || value;
+    const detail = user.email && user.email !== label ? ` (${user.email})` : "";
+    return `<option value="${escapeHtml(value)}">${escapeHtml(label + detail)}</option>`;
+  }).join("");
+}
+
+function assignmentActionSelect() {
+  return `
+    <label class="workspace-label">
+      Action
+      <select class="workspace-select" name="action">
+        <option value="assign">Assign</option>
+        <option value="remove">Remove</option>
+      </select>
+    </label>
+  `;
+}
+
+function assignmentNoteField() {
+  return `
+    <label class="workspace-label workspace-label-wide">
+      Admin note
+      <textarea class="workspace-textarea" name="adminNote" maxlength="500" required></textarea>
+    </label>
+  `;
+}
+
+function currentAccessSiteId() {
+  return unwrap(currentData.accessAssignments)?.scope?.siteId || currentSiteWorkspaceContext()?.siteId || selectedSiteId || "";
+}
+
 function bindWorkspaceForms() {
   document.querySelector("#workspaceChangePasswordForm")?.addEventListener("submit", changeOwnPassword);
   const adminImportForm = document.querySelector("#workspaceAdminImportForm");
   adminImportForm?.addEventListener("submit", submitAdminUserImport);
   adminImportForm?.querySelector?.('[name="roleId"]')?.addEventListener("change", updateAdminImportScopeFields);
-  adminImportForm?.querySelector?.('[name="scopeType"]')?.addEventListener("change", updateAdminImportScopeFields);
+  adminImportForm?.querySelector?.('[name="identityType"]')?.addEventListener("change", updateAdminImportScopeFields);
+  adminImportForm?.querySelectorAll?.('[name="siteIds"], [name="programIds"], [name="studentIds"]')?.forEach((field) => {
+    field.addEventListener("change", () => renderAdminAccessPreview(adminImportForm));
+  });
   updateAdminImportScopeFields();
+  document.querySelectorAll("[data-site-access-assignment-form]").forEach((form) => {
+    form.addEventListener("submit", submitSiteAccessAssignment);
+  });
+  document.querySelectorAll("[data-copy-secret]").forEach((button) => {
+    button.addEventListener("click", copySecretFromButton);
+  });
   document.querySelector("#workspaceEvidenceLinkForm")?.addEventListener("submit", attachEvidenceLink);
   const uploadForm = document.querySelector("#workspaceFileUploadForm");
   uploadForm?.addEventListener("submit", uploadEvidenceFile);
@@ -6119,7 +6369,7 @@ function renderPresentationSection() {
   const activeFilter = cleanPresentationSlotFilter(presentationSlotFilter);
   const filteredSlots = filterPresentationSlots(slots, activeFilter);
   const roles = roleIds(currentUser);
-  const canManage = roles.has("program_teacher") || roles.has("admin");
+  const canManage = roles.has("program_teacher") || hasGlobalAdminRole(roles) || roles.has("site_admin");
   return `
     <section class="workspace-card" data-presentation-schedule="true" data-presentation-filter="${escapeHtml(activeFilter)}">
       <div class="workspace-card-head">
@@ -6906,12 +7156,13 @@ async function submitAdminUserImport(event) {
     }
     lastAdminImportResult = body;
     activeSection = "adminUsers";
-    await loadWorkspaceData("Imported account setup is ready.");
+    await loadWorkspaceData("Account created.");
   } catch (error) {
     lastAdminImportResult = null;
     activeSection = "adminUsers";
     renderAppShell(messageForNetworkError(error), "error");
   } finally {
+    setFormBusy(form, false);
     busy = false;
   }
 }
@@ -6977,14 +7228,14 @@ function statusHtml(message, tone = "neutral") {
 
 function greetingForUser() {
   const roles = roleIds(currentUser);
-  if (roles.has("platform_admin")) return "Platform workspace is ready.";
+  if (hasGlobalAdminRole(roles)) return "Global Admin workspace is ready.";
   if (roles.has("org_admin")) return "Organization workspace is ready.";
-  if (roles.has("site_admin")) return "Administration workspace is ready.";
+  if (roles.has("site_admin")) return "Site Admin workspace is ready.";
+  if (roles.has("administration")) return "Administration workspace is ready.";
   if (roles.has("student")) return "Your senior project is ready.";
   if (roles.has("program_teacher")) return "Teacher review is ready.";
   if (roles.has("mentor")) return "Mentor workspace is ready.";
   if (roles.has("viewer")) return "Viewer workspace is ready.";
-  if (roles.has("admin")) return "Admin overview is ready.";
   return "Workspace is ready.";
 }
 
@@ -6993,10 +7244,11 @@ function nextStepText() {
   if (dashboard?.nextAction) return dashboard.nextAction;
   const roles = roleIds(currentUser);
   if (roles.has("site_admin")) return "Review site progress, student readiness, mentor coverage, presentation status, and archive signals available to this account.";
+  if (roles.has("administration")) return "Review assigned site students, readiness, presentation, and progress dashboards.";
   if (roles.has("org_admin")) return "Review assigned organization and site summaries available to this account.";
-  if (roles.has("platform_admin")) return "Review platform setup and multisite readiness available to this account.";
-  if (roles.has("viewer")) return "Review assigned site information in read-only mode.";
-  if (roles.has("program_teacher") || roles.has("admin")) return "Review submitted work and follow up where students need feedback.";
+  if (hasGlobalAdminRole(roles)) return "Review platform setup and multisite readiness available to this account.";
+  if (roles.has("viewer")) return "Review assigned students in read-only mode.";
+  if (roles.has("program_teacher")) return "Review submitted work and follow up where students need feedback.";
   if (roles.has("mentor")) return "Check assigned students before mentor meetings and presentation preparation.";
   if (roles.has("misc_admin")) return "Review aggregate readiness without opening individual student records.";
   return "Ask your instructor to confirm your workspace role.";
@@ -7514,15 +7766,17 @@ function normalizeStatus(value) {
 }
 
 const ROLE_LABELS = {
-  platform_admin: "Platform Admin",
-  admin: "Platform Admin",
+  platform_admin: "Global Admin",
+  global_admin: "Global Admin",
+  admin: "Global Admin",
   org_admin: "Organization Admin",
-  site_admin: "Administration",
+  site_admin: "Site Admin",
+  administration: "Administration",
   program_teacher: "Program Teacher",
   mentor: "Mentor",
   viewer: "Viewer",
   student: "Student",
-  misc_admin: "Reporting Viewer",
+  misc_admin: "Legacy Reporting Admin",
   role_pending: "Role pending",
 };
 
@@ -7534,24 +7788,32 @@ function roleIds(user) {
   return new Set((user?.roles || []).map((role) => role.role_id));
 }
 
+function hasGlobalAdminRole(roles) {
+  return roles.has("global_admin") || roles.has("admin") || roles.has("platform_admin");
+}
+
+function canUseUsersAccess(roles) {
+  return hasGlobalAdminRole(roles) || roles.has("site_admin");
+}
+
 function hasSiteDashboardRole(roles) {
-  return ["platform_admin", "admin", "org_admin", "site_admin", "viewer"].some((role) => roles.has(role));
+  return ["platform_admin", "global_admin", "admin", "org_admin", "site_admin", "administration"].some((role) => roles.has(role));
 }
 
 function hasSiteStudentDirectoryRole(roles) {
-  return ["platform_admin", "admin", "org_admin", "site_admin", "viewer", "program_teacher"].some((role) => roles.has(role));
+  return ["platform_admin", "global_admin", "admin", "org_admin", "site_admin", "administration", "viewer", "program_teacher"].some((role) => roles.has(role));
 }
 
 function hasSiteReviewQueueRole(roles) {
-  return ["platform_admin", "admin", "org_admin", "site_admin", "viewer", "program_teacher"].some((role) => roles.has(role));
+  return ["platform_admin", "global_admin", "admin", "org_admin", "site_admin", "program_teacher"].some((role) => roles.has(role));
 }
 
 function hasSiteMentorAssignmentRole(roles) {
-  return ["platform_admin", "admin", "org_admin", "site_admin", "viewer", "program_teacher"].some((role) => roles.has(role));
+  return ["platform_admin", "global_admin", "admin", "org_admin", "site_admin", "program_teacher"].some((role) => roles.has(role));
 }
 
 function hasSiteOperationsRole(roles) {
-  return ["platform_admin", "admin", "org_admin", "site_admin", "viewer", "program_teacher"].some((role) => roles.has(role));
+  return ["platform_admin", "global_admin", "admin", "org_admin", "site_admin", "administration", "program_teacher"].some((role) => roles.has(role));
 }
 
 function defaultSiteStudentFilters() {
@@ -8101,10 +8363,12 @@ function siteOperationsReadinessQueryString() {
 function primaryRoleForUser(user) {
   const roles = roleIds(user);
   for (const role of [
+    "global_admin",
     "platform_admin",
     "admin",
     "org_admin",
     "site_admin",
+    "administration",
     "program_teacher",
     "mentor",
     "viewer",
@@ -8133,7 +8397,9 @@ function assignmentScopeLabel(role) {
 
   if (roleId === "student") return "Own student workspace";
   if (roleId === "mentor") return "Assigned students";
-  if (roleId === "misc_admin") return "Readiness reporting";
+  if (roleId === "viewer") return "Assigned students";
+  if (roleId === "misc_admin") return "Legacy readiness reporting";
+  if (roleId === "global_admin" || roleId === "admin" || roleId === "platform_admin") return "Entire platform";
 
   if (scopeType === "site") {
     return siteName ? `Assigned school: ${siteName}` : "Assigned school";
@@ -8213,53 +8479,156 @@ function scopeLabel(role) {
 function updateAdminImportScopeFields() {
   const form = document.querySelector("#workspaceAdminImportForm");
   const roleSelect = form?.querySelector?.('[name="roleId"]');
-  const scopeType = form?.querySelector?.('[name="scopeType"]');
-  const scopeId = form?.querySelector?.('[name="scopeId"]');
-  if (!roleSelect || !scopeType || !scopeId) return;
+  const identitySelect = form?.querySelector?.('[name="identityType"]');
+  if (!roleSelect || !identitySelect) return;
 
-  const scopedTeacher = roleSelect.value === "program_teacher";
-  scopeType.disabled = !scopedTeacher;
-  if (!scopedTeacher) {
-    scopeType.value = "global";
-    scopeId.value = "";
-    scopeId.disabled = true;
-    return;
-  }
+  const roleId = roleSelect.value;
+  const showSite = roleId === "administration" || roleId === "site_admin";
+  const showProgram = roleId === "program_teacher";
+  const showStudent = roleId === "mentor" || roleId === "viewer";
+  const showGlobal = roleId === "global_admin";
 
-  scopeId.disabled = scopeType.value === "global";
-  if (scopeType.value === "global") scopeId.value = "";
+  form.querySelectorAll("[data-access-group]").forEach((element) => {
+    const group = element.dataset.accessGroup;
+    const visible = (group === "site" && showSite)
+      || (group === "program" && showProgram)
+      || (group === "student" && showStudent)
+      || (group === "global-confirmation" && showGlobal);
+    element.hidden = !visible;
+    element.querySelectorAll("select, input, textarea").forEach((input) => {
+      input.disabled = !visible;
+      if (!visible && input.type === "checkbox") input.checked = false;
+    });
+  });
+
+  if (showGlobal) identitySelect.value = "local";
+  identitySelect.querySelector('option[value="sso"]')?.toggleAttribute("disabled", showGlobal);
+  renderAdminAccessPreview(form);
 }
 
 function buildAdminImportBody(form) {
   const values = Object.fromEntries(new FormData(form).entries());
-  const reason = String(values.reason || "").trim();
+  const adminNote = String(values.adminNote || "").trim();
   const email = String(values.email || "").trim();
-  const displayName = String(values.displayName || "").trim();
+  const fullName = String(values.fullName || "").trim();
   const roleId = String(values.roleId || "").trim();
-  let scopeType = roleId === "program_teacher" ? String(values.scopeType || "global").trim() : "global";
-  let scopeId = roleId === "program_teacher" ? String(values.scopeId || "").trim() : "";
+  const identityType = String(values.identityType || "local").trim();
+  const siteIds = formValues(form, "siteIds");
+  const programIds = formValues(form, "programIds");
+  const studentIds = formValues(form, "studentIds");
+  const globalAdminConfirmation = Boolean(values.globalAdminConfirmation);
 
-  if (!reason) return { ok: false, message: "Add the reason for this account import." };
-  if (!email || !displayName || !roleId) return { ok: false, message: "Add the person's email, name, and role." };
-  if (!["student", "mentor", "program_teacher", "admin", "misc_admin"].includes(roleId)) {
+  if (!adminNote) return { ok: false, message: "Add the admin note for this account." };
+  if (!email || !fullName || !roleId) return { ok: false, message: "Add the person's email, name, and role." };
+  if (!["student", "mentor", "viewer", "program_teacher", "administration", "site_admin", "global_admin"].includes(roleId)) {
     return { ok: false, message: "Choose a supported workspace role." };
   }
-  if (!["global", "program", "cohort"].includes(scopeType)) scopeType = "global";
-  if (roleId === "program_teacher" && scopeType !== "global" && !scopeId) {
-    return { ok: false, message: "Add the program or cohort id for that teacher assignment." };
+  if (roleId === "global_admin" && identityType !== "local") {
+    return { ok: false, message: "Global Admin must use a local login so platform access is still available if SSO is unavailable." };
   }
-  if (roleId !== "program_teacher") {
-    scopeType = "global";
-    scopeId = "";
+  if ((roleId === "administration" || roleId === "site_admin") && siteIds.length === 0) {
+    return { ok: false, message: "Choose at least one site for this role." };
+  }
+  if (roleId === "program_teacher" && programIds.length === 0) {
+    return { ok: false, message: "Choose at least one program for this Program Teacher." };
+  }
+  if (roleId === "global_admin" && !globalAdminConfirmation) {
+    return { ok: false, message: "Confirm that this account can manage every site." };
   }
 
   return {
     ok: true,
     body: {
-      reason,
-      users: [{ email, displayName, roleId, scopeType, scopeId }],
+      adminNote,
+      users: [{ email, fullName, roleId, identityType, siteIds, programIds, studentIds, globalAdminConfirmation }],
     },
   };
+}
+
+function formValues(form, name) {
+  const field = form?.querySelector?.(`[name="${name}"]`);
+  if (field?.selectedOptions) {
+    return Array.from(field.selectedOptions).map((option) => option.value).filter(Boolean);
+  }
+  return Array.from(new FormData(form).getAll(name)).map((value) => String(value || "").trim()).filter(Boolean);
+}
+
+function renderAdminAccessPreview(form) {
+  const roleId = form?.querySelector?.('[name="roleId"]')?.value || "student";
+  const identityType = form?.querySelector?.('[name="identityType"]')?.value || "local";
+  const preview = form?.querySelector?.("[data-admin-access-preview]");
+  const roleCopy = form?.querySelector?.("[data-admin-role-copy]");
+  if (!preview || !roleCopy) return;
+
+  const copy = {
+    student: "Self only. Can view their own dashboard, work, evidence, feedback, and readiness.",
+    mentor: "Assigned students only. Can view assigned student progress and feedback workflows.",
+    viewer: "Assigned students only. Read-only.",
+    program_teacher: "Assigned program. Can view all students in selected program records.",
+    administration: "Assigned site. Leadership visibility over students and dashboards; no user or security management.",
+    site_admin: "Assigned site. Can manage users and assignments inside the selected site.",
+    global_admin: "Entire platform. Local account only and can manage every site.",
+  }[roleId] || "Assigned access";
+  roleCopy.textContent = copy;
+
+  const siteCount = formValues(form, "siteIds").length;
+  const programCount = formValues(form, "programIds").length;
+  const studentCount = formValues(form, "studentIds").length;
+  const access = roleId === "global_admin"
+    ? "Entire platform"
+    : siteCount
+      ? `${siteCount} site${siteCount === 1 ? "" : "s"}`
+      : programCount
+        ? `${programCount} program${programCount === 1 ? "" : "s"}`
+        : studentCount
+          ? `${studentCount} student${studentCount === 1 ? "" : "s"}`
+          : roleId === "student"
+            ? "Self only"
+            : "Assignment required";
+  preview.innerHTML = `
+    <strong>${escapeHtml(roleLabel(roleId))}</strong>
+    <p>Sign-in method: ${escapeHtml(identityType === "sso" ? "SSO account" : "Local account")}</p>
+    <p>Access: ${escapeHtml(access)}</p>
+    <p>${escapeHtml(copy)}</p>
+  `;
+}
+
+function copySecretFromButton(event) {
+  const value = event.currentTarget?.dataset?.copySecret || "";
+  if (!value || !navigator?.clipboard) return;
+  navigator.clipboard.writeText(value).then(() => {
+    renderAppShell("Temporary password copied.", "success");
+  }).catch(() => {
+    renderAppShell("Copy failed. Select the password text instead.", "error");
+  });
+}
+
+async function submitSiteAccessAssignment(event) {
+  event.preventDefault();
+  if (busy) return;
+  const form = event.currentTarget;
+  const body = Object.fromEntries(new FormData(form).entries());
+  busy = true;
+  setFormBusy(form, true);
+  try {
+    const response = await fetch("/api/site/access-assignments", {
+      method: "POST",
+      headers: { "content-type": "application/json", accept: "application/json" },
+      body: JSON.stringify(body),
+    });
+    const data = await safeJson(response);
+    if (!response.ok) {
+      renderAppShell(messageForAdminImportError(data?.error, response.status), "error");
+      return;
+    }
+    activeSection = "adminUsers";
+    await loadWorkspaceData("Access assignment saved.");
+  } catch (error) {
+    renderAppShell(messageForNetworkError(error), "error");
+  } finally {
+    setFormBusy(form, false);
+    busy = false;
+  }
 }
 
 function artifactTypeOptions() {
@@ -8314,19 +8683,22 @@ function messageForChangePasswordError(error, status) {
 }
 
 function messageForAdminImportError(error, status) {
-  if (status === 401) return "Sign in again before importing accounts.";
+  if (status === 401) return "Sign in again before creating accounts.";
   if (error === "credential_delivery_policy_required") {
-    return "Real-user import is blocked until the credential delivery policy is approved. Use the approved pre-pilot roster, or implement an invitation or school-approved credential delivery path before importing real users.";
+    return "Real local-account creation is blocked until the credential delivery policy is approved. Use SSO or the approved proof account flow.";
   }
-  if (status === 403) return "This account cannot import users.";
-  if (error === "missing_reason") return "Add the reason for this account import.";
-  if (error === "invalid_user") return "Check the email, name, role, and scope before importing.";
+  if (status === 403) return "This account cannot create or change that access.";
+  if (error === "missing_admin_note" || error === "missing_reason") return "Add the admin note for this change.";
+  if (error === "invalid_user") return "Check the email, name, role, sign-in method, and access before creating the account.";
   if (error === "duplicate_email" || error === "email_already_exists") return "That email is already included or already has an account.";
   if (error === "invalid_role_scope") return "That role and scope combination is not available.";
-  if (error === "program_not_found") return "That program scope was not found.";
-  if (error === "cohort_not_found") return "That cohort scope was not found.";
-  if (error === "too_many_users") return "Import fewer accounts in one request.";
-  return "Account import is unavailable right now. Check the details and try again.";
+  if (error === "program_not_found") return "That program was not found for the selected site.";
+  if (error === "site_not_found") return "That site was not found.";
+  if (error === "student_not_found") return "That student was not found.";
+  if (error === "global_admin_requires_local_account") return "Global Admin must use a local login so platform access is still available if SSO is unavailable.";
+  if (error === "last_active_local_global_admin") return "At least one active local Global Admin must remain.";
+  if (error === "too_many_users") return "Create fewer accounts in one request.";
+  return "Account creation is unavailable right now. Check the details and try again.";
 }
 
 function messageForReviewDecisionError(error, status) {

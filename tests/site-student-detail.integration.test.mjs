@@ -22,6 +22,7 @@ const MIGRATIONS = [
   "migrations/0009_update_drive_shared_drive_root.sql",
   "migrations/0010_tenant_google_sso.sql",
   "migrations/0011_multisite_site_role_foundation.sql",
+  "migrations/0012_users_access_v5.sql",
 ];
 
 const PRIMARY_SITE_ID = "site-desert-valley-high";
@@ -130,9 +131,9 @@ test("site student detail and timeline are scoped, bounded, role-aware, and reda
   assert.equal(inferred.scope.selectionMode, "student_accessible_site");
 
   const legacy = await expectDetail(env, tokens.legacyAdmin, stories.modelExcellent.id, `?siteId=${PRIMARY_SITE_ID}`);
-  assert.equal(legacy.scope.role, "admin");
+  assert.equal(legacy.scope.role, "global_admin");
   const org = await expectDetail(env, tokens.orgAdmin, stories.modelExcellent.id, `?siteId=${PRIMARY_SITE_ID}`);
-  assert.equal(org.scope.role, "org_admin");
+  assert.equal(org.scope.role, "administration");
   const orgOutside = await routeDetail(env, tokens.orgAdmin, "outside-student-001", "?siteId=site-outside-district");
   assert.equal(orgOutside.response.status, 403);
   assert.equal(orgOutside.body.reason, "site_not_accessible");
@@ -173,8 +174,11 @@ test("site student detail and timeline are scoped, bounded, role-aware, and reda
   assert.equal(mentorDenied.response.status, 404);
   assert.deepEqual(mentorDenied.body, { error: "not_found" });
 
+  const studentOwn = await expectDetail(env, tokens.student, stories.modelExcellent.id, `?siteId=${PRIMARY_SITE_ID}`);
+  assert.equal(studentOwn.scope.role, "student");
+  for (const key of MUTATION_PERMISSION_KEYS) assert.equal(studentOwn.permissions[key], false, `student ${key}`);
+
   for (const [label, token] of [
-    ["student", tokens.student],
     ["misc_admin", tokens.miscAdmin],
   ]) {
     const denied = await routeDetail(env, token, stories.modelExcellent.id, `?siteId=${PRIMARY_SITE_ID}`);
@@ -238,6 +242,7 @@ test("site student detail and timeline are scoped, bounded, role-aware, and reda
     viewer,
     teacher,
     mentor,
+    studentOwn,
     missingMentor,
     revisionLoop,
     archiveFailed,
@@ -321,7 +326,7 @@ async function createSeededDemoFixture() {
   const tokens = {
     platformAdmin: await seedSession(db, env, "demo-platform-admin-001", "site-detail-platform"),
     legacyAdmin: await seedSession(db, env, "protected-admin-primary", "site-detail-legacy"),
-    orgAdmin: await seedSession(db, env, "demo-org-admin-desert-valley", "site-detail-org"),
+    orgAdmin: await seedSession(db, env, "demo-administration-desert-valley-high", "site-detail-org"),
     siteAdminPrimary: await seedSession(db, env, "demo-site-admin-desert-valley-high", "site-detail-site-admin"),
     viewerPrimary: await seedSession(db, env, "demo-viewer-desert-valley-high", "site-detail-viewer"),
     programTeacher: await seedSession(db, env, "demo-teacher-it-01", "site-detail-teacher"),

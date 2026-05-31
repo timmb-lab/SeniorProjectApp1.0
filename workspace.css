@@ -270,6 +270,17 @@
   gap: 0.9rem;
 }
 
+.workspace-form-section {
+  display: grid;
+  gap: 0.75rem;
+  border-block-end: 1px solid var(--border-soft);
+  padding-block-end: 0.9rem;
+}
+
+.workspace-form-section:last-of-type {
+  border-block-end: 0;
+}
+
 .workspace-reset-panel {
   display: grid;
   gap: 0.85rem;
@@ -301,6 +312,10 @@
 .workspace-textarea {
   min-height: 96px;
   resize: vertical;
+}
+
+.workspace-select[multiple] {
+  min-height: 9.5rem;
 }
 
 .workspace-input:focus,
@@ -1002,6 +1017,47 @@
 
 .workspace-form-grid .workspace-label-wide {
   grid-column: 1 / -1;
+}
+
+.workspace-access-preview {
+  display: grid;
+  gap: 0.35rem;
+  min-height: 5rem;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-card);
+  background: #f8faf9;
+  padding: 0.85rem;
+  color: var(--muted-strong);
+}
+
+.workspace-access-preview p {
+  margin: 0;
+}
+
+.workspace-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-weight: 900;
+}
+
+.workspace-checkbox input {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.workspace-assignment-tabs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 0.85rem;
+}
+
+.workspace-assignment-form {
+  align-content: start;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-card);
+  background: #fff;
+  padding: 0.85rem;
 }
 
 .workspace-empty {

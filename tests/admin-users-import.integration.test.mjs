@@ -42,12 +42,10 @@ test("admin users import returns 403 when caller is not admin", async () => {
   assert.equal(response.status, 403);
   assert.deepEqual(await response.json(), { error: "forbidden", ok: false });
   assert.equal(fixture.db.data.auditEvents.length, 1);
-  assert.equal(fixture.db.data.auditEvents[0].action, "admin_users_import_denied");
+  assert.equal(fixture.db.data.auditEvents[0].action, "access.scope_validation_rejected");
   assert.equal(fixture.db.data.auditEvents[0].actor_user_id, "mentor-a");
-  assert.deepEqual(fixture.db.data.auditEvents[0].metadata, {
-    reason: "forbidden",
-    requiredRole: "admin",
-  });
+  assert.equal(fixture.db.data.auditEvents[0].metadata.reason, "forbidden");
+  assert.equal(fixture.db.data.auditEvents[0].metadata.requiredRole, "global_admin_or_site_admin");
 });
 
 test("admin users import validates json, reason, users, duplicate emails, and role scopes", async () => {
@@ -71,14 +69,14 @@ test("admin users import validates json, reason, users, duplicate emails, and ro
     const response = await onRequestPost({
       request: buildJsonRequest(
         "https://example.test/api/admin/users/import",
-        { reason: " ", users: [studentInput()] },
+        { adminNote: " ", users: [studentInput()] },
         { cookie: `sc_session=${fixture.token}` },
       ),
       env: fixture.env,
       params: {},
     });
     assert.equal(response.status, 400);
-    assert.deepEqual(await response.json(), { error: "missing_reason" });
+    assert.deepEqual(await response.json(), { error: "missing_admin_note" });
   }
 
   {
@@ -117,8 +115,8 @@ test("admin users import validates json, reason, users, duplicate emails, and ro
       request: buildJsonRequest(
         "https://example.test/api/admin/users/import",
         {
-          reason: "Initial pilot roster import.",
-          users: [studentInput({ roleId: "student", scopeType: "program", scopeId: "it" })],
+          adminNote: "Initial pilot roster import.",
+          users: [studentInput({ roleId: "site_admin" })],
         },
         { cookie: `sc_session=${fixture.token}` },
       ),
@@ -126,7 +124,8 @@ test("admin users import validates json, reason, users, duplicate emails, and ro
       params: {},
     });
     assert.equal(response.status, 400);
-    assert.deepEqual(await response.json(), { error: "invalid_role_scope" });
+    const body = await response.json();
+    assert.equal(body.error, "site_admin_requires_site_assignment");
   }
 });
 
@@ -188,7 +187,9 @@ test("admin users import rejects existing emails and unknown role or scope recor
       params: {},
     });
     assert.equal(response.status, 404);
-    assert.deepEqual(await response.json(), { error: "program_not_found", ok: false });
+    const body = await response.json();
+    assert.equal(body.ok, false);
+    assert.equal(body.error, "program_not_found");
   }
 });
 
@@ -214,17 +215,14 @@ test("admin users import blocks real non-.test temporary credentials by default"
   assert.equal(body.error, "credential_delivery_policy_required");
   assert.match(body.message, /temporary credential delivery is approved/i);
   assert.equal(fixture.db.data.userAccounts.some((row) => row.email_norm === "student.real@example.edu"), false);
-  assert.equal(fixture.db.data.passwordCredentials.length, 0);
+  assert.equal(fixture.db.data.passwordCredentials.length, 1);
   assert.equal(fixture.db.data.auditEvents.length, 1);
-  assert.equal(fixture.db.data.auditEvents[0].action, "admin_users_import_blocked");
-  assert.deepEqual(fixture.db.data.auditEvents[0].metadata, {
-    reason: "credential_delivery_policy_required",
-    userCount: 1,
-    fakeTestUserCount: 0,
-    realUserCount: 1,
-    temporaryCredentialDelivery: "one_time_admin_display",
-    allowRealTempCredentialImport: false,
-  });
+  assert.equal(fixture.db.data.auditEvents[0].action, "user.create_rejected");
+  assert.equal(fixture.db.data.auditEvents[0].metadata.reason, "credential_delivery_policy_required");
+  assert.equal(fixture.db.data.auditEvents[0].metadata.userCount, 1);
+  assert.equal(fixture.db.data.auditEvents[0].metadata.realLocalUserCount, 1);
+  assert.equal(fixture.db.data.auditEvents[0].metadata.temporaryCredentialDelivery, "one_time_admin_display");
+  assert.equal(fixture.db.data.auditEvents[0].metadata.allowRealTempCredentialImport, false);
   assert.doesNotMatch(JSON.stringify(fixture.db.data.auditEvents), /student\.real@example\.edu/i);
 });
 
@@ -255,7 +253,7 @@ test("admin users import allows real non-.test temporary credentials only with e
     email: body.users[0].email,
     displayName: body.users[0].displayName,
   }).length, 0);
-  assert.equal(fixture.db.data.auditEvents.some((row) => row.action === "admin_users_import_blocked"), false);
+  assert.equal(fixture.db.data.auditEvents.some((row) => row.action === "user.create_rejected"), false);
   assert.equal(fixture.db.data.auditEvents.at(-1).metadata.temporaryCredentialsReturnedOnce, true);
   assert.equal(JSON.stringify(fixture.db.data.auditEvents).includes(body.users[0].temporaryPassword), false);
 });
@@ -325,30 +323,33 @@ test("admin users import creates pending-reset users, role assignments, credenti
   );
 
   assert.equal(fixture.db.data.auditEvents.length, 3);
-  assert.equal(fixture.db.data.auditEvents[0].action, "admin_user_imported");
-  assert.equal(fixture.db.data.auditEvents[1].action, "admin_user_imported");
-  assert.equal(fixture.db.data.auditEvents[2].action, "admin_users_import_completed");
+  assert.equal(fixture.db.data.auditEvents[0].action, "user.created");
+  assert.equal(fixture.db.data.auditEvents[1].action, "user.created");
+  assert.equal(fixture.db.data.auditEvents[2].action, "user.create_batch_completed");
 
   const auditJson = JSON.stringify(fixture.db.data.auditEvents);
   assert.equal(auditJson.includes(student.temporaryPassword), false);
   assert.equal(auditJson.includes(teacher.temporaryPassword), false);
-  assert.equal(fixture.db.data.auditEvents[0].metadata.credentialPolicy, "temporary_password_requires_reset");
+  assert.equal(fixture.db.data.auditEvents[0].metadata.temporaryCredentialReturnedOnce, true);
   assert.equal(fixture.db.data.auditEvents[2].metadata.importedCount, 2);
 });
 
-test("admin users import accepts additive platform, org, site, and viewer roles for fake test users", async () => {
+test("admin users import accepts V5 global, site, administration, and viewer roles for fake test users", async () => {
   const fixture = await createFixtureWithSession({ userId: "admin-a", roleId: "admin" });
+  fixture.db.data.userAccounts.push(buildUser("student-scope", "student.scope@senior-capstone.test", "Student Scope"));
+  fixture.db.data.userRoles.push({ user_id: "student-scope", role_id: "student", scope_type: "global", scope_id: "" });
+  fixture.db.data.siteUsers.push({ site_id: "site-a", user_id: "student-scope", membership_status: "active" });
 
   const response = await onRequestPost({
     request: buildJsonRequest(
       "https://example.test/api/admin/users/import",
       {
-        reason: "Synthetic multisite role fixture import.",
+        adminNote: "Synthetic multisite role fixture import.",
         users: [
-          studentInput({ email: "platform.admin@senior-capstone.test", displayName: "Platform Admin", roleId: "platform_admin" }),
-          studentInput({ email: "org.admin@senior-capstone.test", displayName: "Org Admin", roleId: "org_admin" }),
-          studentInput({ email: "site.admin@senior-capstone.test", displayName: "Site Admin", roleId: "site_admin" }),
-          studentInput({ email: "viewer@senior-capstone.test", displayName: "Viewer", roleId: "viewer" }),
+          studentInput({ email: "global.admin@senior-capstone.test", displayName: "Global Admin", roleId: "global_admin", globalAdminConfirmation: true }),
+          studentInput({ email: "site.admin@senior-capstone.test", displayName: "Site Admin", roleId: "site_admin", siteIds: ["site-a"] }),
+          studentInput({ email: "administration@senior-capstone.test", displayName: "Administration", roleId: "administration", siteIds: ["site-a"] }),
+          studentInput({ email: "viewer@senior-capstone.test", displayName: "Viewer", roleId: "viewer", studentIds: ["student-scope"] }),
         ],
       },
       { cookie: `sc_session=${fixture.token}` },
@@ -361,14 +362,11 @@ test("admin users import accepts additive platform, org, site, and viewer roles 
   const body = await response.json();
   assert.equal(body.ok, true);
   assert.equal(body.importedCount, 4);
-  for (const roleId of ["platform_admin", "org_admin", "site_admin", "viewer"]) {
-    assert.equal(
-      fixture.db.data.userRoles.some(
-        (row) => row.role_id === roleId && row.scope_type === "global" && row.scope_id === "",
-      ),
-      true,
-    );
-  }
+  assert.equal(fixture.db.data.userRoles.some((row) => row.role_id === "global_admin" && row.scope_type === "global"), true);
+  assert.equal(fixture.db.data.userRoles.some((row) => row.role_id === "site_admin" && row.scope_type === "site" && row.scope_id === "site-a"), true);
+  assert.equal(fixture.db.data.userRoles.some((row) => row.role_id === "administration" && row.scope_type === "site" && row.scope_id === "site-a"), true);
+  assert.equal(fixture.db.data.userRoles.some((row) => row.role_id === "viewer" && row.scope_type === "global"), true);
+  assert.equal(fixture.db.data.viewerStudentAssignments.some((row) => row.student_user_id === "student-scope" && Number(row.active) === 1), true);
 });
 
 test("admin users import enforces reset-first login and keeps credential values out of audits", async () => {
@@ -516,13 +514,19 @@ function createFixture(options = {}) {
       "mentor",
       "program_teacher",
       "site_admin",
-      "org_admin",
-      "platform_admin",
+      "administration",
+      "global_admin",
       "viewer",
       "admin",
       "misc_admin",
     ]).map((id) => ({ id })),
     programs: [{ id: "it" }],
+    sites: [{ id: "site-a", status: "active" }],
+    sitePrograms: [{ site_id: "site-a", program_id: "it", active: 1 }],
+    siteUsers: [],
+    mentorAssignments: [],
+    viewerStudentAssignments: [],
+    authIdentities: [],
     cohorts: [{ id: "cohort-a" }],
     auditEvents: [],
   });
@@ -548,6 +552,15 @@ async function createFixtureWithSession({ userId, roleId, roles }) {
     role_id: roleId,
     scope_type: "global",
     scope_id: "",
+  });
+  base.db.data.passwordCredentials.push({
+    user_id: userId,
+    password_hash: "session-user-hash",
+    password_salt: "session-user-salt",
+    algorithm: "pbkdf2-sha256",
+    iterations: 1,
+    password_version: 1,
+    requires_reset: 0,
   });
 
   return { ...base, token };
@@ -594,6 +607,16 @@ class MockPreparedStatement {
   }
 
   async first() {
+    if (this.sql.startsWith("select 1 from password_credentials where user_id = ? limit 1")) {
+      const [userId] = this.params.map(String);
+      return this.data.passwordCredentials.some((row) => row.user_id === userId) ? { ok: 1 } : null;
+    }
+
+    if (this.sql.startsWith("select 1 from auth_identities where user_id = ?")) {
+      const [userId] = this.params.map(String);
+      return this.data.authIdentities.some((row) => row.user_id === userId && row.provider !== "local_password") ? { ok: 1 } : null;
+    }
+
     if (this.sql.startsWith("select count(*) as count from login_attempts")) {
       const [identifierHash] = this.params;
       const count = this.data.loginAttempts.filter(
@@ -658,6 +681,12 @@ class MockPreparedStatement {
       return exists ? { ok: 1 } : null;
     }
 
+    if (this.sql.startsWith("select 1 from user_roles where user_id = ? and role_id in (")) {
+      const [userId, ...roleIds] = this.params.map(String);
+      const exists = this.data.userRoles.some((row) => row.user_id === userId && roleIds.includes(row.role_id));
+      return exists ? { ok: 1 } : null;
+    }
+
     if (this.sql.startsWith("select id from user_accounts where email_norm = ? limit 1")) {
       const [emailNorm] = this.params.map(String);
       const user = this.data.userAccounts.find((row) => row.email_norm === emailNorm);
@@ -668,6 +697,18 @@ class MockPreparedStatement {
       const [roleId] = this.params.map(String);
       const role = this.data.roles.find((row) => row.id === roleId);
       return role ? { id: role.id } : null;
+    }
+
+    if (this.sql.startsWith("select 1 from sites where id = ? and status = 'active' limit 1")) {
+      const [siteId] = this.params.map(String);
+      return this.data.sites.some((row) => row.id === siteId && row.status === "active") ? { ok: 1 } : null;
+    }
+
+    if (this.sql.startsWith("select 1 from user_accounts join user_roles")) {
+      const [studentId] = this.params.map(String);
+      const user = this.data.userAccounts.find((row) => row.id === studentId && row.status === "active");
+      const role = this.data.userRoles.find((row) => row.user_id === studentId && row.role_id === "student");
+      return user && role ? { ok: 1 } : null;
     }
 
     if (this.sql.startsWith("select id from programs where id = ? limit 1")) {
@@ -690,6 +731,86 @@ class MockPreparedStatement {
       const [userId] = this.params.map(String);
       return {
         results: this.data.userRoles.filter((row) => row.user_id === userId),
+      };
+    }
+
+    if (this.sql.startsWith("select id from sites where status = 'active'")) {
+      return { results: this.data.sites.filter((row) => row.status === "active").map((row) => ({ id: row.id })) };
+    }
+
+    if (this.sql.startsWith("select id from programs where active = 1")) {
+      return { results: this.data.programs.map((row) => ({ id: row.id })) };
+    }
+
+    if (this.sql.startsWith("select user_accounts.id from user_accounts join user_roles")) {
+      return {
+        results: this.data.userRoles
+          .filter((row) => row.role_id === "student")
+          .map((row) => ({ id: row.user_id })),
+      };
+    }
+
+    if (this.sql.startsWith("select site_users.site_id as id from site_users")) {
+      const [userId] = this.params.map(String);
+      return {
+        results: this.data.siteUsers
+          .filter((row) => row.user_id === userId && row.membership_status !== "inactive")
+          .map((row) => ({ id: row.site_id })),
+      };
+    }
+
+    if (this.sql.startsWith("select sites.id from site_programs")) {
+      const [programId] = this.params.map(String);
+      return {
+        results: this.data.sitePrograms
+          .filter((row) => row.program_id === programId && Number(row.active) === 1)
+          .filter((row) => this.data.sites.some((site) => site.id === row.site_id && site.status === "active"))
+          .map((row) => ({ id: row.site_id })),
+      };
+    }
+
+    if (this.sql.startsWith("select distinct site_programs.site_id as id")) {
+      const programIds = this.params.map(String);
+      return {
+        results: this.data.sitePrograms
+          .filter((row) => programIds.includes(row.program_id) && Number(row.active) === 1)
+          .filter((row) => this.data.sites.some((site) => site.id === row.site_id && site.status === "active"))
+          .map((row) => ({ id: row.site_id })),
+      };
+    }
+
+    if (this.sql.startsWith("select distinct site_users.site_id as id from mentor_assignments")) {
+      return { results: [] };
+    }
+
+    if (this.sql.startsWith("select distinct student_user_id as id from mentor_assignments")) {
+      const [mentorId] = this.params.map(String);
+      return {
+        results: this.data.mentorAssignments
+          .filter((row) => row.mentor_user_id === mentorId && Number(row.active) === 1)
+          .map((row) => ({ id: row.student_user_id })),
+      };
+    }
+
+    if (this.sql.startsWith("select distinct site_users.site_id as id from viewer_student_assignments")) {
+      return { results: [] };
+    }
+
+    if (this.sql.startsWith("select distinct viewer_student_assignments.student_user_id as id")) {
+      const [viewerId] = this.params.map(String);
+      return {
+        results: this.data.viewerStudentAssignments
+          .filter((row) => row.viewer_user_id === viewerId && Number(row.active) === 1)
+          .map((row) => ({ id: row.student_user_id })),
+      };
+    }
+
+    if (this.sql.startsWith("select distinct site_users.site_id as id")) {
+      const studentIds = this.params.map(String);
+      return {
+        results: this.data.siteUsers
+          .filter((row) => studentIds.includes(row.user_id) && row.membership_status !== "inactive")
+          .map((row) => ({ id: row.site_id })),
       };
     }
 
@@ -764,13 +885,13 @@ class MockPreparedStatement {
     }
 
     if (this.sql.startsWith("insert into user_accounts")) {
-      const [id, email, emailNorm, displayName] = this.params.map(String);
+      const [id, email, emailNorm, displayName, status] = this.params.map(String);
       this.data.userAccounts.push({
         id,
         email,
         email_norm: emailNorm,
         display_name: displayName,
-        status: "pending_reset",
+        status,
       });
       return { success: true };
     }
@@ -789,16 +910,38 @@ class MockPreparedStatement {
       return { success: true };
     }
 
-    if (this.sql.startsWith("insert into user_roles")) {
+    if (this.sql.startsWith("insert into user_roles") || this.sql.startsWith("insert or ignore into user_roles")) {
       const [userId, roleId, scopeType, scopeId, assignedBy] = this.params.map(String);
-      this.data.userRoles.push({
-        user_id: userId,
-        role_id: roleId,
-        scope_type: scopeType,
-        scope_id: scopeId,
-        assigned_by: assignedBy,
-        assigned_at: "2026-05-21T00:00:00.000Z",
-      });
+      if (!this.data.userRoles.some((row) => row.user_id === userId && row.role_id === roleId && row.scope_type === scopeType && row.scope_id === scopeId)) {
+        this.data.userRoles.push({
+          user_id: userId,
+          role_id: roleId,
+          scope_type: scopeType,
+          scope_id: scopeId,
+          assigned_by: assignedBy,
+          assigned_at: "2026-05-21T00:00:00.000Z",
+        });
+      }
+      return { success: true };
+    }
+
+    if (this.sql.startsWith("insert or ignore into site_users")) {
+      const [siteId, userId] = this.params.map(String);
+      if (!this.data.siteUsers.some((row) => row.site_id === siteId && row.user_id === userId)) {
+        this.data.siteUsers.push({ site_id: siteId, user_id: userId, membership_status: "active" });
+      }
+      return { success: true };
+    }
+
+    if (this.sql.startsWith("insert into mentor_assignments")) {
+      const [id, mentorUserId, studentUserId, assignedBy] = this.params.map(String);
+      this.data.mentorAssignments.push({ id, mentor_user_id: mentorUserId, student_user_id: studentUserId, assigned_by: assignedBy, active: 1 });
+      return { success: true };
+    }
+
+    if (this.sql.startsWith("insert into viewer_student_assignments")) {
+      const [id, viewerUserId, studentUserId, assignedBy] = this.params.map(String);
+      this.data.viewerStudentAssignments.push({ id, viewer_user_id: viewerUserId, student_user_id: studentUserId, assigned_by: assignedBy, active: 1 });
       return { success: true };
     }
 

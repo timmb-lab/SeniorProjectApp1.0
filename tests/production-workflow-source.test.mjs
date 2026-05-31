@@ -201,7 +201,7 @@ test("review decision endpoint enforces teacher or admin scope and immutable rev
   assert.match(reviewRoute, /review_decision_denied/);
   assert.match(reviewRoute, /actorRoleScopes/);
   assert.match(workflowLib, /hasRole\(env, reviewer\.id, "program_teacher"\)/);
-  assert.match(workflowLib, /isAdmin\(env, reviewer\.id\)/);
+  assert.match(workflowLib, /isGlobalAdmin\(env, reviewer\.id\)/);
   assert.match(workflowLib, /canAccessStudent/);
 });
 
@@ -249,7 +249,7 @@ test("site review queue route is site-scoped, role-aware, bounded, and redacted"
   assert.match(siteReviewQueueLib, /canRequestRevision/);
   assert.match(siteReviewQueueLib, /canCommentOnly/);
   assert.match(siteReviewQueueLib, /"program_teacher"/);
-  assert.match(siteReviewQueueLib, /"viewer"/);
+  assert.doesNotMatch(siteReviewQueueLib, /"viewer"/);
   assert.doesNotMatch(siteReviewQueueLib, /from "\.\.\/admin\/dashboard|\/api\/admin\/dashboard|drive_file_id|drive_parent_folder_id|storage_key|password_hash|password_salt|token_hash|client_secret|refresh_token|access_token|private_key|temporaryPassword|setupPassword|content_sha256|body_json/i);
 });
 

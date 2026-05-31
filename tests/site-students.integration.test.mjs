@@ -21,6 +21,7 @@ const MIGRATIONS = [
   "migrations/0009_update_drive_shared_drive_root.sql",
   "migrations/0010_tenant_google_sso.sql",
   "migrations/0011_multisite_site_role_foundation.sql",
+  "migrations/0012_users_access_v5.sql",
 ];
 
 const PRIMARY_SITE_ID = "site-desert-valley-high";
@@ -51,9 +52,10 @@ test("site student directory is site-scoped, paginated, filterable, role-gated, 
 
   const legacyPrimary = await expectDirectory(env, tokens.legacyAdmin, `?siteId=${PRIMARY_SITE_ID}`);
   assert.equal(legacyPrimary.pagination.total, 250);
-  assert.equal(legacyPrimary.scope.role, "admin");
+  assert.equal(legacyPrimary.scope.role, "global_admin");
 
   const orgPrimary = await expectDirectory(env, tokens.orgAdmin, `?siteId=${PRIMARY_SITE_ID}`);
+  assert.equal(orgPrimary.scope.role, "administration");
   assert.equal(orgPrimary.pagination.total, 250);
   const orgOutside = await routeSiteStudents(env, tokens.orgAdmin, "?siteId=site-outside-district");
   assert.equal(orgOutside.response.status, 403);
@@ -69,7 +71,10 @@ test("site student directory is site-scoped, paginated, filterable, role-gated, 
   assert.equal(siteAdminDenied.body.reason, "site_not_accessible");
 
   const viewer = await expectDirectory(env, tokens.viewerPrimary, `?siteId=${PRIMARY_SITE_ID}`);
+  assert.equal(viewer.scope.role, "viewer");
   assert.equal(viewer.scope.readOnly, true);
+  assert.equal(viewer.pagination.total, 3);
+  assert.equal(viewer.students.length, 3);
   assert.equal(viewer.permissions.canViewStudentDetail, true);
   assert.equal(viewer.permissions.canManageMentorAssignments, false);
   assert.equal(viewer.permissions.canManageUsers, false);
@@ -232,7 +237,7 @@ async function createSeededDemoFixture() {
   const tokens = {
     platformAdmin: await seedSession(db, env, "demo-platform-admin-001", "site-students-platform"),
     legacyAdmin: await seedSession(db, env, "protected-admin-primary", "site-students-legacy"),
-    orgAdmin: await seedSession(db, env, "demo-org-admin-desert-valley", "site-students-org"),
+    orgAdmin: await seedSession(db, env, "demo-administration-desert-valley-high", "site-students-org"),
     siteAdminPrimary: await seedSession(db, env, "demo-site-admin-desert-valley-high", "site-students-site-admin"),
     viewerPrimary: await seedSession(db, env, "demo-viewer-desert-valley-high", "site-students-viewer"),
     programTeacher: await seedSession(db, env, "demo-teacher-it-01", "site-students-teacher"),

@@ -43,11 +43,13 @@ export interface SessionRecord {
 export type RoleId =
   | "student"
   | "mentor"
+  | "viewer"
   | "program_teacher"
+  | "administration"
   | "site_admin"
+  | "global_admin"
   | "org_admin"
   | "platform_admin"
-  | "viewer"
   | "admin"
   | "misc_admin";
 

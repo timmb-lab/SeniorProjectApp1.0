@@ -25,6 +25,7 @@ const MIGRATIONS = [
   "migrations/0009_update_drive_shared_drive_root.sql",
   "migrations/0010_tenant_google_sso.sql",
   "migrations/0011_multisite_site_role_foundation.sql",
+  "migrations/0012_users_access_v5.sql",
 ];
 
 test("account reset CLI and write gates fail closed", () => {
@@ -158,7 +159,7 @@ test("local write reset snapshots old rows and recreates only two non-SSO local 
     assert.equal(count(fixture.sqlite, "submissions"), 0);
     assert.equal(count(fixture.sqlite, "evidence_artifacts"), 0);
     assert.equal(count(fixture.sqlite, "announcements"), 0);
-    assert.equal(count(fixture.sqlite, "roles"), 9);
+    assert.equal(count(fixture.sqlite, "roles"), 11);
     assert.equal(count(fixture.sqlite, "programs"), 9);
     assert.equal(count(fixture.sqlite, "sites"), 1);
     assert.equal(count(fixture.sqlite, "site_programs"), 9);

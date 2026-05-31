@@ -23,6 +23,7 @@ const MIGRATIONS = [
   "migrations/0009_update_drive_shared_drive_root.sql",
   "migrations/0010_tenant_google_sso.sql",
   "migrations/0011_multisite_site_role_foundation.sql",
+  "migrations/0012_users_access_v5.sql",
 ];
 
 const PRIMARY_SITE_ID = "site-desert-valley-high";
@@ -46,18 +47,18 @@ test("site review queue is scoped, read-only by role, mutable for program teache
   }
 
   const platform = await expectQueue(env, tokens.platformAdmin, `?siteId=${PRIMARY_SITE_ID}`);
-  assert.equal(platform.scope.role, "platform_admin");
+  assert.equal(platform.scope.role, "global_admin");
   assert.equal(platform.scope.readOnly, true);
   assert.equal(platform.permissions.canReview, false);
   assert.equal(platform.queue.every((row) => row.siteId === PRIMARY_SITE_ID), true);
 
   const legacy = await expectQueue(env, tokens.legacyAdmin, `?siteId=${PRIMARY_SITE_ID}`);
-  assert.equal(legacy.scope.role, "admin");
+  assert.equal(legacy.scope.role, "global_admin");
   assert.equal(legacy.permissions.canReview, false);
 
-  const org = await expectQueue(env, tokens.orgAdmin, `?siteId=${PRIMARY_SITE_ID}`);
-  assert.equal(org.scope.role, "org_admin");
-  assert.equal(org.scope.readOnly, true);
+  const administrationDenied = await routeQueue(env, tokens.orgAdmin, `?siteId=${PRIMARY_SITE_ID}`);
+  assert.equal(administrationDenied.response.status, 403);
+  assert.deepEqual(administrationDenied.body, { error: "forbidden" });
 
   const siteAdmin = await expectQueue(env, tokens.siteAdminPrimary, `?siteId=${PRIMARY_SITE_ID}`);
   assert.equal(siteAdmin.scope.role, "site_admin");
@@ -67,10 +68,9 @@ test("site review queue is scoped, read-only by role, mutable for program teache
   assert.equal(siteAdminDenied.response.status, 403);
   assert.doesNotMatch(JSON.stringify(siteAdminDenied.body), /Canyon|site-canyon-ridge-career/i);
 
-  const viewer = await expectQueue(env, tokens.viewerPrimary, `?siteId=${PRIMARY_SITE_ID}`);
-  assert.equal(viewer.scope.role, "viewer");
-  assert.equal(viewer.scope.readOnly, true);
-  for (const key of MUTATION_PERMISSION_KEYS) assert.equal(viewer.permissions[key], false, `viewer ${key}`);
+  const viewer = await routeQueue(env, tokens.viewerPrimary, `?siteId=${PRIMARY_SITE_ID}`);
+  assert.equal(viewer.response.status, 403);
+  assert.deepEqual(viewer.body, { error: "forbidden" });
 
   const teacher = await expectQueue(env, tokens.programTeacher, `?siteId=${PRIMARY_SITE_ID}&limit=100`);
   assert.equal(teacher.scope.role, "program_teacher");
@@ -137,7 +137,7 @@ test("site review queue is scoped, read-only by role, mutable for program teache
   assert.equal(comment.body.submission.status, "submitted");
   await assertDecisionRecords(env, submittedIt[2].id, "comment_only", "submitted");
 
-  const history = await routeHistory(env, tokens.viewerPrimary, submittedIt[0].id, `?siteId=${PRIMARY_SITE_ID}`);
+  const history = await routeHistory(env, tokens.siteAdminPrimary, submittedIt[0].id, `?siteId=${PRIMARY_SITE_ID}`);
   assert.equal(history.response.status, 200);
   assert.equal(history.body.ok, true);
   assert.equal(history.body.reviews.length >= 1, true);
@@ -150,6 +150,7 @@ test("site review queue is scoped, read-only by role, mutable for program teache
 
   for (const [label, token] of [
     ["viewer", tokens.viewerPrimary],
+    ["administration", tokens.orgAdmin],
     ["site_admin", tokens.siteAdminPrimary],
     ["mentor", tokens.mentor],
     ["student", tokens.student],
@@ -167,7 +168,7 @@ test("site review queue is scoped, read-only by role, mutable for program teache
   assert.equal(legacyCompat.response.status, 200);
   assert.equal(legacyCompat.body.review.decision, "comment_only");
 
-  for (const body of [platform, legacy, org, siteAdmin, viewer, teacher, paged, offset, submitted, evidenceAttached, evidenceMissing, missingMentor, searched, noMatches, approved.body, revision.body, comment.body, legacyCompat.body]) {
+  for (const body of [platform, legacy, siteAdmin, teacher, paged, offset, submitted, evidenceAttached, evidenceMissing, missingMentor, searched, noMatches, approved.body, revision.body, comment.body, legacyCompat.body]) {
     assert.doesNotMatch(JSON.stringify(body), FORBIDDEN_RESPONSE_FIELDS);
   }
 
@@ -231,7 +232,7 @@ async function createSeededDemoFixture() {
   const tokens = {
     platformAdmin: await seedSession(db, env, "demo-platform-admin-001", "site-review-platform"),
     legacyAdmin: await seedSession(db, env, "protected-admin-primary", "site-review-legacy"),
-    orgAdmin: await seedSession(db, env, "demo-org-admin-desert-valley", "site-review-org"),
+    orgAdmin: await seedSession(db, env, "demo-administration-desert-valley-high", "site-review-org"),
     siteAdminPrimary: await seedSession(db, env, "demo-site-admin-desert-valley-high", "site-review-site-admin"),
     viewerPrimary: await seedSession(db, env, "demo-viewer-desert-valley-high", "site-review-viewer"),
     programTeacher: await seedSession(db, env, "demo-teacher-it-01", "site-review-teacher"),

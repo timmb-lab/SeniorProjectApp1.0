@@ -328,6 +328,7 @@ const REQUIRED_TABLE_COLUMNS = Object.freeze({
   groups: ["id", "name", "group_type", "program_id", "cohort_id"],
   group_memberships: ["group_id", "user_id", "membership_role"],
   mentor_assignments: ["id", "mentor_user_id", "student_user_id", "active"],
+  viewer_student_assignments: ["id", "viewer_user_id", "student_user_id", "active"],
   requirements: ["id", "phase", "title"],
   progress_records: ["id", "student_id", "requirement_id", "phase", "status", "updated_by"],
   status_history: ["id", "student_id", "entity_type", "entity_id", "from_status", "to_status", "changed_by", "reason"],
@@ -700,7 +701,7 @@ async function verifyProtectedAdmins(adapter) {
       && account.status === "active"
       && account.hasPasswordCredential
       && account.requiresReset === 0
-      && account.roles.some((role) => role.roleId === "admin" && role.scopeType === "global" && role.scopeId === "")
+      && account.roles.some((role) => ["global_admin", "admin", "platform_admin"].includes(role.roleId) && role.scopeType === "global" && role.scopeId === "")
     ));
   if (!ok) {
     throw new DemoSeedError("PROTECTED_ADMIN_VERIFY_FAILED", "The two protected local admins must exist as active local-auth global admins before seeding demo data.", {
@@ -754,6 +755,7 @@ function deleteSpecs(schema) {
     ["progress_records", "id LIKE 'demo-%' OR student_id IN (__DEMO_USERS__) OR updated_by IN (__DEMO_USERS__)"],
     ["submissions", "id LIKE 'demo-%' OR student_id IN (__DEMO_USERS__)"],
     ["mentor_assignments", "id LIKE 'demo-%' OR mentor_user_id IN (__DEMO_USERS__) OR student_user_id IN (__DEMO_USERS__) OR assigned_by IN (__DEMO_USERS__)"],
+    ["viewer_student_assignments", "id LIKE 'demo-%' OR viewer_user_id IN (__DEMO_USERS__) OR student_user_id IN (__DEMO_USERS__) OR assigned_by IN (__DEMO_USERS__)"],
     ["group_memberships", "group_id LIKE 'demo-%' OR user_id IN (__DEMO_USERS__)"],
     ["announcements", "id LIKE 'demo-%' OR title LIKE '%DEMO_SEED%' OR body LIKE '%DEMO_SEED%' OR created_by IN (__DEMO_USERS__)"],
     ["audit_events", "id LIKE 'demo-%' OR actor_user_id IN (__DEMO_USERS__) OR entity_id LIKE 'demo-%' OR metadata_json LIKE '%DEMO_SEED%'"],
@@ -881,25 +883,25 @@ async function buildDemoDataset({
   await addStaffPersona({
     id: "demo-platform-admin-001",
     email: `platform.admin@${STAFF_DOMAIN}`,
-    displayName: "Priya Platform",
-    roleId: "platform_admin",
+    displayName: "Priya Global",
+    roleId: "global_admin",
     scopeType: "global",
     scopeId: "",
     siteIds: DEMO_SITES.map((site) => site.id),
   });
   await addStaffPersona({
-    id: "demo-org-admin-desert-valley",
-    email: `org.admin@${STAFF_DOMAIN}`,
-    displayName: "Owen District",
-    roleId: "org_admin",
-    scopeType: "tenant",
-    scopeId: DEMO_TENANT_ID,
-    siteIds: DEMO_SITES.map((site) => site.id),
+    id: "demo-administration-desert-valley-high",
+    email: `administration.desert-valley-high@${STAFF_DOMAIN}`,
+    displayName: "Avery Administration",
+    roleId: "administration",
+    scopeType: "site",
+    scopeId: PRIMARY_SITE_ID,
+    siteIds: [PRIMARY_SITE_ID],
   });
   await addStaffPersona({
     id: "demo-site-admin-desert-valley-high",
     email: `admin.desert-valley-high@${STAFF_DOMAIN}`,
-    displayName: "Avery Administration",
+    displayName: "Sam Site Admin",
     roleId: "site_admin",
     scopeType: "site",
     scopeId: PRIMARY_SITE_ID,
@@ -1059,7 +1061,7 @@ async function buildDemoDataset({
     });
     rows.userRoles.push({
       user_id: demoAdminId,
-      role_id: "admin",
+      role_id: "global_admin",
       scope_type: "global",
       scope_id: "",
       assigned_by: null,
@@ -1071,7 +1073,7 @@ async function buildDemoDataset({
     credentials.adminLogins.push({
       email,
       displayName,
-      role: "admin",
+      role: "global_admin",
       scope: "global",
       suggestedDemoUrl,
       password,
@@ -1269,6 +1271,19 @@ async function buildDemoDataset({
     });
     student.mentorId = mentorId;
   });
+
+  students
+    .filter((student) => student.siteId === PRIMARY_SITE_ID)
+    .slice(0, 3)
+    .forEach((student) => {
+      rows.viewerStudentAssignments.push({
+        id: `demo-viewer-assignment-${pad(student.number, 3)}`,
+        viewer_user_id: "demo-viewer-desert-valley-high",
+        student_user_id: student.id,
+        assigned_by: null,
+        active: 1,
+      });
+    });
 
   for (const student of students) {
     const stage = stageShape(student.stage);
@@ -1622,6 +1637,7 @@ function emptyRows() {
     siteUsers: [],
     groupMemberships: [],
     mentorAssignments: [],
+    viewerStudentAssignments: [],
     progressRecords: [],
     submissions: [],
     statusHistory: [],
@@ -1775,6 +1791,7 @@ function buildSeedSql(dataset, schema, { includeDeletes = true, includeTransacti
   pushRows(statements, "site_users", rows.siteUsers);
   pushRows(statements, "group_memberships", rows.groupMemberships);
   pushRows(statements, "mentor_assignments", rows.mentorAssignments);
+  pushRows(statements, "viewer_student_assignments", rows.viewerStudentAssignments);
   pushRows(statements, "progress_records", rows.progressRecords);
   pushRows(statements, "submissions", rows.submissions);
   pushRows(statements, "evidence_artifacts", rows.evidenceArtifacts);
@@ -1829,10 +1846,11 @@ async function verifySeedState(adapter, schema) {
      WHERE su.site_id IN (${DEMO_SITES.filter((site) => !site.primary).map((site) => sqlString(site.id)).join(", ")})
        AND su.membership_status = 'active';`,
     `SELECT COUNT(*) AS count FROM site_programs WHERE site_id = ${sqlString(PRIMARY_SITE_ID)} AND active = 1;`,
-    `SELECT COUNT(*) AS count FROM user_accounts u JOIN user_roles r ON r.user_id = u.id AND r.role_id = 'platform_admin' WHERE u.email_norm LIKE '%@demo-staff.capstone.test';`,
-    `SELECT COUNT(*) AS count FROM user_accounts u JOIN user_roles r ON r.user_id = u.id AND r.role_id = 'org_admin' WHERE u.email_norm LIKE '%@demo-staff.capstone.test';`,
+    `SELECT COUNT(*) AS count FROM user_accounts u JOIN user_roles r ON r.user_id = u.id AND r.role_id = 'global_admin' WHERE u.email_norm LIKE '%@demo-staff.capstone.test';`,
+    `SELECT COUNT(*) AS count FROM user_accounts u JOIN user_roles r ON r.user_id = u.id AND r.role_id = 'administration' WHERE u.email_norm LIKE '%@demo-staff.capstone.test';`,
     `SELECT COUNT(*) AS count FROM user_accounts u JOIN user_roles r ON r.user_id = u.id AND r.role_id = 'site_admin' WHERE u.email_norm LIKE '%@demo-staff.capstone.test';`,
     `SELECT COUNT(*) AS count FROM user_accounts u JOIN user_roles r ON r.user_id = u.id AND r.role_id = 'viewer' WHERE u.email_norm LIKE '%@demo-staff.capstone.test';`,
+    "SELECT COUNT(*) AS count FROM viewer_student_assignments WHERE id LIKE 'demo-%' AND active = 1;",
     `SELECT COUNT(*) AS count FROM password_credentials WHERE user_id IN (SELECT id FROM user_accounts WHERE email_norm LIKE '%@demo-student.capstone.test');`,
     "SELECT COUNT(*) AS count FROM announcements WHERE id LIKE 'demo-%' OR title LIKE '%DEMO_SEED%' OR body LIKE '%DEMO_SEED%';",
     "PRAGMA foreign_key_check;",
@@ -1855,13 +1873,14 @@ async function verifySeedState(adapter, schema) {
     primarySiteStudents: firstCount(rows[13]),
     secondarySiteStudents: firstCount(rows[14]),
     primarySitePrograms: firstCount(rows[15]),
-    platformAdmins: firstCount(rows[16]),
-    orgAdmins: firstCount(rows[17]),
+    globalAdmins: firstCount(rows[16]),
+    administrationUsers: firstCount(rows[17]),
     siteAdmins: firstCount(rows[18]),
     viewers: firstCount(rows[19]),
-    studentCredentials: firstCount(rows[20]),
-    announcements: firstCount(rows[21]),
-    foreignKeyViolations: rows[22].length,
+    viewerStudentAssignments: firstCount(rows[20]),
+    studentCredentials: firstCount(rows[21]),
+    announcements: firstCount(rows[22]),
+    foreignKeyViolations: rows[23].length,
   };
   const optional = {};
   if (schema.tableNames.has("mentor_meetings")) optional.mentorMeetings = firstCount(await adapter.query("SELECT COUNT(*) AS count FROM mentor_meetings WHERE id LIKE 'demo-%';"));
@@ -1884,10 +1903,11 @@ async function verifySeedState(adapter, schema) {
     || summary.demoTenantRows !== 1
     || summary.demoSites !== 3
     || summary.primarySitePrograms !== PROGRAMS.length
-    || summary.platformAdmins !== 1
-    || summary.orgAdmins !== 1
+    || summary.globalAdmins !== 1
+    || summary.administrationUsers !== 1
     || summary.siteAdmins !== 3
     || summary.viewers !== 1
+    || summary.viewerStudentAssignments !== 3
     || summary.studentCredentials !== 0
     || summary.announcements !== 0
     || !storyBucketsOk

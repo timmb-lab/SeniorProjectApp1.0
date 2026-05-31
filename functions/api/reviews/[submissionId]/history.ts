@@ -45,7 +45,7 @@ interface CommentHistoryRow {
   author_name: string | null;
 }
 
-const STAFF_COMMENT_ROLES = new Set(["platform_admin", "admin", "org_admin", "site_admin", "viewer", "program_teacher"]);
+const STAFF_COMMENT_ROLES = new Set(["platform_admin", "global_admin", "admin", "org_admin", "site_admin", "administration", "viewer", "program_teacher"]);
 
 export const onRequestGet: PagesFunction<Env> = async ({ request, env, params }) => {
   const submissionId = String(params?.submissionId || "").trim();

@@ -635,12 +635,15 @@ export async function handleSiteStudentTimelineRequest({
 function canUseDetailRole(roleIds: RoleId[]): boolean {
   return roleIds.some((roleId) => (
     roleId === "platform_admin"
+    || roleId === "global_admin"
     || roleId === "admin"
     || roleId === "org_admin"
     || roleId === "site_admin"
+    || roleId === "administration"
     || roleId === "viewer"
     || roleId === "program_teacher"
     || roleId === "mentor"
+    || roleId === "student"
   ));
 }
 

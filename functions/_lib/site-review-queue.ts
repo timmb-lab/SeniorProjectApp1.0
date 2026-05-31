@@ -131,7 +131,7 @@ export async function handleSiteReviewQueueRequest({
     context,
     requestedSiteId,
     canViewSite: (siteId) => canViewReviewQueue(env, user, siteId),
-    defaultSiteRoleIds: ["platform_admin", "admin", "org_admin", "program_teacher"],
+    defaultSiteRoleIds: ["platform_admin", "global_admin", "admin", "org_admin", "program_teacher"],
   });
 
   if (selection.kind === "denied") {
@@ -247,10 +247,10 @@ export async function handleSiteReviewQueueRequest({
 function canUseSiteReviewQueueRole(roleIds: RoleId[]): boolean {
   return roleIds.some((roleId) => (
     roleId === "platform_admin"
+    || roleId === "global_admin"
     || roleId === "admin"
     || roleId === "org_admin"
     || roleId === "site_admin"
-    || roleId === "viewer"
     || roleId === "program_teacher"
   ));
 }

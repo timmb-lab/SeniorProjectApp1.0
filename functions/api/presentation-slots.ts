@@ -353,7 +353,7 @@ function formatSlot(row: PresentationSlotRow) {
 }
 
 function hasPresentationViewerRole(roleAssignments: RoleAssignment[]): boolean {
-  return roleAssignments.some((role) => ["admin", "program_teacher", "mentor", "student"].includes(role.role_id));
+  return roleAssignments.some((role) => ["global_admin", "admin", "platform_admin", "site_admin", "administration", "program_teacher", "mentor", "student"].includes(role.role_id));
 }
 
 function safeRoleScopes(roleAssignments: RoleAssignment[]) {

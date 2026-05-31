@@ -1,4 +1,10 @@
 import type { Env, RoleAssignment, RoleId, SiteUser, TenantUser, UserAccount } from "../_types.ts";
+import {
+  GLOBAL_ADMIN_ROLE_IDS,
+  getViewerAssignedStudentIds,
+  isGlobalAdminRole,
+  loadEffectiveAccess,
+} from "./effective-access.ts";
 
 export async function getRoleAssignments(env: Env, userId: string): Promise<RoleAssignment[]> {
   const rows = await env.DB.prepare(
@@ -15,20 +21,22 @@ export async function hasRole(env: Env, userId: string, roleId: RoleId): Promise
 }
 
 export async function hasAnyRole(env: Env, userId: string, roleIdsToCheck: RoleId[]): Promise<boolean> {
-  if (!roleIdsToCheck.length) return false;
-  const placeholders = roleIdsToCheck.map(() => "?").join(", ");
-  const row = await env.DB.prepare(
-    `SELECT 1 FROM user_roles WHERE user_id = ? AND role_id IN (${placeholders}) LIMIT 1`,
-  ).bind(userId, ...roleIdsToCheck).first();
-  return Boolean(row);
+  for (const roleId of roleIdsToCheck) {
+    if (await hasRole(env, userId, roleId)) return true;
+  }
+  return false;
 }
 
 export async function isLegacyAdmin(env: Env, userId: string): Promise<boolean> {
   return hasRole(env, userId, "admin");
 }
 
+export async function isGlobalAdmin(env: Env, userId: string): Promise<boolean> {
+  return hasAnyRole(env, userId, GLOBAL_ADMIN_ROLE_IDS);
+}
+
 export async function isPlatformAdmin(env: Env, userId: string): Promise<boolean> {
-  return await hasRole(env, userId, "platform_admin") || await isLegacyAdmin(env, userId);
+  return isGlobalAdmin(env, userId);
 }
 
 export async function isAdmin(env: Env, userId: string): Promise<boolean> {
@@ -49,6 +57,10 @@ export async function isOrgAdmin(env: Env, userId: string): Promise<boolean> {
 
 export async function isSiteAdmin(env: Env, userId: string): Promise<boolean> {
   return hasRole(env, userId, "site_admin");
+}
+
+export async function isAdministration(env: Env, userId: string): Promise<boolean> {
+  return hasRole(env, userId, "administration");
 }
 
 export async function isViewer(env: Env, userId: string): Promise<boolean> {
@@ -74,36 +86,38 @@ export async function getViewerRoleContext(env: Env, viewer: UserAccount): Promi
   isAdmin: boolean;
   isPlatformAdmin: boolean;
   isMiscAdmin: boolean;
+  isGlobalAdmin: boolean;
 }> {
-  const roles = await getRoleAssignments(env, viewer.id);
-  const ids = Array.from(roleIds(roles));
-  const primaryRole = primaryRoleFor(ids);
+  const access = await loadEffectiveAccess(env, viewer);
+  const roles = access.roles;
+  const ids = access.roleIds;
   return {
     roles,
     roleIds: ids,
-    primaryRole,
+    primaryRole: access.primaryRole,
     isAdmin: ids.includes("admin"),
-    isPlatformAdmin: ids.includes("platform_admin") || ids.includes("admin"),
+    isPlatformAdmin: access.isGlobalAdmin,
     isMiscAdmin: ids.includes("misc_admin"),
+    isGlobalAdmin: access.isGlobalAdmin,
   };
 }
 
 export async function canViewAdminDashboard(env: Env, viewer: UserAccount): Promise<boolean> {
-  return isAdmin(env, viewer.id);
+  return isGlobalAdmin(env, viewer.id);
 }
 
 export async function canViewAggregateReadiness(env: Env, viewer: UserAccount): Promise<boolean> {
-  return await isAdmin(env, viewer.id) || await isMiscAdmin(env, viewer.id);
+  return await isGlobalAdmin(env, viewer.id) || await isMiscAdmin(env, viewer.id) || await isAdministration(env, viewer.id);
 }
 
 export async function canViewProgramTeacherDashboard(env: Env, viewer: UserAccount): Promise<boolean> {
-  if (await isAdmin(env, viewer.id)) return true;
+  if (await isGlobalAdmin(env, viewer.id)) return true;
   const assignments = await getRoleAssignments(env, viewer.id);
   return hasValidProgramTeacherScope(assignments);
 }
 
 export async function canViewMentorDashboard(env: Env, viewer: UserAccount): Promise<boolean> {
-  return await isAdmin(env, viewer.id) || await hasRole(env, viewer.id, "mentor");
+  return await isGlobalAdmin(env, viewer.id) || await hasRole(env, viewer.id, "mentor");
 }
 
 export async function canViewStudentDetail(env: Env, viewer: UserAccount, studentId: string): Promise<boolean> {
@@ -115,7 +129,7 @@ export async function canViewStudentEvidence(env: Env, viewer: UserAccount, stud
 }
 
 export async function canReviewSubmission(env: Env, viewer: UserAccount, submissionId: string): Promise<boolean> {
-  if (await isAdmin(env, viewer.id)) return true;
+  if (await isGlobalAdmin(env, viewer.id)) return true;
   if (!await hasRole(env, viewer.id, "program_teacher")) return false;
   const submission = await env.DB.prepare(
     "SELECT student_id FROM submissions WHERE id = ? LIMIT 1",
@@ -124,11 +138,11 @@ export async function canReviewSubmission(env: Env, viewer: UserAccount, submiss
 }
 
 export async function canManageAssignments(env: Env, viewer: UserAccount): Promise<boolean> {
-  return isAdmin(env, viewer.id);
+  return isGlobalAdmin(env, viewer.id);
 }
 
 export async function canManageTenant(env: Env, viewer: UserAccount, _tenantId?: string): Promise<boolean> {
-  return isAdmin(env, viewer.id);
+  return isGlobalAdmin(env, viewer.id);
 }
 
 export async function getTenantMemberships(env: Env, userId: string): Promise<TenantUser[]> {
@@ -191,14 +205,18 @@ export async function getAccessibleSiteIds(env: Env, viewer: UserAccount): Promi
     }
   }
 
-  if (ids.has("site_admin") || ids.has("viewer")) {
+  if (ids.has("site_admin") || ids.has("administration")) {
     for (const siteId of scopedIds(assignments, "site_admin", ["site"])) {
       if (await activeSiteExists(env, siteId)) output.add(siteId);
     }
-    for (const siteId of scopedIds(assignments, "viewer", ["site"])) {
+    for (const siteId of scopedIds(assignments, "administration", ["site"])) {
       if (await activeSiteExists(env, siteId)) output.add(siteId);
     }
     for (const membership of await getSiteMemberships(env, viewer.id)) output.add(membership.site_id);
+  }
+
+  if (ids.has("viewer")) {
+    for (const siteId of await siteIdsForViewerAssignments(env, viewer.id)) output.add(siteId);
   }
 
   if (ids.has("student")) {
@@ -287,15 +305,19 @@ export async function canViewSiteDashboard(env: Env, viewer: UserAccount, siteId
   if (await isPlatformAdmin(env, viewer.id)) {
     return siteId ? activeSiteExists(env, normalizeScopeId(siteId)) : true;
   }
-  if (!await hasAnyRole(env, viewer.id, ["org_admin", "site_admin", "viewer"])) return false;
+  if (!await hasAnyRole(env, viewer.id, ["org_admin", "site_admin", "administration"])) return false;
   return siteId ? canAccessSite(env, viewer, siteId) : (await getAccessibleSiteIds(env, viewer)).length > 0;
 }
 
 export async function canViewStudentDirectory(env: Env, viewer: UserAccount, siteId?: string): Promise<boolean> {
   if (siteId && !await canAccessSite(env, viewer, siteId)) return false;
   if (await isPlatformAdmin(env, viewer.id)) return true;
-  if (await hasAnyRole(env, viewer.id, ["org_admin", "site_admin", "viewer"])) {
+  if (await hasAnyRole(env, viewer.id, ["org_admin", "site_admin", "administration"])) {
     return siteId ? true : (await getAccessibleSiteIds(env, viewer)).length > 0;
+  }
+  if (await hasRole(env, viewer.id, "viewer")) {
+    const assignedStudents = await getViewerAssignedStudentIds(env, viewer.id);
+    return assignedStudents.length > 0 && (!siteId || await hasStudentInSite(env, assignedStudents, siteId));
   }
   if (await hasRole(env, viewer.id, "program_teacher")) {
     const teacherScope = await getProgramTeacherScopedStudentIds(env, viewer);
@@ -324,7 +346,7 @@ export async function canDownloadStudentEvidence(env: Env, viewer: UserAccount, 
 
 export async function canViewReviewQueue(env: Env, viewer: UserAccount, siteId?: string): Promise<boolean> {
   if (await isPlatformAdmin(env, viewer.id)) return siteId ? activeSiteExists(env, normalizeScopeId(siteId)) : true;
-  if (await hasAnyRole(env, viewer.id, ["org_admin", "site_admin", "viewer"])) {
+  if (await hasAnyRole(env, viewer.id, ["org_admin", "site_admin"])) {
     return siteId ? canAccessSite(env, viewer, siteId) : (await getAccessibleSiteIds(env, viewer)).length > 0;
   }
   if (!await hasRole(env, viewer.id, "program_teacher")) return false;
@@ -355,7 +377,7 @@ export async function canAddStaffNote(env: Env, viewer: UserAccount, studentId: 
 
 export async function canViewMentorAssignments(env: Env, viewer: UserAccount, siteId?: string): Promise<boolean> {
   if (await isPlatformAdmin(env, viewer.id)) return siteId ? activeSiteExists(env, normalizeScopeId(siteId)) : true;
-  if (await hasAnyRole(env, viewer.id, ["org_admin", "site_admin", "viewer"])) {
+  if (await hasAnyRole(env, viewer.id, ["org_admin", "site_admin"])) {
     return siteId ? canAccessSite(env, viewer, siteId) : (await getAccessibleSiteIds(env, viewer)).length > 0;
   }
   if (await hasRole(env, viewer.id, "program_teacher")) return siteId ? canAccessSite(env, viewer, siteId) : (await getProgramTeacherScopedStudentIds(env, viewer)).valid;
@@ -371,7 +393,7 @@ export async function canManageMentorAssignments(env: Env, viewer: UserAccount, 
 
 export async function canViewPresentationOperations(env: Env, viewer: UserAccount, siteId?: string): Promise<boolean> {
   if (await isPlatformAdmin(env, viewer.id)) return siteId ? activeSiteExists(env, normalizeScopeId(siteId)) : true;
-  if (await hasAnyRole(env, viewer.id, ["org_admin", "site_admin", "viewer"])) {
+  if (await hasAnyRole(env, viewer.id, ["org_admin", "site_admin", "administration"])) {
     return siteId ? canAccessSite(env, viewer, siteId) : (await getAccessibleSiteIds(env, viewer)).length > 0;
   }
   if (await hasRole(env, viewer.id, "program_teacher")) return siteId ? canAccessSite(env, viewer, siteId) : (await getProgramTeacherScopedStudentIds(env, viewer)).valid;
@@ -391,7 +413,7 @@ export async function canManagePresentationOperations(env: Env, viewer: UserAcco
 
 export async function canViewArchiveOperations(env: Env, viewer: UserAccount, siteId?: string): Promise<boolean> {
   if (await isPlatformAdmin(env, viewer.id)) return siteId ? activeSiteExists(env, normalizeScopeId(siteId)) : true;
-  if (await hasAnyRole(env, viewer.id, ["org_admin", "site_admin", "viewer"])) {
+  if (await hasAnyRole(env, viewer.id, ["org_admin", "site_admin", "administration"])) {
     return siteId ? canAccessSite(env, viewer, siteId) : (await getAccessibleSiteIds(env, viewer)).length > 0;
   }
   if (await hasRole(env, viewer.id, "program_teacher")) return siteId ? canAccessSite(env, viewer, siteId) : (await getProgramTeacherScopedStudentIds(env, viewer)).valid;
@@ -408,7 +430,7 @@ export async function canManageArchiveOperations(env: Env, viewer: UserAccount, 
 
 export async function canViewReadinessReports(env: Env, viewer: UserAccount, siteId?: string): Promise<boolean> {
   if (await isPlatformAdmin(env, viewer.id) || await isMiscAdmin(env, viewer.id)) return true;
-  if (await hasAnyRole(env, viewer.id, ["org_admin", "site_admin", "viewer"])) {
+  if (await hasAnyRole(env, viewer.id, ["org_admin", "site_admin", "administration"])) {
     return siteId ? canAccessSite(env, viewer, siteId) : (await getAccessibleSiteIds(env, viewer)).length > 0;
   }
   if (await hasRole(env, viewer.id, "program_teacher")) return siteId ? canAccessSite(env, viewer, siteId) : (await getProgramTeacherScopedStudentIds(env, viewer)).valid;
@@ -479,8 +501,18 @@ export async function canAccessStudent(env: Env, viewer: UserAccount, studentId:
   if (viewer.id === studentId && await hasRole(env, viewer.id, "student")) {
     return true;
   }
-  if (await isAdmin(env, viewer.id)) {
+  if (await isGlobalAdmin(env, viewer.id)) {
     return true;
+  }
+
+  if (await hasAnyRole(env, viewer.id, ["site_admin", "administration"])) {
+    const viewerSiteIds = await getAccessibleSiteIds(env, viewer);
+    const studentSiteIds = await activeSiteIdsForStudent(env, studentId);
+    if (haveOverlap(viewerSiteIds, studentSiteIds)) return true;
+  }
+
+  if (await hasRole(env, viewer.id, "viewer")) {
+    return (await getViewerAssignedStudentIds(env, viewer.id)).includes(studentId);
   }
 
   const mentorRow = await env.DB.prepare(
@@ -506,8 +538,7 @@ export async function canAccessStudent(env: Env, viewer: UserAccount, studentId:
      WHERE teacher_role.user_id = ?
        AND teacher_role.role_id = 'program_teacher'
        AND (
-         teacher_role.scope_type = 'global'
-         OR (
+         (
            teacher_role.scope_type = 'program'
            AND teacher_role.scope_id <> ''
            AND g.program_id IS NOT NULL
@@ -528,7 +559,13 @@ export async function canAccessStudent(env: Env, viewer: UserAccount, studentId:
 }
 
 export async function canManageUsers(env: Env, viewer: UserAccount): Promise<boolean> {
-  return isPlatformAdmin(env, viewer.id);
+  return isGlobalAdmin(env, viewer.id);
+}
+
+export async function canManageSiteUsers(env: Env, viewer: UserAccount, siteId?: string): Promise<boolean> {
+  if (await isGlobalAdmin(env, viewer.id)) return siteId ? activeSiteExists(env, normalizeScopeId(siteId)) : true;
+  if (!await hasRole(env, viewer.id, "site_admin")) return false;
+  return siteId ? canAccessSite(env, viewer, siteId) : (await getAccessibleSiteIds(env, viewer)).length > 0;
 }
 
 function primaryRoleFor(ids: RoleId[]): RoleId | "role_pending" {
@@ -553,7 +590,6 @@ function hasValidProgramTeacherScope(assignments: RoleAssignment[]): boolean {
 }
 
 function isValidProgramTeacherScope(assignment: RoleAssignment): boolean {
-  if (assignment.scope_type === "global") return true;
   if (assignment.scope_type === "program" || assignment.scope_type === "cohort") {
     return String(assignment.scope_id || "").trim() !== "";
   }
@@ -610,9 +646,14 @@ async function canViewScopedStudentRecord(env: Env, viewer: UserAccount, student
 
   if (viewer.id === normalizedStudentId && await hasRole(env, viewer.id, "student")) return true;
   if (await isPlatformAdmin(env, viewer.id)) return true;
-  if (await hasAnyRole(env, viewer.id, ["org_admin", "site_admin", "viewer"])) {
+  if (await hasAnyRole(env, viewer.id, ["org_admin", "site_admin", "administration"])) {
     if (normalizedSiteId) return canAccessSite(env, viewer, normalizedSiteId);
     return haveOverlap(await getAccessibleSiteIds(env, viewer), await activeSiteIdsForStudent(env, normalizedStudentId));
+  }
+  if (await hasRole(env, viewer.id, "viewer")) {
+    const assignedStudentIds = await getViewerAssignedStudentIds(env, viewer.id);
+    return assignedStudentIds.includes(normalizedStudentId)
+      && (!normalizedSiteId || await studentHasActiveSite(env, normalizedStudentId, normalizedSiteId));
   }
   if (await hasRole(env, viewer.id, "program_teacher")) {
     if (!await canAccessStudent(env, viewer, normalizedStudentId)) return false;
@@ -701,6 +742,36 @@ async function siteIdsForMentorAssignments(env: Env, mentorId: string): Promise<
      ORDER BY site_users.site_id ASC`,
   ).bind(mentorId).all<{ id: string }>();
   return (rows.results || []).map((row) => row.id);
+}
+
+async function siteIdsForViewerAssignments(env: Env, viewerId: string): Promise<string[]> {
+  const rows = await env.DB.prepare(
+    `SELECT DISTINCT site_users.site_id AS id
+     FROM viewer_student_assignments
+     JOIN site_users ON site_users.user_id = viewer_student_assignments.student_user_id
+      AND site_users.membership_status = 'active'
+     JOIN sites ON sites.id = site_users.site_id
+      AND sites.status = 'active'
+     WHERE viewer_student_assignments.viewer_user_id = ?
+       AND viewer_student_assignments.active = 1
+     ORDER BY site_users.site_id ASC`,
+  ).bind(viewerId).all<{ id: string }>();
+  return (rows.results || []).map((row) => row.id);
+}
+
+async function hasStudentInSite(env: Env, studentIds: string[], siteId: string): Promise<boolean> {
+  const normalizedSiteId = normalizeScopeId(siteId);
+  if (!normalizedSiteId || !studentIds.length) return false;
+  const placeholders = studentIds.map(() => "?").join(", ");
+  const row = await env.DB.prepare(
+    `SELECT 1
+     FROM site_users
+     WHERE site_users.site_id = ?
+      AND site_users.user_id IN (${placeholders})
+      AND site_users.membership_status = 'active'
+     LIMIT 1`,
+  ).bind(normalizedSiteId, ...studentIds).first();
+  return Boolean(row);
 }
 
 async function studentHasActiveSite(env: Env, studentId: string, siteId: string): Promise<boolean> {

@@ -187,23 +187,33 @@ test("admin role assignments creates role assignment and audits", async () => {
   assert.equal(fixture.db.data.auditEvents.length, 1);
   const [event] = fixture.db.data.auditEvents;
   assert.equal(event.actor_user_id, "admin-a");
-  assert.equal(event.action, "role_assignment_created");
+  assert.equal(event.action, "user.role_changed");
   assert.equal(event.entity_type, "role_assignment");
-  assert.deepEqual(event.metadata, { userId: "student-a", roleId: "student", scopeType: "global", scopeId: "" });
+  assert.equal(event.metadata.userId, "student-a");
+  assert.equal(event.metadata.roleId, "student");
+  assert.equal(event.metadata.scopeType, "global");
 });
 
-test("admin role assignments accepts additive platform, org, site, and viewer roles", async () => {
+test("admin role assignments accepts V5 global, site, administration, and viewer roles", async () => {
   const fixture = await createFixtureWithSession({ userId: "admin-a", roleId: "admin" });
-  fixture.db.data.userAccounts.push(buildUser("platform-target"));
-  fixture.db.data.userAccounts.push(buildUser("org-target"));
+  fixture.db.data.userAccounts.push(buildUser("global-target"));
   fixture.db.data.userAccounts.push(buildUser("site-target"));
+  fixture.db.data.userAccounts.push(buildUser("administration-target"));
   fixture.db.data.userAccounts.push(buildUser("viewer-target"));
+  fixture.db.data.passwordCredentials.push({
+    user_id: "global-target",
+    password_hash: "target-hash",
+    password_salt: "target-salt",
+    algorithm: "pbkdf2-sha256",
+    iterations: 1,
+    requires_reset: 0,
+  });
 
-  for (const [userId, roleId] of [
-    ["platform-target", "platform_admin"],
-    ["org-target", "org_admin"],
-    ["site-target", "site_admin"],
-    ["viewer-target", "viewer"],
+  for (const [userId, roleId, scopeType, scopeId, adminNote] of [
+    ["global-target", "global_admin", "global", "", "Promote local global admin"],
+    ["site-target", "site_admin", "site", "site-a", "Assign site admin"],
+    ["administration-target", "administration", "site", "site-a", "Assign administration"],
+    ["viewer-target", "viewer", "global", "", ""],
   ]) {
     const request = new Request("https://example.test/api/admin/role-assignments", {
       method: "POST",
@@ -211,16 +221,17 @@ test("admin role assignments accepts additive platform, org, site, and viewer ro
         cookie: `sc_session=${fixture.token}`,
         "content-type": "application/json",
       },
-      body: JSON.stringify({ userId, roleId, scopeType: "global", scopeId: "" }),
+      body: JSON.stringify({ userId, roleId, scopeType, scopeId, adminNote }),
     });
 
     const response = await onRequestPost({ request, env: fixture.env, params: {} });
     assert.equal(response.status, 200);
   }
 
-  for (const roleId of ["platform_admin", "org_admin", "site_admin", "viewer"]) {
-    assert.equal(fixture.db.data.userRoles.some((row) => row.role_id === roleId), true);
-  }
+  assert.equal(fixture.db.data.userRoles.some((row) => row.role_id === "global_admin" && row.scope_type === "global"), true);
+  assert.equal(fixture.db.data.userRoles.some((row) => row.role_id === "site_admin" && row.scope_id === "site-a"), true);
+  assert.equal(fixture.db.data.userRoles.some((row) => row.role_id === "administration" && row.scope_id === "site-a"), true);
+  assert.equal(fixture.db.data.userRoles.some((row) => row.role_id === "viewer" && row.scope_type === "global"), true);
 });
 
 test("admin role assignments returns created=false for duplicates and audits", async () => {
@@ -245,7 +256,7 @@ test("admin role assignments returns created=false for duplicates and audits", a
   assert.equal(body.created, false);
 
   assert.equal(fixture.db.data.auditEvents.length, 1);
-  assert.equal(fixture.db.data.auditEvents[0].action, "role_assignment_duplicate");
+  assert.equal(fixture.db.data.auditEvents[0].action, "user.role_change_duplicate");
 });
 
 test("admin role assignments deletes role assignments and audits", async () => {
@@ -277,7 +288,7 @@ test("admin role assignments deletes role assignments and audits", async () => {
   );
 
   assert.equal(fixture.db.data.auditEvents.length, 1);
-  assert.equal(fixture.db.data.auditEvents[0].action, "role_assignment_removed");
+  assert.equal(fixture.db.data.auditEvents[0].action, "user.role_changed");
 });
 
 test("admin role assignments list shows assignments", async () => {
@@ -309,13 +320,18 @@ function createFixture(options = {}) {
       "mentor",
       "program_teacher",
       "site_admin",
-      "org_admin",
-      "platform_admin",
+      "administration",
+      "global_admin",
       "viewer",
       "admin",
       "misc_admin",
     ]).map((id) => ({ id })),
     programs: [{ id: "it" }],
+    sites: [{ id: "site-a", status: "active" }],
+    sitePrograms: [{ site_id: "site-a", program_id: "it", active: 1 }],
+    siteUsers: [],
+    passwordCredentials: [],
+    authIdentities: [],
     cohorts: [{ id: "cohort-a" }],
     auditEvents: [],
   });
@@ -341,6 +357,14 @@ async function createFixtureWithSession({ userId, roleId, roles }) {
     role_id: roleId,
     scope_type: "global",
     scope_id: "",
+  });
+  base.db.data.passwordCredentials.push({
+    user_id: userId,
+    password_hash: "session-hash",
+    password_salt: "session-salt",
+    algorithm: "pbkdf2-sha256",
+    iterations: 1,
+    requires_reset: 0,
   });
 
   return { ...base, token };
@@ -383,9 +407,25 @@ class MockPreparedStatement {
   }
 
   async first() {
+    if (this.sql.startsWith("select 1 from password_credentials where user_id = ? limit 1")) {
+      const [userId] = this.params.map(String);
+      return this.data.passwordCredentials.some((row) => row.user_id === userId) ? { ok: 1 } : null;
+    }
+
+    if (this.sql.startsWith("select 1 from auth_identities where user_id = ?")) {
+      const [userId] = this.params.map(String);
+      return this.data.authIdentities.some((row) => row.user_id === userId && row.provider !== "local_password") ? { ok: 1 } : null;
+    }
+
     if (this.sql.startsWith("select 1 from user_roles where user_id = ? and role_id = ? limit 1")) {
       const [userId, roleId] = this.params.map(String);
       const exists = this.data.userRoles.some((row) => row.user_id === userId && row.role_id === roleId);
+      return exists ? { ok: 1 } : null;
+    }
+
+    if (this.sql.startsWith("select 1 from user_roles where user_id = ? and role_id in (")) {
+      const [userId, ...roleIds] = this.params.map(String);
+      const exists = this.data.userRoles.some((row) => row.user_id === userId && roleIds.includes(row.role_id));
       return exists ? { ok: 1 } : null;
     }
 
@@ -424,6 +464,19 @@ class MockPreparedStatement {
       return cohort ? { id: cohort.id } : null;
     }
 
+    if (this.sql.startsWith("select id from sites where id = ? and status = 'active' limit 1")) {
+      const [siteId] = this.params.map(String);
+      const site = this.data.sites.find((row) => row.id === siteId && row.status === "active");
+      return site ? { id: site.id } : null;
+    }
+
+    if (this.sql.startsWith("select 1 from user_accounts join user_roles")) {
+      const [studentId] = this.params.map(String);
+      const user = this.data.userAccounts.find((row) => row.id === studentId && row.status === "active");
+      const role = this.data.userRoles.find((row) => row.user_id === studentId && row.role_id === "student");
+      return user && role ? { ok: 1 } : null;
+    }
+
     if (this.sql.startsWith("select 1 from user_roles where user_id = ? and role_id = ? and scope_type = ? and scope_id = ? limit 1")) {
       const [userId, roleId, scopeType, scopeId] = this.params.map(String);
       const exists = this.data.userRoles.some(
@@ -437,6 +490,65 @@ class MockPreparedStatement {
   }
 
   async all() {
+    if (this.sql.startsWith("select role_id, scope_type, scope_id from user_roles where user_id = ?")) {
+      const [userId] = this.params.map(String);
+      return {
+        results: this.data.userRoles
+          .filter((row) => row.user_id === userId)
+          .map((row) => ({ role_id: row.role_id, scope_type: row.scope_type, scope_id: row.scope_id })),
+      };
+    }
+
+    if (this.sql.startsWith("select id from sites where status = 'active'")) {
+      return { results: this.data.sites.filter((row) => row.status === "active").map((row) => ({ id: row.id })) };
+    }
+
+    if (this.sql.startsWith("select id from programs where active = 1")) {
+      return { results: this.data.programs.map((row) => ({ id: row.id })) };
+    }
+
+    if (this.sql.startsWith("select user_accounts.id from user_accounts join user_roles")) {
+      return {
+        results: this.data.userRoles
+          .filter((row) => row.role_id === "student")
+          .map((row) => ({ id: row.user_id })),
+      };
+    }
+
+    if (this.sql.startsWith("select site_users.site_id as id from site_users")) {
+      const [userId] = this.params.map(String);
+      return {
+        results: this.data.siteUsers
+          .filter((row) => row.user_id === userId && row.membership_status !== "inactive")
+          .map((row) => ({ id: row.site_id })),
+      };
+    }
+
+    if (this.sql.startsWith("select sites.id from site_programs")) {
+      const [programId] = this.params.map(String);
+      return {
+        results: this.data.sitePrograms
+          .filter((row) => row.program_id === programId && Number(row.active) === 1)
+          .map((row) => ({ id: row.site_id })),
+      };
+    }
+
+    if (this.sql.startsWith("select distinct site_users.site_id as id from mentor_assignments")) {
+      return { results: [] };
+    }
+
+    if (this.sql.startsWith("select distinct student_user_id as id from mentor_assignments")) {
+      return { results: [] };
+    }
+
+    if (this.sql.startsWith("select distinct site_users.site_id as id from viewer_student_assignments")) {
+      return { results: [] };
+    }
+
+    if (this.sql.startsWith("select distinct viewer_student_assignments.student_user_id as id")) {
+      return { results: [] };
+    }
+
     if (this.sql.includes("from user_roles join user_accounts user")) {
       const limit = Number(this.params[this.params.length - 1] ?? 100);
       const binds = this.params.slice(0, -1).map(String);
@@ -489,6 +601,14 @@ class MockPreparedStatement {
         assigned_by: assignedBy,
         assigned_at: "2026-05-20T00:00:00.000Z",
       });
+      return { success: true };
+    }
+
+    if (this.sql.startsWith("insert or ignore into site_users")) {
+      const [siteId, userId] = this.params.map(String);
+      if (!this.data.siteUsers.some((row) => row.site_id === siteId && row.user_id === userId)) {
+        this.data.siteUsers.push({ site_id: siteId, user_id: userId, membership_status: "active" });
+      }
       return { success: true };
     }
 

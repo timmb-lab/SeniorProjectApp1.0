@@ -1,7 +1,7 @@
 import type { Env, UserAccount } from "../_types.ts";
 import { randomId } from "./crypto.ts";
 import { json } from "./http.ts";
-import { canAccessStudent, hasRole, isAdmin } from "./permissions.ts";
+import { canAccessStudent, hasRole, isGlobalAdmin } from "./permissions.ts";
 
 export type SubmissionDecision = "approved" | "revision_requested" | "comment_only";
 
@@ -49,7 +49,7 @@ export async function getSubmission(env: Env, submissionId: string): Promise<Sub
 }
 
 export async function canReviewSubmission(env: Env, reviewer: UserAccount, submission: SubmissionRow): Promise<boolean> {
-  if (await isAdmin(env, reviewer.id)) return true;
+  if (await isGlobalAdmin(env, reviewer.id)) return true;
   if (!await hasRole(env, reviewer.id, "program_teacher")) return false;
   return canAccessStudent(env, reviewer, submission.student_id);
 }

@@ -323,6 +323,7 @@ function emptyRemoteDataset() {
       siteUsers: [],
       groupMemberships: [],
       mentorAssignments: [],
+      viewerStudentAssignments: [],
       progressRecords: [],
       submissions: [],
       statusHistory: [],
@@ -371,7 +372,7 @@ function assertDatasetUsesOnlyAllowedDomains(dataset) {
       || row.id.startsWith("demo-mentor-")
       || row.id.startsWith("demo-admin-")
       || row.id.startsWith("demo-platform-admin-")
-      || row.id.startsWith("demo-org-admin-")
+      || row.id.startsWith("demo-administration-")
       || row.id.startsWith("demo-site-admin-")
       || row.id.startsWith("demo-viewer-")
     ) {
@@ -438,7 +439,7 @@ async function provisionHostedStaffAccounts({ repoRoot, adapter, dataset, baseUr
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({
-        reason: "Remote DEMO_SEED staff provisioning",
+        adminNote: "Remote DEMO_SEED staff provisioning",
         users: batch.map((account) => account.importUser),
       }),
     }), "hosted staff import", { retryStatuses: [409, 429, 500, 502, 503, 504] });
@@ -531,8 +532,10 @@ function staffAccountsForHostedImport(dataset) {
         email: account.email,
         displayName: account.displayName,
         roleId: role,
+        identityType: "local",
         scopeType: scope.scopeType,
         scopeId: scope.scopeId,
+        globalAdminConfirmation: role === "global_admin" || role === "admin" || role === "platform_admin",
       },
     };
   });
@@ -633,9 +636,9 @@ function chunks(values, size) {
 }
 
 function roleForSeedUserId(id) {
-  if (String(id).startsWith("demo-admin-")) return "admin";
-  if (String(id).startsWith("demo-platform-admin-")) return "platform_admin";
-  if (String(id).startsWith("demo-org-admin-")) return "org_admin";
+  if (String(id).startsWith("demo-admin-")) return "global_admin";
+  if (String(id).startsWith("demo-platform-admin-")) return "global_admin";
+  if (String(id).startsWith("demo-administration-")) return "administration";
   if (String(id).startsWith("demo-site-admin-")) return "site_admin";
   if (String(id).startsWith("demo-viewer-")) return "viewer";
   if (String(id).startsWith("demo-teacher-")) return "program_teacher";
@@ -751,7 +754,7 @@ async function verifyRemoteSeedState(adapter, schema) {
     "SELECT COUNT(*) AS count FROM user_accounts u JOIN user_roles r ON r.user_id = u.id AND r.role_id = 'student' WHERE u.email_norm LIKE '%@demo-student.capstone.test';",
     "SELECT COUNT(*) AS count FROM user_accounts u JOIN user_roles r ON r.user_id = u.id AND r.role_id = 'program_teacher' WHERE u.email_norm LIKE '%@demo-staff.capstone.test';",
     "SELECT COUNT(*) AS count FROM user_accounts u JOIN user_roles r ON r.user_id = u.id AND r.role_id = 'mentor' WHERE u.email_norm LIKE '%@demo-staff.capstone.test';",
-    "SELECT COUNT(*) AS count FROM user_accounts u JOIN user_roles r ON r.user_id = u.id AND r.role_id = 'admin' WHERE u.email_norm LIKE '%@demo-staff.capstone.test';",
+    "SELECT COUNT(*) AS count FROM user_accounts u JOIN user_roles r ON r.user_id = u.id AND r.role_id = 'global_admin' WHERE u.email_norm LIKE '%@demo-staff.capstone.test';",
     "SELECT COUNT(*) AS count FROM mentor_assignments WHERE id LIKE 'demo-%' AND active = 1;",
     "SELECT COUNT(DISTINCT student_user_id) AS count FROM mentor_assignments WHERE id LIKE 'demo-%' AND active = 1;",
     "SELECT COUNT(*) AS count FROM user_accounts u JOIN user_roles r ON r.user_id = u.id AND r.role_id = 'student' LEFT JOIN mentor_assignments ma ON ma.student_user_id = u.id AND ma.active = 1 WHERE u.email_norm LIKE '%@demo-student.capstone.test' AND ma.id IS NULL;",
@@ -777,10 +780,11 @@ async function verifyRemoteSeedState(adapter, schema) {
      WHERE su.site_id IN (${DEMO_SITES.filter((site) => !site.primary).map((site) => sqlString(site.id)).join(", ")})
        AND su.membership_status = 'active';`,
     `SELECT COUNT(*) AS count FROM site_programs WHERE site_id = ${sqlString(DEMO_SITES[0].id)} AND active = 1;`,
-    `SELECT COUNT(*) AS count FROM user_accounts u JOIN user_roles r ON r.user_id = u.id AND r.role_id = 'platform_admin' WHERE u.email_norm LIKE '%@demo-staff.capstone.test';`,
-    `SELECT COUNT(*) AS count FROM user_accounts u JOIN user_roles r ON r.user_id = u.id AND r.role_id = 'org_admin' WHERE u.email_norm LIKE '%@demo-staff.capstone.test';`,
+    `SELECT COUNT(*) AS count FROM user_accounts u JOIN user_roles r ON r.user_id = u.id AND r.role_id = 'global_admin' WHERE u.email_norm LIKE '%@demo-staff.capstone.test';`,
+    `SELECT COUNT(*) AS count FROM user_accounts u JOIN user_roles r ON r.user_id = u.id AND r.role_id = 'administration' WHERE u.email_norm LIKE '%@demo-staff.capstone.test';`,
     `SELECT COUNT(*) AS count FROM user_accounts u JOIN user_roles r ON r.user_id = u.id AND r.role_id = 'site_admin' WHERE u.email_norm LIKE '%@demo-staff.capstone.test';`,
     `SELECT COUNT(*) AS count FROM user_accounts u JOIN user_roles r ON r.user_id = u.id AND r.role_id = 'viewer' WHERE u.email_norm LIKE '%@demo-staff.capstone.test';`,
+    "SELECT COUNT(*) AS count FROM viewer_student_assignments WHERE id LIKE 'demo-%' AND active = 1;",
     `SELECT COUNT(*) AS count FROM password_credentials WHERE user_id IN (SELECT id FROM user_accounts WHERE email_norm LIKE '%@demo-student.capstone.test');`,
     "SELECT COUNT(*) AS count FROM announcements WHERE id LIKE 'demo-%' OR title LIKE '%DEMO_SEED%' OR body LIKE '%DEMO_SEED%';",
     "PRAGMA foreign_key_check;",
@@ -806,13 +810,14 @@ async function verifyRemoteSeedState(adapter, schema) {
     primarySiteStudents: firstCount(rows[16]),
     secondarySiteStudents: firstCount(rows[17]),
     primarySitePrograms: firstCount(rows[18]),
-    platformAdmins: firstCount(rows[19]),
-    orgAdmins: firstCount(rows[20]),
+    globalAdmins: firstCount(rows[19]),
+    administrationUsers: firstCount(rows[20]),
     siteAdmins: firstCount(rows[21]),
     viewers: firstCount(rows[22]),
-    studentCredentials: firstCount(rows[23]),
-    announcements: firstCount(rows[24]),
-    foreignKeyViolations: rows[25].length,
+    viewerStudentAssignments: firstCount(rows[23]),
+    studentCredentials: firstCount(rows[24]),
+    announcements: firstCount(rows[25]),
+    foreignKeyViolations: rows[26].length,
   };
   const optional = {};
   if (schema.tableNames.has("mentor_meetings")) optional.mentorMeetings = firstCount(await adapter.query("SELECT COUNT(*) AS count FROM mentor_meetings WHERE id LIKE 'demo-%';"));
@@ -832,17 +837,18 @@ async function verifyRemoteSeedState(adapter, schema) {
     || !secondaryCountsOk
     || summary.demoProgramTeachers < PROGRAMS.length + 10
     || summary.demoMentors !== 64
-    || summary.demoAdmins !== 1
+    || summary.demoAdmins !== 2
     || summary.mentorAssignments !== 320
     || summary.studentsWithMentors !== 320
     || summary.studentsWithoutMentors !== 50
     || summary.demoTenantRows !== 1
     || summary.demoSites !== 3
     || summary.primarySitePrograms !== PROGRAMS.length
-    || summary.platformAdmins !== 1
-    || summary.orgAdmins !== 1
+    || summary.globalAdmins !== 2
+    || summary.administrationUsers !== 1
     || summary.siteAdmins !== 3
     || summary.viewers !== 1
+    || summary.viewerStudentAssignments !== 3
     || summary.studentCredentials !== 0
     || summary.announcements !== 0
     || !storyBucketsOk

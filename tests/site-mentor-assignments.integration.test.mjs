@@ -27,6 +27,7 @@ const MIGRATIONS = [
   "migrations/0009_update_drive_shared_drive_root.sql",
   "migrations/0010_tenant_google_sso.sql",
   "migrations/0011_multisite_site_role_foundation.sql",
+  "migrations/0012_users_access_v5.sql",
 ];
 
 const PRIMARY_SITE_ID = "site-desert-valley-high";
@@ -48,7 +49,7 @@ test("site mentor assignment route is scoped, mutable for site ops, read-only by
   }
 
   const platform = await expectAssignments(env, tokens.platformAdmin, `?siteId=${PRIMARY_SITE_ID}`);
-  assert.equal(platform.scope.role, "platform_admin");
+  assert.equal(platform.scope.role, "global_admin");
   assert.equal(platform.scope.siteId, PRIMARY_SITE_ID);
   assert.equal(platform.summary.studentsTotal, 250);
   assert.equal(platform.summary.studentsWithoutActiveMentor > 0, true);
@@ -57,12 +58,12 @@ test("site mentor assignment route is scoped, mutable for site ops, read-only by
   assert.equal(platform.unassignedStudents.every((row) => row.studentId.startsWith("demo-student-")), true);
 
   const legacy = await expectAssignments(env, tokens.legacyAdmin, `?siteId=${PRIMARY_SITE_ID}`);
-  assert.equal(legacy.scope.role, "admin");
+  assert.equal(legacy.scope.role, "global_admin");
   assert.equal(legacy.permissions.canManageMentorAssignments, true);
 
-  const org = await expectAssignments(env, tokens.orgAdmin, `?siteId=${PRIMARY_SITE_ID}`);
-  assert.equal(org.scope.role, "org_admin");
-  assert.equal(org.permissions.canManageMentorAssignments, true);
+  const administrationDenied = await routeAssignments(env, tokens.orgAdmin, `?siteId=${PRIMARY_SITE_ID}`);
+  assert.equal(administrationDenied.response.status, 403);
+  assert.deepEqual(administrationDenied.body, { error: "forbidden" });
 
   const siteAdmin = await expectAssignments(env, tokens.siteAdminPrimary, `?siteId=${PRIMARY_SITE_ID}`);
   assert.equal(siteAdmin.scope.role, "site_admin");
@@ -72,10 +73,9 @@ test("site mentor assignment route is scoped, mutable for site ops, read-only by
   assert.equal(siteAdminDenied.response.status, 403);
   assert.doesNotMatch(JSON.stringify(siteAdminDenied.body), /Canyon|site-canyon-ridge-career/i);
 
-  const viewer = await expectAssignments(env, tokens.viewerPrimary, `?siteId=${PRIMARY_SITE_ID}`);
-  assert.equal(viewer.scope.role, "viewer");
-  assert.equal(viewer.scope.readOnly, true);
-  for (const key of MUTATION_PERMISSION_KEYS) assert.equal(viewer.permissions[key], false, `viewer ${key}`);
+  const viewer = await routeAssignments(env, tokens.viewerPrimary, `?siteId=${PRIMARY_SITE_ID}`);
+  assert.equal(viewer.response.status, 403);
+  assert.deepEqual(viewer.body, { error: "forbidden" });
 
   const teacher = await expectAssignments(env, tokens.programTeacher, `?siteId=${PRIMARY_SITE_ID}&limit=100`);
   assert.equal(teacher.scope.role, "program_teacher");
@@ -194,6 +194,7 @@ test("site mentor assignment route is scoped, mutable for site ops, read-only by
 
   for (const [label, token] of [
     ["viewer", tokens.viewerPrimary],
+    ["administration", tokens.orgAdmin],
     ["program_teacher", tokens.programTeacher],
     ["mentor", tokens.mentor],
     ["student", tokens.student],
@@ -208,7 +209,7 @@ test("site mentor assignment route is scoped, mutable for site ops, read-only by
     assert.equal(denied.response.status, 403, label);
   }
 
-  for (const body of [platform, legacy, org, siteAdmin, viewer, teacher, noMentor, paged, offset, searched, programFiltered, mentorFiltered]) {
+  for (const body of [platform, legacy, siteAdmin, teacher, noMentor, paged, offset, searched, programFiltered, mentorFiltered]) {
     assert.doesNotMatch(JSON.stringify(body), FORBIDDEN_RESPONSE_FIELDS);
   }
 
@@ -266,7 +267,7 @@ async function createSeededDemoFixture() {
   const tokens = {
     platformAdmin: await seedSession(db, env, "demo-platform-admin-001", "site-mentor-platform"),
     legacyAdmin: await seedSession(db, env, "protected-admin-primary", "site-mentor-legacy"),
-    orgAdmin: await seedSession(db, env, "demo-org-admin-desert-valley", "site-mentor-org"),
+    orgAdmin: await seedSession(db, env, "demo-administration-desert-valley-high", "site-mentor-org"),
     siteAdminPrimary: await seedSession(db, env, "demo-site-admin-desert-valley-high", "site-mentor-site-admin"),
     viewerPrimary: await seedSession(db, env, "demo-viewer-desert-valley-high", "site-mentor-viewer"),
     programTeacher: await seedSession(db, env, "demo-teacher-it-01", "site-mentor-teacher"),

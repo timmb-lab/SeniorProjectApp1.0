@@ -42,10 +42,10 @@ test("permission helpers deny mentor assignments when the mentor role is missing
   assert.equal(await canAccessStudent(env, users.mentorNoRole, users.studentA.id), false);
 });
 
-test("permission helpers allow program teachers with global scope", async () => {
+test("permission helpers deny unsafe program teachers with global scope", async () => {
   const { env, users } = createFixture();
-  assert.equal(await canAccessStudent(env, users.teacherGlobal, users.studentA.id), true);
-  assert.equal(await canAccessStudent(env, users.teacherGlobal, users.studentB.id), true);
+  assert.equal(await canAccessStudent(env, users.teacherGlobal, users.studentA.id), false);
+  assert.equal(await canAccessStudent(env, users.teacherGlobal, users.studentB.id), false);
 });
 
 test("permission helpers allow program teachers scoped to student program", async () => {
@@ -89,17 +89,17 @@ test("role hierarchy helpers expose primary context and protected dashboard acce
   const { env, users } = createFixture();
 
   const adminContext = await getViewerRoleContext(env, users.admin);
-  assert.equal(adminContext.primaryRole, "admin");
+  assert.equal(adminContext.primaryRole, "global_admin");
   assert.equal(adminContext.isAdmin, true);
   assert.equal(adminContext.isPlatformAdmin, true);
   assert.equal(await canViewAdminDashboard(env, users.admin), true);
   assert.equal(await canViewAggregateReadiness(env, users.admin), true);
 
   const platformContext = await getViewerRoleContext(env, users.platformAdmin);
-  assert.equal(platformContext.primaryRole, "platform_admin");
+  assert.equal(platformContext.primaryRole, "global_admin");
   assert.equal(platformContext.isAdmin, false);
   assert.equal(platformContext.isPlatformAdmin, true);
-  assert.equal(await canViewAdminDashboard(env, users.platformAdmin), false);
+  assert.equal(await canViewAdminDashboard(env, users.platformAdmin), true);
 
   assert.equal((await getViewerRoleContext(env, users.orgAdmin)).primaryRole, "org_admin");
   assert.equal((await getViewerRoleContext(env, users.siteAdmin)).primaryRole, "site_admin");
@@ -143,7 +143,7 @@ function createFixture() {
     { user_id: "platform-admin", role_id: "platform_admin", scope_type: "global", scope_id: "" },
     { user_id: "admin", role_id: "admin", scope_type: "global", scope_id: "" },
     { user_id: "org-admin", role_id: "org_admin", scope_type: "global", scope_id: "" },
-    { user_id: "site-admin", role_id: "site_admin", scope_type: "global", scope_id: "" },
+    { user_id: "site-admin", role_id: "site_admin", scope_type: "site", scope_id: "site-a" },
     { user_id: "viewer", role_id: "viewer", scope_type: "global", scope_id: "" },
     { user_id: "misc-admin", role_id: "misc_admin", scope_type: "global", scope_id: "" },
     { user_id: "mentor-active", role_id: "mentor", scope_type: "global", scope_id: "" },
@@ -160,8 +160,27 @@ function createFixture() {
     { mentor_user_id: "mentor-no-role", student_user_id: "student-a", active: 1 },
   ];
 
+  const userAccounts = [
+    { id: "student-a", status: "active" },
+    { id: "student-b", status: "active" },
+    { id: "student-cohort-only", status: "active" },
+  ];
+
   const env = {
-    DB: new MockD1Database({ userRoles, mentorAssignments, groupMemberships, groups }),
+    DB: new MockD1Database({
+      userAccounts,
+      userRoles,
+      mentorAssignments,
+      viewerStudentAssignments: [],
+      groupMemberships,
+      groups,
+      sites: [{ id: "site-a", tenant_id: "tenant-a", status: "active" }],
+      siteUsers: [],
+      sitePrograms: [],
+      programs: [],
+      passwordCredentials: ["admin", "platform-admin"],
+      authIdentities: [],
+    }),
   };
 
   const users = {
@@ -224,10 +243,33 @@ class MockPreparedStatement {
   }
 
   async first() {
+    if (this.sql.startsWith("select 1 from password_credentials where user_id = ? limit 1")) {
+      const [userId] = this.params.map(String);
+      return this.data.passwordCredentials.includes(userId) ? { ok: 1 } : null;
+    }
+
+    if (this.sql.startsWith("select 1 from auth_identities where user_id = ?")) {
+      return null;
+    }
+
+    if (this.sql.startsWith("select 1 from sites where id = ? and status = 'active' limit 1")) {
+      const [siteId] = this.params.map(String);
+      const exists = this.data.sites.some((row) => row.id === siteId && row.status === "active");
+      return exists ? { ok: 1 } : null;
+    }
+
     if (this.sql.startsWith("select 1 from user_roles where user_id = ? and role_id = ?")) {
       const [userId, roleId] = this.params;
       const exists = this.data.userRoles.some(
         (row) => row.user_id === userId && row.role_id === roleId,
+      );
+      return exists ? { ok: 1 } : null;
+    }
+
+    if (this.sql.startsWith("select 1 from user_roles where user_id = ? and role_id in (")) {
+      const [userId, ...roleIds] = this.params.map(String);
+      const exists = this.data.userRoles.some(
+        (row) => row.user_id === userId && roleIds.includes(row.role_id),
       );
       return exists ? { ok: 1 } : null;
     }
@@ -268,6 +310,78 @@ class MockPreparedStatement {
       return { results };
     }
 
+    if (this.sql.startsWith("select id from sites where status = 'active'")) {
+      return { results: this.data.sites.filter((row) => row.status === "active").map((row) => ({ id: row.id })) };
+    }
+
+    if (this.sql.startsWith("select id from programs where active = 1")) {
+      return { results: this.data.programs.map((row) => ({ id: row.id })) };
+    }
+
+    if (this.sql.startsWith("select user_accounts.id from user_accounts join user_roles")) {
+      const results = this.data.userRoles
+        .filter((row) => row.role_id === "student")
+        .map((row) => ({ id: row.user_id }));
+      return { results };
+    }
+
+    if (this.sql.startsWith("select site_users.site_id as id from site_users")) {
+      const [userId] = this.params.map(String);
+      return {
+        results: this.data.siteUsers
+          .filter((row) => row.user_id === userId && row.membership_status !== "inactive")
+          .map((row) => ({ id: row.site_id })),
+      };
+    }
+
+    if (this.sql.startsWith("select sites.id from site_programs")) {
+      return { results: [] };
+    }
+
+    if (this.sql.startsWith("select distinct site_users.site_id as id from mentor_assignments")) {
+      return { results: [] };
+    }
+
+    if (this.sql.startsWith("select distinct student_user_id as id from mentor_assignments")) {
+      const [mentorId] = this.params.map(String);
+      return {
+        results: this.data.mentorAssignments
+          .filter((row) => row.mentor_user_id === mentorId && Number(row.active) === 1)
+          .map((row) => ({ id: row.student_user_id })),
+      };
+    }
+
+    if (this.sql.startsWith("select distinct site_users.site_id as id from viewer_student_assignments")) {
+      return { results: [] };
+    }
+
+    if (this.sql.startsWith("select distinct student.id from site_users")) {
+      const siteIds = this.params.map(String);
+      const results = this.data.siteUsers
+        .filter((row) => siteIds.includes(row.site_id) && row.membership_status !== "inactive")
+        .filter((row) => this.data.userRoles.some((role) => role.user_id === row.user_id && role.role_id === "student"))
+        .map((row) => ({ id: row.user_id }));
+      return { results };
+    }
+
+    if (this.sql.startsWith("select distinct viewer_student_assignments.student_user_id as id")) {
+      const [viewerId] = this.params.map(String);
+      return {
+        results: this.data.viewerStudentAssignments
+          .filter((row) => row.viewer_user_id === viewerId && Number(row.active) === 1)
+          .map((row) => ({ id: row.student_user_id })),
+      };
+    }
+
+    if (this.sql.startsWith("select id from sites where tenant_id = ?")) {
+      const [tenantId] = this.params.map(String);
+      return {
+        results: this.data.sites
+          .filter((row) => row.tenant_id === tenantId && row.status === "active")
+          .map((row) => ({ id: row.id })),
+      };
+    }
+
     throw new Error(`Unmocked D1 all() query: ${this.sql}`);
   }
 
@@ -302,8 +416,6 @@ function resolveTeacherScopeRow(data, { studentId, teacherId }) {
     .map((value) => String(value));
 
   const allowed = teacherAssignments.some((assignment) => {
-    if (assignment.scope_type === "global") return true;
-
     const scopeId = String(assignment.scope_id ?? "").trim();
     if (!scopeId) return false;
 

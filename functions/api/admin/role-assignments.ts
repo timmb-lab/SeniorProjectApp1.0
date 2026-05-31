@@ -1,16 +1,23 @@
 import type { Env, RoleId } from "../../_types.ts";
 import { getCurrentUser, writeAudit } from "../../_lib/auth.ts";
 import { badRequest, json, readJson, requirePost } from "../../_lib/http.ts";
-import { isAdmin } from "../../_lib/permissions.ts";
+import {
+  canActorCreateRole,
+  canRemoveGlobalAdminGrant,
+  hasLocalCredential,
+  isElevatedRole,
+  isGlobalAdminRole,
+} from "../../_lib/effective-access.ts";
 import { workflowError } from "../../_lib/workflow.ts";
 
-type RoleScopeType = "global" | "program" | "cohort";
+type RoleScopeType = "global" | "site" | "program" | "cohort";
 
 interface RoleAssignmentBody {
   userId?: unknown;
   roleId?: unknown;
   scopeType?: unknown;
   scopeId?: unknown;
+  adminNote?: unknown;
 }
 
 interface UserExistsRow {
@@ -42,7 +49,7 @@ interface RoleAssignmentListRow {
 export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
   const user = await getCurrentUser(request, env);
   if (!user) return workflowError("unauthorized", 401);
-  if (!await isAdmin(env, user.id)) return workflowError("forbidden", 403);
+  if (!await canActorCreateRole(env, user, "viewer", [])) return workflowError("forbidden", 403);
 
   const url = new URL(request.url);
   const userId = cleanId(url.searchParams.get("userId"));
@@ -98,7 +105,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
 
   const caller = await getCurrentUser(request, env);
   if (!caller) return workflowError("unauthorized", 401);
-  if (!await isAdmin(env, caller.id)) return workflowError("forbidden", 403);
+  if (!await canActorCreateRole(env, caller, "viewer", [])) return workflowError("forbidden", 403);
 
   let body: RoleAssignmentBody;
   try {
@@ -111,11 +118,33 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   const roleId = typeof body.roleId === "string" ? cleanRoleId(body.roleId) : null;
   const scopeType = typeof body.scopeType === "string" ? cleanScopeType(body.scopeType) : null;
   const scopeId = typeof body.scopeId === "string" ? cleanScopeId(body.scopeId) : "";
+  const adminNote = typeof body.adminNote === "string" ? body.adminNote.trim().slice(0, 500) : "";
 
   if (!userId || !roleId || !scopeType) return badRequest("missing_fields");
 
   if (!isValidScope(roleId, scopeType, scopeId)) {
     return badRequest("invalid_role_scope");
+  }
+
+  if (isElevatedRole(roleId) && !adminNote) return badRequest("missing_admin_note");
+
+  if (!await canActorCreateRole(env, caller, roleId, scopeType === "site" ? [scopeId] : [])) {
+    await writeAudit(env, {
+      actorUserId: caller.id,
+      action: "access.scope_validation_rejected",
+      entityType: "role_assignment",
+      entityId: `${userId}:${roleId}:${scopeType}:${scopeId || "global"}`,
+      request,
+      metadata: {
+        result: "rejected",
+        reason: "assignment_outside_actor_scope",
+        userId,
+        roleId,
+        scopeType,
+        scopeId,
+      },
+    });
+    return workflowError("forbidden", 403);
   }
 
   const userExists = await env.DB.prepare(
@@ -142,6 +171,34 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     }
   }
 
+  if (roleId === "site_admin" || roleId === "administration") {
+    const site = await env.DB.prepare("SELECT id FROM sites WHERE id = ? AND status = 'active' LIMIT 1")
+      .bind(scopeId)
+      .first<{ id: string }>();
+    if (!site) return workflowError("site_not_found", 404);
+  }
+
+  if (isGlobalAdminRole(roleId) && !await hasLocalCredential(env, userId)) {
+    await writeAudit(env, {
+      actorUserId: caller.id,
+      action: "access.scope_validation_rejected",
+      entityType: "role_assignment",
+      entityId: `${userId}:${roleId}:global`,
+      request,
+      metadata: {
+        result: "rejected",
+        reason: "global_admin_requires_local_account",
+        userId,
+        roleId,
+      },
+    });
+    return json({
+      ok: false,
+      error: "global_admin_requires_local_account",
+      message: "Global Admin must use a local login so platform access is still available if SSO is unavailable.",
+    }, { status: 400 });
+  }
+
   const existing = await env.DB.prepare(
     `SELECT 1
      FROM user_roles
@@ -162,7 +219,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
 
   await writeAudit(env, {
     actorUserId: caller.id,
-    action: created ? "role_assignment_created" : "role_assignment_duplicate",
+    action: created ? "user.role_changed" : "user.role_change_duplicate",
     entityType: "role_assignment",
     entityId: `${userId}:${roleId}:${scopeType}:${scopeId || "global"}`,
     request,
@@ -171,8 +228,16 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
       roleId,
       scopeType,
       scopeId,
+      adminNote,
     },
   });
+
+  if (scopeType === "site" && (roleId === "site_admin" || roleId === "administration")) {
+    await env.DB.prepare(
+      `INSERT OR IGNORE INTO site_users (site_id, user_id, membership_status)
+       VALUES (?, ?, 'active')`,
+    ).bind(scopeId, userId).run();
+  }
 
   return json({
     ok: true,
@@ -189,7 +254,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
 export const onRequestDelete: PagesFunction<Env> = async ({ request, env }) => {
   const caller = await getCurrentUser(request, env);
   if (!caller) return workflowError("unauthorized", 401);
-  if (!await isAdmin(env, caller.id)) return workflowError("forbidden", 403);
+  if (!await canActorCreateRole(env, caller, "viewer", [])) return workflowError("forbidden", 403);
 
   let body: RoleAssignmentBody;
   try {
@@ -205,6 +270,18 @@ export const onRequestDelete: PagesFunction<Env> = async ({ request, env }) => {
 
   if (!userId || !roleId || !scopeType) return badRequest("missing_fields");
   if (!isValidScope(roleId, scopeType, scopeId)) return badRequest("invalid_role_scope");
+
+  if (!await canActorCreateRole(env, caller, roleId, scopeType === "site" ? [scopeId] : [])) {
+    return workflowError("forbidden", 403);
+  }
+
+  if (isGlobalAdminRole(roleId) && !await canRemoveGlobalAdminGrant(env, userId)) {
+    return json({
+      ok: false,
+      error: "last_active_local_global_admin",
+      message: "At least one active local Global Admin must remain.",
+    }, { status: 409 });
+  }
 
   const existing = await env.DB.prepare(
     `SELECT 1
@@ -228,7 +305,7 @@ export const onRequestDelete: PagesFunction<Env> = async ({ request, env }) => {
 
   await writeAudit(env, {
     actorUserId: caller.id,
-    action: "role_assignment_removed",
+    action: "user.role_changed",
     entityType: "role_assignment",
     entityId: `${userId}:${roleId}:${scopeType}:${scopeId || "global"}`,
     request,
@@ -237,6 +314,7 @@ export const onRequestDelete: PagesFunction<Env> = async ({ request, env }) => {
       roleId,
       scopeType,
       scopeId,
+      removed: true,
     },
   });
 
@@ -252,10 +330,16 @@ export const onRequestDelete: PagesFunction<Env> = async ({ request, env }) => {
 };
 
 function isValidScope(roleId: RoleId, scopeType: RoleScopeType, scopeId: string): boolean {
+  if (roleId === "global_admin" || roleId === "admin" || roleId === "platform_admin") {
+    return scopeType === "global" && scopeId === "";
+  }
+  if (roleId === "site_admin" || roleId === "administration") {
+    return scopeType === "site" && scopeId !== "";
+  }
   if (roleId !== "program_teacher") {
     return scopeType === "global" && scopeId === "";
   }
-  if (scopeType === "global") return scopeId === "";
+  if (scopeType === "global") return false;
   return scopeId !== "";
 }
 
@@ -268,23 +352,24 @@ function cleanId(value: string | null): string {
 function cleanRoleId(value: string | null): RoleId | null {
   if (!value) return null;
   const trimmed = value.trim();
+  if (trimmed === "admin" || trimmed === "platform_admin") return "global_admin";
   return [
     "student",
     "mentor",
-    "program_teacher",
-    "site_admin",
-    "org_admin",
-    "platform_admin",
     "viewer",
+    "program_teacher",
+    "administration",
+    "site_admin",
+    "platform_admin",
     "admin",
-    "misc_admin",
+    "global_admin",
   ].includes(trimmed) ? (trimmed as RoleId) : null;
 }
 
 function cleanScopeType(value: string | null): RoleScopeType | null {
   if (!value) return null;
   const trimmed = value.trim();
-  return ["global", "program", "cohort"].includes(trimmed) ? (trimmed as RoleScopeType) : null;
+  return ["global", "site", "program", "cohort"].includes(trimmed) ? (trimmed as RoleScopeType) : null;
 }
 
 function cleanScopeId(value: string | null): string {

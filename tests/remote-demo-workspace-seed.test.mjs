@@ -20,6 +20,7 @@ const MIGRATIONS = [
   "migrations/0009_update_drive_shared_drive_root.sql",
   "migrations/0010_tenant_google_sso.sql",
   "migrations/0011_multisite_site_role_foundation.sql",
+  "migrations/0012_users_access_v5.sql",
 ];
 
 test("remote demo seeder requires remote target and explicit write confirmation", () => {
@@ -88,14 +89,15 @@ test("remote demo seed creates requested counts and preserves real accounts/conf
   });
   assert.equal(result.finalVerification.demoProgramTeachers, 19);
   assert.equal(result.finalVerification.demoMentors, 64);
-  assert.equal(result.finalVerification.demoAdmins, 1);
+  assert.equal(result.finalVerification.demoAdmins, 2);
   assert.equal(result.finalVerification.mentorAssignments, 320);
   assert.equal(result.finalVerification.studentsWithMentors, 320);
   assert.equal(result.finalVerification.studentsWithoutMentors, 50);
-  assert.equal(result.finalVerification.platformAdmins, 1);
-  assert.equal(result.finalVerification.orgAdmins, 1);
+  assert.equal(result.finalVerification.globalAdmins, 2);
+  assert.equal(result.finalVerification.administrationUsers, 1);
   assert.equal(result.finalVerification.siteAdmins, 3);
   assert.equal(result.finalVerification.viewers, 1);
+  assert.equal(result.finalVerification.viewerStudentAssignments, 3);
   assert.equal(result.finalVerification.studentCredentials, 0);
   assert.equal(result.finalVerification.unsafeDemoEvidenceRows, 0);
   assert.equal(result.finalVerification.unsafeDemoExportDriveRows, 0);

@@ -12,7 +12,10 @@ import { createSqliteD1, foundationMigrations } from "./helpers/d1-sqlite.mjs";
 import { seedUser } from "./helpers/auth-fixtures.mjs";
 
 const MIGRATION = "migrations/0011_multisite_site_role_foundation.sql";
-const NEW_ROLES = ["platform_admin", "org_admin", "site_admin", "viewer"];
+const V5_MIGRATION = "migrations/0012_users_access_v5.sql";
+const SITE_FOUNDATION_ROLES = ["platform_admin", "org_admin", "site_admin", "viewer"];
+const V5_ROLES = ["global_admin", "administration"];
+const NEW_ROLES = [...SITE_FOUNDATION_ROLES, ...V5_ROLES];
 const OLD_ROLES = ["admin", "misc_admin", "student", "mentor", "program_teacher"];
 
 test("multisite migration source adds site tables, indexes, target roles, and sandbox site", () => {
@@ -21,7 +24,7 @@ test("multisite migration source adds site tables, indexes, target roles, and sa
   for (const table of ["sites", "site_users", "site_programs"]) {
     assert.match(source, new RegExp(`CREATE TABLE IF NOT EXISTS ${table}\\b`));
   }
-  for (const roleId of NEW_ROLES) {
+  for (const roleId of SITE_FOUNDATION_ROLES) {
     assert.match(source, new RegExp(`'${roleId}'`));
   }
   for (const indexName of [
@@ -49,21 +52,26 @@ test("RoleId and permission source recognize new roles while preserving legacy r
   const permissions = readFileSync("functions/_lib/permissions.ts", "utf8");
   assert.match(permissions, /export async function isLegacyAdmin/);
   assert.match(permissions, /export async function isPlatformAdmin/);
-  assert.match(permissions, /hasRole\(env, userId, "platform_admin"\)/);
+  assert.match(permissions, /GLOBAL_ADMIN_ROLE_IDS/);
   assert.match(permissions, /isLegacyAdmin\(env, userId\)/);
 
+  const v5Migration = readFileSync(V5_MIGRATION, "utf8");
+  for (const roleId of V5_ROLES) {
+    assert.match(v5Migration, new RegExp(`'${roleId}'`));
+  }
+  assert.match(v5Migration, /viewer_student_assignments/);
+
+  const effectiveAccess = readFileSync("functions/_lib/effective-access.ts", "utf8");
   const order = [
-    "platform_admin",
-    "admin",
-    "org_admin",
+    "global_admin",
     "site_admin",
+    "administration",
     "program_teacher",
     "mentor",
     "viewer",
     "student",
-    "misc_admin",
   ];
-  const primaryRoleBlock = permissions.slice(permissions.indexOf("function primaryRoleFor"));
+  const primaryRoleBlock = effectiveAccess.slice(effectiveAccess.indexOf("export const V5_ROLE_ORDER"));
   let lastIndex = -1;
   for (const roleId of order) {
     const index = primaryRoleBlock.indexOf(`"${roleId}"`, lastIndex + 1);
@@ -137,7 +145,7 @@ test("legacy admin remains platform-equivalent while admin-only checks stay lega
   assert.equal(await isPlatformAdmin(env, "misc-admin"), false);
 
   assert.equal((await getViewerRoleContext(env, { id: "legacy-admin" })).isPlatformAdmin, true);
-  assert.equal((await getViewerRoleContext(env, { id: "platform-admin" })).primaryRole, "platform_admin");
+  assert.equal((await getViewerRoleContext(env, { id: "platform-admin" })).primaryRole, "global_admin");
   assert.equal((await getViewerRoleContext(env, { id: "site-admin" })).primaryRole, "site_admin");
 });
 

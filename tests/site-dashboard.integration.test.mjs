@@ -21,6 +21,7 @@ const MIGRATIONS = [
   "migrations/0009_update_drive_shared_drive_root.sql",
   "migrations/0010_tenant_google_sso.sql",
   "migrations/0011_multisite_site_role_foundation.sql",
+  "migrations/0012_users_access_v5.sql",
 ];
 
 const PRIMARY_SITE_ID = "site-desert-valley-high";
@@ -49,11 +50,12 @@ test("site dashboard route is site-scoped, role-gated, audited, and safe", async
 
   const legacyPrimary = await expectDashboard(env, tokens.legacyAdmin, PRIMARY_SITE_ID);
   assert.equal(legacyPrimary.summary.studentsTotal, 250);
-  assert.equal(legacyPrimary.scope.role, "admin");
+  assert.equal(legacyPrimary.scope.role, "global_admin");
 
   const orgPrimary = await expectDashboard(env, tokens.orgAdmin, PRIMARY_SITE_ID);
+  assert.equal(orgPrimary.scope.role, "administration");
   assert.equal(orgPrimary.summary.studentsTotal, 250);
-  assert.equal(orgPrimary.scope.accessibleSites.length, 3);
+  assert.equal(orgPrimary.scope.accessibleSites.length, 1);
   const orgOutside = await routeSiteDashboard(env, tokens.orgAdmin, "?siteId=site-outside-district");
   assert.equal(orgOutside.response.status, 403);
   assert.equal(orgOutside.body.reason, "site_not_accessible");
@@ -71,15 +73,9 @@ test("site dashboard route is site-scoped, role-gated, audited, and safe", async
   assert.equal(siteAdminDenied.response.status, 403);
   assert.equal(siteAdminDenied.body.reason, "site_not_accessible");
 
-  const viewerPrimary = await expectDashboard(env, tokens.viewerPrimary, PRIMARY_SITE_ID);
-  assert.equal(viewerPrimary.scope.readOnly, true);
-  assert.equal(viewerPrimary.permissions.canViewStudentDirectory, true);
-  assert.equal(viewerPrimary.permissions.canViewReviewQueue, true);
-  assert.equal(viewerPrimary.permissions.canManageMentorAssignments, false);
-  assert.equal(viewerPrimary.permissions.canManagePresentationOperations, false);
-  assert.equal(viewerPrimary.permissions.canManageArchiveOperations, false);
-  assert.equal(viewerPrimary.permissions.canManageUsers, false);
-  assert.equal(viewerPrimary.permissions.canManageSecurity, false);
+  const viewerPrimary = await routeSiteDashboard(env, tokens.viewerPrimary, `?siteId=${PRIMARY_SITE_ID}`);
+  assert.equal(viewerPrimary.response.status, 403);
+  assert.equal(viewerPrimary.body.error, "forbidden");
 
   for (const [label, token] of [
     ["program_teacher", tokens.programTeacher],
@@ -115,7 +111,7 @@ test("site dashboard route is site-scoped, role-gated, audited, and safe", async
   assert.equal(canyon.topRiskStudents.every((row) => row.studentId.startsWith("demo-student-")), true);
   assert.equal(north.programBreakdown.reduce((sum, row) => sum + row.studentCount, 0), 60);
 
-  for (const body of [platformPrimary, legacyPrimary, orgPrimary, siteAdminPrimary, viewerPrimary, canyon, north]) {
+  for (const body of [platformPrimary, legacyPrimary, orgPrimary, siteAdminPrimary, canyon, north]) {
     assert.equal(Array.isArray(body.programBreakdown), true);
     assert.equal(Array.isArray(body.statusBreakdown), true);
     assert.equal(Array.isArray(body.needsAttention), true);
@@ -193,7 +189,7 @@ async function createSeededDemoFixture() {
   const tokens = {
     platformAdmin: await seedSession(db, env, "demo-platform-admin-001", "site-dashboard-platform"),
     legacyAdmin: await seedSession(db, env, "protected-admin-primary", "site-dashboard-legacy"),
-    orgAdmin: await seedSession(db, env, "demo-org-admin-desert-valley", "site-dashboard-org"),
+    orgAdmin: await seedSession(db, env, "demo-administration-desert-valley-high", "site-dashboard-org"),
     siteAdminPrimary: await seedSession(db, env, "demo-site-admin-desert-valley-high", "site-dashboard-site-admin"),
     viewerPrimary: await seedSession(db, env, "demo-viewer-desert-valley-high", "site-dashboard-viewer"),
     programTeacher: await seedSession(db, env, "demo-teacher-it-01", "site-dashboard-teacher"),

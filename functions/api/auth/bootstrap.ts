@@ -56,7 +56,7 @@ export const onRequest: PagesFunction<Env> = async ({ request, env }) => {
     ).bind(userId, credential.hash, credential.salt, credential.algorithm, credential.iterations).run();
     await env.DB.prepare(
       `INSERT INTO user_roles (user_id, role_id, scope_type, scope_id, assigned_by)
-       VALUES (?, 'admin', 'global', '', NULL)`,
+       VALUES (?, 'global_admin', 'global', '', NULL)`,
     ).bind(userId).run();
     await writeAudit(env, {
       actorUserId: userId,
