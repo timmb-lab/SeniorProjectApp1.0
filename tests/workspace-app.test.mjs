@@ -507,6 +507,35 @@ test("site dashboard top-risk detail stays in dashboard context", async () => {
   assert.doesNotMatch(workspaceRoot.innerHTML, /workspace-detail-drawer/);
 });
 
+test("site admin dashboard recent activity stays summary-only without global admin audit data", async () => {
+  const { context, workspaceRoot } = await createWorkspaceContextWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "site-admin-summary-only-audit",
+          email: "site.audit.summary@example.edu",
+          displayName: "Site Audit Summary Admin",
+          roles: [{ role_id: "site_admin", scope_type: "site", scope_id: "site-desert-valley-high" }],
+        },
+      },
+    },
+    "/api/site/dashboard": {
+      status: 200,
+      body: siteDashboardFixture({ readOnly: false }),
+    },
+  });
+
+  vm.runInContext('activeSection = "siteDashboard"; renderAppShell();', context);
+  const sectionIds = JSON.parse(vm.runInContext("JSON.stringify(availableSections().map((section) => section.id))", context));
+
+  assert.ok(!sectionIds.includes("audit"));
+  assert.ok(!sectionIds.includes("archiveExports"));
+  assert.match(workspaceRoot.innerHTML, /Recent Activity[\s\S]*Summary only/);
+  assert.doesNotMatch(workspaceRoot.innerHTML, /data-section="audit"/);
+});
+
 test("program teacher dashboard rows open existing student detail", async () => {
   const programTeacher = await renderWorkspaceWithFetch({
     "/api/auth/me": {
@@ -3336,6 +3365,17 @@ test("workspace gates operations readiness visibility and keeps it read-only", (
   assert.match(workspaceJs, /openSiteStudentDetail\(event\.currentTarget\?\.dataset\?\.operationsStudentId/);
   assert.match(workspaceJs, /scope\.readOnly/);
   assert.doesNotMatch(workspaceJs, /data-operations-action="schedule"|data-operations-action="retry"|data-operations-action="check-in"|data-operations-action="check-out"/);
+});
+
+test("workspace keeps audit and archive export sections global-admin only", () => {
+  const availableSectionsBlock = workspaceJs.match(/function availableSections[\s\S]*?function renderActiveSection/)?.[0] || "";
+  const siteDashboardBlock = workspaceJs.match(/function renderSiteDashboardSection[\s\S]*?function renderSiteStudentDirectorySection/)?.[0] || "";
+  assert.match(availableSectionsBlock, /if \(hasGlobalAdminRole\(roles\)\) sections\.push\(\{ id: "audit", label: "Audit", detail: "Recent protected-record activity" \}\);/);
+  assert.match(availableSectionsBlock, /if \(hasGlobalAdminRole\(roles\)\) sections\.push\(\{ id: "archiveExports", label: "Archive \/ Exports", detail: "Closeout package status" \}\);/);
+  assert.doesNotMatch(availableSectionsBlock, /roles\.has\("site_admin"\)\) sections\.push\(\{ id: "audit"/);
+  assert.doesNotMatch(availableSectionsBlock, /roles\.has\("site_admin"\)\) sections\.push\(\{ id: "archiveExports"/);
+  assert.match(siteDashboardBlock, /const canOpenAudit = availableSectionIds\(\)\.has\("audit"\);/);
+  assert.match(siteDashboardBlock, /renderMetricTile\("Recent Activity", summary\.recentActivityCount, canOpenAudit \? "Recent site activity" : "Summary only; recent activity count is shown here", "admin", canOpenAudit \? "audit" : ""\)/);
 });
 
 test("workspace exposes a real admin site switcher and collapsible navigation", () => {

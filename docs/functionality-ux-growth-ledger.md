@@ -4510,3 +4510,54 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: hosted proof needs safe hosted fake-account/audit runtime; admin audit destination shape still needs role-visibility review; missing-submission queue rows do not exist; archive retry/regenerate needs mutation policy.
   - Do not repeat: recent access changes are complete unless the history marker, route payload, or focused coverage regresses.
   - First file to inspect next run: `scripts/check-hosted-workspace-permissions.mjs` if hosted proof is allowed; otherwise `workspace.js` `renderAdminAccessAssignmentPanel()` and `functions/api/site/access-assignments.ts`.
+
+## Run 2026-05-31 15:32 PT
+
+- Starting SHA: `70a2d22f64b257776d53aace006b9b6049cc67fd`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Branch policy: work stayed on clean local `main`; local `main` was four commits ahead of `origin/main`, `origin/main` was not ahead, and no push was run
+- Ladder level targeted: `LEVEL_1_NAVIGABLE_DASHBOARDS` with `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` navigation support
+- Backlog item: `site-admin-global-only-nav-repair`; supports `MVP-004`, `MVP-006`, `MVP-032`, and `MVP-033`
+- Work order selected: Remove unsupported Global Admin-only `Audit` and `Archive / Exports` navigation from site-admin workspaces, and keep Site Dashboard `Recent Activity` summary-only when there is no backed audit surface.
+- Selection reason: The previous handoff kept hosted proof blocked and site-scoped audit routing under review. Current source still exposed `Audit` and `Archive / Exports` sections to `site_admin`, and Site Dashboard `Recent Activity` linked to `audit`, but only Global Admin users loaded `/api/admin/dashboard`. That left site-scoped users with dead-end navigation, which made this the safest product-readiness slice because it removes unsupported affordances without adding routes, permissions, mutations, or fake functionality.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Site-admin global-only nav repair | `LEVEL_1_NAVIGABLE_DASHBOARDS` | site_admin, global_admin | 4 | 5 | 5 | XS | 54 | selected |
+| Hosted section-level permission proof | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all protected roles | 4 | 3 | 3 | M | 39 | deferred: hosted fake-account/audit writes not allowed |
+| Site-scoped audit destination | `LEVEL_7_AUDITABILITY_AND_TRUST` | site_admin, org_admin | 4 | 3 | 4 | M | 42 | deferred: route shape and visibility review still needed |
+| Review Queue missing-submission semantics | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | program_teacher, site staff | 5 | 2 | 3 | M | 34 | deferred: backend rows absent |
+| Presentation schedule URL state | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | student, mentor, program_teacher, admin | 4 | 4 | 4 | M | 44 | not selected: shareable need still unproven |
+| Mentor Dashboard URL state | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | mentor | 3 | 4 | 4 | M | 41 | not selected: shareable need still unproven |
+| Site-admin assignment removal workflow | `LEVEL_7_AUDITABILITY_AND_TRUST` | site_admin | 5 | 2 | 3 | M | 35 | rejected: mutation policy needs more review |
+| Archive retry/regenerate controls | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | site_admin, admin | 5 | 2 | 3 | M | 34 | rejected: mutation policy not approved |
+| Mentor workload threshold filter | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | site staff, viewer | 4 | 3 | 3 | M | 39 | deferred: threshold policy unclear |
+| Org admin all-sites rollup | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | org_admin | 5 | 2 | 2 | L | 29 | rejected: aggregate backend design absent |
+| Student guided requirement form | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 5 | 3 | 3 | L | 37 | deferred: write-path/product design needed |
+| Users & Access recent access changes | `LEVEL_7_AUDITABILITY_AND_TRUST` | site_admin, global_admin | 2 | 5 | 5 | XS | 33 | rejected: completed previous run |
+
+- User-facing improvement: Site admins no longer see unsupported `Audit` or `Archive / Exports` sections in the workspace, and Site Dashboard `Recent Activity` now stays an honest summary count instead of opening an unavailable section.
+- Roles affected: `site_admin` directly; `global_admin`, `admin`, and `platform_admin` keep the backed Global Admin audit/export surfaces. No student, mentor, viewer, program teacher, tenant, site, program, or student visibility was broadened.
+- Files changed: `workspace.js`, `tests/workspace-app.test.mjs`, `docs/functionality-language-audit.md`, `docs/progress/run-log.md`, `docs/progress/runs/2026-05-31-1532-site-admin-nav-integrity.json`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`
+- Tests/verifiers added or updated: workspace coverage now proves site-admin workspaces do not expose unsupported `audit` or `archiveExports` sections, `Recent Activity` stays summary-only for site admins, and Global Admin source gating remains intact.
+- Validation commands:
+  - Focused passed before docs/state closeout: `node --test tests/workspace-app.test.mjs`
+  - Final passed: `node --test tests/functionality-language-audit.test.mjs`, `npm run verify:functionality-language`, `npm run verify:dashboard-actions`, `npm run verify:workspace-navigation`, `npm run verify:functionality-ux-automation`, JSON parse for `automation/state/functionality-ux-growth-state.json` and `docs/progress/runs/2026-05-31-1532-site-admin-nav-integrity.json`, `git diff --check`, `npm run check:production-surfaces`, `npm run check:route-inventory`, `npm run test`, `npm run typecheck`, `npm run check`
+- Validation result: passed; `git diff --check` reported only CRLF normalization warnings, with no whitespace errors.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: hosted section-level permission proof, site-scoped audit destination, Review Queue missing-submission semantics, Presentation schedule URL-state filters, Mentor Dashboard URL-state filters, site-admin assignment removal workflow, archive retry/regenerate controls, mentor workload threshold policy, org rollups, and student guided requirement write path remain deferred.
+- New backlog items: none
+- Next recommended work order: run hosted section-level permission proof when hosted fake-account proof and audit-event writes are allowed; otherwise review a safe site-scoped audit destination before restoring any audit navigation for site admins.
+- Do-not-repeat notes: do not re-add site-admin `Audit` or `Archive / Exports` navigation unless a real backed site-scoped surface exists and focused coverage proves it.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_1_NAVIGABLE_DASHBOARDS`
+  - Advanced: yes
+  - Evidence: Site-admin workspaces no longer render unsupported `audit` or `archiveExports` sections, and Site Dashboard `Recent Activity` now stays summary-only when there is no backed audit surface.
+  - Unlocks: a future site-scoped audit destination can be added deliberately instead of leaving dead-end navigation in place.
+  - Next: hosted section-level permission proof when allowed; otherwise review a safe site-scoped audit destination before restoring any site-admin audit navigation.
+  - Blockers: hosted proof needs safe hosted fake-account/audit runtime; site-scoped audit route shape still needs visibility review; missing-submission queue rows do not exist; archive retry/regenerate needs mutation policy.
+  - Do not repeat: do not re-add site-admin audit/export nav without a backed route and focused coverage.
+  - First file to inspect next run: `workspace.js`

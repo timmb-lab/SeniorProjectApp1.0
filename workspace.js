@@ -1311,8 +1311,8 @@ function availableSections() {
   if (hasGlobalAdminRole(roles)) sections.push({ id: "adminDashboard", label: "Admin Command Center", detail: "Platform operations" });
   if (hasGlobalAdminRole(roles) || roles.has("site_admin") || roles.has("administration") || roles.has("misc_admin")) sections.push({ id: "readiness", label: "Readiness", detail: "Aggregate project readiness" });
   if (canUseUsersAccess(roles)) sections.push({ id: "adminUsers", label: "Users & Access", detail: "Create users and manage access" });
-  if (hasGlobalAdminRole(roles) || roles.has("site_admin")) sections.push({ id: "audit", label: "Audit", detail: "Recent protected-record activity" });
-  if (hasGlobalAdminRole(roles) || roles.has("site_admin")) sections.push({ id: "archiveExports", label: "Archive / Exports", detail: "Closeout package status" });
+  if (hasGlobalAdminRole(roles)) sections.push({ id: "audit", label: "Audit", detail: "Recent protected-record activity" });
+  if (hasGlobalAdminRole(roles)) sections.push({ id: "archiveExports", label: "Archive / Exports", detail: "Closeout package status" });
   sections.push(hasGlobalAdminRole(roles)
     ? { id: "security", label: "Security", detail: "Password and session controls" }
     : { id: "security", label: "Account", detail: "Password and sessions" });
@@ -1548,6 +1548,7 @@ function renderSiteDashboardSection() {
   const summary = dashboard.summary || {};
   const scope = dashboard.scope || {};
   const readOnly = Boolean(scope.readOnly);
+  const canOpenAudit = availableSectionIds().has("audit");
   const presentationsTotal = safeNumber(summary.presentationsScheduled) + safeNumber(summary.presentationsPending);
   const archiveTotal = safeNumber(summary.exportsQueued)
     + safeNumber(summary.exportsRunning)
@@ -1580,7 +1581,7 @@ function renderSiteDashboardSection() {
         ${renderMetricTile("Evidence", summary.evidenceArtifacts, "Summary only; open student detail for evidence records", "mentor")}
         ${renderMetricTile("Presentations", presentationsTotal, `${safeNumber(summary.presentationsPending)} pending readiness`, "teacher", "operations", { label: "Review", preset: "presentation-pending" })}
         ${renderMetricTile("Archive / Exports", archiveTotal, `${safeNumber(summary.exportsFailed)} failed`, safeNumber(summary.exportsFailed) ? "danger" : "admin", "operations", { label: "Review", preset: "archive-failed" })}
-        ${renderMetricTile("Recent Activity", summary.recentActivityCount, "Recent site activity", "admin", "audit")}
+        ${renderMetricTile("Recent Activity", summary.recentActivityCount, canOpenAudit ? "Recent site activity" : "Summary only; recent activity count is shown here", "admin", canOpenAudit ? "audit" : "")}
       </div>
       ${siteStudentDetailState?.sourceSection === "siteDashboard" ? renderSiteStudentDetailSurface({
         students: (dashboard.topRiskStudents || []).map((row) => ({

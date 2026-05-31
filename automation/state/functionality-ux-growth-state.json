@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-05-31T15:10:00-07:00",
-  "lastStartingSha": "0c856402a6d484db5e11bc07141f7480f2144bfa",
+  "lastRunAt": "2026-05-31T15:32:31-07:00",
+  "lastStartingSha": "70a2d22f64b257776d53aace006b9b6049cc67fd",
   "lastEndingSha": null,
-  "currentLadderFocus": "LEVEL_7_AUDITABILITY_AND_TRUST",
+  "currentLadderFocus": "LEVEL_1_NAVIGABLE_DASHBOARDS",
   "completedWorkOrders": [
     {
       "id": "workspace-header-product-language-cleanup",
@@ -809,6 +809,14 @@
       "type": "TYPE_G_VERIFICATION_REGRESSION_PROTECTION",
       "summary": "Users & Access now shows recent scoped access assignments and removals from site_access_assignment audit rows without exposing admin-note text or raw audit metadata.",
       "commit": "pending-closeout-commit"
+    },
+    {
+      "id": "site-admin-global-only-nav-repair",
+      "completedAt": "2026-05-31T15:32:31-07:00",
+      "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS",
+      "type": "TYPE_B_DASHBOARD_CLICK_THROUGH",
+      "summary": "Site-admin workspaces no longer expose unsupported Global Admin-only Audit or Archive / Exports sections, and Site Dashboard Recent Activity stays summary-only when no backed audit surface exists.",
+      "commit": "pending-closeout-commit"
     }
   ],
   "deferredWorkOrders": [
@@ -865,7 +873,7 @@
     {
       "id": "admin-recent-audit-deep-link",
       "ladderLevel": "LEVEL_7_AUDITABILITY_AND_TRUST",
-      "reason": "Open only after the site-admin audit destination shape and visibility rules are explicitly reviewed."
+      "reason": "Restore any site-admin audit navigation only after a site-scoped audit destination and visibility rules are explicitly reviewed."
     }
   ],
   "blockedWorkOrders": [],
@@ -880,7 +888,7 @@
       "id": "admin-recent-audit-deep-link",
       "ladderLevel": "LEVEL_7_AUDITABILITY_AND_TRUST",
       "type": "TYPE_G_VERIFICATION_REGRESSION_PROTECTION",
-      "summary": "Review whether the existing Recent Audit card can open a scoped audit destination for site admins without broadening visibility."
+      "summary": "Review a safe site-scoped audit destination before restoring any audit navigation for site admins."
     },
     {
       "id": "review-queue-missing-submission-semantics",
@@ -990,20 +998,20 @@
     "Do not defer Student Directory missing-evidence filtering as unsupported unless regression removes evidenceStatus=missing route support, the missing-evidence-students preset, or focused workspace/verifier coverage.",
     "Do not re-add the Users & Access current assignment summary unless data-site-access-assignment-summary=\"true\" or focused workspace coverage regresses.",
     "Do not re-add Users & Access Assign/Remove guidance unless data-site-access-action-guidance or Save access change regresses.",
-    "Do not re-add Users & Access recent access changes unless data-site-access-history=\"true\" or the focused route/workspace coverage regresses."
+    "Do not re-add Users & Access recent access changes unless data-site-access-history=\"true\" or the focused route/workspace coverage regresses.",
+    "Do not re-add site-admin Audit or Archive / Exports navigation unless a real backed site-scoped surface exists and focused coverage proves it."
   ],
   "lastValidationStatus": {
     "status": "passed",
-    "completedAt": "2026-05-31T15:13:32-07:00",
+    "completedAt": "2026-05-31T15:35:00-07:00",
     "commands": [
       "node --test tests/workspace-app.test.mjs",
-      "node --test tests/site-access-assignments.integration.test.mjs",
+      "node --test tests/functionality-language-audit.test.mjs",
       "npm run verify:functionality-language",
       "npm run verify:dashboard-actions",
       "npm run verify:workspace-navigation",
       "npm run verify:functionality-ux-automation",
-      "node --test tests/functionality-language-audit.test.mjs",
-      "JSON parse for automation/state/functionality-ux-growth-state.json and docs/progress/runs/2026-05-31-1510-site-access-history-panel.json",
+      "JSON parse for automation/state/functionality-ux-growth-state.json and docs/progress/runs/2026-05-31-1532-site-admin-nav-integrity.json",
       "git diff --check",
       "npm run check:production-surfaces",
       "npm run check:route-inventory",
@@ -1011,7 +1019,7 @@
       "npm run typecheck",
       "npm run check"
     ],
-    "notes": "Full validation passed for the Users & Access recent access history panel. git diff --check reported only CRLF normalization warnings. This run adds a read-only scoped audit history payload plus workspace rendering and focused route/UI coverage; it does not change auth role grants, tenant/site/program/student privacy boundaries, migrations, secrets/env files, Cloudflare/OAuth/domain config, deploy settings, or live data."
+    "notes": "Full validation passed for the site-admin navigation integrity repair. git diff --check reported only CRLF normalization warnings. This run removes unsupported site-admin audit/export navigation, keeps Recent Activity summary-only until a backed audit surface exists, and does not change auth role grants, tenant/site/program/student privacy boundaries, migrations, secrets/env files, Cloudflare/OAuth/domain config, deploy settings, or live data."
   },
   "lastProductReadinessScorecardSummary": {
     "homepageClarity": "4 to 4",

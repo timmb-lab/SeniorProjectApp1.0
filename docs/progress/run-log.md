@@ -2455,3 +2455,14 @@ Future productive runs should append compact entries that name the master-plan s
 - `changes`: `functions/api/site/access-assignments.ts` now returns a bounded `history` array built from existing scoped `site_access_assignment` audit rows while excluding free-form admin-note text and raw audit metadata. `workspace.js` now renders a `Recent access changes` panel before the assignment forms, and `tests/site-access-assignments.integration.test.mjs` plus `tests/workspace-app.test.mjs` prove the history stays site-scoped, hides admin notes, and renders before the mutation forms.
 - `validation`: focused workspace and site-access route tests passed before docs/state closeout. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
 - `commit/push status`: pending closeout commit; not pushed by this automation run.
+
+## 2026-05-31 PT - Functionality UX Upgrade Site Admin Nav Integrity
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 1 navigable dashboards / Level 4 role-specific workspace clarity.
+- `starting HEAD`: `70a2d22f64b257776d53aace006b9b6049cc67fd`.
+- `selected slice`: Remove unsupported Global Admin-only audit/export navigation from site-admin workspaces and keep Site Dashboard `Recent Activity` summary-only when no backed audit surface exists.
+- `repo-grounded findings`: `workspace.js` still exposed `Audit` and `Archive / Exports` sections to `site_admin`, and Site Dashboard `Recent Activity` linked to `audit`, but only Global Admin users loaded `/api/admin/dashboard`, which meant site-scoped users could open unavailable sections instead of a real route-backed surface.
+- `changes`: `workspace.js` now limits `Audit` and `Archive / Exports` navigation to Global Admin users and renders Site Dashboard `Recent Activity` as summary-only when the backed audit section is unavailable. `tests/workspace-app.test.mjs` proves site-admin workspaces no longer expose those unsupported sections while Global Admin source gating remains intact.
+- `validation`: focused `node --test tests/workspace-app.test.mjs` passed before docs/state closeout. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.
