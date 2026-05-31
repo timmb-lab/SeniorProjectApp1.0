@@ -723,6 +723,7 @@ function archiveStatusFor(
     if (archiveArtifactExpiresSoon(row.latest_export_artifact_expires_at, { warningDays: options.expiryWarningDays })) return "expiring_soon";
     return "complete";
   }
+  if (row.story_bucket === "archive_ready" && !options.archiveProviderReady) return "provider_unavailable";
   if (row.story_bucket === "archive_ready") return "ready";
   return "missing";
 }

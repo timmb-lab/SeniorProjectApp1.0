@@ -130,6 +130,36 @@ test("site operations readiness route is scoped, read-only, audited, bounded, an
   assert.equal(archiveExpired.pagination.filteredTotal, archiveExpired.summary.archiveExpired);
   assert.equal(archiveExpired.archive.rows.every((row) => row.archiveStatus === "expired" && row.downloadReady === false), true);
 
+  const configuredRoot = env.GOOGLE_DRIVE_EVIDENCE_ROOT_ID;
+  const configuredIndex = env.GOOGLE_DRIVE_EVIDENCE_INDEX_SHEET_ID;
+  env.GOOGLE_DRIVE_EVIDENCE_ROOT_ID = "";
+  env.GOOGLE_DRIVE_EVIDENCE_INDEX_SHEET_ID = "";
+  await db.prepare(
+    `DELETE FROM export_artifacts
+     WHERE export_id IN (
+       SELECT exports.id
+       FROM exports
+       INNER JOIN user_accounts student ON student.id = exports.target_user_id
+       WHERE student.display_name LIKE 'Archive Ready Demo 01%'
+     )`,
+  ).run();
+  await db.prepare(
+    `DELETE FROM exports
+     WHERE target_user_id IN (
+       SELECT id FROM user_accounts WHERE display_name LIKE 'Archive Ready Demo 01%'
+     )`,
+  ).run();
+  const providerUnavailable = await expectOperations(env, tokens.siteAdminPrimary, `?siteId=${PRIMARY_SITE_ID}&archiveStatus=provider_unavailable&limit=100`);
+  assert.equal(providerUnavailable.filters.archiveStatus, "provider_unavailable");
+  assert.equal(providerUnavailable.archive.summary.providerUnavailable > 0, true);
+  assert.equal(providerUnavailable.pagination.filteredTotal, providerUnavailable.archive.summary.providerUnavailable);
+  assert.equal(providerUnavailable.archive.rows.every((row) => row.archiveStatus === "provider_unavailable"), true);
+  assert.equal(providerUnavailable.archive.rows.every((row) => row.providerStatus === "drive_config_missing"), true);
+  assert.equal(providerUnavailable.archive.rows.every((row) => row.failed === true && row.storageIdentifiersRedacted === true), true);
+  assert.equal(providerUnavailable.readiness.attentionRows.every((row) => row.category === "archive" && row.status === "blocked"), true);
+  env.GOOGLE_DRIVE_EVIDENCE_ROOT_ID = configuredRoot;
+  env.GOOGLE_DRIVE_EVIDENCE_INDEX_SHEET_ID = configuredIndex;
+
   const presentationPending = await expectOperations(env, tokens.siteAdminPrimary, `?siteId=${PRIMARY_SITE_ID}&presentationStatus=pending&limit=100`);
   assert.equal(presentationPending.pagination.filteredTotal > 0, true);
   assert.equal(presentationPending.presentation.rows.some((row) => /^Presentation Pending Demo/i.test(row.studentName)), true);
@@ -225,6 +255,10 @@ async function createSeededDemoFixture() {
     SESSION_COOKIE_NAME: "sc_session",
     SESSION_PEPPER: "",
     AUTH_MODE: "hardened_username_password",
+    GOOGLE_DRIVE_EVIDENCE_ROOT_ID: "test-drive-root",
+    GOOGLE_DRIVE_EVIDENCE_INDEX_SHEET_ID: "test-drive-index",
+    GOOGLE_DRIVE_CLIENT_EMAIL: "archive-test@example.test",
+    GOOGLE_DRIVE_PRIVATE_KEY: "test-private-key",
   };
 
   await db.prepare(

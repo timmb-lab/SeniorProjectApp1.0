@@ -95,6 +95,7 @@ assertMatches("workspaceJs", /sectionPreset === "archive-failed"[\s\S]*archiveSt
 assertMatches("workspaceJs", /sectionPreset === "archive-in-progress"[\s\S]*archiveStatus: "in_progress"/, "Archive In Progress dashboard preset must open Operations with the supported queued/running filter");
 assertMatches("workspaceJs", /sectionPreset === "archive-expiring-soon"[\s\S]*archiveStatus: "expiring_soon"/, "Archive Expiring Soon dashboard preset must open Operations with the supported expiring-soon filter");
 assertMatches("workspaceJs", /sectionPreset === "archive-expired"[\s\S]*archiveStatus: "expired"/, "Archive Expired dashboard preset must open Operations with the supported expired filter");
+assertMatches("workspaceJs", /sectionPreset === "archive-provider-unavailable"[\s\S]*archiveStatus: "provider_unavailable"/, "Storage Setup Needed dashboard preset must open Operations with the supported provider-unavailable filter");
 assertMatches("workspaceJs", /sectionPreset === "needs-attention"[\s\S]*needsAttention: true/, "Needs Attention dashboard preset must open Operations with a supported attention filter");
 assertMatches("workspaceJs", /sectionPreset === "stale-activity"[\s\S]*risk: "stale"/, "Stale Activity dashboard preset must open Operations with the supported stale risk filter");
 assertMatches("workspaceJs", /sectionPreset === "outline-pending"[\s\S]*outlineAttention: true/, "Outline Pending dashboard preset must open Operations with a supported outline filter");

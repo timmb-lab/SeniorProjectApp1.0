@@ -3591,3 +3591,54 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: hosted permission/browser proof still needs fake `.test` credentials and available hosted runtime.
   - Do not repeat: Viewer monitoring queue is complete unless regression evidence appears.
   - First file to inspect next run: `scripts/check-hosted-workspace-permissions.mjs`
+
+## Run 2026-05-31 03:09 PT
+
+- Starting SHA: `a77395a78f632defae95d034bf3d5b9a55a224a7`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Branch policy: work stayed on clean local `main`; local `main` was aligned with `origin/main`, and no push was run
+- Ladder level targeted: `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` with `LEVEL_1_NAVIGABLE_DASHBOARDS` route-backed action support
+- Backlog item: `operations-provider-unavailable-semantics`; supports `MVP-015`, `MVP-018`, and `MVP-022`
+- Work order selected: Add real Operations `provider_unavailable` archive semantics and a `Storage Setup Needed` metric.
+- Selection reason: Current source already exposed `provider_unavailable` as an allowed Operations archive status and summarized `archive.providerUnavailable`, but `archiveStatusFor()` never returned it when storage setup was missing. The safe compounding slice was to make the existing filter real and add one route-backed metric without retry/export controls.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Operations Storage Setup Needed filter | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | site staff, viewer, program_teacher | 5 | 5 | 5 | S | 58 | selected |
+| Hosted section-level permission proof | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all protected roles | 4 | 4 | 3 | M | 40 | blocked: credentialed runtime |
+| Review Queue missing-submission semantics | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | program_teacher, site staff | 5 | 2 | 3 | M | 34 | deferred: no exact queue semantics |
+| Student Directory missing-evidence filter | `LEVEL_1_NAVIGABLE_DASHBOARDS` | site staff, viewer | 4 | 2 | 3 | M | 35 | deferred: route filter missing |
+| Archive retry/regenerate controls | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | site_admin | 5 | 2 | 3 | M | 34 | rejected: mutation policy |
+| Mentor workload threshold guidance | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | site_admin, viewer | 4 | 3 | 3 | M | 39 | rejected: threshold policy unclear |
+| Student guided requirement form | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 5 | 2 | 3 | L | 32 | rejected: write-path design needed |
+| Public route browser/mobile visual QA | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | public students, teachers | 3 | 4 | 3 | M | 40 | rejected: lower protected-app value |
+| Admin recent activity drill-down | `LEVEL_7_AUDITABILITY_AND_TRUST` | admin, site staff | 4 | 3 | 3 | M | 38 | rejected: permission shape needs review |
+| Operations provider empty-state copy | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | site staff, viewer | 3 | 5 | 4 | XS | 44 | rejected: less functional than route-backed semantics |
+| Viewer monitoring queue regression check | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | viewer | 2 | 5 | 4 | XS | 36 | rejected: completed last run |
+| Aggregate Readiness report follow-up | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | misc_admin, admin | 3 | 4 | 4 | XS | 37 | rejected: recently completed |
+
+- User-facing improvement: Operations users now see archive storage setup blockers as `Storage Setup Needed` and can open exact scoped rows with `archiveStatus=provider_unavailable` instead of mixing those blockers into generic archive-ready or archive-failed work.
+- Roles affected: `platform_admin`, `admin`, `org_admin`, `site_admin`, `viewer`, and `program_teacher`; no student, mentor, tenant, site, program, or record visibility was broadened.
+- Files changed: `functions/_lib/site-operations-readiness.ts`, `workspace.js`, `tests/site-operations-readiness.integration.test.mjs`, `tests/workspace-app.test.mjs`, `scripts/verify-dashboard-actions.mjs`, `scripts/verify-workspace-navigation-integrity.mjs`, `docs/functionality-language-audit.md`, `docs/mvp-requirements-catalog.md`, `docs/progress/run-log.md`, `docs/progress/runs/2026-05-31-0309-operations-storage-setup-needed.json`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`
+- Tests/verifiers added or updated: route test proves provider-missing archive-ready rows return `provider_unavailable` with redaction and blocked archive readiness; workspace test proves the metric, preset, and school-facing storage labels; dashboard/navigation verifiers guard the new preset.
+- Validation commands:
+  - Focused passed before docs/state closeout: `node --test tests/site-operations-readiness.integration.test.mjs`; `node --test tests/workspace-app.test.mjs`; `npm run verify:dashboard-actions`; `npm run verify:workspace-navigation`
+  - Final passed: `node --test tests/functionality-language-audit.test.mjs`; `npm run verify:functionality-language`; `npm run verify:functionality-ux-automation`; JSON parse for state and run manifest; `git diff --check`; `npm run check:production-surfaces`; `npm run check:route-inventory`; `npm run test`; `npm run typecheck`; `npm run check`
+- Validation result: passed; `git diff --check` reported only CRLF normalization warnings, with no whitespace errors.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: hosted section-level permission proof, Review Queue missing-submission semantics, Student Directory missing-evidence filter, archive retry/regenerate controls, org rollups, and public-route browser/mobile QA remain deferred.
+- New backlog items: none
+- Next recommended work order: run `npm run check:workspace:hosted-permissions` when fake `.test` credentials/runtime are available; otherwise inspect Operations provider/download empty-state guidance for the new provider-unavailable filter.
+- Do-not-repeat notes: do not re-add `Storage Setup Needed` unless regression removes `archiveStatus=provider_unavailable`, `archive.summary.providerUnavailable`, or the `archive-provider-unavailable` dashboard/verifier coverage.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS`
+  - Advanced: yes
+  - Evidence: Operations now produces provider-unavailable archive rows when storage setup is missing and opens them through the `Storage Setup Needed` route-backed metric.
+  - Unlocks: Staff can separate storage setup blockers from student closeout readiness without fake retry/export controls.
+  - Next: hosted section-level permission proof, or Operations provider/download empty-state guidance if hosted credentials/runtime remain unavailable.
+  - Blockers: hosted permission/browser proof still needs fake `.test` credentials and available hosted runtime; archive retry/regenerate controls still need approved mutation policy.
+  - Do not repeat: Storage Setup Needed metric and provider-unavailable route semantics are complete unless regression evidence appears.
+  - First file to inspect next run: `scripts/check-hosted-workspace-permissions.mjs`

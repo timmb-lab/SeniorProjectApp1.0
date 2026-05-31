@@ -2224,6 +2224,7 @@ test("workspace renders site-scoped Operations readiness worklists without mutat
   assert.match(siteAdmin, /Archive Expiring Soon/);
   assert.match(siteAdmin, /Archive Expired/);
   assert.match(siteAdmin, /Archive Failed/);
+  assert.match(siteAdmin, /Storage Setup Needed/);
   assert.match(siteAdmin, /Needs Attention/);
   assert.match(siteAdmin, /Stale Activity/);
   assert.match(siteAdmin, /Evidence Missing/);
@@ -2235,12 +2236,15 @@ test("workspace renders site-scoped Operations readiness worklists without mutat
   assert.match(siteAdmin, /data-section="operations" data-section-preset="archive-expiring-soon">Review rows/);
   assert.match(siteAdmin, /data-section="operations" data-section-preset="archive-expired">Review rows/);
   assert.match(siteAdmin, /data-section="operations" data-section-preset="archive-failed">Review rows/);
+  assert.match(siteAdmin, /data-section="operations" data-section-preset="archive-provider-unavailable">Review rows/);
   assert.match(siteAdmin, /data-section="operations" data-section-preset="needs-attention">Review rows/);
   assert.match(siteAdmin, /data-section="operations" data-section-preset="stale-activity">Review rows/);
   assert.match(siteAdmin, /data-section="operations" data-section-preset="evidence-missing">Review rows/);
   assert.match(siteAdmin, /Presentation Pending Demo 001/);
   assert.match(siteAdmin, /Archive Failed Demo 001/);
   assert.match(siteAdmin, /Archive Ready Demo 001/);
+  assert.match(siteAdmin, /Archive Storage Demo 001/);
+  assert.match(siteAdmin, /Storage unavailable/);
   assert.match(siteAdmin, /Storage setup needed/);
   assert.doesNotMatch(siteAdmin, /drive_config_missing|drive_credentials_missing|drive_token_exchange_failed|drive_provider_error|drive_access_denied/);
   assert.match(siteAdmin, /High Risk Demo 001/);
@@ -4855,6 +4859,26 @@ function siteOperationsReadinessFixture({
       owner: "Site administration",
       nextAction: "Ask authorized staff to generate a fresh archive package.",
     },
+    {
+      studentId: "demo-student-053",
+      studentName: "Archive Storage Demo 001",
+      programId: "it",
+      programName: "Information Technology",
+      storyBucket: "archive_ready",
+      riskScore: 4,
+      riskFlags: ["archive_failed"],
+      archiveStatus: "provider_unavailable",
+      exportStatus: "not_requested",
+      ready: false,
+      failed: true,
+      providerStatus: "drive_credentials_missing",
+      downloadReady: false,
+      downloadExpiresSoon: false,
+      storageIdentifiersRedacted: true,
+      reason: "Archive provider setup is unavailable.",
+      owner: "Archive operations",
+      nextAction: "Confirm archive storage setup before generating packages.",
+    },
   ];
   const attentionRows = [
     {
@@ -4948,7 +4972,7 @@ function siteOperationsReadinessFixture({
         running: 1,
         expired: 1,
         expiringSoon: 1,
-        providerUnavailable: 0,
+        providerUnavailable: 1,
       },
       rows: archiveRows,
     },

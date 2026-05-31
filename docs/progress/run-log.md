@@ -21,6 +21,17 @@ This is the compact run log for the current Functionality UX Upgrade automation 
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-05-31 03:09 PT - Functionality UX Upgrade Operations Storage Setup
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 8 reporting and operational readiness / Level 1 route-backed dashboard navigation.
+- `starting HEAD`: `a77395a78f632defae95d034bf3d5b9a55a224a7`.
+- `selected slice`: Add real Operations `provider_unavailable` archive semantics and a `Storage Setup Needed` metric.
+- `repo-grounded findings`: the previous handoff named provider-unavailable Operations semantics. Current `/api/site/operations-readiness` already listed `provider_unavailable`, summarized `archive.providerUnavailable`, and accepted `archiveStatus=provider_unavailable`, but `archiveStatusFor()` never returned that status when archive storage setup was missing.
+- `changes`: `functions/_lib/site-operations-readiness.ts` now marks archive-ready rows as `provider_unavailable` when archive provider setup is missing and no completed package already exists; `workspace.js` renders `Storage Setup Needed` with a route-backed Operations preset; focused route/UI tests and dashboard/navigation verifiers guard the exact filter.
+- `validation`: focused route test, workspace test, dashboard-action verifier, and workspace-navigation verifier passed before final validation. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.
+
 ## 2026-05-26 01:34 PT - Functionality UX Upgrade Review Queue Empty States
 
 - `automation ID`: functionality-ux-upgrade-hourly.

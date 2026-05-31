@@ -97,6 +97,7 @@ const allowedPresets = new Map([
   ["archive-in-progress", "operations"],
   ["archive-expiring-soon", "operations"],
   ["archive-expired", "operations"],
+  ["archive-provider-unavailable", "operations"],
   ["needs-attention", "operations"],
   ["stale-activity", "operations"],
   ["outline-pending", "operations"],
@@ -342,6 +343,16 @@ assertMatches(
   "workspaceJs",
   /renderMetricTile\("Archive Expired"[\s\S]*"operations", \{ label: "Review rows", preset: "archive-expired" \}\)/,
   "Operations Archive Expired metric must open the existing expired archive worklist filter",
+);
+assertMatches(
+  "workspaceJs",
+  /section === "operations" && button\.dataset\.sectionPreset === "archive-provider-unavailable"[\s\S]*archiveStatus: "provider_unavailable"[\s\S]*syncOperationsReadinessUrlState\(\)/,
+  "archive provider-unavailable dashboard preset must be backed by the exact Operations provider-unavailable archive filter and sync URL state",
+);
+assertMatches(
+  "workspaceJs",
+  /renderMetricTile\("Storage Setup Needed"[\s\S]*"operations", \{ label: "Review rows", preset: "archive-provider-unavailable" \}\)/,
+  "Operations Storage Setup Needed metric must open the existing provider-unavailable archive worklist filter",
 );
 assertMatches(
   "workspaceJs",
