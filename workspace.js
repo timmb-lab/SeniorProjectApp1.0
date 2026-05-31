@@ -2727,7 +2727,7 @@ function renderProgramTeacherDashboardSection() {
       </div>
       ${renderDashboardCard("Needs Attention", "Priority follow-up", renderNeedsAttention(dashboard.needsAttention))}
       <div class="workspace-dashboard-grid workspace-dashboard-grid-two">
-        ${renderDashboardCard("Needs Review", "Submitted and revision records", renderReviewQueueSummary(dashboard.needsReview))}
+        ${renderDashboardCard("Needs Review", "Submitted and revision records", renderReviewQueueSummary(dashboard.needsReview, { allowStudentDetail: true }))}
         ${renderDashboardCard("Program Breakdown", "Students by program", renderProgramBreakdown(dashboard.programBreakdown))}
         ${renderDashboardCard("Students", "Assigned student list", renderScopedStudentList(dashboard.students))}
       </div>
@@ -6904,19 +6904,29 @@ function renderProgramBreakdown(rows = []) {
   `;
 }
 
-function renderReviewQueueSummary(rows = []) {
+function renderReviewQueueSummary(rows = [], options = {}) {
   if (!rows.length) return `<div class="workspace-empty">No submitted or revision-requested records need teacher review right now.</div>`;
+  const allowStudentDetail = Boolean(options.allowStudentDetail && availableSectionIds().has("students"));
   return `
     <div class="workspace-list">
-      ${rows.slice(0, 8).map((item) => `
-        <article class="workspace-row">
-          <div>
-            <strong>${escapeHtml(item.studentName || item.student_name || "Student")}</strong>
-            <p>${escapeHtml(item.requirementTitle || item.requirement_title || "Capstone Project submission")} / ${safeNumber(item.evidenceCount ?? item.evidence_count)} evidence</p>
-          </div>
-          ${statusPill(item.status)}
-        </article>
-      `).join("")}
+      ${rows.slice(0, 8).map((item) => {
+        const studentId = item.studentId || item.student_id || "";
+        const detailAction = allowStudentDetail && studentId
+          ? `<button class="workspace-link-button workspace-link-button-small" type="button" data-site-student-action="view-detail" data-student-detail-id="${escapeHtml(studentId)}">View student detail</button>`
+          : "";
+        return `
+          <article class="workspace-row">
+            <div>
+              <strong>${escapeHtml(item.studentName || item.student_name || "Student")}</strong>
+              <p>${escapeHtml(item.requirementTitle || item.requirement_title || "Capstone Project submission")} / ${safeNumber(item.evidenceCount ?? item.evidence_count)} evidence</p>
+            </div>
+            <div class="workspace-row-actions">
+              ${statusPill(item.status)}
+              ${detailAction}
+            </div>
+          </article>
+        `;
+      }).join("")}
     </div>
   `;
 }

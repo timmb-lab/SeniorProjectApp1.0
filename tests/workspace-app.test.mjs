@@ -523,7 +523,17 @@ test("program teacher dashboard rows open existing student detail", async () => 
           presentationsPending: 0,
         },
         needsAttention: [],
-        needsReview: [],
+        needsReview: [
+          {
+            submissionId: "submission-program-student-001",
+            studentId: "demo-program-student-001",
+            studentName: "Program Student One",
+            requirementTitle: "Core Concept Proposal",
+            status: "submitted",
+            evidenceCount: 2,
+            updatedAt: "2026-05-24T18:00:00.000Z",
+          },
+        ],
         programBreakdown: [],
         students: [
           {
@@ -547,6 +557,7 @@ test("program teacher dashboard rows open existing student detail", async () => 
   assert.match(programTeacher, /Students by program/);
   assert.match(programTeacher, /Assigned student list/);
   assert.match(programTeacher, /Program Student One/);
+  assert.match(programTeacher, /Core Concept Proposal \/ 2 evidence/);
   assert.match(programTeacher, /data-site-student-action="view-detail"/);
   assert.match(programTeacher, /data-student-detail-id="demo-program-student-001"/);
   assert.doesNotMatch(programTeacher, /Source record counts|Visible in this role scope|assigned scope|Scoped Student Progress|program:it/);
@@ -595,7 +606,17 @@ test("program teacher dashboard detail actions preserve program dashboard contex
           presentationsPending: 0,
         },
         needsAttention: [],
-        needsReview: [],
+        needsReview: [
+          {
+            submissionId: "submission-demo-student-101",
+            studentId: "demo-student-101",
+            studentName: "Program Student One",
+            requirementTitle: "Core Concept Proposal",
+            status: "submitted",
+            evidenceCount: 2,
+            updatedAt: "2026-05-24T18:00:00.000Z",
+          },
+        ],
         programBreakdown: [],
         students: [
           {
@@ -617,6 +638,7 @@ test("program teacher dashboard detail actions preserve program dashboard contex
 
   vm.runInContext('activeSection = "programDashboard"; renderAppShell();', context);
   assert.match(workspaceRoot.innerHTML, /Program Student One/);
+  assert.match(workspaceRoot.innerHTML, /Core Concept Proposal \/ 2 evidence/);
   assert.doesNotMatch(workspaceRoot.innerHTML, /workspace-detail-drawer/);
 
   await vm.runInContext(`

@@ -2323,3 +2323,14 @@ Future productive runs should append compact entries that name the master-plan s
 - `changes`: `workspace.js` now renders exact-student empty copy for Presentation, Archive, and Readiness worklists. `tests/workspace-app.test.mjs` proves the active `This student` filter and current-student no-match guidance across all three Operations panels.
 - `validation`: focused workspace test plus functionality-language, dashboard-action, and workspace-navigation verifiers passed before docs/state closeout. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
 - `commit/push status`: pending closeout commit; not pushed by this automation run.
+
+## 2026-05-31 PT - Functionality UX Upgrade Program Review Row Detail
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 2 student detail depth / Level 4 role-specific Program Teacher workspace.
+- `starting HEAD`: `856ad5448321591190a8b67065fb4a927ad22e4d`.
+- `selected slice`: Add real student-detail actions to Program Teacher dashboard `Needs Review` rows.
+- `repo-grounded findings`: the Review Queue missing-submission handoff is still unsafe because `/api/site/review-queue` is built from existing submitted/revision/approved submission rows, not missing requirement rows. Program Teacher `Needs Review` rows already carry scoped `studentId` values but rendered only status pills, while the dashboard already has an authorized student-detail drawer pattern.
+- `changes`: `workspace.js` now lets Program Teacher review summary rows render `View student detail` actions through the existing student-detail handler. `tests/workspace-app.test.mjs` proves review rows show requirement/evidence context and that opening detail preserves Program Dashboard context.
+- `validation`: focused workspace test plus functionality-language, dashboard-action, and workspace-navigation verifiers passed before docs/state closeout. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.

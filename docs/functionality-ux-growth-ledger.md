@@ -3897,3 +3897,54 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: hosted permission proof would log into hosted fake accounts and exercise a denied admin-import POST path, which can write audit events; archive retry/regenerate controls still need approved mutation policy.
   - Do not repeat: Exact-student Operations no-match guidance is complete unless the student-filter branches or coverage regress.
   - First file to inspect next run: `functions/_lib/site-review-queue.ts` `buildFilterWhere()` for missing-submission semantics, or `scripts/check-hosted-workspace-permissions.mjs` if hosted audit evidence is allowed.
+
+## Run 2026-05-31 06:03 PT
+
+- Starting SHA: `856ad5448321591190a8b67065fb4a927ad22e4d`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Branch policy: work stayed on clean local `main`; local `main` was six commits ahead of `origin/main`, `origin/main` was not ahead, and no push was run
+- Ladder level targeted: `LEVEL_2_STUDENT_DETAIL_DEPTH` with `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` Program Teacher support
+- Backlog item: `program-teacher-needs-review-row-detail-action`; supports `MVP-032`, `MVP-033`, and `MVP-015` through `MVP-018`
+- Work order selected: Add real student-detail actions to Program Teacher dashboard `Needs Review` rows.
+- Selection reason: The prior handoff named Review Queue missing-submission semantics, but current source proves the Review Queue only has route-backed submitted/revision/approved submission rows. The safe adjacent Program Teacher gap was that `needsReview` rows already carried scoped `studentId` values but lacked the existing authorized detail action available elsewhere on the same dashboard.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Program Teacher Needs Review row detail action | `LEVEL_2_STUDENT_DETAIL_DEPTH` | program_teacher | 4 | 5 | 5 | XS | 55 | selected |
+| Review Queue missing-submission semantics | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | program_teacher, site staff | 5 | 2 | 3 | M | 34 | deferred: route model absent |
+| Hosted section-level permission proof | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all protected roles | 4 | 3 | 3 | M | 39 | deferred: hosted audit-event writes |
+| Student Directory missing-evidence filter | `LEVEL_1_NAVIGABLE_DASHBOARDS` | site staff, viewer | 4 | 2 | 3 | M | 35 | deferred: directory filter unsupported |
+| Archive retry/regenerate controls | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | site_admin | 5 | 2 | 3 | M | 34 | rejected: mutation policy not approved |
+| Mentor workload threshold guidance | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | site_admin, viewer | 4 | 3 | 3 | M | 39 | deferred: threshold policy unclear |
+| Admin recent activity drill-down | `LEVEL_7_AUDITABILITY_AND_TRUST` | admin, site staff | 4 | 3 | 3 | M | 38 | deferred: audit destination shape needs review |
+| Org admin rollup | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | org_admin | 5 | 2 | 2 | L | 29 | rejected: aggregate backend design absent |
+| Public route browser/mobile visual QA | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | public students, teachers | 3 | 4 | 3 | M | 40 | not selected: lower protected-app value |
+| Student archive hosted proof | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | student | 3 | 3 | 3 | M | 36 | deferred: hosted/live-data boundary |
+| Review Queue approved no-result guidance | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | program_teacher, site staff | 2 | 5 | 4 | XS | 40 | not selected: less functional than detail action |
+| Administration/AP dashboard language | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | site_admin, viewer | 3 | 4 | 4 | S | 41 | not selected: lower workflow depth |
+
+- User-facing improvement: Program Teachers can open the existing authorized student-detail drawer directly from dashboard review rows that need submitted/revision follow-up.
+- Roles affected: `program_teacher`; no student, mentor, viewer, misc_admin, tenant, site, program, or record visibility was broadened.
+- Files changed: `workspace.js`, `tests/workspace-app.test.mjs`, `docs/functionality-language-audit.md`, `docs/progress/run-log.md`, `docs/progress/runs/2026-05-31-0603-program-review-row-detail.json`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`
+- Tests/verifiers added or updated: workspace coverage proves Program Teacher review rows show requirement/evidence context and that the detail action preserves Program Dashboard context.
+- Validation commands:
+  - Focused passed before docs/state closeout: `node --test tests/workspace-app.test.mjs`; `npm run verify:functionality-language`; `npm run verify:dashboard-actions`; `npm run verify:workspace-navigation`
+  - Final passed: JSON parse for state/run manifest; `node --test tests/functionality-language-audit.test.mjs`; `npm run verify:functionality-ux-automation`; `git diff --check`; `npm run check:production-surfaces`; `npm run check:route-inventory`; `npm run test`; `npm run typecheck`; `npm run check`
+- Validation result: passed; `git diff --check` reported only CRLF normalization warnings, with no whitespace errors.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: Review Queue missing-submission semantics, hosted section-level permission proof, Student Directory missing-evidence filter, archive retry/regenerate controls, mentor workload threshold guidance, org rollups, student archive hosted proof, and public-route browser/mobile QA remain deferred.
+- New backlog items: none
+- Next recommended work order: inspect whether Program Teacher `needsReview` rows should open the selected Review Queue submission panel through a real route-backed selection model; otherwise continue Review Queue missing-submission semantics only after route support exists.
+- Do-not-repeat notes: do not re-add Program Teacher `Needs Review` row detail actions unless regression removes `allowStudentDetail: true` or the focused Program Dashboard context coverage.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_2_STUDENT_DETAIL_DEPTH`
+  - Advanced: yes
+  - Evidence: Program Teacher `Needs Review` rows now expose real `View student detail` actions through the existing authorized detail drawer, and focused tests prove context preservation.
+  - Unlocks: Teachers can move from review workload signals into student context before deciding whether to review, request revision, or inspect broader work.
+  - Next: evaluate a real selected-submission Review Queue deep link only if route/UI selection can be represented without fake query params; otherwise wait on missing-submission route semantics.
+  - Blockers: Review Queue missing-submission remains blocked on backend queue semantics because missing requirements do not exist as Review Queue submission rows.
+  - Do not repeat: Program Teacher review-row detail action is complete unless coverage or `allowStudentDetail` regresses.
+  - First file to inspect next run: `workspace.js` `renderReviewQueueSummary()` and `functions/_lib/site-review-queue.ts` `buildFilterWhere()`.

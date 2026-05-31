@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-05-31T05:33:31-07:00",
-  "lastStartingSha": "524a74ddbe91bb24eb863333cba3d6f4dafc65b9",
+  "lastRunAt": "2026-05-31T06:03:39-07:00",
+  "lastStartingSha": "856ad5448321591190a8b67065fb4a927ad22e4d",
   "lastEndingSha": null,
-  "currentLadderFocus": "LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS",
+  "currentLadderFocus": "LEVEL_2_STUDENT_DETAIL_DEPTH",
   "completedWorkOrders": [
     {
       "id": "workspace-header-product-language-cleanup",
@@ -713,6 +713,14 @@
       "type": "TYPE_D_ROLE_WORKSPACE",
       "summary": "Operations no-match states now recognize exact-student filters from authorized student detail and tell staff when the current student has no matching presentation, archive, or readiness rows.",
       "commit": "pending-closeout-commit"
+    },
+    {
+      "id": "program-teacher-needs-review-row-detail-action",
+      "completedAt": "2026-05-31T06:03:39-07:00",
+      "ladderLevel": "LEVEL_2_STUDENT_DETAIL_DEPTH",
+      "type": "TYPE_C_STUDENT_DETAIL_DRILL_DOWN",
+      "summary": "Program Teacher dashboard Needs Review rows now open the existing authorized student-detail drawer while preserving Program Dashboard context.",
+      "commit": "pending-closeout-commit"
     }
   ],
   "deferredWorkOrders": [
@@ -760,16 +768,16 @@
   "blockedWorkOrders": [],
   "nextRecommendedWorkOrders": [
     {
-      "id": "hosted-section-permission-proof",
-      "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
-      "type": "TYPE_G_VERIFICATION_REGRESSION_PROTECTION",
-      "summary": "Run hosted section-level permission proof only when hosted audit-event writes are allowed."
+      "id": "review-queue-selected-submission-deeplink-feasibility",
+      "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
+      "type": "TYPE_F_REVIEW_INTERVENTION_QUEUE",
+      "summary": "Evaluate a real selected-submission Review Queue deep link only if it can be route-backed without fake query params."
     },
     {
       "id": "review-queue-missing-submission-semantics",
       "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
       "type": "TYPE_F_REVIEW_INTERVENTION_QUEUE",
-      "summary": "Review Queue missing-submission work remains deferred until product-safe semantics and route support are explicit."
+      "summary": "Missing-submission queue work remains deferred until backend queue semantics include missing requirement rows."
     }
   ],
   "doNotRepeat": [
@@ -854,11 +862,12 @@
     "Do not re-clean student Archive signed-link/export-wiring/provider copy unless regression removes studentArchiveDownloadStatusCopy() or the verifier rules for signed-link/export-wiring/scoped archive/provider wording.",
     "Do not re-add student-detail timeline type filters unless regression removes data-student-detail-timeline-filters=\"true\", STUDENT_DETAIL_TIMELINE_TYPES, or the type=review workspace coverage.",
     "Do not re-add student-detail Operations exact-student filtering unless regression removes filters.studentId, the studentId route test, or data-student-detail-action=\"open-operations\" workspace coverage.",
-    "Do not re-clean exact-student Operations no-match guidance unless regression removes the studentId-specific Presentation, Archive, or Readiness empty-state branches or the focused workspace coverage."
+    "Do not re-clean exact-student Operations no-match guidance unless regression removes the studentId-specific Presentation, Archive, or Readiness empty-state branches or the focused workspace coverage.",
+    "Do not re-add Program Teacher Needs Review row detail actions unless regression removes allowStudentDetail: true or the focused Program Dashboard context coverage."
   ],
   "lastValidationStatus": {
     "status": "passed",
-    "completedAt": "2026-05-31T05:36:36-07:00",
+    "completedAt": "2026-05-31T06:03:39-07:00",
     "commands": [
       "node --test tests/workspace-app.test.mjs",
       "npm run verify:functionality-language",
@@ -866,7 +875,7 @@
       "npm run verify:workspace-navigation",
       "node --test tests/functionality-language-audit.test.mjs",
       "npm run verify:functionality-ux-automation",
-      "node -e JSON.parse automation/state/functionality-ux-growth-state.json and docs/progress/runs/2026-05-31-0533-exact-student-operations-empty-states.json",
+      "node -e JSON.parse automation/state/functionality-ux-growth-state.json and docs/progress/runs/2026-05-31-0603-program-review-row-detail.json",
       "git diff --check",
       "npm run check:production-surfaces",
       "npm run check:route-inventory",
@@ -874,7 +883,7 @@
       "npm run typecheck",
       "npm run check"
     ],
-    "notes": "Full validation passed for exact-student Operations empty-state guidance. git diff --check reported only CRLF normalization warnings. This run changes protected workspace copy/control flow, focused tests, and run records only; it does not change auth role grants, tenant/site/program/student privacy boundaries, migrations, secrets/env files, Cloudflare/OAuth/domain config, deploy settings, mutation controls, or live data."
+    "notes": "Full validation passed for Program Teacher Needs Review row detail actions. git diff --check reported only CRLF normalization warnings. This run changes protected workspace navigation, focused tests, and run records only; it does not change auth role grants, tenant/site/program/student privacy boundaries, migrations, secrets/env files, Cloudflare/OAuth/domain config, deploy settings, mutation controls, or live data."
   },
   "lastProductReadinessScorecardSummary": {
     "homepageClarity": "4 to 4",

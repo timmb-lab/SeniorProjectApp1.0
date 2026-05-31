@@ -1,0 +1,95 @@
+{
+  "automationId": "functionality-ux-upgrade-hourly",
+  "runStartedAt": "2026-05-31T06:03:39-07:00",
+  "branch": "main",
+  "startingSha": "856ad5448321591190a8b67065fb4a927ad22e4d",
+  "endingSha": null,
+  "originMainSha": "a77395a78f632defae95d034bf3d5b9a55a224a7",
+  "aheadOfOriginMain": 6,
+  "behindOriginMain": 0,
+  "ladderLevel": "LEVEL_2_STUDENT_DETAIL_DEPTH",
+  "supportingLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+  "workOrder": {
+    "id": "program-teacher-needs-review-row-detail-action",
+    "type": "TYPE_C_STUDENT_DETAIL_DRILL_DOWN",
+    "title": "Program Teacher Needs Review row detail action",
+    "selected": true,
+    "reason": "Program Teacher dashboard needsReview rows already carry scoped student IDs but did not expose the existing authorized student-detail action."
+  },
+  "candidateCount": 12,
+  "topCandidates": [
+    {
+      "id": "program-teacher-needs-review-row-detail-action",
+      "score": 55,
+      "decision": "selected"
+    },
+    {
+      "id": "review-queue-missing-submission-semantics",
+      "score": 34,
+      "decision": "deferred-route-model-absent"
+    },
+    {
+      "id": "hosted-section-permission-proof",
+      "score": 39,
+      "decision": "deferred-hosted-audit-writes"
+    },
+    {
+      "id": "student-directory-missing-evidence-filter",
+      "score": 35,
+      "decision": "deferred-unsupported-filter"
+    }
+  ],
+  "repoGroundedEvidence": [
+    "`functions/_lib/site-review-queue.ts` builds Review Queue rows from existing submissions and does not model missing requirements as queue rows.",
+    "`functions/api/program-teacher/dashboard.ts` returns needsReview rows with studentId, submissionId, status, requirementTitle, and evidenceCount.",
+    "`workspace.js` already has a context-preserving student-detail handler for Program Dashboard rows."
+  ],
+  "filesChanged": [
+    "workspace.js",
+    "tests/workspace-app.test.mjs",
+    "docs/functionality-language-audit.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-31-0603-program-review-row-detail.json",
+    "docs/functionality-ux-growth-ledger.md",
+    "automation/state/functionality-ux-growth-state.json"
+  ],
+  "validation": {
+    "focusedPassed": [
+      "node --test tests/workspace-app.test.mjs",
+      "npm run verify:functionality-language",
+      "npm run verify:dashboard-actions",
+      "npm run verify:workspace-navigation"
+    ],
+    "finalPassed": [
+      "node --test tests/workspace-app.test.mjs",
+      "npm run verify:functionality-language",
+      "npm run verify:dashboard-actions",
+      "npm run verify:workspace-navigation",
+      "node --test tests/functionality-language-audit.test.mjs",
+      "npm run verify:functionality-ux-automation",
+      "node -e JSON.parse automation/state/functionality-ux-growth-state.json and docs/progress/runs/2026-05-31-0603-program-review-row-detail.json",
+      "git diff --check",
+      "npm run check:production-surfaces",
+      "npm run check:route-inventory",
+      "npm run test",
+      "npm run typecheck",
+      "npm run check"
+    ],
+    "status": "passed",
+    "notes": "Full validation passed; git diff --check reported only CRLF normalization warnings."
+  },
+  "privacyAndSafety": {
+    "authChanged": false,
+    "rbacChanged": false,
+    "tenantBoundaryChanged": false,
+    "siteBoundaryChanged": false,
+    "programBoundaryChanged": false,
+    "studentPrivacyChanged": false,
+    "migrationsChanged": false,
+    "secretsOrConfigChanged": false,
+    "liveDataChanged": false,
+    "deployRun": false
+  },
+  "nextRecommended": "Evaluate a real selected-submission Review Queue deep link only if route/UI selection can be represented without fake query params; otherwise wait on missing-submission route semantics.",
+  "doNotRepeat": "Do not re-add Program Teacher Needs Review row detail actions unless allowStudentDetail or focused Program Dashboard context coverage regresses."
+}
