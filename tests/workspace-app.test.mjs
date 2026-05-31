@@ -1093,6 +1093,20 @@ test("workspace opens real student detail, loads timeline, and preserves directo
       }
       return { status: 200, body };
     },
+    "/api/site/operations-readiness": ({ url }) => {
+      const parsed = new URL(url, "https://workspace.example");
+      return {
+        status: 200,
+        body: siteOperationsReadinessFixture({
+          role: "viewer",
+          readOnly: true,
+          filters: {
+            ...siteOperationsReadinessFixture({ role: "viewer", readOnly: true }).filters,
+            studentId: parsed.searchParams.get("studentId") || "",
+          },
+        }),
+      };
+    },
   });
 
   vm.runInContext('activeSection = "students"; renderAppShell();', context);
@@ -1162,6 +1176,21 @@ test("workspace opens real student detail, loads timeline, and preserves directo
   assert.doesNotMatch(workspaceRoot.innerHTML, /workspace-detail-drawer/);
   assert.match(workspaceRoot.innerHTML, /value="Revision Loop Demo"/);
   assert.match(workspaceRoot.innerHTML, /Offset 50 \/ Limit 50/);
+
+  await vm.runInContext('openSiteStudentDetail("demo-student-101")', context);
+  await vm.runInContext('selectSiteStudentDetailTab({ currentTarget: { dataset: { studentDetailTab: "presentation" } } })', context);
+  assert.match(workspaceRoot.innerHTML, /data-student-detail-section="presentation"/);
+  assert.match(workspaceRoot.innerHTML, /data-student-detail-action="open-operations"/);
+  assert.match(workspaceRoot.innerHTML, /Open operations for this student/);
+  await vm.runInContext('handleSiteStudentDetailAction({ currentTarget: { dataset: { studentDetailAction: "open-operations", studentDetailOperationsStudentId: "demo-student-101" } } })', context);
+  const operationsFetch = fetchLog.findLast((entry) => entry.startsWith("/api/site/operations-readiness?"));
+  assert.ok(operationsFetch, "expected student-detail Operations filter fetch");
+  const operationsUrl = new URL(operationsFetch, "https://workspace.example");
+  assert.equal(operationsUrl.searchParams.get("studentId"), "demo-student-101");
+  assert.match(workspaceRoot.innerHTML, /Operations/);
+  assert.match(workspaceRoot.innerHTML, /Student/);
+  assert.match(workspaceRoot.innerHTML, /This student/);
+  assert.doesNotMatch(workspaceRoot.innerHTML, /workspace-detail-drawer/);
 });
 
 test("workspace renders site-aware Review Queue with teacher decisions and read-only role states", async () => {
@@ -1868,9 +1897,9 @@ test("workspace applies shareable URL filters for site worklists safely", async 
   assert.equal(operationsUrl.searchParams.get("needsAttention"), "true");
   assert.equal(operationsUrl.searchParams.get("outlineAttention"), "true");
   assert.equal(operationsUrl.searchParams.get("limit"), "25");
+  assert.equal(operationsUrl.searchParams.get("studentId"), "stale");
   assert.equal(operationsUrl.searchParams.has("presentationStatus"), false);
   assert.equal(operationsUrl.searchParams.has("offset"), false);
-  assert.equal(operationsUrl.searchParams.has("studentId"), false);
   assert.match(operationsContext.workspaceRoot.innerHTML, /data-section="operations"/);
   assert.match(operationsContext.workspaceRoot.innerHTML, /Any submission/);
   assert.match(operationsContext.workspaceRoot.innerHTML, /Submission/);
@@ -5098,6 +5127,7 @@ function siteOperationsReadinessFixture({
     },
     filters: filters || {
       siteId: "site-desert-valley-high",
+      studentId: "",
       programId: "",
       status: "",
       story: "",

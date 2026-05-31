@@ -21,6 +21,17 @@ This is the compact run log for the current Functionality UX Upgrade automation 
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-05-31 05:08 PT - Functionality UX Upgrade Student Operations Drill-Down
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 2 student detail depth / Level 8 operations readiness, supporting MVP-015 through MVP-018, MVP-022, MVP-032, and MVP-033.
+- `starting HEAD`: `43b27cca71c5bb40abfc2b43a90a5f90a72fd236`.
+- `selected slice`: Add an exact-student Operations readiness filter and student-detail Presentation/Archive actions.
+- `repo-grounded findings`: the previous handoff named `functions/_lib/site-operations-readiness.ts` `parseFilters()` and `matchesFilters()` for exact student Operations drill-down feasibility. Current Operations rows were already scoped by selected site/program teacher visibility and returned `studentId`, but the route and workspace did not accept a `studentId` narrowing filter from authorized student detail.
+- `changes`: `/api/site/operations-readiness` now accepts `studentId` as a scoped narrowing filter; workspace Operations URL/query/active-filter state preserves it; authorized student-detail Presentation and Archive tabs can open Operations for the current student without adding routes, fake actions, or mutation controls.
+- `validation`: focused Operations route test, workspace test, dashboard-action verifier, workspace-navigation verifier, and functionality-language verifier passed before docs/state closeout. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.
+
 ## 2026-05-31 03:09 PT - Functionality UX Upgrade Operations Storage Setup
 
 - `automation ID`: functionality-ux-upgrade-hourly.

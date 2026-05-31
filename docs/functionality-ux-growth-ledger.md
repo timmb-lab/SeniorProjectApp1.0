@@ -3795,3 +3795,54 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: hosted permission/browser proof still needs fake `.test` credentials and available hosted runtime; exact Operations student drill-down needs route/filter/privacy review.
   - Do not repeat: Timeline type filters are complete for current supported timeline types.
   - First file to inspect next run: `scripts/check-hosted-workspace-permissions.mjs` if credentials/runtime are available; otherwise `functions/_lib/site-operations-readiness.ts` `parseFilters()` and `matchesFilters()`.
+
+## Run 2026-05-31 05:08 PT
+
+- Starting SHA: `43b27cca71c5bb40abfc2b43a90a5f90a72fd236`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Branch policy: work stayed on clean local `main`; local `main` was four commits ahead of `origin/main`, `origin/main` was not ahead, and no push was run
+- Ladder level targeted: `LEVEL_2_STUDENT_DETAIL_DEPTH` with `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` support
+- Backlog item: `student-detail-operations-exact-student-filter`; supports `MVP-015` through `MVP-018`, `MVP-022`, `MVP-032`, and `MVP-033`
+- Work order selected: Add a scoped exact-student Operations readiness filter and student-detail Presentation/Archive actions.
+- Selection reason: The previous handoff pointed to `functions/_lib/site-operations-readiness.ts` `parseFilters()` and `matchesFilters()`. Current Operations rows were already selected-site/program-teacher scoped and included `studentId`, while authorized student-detail Presentation and Archive tabs had no way to open the matching Operations worklist for that same student.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Student detail exact Operations drill-down | `LEVEL_2_STUDENT_DETAIL_DEPTH` | site staff, viewer, program_teacher | 4 | 5 | 5 | S | 56 | selected |
+| Hosted section-level permission proof | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all protected roles | 4 | 4 | 3 | M | 40 | blocked: credentialed runtime |
+| Student detail timeline type filters | `LEVEL_2_STUDENT_DETAIL_DEPTH` | site staff, viewer, mentor | 3 | 5 | 5 | XS | 36 | rejected: completed previous run |
+| Review Queue missing-submission semantics | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | program_teacher, site staff | 5 | 2 | 3 | M | 34 | deferred: route semantics not exact |
+| Student Directory missing-evidence filter | `LEVEL_1_NAVIGABLE_DASHBOARDS` | site staff, viewer | 4 | 2 | 3 | M | 35 | deferred: directory filter unsupported |
+| Archive retry/regenerate controls | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | site_admin | 5 | 2 | 3 | M | 34 | rejected: mutation policy |
+| Mentor workload threshold guidance | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | site_admin, viewer | 4 | 3 | 3 | M | 39 | deferred: threshold policy unclear |
+| Student guided requirement form | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 5 | 2 | 3 | L | 32 | rejected: write-path design needed |
+| Public route browser/mobile visual QA | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | public students, teachers | 3 | 4 | 3 | M | 40 | rejected: lower protected-app value |
+| Admin recent activity drill-down | `LEVEL_7_AUDITABILITY_AND_TRUST` | admin, site staff | 4 | 3 | 3 | M | 38 | deferred: permission shape review |
+| Administration/AP dashboard language | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | site_admin, viewer | 3 | 4 | 4 | S | 41 | not selected: less functional than drill-down |
+| Org admin rollup | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | org_admin | 5 | 2 | 2 | L | 29 | rejected: aggregate backend design absent |
+
+- User-facing improvement: Authorized student-detail users can open Operations readiness narrowed to the current student from the Presentation or Archive tabs, then see the real scoped presentation, archive, and attention rows for that student.
+- Roles affected: `platform_admin`, `admin`, `org_admin`, `site_admin`, `viewer`, and `program_teacher`; no student, mentor, misc_admin, tenant, site, program, or record visibility was broadened.
+- Files changed: `functions/_lib/site-operations-readiness.ts`, `workspace.js`, `tests/site-operations-readiness.integration.test.mjs`, `tests/workspace-app.test.mjs`, `docs/functionality-language-audit.md`, `docs/mvp-requirements-catalog.md`, `docs/progress/run-log.md`, `docs/progress/runs/2026-05-31-0508-student-operations-drilldown.json`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`
+- Tests/verifiers added or updated: Operations route coverage proves `studentId` only returns that visible student; workspace coverage proves student-detail Presentation can open Operations with `studentId` URL/API state and active-filter copy.
+- Validation commands:
+  - Focused passed before docs/state closeout: `node --test tests/site-operations-readiness.integration.test.mjs`; `node --test tests/workspace-app.test.mjs`; `npm run verify:functionality-language`; `npm run verify:dashboard-actions`; `npm run verify:workspace-navigation`
+  - Final passed: `node --test tests/functionality-language-audit.test.mjs`; `npm run verify:functionality-ux-automation`; JSON parse for state and run manifest; `git diff --check`; `npm run check:production-surfaces`; `npm run check:route-inventory`; `npm run test`; `npm run typecheck`; `npm run check`
+- Validation result: passed; `git diff --check` reported only CRLF normalization warnings, with no whitespace errors.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: hosted section-level permission proof, Review Queue missing-submission semantics, Student Directory missing-evidence filter, archive retry/regenerate controls, org rollups, and public-route browser/mobile QA remain deferred.
+- New backlog items: consider exact-student Operations empty-state wording only if hosted/browser proof shows the generic no-match copy is confusing for student-detail drill-downs.
+- Next recommended work order: run `npm run check:workspace:hosted-permissions` when fake `.test` credentials/runtime are available; otherwise inspect exact-student Operations no-match guidance after deployment proof.
+- Do-not-repeat notes: do not re-add student-detail Operations exact-student filtering unless regression removes the `studentId` route filter or `data-student-detail-action="open-operations"` workspace coverage.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_2_STUDENT_DETAIL_DEPTH`
+  - Advanced: yes
+  - Evidence: `/api/site/operations-readiness?studentId=...` now narrows after existing site/program visibility checks, and student-detail Presentation/Archive tabs open Operations for the current authorized student with focused route/UI tests.
+  - Unlocks: Exact student operational follow-up from detail context without adding fake presentation/archive controls.
+  - Next: hosted section-level permission proof when credentials/runtime are available; otherwise verify whether exact-student Operations no-match copy needs student-detail-specific guidance.
+  - Blockers: hosted permission/browser proof still needs fake `.test` credentials and available hosted runtime; archive retry/regenerate controls still need approved mutation policy.
+  - Do not repeat: Exact-student Operations filtering is complete unless `filters.studentId` or the student-detail action regresses.
+  - First file to inspect next run: `scripts/check-hosted-workspace-permissions.mjs` if credentials/runtime are available; otherwise `workspace.js` `operationsArchiveEmptyStateCopy()` and `renderOperationsActiveFilters()`.

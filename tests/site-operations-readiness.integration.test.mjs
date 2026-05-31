@@ -208,6 +208,18 @@ test("site operations readiness route is scoped, read-only, audited, bounded, an
   assert.equal(evidenceMissing.filters.category, "evidence");
   assert.equal(evidenceMissing.filters.readiness, "missing");
   assert.equal(evidenceMissing.summary.evidenceMissing > 0, true);
+
+  const exactStudent = await expectOperations(env, tokens.siteAdminPrimary, `?siteId=${PRIMARY_SITE_ID}&studentId=demo-student-054&limit=100`);
+  assert.equal(exactStudent.filters.studentId, "demo-student-054");
+  assert.equal(exactStudent.pagination.filteredTotal, 1);
+  assert.equal(
+    [
+      ...exactStudent.presentation.rows,
+      ...exactStudent.archive.rows,
+      ...exactStudent.readiness.attentionRows,
+    ].every((row) => row.studentId === "demo-student-054"),
+    true,
+  );
   assert.equal(evidenceMissing.pagination.filteredTotal, evidenceMissing.summary.evidenceMissing);
   assert.equal(
     evidenceMissing.readiness.attentionRows.every((row) => row.category === "evidence" && row.status === "missing"),

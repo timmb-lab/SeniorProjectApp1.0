@@ -222,6 +222,7 @@ const MENTOR_ASSIGNMENT_URL_FILTER_PARAMS = [
   "offset",
 ];
 const OPERATIONS_URL_FILTER_PARAMS = [
+  "studentId",
   "programId",
   "status",
   "story",
@@ -2251,6 +2252,8 @@ function renderMentorMeetingLinkedWork(row) {
 
 function renderStudentDetailPresentation(detail) {
   const presentation = detail.presentation || {};
+  const permissions = detail.permissions || {};
+  const studentId = detail.student?.studentId || detail.scope?.studentId || "";
   return `
     <section class="workspace-detail-section" data-student-detail-section="presentation">
       ${renderDashboardCard("Presentation", "Readiness and day-of status", `
@@ -2264,6 +2267,7 @@ function renderStudentDetailPresentation(detail) {
           ${statusPill(presentation.outlineStatus || "pending")}
           ${statusPill(presentation.checkInStatus || "missing")}
         </div>
+        ${permissions.canViewPresentationOperations ? studentDetailOperationsButton(studentId) : ""}
       `)}
     </section>
   `;
@@ -2271,6 +2275,8 @@ function renderStudentDetailPresentation(detail) {
 
 function renderStudentDetailArchive(detail) {
   const archive = detail.archive || {};
+  const permissions = detail.permissions || {};
+  const studentId = detail.student?.studentId || detail.scope?.studentId || "";
   return `
     <section class="workspace-detail-section" data-student-detail-section="archive">
       ${renderDashboardCard("Archive", "Closeout package status", `
@@ -2281,9 +2287,18 @@ function renderStudentDetailArchive(detail) {
           <span class="workspace-site-context-badge">Protected file details</span>
         </div>
         <p class="workspace-muted">${escapeHtml(safeNumber(archive.artifactCount))} file record${safeNumber(archive.artifactCount) === 1 ? "" : "s"} in the latest archive summary.</p>
+        ${permissions.canViewArchiveOperations ? studentDetailOperationsButton(studentId) : ""}
       `)}
     </section>
   `;
+}
+
+function studentDetailOperationsButton(studentId) {
+  return studentId ? `
+    <button class="workspace-link-button workspace-link-button-small" type="button" data-student-detail-action="open-operations" data-student-detail-operations-student-id="${escapeHtml(studentId)}">
+      Open operations for this student
+    </button>
+  ` : "";
 }
 
 function renderStudentDetailTimeline(detail, state) {
@@ -3349,6 +3364,7 @@ function renderOperationsFilters(body) {
 
 function renderOperationsActiveFilters(filters = {}, options = {}) {
   const chips = [];
+  if (filters.studentId) chips.push(activeFilterChip("Student", "This student"));
   if (filters.programId) chips.push(activeFilterChip("Program", programLabel(options.programs, filters.programId)));
   if (filters.status) chips.push(activeFilterChip("Submission", statusText(filters.status)));
   if (filters.presentationStatus) chips.push(activeFilterChip("Presentation", statusText(filters.presentationStatus)));
@@ -3367,7 +3383,8 @@ function renderOperationsActiveFilters(filters = {}, options = {}) {
 function hasActiveOperationsFilters(filters = {}) {
   const active = filters || {};
   return Boolean(
-    active.programId
+    active.studentId
+      || active.programId
       || active.status
       || active.presentationStatus
       || active.archiveStatus
@@ -5357,6 +5374,7 @@ async function applyOperationsReadinessFilters(event) {
   if (!form) return;
   const data = new FormData(form);
   operationsReadinessFilters = {
+    studentId: "",
     programId: cleanDirectoryFilter(data.get("programId")),
     status: cleanDirectoryFilter(data.get("status")),
     story: cleanDirectoryFilter(data.get("story")),
@@ -5815,13 +5833,26 @@ async function openSiteStudentDetail(studentId, options = {}) {
   renderAppShell(result.ok ? "Student detail loaded." : "Student detail unavailable.", result.ok ? "success" : "error");
 }
 
-function handleSiteStudentDetailAction(event) {
+async function handleSiteStudentDetailAction(event) {
   const action = event?.currentTarget?.dataset?.studentDetailAction;
   if (action === "close") {
     const sourceSection = cleanWorkspaceSection(siteStudentDetailState.sourceSection) || "students";
     siteStudentDetailState = defaultSiteStudentDetailState();
     activeSection = sourceSection;
     renderAppShell();
+    return;
+  }
+  if (action === "open-operations") {
+    const studentId = cleanDirectoryFilter(event?.currentTarget?.dataset?.studentDetailOperationsStudentId || siteStudentDetailState.studentId);
+    if (!studentId) return;
+    operationsReadinessFilters = {
+      ...defaultOperationsReadinessFilters(),
+      studentId,
+    };
+    siteStudentDetailState = defaultSiteStudentDetailState();
+    activeSection = "operations";
+    syncOperationsReadinessUrlState();
+    await loadOperationsReadinessResult("Showing operations rows for this student.");
   }
 }
 
@@ -7310,6 +7341,7 @@ function defaultReviewQueueFilters() {
 
 function defaultOperationsReadinessFilters() {
   return {
+    studentId: "",
     programId: "",
     status: "",
     story: "",
@@ -7534,6 +7566,7 @@ function mentorAssignmentFiltersFromSearchParams(params) {
 
 function operationsReadinessFiltersFromSearchParams(params) {
   const filters = defaultOperationsReadinessFilters();
+  filters.studentId = cleanDirectoryFilter(params.get("studentId"));
   filters.programId = cleanDirectoryFilter(params.get("programId"));
   filters.status = canonicalReviewQueueValue(params.get("status"), OPERATIONS_STUDENT_STATUS_VALUES);
   filters.story = canonicalReviewQueueValue(params.get("story"), REVIEW_QUEUE_STORY_VALUES);
@@ -7626,6 +7659,7 @@ function syncMentorAssignmentUrlState(options = {}) {
 
 function syncOperationsReadinessUrlState(options = {}) {
   syncFilteredWorkspaceUrlState("operations", operationsReadinessFilters || defaultOperationsReadinessFilters(), options, (url, filters) => {
+    if (filters.studentId) url.searchParams.set("studentId", filters.studentId);
     if (filters.programId) url.searchParams.set("programId", filters.programId);
     if (filters.status) url.searchParams.set("status", filters.status);
     if (filters.story) url.searchParams.set("story", filters.story);
@@ -7782,6 +7816,7 @@ function siteOperationsReadinessQueryString() {
     || unwrap(currentData.siteStudents)?.scope?.siteId
     || "";
   if (siteId) params.set("siteId", siteId);
+  if (filters.studentId) params.set("studentId", filters.studentId);
   if (filters.programId) params.set("programId", filters.programId);
   if (filters.status) params.set("status", filters.status);
   if (filters.story) params.set("story", filters.story);

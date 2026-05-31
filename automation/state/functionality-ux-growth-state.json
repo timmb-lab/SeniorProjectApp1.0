@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-05-31T04:35:22-07:00",
-  "lastStartingSha": "9f696fe517fe129a04bb6afe2efd96775f93119c",
+  "lastRunAt": "2026-05-31T05:08:06-07:00",
+  "lastStartingSha": "43b27cca71c5bb40abfc2b43a90a5f90a72fd236",
   "lastEndingSha": null,
   "currentLadderFocus": "LEVEL_2_STUDENT_DETAIL_DEPTH",
   "completedWorkOrders": [
@@ -697,6 +697,14 @@
       "type": "TYPE_C_STUDENT_DETAIL_DRILL_DOWN",
       "summary": "Authorized student detail timelines now expose route-backed type filters for review, evidence, mentor meeting, presentation, archive, submission, note, and status-change activity.",
       "commit": "pending-closeout-commit"
+    },
+    {
+      "id": "student-detail-operations-exact-student-filter",
+      "completedAt": "2026-05-31T05:08:06-07:00",
+      "ladderLevel": "LEVEL_2_STUDENT_DETAIL_DEPTH",
+      "type": "TYPE_C_STUDENT_DETAIL_DRILL_DOWN",
+      "summary": "Authorized student-detail Presentation and Archive tabs now open Operations readiness narrowed to the current student through a scoped studentId route filter.",
+      "commit": "pending-closeout-commit"
     }
   ],
   "deferredWorkOrders": [
@@ -739,6 +747,11 @@
       "id": "archive-retry-regenerate-controls",
       "ladderLevel": "LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS",
       "reason": "Archive retry/regenerate controls need approved mutation policy and audit behavior before UI controls are added."
+    },
+    {
+      "id": "exact-student-operations-empty-state-guidance",
+      "ladderLevel": "LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS",
+      "reason": "Only needed if hosted/browser proof shows generic Operations no-match copy is confusing after opening Operations from student detail."
     }
   ],
   "blockedWorkOrders": [],
@@ -750,10 +763,10 @@
       "summary": "Run hosted section-level permission-denied proof when credentialed runtime is available."
     },
     {
-      "id": "student-detail-operations-exact-student-filter",
-      "ladderLevel": "LEVEL_2_STUDENT_DETAIL_DEPTH",
-      "type": "TYPE_C_STUDENT_DETAIL_DRILL_DOWN",
-      "summary": "Inspect whether Operations can safely support a scoped studentId filter for exact presentation/archive drill-downs from student detail."
+      "id": "exact-student-operations-empty-state-guidance",
+      "ladderLevel": "LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS",
+      "type": "TYPE_D_ROLE_WORKSPACE",
+      "summary": "Inspect exact-student Operations no-match guidance after hosted/browser proof."
     },
     {
       "id": "review-queue-missing-submission-semantics",
@@ -842,19 +855,21 @@
     "Do not re-add Operations Storage Setup Needed unless regression removes archiveStatus=provider_unavailable, archive.summary.providerUnavailable, or archive-provider-unavailable dashboard/verifier coverage.",
     "Do not re-clean Operations archive row/empty-state guidance unless regression removes archiveWorklistSupportText(), operationsArchiveEmptyStateCopy(), or the focused workspace coverage for provider-unavailable and expired-download no-match states.",
     "Do not re-clean student Archive signed-link/export-wiring/provider copy unless regression removes studentArchiveDownloadStatusCopy() or the verifier rules for signed-link/export-wiring/scoped archive/provider wording.",
-    "Do not re-add student-detail timeline type filters unless regression removes data-student-detail-timeline-filters=\"true\", STUDENT_DETAIL_TIMELINE_TYPES, or the type=review workspace coverage."
+    "Do not re-add student-detail timeline type filters unless regression removes data-student-detail-timeline-filters=\"true\", STUDENT_DETAIL_TIMELINE_TYPES, or the type=review workspace coverage.",
+    "Do not re-add student-detail Operations exact-student filtering unless regression removes filters.studentId, the studentId route test, or data-student-detail-action=\"open-operations\" workspace coverage."
   ],
   "lastValidationStatus": {
     "status": "passed",
-    "completedAt": "2026-05-31T04:38:07-07:00",
+    "completedAt": "2026-05-31T05:11:36-07:00",
     "commands": [
+      "node --test tests/site-operations-readiness.integration.test.mjs",
       "node --test tests/workspace-app.test.mjs",
       "npm run verify:functionality-language",
       "npm run verify:dashboard-actions",
       "npm run verify:workspace-navigation",
       "node --test tests/functionality-language-audit.test.mjs",
       "npm run verify:functionality-ux-automation",
-      "node -e JSON.parse automation/state/functionality-ux-growth-state.json and docs/progress/runs/2026-05-31-0435-student-detail-timeline-filters.json",
+      "node -e JSON.parse automation/state/functionality-ux-growth-state.json and docs/progress/runs/2026-05-31-0508-student-operations-drilldown.json",
       "git diff --check",
       "npm run check:production-surfaces",
       "npm run check:route-inventory",
@@ -862,7 +877,7 @@
       "npm run typecheck",
       "npm run check"
     ],
-    "notes": "Full validation passed for student-detail timeline type filters. git diff --check reported only CRLF normalization warnings. This run changes protected workspace UI, focused workspace tests, and run records only; it does not change auth role grants, tenant/site/program/student privacy boundaries, migrations, secrets/env files, Cloudflare/OAuth/domain config, deploy settings, mutation controls, or live data."
+    "notes": "Full validation passed for exact-student Operations readiness drill-downs from authorized student detail. git diff --check reported only CRLF normalization warnings. This run changes a read-only route filter, protected workspace UI, focused tests, and run records only; it does not change auth role grants, tenant/site/program/student privacy boundaries, migrations, secrets/env files, Cloudflare/OAuth/domain config, deploy settings, mutation controls, or live data."
   },
   "lastProductReadinessScorecardSummary": {
     "homepageClarity": "4 to 4",

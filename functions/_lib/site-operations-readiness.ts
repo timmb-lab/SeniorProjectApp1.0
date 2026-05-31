@@ -61,6 +61,7 @@ interface RawOperationRow {
 }
 
 interface OperationFilters {
+  studentId: string;
   programId: string;
   status: string;
   story: string;
@@ -271,6 +272,7 @@ async function buildOperationsPayload({
     },
     filters: {
       siteId: site.id,
+      studentId: filters.studentId,
       programId: filters.programId,
       status: filters.status,
       story: filters.story,
@@ -818,6 +820,7 @@ function readinessFor(
 }
 
 function matchesFilters(row: OperationStudentRow, filters: OperationFilters): boolean {
+  if (filters.studentId && row.studentId !== filters.studentId) return false;
   if (filters.programId && row.programId !== filters.programId) return false;
   if (filters.status && row.latestSubmissionStatus !== filters.status) return false;
   if (filters.story && row.storyBucket !== filters.story) return false;
@@ -1106,6 +1109,7 @@ function canonicalOutlineStatus(status: string | null): string {
 
 function parseFilters(params: URLSearchParams): OperationFilters {
   return {
+    studentId: cleanId(params.get("studentId")),
     programId: cleanId(params.get("programId")),
     status: canonical(params.get("status"), STUDENT_STATUS_VALUES),
     story: canonical(params.get("story"), STORY_VALUES),
@@ -1169,6 +1173,7 @@ function safeText(value: string | null | undefined, maxLength: number): string {
 
 function safeFilterSummary(filters: OperationFilters) {
   return {
+    studentId: filters.studentId,
     programId: filters.programId,
     status: filters.status,
     story: filters.story,
