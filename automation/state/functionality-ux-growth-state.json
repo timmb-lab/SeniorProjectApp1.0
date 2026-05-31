@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-05-31T09:04:45-07:00",
-  "lastStartingSha": "b416da38c4a7a22f3bc249af34783bce2e433a8d",
+  "lastRunAt": "2026-05-31T09:32:38-07:00",
+  "lastStartingSha": "9c023b90d2589c16c5254c29cfd317800a129868",
   "lastEndingSha": null,
   "currentLadderFocus": "LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW",
   "completedWorkOrders": [
@@ -753,6 +753,14 @@
       "type": "TYPE_E_MENTOR_ASSIGNMENT",
       "summary": "Mentor Assignments mentor coverage rows now open the existing scoped worklist filtered to that mentor's active assignments with shareable URL state.",
       "commit": "pending-closeout-commit"
+    },
+    {
+      "id": "mentor-active-assignment-load-filter",
+      "completedAt": "2026-05-31T09:32:38-07:00",
+      "ladderLevel": "LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW",
+      "type": "TYPE_E_MENTOR_ASSIGNMENT",
+      "summary": "Mentor Assignments active assignment rows now expose View mentor load, reusing the existing scoped mentorUserId active-assignment filter and shareable URL state.",
+      "commit": "pending-closeout-commit"
     }
   ],
   "deferredWorkOrders": [
@@ -784,12 +792,12 @@
     {
       "id": "review-queue-missing-submission-semantics",
       "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
-      "reason": "The Review Queue only has exact submitted/revision semantics; missing-submission work needs product-safe queue behavior and route support before UI filters are added."
+      "reason": "The Review Queue only has exact submitted/revision/approved submission rows; missing-submission work needs backend queue rows before UI filters are added."
     },
     {
       "id": "hosted-section-permission-proof",
       "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
-      "reason": "Needs fake .test credentials and available hosted runtime before browser proof can run safely."
+      "reason": "Run only when hosted fake-account proof and audit-event writes are allowed."
     },
     {
       "id": "archive-retry-regenerate-controls",
@@ -799,28 +807,22 @@
     {
       "id": "mentor-workload-threshold-policy",
       "ladderLevel": "LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW",
-      "reason": "Mentor coverage row filtering is complete; threshold-driven workload warnings or filters still need explicit product policy beyond existing loadStatus labels."
+      "reason": "Mentor load navigation is complete; threshold-driven workload warnings or filters still need explicit product policy beyond existing loadStatus labels."
     }
   ],
   "blockedWorkOrders": [],
   "nextRecommendedWorkOrders": [
     {
-      "id": "mentor-active-assignment-return-to-load-context",
-      "ladderLevel": "LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW",
-      "type": "TYPE_E_MENTOR_ASSIGNMENT",
-      "summary": "Only add a return/load-context affordance if it reuses existing mentorUserId filters without new mutation behavior."
+      "id": "hosted-section-permission-proof",
+      "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
+      "type": "TYPE_G_VERIFICATION_REGRESSION_PROTECTION",
+      "summary": "Run only when hosted fake-account proof and audit-event writes are allowed."
     },
     {
       "id": "review-queue-missing-submission-semantics",
       "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
       "type": "TYPE_F_REVIEW_INTERVENTION_QUEUE",
-      "summary": "Review Queue missing-submission dashboard work remains deferred until backend queue semantics include real missing requirement rows."
-    },
-    {
-      "id": "hosted-section-permission-proof",
-      "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
-      "type": "TYPE_G_VERIFICATION_REGRESSION_PROTECTION",
-      "summary": "Run only when hosted fake-account proof and audit-event writes are allowed."
+      "summary": "Review Queue missing-submission work stays deferred until backend queue semantics include real missing requirement rows."
     }
   ],
   "doNotRepeat": [
@@ -910,17 +912,18 @@
     "Do not re-add Review Queue selected-submission URL restoration unless regression removes reviewQueueSelectionFromSearchParams(), submissionId URL sync, or the focused popstate/history coverage.",
     "Do not re-add Review Queue stale selected-submission guidance unless regression removes data-review-panel-state=\"selection-unavailable\" or the focused stale URL coverage.",
     "Do not re-add Mentor Assignments load guidance unless regression removes data-mentor-assignment-load-guidance=\"true\", mentorAssignmentOptionLabel(), or the focused workspace coverage.",
-    "Do not re-add Mentor Assignments mentor coverage row filtering unless regression removes data-mentor-assignment-action=\"filter-mentor\" or the focused workspace coverage."
+    "Do not re-add Mentor Assignments mentor coverage row filtering unless regression removes data-mentor-assignment-action=\"filter-mentor\" or the focused workspace coverage.",
+    "Do not re-add Mentor Assignments active assignment row load filtering unless regression removes View mentor load or the focused workspace coverage."
   ],
   "lastValidationStatus": {
     "status": "passed",
-    "completedAt": "2026-05-31T09:07:44-07:00",
+    "completedAt": "2026-05-31T09:36:30-07:00",
     "commands": [
       "node --test tests/workspace-app.test.mjs",
+      "JSON parse for automation/state/functionality-ux-growth-state.json and docs/progress/runs/2026-05-31-0932-mentor-active-assignment-load-filter.json",
       "npm run verify:functionality-language",
       "npm run verify:dashboard-actions",
       "npm run verify:workspace-navigation",
-      "JSON parse for automation/state/functionality-ux-growth-state.json and docs/progress/runs/2026-05-31-0904-mentor-coverage-row-filter.json",
       "node --test tests/functionality-language-audit.test.mjs",
       "npm run verify:functionality-ux-automation",
       "git diff --check",
@@ -930,7 +933,7 @@
       "npm run typecheck",
       "npm run check"
     ],
-    "notes": "Full validation passed for Mentor Assignments mentor coverage row filtering. git diff --check reported only CRLF normalization warnings. This run changes protected workspace mentor-assignment navigation, focused tests, run records, and state only; it does not change auth role grants, tenant/site/program/student privacy boundaries, migrations, secrets/env files, Cloudflare/OAuth/domain config, deploy settings, mutation controls, or live data."
+    "notes": "Full validation passed for Mentor Assignments active assignment row load filtering. git diff --check reported only CRLF normalization warnings. This run changes protected workspace mentor-assignment navigation, focused tests, run records, and state only; it does not change auth role grants, tenant/site/program/student privacy boundaries, migrations, secrets/env files, Cloudflare/OAuth/domain config, deploy settings, mutation controls, or live data."
   },
   "lastProductReadinessScorecardSummary": {
     "homepageClarity": "4 to 4",

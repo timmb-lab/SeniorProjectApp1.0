@@ -1,0 +1,222 @@
+{
+  "automationId": "functionality-ux-upgrade-hourly",
+  "runStartedAt": "2026-05-31T09:30:51-07:00",
+  "branch": "main",
+  "startingSha": "9c023b90d2589c16c5254c29cfd317800a129868",
+  "endingSha": null,
+  "ladderLevel": "LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW",
+  "supportingLadderLevels": [
+    "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+    "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT"
+  ],
+  "workOrder": {
+    "id": "mentor-active-assignment-load-filter",
+    "type": "TYPE_E_MENTOR_ASSIGNMENT",
+    "title": "Mentor active assignment load filter",
+    "selected": true,
+    "reason": "The active assignment list already has mentorUserId row data and the workspace already has a scoped mentorUserId active-assignment filter; this adds real navigation without new routes, permissions, or mutation behavior."
+  },
+  "candidateCount": 12,
+  "selectedCandidateScore": 55,
+  "candidateScoring": [
+    {
+      "candidate": "Mentor active assignment load filter",
+      "ladderLevel": "LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW",
+      "roles": "site_admin, org_admin, viewer, program_teacher",
+      "impact": 4,
+      "safety": 5,
+      "testability": 5,
+      "size": "XS",
+      "score": 55,
+      "decision": "selected"
+    },
+    {
+      "candidate": "Mentor workload filter/sort policy",
+      "ladderLevel": "LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW",
+      "roles": "site_admin, viewer",
+      "impact": 4,
+      "safety": 3,
+      "testability": 3,
+      "size": "M",
+      "score": 39,
+      "decision": "deferred: threshold policy unclear"
+    },
+    {
+      "candidate": "Review Queue missing-submission semantics",
+      "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
+      "roles": "program_teacher, site staff",
+      "impact": 5,
+      "safety": 2,
+      "testability": 3,
+      "size": "M",
+      "score": 34,
+      "decision": "deferred: backend queue rows absent"
+    },
+    {
+      "candidate": "Hosted section-level permission proof",
+      "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
+      "roles": "all protected roles",
+      "impact": 4,
+      "safety": 3,
+      "testability": 3,
+      "size": "M",
+      "score": 39,
+      "decision": "deferred: hosted credentials/audit writes"
+    },
+    {
+      "candidate": "Student Directory missing-evidence filter",
+      "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS",
+      "roles": "site staff, viewer",
+      "impact": 4,
+      "safety": 2,
+      "testability": 3,
+      "size": "M",
+      "score": 35,
+      "decision": "deferred: directory route filter unsupported"
+    },
+    {
+      "candidate": "Archive retry/regenerate controls",
+      "ladderLevel": "LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS",
+      "roles": "site_admin",
+      "impact": 5,
+      "safety": 2,
+      "testability": 3,
+      "size": "M",
+      "score": 34,
+      "decision": "rejected: mutation policy not approved"
+    },
+    {
+      "candidate": "Admin recent activity drill-down",
+      "ladderLevel": "LEVEL_7_AUDITABILITY_AND_TRUST",
+      "roles": "admin, site staff",
+      "impact": 4,
+      "safety": 3,
+      "testability": 3,
+      "size": "M",
+      "score": 38,
+      "decision": "deferred: audit destination shape needs review"
+    },
+    {
+      "candidate": "Org admin rollup",
+      "ladderLevel": "LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS",
+      "roles": "org_admin",
+      "impact": 5,
+      "safety": 2,
+      "testability": 2,
+      "size": "L",
+      "score": 29,
+      "decision": "rejected: aggregate backend design absent"
+    },
+    {
+      "candidate": "Public route browser/mobile visual QA",
+      "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
+      "roles": "public students, teachers",
+      "impact": 3,
+      "safety": 4,
+      "testability": 3,
+      "size": "M",
+      "score": 40,
+      "decision": "not selected: lower protected-app value"
+    },
+    {
+      "candidate": "Student archive hosted proof",
+      "ladderLevel": "LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS",
+      "roles": "student",
+      "impact": 3,
+      "safety": 3,
+      "testability": 3,
+      "size": "M",
+      "score": 36,
+      "decision": "deferred: hosted/live-data boundary"
+    },
+    {
+      "candidate": "Mentor assignment load guidance",
+      "ladderLevel": "LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW",
+      "roles": "site_admin, org_admin, admin",
+      "impact": 3,
+      "safety": 5,
+      "testability": 5,
+      "size": "XS",
+      "score": 36,
+      "decision": "rejected: completed previous run"
+    },
+    {
+      "candidate": "Mentor coverage row assignment filter",
+      "ladderLevel": "LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW",
+      "roles": "site_admin, org_admin, viewer, program_teacher",
+      "impact": 3,
+      "safety": 5,
+      "testability": 5,
+      "size": "XS",
+      "score": 36,
+      "decision": "rejected: completed previous run"
+    }
+  ],
+  "rolesAffected": [
+    "platform_admin",
+    "admin",
+    "org_admin",
+    "site_admin",
+    "viewer",
+    "program_teacher"
+  ],
+  "privacyAndPermissionNotes": [
+    "No auth, RBAC, tenant, site, program, mentor, or student visibility boundaries changed.",
+    "The new action only narrows the existing /api/site/mentor-assignments route with mentorUserId and status=active.",
+    "Viewer and program_teacher roles remain read-only; no assignment mutation controls were added."
+  ],
+  "filesChanged": [
+    "workspace.js",
+    "tests/workspace-app.test.mjs",
+    "docs/functionality-language-audit.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-31-0932-mentor-active-assignment-load-filter.json",
+    "docs/functionality-ux-growth-ledger.md",
+    "automation/state/functionality-ux-growth-state.json"
+  ],
+  "testsUpdated": [
+    "tests/workspace-app.test.mjs"
+  ],
+  "validation": {
+    "focusedPassedBeforeCloseout": [
+      "node --test tests/workspace-app.test.mjs",
+      "npm run verify:functionality-language",
+      "npm run verify:dashboard-actions",
+      "npm run verify:workspace-navigation"
+    ],
+    "finalCommands": [
+      "JSON parse for automation/state/functionality-ux-growth-state.json and docs/progress/runs/2026-05-31-0932-mentor-active-assignment-load-filter.json",
+      "npm run verify:functionality-language",
+      "npm run verify:dashboard-actions",
+      "npm run verify:workspace-navigation",
+      "node --test tests/functionality-language-audit.test.mjs",
+      "npm run verify:functionality-ux-automation",
+      "git diff --check",
+      "npm run check:production-surfaces",
+      "npm run check:route-inventory",
+      "npm run test",
+      "npm run typecheck",
+      "npm run check"
+    ],
+    "status": "passed",
+    "notes": "Full validation passed; git diff --check reported only CRLF normalization warnings."
+  },
+  "deferred": [
+    "review-queue-missing-submission-semantics",
+    "hosted-section-permission-proof",
+    "student-directory-missing-evidence-filter",
+    "archive-retry-regenerate-controls",
+    "mentor-workload-threshold-policy",
+    "org-admin-rollup",
+    "student-archive-hosted-proof",
+    "public-route-browser-mobile-qa"
+  ],
+  "doNotRepeat": [
+    "Do not re-add Mentor Assignments active assignment row load filtering unless regression removes View mentor load or the focused workspace coverage."
+  ],
+  "nextRecommendedWorkOrder": {
+    "id": "hosted-section-permission-proof",
+    "summary": "Run only when hosted fake-account proof and audit-event writes are allowed; otherwise keep missing-submission queue work deferred until backend rows exist."
+  }
+}

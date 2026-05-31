@@ -3219,6 +3219,11 @@ function renderMentorActiveAssignments(assignments = [], permissions = {}) {
                 View student detail
               </button>
             ` : ""}
+            ${assignment.mentorUserId ? `
+              <button class="workspace-link-button workspace-link-button-small" type="button" data-mentor-assignment-action="filter-mentor" data-mentor-id="${escapeHtml(assignment.mentorUserId || "")}">
+                View mentor load
+              </button>
+            ` : ""}
           </div>
         </article>
       `).join("")}

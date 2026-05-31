@@ -2157,7 +2157,7 @@ test("workspace renders site-scoped Mentor Assignments with role-safe assignment
   assert.doesNotMatch(teacher, /data-mentor-assignment-form="true"|Assign mentor/);
 });
 
-test("mentor coverage rows filter Mentor Assignments to one mentor", async () => {
+test("mentor rows filter Mentor Assignments to one mentor", async () => {
   const { context, workspaceRoot, fetchLog, window } = await createWorkspaceContextWithFetch({
     "/api/auth/me": {
       status: 200,
@@ -2194,6 +2194,9 @@ test("mentor coverage rows filter Mentor Assignments to one mentor", async () =>
   assert.match(workspaceRoot.innerHTML, /data-mentor-coverage-list="true"/);
   assert.match(workspaceRoot.innerHTML, /data-mentor-assignment-action="filter-mentor" data-mentor-id="demo-mentor-001"/);
   assert.match(workspaceRoot.innerHTML, /View assignments/);
+  assert.match(workspaceRoot.innerHTML, /data-mentor-active-assignments="true"/);
+  assert.match(workspaceRoot.innerHTML, /View mentor load/);
+  assert.match(workspaceRoot.innerHTML, /data-mentor-assignment-action="filter-mentor" data-mentor-id="demo-mentor-001"[\s\S]*View mentor load/);
 
   await vm.runInContext('handleMentorAssignmentAction({ currentTarget: { dataset: { mentorAssignmentAction: "filter-mentor", mentorId: "demo-mentor-001" } } })', context);
   const mentorFetch = fetchLog.findLast((entry) => entry.startsWith("/api/site/mentor-assignments?"));

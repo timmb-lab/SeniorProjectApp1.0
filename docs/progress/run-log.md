@@ -2378,3 +2378,14 @@ Future productive runs should append compact entries that name the master-plan s
 - `changes`: `workspace.js` now adds a `filter-mentor` action on mentor coverage rows, sets `mentorUserId` and `status=active`, syncs the Mentor Assignments URL, and reloads the existing scoped route. `tests/workspace-app.test.mjs` proves the button, request query, and URL state.
 - `validation`: focused workspace test plus functionality-language, dashboard-action, and workspace-navigation verifiers passed before docs/state closeout. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
 - `commit/push status`: pending closeout commit; not pushed by this automation run.
+
+## 2026-05-31 PT - Functionality UX Upgrade Mentor Active Row Load Filter
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 3 mentor assignment workflow / Level 4 site operations workspace clarity.
+- `starting HEAD`: `9c023b90d2589c16c5254c29cfd317800a129868`.
+- `selected slice`: Add route-backed `View mentor load` actions to Mentor Assignments active assignment rows.
+- `repo-grounded findings`: the prior handoff named active assignment return/load context. Current `renderMentorActiveAssignments()` already rendered each row's `mentorUserId`, and the handler already supported scoped `mentorUserId` plus `status=active` filters, but staff scanning the Active Assignments list had to use coverage rows or the filter bar to review that mentor's full load.
+- `changes`: `workspace.js` now renders `View mentor load` on active assignment rows when a row has `mentorUserId`, reusing the existing `filter-mentor` handler and scoped active-assignment URL state. `tests/workspace-app.test.mjs` proves the active assignment action marker renders and still loads `/api/site/mentor-assignments?mentorUserId=...&status=active`.
+- `validation`: focused `node --test tests/workspace-app.test.mjs` passed before docs/state closeout. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.
