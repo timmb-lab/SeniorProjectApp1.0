@@ -2345,3 +2345,14 @@ Future productive runs should append compact entries that name the master-plan s
 - `changes`: `workspace.js` now parses and syncs `submissionId` for Review Queue URLs, restores protected review history only after the scoped queue includes that submission, and clears the selection when filters or pagination remove the row. `tests/workspace-app.test.mjs` and `scripts/verify-review-queue-deeplinks.mjs` guard the reload, popstate, clear-filter, and URL-sync behavior.
 - `validation`: focused workspace test plus review-queue deeplink, dashboard-action, workspace-navigation, and functionality-language verifiers passed before docs/state closeout. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
 - `commit/push status`: pending closeout commit; not pushed by this automation run.
+
+## 2026-05-31 PT - Functionality UX Upgrade Review Queue Stale Shared Selection
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 5 review/intervention queues / shareable Review Queue navigation clarity.
+- `starting HEAD`: `c2b9b3e095803f38aa32eb7ed7a8c31e45ce4160`.
+- `selected slice`: Clarify shared Review Queue selected-submission URLs when the requested submission is not visible in the current scoped queue.
+- `repo-grounded findings`: the previous run added `submissionId` URL restoration only after scoped queue membership was confirmed, but the initial restore path silently cleared a stale selected submission and showed generic `Select a submission` guidance. Current source already had the scoped queue response, selected panel, and protected history route, so the safe slice was a UI explanation and regression guard.
+- `changes`: `workspace.js` now stores a selection notice when a shared selected submission is not present in the scoped queue, clears the stale `submissionId` with URL replacement, and renders a `Shared submission not visible` panel instead of a generic empty panel. `tests/workspace-app.test.mjs` proves the stale URL does not call `/api/reviews/:submissionId/history`, and `scripts/verify-review-queue-deeplinks.mjs` guards the path.
+- `validation`: focused `node --test tests/workspace-app.test.mjs` and `npm run verify:review-queue-deeplinks` passed before docs/state closeout. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.

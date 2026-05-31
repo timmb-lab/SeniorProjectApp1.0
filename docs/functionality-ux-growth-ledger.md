@@ -3999,3 +3999,54 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: missing-submission queue work still needs backend semantics for missing requirement rows; hosted permission proof can write live audit events.
   - Do not repeat: selected-submission URL restoration is complete unless the parser/sync/restore coverage regresses.
   - First file to inspect next run: `functions/_lib/site-review-queue.ts` only if implementing backend queue semantics; otherwise `workspace.js` `renderReviewSubmissionPanel()`.
+
+## Run 2026-05-31 08:05 PT
+
+- Starting SHA: `c2b9b3e095803f38aa32eb7ed7a8c31e45ce4160`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Branch policy: work stayed on clean local `main`; local `main` was eight commits ahead of `origin/main`, `origin/main` was not ahead, and no push was run
+- Ladder level targeted: `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` with `LEVEL_1_NAVIGABLE_DASHBOARDS` URL-state support
+- Backlog item: `review-queue-stale-selected-submission-guidance`; supports `MVP-015` through `MVP-018`, `MVP-032`, and `MVP-033`
+- Work order selected: Clarify stale shared Review Queue selected-submission URLs.
+- Selection reason: The prior run made selected-submission URLs real and safe, but current source silently cleared a shared `submissionId` when the scoped queue did not contain that row, leaving only the generic "Select a submission" panel. This slice uses existing scoped queue data, preserves protected history authorization, and avoids fake missing-submission semantics.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Review Queue stale selected-submission guidance | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | program_teacher, site staff, viewer | 4 | 5 | 5 | XS | 55 | selected |
+| Review Queue missing-submission semantics | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | program_teacher, site staff | 5 | 2 | 3 | M | 34 | deferred: backend queue model absent |
+| Hosted section-level permission proof | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all protected roles | 4 | 3 | 3 | M | 39 | deferred: hosted audit-event writes |
+| Student Directory missing-evidence filter | `LEVEL_1_NAVIGABLE_DASHBOARDS` | site staff, viewer | 4 | 2 | 3 | M | 35 | deferred: route filter unsupported |
+| Archive retry/regenerate controls | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | site_admin | 5 | 2 | 3 | M | 34 | rejected: mutation policy not approved |
+| Mentor workload threshold guidance | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | site_admin, viewer | 4 | 3 | 3 | M | 39 | deferred: threshold policy unclear |
+| Admin recent activity drill-down | `LEVEL_7_AUDITABILITY_AND_TRUST` | admin, site staff | 4 | 3 | 3 | M | 38 | deferred: audit destination shape needs review |
+| Org admin rollup | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | org_admin | 5 | 2 | 2 | L | 29 | rejected: aggregate backend design absent |
+| Public route browser/mobile visual QA | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | public students, teachers | 3 | 4 | 3 | M | 40 | not selected: lower protected-app value |
+| Student archive hosted proof | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | student | 3 | 3 | 3 | M | 36 | deferred: hosted/live-data boundary |
+| Review Queue selected-submission URL restoration | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | program_teacher, site staff, viewer | 3 | 5 | 5 | XS | 36 | rejected: completed previous run |
+| Review Queue filter empty-state copy | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | program_teacher, site staff | 2 | 5 | 4 | XS | 40 | rejected: less functional than stale shared-selection clarity |
+
+- User-facing improvement: Authorized Review Queue users now see a clear `Shared submission not visible` panel when a shared URL names a submission that is no longer in the current scoped queue, instead of a generic empty panel.
+- Roles affected: `platform_admin`, `admin`, `org_admin`, `site_admin`, `viewer`, and `program_teacher`; no student, mentor, misc_admin, tenant, site, program, or record visibility was broadened.
+- Files changed: `workspace.js`, `tests/workspace-app.test.mjs`, `scripts/verify-review-queue-deeplinks.mjs`, `docs/functionality-language-audit.md`, `docs/mvp-requirements-catalog.md`, `docs/progress/run-log.md`, `docs/progress/runs/2026-05-31-0805-review-queue-stale-selection-guidance.json`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`
+- Tests/verifiers added or updated: workspace coverage proves a stale shared `submissionId` renders not-visible guidance, clears the stale URL value, preserves unrelated URL params, and does not call `/api/reviews/:submissionId/history`; the Review Queue deeplink verifier now guards the guidance path.
+- Validation commands:
+  - Focused passed before docs/state closeout: `node --test tests/workspace-app.test.mjs`; `npm run verify:review-queue-deeplinks`
+  - Final passed: JSON parse for state/run manifest, `npm run verify:functionality-language`, `npm run verify:dashboard-actions`, `npm run verify:workspace-navigation`, `node --test tests/functionality-language-audit.test.mjs`, `npm run verify:functionality-ux-automation`, `git diff --check`, `npm run check:production-surfaces`, `npm run check:route-inventory`, `npm run test`, `npm run typecheck`, `npm run check`
+- Validation result: passed; `git diff --check` reported only CRLF normalization warnings, with no whitespace errors.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: Review Queue missing-submission semantics, hosted section-level permission proof, Student Directory missing-evidence filter, archive retry/regenerate controls, mentor workload threshold guidance, org rollups, student archive hosted proof, and public-route browser/mobile QA remain deferred.
+- New backlog items: none
+- Next recommended work order: do not add missing-submission Review Queue filters until backend queue semantics include real missing requirement rows; otherwise run hosted permission proof when audit-event writes are allowed.
+- Do-not-repeat notes: do not re-add stale selected-submission guidance unless regression removes `data-review-panel-state="selection-unavailable"` or the stale URL test.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES`
+  - Advanced: yes
+  - Evidence: Stale Review Queue `submissionId` links now render a scoped not-visible panel, clear stale URL state, and skip protected history loading.
+  - Unlocks: Staff can trust shared Review Queue links even when filters, permissions, or queue contents have moved on.
+  - Next: backend missing-submission queue semantics only when supported by real route rows; otherwise hosted permission proof when permitted.
+  - Blockers: missing-submission queue work still needs backend semantics for missing requirement rows; hosted permission proof can write live audit events.
+  - Do not repeat: stale selected-submission guidance is complete unless the marker or test regresses.
+  - First file to inspect next run: `functions/_lib/site-review-queue.ts` `buildFilterWhere()` only if implementing backend queue semantics; otherwise `scripts/check-hosted-workspace-permissions.mjs` when hosted proof is allowed.

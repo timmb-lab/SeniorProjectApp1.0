@@ -1780,6 +1780,50 @@ test("workspace applies Review Queue URL filters safely and syncs filter URLs", 
   );
 });
 
+test("workspace explains Review Queue shared selections that are no longer visible", async () => {
+  const otherReviewRow = siteReviewQueueFixture({ role: "program_teacher" }).queue[1];
+  const { workspaceRoot, fetchLog, window } = await createWorkspaceContextWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "teacher-review-stale-selection",
+          email: "teacher.review.stale.selection@example.edu",
+          displayName: "Program Teacher Review Stale Selection",
+          roles: [{ role_id: "program_teacher", scope_type: "program", scope_id: "it" }],
+        },
+      },
+    },
+    "/api/site/students": {
+      status: 200,
+      body: siteStudentsFixture({ role: "program_teacher", total: 45 }),
+    },
+    "/api/site/review-queue": {
+      status: 200,
+      body: siteReviewQueueFixture({ role: "program_teacher", queue: [otherReviewRow] }),
+    },
+    "/api/program-teacher/dashboard": {
+      status: 200,
+      body: { ok: true, summary: { scopedStudents: 45, submissionsAwaitingReview: 1 }, students: [], programBreakdown: [] },
+    },
+    "/api/presentation-slots": {
+      status: 200,
+      body: { ok: true, slots: [] },
+    },
+  }, {
+    url: "https://workspace.example/workspace.html?section=teacher&siteId=site-desert-valley-high&submissionId=submission-review-001&unknown=keep",
+  });
+
+  assert.match(workspaceRoot.innerHTML, /data-review-panel-state="selection-unavailable"/);
+  assert.match(workspaceRoot.innerHTML, /Shared submission not visible/);
+  assert.match(workspaceRoot.innerHTML, /The shared submission is not visible in this review queue with the current filters/);
+  assert.match(workspaceRoot.innerHTML, /Protected history loads only after the row appears in this scoped queue/);
+  assert.match(window.location.href, /unknown=keep/);
+  assert.doesNotMatch(window.location.href, /submissionId=/);
+  assert.equal(fetchLog.some((entry) => entry.startsWith("/api/reviews/submission-review-001/history")), false);
+});
+
 test("workspace applies shareable URL filters for site worklists safely", async () => {
   const baseRoutes = {
     "/api/auth/me": {

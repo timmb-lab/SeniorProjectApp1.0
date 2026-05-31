@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-05-31T06:34:47-07:00",
-  "lastStartingSha": "d05cbaefcbb8a5aa06e0112ca508603c47d25956",
+  "lastRunAt": "2026-05-31T08:05:39-07:00",
+  "lastStartingSha": "c2b9b3e095803f38aa32eb7ed7a8c31e45ce4160",
   "lastEndingSha": null,
   "currentLadderFocus": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
   "completedWorkOrders": [
@@ -729,6 +729,14 @@
       "type": "TYPE_F_REVIEW_INTERVENTION_QUEUE",
       "summary": "Review Queue URLs now restore selected submission panels only after the scoped queue contains the requested submission and then load protected review history.",
       "commit": "pending-closeout-commit"
+    },
+    {
+      "id": "review-queue-stale-selected-submission-guidance",
+      "completedAt": "2026-05-31T08:05:39-07:00",
+      "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
+      "type": "TYPE_F_REVIEW_INTERVENTION_QUEUE",
+      "summary": "Review Queue URLs now explain when a shared selected submission is no longer visible in the current scoped queue, clear stale submissionId URL state, and skip protected history loading.",
+      "commit": "pending-closeout-commit"
     }
   ],
   "deferredWorkOrders": [
@@ -776,16 +784,16 @@
   "blockedWorkOrders": [],
   "nextRecommendedWorkOrders": [
     {
-      "id": "review-queue-selected-row-not-visible-guidance",
-      "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
-      "type": "TYPE_F_REVIEW_INTERVENTION_QUEUE",
-      "summary": "Inspect whether Review Queue selected-row no-longer-visible guidance is needed after hosted/browser proof."
-    },
-    {
       "id": "review-queue-missing-submission-semantics",
       "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
       "type": "TYPE_F_REVIEW_INTERVENTION_QUEUE",
-      "summary": "Missing-submission queue work remains deferred until backend queue semantics include missing requirement rows."
+      "summary": "Review Queue missing-submission work remains deferred until backend queue semantics include missing requirement rows."
+    },
+    {
+      "id": "hosted-section-permission-proof",
+      "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
+      "type": "TYPE_G_VERIFICATION_REGRESSION_PROTECTION",
+      "summary": "Run only when hosted fake-account proof and audit-event writes are allowed."
     }
   ],
   "doNotRepeat": [
@@ -872,11 +880,12 @@
     "Do not re-add student-detail Operations exact-student filtering unless regression removes filters.studentId, the studentId route test, or data-student-detail-action=\"open-operations\" workspace coverage.",
     "Do not re-clean exact-student Operations no-match guidance unless regression removes the studentId-specific Presentation, Archive, or Readiness empty-state branches or the focused workspace coverage.",
     "Do not re-add Program Teacher Needs Review row detail actions unless regression removes allowStudentDetail: true or the focused Program Dashboard context coverage.",
-    "Do not re-add Review Queue selected-submission URL restoration unless regression removes reviewQueueSelectionFromSearchParams(), submissionId URL sync, or the focused popstate/history coverage."
+    "Do not re-add Review Queue selected-submission URL restoration unless regression removes reviewQueueSelectionFromSearchParams(), submissionId URL sync, or the focused popstate/history coverage.",
+    "Do not re-add Review Queue stale selected-submission guidance unless regression removes data-review-panel-state=\"selection-unavailable\" or the focused stale URL coverage."
   ],
   "lastValidationStatus": {
     "status": "passed",
-    "completedAt": "2026-05-31T06:34:47-07:00",
+    "completedAt": "2026-05-31T08:09:43-07:00",
     "commands": [
       "node --test tests/workspace-app.test.mjs",
       "npm run verify:review-queue-deeplinks",
@@ -885,7 +894,7 @@
       "npm run verify:workspace-navigation",
       "node --test tests/functionality-language-audit.test.mjs",
       "npm run verify:functionality-ux-automation",
-      "node -e JSON.parse automation/state/functionality-ux-growth-state.json and docs/progress/runs/2026-05-31-0634-review-queue-selected-submission-url.json",
+      "JSON parse for automation/state/functionality-ux-growth-state.json and docs/progress/runs/2026-05-31-0805-review-queue-stale-selection-guidance.json",
       "git diff --check",
       "npm run check:production-surfaces",
       "npm run check:route-inventory",
@@ -893,7 +902,7 @@
       "npm run typecheck",
       "npm run check"
     ],
-    "notes": "Full validation passed for Review Queue selected-submission URL state. git diff --check reported only CRLF normalization warnings. This run changes protected workspace navigation, focused tests/verifier coverage, and run records only; it does not change auth role grants, tenant/site/program/student privacy boundaries, migrations, secrets/env files, Cloudflare/OAuth/domain config, deploy settings, mutation controls, or live data."
+    "notes": "Full validation passed for Review Queue stale selected-submission guidance. git diff --check reported only CRLF normalization warnings. This run changes protected workspace navigation, focused tests/verifier coverage, run records, and the local GUI automation TOML cadence only; it does not change auth role grants, tenant/site/program/student privacy boundaries, migrations, secrets/env files, Cloudflare/OAuth/domain config, deploy settings, mutation controls, or live data."
   },
   "lastProductReadinessScorecardSummary": {
     "homepageClarity": "4 to 4",

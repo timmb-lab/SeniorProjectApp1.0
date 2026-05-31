@@ -4867,6 +4867,7 @@ function renderReviewSubmissionPanel(selected, body) {
   const permissions = body?.permissions || {};
   const historyResult = reviewQueueState.historyResult;
   const history = unwrap(historyResult);
+  const selectionNotice = String(reviewQueueState.selectionNotice || "").trim();
   if (reviewQueueState.loadingHistory) {
     return `
       <section class="workspace-dashboard-card workspace-review-panel" data-review-panel-state="loading">
@@ -4880,6 +4881,18 @@ function renderReviewSubmissionPanel(selected, body) {
     `;
   }
   if (!selected) {
+    if (selectionNotice) {
+      return `
+        <section class="workspace-dashboard-card workspace-review-panel" data-review-panel-state="selection-unavailable">
+          <h2>Shared submission not visible</h2>
+          ${renderProblemState({
+            reason: selectionNotice,
+            owner: "Assigned review staff.",
+            nextAction: "Clear filters or select a visible review row. Protected history loads only after the row appears in this scoped queue.",
+          })}
+        </section>
+      `;
+    }
     return `
       <section class="workspace-dashboard-card workspace-review-panel" data-review-panel-state="empty">
         <h2>Select a submission</h2>
@@ -5577,7 +5590,10 @@ async function openReviewSubmission(submissionId) {
   if (!selectedSubmissionId) return;
   const rows = unwrap(currentData.reviewQueue)?.queue || [];
   if (rows.length && !rows.some((row) => row.submissionId === selectedSubmissionId)) {
-    reviewQueueState = defaultReviewQueueState();
+    reviewQueueState = {
+      ...defaultReviewQueueState(),
+      selectionNotice: "The selected submission is not visible in the current review queue.",
+    };
     syncReviewQueueUrlState();
     renderAppShell("Select a visible review row.", "error");
     return;
@@ -5634,12 +5650,14 @@ async function loadReviewQueueResult(message = "", options = {}) {
   const result = await settleApi(apiJson(`/api/site/review-queue${siteReviewQueueQueryString()}`));
   currentData.reviewQueue = result;
   const rows = unwrap(result)?.queue || [];
-  if (!rows.some((row) => row.submissionId === reviewQueueState.selectedSubmissionId)) {
+  const selectedSubmissionId = cleanDirectoryFilter(reviewQueueState.selectedSubmissionId);
+  if (selectedSubmissionId && !rows.some((row) => row.submissionId === selectedSubmissionId)) {
     reviewQueueState = {
       ...reviewQueueState,
       selectedSubmissionId: "",
       historyResult: null,
       loadingHistory: false,
+      selectionNotice: "The shared submission is not visible in this review queue with the current filters.",
     };
   } else if (options.restoreSelection !== false) {
     await restoreReviewQueueSelectionFromCurrentRows({ renderLoading: false });
@@ -5659,7 +5677,9 @@ async function restoreReviewQueueSelectionFromCurrentRows(options = {}) {
       selectedSubmissionId: "",
       historyResult: null,
       loadingHistory: false,
+      selectionNotice: "The shared submission is not visible in this review queue with the current filters.",
     };
+    syncReviewQueueUrlState({ replace: true });
     return;
   }
   await loadSelectedReviewHistory(selectedSubmissionId, options);
@@ -7486,6 +7506,7 @@ function defaultReviewQueueState() {
     historyResult: null,
     loadingHistory: false,
     decisionResult: null,
+    selectionNotice: "",
   };
 }
 

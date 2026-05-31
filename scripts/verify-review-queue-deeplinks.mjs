@@ -101,6 +101,16 @@ assertMatches(
   /restoreReviewQueueSelectionFromCurrentRows/,
   "review queue selected submission deep links must restore only after scoped rows load",
 );
+assertIncludes(
+  workspaceJs,
+  'data-review-panel-state="selection-unavailable"',
+  "review queue must explain shared selected submissions that are no longer visible",
+);
+assertMatches(
+  workspaceJs,
+  /selectionNotice: "The shared submission is not visible in this review queue with the current filters\."[\s\S]*syncReviewQueueUrlState\(\{ replace: true \}\)/,
+  "review queue must clear stale selected-submission URLs after scoped rows fail to include the submission",
+);
 assertMatches(
   workspaceJs,
   /filters\.limit = clampDirectoryNumber\(params\.get\("limit"\), 50, 1, 100\)/,
@@ -138,6 +148,8 @@ for (const expectedTest of [
   "status=revision_requested",
   "risk=stale",
   "submissionId=submission-review-001",
+  "workspace explains Review Queue shared selections that are no longer visible",
+  "Shared submission not visible",
   "Clear filters",
 ]) {
   assertIncludes(workspaceTest, expectedTest, `workspace tests must cover ${expectedTest}`);
