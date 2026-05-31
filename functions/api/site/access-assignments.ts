@@ -30,6 +30,14 @@ interface AssignmentBody {
   adminNote?: unknown;
 }
 
+interface AccessAssignmentAuditRow {
+  id: string;
+  action: string;
+  metadata_json: string | null;
+  created_at: string;
+  actor_name: string | null;
+}
+
 export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
   const user = await getCurrentUser(request, env);
   if (!user) return json({ error: "unauthorized" }, { status: 401 });
@@ -83,6 +91,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
     programTeacherAssignments,
     administrationAssignments,
     siteAdminAssignments,
+    history,
   ] = await Promise.all([
     loadSiteUsersByRole(env, siteId, "student"),
     loadSiteUsersByRole(env, siteId, "mentor"),
@@ -96,6 +105,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
     loadProgramTeacherAssignments(env, siteId),
     loadSiteRoleAssignments(env, siteId, "administration"),
     loadSiteRoleAssignments(env, siteId, "site_admin"),
+    loadRecentAccessAssignmentHistory(env, siteId),
   ]);
 
   await auditAccessAssignments(env, request, user, context, "site_access_assignments_viewed", {
@@ -130,6 +140,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
       administrationSite: administrationAssignments,
       siteAdminSite: siteAdminAssignments,
     },
+    history,
     permissions: {
       canAssignMentors: true,
       canAssignViewers: true,
@@ -332,6 +343,54 @@ async function loadSiteRoleAssignments(env: Env, siteId: string, roleId: RoleId)
      ORDER BY user_id ASC`,
   ).bind(roleId, siteId).all<{ user_id: string }>();
   return (rows.results || []).map((row) => ({ userId: row.user_id, siteId }));
+}
+
+async function loadRecentAccessAssignmentHistory(env: Env, siteId: string) {
+  const rows = await env.DB.prepare(
+    `SELECT
+       audit_events.id,
+       audit_events.action,
+       audit_events.metadata_json,
+       audit_events.created_at,
+       actor.display_name AS actor_name
+     FROM audit_events
+     LEFT JOIN user_accounts actor ON actor.id = audit_events.actor_user_id
+     WHERE audit_events.entity_type = 'site_access_assignment'
+       AND audit_events.entity_id = ?
+       AND audit_events.action GLOB 'access.*'
+     ORDER BY audit_events.created_at DESC
+     LIMIT 12`,
+  ).bind(siteId).all<AccessAssignmentAuditRow>();
+  return (rows.results || [])
+    .map((row) => accessAssignmentHistoryRow(row, siteId))
+    .filter(Boolean);
+}
+
+function accessAssignmentHistoryRow(row: AccessAssignmentAuditRow, siteId: string) {
+  let metadata: Record<string, unknown> = {};
+  if (row.metadata_json) {
+    try {
+      metadata = JSON.parse(row.metadata_json) as Record<string, unknown>;
+    } catch {
+      metadata = {};
+    }
+  }
+  const assignmentType = cleanAssignmentType(metadata.assignmentType);
+  if (!assignmentType) return null;
+  const action = cleanAction(metadata.action)
+    || (row.action.endsWith("_removed") ? "remove" : row.action.endsWith("_assigned") ? "assign" : "");
+  if (!action) return null;
+  return {
+    historyId: row.id,
+    assignmentType,
+    action,
+    actorName: row.actor_name || "",
+    targetUserId: cleanId(String(metadata.targetUserId || "")) || "",
+    studentId: cleanId(String(metadata.studentId || "")) || "",
+    programId: cleanId(String(metadata.programId || "")) || "",
+    siteId,
+    createdAt: row.created_at,
+  };
 }
 
 async function activeUserHasRole(env: Env, userId: string, roleId: RoleId): Promise<boolean> {

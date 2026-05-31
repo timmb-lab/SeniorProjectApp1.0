@@ -5550,6 +5550,7 @@ function renderAdminAccessAssignmentPanel() {
       </div>
       ${renderApiNotice(result)}
       ${renderSiteAccessAssignmentSummary(users, programs, assignments, permissions)}
+      ${renderSiteAccessAssignmentHistory(body.history, users, programs)}
       <div class="workspace-assignment-tabs">
         ${renderAccessAssignmentForm("mentor_student", "Mentors", users.mentors, students, "mentorUserId", "studentId")}
         ${renderAccessAssignmentForm("viewer_student", "Viewers", users.viewers, students, "viewerUserId", "studentId")}
@@ -5630,6 +5631,66 @@ function renderSiteAccessAssignmentSummary(users = {}, programs = [], assignment
       </div>
     </div>
   `;
+}
+
+function renderSiteAccessAssignmentHistory(rows = [], users = {}, programs = []) {
+  const history = Array.isArray(rows) ? rows : [];
+  const labels = accessAssignmentLabels(users, programs);
+  return `
+    <div class="workspace-assignment-summary" data-site-access-history="true">
+      <div>
+        <p class="workspace-kicker">Recorded changes</p>
+        <h3>Recent access changes</h3>
+        <p class="workspace-muted">Review the latest access assignments and removals for this school. Admin note text stays hidden here.</p>
+      </div>
+      ${history.length ? `
+        <div class="workspace-list">
+          ${history.map((row) => renderSiteAccessHistoryRow(row, labels)).join("")}
+        </div>
+      ` : `<div class="workspace-empty">No recorded access changes are available for this school yet.</div>`}
+    </div>
+  `;
+}
+
+function renderSiteAccessHistoryRow(row = {}, labels) {
+  return `
+    <article class="workspace-row" data-site-access-history-row="${escapeHtml(row.historyId || "history")}">
+      <div>
+        <strong>${escapeHtml(siteAccessHistoryTitle(row))}</strong>
+        <p>${escapeHtml(siteAccessHistorySubject(row, labels))}</p>
+        <p class="workspace-muted">${escapeHtml(row.actorName || "System")} / ${escapeHtml(formatDate(row.createdAt))}</p>
+      </div>
+      ${siteAccessHistoryStatusPill(row.action)}
+    </article>
+  `;
+}
+
+function siteAccessHistoryTitle(row = {}) {
+  const label = {
+    mentor_student: "Mentor access",
+    viewer_student: "Viewer access",
+    program_teacher_program: "Program teacher access",
+    administration_site: "Administration access",
+    site_admin_site: "Site admin access",
+  }[row.assignmentType] || "Access";
+  return `${label} ${row.action === "remove" ? "removed" : "assigned"}`;
+}
+
+function siteAccessHistorySubject(row = {}, labels) {
+  if (row.assignmentType === "mentor_student" || row.assignmentType === "viewer_student") {
+    return `${labels.user(row.targetUserId)} / ${labels.student(row.studentId)}`;
+  }
+  if (row.assignmentType === "program_teacher_program") {
+    return `${labels.user(row.targetUserId)} / ${labels.program(row.programId)}`;
+  }
+  return `${labels.user(row.targetUserId)} / ${labels.site(row.siteId)}`;
+}
+
+function siteAccessHistoryStatusPill(action = "assign") {
+  if (action === "remove") {
+    return `<span class="workspace-status-pill archived" data-status="removed">Removed</span>`;
+  }
+  return `<span class="workspace-status-pill approved" data-status="assigned">Assigned</span>`;
 }
 
 function renderAccessAssignmentSummaryRows({ title, rows = [], empty, renderRow }) {

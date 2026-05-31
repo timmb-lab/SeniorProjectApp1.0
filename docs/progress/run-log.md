@@ -2444,3 +2444,14 @@ Future productive runs should append compact entries that name the master-plan s
 - `changes`: `workspace.js` now renders action-specific guidance for mentor-student, viewer-student, program-teacher-program, administration-site, and site-admin-site assignment forms, and labels the submit button `Save access change`. `tests/workspace-app.test.mjs` proves the guidance and safer button label render in Users & Access.
 - `validation`: focused workspace test plus functionality-language, dashboard-action, and workspace-navigation verifiers passed before docs/state closeout. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
 - `commit/push status`: pending closeout commit; not pushed by this automation run.
+
+## 2026-05-31 PT - Functionality UX Upgrade Site Access History Panel
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 7 access trust / Level 4 role-specific workspace clarity.
+- `starting HEAD`: `0c856402a6d484db5e11bc07141f7480f2144bfa`.
+- `selected slice`: Add a read-only Users & Access history panel from existing scoped site access audit rows.
+- `repo-grounded findings`: the previous runs added current scoped access rows plus safer Assign/Remove guidance, but `workspace.js` still stopped at the active summary and forms. `/api/site/access-assignments` already wrote `site_access_assignment` audit rows for assign/remove activity with selected-site scoping, so the missing piece was a safe read-only history panel that avoided admin-note text.
+- `changes`: `functions/api/site/access-assignments.ts` now returns a bounded `history` array built from existing scoped `site_access_assignment` audit rows while excluding free-form admin-note text and raw audit metadata. `workspace.js` now renders a `Recent access changes` panel before the assignment forms, and `tests/site-access-assignments.integration.test.mjs` plus `tests/workspace-app.test.mjs` prove the history stays site-scoped, hides admin notes, and renders before the mutation forms.
+- `validation`: focused workspace and site-access route tests passed before docs/state closeout. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.

@@ -4407,13 +4407,21 @@ test("workspace renders current site access assignments before management forms"
   assert.match(adminUsers, /Principal One/);
   assert.match(adminUsers, /Desert Valley High School/);
   assert.match(adminUsers, /No site admin access is active for this school/);
+  assert.match(adminUsers, /data-site-access-history="true"/);
+  assert.match(adminUsers, /Recent access changes/);
+  assert.match(adminUsers, /Review the latest access assignments and removals for this school/);
+  assert.match(adminUsers, /Viewer access assigned/);
+  assert.match(adminUsers, /Site Access Admin/);
+  assert.match(adminUsers, /Program teacher access removed/);
+  assert.match(adminUsers, /Platform Admin/);
   assert.match(adminUsers, /data-site-access-action-guidance="mentor_student"/);
   assert.match(adminUsers, /Choose Remove only for a current row shown above; it is recorded for review and does not delete the account or student work/);
   assert.match(adminUsers, /data-site-access-action-guidance="program_teacher_program"/);
   assert.match(adminUsers, /does not delete the account or program records/);
   assert.match(adminUsers, /Save access change/);
   assertMarkupOrder(adminUsers, "Active Assignments", "data-site-access-assignment-form", "current access summary should render before assignment forms");
-  assert.doesNotMatch(adminUsers, /password_hash|temporaryPassword|drive_file_id|access_token|refresh_token/i);
+  assertMarkupOrder(adminUsers, "Recent access changes", "data-site-access-assignment-form", "recent access changes should render before assignment forms");
+  assert.doesNotMatch(adminUsers, /password_hash|temporaryPassword|drive_file_id|access_token|refresh_token|Family schedule change/i);
 });
 
 test("workspace keeps admin import setup output memory-only and gates non-admin import UI", async () => {
@@ -5105,6 +5113,30 @@ function siteAccessAssignmentsFixture() {
       ],
       siteAdminSite: [],
     },
+    history: [
+      {
+        historyId: "access-history-001",
+        assignmentType: "viewer_student",
+        action: "assign",
+        actorName: "Site Access Admin",
+        targetUserId: "demo-viewer-001",
+        studentId: "demo-student-101",
+        programId: "",
+        siteId: "site-desert-valley-high",
+        createdAt: "2026-05-31T13:58:00.000Z",
+      },
+      {
+        historyId: "access-history-002",
+        assignmentType: "program_teacher_program",
+        action: "remove",
+        actorName: "Platform Admin",
+        targetUserId: "demo-teacher-001",
+        studentId: "",
+        programId: "it",
+        siteId: "site-desert-valley-high",
+        createdAt: "2026-05-31T13:12:00.000Z",
+      },
+    ],
     permissions: {
       canAssignMentors: true,
       canAssignViewers: true,

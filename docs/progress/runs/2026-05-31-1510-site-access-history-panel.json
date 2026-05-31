@@ -1,0 +1,159 @@
+{
+  "automationId": "functionality-ux-upgrade-hourly",
+  "runStartedAt": "2026-05-31T15:02:31-07:00",
+  "branch": "main",
+  "startingSha": "0c856402a6d484db5e11bc07141f7480f2144bfa",
+  "endingSha": null,
+  "targetedLadderLevel": "LEVEL_7_AUDITABILITY_AND_TRUST",
+  "workOrder": {
+    "id": "site-access-history-panel",
+    "type": "TYPE_G_VERIFICATION_REGRESSION_PROTECTION",
+    "title": "Show recent site access changes in Users & Access",
+    "roles": [
+      "site_admin",
+      "global_admin",
+      "admin",
+      "platform_admin"
+    ],
+    "surfaces": [
+      "workspace.html#adminUsers",
+      "/api/site/access-assignments"
+    ],
+    "requirementIds": [
+      "MVP-004",
+      "MVP-006",
+      "MVP-007",
+      "MVP-020",
+      "MVP-032",
+      "MVP-033"
+    ]
+  },
+  "selectionReason": "Users & Access already showed current access plus safer Assign/Remove guidance, but it still did not surface the latest recorded access changes for the current school. The scoped route already wrote site_access_assignment audit rows, so adding a read-only history panel was the safest next access-trust slice.",
+  "userFacingImprovement": "Site admins can review recent access assignments and removals for this school before using the existing forms.",
+  "privacyAndPermissionNotes": [
+    "The route still uses the existing scoped /api/site/access-assignments permission gate; no role, tenant, site, program, mentor, or student visibility changed.",
+    "The history payload excludes free-form adminNote text and raw audit metadata such as actor role scopes.",
+    "No mutation path, auth behavior, secret handling, deployment setting, seed/reset path, or live data policy changed."
+  ],
+  "candidateSummary": [
+    {
+      "candidate": "Site access history panel",
+      "score": 57,
+      "decision": "selected"
+    },
+    {
+      "candidate": "Hosted section-level permission proof",
+      "score": 39,
+      "decision": "deferred; hosted fake-account and audit writes are not allowed in this lane"
+    },
+    {
+      "candidate": "Admin recent audit deep link",
+      "score": 43,
+      "decision": "deferred; audit destination shape still needs review"
+    },
+    {
+      "candidate": "Presentation schedule URL state",
+      "score": 44,
+      "decision": "not selected; shareable need remains unproven"
+    },
+    {
+      "candidate": "Mentor Dashboard URL state",
+      "score": 41,
+      "decision": "not selected; shareable need remains unproven"
+    },
+    {
+      "candidate": "Review Queue missing-submission semantics",
+      "score": 34,
+      "decision": "deferred; backend queue rows are absent"
+    },
+    {
+      "candidate": "Site admin assignment removal workflow",
+      "score": 35,
+      "decision": "rejected; mutation policy needs more review"
+    },
+    {
+      "candidate": "Archive retry/regenerate controls",
+      "score": 34,
+      "decision": "rejected; mutation policy is not approved"
+    },
+    {
+      "candidate": "Mentor workload threshold filter",
+      "score": 39,
+      "decision": "deferred; threshold policy is still unclear"
+    },
+    {
+      "candidate": "Org admin all-sites rollup",
+      "score": 29,
+      "decision": "rejected; aggregate backend design is absent"
+    },
+    {
+      "candidate": "Student guided requirement form",
+      "score": 37,
+      "decision": "deferred; write-path and product design are still needed"
+    },
+    {
+      "candidate": "Users & Access current assignment summary",
+      "score": 36,
+      "decision": "rejected; completed in the prior run"
+    }
+  ],
+  "filesChanged": [
+    "functions/api/site/access-assignments.ts",
+    "workspace.js",
+    "tests/site-access-assignments.integration.test.mjs",
+    "tests/workspace-app.test.mjs",
+    "docs/functionality-language-audit.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-31-1510-site-access-history-panel.json",
+    "docs/functionality-ux-growth-ledger.md",
+    "automation/state/functionality-ux-growth-state.json"
+  ],
+  "validation": {
+    "focusedPassedBeforeCloseout": [
+      "node --test tests/workspace-app.test.mjs",
+      "node --test tests/site-access-assignments.integration.test.mjs"
+    ],
+    "finalCommands": [
+      "node --test tests/workspace-app.test.mjs",
+      "node --test tests/site-access-assignments.integration.test.mjs",
+      "node --test tests/functionality-language-audit.test.mjs",
+      "npm run verify:functionality-language",
+      "npm run verify:dashboard-actions",
+      "npm run verify:workspace-navigation",
+      "npm run verify:functionality-ux-automation",
+      "JSON parse for automation/state/functionality-ux-growth-state.json and docs/progress/runs/2026-05-31-1510-site-access-history-panel.json",
+      "git diff --check",
+      "npm run check:production-surfaces",
+      "npm run check:route-inventory",
+      "npm run test",
+      "npm run typecheck",
+      "npm run check"
+    ],
+    "status": "passed",
+    "notes": "Full validation passed; git diff --check reported only CRLF normalization warnings."
+  },
+  "deferred": [
+    "hosted-section-permission-proof",
+    "admin-recent-audit-deep-link",
+    "review-queue-missing-submission-semantics",
+    "presentation-schedule-url-state",
+    "mentor-dashboard-url-state",
+    "site-admin-assignment-removal-workflow",
+    "archive-retry-regenerate-controls",
+    "mentor-workload-threshold-policy",
+    "org-admin-all-sites-rollup",
+    "student-guided-requirement-form"
+  ],
+  "doNotRepeat": [
+    "Do not re-add Users & Access recent access changes unless data-site-access-history or the focused route/workspace coverage regresses."
+  ],
+  "ladderHandoff": {
+    "targetedLevel": "LEVEL_7_AUDITABILITY_AND_TRUST",
+    "advanced": true,
+    "evidence": "Users & Access now renders recent site access changes from scoped site_access_assignment audit rows without showing admin-note text.",
+    "unlocks": "The Users & Access panel now shows current access, safer action guidance, and recorded recent changes in one read-only workspace.",
+    "next": "Run hosted section-level permission proof when allowed; otherwise review whether Recent Audit can open a scoped audit destination for site admins without broadening visibility.",
+    "blockers": "Hosted proof needs safe fake-account/audit runtime; audit destination shape still needs visibility review; missing-submission queue rows do not exist; archive retry/regenerate needs mutation policy.",
+    "firstFileNextRun": "scripts/check-hosted-workspace-permissions.mjs"
+  }
+}
