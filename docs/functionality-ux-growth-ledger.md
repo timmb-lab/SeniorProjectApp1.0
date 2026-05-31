@@ -4305,3 +4305,54 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: hosted permission proof needs safe hosted fake-account/audit runtime; Review Queue missing-submission rows do not exist; archive retry/regenerate needs mutation policy.
   - Do not repeat: Presentation schedule status filters are complete unless the marker/test regresses.
   - First file to inspect next run: `scripts/check-hosted-workspace-permissions.mjs` if hosted proof is allowed; otherwise `workspace.js` `renderPresentationSection()` only if extending presentation URL state.
+
+## Run 2026-05-31 13:34 PT
+
+- Starting SHA: `93d6b7884f3c4155347c01b17f8996640fb237c8`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Branch policy: work stayed on clean local `main`; local `main` was aligned with `origin/main`, and no push was run
+- Ladder level targeted: `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` with `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` mentor-support adjacency
+- Backlog item: `mentor-dashboard-focus-filters`; supports `MVP-017`, `MVP-018`, `MVP-032`, and `MVP-033`
+- Work order selected: Add in-page focus filters to the Mentor Dashboard assigned-student list.
+- Selection reason: Current `/api/mentor/dashboard` already returns only scoped assigned-student rows with submission, meeting, presentation, outline, evidence, and `needsAttention` signals. The workspace sorted attention-needed students first but did not let mentors narrow the real assigned list to revision, meeting, or presentation follow-up. This slice improves role usability without route changes, query params, mutations, access expansion, or fake links.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Mentor Dashboard focus filters | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | mentor, admin mentor-view support | 4 | 5 | 5 | S | 55 | selected |
+| Presentation schedule URL state | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | student, mentor, program_teacher, admin | 4 | 4 | 4 | M | 44 | not selected: in-page filters just landed; shareable need still unproven |
+| Hosted section-level permission proof | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all protected roles | 4 | 3 | 3 | M | 39 | deferred: hosted fake-account/audit writes not allowed in this lane run |
+| Review Queue missing-submission semantics | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | program_teacher, site staff | 5 | 2 | 3 | M | 34 | deferred: backend queue rows absent |
+| Student Directory missing-evidence state cleanup | `LEVEL_1_NAVIGABLE_DASHBOARDS` | program_teacher, site staff | 3 | 5 | 5 | XS | 42 | rejected: current code/tests already support `evidenceStatus=missing`; stale state note only |
+| Mentor workload threshold filter | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | site staff, viewer | 4 | 3 | 3 | M | 39 | deferred: threshold policy unclear |
+| Admin recent audit deep link | `LEVEL_7_AUDITABILITY_AND_TRUST` | admin, site_admin | 4 | 3 | 3 | M | 38 | deferred: audit destination shape needs review |
+| Archive retry/regenerate controls | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | site_admin, admin | 5 | 2 | 3 | M | 34 | rejected: mutation policy not approved |
+| Org admin all-sites rollup | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | org_admin | 5 | 2 | 2 | L | 29 | rejected: aggregate backend design absent |
+| Student guided requirement form | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 5 | 3 | 3 | L | 37 | deferred: write-path/product design needed |
+| Public route browser/mobile visual QA | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | public students, teachers | 3 | 4 | 3 | M | 40 | not selected: lower protected-app value |
+| Mentor Assignments summary tile filters | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | site staff, viewer, program_teacher | 3 | 5 | 5 | XS | 36 | rejected: completed and guarded |
+
+- User-facing improvement: Mentors can filter their assigned-student dashboard to All, Needs revision, Meeting attention, or Presentation follow-up and see a filter-specific no-match state instead of manually scanning every assigned student.
+- Roles affected: `mentor` where `/api/mentor/dashboard` is already visible; global admin-backed mentor dashboard data remains constrained to existing route behavior. No student, program teacher, viewer, site, tenant, program, assignment, or record visibility was broadened.
+- Files changed: `workspace.js`, `tests/workspace-app.test.mjs`, `docs/functionality-language-audit.md`, `docs/progress/run-log.md`, `docs/progress/runs/2026-05-31-1334-mentor-dashboard-focus-filters.json`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`
+- Tests/verifiers added or updated: workspace coverage proves Mentor Dashboard filter counts, presentation-follow-up narrowing, invalid-filter fallback, and existing meeting-history detail behavior.
+- Validation commands:
+  - Focused passed before docs/state closeout: `node --test tests/workspace-app.test.mjs`
+  - Final passed: JSON parse for state/run manifest, `node --test tests/functionality-language-audit.test.mjs`, `npm run verify:functionality-language`, `npm run verify:dashboard-actions`, `npm run verify:workspace-navigation`, `npm run verify:functionality-ux-automation`, `git diff --check`, `npm run check:production-surfaces`, `npm run check:route-inventory`, `npm run test`, `npm run typecheck`, `npm run check`
+- Validation result: passed; `git diff --check` reported only CRLF normalization warnings, with no whitespace errors. The first functionality-language verifier run failed on a stale `Assigned access` fallback elsewhere in `workspace.js`, and the first automation verifier run failed because the Review Queue next-recommended summary no longer matched the verifier's capitalized wording; both were corrected and passed on rerun.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: hosted section-level permission proof, Review Queue missing-submission semantics, Presentation schedule URL-state filters, archive retry/regenerate controls, mentor workload threshold policy, org rollups, student guided requirement write path, and public-route browser/mobile QA remain deferred.
+- New backlog items: consider Mentor Dashboard URL-state only if mentors need shareable focus views; otherwise do not add URL state for this in-page-only filter.
+- Next recommended work order: run hosted section-level permission proof when hosted fake-account proof and audit-event writes are allowed; otherwise inspect whether stale state entries around already completed missing-evidence directory filters should be pruned from next recommendations.
+- Do-not-repeat notes: do not re-add Mentor Dashboard focus filters unless `data-mentor-dashboard-filters="true"` or the focused workspace coverage regresses.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_4_ROLE_SPECIFIC_WORKSPACES`
+  - Advanced: yes
+  - Evidence: Mentor Dashboard now narrows already scoped assigned-student rows by revision, meeting, and presentation follow-up without new routes or permissions.
+  - Unlocks: Mentors can quickly focus check-ins and presentation support from the role home screen before opening student detail or meeting history.
+  - Next: hosted section-level permission proof when allowed; otherwise state cleanup for stale missing-evidence deferred notes or a route-backed queue slice only when backend semantics exist.
+  - Blockers: hosted permission proof needs safe hosted fake-account/audit runtime; Review Queue missing-submission rows do not exist; archive retry/regenerate needs mutation policy.
+  - Do not repeat: Mentor Dashboard focus filters are complete unless the marker/test coverage regresses.
+  - First file to inspect next run: `scripts/check-hosted-workspace-permissions.mjs` if hosted proof is allowed; otherwise `automation/state/functionality-ux-growth-state.json` for stale deferred missing-evidence notes.

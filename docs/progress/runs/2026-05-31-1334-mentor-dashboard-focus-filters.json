@@ -1,0 +1,147 @@
+{
+  "automationId": "functionality-ux-upgrade-hourly",
+  "runStartedAt": "2026-05-31T13:34:19-07:00",
+  "branch": "main",
+  "startingSha": "93d6b7884f3c4155347c01b17f8996640fb237c8",
+  "endingSha": null,
+  "targetedLadderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+  "workOrder": {
+    "id": "mentor-dashboard-focus-filters",
+    "type": "TYPE_D_ROLE_WORKSPACE",
+    "title": "Add in-page focus filters to Mentor Dashboard assigned students",
+    "roles": [
+      "mentor"
+    ],
+    "surfaces": [
+      "workspace.html#mentorDashboard",
+      "/api/mentor/dashboard"
+    ],
+    "requirementIds": [
+      "MVP-017",
+      "MVP-018",
+      "MVP-032",
+      "MVP-033"
+    ]
+  },
+  "selectionReason": "The mentor dashboard already receives scoped assigned-student rows with revision, meeting, presentation, outline, evidence, and needsAttention signals, but mentors had to scan the full list to focus on a follow-up type.",
+  "userFacingImprovement": "Mentors can filter assigned students by revision follow-up, meeting attention, or presentation follow-up without leaving the dashboard.",
+  "privacyAndPermissionNotes": [
+    "No API route, query parameter, role, permission, mutation, tenant boundary, site boundary, program scope, mentor assignment scope, or student visibility changed.",
+    "The filters run only over rows already returned by the scoped /api/mentor/dashboard response.",
+    "Student detail and meeting-history actions continue to use the existing authorized detail route and mentor dashboard source context."
+  ],
+  "candidateSummary": [
+    {
+      "candidate": "Mentor Dashboard focus filters",
+      "score": 55,
+      "decision": "selected"
+    },
+    {
+      "candidate": "Presentation schedule URL state",
+      "score": 44,
+      "decision": "not selected; shareable need unproven"
+    },
+    {
+      "candidate": "Hosted section-level permission proof",
+      "score": 39,
+      "decision": "deferred; hosted audit writes not allowed"
+    },
+    {
+      "candidate": "Review Queue missing-submission semantics",
+      "score": 34,
+      "decision": "deferred; backend rows absent"
+    },
+    {
+      "candidate": "Student Directory missing-evidence state cleanup",
+      "score": 42,
+      "decision": "rejected; current code/tests already support it"
+    },
+    {
+      "candidate": "Mentor workload threshold filter",
+      "score": 39,
+      "decision": "deferred; policy unclear"
+    },
+    {
+      "candidate": "Admin recent audit deep link",
+      "score": 38,
+      "decision": "deferred; destination shape needs review"
+    },
+    {
+      "candidate": "Archive retry/regenerate controls",
+      "score": 34,
+      "decision": "rejected; mutation policy not approved"
+    },
+    {
+      "candidate": "Org admin all-sites rollup",
+      "score": 29,
+      "decision": "rejected; aggregate backend absent"
+    },
+    {
+      "candidate": "Student guided requirement form",
+      "score": 37,
+      "decision": "deferred; write-path design needed"
+    },
+    {
+      "candidate": "Public route browser/mobile visual QA",
+      "score": 40,
+      "decision": "not selected; lower protected-app value"
+    },
+    {
+      "candidate": "Mentor Assignments summary tile filters",
+      "score": 36,
+      "decision": "rejected; completed and guarded"
+    }
+  ],
+  "filesChanged": [
+    "workspace.js",
+    "tests/workspace-app.test.mjs",
+    "docs/functionality-language-audit.md",
+    "docs/functionality-ux-growth-ledger.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-31-1334-mentor-dashboard-focus-filters.json",
+    "automation/state/functionality-ux-growth-state.json"
+  ],
+  "validation": {
+    "focusedPassedBeforeCloseout": [
+      "node --test tests/workspace-app.test.mjs"
+    ],
+    "finalCommands": [
+      "node --test tests/workspace-app.test.mjs",
+      "npm run verify:functionality-language",
+      "npm run verify:dashboard-actions",
+      "npm run verify:workspace-navigation",
+      "npm run verify:functionality-ux-automation",
+      "node --test tests/functionality-language-audit.test.mjs",
+      "JSON parse for automation/state/functionality-ux-growth-state.json and docs/progress/runs/2026-05-31-1334-mentor-dashboard-focus-filters.json",
+      "git diff --check",
+      "npm run check:production-surfaces",
+      "npm run check:route-inventory",
+      "npm run test",
+      "npm run typecheck",
+      "npm run check"
+    ],
+    "status": "passed",
+    "notes": "Full validation passed; git diff --check reported only CRLF normalization warnings."
+  },
+  "deferred": [
+    "hosted-section-permission-proof",
+    "review-queue-missing-submission-semantics",
+    "presentation-schedule-url-state",
+    "archive-retry-regenerate-controls",
+    "mentor-workload-threshold-policy",
+    "org-admin-all-sites-rollup",
+    "student-guided-requirement-form"
+  ],
+  "doNotRepeat": [
+    "Do not re-add Mentor Dashboard focus filters unless data-mentor-dashboard-filters=\"true\" or focused workspace coverage regresses."
+  ],
+  "ladderHandoff": {
+    "targetedLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+    "advanced": true,
+    "evidence": "Mentor Dashboard now narrows already scoped assigned-student rows by revision, meeting, and presentation follow-up.",
+    "unlocks": "Mentors can focus check-ins and presentation support before opening student detail or meeting history.",
+    "next": "Run hosted section-level permission proof when allowed; otherwise clean stale missing-evidence deferred state or choose a route-backed queue slice only when backend semantics exist.",
+    "blockers": "Hosted proof needs safe fake-account/audit runtime; missing-submission queue rows do not exist; archive retry/regenerate needs mutation policy.",
+    "firstFileNextRun": "scripts/check-hosted-workspace-permissions.mjs"
+  }
+}

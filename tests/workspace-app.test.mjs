@@ -3142,6 +3142,11 @@ test("mentor dashboard assigned students open detail and meeting history without
     "mentor dashboard should show attention-needed students before on-track students",
   );
   assert.match(workspaceRoot.innerHTML, /data-mentor-dashboard-signals="true"/);
+  assert.match(workspaceRoot.innerHTML, /data-mentor-dashboard-filters="true"/);
+  assert.match(workspaceRoot.innerHTML, /All \(2\)/);
+  assert.match(workspaceRoot.innerHTML, /Needs revision \(1\)/);
+  assert.match(workspaceRoot.innerHTML, /Meeting attention \(1\)/);
+  assert.match(workspaceRoot.innerHTML, /Presentation follow-up \(1\)/);
   assert.match(workspaceRoot.innerHTML, /Meeting[\s\S]*Make-up required/);
   assert.match(workspaceRoot.innerHTML, /Presentation[\s\S]*Not scheduled/);
   assert.match(workspaceRoot.innerHTML, /Outline[\s\S]*Pending/);
@@ -3151,6 +3156,36 @@ test("mentor dashboard assigned students open detail and meeting history without
   assert.match(workspaceRoot.innerHTML, /data-mentor-dashboard-action="open-meetings"/);
   assert.match(workspaceRoot.innerHTML, /Open meeting history/);
   assert.match(workspaceRoot.innerHTML, /data-mentor-dashboard-student-id="demo-student-101"/);
+
+  vm.runInContext(`
+    handleMentorDashboardAction({
+      currentTarget: {
+        dataset: {
+          mentorDashboardAction: "filter",
+          mentorDashboardFilter: "presentation"
+        }
+      }
+    });
+  `, context);
+
+  assert.match(workspaceRoot.innerHTML, /data-mentor-dashboard-filter="presentation" aria-pressed="true"/);
+  assert.match(workspaceRoot.innerHTML, /Presentation follow-up/);
+  assert.match(workspaceRoot.innerHTML, /Zoe Needs Help/);
+  assert.doesNotMatch(workspaceRoot.innerHTML, /Avery On Track/);
+
+  vm.runInContext(`
+    handleMentorDashboardAction({
+      currentTarget: {
+        dataset: {
+          mentorDashboardAction: "filter",
+          mentorDashboardFilter: "bogus"
+        }
+      }
+    });
+  `, context);
+
+  assert.match(workspaceRoot.innerHTML, /data-mentor-dashboard-filter="all" aria-pressed="true"/);
+  assert.match(workspaceRoot.innerHTML, /Avery On Track/);
 
   await vm.runInContext(`
     handleMentorDashboardAction({

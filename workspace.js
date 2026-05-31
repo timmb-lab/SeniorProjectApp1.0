@@ -35,6 +35,7 @@ let reviewQueueFilters = defaultReviewQueueFilters();
 let reviewQueueState = defaultReviewQueueState();
 let mentorAssignmentFilters = defaultMentorAssignmentFilters();
 let operationsReadinessFilters = defaultOperationsReadinessFilters();
+let mentorDashboardFilter = "all";
 let presentationSlotFilter = "all";
 const WORKSPACE_UPLOAD_MAX_BYTES = 20 * 1024 * 1024;
 const WORKSPACE_UPLOAD_ALLOWED_MIME_TYPES = new Set([
@@ -297,6 +298,7 @@ async function loadSession() {
       currentData = defaultCurrentData(authConfig);
       studentRequirementDetailState = defaultStudentRequirementDetailState();
       studentFeedbackHistoryState = defaultStudentFeedbackHistoryState();
+      mentorDashboardFilter = "all";
       presentationSlotFilter = "all";
       renderSignIn(
         messageForSessionStateError(data?.error, response.status),
@@ -308,6 +310,7 @@ async function loadSession() {
     if (currentUser?.id !== data.user?.id) {
       studentRequirementDetailState = defaultStudentRequirementDetailState();
       studentFeedbackHistoryState = defaultStudentFeedbackHistoryState();
+      mentorDashboardFilter = "all";
       presentationSlotFilter = "all";
     }
     currentUser = data.user;
@@ -317,6 +320,7 @@ async function loadSession() {
     currentData = defaultCurrentData(authConfig);
     studentRequirementDetailState = defaultStudentRequirementDetailState();
     studentFeedbackHistoryState = defaultStudentFeedbackHistoryState();
+    mentorDashboardFilter = "all";
     presentationSlotFilter = "all";
     renderSignIn(messageForNetworkError(error), "error");
   }
@@ -2972,6 +2976,8 @@ function renderMentorDashboardSection() {
     missingMeeting: 0,
     presentationPending: 0,
   };
+  const activeFilter = cleanMentorDashboardFilter(mentorDashboardFilter);
+  const filteredAssigned = filterMentorDashboardStudents(assigned, activeFilter);
   return `
     <section class="workspace-command-center">
       <div class="workspace-command-hero">
@@ -2991,14 +2997,17 @@ function renderMentorDashboardSection() {
         ${renderMetricTile("Meetings", summary.missingMeeting, "Need meeting attention", "warning")}
         ${renderMetricTile("Presentations", summary.presentationPending, "Pending readiness", "teacher", "presentation")}
       </div>
+      ${assigned.length ? renderMentorDashboardFilters(assigned, activeFilter) : ""}
       ${siteStudentDetailState?.sourceSection === "mentorDashboard" ? renderSiteStudentDetailSurface({
         students: assigned.map((row) => ({
           studentId: row.studentId,
           displayName: row.studentName,
         })),
       }) : ""}
-      ${assigned.length ? `
-        ${renderDashboardCard("Assigned Students", "Attention-needed assignments first", renderMentorStudentCards(assigned))}
+      ${assigned.length && filteredAssigned.length ? `
+        ${renderDashboardCard("Assigned Students", mentorDashboardFilterKicker(activeFilter), renderMentorStudentCards(filteredAssigned))}
+      ` : assigned.length ? `
+        ${renderDashboardCard("Assigned Students", mentorDashboardFilterKicker(activeFilter), renderMentorDashboardFilterEmptyState(activeFilter))}
       ` : `
         <section class="workspace-dashboard-card workspace-empty" data-workspace-state="no-active-assignment">
           <strong>No students are assigned to you yet</strong>
@@ -6031,6 +6040,12 @@ async function handleMentorAssignmentAction(event) {
 async function handleMentorDashboardAction(event) {
   const action = event?.currentTarget?.dataset?.mentorDashboardAction;
   if (!action) return;
+  if (action === "filter") {
+    mentorDashboardFilter = cleanMentorDashboardFilter(event.currentTarget?.dataset?.mentorDashboardFilter || "all");
+    activeSection = "mentorDashboard";
+    renderAppShell(mentorDashboardFilter === "all" ? "Showing all assigned students." : "Mentor dashboard filter applied.", "success");
+    return;
+  }
   if (action === "open-student") {
     activeSection = "mentorDashboard";
     await openSiteStudentDetail(event.currentTarget?.dataset?.mentorDashboardStudentId || "", { sourceSection: "mentorDashboard" });
@@ -7778,6 +7793,94 @@ function renderMentorStudentCards(rows = []) {
   `;
 }
 
+function renderMentorDashboardFilters(rows = [], activeFilter = "all") {
+  const filters = [
+    ["all", "All", rows.length],
+    ["revision", "Needs revision", rows.filter(isMentorDashboardRevisionRow).length],
+    ["meeting", "Meeting attention", rows.filter(isMentorDashboardMeetingRow).length],
+    ["presentation", "Presentation follow-up", rows.filter(isMentorDashboardPresentationRow).length],
+  ];
+  return `
+    <div class="workspace-filter-bar workspace-mentor-dashboard-filters" data-mentor-dashboard-filters="true" aria-label="Mentor dashboard filters">
+      ${filters.map(([filter, label, count]) => `
+        <button class="workspace-button ${activeFilter === filter ? "workspace-button-primary" : "workspace-button-secondary"}" type="button" data-mentor-dashboard-action="filter" data-mentor-dashboard-filter="${escapeHtml(filter)}" aria-pressed="${activeFilter === filter ? "true" : "false"}">
+          ${escapeHtml(label)} (${safeNumber(count)})
+        </button>
+      `).join("")}
+    </div>
+  `;
+}
+
+function filterMentorDashboardStudents(rows = [], filter = "all") {
+  const activeFilter = cleanMentorDashboardFilter(filter);
+  if (activeFilter === "revision") return rows.filter(isMentorDashboardRevisionRow);
+  if (activeFilter === "meeting") return rows.filter(isMentorDashboardMeetingRow);
+  if (activeFilter === "presentation") return rows.filter(isMentorDashboardPresentationRow);
+  return rows;
+}
+
+function cleanMentorDashboardFilter(value) {
+  const filter = String(value || "").trim();
+  return ["all", "revision", "meeting", "presentation"].includes(filter) ? filter : "all";
+}
+
+function isMentorDashboardRevisionRow(row = {}) {
+  return row.submissionStatus === "revision_requested" || (Array.isArray(row.needsAttention) && row.needsAttention.includes("revision_requested"));
+}
+
+function isMentorDashboardMeetingRow(row = {}) {
+  const status = row.mentorMeetingStatus || "not_recorded";
+  return ["not_recorded", "missed", "makeup_required"].includes(status) || (Array.isArray(row.needsAttention) && row.needsAttention.includes("mentor_meeting"));
+}
+
+function isMentorDashboardPresentationRow(row = {}) {
+  return row.presentationStatus === "not_scheduled"
+    || row.outlineStatus !== "approved"
+    || (Array.isArray(row.needsAttention) && row.needsAttention.includes("presentation"));
+}
+
+function mentorDashboardFilterKicker(filter = "all") {
+  if (filter === "revision") return "Revision follow-up";
+  if (filter === "meeting") return "Meeting attention";
+  if (filter === "presentation") return "Presentation follow-up";
+  return "Attention-needed assignments first";
+}
+
+function renderMentorDashboardFilterEmptyState(filter = "all") {
+  const copy = {
+    revision: {
+      heading: "No assigned students need revision follow-up",
+      reason: "No assigned student has a revision request in this mentor view.",
+      nextAction: "Show all assigned students or keep monitoring meeting and presentation readiness.",
+    },
+    meeting: {
+      heading: "No meeting follow-up is needed",
+      reason: "Assigned students in this mentor view have no missed or make-up meeting signal right now.",
+      nextAction: "Show all assigned students or review presentation readiness.",
+    },
+    presentation: {
+      heading: "No presentation follow-up is needed",
+      reason: "Assigned students in this mentor view do not have open outline or presentation readiness signals.",
+      nextAction: "Show all assigned students or continue regular check-ins.",
+    },
+  }[filter] || {
+    heading: "No assigned students match this filter",
+    reason: "This mentor view has assigned students, but none match the selected focus.",
+    nextAction: "Show all assigned students.",
+  };
+  return `
+    <section class="workspace-empty-state-card" data-mentor-dashboard-state="filter-empty">
+      <strong>${escapeHtml(copy.heading)}</strong>
+      ${renderProblemState({
+        reason: copy.reason,
+        owner: "Assigned mentor.",
+        nextAction: copy.nextAction,
+      })}
+      <button class="workspace-link-button workspace-link-button-small" type="button" data-mentor-dashboard-action="filter" data-mentor-dashboard-filter="all">Show all assigned students</button>
+    </section>
+  `;
+}
+
 function prioritizeMentorDashboardStudents(rows = []) {
   const safeRows = Array.isArray(rows) ? rows : [];
   return [...safeRows].sort((left, right) => {
@@ -8807,7 +8910,7 @@ function renderAdminAccessPreview(form) {
     administration: "Assigned site. Leadership visibility over students and dashboards; no user or security management.",
     site_admin: "Assigned site. Can manage users and assignments inside the selected site.",
     global_admin: "Entire platform. Local account only and can manage every site.",
-  }[roleId] || "Assigned access";
+  }[roleId] || "Assigned records";
   roleCopy.textContent = copy;
 
   const siteCount = formValues(form, "siteIds").length;
