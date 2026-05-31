@@ -1,0 +1,148 @@
+{
+  "automationId": "functionality-ux-upgrade-hourly",
+  "runStartedAt": "2026-05-31T05:33:31-07:00",
+  "branch": "main",
+  "startingSha": "524a74ddbe91bb24eb863333cba3d6f4dafc65b9",
+  "endingSha": null,
+  "ladderLevel": "LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS",
+  "supportingLadderLevel": "LEVEL_2_STUDENT_DETAIL_DEPTH",
+  "workOrder": {
+    "id": "exact-student-operations-empty-state-guidance",
+    "title": "Exact-student Operations empty-state guidance",
+    "type": "TYPE_D_ROLE_WORKSPACE",
+    "mvpRequirements": [
+      "MVP-015",
+      "MVP-016",
+      "MVP-017",
+      "MVP-018",
+      "MVP-022",
+      "MVP-032",
+      "MVP-033"
+    ],
+    "selectedReason": "The exact-student Operations route filter and student-detail actions already existed, but the no-match UI still used generic filtered copy when the active filter was the current student."
+  },
+  "candidateSummary": [
+    {
+      "candidate": "Exact-student Operations empty-state guidance",
+      "score": 55,
+      "decision": "selected"
+    },
+    {
+      "candidate": "Hosted section-level permission proof",
+      "score": 39,
+      "decision": "deferred: hosted audit-event writes not allowed this run"
+    },
+    {
+      "candidate": "Review Queue missing-submission semantics",
+      "score": 34,
+      "decision": "deferred: route semantics not exact"
+    },
+    {
+      "candidate": "Student Directory missing-evidence filter",
+      "score": 35,
+      "decision": "deferred: directory filter unsupported"
+    },
+    {
+      "candidate": "Archive retry/regenerate controls",
+      "score": 34,
+      "decision": "rejected: mutation policy not approved"
+    },
+    {
+      "candidate": "Mentor workload threshold guidance",
+      "score": 39,
+      "decision": "deferred: threshold policy unclear"
+    },
+    {
+      "candidate": "Student guided requirement form",
+      "score": 32,
+      "decision": "rejected: write-path design needed"
+    },
+    {
+      "candidate": "Public route browser/mobile visual QA",
+      "score": 40,
+      "decision": "rejected: lower protected-app value"
+    },
+    {
+      "candidate": "Admin recent activity drill-down",
+      "score": 38,
+      "decision": "deferred: permission shape review"
+    },
+    {
+      "candidate": "Org admin rollup",
+      "score": 29,
+      "decision": "rejected: aggregate backend design absent"
+    },
+    {
+      "candidate": "Student archive hosted proof",
+      "score": 36,
+      "decision": "deferred: hosted proof/live-data boundary"
+    },
+    {
+      "candidate": "Exact-student Operations route filter",
+      "score": 36,
+      "decision": "rejected: completed previous run"
+    }
+  ],
+  "changes": [
+    "Added exact-student empty-state copy helpers for Operations Presentation and Readiness panels.",
+    "Prioritized exact-student Archive no-match guidance before archive-status-specific no-match guidance.",
+    "Added workspace VM coverage for the active This student filter and current-student no-match copy across Presentation, Archive, and Readiness."
+  ],
+  "filesChanged": [
+    "workspace.js",
+    "tests/workspace-app.test.mjs",
+    "docs/functionality-language-audit.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-31-0533-exact-student-operations-empty-states.json",
+    "docs/functionality-ux-growth-ledger.md",
+    "automation/state/functionality-ux-growth-state.json"
+  ],
+  "validation": {
+    "focusedPassed": [
+      "node --test tests/workspace-app.test.mjs",
+      "npm run verify:functionality-language",
+      "npm run verify:dashboard-actions",
+      "npm run verify:workspace-navigation"
+    ],
+    "finalPassed": [
+      "node --test tests/functionality-language-audit.test.mjs",
+      "npm run verify:functionality-ux-automation",
+      "node -e JSON.parse automation/state/functionality-ux-growth-state.json and docs/progress/runs/2026-05-31-0533-exact-student-operations-empty-states.json",
+      "git diff --check",
+      "npm run check:production-surfaces",
+      "npm run check:route-inventory",
+      "npm run test",
+      "npm run typecheck",
+      "npm run check"
+    ],
+    "status": "passed",
+    "completedAt": "2026-05-31T05:36:36-07:00",
+    "notes": "git diff --check reported only CRLF normalization warnings."
+  },
+  "privacyAndSafety": {
+    "authChanged": false,
+    "rbacChanged": false,
+    "tenantBoundaryChanged": false,
+    "siteBoundaryChanged": false,
+    "programBoundaryChanged": false,
+    "studentPrivacyChanged": false,
+    "mutationsAdded": false,
+    "routesAdded": false,
+    "migrationsChanged": false,
+    "secretsOrEnvChanged": false,
+    "cloudflareOrOauthChanged": false,
+    "liveDataChanged": false
+  },
+  "handoff": {
+    "advanced": true,
+    "evidence": "Operations empty states now recognize active studentId filters and focused workspace tests prove the current-student copy.",
+    "next": "Run hosted section-level permission proof only when hosted audit-event writes are allowed; otherwise inspect Review Queue missing-submission semantics.",
+    "blockers": [
+      "Hosted permission proof logs into hosted fake accounts and exercises a denied admin-import POST path that can write audit events.",
+      "Archive retry/regenerate controls need approved mutation policy."
+    ],
+    "doNotRepeat": "Do not re-clean exact-student Operations no-match guidance unless the student-filter branches or coverage regress.",
+    "firstFileNextRun": "functions/_lib/site-review-queue.ts"
+  }
+}

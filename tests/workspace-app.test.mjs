@@ -2680,6 +2680,37 @@ test("workspace clarifies Operations empty states for active filters and true no
   assert.match(expiredDownloadEmpty, /No archive rows with expired download windows match these filters for this school/);
   assert.match(expiredDownloadEmpty, /Clear filters or review expiring archive downloads for active follow-up/);
 
+  const exactStudentEmpty = await renderWorkspaceWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "site-admin-operations-student-empty",
+          email: "site.operations.student.empty@example.edu",
+          displayName: "Operations Student Empty Admin",
+          roles: [{ role_id: "site_admin", scope_type: "site", scope_id: "site-desert-valley-high" }],
+        },
+      },
+    },
+    "/api/site/dashboard": { status: 200, body: siteDashboardFixture({ readOnly: false }) },
+    "/api/site/students": { status: 200, body: siteStudentsFixture({ readOnly: false }) },
+    "/api/site/review-queue": { status: 200, body: siteReviewQueueFixture({ role: "site_admin", readOnly: true }) },
+    "/api/site/mentor-assignments": { status: 200, body: siteMentorAssignmentsFixture({ role: "site_admin", canManage: true }) },
+    "/api/site/operations-readiness": { status: 200, body: emptyStudentOperationsFixture() },
+  }, "operations");
+
+  assert.match(exactStudentEmpty, /Operations readiness active filters/);
+  assert.match(exactStudentEmpty, /This student/);
+  assert.match(exactStudentEmpty, /No presentation work for this student/);
+  assert.match(exactStudentEmpty, /This student has no presentation readiness rows matching these Operations filters/);
+  assert.match(exactStudentEmpty, /No archive work for this student/);
+  assert.match(exactStudentEmpty, /This student has no archive readiness rows matching these Operations filters/);
+  assert.match(exactStudentEmpty, /No operations attention for this student/);
+  assert.match(exactStudentEmpty, /This student has no blocked, missing, or attention-required rows matching these Operations filters/);
+  assert.match(exactStudentEmpty, /return to student detail/);
+  assert.doesNotMatch(exactStudentEmpty, /review the student directory|open student detail from the directory/);
+
   function emptyArchiveOperationsFixture(archiveStatus) {
     const operations = siteOperationsReadinessFixture({
       role: "site_admin",
@@ -2691,6 +2722,36 @@ test("workspace clarifies Operations empty states for active filters and true no
         risk: "any",
         presentationStatus: "",
         archiveStatus,
+        readiness: "",
+        category: "",
+        needsAttention: false,
+        outlineAttention: false,
+        limit: 50,
+        offset: 0,
+      },
+    });
+    operations.pagination.returned = 0;
+    operations.pagination.filteredTotal = 0;
+    operations.presentation.rows = [];
+    operations.archive.rows = [];
+    operations.readiness.attentionRows = [];
+    operations.readiness.filteredProgramBreakdown = [];
+    operations.readiness.nextActions = [];
+    return operations;
+  }
+
+  function emptyStudentOperationsFixture() {
+    const operations = siteOperationsReadinessFixture({
+      role: "site_admin",
+      filters: {
+        siteId: "site-desert-valley-high",
+        studentId: "demo-student-101",
+        programId: "",
+        status: "",
+        story: "",
+        risk: "any",
+        presentationStatus: "",
+        archiveStatus: "",
         readiness: "",
         category: "",
         needsAttention: false,

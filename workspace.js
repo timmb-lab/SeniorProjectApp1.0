@@ -3399,6 +3399,7 @@ function hasActiveOperationsFilters(filters = {}) {
 
 function renderPresentationWorklistRows(rows = [], permissions = {}, filters = {}) {
   const filtered = hasActiveOperationsFilters(filters);
+  const emptyState = operationsPresentationEmptyStateCopy(filters, filtered);
   return rows.length ? `
     <div class="workspace-list" data-operations-presentation-rows="true">
       ${rows.map((row) => `
@@ -3430,18 +3431,36 @@ function renderPresentationWorklistRows(rows = [], permissions = {}, filters = {
     </div>
   ` : `
     <section class="workspace-empty-state-card" data-operations-presentation-empty="true">
-      <h2>${filtered ? "No matching presentation work" : "No presentation work waiting"}</h2>
-      ${renderProblemState({
-        reason: filtered
-          ? "No presentation readiness work matches these filters for this school."
-          : "No presentation readiness work is waiting in this view.",
-        owner: "Site administration.",
-        nextAction: filtered
-          ? "Clear filters or review the student directory."
-          : "Continue monitoring presentation readiness.",
-      })}
+      <h2>${escapeHtml(emptyState.heading)}</h2>
+      ${renderProblemState(emptyState)}
     </section>
   `;
+}
+
+function operationsPresentationEmptyStateCopy(filters = {}, filtered = false) {
+  const owner = "Site administration.";
+  if (!filtered) {
+    return {
+      heading: "No presentation work waiting",
+      reason: "No presentation readiness work is waiting in this view.",
+      owner,
+      nextAction: "Continue monitoring presentation readiness.",
+    };
+  }
+  if (filters.studentId) {
+    return {
+      heading: "No presentation work for this student",
+      reason: "This student has no presentation readiness rows matching these Operations filters.",
+      owner,
+      nextAction: "Clear the student filter or return to student detail for Presentation context.",
+    };
+  }
+  return {
+    heading: "No matching presentation work",
+    reason: "No presentation readiness work matches these filters for this school.",
+    owner,
+    nextAction: "Clear filters or review the student directory.",
+  };
 }
 
 function renderArchiveWorklistRows(rows = [], permissions = {}, filters = {}) {
@@ -3507,6 +3526,14 @@ function operationsArchiveEmptyStateCopy(filters = {}, filtered = false) {
       nextAction: "Continue monitoring archive readiness.",
     };
   }
+  if (filters.studentId) {
+    return {
+      heading: "No archive work for this student",
+      reason: "This student has no archive readiness rows matching these Operations filters.",
+      owner,
+      nextAction: "Clear the student filter or return to student detail for Archive context.",
+    };
+  }
   if (archiveStatus === "provider_unavailable") {
     return {
       heading: "No storage setup blockers match",
@@ -3565,6 +3592,7 @@ function operationsArchiveEmptyStateCopy(filters = {}, filtered = false) {
 
 function renderReadinessAttentionRows(rows = [], permissions = {}, filters = {}) {
   const filtered = hasActiveOperationsFilters(filters);
+  const emptyState = operationsReadinessEmptyStateCopy(filters, filtered);
   return rows.length ? `
     <div class="workspace-list" data-operations-readiness-rows="true">
       ${rows.map((row) => `
@@ -3584,18 +3612,36 @@ function renderReadinessAttentionRows(rows = [], permissions = {}, filters = {})
     </div>
   ` : `
     <section class="workspace-empty-state-card" data-operations-readiness-empty="true">
-      <h2>${filtered ? "No matching operations attention" : "No operations attention waiting"}</h2>
-      ${renderProblemState({
-        reason: filtered
-          ? "No blocked, missing, or attention-required readiness work matches these filters."
-          : "No blocked, missing, or attention-required work is waiting right now.",
-        owner: "Site administration.",
-        nextAction: filtered
-          ? "Clear filters or continue monitoring ready work."
-          : "Continue monitoring ready and in-progress work.",
-      })}
+      <h2>${escapeHtml(emptyState.heading)}</h2>
+      ${renderProblemState(emptyState)}
     </section>
   `;
+}
+
+function operationsReadinessEmptyStateCopy(filters = {}, filtered = false) {
+  const owner = "Site administration.";
+  if (!filtered) {
+    return {
+      heading: "No operations attention waiting",
+      reason: "No blocked, missing, or attention-required work is waiting right now.",
+      owner,
+      nextAction: "Continue monitoring ready and in-progress work.",
+    };
+  }
+  if (filters.studentId) {
+    return {
+      heading: "No operations attention for this student",
+      reason: "This student has no blocked, missing, or attention-required rows matching these Operations filters.",
+      owner,
+      nextAction: "Clear the student filter or return to student detail for broader context.",
+    };
+  }
+  return {
+    heading: "No matching operations attention",
+    reason: "No blocked, missing, or attention-required readiness work matches these filters.",
+    owner,
+    nextAction: "Clear filters or continue monitoring ready work.",
+  };
 }
 
 function renderOperationsProgramBreakdown(rows = []) {

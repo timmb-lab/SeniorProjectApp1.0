@@ -2312,3 +2312,14 @@ Future productive runs should append compact entries that name the master-plan s
 - `changes`: `workspace.js` now renders a small Timeline filter control and reloads the existing scoped timeline route with `type=...`; focused workspace coverage proves the all-activity load keeps site scope and the review filter calls `type=review` and renders only review events.
 - `validation`: focused workspace test plus functionality-language, dashboard-action, and workspace-navigation verifiers passed before docs/state closeout. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
 - `commit/push status`: pending closeout commit; not pushed by this automation run.
+
+## 2026-05-31 PT - Functionality UX Upgrade Exact-Student Operations Empty States
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 8 reporting and operational readiness / Level 2 student detail drill-down clarity.
+- `starting HEAD`: `524a74ddbe91bb24eb863333cba3d6f4dafc65b9`.
+- `selected slice`: Clarify Operations no-match states when the existing scoped `studentId` filter is opened from authorized student detail.
+- `repo-grounded findings`: the previous run added the real exact-student Operations filter and student-detail Presentation/Archive actions. Current source still used generic filtered empty states such as reviewing the student directory or broader archive work even when Operations was already narrowed to one current student.
+- `changes`: `workspace.js` now renders exact-student empty copy for Presentation, Archive, and Readiness worklists. `tests/workspace-app.test.mjs` proves the active `This student` filter and current-student no-match guidance across all three Operations panels.
+- `validation`: focused workspace test plus functionality-language, dashboard-action, and workspace-navigation verifiers passed before docs/state closeout. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.
