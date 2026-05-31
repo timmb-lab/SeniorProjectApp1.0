@@ -837,6 +837,15 @@ async function openWorkspaceSection(button) {
     await loadMentorAssignmentsResult("Showing students without mentors.");
     return;
   }
+  if (section === "mentorAssignments" && button.dataset.sectionPreset === "active-assignments") {
+    mentorAssignmentFilters = {
+      ...defaultMentorAssignmentFilters(),
+      status: "active",
+    };
+    syncMentorAssignmentUrlState();
+    await loadMentorAssignmentsResult("Showing students with active mentor coverage.");
+    return;
+  }
   if (section === "mentorAssignments" && button.dataset.sectionPreset === "mentor-workload") {
     const mentorUserId = cleanDirectoryFilter(button.dataset.mentorId);
     if (!mentorUserId) return;
@@ -2885,8 +2894,8 @@ function renderMentorAssignmentsSection() {
         </section>
       ` : ""}
       <div class="workspace-dashboard-grid">
-        ${renderMetricTile("Students With Mentors", summary.studentsWithActiveMentor, "Active mentor coverage", "mentor")}
-        ${renderMetricTile("Missing Mentors", summary.studentsWithoutActiveMentor, "Needs assignment follow-up", safeNumber(summary.studentsWithoutActiveMentor) ? "warning" : "mentor")}
+        ${renderMetricTile("Students With Mentors", summary.studentsWithActiveMentor, "Active mentor coverage", "mentor", "mentorAssignments", { label: "View assignments", preset: "active-assignments" })}
+        ${renderMetricTile("Missing Mentors", summary.studentsWithoutActiveMentor, "Needs assignment follow-up", safeNumber(summary.studentsWithoutActiveMentor) ? "warning" : "mentor", "mentorAssignments", { label: "View students", preset: "no-mentor" })}
         ${renderMetricTile("Active Mentors", summary.activeMentors, "Current mentor pool", "admin")}
         ${renderMetricTile("Overloaded Mentors", summary.overloadedMentors, "Review load before assigning", safeNumber(summary.overloadedMentors) ? "danger" : "admin")}
       </div>

@@ -73,6 +73,7 @@ for (const match of source.workspaceJs.matchAll(/data-section="([a-zA-Z][a-zA-Z0
 
 const allowedPresets = new Map([
   ["no-mentor", "mentorAssignments"],
+  ["active-assignments", "mentorAssignments"],
   ["mentor-workload", "mentorAssignments"],
   ["all-students", "students"],
   ["missing-mentors", "students"],
@@ -202,6 +203,16 @@ assertMatches(
   "workspaceJs",
   /section === "mentorAssignments" && button\.dataset\.sectionPreset === "no-mentor"[\s\S]*status: "unassigned"[\s\S]*noMentor: true[\s\S]*syncMentorAssignmentUrlState\(\)/,
   "no-mentor drill-down must set the Mentor Assignments unassigned filter and sync URL state",
+);
+assertMatches(
+  "workspaceJs",
+  /section === "mentorAssignments" && button\.dataset\.sectionPreset === "active-assignments"[\s\S]*status: "active"[\s\S]*syncMentorAssignmentUrlState\(\)/,
+  "active-assignments drill-down must set the Mentor Assignments active filter and sync URL state",
+);
+assertMatches(
+  "workspaceJs",
+  /function renderMentorAssignmentsSection\([\s\S]*renderMetricTile\("Students With Mentors"[\s\S]*"mentorAssignments", \{ label: "View assignments", preset: "active-assignments" \}\)[\s\S]*renderMetricTile\("Missing Mentors"[\s\S]*"mentorAssignments", \{ label: "View students", preset: "no-mentor" \}\)/,
+  "Mentor Assignments summary tiles must expose real active and missing mentor filters",
 );
 assertMatches(
   "workspaceJs",

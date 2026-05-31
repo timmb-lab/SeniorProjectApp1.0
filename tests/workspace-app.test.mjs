@@ -2058,6 +2058,8 @@ test("workspace renders site-scoped Mentor Assignments with role-safe assignment
   assert.match(siteAdmin, /Clear filters/);
   assert.match(siteAdmin, /Students With Mentors/);
   assert.match(siteAdmin, /Missing Mentors/);
+  assert.match(siteAdmin, /data-section="mentorAssignments" data-section-preset="active-assignments">View assignments/);
+  assert.match(siteAdmin, /data-section="mentorAssignments" data-section-preset="no-mentor">View students/);
   assert.match(siteAdmin, /Active Mentors/);
   assert.match(siteAdmin, /Overloaded Mentors/);
   assert.match(siteAdmin, /Missing Mentor Demo 001/);
@@ -2157,7 +2159,7 @@ test("workspace renders site-scoped Mentor Assignments with role-safe assignment
   assert.doesNotMatch(teacher, /data-mentor-assignment-form="true"|Assign mentor/);
 });
 
-test("mentor rows filter Mentor Assignments to one mentor", async () => {
+test("mentor summary tiles and rows filter Mentor Assignments", async () => {
   const { context, workspaceRoot, fetchLog, window } = await createWorkspaceContextWithFetch({
     "/api/auth/me": {
       status: 200,
@@ -2197,6 +2199,26 @@ test("mentor rows filter Mentor Assignments to one mentor", async () => {
   assert.match(workspaceRoot.innerHTML, /data-mentor-active-assignments="true"/);
   assert.match(workspaceRoot.innerHTML, /View mentor load/);
   assert.match(workspaceRoot.innerHTML, /data-mentor-assignment-action="filter-mentor" data-mentor-id="demo-mentor-001"[\s\S]*View mentor load/);
+
+  await vm.runInContext('openWorkspaceSection({ dataset: { section: "mentorAssignments", sectionPreset: "active-assignments" } })', context);
+  const activeFetch = fetchLog.findLast((entry) => entry.startsWith("/api/site/mentor-assignments?"));
+  assert.ok(activeFetch, "expected Mentor Assignments fetch after active summary filter");
+  const activeUrl = new URL(activeFetch, "https://workspace.example");
+  assert.equal(activeUrl.searchParams.get("siteId"), "site-desert-valley-high");
+  assert.equal(activeUrl.searchParams.get("status"), "active");
+  assert.equal(activeUrl.searchParams.get("noMentor"), null);
+  assert.match(window.location.href, /section=mentorAssignments/);
+  assert.match(window.location.href, /status=active/);
+
+  await vm.runInContext('openWorkspaceSection({ dataset: { section: "mentorAssignments", sectionPreset: "no-mentor" } })', context);
+  const noMentorFetch = fetchLog.findLast((entry) => entry.startsWith("/api/site/mentor-assignments?"));
+  assert.ok(noMentorFetch, "expected Mentor Assignments fetch after missing mentor summary filter");
+  const noMentorUrl = new URL(noMentorFetch, "https://workspace.example");
+  assert.equal(noMentorUrl.searchParams.get("siteId"), "site-desert-valley-high");
+  assert.equal(noMentorUrl.searchParams.get("status"), "unassigned");
+  assert.equal(noMentorUrl.searchParams.get("noMentor"), "true");
+  assert.match(window.location.href, /status=unassigned/);
+  assert.match(window.location.href, /noMentor=true/);
 
   await vm.runInContext('handleMentorAssignmentAction({ currentTarget: { dataset: { mentorAssignmentAction: "filter-mentor", mentorId: "demo-mentor-001" } } })', context);
   const mentorFetch = fetchLog.findLast((entry) => entry.startsWith("/api/site/mentor-assignments?"));
@@ -3160,6 +3182,9 @@ test("workspace gates mentor assignment visibility and refresh behavior by role"
   assert.match(sectionOpenBlock, /status:\s*"unassigned"/);
   assert.match(sectionOpenBlock, /noMentor:\s*true/);
   assert.match(sectionOpenBlock, /loadMentorAssignmentsResult\("Showing students without mentors\."\)/);
+  assert.match(sectionOpenBlock, /section === "mentorAssignments" && button\.dataset\.sectionPreset === "active-assignments"/);
+  assert.match(sectionOpenBlock, /status:\s*"active"/);
+  assert.match(sectionOpenBlock, /loadMentorAssignmentsResult\("Showing students with active mentor coverage\."\)/);
   assert.match(sectionOpenBlock, /section === "mentorAssignments" && button\.dataset\.sectionPreset === "mentor-workload"/);
   assert.match(sectionOpenBlock, /const mentorUserId = cleanDirectoryFilter\(button\.dataset\.mentorId\)/);
   assert.match(sectionOpenBlock, /mentorUserId,/);

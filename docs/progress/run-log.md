@@ -21,6 +21,17 @@ This is the compact run log for the current Functionality UX Upgrade automation 
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-05-31 10:04 PT - Functionality UX Upgrade Mentor Summary Filters
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 3 mentor assignment workflow / Level 1 route-backed dashboard navigation, supporting MVP-007, MVP-017, MVP-032, and MVP-033.
+- `starting HEAD`: `cb3f00979c624a9737fdc8a7e772c9d92a658c1a`.
+- `selected slice`: Link Mentor Assignments summary tiles to existing scoped filters.
+- `repo-grounded findings`: recent mentor assignment runs completed load guidance and row-level mentor filters. Current `renderMentorAssignmentsSection()` still rendered `Students With Mentors` and `Missing Mentors` as summary-only tiles even though `openWorkspaceSection()` and `/api/site/mentor-assignments` already supported `status=active`, `status=unassigned`, and `noMentor=true`.
+- `changes`: `workspace.js` now lets the summary tiles open active assignments or students without mentors using existing Mentor Assignments URL/filter state. `tests/workspace-app.test.mjs`, `scripts/verify-dashboard-actions.mjs`, and `scripts/verify-workspace-navigation-integrity.mjs` guard the presets.
+- `validation`: focused workspace test plus dashboard-action, workspace-navigation, and functionality-language verifiers passed before docs/state closeout. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.
+
 ## 2026-05-31 05:08 PT - Functionality UX Upgrade Student Operations Drill-Down
 
 - `automation ID`: functionality-ux-upgrade-hourly.
