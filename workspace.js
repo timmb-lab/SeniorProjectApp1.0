@@ -3105,9 +3105,10 @@ function renderMentorAssignmentForm(body) {
       <label>
         <span>Mentor</span>
         <select class="workspace-select" name="mentorUserId" required>
-          ${mentors.map((mentor) => `<option value="${escapeHtml(mentor.mentorUserId || "")}">${escapeHtml(mentor.mentorName || "Mentor")} / ${safeNumber(mentor.activeAssignmentCount)} active</option>`).join("")}
+          ${mentors.map((mentor) => `<option value="${escapeHtml(mentor.mentorUserId || "")}">${escapeHtml(mentorAssignmentOptionLabel(mentor))}</option>`).join("")}
         </select>
       </label>
+      ${renderMentorAssignmentLoadGuidance(mentors)}
       <label>
         <span>Reason</span>
         <textarea name="reason" rows="4" maxlength="240" required></textarea>
@@ -3125,6 +3126,40 @@ function renderMentorAssignmentForm(body) {
         owner: "Site administration.",
         nextAction: "Adjust filters or confirm active mentor and student memberships for this school.",
       })}
+    </section>
+  `;
+}
+
+function mentorAssignmentOptionLabel(mentor = {}) {
+  return `${mentor.mentorName || "Mentor"} / ${safeNumber(mentor.activeAssignmentCount)} active / ${mentorLoadStatusLabel(mentor.loadStatus)}`;
+}
+
+function mentorLoadStatusLabel(value) {
+  const normalized = normalizeStatus(value);
+  if (normalized === "available") return "Available";
+  if (normalized === "steady") return "Steady load";
+  if (normalized === "overloaded") return "High load";
+  return statusText(value || "available");
+}
+
+function renderMentorAssignmentLoadGuidance(mentors = []) {
+  const rows = Array.isArray(mentors) ? mentors : [];
+  if (!rows.length) return "";
+  const lightest = [...rows].sort((left, right) => {
+    const leftCount = safeNumber(left.activeAssignmentCount);
+    const rightCount = safeNumber(right.activeAssignmentCount);
+    if (leftCount !== rightCount) return leftCount - rightCount;
+    return String(left.mentorName || "").localeCompare(String(right.mentorName || ""));
+  })[0];
+  const overloadedCount = rows.filter((mentor) => normalizeStatus(mentor.loadStatus) === "overloaded").length;
+  return `
+    <section class="workspace-empty-state-card" data-mentor-assignment-load-guidance="true">
+      <strong>Mentor load is shown before assignment</strong>
+      <p>Review active assignment counts and load labels before saving a new mentor assignment.</p>
+      <div class="workspace-chip-row">
+        <span class="workspace-chip">Lightest visible mentor: ${escapeHtml(mentorAssignmentOptionLabel(lightest))}</span>
+        ${overloadedCount ? `<span class="workspace-chip">${escapeHtml(overloadedCount)} high-load mentor${overloadedCount === 1 ? "" : "s"}</span>` : ""}
+      </div>
     </section>
   `;
 }

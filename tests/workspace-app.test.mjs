@@ -2068,6 +2068,11 @@ test("workspace renders site-scoped Mentor Assignments with role-safe assignment
   assert.match(siteAdmin, /data-mentor-active-assignments="true"/);
   assert.match(siteAdmin, /data-mentor-assignment-form="true"/);
   assert.match(siteAdmin, /Assign mentor/);
+  assert.match(siteAdmin, /data-mentor-assignment-load-guidance="true"/);
+  assert.match(siteAdmin, /Mentor load is shown before assignment/);
+  assert.match(siteAdmin, /Mentor One \/ 8 active \/ Steady load/);
+  assert.match(siteAdmin, /Mentor Two \/ 0 active \/ Available/);
+  assert.match(siteAdmin, /Lightest visible mentor: Mentor Two \/ 0 active \/ Available/);
   assert.match(siteAdmin, /Assignments stay within the current school/);
   assert.match(siteAdmin, /protected evidence boundaries/);
   assert.match(siteAdmin, /assigned records/);

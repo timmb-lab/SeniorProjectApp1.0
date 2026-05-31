@@ -4050,3 +4050,54 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: missing-submission queue work still needs backend semantics for missing requirement rows; hosted permission proof can write live audit events.
   - Do not repeat: stale selected-submission guidance is complete unless the marker or test regresses.
   - First file to inspect next run: `functions/_lib/site-review-queue.ts` `buildFilterWhere()` only if implementing backend queue semantics; otherwise `scripts/check-hosted-workspace-permissions.mjs` when hosted proof is allowed.
+
+## Run 2026-05-31 08:34 PT
+
+- Starting SHA: `d05d68ca29f47cab75120e7c2e0da236f90affd0`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Branch policy: work stayed on clean local `main`; local `main` was nine commits ahead of `origin/main`, `origin/main` was not ahead, and no push was run
+- Ladder level targeted: `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` with `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` site-operations support
+- Backlog item: `mentor-assignment-load-guidance`; supports `MVP-007`, `MVP-017`, `MVP-032`, and `MVP-033`
+- Work order selected: Show mentor load context in the authorized Mentor Assignments form before saving a new one-student assignment.
+- Selection reason: Current source already exposes mentor `activeAssignmentCount` and `loadStatus`, and the backend orders mentors by active load, but the assignment form only showed a raw active count. This slice improves the real assignment decision point without changing assignment permissions, POST behavior, mentor access, user creation, or route scope.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Mentor assignment load guidance | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | site_admin, org_admin, admin | 4 | 5 | 5 | XS | 55 | selected |
+| Review Queue missing-submission semantics | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | program_teacher, site staff | 5 | 2 | 3 | M | 34 | deferred: backend queue model absent |
+| Hosted section-level permission proof | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all protected roles | 4 | 3 | 3 | M | 39 | deferred: hosted audit-event writes |
+| Student Directory missing-evidence filter | `LEVEL_1_NAVIGABLE_DASHBOARDS` | site staff, viewer | 4 | 2 | 3 | M | 35 | deferred: directory filter unsupported |
+| Archive retry/regenerate controls | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | site_admin | 5 | 2 | 3 | M | 34 | rejected: mutation policy not approved |
+| Mentor workload threshold policy | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | site_admin, viewer | 4 | 3 | 3 | M | 39 | deferred: threshold policy unclear |
+| Admin recent activity drill-down | `LEVEL_7_AUDITABILITY_AND_TRUST` | admin, site staff | 4 | 3 | 3 | M | 38 | deferred: audit destination shape needs review |
+| Org admin rollup | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | org_admin | 5 | 2 | 2 | L | 29 | rejected: aggregate backend design absent |
+| Public route browser/mobile visual QA | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | public students, teachers | 3 | 4 | 3 | M | 40 | not selected: lower protected-app value |
+| Student archive hosted proof | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | student | 3 | 3 | 3 | M | 36 | deferred: hosted/live-data boundary |
+| Review Queue filter empty-state copy | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | program_teacher, site staff | 2 | 5 | 4 | XS | 40 | rejected: less functional than assignment decision support |
+| Program Teacher selected review deep link | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | program_teacher | 3 | 4 | 4 | S | 42 | rejected: selected-submission URL path just completed |
+
+- User-facing improvement: Authorized site operations users now see mentor load labels in the assignment dropdown plus a lightest-visible-mentor hint before assigning a mentor to an unassigned student.
+- Roles affected: `platform_admin`, `admin`, `org_admin`, and `site_admin` when they can manage mentor assignments; `viewer` and `program_teacher` remain read-only and do not receive assignment controls.
+- Files changed: `workspace.js`, `tests/workspace-app.test.mjs`, `docs/functionality-language-audit.md`, `docs/mvp-requirements-catalog.md`, `docs/progress/run-log.md`, `docs/progress/runs/2026-05-31-0834-mentor-assignment-load-guidance.json`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`
+- Tests/verifiers added or updated: workspace coverage proves the Mentor Assignments form renders load guidance, active counts, load labels, and the lightest visible mentor while existing read-only coverage still hides the assignment form for viewer and program teacher.
+- Validation commands:
+  - Focused passed before docs/state closeout: `node --test tests/workspace-app.test.mjs`; `npm run verify:functionality-language`; `npm run verify:dashboard-actions`; `npm run verify:workspace-navigation`
+  - Final passed: JSON parse for state/run manifest, `node --test tests/functionality-language-audit.test.mjs`, `npm run verify:functionality-ux-automation`, `git diff --check`, `npm run check:production-surfaces`, `npm run check:route-inventory`, `npm run test`, `npm run typecheck`, `npm run check`
+- Validation result: passed; `git diff --check` reported only CRLF normalization warnings, with no whitespace errors. The first automation verifier run failed because state no longer had a `Review Queue` next-recommended summary; state was corrected and the verifier passed on rerun.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: Review Queue missing-submission semantics, hosted section-level permission proof, Student Directory missing-evidence filter, archive retry/regenerate controls, mentor workload threshold policy, org rollups, student archive hosted proof, and public-route browser/mobile QA remain deferred.
+- New backlog items: none
+- Next recommended work order: inspect whether Mentor Assignments should add a safe workload filter or sort control only if route-supported semantics and threshold policy are clear; otherwise keep missing-submission Review Queue work deferred until backend rows exist.
+- Do-not-repeat notes: do not re-add Mentor Assignments load guidance unless regression removes `data-mentor-assignment-load-guidance="true"` or the focused workspace coverage.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW`
+  - Advanced: yes
+  - Evidence: Mentor Assignments now renders load labels and lightest-visible-mentor context in the real assignment form from existing scoped mentor data.
+  - Unlocks: Site operations users can make one-student mentor assignments with workload context before any future policy decision about thresholds, bulk assignment, or rebalancing.
+  - Next: workload filter/sort only after route semantics and threshold policy are explicit; otherwise hosted section-level permission proof when audit-event writes are allowed.
+  - Blockers: Review Queue missing-submission work still needs backend semantics for missing requirement rows; hosted permission proof can write live audit events; workload thresholds beyond the existing `loadStatus` labels need product policy.
+  - Do not repeat: Mentor assignment load guidance is complete unless the marker/test regresses.
+  - First file to inspect next run: `workspace.js` `renderMentorAssignmentForm()` if extending assignment decision support; `functions/_lib/site-review-queue.ts` only if implementing missing-submission queue semantics.

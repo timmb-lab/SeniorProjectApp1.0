@@ -1,0 +1,226 @@
+{
+  "automationId": "functionality-ux-upgrade-hourly",
+  "runStartedAt": "2026-05-31T08:34:01-07:00",
+  "startingSha": "d05d68ca29f47cab75120e7c2e0da236f90affd0",
+  "branch": "main",
+  "originMainBehindCount": 0,
+  "originMainAheadCount": 9,
+  "ladderLevel": "LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW",
+  "supportingLadderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+  "workOrder": {
+    "id": "mentor-assignment-load-guidance",
+    "type": "TYPE_E_MENTOR_ASSIGNMENT",
+    "title": "Show mentor load context before assignment",
+    "selected": true,
+    "selectionReason": "The scoped Mentor Assignments route already returns mentor active counts and load status, but the assignment form did not surface those labels where authorized site staff choose a mentor."
+  },
+  "candidateScoring": [
+    {
+      "candidate": "Mentor assignment load guidance",
+      "ladderLevel": "LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW",
+      "roles": [
+        "site_admin",
+        "org_admin",
+        "admin"
+      ],
+      "impact": 4,
+      "safety": 5,
+      "testability": 5,
+      "size": "XS",
+      "score": 55,
+      "decision": "selected"
+    },
+    {
+      "candidate": "Review Queue missing-submission semantics",
+      "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
+      "roles": [
+        "program_teacher",
+        "site_staff"
+      ],
+      "impact": 5,
+      "safety": 2,
+      "testability": 3,
+      "size": "M",
+      "score": 34,
+      "decision": "deferred_backend_queue_model_absent"
+    },
+    {
+      "candidate": "Hosted section-level permission proof",
+      "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
+      "roles": [
+        "all_protected_roles"
+      ],
+      "impact": 4,
+      "safety": 3,
+      "testability": 3,
+      "size": "M",
+      "score": 39,
+      "decision": "deferred_hosted_audit_event_writes"
+    },
+    {
+      "candidate": "Student Directory missing-evidence filter",
+      "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS",
+      "roles": [
+        "site_staff",
+        "viewer"
+      ],
+      "impact": 4,
+      "safety": 2,
+      "testability": 3,
+      "size": "M",
+      "score": 35,
+      "decision": "deferred_directory_filter_unsupported"
+    },
+    {
+      "candidate": "Archive retry/regenerate controls",
+      "ladderLevel": "LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS",
+      "roles": [
+        "site_admin"
+      ],
+      "impact": 5,
+      "safety": 2,
+      "testability": 3,
+      "size": "M",
+      "score": 34,
+      "decision": "rejected_mutation_policy_not_approved"
+    },
+    {
+      "candidate": "Mentor workload threshold policy",
+      "ladderLevel": "LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW",
+      "roles": [
+        "site_admin",
+        "viewer"
+      ],
+      "impact": 4,
+      "safety": 3,
+      "testability": 3,
+      "size": "M",
+      "score": 39,
+      "decision": "deferred_threshold_policy_unclear"
+    },
+    {
+      "candidate": "Admin recent activity drill-down",
+      "ladderLevel": "LEVEL_7_AUDITABILITY_AND_TRUST",
+      "roles": [
+        "admin",
+        "site_staff"
+      ],
+      "impact": 4,
+      "safety": 3,
+      "testability": 3,
+      "size": "M",
+      "score": 38,
+      "decision": "deferred_audit_destination_shape_needs_review"
+    },
+    {
+      "candidate": "Org admin rollup",
+      "ladderLevel": "LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS",
+      "roles": [
+        "org_admin"
+      ],
+      "impact": 5,
+      "safety": 2,
+      "testability": 2,
+      "size": "L",
+      "score": 29,
+      "decision": "rejected_aggregate_backend_design_absent"
+    },
+    {
+      "candidate": "Public route browser/mobile visual QA",
+      "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
+      "roles": [
+        "public_students",
+        "teachers"
+      ],
+      "impact": 3,
+      "safety": 4,
+      "testability": 3,
+      "size": "M",
+      "score": 40,
+      "decision": "not_selected_lower_protected_app_value"
+    },
+    {
+      "candidate": "Student archive hosted proof",
+      "ladderLevel": "LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS",
+      "roles": [
+        "student"
+      ],
+      "impact": 3,
+      "safety": 3,
+      "testability": 3,
+      "size": "M",
+      "score": 36,
+      "decision": "deferred_hosted_live_data_boundary"
+    },
+    {
+      "candidate": "Review Queue filter empty-state copy",
+      "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
+      "roles": [
+        "program_teacher",
+        "site_staff"
+      ],
+      "impact": 2,
+      "safety": 5,
+      "testability": 4,
+      "size": "XS",
+      "score": 40,
+      "decision": "rejected_less_functional_than_assignment_decision_support"
+    },
+    {
+      "candidate": "Program Teacher selected review deep link",
+      "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
+      "roles": [
+        "program_teacher"
+      ],
+      "impact": 3,
+      "safety": 4,
+      "testability": 4,
+      "size": "S",
+      "score": 42,
+      "decision": "rejected_selected_submission_url_path_recently_completed"
+    }
+  ],
+  "filesChanged": [
+    "workspace.js",
+    "tests/workspace-app.test.mjs",
+    "docs/functionality-language-audit.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-31-0834-mentor-assignment-load-guidance.json",
+    "docs/functionality-ux-growth-ledger.md",
+    "automation/state/functionality-ux-growth-state.json"
+  ],
+  "privacyAndPermissionNotes": [
+    "No auth, RBAC, tenant, site, program, mentor assigned-student, student privacy, or mutation policy changed.",
+    "Viewer and program teacher Mentor Assignments views remain read-only and continue hiding assignment controls.",
+    "No users, credentials, migrations, Cloudflare/OAuth/domain config, deploy settings, or live data changed."
+  ],
+  "validation": {
+    "focusedPassed": [
+      "node --test tests/workspace-app.test.mjs",
+      "npm run verify:functionality-language",
+      "npm run verify:dashboard-actions",
+      "npm run verify:workspace-navigation"
+    ],
+    "finalStatus": "passed",
+    "finalPassed": [
+      "JSON parse for automation/state/functionality-ux-growth-state.json and docs/progress/runs/2026-05-31-0834-mentor-assignment-load-guidance.json",
+      "node --test tests/functionality-language-audit.test.mjs",
+      "npm run verify:functionality-ux-automation",
+      "git diff --check",
+      "npm run check:production-surfaces",
+      "npm run check:route-inventory",
+      "npm run test",
+      "npm run typecheck",
+      "npm run check"
+    ],
+    "notes": "First automation verifier run failed because state no longer contained a Review Queue recommendation; state was corrected and the verifier passed on rerun. git diff --check reported only CRLF normalization warnings."
+  },
+  "handoff": {
+    "advanced": true,
+    "evidence": "Mentor Assignments form renders active assignment counts, load labels, and a lightest-visible-mentor hint from existing scoped mentor data.",
+    "next": "Consider workload filter/sort only after route semantics and threshold policy are explicit; otherwise keep missing-submission Review Queue work deferred until backend rows exist.",
+    "doNotRepeat": "Do not re-add Mentor Assignments load guidance unless data-mentor-assignment-load-guidance or the focused workspace coverage regresses.",
+    "firstFileToInspectNextRun": "workspace.js renderMentorAssignmentForm()"
+  }
+}

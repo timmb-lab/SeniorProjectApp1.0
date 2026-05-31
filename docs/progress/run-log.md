@@ -2356,3 +2356,14 @@ Future productive runs should append compact entries that name the master-plan s
 - `changes`: `workspace.js` now stores a selection notice when a shared selected submission is not present in the scoped queue, clears the stale `submissionId` with URL replacement, and renders a `Shared submission not visible` panel instead of a generic empty panel. `tests/workspace-app.test.mjs` proves the stale URL does not call `/api/reviews/:submissionId/history`, and `scripts/verify-review-queue-deeplinks.mjs` guards the path.
 - `validation`: focused `node --test tests/workspace-app.test.mjs` and `npm run verify:review-queue-deeplinks` passed before docs/state closeout. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
 - `commit/push status`: pending closeout commit; not pushed by this automation run.
+
+## 2026-05-31 PT - Functionality UX Upgrade Mentor Assignment Load Guidance
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 3 mentor assignment workflow / Level 4 site operations workspace clarity.
+- `starting HEAD`: `d05d68ca29f47cab75120e7c2e0da236f90affd0`.
+- `selected slice`: Show mentor active-assignment load context inside the authorized Mentor Assignments form.
+- `repo-grounded findings`: `/api/site/mentor-assignments` already returns scoped mentors with `activeAssignmentCount` and `loadStatus`, and the Mentor Coverage list already shows load status, but the assignment form only showed active counts at the point where site staff choose a mentor.
+- `changes`: `workspace.js` now renders load labels in the mentor dropdown plus a `data-mentor-assignment-load-guidance="true"` panel with the lightest visible mentor before saving. `tests/workspace-app.test.mjs` proves the guidance, active counts, and labels render while existing read-only coverage keeps viewer/program-teacher assignment controls hidden.
+- `validation`: focused workspace test plus functionality-language, dashboard-action, and workspace-navigation verifiers passed before docs/state closeout. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.
