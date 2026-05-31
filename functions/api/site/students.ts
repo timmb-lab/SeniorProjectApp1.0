@@ -25,6 +25,9 @@ const MAX_LIMIT = 100;
 const CANONICAL_STATUS_VALUES = ["draft", "submitted", "under_review", "revision_requested", "approved", "blocked", "archived", "complete"];
 const CANONICAL_STORY_VALUES = ["model_excellent", "missing_mentor", "awaiting_review", "revision_requested", "presentation_pending", "archive_ready", "archive_failed", "high_risk", "rich_timeline"];
 const CANONICAL_RISK_VALUES = ["any", "high", "medium", "low", "stale", "no_mentor"];
+const CANONICAL_PROGRESS_STATUS_VALUES = ["on_track", "behind", "missing_mentor", "missing_evidence", "needs_review", "needs_revision", "ready_complete"];
+const CANONICAL_EVIDENCE_STATUS_VALUES = ["attached", "missing"];
+const CANONICAL_REVIEW_STATUS_VALUES = ["needs_review", "needs_revision", "approved", "reviewed", "not_reviewed"];
 const CANONICAL_PRESENTATION_VALUES = ["any", "pending", "scheduled", "completed", "missing"];
 const CANONICAL_ARCHIVE_VALUES = ["any", "ready", "complete", "failed", "missing"];
 
@@ -36,6 +39,10 @@ interface SummaryRow {
   no_mentor: number;
   submitted: number;
   revision_requested: number;
+  on_track: number;
+  evidence_missing: number;
+  needs_review: number;
+  ready_complete: number;
   presentation_pending: number;
   archive_ready: number;
   archive_failed: number;
@@ -219,6 +226,9 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
       statuses: CANONICAL_STATUS_VALUES,
       storyBuckets: CANONICAL_STORY_VALUES,
       risks: CANONICAL_RISK_VALUES,
+      progressStatuses: CANONICAL_PROGRESS_STATUS_VALUES,
+      evidenceStatuses: CANONICAL_EVIDENCE_STATUS_VALUES,
+      reviewStatuses: CANONICAL_REVIEW_STATUS_VALUES,
       presentationStatuses: CANONICAL_PRESENTATION_VALUES,
       archiveStatuses: CANONICAL_ARCHIVE_VALUES,
     },
@@ -553,6 +563,17 @@ async function loadSummary(
        SUM(CASE WHEN has_active_mentor = 0 THEN 1 ELSE 0 END) AS no_mentor,
        SUM(CASE WHEN latest_submission_status = 'submitted' THEN 1 ELSE 0 END) AS submitted,
        SUM(CASE WHEN latest_submission_status = 'revision_requested' THEN 1 ELSE 0 END) AS revision_requested,
+       SUM(CASE WHEN risk_score = 0
+              AND has_active_mentor = 1
+              AND evidence_count > 0
+              AND COALESCE(latest_submission_status, 'draft') NOT IN ('submitted', 'revision_requested')
+            THEN 1 ELSE 0 END) AS on_track,
+       SUM(CASE WHEN evidence_count = 0 THEN 1 ELSE 0 END) AS evidence_missing,
+       SUM(CASE WHEN latest_submission_status = 'submitted' THEN 1 ELSE 0 END) AS needs_review,
+       SUM(CASE WHEN latest_submission_status IN ('approved', 'archived')
+              OR archive_status IN ('ready', 'complete')
+              OR presentation_status = 'completed'
+            THEN 1 ELSE 0 END) AS ready_complete,
        SUM(CASE WHEN presentation_status = 'pending' THEN 1 ELSE 0 END) AS presentation_pending,
        SUM(CASE WHEN archive_status IN ('ready', 'complete') THEN 1 ELSE 0 END) AS archive_ready,
        SUM(CASE WHEN archive_status = 'failed' THEN 1 ELSE 0 END) AS archive_failed,
@@ -567,6 +588,10 @@ async function loadSummary(
     noMentor: Number(row?.no_mentor || 0),
     submitted: Number(row?.submitted || 0),
     revisionRequested: Number(row?.revision_requested || 0),
+    onTrack: Number(row?.on_track || 0),
+    evidenceMissing: Number(row?.evidence_missing || 0),
+    needsReview: Number(row?.needs_review || 0),
+    readyComplete: Number(row?.ready_complete || 0),
     presentationPending: Number(row?.presentation_pending || 0),
     archiveReady: Number(row?.archive_ready || 0),
     archiveFailed: Number(row?.archive_failed || 0),
@@ -611,6 +636,9 @@ interface DirectoryFilters {
   cohortId: string;
   mentorUserId: string;
   status: string;
+  progressStatus: string;
+  evidenceStatus: string;
+  reviewStatus: string;
   noMentor: boolean;
   risk: string;
   story: string;
@@ -636,6 +664,9 @@ function parseFilters(params: URLSearchParams): DirectoryFilters {
     cohortId: cleanId(params.get("cohortId")),
     mentorUserId: cleanId(params.get("mentorUserId")),
     status: canonical(params.get("status"), CANONICAL_STATUS_VALUES),
+    progressStatus: canonical(params.get("progressStatus"), CANONICAL_PROGRESS_STATUS_VALUES),
+    evidenceStatus: canonical(params.get("evidenceStatus"), CANONICAL_EVIDENCE_STATUS_VALUES),
+    reviewStatus: canonical(params.get("reviewStatus"), CANONICAL_REVIEW_STATUS_VALUES),
     noMentor: parseBoolean(params.get("noMentor")),
     risk: canonical(params.get("risk"), CANONICAL_RISK_VALUES, "any"),
     story: canonical(params.get("story"), CANONICAL_STORY_VALUES),
@@ -684,6 +715,33 @@ function buildFilterWhere(filters: DirectoryFilters): FilterWhere {
       binds.push(filters.status);
     }
   }
+  if (filters.progressStatus) {
+    if (filters.progressStatus === "on_track") {
+      clauses.push(`(
+        risk_score = 0
+        AND has_active_mentor = 1
+        AND evidence_count > 0
+        AND COALESCE(latest_submission_status, 'draft') NOT IN ('submitted', 'revision_requested')
+      )`);
+    }
+    if (filters.progressStatus === "behind") clauses.push("(risk_score >= 7 OR stale_flag = 1)");
+    if (filters.progressStatus === "missing_mentor") clauses.push("has_active_mentor = 0");
+    if (filters.progressStatus === "missing_evidence") clauses.push("evidence_count = 0");
+    if (filters.progressStatus === "needs_review") clauses.push("latest_submission_status = 'submitted'");
+    if (filters.progressStatus === "needs_revision") clauses.push("latest_submission_status = 'revision_requested'");
+    if (filters.progressStatus === "ready_complete") {
+      clauses.push("(latest_submission_status IN ('approved', 'archived') OR archive_status IN ('ready', 'complete') OR presentation_status = 'completed')");
+    }
+  }
+  if (filters.evidenceStatus === "attached") clauses.push("evidence_count > 0");
+  if (filters.evidenceStatus === "missing") clauses.push("evidence_count = 0");
+  if (filters.reviewStatus) {
+    if (filters.reviewStatus === "needs_review") clauses.push("latest_submission_status = 'submitted'");
+    if (filters.reviewStatus === "needs_revision") clauses.push("latest_submission_status = 'revision_requested'");
+    if (filters.reviewStatus === "approved") clauses.push("latest_submission_status IN ('approved', 'archived')");
+    if (filters.reviewStatus === "reviewed") clauses.push("review_count > 0");
+    if (filters.reviewStatus === "not_reviewed") clauses.push("review_count = 0");
+  }
   if (filters.noMentor) clauses.push("has_active_mentor = 0");
   if (filters.risk && filters.risk !== "any") {
     if (filters.risk === "high") clauses.push("risk_score >= 7");
@@ -719,6 +777,8 @@ function studentResponse(row: DirectoryRow) {
   const latestStatus = row.latest_submission_status || "draft";
   const storyBucket = row.story_bucket || "";
   const riskFlags = riskFlagsFor(row);
+  const evidenceCount = Number(row.evidence_count || 0);
+  const reviewCount = Number(row.review_count || 0);
   return {
     studentId: row.student_id,
     displayName: row.display_name,
@@ -735,13 +795,17 @@ function studentResponse(row: DirectoryRow) {
     latestSubmissionId: row.latest_submission_id || "",
     latestSubmissionStatus: latestStatus,
     latestSubmissionUpdatedAt: row.latest_submission_updated_at || "",
-    evidenceCount: Number(row.evidence_count || 0),
-    reviewCount: Number(row.review_count || 0),
+    evidenceCount,
+    evidenceStatus: evidenceCount > 0 ? "attached" : "missing",
+    reviewCount,
+    reviewStatus: reviewStatusForStudent(latestStatus, reviewCount),
     commentCount: Number(row.comment_count || 0),
     presentationStatus: row.presentation_status || "missing",
     archiveStatus: row.archive_status || "missing",
     riskScore: Number(row.risk_score || 0),
     riskFlags,
+    progressStatus: progressStatusForStudent(row, riskFlags),
+    progressPercent: progressPercentForStudent(latestStatus, row.presentation_status, row.archive_status),
     storyBucket,
     lastActivityAt: row.last_activity_at || "",
     nextAction: nextActionForStudent({
@@ -750,6 +814,7 @@ function studentResponse(row: DirectoryRow) {
       presentationStatus: row.presentation_status,
       archiveStatus: row.archive_status,
       hasActiveMentor: Number(row.has_active_mentor || 0) === 1,
+      evidenceCount,
       riskFlags,
     }),
   };
@@ -758,6 +823,7 @@ function studentResponse(row: DirectoryRow) {
 function riskFlagsFor(row: DirectoryRow): string[] {
   const flags = [];
   if (Number(row.has_active_mentor || 0) === 0) flags.push("no_mentor");
+  if (Number(row.evidence_count || 0) === 0) flags.push("missing_evidence");
   if (row.latest_submission_status === "revision_requested") flags.push("revision_requested");
   if (row.latest_submission_status === "submitted") flags.push("awaiting_review");
   if (row.presentation_status === "pending") flags.push("presentation_pending");
@@ -767,12 +833,45 @@ function riskFlagsFor(row: DirectoryRow): string[] {
   return flags;
 }
 
+function reviewStatusForStudent(latestStatus: string, reviewCount: number): string {
+  if (latestStatus === "submitted") return "needs_review";
+  if (latestStatus === "revision_requested") return "needs_revision";
+  if (latestStatus === "approved" || latestStatus === "archived") return "approved";
+  return reviewCount > 0 ? "reviewed" : "not_reviewed";
+}
+
+function progressStatusForStudent(row: DirectoryRow, riskFlags: string[]): string {
+  const latestStatus = row.latest_submission_status || "draft";
+  if (Number(row.has_active_mentor || 0) === 0) return "missing_mentor";
+  if (Number(row.evidence_count || 0) === 0) return "missing_evidence";
+  if (latestStatus === "submitted") return "needs_review";
+  if (latestStatus === "revision_requested") return "needs_revision";
+  if (Number(row.risk_score || 0) >= 7 || riskFlags.includes("stale")) return "behind";
+  if (latestStatus === "approved" || latestStatus === "archived" || row.archive_status === "ready" || row.archive_status === "complete" || row.presentation_status === "completed") {
+    return "ready_complete";
+  }
+  return "on_track";
+}
+
+function progressPercentForStudent(latestStatus: string, presentationStatus: string, archiveStatus: string): number {
+  if (archiveStatus === "complete" || latestStatus === "archived") return 100;
+  if (archiveStatus === "ready") return 95;
+  if (presentationStatus === "completed") return 90;
+  if (latestStatus === "approved") return 75;
+  if (latestStatus === "submitted") return 60;
+  if (latestStatus === "revision_requested") return 50;
+  if (latestStatus === "under_review") return 55;
+  if (latestStatus === "draft") return 25;
+  return 10;
+}
+
 function nextActionForStudent({
   latestStatus,
   storyBucket,
   presentationStatus,
   archiveStatus,
   hasActiveMentor,
+  evidenceCount,
   riskFlags,
 }: {
   latestStatus: string;
@@ -780,9 +879,11 @@ function nextActionForStudent({
   presentationStatus: string;
   archiveStatus: string;
   hasActiveMentor: boolean;
+  evidenceCount: number;
   riskFlags: string[];
 }): string {
   if (!hasActiveMentor) return "Assign or confirm mentor coverage.";
+  if (evidenceCount === 0) return "Ask student to attach required evidence.";
   if (latestStatus === "revision_requested") return "Check revision feedback and owner.";
   if (latestStatus === "submitted") return "Queue teacher review.";
   if (archiveStatus === "failed") return "Review archive export failure.";
@@ -797,6 +898,9 @@ function responseFilters(filters: DirectoryFilters) {
     search: filters.search,
     programId: filters.programId,
     status: filters.status,
+    progressStatus: filters.progressStatus,
+    evidenceStatus: filters.evidenceStatus,
+    reviewStatus: filters.reviewStatus,
     noMentor: filters.noMentor,
     risk: filters.risk,
     story: filters.story,
@@ -813,6 +917,9 @@ function safeFilterSummary(filters: DirectoryFilters) {
     searchLength: filters.search.length,
     programId: filters.programId,
     status: filters.status,
+    progressStatus: filters.progressStatus,
+    evidenceStatus: filters.evidenceStatus,
+    reviewStatus: filters.reviewStatus,
     noMentor: filters.noMentor,
     risk: filters.risk,
     story: filters.story,

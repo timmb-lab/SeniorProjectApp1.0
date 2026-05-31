@@ -76,7 +76,11 @@ const allowedPresets = new Map([
   ["active-assignments", "mentorAssignments"],
   ["mentor-workload", "mentorAssignments"],
   ["all-students", "students"],
+  ["on-track-students", "students"],
+  ["behind-students", "students"],
   ["missing-mentors", "students"],
+  ["missing-evidence-students", "students"],
+  ["needs-review-students", "students"],
   ["submitted-students", "students"],
   ["revision-students", "students"],
   ["high-risk-students", "students"],
@@ -134,6 +138,9 @@ for (const [preset, section] of allowedPresets) {
 assertIncludes("workspaceJs", "function siteStudentQueryString()", "Student Directory query helper must exist");
 assertIncludes("workspaceJs", "function syncSiteStudentUrlState", "Student Directory filtered actions must sync shareable URL state");
 assertIncludes("workspaceJs", 'params.set("programId", filters.programId)', "Student Directory must support programId filters");
+assertIncludes("workspaceJs", 'params.set("progressStatus", filters.progressStatus)', "Student Directory must support progressStatus filters");
+assertIncludes("workspaceJs", 'params.set("evidenceStatus", filters.evidenceStatus)', "Student Directory must support evidenceStatus filters");
+assertIncludes("workspaceJs", 'params.set("reviewStatus", filters.reviewStatus)', "Student Directory must support reviewStatus filters");
 assertIncludes("workspaceJs", 'params.set("noMentor", "true")', "Student Directory must support missing-mentor filters");
 assertMatches(
   "workspaceJs",
@@ -142,8 +149,28 @@ assertMatches(
 );
 assertMatches(
   "workspaceJs",
+  /section === "students" && button\.dataset\.sectionPreset === "on-track-students"[\s\S]*progressStatus: "on_track"[\s\S]*syncSiteStudentUrlState\(\)/,
+  "on-track-students drill-down must set the Student Directory progress filter and sync URL state",
+);
+assertMatches(
+  "workspaceJs",
+  /section === "students" && button\.dataset\.sectionPreset === "behind-students"[\s\S]*progressStatus: "behind"[\s\S]*syncSiteStudentUrlState\(\)/,
+  "behind-students drill-down must set the Student Directory support filter and sync URL state",
+);
+assertMatches(
+  "workspaceJs",
   /section === "students" && button\.dataset\.sectionPreset === "missing-mentors"[\s\S]*noMentor: true[\s\S]*syncSiteStudentUrlState\(\)/,
   "missing-mentors drill-down must set the Student Directory missing mentor filter and sync URL state",
+);
+assertMatches(
+  "workspaceJs",
+  /section === "students" && button\.dataset\.sectionPreset === "missing-evidence-students"[\s\S]*evidenceStatus: "missing"[\s\S]*syncSiteStudentUrlState\(\)/,
+  "missing-evidence-students drill-down must set the Student Directory evidence filter and sync URL state",
+);
+assertMatches(
+  "workspaceJs",
+  /section === "students" && button\.dataset\.sectionPreset === "needs-review-students"[\s\S]*reviewStatus: "needs_review"[\s\S]*syncSiteStudentUrlState\(\)/,
+  "needs-review-students drill-down must set the Student Directory review filter and sync URL state",
 );
 assertMatches(
   "workspaceJs",
@@ -232,8 +259,8 @@ assertMatches(
 );
 assertMatches(
   "workspaceJs",
-  /function renderProgramTeacherDashboardSection\([\s\S]*renderMetricTile\("Submitted"[\s\S]*"teacher", \{ label: "Review", preset: "submitted" \}\)/,
-  "Program Teacher Submitted metric must open the existing submitted Review Queue filter",
+  /function renderProgramTeacherDashboardSection\([\s\S]*renderMetricTile\("Needs Review"[\s\S]*"teacher", \{ label: "Review", preset: "submitted" \}\)/,
+  "Program Teacher Needs Review metric must open the existing submitted Review Queue filter",
 );
 assertMatches(
   "workspaceJs",

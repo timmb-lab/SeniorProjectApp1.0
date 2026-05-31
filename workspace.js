@@ -28,6 +28,7 @@ let workspaceNavCollapsed = false;
 let selectedSiteId = "";
 let siteStudentFilters = defaultSiteStudentFilters();
 let siteStudentDetailState = defaultSiteStudentDetailState();
+let pendingSiteStudentDetailFocus = false;
 let studentRequirementDetailState = defaultStudentRequirementDetailState();
 let studentFeedbackHistoryState = defaultStudentFeedbackHistoryState();
 let reviewQueueFilters = defaultReviewQueueFilters();
@@ -87,6 +88,14 @@ const STATUS_CLASS_BY_STATUS = {
   attention_required: "blocked",
   in_progress: "under_review",
   needs_review: "pending",
+  needs_revision: "revision_requested",
+  on_track: "ready",
+  behind: "blocked",
+  missing_evidence: "blocked",
+  missing_mentor: "blocked",
+  ready_complete: "complete",
+  reviewed: "configured",
+  not_reviewed: "pending",
   active: "approved",
   no_active_assignments: "blocked",
   not_requested: "pending",
@@ -127,6 +136,14 @@ const STATUS_LABELS = {
   attention_required: "Blocked",
   in_progress: "In progress",
   needs_review: "Pending",
+  needs_revision: "Needs revision",
+  on_track: "On track",
+  behind: "Behind",
+  missing_evidence: "Missing evidence",
+  missing_mentor: "Missing mentor",
+  ready_complete: "Ready / complete",
+  reviewed: "Reviewed",
+  not_reviewed: "Not reviewed",
   active: "Approved",
   no_active_assignments: "Blocked",
   not_requested: "Pending",
@@ -174,6 +191,9 @@ const STUDENT_DETAIL_TIMELINE_TYPES = [
 const STUDENT_DETAIL_TIMELINE_TYPE_VALUES = new Set(STUDENT_DETAIL_TIMELINE_TYPES.map(([value]) => value).filter(Boolean));
 const SITE_STUDENT_STATUS_VALUES = new Set(["draft", "submitted", "under_review", "revision_requested", "approved", "blocked", "archived", "complete"]);
 const SITE_STUDENT_RISK_VALUES = new Set(["any", "high", "medium", "low", "stale", "no_mentor"]);
+const SITE_STUDENT_PROGRESS_STATUS_VALUES = new Set(["on_track", "behind", "missing_mentor", "missing_evidence", "needs_review", "needs_revision", "ready_complete"]);
+const SITE_STUDENT_EVIDENCE_STATUS_VALUES = new Set(["attached", "missing"]);
+const SITE_STUDENT_REVIEW_STATUS_VALUES = new Set(["needs_review", "needs_revision", "approved", "reviewed", "not_reviewed"]);
 const SITE_STUDENT_PRESENTATION_STATUS_VALUES = new Set(["any", "pending", "scheduled", "completed", "missing"]);
 const SITE_STUDENT_ARCHIVE_STATUS_VALUES = new Set(["any", "ready", "complete", "failed", "missing"]);
 const MENTOR_ASSIGNMENT_STATUS_VALUES = new Set(["active", "unassigned", "all"]);
@@ -207,6 +227,9 @@ const SITE_STUDENT_URL_FILTER_PARAMS = [
   "search",
   "programId",
   "status",
+  "progressStatus",
+  "evidenceStatus",
+  "reviewStatus",
   "noMentor",
   "risk",
   "story",
@@ -686,6 +709,33 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
     button.addEventListener("click", () => openWorkspaceSection(button));
   });
   bindWorkspaceForms();
+  flushPendingSiteStudentDetailFocus();
+}
+
+function requestSiteStudentDetailFocus() {
+  pendingSiteStudentDetailFocus = true;
+}
+
+function flushPendingSiteStudentDetailFocus() {
+  if (!pendingSiteStudentDetailFocus) return;
+  pendingSiteStudentDetailFocus = false;
+  const focusPanel = () => {
+    const panel = document.querySelector('[data-student-detail-panel="true"]');
+    if (!panel) return;
+    panel.scrollIntoView?.({ block: "start", behavior: "auto" });
+    try {
+      panel.focus?.({ preventScroll: true });
+    } catch {
+      panel.focus?.();
+    }
+  };
+  if (typeof setTimeout === "function") {
+    setTimeout(focusPanel, 0);
+  } else if (typeof requestAnimationFrame === "function") {
+    requestAnimationFrame(focusPanel);
+  } else {
+    focusPanel();
+  }
 }
 
 function toggleWorkspaceMenu() {
@@ -877,15 +927,60 @@ async function openWorkspaceSection(button) {
     await loadWorkspaceData("Showing all students in this school workspace.");
     return;
   }
+  if (section === "students" && button.dataset.sectionPreset === "on-track-students") {
+    siteStudentFilters = {
+      ...defaultSiteStudentFilters(),
+      progressStatus: "on_track",
+    };
+    siteStudentDetailState = defaultSiteStudentDetailState();
+    activeSection = "students";
+    syncSiteStudentUrlState();
+    await loadWorkspaceData("Showing students currently on track.");
+    return;
+  }
+  if (section === "students" && button.dataset.sectionPreset === "behind-students") {
+    siteStudentFilters = {
+      ...defaultSiteStudentFilters(),
+      progressStatus: "behind",
+    };
+    siteStudentDetailState = defaultSiteStudentDetailState();
+    activeSection = "students";
+    syncSiteStudentUrlState();
+    await loadWorkspaceData("Showing students who need support.");
+    return;
+  }
   if (section === "students" && button.dataset.sectionPreset === "missing-mentors") {
     siteStudentFilters = {
       ...defaultSiteStudentFilters(),
       noMentor: true,
+      progressStatus: "missing_mentor",
     };
     siteStudentDetailState = defaultSiteStudentDetailState();
     activeSection = "students";
     syncSiteStudentUrlState();
     await loadWorkspaceData("Showing students missing mentors.");
+    return;
+  }
+  if (section === "students" && button.dataset.sectionPreset === "missing-evidence-students") {
+    siteStudentFilters = {
+      ...defaultSiteStudentFilters(),
+      evidenceStatus: "missing",
+    };
+    siteStudentDetailState = defaultSiteStudentDetailState();
+    activeSection = "students";
+    syncSiteStudentUrlState();
+    await loadWorkspaceData("Showing students missing evidence.");
+    return;
+  }
+  if (section === "students" && button.dataset.sectionPreset === "needs-review-students") {
+    siteStudentFilters = {
+      ...defaultSiteStudentFilters(),
+      reviewStatus: "needs_review",
+    };
+    siteStudentDetailState = defaultSiteStudentDetailState();
+    activeSection = "students";
+    syncSiteStudentUrlState();
+    await loadWorkspaceData("Showing students with work needing review.");
     return;
   }
   if (section === "students" && button.dataset.sectionPreset === "submitted-students") {
@@ -1481,6 +1576,13 @@ function renderSiteDashboardSection() {
         ${renderMetricTile("Archive / Exports", archiveTotal, `${safeNumber(summary.exportsFailed)} failed`, safeNumber(summary.exportsFailed) ? "danger" : "admin", "operations", { label: "Review", preset: "archive-failed" })}
         ${renderMetricTile("Recent Activity", summary.recentActivityCount, "Recent site activity", "admin", "audit")}
       </div>
+      ${siteStudentDetailState?.sourceSection === "siteDashboard" ? renderSiteStudentDetailSurface({
+        students: (dashboard.topRiskStudents || []).map((row) => ({
+          studentId: row.studentId,
+          displayName: row.studentName,
+        })),
+        scope,
+      }) : ""}
       ${renderSitePermissionRules(dashboard)}
       ${renderDashboardCard("Needs Attention", "Teacher follow-up and operations", renderNeedsAttention(dashboard.needsAttention))}
       <div class="workspace-dashboard-grid workspace-dashboard-grid-two">
@@ -1492,13 +1594,6 @@ function renderSiteDashboardSection() {
         ${renderDashboardCard("Archive / Export Snapshot", "Closeout package status", renderSnapshotRows(dashboard.archiveSnapshot, "archive"))}
         ${renderDashboardCard("Next Actions", "Recommended follow-up", renderSiteNextActions(dashboard.nextActions, readOnly))}
       </div>
-      ${siteStudentDetailState?.sourceSection === "siteDashboard" ? renderSiteStudentDetailSurface({
-        students: (dashboard.topRiskStudents || []).map((row) => ({
-          studentId: row.studentId,
-          displayName: row.studentName,
-        })),
-        scope,
-      }) : ""}
     </section>
   `;
 }
@@ -1565,8 +1660,8 @@ function renderSiteStudentDirectorySection() {
       ${renderStudentDirectoryFilterBar(directory)}
       ${renderStudentDirectoryActiveFilters(filters, directory.filterOptions || {})}
       ${renderStudentDirectoryResultSummary(directory)}
-      ${students.length ? renderStudentRows(students, readOnly) : renderStudentDirectoryEmptyState(directory)}
       ${renderSiteStudentDetailSurface(directory)}
+      ${students.length ? renderStudentRows(students, readOnly) : renderStudentDirectoryEmptyState(directory)}
     </section>
   `;
 }
@@ -1643,6 +1738,24 @@ function renderStudentDirectoryFilterBar(directory) {
         </select>
       </label>
       <label class="workspace-label">
+        <span>Progress</span>
+        <select class="workspace-select" name="progressStatus">
+          ${renderValueOptions(options.progressStatuses || [], filters.progressStatus || "", "Any progress", progressStatusFilterLabel)}
+        </select>
+      </label>
+      <label class="workspace-label">
+        <span>Evidence</span>
+        <select class="workspace-select" name="evidenceStatus">
+          ${renderValueOptions(options.evidenceStatuses || [], filters.evidenceStatus || "", "Any evidence", evidenceStatusFilterLabel)}
+        </select>
+      </label>
+      <label class="workspace-label">
+        <span>Review</span>
+        <select class="workspace-select" name="reviewStatus">
+          ${renderValueOptions(options.reviewStatuses || [], filters.reviewStatus || "", "Any review", reviewStatusFilterLabel)}
+        </select>
+      </label>
+      <label class="workspace-label">
         <span>Risk</span>
         <select class="workspace-select" name="risk">
           ${renderValueOptions(options.risks || [], filters.risk || "any", "Any risk", riskLabel)}
@@ -1685,6 +1798,9 @@ function renderStudentDirectoryActiveFilters(filters = {}, options = {}) {
   if (filters.search) chips.push(activeFilterChip("Search", filters.search));
   if (filters.programId) chips.push(activeFilterChip("Program", programLabel(options.programs, filters.programId)));
   if (filters.status) chips.push(activeFilterChip("Status", statusText(filters.status)));
+  if (filters.progressStatus) chips.push(activeFilterChip("Progress", progressStatusFilterLabel(filters.progressStatus)));
+  if (filters.evidenceStatus) chips.push(activeFilterChip("Evidence", evidenceStatusFilterLabel(filters.evidenceStatus)));
+  if (filters.reviewStatus) chips.push(activeFilterChip("Review", reviewStatusFilterLabel(filters.reviewStatus)));
   if (filters.risk && filters.risk !== "any") chips.push(activeFilterChip("Risk", riskLabel(filters.risk)));
   if (filters.story) chips.push(activeFilterChip("Story", storyLabel(filters.story)));
   if (filters.presentationStatus && filters.presentationStatus !== "any") chips.push(activeFilterChip("Presentation", statusText(filters.presentationStatus)));
@@ -1693,6 +1809,7 @@ function renderStudentDirectoryActiveFilters(filters = {}, options = {}) {
   if (safeNumber(filters.limit) !== 50) chips.push(activeFilterChip("Page size", filters.limit));
   if (safeNumber(filters.offset) > 0) chips.push(activeFilterChip("Offset", filters.offset));
   return renderActiveFilterSummary("Student directory", chips, 'data-site-student-action="reset-filters"', filters.noMentor
+    || filters.progressStatus === "missing_mentor"
     ? {
         heading: "Showing students missing mentors",
         note: "Only students without an active mentor assignment are listed.",
@@ -1759,13 +1876,22 @@ function renderStudentRow(student, readOnly = false) {
         <strong>${escapeHtml(student.hasActiveMentor ? (student.mentorName || "Assigned") : "No mentor")}</strong>
         <p>${escapeHtml(student.nextAction || "Continue normal capstone monitoring.")}</p>
       </div>
+      <div>
+        <span class="workspace-muted">Progress</span>
+        <strong>${escapeHtml(safeNumber(student.progressPercent))}%</strong>
+        <p>${escapeHtml(progressStatusFilterLabel(student.progressStatus || ""))}</p>
+        <p class="workspace-muted">Last activity ${escapeHtml(formatDate(student.lastActivityAt))}</p>
+      </div>
       <div class="workspace-row-actions">
         ${statusPill(student.latestSubmissionStatus || "draft")}
+        ${statusPill(student.evidenceStatus || "missing")}
+        ${statusPill(student.reviewStatus || "not_reviewed")}
         ${statusPill(student.presentationStatus || "missing")}
         ${statusPill(student.archiveStatus || "missing")}
       </div>
       <div class="workspace-row-actions">
         <span class="workspace-site-context-badge">${escapeHtml(safeNumber(student.evidenceCount))} evidence</span>
+        <span class="workspace-site-context-badge">${escapeHtml(safeNumber(student.reviewCount))} reviews</span>
         <button class="workspace-link-button workspace-link-button-small" type="button" data-site-student-action="view-detail" data-student-detail-id="${escapeHtml(student.studentId || "")}">
           View detail
         </button>
@@ -1797,6 +1923,9 @@ function hasActiveStudentDirectoryFilters(filters = {}) {
     filters.search
     || filters.programId
     || filters.status
+    || filters.progressStatus
+    || filters.evidenceStatus
+    || filters.reviewStatus
     || filters.noMentor
     || (filters.risk && filters.risk !== "any")
     || filters.story
@@ -1821,6 +1950,38 @@ function studentDirectoryEmptyStateCopy(filters = {}, options = {}, emptyState =
       reason: "No students without active mentor assignments match these filters for this school.",
       owner,
       nextAction: "Clear filters or review active mentor coverage.",
+    };
+  }
+  if (filters.progressStatus === "on_track") {
+    return {
+      heading: "No matching on-track students",
+      reason: "No students without urgent support signals match these filters.",
+      owner,
+      nextAction: "Clear filters or review the full student list.",
+    };
+  }
+  if (filters.progressStatus === "behind") {
+    return {
+      heading: "No matching support list",
+      reason: "No students with high-risk or stale-activity signals match these filters.",
+      owner,
+      nextAction: "Clear filters or check Missing Evidence and Missing Mentor separately.",
+    };
+  }
+  if (filters.evidenceStatus === "missing" || filters.progressStatus === "missing_evidence") {
+    return {
+      heading: "No matching missing-evidence students",
+      reason: "No students without attached evidence match these filters.",
+      owner,
+      nextAction: "Clear filters or check the Review Queue for submitted work.",
+    };
+  }
+  if (filters.reviewStatus === "needs_review" || filters.progressStatus === "needs_review") {
+    return {
+      heading: "No matching students need review",
+      reason: "No students with submitted work awaiting review match these filters.",
+      owner,
+      nextAction: "Clear filters or open the Review Queue.",
     };
   }
   if (filters.status === "submitted") {
@@ -1904,12 +2065,12 @@ function renderSiteStudentDetailSurface(directory) {
 
   if (state.loading) {
     return `
-      <aside class="workspace-detail-drawer" data-student-detail-state="loading" aria-label="Student detail">
+      <aside id="siteStudentDetailPanel" class="workspace-detail-drawer" data-student-detail-panel="true" data-student-detail-state="loading" aria-labelledby="siteStudentDetailTitle" tabindex="-1">
         <div class="workspace-detail-panel">
           <div class="workspace-card-head">
             <div>
               <p class="workspace-kicker">Student detail</p>
-              <h2>${escapeHtml(title)}</h2>
+              <h2 id="siteStudentDetailTitle">${escapeHtml(title)}</h2>
             </div>
             <button class="workspace-link-button workspace-link-button-small" type="button" data-student-detail-action="close">Close</button>
           </div>
@@ -1926,12 +2087,12 @@ function renderSiteStudentDetailSurface(directory) {
   const detail = unwrap(state.result);
   if (!detail) {
     return `
-      <aside class="workspace-detail-drawer" data-student-detail-state="error" aria-label="Student detail">
+      <aside id="siteStudentDetailPanel" class="workspace-detail-drawer" data-student-detail-panel="true" data-student-detail-state="error" aria-labelledby="siteStudentDetailTitle" tabindex="-1">
         <div class="workspace-detail-panel">
           <div class="workspace-card-head">
             <div>
               <p class="workspace-kicker">Student detail</p>
-              <h2>${escapeHtml(title)}</h2>
+              <h2 id="siteStudentDetailTitle">${escapeHtml(title)}</h2>
             </div>
             <button class="workspace-link-button workspace-link-button-small" type="button" data-student-detail-action="close">Close</button>
           </div>
@@ -1951,7 +2112,7 @@ function renderSiteStudentDetailSurface(directory) {
   const activeTab = state.activeTab || "summary";
   const riskFlags = Array.isArray(student.riskFlags) ? student.riskFlags : [];
   return `
-    <aside class="workspace-detail-drawer" data-student-detail-state="ready" data-student-detail-id="${escapeHtml(student.studentId || state.studentId)}" aria-labelledby="siteStudentDetailTitle">
+    <aside id="siteStudentDetailPanel" class="workspace-detail-drawer" data-student-detail-panel="true" data-student-detail-state="ready" data-student-detail-id="${escapeHtml(student.studentId || state.studentId)}" aria-labelledby="siteStudentDetailTitle" tabindex="-1">
       <div class="workspace-detail-panel">
         <div class="workspace-card-head">
           <div>
@@ -2737,8 +2898,8 @@ function renderProgramTeacherDashboardSection() {
       <div class="workspace-command-hero">
         <div>
           <p class="workspace-kicker">Program Dashboard</p>
-          <h1>Assigned Student Progress</h1>
-          <p>Review workload, mentor coverage, evidence activity, and presentation readiness for the students in your assigned program or cohort.</p>
+          <h1>Program Teacher Dashboard</h1>
+          <p>Track student progress, review evidence, and find students who need support in your assigned program or cohort.</p>
         </div>
         <div class="workspace-command-hero-grid">
           <span class="workspace-chip">${escapeHtml(scopeTypeLabel)}</span>
@@ -2746,18 +2907,13 @@ function renderProgramTeacherDashboardSection() {
         </div>
       </div>
       <div class="workspace-dashboard-grid">
-        ${renderMetricTile("Assigned Students", summary.scopedStudents, "Visible in your assigned program or cohort", "teacher")}
-        ${renderMetricTile("Submitted", summary.submitted, "Ready for review", "teacher", "teacher", { label: "Review", preset: "submitted" })}
-        ${renderMetricTile("Needs Revision", summary.revisionRequested, "Follow-up needed", "warning", "teacher", { label: "Review", preset: "revision-requested" })}
-        ${renderMetricTile("Approved", summary.approved, "Accepted submissions", "student")}
-        ${renderMetricTile("Evidence", summary.evidenceArtifacts, "Evidence records", "mentor")}
-        ${renderMetricTile("Presentations", summary.presentationsPending, "Pending readiness", "warning", "presentation")}
-      </div>
-      ${renderDashboardCard("Needs Attention", "Priority follow-up", renderNeedsAttention(dashboard.needsAttention))}
-      <div class="workspace-dashboard-grid workspace-dashboard-grid-two">
-        ${renderDashboardCard("Needs Review", "Submitted and revision records", renderReviewQueueSummary(dashboard.needsReview, { allowStudentDetail: true }))}
-        ${renderDashboardCard("Program Breakdown", "Students by program", renderProgramBreakdown(dashboard.programBreakdown))}
-        ${renderDashboardCard("Students", "Assigned student list", renderScopedStudentList(dashboard.students))}
+        ${renderMetricTile("Total Students", summary.totalStudents ?? summary.scopedStudents, "Students in your program view", "teacher", "students", { label: "View students", preset: "all-students" })}
+        ${renderMetricTile("On Track", summary.onTrack, "No urgent support signal", "student", "students", { label: "View students", preset: "on-track-students" })}
+        ${renderMetricTile("Behind / Needs Support", summary.behindSupport, "Risk or stale activity signals", safeNumber(summary.behindSupport) ? "danger" : "admin", "students", { label: "View students", preset: "behind-students" })}
+        ${renderMetricTile("Missing Evidence", summary.missingEvidence, "Students without attached evidence", safeNumber(summary.missingEvidence) ? "warning" : "mentor", "students", { label: "View students", preset: "missing-evidence-students" })}
+        ${renderMetricTile("Needs Review", summary.needsReview ?? summary.submitted, "Submitted work awaiting teacher review", "teacher", "teacher", { label: "Review", preset: "submitted" })}
+        ${renderMetricTile("Missing Mentor", summary.missingMentor ?? summary.noMentor, "Needs mentor coverage", safeNumber(summary.missingMentor ?? summary.noMentor) ? "warning" : "mentor", "students", { label: "View students", preset: "missing-mentors" })}
+        ${renderMetricTile("Needs Revision", summary.revisionRequested, "Returned work needing follow-up", safeNumber(summary.revisionRequested) ? "warning" : "student", "teacher", { label: "Review", preset: "revision-requested" })}
       </div>
       ${siteStudentDetailState?.sourceSection === "programDashboard" ? renderSiteStudentDetailSurface({
         students: (dashboard.students || []).map((row) => ({
@@ -2765,6 +2921,13 @@ function renderProgramTeacherDashboardSection() {
           displayName: row.studentName,
         })),
       }) : ""}
+      ${renderDashboardCard("Needs Attention", "Priority follow-up", renderNeedsAttention(dashboard.needsAttention))}
+      <div class="workspace-dashboard-grid workspace-dashboard-grid-two">
+        ${renderDashboardCard("Needs Review", "Submitted and revision records", renderReviewQueueSummary(dashboard.needsReview, { allowStudentDetail: true }))}
+        ${renderDashboardCard("Recent Activity", "Latest student updates", renderRecentProgramActivity(dashboard.recentActivity))}
+        ${renderDashboardCard("Program Breakdown", "Students by program", renderProgramBreakdown(dashboard.programBreakdown))}
+        ${renderDashboardCard("Students", "Assigned student list", renderScopedStudentList(dashboard.students))}
+      </div>
     </section>
   `;
 }
@@ -2826,14 +2989,14 @@ function renderMentorDashboardSection() {
         ${renderMetricTile("Meetings", summary.missingMeeting, "Need meeting attention", "warning")}
         ${renderMetricTile("Presentations", summary.presentationPending, "Pending readiness", "teacher", "presentation")}
       </div>
+      ${siteStudentDetailState?.sourceSection === "mentorDashboard" ? renderSiteStudentDetailSurface({
+        students: assigned.map((row) => ({
+          studentId: row.studentId,
+          displayName: row.studentName,
+        })),
+      }) : ""}
       ${assigned.length ? `
         ${renderDashboardCard("Assigned Students", "Attention-needed assignments first", renderMentorStudentCards(assigned))}
-        ${siteStudentDetailState?.sourceSection === "mentorDashboard" ? renderSiteStudentDetailSurface({
-          students: assigned.map((row) => ({
-            studentId: row.studentId,
-            displayName: row.studentName,
-          })),
-        }) : ""}
       ` : `
         <section class="workspace-dashboard-card workspace-empty" data-workspace-state="no-active-assignment">
           <strong>No students are assigned to you yet</strong>
@@ -2919,6 +3082,18 @@ function renderMentorAssignmentsSection() {
       </div>
       ${renderMentorAssignmentFilters(body)}
       ${renderMentorAssignmentActiveFilters(mentorAssignmentFiltersForBody(body), body?.filterOptions || {})}
+      ${siteStudentDetailState?.sourceSection === "mentorAssignments" ? renderSiteStudentDetailSurface({
+        students: [
+          ...unassignedStudents.map((row) => ({
+            studentId: row.studentId,
+            displayName: row.displayName,
+          })),
+          ...assignments.map((row) => ({
+            studentId: row.studentId,
+            displayName: row.studentName,
+          })),
+        ],
+      }) : ""}
       <div class="workspace-mentor-assignment-layout">
         <section class="workspace-dashboard-card">
           <div class="workspace-card-head">
@@ -2969,18 +3144,6 @@ function renderMentorAssignmentsSection() {
         ${renderDashboardCard("Mentor Coverage", "Mentor workload at this school", renderMentorCoverageRows(mentors))}
         ${renderDashboardCard("Active Assignments", "Current assignments", renderMentorActiveAssignments(assignments, permissions))}
       </div>
-      ${siteStudentDetailState?.sourceSection === "mentorAssignments" ? renderSiteStudentDetailSurface({
-        students: [
-          ...unassignedStudents.map((row) => ({
-            studentId: row.studentId,
-            displayName: row.displayName,
-          })),
-          ...assignments.map((row) => ({
-            studentId: row.studentId,
-            displayName: row.studentName,
-          })),
-        ],
-      }) : ""}
     </section>
   `;
 }
@@ -3332,6 +3495,7 @@ function renderOperationsReadinessSection() {
       </div>
       ${renderOperationsFilters(body)}
       ${renderOperationsActiveFilters(body?.filters || operationsReadinessFilters || defaultOperationsReadinessFilters(), body?.filterOptions || {})}
+      ${renderSiteStudentDetailSurface({ students: operationRowsForDetail(body) })}
       <section class="workspace-card workspace-directory-summary" aria-label="Operations readiness results">
         <div class="workspace-card-head">
           <div>
@@ -3352,7 +3516,6 @@ function renderOperationsReadinessSection() {
         ${renderDashboardCard("Program Breakdown", "Readiness by visible program", renderOperationsProgramBreakdown(readiness.filteredProgramBreakdown || readiness.programBreakdown || []))}
         ${renderDashboardCard("Next Actions", "Grouped staff follow-up", renderOperationsNextActions(readiness.nextActions || []))}
       </div>
-      ${renderSiteStudentDetailSurface({ students: operationRowsForDetail(body) })}
     </section>
   `;
 }
@@ -4686,6 +4849,13 @@ function renderTeacherSection() {
       </div>
       ${renderReviewQueueFilters(body)}
       ${renderReviewQueueActiveFilters(filters, body?.filterOptions || {})}
+      ${siteStudentDetailState?.sourceSection === "teacher" ? renderSiteStudentDetailSurface({
+        students: queue.map((row) => ({
+          studentId: row.studentId,
+          displayName: row.studentName,
+        })),
+        scope,
+      }) : ""}
       <div class="workspace-review-layout">
         <section class="workspace-dashboard-card">
           <div class="workspace-card-head">
@@ -4713,13 +4883,6 @@ function renderTeacherSection() {
         </section>
         ${renderReviewSubmissionPanel(selected, body)}
       </div>
-      ${siteStudentDetailState?.sourceSection === "teacher" ? renderSiteStudentDetailSurface({
-        students: queue.map((row) => ({
-          studentId: row.studentId,
-          displayName: row.studentName,
-        })),
-        scope,
-      }) : ""}
     </section>
   `;
 }
@@ -5691,6 +5854,9 @@ async function applySiteStudentFilters(event) {
     search: cleanDirectoryFilter(data.get("search")),
     programId: cleanDirectoryFilter(data.get("programId")),
     status: cleanDirectoryFilter(data.get("status")),
+    progressStatus: cleanDirectoryFilter(data.get("progressStatus")),
+    evidenceStatus: cleanDirectoryFilter(data.get("evidenceStatus")),
+    reviewStatus: cleanDirectoryFilter(data.get("reviewStatus")),
     noMentor: data.get("noMentor") === "true",
     risk: cleanDirectoryFilter(data.get("risk")) || "any",
     story: cleanDirectoryFilter(data.get("story")),
@@ -6254,6 +6420,7 @@ async function openSiteStudentDetail(studentId, options = {}) {
     loading: true,
   };
   activeSection = sourceSection;
+  requestSiteStudentDetailFocus();
   renderAppShell("Loading student detail...");
   const result = await settleApi(apiJson(`/api/site/students/${encodeURIComponent(selectedStudentId)}${query}`));
   siteStudentDetailState = {
@@ -6262,6 +6429,7 @@ async function openSiteStudentDetail(studentId, options = {}) {
     result,
   };
   currentData.siteStudentDetail = result;
+  requestSiteStudentDetailFocus();
   renderAppShell(result.ok ? "Student detail loaded." : "Student detail unavailable.", result.ok ? "success" : "error");
 }
 
@@ -7323,7 +7491,39 @@ function renderNeedsAttention(items = []) {
             <strong>${escapeHtml(item.label || "Needs attention")}</strong>
             <p>${escapeHtml(item.detail || "Review this operational signal.")}</p>
           </div>
-          <span class="workspace-chip">${escapeHtml(statusText(item.severity || "info"))}</span>
+          <div class="workspace-row-actions">
+            <span class="workspace-chip">${escapeHtml(statusText(item.severity || "info"))}</span>
+            ${item.actionSection && item.actionPreset ? `
+              <button class="workspace-link-button workspace-link-button-small" type="button" data-section="${escapeHtml(item.actionSection)}" data-section-preset="${escapeHtml(item.actionPreset)}">
+                ${escapeHtml(item.actionLabel || "Open")}
+              </button>
+            ` : ""}
+          </div>
+        </article>
+      `).join("")}
+    </div>
+  `;
+}
+
+function renderRecentProgramActivity(rows = []) {
+  if (!rows.length) return `<div class="workspace-empty">No recent program activity is visible yet. New submissions, evidence, and teacher feedback will appear here.</div>`;
+  return `
+    <div class="workspace-list">
+      ${rows.slice(0, 8).map((row) => `
+        <article class="workspace-row">
+          <div>
+            <strong>${escapeHtml(row.studentName || "Student")}</strong>
+            <p>${escapeHtml(row.title || "Capstone activity")}</p>
+            <p class="workspace-muted">${escapeHtml(statusText(row.type || "activity"))} / ${escapeHtml(formatDate(row.occurredAt))}</p>
+          </div>
+          <div class="workspace-row-actions">
+            ${statusPill(row.status || "updated")}
+            ${row.studentId ? `
+              <button class="workspace-link-button workspace-link-button-small" type="button" data-site-student-action="view-detail" data-student-detail-id="${escapeHtml(row.studentId)}">
+                View detail
+              </button>
+            ` : ""}
+          </div>
         </article>
       `).join("")}
     </div>
@@ -7746,6 +7946,28 @@ function evidenceStatusFilterLabel(value) {
   return statusText(value || "Any evidence status");
 }
 
+function reviewStatusFilterLabel(value) {
+  const normalized = normalizeStatus(value);
+  if (normalized === "needs_review") return "Needs review";
+  if (normalized === "needs_revision") return "Needs revision";
+  if (normalized === "approved") return "Approved";
+  if (normalized === "reviewed") return "Reviewed";
+  if (normalized === "not_reviewed") return "Not reviewed";
+  return statusText(value || "Any review status");
+}
+
+function progressStatusFilterLabel(value) {
+  const normalized = normalizeStatus(value);
+  if (normalized === "on_track") return "On track";
+  if (normalized === "behind") return "Behind / needs support";
+  if (normalized === "missing_mentor") return "Missing mentor";
+  if (normalized === "missing_evidence") return "Missing evidence";
+  if (normalized === "needs_review") return "Needs review";
+  if (normalized === "needs_revision") return "Needs revision";
+  if (normalized === "ready_complete") return "Ready / complete";
+  return statusText(value || "Any progress");
+}
+
 function categoryLabel(value) {
   const labels = {
     archive: "Archive",
@@ -7821,6 +8043,9 @@ function defaultSiteStudentFilters() {
     search: "",
     programId: "",
     status: "",
+    progressStatus: "",
+    evidenceStatus: "",
+    reviewStatus: "",
     noMentor: false,
     risk: "any",
     story: "",
@@ -8066,6 +8291,9 @@ function siteStudentFiltersFromSearchParams(params) {
   filters.search = cleanSearchFilter(params.get("search"));
   filters.programId = cleanDirectoryFilter(params.get("programId"));
   filters.status = canonicalReviewQueueValue(params.get("status"), SITE_STUDENT_STATUS_VALUES);
+  filters.progressStatus = canonicalReviewQueueValue(params.get("progressStatus"), SITE_STUDENT_PROGRESS_STATUS_VALUES);
+  filters.evidenceStatus = canonicalReviewQueueValue(params.get("evidenceStatus"), SITE_STUDENT_EVIDENCE_STATUS_VALUES);
+  filters.reviewStatus = canonicalReviewQueueValue(params.get("reviewStatus"), SITE_STUDENT_REVIEW_STATUS_VALUES);
   filters.noMentor = booleanQueryValue(params.get("noMentor"));
   filters.risk = canonicalReviewQueueValue(params.get("risk"), SITE_STUDENT_RISK_VALUES, "any");
   filters.story = canonicalReviewQueueValue(params.get("story"), REVIEW_QUEUE_STORY_VALUES);
@@ -8162,6 +8390,9 @@ function syncSiteStudentUrlState(options = {}) {
     if (filters.search) url.searchParams.set("search", filters.search);
     if (filters.programId) url.searchParams.set("programId", filters.programId);
     if (filters.status) url.searchParams.set("status", filters.status);
+    if (filters.progressStatus) url.searchParams.set("progressStatus", filters.progressStatus);
+    if (filters.evidenceStatus) url.searchParams.set("evidenceStatus", filters.evidenceStatus);
+    if (filters.reviewStatus) url.searchParams.set("reviewStatus", filters.reviewStatus);
     if (filters.noMentor) url.searchParams.set("noMentor", "true");
     if (filters.risk && filters.risk !== "any") url.searchParams.set("risk", filters.risk);
     if (filters.story) url.searchParams.set("story", filters.story);
@@ -8286,6 +8517,9 @@ function siteStudentQueryString() {
   if (filters.search) params.set("search", filters.search);
   if (filters.programId) params.set("programId", filters.programId);
   if (filters.status) params.set("status", filters.status);
+  if (filters.progressStatus) params.set("progressStatus", filters.progressStatus);
+  if (filters.evidenceStatus) params.set("evidenceStatus", filters.evidenceStatus);
+  if (filters.reviewStatus) params.set("reviewStatus", filters.reviewStatus);
   if (filters.noMentor) params.set("noMentor", "true");
   if (filters.risk && filters.risk !== "any") params.set("risk", filters.risk);
   if (filters.story) params.set("story", filters.story);

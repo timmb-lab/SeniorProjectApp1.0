@@ -1767,6 +1767,15 @@
   padding: var(--space-section);
 }
 
+.workspace-detail-drawer {
+  scroll-margin-top: 6rem;
+}
+
+.workspace-detail-drawer:focus {
+  outline: none;
+  box-shadow: var(--focus-ring), var(--shadow-card);
+}
+
 .workspace-story-chip,
 .workspace-risk-chip {
   display: inline-flex;

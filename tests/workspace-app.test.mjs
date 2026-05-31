@@ -8,6 +8,21 @@ const workspaceJs = await readFile("workspace.js", "utf8");
 const workspaceCss = await readFile("workspace.css", "utf8");
 const productionSurfaceCheck = await readFile("scripts/check-production-surfaces.mjs", "utf8");
 
+function assertMarkupOrder(markup, beforeNeedle, afterNeedle, message) {
+  const beforeIndex = markup.indexOf(beforeNeedle);
+  const afterIndex = markup.indexOf(afterNeedle);
+  assert.ok(beforeIndex >= 0, `missing before marker: ${beforeNeedle}`);
+  assert.ok(afterIndex >= 0, `missing after marker: ${afterNeedle}`);
+  assert.ok(beforeIndex < afterIndex, message);
+}
+
+function assertFocusableStudentDetailPanel(markup) {
+  assert.match(markup, /id="siteStudentDetailPanel"/);
+  assert.match(markup, /data-student-detail-panel="true"/);
+  assert.match(markup, /tabindex="-1"/);
+  assert.match(markup, /aria-labelledby="siteStudentDetailTitle"/);
+}
+
 test("workspace route is a real authenticated app surface", () => {
   assert.match(workspaceHtml, /Capstone Project Workspace/);
   assert.match(workspaceHtml, /workspace\.js/);
@@ -77,6 +92,10 @@ test("workspace route is a real authenticated app surface", () => {
   assert.match(workspaceJs, /function renderProgramTeacherDashboardSection/);
   assert.match(workspaceJs, /function renderMentorDashboardSection/);
   assert.match(workspaceJs, /function submitMentorMeeting/);
+  assert.match(workspaceJs, /function requestSiteStudentDetailFocus/);
+  assert.match(workspaceJs, /data-student-detail-panel="true"/);
+  assert.match(workspaceJs, /panel\.scrollIntoView\?\.\(\{ block: "start", behavior: "auto" \}\)/);
+  assert.match(workspaceJs, /panel\.focus\?\.\(\{ preventScroll: true \}\)/);
   assert.match(workspaceJs, /\/api\/site\/students\/\$\{encodeURIComponent\(selectedStudentId\)\}/);
   assert.match(workspaceJs, /\/api\/site\/students\/\$\{encodeURIComponent\(siteStudentDetailState\.studentId\)\}\/timeline/);
   assert.match(workspaceJs, /Continue with Google Workspace/);
@@ -466,6 +485,13 @@ test("site dashboard top-risk detail stays in dashboard context", async () => {
   assert.match(workspaceRoot.innerHTML, /Student detail loaded/);
   assert.match(workspaceRoot.innerHTML, /School-wide capstone health/);
   assert.match(workspaceRoot.innerHTML, /workspace-detail-drawer/);
+  assertFocusableStudentDetailPanel(workspaceRoot.innerHTML);
+  assertMarkupOrder(
+    workspaceRoot.innerHTML,
+    'data-student-detail-panel="true"',
+    'data-site-student-action="view-detail"',
+    "site dashboard detail should render before dashboard student actions",
+  );
   assert.match(workspaceRoot.innerHTML, /Missing Mentor Demo 001/);
   assert.ok(
     fetchLog.some((entry) => entry === "/api/site/students/demo-student-101?siteId=site-desert-valley-high"),
@@ -541,12 +567,21 @@ test("program teacher dashboard rows open existing student detail", async () => 
   }, "programDashboard");
 
   assert.match(programTeacher, /Program Dashboard/);
-  assert.match(programTeacher, /Assigned Student Progress/);
-  assert.match(programTeacher, /Assigned Students/);
-  assert.match(programTeacher, /Visible in your assigned program or cohort/);
+  assert.match(programTeacher, /Program Teacher Dashboard/);
+  assert.match(programTeacher, /Total Students/);
+  assert.match(programTeacher, /On Track/);
+  assert.match(programTeacher, /Behind \/ Needs Support/);
+  assert.match(programTeacher, /Missing Evidence/);
+  assert.match(programTeacher, /Needs Review/);
+  assert.match(programTeacher, /Missing Mentor/);
+  assert.match(programTeacher, /data-section="students" data-section-preset="all-students"/);
+  assert.match(programTeacher, /data-section="students" data-section-preset="on-track-students"/);
+  assert.match(programTeacher, /data-section="students" data-section-preset="behind-students"/);
+  assert.match(programTeacher, /data-section="students" data-section-preset="missing-evidence-students"/);
   assert.match(programTeacher, /Program Teacher \/ Assigned program: IT/);
   assert.match(programTeacher, /Students by program/);
   assert.match(programTeacher, /Assigned student list/);
+  assert.match(programTeacher, /Recent Activity/);
   assert.match(programTeacher, /Program Student One/);
   assert.match(programTeacher, /Core Concept Proposal \/ 2 evidence/);
   assert.match(programTeacher, /data-site-student-action="view-detail"/);
@@ -645,6 +680,13 @@ test("program teacher dashboard detail actions preserve program dashboard contex
 
   assert.match(workspaceRoot.innerHTML, /Program Dashboard/);
   assert.match(workspaceRoot.innerHTML, /workspace-detail-drawer/);
+  assertFocusableStudentDetailPanel(workspaceRoot.innerHTML);
+  assertMarkupOrder(
+    workspaceRoot.innerHTML,
+    'data-student-detail-panel="true"',
+    'data-site-student-action="view-detail"',
+    "program dashboard detail should render before dashboard student actions",
+  );
   assert.match(workspaceRoot.innerHTML, /Missing Mentor Demo 001/);
   assert.deepEqual(
     JSON.parse(vm.runInContext('JSON.stringify({ activeSection, sourceSection: siteStudentDetailState.sourceSection })', context)),
@@ -1001,6 +1043,9 @@ test("student directory summary tiles apply real directory filters", async () =>
             search: "",
             programId: "",
             status: parsed.searchParams.get("status") || "",
+            progressStatus: parsed.searchParams.get("progressStatus") || "",
+            evidenceStatus: parsed.searchParams.get("evidenceStatus") || "",
+            reviewStatus: parsed.searchParams.get("reviewStatus") || "",
             noMentor: parsed.searchParams.get("noMentor") === "true",
             risk: parsed.searchParams.get("risk") || "any",
             story: "",
@@ -1022,6 +1067,30 @@ test("student directory summary tiles apply real directory filters", async () =>
   assert.equal(vm.runInContext("activeSection", context), "students");
   assert.match(window.location.href, /section=students/);
   assert.match(window.location.href, /status=submitted/);
+
+  await vm.runInContext('openWorkspaceSection({ dataset: { section: "students", sectionPreset: "on-track-students" } })', context);
+  studentFetch = fetchLog.findLast((entry) => entry.startsWith("/api/site/students?"));
+  studentUrl = new URL(studentFetch, "https://workspace.example");
+  assert.equal(studentUrl.searchParams.get("progressStatus"), "on_track");
+  assert.match(window.location.href, /progressStatus=on_track/);
+
+  await vm.runInContext('openWorkspaceSection({ dataset: { section: "students", sectionPreset: "behind-students" } })', context);
+  studentFetch = fetchLog.findLast((entry) => entry.startsWith("/api/site/students?"));
+  studentUrl = new URL(studentFetch, "https://workspace.example");
+  assert.equal(studentUrl.searchParams.get("progressStatus"), "behind");
+  assert.match(window.location.href, /progressStatus=behind/);
+
+  await vm.runInContext('openWorkspaceSection({ dataset: { section: "students", sectionPreset: "missing-evidence-students" } })', context);
+  studentFetch = fetchLog.findLast((entry) => entry.startsWith("/api/site/students?"));
+  studentUrl = new URL(studentFetch, "https://workspace.example");
+  assert.equal(studentUrl.searchParams.get("evidenceStatus"), "missing");
+  assert.match(window.location.href, /evidenceStatus=missing/);
+
+  await vm.runInContext('openWorkspaceSection({ dataset: { section: "students", sectionPreset: "needs-review-students" } })', context);
+  studentFetch = fetchLog.findLast((entry) => entry.startsWith("/api/site/students?"));
+  studentUrl = new URL(studentFetch, "https://workspace.example");
+  assert.equal(studentUrl.searchParams.get("reviewStatus"), "needs_review");
+  assert.match(window.location.href, /reviewStatus=needs_review/);
 
   await vm.runInContext('openWorkspaceSection({ dataset: { section: "students", sectionPreset: "revision-students" } })', context);
   studentFetch = fetchLog.findLast((entry) => entry.startsWith("/api/site/students?"));
@@ -1135,6 +1204,13 @@ test("workspace opens real student detail, loads timeline, and preserves directo
   await vm.runInContext('openSiteStudentDetail("demo-student-101")', context);
   assert.match(workspaceRoot.innerHTML, /workspace-detail-drawer/);
   assert.match(workspaceRoot.innerHTML, /workspace-detail-panel/);
+  assertFocusableStudentDetailPanel(workspaceRoot.innerHTML);
+  assertMarkupOrder(
+    workspaceRoot.innerHTML,
+    'data-student-detail-panel="true"',
+    'data-site-student-action="view-detail"',
+    "student directory detail should render before filtered student rows",
+  );
   assert.match(workspaceRoot.innerHTML, /Student detail/);
   assert.match(workspaceRoot.innerHTML, /Missing Mentor Demo 001/);
   assert.match(workspaceRoot.innerHTML, /workspace-site-context-badge/);
@@ -1358,6 +1434,13 @@ test("workspace renders site-aware Review Queue with teacher decisions and read-
   assert.match(workspaceRoot.innerHTML, /Student detail loaded/);
   assert.match(workspaceRoot.innerHTML, /workspace-review-queue/);
   assert.match(workspaceRoot.innerHTML, /workspace-detail-drawer/);
+  assertFocusableStudentDetailPanel(workspaceRoot.innerHTML);
+  assertMarkupOrder(
+    workspaceRoot.innerHTML,
+    'data-student-detail-panel="true"',
+    'workspace-review-layout',
+    "review queue detail should render before the review worklist layout",
+  );
   assert.match(workspaceRoot.innerHTML, /Submitted work/);
   assert.deepEqual(
     JSON.parse(vm.runInContext('JSON.stringify({ activeSection, sourceSection: siteStudentDetailState.sourceSection })', context)),
@@ -2358,6 +2441,13 @@ test("mentor assignment detail actions preserve mentor assignment context", asyn
 
   assert.match(workspaceRoot.innerHTML, /workspace-mentor-assignments/);
   assert.match(workspaceRoot.innerHTML, /workspace-detail-drawer/);
+  assertFocusableStudentDetailPanel(workspaceRoot.innerHTML);
+  assertMarkupOrder(
+    workspaceRoot.innerHTML,
+    'data-student-detail-panel="true"',
+    'workspace-mentor-assignment-layout',
+    "mentor assignment detail should render before the mentor assignment layout",
+  );
   assert.match(workspaceRoot.innerHTML, /Missing Mentor Demo 001/);
   assert.deepEqual(
     JSON.parse(vm.runInContext('JSON.stringify({ activeSection, sourceSection: siteStudentDetailState.sourceSection })', context)),
@@ -2542,6 +2632,13 @@ test("workspace renders site-scoped Operations readiness worklists without mutat
   `, context);
   assert.match(workspaceRoot.innerHTML, /Student detail loaded/);
   assert.match(workspaceRoot.innerHTML, /workspace-detail-drawer/);
+  assertFocusableStudentDetailPanel(workspaceRoot.innerHTML);
+  assertMarkupOrder(
+    workspaceRoot.innerHTML,
+    'data-student-detail-panel="true"',
+    'aria-label="Operations readiness results"',
+    "operations detail should render before readiness result rows",
+  );
   assert.match(workspaceRoot.innerHTML, /data-operations-archive-rows="true"/);
   assert.match(workspaceRoot.innerHTML, /Operations/);
   assert.deepEqual(
@@ -3067,6 +3164,13 @@ test("mentor dashboard assigned students open detail and meeting history without
 
   assert.match(workspaceRoot.innerHTML, /Student detail loaded/);
   assert.match(workspaceRoot.innerHTML, /workspace-detail-drawer/);
+  assertFocusableStudentDetailPanel(workspaceRoot.innerHTML);
+  assertMarkupOrder(
+    workspaceRoot.innerHTML,
+    'data-student-detail-panel="true"',
+    'data-mentor-dashboard-action="open-student"',
+    "mentor dashboard detail should render before assigned student actions",
+  );
   assert.match(workspaceRoot.innerHTML, /data-student-detail-section="mentor"/);
   assert.match(workspaceRoot.innerHTML, /Mentor Meetings/);
   assert.match(workspaceRoot.innerHTML, /data-mentor-meeting-form="true"/);
@@ -4849,12 +4953,16 @@ function siteStudentsFixture({
       latestSubmissionStatus: "revision_requested",
       latestSubmissionUpdatedAt: "2026-05-20T12:00:00.000Z",
       evidenceCount: 3,
+      evidenceStatus: "attached",
       reviewCount: 1,
+      reviewStatus: "needs_revision",
       commentCount: 2,
       presentationStatus: "pending",
       archiveStatus: "missing",
       riskScore: 8,
       riskFlags: ["no_mentor", "high"],
+      progressStatus: "missing_mentor",
+      progressPercent: 50,
       storyBucket: "missing_mentor",
       lastActivityAt: "2026-05-20T12:00:00.000Z",
       nextAction: "Assign or confirm mentor coverage.",
@@ -4876,12 +4984,16 @@ function siteStudentsFixture({
       latestSubmissionStatus: "approved",
       latestSubmissionUpdatedAt: "2026-05-21T12:00:00.000Z",
       evidenceCount: 5,
+      evidenceStatus: "attached",
       reviewCount: 2,
+      reviewStatus: "approved",
       commentCount: 1,
       presentationStatus: "scheduled",
       archiveStatus: "failed",
       riskScore: 5,
       riskFlags: ["archive_failed"],
+      progressStatus: "ready_complete",
+      progressPercent: 75,
       storyBucket: "archive_failed",
       lastActivityAt: "2026-05-21T12:00:00.000Z",
       nextAction: "Review archive export failure.",
@@ -4907,6 +5019,9 @@ function siteStudentsFixture({
       search: "",
       programId: "",
       status: "",
+      progressStatus: "",
+      evidenceStatus: "",
+      reviewStatus: "",
       noMentor: false,
       risk: "any",
       story: "",
@@ -4928,6 +5043,10 @@ function siteStudentsFixture({
       noMentor: 12,
       submitted: 18,
       revisionRequested: 10,
+      onTrack: 6,
+      evidenceMissing: 5,
+      needsReview: 18,
+      readyComplete: 8,
       presentationPending: 9,
       archiveReady: 6,
       archiveFailed: 5,
@@ -4941,6 +5060,9 @@ function siteStudentsFixture({
       statuses: ["draft", "submitted", "under_review", "revision_requested", "approved", "blocked", "archived", "complete"],
       storyBuckets: ["model_excellent", "missing_mentor", "awaiting_review", "revision_requested", "presentation_pending", "archive_ready", "archive_failed", "high_risk", "rich_timeline"],
       risks: ["any", "high", "medium", "low", "stale", "no_mentor"],
+      progressStatuses: ["on_track", "behind", "missing_mentor", "missing_evidence", "needs_review", "needs_revision", "ready_complete"],
+      evidenceStatuses: ["attached", "missing"],
+      reviewStatuses: ["needs_review", "needs_revision", "approved", "reviewed", "not_reviewed"],
       presentationStatuses: ["any", "pending", "scheduled", "completed", "missing"],
       archiveStatuses: ["any", "ready", "complete", "failed", "missing"],
     },
