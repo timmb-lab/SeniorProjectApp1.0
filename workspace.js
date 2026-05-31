@@ -3188,7 +3188,14 @@ function renderMentorCoverageRows(mentors = []) {
             <p>${escapeHtml(mentor.email || "")}</p>
             <p class="workspace-muted">${escapeHtml(mentor.siteName || "Selected school")} / ${safeNumber(mentor.activeAssignmentCount)} active assignment${safeNumber(mentor.activeAssignmentCount) === 1 ? "" : "s"}</p>
           </div>
-          ${statusPill(mentor.loadStatus || "available")}
+          <div class="workspace-row-meta">
+            ${statusPill(mentor.loadStatus || "available")}
+            ${mentor.mentorUserId ? `
+              <button class="workspace-link-button workspace-link-button-small" type="button" data-mentor-assignment-action="filter-mentor" data-mentor-id="${escapeHtml(mentor.mentorUserId || "")}">
+                View assignments
+              </button>
+            ` : ""}
+          </div>
         </article>
       `).join("")}
     </div>
@@ -5541,6 +5548,19 @@ async function handleMentorAssignmentAction(event) {
   if (action === "open-student") {
     activeSection = "mentorAssignments";
     await openSiteStudentDetail(event.currentTarget?.dataset?.mentorStudentId || "", { sourceSection: "mentorAssignments" });
+    return;
+  }
+  if (action === "filter-mentor") {
+    const mentorUserId = cleanDirectoryFilter(event.currentTarget?.dataset?.mentorId);
+    if (!mentorUserId) return;
+    mentorAssignmentFilters = {
+      ...defaultMentorAssignmentFilters(),
+      mentorUserId,
+      status: "active",
+    };
+    activeSection = "mentorAssignments";
+    syncMentorAssignmentUrlState();
+    await loadMentorAssignmentsResult("Showing active assignments for this mentor.");
     return;
   }
   if (action === "reset-filters") {

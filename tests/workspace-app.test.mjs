@@ -2157,6 +2157,56 @@ test("workspace renders site-scoped Mentor Assignments with role-safe assignment
   assert.doesNotMatch(teacher, /data-mentor-assignment-form="true"|Assign mentor/);
 });
 
+test("mentor coverage rows filter Mentor Assignments to one mentor", async () => {
+  const { context, workspaceRoot, fetchLog, window } = await createWorkspaceContextWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "site-admin-mentor-row-filter",
+          email: "site.mentor.row.filter@example.edu",
+          displayName: "Mentor Row Filter Admin",
+          roles: [{ role_id: "site_admin", scope_type: "site", scope_id: "site-desert-valley-high" }],
+        },
+      },
+    },
+    "/api/site/dashboard": {
+      status: 200,
+      body: siteDashboardFixture({ readOnly: false }),
+    },
+    "/api/site/students": {
+      status: 200,
+      body: siteStudentsFixture({ readOnly: false }),
+    },
+    "/api/site/review-queue": {
+      status: 200,
+      body: siteReviewQueueFixture({ role: "site_admin", readOnly: true }),
+    },
+    "/api/site/mentor-assignments": {
+      status: 200,
+      body: siteMentorAssignmentsFixture({ role: "site_admin", canManage: true }),
+    },
+  }, {
+    url: "https://workspace.example/workspace.html?section=mentorAssignments&siteId=site-desert-valley-high",
+  });
+
+  assert.match(workspaceRoot.innerHTML, /data-mentor-coverage-list="true"/);
+  assert.match(workspaceRoot.innerHTML, /data-mentor-assignment-action="filter-mentor" data-mentor-id="demo-mentor-001"/);
+  assert.match(workspaceRoot.innerHTML, /View assignments/);
+
+  await vm.runInContext('handleMentorAssignmentAction({ currentTarget: { dataset: { mentorAssignmentAction: "filter-mentor", mentorId: "demo-mentor-001" } } })', context);
+  const mentorFetch = fetchLog.findLast((entry) => entry.startsWith("/api/site/mentor-assignments?"));
+  assert.ok(mentorFetch, "expected Mentor Assignments fetch after row filter");
+  const mentorUrl = new URL(mentorFetch, "https://workspace.example");
+  assert.equal(mentorUrl.searchParams.get("siteId"), "site-desert-valley-high");
+  assert.equal(mentorUrl.searchParams.get("mentorUserId"), "demo-mentor-001");
+  assert.equal(mentorUrl.searchParams.get("status"), "active");
+  assert.match(window.location.href, /section=mentorAssignments/);
+  assert.match(window.location.href, /mentorUserId=demo-mentor-001/);
+  assert.match(window.location.href, /status=active/);
+});
+
 test("mentor assignment empty state uses student coverage language instead of row jargon", async () => {
   const filtered = await renderWorkspaceWithFetch({
     "/api/auth/me": {

@@ -1,0 +1,84 @@
+{
+  "automationId": "functionality-ux-upgrade-hourly",
+  "runStartedAt": "2026-05-31T09:04:45-07:00",
+  "branch": "main",
+  "startingSha": "b416da38c4a7a22f3bc249af34783bce2e433a8d",
+  "endingSha": null,
+  "ladderLevel": "LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW",
+  "supportingLadderLevels": [
+    "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+    "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT"
+  ],
+  "workOrder": {
+    "id": "mentor-coverage-row-assignment-filter",
+    "type": "TYPE_E_MENTOR_ASSIGNMENT",
+    "title": "Mentor coverage row assignment filter",
+    "selected": true,
+    "reason": "Mentor Assignments already exposes mentor load rows and supports scoped mentorUserId filters; adding a row action improves real navigation without new routes or permissions."
+  },
+  "candidateCount": 12,
+  "selectedCandidateScore": 55,
+  "rolesAffected": [
+    "platform_admin",
+    "admin",
+    "org_admin",
+    "site_admin",
+    "viewer",
+    "program_teacher"
+  ],
+  "privacyAndPermissionNotes": [
+    "No auth, RBAC, tenant, site, program, mentor, or student visibility boundaries changed.",
+    "The new action only narrows the existing /api/site/mentor-assignments route with mentorUserId and status=active.",
+    "Viewer and program_teacher roles remain read-only; no assignment mutation controls were added."
+  ],
+  "filesChanged": [
+    "workspace.js",
+    "tests/workspace-app.test.mjs",
+    "docs/functionality-language-audit.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-31-0904-mentor-coverage-row-filter.json",
+    "docs/functionality-ux-growth-ledger.md",
+    "automation/state/functionality-ux-growth-state.json"
+  ],
+  "testsUpdated": [
+    "tests/workspace-app.test.mjs"
+  ],
+  "validation": {
+    "focusedPassedBeforeCloseout": [
+      "node --test tests/workspace-app.test.mjs",
+      "npm run verify:functionality-language",
+      "npm run verify:dashboard-actions",
+      "npm run verify:workspace-navigation"
+    ],
+    "finalCommands": [
+      "JSON parse for automation/state/functionality-ux-growth-state.json and docs/progress/runs/2026-05-31-0904-mentor-coverage-row-filter.json",
+      "node --test tests/functionality-language-audit.test.mjs",
+      "npm run verify:functionality-ux-automation",
+      "git diff --check",
+      "npm run check:production-surfaces",
+      "npm run check:route-inventory",
+      "npm run test",
+      "npm run typecheck",
+      "npm run check"
+    ],
+    "status": "passed",
+    "notes": "git diff --check reported only CRLF normalization warnings."
+  },
+  "deferred": [
+    "review-queue-missing-submission-semantics",
+    "hosted-section-permission-proof",
+    "student-directory-missing-evidence-filter",
+    "archive-retry-regenerate-controls",
+    "mentor-workload-threshold-policy",
+    "org-admin-rollup",
+    "student-archive-hosted-proof",
+    "public-route-browser-mobile-qa"
+  ],
+  "doNotRepeat": [
+    "Do not re-add Mentor Assignments mentor coverage row filtering unless regression removes data-mentor-assignment-action=\"filter-mentor\" or focused workspace coverage."
+  ],
+  "nextRecommendedWorkOrder": {
+    "id": "mentor-active-assignment-return-to-load-context",
+    "summary": "Only add a return/load-context affordance if it reuses existing mentorUserId filters without new mutation behavior."
+  }
+}

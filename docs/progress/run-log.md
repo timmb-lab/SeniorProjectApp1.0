@@ -2367,3 +2367,14 @@ Future productive runs should append compact entries that name the master-plan s
 - `changes`: `workspace.js` now renders load labels in the mentor dropdown plus a `data-mentor-assignment-load-guidance="true"` panel with the lightest visible mentor before saving. `tests/workspace-app.test.mjs` proves the guidance, active counts, and labels render while existing read-only coverage keeps viewer/program-teacher assignment controls hidden.
 - `validation`: focused workspace test plus functionality-language, dashboard-action, and workspace-navigation verifiers passed before docs/state closeout. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
 - `commit/push status`: pending closeout commit; not pushed by this automation run.
+
+## 2026-05-31 PT - Functionality UX Upgrade Mentor Coverage Row Filter
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 3 mentor assignment workflow / Level 4 site operations workspace clarity.
+- `starting HEAD`: `b416da38c4a7a22f3bc249af34783bce2e433a8d`.
+- `selected slice`: Add route-backed `View assignments` actions to Mentor Assignments mentor coverage rows.
+- `repo-grounded findings`: the previous run exposed mentor load guidance in the assignment form. Current `renderMentorCoverageRows()` showed each mentor's active count and load status but did not let staff drill into that mentor's assignment list, while `/api/site/mentor-assignments` and workspace URL state already support `mentorUserId` plus active coverage filtering.
+- `changes`: `workspace.js` now adds a `filter-mentor` action on mentor coverage rows, sets `mentorUserId` and `status=active`, syncs the Mentor Assignments URL, and reloads the existing scoped route. `tests/workspace-app.test.mjs` proves the button, request query, and URL state.
+- `validation`: focused workspace test plus functionality-language, dashboard-action, and workspace-navigation verifiers passed before docs/state closeout. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.
