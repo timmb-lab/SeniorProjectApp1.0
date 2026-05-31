@@ -3693,3 +3693,54 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: hosted permission/browser proof still needs fake `.test` credentials and available hosted runtime; archive retry/regenerate controls still need approved mutation policy.
   - Do not repeat: Operations archive guidance is complete unless the helper/test coverage regresses.
   - First file to inspect next run: `scripts/check-hosted-workspace-permissions.mjs`
+
+## Run 2026-05-31 04:06 PT
+
+- Starting SHA: `48d63c8b98520140fd8d1be45c84b0f10c4b4d31`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Branch policy: work stayed on clean local `main`; local `main` was two commits ahead of `origin/main`, `origin/main` was not ahead, and no push was run
+- Ladder level targeted: `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` with `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` student archive clarity support
+- Backlog item: `student-archive-download-guidance`; supports `MVP-018`, `MVP-022`, `MVP-032`, and `MVP-033`
+- Work order selected: Clarify student Archive readiness/download guidance and remove signed-link/export-wiring/provider implementation language.
+- Selection reason: The previous handoff named student Archive download-window guidance, and current source still returned `signed archive links are still disabled until export generation is wired` from `/api/student/archive/readiness` while the protected student Archive tab rendered scoped/provider implementation copy.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Student Archive download guidance | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | student, scoped staff | 4 | 5 | 5 | XS | 55 | selected |
+| Archive readiness API message cleanup | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | student, scoped staff | 4 | 5 | 5 | XS | 52 | included |
+| Student Archive failed-package guidance | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 4 | 5 | 5 | XS | 49 | included |
+| Hosted section-level permission proof | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all protected roles | 4 | 4 | 3 | M | 40 | blocked: credentialed runtime |
+| Review Queue missing-submission semantics | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | program_teacher, site staff | 5 | 2 | 3 | M | 34 | deferred: no exact queue semantics |
+| Student Directory missing-evidence filter | `LEVEL_1_NAVIGABLE_DASHBOARDS` | site staff, viewer | 4 | 2 | 3 | M | 35 | deferred: route filter missing |
+| Archive retry/regenerate controls | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | site_admin | 5 | 2 | 3 | M | 34 | rejected: mutation policy |
+| Mentor workload threshold guidance | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | site_admin, viewer | 4 | 3 | 3 | M | 39 | rejected: threshold policy unclear |
+| Student guided requirement form | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 5 | 2 | 3 | L | 32 | rejected: write-path design needed |
+| Public route browser/mobile visual QA | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | public students, teachers | 3 | 4 | 3 | M | 40 | rejected: lower protected-app value |
+| Admin recent activity drill-down | `LEVEL_7_AUDITABILITY_AND_TRUST` | admin, site staff | 4 | 3 | 3 | M | 38 | rejected: permission shape needs review |
+| Operations archive guidance regression check | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | site staff, viewer | 2 | 5 | 4 | XS | 36 | rejected: just completed |
+
+- User-facing improvement: Students and scoped staff now see protected-download, storage-setup, download-window, and staff-follow-up language for archive packages without signed-link/export-wiring/provider wording or retry controls.
+- Roles affected: `student`; scoped staff/admin users who can inspect student archive readiness. No mentor, program teacher, viewer, tenant, site, program, or record visibility was broadened.
+- Files changed: `functions/api/student/archive/readiness.ts`, `workspace.js`, `scripts/verify-functionality-language.mjs`, `tests/archive-readiness.integration.test.mjs`, `tests/workspace-app.test.mjs`, `docs/functionality-language-audit.md`, `docs/mvp-requirements-catalog.md`, `docs/progress/run-log.md`, `docs/progress/runs/2026-05-31-0406-student-archive-download-guidance.json`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`
+- Tests/verifiers added or updated: route test proves archive readiness avoids signed-link/export-wiring copy; workspace test proves ready, blocked, and failed student archive states without fake retry controls; functionality language verifier blocks the protected UI phrases.
+- Validation commands:
+  - Focused passed before docs/state closeout: `node --test tests/archive-readiness.integration.test.mjs`; `node --test tests/workspace-app.test.mjs`; `npm run verify:functionality-language`
+  - Final passed: `node --test tests/functionality-language-audit.test.mjs`; `npm run verify:dashboard-actions`; `npm run verify:workspace-navigation`; `npm run verify:functionality-ux-automation`; JSON parse for state and run manifest; `git diff --check`; `npm run check:production-surfaces`; `npm run check:route-inventory`; `npm run test`; `npm run typecheck`; `npm run check`
+- Validation result: passed; `git diff --check` reported only CRLF normalization warnings, with no whitespace errors.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: hosted section-level permission proof, Review Queue missing-submission semantics, Student Directory missing-evidence filter, archive retry/regenerate controls, org rollups, and public-route browser/mobile QA remain deferred.
+- New backlog items: none
+- Next recommended work order: run `npm run check:workspace:hosted-permissions` when fake `.test` credentials/runtime are available; otherwise inspect whether student Archive expired-download guidance needs hosted/browser proof after deployment.
+- Do-not-repeat notes: do not re-clean student Archive signed-link/export-wiring/provider copy unless regression removes `studentArchiveDownloadStatusCopy()` or the verifier rules for signed-link/export-wiring/scoped archive/provider copy.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS`
+  - Advanced: yes
+  - Evidence: student Archive readiness route and UI now use protected-download language, failed-package guidance, and verifier rules against signed-link/export-wiring/provider wording.
+  - Unlocks: Student archive closeout states are clearer while archive retry/regenerate policy remains safely unimplemented.
+  - Next: hosted section-level permission proof, or hosted/browser proof for student Archive download-window states if credentials/runtime are unavailable.
+  - Blockers: hosted permission/browser proof still needs fake `.test` credentials and available hosted runtime; archive retry/regenerate controls still need approved mutation policy.
+  - Do not repeat: Student Archive guidance is complete unless the helper/verifier/test coverage regresses.
+  - First file to inspect next run: `scripts/check-hosted-workspace-permissions.mjs`

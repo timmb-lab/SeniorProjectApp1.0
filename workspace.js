@@ -5877,11 +5877,7 @@ function renderArchiveSection() {
   const retention = body.retention || {};
   const scopedDownloadReady = Boolean(archive.scopedDownloadReady || archive.signedDownloadReady);
   const drivePackageStatus = archive.drivePackageReady || storage.drivePackageReady ? "ready" : "pending";
-  const downloadMessage = scopedDownloadReady
-    ? `Scoped archive manifest is ready${archive.downloadExpiresAt ? ` until ${formatDate(archive.downloadExpiresAt)}` : ""}.`
-    : archive.downloadExpired
-      ? "Archive package download expired. Ask staff to generate a fresh package."
-      : "Scoped archive download is not ready yet.";
+  const downloadMessage = studentArchiveDownloadStatusCopy(archive, storage);
   return `
     <section class="workspace-card workspace-hero-card" data-archive-status="${escapeHtml(archive.status || "unknown")}">
       <div class="workspace-card-head">
@@ -5916,7 +5912,7 @@ function renderArchiveSection() {
       <div class="workspace-card-head">
         <div>
           <p class="workspace-kicker">Storage</p>
-          <h2>Archive Package Access</h2>
+          <h2>Archive Download</h2>
         </div>
         ${statusPill(storage.credentialsConfigured ? "configured" : "provider_unavailable")}
       </div>
@@ -5938,21 +5934,39 @@ function renderArchiveSection() {
         </article>
         <article class="workspace-row" data-archive-drive-package="${escapeHtml(drivePackageStatus)}">
           <div>
-            <strong>Drive package file</strong>
-            <p>${escapeHtml(drivePackageStatus === "ready" ? "Drive-backed archive package is stored for protected app delivery." : "Drive package file is pending until staff generates the archive after storage is ready.")}</p>
+            <strong>Archive package file</strong>
+            <p>${escapeHtml(drivePackageStatus === "ready" ? "Archive package file is stored for protected download." : "Archive package file will appear after staff prepares it and storage is ready.")}</p>
           </div>
           ${statusPill(drivePackageStatus)}
         </article>
         <article class="workspace-row" data-archive-retention-status="${escapeHtml(retention.policyStatus || "unknown")}">
           <div>
             <strong>Retention window</strong>
-            <p>${escapeHtml(retention.policyReviewRequired ? "Retention policy needs school review before pilot archives." : `Archive downloads stay available for ${retention.downloadWindowDays || 14} days.`)}</p>
+            <p>${escapeHtml(retention.policyReviewRequired ? "Retention policy needs school review before archive packages are used broadly." : `Archive downloads stay available for ${retention.downloadWindowDays || 14} days.`)}</p>
           </div>
           ${statusPill(retention.downloadExpiresSoon ? "expiring_soon" : retention.policyStatus || "policy_review_required")}
         </article>
       </div>
     </section>
   `;
+}
+
+function studentArchiveDownloadStatusCopy(archive = {}, storage = {}) {
+  const archiveStatus = String(archive.status || "not_requested");
+  const scopedDownloadReady = Boolean(archive.scopedDownloadReady || archive.signedDownloadReady);
+  if (archive.downloadExpired) return "The previous archive download window expired. Ask staff to generate a fresh package.";
+  if (scopedDownloadReady) {
+    return archive.downloadExpiresAt
+      ? `Your archive download is ready until ${formatDate(archive.downloadExpiresAt)}.`
+      : "Your archive download is ready.";
+  }
+  if (archive.downloadExpiresSoon) return "The archive download window is ending soon, but the download is not available in this view.";
+  if (archiveStatus === "queued" || archiveStatus === "running") return "Staff are preparing your archive package.";
+  if (archiveStatus === "failed") return "Archive package preparation needs staff follow-up.";
+  if (storage.credentialsConfigured === false || (storage.providerStatus && storage.providerStatus !== "ready" && storage.providerStatus !== "configured")) {
+    return "Storage setup is needed before archive package downloads are ready.";
+  }
+  return "Your archive download is not ready yet.";
 }
 
 function renderStudentArchiveGuidance(body) {
@@ -6034,6 +6048,16 @@ function studentArchiveGuidance(body) {
       detail: `${progressText} ${archiveGuidanceDetailForCheck(blockingCheck)}`,
       owner: blockingCheck.status === "attention_required" ? "Ask your program teacher" : "Your action",
       when: `Evidence matched: ${safeNumber(blockingCheck.evidenceCount)}`,
+    };
+  }
+
+  if (archiveStatus === "failed") {
+    return {
+      status: "failed",
+      title: "Staff need to review your archive package",
+      detail: `${progressText} Archive package preparation did not finish. Your checklist can still be reviewed while staff follow up.`,
+      owner: "Staff support",
+      when: "No retry action is needed from you right now.",
     };
   }
 

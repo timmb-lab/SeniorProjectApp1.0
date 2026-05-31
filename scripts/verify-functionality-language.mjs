@@ -129,6 +129,22 @@ const hardFailures = [
     message: "Archive file copy should say protected app delivery instead of scoped app delivery.",
   },
   {
+    pattern: /\bsigned archive links\b/i,
+    message: "Archive readiness copy should not expose signed-link implementation status.",
+  },
+  {
+    pattern: /\bexport generation is wired\b/i,
+    message: "Archive readiness copy should not describe implementation wiring to users.",
+  },
+  {
+    pattern: /\bScoped archive\b/i,
+    message: "Student archive copy should use protected download language instead of scoped-archive jargon.",
+  },
+  {
+    pattern: /\bDrive-backed archive package\b/i,
+    message: "Student archive copy should describe the archive package file without provider implementation wording.",
+  },
+  {
     pattern: /\bNo review rows match\b/i,
     message: "Review Queue empty states should describe matching review work, not data rows.",
   },

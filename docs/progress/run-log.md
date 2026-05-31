@@ -2279,3 +2279,14 @@ Future productive runs should append compact entries that name the master-plan s
 - `changes`: `workspace.js` now centralizes archive row support text and archive empty-state copy so storage setup blockers, scoped download availability, expiring/expired download windows, package preparation, archive-ready rows, and export failures are named in school-facing language. No retry/export controls, route changes, permissions, or API semantics were added.
 - `validation`: focused `node --test tests/workspace-app.test.mjs` and `npm run verify:functionality-language` passed before final validation. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
 - `commit/push status`: pending closeout commit; not pushed by this automation run.
+
+## 2026-05-31 PT - Functionality UX Upgrade Student Archive Download Guidance
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 8 reporting and operational readiness / student Archive readiness clarity.
+- `starting HEAD`: `48d63c8b98520140fd8d1be45c84b0f10c4b4d31`.
+- `selected slice`: Replace student Archive signed-link/export-wiring and provider implementation language with school-facing protected download guidance.
+- `repo-grounded findings`: the previous handoff suggested student Archive download-window guidance. Current `/api/student/archive/readiness` still returned `signed archive links are still disabled until export generation is wired`, while `workspace.js` rendered `Scoped archive` and `Drive-backed archive package` copy on the student Archive tab.
+- `changes`: `functions/api/student/archive/readiness.ts` now returns protected-download and storage-setup messages; `workspace.js` renders student Archive download/file/retention states without scoped/archive-provider jargon and adds a failed-package guidance path that points students to staff follow-up without retry controls.
+- `validation`: focused archive readiness route tests, workspace tests, and functionality language verifier passed before final validation. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.

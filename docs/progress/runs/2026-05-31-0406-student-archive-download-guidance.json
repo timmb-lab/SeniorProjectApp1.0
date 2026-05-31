@@ -1,0 +1,134 @@
+{
+  "automationId": "functionality-ux-upgrade-hourly",
+  "runStartedAt": "2026-05-31T04:06:06-07:00",
+  "branch": "main",
+  "startingSha": "48d63c8b98520140fd8d1be45c84b0f10c4b4d31",
+  "endingSha": null,
+  "ladderLevel": "LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS",
+  "supportingLadderLevel": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN",
+  "mvpRequirements": [
+    "MVP-018",
+    "MVP-022",
+    "MVP-032",
+    "MVP-033"
+  ],
+  "selectedWorkOrder": {
+    "id": "student-archive-download-guidance",
+    "title": "Student Archive download guidance",
+    "reason": "The previous handoff named student Archive download-window guidance, and current source still exposed signed-link/export-wiring and provider implementation language on a protected student Archive path.",
+    "risk": "low",
+    "forbiddenAreasTouched": false
+  },
+  "candidateSummary": [
+    {
+      "id": "student-archive-download-guidance",
+      "score": 55,
+      "decision": "selected"
+    },
+    {
+      "id": "hosted-section-permission-proof",
+      "score": 40,
+      "decision": "blocked until credentialed hosted runtime is available"
+    },
+    {
+      "id": "student-archive-failed-guidance",
+      "score": 49,
+      "decision": "included in selected batch"
+    },
+    {
+      "id": "archive-readiness-api-message-cleanup",
+      "score": 52,
+      "decision": "included in selected batch"
+    },
+    {
+      "id": "review-queue-missing-submission-semantics",
+      "score": 34,
+      "decision": "deferred because queue semantics are not exact"
+    },
+    {
+      "id": "student-directory-missing-evidence-filter",
+      "score": 35,
+      "decision": "deferred because directory filter support is missing"
+    },
+    {
+      "id": "archive-retry-controls",
+      "score": 34,
+      "decision": "rejected because mutation policy is not approved"
+    },
+    {
+      "id": "mentor-workload-threshold-guidance",
+      "score": 39,
+      "decision": "rejected because threshold policy is unclear"
+    },
+    {
+      "id": "student-guided-requirement-form",
+      "score": 32,
+      "decision": "rejected because it needs write-path design"
+    },
+    {
+      "id": "public-route-browser-mobile-qa",
+      "score": 40,
+      "decision": "rejected as lower protected-app value this run"
+    },
+    {
+      "id": "admin-recent-activity-drilldown",
+      "score": 38,
+      "decision": "rejected because permission shape needs review"
+    },
+    {
+      "id": "operations-archive-guidance-regression-check",
+      "score": 36,
+      "decision": "rejected because previous run completed it"
+    }
+  ],
+  "filesChanged": [
+    "functions/api/student/archive/readiness.ts",
+    "workspace.js",
+    "scripts/verify-functionality-language.mjs",
+    "tests/archive-readiness.integration.test.mjs",
+    "tests/workspace-app.test.mjs",
+    "docs/functionality-language-audit.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-31-0406-student-archive-download-guidance.json",
+    "docs/functionality-ux-growth-ledger.md",
+    "automation/state/functionality-ux-growth-state.json"
+  ],
+  "validation": {
+    "focusedPassed": [
+      "node --test tests/archive-readiness.integration.test.mjs",
+      "node --test tests/workspace-app.test.mjs",
+      "npm run verify:functionality-language"
+    ],
+    "finalPassed": [
+      "node --test tests/functionality-language-audit.test.mjs",
+      "npm run verify:dashboard-actions",
+      "npm run verify:workspace-navigation",
+      "npm run verify:functionality-ux-automation",
+      "JSON parse for state and run manifest",
+      "git diff --check",
+      "npm run check:production-surfaces",
+      "npm run check:route-inventory",
+      "npm run test",
+      "npm run typecheck",
+      "npm run check"
+    ],
+    "notes": "Full validation passed; git diff --check reported only CRLF normalization warnings."
+  },
+  "privacyAndSafety": {
+    "authChanged": false,
+    "rbacChanged": false,
+    "tenantOrSiteScopeChanged": false,
+    "studentPrivacyChanged": false,
+    "migrationsChanged": false,
+    "secretsOrEnvChanged": false,
+    "deployOrCloudflareChanged": false,
+    "liveDataChanged": false,
+    "archiveMutationControlsAdded": false
+  },
+  "handoff": {
+    "next": "Run hosted section-level permission proof when credentialed runtime is available; otherwise inspect whether student Archive expired-download guidance needs browser proof.",
+    "doNotRepeat": "Do not re-clean student Archive signed-link/export-wiring/provider copy unless regression removes studentArchiveDownloadStatusCopy() or the verifier rules.",
+    "firstFileToInspect": "scripts/check-hosted-workspace-permissions.mjs"
+  }
+}

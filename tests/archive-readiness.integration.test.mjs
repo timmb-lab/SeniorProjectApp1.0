@@ -108,7 +108,7 @@ test("misc admin cannot open a student archive readiness record without explicit
   assert.equal(fixture.db.data.auditEvents[0].action, "student_archive_readiness_denied");
 });
 
-test("admin archive readiness can inspect a scoped student but still reports signed downloads disabled", async () => {
+test("admin archive readiness can inspect a scoped student with school-facing download guidance", async () => {
   const fixture = await createFixtureWithSession({ userId: "admin-a", roleId: "admin" });
   fixture.env.GOOGLE_DRIVE_CLIENT_EMAIL = "service-account@example.test";
   fixture.env.GOOGLE_DRIVE_PRIVATE_KEY = "private-key";
@@ -137,7 +137,8 @@ test("admin archive readiness can inspect a scoped student but still reports sig
   assert.equal(body.archive.scopedDownloadReady, false);
   assert.equal(body.archive.drivePackageReady, true);
   assert.equal(body.storage.drivePackageReady, true);
-  assert.match(body.archive.message, /signed archive links are still disabled/i);
+  assert.match(body.archive.message, /Staff will share the protected download/i);
+  assert.doesNotMatch(body.archive.message, /signed archive links|export generation is wired/i);
   assert.doesNotMatch(JSON.stringify(body), /drive-complete-secret|drive_file_id|driveFileId/i);
 });
 

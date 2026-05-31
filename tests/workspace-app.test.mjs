@@ -4236,12 +4236,14 @@ test("workspace renders archive readiness from persisted rows", async () => {
   assert.match(archive, /Your archive package is ready/);
   assert.match(archive, /data-archive-download="manifest"/);
   assert.match(archive, /Download archive manifest/);
+  assert.match(archive, /Your archive download is ready until/);
   assert.match(archive, /Private file details stay hidden/);
   assert.match(archive, /data-archive-drive-package="ready"/);
-  assert.match(archive, /Drive-backed archive package is stored/);
+  assert.match(archive, /Archive package file is stored for protected download/);
   assert.match(archive, /data-archive-retention-status="policy_review_required"/);
-  assert.match(archive, /Retention policy needs school review before pilot archives/);
+  assert.match(archive, /Retention policy needs school review before archive packages are used broadly/);
   assert.match(archive, /expiring soon/i);
+  assert.doesNotMatch(archive, /signed archive links|export generation is wired|Scoped archive|Drive-backed archive package/i);
 });
 
 test("workspace explains the next student archive blocker without adding fake actions", async () => {
@@ -4331,6 +4333,87 @@ test("workspace explains the next student archive blocker without adding fake ac
   assert.match(archive, /Add the missing work or ask your program teacher what to attach/);
   assert.match(archive, /Evidence matched: 0/);
   assert.doesNotMatch(archive, /data-archive-action|Request archive|href="#"/);
+});
+
+test("workspace explains student archive package failures without fake retry controls", async () => {
+  const archive = await renderWorkspaceWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "student-archive-failed",
+          email: "student.archive.failed@example.edu",
+          displayName: "Archive Failed Student",
+          roles: [{ role_id: "student", scope_type: "global", scope_id: "" }],
+        },
+      },
+    },
+    "/api/student/dashboard": {
+      status: 200,
+      body: {
+        ok: true,
+        viewer: { self: true },
+        progress: [],
+        submissions: [],
+        evidence: [],
+      },
+    },
+    "/api/student/archive/readiness": {
+      status: 200,
+      body: {
+        ok: true,
+        source: "persisted_rows",
+        summary: {
+          readyChecks: 4,
+          missingChecks: 0,
+          totalChecks: 4,
+          archiveAvailableToRequest: false,
+        },
+        checks: [
+          {
+            id: "celebration_evidence",
+            label: "Celebration Day evidence",
+            status: "ready",
+            evidenceCount: 2,
+            message: "Ready for archive review.",
+          },
+        ],
+        archive: {
+          status: "failed",
+          scopedDownloadReady: false,
+          signedDownloadReady: false,
+          drivePackageReady: false,
+          downloadUrl: null,
+          downloadExpired: false,
+          message: "Archive package failed and needs staff follow-up.",
+        },
+        storage: {
+          providerStatus: "ready",
+          credentialsConfigured: true,
+          drivePackageReady: false,
+          storageIdentifiersRedacted: true,
+        },
+        retention: {
+          downloadWindowDays: 14,
+          expiryWarningDays: 3,
+          policyStatus: "policy_review_required",
+          policyReviewRequired: true,
+          downloadExpiresSoon: false,
+        },
+      },
+    },
+    "/api/presentation-slots": {
+      status: 200,
+      body: { ok: true, slots: [] },
+    },
+  }, "archive");
+
+  assert.match(archive, /data-archive-guidance-status="failed"/);
+  assert.match(archive, /Staff need to review your archive package/);
+  assert.match(archive, /Archive package preparation needs staff follow-up/);
+  assert.match(archive, /No retry action is needed from you right now/);
+  assert.doesNotMatch(archive, /data-archive-action|Retry archive|Request archive|signed archive links|export generation is wired|href="#"/i);
 });
 
 function siteDashboardFixture({ readOnly = false } = {}) {

@@ -348,11 +348,11 @@ function archiveMessage(
   downloadExpiresSoon: boolean,
 ): string {
   if (downloadExpired) return "Archive package download expired. Ask an admin to generate a fresh package.";
-  if (downloadExpiresSoon && scopedDownloadReady) return "Archive package manifest is ready, but the download window is expiring soon.";
-  if (scopedDownloadReady) return "Archive package manifest is ready for scoped download.";
-  if (!providerReady) return "Drive provider setup is unavailable, so archive package generation cannot complete yet.";
-  if (!signedDownloadsEnabled) return "Archive package checks are available; signed archive links are still disabled until export generation is wired.";
-  if (status === "complete") return "Archive package is complete and ready for a scoped download link.";
+  if (downloadExpiresSoon && scopedDownloadReady) return "Archive package is ready, but the download window is expiring soon.";
+  if (scopedDownloadReady) return "Archive package is ready for protected download.";
+  if (!providerReady) return "Storage setup is needed before archive package downloads are ready.";
+  if (!signedDownloadsEnabled) return "Archive package checks are available. Staff will share the protected download when the package is ready.";
+  if (status === "complete") return "Archive package is complete and ready for a protected download link.";
   if (status === "queued" || status === "running") return "Archive package is being prepared.";
   if (status === "failed") return "Archive package failed and needs staff follow-up.";
   return "Archive package has not been requested yet.";
