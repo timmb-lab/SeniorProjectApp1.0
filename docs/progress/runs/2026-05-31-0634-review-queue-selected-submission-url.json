@@ -1,0 +1,92 @@
+{
+  "automationId": "functionality-ux-upgrade-hourly",
+  "runStartedAt": "2026-05-31T06:34:47-07:00",
+  "startingSha": "d05cbaefcbb8a5aa06e0112ca508603c47d25956",
+  "endingSha": null,
+  "branch": "main",
+  "originMainAheadBehind": {
+    "ahead": 7,
+    "behind": 0
+  },
+  "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
+  "supportingLadderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS",
+  "workOrder": {
+    "id": "review-queue-selected-submission-url-state",
+    "title": "Add shareable selected-submission Review Queue state",
+    "type": "TYPE_F_REVIEW_INTERVENTION_QUEUE",
+    "requirements": ["MVP-015", "MVP-016", "MVP-017", "MVP-018", "MVP-032", "MVP-033"]
+  },
+  "candidateScores": [
+    { "candidate": "Review Queue selected-submission URL state", "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES", "roles": "program_teacher, site staff, viewer", "impact": 4, "safety": 5, "testability": 5, "size": "S", "score": 56, "decision": "selected" },
+    { "candidate": "Review Queue missing-submission semantics", "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES", "roles": "program_teacher, site staff", "impact": 5, "safety": 2, "testability": 3, "size": "M", "score": 34, "decision": "deferred: backend queue model absent" },
+    { "candidate": "Hosted section-level permission proof", "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT", "roles": "all protected roles", "impact": 4, "safety": 3, "testability": 3, "size": "M", "score": 39, "decision": "deferred: hosted audit-event writes" },
+    { "candidate": "Student Directory missing-evidence filter", "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS", "roles": "site staff, viewer", "impact": 4, "safety": 2, "testability": 3, "size": "M", "score": 35, "decision": "deferred: route filter unsupported" },
+    { "candidate": "Archive retry/regenerate controls", "ladderLevel": "LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS", "roles": "site_admin", "impact": 5, "safety": 2, "testability": 3, "size": "M", "score": 34, "decision": "rejected: mutation policy not approved" },
+    { "candidate": "Mentor workload threshold guidance", "ladderLevel": "LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW", "roles": "site_admin, viewer", "impact": 4, "safety": 3, "testability": 3, "size": "M", "score": 39, "decision": "deferred: threshold policy unclear" },
+    { "candidate": "Admin recent activity drill-down", "ladderLevel": "LEVEL_7_AUDITABILITY_AND_TRUST", "roles": "admin, site staff", "impact": 4, "safety": 3, "testability": 3, "size": "M", "score": 38, "decision": "deferred: audit destination shape needs review" },
+    { "candidate": "Org admin rollup", "ladderLevel": "LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS", "roles": "org_admin", "impact": 5, "safety": 2, "testability": 2, "size": "L", "score": 29, "decision": "rejected: aggregate backend design absent" },
+    { "candidate": "Public route browser/mobile visual QA", "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT", "roles": "public students, teachers", "impact": 3, "safety": 4, "testability": 3, "size": "M", "score": 40, "decision": "not selected: lower protected-app value" },
+    { "candidate": "Student archive hosted proof", "ladderLevel": "LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS", "roles": "student", "impact": 3, "safety": 3, "testability": 3, "size": "M", "score": 36, "decision": "deferred: hosted/live-data boundary" },
+    { "candidate": "Program Teacher Needs Review row detail action", "ladderLevel": "LEVEL_2_STUDENT_DETAIL_DEPTH", "roles": "program_teacher", "impact": 3, "safety": 5, "testability": 5, "size": "XS", "score": 36, "decision": "rejected: completed previous run" },
+    { "candidate": "Review Queue filter empty-state copy", "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES", "roles": "program_teacher, site staff", "impact": 2, "safety": 5, "testability": 4, "size": "XS", "score": 40, "decision": "rejected: less functional than URL restoration" }
+  ],
+  "selectionReason": "The selected slice uses an existing scoped queue response and existing protected review-history route, improving reload/share continuity without adding backend semantics, fake queue rows, mutation controls, or access expansion.",
+  "userFacingImprovement": "Review Queue URLs can reopen the selected submission panel and protected history when the selected submission is still visible in the scoped queue.",
+  "privacyAndPermissionNotes": [
+    "The selected submission is restored only after the scoped Review Queue response contains the requested submission ID.",
+    "The protected review-history route remains the source of truth for history visibility and staff-only comment filtering.",
+    "No auth, RBAC, tenant, site, program, mentor, student, mutation, migration, secret, deploy, Cloudflare, OAuth, or live-data behavior changed."
+  ],
+  "filesChanged": [
+    "workspace.js",
+    "tests/workspace-app.test.mjs",
+    "scripts/verify-review-queue-deeplinks.mjs",
+    "docs/functionality-language-audit.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-31-0634-review-queue-selected-submission-url.json",
+    "docs/functionality-ux-growth-ledger.md",
+    "automation/state/functionality-ux-growth-state.json"
+  ],
+  "focusedValidation": [
+    "node --test tests/workspace-app.test.mjs",
+    "npm run verify:review-queue-deeplinks",
+    "npm run verify:dashboard-actions",
+    "npm run verify:workspace-navigation",
+    "npm run verify:functionality-language"
+  ],
+  "finalValidation": [
+    "node --test tests/functionality-language-audit.test.mjs",
+    "npm run verify:functionality-ux-automation",
+    "git diff --check",
+    "npm run check:production-surfaces",
+    "npm run check:route-inventory",
+    "npm run test",
+    "npm run typecheck",
+    "npm run check"
+  ],
+  "validationStatus": "passed",
+  "commit": null,
+  "pushStatus": "not pushed",
+  "deferred": [
+    "Review Queue missing-submission semantics",
+    "hosted section-level permission proof",
+    "Student Directory missing-evidence filter",
+    "archive retry/regenerate controls",
+    "mentor workload threshold guidance",
+    "org rollups",
+    "student archive hosted proof",
+    "public-route browser/mobile QA"
+  ],
+  "nextRecommended": "Inspect selected-row no-longer-visible guidance only if evidence shows confusion; otherwise wait on backend queue semantics before adding missing-submission filters.",
+  "doNotRepeat": "Do not re-add Review Queue selected-submission URL restoration unless the parser, URL sync, or focused popstate/history coverage regresses.",
+  "ladderHandoff": {
+    "targetedLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
+    "advanced": true,
+    "evidence": "Review Queue URL state now carries submissionId and restores the selected panel only when the scoped queue contains that submission.",
+    "unlocks": "Staff can share exact review context without unscoped history fetches or fake missing-submission rows.",
+    "next": "Selected-row no-longer-visible guidance if needed, otherwise backend semantics for missing-submission queue work.",
+    "blockers": "Missing-submission work lacks backend queue rows; hosted permission proof can write live audit events.",
+    "firstFileNextRun": "workspace.js renderReviewSubmissionPanel()"
+  }
+}

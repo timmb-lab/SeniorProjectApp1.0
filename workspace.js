@@ -196,6 +196,7 @@ const REVIEW_QUEUE_URL_FILTER_PARAMS = [
   "overdue",
   "missing",
   "evidenceStatus",
+  "submissionId",
   "mentorUserId",
   "studentUserId",
   "studentId",
@@ -358,6 +359,9 @@ async function loadWorkspaceData(statusMessage = "") {
   const firstAvailable = availableSections()[0]?.id || "overview";
   if (!availableSections().some((section) => section.id === activeSection)) {
     activeSection = firstAvailable;
+  }
+  if (activeSection === "teacher") {
+    await restoreReviewQueueSelectionFromCurrentRows({ renderLoading: false });
   }
   renderAppShell(statusMessage || "Workspace ready.", "success");
 }
@@ -5571,23 +5575,19 @@ async function handleReviewQueueAction(event) {
 async function openReviewSubmission(submissionId) {
   const selectedSubmissionId = cleanDirectoryFilter(submissionId);
   if (!selectedSubmissionId) return;
-  const queue = unwrap(currentData.reviewQueue);
-  const siteId = selectedSiteQueryValue() || queue?.scope?.siteId || "";
-  const query = siteId ? `?siteId=${encodeURIComponent(siteId)}` : "";
+  const rows = unwrap(currentData.reviewQueue)?.queue || [];
+  if (rows.length && !rows.some((row) => row.submissionId === selectedSubmissionId)) {
+    reviewQueueState = defaultReviewQueueState();
+    syncReviewQueueUrlState();
+    renderAppShell("Select a visible review row.", "error");
+    return;
+  }
   reviewQueueState = {
     ...defaultReviewQueueState(),
     selectedSubmissionId,
-    loadingHistory: true,
   };
-  activeSection = "teacher";
-  renderAppShell("Loading review history...");
-  const historyResult = await settleApi(apiJson(`/api/reviews/${encodeURIComponent(selectedSubmissionId)}/history${query}`));
-  reviewQueueState = {
-    ...reviewQueueState,
-    loadingHistory: false,
-    historyResult,
-  };
-  renderAppShell(historyResult.ok ? "Review history loaded." : "Review history unavailable.", historyResult.ok ? "success" : "error");
+  syncReviewQueueUrlState();
+  await loadSelectedReviewHistory(selectedSubmissionId, { renderLoading: true });
 }
 
 async function submitReviewDecision(event) {
@@ -5641,10 +5641,50 @@ async function loadReviewQueueResult(message = "", options = {}) {
       historyResult: null,
       loadingHistory: false,
     };
+  } else if (options.restoreSelection !== false) {
+    await restoreReviewQueueSelectionFromCurrentRows({ renderLoading: false });
   }
   activeSection = "teacher";
   if (options.syncUrl !== false) syncReviewQueueUrlState({ replace: Boolean(options.replaceUrl) });
   renderAppShell(result.ok ? (message || "Review queue loaded.") : "Review queue unavailable.", result.ok ? "success" : "error");
+}
+
+async function restoreReviewQueueSelectionFromCurrentRows(options = {}) {
+  const selectedSubmissionId = cleanDirectoryFilter(reviewQueueState.selectedSubmissionId);
+  if (!selectedSubmissionId || reviewQueueState.historyResult || reviewQueueState.loadingHistory) return;
+  const rows = unwrap(currentData.reviewQueue)?.queue || [];
+  if (!rows.some((row) => row.submissionId === selectedSubmissionId)) {
+    reviewQueueState = {
+      ...reviewQueueState,
+      selectedSubmissionId: "",
+      historyResult: null,
+      loadingHistory: false,
+    };
+    return;
+  }
+  await loadSelectedReviewHistory(selectedSubmissionId, options);
+}
+
+async function loadSelectedReviewHistory(selectedSubmissionId, options = {}) {
+  const queue = unwrap(currentData.reviewQueue);
+  const siteId = selectedSiteQueryValue() || queue?.scope?.siteId || "";
+  const query = siteId ? `?siteId=${encodeURIComponent(siteId)}` : "";
+  reviewQueueState = {
+    ...reviewQueueState,
+    selectedSubmissionId,
+    loadingHistory: true,
+  };
+  activeSection = "teacher";
+  if (options.renderLoading) renderAppShell("Loading review history...");
+  const historyResult = await settleApi(apiJson(`/api/reviews/${encodeURIComponent(selectedSubmissionId)}/history${query}`));
+  reviewQueueState = {
+    ...reviewQueueState,
+    loadingHistory: false,
+    historyResult,
+  };
+  if (options.renderLoading) {
+    renderAppShell(historyResult.ok ? "Review history loaded." : "Review history unavailable.", historyResult.ok ? "success" : "error");
+  }
 }
 
 async function refreshSelectedStudentDetailAfterReview(selected) {
@@ -7465,7 +7505,6 @@ async function handleWorkspaceUrlPopState() {
   applyWorkspaceUrlState(state);
   const roles = roleIds(currentUser);
   if (state.hasReviewQueueState && currentUser && hasSiteReviewQueueRole(roles)) {
-    reviewQueueState = defaultReviewQueueState();
     await loadReviewQueueResult("Review queue link restored.", { syncUrl: false });
     return;
   }
@@ -7493,7 +7532,10 @@ function applyWorkspaceUrlState(state, options = {}) {
   }
   if (state.hasReviewQueueState) {
     reviewQueueFilters = state.reviewQueueFilters;
-    reviewQueueState = defaultReviewQueueState();
+    reviewQueueState = {
+      ...defaultReviewQueueState(),
+      selectedSubmissionId: state.reviewQueueSelectedSubmissionId,
+    };
     if (!state.section) activeSection = "teacher";
   }
   if (state.hasSiteStudentState) {
@@ -7538,6 +7580,7 @@ function workspaceUrlStateFromLocation() {
     siteId: cleanDirectoryFilter(params.get("siteId")),
     hasReviewQueueState,
     reviewQueueFilters: hasReviewQueueState ? reviewQueueFiltersFromSearchParams(params) : defaultReviewQueueFilters(),
+    reviewQueueSelectedSubmissionId: hasReviewQueueState ? reviewQueueSelectionFromSearchParams(params) : "",
     hasSiteStudentState,
     siteStudentFilters: hasSiteStudentState ? siteStudentFiltersFromSearchParams(params) : defaultSiteStudentFilters(),
     hasMentorAssignmentState,
@@ -7568,6 +7611,7 @@ function hasReviewQueueFilterParams(params) {
     "evidenceStatus",
     "limit",
     "offset",
+    "submissionId",
     "needsReview",
     "unassigned",
     "overdue",
@@ -7589,6 +7633,10 @@ function reviewQueueFiltersFromSearchParams(params) {
   filters.limit = clampDirectoryNumber(params.get("limit"), 50, 1, 100);
   filters.offset = clampDirectoryNumber(params.get("offset"), 0, 0, 100000);
   return filters;
+}
+
+function reviewQueueSelectionFromSearchParams(params) {
+  return cleanDirectoryFilter(params.get("submissionId"));
 }
 
 function siteStudentFiltersFromSearchParams(params) {
@@ -7656,6 +7704,7 @@ function syncReviewQueueUrlState(options = {}) {
     if (filters.story) url.searchParams.set("story", filters.story);
     if (filters.risk && filters.risk !== "any") url.searchParams.set("risk", filters.risk);
     if (filters.evidenceStatus) url.searchParams.set("evidenceStatus", filters.evidenceStatus);
+    if (reviewQueueState.selectedSubmissionId) url.searchParams.set("submissionId", reviewQueueState.selectedSubmissionId);
     if (safeNumber(filters.limit) !== 50) url.searchParams.set("limit", String(filters.limit));
     if (safeNumber(filters.offset) > 0) url.searchParams.set("offset", String(filters.offset));
   }

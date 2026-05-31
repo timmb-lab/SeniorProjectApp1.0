@@ -1702,8 +1702,12 @@ test("workspace applies Review Queue URL filters safely and syncs filter URLs", 
       status: 200,
       body: { ok: true, slots: [] },
     },
+    "/api/reviews/submission-review-001/history": {
+      status: 200,
+      body: reviewHistoryFixture(),
+    },
   }, {
-    url: "https://workspace.example/workspace.html?section=teacher&siteId=site-desert-valley-high&status=revision_requested&search=%20proposal%20scope%20&risk=bogus&overdue=true&evidenceStatus=attached&limit=999&offset=-50&unknown=keep",
+    url: "https://workspace.example/workspace.html?section=teacher&siteId=site-desert-valley-high&status=revision_requested&search=%20proposal%20scope%20&risk=bogus&overdue=true&evidenceStatus=attached&submissionId=submission-review-001&limit=999&offset=-50&unknown=keep",
   });
 
   const reviewFetch = fetchLog.find((entry) => entry.startsWith("/api/site/review-queue?"));
@@ -1723,11 +1727,14 @@ test("workspace applies Review Queue URL filters safely and syncs filter URLs", 
   assert.match(workspaceRoot.innerHTML, /Evidence attached/);
   assert.match(workspaceRoot.innerHTML, /proposal scope/);
   assert.match(workspaceRoot.innerHTML, /Clear filters/);
+  assert.ok(fetchLog.includes("/api/reviews/submission-review-001/history?siteId=site-desert-valley-high"));
+  assert.match(workspaceRoot.innerHTML, /data-review-selected-submission="submission-review-001"/);
+  assert.match(workspaceRoot.innerHTML, /Improve scope and cite the private evidence summary/);
 
   await vm.runInContext('handleReviewQueueAction({ currentTarget: { dataset: { reviewQueueAction: "reset-filters" } } })', context);
   assert.match(window.location.href, /unknown=keep/);
   assert.match(window.location.href, /section=teacher/);
-  assert.doesNotMatch(window.location.href, /status=|search=|risk=|limit=|offset=|evidenceStatus=/);
+  assert.doesNotMatch(window.location.href, /status=|search=|risk=|limit=|offset=|evidenceStatus=|submissionId=/);
 
   vm.runInContext(`
     reviewQueueFilters = {
@@ -1739,6 +1746,10 @@ test("workspace applies Review Queue URL filters safely and syncs filter URLs", 
       evidenceStatus: "attached",
       limit: 25
     };
+    reviewQueueState = {
+      ...defaultReviewQueueState(),
+      selectedSubmissionId: "submission-review-001"
+    };
     syncReviewQueueUrlState();
   `, context);
   const synced = new URL(window.location.href);
@@ -1748,16 +1759,25 @@ test("workspace applies Review Queue URL filters safely and syncs filter URLs", 
   assert.equal(synced.searchParams.get("search"), "senior proposal");
   assert.equal(synced.searchParams.get("risk"), "high");
   assert.equal(synced.searchParams.get("evidenceStatus"), "attached");
+  assert.equal(synced.searchParams.get("submissionId"), "submission-review-001");
   assert.equal(synced.searchParams.get("limit"), "25");
   assert.equal(synced.searchParams.get("unknown"), "keep");
 
-  window.history.pushState({}, "", "/workspace.html?section=teacher&status=revision_requested&risk=stale&evidenceStatus=attached&unknown=keep");
+  const historyFetchesBeforePop = fetchLog.filter((entry) => entry.startsWith("/api/reviews/submission-review-001/history")).length;
+  window.history.pushState({}, "", "/workspace.html?section=teacher&siteId=site-desert-valley-high&status=revision_requested&risk=stale&evidenceStatus=attached&submissionId=submission-review-001&unknown=keep");
   window.dispatchEvent({ type: "popstate" });
-  await new Promise((resolve) => setTimeout(resolve, 0));
+  for (let index = 0; index < 4; index += 1) {
+    await new Promise((resolve) => setTimeout(resolve, 0));
+  }
   const restored = JSON.parse(vm.runInContext("JSON.stringify(reviewQueueFilters)", context));
   assert.equal(restored.status, "revision_requested");
   assert.equal(restored.risk, "stale");
   assert.equal(restored.evidenceStatus, "attached");
+  assert.equal(vm.runInContext("reviewQueueState.selectedSubmissionId", context), "submission-review-001");
+  assert.equal(
+    fetchLog.filter((entry) => entry.startsWith("/api/reviews/submission-review-001/history")).length,
+    historyFetchesBeforePop + 1,
+  );
 });
 
 test("workspace applies shareable URL filters for site worklists safely", async () => {

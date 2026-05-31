@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-05-31T06:03:39-07:00",
-  "lastStartingSha": "856ad5448321591190a8b67065fb4a927ad22e4d",
+  "lastRunAt": "2026-05-31T06:34:47-07:00",
+  "lastStartingSha": "d05cbaefcbb8a5aa06e0112ca508603c47d25956",
   "lastEndingSha": null,
-  "currentLadderFocus": "LEVEL_2_STUDENT_DETAIL_DEPTH",
+  "currentLadderFocus": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
   "completedWorkOrders": [
     {
       "id": "workspace-header-product-language-cleanup",
@@ -721,6 +721,14 @@
       "type": "TYPE_C_STUDENT_DETAIL_DRILL_DOWN",
       "summary": "Program Teacher dashboard Needs Review rows now open the existing authorized student-detail drawer while preserving Program Dashboard context.",
       "commit": "pending-closeout-commit"
+    },
+    {
+      "id": "review-queue-selected-submission-url-state",
+      "completedAt": "2026-05-31T06:34:47-07:00",
+      "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
+      "type": "TYPE_F_REVIEW_INTERVENTION_QUEUE",
+      "summary": "Review Queue URLs now restore selected submission panels only after the scoped queue contains the requested submission and then load protected review history.",
+      "commit": "pending-closeout-commit"
     }
   ],
   "deferredWorkOrders": [
@@ -768,10 +776,10 @@
   "blockedWorkOrders": [],
   "nextRecommendedWorkOrders": [
     {
-      "id": "review-queue-selected-submission-deeplink-feasibility",
+      "id": "review-queue-selected-row-not-visible-guidance",
       "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
       "type": "TYPE_F_REVIEW_INTERVENTION_QUEUE",
-      "summary": "Evaluate a real selected-submission Review Queue deep link only if it can be route-backed without fake query params."
+      "summary": "Inspect whether Review Queue selected-row no-longer-visible guidance is needed after hosted/browser proof."
     },
     {
       "id": "review-queue-missing-submission-semantics",
@@ -863,19 +871,21 @@
     "Do not re-add student-detail timeline type filters unless regression removes data-student-detail-timeline-filters=\"true\", STUDENT_DETAIL_TIMELINE_TYPES, or the type=review workspace coverage.",
     "Do not re-add student-detail Operations exact-student filtering unless regression removes filters.studentId, the studentId route test, or data-student-detail-action=\"open-operations\" workspace coverage.",
     "Do not re-clean exact-student Operations no-match guidance unless regression removes the studentId-specific Presentation, Archive, or Readiness empty-state branches or the focused workspace coverage.",
-    "Do not re-add Program Teacher Needs Review row detail actions unless regression removes allowStudentDetail: true or the focused Program Dashboard context coverage."
+    "Do not re-add Program Teacher Needs Review row detail actions unless regression removes allowStudentDetail: true or the focused Program Dashboard context coverage.",
+    "Do not re-add Review Queue selected-submission URL restoration unless regression removes reviewQueueSelectionFromSearchParams(), submissionId URL sync, or the focused popstate/history coverage."
   ],
   "lastValidationStatus": {
     "status": "passed",
-    "completedAt": "2026-05-31T06:03:39-07:00",
+    "completedAt": "2026-05-31T06:34:47-07:00",
     "commands": [
       "node --test tests/workspace-app.test.mjs",
+      "npm run verify:review-queue-deeplinks",
       "npm run verify:functionality-language",
       "npm run verify:dashboard-actions",
       "npm run verify:workspace-navigation",
       "node --test tests/functionality-language-audit.test.mjs",
       "npm run verify:functionality-ux-automation",
-      "node -e JSON.parse automation/state/functionality-ux-growth-state.json and docs/progress/runs/2026-05-31-0603-program-review-row-detail.json",
+      "node -e JSON.parse automation/state/functionality-ux-growth-state.json and docs/progress/runs/2026-05-31-0634-review-queue-selected-submission-url.json",
       "git diff --check",
       "npm run check:production-surfaces",
       "npm run check:route-inventory",
@@ -883,7 +893,7 @@
       "npm run typecheck",
       "npm run check"
     ],
-    "notes": "Full validation passed for Program Teacher Needs Review row detail actions. git diff --check reported only CRLF normalization warnings. This run changes protected workspace navigation, focused tests, and run records only; it does not change auth role grants, tenant/site/program/student privacy boundaries, migrations, secrets/env files, Cloudflare/OAuth/domain config, deploy settings, mutation controls, or live data."
+    "notes": "Full validation passed for Review Queue selected-submission URL state. git diff --check reported only CRLF normalization warnings. This run changes protected workspace navigation, focused tests/verifier coverage, and run records only; it does not change auth role grants, tenant/site/program/student privacy boundaries, migrations, secrets/env files, Cloudflare/OAuth/domain config, deploy settings, mutation controls, or live data."
   },
   "lastProductReadinessScorecardSummary": {
     "homepageClarity": "4 to 4",

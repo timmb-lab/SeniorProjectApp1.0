@@ -2334,3 +2334,14 @@ Future productive runs should append compact entries that name the master-plan s
 - `changes`: `workspace.js` now lets Program Teacher review summary rows render `View student detail` actions through the existing student-detail handler. `tests/workspace-app.test.mjs` proves review rows show requirement/evidence context and that opening detail preserves Program Dashboard context.
 - `validation`: focused workspace test plus functionality-language, dashboard-action, and workspace-navigation verifiers passed before docs/state closeout. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
 - `commit/push status`: pending closeout commit; not pushed by this automation run.
+
+## 2026-05-31 PT - Functionality UX Upgrade Review Queue Selected Submission URL
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 5 review/intervention queues / Level 1 shareable Review Queue navigation.
+- `starting HEAD`: `d05cbaefcbb8a5aa06e0112ca508603c47d25956`.
+- `selected slice`: Add shareable selected-submission state to the Review Queue.
+- `repo-grounded findings`: the previous handoff named selected-submission Review Queue deep-link feasibility. Current source already had a real selected submission panel and protected `/api/reviews/:submissionId/history` route, but URL state only restored filters. Missing-submission queue semantics remain unsafe because the backend queue contains submitted/revision/approved submission rows, not missing requirement rows.
+- `changes`: `workspace.js` now parses and syncs `submissionId` for Review Queue URLs, restores protected review history only after the scoped queue includes that submission, and clears the selection when filters or pagination remove the row. `tests/workspace-app.test.mjs` and `scripts/verify-review-queue-deeplinks.mjs` guard the reload, popstate, clear-filter, and URL-sync behavior.
+- `validation`: focused workspace test plus review-queue deeplink, dashboard-action, workspace-navigation, and functionality-language verifiers passed before docs/state closeout. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.

@@ -43,6 +43,7 @@ for (const param of [
   "story",
   "risk",
   "evidenceStatus",
+  "submissionId",
   "limit",
   "offset",
   "needsReview",
@@ -87,6 +88,21 @@ assertMatches(
 );
 assertMatches(
   workspaceJs,
+  /reviewQueueSelectedSubmissionId: hasReviewQueueState \? reviewQueueSelectionFromSearchParams\(params\) : ""/,
+  "review queue deep links must parse selected submission state separately from filters",
+);
+assertMatches(
+  workspaceJs,
+  /if \(reviewQueueState\.selectedSubmissionId\) url\.searchParams\.set\("submissionId", reviewQueueState\.selectedSubmissionId\)/,
+  "review queue selected submission must sync to shareable URLs",
+);
+assertMatches(
+  workspaceJs,
+  /restoreReviewQueueSelectionFromCurrentRows/,
+  "review queue selected submission deep links must restore only after scoped rows load",
+);
+assertMatches(
+  workspaceJs,
   /filters\.limit = clampDirectoryNumber\(params\.get\("limit"\), 50, 1, 100\)/,
   "review queue limit must be clamped",
 );
@@ -121,6 +137,7 @@ for (const expectedTest of [
   "unknown=keep",
   "status=revision_requested",
   "risk=stale",
+  "submissionId=submission-review-001",
   "Clear filters",
 ]) {
   assertIncludes(workspaceTest, expectedTest, `workspace tests must cover ${expectedTest}`);
