@@ -2290,3 +2290,14 @@ Future productive runs should append compact entries that name the master-plan s
 - `changes`: `functions/api/student/archive/readiness.ts` now returns protected-download and storage-setup messages; `workspace.js` renders student Archive download/file/retention states without scoped/archive-provider jargon and adds a failed-package guidance path that points students to staff follow-up without retry controls.
 - `validation`: focused archive readiness route tests, workspace tests, and functionality language verifier passed before final validation. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
 - `commit/push status`: pending closeout commit; not pushed by this automation run.
+
+## 2026-05-31 PT - Functionality UX Upgrade Student Detail Timeline Filters
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 2 student detail depth / authorized timeline drill-down, supporting MVP-032, MVP-033, MVP-015 through MVP-018, and MVP-022.
+- `starting HEAD`: `9f696fe517fe129a04bb6afe2efd96775f93119c`.
+- `selected slice`: Add route-backed type filters to the authorized student-detail Timeline tab.
+- `repo-grounded findings`: `/api/site/students/:studentId/timeline` already accepted a safe `type` query for review, evidence, mentor meeting, presentation, archive, submission, comment, and status-history events, but `workspace.js` always loaded the unfiltered timeline. The UI had no way for staff or assigned mentors to narrow a real student timeline without scanning all events.
+- `changes`: `workspace.js` now renders a small Timeline filter control and reloads the existing scoped timeline route with `type=...`; focused workspace coverage proves the all-activity load keeps site scope and the review filter calls `type=review` and renders only review events.
+- `validation`: focused workspace test plus functionality-language, dashboard-action, and workspace-navigation verifiers passed before docs/state closeout. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.

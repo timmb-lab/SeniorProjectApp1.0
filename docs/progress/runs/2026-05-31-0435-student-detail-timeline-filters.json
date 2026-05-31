@@ -1,0 +1,206 @@
+{
+  "automationId": "functionality-ux-upgrade-hourly",
+  "runStartedAt": "2026-05-31T04:35:22-07:00",
+  "branch": "main",
+  "startingSha": "9f696fe517fe129a04bb6afe2efd96775f93119c",
+  "endingSha": null,
+  "ladderLevel": "LEVEL_2_STUDENT_DETAIL_DEPTH",
+  "workOrderId": "student-detail-timeline-type-filters",
+  "workOrderType": "TYPE_C_STUDENT_DETAIL_DRILL_DOWN",
+  "requirements": [
+    "MVP-032",
+    "MVP-033",
+    "MVP-015",
+    "MVP-016",
+    "MVP-017",
+    "MVP-018",
+    "MVP-022"
+  ],
+  "selected": {
+    "title": "Add route-backed type filters to authorized student detail timelines",
+    "reason": "The student timeline route already supported scoped type filters, but the protected workspace always loaded the unfiltered timeline.",
+    "userFacingImprovement": "Authorized staff and assigned mentors can narrow a student timeline to review, evidence, mentor meeting, presentation, archive, submission, note, or status-change activity."
+  },
+  "candidateScores": [
+    {
+      "candidate": "Student detail timeline type filters",
+      "ladderLevel": "LEVEL_2_STUDENT_DETAIL_DEPTH",
+      "roles": "site staff, viewer, program_teacher, mentor",
+      "impact": 4,
+      "safety": 5,
+      "testability": 5,
+      "size": "S",
+      "score": 55,
+      "decision": "selected"
+    },
+    {
+      "candidate": "Hosted section-level permission proof",
+      "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
+      "roles": "all protected roles",
+      "impact": 4,
+      "safety": 4,
+      "testability": 3,
+      "size": "M",
+      "score": 40,
+      "decision": "blocked: credentialed runtime path"
+    },
+    {
+      "candidate": "Student detail archive/presentation operations actions",
+      "ladderLevel": "LEVEL_2_STUDENT_DETAIL_DEPTH",
+      "roles": "site staff, viewer, program_teacher",
+      "impact": 4,
+      "safety": 3,
+      "testability": 3,
+      "size": "M",
+      "score": 39,
+      "decision": "deferred: exact student operations filter is not route-backed"
+    },
+    {
+      "candidate": "Review Queue missing-submission semantics",
+      "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
+      "roles": "program_teacher, site staff",
+      "impact": 5,
+      "safety": 2,
+      "testability": 3,
+      "size": "M",
+      "score": 34,
+      "decision": "deferred"
+    },
+    {
+      "candidate": "Student Directory missing-evidence filter",
+      "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS",
+      "roles": "site staff, viewer",
+      "impact": 4,
+      "safety": 2,
+      "testability": 3,
+      "size": "M",
+      "score": 35,
+      "decision": "deferred"
+    },
+    {
+      "candidate": "Archive retry/regenerate controls",
+      "ladderLevel": "LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS",
+      "roles": "site_admin",
+      "impact": 5,
+      "safety": 2,
+      "testability": 3,
+      "size": "M",
+      "score": 34,
+      "decision": "rejected: mutation policy not approved"
+    },
+    {
+      "candidate": "Mentor workload threshold guidance",
+      "ladderLevel": "LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW",
+      "roles": "site_admin, viewer",
+      "impact": 4,
+      "safety": 3,
+      "testability": 3,
+      "size": "M",
+      "score": 39,
+      "decision": "rejected: threshold policy unclear"
+    },
+    {
+      "candidate": "Student guided requirement form",
+      "ladderLevel": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN",
+      "roles": "student",
+      "impact": 5,
+      "safety": 2,
+      "testability": 3,
+      "size": "L",
+      "score": 32,
+      "decision": "rejected: write-path design needed"
+    },
+    {
+      "candidate": "Public route browser/mobile visual QA",
+      "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
+      "roles": "public students, teachers",
+      "impact": 3,
+      "safety": 4,
+      "testability": 3,
+      "size": "M",
+      "score": 40,
+      "decision": "rejected: lower protected-app value this run"
+    },
+    {
+      "candidate": "Admin recent activity drill-down",
+      "ladderLevel": "LEVEL_7_AUDITABILITY_AND_TRUST",
+      "roles": "admin, site staff",
+      "impact": 4,
+      "safety": 3,
+      "testability": 3,
+      "size": "M",
+      "score": 38,
+      "decision": "rejected: permission shape needs review"
+    },
+    {
+      "candidate": "Student archive download-window browser proof",
+      "ladderLevel": "LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS",
+      "roles": "student",
+      "impact": 3,
+      "safety": 4,
+      "testability": 3,
+      "size": "M",
+      "score": 39,
+      "decision": "deferred: hosted/browser proof dependency"
+    },
+    {
+      "candidate": "Timeline empty-state copy only",
+      "ladderLevel": "LEVEL_2_STUDENT_DETAIL_DEPTH",
+      "roles": "site staff, viewer, mentor",
+      "impact": 2,
+      "safety": 5,
+      "testability": 4,
+      "size": "XS",
+      "score": 40,
+      "decision": "rejected: less functional than real route filter"
+    }
+  ],
+  "filesChanged": [
+    "workspace.js",
+    "tests/workspace-app.test.mjs",
+    "docs/functionality-language-audit.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-31-0435-student-detail-timeline-filters.json",
+    "docs/functionality-ux-growth-ledger.md",
+    "automation/state/functionality-ux-growth-state.json"
+  ],
+  "privacyAndPermissions": {
+    "authChanged": false,
+    "rbacChanged": false,
+    "tenantBoundaryChanged": false,
+    "siteBoundaryChanged": false,
+    "programBoundaryChanged": false,
+    "studentPrivacyChanged": false,
+    "notes": "The UI calls the existing authorized student timeline route and adds no new data path, mutation, route, migration, config, secret, deployment, or live data change."
+  },
+  "validation": {
+    "focusedPassed": [
+      "node --test tests/workspace-app.test.mjs",
+      "npm run verify:functionality-language",
+      "npm run verify:dashboard-actions",
+      "npm run verify:workspace-navigation"
+    ],
+    "finalPassed": [
+      "node --test tests/functionality-language-audit.test.mjs",
+      "npm run verify:functionality-ux-automation",
+      "node -e JSON.parse automation/state/functionality-ux-growth-state.json and docs/progress/runs/2026-05-31-0435-student-detail-timeline-filters.json",
+      "git diff --check",
+      "npm run check:production-surfaces",
+      "npm run check:route-inventory",
+      "npm run test",
+      "npm run typecheck",
+      "npm run check"
+    ],
+    "status": "passed",
+    "completedAt": "2026-05-31T04:38:07-07:00"
+  },
+  "deferred": [
+    "hosted-section-permission-proof",
+    "student-detail-operations-exact-student-filter",
+    "review-queue-missing-submission-semantics",
+    "student-directory-missing-evidence-filter",
+    "archive-retry-regenerate-controls"
+  ],
+  "nextRecommended": "Run hosted section-level permission proof when credentialed runtime is available; otherwise inspect scoped Operations studentId filter feasibility for exact student-detail presentation/archive drill-downs.",
+  "doNotRepeat": "Do not re-add student-detail timeline type filters unless regression removes data-student-detail-timeline-filters or the type=review workspace coverage."
+}

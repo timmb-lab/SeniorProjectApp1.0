@@ -158,6 +158,18 @@ const REVIEW_QUEUE_STATUS_VALUES = new Set(["submitted", "revision_requested", "
 const REVIEW_QUEUE_STORY_VALUES = new Set(["model_excellent", "missing_mentor", "awaiting_review", "revision_requested", "presentation_pending", "archive_ready", "archive_failed", "high_risk", "rich_timeline"]);
 const REVIEW_QUEUE_RISK_VALUES = new Set(["any", "high", "medium", "low", "stale", "no_mentor"]);
 const REVIEW_QUEUE_EVIDENCE_STATUS_VALUES = new Set(["attached", "missing"]);
+const STUDENT_DETAIL_TIMELINE_TYPES = [
+  ["", "All activity"],
+  ["review", "Reviews"],
+  ["evidence", "Evidence"],
+  ["mentor_meeting", "Mentor meetings"],
+  ["presentation", "Presentation"],
+  ["archive_export", "Archive"],
+  ["submission", "Submissions"],
+  ["comment", "Notes"],
+  ["status_history", "Status changes"],
+];
+const STUDENT_DETAIL_TIMELINE_TYPE_VALUES = new Set(STUDENT_DETAIL_TIMELINE_TYPES.map(([value]) => value).filter(Boolean));
 const SITE_STUDENT_STATUS_VALUES = new Set(["draft", "submitted", "under_review", "revision_requested", "approved", "blocked", "archived", "complete"]);
 const SITE_STUDENT_RISK_VALUES = new Set(["any", "high", "medium", "low", "stale", "no_mentor"]);
 const SITE_STUDENT_PRESENTATION_STATUS_VALUES = new Set(["any", "pending", "scheduled", "completed", "missing"]);
@@ -2278,8 +2290,10 @@ function renderStudentDetailTimeline(detail, state) {
   const timelineBody = unwrap(state.timelineResult);
   const events = timelineBody?.events || detail.timelinePreview || [];
   const title = timelineBody ? "Timeline" : "Timeline Preview";
+  const selectedType = cleanStudentDetailTimelineType(state.timelineType || "");
   return `
     <section class="workspace-detail-section" data-student-detail-section="timeline">
+      ${renderStudentDetailTimelineFilters(selectedType, Boolean(timelineBody))}
       ${state.loadingTimeline ? `
         <div class="workspace-empty-state-card">
           <strong>Loading full timeline</strong>
@@ -2312,6 +2326,24 @@ function renderStudentDetailTimeline(detail, state) {
         </article>
       `)}
     </section>
+  `;
+}
+
+function renderStudentDetailTimelineFilters(selectedType = "", loaded = false) {
+  return `
+    <div class="workspace-active-filter-summary" data-student-detail-timeline-filters="true">
+      <div>
+        <strong>${escapeHtml(selectedType ? `Showing ${studentDetailTimelineTypeLabel(selectedType).toLowerCase()}` : "Showing all activity")}</strong>
+        <p>${escapeHtml(loaded ? "Timeline filters use the authorized student timeline route." : "Open a filter to load matching student activity.")}</p>
+      </div>
+      <div class="workspace-quick-actions" role="group" aria-label="Timeline filters">
+        ${STUDENT_DETAIL_TIMELINE_TYPES.map(([value, label]) => `
+          <button class="workspace-link-button workspace-link-button-small ${value === selectedType ? "is-active" : ""}" type="button" data-student-detail-timeline-type="${escapeHtml(value)}" aria-pressed="${value === selectedType ? "true" : "false"}">
+            ${escapeHtml(label)}
+          </button>
+        `).join("")}
+      </div>
+    </div>
   `;
 }
 
@@ -5150,6 +5182,9 @@ function bindWorkspaceForms() {
   document.querySelectorAll("[data-student-detail-tab]").forEach((button) => {
     button.addEventListener("click", selectSiteStudentDetailTab);
   });
+  document.querySelectorAll("[data-student-detail-timeline-type]").forEach((button) => {
+    button.addEventListener("click", selectSiteStudentTimelineType);
+  });
   document.querySelectorAll("[data-student-detail-action]").forEach((button) => {
     button.addEventListener("click", handleSiteStudentDetailAction);
   });
@@ -5796,8 +5831,19 @@ function cleanStudentDetailTab(value) {
   return allowedTabs.has(requested) ? requested : "";
 }
 
+function cleanStudentDetailTimelineType(value) {
+  const requested = normalizeStatus(value);
+  return STUDENT_DETAIL_TIMELINE_TYPE_VALUES.has(requested) ? requested : "";
+}
+
+function studentDetailTimelineTypeLabel(value) {
+  const normalized = cleanStudentDetailTimelineType(value);
+  const match = STUDENT_DETAIL_TIMELINE_TYPES.find(([type]) => type === normalized);
+  return match?.[1] || "All activity";
+}
+
 async function selectSiteStudentDetailTab(event) {
-  const tab = event?.currentTarget?.dataset?.studentDetailTab;
+  const tab = cleanStudentDetailTab(event?.currentTarget?.dataset?.studentDetailTab);
   if (!tab || !siteStudentDetailState.studentId) return;
   siteStudentDetailState = {
     ...siteStudentDetailState,
@@ -5807,9 +5853,34 @@ async function selectSiteStudentDetailTab(event) {
     renderAppShell();
     return;
   }
+  await loadSiteStudentTimeline();
+}
+
+async function selectSiteStudentTimelineType(event) {
+  if (!siteStudentDetailState.studentId) return;
+  const timelineType = cleanStudentDetailTimelineType(event?.currentTarget?.dataset?.studentDetailTimelineType || "");
+  if (siteStudentDetailState.activeTab === "timeline" && siteStudentDetailState.timelineType === timelineType && siteStudentDetailState.timelineResult) return;
+  siteStudentDetailState = {
+    ...siteStudentDetailState,
+    activeTab: "timeline",
+    timelineType,
+    timelineResult: null,
+  };
+  await loadSiteStudentTimeline();
+}
+
+async function loadSiteStudentTimeline() {
+  if (!siteStudentDetailState.studentId || siteStudentDetailState.loadingTimeline) {
+    renderAppShell();
+    return;
+  }
   const detail = unwrap(siteStudentDetailState.result);
   const siteId = selectedSiteQueryValue() || detail?.scope?.siteId || unwrap(currentData.siteStudents)?.scope?.siteId || "";
-  const query = siteId ? `?siteId=${encodeURIComponent(siteId)}` : "";
+  const params = new URLSearchParams();
+  if (siteId) params.set("siteId", siteId);
+  const timelineType = cleanStudentDetailTimelineType(siteStudentDetailState.timelineType || "");
+  if (timelineType) params.set("type", timelineType);
+  const query = params.toString() ? `?${params.toString()}` : "";
   siteStudentDetailState = {
     ...siteStudentDetailState,
     loadingTimeline: true,
@@ -7261,6 +7332,7 @@ function defaultSiteStudentDetailState() {
     activeTab: "summary",
     loading: false,
     loadingTimeline: false,
+    timelineType: "",
     result: null,
     timelineResult: null,
   };

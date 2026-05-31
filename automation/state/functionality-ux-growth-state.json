@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-05-31T04:06:06-07:00",
-  "lastStartingSha": "48d63c8b98520140fd8d1be45c84b0f10c4b4d31",
+  "lastRunAt": "2026-05-31T04:35:22-07:00",
+  "lastStartingSha": "9f696fe517fe129a04bb6afe2efd96775f93119c",
   "lastEndingSha": null,
-  "currentLadderFocus": "LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS",
+  "currentLadderFocus": "LEVEL_2_STUDENT_DETAIL_DEPTH",
   "completedWorkOrders": [
     {
       "id": "workspace-header-product-language-cleanup",
@@ -689,6 +689,14 @@
       "type": "TYPE_D_ROLE_WORKSPACE",
       "summary": "Student Archive readiness and download states now use protected-download, storage-setup, and staff-follow-up language instead of signed-link/export-wiring/provider implementation wording.",
       "commit": "pending-closeout-commit"
+    },
+    {
+      "id": "student-detail-timeline-type-filters",
+      "completedAt": "2026-05-31T04:35:22-07:00",
+      "ladderLevel": "LEVEL_2_STUDENT_DETAIL_DEPTH",
+      "type": "TYPE_C_STUDENT_DETAIL_DRILL_DOWN",
+      "summary": "Authorized student detail timelines now expose route-backed type filters for review, evidence, mentor meeting, presentation, archive, submission, note, and status-change activity.",
+      "commit": "pending-closeout-commit"
     }
   ],
   "deferredWorkOrders": [
@@ -742,10 +750,10 @@
       "summary": "Run hosted section-level permission-denied proof when credentialed runtime is available."
     },
     {
-      "id": "student-archive-download-window-browser-proof",
-      "ladderLevel": "LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS",
-      "type": "TYPE_G_VERIFICATION_REGRESSION_PROTECTION",
-      "summary": "Inspect hosted/browser proof for student Archive expired and expiring download-window states."
+      "id": "student-detail-operations-exact-student-filter",
+      "ladderLevel": "LEVEL_2_STUDENT_DETAIL_DEPTH",
+      "type": "TYPE_C_STUDENT_DETAIL_DRILL_DOWN",
+      "summary": "Inspect whether Operations can safely support a scoped studentId filter for exact presentation/archive drill-downs from student detail."
     },
     {
       "id": "review-queue-missing-submission-semantics",
@@ -833,20 +841,20 @@
     "Do not re-add the viewer monitoring queue unless regression removes data-viewer-monitoring-overview=\"true\" or the route-backed viewer panel actions.",
     "Do not re-add Operations Storage Setup Needed unless regression removes archiveStatus=provider_unavailable, archive.summary.providerUnavailable, or archive-provider-unavailable dashboard/verifier coverage.",
     "Do not re-clean Operations archive row/empty-state guidance unless regression removes archiveWorklistSupportText(), operationsArchiveEmptyStateCopy(), or the focused workspace coverage for provider-unavailable and expired-download no-match states.",
-    "Do not re-clean student Archive signed-link/export-wiring/provider copy unless regression removes studentArchiveDownloadStatusCopy() or the verifier rules for signed-link/export-wiring/scoped archive/provider wording."
+    "Do not re-clean student Archive signed-link/export-wiring/provider copy unless regression removes studentArchiveDownloadStatusCopy() or the verifier rules for signed-link/export-wiring/scoped archive/provider wording.",
+    "Do not re-add student-detail timeline type filters unless regression removes data-student-detail-timeline-filters=\"true\", STUDENT_DETAIL_TIMELINE_TYPES, or the type=review workspace coverage."
   ],
   "lastValidationStatus": {
     "status": "passed",
-    "completedAt": "2026-05-31T04:06:06-07:00",
+    "completedAt": "2026-05-31T04:38:07-07:00",
     "commands": [
-      "node --test tests/archive-readiness.integration.test.mjs",
       "node --test tests/workspace-app.test.mjs",
       "npm run verify:functionality-language",
-      "node --test tests/functionality-language-audit.test.mjs",
       "npm run verify:dashboard-actions",
       "npm run verify:workspace-navigation",
+      "node --test tests/functionality-language-audit.test.mjs",
       "npm run verify:functionality-ux-automation",
-      "node -e JSON.parse automation/state/functionality-ux-growth-state.json and docs/progress/runs/2026-05-31-0406-student-archive-download-guidance.json",
+      "node -e JSON.parse automation/state/functionality-ux-growth-state.json and docs/progress/runs/2026-05-31-0435-student-detail-timeline-filters.json",
       "git diff --check",
       "npm run check:production-surfaces",
       "npm run check:route-inventory",
@@ -854,7 +862,7 @@
       "npm run typecheck",
       "npm run check"
     ],
-    "notes": "Full validation passed for student Archive download guidance. git diff --check reported only CRLF normalization warnings. This run changes student archive readiness copy, workspace UI guidance, language verifier rules, focused tests, and run records only; it does not change auth role grants, tenant/site/program/student privacy boundaries, migrations, secrets/env files, Cloudflare/OAuth/domain config, deploy settings, archive mutation controls, or live data."
+    "notes": "Full validation passed for student-detail timeline type filters. git diff --check reported only CRLF normalization warnings. This run changes protected workspace UI, focused workspace tests, and run records only; it does not change auth role grants, tenant/site/program/student privacy boundaries, migrations, secrets/env files, Cloudflare/OAuth/domain config, deploy settings, mutation controls, or live data."
   },
   "lastProductReadinessScorecardSummary": {
     "homepageClarity": "4 to 4",

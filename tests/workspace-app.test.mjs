@@ -1058,7 +1058,7 @@ test("workspace opens real student detail, loads timeline, and preserves directo
       offset: 50,
     },
   });
-  const { context, workspaceRoot } = await createWorkspaceContextWithFetch({
+  const { context, workspaceRoot, fetchLog } = await createWorkspaceContextWithFetch({
     "/api/auth/me": {
       status: 200,
       body: {
@@ -1083,9 +1083,15 @@ test("workspace opens real student detail, loads timeline, and preserves directo
       status: 200,
       body: siteStudentDetailFixture({ readOnly: true }),
     },
-    "/api/site/students/demo-student-101/timeline": {
-      status: 200,
-      body: siteStudentTimelineFixture({ readOnly: true }),
+    "/api/site/students/demo-student-101/timeline": ({ url }) => {
+      const parsed = new URL(url, "https://workspace.example");
+      const body = siteStudentTimelineFixture({ readOnly: true });
+      if (parsed.searchParams.get("type") === "review") {
+        body.filters.type = "review";
+        body.events = body.events.filter((event) => event.type === "review");
+        body.pagination.returned = body.events.length;
+      }
+      return { status: 200, body };
     },
   });
 
@@ -1133,9 +1139,24 @@ test("workspace opens real student detail, loads timeline, and preserves directo
 
   await vm.runInContext('selectSiteStudentDetailTab({ currentTarget: { dataset: { studentDetailTab: "timeline" } } })', context);
   assert.match(workspaceRoot.innerHTML, /data-student-detail-section="timeline"/);
+  assert.match(workspaceRoot.innerHTML, /data-student-detail-timeline-filters="true"/);
+  assert.match(workspaceRoot.innerHTML, /Showing all activity/);
   assert.match(workspaceRoot.innerHTML, /Timeline event/);
   assert.match(workspaceRoot.innerHTML, /Evidence added/);
   assert.match(workspaceRoot.innerHTML, /value="Revision Loop Demo"/);
+  let timelineFetch = fetchLog.findLast((entry) => entry.startsWith("/api/site/students/demo-student-101/timeline?"));
+  let timelineUrl = new URL(timelineFetch, "https://workspace.example");
+  assert.equal(timelineUrl.searchParams.get("siteId"), "site-desert-valley-high");
+  assert.equal(timelineUrl.searchParams.has("type"), false);
+
+  await vm.runInContext('selectSiteStudentTimelineType({ currentTarget: { dataset: { studentDetailTimelineType: "review" } } })', context);
+  assert.match(workspaceRoot.innerHTML, /Showing reviews/);
+  assert.match(workspaceRoot.innerHTML, /Review Revision requested/);
+  assert.doesNotMatch(workspaceRoot.innerHTML, /Evidence added/);
+  timelineFetch = fetchLog.findLast((entry) => entry.startsWith("/api/site/students/demo-student-101/timeline?"));
+  timelineUrl = new URL(timelineFetch, "https://workspace.example");
+  assert.equal(timelineUrl.searchParams.get("siteId"), "site-desert-valley-high");
+  assert.equal(timelineUrl.searchParams.get("type"), "review");
 
   vm.runInContext('handleSiteStudentDetailAction({ currentTarget: { dataset: { studentDetailAction: "close" } } })', context);
   assert.doesNotMatch(workspaceRoot.innerHTML, /workspace-detail-drawer/);

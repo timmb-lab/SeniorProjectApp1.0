@@ -3744,3 +3744,54 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: hosted permission/browser proof still needs fake `.test` credentials and available hosted runtime; archive retry/regenerate controls still need approved mutation policy.
   - Do not repeat: Student Archive guidance is complete unless the helper/verifier/test coverage regresses.
   - First file to inspect next run: `scripts/check-hosted-workspace-permissions.mjs`
+
+## Run 2026-05-31 04:35 PT
+
+- Starting SHA: `9f696fe517fe129a04bb6afe2efd96775f93119c`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Branch policy: work stayed on clean local `main`; local `main` was three commits ahead of `origin/main`, `origin/main` was not ahead, and no push was run
+- Ladder level targeted: `LEVEL_2_STUDENT_DETAIL_DEPTH` with `LEVEL_7_AUDITABILITY_AND_TRUST` timeline-readability support
+- Backlog item: `student-detail-timeline-type-filters`; supports `MVP-032`, `MVP-033`, `MVP-015` through `MVP-018`, and `MVP-022`
+- Work order selected: Add route-backed type filters to the authorized student-detail Timeline tab.
+- Selection reason: Current route code already accepted a safe `type` query on `/api/site/students/:studentId/timeline`, and route tests proved scope/redaction. The workspace still loaded only the unfiltered timeline, forcing staff and assigned mentors to scan mixed activity. Adding a bounded UI filter used existing authorization and did not add routes, fake data, mutations, or broad URL state.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Student detail timeline type filters | `LEVEL_2_STUDENT_DETAIL_DEPTH` | site staff, viewer, program_teacher, mentor | 4 | 5 | 5 | S | 55 | selected |
+| Hosted section-level permission proof | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all protected roles | 4 | 4 | 3 | M | 40 | blocked: credentialed runtime path |
+| Student detail archive/presentation operations actions | `LEVEL_2_STUDENT_DETAIL_DEPTH` | site staff, viewer, program_teacher | 4 | 3 | 3 | M | 39 | deferred: exact student operations filter is not route-backed |
+| Review Queue missing-submission semantics | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | program_teacher, site staff | 5 | 2 | 3 | M | 34 | deferred: no exact queue semantics |
+| Student Directory missing-evidence filter | `LEVEL_1_NAVIGABLE_DASHBOARDS` | site staff, viewer | 4 | 2 | 3 | M | 35 | deferred: directory route filter missing |
+| Archive retry/regenerate controls | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | site_admin | 5 | 2 | 3 | M | 34 | rejected: mutation policy not approved |
+| Mentor workload threshold guidance | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | site_admin, viewer | 4 | 3 | 3 | M | 39 | rejected: threshold policy unclear |
+| Student guided requirement form | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 5 | 2 | 3 | L | 32 | rejected: write-path design needed |
+| Public route browser/mobile visual QA | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | public students, teachers | 3 | 4 | 3 | M | 40 | rejected: lower protected-app value this run |
+| Admin recent activity drill-down | `LEVEL_7_AUDITABILITY_AND_TRUST` | admin, site staff | 4 | 3 | 3 | M | 38 | rejected: permission shape needs review |
+| Student archive download-window browser proof | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | student | 3 | 4 | 3 | M | 39 | deferred: hosted/browser proof dependency |
+| Timeline empty-state copy only | `LEVEL_2_STUDENT_DETAIL_DEPTH` | site staff, viewer, mentor | 2 | 5 | 4 | XS | 40 | rejected: less functional than real route filter |
+
+- User-facing improvement: Authorized student-detail users can filter the real timeline to review, evidence, mentor meeting, presentation, archive, submission, note, or status-change activity from the existing drawer.
+- Roles affected: `platform_admin`, `admin`, `org_admin`, `site_admin`, `viewer`, `program_teacher`, and assigned `mentor`; no student, tenant, site, program, or record visibility was broadened.
+- Files changed: `workspace.js`, `tests/workspace-app.test.mjs`, `docs/functionality-language-audit.md`, `docs/progress/run-log.md`, `docs/progress/runs/2026-05-31-0435-student-detail-timeline-filters.json`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`
+- Tests/verifiers added or updated: workspace coverage proves all-activity timeline loading preserves `siteId`, and the review filter reloads the existing timeline route with `type=review` and renders filtered events.
+- Validation commands:
+  - Focused passed before docs/state closeout: `node --test tests/workspace-app.test.mjs`; `npm run verify:functionality-language`; `npm run verify:dashboard-actions`; `npm run verify:workspace-navigation`
+  - Final passed: JSON parse for state and run manifest; `node --test tests/functionality-language-audit.test.mjs`; `npm run verify:functionality-ux-automation`; `git diff --check`; `npm run check:production-surfaces`; `npm run check:route-inventory`; `npm run test`; `npm run typecheck`; `npm run check`
+- Validation result: passed; `git diff --check` reported only CRLF normalization warnings, with no whitespace errors.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: hosted section-level permission proof, student-detail operations exact-student filters/actions, Review Queue missing-submission semantics, Student Directory missing-evidence filter, archive retry/regenerate controls, org rollups, and public-route browser/mobile QA remain deferred.
+- New backlog items: none
+- Next recommended work order: run `npm run check:workspace:hosted-permissions` when fake `.test` credentials/runtime are available; otherwise inspect whether adding a scoped `studentId` filter to Operations can safely support exact student-detail presentation/archive drill-downs.
+- Do-not-repeat notes: do not re-add student-detail timeline type filters unless regression removes `data-student-detail-timeline-filters="true"` or the `type=review` workspace coverage.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_2_STUDENT_DETAIL_DEPTH`
+  - Advanced: yes
+  - Evidence: Student detail Timeline tab now uses the existing scoped timeline `type` query from the protected workspace and focused tests prove the filtered request/render path.
+  - Unlocks: Staff and assigned mentors can inspect one activity family at a time before deciding whether to use Review Queue, Operations, Mentor, Evidence, or Archive context.
+  - Next: hosted section-level permission proof, or scoped Operations `studentId` filter feasibility if hosted credentials/runtime remain unavailable.
+  - Blockers: hosted permission/browser proof still needs fake `.test` credentials and available hosted runtime; exact Operations student drill-down needs route/filter/privacy review.
+  - Do not repeat: Timeline type filters are complete for current supported timeline types.
+  - First file to inspect next run: `scripts/check-hosted-workspace-permissions.mjs` if credentials/runtime are available; otherwise `functions/_lib/site-operations-readiness.ts` `parseFilters()` and `matchesFilters()`.
