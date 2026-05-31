@@ -2400,3 +2400,14 @@ Future productive runs should append compact entries that name the master-plan s
 - `changes`: `workspace.js` now renders `View mentor load` on active assignment rows when a row has `mentorUserId`, reusing the existing `filter-mentor` handler and scoped active-assignment URL state. `tests/workspace-app.test.mjs` proves the active assignment action marker renders and still loads `/api/site/mentor-assignments?mentorUserId=...&status=active`.
 - `validation`: focused `node --test tests/workspace-app.test.mjs` passed before docs/state closeout. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
 - `commit/push status`: pending closeout commit; not pushed by this automation run.
+
+## 2026-05-31 PT - Functionality UX Upgrade Presentation Schedule Filters
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 4 role-specific workspace clarity / Level 8 presentation operational readiness.
+- `starting HEAD`: `c69139af715b54aaa728adcd1eb4cc4cf0885941`.
+- `selected slice`: Add in-page filters to the shared Presentation schedule.
+- `repo-grounded findings`: `/api/presentation-slots` already returns only scoped slots for students, assigned mentors, program teachers, and admins, and each row includes status plus outline status. The workspace rendered all visible slots in one list, making teachers/admins scan manually for scheduled, checked-out, checked-in, or outline-follow-up rows.
+- `changes`: `workspace.js` now renders Presentation schedule filters for All, Ready for check-out, Checked out, Checked in, and Outline follow-up over already loaded scoped rows. It adds filter-specific empty guidance and keeps check-out/check-in controls limited to existing program-teacher/admin behavior. `tests/workspace-app.test.mjs` proves filter counts, row narrowing, invalid-filter fallback, and day-of controls.
+- `validation`: focused `node --test tests/workspace-app.test.mjs` passed before docs/state closeout. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.

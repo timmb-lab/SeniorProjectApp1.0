@@ -33,6 +33,7 @@ let reviewQueueFilters = defaultReviewQueueFilters();
 let reviewQueueState = defaultReviewQueueState();
 let mentorAssignmentFilters = defaultMentorAssignmentFilters();
 let operationsReadinessFilters = defaultOperationsReadinessFilters();
+let presentationSlotFilter = "all";
 const WORKSPACE_UPLOAD_MAX_BYTES = 20 * 1024 * 1024;
 const WORKSPACE_UPLOAD_ALLOWED_MIME_TYPES = new Set([
   "application/pdf",
@@ -272,6 +273,7 @@ async function loadSession() {
       currentData = defaultCurrentData(authConfig);
       studentRequirementDetailState = defaultStudentRequirementDetailState();
       studentFeedbackHistoryState = defaultStudentFeedbackHistoryState();
+      presentationSlotFilter = "all";
       renderSignIn(
         messageForSessionStateError(data?.error, response.status),
         data?.error ? "error" : "neutral",
@@ -282,6 +284,7 @@ async function loadSession() {
     if (currentUser?.id !== data.user?.id) {
       studentRequirementDetailState = defaultStudentRequirementDetailState();
       studentFeedbackHistoryState = defaultStudentFeedbackHistoryState();
+      presentationSlotFilter = "all";
     }
     currentUser = data.user;
     await loadWorkspaceData();
@@ -290,6 +293,7 @@ async function loadSession() {
     currentData = defaultCurrentData(authConfig);
     studentRequirementDetailState = defaultStudentRequirementDetailState();
     studentFeedbackHistoryState = defaultStudentFeedbackHistoryState();
+    presentationSlotFilter = "all";
     renderSignIn(messageForNetworkError(error), "error");
   }
 }
@@ -5302,6 +5306,9 @@ function bindWorkspaceForms() {
   document.querySelectorAll("[data-presentation-action]").forEach((button) => {
     button.addEventListener("click", updatePresentationSlot);
   });
+  document.querySelectorAll("[data-presentation-filter-action]").forEach((button) => {
+    button.addEventListener("click", handlePresentationFilterAction);
+  });
   document.querySelectorAll("[data-student-feedback-action]").forEach((button) => {
     button.addEventListener("click", handleStudentFeedbackAction);
   });
@@ -6109,25 +6116,81 @@ function renderPresentationSection() {
   }
   const body = unwrap(result);
   const slots = body?.slots || [];
+  const activeFilter = cleanPresentationSlotFilter(presentationSlotFilter);
+  const filteredSlots = filterPresentationSlots(slots, activeFilter);
   const roles = roleIds(currentUser);
   const canManage = roles.has("program_teacher") || roles.has("admin");
   return `
-    <section class="workspace-card">
+    <section class="workspace-card" data-presentation-schedule="true" data-presentation-filter="${escapeHtml(activeFilter)}">
       <div class="workspace-card-head">
         <div>
           <p class="workspace-kicker">Presentation day</p>
           <h2>Schedule And Check-In</h2>
+          <p>Review scheduled presentations, outline follow-up, and day-of check-in state from scoped presentation records.</p>
         </div>
-        <span class="workspace-chip">${slots.length} slot${slots.length === 1 ? "" : "s"}</span>
+        <span class="workspace-chip">${filteredSlots.length} of ${slots.length} slot${slots.length === 1 ? "" : "s"}</span>
       </div>
       ${renderApiNotice(result)}
+      ${renderPresentationSlotFilters(slots, activeFilter)}
       <div class="workspace-list">
-        ${slots.length ? slots.map((slot) => renderPresentationSlotRow(slot, canManage)).join("") : `
-          <div class="workspace-empty" data-presentation-state="empty">
-            Presentation slots will appear here after they are scheduled.
-          </div>
-        `}
+        ${filteredSlots.length ? filteredSlots.map((slot) => renderPresentationSlotRow(slot, canManage)).join("") : renderPresentationSlotsEmptyState(slots.length, activeFilter)}
       </div>
+    </section>
+  `;
+}
+
+function renderPresentationSlotFilters(slots = [], activeFilter = "all") {
+  const filters = [
+    ["all", "All", slots.length],
+    ["scheduled", "Ready for check-out", slots.filter((slot) => slot.status === "scheduled").length],
+    ["checked_out", "Checked out", slots.filter((slot) => slot.status === "checked_out").length],
+    ["checked_in", "Checked in", slots.filter((slot) => slot.status === "checked_in" || slot.status === "completed").length],
+    ["outline_follow_up", "Outline follow-up", slots.filter((slot) => ["pending", "revision_needed"].includes(String(slot.outlineStatus || ""))).length],
+  ];
+  return `
+    <div class="workspace-filter-bar workspace-presentation-filters" data-presentation-filters="true" aria-label="Presentation schedule filters">
+      ${filters.map(([filter, label, count]) => `
+        <button class="workspace-button ${activeFilter === filter ? "workspace-button-primary" : "workspace-button-secondary"}" type="button" data-presentation-filter-action="${escapeHtml(filter)}" aria-pressed="${activeFilter === filter ? "true" : "false"}">
+          ${escapeHtml(label)} (${escapeHtml(count)})
+        </button>
+      `).join("")}
+    </div>
+  `;
+}
+
+function filterPresentationSlots(slots = [], activeFilter = "all") {
+  const filter = cleanPresentationSlotFilter(activeFilter);
+  if (filter === "all") return slots;
+  return slots.filter((slot) => presentationSlotMatchesFilter(slot, filter));
+}
+
+function presentationSlotMatchesFilter(slot, filter) {
+  if (filter === "scheduled") return slot?.status === "scheduled";
+  if (filter === "checked_out") return slot?.status === "checked_out";
+  if (filter === "checked_in") return slot?.status === "checked_in" || slot?.status === "completed";
+  if (filter === "outline_follow_up") return ["pending", "revision_needed"].includes(String(slot?.outlineStatus || ""));
+  return true;
+}
+
+function cleanPresentationSlotFilter(value) {
+  const filter = normalizeStatus(value);
+  return ["all", "scheduled", "checked_out", "checked_in", "outline_follow_up"].includes(filter) ? filter : "all";
+}
+
+function renderPresentationSlotsEmptyState(totalSlots, activeFilter) {
+  if (safeNumber(totalSlots) > 0 && activeFilter !== "all") {
+    return `
+      <section class="workspace-empty-state-card" data-presentation-state="filter-empty">
+        <strong>No presentation slots match this filter.</strong>
+        <p>Clear the filter to review the full presentation schedule for this account.</p>
+        <button class="workspace-link-button workspace-link-button-small" type="button" data-presentation-filter-action="all">Show all slots</button>
+      </section>
+    `;
+  }
+  return `
+    <section class="workspace-empty-state-card" data-presentation-state="empty">
+      <strong>No presentation slots scheduled yet.</strong>
+      <p>Presentation slots will appear here after authorized staff schedule them for visible students.</p>
     </section>
   `;
 }
@@ -6436,6 +6499,12 @@ function renderPresentationAction(slot, canManage) {
     return `<button class="workspace-button workspace-button-secondary" type="button" data-presentation-action="check-in" data-slot-id="${escapeHtml(slot.id)}">Check in</button>`;
   }
   return "";
+}
+
+function handlePresentationFilterAction(event) {
+  presentationSlotFilter = cleanPresentationSlotFilter(event?.currentTarget?.dataset?.presentationFilterAction || "all");
+  activeSection = "presentation";
+  renderAppShell();
 }
 
 function renderPermissionDeniedSection(title, detail) {
@@ -6857,6 +6926,7 @@ async function signOut() {
     lastAdminImportResult = null;
     studentRequirementDetailState = defaultStudentRequirementDetailState();
     studentFeedbackHistoryState = defaultStudentFeedbackHistoryState();
+    presentationSlotFilter = "all";
     renderSignIn("You have signed out.", "success");
   }
 }

@@ -4254,3 +4254,54 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: Review Queue missing-submission work still needs backend rows; hosted permission proof needs safe hosted fake-account runtime; workload thresholds need product policy.
   - Do not repeat: summary tile filters are complete unless marker/test coverage regresses.
   - First file to inspect next run: `scripts/check-hosted-workspace-permissions.mjs` if hosted proof is allowed; otherwise `functions/_lib/site-review-queue.ts` `buildFilterWhere()`.
+
+## Run 2026-05-31 10:38 PT
+
+- Starting SHA: `c69139af715b54aaa728adcd1eb4cc4cf0885941`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Branch policy: work stayed on clean local `main`; local `main` was aligned with `origin/main`, and no push was run
+- Ladder level targeted: `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` with `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` presentation support
+- Backlog item: `presentation-schedule-status-filters`; supports `MVP-032`, `MVP-033`, `MVP-015`, `MVP-018`, and `MVP-022`
+- Work order selected: Add in-page filters to the shared Presentation schedule.
+- Selection reason: Current `/api/presentation-slots` already returns only scoped slots for students, assigned mentors, program teachers, and admins, and rows already include slot status and outline status. The workspace showed all visible slots in one list, so the safest product slice was client-side narrowing over already authorized rows without new routes, query params, permissions, mutations, or fake links.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Presentation schedule status filters | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | student, mentor, program_teacher, admin | 4 | 5 | 5 | S | 55 | selected |
+| Hosted section-level permission proof | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all protected roles | 4 | 3 | 3 | M | 39 | deferred: hosted fake-account/audit writes not allowed in this lane run |
+| Review Queue missing-submission semantics | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | program_teacher, site staff | 5 | 2 | 3 | M | 34 | deferred: backend queue rows absent |
+| Student Directory missing-evidence filter | `LEVEL_1_NAVIGABLE_DASHBOARDS` | site staff, viewer | 4 | 2 | 3 | M | 35 | deferred: directory route filter unsupported |
+| Presentation schedule URL-state filters | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | program_teacher, admin | 4 | 4 | 4 | M | 44 | not selected: in-page filter proves value first |
+| Admin recent audit deep link | `LEVEL_7_AUDITABILITY_AND_TRUST` | admin | 4 | 3 | 3 | M | 38 | deferred: audit destination shape needs review |
+| Archive retry/regenerate controls | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | site_admin, admin | 5 | 2 | 3 | M | 34 | rejected: mutation policy not approved |
+| Mentor workload threshold filter | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | site staff, viewer | 4 | 3 | 3 | M | 39 | deferred: threshold policy unclear |
+| Org admin all-sites rollup | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | org_admin | 5 | 2 | 2 | L | 29 | rejected: aggregate backend design absent |
+| Student requirement guided form | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 5 | 3 | 3 | L | 37 | deferred: write-path/product design needed |
+| Public route browser/mobile visual QA | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | public students, teachers | 3 | 4 | 3 | M | 40 | not selected: lower protected-app value |
+| Mentor Assignments summary tile filters | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | site staff, viewer, program_teacher | 3 | 5 | 5 | XS | 36 | rejected: completed previous run |
+
+- User-facing improvement: The Presentation section now shows All, Ready for check-out, Checked out, Checked in, and Outline follow-up filters with counts, plus a filter-specific empty state, so users can scan real visible presentation-day rows faster.
+- Roles affected: `student`, `mentor`, `program_teacher`, and `admin` where `/api/presentation-slots` is already visible; no viewer/site-staff-only operations route, tenant, site, program, mentor assignment, or student record visibility was broadened.
+- Files changed: `workspace.js`, `tests/workspace-app.test.mjs`, `docs/functionality-language-audit.md`, `docs/progress/run-log.md`, `docs/progress/runs/2026-05-31-1038-presentation-schedule-filters.json`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`
+- Tests/verifiers added or updated: workspace coverage proves filter counts, scheduled-only narrowing, outline-follow-up narrowing, invalid-filter fallback, and existing day-of controls.
+- Validation commands:
+  - Focused passed before docs/state closeout: `node --test tests/workspace-app.test.mjs`
+  - Final passed: JSON parse for state/run manifest, `node --test tests/functionality-language-audit.test.mjs`, `npm run verify:functionality-language`, `npm run verify:dashboard-actions`, `npm run verify:workspace-navigation`, `npm run verify:functionality-ux-automation`, `git diff --check`, `npm run check:production-surfaces`, `npm run check:route-inventory`, `npm run test`, `npm run typecheck`, `npm run check`
+- Validation result: passed; `git diff --check` reported only CRLF normalization warnings, with no whitespace errors.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: hosted section-level permission proof, Review Queue missing-submission semantics, Student Directory missing-evidence filter, archive retry/regenerate controls, mentor workload threshold policy, org rollups, student guided requirement write path, and public-route browser/mobile QA remain deferred.
+- New backlog items: Consider Presentation schedule URL-state only if users need shareable presentation-day filter links.
+- Next recommended work order: run hosted section-level permission proof when hosted fake-account proof and audit-event writes are allowed; otherwise inspect whether Presentation schedule filter URL persistence is worth adding after this in-page filter proves useful.
+- Do-not-repeat notes: do not re-add Presentation schedule filters unless `data-presentation-filters="true"` or the focused workspace coverage regresses.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_4_ROLE_SPECIFIC_WORKSPACES`
+  - Advanced: yes
+  - Evidence: Presentation schedule now narrows existing scoped presentation rows by status and outline follow-up without new routes or permissions.
+  - Unlocks: Presentation-day users can scan operational rows faster; future shareable filter state can be added from a proven local UI if needed.
+  - Next: hosted section-level permission proof when allowed; otherwise evaluate Presentation schedule URL-state or return to backend-supported queue work only when route semantics exist.
+  - Blockers: hosted permission proof needs safe hosted fake-account/audit runtime; Review Queue missing-submission rows do not exist; archive retry/regenerate needs mutation policy.
+  - Do not repeat: Presentation schedule status filters are complete unless the marker/test regresses.
+  - First file to inspect next run: `scripts/check-hosted-workspace-permissions.mjs` if hosted proof is allowed; otherwise `workspace.js` `renderPresentationSection()` only if extending presentation URL state.

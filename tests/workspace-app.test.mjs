@@ -4360,8 +4360,8 @@ test("workspace renders readiness report with aggregate-only role guidance", asy
   assert.doesNotMatch(readiness, /data-admin-action="import-users"|View student detail/);
 });
 
-test("workspace renders presentation schedule and day-of actions", async () => {
-  const presentation = await renderWorkspaceWithFetch({
+test("workspace renders presentation schedule filters and day-of actions", async () => {
+  const { context, workspaceRoot } = await createWorkspaceContextWithFetch({
     "/api/auth/me": {
       status: 200,
       body: {
@@ -4405,18 +4405,58 @@ test("workspace renders presentation schedule and day-of actions", async () => {
             checkedOutAt: "2026-03-26T16:28:00.000Z",
             checkedInAt: null,
           },
+          {
+            id: "slot-outline-follow-up",
+            studentName: "Sam Student",
+            scheduledFor: "2026-03-26T17:00:00.000Z",
+            durationMinutes: 15,
+            location: "Room 103",
+            status: "checked_in",
+            outlineStatus: "revision_needed",
+            checkedOutAt: "2026-03-26T16:58:00.000Z",
+            checkedInAt: "2026-03-26T17:13:00.000Z",
+          },
         ],
       },
     },
   }, "presentation");
 
+  vm.runInContext('activeSection = "presentation"; renderAppShell();', context);
+  const presentation = workspaceRoot.innerHTML;
+  assert.match(presentation, /data-presentation-schedule="true"/);
+  assert.match(presentation, /data-presentation-filters="true"/);
+  assert.match(presentation, /data-presentation-filter="all"/);
+  assert.match(presentation, /All \(3\)/);
+  assert.match(presentation, /Ready for check-out \(1\)/);
+  assert.match(presentation, /Checked out \(1\)/);
+  assert.match(presentation, /Checked in \(1\)/);
+  assert.match(presentation, /Outline follow-up \(1\)/);
   assert.match(presentation, /data-presentation-state="scheduled"/);
   assert.match(presentation, /data-presentation-state="checked_out"/);
   assert.match(presentation, /Maya Student/);
+  assert.match(presentation, /Jordan Student/);
+  assert.match(presentation, /Sam Student/);
   assert.match(presentation, /Room 101/);
   assert.match(presentation, /Outline Approved/);
   assert.match(presentation, /data-presentation-action="check-out"/);
   assert.match(presentation, /data-presentation-action="check-in"/);
+
+  vm.runInContext('handlePresentationFilterAction({ currentTarget: { dataset: { presentationFilterAction: "scheduled" } } })', context);
+  const scheduledOnly = workspaceRoot.innerHTML;
+  assert.match(scheduledOnly, /data-presentation-filter="scheduled"/);
+  assert.match(scheduledOnly, /Maya Student/);
+  assert.doesNotMatch(scheduledOnly, /Jordan Student|Sam Student/);
+  assert.match(scheduledOnly, /data-presentation-action="check-out"/);
+
+  vm.runInContext('handlePresentationFilterAction({ currentTarget: { dataset: { presentationFilterAction: "outline_follow_up" } } })', context);
+  const outlineOnly = workspaceRoot.innerHTML;
+  assert.match(outlineOnly, /data-presentation-filter="outline_follow_up"/);
+  assert.match(outlineOnly, /Sam Student/);
+  assert.match(outlineOnly, /Outline revision needed/);
+  assert.doesNotMatch(outlineOnly, /Maya Student|Jordan Student/);
+
+  vm.runInContext('handlePresentationFilterAction({ currentTarget: { dataset: { presentationFilterAction: "bogus" } } })', context);
+  assert.match(workspaceRoot.innerHTML, /data-presentation-filter="all"/);
 });
 
 test("workspace renders archive readiness from persisted rows", async () => {

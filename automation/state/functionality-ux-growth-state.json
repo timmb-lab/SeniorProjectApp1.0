@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-05-31T10:04:16-07:00",
-  "lastStartingSha": "cb3f00979c624a9737fdc8a7e772c9d92a658c1a",
+  "lastRunAt": "2026-05-31T10:38:00-07:00",
+  "lastStartingSha": "c69139af715b54aaa728adcd1eb4cc4cf0885941",
   "lastEndingSha": null,
-  "currentLadderFocus": "LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW",
+  "currentLadderFocus": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
   "completedWorkOrders": [
     {
       "id": "workspace-header-product-language-cleanup",
@@ -769,6 +769,14 @@
       "type": "TYPE_B_DASHBOARD_CLICK_THROUGH",
       "summary": "Mentor Assignments summary tiles now open existing scoped active-assignment and missing-mentor filters with shareable URL state.",
       "commit": "pending-closeout-commit"
+    },
+    {
+      "id": "presentation-schedule-status-filters",
+      "completedAt": "2026-05-31T10:38:00-07:00",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "type": "TYPE_D_ROLE_WORKSPACE",
+      "summary": "Presentation schedule now filters already scoped slots by ready-for-check-out, checked-out, checked-in, and outline-follow-up states without new routes or permissions.",
+      "commit": "pending-closeout-commit"
     }
   ],
   "deferredWorkOrders": [
@@ -816,6 +824,11 @@
       "id": "mentor-workload-threshold-policy",
       "ladderLevel": "LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW",
       "reason": "Threshold-driven workload filters still need explicit product policy beyond existing loadStatus labels."
+    },
+    {
+      "id": "presentation-schedule-url-state",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "reason": "Add only if users need shareable presentation-day filter links after the in-page scoped filter proves useful."
     }
   ],
   "blockedWorkOrders": [],
@@ -831,6 +844,12 @@
       "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
       "type": "TYPE_F_REVIEW_INTERVENTION_QUEUE",
       "summary": "Review Queue missing-submission work stays deferred until backend queue semantics include real missing requirement rows."
+    },
+    {
+      "id": "presentation-schedule-url-state",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "type": "TYPE_D_ROLE_WORKSPACE",
+      "summary": "Consider shareable Presentation schedule filters only if product use requires URL persistence."
     }
   ],
   "doNotRepeat": [
@@ -922,19 +941,20 @@
     "Do not re-add Mentor Assignments load guidance unless regression removes data-mentor-assignment-load-guidance=\"true\", mentorAssignmentOptionLabel(), or the focused workspace coverage.",
     "Do not re-add Mentor Assignments mentor coverage row filtering unless regression removes data-mentor-assignment-action=\"filter-mentor\" or the focused workspace coverage.",
     "Do not re-add Mentor Assignments active assignment row load filtering unless regression removes View mentor load or the focused workspace coverage.",
-    "Do not re-add Mentor Assignments summary tile filters unless regression removes active-assignments/no-mentor tile actions or the focused workspace/verifier coverage."
+    "Do not re-add Mentor Assignments summary tile filters unless regression removes active-assignments/no-mentor tile actions or the focused workspace/verifier coverage.",
+    "Do not re-add Presentation schedule status filters unless regression removes data-presentation-filters=\"true\" or the focused workspace coverage."
   ],
   "lastValidationStatus": {
     "status": "passed",
-    "completedAt": "2026-05-31T10:04:16-07:00",
+    "completedAt": "2026-05-31T10:41:29-07:00",
     "commands": [
       "node --test tests/workspace-app.test.mjs",
+      "npm run verify:functionality-language",
       "npm run verify:dashboard-actions",
       "npm run verify:workspace-navigation",
-      "npm run verify:functionality-language",
-      "JSON parse for automation/state/functionality-ux-growth-state.json and docs/progress/runs/2026-05-31-1004-mentor-summary-filters.json",
-      "node --test tests/functionality-language-audit.test.mjs",
       "npm run verify:functionality-ux-automation",
+      "node --test tests/functionality-language-audit.test.mjs",
+      "JSON parse for automation/state/functionality-ux-growth-state.json and docs/progress/runs/2026-05-31-1038-presentation-schedule-filters.json",
       "git diff --check",
       "npm run check:production-surfaces",
       "npm run check:route-inventory",
@@ -942,7 +962,7 @@
       "npm run typecheck",
       "npm run check"
     ],
-    "notes": "Full validation passed for Mentor Assignments summary tile filters. git diff --check reported only CRLF normalization warnings. This run changes protected workspace mentor-assignment navigation, focused tests/verifiers, run records, and state only; it does not change auth role grants, tenant/site/program/student privacy boundaries, migrations, secrets/env files, Cloudflare/OAuth/domain config, deploy settings, mutation controls, or live data."
+    "notes": "Full validation passed for Presentation schedule status filters. git diff --check reported only CRLF normalization warnings. This run changes protected workspace presentation filtering, focused tests, run records, and state only; it does not change auth role grants, tenant/site/program/student privacy boundaries, migrations, secrets/env files, Cloudflare/OAuth/domain config, deploy settings, mutation controls, or live data."
   },
   "lastProductReadinessScorecardSummary": {
     "homepageClarity": "4 to 4",
