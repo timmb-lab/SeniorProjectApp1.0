@@ -5712,8 +5712,9 @@ function renderAccessAssignmentForm(type, title, targets = [], students = []) {
         ${assignmentActionSelect()}
         ${assignmentNoteField()}
       </div>
+      ${assignmentActionGuidance(type)}
       <div class="workspace-form-actions">
-        <button class="workspace-button workspace-button-secondary" type="submit">Save assignment</button>
+        <button class="workspace-button workspace-button-secondary" type="submit">Save access change</button>
       </div>
     </form>
   `;
@@ -5741,8 +5742,9 @@ function renderProgramTeacherAssignmentForm(targets = [], programs = []) {
         ${assignmentActionSelect()}
         ${assignmentNoteField()}
       </div>
+      ${assignmentActionGuidance("program_teacher_program")}
       <div class="workspace-form-actions">
-        <button class="workspace-button workspace-button-secondary" type="submit">Save assignment</button>
+        <button class="workspace-button workspace-button-secondary" type="submit">Save access change</button>
       </div>
     </form>
   `;
@@ -5764,8 +5766,9 @@ function renderSiteRoleAssignmentForm(type, title, targets = [], siteId = "") {
         ${assignmentActionSelect()}
         ${assignmentNoteField()}
       </div>
+      ${assignmentActionGuidance(type)}
       <div class="workspace-form-actions">
-        <button class="workspace-button workspace-button-secondary" type="submit">Save assignment</button>
+        <button class="workspace-button workspace-button-secondary" type="submit">Save access change</button>
       </div>
     </form>
   `;
@@ -5834,6 +5837,17 @@ function assignmentNoteField() {
       <textarea class="workspace-textarea" name="adminNote" maxlength="500" required></textarea>
     </label>
   `;
+}
+
+function assignmentActionGuidance(type) {
+  const copy = {
+    mentor_student: "Choose Assign to grant or reactivate mentor access for one student. Choose Remove only for a current row shown above; it is recorded for review and does not delete the account or student work.",
+    viewer_student: "Choose Assign to grant or reactivate read-only viewer access for one student. Choose Remove only for a current row shown above; it is recorded for review and does not delete the account or student work.",
+    program_teacher_program: "Choose Assign to grant or reactivate program teacher access for this school. Choose Remove only for a current row shown above; it is recorded for review and does not delete the account or program records.",
+    administration_site: "Choose Assign to grant or reactivate administration access for this school. Choose Remove only for a current row shown above; it is recorded for review and does not delete the account or school records.",
+    site_admin_site: "Choose Assign to grant or reactivate site admin access for this school. Choose Remove only for a current row shown above; it is recorded for review and does not delete the account or school records.",
+  };
+  return `<p class="workspace-muted" data-site-access-action-guidance="${escapeHtml(type || "site_access")}">${escapeHtml(copy[type] || "Choose Assign to grant access. Choose Remove only for a current row shown above; it is recorded for review and does not delete accounts or records.")}</p>`;
 }
 
 function currentAccessSiteId() {

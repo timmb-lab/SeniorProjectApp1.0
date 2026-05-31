@@ -4407,6 +4407,11 @@ test("workspace renders current site access assignments before management forms"
   assert.match(adminUsers, /Principal One/);
   assert.match(adminUsers, /Desert Valley High School/);
   assert.match(adminUsers, /No site admin access is active for this school/);
+  assert.match(adminUsers, /data-site-access-action-guidance="mentor_student"/);
+  assert.match(adminUsers, /Choose Remove only for a current row shown above; it is recorded for review and does not delete the account or student work/);
+  assert.match(adminUsers, /data-site-access-action-guidance="program_teacher_program"/);
+  assert.match(adminUsers, /does not delete the account or program records/);
+  assert.match(adminUsers, /Save access change/);
   assertMarkupOrder(adminUsers, "Active Assignments", "data-site-access-assignment-form", "current access summary should render before assignment forms");
   assert.doesNotMatch(adminUsers, /password_hash|temporaryPassword|drive_file_id|access_token|refresh_token/i);
 });

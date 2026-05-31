@@ -2433,3 +2433,14 @@ Future productive runs should append compact entries that name the master-plan s
 - `changes`: `workspace.js` now renders a `Current access` summary from the already scoped response before the management forms, with role-safe notes for mentor, viewer, program teacher, administration, and site-admin access. `workspace.css` adds compact summary layout styles, and `tests/workspace-app.test.mjs` proves the summary appears before forms without secret/storage fields.
 - `validation`: focused `node --test tests/workspace-app.test.mjs` passed before docs/state closeout. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
 - `commit/push status`: pending closeout commit; not pushed by this automation run.
+
+## 2026-05-31 PT - Functionality UX Upgrade Site Access Action Guidance
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 4 role-specific workspace clarity / Level 7 access trust.
+- `starting HEAD`: `dad5380754ac523564fb595bffe21c83eaca5d54`.
+- `selected slice`: Clarify Users & Access Assign/Remove guidance and submit copy.
+- `repo-grounded findings`: the previous run rendered current scoped assignment rows before the management forms, but the forms still used a generic `Save assignment` button while exposing both `Assign` and `Remove`. The UI did not say that Remove should match a current row above, is recorded for review, and does not delete accounts, program records, school records, or student work.
+- `changes`: `workspace.js` now renders action-specific guidance for mentor-student, viewer-student, program-teacher-program, administration-site, and site-admin-site assignment forms, and labels the submit button `Save access change`. `tests/workspace-app.test.mjs` proves the guidance and safer button label render in Users & Access.
+- `validation`: focused workspace test plus functionality-language, dashboard-action, and workspace-navigation verifiers passed before docs/state closeout. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.

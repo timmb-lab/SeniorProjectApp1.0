@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-05-31T14:05:35-07:00",
-  "lastStartingSha": "8291b758c5fed956b450be542b06fcdb36761612",
+  "lastRunAt": "2026-05-31T14:33:57-07:00",
+  "lastStartingSha": "dad5380754ac523564fb595bffe21c83eaca5d54",
   "lastEndingSha": null,
   "currentLadderFocus": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
   "completedWorkOrders": [
@@ -793,6 +793,14 @@
       "type": "TYPE_D_ROLE_WORKSPACE",
       "summary": "Users & Access now shows current scoped site access assignments before save/remove forms, using existing /api/site/access-assignments rows without route, permission, or mutation changes.",
       "commit": "pending-closeout-commit"
+    },
+    {
+      "id": "site-access-action-guidance",
+      "completedAt": "2026-05-31T14:33:57-07:00",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "type": "TYPE_D_ROLE_WORKSPACE",
+      "summary": "Users & Access assignment forms now explain Assign/Remove boundaries and label submission as Save access change without changing the scoped access route or permissions.",
+      "commit": "pending-closeout-commit"
     }
   ],
   "deferredWorkOrders": [
@@ -861,6 +869,12 @@
       "summary": "Run only when hosted fake-account proof and audit-event writes are allowed."
     },
     {
+      "id": "site-access-assignment-history-timeline",
+      "ladderLevel": "LEVEL_7_AUDITABILITY_AND_TRUST",
+      "type": "TYPE_G_VERIFICATION_REGRESSION_PROTECTION",
+      "summary": "Review audit visibility before exposing site access assignment history."
+    },
+    {
       "id": "review-queue-missing-submission-semantics",
       "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
       "type": "TYPE_F_REVIEW_INTERVENTION_QUEUE",
@@ -870,19 +884,7 @@
       "id": "presentation-schedule-url-state",
       "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
       "type": "TYPE_D_ROLE_WORKSPACE",
-      "summary": "Consider shareable Presentation schedule filters only if product use requires URL persistence."
-    },
-    {
-      "id": "mentor-dashboard-url-state",
-      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
-      "type": "TYPE_D_ROLE_WORKSPACE",
-      "summary": "Consider only if mentors need shareable assigned-student focus views after in-page filters prove useful."
-    },
-    {
-      "id": "site-access-assignment-history-timeline",
-      "ladderLevel": "LEVEL_7_AUDITABILITY_AND_TRUST",
-      "type": "TYPE_G_VERIFICATION_REGRESSION_PROTECTION",
-      "summary": "Review audit visibility before exposing site access assignment history."
+      "summary": "Consider only if product use requires shareable presentation-day filter links."
     }
   ],
   "doNotRepeat": [
@@ -978,11 +980,12 @@
     "Do not re-add Presentation schedule status filters unless regression removes data-presentation-filters=\"true\" or the focused workspace coverage.",
     "Do not re-add Mentor Dashboard focus filters unless regression removes data-mentor-dashboard-filters=\"true\" or the focused workspace coverage.",
     "Do not defer Student Directory missing-evidence filtering as unsupported unless regression removes evidenceStatus=missing route support, the missing-evidence-students preset, or focused workspace/verifier coverage.",
-    "Do not re-add the Users & Access current assignment summary unless data-site-access-assignment-summary=\"true\" or focused workspace coverage regresses."
+    "Do not re-add the Users & Access current assignment summary unless data-site-access-assignment-summary=\"true\" or focused workspace coverage regresses.",
+    "Do not re-add Users & Access Assign/Remove guidance unless data-site-access-action-guidance or Save access change regresses."
   ],
   "lastValidationStatus": {
     "status": "passed",
-    "completedAt": "2026-05-31T14:08:36-07:00",
+    "completedAt": "2026-05-31T14:37:25-07:00",
     "commands": [
       "node --test tests/workspace-app.test.mjs",
       "npm run verify:functionality-language",
@@ -990,7 +993,7 @@
       "npm run verify:workspace-navigation",
       "npm run verify:functionality-ux-automation",
       "node --test tests/functionality-language-audit.test.mjs",
-      "JSON parse for automation/state/functionality-ux-growth-state.json and docs/progress/runs/2026-05-31-1405-site-access-assignment-summary.json",
+      "JSON parse for automation/state/functionality-ux-growth-state.json and docs/progress/runs/2026-05-31-1433-site-access-action-guidance.json",
       "git diff --check",
       "npm run check:production-surfaces",
       "npm run check:route-inventory",
@@ -998,7 +1001,7 @@
       "npm run typecheck",
       "npm run check"
     ],
-    "notes": "Full validation passed for the Users & Access current assignment summary. git diff --check reported only CRLF normalization warnings. This run changes UI rendering, CSS layout, focused tests, run records, and state only; it does not change auth role grants, tenant/site/program/student privacy boundaries, migrations, secrets/env files, Cloudflare/OAuth/domain config, deploy settings, mutation controls, or live data."
+    "notes": "Full validation passed for the Users & Access Assign/Remove guidance. git diff --check reported only CRLF normalization warnings. This run changes UI guidance, focused tests, run records, and state only; it does not change auth role grants, tenant/site/program/student privacy boundaries, migrations, secrets/env files, Cloudflare/OAuth/domain config, deploy settings, route behavior, or live data."
   },
   "lastProductReadinessScorecardSummary": {
     "homepageClarity": "4 to 4",
