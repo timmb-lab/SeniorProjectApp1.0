@@ -2246,6 +2246,11 @@ test("workspace renders site-scoped Operations readiness worklists without mutat
   assert.match(siteAdmin, /Archive Storage Demo 001/);
   assert.match(siteAdmin, /Storage unavailable/);
   assert.match(siteAdmin, /Storage setup needed/);
+  assert.match(siteAdmin, /Storage setup is needed before archive packages can be prepared/);
+  assert.match(siteAdmin, /Archive export needs staff follow-up/);
+  assert.match(siteAdmin, /Scoped download is available/);
+  assert.match(siteAdmin, /Download window expiring soon/);
+  assert.match(siteAdmin, /Download window expired/);
   assert.doesNotMatch(siteAdmin, /drive_config_missing|drive_credentials_missing|drive_token_exchange_failed|drive_provider_error|drive_access_denied/);
   assert.match(siteAdmin, /High Risk Demo 001/);
   assert.match(siteAdmin, /data-operations-presentation-rows="true"/);
@@ -2576,6 +2581,83 @@ test("workspace clarifies Operations empty states for active filters and true no
   assert.match(unfiltered, /No operations attention waiting/);
   assert.match(unfiltered, /No blocked, missing, or attention-required work is waiting right now/);
   assert.doesNotMatch(unfiltered, /No presentation rows match|No archive rows match|No attention rows match/);
+
+  const providerUnavailableEmpty = await renderWorkspaceWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "site-admin-operations-provider-empty",
+          email: "site.operations.provider.empty@example.edu",
+          displayName: "Operations Provider Empty Admin",
+          roles: [{ role_id: "site_admin", scope_type: "site", scope_id: "site-desert-valley-high" }],
+        },
+      },
+    },
+    "/api/site/dashboard": { status: 200, body: siteDashboardFixture({ readOnly: false }) },
+    "/api/site/students": { status: 200, body: siteStudentsFixture({ readOnly: false }) },
+    "/api/site/review-queue": { status: 200, body: siteReviewQueueFixture({ role: "site_admin", readOnly: true }) },
+    "/api/site/mentor-assignments": { status: 200, body: siteMentorAssignmentsFixture({ role: "site_admin", canManage: true }) },
+    "/api/site/operations-readiness": { status: 200, body: emptyArchiveOperationsFixture("provider_unavailable") },
+  }, "operations");
+
+  assert.match(providerUnavailableEmpty, /No storage setup blockers match/);
+  assert.match(providerUnavailableEmpty, /No archive rows waiting on storage setup match these filters for this school/);
+  assert.match(providerUnavailableEmpty, /Clear filters or review archive failures for broader closeout blockers/);
+
+  const expiredDownloadEmpty = await renderWorkspaceWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "site-admin-operations-expired-empty",
+          email: "site.operations.expired.empty@example.edu",
+          displayName: "Operations Expired Empty Admin",
+          roles: [{ role_id: "site_admin", scope_type: "site", scope_id: "site-desert-valley-high" }],
+        },
+      },
+    },
+    "/api/site/dashboard": { status: 200, body: siteDashboardFixture({ readOnly: false }) },
+    "/api/site/students": { status: 200, body: siteStudentsFixture({ readOnly: false }) },
+    "/api/site/review-queue": { status: 200, body: siteReviewQueueFixture({ role: "site_admin", readOnly: true }) },
+    "/api/site/mentor-assignments": { status: 200, body: siteMentorAssignmentsFixture({ role: "site_admin", canManage: true }) },
+    "/api/site/operations-readiness": { status: 200, body: emptyArchiveOperationsFixture("expired") },
+  }, "operations");
+
+  assert.match(expiredDownloadEmpty, /No expired archive downloads match/);
+  assert.match(expiredDownloadEmpty, /No archive rows with expired download windows match these filters for this school/);
+  assert.match(expiredDownloadEmpty, /Clear filters or review expiring archive downloads for active follow-up/);
+
+  function emptyArchiveOperationsFixture(archiveStatus) {
+    const operations = siteOperationsReadinessFixture({
+      role: "site_admin",
+      filters: {
+        siteId: "site-desert-valley-high",
+        programId: "",
+        status: "",
+        story: "",
+        risk: "any",
+        presentationStatus: "",
+        archiveStatus,
+        readiness: "",
+        category: "",
+        needsAttention: false,
+        outlineAttention: false,
+        limit: 50,
+        offset: 0,
+      },
+    });
+    operations.pagination.returned = 0;
+    operations.pagination.filteredTotal = 0;
+    operations.presentation.rows = [];
+    operations.archive.rows = [];
+    operations.readiness.attentionRows = [];
+    operations.readiness.filteredProgramBreakdown = [];
+    operations.readiness.nextActions = [];
+    return operations;
+  }
 });
 
 test("mentor dashboard assigned students open detail and meeting history without leaving mentor context", async () => {

@@ -3642,3 +3642,54 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: hosted permission/browser proof still needs fake `.test` credentials and available hosted runtime; archive retry/regenerate controls still need approved mutation policy.
   - Do not repeat: Storage Setup Needed metric and provider-unavailable route semantics are complete unless regression evidence appears.
   - First file to inspect next run: `scripts/check-hosted-workspace-permissions.mjs`
+
+## Run 2026-05-31 03:35 PT
+
+- Starting SHA: `4fc31ceb632803d39de6095be59ff14ea3080c86`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Branch policy: work stayed on clean local `main`; local `main` was one commit ahead of `origin/main`, `origin/main` was not ahead, and no push was run
+- Ladder level targeted: `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` with `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` empty-state support
+- Backlog item: `operations-provider-download-empty-state-guidance`; supports `MVP-015`, `MVP-018`, and `MVP-022`
+- Work order selected: Clarify Operations archive row and empty-state guidance for storage setup and download-window states.
+- Selection reason: The previous run made `provider_unavailable` a real route-backed Operations filter. Current source still rendered generic archive row support text and generic archive no-match copy for storage setup, expired download, expiring download, in-progress, and completed package states. This slice improves real staff/read-only monitoring clarity without adding fake retry/export controls or changing API access.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Operations provider/download empty-state guidance | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | site staff, viewer, program_teacher | 4 | 5 | 5 | XS | 55 | selected |
+| Hosted section-level permission proof | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all protected roles | 4 | 4 | 3 | M | 40 | blocked: credentialed runtime |
+| Review Queue missing-submission semantics | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | program_teacher, site staff | 5 | 2 | 3 | M | 34 | deferred: no exact queue semantics |
+| Student Directory missing-evidence filter | `LEVEL_1_NAVIGABLE_DASHBOARDS` | site staff, viewer | 4 | 2 | 3 | M | 35 | deferred: route filter missing |
+| Archive retry/regenerate controls | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | site_admin | 5 | 2 | 3 | M | 34 | rejected: mutation policy |
+| Mentor workload threshold guidance | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | site_admin, viewer | 4 | 3 | 3 | M | 39 | rejected: threshold policy unclear |
+| Student guided requirement form | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 5 | 2 | 3 | L | 32 | rejected: write-path design needed |
+| Public route browser/mobile visual QA | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | public students, teachers | 3 | 4 | 3 | M | 40 | rejected: lower protected-app value |
+| Admin recent activity drill-down | `LEVEL_7_AUDITABILITY_AND_TRUST` | admin, site staff | 4 | 3 | 3 | M | 38 | rejected: permission shape needs review |
+| Operations package-in-progress empty guidance | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | site staff, viewer | 3 | 5 | 5 | XS | 49 | included in selected batch |
+| Viewer monitoring queue regression check | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | viewer | 2 | 5 | 4 | XS | 36 | rejected: completed last run |
+| Aggregate Readiness report follow-up | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | misc_admin, admin | 3 | 4 | 4 | XS | 37 | rejected: recently completed |
+
+- User-facing improvement: Operations archive rows now name storage setup, export failure, scoped download availability, expiring/expired download windows, and package preparation states. Empty archive filters now explain storage setup blockers and expired download windows instead of one generic no-match message.
+- Roles affected: `platform_admin`, `admin`, `org_admin`, `site_admin`, `viewer`, and `program_teacher`; no student, mentor, tenant, site, program, or record visibility was broadened.
+- Files changed: `workspace.js`, `tests/workspace-app.test.mjs`, `docs/functionality-language-audit.md`, `docs/mvp-requirements-catalog.md`, `docs/progress/run-log.md`, `docs/progress/runs/2026-05-31-0335-operations-archive-guidance.json`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`
+- Tests/verifiers added or updated: workspace coverage proves the new archive row support text and filter-specific provider-unavailable/expired-download empty states.
+- Validation commands:
+  - Focused passed before docs/state closeout: `node --test tests/workspace-app.test.mjs`; `npm run verify:functionality-language`
+  - Final passed: `node --test tests/functionality-language-audit.test.mjs`; `npm run verify:dashboard-actions`; `npm run verify:workspace-navigation`; `npm run verify:functionality-ux-automation`; JSON parse for state and run manifest; `git diff --check`; `npm run check:production-surfaces`; `npm run check:route-inventory`; `npm run test`; `npm run typecheck`; `npm run check`
+- Validation result: passed; `git diff --check` reported only CRLF normalization warnings, with no whitespace errors.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: hosted section-level permission proof, Review Queue missing-submission semantics, Student Directory missing-evidence filter, archive retry/regenerate controls, org rollups, and public-route browser/mobile QA remain deferred.
+- New backlog items: none
+- Next recommended work order: run `npm run check:workspace:hosted-permissions` when fake `.test` credentials/runtime are available; otherwise inspect whether student archive download-window guidance needs the same status-specific no-match treatment without adding fake controls.
+- Do-not-repeat notes: do not re-clean Operations archive row/empty-state guidance unless regression removes `archiveWorklistSupportText()` or `operationsArchiveEmptyStateCopy()`.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS`
+  - Advanced: yes
+  - Evidence: Operations archive rows and no-match states now name storage setup blockers, package preparation, completed scoped downloads, and expired/expiring download windows with focused workspace tests.
+  - Unlocks: Staff and read-only viewers can interpret archive worklists after using the new provider-unavailable filter without seeing generic or implementation-facing text.
+  - Next: hosted section-level permission proof, or student archive download-window guidance if hosted credentials/runtime remain unavailable.
+  - Blockers: hosted permission/browser proof still needs fake `.test` credentials and available hosted runtime; archive retry/regenerate controls still need approved mutation policy.
+  - Do not repeat: Operations archive guidance is complete unless the helper/test coverage regresses.
+  - First file to inspect next run: `scripts/check-hosted-workspace-permissions.mjs`

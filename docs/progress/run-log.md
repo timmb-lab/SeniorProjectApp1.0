@@ -2268,3 +2268,14 @@ Future productive runs should append compact entries that name the master-plan s
 - `changes`: `workspace.js` now maps readiness scope values to school-facing labels, renders `Aggregate reporting only`, adds metric-purpose text, and states that individual student follow-up stays in assigned school workspaces. `tests/workspace-app.test.mjs` proves raw `aggregate_only` and student-detail controls are absent, and the language verifier guards the raw fallback path.
 - `validation`: focused workspace test and functionality-language verifier passed before final validation. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
 - `commit/push status`: pending closeout commit; not pushed by this automation run.
+
+## 2026-05-31 PT - Functionality UX Upgrade Operations Archive Guidance
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 8 reporting and operational readiness / Operations archive worklist clarity.
+- `starting HEAD`: `4fc31ceb632803d39de6095be59ff14ea3080c86`.
+- `selected slice`: Clarify Operations archive row support text and archive-status no-match states after provider-unavailable filtering became route-backed.
+- `repo-grounded findings`: the prior run added real `provider_unavailable` archive semantics and a `Storage Setup Needed` metric. Current `renderArchiveWorklistRows()` still used generic support text such as `File details are protected.` for storage setup, completed download, expired download, export failure, and package-preparation rows, and it used one generic archive empty state for all archive filters.
+- `changes`: `workspace.js` now centralizes archive row support text and archive empty-state copy so storage setup blockers, scoped download availability, expiring/expired download windows, package preparation, archive-ready rows, and export failures are named in school-facing language. No retry/export controls, route changes, permissions, or API semantics were added.
+- `validation`: focused `node --test tests/workspace-app.test.mjs` and `npm run verify:functionality-language` passed before final validation. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.

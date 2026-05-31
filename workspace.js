@@ -3397,6 +3397,7 @@ function renderPresentationWorklistRows(rows = [], permissions = {}, filters = {
 
 function renderArchiveWorklistRows(rows = [], permissions = {}, filters = {}) {
   const filtered = hasActiveOperationsFilters(filters);
+  const emptyState = operationsArchiveEmptyStateCopy(filters, filtered);
   return rows.length ? `
     <div class="workspace-list" data-operations-archive-rows="true">
       ${rows.map((row) => `
@@ -3412,7 +3413,7 @@ function renderArchiveWorklistRows(rows = [], permissions = {}, filters = {}) {
           <div>
             <span class="workspace-muted">Archive</span>
             <strong>${escapeHtml(row.reason || "Archive status")}</strong>
-            <p>${escapeHtml(row.downloadExpiresSoon ? "Download window expiring soon." : "File details are protected.")}</p>
+            <p>${escapeHtml(archiveWorklistSupportText(row))}</p>
           </div>
           <div class="workspace-row-actions">
             ${statusPill(row.archiveStatus || "missing")}
@@ -3428,18 +3429,89 @@ function renderArchiveWorklistRows(rows = [], permissions = {}, filters = {}) {
     </div>
   ` : `
     <section class="workspace-empty-state-card" data-operations-archive-empty="true">
-      <h2>${filtered ? "No matching archive work" : "No archive work waiting"}</h2>
-      ${renderProblemState({
-        reason: filtered
-          ? "No archive readiness work matches these filters for this school."
-          : "No archive readiness or export failures are waiting in this view.",
-        owner: "Site administration.",
-        nextAction: filtered
-          ? "Clear filters or open student detail from the directory."
-          : "Continue monitoring archive readiness.",
-      })}
+      <h2>${escapeHtml(emptyState.heading)}</h2>
+      ${renderProblemState(emptyState)}
     </section>
   `;
+}
+
+function archiveWorklistSupportText(row = {}) {
+  const archiveStatus = normalizeStatus(row.archiveStatus);
+  if (archiveStatus === "provider_unavailable") return "Storage setup is needed before archive packages can be prepared.";
+  if (archiveStatus === "expired") return "Download window expired.";
+  if (archiveStatus === "expiring_soon" || row.downloadExpiresSoon) return "Download window expiring soon.";
+  if (archiveStatus === "queued" || archiveStatus === "running") return "Archive package is being prepared.";
+  if (archiveStatus === "complete" && row.downloadReady) return "Scoped download is available.";
+  if (archiveStatus === "failed") return "Archive export needs staff follow-up.";
+  if (archiveStatus === "ready") return "Ready for archive package preparation.";
+  return "File details are protected.";
+}
+
+function operationsArchiveEmptyStateCopy(filters = {}, filtered = false) {
+  const archiveStatus = normalizeStatus(filters.archiveStatus);
+  const owner = "Site administration.";
+  if (!filtered) {
+    return {
+      heading: "No archive work waiting",
+      reason: "No archive readiness or export failures are waiting in this view.",
+      owner,
+      nextAction: "Continue monitoring archive readiness.",
+    };
+  }
+  if (archiveStatus === "provider_unavailable") {
+    return {
+      heading: "No storage setup blockers match",
+      reason: "No archive rows waiting on storage setup match these filters for this school.",
+      owner,
+      nextAction: "Clear filters or review archive failures for broader closeout blockers.",
+    };
+  }
+  if (archiveStatus === "expired") {
+    return {
+      heading: "No expired archive downloads match",
+      reason: "No archive rows with expired download windows match these filters for this school.",
+      owner,
+      nextAction: "Clear filters or review expiring archive downloads for active follow-up.",
+    };
+  }
+  if (archiveStatus === "expiring_soon") {
+    return {
+      heading: "No expiring archive downloads match",
+      reason: "No archive rows with download windows ending soon match these filters for this school.",
+      owner,
+      nextAction: "Clear filters or review completed archive packages.",
+    };
+  }
+  if (archiveStatus === "in_progress" || archiveStatus === "queued" || archiveStatus === "running") {
+    return {
+      heading: "No archive packages in progress match",
+      reason: "No queued or running archive packages match these filters for this school.",
+      owner,
+      nextAction: "Clear filters or review archive-ready students.",
+    };
+  }
+  if (archiveStatus === "failed") {
+    return {
+      heading: "No matching archive follow-up",
+      reason: "No students with archive export follow-up match these filters.",
+      owner,
+      nextAction: "Clear filters or review storage setup blockers.",
+    };
+  }
+  if (archiveStatus === "ready") {
+    return {
+      heading: "No archive-ready students match",
+      reason: "No archive-ready students match these filters for this school.",
+      owner,
+      nextAction: "Clear filters or review broader archive readiness work.",
+    };
+  }
+  return {
+    heading: "No matching archive work",
+    reason: "No archive readiness work matches these filters for this school.",
+    owner,
+    nextAction: "Clear filters or open student detail from the directory.",
+  };
 }
 
 function renderReadinessAttentionRows(rows = [], permissions = {}, filters = {}) {
