@@ -4610,3 +4610,52 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: hosted proof still needs allowed fake-account/audit writes, and broader student guided write-path work still needs product-shape decisions.
   - Do not repeat: do not re-add this quick-action slice unless regression removes the buttons or the in-page requirement focus path.
   - First file to inspect next run: `workspace.js` student submission rows if staying in the student workspace; otherwise `scripts/check-hosted-workspace-permissions.mjs`
+
+## Run 2026-05-31 16:35 PT
+
+- Starting SHA: `4100a4912ad4dd3ecdac13e4471c7dc5a2fe95c6`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Branch policy: work stayed on clean local `main`; local `main` remained ahead of `origin/main`, `origin/main` was not ahead, and no sync or push was run
+- Ladder level targeted: `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` with `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` support
+- Backlog item: `student-submission-timeline-shortcut`; supports `MVP-003`, `MVP-032`, and `MVP-033`
+- Work order selected: Add a second student-safe `View timeline` shortcut to Submitted Work rows.
+- Selection reason: The previous handoff already pointed at student submission rows. Current `workspace.js` reused `/api/reviews/:submissionId/history` for Feedback History, but Submitted Work rows still rendered as status summaries plus latest feedback text, so students had to leave the submission list to reopen the same version/status/visible-note history. This was the safest next slice because it reused the existing student-safe route and timeline renderer without adding routes, visibility, or fake workflow claims.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Student submission timeline shortcut | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 4 | 5 | 5 | S | 52 | selected |
+| Student submission requirement shortcut | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 4 | 5 | 4 | S | 44 | not selected: adjacent but lower-value than timeline context |
+| Student phase progress detail | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 4 | 4 | 4 | M | 43 | follow-up: next student-safe drill-down if hosted proof stays blocked |
+| Student mentor support workflow | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 4 | 3 | 3 | M | 36 | deferred: support-flow shape and privacy policy still need review |
+| Hosted section-level permission proof | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all protected roles | 4 | 3 | 3 | M | 39 | deferred: hosted fake-account proof and audit writes are not allowed in this run |
+| Site-scoped audit destination | `LEVEL_7_AUDITABILITY_AND_TRUST` | site_admin, org_admin | 4 | 3 | 4 | M | 38 | deferred: route shape and visibility review still needed |
+| Review Queue missing-submission semantics | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | program_teacher, site staff | 5 | 2 | 3 | M | 34 | deferred: backend queue rows are still absent |
+| Presentation schedule URL state | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | student, mentor, teacher, admin | 3 | 4 | 4 | S | 41 | deferred: add only if shareable filter links are clearly needed |
+| Mentor Dashboard URL state | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | mentor | 3 | 4 | 4 | S | 40 | deferred: add only if mentors need shareable focus filters |
+| Student guided requirement form | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 5 | 3 | 3 | L | 37 | deferred: write-path and product-shape work is broader than one safe run |
+
+- User-facing improvement: Students can now open the same student-safe submission timeline from the Submitted Work list that was previously reachable only from Feedback History, so they can inspect versions, status changes, and visible teacher notes from the row they are already reviewing.
+- Roles affected: `student`
+- Files changed: `workspace.js`, `tests/workspace-app.test.mjs`, `docs/student-progress-dashboard.md`, `docs/functionality-language-audit.md`, `docs/progress/run-log.md`, `docs/progress/runs/2026-05-31-1635-student-submission-timeline-shortcut.json`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`
+- Tests/verifiers added or updated: `tests/workspace-app.test.mjs` now proves Submitted Work rows render a `View timeline` action, load `/api/reviews/:submissionId/history`, render the timeline in the submission row, and avoid duplicate timeline expansion in the Feedback History panel.
+- Validation commands:
+  - Focused passed before docs/state closeout: `git diff --check`; `node --test tests/workspace-app.test.mjs`; `node --test tests/functionality-language-audit.test.mjs`; `npm run verify:functionality-language`; `npm run verify:dashboard-actions`; `npm run verify:workspace-navigation`; `npm run verify:functionality-ux-automation`
+  - Final passed: `npm run check:production-surfaces`; `npm run check:route-inventory`; `npm run test`; `npm run typecheck`; `npm run check`
+- Validation result: passed; `git diff --check` reported only CRLF normalization warnings, with no whitespace errors.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: hosted section-level permission proof, site-scoped audit destination, Review Queue missing-submission semantics, Presentation schedule URL-state filters, Mentor Dashboard URL-state filters, student mentor support workflow shape, and student guided requirement write path remain deferred.
+- New backlog items: none
+- Next recommended work order: run hosted section-level permission proof when hosted fake-account proof and audit-event writes are allowed; otherwise deepen the student workspace with phase-specific progress detail from the existing dashboard payload.
+- Do-not-repeat notes: do not re-add the student submission timeline shortcut unless regression removes the Submitted Work `View timeline` action or the in-row timeline panel.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN`
+  - Advanced: yes
+  - Evidence: Submitted Work rows now reuse the existing student-safe review-history route and timeline renderer, with focused coverage proving the timeline opens from the row without duplicating the Feedback History panel.
+  - Unlocks: the student workspace now offers timeline context from both feedback-first and submission-first entry points.
+  - Next: hosted permission proof when allowed; otherwise inspect phase-specific student progress detail from the existing dashboard payload.
+  - Blockers: hosted proof still needs allowed fake-account/audit writes, and broader student guided write-path work still needs product-shape decisions.
+  - Do not repeat: do not re-add this shortcut unless regression removes the submission-row action or in-row timeline panel.
+  - First file to inspect next run: `workspace.js` `renderSubmissionRow()` if staying in the student workspace; otherwise `scripts/check-hosted-workspace-permissions.mjs`

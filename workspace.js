@@ -4142,7 +4142,7 @@ function renderStudentSection() {
         </div>
       </div>
       <div class="workspace-list">
-        ${submissions.length ? submissions.map((submission) => renderSubmissionRow(submission, dashboard.feedback || [])).join("") : `<div class="workspace-empty">No submissions have been started yet.</div>`}
+        ${submissions.length ? submissions.map((submission) => renderSubmissionRow(submission, dashboard.feedback || [], studentFeedbackHistoryState)).join("") : `<div class="workspace-empty">No submissions have been started yet.</div>`}
       </div>
     </section>
     <section class="workspace-card">
@@ -4595,7 +4595,7 @@ function renderStudentFeedbackPanel(feedback = [], summary = {}, historyState = 
 function renderStudentFeedbackRow(item, historyState = defaultStudentFeedbackHistoryState()) {
   const submissionMeta = studentFeedbackSubmissionMeta(item);
   const submissionId = cleanDirectoryFilter(item?.submissionId);
-  const isSelected = submissionId && historyState?.selectedSubmissionId === submissionId;
+  const isSelected = studentFeedbackSelectionMatches(historyState, submissionId, "feedback");
   return `
     <article class="workspace-row workspace-student-feedback-row" data-student-feedback-item="${escapeHtml(item.id || "")}">
       <div>
@@ -4605,12 +4605,18 @@ function renderStudentFeedbackRow(item, historyState = defaultStudentFeedbackHis
         <p class="workspace-muted">${escapeHtml(item.authorName || "Program teacher")} / ${escapeHtml(formatDate(item.createdAt))}</p>
       </div>
       <div class="workspace-row-actions">
-        ${submissionId ? `<button class="workspace-link-button workspace-link-button-small" type="button" data-student-feedback-action="open-history" data-student-feedback-submission-id="${escapeHtml(submissionId)}">${escapeHtml(isSelected ? "Refresh timeline" : "View timeline")}</button>` : ""}
+        ${submissionId ? `<button class="workspace-link-button workspace-link-button-small" type="button" data-student-feedback-action="open-history" data-student-feedback-origin="feedback" data-student-feedback-submission-id="${escapeHtml(submissionId)}">${escapeHtml(isSelected ? "Refresh timeline" : "View timeline")}</button>` : ""}
         ${statusPill(item.status || "under_review")}
       </div>
       ${isSelected ? renderStudentFeedbackTimeline(historyState) : ""}
     </article>
   `;
+}
+
+function studentFeedbackSelectionMatches(historyState, submissionId, source = "feedback") {
+  const selectedSubmissionId = cleanDirectoryFilter(historyState?.selectedSubmissionId || "");
+  const selectedSource = String(historyState?.source || "feedback").trim() || "feedback";
+  return Boolean(selectedSubmissionId && selectedSubmissionId === cleanDirectoryFilter(submissionId) && selectedSource === source);
 }
 
 function studentFeedbackSubmissionMeta(item) {
@@ -6065,7 +6071,10 @@ function bindUploadRetryButton() {
 async function handleStudentFeedbackAction(event) {
   const action = event?.currentTarget?.dataset?.studentFeedbackAction;
   if (action !== "open-history") return;
-  await openStudentFeedbackHistory(event.currentTarget?.dataset?.studentFeedbackSubmissionId || "");
+  await openStudentFeedbackHistory(
+    event.currentTarget?.dataset?.studentFeedbackSubmissionId || "",
+    event.currentTarget?.dataset?.studentFeedbackOrigin || "feedback",
+  );
 }
 
 function handleStudentRequirementAction(event) {
@@ -6121,23 +6130,24 @@ function focusEvidenceFormsForSubmission(submissionId) {
   document.querySelector('#workspaceEvidenceLinkForm input[name="title"]')?.focus?.();
 }
 
-async function openStudentFeedbackHistory(submissionId) {
+async function openStudentFeedbackHistory(submissionId, source = "feedback") {
   const selectedSubmissionId = cleanDirectoryFilter(submissionId);
   if (!selectedSubmissionId) return;
   studentFeedbackHistoryState = {
     ...defaultStudentFeedbackHistoryState(),
     selectedSubmissionId,
+    source: String(source || "feedback").trim() || "feedback",
     loading: true,
   };
   activeSection = "student";
-  renderAppShell("Loading feedback timeline...");
+  renderAppShell("Loading submission timeline...");
   const historyResult = await settleApi(apiJson(`/api/reviews/${encodeURIComponent(selectedSubmissionId)}/history`));
   studentFeedbackHistoryState = {
     ...studentFeedbackHistoryState,
     loading: false,
     result: historyResult,
   };
-  renderAppShell(historyResult.ok ? "Feedback timeline loaded." : "Feedback timeline unavailable.", historyResult.ok ? "success" : "error");
+  renderAppShell(historyResult.ok ? "Submission timeline loaded." : "Submission timeline unavailable.", historyResult.ok ? "success" : "error");
 }
 
 async function applySiteStudentFilters(event) {
@@ -8221,16 +8231,22 @@ function pluralize(count, singular, plural = `${singular}s`) {
   return safeNumber(count) === 1 ? singular : plural;
 }
 
-function renderSubmissionRow(submission, feedback = []) {
+function renderSubmissionRow(submission, feedback = [], historyState = defaultStudentFeedbackHistoryState()) {
   const latestFeedback = latestFeedbackForSubmission(submission, feedback);
+  const submissionId = cleanDirectoryFilter(submission?.id || "");
+  const isSelected = studentFeedbackSelectionMatches(historyState, submissionId, "submissions");
   return `
-    <article class="workspace-row">
+    <article class="workspace-row workspace-student-submission-row" data-student-submission-row="${escapeHtml(submissionId || "true")}">
       <div>
         <strong>${escapeHtml(submission.requirement_title || "Capstone Project submission")}</strong>
         <p>Version ${escapeHtml(submission.version || 1)}. Updated ${escapeHtml(formatDate(submission.updated_at))}.</p>
         ${latestFeedback ? `<p class="workspace-muted" data-submission-feedback="true">Latest teacher feedback: ${escapeHtml(latestFeedback.message || "Teacher feedback was recorded for this submission.")}</p>` : ""}
       </div>
-      ${statusPill(submission.status)}
+      <div class="workspace-row-actions">
+        ${submissionId ? `<button class="workspace-link-button workspace-link-button-small" type="button" data-student-feedback-action="open-history" data-student-feedback-origin="submissions" data-student-feedback-submission-id="${escapeHtml(submissionId)}">${escapeHtml(isSelected ? "Refresh timeline" : "View timeline")}</button>` : ""}
+        ${statusPill(submission.status)}
+      </div>
+      ${isSelected ? `<div data-student-submission-timeline="true">${renderStudentFeedbackTimeline(historyState)}</div>` : ""}
     </article>
   `;
 }
@@ -8510,6 +8526,7 @@ function defaultStudentRequirementDetailState() {
 function defaultStudentFeedbackHistoryState() {
   return {
     selectedSubmissionId: "",
+    source: "feedback",
     loading: false,
     result: null,
   };

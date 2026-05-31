@@ -1,0 +1,104 @@
+{
+  "automationId": "functionality-ux-upgrade-hourly",
+  "runAt": "2026-05-31T16:35:50-07:00",
+  "startingSha": "4100a4912ad4dd3ecdac13e4471c7dc5a2fe95c6",
+  "endingSha": null,
+  "branch": "main",
+  "ladderLevel": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN",
+  "workOrder": {
+    "id": "student-submission-timeline-shortcut",
+    "summary": "Add a second student-safe View timeline shortcut to Submitted Work rows.",
+    "selectionReason": "The previous handoff pointed at student submission rows, and current workspace.js still rendered Submitted Work rows as status summaries plus latest feedback text even though the student-safe /api/reviews/:submissionId/history route and timeline renderer already existed."
+  },
+  "repoGroundedFindings": [
+    "workspace.js already reused /api/reviews/:submissionId/history for Feedback History rows through openStudentFeedbackHistory().",
+    "renderSubmissionRow() still rendered Submitted Work rows without any route-backed way to reopen version, status-change, and visible-note history from the submission list.",
+    "The student-safe timeline route already filters staff-only comments, so the safest slice was a second shortcut into the same scoped history rather than a new route or page."
+  ],
+  "changes": [
+    "Added View timeline actions to Submitted Work rows in workspace.js.",
+    "Tracked whether the shared student history state was opened from Feedback History or Submitted Work rows so the timeline renders only in the originating surface.",
+    "Reused the existing student-safe timeline renderer and /api/reviews/:submissionId/history route instead of adding a new route, query param, or permission path.",
+    "Added focused workspace coverage proving the submission-row shortcut opens one timeline panel without duplicating the feedback panel."
+  ],
+  "filesChanged": [
+    "workspace.js",
+    "tests/workspace-app.test.mjs",
+    "docs/student-progress-dashboard.md",
+    "docs/functionality-language-audit.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-31-1635-student-submission-timeline-shortcut.json",
+    "docs/functionality-ux-growth-ledger.md",
+    "automation/state/functionality-ux-growth-state.json"
+  ],
+  "candidates": [
+    {
+      "candidate": "Student submission timeline shortcut",
+      "score": 52,
+      "decision": "selected"
+    },
+    {
+      "candidate": "Student submission requirement shortcut",
+      "score": 44,
+      "decision": "not_selected_adjacent_lower_value"
+    },
+    {
+      "candidate": "Student phase progress detail",
+      "score": 43,
+      "decision": "follow_up_after_timeline"
+    },
+    {
+      "candidate": "Student mentor support workflow",
+      "score": 36,
+      "decision": "deferred_policy_and_data_shape"
+    },
+    {
+      "candidate": "Hosted section-level permission proof",
+      "score": 39,
+      "decision": "deferred_hosted_boundary"
+    },
+    {
+      "candidate": "Site-scoped audit destination",
+      "score": 38,
+      "decision": "deferred_route_review"
+    },
+    {
+      "candidate": "Review Queue missing-submission semantics",
+      "score": 34,
+      "decision": "deferred_backend_gap"
+    },
+    {
+      "candidate": "Presentation schedule URL state",
+      "score": 41,
+      "decision": "deferred_need_unproven"
+    },
+    {
+      "candidate": "Mentor Dashboard URL state",
+      "score": 40,
+      "decision": "deferred_need_unproven"
+    },
+    {
+      "candidate": "Student guided requirement form",
+      "score": 37,
+      "decision": "deferred_broad_write_path"
+    }
+  ],
+  "validation": {
+    "status": "passed",
+    "commands": [
+      "git diff --check",
+      "node --test tests/workspace-app.test.mjs",
+      "node --test tests/functionality-language-audit.test.mjs",
+      "npm run verify:functionality-language",
+      "npm run verify:dashboard-actions",
+      "npm run verify:workspace-navigation",
+      "npm run verify:functionality-ux-automation",
+      "npm run check:production-surfaces",
+      "npm run check:route-inventory",
+      "npm run test",
+      "npm run typecheck",
+      "npm run check"
+    ]
+  },
+  "nextRecommended": "Run hosted section-level permission proof when hosted fake-account proof and audit-event writes are allowed; otherwise deepen the student workspace with phase-specific progress detail from the existing dashboard payload."
+}

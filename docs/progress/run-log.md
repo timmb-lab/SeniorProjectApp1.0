@@ -21,6 +21,17 @@ This is the compact run log for the current Functionality UX Upgrade automation 
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-05-31 16:35 PT - Functionality UX Upgrade Student Submission Timeline Shortcut
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 6 student progress drill-down / Level 4 student workspace clarity, supporting MVP-003, MVP-032, and MVP-033.
+- `starting HEAD`: `4100a4912ad4dd3ecdac13e4471c7dc5a2fe95c6`.
+- `selected slice`: Add a second student-safe `View timeline` shortcut to Submitted Work rows.
+- `repo-grounded findings`: the previous handoff pointed directly at student submission rows. Current `workspace.js` already reused `/api/reviews/:submissionId/history` for Feedback History, but `renderSubmissionRow()` still rendered Submitted Work rows as status-only summaries plus the latest feedback snippet, so students had to leave the submission list to reopen the same timeline context.
+- `changes`: `workspace.js` now adds `View timeline` actions to Submitted Work rows, tracks whether the shared student history state was opened from feedback rows or submission rows, and reuses the existing student-safe timeline renderer in place without duplicating the panel. `tests/workspace-app.test.mjs` proves the submission-row shortcut opens `/api/reviews/:submissionId/history`, renders one timeline panel in the submitted-work row, and avoids duplicate timeline expansion in Feedback History.
+- `validation`: focused workspace test passed before docs/state closeout. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.
+
 ## 2026-05-31 10:04 PT - Functionality UX Upgrade Mentor Summary Filters
 
 - `automation ID`: functionality-ux-upgrade-hourly.

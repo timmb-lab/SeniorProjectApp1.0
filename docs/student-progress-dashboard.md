@@ -59,6 +59,7 @@ Status uses simple rules:
 - Feedback History, showing bounded teacher review notes already tied to the student's own submissions, with submission version and current status context.
 - Submission timeline inside Feedback History, loaded from the filtered review-history route when a student opens a feedback row, showing versions, status changes, and student-visible teacher notes.
 - Submitted Work rows now repeat the latest teacher feedback beside the matching submission when the scoped dashboard response includes a review for that submission.
+- Submitted Work rows can now open the same student-safe submission timeline in place, so students can check versions, status changes, and visible teacher notes from either Feedback History or the submission list.
 - Progress Details with current phase, completed requirements, missing submissions, review counts, last updated, evidence count, and feedback action status.
 - May 5 archive status fact when the student-owned archive readiness response has closeout checks to summarize.
 - Support note that shows the assigned mentor name when available or a safe no-mentor fallback.
@@ -86,10 +87,11 @@ No new fake links were added. The dashboard keeps existing real actions only:
 - Open in-page requirement details from a checklist row. The detail disclosure uses the already loaded student dashboard payload to summarize status, due date, evidence count, submitted version, progress state, next action, and the latest matching teacher feedback without calling a new route.
 - Review archive readiness through the existing Archive workspace section; the student home only summarizes the next archive blocker and does not add a fake archive request action.
 - Open a feedback-row timeline through the existing `/api/reviews/:submissionId/history` route. The route already enforces own-student or assigned-scope access and filters staff-only comments before the workspace renders the timeline.
+- Open the same submission timeline from a Submitted Work row through the existing `/api/reviews/:submissionId/history` route when a student wants the timeline from the submission list instead of the feedback panel.
 
 Dedicated requirement drill-down links were not added because there is not yet a separate student-safe requirement detail page. The current guided action and detail view stay in-page and use the existing student dashboard, evidence, feedback, and submit route data.
 
-Teacher feedback history is read-only and comes from review rows already scoped to the student's own submissions. Each feedback row includes the matching submission version and current status so students can connect the note to the work they most recently sent back. Students can open a row timeline to see submitted versions, status changes, and student-visible teacher notes from the shared review-history route. The submitted-work list only repeats feedback that matches that submission ID. Staff-only comments are not added to the student dashboard response, and the shared review-history route filters `staff_only` comments out for student and assigned-mentor readers.
+Teacher feedback history is read-only and comes from review rows already scoped to the student's own submissions. Each feedback row includes the matching submission version and current status so students can connect the note to the work they most recently sent back. Students can open a row timeline to see submitted versions, status changes, and student-visible teacher notes from the shared review-history route. The submitted-work list now offers the same timeline shortcut and still only repeats feedback that matches that submission ID. Staff-only comments are not added to the student dashboard response, and the shared review-history route filters `staff_only` comments out for student and assigned-mentor readers.
 
 ## Language Cleanup
 
