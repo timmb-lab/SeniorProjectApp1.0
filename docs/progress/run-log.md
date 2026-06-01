@@ -2543,3 +2543,14 @@ Future productive runs should append compact entries that name the master-plan s
 - `changes`: `workspace.js` now renders in-page `Feedback History` filters for all notes, needs revision, teacher notes, and approved feedback from the existing own-student dashboard payload. The feedback-row timeline stays on the selected row when that row remains visible and clears safely when a filter hides it. `tests/workspace-app.test.mjs` now proves the filter controls render, narrow the feedback panel to action-needed rows, and clear a hidden feedback-row timeline without touching the student-safe submission list timeline path.
 - `validation`: focused workspace coverage passed before docs/state closeout. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
 - `commit/push status`: pending closeout commit; not pushed by this automation run.
+
+## 2026-05-31 PT - Functionality UX Upgrade Mentor Dashboard Recent Activity
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 4 role-specific mentor workspace clarity.
+- `starting HEAD`: `7291defadf566c6bb4c0322f48b8d7de775fb398`.
+- `selected slice`: Add recent activity cues to Mentor Dashboard assigned-student cards.
+- `repo-grounded findings`: `docs/functionality-language-audit.md` still flagged mentor cards as thin on recent activity, `workspace.js` rendered mentor status signals and actions without timing context, and `functions/api/mentor/dashboard.ts` already returned assigned-student-only rows that could safely add bounded timestamps.
+- `changes`: `functions/api/mentor/dashboard.ts` now returns latest submission, mentor meeting, and presentation timestamps for mentor-scoped assigned students. `workspace.js` now renders a `data-mentor-dashboard-activity="true"` line so mentors can see recent work, meeting, and presentation activity before opening detail. `tests/mentor-dashboard.integration.test.mjs` and `tests/workspace-app.test.mjs` now prove the route fields and rendered activity cues.
+- `validation`: focused mentor route and workspace tests plus the functionality-language verifier passed before docs/state closeout. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.

@@ -4904,3 +4904,52 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: hosted proof still needs allowed fake-account and audit-write runtime; student mentor support still needs tighter privacy and product-shape review.
   - Do not repeat: do not rebuild this filter slice unless the data marker or hidden-timeline clearing regresses.
   - First file to inspect next run: `workspace.js` `renderStudentSection()` and `renderSubmissionRow()`
+
+## Run 2026-05-31 19:39 PT
+
+- Starting SHA: `7291defadf566c6bb4c0322f48b8d7de775fb398`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Branch policy: work stayed on clean local `main`; local `main` remained ahead of `origin/main`, `origin/main` was not ahead, and no sync or push was run
+- Ladder level targeted: `LEVEL_4_ROLE_SPECIFIC_WORKSPACES`
+- Backlog item: `mentor-dashboard-recent-activity-cues`
+- Work order selected: Add recent activity cues to Mentor Dashboard assigned-student cards.
+- Selection reason: The previous handoff pointed at mentor or student support depth if hosted proof stayed blocked. Current repo evidence still showed `docs/functionality-language-audit.md` calling out mentor cards as light on recent activity, while `functions/api/mentor/dashboard.ts` and `workspace.js` already had a safe assigned-student-only dashboard plus focused tests. Adding bounded timestamps and rendering them in place was the highest-value mentor slice that stayed inside existing permissions and real data.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Mentor dashboard recent activity cues | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | mentor | 5 | 5 | 5 | S | 57 | selected |
+| Student mentor support workflow shape | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 4 | 3 | 3 | M | 37 | not selected: product shape still needs privacy review, while mentor route data was already ready |
+| Hosted section-level permission proof | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all protected roles | 4 | 3 | 3 | M | 40 | deferred: hosted fake-account proof and audit writes are not allowed in this run |
+| Site-scoped audit destination | `LEVEL_7_AUDITABILITY_AND_TRUST` | site_admin, org_admin | 4 | 3 | 4 | M | 39 | deferred: route shape and visibility review still needed |
+| Mentor Dashboard URL state | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | mentor | 3 | 4 | 4 | S | 41 | not selected: recent-activity clarity was the earlier gap before shareable state |
+| Review Queue missing-submission semantics | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | program_teacher, site staff | 5 | 2 | 3 | M | 34 | deferred: backend queue rows are still absent |
+| Site-admin mentor POST default fallback | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | site_admin | 3 | 5 | 5 | XS | 43 | not selected: real but lower direct user value than the active mentor workspace gap |
+| Summary-only metric affordance styling | `LEVEL_1_NAVIGABLE_DASHBOARDS` | staff, viewer | 3 | 4 | 3 | S | 39 | not selected: broader visual surface than this bounded mentor slice |
+| Student detail URL/hash state | `LEVEL_2_STUDENT_DETAIL_DEPTH` | staff | 4 | 3 | 3 | M | 36 | deferred: shareable detail state still needs privacy review |
+| Site-admin assignment removal workflow | `LEVEL_7_AUDITABILITY_AND_TRUST` | site_admin | 3 | 2 | 3 | M | 33 | deferred: mutation and audit policy are not ready |
+
+- User-facing improvement: Mentors now see when assigned-student work, meetings, and presentation planning last changed before opening student detail, which makes the Mentor Dashboard more useful as a first-stop triage surface.
+- Roles affected: `mentor`
+- Files changed: `functions/api/mentor/dashboard.ts`, `workspace.js`, `tests/mentor-dashboard.integration.test.mjs`, `tests/workspace-app.test.mjs`, `docs/functionality-language-audit.md`, `docs/progress/run-log.md`, `docs/progress/runs/2026-05-31-1939-mentor-dashboard-recent-activity.json`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`
+- Tests/verifiers added or updated: `tests/mentor-dashboard.integration.test.mjs` now proves the mentor dashboard route returns recent-activity timestamps for assigned students; `tests/workspace-app.test.mjs` now proves mentor cards render `data-mentor-dashboard-activity="true"` with recent work, meeting, and presentation timing cues.
+- Validation commands:
+  - Focused passed before docs/state closeout: `node --test tests/mentor-dashboard.integration.test.mjs`; `node --test tests/workspace-app.test.mjs`; `npm run verify:functionality-language`
+  - Final passed: `node --test tests/functionality-language-audit.test.mjs`; `node -e "JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-05-31-1939-mentor-dashboard-recent-activity.json','utf8')); console.log('json ok')"`; `git diff --check`; `npm run verify:dashboard-actions`; `npm run verify:workspace-navigation`; `npm run verify:functionality-ux-automation`; `npm run check:production-surfaces`; `npm run check:route-inventory`; `npm run test`; `npm run typecheck`; `npm run check`
+- Validation result: passed; `git diff --check` reported only CRLF normalization warnings, with no whitespace errors.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: hosted section-level permission proof, site-scoped audit destination, Review Queue missing-submission semantics, Mentor Dashboard URL state, student mentor support workflow shape, and site-admin assignment removal workflow remain deferred.
+- New backlog items: none
+- Next recommended work order: If hosted proof is still blocked, review the student-safe mentor support workflow shape before adding shareable Mentor Dashboard URL state.
+- Do-not-repeat notes: do not re-add the mentor dashboard recent-activity slice unless regression removes the new mentor route timestamp fields or `data-mentor-dashboard-activity="true"` from the workspace cards.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_4_ROLE_SPECIFIC_WORKSPACES`
+  - Advanced: yes
+  - Evidence: Mentor Dashboard cards now render `data-mentor-dashboard-activity="true"` and the mentor dashboard route returns recent submission, meeting, and presentation timestamps for assigned students only.
+  - Unlocks: safer mentor-support and mentor URL-state work because the mentor dashboard now has stronger in-place triage context.
+  - Next: if hosted proof stays blocked, inspect `renderStudentProgressDetails()` and the student mentor support copy path before adding any contact-style workflow.
+  - Blockers: hosted proof still needs allowed fake-account and audit-write runtime; student-safe support workflow shape still needs privacy review.
+  - Do not repeat: do not rebuild this recent-activity slice unless the mentor route fields or the mentor card activity line regress.
+  - First file to inspect next run: `workspace.js` `renderStudentProgressDetails()` and `renderMentorStudentCards()`

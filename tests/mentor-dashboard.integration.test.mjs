@@ -41,7 +41,10 @@ test("mentor dashboard returns active assignments only and supports admin inspec
     assert.equal(body.assignedStudents[0].studentId, "student-a");
     assert.equal(body.assignedStudents[0].studentName, "Student A");
     assert.equal(body.assignedStudents[0].submissionStatus, "revision_requested");
+    assert.equal(body.assignedStudents[0].latestSubmissionUpdatedAt, "2026-05-21T08:00:00.000Z");
     assert.equal(body.assignedStudents[0].mentorMeetingStatus, "makeup_required");
+    assert.equal(body.assignedStudents[0].latestMentorMeetingAt, "2026-05-21T09:15:00.000Z");
+    assert.equal(body.assignedStudents[0].latestPresentationScheduledFor, "2026-05-21T18:00:00.000Z");
     assert.equal(body.assignedStudents[0].needsAttention.includes("mentor_meeting"), true);
     assert.equal(JSON.stringify(body).includes("Student B"), false);
     assert.equal(JSON.stringify(body).includes("Student C"), false);
@@ -102,7 +105,7 @@ async function createFixture() {
   await db.prepare("INSERT INTO submissions (id, student_id, requirement_id, status, updated_at) VALUES ('sub-b', 'student-b', 'req-proposal', 'submitted', '2026-05-21T08:05:00.000Z')").run();
   await db.prepare("INSERT INTO submissions (id, student_id, requirement_id, status, updated_at) VALUES ('sub-c', 'student-c', 'req-proposal', 'approved', '2026-05-21T08:10:00.000Z')").run();
   await db.prepare("INSERT INTO evidence_artifacts (id, student_id, submission_id, artifact_type, source_kind, drive_file_id, title) VALUES ('ev-a', 'student-a', 'sub-a', 'reflection', 'google_drive_file', 'drive-secret-a', 'Evidence A')").run();
-  await db.prepare("INSERT INTO mentor_meetings (id, mentor_user_id, student_user_id, status, created_at) VALUES ('meet-a', 'mentor-a', 'student-a', 'makeup_required', '2026-05-21T09:00:00.000Z')").run();
+  await db.prepare("INSERT INTO mentor_meetings (id, mentor_user_id, student_user_id, status, scheduled_for, held_at, created_at) VALUES ('meet-a', 'mentor-a', 'student-a', 'makeup_required', '2026-05-21T09:00:00.000Z', '2026-05-21T09:15:00.000Z', '2026-05-21T08:30:00.000Z')").run();
   await db.prepare("INSERT INTO presentation_slots (id, student_user_id, scheduled_for, duration_minutes, location, status, outline_status) VALUES ('slot-a', 'student-a', '2026-05-21T18:00:00.000Z', 15, 'Room 1', 'scheduled', 'pending')").run();
   await db.prepare("INSERT INTO presentation_slots (id, student_user_id, scheduled_for, duration_minutes, location, status, outline_status) VALUES ('slot-c', 'student-c', '2026-05-21T18:30:00.000Z', 15, 'Room 2', 'completed', 'approved')").run();
 

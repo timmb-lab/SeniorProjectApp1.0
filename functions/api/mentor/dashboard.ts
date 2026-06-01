@@ -9,10 +9,13 @@ interface AssignedStudentRow {
   mentor_id: string;
   mentor_name: string;
   submission_status: string | null;
+  latest_submission_updated_at: string | null;
   evidence_count: number;
   mentor_meeting_status: string | null;
+  latest_mentor_meeting_at: string | null;
   presentation_status: string | null;
   outline_status: string | null;
+  latest_presentation_scheduled_for: string | null;
 }
 
 export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
@@ -57,10 +60,13 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
       mentorId: admin ? row.mentor_id : undefined,
       mentorName: admin ? row.mentor_name : undefined,
       submissionStatus: row.submission_status || "not_started",
+      latestSubmissionUpdatedAt: row.latest_submission_updated_at || "",
       evidenceCount: Number(row.evidence_count || 0),
       mentorMeetingStatus: row.mentor_meeting_status || "not_recorded",
+      latestMentorMeetingAt: row.latest_mentor_meeting_at || "",
       presentationStatus: row.presentation_status || "not_scheduled",
       outlineStatus: row.outline_status || "pending",
+      latestPresentationScheduledFor: row.latest_presentation_scheduled_for || "",
       needsAttention: attention,
     };
   });
@@ -102,6 +108,13 @@ async function loadAssignedStudents(env: Env, whereClause: string, binds: string
          LIMIT 1
        ) AS submission_status,
        (
+         SELECT submissions.updated_at
+         FROM submissions
+         WHERE submissions.student_id = student.id
+         ORDER BY submissions.updated_at DESC
+         LIMIT 1
+       ) AS latest_submission_updated_at,
+       (
          SELECT COUNT(*)
          FROM evidence_artifacts
          WHERE evidence_artifacts.student_id = student.id
@@ -116,6 +129,14 @@ async function loadAssignedStudents(env: Env, whereClause: string, binds: string
          LIMIT 1
        ) AS mentor_meeting_status,
        (
+         SELECT COALESCE(mentor_meetings.held_at, mentor_meetings.scheduled_for, mentor_meetings.created_at)
+         FROM mentor_meetings
+         WHERE mentor_meetings.student_user_id = student.id
+           AND mentor_meetings.mentor_user_id = mentor.id
+         ORDER BY COALESCE(mentor_meetings.held_at, mentor_meetings.scheduled_for, mentor_meetings.created_at) DESC
+         LIMIT 1
+       ) AS latest_mentor_meeting_at,
+       (
          SELECT presentation_slots.status
          FROM presentation_slots
          WHERE presentation_slots.student_user_id = student.id
@@ -123,6 +144,14 @@ async function loadAssignedStudents(env: Env, whereClause: string, binds: string
          ORDER BY presentation_slots.scheduled_for DESC
          LIMIT 1
        ) AS presentation_status,
+       (
+         SELECT presentation_slots.scheduled_for
+         FROM presentation_slots
+         WHERE presentation_slots.student_user_id = student.id
+           AND presentation_slots.status != 'cancelled'
+         ORDER BY presentation_slots.scheduled_for DESC
+         LIMIT 1
+       ) AS latest_presentation_scheduled_for,
        (
          SELECT presentation_slots.outline_status
          FROM presentation_slots

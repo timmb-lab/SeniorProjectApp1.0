@@ -3057,20 +3057,26 @@ test("mentor dashboard assigned students open detail and meeting history without
         studentId: "demo-student-102",
         studentName: "Avery On Track",
         submissionStatus: "approved",
+        latestSubmissionUpdatedAt: "2026-05-27T15:00:00.000Z",
         evidenceCount: 5,
         mentorMeetingStatus: "completed",
+        latestMentorMeetingAt: "2026-05-28T14:30:00.000Z",
         presentationStatus: "completed",
         outlineStatus: "approved",
+        latestPresentationScheduledFor: "2026-05-30T18:00:00.000Z",
         needsAttention: [],
       },
       {
         studentId: "demo-student-101",
         studentName: "Zoe Needs Help",
         submissionStatus: "revision_requested",
+        latestSubmissionUpdatedAt: "2026-05-24T18:00:00.000Z",
         evidenceCount: 3,
         mentorMeetingStatus: "makeup_required",
+        latestMentorMeetingAt: "2026-05-27T15:30:00.000Z",
         presentationStatus: "not_scheduled",
         outlineStatus: "pending",
+        latestPresentationScheduledFor: "2026-05-29T18:15:00.000Z",
         needsAttention: ["mentor_meeting", "presentation"],
       },
     ],
@@ -3180,6 +3186,10 @@ test("mentor dashboard assigned students open detail and meeting history without
   assert.match(workspaceRoot.innerHTML, /Presentation[\s\S]*Not scheduled/);
   assert.match(workspaceRoot.innerHTML, /Outline[\s\S]*Pending/);
   assert.match(workspaceRoot.innerHTML, /Evidence[\s\S]*3 items/);
+  assert.match(workspaceRoot.innerHTML, /data-mentor-dashboard-activity="true"/);
+  assert.match(workspaceRoot.innerHTML, /Work updated May 24/);
+  assert.match(workspaceRoot.innerHTML, /Meeting activity May 27/);
+  assert.match(workspaceRoot.innerHTML, /Presentation May 29/);
   assert.match(workspaceRoot.innerHTML, /Update the mentor meeting plan or make-up status before the next check-in/);
   assert.match(workspaceRoot.innerHTML, /data-mentor-dashboard-action="open-student"/);
   assert.match(workspaceRoot.innerHTML, /data-mentor-dashboard-action="open-meetings"/);

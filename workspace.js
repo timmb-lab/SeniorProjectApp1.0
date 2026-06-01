@@ -8419,6 +8419,7 @@ function renderMentorStudentCards(rows = []) {
         const meetingStatus = row.mentorMeetingStatus || "not_recorded";
         const presentationStatus = row.presentationStatus || "not_scheduled";
         const outlineStatus = row.outlineStatus || "pending";
+        const recentActivity = mentorDashboardRecentActivity(row);
         return `
           <article class="workspace-row">
             <div>
@@ -8429,6 +8430,7 @@ function renderMentorStudentCards(rows = []) {
                 ${renderMentorDashboardSignal("Outline", statusText(outlineStatus))}
                 ${renderMentorDashboardSignal("Evidence", `${safeNumber(row.evidenceCount)} item${safeNumber(row.evidenceCount) === 1 ? "" : "s"}`)}
               </div>
+              ${recentActivity ? `<p class="workspace-muted" data-mentor-dashboard-activity="true">${escapeHtml(recentActivity)}</p>` : ""}
               <p class="workspace-muted" data-mentor-dashboard-next-step="true">${escapeHtml(mentorDashboardNextStep(row, attention))}</p>
               ${attention.length ? `<p class="workspace-muted">${escapeHtml(attention.map(statusText).join(", "))}</p>` : ""}
             </div>
@@ -8563,6 +8565,20 @@ function renderMentorDashboardSignal(label, value) {
       ${escapeHtml(String(value || "Not available"))}
     </span>
   `;
+}
+
+function mentorDashboardRecentActivity(row = {}) {
+  const facts = [];
+  if (row.latestSubmissionUpdatedAt) {
+    facts.push(`Work updated ${formatDate(row.latestSubmissionUpdatedAt)}`);
+  }
+  if (row.latestMentorMeetingAt) {
+    facts.push(`Meeting activity ${formatDate(row.latestMentorMeetingAt)}`);
+  }
+  if (row.latestPresentationScheduledFor) {
+    facts.push(`Presentation ${formatDate(row.latestPresentationScheduledFor)}`);
+  }
+  return facts.join(" / ");
 }
 
 function mentorDashboardNextStep(row = {}, attention = []) {

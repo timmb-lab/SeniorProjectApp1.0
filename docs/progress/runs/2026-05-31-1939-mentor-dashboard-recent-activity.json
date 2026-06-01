@@ -1,0 +1,27 @@
+{
+  "automationId": "functionality-ux-upgrade-hourly",
+  "runAt": "2026-05-31T19:39:00-07:00",
+  "startingHead": "7291defadf566c6bb4c0322f48b8d7de775fb398",
+  "selectedSlice": "Add recent activity cues to Mentor Dashboard assigned-student cards.",
+  "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+  "repoGroundedFindings": [
+    "docs/functionality-language-audit.md still flagged mentor cards as needing richer recent-activity groupings.",
+    "workspace.js rendered mentor status signals and actions without timing context for work, meetings, or presentation planning.",
+    "functions/api/mentor/dashboard.ts already returned mentor-scoped assigned students only, so adding bounded timestamps stayed inside existing access rules."
+  ],
+  "changes": [
+    "functions/api/mentor/dashboard.ts now returns latest submission, mentor meeting, and presentation timestamps for assigned students.",
+    "workspace.js now renders a recent-activity line on Mentor Dashboard cards with work, meeting, and presentation timing cues.",
+    "tests/mentor-dashboard.integration.test.mjs and tests/workspace-app.test.mjs now cover the new route fields and rendered mentor activity cues."
+  ],
+  "validation": [
+    "node --test tests/mentor-dashboard.integration.test.mjs",
+    "node --test tests/workspace-app.test.mjs",
+    "npm run verify:functionality-language"
+  ],
+  "notes": [
+    "No auth, RBAC, tenant, site, program, mentor-assignment, or student-privacy boundaries changed.",
+    "No new actions, routes, or contact data were added."
+  ],
+  "nextRecommended": "If hosted proof is still blocked, inspect the student-safe mentor support workflow shape before adding mentor URL state."
+}
