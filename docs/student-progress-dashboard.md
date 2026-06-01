@@ -55,20 +55,21 @@ Status uses simple rules:
 - Four summary cards: Project Phases, Required Submissions, Review Status, and Mentor / Support.
 - What to Work On Next, prioritized by revision items, missing submissions, current-phase work, waiting review, then next remaining requirement.
 - Upcoming deadlines, which reorders the existing incomplete requirement rows into a due-date-first list so students can start with the nearest deadline without leaving the current dashboard or opening a fake calendar page.
-- Your Required Work, a read-only requirement checklist from the existing student-scoped dashboard data, grouped by senior project phase with per-phase completion counts, phase-focus filters, each required item, persisted due-date label, student-safe requirement description, first quality nudge when available, status, submitted version when present, last update, next step, and an in-page requirement detail disclosure.
+- Requirement Checklist is now a secondary disclosure, not a default-open wall. It still uses the existing student-scoped dashboard data, phase groups, phase-focus filters, requirement descriptions, quality nudges, status/version/due-date context, next steps, and in-page requirement detail disclosure after the student opens it.
 - Requirement rows now show the matching submission ID's evidence count when a submission exists. Draft or revision rows with evidence can be sent to teacher review through the existing scoped submit route; rows without evidence focus the existing evidence forms instead of adding a fake requirement page.
-- Feedback History, showing bounded teacher review notes already tied to the student's own submissions, with submission version and current status context.
+- Feedback History is now a secondary disclosure, showing bounded teacher review notes already tied to the student's own submissions, with submission version and current status context after the student opens it.
 - Feedback History now includes in-page filters for all notes, needs revision, teacher notes, and approved feedback, so students can focus the notes that still need action without leaving the current dashboard.
 - Submission timeline inside Feedback History, loaded from the filtered review-history route when a student opens a feedback row, now shows current-version, submitted-version-count, teacher-note-count, and status-update-count summary facts plus evidence-count and current-version cues inside each submitted version row.
 - Timeline teacher notes now keep the newest visible note first across both review decisions and general teacher comments, so students can compare the latest teacher note against older review history without opening a new page.
-- Submitted Work rows now repeat the latest teacher feedback beside the matching submission when the scoped dashboard response includes a review for that submission.
+- Submitted Work is now a secondary disclosure. Rows still repeat the latest teacher feedback beside the matching submission when the scoped dashboard response includes a review for that submission.
 - Submitted Work now includes in-page filters for all work, drafts, waiting for review, needs revision, and approved submissions, so students can focus one status at a time without leaving the current dashboard or relying on a new route.
 - Submitted Work rows can now open the same student-safe submission timeline in place, so students can check versions, status changes, and visible teacher notes from either Feedback History or the submission list.
 - Submitted Work filters clear a selected submission timeline when the chosen filter hides that row, so students do not stay on a stale timeline after switching focus.
-- Progress Details with current phase, completed requirements, missing submissions, review counts, last updated, evidence count, and feedback action status.
-- The `Need help?` panel now gives route-free quick actions that reuse the existing feedback filters, submitted-work filters, and in-page requirement detail, so students can jump straight to the right workflow without exposing mentor contact details or adding a new page.
+- Progress Details is now a secondary disclosure with current phase, completed requirements, missing submissions, review counts, last updated, evidence count, feedback action status, archive facts, and support shortcuts.
+- The `Need help?` panel now lives inside Progress Details and gives route-free quick actions that reuse the existing feedback filters, submitted-work filters, and in-page requirement detail, so students can jump straight to the right workflow without exposing mentor contact details or adding a new page.
 - May 5 archive status fact when the student-owned archive readiness response has closeout checks to summarize.
 - Support note that shows the assigned mentor name when available or a safe no-mentor fallback.
+- First load now keeps the student surface to the progress hero, one primary next action, a short next-step list, up to three upcoming deadlines, and accessible disclosure entry points for requirements, feedback, progress/support, evidence tools, submitted work, and uploaded/linked files.
 
 ## Student-Safe Fallbacks
 

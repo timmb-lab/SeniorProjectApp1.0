@@ -2635,3 +2635,13 @@ Future productive runs should append compact entries that name the master-plan s
 - `changes`: `workspace.js` now parses `mentorFocus` from the workspace URL, reapplies it after auth bootstrap, syncs it when mentors change the existing filter buttons, restores it on `popstate`, and clears it when other sections take over. `tests/workspace-app.test.mjs` now proves initial URL restore, sync, invalid-filter fallback, no-refetch history navigation, and filter-click URL cleanup. `scripts/verify-workspace-navigation-integrity.mjs` now guards the new mentor URL-state helpers.
 - `validation`: focused workspace coverage and the workspace navigation verifier passed before docs/state closeout. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
 - `commit/push status`: pending closeout commit; not pushed by this automation run.
+
+## 2026-05-31 PT - Workspace Density Consolidation
+
+- `prompt`: Workspace Density / Viewability / Duplicate UI Consolidation Prompt v2.
+- `starting HEAD`: `3ac7c6e1864e9db911afc10f433c0abdccbbe48c`.
+- `selected slice`: Reduce protected workspace first-load density and duplicate default-visible panels across Student Dashboard, Users & Access, Mentor Dashboard, Site/Admin/Program dashboards, and the workspace shell.
+- `repo-grounded findings`: real functionality existed, but first-load surfaces rendered too many full panels: student requirements/feedback/submissions/evidence/support, access history/guidance/forms, mentor mini-dashboard rows, and repeated dashboard metric/detail snapshots.
+- `changes`: `workspace.js` now uses shared disclosure state and compact row/detail patterns; `workspace.css` adds compact shell, primary/secondary/detail/history card types, summary-only metric treatment, and mentor row details; workspace tests now open collapsed content before asserting secondary behavior; `scripts/verify-workspace-density.mjs` guards the new first-load budgets.
+- `validation`: focused workspace, density, dashboard-action, navigation, functionality-language, automation, and audit tests passed before full closeout. Full validation status is recorded in the run manifest and final report.
+- `commit/push status`: pending closeout commit `ux: reduce workspace density and duplicate panels`; push required by the triggering prompt.

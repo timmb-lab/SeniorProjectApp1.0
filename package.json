@@ -53,6 +53,7 @@
   "verify:dashboard-actions": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-node-script.ps1 scripts/verify-dashboard-actions.mjs",
   "verify:review-queue-deeplinks": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-node-script.ps1 scripts/verify-review-queue-deeplinks.mjs",
   "verify:workspace-navigation": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-node-script.ps1 scripts/verify-workspace-navigation-integrity.mjs",
+  "verify:workspace-density": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-node-script.ps1 scripts/verify-workspace-density.mjs",
     "inventory:production-routes": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-npm-script.ps1 inventory:production-routes",
     "typecheck": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-npm-script.ps1 typecheck",
     "types": "wrangler types functions/worker-configuration.d.ts",

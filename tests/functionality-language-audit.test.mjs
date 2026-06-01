@@ -9,6 +9,7 @@ const verifierPath = "scripts/verify-functionality-language.mjs";
 const dashboardActionVerifierPath = "scripts/verify-dashboard-actions.mjs";
 const reviewQueueDeeplinkVerifierPath = "scripts/verify-review-queue-deeplinks.mjs";
 const workspaceNavigationVerifierPath = "scripts/verify-workspace-navigation-integrity.mjs";
+const workspaceDensityVerifierPath = "scripts/verify-workspace-density.mjs";
 const packagePath = "package.json";
 const roleReadinessPath = "docs/product/demo-role-readiness.md";
 
@@ -18,6 +19,7 @@ const verifier = await readFile(verifierPath, "utf8");
 const dashboardActionVerifier = await readFile(dashboardActionVerifierPath, "utf8");
 const reviewQueueDeeplinkVerifier = await readFile(reviewQueueDeeplinkVerifierPath, "utf8");
 const workspaceNavigationVerifier = await readFile(workspaceNavigationVerifierPath, "utf8");
+const workspaceDensityVerifier = await readFile(workspaceDensityVerifierPath, "utf8");
 const roleReadiness = await readFile(roleReadinessPath, "utf8");
 const packageJson = JSON.parse(await readFile(packagePath, "utf8"));
 
@@ -28,6 +30,7 @@ test("functionality and language audit artifacts exist", () => {
   assert.equal(existsSync(dashboardActionVerifierPath), true);
   assert.equal(existsSync(reviewQueueDeeplinkVerifierPath), true);
   assert.equal(existsSync(workspaceNavigationVerifierPath), true);
+  assert.equal(existsSync(workspaceDensityVerifierPath), true);
   assert.equal(existsSync(roleReadinessPath), true);
 });
 
@@ -102,6 +105,13 @@ test("workspace navigation and review queue deep-link verifiers are registered",
   assert.match(reviewQueueDeeplinkVerifier, /unknown=keep/);
   assert.match(workspaceNavigationVerifier, /Workspace navigation integrity verification/);
   assert.match(workspaceNavigationVerifier, /Read-only Review Queue/);
+  assert.equal(
+    packageJson.scripts["verify:workspace-density"],
+    "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-node-script.ps1 scripts/verify-workspace-density.mjs",
+  );
+  assert.match(workspaceDensityVerifier, /Workspace density verification/);
+  assert.match(workspaceDensityVerifier, /summary-only metrics/);
+  assert.match(workspaceDensityVerifier, /disclosure controls/);
 });
 
 test("functionality language verifier is registered and avoids credential exposure", () => {
@@ -112,5 +122,5 @@ test("functionality language verifier is registered and avoids credential exposu
   assert.match(verifier, /Database-backed MVP/);
   assert.match(verifier, /Cloudflare target/);
   assert.match(verifier, /workspace\.js/);
-  assert.doesNotMatch(`${audit}\n${prompt}\n${verifier}\n${dashboardActionVerifier}\n${reviewQueueDeeplinkVerifier}\n${workspaceNavigationVerifier}`, /BEGIN PRIVATE KEY|client_secret["':=]|refresh_token["':=]|access_token["':=]|temporaryPassword|password_hash|password_salt/i);
+  assert.doesNotMatch(`${audit}\n${prompt}\n${verifier}\n${dashboardActionVerifier}\n${reviewQueueDeeplinkVerifier}\n${workspaceNavigationVerifier}\n${workspaceDensityVerifier}`, /BEGIN PRIVATE KEY|client_secret["':=]|refresh_token["':=]|access_token["':=]|temporaryPassword|password_hash|password_salt/i);
 });

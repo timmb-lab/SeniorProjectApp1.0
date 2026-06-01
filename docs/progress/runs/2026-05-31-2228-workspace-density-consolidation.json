@@ -1,0 +1,257 @@
+{
+  "runId": "2026-05-31-2228-workspace-density-consolidation",
+  "taskType": "workspace density consolidation",
+  "runStartedAt": "2026-05-31T22:28:00-07:00",
+  "repo": {
+    "root": "C:\\SeniorProjectApp1.0",
+    "branch": "main",
+    "startingSha": "3ac7c6e1864e9db911afc10f433c0abdccbbe48c",
+    "origin": "https://github.com/timmb-lab/SeniorProjectApp1.0.git",
+    "originMainSha": "3ac7c6e1864e9db911afc10f433c0abdccbbe48c",
+    "baselinePushNeeded": false,
+    "baselinePullNeeded": false,
+    "startingStatus": "clean and synced after git fetch origin"
+  },
+  "sectionsAudited": [
+    "protected workspace shell/header/sidebar",
+    "Site Dashboard",
+    "Program Teacher Dashboard",
+    "Mentor Dashboard",
+    "Student Dashboard",
+    "Users & Access",
+    "Programs",
+    "Student Directory",
+    "Review Queue",
+    "Mentor Assignments",
+    "Operations",
+    "Presentation",
+    "Viewer and Administration read-only surfaces",
+    "student detail drawer",
+    "student detail timeline",
+    "shared metric tile and dashboard-card helpers"
+  ],
+  "diagnosisBeforeEditing": {
+    "overpackedFirstLoadSections": [
+      "Student Dashboard renders progress hero, next action, next steps, deadlines, full requirements, full feedback, progress/support, evidence forms, submitted work, and uploaded work by default.",
+      "Users & Access renders add-user form, current access summary, recent access history, all assignment forms, and repeated assign/remove guidance on first load.",
+      "Mentor Dashboard assigned-student rows render like mini dashboards with four signal boxes, activity text, next-step text, attention text, and two actions per row.",
+      "Site Dashboard and Admin Dashboard show metric grids and then repeat the same concepts as large Needs Attention, Program Breakdown, Status Breakdown, Mentor Coverage, Presentation Snapshot, Archive Snapshot, Audit, and Quick Action panels.",
+      "Program Teacher Dashboard shows seven metric cards and then repeats review, activity, program breakdown, and student-list surfaces as large panels.",
+      "The shared product header, site summary, role rail, and page hero repeat context labels on some role landings."
+    ],
+    "duplicateConceptsVisibleByDefault": [
+      "No Mentor appears as a dashboard metric, Student Directory metric, Mentor Coverage detail, Mentor Assignments filter, Review Queue risk metric, and row chip.",
+      "Missing Evidence appears as Program Teacher/Review/Operations metrics and as directory/review filters.",
+      "Needs Review and Needs Revision repeat as dashboard metrics, review summary panels, student feedback/submission rows, and Review Queue filters.",
+      "Presentation Pending and Archive Ready/Failed repeat across dashboard metrics, Student Directory metrics, Operations metrics, and snapshot cards.",
+      "High Risk appears as dashboard top-risk rows, directory metrics, review filters, and operations attention.",
+      "Recent Activity, Access History, Feedback, Submission Timeline, Requirements, Deadlines, and Mentor Meeting Attention were useful but too often rendered as full default-open panels."
+    ],
+    "primaryWorkflowSurfacesToKeepVisible": [
+      "Student: progress, one current priority, a short next-step/deadline list, and clear entry points to requirements, feedback, evidence, and submitted work.",
+      "Users & Access: current access summary, concise safety note, and the real create/access forms.",
+      "Mentor: assigned-student list with filters, one concise status summary per student, one primary student-detail action, and limited chips.",
+      "Site/Admin/Program: route-backed summary metrics that send users to the single best workflow destination.",
+      "Viewer/Administration: read-only boundary banner and monitoring entry points without mutation language."
+    ],
+    "secondarySurfacesToCollapseOrDeemphasize": [
+      "Student requirement checklist, full feedback history, progress facts/support helper, evidence forms, submitted-work history, uploaded evidence list.",
+      "Users & Access recent history and detailed assign/remove guidance.",
+      "Dashboard program/status/mentor/presentation/archive/audit snapshots and broad quick-action panels.",
+      "Mentor row activity, meeting/presentation/outline/evidence signal grid, and meeting-history action.",
+      "Site permission rule cards and other explanatory helper panels."
+    ],
+    "primaryActions": [
+      "Open the single next student requirement, add evidence, send draft/revision for review, open filtered staff worklists, open authorized student detail, save real access changes."
+    ],
+    "secondaryActions": [
+      "View dashboard detail snapshots, open full feedback/submission timelines, open mentor meeting history, review access change history, inspect uploaded evidence lists, open broad quick action panels."
+    ],
+    "testsCurrentlyForcingClutter": [
+      "tests/workspace-app.test.mjs expects all student requirement phases, feedback history, progress details, support actions, deadlines, submitted work, and evidence forms in the initial student markup.",
+      "tests/workspace-app.test.mjs expects Users & Access recent history before forms by default.",
+      "tests/workspace-app.test.mjs expects Mentor Dashboard signal grids, recent activity, next-step copy, and meeting history action in the default assigned-student row.",
+      "tests/workspace-app.test.mjs expects Site/Program dashboard detail actions in default output instead of opening a secondary dashboard disclosure first."
+    ],
+    "densityVerifierTarget": "Add scripts/verify-workspace-density.mjs and npm run verify:workspace-density to guard collapsed secondary panels, summary-only metric styling, duplicated default-visible dashboard detail grids, Users & Access history disclosure, student timeline duplication, fake-action language, and default metric/card budgets."
+  },
+  "sourceOfTruthMatrix": [
+    {
+      "concept": "No Mentor / Missing Mentor",
+      "primarySummaryLocation": "Site/Program dashboard route-backed metric and Mentor Assignments coverage workflow",
+      "primaryDestination": "Student Directory missing-mentors or Mentor Assignments no-mentor filter",
+      "compactOnlyLocations": "Review Queue risk chip, Student Directory chip/count, dashboard detail disclosure",
+      "avoidLargeRepeat": "Do not render another large Mentor Coverage card by default next to the metric."
+    },
+    {
+      "concept": "Missing Evidence",
+      "primarySummaryLocation": "Program Teacher or Operations route-backed metric",
+      "primaryDestination": "Student Directory missing-evidence or Review/Operations evidence-missing filters",
+      "compactOnlyLocations": "student rows, chips, detail disclosures",
+      "avoidLargeRepeat": "Do not render a full missing-evidence panel on adjacent dashboards."
+    },
+    {
+      "concept": "Needs Review / Submitted / Waiting",
+      "primarySummaryLocation": "Dashboard metric for Review Queue",
+      "primaryDestination": "Review Queue submitted filter",
+      "compactOnlyLocations": "student rows, feedback/submission badges, detail disclosure",
+      "avoidLargeRepeat": "Avoid default-open Review Workload cards when the metric already routes to Review Queue."
+    },
+    {
+      "concept": "Needs Revision",
+      "primarySummaryLocation": "Dashboard metric or student current priority",
+      "primaryDestination": "Review Queue revision filter or student feedback/submission detail",
+      "compactOnlyLocations": "status pills and student support entries",
+      "avoidLargeRepeat": "Avoid repeating revision as metric, paragraph, chip, and full panel in the same viewport."
+    },
+    {
+      "concept": "Presentation Pending / Follow-up",
+      "primarySummaryLocation": "Operations metric and Presentation schedule",
+      "primaryDestination": "Operations presentation-pending or presentation-attention filters",
+      "compactOnlyLocations": "Student Directory count, Mentor Dashboard detail disclosure",
+      "avoidLargeRepeat": "Keep full presentation snapshots behind dashboard detail disclosure."
+    },
+    {
+      "concept": "Archive Ready / Archive Failed",
+      "primarySummaryLocation": "Operations or Admin archive/export metric",
+      "primaryDestination": "Operations archive-ready/failed filters or Archive Exports where available",
+      "compactOnlyLocations": "Student Directory count and student archive fact",
+      "avoidLargeRepeat": "Keep archive snapshots out of first-load dashboard walls."
+    },
+    {
+      "concept": "High Risk / At Risk",
+      "primarySummaryLocation": "Student Directory/Review Queue filter and top-risk compact list",
+      "primaryDestination": "Student Directory high-risk filter or authorized student detail",
+      "compactOnlyLocations": "risk chips and Needs Attention disclosure",
+      "avoidLargeRepeat": "Avoid repeating high-risk as both metric and multiple large panels on the same load."
+    },
+    {
+      "concept": "Recent Activity / Access History",
+      "primarySummaryLocation": "Audit or Users & Access history disclosure",
+      "primaryDestination": "Audit route when authorized; Users & Access Recent changes disclosure for site access only",
+      "compactOnlyLocations": "summary count or timestamp chips",
+      "avoidLargeRepeat": "Do not default-open activity/history walls before the main workflow."
+    },
+    {
+      "concept": "Feedback / Submission Timeline",
+      "primarySummaryLocation": "Student feedback/submitted-work panels after interaction",
+      "primaryDestination": "Existing student-safe review-history route",
+      "compactOnlyLocations": "latest feedback line, status pill, timeline action",
+      "avoidLargeRepeat": "Only one timeline is open for the selected submission and source."
+    },
+    {
+      "concept": "Requirement Checklist / Deadlines",
+      "primarySummaryLocation": "Student current priority plus short deadlines/next steps",
+      "primaryDestination": "In-page requirements disclosure and requirement detail state",
+      "compactOnlyLocations": "summary counts and top deadline rows",
+      "avoidLargeRepeat": "Do not render all phases and every requirement on first load."
+    },
+    {
+      "concept": "Mentor Meeting Attention / Presentation Follow-up",
+      "primarySummaryLocation": "Mentor filter counts and compact assigned-student summary",
+      "primaryDestination": "Mentor Dashboard filter or authorized student-detail Mentor tab",
+      "compactOnlyLocations": "row chips and one expandable details area",
+      "avoidLargeRepeat": "Assigned-student rows should not be mini dashboards by default."
+    }
+  ],
+  "sectionsConsolidated": [
+    "Student Dashboard now keeps the progress hero, one primary next action, a short next-step list, and up to three deadlines visible before secondary disclosures.",
+    "Users & Access now keeps a concise safety note, current assignments, and real management forms visible while moving recent history and long guidance behind disclosure.",
+    "Mentor Dashboard assigned-student rows now render compact summaries, chips, and the primary detail action; signal grid, activity, next step, and meeting-history action are disclosed per row.",
+    "Site, Admin, and Program dashboards now keep route-backed metrics and attention summaries visible while moving repeated program/status/mentor/presentation/archive/detail cards behind dashboard detail disclosure.",
+    "Workspace shell/header spacing was compacted to reduce repeated context height while preserving role, site, year, and read-only context."
+  ],
+  "sectionsCollapsedBehindDisclosure": [
+    "Student requirements, feedback, progress/support, evidence tools, submitted work, and uploaded/linked files.",
+    "Users & Access recent access changes and Assign/Remove role guidance.",
+    "Mentor assigned-student row signal/activity/next-step details.",
+    "Site Dashboard operational detail panels.",
+    "Admin Dashboard secondary overview panels.",
+    "Program Teacher Dashboard needs-review/activity/program/student detail panels."
+  ],
+  "featuresPreserved": [
+    "Student requirement open-detail, phase focus, add-evidence focus, send-for-review, feedback timeline, submission timeline, file download, and external-link actions.",
+    "Users & Access active assignment summary and existing create/access assignment forms.",
+    "Mentor Dashboard filters, student detail drawer, meeting-history entry, and mentor meeting form path.",
+    "Dashboard route-backed metric destinations for Student Directory, Review Queue, Mentor Assignments, Operations, and Presentation.",
+    "Viewer and Administration read-only boundaries, permission-denied states, and no mutation controls."
+  ],
+  "testsVerifiersUpdated": [
+    "tests/workspace-app.test.mjs now opens dashboard, student, users-access, and mentor-row disclosures before asserting secondary content.",
+    "tests/functionality-language-audit.test.mjs now requires the density verifier and package script.",
+    "scripts/verify-workspace-density.mjs added with npm script verify:workspace-density.",
+    "package.json registers verify:workspace-density."
+  ],
+  "validation": [
+    {
+      "command": "node --test tests/workspace-app.test.mjs",
+      "status": "passed"
+    },
+    {
+      "command": "npm run verify:workspace-density",
+      "status": "passed"
+    },
+    {
+      "command": "npm run verify:dashboard-actions",
+      "status": "passed"
+    },
+    {
+      "command": "npm run verify:workspace-navigation",
+      "status": "passed"
+    },
+    {
+      "command": "npm run verify:functionality-language",
+      "status": "passed"
+    },
+    {
+      "command": "npm run verify:functionality-ux-automation",
+      "status": "passed"
+    },
+    {
+      "command": "node --test tests/functionality-language-audit.test.mjs",
+      "status": "passed"
+    },
+    {
+      "command": "node -e \"JSON.parse(require('fs').readFileSync('package.json','utf8')); JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-05-31-2228-workspace-density-consolidation.json','utf8')); console.log('json ok')\"",
+      "status": "passed"
+    },
+    {
+      "command": "node --check workspace.js",
+      "status": "passed"
+    },
+    {
+      "command": "git diff --check",
+      "status": "passed with CRLF normalization warnings only"
+    },
+    {
+      "command": "npm run check:production-surfaces",
+      "status": "passed"
+    },
+    {
+      "command": "npm run check:route-inventory",
+      "status": "passed"
+    },
+    {
+      "command": "npm run typecheck",
+      "status": "passed"
+    },
+    {
+      "command": "npm run test",
+      "status": "passed"
+    },
+    {
+      "command": "npm run check",
+      "status": "passed"
+    }
+  ],
+  "knownRemainingViewabilityIssues": [
+    "No known remaining first-load density issue from the 10-item prompt gate; hosted visual click-through still needs a credentialed runtime when allowed."
+  ],
+  "nextRecommendedTarget": "Run hosted role click-through proof when allowed; otherwise use verify:workspace-density before the next workspace layout/dashboard slice.",
+  "final": {
+    "endingSha": null,
+    "commit": "pending closeout commit: ux: reduce workspace density and duplicate panels",
+    "pushed": false,
+    "status": "validated_pending_commit_and_push"
+  }
+}

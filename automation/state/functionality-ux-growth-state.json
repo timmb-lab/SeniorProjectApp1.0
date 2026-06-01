@@ -1,10 +1,18 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-05-31T22:05:51-07:00",
-  "lastStartingSha": "ee68cbe6964740e91608f2cfb42b8967b8e60fca",
+  "lastRunAt": "2026-05-31T22:57:03-07:00",
+  "lastStartingSha": "3ac7c6e1864e9db911afc10f433c0abdccbbe48c",
   "lastEndingSha": null,
-  "currentLadderFocus": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+  "currentLadderFocus": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
   "completedWorkOrders": [
+    {
+      "id": "workspace-density-consolidation",
+      "completedAt": "2026-05-31T22:57:03-07:00",
+      "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
+      "type": "TYPE_G_VERIFICATION_REGRESSION_PROTECTION",
+      "summary": "Reduced protected workspace first-load density across Student Dashboard, Users & Access, Mentor Dashboard, and Site/Admin/Program dashboards while preserving existing route-backed actions behind accessible disclosure.",
+      "commit": "pending-closeout-commit"
+    },
     {
       "id": "site-programs-first-load-add-proof",
       "completedAt": "2026-05-31T22:05:51-07:00",
@@ -1018,6 +1026,7 @@
     }
   ],
   "doNotRepeat": [
+    "Do not re-expand student requirements, feedback, submissions, evidence tools, uploaded files, Users & Access history/guidance, dashboard snapshots, or mentor row details by default unless a new first-screen budget and scripts/verify-workspace-density.mjs update prove it is intentional.",
     "Do not repeat protected workspace header/posture chip cleanup unless new leaked phrases are found.",
     "Do not relink the Site Dashboard No Mentor metric back to Mentor Assignments only; it now opens the Student Directory with noMentor=true so staff see the actual missing-mentor students before assignment actions.",
     "Do not repeat public preview implementation-language cleanup unless the verifier reports a new public review-only leak.",
@@ -1129,29 +1138,25 @@
   ],
   "lastValidationStatus": {
     "status": "passed",
-    "completedAt": "2026-05-31T22:14:00-07:00",
+    "completedAt": "2026-05-31T22:57:03-07:00",
     "commands": [
-      "npm run seed:demo:local:reset",
-      "node --test tests/site-programs.integration.test.mjs",
-      "node --test tests/local-demo-workspace-seed.test.mjs",
-      "node --test tests/remote-demo-workspace-seed.test.mjs",
+      "node --check workspace.js",
       "node --test tests/workspace-app.test.mjs",
-      "node --test tests/access-v5-effective.test.mjs",
+      "npm run verify:workspace-density",
       "npm run verify:dashboard-actions",
-      "npm run verify:review-queue-deeplinks",
       "npm run verify:workspace-navigation",
       "npm run verify:functionality-language",
-      "npm run verify:functionality-ux-automation",
-      "npm run inventory:production-routes",
-      "npm run check:route-inventory",
       "node --test tests/functionality-language-audit.test.mjs",
-      "node scripts/prove-local-demo-workspace.mjs",
-      "npm run test",
+      "npm run verify:functionality-ux-automation",
+      "node -e \"JSON.parse(require('fs').readFileSync('package.json','utf8')); JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-05-31-2228-workspace-density-consolidation.json','utf8')); console.log('json ok')\"",
+      "git diff --check",
+      "npm run check:production-surfaces",
+      "npm run check:route-inventory",
       "npm run typecheck",
-      "npm run check",
-      "git diff --check"
+      "npm run test",
+      "npm run check"
     ],
-    "notes": "This run did not need a baseline push because main was clean and synced. It seeded a real demo-owned active Biotechnology catalog program that remains available to the primary site on first load, proved Site Admin add/remove/restore and cleanup locally, preserved the active-program remove/restore proof, and kept Administration, Program Teacher, Mentor, Viewer, and Student denied from /api/site/programs. Hosted click-through remains pending. git diff --check passed with CRLF normalization warnings only."
+    "notes": "Workspace density consolidation passed focused workspace tests, the new density verifier, dashboard/navigation/language/automation verifiers, production-surface and route-inventory checks, typecheck, the full test suite, and the full check suite. git diff --check passed with CRLF normalization warnings only."
   },
   "lastProductReadinessScorecardSummary": {
     "homepageClarity": "4 to 4",

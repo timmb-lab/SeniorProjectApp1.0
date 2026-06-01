@@ -5100,3 +5100,35 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: hosted proof still depends on allowed fake-account runtime and audit writes; Site Admin Programs product work still needs its own safe bounded pass.
   - Do not repeat: do not downgrade the role-readiness scorecard back into generic prose, and do not force the local GUI entry active when Bryan explicitly wants it paused.
   - First file to inspect next run: `docs/product/demo-role-readiness.md` and `automation/prompts/functionality-ux-upgrade-hourly.md`
+
+## Run 2026-05-31 22:28 PT
+
+- Starting SHA: `3ac7c6e1864e9db911afc10f433c0abdccbbe48c`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Branch policy: work stayed on clean, synced `main`; no baseline push or pull was needed
+- Ladder level targeted: `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` plus `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` and `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN`
+- Backlog item: `workspace-density-consolidation`
+- Work order selected: Reduce protected workspace first-load density and duplicate default-visible panels while preserving real route-backed actions.
+- Selection reason: The repo-grounded diagnosis showed Student Dashboard, Users & Access, Mentor Dashboard, and staff dashboards were all valid but overpacked; tests were also forcing secondary content to stay default-visible.
+- User-facing improvement: First load now prioritizes the primary workflow for each role, while requirements, feedback, submissions, evidence, access history, guidance, mentor row details, and dashboard snapshots remain reachable through accessible disclosure controls.
+- Roles affected: `student`, `mentor`, `site_admin`, `program_teacher`, `admin`, `viewer`, `administration`
+- Files changed: `workspace.js`, `workspace.css`, `tests/workspace-app.test.mjs`, `tests/functionality-language-audit.test.mjs`, `scripts/verify-workspace-density.mjs`, `package.json`, `docs/student-progress-dashboard.md`, this ledger, audit docs, run log, role readiness scorecard, automation prompt/state, and the run manifest.
+- Tests/verifiers added or updated: `tests/workspace-app.test.mjs` now opens collapsed secondary content before asserting it; `scripts/verify-workspace-density.mjs` and `npm run verify:workspace-density` guard first-load budgets, summary-only metrics, disclosure wiring, and compact mentor/student/access surfaces.
+- Focused validation passed before docs/state closeout: `node --test tests/workspace-app.test.mjs`; `npm run verify:workspace-density`; `npm run verify:dashboard-actions`; `npm run verify:workspace-navigation`; `npm run verify:functionality-language`; `npm run verify:functionality-ux-automation`; `node --test tests/functionality-language-audit.test.mjs`.
+- Validation result: focused validation passed; full validation status is recorded in the run manifest and final report after closeout commands complete.
+- Commit: pending closeout commit `ux: reduce workspace density and duplicate panels`
+- Push status: pending push to `origin/main` because this prompt explicitly requires it.
+- Deferred items: hosted role click-through proof and any new workflow features remain deferred; this run intentionally did not change RBAC, routes, production config, or live data.
+- New backlog items: none.
+- Next recommended work order: Use `npm run verify:workspace-density` on every future workspace layout/dashboard slice, then inspect hosted role click-through proof or presentation schedule URL state if allowed.
+- Do-not-repeat notes: do not re-expand student requirements/feedback/submissions/evidence, Users & Access history/guidance, dashboard snapshots, or mentor row details by default unless a new first-screen budget and density verifier update proves it is intentional.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT`
+  - Advanced: yes
+  - Evidence: the workspace now has shared disclosure state, compact row/detail patterns, summary-only metric styling, and a dedicated density verifier with package-script and audit-test registration.
+  - Unlocks: future UX runs can improve role workflows without rebuilding a packed first screen.
+  - Next: hosted role click-through proof when allowed; otherwise presentation schedule URL state.
+  - Blockers: hosted proof still depends on allowed fake-account runtime and audit writes.
+  - Do not repeat: do not restore default-open walls of requirements, history, snapshots, or mentor mini-dashboard rows.
+  - First file to inspect next run: `scripts/verify-workspace-density.mjs` before changing `workspace.js` density behavior.

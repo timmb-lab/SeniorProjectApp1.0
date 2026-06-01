@@ -142,6 +142,7 @@ Read these before selecting work:
 - `workspace.js`
 - `workspace.css`
 - `scripts/verify-functionality-language.mjs`
+- `scripts/verify-workspace-density.mjs`
 - `tests/functionality-language-audit.test.mjs`
 - relevant `functions/api/**` and `functions/_lib/**` files for the selected route
 - relevant `tests/**` files for the selected area
@@ -437,6 +438,16 @@ Preferred proof order:
 
 Do not mark a click path fixed if the target route exists but the role still lands on an avoidable denial, an unrelated section, a mismatched filter, or a visible dead end.
 
+### Workspace Density Rules
+
+Protected workspace first-load surfaces must stay calm. Do not make every real panel visible by default just because the data exists.
+
+- Keep one clear primary workflow visible per role landing page.
+- Put secondary history, audit, long guidance, timelines, broad dashboard snapshots, and dense row details behind accessible disclosure when the first screen is already crowded.
+- Preserve route-backed actions and prove collapsed content is reachable after interaction.
+- Summary-only metrics must look and test differently from route-backed workflow cards.
+- When touching `workspace.js` or `workspace.css` for dashboard, student, mentor, Users & Access, or shell layout density, run `npm run verify:workspace-density` if available and update it when the budget changes.
+
 Preferred Level 1 slices:
 
 - `Submitted` -> Review Queue filtered to submitted.
@@ -593,6 +604,7 @@ Use existing scripts where available:
 
 - `npm run verify:functionality-language`
 - `npm run verify:functionality-ux-automation` when automation prompt/ladder/state changes
+- `npm run verify:workspace-density` when workspace density, dashboards, or disclosure behavior changes
 - `node --test tests/<focused-test>.mjs`
 - `npm run test`
 - `npm run typecheck`
@@ -694,6 +706,7 @@ When they exist and match the selected slice, prefer also running:
 - `npm run verify:dashboard-actions`
 - `npm run verify:review-queue-deeplinks`
 - `npm run verify:workspace-navigation`
+- `npm run verify:workspace-density`
 - `npm run verify:role-functionality`
 
 If JSON files changed, parse them before commit. If YAML files changed, run the repo's available parser/checker or report that no YAML checker exists.
