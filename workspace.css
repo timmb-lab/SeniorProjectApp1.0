@@ -1574,6 +1574,13 @@
   padding: 0.9rem 1rem;
 }
 
+.workspace-student-support-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin-top: 0.85rem;
+}
+
 .workspace-student-primary-action {
   border-left: 6px solid var(--abc-blue);
   background: color-mix(in srgb, var(--abc-blue-soft) 72%, white);

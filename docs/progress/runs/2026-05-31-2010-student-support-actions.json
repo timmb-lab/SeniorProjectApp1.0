@@ -1,0 +1,133 @@
+{
+  "runId": "2026-05-31-2010-student-support-actions",
+  "automationId": "functionality-ux-upgrade-hourly",
+  "timestamp": "2026-05-31T20:10:00-07:00",
+  "startingSha": "1c969451c291fa18f7b9979af0195de2223b7c74",
+  "branch": "main",
+  "lane": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN",
+  "selectedSlice": "Turn the student Need help panel into a real in-page support launcher.",
+  "selectionReason": "The current student dashboard already had next-step actions, deadlines, requirement detail, feedback filters, and submission filters, but the support box stayed static. Reusing those existing in-page states was the safest way to deepen student support without a contact-data surface or a new route.",
+  "candidateSummary": [
+    {
+      "candidate": "Student support quick actions",
+      "ladderLevel": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN",
+      "roles": "student",
+      "impact": 5,
+      "safety": 5,
+      "testability": 5,
+      "size": "S",
+      "score": 56,
+      "decision": "selected"
+    },
+    {
+      "candidate": "Hosted section-level permission proof",
+      "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
+      "roles": "all protected roles",
+      "impact": 4,
+      "safety": 3,
+      "testability": 3,
+      "size": "M",
+      "score": 40,
+      "decision": "deferred-hosted-proof-not-allowed"
+    },
+    {
+      "candidate": "Mentor Dashboard URL state",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "roles": "mentor",
+      "impact": 3,
+      "safety": 4,
+      "testability": 4,
+      "size": "S",
+      "score": 41,
+      "decision": "deferred-next-after-student-support"
+    },
+    {
+      "candidate": "Presentation schedule URL state",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "roles": "student, mentor, teacher, admin",
+      "impact": 3,
+      "safety": 4,
+      "testability": 4,
+      "size": "S",
+      "score": 41,
+      "decision": "deferred-current-in-page-filters-cover-the-need"
+    },
+    {
+      "candidate": "Site-scoped audit destination",
+      "ladderLevel": "LEVEL_7_AUDITABILITY_AND_TRUST",
+      "roles": "site_admin, org_admin",
+      "impact": 4,
+      "safety": 3,
+      "testability": 4,
+      "size": "M",
+      "score": 39,
+      "decision": "deferred-route-shape-still-needs-review"
+    },
+    {
+      "candidate": "Site-admin mentor POST default fallback",
+      "ladderLevel": "LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW",
+      "roles": "site_admin",
+      "impact": 3,
+      "safety": 5,
+      "testability": 5,
+      "size": "XS",
+      "score": 43,
+      "decision": "not-selected-current-workspace-already-posts-siteId"
+    },
+    {
+      "candidate": "Administration/AP dashboard language",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "roles": "administration, viewer, site staff",
+      "impact": 3,
+      "safety": 5,
+      "testability": 5,
+      "size": "XS",
+      "score": 43,
+      "decision": "not-selected-lower-product-depth-than-student-support-gap"
+    },
+    {
+      "candidate": "Student detail URL/hash state",
+      "ladderLevel": "LEVEL_2_STUDENT_DETAIL_DEPTH",
+      "roles": "staff",
+      "impact": 4,
+      "safety": 3,
+      "testability": 3,
+      "size": "M",
+      "score": 36,
+      "decision": "deferred-privacy-review-still-needed"
+    },
+    {
+      "candidate": "Review Queue missing-submission semantics",
+      "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
+      "roles": "program_teacher, site staff",
+      "impact": 5,
+      "safety": 2,
+      "testability": 3,
+      "size": "M",
+      "score": 34,
+      "decision": "deferred-backend-queue-rows-still-absent"
+    },
+    {
+      "candidate": "Summary-only metric affordance styling",
+      "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS",
+      "roles": "staff, viewer",
+      "impact": 3,
+      "safety": 4,
+      "testability": 3,
+      "size": "S",
+      "score": 39,
+      "decision": "not-selected-broader-visual-surface"
+    }
+  ],
+  "filesChanged": [
+    "workspace.js",
+    "workspace.css",
+    "tests/workspace-app.test.mjs",
+    "docs/student-progress-dashboard.md",
+    "docs/functionality-language-audit.md",
+    "docs/progress/run-log.md",
+    "docs/functionality-ux-growth-ledger.md",
+    "automation/state/functionality-ux-growth-state.json"
+  ],
+  "nextRecommended": "If hosted proof stays blocked, inspect Mentor Dashboard URL state now that student support quick actions are in place."
+}

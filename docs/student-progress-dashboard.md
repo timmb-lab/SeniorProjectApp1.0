@@ -66,6 +66,7 @@ Status uses simple rules:
 - Submitted Work rows can now open the same student-safe submission timeline in place, so students can check versions, status changes, and visible teacher notes from either Feedback History or the submission list.
 - Submitted Work filters clear a selected submission timeline when the chosen filter hides that row, so students do not stay on a stale timeline after switching focus.
 - Progress Details with current phase, completed requirements, missing submissions, review counts, last updated, evidence count, and feedback action status.
+- The `Need help?` panel now gives route-free quick actions that reuse the existing feedback filters, submitted-work filters, and in-page requirement detail, so students can jump straight to the right workflow without exposing mentor contact details or adding a new page.
 - May 5 archive status fact when the student-owned archive readiness response has closeout checks to summarize.
 - Support note that shows the assigned mentor name when available or a safe no-mentor fallback.
 
@@ -95,6 +96,7 @@ No new fake links were added. The dashboard keeps existing real actions only:
 - Review archive readiness through the existing Archive workspace section; the student home only summarizes the next archive blocker and does not add a fake archive request action.
 - Open a feedback-row timeline through the existing `/api/reviews/:submissionId/history` route. The route already enforces own-student or assigned-scope access and filters staff-only comments before the workspace renders the timeline.
 - Open the same submission timeline from a Submitted Work row through the existing `/api/reviews/:submissionId/history` route when a student wants the timeline from the submission list instead of the feedback panel.
+- Use the `Need help?` panel to jump to filtered feedback, filtered submitted work, or the next requirement already returned by the current student dashboard response. These quick actions stay in-page and reuse the same requirement, feedback, and submission state instead of adding a fake support page.
 
 Dedicated requirement drill-down links were not added because there is not yet a separate student-safe requirement detail page. The current guided action and detail view stay in-page and use the existing student dashboard, evidence, feedback, and submit route data.
 
@@ -109,7 +111,7 @@ Student-facing copy on this route now uses "work," "evidence," "submitted work,"
 1. Extend the student-safe requirement detail disclosure only if students need more than the current checklist, evidence focus action, send-for-review action, and in-page status/feedback summary.
 2. Add dedicated phase-specific student progress pages only if students need more than the current grouped checklist, phase-focus filters, and in-page requirement detail.
 3. Add shareable submission-list URL state only if students need more than the current in-page status filters, feedback filters, version/evidence timeline cues, and in-row timeline.
-4. Add mentor contact/support workflow without exposing unsafe contact data.
+4. Add mentor contact/support workflow only if policy allows a real contact path beyond the current in-page support actions.
 5. Add a richer due-date timeline or calendar only if students need more than the upcoming-deadlines panel plus requirement-row deadline labels.
 6. Add a downloadable student progress summary.
 7. Add a parent/guardian-friendly print view after policy review.

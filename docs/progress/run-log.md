@@ -21,6 +21,17 @@ This is the compact run log for the current Functionality UX Upgrade automation 
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-05-31 20:10 PT - Functionality UX Upgrade Student Support Actions
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 6 student progress drill-down / student-home support guidance, supporting MVP-003, MVP-032, and MVP-033.
+- `starting HEAD`: `1c969451c291fa18f7b9979af0195de2223b7c74`.
+- `selected slice`: Turn the student `Need help?` panel into a real in-page support launcher.
+- `repo-grounded findings`: the latest handoff explicitly pointed at `renderStudentProgressDetails()`. Current `workspace.js` already rendered next-step actions, deadlines, requirement detail, feedback filters, and Submitted Work filters, but the support box still ended as static text. Students had to scan the full page to find the right workflow even when the dashboard already knew whether revision notes, submitted work, or the next requirement should come first.
+- `changes`: `workspace.js` now renders student-home support quick actions that reuse the existing feedback filters, Submitted Work filters, and in-page requirement detail without new routes or contact data. `workspace.css` adds a compact support-action row. `tests/workspace-app.test.mjs` now proves the support box renders the quick actions and that the support buttons reuse the existing feedback, submission, and requirement state instead of fetching another route.
+- `validation`: focused workspace coverage passed before broader validation. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.
+
 ## 2026-05-31 19:08 PT - Functionality UX Upgrade Student Submission Filters
 
 - `automation ID`: functionality-ux-upgrade-hourly.

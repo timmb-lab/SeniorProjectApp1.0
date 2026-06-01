@@ -3843,6 +3843,10 @@ test("workspace renders a progress-first student homepage with safe language", a
   assert.match(student, /May 5 archive/);
   assert.match(student, /Finish Reflections and portfolio/);
   assert.match(student, /Need help/);
+  assert.match(student, /data-student-support-box="true"/);
+  assert.match(student, /Review feedback/);
+  assert.match(student, /Open submitted work/);
+  assert.match(student, /Open next requirement/);
   assert.doesNotMatch(student, /Due date: Not available yet/);
   assert.doesNotMatch(student, /Database-backed MVP/);
   assert.doesNotMatch(student, /Cloudflare target/);
@@ -4771,6 +4775,157 @@ test("student submission filters narrow rows and clear hidden submission timelin
   assert.doesNotMatch(workspaceRoot.innerHTML, /data-student-submission-timeline="true"/);
   assert.equal(vm.runInContext("studentFeedbackHistoryState.selectedSubmissionId", context), "");
   assert.equal(vm.runInContext("studentSubmissionFilter", context), "revision_requested");
+});
+
+test("student support actions reuse existing feedback, submission, and requirement state", async () => {
+  const { context, workspaceRoot, fetchLog } = await createWorkspaceContextWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "student-support-actions",
+          email: "student.support.actions@senior-capstone.test",
+          displayName: "Support Action Student",
+          roles: [{ role_id: "student", scope_type: "global", scope_id: "" }],
+        },
+      },
+    },
+    "/api/student/dashboard": {
+      status: 200,
+      body: {
+        ok: true,
+        viewer: { self: true },
+        summary: {
+          requirementsTotal: 3,
+          requirementsComplete: 1,
+          completionPercent: 33,
+          submittedRequiredCount: 2,
+          missingRequiredCount: 1,
+          revisionRequestedCount: 1,
+          waitingForReviewCount: 1,
+          dueDatesAvailable: true,
+          mentor: { assigned: false, name: null, message: "Ask your program teacher who can help with mentor questions." },
+        },
+        nextSteps: [
+          {
+            title: "Research Proposal",
+            status: "Needs Revision",
+            detail: "Revise the research proposal and send it back for review.",
+            dueLabel: "October 9 and 10",
+            requirementId: "req-revision",
+            submissionId: "submission-revision",
+            submissionStatus: "revision_requested",
+            evidenceCount: 1,
+          },
+        ],
+        requirements: [
+          {
+            requirementId: "req-revision",
+            submissionId: "submission-revision",
+            title: "Research Proposal",
+            phase: "proposal-and-research",
+            phaseLabel: "Proposal And Research",
+            status: "revision_requested",
+            progressStatus: "revision_requested",
+            submissionStatus: "revision_requested",
+            submissionVersion: 2,
+            evidenceCount: 1,
+            dueLabel: "October 9 and 10",
+            nextAction: "Send the revised proposal back for teacher review.",
+          },
+          {
+            requirementId: "req-submitted",
+            submissionId: "submission-submitted",
+            title: "Mentor Summary",
+            phase: "mentor-meetings",
+            phaseLabel: "Mentor Meetings",
+            status: "submitted",
+            progressStatus: "submitted",
+            submissionStatus: "submitted",
+            submissionVersion: 1,
+            evidenceCount: 1,
+            dueLabel: "October 20",
+            nextAction: "Wait for feedback on the mentor summary.",
+          },
+          {
+            requirementId: "req-missing",
+            submissionId: "",
+            title: "Portfolio Reflection",
+            phase: "portfolio",
+            phaseLabel: "Portfolio",
+            status: "missing",
+            progressStatus: null,
+            submissionStatus: null,
+            submissionVersion: null,
+            evidenceCount: 0,
+            dueLabel: "Before celebration day",
+            nextAction: "Start the reflection draft.",
+          },
+        ],
+        progress: [],
+        submissions: [
+          { id: "submission-revision", requirement_id: "req-revision", requirement_title: "Research Proposal", status: "revision_requested", version: 2, updated_at: "2026-05-24T17:00:00.000Z" },
+          { id: "submission-submitted", requirement_id: "req-submitted", requirement_title: "Mentor Summary", status: "submitted", version: 1, updated_at: "2026-05-24T16:00:00.000Z" },
+          { id: "submission-draft", requirement_id: "req-draft", requirement_title: "Portfolio Reflection", status: "draft", version: 1, updated_at: "2026-05-24T15:00:00.000Z" },
+        ],
+        evidence: [],
+        feedback: [
+          {
+            id: "review-revision",
+            submissionId: "submission-revision",
+            requirementTitle: "Research Proposal",
+            submissionStatus: "revision_requested",
+            submissionVersion: 2,
+            status: "revision_requested",
+            message: "Add one measurable success target before resubmitting.",
+            authorName: "Ms. Garcia",
+            createdAt: "2026-05-24T18:30:00.000Z",
+          },
+          {
+            id: "review-submitted",
+            submissionId: "submission-submitted",
+            requirementTitle: "Mentor Summary",
+            submissionStatus: "under_review",
+            submissionVersion: 1,
+            status: "under_review",
+            message: "Thanks for turning this in early.",
+            authorName: "Mr. Lee",
+            createdAt: "2026-05-24T17:30:00.000Z",
+          },
+        ],
+      },
+    },
+    "/api/student/archive/readiness": {
+      status: 200,
+      body: { ok: true, summary: {}, checks: [], archive: {}, storage: {}, retention: {} },
+    },
+    "/api/presentation-slots": {
+      status: 200,
+      body: { ok: true, slots: [] },
+    },
+  });
+
+  assert.match(workspaceRoot.innerHTML, /data-student-support-box="true"/);
+  assert.match(workspaceRoot.innerHTML, /Review feedback/);
+  assert.match(workspaceRoot.innerHTML, /Open submitted work/);
+  assert.match(workspaceRoot.innerHTML, /Open next requirement/);
+
+  const fetchCountBeforeSupport = fetchLog.length;
+  vm.runInContext('handleStudentSupportAction({ currentTarget: { dataset: { studentSupportAction: "focus-feedback", studentSupportFilter: "revision_requested" } } })', context);
+  assert.equal(fetchLog.length, fetchCountBeforeSupport);
+  assert.match(workspaceRoot.innerHTML, /data-student-feedback-active-filter="revision_requested"/);
+  assert.equal((workspaceRoot.innerHTML.match(/data-student-feedback-item="/g) || []).length, 1);
+  assert.equal(vm.runInContext("studentFeedbackFilter", context), "revision_requested");
+
+  vm.runInContext('handleStudentSupportAction({ currentTarget: { dataset: { studentSupportAction: "focus-submissions", studentSupportFilter: "revision_requested" } } })', context);
+  assert.match(workspaceRoot.innerHTML, /data-student-submission-active-filter="revision_requested"/);
+  assert.equal((workspaceRoot.innerHTML.match(/data-student-submission-row="/g) || []).length, 1);
+  assert.equal(vm.runInContext("studentSubmissionFilter", context), "revision_requested");
+
+  vm.runInContext('handleStudentRequirementAction({ currentTarget: { dataset: { studentRequirementAction: "open-detail", studentRequirementId: "req-revision" } } })', context);
+  assert.match(workspaceRoot.innerHTML, /data-student-requirement-detail="true"/);
+  assert.match(workspaceRoot.innerHTML, /Research Proposal/);
 });
 
 test("workspace renders role-pending and permission-denied access states", async () => {

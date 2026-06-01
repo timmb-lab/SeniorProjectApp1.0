@@ -4953,3 +4953,52 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: hosted proof still needs allowed fake-account and audit-write runtime; student-safe support workflow shape still needs privacy review.
   - Do not repeat: do not rebuild this recent-activity slice unless the mentor route fields or the mentor card activity line regress.
   - First file to inspect next run: `workspace.js` `renderStudentProgressDetails()` and `renderMentorStudentCards()`
+
+## Run 2026-05-31 20:10 PT
+
+- Starting SHA: `1c969451c291fa18f7b9979af0195de2223b7c74`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Branch policy: work stayed on clean local `main`; local `main` remained ahead of `origin/main`, `origin/main` was not ahead, and no sync or push was run
+- Ladder level targeted: `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN`
+- Backlog item: `student-support-quick-actions`
+- Work order selected: Turn the student `Need help?` panel into a real in-page support launcher.
+- Selection reason: The latest handoff pointed directly at `renderStudentProgressDetails()`. Current repo evidence showed the student dashboard already had real next-step actions, Upcoming deadlines, requirement detail, Feedback History filters, and Submitted Work filters, but the support box still ended as static text. Reusing those existing in-page states was the safest way to deepen student support without exposing contact data or adding a new route.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Student support quick actions | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 5 | 5 | 5 | S | 56 | selected |
+| Hosted section-level permission proof | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all protected roles | 4 | 3 | 3 | M | 40 | deferred: hosted fake-account proof and audit writes are not allowed in this run |
+| Mentor Dashboard URL state | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | mentor | 3 | 4 | 4 | S | 41 | deferred: next safe follow-up after the student support gap is closed |
+| Presentation schedule URL state | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | student, mentor, teacher, admin | 3 | 4 | 4 | S | 41 | deferred: current in-page filters already cover the focus need |
+| Site-scoped audit destination | `LEVEL_7_AUDITABILITY_AND_TRUST` | site_admin, org_admin | 4 | 3 | 4 | M | 39 | deferred: route shape and visibility review still needed |
+| Site-admin mentor POST default fallback | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | site_admin | 3 | 5 | 5 | XS | 43 | not selected: current workspace already posts explicit `siteId`, so the student support gap was more user-visible |
+| Administration/AP dashboard language | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | administration, viewer, site staff | 3 | 5 | 5 | XS | 43 | not selected: lower product depth than the active student support issue |
+| Student detail URL/hash state | `LEVEL_2_STUDENT_DETAIL_DEPTH` | staff | 4 | 3 | 3 | M | 36 | deferred: privacy review still needed before shareable detail state |
+| Review Queue missing-submission semantics | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | program_teacher, site staff | 5 | 2 | 3 | M | 34 | deferred: backend queue rows are still absent |
+| Summary-only metric affordance styling | `LEVEL_1_NAVIGABLE_DASHBOARDS` | staff, viewer | 3 | 4 | 3 | S | 39 | not selected: broader visual surface than this bounded student slice |
+
+- User-facing improvement: Students can now move from the `Need help?` panel straight into filtered feedback, filtered submitted work, or the next requirement already returned by the current dashboard, without opening a new page or exposing mentor contact details.
+- Roles affected: `student`
+- Files changed: `workspace.js`, `workspace.css`, `tests/workspace-app.test.mjs`, `docs/student-progress-dashboard.md`, `docs/functionality-language-audit.md`, `docs/progress/run-log.md`, `docs/progress/runs/2026-05-31-2010-student-support-actions.json`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`
+- Tests/verifiers added or updated: `tests/workspace-app.test.mjs` now proves the support box renders quick actions and that the support buttons reuse existing feedback, submission, and requirement state instead of fetching another route.
+- Validation commands:
+  - Focused passed before docs/state closeout: `node --test tests/workspace-app.test.mjs`
+  - Final passed: `npm run verify:functionality-language`, `node --test tests/functionality-language-audit.test.mjs`, `node -e "JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-05-31-2010-student-support-actions.json','utf8')); console.log('json ok')"`, `git diff --check`, `npm run verify:dashboard-actions`, `npm run verify:workspace-navigation`, `npm run verify:functionality-ux-automation`, `npm run check:production-surfaces`, `npm run check:route-inventory`, `npm run test`, `npm run typecheck`, `npm run check`
+- Validation result: passed; `git diff --check` reported only CRLF normalization warnings, with no whitespace errors.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: hosted section-level permission proof, Mentor Dashboard URL state, site-scoped audit destination, Review Queue missing-submission semantics, Presentation schedule URL state, and site-admin assignment removal workflow remain deferred.
+- New backlog items: none
+- Next recommended work order: If hosted proof is still blocked, inspect Mentor Dashboard URL state now that the student support workflow no longer needs product-shape review.
+- Do-not-repeat notes: do not re-add the student support quick-action slice unless regression removes `data-student-support-box="true"` or the support panel stops opening the existing feedback, submission, or requirement workflows.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN`
+  - Advanced: yes
+  - Evidence: the student workspace now renders `data-student-support-box="true"` with `Review feedback`, `Open submitted work`, and `Open next requirement` quick actions, and focused coverage proves those buttons reuse existing feedback filters, submission filters, and requirement detail state.
+  - Unlocks: the student home now has a safe in-page support launcher, so future work can move to Mentor Dashboard URL state or a policy-reviewed contact path instead of reworking the same support copy.
+  - Next: run hosted permission proof when allowed; otherwise inspect Mentor Dashboard URL state.
+  - Blockers: hosted proof still needs allowed fake-account and audit-write runtime; any real contact workflow still needs tighter privacy and policy review.
+  - Do not repeat: do not rebuild this support-action slice unless the support marker or the existing in-page support actions regress.
+  - First file to inspect next run: `workspace.js` `renderStudentProgressDetails()` and `handleStudentSupportAction()`

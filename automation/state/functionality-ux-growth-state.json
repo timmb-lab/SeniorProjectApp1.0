@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-05-31T19:39:00-07:00",
-  "lastStartingSha": "7291defadf566c6bb4c0322f48b8d7de775fb398",
+  "lastRunAt": "2026-05-31T20:10:00-07:00",
+  "lastStartingSha": "1c969451c291fa18f7b9979af0195de2223b7c74",
   "lastEndingSha": null,
-  "currentLadderFocus": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+  "currentLadderFocus": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN",
   "completedWorkOrders": [
     {
       "id": "workspace-header-product-language-cleanup",
@@ -881,6 +881,14 @@
       "type": "TYPE_D_ROLE_WORKSPACE",
       "summary": "Mentor Dashboard assigned-student cards now show recent work, meeting, and presentation activity cues from the existing mentor-scoped route.",
       "commit": "pending-closeout-commit"
+    },
+    {
+      "id": "student-support-quick-actions",
+      "completedAt": "2026-05-31T20:10:00-07:00",
+      "ladderLevel": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN",
+      "type": "TYPE_D_ROLE_WORKSPACE",
+      "summary": "Student home now turns the Need help panel into quick actions for existing feedback, submission, and requirement workflows without a contact-data surface or new route.",
+      "commit": "pending-closeout-commit"
     }
   ],
   "deferredWorkOrders": [
@@ -935,6 +943,11 @@
       "reason": "Add only if users need shareable presentation-day filter links after the in-page scoped filter proves useful."
     },
     {
+      "id": "mentor-dashboard-url-state",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "reason": "Add only if mentors need shareable focus links after the in-page filters and recent-activity cues prove useful."
+    },
+    {
       "id": "admin-recent-audit-deep-link",
       "ladderLevel": "LEVEL_7_AUDITABILITY_AND_TRUST",
       "reason": "Restore any site-admin audit navigation only after a site-scoped audit destination and visibility rules are explicitly reviewed."
@@ -949,10 +962,10 @@
       "summary": "Run only when hosted fake-account proof and audit-event writes are allowed."
     },
     {
-      "id": "student-mentor-support-workflow-shape",
-      "ladderLevel": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN",
+      "id": "mentor-dashboard-url-state",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
       "type": "TYPE_D_ROLE_WORKSPACE",
-      "summary": "If hosted proof remains blocked, review whether the existing mentor summary can deepen into clearer student-safe support guidance without exposing contact data."
+      "summary": "If hosted proof remains blocked, inspect whether the existing mentor dashboard filters need shareable URL state."
     },
     {
       "id": "admin-recent-audit-deep-link",
@@ -1071,17 +1084,17 @@
     "Do not re-add the student requirement phase-focus slice unless regression removes data-student-requirement-phase-focus or opening a student requirement stops switching to the matching phase.",
     "Do not re-add the student upcoming-deadlines panel unless regression removes data-student-deadlines-panel or the due-date-first rows stop reusing the existing requirement actions.",
     "Do not re-add the student feedback-history filters unless regression removes data-student-feedback-filters or filtered-out feedback-row timelines stop clearing safely.",
-    "Do not re-add the student feedback timeline compare cues unless regression removes data-student-feedback-timeline-summary, current-version markers, evidence-count version rows, or newest-first teacher-note ordering."
+    "Do not re-add the student feedback timeline compare cues unless regression removes data-student-feedback-timeline-summary, current-version markers, evidence-count version rows, or newest-first teacher-note ordering.",
+    "Do not re-add the student support quick actions unless regression removes data-student-support-box or the Need help panel stops opening the existing feedback, submission, or requirement workflows."
   ],
   "lastValidationStatus": {
     "status": "passed",
-    "completedAt": "2026-05-31T19:39:00-07:00",
+    "completedAt": "2026-05-31T20:10:00-07:00",
     "commands": [
-      "node --test tests/mentor-dashboard.integration.test.mjs",
       "node --test tests/workspace-app.test.mjs",
       "npm run verify:functionality-language",
       "node --test tests/functionality-language-audit.test.mjs",
-      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-05-31-1939-mentor-dashboard-recent-activity.json','utf8')); console.log('json ok')\"",
+      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-05-31-2010-student-support-actions.json','utf8')); console.log('json ok')\"",
       "git diff --check",
       "npm run verify:dashboard-actions",
       "npm run verify:workspace-navigation",
@@ -1092,7 +1105,7 @@
       "npm run typecheck",
       "npm run check"
     ],
-    "notes": "Focused and full validation passed for the mentor dashboard recent-activity slice. git diff --check reported only CRLF normalization warnings. This run stayed inside the existing mentor-scoped dashboard route and assigned-student workspace, and did not change auth grants, RBAC, tenant/site/program/student privacy boundaries, migrations, secrets/env files, Cloudflare/OAuth/domain config, deploy settings, or live data."
+    "notes": "Focused and full validation passed for the student support quick-action slice. git diff --check reported only CRLF normalization warnings. This run stayed inside the existing student-scoped dashboard, reused current feedback/submission/requirement state, and did not change auth grants, RBAC, tenant/site/program/student privacy boundaries, migrations, secrets/env files, Cloudflare/OAuth/domain config, deploy settings, or live data."
   },
   "lastProductReadinessScorecardSummary": {
     "homepageClarity": "4 to 4",

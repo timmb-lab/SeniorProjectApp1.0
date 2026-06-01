@@ -30,6 +30,7 @@ let siteStudentFilters = defaultSiteStudentFilters();
 let siteStudentDetailState = defaultSiteStudentDetailState();
 let pendingSiteStudentDetailFocus = false;
 let pendingStudentRequirementFocusId = "";
+let pendingStudentSectionFocus = "";
 let studentRequirementDetailState = defaultStudentRequirementDetailState();
 let studentFeedbackHistoryState = defaultStudentFeedbackHistoryState();
 let studentFeedbackFilter = defaultStudentFeedbackFilter();
@@ -724,6 +725,7 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
   bindWorkspaceForms();
   flushPendingSiteStudentDetailFocus();
   flushPendingStudentRequirementFocus();
+  flushPendingStudentSectionFocus();
 }
 
 function requestSiteStudentDetailFocus() {
@@ -732,6 +734,13 @@ function requestSiteStudentDetailFocus() {
 
 function requestStudentRequirementFocus(requirementId) {
   pendingStudentRequirementFocusId = cleanDirectoryFilter(requirementId);
+}
+
+function requestStudentSectionFocus(section) {
+  const normalized = String(section || "").trim().toLowerCase();
+  pendingStudentSectionFocus = ["deadlines", "requirements", "feedback", "submissions"].includes(normalized)
+    ? normalized
+    : "";
 }
 
 function flushPendingSiteStudentDetailFocus() {
@@ -773,6 +782,35 @@ function flushPendingStudentRequirementFocus() {
     requestAnimationFrame(focusRequirement);
   } else {
     focusRequirement();
+  }
+}
+
+function flushPendingStudentSectionFocus() {
+  const section = pendingStudentSectionFocus;
+  if (!section) return;
+  pendingStudentSectionFocus = "";
+  const selectors = {
+    deadlines: '[data-student-deadlines-panel="true"]',
+    requirements: '[data-student-requirements-panel="true"]',
+    feedback: '[data-student-feedback-panel="true"]',
+    submissions: '[data-student-submissions-panel="true"]',
+  };
+  const focusPanel = () => {
+    const panel = document.querySelector(selectors[section] || "");
+    if (!panel) return;
+    panel.scrollIntoView?.({ block: "start", behavior: "auto" });
+    try {
+      panel.focus?.({ preventScroll: true });
+    } catch {
+      panel.focus?.();
+    }
+  };
+  if (typeof setTimeout === "function") {
+    setTimeout(focusPanel, 0);
+  } else if (typeof requestAnimationFrame === "function") {
+    requestAnimationFrame(focusPanel);
+  } else {
+    focusPanel();
   }
 }
 
@@ -4145,7 +4183,7 @@ function renderStudentSection() {
       </div>
       ${submissions.length ? renderEvidenceForms(submissions) : `<div class="workspace-empty">No active submission is ready for evidence yet. Check back after your teacher adds a requirement.</div>`}
     </section>
-    <section class="workspace-card">
+    <section class="workspace-card" data-student-submissions-panel="true" tabindex="-1">
       <div class="workspace-card-head">
         <div>
           <p class="workspace-kicker">Submissions</p>
@@ -5013,7 +5051,6 @@ function studentFeedbackTimelineNoteLabel(row = {}) {
 
 function renderStudentProgressDetails(summary, dashboard) {
   const progress = dashboard.progress || [];
-  const submissions = dashboard.submissions || [];
   const evidence = dashboard.evidence || [];
   const archiveFact = studentArchiveProgressFact(unwrap(currentData.archiveReadiness));
   return `
@@ -5038,13 +5075,94 @@ function renderStudentProgressDetails(summary, dashboard) {
           ${archiveFact ? renderStudentDetailFact("May 5 archive", archiveFact) : ""}
         </div>
       </details>
-      <div class="workspace-student-support-box">
+      <div class="workspace-student-support-box" data-student-support-box="true">
         <strong>Need help?</strong>
         <p>${escapeHtml(summary.mentor.message || "Ask your mentor or program teacher if something looks wrong.")}</p>
-        <p class="workspace-muted">${escapeHtml(submissions.length || progress.length ? "Use the submission list below to attach work or check review status." : "Your teacher has not added project requirements yet.")}</p>
+        <p class="workspace-muted">${escapeHtml(studentSupportGuidance(summary, dashboard))}</p>
+        ${renderStudentSupportActions(summary, dashboard)}
       </div>
     </section>
   `;
+}
+
+function studentSupportGuidance(summary, dashboard) {
+  const feedback = Array.isArray(dashboard?.feedback) ? dashboard.feedback : [];
+  const submissions = Array.isArray(dashboard?.submissions) ? dashboard.submissions : [];
+  const requirements = Array.isArray(dashboard?.requirements) ? dashboard.requirements : [];
+  if (summary?.revisionRequestedCount && feedback.length) {
+    return "Start with the feedback notes that still need revision, then update the matching submission.";
+  }
+  if (summary?.waitingForReviewCount && submissions.length) {
+    return "Your teacher is reviewing submitted work. Use Submitted Work to confirm what is waiting right now.";
+  }
+  if (summary?.missingRequiredCount && requirements.length) {
+    return "Open the next requirement to see what is still missing and which step comes next.";
+  }
+  if (!summary?.mentor?.assigned) {
+    return "Keep using your next steps and requirement checklist while your program teacher helps with mentor questions.";
+  }
+  if (summary?.dueDatesAvailable) {
+    return "Use Upcoming deadlines or Your Required Work when you want a shorter path through the work below.";
+  }
+  return progress.length || submissions.length || requirements.length
+    ? "Use the submission list, feedback notes, or requirement checklist below to keep your project moving."
+    : "Your teacher has not added project requirements yet.";
+}
+
+function renderStudentSupportActions(summary, dashboard) {
+  const feedback = Array.isArray(dashboard?.feedback) ? dashboard.feedback : [];
+  const submissions = Array.isArray(dashboard?.submissions) ? dashboard.submissions : [];
+  const requirements = Array.isArray(dashboard?.requirements) ? dashboard.requirements : [];
+  const buttons = [];
+  if (feedback.length) {
+    const feedbackFilter = summary?.revisionRequestedCount ? "revision_requested" : "all";
+    buttons.push(`
+      <button class="workspace-link-button workspace-link-button-small" type="button" data-student-support-action="focus-feedback" data-student-support-filter="${escapeHtml(feedbackFilter)}">
+        ${escapeHtml(summary?.revisionRequestedCount ? "Review feedback" : "Open feedback")}
+      </button>
+    `);
+  }
+  if (submissions.length) {
+    const submissionFilter = summary?.revisionRequestedCount
+      ? "revision_requested"
+      : summary?.waitingForReviewCount
+        ? "submitted"
+        : summary?.missingRequiredCount
+          ? "draft"
+          : "all";
+    buttons.push(`
+      <button class="workspace-link-button workspace-link-button-small" type="button" data-student-support-action="focus-submissions" data-student-support-filter="${escapeHtml(submissionFilter)}">
+        ${escapeHtml(summary?.revisionRequestedCount ? "Open submitted work" : summary?.waitingForReviewCount ? "Check submitted work" : "Show submissions")}
+      </button>
+    `);
+  }
+  const focusItem = studentSupportRequirementItem(dashboard);
+  if (focusItem?.requirementId) {
+    buttons.push(renderStudentRequirementOpenButton(focusItem, "Open next requirement"));
+  } else if (requirements.length) {
+    const action = summary?.dueDatesAvailable ? "focus-deadlines" : "focus-requirements";
+    const label = summary?.dueDatesAvailable ? "Show deadlines" : "Open required work";
+    buttons.push(`
+      <button class="workspace-link-button workspace-link-button-small" type="button" data-student-support-action="${escapeHtml(action)}">
+        ${escapeHtml(label)}
+      </button>
+    `);
+  }
+  return buttons.length ? `
+    <div class="workspace-student-support-actions">
+      ${buttons.join("")}
+    </div>
+  ` : "";
+}
+
+function studentSupportRequirementItem(dashboard) {
+  const nextSteps = Array.isArray(dashboard?.nextSteps) ? dashboard.nextSteps : [];
+  const nextStepMatch = nextSteps.find((item) => cleanDirectoryFilter(item?.requirementId || ""));
+  if (nextStepMatch) return nextStepMatch;
+  const requirements = Array.isArray(dashboard?.requirements) ? dashboard.requirements : [];
+  const deadlineMatch = studentUpcomingDeadlineRows(requirements).find((item) => cleanDirectoryFilter(item?.requirementId || ""));
+  if (deadlineMatch) return deadlineMatch;
+  return requirements.find((item) => !isStudentRequirementComplete(item?.status) && cleanDirectoryFilter(item?.requirementId || "")) || null;
 }
 
 function renderStudentDetailFact(label, value) {
@@ -6329,6 +6447,9 @@ function bindWorkspaceForms() {
   document.querySelectorAll("[data-student-submission-action]").forEach((button) => {
     button.addEventListener("click", handleStudentSubmissionAction);
   });
+  document.querySelectorAll("[data-student-support-action]").forEach((button) => {
+    button.addEventListener("click", handleStudentSupportAction);
+  });
   document.querySelector("#siteStudentFilterForm")?.addEventListener("submit", applySiteStudentFilters);
   document.querySelectorAll("[data-site-student-action]").forEach((button) => {
     button.addEventListener("click", handleSiteStudentAction);
@@ -6414,6 +6535,31 @@ function handleStudentRequirementAction(event) {
   if (opening) requestStudentRequirementFocus(requirementId);
   activeSection = "student";
   renderAppShell(opening ? "Requirement details opened." : "Requirement details closed.", "success");
+}
+
+function handleStudentSupportAction(event) {
+  const action = event?.currentTarget?.dataset?.studentSupportAction;
+  if (action === "focus-feedback") {
+    requestStudentSectionFocus("feedback");
+    setStudentFeedbackFilter(event?.currentTarget?.dataset?.studentSupportFilter || "all");
+    return;
+  }
+  if (action === "focus-submissions") {
+    requestStudentSectionFocus("submissions");
+    setStudentSubmissionFilter(event?.currentTarget?.dataset?.studentSupportFilter || "all");
+    return;
+  }
+  if (action === "focus-deadlines") {
+    requestStudentSectionFocus("deadlines");
+    activeSection = "student";
+    renderAppShell("Showing upcoming deadlines.", "success");
+    return;
+  }
+  if (action === "focus-requirements") {
+    requestStudentSectionFocus("requirements");
+    activeSection = "student";
+    renderAppShell("Showing your required work.", "success");
+  }
 }
 
 function handleStudentRequirementPhaseAction(event) {
