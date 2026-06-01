@@ -5002,3 +5002,52 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: hosted proof still needs allowed fake-account and audit-write runtime; any real contact workflow still needs tighter privacy and policy review.
   - Do not repeat: do not rebuild this support-action slice unless the support marker or the existing in-page support actions regress.
   - First file to inspect next run: `workspace.js` `renderStudentProgressDetails()` and `handleStudentSupportAction()`
+
+## Run 2026-05-31 20:38 PT
+
+- Starting SHA: `81471d28a2dd1f13b52f3ccef70a723844df3b85`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Branch policy: work stayed on clean local `main`; local `main` remained ahead of `origin/main`, `origin/main` was not ahead, and no sync or push was run
+- Ladder level targeted: `LEVEL_4_ROLE_SPECIFIC_WORKSPACES`
+- Backlog item: `mentor-dashboard-url-state`
+- Work order selected: Add shareable Mentor Dashboard focus state for the existing assigned-student filters.
+- Selection reason: The latest handoff pointed directly at Mentor Dashboard URL state. Current repo evidence showed the mentor section already had real in-page focus filters and recent-activity cues, but it still could not restore or share the current focus view. Extending the existing workspace URL-state path was the safest bounded improvement because it reused the current mentor-scoped dashboard payload without adding a new route, new data path, or broader visibility.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Mentor Dashboard URL state | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | mentor | 4 | 5 | 5 | S | 52 | selected |
+| Hosted section-level permission proof | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all protected roles | 4 | 3 | 3 | M | 40 | deferred: hosted fake-account proof and audit writes are not allowed in this run |
+| Presentation schedule URL state | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | student, mentor, teacher, admin | 3 | 4 | 4 | S | 41 | deferred: peer slice after mentor focus state if shared presentation-day links are needed |
+| Site-scoped audit destination | `LEVEL_7_AUDITABILITY_AND_TRUST` | site_admin, org_admin | 4 | 3 | 4 | M | 39 | deferred: route shape and visibility review still needed |
+| Review Queue missing-submission semantics | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | program_teacher, site staff | 5 | 2 | 3 | M | 34 | deferred: backend queue rows are still absent |
+| Administration/AP dashboard language | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | administration, viewer, site staff | 3 | 5 | 5 | XS | 43 | not selected: lower functional depth than shareable mentor focus |
+| Student detail URL/hash state | `LEVEL_2_STUDENT_DETAIL_DEPTH` | staff | 4 | 3 | 3 | M | 36 | deferred: privacy review still needed before shareable detail state |
+| Site-admin assignment removal workflow | `LEVEL_7_AUDITABILITY_AND_TRUST` | site_admin | 3 | 2 | 3 | M | 33 | deferred: mutation and audit policy are not ready |
+| Summary-only metric affordance styling | `LEVEL_1_NAVIGABLE_DASHBOARDS` | staff, viewer | 3 | 4 | 3 | S | 39 | not selected: broader visual surface than this bounded mentor slice |
+| Student mentor support workflow shape | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 4 | 3 | 3 | M | 37 | deferred: privacy and product shape still need review |
+
+- User-facing improvement: Mentors can now reload or share the current assigned-student focus view for all students, revision follow-up, meeting attention, or presentation follow-up without refetching broader student data or opening a new route.
+- Roles affected: `mentor`
+- Files changed: `workspace.js`, `tests/workspace-app.test.mjs`, `scripts/verify-workspace-navigation-integrity.mjs`, `docs/functionality-language-audit.md`, `docs/progress/run-log.md`, `docs/progress/runs/2026-05-31-2038-mentor-dashboard-url-state.json`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`
+- Tests/verifiers added or updated: `tests/workspace-app.test.mjs` now proves initial URL restore, sync, invalid-filter fallback, and no-refetch history restoration for mentor focus state; `scripts/verify-workspace-navigation-integrity.mjs` now guards the mentor URL-state helpers.
+- Validation commands:
+  - Focused passed before docs/state closeout: `node --test tests/workspace-app.test.mjs`; `npm run verify:workspace-navigation`
+  - Final passed: `npm run verify:functionality-language`, `node --test tests/functionality-language-audit.test.mjs`, `node -e "JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-05-31-2038-mentor-dashboard-url-state.json','utf8')); console.log('json ok')"`, `git diff --check`, `npm run verify:dashboard-actions`, `npm run verify:workspace-navigation`, `npm run verify:functionality-ux-automation`, `npm run check:production-surfaces`, `npm run check:route-inventory`, `npm run test`, `npm run typecheck`, `npm run check`
+- Validation result: passed; `git diff --check` reported only CRLF normalization warnings, with no whitespace errors.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: hosted section-level permission proof, presentation-schedule URL state, site-scoped audit destination, Review Queue missing-submission semantics, site-admin assignment removal workflow, and student mentor support workflow shape remain deferred.
+- New backlog items: none
+- Next recommended work order: run hosted section-level permission proof when hosted fake-account proof and audit-event writes are allowed; otherwise inspect Presentation schedule URL state if staff need shareable presentation-day focus links.
+- Do-not-repeat notes: do not re-add Mentor Dashboard URL state unless regression removes `mentorFocus` parsing/sync, initial auth-bootstrap restore, or the focused workspace coverage.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_4_ROLE_SPECIFIC_WORKSPACES`
+  - Advanced: yes
+  - Evidence: Mentor Dashboard now restores `mentorFocus` from the workspace URL, syncs the current focus button state back into the URL, and focused coverage proves `popstate` restores the focus without refetching `/api/mentor/dashboard`.
+  - Unlocks: Presentation schedule URL state can now reuse the same proven section-level history pattern if staff need shared day-of focus links.
+  - Next: run hosted permission proof when allowed; otherwise inspect `renderPresentationSection()` and the existing presentation filter state for a peer shareable URL slice.
+  - Blockers: hosted proof still needs allowed fake-account and audit-write runtime; site-scoped audit visibility still needs route review; missing-submission queue rows still do not exist.
+  - Do not repeat: do not rebuild this mentor URL-state slice unless the `mentorFocus` marker, auth-bootstrap restore, or `popstate` coverage regresses.
+  - First file to inspect next run: `workspace.js` `renderPresentationSection()` and `handlePresentationFilterAction()`

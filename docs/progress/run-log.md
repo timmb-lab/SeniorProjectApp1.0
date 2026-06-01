@@ -2565,3 +2565,14 @@ Future productive runs should append compact entries that name the master-plan s
 - `changes`: `functions/api/mentor/dashboard.ts` now returns latest submission, mentor meeting, and presentation timestamps for mentor-scoped assigned students. `workspace.js` now renders a `data-mentor-dashboard-activity="true"` line so mentors can see recent work, meeting, and presentation activity before opening detail. `tests/mentor-dashboard.integration.test.mjs` and `tests/workspace-app.test.mjs` now prove the route fields and rendered activity cues.
 - `validation`: focused mentor route and workspace tests plus the functionality-language verifier passed before docs/state closeout. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
 - `commit/push status`: pending closeout commit; not pushed by this automation run.
+
+## 2026-05-31 PT - Functionality UX Upgrade Mentor Dashboard URL State
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 4 role-specific mentor workspace clarity / shareable mentor focus.
+- `starting HEAD`: `81471d28a2dd1f13b52f3ccef70a723844df3b85`.
+- `selected slice`: Add shareable Mentor Dashboard focus state for the existing assigned-student filters.
+- `repo-grounded findings`: the previous handoff pointed directly at Mentor Dashboard URL state; `workspace.js` already rendered mentor focus filters plus recent-activity cues, but the section still could not restore or share the current focus view. The existing workspace URL-state helpers already supported Review Queue, Student Directory, Mentor Assignments, and Operations, so the safest next slice was extending that same path to the mentor section without adding a new route or broader fetch.
+- `changes`: `workspace.js` now parses `mentorFocus` from the workspace URL, reapplies it after auth bootstrap, syncs it when mentors change the existing filter buttons, restores it on `popstate`, and clears it when other sections take over. `tests/workspace-app.test.mjs` now proves initial URL restore, sync, invalid-filter fallback, no-refetch history navigation, and filter-click URL cleanup. `scripts/verify-workspace-navigation-integrity.mjs` now guards the new mentor URL-state helpers.
+- `validation`: focused workspace coverage and the workspace navigation verifier passed before docs/state closeout. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.

@@ -121,8 +121,10 @@ assertMatches("workspaceJs", /renderActiveFilterSummary\(/, "Workspace lists mus
 assertMatches("workspaceJs", /Reload or share this view with the current browser URL/, "Filtered worklists must explain reloadable/shareable URL state");
 for (const fn of [
   "siteStudentFiltersFromSearchParams",
+  "mentorDashboardFilterFromSearchParams",
   "mentorAssignmentFiltersFromSearchParams",
   "operationsReadinessFiltersFromSearchParams",
+  "syncMentorDashboardUrlState",
   "syncSiteStudentUrlState",
   "syncMentorAssignmentUrlState",
   "syncOperationsReadinessUrlState",
@@ -131,6 +133,8 @@ for (const fn of [
 ]) {
   assertMatches("workspaceJs", new RegExp(`function ${fn}\\b`), `${fn} must exist for shareable worklist URL state`);
 }
+assertMatches("workspaceJs", /activeSection === "mentorDashboard"[\s\S]*syncMentorDashboardUrlState\(options\)/, "Mentor Dashboard focus filters must sync section URL state");
+assertMatches("workspaceJs", /data-mentor-dashboard-action="filter"[\s\S]*data-mentor-dashboard-filter/, "Mentor Dashboard focus controls must keep explicit filter actions");
 assertMatches("workspaceJs", /selectWorkspaceSite\(siteId\)[\s\S]*syncCurrentWorkspaceUrlState\(\{ clearFilters: true, replace: true \}\)/, "Site switching must clear stale worklist filters from URL state");
 assertMatches("workspaceCss", /\.workspace-active-filters/, "Active filter summaries must have stable styling");
 assertMatches("workspaceCss", /\.workspace-active-filter-note/, "Shareable filter URL note must have stable styling");

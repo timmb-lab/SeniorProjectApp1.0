@@ -2093,6 +2093,96 @@ test("workspace applies shareable URL filters for site worklists safely", async 
   assert.doesNotMatch(operationsContext.window.location.href, /programId=|status=|story=|risk=|archiveStatus=|readiness=|category=|needsAttention=|outlineAttention=|limit=|studentId=/);
 });
 
+test("mentor dashboard focus URLs restore and sync without refetching assigned-student data", async () => {
+  const mentorDashboardBody = {
+    ok: true,
+    scope: "mentor_assigned",
+    summary: {
+      assignedCount: 2,
+      needsRevision: 1,
+      missingMeeting: 1,
+      presentationPending: 1,
+    },
+    assignedStudents: [
+      {
+        studentId: "demo-student-102",
+        studentName: "Avery On Track",
+        submissionStatus: "approved",
+        latestSubmissionUpdatedAt: "2026-05-27T15:00:00.000Z",
+        evidenceCount: 5,
+        mentorMeetingStatus: "completed",
+        latestMentorMeetingAt: "2026-05-28T14:30:00.000Z",
+        presentationStatus: "completed",
+        outlineStatus: "approved",
+        latestPresentationScheduledFor: "2026-05-30T18:00:00.000Z",
+        needsAttention: [],
+      },
+      {
+        studentId: "demo-student-101",
+        studentName: "Zoe Needs Help",
+        submissionStatus: "revision_requested",
+        latestSubmissionUpdatedAt: "2026-05-24T18:00:00.000Z",
+        evidenceCount: 3,
+        mentorMeetingStatus: "makeup_required",
+        latestMentorMeetingAt: "2026-05-27T15:30:00.000Z",
+        presentationStatus: "not_scheduled",
+        outlineStatus: "pending",
+        latestPresentationScheduledFor: "2026-05-29T18:15:00.000Z",
+        needsAttention: ["mentor_meeting", "presentation"],
+      },
+    ],
+  };
+  const { context, workspaceRoot, fetchLog, window } = await createWorkspaceContextWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "mentor-url-state-user",
+          email: "mentor.url.state@example.edu",
+          displayName: "Mentor URL State",
+          roles: [{ role_id: "mentor", scope_type: "site", scope_id: "site-desert-valley-high" }],
+        },
+      },
+    },
+    "/api/mentor/dashboard": () => ({ status: 200, body: mentorDashboardBody }),
+    "/api/mentor/assigned": () => ({ status: 200, body: { ok: true, mentorId: "mentor-url-state-user", assignedStudents: [] } }),
+    "/api/presentation-slots": {
+      status: 200,
+      body: { ok: true, slots: [], summary: {} },
+    },
+  }, {
+    url: "https://workspace.example/workspace.html?section=mentorDashboard&siteId=site-desert-valley-high&mentorFocus=%20meeting%20&unknown=keep",
+  });
+
+  assert.match(workspaceRoot.innerHTML, /data-section="mentorDashboard"/);
+  assert.match(workspaceRoot.innerHTML, /data-mentor-dashboard-filter="meeting" aria-pressed="true"/);
+  assert.match(workspaceRoot.innerHTML, /Zoe Needs Help/);
+  assert.doesNotMatch(workspaceRoot.innerHTML, /Avery On Track/);
+
+  vm.runInContext(`
+    mentorDashboardFilter = "presentation";
+    activeSection = "mentorDashboard";
+    syncMentorDashboardUrlState();
+  `, context);
+  const synced = new URL(window.location.href);
+  assert.equal(synced.searchParams.get("section"), "mentorDashboard");
+  assert.equal(synced.searchParams.get("siteId"), "site-desert-valley-high");
+  assert.equal(synced.searchParams.get("mentorFocus"), "presentation");
+  assert.equal(synced.searchParams.get("unknown"), "keep");
+
+  const dashboardFetchCount = fetchLog.filter((entry) => entry === "/api/mentor/dashboard").length;
+  window.history.pushState({}, "", "/workspace.html?section=mentorDashboard&siteId=site-desert-valley-high&mentorFocus=bogus&unknown=keep");
+  window.dispatchEvent({ type: "popstate" });
+  for (let index = 0; index < 2; index += 1) {
+    await new Promise((resolve) => setTimeout(resolve, 0));
+  }
+  assert.equal(vm.runInContext("mentorDashboardFilter", context), "all");
+  assert.match(workspaceRoot.innerHTML, /data-mentor-dashboard-filter="all" aria-pressed="true"/);
+  assert.match(workspaceRoot.innerHTML, /Avery On Track/);
+  assert.equal(fetchLog.filter((entry) => entry === "/api/mentor/dashboard").length, dashboardFetchCount);
+});
+
 test("workspace renders site-scoped Mentor Assignments with role-safe assignment controls", async () => {
   const siteAdmin = await renderWorkspaceWithFetch({
     "/api/auth/me": {
@@ -3127,7 +3217,7 @@ test("mentor dashboard assigned students open detail and meeting history without
       },
     ],
   });
-  const { context, workspaceRoot, fetchRequests } = await createWorkspaceContextWithFetch({
+  const { context, workspaceRoot, fetchRequests, window } = await createWorkspaceContextWithFetch({
     "/api/auth/me": {
       status: 200,
       body: {
@@ -3211,6 +3301,7 @@ test("mentor dashboard assigned students open detail and meeting history without
   assert.match(workspaceRoot.innerHTML, /Presentation follow-up/);
   assert.match(workspaceRoot.innerHTML, /Zoe Needs Help/);
   assert.doesNotMatch(workspaceRoot.innerHTML, /Avery On Track/);
+  assert.equal(new URL(window.location.href).searchParams.get("mentorFocus"), "presentation");
 
   vm.runInContext(`
     handleMentorDashboardAction({
@@ -3225,6 +3316,7 @@ test("mentor dashboard assigned students open detail and meeting history without
 
   assert.match(workspaceRoot.innerHTML, /data-mentor-dashboard-filter="all" aria-pressed="true"/);
   assert.match(workspaceRoot.innerHTML, /Avery On Track/);
+  assert.equal(new URL(window.location.href).searchParams.get("mentorFocus"), null);
 
   await vm.runInContext(`
     handleMentorDashboardAction({

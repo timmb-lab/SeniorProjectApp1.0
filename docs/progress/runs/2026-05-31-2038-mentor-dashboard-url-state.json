@@ -1,0 +1,132 @@
+{
+  "runId": "2026-05-31-2038-mentor-dashboard-url-state",
+  "automationId": "functionality-ux-upgrade-hourly",
+  "timestamp": "2026-05-31T20:38:00-07:00",
+  "startingSha": "81471d28a2dd1f13b52f3ccef70a723844df3b85",
+  "branch": "main",
+  "lane": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+  "selectedSlice": "Add shareable Mentor Dashboard focus state for the existing assigned-student filters.",
+  "selectionReason": "The previous handoff pointed directly at Mentor Dashboard URL state. Current repo evidence showed mentor focus filters and recent-activity cues already landed in workspace.js, but the section still could not restore or share the active focus view. Extending the existing workspace URL-state helpers was the safest small batch because it reused the current mentor-scoped dashboard payload without adding a route, data path, or permission change.",
+  "candidateSummary": [
+    {
+      "candidate": "Mentor Dashboard URL state",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "roles": "mentor",
+      "impact": 4,
+      "safety": 5,
+      "testability": 5,
+      "size": "S",
+      "score": 52,
+      "decision": "selected"
+    },
+    {
+      "candidate": "Hosted section-level permission proof",
+      "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
+      "roles": "all protected roles",
+      "impact": 4,
+      "safety": 3,
+      "testability": 3,
+      "size": "M",
+      "score": 40,
+      "decision": "deferred-hosted-proof-not-allowed"
+    },
+    {
+      "candidate": "Presentation schedule URL state",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "roles": "student, mentor, teacher, admin",
+      "impact": 3,
+      "safety": 4,
+      "testability": 4,
+      "size": "S",
+      "score": 41,
+      "decision": "deferred-peer-slice-after-mentor"
+    },
+    {
+      "candidate": "Site-scoped audit destination",
+      "ladderLevel": "LEVEL_7_AUDITABILITY_AND_TRUST",
+      "roles": "site_admin, org_admin",
+      "impact": 4,
+      "safety": 3,
+      "testability": 4,
+      "size": "M",
+      "score": 39,
+      "decision": "deferred-route-shape-still-needs-review"
+    },
+    {
+      "candidate": "Review Queue missing-submission semantics",
+      "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
+      "roles": "program_teacher, site staff",
+      "impact": 5,
+      "safety": 2,
+      "testability": 3,
+      "size": "M",
+      "score": 34,
+      "decision": "deferred-backend-queue-rows-still-absent"
+    },
+    {
+      "candidate": "Administration/AP dashboard language",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "roles": "administration, viewer, site staff",
+      "impact": 3,
+      "safety": 5,
+      "testability": 5,
+      "size": "XS",
+      "score": 43,
+      "decision": "not-selected-lower-functional-depth-than-shareable-mentor-focus"
+    },
+    {
+      "candidate": "Student detail URL/hash state",
+      "ladderLevel": "LEVEL_2_STUDENT_DETAIL_DEPTH",
+      "roles": "staff",
+      "impact": 4,
+      "safety": 3,
+      "testability": 3,
+      "size": "M",
+      "score": 36,
+      "decision": "deferred-privacy-review-still-needed"
+    },
+    {
+      "candidate": "Site-admin assignment removal workflow",
+      "ladderLevel": "LEVEL_7_AUDITABILITY_AND_TRUST",
+      "roles": "site_admin",
+      "impact": 3,
+      "safety": 2,
+      "testability": 3,
+      "size": "M",
+      "score": 33,
+      "decision": "deferred-mutation-policy-not-ready"
+    },
+    {
+      "candidate": "Summary-only metric affordance styling",
+      "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS",
+      "roles": "staff, viewer",
+      "impact": 3,
+      "safety": 4,
+      "testability": 3,
+      "size": "S",
+      "score": 39,
+      "decision": "not-selected-broader-visual-surface"
+    },
+    {
+      "candidate": "Student mentor support workflow shape",
+      "ladderLevel": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN",
+      "roles": "student",
+      "impact": 4,
+      "safety": 3,
+      "testability": 3,
+      "size": "M",
+      "score": 37,
+      "decision": "deferred-privacy-and-product-shape-still-need-review"
+    }
+  ],
+  "filesChanged": [
+    "workspace.js",
+    "tests/workspace-app.test.mjs",
+    "scripts/verify-workspace-navigation-integrity.mjs",
+    "docs/functionality-language-audit.md",
+    "docs/progress/run-log.md",
+    "docs/functionality-ux-growth-ledger.md",
+    "automation/state/functionality-ux-growth-state.json"
+  ],
+  "nextRecommended": "Run hosted section-level permission proof when hosted fake-account proof and audit-event writes are allowed; otherwise inspect Presentation schedule URL state if staff need shareable presentation-day focus links."
+}

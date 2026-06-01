@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-05-31T20:10:00-07:00",
-  "lastStartingSha": "1c969451c291fa18f7b9979af0195de2223b7c74",
+  "lastRunAt": "2026-05-31T20:42:00.9897580-07:00",
+  "lastStartingSha": "81471d28a2dd1f13b52f3ccef70a723844df3b85",
   "lastEndingSha": null,
-  "currentLadderFocus": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN",
+  "currentLadderFocus": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
   "completedWorkOrders": [
     {
       "id": "workspace-header-product-language-cleanup",
@@ -889,6 +889,14 @@
       "type": "TYPE_D_ROLE_WORKSPACE",
       "summary": "Student home now turns the Need help panel into quick actions for existing feedback, submission, and requirement workflows without a contact-data surface or new route.",
       "commit": "pending-closeout-commit"
+    },
+    {
+      "id": "mentor-dashboard-url-state",
+      "completedAt": "2026-05-31T20:38:00-07:00",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "type": "TYPE_D_ROLE_WORKSPACE",
+      "summary": "Mentor Dashboard now restores and syncs shareable mentorFocus URL state for the existing all, revision, meeting, and presentation filters without refetching broader student data.",
+      "commit": "pending-closeout-commit"
     }
   ],
   "deferredWorkOrders": [
@@ -943,11 +951,6 @@
       "reason": "Add only if users need shareable presentation-day filter links after the in-page scoped filter proves useful."
     },
     {
-      "id": "mentor-dashboard-url-state",
-      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
-      "reason": "Add only if mentors need shareable focus links after the in-page filters and recent-activity cues prove useful."
-    },
-    {
       "id": "admin-recent-audit-deep-link",
       "ladderLevel": "LEVEL_7_AUDITABILITY_AND_TRUST",
       "reason": "Restore any site-admin audit navigation only after a site-scoped audit destination and visibility rules are explicitly reviewed."
@@ -962,10 +965,10 @@
       "summary": "Run only when hosted fake-account proof and audit-event writes are allowed."
     },
     {
-      "id": "mentor-dashboard-url-state",
+      "id": "presentation-schedule-url-state",
       "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
       "type": "TYPE_D_ROLE_WORKSPACE",
-      "summary": "If hosted proof remains blocked, inspect whether the existing mentor dashboard filters need shareable URL state."
+      "summary": "If hosted proof remains blocked, inspect whether the existing presentation-day filters need shareable URL state."
     },
     {
       "id": "admin-recent-audit-deep-link",
@@ -1029,6 +1032,7 @@
     "Do not re-clean Operations No presentation/archive/attention rows match phrases; filter-aware work/no-data copy and verifier coverage now guard that cluster.",
     "Do not re-add the Mentor Dashboard assigned-student signal grid or next-step copy unless regression evidence appears.",
     "Do not re-add Mentor Dashboard recent-activity cues unless regression removes the mentor route timestamp fields or data-mentor-dashboard-activity from the assigned-student cards.",
+    "Do not re-add Mentor Dashboard URL state unless regression removes mentorFocus parsing/sync, auth-bootstrap restore, or the focused popstate coverage.",
     "Do not re-clean Mentor Assignments `No missing mentor rows match`; filter-aware student coverage language and verifier coverage now guard that cluster.",
     "Do not broaden mentor assignment permissions while improving Mentor Assignments copy.",
     "Do not re-add Mentor Dashboard attention-first ordering unless regression evidence appears.",
@@ -1089,12 +1093,13 @@
   ],
   "lastValidationStatus": {
     "status": "passed",
-    "completedAt": "2026-05-31T20:10:00-07:00",
+    "completedAt": "2026-05-31T20:42:00.9897580-07:00",
     "commands": [
       "node --test tests/workspace-app.test.mjs",
+      "npm run verify:workspace-navigation",
       "npm run verify:functionality-language",
       "node --test tests/functionality-language-audit.test.mjs",
-      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-05-31-2010-student-support-actions.json','utf8')); console.log('json ok')\"",
+      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-05-31-2038-mentor-dashboard-url-state.json','utf8')); console.log('json ok')\"",
       "git diff --check",
       "npm run verify:dashboard-actions",
       "npm run verify:workspace-navigation",
@@ -1105,7 +1110,7 @@
       "npm run typecheck",
       "npm run check"
     ],
-    "notes": "Focused and full validation passed for the student support quick-action slice. git diff --check reported only CRLF normalization warnings. This run stayed inside the existing student-scoped dashboard, reused current feedback/submission/requirement state, and did not change auth grants, RBAC, tenant/site/program/student privacy boundaries, migrations, secrets/env files, Cloudflare/OAuth/domain config, deploy settings, or live data."
+    "notes": "Focused and full validation passed for the mentor dashboard URL-state slice. A transient automation verifier failure was resolved by restoring the local Codex Desktop automation entry to ACTIVE so the tracked GUI identity matched the prompt contract again. git diff --check reported only CRLF normalization warnings. This run stayed inside the existing mentor-scoped dashboard, reused current assigned-student data, and did not change auth grants, RBAC, tenant/site/program/student privacy boundaries, migrations, secrets/env files, Cloudflare/OAuth/domain config, deploy settings, or live data."
   },
   "lastProductReadinessScorecardSummary": {
     "homepageClarity": "4 to 4",
