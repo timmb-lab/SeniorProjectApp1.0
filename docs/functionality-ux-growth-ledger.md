@@ -4659,3 +4659,52 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: hosted proof still needs allowed fake-account/audit writes, and broader student guided write-path work still needs product-shape decisions.
   - Do not repeat: do not re-add this shortcut unless regression removes the submission-row action or in-row timeline panel.
   - First file to inspect next run: `workspace.js` `renderSubmissionRow()` if staying in the student workspace; otherwise `scripts/check-hosted-workspace-permissions.mjs`
+
+## Run 2026-05-31 17:08 PT
+
+- Starting SHA: `e4f92579e59b9dc3a071d73b56d7a3b5a65cf40a`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Branch policy: work stayed on clean local `main`; local `main` remained ahead of `origin/main`, `origin/main` was not ahead, and no sync or push was run
+- Ladder level targeted: `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN`
+- Backlog item: `student-requirement-phase-focus`; supports `MVP-003`, `MVP-032`, and `MVP-033`
+- Work order selected: Add student phase-focus controls to the existing requirement checklist and switch phase focus automatically when a student opens a requirement.
+- Selection reason: The previous handoff pointed at phase-specific student progress depth. Current `workspace.js` already grouped requirements by phase from `/api/student/dashboard`, but the student workspace still rendered every phase at once, which forced students to scan the full checklist even when they only needed one phase. This was the safest next slice because it reused the existing payload, in-page detail state, and student-only workspace without adding routes, query params, or broader visibility.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Student requirement phase focus | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 5 | 5 | 5 | S | 54 | selected |
+| Student due-date timeline | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 4 | 4 | 4 | M | 46 | follow-up: next student-safe drill-down if hosted proof stays blocked |
+| Student feedback compare or filter controls | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 3 | 4 | 4 | M | 41 | not selected: phase focus was the earlier clearer gap |
+| Student mentor support workflow | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 4 | 3 | 3 | M | 36 | deferred: support-flow shape and privacy policy still need review |
+| Hosted section-level permission proof | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all protected roles | 4 | 3 | 3 | M | 39 | deferred: hosted fake-account proof and audit writes are not allowed in this run |
+| Site-scoped audit destination | `LEVEL_7_AUDITABILITY_AND_TRUST` | site_admin, org_admin | 4 | 3 | 4 | M | 38 | deferred: route shape and visibility review still needed |
+| Review Queue missing-submission semantics | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | program_teacher, site staff | 5 | 2 | 3 | M | 34 | deferred: backend queue rows are still absent |
+| Presentation schedule URL state | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | student, mentor, teacher, admin | 3 | 4 | 4 | S | 41 | deferred: add only if shareable filter links are clearly needed |
+| Mentor Dashboard URL state | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | mentor | 3 | 4 | 4 | S | 40 | deferred: add only if mentors need shareable focus filters |
+| Site-admin assignment removal workflow | `LEVEL_7_AUDITABILITY_AND_TRUST` | site_admin | 3 | 2 | 3 | M | 33 | deferred: mutation policy and audit UX still need review |
+
+- User-facing improvement: Students can now focus the requirement checklist on one project phase at a time, and the existing `Open requirement` actions switch the checklist to the matching phase instead of leaving the student in the wrong section.
+- Roles affected: `student`
+- Files changed: `workspace.js`, `tests/workspace-app.test.mjs`, `docs/student-progress-dashboard.md`, `docs/functionality-language-audit.md`, `docs/progress/run-log.md`, `docs/progress/runs/2026-05-31-1708-student-requirement-phase-focus.json`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`
+- Tests/verifiers added or updated: `tests/workspace-app.test.mjs` now proves student phase focus narrows the checklist and that opening a requirement switches to the matching phase before rendering details.
+- Validation commands:
+  - Focused passed before docs/state closeout: `node --test tests/workspace-app.test.mjs`
+  - Final passed: `node --test tests/functionality-language-audit.test.mjs`, JSON parse for `automation/state/functionality-ux-growth-state.json` and `docs/progress/runs/2026-05-31-1708-student-requirement-phase-focus.json`, `git diff --check`, `npm run verify:functionality-language`, `npm run verify:dashboard-actions`, `npm run verify:workspace-navigation`, `npm run verify:functionality-ux-automation`, `npm run check:production-surfaces`, `npm run check:route-inventory`, `npm run test`, `npm run typecheck`, `npm run check`
+- Validation result: passed; `git diff --check` reported only CRLF normalization warnings, with no whitespace errors.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: hosted section-level permission proof, site-scoped audit destination, Review Queue missing-submission semantics, Presentation schedule URL-state filters, Mentor Dashboard URL-state filters, student mentor support workflow shape, and site-admin assignment removal workflow remain deferred.
+- New backlog items: none
+- Next recommended work order: run hosted section-level permission proof when hosted fake-account proof and audit-event writes are allowed; otherwise deepen the student workspace with a due-date-first view from existing requirement deadline labels and dates.
+- Do-not-repeat notes: do not re-add the student requirement phase-focus slice unless regression removes the phase-focus controls or opening a requirement stops switching to the matching phase.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN`
+  - Advanced: yes
+  - Evidence: the student requirement checklist now exposes in-page phase focus controls, and opening a requirement from next steps or the checklist switches to the matching phase before showing details.
+  - Unlocks: the student workspace can now deepen into due-date-first or phase-specific progress views without creating a new route first.
+  - Next: hosted permission proof when allowed; otherwise inspect a due-date-first student view from existing deadline labels and dates.
+  - Blockers: hosted proof still needs allowed fake-account and audit-write runtime; richer mentor-support workflow still needs privacy/product review.
+  - Do not repeat: do not re-add this slice unless regression removes phase focus or the matching-phase open-detail behavior.
+  - First file to inspect next run: `workspace.js` `renderStudentRequirementPanel()`

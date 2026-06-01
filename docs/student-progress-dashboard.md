@@ -54,7 +54,7 @@ Status uses simple rules:
 - Progress hero with title, percentage, status badge, and accessible progress bar.
 - Four summary cards: Project Phases, Required Submissions, Review Status, and Mentor / Support.
 - What to Work On Next, prioritized by revision items, missing submissions, current-phase work, waiting review, then next remaining requirement.
-- Your Required Work, a read-only requirement checklist from the existing student-scoped dashboard data, grouped by senior project phase with per-phase completion counts, each required item, persisted due-date label, student-safe requirement description, first quality nudge when available, status, submitted version when present, last update, next step, and an in-page requirement detail disclosure.
+- Your Required Work, a read-only requirement checklist from the existing student-scoped dashboard data, grouped by senior project phase with per-phase completion counts, phase-focus filters, each required item, persisted due-date label, student-safe requirement description, first quality nudge when available, status, submitted version when present, last update, next step, and an in-page requirement detail disclosure.
 - Requirement rows now show the matching submission ID's evidence count when a submission exists. Draft or revision rows with evidence can be sent to teacher review through the existing scoped submit route; rows without evidence focus the existing evidence forms instead of adding a fake requirement page.
 - Feedback History, showing bounded teacher review notes already tied to the student's own submissions, with submission version and current status context.
 - Submission timeline inside Feedback History, loaded from the filtered review-history route when a student opens a feedback row, showing versions, status changes, and student-visible teacher notes.
@@ -85,6 +85,7 @@ No new fake links were added. The dashboard keeps existing real actions only:
 - Send draft or revised work for teacher review from a requirement row only when the existing submission has attached evidence. The submit action uses `/api/submissions/:id/submit`, which enforces own-student access, draft/revision status, and required evidence.
 - Focus the existing link/file evidence forms from a requirement row when the matching submission has no evidence yet.
 - Open in-page requirement details from a checklist row. The detail disclosure uses the already loaded student dashboard payload to summarize status, due date, evidence count, submitted version, progress state, next action, and the latest matching teacher feedback without calling a new route.
+- Focus the requirement checklist on one project phase at a time using in-page phase buttons, then switch back to all phases without leaving the student workspace or adding a new route.
 - Review archive readiness through the existing Archive workspace section; the student home only summarizes the next archive blocker and does not add a fake archive request action.
 - Open a feedback-row timeline through the existing `/api/reviews/:submissionId/history` route. The route already enforces own-student or assigned-scope access and filters staff-only comments before the workspace renders the timeline.
 - Open the same submission timeline from a Submitted Work row through the existing `/api/reviews/:submissionId/history` route when a student wants the timeline from the submission list instead of the feedback panel.
@@ -100,7 +101,7 @@ Student-facing copy on this route now uses "work," "evidence," "submitted work,"
 ## Backlog
 
 1. Extend the student-safe requirement detail disclosure only if students need more than the current checklist, evidence focus action, send-for-review action, and in-page status/feedback summary.
-2. Add phase-specific student progress pages only if students need a deeper view than the grouped checklist.
+2. Add dedicated phase-specific student progress pages only if students need more than the current grouped checklist, phase-focus filters, and in-page requirement detail.
 3. Add richer student-safe feedback timeline affordances only if students need compare/filter controls beyond the current in-row timeline.
 4. Add mentor contact/support workflow without exposing unsafe contact data.
 5. Add a richer due-date timeline only if students need more than the requirement-row deadline labels.

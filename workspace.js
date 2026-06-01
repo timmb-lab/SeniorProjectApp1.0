@@ -4375,6 +4375,10 @@ function renderStudentStepButtons(item, openLabel = "Open requirement") {
 function renderStudentRequirementPanel(requirements = [], summary = {}, feedback = [], detailState = defaultStudentRequirementDetailState()) {
   const rows = Array.isArray(requirements) ? requirements : [];
   const phaseGroups = groupStudentRequirementsByPhase(rows);
+  const activePhaseKey = activeStudentRequirementPhaseKey(phaseGroups, detailState);
+  const visiblePhaseGroups = activePhaseKey
+    ? phaseGroups.filter((group) => group.key === activePhaseKey)
+    : phaseGroups;
   return `
     <section class="workspace-dashboard-card workspace-student-requirements-panel" data-student-requirements-panel="true" data-student-requirements-count="${escapeHtml(rows.length)}" aria-labelledby="studentRequirementChecklistTitle">
       <div class="workspace-card-head">
@@ -4384,8 +4388,9 @@ function renderStudentRequirementPanel(requirements = [], summary = {}, feedback
           <p>${escapeHtml(rows.length ? "Review each project phase, requirement, and next step." : "Required work will appear after your teacher adds project requirements.")}</p>
         </div>
       </div>
+      ${phaseGroups.length > 1 ? renderStudentRequirementPhaseFilters(phaseGroups, summary, detailState) : ""}
       <div class="workspace-list">
-        ${phaseGroups.length ? phaseGroups.map((group) => renderStudentRequirementPhaseGroup(group, feedback, detailState)).join("") : `
+        ${visiblePhaseGroups.length ? visiblePhaseGroups.map((group) => renderStudentRequirementPhaseGroup(group, feedback, detailState)).join("") : `
           <article class="workspace-empty-state-card" data-student-requirements-empty="true">
             <strong>No project requirements yet.</strong>
             <p>${escapeHtml(summary.waitingForReviewCount ? "Check back after your teacher updates your project requirements." : "Ask your program teacher when your project requirements will be ready.")}</p>
@@ -4400,25 +4405,71 @@ function groupStudentRequirementsByPhase(rows) {
   const groups = [];
   const byPhase = new Map();
   for (const row of rows) {
-    const key = String(row?.phase || row?.phaseLabel || "unassigned");
+    const key = studentRequirementPhaseKey(row?.phase || row?.phaseLabel || "unassigned");
     if (!byPhase.has(key)) {
       const group = {
         key,
         label: row?.phaseLabel || (row?.phase ? statusText(row.phase) : "Other required work"),
         rows: [],
+        completeCount: 0,
+        remainingCount: 0,
       };
       byPhase.set(key, group);
       groups.push(group);
     }
     byPhase.get(key).rows.push(row);
   }
+  groups.forEach((group) => {
+    group.completeCount = group.rows.filter((row) => isStudentRequirementComplete(row?.status)).length;
+    group.remainingCount = Math.max(0, group.rows.length - group.completeCount);
+  });
   return groups;
+}
+
+function studentRequirementPhaseKey(value) {
+  return cleanDirectoryFilter(value || "unassigned");
+}
+
+function activeStudentRequirementPhaseKey(phaseGroups = [], detailState = defaultStudentRequirementDetailState()) {
+  const selectedPhaseKey = studentRequirementPhaseKey(detailState?.selectedPhaseKey || "");
+  if (!selectedPhaseKey) return "";
+  return phaseGroups.some((group) => group.key === selectedPhaseKey) ? selectedPhaseKey : "";
+}
+
+function renderStudentRequirementPhaseFilters(phaseGroups = [], summary = {}, detailState = defaultStudentRequirementDetailState()) {
+  const activePhaseKey = activeStudentRequirementPhaseKey(phaseGroups, detailState);
+  const activeGroup = phaseGroups.find((group) => group.key === activePhaseKey) || null;
+  const currentPhaseKey = studentRequirementPhaseKey(summary?.currentPhase || "");
+  const currentGroup = phaseGroups.find((group) => group.key === currentPhaseKey) || null;
+  const note = activeGroup
+    ? `${activeGroup.label}: ${activeGroup.completeCount} of ${activeGroup.rows.length} complete${activeGroup.remainingCount ? `, ${activeGroup.remainingCount} still need work.` : ". Everything in this phase is complete."}`
+    : currentGroup
+      ? `Current phase: ${currentGroup.label}. Focus one phase at a time if you want a shorter checklist.`
+      : "Focus one project phase at a time if you want a shorter checklist.";
+  return `
+    <section class="workspace-active-filters" data-student-requirement-phase-focus="true">
+      <div>
+        <strong>Phase focus</strong>
+        <p class="workspace-active-filter-note">${escapeHtml(note)}</p>
+      </div>
+      <div class="workspace-detail-tabs" aria-label="Student requirement phase focus">
+        <button class="workspace-detail-tab ${!activePhaseKey ? "is-active" : ""}" type="button" data-student-requirement-phase-action="set-phase" data-student-requirement-phase-key="" aria-pressed="${!activePhaseKey ? "true" : "false"}">
+          All phases
+        </button>
+        ${phaseGroups.map((group) => `
+          <button class="workspace-detail-tab ${group.key === activePhaseKey ? "is-active" : ""}" type="button" data-student-requirement-phase-action="set-phase" data-student-requirement-phase-key="${escapeHtml(group.key)}" aria-pressed="${group.key === activePhaseKey ? "true" : "false"}">
+            ${escapeHtml(group.label)}${group.key === currentPhaseKey ? " (Current)" : ""}
+          </button>
+        `).join("")}
+      </div>
+    </section>
+  `;
 }
 
 function renderStudentRequirementPhaseGroup(group, feedback = [], detailState = defaultStudentRequirementDetailState()) {
   const rows = Array.isArray(group?.rows) ? group.rows : [];
-  const completeCount = rows.filter((row) => isStudentRequirementComplete(row?.status)).length;
-  const remainingCount = Math.max(0, rows.length - completeCount);
+  const completeCount = safeNumber(group?.completeCount);
+  const remainingCount = safeNumber(group?.remainingCount);
   const phaseSummary = rows.length
     ? `${completeCount} of ${rows.length} complete${remainingCount ? ` / ${remainingCount} still need work` : ""}`
     : "No requirements in this phase yet.";
@@ -4476,6 +4527,13 @@ function renderStudentRequirementRow(item, feedback = [], detailState = defaultS
 
 function studentRequirementId(item) {
   return cleanDirectoryFilter(item?.requirementId || item?.requirement_id || item?.id || item?.title || "");
+}
+
+function studentRequirementPhaseKeyForId(requirements = [], requirementId = "") {
+  const normalizedRequirementId = cleanDirectoryFilter(requirementId);
+  if (!normalizedRequirementId) return "";
+  const match = requirements.find((row) => studentRequirementId(row) === normalizedRequirementId);
+  return studentRequirementPhaseKey(match?.phase || match?.phaseLabel || "");
 }
 
 function studentRequirementDetailDomId(requirementId) {
@@ -6044,6 +6102,9 @@ function bindWorkspaceForms() {
   document.querySelectorAll("[data-student-detail-action]").forEach((button) => {
     button.addEventListener("click", handleSiteStudentDetailAction);
   });
+  document.querySelectorAll("[data-student-requirement-phase-action]").forEach((button) => {
+    button.addEventListener("click", handleStudentRequirementPhaseAction);
+  });
   document.querySelector("#mentorMeetingForm")?.addEventListener("submit", submitMentorMeeting);
   document.querySelector("#reviewQueueFilterForm")?.addEventListener("submit", applyReviewQueueFilters);
   document.querySelectorAll("[data-review-queue-action]").forEach((button) => {
@@ -6083,12 +6144,34 @@ function handleStudentRequirementAction(event) {
   const requirementId = cleanDirectoryFilter(event.currentTarget?.dataset?.studentRequirementId || "");
   if (!requirementId) return;
   const opening = action === "open-detail" || studentRequirementDetailState.selectedRequirementId !== requirementId;
+  const requirements = Array.isArray(unwrap(currentData.dashboard)?.requirements) ? unwrap(currentData.dashboard).requirements : [];
+  const phaseKey = studentRequirementPhaseKeyForId(requirements, requirementId);
   studentRequirementDetailState = {
     selectedRequirementId: opening ? requirementId : "",
+    selectedPhaseKey: opening ? phaseKey || studentRequirementDetailState.selectedPhaseKey || "" : studentRequirementDetailState.selectedPhaseKey || "",
   };
   if (opening) requestStudentRequirementFocus(requirementId);
   activeSection = "student";
   renderAppShell(opening ? "Requirement details opened." : "Requirement details closed.", "success");
+}
+
+function handleStudentRequirementPhaseAction(event) {
+  const action = event?.currentTarget?.dataset?.studentRequirementPhaseAction;
+  if (action !== "set-phase") return;
+  const requirements = Array.isArray(unwrap(currentData.dashboard)?.requirements) ? unwrap(currentData.dashboard).requirements : [];
+  const requestedPhaseKey = studentRequirementPhaseKey(event.currentTarget?.dataset?.studentRequirementPhaseKey || "");
+  const activePhaseKey = activeStudentRequirementPhaseKey(groupStudentRequirementsByPhase(requirements), studentRequirementDetailState);
+  const nextPhaseKey = requestedPhaseKey && requestedPhaseKey === activePhaseKey ? "" : requestedPhaseKey;
+  const selectedRequirementId = cleanDirectoryFilter(studentRequirementDetailState.selectedRequirementId || "");
+  const selectedRequirementPhaseKey = studentRequirementPhaseKeyForId(requirements, selectedRequirementId);
+  studentRequirementDetailState = {
+    selectedRequirementId: nextPhaseKey && selectedRequirementId && selectedRequirementPhaseKey !== nextPhaseKey
+      ? ""
+      : selectedRequirementId,
+    selectedPhaseKey: nextPhaseKey,
+  };
+  activeSection = "student";
+  renderAppShell(nextPhaseKey ? "Requirement phase focus updated." : "Showing all project phases.", "success");
 }
 
 async function handleStudentSubmissionAction(event) {
@@ -8520,6 +8603,7 @@ function defaultSiteStudentDetailState() {
 function defaultStudentRequirementDetailState() {
   return {
     selectedRequirementId: "",
+    selectedPhaseKey: "",
   };
 }
 

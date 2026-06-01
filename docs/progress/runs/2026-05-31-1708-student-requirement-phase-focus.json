@@ -1,0 +1,106 @@
+{
+  "automationId": "functionality-ux-upgrade-hourly",
+  "runAt": "2026-05-31T17:08:48-07:00",
+  "startingSha": "e4f92579e59b9dc3a071d73b56d7a3b5a65cf40a",
+  "endingSha": null,
+  "branch": "main",
+  "ladderLevel": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN",
+  "workOrder": {
+    "id": "student-requirement-phase-focus",
+    "summary": "Add student phase-focus controls to the existing requirement checklist.",
+    "selectionReason": "The prior handoff pointed at phase-specific student progress depth, and current workspace.js still rendered all requirement phases at once even though the existing student dashboard payload already carried phase labels and grouped requirement data."
+  },
+  "repoGroundedFindings": [
+    "renderStudentRequirementPanel() grouped requirements by phase but always rendered every phase at once.",
+    "student next-step and requirement open actions already reused in-page detail state, but they could not switch the checklist to the matching phase when another phase was focused.",
+    "The existing /api/student/dashboard payload already exposed requirementId, phase, phaseLabel, due labels, and next actions, so phase focus could stay entirely in the current student workspace without a new route."
+  ],
+  "changes": [
+    "Added in-page student requirement phase-focus controls in workspace.js.",
+    "Narrowed the requirement checklist to one selected phase at a time while preserving the existing all-phases view.",
+    "Updated the student requirement open-detail behavior so opening a requirement from next steps or the checklist switches to the matching phase automatically.",
+    "Added focused workspace coverage proving phase focus and matching-phase open-detail behavior."
+  ],
+  "filesChanged": [
+    "workspace.js",
+    "tests/workspace-app.test.mjs",
+    "docs/student-progress-dashboard.md",
+    "docs/functionality-language-audit.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-31-1708-student-requirement-phase-focus.json",
+    "docs/functionality-ux-growth-ledger.md",
+    "automation/state/functionality-ux-growth-state.json"
+  ],
+  "candidates": [
+    {
+      "candidate": "Student requirement phase focus",
+      "score": 54,
+      "decision": "selected"
+    },
+    {
+      "candidate": "Student due-date timeline",
+      "score": 46,
+      "decision": "follow_up_after_phase_focus"
+    },
+    {
+      "candidate": "Student feedback compare or filter controls",
+      "score": 41,
+      "decision": "not_selected_lower_value_than_phase_focus"
+    },
+    {
+      "candidate": "Student mentor support workflow",
+      "score": 36,
+      "decision": "deferred_policy_and_privacy_shape"
+    },
+    {
+      "candidate": "Hosted section-level permission proof",
+      "score": 39,
+      "decision": "deferred_hosted_boundary"
+    },
+    {
+      "candidate": "Site-scoped audit destination",
+      "score": 38,
+      "decision": "deferred_route_review"
+    },
+    {
+      "candidate": "Review Queue missing-submission semantics",
+      "score": 34,
+      "decision": "deferred_backend_gap"
+    },
+    {
+      "candidate": "Presentation schedule URL state",
+      "score": 41,
+      "decision": "deferred_need_unproven"
+    },
+    {
+      "candidate": "Mentor Dashboard URL state",
+      "score": 40,
+      "decision": "deferred_need_unproven"
+    },
+    {
+      "candidate": "Site-admin assignment removal workflow",
+      "score": 33,
+      "decision": "deferred_mutation_policy"
+    }
+  ],
+  "validation": {
+    "status": "passed",
+    "commands": [
+      "node --test tests/workspace-app.test.mjs",
+      "node --test tests/functionality-language-audit.test.mjs",
+      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-05-31-1708-student-requirement-phase-focus.json','utf8')); console.log('json ok')\"",
+      "git diff --check",
+      "npm run verify:functionality-language",
+      "npm run verify:dashboard-actions",
+      "npm run verify:workspace-navigation",
+      "npm run verify:functionality-ux-automation",
+      "npm run check:production-surfaces",
+      "npm run check:route-inventory",
+      "npm run test",
+      "npm run typecheck",
+      "npm run check"
+    ],
+    "notes": "Focused and full validation passed. git diff --check reported only CRLF normalization warnings."
+  },
+  "nextRecommended": "Run hosted section-level permission proof when hosted fake-account proof and audit-event writes are allowed; otherwise deepen the student workspace with a due-date-first view from existing requirement deadline labels and dates."
+}

@@ -2488,3 +2488,14 @@ Future productive runs should append compact entries that name the master-plan s
 - `changes`: `functions/api/student/dashboard.ts` now includes requirement/submission metadata on each student next-step row. `workspace.js` now renders `Open requirement` plus existing `Add evidence` / `Send revision` / `Send for review` actions from the student home primary action card and next-steps rows, and focuses the existing in-page requirement detail after opening it. `tests/student-dashboard-access.integration.test.mjs` and `tests/workspace-app.test.mjs` prove the enriched payload shape, rendered actions, and open-detail behavior without extra route fetches.
 - `validation`: focused student-dashboard and workspace tests passed before docs/state closeout. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
 - `commit/push status`: pending closeout commit; not pushed by this automation run.
+
+## 2026-05-31 PT - Functionality UX Upgrade Student Phase Focus
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 6 student progress drill-down / in-page phase-specific requirement focus.
+- `starting HEAD`: `e4f92579e59b9dc3a071d73b56d7a3b5a65cf40a`.
+- `selected slice`: Add student phase-focus controls to the existing requirement checklist and switch phase focus automatically when a student opens a requirement.
+- `repo-grounded findings`: `workspace.js` already grouped student requirements by phase from `/api/student/dashboard`, but the student workspace still rendered every phase at once. Students could open requirement details, but there was no way to focus one phase at a time or have the existing `Open requirement` action switch the checklist to the correct phase.
+- `changes`: `workspace.js` now renders in-page phase focus controls for the student requirement checklist, narrows the checklist to one phase when selected, and switches to the matching phase when a student opens a requirement from the checklist or next-step actions. `tests/workspace-app.test.mjs` proves both the phase-focus filtering and the matching-phase open-detail behavior without adding a route or broadening access.
+- `validation`: focused workspace coverage passed before docs/state closeout. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.

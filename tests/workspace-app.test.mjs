@@ -3966,6 +3966,144 @@ test("student requirement rows open in-page details without another route", asyn
   assert.doesNotMatch(workspaceRoot.innerHTML, /href="#"/);
 });
 
+test("student requirement phase focus narrows the checklist and open requirement switches to the matching phase", async () => {
+  const routes = {
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "student-phase-focus",
+          email: "student.phase.focus@senior-capstone.test",
+          displayName: "Phase Focus Student",
+          roles: [{ role_id: "student", scope_type: "global", scope_id: "" }],
+        },
+      },
+    },
+    "/api/student/dashboard": {
+      status: 200,
+      body: {
+        ok: true,
+        viewer: { self: true },
+        summary: {
+          requirementsTotal: 2,
+          requirementsComplete: 1,
+          completionPercent: 50,
+          phasesTotal: 2,
+          phasesComplete: 1,
+          submittedRequiredCount: 1,
+          missingRequiredCount: 1,
+          waitingForReviewCount: 0,
+          revisionRequestedCount: 1,
+          currentPhase: "proposal-and-research",
+          currentPhaseLabel: "Proposal And Research",
+          currentStatus: "Needs Revision",
+          mentor: { assigned: false, name: null, message: "No mentor assigned yet." },
+        },
+        nextSteps: [
+          {
+            title: "Senior Project Proposal",
+            status: "Needs Revision",
+            detail: "Revise Senior Project Proposal and send it back for review.",
+            dueLabel: "October 9 and 10",
+            requirementId: "req-proposal",
+            submissionId: "submission-proposal",
+            submissionStatus: "revision_requested",
+            evidenceCount: 1,
+          },
+        ],
+        requirements: [
+          {
+            requirementId: "req-proposal",
+            submissionId: "submission-proposal",
+            title: "Senior Project Proposal",
+            description: "Explain the problem, solution, audience, and evidence for your capstone project.",
+            phase: "proposal-and-research",
+            phaseLabel: "Proposal And Research",
+            status: "revision_requested",
+            progressStatus: "revision_requested",
+            submissionStatus: "revision_requested",
+            submissionVersion: 2,
+            evidenceCount: 1,
+            dueLabel: "October 9 and 10",
+            qualityPrompt: "Add one measurable success target before you send the proposal back.",
+            lastUpdatedAt: "2026-05-24T18:00:00.000Z",
+            nextAction: "Send the revised Senior Project Proposal back for teacher review.",
+          },
+          {
+            requirementId: "req-celebration",
+            submissionId: "",
+            title: "Celebration Day Setup",
+            description: "Prepare the display and materials for celebration day.",
+            phase: "celebration-day",
+            phaseLabel: "Celebration Day",
+            status: "missing",
+            progressStatus: null,
+            submissionStatus: null,
+            submissionVersion: null,
+            evidenceCount: 0,
+            dueLabel: "May 1",
+            qualityPrompt: "List the materials you still need.",
+            lastUpdatedAt: null,
+            nextAction: "Start Celebration Day Setup when your teacher is ready for this step.",
+          },
+        ],
+        progress: [],
+        submissions: [
+          { id: "submission-proposal", requirement_id: "req-proposal", requirement_title: "Senior Project Proposal", status: "revision_requested", version: 2, updated_at: "2026-05-24T18:00:00.000Z" },
+        ],
+        evidence: [],
+        feedback: [
+          {
+            id: "review-proposal",
+            submissionId: "submission-proposal",
+            requirementTitle: "Senior Project Proposal",
+            submissionStatus: "revision_requested",
+            submissionVersion: 2,
+            status: "revision_requested",
+            message: "Add one measurable success target before resubmitting.",
+            authorName: "Ms. Garcia",
+            createdAt: "2026-05-24T18:30:00.000Z",
+          },
+        ],
+      },
+    },
+    "/api/student/archive/readiness": {
+      status: 200,
+      body: {
+        ok: true,
+        summary: { readyChecks: 0, missingChecks: 0, totalChecks: 0, archiveAvailableToRequest: false },
+        checks: [],
+        archive: { status: "not_requested" },
+        storage: {},
+        retention: {},
+      },
+    },
+    "/api/presentation-slots": {
+      status: 200,
+      body: { ok: true, slots: [] },
+    },
+  };
+  const { context, workspaceRoot } = await createWorkspaceContextWithFetch(routes);
+  assert.match(workspaceRoot.innerHTML, /data-student-requirement-phase-focus="true"/);
+  assert.match(workspaceRoot.innerHTML, /Proposal And Research \(Current\)/);
+  assert.match(workspaceRoot.innerHTML, /Celebration Day/);
+  assert.match(workspaceRoot.innerHTML, /data-student-requirement-phase-key="proposal-and-research"/);
+  assert.match(workspaceRoot.innerHTML, /data-student-requirement-phase-key="celebration-day"/);
+
+  vm.runInContext('handleStudentRequirementPhaseAction({ currentTarget: { dataset: { studentRequirementPhaseAction: "set-phase", studentRequirementPhaseKey: "celebration-day" } } })', context);
+  assert.doesNotMatch(workspaceRoot.innerHTML, /<h3>Proposal And Research<\/h3>/);
+  assert.match(workspaceRoot.innerHTML, /<h3>Celebration Day<\/h3>/);
+  assert.match(workspaceRoot.innerHTML, /Celebration Day: 0 of 1 complete, 1 still need work\./);
+
+  vm.runInContext('handleStudentRequirementAction({ currentTarget: { dataset: { studentRequirementAction: "open-detail", studentRequirementId: "req-proposal" } } })', context);
+  assert.match(workspaceRoot.innerHTML, /<h3>Proposal And Research<\/h3>/);
+  assert.doesNotMatch(workspaceRoot.innerHTML, /<h3>Celebration Day<\/h3>/);
+  assert.match(workspaceRoot.innerHTML, /data-student-requirement-detail="true"/);
+  assert.match(workspaceRoot.innerHTML, /Requirement details/);
+  assert.match(workspaceRoot.innerHTML, /Add one measurable success target before resubmitting/);
+});
+
 test("student feedback rows open a student-safe review timeline", async () => {
   const { context, workspaceRoot, fetchLog } = await createWorkspaceContextWithFetch({
     "/api/auth/me": {
