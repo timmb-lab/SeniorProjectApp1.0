@@ -36,6 +36,7 @@ test("workspace route is a real authenticated app surface", () => {
   assert.match(workspaceJs, /\/api\/auth\/logout/);
   assert.match(workspaceJs, /\/api\/admin\/users\/import/);
   assert.match(workspaceJs, /\/api\/site\/dashboard/);
+  assert.match(workspaceJs, /\/api\/site\/programs/);
   assert.match(workspaceJs, /\/api\/site\/students/);
   assert.match(workspaceJs, /\/api\/admin\/dashboard/);
   assert.match(workspaceJs, /\/api\/program-teacher\/dashboard/);
@@ -89,6 +90,7 @@ test("workspace route is a real authenticated app surface", () => {
   assert.match(workspaceJs, /data-archive-drive-package/);
   assert.match(workspaceJs, /function renderAdminOverviewSection/);
   assert.match(workspaceJs, /function renderSiteDashboardSection/);
+  assert.match(workspaceJs, /function renderSiteProgramsSection/);
   assert.match(workspaceJs, /function renderSiteStudentDirectorySection/);
   assert.match(workspaceJs, /function renderProgramTeacherDashboardSection/);
   assert.match(workspaceJs, /function renderMentorDashboardSection/);
@@ -5420,6 +5422,94 @@ test("workspace renders current site access assignments before management forms"
   assert.doesNotMatch(adminUsers, /password_hash|temporaryPassword|drive_file_id|access_token|refresh_token|Family schedule change/i);
 });
 
+test("workspace renders site programs management for site admins with real empty states", async () => {
+  const programs = await renderWorkspaceWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "site-program-admin",
+          email: "site.programs@example.edu",
+          displayName: "Site Program Admin",
+          roles: [{ role_id: "site_admin", scope_type: "site", scope_id: "site-desert-valley-high" }],
+        },
+      },
+    },
+    "/api/site/programs": {
+      status: 200,
+      body: siteProgramsFixture(),
+    },
+    "/api/site/access-assignments": {
+      status: 200,
+      body: siteAccessAssignmentsFixture(),
+    },
+    "/api/presentation-slots": {
+      status: 200,
+      body: { ok: true, slots: [] },
+    },
+    "/api/reports/readiness": {
+      status: 200,
+      body: { ok: true, scope: "all-programs", metrics: {} },
+    },
+  }, "programs");
+
+  assert.match(programs, /data-site-programs-section="true"/);
+  assert.match(programs, /Programs at Desert Valley High School/);
+  assert.match(programs, /Manage which active programs belong to this school/);
+  assert.match(programs, /Active site programs/);
+  assert.match(programs, /Information Technology/);
+  assert.match(programs, /Added May 29/);
+  assert.match(programs, /Programs you can add/);
+  assert.match(programs, /Biotechnology/);
+  assert.match(programs, /Previously removed from this school/);
+  assert.match(programs, /data-site-program-form/);
+  assert.match(programs, /data-site-program-guidance="assign"/);
+  assert.match(programs, /data-site-program-guidance="remove"/);
+  assert.match(programs, /Add program/);
+  assert.match(programs, /Remove program/);
+  assert.match(programs, /keeps historical student and assignment records intact/);
+  assert.doesNotMatch(programs, /coming soon|placeholder|href="#"/i);
+
+  const emptyPrograms = await renderWorkspaceWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "site-program-admin-empty",
+          email: "site.programs.empty@example.edu",
+          displayName: "Site Program Admin Empty",
+          roles: [{ role_id: "site_admin", scope_type: "site", scope_id: "site-desert-valley-high" }],
+        },
+      },
+    },
+    "/api/site/programs": {
+      status: 200,
+      body: siteProgramsFixture({ activePrograms: [], availablePrograms: [] }),
+    },
+    "/api/site/access-assignments": {
+      status: 200,
+      body: siteAccessAssignmentsFixture(),
+    },
+    "/api/presentation-slots": {
+      status: 200,
+      body: { ok: true, slots: [] },
+    },
+    "/api/reports/readiness": {
+      status: 200,
+      body: { ok: true, scope: "all-programs", metrics: {} },
+    },
+  }, "programs");
+
+  assert.match(emptyPrograms, /data-site-programs-empty="active"/);
+  assert.match(emptyPrograms, /No programs are active for this school yet/);
+  assert.match(emptyPrograms, /data-site-programs-empty="available"/);
+  assert.match(emptyPrograms, /No more active programs are waiting to be added/);
+  assert.match(emptyPrograms, /data-site-programs-form-empty="assign"/);
+  assert.match(emptyPrograms, /data-site-programs-form-empty="remove"/);
+});
+
 test("workspace keeps admin import setup output memory-only and gates non-admin import UI", async () => {
   const adminRoutes = {
     "/api/auth/me": {
@@ -6140,6 +6230,48 @@ function siteAccessAssignmentsFixture() {
       canAssignAdministration: true,
       canAssignSiteAdmins: false,
       canCreateGlobalAdmin: false,
+    },
+  };
+}
+
+function siteProgramsFixture({ activePrograms = null, availablePrograms = null } = {}) {
+  return {
+    ok: true,
+    generatedAt: "2026-05-31T15:40:00.000Z",
+    scope: {
+      tenantId: "tenant-desert-valley",
+      tenantName: "Desert Valley School District",
+      siteId: "site-desert-valley-high",
+      siteName: "Desert Valley High School",
+      schoolYear: "2025-2026",
+      role: "site_admin",
+      accessibleSites: [
+        { siteId: "site-desert-valley-high", siteName: "Desert Valley High School" },
+      ],
+    },
+    activePrograms: activePrograms ?? [
+      {
+        programId: "it",
+        programName: "Information Technology",
+        assignedAt: "2026-05-29T14:00:00.000Z",
+      },
+    ],
+    availablePrograms: availablePrograms ?? [
+      {
+        programId: "biotech",
+        programName: "Biotechnology",
+        assignedAt: "",
+        previouslyRemoved: true,
+      },
+      {
+        programId: "culinary",
+        programName: "Culinary Arts",
+        assignedAt: "",
+        previouslyRemoved: false,
+      },
+    ],
+    permissions: {
+      canManageSitePrograms: true,
     },
   };
 }
@@ -7194,9 +7326,12 @@ async function createWorkspaceContextWithFetch(routes, options = {}) {
       const pathname = String(rawPath || "").startsWith("http")
         ? new URL(rawPath).pathname
         : String(rawPath || "").split("?")[0];
-      const routeMatch = routes[pathname] || (pathname === "/api/site/operations-readiness"
-        ? { status: 200, body: siteOperationsReadinessFixture() }
-        : null);
+      const routeMatch = routes[pathname]
+        || (pathname === "/api/site/operations-readiness"
+          ? { status: 200, body: siteOperationsReadinessFixture() }
+          : pathname === "/api/site/programs"
+            ? { status: 200, body: siteProgramsFixture() }
+            : null);
       const route = typeof routeMatch === "function" ? await routeMatch({ url: String(rawPath || ""), options }) : routeMatch;
       if (!route) throw new Error(`Unexpected workspace fetch: ${pathname}`);
       return {

@@ -21,6 +21,17 @@ This is the compact run log for the current Functionality UX Upgrade automation 
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-05-31 21:11 PT - Functionality UX Upgrade Site Admin Programs Management
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 4 role-specific workspaces / site-admin operational controls.
+- `starting HEAD`: `4046ecb0d90e0715bd7b190267eab0e25ed37e6c`.
+- `selected slice`: Build the missing Site Admin Programs setup path with real route-backed controls.
+- `repo-grounded findings`: the repo already had `site_programs` schema support, selected-site scoping helpers, seeded school/program data, and Site Admin `Users & Access`, but there was still no `/api/site/programs` route or workspace section. `docs/product/demo-role-readiness.md` explicitly named the missing Programs GUI as the top Site Admin readiness gap, making it the safest still-needed product slice from the pasted sprint.
+- `changes`: added `functions/api/site/programs.ts` with site-scoped GET/POST handling, audit logging, single-site selection support, active-program listing, available-program listing, and safe `site_programs.active` add/remove behavior. `functions/_lib/permissions.ts` now exports `canManageSitePrograms()`. `workspace.js` now loads `/api/site/programs`, exposes a `Programs` section for Site Admin and Global Admin only, renders current and available program states plus add/remove forms and honest empty states, and submits route-backed mutations without fake links. Added focused coverage in `tests/site-programs.integration.test.mjs`, `tests/workspace-app.test.mjs`, `tests/access-v5-effective.test.mjs`, and `scripts/verify-workspace-navigation-integrity.mjs`. Regenerated `docs/generated/production-route-inventory.md`.
+- `validation`: focused tests, navigation/language verifiers, route inventory regeneration, `npm run test`, `npm run typecheck`, and `npm run check` all passed. Full command details are recorded in the final closeout and per-run manifest.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.
+
 ## 2026-05-31 20:46 PT - Functionality UX Upgrade Automation Role-Readiness Contract
 
 - `automation ID`: functionality-ux-upgrade-hourly.

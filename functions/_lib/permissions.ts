@@ -568,6 +568,12 @@ export async function canManageSiteUsers(env: Env, viewer: UserAccount, siteId?:
   return siteId ? canAccessSite(env, viewer, siteId) : (await getAccessibleSiteIds(env, viewer)).length > 0;
 }
 
+export async function canManageSitePrograms(env: Env, viewer: UserAccount, siteId?: string): Promise<boolean> {
+  if (await isGlobalAdmin(env, viewer.id)) return siteId ? activeSiteExists(env, normalizeScopeId(siteId)) : true;
+  if (!await hasRole(env, viewer.id, "site_admin")) return false;
+  return siteId ? canAccessSite(env, viewer, siteId) : (await getAccessibleSiteIds(env, viewer)).length > 0;
+}
+
 function primaryRoleFor(ids: RoleId[]): RoleId | "role_pending" {
   for (const roleId of [
     "platform_admin",

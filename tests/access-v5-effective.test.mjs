@@ -9,6 +9,7 @@ import {
 } from "../functions/_lib/effective-access.ts";
 import {
   canAccessStudent,
+  canManageSitePrograms,
   canManageSiteUsers,
   canManageUsers,
   canViewMentorAssignments,
@@ -64,10 +65,12 @@ test("V5 distinguishes Administration read-only visibility from Site Admin manag
   assert.equal(await canViewSiteDashboard(env, users.administration, "site-a"), true);
   assert.equal(await canViewReadinessReports(env, users.administration, "site-a"), true);
   assert.equal(await canManageSiteUsers(env, users.administration, "site-a"), false);
+  assert.equal(await canManageSitePrograms(env, users.administration, "site-a"), false);
   assert.equal(await canViewReviewQueue(env, users.administration, "site-a"), false);
 
   assert.equal(await canViewSiteDashboard(env, users.siteAdmin, "site-a"), true);
   assert.equal(await canManageSiteUsers(env, users.siteAdmin, "site-a"), true);
+  assert.equal(await canManageSitePrograms(env, users.siteAdmin, "site-a"), true);
   assert.equal(await canViewReviewQueue(env, users.siteAdmin, "site-a"), true);
 });
 

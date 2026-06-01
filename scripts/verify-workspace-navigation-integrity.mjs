@@ -29,6 +29,7 @@ function assertMatches(fileKey, pattern, message) {
 const expectedSections = [
   "overview",
   "siteDashboard",
+  "programs",
   "students",
   "student",
   "archive",
@@ -116,6 +117,12 @@ assertMatches("workspaceJs", /renderReadOnlyBanner\(\)[\s\S]*Read-only workspace
 assertMatches("workspaceJs", /data-review-queue-read-only="true"[\s\S]*No teacher decision available for this row/, "Read-only Review Queue must not expose decision controls");
 assertMatches("workspaceJs", /data-mentor-assignment-controls-hidden="true"[\s\S]*Assignment changes unavailable/, "Read-only Mentor Assignments must hide mutation controls");
 assertMatches("workspaceJs", /data-operations-read-only="true"[\s\S]*Read-only operations worklists/, "Operations view must remain monitoring-only");
+assertMatches("workspaceJs", /\/api\/site\/programs/, "Programs section must load the scoped site-programs route");
+assertMatches("workspaceJs", /canUseSitePrograms\(roles\)[\s\S]*id: "programs"[\s\S]*Add or remove site programs/, "Programs section must stay limited to site and global admins");
+assertMatches("workspaceJs", /data-site-programs-section="true"[\s\S]*Active site programs[\s\S]*Programs you can add/, "Programs section must render real current and available program states");
+assertMatches("workspaceJs", /data-site-program-form/, "Programs section must expose real program forms");
+assertMatches("workspaceJs", /renderSiteProgramForm\("assign", "Add program"/, "Programs section must expose a real add-program form");
+assertMatches("workspaceJs", /renderSiteProgramForm\("remove", "Remove program"/, "Programs section must expose a real remove-program form");
 
 assertMatches("workspaceJs", /renderActiveFilterSummary\(/, "Workspace lists must expose active filter summaries");
 assertMatches("workspaceJs", /Reload or share this view with the current browser URL/, "Filtered worklists must explain reloadable/shareable URL state");

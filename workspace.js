@@ -5,6 +5,7 @@ let currentData = {
   authConfig: null,
   dashboard: null,
   siteDashboard: null,
+  sitePrograms: null,
   siteStudents: null,
   siteStudentDetail: null,
   siteStudentTimeline: null,
@@ -161,6 +162,7 @@ const STATUS_LABELS = {
 const WORKSPACE_SECTION_IDS = new Set([
   "overview",
   "siteDashboard",
+  "programs",
   "students",
   "student",
   "archive",
@@ -350,6 +352,7 @@ function defaultCurrentData(authConfig = currentData.authConfig) {
     authConfig,
     dashboard: null,
     siteDashboard: null,
+    sitePrograms: null,
     siteStudents: null,
     siteStudentDetail: null,
     siteStudentTimeline: null,
@@ -382,6 +385,7 @@ async function loadWorkspaceData(statusMessage = "") {
   if (roles.has("student")) loaders.push(["dashboard", apiJson("/api/student/dashboard")]);
   if (roles.has("student")) loaders.push(["archiveReadiness", apiJson("/api/student/archive/readiness")]);
   if (hasSiteDashboardRole(roles)) loaders.push(["siteDashboard", apiJson(`/api/site/dashboard${siteDashboardQueryString()}`)]);
+  if (canUseSitePrograms(roles)) loaders.push(["sitePrograms", apiJson(`/api/site/programs${siteDashboardQueryString()}`)]);
   if (hasSiteStudentDirectoryRole(roles)) loaders.push(["siteStudents", apiJson(`/api/site/students${siteStudentQueryString()}`)]);
   if (hasSiteReviewQueueRole(roles)) loaders.push(["reviewQueue", apiJson(`/api/site/review-queue${siteReviewQueueQueryString()}`)]);
   if (hasSiteMentorAssignmentRole(roles)) loaders.push(["mentorAssignments", apiJson(`/api/site/mentor-assignments${siteMentorAssignmentQueryString()}`)]);
@@ -903,6 +907,7 @@ function canUseSiteSwitcher(roles) {
 function currentSiteWorkspaceContext() {
   const candidates = [
     unwrap(currentData.siteDashboard)?.scope,
+    unwrap(currentData.sitePrograms)?.scope,
     unwrap(currentData.siteStudents)?.scope,
     unwrap(currentData.reviewQueue)?.scope,
     unwrap(currentData.mentorAssignments)?.scope,
@@ -918,6 +923,8 @@ function accessibleSitesForWorkspace() {
     currentData.siteDashboard?.body?.accessibleSites,
     unwrap(currentData.siteStudents)?.scope?.accessibleSites,
     currentData.siteStudents?.body?.accessibleSites,
+    unwrap(currentData.sitePrograms)?.scope?.accessibleSites,
+    currentData.sitePrograms?.body?.accessibleSites,
     unwrap(currentData.reviewQueue)?.scope?.accessibleSites,
     currentData.reviewQueue?.body?.accessibleSites,
     unwrap(currentData.mentorAssignments)?.scope?.accessibleSites,
@@ -1371,6 +1378,7 @@ function availableSections() {
   const roles = roleIds(currentUser);
   const sections = [{ id: "overview", label: "Overview", detail: "Workspace priorities and access" }];
   if (hasSiteDashboardRole(roles)) sections.push({ id: "siteDashboard", label: "Site Dashboard", detail: "School-wide capstone health" });
+  if (canUseSitePrograms(roles)) sections.push({ id: "programs", label: "Programs", detail: "Add or remove site programs" });
   if (hasSiteStudentDirectoryRole(roles)) sections.push({ id: "students", label: "Students", detail: "Search and filter capstone progress" });
   if (roles.has("student")) sections.push({ id: "student", label: "Student Workspace", detail: "Progress, submissions, and evidence" });
   if (roles.has("student")) sections.push({ id: "archive", label: "Archive", detail: "Closeout and May 5 package" });
@@ -1397,6 +1405,7 @@ function availableSections() {
 function renderActiveSection() {
   if (activeSection === "security") return renderSecuritySection();
   if (activeSection === "siteDashboard") return renderSiteDashboardSection();
+  if (activeSection === "programs") return renderSiteProgramsSection();
   if (activeSection === "students") return renderSiteStudentDirectorySection();
   if (activeSection === "adminDashboard") return renderAdminOverviewSection();
   if (activeSection === "student") return renderStudentSection();
@@ -1675,6 +1684,115 @@ function renderSiteDashboardSection() {
         ${renderDashboardCard("Presentation Snapshot", "Readiness and day-of status", renderSnapshotRows(dashboard.presentationSnapshot, "presentation"))}
         ${renderDashboardCard("Archive / Export Snapshot", "Closeout package status", renderSnapshotRows(dashboard.archiveSnapshot, "archive"))}
         ${renderDashboardCard("Next Actions", "Recommended follow-up", renderSiteNextActions(dashboard.nextActions, readOnly))}
+      </div>
+    </section>
+  `;
+}
+
+function renderSiteProgramsSection() {
+  if (!canUseSitePrograms(roleIds(currentUser))) {
+    return renderPermissionDeniedSection("Programs", "site program records");
+  }
+  const result = currentData.sitePrograms;
+  if (result?.status === 403) {
+    return renderPermissionDeniedSection("Programs", "records for this assigned school");
+  }
+  if (result?.status === 409 && result.body?.selectionRequired) {
+    return renderSiteSelectionRequired(result.body);
+  }
+  const body = unwrap(result);
+  if (!body) {
+    return `
+      <section class="workspace-card workspace-error-card">
+        <p class="workspace-kicker">Programs</p>
+        <h2>Programs setup unavailable</h2>
+        ${renderApiNotice(result)}
+        ${renderProblemState({
+          reason: "The programs setup view could not load for the assigned school.",
+          owner: "Site administration or platform support.",
+          nextAction: "Refresh after the school assignment is confirmed.",
+        })}
+      </section>
+    `;
+  }
+
+  const activePrograms = Array.isArray(body.activePrograms) ? body.activePrograms : [];
+  const availablePrograms = Array.isArray(body.availablePrograms) ? body.availablePrograms : [];
+
+  return `
+    <section class="workspace-card" data-site-programs-section="true">
+      <div class="workspace-card-head">
+        <div>
+          <p class="workspace-kicker">Site setup</p>
+          <h2>Programs at ${escapeHtml(body.scope?.siteName || "this school")}</h2>
+        </div>
+        <span class="workspace-chip">${escapeHtml(body.scope?.siteName || "Current site")}</span>
+      </div>
+      ${renderApiNotice(result)}
+      <p class="workspace-muted">Manage which active programs belong to this school. Removing a program here turns off the school mapping only and keeps historical student and assignment records intact.</p>
+      <div class="workspace-assignment-summary">
+        <div>
+          <p class="workspace-kicker">Current programs</p>
+          <h3>Active site programs</h3>
+          <p class="workspace-muted">Program Teacher access and school-level worklists use these active program mappings.</p>
+        </div>
+        ${activePrograms.length ? `
+          <div class="workspace-list">
+            ${activePrograms.map((program) => `
+              <article class="workspace-row" data-site-program-row="${escapeHtml(program.programId || "")}">
+                <div>
+                  <strong>${escapeHtml(program.programName || "Program")}</strong>
+                  <p>${escapeHtml(program.assignedAt ? `Added ${formatDate(program.assignedAt)}` : "Active at this school")}</p>
+                </div>
+                ${activeAccessPill()}
+              </article>
+            `).join("")}
+          </div>
+        ` : `
+          <article class="workspace-empty-state-card" data-site-programs-empty="active">
+            <strong>No programs are active for this school yet.</strong>
+            <p>Add an active program below so this school can use program-scoped worklists and assignments.</p>
+          </article>
+        `}
+      </div>
+      <div class="workspace-assignment-summary">
+        <div>
+          <p class="workspace-kicker">Available next</p>
+          <h3>Programs you can add</h3>
+          <p class="workspace-muted">Only active programs can be added here. Previously removed mappings can be restored from the add form.</p>
+        </div>
+        ${availablePrograms.length ? `
+          <div class="workspace-list">
+            ${availablePrograms.map((program) => `
+              <article class="workspace-row">
+                <div>
+                  <strong>${escapeHtml(program.programName || "Program")}</strong>
+                  <p>${escapeHtml(program.previouslyRemoved ? "Previously removed from this school. Add it again to restore the school mapping." : "Available to add to this school.")}</p>
+                </div>
+                <span class="workspace-status-pill pending" data-status="available">${escapeHtml(program.previouslyRemoved ? "Restore" : "Available")}</span>
+              </article>
+            `).join("")}
+          </div>
+        ` : `
+          <article class="workspace-empty-state-card" data-site-programs-empty="available">
+            <strong>No more active programs are waiting to be added.</strong>
+            <p>Every active program is already mapped to this school.</p>
+          </article>
+        `}
+      </div>
+      <div class="workspace-assignment-tabs">
+        ${renderSiteProgramForm("assign", "Add program", availablePrograms, {
+          emptyTitle: "No active programs are available to add right now.",
+          emptyDetail: "If a new active program is created later, it will appear here for this school.",
+          guidance: "Choose Add to activate a program for this school. If the program was removed earlier, this restores the existing school mapping without creating a duplicate.",
+          submitLabel: "Add program",
+        })}
+        ${renderSiteProgramForm("remove", "Remove program", activePrograms, {
+          emptyTitle: "No active programs can be removed right now.",
+          emptyDetail: "Add a program first if this school needs program-scoped setup.",
+          guidance: "Choose Remove only for a current program listed above. This turns off the school mapping and keeps historical records intact.",
+          submitLabel: "Remove program",
+        })}
       </div>
     </section>
   `;
@@ -6334,6 +6452,54 @@ function renderSiteRoleAssignmentForm(type, title, targets = [], siteId = "") {
   `;
 }
 
+function currentProgramSiteId() {
+  return unwrap(currentData.sitePrograms)?.scope?.siteId || currentSiteWorkspaceContext()?.siteId || selectedSiteId || "";
+}
+
+function renderSiteProgramForm(action, title, programs = [], options = {}) {
+  const safePrograms = Array.isArray(programs) ? programs : [];
+  const disabled = safePrograms.length === 0;
+  return `
+    <form class="workspace-form workspace-assignment-form" data-site-program-form data-site-program-action="${escapeHtml(action || "assign")}">
+      <input type="hidden" name="siteId" value="${escapeHtml(currentProgramSiteId())}">
+      <input type="hidden" name="action" value="${escapeHtml(action || "assign")}">
+      <p class="workspace-kicker">${escapeHtml(title)}</p>
+      <div class="workspace-form-grid">
+        <label class="workspace-label">
+          Program
+          <select class="workspace-select" name="programId" ${disabled ? "disabled" : ""} required>
+            ${siteProgramOptions(safePrograms, disabled ? "No available programs" : "Choose a program")}
+          </select>
+        </label>
+        <label class="workspace-label workspace-label-wide">
+          Admin note
+          <textarea class="workspace-textarea" name="adminNote" maxlength="500" ${disabled ? "disabled" : ""} required></textarea>
+          <span class="workspace-muted">This note is saved in the audit log and stays in admin-only history.</span>
+        </label>
+      </div>
+      <p class="workspace-muted" data-site-program-guidance="${escapeHtml(action || "assign")}">${escapeHtml(options.guidance || "Save this change to update site program setup.")}</p>
+      ${disabled ? `
+        <article class="workspace-empty-state-card" data-site-programs-form-empty="${escapeHtml(action || "assign")}">
+          <strong>${escapeHtml(options.emptyTitle || "No programs are available for this step right now.")}</strong>
+          <p>${escapeHtml(options.emptyDetail || "Refresh later after program setup changes.")}</p>
+        </article>
+      ` : ""}
+      <div class="workspace-form-actions">
+        <button class="workspace-button workspace-button-secondary" type="submit" ${disabled ? "disabled" : ""}>${escapeHtml(options.submitLabel || "Save program change")}</button>
+      </div>
+    </form>
+  `;
+}
+
+function siteProgramOptions(programs = [], promptLabel = "Choose a program") {
+  const safePrograms = Array.isArray(programs) ? programs : [];
+  if (!safePrograms.length) return `<option value="">${escapeHtml(promptLabel)}</option>`;
+  return [
+    `<option value="">${escapeHtml(promptLabel)}</option>`,
+    ...safePrograms.map((program) => `<option value="${escapeHtml(program.programId || "")}">${escapeHtml(program.programName || program.programId || "Program")}</option>`),
+  ].join("");
+}
+
 function adminRoleOptions(canCreateGlobal) {
   const roles = [
     ["student", "Student"],
@@ -6426,6 +6592,9 @@ function bindWorkspaceForms() {
   updateAdminImportScopeFields();
   document.querySelectorAll("[data-site-access-assignment-form]").forEach((form) => {
     form.addEventListener("submit", submitSiteAccessAssignment);
+  });
+  document.querySelectorAll("[data-site-program-form]").forEach((form) => {
+    form.addEventListener("submit", submitSiteProgramChange);
   });
   document.querySelectorAll("[data-copy-secret]").forEach((button) => {
     button.addEventListener("click", copySecretFromButton);
@@ -9049,6 +9218,10 @@ function canUseUsersAccess(roles) {
   return hasGlobalAdminRole(roles) || roles.has("site_admin");
 }
 
+function canUseSitePrograms(roles) {
+  return hasGlobalAdminRole(roles) || roles.has("site_admin");
+}
+
 function hasSiteDashboardRole(roles) {
   return ["platform_admin", "global_admin", "admin", "org_admin", "site_admin", "administration"].some((role) => roles.has(role));
 }
@@ -9943,6 +10116,34 @@ async function submitSiteAccessAssignment(event) {
   }
 }
 
+async function submitSiteProgramChange(event) {
+  event.preventDefault();
+  if (busy) return;
+  const form = event.currentTarget;
+  const body = Object.fromEntries(new FormData(form).entries());
+  busy = true;
+  setFormBusy(form, true);
+  try {
+    const response = await fetch("/api/site/programs", {
+      method: "POST",
+      headers: { "content-type": "application/json", accept: "application/json" },
+      body: JSON.stringify(body),
+    });
+    const data = await safeJson(response);
+    if (!response.ok) {
+      renderAppShell(messageForSiteProgramError(data?.error, response.status), "error");
+      return;
+    }
+    activeSection = "programs";
+    await loadWorkspaceData(body.action === "remove" ? "Site program removed." : "Site program added.");
+  } catch (error) {
+    renderAppShell(messageForNetworkError(error), "error");
+  } finally {
+    setFormBusy(form, false);
+    busy = false;
+  }
+}
+
 function artifactTypeOptions() {
   return [
     ["planning_document", "Planning document"],
@@ -10011,6 +10212,16 @@ function messageForAdminImportError(error, status) {
   if (error === "last_active_local_global_admin") return "At least one active local Global Admin must remain.";
   if (error === "too_many_users") return "Create fewer accounts in one request.";
   return "Account creation is unavailable right now. Check the details and try again.";
+}
+
+function messageForSiteProgramError(error, status) {
+  if (status === 401) return "Sign in again before updating site programs.";
+  if (status === 403) return "This account cannot change programs for that school.";
+  if (error === "missing_admin_note") return "Add the admin note before saving this program change.";
+  if (error === "missing_fields" || error === "invalid_json") return "Choose a program and add the admin note before saving.";
+  if (error === "program_not_found" || status === 404) return "That active program is not available for this school right now.";
+  if (error === "program_not_assigned") return "Choose a current site program before removing it.";
+  return "Programs setup could not be updated right now. Check the details and try again.";
 }
 
 function messageForReviewDecisionError(error, status) {

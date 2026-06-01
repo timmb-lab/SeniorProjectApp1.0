@@ -1,0 +1,48 @@
+{
+  "run_id": "2026-05-31-2111-site-admin-programs-management",
+  "automation_id": "functionality-ux-upgrade-hourly",
+  "timestamp": "2026-05-31T21:11:22.3397893-07:00",
+  "starting_sha": "4046ecb0d90e0715bd7b190267eab0e25ed37e6c",
+  "selected_slice": "Add the missing Site Admin Programs setup path with a real scoped route and workspace section.",
+  "selection_reason": "The repo already had site_programs schema support, selected-site scoping helpers, and a durable scorecard explicitly naming Programs as the top Site Admin gap, while the route and UI path were still missing.",
+  "files_changed": [
+    "functions/_lib/permissions.ts",
+    "functions/api/site/programs.ts",
+    "workspace.js",
+    "tests/site-programs.integration.test.mjs",
+    "tests/workspace-app.test.mjs",
+    "tests/access-v5-effective.test.mjs",
+    "scripts/verify-workspace-navigation-integrity.mjs",
+    "docs/generated/production-route-inventory.md",
+    "docs/product/demo-role-readiness.md",
+    "docs/functionality-language-audit.md",
+    "docs/progress/run-log.md",
+    "automation/state/functionality-ux-growth-state.json"
+  ],
+  "repo_grounded_findings": [
+    "Site Admin and Global Admin already had site-scoped dashboard, operations, review, and access-management surfaces, but no dedicated /api/site/programs route or Programs workspace section.",
+    "The existing schema already supported safe activation and deactivation through site_programs.active without destructive deletes.",
+    "The role-readiness scorecard still named the lack of a real Programs GUI path as the top Site Admin readiness gap."
+  ],
+  "changes": [
+    "Added /api/site/programs GET and POST handling with auth, site scoping, add/remove behavior, and audit writes.",
+    "Added canManageSitePrograms() and a Programs workspace section for Site Admin and Global Admin only.",
+    "Rendered active-program, available-program, add, remove, and empty-state UI with no fake links or dead controls.",
+    "Added focused route, workspace, permission, and navigation regression coverage.",
+    "Regenerated production route inventory and refreshed role-readiness/audit/run-log closeout docs."
+  ],
+  "validation": [
+    "node --test tests/site-programs.integration.test.mjs",
+    "node --test tests/workspace-app.test.mjs",
+    "node --test tests/access-v5-effective.test.mjs",
+    "npm run verify:dashboard-actions",
+    "npm run verify:review-queue-deeplinks",
+    "npm run verify:workspace-navigation",
+    "npm run verify:functionality-language",
+    "npm run inventory:production-routes",
+    "npm run test",
+    "npm run typecheck",
+    "npm run check"
+  ],
+  "next_recommended": "Prove seeded Site Admin Programs behavior end-to-end with demo accounts, then run the first full Administration and Viewer click-through scorecard refresh."
+}
