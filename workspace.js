@@ -4122,6 +4122,7 @@ function renderStudentSection() {
     </section>
     ${renderStudentPrimaryNextAction(summary, nextSteps)}
     ${renderStudentNextSteps(nextSteps, summary)}
+    ${renderStudentDeadlinePanel(dashboard.requirements || [], summary)}
     ${renderStudentRequirementPanel(dashboard.requirements || [], summary, dashboard.feedback || [], studentRequirementDetailState)}
     ${renderStudentFeedbackPanel(dashboard.feedback || [], summary, studentFeedbackHistoryState)}
     ${renderStudentProgressDetails(summary, dashboard)}
@@ -4361,6 +4362,88 @@ function renderStudentNextStepRow(item) {
       <div class="workspace-row-actions">
         ${stepButtons}
         ${statusPill(item.status || "not_started")}
+      </div>
+    </article>
+  `;
+}
+
+function renderStudentDeadlinePanel(requirements = [], summary = {}) {
+  const rows = studentUpcomingDeadlineRows(requirements);
+  const countLabel = rows.length
+    ? `${rows.length} due soon`
+    : summary?.dueDatesAvailable
+      ? "No remaining due dates"
+      : "Due dates pending";
+  const emptyTitle = summary?.dueDatesAvailable
+    ? "No due dates need work right now."
+    : "Due dates will appear after your teacher adds them.";
+  const emptyDetail = summary?.dueDatesAvailable
+    ? "Keep using the checklist below for any work that is still waiting on review or evidence."
+    : "Keep using your next steps and requirement checklist until your teacher adds deadline dates.";
+  return `
+    <section class="workspace-dashboard-card workspace-student-deadlines-panel" data-student-deadlines-panel="true" data-student-deadlines-count="${escapeHtml(rows.length)}" aria-labelledby="studentDeadlinesTitle">
+      <div class="workspace-card-head">
+        <div>
+          <p class="workspace-kicker">Due soon</p>
+          <h2 id="studentDeadlinesTitle">Upcoming deadlines</h2>
+          <p>${escapeHtml(rows.length ? "Start with the nearest due date when you need a time-first view." : emptyDetail)}</p>
+        </div>
+        <span class="workspace-site-context-badge">${escapeHtml(countLabel)}</span>
+      </div>
+      <div class="workspace-list">
+        ${rows.length ? rows.map((item) => renderStudentDeadlineRow(item, summary)).join("") : `
+          <article class="workspace-empty-state-card" data-student-deadlines-empty="true">
+            <strong>${escapeHtml(emptyTitle)}</strong>
+            <p>${escapeHtml(emptyDetail)}</p>
+          </article>
+        `}
+      </div>
+    </section>
+  `;
+}
+
+function studentUpcomingDeadlineRows(requirements = []) {
+  const rows = Array.isArray(requirements) ? requirements : [];
+  return rows
+    .map((item, index) => ({
+      ...item,
+      dueSortValue: studentDueSortValue(item),
+      originalIndex: index,
+    }))
+    .filter((item) => !isStudentRequirementComplete(item?.status) && item.dueSortValue !== null)
+    .sort((left, right) => {
+      if (left.dueSortValue !== right.dueSortValue) return left.dueSortValue - right.dueSortValue;
+      return left.originalIndex - right.originalIndex;
+    })
+    .slice(0, 4);
+}
+
+function studentDueSortValue(item) {
+  if (item?.dueDate) {
+    const parsed = Date.parse(item.dueDate);
+    if (Number.isFinite(parsed)) return parsed;
+  }
+  const label = String(item?.dueLabel || "").trim();
+  return label ? Number.MAX_SAFE_INTEGER : null;
+}
+
+function renderStudentDeadlineRow(item, summary = {}) {
+  const actionButtons = renderStudentStepButtons(item);
+  const phaseLabel = String(item?.phaseLabel || "Project phase").trim() || "Project phase";
+  const currentPhaseKey = studentRequirementPhaseKey(summary?.currentPhase || "");
+  const itemPhaseKey = studentRequirementPhaseKey(item?.phase || item?.phaseLabel || "");
+  const phaseContext = itemPhaseKey && itemPhaseKey === currentPhaseKey ? `${phaseLabel} / Current phase` : phaseLabel;
+  return `
+    <article class="workspace-row workspace-student-deadline-row" data-student-deadline-row="true" data-student-deadline-requirement-id="${escapeHtml(studentRequirementId(item))}">
+      <div>
+        <strong>${escapeHtml(item?.title || "Senior Project requirement")}</strong>
+        <p class="workspace-muted" data-student-deadline-phase="true">${escapeHtml(phaseContext)}</p>
+        <p data-student-deadline-due="true">${escapeHtml(studentDueText(item))}</p>
+        <p class="workspace-muted" data-student-deadline-next="true">${escapeHtml(item?.nextAction || "Open this requirement and keep moving.")}</p>
+      </div>
+      <div class="workspace-row-actions">
+        ${actionButtons}
+        ${statusPill(item?.status || "missing")}
       </div>
     </article>
   `;

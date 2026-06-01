@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-05-31T17:12:00-07:00",
-  "lastStartingSha": "e4f92579e59b9dc3a071d73b56d7a3b5a65cf40a",
+  "lastRunAt": "2026-05-31T17:40:08-07:00",
+  "lastStartingSha": "68a1fa9c0dd15c3dda83c879e76398bf29da96b8",
   "lastEndingSha": null,
   "currentLadderFocus": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN",
   "completedWorkOrders": [
@@ -841,6 +841,14 @@
       "type": "TYPE_C_STUDENT_DETAIL_DRILL_DOWN",
       "summary": "Student requirement checklists now support in-page phase focus, and opening a requirement from student next steps or the checklist switches to the matching phase detail without adding a new route.",
       "commit": "pending-closeout-commit"
+    },
+    {
+      "id": "student-upcoming-deadlines-panel",
+      "completedAt": "2026-05-31T17:37:00-07:00",
+      "ladderLevel": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN",
+      "type": "TYPE_D_ROLE_WORKSPACE",
+      "summary": "Student home now surfaces a due-date-first upcoming-deadlines panel from the existing requirement payload, reusing the current requirement actions without a new route.",
+      "commit": "pending-closeout-commit"
     }
   ],
   "deferredWorkOrders": [
@@ -921,10 +929,10 @@
       "summary": "Keep Review Queue dashboard click-through work deferred until backend queue semantics include real missing requirement rows."
     },
     {
-      "id": "student-due-date-timeline",
+      "id": "student-feedback-timeline-affordances",
       "ladderLevel": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN",
       "type": "TYPE_C_STUDENT_DETAIL_DRILL_DOWN",
-      "summary": "If hosted proof remains blocked, deepen the student workspace with a due-date-first view from existing requirement deadline labels and dates."
+      "summary": "If hosted proof remains blocked, inspect compare or filter affordances for the existing student-safe feedback timeline before adding any new student page."
     }
   ],
   "doNotRepeat": [
@@ -1026,17 +1034,18 @@
     "Do not re-add site-admin Audit or Archive / Exports navigation unless a real backed site-scoped surface exists and focused coverage proves it.",
     "Do not re-add student next-step quick actions unless regression removes Open requirement or the reused add-evidence/send-for-review controls from the student home primary action and next-steps list.",
     "Do not re-add the student submission timeline shortcut unless regression removes data-student-submission-timeline or the submitted-work View timeline action from student rows.",
-    "Do not re-add the student requirement phase-focus slice unless regression removes data-student-requirement-phase-focus or opening a student requirement stops switching to the matching phase."
+    "Do not re-add the student requirement phase-focus slice unless regression removes data-student-requirement-phase-focus or opening a student requirement stops switching to the matching phase.",
+    "Do not re-add the student upcoming-deadlines panel unless regression removes data-student-deadlines-panel or the due-date-first rows stop reusing the existing requirement actions."
   ],
   "lastValidationStatus": {
     "status": "passed",
-    "completedAt": "2026-05-31T17:12:00-07:00",
+    "completedAt": "2026-05-31T17:40:08-07:00",
     "commands": [
       "node --test tests/workspace-app.test.mjs",
-      "node --test tests/functionality-language-audit.test.mjs",
-      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-05-31-1708-student-requirement-phase-focus.json','utf8')); console.log('json ok')\"",
-      "git diff --check",
       "npm run verify:functionality-language",
+      "node --test tests/functionality-language-audit.test.mjs",
+      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-05-31-1737-student-upcoming-deadlines.json','utf8')); console.log('json ok')\"",
+      "git diff --check",
       "npm run verify:dashboard-actions",
       "npm run verify:workspace-navigation",
       "npm run verify:functionality-ux-automation",
@@ -1046,7 +1055,7 @@
       "npm run typecheck",
       "npm run check"
     ],
-    "notes": "Focused and full validation passed for the student requirement phase-focus slice. git diff --check reported only CRLF normalization warnings. This run stayed inside the existing student dashboard payload and in-page requirement detail state without changing auth grants, RBAC, tenant/site/program/student privacy boundaries, migrations, secrets/env files, Cloudflare/OAuth/domain config, deploy settings, or live data."
+    "notes": "Focused and full validation passed for the student upcoming-deadlines slice. git diff --check reported only CRLF normalization warnings. This run stayed inside the existing student dashboard payload and reused current in-page requirement actions without changing auth grants, RBAC, tenant/site/program/student privacy boundaries, migrations, secrets/env files, Cloudflare/OAuth/domain config, deploy settings, or live data."
   },
   "lastProductReadinessScorecardSummary": {
     "homepageClarity": "4 to 4",
@@ -1060,6 +1069,7 @@
     "layoutWidthUsage": "4 to 4",
     "navigationMenuEfficiency": "4 to 4",
     "roleSpecificWorkspaceClarity": "4 to 4",
+    "studentDeadlinePlanning": "3 to 4",
     "studentPrivacyConfidence": "4 to 4",
     "staffWorkflowUsefulness": "4 to 4",
     "emptyErrorStateQuality": "4 to 4",

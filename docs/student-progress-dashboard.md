@@ -54,6 +54,7 @@ Status uses simple rules:
 - Progress hero with title, percentage, status badge, and accessible progress bar.
 - Four summary cards: Project Phases, Required Submissions, Review Status, and Mentor / Support.
 - What to Work On Next, prioritized by revision items, missing submissions, current-phase work, waiting review, then next remaining requirement.
+- Upcoming deadlines, which reorders the existing incomplete requirement rows into a due-date-first list so students can start with the nearest deadline without leaving the current dashboard or opening a fake calendar page.
 - Your Required Work, a read-only requirement checklist from the existing student-scoped dashboard data, grouped by senior project phase with per-phase completion counts, phase-focus filters, each required item, persisted due-date label, student-safe requirement description, first quality nudge when available, status, submitted version when present, last update, next step, and an in-page requirement detail disclosure.
 - Requirement rows now show the matching submission ID's evidence count when a submission exists. Draft or revision rows with evidence can be sent to teacher review through the existing scoped submit route; rows without evidence focus the existing evidence forms instead of adding a fake requirement page.
 - Feedback History, showing bounded teacher review notes already tied to the student's own submissions, with submission version and current status context.
@@ -82,6 +83,7 @@ No new fake links were added. The dashboard keeps existing real actions only:
 - Upload evidence file through the existing student upload form.
 - Download or open evidence using existing safe evidence URLs when present.
 - Review the inline requirement checklist grouped by phase from the existing student dashboard response, including persisted deadline labels/dates, requirement descriptions, and one quality nudge when available; it does not add a fake requirement page or unbacked action.
+- Open the same in-page requirement detail from the Upcoming deadlines panel, which simply reuses the current checklist state and requirement actions.
 - Send draft or revised work for teacher review from a requirement row only when the existing submission has attached evidence. The submit action uses `/api/submissions/:id/submit`, which enforces own-student access, draft/revision status, and required evidence.
 - Focus the existing link/file evidence forms from a requirement row when the matching submission has no evidence yet.
 - Open in-page requirement details from a checklist row. The detail disclosure uses the already loaded student dashboard payload to summarize status, due date, evidence count, submitted version, progress state, next action, and the latest matching teacher feedback without calling a new route.
@@ -104,6 +106,6 @@ Student-facing copy on this route now uses "work," "evidence," "submitted work,"
 2. Add dedicated phase-specific student progress pages only if students need more than the current grouped checklist, phase-focus filters, and in-page requirement detail.
 3. Add richer student-safe feedback timeline affordances only if students need compare/filter controls beyond the current in-row timeline.
 4. Add mentor contact/support workflow without exposing unsafe contact data.
-5. Add a richer due-date timeline only if students need more than the requirement-row deadline labels.
+5. Add a richer due-date timeline or calendar only if students need more than the upcoming-deadlines panel plus requirement-row deadline labels.
 6. Add a downloadable student progress summary.
 7. Add a parent/guardian-friendly print view after policy review.

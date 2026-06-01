@@ -1,0 +1,105 @@
+{
+  "automationId": "functionality-ux-upgrade-hourly",
+  "runAt": "2026-05-31T17:37:00-07:00",
+  "startingSha": "68a1fa9c0dd15c3dda83c879e76398bf29da96b8",
+  "endingSha": null,
+  "branch": "main",
+  "ladderLevel": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN",
+  "workOrder": {
+    "id": "student-upcoming-deadlines-panel",
+    "summary": "Add a due-date-first student upcoming-deadlines panel from the existing dashboard payload.",
+    "selectionReason": "The prior handoff explicitly pointed at a due-date-first student view when hosted proof stays blocked, and current workspace.js still made students scan phase groups to find what was due next even though requirement due labels, due dates, status, and next-step actions were already loaded."
+  },
+  "repoGroundedFindings": [
+    "renderStudentSection() showed next steps and a phase-grouped checklist, but no due-date-first view.",
+    "Current student requirement rows already exposed dueLabel or dueDate, status, nextAction, requirementId, submissionId, and evidenceCount.",
+    "The existing student requirement open-detail and submit or add-evidence actions were already in place, so a deadline panel could stay entirely in the current student workspace without a new route or query state."
+  ],
+  "changes": [
+    "Added an Upcoming deadlines panel to workspace.js that lists the nearest incomplete due work first.",
+    "Reused the existing student requirement open-detail and submit or add-evidence actions inside the new deadline rows.",
+    "Added focused workspace coverage proving the panel renders in due-order, excludes completed requirements, and keeps the existing requirement actions."
+  ],
+  "filesChanged": [
+    "workspace.js",
+    "tests/workspace-app.test.mjs",
+    "docs/student-progress-dashboard.md",
+    "docs/functionality-language-audit.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-31-1737-student-upcoming-deadlines.json",
+    "docs/functionality-ux-growth-ledger.md",
+    "automation/state/functionality-ux-growth-state.json"
+  ],
+  "candidates": [
+    {
+      "candidate": "Student upcoming deadlines panel",
+      "score": 58,
+      "decision": "selected"
+    },
+    {
+      "candidate": "Student feedback compare or filter controls",
+      "score": 44,
+      "decision": "not_selected_due_date_gap_was_earlier"
+    },
+    {
+      "candidate": "Viewer vs manager Operations copy branch",
+      "score": 43,
+      "decision": "not_selected_lower_product_depth"
+    },
+    {
+      "candidate": "Presentation schedule URL state",
+      "score": 41,
+      "decision": "deferred_need_unproven"
+    },
+    {
+      "candidate": "Mentor Dashboard URL state",
+      "score": 40,
+      "decision": "deferred_need_unproven"
+    },
+    {
+      "candidate": "Hosted section-level permission proof",
+      "score": 39,
+      "decision": "deferred_external_runtime_gate"
+    },
+    {
+      "candidate": "Site-scoped audit destination",
+      "score": 38,
+      "decision": "deferred_route_review"
+    },
+    {
+      "candidate": "Student mentor support workflow",
+      "score": 36,
+      "decision": "deferred_policy_and_privacy_shape"
+    },
+    {
+      "candidate": "Review Queue missing-submission semantics",
+      "score": 34,
+      "decision": "deferred_backend_gap"
+    },
+    {
+      "candidate": "Site-admin assignment removal workflow",
+      "score": 33,
+      "decision": "deferred_mutation_policy"
+    }
+  ],
+  "validation": {
+    "status": "passed",
+    "commands": [
+      "node --test tests/workspace-app.test.mjs",
+      "npm run verify:functionality-language",
+      "node --test tests/functionality-language-audit.test.mjs",
+      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-05-31-1737-student-upcoming-deadlines.json','utf8')); console.log('json ok')\"",
+      "git diff --check",
+      "npm run verify:dashboard-actions",
+      "npm run verify:workspace-navigation",
+      "npm run verify:functionality-ux-automation",
+      "npm run check:production-surfaces",
+      "npm run check:route-inventory",
+      "npm run test",
+      "npm run typecheck",
+      "npm run check"
+    ],
+    "notes": "Focused and full validation passed. git diff --check reported only CRLF normalization warnings."
+  },
+  "nextRecommended": "Run hosted section-level permission proof when hosted fake-account proof and audit-event writes are allowed; otherwise inspect compare or filter affordances for the existing student-safe feedback timeline before adding a new student page."
+}

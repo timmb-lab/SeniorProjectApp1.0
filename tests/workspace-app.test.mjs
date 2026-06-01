@@ -3809,6 +3809,12 @@ test("workspace renders a progress-first student homepage with safe language", a
   assert.match(student, /Try this: Add one measurable success target before you send the proposal back/);
   assert.match(student, /Send the revised Senior Project Proposal back for teacher review/);
   assert.match(student, /data-student-next-step-due="true"/);
+  assert.match(student, /data-student-deadlines-panel="true"/);
+  assert.match(student, /Upcoming deadlines/);
+  assert.match(student, /data-student-deadline-row="true"/);
+  assert.match(student, /data-student-deadline-phase="true"/);
+  assert.match(student, /data-student-deadline-due="true"/);
+  assert.match(student, /Proposal And Research \/ Current phase/);
   assert.match(student, /data-student-requirement-due="true"/);
   assert.match(student, /Due October 9 and 10/);
   assert.match(student, /Due January 14, make-up January 16/);
@@ -3964,6 +3970,145 @@ test("student requirement rows open in-page details without another route", asyn
   assert.match(workspaceRoot.innerHTML, /Latest teacher feedback/);
   assert.match(workspaceRoot.innerHTML, /Add one measurable success target before resubmitting/);
   assert.doesNotMatch(workspaceRoot.innerHTML, /href="#"/);
+});
+
+test("student upcoming deadlines panel lists nearest incomplete work and reuses requirement actions", async () => {
+  const student = await renderWorkspaceWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "student-deadlines",
+          email: "student.deadlines@senior-capstone.test",
+          displayName: "Deadline Student",
+          roles: [{ role_id: "student", scope_type: "global", scope_id: "" }],
+        },
+      },
+    },
+    "/api/student/dashboard": {
+      status: 200,
+      body: {
+        ok: true,
+        viewer: { self: true },
+        summary: {
+          requirementsTotal: 4,
+          requirementsComplete: 1,
+          completionPercent: 25,
+          phasesTotal: 3,
+          phasesComplete: 1,
+          submittedRequiredCount: 2,
+          missingRequiredCount: 2,
+          waitingForReviewCount: 0,
+          revisionRequestedCount: 1,
+          currentPhase: "proposal-and-research",
+          currentPhaseLabel: "Proposal And Research",
+          currentStatus: "Needs Revision",
+          dueDatesAvailable: true,
+          mentor: { assigned: true, name: "Mentor One", message: "Mentor One can help with project questions." },
+        },
+        nextSteps: [
+          {
+            title: "Senior Project Proposal",
+            status: "Needs Revision",
+            detail: "Revise Senior Project Proposal and send it back for review.",
+            dueDate: "2025-10-09T00:00:00Z",
+            dueLabel: "October 9 and 10",
+            requirementId: "req-proposal",
+            submissionId: "submission-proposal",
+            submissionStatus: "revision_requested",
+            evidenceCount: 1,
+          },
+        ],
+        requirements: [
+          {
+            requirementId: "req-proposal",
+            submissionId: "submission-proposal",
+            title: "Senior Project Proposal",
+            phase: "proposal-and-research",
+            phaseLabel: "Proposal And Research",
+            status: "revision_requested",
+            progressStatus: "revision_requested",
+            submissionStatus: "revision_requested",
+            submissionVersion: 2,
+            evidenceCount: 1,
+            dueDate: "2025-10-09T00:00:00Z",
+            dueLabel: "October 9 and 10",
+            nextAction: "Send the revised Senior Project Proposal back for teacher review.",
+          },
+          {
+            requirementId: "req-presentation",
+            submissionId: "submission-presentation",
+            title: "Presentation Outline",
+            phase: "presentation",
+            phaseLabel: "Presentation",
+            status: "draft",
+            progressStatus: "draft",
+            submissionStatus: "draft",
+            submissionVersion: 1,
+            evidenceCount: 0,
+            dueDate: "2026-01-14T00:00:00Z",
+            dueLabel: "January 14, make-up January 16",
+            nextAction: "Add outline evidence before sending it for review.",
+          },
+          {
+            requirementId: "req-portfolio",
+            submissionId: "",
+            title: "Portfolio Reflection",
+            phase: "portfolio",
+            phaseLabel: "Portfolio",
+            status: "missing",
+            progressStatus: null,
+            submissionStatus: null,
+            submissionVersion: null,
+            evidenceCount: 0,
+            dueLabel: "Before celebration day",
+            nextAction: "Start the reflection draft before closeout week.",
+          },
+          {
+            requirementId: "req-complete",
+            submissionId: "submission-complete",
+            title: "Completed checkpoint",
+            phase: "proposal-and-research",
+            phaseLabel: "Proposal And Research",
+            status: "approved",
+            progressStatus: "approved",
+            submissionStatus: "approved",
+            submissionVersion: 1,
+            evidenceCount: 1,
+            dueDate: "2025-09-01T00:00:00Z",
+            dueLabel: "September 1",
+            nextAction: "This item is complete.",
+          },
+        ],
+        progress: [],
+        submissions: [
+          { id: "submission-proposal", requirement_id: "req-proposal", requirement_title: "Senior Project Proposal", status: "revision_requested", version: 2, updated_at: "2026-05-24T18:00:00.000Z" },
+          { id: "submission-presentation", requirement_id: "req-presentation", requirement_title: "Presentation Outline", status: "draft", version: 1, updated_at: "2026-05-24T19:00:00.000Z" },
+        ],
+        evidence: [],
+        feedback: [],
+      },
+    },
+    "/api/student/archive/readiness": {
+      status: 200,
+      body: { ok: true, summary: {}, checks: [], archive: {}, storage: {}, retention: {} },
+    },
+    "/api/presentation-slots": {
+      status: 200,
+      body: { ok: true, slots: [] },
+    },
+  }, "student");
+
+  assert.match(student, /data-student-deadlines-panel="true"/);
+  assert.match(student, /data-student-deadlines-count="3"/);
+  assertMarkupOrder(student, "Senior Project Proposal", "Presentation Outline", "nearest dated deadline should render first");
+  assertMarkupOrder(student, "Presentation Outline", "Portfolio Reflection", "label-only deadline should render after dated deadlines");
+  assert.match(student, /Open requirement/);
+  assert.match(student, /Send revision/);
+  assert.match(student, /Add evidence/);
+  assert.match(student, /Proposal And Research \/ Current phase/);
+  assert.doesNotMatch(student, /data-student-deadline-requirement-id="req-complete"/);
 });
 
 test("student requirement phase focus narrows the checklist and open requirement switches to the matching phase", async () => {

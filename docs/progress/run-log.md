@@ -2499,3 +2499,14 @@ Future productive runs should append compact entries that name the master-plan s
 - `changes`: `workspace.js` now renders in-page phase focus controls for the student requirement checklist, narrows the checklist to one phase when selected, and switches to the matching phase when a student opens a requirement from the checklist or next-step actions. `tests/workspace-app.test.mjs` proves both the phase-focus filtering and the matching-phase open-detail behavior without adding a route or broadening access.
 - `validation`: focused workspace coverage passed before docs/state closeout. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
 - `commit/push status`: pending closeout commit; not pushed by this automation run.
+
+## 2026-05-31 PT - Functionality UX Upgrade Student Upcoming Deadlines
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 6 student progress drill-down / due-date-first student planning.
+- `starting HEAD`: `68a1fa9c0dd15c3dda83c879e76398bf29da96b8`.
+- `selected slice`: Add an Upcoming deadlines panel to the existing student dashboard from the current requirement payload.
+- `repo-grounded findings`: the previous handoff pointed at a due-date-first student view if hosted proof stayed blocked. Current `workspace.js` already rendered due labels in next steps and requirement rows, but students still had to scan multiple phase groups to find the nearest due work even though the existing dashboard payload already carried due dates, due labels, status, next actions, requirement ids, submission ids, and evidence counts.
+- `changes`: `workspace.js` now renders an `Upcoming deadlines` panel that orders incomplete student requirements by due date, keeps label-only due items after dated items, marks the current phase when relevant, and reuses the existing `Open requirement`, `Send revision` / `Send for review`, and `Add evidence` actions. `tests/workspace-app.test.mjs` now proves the panel renders, orders rows safely, excludes completed items, and preserves the existing requirement actions. `docs/student-progress-dashboard.md` and `docs/functionality-language-audit.md` now record the due-date-first view as part of the student workspace.
+- `validation`: focused workspace test and functionality-language verification passed before docs/state closeout. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.
