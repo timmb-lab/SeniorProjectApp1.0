@@ -1,0 +1,85 @@
+{
+  "run_id": "2026-05-31-2205-site-programs-first-load-add-proof",
+  "automation_id": "functionality-ux-upgrade-hourly",
+  "automation_status": "paused_not_unpaused",
+  "branch": "main",
+  "starting_sha": "ee68cbe6964740e91608f2cfb42b8967b8e60fca",
+  "ending_sha": "pending_closeout_commit_final_sha_reported_after_push",
+  "baseline_pushed_first": false,
+  "selected_slice": "Make Site Admin Programs demo-honest on first load with real seeded data and local proof.",
+  "files_changed": [
+    "automation/state/functionality-ux-growth-state.json",
+    "docs/local-demo-data.md",
+    "docs/product/demo-role-readiness.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-31-2205-site-programs-first-load-add-proof.json",
+    "scripts/prove-local-demo-workspace.mjs",
+    "scripts/seed-local-demo-workspace.mjs",
+    "scripts/seed-remote-demo-workspace.mjs",
+    "tests/local-demo-workspace-seed.test.mjs",
+    "tests/site-programs.integration.test.mjs"
+  ],
+  "changes": [
+    "Added a demo-owned active Biotechnology catalog program to the demo seed without attaching it to the primary site.",
+    "Kept all nine canonical CTE programs attached to the primary site.",
+    "Verified the seed has at least one primary-site available active program.",
+    "Updated local demo proof to add, remove, restore, and clean up the first-load available program through the real Site Programs route.",
+    "Preserved the existing active-program remove-then-restore proof.",
+    "Deepened integration and seed tests for first-load addable program coverage.",
+    "Updated role-readiness docs, local demo data docs, run log, and automation state."
+  ],
+  "proof": {
+    "site_admin_programs": {
+      "initial_active_programs": 9,
+      "initial_available_programs": 1,
+      "first_load_add_path": "verified_locally",
+      "first_load_addable_program_id": "demo-biotechnology-pilot",
+      "add_remove_restore": "verified_locally",
+      "cleanup_returned_first_load_availability": true,
+      "active_program_remove_restore": "verified_locally"
+    },
+    "rbac": {
+      "global_admin_allowed": true,
+      "site_admin_allowed": true,
+      "administration_denied": true,
+      "program_teacher_denied": true,
+      "mentor_denied": true,
+      "viewer_denied": true,
+      "student_denied": true,
+      "programs_nav_global_admin_and_site_admin_only": true,
+      "rbac_changed": false
+    },
+    "hosted_clickthrough_completed": false
+  },
+  "checks_passed": [
+    "npm run seed:demo:local:reset",
+    "node --test tests/site-programs.integration.test.mjs",
+    "node --test tests/local-demo-workspace-seed.test.mjs",
+    "node --test tests/remote-demo-workspace-seed.test.mjs",
+    "node --test tests/workspace-app.test.mjs",
+    "node --test tests/access-v5-effective.test.mjs",
+    "npm run verify:dashboard-actions",
+    "npm run verify:review-queue-deeplinks",
+    "npm run verify:workspace-navigation",
+    "npm run verify:functionality-language",
+    "npm run verify:functionality-ux-automation",
+    "npm run inventory:production-routes",
+    "npm run check:route-inventory",
+    "node --test tests/functionality-language-audit.test.mjs",
+    "node scripts/prove-local-demo-workspace.mjs",
+    "npm run test",
+    "npm run typecheck",
+    "npm run check",
+    "git diff --check"
+  ],
+  "remaining_unproven": [
+    "Hosted click-through was not completed.",
+    "Global Admin still needs a full current readiness refresh.",
+    "Program Teacher, Mentor, and Student still need full current readiness refreshes.",
+    "Administration and Viewer still need hosted click-through confirmation."
+  ],
+  "notes": [
+    "The local proof uses route-level mutations for add/remove/restore and deletes only its temporary proof mapping so the first-load addable state remains reusable.",
+    "The paused automation file was not unpaused."
+  ]
+}

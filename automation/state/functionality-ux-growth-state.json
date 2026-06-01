@@ -1,10 +1,18 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-05-31T21:52:15-07:00",
-  "lastStartingSha": "aec0ef4209f95f97fd9493c6f6736599bf982741",
+  "lastRunAt": "2026-05-31T22:05:51-07:00",
+  "lastStartingSha": "ee68cbe6964740e91608f2cfb42b8967b8e60fca",
   "lastEndingSha": null,
   "currentLadderFocus": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
   "completedWorkOrders": [
+    {
+      "id": "site-programs-first-load-add-proof",
+      "completedAt": "2026-05-31T22:05:51-07:00",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "type": "TYPE_D_ROLE_WORKSPACE",
+      "summary": "Made Site Admin Programs demo-honest on first load by seeding a real demo-owned active catalog program that is available to the primary site, then proved first-load add, remove, restore, cleanup, existing active-program restore, and non-authorized role denials locally.",
+      "commit": "pending-closeout-commit"
+    },
     {
       "id": "site-programs-role-proof-depth",
       "completedAt": "2026-05-31T21:52:15-07:00",
@@ -1121,9 +1129,12 @@
   ],
   "lastValidationStatus": {
     "status": "passed",
-    "completedAt": "2026-05-31T21:55:05-07:00",
+    "completedAt": "2026-05-31T22:14:00-07:00",
     "commands": [
+      "npm run seed:demo:local:reset",
       "node --test tests/site-programs.integration.test.mjs",
+      "node --test tests/local-demo-workspace-seed.test.mjs",
+      "node --test tests/remote-demo-workspace-seed.test.mjs",
       "node --test tests/workspace-app.test.mjs",
       "node --test tests/access-v5-effective.test.mjs",
       "npm run verify:dashboard-actions",
@@ -1140,7 +1151,7 @@
       "npm run check",
       "git diff --check"
     ],
-    "notes": "This run first pushed the previously clean mainline baseline because main was ahead of origin/main by 19 commits, then expanded local proof depth for Site Programs role denials and Administration/Viewer readiness evidence. Focused proof, role/RBAC, verifier, inventory, and repo-wide checks all passed. git diff --check reported only CRLF normalization warnings."
+    "notes": "This run did not need a baseline push because main was clean and synced. It seeded a real demo-owned active Biotechnology catalog program that remains available to the primary site on first load, proved Site Admin add/remove/restore and cleanup locally, preserved the active-program remove/restore proof, and kept Administration, Program Teacher, Mentor, Viewer, and Student denied from /api/site/programs. Hosted click-through remains pending. git diff --check passed with CRLF normalization warnings only."
   },
   "lastProductReadinessScorecardSummary": {
     "homepageClarity": "4 to 4",

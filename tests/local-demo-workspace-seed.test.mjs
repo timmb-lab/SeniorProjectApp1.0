@@ -14,6 +14,7 @@ import { onRequestGet as onSiteStudents } from "../functions/api/site/students.t
 import { onRequestGet as onSiteStudentDetail } from "../functions/api/site/students/[studentId].ts";
 import { onRequestGet as onSiteReviewQueue } from "../functions/api/site/review-queue.ts";
 import {
+  DEMO_ADDABLE_PROGRAMS,
   DirectD1Adapter,
   parseArgs,
   runDemoSeed,
@@ -99,6 +100,8 @@ test("demo seed creates deterministic fake workspace rows and preserves admins",
   assert.equal(result.finalVerification.administrationUsers, 1);
   assert.equal(result.finalVerification.siteAdmins, 3);
   assert.equal(result.finalVerification.viewers, 1);
+  assert.equal(result.generatedCounts.programs, DEMO_ADDABLE_PROGRAMS.length);
+  assert.equal(result.finalVerification.primaryAvailablePrograms >= DEMO_ADDABLE_PROGRAMS.length, true);
   assert.equal(result.finalVerification.viewerStudentAssignments, 3);
   assert.equal(result.finalVerification.studentCredentials, 0);
   assert.equal("announcements" in result.generatedCounts, false);
@@ -135,6 +138,15 @@ test("demo seed creates deterministic fake workspace rows and preserves admins",
   assert.equal(await count(db, "SELECT COUNT(*) AS count FROM user_accounts u JOIN user_roles r ON r.user_id = u.id AND r.role_id = 'mentor' WHERE u.email_norm LIKE '%@demo-staff.capstone.test'"), 41);
   assert.equal(await count(db, "SELECT COUNT(*) AS count FROM user_accounts u JOIN user_roles r ON r.user_id = u.id AND r.role_id = 'program_teacher' WHERE u.email_norm LIKE '%@demo-staff.capstone.test'"), 22);
   assert.equal(await count(db, "SELECT COUNT(*) AS count FROM evidence_artifacts WHERE id LIKE 'demo-%' AND source_kind = 'external_link' AND external_url LIKE 'https://example.com/capstone-demo/%' AND drive_file_id IS NULL AND drive_parent_folder_id IS NULL"), 964);
+  assert.equal(await count(db, `SELECT COUNT(*) AS count
+    FROM programs
+    LEFT JOIN site_programs
+      ON site_programs.site_id = 'site-desert-valley-high'
+     AND site_programs.program_id = programs.id
+     AND site_programs.active = 1
+    WHERE programs.id = '${DEMO_ADDABLE_PROGRAMS[0].id}'
+     AND programs.active = 1
+     AND site_programs.program_id IS NULL`), 1);
 
   const statuses = await db.prepare(
     `SELECT COALESCE(s.status, 'not_started') AS status, COUNT(*) AS count
@@ -210,7 +222,11 @@ test("demo APIs can see seeded admin, teacher, mentor, and readiness data", asyn
 
   const adminDashboard = await routeJson(onAdminDashboard, env, "/api/admin/dashboard", adminToken);
   assert.equal(adminDashboard.summary.studentsTotal, 370);
-  assert.equal(adminDashboard.programBreakdown.length, 9);
+  assert.equal(adminDashboard.programBreakdown.length, 9 + DEMO_ADDABLE_PROGRAMS.length);
+  assert.equal(
+    adminDashboard.programBreakdown.some((row) => row.programId === DEMO_ADDABLE_PROGRAMS[0].id && row.studentCount === 0),
+    true,
+  );
   assert.equal(adminDashboard.mentorCoverage.length, 41);
   assert.equal(adminDashboard.reviewQueue.length > 0, true);
 

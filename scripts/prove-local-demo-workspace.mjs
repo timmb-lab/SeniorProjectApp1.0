@@ -21,6 +21,7 @@ import { onRequestGet as onMentorDashboard } from "../functions/api/mentor/dashb
 import { onRequestGet as onTeacherReviewQueue } from "../functions/api/teacher/review-queue.ts";
 import { onRequestGet as onReadinessReport } from "../functions/api/reports/readiness.ts";
 import { onRequestGet as onMentorAssigned } from "../functions/api/mentor/assigned.ts";
+import { DEMO_ADDABLE_PROGRAMS } from "./seed-local-demo-workspace.mjs";
 import {
   canAccessSite,
   canAccessTenant,
@@ -346,7 +347,11 @@ async function runDemoProof(args = {}, options = {}) {
       && siteDashboardSecondary.scope?.siteId === SECONDARY_SITE_IDS[0],
     primarySiteStudents250: multisite.primarySiteStudents === 250,
     secondarySitesInRange: Object.values(multisite.secondarySiteCounts).every((count) => count >= 40 && count <= 75),
-    programBreakdownNinePrograms: Array.isArray(adminDashboard.programBreakdown) && adminDashboard.programBreakdown.length === 9,
+    programBreakdownIncludesCanonicalPrograms: Array.isArray(adminDashboard.programBreakdown)
+      && adminDashboard.programBreakdown.length >= 9,
+    programBreakdownIncludesAddableProgram: (adminDashboard.programBreakdown || []).some((row) => (
+      DEMO_ADDABLE_PROGRAMS.some((program) => row.programId === program.id && Number(row.studentCount || 0) === 0)
+    )),
     mentorCoveragePopulated: Array.isArray(adminDashboard.mentorCoverage) && adminDashboard.mentorCoverage.length >= 41,
     reviewQueuePopulated: Array.isArray(adminDashboard.reviewQueue) && adminDashboard.reviewQueue.length > 0 && Array.isArray(adminReviewQueue.queue) && adminReviewQueue.queue.length > 0,
     siteReviewQueuePopulated: siteReviewQueueAdmin.scope?.siteId === PRIMARY_SITE_ID
@@ -518,6 +523,11 @@ async function runDemoProof(args = {}, options = {}) {
       primarySiteId: PRIMARY_SITE_ID,
       initialActivePrograms: siteProgramsRoleProof.initialActivePrograms,
       initialAvailablePrograms: siteProgramsRoleProof.initialAvailablePrograms,
+      firstLoadAddableProgramId: siteProgramsRoleProof.firstLoadAddableProgramId,
+      firstLoadAddSucceeded: siteProgramsRoleProof.firstLoadAddSucceeded,
+      firstLoadRemoveSucceeded: siteProgramsRoleProof.firstLoadRemoveSucceeded,
+      firstLoadRestoreSucceeded: siteProgramsRoleProof.firstLoadRestoreSucceeded,
+      firstLoadCleanupReturnedAvailable: siteProgramsRoleProof.firstLoadCleanupReturnedAvailable,
       removedProgramId: siteProgramsRoleProof.removedProgramId,
       removedProgramRestorable: siteProgramsRoleProof.removedProgramRestorable,
       restoredProgramVisible: siteProgramsRoleProof.restoredProgramVisible,
@@ -631,7 +641,7 @@ async function runDemoProof(args = {}, options = {}) {
 }
 
 async function verifyMultisiteShape(env) {
-  const [tenant, sites, primarySite, secondaryRows, sitePrograms, roleRows, storyRows, studentCredentials, announcements, unsafeEvidence, richTimelineRows] = await Promise.all([
+  const [tenant, sites, primarySite, secondaryRows, sitePrograms, roleRows, storyRows, studentCredentials, announcements, unsafeEvidence, richTimelineRows, primaryAvailablePrograms] = await Promise.all([
     env.DB.prepare("SELECT COUNT(*) AS count FROM tenants WHERE id = ? AND status = 'active'").bind(DEMO_TENANT_ID).first(),
     env.DB.prepare("SELECT COUNT(*) AS count FROM sites WHERE tenant_id = ? AND status = 'active'").bind(DEMO_TENANT_ID).first(),
     env.DB.prepare(
@@ -687,6 +697,16 @@ async function verifyMultisiteShape(env) {
        JOIN exports ex ON ex.target_user_id = u.id
        WHERE u.display_name LIKE 'Rich Timeline Demo%'`,
     ).first(),
+    env.DB.prepare(
+      `SELECT COUNT(*) AS count
+       FROM programs
+       LEFT JOIN site_programs
+         ON site_programs.site_id = ?
+        AND site_programs.program_id = programs.id
+        AND site_programs.active = 1
+       WHERE programs.active = 1
+        AND site_programs.program_id IS NULL`,
+    ).bind(PRIMARY_SITE_ID).first(),
   ]);
   const secondarySiteCounts = Object.fromEntries((secondaryRows.results || []).map((row) => [row.site_id, Number(row.count || 0)]));
   const siteProgramCounts = Object.fromEntries((sitePrograms.results || []).map((row) => [row.site_id, Number(row.count || 0)]));
@@ -697,6 +717,7 @@ async function verifyMultisiteShape(env) {
     && Number(primarySite?.count || 0) === 250
     && Object.values(secondarySiteCounts).every((count) => count >= 40 && count <= 75)
     && Number(siteProgramCounts[PRIMARY_SITE_ID] || 0) === 9
+    && Number(primaryAvailablePrograms?.count || 0) >= DEMO_ADDABLE_PROGRAMS.length
     && Number(roles.global_admin || 0) === 1
     && Number(roles.administration || 0) === 1
     && Number(roles.site_admin || 0) === 3
@@ -720,6 +741,7 @@ async function verifyMultisiteShape(env) {
       siteRows: Number(sites?.count || 0),
       primarySiteStudents: Number(primarySite?.count || 0),
       secondarySiteCounts,
+      primaryAvailablePrograms: Number(primaryAvailablePrograms?.count || 0),
       roles,
       storyBuckets,
     });
@@ -731,6 +753,7 @@ async function verifyMultisiteShape(env) {
     primarySiteStudents: Number(primarySite?.count || 0),
     secondarySiteCounts,
     siteProgramCounts,
+    primaryAvailablePrograms: Number(primaryAvailablePrograms?.count || 0),
     roles,
     storyBuckets,
     studentCredentials: Number(studentCredentials?.count || 0),
@@ -976,23 +999,58 @@ async function verifySiteProgramsRouteProof(env, demoCredentials) {
   await getMe(env, globalAdminCookie, globalAdminAccount.email, "global_admin");
   const globalAdminSecondary = await routeJson(onSiteProgramsGet, env, globalAdminCookie, `https://local.capstone.test/api/site/programs?siteId=${SECONDARY_SITE_IDS[0]}`);
 
+  const firstLoadAddableProgram = (initial.availablePrograms || []).find((program) => (
+    DEMO_ADDABLE_PROGRAMS.some((expected) => expected.id === program.programId)
+  )) || (initial.availablePrograms || [])[0];
+  if (!firstLoadAddableProgram?.programId) {
+    throw new DemoProofError("SITE_PROGRAMS_NO_FIRST_LOAD_ADDABLE_PROGRAM", "No first-load addable active program was available for Site Admin Programs proof.");
+  }
   const removableProgram = (initial.activePrograms || []).find((program) => program.programId === "it")
     || (initial.activePrograms || [])[0];
   if (!removableProgram?.programId) {
     throw new DemoProofError("SITE_PROGRAMS_NO_ACTIVE_PROGRAM", "No active site program was available for reversible local proof.");
   }
 
-  let restorePending = false;
+  let activeProgramRestorePending = false;
+  let addableCleanupProgramId = "";
+  let afterFirstLoadAdd = null;
+  let afterFirstLoadRemove = null;
+  let afterFirstLoadRestore = null;
   let afterRemove = null;
   let afterRestore = null;
   try {
+    await routeSiteProgramsMutation(env, siteAdminCookie, {
+      siteId: PRIMARY_SITE_ID,
+      programId: firstLoadAddableProgram.programId,
+      action: "assign",
+      adminNote: "Local demo proof adds the first-load available active program.",
+    });
+    addableCleanupProgramId = firstLoadAddableProgram.programId;
+    afterFirstLoadAdd = await routeJson(onSiteProgramsGet, env, siteAdminCookie, `https://local.capstone.test/api/site/programs?siteId=${PRIMARY_SITE_ID}`);
+
+    await routeSiteProgramsMutation(env, siteAdminCookie, {
+      siteId: PRIMARY_SITE_ID,
+      programId: firstLoadAddableProgram.programId,
+      action: "remove",
+      adminNote: "Local demo proof removes the newly added first-load program.",
+    });
+    afterFirstLoadRemove = await routeJson(onSiteProgramsGet, env, siteAdminCookie, `https://local.capstone.test/api/site/programs?siteId=${PRIMARY_SITE_ID}`);
+
+    await routeSiteProgramsMutation(env, siteAdminCookie, {
+      siteId: PRIMARY_SITE_ID,
+      programId: firstLoadAddableProgram.programId,
+      action: "assign",
+      adminNote: "Local demo proof restores the newly added first-load program after removal.",
+    });
+    afterFirstLoadRestore = await routeJson(onSiteProgramsGet, env, siteAdminCookie, `https://local.capstone.test/api/site/programs?siteId=${PRIMARY_SITE_ID}`);
+
     await routeSiteProgramsMutation(env, siteAdminCookie, {
       siteId: PRIMARY_SITE_ID,
       programId: removableProgram.programId,
       action: "remove",
       adminNote: "Local demo proof removes one active program so the add flow can be verified and restored.",
     });
-    restorePending = true;
+    activeProgramRestorePending = true;
     afterRemove = await routeJson(onSiteProgramsGet, env, siteAdminCookie, `https://local.capstone.test/api/site/programs?siteId=${PRIMARY_SITE_ID}`);
 
     await routeSiteProgramsMutation(env, siteAdminCookie, {
@@ -1001,10 +1059,10 @@ async function verifySiteProgramsRouteProof(env, demoCredentials) {
       action: "assign",
       adminNote: "Local demo proof restores the removed site program after add-flow verification.",
     });
-    restorePending = false;
+    activeProgramRestorePending = false;
     afterRestore = await routeJson(onSiteProgramsGet, env, siteAdminCookie, `https://local.capstone.test/api/site/programs?siteId=${PRIMARY_SITE_ID}`);
   } finally {
-    if (restorePending) {
+    if (activeProgramRestorePending) {
       await routeSiteProgramsMutation(env, siteAdminCookie, {
         siteId: PRIMARY_SITE_ID,
         programId: removableProgram.programId,
@@ -1012,8 +1070,26 @@ async function verifySiteProgramsRouteProof(env, demoCredentials) {
         adminNote: "Local demo proof cleanup restored the removed site program.",
       });
     }
+    if (addableCleanupProgramId) {
+      await env.DB.prepare(
+        "DELETE FROM site_programs WHERE site_id = ? AND program_id = ?",
+      ).bind(PRIMARY_SITE_ID, addableCleanupProgramId).run();
+    }
   }
 
+  const afterFirstLoadCleanup = await routeJson(onSiteProgramsGet, env, siteAdminCookie, `https://local.capstone.test/api/site/programs?siteId=${PRIMARY_SITE_ID}`);
+  const firstLoadAddSucceeded = Boolean((afterFirstLoadAdd?.activePrograms || []).find((program) => (
+    program.programId === firstLoadAddableProgram.programId
+  )));
+  const firstLoadRemoveSucceeded = Boolean((afterFirstLoadRemove?.availablePrograms || []).find((program) => (
+    program.programId === firstLoadAddableProgram.programId && program.previouslyRemoved === true
+  )));
+  const firstLoadRestoreSucceeded = Boolean((afterFirstLoadRestore?.activePrograms || []).find((program) => (
+    program.programId === firstLoadAddableProgram.programId
+  )));
+  const firstLoadCleanupReturnedAvailable = Boolean((afterFirstLoadCleanup?.availablePrograms || []).find((program) => (
+    program.programId === firstLoadAddableProgram.programId && program.previouslyRemoved === false
+  )));
   const removedProgramRestorable = Boolean((afterRemove?.availablePrograms || []).find((program) => (
     program.programId === removableProgram.programId && program.previouslyRemoved === true
   )));
@@ -1030,6 +1106,11 @@ async function verifySiteProgramsRouteProof(env, demoCredentials) {
       && initial.permissions?.canManageSitePrograms === true
       && Array.isArray(initial.activePrograms)
       && initial.activePrograms.length > 0,
+    firstLoadAddableProgramVisible: (initial.availablePrograms || []).some((program) => program.programId === firstLoadAddableProgram.programId),
+    firstLoadAddSucceeded,
+    firstLoadRemoveSucceeded,
+    firstLoadRestoreSucceeded,
+    firstLoadCleanupReturnedAvailable,
     siteAdminCannotAccessSecondary: siteAdminSecondary.status === 403,
     globalAdminCanOpenSecondary: globalAdminSecondary.scope?.siteId === SECONDARY_SITE_IDS[0]
       && globalAdminSecondary.permissions?.canManageSitePrograms === true,
@@ -1037,6 +1118,10 @@ async function verifySiteProgramsRouteProof(env, demoCredentials) {
     restoredProgramVisible,
     noSensitiveProgramFields: !directoryHasForbiddenOutput([
       initial,
+      afterFirstLoadAdd,
+      afterFirstLoadRemove,
+      afterFirstLoadRestore,
+      afterFirstLoadCleanup,
       afterRemove,
       afterRestore,
       administrationDenied.body,
@@ -1053,6 +1138,11 @@ async function verifySiteProgramsRouteProof(env, demoCredentials) {
     ok: true,
     initialActivePrograms: Number(initial.activePrograms?.length || 0),
     initialAvailablePrograms: Number(initial.availablePrograms?.length || 0),
+    firstLoadAddableProgramId: firstLoadAddableProgram.programId,
+    firstLoadAddSucceeded: true,
+    firstLoadRemoveSucceeded: true,
+    firstLoadRestoreSucceeded: true,
+    firstLoadCleanupReturnedAvailable: true,
     removedProgramId: removableProgram.programId,
     removedProgramRestorable,
     restoredProgramVisible,
@@ -1064,7 +1154,7 @@ async function verifySiteProgramsRouteProof(env, demoCredentials) {
     siteAdminCannotAccessSecondary: true,
     globalAdminCanOpenSecondary: true,
     noSensitiveProgramFields: true,
-    seededAddPath: Number(initial.availablePrograms?.length || 0) > 0 ? "available-on-first-load" : "remove-then-restore-proof",
+    seededAddPath: "available-on-first-load",
   };
 }
 

@@ -7,6 +7,7 @@ import { fileURLToPath } from "node:url";
 
 import {
   DEFAULT_SEED,
+  DEMO_ADDABLE_PROGRAMS,
   DEMO_MARKER,
   DEMO_SITES,
   DEMO_TENANT_ID,
@@ -312,6 +313,7 @@ function emptyRemoteDataset() {
   return {
     rows: {
       tenants: [],
+      programs: [],
       sites: [],
       sitePrograms: [],
       cohorts: [],
@@ -819,6 +821,16 @@ async function verifyRemoteSeedState(adapter, schema) {
     announcements: firstCount(rows[25]),
     foreignKeyViolations: rows[26].length,
   };
+  summary.primaryAvailablePrograms = firstCount(await adapter.query(
+    `SELECT COUNT(*) AS count
+     FROM programs
+     LEFT JOIN site_programs
+       ON site_programs.site_id = ${sqlString(DEMO_SITES[0].id)}
+      AND site_programs.program_id = programs.id
+      AND site_programs.active = 1
+     WHERE programs.active = 1
+      AND site_programs.program_id IS NULL;`,
+  ));
   const optional = {};
   if (schema.tableNames.has("mentor_meetings")) optional.mentorMeetings = firstCount(await adapter.query("SELECT COUNT(*) AS count FROM mentor_meetings WHERE id LIKE 'demo-%';"));
   if (schema.tableNames.has("presentation_slots")) optional.presentationSlots = firstCount(await adapter.query("SELECT COUNT(*) AS count FROM presentation_slots WHERE id LIKE 'demo-%';"));
@@ -844,6 +856,7 @@ async function verifyRemoteSeedState(adapter, schema) {
     || summary.demoTenantRows !== 1
     || summary.demoSites !== 3
     || summary.primarySitePrograms !== PROGRAMS.length
+    || summary.primaryAvailablePrograms < DEMO_ADDABLE_PROGRAMS.length
     || summary.globalAdmins !== 2
     || summary.administrationUsers !== 1
     || summary.siteAdmins !== 3

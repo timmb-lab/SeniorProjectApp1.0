@@ -6,6 +6,7 @@ import {
   onRequestPost as onSiteProgramsPost,
 } from "../functions/api/site/programs.ts";
 import {
+  DEMO_ADDABLE_PROGRAMS,
   DirectD1Adapter,
   runDemoSeed,
 } from "../scripts/seed-local-demo-workspace.mjs";
@@ -33,9 +34,7 @@ const FORBIDDEN_RESPONSE_FIELDS = /adminNote|actorRoleScopes|temporaryPassword|p
 
 test("site programs route stays scoped and supports add/remove site mappings", async () => {
   const { env, db, tokens } = await createSeededDemoFixture();
-  await db.prepare(
-    "INSERT OR IGNORE INTO programs (id, name, active) VALUES ('biotech', 'Biotechnology', 1)",
-  ).run();
+  const addableProgramId = DEMO_ADDABLE_PROGRAMS[0].id;
 
   {
     const { response, body } = await routeProgramsGet(env, null, `?siteId=${PRIMARY_SITE_ID}`);
@@ -47,8 +46,10 @@ test("site programs route stays scoped and supports add/remove site mappings", a
   assert.equal(siteAdmin.scope.siteId, PRIMARY_SITE_ID);
   assert.equal(siteAdmin.permissions.canManageSitePrograms, true);
   assert.equal(siteAdmin.activePrograms.some((row) => row.programId === "it"), true);
-  assert.equal(siteAdmin.availablePrograms.some((row) => row.programId === "biotech"), true);
-  assert.equal(siteAdmin.availablePrograms.some((row) => row.previouslyRemoved === true), false);
+  const firstLoadAddable = siteAdmin.availablePrograms.find((row) => row.programId === addableProgramId);
+  assert.equal(Boolean(firstLoadAddable), true);
+  assert.equal(firstLoadAddable.programName, "Biotechnology");
+  assert.equal(firstLoadAddable.previouslyRemoved, false);
   assert.doesNotMatch(JSON.stringify(siteAdmin), FORBIDDEN_RESPONSE_FIELDS);
 
   const globalAdmin = await expectProgramsGet(env, tokens.globalAdminPrimary, `?siteId=${CANYON_SITE_ID}`);
@@ -71,14 +72,54 @@ test("site programs route stays scoped and supports add/remove site mappings", a
     assert.doesNotMatch(JSON.stringify(deniedGet.body), FORBIDDEN_RESPONSE_FIELDS);
   }
 
-  const remove = await routeProgramsPost(env, tokens.siteAdminPrimary, {
+  const addFirstLoad = await routeProgramsPost(env, tokens.siteAdminPrimary, {
+    siteId: PRIMARY_SITE_ID,
+    programId: addableProgramId,
+    action: "assign",
+    adminNote: "Open Biotechnology for this school",
+  });
+  assert.equal(addFirstLoad.response.status, 200);
+  assert.equal(addFirstLoad.body.ok, true);
+  const addedFirstLoadRow = await db.prepare(
+    "SELECT active FROM site_programs WHERE site_id = ? AND program_id = ?",
+  ).bind(PRIMARY_SITE_ID, addableProgramId).first();
+  assert.equal(Number(addedFirstLoadRow.active), 1);
+
+  const removeFirstLoad = await routeProgramsPost(env, tokens.siteAdminPrimary, {
+    siteId: PRIMARY_SITE_ID,
+    programId: addableProgramId,
+    action: "remove",
+    adminNote: "Pause Biotechnology until staffing is confirmed",
+  });
+  assert.equal(removeFirstLoad.response.status, 200);
+  assert.equal(removeFirstLoad.body.ok, true);
+  const removedFirstLoadRow = await db.prepare(
+    "SELECT active FROM site_programs WHERE site_id = ? AND program_id = ?",
+  ).bind(PRIMARY_SITE_ID, addableProgramId).first();
+  assert.equal(Number(removedFirstLoadRow.active), 0);
+
+  const afterFirstLoadRemove = await expectProgramsGet(env, tokens.siteAdminPrimary, `?siteId=${PRIMARY_SITE_ID}`);
+  const removedFirstLoadProgram = afterFirstLoadRemove.availablePrograms.find((row) => row.programId === addableProgramId);
+  assert.equal(Boolean(removedFirstLoadProgram), true);
+  assert.equal(removedFirstLoadProgram.previouslyRemoved, true);
+
+  const restoreFirstLoad = await routeProgramsPost(env, tokens.siteAdminPrimary, {
+    siteId: PRIMARY_SITE_ID,
+    programId: addableProgramId,
+    action: "assign",
+    adminNote: "Restore Biotechnology after staffing confirmation",
+  });
+  assert.equal(restoreFirstLoad.response.status, 200);
+  assert.equal(restoreFirstLoad.body.ok, true);
+
+  const removeActive = await routeProgramsPost(env, tokens.siteAdminPrimary, {
     siteId: PRIMARY_SITE_ID,
     programId: "it",
     action: "remove",
     adminNote: "Close summer IT section setup",
   });
-  assert.equal(remove.response.status, 200);
-  assert.equal(remove.body.ok, true);
+  assert.equal(removeActive.response.status, 200);
+  assert.equal(removeActive.body.ok, true);
   const removedRow = await db.prepare(
     "SELECT active FROM site_programs WHERE site_id = ? AND program_id = ?",
   ).bind(PRIMARY_SITE_ID, "it").first();
@@ -89,18 +130,18 @@ test("site programs route stays scoped and supports add/remove site mappings", a
   assert.equal(Boolean(removedProgram), true);
   assert.equal(removedProgram.previouslyRemoved, true);
 
-  const add = await routeProgramsPost(env, tokens.siteAdminPrimary, {
+  const restoreActive = await routeProgramsPost(env, tokens.siteAdminPrimary, {
     siteId: PRIMARY_SITE_ID,
-    programId: "biotech",
+    programId: "it",
     action: "assign",
-    adminNote: "Open biotech pilot for this school",
+    adminNote: "Restore IT section after proof",
   });
-  assert.equal(add.response.status, 200);
-  assert.equal(add.body.ok, true);
-  const addedRow = await db.prepare(
+  assert.equal(restoreActive.response.status, 200);
+  assert.equal(restoreActive.body.ok, true);
+  const restoredRow = await db.prepare(
     "SELECT active FROM site_programs WHERE site_id = ? AND program_id = ?",
-  ).bind(PRIMARY_SITE_ID, "biotech").first();
-  assert.equal(Number(addedRow.active), 1);
+  ).bind(PRIMARY_SITE_ID, "it").first();
+  assert.equal(Number(restoredRow.active), 1);
 
   for (const [label, token, adminNote] of [
     ["administration", tokens.administrationPrimary, "Administration should not manage site programs"],
@@ -111,7 +152,7 @@ test("site programs route stays scoped and supports add/remove site mappings", a
   ]) {
     const blockedPost = await routeProgramsPost(env, token, {
       siteId: PRIMARY_SITE_ID,
-      programId: "biotech",
+      programId: addableProgramId,
       action: "remove",
       adminNote,
     });

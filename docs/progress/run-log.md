@@ -21,6 +21,21 @@ This is the compact run log for the current Functionality UX Upgrade automation 
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-05-31 22:05 PT - Functionality UX Upgrade Site Admin Programs First-Load Add Proof
+
+- `automation ID`: functionality-ux-upgrade-hourly remained paused; this was a user-requested manual slice.
+- `lane`: Level 4 role-specific workspaces / demo-readiness proof / seeded-data honesty.
+- `starting branch/SHA`: `main` at `ee68cbe6964740e91608f2cfb42b8967b8e60fca`.
+- `ending branch/SHA`: pending closeout commit; final SHA is reported after commit and push.
+- `baseline push`: not needed. The worktree was clean and `main...origin/main` showed no ahead/behind marker at start.
+- `selected slice`: Make Site Admin Programs demo-honest on first load without changing RBAC.
+- `repo-grounded findings`: `/api/site/programs` already derived active and available programs from real `programs` and `site_programs` rows, but the primary demo site had all nine active canonical programs attached. The honest fix was seed data: add one demo-owned active catalog program that is not attached to the primary site, so the existing route exposes it as available on first load.
+- `changes`: `scripts/seed-local-demo-workspace.mjs` now seeds the active `Biotechnology` catalog option with a demo-owned id and verifies at least one primary-site available program. `scripts/prove-local-demo-workspace.mjs` now proves first-load add, remove, restore, cleanup back to first-load availability, and the existing active-program remove/restore path. `tests/site-programs.integration.test.mjs` and `tests/local-demo-workspace-seed.test.mjs` cover the new seeded addable path. `scripts/seed-remote-demo-workspace.mjs` keeps remote seed verification aligned. `docs/product/demo-role-readiness.md`, `docs/local-demo-data.md`, `automation/state/functionality-ux-growth-state.json`, and this run log record local proof and hosted-click-through pending status.
+- `checks run`: `npm run seed:demo:local:reset`, `node --test tests/site-programs.integration.test.mjs`, `node --test tests/local-demo-workspace-seed.test.mjs`, `node --test tests/remote-demo-workspace-seed.test.mjs`, `node --test tests/workspace-app.test.mjs`, `node --test tests/access-v5-effective.test.mjs`, `npm run verify:dashboard-actions`, `npm run verify:review-queue-deeplinks`, `npm run verify:workspace-navigation`, `npm run verify:functionality-language`, `npm run verify:functionality-ux-automation`, `npm run inventory:production-routes`, `npm run check:route-inventory`, `node --test tests/functionality-language-audit.test.mjs`, `node scripts/prove-local-demo-workspace.mjs`, `npm run test`, `npm run typecheck`, `npm run check`, and `git diff --check` passed. `git diff --check` reported CRLF normalization warnings only.
+- `what was proven`: first-load Site Admin Programs opens with 9 active primary-site programs and 1 available active program; Site Admin can add/remove/restore the available program; proof cleanup returns the available program to first-load state; the older `it` remove/restore path still works; Global Admin can open a secondary site; Administration, Program Teacher, Mentor, Viewer, and Student remain denied from `/api/site/programs`; Programs nav remains Global Admin/Site Admin only.
+- `what remains unproven`: hosted click-through was not completed; Global Admin, Program Teacher, Mentor, and Student still need full role-readiness refreshes; Administration and Viewer still need hosted click-through.
+- `commit/push status`: pending closeout commit and push.
+
 ## 2026-05-31 21:52 PT - Functionality UX Upgrade Programs Proof Depth And Administration/Viewer Refresh
 
 - `automation ID`: functionality-ux-upgrade-hourly.

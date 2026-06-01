@@ -190,6 +190,14 @@ const PROGRAMS = Object.freeze([
   },
 ]);
 
+const DEMO_ADDABLE_PROGRAMS = Object.freeze([
+  {
+    id: "demo-biotechnology-pilot",
+    name: "Biotechnology",
+    active: 1,
+  },
+]);
+
 const STAGE_COUNTS = Object.freeze({
   not_started: 20,
   draft: 35,
@@ -769,6 +777,7 @@ function deleteSpecs(schema) {
     ["user_accounts", demoUsers],
     ["groups", "id LIKE 'demo-%'"],
     ["cohorts", "id LIKE 'demo-%' OR label LIKE '%DEMO_SEED%'"],
+    ["programs", `id IN (${DEMO_ADDABLE_PROGRAMS.map((program) => sqlString(program.id)).join(", ")})`],
     ["sites", `tenant_id = ${sqlString(DEMO_TENANT_ID)} OR id IN (${demoSites})`],
     ["tenants", `id = ${sqlString(DEMO_TENANT_ID)}`],
   ];
@@ -816,6 +825,9 @@ async function buildDemoDataset({
   const mentorIdsBySite = new Map();
 
   rows.tenants.push({ ...DEMO_TENANT });
+  for (const program of DEMO_ADDABLE_PROGRAMS) {
+    rows.programs.push({ ...program });
+  }
   for (const site of DEMO_SITES) {
     rows.sites.push({
       id: site.id,
@@ -1626,6 +1638,7 @@ function positiveInteger(value, fallback) {
 function emptyRows() {
   return {
     tenants: [],
+    programs: [],
     sites: [],
     sitePrograms: [],
     cohorts: [],
@@ -1792,6 +1805,7 @@ function buildSeedSql(dataset, schema, { includeDeletes = true, includeTransacti
 
   const rows = dataset.rows;
   pushRows(statements, "tenants", rows.tenants);
+  pushRows(statements, "programs", rows.programs || []);
   pushRows(statements, "sites", rows.sites);
   pushRows(statements, "site_programs", rows.sitePrograms);
   pushRows(statements, "cohorts", rows.cohorts);
@@ -1894,6 +1908,16 @@ async function verifySeedState(adapter, schema) {
     announcements: firstCount(rows[22]),
     foreignKeyViolations: rows[23].length,
   };
+  summary.primaryAvailablePrograms = firstCount(await adapter.query(
+    `SELECT COUNT(*) AS count
+     FROM programs
+     LEFT JOIN site_programs
+       ON site_programs.site_id = ${sqlString(PRIMARY_SITE_ID)}
+      AND site_programs.program_id = programs.id
+      AND site_programs.active = 1
+     WHERE programs.active = 1
+      AND site_programs.program_id IS NULL;`,
+  ));
   const optional = {};
   if (schema.tableNames.has("mentor_meetings")) optional.mentorMeetings = firstCount(await adapter.query("SELECT COUNT(*) AS count FROM mentor_meetings WHERE id LIKE 'demo-%';"));
   if (schema.tableNames.has("presentation_slots")) optional.presentationSlots = firstCount(await adapter.query("SELECT COUNT(*) AS count FROM presentation_slots WHERE id LIKE 'demo-%';"));
@@ -1915,6 +1939,7 @@ async function verifySeedState(adapter, schema) {
     || summary.demoTenantRows !== 1
     || summary.demoSites !== 3
     || summary.primarySitePrograms !== PROGRAMS.length
+    || summary.primaryAvailablePrograms < DEMO_ADDABLE_PROGRAMS.length
     || summary.globalAdmins !== 1
     || summary.administrationUsers !== 1
     || summary.siteAdmins !== 3
@@ -2255,6 +2280,7 @@ function redactErrorDetails(details) {
 
 export {
   DEFAULT_SEED,
+  DEMO_ADDABLE_PROGRAMS,
   DEMO_SITES,
   DEMO_TENANT,
   DEMO_TENANT_ID,

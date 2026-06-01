@@ -44,7 +44,7 @@ npm run prove:sales-demo:local
 - 41 fake mentors with active mentor roles and site memberships.
 - 320 active mentor assignments, leaving 50 students intentionally without active mentors.
 - Fake platform admin, organization admin, site-administration, and viewer personas.
-- All active programs are mapped to the primary site; each secondary site has five mapped programs.
+- The nine canonical CTE programs are mapped to the primary site, each secondary site has five mapped programs, and one active demo-owned catalog program is intentionally left available so Site Admin Programs has an honest first-load add path.
 - Mixed proposal, revision, approval, build, presentation, completion, and high-risk states.
 - Fake submissions, evidence metadata, comments, reviews, submission versions, mentor meetings, presentation slots, archive export metadata, and audit markers when the local schema supports those tables.
 - Named story buckets for model excellent, missing mentor, awaiting review, revision requested, presentation pending, archive ready, archive failed, high-risk, and rich timeline students.
