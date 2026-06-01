@@ -193,11 +193,14 @@ test("workspace exposes Figma-aligned design tokens and future site patterns", (
     ".workspace-read-only-banner",
     ".workspace-menu-toggle",
     ".workspace-product-header",
+    ".workspace-product-header-main",
     ".workspace-product-eyebrow",
     ".workspace-product-title",
     ".workspace-product-subtitle",
     ".workspace-posture-chips",
     ".workspace-posture-chip",
+    ".workspace-dashboard-summary",
+    ".workspace-dashboard-summary-badges",
     ".workspace-problem-state",
     ".workspace-problem-state-grid",
     ".workspace-problem-state-item",
@@ -246,6 +249,7 @@ test("workspace uses Phase 6.6 Figma cleanup patterns in real render paths", () 
     "Mentor coverage",
     "Review queue",
     "Presentation readiness",
+    "Capstone Workspace",
     "Capstone Project Workspace",
   ]) {
     assert.ok(workspaceJs.includes(copy), `missing product header copy ${copy}`);
@@ -337,18 +341,20 @@ test("workspace renders route-connected site dashboard with Figma product-system
   }, "siteDashboard");
 
   assert.match(siteDashboard, /Site Dashboard/);
-  assert.match(siteDashboard, /School-wide capstone health/);
   assert.match(siteDashboard, /Desert Valley High School/);
+  assert.match(siteDashboard, /Desert Valley High School \/ 2025-2026/);
   assert.match(siteDashboard, /Desert Valley School District/);
   assert.match(siteDashboard, /workspace-product-header/);
+  assert.match(siteDashboard, /Capstone Workspace/);
   assert.match(siteDashboard, /Capstone Project Workspace/);
-  assert.match(siteDashboard, /School workspace/);
   assert.match(siteDashboard, /Student progress/);
   assert.match(siteDashboard, /Mentor coverage/);
-  assert.match(siteDashboard, /Site Admin \/ Assigned school: Desert Valley High School/);
+  assert.match(siteDashboard, /Site Admin \/ Desert Valley High School/);
   assert.doesNotMatch(siteDashboard, /site:site-desert-valley-high|Global scope|role scope|total in scope/);
   assert.doesNotMatch(siteDashboard, /Database-backed MVP|Cloudflare target|Audit-sensitive admin|Senior Capstone Product/);
   assert.match(siteDashboard, /workspace-site-context-badge/);
+  assert.match(siteDashboard, /Default site/);
+  assert.match(siteDashboard, /Administration access/);
   assert.match(siteDashboard, /workspace-metric-tile/);
   assert.match(siteDashboard, /Students/);
   assert.match(siteDashboard, /No Mentor/);
@@ -376,6 +382,7 @@ test("workspace renders route-connected site dashboard with Figma product-system
   assert.match(siteDashboard, /Protected access/);
   assert.match(siteDashboard, /Teacher follow-up/);
   assert.match(siteDashboard, /Current site/);
+  assert.doesNotMatch(siteDashboard, /<p class="workspace-kicker">Current site<\/p>/);
   assert.match(siteDashboard, /workspace-site-switcher/);
   assert.match(siteDashboard, /data-site-student-action="view-detail"/);
   assert.match(siteDashboard, /workspace-status-pill/);
@@ -486,7 +493,7 @@ test("site dashboard top-risk detail stays in dashboard context", async () => {
   `, context);
 
   assert.match(workspaceRoot.innerHTML, /Student detail loaded/);
-  assert.match(workspaceRoot.innerHTML, /School-wide capstone health/);
+  assert.match(workspaceRoot.innerHTML, /Desert Valley High School \/ 2025-2026/);
   assert.match(workspaceRoot.innerHTML, /workspace-detail-drawer/);
   assertFocusableStudentDetailPanel(workspaceRoot.innerHTML);
   assertMarkupOrder(

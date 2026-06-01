@@ -442,11 +442,15 @@ function renderProductHeader(options = {}) {
   ];
   return `
     <section class="workspace-product-header" aria-label="Product context">
-      <p class="workspace-product-eyebrow">${escapeHtml(eyebrow)}</p>
-      <h1 class="workspace-product-title" ${titleId ? `id="${escapeHtml(titleId)}"` : ""}>${escapeHtml(title)}</h1>
-      <p class="workspace-product-subtitle">${escapeHtml(subtitle)}</p>
-      <div class="workspace-posture-chips" aria-label="Product posture">
-        ${chips.map((chip) => `<span class="workspace-posture-chip">${escapeHtml(chip)}</span>`).join("")}
+      <div class="workspace-product-header-main">
+        <div class="workspace-product-copy">
+          ${eyebrow ? `<p class="workspace-product-eyebrow">${escapeHtml(eyebrow)}</p>` : ""}
+          <h1 class="workspace-product-title" ${titleId ? `id="${escapeHtml(titleId)}"` : ""}>${escapeHtml(title)}</h1>
+          ${subtitle ? `<p class="workspace-product-subtitle">${escapeHtml(subtitle)}</p>` : ""}
+        </div>
+        <div class="workspace-posture-chips" aria-label="Product posture">
+          ${chips.map((chip) => `<span class="workspace-posture-chip">${escapeHtml(chip)}</span>`).join("")}
+        </div>
       </div>
       ${contextChips.length ? `
         <div class="workspace-product-context" aria-label="Workspace role context">
@@ -653,7 +657,10 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
   const sections = availableSections();
   const primaryRole = primaryRoleForUser(currentUser);
   const roles = roleIds(currentUser);
-  const headerContext = [roleLabel(primaryRole), roleScopeSummary(currentUser)];
+  const siteContext = currentSiteWorkspaceContext();
+  const headerTitle = primaryRole === "student" ? "Capstone Project Workspace" : "Capstone Workspace";
+  const headerSubtitle = workspaceHeaderSubtitle(primaryRole, siteContext);
+  const headerContext = workspaceHeaderContext(primaryRole, siteContext);
   workspaceMain.innerHTML = `
     <section class="workspace-app" data-primary-role="${escapeHtml(primaryRole)}" data-nav-state="${workspaceNavCollapsed ? "collapsed" : "expanded"}">
       <header class="workspace-topbar">
@@ -707,6 +714,9 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
         <div class="workspace-main">
           ${statusMessage ? statusHtml(statusMessage, tone) : ""}
           ${primaryRole === "student" ? "" : renderProductHeader({
+            eyebrow: "",
+            title: headerTitle,
+            subtitle: headerSubtitle,
             context: headerContext,
             readOnly: roles.has("viewer"),
           })}
@@ -914,6 +924,26 @@ function currentSiteWorkspaceContext() {
     unwrap(currentData.operationsReadiness)?.scope,
   ].filter(Boolean);
   return candidates.find((scope) => scope?.siteId) || {};
+}
+
+function workspaceHeaderSubtitle(primaryRole, siteContext = {}) {
+  const subtitleParts = [roleLabel(primaryRole)];
+  if (siteContext.siteName) {
+    subtitleParts.push(siteContext.siteName);
+  } else {
+    subtitleParts.push(roleScopeSummary(currentUser));
+  }
+  return subtitleParts.filter(Boolean).join(" / ");
+}
+
+function workspaceHeaderContext(primaryRole, siteContext = {}) {
+  const context = [];
+  if (siteContext.tenantName) context.push(siteContext.tenantName);
+  if (siteContext.schoolYear) context.push(siteContext.schoolYear);
+  if (!siteContext.siteName || primaryRole === "platform_admin" || primaryRole === "global_admin" || primaryRole === "admin") {
+    context.push(roleScopeSummary(currentUser));
+  }
+  return context.filter(Boolean);
 }
 
 function accessibleSitesForWorkspace() {
@@ -1656,21 +1686,7 @@ function renderSiteDashboardSection() {
 
   return `
     <section class="workspace-command-center" aria-labelledby="siteDashboardTitle">
-      ${renderSiteContextBlock(dashboard)}
-      <div class="workspace-command-hero">
-        <div>
-          <p class="workspace-kicker">School dashboard</p>
-          <h1 id="siteDashboardTitle">${escapeHtml(scope.siteName || "Site Dashboard")}</h1>
-          <p>
-            School-wide capstone health for this site, with student progress,
-            mentor coverage, submitted work, and presentation readiness.
-          </p>
-        </div>
-        <div class="workspace-command-hero-grid">
-          ${statusPill(readOnly ? "configured" : "approved")}
-          <span class="workspace-chip">${escapeHtml(statusText(scope.selectionMode || "current_school"))}</span>
-        </div>
-      </div>
+      ${renderSiteDashboardSummary(dashboard)}
       ${readOnly ? renderViewerMonitoringOverview(dashboard) : ""}
       <div class="workspace-dashboard-grid">
         ${renderMetricTile("Students", summary.studentsActive, `${safeNumber(summary.studentsTotal)} visible at this site`, "admin", "students", { label: "Open", preset: "all-students" })}
@@ -3142,6 +3158,37 @@ function renderProgramTeacherDashboardSection() {
         ${renderDashboardCard("Recent Activity", "Latest student updates", renderRecentProgramActivity(dashboard.recentActivity))}
         ${renderDashboardCard("Program Breakdown", "Students by program", renderProgramBreakdown(dashboard.programBreakdown))}
         ${renderDashboardCard("Students", "Assigned student list", renderScopedStudentList(dashboard.students))}
+      </div>
+    </section>
+  `;
+}
+
+function renderSiteDashboardSummary(dashboard) {
+  const scope = dashboard.scope || {};
+  const accessibleSites = Array.isArray(scope.accessibleSites) ? scope.accessibleSites : [];
+  const selectionBadge = scope.selectionMode === "single_accessible_site"
+    ? "Default site"
+    : statusText(scope.selectionMode || "current_school");
+  return `
+    <section class="workspace-dashboard-summary" aria-labelledby="siteDashboardTitle">
+      <div class="workspace-dashboard-summary-main">
+        <div>
+          <p class="workspace-kicker">School dashboard</p>
+          <h1 id="siteDashboardTitle">${escapeHtml(scope.siteName || "Assigned school")} / ${escapeHtml(scope.schoolYear || "School year")}</h1>
+          ${accessibleSites.length > 1 ? `
+            <p class="workspace-dashboard-summary-note">
+              Showing ${escapeHtml(scope.siteName || "the current school")} only across ${escapeHtml(safeNumber(accessibleSites.length))} accessible sites.
+            </p>
+          ` : ""}
+        </div>
+      </div>
+      <div class="workspace-dashboard-summary-badges">
+        <span class="workspace-site-context-badge">${escapeHtml(scope.tenantName || "School organization")} / site</span>
+        <span class="workspace-site-context-badge">${escapeHtml(roleLabel(scope.role || primaryRoleForUser(currentUser)))}</span>
+        <span class="workspace-site-context-badge">${escapeHtml(scope.readOnly ? "Read-only viewer" : "Administration access")}</span>
+        ${statusPill(scope.readOnly ? "configured" : "approved")}
+        <span class="workspace-site-context-badge">${escapeHtml(selectionBadge)}</span>
+        <span class="workspace-site-context-badge">No student messaging</span>
       </div>
     </section>
   `;
