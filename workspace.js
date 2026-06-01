@@ -461,6 +461,34 @@ function renderProductHeader(options = {}) {
   `;
 }
 
+function renderWorkspaceLandingHero() {
+  return `
+    <div class="workspace-landing-brand-row">
+      <a class="workspace-brand" href="index.html">
+        <span class="workspace-mark">SC</span>
+        <span class="workspace-abc-motif" aria-hidden="true"><span></span><span></span><span></span></span>
+        <span>Capstone Project</span>
+      </a>
+      <p class="workspace-landing-context">School workspace</p>
+    </div>
+    <div class="workspace-landing-copy">
+      <p class="workspace-landing-label">Protected project workspace</p>
+      <h1 id="signInTitle">Capstone Project Workspace</h1>
+      <p>The workspace keeps project requirements, evidence, feedback, and presentation preparation organized for students and assigned school staff.</p>
+    </div>
+    ${renderWorkspaceHomeInfoBox()}
+  `;
+}
+
+function renderWorkspaceHomeInfoBox() {
+  return `
+    <article class="workspace-home-info" aria-labelledby="workspaceHomeInfoTitle">
+      <h2 id="workspaceHomeInfoTitle">What this workspace does</h2>
+      <p>Students can see requirements, submit evidence, review feedback, and prepare for presentations. Staff views follow assigned roles, so mentors, program teachers, administration, site admins, and global admins only see the tools and student information their access allows.</p>
+    </article>
+  `;
+}
+
 function renderProblemState({ reason, owner, nextAction }) {
   return `
     <article class="workspace-problem-state">
@@ -494,28 +522,22 @@ function renderSignIn(message = "", tone = "neutral", workspaceState = "signed-o
   workspaceMain.innerHTML = `
     <section class="workspace-auth" aria-labelledby="signInTitle" data-workspace-state="${escapeHtml(workspaceState)}">
       <div class="workspace-auth-intro">
-        <a class="workspace-brand" href="index.html">
-          <span class="workspace-mark">SC</span>
-          <span class="workspace-abc-motif" aria-hidden="true"><span></span><span></span><span></span></span>
-          <span>Capstone Project</span>
-        </a>
-        ${renderProductHeader({ titleId: "signInTitle" })}
+        ${renderWorkspaceLandingHero()}
       </div>
       <div class="workspace-auth-panel">
-        <div>
-          <p class="workspace-kicker">Account access</p>
-          <h2>Sign in to continue</h2>
+        <div class="workspace-auth-panel-heading">
+          <h2>Welcome back</h2>
+          <p>Sign in to open your workspace.</p>
         </div>
         ${finalMessage ? statusHtml(finalMessage, finalTone) : ""}
         ${showGooglePanel ? `
         <section class="workspace-sso-panel">
-          <div>
-            <p class="workspace-kicker">Google Workspace</p>
-            <h3>School account sign in</h3>
-            <p>${escapeHtml(authConfig.googleWorkspaceLabel || "Use your school Google Workspace account.")}</p>
+          <div class="workspace-auth-section-heading">
+            <p class="workspace-auth-section-label">School Google account</p>
+            <p>${escapeHtml(authConfig.googleWorkspaceLabel || "Use your school Google account when it is available.")}</p>
           </div>
           ${authConfig.googleSsoEnabled ? `
-            <a class="workspace-button workspace-button-primary" href="/api/auth/google/start?returnTo=/workspace.html">Continue with Google Workspace</a>
+            <a class="workspace-button workspace-button-primary" href="/api/auth/google/start?returnTo=/workspace.html">Continue with Google</a>
           ` : `
             <div class="workspace-status">Google Workspace sign-in is not configured for this environment yet.</div>
           `}
@@ -524,9 +546,9 @@ function renderSignIn(message = "", tone = "neutral", workspaceState = "signed-o
         ${showGooglePanel && showLocalLogin ? `<div class="workspace-auth-divider" role="separator"><span>or</span></div>` : ""}
         ${showLocalLogin ? `
         <section class="workspace-local-login-panel">
-          <div>
-            <p class="workspace-kicker">Local account sign in</p>
-            <h3>Approved fallback access</h3>
+          <div class="workspace-auth-section-heading">
+            <p class="workspace-auth-section-label">Local account</p>
+            <p>Use this only if your school or project coordinator gave you a local account.</p>
           </div>
         <form id="workspaceLoginForm" class="workspace-form">
           <label class="workspace-label">
@@ -539,9 +561,8 @@ function renderSignIn(message = "", tone = "neutral", workspaceState = "signed-o
           </label>
           <button class="workspace-button workspace-button-primary" type="submit">Sign in</button>
         </form>
-          <p class="workspace-muted">Local account access is available for approved fallback and local validation.</p>
         </section>
-        ` : `<div class="workspace-empty">Local account sign in is not enabled for this environment.</div>`}
+        ` : `<div class="workspace-empty">Local account access is not enabled for this environment.</div>`}
         ${showResetForm ? `
         <div class="workspace-reset-panel" data-auth-action="complete-reset">
           <div>

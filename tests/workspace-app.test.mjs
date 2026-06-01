@@ -58,7 +58,9 @@ test("workspace route is a real authenticated app surface", () => {
   assert.match(workspaceJs, /\/api\/submissions\/\$\{encodeURIComponent\(attempt\.submissionId\)\}\/evidence\/upload/);
   assert.match(workspaceJs, /\/api\/evidence\/\$\{encodeURIComponent\(row\.id\)\}\/download|data-evidence-download="file"/);
   assert.match(workspaceJs, /data-evidence-link="external"/);
-  assert.match(workspaceJs, /Sign in to continue/);
+  assert.match(workspaceJs, /Welcome back/);
+  assert.match(workspaceJs, /Sign in to open your workspace/);
+  assert.match(workspaceJs, /What this workspace does/);
   assert.match(workspaceJs, /data-auth-action="complete-reset"/);
   assert.match(workspaceJs, /data-auth-action="change-password"/);
   assert.match(workspaceJs, /label: "Account", detail: "Password and sessions"/);
@@ -101,9 +103,9 @@ test("workspace route is a real authenticated app surface", () => {
   assert.match(workspaceJs, /panel\.focus\?\.\(\{ preventScroll: true \}\)/);
   assert.match(workspaceJs, /\/api\/site\/students\/\$\{encodeURIComponent\(selectedStudentId\)\}/);
   assert.match(workspaceJs, /\/api\/site\/students\/\$\{encodeURIComponent\(siteStudentDetailState\.studentId\)\}\/timeline/);
-  assert.match(workspaceJs, /Continue with Google Workspace/);
+  assert.match(workspaceJs, /Continue with Google/);
   assert.match(workspaceJs, /Google Workspace sign-in is not configured for this environment yet/);
-  assert.match(workspaceJs, /Local account sign in/);
+  assert.match(workspaceJs, /Use this only if your school or project coordinator gave you a local account/);
   assert.doesNotMatch(workspaceJs, /\/api\/announcements/);
   assert.doesNotMatch(workspaceJs, /announcements:\s*null/);
   assert.doesNotMatch(workspaceJs, /Current Updates|No current announcements|workspace-kicker">Announcements/i);
@@ -199,6 +201,12 @@ test("workspace exposes Figma-aligned design tokens and future site patterns", (
     ".workspace-product-subtitle",
     ".workspace-posture-chips",
     ".workspace-posture-chip",
+    ".workspace-landing-brand-row",
+    ".workspace-landing-copy",
+    ".workspace-home-info",
+    ".workspace-auth-panel-heading",
+    ".workspace-auth-section-heading",
+    ".workspace-auth-section-label",
     ".workspace-dashboard-summary",
     ".workspace-dashboard-summary-badges",
     ".workspace-problem-state",
@@ -259,9 +267,19 @@ test("workspace uses Phase 6.6 Figma cleanup patterns in real render paths", () 
   const signInBlock = workspaceJs.match(/function renderSignIn[\s\S]*?async function signIn/)?.[0] || "";
   const appShellBlock = workspaceJs.match(/function renderAppShell[\s\S]*?function availableSections/)?.[0] || "";
   assert.match(workspaceJs, /function renderProductHeader\(options = \{\}\)/);
-  assert.match(signInBlock, /renderProductHeader\(\{\s*titleId: "signInTitle"\s*\}\)/);
+  assert.match(workspaceJs, /function renderWorkspaceLandingHero\(\)/);
+  assert.match(workspaceJs, /function renderWorkspaceHomeInfoBox\(\)/);
+  assert.match(workspaceJs, /What this workspace does/);
+  assert.match(workspaceJs, /Students can see requirements, submit evidence, review feedback, and prepare for presentations/);
+  assert.match(signInBlock, /renderWorkspaceLandingHero\(\)/);
+  assert.doesNotMatch(signInBlock, /renderProductHeader\(/);
+  assert.doesNotMatch(signInBlock, /Student progress|Private evidence|Mentor coverage|Review queue|Presentation readiness/);
   assert.match(appShellBlock, /renderProductHeader\(\{[\s\S]*context: headerContext,[\s\S]*readOnly: roles\.has\("viewer"\)/);
   assert.match(workspaceJs, /chips = WORKSPACE_POSTURE_CHIPS/);
+  assert.match(workspaceCss, /\.workspace-auth-intro::before/);
+  assert.match(workspaceCss, /\.workspace-auth-intro::after/);
+  assert.match(workspaceCss, /\.workspace-home-info/);
+  assert.doesNotMatch(workspaceCss, /app-hero\.jpg/);
   assert.match(workspaceJs, /function canUseSitePrograms\(roles\)\s*\{\s*return hasGlobalAdminRole\(roles\) \|\| roles\.has\("site_admin"\);\s*\}/);
 
   for (const status of [
@@ -5229,10 +5247,15 @@ test("workspace renders safe Google Workspace SSO and local sign-in states", asy
       body: { authenticated: false },
     },
   });
+  assert.match(disabled, /Welcome back/);
+  assert.match(disabled, /Sign in to open your workspace\./);
+  assert.match(disabled, /What this workspace does/);
+  assert.match(disabled, /School Google account/);
   assert.match(disabled, /Google Workspace sign-in is not configured for this environment yet/);
-  assert.match(disabled, /Local account sign in/);
-  assert.match(disabled, /Approved fallback access/);
-  assert.doesNotMatch(disabled, /Continue with Google Workspace/);
+  assert.match(disabled, /Local account/);
+  assert.match(disabled, /Use this only if your school or project coordinator gave you a local account\./);
+  assert.doesNotMatch(disabled, /Approved fallback access|Local account sign in/);
+  assert.doesNotMatch(disabled, /Continue with Google(?: Workspace)?/);
 
   const enabled = await renderWorkspaceWithFetch({
     "/api/auth/config": {
@@ -5251,17 +5274,18 @@ test("workspace renders safe Google Workspace SSO and local sign-in states", asy
       body: { authenticated: false },
     },
   });
-  assert.match(enabled, /Continue with Google Workspace/);
+  assert.match(enabled, /Continue with Google/);
   assert.match(enabled, /href="\/api\/auth\/google\/start\?returnTo=\/workspace\.html"/);
-  assert.match(enabled, /Local account sign in/);
-  assert.match(enabled, /workspace-product-header/);
+  assert.match(enabled, /School Google account/);
+  assert.match(enabled, /Local account/);
+  assert.match(enabled, /workspace-home-info/);
+  assert.match(enabled, /workspace-landing-copy/);
   assert.match(enabled, /Capstone Project Workspace/);
   assert.match(enabled, /School workspace/);
-  assert.match(enabled, /Student progress/);
-  assert.match(enabled, /Private evidence/);
-  assert.match(enabled, /Mentor coverage/);
-  assert.match(enabled, /Review queue/);
-  assert.match(enabled, /Presentation readiness/);
+  assert.doesNotMatch(enabled, /Continue with Google Workspace/);
+  assert.doesNotMatch(enabled, /workspace-product-header/);
+  assert.doesNotMatch(enabled, /Student progress|Private evidence|Mentor coverage|Review queue|Presentation readiness/);
+  assert.doesNotMatch(enabled, /Approved fallback access|Local account sign in/);
   assert.doesNotMatch(enabled, /Database-backed MVP|Cloudflare target|Audit-sensitive admin|Senior Capstone Product/);
   assert.doesNotMatch(enabled, /client_secret|access_token|refresh_token|id_token/i);
 });
