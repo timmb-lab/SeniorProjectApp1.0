@@ -4855,3 +4855,52 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: hosted proof still needs allowed fake-account and audit-write runtime; richer student support and guided write-path work still need tighter product/policy review.
   - Do not repeat: do not rebuild this compare-cue slice unless the summary marker, current-version cues, evidence counts, or newest-first note ordering regress.
   - First file to inspect next run: `workspace.js` `renderSubmissionRow()` and `renderStudentFeedbackTimeline()`
+
+## Run 2026-05-31 19:08 PT
+
+- Starting SHA: `5c2b123d9f9d815919e06dd0552aed980c5dc846`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Branch policy: work stayed on clean local `main`; local `main` remained ahead of `origin/main`, `origin/main` was not ahead, and no sync or push was run
+- Ladder level targeted: `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN`
+- Backlog item: `student-submission-list-status-filters`; supports `MVP-003`, `MVP-032`, and `MVP-033`
+- Work order selected: Add in-page status filters to the student `Your Submitted Work` list.
+- Selection reason: The previous handoff pointed directly at `renderSubmissionRow()`. Current `workspace.js` already rendered student-safe submission rows, latest feedback snippets, and real `/api/reviews/:submissionId/history` timeline actions, but the submission list was still one flat list. The safest next slice was to reuse the existing own-student submission payload and current history route so students could focus drafts, waiting-for-review work, revision work, or approved submissions without adding routes, URL state, or access expansion.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Student submission list status filters | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 5 | 5 | 5 | S | 57 | selected |
+| Administration/AP dashboard language | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | administration, viewer, site staff | 3 | 5 | 5 | XS | 43 | not selected: lower product depth than the active student focus gap |
+| Presentation schedule URL state | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | student, mentor, teacher, admin | 3 | 4 | 4 | S | 41 | deferred: current in-page filters already cover the focus need |
+| Mentor Dashboard URL state | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | mentor | 3 | 4 | 4 | S | 40 | deferred: current in-page filters already cover the focus need |
+| Hosted section-level permission proof | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all protected roles | 4 | 3 | 3 | M | 40 | deferred: hosted fake-account proof and audit writes are not allowed in this run |
+| Site-scoped audit destination | `LEVEL_7_AUDITABILITY_AND_TRUST` | site_admin, org_admin | 4 | 3 | 4 | M | 39 | deferred: visibility and route shape still need review |
+| Summary-only metric affordance styling | `LEVEL_1_NAVIGABLE_DASHBOARDS` | staff, viewer | 3 | 4 | 3 | S | 39 | not selected: broader visual surface than this bounded student slice |
+| Student mentor support workflow | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 4 | 3 | 3 | M | 37 | deferred: support-flow shape and privacy need review |
+| Review Queue missing-submission semantics | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | program_teacher, site staff | 5 | 2 | 3 | M | 34 | deferred: backend queue rows are still absent |
+| Site-admin assignment removal workflow | `LEVEL_7_AUDITABILITY_AND_TRUST` | site_admin | 3 | 2 | 3 | M | 33 | deferred: mutation and audit policy are not ready |
+
+- User-facing improvement: Students can now focus their Submitted Work list on drafts, waiting-for-review work, revision work, or approved submissions without leaving the current dashboard, and a selected submission timeline clears safely when a filter hides that row.
+- Roles affected: `student`
+- Files changed: `workspace.js`, `tests/workspace-app.test.mjs`, `docs/student-progress-dashboard.md`, `docs/functionality-language-audit.md`, `docs/progress/run-log.md`, `docs/progress/runs/2026-05-31-1908-student-submission-filters.json`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`
+- Tests/verifiers added or updated: `tests/workspace-app.test.mjs` now proves the new Submitted Work filters render, narrow rows by status, and clear a hidden submission timeline.
+- Validation commands:
+  - Focused passed before docs/state closeout: `node --test tests/workspace-app.test.mjs`
+  - Final passed: `npm run verify:functionality-language`, `node --test tests/functionality-language-audit.test.mjs`, `node -e "JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-05-31-1908-student-submission-filters.json','utf8')); console.log('json ok')"`, `git diff --check`, `npm run verify:dashboard-actions`, `npm run verify:workspace-navigation`, `npm run verify:functionality-ux-automation`, `npm run check:production-surfaces`, `npm run check:route-inventory`, `npm run test`, `npm run typecheck`, `npm run check`
+- Validation result: passed; `git diff --check` reported only CRLF normalization warnings, with no whitespace errors.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: hosted section-level permission proof, site-scoped audit destination, Review Queue missing-submission semantics, Presentation schedule URL-state filters, Mentor Dashboard URL-state filters, student mentor support workflow shape, and site-admin assignment removal workflow remain deferred.
+- New backlog items: none
+- Next recommended work order: run hosted section-level permission proof when hosted fake-account proof and audit-event writes are allowed; otherwise review whether the current mentor summary can deepen into clearer student-safe support guidance without exposing contact data.
+- Do-not-repeat notes: do not re-add the student submission-list filter slice unless regression removes `data-student-submission-filters="true"` or hidden submission timelines stop clearing safely.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN`
+  - Advanced: yes
+  - Evidence: the student workspace now renders `data-student-submission-filters="true"` with draft, waiting-for-review, needs-revision, and approved buckets, and focused coverage proves a hidden selected timeline clears when a filter removes that row.
+  - Unlocks: students can now focus both feedback notes and submission rows in place before any broader student support or URL-state work is considered.
+  - Next: hosted permission proof when allowed; otherwise inspect whether the current mentor summary can deepen into clearer student-safe support guidance.
+  - Blockers: hosted proof still needs allowed fake-account and audit-write runtime; student mentor support still needs tighter privacy and product-shape review.
+  - Do not repeat: do not rebuild this filter slice unless the data marker or hidden-timeline clearing regresses.
+  - First file to inspect next run: `workspace.js` `renderStudentSection()` and `renderSubmissionRow()`

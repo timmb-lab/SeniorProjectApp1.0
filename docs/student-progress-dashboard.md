@@ -62,7 +62,9 @@ Status uses simple rules:
 - Submission timeline inside Feedback History, loaded from the filtered review-history route when a student opens a feedback row, now shows current-version, submitted-version-count, teacher-note-count, and status-update-count summary facts plus evidence-count and current-version cues inside each submitted version row.
 - Timeline teacher notes now keep the newest visible note first across both review decisions and general teacher comments, so students can compare the latest teacher note against older review history without opening a new page.
 - Submitted Work rows now repeat the latest teacher feedback beside the matching submission when the scoped dashboard response includes a review for that submission.
+- Submitted Work now includes in-page filters for all work, drafts, waiting for review, needs revision, and approved submissions, so students can focus one status at a time without leaving the current dashboard or relying on a new route.
 - Submitted Work rows can now open the same student-safe submission timeline in place, so students can check versions, status changes, and visible teacher notes from either Feedback History or the submission list.
+- Submitted Work filters clear a selected submission timeline when the chosen filter hides that row, so students do not stay on a stale timeline after switching focus.
 - Progress Details with current phase, completed requirements, missing submissions, review counts, last updated, evidence count, and feedback action status.
 - May 5 archive status fact when the student-owned archive readiness response has closeout checks to summarize.
 - Support note that shows the assigned mentor name when available or a safe no-mentor fallback.
@@ -106,7 +108,7 @@ Student-facing copy on this route now uses "work," "evidence," "submitted work,"
 
 1. Extend the student-safe requirement detail disclosure only if students need more than the current checklist, evidence focus action, send-for-review action, and in-page status/feedback summary.
 2. Add dedicated phase-specific student progress pages only if students need more than the current grouped checklist, phase-focus filters, and in-page requirement detail.
-3. Add stronger student-safe submission-list status filters only if students need more than the current feedback filters, version/evidence timeline cues, and in-row timeline.
+3. Add shareable submission-list URL state only if students need more than the current in-page status filters, feedback filters, version/evidence timeline cues, and in-row timeline.
 4. Add mentor contact/support workflow without exposing unsafe contact data.
 5. Add a richer due-date timeline or calendar only if students need more than the upcoming-deadlines panel plus requirement-row deadline labels.
 6. Add a downloadable student progress summary.

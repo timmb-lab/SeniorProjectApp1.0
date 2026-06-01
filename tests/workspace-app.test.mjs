@@ -4643,6 +4643,126 @@ test("student submission rows open the student-safe review timeline without dupl
   assert.doesNotMatch(workspaceRoot.innerHTML, /staff_only|Private staff note|drive_file_id|driveFileId/i);
 });
 
+test("student submission filters narrow rows and clear hidden submission timelines", async () => {
+  const { context, workspaceRoot } = await createWorkspaceContextWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "student-submission-filters",
+          email: "student.submission.filters@senior-capstone.test",
+          displayName: "Submission Filter Student",
+          roles: [{ role_id: "student", scope_type: "global", scope_id: "" }],
+        },
+      },
+    },
+    "/api/student/dashboard": {
+      status: 200,
+      body: {
+        ok: true,
+        viewer: { self: true },
+        summary: {
+          requirementsTotal: 4,
+          requirementsComplete: 1,
+          completionPercent: 25,
+          submittedRequiredCount: 3,
+          missingRequiredCount: 1,
+          revisionRequestedCount: 1,
+          waitingForReviewCount: 1,
+        },
+        progress: [],
+        submissions: [
+          { id: "submission-draft", requirement_id: "req-draft", requirement_title: "Concept Draft", status: "draft", version: 1, updated_at: "2026-05-24T15:00:00.000Z" },
+          { id: "submission-submitted", requirement_id: "req-submitted", requirement_title: "Research Notes", status: "submitted", version: 1, updated_at: "2026-05-24T16:00:00.000Z" },
+          { id: "submission-revision", requirement_id: "req-revision", requirement_title: "Portfolio Reflection", status: "revision_requested", version: 2, updated_at: "2026-05-24T17:00:00.000Z" },
+          { id: "submission-approved", requirement_id: "req-approved", requirement_title: "Presentation Outline", status: "approved", version: 3, updated_at: "2026-05-24T18:00:00.000Z" },
+        ],
+        evidence: [],
+        feedback: [
+          {
+            id: "review-revision",
+            submissionId: "submission-revision",
+            requirementTitle: "Portfolio Reflection",
+            submissionStatus: "revision_requested",
+            submissionVersion: 2,
+            status: "revision_requested",
+            message: "Revise the reflection conclusion before resubmitting.",
+            authorName: "Ms. Garcia",
+            createdAt: "2026-05-24T17:30:00.000Z",
+          },
+          {
+            id: "review-approved",
+            submissionId: "submission-approved",
+            requirementTitle: "Presentation Outline",
+            submissionStatus: "approved",
+            submissionVersion: 3,
+            status: "approved",
+            message: "Approved and ready for presentation practice.",
+            authorName: "Mr. Lee",
+            createdAt: "2026-05-24T18:30:00.000Z",
+          },
+        ],
+      },
+    },
+    "/api/reviews/submission-approved/history": {
+      status: 200,
+      body: {
+        ok: true,
+        submission: { id: "submission-approved", studentId: "student-submission-filters", status: "approved", version: 3 },
+        reviews: [
+          {
+            id: "review-approved",
+            decision: "approved",
+            feedback: "Approved and ready for presentation practice.",
+            created_at: "2026-05-24T18:30:00.000Z",
+            reviewer_name: "Mr. Lee",
+          },
+        ],
+        statusHistory: [],
+        versions: [],
+        comments: [],
+      },
+    },
+    "/api/student/archive/readiness": {
+      status: 200,
+      body: { ok: true, summary: {}, checks: [], archive: {}, storage: {}, retention: {} },
+    },
+    "/api/presentation-slots": {
+      status: 200,
+      body: { ok: true, slots: [] },
+    },
+  });
+
+  assert.match(workspaceRoot.innerHTML, /data-student-submission-filters="true"/);
+  assert.match(workspaceRoot.innerHTML, /All work \(4\)/);
+  assert.match(workspaceRoot.innerHTML, /Drafts \(1\)/);
+  assert.match(workspaceRoot.innerHTML, /Waiting for review \(1\)/);
+  assert.match(workspaceRoot.innerHTML, /Needs revision \(1\)/);
+  assert.match(workspaceRoot.innerHTML, /Approved \(1\)/);
+
+  await vm.runInContext(
+    'handleStudentFeedbackAction({ currentTarget: { dataset: { studentFeedbackAction: "open-history", studentFeedbackOrigin: "submissions", studentFeedbackSubmissionId: "submission-approved" } } })',
+    context,
+  );
+
+  assert.match(workspaceRoot.innerHTML, /data-student-submission-timeline="true"/);
+  assert.match(workspaceRoot.innerHTML, /Approved and ready for presentation practice/);
+
+  await vm.runInContext(
+    'handleStudentSubmissionAction({ currentTarget: { dataset: { studentSubmissionAction: "set-filter", studentSubmissionFilter: "revision_requested" } } })',
+    context,
+  );
+
+  assert.match(workspaceRoot.innerHTML, /data-student-submission-active-filter="revision_requested"/);
+  assert.match(workspaceRoot.innerHTML, /Portfolio Reflection/);
+  assert.match(workspaceRoot.innerHTML, /data-student-submission-row="submission-revision"/);
+  assert.equal((workspaceRoot.innerHTML.match(/data-student-submission-row="/g) || []).length, 1);
+  assert.doesNotMatch(workspaceRoot.innerHTML, /data-student-submission-timeline="true"/);
+  assert.equal(vm.runInContext("studentFeedbackHistoryState.selectedSubmissionId", context), "");
+  assert.equal(vm.runInContext("studentSubmissionFilter", context), "revision_requested");
+});
+
 test("workspace renders role-pending and permission-denied access states", async () => {
   const expiredSession = await renderWorkspaceWithFetch({
     "/api/auth/me": {

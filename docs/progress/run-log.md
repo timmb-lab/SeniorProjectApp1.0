@@ -21,6 +21,17 @@ This is the compact run log for the current Functionality UX Upgrade automation 
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-05-31 19:08 PT - Functionality UX Upgrade Student Submission Filters
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 6 student progress drill-down / in-page submission focus, supporting MVP-003, MVP-032, and MVP-033.
+- `starting HEAD`: `5c2b123d9f9d815919e06dd0552aed980c5dc846`.
+- `selected slice`: Add in-page status filters to `Your Submitted Work`.
+- `repo-grounded findings`: the previous handoff named `renderSubmissionRow()` for safe follow-up. Current `workspace.js` already rendered student-safe submission rows, latest feedback snippets, and `/api/reviews/:submissionId/history` timeline actions, but the submission list was still one flat list with no way to focus drafts, waiting-for-review work, revision work, or approved submissions.
+- `changes`: `workspace.js` now renders route-free in-page filters for all work, drafts, waiting for review, needs revision, and approved submissions from the existing own-student submission payload, and clears a selected submission timeline when the active filter hides that row. `tests/workspace-app.test.mjs` proves the filter counts, row narrowing, and hidden-timeline reset.
+- `validation`: focused workspace test passed before docs/state closeout. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.
+
 ## 2026-05-31 18:31 PT - Functionality UX Upgrade Student Feedback Compare Cues
 
 - `automation ID`: functionality-ux-upgrade-hourly.

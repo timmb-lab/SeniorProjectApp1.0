@@ -1,0 +1,147 @@
+{
+  "automationId": "functionality-ux-upgrade-hourly",
+  "timestamp": "2026-05-31T19:08:00-07:00",
+  "startingHead": "5c2b123d9f9d815919e06dd0552aed980c5dc846",
+  "lane": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN",
+  "workOrderId": "student-submission-list-status-filters",
+  "selectedSlice": "Add in-page status filters to the student Submitted Work list.",
+  "selectionReason": "The previous handoff pointed at renderSubmissionRow(). Current workspace.js already rendered student-safe submission rows, latest feedback snippets, and timeline actions, but the list was still one flat list with no status focus. The safest next slice was to reuse the existing own-student submission payload and current history route without adding a page, query params, or new access path.",
+  "candidates": [
+    {
+      "candidate": "Student submission list status filters",
+      "ladderLevel": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN",
+      "roles": "student",
+      "impact": 5,
+      "safety": 5,
+      "testability": 5,
+      "size": "S",
+      "score": 57,
+      "decision": "selected"
+    },
+    {
+      "candidate": "Administration/AP dashboard language",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "roles": "administration, viewer, site staff",
+      "impact": 3,
+      "safety": 5,
+      "testability": 5,
+      "size": "XS",
+      "score": 43,
+      "decision": "not-selected-lower-impact"
+    },
+    {
+      "candidate": "Presentation schedule URL state",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "roles": "student, mentor, teacher, admin",
+      "impact": 3,
+      "safety": 4,
+      "testability": 4,
+      "size": "S",
+      "score": 41,
+      "decision": "deferred-current-in-page-filters-are-enough"
+    },
+    {
+      "candidate": "Mentor Dashboard URL state",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "roles": "mentor",
+      "impact": 3,
+      "safety": 4,
+      "testability": 4,
+      "size": "S",
+      "score": 40,
+      "decision": "deferred-current-in-page-filters-are-enough"
+    },
+    {
+      "candidate": "Hosted section-level permission proof",
+      "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
+      "roles": "all protected roles",
+      "impact": 4,
+      "safety": 3,
+      "testability": 3,
+      "size": "M",
+      "score": 40,
+      "decision": "deferred-runtime-not-allowed"
+    },
+    {
+      "candidate": "Site-scoped audit destination",
+      "ladderLevel": "LEVEL_7_AUDITABILITY_AND_TRUST",
+      "roles": "site_admin, org_admin",
+      "impact": 4,
+      "safety": 3,
+      "testability": 4,
+      "size": "M",
+      "score": 39,
+      "decision": "deferred-visibility-shape-needs-review"
+    },
+    {
+      "candidate": "Summary-only metric affordance styling",
+      "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS",
+      "roles": "staff, viewer",
+      "impact": 3,
+      "safety": 4,
+      "testability": 3,
+      "size": "S",
+      "score": 39,
+      "decision": "not-selected-broader-visual-surface"
+    },
+    {
+      "candidate": "Student mentor support workflow",
+      "ladderLevel": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN",
+      "roles": "student",
+      "impact": 4,
+      "safety": 3,
+      "testability": 3,
+      "size": "M",
+      "score": 37,
+      "decision": "deferred-support-shape-and-privacy-need-review"
+    },
+    {
+      "candidate": "Review Queue missing-submission semantics",
+      "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
+      "roles": "program_teacher, site staff",
+      "impact": 5,
+      "safety": 2,
+      "testability": 3,
+      "size": "M",
+      "score": 34,
+      "decision": "deferred-backend-rows-absent"
+    },
+    {
+      "candidate": "Site-admin assignment removal workflow",
+      "ladderLevel": "LEVEL_7_AUDITABILITY_AND_TRUST",
+      "roles": "site_admin",
+      "impact": 3,
+      "safety": 2,
+      "testability": 3,
+      "size": "M",
+      "score": 33,
+      "decision": "deferred-mutation-policy-not-ready"
+    }
+  ],
+  "filesChanged": [
+    "workspace.js",
+    "tests/workspace-app.test.mjs",
+    "docs/student-progress-dashboard.md",
+    "docs/functionality-language-audit.md",
+    "docs/progress/run-log.md",
+    "docs/functionality-ux-growth-ledger.md",
+    "automation/state/functionality-ux-growth-state.json"
+  ],
+  "validation": [
+    "node --test tests/workspace-app.test.mjs",
+    "npm run verify:functionality-language",
+    "node --test tests/functionality-language-audit.test.mjs",
+    "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-05-31-1908-student-submission-filters.json','utf8')); console.log('json ok')\"",
+    "git diff --check",
+    "npm run verify:dashboard-actions",
+    "npm run verify:workspace-navigation",
+    "npm run verify:functionality-ux-automation",
+    "npm run check:production-surfaces",
+    "npm run check:route-inventory",
+    "npm run test",
+    "npm run typecheck",
+    "npm run check"
+  ],
+  "nextRecommended": "Run hosted section-level permission proof when allowed; otherwise review whether the current mentor summary can deepen into clearer student-safe support guidance without exposing contact data.",
+  "doNotRepeat": "Do not re-add student submission-list filters unless data-student-submission-filters or hidden-submission timeline clearing regress."
+}

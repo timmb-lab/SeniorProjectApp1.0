@@ -33,6 +33,7 @@ let pendingStudentRequirementFocusId = "";
 let studentRequirementDetailState = defaultStudentRequirementDetailState();
 let studentFeedbackHistoryState = defaultStudentFeedbackHistoryState();
 let studentFeedbackFilter = defaultStudentFeedbackFilter();
+let studentSubmissionFilter = defaultStudentSubmissionFilter();
 let reviewQueueFilters = defaultReviewQueueFilters();
 let reviewQueueState = defaultReviewQueueState();
 let mentorAssignmentFilters = defaultMentorAssignmentFilters();
@@ -301,6 +302,7 @@ async function loadSession() {
       studentRequirementDetailState = defaultStudentRequirementDetailState();
       studentFeedbackHistoryState = defaultStudentFeedbackHistoryState();
       studentFeedbackFilter = defaultStudentFeedbackFilter();
+      studentSubmissionFilter = defaultStudentSubmissionFilter();
       mentorDashboardFilter = "all";
       presentationSlotFilter = "all";
       renderSignIn(
@@ -314,6 +316,7 @@ async function loadSession() {
       studentRequirementDetailState = defaultStudentRequirementDetailState();
       studentFeedbackHistoryState = defaultStudentFeedbackHistoryState();
       studentFeedbackFilter = defaultStudentFeedbackFilter();
+      studentSubmissionFilter = defaultStudentSubmissionFilter();
       mentorDashboardFilter = "all";
       presentationSlotFilter = "all";
     }
@@ -325,6 +328,7 @@ async function loadSession() {
     studentRequirementDetailState = defaultStudentRequirementDetailState();
     studentFeedbackHistoryState = defaultStudentFeedbackHistoryState();
     studentFeedbackFilter = defaultStudentFeedbackFilter();
+    studentSubmissionFilter = defaultStudentSubmissionFilter();
     mentorDashboardFilter = "all";
     presentationSlotFilter = "all";
     renderSignIn(messageForNetworkError(error), "error");
@@ -4095,6 +4099,8 @@ function renderStudentSection() {
   const evidence = dashboard.evidence || [];
   const summary = studentProgressSummary(dashboard);
   const nextSteps = Array.isArray(dashboard.nextSteps) ? dashboard.nextSteps : [];
+  const activeSubmissionFilter = studentSubmissionFilterKey(studentSubmissionFilter);
+  const filteredSubmissions = filterStudentSubmissionRows(submissions, activeSubmissionFilter);
   return `
     <section class="workspace-card workspace-hero-card workspace-student-progress-hero" aria-labelledby="studentProgressTitle">
       <div class="workspace-card-head">
@@ -4144,10 +4150,14 @@ function renderStudentSection() {
         <div>
           <p class="workspace-kicker">Submissions</p>
           <h2>Your Submitted Work</h2>
+          <p>${escapeHtml(submissions.length ? `Showing the latest ${submissions.length} submission${submissions.length === 1 ? "" : "s"} you have started.` : "Your submission history will appear here after you start project work.")}</p>
         </div>
       </div>
+      ${submissions.length > 1 || activeSubmissionFilter !== "all" ? renderStudentSubmissionFilters(submissions, activeSubmissionFilter) : ""}
       <div class="workspace-list">
-        ${submissions.length ? submissions.map((submission) => renderSubmissionRow(submission, dashboard.feedback || [], studentFeedbackHistoryState)).join("") : `<div class="workspace-empty">No submissions have been started yet.</div>`}
+        ${filteredSubmissions.length
+          ? filteredSubmissions.map((submission) => renderSubmissionRow(submission, dashboard.feedback || [], studentFeedbackHistoryState)).join("")
+          : renderStudentSubmissionEmptyState(activeSubmissionFilter, submissions.length)}
       </div>
     </section>
     <section class="workspace-card">
@@ -6428,6 +6438,10 @@ function handleStudentRequirementPhaseAction(event) {
 async function handleStudentSubmissionAction(event) {
   const button = event?.currentTarget;
   const action = button?.dataset?.studentSubmissionAction || "";
+  if (action === "set-filter") {
+    setStudentSubmissionFilter(button?.dataset?.studentSubmissionFilter || "");
+    return;
+  }
   const submissionId = cleanDirectoryFilter(button?.dataset?.studentSubmissionId || "");
   if (!submissionId) return;
   if (action === "focus-evidence") {
@@ -6447,6 +6461,23 @@ async function handleStudentSubmissionAction(event) {
     return;
   }
   await loadWorkspaceData("Your work was sent for teacher review.");
+}
+
+function setStudentSubmissionFilter(value) {
+  studentSubmissionFilter = studentSubmissionFilterKey(value);
+  const submissionRows = Array.isArray(unwrap(currentData.dashboard)?.submissions) ? unwrap(currentData.dashboard).submissions : [];
+  const selectedSubmissionId = cleanDirectoryFilter(studentFeedbackHistoryState.selectedSubmissionId || "");
+  if (studentFeedbackHistoryState.source === "submissions" && selectedSubmissionId) {
+    const visibleRows = filterStudentSubmissionRows(submissionRows, studentSubmissionFilter);
+    if (!visibleRows.some((row) => cleanDirectoryFilter(row?.id || "") === selectedSubmissionId)) {
+      studentFeedbackHistoryState = defaultStudentFeedbackHistoryState();
+    }
+  }
+  activeSection = "student";
+  const message = studentSubmissionFilter === "all"
+    ? "Showing all submitted work."
+    : `Showing ${studentSubmissionFilterLabel(studentSubmissionFilter)}.`;
+  renderAppShell(message, "success");
 }
 
 function focusEvidenceFormsForSubmission(submissionId) {
@@ -7990,6 +8021,7 @@ async function signOut() {
     lastAdminImportResult = null;
     studentRequirementDetailState = defaultStudentRequirementDetailState();
     studentFeedbackHistoryState = defaultStudentFeedbackHistoryState();
+    studentSubmissionFilter = defaultStudentSubmissionFilter();
     presentationSlotFilter = "all";
     renderSignIn("You have signed out.", "success");
   }
@@ -8585,6 +8617,100 @@ function renderSubmissionRow(submission, feedback = [], historyState = defaultSt
   `;
 }
 
+function renderStudentSubmissionFilters(rows = [], activeFilter = "all") {
+  const options = studentSubmissionFilterOptions(rows);
+  return `
+    <div class="workspace-active-filters" data-student-submission-filters="true" data-student-submission-active-filter="${escapeHtml(activeFilter)}">
+      ${options.map((option) => `
+        <button class="workspace-detail-tab ${option.value === activeFilter ? "is-active" : ""}" type="button" data-student-submission-action="set-filter" data-student-submission-filter="${escapeHtml(option.value)}" aria-pressed="${option.value === activeFilter ? "true" : "false"}">
+          ${escapeHtml(`${option.label} (${option.count})`)}
+        </button>
+      `).join("")}
+    </div>
+  `;
+}
+
+function studentSubmissionFilterOptions(rows = []) {
+  const counts = {
+    all: Array.isArray(rows) ? rows.length : 0,
+    draft: 0,
+    submitted: 0,
+    revision_requested: 0,
+    approved: 0,
+  };
+  for (const row of Array.isArray(rows) ? rows : []) {
+    const status = studentSubmissionFilterKey(row?.status);
+    if (status !== "all") counts[status] += 1;
+  }
+  return [
+    { value: "all", label: "All work", count: counts.all },
+    { value: "draft", label: "Drafts", count: counts.draft },
+    { value: "submitted", label: "Waiting for review", count: counts.submitted },
+    { value: "revision_requested", label: "Needs revision", count: counts.revision_requested },
+    { value: "approved", label: "Approved", count: counts.approved },
+  ];
+}
+
+function studentSubmissionFilterKey(value) {
+  const normalized = normalizeStatus(value);
+  if (["draft", "not_started"].includes(normalized)) return "draft";
+  if (["submitted", "under_review", "reviewing", "pending_review"].includes(normalized)) return "submitted";
+  if (["revision_requested", "needs_revision"].includes(normalized)) return "revision_requested";
+  if (["approved", "archived", "complete", "completed"].includes(normalized)) return "approved";
+  return "all";
+}
+
+function studentSubmissionFilterLabel(value) {
+  if (value === "draft") return "draft submissions";
+  if (value === "submitted") return "submitted work waiting for review";
+  if (value === "revision_requested") return "work that needs revision";
+  if (value === "approved") return "approved submissions";
+  return "all submitted work";
+}
+
+function filterStudentSubmissionRows(rows = [], filterKey = "all") {
+  const activeFilter = studentSubmissionFilterKey(filterKey);
+  const safeRows = Array.isArray(rows) ? rows : [];
+  if (activeFilter === "all") return safeRows;
+  return safeRows.filter((row) => studentSubmissionFilterKey(row?.status) === activeFilter);
+}
+
+function renderStudentSubmissionEmptyState(filterKey = "all", totalRows = 0) {
+  if (!totalRows) {
+    return `<div class="workspace-empty">No submissions have been started yet.</div>`;
+  }
+  const activeFilter = studentSubmissionFilterKey(filterKey);
+  const copy = {
+    draft: {
+      title: "No draft submissions are listed right now.",
+      detail: "Switch filters to review work waiting for feedback, revision work, or approved submissions.",
+    },
+    submitted: {
+      title: "No work is waiting for review right now.",
+      detail: "Switch filters to check drafts, revision work, or approved submissions.",
+    },
+    revision_requested: {
+      title: "No revision work is listed right now.",
+      detail: "Switch filters to review drafts, waiting work, or approved submissions.",
+    },
+    approved: {
+      title: "No approved submissions are listed yet.",
+      detail: "Approved work will appear here after your teacher marks submitted work complete.",
+    },
+    all: {
+      title: "No submissions have been started yet.",
+      detail: "Your submission history will appear here after you start project work.",
+    },
+  };
+  const selectedCopy = copy[activeFilter] || copy.all;
+  return `
+    <article class="workspace-empty-state-card" data-student-submission-empty="true" data-student-submission-empty-filter="${escapeHtml(activeFilter)}">
+      <strong>${escapeHtml(selectedCopy.title)}</strong>
+      <p>${escapeHtml(selectedCopy.detail)}</p>
+    </article>
+  `;
+}
+
 function latestFeedbackForSubmission(submission, feedback = []) {
   const submissionId = String(submission?.id || "");
   if (!submissionId || !Array.isArray(feedback)) return null;
@@ -8859,6 +8985,10 @@ function defaultStudentRequirementDetailState() {
 }
 
 function defaultStudentFeedbackFilter() {
+  return "all";
+}
+
+function defaultStudentSubmissionFilter() {
   return "all";
 }
 
