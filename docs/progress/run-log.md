@@ -2510,3 +2510,14 @@ Future productive runs should append compact entries that name the master-plan s
 - `changes`: `workspace.js` now renders an `Upcoming deadlines` panel that orders incomplete student requirements by due date, keeps label-only due items after dated items, marks the current phase when relevant, and reuses the existing `Open requirement`, `Send revision` / `Send for review`, and `Add evidence` actions. `tests/workspace-app.test.mjs` now proves the panel renders, orders rows safely, excludes completed items, and preserves the existing requirement actions. `docs/student-progress-dashboard.md` and `docs/functionality-language-audit.md` now record the due-date-first view as part of the student workspace.
 - `validation`: focused workspace test and functionality-language verification passed before docs/state closeout. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
 - `commit/push status`: pending closeout commit; not pushed by this automation run.
+
+## 2026-05-31 PT - Functionality UX Upgrade Student Feedback Filters
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 6 student progress drill-down / in-page feedback focus.
+- `starting HEAD`: `77af433f1dcba71cbc5a606b505bc08d7a09172f`.
+- `selected slice`: Add in-page filters to the student `Feedback History` panel.
+- `repo-grounded findings`: the previous handoff explicitly pointed at compare or filter affordances for the existing student-safe feedback timeline. Current `renderStudentFeedbackPanel()` rendered the latest own-student feedback rows and real `View timeline` actions, but it still showed one flat list with no way to focus notes that still needed revision versus notes that were already approved or informational.
+- `changes`: `workspace.js` now renders in-page `Feedback History` filters for all notes, needs revision, teacher notes, and approved feedback from the existing own-student dashboard payload. The feedback-row timeline stays on the selected row when that row remains visible and clears safely when a filter hides it. `tests/workspace-app.test.mjs` now proves the filter controls render, narrow the feedback panel to action-needed rows, and clear a hidden feedback-row timeline without touching the student-safe submission list timeline path.
+- `validation`: focused workspace coverage passed before docs/state closeout. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.

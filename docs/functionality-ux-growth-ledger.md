@@ -4757,3 +4757,52 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: hosted proof still needs allowed fake-account and audit-write runtime; richer student support or feedback-page work still needs more product-shape clarity.
   - Do not repeat: do not rebuild this panel unless regression removes the data marker or the action reuse.
   - First file to inspect next run: `workspace.js` `renderStudentDeadlinePanel()` and `renderStudentFeedbackPanel()`
+
+## Run 2026-05-31 18:08 PT
+
+- Starting SHA: `77af433f1dcba71cbc5a606b505bc08d7a09172f`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Branch policy: work stayed on clean local `main`; local `main` remained ahead of `origin/main`, `origin/main` was not ahead, and no sync or push was run
+- Ladder level targeted: `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN`
+- Backlog item: `student-feedback-timeline-affordances`; supports `MVP-003`, `MVP-032`, and `MVP-033`
+- Work order selected: Add in-page status filters to the student `Feedback History` panel.
+- Selection reason: The previous handoff explicitly pointed at compare or filter affordances for the existing student-safe feedback timeline. Current `workspace.js` already rendered own-student feedback rows with version/status context and real timeline actions, but it still showed one flat latest-notes list. This was the safest next slice because the feedback payload already included statuses and submission ids, and the existing `/api/reviews/:submissionId/history` route already enforced student-safe timeline visibility.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Student feedback history filters | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 5 | 5 | 5 | S | 55 | selected |
+| Student feedback compare affordance | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 4 | 4 | 4 | M | 46 | not selected: filter focus was the smaller immediate gap |
+| Student submission list status filters | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 4 | 4 | 4 | S | 43 | not selected: feedback action focus was earlier |
+| Viewer vs manager Operations copy branch | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | viewer, site staff | 3 | 5 | 5 | XS | 42 | not selected: lower product depth than the student feedback gap |
+| Presentation schedule URL state | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | student, mentor, teacher, admin | 3 | 4 | 4 | S | 41 | deferred: add only if shareable filter links are clearly needed |
+| Mentor Dashboard URL state | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | mentor | 3 | 4 | 4 | S | 40 | deferred: add only if mentors need shareable focus filters |
+| Hosted section-level permission proof | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all protected roles | 4 | 3 | 3 | M | 39 | deferred: hosted fake-account proof and audit writes are not allowed in this run |
+| Site-scoped audit destination | `LEVEL_7_AUDITABILITY_AND_TRUST` | site_admin, org_admin | 4 | 3 | 4 | M | 38 | deferred: route shape and visibility review still needed |
+| Student mentor support workflow | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 4 | 3 | 3 | M | 36 | deferred: support-flow shape and privacy policy still need review |
+| Review Queue missing-submission semantics | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | program_teacher, site staff | 5 | 2 | 3 | M | 34 | deferred: backend queue rows are still absent |
+
+- User-facing improvement: Students can now focus `Feedback History` on notes that need revision, general teacher notes, or approved feedback without leaving the current dashboard, and feedback-row timelines clear safely when a selected note is hidden by a filter.
+- Roles affected: `student`
+- Files changed: `workspace.js`, `tests/workspace-app.test.mjs`, `docs/student-progress-dashboard.md`, `docs/functionality-language-audit.md`, `docs/mvp-requirements-catalog.md`, `docs/progress/run-log.md`, `docs/progress/runs/2026-05-31-1808-student-feedback-filters.json`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`
+- Tests/verifiers added or updated: `tests/workspace-app.test.mjs` now proves the new feedback filters render, narrow the panel to action-needed notes, and clear a hidden feedback-row timeline without breaking the separate student submission timeline path.
+- Validation commands:
+  - Focused passed before docs/state closeout: `node --test tests/workspace-app.test.mjs`
+  - Final passed: `npm run verify:functionality-language`, `node --test tests/functionality-language-audit.test.mjs`, `node -e "JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-05-31-1808-student-feedback-filters.json','utf8')); console.log('json ok')"`, `git diff --check`, `npm run verify:dashboard-actions`, `npm run verify:workspace-navigation`, `npm run verify:functionality-ux-automation`, `npm run check:production-surfaces`, `npm run check:route-inventory`, `npm run test`, `npm run typecheck`, `npm run check`
+- Validation result: passed; `git diff --check` reported only CRLF normalization warnings, with no whitespace errors.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: hosted section-level permission proof, site-scoped audit destination, Review Queue missing-submission semantics, Presentation schedule URL-state filters, Mentor Dashboard URL-state filters, and student mentor support workflow shape remain deferred.
+- New backlog items: none
+- Next recommended work order: run hosted section-level permission proof when hosted fake-account proof and audit-event writes are allowed; otherwise inspect compare affordances for the existing student-safe feedback timeline before adding a new student page.
+- Do-not-repeat notes: do not re-add the student feedback-history filter slice unless regression removes `data-student-feedback-filters="true"` or feedback-row timeline clearing when a selected note is filtered out.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN`
+  - Advanced: yes
+  - Evidence: the student workspace now renders `data-student-feedback-filters="true"` with filter states for needs revision, teacher notes, and approved feedback, and focused coverage proves a hidden feedback-row timeline clears safely.
+  - Unlocks: the student feedback path can now deepen into compare cues or richer version context without adding a new page first.
+  - Next: hosted permission proof when allowed; otherwise inspect compare affordances inside `renderStudentFeedbackTimeline()`.
+  - Blockers: hosted proof still needs allowed fake-account and audit-write runtime; richer student support or compare-heavy feedback UI still needs tighter product-shape review.
+  - Do not repeat: do not rebuild this filter slice unless the data marker or hidden-selection clearing regresses.
+  - First file to inspect next run: `workspace.js` `renderStudentFeedbackPanel()` and `renderStudentFeedbackTimeline()`

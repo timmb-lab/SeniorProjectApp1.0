@@ -32,6 +32,7 @@ let pendingSiteStudentDetailFocus = false;
 let pendingStudentRequirementFocusId = "";
 let studentRequirementDetailState = defaultStudentRequirementDetailState();
 let studentFeedbackHistoryState = defaultStudentFeedbackHistoryState();
+let studentFeedbackFilter = defaultStudentFeedbackFilter();
 let reviewQueueFilters = defaultReviewQueueFilters();
 let reviewQueueState = defaultReviewQueueState();
 let mentorAssignmentFilters = defaultMentorAssignmentFilters();
@@ -299,6 +300,7 @@ async function loadSession() {
       currentData = defaultCurrentData(authConfig);
       studentRequirementDetailState = defaultStudentRequirementDetailState();
       studentFeedbackHistoryState = defaultStudentFeedbackHistoryState();
+      studentFeedbackFilter = defaultStudentFeedbackFilter();
       mentorDashboardFilter = "all";
       presentationSlotFilter = "all";
       renderSignIn(
@@ -311,6 +313,7 @@ async function loadSession() {
     if (currentUser?.id !== data.user?.id) {
       studentRequirementDetailState = defaultStudentRequirementDetailState();
       studentFeedbackHistoryState = defaultStudentFeedbackHistoryState();
+      studentFeedbackFilter = defaultStudentFeedbackFilter();
       mentorDashboardFilter = "all";
       presentationSlotFilter = "all";
     }
@@ -321,6 +324,7 @@ async function loadSession() {
     currentData = defaultCurrentData(authConfig);
     studentRequirementDetailState = defaultStudentRequirementDetailState();
     studentFeedbackHistoryState = defaultStudentFeedbackHistoryState();
+    studentFeedbackFilter = defaultStudentFeedbackFilter();
     mentorDashboardFilter = "all";
     presentationSlotFilter = "all";
     renderSignIn(messageForNetworkError(error), "error");
@@ -4711,6 +4715,8 @@ function studentDueText(item, fallback = "Due date: Not available yet") {
 
 function renderStudentFeedbackPanel(feedback = [], summary = {}, historyState = defaultStudentFeedbackHistoryState()) {
   const rows = Array.isArray(feedback) ? feedback : [];
+  const activeFilter = studentFeedbackFilterKey(studentFeedbackFilter);
+  const filteredRows = filterStudentFeedbackRows(rows, activeFilter);
   const countLabel = `${rows.length} teacher note${rows.length === 1 ? "" : "s"}`;
   return `
     <section class="workspace-dashboard-card workspace-student-feedback-panel" data-student-feedback-panel="true" data-student-feedback-history="true" data-student-feedback-count="${escapeHtml(rows.length)}" aria-labelledby="studentFeedbackTitle">
@@ -4721,15 +4727,104 @@ function renderStudentFeedbackPanel(feedback = [], summary = {}, historyState = 
           <p>${escapeHtml(rows.length ? `Showing the latest ${countLabel} meant for you.` : "Teacher review notes meant for you will appear here.")}</p>
         </div>
       </div>
+      ${rows.length > 1 ? renderStudentFeedbackFilters(rows, activeFilter) : ""}
       <div class="workspace-list">
-        ${rows.length ? rows.map((row) => renderStudentFeedbackRow(row, historyState)).join("") : `
-          <article class="workspace-empty-state-card" data-student-feedback-empty="true">
-            <strong>${escapeHtml(summary.revisionRequestedCount ? "No feedback details are available here yet." : "No teacher feedback yet.")}</strong>
-            <p>${escapeHtml(summary.revisionRequestedCount ? "Check the submission list below and ask your program teacher what to revise." : "Feedback will appear here after your teacher reviews or comments on your work.")}</p>
-          </article>
-        `}
+        ${filteredRows.length
+          ? filteredRows.map((row) => renderStudentFeedbackRow(row, historyState)).join("")
+          : renderStudentFeedbackEmptyState(summary, activeFilter, rows.length)}
       </div>
     </section>
+  `;
+}
+
+function renderStudentFeedbackFilters(rows = [], activeFilter = "all") {
+  const options = studentFeedbackFilterOptions(rows);
+  return `
+    <div class="workspace-active-filters" data-student-feedback-filters="true" data-student-feedback-active-filter="${escapeHtml(activeFilter)}">
+      ${options.map((option) => `
+        <button class="workspace-detail-tab ${option.value === activeFilter ? "is-active" : ""}" type="button" data-student-feedback-action="set-filter" data-student-feedback-filter="${escapeHtml(option.value)}" aria-pressed="${option.value === activeFilter ? "true" : "false"}">
+          ${escapeHtml(`${option.label} (${option.count})`)}
+        </button>
+      `).join("")}
+    </div>
+  `;
+}
+
+function studentFeedbackFilterOptions(rows = []) {
+  const counts = {
+    all: Array.isArray(rows) ? rows.length : 0,
+    revision_requested: 0,
+    under_review: 0,
+    approved: 0,
+  };
+  for (const row of Array.isArray(rows) ? rows : []) {
+    const status = studentFeedbackFilterKey(row?.status);
+    if (status !== "all") counts[status] += 1;
+  }
+  return [
+    { value: "all", label: "All notes", count: counts.all },
+    { value: "revision_requested", label: "Needs revision", count: counts.revision_requested },
+    { value: "under_review", label: "Teacher notes", count: counts.under_review },
+    { value: "approved", label: "Approved", count: counts.approved },
+  ];
+}
+
+function studentFeedbackFilterKey(value) {
+  const normalized = String(value || "").trim().toLowerCase();
+  if (normalized === "revision_requested") return "revision_requested";
+  if (normalized === "approved") return "approved";
+  if (normalized === "under_review") return "under_review";
+  return "all";
+}
+
+function studentFeedbackFilterLabel(value) {
+  if (value === "revision_requested") return "Needs revision feedback";
+  if (value === "under_review") return "Teacher notes";
+  if (value === "approved") return "Approved feedback";
+  return "All teacher feedback";
+}
+
+function filterStudentFeedbackRows(rows = [], filterKey = "all") {
+  const activeFilter = studentFeedbackFilterKey(filterKey);
+  const safeRows = Array.isArray(rows) ? rows : [];
+  if (activeFilter === "all") return safeRows;
+  return safeRows.filter((row) => studentFeedbackFilterKey(row?.status) === activeFilter);
+}
+
+function renderStudentFeedbackEmptyState(summary = {}, filterKey = "all", totalRows = 0) {
+  if (!totalRows) {
+    return `
+      <article class="workspace-empty-state-card" data-student-feedback-empty="true">
+        <strong>${escapeHtml(summary.revisionRequestedCount ? "No feedback details are available here yet." : "No teacher feedback yet.")}</strong>
+        <p>${escapeHtml(summary.revisionRequestedCount ? "Check the submission list below and ask your program teacher what to revise." : "Feedback will appear here after your teacher reviews or comments on your work.")}</p>
+      </article>
+    `;
+  }
+  const activeFilter = studentFeedbackFilterKey(filterKey);
+  const copy = {
+    revision_requested: {
+      title: "No revision notes are listed right now.",
+      detail: "Switch filters or check the submission list below for work that is still waiting for review.",
+    },
+    under_review: {
+      title: "No general teacher notes are listed right now.",
+      detail: "Switch filters to review revision notes or approved feedback for your recent work.",
+    },
+    approved: {
+      title: "No approved feedback is listed yet.",
+      detail: "Approved notes will appear here after your teacher marks submitted work complete.",
+    },
+    all: {
+      title: "No teacher feedback yet.",
+      detail: "Feedback will appear here after your teacher reviews or comments on your work.",
+    },
+  };
+  const selectedCopy = copy[activeFilter] || copy.all;
+  return `
+    <article class="workspace-empty-state-card" data-student-feedback-empty="true" data-student-feedback-empty-filter="${escapeHtml(activeFilter)}">
+      <strong>${escapeHtml(selectedCopy.title)}</strong>
+      <p>${escapeHtml(selectedCopy.detail)}</p>
+    </article>
   `;
 }
 
@@ -6214,11 +6309,32 @@ function bindUploadRetryButton() {
 
 async function handleStudentFeedbackAction(event) {
   const action = event?.currentTarget?.dataset?.studentFeedbackAction;
+  if (action === "set-filter") {
+    setStudentFeedbackFilter(event.currentTarget?.dataset?.studentFeedbackFilter || "");
+    return;
+  }
   if (action !== "open-history") return;
   await openStudentFeedbackHistory(
     event.currentTarget?.dataset?.studentFeedbackSubmissionId || "",
     event.currentTarget?.dataset?.studentFeedbackOrigin || "feedback",
   );
+}
+
+function setStudentFeedbackFilter(value) {
+  studentFeedbackFilter = studentFeedbackFilterKey(value);
+  const feedbackRows = Array.isArray(unwrap(currentData.dashboard)?.feedback) ? unwrap(currentData.dashboard).feedback : [];
+  const selectedSubmissionId = cleanDirectoryFilter(studentFeedbackHistoryState.selectedSubmissionId || "");
+  if (studentFeedbackHistoryState.source === "feedback" && selectedSubmissionId) {
+    const visibleRows = filterStudentFeedbackRows(feedbackRows, studentFeedbackFilter);
+    if (!visibleRows.some((row) => cleanDirectoryFilter(row?.submissionId || "") === selectedSubmissionId)) {
+      studentFeedbackHistoryState = defaultStudentFeedbackHistoryState();
+    }
+  }
+  activeSection = "student";
+  const message = studentFeedbackFilter === "all"
+    ? "Showing all teacher feedback."
+    : `Showing ${studentFeedbackFilterLabel(studentFeedbackFilter).toLowerCase()}.`;
+  renderAppShell(message, "success");
 }
 
 function handleStudentRequirementAction(event) {
@@ -8688,6 +8804,10 @@ function defaultStudentRequirementDetailState() {
     selectedRequirementId: "",
     selectedPhaseKey: "",
   };
+}
+
+function defaultStudentFeedbackFilter() {
+  return "all";
 }
 
 function defaultStudentFeedbackHistoryState() {

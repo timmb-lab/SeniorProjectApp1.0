@@ -4372,6 +4372,133 @@ test("student feedback rows open a student-safe review timeline", async () => {
   assert.doesNotMatch(workspaceRoot.innerHTML, /staff_only|Private staff note|drive_file_id|driveFileId/i);
 });
 
+test("student feedback filters focus action-needed notes and clear hidden feedback timelines", async () => {
+  const { context, workspaceRoot } = await createWorkspaceContextWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "student-feedback-filters",
+          email: "student.feedback.filters@senior-capstone.test",
+          displayName: "Feedback Filter Student",
+          roles: [{ role_id: "student", scope_type: "global", scope_id: "" }],
+        },
+      },
+    },
+    "/api/student/dashboard": {
+      status: 200,
+      body: {
+        ok: true,
+        viewer: { self: true },
+        summary: {
+          requirementsTotal: 3,
+          requirementsComplete: 1,
+          completionPercent: 33,
+          submittedRequiredCount: 3,
+          missingRequiredCount: 0,
+          revisionRequestedCount: 1,
+        },
+        progress: [],
+        submissions: [
+          { id: "submission-revision", requirement_id: "req-revision", requirement_title: "Research Proposal", status: "revision_requested", version: 2, updated_at: "2026-05-24T18:00:00.000Z" },
+          { id: "submission-note", requirement_id: "req-note", requirement_title: "Mentor Summary", status: "under_review", version: 1, updated_at: "2026-05-24T17:00:00.000Z" },
+          { id: "submission-approved", requirement_id: "req-approved", requirement_title: "Presentation Outline", status: "approved", version: 3, updated_at: "2026-05-24T16:00:00.000Z" },
+        ],
+        evidence: [],
+        feedback: [
+          {
+            id: "review-revision",
+            submissionId: "submission-revision",
+            requirementTitle: "Research Proposal",
+            submissionStatus: "revision_requested",
+            submissionVersion: 2,
+            status: "revision_requested",
+            message: "Please add one measurable success target before resubmitting.",
+            authorName: "Ms. Garcia",
+            createdAt: "2026-05-24T18:30:00.000Z",
+          },
+          {
+            id: "review-note",
+            submissionId: "submission-note",
+            requirementTitle: "Mentor Summary",
+            submissionStatus: "under_review",
+            submissionVersion: 1,
+            status: "under_review",
+            message: "Thanks for turning this in early.",
+            authorName: "Mr. Lee",
+            createdAt: "2026-05-24T17:30:00.000Z",
+          },
+          {
+            id: "review-approved",
+            submissionId: "submission-approved",
+            requirementTitle: "Presentation Outline",
+            submissionStatus: "approved",
+            submissionVersion: 3,
+            status: "approved",
+            message: "Approved and ready to move on.",
+            authorName: "Ms. Patel",
+            createdAt: "2026-05-24T16:30:00.000Z",
+          },
+        ],
+      },
+    },
+    "/api/reviews/submission-approved/history": {
+      status: 200,
+      body: {
+        ok: true,
+        submission: { id: "submission-approved", studentId: "student-feedback-filters", status: "approved", version: 3 },
+        reviews: [
+          {
+            id: "review-approved",
+            decision: "approved",
+            feedback: "Approved and ready to move on.",
+            created_at: "2026-05-24T16:30:00.000Z",
+            reviewer_name: "Ms. Patel",
+          },
+        ],
+        statusHistory: [],
+        versions: [],
+        comments: [],
+      },
+    },
+    "/api/student/archive/readiness": {
+      status: 200,
+      body: { ok: true, summary: {}, checks: [], archive: {}, storage: {}, retention: {} },
+    },
+    "/api/presentation-slots": {
+      status: 200,
+      body: { ok: true, slots: [] },
+    },
+  });
+
+  assert.match(workspaceRoot.innerHTML, /data-student-feedback-filters="true"/);
+  assert.match(workspaceRoot.innerHTML, /All notes \(3\)/);
+  assert.match(workspaceRoot.innerHTML, /Needs revision \(1\)/);
+  assert.match(workspaceRoot.innerHTML, /Teacher notes \(1\)/);
+  assert.match(workspaceRoot.innerHTML, /Approved \(1\)/);
+
+  await vm.runInContext(
+    'handleStudentFeedbackAction({ currentTarget: { dataset: { studentFeedbackAction: "open-history", studentFeedbackOrigin: "feedback", studentFeedbackSubmissionId: "submission-approved" } } })',
+    context,
+  );
+
+  assert.match(workspaceRoot.innerHTML, /data-student-feedback-timeline="true"/);
+  assert.match(workspaceRoot.innerHTML, /Approved and ready to move on/);
+
+  await vm.runInContext(
+    'handleStudentFeedbackAction({ currentTarget: { dataset: { studentFeedbackAction: "set-filter", studentFeedbackFilter: "revision_requested" } } })',
+    context,
+  );
+
+  assert.match(workspaceRoot.innerHTML, /data-student-feedback-active-filter="revision_requested"/);
+  assert.match(workspaceRoot.innerHTML, /Please add one measurable success target before resubmitting/);
+  assert.equal((workspaceRoot.innerHTML.match(/data-student-feedback-item="/g) || []).length, 1);
+  assert.doesNotMatch(workspaceRoot.innerHTML, /data-student-feedback-timeline="true"/);
+  assert.equal(vm.runInContext("studentFeedbackHistoryState.selectedSubmissionId", context), "");
+  assert.equal(vm.runInContext("studentFeedbackFilter", context), "revision_requested");
+});
+
 test("student submission rows open the student-safe review timeline without duplicating the feedback panel", async () => {
   const { context, workspaceRoot, fetchLog } = await createWorkspaceContextWithFetch({
     "/api/auth/me": {
