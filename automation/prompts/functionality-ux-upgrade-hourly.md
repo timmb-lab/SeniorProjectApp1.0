@@ -129,6 +129,7 @@ Read these before selecting work:
 - `docs/automation-runbook.md`
 - `docs/automation-self-improvement.md`
 - `docs/automation-memory.md`
+- `docs/product/demo-role-readiness.md`
 - `docs/progress/run-log.md` recent entries
 - recent `docs/progress/runs/` manifests when relevant
 - `docs/master-plan.md`
@@ -353,6 +354,57 @@ Respect current implemented roles:
 
 Never broaden a role without API permission changes and tests, and do not do broad permission changes in this lane without explicit safety evidence.
 
+### Role Demo Readiness Scorecard
+
+Every run must update `docs/product/demo-role-readiness.md` as the durable role-by-role scorecard for this lane.
+
+Use these status values only:
+
+- `DEMO READY`
+- `PARTIALLY READY`
+- `BLOCKED`
+- `NEEDS SEEDED DATA`
+- `NEEDS LIVE HOSTED TEST`
+
+Required roles:
+
+- `Global Admin`
+- `Site Admin`
+- `Administration`
+- `Program Teacher`
+- `Mentor`
+- `Viewer`
+- `Student`
+
+For each role, record these as separate fields, bullets, or table cells:
+
+- login path
+- default landing section
+- visible menu sections
+- hidden menu sections
+- loaded API routes
+- allowed actions
+- forbidden or hidden actions
+- click-through paths verified this run
+- empty states and permission messaging
+- seeded-data dependencies
+- hosted/live dependencies
+- current top gap
+
+Do not merge `visible menu sections`, `loaded API routes`, `allowed actions`, and `forbidden or hidden actions` into one vague summary. Keep them separate so role drift, dead ends, and permission mistakes are visible.
+
+### Wednesday Demo Readiness Lens
+
+Primary demo target for this lane is real summer-school staff test accounts after Wednesday, June 3, 2026.
+
+When multiple candidates are similarly safe, prefer the one that most improves:
+
+- teacher and site-admin click-through testing
+- read-only viewer confidence
+- seeded-data clarity for staff accounts
+- no-dead-end navigation in the protected workspace
+- role scorecard evidence that a human reviewer can inspect quickly
+
 ## 14. Student Privacy Rules
 
 - Students see only their own records.
@@ -374,6 +426,16 @@ Make a card/count clickable only when:
 - and tests/verifiers cover the action when practical.
 
 Do not add a link merely because the card looks clickable. For cards without a safe destination, add clear summary-only language or defer to backlog.
+
+Every time a run changes or relies on a dashboard action, row action, nav item, tab, or filter preset, verify the actual click-through path still works for the intended role.
+
+Preferred proof order:
+
+- focused render/source test or verifier
+- route/integration test when a filter or API behavior changes
+- hosted/browser proof when safely configured and allowed
+
+Do not mark a click path fixed if the target route exists but the role still lands on an avoidable denial, an unrelated section, a mismatched filter, or a visible dead end.
 
 Preferred Level 1 slices:
 
@@ -409,6 +471,22 @@ Preferred Level 1 slices:
 - Admin/Site Admin copy should be operational and action-oriented without exposing implementation jargon.
 - Administration/AP/Principal language can clarify monitoring and escalation, but do not invent unimplemented role IDs.
 - Platform/global admin language should not leak to site-scoped users.
+
+### Site Admin Programs Requirement
+
+Every run must check whether Site Admin and Global Admin have a real GUI path to view and manage site programs without exposing those controls to other roles.
+
+Expected behavior:
+
+- Site Admin and Global Admin see a real `Programs` or `Site Setup` section when the route exists.
+- Site Admin is limited to assigned-school program management.
+- Global Admin can inspect any active school context allowed by the current app.
+- Active site programs are listed clearly.
+- Available programs that can be added or reactivated are listed clearly.
+- Removing a program deactivates history instead of implying hard deletion.
+- Administration, Program Teacher, Mentor, Viewer, and Student do not see program-management controls.
+
+If the repo does not yet provide this safely, keep it visible in the scorecard and open issues. Do not invent a fake page, fake button, or hidden dead link to imply it exists.
 
 ## 19. Language Cleanup Rules
 
@@ -446,6 +524,8 @@ Staff/admin language should be professional, action-oriented, and precise.
 - Validate route inventories when adding real routes.
 - When adding `data-section` actions, verify the target section exists in `availableSections()` for the intended roles.
 - When adding query/filter behavior, verify the API supports it and returns scoped records.
+- Every role-visible menu item, dashboard tile action, row action, link, tab, filter preset, and form must either perform a real permitted action, open a real permitted section, or remain intentionally disabled with a clear reason.
+- No `TODO`, `FIXME`, `coming soon`, `mock`, `prototype-only`, or button with no handler on role-visible protected workspace surfaces.
 
 ## 22. Data Reality Rules
 
@@ -454,6 +534,24 @@ Staff/admin language should be professional, action-oriented, and precise.
 - If data is missing, use a safe empty state and add a backlog/deferred item.
 - If a route does not exist, do not fake a link. Either create a bounded real route with tests, or defer.
 - If a metric is summary-only, say so through UI treatment or copy.
+
+### Seeded Demo Data Requirement
+
+On every run, ask whether the selected role or section looks broken only because the demo account lacks assigned data.
+
+Check for seeded-data gaps such as:
+
+- Program Teacher with no scoped students
+- Mentor with no assigned students
+- Viewer with no assigned student records
+- Site Admin with no school programs, mentors, teachers, viewers, or students to manage
+- Student with no progress, submissions, evidence, or feedback states
+- no-mentor students for coverage workflows
+- submitted-work and needs-revision examples for review workflows
+- evidence-attached and evidence-missing examples for student/review workflows
+- presentation or archive edge cases when those sections are in scope
+
+If the real gap is missing data, record `NEEDS SEEDED DATA` in `docs/product/demo-role-readiness.md` and in the run notes instead of pretending the workflow is broken or complete. Do not run remote seeds, resets, or destructive data writes from this lane.
 
 ## 23. Implementation Size Rules
 
@@ -487,6 +585,10 @@ Implementation rules:
 
 Add or update a focused test/verifier whenever practical.
 
+Prefer extending existing verifiers before adding a new one. Add a new verifier only when repeated role-surface drift keeps escaping focused tests and the repo needs a durable guardrail, such as a future `scripts/verify-role-functionality-matrix.mjs` plus `npm run verify:role-functionality`.
+
+When a role bug is fixed, add or update the narrowest regression proof that would fail if that same role surface regressed again.
+
 Use existing scripts where available:
 
 - `npm run verify:functionality-language`
@@ -506,7 +608,8 @@ Do not invent a package script unless you also add the script and validation sup
 GUI visibility validation:
 
 - Preserve the active Markdown path, display name, slug/id, and enabled state used by the Codex Desktop GUI.
-- If the local Codex Desktop automation TOML exists, verify it still has `id = "functionality-ux-upgrade-hourly"`, `name = "Functionality UX Upgrade"`, `status = "ACTIVE"`, a prompt that references `automation/prompts/functionality-ux-upgrade-hourly.md`, and the expected repo working directory.
+- If the local Codex Desktop automation TOML exists, verify it still has `id = "functionality-ux-upgrade-hourly"`, `name = "Functionality UX Upgrade"`, a prompt that references `automation/prompts/functionality-ux-upgrade-hourly.md`, and the expected repo working directory.
+- Treat `status = "ACTIVE"` as the normal steady-state. Treat `status = "PAUSED"` as valid only when Bryan explicitly requests the pause for the local GUI entry, and report that choice honestly in the final notes.
 - If the local GUI TOML is absent, do not guess. Preserve the repo-side identity fields and report that GUI visibility requires external confirmation.
 - Do not create a duplicate GUI-visible automation entry unless Bryan explicitly asks for a second entry because the platform cannot express both HH:00 and HH:30 in one schedule.
 
@@ -517,6 +620,7 @@ Update docs when the selected work materially changes status, backlog, handoff, 
 - `docs/functionality-language-audit.md` for completed audit rows or material new findings.
 - `docs/functionality-ux-growth-ledger.md` every run.
 - `automation/state/functionality-ux-growth-state.json` every successful run.
+- `docs/product/demo-role-readiness.md` whenever role scorecard evidence, seeded-data needs, or hosted-test needs materially change; create it if missing.
 - `docs/automation-backlog.md` for new blockers/prerequisites.
 - `docs/student-progress-dashboard.md` when student dashboard behavior changes.
 - `docs/generated/production-route-inventory.md` only through the route inventory script when route files change.
@@ -583,6 +687,14 @@ npm run verify:functionality-ux-automation
 ```
 
 Also run relevant package scripts that exist in `package.json`.
+
+When they exist and match the selected slice, prefer also running:
+
+- `npm run verify:functionality-language`
+- `npm run verify:dashboard-actions`
+- `npm run verify:review-queue-deeplinks`
+- `npm run verify:workspace-navigation`
+- `npm run verify:role-functionality`
 
 If JSON files changed, parse them before commit. If YAML files changed, run the repo's available parser/checker or report that no YAML checker exists.
 

@@ -8,6 +8,7 @@ Use this compact memory for automation-contract orientation:
 - The maturity map is `docs/functionality-ux-growth-ladder.md`.
 - The handoff ledger is `docs/functionality-ux-growth-ledger.md`.
 - The JSON state file is `automation/state/functionality-ux-growth-state.json`.
+- The durable role scorecard is `docs/product/demo-role-readiness.md`.
 - The cadence note is `docs/automation-cadence.md`.
 - Intended cadence is HH:00 and HH:30, using the same active prompt and GUI identity.
 

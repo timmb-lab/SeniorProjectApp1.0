@@ -16,9 +16,15 @@ The Functionality UX Upgrade automation should run twice per hour: once at the t
 GUI visibility:
 
 - Codex Desktop currently discovers the GUI-visible automation from the local automation record at `%USERPROFILE%\.codex\automations\functionality-ux-upgrade-hourly\automation.toml`.
-- Stable GUI identity fields are `id = "functionality-ux-upgrade-hourly"`, `name = "Functionality UX Upgrade"`, `status = "ACTIVE"`, and `cwds` containing `C:\SeniorProjectApp1.0`.
+- Stable GUI identity fields are `id = "functionality-ux-upgrade-hourly"`, `name = "Functionality UX Upgrade"`, and `cwds` containing `C:\SeniorProjectApp1.0`.
+- `status = "ACTIVE"` is the normal steady-state for the cadence. `status = "PAUSED"` is also valid when Bryan intentionally pauses the local GUI entry and the repo-side prompt path/identity stay unchanged.
 - The GUI prompt text must continue to reference `automation/prompts/functionality-ux-upgrade-hourly.md`.
 - Repo files do not own the local GUI record directly, so repo changes must preserve the prompt path, heading, slug, and single active prompt file.
+
+Role-readiness visibility:
+
+- The durable scorecard for role-by-role demo readiness lives in `docs/product/demo-role-readiness.md`.
+- Real functionality runs should refresh that file when role-visible sections, allowed actions, forbidden actions, seeded-data needs, or hosted/live proof status materially change.
 
 Active verification:
 

@@ -10,6 +10,7 @@ const dashboardActionVerifierPath = "scripts/verify-dashboard-actions.mjs";
 const reviewQueueDeeplinkVerifierPath = "scripts/verify-review-queue-deeplinks.mjs";
 const workspaceNavigationVerifierPath = "scripts/verify-workspace-navigation-integrity.mjs";
 const packagePath = "package.json";
+const roleReadinessPath = "docs/product/demo-role-readiness.md";
 
 const audit = await readFile(auditPath, "utf8");
 const prompt = await readFile(promptPath, "utf8");
@@ -17,6 +18,7 @@ const verifier = await readFile(verifierPath, "utf8");
 const dashboardActionVerifier = await readFile(dashboardActionVerifierPath, "utf8");
 const reviewQueueDeeplinkVerifier = await readFile(reviewQueueDeeplinkVerifierPath, "utf8");
 const workspaceNavigationVerifier = await readFile(workspaceNavigationVerifierPath, "utf8");
+const roleReadiness = await readFile(roleReadinessPath, "utf8");
 const packageJson = JSON.parse(await readFile(packagePath, "utf8"));
 
 test("functionality and language audit artifacts exist", () => {
@@ -26,6 +28,7 @@ test("functionality and language audit artifacts exist", () => {
   assert.equal(existsSync(dashboardActionVerifierPath), true);
   assert.equal(existsSync(reviewQueueDeeplinkVerifierPath), true);
   assert.equal(existsSync(workspaceNavigationVerifierPath), true);
+  assert.equal(existsSync(roleReadinessPath), true);
 });
 
 test("functionality and language audit includes required sections and enough repo-grounded findings", () => {
@@ -59,10 +62,18 @@ test("functionality UX automation prompt is bounded and safety-focused", () => {
   assert.match(prompt, /complete one bounded repo-grounded improvement batch/);
   assert.match(prompt, /Candidate Scoring Rubric/);
   assert.match(prompt, /Growth Ledger And State Rules/);
+  assert.match(prompt, /Role Demo Readiness Scorecard/);
+  assert.match(prompt, /Site Admin Programs Requirement/);
+  assert.match(prompt, /Seeded Demo Data Requirement/);
+  assert.match(prompt, /Wednesday, June 3, 2026/);
+  assert.match(prompt, /docs\/product\/demo-role-readiness\.md/);
   assert.match(prompt, /Preserve authentication, authorization, tenant isolation, site isolation/);
   assert.match(prompt, /Do not fake metrics, records, routes, buttons, links, or workflow completion/);
   assert.match(prompt, /Do not push unless the triggering prompt explicitly asks for push/);
   assert.doesNotMatch(prompt, /seed:demo:remote|db:migrate:remote|reset:accounts:remote|npm run deploy/);
+  assert.match(roleReadiness, /## 4\. Current Role Readiness Table/);
+  assert.match(roleReadiness, /Global Admin/);
+  assert.match(roleReadiness, /Viewer/);
 });
 
 test("dashboard action verifier is registered and guards route-backed actions", () => {

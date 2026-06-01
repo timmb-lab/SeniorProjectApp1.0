@@ -9,12 +9,14 @@ const promptPath = "automation/prompts/functionality-ux-upgrade-hourly.md";
 const ladderPath = "docs/functionality-ux-growth-ladder.md";
 const ledgerPath = "docs/functionality-ux-growth-ledger.md";
 const statePath = "automation/state/functionality-ux-growth-state.json";
+const roleReadinessPath = "docs/product/demo-role-readiness.md";
 
-const [prompt, ladder, ledger, stateText] = await Promise.all([
+const [prompt, ladder, ledger, stateText, roleReadiness] = await Promise.all([
   readFile(promptPath, "utf8"),
   readFile(ladderPath, "utf8"),
   readFile(ledgerPath, "utf8"),
   readFile(statePath, "utf8"),
+  readFile(roleReadinessPath, "utf8"),
 ]);
 
 const state = JSON.parse(stateText);
@@ -60,6 +62,7 @@ test("functionality UX growth artifacts exist and are parseable", () => {
   assert.equal(existsSync(ladderPath), true);
   assert.equal(existsSync(ledgerPath), true);
   assert.equal(existsSync(statePath), true);
+  assert.equal(existsSync(roleReadinessPath), true);
   assert.equal(state.schemaVersion, 1);
   assert.equal(Array.isArray(state.completedWorkOrders), true);
   assert.equal(Array.isArray(state.deferredWorkOrders), true);
@@ -150,6 +153,7 @@ test("functionality UX automation keeps GUI identity and top-bottom cadence", as
   assert.match(prompt, /bottom of the hour/i);
   assert.match(prompt, /HH:00/);
   assert.match(prompt, /HH:30/);
+  assert.match(prompt, /Wednesday, June 3, 2026/);
   assert.doesNotMatch(prompt, /hourly at minute 20/i);
 
   const activeGuidanceDocs = [
@@ -194,7 +198,7 @@ test("functionality UX automation keeps GUI identity and top-bottom cadence", as
   const expectedRrule = ["FREQ=HOURLY", ["BYMINUTE=0", "30"].join(","), "BYSECOND=0"].join(";");
   assert.match(guiText, /^id = "functionality-ux-upgrade-hourly"$/m);
   assert.match(guiText, /^name = "Functionality UX Upgrade"$/m);
-  assert.match(guiText, /^status = "ACTIVE"$/m);
+  assert.match(guiText, /^status = "(ACTIVE|PAUSED)"$/m);
   assert.match(guiText, /automation\/prompts\/functionality-ux-upgrade-hourly\.md/);
   assert.match(guiText, /C:\\\\SeniorProjectApp1\.0/);
   assert.match(guiText, new RegExp(`^rrule = "${escapeRegex(expectedRrule)}"$`, "m"));
@@ -240,14 +244,23 @@ test("functionality UX automation prompt enforces ladder, scoring, safety, and h
     "ladder handoff": /Ladder Handoff/,
     "do not repeat": /do-not-repeat|Do not repeat/i,
     "role hierarchy": /Role Hierarchy And Permissions/,
+    "role scorecard": /Role Demo Readiness Scorecard/,
+    "role readiness doc": /docs\/product\/demo-role-readiness\.md/,
+    "role scorecard statuses": /DEMO READY[\s\S]*PARTIALLY READY[\s\S]*BLOCKED[\s\S]*NEEDS SEEDED DATA[\s\S]*NEEDS LIVE HOSTED TEST/,
+    "separate role surface categories": /visible menu sections[\s\S]*loaded API routes[\s\S]*allowed actions[\s\S]*forbidden or hidden actions/i,
+    "wednesday demo lens": /Wednesday Demo Readiness Lens/,
     "student privacy": /Student Privacy Rules/,
     "mentor restrictions": /Mentors cannot assign students to themselves/,
     "dashboard click-through": /Dashboard Click-Through Rules/,
+    "click-through verification": /verify the actual click-through path still works/i,
     "student detail": /Student Detail Rules/,
+    "site admin programs": /Site Admin Programs Requirement/,
+    "seeded data": /Seeded Demo Data Requirement/,
     "viewer admin": /Viewer\/Admin Role Rules/,
     "language cleanup": /Language Cleanup Rules/,
     "empty states": /Empty State Rules/,
     "route link rules": /Route\/Link Rules/,
+    "no visible dead ends": /Every role-visible menu item[\s\S]*real permitted action[\s\S]*clear reason/i,
     "data reality": /Data Reality Rules/,
     "validation": /Validation Requirements/,
     "commit rules": /Commit Rules/,
@@ -289,11 +302,20 @@ test("functionality UX ledger and state preserve handoff and repetition memory",
     "state should remember completed No Mentor dashboard work",
   );
   assert.ok(
-    state.nextRecommendedWorkOrders.some((workOrder) => /Review Queue/.test(workOrder.summary)),
-    "state should recommend review queue dashboard click-through work",
+    state.nextRecommendedWorkOrders.some(
+      (workOrder) =>
+        /Review Queue/.test(workOrder.summary) ||
+        /role-readiness|demo-role-readiness|role scorecard/i.test(`${workOrder.id} ${workOrder.summary}`),
+    ),
+    "state should recommend either review queue follow-up work or the current role-readiness scorecard handoff",
   );
   assert.ok(
     state.doNotRepeat.some((note) => /No Mentor metric/i.test(note)),
     "state should prevent repeating the No Mentor click-through",
   );
+  assert.match(roleReadiness, /# Demo Role Readiness/);
+  assert.match(roleReadiness, /## 4\. Current Role Readiness Table/);
+  assert.match(roleReadiness, /\| Global Admin \|/);
+  assert.match(roleReadiness, /## 6\. Role-By-Role Loaded API Routes/);
+  assert.match(roleReadiness, /## 8\. Role-By-Role Forbidden Or Hidden Actions/);
 });

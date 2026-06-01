@@ -21,6 +21,17 @@ This is the compact run log for the current Functionality UX Upgrade automation 
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-05-31 20:46 PT - Functionality UX Upgrade Automation Role-Readiness Contract
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 9 autonomous quality improvement / automation-contract hardening.
+- `starting HEAD`: `1ad1400c3a84e81ef584385d21211e35633a8d11`.
+- `selected slice`: Upgrade the existing running automation prompt and durable docs with a real role-readiness scorecard contract.
+- `repo-grounded findings`: the pasted V2 request matched current repo pain points. The lane already had a strong ladder/ledger/state system, but it still lacked a formal role-by-role scorecard, separate visible/API/allowed/forbidden role reporting, explicit seeded-data honesty, a June 3, 2026 demo-readiness lens, and a durable Site Admin Programs checkpoint. The local GUI verifier path also needed to tolerate an intentional operator-requested pause without losing prompt identity.
+- `changes`: `automation/prompts/functionality-ux-upgrade-hourly.md` now requires a durable `docs/product/demo-role-readiness.md` scorecard, click-through proof, no-visible-dead-end checks, seeded-data reporting, Site Admin Programs review, and June 3, 2026 prioritization. `docs/automation-runbook.md`, `docs/automation-cadence.md`, and `docs/automation-memory.md` now point to the new scorecard. `tests/functionality-ux-automation-prompt.test.mjs` and `tests/functionality-language-audit.test.mjs` now guard the upgraded contract and accept an intentional local `PAUSED` GUI status when Bryan explicitly requests it.
+- `validation`: focused contract tests, `npm run verify:functionality-ux-automation`, `npm run verify:functionality-language`, `npm run test`, `npm run typecheck`, `npm run check`, and `git diff --check` all passed. Full command details are recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.
+
 ## 2026-05-31 20:10 PT - Functionality UX Upgrade Student Support Actions
 
 - `automation ID`: functionality-ux-upgrade-hourly.

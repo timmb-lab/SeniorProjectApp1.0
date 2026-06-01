@@ -1,0 +1,136 @@
+{
+  "runId": "2026-05-31-2046-automation-role-readiness-contract",
+  "automationId": "functionality-ux-upgrade-hourly",
+  "timestamp": "2026-05-31T20:46:00-07:00",
+  "startingSha": "1ad1400c3a84e81ef584385d21211e35633a8d11",
+  "branch": "main",
+  "lane": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
+  "selectedSlice": "Upgrade the existing Functionality UX automation contract with a durable role-readiness scorecard, stricter click-through proof, seeded-data honesty, Site Admin Programs review, and an intentional-pause-safe GUI status rule.",
+  "selectionReason": "The pasted repo-governing V2 request was explicitly about hardening the current running lane instead of starting a second automation. The repo already had a strong ladder/ledger/state system, but it did not yet require a formal role-by-role scorecard, separate visible/API/allowed/forbidden action reporting, June 3, 2026 demo prioritization, or durable Site Admin Programs and seeded-data checks. Tightening the contract first was the safest way to improve future run quality without touching product permissions or routes in this turn.",
+  "candidateSummary": [
+    {
+      "candidate": "Upgrade prompt with role-readiness scorecard and click-through proof",
+      "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
+      "roles": "all roles indirectly",
+      "impact": 5,
+      "safety": 5,
+      "testability": 5,
+      "size": "S",
+      "score": 58,
+      "decision": "selected"
+    },
+    {
+      "candidate": "Create durable docs/product/demo-role-readiness.md baseline",
+      "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
+      "roles": "all roles indirectly",
+      "impact": 5,
+      "safety": 5,
+      "testability": 5,
+      "size": "S",
+      "score": 56,
+      "decision": "selected-supporting-same-batch"
+    },
+    {
+      "candidate": "Expand prompt regression tests for role/demo requirements",
+      "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
+      "roles": "all roles indirectly",
+      "impact": 5,
+      "safety": 5,
+      "testability": 5,
+      "size": "S",
+      "score": 55,
+      "decision": "selected-supporting-same-batch"
+    },
+    {
+      "candidate": "Align runbook/cadence/memory docs with scorecard contract",
+      "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
+      "roles": "automation operators",
+      "impact": 4,
+      "safety": 5,
+      "testability": 5,
+      "size": "XS",
+      "score": 49,
+      "decision": "selected-supporting-same-batch"
+    },
+    {
+      "candidate": "Record automation upgrade in audit, ledger, run log, and state",
+      "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
+      "roles": "automation operators",
+      "impact": 4,
+      "safety": 5,
+      "testability": 5,
+      "size": "XS",
+      "score": 48,
+      "decision": "selected-supporting-same-batch"
+    },
+    {
+      "candidate": "Add a new role-functionality matrix verifier script now",
+      "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
+      "roles": "automation operators",
+      "impact": 4,
+      "safety": 4,
+      "testability": 4,
+      "size": "M",
+      "score": 44,
+      "decision": "not-selected-current-prompt-tests-already-cover-this-batch"
+    },
+    {
+      "candidate": "Run hosted section-level permission proof",
+      "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
+      "roles": "all protected roles",
+      "impact": 4,
+      "safety": 3,
+      "testability": 3,
+      "size": "M",
+      "score": 40,
+      "decision": "deferred-hosted-proof-not-allowed"
+    },
+    {
+      "candidate": "Implement Site Admin Programs product UI now",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "roles": "site_admin, global_admin",
+      "impact": 5,
+      "safety": 2,
+      "testability": 3,
+      "size": "M",
+      "score": 36,
+      "decision": "deferred-product-slice-needs-separate-pass"
+    },
+    {
+      "candidate": "Update seed/prove scripts for demo-data gaps now",
+      "ladderLevel": "LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS",
+      "roles": "site_admin, teacher, mentor, viewer, student",
+      "impact": 4,
+      "safety": 2,
+      "testability": 3,
+      "size": "M",
+      "score": 34,
+      "decision": "deferred-no-demo-data-writes-in-this-slice"
+    },
+    {
+      "candidate": "Relax local GUI status handling for intentional pause",
+      "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
+      "roles": "automation operators",
+      "impact": 3,
+      "safety": 5,
+      "testability": 5,
+      "size": "XS",
+      "score": 46,
+      "decision": "selected-user-requested-paused-end-state"
+    }
+  ],
+  "filesChanged": [
+    "automation/prompts/functionality-ux-upgrade-hourly.md",
+    "docs/automation-runbook.md",
+    "docs/automation-cadence.md",
+    "docs/automation-memory.md",
+    "docs/functionality-language-audit.md",
+    "docs/product/demo-role-readiness.md",
+    "tests/functionality-ux-automation-prompt.test.mjs",
+    "tests/functionality-language-audit.test.mjs",
+    "docs/progress/run-log.md",
+    "docs/functionality-ux-growth-ledger.md",
+    "automation/state/functionality-ux-growth-state.json"
+  ],
+  "nextRecommended": "Refresh the first full role scorecard on a real product slice, then inspect Site Admin Programs or hosted permission proof based on current repo evidence and allowed runtime."
+}

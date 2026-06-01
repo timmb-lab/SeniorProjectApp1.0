@@ -5051,3 +5051,52 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: hosted proof still needs allowed fake-account and audit-write runtime; site-scoped audit visibility still needs route review; missing-submission queue rows still do not exist.
   - Do not repeat: do not rebuild this mentor URL-state slice unless the `mentorFocus` marker, auth-bootstrap restore, or `popstate` coverage regresses.
   - First file to inspect next run: `workspace.js` `renderPresentationSection()` and `handlePresentationFilterAction()`
+
+## Run 2026-05-31 20:46 PT
+
+- Starting SHA: `1ad1400c3a84e81ef584385d21211e35633a8d11`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Branch policy: work stayed on local `main`; no push, deploy, seed, reset, migration, or live config change was run
+- Ladder level targeted: `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT`
+- Backlog item: `automation-role-readiness-contract-upgrade`
+- Work order selected: Upgrade the existing Functionality UX automation contract with a durable role-readiness scorecard, stricter click-through proof requirements, seeded-data honesty, Site Admin Programs review, and an intentional-pause-safe GUI status rule.
+- Selection reason: The pasted repo-governing V2 request was explicitly about hardening the current running lane instead of starting a second automation. Current repo evidence already had a strong ladder/ledger/state system, but it did not yet require a formal role-by-role scorecard, separate visible/API/allowed/forbidden action reporting, June 3, 2026 demo prioritization, or durable Site Admin Programs and seeded-data checks. Tightening the contract first was the safest way to improve future run quality without touching product permissions or routes in this turn.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Upgrade prompt with role-readiness scorecard and click-through proof | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all roles indirectly | 5 | 5 | 5 | S | 58 | selected |
+| Create durable `docs/product/demo-role-readiness.md` baseline | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all roles indirectly | 5 | 5 | 5 | S | 56 | selected as part of the same bounded batch |
+| Expand prompt regression tests for role/demo requirements | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all roles indirectly | 5 | 5 | 5 | S | 55 | selected as part of the same bounded batch |
+| Align runbook/cadence/memory docs with scorecard contract | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | automation operators | 4 | 5 | 5 | XS | 49 | selected as supporting contract work |
+| Record automation upgrade in audit, ledger, run log, and state | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | automation operators | 4 | 5 | 5 | XS | 48 | selected as supporting contract work |
+| Add a new role-functionality matrix verifier script now | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | automation operators | 4 | 4 | 4 | M | 44 | not selected: current repo already has prompt tests; no repeated runtime gap justified a new script in this turn |
+| Run hosted section-level permission proof | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all protected roles | 4 | 3 | 3 | M | 40 | deferred: hosted fake-account proof and audit-event writes are still outside this bounded prompt-upgrade slice |
+| Implement Site Admin Programs product UI now | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | site_admin, global_admin | 5 | 2 | 3 | M | 36 | deferred: user asked for the automation contract upgrade first, and the real product slice needs a separate repo-grounded pass |
+| Update seed/prove scripts for demo-data gaps now | `LEVEL_8_REPORTING_AND_OPERATIONAL_READINESS` | site_admin, teacher, mentor, viewer, student | 4 | 2 | 3 | M | 34 | deferred: this slice stays out of demo-data writes and focuses on honest scorecard/reporting rules |
+| Relax local GUI status handling for intentional pause | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | automation operators | 3 | 5 | 5 | XS | 46 | selected because the operator explicitly requested ending this run paused |
+
+- User-facing improvement: Future hourly runs now have to produce an inspectable role scorecard, verify real click paths, call out seeded-data versus workflow problems honestly, and keep Site Admin Programs and dead-end controls visible as product-readiness gaps instead of vague notes.
+- Roles affected: all roles indirectly through stricter automation selection, reporting, and validation rules
+- Files changed: `automation/prompts/functionality-ux-upgrade-hourly.md`, `docs/automation-runbook.md`, `docs/automation-cadence.md`, `docs/automation-memory.md`, `docs/functionality-language-audit.md`, `docs/product/demo-role-readiness.md`, `tests/functionality-ux-automation-prompt.test.mjs`, `tests/functionality-language-audit.test.mjs`, `docs/progress/run-log.md`, `docs/progress/runs/2026-05-31-2046-automation-role-readiness-contract.json`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`
+- Tests/verifiers added or updated: `tests/functionality-ux-automation-prompt.test.mjs` now guards the role scorecard, click-through proof, June 3, 2026 demo lens, seeded-data rule, Site Admin Programs requirement, and operator-pause-safe GUI status handling. `tests/functionality-language-audit.test.mjs` now requires the durable role-readiness doc and the upgraded prompt concepts.
+- Validation commands:
+  - Focused passed before closeout docs/state: `node --test tests/functionality-ux-automation-prompt.test.mjs`; `node --test tests/functionality-language-audit.test.mjs`
+  - Final passed: `npm run verify:functionality-ux-automation`; `npm run verify:functionality-language`; `npm run typecheck`; `git diff --check`; `npm run test`; `npm run check`
+- Validation result: passed; `git diff --check` reported only CRLF normalization warnings, with no whitespace errors
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: hosted section-level permission proof, a real Site Admin Programs product slice, and any demo-data writer updates remain deferred to future repo-grounded runs
+- New backlog items: `role-readiness-baseline-refresh`; `site-admin-programs-readiness-pass`
+- Next recommended work order: Use the upgraded lane on the next real product slice by refreshing the first full role scorecard and then deciding whether Site Admin Programs or hosted permission proof is the highest-value safe gap.
+- Do-not-repeat notes: do not create a second automation lane for this work; keep upgrading the current Functionality UX Upgrade lane. Do not mark roles demo-ready without separate visible-section, loaded-route, allowed-action, forbidden-action, and click-through evidence.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT`
+  - Advanced: yes
+  - Evidence: the active prompt now requires `docs/product/demo-role-readiness.md`, click-through proof, seeded-data reporting, Site Admin Programs review, and June 3, 2026 demo prioritization; prompt/audit tests passed with the new contract.
+  - Unlocks: future runs can compare role readiness from one durable scorecard instead of vague ledger notes, and they now have a safer contract for distinguishing missing data from broken workflows.
+  - Next: refresh the first full role scorecard on a real product slice, then inspect Site Admin Programs or hosted permission proof based on current repo evidence and allowed runtime.
+  - Blockers: hosted proof still depends on allowed fake-account runtime and audit writes; Site Admin Programs product work still needs its own safe bounded pass.
+  - Do not repeat: do not downgrade the role-readiness scorecard back into generic prose, and do not force the local GUI entry active when Bryan explicitly wants it paused.
+  - First file to inspect next run: `docs/product/demo-role-readiness.md` and `automation/prompts/functionality-ux-upgrade-hourly.md`

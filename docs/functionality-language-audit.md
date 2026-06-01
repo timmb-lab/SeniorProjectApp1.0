@@ -345,10 +345,17 @@ The new hourly automation should select exactly one bounded work order per run f
 
 Every automation run must re-scan the current repo, verify the chosen issue still exists, implement only one safe slice, update this audit or a run log, validate, and commit only if the repo remains valid.
 
+Automation governance baseline:
+
+- The active prompt now also requires a durable role-by-role scorecard in `docs/product/demo-role-readiness.md`.
+- Future runs must keep `visible sections`, `loaded API routes`, `allowed actions`, and `forbidden or hidden actions` separate for each role instead of collapsing them into one summary.
+- Future runs must prefer real click-through proof, seeded-data honesty, Site Admin Programs review, and no-visible-dead-end checks over vague progress notes.
+
 ## 18. Completed Slices
 
 | Date | Slice | Evidence | Status |
 | --- | --- | --- | --- |
+| 2026-05-31 | Upgraded the Functionality UX automation contract to require a durable role-readiness scorecard, explicit click-through proof, seeded-data checks, June 3, 2026 demo prioritization, and Site Admin Programs review before future runs claim product readiness. | `automation/prompts/functionality-ux-upgrade-hourly.md`, `docs/product/demo-role-readiness.md`, automation prompt tests, `npm run verify:functionality-ux-automation` | Complete |
 | 2026-05-24 | Replaced the protected workspace product header and posture chips so normal authenticated users no longer see `Database-backed MVP`, `Cloudflare target`, `Audit-sensitive admin`, or `Senior Capstone Product` in the app header. | `workspace.js`, `tests/workspace-app.test.mjs`, `scripts/verify-functionality-language.mjs`, `npm run verify:functionality-language` | Complete |
 | 2026-05-24 | Linked the Site Dashboard `No Mentor` metric to the real Mentor Assignments workflow with the missing-mentor filter applied, so site staff and read-only viewers can move from coverage summary to scoped assignment rows without a dead route. | `workspace.js`, `tests/workspace-app.test.mjs`, `npm run verify:functionality-language`, `node --test tests/workspace-app.test.mjs` | Complete |
 | 2026-05-24 | Added latest visible feedback context to the authorized student detail summary, using review/comment rows already returned by the scoped detail API and keeping staff-only visibility rules server-owned. | `workspace.js`, `tests/workspace-app.test.mjs`, `npm run verify:functionality-language`, `node --test tests/workspace-app.test.mjs` | Complete |

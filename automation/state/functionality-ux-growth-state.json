@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-05-31T20:42:00.9897580-07:00",
-  "lastStartingSha": "81471d28a2dd1f13b52f3ccef70a723844df3b85",
+  "lastRunAt": "2026-05-31T20:56:25.4324620-07:00",
+  "lastStartingSha": "1ad1400c3a84e81ef584385d21211e35633a8d11",
   "lastEndingSha": null,
-  "currentLadderFocus": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+  "currentLadderFocus": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
   "completedWorkOrders": [
     {
       "id": "workspace-header-product-language-cleanup",
@@ -897,6 +897,14 @@
       "type": "TYPE_D_ROLE_WORKSPACE",
       "summary": "Mentor Dashboard now restores and syncs shareable mentorFocus URL state for the existing all, revision, meeting, and presentation filters without refetching broader student data.",
       "commit": "pending-closeout-commit"
+    },
+    {
+      "id": "automation-role-readiness-contract-upgrade",
+      "completedAt": "2026-05-31T20:46:00-07:00",
+      "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
+      "type": "TYPE_H_DOCUMENTATION_BACKLOG_ALIGNMENT",
+      "summary": "The active Functionality UX lane now requires a durable role-readiness scorecard, stricter click-through proof, seeded-data honesty, Site Admin Programs review, and an intentional-pause-safe GUI status rule.",
+      "commit": "pending-closeout-commit"
     }
   ],
   "deferredWorkOrders": [
@@ -959,28 +967,22 @@
   "blockedWorkOrders": [],
   "nextRecommendedWorkOrders": [
     {
+      "id": "role-readiness-baseline-refresh",
+      "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
+      "type": "TYPE_H_DOCUMENTATION_BACKLOG_ALIGNMENT",
+      "summary": "Use the upgraded lane on the next real product slice and refresh docs/product/demo-role-readiness.md with current role evidence."
+    },
+    {
+      "id": "site-admin-programs-readiness-pass",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "type": "TYPE_D_ROLE_WORKSPACE",
+      "summary": "Inspect whether Site Admin and Global Admin have a real Programs or Site Setup path before any demo-ready claim."
+    },
+    {
       "id": "hosted-section-permission-proof",
       "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
       "type": "TYPE_G_VERIFICATION_REGRESSION_PROTECTION",
       "summary": "Run only when hosted fake-account proof and audit-event writes are allowed."
-    },
-    {
-      "id": "presentation-schedule-url-state",
-      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
-      "type": "TYPE_D_ROLE_WORKSPACE",
-      "summary": "If hosted proof remains blocked, inspect whether the existing presentation-day filters need shareable URL state."
-    },
-    {
-      "id": "admin-recent-audit-deep-link",
-      "ladderLevel": "LEVEL_7_AUDITABILITY_AND_TRUST",
-      "type": "TYPE_G_VERIFICATION_REGRESSION_PROTECTION",
-      "summary": "Review a safe site-scoped audit destination before restoring any audit navigation for site admins."
-    },
-    {
-      "id": "review-queue-missing-submission-semantics",
-      "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
-      "type": "TYPE_F_REVIEW_INTERVENTION_QUEUE",
-      "summary": "Keep Review Queue dashboard click-through work deferred until backend queue semantics include real missing requirement rows."
     }
   ],
   "doNotRepeat": [
@@ -990,6 +992,8 @@
     "Do not re-clean public app-preview Future App Workflow/backend-ready/preview-data/source-count/audit-sensitive wording unless regression evidence appears.",
     "Do not spend a run on generic docs churn when a concrete ladder work order is safe and testable.",
     "Do not replace the functionality UX growth system with a short generic checklist; preserve ladder, ledger, state, scoring, and handoff requirements.",
+    "Do not create a second automation lane for this work; keep hardening the current Functionality UX Upgrade lane.",
+    "Do not mark a role demo-ready without separate visible-section, loaded-route, allowed-action, forbidden-action, and click-through evidence.",
     "Do not add fake site switching, fake all-sites rollups, fake retry buttons, fake intervention workflows, or links to routes that do not exist.",
     "Do not broaden viewer, teacher, mentor, or student access while adding dashboard drill-downs or student detail entry points.",
     "Do not relink Program Breakdown rows to Student Directory; the program preset is complete.",
@@ -1093,24 +1097,19 @@
   ],
   "lastValidationStatus": {
     "status": "passed",
-    "completedAt": "2026-05-31T20:42:00.9897580-07:00",
+    "completedAt": "2026-05-31T20:56:25.4324620-07:00",
     "commands": [
-      "node --test tests/workspace-app.test.mjs",
-      "npm run verify:workspace-navigation",
-      "npm run verify:functionality-language",
+      "node --test tests/functionality-ux-automation-prompt.test.mjs",
       "node --test tests/functionality-language-audit.test.mjs",
-      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-05-31-2038-mentor-dashboard-url-state.json','utf8')); console.log('json ok')\"",
-      "git diff --check",
-      "npm run verify:dashboard-actions",
-      "npm run verify:workspace-navigation",
       "npm run verify:functionality-ux-automation",
-      "npm run check:production-surfaces",
-      "npm run check:route-inventory",
-      "npm run test",
+      "npm run verify:functionality-language",
       "npm run typecheck",
+      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-05-31-2046-automation-role-readiness-contract.json','utf8')); console.log('json ok')\"",
+      "git diff --check",
+      "npm run test",
       "npm run check"
     ],
-    "notes": "Focused and full validation passed for the mentor dashboard URL-state slice. A transient automation verifier failure was resolved by restoring the local Codex Desktop automation entry to ACTIVE so the tracked GUI identity matched the prompt contract again. git diff --check reported only CRLF normalization warnings. This run stayed inside the existing mentor-scoped dashboard, reused current assigned-student data, and did not change auth grants, RBAC, tenant/site/program/student privacy boundaries, migrations, secrets/env files, Cloudflare/OAuth/domain config, deploy settings, or live data."
+    "notes": "Focused and full validation passed for the automation-contract upgrade slice, including a final post-closeout rerun after updating one stale nextRecommended assertion in tests/functionality-ux-automation-prompt.test.mjs. The prompt and tests now require a durable role-readiness scorecard, click-through proof, seeded-data honesty, and Site Admin Programs review, while allowing the local GUI automation record to end in PAUSED state when Bryan explicitly requests it. git diff --check reported only CRLF normalization warnings. This run touched prompt/docs/tests/state only and did not change app routes, auth grants, RBAC, tenant/site/program/student privacy boundaries, migrations, secrets/env files, Cloudflare/OAuth/domain config, deploy settings, or live data."
   },
   "lastProductReadinessScorecardSummary": {
     "homepageClarity": "4 to 4",
@@ -1129,6 +1128,7 @@
     "staffWorkflowUsefulness": "4 to 4",
     "emptyErrorStateQuality": "4 to 4",
     "regressionTestCoverage": "4 to 4",
-    "mentorWorkspaceDepth": "3 to 4"
+    "mentorWorkspaceDepth": "3 to 4",
+    "roleReadinessContract": "2 to 4"
   }
 }
