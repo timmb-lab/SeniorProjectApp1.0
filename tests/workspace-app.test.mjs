@@ -4322,13 +4322,27 @@ test("student feedback rows open a student-safe review timeline", async () => {
         ],
         versions: [
           {
+            id: "version-proposal-1",
+            version: 1,
+            status: "submitted",
+            submittedAt: "2026-05-24T16:00:00.000Z",
+            submittedByName: "Feedback History Student",
+            notes: "",
+            evidence: [
+              { id: "evidence-proposal-1a" },
+            ],
+          },
+          {
             id: "version-proposal-2",
             version: 2,
             status: "submitted",
             submittedAt: "2026-05-24T18:00:00.000Z",
             submittedByName: "Feedback History Student",
             notes: "",
-            evidence: [],
+            evidence: [
+              { id: "evidence-proposal-2a" },
+              { id: "evidence-proposal-2b" },
+            ],
           },
         ],
         comments: [
@@ -4363,12 +4377,21 @@ test("student feedback rows open a student-safe review timeline", async () => {
 
   assert.ok(fetchLog.includes("/api/reviews/submission-proposal/history"));
   assert.match(workspaceRoot.innerHTML, /data-student-feedback-timeline="true"/);
+  assert.match(workspaceRoot.innerHTML, /data-student-feedback-timeline-summary="true"/);
   assert.match(workspaceRoot.innerHTML, /Submission timeline/);
   assert.match(workspaceRoot.innerHTML, /Only feedback meant for you is shown here/);
+  assert.match(workspaceRoot.innerHTML, /Current version[\s\S]*Version 2/);
+  assert.match(workspaceRoot.innerHTML, /Submitted versions[\s\S]*2/);
+  assert.match(workspaceRoot.innerHTML, /Teacher notes[\s\S]*2/);
+  assert.match(workspaceRoot.innerHTML, /Status updates[\s\S]*1/);
   assert.match(workspaceRoot.innerHTML, /Version 2 submitted/);
+  assert.match(workspaceRoot.innerHTML, /data-student-feedback-current-version="true"[\s\S]*2 evidence items/);
+  assert.match(workspaceRoot.innerHTML, /data-student-feedback-version="1"[\s\S]*1 evidence item/);
   assert.match(workspaceRoot.innerHTML, /Sent back for revision/);
   assert.match(workspaceRoot.innerHTML, /Add one measurable success target before resubmitting/);
   assert.match(workspaceRoot.innerHTML, /Thanks for resubmitting the outline/);
+  const timelineMarkup = workspaceRoot.innerHTML.match(/<section class="workspace-student-feedback-timeline"[\s\S]*?<\/section>/)?.[0] || "";
+  assertMarkupOrder(timelineMarkup, "Thanks for resubmitting the outline.", "Add one measurable success target before resubmitting.", "newer visible teacher note should render before the older review note");
   assert.doesNotMatch(workspaceRoot.innerHTML, /staff_only|Private staff note|drive_file_id|driveFileId/i);
 });
 

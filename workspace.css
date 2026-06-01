@@ -832,6 +832,32 @@
   padding-top: 0.75rem;
 }
 
+.workspace-student-feedback-timeline-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.55rem;
+}
+
+.workspace-student-feedback-timeline-fact {
+  display: grid;
+  gap: 0.15rem;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-card);
+  background: rgba(248, 250, 252, 0.92);
+  padding: 0.55rem 0.65rem;
+}
+
+.workspace-student-feedback-timeline-fact strong {
+  color: var(--ink);
+  font-size: 0.74rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.workspace-student-feedback-timeline-fact small {
+  color: var(--text);
+}
+
 .workspace-student-feedback-timeline-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -2045,6 +2071,10 @@ button.workspace-metric-tile,
     grid-template-columns: 1fr;
   }
 
+  .workspace-student-feedback-timeline-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .workspace-student-requirement-detail-grid {
     grid-template-columns: 1fr;
   }
@@ -2106,6 +2136,10 @@ button.workspace-metric-tile,
   }
 
   .workspace-student-feedback-row {
+    grid-template-columns: 1fr;
+  }
+
+  .workspace-student-feedback-timeline-summary {
     grid-template-columns: 1fr;
   }
 

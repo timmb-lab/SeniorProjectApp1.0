@@ -21,6 +21,17 @@ This is the compact run log for the current Functionality UX Upgrade automation 
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-05-31 18:31 PT - Functionality UX Upgrade Student Feedback Compare Cues
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 6 student progress drill-down / student feedback timeline compare cues, supporting MVP-003, MVP-032, and MVP-033.
+- `starting HEAD`: `001a8119caea319b284937d106a1401965702f42`.
+- `selected slice`: Add current-version and evidence-count compare cues to the existing student-safe submission timeline.
+- `repo-grounded findings`: the previous handoff pointed at compare affordances for `renderStudentFeedbackTimeline()`. Current `workspace.js` already reused `/api/reviews/:submissionId/history`, but it still merged review notes and general comments without cross-note ordering and version rows still hid current-version/evidence context.
+- `changes`: `workspace.js` now adds a timeline summary strip, marks current-version rows, shows evidence counts per submitted version, and keeps teacher notes newest-first across reviews and visible comments; `workspace.css` adds the compact timeline-fact layout; `tests/workspace-app.test.mjs` proves the summary cues, current-version/evidence rendering, and newest-first note ordering.
+- `validation`: focused workspace test passed before docs/state closeout. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.
+
 ## 2026-05-31 16:35 PT - Functionality UX Upgrade Student Submission Timeline Shortcut
 
 - `automation ID`: functionality-ux-upgrade-hourly.

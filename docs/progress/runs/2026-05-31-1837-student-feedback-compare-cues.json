@@ -1,0 +1,107 @@
+{
+  "automationId": "functionality-ux-upgrade-hourly",
+  "runAt": "2026-05-31T18:37:54-07:00",
+  "startingSha": "001a8119caea319b284937d106a1401965702f42",
+  "endingSha": null,
+  "branch": "main",
+  "ladderLevel": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN",
+  "workOrder": {
+    "id": "student-feedback-timeline-compare-cues",
+    "summary": "Add compare cues to the existing student Feedback History timeline.",
+    "selectionReason": "The previous handoff pointed directly at renderStudentFeedbackTimeline(). Current workspace.js already reused the student-safe /api/reviews/:submissionId/history route, but it still merged review notes and visible comments without cross-note ordering and version rows still hid current-version and evidence-snapshot context."
+  },
+  "repoGroundedFindings": [
+    "renderStudentFeedbackTimeline() already loaded student-safe versions, statusHistory, reviews, and visible comments from /api/reviews/:submissionId/history.",
+    "Current timeline notes were rendered as [...reviews, ...comments], so newer visible comments could appear after older review rows instead of true newest-first ordering.",
+    "Current version rows did not identify the live submission version or show how many evidence items were attached to each submitted version, even though the route already returned version numbers and evidence snapshots."
+  ],
+  "changes": [
+    "Added a student timeline summary strip with current version, submitted-version count, teacher-note count, and status-update count.",
+    "Marked the current submitted version row and showed evidence-count cues for each version inside the existing student-safe timeline.",
+    "Sorted visible teacher notes newest-first across review decisions and general teacher comments, and added focused workspace coverage for the summary cues, current-version markers, evidence counts, and note ordering."
+  ],
+  "filesChanged": [
+    "workspace.js",
+    "workspace.css",
+    "tests/workspace-app.test.mjs",
+    "docs/student-progress-dashboard.md",
+    "docs/functionality-language-audit.md",
+    "docs/mvp-requirements-catalog.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-05-31-1837-student-feedback-compare-cues.json",
+    "docs/functionality-ux-growth-ledger.md",
+    "automation/state/functionality-ux-growth-state.json"
+  ],
+  "candidates": [
+    {
+      "candidate": "Student feedback timeline compare cues",
+      "score": 57,
+      "decision": "selected"
+    },
+    {
+      "candidate": "Student submission list status filters",
+      "score": 48,
+      "decision": "not_selected_compare_handoff_was_earlier"
+    },
+    {
+      "candidate": "Viewer vs manager Operations copy branch",
+      "score": 42,
+      "decision": "not_selected_lower_product_depth"
+    },
+    {
+      "candidate": "Presentation schedule URL state",
+      "score": 41,
+      "decision": "deferred_need_unproven"
+    },
+    {
+      "candidate": "Mentor Dashboard URL state",
+      "score": 40,
+      "decision": "deferred_need_unproven"
+    },
+    {
+      "candidate": "Hosted section-level permission proof",
+      "score": 40,
+      "decision": "deferred_external_runtime_gate"
+    },
+    {
+      "candidate": "Site-scoped audit destination",
+      "score": 39,
+      "decision": "deferred_route_review"
+    },
+    {
+      "candidate": "Student mentor support workflow",
+      "score": 37,
+      "decision": "deferred_policy_and_privacy_shape"
+    },
+    {
+      "candidate": "Review Queue missing-submission semantics",
+      "score": 34,
+      "decision": "deferred_backend_gap"
+    },
+    {
+      "candidate": "Student guided requirement form",
+      "score": 33,
+      "decision": "deferred_write_path_design"
+    }
+  ],
+  "validation": {
+    "status": "passed",
+    "commands": [
+      "node --test tests/workspace-app.test.mjs",
+      "npm run verify:functionality-language",
+      "node --test tests/functionality-language-audit.test.mjs",
+      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-05-31-1837-student-feedback-compare-cues.json','utf8')); console.log('json ok')\"",
+      "git diff --check",
+      "npm run verify:dashboard-actions",
+      "npm run verify:workspace-navigation",
+      "npm run verify:functionality-ux-automation",
+      "npm run check:production-surfaces",
+      "npm run check:route-inventory",
+      "npm run test",
+      "npm run typecheck",
+      "npm run check"
+    ],
+    "notes": "Focused and full validation passed. git diff --check reported only CRLF normalization warnings."
+  },
+  "nextRecommended": "Run hosted section-level permission proof when hosted fake-account proof and audit-event writes are allowed; otherwise inspect in-page status filters for Your Submitted Work rows before adding a new student page."
+}

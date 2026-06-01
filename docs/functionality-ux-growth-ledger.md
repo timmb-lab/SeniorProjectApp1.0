@@ -4806,3 +4806,52 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: hosted proof still needs allowed fake-account and audit-write runtime; richer student support or compare-heavy feedback UI still needs tighter product-shape review.
   - Do not repeat: do not rebuild this filter slice unless the data marker or hidden-selection clearing regresses.
   - First file to inspect next run: `workspace.js` `renderStudentFeedbackPanel()` and `renderStudentFeedbackTimeline()`
+
+## Run 2026-05-31 18:37 PT
+
+- Starting SHA: `001a8119caea319b284937d106a1401965702f42`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Branch policy: work stayed on clean local `main`; local `main` remained ahead of `origin/main`, `origin/main` was not ahead, and no sync or push was run
+- Ladder level targeted: `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN`
+- Backlog item: `student-feedback-timeline-affordances`; supports `MVP-003`, `MVP-032`, and `MVP-033`
+- Work order selected: Add compare cues to the existing student `Feedback History` timeline.
+- Selection reason: The previous handoff pointed directly at `renderStudentFeedbackTimeline()`. Current `workspace.js` already reused the student-safe `/api/reviews/:submissionId/history` route, but it still merged review notes and visible comments without cross-note ordering and version rows still hid current-version and evidence-snapshot context. This was the safest next slice because the route already returned versions, status history, evidence snapshots, reviews, and student-visible comments, so the comparison improvement stayed inside existing student-only data and UI.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Student feedback timeline compare cues | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 5 | 5 | 5 | S | 57 | selected |
+| Student submission list status filters | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 4 | 5 | 5 | S | 48 | not selected: compare handoff was earlier and used the same route/data safely |
+| Viewer vs manager Operations copy branch | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | viewer, site staff | 3 | 5 | 5 | XS | 42 | not selected: lower product depth than the active student timeline gap |
+| Presentation schedule URL state | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | student, mentor, teacher, admin | 3 | 4 | 4 | S | 41 | deferred: add only if shareable presentation-day links are clearly needed |
+| Mentor Dashboard URL state | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | mentor | 3 | 4 | 4 | S | 40 | deferred: add only if mentors need shareable focus links |
+| Hosted section-level permission proof | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all protected roles | 4 | 3 | 3 | M | 40 | deferred: hosted fake-account proof and audit writes are not allowed in this run |
+| Site-scoped audit destination | `LEVEL_7_AUDITABILITY_AND_TRUST` | site_admin, org_admin | 4 | 3 | 4 | M | 39 | deferred: route shape and visibility review still needed |
+| Student mentor support workflow | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 4 | 3 | 3 | M | 37 | deferred: support-flow shape and privacy policy still need review |
+| Review Queue missing-submission semantics | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | program_teacher, site staff | 5 | 2 | 3 | M | 34 | deferred: backend queue rows are still absent |
+| Student guided requirement form | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | student | 5 | 2 | 3 | L | 33 | deferred: write-path/product design is broader than this lane |
+
+- User-facing improvement: Students can now compare the current submission version against older submitted versions inside the existing timeline, see evidence-count cues per version, and read the newest visible teacher note first across both review decisions and general teacher comments.
+- Roles affected: `student`
+- Files changed: `workspace.js`, `workspace.css`, `tests/workspace-app.test.mjs`, `docs/student-progress-dashboard.md`, `docs/functionality-language-audit.md`, `docs/mvp-requirements-catalog.md`, `docs/progress/run-log.md`, `docs/progress/runs/2026-05-31-1837-student-feedback-compare-cues.json`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`
+- Tests/verifiers added or updated: `tests/workspace-app.test.mjs` now proves the student timeline summary facts render, current-version rows show evidence-count cues, and teacher notes stay newest-first across reviews and visible comments.
+- Validation commands:
+  - Focused passed before docs/state closeout: `node --test tests/workspace-app.test.mjs`; `npm run verify:functionality-language`; `node --test tests/functionality-language-audit.test.mjs`
+  - Final passed: `node -e "JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-05-31-1837-student-feedback-compare-cues.json','utf8')); console.log('json ok')"`, `git diff --check`, `npm run verify:dashboard-actions`, `npm run verify:workspace-navigation`, `npm run verify:functionality-ux-automation`, `npm run check:production-surfaces`, `npm run check:route-inventory`, `npm run test`, `npm run typecheck`, `npm run check`
+- Validation result: passed; `git diff --check` reported only CRLF normalization warnings, with no whitespace errors.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: hosted section-level permission proof, site-scoped audit destination, Review Queue missing-submission semantics, Presentation schedule URL-state filters, Mentor Dashboard URL-state filters, student mentor support workflow shape, and guided student write-path work remain deferred.
+- New backlog items: none
+- Next recommended work order: run hosted section-level permission proof when hosted fake-account proof and audit-event writes are allowed; otherwise inspect in-page status filters for `Your Submitted Work` rows before adding any new student page.
+- Do-not-repeat notes: do not re-add the student feedback timeline compare-cue slice unless `data-student-feedback-timeline-summary="true"`, current-version markers, evidence-count version cues, or newest-first teacher-note ordering regress.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN`
+  - Advanced: yes
+  - Evidence: the student timeline now renders `data-student-feedback-timeline-summary="true"`, marks `data-student-feedback-current-version="true"` on the live version row, shows evidence-count cues in version history, and focused coverage proves teacher notes are rendered newest-first across review and comment rows.
+  - Unlocks: the student feedback path can now move into submission-list status filters or broader compare guidance without opening a new route first.
+  - Next: hosted permission proof when allowed; otherwise inspect `renderSubmissionRow()` for student-safe status filters.
+  - Blockers: hosted proof still needs allowed fake-account and audit-write runtime; richer student support and guided write-path work still need tighter product/policy review.
+  - Do not repeat: do not rebuild this compare-cue slice unless the summary marker, current-version cues, evidence counts, or newest-first note ordering regress.
+  - First file to inspect next run: `workspace.js` `renderSubmissionRow()` and `renderStudentFeedbackTimeline()`

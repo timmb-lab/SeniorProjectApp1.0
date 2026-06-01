@@ -4890,6 +4890,7 @@ function renderStudentFeedbackTimeline(historyState = defaultStudentFeedbackHist
   const versions = Array.isArray(history.versions) ? history.versions : [];
   const statusHistory = Array.isArray(history.statusHistory) ? history.statusHistory : [];
   const comments = Array.isArray(history.comments) ? history.comments : [];
+  const noteRows = studentFeedbackTimelineNotes(reviews, comments);
   const hasTimeline = reviews.length || versions.length || statusHistory.length || comments.length;
   return `
     <section class="workspace-student-feedback-timeline" data-student-feedback-timeline="true">
@@ -4897,14 +4898,34 @@ function renderStudentFeedbackTimeline(historyState = defaultStudentFeedbackHist
         <h3>Submission timeline</h3>
         <p class="workspace-muted">Only feedback meant for you is shown here.</p>
       </div>
+      ${renderStudentFeedbackTimelineSummary(history, versions, statusHistory, noteRows)}
       ${hasTimeline ? `
         <div class="workspace-student-feedback-timeline-grid">
-          ${renderStudentTimelineList("Versions", versions, "No submitted versions are listed yet.", renderStudentVersionTimelineItem)}
+          ${renderStudentTimelineList("Versions", versions, "No submitted versions are listed yet.", (row) => renderStudentVersionTimelineItem(row, history.submission?.version))}
           ${renderStudentTimelineList("Status changes", statusHistory, "No status changes are listed yet.", renderStudentStatusTimelineItem)}
-          ${renderStudentTimelineList("Teacher notes", [...reviews, ...comments], "No teacher notes are listed yet.", renderStudentNoteTimelineItem)}
+          ${renderStudentTimelineList("Teacher notes", noteRows, "No teacher notes are listed yet.", renderStudentNoteTimelineItem)}
         </div>
       ` : `<div class="workspace-empty">No timeline entries are available for this submission yet.</div>`}
     </section>
+  `;
+}
+
+function renderStudentFeedbackTimelineSummary(history = {}, versions = [], statusHistory = [], noteRows = []) {
+  const currentVersion = safeNumber(history?.submission?.version);
+  const facts = [];
+  if (currentVersion > 0) facts.push({ label: "Current version", value: `Version ${currentVersion}` });
+  facts.push({ label: "Submitted versions", value: `${versions.length}` });
+  facts.push({ label: "Teacher notes", value: `${noteRows.length}` });
+  facts.push({ label: "Status updates", value: `${statusHistory.length}` });
+  return `
+    <div class="workspace-student-feedback-timeline-summary" data-student-feedback-timeline-summary="true">
+      ${facts.map((fact) => `
+        <span class="workspace-student-feedback-timeline-fact">
+          <strong>${escapeHtml(fact.label)}</strong>
+          <small>${escapeHtml(fact.value)}</small>
+        </span>
+      `).join("")}
+    </div>
   `;
 }
 
@@ -4918,12 +4939,20 @@ function renderStudentTimelineList(title, rows, emptyText, renderer) {
   `;
 }
 
-function renderStudentVersionTimelineItem(row) {
+function renderStudentVersionTimelineItem(row, currentVersion = 0) {
   const version = safeNumber(row?.version);
+  const evidenceCount = Array.isArray(row?.evidence) ? row.evidence.length : 0;
+  const isCurrentVersion = version > 0 && version === safeNumber(currentVersion);
+  const detailParts = [
+    statusText(row?.status || "submitted"),
+    evidenceCount ? `${evidenceCount} ${pluralize(evidenceCount, "evidence item")}` : "No evidence snapshot",
+    formatDate(row?.submittedAt || row?.submitted_at),
+  ];
+  if (isCurrentVersion) detailParts.push("Current version");
   return `
-    <article class="workspace-mini-row" data-student-feedback-version="${escapeHtml(version || "")}">
+    <article class="workspace-mini-row" data-student-feedback-version="${escapeHtml(version || "")}" data-student-feedback-current-version="${isCurrentVersion ? "true" : "false"}">
       <span>${escapeHtml(version ? `Version ${version} submitted` : "Version submitted")}</span>
-      <small>${escapeHtml(statusText(row?.status || "submitted"))} / ${escapeHtml(formatDate(row?.submittedAt || row?.submitted_at))}</small>
+      <small>${escapeHtml(detailParts.join(" / "))}</small>
     </article>
   `;
 }
@@ -4941,12 +4970,35 @@ function renderStudentNoteTimelineItem(row) {
   const message = row?.feedback || row?.body || "Teacher note recorded.";
   const author = row?.reviewer_name || row?.reviewerName || row?.author_name || row?.authorName || "Program teacher";
   const createdAt = row?.created_at || row?.createdAt;
+  const noteType = studentFeedbackTimelineNoteType(row);
   return `
-    <article class="workspace-mini-row" data-student-feedback-note="true">
+    <article class="workspace-mini-row" data-student-feedback-note="true" data-student-feedback-note-type="${escapeHtml(noteType)}">
       <span>${escapeHtml(message)}</span>
-      <small>${escapeHtml(author)} / ${escapeHtml(formatDate(createdAt))}</small>
+      <small>${escapeHtml(studentFeedbackTimelineNoteLabel(row))} / ${escapeHtml(author)} / ${escapeHtml(formatDate(createdAt))}</small>
     </article>
   `;
+}
+
+function studentFeedbackTimelineNotes(reviews = [], comments = []) {
+  return [
+    ...(Array.isArray(reviews) ? reviews : []),
+    ...(Array.isArray(comments) ? comments : []),
+  ].sort((left, right) => studentFeedbackTimelineTimestamp(right) - studentFeedbackTimelineTimestamp(left));
+}
+
+function studentFeedbackTimelineTimestamp(row) {
+  const value = row?.created_at || row?.createdAt || row?.submittedAt || row?.submitted_at || "";
+  const parsed = Date.parse(String(value || ""));
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function studentFeedbackTimelineNoteType(row = {}) {
+  return row?.decision ? "review" : "comment";
+}
+
+function studentFeedbackTimelineNoteLabel(row = {}) {
+  if (row?.decision) return `Teacher review: ${statusText(row.decision)}`;
+  return "Teacher note";
 }
 
 function renderStudentProgressDetails(summary, dashboard) {

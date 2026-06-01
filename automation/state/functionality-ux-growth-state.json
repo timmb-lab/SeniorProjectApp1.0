@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-05-31T18:12:00-07:00",
-  "lastStartingSha": "77af433f1dcba71cbc5a606b505bc08d7a09172f",
+  "lastRunAt": "2026-05-31T18:37:54-07:00",
+  "lastStartingSha": "001a8119caea319b284937d106a1401965702f42",
   "lastEndingSha": null,
   "currentLadderFocus": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN",
   "completedWorkOrders": [
@@ -857,6 +857,14 @@
       "type": "TYPE_C_STUDENT_DETAIL_DRILL_DOWN",
       "summary": "Student Feedback History now filters own-student notes by needs revision, teacher notes, and approved feedback while clearing hidden feedback-row timelines safely.",
       "commit": "pending-closeout-commit"
+    },
+    {
+      "id": "student-feedback-timeline-compare-cues",
+      "completedAt": "2026-05-31T18:37:54-07:00",
+      "ladderLevel": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN",
+      "type": "TYPE_C_STUDENT_DETAIL_DRILL_DOWN",
+      "summary": "Student Feedback History timelines now show current-version summary facts, evidence-count version cues, and newest-first visible teacher notes inside the existing student-safe route.",
+      "commit": "pending-closeout-commit"
     }
   ],
   "deferredWorkOrders": [
@@ -937,10 +945,10 @@
       "summary": "Keep Review Queue dashboard click-through work deferred until backend queue semantics include real missing requirement rows."
     },
     {
-      "id": "student-feedback-timeline-affordances",
+      "id": "student-submission-list-status-filters",
       "ladderLevel": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN",
       "type": "TYPE_C_STUDENT_DETAIL_DRILL_DOWN",
-      "summary": "If hosted proof remains blocked, inspect compare affordances for the existing student-safe feedback timeline now that in-page status filters are in place."
+      "summary": "If hosted proof remains blocked, inspect in-page status filters for Your Submitted Work rows using the existing student dashboard payload."
     }
   ],
   "doNotRepeat": [
@@ -1044,16 +1052,17 @@
     "Do not re-add the student submission timeline shortcut unless regression removes data-student-submission-timeline or the submitted-work View timeline action from student rows.",
     "Do not re-add the student requirement phase-focus slice unless regression removes data-student-requirement-phase-focus or opening a student requirement stops switching to the matching phase.",
     "Do not re-add the student upcoming-deadlines panel unless regression removes data-student-deadlines-panel or the due-date-first rows stop reusing the existing requirement actions.",
-    "Do not re-add the student feedback-history filters unless regression removes data-student-feedback-filters or filtered-out feedback-row timelines stop clearing safely."
+    "Do not re-add the student feedback-history filters unless regression removes data-student-feedback-filters or filtered-out feedback-row timelines stop clearing safely.",
+    "Do not re-add the student feedback timeline compare cues unless regression removes data-student-feedback-timeline-summary, current-version markers, evidence-count version rows, or newest-first teacher-note ordering."
   ],
   "lastValidationStatus": {
     "status": "passed",
-    "completedAt": "2026-05-31T18:12:00-07:00",
+    "completedAt": "2026-05-31T18:37:54-07:00",
     "commands": [
       "node --test tests/workspace-app.test.mjs",
       "npm run verify:functionality-language",
       "node --test tests/functionality-language-audit.test.mjs",
-      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-05-31-1808-student-feedback-filters.json','utf8')); console.log('json ok')\"",
+      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-05-31-1837-student-feedback-compare-cues.json','utf8')); console.log('json ok')\"",
       "git diff --check",
       "npm run verify:dashboard-actions",
       "npm run verify:workspace-navigation",
@@ -1064,7 +1073,7 @@
       "npm run typecheck",
       "npm run check"
     ],
-    "notes": "Focused and full validation passed for the student feedback-history filter slice. git diff --check reported only CRLF normalization warnings. This run stayed inside the existing student dashboard payload, reused the current student-safe review-history route, and did not change auth grants, RBAC, tenant/site/program/student privacy boundaries, migrations, secrets/env files, Cloudflare/OAuth/domain config, deploy settings, or live data."
+    "notes": "Focused and full validation passed for the student feedback timeline compare-cue slice. git diff --check reported only CRLF normalization warnings. This run stayed inside the existing student dashboard payload and current student-safe review-history route, and did not change auth grants, RBAC, tenant/site/program/student privacy boundaries, migrations, secrets/env files, Cloudflare/OAuth/domain config, deploy settings, or live data."
   },
   "lastProductReadinessScorecardSummary": {
     "homepageClarity": "4 to 4",
