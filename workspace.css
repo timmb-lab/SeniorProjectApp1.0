@@ -613,7 +613,7 @@
 
 .workspace-upload-file {
   color: var(--charcoal);
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
 }
 
 .workspace-upload-actions {
@@ -1046,7 +1046,7 @@
   font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
   font-size: 0.92rem;
   font-weight: 850;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
 }
 
 .workspace-kicker {
@@ -1538,6 +1538,202 @@
 
 .workspace-dashboard-grid-two {
   grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+}
+
+.workspace-dashboard-support-grid {
+  align-items: start;
+}
+
+.workspace-operations-insight-grid {
+  display: grid;
+  grid-template-columns: minmax(260px, 0.9fr) minmax(300px, 1.05fr) minmax(320px, 1.15fr);
+  gap: 0.72rem;
+  align-items: stretch;
+}
+
+.workspace-dashboard-kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 0.62rem;
+}
+
+.workspace-dashboard-kpi,
+.workspace-score-card {
+  display: grid;
+  gap: 0.4rem;
+  min-width: 0;
+  border: 1px solid var(--border-soft);
+  border-left: 5px solid var(--workspace-primary);
+  border-radius: var(--radius-card);
+  background: var(--surface-card);
+  box-shadow: var(--shadow-soft);
+  padding: 0.72rem 0.78rem;
+}
+
+.workspace-dashboard-kpi span,
+.workspace-worklist-head span,
+.workspace-worklist-label {
+  color: var(--abc-muted);
+  font-size: 0.72rem;
+  font-weight: 950;
+  text-transform: uppercase;
+}
+
+.workspace-dashboard-kpi strong,
+.workspace-score-card strong {
+  color: var(--abc-ink);
+  font-size: 1.42rem;
+  line-height: 1.05;
+}
+
+.workspace-dashboard-kpi p,
+.workspace-score-card p,
+.workspace-bar-row p,
+.workspace-ranked-list p {
+  margin: 0;
+  color: var(--abc-charcoal);
+  font-size: 0.84rem;
+  line-height: 1.35;
+}
+
+.workspace-dashboard-kpi.warning,
+.workspace-bar-row.warning,
+.workspace-ranked-list li.warning {
+  border-left-color: var(--color-warning);
+  background: #fffaf0;
+}
+
+.workspace-dashboard-kpi.danger,
+.workspace-bar-row.danger,
+.workspace-ranked-list li.danger {
+  border-left-color: var(--color-danger);
+  background: color-mix(in srgb, var(--abc-soft-red) 70%, white);
+}
+
+.workspace-dashboard-kpi.mentor {
+  border-left-color: var(--abc-green);
+}
+
+.workspace-dashboard-kpi.admin {
+  border-left-color: var(--abc-red);
+}
+
+.workspace-score-card {
+  align-content: space-between;
+  border-left-color: var(--abc-green);
+}
+
+.workspace-score-meter,
+.workspace-mini-meter {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--workspace-primary) 22%, white);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--surface-page) 86%, white);
+}
+
+.workspace-score-meter {
+  min-height: 18px;
+}
+
+.workspace-mini-meter {
+  min-height: 10px;
+}
+
+.workspace-score-meter span,
+.workspace-mini-meter span,
+.workspace-stacked-bar span {
+  display: block;
+  min-height: inherit;
+  background: linear-gradient(90deg, var(--abc-green), var(--workspace-primary));
+}
+
+.workspace-mini-meter span.warning,
+.workspace-stacked-bar span.warning {
+  background: var(--color-warning);
+}
+
+.workspace-mini-meter span.danger,
+.workspace-stacked-bar span.danger {
+  background: var(--color-danger);
+}
+
+.workspace-mini-meter span.teacher,
+.workspace-stacked-bar span.teacher {
+  background: var(--abc-blue);
+}
+
+.workspace-mini-meter span.admin,
+.workspace-stacked-bar span.admin {
+  background: var(--abc-red);
+}
+
+.workspace-mini-meter span.mentor,
+.workspace-stacked-bar span.mentor {
+  background: var(--abc-green);
+}
+
+.workspace-stacked-summary,
+.workspace-bar-list {
+  display: grid;
+  gap: 0.58rem;
+  min-width: 0;
+}
+
+.workspace-stacked-bar {
+  display: flex;
+  min-height: 18px;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--workspace-primary) 20%, white);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--surface-page) 86%, white);
+}
+
+.workspace-bar-row {
+  display: grid;
+  gap: 0.35rem;
+  min-width: 0;
+  border: 1px solid var(--border-soft);
+  border-left: 4px solid var(--workspace-primary);
+  border-radius: var(--radius-card);
+  background: color-mix(in srgb, var(--surface-page) 70%, white);
+  padding: 0.58rem 0.64rem;
+}
+
+.workspace-bar-row > div:first-child,
+.workspace-ranked-list li {
+  display: grid;
+  grid-template-columns: minmax(12rem, 1fr) auto;
+  gap: 0.7rem;
+  align-items: start;
+}
+
+.workspace-bar-row strong,
+.workspace-ranked-list strong {
+  color: var(--abc-ink);
+}
+
+.workspace-bar-row span {
+  color: var(--abc-muted);
+  font-size: 0.8rem;
+  font-weight: 850;
+}
+
+.workspace-ranked-list {
+  display: grid;
+  gap: 0.52rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.workspace-ranked-list li {
+  border: 1px solid var(--border-soft);
+  border-left: 4px solid var(--workspace-primary);
+  border-radius: var(--radius-card);
+  background: color-mix(in srgb, var(--surface-page) 72%, white);
+  padding: 0.62rem 0.68rem;
 }
 
 .workspace-dashboard-card,
@@ -2279,6 +2475,76 @@
   align-items: start;
 }
 
+.workspace-operations-readiness .workspace-filter-bar {
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+}
+
+.workspace-worklist {
+  display: grid;
+  gap: 0.45rem;
+  min-width: 0;
+}
+
+.workspace-worklist-head,
+.workspace-worklist-row {
+  display: grid;
+  grid-template-columns: var(
+    --workspace-worklist-columns,
+    minmax(0, 1.15fr) minmax(0, 0.8fr) minmax(0, 0.7fr) minmax(0, 1.5fr) minmax(0, 0.8fr) minmax(7.5rem, auto)
+  );
+  gap: 0.65rem;
+  align-items: center;
+}
+
+.workspace-worklist-head {
+  border-bottom: 1px solid var(--border-soft);
+  padding: 0 0.62rem 0.42rem;
+}
+
+.workspace-worklist-row {
+  min-width: 0;
+  border: 1px solid var(--border-soft);
+  border-left: 4px solid var(--workspace-primary);
+  border-radius: var(--radius-card);
+  background: var(--surface-row);
+  padding: 0.64rem;
+}
+
+.workspace-presentation-worklist .workspace-worklist-row {
+  --workspace-worklist-columns: minmax(0, 1.15fr) minmax(0, 0.95fr) minmax(0, 0.75fr) minmax(0, 1.05fr) minmax(0, 0.75fr) minmax(7.5rem, auto);
+}
+
+.workspace-archive-status-worklist .workspace-worklist-row {
+  --workspace-worklist-columns: minmax(0, 0.85fr) minmax(0, 1.7fr) minmax(0, 0.75fr) minmax(7.5rem, auto);
+}
+
+.workspace-worklist-row > div {
+  display: grid;
+  gap: 0.12rem;
+  min-width: 0;
+}
+
+.workspace-worklist-row strong,
+.workspace-worklist-row span,
+.workspace-worklist-row small {
+  overflow-wrap: break-word;
+  word-break: normal;
+}
+
+.workspace-worklist-row small {
+  color: var(--abc-muted);
+  font-size: 0.78rem;
+  line-height: 1.25;
+}
+
+.workspace-worklist-label {
+  display: none;
+}
+
+.workspace-worklist-action {
+  justify-items: start;
+}
+
 .workspace-review-feedback textarea {
   min-height: 120px;
   resize: vertical;
@@ -2367,6 +2633,7 @@ button.workspace-metric-tile,
   .workspace-command-hero,
   .workspace-dashboard-grid,
   .workspace-dashboard-grid-two,
+  .workspace-operations-insight-grid,
   .workspace-student-progress-layout,
   .workspace-student-summary-grid,
   .workspace-student-details-grid,
@@ -2414,6 +2681,24 @@ button.workspace-metric-tile,
   }
 
   .workspace-student-requirement-detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .workspace-worklist-head {
+    display: none;
+  }
+
+  .workspace-worklist-row,
+  .workspace-presentation-worklist .workspace-worklist-row {
+    grid-template-columns: 1fr;
+  }
+
+  .workspace-worklist-label {
+    display: block;
+  }
+
+  .workspace-bar-row > div:first-child,
+  .workspace-ranked-list li {
     grid-template-columns: 1fr;
   }
 }

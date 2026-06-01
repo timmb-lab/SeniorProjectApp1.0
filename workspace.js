@@ -71,6 +71,7 @@ const STATUS_CLASS_BY_STATUS = {
   under_review: "under_review",
   reviewing: "under_review",
   revision_requested: "revision_requested",
+  revision_needed: "revision_requested",
   approved: "approved",
   ready: "ready",
   configured: "configured",
@@ -81,6 +82,7 @@ const STATUS_CLASS_BY_STATUS = {
   failed: "failed",
   provider_unavailable: "failed",
   drive_credentials_missing: "failed",
+  setup_needed: "failed",
   expired: "expired",
   expiring_soon: "expired",
   overridden: "overridden",
@@ -97,6 +99,7 @@ const STATUS_CLASS_BY_STATUS = {
   checked_in: "complete",
   available: "ready",
   attention_required: "blocked",
+  needs_staff_action: "blocked",
   in_progress: "under_review",
   needs_review: "pending",
   needs_revision: "revision_requested",
@@ -119,6 +122,7 @@ const STATUS_LABELS = {
   under_review: "Under review",
   reviewing: "Under review",
   revision_requested: "Revision requested",
+  revision_needed: "Revision needed",
   approved: "Approved",
   blocked: "Blocked",
   rejected: "Rejected",
@@ -140,11 +144,13 @@ const STATUS_LABELS = {
   failed: "Failed",
   provider_unavailable: "Storage unavailable",
   drive_credentials_missing: "Storage unavailable",
+  setup_needed: "Setup needed",
   complete: "Complete",
   completed: "Complete",
   expired: "Expired",
   expiring_soon: "Expiring soon",
   attention_required: "Blocked",
+  needs_staff_action: "Needs staff action",
   in_progress: "In progress",
   needs_review: "Pending",
   needs_revision: "Needs revision",
@@ -3841,43 +3847,36 @@ function renderOperationsReadinessSection() {
   const permissions = body.permissions || {};
   const pagination = body.pagination || {};
   const readOnly = Boolean(scope.readOnly);
+  const dashboard = operationsDashboardModel(body);
   return `
     <section class="workspace-command-center workspace-operations-readiness" aria-labelledby="operationsReadinessTitle">
       ${renderSiteContextBlock(body)}
       <div class="workspace-command-hero">
         <div>
-          <p class="workspace-kicker">Presentation readiness / Archive readiness</p>
+          <p class="workspace-kicker">Operations command center</p>
           <h1 id="operationsReadinessTitle">Operations</h1>
           <p>
-            Worklists for presentation readiness, archive readiness, protected evidence,
-            assigned records, and teacher follow-up. No student messaging.
+            Read-only operations dashboard. Open student detail for blocker context;
+            status changes stay with authorized staff.
           </p>
         </div>
         <div class="workspace-command-hero-grid">
           ${statusPill(readOnly ? "configured" : "ready")}
-          <span class="workspace-chip">${escapeHtml(readOnly ? "Read-only worklists" : "Operations ready")}</span>
+          <span class="workspace-chip">${escapeHtml(dashboard.total ? `${dashboard.total} visible records` : "No visible records")}</span>
         </div>
       </div>
       ${renderApiNotice(result)}
       <section class="workspace-read-only-banner" data-operations-read-only="true">
         <strong>Read-only operations worklists</strong>
-        <p>These worklists are monitoring-only. Open student detail for blocker context; status changes stay with authorized staff.</p>
+        <p>These worklists are monitoring-only across protected evidence, assigned records, and teacher follow-up. Open student detail for blocker context; status changes stay with authorized staff.</p>
       </section>
-      <div class="workspace-dashboard-grid">
-        ${renderMetricTile("Presentation Ready", summary.presentationReady, "Ready or complete signals", "teacher")}
-        ${renderMetricTile("Presentation Pending", summary.presentationPending, "Outline or schedule attention", safeNumber(summary.presentationPending) ? "warning" : "teacher", "operations", { label: "Review rows", preset: "presentation-pending" })}
-        ${renderMetricTile("Check-In Needed", presentation.summary?.attentionRequired, "Presentation checked out but not checked in", safeNumber(presentation.summary?.attentionRequired) ? "danger" : "teacher", "operations", { label: "Review rows", preset: "presentation-attention" })}
-        ${renderMetricTile("Outline Pending", summary.outlinePending, "Needs outline approval", safeNumber(summary.outlinePending) ? "warning" : "teacher", "operations", { label: "Review rows", preset: "outline-pending" })}
-        ${renderMetricTile("Archive Ready", summary.archiveReady, "Ready or complete package state", "mentor")}
-        ${renderMetricTile("Archive In Progress", summary.archiveInProgress, "Packages being prepared", safeNumber(summary.archiveInProgress) ? "warning" : "admin", "operations", { label: "Review rows", preset: "archive-in-progress" })}
-        ${renderMetricTile("Archive Expiring Soon", summary.archiveExpiringSoon, "Download windows ending soon", safeNumber(summary.archiveExpiringSoon) ? "warning" : "admin", "operations", { label: "Review rows", preset: "archive-expiring-soon" })}
-        ${renderMetricTile("Archive Expired", summary.archiveExpired, "Download windows expired", safeNumber(summary.archiveExpired) ? "danger" : "admin", "operations", { label: "Review rows", preset: "archive-expired" })}
-        ${renderMetricTile("Archive Failed", summary.archiveFailed, "Needs archive follow-up", safeNumber(summary.archiveFailed) ? "danger" : "admin", "operations", { label: "Review rows", preset: "archive-failed" })}
-        ${renderMetricTile("Storage Setup Needed", archive.summary?.providerUnavailable, "Archive package setup blocked", safeNumber(archive.summary?.providerUnavailable) ? "danger" : "admin", "operations", { label: "Review rows", preset: "archive-provider-unavailable" })}
-        ${renderMetricTile("Needs Attention", summary.needsAttention, "Blocked, missing, or high-risk rows", safeNumber(summary.needsAttention) ? "danger" : "admin", "operations", { label: "Review rows", preset: "needs-attention" })}
-        ${renderMetricTile("Stale Activity", summary.staleActivity, "No recent student progress", safeNumber(summary.staleActivity) ? "warning" : "admin", "operations", { label: "Review rows", preset: "stale-activity" })}
-        ${renderMetricTile("Evidence Missing", summary.evidenceMissing, "Evidence or submission progress missing", safeNumber(summary.evidenceMissing) ? "warning" : "mentor", "operations", { label: "Review rows", preset: "evidence-missing" })}
+      ${renderOperationsSummaryDeck(dashboard)}
+      <div class="workspace-operations-insight-grid">
+        ${renderReadinessScoreCard(dashboard.score, dashboard.total, "Overall readiness score", dashboard.scoreDetail)}
+        ${renderDashboardCard("Stage distribution", "Presentation, archive, and readiness signals", renderStackedDistribution(dashboard.stageDistribution, "Operations stage distribution"))}
+        ${renderDashboardCard("Top blocker categories", "Counts include denominator and percent", renderHorizontalBars(dashboard.blockers, dashboard.total, { emptyLabel: "No blockers found in visible records." }))}
       </div>
+      ${renderDashboardCard("Top next actions", "Ranked staff follow-up", renderRankedNextActions(dashboard.nextActions, { emptyLabel: "No blocker-driven follow-up is waiting in this view." }))}
       ${renderOperationsFilters(body)}
       ${renderOperationsActiveFilters(body?.filters || operationsReadinessFilters || defaultOperationsReadinessFilters(), body?.filterOptions || {})}
       ${renderSiteStudentDetailSurface({ students: operationRowsForDetail(body) })}
@@ -3892,14 +3891,10 @@ function renderOperationsReadinessSection() {
         </div>
         ${renderOperationsPagination(pagination)}
       </section>
-      <div class="workspace-operations-layout">
-        ${renderDashboardCard("Presentation", "Schedule, outline, and day-of readiness", renderPresentationWorklistRows(presentation.rows || [], permissions, body.filters || operationsReadinessFilters))}
-        ${renderDashboardCard("Archive", "Package readiness and export failures", renderArchiveWorklistRows(archive.rows || [], permissions, body.filters || operationsReadinessFilters))}
-        ${renderDashboardCard("Readiness", "Attention rows and next actions", renderReadinessAttentionRows(readiness.attentionRows || [], permissions, body.filters || operationsReadinessFilters))}
-      </div>
-      <div class="workspace-dashboard-grid workspace-dashboard-grid-two">
-        ${renderDashboardCard("Program Breakdown", "Readiness by visible program", renderOperationsProgramBreakdown(readiness.filteredProgramBreakdown || readiness.programBreakdown || []))}
-        ${renderDashboardCard("Next Actions", "Grouped staff follow-up", renderOperationsNextActions(readiness.nextActions || []))}
+      ${renderDashboardCard("Priority worklist", "Student, program, area, issue, severity, and action", renderOperationsCompactWorklist(dashboard.worklistRows, permissions, body.filters || operationsReadinessFilters))}
+      <div class="workspace-dashboard-grid workspace-dashboard-grid-two workspace-dashboard-support-grid">
+        ${renderDashboardCard("Program risk", "Readiness by visible program", renderOperationsProgramBreakdown(readiness.filteredProgramBreakdown || readiness.programBreakdown || [], dashboard.total))}
+        ${renderDashboardCard("Action groups", "Existing filters and review targets", renderOperationsNextActions(dashboard.groupedActions))}
       </div>
     </section>
   `;
@@ -4026,44 +4021,403 @@ function hasActiveOperationsFilters(filters = {}) {
   );
 }
 
-function renderPresentationWorklistRows(rows = [], permissions = {}, filters = {}) {
-  const filtered = hasActiveOperationsFilters(filters);
-  const emptyState = operationsPresentationEmptyStateCopy(filters, filtered);
-  return rows.length ? `
-    <div class="workspace-list" data-operations-presentation-rows="true">
-      ${rows.map((row) => `
-        <article class="workspace-student-row workspace-student-card">
-          <div>
-            <strong>${escapeHtml(row.studentName || "Student")}</strong>
-            <p>${escapeHtml(row.programName || "Unassigned")} / ${escapeHtml(row.cohortName || "No cohort")}</p>
-            <div class="workspace-chip-row">
-              ${row.storyBucket ? `<span class="workspace-story-chip">${escapeHtml(storyLabel(row.storyBucket))}</span>` : `<span class="workspace-story-chip">Presentation readiness</span>`}
-              ${renderRiskChips(row.riskFlags || [])}
+function operationsDashboardModel(body = {}) {
+  const summary = body.summary || {};
+  const presentation = body.presentation || {};
+  const archive = body.archive || {};
+  const readiness = body.readiness || {};
+  const pagination = body.pagination || {};
+  const total = operationsVisibleTotal(summary, pagination);
+  const score = operationsReadinessScore(summary, presentation.summary || {}, archive.summary || {}, total);
+  const readySignals = Math.max(
+    safeNumber(summary.presentationReady),
+    safeNumber(summary.archiveReady),
+    safeNumber(presentation.summary?.completed),
+    safeNumber(archive.summary?.complete),
+  );
+  const scoreDetail = total
+    ? "100 minus weighted blockers across visible records."
+    : "No visible records to summarize yet.";
+  const blockers = operationsBlockerBars(summary, presentation.summary || {}, archive.summary || {}, total);
+  const nextActions = operationsRankedNextActions(summary, presentation.summary || {}, archive.summary || {}, total);
+  return {
+    total,
+    score,
+    scoreDetail,
+    readySignals,
+    blockers,
+    nextActions,
+    groupedActions: readiness.nextActions || [],
+    stageDistribution: operationsStageDistribution(summary, presentation.summary || {}, archive.summary || {}),
+    worklistRows: operationsCompactRows(body),
+  };
+}
+
+function operationsVisibleTotal(summary = {}, pagination = {}) {
+  const explicitTotal = safeNumber(summary.studentsTotal || pagination.total || pagination.filteredTotal);
+  if (explicitTotal) return explicitTotal;
+  return Math.max(
+    safeNumber(summary.presentationReady),
+    safeNumber(summary.presentationPending),
+    safeNumber(summary.archiveReady),
+    safeNumber(summary.archiveMissing),
+    safeNumber(summary.needsAttention),
+    safeNumber(pagination.returned),
+  );
+}
+
+function operationsReadinessScore(summary = {}, presentationSummary = {}, archiveSummary = {}, total = 0) {
+  const denominator = safeNumber(total);
+  if (!denominator) return null;
+  const weightedBlockers =
+    (safeNumber(summary.archiveFailed) * 2)
+    + (safeNumber(archiveSummary.providerUnavailable) * 2)
+    + (safeNumber(summary.archiveExpired) * 1.5)
+    + (safeNumber(summary.evidenceMissing) * 1.4)
+    + safeNumber(summary.needsAttention)
+    + (safeNumber(summary.staleActivity) * 0.6)
+    + (safeNumber(summary.presentationPending) * 0.5)
+    + (safeNumber(summary.outlinePending) * 0.5)
+    + (safeNumber(presentationSummary.attentionRequired) * 1.2)
+    + (safeNumber(summary.archiveInProgress) * 0.25)
+    + (safeNumber(summary.archiveExpiringSoon) * 0.5);
+  return clampPercent(100 - Math.round((weightedBlockers / denominator) * 100));
+}
+
+function operationsStageDistribution(summary = {}, presentationSummary = {}, archiveSummary = {}) {
+  return [
+    { label: "Presentation ready", value: safeNumber(summary.presentationReady || presentationSummary.ready), tone: "teacher" },
+    { label: "Presentation pending", value: safeNumber(summary.presentationPending || presentationSummary.pending) + safeNumber(summary.outlinePending), tone: "warning" },
+    { label: "Archive ready", value: safeNumber(summary.archiveReady || archiveSummary.ready || archiveSummary.complete), tone: "mentor" },
+    { label: "Archive in progress", value: safeNumber(summary.archiveInProgress) + safeNumber(archiveSummary.queued) + safeNumber(archiveSummary.running), tone: "admin" },
+    { label: "Blocked or failed", value: safeNumber(summary.archiveFailed) + safeNumber(archiveSummary.providerUnavailable) + safeNumber(summary.archiveExpired), tone: "danger" },
+    { label: "Stale or missing", value: safeNumber(summary.staleActivity) + safeNumber(summary.evidenceMissing), tone: "warning" },
+  ].filter((item) => safeNumber(item.value) > 0);
+}
+
+function operationsBlockerBars(summary = {}, presentationSummary = {}, archiveSummary = {}, total = 0) {
+  return [
+    { label: "Needs staff action", value: safeNumber(summary.needsAttention), tone: "danger", detail: "Blocked, missing, or high-risk rows", preset: "needs-attention" },
+    { label: "Stale activity", value: safeNumber(summary.staleActivity), tone: "warning", detail: "No recent student progress", preset: "stale-activity" },
+    { label: "Evidence missing", value: safeNumber(summary.evidenceMissing), tone: "warning", detail: "Evidence or submission progress missing", preset: "evidence-missing" },
+    { label: "Archive failed", value: safeNumber(summary.archiveFailed), tone: "danger", detail: "Export follow-up needed", preset: "archive-failed" },
+    { label: "Storage setup needed", value: safeNumber(archiveSummary.providerUnavailable), tone: "danger", detail: "Archive package setup blocked", preset: "archive-provider-unavailable" },
+    { label: "Check-in needed", value: safeNumber(presentationSummary.attentionRequired), tone: "warning", detail: "Checked out but not checked in", preset: "presentation-attention" },
+  ].filter((item) => safeNumber(item.value) > 0 || safeNumber(total) === 0);
+}
+
+function operationsRankedNextActions(summary = {}, presentationSummary = {}, archiveSummary = {}, total = 0) {
+  const actions = [
+    { label: "Review archive failures", count: safeNumber(summary.archiveFailed), why: "Failed exports block package readiness.", preset: "archive-failed", tone: "danger" },
+    { label: "Confirm storage setup", count: safeNumber(archiveSummary.providerUnavailable), why: "Storage setup must be ready before packages can run.", preset: "archive-provider-unavailable", tone: "danger" },
+    { label: "Refresh expired archive downloads", count: safeNumber(summary.archiveExpired), why: "Expired windows need staff follow-up before downloads are useful.", preset: "archive-expired", tone: "danger" },
+    { label: "Resolve missing evidence rows", count: safeNumber(summary.evidenceMissing), why: "Missing evidence blocks readiness and archive confidence.", preset: "evidence-missing", tone: "warning" },
+    { label: "Review staff-action rows", count: safeNumber(summary.needsAttention), why: "These are the highest-priority readiness blockers.", preset: "needs-attention", tone: "danger" },
+    { label: "Check stale activity rows", count: safeNumber(summary.staleActivity), why: "Stale records need current staff context.", preset: "stale-activity", tone: "warning" },
+    { label: "Review pending outlines", count: safeNumber(summary.outlinePending), why: "Outline status can hold up presentation readiness.", preset: "outline-pending", tone: "warning" },
+    { label: "Confirm archive packages in progress", count: safeNumber(summary.archiveInProgress), why: "Queued or running packages should finish cleanly.", preset: "archive-in-progress", tone: "admin" },
+    { label: "Review presentation follow-up", count: safeNumber(summary.presentationPending) + safeNumber(presentationSummary.attentionRequired), why: "Schedule, outline, and check-in issues affect day-of readiness.", preset: "presentation-pending", tone: "teacher" },
+    { label: "Watch expiring archive downloads", count: safeNumber(summary.archiveExpiringSoon), why: "Download windows should not quietly expire.", preset: "archive-expiring-soon", tone: "warning" },
+  ].filter((action) => safeNumber(action.count) > 0);
+  if (!actions.length && safeNumber(total)) {
+    return [{ label: "No blockers found", count: 0, why: "All visible blocker counts are clear.", tone: "mentor" }];
+  }
+  return actions;
+}
+
+function renderOperationsSummaryDeck(dashboard = {}) {
+  return renderDashboardKpis([
+    {
+      label: "Readiness score",
+      value: dashboard.score === null ? "No data" : `${dashboard.score}/100`,
+      detail: dashboard.score === null ? "No visible records" : dashboard.scoreDetail,
+      tone: dashboard.score !== null && dashboard.score < 70 ? "warning" : "mentor",
+    },
+    {
+      label: "Needs staff action",
+      value: metricWithPercent(dashboard.blockers.find((item) => item.label === "Needs staff action")?.value || 0, dashboard.total),
+      detail: "Blocked, missing, or high-risk rows",
+      tone: "danger",
+      actionHtml: operationsPresetButton("needs-attention"),
+    },
+    {
+      label: "Archive failed",
+      value: metricWithPercent(dashboard.blockers.find((item) => item.label === "Archive failed")?.value || 0, dashboard.total),
+      detail: "Export follow-up",
+      tone: "danger",
+      actionHtml: operationsPresetButton("archive-failed"),
+    },
+    {
+      label: "Missing evidence",
+      value: metricWithPercent(dashboard.blockers.find((item) => item.label === "Evidence missing")?.value || 0, dashboard.total),
+      detail: "Evidence or progress missing",
+      tone: "warning",
+      actionHtml: operationsPresetButton("evidence-missing"),
+    },
+    {
+      label: "Stale activity",
+      value: metricWithPercent(dashboard.blockers.find((item) => item.label === "Stale activity")?.value || 0, dashboard.total),
+      detail: "No recent student progress",
+      tone: "warning",
+      actionHtml: operationsPresetButton("stale-activity"),
+    },
+    {
+      label: "Ready signals",
+      value: metricWithPercent(dashboard.readySignals, dashboard.total),
+      detail: "Best available ready/complete count",
+      tone: "mentor",
+    },
+  ], { label: "Operations top summary", className: "workspace-operations-kpis" });
+}
+
+function renderDashboardKpis(items = [], options = {}) {
+  const rows = Array.isArray(items) ? items.filter(Boolean) : [];
+  if (!rows.length) return "";
+  return `
+    <div class="workspace-dashboard-kpis ${escapeHtml(options.className || "")}" aria-label="${escapeHtml(options.label || "Dashboard summary")}">
+      ${rows.map((item) => `
+        <article class="workspace-dashboard-kpi ${escapeHtml(item.tone || "")}">
+          <span>${escapeHtml(item.label || "Metric")}</span>
+          <strong>${escapeHtml(item.value ?? "")}</strong>
+          ${item.detail ? `<p>${escapeHtml(item.detail)}</p>` : ""}
+          ${item.actionHtml || ""}
+        </article>
+      `).join("")}
+    </div>
+  `;
+}
+
+function renderReadinessScoreCard(score, total = 0, title = "Readiness score", detail = "") {
+  const hasData = score !== null && score !== undefined && safeNumber(total) > 0;
+  const value = hasData ? clampPercent(score) : 0;
+  return `
+    <section class="workspace-score-card" data-readiness-score-card="true">
+      <div>
+        <p class="workspace-kicker">${escapeHtml(title)}</p>
+        <strong>${escapeHtml(hasData ? `${value}/100` : "No data")}</strong>
+        <p>${escapeHtml(detail || (hasData ? `${value}% readiness across ${total} visible records.` : "No visible records to summarize yet."))}</p>
+      </div>
+      <div class="workspace-score-meter" role="progressbar" aria-label="${escapeHtml(title)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${escapeHtml(value)}">
+        <span style="width: ${escapeHtml(value)}%"></span>
+      </div>
+    </section>
+  `;
+}
+
+function renderStackedDistribution(items = [], label = "Status distribution") {
+  const rows = (Array.isArray(items) ? items : []).filter((item) => safeNumber(item.value) > 0);
+  const total = rows.reduce((sum, item) => sum + safeNumber(item.value), 0);
+  if (!rows.length || !total) return `<div class="workspace-empty">No distribution signals are available for this view.</div>`;
+  return `
+    <div class="workspace-stacked-summary" aria-label="${escapeHtml(label)}">
+      <div class="workspace-stacked-bar" aria-hidden="true">
+        ${rows.map((item) => `<span class="${escapeHtml(item.tone || "")}" style="width: ${escapeHtml(percentOf(item.value, total))}%"></span>`).join("")}
+      </div>
+      <div class="workspace-bar-list">
+        ${rows.map((item) => `
+          <article class="workspace-bar-row">
+            <div>
+              <strong>${escapeHtml(item.label || "Status")}</strong>
+              <span>${escapeHtml(metricWithPercent(item.value, total))}</span>
             </div>
+            <div class="workspace-mini-meter" aria-hidden="true"><span class="${escapeHtml(item.tone || "")}" style="width: ${escapeHtml(percentOf(item.value, total))}%"></span></div>
+          </article>
+        `).join("")}
+      </div>
+    </div>
+  `;
+}
+
+function renderHorizontalBars(items = [], denominator = 0, options = {}) {
+  const rows = (Array.isArray(items) ? items : []).filter((item) => safeNumber(item.value) > 0);
+  const total = safeNumber(denominator) || rows.reduce((sum, item) => sum + safeNumber(item.value), 0);
+  if (!rows.length) return `<div class="workspace-empty">${escapeHtml(options.emptyLabel || "No rows to summarize.")}</div>`;
+  return `
+    <div class="workspace-bar-list ${escapeHtml(options.className || "")}" aria-label="${escapeHtml(options.label || "Ranked counts")}">
+      ${rows.map((item) => `
+        <article class="workspace-bar-row ${escapeHtml(item.tone || "")}">
+          <div>
+            <strong>${escapeHtml(item.label || "Summary")}</strong>
+            <span>${escapeHtml(metricWithPercent(item.value, total))}</span>
+          </div>
+          <div class="workspace-mini-meter" role="img" aria-label="${escapeHtml(`${item.label || "Summary"}: ${metricWithPercent(item.value, total)}`)}">
+            <span class="${escapeHtml(item.tone || "")}" style="width: ${escapeHtml(percentOf(item.value, total))}%"></span>
+          </div>
+          ${item.detail ? `<p>${escapeHtml(item.detail)}</p>` : ""}
+          ${item.preset ? operationsPresetButton(item.preset) : ""}
+        </article>
+      `).join("")}
+    </div>
+  `;
+}
+
+function renderRankedNextActions(actions = [], options = {}) {
+  const rows = (Array.isArray(actions) ? actions : []).filter(Boolean);
+  if (!rows.length) return `<div class="workspace-empty">${escapeHtml(options.emptyLabel || "No next actions are waiting right now.")}</div>`;
+  return `
+    <ol class="workspace-ranked-list" data-operations-ranked-actions="true">
+      ${rows.map((action) => `
+        <li class="${escapeHtml(action.tone || "")}">
+          <div>
+            <strong>${escapeHtml(action.count ? `${action.label} (${action.count})` : action.label)}</strong>
+            <p>${escapeHtml(action.why || "Review this operational signal.")}</p>
+          </div>
+          ${action.preset ? operationsPresetButton(action.preset) : `<span class="workspace-summary-badge">Summary only</span>`}
+        </li>
+      `).join("")}
+    </ol>
+  `;
+}
+
+function operationsPresetButton(preset, label = "Review rows") {
+  if (!preset || !availableSectionIds().has("operations")) return "";
+  return `<button class="workspace-link-button workspace-link-button-small" type="button" data-section="operations" data-section-preset="${escapeHtml(preset)}">${escapeHtml(label)}</button>`;
+}
+
+function metricWithPercent(value, total) {
+  const count = safeNumber(value);
+  const denominator = safeNumber(total);
+  if (!denominator) return `${count}`;
+  return `${count} of ${denominator} (${percentOf(count, denominator)}%)`;
+}
+
+function percentOf(value, total) {
+  const denominator = safeNumber(total);
+  if (!denominator) return 0;
+  return clampPercent((safeNumber(value) / denominator) * 100);
+}
+
+function operationsCompactRows(body = {}) {
+  const presentationRows = ((body.presentation || {}).rows || []).map((row) => ({
+    ...row,
+    area: "Presentation",
+    issue: row.reason || row.nextAction || "Presentation readiness pending.",
+    severity: operationsPresentationSeverity(row),
+    context: row.scheduledFor ? `${formatDate(row.scheduledFor)} / ${row.location || "Location pending"}` : row.location || "Schedule pending",
+    sort: operationsSeverityRank(operationsPresentationSeverity(row)),
+  }));
+  const archiveRows = ((body.archive || {}).rows || []).map((row) => ({
+    ...row,
+    area: "Archive",
+    issue: archiveCompactIssue(row),
+    severity: operationsArchiveSeverity(row),
+    context: archiveProviderStatusText(row.providerStatus),
+    sort: operationsSeverityRank(operationsArchiveSeverity(row)),
+  }));
+  const readinessRows = ((body.readiness || {}).attentionRows || []).map((row) => ({
+    ...row,
+    area: categoryLabel(row.category || "readiness"),
+    issue: row.reason || row.nextAction || "Needs readiness review.",
+    severity: row.status || "attention_required",
+    context: row.owner || "Site administration",
+    sort: operationsSeverityRank(row.status || "attention_required"),
+  }));
+  return [...presentationRows, ...archiveRows, ...readinessRows]
+    .sort((a, b) => safeNumber(a.sort) - safeNumber(b.sort))
+    .slice(0, 16);
+}
+
+function archiveCompactIssue(row = {}) {
+  const support = archiveWorklistSupportText(row);
+  if (!row.reason || row.reason === support) return support;
+  return `${row.reason} ${support}`;
+}
+
+function operationsPresentationSeverity(row = {}) {
+  const status = normalizeStatus(row.presentationStatus);
+  if (status === "attention_required" || normalizeStatus(row.checkInStatus) === "missing") return "needs_review";
+  if (["outline_pending", "outline_revision_needed", "pending", "missing"].includes(status) || ["pending", "revision_needed"].includes(normalizeStatus(row.outlineStatus))) return "needs_staff_action";
+  return "in_progress";
+}
+
+function operationsArchiveSeverity(row = {}) {
+  const status = normalizeStatus(row.archiveStatus || row.exportStatus);
+  if (status === "failed") return "failed";
+  if (status === "provider_unavailable") return "setup_needed";
+  if (status === "expired") return "expired";
+  if (status === "expiring_soon") return "expiring_soon";
+  if (["queued", "running", "in_progress"].includes(status)) return "in_progress";
+  if (["complete", "ready"].includes(status)) return "ready";
+  return status || "needs_review";
+}
+
+function operationsSeverityRank(status) {
+  const normalized = normalizeStatus(status);
+  const ranks = {
+    failed: 1,
+    setup_needed: 2,
+    blocked: 3,
+    expired: 4,
+    attention_required: 5,
+    needs_staff_action: 5,
+    needs_review: 6,
+    missing: 7,
+    stale: 8,
+    expiring_soon: 9,
+    in_progress: 10,
+    ready: 20,
+    complete: 20,
+  };
+  return ranks[normalized] || 12;
+}
+
+function renderOperationsCompactWorklist(rows = [], permissions = {}, filters = {}) {
+  const filtered = hasActiveOperationsFilters(filters);
+  if (!rows.length) {
+    const empty = operationsCompactEmptyStateCopy(filters, filtered);
+    return `
+      <section class="workspace-empty-state-card" data-operations-compact-worklist-empty="true">
+        <h2>${escapeHtml(empty.heading || "No visible records to summarize yet.")}</h2>
+        ${renderProblemState(empty)}
+      </section>
+    `;
+  }
+  return `
+    <div class="workspace-worklist" data-operations-compact-worklist="true">
+      <div class="workspace-worklist-head" aria-hidden="true">
+        <span>Student</span>
+        <span>Program</span>
+        <span>Area</span>
+        <span>Issue</span>
+        <span>Severity</span>
+        <span>Action</span>
+      </div>
+      ${rows.map((row) => `
+        <article class="workspace-worklist-row" data-operations-worklist-area="${escapeHtml(normalizeStatus(row.area || "readiness"))}">
+          <div>
+            <span class="workspace-worklist-label">Student</span>
+            <strong>${escapeHtml(row.studentName || "Student")}</strong>
+            <small>${escapeHtml(row.context || "Current context unavailable")}</small>
           </div>
           <div>
-            <span class="workspace-muted">Presentation</span>
-            <strong>${escapeHtml(row.scheduledFor ? formatDate(row.scheduledFor) : "No schedule")}</strong>
-            <p>${escapeHtml(row.location || row.reason || "Presentation readiness pending.")}</p>
+            <span class="workspace-worklist-label">Program</span>
+            <span>${escapeHtml(row.programName || "Unassigned")}</span>
           </div>
-          <div class="workspace-row-actions">
-            ${statusPill(row.presentationStatus || "missing")}
-            ${statusPill(row.outlineStatus || "pending")}
-            ${statusPill(row.checkInStatus || "missing")}
+          <div>
+            <span class="workspace-worklist-label">Area</span>
+            <span>${escapeHtml(row.area || "Readiness")}</span>
           </div>
-          <div class="workspace-row-actions">
-            <p>${escapeHtml(row.nextAction || "Open student detail for blocker context.")}</p>
-            ${operationsDetailButton(row.studentId, permissions)}
+          <div>
+            <span class="workspace-worklist-label">Issue</span>
+            <span>${escapeHtml(row.issue || "Review this row.")}</span>
+          </div>
+          <div>
+            <span class="workspace-worklist-label">Severity</span>
+            ${statusPill(row.severity || row.status || "needs_review")}
+          </div>
+          <div class="workspace-worklist-action">
+            ${operationsDetailButton(row.studentId, permissions) || `<span class="workspace-summary-badge">Summary only</span>`}
           </div>
         </article>
       `).join("")}
     </div>
-  ` : `
-    <section class="workspace-empty-state-card" data-operations-presentation-empty="true">
-      <h2>${escapeHtml(emptyState.heading)}</h2>
-      ${renderProblemState(emptyState)}
-    </section>
   `;
+}
+
+function operationsCompactEmptyStateCopy(filters = {}, filtered = false) {
+  if (filters.archiveStatus) return operationsArchiveEmptyStateCopy(filters, filtered);
+  if (filters.presentationStatus || filters.outlineAttention) return operationsPresentationEmptyStateCopy(filters, filtered);
+  return operationsReadinessEmptyStateCopy(filters, filtered);
 }
 
 function operationsPresentationEmptyStateCopy(filters = {}, filtered = false) {
@@ -4090,46 +4444,6 @@ function operationsPresentationEmptyStateCopy(filters = {}, filtered = false) {
     owner,
     nextAction: "Clear filters or review the student directory.",
   };
-}
-
-function renderArchiveWorklistRows(rows = [], permissions = {}, filters = {}) {
-  const filtered = hasActiveOperationsFilters(filters);
-  const emptyState = operationsArchiveEmptyStateCopy(filters, filtered);
-  return rows.length ? `
-    <div class="workspace-list" data-operations-archive-rows="true">
-      ${rows.map((row) => `
-        <article class="workspace-student-row workspace-student-card">
-          <div>
-            <strong>${escapeHtml(row.studentName || "Student")}</strong>
-            <p>${escapeHtml(row.programName || "Unassigned")} / ${escapeHtml(archiveProviderStatusText(row.providerStatus))}</p>
-            <div class="workspace-chip-row">
-              ${row.storyBucket ? `<span class="workspace-story-chip">${escapeHtml(storyLabel(row.storyBucket))}</span>` : `<span class="workspace-story-chip">Archive readiness</span>`}
-              ${renderRiskChips(row.riskFlags || [])}
-            </div>
-          </div>
-          <div>
-            <span class="workspace-muted">Archive</span>
-            <strong>${escapeHtml(row.reason || "Archive status")}</strong>
-            <p>${escapeHtml(archiveWorklistSupportText(row))}</p>
-          </div>
-          <div class="workspace-row-actions">
-            ${statusPill(row.archiveStatus || "missing")}
-            ${statusPill(row.exportStatus || "not_requested")}
-            <span class="workspace-site-context-badge">Private evidence</span>
-          </div>
-          <div class="workspace-row-actions">
-            <p>${escapeHtml(row.nextAction || "Open student detail for archive context.")}</p>
-            ${operationsDetailButton(row.studentId, permissions)}
-          </div>
-        </article>
-      `).join("")}
-    </div>
-  ` : `
-    <section class="workspace-empty-state-card" data-operations-archive-empty="true">
-      <h2>${escapeHtml(emptyState.heading)}</h2>
-      ${renderProblemState(emptyState)}
-    </section>
-  `;
 }
 
 function archiveWorklistSupportText(row = {}) {
@@ -4219,34 +4533,6 @@ function operationsArchiveEmptyStateCopy(filters = {}, filtered = false) {
   };
 }
 
-function renderReadinessAttentionRows(rows = [], permissions = {}, filters = {}) {
-  const filtered = hasActiveOperationsFilters(filters);
-  const emptyState = operationsReadinessEmptyStateCopy(filters, filtered);
-  return rows.length ? `
-    <div class="workspace-list" data-operations-readiness-rows="true">
-      ${rows.map((row) => `
-        <article class="workspace-row workspace-attention-item">
-          <div>
-            <strong>${escapeHtml(row.studentName || "Student")}</strong>
-            <p>${escapeHtml(row.programName || "Unassigned")} / ${escapeHtml(row.owner || "Site administration")}</p>
-            <p class="workspace-muted">${escapeHtml(row.reason || "Needs readiness review.")}</p>
-          </div>
-          <div class="workspace-row-actions">
-            ${statusPill(row.status || "attention_required")}
-            <span class="workspace-site-context-badge">${escapeHtml(statusText(row.category || "readiness"))}</span>
-            ${operationsDetailButton(row.studentId, permissions)}
-          </div>
-        </article>
-      `).join("")}
-    </div>
-  ` : `
-    <section class="workspace-empty-state-card" data-operations-readiness-empty="true">
-      <h2>${escapeHtml(emptyState.heading)}</h2>
-      ${renderProblemState(emptyState)}
-    </section>
-  `;
-}
-
 function operationsReadinessEmptyStateCopy(filters = {}, filtered = false) {
   const owner = "Site administration.";
   if (!filtered) {
@@ -4273,21 +4559,28 @@ function operationsReadinessEmptyStateCopy(filters = {}, filtered = false) {
   };
 }
 
-function renderOperationsProgramBreakdown(rows = []) {
+function renderOperationsProgramBreakdown(rows = [], denominator = 0) {
   return rows.length ? `
-    <div class="workspace-list" data-operations-program-breakdown="true">
+    <div class="workspace-bar-list" data-operations-program-breakdown="true">
       ${rows.map((row) => `
-        <article class="workspace-program-row">
-          <strong>${escapeHtml(row.programName || "Program")}</strong>
-          <span>${safeNumber(row.studentsTotal)} students</span>
-          <span>${safeNumber(row.presentationPending)} presentation</span>
-          <span>${safeNumber(row.archiveFailed)} archive failed</span>
-          <span>${safeNumber(row.needsAttention)} attention</span>
-          ${row.programId ? `
-            <button class="workspace-link-button workspace-link-button-small" type="button" data-section="operations" data-section-preset="program-breakdown" data-program-id="${escapeHtml(row.programId)}">
-              View program rows
-            </button>
-          ` : ""}
+        <article class="workspace-bar-row">
+          <div>
+            <strong>${escapeHtml(row.programName || "Program")}</strong>
+            <span>${escapeHtml(metricWithPercent(row.needsAttention || row.archiveFailed || row.presentationPending || 0, row.studentsTotal || denominator))} with risk signals</span>
+          </div>
+          <div class="workspace-mini-meter" role="img" aria-label="${escapeHtml(`${row.programName || "Program"} risk: ${metricWithPercent(row.needsAttention || row.archiveFailed || row.presentationPending || 0, row.studentsTotal || denominator)}`)}">
+            <span class="${safeNumber(row.archiveFailed) ? "danger" : safeNumber(row.needsAttention) ? "warning" : "mentor"}" style="width: ${escapeHtml(percentOf(row.needsAttention || row.archiveFailed || row.presentationPending || 0, row.studentsTotal || denominator))}%"></span>
+          </div>
+          <div class="workspace-chip-row">
+            <span class="workspace-site-context-badge">${safeNumber(row.presentationPending)} presentation</span>
+            <span class="workspace-site-context-badge">${safeNumber(row.archiveFailed)} archive failed</span>
+            <span class="workspace-site-context-badge">${safeNumber(row.needsAttention)} attention</span>
+            ${row.programId ? `
+              <button class="workspace-link-button workspace-link-button-small" type="button" data-section="operations" data-section-preset="program-breakdown" data-program-id="${escapeHtml(row.programId)}">
+                View program rows
+              </button>
+            ` : ""}
+          </div>
         </article>
       `).join("")}
     </div>
@@ -4392,21 +4685,33 @@ function renderAdminArchiveExportsSection() {
     `;
   }
   const summary = dashboard.summary || {};
+  const exportRows = [
+    { label: "Queued", value: safeNumber(summary.exportsQueued), tone: "warning" },
+    { label: "Running", value: safeNumber(summary.exportsRunning), tone: "admin" },
+    { label: "Complete", value: safeNumber(summary.exportsComplete), tone: "mentor" },
+    { label: "Failed", value: safeNumber(summary.exportsFailed), tone: "danger" },
+  ];
+  const totalExports = exportRows.reduce((sum, row) => sum + safeNumber(row.value), 0);
+  const archiveScore = totalExports ? clampPercent((safeNumber(summary.exportsComplete) / totalExports) * 100) : null;
   return `
-    <section class="workspace-command-center">
+    <section class="workspace-command-center workspace-admin-archive-dashboard">
       <div class="workspace-command-hero">
         <div>
           <p class="workspace-kicker">Archive / Exports</p>
-          <h1>Closeout Package Status</h1>
-          <p>Export status counts come from persisted package requests and archive rows.</p>
+          <h1>Archive</h1>
+          <p>Package readiness, export failures, storage setup, and closeout delivery from persisted package requests.</p>
         </div>
         <span class="workspace-chip">${safeNumber(summary.exportsFailed)} failed</span>
       </div>
-      <div class="workspace-dashboard-grid">
-        ${renderMetricTile("Queued", summary.exportsQueued, "Waiting to run", "teacher")}
-        ${renderMetricTile("Running", summary.exportsRunning, "Currently processing", "mentor")}
-        ${renderMetricTile("Complete", summary.exportsComplete, "Ready or delivered", "student")}
-        ${renderMetricTile("Failed", summary.exportsFailed, "Needs review", safeNumber(summary.exportsFailed) ? "danger" : "admin")}
+      ${renderDashboardKpis([
+        { label: "Archive ready", value: metricWithPercent(summary.exportsComplete, totalExports), detail: "Complete package requests", tone: "mentor" },
+        { label: "In progress", value: safeNumber(summary.exportsQueued) + safeNumber(summary.exportsRunning), detail: "Queued or running packages", tone: "warning" },
+        { label: "Failed", value: safeNumber(summary.exportsFailed), detail: "Needs export follow-up", tone: safeNumber(summary.exportsFailed) ? "danger" : "mentor" },
+        { label: "Total packages", value: totalExports, detail: "Persisted package requests", tone: "admin" },
+      ], { label: "Archive export summary", className: "workspace-archive-kpis" })}
+      <div class="workspace-dashboard-grid workspace-dashboard-grid-two workspace-dashboard-support-grid">
+        ${renderReadinessScoreCard(archiveScore, totalExports, "Archive completion score", totalExports ? `${safeNumber(summary.exportsComplete)} of ${totalExports} package requests are complete.` : "No package requests to summarize yet.")}
+        ${renderDashboardCard("Archive distribution", "Ready, in progress, and failed packages", renderStackedDistribution(exportRows, "Archive export distribution"))}
       </div>
       ${renderDashboardCard("Export Snapshot", "Package status", renderSnapshotRows(dashboard.archiveSnapshot))}
     </section>
@@ -6210,25 +6515,83 @@ function renderReadinessSection() {
     return renderPermissionDeniedSection("Readiness report", "aggregate readiness reporting");
   }
   const body = unwrap(result);
+  const operationsBody = unwrap(currentData.operationsReadiness);
+  if (operationsBody && hasSiteOperationsRole(roleIds(currentUser))) {
+    return renderSiteReadinessDashboard(operationsBody, result);
+  }
   const report = body?.report || body?.metrics || {};
   const scopeLabel = readinessScopeLabel(body?.scope);
+  return renderAggregateReadinessDashboard(result, report, scopeLabel);
+}
+
+function renderAggregateReadinessDashboard(result, report = {}, scopeLabel = "Aggregate reporting") {
+  const submitted = safeNumber(report.submitted);
+  const revisionRequested = safeNumber(report.revisionRequested);
+  const approved = safeNumber(report.approved);
+  const totalWork = submitted + revisionRequested + approved;
+  const score = totalWork ? clampPercent((approved / totalWork) * 100) : null;
+  const blockers = [
+    { label: "Submitted for review", value: submitted, tone: "warning", detail: "Work waiting for teacher review" },
+    { label: "Needs revision", value: revisionRequested, tone: "danger", detail: "Follow-up requested by reviewers" },
+    { label: "Archive packages queued", value: safeNumber(report.exportsQueued), tone: "admin", detail: "Closeout packages waiting to finish" },
+  ].filter((row) => safeNumber(row.value) > 0);
   return `
-    <section class="workspace-card" data-readiness-report="aggregate">
-      <div class="workspace-card-head">
+    <section class="workspace-command-center workspace-readiness-dashboard" data-readiness-report="aggregate" aria-labelledby="readinessDashboardTitle">
+      <div class="workspace-command-hero">
         <div>
           <p class="workspace-kicker">Readiness reporting</p>
-          <h2>Aggregate Project Readiness</h2>
+          <h1 id="readinessDashboardTitle">Aggregate Project Readiness</h1>
+          <p>This report shows aggregate project activity only. It does not open individual student records; school staff handle student follow-up in their assigned workspaces.</p>
         </div>
         <span class="workspace-chip">${escapeHtml(scopeLabel)}</span>
       </div>
       ${renderApiNotice(result)}
-      <p class="workspace-muted">This report shows aggregate project activity only. It does not open individual student records; school staff handle student follow-up in their assigned workspaces.</p>
-      <div class="workspace-grid">
-        ${metric("Submitted", report.submitted || 0, "Work waiting for teacher review")}
-        ${metric("Needs Revision", report.revisionRequested || 0, "Follow-up requested by reviewers")}
-        ${metric("Approved", report.approved || 0, "Work marked complete")}
-        ${metric("Evidence", report.evidence || 0, "Attached project evidence")}
-        ${metric("Archive Packages Queued", report.exportsQueued || 0, "Closeout packages waiting to finish")}
+      ${renderDashboardKpis([
+        { label: "Readiness score", value: score === null ? "No data" : `${score}/100`, detail: totalWork ? `${approved} of ${totalWork} reviewed items approved` : "No reviewed work to summarize yet", tone: score !== null && score < 70 ? "warning" : "mentor" },
+        { label: "Submitted", value: submitted, detail: "Work waiting for teacher review", tone: "warning" },
+        { label: "Needs revision", value: revisionRequested, detail: "Follow-up requested by reviewers", tone: revisionRequested ? "danger" : "mentor" },
+        { label: "Approved", value: approved, detail: "Work marked complete", tone: "mentor" },
+        { label: "Evidence", value: safeNumber(report.evidence), detail: "Attached project evidence", tone: "admin" },
+        { label: "Archive Packages Queued", value: safeNumber(report.exportsQueued), detail: "Closeout packages waiting to finish", tone: "warning" },
+      ], { label: "Aggregate readiness summary", className: "workspace-readiness-kpis" })}
+      <div class="workspace-dashboard-grid workspace-dashboard-grid-two workspace-dashboard-support-grid">
+        ${renderReadinessScoreCard(score, totalWork, "Readiness score", totalWork ? `${approved} of ${totalWork} reviewed items are approved.` : "No reviewed work to summarize yet.")}
+        ${renderDashboardCard("Top blockers", "Aggregate categories only", renderHorizontalBars(blockers, totalWork || blockers.reduce((sum, row) => sum + safeNumber(row.value), 0), { emptyLabel: "No aggregate blockers are currently reported." }))}
+      </div>
+    </section>
+  `;
+}
+
+function renderSiteReadinessDashboard(operationsBody = {}, readinessResult = null) {
+  const dashboard = operationsDashboardModel(operationsBody);
+  const readiness = operationsBody.readiness || {};
+  const permissions = operationsBody.permissions || {};
+  return `
+    <section class="workspace-command-center workspace-readiness-dashboard" data-readiness-report="site-operations" aria-labelledby="readinessDashboardTitle">
+      ${renderSiteContextBlock(operationsBody)}
+      <div class="workspace-command-hero">
+        <div>
+          <p class="workspace-kicker">Aggregate project readiness</p>
+          <h1 id="readinessDashboardTitle">Readiness</h1>
+          <p>Aggregate project readiness, blocker priorities, program risk, and highest-risk rows from visible operations records.</p>
+        </div>
+        <span class="workspace-chip">${escapeHtml(dashboard.total ? `${dashboard.total} visible records` : "No visible records")}</span>
+      </div>
+      ${renderApiNotice(readinessResult)}
+      ${renderDashboardKpis([
+        { label: "Readiness score", value: dashboard.score === null ? "No data" : `${dashboard.score}/100`, detail: dashboard.scoreDetail, tone: dashboard.score !== null && dashboard.score < 70 ? "warning" : "mentor" },
+        { label: "Ready signals", value: metricWithPercent(dashboard.readySignals, dashboard.total), detail: "Best available ready/complete count", tone: "mentor" },
+        { label: "Blocked/failed", value: dashboard.blockers.filter((row) => ["Archive failed", "Storage setup needed"].includes(row.label)).reduce((sum, row) => sum + safeNumber(row.value), 0), detail: "Archive failure and setup blockers", tone: "danger" },
+        { label: "Missing evidence", value: dashboard.blockers.find((row) => row.label === "Evidence missing")?.value || 0, detail: "Evidence or progress missing", tone: "warning" },
+        { label: "Stale activity", value: dashboard.blockers.find((row) => row.label === "Stale activity")?.value || 0, detail: "No recent student progress", tone: "warning" },
+      ], { label: "Readiness top summary", className: "workspace-readiness-kpis" })}
+      <div class="workspace-dashboard-grid workspace-dashboard-grid-two workspace-dashboard-support-grid">
+        ${renderReadinessScoreCard(dashboard.score, dashboard.total, "Readiness score", dashboard.scoreDetail)}
+        ${renderDashboardCard("Top blockers", "Ranked categories with denominator context", renderHorizontalBars(dashboard.blockers, dashboard.total, { emptyLabel: "No blockers found in visible records." }))}
+      </div>
+      <div class="workspace-dashboard-grid workspace-dashboard-grid-two workspace-dashboard-support-grid">
+        ${renderDashboardCard("Program risk", "Top-risk programs in visible records", renderOperationsProgramBreakdown(readiness.filteredProgramBreakdown || readiness.programBreakdown || [], dashboard.total))}
+        ${renderDashboardCard("Highest-risk rows", "Compact rows for follow-up", renderOperationsCompactWorklist(dashboard.worklistRows, permissions, operationsBody.filters || operationsReadinessFilters))}
       </div>
     </section>
   `;
@@ -7878,23 +8241,69 @@ function renderPresentationSection() {
   const filteredSlots = filterPresentationSlots(slots, activeFilter);
   const roles = roleIds(currentUser);
   const canManage = roles.has("program_teacher") || hasGlobalAdminRole(roles) || roles.has("site_admin");
+  const dashboard = presentationDashboardModel(slots);
   return `
-    <section class="workspace-card" data-presentation-schedule="true" data-presentation-filter="${escapeHtml(activeFilter)}">
-      <div class="workspace-card-head">
+    <section class="workspace-command-center workspace-presentation-dashboard" data-presentation-schedule="true" data-presentation-filter="${escapeHtml(activeFilter)}" aria-labelledby="presentationDashboardTitle">
+      <div class="workspace-command-hero">
         <div>
-          <p class="workspace-kicker">Presentation day</p>
-          <h2>Schedule And Check-In</h2>
-          <p>Review scheduled presentations, outline follow-up, and day-of check-in state from scoped presentation records.</p>
+          <p class="workspace-kicker">Presentation readiness</p>
+          <h1 id="presentationDashboardTitle">Presentation</h1>
+          <p>Schedule, outline, check-in, and day-of readiness from scoped presentation records.</p>
         </div>
         <span class="workspace-chip">${filteredSlots.length} of ${slots.length} slot${slots.length === 1 ? "" : "s"}</span>
       </div>
       ${renderApiNotice(result)}
-      ${renderPresentationSlotFilters(slots, activeFilter)}
-      <div class="workspace-list">
-        ${filteredSlots.length ? filteredSlots.map((slot) => renderPresentationSlotRow(slot, canManage)).join("") : renderPresentationSlotsEmptyState(slots.length, activeFilter)}
+      ${renderDashboardKpis([
+        { label: "Presentation readiness", value: metricWithPercent(dashboard.ready, dashboard.total), detail: "Checked in or scheduled with approved outline", tone: "mentor" },
+        { label: "Pending schedule", value: dashboard.pendingSchedule, detail: "No schedule in visible slots", tone: dashboard.pendingSchedule ? "warning" : "mentor" },
+        { label: "Outline pending", value: dashboard.outlinePending, detail: "Pending or revision-needed outlines", tone: dashboard.outlinePending ? "warning" : "mentor" },
+        { label: "Check-in needed", value: dashboard.checkInNeeded, detail: "Checked out without check-in", tone: dashboard.checkInNeeded ? "danger" : "mentor" },
+      ], { label: "Presentation top summary", className: "workspace-presentation-kpis" })}
+      <div class="workspace-dashboard-grid workspace-dashboard-grid-two workspace-dashboard-support-grid">
+        ${renderReadinessScoreCard(dashboard.score, dashboard.total, "Presentation readiness score", dashboard.total ? `${dashboard.ready} of ${dashboard.total} slots are ready or complete.` : "No presentation slots scheduled yet.")}
+        ${renderDashboardCard("Presentation stage breakdown", "Ready, schedule, outline, check-in, and day-of status", renderStackedDistribution(dashboard.stages, "Presentation stage breakdown"))}
       </div>
+      ${renderPresentationSlotFilters(slots, activeFilter)}
+      <section class="workspace-dashboard-card">
+        <div class="workspace-card-head">
+          <div>
+            <p class="workspace-kicker">Needs action worklist</p>
+            <h2>Schedule And Check-In</h2>
+          </div>
+        </div>
+        <div class="workspace-list workspace-presentation-worklist">
+        ${filteredSlots.length ? filteredSlots.map((slot) => renderPresentationSlotRow(slot, canManage)).join("") : renderPresentationSlotsEmptyState(slots.length, activeFilter)}
+        </div>
+      </section>
     </section>
   `;
+}
+
+function presentationDashboardModel(slots = []) {
+  const rows = Array.isArray(slots) ? slots : [];
+  const total = rows.length;
+  const checkedIn = rows.filter((slot) => slot.status === "checked_in" || slot.status === "completed").length;
+  const scheduledApproved = rows.filter((slot) => slot.status === "scheduled" && normalizeStatus(slot.outlineStatus) === "approved").length;
+  const checkedOut = rows.filter((slot) => slot.status === "checked_out").length;
+  const outlinePending = rows.filter((slot) => ["pending", "revision_needed", "outline_pending", "outline_revision_needed"].includes(normalizeStatus(slot.outlineStatus))).length;
+  const pendingSchedule = rows.filter((slot) => !slot.scheduledFor).length;
+  const ready = checkedIn + scheduledApproved;
+  const score = total ? clampPercent((ready / total) * 100) : null;
+  return {
+    total,
+    ready,
+    score,
+    pendingSchedule,
+    outlinePending,
+    checkInNeeded: checkedOut,
+    stages: [
+      { label: "Ready or complete", value: ready, tone: "mentor" },
+      { label: "Pending schedule", value: pendingSchedule, tone: "warning" },
+      { label: "Outline pending", value: outlinePending, tone: "warning" },
+      { label: "Check-in needed", value: checkedOut, tone: "danger" },
+      { label: "Other scheduled", value: Math.max(0, total - ready - pendingSchedule - outlinePending - checkedOut), tone: "teacher" },
+    ].filter((item) => safeNumber(item.value) > 0),
+  };
 }
 
 function renderPresentationSlotFilters(slots = [], activeFilter = "all") {
@@ -7976,76 +8385,106 @@ function renderArchiveSection() {
   const scopedDownloadReady = Boolean(archive.scopedDownloadReady || archive.signedDownloadReady);
   const drivePackageStatus = archive.drivePackageReady || storage.drivePackageReady ? "ready" : "pending";
   const downloadMessage = studentArchiveDownloadStatusCopy(archive, storage);
+  const dashboard = studentArchiveDashboardModel(body);
   return `
-    <section class="workspace-card workspace-hero-card" data-archive-status="${escapeHtml(archive.status || "unknown")}">
-      <div class="workspace-card-head">
+    <section class="workspace-command-center workspace-archive-dashboard" data-archive-status="${escapeHtml(archive.status || "unknown")}" aria-labelledby="archiveDashboardTitle">
+      <div class="workspace-command-hero">
         <div>
           <p class="workspace-kicker">Closeout and archive</p>
-          <h2>May 5 Package Readiness</h2>
+          <h1 id="archiveDashboardTitle">Archive</h1>
+          <p>${escapeHtml(archive.message || "Review closeout evidence, package status, storage readiness, and download windows.")}</p>
         </div>
         ${statusPill(summary.archiveAvailableToRequest ? "ready" : archive.status || "not_requested")}
       </div>
-      <p>${escapeHtml(archive.message || "Review your closeout evidence before requesting an archive package.")}</p>
-      <div class="workspace-grid">
-        ${metric("Ready Checks", summary.readyChecks || 0)}
-        ${metric("Needs Action", summary.missingChecks || 0)}
-        ${metric("Total Checks", summary.totalChecks || checks.length)}
+      ${renderDashboardKpis([
+        { label: "Archive ready", value: metricWithPercent(dashboard.readyChecks, dashboard.totalChecks), detail: "Closeout checks ready", tone: "mentor" },
+        { label: "Needs action", value: metricWithPercent(dashboard.needsAction, dashboard.totalChecks), detail: "Checks still missing or blocked", tone: dashboard.needsAction ? "warning" : "mentor" },
+        { label: "Package status", value: statusText(archive.status || "not_requested"), detail: downloadMessage, tone: archive.status === "failed" ? "danger" : "admin" },
+        { label: "Storage setup", value: storage.credentialsConfigured ? "Configured" : "Setup needed", detail: storage.credentialsConfigured ? "Archive storage is available" : "Storage must be configured before downloads are ready", tone: storage.credentialsConfigured ? "mentor" : "danger" },
+        { label: "Download window", value: retention.downloadExpiresSoon ? "Expiring soon" : `${retention.downloadWindowDays || 14} days`, detail: retention.policyReviewRequired ? "Policy review needed" : "Current retention window", tone: retention.downloadExpiresSoon ? "warning" : "admin" },
+      ], { label: "Archive top summary", className: "workspace-archive-kpis" })}
+      <div class="workspace-dashboard-grid workspace-dashboard-grid-two workspace-dashboard-support-grid">
+        ${renderReadinessScoreCard(dashboard.score, dashboard.totalChecks, "Archive readiness score", dashboard.totalChecks ? `${dashboard.readyChecks} of ${dashboard.totalChecks} closeout checks are ready.` : "No archive checks assigned yet.")}
+        ${renderDashboardCard("Archive distribution", "Checks, package, storage, and retention state", renderStackedDistribution(dashboard.distribution, "Archive status distribution"))}
       </div>
-    </section>
-    ${renderStudentArchiveGuidance(body)}
-    <section class="workspace-card">
-      <div class="workspace-card-head">
-        <div>
-          <p class="workspace-kicker">Archive checklist</p>
-          <h2>Closeout Requirements</h2>
+      ${renderStudentArchiveGuidance(body)}
+      <section class="workspace-dashboard-card">
+        <div class="workspace-card-head">
+          <div>
+            <p class="workspace-kicker">Archive checklist</p>
+            <h2>Closeout Requirements</h2>
+          </div>
+          <span class="workspace-chip">${escapeHtml(body.source || "persisted rows")}</span>
         </div>
-        <span class="workspace-chip">${escapeHtml(body.source || "persisted rows")}</span>
-      </div>
-      ${renderApiNotice(result)}
-      <div class="workspace-list">
-        ${checks.length ? checks.map(renderArchiveCheckRow).join("") : `<div class="workspace-empty">Archive checks will appear after closeout requirements are assigned.</div>`}
-      </div>
-    </section>
-    <section class="workspace-card">
-      <div class="workspace-card-head">
-        <div>
-          <p class="workspace-kicker">Storage</p>
-          <h2>Archive Download</h2>
+        ${renderApiNotice(result)}
+        <div class="workspace-list workspace-archive-worklist">
+          ${checks.length ? checks.map(renderArchiveCheckRow).join("") : `<div class="workspace-empty">Archive checks will appear after closeout requirements are assigned.</div>`}
         </div>
-        ${statusPill(storage.credentialsConfigured ? "configured" : "provider_unavailable")}
-      </div>
-      <div class="workspace-list">
-        <article class="workspace-row">
+      </section>
+      <section class="workspace-dashboard-card">
+        <div class="workspace-card-head">
           <div>
-            <strong>Download status</strong>
-            <p>${escapeHtml(downloadMessage)}</p>
-            ${scopedDownloadReady && archive.downloadUrl ? `<a class="workspace-link-button" data-archive-download="manifest" href="${escapeHtml(archive.downloadUrl)}">Download archive manifest</a>` : ""}
+            <p class="workspace-kicker">Storage</p>
+            <h2>Archive Download</h2>
           </div>
-          ${statusPill(archive.status || "not_requested")}
-        </article>
-        <article class="workspace-row">
-          <div>
-            <strong>Privacy guard</strong>
-            <p>Private file details stay hidden from this workspace.</p>
-          </div>
-          ${statusPill(storage.storageIdentifiersRedacted ? "ready" : "needs_review")}
-        </article>
-        <article class="workspace-row" data-archive-drive-package="${escapeHtml(drivePackageStatus)}">
-          <div>
-            <strong>Archive package file</strong>
-            <p>${escapeHtml(drivePackageStatus === "ready" ? "Archive package file is stored for protected download." : "Archive package file will appear after staff prepares it and storage is ready.")}</p>
-          </div>
-          ${statusPill(drivePackageStatus)}
-        </article>
-        <article class="workspace-row" data-archive-retention-status="${escapeHtml(retention.policyStatus || "unknown")}">
-          <div>
-            <strong>Retention window</strong>
-            <p>${escapeHtml(retention.policyReviewRequired ? "Retention policy needs school review before archive packages are used broadly." : `Archive downloads stay available for ${retention.downloadWindowDays || 14} days.`)}</p>
-          </div>
-          ${statusPill(retention.downloadExpiresSoon ? "expiring_soon" : retention.policyStatus || "policy_review_required")}
-        </article>
-      </div>
+          ${statusPill(storage.credentialsConfigured ? "configured" : "provider_unavailable")}
+        </div>
+        <div class="workspace-worklist workspace-archive-status-worklist">
+          ${renderArchiveStatusRow("Download status", downloadMessage, archive.status || "not_requested", scopedDownloadReady && archive.downloadUrl ? `<a class="workspace-link-button workspace-link-button-small" data-archive-download="manifest" href="${escapeHtml(archive.downloadUrl)}">Download archive manifest</a>` : "")}
+          ${renderArchiveStatusRow("Privacy guard", "Private file details stay hidden from this workspace.", storage.storageIdentifiersRedacted ? "ready" : "needs_review")}
+          ${renderArchiveStatusRow("Archive package file", drivePackageStatus === "ready" ? "Archive package file is stored for protected download." : "Archive package file will appear after staff prepares it and storage is ready.", drivePackageStatus, "", `data-archive-drive-package="${escapeHtml(drivePackageStatus)}"`)}
+          ${renderArchiveStatusRow("Retention window", retention.policyReviewRequired ? "Retention policy needs school review before archive packages are used broadly." : `Archive downloads stay available for ${retention.downloadWindowDays || 14} days.`, retention.downloadExpiresSoon ? "expiring_soon" : retention.policyStatus || "policy_review_required", "", `data-archive-retention-status="${escapeHtml(retention.policyStatus || "unknown")}"`)}
+        </div>
+      </section>
     </section>
+  `;
+}
+
+function studentArchiveDashboardModel(body = {}) {
+  const checks = archiveReadinessChecks(body);
+  const summary = body.summary || {};
+  const archive = body.archive || {};
+  const storage = body.storage || {};
+  const retention = body.retention || {};
+  const totalChecks = safeNumber(summary.totalChecks || checks.length);
+  const readyChecks = safeNumber(summary.readyChecks || checks.filter((check) => normalizeStatus(check.status) === "ready").length);
+  const needsAction = Math.max(0, safeNumber(summary.missingChecks || totalChecks - readyChecks));
+  const score = totalChecks ? clampPercent((readyChecks / totalChecks) * 100) : null;
+  return {
+    totalChecks,
+    readyChecks,
+    needsAction,
+    score,
+    distribution: [
+      { label: "Ready checks", value: readyChecks, tone: "mentor" },
+      { label: "Needs action", value: needsAction, tone: "warning" },
+      { label: "Package failed", value: normalizeStatus(archive.status) === "failed" ? 1 : 0, tone: "danger" },
+      { label: "Package in progress", value: ["queued", "running", "in_progress"].includes(normalizeStatus(archive.status)) ? 1 : 0, tone: "admin" },
+      { label: "Storage setup needed", value: storage.credentialsConfigured === false ? 1 : 0, tone: "danger" },
+      { label: "Expiring soon", value: retention.downloadExpiresSoon ? 1 : 0, tone: "warning" },
+    ].filter((item) => safeNumber(item.value) > 0),
+  };
+}
+
+function renderArchiveStatusRow(label, detail, status, actionHtml = "", extraAttrs = "") {
+  return `
+    <article class="workspace-worklist-row" ${extraAttrs}>
+      <div>
+        <span class="workspace-worklist-label">Archive item</span>
+        <strong>${escapeHtml(label || "Archive status")}</strong>
+      </div>
+      <div>
+        <span class="workspace-worklist-label">Context</span>
+        <span>${escapeHtml(detail || "Review archive status.")}</span>
+      </div>
+      <div>
+        <span class="workspace-worklist-label">Status</span>
+        ${statusPill(status)}
+      </div>
+      <div class="workspace-worklist-action">
+        ${actionHtml || `<span class="workspace-summary-badge">Summary only</span>`}
+      </div>
+    </article>
   `;
 }
 
@@ -8227,14 +8666,29 @@ function renderArchiveCheckRow(check) {
 function renderPresentationSlotRow(slot, canManage) {
   const status = String(slot.status || "unknown");
   return `
-    <article class="workspace-row workspace-presentation-row" data-presentation-state="${escapeHtml(status)}">
+    <article class="workspace-worklist-row workspace-presentation-row" data-presentation-state="${escapeHtml(status)}">
       <div>
+        <span class="workspace-worklist-label">Student</span>
         <strong>${escapeHtml(slot.studentName || "Your presentation")}</strong>
-        <p>${escapeHtml(formatDate(slot.scheduledFor))} / ${escapeHtml(slot.durationMinutes || 15)} min / ${escapeHtml(slot.location || "Location pending")}</p>
-        <p class="workspace-muted">Outline ${escapeHtml(statusText(slot.outlineStatus || "pending"))}${presentationTimestampSummary(slot)}</p>
+        <small>${escapeHtml(formatDate(slot.scheduledFor))}</small>
       </div>
-      <div class="workspace-presentation-actions">
+      <div>
+        <span class="workspace-worklist-label">Location</span>
+        <span>${escapeHtml(slot.durationMinutes || 15)} min / ${escapeHtml(slot.location || "Location pending")}</span>
+      </div>
+      <div>
+        <span class="workspace-worklist-label">Outline</span>
+        <span>${escapeHtml(statusText(slot.outlineStatus || "pending"))}</span>
+      </div>
+      <div>
+        <span class="workspace-worklist-label">Check-in</span>
+        <span>${escapeHtml(presentationTimestampSummary(slot).replace(/^ \/ /, "") || "No check-in timestamp")}</span>
+      </div>
+      <div>
+        <span class="workspace-worklist-label">Status</span>
         ${statusPill(status)}
+      </div>
+      <div class="workspace-presentation-actions workspace-worklist-action">
         ${renderPresentationAction(slot, canManage)}
       </div>
     </article>

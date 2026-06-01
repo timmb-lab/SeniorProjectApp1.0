@@ -2680,25 +2680,32 @@ test("workspace renders site-scoped Operations readiness worklists without mutat
 
   assert.match(siteAdmin, /data-section="operations"/);
   assert.match(siteAdmin, /Operations/);
-  assert.match(siteAdmin, /Presentation readiness/);
-  assert.match(siteAdmin, /Archive readiness/);
+  assert.match(siteAdmin, /Operations command center/);
+  assert.match(siteAdmin, /Read-only operations dashboard/);
   assert.match(siteAdmin, /workspace-operations-readiness/);
-  assert.match(siteAdmin, /workspace-operations-layout/);
   assert.match(siteAdmin, /workspace-filter-bar/);
-  assert.match(siteAdmin, /Presentation Ready/);
-  assert.match(siteAdmin, /Presentation Pending/);
-  assert.match(siteAdmin, /Outline Pending/);
-  assert.match(siteAdmin, /Archive Ready/);
-  assert.match(siteAdmin, /Archive In Progress/);
-  assert.match(siteAdmin, /Archive Expiring Soon/);
-  assert.match(siteAdmin, /Archive Expired/);
-  assert.match(siteAdmin, /Archive Failed/);
-  assert.match(siteAdmin, /Storage Setup Needed/);
-  assert.match(siteAdmin, /Needs Attention/);
-  assert.match(siteAdmin, /Stale Activity/);
-  assert.match(siteAdmin, /Evidence Missing/);
+  assert.match(siteAdmin, /data-readiness-score-card="true"/);
+  assert.match(siteAdmin, /Readiness score/);
+  assert.match(siteAdmin, /Stage distribution/);
+  assert.match(siteAdmin, /Top blocker categories/);
+  assert.match(siteAdmin, /Top next actions/);
+  assert.match(siteAdmin, /Priority worklist/);
+  assert.match(siteAdmin, /data-operations-compact-worklist="true"/);
+  assert.match(siteAdmin, /data-operations-ranked-actions="true"/);
+  assert.equal((siteAdmin.match(/<article class="workspace-dashboard-kpi/g) || []).length, 6);
+  assert.doesNotMatch(siteAdmin, /workspace-metric-tile/);
+  assert.match(siteAdmin, /Presentation ready/);
+  assert.match(siteAdmin, /Presentation pending/);
+  assert.match(siteAdmin, /Outline pending/);
+  assert.match(siteAdmin, /Archive ready/);
+  assert.match(siteAdmin, /Archive in progress/);
+  assert.match(siteAdmin, /Archive failed/);
+  assert.match(siteAdmin, /Storage setup needed/);
+  assert.match(siteAdmin, /Needs staff action/);
+  assert.match(siteAdmin, /Stale activity/);
+  assert.match(siteAdmin, /Evidence missing/);
   assert.match(siteAdmin, /data-section="operations" data-section-preset="presentation-pending">Review rows/);
-  assert.match(siteAdmin, /Check-In Needed/);
+  assert.match(siteAdmin, /Check-in needed/);
   assert.match(siteAdmin, /data-section="operations" data-section-preset="presentation-attention">Review rows/);
   assert.match(siteAdmin, /data-section="operations" data-section-preset="outline-pending">Review rows/);
   assert.match(siteAdmin, /data-section="operations" data-section-preset="archive-in-progress">Review rows/);
@@ -2722,9 +2729,6 @@ test("workspace renders site-scoped Operations readiness worklists without mutat
   assert.match(siteAdmin, /Download window expired/);
   assert.doesNotMatch(siteAdmin, /drive_config_missing|drive_credentials_missing|drive_token_exchange_failed|drive_provider_error|drive_access_denied/);
   assert.match(siteAdmin, /High Risk Demo 001/);
-  assert.match(siteAdmin, /data-operations-presentation-rows="true"/);
-  assert.match(siteAdmin, /data-operations-archive-rows="true"/);
-  assert.match(siteAdmin, /data-operations-readiness-rows="true"/);
   assert.match(siteAdmin, /data-operations-program-breakdown="true"/);
   assert.match(siteAdmin, /data-section="operations" data-section-preset="program-breakdown" data-program-id="it"/);
   assert.match(siteAdmin, /View program rows/);
@@ -2732,8 +2736,6 @@ test("workspace renders site-scoped Operations readiness worklists without mutat
   assert.match(siteAdmin, /data-operations-action="filter-category" data-operations-category="risk"/);
   assert.match(siteAdmin, /View risk rows/);
   assert.match(siteAdmin, /View student detail/);
-  assert.match(siteAdmin, /workspace-story-chip/);
-  assert.match(siteAdmin, /workspace-risk-chip/);
   assert.match(siteAdmin, /status-pill|workspace-status-pill/);
   assert.match(siteAdmin, /protected evidence/);
   assert.match(siteAdmin, /assigned records/);
@@ -2823,7 +2825,7 @@ test("workspace renders site-scoped Operations readiness worklists without mutat
     'aria-label="Operations readiness results"',
     "operations detail should render before readiness result rows",
   );
-  assert.match(workspaceRoot.innerHTML, /data-operations-archive-rows="true"/);
+  assert.match(workspaceRoot.innerHTML, /data-operations-compact-worklist="true"/);
   assert.match(workspaceRoot.innerHTML, /Operations/);
   assert.deepEqual(
     JSON.parse(vm.runInContext('JSON.stringify({ activeSection, sourceSection: siteStudentDetailState.sourceSection })', context)),
@@ -3011,11 +3013,7 @@ test("workspace clarifies Operations empty states for active filters and true no
 
   assert.match(filtered, /No matching presentation work/);
   assert.match(filtered, /No presentation readiness work matches these filters for this school/);
-  assert.match(filtered, /No matching archive work/);
-  assert.match(filtered, /No archive readiness work matches these filters for this school/);
-  assert.match(filtered, /No matching operations attention/);
-  assert.match(filtered, /No blocked, missing, or attention-required readiness work matches these filters/);
-  assert.match(filtered, /Clear filters or continue monitoring ready work/);
+  assert.match(filtered, /data-operations-compact-worklist-empty="true"/);
   assert.doesNotMatch(filtered, /No presentation rows match|No archive rows match|No attention rows match/);
 
   const unfilteredOperations = siteOperationsReadinessFixture({ role: "viewer", readOnly: true });
@@ -3124,12 +3122,9 @@ test("workspace clarifies Operations empty states for active filters and true no
 
   assert.match(exactStudentEmpty, /Operations readiness active filters/);
   assert.match(exactStudentEmpty, /This student/);
-  assert.match(exactStudentEmpty, /No presentation work for this student/);
-  assert.match(exactStudentEmpty, /This student has no presentation readiness rows matching these Operations filters/);
-  assert.match(exactStudentEmpty, /No archive work for this student/);
-  assert.match(exactStudentEmpty, /This student has no archive readiness rows matching these Operations filters/);
   assert.match(exactStudentEmpty, /No operations attention for this student/);
   assert.match(exactStudentEmpty, /This student has no blocked, missing, or attention-required rows matching these Operations filters/);
+  assert.match(exactStudentEmpty, /data-operations-compact-worklist-empty="true"/);
   assert.match(exactStudentEmpty, /return to student detail/);
   assert.doesNotMatch(exactStudentEmpty, /review the student directory|open student detail from the directory/);
 
@@ -5870,6 +5865,10 @@ test("workspace renders presentation schedule filters and day-of actions", async
   vm.runInContext('activeSection = "presentation"; renderAppShell();', context);
   const presentation = workspaceRoot.innerHTML;
   assert.match(presentation, /data-presentation-schedule="true"/);
+  assert.match(presentation, /workspace-presentation-dashboard/);
+  assert.match(presentation, /Presentation readiness score/);
+  assert.match(presentation, /Presentation stage breakdown/);
+  assert.match(presentation, /Needs action worklist/);
   assert.match(presentation, /data-presentation-filters="true"/);
   assert.match(presentation, /data-presentation-filter="all"/);
   assert.match(presentation, /All \(3\)/);
@@ -5883,7 +5882,7 @@ test("workspace renders presentation schedule filters and day-of actions", async
   assert.match(presentation, /Jordan Student/);
   assert.match(presentation, /Sam Student/);
   assert.match(presentation, /Room 101/);
-  assert.match(presentation, /Outline Approved/);
+  assert.match(presentation, /Outline[\s\S]*Approved/);
   assert.match(presentation, /data-presentation-action="check-out"/);
   assert.match(presentation, /data-presentation-action="check-in"/);
 
@@ -5898,7 +5897,7 @@ test("workspace renders presentation schedule filters and day-of actions", async
   const outlineOnly = workspaceRoot.innerHTML;
   assert.match(outlineOnly, /data-presentation-filter="outline_follow_up"/);
   assert.match(outlineOnly, /Sam Student/);
-  assert.match(outlineOnly, /Outline revision needed/);
+  assert.match(outlineOnly, /Revision needed/);
   assert.doesNotMatch(outlineOnly, /Maya Student|Jordan Student/);
 
   vm.runInContext('handlePresentationFilterAction({ currentTarget: { dataset: { presentationFilterAction: "bogus" } } })', context);
@@ -5994,7 +5993,11 @@ test("workspace renders archive readiness from persisted rows", async () => {
     },
   }, "archive");
 
-  assert.match(archive, /May 5 Package Readiness/);
+  assert.match(archive, /workspace-archive-dashboard/);
+  assert.match(archive, /Archive readiness score/);
+  assert.match(archive, /Archive distribution/);
+  assert.match(archive, /Archive ready/);
+  assert.match(archive, /Needs action/);
   assert.match(archive, /data-archive-check-status="ready"/);
   assert.match(archive, /data-archive-check-status="attention_required"/);
   assert.match(archive, /Celebration Day evidence/);
