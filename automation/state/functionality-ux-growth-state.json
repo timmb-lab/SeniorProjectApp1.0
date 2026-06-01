@@ -1,10 +1,18 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-05-31T23:35:00-07:00",
-  "lastStartingSha": "49de57c929755ccee9ce987fd3f7f414e6706c5d",
+  "lastRunAt": "2026-05-31T21:52:15-07:00",
+  "lastStartingSha": "aec0ef4209f95f97fd9493c6f6736599bf982741",
   "lastEndingSha": null,
-  "currentLadderFocus": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
+  "currentLadderFocus": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
   "completedWorkOrders": [
+    {
+      "id": "site-programs-role-proof-depth",
+      "completedAt": "2026-05-31T21:52:15-07:00",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "type": "TYPE_D_ROLE_WORKSPACE",
+      "summary": "Expanded Site Admin Programs proof depth to cover Administration, Program Teacher, Mentor, Viewer, and Student denials, and recorded the Administration/Viewer readiness baseline with local demo proof and nav guards.",
+      "commit": "pending-closeout-commit"
+    },
     {
       "id": "seeded-programs-proof-read-only-role-refresh",
       "completedAt": "2026-05-31T23:35:00-07:00",
@@ -1113,19 +1121,26 @@
   ],
   "lastValidationStatus": {
     "status": "passed",
-    "completedAt": "2026-05-31T20:56:25.4324620-07:00",
+    "completedAt": "2026-05-31T21:55:05-07:00",
     "commands": [
-      "node --test tests/functionality-ux-automation-prompt.test.mjs",
-      "node --test tests/functionality-language-audit.test.mjs",
-      "npm run verify:functionality-ux-automation",
+      "node --test tests/site-programs.integration.test.mjs",
+      "node --test tests/workspace-app.test.mjs",
+      "node --test tests/access-v5-effective.test.mjs",
+      "npm run verify:dashboard-actions",
+      "npm run verify:review-queue-deeplinks",
+      "npm run verify:workspace-navigation",
       "npm run verify:functionality-language",
-      "npm run typecheck",
-      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-05-31-2046-automation-role-readiness-contract.json','utf8')); console.log('json ok')\"",
-      "git diff --check",
+      "npm run verify:functionality-ux-automation",
+      "npm run inventory:production-routes",
+      "npm run check:route-inventory",
+      "node --test tests/functionality-language-audit.test.mjs",
+      "node scripts/prove-local-demo-workspace.mjs",
       "npm run test",
-      "npm run check"
+      "npm run typecheck",
+      "npm run check",
+      "git diff --check"
     ],
-    "notes": "Focused and full validation passed for the automation-contract upgrade slice, including a final post-closeout rerun after updating one stale nextRecommended assertion in tests/functionality-ux-automation-prompt.test.mjs. The prompt and tests now require a durable role-readiness scorecard, click-through proof, seeded-data honesty, and Site Admin Programs review, while allowing the local GUI automation record to end in PAUSED state when Bryan explicitly requests it. git diff --check reported only CRLF normalization warnings. This run touched prompt/docs/tests/state only and did not change app routes, auth grants, RBAC, tenant/site/program/student privacy boundaries, migrations, secrets/env files, Cloudflare/OAuth/domain config, deploy settings, or live data."
+    "notes": "This run first pushed the previously clean mainline baseline because main was ahead of origin/main by 19 commits, then expanded local proof depth for Site Programs role denials and Administration/Viewer readiness evidence. Focused proof, role/RBAC, verifier, inventory, and repo-wide checks all passed. git diff --check reported only CRLF normalization warnings."
   },
   "lastProductReadinessScorecardSummary": {
     "homepageClarity": "4 to 4",

@@ -522,7 +522,10 @@ async function runDemoProof(args = {}, options = {}) {
       removedProgramRestorable: siteProgramsRoleProof.removedProgramRestorable,
       restoredProgramVisible: siteProgramsRoleProof.restoredProgramVisible,
       administrationDenied: siteProgramsRoleProof.administrationDenied,
+      programTeacherDenied: siteProgramsRoleProof.programTeacherDenied,
+      mentorDenied: siteProgramsRoleProof.mentorDenied,
       viewerDenied: siteProgramsRoleProof.viewerDenied,
+      studentDenied: siteProgramsRoleProof.studentDenied,
       siteAdminCannotAccessSecondary: siteProgramsRoleProof.siteAdminCannotAccessSecondary,
       globalAdminCanOpenSecondary: siteProgramsRoleProof.globalAdminCanOpenSecondary,
       noSensitiveProgramFields: siteProgramsRoleProof.noSensitiveProgramFields,
@@ -937,21 +940,32 @@ async function verifySiteProgramsRouteProof(env, demoCredentials) {
   const siteAdminAccount = (demoCredentials.personaLogins || []).find((account) => (
     account.role === "site_admin" && account.scope === `site:${PRIMARY_SITE_ID}`
   ));
+  const teacherAccount = (demoCredentials.programTeacherLogins || []).find((account) => account.scope === "program:it");
+  const mentorAccount = (demoCredentials.mentorLogins || []).find((account) => account.email.includes("mentor001"));
   const viewerAccount = (demoCredentials.personaLogins || []).find((account) => (
     account.role === "viewer" && account.scope === `site:${PRIMARY_SITE_ID}`
   ));
   const globalAdminAccount = (demoCredentials.personaLogins || []).find((account) => account.role === "global_admin");
-  if (!administrationAccount || !siteAdminAccount || !viewerAccount || !globalAdminAccount) {
-    throw new DemoProofError("SITE_PROGRAMS_CREDENTIALS_MISSING", "Missing demo Administration, Site Admin, Viewer, or Global Admin credential for Programs proof.");
+  if (!administrationAccount || !siteAdminAccount || !teacherAccount || !mentorAccount || !viewerAccount || !globalAdminAccount) {
+    throw new DemoProofError("SITE_PROGRAMS_CREDENTIALS_MISSING", "Missing demo Administration, Site Admin, Program Teacher, Mentor, Viewer, or Global Admin credential for Programs proof.");
   }
 
   const administrationCookie = await login(env, administrationAccount);
   await getMe(env, administrationCookie, administrationAccount.email, "administration");
   const administrationDenied = await routeStatus(onSiteProgramsGet, env, administrationCookie, `https://local.capstone.test/api/site/programs?siteId=${PRIMARY_SITE_ID}`);
 
+  const teacherCookie = await login(env, teacherAccount);
+  await getMe(env, teacherCookie, teacherAccount.email, "program_teacher");
+  const teacherDenied = await routeStatus(onSiteProgramsGet, env, teacherCookie, `https://local.capstone.test/api/site/programs?siteId=${PRIMARY_SITE_ID}`);
+
+  const mentorCookie = await login(env, mentorAccount);
+  await getMe(env, mentorCookie, mentorAccount.email, "mentor");
+  const mentorDenied = await routeStatus(onSiteProgramsGet, env, mentorCookie, `https://local.capstone.test/api/site/programs?siteId=${PRIMARY_SITE_ID}`);
+
   const viewerCookie = await login(env, viewerAccount);
   await getMe(env, viewerCookie, viewerAccount.email, "viewer");
   const viewerDenied = await routeStatus(onSiteProgramsGet, env, viewerCookie, `https://local.capstone.test/api/site/programs?siteId=${PRIMARY_SITE_ID}`);
+  const studentDenied = await routeStatus(onSiteProgramsGet, env, await seedExistingSession(env, "demo-student-001", "site-programs-proof-student"), `https://local.capstone.test/api/site/programs?siteId=${PRIMARY_SITE_ID}`);
 
   const siteAdminCookie = await login(env, siteAdminAccount);
   await getMe(env, siteAdminCookie, siteAdminAccount.email, "site_admin");
@@ -1008,7 +1022,10 @@ async function verifySiteProgramsRouteProof(env, demoCredentials) {
   )));
   const checks = {
     administrationDenied: administrationDenied.status === 403,
+    programTeacherDenied: teacherDenied.status === 403,
+    mentorDenied: mentorDenied.status === 403,
     viewerDenied: viewerDenied.status === 403,
+    studentDenied: studentDenied.status === 403,
     siteAdminCanViewPrimary: initial.scope?.siteId === PRIMARY_SITE_ID
       && initial.permissions?.canManageSitePrograms === true
       && Array.isArray(initial.activePrograms)
@@ -1023,7 +1040,10 @@ async function verifySiteProgramsRouteProof(env, demoCredentials) {
       afterRemove,
       afterRestore,
       administrationDenied.body,
+      teacherDenied.body,
+      mentorDenied.body,
       viewerDenied.body,
+      studentDenied.body,
       siteAdminSecondary.body,
       globalAdminSecondary,
     ]),
@@ -1037,7 +1057,10 @@ async function verifySiteProgramsRouteProof(env, demoCredentials) {
     removedProgramRestorable,
     restoredProgramVisible,
     administrationDenied: true,
+    programTeacherDenied: true,
+    mentorDenied: true,
     viewerDenied: true,
+    studentDenied: true,
     siteAdminCannotAccessSecondary: true,
     globalAdminCanOpenSecondary: true,
     noSensitiveProgramFields: true,

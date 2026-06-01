@@ -118,6 +118,7 @@ assertMatches("workspaceJs", /data-review-queue-read-only="true"[\s\S]*No teache
 assertMatches("workspaceJs", /data-mentor-assignment-controls-hidden="true"[\s\S]*Assignment changes unavailable/, "Read-only Mentor Assignments must hide mutation controls");
 assertMatches("workspaceJs", /data-operations-read-only="true"[\s\S]*Read-only operations worklists/, "Operations view must remain monitoring-only");
 assertMatches("workspaceJs", /\/api\/site\/programs/, "Programs section must load the scoped site-programs route");
+assertMatches("workspaceJs", /function canUseSitePrograms\(roles\)\s*\{\s*return hasGlobalAdminRole\(roles\) \|\| roles\.has\("site_admin"\);\s*\}/, "Programs navigation must stay hidden for Administration, Viewer, Program Teacher, Mentor, and Student roles");
 assertMatches("workspaceJs", /canUseSitePrograms\(roles\)[\s\S]*id: "programs"[\s\S]*Add or remove site programs/, "Programs section must stay limited to site and global admins");
 assertMatches("workspaceJs", /data-site-programs-section="true"[\s\S]*Active site programs[\s\S]*Programs you can add/, "Programs section must render real current and available program states");
 assertMatches("workspaceJs", /data-site-program-form/, "Programs section must expose real program forms");

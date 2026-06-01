@@ -58,9 +58,18 @@ test("site programs route stays scoped and supports add/remove site mappings", a
   assert.equal(forbiddenSite.response.status, 403);
   assert.doesNotMatch(JSON.stringify(forbiddenSite.body), /Canyon Ridge Career/i);
 
-  const viewer = await routeProgramsGet(env, tokens.viewerPrimary, `?siteId=${PRIMARY_SITE_ID}`);
-  assert.equal(viewer.response.status, 403);
-  assert.equal(viewer.body.error, "forbidden");
+  for (const [label, token] of [
+    ["administration", tokens.administrationPrimary],
+    ["program_teacher", tokens.teacherPrimary],
+    ["mentor", tokens.mentorPrimary],
+    ["viewer", tokens.viewerPrimary],
+    ["student", tokens.studentPrimary],
+  ]) {
+    const deniedGet = await routeProgramsGet(env, token, `?siteId=${PRIMARY_SITE_ID}`);
+    assert.equal(deniedGet.response.status, 403, `${label} GET should be forbidden`);
+    assert.equal(deniedGet.body.error, "forbidden");
+    assert.doesNotMatch(JSON.stringify(deniedGet.body), FORBIDDEN_RESPONSE_FIELDS);
+  }
 
   const remove = await routeProgramsPost(env, tokens.siteAdminPrimary, {
     siteId: PRIMARY_SITE_ID,
@@ -93,13 +102,23 @@ test("site programs route stays scoped and supports add/remove site mappings", a
   ).bind(PRIMARY_SITE_ID, "biotech").first();
   assert.equal(Number(addedRow.active), 1);
 
-  const blockedPost = await routeProgramsPost(env, tokens.viewerPrimary, {
-    siteId: PRIMARY_SITE_ID,
-    programId: "biotech",
-    action: "remove",
-    adminNote: "Viewer should not do this",
-  });
-  assert.equal(blockedPost.response.status, 403);
+  for (const [label, token, adminNote] of [
+    ["administration", tokens.administrationPrimary, "Administration should not manage site programs"],
+    ["program_teacher", tokens.teacherPrimary, "Program Teacher should not manage site programs"],
+    ["mentor", tokens.mentorPrimary, "Mentor should not manage site programs"],
+    ["viewer", tokens.viewerPrimary, "Viewer should not manage site programs"],
+    ["student", tokens.studentPrimary, "Student should not manage site programs"],
+  ]) {
+    const blockedPost = await routeProgramsPost(env, token, {
+      siteId: PRIMARY_SITE_ID,
+      programId: "biotech",
+      action: "remove",
+      adminNote,
+    });
+    assert.equal(blockedPost.response.status, 403, `${label} POST should be forbidden`);
+    assert.equal(blockedPost.body.error, "forbidden");
+    assert.doesNotMatch(JSON.stringify(blockedPost.body), FORBIDDEN_RESPONSE_FIELDS);
+  }
 
   const audits = await readAuditActions(db);
   assert.equal(audits.some((event) => event.action === "site_programs_viewed"), true);
@@ -148,7 +167,11 @@ async function createSeededDemoFixture() {
   const tokens = {
     globalAdminPrimary: await seedSession(db, env, "protected-admin-primary", "site-programs-global-admin"),
     siteAdminPrimary: await seedSession(db, env, "demo-site-admin-desert-valley-high", "site-programs-site-admin"),
+    administrationPrimary: await seedSession(db, env, "demo-administration-desert-valley-high", "site-programs-administration"),
+    teacherPrimary: await seedSession(db, env, "demo-teacher-it-01", "site-programs-program-teacher"),
+    mentorPrimary: await seedSession(db, env, "demo-mentor-001", "site-programs-mentor"),
     viewerPrimary: await seedSession(db, env, "demo-viewer-desert-valley-high", "site-programs-viewer"),
+    studentPrimary: await seedSession(db, env, "demo-student-001", "site-programs-student"),
   };
 
   return { db, env, tokens };

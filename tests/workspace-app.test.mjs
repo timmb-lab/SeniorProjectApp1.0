@@ -262,6 +262,7 @@ test("workspace uses Phase 6.6 Figma cleanup patterns in real render paths", () 
   assert.match(signInBlock, /renderProductHeader\(\{\s*titleId: "signInTitle"\s*\}\)/);
   assert.match(appShellBlock, /renderProductHeader\(\{[\s\S]*context: headerContext,[\s\S]*readOnly: roles\.has\("viewer"\)/);
   assert.match(workspaceJs, /chips = WORKSPACE_POSTURE_CHIPS/);
+  assert.match(workspaceJs, /function canUseSitePrograms\(roles\)\s*\{\s*return hasGlobalAdminRole\(roles\) \|\| roles\.has\("site_admin"\);\s*\}/);
 
   for (const status of [
     "draft",

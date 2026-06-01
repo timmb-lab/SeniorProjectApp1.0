@@ -21,6 +21,17 @@ This is the compact run log for the current Functionality UX Upgrade automation 
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-05-31 21:52 PT - Functionality UX Upgrade Programs Proof Depth And Administration/Viewer Refresh
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 4 role-specific workspaces / role-readiness proof refresh.
+- `starting HEAD`: `aec0ef4209f95f97fd9493c6f6736599bf982741`.
+- `selected slice`: Deepen Site Admin Programs role-boundary proof and begin the first full Administration and Viewer readiness refresh from the current seeded workspace state.
+- `repo-grounded findings`: the repo was clean locally but `main` was ahead of `origin/main` by 19 valid commits, so the run first pushed the existing mainline baseline. After that cleanup, the remaining gap was no longer the Programs feature itself but proof depth: `/api/site/programs` and the `Programs` nav were already real for Global Admin and Site Admin, yet the local regression and demo proof still lacked explicit Administration, Program Teacher, Mentor, Viewer, and Student denials, leaving the Administration/Viewer readiness scorecard short on evidence.
+- `changes`: `tests/site-programs.integration.test.mjs` now proves GET and POST denial for Administration, Program Teacher, Mentor, Viewer, and Student using seeded sessions, while keeping the existing Global Admin/Site Admin allowed-path coverage and reversible seeded remove/restore proof. `scripts/prove-local-demo-workspace.mjs` now records those role denials in the local demo proof output. `tests/workspace-app.test.mjs` plus `scripts/verify-workspace-navigation-integrity.mjs` now explicitly guard that `Programs` remains visible only to Global Admin and Site Admin. `docs/product/demo-role-readiness.md`, `automation/state/functionality-ux-growth-state.json`, and the per-run manifest now record the stronger Administration/Viewer proof baseline and the still-open hosted/demo-seed gaps.
+- `validation`: focused route/UI/proof coverage plus broader repo validation passed before closeout. Full command details are recorded in the final closeout and per-run manifest.
+- `commit/push status`: pending closeout commit; baseline mainline was pushed before the new slice started.
+
 ## 2026-05-31 23:35 PT - Functionality UX Upgrade Seeded Programs Proof And Read-Only Role Refresh
 
 - `automation ID`: functionality-ux-upgrade-hourly.
