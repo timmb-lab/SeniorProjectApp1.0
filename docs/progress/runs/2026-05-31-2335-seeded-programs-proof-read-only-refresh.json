@@ -1,0 +1,120 @@
+{
+  "automationId": "functionality-ux-upgrade-hourly",
+  "runStartedAt": "2026-05-31T23:35:00-07:00",
+  "repo": {
+    "root": "C:\\SeniorProjectApp1.0",
+    "branch": "main",
+    "startingSha": "49de57c929755ccee9ce987fd3f7f414e6706c5d",
+    "endingSha": null,
+    "origin": "https://github.com/timmb-lab/SeniorProjectApp1.0.git"
+  },
+  "pushDecision": {
+    "pushed": false,
+    "reason": "main was ahead of origin/main by 17 commits, not only by the Site Admin Programs commit, so the prompt's safe-push condition was not met."
+  },
+  "candidateScan": [
+    {
+      "id": "site-programs-local-proof",
+      "score": 9,
+      "reason": "New real route exists but local demo proof did not cover role boundaries or seeded reversibility."
+    },
+    {
+      "id": "viewer-overview-dead-end-removal",
+      "score": 9,
+      "reason": "Viewer landing still pointed at denied sections and violated the no-visible-dead-end rule."
+    },
+    {
+      "id": "viewer-overview-activation",
+      "score": 9,
+      "reason": "The viewer monitoring panel existed but the real Overview path skipped it, reducing role-specific usability."
+    },
+    {
+      "id": "administration-read-only-shell-copy",
+      "score": 8,
+      "reason": "Administration is read-only on key site surfaces but the shell did not state that boundary clearly."
+    },
+    {
+      "id": "primary-demo-site-addable-program-gap",
+      "score": 7,
+      "reason": "Seeded primary site starts with all active programs attached, so first-load add flow is not visible."
+    },
+    {
+      "id": "viewer-hosted-proof-refresh",
+      "score": 6,
+      "reason": "Still valuable, but blocked on hosted runtime and safe credentials."
+    },
+    {
+      "id": "administration-cross-surface-scorecard-refresh",
+      "score": 6,
+      "reason": "Useful doc pass, but less urgent than fixing the shell and dead-end behavior itself."
+    },
+    {
+      "id": "global-admin-programs-clickthrough-refresh",
+      "score": 5,
+      "reason": "Already route-backed and lower risk than Viewer and Administration clarity issues."
+    },
+    {
+      "id": "programs-seed-expansion-new-program",
+      "score": 4,
+      "reason": "Would improve demo shape, but it broadens seeded content and was avoidable this run."
+    },
+    {
+      "id": "viewer-permission-expansion-to-review-queue",
+      "score": 3,
+      "reason": "Could remove dead ends, but broadens access and was not necessary to fix the UX safely."
+    },
+    {
+      "id": "administration-review-queue-access-expansion",
+      "score": 3,
+      "reason": "Permission broadening would be riskier than clarifying the existing monitoring boundary."
+    },
+    {
+      "id": "broad-multirole-nav-refactor",
+      "score": 2,
+      "reason": "Too wide for a bounded hourly automation slice."
+    }
+  ],
+  "selectedBatch": [
+    "site-programs-local-proof",
+    "viewer-overview-dead-end-removal",
+    "viewer-overview-activation",
+    "administration-read-only-shell-copy"
+  ],
+  "seededProgramsProof": {
+    "route": "/api/site/programs",
+    "result": "passed",
+    "initialAvailablePrograms": 0,
+    "proofMode": "remove-then-restore-proof",
+    "notes": "The primary demo site had no addable program on first load, so the local proof verified a reversible remove and restore cycle instead."
+  },
+  "filesChanged": [
+    "workspace.js",
+    "tests/workspace-app.test.mjs",
+    "scripts/verify-dashboard-actions.mjs",
+    "scripts/prove-local-demo-workspace.mjs",
+    "docs/product/demo-role-readiness.md",
+    "docs/functionality-language-audit.md",
+    "docs/progress/run-log.md",
+    "automation/state/functionality-ux-growth-state.json"
+  ],
+  "validation": [
+    "node --test tests/workspace-app.test.mjs",
+    "node --test tests/site-programs.integration.test.mjs",
+    "npm run verify:dashboard-actions",
+    "node scripts/prove-local-demo-workspace.mjs",
+    "npm run verify:workspace-navigation",
+    "npm run verify:functionality-language",
+    "node --test tests/functionality-language-audit.test.mjs",
+    "npm run verify:functionality-ux-automation",
+    "npm run test",
+    "npm run typecheck",
+    "npm run check",
+    "git diff --check"
+  ],
+  "commit": {
+    "sha": null,
+    "message": null
+  },
+  "automationStatusAtEnd": "PAUSED",
+  "nextRecommendedWorkOrder": "Improve the primary local demo seed so Site Admin Programs has an honest first-load add option, then continue the role-readiness refresh across Global Admin, Program Teacher, Mentor, and Student."
+}

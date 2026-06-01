@@ -9,6 +9,7 @@ import { onRequest as onLogin } from "../functions/api/auth/login.ts";
 import { onRequestGet as onMe } from "../functions/api/auth/me.ts";
 import { onRequestGet as onAdminDashboard } from "../functions/api/admin/dashboard.ts";
 import { onRequestGet as onSiteDashboard } from "../functions/api/site/dashboard.ts";
+import { onRequestGet as onSiteProgramsGet, onRequestPost as onSiteProgramsPost } from "../functions/api/site/programs.ts";
 import { onRequestGet as onSiteStudents } from "../functions/api/site/students.ts";
 import { onRequestGet as onSiteStudentDetail } from "../functions/api/site/students/[studentId].ts";
 import { onRequestGet as onSiteStudentTimeline } from "../functions/api/site/students/[studentId]/timeline.ts";
@@ -311,6 +312,7 @@ async function runDemoProof(args = {}, options = {}) {
   const multisite = await verifyMultisiteShape(env);
   const siteAwarePermissions = await verifySiteAwarePermissions(env);
   const siteDashboardRoleProof = await verifySiteDashboardRouteProof(env, demoCredentials);
+  const siteProgramsRoleProof = await verifySiteProgramsRouteProof(env, demoCredentials);
   const siteStudentDirectoryRoleProof = await verifySiteStudentDirectoryRouteProof(env, demoCredentials);
   const siteStudentDetailRoleProof = await verifySiteStudentDetailRouteProof(env, demoCredentials, adminCookie);
   const siteReviewQueueRoleProof = await verifySiteReviewQueueRouteProof(env, demoCredentials);
@@ -509,6 +511,22 @@ async function runDemoProof(args = {}, options = {}) {
       administrationReadOnly: siteDashboardRoleProof.administrationReadOnly,
       administrationMutationPermissionsFalse: siteDashboardRoleProof.administrationMutationPermissionsFalse,
       siteAdminCannotAccessSecondary: siteDashboardRoleProof.siteAdminCannotAccessSecondary,
+    },
+    sitePrograms: {
+      ok: true,
+      route: "/api/site/programs",
+      primarySiteId: PRIMARY_SITE_ID,
+      initialActivePrograms: siteProgramsRoleProof.initialActivePrograms,
+      initialAvailablePrograms: siteProgramsRoleProof.initialAvailablePrograms,
+      removedProgramId: siteProgramsRoleProof.removedProgramId,
+      removedProgramRestorable: siteProgramsRoleProof.removedProgramRestorable,
+      restoredProgramVisible: siteProgramsRoleProof.restoredProgramVisible,
+      administrationDenied: siteProgramsRoleProof.administrationDenied,
+      viewerDenied: siteProgramsRoleProof.viewerDenied,
+      siteAdminCannotAccessSecondary: siteProgramsRoleProof.siteAdminCannotAccessSecondary,
+      globalAdminCanOpenSecondary: siteProgramsRoleProof.globalAdminCanOpenSecondary,
+      noSensitiveProgramFields: siteProgramsRoleProof.noSensitiveProgramFields,
+      seededAddPath: siteProgramsRoleProof.seededAddPath,
     },
     siteStudentDirectory: {
       ok: true,
@@ -910,6 +928,121 @@ async function verifySiteDashboardRouteProof(env, demoCredentials) {
   };
   assertChecks("SITE_DASHBOARD_ROUTE_PROOF_FAILED", checks);
   return { ok: true, ...checks };
+}
+
+async function verifySiteProgramsRouteProof(env, demoCredentials) {
+  const administrationAccount = (demoCredentials.personaLogins || []).find((account) => (
+    account.role === "administration" && account.scope === `site:${PRIMARY_SITE_ID}`
+  ));
+  const siteAdminAccount = (demoCredentials.personaLogins || []).find((account) => (
+    account.role === "site_admin" && account.scope === `site:${PRIMARY_SITE_ID}`
+  ));
+  const viewerAccount = (demoCredentials.personaLogins || []).find((account) => (
+    account.role === "viewer" && account.scope === `site:${PRIMARY_SITE_ID}`
+  ));
+  const globalAdminAccount = (demoCredentials.personaLogins || []).find((account) => account.role === "global_admin");
+  if (!administrationAccount || !siteAdminAccount || !viewerAccount || !globalAdminAccount) {
+    throw new DemoProofError("SITE_PROGRAMS_CREDENTIALS_MISSING", "Missing demo Administration, Site Admin, Viewer, or Global Admin credential for Programs proof.");
+  }
+
+  const administrationCookie = await login(env, administrationAccount);
+  await getMe(env, administrationCookie, administrationAccount.email, "administration");
+  const administrationDenied = await routeStatus(onSiteProgramsGet, env, administrationCookie, `https://local.capstone.test/api/site/programs?siteId=${PRIMARY_SITE_ID}`);
+
+  const viewerCookie = await login(env, viewerAccount);
+  await getMe(env, viewerCookie, viewerAccount.email, "viewer");
+  const viewerDenied = await routeStatus(onSiteProgramsGet, env, viewerCookie, `https://local.capstone.test/api/site/programs?siteId=${PRIMARY_SITE_ID}`);
+
+  const siteAdminCookie = await login(env, siteAdminAccount);
+  await getMe(env, siteAdminCookie, siteAdminAccount.email, "site_admin");
+  const initial = await routeJson(onSiteProgramsGet, env, siteAdminCookie, `https://local.capstone.test/api/site/programs?siteId=${PRIMARY_SITE_ID}`);
+  const siteAdminSecondary = await routeStatus(onSiteProgramsGet, env, siteAdminCookie, `https://local.capstone.test/api/site/programs?siteId=${SECONDARY_SITE_IDS[0]}`);
+
+  const globalAdminCookie = await login(env, globalAdminAccount);
+  await getMe(env, globalAdminCookie, globalAdminAccount.email, "global_admin");
+  const globalAdminSecondary = await routeJson(onSiteProgramsGet, env, globalAdminCookie, `https://local.capstone.test/api/site/programs?siteId=${SECONDARY_SITE_IDS[0]}`);
+
+  const removableProgram = (initial.activePrograms || []).find((program) => program.programId === "it")
+    || (initial.activePrograms || [])[0];
+  if (!removableProgram?.programId) {
+    throw new DemoProofError("SITE_PROGRAMS_NO_ACTIVE_PROGRAM", "No active site program was available for reversible local proof.");
+  }
+
+  let restorePending = false;
+  let afterRemove = null;
+  let afterRestore = null;
+  try {
+    await routeSiteProgramsMutation(env, siteAdminCookie, {
+      siteId: PRIMARY_SITE_ID,
+      programId: removableProgram.programId,
+      action: "remove",
+      adminNote: "Local demo proof removes one active program so the add flow can be verified and restored.",
+    });
+    restorePending = true;
+    afterRemove = await routeJson(onSiteProgramsGet, env, siteAdminCookie, `https://local.capstone.test/api/site/programs?siteId=${PRIMARY_SITE_ID}`);
+
+    await routeSiteProgramsMutation(env, siteAdminCookie, {
+      siteId: PRIMARY_SITE_ID,
+      programId: removableProgram.programId,
+      action: "assign",
+      adminNote: "Local demo proof restores the removed site program after add-flow verification.",
+    });
+    restorePending = false;
+    afterRestore = await routeJson(onSiteProgramsGet, env, siteAdminCookie, `https://local.capstone.test/api/site/programs?siteId=${PRIMARY_SITE_ID}`);
+  } finally {
+    if (restorePending) {
+      await routeSiteProgramsMutation(env, siteAdminCookie, {
+        siteId: PRIMARY_SITE_ID,
+        programId: removableProgram.programId,
+        action: "assign",
+        adminNote: "Local demo proof cleanup restored the removed site program.",
+      });
+    }
+  }
+
+  const removedProgramRestorable = Boolean((afterRemove?.availablePrograms || []).find((program) => (
+    program.programId === removableProgram.programId && program.previouslyRemoved === true
+  )));
+  const restoredProgramVisible = Boolean((afterRestore?.activePrograms || []).find((program) => (
+    program.programId === removableProgram.programId
+  )));
+  const checks = {
+    administrationDenied: administrationDenied.status === 403,
+    viewerDenied: viewerDenied.status === 403,
+    siteAdminCanViewPrimary: initial.scope?.siteId === PRIMARY_SITE_ID
+      && initial.permissions?.canManageSitePrograms === true
+      && Array.isArray(initial.activePrograms)
+      && initial.activePrograms.length > 0,
+    siteAdminCannotAccessSecondary: siteAdminSecondary.status === 403,
+    globalAdminCanOpenSecondary: globalAdminSecondary.scope?.siteId === SECONDARY_SITE_IDS[0]
+      && globalAdminSecondary.permissions?.canManageSitePrograms === true,
+    removedProgramRestorable,
+    restoredProgramVisible,
+    noSensitiveProgramFields: !directoryHasForbiddenOutput([
+      initial,
+      afterRemove,
+      afterRestore,
+      administrationDenied.body,
+      viewerDenied.body,
+      siteAdminSecondary.body,
+      globalAdminSecondary,
+    ]),
+  };
+  assertChecks("SITE_PROGRAMS_ROUTE_PROOF_FAILED", checks);
+  return {
+    ok: true,
+    initialActivePrograms: Number(initial.activePrograms?.length || 0),
+    initialAvailablePrograms: Number(initial.availablePrograms?.length || 0),
+    removedProgramId: removableProgram.programId,
+    removedProgramRestorable,
+    restoredProgramVisible,
+    administrationDenied: true,
+    viewerDenied: true,
+    siteAdminCannotAccessSecondary: true,
+    globalAdminCanOpenSecondary: true,
+    noSensitiveProgramFields: true,
+    seededAddPath: Number(initial.availablePrograms?.length || 0) > 0 ? "available-on-first-load" : "remove-then-restore-proof",
+  };
 }
 
 async function verifySiteStudentDirectoryRouteProof(env, demoCredentials) {
@@ -1428,6 +1561,34 @@ async function routeStatus(handler, env, cookie, url, params = undefined) {
   const response = await handler({ request: authedRequest(url, cookie), env, params });
   const body = await responseJson(response);
   return { status: response.status, body: safeBody(body) };
+}
+
+async function routeSiteProgramsMutation(env, cookie, body) {
+  const response = await onSiteProgramsPost({
+    request: new Request("https://local.capstone.test/api/site/programs", {
+      method: "POST",
+      headers: {
+        accept: "application/json",
+        "content-type": "application/json; charset=utf-8",
+        cookie,
+        "cf-connecting-ip": "203.0.113.44",
+        "user-agent": "local-demo-proof",
+      },
+      body: JSON.stringify(body),
+    }),
+    env,
+  });
+  const payload = await responseJson(response);
+  if (response.status !== 200 || payload.ok !== true) {
+    throw new DemoProofError("SITE_PROGRAMS_MUTATION_FAILED", "A local demo site-program change did not succeed.", {
+      status: response.status,
+      body: safeBody(payload),
+      action: body.action,
+      siteId: body.siteId,
+      programId: body.programId,
+    });
+  }
+  return payload;
 }
 
 async function seedExistingSession(env, userId, token) {

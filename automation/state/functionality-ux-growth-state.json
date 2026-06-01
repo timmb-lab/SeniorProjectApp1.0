@@ -1,10 +1,18 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-05-31T21:11:22.3397893-07:00",
-  "lastStartingSha": "4046ecb0d90e0715bd7b190267eab0e25ed37e6c",
+  "lastRunAt": "2026-05-31T23:35:00-07:00",
+  "lastStartingSha": "49de57c929755ccee9ce987fd3f7f414e6706c5d",
   "lastEndingSha": null,
   "currentLadderFocus": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
   "completedWorkOrders": [
+    {
+      "id": "seeded-programs-proof-read-only-role-refresh",
+      "completedAt": "2026-05-31T23:35:00-07:00",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "type": "TYPE_D_ROLE_WORKSPACE",
+      "summary": "Proved seeded Site Admin Programs behavior with a reversible local demo flow, made Administration read-only monitoring explicit, and replaced Viewer landing dead ends with real Student Directory drill-downs.",
+      "commit": "pending-closeout-commit"
+    },
     {
       "id": "site-admin-programs-management",
       "completedAt": "2026-05-31T21:11:22-07:00",

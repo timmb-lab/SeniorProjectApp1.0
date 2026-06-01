@@ -21,6 +21,17 @@ This is the compact run log for the current Functionality UX Upgrade automation 
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-05-31 23:35 PT - Functionality UX Upgrade Seeded Programs Proof And Read-Only Role Refresh
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 4 role-specific workspaces / demo-readiness proof / read-only role clarity.
+- `starting HEAD`: `49de57c929755ccee9ce987fd3f7f414e6706c5d`.
+- `selected slice`: Prove Site Admin Programs against seeded demo data, make the Administration read-only boundary explicit, and remove Viewer landing dead ends.
+- `repo-grounded findings`: the new `/api/site/programs` route was real, but the local demo proof did not cover it yet, the primary seeded site started with all active programs already attached, `administration` monitoring stayed implicit in the shell, and the viewer monitoring panel still pointed to denied Review Queue and Operations sections while the real viewer default landing bypassed the panel entirely.
+- `changes`: `scripts/prove-local-demo-workspace.mjs` now proves `/api/site/programs` for Global Admin, Site Admin, Administration-denied, and Viewer-denied access, and verifies a reversible remove-then-restore site-program flow on seeded data. `workspace.js` now gives `viewer` a real Overview landing that renders the monitoring panel before the Student Directory and routes its actions to supported Student Directory filters only; it also renders an explicit Administration read-only monitoring banner. `tests/workspace-app.test.mjs` and `scripts/verify-dashboard-actions.mjs` now guard the new viewer/admin behavior. `docs/product/demo-role-readiness.md` and `docs/functionality-language-audit.md` now record the honest seeded-data caveat and the updated visible/loaded role boundaries.
+- `validation`: focused workspace and Programs tests, dashboard/navigation/language/automation verifiers, local demo proof, `npm run test`, `npm run typecheck`, `npm run check`, and `git diff --check` all passed. Full command details are recorded in the final closeout and per-run manifest.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.
+
 ## 2026-05-31 21:11 PT - Functionality UX Upgrade Site Admin Programs Management
 
 - `automation ID`: functionality-ux-upgrade-hourly.

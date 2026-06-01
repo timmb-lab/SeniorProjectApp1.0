@@ -5142,11 +5142,65 @@ test("workspace renders role-pending and permission-denied access states", async
         },
       },
     },
+    "/api/site/students": {
+      status: 200,
+      body: siteStudentsFixture({ readOnly: true }),
+    },
   });
   assert.match(viewer, /data-workspace-mode="read-only"/);
   assert.match(viewer, /Read-only workspace/);
   assert.match(viewer, /Read-only viewer/);
+  assert.match(viewer, /data-viewer-monitoring-overview="true"/);
+  assert.match(viewer, /Read-only monitoring queue/);
+  assert.match(viewer, /data-section="students" data-section-preset="submitted-students"/);
+  assert.match(viewer, /data-section="students" data-section-preset="missing-mentors"/);
+  assert.match(viewer, /data-section="students" data-section-preset="archive-failed-students"/);
+  assert.doesNotMatch(viewer, /Open review queue|Open operations/);
   assert.match(viewer, /Private evidence/);
+
+  const administration = await renderWorkspaceWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "administration-read-only",
+          email: "administration.readonly@example.edu",
+          displayName: "Administration Readonly",
+          roles: [{ role_id: "administration", scope_type: "site", scope_id: "site-desert-valley-high" }],
+        },
+      },
+    },
+    "/api/site/dashboard": {
+      status: 200,
+      body: siteDashboardFixture({ readOnly: true, role: "administration" }),
+    },
+    "/api/site/students": {
+      status: 200,
+      body: siteStudentsFixture({ readOnly: true, role: "administration" }),
+    },
+    "/api/site/operations-readiness": {
+      status: 200,
+      body: siteOperationsReadinessFixture({ role: "administration", readOnly: true }),
+    },
+    "/api/presentation-slots": {
+      status: 200,
+      body: { ok: true, slots: [] },
+    },
+    "/api/reports/readiness": {
+      status: 200,
+      body: {
+        ok: true,
+        scope: "aggregate_only",
+        generatedAt: "2026-05-31T18:00:00.000Z",
+        metrics: [],
+        rows: [],
+      },
+    },
+  });
+  assert.match(administration, /data-workspace-mode="read-only"/);
+  assert.match(administration, /Read-only monitoring workspace/);
+  assert.match(administration, /Administration/);
 });
 
 test("workspace renders safe Google Workspace SSO and local sign-in states", async () => {

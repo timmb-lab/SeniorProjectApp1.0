@@ -1427,7 +1427,7 @@ function renderActiveSection() {
 function renderOverviewSection() {
   const primaryRole = primaryRoleForUser(currentUser);
   if (["platform_admin", "global_admin", "admin", "org_admin", "site_admin", "administration"].includes(primaryRole)) return renderSiteDashboardSection();
-  if (primaryRole === "viewer") return renderSiteStudentDirectorySection();
+  if (primaryRole === "viewer") return renderViewerOverviewSection();
   if (primaryRole === "program_teacher") return renderProgramTeacherDashboardSection();
   if (primaryRole === "mentor") return renderMentorDashboardSection();
   if (primaryRole === "student") return renderStudentSection();
@@ -1467,6 +1467,14 @@ function renderOverviewSection() {
         </article>
       </div>
     </section>
+  `;
+}
+
+function renderViewerOverviewSection() {
+  const summary = unwrap(currentData.siteStudents)?.summary || {};
+  return `
+    ${renderViewerMonitoringOverview(summary)}
+    ${renderSiteStudentDirectorySection()}
   `;
 }
 
@@ -1533,22 +1541,29 @@ function renderAccessBoundarySummary() {
 
 function renderReadOnlyBanner() {
   const roles = roleIds(currentUser);
-  if (!roles.has("viewer")) return "";
+  if (roles.has("viewer")) {
+    return `
+      <section class="workspace-read-only-banner" data-workspace-mode="read-only" aria-label="Viewer read-only mode">
+        <span class="workspace-chip workspace-role-chip" data-role-id="viewer">Viewer</span>
+        <p>Read-only workspace. You can open assigned student records for context. Site-wide dashboards, approvals, assignment changes, and account updates stay with authorized staff.</p>
+      </section>
+    `;
+  }
+  if (!isReadOnlyAdministrationUser(currentUser)) return "";
   return `
-    <section class="workspace-read-only-banner" data-workspace-mode="read-only" aria-label="Viewer read-only mode">
-      <span class="workspace-chip workspace-role-chip" data-role-id="viewer">Viewer</span>
-      <p>Read-only workspace. You can open assigned student records for context. Site-wide dashboards, approvals, assignment changes, and account updates stay with authorized staff.</p>
+    <section class="workspace-read-only-banner" data-workspace-mode="read-only" aria-label="Administration read-only mode">
+      <span class="workspace-chip workspace-role-chip" data-role-id="administration">Administration</span>
+      <p>Read-only monitoring workspace. You can review assigned student records, presentation readiness, and closeout status for this school. Review approvals, mentor assignment changes, account updates, and security controls stay with authorized staff.</p>
     </section>
   `;
 }
 
-function renderViewerMonitoringOverview(dashboard = {}) {
-  const summary = dashboard.summary || {};
-  const reviewFollowUp = safeNumber(summary.submissionsSubmitted) + safeNumber(summary.revisionRequested);
-  const noMentor = safeNumber(summary.studentsNoMentor);
-  const operationsAttention = safeNumber(summary.presentationsPending) + safeNumber(summary.exportsFailed);
-  const reviewPreset = safeNumber(summary.revisionRequested) > 0 ? "revision-requested" : "submitted";
-  const operationsPreset = safeNumber(summary.exportsFailed) > 0 ? "archive-failed" : "presentation-pending";
+function renderViewerMonitoringOverview(summary = {}) {
+  const reviewFollowUp = safeNumber(summary.submitted) + safeNumber(summary.revisionRequested);
+  const noMentor = safeNumber(summary.noMentor);
+  const operationsAttention = safeNumber(summary.presentationPending) + safeNumber(summary.archiveFailed);
+  const reviewPreset = safeNumber(summary.revisionRequested) > 0 ? "revision-students" : "submitted-students";
+  const operationsPreset = safeNumber(summary.archiveFailed) > 0 ? "archive-failed-students" : "presentation-pending-students";
 
   return `
     <section class="workspace-card" data-viewer-monitoring-overview="true" aria-label="Read-only monitoring priorities">
@@ -1556,7 +1571,7 @@ function renderViewerMonitoringOverview(dashboard = {}) {
         <div>
           <p class="workspace-kicker">Viewer priorities</p>
           <h2>Read-only monitoring queue</h2>
-          <p class="workspace-muted">Open the exact school worklists for context; assigned staff handle approvals, assignments, account changes, and status updates.</p>
+          <p class="workspace-muted">Open the exact assigned-student lists you can already monitor here; assigned staff handle approvals, assignments, account changes, and status updates.</p>
         </div>
         <span class="workspace-chip" data-workspace-mode="read-only">Read-only</span>
       </div>
@@ -1568,8 +1583,8 @@ function renderViewerMonitoringOverview(dashboard = {}) {
           </div>
           <div class="workspace-row-actions">
             ${statusPill(reviewFollowUp ? "pending" : "ready")}
-            <button class="workspace-link-button workspace-link-button-small" type="button" data-section="teacher" data-section-preset="${escapeHtml(reviewPreset)}">
-              Open review queue
+            <button class="workspace-link-button workspace-link-button-small" type="button" data-section="students" data-section-preset="${escapeHtml(reviewPreset)}">
+              Open students
             </button>
           </div>
         </article>
@@ -1592,8 +1607,8 @@ function renderViewerMonitoringOverview(dashboard = {}) {
           </div>
           <div class="workspace-row-actions">
             ${statusPill(operationsAttention ? "attention_required" : "ready")}
-            <button class="workspace-link-button workspace-link-button-small" type="button" data-section="operations" data-section-preset="${escapeHtml(operationsPreset)}">
-              Open operations
+            <button class="workspace-link-button workspace-link-button-small" type="button" data-section="students" data-section-preset="${escapeHtml(operationsPreset)}">
+              Open students
             </button>
           </div>
         </article>
@@ -9212,6 +9227,11 @@ function roleIds(user) {
 
 function hasGlobalAdminRole(roles) {
   return roles.has("global_admin") || roles.has("admin") || roles.has("platform_admin");
+}
+
+function isReadOnlyAdministrationUser(user) {
+  const roles = roleIds(user);
+  return roles.has("administration") && !hasGlobalAdminRole(roles) && !roles.has("org_admin") && !roles.has("site_admin");
 }
 
 function canUseUsersAccess(roles) {

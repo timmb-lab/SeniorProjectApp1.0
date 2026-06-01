@@ -254,8 +254,8 @@ assertMatches(
 );
 assertMatches(
   "workspaceJs",
-  /function renderViewerMonitoringOverview\([\s\S]*data-viewer-monitoring-overview="true"[\s\S]*data-section="teacher" data-section-preset="\$\{escapeHtml\(reviewPreset\)\}"[\s\S]*data-section="students" data-section-preset="missing-mentors"[\s\S]*data-section="operations" data-section-preset="\$\{escapeHtml\(operationsPreset\)\}"/,
-  "Viewer monitoring overview must use existing route-backed Review Queue, Student Directory, and Operations presets",
+  /function renderViewerMonitoringOverview\([\s\S]*data-viewer-monitoring-overview="true"[\s\S]*data-section="students" data-section-preset="\$\{escapeHtml\(reviewPreset\)\}"[\s\S]*data-section="students" data-section-preset="missing-mentors"[\s\S]*data-section="students" data-section-preset="\$\{escapeHtml\(operationsPreset\)\}"/,
+  "Viewer monitoring overview must use existing Student Directory presets instead of denied sections",
 );
 assertMatches(
   "workspaceJs",
