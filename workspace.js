@@ -1811,7 +1811,7 @@ function renderSiteDashboardSection() {
       </div>
       ${renderSummaryStrip([
         { label: "Evidence", value: safeNumber(summary.evidenceArtifacts), detail: "Summary only; open student detail for evidence records.", tone: "mentor", concept: "Missing Evidence" },
-        { label: "Recent Activity", value: safeNumber(summary.recentActivityCount), detail: canOpenAudit ? "Audit destination available." : "Summary only on this role.", tone: "admin", concept: "Recent Activity" },
+        { label: "Recent Activity", value: safeNumber(summary.recentActivityCount), detail: canOpenAudit ? "Latest updates are listed below. Audit destination available." : "Latest updates are listed below.", tone: "admin", concept: "Recent Activity" },
       ], { label: "Site dashboard summary-only metrics" })}
       ${siteStudentDetailState?.sourceSection === "siteDashboard" ? renderSiteStudentDetailSurface({
         students: (dashboard.topRiskStudents || []).map((row) => ({
@@ -1836,6 +1836,7 @@ function renderSiteDashboardSection() {
             ${renderDashboardCard("Status Breakdown", "Student status", renderStatusBreakdown(dashboard.statusBreakdown))}
             ${renderDashboardCard("Top Risk Students", "Priority student signals", renderSiteTopRiskStudents(dashboard.topRiskStudents))}
             ${renderDashboardCard("Mentor Coverage", "Mentor assignment load", renderMentorCoverage(dashboard.mentorCoverage, summary))}
+            ${renderDashboardCard("Recent Activity", "Latest student updates", renderSiteRecentActivity(dashboard.recentActivity))}
             ${renderDashboardCard("Presentation Snapshot", "Readiness and day-of status", renderSnapshotRows(dashboard.presentationSnapshot, "presentation"))}
             ${renderDashboardCard("Archive / Export Snapshot", "Closeout package status", renderSnapshotRows(dashboard.archiveSnapshot, "archive"))}
             ${renderDashboardCard("Next Actions", "Recommended follow-up", renderSiteNextActions(dashboard.nextActions, readOnly))}
@@ -9532,6 +9533,18 @@ function renderRecentProgramActivity(rows = []) {
           </div>
         </article>
       `).join("")}
+    </div>
+  `;
+}
+
+function renderSiteRecentActivity(rows = []) {
+  if (!rows.length) {
+    return `<div class="workspace-empty">No recent school activity is visible yet. New submissions, evidence, and teacher feedback will appear here.</div>`;
+  }
+  return `
+    <div>
+      <p class="workspace-muted">Recent activity is summarized without sensitive private details. Open student detail when assigned staff need the full record.</p>
+      ${renderRecentProgramActivity(rows)}
     </div>
   `;
 }

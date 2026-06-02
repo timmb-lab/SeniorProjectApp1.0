@@ -117,6 +117,7 @@ test("site dashboard route is site-scoped, role-gated, audited, and safe", async
     assert.equal(Array.isArray(body.needsAttention), true);
     assert.equal(Array.isArray(body.topRiskStudents), true);
     assert.equal(Array.isArray(body.mentorCoverage), true);
+    assert.equal(Array.isArray(body.recentActivity), true);
     assert.equal(Array.isArray(body.presentationSnapshot), true);
     assert.equal(Array.isArray(body.archiveSnapshot), true);
     assert.equal(Array.isArray(body.nextActions), true);
@@ -134,6 +135,12 @@ test("site dashboard route is site-scoped, role-gated, audited, and safe", async
   assert.equal(viewed.entity_id, PRIMARY_SITE_ID);
   assert.equal(viewed.metadata.summary.studentsActive, 250);
   assert.doesNotMatch(JSON.stringify(audits), FORBIDDEN_RESPONSE_FIELDS);
+
+  assert.ok(platformPrimary.recentActivity.length > 0);
+  assert.ok(platformPrimary.recentActivity.length <= 8);
+  assert.ok(platformPrimary.recentActivity.every((row) => row.studentId && row.studentName && row.type && row.title && row.occurredAt));
+  assert.ok(platformPrimary.recentActivity.every((row) => ["submission", "evidence", "review"].includes(row.type)));
+  assert.ok(platformPrimary.recentActivity.every((row) => !String(row.title).includes("drive_file_id")));
 });
 
 async function createSeededDemoFixture() {

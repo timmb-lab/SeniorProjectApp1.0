@@ -1,0 +1,146 @@
+{
+  "summary": "Add a privacy-safe Site Dashboard Recent Activity list inside the existing detail panels so site-scoped staff can review recent submissions, evidence, and teacher feedback without a dead-end audit destination.",
+  "selectedReason": "The previous handoff deferred recent activity because there was no safe site-backed Audit destination. Current repo evidence still showed a count-only Site Dashboard Recent Activity metric, but the existing site dashboard route already had enough scope to return redacted submission, evidence, and review updates without adding a new route or exposing private artifact titles, so this was the highest-value safe dashboard-depth batch.",
+  "candidates": [
+    {
+      "candidate": "Site Dashboard Recent Activity detail list",
+      "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS",
+      "roles": ["site_admin", "administration", "org_admin", "global_admin"],
+      "impact": 5,
+      "safety": 5,
+      "testability": 5,
+      "size": "S",
+      "score": 52,
+      "decision": "selected"
+    },
+    {
+      "candidate": "Student detail URL state",
+      "ladderLevel": "LEVEL_2_STUDENT_DETAIL_DEPTH",
+      "roles": ["site staff"],
+      "impact": 4,
+      "safety": 3,
+      "testability": 3,
+      "size": "M",
+      "score": 39,
+      "decision": "deferred: privacy review still needed"
+    },
+    {
+      "candidate": "Review Queue missing-submission semantics",
+      "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
+      "roles": ["program_teacher", "site_admin"],
+      "impact": 5,
+      "safety": 2,
+      "testability": 3,
+      "size": "M",
+      "score": 34,
+      "decision": "deferred: backend queue rows are still absent"
+    },
+    {
+      "candidate": "Mentor reassignment or removal workflow",
+      "ladderLevel": "LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW",
+      "roles": ["site_admin"],
+      "impact": 4,
+      "safety": 2,
+      "testability": 3,
+      "size": "M",
+      "score": 33,
+      "decision": "deferred: mutation and audit design still needed"
+    },
+    {
+      "candidate": "Viewer student email redaction decision",
+      "ladderLevel": "LEVEL_7_AUDITABILITY_AND_TRUST",
+      "roles": ["viewer"],
+      "impact": 3,
+      "safety": 2,
+      "testability": 3,
+      "size": "S",
+      "score": 30,
+      "decision": "deferred: policy decision first"
+    },
+    {
+      "candidate": "Permission-denied copy hardening",
+      "ladderLevel": "LEVEL_0_PROTOTYPE_CLEANUP",
+      "roles": ["all denied users"],
+      "impact": 3,
+      "safety": 5,
+      "testability": 4,
+      "size": "XS",
+      "score": 41,
+      "decision": "not selected: smaller value than the open Site Dashboard dead-end"
+    },
+    {
+      "candidate": "Site dashboard why-this-matters microcopy",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "roles": ["site staff"],
+      "impact": 3,
+      "safety": 5,
+      "testability": 4,
+      "size": "XS",
+      "score": 40,
+      "decision": "not selected: recent-activity depth provided stronger workflow value"
+    },
+    {
+      "candidate": "Mobile dashboard smoke proof",
+      "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
+      "roles": ["all protected roles"],
+      "impact": 3,
+      "safety": 4,
+      "testability": 2,
+      "size": "M",
+      "score": 33,
+      "decision": "deferred: browser runtime proof is outside this local batch"
+    },
+    {
+      "candidate": "Hosted section-level permission proof",
+      "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
+      "roles": ["all protected roles"],
+      "impact": 4,
+      "safety": 3,
+      "testability": 3,
+      "size": "M",
+      "score": 38,
+      "decision": "deferred: hosted fake-account runtime is outside this local batch"
+    },
+    {
+      "candidate": "Program Teacher mentor-meeting follow-up destination",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "roles": ["program_teacher"],
+      "impact": 4,
+      "safety": 3,
+      "testability": 3,
+      "size": "M",
+      "score": 40,
+      "decision": "deferred: no exact current destination is proven for that follow-up row"
+    }
+  ],
+  "filesChanged": [
+    "functions/api/site/dashboard.ts",
+    "workspace.js",
+    "tests/site-dashboard.integration.test.mjs",
+    "tests/workspace-app.test.mjs",
+    "docs/functionality-language-audit.md",
+    "docs/product/demo-role-readiness.md",
+    "docs/progress/run-log.md",
+    "docs/functionality-ux-growth-ledger.md",
+    "automation/state/functionality-ux-growth-state.json"
+  ],
+  "validation": [
+    "node --check workspace.js",
+    "node --test tests/site-dashboard.integration.test.mjs",
+    "node --test tests/workspace-app.test.mjs",
+    "npm run verify:functionality-language",
+    "npm run verify:functionality-ux-automation",
+    "npm run check:production-surfaces",
+    "npm run typecheck",
+    "npm run test",
+    "npm run check",
+    "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-02-1038-site-dashboard-recent-activity.json','utf8')); console.log('json ok')\"",
+    "git diff --check"
+  ],
+  "nextRecommended": "Revisit privacy-safe student-detail URL state, or keep expanding staff queue semantics only when a fully backed scoped route exists.",
+  "doNotRepeat": [
+    "Do not turn the Site Dashboard Recent Activity list into a Global Admin audit shortcut for site-scoped roles.",
+    "Do not expose private evidence titles or storage metadata in the Site Dashboard activity feed.",
+    "Do not remove the in-dashboard recent-activity list unless a clearer route-backed site-safe destination replaces it."
+  ]
+}

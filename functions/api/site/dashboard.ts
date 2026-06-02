@@ -62,6 +62,15 @@ interface MentorCoverageRow {
   active_assignments: number;
 }
 
+interface RecentActivityRow {
+  student_id: string;
+  student_name: string;
+  activity_type: string;
+  activity_title: string | null;
+  status: string | null;
+  occurred_at: string | null;
+}
+
 type AuditContext = SiteScopeContext;
 
 export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
@@ -140,6 +149,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
     statusBreakdown,
     topRiskStudents,
     mentorCoverage,
+    recentActivity,
     presentationSnapshot,
     archiveSnapshot,
   ] = await Promise.all([
@@ -149,6 +159,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
     loadStatusBreakdown(env, site.id),
     loadTopRiskStudents(env, site.id),
     loadMentorCoverage(env, site.id),
+    loadRecentActivity(env, site.id),
     countByStatus(env, site.id, `SELECT presentation_slots.status, COUNT(DISTINCT presentation_slots.id) AS count
       FROM presentation_slots
       JOIN site_users ON site_users.user_id = presentation_slots.student_user_id
@@ -201,6 +212,14 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
     needsAttention,
     topRiskStudents,
     mentorCoverage,
+    recentActivity: recentActivity.map((row) => ({
+      studentId: row.student_id,
+      studentName: row.student_name,
+      type: row.activity_type,
+      title: row.activity_title || "Recent student update",
+      status: row.status || "updated",
+      occurredAt: row.occurred_at,
+    })),
     presentationSnapshot: statusSnapshot(presentationSnapshot),
     archiveSnapshot: statusSnapshot(archiveSnapshot),
     nextActions,
@@ -562,6 +581,61 @@ async function loadMentorCoverage(env: Env, siteId: string) {
     mentorName: row.mentor_name,
     activeAssignments: Number(row.active_assignments || 0),
   }));
+}
+
+async function loadRecentActivity(env: Env, siteId: string): Promise<RecentActivityRow[]> {
+  const rows = await safeRows<RecentActivityRow>(env, siteId, `
+    WITH site_students AS (
+      SELECT user_accounts.id, user_accounts.display_name
+      FROM site_users
+      JOIN user_accounts ON user_accounts.id = site_users.user_id
+      JOIN user_roles ON user_roles.user_id = user_accounts.id
+       AND user_roles.role_id = 'student'
+      WHERE site_users.site_id = ?
+       AND site_users.membership_status = 'active'
+       AND user_accounts.status = 'active'
+    ),
+    activity AS (
+      SELECT
+        submissions.student_id,
+        site_students.display_name AS student_name,
+        'submission' AS activity_type,
+        COALESCE(requirements.title, 'Senior Project submission') AS activity_title,
+        submissions.status,
+        COALESCE(submissions.updated_at, submissions.submitted_at, submissions.created_at) AS occurred_at
+      FROM submissions
+      JOIN site_students ON site_students.id = submissions.student_id
+      LEFT JOIN requirements ON requirements.id = submissions.requirement_id
+      UNION ALL
+      SELECT
+        evidence_artifacts.student_id,
+        site_students.display_name AS student_name,
+        'evidence' AS activity_type,
+        'Evidence added' AS activity_title,
+        evidence_artifacts.review_status AS status,
+        evidence_artifacts.created_at AS occurred_at
+      FROM evidence_artifacts
+      JOIN site_students ON site_students.id = evidence_artifacts.student_id
+      WHERE evidence_artifacts.deleted_at IS NULL
+      UNION ALL
+      SELECT
+        submissions.student_id,
+        site_students.display_name AS student_name,
+        'review' AS activity_type,
+        COALESCE(requirements.title, 'Teacher review') AS activity_title,
+        reviews.decision AS status,
+        reviews.created_at AS occurred_at
+      FROM reviews
+      JOIN submissions ON submissions.id = reviews.submission_id
+      JOIN site_students ON site_students.id = submissions.student_id
+      LEFT JOIN requirements ON requirements.id = submissions.requirement_id
+    )
+    SELECT *
+    FROM activity
+    WHERE occurred_at IS NOT NULL
+    ORDER BY occurred_at DESC
+    LIMIT 8`);
+  return rows;
 }
 
 async function countRecentActivity(env: Env, siteId: string): Promise<number> {

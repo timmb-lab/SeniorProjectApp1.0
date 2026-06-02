@@ -5566,3 +5566,61 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: recent activity still lacks a proven site-backed destination; `administration` must remain without Review Queue actions; student-detail URL state still needs privacy review.
   - Do not repeat: do not re-open this exact next-action drill-down slice unless the verifier or render proof regresses.
   - First file to inspect next run: `functions/api/site/dashboard.ts` around `buildNextActions()`
+
+## Run 2026-06-02 10:38 PT
+
+- Starting SHA: `e451d0e6cc99af59615387c5849dee4c6849edbf`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Branch policy: work stayed on clean local `main`; no deploy, seed, reset, migration, or live config change was run
+- Ladder level targeted: `LEVEL_1_NAVIGABLE_DASHBOARDS`
+- Backlog item: `site-dashboard-recent-activity-depth`
+- Work order selected: Add a privacy-safe recent-activity list inside the existing Site Dashboard detail panels.
+- Selection reason: The previous handoff deferred recent activity because there was no safe site-backed Audit destination. Current repo evidence still showed a count-only Site Dashboard `Recent Activity` metric in `workspace.js`, while `functions/api/site/dashboard.ts` returned only `recentActivityCount` even though the same route already had enough site scope to summarize recent submissions, evidence, and review updates without a new route. That made a redacted in-dashboard activity list the highest-value safe dashboard-depth slice.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Site Dashboard recent-activity detail list | `LEVEL_1_NAVIGABLE_DASHBOARDS` | `site_admin`, `administration`, `org_admin`, `global_admin` | 5 | 5 | 5 | S | 52 | selected |
+| Student detail URL state | `LEVEL_2_STUDENT_DETAIL_DEPTH` | site staff | 4 | 3 | 3 | M | 39 | deferred: privacy review still needed |
+| Review Queue missing-submission semantics | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | `program_teacher`, `site_admin` | 5 | 2 | 3 | M | 34 | deferred: backend queue rows are still absent |
+| Mentor reassignment or removal workflow | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | `site_admin` | 4 | 2 | 3 | M | 33 | deferred: mutation and audit design still needed |
+| Viewer student email redaction decision | `LEVEL_7_AUDITABILITY_AND_TRUST` | `viewer` | 3 | 2 | 3 | S | 30 | deferred: policy decision first |
+| Permission-denied copy hardening | `LEVEL_0_PROTOTYPE_CLEANUP` | all denied users | 3 | 5 | 4 | XS | 41 | not selected: smaller value than the open Site Dashboard gap |
+| Site-dashboard why-this-matters microcopy | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | site staff | 3 | 5 | 4 | XS | 40 | not selected: recent-activity depth provided stronger workflow value |
+| Mobile dashboard smoke proof | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all protected roles | 3 | 4 | 2 | M | 33 | deferred: browser runtime proof is outside this local batch |
+| Hosted section-level permission proof | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all protected roles | 4 | 3 | 3 | M | 38 | deferred: hosted fake-account runtime is outside this local batch |
+| Program Teacher mentor-meeting follow-up destination | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | `program_teacher` | 4 | 3 | 3 | M | 40 | deferred: no exact current destination is proven |
+
+- User-facing improvement: Site-scoped staff now get a real `Recent Activity` detail list inside the Site Dashboard, with recent submissions, evidence, and review updates that stay redacted and can open the existing student-detail drawer without exposing Global Admin-only Audit navigation.
+- Roles affected: `site_admin`, `administration`, `org_admin`, `global_admin`, legacy `admin`
+- Files changed: `functions/api/site/dashboard.ts`, `workspace.js`, `tests/site-dashboard.integration.test.mjs`, `tests/workspace-app.test.mjs`, `docs/functionality-language-audit.md`, `docs/product/demo-role-readiness.md`, `docs/progress/run-log.md`, `docs/progress/runs/2026-06-02-1038-site-dashboard-recent-activity.json`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`
+- Tests/verifiers added or updated: `tests/site-dashboard.integration.test.mjs` now proves the site dashboard returns a bounded `recentActivity` list, and `tests/workspace-app.test.mjs` now proves site roles see the in-dashboard recent-activity card without Audit navigation.
+- Validation commands:
+  - `node --check workspace.js`
+  - `node --test tests/site-dashboard.integration.test.mjs`
+  - `node --test tests/workspace-app.test.mjs`
+  - `npm run verify:functionality-language`
+  - `npm run verify:functionality-ux-automation`
+  - `npm run check:production-surfaces`
+  - `npm run typecheck`
+  - `npm run test`
+  - `npm run check`
+  - `node -e "JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-02-1038-site-dashboard-recent-activity.json','utf8')); console.log('json ok')"`
+  - `git diff --check`
+- Validation result: passed. Workspace syntax checks, focused site-dashboard and workspace render coverage, functionality-language and automation verification, production-surface checks, typecheck, full test and check runs, JSON parsing, and `git diff --check` all passed after docs/state closeout; `git diff --check` reported CRLF normalization warnings only.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: student-detail URL state, Review Queue missing-submission semantics, mentor reassignment/remove workflow, viewer email redaction policy, mobile dashboard smoke proof, Program Teacher mentor-meeting follow-up destination, and hosted section-level permission proof remain open.
+- New backlog items: none
+- Next recommended work order: Revisit privacy-safe student-detail URL state, or keep expanding staff queue semantics only when a fully backed scoped route exists.
+- Do-not-repeat notes: do not turn Site Dashboard `Recent Activity` into a site-scoped Audit shortcut, do not expose private evidence titles or storage metadata in dashboard activity rows, and do not remove the in-dashboard recent-activity list unless a clearer site-safe destination replaces it.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_1_NAVIGABLE_DASHBOARDS`
+  - Advanced: yes
+  - Evidence: `functions/api/site/dashboard.ts` now returns a bounded `recentActivity` list with evidence rows redacted to `Evidence added`, and `workspace.js` renders that list in the Site Dashboard while keeping Audit unavailable to site-scoped roles.
+  - Unlocks: the next dashboard or detail slice can build on a real recent-activity surface instead of a count-only metric.
+  - Next: inspect `workspace.js` site-dashboard detail rendering and the existing student-detail state helpers before adding shareable or back-link behavior.
+  - Blockers: site-scoped Audit navigation still has no approved route; student-detail URL state still needs privacy review; hosted click-through proof remains out of scope for this local run.
+  - Do not repeat: do not re-open this exact recent-activity depth slice unless the render or route coverage regresses.
+  - First file to inspect next run: `workspace.js` around `renderSiteRecentActivity()`

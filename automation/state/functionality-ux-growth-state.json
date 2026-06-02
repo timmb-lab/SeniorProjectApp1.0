@@ -1,10 +1,18 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-06-02T10:09:34-07:00",
-  "lastStartingSha": "5d3225443d5cf26ead6164eb2f2403f8c0414b4f",
+  "lastRunAt": "2026-06-02T10:38:40-07:00",
+  "lastStartingSha": "e451d0e6cc99af59615387c5849dee4c6849edbf",
   "lastEndingSha": null,
   "currentLadderFocus": "LEVEL_1_NAVIGABLE_DASHBOARDS",
   "completedWorkOrders": [
+    {
+      "id": "site-dashboard-recent-activity-depth",
+      "completedAt": "2026-06-02T10:38:40-07:00",
+      "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS",
+      "type": "TYPE_B_DASHBOARD_CLICK_THROUGH",
+      "summary": "The Site Dashboard now includes a redacted Recent Activity list inside the existing detail panels so site-scoped staff can review recent submissions, evidence, and teacher feedback without opening a Global Admin-only audit surface.",
+      "commit": "pending-closeout-commit"
+    },
     {
       "id": "site-dashboard-next-actions-drilldowns",
       "completedAt": "2026-06-02T10:09:34-07:00",
@@ -1071,10 +1079,10 @@
   "blockedWorkOrders": [],
   "nextRecommendedWorkOrders": [
     {
-      "id": "site-dashboard-recent-activity-drilldown",
-      "ladderLevel": "LEVEL_7_AUDITABILITY_AND_TRUST",
-      "type": "TYPE_B_DASHBOARD_CLICK_THROUGH",
-      "summary": "Add a safe read-only recent-activity destination on the Site Dashboard only if a site-backed audit or bounded summary path is proven."
+      "id": "student-detail-url-state",
+      "ladderLevel": "LEVEL_2_STUDENT_DETAIL_DEPTH",
+      "type": "TYPE_C_STUDENT_DETAIL_DRILL_DOWN",
+      "summary": "Add privacy-safe URL state for the existing student-detail drawer only after reload and authorization behavior are proven."
     },
     {
       "id": "review-queue-missing-submission-semantics",
@@ -1083,19 +1091,22 @@
       "summary": "Clarify missing-submission behavior in the Review Queue only after backend rows or exact scoped empty-state evidence are proven."
     },
     {
-      "id": "student-detail-url-state",
-      "ladderLevel": "LEVEL_2_STUDENT_DETAIL_DEPTH",
-      "type": "TYPE_C_STUDENT_DETAIL_DRILL_DOWN",
-      "summary": "Add privacy-safe URL state for the existing student-detail drawer only after reload and authorization behavior are proven."
-    },
-    {
       "id": "hosted-section-permission-proof",
       "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
       "type": "TYPE_G_VERIFICATION_REGRESSION_PROTECTION",
       "summary": "Run only when hosted fake-account proof and audit-event writes are allowed."
+    },
+    {
+      "id": "site-dashboard-recent-activity-hosted-proof",
+      "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
+      "type": "TYPE_G_VERIFICATION_REGRESSION_PROTECTION",
+      "summary": "Run hosted click-through on the new Site Dashboard Recent Activity list before treating the role readiness path as fully demo-ready."
     }
   ],
   "doNotRepeat": [
+    "Do not remove the in-dashboard Site Dashboard Recent Activity list unless a clearer site-safe destination replaces it.",
+    "Do not turn the Site Dashboard Recent Activity list into a site-scoped Audit shortcut while Audit remains Global Admin-only.",
+    "Do not expose private evidence titles or storage metadata in Site Dashboard Recent Activity rows.",
     "Do not remove role-safe Site Dashboard Next Actions drill-downs or summary-only fallbacks unless a clearer route-backed destination replaces them.",
     "Do not show Review Queue action buttons to Administration on Site Dashboard cards while that role still lacks the Review Queue section.",
     "Do not revert Site Dashboard Needs Attention rows to summary-only when the existing Student Directory, Review Queue, and Operations presets still back those actions.",
@@ -1218,21 +1229,21 @@
   ],
   "lastValidationStatus": {
     "status": "passed",
-    "completedAt": "2026-06-02T10:09:34-07:00",
+    "completedAt": "2026-06-02T10:38:40-07:00",
     "commands": [
       "node --check workspace.js",
+      "node --test tests/site-dashboard.integration.test.mjs",
       "node --test tests/workspace-app.test.mjs",
-      "npm run verify:dashboard-actions",
       "npm run verify:functionality-language",
       "npm run verify:functionality-ux-automation",
       "npm run check:production-surfaces",
       "npm run typecheck",
       "npm run test",
       "npm run check",
-      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-02-1009-site-dashboard-next-actions.json','utf8')); console.log('json ok')\"",
+      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-02-1038-site-dashboard-recent-activity.json','utf8')); console.log('json ok')\"",
       "git diff --check"
     ],
-    "notes": "The Site Dashboard next-actions slice passed workspace syntax checks, focused Site Dashboard render coverage, dashboard-action verification, functionality-language and automation verification, production-surface checks, typecheck, full test and check runs, JSON parsing, and git diff --check with CRLF normalization warnings only."
+    "notes": "The Site Dashboard recent-activity slice passed workspace syntax checks, focused site-dashboard and workspace render coverage, functionality-language and automation verification, production-surface checks, typecheck, full test and check runs, JSON parsing, and git diff --check with CRLF normalization warnings only."
   },
   "lastProductReadinessScorecardSummary": {
     "homepageClarity": "4 to 4",

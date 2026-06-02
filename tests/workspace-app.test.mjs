@@ -571,7 +571,7 @@ test("site dashboard top-risk detail stays in dashboard context", async () => {
   assert.doesNotMatch(workspaceRoot.innerHTML, /workspace-detail-drawer/);
 });
 
-test("site admin dashboard recent activity stays summary-only without global admin audit data", async () => {
+test("site admin dashboard recent activity shows a local detail list without opening global audit", async () => {
   const { context, workspaceRoot } = await createWorkspaceContextWithFetch({
     "/api/auth/me": {
       status: 200,
@@ -596,8 +596,16 @@ test("site admin dashboard recent activity stays summary-only without global adm
 
   assert.ok(!sectionIds.includes("audit"));
   assert.ok(!sectionIds.includes("archiveExports"));
-  assert.match(workspaceRoot.innerHTML, /Recent Activity[\s\S]*Summary only/);
+  assert.match(workspaceRoot.innerHTML, /Recent Activity[\s\S]*Latest updates are listed below\./);
   assert.doesNotMatch(workspaceRoot.innerHTML, /data-section="audit"/);
+
+  openWorkspaceDisclosure(context, "dashboard", "siteDashboard");
+
+  assert.match(workspaceRoot.innerHTML, /Latest student updates/);
+  assert.match(workspaceRoot.innerHTML, /Recent activity is summarized without sensitive private details/);
+  assert.match(workspaceRoot.innerHTML, /Missing Mentor Demo/);
+  assert.match(workspaceRoot.innerHTML, /Evidence added/);
+  assert.match(workspaceRoot.innerHTML, /data-site-student-action="view-detail" data-student-detail-id="demo-student-101"/);
 });
 
 test("program teacher dashboard rows open existing student detail", async () => {
@@ -3744,7 +3752,8 @@ test("workspace keeps audit and archive export sections global-admin only", () =
   assert.doesNotMatch(availableSectionsBlock, /roles\.has\("site_admin"\)\) sections\.push\(\{ id: "audit"/);
   assert.doesNotMatch(availableSectionsBlock, /roles\.has\("site_admin"\)\) sections\.push\(\{ id: "archiveExports"/);
   assert.match(siteDashboardBlock, /const canOpenAudit = availableSectionIds\(\)\.has\("audit"\);/);
-  assert.match(siteDashboardBlock, /label: "Recent Activity", value: safeNumber\(summary\.recentActivityCount\), detail: canOpenAudit \? "Audit destination available\." : "Summary only on this role\."/);
+  assert.match(siteDashboardBlock, /label: "Recent Activity", value: safeNumber\(summary\.recentActivityCount\), detail: canOpenAudit \? "Latest updates are listed below\. Audit destination available\." : "Latest updates are listed below\."/);
+  assert.match(siteDashboardBlock, /renderDashboardCard\("Recent Activity", "Latest student updates", renderSiteRecentActivity\(dashboard\.recentActivity\)\)/);
 });
 
 test("workspace exposes a real admin site switcher and collapsible navigation", () => {
@@ -6596,6 +6605,24 @@ function siteDashboardFixture({ readOnly = false } = {}) {
     mentorCoverage: [
       { mentorId: "demo-mentor-001", mentorName: "Mentor One", activeAssignments: 8 },
       { mentorId: "demo-mentor-002", mentorName: "Mentor Two", activeAssignments: 0 },
+    ],
+    recentActivity: [
+      {
+        studentId: "demo-student-101",
+        studentName: "Missing Mentor Demo",
+        type: "evidence",
+        title: "Evidence added",
+        status: "attached",
+        occurredAt: "2026-05-31T16:15:00.000Z",
+      },
+      {
+        studentId: "demo-student-102",
+        studentName: "Revision Follow-up Demo",
+        type: "review",
+        title: "Core Concept Proposal",
+        status: "revision_requested",
+        occurredAt: "2026-05-31T15:30:00.000Z",
+      },
     ],
     presentationSnapshot: [
       { status: "scheduled", count: 32 },

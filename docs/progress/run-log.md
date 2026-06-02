@@ -2733,3 +2733,14 @@ Future productive runs should append compact entries that name the master-plan s
 - `changes`: `functions/api/site/dashboard.ts` now maps site-dashboard attention rows to the existing `missing-mentors`, `revision-requested`, `presentation-pending`, and `archive-failed` presets with role-safe labels. `scripts/verify-dashboard-actions.mjs` now checks those site-dashboard helper mappings directly and was refreshed to match the current Viewer monitoring and Operations dashboard source instead of stale regex expectations. `tests/workspace-app.test.mjs` now proves the Site Dashboard renders the new attention-row labels without changing RBAC or route scope.
 - `validation`: focused workspace and dashboard-action verification passed before docs/state closeout. Full closeout validation is recorded in `docs/functionality-ux-growth-ledger.md`.
 - `commit/push status`: pending closeout commit; not pushed by this automation run.
+
+## 2026-06-02 PT - Functionality UX Upgrade Site Dashboard Recent Activity
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 1 navigable dashboards / Site Dashboard recent-activity depth.
+- `starting HEAD`: `e451d0e6cc99af59615387c5849dee4c6849edbf`.
+- `selected slice`: Add a privacy-safe recent-activity list to the existing Site Dashboard detail panels.
+- `repo-grounded findings`: the previous handoff deferred Site Dashboard recent activity because there was no safe site-backed Audit destination. Current repo evidence still showed a count-only `Recent Activity` metric in `workspace.js`, while `functions/api/site/dashboard.ts` only returned `recentActivityCount` even though the route already had enough site scope to summarize recent submissions, evidence, and review updates without adding a new route or exposing private file details.
+- `changes`: `functions/api/site/dashboard.ts` now returns a site-scoped `recentActivity` list built from existing submissions, evidence, and review records, with evidence rows intentionally reduced to `Evidence added` instead of private artifact titles. `workspace.js` now tells site roles that the latest updates are listed below and renders a disclosed `Recent Activity` card that reuses the existing student-detail action path without exposing Global Admin-only Audit navigation. `tests/site-dashboard.integration.test.mjs` and `tests/workspace-app.test.mjs` now prove the route shape, the in-dashboard activity list, and the preserved no-Audit boundary for site roles. `docs/functionality-language-audit.md` and `docs/product/demo-role-readiness.md` record the new dashboard depth.
+- `validation`: focused site-dashboard and workspace tests plus language/automation/production-surface verification passed before docs/state closeout. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.
