@@ -422,6 +422,11 @@ test("workspace renders route-connected site dashboard with Figma product-system
   assert.match(expandedSiteDashboard, /data-section="operations" data-section-preset="presentation-snapshot" data-presentation-status="scheduled">[\s\S]*Review rows/);
   assert.match(expandedSiteDashboard, /data-section="operations" data-section-preset="archive-snapshot" data-archive-status="failed">[\s\S]*Review rows/);
   assert.match(expandedSiteDashboard, /Checked out[\s\S]*Summary only/);
+  assert.match(expandedSiteDashboard, /Act on assigned site records[\s\S]*data-section="students" data-section-preset="all-students"[\s\S]*Open student list/);
+  assert.match(expandedSiteDashboard, /Teacher follow-up[\s\S]*data-section="teacher" data-section-preset="revision-requested"[\s\S]*Open review queue/);
+  assert.match(expandedSiteDashboard, /Presentation and archive follow-up[\s\S]*data-section="operations" data-section-preset="archive-failed"[\s\S]*Open operations/);
+  assert.match(expandedSiteDashboard, /Private evidence[\s\S]*Summary only/);
+  assert.match(expandedSiteDashboard, /Protected access[\s\S]*Summary only/);
   assert.match(expandedSiteDashboard, /Private evidence/);
   assert.match(expandedSiteDashboard, /Assigned student records/);
   assert.match(expandedSiteDashboard, /Protected access/);
@@ -5550,6 +5555,51 @@ test("workspace renders Administration site dashboard and readiness without view
   assert.doesNotMatch(administrationReadiness, /Read-only viewer/);
 });
 
+test("Administration next actions stay role-safe on the Site Dashboard", async () => {
+  const { context, workspaceRoot } = await createWorkspaceContextWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "administration-next-actions",
+          email: "administration.next.actions@example.edu",
+          displayName: "Administration Next Actions",
+          roles: [{ role_id: "administration", scope_type: "site", scope_id: "site-desert-valley-high" }],
+        },
+      },
+    },
+    "/api/site/dashboard": {
+      status: 200,
+      body: siteDashboardFixture({ readOnly: true, role: "administration" }),
+    },
+    "/api/site/students": {
+      status: 200,
+      body: siteStudentsFixture({ readOnly: true, role: "administration" }),
+    },
+    "/api/site/operations-readiness": {
+      status: 200,
+      body: siteOperationsReadinessFixture({ role: "administration", readOnly: true }),
+    },
+    "/api/reports/readiness": {
+      status: 200,
+      body: {
+        ok: true,
+        scope: "aggregate_only",
+        generatedAt: "2026-05-31T18:00:00.000Z",
+        metrics: [],
+        rows: [],
+      },
+    },
+  }, { activeSection: "siteDashboard" });
+
+  openWorkspaceDisclosure(context, "dashboard", "siteDashboard");
+  assert.match(workspaceRoot.innerHTML, /Review assigned site records[\s\S]*data-section="students" data-section-preset="all-students"[\s\S]*Open student list/);
+  assert.match(workspaceRoot.innerHTML, /Teacher follow-up[\s\S]*data-section="students" data-section-preset="revision-students"[\s\S]*Open student list/);
+  assert.match(workspaceRoot.innerHTML, /Presentation and archive follow-up[\s\S]*data-section="operations" data-section-preset="archive-failed"[\s\S]*Open operations/);
+  assert.doesNotMatch(workspaceRoot.innerHTML, /data-section="teacher" data-section-preset="revision-requested"[\s\S]*Open review queue/);
+});
+
 test("workspace renders safe Google Workspace SSO and local sign-in states", async () => {
   const disabled = await renderWorkspaceWithFetch({
     "/api/auth/config": {
@@ -6557,9 +6607,28 @@ function siteDashboardFixture({ readOnly = false } = {}) {
     ],
     nextActions: [
       {
+        label: readOnly ? "Review assigned site records" : "Act on assigned site records",
+        detail: "250 active student records are visible for this site.",
+        status: "ready",
+        actionSection: "students",
+        actionPreset: "all-students",
+        actionLabel: "Open student list",
+      },
+      {
         label: "Teacher follow-up",
         detail: "84 submitted or revision-requested records need teacher follow-up.",
         status: "revision_requested",
+        actionSection: readOnly ? "students" : "teacher",
+        actionPreset: readOnly ? "revision-students" : "revision-requested",
+        actionLabel: readOnly ? "Open student list" : "Open review queue",
+      },
+      {
+        label: "Presentation and archive follow-up",
+        detail: "1 archive export(s) need follow-up.",
+        status: "failed",
+        actionSection: "operations",
+        actionPreset: "archive-failed",
+        actionLabel: "Open operations",
       },
       {
         label: "Private evidence",

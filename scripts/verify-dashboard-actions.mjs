@@ -273,6 +273,31 @@ assertMatches(
   "site dashboard archive attention item must link to the archive-failed operations filter",
 );
 assertMatches(
+  "siteDashboardApi",
+  /label: `\$\{prefix\} assigned site records`[\s\S]*actionSection: "students"[\s\S]*actionPreset: "all-students"[\s\S]*actionLabel: "Open student list"/,
+  "site dashboard next-actions student summary must link to the all-students directory filter",
+);
+assertMatches(
+  "siteDashboardApi",
+  /label: "Teacher follow-up"[\s\S]*actionSection: reviewSection[\s\S]*actionPreset: reviewActionPreset[\s\S]*actionLabel: reviewActionLabel/,
+  "site dashboard next-actions teacher follow-up must route through the role-safe review or student preset",
+);
+assertMatches(
+  "siteDashboardApi",
+  /label: "Presentation and archive follow-up"[\s\S]*actionSection: hasOperationsFollowUp \? "operations" : ""[\s\S]*actionPreset: hasOperationsFollowUp \? operationsPreset : ""[\s\S]*actionLabel: hasOperationsFollowUp \? "Open operations" : ""/,
+  "site dashboard next-actions operations follow-up must use the existing operations presets when follow-up exists",
+);
+assertMatches(
+  "workspaceJs",
+  /function renderSiteNextActions\([\s\S]*data-section="\$\{escapeHtml\(action\.actionSection\)\}" data-section-preset="\$\{escapeHtml\(action\.actionPreset\)\}"[\s\S]*workspace-summary-badge">Summary only<\/span>/,
+  "site dashboard next-actions must distinguish actionable rows from summary-only rows",
+);
+assertMatches(
+  "workspaceJs",
+  /function renderNeedsAttention\([\s\S]*availableSectionIds\(\)\.has\(item\.actionSection\)[\s\S]*workspace-summary-badge">Summary only<\/span>/,
+  "dashboard attention rows must hide unavailable destination buttons behind summary-only treatment",
+);
+assertMatches(
   "workspaceJs",
   /function renderReadOnlyMonitoringOverview\([\s\S]*data-viewer-monitoring-overview="true"[\s\S]*data-section="students" data-section-preset="\$\{escapeHtml\(reviewPreset\)\}"[\s\S]*data-section="students" data-section-preset="missing-mentors"[\s\S]*data-section="students" data-section-preset="\$\{escapeHtml\(operationsPreset\)\}"/,
   "Viewer monitoring overview must use existing Student Directory presets instead of denied sections",

@@ -21,6 +21,17 @@ This is the compact run log for the current Functionality UX Upgrade automation 
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-06-02 10:09 PT - Functionality UX Upgrade Site Dashboard Next Actions
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 1 navigable dashboards / Site Dashboard follow-up drill-downs.
+- `starting HEAD`: `5d3225443d5cf26ead6164eb2f2403f8c0414b4f`.
+- `selected slice`: Turn the disclosed Site Dashboard `Next Actions` rows into role-safe click-throughs.
+- `repo-grounded findings`: the previous handoff pointed directly at `buildNextActions()`, and current repo evidence still showed a live gap. `functions/api/site/dashboard.ts` returned summary-only `nextActions` rows, `workspace.js` rendered them without any action buttons, and `renderNeedsAttention()` still trusted any `actionSection` blindly. The existing Student Directory, Review Queue, and Operations presets already covered the needed follow-up destinations, so the smallest safe product batch was to wire those rows into the existing presets and force unavailable destinations back to summary-only treatment.
+- `changes`: `functions/api/site/dashboard.ts` now gives Site Dashboard `Next Actions` role-safe presets for the all-students list, teacher follow-up, and presentation/archive follow-up. `workspace.js` now renders action buttons for Site Dashboard `Next Actions` only when the destination section exists for the current role, and `renderNeedsAttention()` now uses that same section-availability guard so Administration does not see Review Queue dead ends. `scripts/verify-dashboard-actions.mjs` now guards the new next-action mappings and the summary-only fallback. `tests/workspace-app.test.mjs` now proves the actionable Site Admin path and the role-safe Administration path.
+- `validation`: `node --check workspace.js`, `node --test tests/workspace-app.test.mjs`, `npm run verify:dashboard-actions`, and `npm run verify:functionality-language` passed before full closeout.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.
+
 ## 2026-06-02 09:02 PT - Functionality UX Upgrade Dashboard Risk Explanation Copy
 
 - `automation ID`: functionality-ux-upgrade-hourly.

@@ -5508,3 +5508,61 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: recent activity still lacks a proven site-backed destination; `administration` must remain without Review Queue actions; student-detail URL state still needs privacy review.
   - Do not repeat: do not re-open this exact attention-row drill-down slice unless the verifier or render proof regresses.
   - First file to inspect next run: `functions/api/site/dashboard.ts` around `buildNextActions()`
+
+## Run 2026-06-02 10:09 PT
+
+- Starting SHA: `5d3225443d5cf26ead6164eb2f2403f8c0414b4f`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Branch policy: work stayed on clean local `main`; no deploy, seed, reset, migration, or live config change was run
+- Ladder level targeted: `LEVEL_1_NAVIGABLE_DASHBOARDS`
+- Backlog item: `site-dashboard-next-actions-drilldowns`
+- Work order selected: Add role-safe click-throughs to the existing Site Dashboard `Next Actions` rows and guard unavailable destinations with summary-only treatment.
+- Selection reason: The previous handoff pointed directly at `buildNextActions()`, and current repo evidence still showed a live dashboard gap. `functions/api/site/dashboard.ts` emitted summary-only next-action rows, `workspace.js` rendered them without buttons, and `renderNeedsAttention()` still trusted destination sections even when the current role could not open them. The existing Student Directory, Review Queue, and Operations presets already covered the needed destinations, so the safest bounded product batch was to wire those rows into the current presets and reuse the same section-availability guard to prevent new dead ends for Administration.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Site Dashboard `Next Actions` drill-downs | `LEVEL_1_NAVIGABLE_DASHBOARDS` | `site_admin`, `administration`, `global_admin`, `org_admin` | 5 | 5 | 5 | S | 53 | selected |
+| Site Dashboard recent-activity drill-down | `LEVEL_7_AUDITABILITY_AND_TRUST` | `site_admin`, `administration` | 3 | 3 | 3 | M | 36 | deferred: no site-backed audit destination is proven yet |
+| Student detail URL state | `LEVEL_2_STUDENT_DETAIL_DEPTH` | site staff | 4 | 3 | 3 | M | 39 | deferred: privacy review still needed |
+| Review Queue missing-submission semantics | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | `program_teacher`, `site_admin` | 5 | 2 | 3 | M | 34 | deferred: backend queue rows are still absent |
+| Mentor reassignment/remove workflow | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | `site_admin` | 4 | 2 | 3 | M | 33 | deferred: mutation and audit design still needed |
+| Program Teacher mentor-meeting follow-up destination | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | `program_teacher` | 4 | 3 | 3 | M | 40 | deferred: no exact current destination is proven for that follow-up row |
+| Program Teacher presentation follow-up destination | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | `program_teacher` | 4 | 3 | 3 | M | 40 | deferred: no exact current destination is proven for that follow-up row |
+| Student detail mentor assignment history | `LEVEL_7_AUDITABILITY_AND_TRUST` | `site_admin`, `mentor` | 4 | 4 | 4 | M | 44 | not selected: valuable, but larger than this dashboard-action batch |
+| Viewer student email redaction decision | `LEVEL_7_AUDITABILITY_AND_TRUST` | `viewer` | 3 | 2 | 3 | S | 30 | deferred: policy decision first |
+| Hosted section-level permission proof | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all protected roles | 4 | 3 | 3 | M | 38 | deferred: hosted fake-account runtime is outside this local batch |
+
+- User-facing improvement: Site Dashboard `Next Actions` now opens the existing all-students, teacher follow-up, and presentation/archive follow-up worklists when those destinations are valid for the current role, while unavailable destinations fall back to explicit summary-only treatment instead of dead-end buttons.
+- Roles affected: `site_admin`, `org_admin`, `administration`, `global_admin`, legacy `admin`
+- Files changed: `functions/api/site/dashboard.ts`, `workspace.js`, `scripts/verify-dashboard-actions.mjs`, `tests/workspace-app.test.mjs`, `docs/functionality-language-audit.md`, `docs/product/demo-role-readiness.md`, `docs/progress/run-log.md`, `docs/progress/runs/2026-06-02-1009-site-dashboard-next-actions.json`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`
+- Tests/verifiers added or updated: `scripts/verify-dashboard-actions.mjs` now guards the Site Dashboard next-action mappings plus the unavailable-destination summary-only fallback; `tests/workspace-app.test.mjs` now proves the Site Admin actionable path and the Administration role-safe fallback.
+- Validation commands:
+  - `node --check workspace.js`
+  - `node --test tests/workspace-app.test.mjs`
+  - `npm run verify:dashboard-actions`
+  - `npm run verify:functionality-language`
+  - `npm run verify:functionality-ux-automation`
+  - `npm run check:production-surfaces`
+  - `npm run typecheck`
+  - `npm run test`
+  - `npm run check`
+  - `node -e "JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-02-1009-site-dashboard-next-actions.json','utf8')); console.log('json ok')"`
+  - `git diff --check`
+- Validation result: passed. Workspace syntax checks, focused workspace render coverage, dashboard-action verification, functionality-language and automation verification, production-surface checks, typecheck, full test and check runs, JSON parsing, and `git diff --check` all passed after docs/state closeout; `git diff --check` reported CRLF normalization warnings only.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: site-dashboard recent-activity destination, student-detail URL state, Review Queue missing-submission semantics, mentor reassignment/remove workflow, Program Teacher mentor-meeting/presentation follow-up destinations, viewer email redaction policy, and hosted section-level permission proof remain open.
+- New backlog items: none
+- Next recommended work order: Add a safe Site Dashboard recent-activity destination only if a site-backed audit or bounded summary path is proven, or revisit privacy-safe student-detail URL state.
+- Do-not-repeat notes: do not remove the role-safe Site Dashboard next-action presets or the summary-only fallback for unavailable destinations, and do not expose Review Queue buttons to Administration while that role still lacks the Review Queue section.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_1_NAVIGABLE_DASHBOARDS`
+  - Advanced: yes
+  - Evidence: `functions/api/site/dashboard.ts` now emits role-safe `Next Actions` presets, `workspace.js` only renders those buttons when the destination section exists for the current role, and focused tests prove the Site Admin and Administration paths separately.
+  - Unlocks: the next Site Dashboard follow-up slice can focus on a real recent-activity destination or another trust/readiness path instead of reworking dead-end dashboard follow-up rows.
+  - Next: inspect `functions/api/site/dashboard.ts` `buildNextActions()` and the site-backed recent-activity path before adding any new dashboard destination.
+  - Blockers: recent activity still lacks a proven site-backed destination; `administration` must remain without Review Queue actions; student-detail URL state still needs privacy review.
+  - Do not repeat: do not re-open this exact next-action drill-down slice unless the verifier or render proof regresses.
+  - First file to inspect next run: `functions/api/site/dashboard.ts` around `buildNextActions()`

@@ -1,0 +1,146 @@
+{
+  "summary": "Add role-safe click-throughs to Site Dashboard Next Actions using the existing Students, Review Queue, and Operations presets, and force unavailable destinations back to summary-only treatment.",
+  "selectedReason": "The previous handoff pointed directly at buildNextActions(), and current repo evidence still showed summary-only next-action rows plus a live role-safety gap in renderNeedsAttention(). The existing Student Directory, Review Queue, and Operations presets already covered the needed destinations, so this was the smallest safe product-readiness batch with real workflow value.",
+  "candidates": [
+    {
+      "candidate": "Site Dashboard Next Actions drill-downs",
+      "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS",
+      "roles": ["site_admin", "administration", "global_admin", "org_admin"],
+      "impact": 5,
+      "safety": 5,
+      "testability": 5,
+      "size": "S",
+      "score": 53,
+      "decision": "selected"
+    },
+    {
+      "candidate": "Site Dashboard recent-activity drill-down",
+      "ladderLevel": "LEVEL_7_AUDITABILITY_AND_TRUST",
+      "roles": ["site_admin", "administration"],
+      "impact": 3,
+      "safety": 3,
+      "testability": 3,
+      "size": "M",
+      "score": 36,
+      "decision": "deferred: no site-backed audit destination is proven yet"
+    },
+    {
+      "candidate": "Student detail URL state",
+      "ladderLevel": "LEVEL_2_STUDENT_DETAIL_DEPTH",
+      "roles": ["site staff"],
+      "impact": 4,
+      "safety": 3,
+      "testability": 3,
+      "size": "M",
+      "score": 39,
+      "decision": "deferred: privacy review still needed"
+    },
+    {
+      "candidate": "Review Queue missing-submission semantics",
+      "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
+      "roles": ["program_teacher", "site_admin"],
+      "impact": 5,
+      "safety": 2,
+      "testability": 3,
+      "size": "M",
+      "score": 34,
+      "decision": "deferred: backend queue rows are still absent"
+    },
+    {
+      "candidate": "Mentor reassignment/remove workflow",
+      "ladderLevel": "LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW",
+      "roles": ["site_admin"],
+      "impact": 4,
+      "safety": 2,
+      "testability": 3,
+      "size": "M",
+      "score": 33,
+      "decision": "deferred: mutation and audit design still needed"
+    },
+    {
+      "candidate": "Program Teacher mentor-meeting follow-up destination",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "roles": ["program_teacher"],
+      "impact": 4,
+      "safety": 3,
+      "testability": 3,
+      "size": "M",
+      "score": 40,
+      "decision": "deferred: no exact current destination is proven"
+    },
+    {
+      "candidate": "Program Teacher presentation follow-up destination",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "roles": ["program_teacher"],
+      "impact": 4,
+      "safety": 3,
+      "testability": 3,
+      "size": "M",
+      "score": 40,
+      "decision": "deferred: no exact current destination is proven"
+    },
+    {
+      "candidate": "Student detail mentor assignment history",
+      "ladderLevel": "LEVEL_7_AUDITABILITY_AND_TRUST",
+      "roles": ["site_admin", "mentor"],
+      "impact": 4,
+      "safety": 4,
+      "testability": 4,
+      "size": "M",
+      "score": 44,
+      "decision": "not selected: valuable, but larger than this dashboard-action batch"
+    },
+    {
+      "candidate": "Viewer student email redaction decision",
+      "ladderLevel": "LEVEL_7_AUDITABILITY_AND_TRUST",
+      "roles": ["viewer"],
+      "impact": 3,
+      "safety": 2,
+      "testability": 3,
+      "size": "S",
+      "score": 30,
+      "decision": "deferred: policy decision first"
+    },
+    {
+      "candidate": "Hosted section-level permission proof",
+      "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
+      "roles": ["all protected roles"],
+      "impact": 4,
+      "safety": 3,
+      "testability": 3,
+      "size": "M",
+      "score": 38,
+      "decision": "deferred: hosted fake-account runtime is outside this local batch"
+    }
+  ],
+  "filesChanged": [
+    "functions/api/site/dashboard.ts",
+    "workspace.js",
+    "scripts/verify-dashboard-actions.mjs",
+    "tests/workspace-app.test.mjs",
+    "docs/functionality-language-audit.md",
+    "docs/product/demo-role-readiness.md",
+    "docs/progress/run-log.md",
+    "docs/functionality-ux-growth-ledger.md",
+    "automation/state/functionality-ux-growth-state.json"
+  ],
+  "validation": [
+    "node --check workspace.js",
+    "node --test tests/workspace-app.test.mjs",
+    "npm run verify:dashboard-actions",
+    "npm run verify:functionality-language",
+    "npm run verify:functionality-ux-automation",
+    "npm run check:production-surfaces",
+    "npm run typecheck",
+    "npm run test",
+    "npm run check",
+    "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-02-1009-site-dashboard-next-actions.json','utf8')); console.log('json ok')\"",
+    "git diff --check"
+  ],
+  "nextRecommended": "Add a safe Site Dashboard recent-activity destination only if a site-backed audit or bounded summary path is proven, or revisit privacy-safe student-detail URL state.",
+  "doNotRepeat": [
+    "Do not remove role-safe Site Dashboard next-action presets or the summary-only fallback for unavailable destinations.",
+    "Do not expose Review Queue buttons to Administration while that role still lacks the Review Queue section.",
+    "Do not invent a site-dashboard recent-activity destination until a backed site-safe route exists."
+  ]
+}

@@ -3132,7 +3132,14 @@ function renderSiteNextActions(actions = [], readOnly = false) {
             <strong>${escapeHtml(action.label || "Next action")}</strong>
             <p>${escapeHtml(action.detail || "Review this site-level signal.")}</p>
           </div>
-          ${statusPill(action.status || "pending")}
+          <div class="workspace-row-actions">
+            ${statusPill(action.status || "pending")}
+            ${action.actionSection && action.actionPreset ? `
+              <button class="workspace-link-button workspace-link-button-small" type="button" data-section="${escapeHtml(action.actionSection)}" data-section-preset="${escapeHtml(action.actionPreset)}">
+                ${escapeHtml(action.actionLabel || "Open")}
+              </button>
+            ` : `<span class="workspace-summary-badge">Summary only</span>`}
+          </div>
         </article>
       `).join("")}
     </div>
@@ -9481,22 +9488,25 @@ function renderNeedsAttention(items = []) {
   }
   return `
     <div class="workspace-attention-list">
-      ${items.map((item) => `
-        <article class="workspace-attention-item ${escapeHtml(item.severity || "info")}">
-          <div>
-            <strong>${escapeHtml(item.label || "Needs attention")}</strong>
-            <p>${escapeHtml(item.detail || "Review this operational signal.")}</p>
-          </div>
-          <div class="workspace-row-actions">
-            <span class="workspace-chip">${escapeHtml(statusText(item.severity || "info"))}</span>
-            ${item.actionSection && item.actionPreset ? `
-              <button class="workspace-link-button workspace-link-button-small" type="button" data-section="${escapeHtml(item.actionSection)}" data-section-preset="${escapeHtml(item.actionPreset)}">
-                ${escapeHtml(item.actionLabel || "Open")}
-              </button>
-            ` : ""}
-          </div>
-        </article>
-      `).join("")}
+      ${items.map((item) => {
+        const hasAction = item.actionSection && item.actionPreset && availableSectionIds().has(item.actionSection);
+        return `
+          <article class="workspace-attention-item ${escapeHtml(item.severity || "info")}">
+            <div>
+              <strong>${escapeHtml(item.label || "Needs attention")}</strong>
+              <p>${escapeHtml(item.detail || "Review this operational signal.")}</p>
+            </div>
+            <div class="workspace-row-actions">
+              <span class="workspace-chip">${escapeHtml(statusText(item.severity || "info"))}</span>
+              ${hasAction ? `
+                <button class="workspace-link-button workspace-link-button-small" type="button" data-section="${escapeHtml(item.actionSection)}" data-section-preset="${escapeHtml(item.actionPreset)}">
+                  ${escapeHtml(item.actionLabel || "Open")}
+                </button>
+              ` : `<span class="workspace-summary-badge">Summary only</span>`}
+            </div>
+          </article>
+        `;
+      }).join("")}
     </div>
   `;
 }

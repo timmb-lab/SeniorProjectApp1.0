@@ -678,16 +678,47 @@ function buildNeedsAttention(summary: Record<string, number>) {
 
 function buildNextActions(summary: Record<string, number>, readOnly: boolean) {
   const prefix = readOnly ? "Review" : "Act on";
+  const reviewPreset = summary.revisionRequested > 0 ? "revision_requested" : "submitted";
+  const reviewSection = readOnly ? "students" : "teacher";
+  const reviewActionPreset = readOnly
+    ? (reviewPreset === "revision_requested" ? "revision-students" : "submitted-students")
+    : reviewPreset;
+  const reviewActionLabel = readOnly ? "Open student list" : "Open review queue";
+  const operationsPreset = summary.exportsFailed > 0 ? "archive-failed" : "presentation-pending";
+  const operationsStatus = summary.exportsFailed > 0
+    ? "failed"
+    : (summary.presentationsPending > 0 ? "pending" : "ready");
+  const operationsDetail = summary.exportsFailed > 0
+    ? `${summary.exportsFailed} archive export(s) need follow-up.`
+    : summary.presentationsPending > 0
+      ? `${summary.presentationsPending} presentation record(s) still need readiness follow-up.`
+      : "Presentation and archive follow-up is currently clear for this site.";
+  const hasOperationsFollowUp = summary.exportsFailed > 0 || summary.presentationsPending > 0;
+
   return [
     {
       label: `${prefix} assigned site records`,
       detail: `${summary.studentsActive} active student record(s) are visible for this site.`,
       status: "ready",
+      actionSection: "students",
+      actionPreset: "all-students",
+      actionLabel: "Open student list",
     },
     {
       label: "Teacher follow-up",
       detail: `${summary.submissionsSubmitted + summary.revisionRequested} submitted or revision-requested record(s) need teacher follow-up.`,
       status: summary.revisionRequested > 0 ? "revision_requested" : "submitted",
+      actionSection: reviewSection,
+      actionPreset: reviewActionPreset,
+      actionLabel: reviewActionLabel,
+    },
+    {
+      label: "Presentation and archive follow-up",
+      detail: operationsDetail,
+      status: operationsStatus,
+      actionSection: hasOperationsFollowUp ? "operations" : "",
+      actionPreset: hasOperationsFollowUp ? operationsPreset : "",
+      actionLabel: hasOperationsFollowUp ? "Open operations" : "",
     },
     {
       label: "Private evidence",
