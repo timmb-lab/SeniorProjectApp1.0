@@ -253,8 +253,28 @@ assertMatches(
   "submitted dashboard preset must be backed by a review queue status filter",
 );
 assertMatches(
+  "siteDashboardApi",
+  /type: "mentor_coverage"[\s\S]*actionSection: "students"[\s\S]*actionPreset: "missing-mentors"[\s\S]*actionLabel: "Open student list"/,
+  "site dashboard mentor coverage attention item must link to the Student Directory missing-mentor filter",
+);
+assertMatches(
+  "siteDashboardApi",
+  /type: "teacher_intervention"[\s\S]*actionSection: "teacher"[\s\S]*actionPreset: "revision-requested"[\s\S]*actionLabel: "Open review queue"/,
+  "site dashboard teacher follow-up attention item must link to the revision-requested review queue filter",
+);
+assertMatches(
+  "siteDashboardApi",
+  /type: "presentation_readiness"[\s\S]*actionSection: "operations"[\s\S]*actionPreset: "presentation-pending"[\s\S]*actionLabel: "Open operations"/,
+  "site dashboard presentation attention item must link to the presentation-pending operations filter",
+);
+assertMatches(
+  "siteDashboardApi",
+  /type: "archive_exports"[\s\S]*actionSection: "operations"[\s\S]*actionPreset: "archive-failed"[\s\S]*actionLabel: "Open operations"/,
+  "site dashboard archive attention item must link to the archive-failed operations filter",
+);
+assertMatches(
   "workspaceJs",
-  /function renderViewerMonitoringOverview\([\s\S]*data-viewer-monitoring-overview="true"[\s\S]*data-section="students" data-section-preset="\$\{escapeHtml\(reviewPreset\)\}"[\s\S]*data-section="students" data-section-preset="missing-mentors"[\s\S]*data-section="students" data-section-preset="\$\{escapeHtml\(operationsPreset\)\}"/,
+  /function renderReadOnlyMonitoringOverview\([\s\S]*data-viewer-monitoring-overview="true"[\s\S]*data-section="students" data-section-preset="\$\{escapeHtml\(reviewPreset\)\}"[\s\S]*data-section="students" data-section-preset="missing-mentors"[\s\S]*data-section="students" data-section-preset="\$\{escapeHtml\(operationsPreset\)\}"/,
   "Viewer monitoring overview must use existing Student Directory presets instead of denied sections",
 );
 assertMatches(
@@ -329,7 +349,7 @@ assertMatches(
 );
 assertMatches(
   "workspaceJs",
-  /renderMetricTile\("Presentation Pending"[\s\S]*"operations", \{ label: "Review rows", preset: "presentation-pending" \}\)/,
+  /operationsRankedNextActions\([\s\S]*label: "Review presentation follow-up"[\s\S]*preset: "presentation-pending"/,
   "Operations Presentation Pending metric must open the existing presentation-pending worklist filter",
 );
 assertMatches(
@@ -339,7 +359,7 @@ assertMatches(
 );
 assertMatches(
   "workspaceJs",
-  /renderMetricTile\("Check-In Needed"[\s\S]*"operations", \{ label: "Review rows", preset: "presentation-attention" \}\)/,
+  /operationsBlockerBars\([\s\S]*label: "Check-in needed"[\s\S]*preset: "presentation-attention"/,
   "Operations Check-In Needed metric must open the existing presentation attention worklist filter",
 );
 assertMatches(
@@ -349,7 +369,7 @@ assertMatches(
 );
 assertMatches(
   "workspaceJs",
-  /renderMetricTile\("Archive Failed"[\s\S]*"operations", \{ label: "Review rows", preset: "archive-failed" \}\)/,
+  /operationsRankedNextActions\([\s\S]*label: "Review archive failures"[\s\S]*preset: "archive-failed"/,
   "Operations Archive Failed metric must open the existing archive-failed worklist filter",
 );
 assertMatches(
@@ -359,7 +379,7 @@ assertMatches(
 );
 assertMatches(
   "workspaceJs",
-  /renderMetricTile\("Archive In Progress"[\s\S]*"operations", \{ label: "Review rows", preset: "archive-in-progress" \}\)/,
+  /operationsRankedNextActions\([\s\S]*label: "Confirm archive packages in progress"[\s\S]*preset: "archive-in-progress"/,
   "Operations Archive In Progress metric must open the existing queued/running archive worklist filter",
 );
 assertMatches(
@@ -369,7 +389,7 @@ assertMatches(
 );
 assertMatches(
   "workspaceJs",
-  /renderMetricTile\("Archive Expiring Soon"[\s\S]*"operations", \{ label: "Review rows", preset: "archive-expiring-soon" \}\)/,
+  /operationsRankedNextActions\([\s\S]*label: "Watch expiring archive downloads"[\s\S]*preset: "archive-expiring-soon"/,
   "Operations Archive Expiring Soon metric must open the existing expiring-soon archive worklist filter",
 );
 assertMatches(
@@ -379,7 +399,7 @@ assertMatches(
 );
 assertMatches(
   "workspaceJs",
-  /renderMetricTile\("Archive Expired"[\s\S]*"operations", \{ label: "Review rows", preset: "archive-expired" \}\)/,
+  /operationsRankedNextActions\([\s\S]*label: "Refresh expired archive downloads"[\s\S]*preset: "archive-expired"/,
   "Operations Archive Expired metric must open the existing expired archive worklist filter",
 );
 assertMatches(
@@ -389,7 +409,7 @@ assertMatches(
 );
 assertMatches(
   "workspaceJs",
-  /renderMetricTile\("Storage Setup Needed"[\s\S]*"operations", \{ label: "Review rows", preset: "archive-provider-unavailable" \}\)/,
+  /operationsBlockerBars\([\s\S]*label: "Storage setup needed"[\s\S]*preset: "archive-provider-unavailable"[\s\S]*operationsRankedNextActions\([\s\S]*label: "Confirm storage setup"[\s\S]*preset: "archive-provider-unavailable"/,
   "Operations Storage Setup Needed metric must open the existing provider-unavailable archive worklist filter",
 );
 assertMatches(
@@ -399,7 +419,7 @@ assertMatches(
 );
 assertMatches(
   "workspaceJs",
-  /renderMetricTile\("Needs Attention"[\s\S]*"operations", \{ label: "Review rows", preset: "needs-attention" \}\)/,
+  /operationsBlockerBars\([\s\S]*label: "Needs staff action"[\s\S]*preset: "needs-attention"[\s\S]*operationsRankedNextActions\([\s\S]*label: "Review staff-action rows"[\s\S]*preset: "needs-attention"/,
   "Operations Needs Attention metric must open the existing attention worklist filter",
 );
 assertMatches(
@@ -409,7 +429,7 @@ assertMatches(
 );
 assertMatches(
   "workspaceJs",
-  /renderMetricTile\("Stale Activity"[\s\S]*"operations", \{ label: "Review rows", preset: "stale-activity" \}\)/,
+  /operationsBlockerBars\([\s\S]*label: "Stale activity"[\s\S]*preset: "stale-activity"[\s\S]*operationsRankedNextActions\([\s\S]*label: "Check stale activity rows"[\s\S]*preset: "stale-activity"/,
   "Operations Stale Activity metric must open the existing stale activity worklist filter",
 );
 assertMatches(
@@ -419,7 +439,7 @@ assertMatches(
 );
 assertMatches(
   "workspaceJs",
-  /renderMetricTile\("Outline Pending"[\s\S]*"operations", \{ label: "Review rows", preset: "outline-pending" \}\)/,
+  /operationsRankedNextActions\([\s\S]*label: "Review pending outlines"[\s\S]*preset: "outline-pending"/,
   "Operations Outline Pending metric must open the existing outline worklist filter",
 );
 assertMatches(
@@ -429,7 +449,7 @@ assertMatches(
 );
 assertMatches(
   "workspaceJs",
-  /renderMetricTile\("Evidence Missing"[\s\S]*"operations", \{ label: "Review rows", preset: "evidence-missing" \}\)/,
+  /operationsBlockerBars\([\s\S]*label: "Evidence missing"[\s\S]*preset: "evidence-missing"[\s\S]*operationsRankedNextActions\([\s\S]*label: "Resolve missing evidence rows"[\s\S]*preset: "evidence-missing"/,
   "Operations Evidence Missing metric must open the existing evidence-missing worklist filter",
 );
 assertMatches(

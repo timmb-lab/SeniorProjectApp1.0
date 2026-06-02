@@ -629,6 +629,9 @@ function buildNeedsAttention(summary: Record<string, number>) {
       severity: "urgent",
       owner: "Administration",
       nextAction: "Review mentor coverage before opening student directory work.",
+      actionSection: "students",
+      actionPreset: "missing-mentors",
+      actionLabel: "Open student list",
     });
   }
   if (summary.revisionRequested > 0) {
@@ -639,6 +642,9 @@ function buildNeedsAttention(summary: Record<string, number>) {
       severity: "warning",
       owner: "Program teachers",
       nextAction: "Prioritize revision follow-up and feedback checks.",
+      actionSection: "teacher",
+      actionPreset: "revision-requested",
+      actionLabel: "Open review queue",
     });
   }
   if (summary.presentationsPending > 0) {
@@ -649,6 +655,9 @@ function buildNeedsAttention(summary: Record<string, number>) {
       severity: "info",
       owner: "Site operations",
       nextAction: "Check outline approval and day-of status.",
+      actionSection: "operations",
+      actionPreset: "presentation-pending",
+      actionLabel: "Open operations",
     });
   }
   if (summary.exportsFailed > 0) {
@@ -659,6 +668,9 @@ function buildNeedsAttention(summary: Record<string, number>) {
       severity: "urgent",
       owner: "Administration",
       nextAction: "Review private evidence and retry the export when storage is ready.",
+      actionSection: "operations",
+      actionPreset: "archive-failed",
+      actionLabel: "Open operations",
     });
   }
   return items;

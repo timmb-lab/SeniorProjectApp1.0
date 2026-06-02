@@ -402,6 +402,10 @@ test("workspace renders route-connected site dashboard with Figma product-system
   assert.match(siteDashboard, /Evidence/);
   assert.match(siteDashboard, /Presentations/);
   assert.match(siteDashboard, /Archive \/ Exports/);
+  assert.match(siteDashboard, /Students without active mentors/);
+  assert.match(siteDashboard, /Teacher follow-up needed/);
+  assert.match(siteDashboard, /Presentation readiness pending/);
+  assert.match(siteDashboard, /Archive exports failed/);
   assert.match(siteDashboard, /data-workspace-disclosure-panel="dashboard:siteDashboard"/);
   assert.match(siteDashboard, /aria-expanded="false"/);
   assert.doesNotMatch(siteDashboard, /Program Breakdown|Top Risk Students|View load|data-site-student-action="view-detail"/);
@@ -6500,6 +6504,33 @@ function siteDashboardFixture({ readOnly = false } = {}) {
         label: "Students without active mentors",
         detail: "17 active student records at this site need mentor coverage.",
         severity: "warning",
+        actionSection: "students",
+        actionPreset: "missing-mentors",
+        actionLabel: "Open student list",
+      },
+      {
+        label: "Teacher follow-up needed",
+        detail: "38 revision-requested submission(s) need follow-up.",
+        severity: "warning",
+        actionSection: "teacher",
+        actionPreset: "revision-requested",
+        actionLabel: "Open review queue",
+      },
+      {
+        label: "Presentation readiness pending",
+        detail: "14 active presentation record(s) need readiness attention.",
+        severity: "info",
+        actionSection: "operations",
+        actionPreset: "presentation-pending",
+        actionLabel: "Open operations",
+      },
+      {
+        label: "Archive exports failed",
+        detail: "1 archive export(s) need review.",
+        severity: "urgent",
+        actionSection: "operations",
+        actionPreset: "archive-failed",
+        actionLabel: "Open operations",
       },
     ],
     topRiskStudents: [

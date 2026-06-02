@@ -1,10 +1,18 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-06-02T09:02:43-07:00",
-  "lastStartingSha": "eeb94f6fe5907bd4c18d5ccd756aef9cbd342e07",
+  "lastRunAt": "2026-06-02T09:37:39-07:00",
+  "lastStartingSha": "a2a1549ed465ad82bcec3866ef7cd4274c3a43b9",
   "lastEndingSha": null,
-  "currentLadderFocus": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+  "currentLadderFocus": "LEVEL_1_NAVIGABLE_DASHBOARDS",
   "completedWorkOrders": [
+    {
+      "id": "site-dashboard-needs-attention-drilldowns",
+      "completedAt": "2026-06-02T09:37:39-07:00",
+      "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS",
+      "type": "TYPE_B_DASHBOARD_CLICK_THROUGH",
+      "summary": "Site Dashboard Needs Attention rows now open the existing missing-mentor Student Directory filter plus the revision-requested and presentation/archive Operations worklists instead of staying summary-only.",
+      "commit": "pending-closeout-commit"
+    },
     {
       "id": "dashboard-risk-explanation-copy",
       "completedAt": "2026-06-02T09:02:43-07:00",
@@ -1055,6 +1063,12 @@
   "blockedWorkOrders": [],
   "nextRecommendedWorkOrders": [
     {
+      "id": "site-dashboard-next-actions-drilldowns",
+      "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS",
+      "type": "TYPE_B_DASHBOARD_CLICK_THROUGH",
+      "summary": "Add role-safe click-throughs to Site Dashboard Next Actions using the same proven Students, Review Queue, and Operations presets so summary follow-up rows stop dead-ending."
+    },
+    {
       "id": "site-dashboard-recent-activity-drilldown",
       "ladderLevel": "LEVEL_7_AUDITABILITY_AND_TRUST",
       "type": "TYPE_B_DASHBOARD_CLICK_THROUGH",
@@ -1080,6 +1094,8 @@
     }
   ],
   "doNotRepeat": [
+    "Do not revert Site Dashboard Needs Attention rows to summary-only when the existing Student Directory, Review Queue, and Operations presets still back those actions.",
+    "Do not expose Review Queue actions to Administration while the role still lacks the Review Queue section and route visibility contract.",
     "Do not reintroduce `Teacher intervention` or `Dashboard access is logged for protected school records.` on protected Site Dashboard or Review Queue surfaces unless product language policy intentionally changes.",
     "Do not remove row-level risk explanation copy from Site Dashboard top-risk rows or Review Queue rows unless a clearer supported explanation replaces it.",
     "Do not collapse Review Queue row actions back to one generic label unless submitted-review and follow-up semantics intentionally become the same again.",
@@ -1198,20 +1214,21 @@
   ],
   "lastValidationStatus": {
     "status": "passed",
-    "completedAt": "2026-06-02T09:02:43-07:00",
+    "completedAt": "2026-06-02T09:37:39-07:00",
     "commands": [
       "node --check workspace.js",
       "node --test tests/workspace-app.test.mjs",
+      "npm run verify:dashboard-actions",
       "npm run verify:functionality-language",
       "npm run verify:functionality-ux-automation",
       "npm run check:production-surfaces",
       "npm run typecheck",
       "npm run test",
       "npm run check",
-      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-02-0902-dashboard-risk-explanation-copy.json','utf8')); console.log('json ok')\"",
+      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-02-0937-site-dashboard-needs-attention-actions.json','utf8')); console.log('json ok')\"",
       "git diff --check"
     ],
-    "notes": "The dashboard risk explanation slice passed workspace syntax checks, focused workspace render coverage, the functionality-language and automation verifiers, production-surface checks, typecheck, full test and check runs, JSON parsing, and git diff --check with CRLF normalization warnings only."
+    "notes": "The Site Dashboard attention-action slice passed workspace syntax checks, focused Site Dashboard render coverage, dashboard-action verification, functionality-language and automation verification, production-surface checks, typecheck, full test and check runs, JSON parsing, and git diff --check with CRLF normalization warnings only."
   },
   "lastProductReadinessScorecardSummary": {
     "homepageClarity": "4 to 4",

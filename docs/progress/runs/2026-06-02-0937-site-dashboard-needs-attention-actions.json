@@ -1,0 +1,148 @@
+{
+  "runId": "2026-06-02-0937-site-dashboard-needs-attention-actions",
+  "selectedSlice": "site-dashboard-needs-attention-drilldowns",
+  "summary": "Add real click-through actions to the existing Site Dashboard Needs Attention rows so missing mentor, revision follow-up, presentation follow-up, and archive failure warnings open real scoped worklists.",
+  "selectedReason": "Current repo evidence showed that `workspace.js` already rendered route-backed attention buttons whenever the payload included `actionSection` and `actionPreset`, but `functions/api/site/dashboard.ts` still emitted summary-only rows even though the existing Student Directory, Review Queue, and Operations presets already covered the needed destinations. That made this the smallest safe product-readiness batch with real functional value.",
+  "candidateTable": [
+    {
+      "candidate": "Site Dashboard Needs Attention drill-downs",
+      "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS",
+      "roles": ["site_admin", "org_admin", "administration", "global_admin"],
+      "impact": 4,
+      "safety": 5,
+      "testability": 5,
+      "size": "XS",
+      "score": 52,
+      "decision": "selected"
+    },
+    {
+      "candidate": "Site Dashboard Next Actions drill-downs",
+      "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS",
+      "roles": ["site_admin", "administration", "global_admin"],
+      "impact": 4,
+      "safety": 4,
+      "testability": 4,
+      "size": "S",
+      "score": 46,
+      "decision": "deferred: safe next follow-on after this helper mapping lands"
+    },
+    {
+      "candidate": "Site Dashboard recent-activity drill-down",
+      "ladderLevel": "LEVEL_7_AUDITABILITY_AND_TRUST",
+      "roles": ["site_admin", "administration"],
+      "impact": 3,
+      "safety": 3,
+      "testability": 3,
+      "size": "M",
+      "score": 36,
+      "decision": "deferred: no site-backed audit destination is proven yet"
+    },
+    {
+      "candidate": "Student detail URL state",
+      "ladderLevel": "LEVEL_2_STUDENT_DETAIL_DEPTH",
+      "roles": ["site staff"],
+      "impact": 4,
+      "safety": 3,
+      "testability": 3,
+      "size": "M",
+      "score": 39,
+      "decision": "deferred: privacy review still needed"
+    },
+    {
+      "candidate": "Review Queue missing-submission semantics",
+      "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
+      "roles": ["program_teacher", "site_admin"],
+      "impact": 5,
+      "safety": 2,
+      "testability": 3,
+      "size": "M",
+      "score": 34,
+      "decision": "deferred: backend queue rows are still absent"
+    },
+    {
+      "candidate": "Mentor reassignment/remove workflow",
+      "ladderLevel": "LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW",
+      "roles": ["site_admin"],
+      "impact": 4,
+      "safety": 2,
+      "testability": 3,
+      "size": "M",
+      "score": 33,
+      "decision": "deferred: mutation and audit design still needed"
+    },
+    {
+      "candidate": "Program Teacher mentor-meeting follow-up destination",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "roles": ["program_teacher"],
+      "impact": 4,
+      "safety": 3,
+      "testability": 3,
+      "size": "M",
+      "score": 40,
+      "decision": "deferred: no exact existing destination is proven for that attention row yet"
+    },
+    {
+      "candidate": "Program Teacher presentation follow-up destination",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "roles": ["program_teacher"],
+      "impact": 4,
+      "safety": 3,
+      "testability": 3,
+      "size": "M",
+      "score": 40,
+      "decision": "deferred: no exact existing destination is proven for that attention row yet"
+    },
+    {
+      "candidate": "Viewer student email redaction decision",
+      "ladderLevel": "LEVEL_7_AUDITABILITY_AND_TRUST",
+      "roles": ["viewer"],
+      "impact": 3,
+      "safety": 2,
+      "testability": 3,
+      "size": "S",
+      "score": 30,
+      "decision": "deferred: policy decision first"
+    },
+    {
+      "candidate": "Hosted section-level permission proof",
+      "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
+      "roles": ["all protected roles"],
+      "impact": 4,
+      "safety": 3,
+      "testability": 3,
+      "size": "M",
+      "score": 38,
+      "decision": "deferred: hosted fake-account runtime is outside this local batch"
+    }
+  ],
+  "changes": [
+    "Updated `functions/api/site/dashboard.ts` so the existing Site Dashboard Needs Attention payload emits route-backed actions for missing mentor coverage, revision follow-up, presentation follow-up, and archive failures.",
+    "Chose role-safe action labels that keep the Review Queue button absent for Administration while still exposing Student Directory and Operations drill-downs where those sections already exist.",
+    "Extended `scripts/verify-dashboard-actions.mjs` to assert the site-dashboard helper mappings directly and refreshed stale Viewer monitoring and Operations dashboard expectations to the current source.",
+    "Expanded `tests/workspace-app.test.mjs` to keep the Site Dashboard render proof current after the new attention-row drill-downs."
+  ],
+  "validation": {
+    "focusedPassed": [
+      "node --check workspace.js",
+      "node --test tests/workspace-app.test.mjs",
+      "npm run verify:dashboard-actions"
+    ],
+    "fullCloseoutPassed": [
+      "npm run verify:functionality-language",
+      "npm run verify:functionality-ux-automation",
+      "npm run check:production-surfaces",
+      "npm run typecheck",
+      "npm run test",
+      "npm run check",
+      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-02-0937-site-dashboard-needs-attention-actions.json','utf8')); console.log('json ok')\"",
+      "git diff --check"
+    ],
+    "finalStatus": "passed"
+  },
+  "nextRecommended": "Add role-safe Site Dashboard Next Actions drill-downs using the same proven Students, Review Queue, and Operations presets, or keep recent activity summary-only until a site-backed audit destination is proven.",
+  "doNotRepeat": [
+    "Do not revert Site Dashboard Needs Attention rows to summary-only when the existing Student Directory, Review Queue, and Operations presets still back those actions.",
+    "Do not expose Review Queue actions to Administration while the role still lacks that section and route visibility contract.",
+    "Do not invent a recent-activity destination until a backed site-safe route exists."
+  ]
+}

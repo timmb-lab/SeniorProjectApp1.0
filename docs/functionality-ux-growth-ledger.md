@@ -5450,3 +5450,61 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: recent-activity drill-down still lacks a proven site-backed destination; hosted permission proof still needs allowed fake-account runtime; student-detail URL state still needs privacy review.
   - Do not repeat: do not revert to unlabeled risk chips on these protected row surfaces.
   - First file to inspect next run: `workspace.js` around `renderRiskExplanation()`
+
+## Run 2026-06-02 09:37 PT
+
+- Starting SHA: `a2a1549ed465ad82bcec3866ef7cd4274c3a43b9`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Branch policy: work stayed on clean local `main`; no deploy, seed, reset, migration, or live config change was run
+- Ladder level targeted: `LEVEL_1_NAVIGABLE_DASHBOARDS`
+- Backlog item: `site-dashboard-needs-attention-drilldowns`
+- Work order selected: Add real click-through actions to the existing Site Dashboard `Needs Attention` rows.
+- Selection reason: Current repo evidence showed a live product gap in an existing dashboard card, not a theoretical cleanup item. `workspace.js` already rendered route-backed attention buttons whenever the payload included `actionSection` and `actionPreset`, but `functions/api/site/dashboard.ts` still returned summary-only rows even though the existing Student Directory, Review Queue, and Operations presets already covered missing mentor coverage, revision follow-up, presentation follow-up, and archive failure destinations. This was the smallest safe product-readiness batch that improved real functionality without inventing routes, weakening RBAC, or broadening scope.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Site Dashboard `Needs Attention` drill-downs | `LEVEL_1_NAVIGABLE_DASHBOARDS` | `site_admin`, `org_admin`, `administration`, `global_admin` | 4 | 5 | 5 | XS | 52 | selected |
+| Site Dashboard `Next Actions` drill-downs | `LEVEL_1_NAVIGABLE_DASHBOARDS` | `site_admin`, `administration`, `global_admin` | 4 | 4 | 4 | S | 46 | deferred: safe next follow-on after this helper mapping lands |
+| Site Dashboard recent-activity drill-down | `LEVEL_7_AUDITABILITY_AND_TRUST` | `site_admin`, `administration` | 3 | 3 | 3 | M | 36 | deferred: no site-backed audit destination is proven yet |
+| Student detail URL state | `LEVEL_2_STUDENT_DETAIL_DEPTH` | site staff | 4 | 3 | 3 | M | 39 | deferred: privacy review still needed |
+| Review Queue missing-submission semantics | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | `program_teacher`, `site_admin` | 5 | 2 | 3 | M | 34 | deferred: backend queue rows are still absent |
+| Mentor reassignment/remove workflow | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | `site_admin` | 4 | 2 | 3 | M | 33 | deferred: mutation and audit design still needed |
+| Program Teacher mentor-meeting follow-up destination | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | `program_teacher` | 4 | 3 | 3 | M | 40 | deferred: no exact existing destination is proven for that attention row yet |
+| Program Teacher presentation follow-up destination | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | `program_teacher` | 4 | 3 | 3 | M | 40 | deferred: no exact existing destination is proven for that attention row yet |
+| Viewer student email redaction decision | `LEVEL_7_AUDITABILITY_AND_TRUST` | `viewer` | 3 | 2 | 3 | S | 30 | deferred: policy decision first |
+| Hosted section-level permission proof | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all protected roles | 4 | 3 | 3 | M | 38 | deferred: hosted fake-account runtime is outside this local batch |
+
+- User-facing improvement: Site Dashboard `Needs Attention` rows now open the real missing-mentor student list, the revision-requested review queue, and the presentation/archive Operations worklists instead of stopping at summary-only warnings.
+- Roles affected: `site_admin`, `org_admin`, `administration`, `global_admin`, legacy `admin`
+- Files changed: `functions/api/site/dashboard.ts`, `scripts/verify-dashboard-actions.mjs`, `tests/workspace-app.test.mjs`, `docs/functionality-language-audit.md`, `docs/product/demo-role-readiness.md`, `docs/progress/run-log.md`, `docs/progress/runs/2026-06-02-0937-site-dashboard-needs-attention-actions.json`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`
+- Tests/verifiers added or updated: `scripts/verify-dashboard-actions.mjs` now asserts the site-dashboard helper emits the supported attention-row mappings and is refreshed to the current Viewer monitoring and Operations dashboard render paths; `tests/workspace-app.test.mjs` keeps the Site Dashboard render proof current.
+- Validation commands:
+  - `node --check workspace.js`
+  - `node --test tests/workspace-app.test.mjs`
+  - `npm run verify:dashboard-actions`
+  - `npm run verify:functionality-language`
+  - `npm run verify:functionality-ux-automation`
+  - `npm run check:production-surfaces`
+  - `npm run typecheck`
+  - `npm run test`
+  - `npm run check`
+  - `node -e "JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-02-0937-site-dashboard-needs-attention-actions.json','utf8')); console.log('json ok')"`
+  - `git diff --check`
+- Validation result: passed. Workspace syntax checks, focused Site Dashboard render coverage, dashboard-action verification, functionality-language and automation verification, production-surface checks, typecheck, full test and check runs, JSON parsing, and `git diff --check` all passed after docs/state closeout; `git diff --check` reported CRLF normalization warnings only.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: Site Dashboard `Next Actions` drill-downs, site-dashboard recent-activity destination, student-detail URL state, Review Queue missing-submission semantics, mentor reassignment/remove workflow, Program Teacher mentor-meeting/presentation follow-up destinations, viewer email redaction policy, and hosted section-level permission proof remain open.
+- New backlog items: none
+- Next recommended work order: Add role-safe click-throughs to Site Dashboard `Next Actions` using the same proven Students/Review Queue/Operations presets, or keep recent activity summary-only until a site-backed audit destination is proven.
+- Do-not-repeat notes: do not revert Site Dashboard `Needs Attention` rows to summary-only when the destination presets already exist; do not expose Review Queue actions to `administration` while the role lacks that section; do not invent a recent-activity destination until a backed site-safe route exists.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_1_NAVIGABLE_DASHBOARDS`
+  - Advanced: yes
+  - Evidence: `functions/api/site/dashboard.ts` now emits `actionSection`/`actionPreset` for missing mentors, revision follow-up, presentation follow-up, and archive failures, and `scripts/verify-dashboard-actions.mjs` guards those mappings directly.
+  - Unlocks: the next Site Dashboard follow-up slice can wire `Next Actions` to the same existing presets instead of repeating payload-only warnings.
+  - Next: inspect `functions/api/site/dashboard.ts` `buildNextActions()` and `workspace.js` `renderSiteNextActions()` if the next run stays on the Site Dashboard.
+  - Blockers: recent activity still lacks a proven site-backed destination; `administration` must remain without Review Queue actions; student-detail URL state still needs privacy review.
+  - Do not repeat: do not re-open this exact attention-row drill-down slice unless the verifier or render proof regresses.
+  - First file to inspect next run: `functions/api/site/dashboard.ts` around `buildNextActions()`

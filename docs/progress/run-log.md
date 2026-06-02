@@ -2711,3 +2711,14 @@ Future productive runs should append compact entries that name the master-plan s
 - `changes`: `functions/api/site/dashboard.ts` now emits `Teacher follow-up needed`, `Teacher follow-up`, and protected-and-reviewed dashboard access wording instead of intervention/audit-heavy labels. `functions/_lib/site-review-queue.ts` now uses `Prioritize teacher follow-up.` for high-risk next actions. `scripts/verify-functionality-language.mjs` now scans the site-dashboard and Review Queue helper files and fails on `Teacher intervention` or the retired audit-heavy dashboard-access phrase. `tests/workspace-app.test.mjs` and `tests/functionality-language-audit.test.mjs` now prove the protected render and verifier guardrails.
 - `validation`: `node --test tests/workspace-app.test.mjs`, `npm run verify:functionality-language`, and `node --test tests/functionality-language-audit.test.mjs` passed before final closeout checks.
 - `commit/push status`: pending closeout commit; not pushed by this automation run.
+
+## 2026-06-02 PT - Functionality UX Upgrade Site Dashboard Attention Actions
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 1 navigable dashboards / Site Dashboard attention-row drill-downs.
+- `starting HEAD`: `a2a1549ed465ad82bcec3866ef7cd4274c3a43b9`.
+- `selected slice`: Add real click-through actions to the existing Site Dashboard `Needs Attention` rows.
+- `repo-grounded findings`: `workspace.js` already rendered action buttons whenever `renderNeedsAttention()` received `actionSection` and `actionPreset`, but `functions/api/site/dashboard.ts` still emitted summary-only attention rows even though the existing Student Directory, Review Queue, and Operations presets already covered missing mentor, revision follow-up, presentation follow-up, and archive failure destinations.
+- `changes`: `functions/api/site/dashboard.ts` now maps site-dashboard attention rows to the existing `missing-mentors`, `revision-requested`, `presentation-pending`, and `archive-failed` presets with role-safe labels. `scripts/verify-dashboard-actions.mjs` now checks those site-dashboard helper mappings directly and was refreshed to match the current Viewer monitoring and Operations dashboard source instead of stale regex expectations. `tests/workspace-app.test.mjs` now proves the Site Dashboard renders the new attention-row labels without changing RBAC or route scope.
+- `validation`: focused workspace and dashboard-action verification passed before docs/state closeout. Full closeout validation is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.
