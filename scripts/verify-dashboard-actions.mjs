@@ -580,6 +580,11 @@ assertMatches(
 );
 assertMatches(
   "workspaceJs",
+  /function renderMentorDashboardSection\([\s\S]*renderMetricTile\("Assigned"[\s\S]*renderMentorDashboardMetricAction\("all", "Show all"\)[\s\S]*renderMetricTile\("Needs Revision"[\s\S]*renderMentorDashboardMetricAction\("revision", "Focus list"\)[\s\S]*renderMetricTile\("Meetings"[\s\S]*renderMentorDashboardMetricAction\("meeting", "Focus list"\)[\s\S]*renderMetricTile\("Presentations"[\s\S]*renderMentorDashboardMetricAction\("presentation", "Focus list"\)/,
+  "Mentor Dashboard summary metrics must reuse the existing mentor focus filters",
+);
+assertMatches(
+  "workspaceJs",
   /function handleReviewQueueAction\([\s\S]*?openSiteStudentDetail\(event\.currentTarget\?\.dataset\?\.reviewStudentId \|\| "", \{ sourceSection: "teacher" \}\)/,
   "Review Queue student-detail actions must keep the Review Queue as the detail source",
 );

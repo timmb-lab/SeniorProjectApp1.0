@@ -3729,6 +3729,10 @@ test("mentor dashboard assigned students open detail and meeting history without
   assert.match(workspaceRoot.innerHTML, /Needs revision \(1\)/);
   assert.match(workspaceRoot.innerHTML, /Meeting attention \(1\)/);
   assert.match(workspaceRoot.innerHTML, /Presentation follow-up \(1\)/);
+  assert.match(workspaceRoot.innerHTML, /Assigned[\s\S]*data-mentor-dashboard-action="filter"[\s\S]*data-mentor-dashboard-filter="all"[\s\S]*Show all/);
+  assert.match(workspaceRoot.innerHTML, /Needs Revision[\s\S]*data-mentor-dashboard-action="filter"[\s\S]*data-mentor-dashboard-filter="revision"[\s\S]*Focus list/);
+  assert.match(workspaceRoot.innerHTML, /Meetings[\s\S]*data-mentor-dashboard-action="filter"[\s\S]*data-mentor-dashboard-filter="meeting"[\s\S]*Focus list/);
+  assert.match(workspaceRoot.innerHTML, /Presentations[\s\S]*data-mentor-dashboard-action="filter"[\s\S]*data-mentor-dashboard-filter="presentation"[\s\S]*Focus list/);
   assert.match(workspaceRoot.innerHTML, /data-mentor-dashboard-summary="true"/);
   assert.match(workspaceRoot.innerHTML, /data-mentor-dashboard-compact-signals="true"/);
   assert.doesNotMatch(workspaceRoot.innerHTML, /data-mentor-dashboard-row-detail="true"/);

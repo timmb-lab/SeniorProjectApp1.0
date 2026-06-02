@@ -3441,10 +3441,18 @@ function renderMentorDashboardSection() {
         </div>
       </div>
       <div class="workspace-dashboard-grid">
-        ${renderMetricTile("Assigned", summary.assignedCount, "Active student assignments", "mentor")}
-        ${renderMetricTile("Needs Revision", summary.needsRevision, "Revision follow-up", "warning")}
-        ${renderMetricTile("Meetings", summary.missingMeeting, "Need meeting attention", "warning")}
-        ${renderMetricTile("Presentations", summary.presentationPending, "Pending readiness", "teacher", "presentation")}
+        ${renderMetricTile("Assigned", summary.assignedCount, "Active student assignments", "mentor", "", {
+          actionHtml: assigned.length ? renderMentorDashboardMetricAction("all", "Show all") : "",
+        })}
+        ${renderMetricTile("Needs Revision", summary.needsRevision, "Revision follow-up", "warning", "", {
+          actionHtml: assigned.length ? renderMentorDashboardMetricAction("revision", "Focus list") : "",
+        })}
+        ${renderMetricTile("Meetings", summary.missingMeeting, "Need meeting attention", "warning", "", {
+          actionHtml: assigned.length ? renderMentorDashboardMetricAction("meeting", "Focus list") : "",
+        })}
+        ${renderMetricTile("Presentations", summary.presentationPending, "Pending readiness", "teacher", "", {
+          actionHtml: assigned.length ? renderMentorDashboardMetricAction("presentation", "Focus list") : "",
+        })}
       </div>
       ${assigned.length ? renderMentorDashboardFilters(assigned, activeFilter) : ""}
       ${siteStudentDetailState?.sourceSection === "mentorDashboard" ? renderSiteStudentDetailSurface({
@@ -9439,10 +9447,12 @@ function renderMetricTile(label, value, detail = "", tone = "", actionSection = 
   const actionPreset = actionOptions.preset
     ? ` data-section-preset="${escapeHtml(actionOptions.preset)}"`
     : "";
-  const hasAction = actionSection && availableSectionIds().has(actionSection);
-  const action = hasAction
+  const customActionHtml = actionOptions.actionHtml || "";
+  const hasSectionAction = actionSection && availableSectionIds().has(actionSection);
+  const hasAction = Boolean(hasSectionAction || customActionHtml);
+  const action = hasSectionAction
     ? `<button class="workspace-link-button workspace-link-button-small" type="button" data-section="${escapeHtml(actionSection)}"${actionPreset}>${escapeHtml(actionLabel)}</button>`
-    : `<span class="workspace-summary-badge">Summary only</span>`;
+    : (customActionHtml || `<span class="workspace-summary-badge">Summary only</span>`);
   return `
     <article class="workspace-metric-tile ${escapeHtml(tone)} ${hasAction ? "workspace-action-metric" : "workspace-summary-only-metric"}" data-metric-behavior="${hasAction ? "action" : "summary"}">
       <div>
@@ -9917,6 +9927,11 @@ function renderMentorDashboardFilters(rows = [], activeFilter = "all") {
       `).join("")}
     </div>
   `;
+}
+
+function renderMentorDashboardMetricAction(filter = "all", label = "Focus list") {
+  const safeFilter = cleanMentorDashboardFilter(filter);
+  return `<button class="workspace-link-button workspace-link-button-small" type="button" data-mentor-dashboard-action="filter" data-mentor-dashboard-filter="${escapeHtml(safeFilter)}">${escapeHtml(label)}</button>`;
 }
 
 function filterMentorDashboardStudents(rows = [], filter = "all") {

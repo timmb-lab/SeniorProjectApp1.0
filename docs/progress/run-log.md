@@ -21,6 +21,17 @@ This is the compact run log for the current Functionality UX Upgrade automation 
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-06-02 12:32 PT - Functionality UX Upgrade Mentor Dashboard Metric Shortcuts
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 4 role-specific workspace clarity / Mentor dashboard focus shortcuts.
+- `starting HEAD`: `59caef4c512251e68d9a3a49c5d9d21b11d2b949`.
+- `selected slice`: Turn Mentor Dashboard top metrics into real in-page focus shortcuts for assigned students.
+- `repo-grounded findings`: current `workspace.js` already had mentor-scoped focus filters plus URL sync for `all`, `revision`, `meeting`, and `presentation`, but the top `Assigned`, `Needs Revision`, `Meetings`, and `Presentations` tiles still rendered as summary-only affordances above the same assigned-student list. That made the mentor homepage less direct than the rest of the protected dashboards even though the exact focus behavior already existed in the same section.
+- `changes`: `workspace.js` now lets Mentor Dashboard summary metrics reuse the existing `data-mentor-dashboard-action="filter"` flow, so the top tiles can switch to all, revision, meeting, and presentation focus without leaving the section or broadening access. `tests/workspace-app.test.mjs` now proves those metric buttons render the expected mentor filter targets, and `scripts/verify-dashboard-actions.mjs` now guards the Mentor Dashboard metric-to-filter wiring against regression. `docs/functionality-language-audit.md` and `docs/product/demo-role-readiness.md` record the upgraded mentor evidence.
+- `validation`: `node --check workspace.js`, `node --test tests/workspace-app.test.mjs`, `npm run verify:dashboard-actions`, and `npm run verify:workspace-density` passed before docs/state closeout.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.
+
 ## 2026-06-02 11:42 PT - Functionality UX Upgrade Student Detail URL State
 
 - `automation ID`: functionality-ux-upgrade-hourly.

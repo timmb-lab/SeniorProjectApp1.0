@@ -5484,6 +5484,7 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - `node --check workspace.js`
   - `node --test tests/workspace-app.test.mjs`
   - `npm run verify:dashboard-actions`
+  - `npm run verify:workspace-density`
   - `npm run verify:functionality-language`
   - `npm run verify:functionality-ux-automation`
   - `npm run check:production-surfaces`
@@ -5799,3 +5800,61 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: hosted click-through proof still needs allowed fake-account runtime and audit-event writes; Review Queue missing-submission semantics still need exact backend evidence.
   - Do not repeat: do not regress the detail URL state back to ephemeral in-memory-only behavior.
   - First file to inspect next run: `workspace.js` around `workspaceUrlStateFromLocation()`, `restoreSiteStudentDetailFromUrlState()`, and the section sync helpers
+
+## Run 2026-06-02 12:32 PT
+
+- Starting SHA: `59caef4c512251e68d9a3a49c5d9d21b11d2b949`
+- Ending SHA: pending closeout commit; final hash is reported after commit
+- Branch: `main`
+- Branch policy: started from clean local `main`; `origin/main` matched local `main`, and no sync or push was needed before the selected slice
+- Ladder level targeted: `LEVEL_4_ROLE_SPECIFIC_WORKSPACES`
+- Backlog item: `mentor-dashboard-metric-shortcuts`
+- Work order selected: Turn Mentor Dashboard top summary metrics into real in-page focus shortcuts for assigned students.
+- Selection reason: current repo evidence showed that Mentor Dashboard already had exact mentor-scoped focus filters plus URL sync for `all`, `revision`, `meeting`, and `presentation`, but the top `Assigned`, `Needs Revision`, `Meetings`, and `Presentations` tiles still rendered as summary-only affordances above the same assigned-student list. Reusing the existing mentor filter flow was the smallest safe product-readiness batch because it improved mentor navigation without adding routes, changing API shape, or broadening access.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Mentor Dashboard metric shortcuts | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | `mentor` | 5 | 5 | 5 | XS | 55 | selected |
+| Global search landing | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | site staff, `program_teacher` | 4 | 3 | 3 | M | 37 | deferred: broader navigation batch than this mentor-focused shortcut slice |
+| Program Teacher mentor-meeting follow-up destination | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | `program_teacher` | 4 | 3 | 3 | M | 40 | deferred: no exact current destination is proven for that follow-up row |
+| Hosted section-level permission proof | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all protected roles | 4 | 3 | 2 | M | 35 | deferred: hosted runtime is outside this local batch |
+| Review Queue missing-submission semantics | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | `program_teacher`, `site_admin` | 5 | 2 | 3 | M | 34 | deferred: backend queue rows are still absent |
+| Mentor reassignment or removal workflow | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | `site_admin` | 4 | 2 | 3 | M | 33 | deferred: mutation and audit design still needed |
+| Viewer student email redaction policy | `LEVEL_7_AUDITABILITY_AND_TRUST` | `viewer` | 3 | 2 | 3 | S | 30 | deferred: policy decision first |
+| Mobile dashboard smoke proof | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all protected roles | 3 | 4 | 2 | M | 33 | deferred: browser runtime proof is outside this local batch |
+| Site Dashboard summary-only affordance styling | `LEVEL_1_NAVIGABLE_DASHBOARDS` | site staff, `viewer` | 3 | 4 | 3 | S | 39 | not selected: broader visual surface than this mentor workflow slice |
+| Presentation schedule URL state | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | site staff, `program_teacher`, `mentor`, `student` | 3 | 4 | 4 | S | 42 | not selected: lower current pain than the mentor dashboard shortcut gap |
+
+- User-facing improvement: mentors can now use the top Assigned, Needs Revision, Meetings, and Presentations tiles to switch the existing assigned-student list into the matching focus instead of reading summary-only counts and then hunting for the same filter buttons below.
+- Roles affected: `mentor`
+- Files changed: `workspace.js`, `tests/workspace-app.test.mjs`, `scripts/verify-dashboard-actions.mjs`, `docs/functionality-language-audit.md`, `docs/product/demo-role-readiness.md`, `docs/progress/run-log.md`, `docs/progress/runs/2026-06-02-1232-mentor-dashboard-metric-shortcuts.json`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`
+- Tests/verifiers added or updated: `tests/workspace-app.test.mjs` now proves the Mentor Dashboard metrics render the expected mentor filter buttons, and `scripts/verify-dashboard-actions.mjs` now guards the metric-to-filter wiring inside `renderMentorDashboardSection()`.
+- Validation commands:
+  - `node --check workspace.js`
+  - `node --test tests/workspace-app.test.mjs`
+  - `npm run verify:dashboard-actions`
+  - `npm run verify:functionality-language`
+  - `npm run verify:functionality-ux-automation`
+  - `npm run check:production-surfaces`
+  - `npm run typecheck`
+  - `npm run test`
+  - `npm run check`
+  - `node -e "JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-02-1232-mentor-dashboard-metric-shortcuts.json','utf8')); console.log('json ok')"`
+  - `git diff --check`
+- Validation result: passed. Workspace syntax checks, focused mentor workspace coverage, dashboard-action and workspace-density verification, functionality-language and automation verification, production-surface checks, typecheck, full test and check runs, JSON parsing, and `git diff --check` all passed after docs/state closeout; `git diff --check` reported CRLF normalization warnings only.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: global search landing, Program Teacher mentor-meeting follow-up destination, hosted section-level permission proof, Review Queue missing-submission semantics, mentor reassignment/remove workflow, viewer email visibility policy, and mobile dashboard smoke proof remain open.
+- New backlog items: none
+- Next recommended work order: inspect a role-safe global search landing that reuses the current Student Directory search filters before introducing any broader navigation surface.
+- Do-not-repeat notes: do not turn Mentor Dashboard summary metrics back into summary-only tiles while the existing mentor focus filters still back them, and do not broaden mentor access beyond actively assigned students while deepening mentor workflow shortcuts.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_4_ROLE_SPECIFIC_WORKSPACES`
+  - Advanced: yes
+  - Evidence: `workspace.js` now routes the Mentor Dashboard top metrics through the existing mentor focus filters, while focused workspace and dashboard-action coverage prove the all/revision/meeting/presentation shortcuts render and stay mentor-scoped.
+  - Unlocks: future mentor or staff navigation work can build from faster role-specific dashboard scanning instead of re-solving these same mentor filters.
+  - Next: inspect whether `workspace.js` can support a role-safe global search landing that simply reuses the current Student Directory search filters and scope rules.
+  - Blockers: hosted permission proof still needs allowed runtime; Program Teacher mentor-meeting follow-up still lacks an exact current destination; Review Queue missing-submission semantics still need backend evidence.
+  - Do not repeat: do not replace these metric shortcuts with new routes or revert them to summary-only tiles while the current mentor filter state remains the exact destination.
+  - First file to inspect next run: `workspace.js` around `renderMentorDashboardSection()` and `handleMentorDashboardAction()`
