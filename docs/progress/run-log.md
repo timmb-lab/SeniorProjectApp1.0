@@ -21,6 +21,17 @@ This is the compact run log for the current Functionality UX Upgrade automation 
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-06-02 09:02 PT - Functionality UX Upgrade Dashboard Risk Explanation Copy
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 4 role-specific workspaces / dashboard and review-row guidance.
+- `starting HEAD`: `eeb94f6fe5907bd4c18d5ccd756aef9cbd342e07`.
+- `selected slice`: Explain existing risk signals on Site Dashboard top-risk rows and Review Queue rows.
+- `repo-grounded findings`: `workspace.js` still rendered risk chips such as `High risk`, `Stale activity`, `No mentor`, and `Revision requested`, but those chips rarely explained what triggered the row. The previous handoff and growth state both named this exact gap, and the existing routes already returned the risk reasons or flags needed to clarify it without changing data scope, filters, or permissions.
+- `changes`: `workspace.js` now adds shared row-level risk explanation copy for Site Dashboard top-risk rows and Review Queue rows, plus a `missing_evidence` risk label so current queue flags stay human-readable. `tests/workspace-app.test.mjs` now proves the new explanation text on both protected surfaces. `docs/functionality-language-audit.md`, `docs/product/demo-role-readiness.md`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`, and the per-run manifest record the completed slice and next handoff.
+- `validation`: `node --check workspace.js`, `node --test tests/workspace-app.test.mjs`, `npm run verify:functionality-language`, `npm run verify:functionality-ux-automation`, `npm run check:production-surfaces`, `npm run typecheck`, `npm run test`, `npm run check`, JSON parsing, and `git diff --check` passed. `git diff --check` reported CRLF normalization warnings only.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.
+
 ## 2026-05-31 22:05 PT - Functionality UX Upgrade Site Admin Programs First-Load Add Proof
 
 - `automation ID`: functionality-ux-upgrade-hourly remained paused; this was a user-requested manual slice.

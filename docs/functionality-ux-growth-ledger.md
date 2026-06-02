@@ -5393,3 +5393,60 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: hosted permission proof still needs allowed fake-account runtime; site-level recent-activity drill-down still lacks a proven backed destination; student-detail URL state still needs privacy review.
   - Do not repeat: do not revert this slice by reintroducing intervention/audit-heavy phrases through API helper strings.
   - First file to inspect next run: `workspace.js` around `renderNeedsAttention()` and `renderRiskChips()`
+
+## Run 2026-06-02 09:02 PT
+
+- Starting SHA: `eeb94f6fe5907bd4c18d5ccd756aef9cbd342e07`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Branch policy: work stayed on clean local `main`; no deploy, seed, reset, migration, or live config change was run
+- Ladder level targeted: `LEVEL_4_ROLE_SPECIFIC_WORKSPACES`
+- Backlog item: `dashboard-risk-explanation-copy`
+- Work order selected: Explain the existing risk chips on Site Dashboard top-risk rows and Review Queue rows so staff can tell why those records are highlighted.
+- Selection reason: Current repo evidence still matched the open handoff exactly. `workspace.js` showed risk chips such as `High risk`, `Stale activity`, `No mentor`, and `Revision requested`, but those protected rows rarely explained what triggered them. The existing dashboard and Review Queue payloads already carried the reasons or flags, so the safest product-readiness batch was to add row-level explanation copy without changing routes, data scope, or permissions.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Dashboard risk explanation copy | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | `site_admin`, `program_teacher`, read-only site staff | 4 | 5 | 5 | XS | 51 | selected |
+| Site dashboard recent-activity drill-down | `LEVEL_7_AUDITABILITY_AND_TRUST` | `site_admin`, `administration` | 3 | 3 | 3 | M | 36 | deferred: no site-backed audit destination is proven yet |
+| Student detail URL state | `LEVEL_2_STUDENT_DETAIL_DEPTH` | site staff | 4 | 3 | 3 | M | 39 | deferred: privacy review still needed |
+| Filter persistence across staff worklists | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | site staff | 4 | 3 | 3 | M | 38 | deferred: larger URL-state batch |
+| Review Queue missing-submission semantics | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | `program_teacher`, `site_admin` | 5 | 2 | 3 | M | 34 | deferred: backend queue rows are still absent |
+| Mentor reassignment/remove workflow | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | `site_admin` | 4 | 2 | 3 | M | 33 | deferred: mutation and audit design still needed |
+| Viewer student email redaction decision | `LEVEL_7_AUDITABILITY_AND_TRUST` | `viewer` | 3 | 2 | 3 | S | 30 | deferred: policy decision first |
+| Hosted section-level permission proof | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all protected roles | 4 | 3 | 3 | M | 38 | deferred: hosted fake-account runtime is outside this local batch |
+| Multi-site site selector follow-up | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | `site_admin` | 4 | 3 | 3 | M | 37 | deferred: broader workflow than this copy slice |
+| Student detail mentor assignment history | `LEVEL_7_AUDITABILITY_AND_TRUST` | `site_admin`, `mentor` | 4 | 4 | 4 | M | 44 | not selected: valuable, but larger than this row-guidance batch |
+
+- User-facing improvement: Site Dashboard top-risk rows and Review Queue rows now explain why labels such as `High risk`, `Stale activity`, `No mentor`, `Awaiting review`, or `Revision requested` appear instead of leaving staff to decode chips alone.
+- Roles affected: `site_admin`, `program_teacher`, read-only site staff who monitor dashboard and review surfaces
+- Files changed: `workspace.js`, `tests/workspace-app.test.mjs`, `docs/functionality-language-audit.md`, `docs/product/demo-role-readiness.md`, `docs/progress/run-log.md`, `docs/progress/runs/2026-06-02-0902-dashboard-risk-explanation-copy.json`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`
+- Tests/verifiers added or updated: `tests/workspace-app.test.mjs` now proves the new explanation copy on both the Site Dashboard top-risk list and the Review Queue row surface.
+- Validation commands:
+  - `node --check workspace.js`
+  - `node --test tests/workspace-app.test.mjs`
+  - `npm run verify:functionality-language`
+  - `npm run verify:functionality-ux-automation`
+  - `npm run check:production-surfaces`
+  - `npm run typecheck`
+  - `npm run test`
+  - `npm run check`
+  - `node -e "JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-02-0902-dashboard-risk-explanation-copy.json','utf8')); console.log('json ok')"`
+  - `git diff --check`
+- Validation result: passed. Workspace syntax checks, focused workspace render coverage, the functionality-language and automation verifiers, production-surface checks, typecheck, full test and check runs, JSON parsing, and `git diff --check` all passed after docs/state closeout; `git diff --check` reported CRLF normalization warnings only.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: site-dashboard recent-activity drill-down, student-detail URL state, filter persistence, Review Queue missing-submission semantics, mentor reassignment/remove workflow, viewer email redaction policy, and hosted section-level permission proof remain open.
+- New backlog items: none
+- Next recommended work order: Add a safe site-dashboard recent-activity destination only if a backed read-only path is proven, or revisit privacy-safe student-detail URL state.
+- Do-not-repeat notes: do not remove row-level risk explanation copy from Site Dashboard top-risk rows or Review Queue rows unless a clearer supported explanation replaces it.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_4_ROLE_SPECIFIC_WORKSPACES`
+  - Advanced: yes
+  - Evidence: `workspace.js` now renders explicit risk-reason sentences on the Site Dashboard top-risk list and Review Queue rows, and focused workspace coverage proves both surfaces keep the explanations.
+  - Unlocks: the next UX slice can move into site-backed recent-activity trust cues or privacy-safe detail URL state instead of repeating row-meaning cleanup.
+  - Next: inspect `workspace.js` around `renderNeedsAttention()`, `renderSiteTopRiskStudents()`, and `renderReviewQueueRow()` if the next slice stays in Level 4/7.
+  - Blockers: recent-activity drill-down still lacks a proven site-backed destination; hosted permission proof still needs allowed fake-account runtime; student-detail URL state still needs privacy review.
+  - Do not repeat: do not revert to unlabeled risk chips on these protected row surfaces.
+  - First file to inspect next run: `workspace.js` around `renderRiskExplanation()`

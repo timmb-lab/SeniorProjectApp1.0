@@ -429,6 +429,7 @@ test("workspace renders route-connected site dashboard with Figma product-system
   assert.match(expandedSiteDashboard, /data-site-student-action="view-detail"/);
   assert.match(expandedSiteDashboard, /workspace-status-pill/);
   assert.match(expandedSiteDashboard, /workspace-risk-chip/);
+  assert.match(expandedSiteDashboard, /Why this row is highlighted: No active mentor is assigned yet\. Revision feedback is still open\./);
   assert.doesNotMatch(siteDashboard, /data-viewer-monitoring-overview="true"/);
   assert.doesNotMatch(siteDashboard, /data-section="studentDirectory"|\/api\/site\/students/);
 
@@ -1426,6 +1427,7 @@ test("workspace renders site-aware Review Queue with teacher decisions and read-
   assert.match(teacher, /workspace-status-pill submitted/);
   assert.match(teacher, /workspace-story-chip/);
   assert.match(teacher, /workspace-risk-chip/);
+  assert.match(teacher, /Why this row is highlighted: Submitted work is still waiting for teacher review\. Recent activity has slowed and may need staff follow-up\./);
   assert.match(teacher, /Selected row\. History and available actions are loaded on the right\./);
   assert.match(teacher, /Teacher decisions are ready on this submitted row\./);
   assert.match(teacher, /data-review-queue-action="open-student"/);

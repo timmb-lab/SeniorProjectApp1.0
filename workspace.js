@@ -3097,6 +3097,7 @@ function renderSiteTopRiskStudents(rows = []) {
                   ? reasons.map((reason) => `<span class="workspace-risk-chip">${escapeHtml(reason)}</span>`).join("")
                   : `<span class="workspace-story-chip">No critical reason</span>`}
               </div>
+              ${renderRiskExplanation(reasons, { includeLow: false })}
             </div>
             <div class="workspace-row-actions">
               ${statusPill(row.submissionStatus || "draft")}
@@ -6382,6 +6383,7 @@ function renderReviewQueueRow(item, selectedId, permissions = {}) {
       </div>
       <div class="workspace-row-actions">
         <p>${escapeHtml(item.nextAction || "Review status and context.")}</p>
+        ${renderRiskExplanation(item.riskFlags || [], { includeLow: false })}
         <p class="workspace-muted">${escapeHtml(selected ? "Selected row. History and available actions are loaded on the right." : actionHint)}</p>
         <button class="workspace-link-button workspace-link-button-small" type="button" data-review-queue-action="select" data-review-submission-id="${escapeHtml(item.submissionId || "")}" data-review-row-action-label="${escapeHtml(actionLabel.toLowerCase().replace(/\s+/g, "-"))}">
           ${escapeHtml(selected ? "Selected row" : actionLabel)}
@@ -6395,6 +6397,23 @@ function renderRiskChips(flags = []) {
   return flags.length
     ? flags.map((flag) => `<span class="workspace-risk-chip">${escapeHtml(riskLabel(flag))}</span>`).join("")
     : `<span class="workspace-risk-chip">Low risk</span>`;
+}
+
+function renderRiskExplanation(flags = [], { includeLow = true, prefix = "Why this row is highlighted:" } = {}) {
+  const normalized = Array.from(new Set(
+    (Array.isArray(flags) ? flags : [])
+      .map((flag) => normalizeStatus(flag))
+      .filter((flag) => flag && flag !== "unknown"),
+  ));
+  if (!normalized.length) {
+    return includeLow
+      ? `<p class="workspace-muted" data-risk-explanation="true">${escapeHtml(`${prefix} No urgent risk signal is active right now.`)}</p>`
+      : "";
+  }
+  const explanation = normalized
+    .map((flag) => riskExplanation(flag))
+    .join(" ");
+  return `<p class="workspace-muted" data-risk-explanation="true">${escapeHtml(`${prefix} ${explanation}`)}</p>`;
 }
 
 function renderReviewSubmissionPanel(selected, body) {
@@ -10141,6 +10160,7 @@ function riskLabel(value) {
     low: "Low risk",
     stale: "Stale activity",
     no_mentor: "No mentor",
+    missing_evidence: "Missing evidence",
     awaiting_review: "Awaiting review",
     revision_requested: "Revision requested",
     presentation_pending: "Presentation pending",
@@ -10148,6 +10168,23 @@ function riskLabel(value) {
   };
   const normalized = normalizeStatus(value);
   return labels[normalized] || statusText(value);
+}
+
+function riskExplanation(value) {
+  const labels = {
+    high: "Progress has multiple blockers or a strong risk signal.",
+    medium: "Progress signals need a closer check.",
+    low: "No urgent risk signal is active right now.",
+    stale: "Recent activity has slowed and may need staff follow-up.",
+    no_mentor: "No active mentor is assigned yet.",
+    missing_evidence: "Evidence still needs to be attached.",
+    awaiting_review: "Submitted work is still waiting for teacher review.",
+    revision_requested: "Revision feedback is still open.",
+    presentation_pending: "Presentation readiness is still incomplete.",
+    archive_failed: "Archive closeout hit a failure that needs staff review.",
+  };
+  const normalized = normalizeStatus(value);
+  return labels[normalized] || `${riskLabel(value)} needs follow-up.`;
 }
 
 function evidenceStatusFilterLabel(value) {

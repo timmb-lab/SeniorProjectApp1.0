@@ -1,0 +1,147 @@
+{
+  "runId": "2026-06-02-0902-dashboard-risk-explanation-copy",
+  "selectedSlice": "dashboard-risk-explanation-copy",
+  "summary": "Explain the existing risk chips on Site Dashboard top-risk rows and Review Queue rows so staff can tell why those records are highlighted without changing routes or permissions.",
+  "selectedReason": "Current repo evidence still matched the open handoff exactly: `workspace.js` showed risk chips like `High risk`, `Stale activity`, `No mentor`, and `Revision requested`, but those rows rarely explained what triggered them. The existing dashboard and Review Queue payloads already carried the reasons or flags, so the safest product-readiness batch was to add row-level explanation copy instead of inventing new actions or broadening filters.",
+  "candidateTable": [
+    {
+      "candidate": "Dashboard risk explanation copy",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "roles": ["site_admin", "program_teacher", "read-only site staff"],
+      "impact": 4,
+      "safety": 5,
+      "testability": 5,
+      "size": "XS",
+      "score": 51,
+      "decision": "selected"
+    },
+    {
+      "candidate": "Site dashboard recent-activity drill-down",
+      "ladderLevel": "LEVEL_7_AUDITABILITY_AND_TRUST",
+      "roles": ["site_admin", "administration"],
+      "impact": 3,
+      "safety": 3,
+      "testability": 3,
+      "size": "M",
+      "score": 36,
+      "decision": "deferred: no site-backed audit destination is proven yet"
+    },
+    {
+      "candidate": "Student detail URL state",
+      "ladderLevel": "LEVEL_2_STUDENT_DETAIL_DEPTH",
+      "roles": ["site staff"],
+      "impact": 4,
+      "safety": 3,
+      "testability": 3,
+      "size": "M",
+      "score": 39,
+      "decision": "deferred: privacy review still needed"
+    },
+    {
+      "candidate": "Filter persistence across staff worklists",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "roles": ["site staff"],
+      "impact": 4,
+      "safety": 3,
+      "testability": 3,
+      "size": "M",
+      "score": 38,
+      "decision": "deferred: larger URL-state batch"
+    },
+    {
+      "candidate": "Review Queue missing-submission semantics",
+      "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
+      "roles": ["program_teacher", "site_admin"],
+      "impact": 5,
+      "safety": 2,
+      "testability": 3,
+      "size": "M",
+      "score": 34,
+      "decision": "deferred: backend queue rows are still absent"
+    },
+    {
+      "candidate": "Mentor reassignment/remove workflow",
+      "ladderLevel": "LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW",
+      "roles": ["site_admin"],
+      "impact": 4,
+      "safety": 2,
+      "testability": 3,
+      "size": "M",
+      "score": 33,
+      "decision": "deferred: mutation and audit design still needed"
+    },
+    {
+      "candidate": "Viewer student email redaction decision",
+      "ladderLevel": "LEVEL_7_AUDITABILITY_AND_TRUST",
+      "roles": ["viewer"],
+      "impact": 3,
+      "safety": 2,
+      "testability": 3,
+      "size": "S",
+      "score": 30,
+      "decision": "deferred: policy decision first"
+    },
+    {
+      "candidate": "Hosted section-level permission proof",
+      "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
+      "roles": ["all protected roles"],
+      "impact": 4,
+      "safety": 3,
+      "testability": 3,
+      "size": "M",
+      "score": 38,
+      "decision": "deferred: hosted fake-account runtime is outside this local batch"
+    },
+    {
+      "candidate": "Multi-site site selector follow-up",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "roles": ["site_admin"],
+      "impact": 4,
+      "safety": 3,
+      "testability": 3,
+      "size": "M",
+      "score": 37,
+      "decision": "deferred: broader workflow than this copy slice"
+    },
+    {
+      "candidate": "Student detail mentor assignment history",
+      "ladderLevel": "LEVEL_7_AUDITABILITY_AND_TRUST",
+      "roles": ["site_admin", "mentor"],
+      "impact": 4,
+      "safety": 4,
+      "testability": 4,
+      "size": "M",
+      "score": 44,
+      "decision": "not selected: valuable, but larger than this row-guidance batch"
+    }
+  ],
+  "changes": [
+    "Added a shared `renderRiskExplanation()` helper in `workspace.js` so protected row surfaces can explain active risk labels instead of only listing chips.",
+    "Updated Site Dashboard top-risk rows to explain why each student is highlighted using the existing `riskReasons` payload.",
+    "Updated Review Queue rows to explain why submitted, stale, revision, no-mentor, or missing-evidence records are highlighted using the existing `riskFlags` payload.",
+    "Added a human-readable `missing_evidence` risk label so current queue flags render cleanly.",
+    "Expanded `tests/workspace-app.test.mjs` to prove the new explanation text on both protected surfaces."
+  ],
+  "validation": {
+    "focusedPassed": [
+      "node --check workspace.js",
+      "node --test tests/workspace-app.test.mjs",
+      "npm run verify:functionality-language"
+    ],
+    "fullCloseoutPassed": [
+      "npm run verify:functionality-ux-automation",
+      "npm run check:production-surfaces",
+      "npm run typecheck",
+      "npm run test",
+      "npm run check",
+      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-02-0902-dashboard-risk-explanation-copy.json','utf8')); console.log('json ok')\"",
+      "git diff --check"
+    ],
+    "finalStatus": "passed"
+  },
+  "nextRecommended": "Add a safe site-dashboard recent-activity destination only if a backed read-only path is proven, or revisit privacy-safe student-detail URL state.",
+  "doNotRepeat": [
+    "Do not remove row-level risk explanation copy from Site Dashboard top-risk rows or Review Queue rows unless a clearer supported explanation replaces it.",
+    "Do not add a recent-activity click path until a site-backed destination and role visibility contract are proven."
+  ]
+}
