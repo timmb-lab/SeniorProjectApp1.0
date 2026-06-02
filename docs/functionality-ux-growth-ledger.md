@@ -5682,3 +5682,61 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: detail URL state still needs privacy review; Review Queue missing-submission semantics still need exact backend evidence; hosted click-through proof remains out of scope for this local run.
   - Do not repeat: do not regress this navigation slice back to an unlabeled `Close` button.
   - First file to inspect next run: `workspace.js` around `renderSiteStudentDetailSurface()`
+
+## Run 2026-06-02 11:42 PT
+
+- Starting SHA: `541199d0bcb2136b51f0f15913ac1521081d8ab1`
+- Ending SHA: pending closeout commit; final hash is reported after commit and push
+- Branch: `main`
+- Branch policy: started from clean local `main`; the run pushed seven prior local automation commits first so new work began aligned with `origin/main`
+- Ladder level targeted: `LEVEL_2_STUDENT_DETAIL_DEPTH`
+- Backlog item: `student-detail-url-state`
+- Work order selected: Add privacy-safe URL state for the existing student-detail drawer inside the current scoped section URLs.
+- Selection reason: current repo evidence showed that shareable URL state already existed for Students, Review Queue, Mentor Assignments, Operations, and Mentor Dashboard, while student detail still disappeared on reload or share even though `sourceSection`, the scoped detail route, and the scoped timeline route already existed. This was the highest-value safe Level 2 slice because it reused real routes, kept detail inside existing section boundaries, and could be proven with focused popstate and close-state tests instead of inventing a new page.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Student detail URL state | `LEVEL_2_STUDENT_DETAIL_DEPTH` | `site_admin`, `administration`, `viewer`, `program_teacher`, `mentor` | 5 | 4 | 5 | S | 55 | selected |
+| Hosted section permission proof | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all protected roles | 4 | 3 | 2 | M | 35 | deferred: hosted runtime still unavailable in this local run |
+| Review Queue missing-submission semantics | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | `program_teacher`, `site_admin` | 5 | 2 | 3 | M | 34 | deferred: backend queue rows are still absent |
+| Presentation schedule URL state | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | `site_admin`, `administration`, `program_teacher`, `mentor`, `student` | 3 | 4 | 4 | S | 42 | not selected: less urgent than the cross-worklist detail gap |
+| Mentor reassignment or removal workflow | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | `site_admin` | 4 | 2 | 3 | M | 33 | deferred: mutation and audit design still needed |
+| Viewer student email redaction policy | `LEVEL_7_AUDITABILITY_AND_TRUST` | `viewer` | 3 | 2 | 3 | S | 30 | deferred: policy decision first |
+| Global search landing | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | site staff, `program_teacher` | 4 | 3 | 3 | M | 37 | deferred: broader navigation batch than this focused slice |
+| Mobile dashboard smoke proof | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all protected roles | 3 | 4 | 2 | M | 33 | deferred: browser runtime proof is outside this local batch |
+| Site-scoped audit deep link | `LEVEL_7_AUDITABILITY_AND_TRUST` | `site_admin` | 3 | 2 | 3 | M | 29 | deferred: no approved site-scoped audit destination exists |
+| Program Teacher mentor-meeting follow-up destination | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | `program_teacher` | 4 | 3 | 3 | M | 40 | deferred: no exact current destination is proven for that follow-up row |
+
+- User-facing improvement: authorized staff can now reload or share a selected student record, active tab, and timeline filter from the existing Students, Review Queue, Mentor Assignments, Operations, Site Dashboard, Program Dashboard, or Mentor Dashboard section URL without leaving the current scoped workflow.
+- Roles affected: `site_admin`, `administration`, `viewer`, `program_teacher`, `mentor`, and other authorized staff using the shared student-detail drawer
+- Files changed: `workspace.js`, `tests/workspace-app.test.mjs`, `scripts/verify-workspace-navigation-integrity.mjs`, `docs/functionality-language-audit.md`, `docs/product/demo-role-readiness.md`, `docs/progress/run-log.md`, `docs/progress/runs/2026-06-02-1142-student-detail-url-state.json`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`
+- Tests/verifiers added or updated: `tests/workspace-app.test.mjs` now proves detail URL restore/clear behavior from Student Directory and Mentor Dashboard contexts, and `scripts/verify-workspace-navigation-integrity.mjs` now guards the dedicated detail URL params plus the open/close sync hooks.
+- Validation commands:
+  - `node --check workspace.js`
+  - `node --test tests/workspace-app.test.mjs`
+  - `npm run verify:workspace-navigation`
+  - `npm run verify:functionality-language`
+  - `npm run verify:functionality-ux-automation`
+  - `npm run check:production-surfaces`
+  - `npm run typecheck`
+  - `npm run test`
+  - `npm run check`
+  - `node -e "JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-02-1142-student-detail-url-state.json','utf8')); console.log('json ok')"`
+  - `git diff --check`
+- Validation result: passed. Workspace syntax checks, focused workspace render coverage, the functionality-language, automation, and workspace-navigation verifiers, production-surface checks, typecheck, full test and check runs, JSON parsing, and `git diff --check` all passed after the URL-state slice; `git diff --check` reported CRLF normalization warnings only.
+- Commit: pending closeout commit
+- Push status: pending closeout push
+- Deferred items: hosted section-level permission proof, Review Queue missing-submission semantics, mentor reassignment/remove workflow, viewer email visibility policy, global search landing, site-scoped audit deep link, and mobile dashboard smoke proof remain open.
+- New backlog items: none
+- Next recommended work order: Run hosted section-level permission proof when hosted fake-account runtime and audit-event writes are allowed; if that remains blocked, keep Review Queue missing-submission semantics deferred until backend queue rows exist and use the next local slice on another proven route-backed workflow.
+- Do-not-repeat notes: do not remove `detailStudentId`, `detailTab`, or `detailTimelineType` restore from scoped section URLs, and do not switch detail sharing to raw `studentId` params that collide with existing worklist filters.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_2_STUDENT_DETAIL_DEPTH`
+  - Advanced: yes
+  - Evidence: `workspace.js` now restores scoped student detail from existing section URLs, clears the detail params on close, and reloads full timeline state when the shared detail URL points at Timeline; focused workspace tests prove both directory and mentor-dashboard restore behavior.
+  - Unlocks: future runs can use durable detail links during hosted permission proof instead of manually reopening the same student record after every refresh.
+  - Next: run hosted section-level permission proof when runtime policy allows, or leave Review Queue missing-submission work deferred until real backend queue rows exist.
+  - Blockers: hosted click-through proof still needs allowed fake-account runtime and audit-event writes; Review Queue missing-submission semantics still need exact backend evidence.
+  - Do not repeat: do not regress the detail URL state back to ephemeral in-memory-only behavior.
+  - First file to inspect next run: `workspace.js` around `workspaceUrlStateFromLocation()`, `restoreSiteStudentDetailFromUrlState()`, and the section sync helpers

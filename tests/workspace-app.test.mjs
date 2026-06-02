@@ -2332,6 +2332,10 @@ test("mentor dashboard focus URLs restore and sync without refetching assigned-s
       status: 200,
       body: { ok: true, slots: [], summary: {} },
     },
+    "/api/site/students/demo-student-101": {
+      status: 200,
+      body: siteStudentDetailFixture({ readOnly: true }),
+    },
   }, {
     url: "https://workspace.example/workspace.html?section=mentorDashboard&siteId=site-desert-valley-high&mentorFocus=%20meeting%20&unknown=keep",
   });
@@ -2362,6 +2366,121 @@ test("mentor dashboard focus URLs restore and sync without refetching assigned-s
   assert.match(workspaceRoot.innerHTML, /data-mentor-dashboard-filter="all" aria-pressed="true"/);
   assert.match(workspaceRoot.innerHTML, /Avery On Track/);
   assert.equal(fetchLog.filter((entry) => entry === "/api/mentor/dashboard").length, dashboardFetchCount);
+
+  await vm.runInContext('openSiteStudentDetail("demo-student-101", { sourceSection: "mentorDashboard", activeTab: "mentor" })', context);
+  assert.match(workspaceRoot.innerHTML, /data-student-detail-panel="true"/);
+  assert.match(workspaceRoot.innerHTML, /Back to Mentor Dashboard/);
+  const detailUrl = new URL(window.location.href);
+  assert.equal(detailUrl.searchParams.get("section"), "mentorDashboard");
+  assert.equal(detailUrl.searchParams.get("mentorFocus"), null);
+  assert.equal(detailUrl.searchParams.get("detailStudentId"), "demo-student-101");
+  assert.equal(detailUrl.searchParams.get("detailTab"), "mentor");
+
+  const dashboardFetchCountBeforeDetailPop = fetchLog.filter((entry) => entry === "/api/mentor/dashboard").length;
+  window.history.pushState({}, "", "/workspace.html?section=mentorDashboard&siteId=site-desert-valley-high&mentorFocus=meeting&detailStudentId=demo-student-101&detailTab=mentor&unknown=keep");
+  window.dispatchEvent({ type: "popstate" });
+  for (let index = 0; index < 4; index += 1) {
+    await new Promise((resolve) => setTimeout(resolve, 0));
+  }
+  assert.equal(vm.runInContext("mentorDashboardFilter", context), "meeting");
+  assert.match(workspaceRoot.innerHTML, /data-student-detail-panel="true"/);
+  assert.match(workspaceRoot.innerHTML, /Mentor Coverage History/);
+  assert.equal(fetchLog.filter((entry) => entry === "/api/mentor/dashboard").length, dashboardFetchCountBeforeDetailPop);
+});
+
+test("student detail URLs restore a scoped record and clear back to the current worklist", async () => {
+  const { context, workspaceRoot, fetchLog, window } = await createWorkspaceContextWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "viewer-detail-url",
+          email: "viewer.detail.url@example.edu",
+          displayName: "Viewer Detail URL",
+          roles: [{ role_id: "viewer", scope_type: "site", scope_id: "site-desert-valley-high" }],
+        },
+      },
+    },
+    "/api/site/dashboard": {
+      status: 200,
+      body: siteDashboardFixture({ readOnly: true }),
+    },
+    "/api/site/students": {
+      status: 200,
+      body: siteStudentsFixture({
+        readOnly: true,
+        filters: {
+          search: "Revision Loop Demo",
+          programId: "it",
+          status: "revision_requested",
+          noMentor: false,
+          risk: "any",
+          story: "",
+          presentationStatus: "any",
+          archiveStatus: "any",
+          limit: 50,
+          offset: 0,
+        },
+      }),
+    },
+    "/api/site/students/demo-student-101": {
+      status: 200,
+      body: siteStudentDetailFixture({ readOnly: true }),
+    },
+    "/api/site/students/demo-student-101/timeline": ({ url }) => {
+      const parsed = new URL(url, "https://workspace.example");
+      const body = siteStudentTimelineFixture({ readOnly: true });
+      if (parsed.searchParams.get("type") === "review") {
+        body.filters.type = "review";
+        body.events = body.events.filter((event) => event.type === "review");
+        body.pagination.returned = body.events.length;
+      }
+      return { status: 200, body };
+    },
+  }, {
+    url: "https://workspace.example/workspace.html?section=students&siteId=site-desert-valley-high&search=%20Revision%20Loop%20Demo%20&programId=it&status=revision_requested&detailStudentId=demo-student-101&detailTab=timeline&detailTimelineType=review&unknown=keep",
+  });
+
+  const studentFetch = fetchLog.find((entry) => entry.startsWith("/api/site/students?"));
+  assert.ok(studentFetch, "expected Student Directory fetch from the detail URL");
+  const studentUrl = new URL(studentFetch, "https://workspace.example");
+  assert.equal(studentUrl.searchParams.get("search"), "Revision Loop Demo");
+  assert.equal(studentUrl.searchParams.get("programId"), "it");
+  assert.equal(studentUrl.searchParams.get("status"), "revision_requested");
+
+  assert.ok(fetchLog.includes("/api/site/students/demo-student-101?siteId=site-desert-valley-high"));
+  const timelineFetch = fetchLog.find((entry) => entry.startsWith("/api/site/students/demo-student-101/timeline?"));
+  assert.ok(timelineFetch, "expected student timeline fetch from the detail URL");
+  const timelineUrl = new URL(timelineFetch, "https://workspace.example");
+  assert.equal(timelineUrl.searchParams.get("siteId"), "site-desert-valley-high");
+  assert.equal(timelineUrl.searchParams.get("type"), "review");
+
+  assert.match(workspaceRoot.innerHTML, /data-section="students"/);
+  assert.match(workspaceRoot.innerHTML, /data-student-detail-panel="true"/);
+  assert.match(workspaceRoot.innerHTML, /data-student-detail-section="timeline"/);
+  assert.match(workspaceRoot.innerHTML, /Showing reviews/);
+  assert.match(workspaceRoot.innerHTML, /Revision Loop Demo/);
+  assert.match(workspaceRoot.innerHTML, /Back to Students/);
+
+  const openUrl = new URL(window.location.href);
+  assert.equal(openUrl.searchParams.get("detailStudentId"), "demo-student-101");
+  assert.equal(openUrl.searchParams.get("detailTab"), "timeline");
+  assert.equal(openUrl.searchParams.get("detailTimelineType"), "review");
+  assert.equal(openUrl.searchParams.get("unknown"), "keep");
+
+  vm.runInContext('handleSiteStudentDetailAction({ currentTarget: { dataset: { studentDetailAction: "close" } } })', context);
+
+  const closedUrl = new URL(window.location.href);
+  assert.equal(closedUrl.searchParams.get("section"), "students");
+  assert.equal(closedUrl.searchParams.get("search"), "Revision Loop Demo");
+  assert.equal(closedUrl.searchParams.get("programId"), "it");
+  assert.equal(closedUrl.searchParams.get("status"), "revision_requested");
+  assert.equal(closedUrl.searchParams.get("detailStudentId"), null);
+  assert.equal(closedUrl.searchParams.get("detailTab"), null);
+  assert.equal(closedUrl.searchParams.get("detailTimelineType"), null);
+  assert.equal(closedUrl.searchParams.get("unknown"), "keep");
+  assert.doesNotMatch(workspaceRoot.innerHTML, /workspace-detail-drawer/);
 });
 
 test("workspace renders site-scoped Mentor Assignments with role-safe assignment controls", async () => {

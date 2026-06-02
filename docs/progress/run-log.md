@@ -21,6 +21,17 @@ This is the compact run log for the current Functionality UX Upgrade automation 
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-06-02 11:42 PT - Functionality UX Upgrade Student Detail URL State
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 2 student detail depth / shareable safe detail navigation.
+- `starting HEAD`: `541199d0bcb2136b51f0f15913ac1521081d8ab1`.
+- `selected slice`: Add privacy-safe URL state for the existing student-detail drawer inside current section URLs.
+- `repo-grounded findings`: the previous handoff pointed directly at `openSiteStudentDetail()`, `handleSiteStudentDetailAction()`, and the existing URL-state helpers. Current repo evidence showed real section-level URL state for Students, Review Queue, Mentor Assignments, Operations, and Mentor Dashboard, but student detail itself still disappeared on reload or share even though the app already had scoped section URLs, context-preserving `sourceSection`, and protected `/api/site/students/:studentId` plus timeline routes. That made the detail drawer the highest-value remaining Level 2 slice that could be finished without creating a new route or weakening RBAC.
+- `changes`: `workspace.js` now carries `detailStudentId`, `detailTab`, and `detailTimelineType` inside the existing section URL state for Site Dashboard, Students, Review Queue, Mentor Assignments, Mentor Dashboard, Program Dashboard, and Operations; restores the authorized detail drawer on reload/popstate; reloads the full timeline when the shared state points at Timeline; and clears the detail params when staff close the drawer. `tests/workspace-app.test.mjs` now proves both directory-backed and mentor-dashboard-backed detail URL restore/clear behavior. `scripts/verify-workspace-navigation-integrity.mjs` now guards the dedicated detail params and the open/close URL-sync hooks.
+- `validation`: `node --check workspace.js`, `node --test tests/workspace-app.test.mjs`, and `npm run verify:workspace-navigation` passed before docs/state closeout.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.
+
 ## 2026-06-02 10:09 PT - Functionality UX Upgrade Site Dashboard Next Actions
 
 - `automation ID`: functionality-ux-upgrade-hourly.

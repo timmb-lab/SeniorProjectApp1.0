@@ -129,9 +129,11 @@ assertMatches("workspaceJs", /renderActiveFilterSummary\(/, "Workspace lists mus
 assertMatches("workspaceJs", /Reload or share this view with the current browser URL/, "Filtered worklists must explain reloadable/shareable URL state");
 for (const fn of [
   "siteStudentFiltersFromSearchParams",
+  "siteStudentDetailUrlStateFromSearchParams",
   "mentorDashboardFilterFromSearchParams",
   "mentorAssignmentFiltersFromSearchParams",
   "operationsReadinessFiltersFromSearchParams",
+  "restoreSiteStudentDetailFromUrlState",
   "syncMentorDashboardUrlState",
   "syncSiteStudentUrlState",
   "syncMentorAssignmentUrlState",
@@ -141,6 +143,10 @@ for (const fn of [
 ]) {
   assertMatches("workspaceJs", new RegExp(`function ${fn}\\b`), `${fn} must exist for shareable worklist URL state`);
 }
+assertMatches("workspaceJs", /SITE_STUDENT_DETAIL_URL_PARAMS = \["detailStudentId", "detailTab", "detailTimelineType"\]/, "Student detail URL state must use dedicated safe params");
+assertMatches("workspaceJs", /openSiteStudentDetail\(studentId, options = \{\}\)[\s\S]*syncCurrentWorkspaceUrlState\(\)/, "Opening student detail must sync shareable URL state");
+assertMatches("workspaceJs", /handleSiteStudentDetailAction\(event\)[\s\S]*action === "close"[\s\S]*syncCurrentWorkspaceUrlState\(\)/, "Closing student detail must clear detail URL state");
+assertMatches("workspaceJs", /appendSiteStudentDetailUrlState\(url, section\)/, "Section URL sync helpers must be able to append student detail state");
 assertMatches("workspaceJs", /activeSection === "mentorDashboard"[\s\S]*syncMentorDashboardUrlState\(options\)/, "Mentor Dashboard focus filters must sync section URL state");
 assertMatches("workspaceJs", /data-mentor-dashboard-action="filter"[\s\S]*data-mentor-dashboard-filter/, "Mentor Dashboard focus controls must keep explicit filter actions");
 assertMatches("workspaceJs", /selectWorkspaceSite\(siteId\)[\s\S]*syncCurrentWorkspaceUrlState\(\{ clearFilters: true, replace: true \}\)/, "Site switching must clear stale worklist filters from URL state");

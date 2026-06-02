@@ -1,0 +1,146 @@
+{
+  "summary": "Add privacy-safe student-detail URL state inside existing scoped section URLs so authorized staff can reload or share the selected record, tab, and timeline filter without leaving the current workflow.",
+  "selectedReason": "Current repo evidence showed that Students, Review Queue, Mentor Assignments, Operations, and Mentor Dashboard already had real section URL state, while `openSiteStudentDetail()` and `sourceSection` kept student detail context only in memory. Extending the existing section URL model with dedicated detail params was the smallest safe way to make detail reloadable and shareable without adding a new route or weakening scoped auth.",
+  "candidates": [
+    {
+      "candidate": "Student detail URL state",
+      "ladderLevel": "LEVEL_2_STUDENT_DETAIL_DEPTH",
+      "roles": ["site_admin", "administration", "viewer", "program_teacher", "mentor"],
+      "impact": 5,
+      "safety": 4,
+      "testability": 5,
+      "size": "S",
+      "score": 55,
+      "decision": "selected"
+    },
+    {
+      "candidate": "Hosted section permission proof",
+      "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
+      "roles": ["all protected roles"],
+      "impact": 4,
+      "safety": 3,
+      "testability": 2,
+      "size": "M",
+      "score": 35,
+      "decision": "deferred: hosted runtime still unavailable in this local run"
+    },
+    {
+      "candidate": "Review Queue missing-submission semantics",
+      "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
+      "roles": ["program_teacher", "site_admin"],
+      "impact": 5,
+      "safety": 2,
+      "testability": 3,
+      "size": "M",
+      "score": 34,
+      "decision": "deferred: backend queue rows are still absent"
+    },
+    {
+      "candidate": "Presentation schedule URL state",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "roles": ["site_admin", "administration", "program_teacher", "mentor", "student"],
+      "impact": 3,
+      "safety": 4,
+      "testability": 4,
+      "size": "S",
+      "score": 42,
+      "decision": "not selected: less urgent than the cross-worklist detail gap"
+    },
+    {
+      "candidate": "Mentor reassignment or removal workflow",
+      "ladderLevel": "LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW",
+      "roles": ["site_admin"],
+      "impact": 4,
+      "safety": 2,
+      "testability": 3,
+      "size": "M",
+      "score": 33,
+      "decision": "deferred: mutation and audit design still needed"
+    },
+    {
+      "candidate": "Viewer student email redaction policy",
+      "ladderLevel": "LEVEL_7_AUDITABILITY_AND_TRUST",
+      "roles": ["viewer"],
+      "impact": 3,
+      "safety": 2,
+      "testability": 3,
+      "size": "S",
+      "score": 30,
+      "decision": "deferred: policy decision first"
+    },
+    {
+      "candidate": "Global search landing",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "roles": ["site staff", "program_teacher"],
+      "impact": 4,
+      "safety": 3,
+      "testability": 3,
+      "size": "M",
+      "score": 37,
+      "decision": "deferred: broader navigation batch than this focused slice"
+    },
+    {
+      "candidate": "Mobile dashboard smoke proof",
+      "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
+      "roles": ["all protected roles"],
+      "impact": 3,
+      "safety": 4,
+      "testability": 2,
+      "size": "M",
+      "score": 33,
+      "decision": "deferred: browser runtime proof is outside this local batch"
+    },
+    {
+      "candidate": "Site-scoped audit deep link",
+      "ladderLevel": "LEVEL_7_AUDITABILITY_AND_TRUST",
+      "roles": ["site_admin"],
+      "impact": 3,
+      "safety": 2,
+      "testability": 3,
+      "size": "M",
+      "score": 29,
+      "decision": "deferred: no approved site-scoped audit destination exists"
+    },
+    {
+      "candidate": "Program Teacher mentor-meeting follow-up destination",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "roles": ["program_teacher"],
+      "impact": 4,
+      "safety": 3,
+      "testability": 3,
+      "size": "M",
+      "score": 40,
+      "decision": "deferred: no exact current destination is proven for that follow-up row"
+    }
+  ],
+  "filesChanged": [
+    "workspace.js",
+    "tests/workspace-app.test.mjs",
+    "scripts/verify-workspace-navigation-integrity.mjs",
+    "docs/functionality-language-audit.md",
+    "docs/product/demo-role-readiness.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-06-02-1142-student-detail-url-state.json",
+    "docs/functionality-ux-growth-ledger.md",
+    "automation/state/functionality-ux-growth-state.json"
+  ],
+  "validation": [
+    "node --check workspace.js",
+    "node --test tests/workspace-app.test.mjs",
+    "npm run verify:workspace-navigation",
+    "npm run verify:functionality-language",
+    "npm run verify:functionality-ux-automation",
+    "npm run check:production-surfaces",
+    "npm run typecheck",
+    "npm run test",
+    "npm run check",
+    "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-02-1142-student-detail-url-state.json','utf8')); console.log('json ok')\"",
+    "git diff --check"
+  ],
+  "nextRecommended": "Run hosted section-level permission proof when hosted fake-account runtime and audit-event writes are allowed; if that remains blocked, keep Review Queue missing-submission semantics deferred until backend queue rows exist.",
+  "doNotRepeat": [
+    "Do not remove detailStudentId, detailTab, or detailTimelineType restore from the current scoped section URLs.",
+    "Do not switch shared detail state to raw studentId params that collide with existing worklist filters.",
+    "Do not broaden viewer, teacher, mentor, or student access while improving staff detail navigation."
+  ]
+}

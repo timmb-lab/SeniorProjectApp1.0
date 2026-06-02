@@ -281,12 +281,23 @@ const OPERATIONS_URL_FILTER_PARAMS = [
   "offset",
 ];
 const MENTOR_DASHBOARD_URL_FILTER_PARAMS = ["mentorFocus"];
+const SITE_STUDENT_DETAIL_URL_SECTIONS = new Set([
+  "siteDashboard",
+  "students",
+  "teacher",
+  "mentorAssignments",
+  "mentorDashboard",
+  "programDashboard",
+  "operations",
+]);
+const SITE_STUDENT_DETAIL_URL_PARAMS = ["detailStudentId", "detailTab", "detailTimelineType"];
 const WORKSPACE_URL_FILTER_PARAMS = Array.from(new Set([
   ...REVIEW_QUEUE_URL_FILTER_PARAMS,
   ...SITE_STUDENT_URL_FILTER_PARAMS,
   ...MENTOR_ASSIGNMENT_URL_FILTER_PARAMS,
   ...OPERATIONS_URL_FILTER_PARAMS,
   ...MENTOR_DASHBOARD_URL_FILTER_PARAMS,
+  ...SITE_STUDENT_DETAIL_URL_PARAMS,
 ]));
 let uploadState = {
   state: "idle",
@@ -424,6 +435,14 @@ async function loadWorkspaceData(statusMessage = "") {
   }
   if (activeSection === "teacher") {
     await restoreReviewQueueSelectionFromCurrentRows({ renderLoading: false });
+  }
+  if (shouldRestoreSiteStudentDetailFromUrlState(roles)) {
+    await restoreSiteStudentDetailFromUrlState({
+      renderLoading: false,
+      syncUrl: false,
+      message: statusMessage || "Student detail link restored.",
+    });
+    return;
   }
   renderAppShell(statusMessage || "Workspace ready.", "success");
 }
@@ -7993,6 +8012,14 @@ async function loadReviewQueueResult(message = "", options = {}) {
   }
   activeSection = "teacher";
   if (options.syncUrl !== false) syncReviewQueueUrlState({ replace: Boolean(options.replaceUrl) });
+  if (shouldRestoreSiteStudentDetailFromUrlState(roleIds(currentUser), "teacher")) {
+    await restoreSiteStudentDetailFromUrlState({
+      renderLoading: false,
+      syncUrl: false,
+      message: message || "Student detail link restored.",
+    });
+    return;
+  }
   renderAppShell(result.ok ? (message || "Review queue loaded.") : "Review queue unavailable.", result.ok ? "success" : "error");
 }
 
@@ -8126,6 +8153,14 @@ async function loadMentorAssignmentsResult(message = "") {
   const result = await settleApi(apiJson(`/api/site/mentor-assignments${siteMentorAssignmentQueryString()}`));
   currentData.mentorAssignments = result;
   activeSection = "mentorAssignments";
+  if (shouldRestoreSiteStudentDetailFromUrlState(roleIds(currentUser), "mentorAssignments")) {
+    await restoreSiteStudentDetailFromUrlState({
+      renderLoading: false,
+      syncUrl: false,
+      message: message || "Student detail link restored.",
+    });
+    return;
+  }
   renderAppShell(result.ok ? (message || "Mentor assignments loaded.") : "Mentor assignments unavailable.", result.ok ? "success" : "error");
 }
 
@@ -8133,6 +8168,14 @@ async function loadOperationsReadinessResult(message = "") {
   const result = await settleApi(apiJson(`/api/site/operations-readiness${siteOperationsReadinessQueryString()}`));
   currentData.operationsReadiness = result;
   activeSection = "operations";
+  if (shouldRestoreSiteStudentDetailFromUrlState(roleIds(currentUser), "operations")) {
+    await restoreSiteStudentDetailFromUrlState({
+      renderLoading: false,
+      syncUrl: false,
+      message: message || "Student detail link restored.",
+    });
+    return;
+  }
   renderAppShell(result.ok ? (message || "Operations readiness loaded.") : "Operations readiness unavailable.", result.ok ? "success" : "error");
 }
 
@@ -8257,6 +8300,7 @@ async function openSiteStudentDetail(studentId, options = {}) {
     loading: true,
   };
   activeSection = sourceSection;
+  syncCurrentWorkspaceUrlState();
   requestSiteStudentDetailFocus();
   renderAppShell("Loading student detail...");
   const result = await settleApi(apiJson(`/api/site/students/${encodeURIComponent(selectedStudentId)}${query}`));
@@ -8276,6 +8320,7 @@ async function handleSiteStudentDetailAction(event) {
     const sourceSection = cleanWorkspaceSection(siteStudentDetailState.sourceSection) || "students";
     siteStudentDetailState = defaultSiteStudentDetailState();
     activeSection = sourceSection;
+    syncCurrentWorkspaceUrlState();
     renderAppShell();
     return;
   }
@@ -8338,7 +8383,9 @@ async function selectSiteStudentDetailTab(event) {
   siteStudentDetailState = {
     ...siteStudentDetailState,
     activeTab: tab,
+    timelineType: tab === "timeline" ? siteStudentDetailState.timelineType : "",
   };
+  syncCurrentWorkspaceUrlState();
   if (tab !== "timeline" || siteStudentDetailState.timelineResult || siteStudentDetailState.loadingTimeline) {
     renderAppShell();
     return;
@@ -8356,10 +8403,11 @@ async function selectSiteStudentTimelineType(event) {
     timelineType,
     timelineResult: null,
   };
+  syncCurrentWorkspaceUrlState();
   await loadSiteStudentTimeline();
 }
 
-async function loadSiteStudentTimeline() {
+async function loadSiteStudentTimeline(options = {}) {
   if (!siteStudentDetailState.studentId || siteStudentDetailState.loadingTimeline) {
     renderAppShell();
     return;
@@ -8375,7 +8423,7 @@ async function loadSiteStudentTimeline() {
     ...siteStudentDetailState,
     loadingTimeline: true,
   };
-  renderAppShell("Loading student timeline...");
+  if (options.renderLoading !== false) renderAppShell("Loading student timeline...");
   const timelineResult = await settleApi(apiJson(`/api/site/students/${encodeURIComponent(siteStudentDetailState.studentId)}/timeline${query}`));
   siteStudentDetailState = {
     ...siteStudentDetailState,
@@ -8383,7 +8431,10 @@ async function loadSiteStudentTimeline() {
     timelineResult,
   };
   currentData.siteStudentTimeline = timelineResult;
-  renderAppShell(timelineResult.ok ? "Student timeline loaded." : "Student timeline unavailable.", timelineResult.ok ? "success" : "error");
+  renderAppShell(
+    timelineResult.ok ? (options.successMessage || "Student timeline loaded.") : (options.errorMessage || "Student timeline unavailable."),
+    timelineResult.ok ? "success" : "error",
+  );
 }
 
 function renderPresentationSection() {
@@ -10494,27 +10545,39 @@ async function handleWorkspaceUrlPopState() {
   applyWorkspaceUrlState(state);
   const roles = roleIds(currentUser);
   if (state.hasReviewQueueState && currentUser && hasSiteReviewQueueRole(roles)) {
-    await loadReviewQueueResult("Review queue link restored.", { syncUrl: false });
+    await loadReviewQueueResult(state.hasSiteStudentDetailState ? "Student detail link restored." : "Review queue link restored.", { syncUrl: false });
     return;
   }
   if (state.hasSiteStudentState && currentUser && hasSiteStudentDirectoryRole(roles)) {
-    siteStudentDetailState = defaultSiteStudentDetailState();
-    await loadWorkspaceData("Student directory link restored.");
+    await loadWorkspaceData(state.hasSiteStudentDetailState ? "Student detail link restored." : "Student directory link restored.");
     return;
   }
   if (state.hasMentorAssignmentState && currentUser && hasSiteMentorAssignmentRole(roles)) {
-    await loadMentorAssignmentsResult("Mentor assignment link restored.");
+    await loadMentorAssignmentsResult(state.hasSiteStudentDetailState ? "Student detail link restored." : "Mentor assignment link restored.");
     return;
   }
   if (state.hasOperationsReadinessState && currentUser && hasSiteOperationsRole(roles)) {
-    await loadOperationsReadinessResult("Operations readiness link restored.");
+    await loadOperationsReadinessResult(state.hasSiteStudentDetailState ? "Student detail link restored." : "Operations readiness link restored.");
     return;
   }
   if (state.hasMentorDashboardState && currentUser && (roles.has("mentor") || hasGlobalAdminRole(roles))) {
-    if (siteStudentDetailState?.sourceSection === "mentorDashboard") {
-      siteStudentDetailState = defaultSiteStudentDetailState();
+    if (state.hasSiteStudentDetailState && shouldRestoreSiteStudentDetailFromUrlState(roles, "mentorDashboard")) {
+      await restoreSiteStudentDetailFromUrlState({
+        renderLoading: false,
+        syncUrl: false,
+        message: "Student detail link restored.",
+      });
+      return;
     }
     renderAppShell(mentorDashboardFilter === "all" ? "Mentor dashboard link restored." : "Mentor dashboard focus restored.", "success");
+    return;
+  }
+  if (state.hasSiteStudentDetailState && currentUser && shouldRestoreSiteStudentDetailFromUrlState(roles, state.siteStudentDetailState?.sourceSection || state.section)) {
+    await restoreSiteStudentDetailFromUrlState({
+      renderLoading: false,
+      syncUrl: false,
+      message: "Student detail link restored.",
+    });
     return;
   }
   renderAppShell();
@@ -10536,7 +10599,6 @@ function applyWorkspaceUrlState(state, options = {}) {
   }
   if (state.hasSiteStudentState) {
     siteStudentFilters = state.siteStudentFilters;
-    siteStudentDetailState = defaultSiteStudentDetailState();
     if (!state.section) activeSection = "students";
   }
   if (state.hasMentorAssignmentState) {
@@ -10551,6 +10613,18 @@ function applyWorkspaceUrlState(state, options = {}) {
     mentorDashboardFilter = state.mentorDashboardFilter;
     if (!state.section) activeSection = "mentorDashboard";
   }
+  if (state.hasSiteStudentDetailState) {
+    siteStudentDetailState = {
+      ...defaultSiteStudentDetailState(),
+      ...state.siteStudentDetailState,
+    };
+    currentData.siteStudentDetail = null;
+    currentData.siteStudentTimeline = null;
+  } else {
+    siteStudentDetailState = defaultSiteStudentDetailState();
+    currentData.siteStudentDetail = null;
+    currentData.siteStudentTimeline = null;
+  }
 }
 
 function workspaceUrlStateFromLocation() {
@@ -10564,23 +10638,25 @@ function workspaceUrlStateFromLocation() {
   const mentorAssignmentsViewRequested = requestedSection === "mentorAssignments" || requestedView === "mentorAssignments" || requestedView === "mentor-assignments";
   const operationsReadinessViewRequested = requestedSection === "operations" || requestedView === "operations" || requestedView === "operationsReadiness" || requestedView === "operations-readiness";
   const mentorDashboardViewRequested = requestedSection === "mentorDashboard" || requestedView === "mentorDashboard" || requestedView === "mentor-dashboard";
+  const resolvedSection = reviewQueueViewRequested
+    ? "teacher"
+    : studentDirectoryViewRequested
+      ? "students"
+      : mentorAssignmentsViewRequested
+        ? "mentorAssignments"
+        : operationsReadinessViewRequested
+          ? "operations"
+          : mentorDashboardViewRequested
+            ? "mentorDashboard"
+            : requestedSection;
   const hasReviewQueueState = reviewQueueViewRequested || (!requestedSection && !requestedView && hasReviewQueueFilterParams(params));
   const hasSiteStudentState = studentDirectoryViewRequested;
   const hasMentorAssignmentState = mentorAssignmentsViewRequested;
   const hasOperationsReadinessState = operationsReadinessViewRequested;
   const hasMentorDashboardState = mentorDashboardViewRequested || (!requestedSection && !requestedView && hasMentorDashboardFilterParams(params));
+  const hasSiteStudentDetailState = hasSiteStudentDetailUrlState(params, resolvedSection);
   return {
-    section: reviewQueueViewRequested
-      ? "teacher"
-      : studentDirectoryViewRequested
-        ? "students"
-        : mentorAssignmentsViewRequested
-          ? "mentorAssignments"
-          : operationsReadinessViewRequested
-            ? "operations"
-            : mentorDashboardViewRequested
-              ? "mentorDashboard"
-            : requestedSection,
+    section: resolvedSection,
     siteId: cleanDirectoryFilter(params.get("siteId")),
     hasReviewQueueState,
     reviewQueueFilters: hasReviewQueueState ? reviewQueueFiltersFromSearchParams(params) : defaultReviewQueueFilters(),
@@ -10593,6 +10669,10 @@ function workspaceUrlStateFromLocation() {
     operationsReadinessFilters: hasOperationsReadinessState ? operationsReadinessFiltersFromSearchParams(params) : defaultOperationsReadinessFilters(),
     hasMentorDashboardState,
     mentorDashboardFilter: hasMentorDashboardState ? mentorDashboardFilterFromSearchParams(params) : "all",
+    hasSiteStudentDetailState,
+    siteStudentDetailState: hasSiteStudentDetailState
+      ? siteStudentDetailUrlStateFromSearchParams(params, resolvedSection)
+      : defaultSiteStudentDetailState(),
   };
 }
 
@@ -10626,6 +10706,26 @@ function hasReviewQueueFilterParams(params) {
 
 function hasMentorDashboardFilterParams(params) {
   return MENTOR_DASHBOARD_URL_FILTER_PARAMS.some((param) => params.has(param));
+}
+
+function hasSiteStudentDetailUrlState(params, section) {
+  const studentId = cleanDirectoryFilter(params.get("detailStudentId"));
+  const sourceSection = cleanWorkspaceSection(section) || "students";
+  return Boolean(studentId && SITE_STUDENT_DETAIL_URL_SECTIONS.has(sourceSection));
+}
+
+function siteStudentDetailUrlStateFromSearchParams(params, section) {
+  const sourceSection = cleanWorkspaceSection(section) || "students";
+  const activeTab = cleanStudentDetailTab(params.get("detailTab")) || "summary";
+  return {
+    ...defaultSiteStudentDetailState(),
+    studentId: cleanDirectoryFilter(params.get("detailStudentId")),
+    sourceSection,
+    activeTab,
+    timelineType: activeTab === "timeline"
+      ? cleanStudentDetailTimelineType(params.get("detailTimelineType"))
+      : "",
+  };
 }
 
 function reviewQueueFiltersFromSearchParams(params) {
@@ -10724,6 +10824,7 @@ function syncReviewQueueUrlState(options = {}) {
     if (reviewQueueState.selectedSubmissionId) url.searchParams.set("submissionId", reviewQueueState.selectedSubmissionId);
     if (safeNumber(filters.limit) !== 50) url.searchParams.set("limit", String(filters.limit));
     if (safeNumber(filters.offset) > 0) url.searchParams.set("offset", String(filters.offset));
+    appendSiteStudentDetailUrlState(url, "teacher");
   }
   const nextUrl = `${url.pathname}${url.search}${url.hash}`;
   const currentPath = `${window.location.pathname || url.pathname}${window.location.search || ""}${window.location.hash || ""}`;
@@ -10828,7 +10929,10 @@ function syncFilteredWorkspaceUrlState(section, filters, options = {}, writeFilt
     || unwrap(currentData.operationsReadiness)?.scope?.siteId
     || "";
   if (siteId) url.searchParams.set("siteId", siteId);
-  if (!options.clearFilters) writeFilters(url, filters || {});
+  if (!options.clearFilters) {
+    writeFilters(url, filters || {});
+    appendSiteStudentDetailUrlState(url, section);
+  }
   const nextUrl = `${url.pathname}${url.search}${url.hash}`;
   const currentPath = `${window.location.pathname || url.pathname}${window.location.search || ""}${window.location.hash || ""}`;
   if (nextUrl === currentPath) return;
@@ -10847,6 +10951,7 @@ function syncWorkspaceSectionOnlyUrlState(section, options = {}) {
   url.searchParams.set("section", sectionId);
   const siteId = selectedSiteQueryValue();
   if (siteId) url.searchParams.set("siteId", siteId);
+  appendSiteStudentDetailUrlState(url, sectionId);
   const nextUrl = `${url.pathname}${url.search}${url.hash}`;
   const currentPath = `${window.location.pathname || url.pathname}${window.location.search || ""}${window.location.hash || ""}`;
   if (nextUrl === currentPath) return;
@@ -10857,6 +10962,99 @@ function syncWorkspaceSectionOnlyUrlState(section, options = {}) {
 function cleanWorkspaceSection(value) {
   const section = cleanDirectoryFilter(value);
   return WORKSPACE_SECTION_IDS.has(section) ? section : "";
+}
+
+function canUseSiteStudentDetailUrlState(section, roles = roleIds(currentUser)) {
+  const sourceSection = cleanWorkspaceSection(section);
+  if (!SITE_STUDENT_DETAIL_URL_SECTIONS.has(sourceSection) || !roles?.size) return false;
+  if (sourceSection === "siteDashboard") return hasSiteDashboardRole(roles);
+  if (sourceSection === "students") return hasSiteStudentDirectoryRole(roles);
+  if (sourceSection === "teacher") return hasSiteReviewQueueRole(roles);
+  if (sourceSection === "mentorAssignments") return hasSiteMentorAssignmentRole(roles);
+  if (sourceSection === "mentorDashboard") return roles.has("mentor") || hasGlobalAdminRole(roles);
+  if (sourceSection === "programDashboard") return roles.has("program_teacher");
+  if (sourceSection === "operations") return hasSiteOperationsRole(roles);
+  return false;
+}
+
+function shouldRestoreSiteStudentDetailFromUrlState(roles = roleIds(currentUser), section = activeSection) {
+  const studentId = cleanDirectoryFilter(siteStudentDetailState.studentId);
+  const sourceSection = cleanWorkspaceSection(siteStudentDetailState.sourceSection);
+  const expectedSection = cleanWorkspaceSection(section) || sourceSection;
+  return Boolean(studentId && sourceSection && sourceSection === expectedSection && canUseSiteStudentDetailUrlState(sourceSection, roles));
+}
+
+async function restoreSiteStudentDetailFromUrlState(options = {}) {
+  if (!shouldRestoreSiteStudentDetailFromUrlState(roleIds(currentUser), options.section || activeSection)) return false;
+  const sourceSection = cleanWorkspaceSection(siteStudentDetailState.sourceSection) || "students";
+  const studentId = cleanDirectoryFilter(siteStudentDetailState.studentId);
+  const requestedTab = cleanStudentDetailTab(siteStudentDetailState.activeTab) || "summary";
+  const requestedTimelineType = requestedTab === "timeline"
+    ? cleanStudentDetailTimelineType(siteStudentDetailState.timelineType || "")
+    : "";
+  const siteId = selectedSiteQueryValue()
+    || unwrap(currentData.siteStudents)?.scope?.siteId
+    || unwrap(currentData.siteDashboard)?.scope?.siteId
+    || unwrap(currentData.operationsReadiness)?.scope?.siteId
+    || unwrap(currentData.mentorAssignments)?.scope?.siteId
+    || unwrap(currentData.reviewQueue)?.scope?.siteId
+    || "";
+  const query = siteId ? `?siteId=${encodeURIComponent(siteId)}` : "";
+  siteStudentDetailState = {
+    ...defaultSiteStudentDetailState(),
+    studentId,
+    sourceSection,
+    activeTab: requestedTab,
+    timelineType: requestedTimelineType,
+    loading: true,
+  };
+  currentData.siteStudentDetail = null;
+  currentData.siteStudentTimeline = null;
+  activeSection = sourceSection;
+  requestSiteStudentDetailFocus();
+  if (options.renderLoading !== false) renderAppShell("Loading student detail...");
+  const result = await settleApi(apiJson(`/api/site/students/${encodeURIComponent(studentId)}${query}`));
+  if (!result.ok) {
+    siteStudentDetailState = defaultSiteStudentDetailState();
+    currentData.siteStudentDetail = null;
+    currentData.siteStudentTimeline = null;
+    activeSection = sourceSection;
+    if (options.syncUrl !== false) syncCurrentWorkspaceUrlState({ replace: true });
+    renderAppShell(options.errorMessage || "Student detail unavailable.", "error");
+    return false;
+  }
+  siteStudentDetailState = {
+    ...siteStudentDetailState,
+    loading: false,
+    result,
+  };
+  currentData.siteStudentDetail = result;
+  requestSiteStudentDetailFocus();
+  if (requestedTab === "timeline") {
+    await loadSiteStudentTimeline({
+      renderLoading: false,
+      successMessage: options.message || "Student detail link restored.",
+      errorMessage: options.errorMessage || "Student timeline unavailable.",
+    });
+    return true;
+  }
+  renderAppShell(options.message || "Student detail link restored.", "success");
+  return true;
+}
+
+function appendSiteStudentDetailUrlState(url, section) {
+  const sourceSection = cleanWorkspaceSection(section);
+  if (!sourceSection || !canUseSiteStudentDetailUrlState(sourceSection)) return;
+  const detailStudentId = cleanDirectoryFilter(siteStudentDetailState.studentId);
+  const detailSourceSection = cleanWorkspaceSection(siteStudentDetailState.sourceSection) || sourceSection;
+  if (!detailStudentId || detailSourceSection !== sourceSection) return;
+  url.searchParams.set("detailStudentId", detailStudentId);
+  const activeTab = cleanStudentDetailTab(siteStudentDetailState.activeTab) || "summary";
+  if (activeTab !== "summary") url.searchParams.set("detailTab", activeTab);
+  const timelineType = activeTab === "timeline"
+    ? cleanStudentDetailTimelineType(siteStudentDetailState.timelineType || "")
+    : "";
+  if (timelineType) url.searchParams.set("detailTimelineType", timelineType);
 }
 
 function availableSectionIds() {
