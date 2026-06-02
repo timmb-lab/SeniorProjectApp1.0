@@ -1,0 +1,63 @@
+{
+  "automationId": "functionality-ux-upgrade-hourly",
+  "runStartedAt": "2026-06-02T14:38:13-07:00",
+  "branch": "main",
+  "startingSha": "cb3f9c7844add5444756554fdc79353f30ee846f",
+  "endingSha": null,
+  "workOrderId": "presentation-schedule-url-state",
+  "ladderLevels": [
+    "LEVEL_4_ROLE_SPECIFIC_WORKSPACES"
+  ],
+  "selectedSlice": "Add shareable URL state to the existing Presentation section filters.",
+  "selectionReason": "The Presentation section already had real in-page filters, but handlePresentationFilterAction() only changed in-memory state and re-rendered the section. Reusing the existing section URL-state pattern was the safest bounded improvement because it preserved current scoped routes and roles while fixing reload/share continuity.",
+  "candidateCount": 10,
+  "userFacingImprovement": "Roles that already have Presentation access can now reload or share ready-for-check-out, checked-out, checked-in, or outline-follow-up focus through the existing workspace URL.",
+  "privacyAndPermissionNotes": [
+    "No new route, route query parameter, mutation, role, tenant scope, site scope, program scope, mentor scope, or student scope was added.",
+    "The new presentationFocus URL param only narrows rows already returned by the existing scoped /api/presentation-slots route.",
+    "Presentation check-out and check-in controls remain limited to the current authorized roles."
+  ],
+  "filesChanged": [
+    "workspace.js",
+    "tests/workspace-app.test.mjs",
+    "scripts/verify-workspace-navigation-integrity.mjs",
+    "docs/functionality-language-audit.md",
+    "docs/product/demo-role-readiness.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-06-02-1438-presentation-schedule-url-state.json",
+    "docs/functionality-ux-growth-ledger.md",
+    "automation/state/functionality-ux-growth-state.json"
+  ],
+  "validation": {
+    "focusedPassedBeforeCloseout": [
+      "node --check workspace.js",
+      "node --test tests/workspace-app.test.mjs",
+      "npm run verify:workspace-navigation"
+    ],
+    "final": [
+      "node --check workspace.js",
+      "node --test tests/workspace-app.test.mjs",
+      "npm run verify:workspace-navigation",
+      "npm run verify:functionality-ux-automation",
+      "npm run check:production-surfaces",
+      "npm run typecheck",
+      "npm run test",
+      "npm run check",
+      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-02-1438-presentation-schedule-url-state.json','utf8')); console.log('json ok')\"",
+      "git diff --check"
+    ],
+    "result": "passed",
+    "notes": "git diff --check reported only CRLF normalization warnings."
+  },
+  "deferred": [
+    "Program Teacher mentor-meeting follow-up still lacks a precise current destination.",
+    "Hosted section-level permission proof still needs allowed hosted runtime and audit-event writes.",
+    "Review Queue missing-submission semantics remain deferred until backend queue rows or exact scoped empty-state evidence exist.",
+    "Global Admin role refresh remains broader than this local continuity slice."
+  ],
+  "nextRecommended": "Keep Program Teacher mentor-meeting follow-up summary-only until a precise scoped destination exists; if that remains blocked, inspect a bounded Global Admin role refresh across the existing Audit, Programs, Student Directory, and Presentation flows.",
+  "doNotRepeat": [
+    "Do not regress the Presentation section back to in-memory-only focus state while presentationFocus restore and sync are now proven.",
+    "Do not invent new /api/presentation-slots query params or broaden role visibility while extending Presentation continuity."
+  ]
+}

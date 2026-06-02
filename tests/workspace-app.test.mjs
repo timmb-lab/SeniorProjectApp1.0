@@ -6599,7 +6599,7 @@ test("workspace renders readiness report with aggregate-only role guidance", asy
 });
 
 test("workspace renders presentation schedule filters and day-of actions", async () => {
-  const { context, workspaceRoot } = await createWorkspaceContextWithFetch({
+  const { context, workspaceRoot, window } = await createWorkspaceContextWithFetch({
     "/api/auth/me": {
       status: 200,
       body: {
@@ -6657,7 +6657,7 @@ test("workspace renders presentation schedule filters and day-of actions", async
         ],
       },
     },
-  }, "presentation");
+  }, { url: "https://workspace.example/workspace.html?section=presentation" });
 
   vm.runInContext('activeSection = "presentation"; renderAppShell();', context);
   const presentation = workspaceRoot.innerHTML;
@@ -6689,6 +6689,8 @@ test("workspace renders presentation schedule filters and day-of actions", async
   assert.match(scheduledOnly, /Maya Student/);
   assert.doesNotMatch(scheduledOnly, /Jordan Student|Sam Student/);
   assert.match(scheduledOnly, /data-presentation-action="check-out"/);
+  assert.match(window.location.href, /section=presentation/);
+  assert.match(window.location.href, /presentationFocus=scheduled/);
 
   vm.runInContext('handlePresentationFilterAction({ currentTarget: { dataset: { presentationFilterAction: "outline_follow_up" } } })', context);
   const outlineOnly = workspaceRoot.innerHTML;
@@ -6696,9 +6698,79 @@ test("workspace renders presentation schedule filters and day-of actions", async
   assert.match(outlineOnly, /Sam Student/);
   assert.match(outlineOnly, /Revision needed/);
   assert.doesNotMatch(outlineOnly, /Maya Student|Jordan Student/);
+  assert.match(window.location.href, /presentationFocus=outline_follow_up/);
 
   vm.runInContext('handlePresentationFilterAction({ currentTarget: { dataset: { presentationFilterAction: "bogus" } } })', context);
   assert.match(workspaceRoot.innerHTML, /data-presentation-filter="all"/);
+  assert.doesNotMatch(window.location.href, /presentationFocus=/);
+});
+
+test("workspace restores presentation schedule focus from URL state", async () => {
+  const { context, workspaceRoot } = await createWorkspaceContextWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "teacher-presentation-restore",
+          email: "teacher.restore@example.edu",
+          displayName: "Presentation Restore Teacher",
+          roles: [{ role_id: "program_teacher", scope_type: "program", scope_id: "it" }],
+        },
+      },
+    },
+    "/api/site/review-queue": {
+      status: 200,
+      body: siteReviewQueueFixture({ role: "program_teacher" }),
+    },
+    "/api/presentation-slots": {
+      status: 200,
+      body: {
+        ok: true,
+        slots: [
+          {
+            id: "slot-scheduled",
+            studentName: "Maya Student",
+            scheduledFor: "2026-03-26T16:00:00.000Z",
+            durationMinutes: 20,
+            location: "Room 101",
+            status: "scheduled",
+            outlineStatus: "approved",
+            checkedOutAt: null,
+            checkedInAt: null,
+          },
+          {
+            id: "slot-checked-out",
+            studentName: "Jordan Student",
+            scheduledFor: "2026-03-26T16:30:00.000Z",
+            durationMinutes: 15,
+            location: "Room 102",
+            status: "checked_out",
+            outlineStatus: "approved",
+            checkedOutAt: "2026-03-26T16:28:00.000Z",
+            checkedInAt: null,
+          },
+          {
+            id: "slot-outline-follow-up",
+            studentName: "Sam Student",
+            scheduledFor: "2026-03-26T17:00:00.000Z",
+            durationMinutes: 15,
+            location: "Room 103",
+            status: "checked_in",
+            outlineStatus: "revision_needed",
+            checkedOutAt: "2026-03-26T16:58:00.000Z",
+            checkedInAt: "2026-03-26T17:13:00.000Z",
+          },
+        ],
+      },
+    },
+  }, { url: "https://workspace.example/workspace.html?section=presentation&presentationFocus=checked_out" });
+
+  assert.equal(vm.runInContext("activeSection", context), "presentation");
+  assert.equal(vm.runInContext("presentationSlotFilter", context), "checked_out");
+  assert.match(workspaceRoot.innerHTML, /data-presentation-filter="checked_out"/);
+  assert.match(workspaceRoot.innerHTML, /Jordan Student/);
+  assert.doesNotMatch(workspaceRoot.innerHTML, /Maya Student|Sam Student/);
 });
 
 test("workspace renders archive readiness from persisted rows", async () => {

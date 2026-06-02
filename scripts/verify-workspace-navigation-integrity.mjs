@@ -134,10 +134,12 @@ for (const fn of [
   "siteStudentFiltersFromSearchParams",
   "siteStudentDetailUrlStateFromSearchParams",
   "mentorDashboardFilterFromSearchParams",
+  "presentationSlotFilterFromSearchParams",
   "mentorAssignmentFiltersFromSearchParams",
   "operationsReadinessFiltersFromSearchParams",
   "restoreSiteStudentDetailFromUrlState",
   "syncMentorDashboardUrlState",
+  "syncPresentationScheduleUrlState",
   "syncSiteStudentUrlState",
   "syncMentorAssignmentUrlState",
   "syncOperationsReadinessUrlState",
@@ -152,6 +154,8 @@ assertMatches("workspaceJs", /handleSiteStudentDetailAction\(event\)[\s\S]*actio
 assertMatches("workspaceJs", /appendSiteStudentDetailUrlState\(url, section\)/, "Section URL sync helpers must be able to append student detail state");
 assertMatches("workspaceJs", /activeSection === "mentorDashboard"[\s\S]*syncMentorDashboardUrlState\(options\)/, "Mentor Dashboard focus filters must sync section URL state");
 assertMatches("workspaceJs", /data-mentor-dashboard-action="filter"[\s\S]*data-mentor-dashboard-filter/, "Mentor Dashboard focus controls must keep explicit filter actions");
+assertMatches("workspaceJs", /activeSection === "presentation"[\s\S]*syncPresentationScheduleUrlState\(options\)/, "Presentation schedule filters must sync section URL state");
+assertMatches("workspaceJs", /function handlePresentationFilterAction\(event\)[\s\S]*syncPresentationScheduleUrlState\(\{ clearFilters: presentationSlotFilter === "all" \}\)/, "Presentation schedule filter controls must update shareable URL state");
 assertMatches("workspaceJs", /selectWorkspaceSite\(siteId\)[\s\S]*syncCurrentWorkspaceUrlState\(\{ clearFilters: true, replace: true \}\)/, "Site switching must clear stale worklist filters from URL state");
 assertMatches("workspaceCss", /\.workspace-active-filters/, "Active filter summaries must have stable styling");
 assertMatches("workspaceCss", /\.workspace-active-filter-note/, "Shareable filter URL note must have stable styling");

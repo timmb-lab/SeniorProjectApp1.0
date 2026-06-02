@@ -2820,3 +2820,14 @@ Future productive runs should append compact entries that name the master-plan s
 - `changes`: `functions/api/program-teacher/dashboard.ts` now maps missing mentor, submitted review, missing evidence, behind-support, revision, and presentation attention rows to the existing Students, Review Queue, and Operations presets while keeping mentor-meeting follow-up summary-only. `tests/program-teacher-dashboard.integration.test.mjs`, `tests/workspace-app.test.mjs`, and `scripts/verify-dashboard-actions.mjs` now prove the new route mappings, rendered actions, and the preserved mentor-meeting summary-only guard. `docs/functionality-language-audit.md` and `docs/product/demo-role-readiness.md` record the improved Program Teacher evidence.
 - `validation`: `node --check workspace.js`, `node --test tests/program-teacher-dashboard.integration.test.mjs`, `node --test tests/workspace-app.test.mjs`, and `npm run verify:dashboard-actions` passed before broader closeout validation. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
 - `commit/push status`: pending closeout commit; not pushed by this automation run.
+
+## 2026-06-02 PT - Functionality UX Upgrade Presentation URL State
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 4 role-specific workspace clarity / Presentation section continuity.
+- `starting HEAD`: `cb3f9c7844add5444756554fdc79353f30ee846f`.
+- `selected slice`: Add shareable URL state to the existing Presentation section filters.
+- `repo-grounded findings`: `renderPresentationSection()` already exposed real in-page filters for `all`, `scheduled`, `checked_out`, `checked_in`, and `outline_follow_up`, but `handlePresentationFilterAction()` only changed in-memory state and re-rendered the page. Reloading or sharing the Presentation view dropped that focus even though Students, Review Queue, Operations, Mentor Dashboard, and student detail already kept scoped URL state.
+- `changes`: `workspace.js` now adds a dedicated `presentationFocus` section URL param, restores it during auth bootstrap and `popstate`, and syncs it whenever Presentation filter buttons change without introducing a new route or query shape on `/api/presentation-slots`. `tests/workspace-app.test.mjs` now proves both URL sync and initial restore for Presentation focus, and `scripts/verify-workspace-navigation-integrity.mjs` now guards the new Presentation URL-state helpers.
+- `validation`: `node --check workspace.js`, `node --test tests/workspace-app.test.mjs`, and `npm run verify:workspace-navigation` passed before docs/state closeout. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.

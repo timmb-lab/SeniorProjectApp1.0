@@ -6032,3 +6032,60 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: Program Teacher mentor-meeting follow-up still lacks an exact current destination; hosted permission proof still needs allowed runtime; Review Queue missing-submission semantics still need backend evidence.
   - Do not repeat: do not remove the new note-visibility labels or guidance while the current detail route continues to provide those visibility boundaries.
   - First file to inspect next run: `workspace.js` around `renderStudentDetailReviews()` and `renderStudentDetailCommentVisibilitySummary()`
+
+## Run 2026-06-02 14:38 PT
+
+- Starting SHA: `cb3f9c7844add5444756554fdc79353f30ee846f`
+- Ending SHA: pending closeout commit; final hash is reported after commit
+- Branch: `main`
+- Branch policy: started from clean local `main`; after `git fetch origin --prune`, local `main` was still ahead of `origin/main` by two prior local automation commits, so this run stayed local-only and did not push
+- Ladder level targeted: `LEVEL_4_ROLE_SPECIFIC_WORKSPACES`
+- Backlog item: `presentation-schedule-url-state`
+- Work order selected: Add shareable URL state for the existing Presentation section filters.
+- Selection reason: current repo evidence showed that `renderPresentationSection()` already rendered real in-page filters for `all`, `scheduled`, `checked_out`, `checked_in`, and `outline_follow_up`, but `handlePresentationFilterAction()` only changed in-memory state and re-rendered the section. Reloading or sharing the Presentation view dropped that focus even though Students, Review Queue, Operations, Mentor Dashboard, and student detail already restored scoped URL state. Reusing the same section-level URL-state pattern was the smallest safe product-readiness batch because it improved continuity without adding a new route, new API query shape, or broader visibility.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Presentation schedule URL state | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | site staff, `program_teacher`, `mentor`, `student` | 5 | 5 | 5 | S | 55 | selected |
+| Program Teacher mentor-meeting follow-up destination | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | `program_teacher` | 4 | 3 | 3 | M | 40 | deferred: no exact current destination is proven for that follow-up row |
+| Hosted section-level permission proof | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all protected roles | 4 | 3 | 2 | M | 35 | deferred: hosted runtime is outside this local batch |
+| Review Queue missing-submission semantics | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | `program_teacher`, `site_admin` | 5 | 2 | 3 | M | 34 | deferred: backend queue rows are still absent |
+| Global Admin role refresh | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | `global_admin` | 3 | 3 | 3 | M | 34 | deferred: broader multi-surface verification batch than this local slice |
+| Mentor reassignment or removal workflow | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | `site_admin` | 4 | 2 | 3 | M | 33 | deferred: mutation and audit design still needed |
+| Presentation schedule helper copy hardening | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | site staff, `program_teacher`, `mentor`, `student` | 2 | 5 | 4 | S | 32 | not selected: current user-facing copy is already clear, while lost focus on reload/share was a functional gap |
+| Viewer email visibility policy | `LEVEL_7_AUDITABILITY_AND_TRUST` | `viewer` | 3 | 2 | 3 | S | 30 | deferred: policy decision still comes before UI change |
+| Student-detail staff-note authoring path | `LEVEL_7_AUDITABILITY_AND_TRUST` | staff | 4 | 2 | 2 | M | 29 | deferred: no supported add-note API path is proven in this lane yet |
+| Presentation schedule date/location filters | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | site staff, `program_teacher`, `mentor`, `student` | 2 | 2 | 2 | M | 24 | rejected: the current route exposes no supported query/state contract for new date or location filters, so this would invent a new product shape |
+
+- User-facing improvement: roles already allowed to use the Presentation section can now reload or share the current ready-for-check-out, checked-out, checked-in, or outline-follow-up view through the existing workspace URL instead of losing that focus on refresh.
+- Roles affected: `site_admin`, `administration`, `program_teacher`, `mentor`, `student`, `global_admin`, `platform_admin`, `admin`, and other roles already allowed to open the Presentation section
+- Files changed: `workspace.js`, `tests/workspace-app.test.mjs`, `scripts/verify-workspace-navigation-integrity.mjs`, `docs/functionality-language-audit.md`, `docs/product/demo-role-readiness.md`, `docs/progress/run-log.md`, `docs/progress/runs/2026-06-02-1438-presentation-schedule-url-state.json`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`
+- Tests/verifiers added or updated: `tests/workspace-app.test.mjs` now proves Presentation filter buttons sync `presentationFocus` into the URL and that an initial Presentation link restores the expected filtered rows; `scripts/verify-workspace-navigation-integrity.mjs` now guards the Presentation URL-state helper and filter-button sync.
+- Validation commands:
+  - `node --check workspace.js`
+  - `node --test tests/workspace-app.test.mjs`
+  - `npm run verify:workspace-navigation`
+  - `npm run verify:functionality-ux-automation`
+  - `npm run check:production-surfaces`
+  - `npm run typecheck`
+  - `npm run test`
+  - `npm run check`
+  - `node -e "JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-02-1438-presentation-schedule-url-state.json','utf8')); console.log('json ok')"`
+  - `git diff --check`
+- Validation result: passed. Workspace syntax checks, focused workspace render coverage, the workspace-navigation verifier, automation verification, production-surface checks, typecheck, full test and check runs, JSON parsing, and `git diff --check` all passed after docs/state closeout; `git diff --check` reported CRLF normalization warnings only.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: Program Teacher mentor-meeting follow-up destination, hosted section-level permission proof, Review Queue missing-submission semantics, Global Admin role refresh, viewer email visibility policy, and mentor reassignment/remove workflow remain open.
+- New backlog items: none
+- Next recommended work order: Keep Program Teacher mentor-meeting follow-up summary-only until a precise scoped destination exists; if that remains blocked, inspect a bounded Global Admin role refresh across the existing Audit, Programs, Student Directory, and Presentation click-throughs.
+- Do-not-repeat notes: do not regress the Presentation section back to in-memory-only focus state while `presentationFocus` restore is now proven, and do not invent new `/api/presentation-slots` query params or broaden role visibility while extending Presentation continuity.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_4_ROLE_SPECIFIC_WORKSPACES`
+  - Advanced: yes
+  - Evidence: `workspace.js` now parses and syncs `presentationFocus` for the Presentation section, and focused workspace plus navigation-verifier coverage prove both filter-button sync and initial restore behavior.
+  - Unlocks: future Presentation work can deepen day-of focus or role proof without re-solving reload/share continuity for the current scoped filters.
+  - Next: keep Program Teacher mentor-meeting follow-up summary-only until a precise destination exists; if that remains blocked, inspect the current Global Admin flow across `Programs`, `Audit`, topbar student search, and Presentation focus restore.
+  - Blockers: Program Teacher mentor-meeting follow-up still lacks an exact current destination; hosted permission proof still needs allowed runtime; Review Queue missing-submission semantics still need backend evidence.
+  - Do not repeat: do not remove `presentationFocus` parsing, sync, or focused coverage while the current Presentation section still relies on those route-backed in-page filters.
+  - First file to inspect next run: `workspace.js` around `renderPresentationSection()`, `handlePresentationFilterAction()`, and the section URL-state helpers

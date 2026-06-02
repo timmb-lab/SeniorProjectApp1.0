@@ -289,6 +289,7 @@ const OPERATIONS_URL_FILTER_PARAMS = [
   "offset",
 ];
 const MENTOR_DASHBOARD_URL_FILTER_PARAMS = ["mentorFocus"];
+const PRESENTATION_SCHEDULE_URL_FILTER_PARAMS = ["presentationFocus"];
 const SITE_STUDENT_DETAIL_URL_SECTIONS = new Set([
   "siteDashboard",
   "students",
@@ -305,6 +306,7 @@ const WORKSPACE_URL_FILTER_PARAMS = Array.from(new Set([
   ...MENTOR_ASSIGNMENT_URL_FILTER_PARAMS,
   ...OPERATIONS_URL_FILTER_PARAMS,
   ...MENTOR_DASHBOARD_URL_FILTER_PARAMS,
+  ...PRESENTATION_SCHEDULE_URL_FILTER_PARAMS,
   ...SITE_STUDENT_DETAIL_URL_PARAMS,
 ]));
 let uploadState = {
@@ -9091,6 +9093,7 @@ function renderPresentationAction(slot, canManage) {
 function handlePresentationFilterAction(event) {
   presentationSlotFilter = cleanPresentationSlotFilter(event?.currentTarget?.dataset?.presentationFilterAction || "all");
   activeSection = "presentation";
+  syncPresentationScheduleUrlState({ clearFilters: presentationSlotFilter === "all" });
   renderAppShell();
 }
 
@@ -10747,6 +10750,10 @@ async function handleWorkspaceUrlPopState() {
     renderAppShell(mentorDashboardFilter === "all" ? "Mentor dashboard link restored." : "Mentor dashboard focus restored.", "success");
     return;
   }
+  if (state.hasPresentationScheduleState && currentUser && availableSectionIds().has("presentation")) {
+    renderAppShell(presentationSlotFilter === "all" ? "Presentation schedule link restored." : "Presentation schedule focus restored.", "success");
+    return;
+  }
   if (state.hasSiteStudentDetailState && currentUser && shouldRestoreSiteStudentDetailFromUrlState(roles, state.siteStudentDetailState?.sourceSection || state.section)) {
     await restoreSiteStudentDetailFromUrlState({
       renderLoading: false,
@@ -10788,6 +10795,10 @@ function applyWorkspaceUrlState(state, options = {}) {
     mentorDashboardFilter = state.mentorDashboardFilter;
     if (!state.section) activeSection = "mentorDashboard";
   }
+  if (state.hasPresentationScheduleState) {
+    presentationSlotFilter = state.presentationSlotFilter;
+    if (!state.section) activeSection = "presentation";
+  }
   if (state.hasSiteStudentDetailState) {
     siteStudentDetailState = {
       ...defaultSiteStudentDetailState(),
@@ -10813,6 +10824,7 @@ function workspaceUrlStateFromLocation() {
   const mentorAssignmentsViewRequested = requestedSection === "mentorAssignments" || requestedView === "mentorAssignments" || requestedView === "mentor-assignments";
   const operationsReadinessViewRequested = requestedSection === "operations" || requestedView === "operations" || requestedView === "operationsReadiness" || requestedView === "operations-readiness";
   const mentorDashboardViewRequested = requestedSection === "mentorDashboard" || requestedView === "mentorDashboard" || requestedView === "mentor-dashboard";
+  const presentationViewRequested = requestedSection === "presentation" || requestedView === "presentation";
   const resolvedSection = reviewQueueViewRequested
     ? "teacher"
     : studentDirectoryViewRequested
@@ -10823,12 +10835,15 @@ function workspaceUrlStateFromLocation() {
           ? "operations"
           : mentorDashboardViewRequested
             ? "mentorDashboard"
+            : presentationViewRequested
+              ? "presentation"
             : requestedSection;
   const hasReviewQueueState = reviewQueueViewRequested || (!requestedSection && !requestedView && hasReviewQueueFilterParams(params));
   const hasSiteStudentState = studentDirectoryViewRequested;
   const hasMentorAssignmentState = mentorAssignmentsViewRequested;
   const hasOperationsReadinessState = operationsReadinessViewRequested;
   const hasMentorDashboardState = mentorDashboardViewRequested || (!requestedSection && !requestedView && hasMentorDashboardFilterParams(params));
+  const hasPresentationScheduleState = presentationViewRequested || (!requestedSection && !requestedView && hasPresentationScheduleFilterParams(params));
   const hasSiteStudentDetailState = hasSiteStudentDetailUrlState(params, resolvedSection);
   return {
     section: resolvedSection,
@@ -10844,6 +10859,8 @@ function workspaceUrlStateFromLocation() {
     operationsReadinessFilters: hasOperationsReadinessState ? operationsReadinessFiltersFromSearchParams(params) : defaultOperationsReadinessFilters(),
     hasMentorDashboardState,
     mentorDashboardFilter: hasMentorDashboardState ? mentorDashboardFilterFromSearchParams(params) : "all",
+    hasPresentationScheduleState,
+    presentationSlotFilter: hasPresentationScheduleState ? presentationSlotFilterFromSearchParams(params) : "all",
     hasSiteStudentDetailState,
     siteStudentDetailState: hasSiteStudentDetailState
       ? siteStudentDetailUrlStateFromSearchParams(params, resolvedSection)
@@ -10881,6 +10898,10 @@ function hasReviewQueueFilterParams(params) {
 
 function hasMentorDashboardFilterParams(params) {
   return MENTOR_DASHBOARD_URL_FILTER_PARAMS.some((param) => params.has(param));
+}
+
+function hasPresentationScheduleFilterParams(params) {
+  return PRESENTATION_SCHEDULE_URL_FILTER_PARAMS.some((param) => params.has(param));
 }
 
 function hasSiteStudentDetailUrlState(params, section) {
@@ -10978,6 +10999,10 @@ function mentorDashboardFilterFromSearchParams(params) {
   return cleanMentorDashboardFilter(params.get("mentorFocus"));
 }
 
+function presentationSlotFilterFromSearchParams(params) {
+  return cleanPresentationSlotFilter(params.get("presentationFocus"));
+}
+
 function syncReviewQueueUrlState(options = {}) {
   const url = currentWorkspaceUrl();
   if (!url || typeof window === "undefined" || !window.history) return;
@@ -11027,6 +11052,10 @@ function syncCurrentWorkspaceUrlState(options = {}) {
   }
   if (activeSection === "mentorDashboard") {
     syncMentorDashboardUrlState(options);
+    return;
+  }
+  if (activeSection === "presentation") {
+    syncPresentationScheduleUrlState(options);
     return;
   }
   syncWorkspaceSectionOnlyUrlState(activeSection, options);
@@ -11084,6 +11113,14 @@ function syncMentorDashboardUrlState(options = {}) {
   syncFilteredWorkspaceUrlState("mentorDashboard", { mentorFocus: cleanMentorDashboardFilter(mentorDashboardFilter) }, options, (url, filters) => {
     if (filters.mentorFocus && filters.mentorFocus !== "all") {
       url.searchParams.set("mentorFocus", filters.mentorFocus);
+    }
+  });
+}
+
+function syncPresentationScheduleUrlState(options = {}) {
+  syncFilteredWorkspaceUrlState("presentation", { presentationFocus: cleanPresentationSlotFilter(presentationSlotFilter) }, options, (url, filters) => {
+    if (filters.presentationFocus && filters.presentationFocus !== "all") {
+      url.searchParams.set("presentationFocus", filters.presentationFocus);
     }
   });
 }
