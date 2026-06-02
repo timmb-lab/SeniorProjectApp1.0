@@ -1,10 +1,18 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-06-02T06:32:10-07:00",
-  "lastStartingSha": "35adffb16378938914f67996271aeda4a87f3208",
+  "lastRunAt": "2026-06-02T07:05:45-07:00",
+  "lastStartingSha": "84a728ccfda910ab0dc8f8eed3beaed1e751e038",
   "lastEndingSha": null,
-  "currentLadderFocus": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+  "currentLadderFocus": "LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW",
   "completedWorkOrders": [
+    {
+      "id": "site-admin-mentor-post-default-fallback",
+      "completedAt": "2026-06-02T07:05:45-07:00",
+      "ladderLevel": "LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW",
+      "type": "TYPE_E_MENTOR_ASSIGNMENT",
+      "summary": "The site mentor-assignment POST route now keeps the same default/current site fallback for multi-site site admins that the GET route already used, so real assignment saves do not depend on an explicit siteId.",
+      "commit": "pending-closeout-commit"
+    },
     {
       "id": "operations-role-specific-follow-up-messaging",
       "completedAt": "2026-06-02T06:32:10-07:00",
@@ -1021,10 +1029,10 @@
       "summary": "Refresh the role-readiness scorecard after clarifying Administration/AP follow-up language on the Site Dashboard and Readiness surfaces."
     },
     {
-      "id": "site-admin-mentor-post-default-alignment",
-      "ladderLevel": "LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW",
-      "type": "TYPE_D_ROLE_WORKSPACE",
-      "summary": "Align the mentor-assignment POST site fallback with site-admin management permissions if a direct API-safe bugfix is preferred next."
+      "id": "student-detail-mentor-assignment-history",
+      "ladderLevel": "LEVEL_7_AUDITABILITY_AND_TRUST",
+      "type": "TYPE_C_STUDENT_DETAIL_DRILL_DOWN",
+      "summary": "Add read-only mentor assignment history to student detail using the existing scoped mentor assignment rows."
     },
     {
       "id": "hosted-section-permission-proof",
@@ -1034,6 +1042,7 @@
     }
   ],
   "doNotRepeat": [
+    "Do not remove `site_admin` from the mentor-assignment POST default-site role list unless the route-selection policy intentionally changes.",
     "Do not re-expand student requirements, feedback, submissions, evidence tools, uploaded files, Users & Access history/guidance, dashboard snapshots, or mentor row details by default unless a new first-screen budget and scripts/verify-workspace-density.mjs update prove it is intentional.",
     "Do not repeat protected workspace header/posture chip cleanup unless new leaked phrases are found.",
     "Do not relink the Site Dashboard No Mentor metric back to Mentor Assignments only; it now opens the Student Directory with noMentor=true so staff see the actual missing-mentor students before assignment actions.",
@@ -1147,17 +1156,19 @@
   ],
   "lastValidationStatus": {
     "status": "passed",
-    "completedAt": "2026-06-02T06:44:18-07:00",
+    "completedAt": "2026-06-02T07:06:54-07:00",
     "commands": [
-      "node --check workspace.js",
-      "node --test tests/workspace-app.test.mjs",
-      "npm run verify:functionality-language",
+      "node --test tests/site-mentor-assignments.integration.test.mjs",
       "node --test tests/functionality-language-audit.test.mjs",
       "npm run verify:functionality-ux-automation",
-      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-02-0632-operations-role-messaging.json','utf8')); console.log('json ok')\"",
+      "npm run test",
+      "npm run typecheck",
+      "npm run check:production-surfaces",
+      "npm run check",
+      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-02-0705-site-admin-mentor-post-fallback.json','utf8')); console.log('json ok')\"",
       "git diff --check"
     ],
-    "notes": "Operations role-specific follow-up messaging passed focused workspace render coverage, the functionality-language verifier, the audit/automation closeout tests, JSON artifact parsing, and git diff --check with CRLF normalization warnings only."
+    "notes": "The mentor-assignment POST fallback fix passed focused route coverage, audit/automation checks, the full repo test and typecheck suite, production-surface checks, JSON parsing, and git diff --check with CRLF normalization warnings only."
   },
   "lastProductReadinessScorecardSummary": {
     "homepageClarity": "4 to 4",

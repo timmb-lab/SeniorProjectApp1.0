@@ -2656,3 +2656,14 @@ Future productive runs should append compact entries that name the master-plan s
 - `changes`: `workspace.js` now renders role-specific Operations hero, banner, and grouped empty-state copy for school follow-up, program-scoped follow-up, and read-only monitoring. `tests/workspace-app.test.mjs` now proves the site-admin, program-teacher, and Administration copy branches, and `docs/functionality-language-audit.md` plus `docs/product/demo-role-readiness.md` record the new role evidence.
 - `validation`: `node --check workspace.js`, `node --test tests/workspace-app.test.mjs`, and `npm run verify:functionality-language` passed before docs/state closeout.
 - `commit/push status`: pending closeout commit; not pushed by this automation run.
+
+## 2026-06-02 PT - Functionality UX Upgrade Site Admin Mentor POST Fallback
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 3 mentor assignment workflow / site-admin route resilience.
+- `starting HEAD`: `84a728ccfda910ab0dc8f8eed3beaed1e751e038`.
+- `selected slice`: Let multi-site site admins save mentor assignments through `/api/site/mentor-assignments` even when the current school is implied instead of explicitly posted.
+- `repo-grounded findings`: `functions/_lib/site-mentor-assignments.ts` already used `resolveSiteSelection()` for GET with `site_admin` in the default-site path, but POST omitted `site_admin` from `defaultSiteRoleIds`. That left multi-site site admins dependent on an explicit `siteId` in body/query even though the route already knew how to infer the same default/current school for the read path.
+- `changes`: `functions/_lib/site-mentor-assignments.ts` now includes `site_admin` in the POST default-site role list, and `tests/site-mentor-assignments.integration.test.mjs` now proves a multi-site site admin can create a mentor assignment without posting `siteId` while cross-site, duplicate, non-mentor, and non-authorized-role denials still hold. `docs/functionality-language-audit.md` and `docs/product/demo-role-readiness.md` record the route-level fix.
+- `validation`: `node --test tests/site-mentor-assignments.integration.test.mjs` passed before docs/state closeout. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.

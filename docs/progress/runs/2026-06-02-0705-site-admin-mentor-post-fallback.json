@@ -1,0 +1,130 @@
+{
+  "automationId": "functionality-ux-upgrade-hourly",
+  "timestamp": "2026-06-02T07:05:45-07:00",
+  "startingHead": "84a728ccfda910ab0dc8f8eed3beaed1e751e038",
+  "selectedSlice": "site-admin-mentor-post-default-fallback",
+  "summary": "Align the site mentor-assignment POST route with the existing GET site-default behavior so multi-site site admins can save real assignments without posting siteId.",
+  "selectedReason": "This was a real route inconsistency with direct workflow impact: GET already inferred the current/default school for site-admin mentor-assignment access, but POST omitted site_admin from the same helper path. Fixing that route bug had more product value than another copy-only pass and stayed safely inside existing RBAC.",
+  "candidates": [
+    {
+      "candidate": "Site-admin mentor assignment POST default fallback",
+      "ladderLevel": "LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW",
+      "roles": "site_admin",
+      "impact": 4,
+      "safety": 5,
+      "testability": 5,
+      "size": "XS",
+      "score": 52,
+      "decision": "selected"
+    },
+    {
+      "candidate": "Administration/AP site dashboard language refresh",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "roles": "administration",
+      "impact": 3,
+      "safety": 5,
+      "testability": 5,
+      "size": "XS",
+      "score": 46,
+      "decision": "not selected: still safe, but the route bug had clearer workflow value"
+    },
+    {
+      "candidate": "Student detail mentor assignment history",
+      "ladderLevel": "LEVEL_7_AUDITABILITY_AND_TRUST",
+      "roles": "site_admin",
+      "impact": 4,
+      "safety": 4,
+      "testability": 4,
+      "size": "M",
+      "score": 44,
+      "decision": "deferred: larger than this route fix"
+    },
+    {
+      "candidate": "Student detail URL state",
+      "ladderLevel": "LEVEL_2_STUDENT_DETAIL_DEPTH",
+      "roles": "site staff",
+      "impact": 4,
+      "safety": 3,
+      "testability": 3,
+      "size": "M",
+      "score": 39,
+      "decision": "deferred: privacy review still needed"
+    },
+    {
+      "candidate": "Site dashboard recent activity drill-down",
+      "ladderLevel": "LEVEL_7_AUDITABILITY_AND_TRUST",
+      "roles": "site_admin",
+      "impact": 3,
+      "safety": 3,
+      "testability": 3,
+      "size": "M",
+      "score": 35,
+      "decision": "deferred: no backed site audit destination yet"
+    },
+    {
+      "candidate": "Review Queue row-level review affordance clarity",
+      "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
+      "roles": "program_teacher",
+      "impact": 3,
+      "safety": 5,
+      "testability": 4,
+      "size": "S",
+      "score": 43,
+      "decision": "not selected: narrower impact than the route bug"
+    },
+    {
+      "candidate": "Viewer student email redaction decision",
+      "ladderLevel": "LEVEL_7_AUDITABILITY_AND_TRUST",
+      "roles": "viewer",
+      "impact": 4,
+      "safety": 2,
+      "testability": 3,
+      "size": "S",
+      "score": 32,
+      "decision": "deferred: policy decision first"
+    },
+    {
+      "candidate": "Mentor reassignment/remove workflow",
+      "ladderLevel": "LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW",
+      "roles": "site_admin",
+      "impact": 4,
+      "safety": 2,
+      "testability": 3,
+      "size": "M",
+      "score": 33,
+      "decision": "deferred: mutation/audit scope is larger"
+    },
+    {
+      "candidate": "Program-teacher mentor assignment manage policy",
+      "ladderLevel": "LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW",
+      "roles": "program_teacher",
+      "impact": 3,
+      "safety": 2,
+      "testability": 3,
+      "size": "M",
+      "score": 29,
+      "decision": "deferred: permission decision first"
+    },
+    {
+      "candidate": "Hosted section-level permission proof",
+      "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
+      "roles": "all protected roles",
+      "impact": 4,
+      "safety": 3,
+      "testability": 3,
+      "size": "M",
+      "score": 38,
+      "decision": "deferred: hosted fake-account runtime is outside this local batch"
+    }
+  ],
+  "changes": [
+    "Added site_admin to the mentor-assignment POST default-site role list.",
+    "Proved a multi-site site admin can create an assignment without posting siteId.",
+    "Kept duplicate, cross-site, non-mentor, and unauthorized mutation denials intact.",
+    "Updated the audit and role-readiness docs to record the route-level fix."
+  ],
+  "validation": [
+    "node --test tests/site-mentor-assignments.integration.test.mjs"
+  ],
+  "nextRecommended": "Refresh Administration/AP site dashboard language, or add read-only mentor assignment history to student detail."
+}

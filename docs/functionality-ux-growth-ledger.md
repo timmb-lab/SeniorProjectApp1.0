@@ -5180,3 +5180,51 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: hosted permission proof still needs allowed fake-account runtime; detail URL state and mentor reassignment still need privacy/mutation review.
   - Do not repeat: do not add fake Operations controls while improving wording; keep this surface route-backed and read-only.
   - First file to inspect next run: `workspace.js` around `renderSiteDashboardSection()` and `renderOperationsReadinessSection()`
+
+## Run 2026-06-02 07:05 PT
+
+- Starting SHA: `84a728ccfda910ab0dc8f8eed3beaed1e751e038`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Branch policy: work stayed on clean local `main`; no deploy, seed, reset, migration, or live config change was run
+- Ladder level targeted: `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW`
+- Backlog item: `site-admin-mentor-post-default-fallback`
+- Work order selected: Let multi-site site admins save mentor assignments through `/api/site/mentor-assignments` without requiring an explicit `siteId` when the current/default school is already inferable.
+- Selection reason: Current repo evidence showed a real route inconsistency instead of another copy gap. GET already used `resolveSiteSelection()` with `site_admin` in the default-site role path, but POST omitted `site_admin`, leaving the same protected assignment workflow unnecessarily brittle for multi-site site admins while offering no safety benefit.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Site-admin mentor assignment POST default fallback | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | `site_admin` | 4 | 5 | 5 | XS | 52 | selected |
+| Administration/AP site dashboard language refresh | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | `administration` | 3 | 5 | 5 | XS | 46 | not selected: still safe, but the route bug had clearer workflow value |
+| Student detail mentor assignment history | `LEVEL_7_AUDITABILITY_AND_TRUST` | `site_admin` | 4 | 4 | 4 | M | 44 | deferred: larger than this route fix |
+| Student detail URL state | `LEVEL_2_STUDENT_DETAIL_DEPTH` | site staff | 4 | 3 | 3 | M | 39 | deferred: privacy review still needed |
+| Site dashboard recent activity drill-down | `LEVEL_7_AUDITABILITY_AND_TRUST` | `site_admin` | 3 | 3 | 3 | M | 35 | deferred: no backed site audit destination yet |
+| Review Queue row-level review affordance clarity | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | `program_teacher` | 3 | 5 | 4 | S | 43 | not selected: narrower impact than the route bug |
+| Viewer student email redaction decision | `LEVEL_7_AUDITABILITY_AND_TRUST` | `viewer` | 4 | 2 | 3 | S | 32 | deferred: policy decision first |
+| Mentor reassignment/remove workflow | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | `site_admin` | 4 | 2 | 3 | M | 33 | deferred: mutation/audit scope is larger |
+| Program-teacher mentor assignment manage policy | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | `program_teacher` | 3 | 2 | 3 | M | 29 | deferred: permission decision first |
+| Hosted section-level permission proof | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all protected roles | 4 | 3 | 3 | M | 38 | deferred: hosted fake-account runtime is outside this local batch |
+
+- User-facing improvement: Site admins with more than one assigned school no longer lose the real mentor-assignment save path when the current school is already implied by their route context; the POST route now matches the GET route’s current/default site behavior.
+- Roles affected: `site_admin`
+- Files changed: `functions/_lib/site-mentor-assignments.ts`, `tests/site-mentor-assignments.integration.test.mjs`, `docs/functionality-language-audit.md`, `docs/product/demo-role-readiness.md`, `docs/progress/run-log.md`, `docs/progress/runs/2026-06-02-0705-site-admin-mentor-post-fallback.json`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`
+- Tests/verifiers added or updated: `tests/site-mentor-assignments.integration.test.mjs` now proves a multi-site `site_admin` POST succeeds without `siteId` while unauthorized and cross-site protections remain intact.
+- Validation commands:
+  - Focused passed before docs/state closeout: `node --test tests/site-mentor-assignments.integration.test.mjs`
+- Validation result: focused validation passed; final closeout validation status is recorded in the completion report after commit checks.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: Administration/AP site dashboard language refresh, student-detail mentor assignment history, student-detail URL state, site dashboard recent activity drill-down, viewer email redaction policy, mentor reassignment workflow, program-teacher mentor assignment policy, and hosted permission proof remain open.
+- New backlog items: none
+- Next recommended work order: Refresh Administration/AP site dashboard language on the same protected staff path, or extend student detail with read-only mentor assignment history if the next run stays in Level 3 or 7.
+- Do-not-repeat notes: do not remove `site_admin` from the mentor-assignment POST default-site role list unless the route-selection policy intentionally changes, and do not broaden assignment mutation beyond `site_admin`/global roles while hardening this workflow.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW`
+  - Advanced: yes
+  - Evidence: `/api/site/mentor-assignments` POST now includes `site_admin` in the default-site helper path, and focused route proof shows a multi-site site admin can create an assignment without posting `siteId`.
+  - Unlocks: future mentor-assignment UI or shared-link work can rely on the route helper instead of over-posting explicit site ids.
+  - Next: inspect `workspace.js` `renderSiteDashboardSection()` for Administration/AP language, or `functions/_lib/site-student-detail.ts` for mentor assignment history.
+  - Blockers: hosted permission proof still needs allowed fake-account runtime; reassignment/remove work still needs broader mutation/audit review.
+  - Do not repeat: do not treat this route bug as unresolved after commit unless regression evidence shows `site_admin` was removed from the POST helper path again.
+  - First file to inspect next run: `workspace.js` around `renderSiteDashboardSection()` or `functions/_lib/site-student-detail.ts`

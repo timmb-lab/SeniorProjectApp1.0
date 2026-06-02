@@ -253,7 +253,7 @@ export async function handleSiteMentorAssignmentsPost({
     context,
     requestedSiteId,
     canViewSite: (siteId) => canManageMentorAssignments(env, user, siteId),
-    defaultSiteRoleIds: ["platform_admin", "global_admin", "admin", "org_admin"],
+    defaultSiteRoleIds: ["platform_admin", "global_admin", "admin", "org_admin", "site_admin"],
   });
 
   if (selection.kind === "denied") {

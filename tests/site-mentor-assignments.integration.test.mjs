@@ -156,6 +156,23 @@ test("site mentor assignment route is scoped, mutable for site ops, read-only by
   const afterDashboard = await expectDashboard(env, tokens.siteAdminPrimary);
   assert.equal(afterDashboard.summary.studentsNoMentor, beforeNoMentor - 1);
 
+  await db.prepare(
+    `INSERT INTO user_roles (user_id, role_id, scope_type, scope_id)
+     VALUES (?, 'site_admin', 'site', ?)`,
+  ).bind("demo-site-admin-desert-valley-high", CANYON_SITE_ID).run();
+
+  const inferredSite = await routeAssignmentPost(env, tokens.siteAdminPrimary, {
+    studentId: missingPrimary[2].id,
+    mentorUserId: primaryMentor.id,
+    reason: "Assign mentor from the default site without posting siteId.",
+  });
+  assert.equal(inferredSite.response.status, 200);
+  assert.equal(inferredSite.body.ok, true);
+  assert.equal(inferredSite.body.assignment.studentId, missingPrimary[2].id);
+  assert.equal(inferredSite.body.assignment.mentorUserId, primaryMentor.id);
+  assert.equal(inferredSite.body.assignment.active, true);
+  assert.doesNotMatch(JSON.stringify(inferredSite.body), FORBIDDEN_RESPONSE_FIELDS);
+
   const crossSiteMentor = await routeAssignmentPost(env, tokens.siteAdminPrimary, {
     siteId: PRIMARY_SITE_ID,
     studentId: missingPrimary[1].id,
