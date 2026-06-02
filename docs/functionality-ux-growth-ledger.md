@@ -5282,3 +5282,57 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: hosted permission proof still needs allowed fake-account runtime; student-detail URL state still needs privacy review; mentor reassignment/remove still needs mutation/audit design.
   - Do not repeat: do not treat Administration dashboard/readiness language as open again unless viewer wording regresses on the protected site-scoped leadership path.
   - First file to inspect next run: `workspace.js` around `renderTeacherReviewSection()`
+
+## Run 2026-06-02 08:05 PT
+
+- Starting SHA: `33e9cc0fac4c389a235610854b52c058f85f7d50`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Branch policy: work stayed on clean local `main`; no deploy, seed, reset, migration, or live config change was run
+- Ladder level targeted: `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES`
+- Backlog item: `review-queue-row-review-affordance-clarity`
+- Work order selected: Clarify Review Queue row-level actions and selected-row guidance so submitted review work and follow-up-only rows read differently.
+- Selection reason: Current repo evidence still matched the open Review feedback gap exactly. The previous handoff recommended this slice, audit item 30 still showed it as unfinished, and `workspace.js` still used one generic row button even though decisions only existed on the selected submitted row. The queue, history, and decision APIs were already real and scoped, so the safest improvement was to sharpen the existing UI contract without changing RBAC or routes.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Review Queue row-level review affordance clarity | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | `program_teacher`, `site_admin` | 4 | 5 | 5 | S | 52 | selected |
+| Risk scoring explanation on dashboard and review rows | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | site staff | 3 | 5 | 4 | XS | 43 | not selected: useful, but the row-action gap was more immediate |
+| Student detail URL state | `LEVEL_2_STUDENT_DETAIL_DEPTH` | site staff | 4 | 3 | 3 | M | 39 | deferred: privacy review still needed |
+| Filter persistence across staff worklists | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | site staff | 4 | 3 | 3 | M | 38 | deferred: broader URL-state batch |
+| Site dashboard recent activity drill-down | `LEVEL_7_AUDITABILITY_AND_TRUST` | `site_admin`, `administration` | 3 | 3 | 3 | M | 36 | deferred: no site-backed audit destination yet |
+| Student detail mentor assignment history | `LEVEL_7_AUDITABILITY_AND_TRUST` | `site_admin` | 4 | 4 | 4 | M | 44 | deferred: larger than this UI-only Review Queue slice |
+| Review Queue missing-submission semantics | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | `program_teacher`, `site_admin` | 5 | 2 | 3 | M | 34 | deferred: backend queue rows are still absent |
+| Mentor reassignment/remove workflow | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | `site_admin` | 4 | 2 | 3 | M | 33 | deferred: mutation and audit design still needed |
+| Viewer student email redaction decision | `LEVEL_7_AUDITABILITY_AND_TRUST` | `viewer` | 3 | 2 | 3 | S | 30 | deferred: policy decision first |
+| Hosted section-level permission proof | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all protected roles | 4 | 3 | 3 | M | 38 | deferred: hosted fake-account runtime is outside this local batch |
+
+- User-facing improvement: Program teachers and read-only site staff now see Review Queue rows that explain whether they are opening decision-ready submitted work or follow-up-only context, and the selected panel explicitly says when a row no longer accepts teacher decisions.
+- Roles affected: `program_teacher`, `site_admin`, other read-only site staff who can open the queue
+- Files changed: `workspace.js`, `tests/workspace-app.test.mjs`, `docs/functionality-language-audit.md`, `docs/product/demo-role-readiness.md`, `docs/progress/run-log.md`, `docs/progress/runs/2026-06-02-0805-review-queue-row-guidance.json`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`
+- Tests/verifiers added or updated: `tests/workspace-app.test.mjs` now proves `Open review`, `Open follow-up`, selected-row guidance, and follow-up-only selected-row copy for revision-requested work.
+- Validation commands:
+  - `node --check workspace.js`
+  - `node --test tests/workspace-app.test.mjs`
+  - `npm run verify:functionality-language`
+  - `node --test tests/functionality-language-audit.test.mjs`
+  - `npm run verify:functionality-ux-automation`
+  - `node -e "JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-02-0805-review-queue-row-guidance.json','utf8')); console.log('json ok')"`
+  - `git diff --check`
+- Validation result: passed. Focused workspace render coverage, functionality-language verification, audit and automation checks, JSON parsing, and `git diff --check` all passed after docs/state closeout; `git diff --check` reported CRLF normalization warnings only.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: risk explanation copy, site dashboard recent-activity drill-down, student-detail URL state, filter persistence, student-detail mentor assignment history, Review Queue missing-submission semantics, mentor reassignment/remove workflow, viewer email redaction policy, and hosted permission proof remain open.
+- New backlog items: none
+- Next recommended work order: Add risk explanation copy on dashboard and review rows, or add a safe site-backed recent-activity drill-down if an authorized destination is proven.
+- Do-not-repeat notes: do not collapse Review Queue row actions back to one generic label unless decisions and follow-up semantics intentionally become the same again.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES`
+  - Advanced: yes
+  - Evidence: `workspace.js` now renders status-aware row action labels plus selected-row guidance, and focused workspace coverage proves submitted and revision-requested rows render differently without changing permissions.
+  - Unlocks: the next queue polish can move into risk explanation or recent-activity trust cues instead of repeating row-action clarity work.
+  - Next: inspect `workspace.js` around `renderNeedsAttention()`, `renderRiskChips()`, or `renderReviewQueueRow()` if the next slice stays in Level 4/5.
+  - Blockers: hosted permission proof still needs allowed fake-account runtime; recent-activity drill-down still lacks a proven site-backed destination; URL-state detail work still needs privacy review.
+  - Do not repeat: do not add fake review actions or broaden queue access while improving guidance.
+  - First file to inspect next run: `workspace.js` around `renderReviewQueueRow()` and `renderRiskChips()`

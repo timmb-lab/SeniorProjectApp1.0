@@ -2678,3 +2678,14 @@ Future productive runs should append compact entries that name the master-plan s
 - `changes`: `workspace.js` now branches read-only site monitoring copy so Administration gets `Leadership priorities`, `Administration monitoring queue`, `Leadership monitoring`, and `Leadership readiness` language on the existing Site Dashboard and site-backed Readiness surfaces while Viewer wording remains intact. `tests/workspace-app.test.mjs` now proves the Administration dashboard/readiness branch does not fall back to viewer-only labels, and `docs/functionality-language-audit.md` plus `docs/product/demo-role-readiness.md` record the refreshed readiness evidence.
 - `validation`: `node --check workspace.js`, `node --test tests/workspace-app.test.mjs`, and `npm run verify:functionality-language` passed before docs/state closeout. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
 - `commit/push status`: pending closeout commit; not pushed by this automation run.
+
+## 2026-06-02 PT - Functionality UX Upgrade Review Queue Row Guidance
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 5 review and intervention queues / Review Queue row guidance.
+- `starting HEAD`: `33e9cc0fac4c389a235610854b52c058f85f7d50`.
+- `selected slice`: Clarify row-level Review Queue actions and selected-row guidance for submitted versus follow-up-only work.
+- `repo-grounded findings`: the previous handoff pointed directly at Review Queue row clarity, and current `workspace.js` still used one generic row button while teacher decisions only existed on the selected submitted row. That made submitted, revision-requested, and read-only context rows look more similar than they should even though the queue, history, and decision APIs were already real and scoped.
+- `changes`: `workspace.js` now labels queue rows as `Open review`, `Open follow-up`, or `Selected row` based on current role and submission status, adds per-row action hints, clarifies the empty selected-panel state, and explains when a selected row is follow-up-only instead of decision-ready. `tests/workspace-app.test.mjs` now proves the new row labels, selected-row guidance, and revision-requested follow-up-only copy without changing RBAC or queue routes. `docs/functionality-language-audit.md`, `docs/product/demo-role-readiness.md`, `docs/functionality-ux-growth-ledger.md`, and the per-run manifest record the completed slice.
+- `validation`: `node --check workspace.js`, `node --test tests/workspace-app.test.mjs`, `npm run verify:functionality-language`, and `node --test tests/functionality-language-audit.test.mjs` passed before final closeout checks.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.

@@ -1,10 +1,18 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-06-02T07:40:03-07:00",
-  "lastStartingSha": "fabaf4f236d7c02580aaf837e748780c3525340d",
+  "lastRunAt": "2026-06-02T08:05:34-07:00",
+  "lastStartingSha": "33e9cc0fac4c389a235610854b52c058f85f7d50",
   "lastEndingSha": null,
-  "currentLadderFocus": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+  "currentLadderFocus": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
   "completedWorkOrders": [
+    {
+      "id": "review-queue-row-review-affordance-clarity",
+      "completedAt": "2026-06-02T08:05:34-07:00",
+      "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
+      "type": "TYPE_F_REVIEW_INTERVENTION_QUEUE",
+      "summary": "Review Queue rows now distinguish decision-ready submitted work from follow-up-only rows with clearer `Open review`, `Open follow-up`, and selected-row guidance copy, while routes and permissions stay unchanged.",
+      "commit": "pending-closeout-commit"
+    },
     {
       "id": "role-readiness-administration-dashboard-refresh",
       "completedAt": "2026-06-02T07:40:03-07:00",
@@ -1031,10 +1039,10 @@
   "blockedWorkOrders": [],
   "nextRecommendedWorkOrders": [
     {
-      "id": "review-queue-row-review-affordance-clarity",
-      "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
+      "id": "dashboard-risk-explanation-copy",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
       "type": "TYPE_D_ROLE_WORKSPACE",
-      "summary": "Clarify row-level Review actions and selected-row guidance on the existing Review Queue for site staff and Program Teachers."
+      "summary": "Add Review Queue and dashboard risk explanation copy so staff understand why a student appears in priority attention states."
     },
     {
       "id": "site-dashboard-recent-activity-drilldown",
@@ -1050,6 +1058,7 @@
     }
   ],
   "doNotRepeat": [
+    "Do not collapse Review Queue row actions back to one generic label unless submitted-review and follow-up semantics intentionally become the same again.",
     "Do not relabel Administration Site Dashboard or site-backed Readiness back to viewer wording unless product policy intentionally collapses leadership monitoring and viewer monitoring again.",
     "Do not remove `site_admin` from the mentor-assignment POST default-site role list unless the route-selection policy intentionally changes.",
     "Do not re-expand student requirements, feedback, submissions, evidence tools, uploaded files, Users & Access history/guidance, dashboard snapshots, or mentor row details by default unless a new first-screen budget and scripts/verify-workspace-density.mjs update prove it is intentional.",
@@ -1165,17 +1174,17 @@
   ],
   "lastValidationStatus": {
     "status": "passed",
-    "completedAt": "2026-06-02T07:43:52-07:00",
+    "completedAt": "2026-06-02T08:09:01-07:00",
     "commands": [
       "node --check workspace.js",
       "node --test tests/workspace-app.test.mjs",
       "npm run verify:functionality-language",
       "node --test tests/functionality-language-audit.test.mjs",
       "npm run verify:functionality-ux-automation",
-      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-02-0740-administration-dashboard-readiness-language.json','utf8')); console.log('json ok')\"",
+      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-02-0805-review-queue-row-guidance.json','utf8')); console.log('json ok')\"",
       "git diff --check"
     ],
-    "notes": "The Administration dashboard/readiness language refresh passed focused workspace render coverage, functionality-language verification, audit/automation checks, JSON parsing, and git diff --check with CRLF normalization warnings only."
+    "notes": "The Review Queue row-guidance slice passed focused workspace render coverage, functionality-language verification, audit and automation checks, JSON parsing, and git diff --check with CRLF normalization warnings only."
   },
   "lastProductReadinessScorecardSummary": {
     "homepageClarity": "4 to 4",

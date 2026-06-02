@@ -6343,10 +6343,28 @@ function hasActiveReviewQueueFilters(filters = {}) {
   );
 }
 
+function reviewQueueRowActionLabel(item, permissions = {}) {
+  if (permissions.canReview && item?.status === "submitted") return "Open review";
+  if (permissions.canReview) return "Open follow-up";
+  return "Open row";
+}
+
+function reviewQueueRowActionHint(item, permissions = {}) {
+  if (permissions.canReview && item?.status === "submitted") {
+    return "Open this row to load history and teacher decisions.";
+  }
+  if (permissions.canReview) {
+    return "Open this row to load history and follow-up context.";
+  }
+  return "Open this row to view protected history and student context.";
+}
+
 function renderReviewQueueRow(item, selectedId, permissions = {}) {
   const selected = item.submissionId === selectedId;
+  const actionLabel = reviewQueueRowActionLabel(item, permissions);
+  const actionHint = reviewQueueRowActionHint(item, permissions);
   return `
-    <article class="workspace-student-row ${selected ? "is-selected" : ""}" data-review-submission-id="${escapeHtml(item.submissionId || "")}">
+    <article class="workspace-student-row ${selected ? "is-selected" : ""}" data-review-submission-id="${escapeHtml(item.submissionId || "")}" data-review-row-state="${selected ? "selected" : "available"}">
       <div class="workspace-student-card">
         <div>
           <strong>${escapeHtml(item.studentName || "Student")}</strong>
@@ -6364,8 +6382,9 @@ function renderReviewQueueRow(item, selectedId, permissions = {}) {
       </div>
       <div class="workspace-row-actions">
         <p>${escapeHtml(item.nextAction || "Review status and context.")}</p>
-        <button class="workspace-link-button workspace-link-button-small" type="button" data-review-queue-action="select" data-review-submission-id="${escapeHtml(item.submissionId || "")}">
-          ${permissions.canReview ? "Review" : "View"}
+        <p class="workspace-muted">${escapeHtml(selected ? "Selected row. History and available actions are loaded on the right." : actionHint)}</p>
+        <button class="workspace-link-button workspace-link-button-small" type="button" data-review-queue-action="select" data-review-submission-id="${escapeHtml(item.submissionId || "")}" data-review-row-action-label="${escapeHtml(actionLabel.toLowerCase().replace(/\s+/g, "-"))}">
+          ${escapeHtml(selected ? "Selected row" : actionLabel)}
         </button>
       </div>
     </article>
@@ -6414,7 +6433,7 @@ function renderReviewSubmissionPanel(selected, body) {
         ${renderProblemState({
           reason: "No review row is selected.",
           owner: "Assigned review staff.",
-          nextAction: "Select a submitted or revision row to view evidence summaries, protected history, and available teacher decisions.",
+          nextAction: "Open a submitted row to load teacher decisions, or open a revision row to review history and follow-up context.",
         })}
       </section>
     `;
@@ -6436,6 +6455,11 @@ function renderReviewSubmissionPanel(selected, body) {
         <span class="workspace-site-context-badge">${safeNumber(selected.commentCount)} comments</span>
       </div>
       <p>${escapeHtml(selected.nextAction || "Review evidence and history.")}</p>
+      <p class="workspace-muted" data-review-selected-guidance="true">${escapeHtml(canDecide
+        ? "Teacher decisions are ready on this submitted row."
+        : permissions.canReview
+          ? `${statusText(selected.status)} is follow-up only here. Use history and student detail for context.`
+          : "This row is read-only here. Use history and student detail for context." )}</p>
       <div class="workspace-row-actions">
         <button class="workspace-link-button workspace-link-button-small" type="button" data-review-queue-action="open-student" data-review-student-id="${escapeHtml(selected.studentId || "")}">
           View student detail
@@ -6446,9 +6470,9 @@ function renderReviewSubmissionPanel(selected, body) {
         <section class="workspace-empty-state-card" data-review-mutation-disabled="true">
           <h2>No teacher decision available for this row</h2>
           ${renderProblemState({
-            reason: permissions.canReview ? "Teacher decisions are only available while work is submitted for review." : "This workspace is read-only for review decisions.",
+            reason: permissions.canReview ? `Teacher decisions are only available while work is submitted for review. This row is currently ${statusText(selected.status).toLowerCase()}.` : "This workspace is read-only for review decisions.",
             owner: permissions.canReview ? "Assigned program teacher." : "Assigned review staff.",
-            nextAction: permissions.canReview ? "Use the history and student detail for context, or select submitted work from this teacher list." : "Use this queue for context; assigned program teachers handle decisions.",
+            nextAction: permissions.canReview ? "Use the history and student detail for context, or open submitted work from this queue when a decision is needed." : "Use this queue for context; assigned program teachers handle decisions.",
           })}
         </section>
       `}

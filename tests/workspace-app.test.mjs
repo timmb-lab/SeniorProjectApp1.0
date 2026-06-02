@@ -1420,9 +1420,12 @@ test("workspace renders site-aware Review Queue with teacher decisions and read-
   assert.match(teacher, /data-section="teacher" data-section-preset="stale-review">Review rows/);
   assert.match(teacher, /data-section="teacher" data-section-preset="missing-mentor-review">Review rows/);
   assert.match(teacher, /workspace-student-row is-selected/);
+  assert.match(teacher, /data-review-row-state="selected"/);
   assert.match(teacher, /workspace-status-pill submitted/);
   assert.match(teacher, /workspace-story-chip/);
   assert.match(teacher, /workspace-risk-chip/);
+  assert.match(teacher, /Selected row\. History and available actions are loaded on the right\./);
+  assert.match(teacher, /Teacher decisions are ready on this submitted row\./);
   assert.match(teacher, /data-review-queue-action="open-student"/);
   assert.match(teacher, /data-review-history-section="true"/);
   assert.match(teacher, /data-review-comment-visibility-summary="true"/);
@@ -1588,6 +1591,95 @@ test("workspace renders site-aware Review Queue with teacher decisions and read-
   assert.equal(evidenceMissingUrl.searchParams.has("status"), false);
   assert.match(window.location.href, /section=teacher/);
   assert.match(window.location.href, /evidenceStatus=missing/);
+});
+
+test("workspace clarifies Review Queue row actions and follow-up-only selected rows", async () => {
+  const rowActions = await renderWorkspaceWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "teacher-review-actions",
+          email: "teacher.review.actions@example.edu",
+          displayName: "Program Teacher Review Actions",
+          roles: [{ role_id: "program_teacher", scope_type: "program", scope_id: "it" }],
+        },
+      },
+    },
+    "/api/site/students": {
+      status: 200,
+      body: siteStudentsFixture({ role: "program_teacher", total: 45 }),
+    },
+    "/api/site/review-queue": {
+      status: 200,
+      body: siteReviewQueueFixture({ role: "program_teacher" }),
+    },
+    "/api/program-teacher/dashboard": {
+      status: 200,
+      body: { ok: true, summary: { scopedStudents: 45, submissionsAwaitingReview: 2 }, students: [], programBreakdown: [] },
+    },
+    "/api/presentation-slots": {
+      status: 200,
+      body: { ok: true, slots: [] },
+    },
+  }, "teacher");
+
+  assert.match(rowActions, /Open review/);
+  assert.match(rowActions, /Open follow-up/);
+  assert.match(rowActions, /Open this row to load history and teacher decisions\./);
+  assert.match(rowActions, /Open this row to load history and follow-up context\./);
+  assert.match(rowActions, /Open a submitted row to load teacher decisions, or open a revision row to review history and follow-up context\./);
+
+  const revisionHistory = {
+    ...reviewHistoryFixture(),
+    submission: {
+      id: "submission-review-002",
+      status: "revision_requested",
+      version: 3,
+    },
+  };
+  const revisionSelected = await renderWorkspaceWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "teacher-review-revision-selected",
+          email: "teacher.review.revision.selected@example.edu",
+          displayName: "Program Teacher Review Revision Selected",
+          roles: [{ role_id: "program_teacher", scope_type: "program", scope_id: "it" }],
+        },
+      },
+    },
+    "/api/site/students": {
+      status: 200,
+      body: siteStudentsFixture({ role: "program_teacher", total: 45 }),
+    },
+    "/api/site/review-queue": {
+      status: 200,
+      body: siteReviewQueueFixture({ role: "program_teacher" }),
+    },
+    "/api/program-teacher/dashboard": {
+      status: 200,
+      body: { ok: true, summary: { scopedStudents: 45, submissionsAwaitingReview: 2 }, students: [], programBreakdown: [] },
+    },
+    "/api/presentation-slots": {
+      status: 200,
+      body: { ok: true, slots: [] },
+    },
+  }, "teacher", `
+    reviewQueueState = {
+      ...defaultReviewQueueState(),
+      selectedSubmissionId: "submission-review-002",
+      historyResult: { ok: true, status: 200, body: ${JSON.stringify(revisionHistory)} }
+    };
+  `);
+
+  assert.match(revisionSelected, /Revision requested is follow-up only here\. Use history and student detail for context\./);
+  assert.match(revisionSelected, /No teacher decision available for this row/);
+  assert.match(revisionSelected, /This row is currently revision requested\./i);
+  assert.match(revisionSelected, /open submitted work from this queue when a decision is needed/i);
 });
 
 test("workspace renders Review Queue empty and history states with assigned-work language", async () => {

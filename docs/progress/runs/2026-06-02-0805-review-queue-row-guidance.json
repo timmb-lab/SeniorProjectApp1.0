@@ -1,0 +1,136 @@
+{
+  "automationId": "functionality-ux-upgrade-hourly",
+  "timestamp": "2026-06-02T08:05:34-07:00",
+  "startingHead": "33e9cc0fac4c389a235610854b52c058f85f7d50",
+  "selectedSlice": "review-queue-row-review-affordance-clarity",
+  "summary": "Clarify Review Queue row-level actions and selected-row guidance so submitted review work and follow-up-only rows read differently.",
+  "selectedReason": "Current repo evidence still pointed at this exact gap from the prior run handoff, the open audit row for Review feedback, and the current Review Queue render path in workspace.js. The queue, history, and decision APIs were already real and scoped, so the safest high-value slice was to clarify the existing row actions and selected-panel guidance without changing routes, permissions, or data shape.",
+  "candidates": [
+    {
+      "candidate": "Review Queue row-level review affordance clarity",
+      "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
+      "roles": "program_teacher, site_admin",
+      "impact": 4,
+      "safety": 5,
+      "testability": 5,
+      "size": "S",
+      "score": 52,
+      "decision": "selected"
+    },
+    {
+      "candidate": "Risk scoring explanation on dashboard and review rows",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "roles": "site staff",
+      "impact": 3,
+      "safety": 5,
+      "testability": 4,
+      "size": "XS",
+      "score": 43,
+      "decision": "not selected: useful, but the row-action gap was more immediate"
+    },
+    {
+      "candidate": "Student detail URL state",
+      "ladderLevel": "LEVEL_2_STUDENT_DETAIL_DEPTH",
+      "roles": "site staff",
+      "impact": 4,
+      "safety": 3,
+      "testability": 3,
+      "size": "M",
+      "score": 39,
+      "decision": "deferred: privacy review still needed"
+    },
+    {
+      "candidate": "Filter persistence across staff worklists",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "roles": "site staff",
+      "impact": 4,
+      "safety": 3,
+      "testability": 3,
+      "size": "M",
+      "score": 38,
+      "decision": "deferred: broader URL-state batch"
+    },
+    {
+      "candidate": "Site dashboard recent activity drill-down",
+      "ladderLevel": "LEVEL_7_AUDITABILITY_AND_TRUST",
+      "roles": "site_admin, administration",
+      "impact": 3,
+      "safety": 3,
+      "testability": 3,
+      "size": "M",
+      "score": 36,
+      "decision": "deferred: no site-backed audit destination yet"
+    },
+    {
+      "candidate": "Student detail mentor assignment history",
+      "ladderLevel": "LEVEL_7_AUDITABILITY_AND_TRUST",
+      "roles": "site_admin",
+      "impact": 4,
+      "safety": 4,
+      "testability": 4,
+      "size": "M",
+      "score": 44,
+      "decision": "deferred: larger than this UI-only Review Queue slice"
+    },
+    {
+      "candidate": "Review Queue missing-submission semantics",
+      "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
+      "roles": "program_teacher, site_admin",
+      "impact": 5,
+      "safety": 2,
+      "testability": 3,
+      "size": "M",
+      "score": 34,
+      "decision": "deferred: backend queue rows are still absent"
+    },
+    {
+      "candidate": "Mentor reassignment/remove workflow",
+      "ladderLevel": "LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW",
+      "roles": "site_admin",
+      "impact": 4,
+      "safety": 2,
+      "testability": 3,
+      "size": "M",
+      "score": 33,
+      "decision": "deferred: mutation and audit design still needed"
+    },
+    {
+      "candidate": "Viewer student email redaction decision",
+      "ladderLevel": "LEVEL_7_AUDITABILITY_AND_TRUST",
+      "roles": "viewer",
+      "impact": 3,
+      "safety": 2,
+      "testability": 3,
+      "size": "S",
+      "score": 30,
+      "decision": "deferred: policy decision first"
+    },
+    {
+      "candidate": "Hosted section-level permission proof",
+      "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
+      "roles": "all protected roles",
+      "impact": 4,
+      "safety": 3,
+      "testability": 3,
+      "size": "M",
+      "score": 38,
+      "decision": "deferred: hosted fake-account runtime is outside this local batch"
+    }
+  ],
+  "changes": [
+    "Added status-aware Review Queue row labels so submitted work opens with `Open review`, follow-up rows use `Open follow-up`, and the selected row is visibly loaded.",
+    "Added row-level helper text and selected-panel guidance that distinguishes decision-ready submitted work from follow-up-only revision rows.",
+    "Clarified the empty selected-submission panel so staff know to open a submitted row for decisions and a revision row for context.",
+    "Expanded focused workspace coverage and refreshed the audit, role-readiness, run-log, ledger, and automation state handoff for this Level 5 slice."
+  ],
+  "validation": [
+    "node --check workspace.js",
+    "node --test tests/workspace-app.test.mjs",
+    "npm run verify:functionality-language",
+    "node --test tests/functionality-language-audit.test.mjs",
+    "npm run verify:functionality-ux-automation",
+    "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-02-0805-review-queue-row-guidance.json','utf8')); console.log('json ok')\"",
+    "git diff --check"
+  ],
+  "nextRecommended": "Add risk explanation copy on dashboard and review rows, or add a safe site-backed recent-activity drill-down if an authorized destination is proven."
+}
