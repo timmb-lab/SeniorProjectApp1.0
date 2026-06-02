@@ -1859,7 +1859,16 @@ function renderSiteDashboardSection() {
       </div>
       ${renderSummaryStrip([
         { label: "Evidence", value: safeNumber(summary.evidenceArtifacts), detail: "Summary only; open student detail for evidence records.", tone: "mentor", concept: "Missing Evidence" },
-        { label: "Recent Activity", value: safeNumber(summary.recentActivityCount), detail: canOpenAudit ? "Latest updates are listed below. Audit destination available." : "Latest updates are listed below.", tone: "admin", concept: "Recent Activity" },
+        {
+          label: "Recent Activity",
+          value: safeNumber(summary.recentActivityCount),
+          detail: canOpenAudit ? "Latest updates are listed below. Audit destination available." : "Latest updates are listed below.",
+          tone: "admin",
+          concept: "Recent Activity",
+          actionHtml: canOpenAudit
+            ? `<button class="workspace-link-button workspace-link-button-small" type="button" data-section="audit">Open audit</button>`
+            : "",
+        },
       ], { label: "Site dashboard summary-only metrics" })}
       ${siteStudentDetailState?.sourceSection === "siteDashboard" ? renderSiteStudentDetailSurface({
         students: (dashboard.topRiskStudents || []).map((row) => ({
@@ -9536,7 +9545,7 @@ function renderSummaryStrip(items = [], options = {}) {
           <span>${escapeHtml(item.label || "Summary")}</span>
           <strong>${escapeHtml(item.value ?? "")}</strong>
           ${item.detail ? `<small>${escapeHtml(item.detail)}</small>` : ""}
-          ${item.actionHtml || ""}
+          ${item.actionHtml || `<span class="workspace-summary-badge">Summary only</span>`}
         </article>
       `).join("")}
     </div>

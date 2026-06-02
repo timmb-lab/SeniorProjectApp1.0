@@ -2778,6 +2778,17 @@ Future productive runs should append compact entries that name the master-plan s
 - `validation`: focused site-dashboard and workspace tests plus language/automation/production-surface verification passed before docs/state closeout. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
 - `commit/push status`: pending closeout commit; not pushed by this automation run.
 
+## 2026-06-02 PT - Functionality UX Upgrade Dashboard Summary Clarity
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 1 navigable dashboards / summary-only metric clarity.
+- `starting HEAD`: `8ea696081a4578853a006edc02f2c1c08721fc77`.
+- `selected slice`: Clarify secondary dashboard summary metrics with explicit summary-only treatment and one real Global Admin audit shortcut.
+- `repo-grounded findings`: `workspace.js` already differentiated primary metric tiles that had backed destinations, but the Site/Admin summary strips still rendered passive counts with prose alone. Current source also showed Site Dashboard `Recent Activity` telling Global Admin users that Audit was available without exposing a direct action, while Evidence counts still had no exact route-safe destination. That made the summary strip the smallest safe batch because it could improve click-through honesty without inventing routes or weakening role boundaries.
+- `changes`: `workspace.js` now gives Site Dashboard `Recent Activity` a real `Open audit` button only when the current role actually has the existing Audit section, and `renderSummaryStrip()` now emits explicit `Summary only` treatment for passive counts instead of leaving them visually ambiguous. `workspace.css` now aligns summary-strip buttons and badges cleanly. `tests/workspace-app.test.mjs` proves Site Admin users see passive summary-strip treatment, Global Admin users get the real audit shortcut, and that the shortcut opens the existing Audit section. `scripts/verify-dashboard-actions.mjs` now guards both the new Global Admin audit shortcut and the explicit summary-only fallback.
+- `validation`: `node --check workspace.js`, `node --test tests/workspace-app.test.mjs`, `npm run verify:dashboard-actions`, and `npm run verify:workspace-density` passed before broader closeout validation. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; baseline was pushed before editing, but this automation run did not push the new slice.
+
 ## 2026-06-02 PT - Functionality UX Upgrade Student Detail Return Context
 
 - `automation ID`: functionality-ux-upgrade-hourly.

@@ -295,8 +295,18 @@ assertMatches(
 );
 assertMatches(
   "workspaceJs",
+  /label: "Recent Activity"[\s\S]*actionHtml: canOpenAudit[\s\S]*data-section="audit">Open audit<\/button>/,
+  "site dashboard recent-activity summary must open the existing Audit section for Global Admin users",
+);
+assertMatches(
+  "workspaceJs",
   /function renderNeedsAttention\([\s\S]*availableSectionIds\(\)\.has\(item\.actionSection\)[\s\S]*workspace-summary-badge">Summary only<\/span>/,
   "dashboard attention rows must hide unavailable destination buttons behind summary-only treatment",
+);
+assertMatches(
+  "workspaceJs",
+  /function renderSummaryStrip\([\s\S]*item\.actionHtml \|\| `<span class="workspace-summary-badge">Summary only<\/span>`/,
+  "dashboard summary strips must render explicit summary-only treatment when no destination exists",
 );
 assertMatches(
   "workspaceJs",

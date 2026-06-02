@@ -5916,3 +5916,62 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: Program Teacher mentor-meeting follow-up still lacks an exact current destination; hosted permission proof still needs allowed runtime; Review Queue missing-submission semantics still need backend evidence.
   - Do not repeat: do not replace this topbar search with an unscoped all-students fetch or a new route while the current Student Directory search path remains the exact destination.
   - First file to inspect next run: `workspace.js` around `renderWorkspaceStudentSearchControl()` and `openWorkspaceStudentSearch()`
+
+## Run 2026-06-02 13:31 PT
+
+- Starting SHA: `8ea696081a4578853a006edc02f2c1c08721fc77`
+- Ending SHA: pending closeout commit; final hash is reported after commit
+- Branch: `main`
+- Branch policy: started from clean local `main`; local `main` was ahead of `origin/main` by two prior automation commits, so that clean baseline was pushed before the selected slice and the worktree stayed clean before editing
+- Ladder level targeted: `LEVEL_1_NAVIGABLE_DASHBOARDS`
+- Backlog item: `dashboard-summary-clarity`
+- Work order selected: Clarify secondary dashboard summary metrics with explicit summary-only treatment and one real Global Admin audit shortcut.
+- Selection reason: current repo evidence showed that primary dashboard metrics already used real drill-down actions or visible summary-only treatment, but the Site/Admin summary strips still relied on prose alone for passive counts. The Site Dashboard `Recent Activity` summary also told Global Admin users that Audit was available without giving them a direct action. Reusing the existing Audit section and tightening the summary-strip fallback was the smallest safe batch because it improved click-through honesty without inventing routes, changing data scope, or weakening RBAC.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Dashboard summary-strip clarity and Global Admin audit shortcut | `LEVEL_1_NAVIGABLE_DASHBOARDS` | `global_admin`, site staff | 5 | 5 | 5 | S | 56 | selected |
+| Site Dashboard evidence drill-down | `LEVEL_1_NAVIGABLE_DASHBOARDS` | site staff | 3 | 2 | 3 | S | 29 | rejected: current count tracks evidence artifacts and no exact site-scoped evidence-record surface exists |
+| Admin `Approved` summary drill-down | `LEVEL_1_NAVIGABLE_DASHBOARDS` | `global_admin` | 3 | 3 | 3 | S | 31 | rejected: current admin count tracks approved submissions, not a proven one-click student list denominator |
+| Program Teacher mentor-meeting follow-up destination | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | `program_teacher` | 4 | 3 | 3 | M | 40 | deferred: no exact current destination is proven for that follow-up row |
+| Student-detail note visibility labels | `LEVEL_7_AUDITABILITY_AND_TRUST` | staff, `student` | 4 | 3 | 3 | M | 38 | deferred: note visibility semantics still need route/data confirmation |
+| Viewer read-only language hardening | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | `viewer`, `administration` | 3 | 5 | 4 | S | 41 | not selected: useful, but lower value than fixing active summary-strip ambiguity with a real action |
+| Hosted section-level permission proof | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all protected roles | 4 | 3 | 2 | M | 35 | deferred: hosted runtime is outside this local batch |
+| Review Queue missing-submission semantics | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | `program_teacher`, `site_admin` | 5 | 2 | 3 | M | 34 | deferred: backend queue rows are still absent |
+| Global Admin role refresh | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | `global_admin` | 3 | 3 | 3 | M | 34 | deferred: broader multi-surface verification batch than this local slice |
+| Credential delivery policy copy shortener | `LEVEL_0_PROTOTYPE_CLEANUP` | `global_admin` | 2 | 5 | 5 | XS | 37 | not selected: copy cleanup is lower product value than a route-backed dashboard clarification |
+
+- User-facing improvement: passive Site/Admin summary-strip counts now show explicit `Summary only` treatment when no backed destination exists, while Global Admin users can open the existing Audit section directly from the Site Dashboard `Recent Activity` summary instead of seeing audit availability hinted without an action.
+- Roles affected: `global_admin`, `platform_admin`, `admin`, `site_admin`, `administration`, and other site-scoped staff who read dashboard summary strips
+- Files changed: `workspace.js`, `workspace.css`, `tests/workspace-app.test.mjs`, `scripts/verify-dashboard-actions.mjs`, `docs/functionality-language-audit.md`, `docs/product/demo-role-readiness.md`, `docs/progress/run-log.md`, `docs/progress/runs/2026-06-02-1331-dashboard-summary-clarity.json`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`
+- Tests/verifiers added or updated: `tests/workspace-app.test.mjs` now proves Site Admin summary-strip counts render passive treatment, Global Admin users get the real `Open audit` shortcut, and that the shortcut opens the existing Audit section; `scripts/verify-dashboard-actions.mjs` now guards the Global Admin audit shortcut plus the explicit summary-only fallback in `renderSummaryStrip()`.
+- Validation commands:
+  - `node --check workspace.js`
+  - `node --test tests/workspace-app.test.mjs`
+  - `npm run verify:dashboard-actions`
+  - `npm run verify:workspace-density`
+  - `npm run verify:functionality-language`
+  - `npm run verify:functionality-ux-automation`
+  - `npm run check:production-surfaces`
+  - `npm run typecheck`
+  - `npm run test`
+  - `npm run check`
+  - `node -e "JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-02-1331-dashboard-summary-clarity.json','utf8')); console.log('json ok')"`
+  - `git diff --check`
+- Validation result: passed. Workspace syntax checks, focused workspace render coverage, dashboard-action and workspace-density verification, functionality-language and automation verification, production-surface checks, typecheck, full test and check runs, JSON parsing, and `git diff --check` all passed after docs/state closeout; `git diff --check` reported CRLF normalization warnings only.
+- Commit: pending closeout commit
+- Push status: baseline sync pushed before editing; this slice itself has not been pushed
+- Deferred items: Program Teacher mentor-meeting follow-up destination, student-detail note visibility labels, hosted section-level permission proof, Review Queue missing-submission semantics, and the broader Global Admin role refresh remain open.
+- New backlog items: none
+- Next recommended work order: inspect student-detail note visibility labels only if the current detail route already distinguishes staff-only versus student-visible notes; otherwise keep Program Teacher mentor-meeting follow-up summary-only until a precise scoped destination exists.
+- Do-not-repeat notes: do not add fake evidence or approved-work drill-downs when the current summary counts do not map to an exact backed destination, and do not expose the Audit shortcut to site-scoped or read-only roles that still lack the Audit section.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_1_NAVIGABLE_DASHBOARDS`
+  - Advanced: yes
+  - Evidence: `workspace.js` now renders explicit summary-only treatment in `renderSummaryStrip()` and gives Site Dashboard `Recent Activity` a real `data-section="audit"` button only when the existing Audit section is available; focused workspace and dashboard-action coverage prove both branches.
+  - Unlocks: future dashboard work can keep adding honest actions or summary-only states without re-solving the secondary-metric affordance problem.
+  - Next: inspect `workspace.js` around student-detail note rendering if the next run stays on privacy/trust depth, or return to Program Teacher mentor-meeting follow-up only when an exact route-backed destination exists.
+  - Blockers: no exact evidence-record or approved-summary drill-down is proven for the current summary counts; Program Teacher mentor-meeting follow-up still lacks a precise current destination; hosted permission proof still needs allowed runtime.
+  - Do not repeat: do not re-introduce passive dashboard counts that imply a click-through without either an explicit `Summary only` badge or a real backed action.
+  - First file to inspect next run: `workspace.js` around `renderSummaryStrip()` and the student-detail note rendering helpers

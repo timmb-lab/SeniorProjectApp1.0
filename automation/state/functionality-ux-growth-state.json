@@ -1,10 +1,18 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-06-02T13:09:19-07:00",
-  "lastStartingSha": "fcbfb38811f6e5d01ed60e897537397ff455e917",
+  "lastRunAt": "2026-06-02T13:31:53-07:00",
+  "lastStartingSha": "8ea696081a4578853a006edc02f2c1c08721fc77",
   "lastEndingSha": null,
-  "currentLadderFocus": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+  "currentLadderFocus": "LEVEL_1_NAVIGABLE_DASHBOARDS",
   "completedWorkOrders": [
+    {
+      "id": "dashboard-summary-clarity",
+      "completedAt": "2026-06-02T13:31:53-07:00",
+      "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS",
+      "type": "TYPE_B_DASHBOARD_CLICKTHROUGH",
+      "summary": "Secondary Site/Admin dashboard summary-strip counts now show explicit summary-only treatment, and Global Admin users can open the existing Audit section directly from Site Dashboard Recent Activity.",
+      "commit": "pending-closeout-commit"
+    },
     {
       "id": "workspace-student-search-landing",
       "completedAt": "2026-06-02T13:09:19-07:00",
@@ -1142,13 +1150,16 @@
       "summary": "Clarify missing-submission behavior in the Review Queue only after backend rows or exact scoped empty-state evidence are proven."
     },
     {
-      "id": "site-dashboard-summary-only-affordance-styling",
-      "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS",
-      "type": "TYPE_D_ROLE_WORKSPACE",
-      "summary": "Clarify non-clickable dashboard metrics only where summary-only cards still look actionable beside real drill-downs."
+      "id": "student-detail-note-visibility-labels",
+      "ladderLevel": "LEVEL_7_AUDITABILITY_AND_TRUST",
+      "type": "TYPE_G_VERIFICATION_REGRESSION_PROTECTION",
+      "summary": "Label staff-only versus student-visible detail notes only if the current detail route already distinguishes those visibility boundaries."
     }
   ],
   "doNotRepeat": [
+    "Do not add fake dashboard drill-downs for Evidence or Approved summary counts when the current denominators do not map to an exact backed destination.",
+    "Do not expose the Site Dashboard Recent Activity Audit shortcut to site-scoped, read-only, or other roles that still lack the Audit section.",
+    "Do not drop explicit Summary only treatment from passive dashboard summary-strip counts while those metrics remain non-clickable.",
     "Do not replace the topbar Find a student search with a new route or unscoped all-students fetch while the existing Student Directory search already backs the workflow.",
     "Do not expose the topbar student search to mentor, student, or other roles that still lack Student Directory access.",
     "Do not keep stale Student Directory filters when the topbar student search is intentionally cleared back to the current view.",
@@ -1288,17 +1299,18 @@
     "commands": [
       "node --check workspace.js",
       "node --test tests/workspace-app.test.mjs",
-      "npm run verify:workspace-navigation",
+      "npm run verify:dashboard-actions",
+      "npm run verify:workspace-density",
       "npm run verify:functionality-language",
       "npm run verify:functionality-ux-automation",
       "npm run check:production-surfaces",
       "npm run typecheck",
       "npm run test",
       "npm run check",
-      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-02-1309-workspace-student-search-landing.json','utf8')); console.log('json ok')\"",
+      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-02-1331-dashboard-summary-clarity.json','utf8')); console.log('json ok')\"",
       "git diff --check"
     ],
-    "notes": "The workspace student-search landing slice passed workspace syntax checks, focused workspace app coverage, workspace-navigation verification, functionality-language and automation verification, production-surface checks, typecheck, full test and check runs, JSON parsing, and git diff --check with CRLF normalization warnings only."
+    "notes": "The dashboard summary-clarity slice passed workspace syntax checks, focused workspace app coverage, dashboard-action and workspace-density verification, functionality-language and automation verification, production-surface checks, typecheck, full test and check runs, JSON parsing, and git diff --check with CRLF normalization warnings only."
   },
   "lastProductReadinessScorecardSummary": {
     "homepageClarity": "4 to 4",

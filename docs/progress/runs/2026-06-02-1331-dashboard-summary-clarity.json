@@ -1,0 +1,148 @@
+{
+  "summary": "Clarify secondary dashboard summary metrics with explicit summary-only treatment and a real Global Admin audit shortcut on Site Dashboard Recent Activity.",
+  "selectedReason": "Current repo evidence showed that primary dashboard metrics already used real drill-downs or visible summary-only treatment, but the Site/Admin summary strips still relied on prose alone for passive counts. Site Dashboard Recent Activity also told Global Admin users that Audit was available without exposing a direct action, so the safest high-value slice was to reuse the existing Audit section and tighten the summary-strip fallback without inventing routes or broadening access.",
+  "candidates": [
+    {
+      "candidate": "Dashboard summary-strip clarity and Global Admin audit shortcut",
+      "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS",
+      "roles": ["global_admin", "site staff"],
+      "impact": 5,
+      "safety": 5,
+      "testability": 5,
+      "size": "S",
+      "score": 56,
+      "decision": "selected"
+    },
+    {
+      "candidate": "Site Dashboard evidence drill-down",
+      "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS",
+      "roles": ["site staff"],
+      "impact": 3,
+      "safety": 2,
+      "testability": 3,
+      "size": "S",
+      "score": 29,
+      "decision": "rejected: current count tracks evidence artifacts and no exact site-scoped evidence-record surface exists"
+    },
+    {
+      "candidate": "Admin Approved summary drill-down",
+      "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS",
+      "roles": ["global_admin"],
+      "impact": 3,
+      "safety": 3,
+      "testability": 3,
+      "size": "S",
+      "score": 31,
+      "decision": "rejected: current admin count tracks approved submissions, not a proven one-click student list denominator"
+    },
+    {
+      "candidate": "Program Teacher mentor-meeting follow-up destination",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "roles": ["program_teacher"],
+      "impact": 4,
+      "safety": 3,
+      "testability": 3,
+      "size": "M",
+      "score": 40,
+      "decision": "deferred: no exact current destination is proven for that follow-up row"
+    },
+    {
+      "candidate": "Student-detail note visibility labels",
+      "ladderLevel": "LEVEL_7_AUDITABILITY_AND_TRUST",
+      "roles": ["staff", "student"],
+      "impact": 4,
+      "safety": 3,
+      "testability": 3,
+      "size": "M",
+      "score": 38,
+      "decision": "deferred: note visibility semantics still need route/data confirmation"
+    },
+    {
+      "candidate": "Viewer read-only language hardening",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "roles": ["viewer", "administration"],
+      "impact": 3,
+      "safety": 5,
+      "testability": 4,
+      "size": "S",
+      "score": 41,
+      "decision": "not selected: lower value than fixing active summary-strip ambiguity with a real action"
+    },
+    {
+      "candidate": "Hosted section-level permission proof",
+      "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
+      "roles": ["all protected roles"],
+      "impact": 4,
+      "safety": 3,
+      "testability": 2,
+      "size": "M",
+      "score": 35,
+      "decision": "deferred: hosted runtime is outside this local batch"
+    },
+    {
+      "candidate": "Review Queue missing-submission semantics",
+      "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
+      "roles": ["program_teacher", "site_admin"],
+      "impact": 5,
+      "safety": 2,
+      "testability": 3,
+      "size": "M",
+      "score": 34,
+      "decision": "deferred: backend queue rows are still absent"
+    },
+    {
+      "candidate": "Global Admin role refresh",
+      "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
+      "roles": ["global_admin"],
+      "impact": 3,
+      "safety": 3,
+      "testability": 3,
+      "size": "M",
+      "score": 34,
+      "decision": "deferred: broader multi-surface verification batch than this local slice"
+    },
+    {
+      "candidate": "Credential delivery policy copy shortener",
+      "ladderLevel": "LEVEL_0_PROTOTYPE_CLEANUP",
+      "roles": ["global_admin"],
+      "impact": 2,
+      "safety": 5,
+      "testability": 5,
+      "size": "XS",
+      "score": 37,
+      "decision": "not selected: copy cleanup is lower product value than a route-backed dashboard clarification"
+    }
+  ],
+  "filesChanged": [
+    "workspace.js",
+    "workspace.css",
+    "tests/workspace-app.test.mjs",
+    "scripts/verify-dashboard-actions.mjs",
+    "docs/functionality-language-audit.md",
+    "docs/product/demo-role-readiness.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-06-02-1331-dashboard-summary-clarity.json",
+    "docs/functionality-ux-growth-ledger.md",
+    "automation/state/functionality-ux-growth-state.json"
+  ],
+  "validation": [
+    "node --check workspace.js",
+    "node --test tests/workspace-app.test.mjs",
+    "npm run verify:dashboard-actions",
+    "npm run verify:workspace-density",
+    "npm run verify:functionality-language",
+    "npm run verify:functionality-ux-automation",
+    "npm run check:production-surfaces",
+    "npm run typecheck",
+    "npm run test",
+    "npm run check",
+    "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-02-1331-dashboard-summary-clarity.json','utf8')); console.log('json ok')\"",
+    "git diff --check"
+  ],
+  "nextRecommended": "Inspect student-detail note visibility labels only if the current detail route already distinguishes staff-only versus student-visible notes; otherwise keep Program Teacher mentor-meeting follow-up summary-only until a precise scoped destination exists.",
+  "doNotRepeat": [
+    "Do not add fake dashboard drill-downs for Evidence or Approved summary counts when the current denominators do not map to an exact backed destination.",
+    "Do not expose the Site Dashboard Recent Activity Audit shortcut to site-scoped, read-only, or other roles that still lack the Audit section.",
+    "Do not drop explicit Summary only treatment from passive dashboard summary-strip counts while those metrics remain non-clickable."
+  ]
+}

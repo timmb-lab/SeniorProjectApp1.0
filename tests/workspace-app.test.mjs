@@ -484,6 +484,8 @@ test("workspace renders route-connected site dashboard with Figma product-system
   assert.match(siteDashboard, /Submitted/);
   assert.match(siteDashboard, /Needs Revision/);
   assert.match(siteDashboard, /Evidence/);
+  assert.match(siteDashboard, /Evidence[\s\S]*Summary only/);
+  assert.match(siteDashboard, /Recent Activity[\s\S]*Summary only/);
   assert.match(siteDashboard, /Presentations/);
   assert.match(siteDashboard, /Archive \/ Exports/);
   assert.match(siteDashboard, /Students without active mentors/);
@@ -587,6 +589,108 @@ test("workspace renders route-connected site dashboard with Figma product-system
   assert.match(selectionRequired, /Reason/);
   assert.match(selectionRequired, /Owner/);
   assert.match(selectionRequired, /Next action/);
+});
+
+test("global admin site dashboard recent activity opens the existing audit section", async () => {
+  const body = siteDashboardFixture({ readOnly: false });
+  const { context, workspaceRoot } = await createWorkspaceContextWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "global-admin-site-dashboard",
+          email: "global.audit@example.edu",
+          displayName: "Global Admin",
+          roles: [{ role_id: "platform_admin", scope_type: "global", scope_id: "*" }],
+        },
+      },
+    },
+    "/api/site/dashboard": {
+      status: 200,
+      body: {
+        ...body,
+        scope: {
+          ...body.scope,
+          role: "platform_admin",
+        },
+      },
+    },
+    "/api/site/students": {
+      status: 200,
+      body: siteStudentsFixture(),
+    },
+    "/api/site/review-queue": {
+      status: 200,
+      body: siteReviewQueueFixture(),
+    },
+    "/api/site/mentor-assignments": {
+      status: 200,
+      body: siteMentorAssignmentsFixture(),
+    },
+    "/api/site/access-assignments": {
+      status: 200,
+      body: siteAccessAssignmentsFixture(),
+    },
+    "/api/site/operations-readiness": {
+      status: 200,
+      body: siteOperationsReadinessFixture(),
+    },
+    "/api/admin/dashboard": {
+      status: 200,
+      body: {
+        ok: true,
+        summary: {
+          recentAuditEvents: 3,
+        },
+        recentAudit: [
+          {
+            id: "audit-1",
+            label: "Review updated",
+            detail: "Teacher follow-up was saved without private notes.",
+            at: "2026-05-24T16:00:00.000Z",
+          },
+        ],
+      },
+    },
+    "/api/mentor/dashboard": {
+      status: 200,
+      body: {
+        ok: true,
+        summary: {},
+        assignedStudents: [],
+      },
+    },
+    "/api/presentation-slots": {
+      status: 200,
+      body: {
+        ok: true,
+        slots: [],
+        summary: {},
+      },
+    },
+    "/api/reports/readiness": {
+      status: 200,
+      body: {
+        ok: true,
+        scope: "all-programs",
+        metrics: {},
+      },
+    },
+    "/api/site/programs": {
+      status: 200,
+      body: siteProgramsFixture(),
+    },
+  });
+
+  vm.runInContext('activeSection = "siteDashboard"; renderAppShell();', context);
+  assert.match(workspaceRoot.innerHTML, /Recent Activity[\s\S]*data-section="audit">Open audit/);
+
+  await vm.runInContext('openWorkspaceSection({ dataset: { section: "audit" } })', context);
+
+  assert.equal(vm.runInContext("activeSection", context), "audit");
+  assert.match(workspaceRoot.innerHTML, /Recent Protected Activity/);
+  assert.match(workspaceRoot.innerHTML, /Redacted activity list/);
 });
 
 test("site dashboard top-risk detail stays in dashboard context", async () => {
@@ -4031,8 +4135,10 @@ test("workspace keeps audit and archive export sections global-admin only", () =
   assert.doesNotMatch(availableSectionsBlock, /roles\.has\("site_admin"\)\) sections\.push\(\{ id: "audit"/);
   assert.doesNotMatch(availableSectionsBlock, /roles\.has\("site_admin"\)\) sections\.push\(\{ id: "archiveExports"/);
   assert.match(siteDashboardBlock, /const canOpenAudit = availableSectionIds\(\)\.has\("audit"\);/);
-  assert.match(siteDashboardBlock, /label: "Recent Activity", value: safeNumber\(summary\.recentActivityCount\), detail: canOpenAudit \? "Latest updates are listed below\. Audit destination available\." : "Latest updates are listed below\."/);
+  assert.match(siteDashboardBlock, /label: "Recent Activity"[\s\S]*value: safeNumber\(summary\.recentActivityCount\)[\s\S]*detail: canOpenAudit \? "Latest updates are listed below\. Audit destination available\." : "Latest updates are listed below\."/);
+  assert.match(siteDashboardBlock, /actionHtml: canOpenAudit[\s\S]*data-section="audit">Open audit<\/button>/);
   assert.match(siteDashboardBlock, /renderDashboardCard\("Recent Activity", "Latest student updates", renderSiteRecentActivity\(dashboard\.recentActivity\)\)/);
+  assert.match(workspaceJs, /function renderSummaryStrip\([\s\S]*item\.actionHtml \|\| `<span class="workspace-summary-badge">Summary only<\/span>`/);
 });
 
 test("workspace exposes a real admin site switcher and collapsible navigation", () => {
