@@ -591,6 +591,87 @@ test("workspace renders route-connected site dashboard with Figma product-system
   assert.match(selectionRequired, /Next action/);
 });
 
+test("global admin programs section asks for site selection before managing school programs", async () => {
+  const selectionRequiredBody = {
+    ok: false,
+    error: "site_selection_required",
+    selectionRequired: true,
+    accessibleSites: [
+      { siteId: "site-desert-valley-high", siteName: "Desert Valley High School" },
+      { siteId: "site-canyon-ridge-career", siteName: "Canyon Ridge Career Academy" },
+    ],
+  };
+  const programs = await renderWorkspaceWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "global-program-selection",
+          email: "global.program.selection@example.edu",
+          displayName: "Global Program Selection Admin",
+          roles: [{ role_id: "admin", scope_type: "global", scope_id: "" }],
+        },
+      },
+    },
+    "/api/site/dashboard": { status: 409, body: selectionRequiredBody },
+    "/api/site/programs": { status: 409, body: selectionRequiredBody },
+    "/api/site/students": { status: 409, body: selectionRequiredBody },
+    "/api/site/review-queue": { status: 409, body: selectionRequiredBody },
+    "/api/site/mentor-assignments": { status: 409, body: selectionRequiredBody },
+    "/api/site/access-assignments": { status: 409, body: selectionRequiredBody },
+    "/api/site/operations-readiness": { status: 409, body: selectionRequiredBody },
+    "/api/admin/role-assignments": { status: 200, body: { ok: true, assignments: [] } },
+    "/api/admin/dashboard": {
+      status: 200,
+      body: {
+        ok: true,
+        summary: {},
+        needsAttention: [],
+        programBreakdown: [],
+        reviewQueue: [],
+        mentorCoverage: [],
+        presentationSnapshot: [],
+        archiveSnapshot: [],
+        recentAudit: [],
+      },
+    },
+    "/api/mentor/dashboard": {
+      status: 200,
+      body: {
+        ok: true,
+        summary: {},
+        assignedStudents: [],
+      },
+    },
+    "/api/presentation-slots": {
+      status: 200,
+      body: {
+        ok: true,
+        slots: [],
+        summary: {},
+      },
+    },
+    "/api/reports/readiness": {
+      status: 200,
+      body: {
+        ok: true,
+        scope: "all-programs",
+        metrics: {},
+      },
+    },
+  }, "programs");
+
+  assert.match(programs, /data-workspace-state="site-programs-selection-required"/);
+  assert.match(programs, /Select a site before managing school programs/);
+  assert.match(programs, /reviewing active program mappings or saving program changes/);
+  assert.match(programs, /data-site-switch-id="site-desert-valley-high"/);
+  assert.match(programs, /data-site-switch-id="site-canyon-ridge-career"/);
+  assert.match(programs, /Choose a site from the Current site menu/);
+  assert.match(programs, /workspace-problem-state/);
+  assert.doesNotMatch(programs, /Active site programs|Add program|Remove program/);
+});
+
 test("global admin site dashboard recent activity opens the existing audit section", async () => {
   const body = siteDashboardFixture({ readOnly: false });
   const { context, workspaceRoot } = await createWorkspaceContextWithFetch({
@@ -691,6 +772,120 @@ test("global admin site dashboard recent activity opens the existing audit secti
   assert.equal(vm.runInContext("activeSection", context), "audit");
   assert.match(workspaceRoot.innerHTML, /Recent Protected Activity/);
   assert.match(workspaceRoot.innerHTML, /Redacted activity list/);
+});
+
+test("global admin command center quick actions include programs and open the existing programs section", async () => {
+  const { context, workspaceRoot } = await createWorkspaceContextWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "global-admin-command-center",
+          email: "global.command.center@example.edu",
+          displayName: "Global Command Center Admin",
+          roles: [{ role_id: "admin", scope_type: "global", scope_id: "" }],
+        },
+      },
+    },
+    "/api/site/dashboard": {
+      status: 200,
+      body: siteDashboardFixture({ readOnly: false }),
+    },
+    "/api/site/students": {
+      status: 200,
+      body: siteStudentsFixture({ readOnly: false }),
+    },
+    "/api/site/review-queue": {
+      status: 200,
+      body: siteReviewQueueFixture({ role: "site_admin", readOnly: true }),
+    },
+    "/api/site/mentor-assignments": {
+      status: 200,
+      body: siteMentorAssignmentsFixture({ role: "site_admin", canManage: true }),
+    },
+    "/api/site/access-assignments": {
+      status: 200,
+      body: siteAccessAssignmentsFixture(),
+    },
+    "/api/site/operations-readiness": {
+      status: 200,
+      body: siteOperationsReadinessFixture({ role: "site_admin" }),
+    },
+    "/api/site/programs": {
+      status: 200,
+      body: siteProgramsFixture(),
+    },
+    "/api/admin/role-assignments": {
+      status: 200,
+      body: {
+        ok: true,
+        assignments: [],
+      },
+    },
+    "/api/admin/dashboard": {
+      status: 200,
+      body: {
+        ok: true,
+        summary: {
+          studentsActive: 250,
+          studentsNoMentor: 18,
+          submissionsSubmitted: 22,
+          revisionRequested: 10,
+          presentationScheduled: 14,
+          exportsQueued: 6,
+          exportsFailed: 2,
+          exportsComplete: 4,
+          recentAuditEvents: 3,
+          approved: 88,
+          evidenceArtifacts: 690,
+        },
+        needsAttention: [],
+        programBreakdown: siteDashboardFixture({ readOnly: false }).programBreakdown,
+        reviewQueue: [],
+        mentorCoverage: [],
+        presentationSnapshot: [],
+        archiveSnapshot: [],
+        recentAudit: [],
+      },
+    },
+    "/api/mentor/dashboard": {
+      status: 200,
+      body: {
+        ok: true,
+        summary: {},
+        assignedStudents: [],
+      },
+    },
+    "/api/presentation-slots": {
+      status: 200,
+      body: {
+        ok: true,
+        slots: [],
+        summary: {},
+      },
+    },
+    "/api/reports/readiness": {
+      status: 200,
+      body: {
+        ok: true,
+        scope: "all-programs",
+        metrics: {},
+      },
+    },
+  });
+
+  vm.runInContext('activeSection = "adminDashboard"; renderAppShell();', context);
+  assert.match(workspaceRoot.innerHTML, /data-workspace-disclosure-panel="dashboard:adminDashboard"/);
+  assert.doesNotMatch(workspaceRoot.innerHTML, /Quick Actions[\s\S]*Programs[\s\S]*Update school programs/);
+  openWorkspaceDisclosure(context, "dashboard", "adminDashboard");
+  assert.match(workspaceRoot.innerHTML, /Quick Actions[\s\S]*Programs[\s\S]*Update school programs/);
+
+  await vm.runInContext('openWorkspaceSection({ dataset: { section: "programs" } })', context);
+
+  assert.equal(vm.runInContext("activeSection", context), "programs");
+  assert.match(workspaceRoot.innerHTML, /data-site-programs-section="true"/);
+  assert.match(workspaceRoot.innerHTML, /Programs at Desert Valley High School/);
 });
 
 test("site dashboard top-risk detail stays in dashboard context", async () => {

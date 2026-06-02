@@ -6202,4 +6202,45 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Next: inspect `workspace.js` across `renderAdminUsersSection()`, `renderAdminAccessAssignmentPanel()`, and the current Global Admin Audit/Programs/Students/Presentation paths if the next run stays on admin workflow depth.
   - Blockers: hosted permission proof still needs allowed runtime; Program Teacher mentor-meeting follow-up still lacks an exact current destination; Review Queue missing-submission semantics still need backend evidence.
   - Do not repeat: do not remove the new `Users & Access` site-selection guidance while `/api/site/access-assignments` continues returning accessible site choices for multi-site access-management flows.
-  - First file to inspect next run: `workspace.js` around `renderAdminAccessAssignmentPanel()` and `renderAccessAssignmentSelectionRequired()`
+- First file to inspect next run: `workspace.js` around `renderAdminAccessAssignmentPanel()` and `renderAccessAssignmentSelectionRequired()`
+
+## Run 2026-06-02 16:08 PT
+
+- Starting SHA: `e0257a3f50297c60c783675b177fe74b1fcadd3e`
+- Ending SHA: pending closeout commit
+- Branch: `main`
+- Ladder level targeted: `LEVEL_4_ROLE_SPECIFIC_WORKSPACES`
+- Backlog item: `docs/functionality-language-audit.md` item `38a` and the current Global Admin route-refresh handoff
+- Work order selected: Add a Programs-specific multi-site handoff and a direct Admin Command Center shortcut into the existing Programs section.
+- Selection reason: The repo already had a real `/api/site/programs` route and a real `Programs` workspace section, but the current multi-site state still used generic site-selection copy and the Admin Command Center had no direct path into school program setup. This was the highest-value safe Global Admin slice that improved a real protected workflow without expanding scope into a broader multi-surface refresh.
+- User-facing improvement: Global Admins can now move from the Admin Command Center into school program setup through a direct `Programs` quick action, and the Programs section now shows explicit school-pick guidance when a multi-site account must choose a school before managing program mappings.
+- Roles affected: `global_admin`, `admin`, `platform_admin`
+- Files changed: `workspace.js`, `tests/workspace-app.test.mjs`, `docs/functionality-language-audit.md`, `docs/product/demo-role-readiness.md`, `docs/progress/run-log.md`, `docs/progress/runs/2026-06-02-1608-global-admin-programs-handoff.json`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`
+- Tests/verifiers added or updated: `tests/workspace-app.test.mjs` now proves the Programs-specific `selectionRequired` state and the Admin Command Center `Programs` quick action handoff into the existing Programs section.
+- Validation commands:
+  - `node --check workspace.js`
+  - `node --test tests/workspace-app.test.mjs`
+  - `npm run verify:functionality-language`
+  - `npm run verify:functionality-ux-automation`
+  - `npm run check:production-surfaces`
+  - `npm run typecheck`
+  - `npm run test`
+  - `npm run check`
+  - `node -e "JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-02-1608-global-admin-programs-handoff.json','utf8')); console.log('json ok')"`
+  - `git diff --check`
+- Validation result: passed. `node --check workspace.js`, focused workspace coverage, functionality-language and automation verification, production-surface checks, typecheck, full test and check runs, JSON parsing, and `git diff --check` all passed; `git diff --check` reported CRLF normalization warnings only.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: full Global Admin route refresh, Program Teacher mentor-meeting follow-up destination, hosted section-level permission proof, Review Queue missing-submission semantics, viewer email visibility policy, and mentor reassignment/remove workflow remain open.
+- New backlog items: none
+- Next recommended work order: Inspect the remaining Global Admin route refresh across Audit, Student Directory, Presentation, recent role assignments, the new Programs quick action, and the existing site-selection handoffs; if that remains too broad for one run, keep Program Teacher mentor-meeting follow-up summary-only until a precise scoped destination exists.
+- Do-not-repeat notes: do not fall back to generic site-health copy when `/api/site/programs` returns `site_selection_required`, and do not remove the Admin Command Center `Programs` shortcut while the existing Programs section remains the backed school-program setup path.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_4_ROLE_SPECIFIC_WORKSPACES`
+  - Advanced: yes
+  - Evidence: `workspace.js` now renders `data-workspace-state="site-programs-selection-required"` with school buttons, and focused workspace coverage proves the Admin Command Center `Programs` quick action opens the existing Programs section.
+  - Unlocks: the next Global Admin pass can focus on current cross-section proof and remaining route handoffs instead of re-fixing Programs entry friction.
+  - Next: inspect `workspace.js` across `renderAdminOverviewSection()`, `renderSiteProgramsSection()`, and the current Global Admin Audit/Students/Presentation paths if the next run stays on admin workflow depth.
+  - Blockers: hosted permission proof still needs allowed runtime; Program Teacher mentor-meeting follow-up still lacks an exact current destination; Review Queue missing-submission semantics still need backend evidence.
+  - Do not repeat: do not regress Programs back to the generic site-selection prompt or a nav-only admin handoff while the direct quick action and section-specific guidance are now proven.
+  - First file to inspect next run: `workspace.js` around `renderAdminOverviewSection()` and `renderSiteProgramsSection()`

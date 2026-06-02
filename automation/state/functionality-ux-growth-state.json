@@ -1,10 +1,18 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-06-02T15:32:29-07:00",
-  "lastStartingSha": "a00a20b79da766fdef2b1c1f89c0f3aff6fdc16c",
+  "lastRunAt": "2026-06-02T16:08:41-07:00",
+  "lastStartingSha": "e0257a3f50297c60c783675b177fe74b1fcadd3e",
   "lastEndingSha": null,
   "currentLadderFocus": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
   "completedWorkOrders": [
+    {
+      "id": "global-admin-programs-handoff",
+      "completedAt": "2026-06-02T16:08:41-07:00",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "type": "TYPE_D_ROLE_WORKSPACE",
+      "summary": "Global Admins can now move from the Admin Command Center into the existing Programs section through a direct quick action, and multi-site program setup now shows explicit school-pick guidance instead of generic site-selection copy.",
+      "commit": "pending-closeout-commit"
+    },
     {
       "id": "users-access-site-selection-guidance",
       "completedAt": "2026-06-02T15:32:29-07:00",
@@ -1167,7 +1175,7 @@
       "id": "global-admin-route-refresh",
       "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
       "type": "TYPE_G_VERIFICATION_REGRESSION_PROTECTION",
-      "summary": "Refresh the current Global Admin click-through and boundary proof across already backed Programs, Audit, Student Directory, Presentation, the recent role-assignment panel, and the new access-management site-selection handoff."
+      "summary": "Refresh the current Global Admin click-through and boundary proof across the new Programs quick action, Audit, Student Directory, Presentation, the recent role-assignment panel, and the existing site-selection handoffs."
     },
     {
       "id": "program-teacher-mentor-meeting-follow-up-destination",
@@ -1189,6 +1197,8 @@
     }
   ],
   "doNotRepeat": [
+    "Do not fall back to the generic site-selection-required copy when /api/site/programs returns site_selection_required; keep the Programs-specific school-pick guidance visible.",
+    "Do not remove the Admin Command Center Programs quick action while the existing Programs section remains the backed school-program setup path.",
     "Do not fall back to a generic API notice for Users & Access when /api/site/access-assignments returns site_selection_required; keep explicit school-pick guidance visible.",
     "Do not silently auto-pick a school for multi-site access-management flows without an explicit site-selection contract and proof.",
     "Do not remove the recent Global Admin role-assignment panel while /api/admin/role-assignments remains the protected source of truth for recent grants.",

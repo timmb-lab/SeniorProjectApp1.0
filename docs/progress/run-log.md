@@ -21,6 +21,17 @@ This is the compact run log for the current Functionality UX Upgrade automation 
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-06-02 16:08 PT - Functionality UX Upgrade Global Admin Programs Handoff
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 4 role-specific workspace clarity / Global Admin school-program setup handoff.
+- `starting HEAD`: `e0257a3f50297c60c783675b177fe74b1fcadd3e`.
+- `selected slice`: Tighten the existing Global Admin path into Programs by adding a direct Admin Command Center quick action and a Programs-specific site-selection-required state.
+- `repo-grounded findings`: the repo already had a real `/api/site/programs` route, a real `Programs` workspace section, and recent Global Admin improvements across Audit, Student Directory, Presentation, and `Users & Access`. The remaining friction was handoff quality: multi-site Global Admins who opened `Programs` still saw the generic `school-wide health` site-selection prompt, and the Admin Command Center had no direct path into school program setup even though the backed section already existed. This made the safest bounded slice a route-backed admin handoff upgrade instead of another broad Global Admin pass.
+- `changes`: `workspace.js` now renders a Programs-specific `site-programs-selection-required` state with school-pick buttons and next-step copy when `/api/site/programs` returns `selectionRequired`, and the Admin Command Center detail panels now include a `Programs` quick action that opens the existing Programs section. `tests/workspace-app.test.mjs` now proves both the Programs-specific multi-site guidance and the Global Admin quick-action handoff into the existing Programs section.
+- `validation`: `node --check workspace.js` and `node --test tests/workspace-app.test.mjs` passed before docs/state closeout. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.
+
 ## 2026-06-02 15:07 PT - Functionality UX Upgrade Global Admin Role Assignments
 
 - `automation ID`: functionality-ux-upgrade-hourly.

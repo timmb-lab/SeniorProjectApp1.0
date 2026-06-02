@@ -1,0 +1,76 @@
+{
+  "automationId": "functionality-ux-upgrade-hourly",
+  "runStartedAt": "2026-06-02T16:08:41-07:00",
+  "branch": "main",
+  "startingSha": "e0257a3f50297c60c783675b177fe74b1fcadd3e",
+  "endingSha": null,
+  "workOrderId": "global-admin-programs-handoff",
+  "ladderLevels": [
+    "LEVEL_4_ROLE_SPECIFIC_WORKSPACES"
+  ],
+  "selectedSlice": "Add a Programs-specific multi-site handoff and a direct Admin Command Center shortcut into the existing Programs section.",
+  "selectionReason": "The repo already had a real /api/site/programs route and a real Programs workspace section, but the multi-site selection-required state still used generic site-health copy and the Admin Command Center had no direct path into school program setup. Tightening that existing handoff was the safest bounded Global Admin improvement because it reused current routes, site switching, and section actions without widening permissions or adding a new workflow surface.",
+  "candidateCount": 10,
+  "candidateShortlist": [
+    "Programs multi-site handoff",
+    "Admin Command Center Programs shortcut",
+    "Broader Global Admin route refresh across Audit, Students, Presentation, and Users & Access",
+    "Program Teacher mentor-meeting follow-up destination",
+    "Hosted section-level permission proof",
+    "Review Queue missing-submission semantics",
+    "Site program change history panel",
+    "Viewer email visibility policy",
+    "Admin import approved-path explanation",
+    "Mentor reassignment or removal workflow"
+  ],
+  "userFacingImprovement": "Global Admins can now move from the Admin Command Center into school program setup through a direct Programs quick action, and multi-site program setup now shows explicit school-pick guidance instead of generic site-selection copy.",
+  "privacyAndPermissionNotes": [
+    "The slice reuses the existing /api/site/programs route, the current site switcher, and existing section navigation; it does not add a new data path.",
+    "No new mutation control, write path, role, tenant scope, site scope, program scope, or student visibility path was added.",
+    "Programs remains visible only to Global Admin and Site Admin roles already allowed to use the backed route."
+  ],
+  "filesChanged": [
+    "workspace.js",
+    "tests/workspace-app.test.mjs",
+    "docs/functionality-language-audit.md",
+    "docs/product/demo-role-readiness.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-06-02-1608-global-admin-programs-handoff.json",
+    "docs/functionality-ux-growth-ledger.md",
+    "automation/state/functionality-ux-growth-state.json"
+  ],
+  "validation": {
+    "focusedPassedBeforeCloseout": [
+      "node --check workspace.js",
+      "node --test tests/workspace-app.test.mjs"
+    ],
+    "final": [
+      "node --check workspace.js",
+      "node --test tests/workspace-app.test.mjs",
+      "npm run verify:functionality-language",
+      "npm run verify:functionality-ux-automation",
+      "npm run check:production-surfaces",
+      "npm run typecheck",
+      "npm run test",
+      "npm run check",
+      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-02-1608-global-admin-programs-handoff.json','utf8')); console.log('json ok')\"",
+      "git diff --check"
+    ],
+    "result": "passed",
+    "notes": "Focused workspace syntax and route-backed UI coverage passed before docs/state closeout, and the full validation ladder passed afterward. git diff --check reported only CRLF normalization warnings."
+  },
+  "deferred": [
+    "Full Global Admin route refresh remains broader than this bounded Programs/admin-workspace slice.",
+    "Program Teacher mentor-meeting follow-up still lacks a precise current destination.",
+    "Hosted section-level permission proof still needs allowed hosted runtime and audit-event writes.",
+    "Review Queue missing-submission semantics remain deferred until backend rows or exact scoped empty-state evidence exist.",
+    "Viewer email visibility policy still needs a product decision before any UI change.",
+    "Mentor reassignment and removal workflow still needs mutation and audit design."
+  ],
+  "nextRecommended": "Inspect the remaining Global Admin route refresh across Audit, Student Directory, Presentation, recent role assignments, the new Programs quick action, and the existing site-selection handoffs; if that remains too broad for one run, keep Program Teacher mentor-meeting follow-up summary-only until a precise scoped destination exists.",
+  "doNotRepeat": [
+    "Do not fall back to the generic site-selection-required copy when /api/site/programs returns site_selection_required.",
+    "Do not remove the Admin Command Center Programs quick action while the existing Programs section remains the backed school-program setup path.",
+    "Do not broaden Programs visibility beyond Global Admin and Site Admin roles already allowed to use /api/site/programs."
+  ]
+}

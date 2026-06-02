@@ -1925,7 +1925,7 @@ function renderSiteProgramsSection() {
     return renderPermissionDeniedSection("Programs", "records for this assigned school");
   }
   if (result?.status === 409 && result.body?.selectionRequired) {
-    return renderSiteSelectionRequired(result.body);
+    return renderSiteProgramsSelectionRequired(result.body);
   }
   const body = unwrap(result);
   if (!body) {
@@ -2021,6 +2021,29 @@ function renderSiteProgramsSection() {
           submitLabel: "Remove program",
         })}
       </div>
+    </section>
+  `;
+}
+
+function renderSiteProgramsSelectionRequired(body = {}) {
+  const sites = body.accessibleSites || [];
+  return `
+    <section class="workspace-card workspace-error-card" data-workspace-state="site-programs-selection-required">
+      <p class="workspace-kicker">Programs</p>
+      <h2>Select a site before managing school programs</h2>
+      <p>This account can manage more than one school. Choose the school workspace before reviewing active program mappings or saving program changes.</p>
+      <div class="workspace-chip-row">
+        ${sites.map((site) => `
+          <button class="workspace-link-button workspace-link-button-small" type="button" data-site-switch-id="${escapeHtml(site.siteId || "")}">
+            ${escapeHtml(site.siteName || site.siteId)}
+          </button>
+        `).join("")}
+      </div>
+      ${renderProblemState({
+        reason: "Multiple assigned schools are available.",
+        owner: "School administration.",
+        nextAction: "Choose a site from the Current site menu or one of the buttons above.",
+      })}
     </section>
   `;
 }
@@ -3396,6 +3419,7 @@ function renderAdminOverviewSection() {
             ${renderDashboardCard("Archive / Export Snapshot", "Closeout package status", renderSnapshotRows(dashboard.archiveSnapshot))}
             ${renderDashboardCard("Recent Audit", "Protected activity", renderAuditSummary(dashboard.recentAudit))}
             ${renderDashboardCard("Quick Actions", "Admin tools", renderQuickActions([
+              { label: "Programs", detail: "Update school programs", section: "programs" },
               { label: "Teacher Review", detail: "Open submitted work", section: "teacher" },
               { label: "Presentation", detail: "Review schedule", section: "presentation" },
               { label: "Reports", detail: "Open readiness", section: "readiness" },
