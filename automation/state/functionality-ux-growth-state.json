@@ -1,10 +1,18 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-06-02T11:42:05-07:00",
-  "lastStartingSha": "541199d0bcb2136b51f0f15913ac1521081d8ab1",
+  "lastRunAt": "2026-06-02T12:06:55-07:00",
+  "lastStartingSha": "3e614bcecea684081c42f7aa8323471b05344d18",
   "lastEndingSha": null,
-  "currentLadderFocus": "LEVEL_2_STUDENT_DETAIL_DEPTH",
+  "currentLadderFocus": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
   "completedWorkOrders": [
+    {
+      "id": "program-teacher-needs-attention-drilldowns",
+      "completedAt": "2026-06-02T12:06:55-07:00",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "type": "TYPE_D_ROLE_WORKSPACE",
+      "summary": "Program Teacher dashboard Needs Attention rows now open the existing Students, Review Queue, and Operations presets for exact scoped follow-up while mentor-meeting follow-up stays summary-only until a precise destination exists.",
+      "commit": "pending-closeout-commit"
+    },
     {
       "id": "student-detail-shareable-url-state",
       "completedAt": "2026-06-02T11:42:05-07:00",
@@ -1090,10 +1098,32 @@
       "id": "admin-recent-audit-deep-link",
       "ladderLevel": "LEVEL_7_AUDITABILITY_AND_TRUST",
       "reason": "Restore any site-admin audit navigation only after a site-scoped audit destination and visibility rules are explicitly reviewed."
+    },
+    {
+      "id": "program-teacher-mentor-meeting-follow-up-destination",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "reason": "Keep mentor-meeting follow-up summary-only until a precise scoped destination is proven for Program Teachers."
+    },
+    {
+      "id": "global-search-landing",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "reason": "A shared search landing should reuse the current Student Directory filters instead of introducing a broader navigation batch without proof."
     }
   ],
   "blockedWorkOrders": [],
   "nextRecommendedWorkOrders": [
+    {
+      "id": "global-search-landing",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "type": "TYPE_D_ROLE_WORKSPACE",
+      "summary": "Inspect a role-safe global search landing that reuses the current Student Directory search filters for site staff and Program Teachers."
+    },
+    {
+      "id": "program-teacher-mentor-meeting-follow-up-destination",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "type": "TYPE_D_ROLE_WORKSPACE",
+      "summary": "Only add a Program Teacher mentor-meeting drill-down when a precise scoped destination is proven."
+    },
     {
       "id": "hosted-section-permission-proof",
       "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
@@ -1101,25 +1131,16 @@
       "summary": "Run only when hosted fake-account proof and audit-event writes are allowed."
     },
     {
-      "id": "site-dashboard-recent-activity-hosted-proof",
-      "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
-      "type": "TYPE_G_VERIFICATION_REGRESSION_PROTECTION",
-      "summary": "Run hosted click-through on the new Site Dashboard Recent Activity list before treating the role readiness path as fully demo-ready."
-    },
-    {
       "id": "review-queue-missing-submission-semantics",
       "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
       "type": "TYPE_F_REVIEW_INTERVENTION_QUEUE",
       "summary": "Clarify missing-submission behavior in the Review Queue only after backend rows or exact scoped empty-state evidence are proven."
-    },
-    {
-      "id": "presentation-schedule-url-state",
-      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
-      "type": "TYPE_D_ROLE_WORKSPACE",
-      "summary": "Add shareable presentation-day filters only if staff still need reloadable Presentation focus links after the current in-page filters."
     }
   ],
   "doNotRepeat": [
+    "Do not remove the Program Teacher Needs Attention drill-downs while the existing Students, Review Queue, and Operations presets still back them.",
+    "Do not add a Program Teacher mentor-meeting drill-down until a precise scoped destination exists.",
+    "Do not broaden Program Teacher visibility beyond the current scoped Students, Review Queue, and Operations routes while deepening dashboard follow-up.",
     "Do not remove student-detail URL restore for detailStudentId/detailTab/detailTimelineType, and do not switch it to raw studentId query params that collide with existing worklist filters.",
     "Do not replace named student-detail return buttons with a generic Close control while sourceSection continues to preserve the originating worklist.",
     "Do not remove the in-dashboard Site Dashboard Recent Activity list unless a clearer site-safe destination replaces it.",
@@ -1247,21 +1268,22 @@
   ],
   "lastValidationStatus": {
     "status": "passed",
-    "completedAt": "2026-06-02T11:48:19.8662580-07:00",
+    "completedAt": "2026-06-02T12:06:55.3951646-07:00",
     "commands": [
       "node --check workspace.js",
+      "node --test tests/program-teacher-dashboard.integration.test.mjs",
       "node --test tests/workspace-app.test.mjs",
-      "npm run verify:workspace-navigation",
+      "npm run verify:dashboard-actions",
       "npm run verify:functionality-language",
       "npm run verify:functionality-ux-automation",
       "npm run check:production-surfaces",
       "npm run typecheck",
       "npm run test",
       "npm run check",
-      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-02-1142-student-detail-url-state.json','utf8')); console.log('json ok')\"",
+      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-02-1206-program-teacher-needs-attention-actions.json','utf8')); console.log('json ok')\"",
       "git diff --check"
     ],
-    "notes": "The student-detail URL-state slice passed workspace syntax checks, focused workspace render coverage, functionality-language, automation, and workspace-navigation verification, production-surface checks, typecheck, full test and check runs, JSON parsing, and git diff --check with CRLF normalization warnings only."
+    "notes": "The Program Teacher Needs Attention drill-down slice passed workspace syntax checks, focused Program Teacher route and workspace coverage, dashboard-action verification, functionality-language and automation verification, production-surface checks, typecheck, full test and check runs, JSON parsing, and git diff --check with CRLF normalization warnings only."
   },
   "lastProductReadinessScorecardSummary": {
     "homepageClarity": "4 to 4",

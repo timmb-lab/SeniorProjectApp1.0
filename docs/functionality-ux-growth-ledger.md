@@ -5625,6 +5625,65 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Do not repeat: do not re-open this exact recent-activity depth slice unless the render or route coverage regresses.
   - First file to inspect next run: `workspace.js` around `renderSiteRecentActivity()`
 
+## Run 2026-06-02 12:06 PT
+
+- Starting SHA: `3e614bcecea684081c42f7aa8323471b05344d18`
+- Ending SHA: pending closeout commit; final hash is reported after commit and push
+- Branch: `main`
+- Branch policy: started from clean local `main`; local `main` matched `origin/main`, so no baseline sync or push was needed before editing
+- Ladder level targeted: `LEVEL_4_ROLE_SPECIFIC_WORKSPACES`
+- Backlog item: `program-dashboard-needs-attention-drilldowns`
+- Work order selected: Add role-safe Program Teacher dashboard `Needs Attention` drill-downs only for rows that already have exact Students, Review Queue, or Operations destinations.
+- Selection reason: Current repo evidence showed a real product gap, not a speculative backlog idea. `functions/api/program-teacher/dashboard.ts` already emitted Program Teacher `Needs Attention` rows, `workspace.js` already rendered those rows through the shared action-capable `renderNeedsAttention()` helper, and the current Students, Review Queue, and Operations presets already supported missing mentor, submitted, missing evidence, behind-support, revision, and presentation follow-up. The smallest safe batch was to wire those exact rows into the existing presets and explicitly keep mentor-meeting follow-up summary-only because no precise current destination is proven for it.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Program Teacher `Needs Attention` drill-downs | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | `program_teacher` | 5 | 5 | 5 | S | 55 | selected |
+| Program Teacher mentor-meeting follow-up destination | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | `program_teacher` | 4 | 3 | 3 | M | 40 | deferred: no exact current destination is proven |
+| Global search landing | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | site staff, `program_teacher` | 4 | 3 | 3 | M | 37 | deferred: broader navigation batch than this dashboard slice |
+| Presentation schedule URL state | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | site staff, `program_teacher`, `mentor`, `student` | 3 | 4 | 4 | S | 42 | not selected: lower current pain than unresolved Program Dashboard dead ends |
+| Hosted section-level permission proof | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all protected roles | 4 | 3 | 2 | M | 35 | deferred: hosted runtime is outside this local batch |
+| Review Queue missing-submission semantics | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | `program_teacher`, `site_admin` | 5 | 2 | 3 | M | 34 | deferred: backend queue rows are still absent |
+| Mentor reassignment or removal workflow | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | `site_admin` | 4 | 2 | 3 | M | 33 | deferred: mutation and audit design still needed |
+| Viewer student email redaction policy | `LEVEL_7_AUDITABILITY_AND_TRUST` | `viewer` | 3 | 2 | 3 | S | 30 | deferred: policy decision first |
+| Mobile dashboard smoke proof | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all protected roles | 3 | 4 | 2 | M | 33 | deferred: browser runtime proof is outside this local batch |
+| `Site Context` -> `School workspace` copy cleanup | `LEVEL_0_PROTOTYPE_CLEANUP` | staff | 2 | 5 | 5 | XS | 41 | not selected: lower user value than a real drill-down batch |
+
+- User-facing improvement: Program Teachers can now move from the dashboard’s `Needs Attention` rows into the existing missing-mentor student list, submitted and revision Review Queue filters, missing-evidence and behind-support student lists, and presentation-readiness Operations worklist instead of stopping at summary-only warnings. Mentor-meeting follow-up stays visibly summary-only until a precise scoped destination exists.
+- Roles affected: `program_teacher`
+- Files changed: `functions/api/program-teacher/dashboard.ts`, `scripts/verify-dashboard-actions.mjs`, `tests/program-teacher-dashboard.integration.test.mjs`, `tests/workspace-app.test.mjs`, `docs/functionality-language-audit.md`, `docs/product/demo-role-readiness.md`, `docs/progress/run-log.md`, `docs/progress/runs/2026-06-02-1206-program-teacher-needs-attention-actions.json`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`
+- Tests/verifiers added or updated: `tests/program-teacher-dashboard.integration.test.mjs` now proves the Program Teacher route emits the exact drill-down mappings and preserves the mentor-meeting summary-only row; `tests/workspace-app.test.mjs` now proves the rendered dashboard actions and summary-only mentor-meeting fallback; `scripts/verify-dashboard-actions.mjs` now guards the new Program Teacher route mappings directly.
+- Validation commands:
+  - `node --check workspace.js`
+  - `node --test tests/program-teacher-dashboard.integration.test.mjs`
+  - `node --test tests/workspace-app.test.mjs`
+  - `npm run verify:dashboard-actions`
+  - `npm run verify:functionality-language`
+  - `npm run verify:functionality-ux-automation`
+  - `npm run check:production-surfaces`
+  - `npm run typecheck`
+  - `npm run test`
+  - `npm run check`
+  - `node -e "JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-02-1206-program-teacher-needs-attention-actions.json','utf8')); console.log('json ok')"`
+  - `git diff --check`
+- Validation result: passed. Workspace syntax checks, focused Program Teacher route/workspace coverage, dashboard-action verification, functionality-language and automation verification, production-surface checks, typecheck, full test and check runs, JSON parsing, and `git diff --check` all passed after docs/state closeout; `git diff --check` reported CRLF normalization warnings only.
+- Commit: pending closeout commit
+- Push status: pending closeout push
+- Deferred items: Program Teacher mentor-meeting follow-up destination, global search landing, hosted section-level permission proof, Review Queue missing-submission semantics, mentor reassignment/remove workflow, viewer email redaction policy, and mobile dashboard smoke proof remain open.
+- New backlog items: none
+- Next recommended work order: Keep Program Teacher mentor-meeting follow-up summary-only until a precise scoped destination exists; if that remains blocked, inspect a role-safe global search landing that reuses current Student Directory search filters.
+- Do-not-repeat notes: do not remove these Program Teacher dashboard drill-downs while the existing Students, Review Queue, and Operations presets still back them; do not add a mentor-meeting drill-down until an exact current destination is proven; do not broaden Program Teacher visibility beyond the current scoped Students, Review Queue, and Operations routes.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_4_ROLE_SPECIFIC_WORKSPACES`
+  - Advanced: yes
+  - Evidence: `functions/api/program-teacher/dashboard.ts` now emits `actionSection` and `actionPreset` for exact Program Teacher attention rows, while the mentor-meeting row remains summary-only; focused route, workspace, and verifier coverage all prove those boundaries.
+  - Unlocks: the next Program Teacher dashboard pass can evaluate the remaining mentor-meeting gap or broader search/navigation work without re-solving already backed attention rows.
+  - Next: inspect `functions/api/program-teacher/dashboard.ts` around `buildNeedsAttention()` and `workspace.js` around `renderProgramTeacherDashboardSection()` if the next run stays on Program Teacher workflow depth.
+  - Blockers: mentor-meeting follow-up still lacks a precise route-backed destination; hosted proof remains out of scope for this local run; missing-submission semantics still need backend queue rows.
+  - Do not repeat: do not regress these attention rows back to summary-only when a precise preset already exists.
+  - First file to inspect next run: `functions/api/program-teacher/dashboard.ts`
+
 ## Run 2026-06-02 11:06 PT
 
 - Starting SHA: `2166ab90b7f412296d51c90f080f96945bc805f2`

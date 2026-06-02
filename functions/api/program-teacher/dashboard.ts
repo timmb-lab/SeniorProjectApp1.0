@@ -535,7 +535,7 @@ function buildNeedsAttention(summary: ReturnType<typeof emptySummary>) {
       severity: "warning",
       actionSection: "teacher",
       actionPreset: "revision-requested",
-      actionLabel: "Review revisions",
+      actionLabel: "Open review queue",
     });
   }
   if (summary.meetingsMakeupRequired > 0) {
@@ -552,6 +552,9 @@ function buildNeedsAttention(summary: ReturnType<typeof emptySummary>) {
       label: "Presentation readiness pending",
       detail: `${summary.presentationsPending} scoped presentation slot(s) need outline readiness.`,
       severity: "info",
+      actionSection: "operations",
+      actionPreset: "presentation-pending",
+      actionLabel: "Open operations",
     });
   }
   return items;

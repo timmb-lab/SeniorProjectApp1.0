@@ -4,6 +4,7 @@ const files = {
   workspaceHtml: "workspace.html",
   workspaceJs: "workspace.js",
   siteDashboardApi: "functions/api/site/dashboard.ts",
+  programTeacherApi: "functions/api/program-teacher/dashboard.ts",
 };
 
 const source = Object.fromEntries(
@@ -306,6 +307,41 @@ assertMatches(
   "workspaceJs",
   /function renderProgramTeacherDashboardSection\([\s\S]*renderMetricTile\("Needs Review"[\s\S]*"teacher", \{ label: "Review", preset: "submitted" \}\)/,
   "Program Teacher Needs Review metric must open the existing submitted Review Queue filter",
+);
+assertMatches(
+  "programTeacherApi",
+  /type: "mentor_coverage"[\s\S]*actionSection: "students"[\s\S]*actionPreset: "missing-mentors"[\s\S]*actionLabel: "View students"/,
+  "Program Teacher missing-mentor attention rows must link to the existing Student Directory missing-mentor filter",
+);
+assertMatches(
+  "programTeacherApi",
+  /type: "teacher_review"[\s\S]*actionSection: "teacher"[\s\S]*actionPreset: "submitted"[\s\S]*actionLabel: "Open review queue"/,
+  "Program Teacher submitted attention rows must link to the existing submitted Review Queue filter",
+);
+assertMatches(
+  "programTeacherApi",
+  /type: "missing_evidence"[\s\S]*actionSection: "students"[\s\S]*actionPreset: "missing-evidence-students"[\s\S]*actionLabel: "View students"/,
+  "Program Teacher missing-evidence attention rows must link to the existing Student Directory missing-evidence filter",
+);
+assertMatches(
+  "programTeacherApi",
+  /type: "behind_support"[\s\S]*actionSection: "students"[\s\S]*actionPreset: "behind-students"[\s\S]*actionLabel: "View students"/,
+  "Program Teacher support attention rows must link to the existing Student Directory behind-support filter",
+);
+assertMatches(
+  "programTeacherApi",
+  /type: "revision_loop"[\s\S]*actionSection: "teacher"[\s\S]*actionPreset: "revision-requested"[\s\S]*actionLabel: "Open review queue"/,
+  "Program Teacher revision attention rows must link to the existing revision Review Queue filter",
+);
+assertMatches(
+  "programTeacherApi",
+  /type: "presentation"[\s\S]*actionSection: "operations"[\s\S]*actionPreset: "presentation-pending"[\s\S]*actionLabel: "Open operations"/,
+  "Program Teacher presentation attention rows must link to the existing Operations presentation filter",
+);
+assertMatches(
+  "programTeacherApi",
+  /type: "mentor_meeting"[\s\S]*label: "Mentor meeting follow-up"[\s\S]*detail: `\$\{summary\.meetingsMakeupRequired\} scoped meeting record\(s\) need follow-up\.`[\s\S]*severity: "warning",\s*\n\s*}\);/,
+  "Program Teacher mentor-meeting attention rows must stay summary-only until an exact destination is proven",
 );
 assertMatches(
   "workspaceJs",

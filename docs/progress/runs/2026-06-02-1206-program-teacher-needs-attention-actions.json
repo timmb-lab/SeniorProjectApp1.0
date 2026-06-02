@@ -1,0 +1,148 @@
+{
+  "summary": "Add role-safe Program Teacher dashboard Needs Attention drill-downs so rows with exact existing destinations open the current Students, Review Queue, or Operations presets while mentor-meeting follow-up stays summary-only.",
+  "selectedReason": "Current repo evidence showed that functions/api/program-teacher/dashboard.ts already emitted Needs Attention rows, workspace.js already rendered those rows through the shared action-capable attention component, and the existing Students, Review Queue, and Operations presets already supported missing mentor, submitted, missing evidence, behind-support, revision, and presentation follow-up. The safest slice was to wire only those exact rows into the backed presets and keep mentor-meeting follow-up summary-only because no precise current destination is proven for it.",
+  "candidates": [
+    {
+      "candidate": "Program Teacher Needs Attention drill-downs",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "roles": ["program_teacher"],
+      "impact": 5,
+      "safety": 5,
+      "testability": 5,
+      "size": "S",
+      "score": 55,
+      "decision": "selected"
+    },
+    {
+      "candidate": "Program Teacher mentor-meeting follow-up destination",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "roles": ["program_teacher"],
+      "impact": 4,
+      "safety": 3,
+      "testability": 3,
+      "size": "M",
+      "score": 40,
+      "decision": "deferred: no exact current destination is proven"
+    },
+    {
+      "candidate": "Global search landing",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "roles": ["site staff", "program_teacher"],
+      "impact": 4,
+      "safety": 3,
+      "testability": 3,
+      "size": "M",
+      "score": 37,
+      "decision": "deferred: broader navigation batch than this dashboard slice"
+    },
+    {
+      "candidate": "Presentation schedule URL state",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "roles": ["site staff", "program_teacher", "mentor", "student"],
+      "impact": 3,
+      "safety": 4,
+      "testability": 4,
+      "size": "S",
+      "score": 42,
+      "decision": "not selected: lower current pain than unresolved Program Dashboard dead ends"
+    },
+    {
+      "candidate": "Hosted section-level permission proof",
+      "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
+      "roles": ["all protected roles"],
+      "impact": 4,
+      "safety": 3,
+      "testability": 2,
+      "size": "M",
+      "score": 35,
+      "decision": "deferred: hosted runtime is outside this local batch"
+    },
+    {
+      "candidate": "Review Queue missing-submission semantics",
+      "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
+      "roles": ["program_teacher", "site_admin"],
+      "impact": 5,
+      "safety": 2,
+      "testability": 3,
+      "size": "M",
+      "score": 34,
+      "decision": "deferred: backend queue rows are still absent"
+    },
+    {
+      "candidate": "Mentor reassignment or removal workflow",
+      "ladderLevel": "LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW",
+      "roles": ["site_admin"],
+      "impact": 4,
+      "safety": 2,
+      "testability": 3,
+      "size": "M",
+      "score": 33,
+      "decision": "deferred: mutation and audit design still needed"
+    },
+    {
+      "candidate": "Viewer student email redaction policy",
+      "ladderLevel": "LEVEL_7_AUDITABILITY_AND_TRUST",
+      "roles": ["viewer"],
+      "impact": 3,
+      "safety": 2,
+      "testability": 3,
+      "size": "S",
+      "score": 30,
+      "decision": "deferred: policy decision first"
+    },
+    {
+      "candidate": "Mobile dashboard smoke proof",
+      "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
+      "roles": ["all protected roles"],
+      "impact": 3,
+      "safety": 4,
+      "testability": 2,
+      "size": "M",
+      "score": 33,
+      "decision": "deferred: browser runtime proof is outside this local batch"
+    },
+    {
+      "candidate": "Site Context to School workspace copy cleanup",
+      "ladderLevel": "LEVEL_0_PROTOTYPE_CLEANUP",
+      "roles": ["staff"],
+      "impact": 2,
+      "safety": 5,
+      "testability": 5,
+      "size": "XS",
+      "score": 41,
+      "decision": "not selected: lower user value than a real drill-down batch"
+    }
+  ],
+  "filesChanged": [
+    "functions/api/program-teacher/dashboard.ts",
+    "scripts/verify-dashboard-actions.mjs",
+    "tests/program-teacher-dashboard.integration.test.mjs",
+    "tests/workspace-app.test.mjs",
+    "docs/functionality-language-audit.md",
+    "docs/product/demo-role-readiness.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-06-02-1206-program-teacher-needs-attention-actions.json",
+    "docs/functionality-ux-growth-ledger.md",
+    "automation/state/functionality-ux-growth-state.json"
+  ],
+  "validation": [
+    "node --check workspace.js",
+    "node --test tests/program-teacher-dashboard.integration.test.mjs",
+    "node --test tests/workspace-app.test.mjs",
+    "npm run verify:dashboard-actions",
+    "npm run verify:functionality-language",
+    "npm run verify:functionality-ux-automation",
+    "npm run check:production-surfaces",
+    "npm run typecheck",
+    "npm run test",
+    "npm run check",
+    "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-02-1206-program-teacher-needs-attention-actions.json','utf8')); console.log('json ok')\"",
+    "git diff --check"
+  ],
+  "nextRecommended": "Keep Program Teacher mentor-meeting follow-up summary-only until a precise scoped destination exists; if that remains blocked, inspect a role-safe global search landing that reuses current Student Directory search filters.",
+  "doNotRepeat": [
+    "Do not remove the Program Teacher Needs Attention drill-downs while the existing Students, Review Queue, and Operations presets still back them.",
+    "Do not add a Program Teacher mentor-meeting drill-down until a precise scoped destination exists.",
+    "Do not broaden Program Teacher visibility beyond the current scoped Students, Review Queue, and Operations routes while deepening dashboard follow-up."
+  ]
+}

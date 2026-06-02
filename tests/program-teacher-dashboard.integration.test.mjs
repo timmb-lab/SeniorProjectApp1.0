@@ -57,6 +57,21 @@ test("program teacher dashboard scopes records by valid program/cohort role", as
     assert.equal(JSON.stringify(body).includes("Student C"), false);
     assert.equal(body.needsReview.length, 2);
     assert.ok(body.programBreakdown.every((row) => row.programId === "it"));
+    assert.deepEqual(
+      body.needsAttention.map((row) => ({
+        type: row.type,
+        actionSection: row.actionSection || "",
+        actionPreset: row.actionPreset || "",
+      })),
+      [
+        { type: "mentor_coverage", actionSection: "students", actionPreset: "missing-mentors" },
+        { type: "teacher_review", actionSection: "teacher", actionPreset: "submitted" },
+        { type: "behind_support", actionSection: "students", actionPreset: "behind-students" },
+        { type: "revision_loop", actionSection: "teacher", actionPreset: "revision-requested" },
+        { type: "mentor_meeting", actionSection: "", actionPreset: "" },
+        { type: "presentation", actionSection: "operations", actionPreset: "presentation-pending" },
+      ],
+    );
     assert.doesNotMatch(JSON.stringify(body), /drive_file_id|drive_parent_folder_id|storage_key|password|token|secret/i);
   }
 

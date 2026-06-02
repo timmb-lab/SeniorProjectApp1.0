@@ -636,14 +636,75 @@ test("program teacher dashboard rows open existing student detail", async () => 
         summary: {
           scopedStudents: 1,
           submitted: 1,
-          revisionRequested: 0,
+          revisionRequested: 1,
           approved: 0,
           evidenceArtifacts: 2,
-          noMentor: 0,
-          meetingsMakeupRequired: 0,
-          presentationsPending: 0,
+          noMentor: 1,
+          meetingsMakeupRequired: 1,
+          presentationsPending: 1,
         },
-        needsAttention: [],
+        needsAttention: [
+          {
+            type: "mentor_coverage",
+            label: "Students without active mentors",
+            detail: "1 student record needs mentor assignment review.",
+            severity: "urgent",
+            actionSection: "students",
+            actionPreset: "missing-mentors",
+            actionLabel: "View students",
+          },
+          {
+            type: "teacher_review",
+            label: "Submitted work needs review",
+            detail: "1 student has submitted work waiting for teacher review.",
+            severity: "urgent",
+            actionSection: "teacher",
+            actionPreset: "submitted",
+            actionLabel: "Open review queue",
+          },
+          {
+            type: "missing_evidence",
+            label: "Evidence is missing",
+            detail: "1 student does not have evidence attached yet.",
+            severity: "warning",
+            actionSection: "students",
+            actionPreset: "missing-evidence-students",
+            actionLabel: "View students",
+          },
+          {
+            type: "behind_support",
+            label: "Students need support",
+            detail: "1 student has risk or stale-activity signals.",
+            severity: "warning",
+            actionSection: "students",
+            actionPreset: "behind-students",
+            actionLabel: "View students",
+          },
+          {
+            type: "revision_loop",
+            label: "Revision loop active",
+            detail: "1 student is waiting on revisions.",
+            severity: "warning",
+            actionSection: "teacher",
+            actionPreset: "revision-requested",
+            actionLabel: "Open review queue",
+          },
+          {
+            type: "mentor_meeting",
+            label: "Mentor meeting follow-up",
+            detail: "1 scoped meeting record needs follow-up.",
+            severity: "warning",
+          },
+          {
+            type: "presentation",
+            label: "Presentation readiness pending",
+            detail: "1 scoped presentation slot needs outline readiness.",
+            severity: "info",
+            actionSection: "operations",
+            actionPreset: "presentation-pending",
+            actionLabel: "Open operations",
+          },
+        ],
         needsReview: [
           {
             submissionId: "submission-program-student-001",
@@ -684,6 +745,13 @@ test("program teacher dashboard rows open existing student detail", async () => 
   assert.match(programTeacher, /data-section="students" data-section-preset="on-track-students"/);
   assert.match(programTeacher, /data-section="students" data-section-preset="behind-students"/);
   assert.match(programTeacher, /data-section="students" data-section-preset="missing-evidence-students"/);
+  assert.match(programTeacher, /Students without active mentors[\s\S]*data-section="students" data-section-preset="missing-mentors"/);
+  assert.match(programTeacher, /Submitted work needs review[\s\S]*data-section="teacher" data-section-preset="submitted"/);
+  assert.match(programTeacher, /Evidence is missing[\s\S]*data-section="students" data-section-preset="missing-evidence-students"/);
+  assert.match(programTeacher, /Students need support[\s\S]*data-section="students" data-section-preset="behind-students"/);
+  assert.match(programTeacher, /Revision loop active[\s\S]*data-section="teacher" data-section-preset="revision-requested"/);
+  assert.match(programTeacher, /Presentation readiness pending[\s\S]*data-section="operations" data-section-preset="presentation-pending"/);
+  assert.match(programTeacher, /Mentor meeting follow-up[\s\S]*Summary only/);
   assert.match(programTeacher, /Program Teacher \/ Assigned program: IT/);
   assert.match(programTeacher, /data-workspace-disclosure-panel="dashboard:programDashboard"/);
   assert.match(programTeacher, /aria-expanded="false"/);
