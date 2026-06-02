@@ -2744,3 +2744,14 @@ Future productive runs should append compact entries that name the master-plan s
 - `changes`: `functions/api/site/dashboard.ts` now returns a site-scoped `recentActivity` list built from existing submissions, evidence, and review records, with evidence rows intentionally reduced to `Evidence added` instead of private artifact titles. `workspace.js` now tells site roles that the latest updates are listed below and renders a disclosed `Recent Activity` card that reuses the existing student-detail action path without exposing Global Admin-only Audit navigation. `tests/site-dashboard.integration.test.mjs` and `tests/workspace-app.test.mjs` now prove the route shape, the in-dashboard activity list, and the preserved no-Audit boundary for site roles. `docs/functionality-language-audit.md` and `docs/product/demo-role-readiness.md` record the new dashboard depth.
 - `validation`: focused site-dashboard and workspace tests plus language/automation/production-surface verification passed before docs/state closeout. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
 - `commit/push status`: pending closeout commit; not pushed by this automation run.
+
+## 2026-06-02 PT - Functionality UX Upgrade Student Detail Return Context
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 2 student detail depth / navigation clarity.
+- `starting HEAD`: `2166ab90b7f412296d51c90f080f96945bc805f2`.
+- `selected slice`: Replace the generic student-detail `Close` button with named back-to-source actions and return hints.
+- `repo-grounded findings`: `siteStudentDetailState.sourceSection` already preserved the opening section and `handleSiteStudentDetailAction("close")` already returned there, but `renderSiteStudentDetailSurface()` still rendered only `Close`. That left Site Dashboard, Students, Review Queue, Mentor Assignments, Mentor Dashboard, Program Dashboard, and Operations detail drawers without an explicit return path even though the real context already existed.
+- `changes`: `workspace.js` now derives return labels from the existing `sourceSection` and renders buttons such as `Back to Site Dashboard` or `Back to Students`, plus a short return hint inside loading, error, and ready student-detail states. `tests/workspace-app.test.mjs` now proves both the Site Dashboard and Student Directory detail drawers show the named return path while keeping the existing source-preservation behavior.
+- `validation`: focused workspace syntax and render coverage passed before docs/state closeout. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.

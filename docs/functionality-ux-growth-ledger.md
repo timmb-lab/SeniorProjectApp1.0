@@ -5624,3 +5624,61 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: site-scoped Audit navigation still has no approved route; student-detail URL state still needs privacy review; hosted click-through proof remains out of scope for this local run.
   - Do not repeat: do not re-open this exact recent-activity depth slice unless the render or route coverage regresses.
   - First file to inspect next run: `workspace.js` around `renderSiteRecentActivity()`
+
+## Run 2026-06-02 11:06 PT
+
+- Starting SHA: `2166ab90b7f412296d51c90f080f96945bc805f2`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Branch policy: work stayed on clean local `main`; local `main` remained ahead of `origin/main`, `origin/main` was not ahead, and no sync or push was run
+- Ladder level targeted: `LEVEL_2_STUDENT_DETAIL_DEPTH`
+- Backlog item: `student-detail-back-link-context`
+- Work order selected: Replace the generic student-detail `Close` button with named back-to-source actions and return hints.
+- Selection reason: Current repo evidence showed a real navigation gap, not a theoretical cleanup item. `siteStudentDetailState.sourceSection` already preserved whether detail opened from Site Dashboard, Students, Review Queue, Mentor Assignments, Mentor Dashboard, Program Dashboard, or Operations, and `handleSiteStudentDetailAction("close")` already returned there, but `renderSiteStudentDetailSurface()` still exposed only `Close`. This was the smallest safe product-readiness batch because it reused the existing authorized detail drawer, added no routes or permissions, and improved role-based usability across multiple staff workflows.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Student detail back-to-source navigation | `LEVEL_2_STUDENT_DETAIL_DEPTH` | `site_admin`, `administration`, `viewer`, `program_teacher`, `mentor` | 4 | 5 | 5 | XS | 54 | selected |
+| Student detail URL state | `LEVEL_2_STUDENT_DETAIL_DEPTH` | site staff | 4 | 3 | 3 | M | 39 | deferred: privacy review still needed |
+| Review Queue missing-submission semantics | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | `program_teacher`, `site_admin` | 5 | 2 | 3 | M | 34 | deferred: backend queue rows are still absent |
+| Program Teacher mentor-meeting follow-up destination | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | `program_teacher` | 4 | 3 | 3 | M | 40 | deferred: no exact current destination is proven for that follow-up row |
+| Mentor reassignment or removal workflow | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | `site_admin` | 4 | 2 | 3 | M | 33 | deferred: mutation and audit design still needed |
+| Global search landing | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | site staff, `program_teacher` | 4 | 3 | 3 | M | 37 | deferred: larger navigation batch than this detail-header slice |
+| Viewer student email redaction decision | `LEVEL_7_AUDITABILITY_AND_TRUST` | `viewer` | 3 | 2 | 3 | S | 30 | deferred: policy decision first |
+| Mobile dashboard smoke proof | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all protected roles | 3 | 4 | 2 | M | 33 | deferred: browser runtime proof is outside this local batch |
+| Site selector follow-up for multi-site staff | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | `site_admin`, `administration` | 4 | 3 | 3 | M | 37 | deferred: broader workflow than this navigation micro-slice |
+| Platform role-management quick action | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | `platform_admin`, `global_admin` | 3 | 4 | 4 | S | 39 | not selected: lower user pain than the cross-worklist detail dead end |
+
+- User-facing improvement: Staff-facing student detail drawers now name the exact return path with buttons such as `Back to Site Dashboard` or `Back to Students`, and they explain where detail will return before the user leaves the drawer.
+- Roles affected: `site_admin`, `administration`, `viewer`, `program_teacher`, `mentor`, and other authorized staff opening student detail from supported worklists
+- Files changed: `workspace.js`, `tests/workspace-app.test.mjs`, `docs/functionality-language-audit.md`, `docs/progress/run-log.md`, `docs/progress/runs/2026-06-02-1106-student-detail-return-context.json`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`
+- Tests/verifiers added or updated: `tests/workspace-app.test.mjs` now proves the student-detail drawer renders `Back to Site Dashboard` and `Back to Students` labels plus the new return-context hint text while preserving the existing source-section behavior.
+- Validation commands:
+  - `node --check workspace.js`
+  - `node --test tests/workspace-app.test.mjs`
+  - `npm run verify:functionality-language`
+  - `npm run verify:functionality-ux-automation`
+  - `npm run verify:workspace-navigation`
+  - `npm run check:production-surfaces`
+  - `npm run typecheck`
+  - `npm run test`
+  - `npm run check`
+  - `node -e "JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-02-1106-student-detail-return-context.json','utf8')); console.log('json ok')"`
+  - `git diff --check`
+- Validation result: passed. Workspace syntax checks, focused workspace render coverage, the functionality-language, automation, and workspace-navigation verifiers, production-surface checks, typecheck, full test and check runs, JSON parsing, and `git diff --check` all passed after docs/state closeout; `git diff --check` reported CRLF normalization warnings only.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: student-detail URL state, Review Queue missing-submission semantics, mentor reassignment/remove workflow, viewer email redaction policy, global search landing, mobile dashboard smoke proof, and hosted section-level permission proof remain open.
+- New backlog items: none
+- Next recommended work order: Revisit privacy-safe student-detail URL state, or clarify Review Queue missing-submission semantics only when scoped backend evidence exists.
+- Do-not-repeat notes: do not replace named student-detail return buttons with a generic `Close` control while `sourceSection` still preserves the originating worklist.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_2_STUDENT_DETAIL_DEPTH`
+  - Advanced: yes
+  - Evidence: `workspace.js` now derives student-detail return labels from the existing `sourceSection`, and focused workspace coverage proves Site Dashboard and Student Directory detail drawers render the named return path without breaking current context restore.
+  - Unlocks: the next detail-navigation slice can move to privacy-safe URL state instead of re-explaining how to leave the drawer.
+  - Next: inspect `workspace.js` around `openSiteStudentDetail()`, `handleSiteStudentDetailAction()`, and the existing URL-state helpers if the next run pursues detail URL state.
+  - Blockers: detail URL state still needs privacy review; Review Queue missing-submission semantics still need exact backend evidence; hosted click-through proof remains out of scope for this local run.
+  - Do not repeat: do not regress this navigation slice back to an unlabeled `Close` button.
+  - First file to inspect next run: `workspace.js` around `renderSiteStudentDetailSurface()`

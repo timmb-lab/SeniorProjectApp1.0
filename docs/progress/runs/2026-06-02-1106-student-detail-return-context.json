@@ -1,0 +1,144 @@
+{
+  "summary": "Replace the generic student-detail close button with a named back-to-source action so staff can tell which real worklist or dashboard will reopen before leaving detail.",
+  "selectedReason": "Current repo evidence showed that `siteStudentDetailState.sourceSection` already preserved the originating section and close already returned there, but `renderSiteStudentDetailSurface()` still exposed only a generic `Close` button. This was the smallest safe navigation upgrade because it reused the existing authorized detail drawer, required no new routes or data, and improved role-based usability across Students, Site Dashboard, Review Queue, Mentor Assignments, Mentor Dashboard, Program Dashboard, and Operations.",
+  "candidates": [
+    {
+      "candidate": "Student detail back-to-source navigation",
+      "ladderLevel": "LEVEL_2_STUDENT_DETAIL_DEPTH",
+      "roles": ["site_admin", "administration", "viewer", "program_teacher", "mentor"],
+      "impact": 4,
+      "safety": 5,
+      "testability": 5,
+      "size": "XS",
+      "score": 54,
+      "decision": "selected"
+    },
+    {
+      "candidate": "Student detail URL state",
+      "ladderLevel": "LEVEL_2_STUDENT_DETAIL_DEPTH",
+      "roles": ["site staff"],
+      "impact": 4,
+      "safety": 3,
+      "testability": 3,
+      "size": "M",
+      "score": 39,
+      "decision": "deferred: privacy review still needed"
+    },
+    {
+      "candidate": "Review Queue missing-submission semantics",
+      "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
+      "roles": ["program_teacher", "site_admin"],
+      "impact": 5,
+      "safety": 2,
+      "testability": 3,
+      "size": "M",
+      "score": 34,
+      "decision": "deferred: backend queue rows are still absent"
+    },
+    {
+      "candidate": "Program Teacher mentor-meeting follow-up destination",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "roles": ["program_teacher"],
+      "impact": 4,
+      "safety": 3,
+      "testability": 3,
+      "size": "M",
+      "score": 40,
+      "decision": "deferred: no exact current destination is proven for that follow-up row"
+    },
+    {
+      "candidate": "Mentor reassignment or removal workflow",
+      "ladderLevel": "LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW",
+      "roles": ["site_admin"],
+      "impact": 4,
+      "safety": 2,
+      "testability": 3,
+      "size": "M",
+      "score": 33,
+      "decision": "deferred: mutation and audit design still needed"
+    },
+    {
+      "candidate": "Global search landing",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "roles": ["site staff", "program_teacher"],
+      "impact": 4,
+      "safety": 3,
+      "testability": 3,
+      "size": "M",
+      "score": 37,
+      "decision": "deferred: larger navigation batch than this detail-header slice"
+    },
+    {
+      "candidate": "Viewer student email redaction decision",
+      "ladderLevel": "LEVEL_7_AUDITABILITY_AND_TRUST",
+      "roles": ["viewer"],
+      "impact": 3,
+      "safety": 2,
+      "testability": 3,
+      "size": "S",
+      "score": 30,
+      "decision": "deferred: policy decision first"
+    },
+    {
+      "candidate": "Mobile dashboard smoke proof",
+      "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
+      "roles": ["all protected roles"],
+      "impact": 3,
+      "safety": 4,
+      "testability": 2,
+      "size": "M",
+      "score": 33,
+      "decision": "deferred: browser runtime proof is outside this local batch"
+    },
+    {
+      "candidate": "Site selector follow-up for multi-site staff",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "roles": ["site_admin", "administration"],
+      "impact": 4,
+      "safety": 3,
+      "testability": 3,
+      "size": "M",
+      "score": 37,
+      "decision": "deferred: broader workflow than this navigation micro-slice"
+    },
+    {
+      "candidate": "Platform role-management quick action",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "roles": ["platform_admin", "global_admin"],
+      "impact": 3,
+      "safety": 4,
+      "testability": 4,
+      "size": "S",
+      "score": 39,
+      "decision": "not selected: lower user pain than the cross-worklist detail dead end"
+    }
+  ],
+  "filesChanged": [
+    "workspace.js",
+    "tests/workspace-app.test.mjs",
+    "docs/functionality-language-audit.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-06-02-1106-student-detail-return-context.json",
+    "docs/functionality-ux-growth-ledger.md",
+    "automation/state/functionality-ux-growth-state.json"
+  ],
+  "validation": [
+    "node --check workspace.js",
+    "node --test tests/workspace-app.test.mjs",
+    "npm run verify:functionality-language",
+    "npm run verify:functionality-ux-automation",
+    "npm run verify:workspace-navigation",
+    "npm run check:production-surfaces",
+    "npm run typecheck",
+    "npm run test",
+    "npm run check",
+    "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-02-1106-student-detail-return-context.json','utf8')); console.log('json ok')\"",
+    "git diff --check"
+  ],
+  "nextRecommended": "Revisit privacy-safe student-detail URL state, or clarify Review Queue missing-submission semantics only when scoped backend evidence exists.",
+  "doNotRepeat": [
+    "Do not replace named student-detail return buttons with a generic Close control while sourceSection continues to preserve the originating worklist.",
+    "Do not add student-detail URL state until reload and authorization behavior are proven.",
+    "Do not broaden viewer, teacher, mentor, or student access while improving staff detail navigation."
+  ]
+}

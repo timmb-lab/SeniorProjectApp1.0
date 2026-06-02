@@ -2420,6 +2420,7 @@ function renderSiteStudentDetailSurface(directory) {
   if (!state.studentId) return "";
   const selectedRow = (directory.students || []).find((student) => student.studentId === state.studentId);
   const title = selectedRow?.displayName || "Student detail";
+  const returnCopy = studentDetailReturnCopy(state.sourceSection);
 
   if (state.loading) {
     return `
@@ -2429,8 +2430,9 @@ function renderSiteStudentDetailSurface(directory) {
             <div>
               <p class="workspace-kicker">Student detail</p>
               <h2 id="siteStudentDetailTitle">${escapeHtml(title)}</h2>
+              <p class="workspace-muted" data-student-detail-return-context="${escapeHtml(returnCopy.sectionId)}">${escapeHtml(returnCopy.hint)}</p>
             </div>
-            <button class="workspace-link-button workspace-link-button-small" type="button" data-student-detail-action="close">Close</button>
+            <button class="workspace-link-button workspace-link-button-small" type="button" data-student-detail-action="close">${escapeHtml(returnCopy.buttonLabel)}</button>
           </div>
           ${renderProblemState({
             reason: "Loading the student record for this school.",
@@ -2451,8 +2453,9 @@ function renderSiteStudentDetailSurface(directory) {
             <div>
               <p class="workspace-kicker">Student detail</p>
               <h2 id="siteStudentDetailTitle">${escapeHtml(title)}</h2>
+              <p class="workspace-muted" data-student-detail-return-context="${escapeHtml(returnCopy.sectionId)}">${escapeHtml(returnCopy.hint)}</p>
             </div>
-            <button class="workspace-link-button workspace-link-button-small" type="button" data-student-detail-action="close">Close</button>
+            <button class="workspace-link-button workspace-link-button-small" type="button" data-student-detail-action="close">${escapeHtml(returnCopy.buttonLabel)}</button>
           </div>
           ${renderApiNotice(state.result)}
           ${renderProblemState({
@@ -2477,8 +2480,9 @@ function renderSiteStudentDetailSurface(directory) {
             <p class="workspace-kicker">Student detail</p>
             <h2 id="siteStudentDetailTitle">${escapeHtml(student.displayName || title)}</h2>
             <p class="workspace-muted">${escapeHtml(student.email || "")}</p>
+            <p class="workspace-muted" data-student-detail-return-context="${escapeHtml(returnCopy.sectionId)}">${escapeHtml(returnCopy.hint)}</p>
           </div>
-          <button class="workspace-link-button workspace-link-button-small" type="button" data-student-detail-action="close">Close</button>
+          <button class="workspace-link-button workspace-link-button-small" type="button" data-student-detail-action="close">${escapeHtml(returnCopy.buttonLabel)}</button>
         </div>
         <div class="workspace-chip-row">
           <span class="workspace-site-context-badge">${escapeHtml(scope.siteName || directory.scope?.siteName || "Selected school")}</span>
@@ -8293,6 +8297,28 @@ function cleanStudentDetailTab(value) {
   const requested = String(value || "").trim();
   const allowedTabs = new Set(["summary", "progress", "submissions", "evidence", "reviews", "mentor", "presentation", "archive", "timeline"]);
   return allowedTabs.has(requested) ? requested : "";
+}
+
+function studentDetailReturnCopy(sourceSection) {
+  const sectionId = cleanWorkspaceSection(sourceSection) || "students";
+  const labels = {
+    siteDashboard: "Site Dashboard",
+    students: "Students",
+    teacher: "Review Queue",
+    mentorAssignments: "Mentor Assignments",
+    mentorDashboard: "Mentor Dashboard",
+    programDashboard: "Program Dashboard",
+    operations: "Operations",
+  };
+  const label = labels[sectionId] || "Students";
+  return {
+    sectionId,
+    label,
+    buttonLabel: `Back to ${label}`,
+    hint: sectionId === "students"
+      ? "Return to the filtered student list when you finish with this record."
+      : `Return to ${label} when you finish with this record.`,
+  };
 }
 
 function cleanStudentDetailTimelineType(value) {

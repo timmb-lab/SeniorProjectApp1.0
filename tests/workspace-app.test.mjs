@@ -558,6 +558,8 @@ test("site dashboard top-risk detail stays in dashboard context", async () => {
     "site dashboard detail should render before dashboard student actions",
   );
   assert.match(workspaceRoot.innerHTML, /Missing Mentor Demo 001/);
+  assert.match(workspaceRoot.innerHTML, /Back to Site Dashboard/);
+  assert.match(workspaceRoot.innerHTML, /Return to Site Dashboard when you finish with this record\./);
   assert.ok(
     fetchLog.some((entry) => entry === "/api/site/students/demo-student-101?siteId=site-desert-valley-high"),
     "expected dashboard detail request to preserve the current site id",
@@ -1340,6 +1342,8 @@ test("workspace opens real student detail, loads timeline, and preserves directo
   assert.match(workspaceRoot.innerHTML, /Visible note/);
   assert.match(workspaceRoot.innerHTML, /Use the rubric to tighten the next draft/);
   assert.match(workspaceRoot.innerHTML, /workspace-status-pill/);
+  assert.match(workspaceRoot.innerHTML, /Back to Students/);
+  assert.match(workspaceRoot.innerHTML, /Return to the filtered student list when you finish with this record\./);
   assert.match(workspaceRoot.innerHTML, /value="Revision Loop Demo"/);
   assert.match(workspaceRoot.innerHTML, /Offset 50 \/ Limit 50/);
   assert.doesNotMatch(workspaceRoot.innerHTML, /data-review-decision|data-mentor-assignment|data-archive-retry|Request revision|Assign mentor|Archive retry|Download file|Download archive/);
