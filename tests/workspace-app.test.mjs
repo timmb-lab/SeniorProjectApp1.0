@@ -2681,7 +2681,8 @@ test("workspace renders site-scoped Operations readiness worklists without mutat
   assert.match(siteAdmin, /data-section="operations"/);
   assert.match(siteAdmin, /Operations/);
   assert.match(siteAdmin, /Operations command center/);
-  assert.match(siteAdmin, /Read-only operations dashboard/);
+  assert.match(siteAdmin, /School operations dashboard/);
+  assert.match(siteAdmin, /School follow-up worklists/);
   assert.match(siteAdmin, /workspace-operations-readiness/);
   assert.match(siteAdmin, /workspace-filter-bar/);
   assert.match(siteAdmin, /data-readiness-score-card="true"/);
@@ -2737,11 +2738,61 @@ test("workspace renders site-scoped Operations readiness worklists without mutat
   assert.match(siteAdmin, /View risk rows/);
   assert.match(siteAdmin, /View student detail/);
   assert.match(siteAdmin, /status-pill|workspace-status-pill/);
-  assert.match(siteAdmin, /protected evidence/);
-  assert.match(siteAdmin, /assigned records/);
-  assert.match(siteAdmin, /teacher follow-up/);
+  assert.match(siteAdmin, /protected student blockers/);
+  assert.match(siteAdmin, /presentations/);
+  assert.match(siteAdmin, /archive readiness/);
+  assert.match(siteAdmin, /listed owner/);
   assert.match(siteAdmin, /No student messaging/);
   assert.doesNotMatch(siteAdmin, /data-presentation-action|data-archive-action|data-admin-action="import-users"|<button[^>]*>\s*(?:Archive retry|Retry archive|Schedule presentation|Check out|Check in|Export package)/i);
+
+  const programTeacherOperations = await renderWorkspaceWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "program-teacher-operations",
+          email: "program.teacher.operations@example.edu",
+          displayName: "Program Teacher Operations",
+          roles: [{ role_id: "program_teacher", scope_type: "site", scope_id: "site-desert-valley-high" }],
+        },
+      },
+    },
+    "/api/site/dashboard": {
+      status: 200,
+      body: siteDashboardFixture(),
+    },
+    "/api/site/students": {
+      status: 200,
+      body: siteStudentsFixture({ role: "program_teacher", readOnly: true, total: 45, filteredTotal: 45 }),
+    },
+    "/api/site/review-queue": {
+      status: 200,
+      body: siteReviewQueueFixture({ role: "program_teacher" }),
+    },
+    "/api/site/mentor-assignments": {
+      status: 200,
+      body: siteMentorAssignmentsFixture({ role: "program_teacher", readOnly: true, canManage: false }),
+    },
+    "/api/site/operations-readiness": {
+      status: 200,
+      body: siteOperationsReadinessFixture({ role: "program_teacher", readOnly: true }),
+    },
+    "/api/program-teacher/dashboard": {
+      status: 200,
+      body: { ok: true },
+    },
+    "/api/presentation-slots": {
+      status: 200,
+      body: { ok: true, slots: [] },
+    },
+  }, "operations");
+
+  assert.match(programTeacherOperations, /Program-scoped operations dashboard/);
+  assert.match(programTeacherOperations, /Program follow-up worklists/);
+  assert.match(programTeacherOperations, /your assigned students/);
+  assert.match(programTeacherOperations, /review workflows to coordinate follow-up with site staff/i);
+  assert.doesNotMatch(programTeacherOperations, /School follow-up worklists/);
 
   const viewer = await renderWorkspaceWithFetch({
     "/api/auth/me": {
@@ -2783,6 +2834,50 @@ test("workspace renders site-scoped Operations readiness worklists without mutat
   assert.match(viewer, /Operations readiness unavailable/);
   assert.match(viewer, /site presentation, archive, and readiness worklists/);
   assert.doesNotMatch(viewer, /data-presentation-action|data-archive-action|<button[^>]*>\s*(?:Archive retry|Retry archive|Schedule presentation)/i);
+
+  const administrationOperations = await renderWorkspaceWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "administration-operations",
+          email: "administration.operations@example.edu",
+          displayName: "Administration Operations",
+          roles: [{ role_id: "administration", scope_type: "site", scope_id: "site-desert-valley-high" }],
+        },
+      },
+    },
+    "/api/site/dashboard": {
+      status: 200,
+      body: siteDashboardFixture({ readOnly: true }),
+    },
+    "/api/site/students": {
+      status: 200,
+      body: siteStudentsFixture({ role: "administration", readOnly: true }),
+    },
+    "/api/site/operations-readiness": {
+      status: 200,
+      body: siteOperationsReadinessFixture({ role: "administration", readOnly: true }),
+    },
+    "/api/presentation-slots": {
+      status: 200,
+      body: { ok: true, slots: [] },
+    },
+    "/api/reports/readiness": {
+      status: 200,
+      body: {
+        ok: true,
+        scope: "aggregate_only",
+        generatedAt: "2026-05-31T18:00:00.000Z",
+        metrics: [],
+        rows: [],
+      },
+    },
+  }, "operations");
+
+  assert.match(administrationOperations, /Read-only operations dashboard/);
+  assert.match(administrationOperations, /Read-only operations worklists/);
 
   const { context, workspaceRoot, fetchLog, window } = await createWorkspaceContextWithFetch({
     "/api/auth/me": {

@@ -1,0 +1,131 @@
+{
+  "automationId": "functionality-ux-upgrade-hourly",
+  "timestamp": "2026-06-02T06:32:10-07:00",
+  "startingHead": "35adffb16378938914f67996271aeda4a87f3208",
+  "selectedSlice": "operations-role-specific-follow-up-messaging",
+  "summary": "Differentiate Operations messaging for site admins, program teachers, and read-only Administration without adding mutation controls.",
+  "selectedReason": "Current repo evidence still matched audit item 25 exactly: the Operations surface rendered one read-only banner for site admins, program teachers, and Administration even though those roles use the worklists differently. This slice stayed inside workspace copy and render tests while improving real role clarity on a heavily used protected surface.",
+  "candidates": [
+    {
+      "candidate": "Operations role-specific follow-up messaging",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "roles": "site_admin, program_teacher, administration",
+      "impact": 4,
+      "safety": 5,
+      "testability": 5,
+      "size": "XS",
+      "score": 53,
+      "decision": "selected"
+    },
+    {
+      "candidate": "Administration/AP site dashboard language refresh",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "roles": "administration",
+      "impact": 3,
+      "safety": 5,
+      "testability": 5,
+      "size": "XS",
+      "score": 47,
+      "decision": "not selected: same theme, but Operations had clearer current-repo evidence and broader role impact"
+    },
+    {
+      "candidate": "Site-admin mentor assignment POST default alignment",
+      "ladderLevel": "LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW",
+      "roles": "site_admin",
+      "impact": 3,
+      "safety": 4,
+      "testability": 5,
+      "size": "S",
+      "score": 45,
+      "decision": "not selected: real bug, but current workspace always posts siteId so Operations messaging was the more user-visible slice"
+    },
+    {
+      "candidate": "Student detail URL state",
+      "ladderLevel": "LEVEL_2_STUDENT_DETAIL_DEPTH",
+      "roles": "site staff, program_teacher",
+      "impact": 4,
+      "safety": 3,
+      "testability": 3,
+      "size": "M",
+      "score": 39,
+      "decision": "deferred: shareable detail state still needs privacy review"
+    },
+    {
+      "candidate": "Student detail mentor assignment history",
+      "ladderLevel": "LEVEL_7_AUDITABILITY_AND_TRUST",
+      "roles": "site_admin",
+      "impact": 4,
+      "safety": 4,
+      "testability": 4,
+      "size": "M",
+      "score": 44,
+      "decision": "deferred: larger than this copy-only batch"
+    },
+    {
+      "candidate": "Site dashboard recent activity drill-down",
+      "ladderLevel": "LEVEL_7_AUDITABILITY_AND_TRUST",
+      "roles": "site_admin",
+      "impact": 3,
+      "safety": 3,
+      "testability": 3,
+      "size": "M",
+      "score": 35,
+      "decision": "deferred: still needs route and visibility review"
+    },
+    {
+      "candidate": "Review Queue row-level review affordance clarity",
+      "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
+      "roles": "program_teacher",
+      "impact": 3,
+      "safety": 5,
+      "testability": 4,
+      "size": "S",
+      "score": 43,
+      "decision": "not selected: useful, but Operations wording affected more protected roles this run"
+    },
+    {
+      "candidate": "Viewer student email redaction decision",
+      "ladderLevel": "LEVEL_7_AUDITABILITY_AND_TRUST",
+      "roles": "viewer",
+      "impact": 4,
+      "safety": 2,
+      "testability": 3,
+      "size": "S",
+      "score": 32,
+      "decision": "deferred: policy decision first"
+    },
+    {
+      "candidate": "Mentor reassignment/remove workflow",
+      "ladderLevel": "LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW",
+      "roles": "site_admin",
+      "impact": 4,
+      "safety": 2,
+      "testability": 3,
+      "size": "M",
+      "score": 33,
+      "decision": "deferred: mutation/audit policy not ready"
+    },
+    {
+      "candidate": "Hosted section-level permission proof",
+      "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
+      "roles": "all protected roles",
+      "impact": 4,
+      "safety": 3,
+      "testability": 3,
+      "size": "M",
+      "score": 38,
+      "decision": "deferred: hosted fake-account runtime is still outside this local batch"
+    }
+  ],
+  "changes": [
+    "Added role-specific Operations hero and banner copy for school follow-up, program follow-up, and read-only monitoring.",
+    "Made grouped Operations empty-state guidance role-aware without changing permissions or routes.",
+    "Expanded workspace render coverage to prove site-admin, program-teacher, and Administration Operations messaging."
+  ],
+  "validation": [
+    "node --check workspace.js",
+    "node --test tests/workspace-app.test.mjs",
+    "npm run verify:functionality-language"
+  ],
+  "nextRecommended": "Refresh Administration/AP site dashboard language on the same protected staff path, or fix the site-admin mentor-assignment POST fallback if a direct API-safe bugfix is preferred next."
+}

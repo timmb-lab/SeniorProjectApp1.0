@@ -2645,3 +2645,14 @@ Future productive runs should append compact entries that name the master-plan s
 - `changes`: `workspace.js` now uses shared disclosure state and compact row/detail patterns; `workspace.css` adds compact shell, primary/secondary/detail/history card types, summary-only metric treatment, and mentor row details; workspace tests now open collapsed content before asserting secondary behavior; `scripts/verify-workspace-density.mjs` guards the new first-load budgets.
 - `validation`: focused workspace, density, dashboard-action, navigation, functionality-language, automation, and audit tests passed before full closeout. Full validation status is recorded in the run manifest and final report.
 - `commit/push status`: pending closeout commit `ux: reduce workspace density and duplicate panels`; push required by the triggering prompt.
+
+## 2026-06-02 PT - Functionality UX Upgrade Operations Role Messaging
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 4 role-specific workspace clarity / Operations role messaging.
+- `starting HEAD`: `35adffb16378938914f67996271aeda4a87f3208`.
+- `selected slice`: Differentiate Operations messaging for site admins, program teachers, and read-only Administration.
+- `repo-grounded findings`: `workspace.js` still rendered one read-only Operations hero and banner for site admins, program teachers, and Administration even though the current protected worklists are used as school follow-up for site admins, assigned-student follow-up for program teachers, and monitoring-only for Administration. The audit already tracked this exact gap as item 25.
+- `changes`: `workspace.js` now renders role-specific Operations hero, banner, and grouped empty-state copy for school follow-up, program-scoped follow-up, and read-only monitoring. `tests/workspace-app.test.mjs` now proves the site-admin, program-teacher, and Administration copy branches, and `docs/functionality-language-audit.md` plus `docs/product/demo-role-readiness.md` record the new role evidence.
+- `validation`: `node --check workspace.js`, `node --test tests/workspace-app.test.mjs`, and `npm run verify:functionality-language` passed before docs/state closeout.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.

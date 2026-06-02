@@ -5132,3 +5132,51 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: hosted proof still depends on allowed fake-account runtime and audit writes.
   - Do not repeat: do not restore default-open walls of requirements, history, snapshots, or mentor mini-dashboard rows.
   - First file to inspect next run: `scripts/verify-workspace-density.mjs` before changing `workspace.js` density behavior.
+
+## Run 2026-06-02 06:32 PT
+
+- Starting SHA: `35adffb16378938914f67996271aeda4a87f3208`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Branch policy: work stayed on clean, synced `main`; no deploy, seed, reset, migration, or live config change was run
+- Ladder level targeted: `LEVEL_4_ROLE_SPECIFIC_WORKSPACES`
+- Backlog item: `operations-role-specific-follow-up-messaging`
+- Work order selected: Differentiate Operations messaging for site admins, program teachers, and read-only Administration without changing permissions or routes.
+- Selection reason: Current repo evidence still matched audit item 25 exactly. The Operations surface rendered one read-only banner for site admins, program teachers, and Administration even though the worklists serve school follow-up, assigned-student follow-up, and monitoring-only contexts respectively.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Operations role-specific follow-up messaging | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | `site_admin`, `program_teacher`, `administration` | 4 | 5 | 5 | XS | 53 | selected |
+| Administration/AP site dashboard language refresh | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | `administration` | 3 | 5 | 5 | XS | 47 | not selected: same theme, but Operations had clearer current-repo evidence and broader role impact |
+| Site-admin mentor assignment POST default alignment | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | `site_admin` | 3 | 4 | 5 | S | 45 | not selected: real bug, but current workspace always posts `siteId` so Operations messaging was more user-visible |
+| Student detail URL state | `LEVEL_2_STUDENT_DETAIL_DEPTH` | site staff | 4 | 3 | 3 | M | 39 | deferred: shareable detail state still needs privacy review |
+| Student detail mentor assignment history | `LEVEL_7_AUDITABILITY_AND_TRUST` | `site_admin` | 4 | 4 | 4 | M | 44 | deferred: larger than this copy-only batch |
+| Site dashboard recent activity drill-down | `LEVEL_7_AUDITABILITY_AND_TRUST` | `site_admin` | 3 | 3 | 3 | M | 35 | deferred: route and visibility review still needed |
+| Review Queue row-level review affordance clarity | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | `program_teacher` | 3 | 5 | 4 | S | 43 | not selected: narrower impact than the Operations role split |
+| Viewer student email redaction decision | `LEVEL_7_AUDITABILITY_AND_TRUST` | `viewer` | 4 | 2 | 3 | S | 32 | deferred: policy decision first |
+| Mentor reassignment/remove workflow | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | `site_admin` | 4 | 2 | 3 | M | 33 | deferred: mutation/audit policy not ready |
+| Hosted section-level permission proof | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all protected roles | 4 | 3 | 3 | M | 38 | deferred: hosted fake-account runtime is outside this local batch |
+
+- User-facing improvement: Site admins now see Operations framed as school follow-up, program teachers see assigned-student program follow-up, and Administration keeps explicit read-only monitoring language. The worklists and permissions remain unchanged.
+- Roles affected: `site_admin`, `program_teacher`, `administration`
+- Files changed: `workspace.js`, `tests/workspace-app.test.mjs`, `docs/functionality-language-audit.md`, `docs/product/demo-role-readiness.md`, `docs/progress/run-log.md`, `docs/progress/runs/2026-06-02-0632-operations-role-messaging.json`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`
+- Tests/verifiers added or updated: `tests/workspace-app.test.mjs` now proves Operations copy differs for site admin, program teacher, and Administration. No route or permission helpers changed.
+- Validation commands:
+  - Focused passed before docs/state closeout: `node --check workspace.js`; `node --test tests/workspace-app.test.mjs`; `npm run verify:functionality-language`
+- Validation result: focused validation passed; full closeout validation status is recorded in the completion report after commit checks.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: Administration/AP site dashboard language refresh, site-admin mentor POST fallback alignment, student-detail URL state, student-detail mentor assignment history, site dashboard recent activity drill-down, viewer email redaction policy, mentor reassignment workflow, and hosted permission proof remain open.
+- New backlog items: none
+- Next recommended work order: Refresh Administration/AP site dashboard language on the same protected staff path, or fix the site-admin mentor-assignment POST fallback if a direct API-safe bugfix is preferred next.
+- Do-not-repeat notes: do not revert this Operations role split back to one generic read-only banner unless the product intentionally collapses site-admin, program-teacher, and Administration follow-up language again.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_4_ROLE_SPECIFIC_WORKSPACES`
+  - Advanced: yes
+  - Evidence: `workspace.js` now branches Operations hero, banner, and grouped empty-state copy by role, and focused workspace coverage proves site-admin, program-teacher, and Administration renders separately.
+  - Unlocks: the same staff-path language refresh can move into Site Dashboard and Readiness next without touching RBAC.
+  - Next: inspect `renderSiteDashboardSection()` for Administration/AP-friendly follow-up language, or fix the site-admin mentor-assignment POST fallback if a direct workflow bugfix is prioritized.
+  - Blockers: hosted permission proof still needs allowed fake-account runtime; detail URL state and mentor reassignment still need privacy/mutation review.
+  - Do not repeat: do not add fake Operations controls while improving wording; keep this surface route-backed and read-only.
+  - First file to inspect next run: `workspace.js` around `renderSiteDashboardSection()` and `renderOperationsReadinessSection()`

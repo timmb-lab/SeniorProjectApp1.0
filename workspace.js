@@ -3848,6 +3848,7 @@ function renderOperationsReadinessSection() {
   const pagination = body.pagination || {};
   const readOnly = Boolean(scope.readOnly);
   const dashboard = operationsDashboardModel(body);
+  const copy = operationsSectionCopy(scope);
   return `
     <section class="workspace-command-center workspace-operations-readiness" aria-labelledby="operationsReadinessTitle">
       ${renderSiteContextBlock(body)}
@@ -3855,10 +3856,7 @@ function renderOperationsReadinessSection() {
         <div>
           <p class="workspace-kicker">Operations command center</p>
           <h1 id="operationsReadinessTitle">Operations</h1>
-          <p>
-            Read-only operations dashboard. Open student detail for blocker context;
-            status changes stay with authorized staff.
-          </p>
+          <p>${escapeHtml(copy.heroDescription)}</p>
         </div>
         <div class="workspace-command-hero-grid">
           ${statusPill(readOnly ? "configured" : "ready")}
@@ -3867,8 +3865,8 @@ function renderOperationsReadinessSection() {
       </div>
       ${renderApiNotice(result)}
       <section class="workspace-read-only-banner" data-operations-read-only="true">
-        <strong>Read-only operations worklists</strong>
-        <p>These worklists are monitoring-only across protected evidence, assigned records, and teacher follow-up. Open student detail for blocker context; status changes stay with authorized staff.</p>
+        <strong>${escapeHtml(copy.bannerTitle)}</strong>
+        <p>${escapeHtml(copy.bannerBody)}</p>
       </section>
       ${renderOperationsSummaryDeck(dashboard)}
       <div class="workspace-operations-insight-grid">
@@ -3894,7 +3892,7 @@ function renderOperationsReadinessSection() {
       ${renderDashboardCard("Priority worklist", "Student, program, area, issue, severity, and action", renderOperationsCompactWorklist(dashboard.worklistRows, permissions, body.filters || operationsReadinessFilters))}
       <div class="workspace-dashboard-grid workspace-dashboard-grid-two workspace-dashboard-support-grid">
         ${renderDashboardCard("Program risk", "Readiness by visible program", renderOperationsProgramBreakdown(readiness.filteredProgramBreakdown || readiness.programBreakdown || [], dashboard.total))}
-        ${renderDashboardCard("Action groups", "Existing filters and review targets", renderOperationsNextActions(dashboard.groupedActions))}
+        ${renderDashboardCard("Action groups", "Existing filters and review targets", renderOperationsNextActions(dashboard.groupedActions, scope))}
       </div>
     </section>
   `;
@@ -4185,6 +4183,41 @@ function renderDashboardKpis(items = [], options = {}) {
       `).join("")}
     </div>
   `;
+}
+
+function operationsSectionCopy(scope = {}) {
+  const role = String(scope.role || "");
+  if (role === "program_teacher") {
+    return {
+      heroDescription: "Program-scoped operations dashboard. Review presentation, archive, and readiness blockers for your assigned students, then use student detail and review workflows to coordinate follow-up with site staff.",
+      bannerTitle: "Program follow-up worklists",
+      bannerBody: "These worklists stay within your assigned students. Open student detail for blocker context; scheduling, archive package changes, and account updates stay with site staff.",
+      emptyOwner: "Assigned program teacher and site administration.",
+      emptyUnfilteredNextAction: "Keep monitoring assigned-student presentation and archive milestones.",
+      emptyFilteredNextAction: "Clear filters or return to the Program Dashboard for broader assigned-student context.",
+      nextActionsEmpty: "No grouped follow-up is waiting in the current program filters.",
+    };
+  }
+  if (role === "administration" || role === "viewer") {
+    return {
+      heroDescription: "Read-only operations dashboard. Open student detail for blocker context; status changes stay with authorized staff.",
+      bannerTitle: "Read-only operations worklists",
+      bannerBody: "These worklists are monitoring-only across protected evidence, assigned records, and teacher follow-up. Open student detail for blocker context; status changes stay with authorized staff.",
+      emptyOwner: "Site administration.",
+      emptyUnfilteredNextAction: "Continue monitoring ready and in-progress work for this school.",
+      emptyFilteredNextAction: "Clear filters or return to the current school overview for broader context.",
+      nextActionsEmpty: "No grouped monitoring follow-up is waiting for the current filters.",
+    };
+  }
+  return {
+    heroDescription: "School operations dashboard. Review presentation, archive, and readiness blockers across this school, then use student detail and linked worklists to coordinate follow-up.",
+    bannerTitle: "School follow-up worklists",
+    bannerBody: "These worklists highlight protected student blockers across evidence, presentations, and archive readiness. Open student detail for context and route the next step with the listed owner.",
+    emptyOwner: "Site administration.",
+    emptyUnfilteredNextAction: "Continue monitoring ready, scheduled, and in-progress work across this school.",
+    emptyFilteredNextAction: "Clear filters or open student detail for broader school context.",
+    nextActionsEmpty: "No grouped school follow-up is waiting for the current filters.",
+  };
 }
 
 function renderReadinessScoreCard(score, total = 0, title = "Readiness score", detail = "") {
@@ -4534,13 +4567,14 @@ function operationsArchiveEmptyStateCopy(filters = {}, filtered = false) {
 }
 
 function operationsReadinessEmptyStateCopy(filters = {}, filtered = false) {
-  const owner = "Site administration.";
+  const copy = operationsSectionCopy(unwrap(currentData.operationsReadiness)?.scope || {});
+  const owner = copy.emptyOwner;
   if (!filtered) {
     return {
       heading: "No operations attention waiting",
       reason: "No blocked, missing, or attention-required work is waiting right now.",
       owner,
-      nextAction: "Continue monitoring ready and in-progress work.",
+      nextAction: copy.emptyUnfilteredNextAction,
     };
   }
   if (filters.studentId) {
@@ -4555,7 +4589,7 @@ function operationsReadinessEmptyStateCopy(filters = {}, filtered = false) {
     heading: "No matching operations attention",
     reason: "No blocked, missing, or attention-required readiness work matches these filters.",
     owner,
-    nextAction: "Clear filters or continue monitoring ready work.",
+    nextAction: copy.emptyFilteredNextAction,
   };
 }
 
@@ -4587,7 +4621,8 @@ function renderOperationsProgramBreakdown(rows = [], denominator = 0) {
   ` : `<div class="workspace-empty">No program breakdown is available for these filters.</div>`;
 }
 
-function renderOperationsNextActions(rows = []) {
+function renderOperationsNextActions(rows = [], scope = {}) {
+  const copy = operationsSectionCopy(scope);
   return rows.length ? `
     <div class="workspace-list" data-operations-next-actions="true">
       ${rows.map((row) => `
@@ -4607,7 +4642,7 @@ function renderOperationsNextActions(rows = []) {
         </article>
       `).join("")}
     </div>
-  ` : `<div class="workspace-empty">No grouped next actions for the current filters.</div>`;
+  ` : `<div class="workspace-empty">${escapeHtml(copy.nextActionsEmpty)}</div>`;
 }
 
 function renderOperationsPagination(pagination = {}) {

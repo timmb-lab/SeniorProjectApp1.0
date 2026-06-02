@@ -1,10 +1,18 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-05-31T22:57:03-07:00",
-  "lastStartingSha": "3ac7c6e1864e9db911afc10f433c0abdccbbe48c",
+  "lastRunAt": "2026-06-02T06:32:10-07:00",
+  "lastStartingSha": "35adffb16378938914f67996271aeda4a87f3208",
   "lastEndingSha": null,
-  "currentLadderFocus": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
+  "currentLadderFocus": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
   "completedWorkOrders": [
+    {
+      "id": "operations-role-specific-follow-up-messaging",
+      "completedAt": "2026-06-02T06:32:10-07:00",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "type": "TYPE_D_ROLE_WORKSPACE",
+      "summary": "Operations now distinguishes school follow-up, assigned-student follow-up, and read-only monitoring language for site admins, program teachers, and Administration without changing routes or permissions.",
+      "commit": "pending-closeout-commit"
+    },
     {
       "id": "workspace-density-consolidation",
       "completedAt": "2026-05-31T22:57:03-07:00",
@@ -1007,16 +1015,16 @@
   "blockedWorkOrders": [],
   "nextRecommendedWorkOrders": [
     {
-      "id": "role-readiness-baseline-refresh",
-      "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
-      "type": "TYPE_H_DOCUMENTATION_BACKLOG_ALIGNMENT",
-      "summary": "Use the upgraded lane on the next real product slice and refresh docs/product/demo-role-readiness.md with current role evidence."
-    },
-    {
-      "id": "site-admin-programs-readiness-pass",
+      "id": "role-readiness-administration-dashboard-refresh",
       "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
       "type": "TYPE_D_ROLE_WORKSPACE",
-      "summary": "Inspect whether Site Admin and Global Admin have a real Programs or Site Setup path before any demo-ready claim."
+      "summary": "Refresh the role-readiness scorecard after clarifying Administration/AP follow-up language on the Site Dashboard and Readiness surfaces."
+    },
+    {
+      "id": "site-admin-mentor-post-default-alignment",
+      "ladderLevel": "LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW",
+      "type": "TYPE_D_ROLE_WORKSPACE",
+      "summary": "Align the mentor-assignment POST site fallback with site-admin management permissions if a direct API-safe bugfix is preferred next."
     },
     {
       "id": "hosted-section-permission-proof",
@@ -1109,6 +1117,7 @@
     "Do not re-add the viewer monitoring queue unless regression removes data-viewer-monitoring-overview=\"true\" or the route-backed viewer panel actions.",
     "Do not re-add Operations Storage Setup Needed unless regression removes archiveStatus=provider_unavailable, archive.summary.providerUnavailable, or archive-provider-unavailable dashboard/verifier coverage.",
     "Do not re-clean Operations archive row/empty-state guidance unless regression removes archiveWorklistSupportText(), operationsArchiveEmptyStateCopy(), or the focused workspace coverage for provider-unavailable and expired-download no-match states.",
+    "Do not collapse Operations back to one generic read-only banner unless product policy intentionally removes the school-follow-up and assigned-student follow-up distinctions again.",
     "Do not re-clean student Archive signed-link/export-wiring/provider copy unless regression removes studentArchiveDownloadStatusCopy() or the verifier rules for signed-link/export-wiring/scoped archive/provider wording.",
     "Do not re-add student-detail timeline type filters unless regression removes data-student-detail-timeline-filters=\"true\", STUDENT_DETAIL_TIMELINE_TYPES, or the type=review workspace coverage.",
     "Do not re-add student-detail Operations exact-student filtering unless regression removes filters.studentId, the studentId route test, or data-student-detail-action=\"open-operations\" workspace coverage.",
@@ -1138,25 +1147,17 @@
   ],
   "lastValidationStatus": {
     "status": "passed",
-    "completedAt": "2026-05-31T22:57:03-07:00",
+    "completedAt": "2026-06-02T06:44:18-07:00",
     "commands": [
       "node --check workspace.js",
       "node --test tests/workspace-app.test.mjs",
-      "npm run verify:workspace-density",
-      "npm run verify:dashboard-actions",
-      "npm run verify:workspace-navigation",
       "npm run verify:functionality-language",
       "node --test tests/functionality-language-audit.test.mjs",
       "npm run verify:functionality-ux-automation",
-      "node -e \"JSON.parse(require('fs').readFileSync('package.json','utf8')); JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-05-31-2228-workspace-density-consolidation.json','utf8')); console.log('json ok')\"",
-      "git diff --check",
-      "npm run check:production-surfaces",
-      "npm run check:route-inventory",
-      "npm run typecheck",
-      "npm run test",
-      "npm run check"
+      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-02-0632-operations-role-messaging.json','utf8')); console.log('json ok')\"",
+      "git diff --check"
     ],
-    "notes": "Workspace density consolidation passed focused workspace tests, the new density verifier, dashboard/navigation/language/automation verifiers, production-surface and route-inventory checks, typecheck, the full test suite, and the full check suite. git diff --check passed with CRLF normalization warnings only."
+    "notes": "Operations role-specific follow-up messaging passed focused workspace render coverage, the functionality-language verifier, the audit/automation closeout tests, JSON artifact parsing, and git diff --check with CRLF normalization warnings only."
   },
   "lastProductReadinessScorecardSummary": {
     "homepageClarity": "4 to 4",
