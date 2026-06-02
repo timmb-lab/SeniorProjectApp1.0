@@ -3410,6 +3410,29 @@ function renderAdminOverviewSection() {
   `;
 }
 
+function renderAccessAssignmentSelectionRequired(body = {}) {
+  const sites = body.accessibleSites || [];
+  return `
+    <section class="workspace-card workspace-error-card" data-workspace-state="access-assignment-site-selection-required">
+      <p class="workspace-kicker">Users &amp; Access</p>
+      <h2>Select a site before managing school access</h2>
+      <p>This account can manage more than one school. Choose the school workspace before reviewing user assignments or saving access changes.</p>
+      <div class="workspace-chip-row">
+        ${sites.map((site) => `
+          <button class="workspace-link-button workspace-link-button-small" type="button" data-site-switch-id="${escapeHtml(site.siteId || "")}">
+            ${escapeHtml(site.siteName || site.siteId)}
+          </button>
+        `).join("")}
+      </div>
+      ${renderProblemState({
+        reason: "Multiple manageable schools are available.",
+        owner: "School administration or platform support.",
+        nextAction: "Choose a site from the Current site menu or one of the buttons above.",
+      })}
+    </section>
+  `;
+}
+
 function renderProgramTeacherDashboardSection() {
   const result = currentData.programTeacherDashboard;
   if (result?.status === 403) {
@@ -7155,6 +7178,9 @@ function renderAdminAccessAssignmentPanel() {
   const result = currentData.accessAssignments;
   if (!result) return "";
   if (result.status === 403) return renderPermissionDeniedSection("Assignment management", "site user assignment records");
+  if (result.status === 409 && result.body?.selectionRequired) {
+    return renderAccessAssignmentSelectionRequired(result.body);
+  }
   const body = unwrap(result);
   if (!body?.ok) return renderApiNotice(result);
   const users = body.users || {};

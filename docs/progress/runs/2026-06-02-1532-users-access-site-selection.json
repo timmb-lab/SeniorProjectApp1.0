@@ -1,0 +1,76 @@
+{
+  "automationId": "functionality-ux-upgrade-hourly",
+  "runStartedAt": "2026-06-02T15:32:29-07:00",
+  "branch": "main",
+  "startingSha": "a00a20b79da766fdef2b1c1f89c0f3aff6fdc16c",
+  "endingSha": null,
+  "workOrderId": "users-access-site-selection-guidance",
+  "ladderLevels": [
+    "LEVEL_4_ROLE_SPECIFIC_WORKSPACES"
+  ],
+  "selectedSlice": "Render explicit Users & Access site-selection guidance when school-scoped access management requires choosing a site first.",
+  "selectionReason": "The protected workspace already had a real /api/site/access-assignments selectionRequired contract with accessibleSites, and multiple other protected sections already reused that response to show school-pick buttons. Reusing the same pattern inside Users & Access was the safest bounded improvement because it fixed a real protected dead end without adding new routes, mutation controls, or RBAC changes.",
+  "candidateCount": 10,
+  "candidateShortlist": [
+    "Users & Access site-selection guidance",
+    "Global Admin route refresh across Audit, Programs, Students, Presentation, and Users & Access",
+    "Program Teacher mentor-meeting follow-up destination",
+    "Hosted section-level permission proof",
+    "Review Queue missing-submission semantics",
+    "Mentor reassignment or removal workflow",
+    "Viewer email visibility policy",
+    "Admin import approved-path explanation",
+    "Student mentor support workflow",
+    "Presentation live click-through refresh"
+  ],
+  "userFacingImprovement": "Multi-site Global Admin and site-admin users now get explicit school-pick guidance inside Users & Access when school-scoped access management needs a selected site, instead of seeing a generic protected-workspace dead end.",
+  "privacyAndPermissionNotes": [
+    "The slice reuses the existing /api/site/access-assignments selectionRequired response and accessibleSites payload; it does not add a new data path.",
+    "No new mutation control, write path, role, tenant scope, site scope, program scope, or student visibility path was added.",
+    "The school-pick guidance preserves explicit user choice rather than silently auto-selecting a site for access-management actions."
+  ],
+  "filesChanged": [
+    "workspace.js",
+    "tests/workspace-app.test.mjs",
+    "docs/functionality-language-audit.md",
+    "docs/product/demo-role-readiness.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-06-02-1532-users-access-site-selection.json",
+    "docs/functionality-ux-growth-ledger.md",
+    "automation/state/functionality-ux-growth-state.json"
+  ],
+  "validation": {
+    "focusedPassedBeforeCloseout": [
+      "node --check workspace.js",
+      "node --test tests/workspace-app.test.mjs"
+    ],
+    "final": [
+      "node --check workspace.js",
+      "node --test tests/workspace-app.test.mjs",
+      "npm run verify:functionality-language",
+      "npm run verify:functionality-ux-automation",
+      "npm run check:production-surfaces",
+      "npm run typecheck",
+      "npm run test",
+      "npm run check",
+      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-02-1532-users-access-site-selection.json','utf8')); console.log('json ok')\"",
+      "git diff --check"
+    ],
+    "result": "passed",
+    "notes": "git diff --check reported only CRLF normalization warnings."
+  },
+  "deferred": [
+    "Global Admin route refresh remains broader than this bounded Users & Access slice.",
+    "Program Teacher mentor-meeting follow-up still lacks a precise current destination.",
+    "Hosted section-level permission proof still needs allowed hosted runtime and audit-event writes.",
+    "Review Queue missing-submission semantics remain deferred until backend queue rows or exact scoped empty-state evidence exist.",
+    "Viewer email visibility policy still needs a product decision before any UI change.",
+    "Mentor reassignment and removal workflow still needs mutation and audit design."
+  ],
+  "nextRecommended": "Inspect a bounded Global Admin route refresh across the existing Audit, Programs, Student Directory, Presentation, recent role assignments, and new access-management site-selection handoff; if that remains too broad, keep Program Teacher mentor-meeting follow-up summary-only until a precise scoped destination exists.",
+  "doNotRepeat": [
+    "Do not fall back to a generic API notice for Users & Access when /api/site/access-assignments returns site_selection_required.",
+    "Do not silently auto-pick a school for multi-site access-management flows without an explicit site-selection contract.",
+    "Do not broaden Site Admin workspaces with the Global Admin-only recent role-assignment disclosure."
+  ]
+}

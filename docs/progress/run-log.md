@@ -2842,3 +2842,14 @@ Future productive runs should append compact entries that name the master-plan s
 - `changes`: `workspace.js` now adds a dedicated `presentationFocus` section URL param, restores it during auth bootstrap and `popstate`, and syncs it whenever Presentation filter buttons change without introducing a new route or query shape on `/api/presentation-slots`. `tests/workspace-app.test.mjs` now proves both URL sync and initial restore for Presentation focus, and `scripts/verify-workspace-navigation-integrity.mjs` now guards the new Presentation URL-state helpers.
 - `validation`: `node --check workspace.js`, `node --test tests/workspace-app.test.mjs`, and `npm run verify:workspace-navigation` passed before docs/state closeout. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
 - `commit/push status`: pending closeout commit; not pushed by this automation run.
+
+## 2026-06-02 PT - Functionality UX Upgrade Users Access Site Selection
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 4 role-specific workspace clarity / multi-site `Users & Access` guidance.
+- `starting HEAD`: `a00a20b79da766fdef2b1c1f89c0f3aff6fdc16c`.
+- `selected slice`: Replace the generic `Users & Access` dead end for multi-site access management with explicit school-pick guidance.
+- `repo-grounded findings`: `functions/api/site/access-assignments.ts` already returned a real `409 site_selection_required` response with accessible site choices when a multi-site Global Admin or site admin had not chosen a school. `workspace.js` already handled that response for Site Dashboard, Programs, Students, Mentor Assignments, and Operations, but `renderAdminAccessAssignmentPanel()` still fell back to a generic API notice. That left a real protected workflow without the same route-backed site-switch guidance already proven elsewhere in the workspace.
+- `changes`: `workspace.js` now renders a dedicated `Users & Access` site-selection-required card with school buttons, problem-state guidance, and explicit next-step copy when `/api/site/access-assignments` returns `selectionRequired`. `tests/workspace-app.test.mjs` now proves a multi-site Global Admin still sees the recent-role-assignments panel while the site-specific access-management area renders the new school-pick guidance instead of generic `Manage Site Access` output.
+- `validation`: `node --check workspace.js` and `node --test tests/workspace-app.test.mjs` passed before docs/state closeout. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.

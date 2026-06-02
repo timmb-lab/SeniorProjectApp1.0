@@ -1,10 +1,18 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-06-02T15:07:39-07:00",
-  "lastStartingSha": "937f7c2399c7ff8de2dbd5e21ad201d50a177d3a",
+  "lastRunAt": "2026-06-02T15:32:29-07:00",
+  "lastStartingSha": "a00a20b79da766fdef2b1c1f89c0f3aff6fdc16c",
   "lastEndingSha": null,
   "currentLadderFocus": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
   "completedWorkOrders": [
+    {
+      "id": "users-access-site-selection-guidance",
+      "completedAt": "2026-06-02T15:32:29-07:00",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "type": "TYPE_D_ROLE_WORKSPACE",
+      "summary": "Users & Access now turns the existing site_selection_required access-management response into school-pick guidance with site buttons and next-step copy instead of a generic dead end.",
+      "commit": "pending-closeout-commit"
+    },
     {
       "id": "global-admin-role-assignment-visibility",
       "completedAt": "2026-06-02T15:07:39-07:00",
@@ -1159,7 +1167,7 @@
       "id": "global-admin-route-refresh",
       "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
       "type": "TYPE_G_VERIFICATION_REGRESSION_PROTECTION",
-      "summary": "Refresh the current Global Admin click-through and boundary proof across already backed Programs, Audit, Student Directory, Presentation, and the new role-assignment panel."
+      "summary": "Refresh the current Global Admin click-through and boundary proof across already backed Programs, Audit, Student Directory, Presentation, the recent role-assignment panel, and the new access-management site-selection handoff."
     },
     {
       "id": "program-teacher-mentor-meeting-follow-up-destination",
@@ -1181,6 +1189,8 @@
     }
   ],
   "doNotRepeat": [
+    "Do not fall back to a generic API notice for Users & Access when /api/site/access-assignments returns site_selection_required; keep explicit school-pick guidance visible.",
+    "Do not silently auto-pick a school for multi-site access-management flows without an explicit site-selection contract and proof.",
     "Do not remove the recent Global Admin role-assignment panel while /api/admin/role-assignments remains the protected source of truth for recent grants.",
     "Do not surface raw site or program scope ids in Users & Access when the current site/program labels are already available in the workspace.",
     "Do not broaden Site Admin workspaces with this Global Admin-only role-assignment disclosure.",
@@ -1326,7 +1336,7 @@
   ],
   "lastValidationStatus": {
     "status": "passed",
-    "completedAt": "2026-06-02T15:22:59.3530801-07:00",
+    "completedAt": "2026-06-02T15:32:29-07:00",
     "commands": [
       "node --check workspace.js",
       "node --test tests/workspace-app.test.mjs",
@@ -1336,10 +1346,10 @@
       "npm run typecheck",
       "npm run test",
       "npm run check",
-      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-02-1507-global-admin-role-assignments.json','utf8')); console.log('json ok')\"",
+      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-02-1532-users-access-site-selection.json','utf8')); console.log('json ok')\"",
       "git diff --check"
     ],
-    "notes": "The Global Admin role-assignment visibility slice passed workspace syntax checks, focused workspace app coverage, language and automation verification, production-surface checks, typecheck, full test and check runs, JSON parsing, and git diff --check with CRLF normalization warnings only."
+    "notes": "The Users & Access site-selection guidance slice passed workspace syntax checks, focused workspace app coverage, language and automation verification, production-surface checks, typecheck, full test and check runs, JSON parsing, and git diff --check with CRLF normalization warnings only."
   },
   "lastProductReadinessScorecardSummary": {
     "homepageClarity": "4 to 4",

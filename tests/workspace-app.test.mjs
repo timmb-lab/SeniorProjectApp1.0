@@ -6405,6 +6405,60 @@ test("workspace renders recent role assignments for global admins before site ac
   assertMarkupOrder(adminUsers, "Recent role assignments", "data-site-access-assignment-form", "recent role assignments should render before assignment forms");
 });
 
+test("workspace guides multi-site admins to choose a school before managing site access", async () => {
+  const adminUsers = await renderWorkspaceWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "global-admin-site-selection",
+          email: "global.selection@example.edu",
+          displayName: "Global Selection Admin",
+          roles: [{ role_id: "admin", scope_type: "global", scope_id: "" }],
+        },
+      },
+    },
+    "/api/site/access-assignments": {
+      status: 409,
+      body: {
+        ok: false,
+        error: "site_selection_required",
+        selectionRequired: true,
+        accessibleSites: [
+          { siteId: "site-desert-valley-high", siteName: "Desert Valley High School" },
+          { siteId: "site-canyon-ridge-career", siteName: "Canyon Ridge Career Academy" },
+        ],
+      },
+    },
+    "/api/admin/role-assignments": {
+      status: 200,
+      body: {
+        ok: true,
+        assignments: [],
+      },
+    },
+    "/api/presentation-slots": {
+      status: 200,
+      body: { ok: true, slots: [] },
+    },
+    "/api/reports/readiness": {
+      status: 200,
+      body: { ok: true, scope: "all-programs", metrics: {} },
+    },
+  }, "adminUsers");
+
+  assert.match(adminUsers, /data-admin-role-assignments="true"/);
+  assert.match(adminUsers, /Recent role assignments/);
+  assert.match(adminUsers, /data-workspace-state="access-assignment-site-selection-required"/);
+  assert.match(adminUsers, /Select a site before managing school access/);
+  assert.match(adminUsers, /data-site-switch-id="site-desert-valley-high"/);
+  assert.match(adminUsers, /data-site-switch-id="site-canyon-ridge-career"/);
+  assert.match(adminUsers, /Choose a site from the Current site menu/);
+  assert.match(adminUsers, /workspace-problem-state/);
+  assert.doesNotMatch(adminUsers, /Manage Site Access|data-site-access-assignment-form/);
+});
+
 test("workspace renders current site access assignments before management forms", async () => {
   const { context, workspaceRoot } = await createWorkspaceContextWithFetch({
     "/api/auth/me": {

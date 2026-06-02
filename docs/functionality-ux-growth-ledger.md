@@ -6146,3 +6146,60 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: hosted permission proof still needs allowed runtime; Program Teacher mentor-meeting follow-up still lacks an exact current destination; Review Queue missing-submission semantics still need backend evidence.
   - Do not repeat: do not hide recent role grants back behind raw route proof, and do not broaden Site Admin workspaces with this Global Admin-only panel.
   - First file to inspect next run: `workspace.js` around `renderAdminUsersSection()` and `renderAdminRoleAssignmentsPanel()`
+
+## Run 2026-06-02 15:32 PT
+
+- Starting SHA: `a00a20b79da766fdef2b1c1f89c0f3aff6fdc16c`
+- Ending SHA: pending closeout commit; final hash is reported after commit
+- Branch: `main`
+- Branch policy: started from clean local `main`; after `git fetch origin --prune`, local `main` was still ahead of `origin/main` by four prior local automation commits, so this run stayed local-only and did not push
+- Ladder level targeted: `LEVEL_4_ROLE_SPECIFIC_WORKSPACES`
+- Backlog item: `users-access-site-selection-guidance`
+- Work order selected: Add explicit site-selection guidance to `Users & Access` when multi-site access-management routes require a school choice.
+- Selection reason: current repo evidence showed a real protected-workspace dead end, not a speculative backlog item. `/api/site/access-assignments` already returned `selectionRequired` plus accessible site buttons, and multiple other protected sections already rendered that response with actionable site-pick guidance. `renderAdminAccessAssignmentPanel()` alone still fell back to a generic API notice, so reusing the existing workspace site-switch pattern was the smallest safe product-readiness batch with real Global Admin and multi-site site-admin workflow value.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Users & Access site-selection guidance | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | `global_admin`, `admin`, `platform_admin`, multi-site `site_admin` | 5 | 5 | 5 | XS | 56 | selected |
+| Global Admin route refresh across Audit, Programs, Students, Presentation, and Users & Access | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | `global_admin` | 4 | 4 | 3 | M | 44 | deferred: broader multi-surface verification batch than this focused access-management slice |
+| Program Teacher mentor-meeting follow-up destination | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | `program_teacher` | 4 | 3 | 3 | M | 40 | deferred: no exact current destination is proven for that follow-up row |
+| Hosted section-level permission proof | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all protected roles | 4 | 3 | 2 | M | 35 | deferred: hosted runtime is outside this local batch |
+| Review Queue missing-submission semantics | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | `program_teacher`, `site_admin` | 5 | 2 | 3 | M | 34 | deferred: backend queue rows are still absent |
+| Mentor reassignment or removal workflow | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | `site_admin` | 4 | 2 | 3 | M | 33 | deferred: mutation and audit design still needed |
+| Viewer email visibility policy | `LEVEL_7_AUDITABILITY_AND_TRUST` | `viewer` | 3 | 2 | 3 | S | 30 | deferred: policy decision still comes before UI change |
+| Admin import approved-path explanation | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | `global_admin` | 2 | 5 | 4 | XS | 31 | not selected: copy-only improvement was lower value than fixing a real protected dead end |
+| Student mentor support workflow | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | `student` | 3 | 3 | 3 | S | 32 | deferred: product policy still limits contact-path expansion |
+| Presentation live click-through refresh | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | protected roles with presentation access | 3 | 3 | 2 | M | 28 | deferred: verification-only batch with no bounded in-repo behavior gap this run |
+
+- User-facing improvement: multi-site Global Admin and site-admin users now get explicit school-pick guidance inside `Users & Access` when school-scoped access management needs a selected site, instead of seeing a generic protected-workspace dead end.
+- Roles affected: `global_admin`, `admin`, `platform_admin`, and any multi-site `site_admin` that reaches `Users & Access`
+- Files changed: `workspace.js`, `tests/workspace-app.test.mjs`, `docs/functionality-language-audit.md`, `docs/product/demo-role-readiness.md`, `docs/progress/run-log.md`, `docs/progress/runs/2026-06-02-1532-users-access-site-selection.json`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`
+- Tests/verifiers added or updated: `tests/workspace-app.test.mjs` now proves `Users & Access` keeps the recent-role-assignments panel visible for Global Admin while rendering a dedicated `access-assignment-site-selection-required` state, explicit school buttons, and actionable next-step guidance when `/api/site/access-assignments` returns `selectionRequired`.
+- Validation commands:
+  - `node --check workspace.js`
+  - `node --test tests/workspace-app.test.mjs`
+  - `npm run verify:functionality-language`
+  - `npm run verify:functionality-ux-automation`
+  - `npm run check:production-surfaces`
+  - `npm run typecheck`
+  - `npm run test`
+  - `npm run check`
+  - `node -e "JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-02-1532-users-access-site-selection.json','utf8')); console.log('json ok')"`
+  - `git diff --check`
+- Validation result: passed. Workspace syntax checks, focused workspace coverage, functionality-language and automation verification, production-surface checks, typecheck, full test and check runs, JSON parsing, and `git diff --check` all passed after docs/state closeout; `git diff --check` reported CRLF normalization warnings only.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: Global Admin route refresh, Program Teacher mentor-meeting follow-up destination, hosted section-level permission proof, Review Queue missing-submission semantics, viewer email visibility policy, and mentor reassignment/remove workflow remain open.
+- New backlog items: none
+- Next recommended work order: Inspect a bounded Global Admin route refresh across the existing Audit, Programs, Student Directory, Presentation, recent role assignments, and new access-management site-selection handoff; if that remains too broad for one run, keep Program Teacher mentor-meeting follow-up summary-only until a precise scoped destination exists.
+- Do-not-repeat notes: do not fall back to a generic API notice for `Users & Access` when `/api/site/access-assignments` returns `site_selection_required`, and do not silently auto-pick a site for multi-site access-management flows without an explicit school-selection contract.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_4_ROLE_SPECIFIC_WORKSPACES`
+  - Advanced: yes
+  - Evidence: `workspace.js` now renders a dedicated `Users & Access` school-pick state for `selectionRequired`, and focused workspace coverage proves it keeps recent role assignments visible while replacing the generic dead end with actionable site buttons.
+  - Unlocks: the next Global Admin refresh can verify current cross-site access-management flow without re-solving the missing site-selection handoff inside `Users & Access`.
+  - Next: inspect `workspace.js` across `renderAdminUsersSection()`, `renderAdminAccessAssignmentPanel()`, and the current Global Admin Audit/Programs/Students/Presentation paths if the next run stays on admin workflow depth.
+  - Blockers: hosted permission proof still needs allowed runtime; Program Teacher mentor-meeting follow-up still lacks an exact current destination; Review Queue missing-submission semantics still need backend evidence.
+  - Do not repeat: do not remove the new `Users & Access` site-selection guidance while `/api/site/access-assignments` continues returning accessible site choices for multi-site access-management flows.
+  - First file to inspect next run: `workspace.js` around `renderAdminAccessAssignmentPanel()` and `renderAccessAssignmentSelectionRequired()`
