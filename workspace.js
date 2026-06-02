@@ -394,6 +394,7 @@ function defaultCurrentData(authConfig = currentData.authConfig) {
     reviewQueue: null,
     mentorAssignments: null,
     accessAssignments: null,
+    roleAssignments: null,
     operationsReadiness: null,
     mentorAssigned: null,
     presentationSlots: null,
@@ -422,6 +423,7 @@ async function loadWorkspaceData(statusMessage = "") {
   if (hasSiteReviewQueueRole(roles)) loaders.push(["reviewQueue", apiJson(`/api/site/review-queue${siteReviewQueueQueryString()}`)]);
   if (hasSiteMentorAssignmentRole(roles)) loaders.push(["mentorAssignments", apiJson(`/api/site/mentor-assignments${siteMentorAssignmentQueryString()}`)]);
   if (canUseUsersAccess(roles)) loaders.push(["accessAssignments", apiJson(`/api/site/access-assignments${siteDashboardQueryString()}`)]);
+  if (hasGlobalAdminRole(roles)) loaders.push(["roleAssignments", apiJson("/api/admin/role-assignments?limit=12")]);
   if (hasSiteOperationsRole(roles)) loaders.push(["operationsReadiness", apiJson(`/api/site/operations-readiness${siteOperationsReadinessQueryString()}`)]);
   if (hasGlobalAdminRole(roles)) loaders.push(["adminDashboard", apiJson("/api/admin/dashboard")]);
   if (roles.has("program_teacher")) loaders.push(["programTeacherDashboard", apiJson("/api/program-teacher/dashboard")]);
@@ -7028,6 +7030,7 @@ function renderAdminUsersSection() {
       </form>
     </section>
     ${renderAdminImportResult()}
+    ${renderAdminRoleAssignmentsPanel()}
     ${renderAdminAccessAssignmentPanel()}
   `;
 }
@@ -7065,6 +7068,87 @@ function renderAdminImportResult() {
       </div>
     </section>
   `;
+}
+
+function renderAdminRoleAssignmentsPanel() {
+  const result = currentData.roleAssignments;
+  if (!result || result?.status === 403) return "";
+  const body = unwrap(result);
+  if (!body?.ok) {
+    return `
+      <section class="workspace-card" data-admin-role-assignments="true">
+        <div class="workspace-card-head">
+          <div>
+            <p class="workspace-kicker">Global role access</p>
+            <h2>Recent role assignments</h2>
+          </div>
+          <span class="workspace-chip">Global Admin</span>
+        </div>
+        ${renderApiNotice(result)}
+      </section>
+    `;
+  }
+
+  const assignments = Array.isArray(body.assignments) ? body.assignments : [];
+  return renderWorkspaceDisclosurePanel({
+    scope: "usersAccess",
+    id: "roleAssignments",
+    kicker: "Global role access",
+    title: "Recent role assignments",
+    summary: "Review recent platform, school, program, and cohort grants before changing user access.",
+    openLabel: "Open recent role assignments",
+    closeLabel: "Hide recent role assignments",
+    dataAttrs: 'data-admin-role-assignments="true"',
+    bodyHtml: renderAdminRoleAssignmentsBody(assignments),
+  });
+}
+
+function renderAdminRoleAssignmentsBody(assignments = []) {
+  if (!assignments.length) {
+    return `<div class="workspace-empty">No recent role assignments are available right now.</div>`;
+  }
+  return `
+    <div class="workspace-list">
+      ${assignments.map((assignment) => `
+        <article class="workspace-row">
+          <div>
+            <strong>${escapeHtml(assignment.userName || assignment.userId || "User")}</strong>
+            <p>${escapeHtml(roleLabel(assignment.roleId || "role"))} / ${escapeHtml(adminRoleAssignmentScopeText(assignment))}</p>
+            <p class="workspace-muted">Assigned ${escapeHtml(formatDate(assignment.assignedAt))}</p>
+          </div>
+          <div class="workspace-row-actions">
+            ${statusPill(assignment.roleId || assignment.scopeType || "configured")}
+          </div>
+        </article>
+      `).join("")}
+    </div>
+  `;
+}
+
+function adminRoleAssignmentScopeText(assignment = {}) {
+  const scopeType = String(assignment.scopeType || "global").toLowerCase();
+  const scopeId = String(assignment.scopeId || "").trim();
+  if (scopeType === "global") {
+    return "All schools";
+  }
+
+  const accessAssignments = unwrap(currentData.accessAssignments);
+  const scope = accessAssignments?.scope || {};
+  const programs = Array.isArray(accessAssignments?.programs) ? accessAssignments.programs : [];
+  if (scopeType === "site") {
+    if (scopeId && scopeId === scope.siteId && scope.siteName) {
+      return `Site access / ${scope.siteName}`;
+    }
+    return `Site access / ${statusText(scopeId || "current_site")}`;
+  }
+  if (scopeType === "program") {
+    const match = programs.find((program) => String(program?.programId || program?.id || "").trim() === scopeId);
+    return `Program access / ${match?.programName || match?.name || statusText(scopeId || "current_program")}`;
+  }
+  if (scopeType === "cohort") {
+    return `Cohort access / ${statusText(scopeId || "current_cohort")}`;
+  }
+  return `${statusText(scopeType)} / ${statusText(scopeId || "current_scope")}`;
 }
 
 function renderAdminAccessAssignmentPanel() {

@@ -6089,3 +6089,60 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: Program Teacher mentor-meeting follow-up still lacks an exact current destination; hosted permission proof still needs allowed runtime; Review Queue missing-submission semantics still need backend evidence.
   - Do not repeat: do not remove `presentationFocus` parsing, sync, or focused coverage while the current Presentation section still relies on those route-backed in-page filters.
   - First file to inspect next run: `workspace.js` around `renderPresentationSection()`, `handlePresentationFilterAction()`, and the section URL-state helpers
+
+## Run 2026-06-02 15:07 PT
+
+- Starting SHA: `937f7c2399c7ff8de2dbd5e21ad201d50a177d3a`
+- Ending SHA: pending closeout commit; final hash is reported after commit
+- Branch: `main`
+- Branch policy: started from clean local `main`; after `git fetch origin --prune`, local `main` was still ahead of `origin/main` by three prior local automation commits, so this run stayed local-only and did not push
+- Ladder level targeted: `LEVEL_4_ROLE_SPECIFIC_WORKSPACES`
+- Backlog item: `global-admin-role-assignments`
+- Work order selected: Surface recent Global Admin role assignments inside the existing `Users & Access` workspace section.
+- Selection reason: current repo evidence showed that `/api/admin/role-assignments` already returned real protected role-grant records, but the protected workspace still exposed only account import and site-scoped access management. Global Admins had to rely on raw route proof or leave the main workflow to confirm recent role grants before making another access change. Reusing that existing route as a read-only disclosure inside `Users & Access` was the smallest safe product-readiness slice because it improved admin workflow clarity without adding new mutation controls, changing RBAC, or inventing a new route.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Recent Global Admin role assignments panel | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | `global_admin`, `admin`, `platform_admin` | 5 | 5 | 5 | S | 55 | selected |
+| Global Admin route refresh across Audit, Programs, Students, and Presentation | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | `global_admin` | 4 | 4 | 3 | M | 44 | deferred: broader multi-surface verification batch than this focused UI slice |
+| Program Teacher mentor-meeting follow-up destination | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | `program_teacher` | 4 | 3 | 3 | M | 40 | deferred: no exact current destination is proven for that follow-up row |
+| Hosted section-level permission proof | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all protected roles | 4 | 3 | 2 | M | 35 | deferred: hosted runtime is outside this local batch |
+| Review Queue missing-submission semantics | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | `program_teacher`, `site_admin` | 5 | 2 | 3 | M | 34 | deferred: backend queue rows are still absent |
+| Mentor reassignment or removal workflow | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | `site_admin` | 4 | 2 | 3 | M | 33 | deferred: mutation and audit design still needed |
+| Viewer email visibility policy | `LEVEL_7_AUDITABILITY_AND_TRUST` | `viewer` | 3 | 2 | 3 | S | 30 | deferred: policy decision still comes before UI change |
+| Student submission action anchors | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | `student` | 3 | 4 | 3 | S | 37 | deferred: useful, but lower admin-surface value than exposing an existing protected access-review route |
+| Student mentor support workflow | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | `student` | 3 | 3 | 3 | S | 32 | deferred: product policy still limits contact-path expansion |
+| Admin import approved-path explanation | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | `global_admin` | 2 | 5 | 4 | XS | 31 | not selected: copy-only improvement was lower value than exposing the real role-assignment evidence route |
+
+- User-facing improvement: Global Admins can now review recent global, site, and program role grants inside the existing protected `Users & Access` workflow instead of relying on raw route proof or leaving the workspace before making another access change.
+- Roles affected: `global_admin`, `admin`, and `platform_admin`
+- Files changed: `workspace.js`, `tests/workspace-app.test.mjs`, `docs/functionality-language-audit.md`, `docs/product/demo-role-readiness.md`, `docs/progress/run-log.md`, `docs/progress/runs/2026-06-02-1507-global-admin-role-assignments.json`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`
+- Tests/verifiers added or updated: `tests/workspace-app.test.mjs` now proves Global Admin `Users & Access` renders the new `Recent role assignments` disclosure, keeps it collapsed by default, and renders school-facing scope labels such as `All schools`, `Program access / Information Technology`, and `Site access / Desert Valley High School` after the panel opens.
+- Validation commands:
+  - `node --check workspace.js`
+  - `node --test tests/workspace-app.test.mjs`
+  - `npm run verify:functionality-language`
+  - `npm run verify:functionality-ux-automation`
+  - `npm run check:production-surfaces`
+  - `npm run typecheck`
+  - `npm run test`
+  - `npm run check`
+  - `node -e "JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-02-1507-global-admin-role-assignments.json','utf8')); console.log('json ok')"`
+  - `git diff --check`
+- Validation result: passed. Workspace syntax checks, focused workspace coverage, functionality-language and automation verification, production-surface checks, typecheck, full test and check runs, JSON parsing, and `git diff --check` all passed after docs/state closeout; `git diff --check` reported CRLF normalization warnings only.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: Global Admin route refresh, Program Teacher mentor-meeting follow-up destination, hosted section-level permission proof, Review Queue missing-submission semantics, viewer email visibility policy, and mentor reassignment/remove workflow remain open.
+- New backlog items: none
+- Next recommended work order: Inspect a bounded Global Admin route refresh across the existing Audit, Programs, Student Directory, Presentation, and recent role-assignment flows; if that remains too broad for one run, keep Program Teacher mentor-meeting follow-up summary-only until a precise scoped destination exists.
+- Do-not-repeat notes: do not remove the recent role-assignment panel while `/api/admin/role-assignments` remains the protected source of truth, and do not surface raw scope ids where current site/program labels are already available inside `Users & Access`.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_4_ROLE_SPECIFIC_WORKSPACES`
+  - Advanced: yes
+  - Evidence: `workspace.js` now loads `/api/admin/role-assignments` for Global Admin only and renders a disclosed recent-role-assignments panel before the existing site-access forms; focused workspace coverage proves the panel stays collapsed on first load and renders school-facing scope labels after disclosure opens.
+  - Unlocks: future Global Admin role-refresh work can build on an in-workspace access-review surface instead of rediscovering raw role-assignment route proof.
+  - Next: inspect the current Global Admin flow across `Programs`, `Audit`, topbar student search, Presentation focus restore, and the new role-assignment panel; if that feels too broad, keep Program Teacher mentor-meeting follow-up summary-only until a precise destination exists.
+  - Blockers: hosted permission proof still needs allowed runtime; Program Teacher mentor-meeting follow-up still lacks an exact current destination; Review Queue missing-submission semantics still need backend evidence.
+  - Do not repeat: do not hide recent role grants back behind raw route proof, and do not broaden Site Admin workspaces with this Global Admin-only panel.
+  - First file to inspect next run: `workspace.js` around `renderAdminUsersSection()` and `renderAdminRoleAssignmentsPanel()`

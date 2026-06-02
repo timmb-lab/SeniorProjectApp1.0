@@ -21,6 +21,17 @@ This is the compact run log for the current Functionality UX Upgrade automation 
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-06-02 15:07 PT - Functionality UX Upgrade Global Admin Role Assignments
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 4 role-specific workspace clarity / Global Admin access review.
+- `starting HEAD`: `937f7c2399c7ff8de2dbd5e21ad201d50a177d3a`.
+- `selected slice`: Surface recent Global Admin role assignments inside the existing `Users & Access` workspace section.
+- `repo-grounded findings`: `/api/admin/role-assignments` already returned real protected role-grant records, but the protected workspace still exposed only account import and site-scoped access management. Global Admins had to rely on raw route proof or leave the main workflow to confirm recent role grants before making another access change. The safest bounded slice was to reuse that existing route as a read-only disclosure inside `Users & Access`, keeping the panel Global Admin-only and reusing current site/program labels where possible instead of inventing new mutation controls.
+- `changes`: `workspace.js` now loads `/api/admin/role-assignments` for Global Admins only and renders a disclosed `Recent role assignments` panel ahead of the existing site-access forms. The panel stays collapsed on first load, lists recent global, site, and program grants with school-facing scope labels, and keeps Site Admin workspaces unchanged. `tests/workspace-app.test.mjs` now proves the panel is present only for Global Admin, stays hidden until disclosure opens, and renders `All schools`, `Program access / Information Technology`, and `Site access / Desert Valley High School` instead of a raw route dump.
+- `validation`: `node --check workspace.js` and `node --test tests/workspace-app.test.mjs` passed before docs/state closeout. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.
+
 ## 2026-06-02 14:08 PT - Functionality UX Upgrade Student Detail Note Visibility
 
 - `automation ID`: functionality-ux-upgrade-hourly.

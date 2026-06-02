@@ -6289,6 +6289,14 @@ test("workspace renders admin import controls and one-time setup output", async 
       status: 200,
       body: { ok: true, scope: "all-programs", metrics: {} },
     },
+    "/api/site/access-assignments": {
+      status: 200,
+      body: siteAccessAssignmentsFixture(),
+    },
+    "/api/admin/role-assignments": {
+      status: 200,
+      body: { ok: true, assignments: [] },
+    },
   }, "adminUsers", `
     lastAdminImportResult = {
       users: [
@@ -6316,6 +6324,85 @@ test("workspace renders admin import controls and one-time setup output", async 
   assert.match(adminUsers, /N9!aA-setup-zZ/);
   assert.match(adminUsers, /pending reset/i);
   assert.match(adminUsers, /will create a new password at first sign-in/i);
+});
+
+test("workspace renders recent role assignments for global admins before site access forms", async () => {
+  const { context, workspaceRoot } = await createWorkspaceContextWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "global-role-admin",
+          email: "global.roles@example.edu",
+          displayName: "Global Role Admin",
+          roles: [{ role_id: "admin", scope_type: "global", scope_id: "" }],
+        },
+      },
+    },
+    "/api/site/access-assignments": {
+      status: 200,
+      body: siteAccessAssignmentsFixture(),
+    },
+    "/api/admin/role-assignments": {
+      status: 200,
+      body: {
+        ok: true,
+        assignments: [
+          {
+            userId: "global-target",
+            userName: "Global Access Lead",
+            roleId: "global_admin",
+            scopeType: "global",
+            scopeId: "",
+            assignedAt: "2026-06-02T20:15:00.000Z",
+          },
+          {
+            userId: "teacher-target",
+            userName: "Program Scope Teacher",
+            roleId: "program_teacher",
+            scopeType: "program",
+            scopeId: "it",
+            assignedAt: "2026-06-02T19:10:00.000Z",
+          },
+          {
+            userId: "admin-target",
+            userName: "Site Access Principal",
+            roleId: "administration",
+            scopeType: "site",
+            scopeId: "site-desert-valley-high",
+            assignedAt: "2026-06-02T18:05:00.000Z",
+          },
+        ],
+      },
+    },
+    "/api/presentation-slots": {
+      status: 200,
+      body: { ok: true, slots: [] },
+    },
+    "/api/reports/readiness": {
+      status: 200,
+      body: { ok: true, scope: "all-programs", metrics: {} },
+    },
+  });
+  vm.runInContext('activeSection = "adminUsers"; renderAppShell();', context);
+  const adminUsers = workspaceRoot.innerHTML;
+
+  assert.match(adminUsers, /data-admin-role-assignments="true"/);
+  assert.match(adminUsers, /Recent role assignments/);
+  assert.match(adminUsers, /data-workspace-disclosure-panel="usersAccess:roleAssignments"/);
+  assert.match(adminUsers, /aria-expanded="false"/);
+  assert.doesNotMatch(adminUsers, /Global Access Lead|Program Scope Teacher|Site Access Principal/);
+
+  openWorkspaceDisclosure(context, "usersAccess", "roleAssignments");
+  const adminUsersWithRoles = workspaceRoot.innerHTML;
+  assert.match(adminUsersWithRoles, /Global Access Lead/);
+  assert.match(adminUsersWithRoles, /Global Admin \/ All schools/);
+  assert.match(adminUsersWithRoles, /Program Scope Teacher/);
+  assert.match(adminUsersWithRoles, /Program Teacher \/ Program access \/ Information Technology/);
+  assert.match(adminUsersWithRoles, /Site Access Principal/);
+  assert.match(adminUsersWithRoles, /Administration \/ Site access \/ Desert Valley High School/);
+  assertMarkupOrder(adminUsers, "Recent role assignments", "data-site-access-assignment-form", "recent role assignments should render before assignment forms");
 });
 
 test("workspace renders current site access assignments before management forms", async () => {

@@ -1,0 +1,76 @@
+{
+  "automationId": "functionality-ux-upgrade-hourly",
+  "runStartedAt": "2026-06-02T15:07:39-07:00",
+  "branch": "main",
+  "startingSha": "937f7c2399c7ff8de2dbd5e21ad201d50a177d3a",
+  "endingSha": null,
+  "workOrderId": "global-admin-role-assignment-visibility",
+  "ladderLevels": [
+    "LEVEL_4_ROLE_SPECIFIC_WORKSPACES"
+  ],
+  "selectedSlice": "Surface recent Global Admin role assignments inside the existing Users & Access workspace section.",
+  "selectionReason": "The protected workspace already had account import and site-scoped access management, and /api/admin/role-assignments already returned real protected role-grant records. Reusing that route as a read-only disclosure was the safest bounded improvement because it kept the panel Global Admin-only, avoided new mutation controls, and removed the need to rely on raw route proof before making another access change.",
+  "candidateCount": 10,
+  "candidateShortlist": [
+    "Recent Global Admin role assignments panel",
+    "Global Admin route refresh across Audit, Programs, Students, and Presentation",
+    "Program Teacher mentor-meeting follow-up destination",
+    "Hosted section-level permission proof",
+    "Review Queue missing-submission semantics",
+    "Mentor reassignment or removal workflow",
+    "Viewer email visibility policy",
+    "Student submission action anchors",
+    "Student mentor support workflow",
+    "Admin import approved-path explanation"
+  ],
+  "userFacingImprovement": "Global Admins can now review recent global, site, and program role grants inside the protected Users & Access workflow instead of relying on raw route proof or leaving the workspace before another access change.",
+  "privacyAndPermissionNotes": [
+    "The new panel is loaded only for Global Admin-equivalent roles already allowed to use /api/admin/role-assignments.",
+    "No new mutation control, write path, role, tenant scope, site scope, program scope, or student visibility path was added.",
+    "Site Admin workspaces still use the existing site-scoped access summary and do not receive the Global Admin role-assignment panel."
+  ],
+  "filesChanged": [
+    "workspace.js",
+    "tests/workspace-app.test.mjs",
+    "docs/functionality-language-audit.md",
+    "docs/product/demo-role-readiness.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-06-02-1507-global-admin-role-assignments.json",
+    "docs/functionality-ux-growth-ledger.md",
+    "automation/state/functionality-ux-growth-state.json"
+  ],
+  "validation": {
+    "focusedPassedBeforeCloseout": [
+      "node --check workspace.js",
+      "node --test tests/workspace-app.test.mjs"
+    ],
+    "final": [
+      "node --check workspace.js",
+      "node --test tests/workspace-app.test.mjs",
+      "npm run verify:functionality-language",
+      "npm run verify:functionality-ux-automation",
+      "npm run check:production-surfaces",
+      "npm run typecheck",
+      "npm run test",
+      "npm run check",
+      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-02-1507-global-admin-role-assignments.json','utf8')); console.log('json ok')\"",
+      "git diff --check"
+    ],
+    "result": "passed",
+    "notes": "git diff --check reported only CRLF normalization warnings."
+  },
+  "deferred": [
+    "Global Admin route refresh remains broader than this bounded Users & Access slice.",
+    "Program Teacher mentor-meeting follow-up still lacks a precise current destination.",
+    "Hosted section-level permission proof still needs allowed hosted runtime and audit-event writes.",
+    "Review Queue missing-submission semantics remain deferred until backend queue rows or exact scoped empty-state evidence exist.",
+    "Viewer email visibility policy still needs a product decision before any UI change.",
+    "Mentor reassignment and removal workflow still needs mutation and audit design."
+  ],
+  "nextRecommended": "Inspect a bounded Global Admin route refresh across the existing Audit, Programs, Student Directory, Presentation, and recent role-assignment flows; if that remains too broad, keep Program Teacher mentor-meeting follow-up summary-only until a precise scoped destination exists.",
+  "doNotRepeat": [
+    "Do not remove the recent role-assignment panel while /api/admin/role-assignments remains the protected source of truth.",
+    "Do not surface raw scope ids in Users & Access where current site and program labels are already available.",
+    "Do not broaden Site Admin workspaces with this Global Admin-only role-assignment disclosure."
+  ]
+}

@@ -1,10 +1,18 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-06-02T14:38:13-07:00",
-  "lastStartingSha": "cb3f9c7844add5444756554fdc79353f30ee846f",
+  "lastRunAt": "2026-06-02T15:07:39-07:00",
+  "lastStartingSha": "937f7c2399c7ff8de2dbd5e21ad201d50a177d3a",
   "lastEndingSha": null,
   "currentLadderFocus": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
   "completedWorkOrders": [
+    {
+      "id": "global-admin-role-assignment-visibility",
+      "completedAt": "2026-06-02T15:07:39-07:00",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "type": "TYPE_D_ROLE_WORKSPACE",
+      "summary": "Users & Access now shows Global Admin-only recent role assignments from the existing protected route so recent global, site, and program grants stay visible before another access change.",
+      "commit": "pending-closeout-commit"
+    },
     {
       "id": "presentation-schedule-url-state",
       "completedAt": "2026-06-02T14:38:13-07:00",
@@ -1148,6 +1156,12 @@
   "blockedWorkOrders": [],
   "nextRecommendedWorkOrders": [
     {
+      "id": "global-admin-route-refresh",
+      "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
+      "type": "TYPE_G_VERIFICATION_REGRESSION_PROTECTION",
+      "summary": "Refresh the current Global Admin click-through and boundary proof across already backed Programs, Audit, Student Directory, Presentation, and the new role-assignment panel."
+    },
+    {
       "id": "program-teacher-mentor-meeting-follow-up-destination",
       "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
       "type": "TYPE_D_ROLE_WORKSPACE",
@@ -1164,15 +1178,12 @@
       "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
       "type": "TYPE_F_REVIEW_INTERVENTION_QUEUE",
       "summary": "Clarify missing-submission behavior in the Review Queue only after backend rows or exact scoped empty-state evidence are proven."
-    },
-    {
-      "id": "global-admin-role-refresh",
-      "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
-      "type": "TYPE_G_VERIFICATION_REGRESSION_PROTECTION",
-      "summary": "Refresh the current Global Admin click-through and boundary proof only across already backed Programs, Audit, Student Directory, and Presentation flows."
     }
   ],
   "doNotRepeat": [
+    "Do not remove the recent Global Admin role-assignment panel while /api/admin/role-assignments remains the protected source of truth for recent grants.",
+    "Do not surface raw site or program scope ids in Users & Access when the current site/program labels are already available in the workspace.",
+    "Do not broaden Site Admin workspaces with this Global Admin-only role-assignment disclosure.",
     "Do not regress the Presentation section back to in-memory-only focus state while presentationFocus restore and sync are now proven.",
     "Do not invent new /api/presentation-slots query params or broaden role visibility while extending Presentation continuity.",
     "Do not collapse student-detail Reviews back to generic Visible notes or raw scoped/staff_only labels while the route already provides note-visibility boundaries.",
@@ -1315,20 +1326,20 @@
   ],
   "lastValidationStatus": {
     "status": "passed",
-    "completedAt": "2026-06-02T14:45:39.4852836-07:00",
+    "completedAt": "2026-06-02T15:22:59.3530801-07:00",
     "commands": [
       "node --check workspace.js",
       "node --test tests/workspace-app.test.mjs",
-      "npm run verify:workspace-navigation",
+      "npm run verify:functionality-language",
       "npm run verify:functionality-ux-automation",
       "npm run check:production-surfaces",
       "npm run typecheck",
       "npm run test",
       "npm run check",
-      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-02-1438-presentation-schedule-url-state.json','utf8')); console.log('json ok')\"",
+      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-02-1507-global-admin-role-assignments.json','utf8')); console.log('json ok')\"",
       "git diff --check"
     ],
-    "notes": "The Presentation URL-state slice passed workspace syntax checks, focused workspace app coverage, workspace-navigation and automation verification, production-surface checks, typecheck, full test and check runs, JSON parsing, and git diff --check with CRLF normalization warnings only."
+    "notes": "The Global Admin role-assignment visibility slice passed workspace syntax checks, focused workspace app coverage, language and automation verification, production-surface checks, typecheck, full test and check runs, JSON parsing, and git diff --check with CRLF normalization warnings only."
   },
   "lastProductReadinessScorecardSummary": {
     "homepageClarity": "4 to 4",
