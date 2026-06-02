@@ -5228,3 +5228,57 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: hosted permission proof still needs allowed fake-account runtime; reassignment/remove work still needs broader mutation/audit review.
   - Do not repeat: do not treat this route bug as unresolved after commit unless regression evidence shows `site_admin` was removed from the POST helper path again.
   - First file to inspect next run: `workspace.js` around `renderSiteDashboardSection()` or `functions/_lib/site-student-detail.ts`
+
+## Run 2026-06-02 07:40 PT
+
+- Starting SHA: `fabaf4f236d7c02580aaf837e748780c3525340d`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Branch policy: work stayed on clean local `main`; no deploy, seed, reset, migration, or live config change was run
+- Ladder level targeted: `LEVEL_4_ROLE_SPECIFIC_WORKSPACES`
+- Backlog item: `role-readiness-administration-dashboard-refresh`
+- Work order selected: Replace viewer-style Administration labels on the Site Dashboard and site-backed Readiness path with leadership-friendly monitoring language.
+- Selection reason: Current repo evidence still pointed at this exact gap from three places at once: the role map in `docs/functionality-language-audit.md`, the open audit rows for Administration/AP language, and `automation/state/functionality-ux-growth-state.json` still recommending the same refresh. The slice stayed inside existing workspace render paths, preserved RBAC/site scope, and improved the Wednesday staff-demo path without inventing a new role or route.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Administration/AP dashboard and readiness language refresh | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | `administration` | 4 | 5 | 5 | XS | 50 | selected |
+| Review Queue row-level review affordance clarity | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | `program_teacher`, `site_admin` | 4 | 5 | 4 | S | 46 | not selected: useful, but the leadership demo gap was more immediate |
+| Risk scoring explanation on dashboard rows | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | site staff | 3 | 5 | 4 | XS | 43 | not selected: lower urgency than role-label drift |
+| Student detail URL state | `LEVEL_2_STUDENT_DETAIL_DEPTH` | site staff | 4 | 3 | 3 | M | 39 | deferred: privacy review still needed |
+| Filter persistence across staff worklists | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | site staff | 4 | 3 | 3 | M | 38 | deferred: larger URL-state batch |
+| Site dashboard recent activity drill-down | `LEVEL_7_AUDITABILITY_AND_TRUST` | `site_admin`, `administration` | 3 | 3 | 3 | M | 36 | deferred: no site-backed audit destination yet |
+| Multi-site site selector follow-up | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | `site_admin` | 4 | 3 | 3 | M | 37 | deferred: broader workflow than this copy slice |
+| Mentor reassignment/remove workflow | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | `site_admin` | 4 | 2 | 3 | M | 33 | deferred: mutation and audit design still needed |
+| Viewer student email redaction decision | `LEVEL_7_AUDITABILITY_AND_TRUST` | `viewer` | 3 | 2 | 3 | S | 30 | deferred: policy decision first |
+| Hosted section-level permission proof | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all protected roles | 4 | 3 | 3 | M | 38 | deferred: hosted fake-account runtime is outside this local batch |
+
+- User-facing improvement: Administration users now see leadership monitoring language on the Site Dashboard and site-backed Readiness surfaces instead of inheriting viewer-only labels, while existing worklists, read-only boundaries, and role limits remain unchanged.
+- Roles affected: `administration`
+- Files changed: `workspace.js`, `tests/workspace-app.test.mjs`, `docs/functionality-language-audit.md`, `docs/product/demo-role-readiness.md`, `docs/progress/run-log.md`, `docs/progress/runs/2026-06-02-0740-administration-dashboard-readiness-language.json`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`
+- Tests/verifiers added or updated: `tests/workspace-app.test.mjs` now proves Administration Site Dashboard and site-backed Readiness renders use leadership copy and do not fall back to viewer-only labels.
+- Validation commands:
+  - `node --check workspace.js`
+  - `node --test tests/workspace-app.test.mjs`
+  - `npm run verify:functionality-language`
+  - `node --test tests/functionality-language-audit.test.mjs`
+  - `npm run verify:functionality-ux-automation`
+  - `node -e "JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-02-0740-administration-dashboard-readiness-language.json','utf8')); console.log('json ok')"`
+  - `git diff --check`
+- Validation result: passed. Focused workspace render coverage, language verification, audit/automation checks, JSON parsing, and `git diff --check` all passed after docs/state closeout; `git diff --check` reported CRLF normalization warnings only.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: Review Queue row-level review affordance clarity, student-detail URL state, filter persistence, site dashboard recent activity drill-down, multi-site site selector follow-up, mentor reassignment/remove workflow, viewer email redaction policy, and hosted permission proof remain open.
+- New backlog items: none
+- Next recommended work order: Clarify row-level Review actions and selected-row guidance on the existing Review Queue for site staff and Program Teachers.
+- Do-not-repeat notes: do not relabel Administration Site Dashboard or site-backed Readiness back to viewer wording unless product policy intentionally collapses leadership monitoring and viewer monitoring again.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_4_ROLE_SPECIFIC_WORKSPACES`
+  - Advanced: yes
+  - Evidence: `workspace.js` now branches read-only Site Dashboard and site-backed Readiness copy for Administration, and focused workspace coverage proves leadership wording without viewer-only labels.
+  - Unlocks: the role-readiness scorecard is now honest for Administration, so the next small UX slice can move back into teacher/site-admin workflow depth instead of repeating leadership copy cleanup.
+  - Next: inspect `workspace.js` around `renderTeacherReviewSection()` and selected-row guidance, or `renderNeedsAttention()` / risk-chip copy if the next slice stays in Level 4/5.
+  - Blockers: hosted permission proof still needs allowed fake-account runtime; student-detail URL state still needs privacy review; mentor reassignment/remove still needs mutation/audit design.
+  - Do not repeat: do not treat Administration dashboard/readiness language as open again unless viewer wording regresses on the protected site-scoped leadership path.
+  - First file to inspect next run: `workspace.js` around `renderTeacherReviewSection()`

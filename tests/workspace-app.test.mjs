@@ -5396,6 +5396,60 @@ test("workspace renders role-pending and permission-denied access states", async
   assert.match(administration, /Administration/);
 });
 
+test("workspace renders Administration site dashboard and readiness without viewer-only labels", async () => {
+  const sharedResponses = {
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "administration-dashboard",
+          email: "administration.dashboard@example.edu",
+          displayName: "Administration Dashboard",
+          roles: [{ role_id: "administration", scope_type: "site", scope_id: "site-desert-valley-high" }],
+        },
+      },
+    },
+    "/api/site/dashboard": {
+      status: 200,
+      body: siteDashboardFixture({ readOnly: true, role: "administration" }),
+    },
+    "/api/site/students": {
+      status: 200,
+      body: siteStudentsFixture({ readOnly: true, role: "administration" }),
+    },
+    "/api/site/operations-readiness": {
+      status: 200,
+      body: siteOperationsReadinessFixture({ role: "administration", readOnly: true }),
+    },
+    "/api/reports/readiness": {
+      status: 200,
+      body: {
+        ok: true,
+        scope: "aggregate_only",
+        generatedAt: "2026-05-31T18:00:00.000Z",
+        metrics: [],
+        rows: [],
+      },
+    },
+  };
+
+  const administrationDashboard = await renderWorkspaceWithFetch(sharedResponses, "siteDashboard");
+  assert.match(administrationDashboard, /Leadership priorities/);
+  assert.match(administrationDashboard, /Administration monitoring queue/);
+  assert.match(administrationDashboard, /Leadership monitoring/);
+  assert.match(administrationDashboard, /School follow-up to monitor/);
+  assert.doesNotMatch(administrationDashboard, /Viewer priorities|Read-only viewer/);
+
+  const administrationReadiness = await renderWorkspaceWithFetch(sharedResponses, "readiness");
+  assert.match(administrationReadiness, /data-readiness-report="site-operations"/);
+  assert.match(administrationReadiness, /Leadership readiness/);
+  assert.match(administrationReadiness, /School Readiness/);
+  assert.match(administrationReadiness, /Leadership monitoring/);
+  assert.match(administrationReadiness, /teachers and site staff still handle approvals, mentor assignments, account updates, and security settings/i);
+  assert.doesNotMatch(administrationReadiness, /Read-only viewer/);
+});
+
 test("workspace renders safe Google Workspace SSO and local sign-in states", async () => {
   const disabled = await renderWorkspaceWithFetch({
     "/api/auth/config": {

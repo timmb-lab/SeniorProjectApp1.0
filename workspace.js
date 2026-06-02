@@ -1577,9 +1577,11 @@ function renderOverviewSection() {
 }
 
 function renderViewerOverviewSection() {
-  const summary = unwrap(currentData.siteStudents)?.summary || {};
+  const siteStudents = unwrap(currentData.siteStudents) || {};
+  const summary = siteStudents.summary || {};
+  const scope = siteStudents.scope || {};
   return `
-    ${renderViewerMonitoringOverview(summary)}
+    ${renderReadOnlyMonitoringOverview(summary, scope)}
     ${renderSiteStudentDirectorySection()}
   `;
 }
@@ -1664,20 +1666,55 @@ function renderReadOnlyBanner() {
   `;
 }
 
-function renderViewerMonitoringOverview(summary = {}) {
+function siteReadOnlyAudience(scope = {}) {
+  const role = normalizeStatus(scope.role || primaryRoleForUser(currentUser));
+  if (role === "administration" || isReadOnlyAdministrationUser(currentUser)) {
+    return "administration";
+  }
+  return "viewer";
+}
+
+function siteAccessModeLabel(scope = {}) {
+  if (!scope.readOnly) return "Administration access";
+  return siteReadOnlyAudience(scope) === "administration"
+    ? "Leadership monitoring"
+    : "Read-only viewer";
+}
+
+function readOnlyMonitoringOverviewCopy(scope = {}) {
+  if (siteReadOnlyAudience(scope) === "administration") {
+    return {
+      kicker: "Leadership priorities",
+      title: "Administration monitoring queue",
+      detail: "Open the exact student lists and follow-up queues you can already monitor here; teachers and site staff still handle approvals, mentor assignment changes, account updates, and security settings.",
+      operationsTitle: "School follow-up to monitor",
+      operationsDetail: "presentation or archive records need staff follow-up.",
+    };
+  }
+  return {
+    kicker: "Viewer priorities",
+    title: "Read-only monitoring queue",
+    detail: "Open the exact assigned-student lists you can already monitor here; assigned staff handle approvals, assignments, account changes, and status updates.",
+    operationsTitle: "Operations to monitor",
+    operationsDetail: "presentation or archive records need school follow-up.",
+  };
+}
+
+function renderReadOnlyMonitoringOverview(summary = {}, scope = {}) {
   const reviewFollowUp = safeNumber(summary.submitted) + safeNumber(summary.revisionRequested);
   const noMentor = safeNumber(summary.noMentor);
   const operationsAttention = safeNumber(summary.presentationPending) + safeNumber(summary.archiveFailed);
   const reviewPreset = safeNumber(summary.revisionRequested) > 0 ? "revision-students" : "submitted-students";
   const operationsPreset = safeNumber(summary.archiveFailed) > 0 ? "archive-failed-students" : "presentation-pending-students";
+  const copy = readOnlyMonitoringOverviewCopy(scope);
 
   return `
     <section class="workspace-card" data-viewer-monitoring-overview="true" aria-label="Read-only monitoring priorities">
       <div class="workspace-card-head">
         <div>
-          <p class="workspace-kicker">Viewer priorities</p>
-          <h2>Read-only monitoring queue</h2>
-          <p class="workspace-muted">Open the exact assigned-student lists you can already monitor here; assigned staff handle approvals, assignments, account changes, and status updates.</p>
+          <p class="workspace-kicker">${escapeHtml(copy.kicker)}</p>
+          <h2>${escapeHtml(copy.title)}</h2>
+          <p class="workspace-muted">${escapeHtml(copy.detail)}</p>
         </div>
         <span class="workspace-chip" data-workspace-mode="read-only">Read-only</span>
       </div>
@@ -1708,8 +1745,8 @@ function renderViewerMonitoringOverview(summary = {}) {
         </article>
         <article class="workspace-row">
           <div>
-            <strong>Operations to monitor</strong>
-            <p>${escapeHtml(operationsAttention)} presentation or archive records need school follow-up.</p>
+            <strong>${escapeHtml(copy.operationsTitle)}</strong>
+            <p>${escapeHtml(operationsAttention)} ${escapeHtml(copy.operationsDetail)}</p>
           </div>
           <div class="workspace-row-actions">
             ${statusPill(operationsAttention ? "attention_required" : "ready")}
@@ -1763,7 +1800,7 @@ function renderSiteDashboardSection() {
   return `
     <section class="workspace-command-center" aria-labelledby="siteDashboardTitle">
       ${renderSiteDashboardSummary(dashboard)}
-      ${readOnly ? renderViewerMonitoringOverview(dashboard) : ""}
+      ${readOnly ? renderReadOnlyMonitoringOverview(dashboard.summary || {}, scope) : ""}
       <div class="workspace-dashboard-grid">
         ${renderMetricTile("Students", summary.studentsActive, `${safeNumber(summary.studentsTotal)} visible at this site`, "admin", "students", { label: "Open", preset: "all-students" })}
         ${renderMetricTile("No Mentor", summary.studentsNoMentor, "Students missing active mentor assignments", safeNumber(summary.studentsNoMentor) ? "warning" : "mentor", "students", { label: "View students", preset: "missing-mentors" })}
@@ -2992,7 +3029,7 @@ function renderSiteContextBlock(dashboard) {
       <div class="workspace-chip-row">
         <span class="workspace-site-context-badge">${escapeHtml(scope.tenantName || "School organization")}</span>
         <span class="workspace-site-context-badge">${escapeHtml(roleLabel(scope.role || primaryRoleForUser(currentUser)))}</span>
-        <span class="workspace-site-context-badge">${escapeHtml(scope.readOnly ? "Read-only viewer" : "Administration access")}</span>
+        <span class="workspace-site-context-badge">${escapeHtml(siteAccessModeLabel(scope))}</span>
         <span class="workspace-site-context-badge">No student messaging</span>
       </div>
       ${accessibleSites.length > 1 ? `
@@ -3309,7 +3346,7 @@ function renderSiteDashboardSummary(dashboard) {
       <div class="workspace-dashboard-summary-badges">
         <span class="workspace-site-context-badge">${escapeHtml(scope.tenantName || "School organization")} / site</span>
         <span class="workspace-site-context-badge">${escapeHtml(roleLabel(scope.role || primaryRoleForUser(currentUser)))}</span>
-        <span class="workspace-site-context-badge">${escapeHtml(scope.readOnly ? "Read-only viewer" : "Administration access")}</span>
+        <span class="workspace-site-context-badge">${escapeHtml(siteAccessModeLabel(scope))}</span>
         ${statusPill(scope.readOnly ? "configured" : "approved")}
         <span class="workspace-site-context-badge">${escapeHtml(selectionBadge)}</span>
         <span class="workspace-site-context-badge">No student messaging</span>
@@ -6601,14 +6638,21 @@ function renderSiteReadinessDashboard(operationsBody = {}, readinessResult = nul
   const dashboard = operationsDashboardModel(operationsBody);
   const readiness = operationsBody.readiness || {};
   const permissions = operationsBody.permissions || {};
+  const scope = operationsBody.scope || {};
+  const administrationMonitoring = siteReadOnlyAudience(scope) === "administration";
+  const heroKicker = administrationMonitoring ? "Leadership readiness" : "Aggregate project readiness";
+  const heroTitle = administrationMonitoring ? "School Readiness" : "Readiness";
+  const heroDetail = administrationMonitoring
+    ? "Track school readiness, blocker priorities, program risk, and highest-risk rows from the records you can monitor here. Teachers and site staff still handle approvals, mentor assignments, account updates, and security settings."
+    : "Aggregate project readiness, blocker priorities, program risk, and highest-risk rows from visible operations records.";
   return `
     <section class="workspace-command-center workspace-readiness-dashboard" data-readiness-report="site-operations" aria-labelledby="readinessDashboardTitle">
       ${renderSiteContextBlock(operationsBody)}
       <div class="workspace-command-hero">
         <div>
-          <p class="workspace-kicker">Aggregate project readiness</p>
-          <h1 id="readinessDashboardTitle">Readiness</h1>
-          <p>Aggregate project readiness, blocker priorities, program risk, and highest-risk rows from visible operations records.</p>
+          <p class="workspace-kicker">${escapeHtml(heroKicker)}</p>
+          <h1 id="readinessDashboardTitle">${escapeHtml(heroTitle)}</h1>
+          <p>${escapeHtml(heroDetail)}</p>
         </div>
         <span class="workspace-chip">${escapeHtml(dashboard.total ? `${dashboard.total} visible records` : "No visible records")}</span>
       </div>

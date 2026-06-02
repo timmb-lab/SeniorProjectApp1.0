@@ -4,11 +4,11 @@ This scorecard records what is proven for demo roles and what still needs hosted
 
 ## 1. Run Snapshot
 
-- Last updated: `2026-06-02T07:05:45-07:00`
-- Starting branch/SHA: `main` at `84a728ccfda910ab0dc8f8eed3beaed1e751e038`
+- Last updated: `2026-06-02T07:40:03-07:00`
+- Starting branch/SHA: `main` at `fabaf4f236d7c02580aaf837e748780c3525340d`
 - Ending branch/SHA: pending closeout commit; final SHA is reported after commit and push.
-- Baseline push first: no. `main` started one local automation commit ahead of `origin/main`, with a clean worktree and no new remote commits to fast-forward.
-- Hosted click-through this run: not completed; this was a local mentor-assignment POST fallback fix and focused verifier pass.
+- Baseline push first: no. `main` started two local automation commits ahead of `origin/main`, with a clean worktree and no new remote commits to fast-forward.
+- Hosted click-through this run: not completed; this was a local Administration dashboard/readiness language refresh and focused verifier pass.
 
 ## 4. Current Role Readiness Table
 
@@ -16,7 +16,7 @@ This scorecard records what is proven for demo roles and what still needs hosted
 | --- | --- | --- |
 | Global Admin | Local proof continues to allow Global Admin on `/api/site/programs`, including opening another demo site. Global Admin still sees the broader admin and site surfaces already covered by existing local route proof. | Needs a full role refresh that checks current click-throughs, global-versus-site boundaries, and cross-site Programs behavior together. |
 | Site Admin | Site Admin Programs still has local first-load add proof. The Site Dashboard and Users & Access first load are now calmer: dashboard snapshots, access history, and long guidance are disclosed while route-backed metrics and current access summary stay visible. Operations now uses school follow-up language instead of viewer-style read-only monitoring copy, and the mentor-assignment POST route now keeps working for multi-site site admins when the current school is implied instead of explicitly posted. | Hosted click-through remains pending. |
-| Administration | Local proof confirms Administration can use read-only monitoring routes where already allowed and is denied from `/api/site/programs`; the workspace nav keeps Programs hidden, and Operations keeps explicit read-only monitoring language. | Needs hosted click-through across Site Dashboard, Students, Operations, Presentation, and Readiness. |
+| Administration | Local proof confirms Administration can use read-only monitoring routes where already allowed and is denied from `/api/site/programs`; the workspace nav keeps Programs hidden, Site Dashboard now uses leadership monitoring labels instead of viewer wording, and site-backed Readiness now uses leadership-readiness copy while Operations keeps explicit read-only monitoring language. | Needs hosted click-through across Site Dashboard, Students, Operations, Presentation, and Readiness. |
 | Program Teacher | Local proof keeps Program Teacher denied from `/api/site/programs` while preserving existing scoped dashboard, directory, review, and operations behavior. The Program Dashboard first load now keeps route-backed metrics visible and moves repeated detail panels behind dashboard disclosure, and Operations now frames follow-up as assigned-student program work. | Needs a full queue-depth readiness refresh for missing-submission, intervention, and review workflows. |
 | Mentor | Local proof keeps Mentor denied from `/api/site/programs` while preserving assigned-student mentor dashboard paths. Mentor Dashboard rows now render as compact assigned-student summaries with secondary meeting/presentation/activity details disclosed per row. | Needs hosted/live proof and a broader mentor-support workflow review. |
 | Viewer | Local proof keeps Viewer denied from `/api/site/programs`; workspace navigation keeps Programs hidden and the default monitoring path uses supported Student Directory filters. | Needs hosted click-through for the read-only landing, assigned student list, and detail paths. |
@@ -26,7 +26,7 @@ This scorecard records what is proven for demo roles and what still needs hosted
 
 - Global Admin: locally proven on `/api/site/programs` and existing admin/site route surfaces; full current click-through refresh remains open.
 - Site Admin: locally proven on `/api/site/programs`, including first-load add, remove, restore, and active-program restore behavior, plus `/api/site/mentor-assignments` POST fallback when a multi-site site admin omits `siteId`.
-- Administration: locally proven denied from `/api/site/programs`; existing read-only monitoring routes remain local-only evidence until hosted click-through.
+- Administration: locally proven denied from `/api/site/programs`; Site Dashboard, Operations, and site-backed Readiness now keep leadership monitoring copy, but the full read-only path remains local-only evidence until hosted click-through.
 - Program Teacher: locally proven denied from `/api/site/programs`; existing scoped program routes remain covered by prior local proof.
 - Mentor: locally proven denied from `/api/site/programs`; assigned-student mentor routes remain covered by prior local proof.
 - Viewer: locally proven denied from `/api/site/programs`; read-only Student Directory/detail routes still need hosted click-through.
@@ -58,5 +58,5 @@ This scorecard records what is proven for demo roles and what still needs hosted
 
 ## 13. Validation Results
 
-- Latest focused mentor-assignment fallback pass before closeout: `node --test tests/site-mentor-assignments.integration.test.mjs`.
-- Prior Site Admin Programs and Operations role-messaging validation remains recorded above; full validation for this mentor-assignment fallback run is recorded in the growth ledger and final report after closeout commands complete.
+- Latest focused Administration dashboard/readiness pass before closeout: `node --check workspace.js`, `node --test tests/workspace-app.test.mjs`, and `npm run verify:functionality-language`.
+- Prior Site Admin Programs, Operations role-messaging, and mentor-assignment fallback validation remains recorded above; full validation for this Administration language run is recorded in the growth ledger and final report after closeout commands complete.

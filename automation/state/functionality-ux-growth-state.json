@@ -1,10 +1,18 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-06-02T07:05:45-07:00",
-  "lastStartingSha": "84a728ccfda910ab0dc8f8eed3beaed1e751e038",
+  "lastRunAt": "2026-06-02T07:40:03-07:00",
+  "lastStartingSha": "fabaf4f236d7c02580aaf837e748780c3525340d",
   "lastEndingSha": null,
-  "currentLadderFocus": "LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW",
+  "currentLadderFocus": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
   "completedWorkOrders": [
+    {
+      "id": "role-readiness-administration-dashboard-refresh",
+      "completedAt": "2026-06-02T07:40:03-07:00",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "type": "TYPE_D_ROLE_WORKSPACE",
+      "summary": "Administration users now see leadership monitoring language on the Site Dashboard and site-backed Readiness surfaces instead of viewer-only labels, while routes, permissions, and worklists stay unchanged.",
+      "commit": "pending-closeout-commit"
+    },
     {
       "id": "site-admin-mentor-post-default-fallback",
       "completedAt": "2026-06-02T07:05:45-07:00",
@@ -1023,16 +1031,16 @@
   "blockedWorkOrders": [],
   "nextRecommendedWorkOrders": [
     {
-      "id": "role-readiness-administration-dashboard-refresh",
-      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "id": "review-queue-row-review-affordance-clarity",
+      "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
       "type": "TYPE_D_ROLE_WORKSPACE",
-      "summary": "Refresh the role-readiness scorecard after clarifying Administration/AP follow-up language on the Site Dashboard and Readiness surfaces."
+      "summary": "Clarify row-level Review actions and selected-row guidance on the existing Review Queue for site staff and Program Teachers."
     },
     {
-      "id": "student-detail-mentor-assignment-history",
+      "id": "site-dashboard-recent-activity-drilldown",
       "ladderLevel": "LEVEL_7_AUDITABILITY_AND_TRUST",
-      "type": "TYPE_C_STUDENT_DETAIL_DRILL_DOWN",
-      "summary": "Add read-only mentor assignment history to student detail using the existing scoped mentor assignment rows."
+      "type": "TYPE_B_DASHBOARD_CLICK_THROUGH",
+      "summary": "Add a safe read-only recent-activity destination on the Site Dashboard only if a site-backed audit or bounded summary path is proven."
     },
     {
       "id": "hosted-section-permission-proof",
@@ -1042,6 +1050,7 @@
     }
   ],
   "doNotRepeat": [
+    "Do not relabel Administration Site Dashboard or site-backed Readiness back to viewer wording unless product policy intentionally collapses leadership monitoring and viewer monitoring again.",
     "Do not remove `site_admin` from the mentor-assignment POST default-site role list unless the route-selection policy intentionally changes.",
     "Do not re-expand student requirements, feedback, submissions, evidence tools, uploaded files, Users & Access history/guidance, dashboard snapshots, or mentor row details by default unless a new first-screen budget and scripts/verify-workspace-density.mjs update prove it is intentional.",
     "Do not repeat protected workspace header/posture chip cleanup unless new leaked phrases are found.",
@@ -1156,19 +1165,17 @@
   ],
   "lastValidationStatus": {
     "status": "passed",
-    "completedAt": "2026-06-02T07:06:54-07:00",
+    "completedAt": "2026-06-02T07:43:52-07:00",
     "commands": [
-      "node --test tests/site-mentor-assignments.integration.test.mjs",
+      "node --check workspace.js",
+      "node --test tests/workspace-app.test.mjs",
+      "npm run verify:functionality-language",
       "node --test tests/functionality-language-audit.test.mjs",
       "npm run verify:functionality-ux-automation",
-      "npm run test",
-      "npm run typecheck",
-      "npm run check:production-surfaces",
-      "npm run check",
-      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-02-0705-site-admin-mentor-post-fallback.json','utf8')); console.log('json ok')\"",
+      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-02-0740-administration-dashboard-readiness-language.json','utf8')); console.log('json ok')\"",
       "git diff --check"
     ],
-    "notes": "The mentor-assignment POST fallback fix passed focused route coverage, audit/automation checks, the full repo test and typecheck suite, production-surface checks, JSON parsing, and git diff --check with CRLF normalization warnings only."
+    "notes": "The Administration dashboard/readiness language refresh passed focused workspace render coverage, functionality-language verification, audit/automation checks, JSON parsing, and git diff --check with CRLF normalization warnings only."
   },
   "lastProductReadinessScorecardSummary": {
     "homepageClarity": "4 to 4",
@@ -1188,6 +1195,6 @@
     "emptyErrorStateQuality": "4 to 4",
     "regressionTestCoverage": "4 to 4",
     "mentorWorkspaceDepth": "3 to 4",
-    "roleReadinessContract": "2 to 4"
+    "roleReadinessContract": "3 to 4"
   }
 }

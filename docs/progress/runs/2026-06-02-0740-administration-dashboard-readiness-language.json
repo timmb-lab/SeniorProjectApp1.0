@@ -1,0 +1,136 @@
+{
+  "automationId": "functionality-ux-upgrade-hourly",
+  "timestamp": "2026-06-02T07:40:03-07:00",
+  "startingHead": "fabaf4f236d7c02580aaf837e748780c3525340d",
+  "selectedSlice": "role-readiness-administration-dashboard-refresh",
+  "summary": "Replace viewer-style Administration labels on the Site Dashboard and site-backed Readiness path with leadership-friendly monitoring language.",
+  "selectedReason": "Current repo evidence still pointed at this exact role-readiness gap from the audit role map, the open Administration/AP audit rows, and the next-recommended queue in automation state. The slice stayed inside existing workspace render paths, preserved RBAC/site scope, and improved the staff-demo path without inventing a new role or route.",
+  "candidates": [
+    {
+      "candidate": "Administration/AP dashboard and readiness language refresh",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "roles": "administration",
+      "impact": 4,
+      "safety": 5,
+      "testability": 5,
+      "size": "XS",
+      "score": 50,
+      "decision": "selected"
+    },
+    {
+      "candidate": "Review Queue row-level review affordance clarity",
+      "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
+      "roles": "program_teacher, site_admin",
+      "impact": 4,
+      "safety": 5,
+      "testability": 4,
+      "size": "S",
+      "score": 46,
+      "decision": "not selected: useful, but the leadership demo gap was more immediate"
+    },
+    {
+      "candidate": "Risk scoring explanation on dashboard rows",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "roles": "site staff",
+      "impact": 3,
+      "safety": 5,
+      "testability": 4,
+      "size": "XS",
+      "score": 43,
+      "decision": "not selected: lower urgency than role-label drift"
+    },
+    {
+      "candidate": "Student detail URL state",
+      "ladderLevel": "LEVEL_2_STUDENT_DETAIL_DEPTH",
+      "roles": "site staff",
+      "impact": 4,
+      "safety": 3,
+      "testability": 3,
+      "size": "M",
+      "score": 39,
+      "decision": "deferred: privacy review still needed"
+    },
+    {
+      "candidate": "Filter persistence across staff worklists",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "roles": "site staff",
+      "impact": 4,
+      "safety": 3,
+      "testability": 3,
+      "size": "M",
+      "score": 38,
+      "decision": "deferred: larger URL-state batch"
+    },
+    {
+      "candidate": "Site dashboard recent activity drill-down",
+      "ladderLevel": "LEVEL_7_AUDITABILITY_AND_TRUST",
+      "roles": "site_admin, administration",
+      "impact": 3,
+      "safety": 3,
+      "testability": 3,
+      "size": "M",
+      "score": 36,
+      "decision": "deferred: no site-backed audit destination yet"
+    },
+    {
+      "candidate": "Multi-site site selector follow-up",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "roles": "site_admin",
+      "impact": 4,
+      "safety": 3,
+      "testability": 3,
+      "size": "M",
+      "score": 37,
+      "decision": "deferred: broader workflow than this copy slice"
+    },
+    {
+      "candidate": "Mentor reassignment/remove workflow",
+      "ladderLevel": "LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW",
+      "roles": "site_admin",
+      "impact": 4,
+      "safety": 2,
+      "testability": 3,
+      "size": "M",
+      "score": 33,
+      "decision": "deferred: mutation and audit design still needed"
+    },
+    {
+      "candidate": "Viewer student email redaction decision",
+      "ladderLevel": "LEVEL_7_AUDITABILITY_AND_TRUST",
+      "roles": "viewer",
+      "impact": 3,
+      "safety": 2,
+      "testability": 3,
+      "size": "S",
+      "score": 30,
+      "decision": "deferred: policy decision first"
+    },
+    {
+      "candidate": "Hosted section-level permission proof",
+      "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
+      "roles": "all protected roles",
+      "impact": 4,
+      "safety": 3,
+      "testability": 3,
+      "size": "M",
+      "score": 38,
+      "decision": "deferred: hosted fake-account runtime is outside this local batch"
+    }
+  ],
+  "changes": [
+    "Added a shared read-only site monitoring copy branch that distinguishes Administration from Viewer wording.",
+    "Reframed the Administration Site Dashboard monitoring panel with leadership-friendly priorities, queue title, and badge text.",
+    "Reframed site-backed Readiness with leadership-oriented hero copy while keeping the same records, worklists, and read-only boundaries.",
+    "Expanded workspace render coverage and refreshed the audit plus demo-role-readiness docs for the Administration path."
+  ],
+  "validation": [
+    "node --check workspace.js",
+    "node --test tests/workspace-app.test.mjs",
+    "npm run verify:functionality-language",
+    "node --test tests/functionality-language-audit.test.mjs",
+    "npm run verify:functionality-ux-automation",
+    "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-02-0740-administration-dashboard-readiness-language.json','utf8')); console.log('json ok')\"",
+    "git diff --check"
+  ],
+  "nextRecommended": "Clarify row-level Review actions and selected-row guidance on the existing Review Queue for site staff and Program Teachers."
+}

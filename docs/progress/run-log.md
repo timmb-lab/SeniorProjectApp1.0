@@ -2667,3 +2667,14 @@ Future productive runs should append compact entries that name the master-plan s
 - `changes`: `functions/_lib/site-mentor-assignments.ts` now includes `site_admin` in the POST default-site role list, and `tests/site-mentor-assignments.integration.test.mjs` now proves a multi-site site admin can create a mentor assignment without posting `siteId` while cross-site, duplicate, non-mentor, and non-authorized-role denials still hold. `docs/functionality-language-audit.md` and `docs/product/demo-role-readiness.md` record the route-level fix.
 - `validation`: `node --test tests/site-mentor-assignments.integration.test.mjs` passed before docs/state closeout. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
 - `commit/push status`: pending closeout commit; not pushed by this automation run.
+
+## 2026-06-02 PT - Functionality UX Upgrade Administration Leadership Copy
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 4 role-specific workspace clarity / Administration leadership monitoring.
+- `starting HEAD`: `fabaf4f236d7c02580aaf837e748780c3525340d`.
+- `selected slice`: Replace viewer-style labels on the Administration Site Dashboard and site-backed Readiness path with leadership-friendly monitoring language.
+- `repo-grounded findings`: `docs/functionality-language-audit.md` still listed Administration/AP site-dashboard language as open, `automation/state/functionality-ux-growth-state.json` still recommended the same refresh, and `workspace.js` still rendered `Viewer priorities`, `Read-only viewer`, and generic aggregate-readiness hero copy for the `administration` role on those site-scoped read-only surfaces even after Operations gained its own role branch.
+- `changes`: `workspace.js` now branches read-only site monitoring copy so Administration gets `Leadership priorities`, `Administration monitoring queue`, `Leadership monitoring`, and `Leadership readiness` language on the existing Site Dashboard and site-backed Readiness surfaces while Viewer wording remains intact. `tests/workspace-app.test.mjs` now proves the Administration dashboard/readiness branch does not fall back to viewer-only labels, and `docs/functionality-language-audit.md` plus `docs/product/demo-role-readiness.md` record the refreshed readiness evidence.
+- `validation`: `node --check workspace.js`, `node --test tests/workspace-app.test.mjs`, and `npm run verify:functionality-language` passed before docs/state closeout. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.
