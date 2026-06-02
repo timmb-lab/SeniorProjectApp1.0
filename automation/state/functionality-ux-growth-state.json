@@ -1,10 +1,18 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-06-02T12:32:23-07:00",
-  "lastStartingSha": "59caef4c512251e68d9a3a49c5d9d21b11d2b949",
+  "lastRunAt": "2026-06-02T13:09:19-07:00",
+  "lastStartingSha": "fcbfb38811f6e5d01ed60e897537397ff455e917",
   "lastEndingSha": null,
   "currentLadderFocus": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
   "completedWorkOrders": [
+    {
+      "id": "workspace-student-search-landing",
+      "completedAt": "2026-06-02T13:09:19-07:00",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "type": "TYPE_D_ROLE_WORKSPACE",
+      "summary": "The topbar Find a student search now opens the existing scoped Student Directory search from any workspace section instead of forcing staff to navigate into Students first.",
+      "commit": "pending-closeout-commit"
+    },
     {
       "id": "mentor-dashboard-metric-shortcuts",
       "completedAt": "2026-06-02T12:32:23-07:00",
@@ -1111,21 +1119,10 @@
       "id": "program-teacher-mentor-meeting-follow-up-destination",
       "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
       "reason": "Keep mentor-meeting follow-up summary-only until a precise scoped destination is proven for Program Teachers."
-    },
-    {
-      "id": "global-search-landing",
-      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
-      "reason": "A shared search landing should reuse the current Student Directory filters instead of introducing a broader navigation batch without proof."
     }
   ],
   "blockedWorkOrders": [],
   "nextRecommendedWorkOrders": [
-    {
-      "id": "global-search-landing",
-      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
-      "type": "TYPE_D_ROLE_WORKSPACE",
-      "summary": "Inspect a role-safe global search landing that reuses the current Student Directory search filters for site staff and Program Teachers."
-    },
     {
       "id": "program-teacher-mentor-meeting-follow-up-destination",
       "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
@@ -1143,9 +1140,18 @@
       "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
       "type": "TYPE_F_REVIEW_INTERVENTION_QUEUE",
       "summary": "Clarify missing-submission behavior in the Review Queue only after backend rows or exact scoped empty-state evidence are proven."
+    },
+    {
+      "id": "site-dashboard-summary-only-affordance-styling",
+      "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS",
+      "type": "TYPE_D_ROLE_WORKSPACE",
+      "summary": "Clarify non-clickable dashboard metrics only where summary-only cards still look actionable beside real drill-downs."
     }
   ],
   "doNotRepeat": [
+    "Do not replace the topbar Find a student search with a new route or unscoped all-students fetch while the existing Student Directory search already backs the workflow.",
+    "Do not expose the topbar student search to mentor, student, or other roles that still lack Student Directory access.",
+    "Do not keep stale Student Directory filters when the topbar student search is intentionally cleared back to the current view.",
     "Do not turn Mentor Dashboard summary metrics back into summary-only tiles while the existing mentor focus filters still back them.",
     "Do not broaden mentor access beyond actively assigned students while improving Mentor Dashboard shortcuts.",
     "Do not remove the Program Teacher Needs Attention drill-downs while the existing Students, Review Queue, and Operations presets still back them.",
@@ -1278,22 +1284,21 @@
   ],
   "lastValidationStatus": {
     "status": "passed",
-    "completedAt": "2026-06-02T12:32:23.0000000-07:00",
+    "completedAt": "2026-06-02T13:18:17.7602818-07:00",
     "commands": [
       "node --check workspace.js",
       "node --test tests/workspace-app.test.mjs",
-      "npm run verify:dashboard-actions",
-      "npm run verify:workspace-density",
+      "npm run verify:workspace-navigation",
       "npm run verify:functionality-language",
       "npm run verify:functionality-ux-automation",
       "npm run check:production-surfaces",
       "npm run typecheck",
       "npm run test",
       "npm run check",
-      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-02-1232-mentor-dashboard-metric-shortcuts.json','utf8')); console.log('json ok')\"",
+      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-02-1309-workspace-student-search-landing.json','utf8')); console.log('json ok')\"",
       "git diff --check"
     ],
-    "notes": "The Mentor Dashboard metric-shortcut slice passed workspace syntax checks, focused mentor workspace coverage, dashboard-action and workspace-density verification, functionality-language and automation verification, production-surface checks, typecheck, full test and check runs, JSON parsing, and git diff --check with CRLF normalization warnings only."
+    "notes": "The workspace student-search landing slice passed workspace syntax checks, focused workspace app coverage, workspace-navigation verification, functionality-language and automation verification, production-surface checks, typecheck, full test and check runs, JSON parsing, and git diff --check with CRLF normalization warnings only."
   },
   "lastProductReadinessScorecardSummary": {
     "homepageClarity": "4 to 4",

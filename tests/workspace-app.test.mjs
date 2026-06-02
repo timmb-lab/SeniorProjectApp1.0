@@ -91,6 +91,8 @@ test("workspace route is a real authenticated app surface", () => {
   assert.match(workspaceJs, /data-upload-message/);
   assert.match(workspaceJs, /data-upload-action="select-file"/);
   assert.match(workspaceJs, /data-upload-action="retry"/);
+  assert.match(workspaceJs, /data-workspace-student-search="true"/);
+  assert.match(workspaceJs, /function openWorkspaceStudentSearch\(searchValue = ""\)/);
   assert.match(workspaceJs, /data-workspace-state="\$\{escapeHtml\(workspaceState\)\}"/);
   assert.match(workspaceJs, /"session-expired"/);
   assert.match(workspaceJs, /"account-disabled"/);
@@ -207,6 +209,7 @@ test("workspace exposes Figma-aligned design tokens and future site patterns", (
   for (const className of [
     ".workspace-read-only-banner",
     ".workspace-menu-toggle",
+    ".workspace-topbar-search",
     ".workspace-product-header",
     ".workspace-product-header-main",
     ".workspace-product-eyebrow",
@@ -288,12 +291,14 @@ test("workspace uses Phase 6.6 Figma cleanup patterns in real render paths", () 
   assert.doesNotMatch(signInBlock, /renderProductHeader\(/);
   assert.doesNotMatch(signInBlock, /Student progress|Private evidence|Mentor coverage|Review queue|Presentation readiness/);
   assert.match(appShellBlock, /renderProductHeader\(\{[\s\S]*context: headerContext,[\s\S]*readOnly: roles\.has\("viewer"\)/);
+  assert.match(appShellBlock, /renderWorkspaceStudentSearchControl\(roles\)/);
   assert.match(workspaceJs, /chips = WORKSPACE_POSTURE_CHIPS/);
   assert.match(workspaceCss, /\.workspace-auth-intro::before/);
   assert.match(workspaceCss, /\.workspace-auth-intro::after/);
   assert.match(workspaceCss, /\.workspace-home-info/);
   assert.doesNotMatch(workspaceCss, /app-hero\.jpg/);
   assert.match(workspaceJs, /function canUseSitePrograms\(roles\)\s*\{\s*return hasGlobalAdminRole\(roles\) \|\| roles\.has\("site_admin"\);\s*\}/);
+  assert.match(workspaceJs, /function renderWorkspaceStudentSearchControl\(roles = roleIds\(currentUser\)\)\s*\{\s*if \(!hasSiteStudentDirectoryRole\(roles\)\) return "";/);
 
   for (const status of [
     "draft",
@@ -349,6 +354,85 @@ test("workspace uses Phase 6.6 Figma cleanup patterns in real render paths", () 
   assert.match(workspaceJs, /data-workspace-mode="read-only"/);
   assert.match(workspaceJs, /Read-only workspace/);
   assert.doesNotMatch(workspaceJs, /\/api\/announcements|\/api\/admin\/announcements|workspace-kicker">Announcements/i);
+});
+
+test("workspace student search landing opens the Student Directory with scoped search filters", async () => {
+  const viewerDirectory = siteStudentsFixture({ readOnly: true, role: "viewer" });
+  const matchingStudent = viewerDirectory.students[0];
+  const { context, workspaceRoot, fetchRequests, window } = await createWorkspaceContextWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "viewer-search-user",
+          email: "viewer.search@example.edu",
+          displayName: "Viewer Search",
+          roles: [{ role_id: "viewer", scope_type: "site", scope_id: "site-desert-valley-high" }],
+        },
+      },
+    },
+    "/api/site/dashboard": {
+      status: 200,
+      body: siteDashboardFixture({ readOnly: true }),
+    },
+    "/api/site/students": ({ url }) => {
+      const parsed = new URL(url, "https://workspace.example");
+      const search = parsed.searchParams.get("search") || "";
+      return {
+        status: 200,
+        body: siteStudentsFixture({
+          readOnly: true,
+          role: "viewer",
+          filteredTotal: search ? 1 : viewerDirectory.pagination.filteredTotal,
+          students: search ? [matchingStudent] : viewerDirectory.students,
+          filters: {
+            search,
+            programId: "",
+            status: "",
+            progressStatus: "",
+            evidenceStatus: "",
+            reviewStatus: "",
+            noMentor: false,
+            risk: "any",
+            story: "",
+            presentationStatus: "any",
+            archiveStatus: "any",
+            limit: 50,
+            offset: 0,
+          },
+        }),
+      };
+    },
+    "/api/site/review-queue": {
+      status: 200,
+      body: siteReviewQueueFixture({ role: "viewer", readOnly: true, canReview: false }),
+    },
+    "/api/site/mentor-assignments": {
+      status: 200,
+      body: siteMentorAssignmentsFixture({ role: "viewer", readOnly: true, canManage: false }),
+    },
+    "/api/site/operations-readiness": {
+      status: 200,
+      body: siteOperationsReadinessFixture({ role: "viewer", readOnly: true }),
+    },
+  });
+
+  assert.match(workspaceRoot.innerHTML, /data-workspace-student-search="true"/);
+  assert.match(workspaceRoot.innerHTML, /Find a student/);
+  assert.match(workspaceRoot.innerHTML, /Uses the current Student Directory scope and permissions\./);
+
+  await vm.runInContext('openWorkspaceStudentSearch("Missing Mentor Demo")', context);
+
+  const lastStudentFetch = [...fetchRequests].reverse().find((request) => request.url.startsWith("/api/site/students"));
+  assert.ok(lastStudentFetch, "expected a scoped Student Directory fetch after search");
+  assert.match(lastStudentFetch.url, /search=Missing(?:\+|%20)Mentor(?:\+|%20)Demo/);
+  assert.equal(vm.runInContext("activeSection", context), "students");
+  assert.equal(new URL(window.location.href).searchParams.get("section"), "students");
+  assert.equal(new URL(window.location.href).searchParams.get("search"), "Missing Mentor Demo");
+  assert.match(workspaceRoot.innerHTML, /Showing student search results for &quot;Missing Mentor Demo&quot;\./);
+  assert.match(workspaceRoot.innerHTML, /value="Missing Mentor Demo"/);
+  assert.match(workspaceRoot.innerHTML, /Missing Mentor Demo 001/);
 });
 
 test("workspace renders route-connected site dashboard with Figma product-system patterns", async () => {

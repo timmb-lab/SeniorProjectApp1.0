@@ -21,6 +21,17 @@ This is the compact run log for the current Functionality UX Upgrade automation 
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-06-02 13:09 PT - Functionality UX Upgrade Workspace Student Search Landing
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 4 role-specific workspace clarity / role-safe student search landing.
+- `starting HEAD`: `fcbfb38811f6e5d01ed60e897537397ff455e917`.
+- `selected slice`: Add a topbar `Find a student` search that opens the existing Student Directory with the current scoped search filter.
+- `repo-grounded findings`: `workspace.js` already had a fully scoped Student Directory search form, `/api/site/students` already supported `search`, and the existing URL-state helpers already preserved Student Directory filters. Staff still had to switch into `Students` before using the same workflow, so the smallest safe slice was a shared entry point that reused the current route, filters, and permissions instead of inventing a broader search surface.
+- `changes`: `workspace.js` now renders a role-safe topbar `Find a student` search for roles that already have Student Directory access, reuses the existing `siteStudentFilters.search` state, opens the real `students` section, clears stale directory filters when search is blank, and preserves the existing scoped URL-state behavior. `workspace.css` adds the compact topbar search layout, `tests/workspace-app.test.mjs` proves the search landing opens the Student Directory with the scoped search filter, and `scripts/verify-workspace-navigation-integrity.mjs` now guards the new search form wiring and route-backed reuse of `/api/site/students`.
+- `validation`: `node --check workspace.js`, `node --test tests/workspace-app.test.mjs`, and `npm run verify:workspace-navigation` passed before docs/state closeout. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.
+
 ## 2026-06-02 12:32 PT - Functionality UX Upgrade Mentor Dashboard Metric Shortcuts
 
 - `automation ID`: functionality-ux-upgrade-hourly.

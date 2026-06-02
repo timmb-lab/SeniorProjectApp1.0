@@ -648,6 +648,40 @@
   min-width: 0;
 }
 
+.workspace-topbar-search {
+  display: grid;
+  gap: 0.28rem;
+  min-width: min(100%, 420px);
+  flex: 1 1 320px;
+}
+
+.workspace-topbar-search label,
+.workspace-topbar-search small {
+  color: var(--muted);
+}
+
+.workspace-topbar-search label {
+  font-size: 0.76rem;
+  font-weight: 900;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+}
+
+.workspace-topbar-search small {
+  font-size: 0.74rem;
+}
+
+.workspace-topbar-search-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.45rem;
+  align-items: center;
+}
+
+.workspace-topbar-search .workspace-input {
+  min-height: 40px;
+}
+
 .workspace-brand {
   display: inline-flex;
   align-items: center;
@@ -2577,11 +2611,17 @@ button.workspace-metric-tile,
   }
 
   .workspace-topbar {
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: 1fr;
+    justify-items: stretch;
   }
 
   .workspace-user {
     flex-wrap: wrap;
+  }
+
+  .workspace-topbar-search-row {
+    grid-template-columns: 1fr;
   }
 
   .workspace-site-switcher {
@@ -2736,6 +2776,7 @@ button.workspace-metric-tile,
 
   .workspace-topbar,
   .workspace-user,
+  .workspace-topbar-search-row,
   .workspace-product-header-main,
   .workspace-card-head,
   .workspace-row,
@@ -2781,6 +2822,7 @@ button.workspace-metric-tile,
   .workspace-link-button,
   .workspace-quick-action,
   .workspace-menu-toggle,
+  .workspace-topbar-search,
   .workspace-site-switcher,
   .workspace-site-switcher select {
     width: 100%;

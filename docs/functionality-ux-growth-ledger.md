@@ -5858,3 +5858,61 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: hosted permission proof still needs allowed runtime; Program Teacher mentor-meeting follow-up still lacks an exact current destination; Review Queue missing-submission semantics still need backend evidence.
   - Do not repeat: do not replace these metric shortcuts with new routes or revert them to summary-only tiles while the current mentor filter state remains the exact destination.
   - First file to inspect next run: `workspace.js` around `renderMentorDashboardSection()` and `handleMentorDashboardAction()`
+
+## Run 2026-06-02 13:09 PT
+
+- Starting SHA: `fcbfb38811f6e5d01ed60e897537397ff455e917`
+- Ending SHA: pending closeout commit; final hash is reported after commit
+- Branch: `main`
+- Branch policy: started from clean local `main`; `origin/main` matched local `main`, and no sync or push was needed before the selected slice
+- Ladder level targeted: `LEVEL_4_ROLE_SPECIFIC_WORKSPACES`
+- Backlog item: `global-search-landing`
+- Work order selected: Add a role-safe topbar `Find a student` search that opens the existing Student Directory with the current scoped search filter.
+- Selection reason: current repo evidence showed that `workspace.js` already had a route-backed Student Directory search form, `/api/site/students` already supported `search`, and the existing Student Directory URL-state helpers already restored scoped search filters. Staff still had to switch into `Students` before using that workflow. Reusing the current route, filters, and URL state was the smallest safe product-readiness batch because it improved navigation without adding a new route, widening scope, or inventing a broader cross-role search surface.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Workspace student search landing | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | site staff, `viewer`, `program_teacher` | 5 | 5 | 5 | S | 55 | selected |
+| Program Teacher mentor-meeting follow-up destination | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | `program_teacher` | 4 | 3 | 3 | M | 40 | deferred: no exact current destination is proven for that follow-up row |
+| Hosted section-level permission proof | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all protected roles | 4 | 3 | 2 | M | 35 | deferred: hosted runtime is outside this local batch |
+| Review Queue missing-submission semantics | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | `program_teacher`, `site_admin` | 5 | 2 | 3 | M | 34 | deferred: backend queue rows are still absent |
+| Mentor reassignment or removal workflow | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | `site_admin` | 4 | 2 | 3 | M | 33 | deferred: mutation and audit design still needed |
+| Viewer student email redaction policy | `LEVEL_7_AUDITABILITY_AND_TRUST` | `viewer` | 3 | 2 | 3 | S | 30 | deferred: policy decision first |
+| Mobile dashboard smoke proof | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all protected roles | 3 | 4 | 2 | M | 33 | deferred: browser runtime proof is outside this local batch |
+| Site Dashboard summary-only affordance styling | `LEVEL_1_NAVIGABLE_DASHBOARDS` | site staff, `viewer` | 3 | 4 | 3 | S | 39 | not selected: broader visual surface than this search/navigation slice |
+| Presentation schedule URL state | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | site staff, `program_teacher`, `mentor`, `student` | 3 | 4 | 4 | S | 42 | not selected: lower current pain than a shared staff search entry point |
+| Global Admin role refresh | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | `global_admin` | 3 | 3 | 3 | M | 34 | deferred: broader multi-surface verification batch than this local slice |
+
+- User-facing improvement: roles that already have Student Directory access can now search the current student view from the top bar and land directly in `Students` with the existing scoped `search` filter and shareable URL state, instead of navigating into the section first.
+- Roles affected: `site_admin`, `administration`, `viewer`, `program_teacher`, `org_admin`, `global_admin`, `platform_admin`, and other roles already allowed to use the Student Directory
+- Files changed: `workspace.js`, `workspace.css`, `tests/workspace-app.test.mjs`, `scripts/verify-workspace-navigation-integrity.mjs`, `docs/functionality-language-audit.md`, `docs/product/demo-role-readiness.md`, `docs/progress/run-log.md`, `docs/progress/runs/2026-06-02-1309-workspace-student-search-landing.json`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`
+- Tests/verifiers added or updated: `tests/workspace-app.test.mjs` now proves the topbar search landing opens the Student Directory with the scoped search filter, and `scripts/verify-workspace-navigation-integrity.mjs` now guards the topbar search form binding plus reuse of the existing Student Directory route and URL state.
+- Validation commands:
+  - `node --check workspace.js`
+  - `node --test tests/workspace-app.test.mjs`
+  - `npm run verify:workspace-navigation`
+  - `npm run verify:functionality-language`
+  - `npm run verify:functionality-ux-automation`
+  - `npm run check:production-surfaces`
+  - `npm run typecheck`
+  - `npm run test`
+  - `npm run check`
+  - `node -e "JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-02-1309-workspace-student-search-landing.json','utf8')); console.log('json ok')"`
+  - `git diff --check`
+- Validation result: passed. Workspace syntax checks, focused workspace render coverage, the workspace-navigation verifier, functionality-language and automation verification, production-surface checks, typecheck, full test and check runs, JSON parsing, and `git diff --check` all passed after docs/state closeout; `git diff --check` reported CRLF normalization warnings only.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: Program Teacher mentor-meeting follow-up destination, hosted section-level permission proof, Review Queue missing-submission semantics, mentor reassignment/remove workflow, viewer email visibility policy, mobile dashboard smoke proof, and a broader Global Admin role refresh remain open.
+- New backlog items: none
+- Next recommended work order: Keep Program Teacher mentor-meeting follow-up summary-only until a precise scoped destination exists; if that remains blocked, inspect clearer summary-only affordance styling for non-clickable dashboard metrics.
+- Do-not-repeat notes: do not add a parallel global search route when the existing Student Directory already backs the workflow; do not expose the topbar student search to roles that still lack Student Directory access; do not preserve stale Student Directory filters when the topbar search is intentionally cleared back to the current view.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_4_ROLE_SPECIFIC_WORKSPACES`
+  - Advanced: yes
+  - Evidence: `workspace.js` now renders a topbar student search only for Student Directory roles, routes it through the existing `siteStudentFilters.search` plus Student Directory URL-state helpers, and focused workspace/navigation coverage proves the search opens the scoped `students` section instead of introducing a new route.
+  - Unlocks: future staff navigation work can deepen result affordances or clearer summary-only distinctions without re-solving the basic cross-section student-search entry point.
+  - Next: inspect `workspace.js` around `openWorkspaceStudentSearch()` and the existing dashboard summary-only affordance helpers if the next run stays on staff navigation depth.
+  - Blockers: Program Teacher mentor-meeting follow-up still lacks an exact current destination; hosted permission proof still needs allowed runtime; Review Queue missing-submission semantics still need backend evidence.
+  - Do not repeat: do not replace this topbar search with an unscoped all-students fetch or a new route while the current Student Directory search path remains the exact destination.
+  - First file to inspect next run: `workspace.js` around `renderWorkspaceStudentSearchControl()` and `openWorkspaceStudentSearch()`

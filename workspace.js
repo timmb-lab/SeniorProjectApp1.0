@@ -726,6 +726,7 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
             <span>Capstone Project Workspace</span>
           </a>
         </div>
+        ${renderWorkspaceStudentSearchControl(roles)}
         <div class="workspace-user">
           ${renderSiteSwitcherControl()}
           <div class="workspace-user-text">
@@ -998,6 +999,34 @@ function renderSiteSwitcherControl() {
   }
 
   return "";
+}
+
+function renderWorkspaceStudentSearchControl(roles = roleIds(currentUser)) {
+  if (!hasSiteStudentDirectoryRole(roles)) return "";
+  const accessibleSites = accessibleSitesForWorkspace();
+  const currentSiteId = selectedSiteQueryValue() || currentSiteWorkspaceContext().siteId || (accessibleSites.length === 1 ? accessibleSites[0]?.siteId || "" : "");
+  const searchValue = cleanSearchFilter(siteStudentFilters?.search || "");
+  const disabled = accessibleSites.length > 1 && !currentSiteId;
+  return `
+    <form class="workspace-topbar-search" id="workspaceStudentSearchForm" data-workspace-student-search="true">
+      <label for="workspaceStudentSearchInput">Find a student</label>
+      <div class="workspace-topbar-search-row">
+        <input
+          class="workspace-input"
+          id="workspaceStudentSearchInput"
+          name="search"
+          type="search"
+          value="${escapeHtml(searchValue)}"
+          aria-label="${escapeHtml(disabled ? "Choose a site before searching students" : "Search the current student view")}"
+          autocomplete="off"
+          maxlength="80"
+          ${disabled ? "disabled" : ""}
+        >
+        <button class="workspace-button workspace-button-secondary" type="submit" ${disabled ? "disabled" : ""}>Open students</button>
+      </div>
+      <small>${escapeHtml(disabled ? "Choose a site first to search student records." : "Uses the current Student Directory scope and permissions.")}</small>
+    </form>
+  `;
 }
 
 function canUseSiteSwitcher(roles) {
@@ -7421,6 +7450,7 @@ function currentAccessSiteId() {
 
 function bindWorkspaceForms() {
   document.querySelector("#workspaceChangePasswordForm")?.addEventListener("submit", changeOwnPassword);
+  document.querySelector("#workspaceStudentSearchForm")?.addEventListener("submit", submitWorkspaceStudentSearch);
   const adminImportForm = document.querySelector("#workspaceAdminImportForm");
   adminImportForm?.addEventListener("submit", submitAdminUserImport);
   adminImportForm?.querySelector?.('[name="roleId"]')?.addEventListener("change", updateAdminImportScopeFields);
@@ -7499,6 +7529,36 @@ function bindWorkspaceForms() {
 
 function bindUploadRetryButton() {
   document.querySelector('[data-upload-action="retry"]')?.addEventListener("click", retryEvidenceUpload);
+}
+
+async function submitWorkspaceStudentSearch(event) {
+  event?.preventDefault?.();
+  const search = cleanSearchFilter(new FormData(event?.currentTarget).get("search"));
+  await openWorkspaceStudentSearch(search);
+}
+
+async function openWorkspaceStudentSearch(searchValue = "") {
+  if (!currentUser || busy) return;
+  const roles = roleIds(currentUser);
+  if (!hasSiteStudentDirectoryRole(roles)) {
+    renderAppShell("Student search is not available for this account.", "error");
+    return;
+  }
+  const accessibleSites = accessibleSitesForWorkspace();
+  const currentSiteId = selectedSiteQueryValue() || currentSiteWorkspaceContext().siteId || (accessibleSites.length === 1 ? accessibleSites[0]?.siteId || "" : "");
+  if (accessibleSites.length > 1 && !currentSiteId) {
+    renderAppShell("Choose a site before searching students.", "error");
+    return;
+  }
+  const search = cleanSearchFilter(searchValue);
+  siteStudentFilters = {
+    ...defaultSiteStudentFilters(),
+    search,
+  };
+  siteStudentDetailState = defaultSiteStudentDetailState();
+  activeSection = "students";
+  syncSiteStudentUrlState({ clearFilters: !search });
+  await loadWorkspaceData(search ? `Showing student search results for "${search}".` : "Showing students in the current view.");
 }
 
 async function handleStudentFeedbackAction(event) {
