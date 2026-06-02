@@ -1,0 +1,143 @@
+{
+  "summary": "Clarify student-detail Reviews note visibility using the existing route-owned visibility contract.",
+  "selectedReason": "Current repo evidence showed that functions/_lib/site-student-detail.ts already returned role-filtered comments plus a top-level visibility contract, but workspace.js still rendered generic note wording and raw status pills such as scoped, student_and_staff, or staff_only. Reusing that visibility contract in the student-detail Reviews tab and latest-feedback summary was the safest bounded slice because it improved privacy clarity without changing routes, permissions, or comment bodies.",
+  "candidates": [
+    {
+      "candidate": "Student-detail note visibility labels",
+      "ladderLevel": "LEVEL_7_AUDITABILITY_AND_TRUST",
+      "roles": ["site staff", "viewer", "program_teacher", "mentor"],
+      "impact": 5,
+      "safety": 5,
+      "testability": 5,
+      "size": "S",
+      "score": 56,
+      "decision": "selected"
+    },
+    {
+      "candidate": "Program Teacher mentor-meeting follow-up destination",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "roles": ["program_teacher"],
+      "impact": 4,
+      "safety": 3,
+      "testability": 3,
+      "size": "M",
+      "score": 40,
+      "decision": "deferred: no exact current destination is proven for that follow-up row"
+    },
+    {
+      "candidate": "Hosted section-level permission proof",
+      "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
+      "roles": ["all protected roles"],
+      "impact": 4,
+      "safety": 3,
+      "testability": 2,
+      "size": "M",
+      "score": 35,
+      "decision": "deferred: hosted runtime is outside this local batch"
+    },
+    {
+      "candidate": "Review Queue missing-submission semantics",
+      "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
+      "roles": ["program_teacher", "site_admin"],
+      "impact": 5,
+      "safety": 2,
+      "testability": 3,
+      "size": "M",
+      "score": 34,
+      "decision": "deferred: backend queue rows are still absent"
+    },
+    {
+      "candidate": "Viewer email visibility policy",
+      "ladderLevel": "LEVEL_7_AUDITABILITY_AND_TRUST",
+      "roles": ["viewer"],
+      "impact": 3,
+      "safety": 2,
+      "testability": 3,
+      "size": "S",
+      "score": 30,
+      "decision": "deferred: policy decision still comes before UI change"
+    },
+    {
+      "candidate": "Mentor reassignment or removal workflow",
+      "ladderLevel": "LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW",
+      "roles": ["site_admin"],
+      "impact": 4,
+      "safety": 2,
+      "testability": 3,
+      "size": "M",
+      "score": 33,
+      "decision": "deferred: mutation and audit design still needed"
+    },
+    {
+      "candidate": "Presentation schedule URL state",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "roles": ["site staff", "program_teacher", "mentor", "student"],
+      "impact": 3,
+      "safety": 4,
+      "testability": 4,
+      "size": "S",
+      "score": 42,
+      "decision": "not selected: useful, but lower current value than clarifying an active privacy boundary in student detail"
+    },
+    {
+      "candidate": "Global Admin role refresh",
+      "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
+      "roles": ["global_admin"],
+      "impact": 3,
+      "safety": 3,
+      "testability": 3,
+      "size": "M",
+      "score": 34,
+      "decision": "deferred: broader multi-surface verification batch than this local slice"
+    },
+    {
+      "candidate": "Student-detail staff-note authoring path",
+      "ladderLevel": "LEVEL_7_AUDITABILITY_AND_TRUST",
+      "roles": ["staff"],
+      "impact": 4,
+      "safety": 2,
+      "testability": 2,
+      "size": "M",
+      "score": 29,
+      "decision": "deferred: no supported add-note API path is proven in this lane yet"
+    },
+    {
+      "candidate": "Site/Admin evidence summary drill-down",
+      "ladderLevel": "LEVEL_1_NAVIGABLE_DASHBOARDS",
+      "roles": ["site staff", "global_admin"],
+      "impact": 3,
+      "safety": 2,
+      "testability": 3,
+      "size": "S",
+      "score": 29,
+      "decision": "rejected: the current evidence counts still do not map to an exact backed destination"
+    }
+  ],
+  "filesChanged": [
+    "workspace.js",
+    "tests/workspace-app.test.mjs",
+    "docs/functionality-language-audit.md",
+    "docs/product/demo-role-readiness.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-06-02-1408-student-detail-note-visibility.json",
+    "docs/functionality-ux-growth-ledger.md",
+    "automation/state/functionality-ux-growth-state.json"
+  ],
+  "validation": [
+    "node --check workspace.js",
+    "node --test tests/workspace-app.test.mjs",
+    "npm run verify:functionality-language",
+    "npm run verify:functionality-ux-automation",
+    "npm run check:production-surfaces",
+    "npm run typecheck",
+    "npm run test",
+    "npm run check",
+    "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-02-1408-student-detail-note-visibility.json','utf8')); console.log('json ok')\"",
+    "git diff --check"
+  ],
+  "nextRecommended": "Keep Program Teacher mentor-meeting follow-up summary-only until a precise scoped destination exists; if that remains blocked, inspect presentation schedule URL state using the current in-page filters.",
+  "doNotRepeat": [
+    "Do not collapse student-detail Reviews back to generic Visible notes or raw scoped/staff_only labels while the route already provides note-visibility boundaries.",
+    "Do not expose staff-only or admin-only note text to mentor, student, or other scoped readers while clarifying student-detail note visibility."
+  ]
+}

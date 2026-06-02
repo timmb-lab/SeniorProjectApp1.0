@@ -1,6 +1,6 @@
 # Senior Capstone Run Log
 
-Last refreshed: 2026-05-21
+Last refreshed: 2026-06-02
 
 This is the compact run log for the current Functionality UX Upgrade automation contract.
 
@@ -20,6 +20,17 @@ This is the compact run log for the current Functionality UX Upgrade automation 
 - Remaining priority: broader permission/protected-evidence tests, real workflow endpoints, evidence upload progress/retry UX, Google Docs export cases, account lifecycle, mobile/error/empty QA, archive/presentation proof, and deployment verification.
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
+
+## 2026-06-02 14:08 PT - Functionality UX Upgrade Student Detail Note Visibility
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 7 auditability and trust / student-detail note visibility clarity.
+- `starting HEAD`: `4267a1576f3e677e2cf75d6943b14399ef195211`.
+- `selected slice`: Clarify student-detail Reviews note visibility for admin and scoped readers without changing the route contract.
+- `repo-grounded findings`: `functions/_lib/site-student-detail.ts` already returned role-filtered comments plus a top-level visibility contract, but `workspace.js` still rendered generic note wording and raw status pills such as `scoped`, `student_and_staff`, or `staff_only`. The safest bounded slice was to reuse that existing route-owned visibility contract in the student-detail Reviews tab and latest-feedback summary instead of adding a new API field or a write path.
+- `changes`: `workspace.js` now maps student-detail note visibility to school-facing labels, adds a role-safe note-visibility summary in the Reviews tab, uses role-scoped guidance when admin-only context is hidden, and distinguishes `Student-visible note`, `Staff-only note`, and `Role-scoped note` in the latest-feedback summary. `tests/workspace-app.test.mjs` now proves both the scoped-reader and admin-reader note-visibility branches.
+- `validation`: `node --check workspace.js` and `node --test tests/workspace-app.test.mjs` passed before docs/state closeout. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.
 
 ## 2026-06-02 13:09 PT - Functionality UX Upgrade Workspace Student Search Landing
 

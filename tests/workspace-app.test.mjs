@@ -1595,7 +1595,7 @@ test("workspace opens real student detail, loads timeline, and preserves directo
   assert.match(workspaceRoot.innerHTML, /Timeline/);
   assert.match(workspaceRoot.innerHTML, /Latest Feedback/);
   assert.match(workspaceRoot.innerHTML, /data-student-detail-feedback="latest"/);
-  assert.match(workspaceRoot.innerHTML, /Visible note/);
+  assert.match(workspaceRoot.innerHTML, /Student-visible note/);
   assert.match(workspaceRoot.innerHTML, /Use the rubric to tighten the next draft/);
   assert.match(workspaceRoot.innerHTML, /workspace-status-pill/);
   assert.match(workspaceRoot.innerHTML, /Back to Students/);
@@ -1643,6 +1643,110 @@ test("workspace opens real student detail, loads timeline, and preserves directo
   await vm.runInContext('selectSiteStudentDetailTab({ currentTarget: { dataset: { studentDetailTab: "presentation" } } })', context);
   assert.match(workspaceRoot.innerHTML, /data-student-detail-section="presentation"/);
   assert.doesNotMatch(workspaceRoot.innerHTML, /data-student-detail-action="open-operations"|Open operations for this student/);
+});
+
+test("student detail reviews explain note visibility for scoped and admin readers", async () => {
+  const scopedDetail = siteStudentDetailFixture({ readOnly: true });
+  scopedDetail.comments = [
+    {
+      commentId: "comment-scoped-101",
+      visibility: "scoped",
+      body: "Use the rubric to tighten the next draft.",
+      authorName: "Program Teacher",
+      createdAt: "2026-05-20T12:10:00.000Z",
+    },
+  ];
+  const adminDetail = siteStudentDetailFixture({ readOnly: false });
+  adminDetail.comments = [
+    {
+      commentId: "comment-admin-student-101",
+      visibility: "student_and_staff",
+      body: "Share the revision checklist with the student.",
+      authorName: "Program Teacher",
+      createdAt: "2026-05-20T12:10:00.000Z",
+    },
+    {
+      commentId: "comment-admin-staff-101",
+      visibility: "staff_only",
+      body: "Private staffing follow-up note.",
+      authorName: "Site Admin",
+      createdAt: "2026-05-20T11:55:00.000Z",
+    },
+  ];
+
+  const scopedRoutes = {
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "viewer-comment-scope",
+          email: "viewer.comments@example.edu",
+          displayName: "Viewer Comment Scope",
+          roles: [{ role_id: "viewer", scope_type: "site", scope_id: "site-desert-valley-high" }],
+        },
+      },
+    },
+    "/api/site/dashboard": {
+      status: 200,
+      body: siteDashboardFixture({ readOnly: true }),
+    },
+    "/api/site/students": {
+      status: 200,
+      body: siteStudentsFixture({ readOnly: true }),
+    },
+    "/api/site/students/demo-student-101": {
+      status: 200,
+      body: scopedDetail,
+    },
+  };
+  const { context: scopedContext, workspaceRoot: scopedRoot } = await createWorkspaceContextWithFetch(scopedRoutes);
+  vm.runInContext('activeSection = "students"; renderAppShell();', scopedContext);
+  await vm.runInContext('openSiteStudentDetail("demo-student-101")', scopedContext);
+  await vm.runInContext('selectSiteStudentDetailTab({ currentTarget: { dataset: { studentDetailTab: "reviews" } } })', scopedContext);
+  assert.match(scopedRoot.innerHTML, /data-student-detail-comment-visibility-summary="true"/);
+  assert.match(scopedRoot.innerHTML, /Role-scoped notes: 1/);
+  assert.match(scopedRoot.innerHTML, /Staff follow-up included/);
+  assert.match(scopedRoot.innerHTML, /Admin-only context hidden/);
+  assert.match(scopedRoot.innerHTML, /Visible in this detail/);
+  assert.match(scopedRoot.innerHTML, /Role-scoped follow-up notes/);
+
+  const adminRoutes = {
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "site-admin-comments",
+          email: "site.admin.comments@example.edu",
+          displayName: "Site Admin Comments",
+          roles: [{ role_id: "site_admin", scope_type: "site", scope_id: "site-desert-valley-high" }],
+        },
+      },
+    },
+    "/api/site/dashboard": {
+      status: 200,
+      body: siteDashboardFixture({ readOnly: false }),
+    },
+    "/api/site/students": {
+      status: 200,
+      body: siteStudentsFixture({ readOnly: false }),
+    },
+    "/api/site/students/demo-student-101": {
+      status: 200,
+      body: adminDetail,
+    },
+  };
+  const { context: adminContext, workspaceRoot: adminRoot } = await createWorkspaceContextWithFetch(adminRoutes);
+  vm.runInContext('activeSection = "students"; renderAppShell();', adminContext);
+  await vm.runInContext('openSiteStudentDetail("demo-student-101")', adminContext);
+  await vm.runInContext('selectSiteStudentDetailTab({ currentTarget: { dataset: { studentDetailTab: "reviews" } } })', adminContext);
+  assert.match(adminRoot.innerHTML, /Student-visible notes: 1/);
+  assert.match(adminRoot.innerHTML, /Staff-only notes: 1/);
+  assert.match(adminRoot.innerHTML, /Student-visible and staff-only notes/);
+  assert.match(adminRoot.innerHTML, /Student-visible notes can be shared with the student\./);
+  assert.match(adminRoot.innerHTML, /Private staffing follow-up note\./);
+  assert.match(adminRoot.innerHTML, /Staff-only/);
 });
 
 test("workspace renders site-aware Review Queue with teacher decisions and read-only role states", async () => {

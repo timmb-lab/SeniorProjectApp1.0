@@ -5975,3 +5975,60 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: no exact evidence-record or approved-summary drill-down is proven for the current summary counts; Program Teacher mentor-meeting follow-up still lacks a precise current destination; hosted permission proof still needs allowed runtime.
   - Do not repeat: do not re-introduce passive dashboard counts that imply a click-through without either an explicit `Summary only` badge or a real backed action.
   - First file to inspect next run: `workspace.js` around `renderSummaryStrip()` and the student-detail note rendering helpers
+
+## Run 2026-06-02 14:08 PT
+
+- Starting SHA: `4267a1576f3e677e2cf75d6943b14399ef195211`
+- Ending SHA: pending closeout commit; final hash is reported after commit
+- Branch: `main`
+- Branch policy: started from clean local `main`; local `main` remained ahead of `origin/main` by one prior local automation commit, so this run stayed on that clean local baseline without touching remotes
+- Ladder level targeted: `LEVEL_7_AUDITABILITY_AND_TRUST`
+- Backlog item: `student-detail-note-visibility-labels`
+- Work order selected: Clarify student-detail Reviews note visibility for admin and scoped readers using the existing route-owned visibility contract.
+- Selection reason: current repo evidence showed that `functions/_lib/site-student-detail.ts` already returned role-filtered comments plus a top-level visibility contract, but `workspace.js` still rendered generic note wording and raw status pills such as `scoped`, `student_and_staff`, or `staff_only`. Reusing that existing visibility contract in the student-detail Reviews tab and latest-feedback summary was the smallest safe slice because it improved privacy clarity without changing routes, permissions, or comment bodies.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Student-detail note visibility labels | `LEVEL_7_AUDITABILITY_AND_TRUST` | site staff, `viewer`, `program_teacher`, `mentor` | 5 | 5 | 5 | S | 56 | selected |
+| Program Teacher mentor-meeting follow-up destination | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | `program_teacher` | 4 | 3 | 3 | M | 40 | deferred: no exact current destination is proven for that follow-up row |
+| Hosted section-level permission proof | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all protected roles | 4 | 3 | 2 | M | 35 | deferred: hosted runtime is outside this local batch |
+| Review Queue missing-submission semantics | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | `program_teacher`, `site_admin` | 5 | 2 | 3 | M | 34 | deferred: backend queue rows are still absent |
+| Viewer email visibility policy | `LEVEL_7_AUDITABILITY_AND_TRUST` | `viewer` | 3 | 2 | 3 | S | 30 | deferred: policy decision still comes before UI change |
+| Mentor reassignment or removal workflow | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | `site_admin` | 4 | 2 | 3 | M | 33 | deferred: mutation and audit design still needed |
+| Presentation schedule URL state | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | site staff, `program_teacher`, `mentor`, `student` | 3 | 4 | 4 | S | 42 | not selected: useful, but lower current value than clarifying an active privacy boundary in student detail |
+| Global Admin role refresh | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | `global_admin` | 3 | 3 | 3 | M | 34 | deferred: broader multi-surface verification batch than this local slice |
+| Student-detail staff-note authoring path | `LEVEL_7_AUDITABILITY_AND_TRUST` | staff | 4 | 2 | 2 | M | 29 | deferred: no supported add-note API path is proven in this lane yet |
+| Site/Admin evidence summary drill-down | `LEVEL_1_NAVIGABLE_DASHBOARDS` | site staff, `global_admin` | 3 | 2 | 3 | S | 29 | rejected: the current evidence counts still do not map to an exact backed destination |
+
+- User-facing improvement: student-detail Reviews now label student-visible versus staff-only notes when the route provides that boundary, while scoped readers such as Viewer, Program Teacher, Administration, and Mentor now see role-safe note-visibility guidance instead of raw `scoped` wording.
+- Roles affected: `site_admin`, `administration`, `viewer`, `program_teacher`, `mentor`, `global_admin`, `platform_admin`, and other authorized staff detail readers
+- Files changed: `workspace.js`, `tests/workspace-app.test.mjs`, `docs/functionality-language-audit.md`, `docs/product/demo-role-readiness.md`, `docs/progress/run-log.md`, `docs/progress/runs/2026-06-02-1408-student-detail-note-visibility.json`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`
+- Tests/verifiers added or updated: `tests/workspace-app.test.mjs` now proves both the scoped-reader note-visibility summary and the admin-reader student-visible versus staff-only note labels inside student-detail Reviews.
+- Validation commands:
+  - `node --check workspace.js`
+  - `node --test tests/workspace-app.test.mjs`
+  - `npm run verify:functionality-language`
+  - `npm run verify:functionality-ux-automation`
+  - `npm run check:production-surfaces`
+  - `npm run typecheck`
+  - `npm run test`
+  - `npm run check`
+  - `node -e "JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-02-1408-student-detail-note-visibility.json','utf8')); console.log('json ok')"`
+  - `git diff --check`
+- Validation result: passed. Workspace syntax checks, focused student-detail coverage, functionality-language and automation verification, production-surface checks, typecheck, full test and check runs, JSON parsing, and `git diff --check` all passed after docs/state closeout; `git diff --check` reported CRLF normalization warnings only.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: Program Teacher mentor-meeting follow-up destination, hosted section-level permission proof, Review Queue missing-submission semantics, viewer email visibility policy, mentor reassignment/remove workflow, and presentation schedule URL state remain open.
+- New backlog items: none
+- Next recommended work order: Keep Program Teacher mentor-meeting follow-up summary-only until a precise scoped destination exists; if that remains blocked, inspect presentation schedule URL state using the current in-page filters.
+- Do-not-repeat notes: do not collapse student-detail Reviews back to generic `Visible notes` or raw `scoped` wording while the route still provides a note-visibility contract, and do not expose staff-only or admin-only note text to mentor, student, or other scoped readers while clarifying detail visibility.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_7_AUDITABILITY_AND_TRUST`
+  - Advanced: yes
+  - Evidence: `workspace.js` now maps student-detail note visibility to school-facing labels, renders a role-safe note-visibility summary in Reviews, and updates latest-feedback note labels; focused workspace coverage proves both the scoped-reader and admin-reader branches.
+  - Unlocks: future detail-note authoring or policy work can build on an explicit read boundary instead of raw route terminology.
+  - Next: keep Program Teacher mentor-meeting follow-up summary-only until a precise destination exists; if that remains blocked, inspect `renderPresentationSection()` and the existing in-page schedule filters for a shareable URL-state slice.
+  - Blockers: Program Teacher mentor-meeting follow-up still lacks an exact current destination; hosted permission proof still needs allowed runtime; Review Queue missing-submission semantics still need backend evidence.
+  - Do not repeat: do not remove the new note-visibility labels or guidance while the current detail route continues to provide those visibility boundaries.
+  - First file to inspect next run: `workspace.js` around `renderStudentDetailReviews()` and `renderStudentDetailCommentVisibilitySummary()`

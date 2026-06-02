@@ -114,6 +114,10 @@ const STATUS_CLASS_BY_STATUS = {
   no_active_assignments: "blocked",
   not_requested: "pending",
   policy_review_required: "pending",
+  scoped: "configured",
+  student_visible: "configured",
+  student_and_staff: "configured",
+  staff_only: "configured",
 };
 const STATUS_LABELS = {
   draft: "Draft",
@@ -169,6 +173,10 @@ const STATUS_LABELS = {
   missed: "Missed",
   makeup_required: "Make-up required",
   not_scheduled: "Not scheduled",
+  scoped: "Visible in this detail",
+  student_visible: "Student-visible",
+  student_and_staff: "Student-visible",
+  staff_only: "Staff-only",
 };
 const WORKSPACE_SECTION_IDS = new Set([
   "overview",
@@ -2653,7 +2661,7 @@ function latestStudentDetailFeedback(detail) {
       status: row.decision || "under_review",
     })),
     ...comments.map((row) => ({
-      kind: "Visible note",
+      kind: studentDetailCommentKind(row.visibility),
       title: row.authorName || "Staff",
       text: row.body || "Comment recorded.",
       actor: row.authorName || "Staff",
@@ -2745,6 +2753,7 @@ function renderStudentDetailEvidence(detail) {
 function renderStudentDetailReviews(detail) {
   const reviews = detail.reviews || [];
   const comments = detail.comments || [];
+  const commentMode = studentDetailCommentVisibilityMode(detail);
   return `
     <section class="workspace-detail-section" data-student-detail-section="reviews">
       ${renderStudentDetailList("Reviews", "Teacher feedback history", reviews, "No review records are available for this student.", (row) => `
@@ -2757,7 +2766,8 @@ function renderStudentDetailReviews(detail) {
           ${statusPill(row.decision || "under_review")}
         </article>
       `)}
-      ${renderStudentDetailList("Comments", "Visible notes", comments, "No visible notes are available for this student.", (row) => `
+      ${renderStudentDetailCommentVisibilitySummary(detail, comments)}
+      ${renderStudentDetailList("Comments", studentDetailCommentListDetail(commentMode), comments, studentDetailCommentEmptyMessage(commentMode), (row) => `
         <article class="workspace-row">
           <div>
             <strong>${escapeHtml(row.authorName || "Staff")}</strong>
@@ -2878,6 +2888,87 @@ function renderStudentDetailPresentation(detail) {
         ${permissions.canViewPresentationOperations ? studentDetailOperationsButton(studentId) : ""}
       `)}
     </section>
+  `;
+}
+
+function studentDetailCommentKind(visibility) {
+  const normalized = normalizeStatus(visibility);
+  if (normalized === "staff_only") return "Staff-only note";
+  if (normalized === "student_visible" || normalized === "student_and_staff") return "Student-visible note";
+  if (normalized === "scoped") return "Role-scoped note";
+  return "Visible note";
+}
+
+function studentDetailCommentVisibilityMode(detail) {
+  const visibility = detail?.visibility || {};
+  if (visibility.adminContext === "included_when_scoped") return "admin_detailed";
+  if (visibility.staffOnlyComments === "included_when_scoped") return "scoped_staff";
+  return "student_visible_only";
+}
+
+function studentDetailCommentListDetail(mode) {
+  if (mode === "admin_detailed") return "Student-visible and staff-only notes";
+  if (mode === "scoped_staff") return "Role-scoped follow-up notes";
+  return "Student-visible notes";
+}
+
+function studentDetailCommentEmptyMessage(mode) {
+  if (mode === "admin_detailed") return "No student-visible or staff-only notes are available for this student.";
+  if (mode === "scoped_staff") return "No role-scoped notes are available for this student.";
+  return "No student-visible notes are available for this student.";
+}
+
+function renderStudentDetailCommentVisibilitySummary(detail, comments = []) {
+  const mode = studentDetailCommentVisibilityMode(detail);
+  const total = safeNumber(comments.length);
+
+  if (mode === "admin_detailed") {
+    const counts = comments.reduce((summary, row) => {
+      const visibility = normalizeStatus(row.visibility);
+      if (visibility === "staff_only") {
+        summary.staffOnly += 1;
+      } else if (visibility === "student_visible" || visibility === "student_and_staff") {
+        summary.studentVisible += 1;
+      } else {
+        summary.protectedOnly += 1;
+      }
+      return summary;
+    }, { studentVisible: 0, staffOnly: 0, protectedOnly: 0 });
+    const badges = [
+      `<span class="workspace-site-context-badge" data-student-detail-comment-visibility="student-visible">Student-visible notes: ${safeNumber(counts.studentVisible)}</span>`,
+      `<span class="workspace-site-context-badge" data-student-detail-comment-visibility="staff-only">Staff-only notes: ${safeNumber(counts.staffOnly)}</span>`,
+      counts.protectedOnly
+        ? `<span class="workspace-site-context-badge" data-student-detail-comment-visibility="protected">Protected notes: ${safeNumber(counts.protectedOnly)}</span>`
+        : "",
+    ].filter(Boolean).join("");
+    return `
+      <div class="workspace-review-comment-summary" data-student-detail-comment-visibility-summary="true">
+        <p class="workspace-muted">Note visibility</p>
+        <div class="workspace-detail-grid">${badges}</div>
+        <p class="workspace-muted">Student-visible notes can be shared with the student. Staff-only planning notes stay inside authorized detail.</p>
+      </div>
+    `;
+  }
+
+  const scopedBadges = mode === "scoped_staff"
+    ? [
+        `<span class="workspace-site-context-badge" data-student-detail-comment-visibility="scoped">Role-scoped notes: ${escapeHtml(total)}</span>`,
+        `<span class="workspace-site-context-badge" data-student-detail-comment-visibility="staff-scope">Staff follow-up included</span>`,
+        `<span class="workspace-site-context-badge" data-student-detail-comment-visibility="admin-hidden">Admin-only context hidden</span>`,
+      ]
+    : [
+        `<span class="workspace-site-context-badge" data-student-detail-comment-visibility="student-visible-only">Student-visible notes: ${escapeHtml(total)}</span>`,
+        `<span class="workspace-site-context-badge" data-student-detail-comment-visibility="staff-hidden">Staff-only notes hidden</span>`,
+      ];
+  const helpText = mode === "scoped_staff"
+    ? "This detail includes the notes visible to the current assigned staff role. Admin-only context stays hidden."
+    : "Only notes that can be shared with the student appear in this detail.";
+  return `
+    <div class="workspace-review-comment-summary" data-student-detail-comment-visibility-summary="true">
+      <p class="workspace-muted">Note visibility</p>
+      <div class="workspace-detail-grid">${scopedBadges.join("")}</div>
+      <p class="workspace-muted">${escapeHtml(helpText)}</p>
+    </div>
   `;
 }
 
