@@ -422,6 +422,7 @@ test("workspace renders route-connected site dashboard with Figma product-system
   assert.match(expandedSiteDashboard, /Assigned student records/);
   assert.match(expandedSiteDashboard, /Protected access/);
   assert.match(siteDashboard, /Teacher follow-up/);
+  assert.doesNotMatch(siteDashboard, /Teacher intervention|Dashboard access is logged for protected school records/);
   assert.match(siteDashboard, /Current site/);
   assert.doesNotMatch(siteDashboard, /<p class="workspace-kicker">Current site<\/p>/);
   assert.match(siteDashboard, /workspace-site-switcher/);
@@ -1414,6 +1415,7 @@ test("workspace renders site-aware Review Queue with teacher decisions and read-
   assert.match(teacher, /No student messaging/);
   assert.match(teacher, /workspace-review-queue/);
   assert.match(teacher, /workspace-filter-bar/);
+  assert.doesNotMatch(teacher, /Teacher intervention/);
   assert.match(teacher, /data-section="teacher" data-section-preset="evidence-attached-review">Review rows/);
   assert.match(teacher, /data-section="teacher" data-section-preset="evidence-missing-review">Review rows/);
   assert.match(teacher, /data-section="teacher" data-section-preset="high-risk">Review rows/);

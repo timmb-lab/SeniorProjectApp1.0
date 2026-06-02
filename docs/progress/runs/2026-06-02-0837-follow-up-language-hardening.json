@@ -1,0 +1,145 @@
+{
+  "runId": "2026-06-02-0837-follow-up-language-hardening",
+  "selectedSlice": "site-dashboard-review-follow-up-language-hardening",
+  "summary": "Replace intervention-heavy and audit-heavy protected follow-up wording in the Site Dashboard and Review Queue helper paths, then guard it with the functionality-language verifier.",
+  "selectedReason": "Current repo evidence still showed live protected-surface strings in source helpers instead of just stale docs: `Teacher intervention` was emitted from the site dashboard and Review Queue helpers, and the Site Dashboard still described protected access as logged audit activity. This was the smallest safe batch that improved real staff-facing language across existing protected workflows while adding a direct regression guard.",
+  "candidateTable": [
+    {
+      "candidate": "Site dashboard and Review Queue follow-up language hardening",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "roles": ["site_admin", "program_teacher", "protected staff"],
+      "impact": 4,
+      "safety": 5,
+      "testability": 5,
+      "size": "XS",
+      "score": 49,
+      "decision": "selected"
+    },
+    {
+      "candidate": "Dashboard risk explanation copy",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "roles": ["site staff"],
+      "impact": 4,
+      "safety": 5,
+      "testability": 4,
+      "size": "S",
+      "score": 45,
+      "decision": "not selected: broader than the live helper-string wording regression"
+    },
+    {
+      "candidate": "Site dashboard recent-activity drill-down",
+      "ladderLevel": "LEVEL_7_AUDITABILITY_AND_TRUST",
+      "roles": ["site_admin", "administration"],
+      "impact": 3,
+      "safety": 3,
+      "testability": 3,
+      "size": "M",
+      "score": 36,
+      "decision": "deferred: no site-backed audit destination is proven yet"
+    },
+    {
+      "candidate": "Student detail URL state",
+      "ladderLevel": "LEVEL_2_STUDENT_DETAIL_DEPTH",
+      "roles": ["site staff"],
+      "impact": 4,
+      "safety": 3,
+      "testability": 3,
+      "size": "M",
+      "score": 39,
+      "decision": "deferred: privacy review still needed"
+    },
+    {
+      "candidate": "Filter persistence across staff worklists",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "roles": ["site staff"],
+      "impact": 4,
+      "safety": 3,
+      "testability": 3,
+      "size": "M",
+      "score": 38,
+      "decision": "deferred: larger URL-state batch"
+    },
+    {
+      "candidate": "Review Queue missing-submission semantics",
+      "ladderLevel": "LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES",
+      "roles": ["program_teacher", "site_admin"],
+      "impact": 5,
+      "safety": 2,
+      "testability": 3,
+      "size": "M",
+      "score": 34,
+      "decision": "deferred: backend queue rows are still absent"
+    },
+    {
+      "candidate": "Mentor reassignment/remove workflow",
+      "ladderLevel": "LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW",
+      "roles": ["site_admin"],
+      "impact": 4,
+      "safety": 2,
+      "testability": 3,
+      "size": "M",
+      "score": 33,
+      "decision": "deferred: mutation and audit design still needed"
+    },
+    {
+      "candidate": "Viewer student email redaction decision",
+      "ladderLevel": "LEVEL_7_AUDITABILITY_AND_TRUST",
+      "roles": ["viewer"],
+      "impact": 3,
+      "safety": 2,
+      "testability": 3,
+      "size": "S",
+      "score": 30,
+      "decision": "deferred: policy decision first"
+    },
+    {
+      "candidate": "Hosted section-level permission proof",
+      "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
+      "roles": ["all protected roles"],
+      "impact": 4,
+      "safety": 3,
+      "testability": 3,
+      "size": "M",
+      "score": 38,
+      "decision": "deferred: hosted fake-account runtime is outside this local batch"
+    },
+    {
+      "candidate": "Multi-site site selector follow-up",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "roles": ["site_admin"],
+      "impact": 4,
+      "safety": 3,
+      "testability": 3,
+      "size": "M",
+      "score": 37,
+      "decision": "deferred: broader workflow than this language hardening slice"
+    }
+  ],
+  "changes": [
+    "Changed `functions/api/site/dashboard.ts` follow-up labels from `Teacher intervention` to `Teacher follow-up` and replaced the audit-heavy protected-access summary with protected-and-reviewed school wording.",
+    "Changed the high-risk Review Queue helper in `functions/_lib/site-review-queue.ts` from `Prioritize teacher intervention.` to `Prioritize teacher follow-up.`",
+    "Extended `scripts/verify-functionality-language.mjs` to scan the site-dashboard and Review Queue helper source files and fail on `Teacher intervention` or the retired dashboard audit phrase.",
+    "Expanded `tests/workspace-app.test.mjs` and `tests/functionality-language-audit.test.mjs` to prove the rendered copy and verifier coverage."
+  ],
+  "validation": {
+    "focusedPassed": [
+      "node --test tests/workspace-app.test.mjs",
+      "npm run verify:functionality-language",
+      "node --test tests/functionality-language-audit.test.mjs"
+    ],
+    "fullCloseoutPassed": [
+      "npm run verify:functionality-ux-automation",
+      "npm run check:production-surfaces",
+      "npm run typecheck",
+      "npm run test",
+      "npm run check",
+      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-02-0837-follow-up-language-hardening.json','utf8')); console.log('json ok')\"",
+      "git diff --check"
+    ],
+    "finalStatus": "passed"
+  },
+  "nextRecommended": "Add dashboard and Review Queue risk explanation copy, or add a site-backed recent-activity destination only if the destination is proven and authorized.",
+  "doNotRepeat": [
+    "Do not reintroduce `Teacher intervention` or `Dashboard access is logged for protected school records.` on protected Site Dashboard or Review Queue surfaces unless product language policy intentionally changes."
+  ]
+}

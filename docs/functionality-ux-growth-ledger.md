@@ -5336,3 +5336,60 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: hosted permission proof still needs allowed fake-account runtime; recent-activity drill-down still lacks a proven site-backed destination; URL-state detail work still needs privacy review.
   - Do not repeat: do not add fake review actions or broaden queue access while improving guidance.
   - First file to inspect next run: `workspace.js` around `renderReviewQueueRow()` and `renderRiskChips()`
+
+## Run 2026-06-02 08:37 PT
+
+- Starting SHA: `7f2f0e5a8f4ee358f0e3e04cebf0d37e82f68130`
+- Ending SHA: pending closeout commit; final hash is in the completion report
+- Branch: `main`
+- Branch policy: work stayed on clean local `main`; no deploy, seed, reset, migration, or live config change was run
+- Ladder level targeted: `LEVEL_4_ROLE_SPECIFIC_WORKSPACES`
+- Backlog item: `site-dashboard-review-follow-up-language-hardening`
+- Work order selected: Replace remaining intervention-heavy and audit-heavy follow-up wording emitted by protected Site Dashboard and Review Queue helper paths.
+- Selection reason: Current repo evidence still showed live protected-surface strings in source helpers instead of just docs debt: `Teacher intervention` was emitted from `functions/api/site/dashboard.ts` and `functions/_lib/site-review-queue.ts`, while the Site Dashboard still described protected access as logged audit activity. This batch was the smallest safe way to improve real staff-facing language across two existing protected workflows while adding a regression guard that now scans the source helpers directly.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Site dashboard and Review Queue follow-up language hardening | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | `site_admin`, `program_teacher`, read-only site staff | 4 | 5 | 5 | XS | 49 | selected |
+| Dashboard risk explanation copy | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | site staff | 4 | 5 | 4 | S | 45 | not selected: still valuable, but broader than the live source-helper wording regression |
+| Site dashboard recent-activity drill-down | `LEVEL_7_AUDITABILITY_AND_TRUST` | `site_admin`, `administration` | 3 | 3 | 3 | M | 36 | deferred: no site-backed audit destination is proven yet |
+| Student detail URL state | `LEVEL_2_STUDENT_DETAIL_DEPTH` | site staff | 4 | 3 | 3 | M | 39 | deferred: privacy review still needed |
+| Filter persistence across staff worklists | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | site staff | 4 | 3 | 3 | M | 38 | deferred: larger URL-state batch |
+| Review Queue missing-submission semantics | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | `program_teacher`, `site_admin` | 5 | 2 | 3 | M | 34 | deferred: backend queue rows are still absent |
+| Mentor reassignment/remove workflow | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | `site_admin` | 4 | 2 | 3 | M | 33 | deferred: mutation and audit design still needed |
+| Viewer student email redaction decision | `LEVEL_7_AUDITABILITY_AND_TRUST` | `viewer` | 3 | 2 | 3 | S | 30 | deferred: policy decision first |
+| Hosted section-level permission proof | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all protected roles | 4 | 3 | 3 | M | 38 | deferred: hosted fake-account runtime is outside this local batch |
+| Multi-site site selector follow-up | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | `site_admin` | 4 | 3 | 3 | M | 37 | deferred: broader workflow than this language hardening slice |
+
+- User-facing improvement: Site Dashboard and Review Queue follow-up language now says `Teacher follow-up` instead of `Teacher intervention`, and the Site Dashboard protected-access summary now uses protected-and-reviewed school wording instead of audit-heavy copy.
+- Roles affected: `site_admin`, `program_teacher`, other protected staff who see site-dashboard or review-queue follow-up summaries
+- Files changed: `functions/api/site/dashboard.ts`, `functions/_lib/site-review-queue.ts`, `scripts/verify-functionality-language.mjs`, `tests/workspace-app.test.mjs`, `tests/functionality-language-audit.test.mjs`, `docs/functionality-language-audit.md`, `docs/product/demo-role-readiness.md`, `docs/progress/run-log.md`, `docs/progress/runs/2026-06-02-0837-follow-up-language-hardening.json`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`
+- Tests/verifiers added or updated: `scripts/verify-functionality-language.mjs` now scans `functions/api/site/dashboard.ts` and `functions/_lib/site-review-queue.ts` and fails on `Teacher intervention` or the retired dashboard audit phrase; focused workspace and audit tests now prove the rendered copy stays clean.
+- Validation commands:
+  - `node --test tests/workspace-app.test.mjs`
+  - `npm run verify:functionality-language`
+  - `node --test tests/functionality-language-audit.test.mjs`
+  - `npm run verify:functionality-ux-automation`
+  - `npm run check:production-surfaces`
+  - `npm run typecheck`
+  - `npm run test`
+  - `npm run check`
+  - `node -e "JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-02-0837-follow-up-language-hardening.json','utf8')); console.log('json ok')"`
+  - `git diff --check`
+- Validation result: passed. Focused workspace and audit coverage, the functionality-language verifier, the automation verifier, `check:production-surfaces`, `typecheck`, `test`, `check`, JSON parsing, and `git diff --check` all passed after docs/state closeout; `git diff --check` reported CRLF normalization warnings only.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: dashboard risk explanation copy, site dashboard recent-activity drill-down, student-detail URL state, filter persistence, Review Queue missing-submission semantics, mentor reassignment/remove workflow, viewer email redaction policy, hosted section-level permission proof, and multi-site site selector follow-up remain open.
+- New backlog items: none
+- Next recommended work order: Add risk explanation copy on dashboard and review rows, or add a safe site-backed recent-activity destination only if an authorized site-level summary path is proven.
+- Do-not-repeat notes: do not reintroduce `Teacher intervention` or `Dashboard access is logged for protected school records.` on protected site-dashboard or Review Queue surfaces unless product language policy intentionally changes.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_4_ROLE_SPECIFIC_WORKSPACES`
+  - Advanced: yes
+  - Evidence: the protected Site Dashboard and Review Queue helper paths now emit school-facing follow-up wording, and the functionality-language verifier scans those helper files directly.
+  - Unlocks: the next language/readiness slice can focus on explaining risk reasons instead of re-cleaning punitive or audit-heavy follow-up labels.
+  - Next: inspect `workspace.js` around `renderNeedsAttention()` and `renderRiskChips()`, or prove a site-backed recent-activity destination before adding a new dashboard action.
+  - Blockers: hosted permission proof still needs allowed fake-account runtime; site-level recent-activity drill-down still lacks a proven backed destination; student-detail URL state still needs privacy review.
+  - Do not repeat: do not revert this slice by reintroducing intervention/audit-heavy phrases through API helper strings.
+  - First file to inspect next run: `workspace.js` around `renderNeedsAttention()` and `renderRiskChips()`

@@ -615,7 +615,7 @@ function nextActionForQueue(status: string, evidenceCount: number, riskFlags: st
   if (status === "submitted" && evidenceCount > 0) return "Review evidence and record teacher feedback.";
   if (status === "submitted") return "Confirm evidence before approval.";
   if (status === "revision_requested") return "Wait for student revision or add comment-only guidance.";
-  if (riskFlags.includes("high")) return "Prioritize teacher intervention.";
+  if (riskFlags.includes("high")) return "Prioritize teacher follow-up.";
   return "Review status and student detail context.";
 }
 

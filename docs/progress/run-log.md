@@ -2689,3 +2689,14 @@ Future productive runs should append compact entries that name the master-plan s
 - `changes`: `workspace.js` now labels queue rows as `Open review`, `Open follow-up`, or `Selected row` based on current role and submission status, adds per-row action hints, clarifies the empty selected-panel state, and explains when a selected row is follow-up-only instead of decision-ready. `tests/workspace-app.test.mjs` now proves the new row labels, selected-row guidance, and revision-requested follow-up-only copy without changing RBAC or queue routes. `docs/functionality-language-audit.md`, `docs/product/demo-role-readiness.md`, `docs/functionality-ux-growth-ledger.md`, and the per-run manifest record the completed slice.
 - `validation`: `node --check workspace.js`, `node --test tests/workspace-app.test.mjs`, `npm run verify:functionality-language`, and `node --test tests/functionality-language-audit.test.mjs` passed before final closeout checks.
 - `commit/push status`: pending closeout commit; not pushed by this automation run.
+
+## 2026-06-02 PT - Functionality UX Upgrade Follow-Up Language Hardening
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 4 protected staff language hardening across site dashboard and Review Queue.
+- `starting HEAD`: `7f2f0e5a8f4ee358f0e3e04cebf0d37e82f68130`.
+- `selected slice`: Replace remaining intervention-heavy and audit-heavy follow-up wording emitted by protected site-dashboard and Review Queue helper paths.
+- `repo-grounded findings`: current repo evidence still showed `Teacher intervention` in `functions/api/site/dashboard.ts` and `functions/_lib/site-review-queue.ts`, plus `Dashboard access is logged for protected school records.` in the site dashboard next-action summary. Those strings were still live protected-surface copy even after recent role-specific shell improvements, so the cleanest bounded batch was to harden the source helpers and extend the language verifier to scan them directly.
+- `changes`: `functions/api/site/dashboard.ts` now emits `Teacher follow-up needed`, `Teacher follow-up`, and protected-and-reviewed dashboard access wording instead of intervention/audit-heavy labels. `functions/_lib/site-review-queue.ts` now uses `Prioritize teacher follow-up.` for high-risk next actions. `scripts/verify-functionality-language.mjs` now scans the site-dashboard and Review Queue helper files and fails on `Teacher intervention` or the retired audit-heavy dashboard-access phrase. `tests/workspace-app.test.mjs` and `tests/functionality-language-audit.test.mjs` now prove the protected render and verifier guardrails.
+- `validation`: `node --test tests/workspace-app.test.mjs`, `npm run verify:functionality-language`, and `node --test tests/functionality-language-audit.test.mjs` passed before final closeout checks.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.

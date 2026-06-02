@@ -634,11 +634,11 @@ function buildNeedsAttention(summary: Record<string, number>) {
   if (summary.revisionRequested > 0) {
     items.push({
       type: "teacher_intervention",
-      label: "Teacher intervention needed",
+      label: "Teacher follow-up needed",
       detail: `${summary.revisionRequested} revision-requested submission(s) need follow-up.`,
       severity: "warning",
       owner: "Program teachers",
-      nextAction: "Prioritize revision loops and feedback checks.",
+      nextAction: "Prioritize revision follow-up and feedback checks.",
     });
   }
   if (summary.presentationsPending > 0) {
@@ -673,7 +673,7 @@ function buildNextActions(summary: Record<string, number>, readOnly: boolean) {
       status: "ready",
     },
     {
-      label: "Teacher intervention",
+      label: "Teacher follow-up",
       detail: `${summary.submissionsSubmitted + summary.revisionRequested} submitted or revision-requested record(s) need teacher follow-up.`,
       status: summary.revisionRequested > 0 ? "revision_requested" : "submitted",
     },
@@ -684,7 +684,7 @@ function buildNextActions(summary: Record<string, number>, readOnly: boolean) {
     },
     {
       label: "Protected access",
-      detail: "Dashboard access is logged for protected school records.",
+      detail: "Access stays protected and reviewed for this school workspace.",
       status: "approved",
     },
   ];

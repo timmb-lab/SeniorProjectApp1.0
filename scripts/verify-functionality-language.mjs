@@ -1,6 +1,11 @@
 import { readFileSync } from "node:fs";
 
-const protectedUiFiles = ["workspace.html", "workspace.js"];
+const protectedUiFiles = [
+  "workspace.html",
+  "workspace.js",
+  "functions/api/site/dashboard.ts",
+  "functions/_lib/site-review-queue.ts",
+];
 const reviewOnlyFiles = ["app.js", "public-companion/app.js"];
 
 const hardFailures = [
@@ -39,6 +44,14 @@ const hardFailures = [
   {
     pattern: /\bPermission denied\b/i,
     message: "Protected workspace should explain missing access without technical denial language.",
+  },
+  {
+    pattern: /\bTeacher intervention\b/i,
+    message: "Protected workspace should use teacher follow-up language instead of intervention phrasing.",
+  },
+  {
+    pattern: /\bDashboard access is logged for protected school records\b/i,
+    message: "Protected dashboard copy should use protected-and-reviewed language instead of surveillance-heavy audit wording.",
   },
   {
     pattern: /\bRole scoped views\b/i,
