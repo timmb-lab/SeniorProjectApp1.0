@@ -6649,3 +6649,62 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: mentor-meeting follow-up still lacks a precise destination; hosted permission proof still needs allowed runtime; Review Queue missing-submission semantics still need backend evidence.
   - Do not repeat: do not reintroduce `selected-site` or intervention-heavy Mentor Assignments helper phrasing through route responses.
   - First file to inspect next run: `workspace.js` around `renderAdminRoleAssignmentsBody()` and `functions/api/admin/role-assignments.ts`
+
+## Run 2026-06-03 00:07 PT
+
+- Starting SHA: `83b532a3bc23e042cd5d37772c6c94bdbdee82a0`
+- Ending SHA: pending closeout commit; final hash is reported after commit
+- Branch: `main`
+- Branch policy: started from clean local `main` ahead of `origin/main` by seven earlier in-lane commits; this run stayed local-only and did not push
+- Ladder level targeted: `LEVEL_4_ROLE_SPECIFIC_WORKSPACES`
+- Backlog item: remaining Global Admin route-refresh handoff inside `docs/functionality-language-audit.md` and `docs/product/demo-role-readiness.md`
+- Work order selected: Add route-backed site, program, and cohort labels to Global Admin recent role assignments.
+- Selection reason: current repo evidence showed a real protected-workspace gap, not speculative polish. `workspace.js` already surfaced recent role assignments inside `Users & Access`, but `adminRoleAssignmentScopeText()` still guessed labels from the currently selected school's access payload. That made cross-school or off-site program grants fall back to raw ids or current-site-only context even though `/api/admin/role-assignments` was already the protected source of truth and could safely provide readable scope names.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Role-assignment scope-name enrichment | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | `global_admin` | 5 | 5 | 5 | XS | 60 | selected |
+| Broader Global Admin route refresh across Recent Audit, Students, Presentation, Programs, and Users & Access | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | `global_admin` | 4 | 4 | 3 | M | 45 | deferred: broader than one safe hourly slice |
+| Filtered Audit cross-school proof refresh | `LEVEL_7_AUDITABILITY_AND_TRUST` | `global_admin` | 4 | 3 | 3 | M | 37 | deferred: needs a tighter locally provable scenario first |
+| Admin mentor-meeting exact destination | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | `global_admin` | 4 | 2 | 2 | M | 30 | deferred: current workspace still lacks a precise meeting-follow-up destination |
+| Program Teacher mentor-meeting follow-up destination | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | `program_teacher` | 4 | 3 | 3 | M | 40 | deferred: no precise scoped destination is proven |
+| Hosted section-level permission proof | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all protected roles | 4 | 3 | 2 | M | 35 | deferred: hosted runtime is outside this local batch |
+| Review Queue missing-submission semantics | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | `program_teacher`, `site_admin` | 5 | 2 | 3 | M | 34 | deferred: backend queue rows are still absent |
+| Viewer email visibility policy | `LEVEL_7_AUDITABILITY_AND_TRUST` | `viewer` | 3 | 2 | 3 | S | 30 | deferred: product policy still comes before UI change |
+| Mentor reassignment or removal workflow | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | `site_admin` | 4 | 2 | 3 | M | 33 | deferred: mutation and audit design still needed |
+| Student hosted drill-down refresh | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | `student` | 4 | 2 | 2 | M | 29 | deferred: broader hosted/product pass than this bounded Global Admin slice |
+
+- User-facing improvement: Global Admin recent role assignments now show route-backed school, program, and cohort names even when no current school is selected, instead of falling back to raw scope ids or current-site-only guesses.
+- Roles affected: `global_admin`
+- Files changed: `functions/api/admin/role-assignments.ts`, `workspace.js`, `tests/admin-role-assignments.integration.test.mjs`, `tests/workspace-app.test.mjs`, `docs/functionality-language-audit.md`, `docs/product/demo-role-readiness.md`, `docs/progress/run-log.md`, `docs/progress/runs/2026-06-03-0007-role-assignment-scope-names.json`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`
+- Tests/verifiers added or updated: `tests/admin-role-assignments.integration.test.mjs` now proves `/api/admin/role-assignments` returns readable site, program, and cohort names; `tests/workspace-app.test.mjs` now proves the Global Admin disclosure keeps those names readable even when `Users & Access` still requires picking a school for site-scoped access management.
+- Validation commands:
+  - `node --check workspace.js`
+  - `node --test tests/admin-role-assignments.integration.test.mjs`
+  - `node --test tests/workspace-app.test.mjs`
+  - `npm run verify:functionality-language`
+  - `node --test tests/functionality-language-audit.test.mjs`
+  - `npm run verify:functionality-ux-automation`
+  - `npm run check:production-surfaces`
+  - `npm run typecheck`
+  - `npm run test`
+  - `npm run check`
+  - `node -e "JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-03-0007-role-assignment-scope-names.json','utf8')); console.log('json ok')"`
+  - `git diff --check`
+- Validation result: passed; focused route and workspace coverage passed before docs/state closeout, and the full validation ladder passed after the closeout files were updated.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: broader Global Admin route refresh, filtered Audit cross-school proof refresh, Admin mentor-meeting exact destination, Program Teacher mentor-meeting follow-up destination, hosted section-level permission proof, Review Queue missing-submission semantics, viewer email visibility policy, mentor reassignment/remove workflow, and student hosted drill-down refresh remain open.
+- New backlog items: none
+- Next recommended work order: Continue the bounded Global Admin route refresh only where the current workspace can prove an exact destination; preserve route-backed role-assignment labels and keep mentor-meeting follow-up summary-only until a precise backed path exists.
+- Do-not-repeat notes: do not fall back to current-site-only scope guesses in recent role assignments when the protected route already provides readable scope names; do not surface raw site, program, or cohort ids in the Global Admin role-assignment panel when a route-backed scope label is available; and do not broaden Site Admin or other site-scoped workspaces with this Global Admin-only disclosure.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_4_ROLE_SPECIFIC_WORKSPACES`
+  - Advanced: yes
+  - Evidence: `/api/admin/role-assignments` now returns scope names for site, program, and cohort grants, and the `Users & Access` disclosure prefers those protected labels before any current-school fallback.
+  - Unlocks: the next Global Admin pass can evaluate the remaining route-refresh and boundary gaps without rediscovering raw scope ids inside the role-assignment panel.
+  - Next: inspect `workspace.js` around `renderAdminRoleAssignmentsBody()` and the remaining exact Global Admin handoffs only if a current destination is proven.
+  - Blockers: mentor-meeting follow-up still lacks a precise destination; hosted permission proof still needs allowed runtime; Review Queue missing-submission semantics still need backend evidence.
+  - Do not repeat: do not revert recent role assignments back to current-site-only label guesses or raw scope ids while the protected route already returns readable labels.
+  - First file to inspect next run: `workspace.js` around `renderAdminRoleAssignmentsBody()` and `functions/api/admin/role-assignments.ts`

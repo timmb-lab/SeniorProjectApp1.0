@@ -7324,6 +7324,87 @@ test("workspace guides multi-site admins to choose a school before managing site
   assert.doesNotMatch(adminUsers, /Manage Site Access|data-site-access-assignment-form/);
 });
 
+test("workspace uses route-backed scope names in recent role assignments without a current site selection", async () => {
+  const { context, workspaceRoot } = await createWorkspaceContextWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "global-admin-route-scopes",
+          email: "global.scopes@example.edu",
+          displayName: "Global Scope Admin",
+          roles: [{ role_id: "admin", scope_type: "global", scope_id: "" }],
+        },
+      },
+    },
+    "/api/site/access-assignments": {
+      status: 409,
+      body: {
+        ok: false,
+        error: "site_selection_required",
+        selectionRequired: true,
+        accessibleSites: [
+          { siteId: "site-desert-valley-high", siteName: "Desert Valley High School" },
+          { siteId: "site-canyon-ridge-career", siteName: "Canyon Ridge Career Academy" },
+        ],
+      },
+    },
+    "/api/admin/role-assignments": {
+      status: 200,
+      body: {
+        ok: true,
+        assignments: [
+          {
+            userId: "site-scope-principal",
+            userName: "Site Scope Principal",
+            roleId: "administration",
+            scopeType: "site",
+            scopeId: "site-canyon-ridge-career",
+            scopeName: "Canyon Ridge Career Academy",
+            assignedAt: "2026-06-02T18:05:00.000Z",
+          },
+          {
+            userId: "program-scope-teacher",
+            userName: "Program Scope Teacher",
+            roleId: "program_teacher",
+            scopeType: "program",
+            scopeId: "biotech",
+            scopeName: "Biotechnology",
+            assignedAt: "2026-06-02T19:10:00.000Z",
+          },
+          {
+            userId: "cohort-scope-teacher",
+            userName: "Cohort Scope Teacher",
+            roleId: "program_teacher",
+            scopeType: "cohort",
+            scopeId: "spring-showcase",
+            scopeName: "Spring Showcase Cohort",
+            assignedAt: "2026-06-02T20:15:00.000Z",
+          },
+        ],
+      },
+    },
+    "/api/presentation-slots": {
+      status: 200,
+      body: { ok: true, slots: [] },
+    },
+    "/api/reports/readiness": {
+      status: 200,
+      body: { ok: true, scope: "all-programs", metrics: {} },
+    },
+  });
+  vm.runInContext('activeSection = "adminUsers"; renderAppShell();', context);
+  openWorkspaceDisclosure(context, "usersAccess", "roleAssignments");
+
+  const adminUsers = workspaceRoot.innerHTML;
+  assert.match(adminUsers, /Site Scope Principal/);
+  assert.match(adminUsers, /Site Scope Principal[\s\S]*Administration \/ Site access \/ Canyon Ridge Career Academy/);
+  assert.match(adminUsers, /Program Scope Teacher[\s\S]*Program Teacher \/ Program access \/ Biotechnology/);
+  assert.match(adminUsers, /Cohort Scope Teacher[\s\S]*Program Teacher \/ Cohort access \/ Spring Showcase Cohort/);
+  assert.doesNotMatch(adminUsers, /Site access \/ site-canyon-ridge-career|Program access \/ biotech|Cohort access \/ spring-showcase|current_site|current_program|current_cohort/);
+});
+
 test("workspace renders current site access assignments before management forms", async () => {
   const { context, workspaceRoot } = await createWorkspaceContextWithFetch({
     "/api/auth/me": {

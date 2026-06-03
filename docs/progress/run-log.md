@@ -21,6 +21,17 @@ This is the compact run log for the current Functionality UX Upgrade automation 
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-06-03 00:07 PT - Functionality UX Upgrade Role Assignment Scope Names
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 4 role-specific workspace clarity / Global Admin role-assignment label depth.
+- `starting HEAD`: `83b532a3bc23e042cd5d37772c6c94bdbdee82a0`.
+- `selected slice`: Add route-backed site, program, and cohort labels to the existing Global Admin recent-role-assignments panel.
+- `repo-grounded findings`: `workspace.js` already surfaced recent role assignments inside `Users & Access`, but `adminRoleAssignmentScopeText()` still guessed scope labels from the currently selected school's access payload. That meant cross-school or off-site program grants could fall back to raw ids or current-site-only context even though `/api/admin/role-assignments` was already the protected source of truth for recent grants.
+- `changes`: `functions/api/admin/role-assignments.ts` now returns `scopeName` for site, program, and cohort assignments by reusing existing protected tables, and `workspace.js` now prefers those route-backed labels before any current-school fallback. `tests/admin-role-assignments.integration.test.mjs` proves the route returns readable names for site, program, and cohort grants, and `tests/workspace-app.test.mjs` proves the Global Admin disclosure keeps those names readable even when `Users & Access` is still waiting on a school choice.
+- `validation`: `node --check workspace.js`, `node --test tests/admin-role-assignments.integration.test.mjs`, and `node --test tests/workspace-app.test.mjs` passed before docs/state closeout. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.
+
 ## 2026-06-02 23:32 PT - Functionality UX Upgrade Mentor Assignments Helper Language
 
 - `automation ID`: functionality-ux-upgrade-hourly.

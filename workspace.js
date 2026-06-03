@@ -7424,8 +7424,18 @@ function renderAdminRoleAssignmentsBody(assignments = []) {
 function adminRoleAssignmentScopeText(assignment = {}) {
   const scopeType = String(assignment.scopeType || "global").toLowerCase();
   const scopeId = String(assignment.scopeId || "").trim();
+  const scopeName = String(assignment.scopeName || "").trim();
   if (scopeType === "global") {
     return "All schools";
+  }
+  if (scopeType === "site" && scopeName) {
+    return `Site access / ${scopeName}`;
+  }
+  if (scopeType === "program" && scopeName) {
+    return `Program access / ${scopeName}`;
+  }
+  if (scopeType === "cohort" && scopeName) {
+    return `Cohort access / ${scopeName}`;
   }
 
   const accessAssignments = unwrap(currentData.accessAssignments);

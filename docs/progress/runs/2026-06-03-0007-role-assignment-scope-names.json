@@ -1,0 +1,84 @@
+{
+  "automationId": "functionality-ux-upgrade-hourly",
+  "runStartedAt": "2026-06-03T00:07:20-07:00",
+  "branch": "main",
+  "startingSha": "83b532a3bc23e042cd5d37772c6c94bdbdee82a0",
+  "endingSha": null,
+  "workOrderId": "role-assignment-scope-name-enrichment",
+  "ladderLevels": [
+    "LEVEL_4_ROLE_SPECIFIC_WORKSPACES"
+  ],
+  "selectedSlice": "Add route-backed site, program, and cohort labels to Global Admin recent role assignments so the Users & Access panel stays readable across schools.",
+  "selectionReason": "Current repo evidence showed a real protected-workspace gap: the recent role-assignment panel was already useful, but it still guessed scope labels from the currently selected school's access payload. That made cross-school or off-site program grants fall back to raw ids or current-site-only context even though the existing /api/admin/role-assignments route was the protected source of truth and could safely return scope names without widening access.",
+  "candidateCount": 10,
+  "candidateShortlist": [
+    "Role-assignment scope-name enrichment",
+    "Broader Global Admin route refresh across Recent Audit, Students, Presentation, Programs, and Users & Access",
+    "Filtered Audit cross-school proof refresh",
+    "Admin mentor-meeting exact destination",
+    "Program Teacher mentor-meeting follow-up destination",
+    "Hosted section-level permission proof",
+    "Review Queue missing-submission semantics",
+    "Viewer email visibility policy",
+    "Mentor reassignment or removal workflow",
+    "Student hosted drill-down refresh"
+  ],
+  "userFacingImprovement": "Global Admin recent role assignments now show route-backed school, program, and cohort names even when no current school is selected, instead of falling back to raw scope ids or current-site-only guesses.",
+  "privacyAndPermissionNotes": [
+    "The slice reuses the existing /api/admin/role-assignments route and only adds readable scope labels to its protected read-only payload.",
+    "No auth, RBAC, tenant, site, program, mentor-assignment, or student-privacy boundary changed.",
+    "The recent role-assignment disclosure remains Global Admin-only and still does not add any new mutation control."
+  ],
+  "filesChanged": [
+    "functions/api/admin/role-assignments.ts",
+    "workspace.js",
+    "tests/admin-role-assignments.integration.test.mjs",
+    "tests/workspace-app.test.mjs",
+    "docs/functionality-language-audit.md",
+    "docs/product/demo-role-readiness.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-06-03-0007-role-assignment-scope-names.json",
+    "docs/functionality-ux-growth-ledger.md",
+    "automation/state/functionality-ux-growth-state.json"
+  ],
+  "validation": {
+    "focusedPassedBeforeCloseout": [
+      "node --check workspace.js",
+      "node --test tests/admin-role-assignments.integration.test.mjs",
+      "node --test tests/workspace-app.test.mjs"
+    ],
+    "final": [
+      "node --check workspace.js",
+      "node --test tests/admin-role-assignments.integration.test.mjs",
+      "node --test tests/workspace-app.test.mjs",
+      "npm run verify:functionality-language",
+      "node --test tests/functionality-language-audit.test.mjs",
+      "npm run verify:functionality-ux-automation",
+      "npm run check:production-surfaces",
+      "npm run typecheck",
+      "npm run test",
+      "npm run check",
+      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-03-0007-role-assignment-scope-names.json','utf8')); console.log('json ok')\"",
+      "git diff --check"
+    ],
+    "result": "passed",
+    "notes": "Focused role-assignment route, workspace rendering, and workspace coverage passed before docs/state closeout. The full validation ladder also passed after the closeout files were updated."
+  },
+  "deferred": [
+    "Broader Global Admin route refresh remains larger than this bounded role-labeling slice.",
+    "Filtered Audit cross-school proof still needs a tighter locally provable scenario before another audit pass.",
+    "Admin mentor-meeting follow-up still lacks a precise current destination.",
+    "Program Teacher mentor-meeting follow-up still lacks a precise scoped destination.",
+    "Hosted section-level permission proof still needs allowed hosted runtime and audit-event writes.",
+    "Review Queue missing-submission semantics remain deferred until backend rows or exact scoped empty-state evidence exist.",
+    "Viewer email visibility policy still needs a product decision before any UI change.",
+    "Mentor reassignment and removal workflow still needs mutation and audit design.",
+    "Student hosted drill-down refresh remains a broader hosted/product pass than this bounded Global Admin slice."
+  ],
+  "nextRecommended": "Continue the bounded Global Admin route refresh only where the current workspace can prove an exact destination; preserve route-backed role-assignment labels and keep mentor-meeting follow-up summary-only until a precise backed path exists.",
+  "doNotRepeat": [
+    "Do not fall back to current-site-only scope guesses in recent role assignments when the protected route already provides readable scope names.",
+    "Do not surface raw site, program, or cohort ids in the Global Admin role-assignment panel when a route-backed scope label is available.",
+    "Do not broaden Site Admin or other site-scoped workspaces with this Global Admin-only role-assignment disclosure."
+  ]
+}

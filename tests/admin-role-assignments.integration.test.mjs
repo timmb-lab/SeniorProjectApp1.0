@@ -194,6 +194,51 @@ test("admin role assignments creates role assignment and audits", async () => {
   assert.equal(event.metadata.scopeType, "global");
 });
 
+test("admin role assignments returns scope names for site, program, and cohort grants", async () => {
+  const fixture = await createFixtureWithSession({ userId: "admin-a", roleId: "admin" });
+  fixture.db.data.userAccounts.push(buildUser("site-target"));
+  fixture.db.data.userAccounts.push(buildUser("program-target"));
+  fixture.db.data.userAccounts.push(buildUser("cohort-target"));
+  fixture.db.data.userRoles.push({
+    user_id: "site-target",
+    role_id: "administration",
+    scope_type: "site",
+    scope_id: "site-b",
+    assigned_at: "2026-05-20T03:00:00.000Z",
+  });
+  fixture.db.data.userRoles.push({
+    user_id: "program-target",
+    role_id: "program_teacher",
+    scope_type: "program",
+    scope_id: "program-biotech",
+    assigned_at: "2026-05-20T02:00:00.000Z",
+  });
+  fixture.db.data.userRoles.push({
+    user_id: "cohort-target",
+    role_id: "program_teacher",
+    scope_type: "cohort",
+    scope_id: "cohort-spring-showcase",
+    assigned_at: "2026-05-20T01:00:00.000Z",
+  });
+  fixture.db.data.sites.push({ id: "site-b", name: "Canyon Ridge Career Academy", status: "active" });
+  fixture.db.data.programs.push({ id: "program-biotech", name: "Biotechnology" });
+  fixture.db.data.cohorts.push({ id: "cohort-spring-showcase", name: "Spring Showcase Cohort" });
+
+  const request = new Request("https://example.test/api/admin/role-assignments", {
+    method: "GET",
+    headers: { cookie: `sc_session=${fixture.token}` },
+  });
+
+  const response = await onRequestGet({ request, env: fixture.env, params: {} });
+
+  assert.equal(response.status, 200);
+  const body = await response.json();
+  assert.equal(body.ok, true);
+  assert.equal(body.assignments.some((assignment) => assignment.scopeId === "site-b" && assignment.scopeName === "Canyon Ridge Career Academy"), true);
+  assert.equal(body.assignments.some((assignment) => assignment.scopeId === "program-biotech" && assignment.scopeName === "Biotechnology"), true);
+  assert.equal(body.assignments.some((assignment) => assignment.scopeId === "cohort-spring-showcase" && assignment.scopeName === "Spring Showcase Cohort"), true);
+});
+
 test("admin role assignments accepts V5 global, site, administration, and viewer roles", async () => {
   const fixture = await createFixtureWithSession({ userId: "admin-a", roleId: "admin" });
   fixture.db.data.userAccounts.push(buildUser("global-target"));
@@ -326,13 +371,13 @@ function createFixture(options = {}) {
       "admin",
       "misc_admin",
     ]).map((id) => ({ id })),
-    programs: [{ id: "it" }],
-    sites: [{ id: "site-a", status: "active" }],
+    programs: [{ id: "it", name: "Information Technology" }],
+    sites: [{ id: "site-a", name: "Desert Valley High School", status: "active" }],
     sitePrograms: [{ site_id: "site-a", program_id: "it", active: 1 }],
     siteUsers: [],
     passwordCredentials: [],
     authIdentities: [],
-    cohorts: [{ id: "cohort-a" }],
+    cohorts: [{ id: "cohort-a", name: "Demo Cohort A" }],
     auditEvents: [],
   });
 
@@ -575,6 +620,7 @@ class MockPreparedStatement {
           role_id: row.role_id,
           scope_type: row.scope_type,
           scope_id: row.scope_id,
+          scope_name: resolveScopeName(this.data, row.scope_type, row.scope_id),
           assigned_by: row.assigned_by ?? null,
           assigned_at: row.assigned_at ?? "2026-05-20T00:00:00.000Z",
         }))
@@ -648,4 +694,17 @@ class MockPreparedStatement {
 function resolveUserName(data, userId) {
   const user = data.userAccounts.find((account) => account.id === userId);
   return user ? user.display_name : null;
+}
+
+function resolveScopeName(data, scopeType, scopeId) {
+  if (scopeType === "site") {
+    return data.sites.find((site) => site.id === scopeId)?.name ?? null;
+  }
+  if (scopeType === "program") {
+    return data.programs.find((program) => program.id === scopeId)?.name ?? null;
+  }
+  if (scopeType === "cohort") {
+    return data.cohorts.find((cohort) => cohort.id === scopeId)?.name ?? null;
+  }
+  return null;
 }
