@@ -6244,3 +6244,61 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: hosted permission proof still needs allowed runtime; Program Teacher mentor-meeting follow-up still lacks an exact current destination; Review Queue missing-submission semantics still need backend evidence.
   - Do not repeat: do not regress Programs back to the generic site-selection prompt or a nav-only admin handoff while the direct quick action and section-specific guidance are now proven.
   - First file to inspect next run: `workspace.js` around `renderAdminOverviewSection()` and `renderSiteProgramsSection()`
+
+## Run 2026-06-02 20:08 PT
+
+- Starting SHA: `25e43ef1f5718f23d5b204a8722cc4a3b2b79064`
+- Ending SHA: pending closeout commit; final hash is reported after commit
+- Branch: `main`
+- Branch policy: started from clean local `main` aligned with `origin/main`; this run stayed local-only and did not push
+- Ladder level targeted: `LEVEL_4_ROLE_SPECIFIC_WORKSPACES`
+- Backlog item: remaining Global Admin route-refresh handoff inside `docs/functionality-language-audit.md` and `docs/product/demo-role-readiness.md`
+- Work order selected: Turn the Admin Command Center `Needs Attention` rows into real drill-downs only where the current workspace already has an exact destination.
+- Selection reason: current repo evidence showed a real protected-workspace gap, not a speculative polish task. `functions/api/admin/dashboard.ts` already surfaced missing-mentor, revision-loop, mentor-meeting, export-failure, and presentation-outline rows, but those items only carried `actionSection`, while `renderNeedsAttention()` only renders a real button when a preset-backed destination exists. The current workspace already proved exact destinations for three of those rows only: Student Directory `missing-mentors`, Review Queue `revision-requested`, and Presentation `outline_follow_up`. That made a bounded admin-dashboard drill-down batch safer and more valuable than the still-broader Global Admin role refresh.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Global Admin `Needs Attention` drill-downs | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | `global_admin`, `admin`, `platform_admin` | 5 | 5 | 5 | S | 57 | selected |
+| Broader Global Admin route refresh across Audit, Students, Presentation, Programs, and Users & Access | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | `global_admin` | 4 | 4 | 3 | M | 44 | deferred: still broader than one safe hourly slice |
+| Admin archive export failure filtered destination | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | `global_admin` | 4 | 3 | 3 | M | 38 | deferred: no exact existing filtered destination beyond the current section |
+| Program Teacher mentor-meeting follow-up destination | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | `program_teacher` | 4 | 3 | 3 | M | 40 | deferred: no precise scoped destination is proven |
+| Admin mentor-meeting follow-up destination | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | `global_admin` | 3 | 2 | 2 | M | 28 | deferred: current workspace has no exact route-backed meeting follow-up surface |
+| Hosted section-level permission proof | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all protected roles | 4 | 3 | 2 | M | 35 | deferred: hosted runtime is outside this local batch |
+| Review Queue missing-submission semantics | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | `program_teacher`, `site_admin` | 5 | 2 | 3 | M | 34 | deferred: backend queue rows are still absent |
+| Viewer email visibility policy | `LEVEL_7_AUDITABILITY_AND_TRUST` | `viewer` | 3 | 2 | 3 | S | 30 | deferred: product policy still comes before UI change |
+| Mentor reassignment or removal workflow | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | `site_admin` | 4 | 2 | 3 | M | 33 | deferred: mutation and audit design still needed |
+| Admin recent-audit row drill-downs | `LEVEL_7_AUDITABILITY_AND_TRUST` | `global_admin` | 3 | 3 | 3 | S | 31 | not selected: helpful, but lower workflow value than fixing already-surfaced attention rows |
+
+- User-facing improvement: Global Admins can now open the existing missing-mentor student list, revision Review Queue, and presentation outline-follow-up schedule directly from Admin Command Center `Needs Attention`, while mentor-meeting and export-failure rows stay explicitly summary-only until a more exact destination exists.
+- Roles affected: `global_admin`, `admin`, `platform_admin`
+- Files changed: `functions/api/admin/dashboard.ts`, `workspace.js`, `tests/workspace-app.test.mjs`, `scripts/verify-dashboard-actions.mjs`, `docs/functionality-language-audit.md`, `docs/product/demo-role-readiness.md`, `docs/progress/run-log.md`, `docs/progress/runs/2026-06-02-2008-global-admin-attention-drilldowns.json`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`
+- Tests/verifiers added or updated: `tests/workspace-app.test.mjs` now proves the Admin Command Center attention rows render exact Students/Review Queue/Presentation drill-downs, preserve summary-only treatment for mentor-meeting and export-failure rows, and that the new presentation handoff restores `presentationFocus=outline_follow_up`; `scripts/verify-dashboard-actions.mjs` now guards the admin-dashboard mappings and the new presentation preset handler.
+- Validation commands:
+  - `node --check workspace.js`
+  - `node --test tests/workspace-app.test.mjs`
+  - `npm run verify:dashboard-actions`
+  - `npm run verify:functionality-language`
+  - `npm run verify:functionality-ux-automation`
+  - `npm run check:production-surfaces`
+  - `npm run typecheck`
+  - `npm run test`
+  - `npm run check`
+  - `node -e "JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-02-2008-global-admin-attention-drilldowns.json','utf8')); console.log('json ok')"`
+  - `git diff --check`
+- Validation result: passed; focused checks and full repo validation passed after docs/state closeout.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: broader Global Admin route refresh, Program Teacher mentor-meeting follow-up destination, Admin mentor-meeting exact destination, Admin archive export exact destination, hosted section-level permission proof, Review Queue missing-submission semantics, viewer email visibility policy, and mentor reassignment/remove workflow remain open.
+- New backlog items: none
+- Next recommended work order: Continue the bounded Global Admin route refresh, but only where the current workspace can prove an exact destination; otherwise keep Admin mentor-meeting and export-failure attention rows summary-only and move to the next proven route-backed gap.
+- Do-not-repeat notes: do not remove the new Admin Command Center attention drill-downs while the existing Students, Review Queue, and Presentation destinations still back them; do not invent an Admin mentor-meeting or export-failure preset until a real exact destination exists.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_4_ROLE_SPECIFIC_WORKSPACES`
+  - Advanced: yes
+  - Evidence: `functions/api/admin/dashboard.ts` now emits preset-backed attention rows for missing mentors, revision loops, and outline follow-up, and focused workspace plus dashboard-action verification prove the new Students/Review Queue/Presentation handoffs.
+  - Unlocks: the next Global Admin pass can focus on the remaining route-refresh edge cases instead of leaving exact dashboard follow-up stranded behind summary-only rows.
+  - Next: inspect `functions/api/admin/dashboard.ts` and `workspace.js` around Admin Command Center archive/export and mentor-meeting follow-up only if a more exact current destination can be proven; otherwise continue the broader Global Admin route refresh through currently backed surfaces.
+  - Blockers: hosted permission proof still needs allowed runtime; Admin mentor-meeting and export-failure rows still lack an exact filtered destination; Review Queue missing-submission semantics still need backend evidence.
+  - Do not repeat: do not regress the Admin Command Center attention rows back to summary-only for missing mentors, revision loops, or outline follow-up, and do not add fake drill-downs for the remaining rows.
+  - First file to inspect next run: `functions/api/admin/dashboard.ts` around `buildNeedsAttention()` and `workspace.js` around the presentation preset handler

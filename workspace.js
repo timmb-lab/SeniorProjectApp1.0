@@ -1536,6 +1536,19 @@ async function openWorkspaceSection(button) {
     await loadOperationsReadinessResult(`Showing ${statusText(archiveStatus).toLowerCase()} archive rows.`);
     return;
   }
+  if (section === "presentation" && button.dataset.sectionPreset) {
+    const presetMap = {
+      "ready-for-check-out": "scheduled",
+      "checked-out": "checked_out",
+      "checked-in": "checked_in",
+      "outline-follow-up": "outline_follow_up",
+    };
+    presentationSlotFilter = cleanPresentationSlotFilter(presetMap[button.dataset.sectionPreset] || button.dataset.sectionPreset || "all");
+    activeSection = "presentation";
+    syncPresentationScheduleUrlState({ clearFilters: presentationSlotFilter === "all" });
+    renderAppShell();
+    return;
+  }
   activeSection = section;
   renderAppShell();
 }

@@ -5,6 +5,7 @@ const files = {
   workspaceJs: "workspace.js",
   siteDashboardApi: "functions/api/site/dashboard.ts",
   programTeacherApi: "functions/api/program-teacher/dashboard.ts",
+  adminDashboardApi: "functions/api/admin/dashboard.ts",
 };
 
 const source = Object.fromEntries(
@@ -111,6 +112,10 @@ const allowedPresets = new Map([
   ["program-breakdown", "operations"],
   ["presentation-snapshot", "operations"],
   ["archive-snapshot", "operations"],
+  ["ready-for-check-out", "presentation"],
+  ["checked-out", "presentation"],
+  ["checked-in", "presentation"],
+  ["outline-follow-up", "presentation"],
 ]);
 
 const presetMatches = [
@@ -354,6 +359,31 @@ assertMatches(
   "Program Teacher mentor-meeting attention rows must stay summary-only until an exact destination is proven",
 );
 assertMatches(
+  "adminDashboardApi",
+  /type: "mentor_coverage"[\s\S]*actionSection: "students"[\s\S]*actionPreset: "missing-mentors"[\s\S]*actionLabel: "Open student list"/,
+  "Admin dashboard mentor coverage attention rows must link to the Student Directory missing-mentor filter",
+);
+assertMatches(
+  "adminDashboardApi",
+  /type: "review_workload"[\s\S]*actionSection: "teacher"[\s\S]*actionPreset: "revision-requested"[\s\S]*actionLabel: "Open review queue"/,
+  "Admin dashboard revision attention rows must link to the existing revision Review Queue filter",
+);
+assertMatches(
+  "adminDashboardApi",
+  /type: "presentation_readiness"[\s\S]*actionSection: "presentation"[\s\S]*actionPreset: "outline-follow-up"[\s\S]*actionLabel: "Open schedule"/,
+  "Admin dashboard presentation attention rows must link to the existing Presentation outline-follow-up filter",
+);
+assertMatches(
+  "adminDashboardApi",
+  /type: "mentor_meetings"[\s\S]*?severity: "warning"[\s\S]*?actionSection: "mentorAssignments"[\s\S]*?\n\s*}\);/,
+  "Admin dashboard mentor-meeting attention rows must keep the current section reference without inventing an exact drill-down",
+);
+assertMatches(
+  "adminDashboardApi",
+  /type: "archive_exports"[\s\S]*?severity: "urgent"[\s\S]*?actionSection: "archiveExports"[\s\S]*?\n\s*}\);/,
+  "Admin dashboard export-failure attention rows must stay summary-only until an exact filtered destination exists",
+);
+assertMatches(
   "workspaceJs",
   /section === "teacher" && button\.dataset\.sectionPreset === "revision-requested"[\s\S]*status: "revision_requested"/,
   "revision dashboard preset must be backed by a review queue status filter",
@@ -542,6 +572,11 @@ assertMatches(
   "workspaceJs",
   /section === "operations" && button\.dataset\.sectionPreset === "archive-snapshot"[\s\S]*const archiveStatus = canonicalReviewQueueValue\(button\.dataset\.archiveStatus, OPERATIONS_ARCHIVE_STATUS_VALUES\)[\s\S]*archiveStatus,[\s\S]*syncOperationsReadinessUrlState\(\)/,
   "archive snapshot rows must be backed by exact Operations archive filters and sync URL state",
+);
+assertMatches(
+  "workspaceJs",
+  /section === "presentation" && button\.dataset\.sectionPreset[\s\S]*const presetMap = \{[\s\S]*"outline-follow-up": "outline_follow_up"[\s\S]*presentationSlotFilter = cleanPresentationSlotFilter\(presetMap\[button\.dataset\.sectionPreset\] \|\| button\.dataset\.sectionPreset \|\| "all"\)[\s\S]*syncPresentationScheduleUrlState\(\{ clearFilters: presentationSlotFilter === "all" \}\)/,
+  "presentation dashboard presets must map to supported Presentation filters and sync URL state",
 );
 assertMatches(
   "workspaceJs",

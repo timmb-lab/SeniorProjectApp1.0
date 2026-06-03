@@ -888,6 +888,194 @@ test("global admin command center quick actions include programs and open the ex
   assert.match(workspaceRoot.innerHTML, /Programs at Desert Valley High School/);
 });
 
+test("global admin needs attention rows use real drill-downs and keep unmatched rows summary-only", async () => {
+  const selectionRequired = {
+    ok: false,
+    error: "site_selection_required",
+    selectionRequired: true,
+    accessibleSites: [
+      { siteId: "site-desert-valley-high", siteName: "Desert Valley High School" },
+      { siteId: "site-canyon-ridge-career", siteName: "Canyon Ridge Career Academy" },
+    ],
+  };
+  const { context, workspaceRoot, window } = await createWorkspaceContextWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "global-admin-needs-attention",
+          email: "global.needs.attention@example.edu",
+          displayName: "Global Admin Needs Attention",
+          roles: [{ role_id: "admin", scope_type: "global", scope_id: "" }],
+        },
+      },
+    },
+    "/api/site/dashboard": { status: 409, body: selectionRequired },
+    "/api/site/students": { status: 409, body: selectionRequired },
+    "/api/site/review-queue": { status: 409, body: selectionRequired },
+    "/api/site/mentor-assignments": { status: 409, body: selectionRequired },
+    "/api/site/operations-readiness": { status: 409, body: selectionRequired },
+    "/api/site/programs": { status: 409, body: selectionRequired },
+    "/api/site/access-assignments": { status: 409, body: selectionRequired },
+    "/api/admin/role-assignments": {
+      status: 200,
+      body: {
+        ok: true,
+        assignments: [],
+      },
+    },
+    "/api/admin/dashboard": {
+      status: 200,
+      body: {
+        ok: true,
+        summary: {
+          studentsActive: 250,
+          studentsNoMentor: 18,
+          submissionsSubmitted: 22,
+          revisionRequested: 10,
+          presentationScheduled: 14,
+          presentationOutlinePending: 2,
+          exportsQueued: 6,
+          exportsFailed: 2,
+          exportsComplete: 4,
+          recentAuditEvents: 3,
+          approved: 88,
+          evidenceArtifacts: 690,
+        },
+        needsAttention: [
+          {
+            type: "mentor_coverage",
+            label: "Students without mentors",
+            detail: "18 active student record(s) need mentor coverage.",
+            severity: "urgent",
+            actionSection: "students",
+            actionPreset: "missing-mentors",
+            actionLabel: "Open student list",
+          },
+          {
+            type: "review_workload",
+            label: "Revision requests open",
+            detail: "10 submission(s) need a student revision loop.",
+            severity: "warning",
+            actionSection: "teacher",
+            actionPreset: "revision-requested",
+            actionLabel: "Open review queue",
+          },
+          {
+            type: "mentor_meetings",
+            label: "Mentor meeting follow-up",
+            detail: "3 meeting record(s) need attention.",
+            severity: "warning",
+            actionSection: "mentorAssignments",
+          },
+          {
+            type: "archive_exports",
+            label: "Archive exports failed",
+            detail: "2 export(s) need review before handoff.",
+            severity: "urgent",
+            actionSection: "archiveExports",
+          },
+          {
+            type: "presentation_readiness",
+            label: "Presentation outlines pending",
+            detail: "2 presentation slot(s) still have pending outline status.",
+            severity: "info",
+            actionSection: "presentation",
+            actionPreset: "outline-follow-up",
+            actionLabel: "Open schedule",
+          },
+        ],
+        programBreakdown: [],
+        reviewQueue: [],
+        mentorCoverage: [],
+        presentationSnapshot: [],
+        archiveSnapshot: [],
+        recentAudit: [],
+      },
+    },
+    "/api/presentation-slots": {
+      status: 200,
+      body: {
+        ok: true,
+        slots: [
+          {
+            id: "slot-scheduled",
+            studentName: "Maya Student",
+            scheduledFor: "2026-03-26T16:00:00.000Z",
+            durationMinutes: 20,
+            location: "Room 101",
+            status: "scheduled",
+            outlineStatus: "approved",
+            checkedOutAt: null,
+            checkedInAt: null,
+          },
+          {
+            id: "slot-checked-out",
+            studentName: "Jordan Student",
+            scheduledFor: "2026-03-26T16:30:00.000Z",
+            durationMinutes: 15,
+            location: "Room 102",
+            status: "checked_out",
+            outlineStatus: "approved",
+            checkedOutAt: "2026-03-26T16:28:00.000Z",
+            checkedInAt: null,
+          },
+          {
+            id: "slot-outline-pending-scheduled",
+            studentName: "Riley Student",
+            scheduledFor: "2026-03-26T16:45:00.000Z",
+            durationMinutes: 15,
+            location: "Room 104",
+            status: "scheduled",
+            outlineStatus: "pending",
+            checkedOutAt: null,
+            checkedInAt: null,
+          },
+          {
+            id: "slot-outline-follow-up",
+            studentName: "Sam Student",
+            scheduledFor: "2026-03-26T17:00:00.000Z",
+            durationMinutes: 15,
+            location: "Room 103",
+            status: "checked_in",
+            outlineStatus: "revision_needed",
+            checkedOutAt: "2026-03-26T16:58:00.000Z",
+            checkedInAt: "2026-03-26T17:13:00.000Z",
+          },
+        ],
+      },
+    },
+    "/api/reports/readiness": {
+      status: 200,
+      body: {
+        ok: true,
+        scope: "all-programs",
+        metrics: {},
+      },
+    },
+  });
+
+  vm.runInContext('activeSection = "adminDashboard"; renderAppShell();', context);
+  const adminDashboard = workspaceRoot.innerHTML;
+  assert.match(adminDashboard, /Students without mentors[\s\S]*data-section="students" data-section-preset="missing-mentors"[\s\S]*Open student list/);
+  assert.match(adminDashboard, /Revision requests open[\s\S]*data-section="teacher" data-section-preset="revision-requested"[\s\S]*Open review queue/);
+  assert.match(adminDashboard, /Presentation outlines pending[\s\S]*data-section="presentation" data-section-preset="outline-follow-up"[\s\S]*Open schedule/);
+  assert.match(adminDashboard, /Mentor meeting follow-up[\s\S]*Summary only/);
+  assert.match(adminDashboard, /Archive exports failed[\s\S]*Summary only/);
+
+  await vm.runInContext('openWorkspaceSection({ dataset: { section: "presentation", sectionPreset: "outline-follow-up" } })', context);
+
+  assert.equal(vm.runInContext("activeSection", context), "presentation");
+  assert.equal(vm.runInContext("presentationSlotFilter", context), "outline_follow_up");
+  assert.match(workspaceRoot.innerHTML, /data-presentation-filter="outline_follow_up"/);
+  assert.match(workspaceRoot.innerHTML, /Riley Student/);
+  assert.match(workspaceRoot.innerHTML, /Sam Student/);
+  assert.doesNotMatch(workspaceRoot.innerHTML, /Maya Student|Jordan Student/);
+  assert.match(window.location.href, /section=presentation/);
+  assert.match(window.location.href, /presentationFocus=outline_follow_up/);
+});
+
 test("site dashboard top-risk detail stays in dashboard context", async () => {
   const { context, workspaceRoot, fetchLog } = await createWorkspaceContextWithFetch({
     "/api/auth/me": {

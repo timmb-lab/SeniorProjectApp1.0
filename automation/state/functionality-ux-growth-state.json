@@ -1,10 +1,18 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-06-02T16:08:41-07:00",
-  "lastStartingSha": "e0257a3f50297c60c783675b177fe74b1fcadd3e",
+  "lastRunAt": "2026-06-02T20:08:00-07:00",
+  "lastStartingSha": "25e43ef1f5718f23d5b204a8722cc4a3b2b79064",
   "lastEndingSha": null,
   "currentLadderFocus": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
   "completedWorkOrders": [
+    {
+      "id": "global-admin-attention-drilldowns",
+      "completedAt": "2026-06-02T20:08:00-07:00",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "type": "TYPE_D_ROLE_WORKSPACE",
+      "summary": "Admin Command Center Needs Attention rows now open the existing missing-mentor student list, revision queue, and presentation outline-follow-up schedule while unmatched rows stay summary-only.",
+      "commit": "pending-closeout-commit"
+    },
     {
       "id": "global-admin-programs-handoff",
       "completedAt": "2026-06-02T16:08:41-07:00",
@@ -1154,11 +1162,6 @@
       "reason": "Threshold-driven workload filters still need explicit product policy beyond existing loadStatus labels."
     },
     {
-      "id": "presentation-schedule-url-state",
-      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
-      "reason": "Add only if users need shareable presentation-day filter links after the in-page scoped filter proves useful."
-    },
-    {
       "id": "admin-recent-audit-deep-link",
       "ladderLevel": "LEVEL_7_AUDITABILITY_AND_TRUST",
       "reason": "Restore any site-admin audit navigation only after a site-scoped audit destination and visibility rules are explicitly reviewed."
@@ -1175,7 +1178,7 @@
       "id": "global-admin-route-refresh",
       "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
       "type": "TYPE_G_VERIFICATION_REGRESSION_PROTECTION",
-      "summary": "Refresh the current Global Admin click-through and boundary proof across the new Programs quick action, Audit, Student Directory, Presentation, the recent role-assignment panel, and the existing site-selection handoffs."
+      "summary": "Refresh the remaining Global Admin click-through and boundary proof, but only where the current workspace can prove an exact destination."
     },
     {
       "id": "program-teacher-mentor-meeting-follow-up-destination",
@@ -1197,6 +1200,8 @@
     }
   ],
   "doNotRepeat": [
+    "Do not remove the Admin Command Center attention drill-downs while the existing Students, Review Queue, and Presentation destinations still back them.",
+    "Do not invent an Admin mentor-meeting or export-failure preset until a real exact destination exists.",
     "Do not fall back to the generic site-selection-required copy when /api/site/programs returns site_selection_required; keep the Programs-specific school-pick guidance visible.",
     "Do not remove the Admin Command Center Programs quick action while the existing Programs section remains the backed school-program setup path.",
     "Do not fall back to a generic API notice for Users & Access when /api/site/access-assignments returns site_selection_required; keep explicit school-pick guidance visible.",
@@ -1346,20 +1351,21 @@
   ],
   "lastValidationStatus": {
     "status": "passed",
-    "completedAt": "2026-06-02T15:32:29-07:00",
+    "completedAt": "2026-06-02T20:15:05.7414903-07:00",
     "commands": [
       "node --check workspace.js",
       "node --test tests/workspace-app.test.mjs",
+      "npm run verify:dashboard-actions",
       "npm run verify:functionality-language",
       "npm run verify:functionality-ux-automation",
       "npm run check:production-surfaces",
       "npm run typecheck",
       "npm run test",
       "npm run check",
-      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-02-1532-users-access-site-selection.json','utf8')); console.log('json ok')\"",
+      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-02-2008-global-admin-attention-drilldowns.json','utf8')); console.log('json ok')\"",
       "git diff --check"
     ],
-    "notes": "The Users & Access site-selection guidance slice passed workspace syntax checks, focused workspace app coverage, language and automation verification, production-surface checks, typecheck, full test and check runs, JSON parsing, and git diff --check with CRLF normalization warnings only."
+    "notes": "Focused workspace syntax, workspace coverage, and dashboard-action verification passed before docs/state closeout. Final validation also passed after the closeout files were updated."
   },
   "lastProductReadinessScorecardSummary": {
     "homepageClarity": "4 to 4",

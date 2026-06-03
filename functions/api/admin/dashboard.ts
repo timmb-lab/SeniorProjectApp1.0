@@ -314,6 +314,8 @@ function buildNeedsAttention(summary: Record<string, number>): Array<{
   detail: string;
   severity: "info" | "warning" | "urgent";
   actionSection?: string;
+  actionPreset?: string;
+  actionLabel?: string;
 }> {
   const items = [];
   if (summary.studentsNoMentor > 0) {
@@ -322,7 +324,9 @@ function buildNeedsAttention(summary: Record<string, number>): Array<{
       label: "Students without mentors",
       detail: `${summary.studentsNoMentor} active student record(s) need mentor coverage.`,
       severity: "urgent" as const,
-      actionSection: "mentorAssignments",
+      actionSection: "students",
+      actionPreset: "missing-mentors",
+      actionLabel: "Open student list",
     });
   }
   if (summary.revisionRequested > 0) {
@@ -332,6 +336,8 @@ function buildNeedsAttention(summary: Record<string, number>): Array<{
       detail: `${summary.revisionRequested} submission(s) need a student revision loop.`,
       severity: "warning" as const,
       actionSection: "teacher",
+      actionPreset: "revision-requested",
+      actionLabel: "Open review queue",
     });
   }
   if (summary.mentorMeetingsMakeupRequired > 0 || summary.mentorMeetingsMissed > 0) {
@@ -359,6 +365,8 @@ function buildNeedsAttention(summary: Record<string, number>): Array<{
       detail: `${summary.presentationOutlinePending} presentation slot(s) still have pending outline status.`,
       severity: "info" as const,
       actionSection: "presentation",
+      actionPreset: "outline-follow-up",
+      actionLabel: "Open schedule",
     });
   }
   return items;

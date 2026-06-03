@@ -21,6 +21,17 @@ This is the compact run log for the current Functionality UX Upgrade automation 
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-06-02 20:08 PT - Functionality UX Upgrade Global Admin Attention Drilldowns
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 4 role-specific workspace clarity / Global Admin dashboard follow-up.
+- `starting HEAD`: `25e43ef1f5718f23d5b204a8722cc4a3b2b79064`.
+- `selected slice`: Turn the Admin Command Center `Needs Attention` rows into real drill-downs only where the destination is already exact.
+- `repo-grounded findings`: the recent Global Admin handoffs already fixed Programs entry, `Users & Access` site selection, and recent role-assignment visibility. The remaining repo-grounded gap was inside `functions/api/admin/dashboard.ts`: the Admin Command Center already surfaced missing-mentor, revision-loop, mentor-meeting, export-failure, and presentation-outline rows, but those items only carried `actionSection`, while the shared `renderNeedsAttention()` helper requires a preset to render a real button. Current workspace evidence proved exact destinations for three of those rows only: Student Directory already supports `missing-mentors`, Review Queue already supports `revision-requested`, and Presentation already has a real `outline_follow_up` focus. Mentor-meeting follow-up and export failures still lack a more exact filtered destination, so this run kept them summary-only.
+- `changes`: `functions/api/admin/dashboard.ts` now gives Admin Command Center attention rows real `actionPreset` and button labels for missing mentor coverage, revision loops, and presentation outline follow-up. `workspace.js` now accepts presentation section presets and maps the new `outline-follow-up` handoff into the existing `presentationFocus=outline_follow_up` URL/state flow. `tests/workspace-app.test.mjs` now proves Global Admin attention rows render the new buttons, keep mentor-meeting/export rows summary-only, and that the new presentation handoff restores the exact outline-follow-up filter. `scripts/verify-dashboard-actions.mjs` now guards the new admin-dashboard mappings and the presentation preset handler.
+- `validation`: `node --check workspace.js`, `node --test tests/workspace-app.test.mjs`, and `npm run verify:dashboard-actions` passed before docs/state closeout. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.
+
 ## 2026-06-02 16:08 PT - Functionality UX Upgrade Global Admin Programs Handoff
 
 - `automation ID`: functionality-ux-upgrade-hourly.

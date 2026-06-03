@@ -1,0 +1,82 @@
+{
+  "automationId": "functionality-ux-upgrade-hourly",
+  "runStartedAt": "2026-06-02T20:08:00-07:00",
+  "branch": "main",
+  "startingSha": "25e43ef1f5718f23d5b204a8722cc4a3b2b79064",
+  "endingSha": null,
+  "workOrderId": "global-admin-attention-drilldowns",
+  "ladderLevels": [
+    "LEVEL_4_ROLE_SPECIFIC_WORKSPACES"
+  ],
+  "selectedSlice": "Turn the Admin Command Center Needs Attention rows into real drill-downs only where the current workspace already has an exact destination.",
+  "selectionReason": "Current repo evidence showed a real protected-workspace gap: functions/api/admin/dashboard.ts already surfaced missing-mentor, revision-loop, mentor-meeting, export-failure, and presentation-outline rows, but those items only carried actionSection while the shared renderNeedsAttention() helper only renders a real button when a preset-backed destination exists. The current workspace already proved exact destinations for Student Directory missing-mentors, Review Queue revision-requested, and Presentation outline-follow-up, so wiring those three rows was the safest bounded Global Admin batch while the mentor-meeting and export-failure rows stay summary-only.",
+  "candidateCount": 10,
+  "candidateShortlist": [
+    "Global Admin Needs Attention drill-downs",
+    "Broader Global Admin route refresh across Audit, Students, Presentation, Programs, and Users & Access",
+    "Admin archive export failure exact destination",
+    "Program Teacher mentor-meeting follow-up destination",
+    "Admin mentor-meeting exact destination",
+    "Hosted section-level permission proof",
+    "Review Queue missing-submission semantics",
+    "Viewer email visibility policy",
+    "Mentor reassignment or removal workflow",
+    "Admin recent-audit row drill-downs"
+  ],
+  "userFacingImprovement": "Global Admins can now open the existing missing-mentor student list, revision Review Queue, and presentation outline-follow-up schedule directly from Admin Command Center Needs Attention, while mentor-meeting and export-failure rows stay explicitly summary-only until a more exact destination exists.",
+  "privacyAndPermissionNotes": [
+    "The slice reuses existing Student Directory, Review Queue, and Presentation flows instead of adding a new route or wider query shape.",
+    "No auth, RBAC, tenant, site, program, mentor-assignment, or student-privacy boundary changed.",
+    "Mentor-meeting and export-failure rows remain summary-only because the current workspace still lacks a more exact filtered destination."
+  ],
+  "filesChanged": [
+    "functions/api/admin/dashboard.ts",
+    "workspace.js",
+    "tests/workspace-app.test.mjs",
+    "scripts/verify-dashboard-actions.mjs",
+    "docs/functionality-language-audit.md",
+    "docs/product/demo-role-readiness.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-06-02-2008-global-admin-attention-drilldowns.json",
+    "docs/functionality-ux-growth-ledger.md",
+    "automation/state/functionality-ux-growth-state.json"
+  ],
+  "validation": {
+    "focusedPassedBeforeCloseout": [
+      "node --check workspace.js",
+      "node --test tests/workspace-app.test.mjs",
+      "npm run verify:dashboard-actions"
+    ],
+    "final": [
+      "node --check workspace.js",
+      "node --test tests/workspace-app.test.mjs",
+      "npm run verify:dashboard-actions",
+      "npm run verify:functionality-language",
+      "npm run verify:functionality-ux-automation",
+      "npm run check:production-surfaces",
+      "npm run typecheck",
+      "npm run test",
+      "npm run check",
+      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-02-2008-global-admin-attention-drilldowns.json','utf8')); console.log('json ok')\"",
+      "git diff --check"
+    ],
+    "result": "passed",
+    "notes": "Focused workspace syntax, workspace coverage, and dashboard-action verification passed before docs/state closeout. Final validation also passed after the closeout files were updated."
+  },
+  "deferred": [
+    "Broader Global Admin route refresh remains larger than this bounded attention-row slice.",
+    "Program Teacher mentor-meeting follow-up still lacks a precise current destination.",
+    "Admin mentor-meeting follow-up still lacks a precise current destination.",
+    "Admin archive export failure still lacks a more exact filtered destination than the current Archive / Exports section.",
+    "Hosted section-level permission proof still needs allowed hosted runtime and audit-event writes.",
+    "Review Queue missing-submission semantics remain deferred until backend rows or exact scoped empty-state evidence exist.",
+    "Viewer email visibility policy still needs a product decision before any UI change.",
+    "Mentor reassignment and removal workflow still needs mutation and audit design."
+  ],
+  "nextRecommended": "Continue the bounded Global Admin route refresh only where the current workspace can prove an exact destination; otherwise keep Admin mentor-meeting and export-failure attention rows summary-only and move to the next proven route-backed gap.",
+  "doNotRepeat": [
+    "Do not remove the new Admin Command Center attention drill-downs while the existing Students, Review Queue, and Presentation destinations still back them.",
+    "Do not invent an Admin mentor-meeting or export-failure preset until a real exact destination exists.",
+    "Do not broaden Global Admin dashboard actions into site-admin or other role workspaces while this slice stays Global Admin-only."
+  ]
+}
