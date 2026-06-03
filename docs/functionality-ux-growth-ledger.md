@@ -7064,3 +7064,61 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: filtered Audit cross-school proof still needs a tighter local scenario; hosted permission proof still needs allowed runtime; Review Queue missing-submission semantics still need backend evidence.
   - Do not repeat: do not revert Admin Command Center mentor-meeting follow-up to summary-only while the current Student Directory route and tests already support the exact handoff.
   - First file to inspect next run: `functions/api/admin/dashboard.ts`
+
+## Run 2026-06-03 03:39 PT
+
+- Starting SHA: `2975050c9472ddf5e0668feb1206a46c7a6ee1b1`
+- Ending SHA: pending closeout commit; final hash is reported after commit
+- Branch: `main`
+- Branch policy: started from clean local `main` ahead of `origin/main` by fourteen earlier in-lane commits; this run stayed local-only and did not push
+- Ladder level targeted: `LEVEL_4_ROLE_SPECIFIC_WORKSPACES`
+- Backlog item: protected permission-boundary wording still reading like route failure in `docs/functionality-language-audit.md`
+- Work order selected: replace shared denied-section `unavailable` headings with explicit access-limited wording
+- Selection reason: current repo evidence showed one high-visibility protected-surface gap across multiple roles and sections. The shared `renderPermissionDeniedSection()` helper still titled scoped denials as `X unavailable`, which made real RBAC boundaries look like broken routes. Reusing that helper was smaller and safer than another broader dashboard pass or a test-only Presentation proof update.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Permission-boundary access copy | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | denied protected roles | 4 | 5 | 5 | XS | 54 | selected |
+| Filtered Audit cross-school proof refresh | `LEVEL_7_AUDITABILITY_AND_TRUST` | `global_admin` | 4 | 3 | 3 | M | 36 | deferred: still needs one tighter locally provable scenario |
+| Presentation ready-for-check-out parity proof refresh | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | presentation viewers | 2 | 5 | 4 | XS | 39 | deferred: mostly regression-proof shape, not the best user-facing slice |
+| Student evidence-panel language cleanup | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | `student` | 3 | 5 | 4 | XS | 46 | deferred: safe follow-on after this shared denied-state pass |
+| Student next-step anchor follow-through | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | `student` | 4 | 4 | 3 | S | 41 | deferred: needs a slightly broader UI pass than this helper-only batch |
+| Viewer audit-language cleanup | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | `viewer` | 3 | 5 | 4 | XS | 45 | deferred: partly covered by the selected shared helper change |
+| Site selector future-only follow-through | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | multi-site staff | 4 | 3 | 2 | M | 34 | deferred: broader cross-surface contract than this bounded slice |
+| Remaining filter-persistence follow-through | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | staff | 4 | 3 | 3 | M | 37 | deferred: needs another section-specific exact contract |
+| Mentor reassignment or removal workflow | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | `site_admin` | 4 | 2 | 3 | M | 33 | deferred: mutation and audit design still needed |
+| Viewer email visibility policy | `LEVEL_7_AUDITABILITY_AND_TRUST` | `viewer` | 3 | 2 | 3 | S | 30 | deferred: product policy still comes before UI change |
+
+- User-facing improvement: denied workspace sections now explain that access is limited instead of implying the route is unavailable or broken
+- Roles affected: denied protected-role paths, especially `viewer`, `student`, `misc_admin`, and staff opening gated sections
+- Files changed: `workspace.js`, `tests/workspace-app.test.mjs`, `tests/functionality-language-audit.test.mjs`, `docs/functionality-language-audit.md`, `docs/product/demo-role-readiness.md`, `docs/progress/run-log.md`, `docs/progress/runs/2026-06-03-0339-permission-boundary-copy.json`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`
+- Tests/verifiers added or updated: `tests/workspace-app.test.mjs` now proves Site Dashboard, Teacher Review Queue, Mentor Assignments, Operations, Student Workspace, and Users & Access denied states use the shared access-limited wording; `tests/functionality-language-audit.test.mjs` now tracks the updated audit summary counts.
+- Validation commands:
+  - `node --check workspace.js`
+  - `node --test tests/workspace-app.test.mjs`
+  - `node --test tests/functionality-language-audit.test.mjs`
+  - `npm run verify:functionality-language`
+  - `npm run verify:functionality-ux-automation`
+  - `npm run check:production-surfaces`
+  - `npm run typecheck`
+  - `npm run test`
+  - `npm run check`
+  - `node -e "JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-03-0339-permission-boundary-copy.json','utf8')); console.log('json ok')"`
+  - `git diff --check`
+- Validation result: passed; focused workspace and audit checks passed before docs/state closeout, and the broader validation ladder passed after the closeout files were updated. `git diff --check` reported only CRLF normalization warnings.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: filtered Audit cross-school proof refresh, Presentation parity proof refresh, student evidence-panel language cleanup, student next-step anchor follow-through, site-selector follow-through, mentor reassignment/remove workflow, hosted section-level permission proof, and viewer email visibility policy remain open.
+- New backlog items: none
+- Next recommended work order: inspect filtered Audit cross-school proof next only if the current workspace can prove one exact local scenario; otherwise continue with another bounded role-workspace or student-facing language slice
+- Do-not-repeat notes: do not regress denied protected sections back to `X unavailable` headings; do not weaken or bypass auth/RBAC checks while improving denied-section copy; and do not treat permission-boundary cards as generic load-failure states when the route is intentionally protected.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_4_ROLE_SPECIFIC_WORKSPACES`
+  - Advanced: yes
+  - Evidence: the shared denied-section helper now says `Access to ... is limited`, and focused workspace tests prove the wording across multiple protected denied states without changing access boundaries.
+  - Unlocks: the next role-workspace or student-language pass can build on clearer protected-surface boundaries instead of rediscovering misleading unavailable headings.
+  - Next: inspect `workspace.js` protected copy around student evidence and remaining read-only or denied-state wording, or move to filtered Audit proof if one exact local scenario is now easy to prove.
+  - Blockers: filtered Audit cross-school proof still needs a tighter local scenario; hosted permission proof still needs allowed runtime; mentor reassignment/remove still needs mutation and audit design.
+  - Do not repeat: do not revert shared denied-state wording back to unavailable-route copy while the helper already has enough protected-state context.
+  - First file to inspect next run: `workspace.js`

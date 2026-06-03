@@ -1,0 +1,81 @@
+{
+  "automationId": "functionality-ux-upgrade-hourly",
+  "runStartedAt": "2026-06-03T03:39:08-07:00",
+  "branch": "main",
+  "startingSha": "2975050c9472ddf5e0668feb1206a46c7a6ee1b1",
+  "endingSha": null,
+  "workOrderId": "permission-boundary-access-copy",
+  "ladderLevels": [
+    "LEVEL_4_ROLE_SPECIFIC_WORKSPACES"
+  ],
+  "selectedSlice": "Replace shared denied-section `unavailable` headings with explicit access-limited wording.",
+  "selectionReason": "Current repo evidence showed a real protected-surface language gap, not speculative polish. The shared `renderPermissionDeniedSection()` helper still titled protected sections as `X unavailable`, which made live RBAC boundaries look like route failures across multiple roles and sections. Reusing that existing helper kept the slice small, safe, and high-visibility without touching any auth, route, or data contract.",
+  "candidateCount": 10,
+  "candidateShortlist": [
+    "Permission-boundary access copy",
+    "Presentation ready-for-check-out parity proof refresh",
+    "Student evidence-panel language cleanup",
+    "Student next-step anchor follow-through",
+    "Viewer audit-language cleanup",
+    "Site selector future-only follow-through",
+    "Remaining filter-persistence follow-through",
+    "Mentor reassignment or removal workflow",
+    "Student mentor-support context",
+    "Viewer email visibility policy"
+  ],
+  "userFacingImprovement": "Denied workspace sections now explain that access is limited instead of implying the route is unavailable or broken.",
+  "privacyAndPermissionNotes": [
+    "The slice changes only shared protected-surface copy in `workspace.js`.",
+    "No auth, RBAC, tenant, site, program, mentor-assignment, or student-privacy boundary changed.",
+    "No new routes, filters, buttons, or data fields were introduced.",
+    "The existing reason, owner, and next-step guidance remain protected-state only."
+  ],
+  "filesChanged": [
+    "workspace.js",
+    "tests/workspace-app.test.mjs",
+    "tests/functionality-language-audit.test.mjs",
+    "docs/functionality-language-audit.md",
+    "docs/product/demo-role-readiness.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-06-03-0339-permission-boundary-copy.json",
+    "docs/functionality-ux-growth-ledger.md",
+    "automation/state/functionality-ux-growth-state.json"
+  ],
+  "validation": {
+    "focusedPassedBeforeCloseout": [
+      "node --check workspace.js",
+      "node --test tests/workspace-app.test.mjs",
+      "node --test tests/functionality-language-audit.test.mjs"
+    ],
+    "final": [
+      "node --check workspace.js",
+      "node --test tests/workspace-app.test.mjs",
+      "node --test tests/functionality-language-audit.test.mjs",
+      "npm run verify:functionality-language",
+      "npm run verify:functionality-ux-automation",
+      "npm run check:production-surfaces",
+      "npm run typecheck",
+      "npm run test",
+      "npm run check",
+      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-03-0339-permission-boundary-copy.json','utf8')); console.log('json ok')\"",
+      "git diff --check"
+    ],
+    "result": "passed",
+    "notes": "Focused workspace and audit checks passed before docs/state closeout, and the broader validation ladder passed after the closeout files were updated. git diff --check reported only CRLF normalization warnings."
+  },
+  "deferred": [
+    "Filtered Audit cross-school proof still needs a tighter locally provable scenario before another audit-focused pass.",
+    "Presentation ready-for-check-out parity proof remains smaller than a full product slice and can wait behind user-visible role-workspace work.",
+    "Student evidence-panel language cleanup remains open after this permission-boundary batch.",
+    "Site selector follow-through still needs a broader cross-surface contract.",
+    "Mentor reassignment and removal workflow still needs mutation and audit design.",
+    "Hosted section-level permission proof still needs allowed runtime and audit-event writes.",
+    "Viewer email visibility policy still needs a product decision before any UI change."
+  ],
+  "nextRecommended": "Inspect filtered Audit cross-school proof next only if the current workspace can prove one exact local scenario; otherwise continue with another bounded role-workspace or student-facing language slice.",
+  "doNotRepeat": [
+    "Do not regress denied protected sections back to `X unavailable` headings while the shared helper already has enough context to state that access is limited.",
+    "Do not weaken or bypass auth/RBAC checks while improving denied-section copy.",
+    "Do not turn permission-boundary cards into generic load-failure states when the route is intentionally protected."
+  ]
+}

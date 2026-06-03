@@ -9681,15 +9681,15 @@ function renderPermissionDeniedSection(title, detail) {
   return `
     <section class="workspace-card workspace-error-card" data-workspace-state="permission-denied">
       <p class="workspace-kicker">Access needed</p>
-      <h2>${escapeHtml(title)} unavailable</h2>
+      <h2>Access to ${escapeHtml(title)} is limited</h2>
       <p>
-        You do not have access to this section with the current school assignment.
-        Use another assigned account or ask the project coordinator to adjust access.
+        This account cannot open this section right now.
+        Use another assigned account or ask the project coordinator to update access.
       </p>
       ${renderProblemState({
         reason: `This account is not assigned to ${detail}.`,
         owner: "Project coordinator or site administrator.",
-        nextAction: "Request the correct role or open the workspace with an assigned account.",
+        nextAction: "Request the correct role or switch to an assigned account.",
       })}
     </section>
   `;

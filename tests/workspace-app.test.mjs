@@ -550,7 +550,7 @@ test("workspace renders route-connected site dashboard with Figma product-system
   assert.match(viewer, /Read-only workspace/);
   assert.match(viewer, /assigned student records for context/);
   assert.match(viewer, /data-workspace-state="permission-denied"/);
-  assert.match(viewer, /Site dashboard unavailable/);
+  assert.match(viewer, /Access to Site dashboard is limited/);
   assert.match(viewer, /assigned site dashboard records/);
   assert.doesNotMatch(viewer, /data-viewer-monitoring-overview="true"|data-admin-action="import-users"|Assign mentor|data-review-decision="approved"|data-archive-action/);
 
@@ -2693,7 +2693,7 @@ test("workspace renders site-aware Review Queue with teacher decisions and read-
   `);
   assert.match(viewer, /data-workspace-mode="read-only"/);
   assert.match(viewer, /data-workspace-state="permission-denied"/);
-  assert.match(viewer, /Teacher review queue unavailable/);
+  assert.match(viewer, /Access to Teacher review queue is limited/);
   assert.match(viewer, /submitted student work/);
   assert.doesNotMatch(viewer, /data-review-decision="approved"|data-review-decision="revision_requested"|data-review-decision="comment_only"|<textarea name="feedback"/);
 
@@ -3839,7 +3839,7 @@ test("workspace renders site-scoped Mentor Assignments with role-safe assignment
 
   assert.match(viewer, /data-workspace-mode="read-only"/);
   assert.match(viewer, /data-workspace-state="permission-denied"/);
-  assert.match(viewer, /Mentor assignments unavailable/);
+  assert.match(viewer, /Access to Mentor assignments is limited/);
   assert.match(viewer, /assigned site mentor coverage records/);
   assert.doesNotMatch(viewer, /data-mentor-assignment-form="true"|Assign mentor/);
 
@@ -4308,7 +4308,7 @@ test("workspace renders site-scoped Operations readiness worklists without mutat
 
   assert.match(viewer, /data-workspace-mode="read-only"/);
   assert.match(viewer, /data-workspace-state="permission-denied"/);
-  assert.match(viewer, /Operations readiness unavailable/);
+  assert.match(viewer, /Access to Operations readiness is limited/);
   assert.match(viewer, /site presentation, archive, and readiness worklists/);
   assert.doesNotMatch(viewer, /data-presentation-action|data-archive-action|<button[^>]*>\s*(?:Archive retry|Retry archive|Schedule presentation)/i);
 
@@ -4621,7 +4621,7 @@ test("workspace clarifies Operations empty states for active filters and true no
   }, "operations");
 
   assert.match(unfiltered, /data-workspace-state="permission-denied"/);
-  assert.match(unfiltered, /Operations readiness unavailable/);
+  assert.match(unfiltered, /Access to Operations readiness is limited/);
   assert.doesNotMatch(unfiltered, /No presentation rows match|No archive rows match|No attention rows match|data-presentation-action|data-archive-action/);
 
   const providerUnavailableEmpty = await renderWorkspaceWithFetch({
@@ -6778,7 +6778,7 @@ test("workspace renders role-pending and permission-denied access states", async
     },
   });
   assert.match(denied, /data-workspace-state="permission-denied"/);
-  assert.match(denied, /You do not have access to this section/);
+  assert.match(denied, /Access to Student workspace is limited/);
   assert.match(denied, /Student workspace/);
   assert.match(denied, /workspace-problem-state/);
 
@@ -8061,7 +8061,7 @@ test("workspace keeps admin import setup output memory-only and gates non-admin 
   }, "adminUsers");
 
   assert.match(nonAdminImport, /data-workspace-state="permission-denied"/);
-  assert.match(nonAdminImport, /Users &amp; Access unavailable/);
+  assert.match(nonAdminImport, /Access to Users &amp; Access is limited/);
   assert.doesNotMatch(nonAdminImport, /data-admin-action="import-users"/);
 });
 

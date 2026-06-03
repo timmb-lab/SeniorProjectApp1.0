@@ -3018,3 +3018,14 @@ Future productive runs should append compact entries that name the master-plan s
 - `changes`: `workspace.js` now renders explicit school-choice buttons for multi-school program-scoped and cohort-scoped recent role assignments, while preserving the existing single-school handoffs and keeping inaccessible or unmapped rows actionless. `tests/workspace-app.test.mjs` now proves those buttons render for both multi-school program and cohort grants and that each button opens the existing filtered Student Directory with the exact selected `siteId` plus `programId` or `cohortId`.
 - `validation`: `node --check workspace.js` and `node --test tests/workspace-app.test.mjs` passed before docs/state closeout. Full closeout validation is recorded in `docs/functionality-ux-growth-ledger.md`.
 - `commit/push status`: pending closeout commit; not pushed by this automation run.
+
+## 2026-06-03 PT - Functionality UX Upgrade Permission Boundary Copy
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 4 role-specific workspace clarity / permission-boundary messaging.
+- `starting HEAD`: `2975050c9472ddf5e0668feb1206a46c7a6ee1b1`.
+- `selected slice`: Replace shared denied-section `unavailable` headings with explicit access-limited wording.
+- `repo-grounded findings`: current `workspace.js` still rendered denied cards through one shared helper that titled protected sections as `Site dashboard unavailable`, `Teacher review queue unavailable`, `Mentor assignments unavailable`, `Operations readiness unavailable`, and similar variants. That wording made real RBAC boundaries look like broken routes even though the current helper already had the correct protected-state context and next-step guidance.
+- `changes`: `workspace.js` now renders `Access to ... is limited` headings plus account-assignment guidance inside the shared permission-denied helper without changing any auth or routing behavior. `tests/workspace-app.test.mjs` now proves the updated copy across Site Dashboard, Teacher Review Queue, Mentor Assignments, Operations, Student Workspace, and Users & Access denied states. `docs/functionality-language-audit.md` and `docs/product/demo-role-readiness.md` record the new protected-surface wording.
+- `validation`: `node --check workspace.js`, `node --test tests/workspace-app.test.mjs`, and `node --test tests/functionality-language-audit.test.mjs` passed before docs/state closeout. Full closeout validation is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.
