@@ -21,6 +21,17 @@ This is the compact run log for the current Functionality UX Upgrade automation 
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-06-03 05:38 PT - Functionality UX Upgrade Student Requirement Detail Timeline
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 6 student progress drill-down / requirement-detail timeline follow-through.
+- `starting HEAD`: `d258a98ba7436dd39074d32701e83e35e58f3c5a`.
+- `selected slice`: Open the full submission timeline inline from student requirement detail.
+- `repo-grounded findings`: current `workspace.js` already let requirement detail show summary facts, latest feedback, and matching attached work, but students still had to leave that panel and open Feedback History or Submitted Work to inspect the full submission timeline. The existing student-safe `/api/reviews/:submissionId/history` route and timeline renderer were already proven elsewhere in the same workspace, so the smallest real follow-through was to reuse that route inside requirement detail instead of inventing another page or broader student payload.
+- `changes`: `workspace.js` now offers `View full timeline` from requirement detail, loads the existing review-history route inline inside that same panel, and clears the inline timeline safely when the selected requirement is hidden by a phase switch or closed. `tests/workspace-app.test.mjs` now proves the inline timeline opens from requirement detail, stays in the same requirement panel, and clears when the current phase focus hides that requirement. `docs/functionality-language-audit.md`, `docs/student-progress-dashboard.md`, `docs/product/demo-role-readiness.md`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`, and the per-run manifest record the completed slice.
+- `validation`: `node --check workspace.js` and `node --test tests/workspace-app.test.mjs` passed before docs/state closeout. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.
+
 ## 2026-06-03 05:06 PT - Functionality UX Upgrade Student Requirement Detail Evidence
 
 - `automation ID`: functionality-ux-upgrade-hourly.

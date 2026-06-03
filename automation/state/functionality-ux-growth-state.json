@@ -1,10 +1,18 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-06-03T05:06:39-07:00",
-  "lastStartingSha": "00a4c323c3f0ea914007085fac1d333b1862c87e",
+  "lastRunAt": "2026-06-03T05:38:28-07:00",
+  "lastStartingSha": "d258a98ba7436dd39074d32701e83e35e58f3c5a",
   "lastEndingSha": null,
   "currentLadderFocus": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN",
   "completedWorkOrders": [
+    {
+      "id": "student-requirement-detail-timeline-follow-through",
+      "completedAt": "2026-06-03T05:38:28-07:00",
+      "ladderLevel": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN",
+      "type": "TYPE_C_STUDENT_DETAIL_DRILL_DOWN",
+      "summary": "Student requirement detail now opens the full submission timeline inline so versions, status changes, and student-visible notes stay in the same panel.",
+      "commit": "pending-closeout-commit"
+    },
     {
       "id": "student-requirement-detail-evidence-follow-through",
       "completedAt": "2026-06-03T05:06:39-07:00",
@@ -1311,10 +1319,10 @@
   "blockedWorkOrders": [],
   "nextRecommendedWorkOrders": [
     {
-      "id": "student-requirement-detail-feedback-follow-through",
+      "id": "student-next-step-anchor-follow-through",
       "ladderLevel": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN",
       "type": "TYPE_C_STUDENT_DETAIL_DRILL_DOWN",
-      "summary": "Continue the student refresh only if the current requirement detail or submission panels can prove another exact feedback or submission timeline handoff from the same in-page workflow."
+      "summary": "Continue the student refresh only if the current requirement detail or next-step list can prove another exact same-panel handoff after the new inline timeline."
     },
     {
       "id": "filtered-audit-cross-school-proof",
@@ -1354,6 +1362,7 @@
     }
   ],
   "doNotRepeat": [
+    "Do not remove the inline requirement-detail submission timeline while the current student dashboard and tests already prove the same-panel handoff through the existing review-history route.",
     "Do not regress student requirement detail back to summary-only facts while the current dashboard already carries the matching evidence rows for the reopened requirement.",
     "Do not remove safe download or open-link actions from requirement-detail evidence rows while Uploaded and linked work already exposes the same student-scoped file actions.",
     "Do not strip requirementId or requirementTitle from /api/student/dashboard evidence rows while Uploaded and linked work reuses them for exact requirement reopen.",
@@ -1533,7 +1542,7 @@
   ],
   "lastValidationStatus": {
     "status": "passed",
-    "completedAt": "2026-06-03T05:06:39-07:00",
+    "completedAt": "2026-06-03T05:38:28-07:00",
     "commands": [
       "node --check workspace.js",
       "node --test tests/workspace-app.test.mjs",
@@ -1544,7 +1553,7 @@
       "npm run typecheck",
       "npm run test",
       "npm run check",
-      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-03-0506-student-requirement-detail-evidence.json','utf8')); console.log('json ok')\"",
+      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-03-0538-student-requirement-detail-timeline.json','utf8')); console.log('json ok')\"",
       "git diff --check"
     ],
     "notes": "Focused workspace checks passed before docs/state closeout, and the broader validation ladder passed after the closeout files were updated. git diff --check reported only CRLF normalization warnings."

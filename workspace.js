@@ -5394,7 +5394,7 @@ function renderStudentWorkspaceDisclosurePanels(dashboard, summary, submissions,
         openLabel: "Open checklist",
         closeLabel: "Hide checklist",
         dataAttrs: 'data-student-requirements-panel="true" tabindex="-1"',
-        bodyHtml: renderStudentRequirementPanelBody(requirements, summary, feedback, studentRequirementDetailState, evidence),
+        bodyHtml: renderStudentRequirementPanelBody(requirements, summary, feedback, studentRequirementDetailState, evidence, studentFeedbackHistoryState),
       })}
       ${renderWorkspaceDisclosurePanel({
         scope: "student",
@@ -5753,7 +5753,7 @@ function renderStudentStepButtons(item, openLabel = "Open requirement") {
   return `${openRequirementButton}${submissionActionButton}`;
 }
 
-function renderStudentRequirementPanel(requirements = [], summary = {}, feedback = [], detailState = defaultStudentRequirementDetailState()) {
+function renderStudentRequirementPanel(requirements = [], summary = {}, feedback = [], detailState = defaultStudentRequirementDetailState(), evidence = [], historyState = defaultStudentFeedbackHistoryState()) {
   const rows = Array.isArray(requirements) ? requirements : [];
   return `
     <section class="workspace-dashboard-card workspace-student-requirements-panel" data-student-requirements-panel="true" data-student-requirements-count="${escapeHtml(rows.length)}" aria-labelledby="studentRequirementChecklistTitle">
@@ -5764,12 +5764,12 @@ function renderStudentRequirementPanel(requirements = [], summary = {}, feedback
           <p>${escapeHtml(rows.length ? "Review each project phase, requirement, and next step." : "Required work will appear after your teacher adds project requirements.")}</p>
         </div>
       </div>
-      ${renderStudentRequirementPanelBody(requirements, summary, feedback, detailState)}
+      ${renderStudentRequirementPanelBody(requirements, summary, feedback, detailState, evidence, historyState)}
     </section>
   `;
 }
 
-function renderStudentRequirementPanelBody(requirements = [], summary = {}, feedback = [], detailState = defaultStudentRequirementDetailState(), evidence = []) {
+function renderStudentRequirementPanelBody(requirements = [], summary = {}, feedback = [], detailState = defaultStudentRequirementDetailState(), evidence = [], historyState = defaultStudentFeedbackHistoryState()) {
   const rows = Array.isArray(requirements) ? requirements : [];
   const phaseGroups = groupStudentRequirementsByPhase(rows);
   const activePhaseKey = activeStudentRequirementPhaseKey(phaseGroups, detailState);
@@ -5779,7 +5779,7 @@ function renderStudentRequirementPanelBody(requirements = [], summary = {}, feed
   return `
       ${phaseGroups.length > 1 ? renderStudentRequirementPhaseFilters(phaseGroups, summary, detailState) : ""}
       <div class="workspace-list">
-        ${visiblePhaseGroups.length ? visiblePhaseGroups.map((group) => renderStudentRequirementPhaseGroup(group, feedback, detailState, evidence)).join("") : `
+        ${visiblePhaseGroups.length ? visiblePhaseGroups.map((group) => renderStudentRequirementPhaseGroup(group, feedback, detailState, evidence, historyState)).join("") : `
           <article class="workspace-empty-state-card" data-student-requirements-empty="true">
             <strong>No project requirements yet.</strong>
             <p>${escapeHtml(summary.waitingForReviewCount ? "Check back after your teacher updates your project requirements." : "Ask your program teacher when your project requirements will be ready.")}</p>
@@ -5854,7 +5854,7 @@ function renderStudentRequirementPhaseFilters(phaseGroups = [], summary = {}, de
   `;
 }
 
-function renderStudentRequirementPhaseGroup(group, feedback = [], detailState = defaultStudentRequirementDetailState(), evidence = []) {
+function renderStudentRequirementPhaseGroup(group, feedback = [], detailState = defaultStudentRequirementDetailState(), evidence = [], historyState = defaultStudentFeedbackHistoryState()) {
   const rows = Array.isArray(group?.rows) ? group.rows : [];
   const completeCount = safeNumber(group?.completeCount);
   const remainingCount = safeNumber(group?.remainingCount);
@@ -5870,7 +5870,7 @@ function renderStudentRequirementPhaseGroup(group, feedback = [], detailState = 
         </div>
       </div>
       <div class="workspace-list">
-        ${rows.map((row) => renderStudentRequirementRow(row, feedback, detailState, evidence)).join("")}
+        ${rows.map((row) => renderStudentRequirementRow(row, feedback, detailState, evidence, historyState)).join("")}
       </div>
     </section>
   `;
@@ -5880,7 +5880,7 @@ function isStudentRequirementComplete(status) {
   return ["approved", "archived", "complete", "completed"].includes(normalizeStatus(status));
 }
 
-function renderStudentRequirementRow(item, feedback = [], detailState = defaultStudentRequirementDetailState(), evidence = []) {
+function renderStudentRequirementRow(item, feedback = [], detailState = defaultStudentRequirementDetailState(), evidence = [], historyState = defaultStudentFeedbackHistoryState()) {
   const version = safeNumber(item?.submissionVersion);
   const updatedAt = item?.lastUpdatedAt ? formatDate(item.lastUpdatedAt) : "Not available yet";
   const description = String(item?.description || "").trim();
@@ -5909,7 +5909,7 @@ function renderStudentRequirementRow(item, feedback = [], detailState = defaultS
         ${renderStudentRequirementAction(item, evidenceCount)}
         ${statusPill(item?.status || "missing")}
       </div>
-      ${selected ? renderStudentRequirementDetail(item, latestFeedback, relatedEvidence) : ""}
+      ${selected ? renderStudentRequirementDetail(item, latestFeedback, relatedEvidence, historyState) : ""}
     </article>
   `;
 }
@@ -5945,14 +5945,16 @@ function matchingEvidenceForRequirement(item, evidence = []) {
   });
 }
 
-function renderStudentRequirementDetail(item, latestFeedback = null, evidenceRows = []) {
+function renderStudentRequirementDetail(item, latestFeedback = null, evidenceRows = [], historyState = defaultStudentFeedbackHistoryState()) {
   const requirementId = studentRequirementId(item);
   const detailDomId = studentRequirementDetailDomId(requirementId);
+  const submissionId = cleanDirectoryFilter(item?.submissionId || "");
   const evidenceCount = safeNumber(item?.evidenceCount);
   const version = safeNumber(item?.submissionVersion);
   const status = statusText(item?.status || "missing");
   const submissionStatus = item?.submissionStatus ? statusText(item.submissionStatus) : status;
   const progressStatus = item?.progressStatus ? statusText(item.progressStatus) : "Not started";
+  const timelineSelected = studentFeedbackSelectionMatches(historyState, submissionId, "requirements");
   return `
     <section id="${escapeHtml(detailDomId)}" class="workspace-student-requirement-detail" data-student-requirement-detail="true">
       <div>
@@ -5979,6 +5981,14 @@ function renderStudentRequirementDetail(item, latestFeedback = null, evidenceRow
           <small>Feedback meant for you will appear after your teacher reviews or comments on this work.</small>
         </article>
       `}
+      ${submissionId ? `
+        <div class="workspace-row-actions" data-student-requirement-timeline-actions="true">
+          <button class="workspace-link-button workspace-link-button-small" type="button" data-student-feedback-action="open-history" data-student-feedback-origin="requirements" data-student-feedback-submission-id="${escapeHtml(submissionId)}">
+            ${escapeHtml(timelineSelected ? "Refresh full timeline" : "View full timeline")}
+          </button>
+        </div>
+      ` : ""}
+      ${timelineSelected ? `<div data-student-requirement-timeline="true">${renderStudentFeedbackTimeline(historyState)}</div>` : ""}
       ${evidenceRows.length ? `
         <div>
           <h4>Matching uploaded and linked work</h4>
@@ -6209,6 +6219,13 @@ function studentFeedbackSelectionMatches(historyState, submissionId, source = "f
   const selectedSubmissionId = cleanDirectoryFilter(historyState?.selectedSubmissionId || "");
   const selectedSource = String(historyState?.source || "feedback").trim() || "feedback";
   return Boolean(selectedSubmissionId && selectedSubmissionId === cleanDirectoryFilter(submissionId) && selectedSource === source);
+}
+
+function studentRequirementSubmissionIdForId(requirements = [], requirementId = "") {
+  const normalizedRequirementId = cleanDirectoryFilter(requirementId);
+  if (!normalizedRequirementId) return "";
+  const match = requirements.find((row) => studentRequirementId(row) === normalizedRequirementId);
+  return cleanDirectoryFilter(match?.submissionId || "");
 }
 
 function studentFeedbackSubmissionMeta(item) {
@@ -8325,10 +8342,17 @@ function handleStudentRequirementAction(event) {
   const opening = action === "open-detail" || studentRequirementDetailState.selectedRequirementId !== requirementId;
   const requirements = Array.isArray(unwrap(currentData.dashboard)?.requirements) ? unwrap(currentData.dashboard).requirements : [];
   const phaseKey = studentRequirementPhaseKeyForId(requirements, requirementId);
+  const nextRequirementId = opening ? requirementId : "";
+  const nextSubmissionId = studentRequirementSubmissionIdForId(requirements, nextRequirementId);
   studentRequirementDetailState = {
-    selectedRequirementId: opening ? requirementId : "",
+    selectedRequirementId: nextRequirementId,
     selectedPhaseKey: opening ? phaseKey || studentRequirementDetailState.selectedPhaseKey || "" : studentRequirementDetailState.selectedPhaseKey || "",
   };
+  if (studentFeedbackHistoryState.source === "requirements"
+    && cleanDirectoryFilter(studentFeedbackHistoryState.selectedSubmissionId || "")
+    && cleanDirectoryFilter(studentFeedbackHistoryState.selectedSubmissionId || "") !== nextSubmissionId) {
+    studentFeedbackHistoryState = defaultStudentFeedbackHistoryState();
+  }
   if (opening) {
     studentDisclosureState = {
       ...studentDisclosureState,
@@ -8378,12 +8402,19 @@ function handleStudentRequirementPhaseAction(event) {
   const nextPhaseKey = requestedPhaseKey && requestedPhaseKey === activePhaseKey ? "" : requestedPhaseKey;
   const selectedRequirementId = cleanDirectoryFilter(studentRequirementDetailState.selectedRequirementId || "");
   const selectedRequirementPhaseKey = studentRequirementPhaseKeyForId(requirements, selectedRequirementId);
+  const nextSelectedRequirementId = nextPhaseKey && selectedRequirementId && selectedRequirementPhaseKey !== nextPhaseKey
+    ? ""
+    : selectedRequirementId;
   studentRequirementDetailState = {
-    selectedRequirementId: nextPhaseKey && selectedRequirementId && selectedRequirementPhaseKey !== nextPhaseKey
-      ? ""
-      : selectedRequirementId,
+    selectedRequirementId: nextSelectedRequirementId,
     selectedPhaseKey: nextPhaseKey,
   };
+  const nextSubmissionId = studentRequirementSubmissionIdForId(requirements, nextSelectedRequirementId);
+  if (studentFeedbackHistoryState.source === "requirements"
+    && cleanDirectoryFilter(studentFeedbackHistoryState.selectedSubmissionId || "")
+    && cleanDirectoryFilter(studentFeedbackHistoryState.selectedSubmissionId || "") !== nextSubmissionId) {
+    studentFeedbackHistoryState = defaultStudentFeedbackHistoryState();
+  }
   studentDisclosureState = {
     ...studentDisclosureState,
     requirements: true,
@@ -8457,15 +8488,22 @@ function focusEvidenceFormsForSubmission(submissionId) {
 async function openStudentFeedbackHistory(submissionId, source = "feedback") {
   const selectedSubmissionId = cleanDirectoryFilter(submissionId);
   if (!selectedSubmissionId) return;
-  const sourceKey = String(source || "feedback").trim() === "submissions" ? "submissions" : "feedback";
+  const sourceValue = String(source || "feedback").trim();
+  const sourceKey = sourceValue === "submissions"
+    ? "submissions"
+    : sourceValue === "requirements"
+      ? "requirements"
+      : "feedback";
   studentDisclosureState = {
     ...studentDisclosureState,
-    [sourceKey]: true,
+    feedback: sourceKey === "feedback" ? true : studentDisclosureState.feedback,
+    submissions: sourceKey === "submissions" ? true : studentDisclosureState.submissions,
+    requirements: sourceKey === "requirements" ? true : studentDisclosureState.requirements,
   };
   studentFeedbackHistoryState = {
     ...defaultStudentFeedbackHistoryState(),
     selectedSubmissionId,
-    source: String(source || "feedback").trim() || "feedback",
+    source: sourceKey,
     loading: true,
   };
   activeSection = "student";

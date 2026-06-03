@@ -7514,6 +7514,178 @@ test("student files rows reopen the matching requirement detail", async () => {
   assert.match(workspaceRoot.innerHTML, /Open link/);
 });
 
+test("student requirement detail opens the submission timeline inline", async () => {
+  const { context, workspaceRoot, fetchLog } = await createWorkspaceContextWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "student-requirement-history",
+          email: "student.requirement.history@senior-capstone.test",
+          displayName: "Requirement Timeline Student",
+          roles: [{ role_id: "student", scope_type: "global", scope_id: "" }],
+        },
+      },
+    },
+    "/api/student/dashboard": {
+      status: 200,
+      body: {
+        ok: true,
+        viewer: { self: true },
+        summary: {
+          requirementsTotal: 2,
+          requirementsComplete: 1,
+          completionPercent: 50,
+          submittedRequiredCount: 1,
+          missingRequiredCount: 1,
+          revisionRequestedCount: 1,
+        },
+        requirements: [
+          {
+            requirementId: "req-proposal",
+            submissionId: "submission-proposal",
+            title: "Senior Project Proposal",
+            description: "Explain the problem, solution, audience, and evidence for your capstone project.",
+            phase: "proposal-and-research",
+            phaseLabel: "Proposal And Research",
+            status: "revision_requested",
+            progressStatus: "revision_requested",
+            submissionStatus: "revision_requested",
+            submissionVersion: 2,
+            evidenceCount: 1,
+            dueDate: "2026-05-30T00:00:00Z",
+            dueLabel: "May 30",
+            qualityPrompt: "Add one measurable success target before you send the proposal back.",
+            lastUpdatedAt: "2026-05-24T18:00:00.000Z",
+            nextAction: "Send the revised Senior Project Proposal back for teacher review.",
+          },
+          {
+            requirementId: "req-showcase",
+            submissionId: "",
+            title: "Celebration Day Plan",
+            description: "Prepare your showcase setup and visitor plan.",
+            phase: "celebration-day",
+            phaseLabel: "Celebration Day",
+            status: "not_started",
+            progressStatus: "not_started",
+            submissionStatus: "",
+            submissionVersion: 0,
+            evidenceCount: 0,
+            dueDate: "2026-06-02T00:00:00Z",
+            dueLabel: "June 2",
+            qualityPrompt: "",
+            lastUpdatedAt: "2026-05-20T18:00:00.000Z",
+            nextAction: "Start planning your showcase setup.",
+          },
+        ],
+        progress: [],
+        submissions: [
+          { id: "submission-proposal", requirement_id: "req-proposal", requirement_title: "Senior Project Proposal", status: "revision_requested", version: 2, evidence_count: 1, updated_at: "2026-05-24T18:00:00.000Z" },
+        ],
+        evidence: [],
+        feedback: [
+          {
+            id: "review-proposal",
+            submissionId: "submission-proposal",
+            requirementTitle: "Senior Project Proposal",
+            submissionStatus: "revision_requested",
+            submissionVersion: 2,
+            status: "revision_requested",
+            message: "Add one measurable success target before resubmitting.",
+            authorName: "Ms. Garcia",
+            createdAt: "2026-05-24T18:30:00.000Z",
+          },
+        ],
+      },
+    },
+    "/api/reviews/submission-proposal/history": {
+      status: 200,
+      body: {
+        ok: true,
+        submission: { id: "submission-proposal", studentId: "student-requirement-history", status: "revision_requested", version: 2 },
+        reviews: [
+          {
+            id: "review-proposal",
+            decision: "revision_requested",
+            feedback: "Add one measurable success target before resubmitting.",
+            created_at: "2026-05-24T18:30:00.000Z",
+            reviewer_name: "Ms. Garcia",
+          },
+        ],
+        statusHistory: [
+          {
+            id: "status-proposal",
+            from_status: "submitted",
+            to_status: "revision_requested",
+            reason: "Sent back for revision.",
+            created_at: "2026-05-24T18:31:00.000Z",
+            changed_by_name: "Ms. Garcia",
+          },
+        ],
+        versions: [
+          {
+            id: "version-proposal-2",
+            version: 2,
+            status: "submitted",
+            submittedAt: "2026-05-24T18:00:00.000Z",
+            submittedByName: "Requirement Timeline Student",
+            notes: "",
+            evidence: [{ id: "evidence-proposal-2a" }],
+          },
+        ],
+        comments: [
+          {
+            id: "comment-proposal",
+            body: "Thanks for resubmitting the outline.",
+            visibility: "student_visible",
+            created_at: "2026-05-24T18:35:00.000Z",
+            author_name: "Ms. Garcia",
+          },
+        ],
+      },
+    },
+    "/api/student/archive/readiness": {
+      status: 200,
+      body: { ok: true, checks: [], summary: {}, archive: {}, storage: {}, retention: {} },
+    },
+    "/api/presentation-slots": {
+      status: 200,
+      body: { ok: true, slots: [] },
+    },
+  });
+
+  vm.runInContext('studentDisclosureState.requirements = true; activeSection = "student"; renderAppShell();', context);
+  vm.runInContext('handleStudentRequirementAction({ currentTarget: { dataset: { studentRequirementAction: "open-detail", studentRequirementId: "req-proposal" } } })', context);
+
+  assert.match(workspaceRoot.innerHTML, /data-student-feedback-origin="requirements"/);
+  assert.match(workspaceRoot.innerHTML, /View full timeline/);
+  assert.doesNotMatch(workspaceRoot.innerHTML, /data-student-requirement-timeline="true"/);
+
+  await vm.runInContext(
+    'handleStudentFeedbackAction({ currentTarget: { dataset: { studentFeedbackAction: "open-history", studentFeedbackOrigin: "requirements", studentFeedbackSubmissionId: "submission-proposal" } } })',
+    context,
+  );
+
+  assert.ok(fetchLog.includes("/api/reviews/submission-proposal/history"));
+  assert.match(workspaceRoot.innerHTML, /data-student-requirement-detail="true"/);
+  assert.match(workspaceRoot.innerHTML, /data-student-requirement-timeline="true"/);
+  assert.match(workspaceRoot.innerHTML, /Refresh full timeline/);
+  assert.match(workspaceRoot.innerHTML, /Submission timeline/);
+  assert.match(workspaceRoot.innerHTML, /Thanks for resubmitting the outline/);
+  assert.match(workspaceRoot.innerHTML, /Sent back for revision/);
+  assert.equal(vm.runInContext("studentFeedbackHistoryState.source", context), "requirements");
+
+  await vm.runInContext(
+    'handleStudentRequirementPhaseAction({ currentTarget: { dataset: { studentRequirementPhaseAction: "set-phase", studentRequirementPhaseKey: "celebration-day" } } })',
+    context,
+  );
+
+  assert.doesNotMatch(workspaceRoot.innerHTML, /data-student-requirement-detail="true"/);
+  assert.doesNotMatch(workspaceRoot.innerHTML, /data-student-requirement-timeline="true"/);
+  assert.equal(vm.runInContext("studentFeedbackHistoryState.selectedSubmissionId", context), "");
+});
+
 test("workspace renders admin import controls and one-time setup output", async () => {
   const adminUsers = await renderWorkspaceWithFetch({
     "/api/auth/me": {

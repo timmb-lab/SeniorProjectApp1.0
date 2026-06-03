@@ -56,6 +56,7 @@ Status uses simple rules:
 - What to Work On Next, prioritized by revision items, missing submissions, current-phase work, waiting review, then next remaining requirement.
 - Upcoming deadlines, which reorders the existing incomplete requirement rows into a due-date-first list so students can start with the nearest deadline without leaving the current dashboard or opening a fake calendar page.
 - Requirement Checklist is now a secondary disclosure, not a default-open wall. It still uses the existing student-scoped dashboard data, phase groups, phase-focus filters, requirement descriptions, quality nudges, status/version/due-date context, next steps, and in-page requirement detail disclosure after the student opens it.
+- Requirement detail can now open the full submission timeline inline through the existing student-safe `/api/reviews/:submissionId/history` route, so students can compare versions, status changes, and visible teacher notes without leaving the same requirement panel.
 - Requirement rows now show the matching submission ID's evidence count when a submission exists. Draft or revision rows with evidence can be sent to teacher review through the existing scoped submit route; rows without evidence focus the existing evidence forms instead of adding a fake requirement page.
 - Feedback History is now a secondary disclosure, showing bounded teacher review notes already tied to the student's own submissions, with submission version and current status context after the student opens it.
 - Feedback History now includes in-page filters for all notes, needs revision, teacher notes, and approved feedback, so students can focus the notes that still need action without leaving the current dashboard.
@@ -93,6 +94,7 @@ No new fake links were added. The dashboard keeps existing real actions only:
 - Send draft or revised work for teacher review from a requirement row only when the existing submission has attached evidence. The submit action uses `/api/submissions/:id/submit`, which enforces own-student access, draft/revision status, and required evidence.
 - Focus the existing link/file evidence forms from a requirement row when the matching submission has no evidence yet.
 - Open in-page requirement details from a checklist row. The detail disclosure uses the already loaded student dashboard payload to summarize status, due date, evidence count, submitted version, progress state, next action, and the latest matching teacher feedback without calling a new route.
+- Open the full submission timeline from requirement detail through the existing `/api/reviews/:submissionId/history` route when a student needs version history, status changes, or student-visible teacher notes in the same panel.
 - Focus the requirement checklist on one project phase at a time using in-page phase buttons, then switch back to all phases without leaving the student workspace or adding a new route.
 - Review archive readiness through the existing Archive workspace section; the student home only summarizes the next archive blocker and does not add a fake archive request action.
 - Open a feedback-row timeline through the existing `/api/reviews/:submissionId/history` route. The route already enforces own-student or assigned-scope access and filters staff-only comments before the workspace renders the timeline.
@@ -109,7 +111,7 @@ Student-facing copy on this route now uses "work," "evidence," "submitted work,"
 
 ## Backlog
 
-1. Extend the student-safe requirement detail disclosure only if students need more than the current checklist, evidence focus action, send-for-review action, and in-page status/feedback summary.
+1. Extend the student-safe requirement detail disclosure only if students need more than the current checklist, evidence focus action, send-for-review action, inline timeline handoff, and in-page status/feedback summary.
 2. Add dedicated phase-specific student progress pages only if students need more than the current grouped checklist, phase-focus filters, and in-page requirement detail.
 3. Add shareable submission-list URL state only if students need more than the current in-page status filters, feedback filters, version/evidence timeline cues, and in-row timeline.
 4. Add mentor contact/support workflow only if policy allows a real contact path beyond the current in-page support actions.

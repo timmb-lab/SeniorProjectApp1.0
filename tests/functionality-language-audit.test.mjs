@@ -56,7 +56,7 @@ test("functionality and language audit includes required sections and enough rep
     .split(/\r?\n/)
     .filter((line) => /^\| [0-9]+ \|/.test(line));
   assert.equal(improvementRows.length >= 75, true, "audit should keep at least 75 concrete improvement rows");
-  assert.match(audit, /Summary counts: 58 functionality\/workflow items and 27 language\/navigation\/clarity items\./);
+  assert.match(audit, /Summary counts: 59 functionality\/workflow items and 27 language\/navigation\/clarity items\./);
 });
 
 test("functionality UX automation prompt is bounded and safety-focused", () => {
