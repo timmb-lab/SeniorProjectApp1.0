@@ -21,6 +21,17 @@ This is the compact run log for the current Functionality UX Upgrade automation 
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-06-02 22:01 PT - Functionality UX Upgrade Review Queue Site Selection
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 4 role-specific workspace clarity / multi-site Review Queue handoff.
+- `starting HEAD`: `6185d47ce29cfad4cd4aff5db4d56b913e1ca821`.
+- `selected slice`: Add a Review Queue-specific school-pick state when `/api/site/review-queue` returns `site_selection_required`.
+- `repo-grounded findings`: the current repo already had dedicated school-pick guidance for Site Dashboard, Students, Programs, Mentor Assignments, Operations, and Users & Access, and the Review Queue route already returned the same `selectionRequired` contract plus `accessibleSites`. The remaining gap was isolated to `workspace.js`: `renderTeacherSection()` still fell through to a generic unavailable branch instead of reusing the existing school-switch pattern. That made this the safest bounded slice because it removed a real protected-workspace dead end without changing routes, filters, or role boundaries.
+- `changes`: `workspace.js` now intercepts the Review Queue `409 site_selection_required` response and renders a dedicated `review-queue-site-selection-required` state with school buttons and next-step guidance instead of the generic unavailable card. `tests/workspace-app.test.mjs` now proves the Review Queue shows that school-pick state, includes the accessible-site buttons, and hides queue filters and teacher-decision affordances until a school is selected.
+- `validation`: `node --check workspace.js` and `node --test tests/workspace-app.test.mjs` passed before docs/state closeout. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.
+
 ## 2026-06-02 21:43 PT - Functionality UX Upgrade Global Admin Audit Drilldowns
 
 - `automation ID`: functionality-ux-upgrade-hourly.

@@ -6478,3 +6478,60 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: mentor-meeting follow-up still lacks a precise destination; hosted permission proof still needs allowed runtime; Review Queue missing-submission semantics still need backend evidence.
   - Do not repeat: do not regress Admin Command Center Recent Audit rows back to passive summary-only chips, and do not broaden filtered Audit drill-downs beyond the current Global Admin-only section contract.
   - First file to inspect next run: `workspace.js` around `renderAdminOverviewSection()` and `renderAdminAuditSection()`
+
+## Run 2026-06-02 22:01 PT
+
+- Starting SHA: `6185d47ce29cfad4cd4aff5db4d56b913e1ca821`
+- Ending SHA: pending closeout commit; final hash is reported after commit
+- Branch: `main`
+- Branch policy: started from clean local `main` ahead of `origin/main` by four earlier in-lane commits; this run stayed local-only and did not push
+- Ladder level targeted: `LEVEL_4_ROLE_SPECIFIC_WORKSPACES`
+- Backlog item: multi-site protected-workspace site-selection handoff consistency in `docs/functionality-language-audit.md` and `docs/product/demo-role-readiness.md`
+- Work order selected: Add Review Queue-specific school-pick guidance when `/api/site/review-queue` returns `site_selection_required`.
+- Selection reason: current repo evidence showed a real protected-workspace gap, not speculative polish. `functions/_lib/site-review-queue.ts` already returned `selectionRequired: true` plus `accessibleSites`, and the workspace already had route-backed school-pick states for Site Dashboard, Students, Programs, Mentor Assignments, Operations, and Users & Access. The missing work was isolated to `workspace.js`: `renderTeacherSection()` still fell through to the generic unavailable branch instead of rendering an exact school-pick handoff. That made this the safest bounded slice because it improved a real multi-site review workflow without adding a route, widening scope, or inventing filters.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Review Queue site-selection guidance | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | `global_admin`, `admin`, `org_admin`, `site_admin`, `program_teacher` | 5 | 5 | 5 | XS | 60 | selected |
+| Broader Global Admin route refresh across Recent Audit, Students, Presentation, Programs, and Users & Access | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | `global_admin` | 4 | 4 | 3 | M | 45 | deferred: broader than one safe hourly slice |
+| Admin mentor-meeting exact destination | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | `global_admin` | 4 | 2 | 2 | M | 30 | deferred: current workspace still lacks a precise meeting-follow-up destination |
+| Program Teacher mentor-meeting follow-up destination | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | `program_teacher` | 4 | 3 | 3 | M | 40 | deferred: no precise scoped destination is proven |
+| Hosted section-level permission proof | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all protected roles | 4 | 3 | 2 | M | 35 | deferred: hosted runtime is outside this local batch |
+| Review Queue missing-submission semantics | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | `program_teacher`, `site_admin` | 5 | 2 | 3 | M | 34 | deferred: backend queue rows are still absent |
+| Viewer email visibility policy | `LEVEL_7_AUDITABILITY_AND_TRUST` | `viewer` | 3 | 2 | 3 | S | 30 | deferred: product policy still comes before UI change |
+| Mentor reassignment or removal workflow | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | `site_admin` | 4 | 2 | 3 | M | 33 | deferred: mutation and audit design still needed |
+| Student hosted drill-down refresh | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | `student` | 4 | 2 | 2 | M | 29 | deferred: broader hosted/product pass than this bounded multi-site handoff slice |
+| Administration hosted read-only click-through refresh | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | `administration` | 4 | 3 | 2 | M | 34 | deferred: hosted runtime is outside this local batch |
+
+- User-facing improvement: Multi-site review-capable staff now see a Review Queue-specific school-pick state with accessible-site buttons and next-step guidance instead of a generic unavailable card when they have not chosen a school yet.
+- Roles affected: `global_admin`, `admin`, `org_admin`, `site_admin`, `program_teacher`
+- Files changed: `workspace.js`, `tests/workspace-app.test.mjs`, `docs/functionality-language-audit.md`, `docs/product/demo-role-readiness.md`, `docs/progress/run-log.md`, `docs/progress/runs/2026-06-02-2201-review-queue-site-selection-guidance.json`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`
+- Tests/verifiers added or updated: `tests/workspace-app.test.mjs` now proves the Review Queue renders `review-queue-site-selection-required`, shows accessible-site buttons, and hides queue filters plus teacher-decision affordances until a school is selected.
+- Validation commands:
+  - `node --check workspace.js`
+  - `node --test tests/workspace-app.test.mjs`
+  - `npm run verify:functionality-language`
+  - `npm run verify:functionality-ux-automation`
+  - `npm run check:production-surfaces`
+  - `npm run typecheck`
+  - `npm run test`
+  - `npm run check`
+  - `node -e "JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-02-2201-review-queue-site-selection-guidance.json','utf8')); console.log('json ok')"`
+  - `git diff --check`
+- Validation result: passed; focused workspace syntax and workspace coverage passed before docs/state closeout, and the full validation ladder passed after the closeout files were updated.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: broader Global Admin route refresh, Admin mentor-meeting exact destination, Program Teacher mentor-meeting follow-up destination, hosted section-level permission proof, Review Queue missing-submission semantics, viewer email visibility policy, mentor reassignment/remove workflow, student hosted drill-down refresh, and Administration hosted read-only click-through refresh remain open.
+- New backlog items: none
+- Next recommended work order: Resume the bounded Global Admin route refresh only where the current workspace can prove an exact destination, and keep mentor-meeting follow-up summary-only until a precise backed path exists.
+- Do-not-repeat notes: do not fall back to a generic unavailable card when `/api/site/review-queue` returns `site_selection_required`, and do not auto-pick a school for multi-site review flows without an explicit site-selection contract and proof.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_4_ROLE_SPECIFIC_WORKSPACES`
+  - Advanced: yes
+  - Evidence: `renderTeacherSection()` now renders `review-queue-site-selection-required` from the existing route contract, and focused workspace coverage proves the school-pick state replaces the generic Review Queue unavailable branch.
+  - Unlocks: future multi-site review work can build on a real Review Queue school-switch handoff instead of re-fixing a generic dead end.
+  - Next: inspect `workspace.js` around `renderTeacherSection()` and `functions/_lib/site-review-queue.ts` only if another exact multi-site or Review Queue handoff is proven.
+  - Blockers: mentor-meeting follow-up still lacks a precise destination; hosted permission proof still needs allowed runtime; Review Queue missing-submission semantics still need backend evidence.
+  - Do not repeat: do not revert Review Queue `site_selection_required` back to a generic unavailable state, and do not silently auto-select a school for multi-site review access.
+  - First file to inspect next run: `workspace.js` around `renderTeacherSection()`

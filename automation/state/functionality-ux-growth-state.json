@@ -1,10 +1,18 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-06-02T21:43:40-07:00",
-  "lastStartingSha": "1d5ecf2c853fe904bfecc00c5332937735b8f134",
+  "lastRunAt": "2026-06-02T22:01:42-07:00",
+  "lastStartingSha": "6185d47ce29cfad4cd4aff5db4d56b913e1ca821",
   "lastEndingSha": null,
   "currentLadderFocus": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
   "completedWorkOrders": [
+    {
+      "id": "review-queue-site-selection-guidance",
+      "completedAt": "2026-06-02T22:01:42-07:00",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "type": "TYPE_D_ROLE_WORKSPACE",
+      "summary": "Review Queue now turns the existing site_selection_required response into school-pick guidance with site buttons and next-step copy instead of a generic unavailable state.",
+      "commit": "pending-closeout-commit"
+    },
     {
       "id": "global-admin-recent-audit-drilldowns",
       "completedAt": "2026-06-02T21:43:40-07:00",
@@ -1202,7 +1210,7 @@
       "id": "global-admin-route-refresh",
       "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
       "type": "TYPE_G_VERIFICATION_REGRESSION_PROTECTION",
-      "summary": "Refresh the remaining Global Admin click-through and boundary proof now that Recent Audit rows also open the filtered Audit section."
+      "summary": "Refresh the remaining Global Admin click-through and boundary proof now that the multi-site Review Queue handoff no longer falls back to a generic unavailable state."
     },
     {
       "id": "program-teacher-mentor-meeting-follow-up-destination",
@@ -1224,6 +1232,8 @@
     }
   ],
   "doNotRepeat": [
+    "Do not fall back to a generic unavailable card when /api/site/review-queue returns site_selection_required; keep the Review Queue-specific school-pick guidance visible.",
+    "Do not silently auto-pick a school for multi-site review flows without an explicit site-selection contract and proof.",
     "Do not regress Admin Command Center Recent Audit rows back to passive summary-only chips while /api/admin/audit-events already supports exact action and entityType filters.",
     "Do not invent a new admin audit route or broader audit query surface when the existing Audit section already satisfies the drill-down need.",
     "Do not expose Recent Audit drill-downs to site-scoped roles while Audit remains Global Admin-only.",
@@ -1382,22 +1392,20 @@
   ],
   "lastValidationStatus": {
     "status": "passed",
-    "completedAt": "2026-06-02T21:12:36.0681891-07:00",
+    "completedAt": "2026-06-02T22:10:10.3384198-07:00",
     "commands": [
       "node --check workspace.js",
       "node --test tests/workspace-app.test.mjs",
-      "npm run verify:dashboard-actions",
-      "npm run verify:workspace-navigation",
       "npm run verify:functionality-language",
       "npm run verify:functionality-ux-automation",
       "npm run check:production-surfaces",
       "npm run typecheck",
       "npm run test",
       "npm run check",
-      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-02-2108-global-admin-review-workload-student-detail.json','utf8')); console.log('json ok')\"",
+      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-02-2201-review-queue-site-selection-guidance.json','utf8')); console.log('json ok')\"",
       "git diff --check"
     ],
-    "notes": "Focused workspace syntax, workspace coverage, dashboard-action verification, and workspace-navigation verification passed before docs/state closeout. Final validation also passed after the closeout files were updated."
+    "notes": "Focused workspace syntax and workspace coverage passed before docs/state closeout. Final validation also passed after the closeout files were updated."
   },
   "lastProductReadinessScorecardSummary": {
     "homepageClarity": "4 to 4",

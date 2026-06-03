@@ -6484,6 +6484,9 @@ function renderTeacherSection() {
   if (result?.status === 403) {
     return renderPermissionDeniedSection("Teacher review queue", "submitted student work");
   }
+  if (result?.status === 409 && result.body?.selectionRequired) {
+    return renderReviewQueueSelectionRequired(result.body);
+  }
   const body = unwrap(result);
   const queue = body?.queue || [];
   const scope = body?.scope || {};
@@ -6564,6 +6567,29 @@ function renderTeacherSection() {
         </section>
         ${renderReviewSubmissionPanel(selected, body)}
       </div>
+    </section>
+  `;
+}
+
+function renderReviewQueueSelectionRequired(body = {}) {
+  const sites = body.accessibleSites || [];
+  return `
+    <section class="workspace-card workspace-error-card" data-workspace-state="review-queue-site-selection-required">
+      <p class="workspace-kicker">Teacher review queue</p>
+      <h2>Select a site before opening the Review Queue</h2>
+      <p>This account can review more than one school. Choose the school workspace before loading submitted work and teacher follow-up.</p>
+      <div class="workspace-chip-row">
+        ${sites.map((site) => `
+          <button class="workspace-link-button workspace-link-button-small" type="button" data-site-switch-id="${escapeHtml(site.siteId || "")}">
+            ${escapeHtml(site.siteName || site.siteId)}
+          </button>
+        `).join("")}
+      </div>
+      ${renderProblemState({
+        reason: "Multiple assigned schools are available.",
+        owner: "School administration.",
+        nextAction: "Choose a site from the Current site menu or one of the buttons above.",
+      })}
     </section>
   `;
 }

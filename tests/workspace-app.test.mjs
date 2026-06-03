@@ -2671,6 +2671,51 @@ test("workspace renders site-aware Review Queue with teacher decisions and read-
   assert.match(window.location.href, /evidenceStatus=missing/);
 });
 
+test("workspace guides multi-site staff to choose a school before opening the Review Queue", async () => {
+  const reviewQueue = await renderWorkspaceWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "global-review-selection",
+          email: "global.review.selection@example.edu",
+          displayName: "Global Review Selection",
+          roles: [{ role_id: "admin", scope_type: "global", scope_id: "" }],
+        },
+      },
+    },
+    "/api/site/review-queue": {
+      status: 409,
+      body: {
+        ok: false,
+        error: "site_selection_required",
+        selectionRequired: true,
+        accessibleSites: [
+          { siteId: "site-desert-valley-high", siteName: "Desert Valley High School" },
+          { siteId: "site-canyon-ridge-career", siteName: "Canyon Ridge Career Academy" },
+        ],
+      },
+    },
+    "/api/presentation-slots": {
+      status: 200,
+      body: { ok: true, slots: [] },
+    },
+    "/api/reports/readiness": {
+      status: 200,
+      body: { ok: true, scope: "all-programs", metrics: {} },
+    },
+  }, "teacher");
+
+  assert.match(reviewQueue, /data-workspace-state="review-queue-site-selection-required"/);
+  assert.match(reviewQueue, /Select a site before opening the Review Queue/);
+  assert.match(reviewQueue, /data-site-switch-id="site-desert-valley-high"/);
+  assert.match(reviewQueue, /data-site-switch-id="site-canyon-ridge-career"/);
+  assert.match(reviewQueue, /Choose a site from the Current site menu/);
+  assert.match(reviewQueue, /workspace-problem-state/);
+  assert.doesNotMatch(reviewQueue, /data-review-queue-filters="true"|Submitted work|Teacher decisions enabled/);
+});
+
 test("workspace clarifies Review Queue row actions and follow-up-only selected rows", async () => {
   const rowActions = await renderWorkspaceWithFetch({
     "/api/auth/me": {

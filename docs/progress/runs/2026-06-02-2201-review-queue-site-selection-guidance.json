@@ -1,0 +1,79 @@
+{
+  "automationId": "functionality-ux-upgrade-hourly",
+  "runStartedAt": "2026-06-02T22:01:42-07:00",
+  "branch": "main",
+  "startingSha": "6185d47ce29cfad4cd4aff5db4d56b913e1ca821",
+  "endingSha": null,
+  "workOrderId": "review-queue-site-selection-guidance",
+  "ladderLevels": [
+    "LEVEL_4_ROLE_SPECIFIC_WORKSPACES"
+  ],
+  "selectedSlice": "Add a Review Queue-specific school-pick state when /api/site/review-queue returns site_selection_required.",
+  "selectionReason": "Current repo evidence showed a real protected-workspace gap: the Review Queue route already returned selectionRequired plus accessibleSites, and the workspace already had exact school-pick states for Site Dashboard, Students, Programs, Mentor Assignments, Operations, and Users & Access. The missing work was limited to workspace.js, where renderTeacherSection() still fell through to a generic unavailable branch.",
+  "candidateCount": 10,
+  "candidateShortlist": [
+    "Review Queue site-selection guidance",
+    "Broader Global Admin route refresh across Recent Audit, Students, Presentation, Programs, and Users & Access",
+    "Admin mentor-meeting exact destination",
+    "Program Teacher mentor-meeting follow-up destination",
+    "Hosted section-level permission proof",
+    "Review Queue missing-submission semantics",
+    "Viewer email visibility policy",
+    "Mentor reassignment or removal workflow",
+    "Student hosted drill-down refresh",
+    "Administration hosted read-only click-through refresh"
+  ],
+  "userFacingImprovement": "Multi-site review-capable staff now see a Review Queue-specific school-pick state with accessible-site buttons and next-step guidance instead of a generic unavailable card when they have not chosen a school yet.",
+  "privacyAndPermissionNotes": [
+    "The slice reuses the existing /api/site/review-queue selectionRequired contract and current site-switch buttons instead of adding a route or changing queue filters.",
+    "No auth, RBAC, tenant, site, program, mentor-assignment, or student-privacy boundary changed.",
+    "Review Queue data stays hidden until the user explicitly chooses an accessible school."
+  ],
+  "filesChanged": [
+    "workspace.js",
+    "tests/workspace-app.test.mjs",
+    "docs/functionality-language-audit.md",
+    "docs/product/demo-role-readiness.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-06-02-2201-review-queue-site-selection-guidance.json",
+    "docs/functionality-ux-growth-ledger.md",
+    "automation/state/functionality-ux-growth-state.json"
+  ],
+  "validation": {
+    "focusedPassedBeforeCloseout": [
+      "node --check workspace.js",
+      "node --test tests/workspace-app.test.mjs"
+    ],
+    "final": [
+      "node --check workspace.js",
+      "node --test tests/workspace-app.test.mjs",
+      "npm run verify:functionality-language",
+      "npm run verify:functionality-ux-automation",
+      "npm run check:production-surfaces",
+      "npm run typecheck",
+      "npm run test",
+      "npm run check",
+      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-02-2201-review-queue-site-selection-guidance.json','utf8')); console.log('json ok')\"",
+      "git diff --check"
+    ],
+    "result": "passed",
+    "notes": "Focused workspace syntax and workspace coverage passed before docs/state closeout. The full validation ladder also passed after the closeout files were updated."
+  },
+  "deferred": [
+    "Broader Global Admin route refresh remains larger than this bounded multi-site Review Queue handoff slice.",
+    "Admin mentor-meeting follow-up still lacks a precise current destination.",
+    "Program Teacher mentor-meeting follow-up still lacks a precise scoped destination.",
+    "Hosted section-level permission proof still needs allowed hosted runtime and audit-event writes.",
+    "Review Queue missing-submission semantics remain deferred until backend rows or exact scoped empty-state evidence exist.",
+    "Viewer email visibility policy still needs a product decision before any UI change.",
+    "Mentor reassignment and removal workflow still needs mutation and audit design.",
+    "Student hosted drill-down refresh still needs a broader hosted/product pass.",
+    "Administration hosted read-only click-through refresh still needs hosted runtime."
+  ],
+  "nextRecommended": "Resume the bounded Global Admin route refresh only where the current workspace can prove an exact destination, and keep mentor-meeting follow-up summary-only until a precise backed path exists.",
+  "doNotRepeat": [
+    "Do not fall back to a generic unavailable card when /api/site/review-queue returns site_selection_required.",
+    "Do not silently auto-pick a school for multi-site review flows without an explicit site-selection contract and proof.",
+    "Do not invent a new Review Queue route or unscoped review fetch for this handoff."
+  ]
+}
