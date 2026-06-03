@@ -6943,3 +6943,64 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: mentor-meeting follow-up still lacks a precise destination; filtered Audit cross-school proof still needs a tighter local scenario; hosted permission proof still needs allowed runtime.
   - Do not repeat: do not remove the explicit school-choice buttons or auto-pick one school while the protected role-assignment route already proves multiple exact accessible destinations.
   - First file to inspect next run: `workspace.js` around `renderAdminRoleAssignmentAction()`
+
+## Run 2026-06-03 02:45 PT
+
+- Starting SHA: `800b97127d6c73a5314393687fa10a33cdfdf377`
+- Ending SHA: pending closeout commit; final hash is reported after commit
+- Branch: `main`
+- Branch policy: started from clean local `main` ahead of `origin/main` by twelve earlier in-lane commits; this run stayed local-only and did not push
+- Ladder level targeted: `LEVEL_4_ROLE_SPECIFIC_WORKSPACES`
+- Backlog item: remaining Program Teacher role-workspace follow-up depth inside `docs/functionality-language-audit.md` and `docs/product/demo-role-readiness.md`
+- Work order selected: Turn the Program Teacher mentor-meeting follow-up attention row into a real Student Directory handoff using an exact scoped progress filter.
+- Selection reason: current repo evidence showed a real protected-workspace gap, not speculative polish. The previous Program Teacher dashboard slice had already wired every other exact destination in the same attention card, and the existing scoped Student Directory already had the right route, filter shell, and URL-state patterns. Extending `/api/site/students` with one route-backed mentor-meeting follow-up filter was safer and smaller than another broader Global Admin pass, and it replaced a live summary-only dead end with a real teacher workflow.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Program Teacher mentor-meeting follow-up handoff | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | `program_teacher` | 5 | 5 | 5 | S | 58 | selected |
+| Filtered Audit cross-school proof refresh | `LEVEL_7_AUDITABILITY_AND_TRUST` | `global_admin` | 4 | 3 | 3 | M | 36 | deferred: still needs one tighter locally provable scenario |
+| Broader Global Admin route refresh across Recent Audit, Students, Presentation, Programs, and Users & Access | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | `global_admin` | 4 | 4 | 3 | M | 44 | deferred: broader than one safe hourly slice |
+| Admin mentor-meeting exact destination | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | `global_admin` | 4 | 2 | 2 | M | 31 | deferred: current workspace still lacks a precise admin-scoped meeting-follow-up destination |
+| Review Queue missing-submission semantics | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | `program_teacher`, `site_admin` | 5 | 2 | 3 | M | 34 | deferred: backend queue rows are still absent |
+| Site selector future-only follow-through | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | multi-site staff | 4 | 3 | 2 | M | 34 | deferred: broader cross-surface contract than this bounded slice |
+| Mentor reassignment or removal workflow | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | `site_admin` | 4 | 2 | 3 | M | 33 | deferred: mutation and audit design still needed |
+| Hosted section-level permission proof | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all protected roles | 4 | 3 | 2 | M | 35 | deferred: hosted runtime is outside this local batch |
+| Viewer email visibility policy | `LEVEL_7_AUDITABILITY_AND_TRUST` | `viewer` | 3 | 2 | 3 | S | 30 | deferred: product policy still comes before UI change |
+| Cross-site Programs behavior refresh | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | `global_admin`, `site_admin` | 4 | 3 | 3 | M | 37 | deferred: broader than this single Program Teacher handoff |
+
+- User-facing improvement: Program Teachers can now open the existing scoped Student Directory directly from the mentor-meeting follow-up attention row and see only students whose latest mentor meeting is missed or needs makeup, instead of stopping at a summary-only dashboard row.
+- Roles affected: `program_teacher`
+- Files changed: `functions/api/site/students.ts`, `functions/api/program-teacher/dashboard.ts`, `workspace.js`, `scripts/verify-dashboard-actions.mjs`, `tests/program-teacher-dashboard.integration.test.mjs`, `tests/site-students.integration.test.mjs`, `tests/workspace-app.test.mjs`, `docs/functionality-language-audit.md`, `docs/product/demo-role-readiness.md`, `docs/progress/run-log.md`, `docs/progress/runs/2026-06-03-0245-program-teacher-mentor-meeting-follow-up.json`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`
+- Tests/verifiers added or updated: `tests/program-teacher-dashboard.integration.test.mjs` now proves the Program Teacher dashboard attention row carries the real `students` preset, `tests/site-students.integration.test.mjs` now proves `/api/site/students?progressStatus=mentor_meeting_follow_up` returns only the exact scoped mentor-meeting follow-up rows, `tests/workspace-app.test.mjs` now proves the Program Teacher handoff opens that filter through the existing Student Directory, and `scripts/verify-dashboard-actions.mjs` now guards the new preset against regression.
+- Validation commands:
+  - `node --check workspace.js`
+  - `node --test tests/program-teacher-dashboard.integration.test.mjs`
+  - `node --test tests/site-students.integration.test.mjs`
+  - `node --test tests/workspace-app.test.mjs`
+  - `npm run verify:dashboard-actions`
+  - `npm run verify:functionality-language`
+  - `node --test tests/functionality-language-audit.test.mjs`
+  - `npm run verify:functionality-ux-automation`
+  - `npm run check:production-surfaces`
+  - `npm run typecheck`
+  - `npm run test`
+  - `npm run check`
+  - `node -e "JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-03-0245-program-teacher-mentor-meeting-follow-up.json','utf8')); console.log('json ok')"`
+  - `git diff --check`
+- Validation result: passed; focused Program Teacher dashboard, site-students route, workspace, and dashboard-action coverage passed before docs/state closeout, and the full validation ladder passed after the closeout files were updated. `git diff --check` reported only CRLF normalization warnings.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: filtered Audit cross-school proof refresh, broader Global Admin route refresh, Admin mentor-meeting exact destination, Review Queue missing-submission semantics, site-selector follow-through, mentor reassignment/remove workflow, hosted section-level permission proof, viewer email visibility policy, and cross-site Programs behavior refresh remain open.
+- New backlog items: none
+- Next recommended work order: Inspect filtered Audit cross-school proof next only if the current workspace can prove one exact local scenario; otherwise continue with another exact-destination role-workspace slice.
+- Do-not-repeat notes: do not regress the Program Teacher mentor-meeting attention row back to summary-only while the existing scoped Student Directory supports `mentor_meeting_follow_up`; do not remove the mentor-meeting follow-up filter from `/api/site/students` while the Program Dashboard relies on it; and do not broaden Program Teacher visibility beyond the current scoped Student Directory, Review Queue, and Operations routes while deepening dashboard follow-up.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_4_ROLE_SPECIFIC_WORKSPACES`
+  - Advanced: yes
+  - Evidence: Program Teacher mentor-meeting attention rows now open the existing scoped Student Directory through `progressStatus=mentor_meeting_follow_up`, and focused route/workspace tests prove the latest visible mentor meeting drives that filter.
+  - Unlocks: the next role-workspace or auditability pass can build from an exact mentor-meeting follow-up contract instead of rediscovering a Program Teacher summary-only dead end.
+  - Next: inspect `workspace.js` around Program Teacher attention-row presets and `functions/api/site/students.ts` only if another exact scoped Student Directory follow-up can be proven, otherwise move to a locally provable filtered Audit scenario.
+  - Blockers: Admin mentor-meeting follow-up still lacks a precise destination; filtered Audit cross-school proof still needs a tighter local scenario; hosted permission proof still needs allowed runtime.
+  - Do not repeat: do not revert Program Teacher mentor-meeting follow-up to summary-only while the current Student Directory route and tests already support the exact handoff.
+  - First file to inspect next run: `functions/api/site/students.ts`

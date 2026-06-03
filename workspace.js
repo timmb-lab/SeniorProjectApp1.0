@@ -220,7 +220,7 @@ const STUDENT_DETAIL_TIMELINE_TYPES = [
 const STUDENT_DETAIL_TIMELINE_TYPE_VALUES = new Set(STUDENT_DETAIL_TIMELINE_TYPES.map(([value]) => value).filter(Boolean));
 const SITE_STUDENT_STATUS_VALUES = new Set(["draft", "submitted", "under_review", "revision_requested", "approved", "blocked", "archived", "complete"]);
 const SITE_STUDENT_RISK_VALUES = new Set(["any", "high", "medium", "low", "stale", "no_mentor"]);
-const SITE_STUDENT_PROGRESS_STATUS_VALUES = new Set(["on_track", "behind", "missing_mentor", "missing_evidence", "needs_review", "needs_revision", "ready_complete"]);
+const SITE_STUDENT_PROGRESS_STATUS_VALUES = new Set(["on_track", "behind", "missing_mentor", "missing_evidence", "needs_review", "needs_revision", "mentor_meeting_follow_up", "ready_complete"]);
 const SITE_STUDENT_EVIDENCE_STATUS_VALUES = new Set(["attached", "missing"]);
 const SITE_STUDENT_REVIEW_STATUS_VALUES = new Set(["needs_review", "needs_revision", "approved", "reviewed", "not_reviewed"]);
 const SITE_STUDENT_PRESENTATION_STATUS_VALUES = new Set(["any", "pending", "scheduled", "completed", "missing"]);
@@ -1241,6 +1241,17 @@ async function openWorkspaceSection(button) {
     activeSection = "students";
     syncSiteStudentUrlState();
     await loadWorkspaceData("Showing students who need support.");
+    return;
+  }
+  if (section === "students" && button.dataset.sectionPreset === "mentor-meeting-follow-up-students") {
+    siteStudentFilters = {
+      ...defaultSiteStudentFilters(),
+      progressStatus: "mentor_meeting_follow_up",
+    };
+    siteStudentDetailState = defaultSiteStudentDetailState();
+    activeSection = "students";
+    syncSiteStudentUrlState();
+    await loadWorkspaceData("Showing students with mentor meeting follow-up.");
     return;
   }
   if (section === "students" && button.dataset.sectionPreset === "missing-mentors") {
@@ -2345,6 +2356,11 @@ function renderStudentDirectoryActiveFilters(filters = {}, options = {}) {
         heading: "Showing students missing mentors",
         note: "Only students without an active mentor assignment are listed.",
       }
+    : filters.progressStatus === "mentor_meeting_follow_up"
+    ? {
+        heading: "Showing mentor meeting follow-up",
+        note: "Only students with missed or make-up-required mentor meetings are listed.",
+      }
     : {});
 }
 
@@ -2498,6 +2514,14 @@ function studentDirectoryEmptyStateCopy(filters = {}, options = {}, emptyState =
       reason: "No students with high-risk or stale-activity signals match these filters.",
       owner,
       nextAction: "Clear filters or check Missing Evidence and Missing Mentor separately.",
+    };
+  }
+  if (filters.progressStatus === "mentor_meeting_follow_up") {
+    return {
+      heading: "No matching mentor meeting follow-up",
+      reason: "No students with missed or make-up-required mentor meetings match these filters.",
+      owner,
+      nextAction: "Clear filters or open student detail from another scoped worklist.",
     };
   }
   if (filters.evidenceStatus === "missing" || filters.progressStatus === "missing_evidence") {
@@ -11005,6 +11029,7 @@ function riskLabel(value) {
     stale: "Stale activity",
     no_mentor: "No mentor",
     missing_evidence: "Missing evidence",
+    mentor_meeting: "Mentor meetings",
     awaiting_review: "Awaiting review",
     revision_requested: "Revision requested",
     presentation_pending: "Presentation pending",
@@ -11056,6 +11081,7 @@ function progressStatusFilterLabel(value) {
   if (normalized === "missing_evidence") return "Missing evidence";
   if (normalized === "needs_review") return "Needs review";
   if (normalized === "needs_revision") return "Needs revision";
+  if (normalized === "mentor_meeting_follow_up") return "Mentor meeting follow-up";
   if (normalized === "ready_complete") return "Ready / complete";
   return statusText(value || "Any progress");
 }

@@ -1699,6 +1699,9 @@ test("program teacher dashboard rows open existing student detail", async () => 
             label: "Mentor meeting follow-up",
             detail: "1 scoped meeting record needs follow-up.",
             severity: "warning",
+            actionSection: "students",
+            actionPreset: "mentor-meeting-follow-up-students",
+            actionLabel: "View students",
           },
           {
             type: "presentation",
@@ -1756,7 +1759,7 @@ test("program teacher dashboard rows open existing student detail", async () => 
   assert.match(programTeacher, /Students need support[\s\S]*data-section="students" data-section-preset="behind-students"/);
   assert.match(programTeacher, /Revision loop active[\s\S]*data-section="teacher" data-section-preset="revision-requested"/);
   assert.match(programTeacher, /Presentation readiness pending[\s\S]*data-section="operations" data-section-preset="presentation-pending"/);
-  assert.match(programTeacher, /Mentor meeting follow-up[\s\S]*Summary only/);
+  assert.match(programTeacher, /Mentor meeting follow-up[\s\S]*data-section="students" data-section-preset="mentor-meeting-follow-up-students"/);
   assert.match(programTeacher, /Program Teacher \/ Assigned program: IT/);
   assert.match(programTeacher, /data-workspace-disclosure-panel="dashboard:programDashboard"/);
   assert.match(programTeacher, /aria-expanded="false"/);
@@ -2267,6 +2270,12 @@ test("student directory summary tiles apply real directory filters", async () =>
   studentUrl = new URL(studentFetch, "https://workspace.example");
   assert.equal(studentUrl.searchParams.get("progressStatus"), "behind");
   assert.match(window.location.href, /progressStatus=behind/);
+
+  await vm.runInContext('openWorkspaceSection({ dataset: { section: "students", sectionPreset: "mentor-meeting-follow-up-students" } })', context);
+  studentFetch = fetchLog.findLast((entry) => entry.startsWith("/api/site/students?"));
+  studentUrl = new URL(studentFetch, "https://workspace.example");
+  assert.equal(studentUrl.searchParams.get("progressStatus"), "mentor_meeting_follow_up");
+  assert.match(window.location.href, /progressStatus=mentor_meeting_follow_up/);
 
   await vm.runInContext('openWorkspaceSection({ dataset: { section: "students", sectionPreset: "missing-evidence-students" } })', context);
   studentFetch = fetchLog.findLast((entry) => entry.startsWith("/api/site/students?"));
@@ -8926,6 +8935,7 @@ function siteStudentsFixture({
       mentorUserId: "",
       mentorName: "",
       hasActiveMentor: false,
+      mentorMeetingStatus: "not_recorded",
       latestSubmissionId: "submission-101",
       latestSubmissionStatus: "revision_requested",
       latestSubmissionUpdatedAt: "2026-05-20T12:00:00.000Z",
@@ -8957,6 +8967,7 @@ function siteStudentsFixture({
       mentorUserId: "demo-mentor-001",
       mentorName: "Mentor One",
       hasActiveMentor: true,
+      mentorMeetingStatus: "not_recorded",
       latestSubmissionId: "submission-144",
       latestSubmissionStatus: "approved",
       latestSubmissionUpdatedAt: "2026-05-21T12:00:00.000Z",
@@ -9041,7 +9052,7 @@ function siteStudentsFixture({
       statuses: ["draft", "submitted", "under_review", "revision_requested", "approved", "blocked", "archived", "complete"],
       storyBuckets: ["model_excellent", "missing_mentor", "awaiting_review", "revision_requested", "presentation_pending", "archive_ready", "archive_failed", "high_risk", "rich_timeline"],
       risks: ["any", "high", "medium", "low", "stale", "no_mentor"],
-      progressStatuses: ["on_track", "behind", "missing_mentor", "missing_evidence", "needs_review", "needs_revision", "ready_complete"],
+      progressStatuses: ["on_track", "behind", "missing_mentor", "missing_evidence", "needs_review", "needs_revision", "mentor_meeting_follow_up", "ready_complete"],
       evidenceStatuses: ["attached", "missing"],
       reviewStatuses: ["needs_review", "needs_revision", "approved", "reviewed", "not_reviewed"],
       presentationStatuses: ["any", "pending", "scheduled", "completed", "missing"],

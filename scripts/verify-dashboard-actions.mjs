@@ -359,8 +359,8 @@ assertMatches(
 );
 assertMatches(
   "programTeacherApi",
-  /type: "mentor_meeting"[\s\S]*label: "Mentor meeting follow-up"[\s\S]*detail: `\$\{summary\.meetingsMakeupRequired\} scoped meeting record\(s\) need follow-up\.`[\s\S]*severity: "warning",\s*\n\s*}\);/,
-  "Program Teacher mentor-meeting attention rows must stay summary-only until an exact destination is proven",
+  /type: "mentor_meeting"[\s\S]*actionSection: "students"[\s\S]*actionPreset: "mentor-meeting-follow-up-students"[\s\S]*actionLabel: "View students"/,
+  "Program Teacher mentor-meeting attention rows must link to the existing Student Directory mentor-meeting follow-up filter",
 );
 assertMatches(
   "adminDashboardApi",

@@ -21,6 +21,17 @@ This is the compact run log for the current Functionality UX Upgrade automation 
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-06-03 02:45 PT - Functionality UX Upgrade Program Teacher Mentor Meeting Handoff
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 4 role-specific workspace clarity / Program Teacher mentor-meeting follow-up depth.
+- `starting HEAD`: `800b97127d6c73a5314393687fa10a33cdfdf377`.
+- `selected slice`: Turn the Program Teacher mentor-meeting follow-up attention row into a real Student Directory handoff using an exact scoped progress filter.
+- `repo-grounded findings`: the previous Program Teacher dashboard pass intentionally left mentor-meeting follow-up summary-only because no precise destination had been proven yet. Current repo evidence showed that the existing Program Teacher Student Directory already had the right scoped route, filter UX, and workspace handoff patterns, but `/api/site/students` still had no exact mentor-meeting follow-up filter and the dashboard attention row still had no route-backed preset. Extending the existing route and preset stayed smaller, safer, and more product-ready than reopening the broader Global Admin backlog.
+- `changes`: `functions/api/site/students.ts` now exposes `mentor_meeting_follow_up` as an exact scoped progress filter backed by each visible student's latest mentor meeting status, includes mentor-meeting follow-up risk and next-action cues in the existing Student Directory payload, and preserves current program/cohort/site scoping. `functions/api/program-teacher/dashboard.ts` now turns the mentor-meeting attention row into a real `students` handoff, `workspace.js` now understands the new `mentor-meeting-follow-up-students` preset and filter copy, and `scripts/verify-dashboard-actions.mjs` plus focused Program Teacher, site-students, and workspace tests now prove the route-backed handoff instead of a summary-only row.
+- `validation`: `node --check workspace.js`, `node --test tests/program-teacher-dashboard.integration.test.mjs`, `node --test tests/site-students.integration.test.mjs`, `node --test tests/workspace-app.test.mjs`, and `npm run verify:dashboard-actions` passed before docs/state closeout. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.
+
 ## 2026-06-03 01:43 PT - Functionality UX Upgrade Role Assignment Cohort Students
 
 - `automation ID`: functionality-ux-upgrade-hourly.

@@ -544,6 +544,9 @@ function buildNeedsAttention(summary: ReturnType<typeof emptySummary>) {
       label: "Mentor meeting follow-up",
       detail: `${summary.meetingsMakeupRequired} scoped meeting record(s) need follow-up.`,
       severity: "warning",
+      actionSection: "students",
+      actionPreset: "mentor-meeting-follow-up-students",
+      actionLabel: "View students",
     });
   }
   if (summary.presentationsPending > 0) {

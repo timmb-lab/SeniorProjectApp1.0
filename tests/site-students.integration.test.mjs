@@ -144,6 +144,11 @@ test("site student directory is site-scoped, paginated, filterable, role-gated, 
   assert.equal(revisionStatus.pagination.filteredTotal > 0, true);
   assert.equal(revisionStatus.students.every((student) => student.latestSubmissionStatus === "revision_requested"), true);
 
+  const mentorMeetingFollowUp = await expectDirectory(env, tokens.platformAdmin, `?siteId=${PRIMARY_SITE_ID}&progressStatus=mentor_meeting_follow_up&limit=100`);
+  assert.equal(mentorMeetingFollowUp.pagination.filteredTotal > 0, true);
+  assert.equal(mentorMeetingFollowUp.students.every((student) => student.progressStatus === "mentor_meeting_follow_up"), true);
+  assert.equal(mentorMeetingFollowUp.students.every((student) => ["missed", "makeup_required"].includes(student.mentorMeetingStatus)), true);
+
   const revisionStory = await expectDirectory(env, tokens.platformAdmin, `?siteId=${PRIMARY_SITE_ID}&story=revision_requested&limit=100`);
   assert.equal(revisionStory.pagination.filteredTotal >= 10, true);
   assert.equal(revisionStory.students.every((student) => student.storyBucket === "revision_requested"), true);
@@ -172,7 +177,9 @@ test("site student directory is site-scoped, paginated, filterable, role-gated, 
   assert.deepEqual(noMatches.students, []);
   assert.equal(noMatches.emptyState.reason.length > 0, true);
 
-  for (const body of [primary, legacyPrimary, orgPrimary, siteAdminPrimary, viewer, teacher, limit100, offset50, canyon, north, missingMentor, noMentor, revisionSearch, revisionStatus, archiveFailed, noMatches]) {
+  assert.ok(primary.filterOptions.progressStatuses.includes("mentor_meeting_follow_up"));
+
+  for (const body of [primary, legacyPrimary, orgPrimary, siteAdminPrimary, viewer, teacher, limit100, offset50, canyon, north, missingMentor, noMentor, revisionSearch, revisionStatus, mentorMeetingFollowUp, archiveFailed, noMatches]) {
     assert.doesNotMatch(JSON.stringify(body), FORBIDDEN_RESPONSE_FIELDS);
   }
 

@@ -25,7 +25,7 @@ const MAX_LIMIT = 100;
 const CANONICAL_STATUS_VALUES = ["draft", "submitted", "under_review", "revision_requested", "approved", "blocked", "archived", "complete"];
 const CANONICAL_STORY_VALUES = ["model_excellent", "missing_mentor", "awaiting_review", "revision_requested", "presentation_pending", "archive_ready", "archive_failed", "high_risk", "rich_timeline"];
 const CANONICAL_RISK_VALUES = ["any", "high", "medium", "low", "stale", "no_mentor"];
-const CANONICAL_PROGRESS_STATUS_VALUES = ["on_track", "behind", "missing_mentor", "missing_evidence", "needs_review", "needs_revision", "ready_complete"];
+const CANONICAL_PROGRESS_STATUS_VALUES = ["on_track", "behind", "missing_mentor", "missing_evidence", "needs_review", "needs_revision", "mentor_meeting_follow_up", "ready_complete"];
 const CANONICAL_EVIDENCE_STATUS_VALUES = ["attached", "missing"];
 const CANONICAL_REVIEW_STATUS_VALUES = ["needs_review", "needs_revision", "approved", "reviewed", "not_reviewed"];
 const CANONICAL_PRESENTATION_VALUES = ["any", "pending", "scheduled", "completed", "missing"];
@@ -68,6 +68,7 @@ interface DirectoryRow {
   evidence_count: number;
   review_count: number;
   comment_count: number;
+  mentor_meeting_status: string | null;
   presentation_status: string;
   archive_status: string;
   risk_score: number;
@@ -433,6 +434,13 @@ function buildDirectoryScopeSql(siteId: string, scopedStudentIds: string[] | nul
               ))
              )
           ) AS comment_count,
+          (
+            SELECT mentor_meetings.status
+            FROM mentor_meetings
+            WHERE mentor_meetings.student_user_id = scoped_students.student_id
+            ORDER BY COALESCE(mentor_meetings.held_at, mentor_meetings.scheduled_for, mentor_meetings.created_at) DESC
+            LIMIT 1
+          ) AS mentor_meeting_status,
           CASE
             WHEN EXISTS (
               SELECT 1 FROM presentation_slots
@@ -732,6 +740,7 @@ function buildFilterWhere(filters: DirectoryFilters): FilterWhere {
     if (filters.progressStatus === "missing_evidence") clauses.push("evidence_count = 0");
     if (filters.progressStatus === "needs_review") clauses.push("latest_submission_status = 'submitted'");
     if (filters.progressStatus === "needs_revision") clauses.push("latest_submission_status = 'revision_requested'");
+    if (filters.progressStatus === "mentor_meeting_follow_up") clauses.push("mentor_meeting_status IN ('missed', 'makeup_required')");
     if (filters.progressStatus === "ready_complete") {
       clauses.push("(latest_submission_status IN ('approved', 'archived') OR archive_status IN ('ready', 'complete') OR presentation_status = 'completed')");
     }
@@ -795,6 +804,7 @@ function studentResponse(row: DirectoryRow) {
     mentorUserId: row.mentor_user_id || "",
     mentorName: row.mentor_name || "",
     hasActiveMentor: Number(row.has_active_mentor || 0) === 1,
+    mentorMeetingStatus: row.mentor_meeting_status || "not_recorded",
     latestSubmissionId: row.latest_submission_id || "",
     latestSubmissionStatus: latestStatus,
     latestSubmissionUpdatedAt: row.latest_submission_updated_at || "",
@@ -819,6 +829,7 @@ function studentResponse(row: DirectoryRow) {
       hasActiveMentor: Number(row.has_active_mentor || 0) === 1,
       evidenceCount,
       riskFlags,
+      mentorMeetingStatus: row.mentor_meeting_status || "not_recorded",
     }),
   };
 }
@@ -827,6 +838,7 @@ function riskFlagsFor(row: DirectoryRow): string[] {
   const flags = [];
   if (Number(row.has_active_mentor || 0) === 0) flags.push("no_mentor");
   if (Number(row.evidence_count || 0) === 0) flags.push("missing_evidence");
+  if (["missed", "makeup_required"].includes(String(row.mentor_meeting_status || ""))) flags.push("mentor_meeting");
   if (row.latest_submission_status === "revision_requested") flags.push("revision_requested");
   if (row.latest_submission_status === "submitted") flags.push("awaiting_review");
   if (row.presentation_status === "pending") flags.push("presentation_pending");
@@ -846,6 +858,7 @@ function reviewStatusForStudent(latestStatus: string, reviewCount: number): stri
 function progressStatusForStudent(row: DirectoryRow, riskFlags: string[]): string {
   const latestStatus = row.latest_submission_status || "draft";
   if (Number(row.has_active_mentor || 0) === 0) return "missing_mentor";
+  if (["missed", "makeup_required"].includes(String(row.mentor_meeting_status || ""))) return "mentor_meeting_follow_up";
   if (Number(row.evidence_count || 0) === 0) return "missing_evidence";
   if (latestStatus === "submitted") return "needs_review";
   if (latestStatus === "revision_requested") return "needs_revision";
@@ -876,6 +889,7 @@ function nextActionForStudent({
   hasActiveMentor,
   evidenceCount,
   riskFlags,
+  mentorMeetingStatus,
 }: {
   latestStatus: string;
   storyBucket: string;
@@ -884,9 +898,11 @@ function nextActionForStudent({
   hasActiveMentor: boolean;
   evidenceCount: number;
   riskFlags: string[];
+  mentorMeetingStatus: string;
 }): string {
   if (!hasActiveMentor) return "Assign or confirm mentor coverage.";
   if (evidenceCount === 0) return "Ask student to attach required evidence.";
+  if (mentorMeetingStatus === "missed" || mentorMeetingStatus === "makeup_required") return "Follow up on the mentor meeting.";
   if (latestStatus === "revision_requested") return "Check revision feedback and owner.";
   if (latestStatus === "submitted") return "Queue teacher review.";
   if (archiveStatus === "failed") return "Review archive export failure.";

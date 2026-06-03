@@ -1,10 +1,18 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-06-03T02:08:16.1966949-07:00",
-  "lastStartingSha": "2f67ed3f812d3b33fdb64ce5f43ee36f7be2bac5",
+  "lastRunAt": "2026-06-03T02:45:08-07:00",
+  "lastStartingSha": "800b97127d6c73a5314393687fa10a33cdfdf377",
   "lastEndingSha": null,
   "currentLadderFocus": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
   "completedWorkOrders": [
+    {
+      "id": "program-teacher-mentor-meeting-follow-up-handoff",
+      "completedAt": "2026-06-03T02:45:08-07:00",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "type": "TYPE_D_ROLE_WORKSPACE",
+      "summary": "Program Teacher mentor-meeting attention rows now open the existing scoped Student Directory through an exact mentor_meeting_follow_up filter backed by the latest visible mentor meeting status.",
+      "commit": "pending-closeout-commit"
+    },
     {
       "id": "role-assignment-multi-school-choice",
       "completedAt": "2026-06-03T02:08:16.1966949-07:00",
@@ -1253,11 +1261,6 @@
       "id": "admin-recent-audit-deep-link",
       "ladderLevel": "LEVEL_7_AUDITABILITY_AND_TRUST",
       "reason": "Restore any site-admin audit navigation only after a site-scoped audit destination and visibility rules are explicitly reviewed."
-    },
-    {
-      "id": "program-teacher-mentor-meeting-follow-up-destination",
-      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
-      "reason": "Keep mentor-meeting follow-up summary-only until a precise scoped destination is proven for Program Teachers."
     }
   ],
   "blockedWorkOrders": [],
@@ -1275,10 +1278,10 @@
       "summary": "Continue the Global Admin route refresh only where the current workspace can prove another exact destination after the multi-school role-assignment chooser."
     },
     {
-      "id": "program-teacher-mentor-meeting-follow-up-destination",
+      "id": "admin-mentor-meeting-exact-destination",
       "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
       "type": "TYPE_D_ROLE_WORKSPACE",
-      "summary": "Only add mentor-meeting drill-downs when a precise scoped destination is proven."
+      "summary": "Only add Admin mentor-meeting drill-downs when a precise current destination is proven."
     },
     {
       "id": "hosted-section-permission-proof",
@@ -1332,7 +1335,7 @@
     "Do not turn Mentor Dashboard summary metrics back into summary-only tiles while the existing mentor focus filters still back them.",
     "Do not broaden mentor access beyond actively assigned students while improving Mentor Dashboard shortcuts.",
     "Do not remove the Program Teacher Needs Attention drill-downs while the existing Students, Review Queue, and Operations presets still back them.",
-    "Do not add a Program Teacher mentor-meeting drill-down until a precise scoped destination exists.",
+    "Do not regress the Program Teacher mentor-meeting attention row back to summary-only while the existing scoped Student Directory supports mentor_meeting_follow_up.",
     "Do not broaden Program Teacher visibility beyond the current scoped Students, Review Queue, and Operations routes while deepening dashboard follow-up.",
     "Do not remove student-detail URL restore for detailStudentId/detailTab/detailTimelineType, and do not switch it to raw studentId query params that collide with existing worklist filters.",
     "Do not replace named student-detail return buttons with a generic Close control while sourceSection continues to preserve the originating worklist.",
@@ -1463,10 +1466,13 @@
   ],
   "lastValidationStatus": {
     "status": "passed",
-    "completedAt": "2026-06-03T02:08:16.1966949-07:00",
+    "completedAt": "2026-06-03T02:45:08-07:00",
     "commands": [
       "node --check workspace.js",
+      "node --test tests/program-teacher-dashboard.integration.test.mjs",
+      "node --test tests/site-students.integration.test.mjs",
       "node --test tests/workspace-app.test.mjs",
+      "npm run verify:dashboard-actions",
       "npm run verify:functionality-language",
       "node --test tests/functionality-language-audit.test.mjs",
       "npm run verify:functionality-ux-automation",
@@ -1474,10 +1480,10 @@
       "npm run typecheck",
       "npm run test",
       "npm run check",
-      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-03-0208-role-assignment-multi-school-choice.json','utf8')); console.log('json ok')\"",
+      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-03-0245-program-teacher-mentor-meeting-follow-up.json','utf8')); console.log('json ok')\"",
       "git diff --check"
     ],
-    "notes": "Focused workspace coverage passed before docs/state closeout, and the full validation ladder passed after the closeout files were updated. git diff --check reported only CRLF normalization warnings."
+    "notes": "Focused Program Teacher dashboard, site-students route, workspace, and dashboard-action coverage passed before docs/state closeout, and the full validation ladder passed after the closeout files were updated. git diff --check reported only CRLF normalization warnings."
   },
   "lastProductReadinessScorecardSummary": {
     "homepageClarity": "4 to 4",

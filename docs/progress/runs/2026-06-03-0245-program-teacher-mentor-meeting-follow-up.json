@@ -1,0 +1,92 @@
+{
+  "automationId": "functionality-ux-upgrade-hourly",
+  "runStartedAt": "2026-06-03T02:45:08-07:00",
+  "branch": "main",
+  "startingSha": "800b97127d6c73a5314393687fa10a33cdfdf377",
+  "endingSha": null,
+  "workOrderId": "program-teacher-mentor-meeting-follow-up-handoff",
+  "ladderLevels": [
+    "LEVEL_4_ROLE_SPECIFIC_WORKSPACES"
+  ],
+  "selectedSlice": "Turn the Program Teacher mentor-meeting follow-up attention row into a real Student Directory handoff using an exact scoped progress filter.",
+  "selectionReason": "Current repo evidence showed a real protected-workspace gap, not speculative polish. The Program Teacher dashboard already surfaced mentor-meeting follow-up in Needs Attention, and the existing scoped Student Directory already carried enough program-safe student data to support a route-backed destination once the latest mentor meeting status was folded into the current filter contract. Extending the existing student route and preset stayed smaller and safer than another broader Global Admin pass, reused current scoped program visibility, and avoided inventing a new surface.",
+  "candidateCount": 10,
+  "candidateShortlist": [
+    "Program Teacher mentor-meeting follow-up handoff",
+    "Filtered Audit cross-school proof refresh",
+    "Broader Global Admin route refresh across Recent Audit, Students, Presentation, Programs, and Users & Access",
+    "Admin mentor-meeting exact destination",
+    "Review Queue missing-submission semantics",
+    "Site selector future-only follow-through",
+    "Mentor reassignment or removal workflow",
+    "Hosted section-level permission proof",
+    "Viewer email visibility policy",
+    "Cross-site Programs behavior refresh"
+  ],
+  "userFacingImprovement": "Program Teachers can now open the existing scoped Student Directory directly from the mentor-meeting follow-up attention row and see only students whose latest mentor meeting is missed or needs makeup instead of stopping at a summary-only dashboard row.",
+  "privacyAndPermissionNotes": [
+    "The slice reuses the existing protected /api/site/students route and Program Teacher Student Directory scope instead of inventing a new teacher-only endpoint.",
+    "The new filter only exposes students already visible to the current Program Teacher through existing program and cohort scoping.",
+    "Latest mentor meeting status is reduced to route-backed follow-up state and risk labels; no cross-student, cross-site, or staff-only note visibility was expanded.",
+    "No auth, RBAC, tenant, site, program, mentor-assignment, or student-privacy boundary changed."
+  ],
+  "filesChanged": [
+    "functions/api/site/students.ts",
+    "functions/api/program-teacher/dashboard.ts",
+    "workspace.js",
+    "scripts/verify-dashboard-actions.mjs",
+    "tests/program-teacher-dashboard.integration.test.mjs",
+    "tests/site-students.integration.test.mjs",
+    "tests/workspace-app.test.mjs",
+    "docs/functionality-language-audit.md",
+    "docs/product/demo-role-readiness.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-06-03-0245-program-teacher-mentor-meeting-follow-up.json",
+    "docs/functionality-ux-growth-ledger.md",
+    "automation/state/functionality-ux-growth-state.json"
+  ],
+  "validation": {
+    "focusedPassedBeforeCloseout": [
+      "node --check workspace.js",
+      "node --test tests/program-teacher-dashboard.integration.test.mjs",
+      "node --test tests/site-students.integration.test.mjs",
+      "node --test tests/workspace-app.test.mjs",
+      "npm run verify:dashboard-actions"
+    ],
+    "final": [
+      "node --check workspace.js",
+      "node --test tests/program-teacher-dashboard.integration.test.mjs",
+      "node --test tests/site-students.integration.test.mjs",
+      "node --test tests/workspace-app.test.mjs",
+      "npm run verify:dashboard-actions",
+      "npm run verify:functionality-language",
+      "node --test tests/functionality-language-audit.test.mjs",
+      "npm run verify:functionality-ux-automation",
+      "npm run check:production-surfaces",
+      "npm run typecheck",
+      "npm run test",
+      "npm run check",
+      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-03-0245-program-teacher-mentor-meeting-follow-up.json','utf8')); console.log('json ok')\"",
+      "git diff --check"
+    ],
+    "result": "passed",
+    "notes": "Focused Program Teacher dashboard, site-students route, workspace, and dashboard-action verification passed before docs/state closeout, and the full validation ladder passed after the closeout files were updated. git diff --check reported only CRLF normalization warnings."
+  },
+  "deferred": [
+    "Filtered Audit cross-school proof still needs a tighter locally provable scenario before another audit-focused pass.",
+    "Broader Global Admin route refresh remains larger than this bounded Program Teacher handoff slice.",
+    "Admin mentor-meeting follow-up still lacks a precise current destination.",
+    "Review Queue missing-submission semantics remain deferred until backend rows or exact scoped empty-state evidence exist.",
+    "Site selector follow-through still needs a broader cross-surface contract.",
+    "Mentor reassignment and removal workflow still needs mutation and audit design.",
+    "Hosted section-level permission proof still needs allowed runtime and audit-event writes.",
+    "Viewer email visibility policy still needs a product decision before any UI change.",
+    "Cross-site Programs behavior refresh is broader than this single role-workspace batch."
+  ],
+  "nextRecommended": "Inspect filtered Audit cross-school proof next only if the current workspace can prove one exact local scenario; otherwise continue with another exact-destination role-workspace slice.",
+  "doNotRepeat": [
+    "Do not regress the Program Teacher mentor-meeting attention row back to summary-only while the existing scoped Student Directory supports mentor_meeting_follow_up.",
+    "Do not remove the mentor-meeting follow-up progress filter from /api/site/students while the Program Dashboard relies on that exact scoped handoff.",
+    "Do not broaden Program Teacher visibility beyond the current scoped Student Directory, Review Queue, and Operations routes while deepening dashboard follow-up."
+  ]
+}

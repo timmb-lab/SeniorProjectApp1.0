@@ -68,7 +68,7 @@ test("program teacher dashboard scopes records by valid program/cohort role", as
         { type: "teacher_review", actionSection: "teacher", actionPreset: "submitted" },
         { type: "behind_support", actionSection: "students", actionPreset: "behind-students" },
         { type: "revision_loop", actionSection: "teacher", actionPreset: "revision-requested" },
-        { type: "mentor_meeting", actionSection: "", actionPreset: "" },
+        { type: "mentor_meeting", actionSection: "students", actionPreset: "mentor-meeting-follow-up-students" },
         { type: "presentation", actionSection: "operations", actionPreset: "presentation-pending" },
       ],
     );
