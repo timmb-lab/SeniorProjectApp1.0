@@ -21,6 +21,17 @@ This is the compact run log for the current Functionality UX Upgrade automation 
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-06-02 21:43 PT - Functionality UX Upgrade Global Admin Audit Drilldowns
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 4 role-specific workspace clarity / Global Admin protected-activity follow-up.
+- `starting HEAD`: `1d5ecf2c853fe904bfecc00c5332937735b8f134`.
+- `selected slice`: Turn Admin Command Center `Recent Audit` rows into real filtered Audit drill-downs by reusing the existing admin audit route filters.
+- `repo-grounded findings`: the current Global Admin handoffs already fixed Programs entry, `Users & Access` site selection, recent role-assignment visibility, attention drill-downs, archive export follow-up, and review-workload detail context. The remaining repo-grounded gap was inside `workspace.js`: the Admin Command Center already rendered real recent audit rows, `/api/admin/audit-events` already accepted exact `action` and `entityType` filters, and the Audit section already existed for Global Admins, but the recent rows still behaved like passive summaries. That made filtered audit drill-downs the safest bounded batch because they improved a real protected workflow without inventing a new route or widening visibility.
+- `changes`: `workspace.js` now loads `/api/admin/audit-events` alongside the existing Global Admin dashboard data, tracks exact admin audit filters, opens the existing Audit section with matching `action` and `entityType` filters from Recent Audit rows, and renders a resettable filtered audit state instead of only the dashboard snapshot. `tests/workspace-app.test.mjs` now proves Recent Audit rows render `Review in audit`, load `/api/admin/audit-events?action=student_dashboard_viewed&entityType=student_dashboard`, and keep unmatched events out of the filtered view. `scripts/verify-dashboard-actions.mjs` now guards both the filtered `audit` section handoff and the exact `data-audit-action` plus `data-audit-entity-type` row wiring.
+- `validation`: `node --check workspace.js`, `node --test tests/workspace-app.test.mjs`, and `npm run verify:dashboard-actions` passed before docs/state closeout. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.
+
 ## 2026-06-02 20:08 PT - Functionality UX Upgrade Global Admin Attention Drilldowns
 
 - `automation ID`: functionality-ux-upgrade-hourly.

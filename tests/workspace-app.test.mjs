@@ -1243,6 +1243,149 @@ test("global admin review workload rows open student detail and keep admin dashb
   assert.doesNotMatch(window.location.href, /detailStudentId=/);
 });
 
+test("global admin recent audit rows open filtered audit activity", async () => {
+  const selectionRequired = {
+    ok: false,
+    error: "site_selection_required",
+    selectionRequired: true,
+    accessibleSites: [
+      { siteId: "site-desert-valley-high", siteName: "Desert Valley High School" },
+      { siteId: "site-canyon-ridge-career", siteName: "Canyon Ridge Career Academy" },
+    ],
+  };
+  const auditEvents = [
+    {
+      id: "audit-dashboard-1",
+      action: "student_dashboard_viewed",
+      entityType: "student_dashboard",
+      createdAt: "2026-03-26T15:30:00.000Z",
+      actorName: "Global Admin Audit",
+    },
+    {
+      id: "audit-review-1",
+      action: "review_queue_viewed",
+      entityType: "review_queue",
+      createdAt: "2026-03-26T15:10:00.000Z",
+      actorName: "Global Admin Audit",
+    },
+  ];
+  const { context, workspaceRoot, fetchLog } = await createWorkspaceContextWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "global-admin-audit-detail",
+          email: "global.audit.detail@example.edu",
+          displayName: "Global Admin Audit Detail",
+          roles: [{ role_id: "admin", scope_type: "global", scope_id: "" }],
+        },
+      },
+    },
+    "/api/site/dashboard": { status: 409, body: selectionRequired },
+    "/api/site/students": { status: 409, body: selectionRequired },
+    "/api/site/review-queue": { status: 409, body: selectionRequired },
+    "/api/site/mentor-assignments": { status: 409, body: selectionRequired },
+    "/api/site/operations-readiness": { status: 409, body: selectionRequired },
+    "/api/site/programs": { status: 409, body: selectionRequired },
+    "/api/site/access-assignments": { status: 409, body: selectionRequired },
+    "/api/admin/role-assignments": {
+      status: 200,
+      body: {
+        ok: true,
+        assignments: [],
+      },
+    },
+    "/api/admin/dashboard": {
+      status: 200,
+      body: {
+        ok: true,
+        generatedAt: "2026-03-26T16:00:00.000Z",
+        summary: {
+          studentsActive: 250,
+          studentsNoMentor: 18,
+          submissionsSubmitted: 22,
+          revisionRequested: 10,
+          presentationScheduled: 14,
+          exportsQueued: 6,
+          exportsFailed: 2,
+          exportsComplete: 4,
+          recentAuditEvents: 3,
+          approved: 88,
+          evidenceArtifacts: 690,
+        },
+        needsAttention: [],
+        programBreakdown: [],
+        reviewQueue: [],
+        mentorCoverage: [],
+        presentationSnapshot: [],
+        archiveSnapshot: [],
+        recentAudit: [
+          {
+            id: "audit-summary-1",
+            action: "student_dashboard_viewed",
+            entityType: "student_dashboard",
+            createdAt: "2026-03-26T15:30:00.000Z",
+            actorDisplayName: "Global Admin Audit",
+          },
+        ],
+        recentExports: [],
+      },
+    },
+    "/api/admin/audit-events": ({ url }) => {
+      const parsed = new URL(url, "https://workspace.example");
+      const action = parsed.searchParams.get("action") || "";
+      const entityType = parsed.searchParams.get("entityType") || "";
+      const filteredEvents = auditEvents.filter((event) => {
+        if (action && event.action !== action) return false;
+        if (entityType && event.entityType !== entityType) return false;
+        return true;
+      });
+      return {
+        status: 200,
+        body: {
+          ok: true,
+          events: filteredEvents,
+        },
+      };
+    },
+    "/api/presentation-slots": {
+      status: 200,
+      body: {
+        ok: true,
+        slots: [],
+      },
+    },
+    "/api/reports/readiness": {
+      status: 200,
+      body: {
+        ok: true,
+        scope: "all-programs",
+        metrics: {},
+      },
+    },
+  });
+
+  vm.runInContext('activeSection = "adminDashboard"; renderAppShell();', context);
+  openWorkspaceDisclosure(context, "dashboard", "adminDashboard");
+  assert.match(workspaceRoot.innerHTML, /Recent Audit[\s\S]*Review in audit/);
+  assert.match(workspaceRoot.innerHTML, /data-section="audit" data-audit-action="student_dashboard_viewed" data-audit-entity-type="student_dashboard"/);
+
+  await vm.runInContext('openWorkspaceSection({ dataset: { section: "audit", auditAction: "student_dashboard_viewed", auditEntityType: "student_dashboard" } })', context);
+
+  assert.equal(vm.runInContext("activeSection", context), "audit");
+  const auditFetch = fetchLog.findLast((entry) => entry.startsWith("/api/admin/audit-events?"));
+  assert.ok(auditFetch, "expected audit events request");
+  const auditUrl = new URL(auditFetch, "https://workspace.example");
+  assert.equal(auditUrl.searchParams.get("action"), "student_dashboard_viewed");
+  assert.equal(auditUrl.searchParams.get("entityType"), "student_dashboard");
+  assert.match(workspaceRoot.innerHTML, /data-admin-audit-filters="true"/);
+  assert.match(workspaceRoot.innerHTML, /Filtered by student dashboard \/ student dashboard viewed/);
+  assert.match(workspaceRoot.innerHTML, /Show recent activity/);
+  assert.match(workspaceRoot.innerHTML, /student dashboard viewed/);
+  assert.doesNotMatch(workspaceRoot.innerHTML, /review queue viewed/);
+});
+
 test("site dashboard top-risk detail stays in dashboard context", async () => {
   const { context, workspaceRoot, fetchLog } = await createWorkspaceContextWithFetch({
     "/api/auth/me": {
@@ -9164,6 +9307,8 @@ async function createWorkspaceContextWithFetch(routes, options = {}) {
           ? { status: 200, body: siteOperationsReadinessFixture() }
           : pathname === "/api/site/programs"
             ? { status: 200, body: siteProgramsFixture() }
+            : pathname === "/api/admin/audit-events"
+              ? { status: 200, body: { ok: true, events: [] } }
             : null);
       const route = typeof routeMatch === "function" ? await routeMatch({ url: String(rawPath || ""), options }) : routeMatch;
       if (!route) throw new Error(`Unexpected workspace fetch: ${pathname}`);

@@ -48,6 +48,7 @@ let operationsReadinessFilters = defaultOperationsReadinessFilters();
 let mentorDashboardFilter = "all";
 let presentationSlotFilter = "all";
 let adminArchiveExportFilter = "all";
+let adminAuditFilters = defaultAdminAuditFilters();
 const WORKSPACE_UPLOAD_MAX_BYTES = 20 * 1024 * 1024;
 const WORKSPACE_UPLOAD_ALLOWED_MIME_TYPES = new Set([
   "application/pdf",
@@ -346,6 +347,7 @@ async function loadSession() {
       mentorDashboardFilter = "all";
       presentationSlotFilter = "all";
       adminArchiveExportFilter = "all";
+      adminAuditFilters = defaultAdminAuditFilters();
       renderSignIn(
         messageForSessionStateError(data?.error, response.status),
         data?.error ? "error" : "neutral",
@@ -361,6 +363,7 @@ async function loadSession() {
       mentorDashboardFilter = "all";
       presentationSlotFilter = "all";
       adminArchiveExportFilter = "all";
+      adminAuditFilters = defaultAdminAuditFilters();
     }
     currentUser = data.user;
     applyWorkspaceUrlState(workspaceUrlStateFromLocation(), { initial: true });
@@ -375,6 +378,7 @@ async function loadSession() {
     mentorDashboardFilter = "all";
     presentationSlotFilter = "all";
     adminArchiveExportFilter = "all";
+    adminAuditFilters = defaultAdminAuditFilters();
     renderSignIn(messageForNetworkError(error), "error");
   }
 }
@@ -432,6 +436,7 @@ async function loadWorkspaceData(statusMessage = "") {
   if (hasGlobalAdminRole(roles)) loaders.push(["roleAssignments", apiJson("/api/admin/role-assignments?limit=12")]);
   if (hasSiteOperationsRole(roles)) loaders.push(["operationsReadiness", apiJson(`/api/site/operations-readiness${siteOperationsReadinessQueryString()}`)]);
   if (hasGlobalAdminRole(roles)) loaders.push(["adminDashboard", apiJson("/api/admin/dashboard")]);
+  if (hasGlobalAdminRole(roles)) loaders.push(["auditEvents", apiJson(`/api/admin/audit-events${adminAuditQueryString()}`)]);
   if (roles.has("program_teacher")) loaders.push(["programTeacherDashboard", apiJson("/api/program-teacher/dashboard")]);
   if (roles.has("mentor") || hasGlobalAdminRole(roles)) loaders.push(["mentorDashboard", apiJson("/api/mentor/dashboard")]);
   if (roles.has("mentor")) loaders.push(["mentorAssigned", apiJson("/api/mentor/assigned")]);
@@ -1552,6 +1557,18 @@ async function openWorkspaceSection(button) {
     adminArchiveExportFilter = cleanAdminArchiveExportFilter(presetMap[button.dataset.sectionPreset] || button.dataset.sectionPreset || "all");
     activeSection = "archiveExports";
     renderAppShell();
+    return;
+  }
+  if (section === "audit") {
+    adminAuditFilters = {
+      ...defaultAdminAuditFilters(),
+      action: cleanAdminAuditFilter(button.dataset.auditAction),
+      entityType: cleanAdminAuditFilter(button.dataset.auditEntityType),
+    };
+    activeSection = "audit";
+    await loadAdminAuditEventsResult(adminAuditFilters.action || adminAuditFilters.entityType
+      ? "Showing matching protected activity."
+      : "Showing recent protected activity.");
     return;
   }
   if (section === "presentation" && button.dataset.sectionPreset) {
@@ -3454,7 +3471,7 @@ function renderAdminOverviewSection() {
             ${renderDashboardCard("Mentor Coverage", "Active assignment load", renderMentorCoverage(dashboard.mentorCoverage, summary))}
             ${renderDashboardCard("Presentation Snapshot", "Day-of readiness", renderSnapshotRows(dashboard.presentationSnapshot))}
             ${renderDashboardCard("Archive / Export Snapshot", "Closeout package status", renderSnapshotRows(dashboard.archiveSnapshot))}
-            ${renderDashboardCard("Recent Audit", "Protected activity", renderAuditSummary(dashboard.recentAudit))}
+            ${renderDashboardCard("Recent Audit", "Protected activity", renderAuditSummary(dashboard.recentAudit, { allowAuditDrillDown: true }))}
             ${renderDashboardCard("Quick Actions", "Admin tools", renderQuickActions([
               { label: "Programs", detail: "Update school programs", section: "programs" },
               { label: "Teacher Review", detail: "Open submitted work", section: "teacher" },
@@ -4977,27 +4994,49 @@ function operationRowsForDetail(body = {}) {
 }
 
 function renderAdminAuditSection() {
-  const dashboard = unwrap(currentData.adminDashboard);
-  if (!dashboard) {
+  const result = currentData.auditEvents;
+  if (result?.status === 403) {
+    return renderPermissionDeniedSection("Audit", "protected activity records");
+  }
+  const auditEvents = unwrap(result);
+  if (!auditEvents) {
     return `
       <section class="workspace-card workspace-error-card">
         <p class="workspace-kicker">Audit</p>
         <h2>Audit summary unavailable</h2>
-        ${renderApiNotice(currentData.adminDashboard)}
+        ${renderApiNotice(result)}
       </section>
     `;
   }
+  const events = Array.isArray(auditEvents.events) ? auditEvents.events : [];
+  const hasFilters = Boolean(adminAuditFilters.action || adminAuditFilters.entityType);
+  const filterLabel = adminAuditFilterLabel(adminAuditFilters);
   return `
     <section class="workspace-command-center">
       <div class="workspace-command-hero">
         <div>
           <p class="workspace-kicker">Audit</p>
           <h1>Recent Protected Activity</h1>
-          <p>Recent activity is summarized without sensitive private details.</p>
+          <p>${escapeHtml(hasFilters
+            ? `Showing protected activity for ${filterLabel}.`
+            : "Recent activity is summarized without sensitive private details.")}</p>
         </div>
-        <span class="workspace-chip">${safeNumber(dashboard.summary?.recentAuditEvents)} recent event${safeNumber(dashboard.summary?.recentAuditEvents) === 1 ? "" : "s"}</span>
+        <span class="workspace-chip">${safeNumber(events.length)} recent event${safeNumber(events.length) === 1 ? "" : "s"}</span>
       </div>
-      ${renderDashboardCard("Recent Audit", "Redacted activity list", renderAuditSummary(dashboard.recentAudit))}
+      <div class="workspace-filter-bar" data-admin-audit-filters="true" aria-label="Audit filters">
+        <span class="workspace-muted">${escapeHtml(hasFilters ? `Filtered by ${filterLabel}` : "Showing the latest redacted audit activity.")}</span>
+        ${hasFilters ? `
+          <button class="workspace-button workspace-button-secondary" type="button" data-section="audit">
+            Show recent activity
+          </button>
+        ` : ""}
+      </div>
+      ${renderDashboardCard("Recent Audit", hasFilters ? "Filtered activity from the protected audit log" : "Redacted activity list", renderAuditSummary(events, {
+        allowAuditDrillDown: true,
+        emptyMessage: hasFilters
+          ? "No protected activity matches this filter right now."
+          : "No recent audit rows are available for this view.",
+      }))}
     </section>
   `;
 }
@@ -8633,6 +8672,13 @@ async function loadOperationsReadinessResult(message = "") {
   renderAppShell(result.ok ? (message || "Operations readiness loaded.") : "Operations readiness unavailable.", result.ok ? "success" : "error");
 }
 
+async function loadAdminAuditEventsResult(message = "") {
+  const result = await settleApi(apiJson(`/api/admin/audit-events${adminAuditQueryString()}`));
+  currentData.auditEvents = result;
+  activeSection = "audit";
+  renderAppShell(result.ok ? (message || "Audit loaded.") : "Audit unavailable.", result.ok ? "success" : "error");
+}
+
 async function refreshConnectedSurfacesAfterMentorMeeting(studentId) {
   const detail = unwrap(siteStudentDetailState.result);
   const siteId = selectedSiteQueryValue()
@@ -10257,17 +10303,26 @@ function snapshotRowAction(row = {}, type = "") {
   return "";
 }
 
-function renderAuditSummary(rows = []) {
-  if (!rows.length) return `<div class="workspace-empty">No recent audit rows are available for this view.</div>`;
+function renderAuditSummary(rows = [], options = {}) {
+  const emptyMessage = options.emptyMessage || "No recent audit rows are available for this view.";
+  const allowAuditDrillDown = Boolean(options.allowAuditDrillDown && availableSectionIds().has("audit"));
+  if (!rows.length) return `<div class="workspace-empty">${escapeHtml(emptyMessage)}</div>`;
   return `
     <div class="workspace-list">
       ${rows.slice(0, 8).map((row) => `
         <article class="workspace-row">
           <div>
             <strong>${escapeHtml(statusText(row.action))}</strong>
-            <p>${escapeHtml(statusText(row.entityType))} / ${escapeHtml(row.actorDisplayName || "System")} / ${escapeHtml(formatDate(row.createdAt))}</p>
+            <p>${escapeHtml(statusText(row.entityType))} / ${escapeHtml(row.actorDisplayName || row.actorName || "System")} / ${escapeHtml(formatDate(row.createdAt))}</p>
           </div>
-          <span class="workspace-chip">Audit</span>
+          <div class="workspace-row-actions">
+            <span class="workspace-chip">Audit</span>
+            ${allowAuditDrillDown && row.action && row.entityType ? `
+              <button class="workspace-link-button workspace-link-button-small" type="button" data-section="audit" data-audit-action="${escapeHtml(row.action)}" data-audit-entity-type="${escapeHtml(row.entityType)}">
+                Review in audit
+              </button>
+            ` : ""}
+          </div>
         </article>
       `).join("")}
     </div>
@@ -10929,6 +10984,14 @@ function defaultOperationsReadinessFilters() {
   };
 }
 
+function defaultAdminAuditFilters() {
+  return {
+    action: "",
+    entityType: "",
+    limit: 50,
+  };
+}
+
 function defaultSiteStudentDetailState() {
   return {
     studentId: "",
@@ -11296,6 +11359,27 @@ function mentorDashboardFilterFromSearchParams(params) {
 
 function presentationSlotFilterFromSearchParams(params) {
   return cleanPresentationSlotFilter(params.get("presentationFocus"));
+}
+
+function adminAuditQueryString() {
+  const filters = adminAuditFilters || defaultAdminAuditFilters();
+  const params = new URLSearchParams();
+  if (filters.entityType) params.set("entityType", filters.entityType);
+  if (filters.action) params.set("action", filters.action);
+  if (safeNumber(filters.limit) && safeNumber(filters.limit) !== 50) params.set("limit", String(filters.limit));
+  const query = params.toString();
+  return query ? `?${query}` : "";
+}
+
+function cleanAdminAuditFilter(value) {
+  return value && /^[a-zA-Z0-9_.:-]+$/.test(value) ? value : "";
+}
+
+function adminAuditFilterLabel(filters = {}) {
+  const parts = [];
+  if (filters.entityType) parts.push(statusText(filters.entityType));
+  if (filters.action) parts.push(statusText(filters.action));
+  return parts.length ? parts.join(" / ") : "recent activity";
 }
 
 function syncReviewQueueUrlState(options = {}) {

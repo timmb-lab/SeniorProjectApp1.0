@@ -589,8 +589,18 @@ assertMatches(
 );
 assertMatches(
   "workspaceJs",
+  /if \(section === "audit"\) \{[\s\S]*adminAuditFilters = \{[\s\S]*action: cleanAdminAuditFilter\(button\.dataset\.auditAction\),[\s\S]*entityType: cleanAdminAuditFilter\(button\.dataset\.auditEntityType\),[\s\S]*loadAdminAuditEventsResult/,
+  "audit dashboard actions must load the filtered audit route without inventing a new section",
+);
+assertMatches(
+  "workspaceJs",
   /section === "presentation" && button\.dataset\.sectionPreset[\s\S]*const presetMap = \{[\s\S]*"outline-follow-up": "outline_follow_up"[\s\S]*presentationSlotFilter = cleanPresentationSlotFilter\(presetMap\[button\.dataset\.sectionPreset\] \|\| button\.dataset\.sectionPreset \|\| "all"\)[\s\S]*syncPresentationScheduleUrlState\(\{ clearFilters: presentationSlotFilter === "all" \}\)/,
   "presentation dashboard presets must map to supported Presentation filters and sync URL state",
+);
+assertMatches(
+  "workspaceJs",
+  /function renderAuditSummary\([\s\S]*data-section="audit" data-audit-action="\$\{escapeHtml\(row\.action\)\}" data-audit-entity-type="\$\{escapeHtml\(row\.entityType\)\}"[\s\S]*Review in audit/,
+  "recent audit rows must open the existing Audit section with exact action and entity filters",
 );
 assertMatches(
   "workspaceJs",

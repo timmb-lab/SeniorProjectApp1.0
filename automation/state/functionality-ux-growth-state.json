@@ -1,10 +1,18 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-06-02T21:08:22-07:00",
-  "lastStartingSha": "66d6698309946d652af6e8381b795e4306798934",
+  "lastRunAt": "2026-06-02T21:43:40-07:00",
+  "lastStartingSha": "1d5ecf2c853fe904bfecc00c5332937735b8f134",
   "lastEndingSha": null,
   "currentLadderFocus": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
   "completedWorkOrders": [
+    {
+      "id": "global-admin-recent-audit-drilldowns",
+      "completedAt": "2026-06-02T21:43:40-07:00",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "type": "TYPE_D_ROLE_WORKSPACE",
+      "summary": "Admin Command Center Recent Audit rows now open the existing Audit section with exact action and entityType filters instead of stopping at a passive summary card.",
+      "commit": "pending-closeout-commit"
+    },
     {
       "id": "global-admin-review-workload-student-detail",
       "completedAt": "2026-06-02T21:08:22-07:00",
@@ -1194,7 +1202,7 @@
       "id": "global-admin-route-refresh",
       "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
       "type": "TYPE_G_VERIFICATION_REGRESSION_PROTECTION",
-      "summary": "Refresh the remaining Global Admin click-through and boundary proof now that review workload rows also preserve Admin Command Center detail context."
+      "summary": "Refresh the remaining Global Admin click-through and boundary proof now that Recent Audit rows also open the filtered Audit section."
     },
     {
       "id": "program-teacher-mentor-meeting-follow-up-destination",
@@ -1216,6 +1224,9 @@
     }
   ],
   "doNotRepeat": [
+    "Do not regress Admin Command Center Recent Audit rows back to passive summary-only chips while /api/admin/audit-events already supports exact action and entityType filters.",
+    "Do not invent a new admin audit route or broader audit query surface when the existing Audit section already satisfies the drill-down need.",
+    "Do not expose Recent Audit drill-downs to site-scoped roles while Audit remains Global Admin-only.",
     "Do not remove the Admin Command Center Review Workload student-detail action while the existing /api/site/students/:studentId route remains authorized for Global Admins.",
     "Do not force Admin Command Center review-row detail back to students source context now that adminDashboard return and URL state are proven.",
     "Do not regress the new Archive / Exports follow-up list back to count-only summary cards while the admin dashboard route already returns safe current export rows.",

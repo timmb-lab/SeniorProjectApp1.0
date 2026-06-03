@@ -6420,3 +6420,61 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: mentor-meeting follow-up still lacks a precise destination; hosted permission proof still needs allowed runtime; Review Queue missing-submission semantics still need backend evidence.
   - Do not repeat: do not regress Admin Command Center review rows back to summary-only detail-free cards, and do not collapse Admin Command Center detail opens back to Student Directory context.
   - First file to inspect next run: `workspace.js` around `renderAdminOverviewSection()` and `handleSiteStudentAction()`
+
+## Run 2026-06-02 21:43 PT
+
+- Starting SHA: `1d5ecf2c853fe904bfecc00c5332937735b8f134`
+- Ending SHA: pending closeout commit; final hash is reported after commit
+- Branch: `main`
+- Branch policy: started from clean local `main` ahead of `origin/main` by three earlier in-lane commits; this run stayed local-only and did not push
+- Ladder level targeted: `LEVEL_4_ROLE_SPECIFIC_WORKSPACES`
+- Backlog item: remaining Global Admin route-refresh handoff inside `docs/functionality-language-audit.md` and `docs/product/demo-role-readiness.md`
+- Work order selected: Turn Admin Command Center `Recent Audit` rows into real filtered Audit drill-downs by reusing the existing admin audit route filters.
+- Selection reason: current repo evidence showed a real protected-workspace gap, not speculative polish. The Admin Command Center already rendered recent audit rows, `/api/admin/audit-events` already supported exact `action` and `entityType` filters, and the existing Audit section already served Global Admins. The missing work was limited to `workspace.js` handoff wiring, which made filtered audit drill-downs the safest bounded slice because they improved a real protected workflow without adding a route, widening scope, or exposing broader audit data.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Global Admin recent audit drill-downs | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | `global_admin`, `admin`, `platform_admin` | 5 | 5 | 5 | S | 59 | selected |
+| Broader Global Admin route refresh across Recent Audit, Students, Presentation, Programs, and Users & Access | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | `global_admin` | 4 | 4 | 3 | M | 45 | deferred: broader than one safe hourly slice |
+| Admin mentor-meeting exact destination | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | `global_admin` | 4 | 2 | 2 | M | 30 | deferred: current workspace still lacks a precise meeting-follow-up destination |
+| Program Teacher mentor-meeting follow-up destination | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | `program_teacher` | 4 | 3 | 3 | M | 40 | deferred: no precise scoped destination is proven |
+| Hosted section-level permission proof | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all protected roles | 4 | 3 | 2 | M | 35 | deferred: hosted runtime is outside this local batch |
+| Review Queue missing-submission semantics | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | `program_teacher`, `site_admin` | 5 | 2 | 3 | M | 34 | deferred: backend queue rows are still absent |
+| Viewer email visibility policy | `LEVEL_7_AUDITABILITY_AND_TRUST` | `viewer` | 3 | 2 | 3 | S | 30 | deferred: product policy still comes before UI change |
+| Mentor reassignment or removal workflow | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | `site_admin` | 4 | 2 | 3 | M | 33 | deferred: mutation and audit design still needed |
+| Student hosted drill-down refresh | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | `student` | 4 | 2 | 2 | M | 29 | deferred: broader hosted/product pass than this bounded Global Admin slice |
+| Administration hosted read-only click-through refresh | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | `administration` | 4 | 3 | 2 | M | 34 | deferred: hosted runtime is outside this local batch |
+
+- User-facing improvement: Global Admins can now open Admin Command Center `Recent Audit` rows directly into the existing Audit section with exact `action` and `entityType` filters, then reset back to the latest protected activity list without leaving the workspace.
+- Roles affected: `global_admin`, `admin`, `platform_admin`
+- Files changed: `workspace.js`, `tests/workspace-app.test.mjs`, `scripts/verify-dashboard-actions.mjs`, `docs/functionality-language-audit.md`, `docs/product/demo-role-readiness.md`, `docs/progress/run-log.md`, `docs/progress/runs/2026-06-02-2143-global-admin-audit-drilldowns.json`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`
+- Tests/verifiers added or updated: `tests/workspace-app.test.mjs` now proves a Global Admin Recent Audit row renders `Review in audit`, loads `/api/admin/audit-events` with exact action and entity filters, shows filtered audit state, and excludes nonmatching events; `scripts/verify-dashboard-actions.mjs` now guards the `audit` section handoff plus the exact `data-audit-action` and `data-audit-entity-type` button wiring.
+- Validation commands:
+  - `node --check workspace.js`
+  - `node --test tests/workspace-app.test.mjs`
+  - `npm run verify:dashboard-actions`
+  - `npm run verify:functionality-language`
+  - `npm run verify:functionality-ux-automation`
+  - `npm run check:production-surfaces`
+  - `npm run typecheck`
+  - `npm run test`
+  - `npm run check`
+  - `node -e "JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-02-2143-global-admin-audit-drilldowns.json','utf8')); console.log('json ok')"`
+  - `git diff --check`
+- Validation result: passed; focused workspace syntax, workspace coverage, and dashboard-action verification passed before docs/state closeout, and the full validation ladder passed after the closeout files were updated.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: broader Global Admin route refresh, Admin mentor-meeting exact destination, Program Teacher mentor-meeting follow-up destination, hosted section-level permission proof, Review Queue missing-submission semantics, viewer email visibility policy, mentor reassignment/remove workflow, and Administration hosted read-only click-through refresh remain open.
+- New backlog items: none
+- Next recommended work order: Continue the bounded Global Admin route refresh only where the current workspace can prove an exact destination; keep mentor-meeting follow-up summary-only and preserve Recent Audit row drill-downs now that filtered Audit activity is proven.
+- Do-not-repeat notes: do not regress Admin Command Center Recent Audit rows back to passive summary-only chips while `/api/admin/audit-events` already supports exact action and `entityType` filters, do not invent a new admin audit route when the existing Audit section already satisfies the drill-down need, and do not expose Recent Audit drill-downs to site-scoped roles while Audit remains Global Admin-only.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_4_ROLE_SPECIFIC_WORKSPACES`
+  - Advanced: yes
+  - Evidence: `workspace.js` now loads `/api/admin/audit-events` for Global Admins, `renderAuditSummary()` emits exact Recent Audit drill-down buttons, and focused workspace coverage plus the dashboard-action verifier prove the filtered Audit handoff stays inside the existing protected section.
+  - Unlocks: the next Global Admin pass can evaluate the remaining route-refresh gaps without leaving Recent Audit rows as passive summaries.
+  - Next: inspect `workspace.js` around `renderAdminOverviewSection()` and `renderAuditSummary()` only if another exact current destination can be proven.
+  - Blockers: mentor-meeting follow-up still lacks a precise destination; hosted permission proof still needs allowed runtime; Review Queue missing-submission semantics still need backend evidence.
+  - Do not repeat: do not regress Admin Command Center Recent Audit rows back to passive summary-only chips, and do not broaden filtered Audit drill-downs beyond the current Global Admin-only section contract.
+  - First file to inspect next run: `workspace.js` around `renderAdminOverviewSection()` and `renderAdminAuditSection()`

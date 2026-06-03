@@ -1,0 +1,81 @@
+{
+  "automationId": "functionality-ux-upgrade-hourly",
+  "runStartedAt": "2026-06-02T21:43:40-07:00",
+  "branch": "main",
+  "startingSha": "1d5ecf2c853fe904bfecc00c5332937735b8f134",
+  "endingSha": null,
+  "workOrderId": "global-admin-recent-audit-drilldowns",
+  "ladderLevels": [
+    "LEVEL_4_ROLE_SPECIFIC_WORKSPACES"
+  ],
+  "selectedSlice": "Turn Admin Command Center Recent Audit rows into real filtered Audit drill-downs by reusing the existing admin audit route filters.",
+  "selectionReason": "Current repo evidence showed a real protected-workspace gap: the Admin Command Center already rendered recent audit rows, /api/admin/audit-events already supported exact action and entityType filters, and the Audit section already existed for Global Admins. The missing work was only in workspace.js handoff wiring, so filtered audit drill-downs were the safest bounded batch.",
+  "candidateCount": 10,
+  "candidateShortlist": [
+    "Global Admin recent audit drill-downs",
+    "Broader Global Admin route refresh across Recent Audit, Students, Presentation, Programs, and Users & Access",
+    "Admin mentor-meeting exact destination",
+    "Program Teacher mentor-meeting follow-up destination",
+    "Hosted section-level permission proof",
+    "Review Queue missing-submission semantics",
+    "Viewer email visibility policy",
+    "Mentor reassignment or removal workflow",
+    "Student hosted drill-down refresh",
+    "Administration hosted read-only click-through refresh"
+  ],
+  "userFacingImprovement": "Global Admins can now open Admin Command Center Recent Audit rows into the existing Audit section with exact action and entityType filters, then reset back to the latest protected activity list without leaving the workspace.",
+  "privacyAndPermissionNotes": [
+    "The slice reuses the existing /api/admin/audit-events route and existing Audit section instead of adding a new route or broader query shape.",
+    "No auth, RBAC, tenant, site, program, mentor-assignment, or student-privacy boundary changed.",
+    "Recent Audit drill-downs remain Global Admin-only and only pass the current action/entityType filters already supported by the route."
+  ],
+  "filesChanged": [
+    "workspace.js",
+    "tests/workspace-app.test.mjs",
+    "scripts/verify-dashboard-actions.mjs",
+    "docs/functionality-language-audit.md",
+    "docs/product/demo-role-readiness.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-06-02-2143-global-admin-audit-drilldowns.json",
+    "docs/functionality-ux-growth-ledger.md",
+    "automation/state/functionality-ux-growth-state.json"
+  ],
+  "validation": {
+    "focusedPassedBeforeCloseout": [
+      "node --check workspace.js",
+      "node --test tests/workspace-app.test.mjs",
+      "npm run verify:dashboard-actions"
+    ],
+    "final": [
+      "node --check workspace.js",
+      "node --test tests/workspace-app.test.mjs",
+      "npm run verify:dashboard-actions",
+      "npm run verify:functionality-language",
+      "npm run verify:functionality-ux-automation",
+      "npm run check:production-surfaces",
+      "npm run typecheck",
+      "npm run test",
+      "npm run check",
+      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-02-2143-global-admin-audit-drilldowns.json','utf8')); console.log('json ok')\"",
+      "git diff --check"
+    ],
+    "result": "passed",
+    "notes": "Focused workspace syntax, workspace coverage, and dashboard-action verification passed before docs/state closeout. The full validation ladder also passed after the closeout files were updated."
+  },
+  "deferred": [
+    "Broader Global Admin route refresh remains larger than this bounded recent-audit drill-down slice.",
+    "Admin mentor-meeting follow-up still lacks a precise current destination.",
+    "Program Teacher mentor-meeting follow-up still lacks a precise scoped destination.",
+    "Hosted section-level permission proof still needs allowed hosted runtime and audit-event writes.",
+    "Review Queue missing-submission semantics remain deferred until backend rows or exact scoped empty-state evidence exist.",
+    "Viewer email visibility policy still needs a product decision before any UI change.",
+    "Mentor reassignment and removal workflow still needs mutation and audit design.",
+    "Administration hosted read-only click-through refresh still needs hosted runtime."
+  ],
+  "nextRecommended": "Continue the bounded Global Admin route refresh only where the current workspace can prove an exact destination; keep mentor-meeting follow-up summary-only and preserve Recent Audit row drill-downs now that filtered Audit activity is proven.",
+  "doNotRepeat": [
+    "Do not regress Admin Command Center Recent Audit rows back to passive summary-only chips while /api/admin/audit-events already supports exact action and entityType filters.",
+    "Do not invent a new admin audit route or broader audit query surface when the existing Audit section already satisfies the drill-down need.",
+    "Do not expose Recent Audit drill-downs to site-scoped roles while Audit remains Global Admin-only."
+  ]
+}
