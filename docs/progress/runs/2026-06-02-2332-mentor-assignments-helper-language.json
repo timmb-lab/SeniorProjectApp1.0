@@ -1,0 +1,82 @@
+{
+  "automationId": "functionality-ux-upgrade-hourly",
+  "runStartedAt": "2026-06-02T23:32:32-07:00",
+  "branch": "main",
+  "startingSha": "5116059c5222b1023a805e1d78bcdf281602da0e",
+  "endingSha": null,
+  "workOrderId": "mentor-assignments-helper-language-hardening",
+  "ladderLevels": [
+    "LEVEL_4_ROLE_SPECIFIC_WORKSPACES"
+  ],
+  "selectedSlice": "Replace live selected-site and intervention-heavy wording in the site Mentor Assignments helper and add verifier coverage.",
+  "selectionReason": "Current repo evidence showed a real protected-workspace leak in functions/_lib/site-mentor-assignments.ts: live route-backed Mentor Assignments responses still emitted selected-site and intervention wording even after the workspace copy had already moved to school-facing language. The verifier did not scan that helper yet, so this was the safest bounded batch because it fixed real protected copy and added a direct regression guard without changing routes, auth, or assignment behavior.",
+  "candidateCount": 10,
+  "candidateShortlist": [
+    "Mentor Assignments helper language hardening",
+    "Role-assignment scope-name enrichment",
+    "Broader Global Admin route refresh across Recent Audit, Students, Presentation, Programs, and Users & Access",
+    "Admin mentor-meeting exact destination",
+    "Program Teacher mentor-meeting follow-up destination",
+    "Hosted section-level permission proof",
+    "Review Queue missing-submission semantics",
+    "Viewer email visibility policy",
+    "Mentor reassignment or removal workflow",
+    "Student hosted drill-down refresh"
+  ],
+  "userFacingImprovement": "Live Mentor Assignments responses now say this school and follow-up checkpoint instead of selected-site and intervention wording, so site staff and read-only users see cleaner school-facing guidance in the existing protected workflow.",
+  "privacyAndPermissionNotes": [
+    "The slice changes only user-facing helper copy and verifier coverage; no route shape, mutation path, auth gate, RBAC, tenant scope, or student visibility changed.",
+    "The same /api/site/mentor-assignments records, filters, and permissions remain in place.",
+    "No new controls, destinations, or data fields were introduced."
+  ],
+  "filesChanged": [
+    "functions/_lib/site-mentor-assignments.ts",
+    "scripts/verify-functionality-language.mjs",
+    "tests/site-mentor-assignments.integration.test.mjs",
+    "tests/functionality-language-audit.test.mjs",
+    "docs/functionality-language-audit.md",
+    "docs/product/demo-role-readiness.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-06-02-2332-mentor-assignments-helper-language.json",
+    "docs/functionality-ux-growth-ledger.md",
+    "automation/state/functionality-ux-growth-state.json"
+  ],
+  "validation": {
+    "focusedPassedBeforeCloseout": [
+      "node --test tests/site-mentor-assignments.integration.test.mjs",
+      "npm run verify:functionality-language",
+      "node --test tests/functionality-language-audit.test.mjs"
+    ],
+    "final": [
+      "node --test tests/site-mentor-assignments.integration.test.mjs",
+      "npm run verify:functionality-language",
+      "node --test tests/functionality-language-audit.test.mjs",
+      "npm run verify:functionality-ux-automation",
+      "npm run check:production-surfaces",
+      "npm run typecheck",
+      "npm run test",
+      "npm run check",
+      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-02-2332-mentor-assignments-helper-language.json','utf8')); console.log('json ok')\"",
+      "git diff --check"
+    ],
+    "result": "passed",
+    "notes": "Focused helper-route and language-verifier coverage passed before docs/state closeout. The full validation ladder also passed after the closeout files were updated."
+  },
+  "deferred": [
+    "Broader Global Admin route refresh remains larger than this bounded Mentor Assignments helper slice.",
+    "Role-assignment scope-name enrichment is still useful but lower workflow value than fixing the live protected copy leak.",
+    "Admin mentor-meeting follow-up still lacks a precise current destination.",
+    "Program Teacher mentor-meeting follow-up still lacks a precise scoped destination.",
+    "Hosted section-level permission proof still needs allowed hosted runtime and audit-event writes.",
+    "Review Queue missing-submission semantics remain deferred until backend rows or exact scoped empty-state evidence exist.",
+    "Viewer email visibility policy still needs a product decision before any UI change.",
+    "Mentor reassignment and removal workflow still needs mutation and audit design.",
+    "Student hosted drill-down refresh still needs a broader hosted/product pass."
+  ],
+  "nextRecommended": "Resume the bounded Global Admin route refresh only where the current workspace can prove an exact destination, and keep mentor-meeting follow-up summary-only until a precise backed path exists.",
+  "doNotRepeat": [
+    "Do not let functions/_lib/site-mentor-assignments.ts reintroduce selected-site wording into protected Mentor Assignments copy.",
+    "Do not reintroduce intervention-heavy checkpoint wording where school-facing follow-up language already exists.",
+    "Do not widen Mentor Assignments permissions or add new mutation controls as part of copy-only hardening."
+  ]
+}

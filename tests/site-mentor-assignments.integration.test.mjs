@@ -69,6 +69,10 @@ test("site mentor assignment route is scoped, mutable for site ops, read-only by
   assert.equal(siteAdmin.scope.role, "site_admin");
   assert.equal(siteAdmin.permissions.canManageMentorAssignments, true);
   assert.equal(siteAdmin.mentors.some((mentor) => mentor.mentorUserId === primaryMentor.id), true);
+  assert.equal(siteAdmin.emptyState, null);
+  assert.equal(siteAdmin.mentors.some((mentor) => mentor.nextAction === "Available for mentor support at this school."), true);
+  assert.equal(siteAdmin.unassignedStudents.some((row) => row.nextAction === "Assign a mentor before the next follow-up checkpoint."), true);
+  assert.doesNotMatch(JSON.stringify(siteAdmin), /selected-site|intervention checkpoint/i);
   const siteAdminDenied = await routeAssignments(env, tokens.siteAdminPrimary, `?siteId=${CANYON_SITE_ID}`);
   assert.equal(siteAdminDenied.response.status, 403);
   assert.doesNotMatch(JSON.stringify(siteAdminDenied.body), /Canyon|site-canyon-ridge-career/i);
@@ -113,6 +117,13 @@ test("site mentor assignment route is scoped, mutable for site ops, read-only by
   assert.equal([...programFiltered.unassignedStudents, ...programFiltered.assignments].every((row) => row.programId === "it"), true);
   const mentorFiltered = await expectAssignments(env, tokens.siteAdminPrimary, `?siteId=${PRIMARY_SITE_ID}&mentorUserId=${primaryMentor.id}&limit=100`);
   assert.equal(mentorFiltered.assignments.every((row) => row.mentorUserId === primaryMentor.id), true);
+  const emptyFiltered = await expectAssignments(env, tokens.siteAdminPrimary, `?siteId=${PRIMARY_SITE_ID}&studentSearch=${encodeURIComponent("No Match Student")}&limit=20`);
+  assert.equal(emptyFiltered.pagination.filteredTotal, 0);
+  assert.deepEqual(emptyFiltered.emptyState, {
+    reason: "No mentor coverage records for this school match these filters.",
+    owner: "Site administration.",
+    nextAction: "Adjust filters or review missing mentor students in the student directory.",
+  });
 
   const beforeDashboard = await expectDashboard(env, tokens.siteAdminPrimary);
   const beforeNoMentor = beforeDashboard.summary.studentsNoMentor;

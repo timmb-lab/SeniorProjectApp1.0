@@ -21,6 +21,17 @@ This is the compact run log for the current Functionality UX Upgrade automation 
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-06-02 23:32 PT - Functionality UX Upgrade Mentor Assignments Helper Language
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 4 role-specific workspace clarity / Mentor Assignments helper language hardening.
+- `starting HEAD`: `5116059c5222b1023a805e1d78bcdf281602da0e`.
+- `selected slice`: Replace live `selected-site` and intervention-heavy wording in the site Mentor Assignments helper and add verifier coverage.
+- `repo-grounded findings`: current repo evidence still showed live protected-surface wording in `functions/_lib/site-mentor-assignments.ts` even after the workspace copy had already been cleaned: the helper still emitted `No selected-site mentor assignment records match these filters.`, `Available for selected-site mentor support.`, and `Assign a selected-site mentor before the next intervention checkpoint.`. `scripts/verify-functionality-language.mjs` did not scan that helper yet, so the route-backed copy could regress without tripping the guardrail.
+- `changes`: `functions/_lib/site-mentor-assignments.ts` now uses school-facing mentor coverage wording in its empty-state, mentor-load, and missing-mentor next-action responses. `scripts/verify-functionality-language.mjs` now scans the Mentor Assignments helper directly, `tests/site-mentor-assignments.integration.test.mjs` now proves the live route returns the hardened copy and no longer leaks `selected-site` or `intervention checkpoint`, and `tests/functionality-language-audit.test.mjs` now asserts that the verifier includes the helper file.
+- `validation`: `node --test tests/site-mentor-assignments.integration.test.mjs`, `npm run verify:functionality-language`, and `node --test tests/functionality-language-audit.test.mjs` passed before docs/state closeout. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.
+
 ## 2026-06-02 23:08 PT - Functionality UX Upgrade Student Detail Site Selection
 
 - `automation ID`: functionality-ux-upgrade-hourly.

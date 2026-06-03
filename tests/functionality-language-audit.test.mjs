@@ -122,6 +122,7 @@ test("functionality language verifier is registered and avoids credential exposu
   assert.match(verifier, /Database-backed MVP/);
   assert.match(verifier, /Cloudflare target/);
   assert.match(verifier, /Teacher intervention/);
+  assert.match(verifier, /site-mentor-assignments/);
   assert.match(verifier, /workspace\.js/);
   assert.doesNotMatch(`${audit}\n${prompt}\n${verifier}\n${dashboardActionVerifier}\n${reviewQueueDeeplinkVerifier}\n${workspaceNavigationVerifier}\n${workspaceDensityVerifier}`, /BEGIN PRIVATE KEY|client_secret["':=]|refresh_token["':=]|access_token["':=]|temporaryPassword|password_hash|password_salt/i);
 });

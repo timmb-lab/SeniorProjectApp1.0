@@ -1,10 +1,18 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-06-02T23:13:33-07:00",
-  "lastStartingSha": "ed9fefd196bf9f95e63d5d39c16e1b5dcabd9f8d",
+  "lastRunAt": "2026-06-02T23:44:02-07:00",
+  "lastStartingSha": "5116059c5222b1023a805e1d78bcdf281602da0e",
   "lastEndingSha": null,
   "currentLadderFocus": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
   "completedWorkOrders": [
+    {
+      "id": "mentor-assignments-helper-language-hardening",
+      "completedAt": "2026-06-02T23:38:31-07:00",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "type": "TYPE_A_LANGUAGE_PRODUCT_READINESS",
+      "summary": "Live Mentor Assignments helper responses now use school-facing coverage and follow-up wording instead of selected-site and intervention phrasing, and the functionality-language verifier scans that helper directly.",
+      "commit": "pending-closeout-commit"
+    },
     {
       "id": "student-detail-site-selection-guidance",
       "completedAt": "2026-06-02T23:08:44-07:00",
@@ -1218,7 +1226,7 @@
       "id": "global-admin-route-refresh",
       "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
       "type": "TYPE_G_VERIFICATION_REGRESSION_PROTECTION",
-      "summary": "Refresh the remaining Global Admin click-through and boundary proof now that the Review Queue and student-detail school-pick handoffs no longer fall back to generic unavailable states."
+      "summary": "Refresh the remaining Global Admin click-through and boundary proof now that the Review Queue, student-detail, and Mentor Assignments helper handoffs no longer leak generic or internal copy."
     },
     {
       "id": "program-teacher-mentor-meeting-follow-up-destination",
@@ -1240,6 +1248,7 @@
     }
   ],
   "doNotRepeat": [
+    "Do not let functions/_lib/site-mentor-assignments.ts reintroduce selected-site wording or intervention-heavy checkpoint language into protected Mentor Assignments responses.",
     "Do not fall back to a generic student-detail unavailable error when /api/site/students/:studentId returns site_selection_required; keep the student-detail school-pick guidance visible.",
     "Do not silently auto-pick a school before opening protected student detail; keep school choice explicit for multi-site users.",
     "Do not fall back to a generic unavailable card when /api/site/review-queue returns site_selection_required; keep the Review Queue-specific school-pick guidance visible.",
@@ -1402,20 +1411,20 @@
   ],
   "lastValidationStatus": {
     "status": "passed",
-    "completedAt": "2026-06-02T23:13:33.6115171-07:00",
+    "completedAt": "2026-06-02T23:44:02.4723838-07:00",
     "commands": [
-      "node --check workspace.js",
-      "node --test tests/workspace-app.test.mjs",
+      "node --test tests/site-mentor-assignments.integration.test.mjs",
       "npm run verify:functionality-language",
+      "node --test tests/functionality-language-audit.test.mjs",
       "npm run verify:functionality-ux-automation",
       "npm run check:production-surfaces",
       "npm run typecheck",
       "npm run test",
       "npm run check",
-      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-02-2308-student-detail-site-selection-guidance.json','utf8')); console.log('json ok')\"",
+      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-02-2332-mentor-assignments-helper-language.json','utf8')); console.log('json ok')\"",
       "git diff --check"
     ],
-    "notes": "Focused workspace syntax and workspace coverage passed before docs/state closeout. Final validation also passed after the closeout files were updated."
+    "notes": "Focused Mentor Assignments route and language-verifier coverage passed before docs/state closeout. Final validation also passed after the closeout files were updated."
   },
   "lastProductReadinessScorecardSummary": {
     "homepageClarity": "4 to 4",

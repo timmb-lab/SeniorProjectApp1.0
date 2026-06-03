@@ -5,6 +5,7 @@ const protectedUiFiles = [
   "workspace.js",
   "functions/api/site/dashboard.ts",
   "functions/_lib/site-review-queue.ts",
+  "functions/_lib/site-mentor-assignments.ts",
 ];
 const reviewOnlyFiles = ["app.js", "public-companion/app.js"];
 

@@ -467,7 +467,7 @@ async function buildMentorAssignmentPayload({
     },
     permissions,
     emptyState: filteredTotal === 0 ? {
-      reason: "No selected-site mentor assignment records match these filters.",
+      reason: "No mentor coverage records for this school match these filters.",
       owner: "Site administration.",
       nextAction: "Adjust filters or review missing mentor students in the student directory.",
     } : null,
@@ -903,7 +903,7 @@ function mentorResponse(row: MentorRow) {
     loadStatus: count > OVERLOADED_ASSIGNMENT_COUNT ? "overloaded" : count === 0 ? "available" : "steady",
     nextAction: count > OVERLOADED_ASSIGNMENT_COUNT
       ? "Review mentor load before assigning more students."
-      : "Available for selected-site mentor support.",
+      : "Available for mentor support at this school.",
   };
 }
 
@@ -921,7 +921,7 @@ function unassignedStudentResponse(row: AssignmentStudentRow) {
     riskScore: Number(row.risk_score || 0),
     riskFlags,
     latestSubmissionStatus: row.latest_submission_status || "draft",
-    nextAction: "Assign a selected-site mentor before the next intervention checkpoint.",
+    nextAction: "Assign a mentor before the next follow-up checkpoint.",
   };
 }
 
