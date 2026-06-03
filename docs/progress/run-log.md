@@ -2767,6 +2767,17 @@ Future productive runs should append compact entries that name the master-plan s
 - `validation`: `node --test tests/site-mentor-assignments.integration.test.mjs` passed before docs/state closeout. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
 - `commit/push status`: pending closeout commit; not pushed by this automation run.
 
+## 2026-06-02 20:31 PT - Functionality UX Upgrade Global Admin Archive Export Follow-Up
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 4 role-specific workspace clarity / Global Admin archive follow-up.
+- `starting HEAD`: `3e8b1ae82712ee4a9dcf98feeb75e41374aa9c5d`.
+- `selected slice`: Turn the Global Admin failed-export attention path into a real in-workspace follow-up list using the existing `Archive / Exports` section.
+- `repo-grounded findings`: the previous Global Admin handoff intentionally kept export-failure rows summary-only because `Archive / Exports` still exposed only counts and snapshots. Current source showed the section already existed for Global Admin, the admin dashboard already counted failed, queued, running, and complete exports, and the current route could safely return redacted export rows without exposing storage ids or adding a new endpoint. That made a real archive follow-up list safer and more useful than a broader Global Admin route refresh or another copy-only pass.
+- `changes`: `functions/api/admin/dashboard.ts` now returns redacted current export rows ordered for follow-up, `workspace.js` now renders failed/in-progress/complete filters plus a real package-request worklist inside `Archive / Exports`, and the Admin Command Center `Archive exports failed` row now opens the filtered failed-export list instead of staying summary-only. `tests/admin-dashboard.integration.test.mjs`, `tests/workspace-app.test.mjs`, and `scripts/verify-dashboard-actions.mjs` now prove the route payload, filtered workspace behavior, and preserved mentor-meeting summary-only boundary.
+- `validation`: `node --check workspace.js`, `node --test tests/admin-dashboard.integration.test.mjs`, `node --test tests/workspace-app.test.mjs`, and `npm run verify:dashboard-actions` passed before docs/state closeout. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.
+
 ## 2026-06-02 PT - Functionality UX Upgrade Administration Leadership Copy
 
 - `automation ID`: functionality-ux-upgrade-hourly.

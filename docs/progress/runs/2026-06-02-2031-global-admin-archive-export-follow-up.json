@@ -1,0 +1,84 @@
+{
+  "automationId": "functionality-ux-upgrade-hourly",
+  "runStartedAt": "2026-06-02T20:31:55-07:00",
+  "branch": "main",
+  "startingSha": "3e8b1ae82712ee4a9dcf98feeb75e41374aa9c5d",
+  "endingSha": null,
+  "workOrderId": "global-admin-archive-export-follow-up",
+  "ladderLevels": [
+    "LEVEL_4_ROLE_SPECIFIC_WORKSPACES"
+  ],
+  "selectedSlice": "Turn the Global Admin failed-export attention path into a real filtered Archive / Exports follow-up list backed by current package requests.",
+  "selectionReason": "Current repo evidence showed a real protected-workspace gap: the Admin Command Center already surfaced failed export counts and exposed the Global Admin-only Archive / Exports section, but that section still rendered only counts and snapshots, leaving export-failure follow-up summary-only. The current admin dashboard route already had the data shape and permission boundary needed to return redacted current export rows, so extending the existing section into a real filtered worklist was the safest bounded product-readiness batch.",
+  "candidateCount": 10,
+  "candidateShortlist": [
+    "Global Admin archive export follow-up worklist",
+    "Broader Global Admin route refresh across Audit, Programs, Students, Presentation, and Users & Access",
+    "Admin mentor-meeting exact destination",
+    "Program Teacher mentor-meeting follow-up destination",
+    "Hosted section-level permission proof",
+    "Review Queue missing-submission semantics",
+    "Viewer email visibility policy",
+    "Mentor reassignment or removal workflow",
+    "Admin recent-audit row drill-downs",
+    "Student hosted drill-down refresh"
+  ],
+  "userFacingImprovement": "Global Admins can now open the failed-export attention row into a real Archive / Exports follow-up list with current failed package requests, while the section also exposes in-progress and complete requests.",
+  "privacyAndPermissionNotes": [
+    "The slice reuses the existing Global Admin-only admin dashboard route and Archive / Exports section instead of adding a new route.",
+    "Recent export rows stay redacted and do not expose Drive ids, storage keys, tokens, or other secret-bearing metadata.",
+    "No auth, RBAC, tenant, site, program, mentor-assignment, or student-privacy boundary changed, and mentor-meeting follow-up remains summary-only."
+  ],
+  "filesChanged": [
+    "functions/api/admin/dashboard.ts",
+    "workspace.js",
+    "tests/admin-dashboard.integration.test.mjs",
+    "tests/workspace-app.test.mjs",
+    "scripts/verify-dashboard-actions.mjs",
+    "docs/functionality-language-audit.md",
+    "docs/product/demo-role-readiness.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-06-02-2031-global-admin-archive-export-follow-up.json",
+    "docs/functionality-ux-growth-ledger.md",
+    "automation/state/functionality-ux-growth-state.json"
+  ],
+  "validation": {
+    "focusedPassedBeforeCloseout": [
+      "node --check workspace.js",
+      "node --test tests/admin-dashboard.integration.test.mjs",
+      "node --test tests/workspace-app.test.mjs",
+      "npm run verify:dashboard-actions"
+    ],
+    "final": [
+      "node --check workspace.js",
+      "node --test tests/admin-dashboard.integration.test.mjs",
+      "node --test tests/workspace-app.test.mjs",
+      "npm run verify:dashboard-actions",
+      "npm run verify:functionality-language",
+      "npm run verify:functionality-ux-automation",
+      "npm run check:production-surfaces",
+      "npm run typecheck",
+      "npm run test",
+      "npm run check",
+      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-02-2031-global-admin-archive-export-follow-up.json','utf8')); console.log('json ok')\"",
+      "git diff --check"
+    ],
+    "result": "passed",
+    "notes": "Focused workspace syntax, admin-dashboard route proof, workspace coverage, and dashboard-action verification passed before docs/state closeout. The full validation ladder also passed after the closeout files were updated."
+  },
+  "deferred": [
+    "Broader Global Admin route refresh remains larger than this bounded archive follow-up slice.",
+    "Admin mentor-meeting follow-up still lacks a precise current destination.",
+    "Program Teacher mentor-meeting follow-up still lacks a precise scoped destination.",
+    "Hosted section-level permission proof still needs allowed hosted runtime and audit-event writes.",
+    "Review Queue missing-submission semantics remain deferred until backend rows or exact scoped empty-state evidence exist.",
+    "Viewer email visibility policy still needs a product decision before any UI change.",
+    "Mentor reassignment and removal workflow still needs mutation and audit design."
+  ],
+  "nextRecommended": "Continue the bounded Global Admin route refresh only where the current workspace can prove an exact destination; otherwise keep mentor-meeting follow-up summary-only and move to the next proven route-backed gap.",
+  "doNotRepeat": [
+    "Do not regress the new Archive / Exports follow-up list back to count-only summary cards while the admin dashboard route already returns safe current export rows.",
+    "Do not invent an Admin mentor-meeting drill-down until a real exact destination exists.",
+    "Do not broaden Global Admin archive follow-up into site-scoped sections that still require an explicit selected-school contract."
+  ]
+}

@@ -112,6 +112,10 @@ const allowedPresets = new Map([
   ["program-breakdown", "operations"],
   ["presentation-snapshot", "operations"],
   ["archive-snapshot", "operations"],
+  ["all-exports", "archiveExports"],
+  ["failed-exports", "archiveExports"],
+  ["in-progress-exports", "archiveExports"],
+  ["complete-exports", "archiveExports"],
   ["ready-for-check-out", "presentation"],
   ["checked-out", "presentation"],
   ["checked-in", "presentation"],
@@ -380,8 +384,8 @@ assertMatches(
 );
 assertMatches(
   "adminDashboardApi",
-  /type: "archive_exports"[\s\S]*?severity: "urgent"[\s\S]*?actionSection: "archiveExports"[\s\S]*?\n\s*}\);/,
-  "Admin dashboard export-failure attention rows must stay summary-only until an exact filtered destination exists",
+  /type: "archive_exports"[\s\S]*actionSection: "archiveExports"[\s\S]*actionPreset: "failed-exports"[\s\S]*actionLabel: "Open exports"/,
+  "Admin dashboard export-failure attention rows must link to the filtered Archive / Exports worklist",
 );
 assertMatches(
   "workspaceJs",
@@ -572,6 +576,11 @@ assertMatches(
   "workspaceJs",
   /section === "operations" && button\.dataset\.sectionPreset === "archive-snapshot"[\s\S]*const archiveStatus = canonicalReviewQueueValue\(button\.dataset\.archiveStatus, OPERATIONS_ARCHIVE_STATUS_VALUES\)[\s\S]*archiveStatus,[\s\S]*syncOperationsReadinessUrlState\(\)/,
   "archive snapshot rows must be backed by exact Operations archive filters and sync URL state",
+);
+assertMatches(
+  "workspaceJs",
+  /section === "archiveExports" && button\.dataset\.sectionPreset[\s\S]*const presetMap = \{[\s\S]*"failed-exports": "failed"[\s\S]*"in-progress-exports": "in_progress"[\s\S]*adminArchiveExportFilter = cleanAdminArchiveExportFilter\(presetMap\[button\.dataset\.sectionPreset\] \|\| button\.dataset\.sectionPreset \|\| "all"\)/,
+  "archive export presets must map to supported Archive / Exports filters",
 );
 assertMatches(
   "workspaceJs",

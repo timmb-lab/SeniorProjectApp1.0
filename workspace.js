@@ -47,6 +47,7 @@ let mentorAssignmentFilters = defaultMentorAssignmentFilters();
 let operationsReadinessFilters = defaultOperationsReadinessFilters();
 let mentorDashboardFilter = "all";
 let presentationSlotFilter = "all";
+let adminArchiveExportFilter = "all";
 const WORKSPACE_UPLOAD_MAX_BYTES = 20 * 1024 * 1024;
 const WORKSPACE_UPLOAD_ALLOWED_MIME_TYPES = new Set([
   "application/pdf",
@@ -199,6 +200,7 @@ const WORKSPACE_SECTION_IDS = new Set([
   "archiveExports",
   "security",
 ]);
+const ADMIN_ARCHIVE_EXPORT_FILTER_VALUES = new Set(["all", "failed", "in_progress", "complete"]);
 const REVIEW_QUEUE_STATUS_VALUES = new Set(["submitted", "revision_requested", "approved"]);
 const REVIEW_QUEUE_STORY_VALUES = new Set(["model_excellent", "missing_mentor", "awaiting_review", "revision_requested", "presentation_pending", "archive_ready", "archive_failed", "high_risk", "rich_timeline"]);
 const REVIEW_QUEUE_RISK_VALUES = new Set(["any", "high", "medium", "low", "stale", "no_mentor"]);
@@ -342,6 +344,7 @@ async function loadSession() {
       studentSubmissionFilter = defaultStudentSubmissionFilter();
       mentorDashboardFilter = "all";
       presentationSlotFilter = "all";
+      adminArchiveExportFilter = "all";
       renderSignIn(
         messageForSessionStateError(data?.error, response.status),
         data?.error ? "error" : "neutral",
@@ -356,6 +359,7 @@ async function loadSession() {
       studentSubmissionFilter = defaultStudentSubmissionFilter();
       mentorDashboardFilter = "all";
       presentationSlotFilter = "all";
+      adminArchiveExportFilter = "all";
     }
     currentUser = data.user;
     applyWorkspaceUrlState(workspaceUrlStateFromLocation(), { initial: true });
@@ -369,6 +373,7 @@ async function loadSession() {
     studentSubmissionFilter = defaultStudentSubmissionFilter();
     mentorDashboardFilter = "all";
     presentationSlotFilter = "all";
+    adminArchiveExportFilter = "all";
     renderSignIn(messageForNetworkError(error), "error");
   }
 }
@@ -1534,6 +1539,18 @@ async function openWorkspaceSection(button) {
     activeSection = "operations";
     syncOperationsReadinessUrlState();
     await loadOperationsReadinessResult(`Showing ${statusText(archiveStatus).toLowerCase()} archive rows.`);
+    return;
+  }
+  if (section === "archiveExports" && button.dataset.sectionPreset) {
+    const presetMap = {
+      "all-exports": "all",
+      "failed-exports": "failed",
+      "in-progress-exports": "in_progress",
+      "complete-exports": "complete",
+    };
+    adminArchiveExportFilter = cleanAdminArchiveExportFilter(presetMap[button.dataset.sectionPreset] || button.dataset.sectionPreset || "all");
+    activeSection = "archiveExports";
+    renderAppShell();
     return;
   }
   if (section === "presentation" && button.dataset.sectionPreset) {
@@ -4996,6 +5013,9 @@ function renderAdminArchiveExportsSection() {
     { label: "Complete", value: safeNumber(summary.exportsComplete), tone: "mentor" },
     { label: "Failed", value: safeNumber(summary.exportsFailed), tone: "danger" },
   ];
+  const recentExports = Array.isArray(dashboard.recentExports) ? dashboard.recentExports : [];
+  const activeFilter = cleanAdminArchiveExportFilter(adminArchiveExportFilter);
+  const filteredExports = filterAdminArchiveExportRows(recentExports, activeFilter);
   const totalExports = exportRows.reduce((sum, row) => sum + safeNumber(row.value), 0);
   const archiveScore = totalExports ? clampPercent((safeNumber(summary.exportsComplete) / totalExports) * 100) : null;
   return `
@@ -5018,8 +5038,118 @@ function renderAdminArchiveExportsSection() {
         ${renderReadinessScoreCard(archiveScore, totalExports, "Archive completion score", totalExports ? `${safeNumber(summary.exportsComplete)} of ${totalExports} package requests are complete.` : "No package requests to summarize yet.")}
         ${renderDashboardCard("Archive distribution", "Ready, in progress, and failed packages", renderStackedDistribution(exportRows, "Archive export distribution"))}
       </div>
+      ${renderAdminArchiveExportFilters(recentExports, activeFilter)}
+      ${renderDashboardCard("Current package requests", "Real archive export rows for follow-up", renderAdminArchiveExportRows(filteredExports, activeFilter, recentExports.length))}
       ${renderDashboardCard("Export Snapshot", "Package status", renderSnapshotRows(dashboard.archiveSnapshot))}
     </section>
+  `;
+}
+
+function cleanAdminArchiveExportFilter(value) {
+  const normalized = normalizeStatus(value || "all") || "all";
+  return ADMIN_ARCHIVE_EXPORT_FILTER_VALUES.has(normalized) ? normalized : "all";
+}
+
+function adminArchiveExportFilterLabel(value) {
+  if (value === "failed") return "Failed";
+  if (value === "in_progress") return "In progress";
+  if (value === "complete") return "Complete";
+  return "All requests";
+}
+
+function adminArchiveExportRowFilterKey(row = {}) {
+  const status = normalizeStatus(row.status);
+  if (status === "queued" || status === "running") return "in_progress";
+  return cleanAdminArchiveExportFilter(status);
+}
+
+function filterAdminArchiveExportRows(rows = [], activeFilter = "all") {
+  const filter = cleanAdminArchiveExportFilter(activeFilter);
+  const safeRows = Array.isArray(rows) ? rows : [];
+  if (filter === "all") return safeRows;
+  return safeRows.filter((row) => adminArchiveExportRowFilterKey(row) === filter);
+}
+
+function renderAdminArchiveExportFilters(rows = [], activeFilter = "all") {
+  const safeRows = Array.isArray(rows) ? rows : [];
+  const counts = {
+    all: safeRows.length,
+    failed: safeRows.filter((row) => adminArchiveExportRowFilterKey(row) === "failed").length,
+    in_progress: safeRows.filter((row) => adminArchiveExportRowFilterKey(row) === "in_progress").length,
+    complete: safeRows.filter((row) => adminArchiveExportRowFilterKey(row) === "complete").length,
+  };
+  return `
+    <div class="workspace-filter-bar" data-admin-archive-export-filters="true" aria-label="Archive export filters">
+      ${[
+        ["all", "all-exports"],
+        ["failed", "failed-exports"],
+        ["in_progress", "in-progress-exports"],
+        ["complete", "complete-exports"],
+      ].map(([filter, preset]) => `
+        <button class="workspace-button ${activeFilter === filter ? "workspace-button-primary" : "workspace-button-secondary"}" type="button" data-section="archiveExports" data-section-preset="${preset}" data-admin-archive-export-filter="${filter}" aria-pressed="${activeFilter === filter ? "true" : "false"}">
+          ${escapeHtml(adminArchiveExportFilterLabel(filter))} (${safeNumber(counts[filter])})
+        </button>
+      `).join("")}
+    </div>
+  `;
+}
+
+function renderAdminArchiveExportRows(rows = [], activeFilter = "all", totalRows = 0) {
+  const safeRows = Array.isArray(rows) ? rows : [];
+  if (!safeRows.length) {
+    const heading = cleanAdminArchiveExportFilter(activeFilter) === "all"
+      ? "No archive package requests are available right now."
+      : `No ${adminArchiveExportFilterLabel(activeFilter).toLowerCase()} archive package requests are available right now.`;
+    const nextAction = cleanAdminArchiveExportFilter(activeFilter) === "failed"
+      ? "Review the full archive summary or switch filters to check in-progress and completed requests."
+      : "Switch filters to review another export status or return later after package requests are created.";
+    return `
+      <section class="workspace-empty-state-card" data-admin-archive-export-empty="${escapeHtml(cleanAdminArchiveExportFilter(activeFilter))}">
+        <strong>${escapeHtml(heading)}</strong>
+        <p>${escapeHtml(totalRows ? nextAction : "Archive package requests will appear here after staff start or finish archive delivery work.")}</p>
+      </section>
+    `;
+  }
+  return `
+    <div class="workspace-list" data-admin-archive-export-list="${escapeHtml(cleanAdminArchiveExportFilter(activeFilter))}">
+      ${safeRows.map((row) => {
+        const status = normalizeStatus(row.status) || "pending";
+        const requestedBy = row.requestedBy ? `Requested by ${row.requestedBy}` : "Requested by staff";
+        const timing = row.completedAt
+          ? `Completed ${formatDate(row.completedAt)}`
+          : `Requested ${formatDate(row.createdAt)}`;
+        const nextAction = status === "failed"
+          ? "Review the failure before archive handoff."
+          : status === "complete"
+            ? "Package request is complete."
+            : "Package request is still in progress.";
+        return `
+          <article class="workspace-worklist-row" data-admin-archive-export-row="${escapeHtml(row.exportId || "export")}" data-admin-archive-export-status="${escapeHtml(adminArchiveExportRowFilterKey(row))}">
+            <div>
+              <span class="workspace-worklist-label">Student</span>
+              <strong>${escapeHtml(row.studentName || "Student archive")}</strong>
+              <small>${escapeHtml(requestedBy)}</small>
+            </div>
+            <div>
+              <span class="workspace-worklist-label">Package</span>
+              <span>${escapeHtml(row.exportType === "student_archive" ? "Student archive" : statusText(row.exportType || "archive"))}</span>
+            </div>
+            <div>
+              <span class="workspace-worklist-label">Timing</span>
+              <span>${escapeHtml(timing)}</span>
+            </div>
+            <div>
+              <span class="workspace-worklist-label">Next step</span>
+              <span>${escapeHtml(nextAction)}</span>
+            </div>
+            <div>
+              <span class="workspace-worklist-label">Status</span>
+              ${statusPill(status)}
+            </div>
+          </article>
+        `;
+      }).join("")}
+    </div>
   `;
 }
 
@@ -9673,6 +9803,7 @@ async function signOut() {
     studentFeedbackHistoryState = defaultStudentFeedbackHistoryState();
     studentSubmissionFilter = defaultStudentSubmissionFilter();
     presentationSlotFilter = "all";
+    adminArchiveExportFilter = "all";
     renderSignIn("You have signed out.", "success");
   }
 }

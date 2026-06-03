@@ -1,10 +1,18 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-06-02T20:08:00-07:00",
-  "lastStartingSha": "25e43ef1f5718f23d5b204a8722cc4a3b2b79064",
+  "lastRunAt": "2026-06-02T20:31:55-07:00",
+  "lastStartingSha": "3e8b1ae82712ee4a9dcf98feeb75e41374aa9c5d",
   "lastEndingSha": null,
   "currentLadderFocus": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
   "completedWorkOrders": [
+    {
+      "id": "global-admin-archive-export-follow-up",
+      "completedAt": "2026-06-02T20:31:55-07:00",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "type": "TYPE_D_ROLE_WORKSPACE",
+      "summary": "Global Admins can now open the failed-export attention row into the existing Archive / Exports section and review real failed, in-progress, and complete package requests.",
+      "commit": "pending-closeout-commit"
+    },
     {
       "id": "global-admin-attention-drilldowns",
       "completedAt": "2026-06-02T20:08:00-07:00",
@@ -1178,13 +1186,13 @@
       "id": "global-admin-route-refresh",
       "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
       "type": "TYPE_G_VERIFICATION_REGRESSION_PROTECTION",
-      "summary": "Refresh the remaining Global Admin click-through and boundary proof, but only where the current workspace can prove an exact destination."
+      "summary": "Refresh the remaining Global Admin click-through and boundary proof now that archive export follow-up has an exact destination."
     },
     {
       "id": "program-teacher-mentor-meeting-follow-up-destination",
       "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
       "type": "TYPE_D_ROLE_WORKSPACE",
-      "summary": "Only add a Program Teacher mentor-meeting drill-down when a precise scoped destination is proven."
+      "summary": "Only add mentor-meeting drill-downs when a precise scoped destination is proven."
     },
     {
       "id": "hosted-section-permission-proof",
@@ -1200,8 +1208,10 @@
     }
   ],
   "doNotRepeat": [
+    "Do not regress the new Archive / Exports follow-up list back to count-only summary cards while the admin dashboard route already returns safe current export rows.",
+    "Do not invent an Admin mentor-meeting preset until a real exact destination exists.",
+    "Do not broaden Global Admin archive follow-up into site-scoped sections that still require an explicit selected-school contract.",
     "Do not remove the Admin Command Center attention drill-downs while the existing Students, Review Queue, and Presentation destinations still back them.",
-    "Do not invent an Admin mentor-meeting or export-failure preset until a real exact destination exists.",
     "Do not fall back to the generic site-selection-required copy when /api/site/programs returns site_selection_required; keep the Programs-specific school-pick guidance visible.",
     "Do not remove the Admin Command Center Programs quick action while the existing Programs section remains the backed school-program setup path.",
     "Do not fall back to a generic API notice for Users & Access when /api/site/access-assignments returns site_selection_required; keep explicit school-pick guidance visible.",
@@ -1351,9 +1361,10 @@
   ],
   "lastValidationStatus": {
     "status": "passed",
-    "completedAt": "2026-06-02T20:15:05.7414903-07:00",
+    "completedAt": "2026-06-02T20:44:45.7758156-07:00",
     "commands": [
       "node --check workspace.js",
+      "node --test tests/admin-dashboard.integration.test.mjs",
       "node --test tests/workspace-app.test.mjs",
       "npm run verify:dashboard-actions",
       "npm run verify:functionality-language",
@@ -1362,10 +1373,10 @@
       "npm run typecheck",
       "npm run test",
       "npm run check",
-      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-02-2008-global-admin-attention-drilldowns.json','utf8')); console.log('json ok')\"",
+      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-02-2031-global-admin-archive-export-follow-up.json','utf8')); console.log('json ok')\"",
       "git diff --check"
     ],
-    "notes": "Focused workspace syntax, workspace coverage, and dashboard-action verification passed before docs/state closeout. Final validation also passed after the closeout files were updated."
+    "notes": "Focused workspace syntax, admin-dashboard route proof, workspace coverage, and dashboard-action verification passed before docs/state closeout. Final validation also passed after the closeout files were updated."
   },
   "lastProductReadinessScorecardSummary": {
     "homepageClarity": "4 to 4",

@@ -47,6 +47,16 @@ interface RecentAuditRow {
   actor_display_name: string | null;
 }
 
+interface RecentExportRow {
+  id: string;
+  export_type: string;
+  status: string;
+  created_at: string;
+  completed_at: string | null;
+  target_student_name: string | null;
+  requester_display_name: string | null;
+}
+
 export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
   const user = await getCurrentUser(request, env);
   if (!user) return json({ error: "unauthorized" }, { status: 401 });
@@ -76,6 +86,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
     reviewQueue,
     mentorCoverage,
     recentAudit,
+    recentExports,
   ] = await Promise.all([
     count(env, `SELECT COUNT(DISTINCT user_accounts.id) AS count
       FROM user_accounts
@@ -111,6 +122,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
     safeRows<ReviewQueueRow>(env, reviewQueueSql()),
     safeRows<MentorCoverageRow>(env, mentorCoverageSql()),
     recentAuditRows(env),
+    recentExportRows(env),
   ]);
 
   const summary = {
@@ -185,6 +197,15 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
       createdAt: row.created_at,
       actorDisplayName: row.actor_display_name || undefined,
     })),
+    recentExports: recentExports.map((row) => ({
+      exportId: row.id,
+      exportType: row.export_type,
+      status: row.status,
+      createdAt: row.created_at,
+      completedAt: row.completed_at || undefined,
+      studentName: row.target_student_name || "Student archive",
+      requestedBy: row.requester_display_name || undefined,
+    })),
     notConnected: [],
   });
 };
@@ -224,6 +245,31 @@ async function recentAuditRows(env: Env): Promise<RecentAuditRow[]> {
      ORDER BY audit_events.created_at DESC
      LIMIT 10`,
   ).all<RecentAuditRow>();
+  return rows.results || [];
+}
+
+async function recentExportRows(env: Env): Promise<RecentExportRow[]> {
+  const rows = await env.DB.prepare(
+    `SELECT
+       exports.id,
+       exports.export_type,
+       exports.status,
+       exports.created_at,
+       exports.completed_at,
+       target.display_name AS target_student_name,
+       requester.display_name AS requester_display_name
+     FROM exports
+     LEFT JOIN user_accounts target ON target.id = exports.target_user_id
+     LEFT JOIN user_accounts requester ON requester.id = exports.requested_by
+     ORDER BY CASE
+       WHEN exports.status = 'failed' THEN 0
+       WHEN exports.status IN ('queued', 'running') THEN 1
+       WHEN exports.status = 'complete' THEN 2
+       ELSE 3
+     END,
+     exports.created_at DESC
+     LIMIT 12`,
+  ).all<RecentExportRow>();
   return rows.results || [];
 }
 
@@ -356,6 +402,8 @@ function buildNeedsAttention(summary: Record<string, number>): Array<{
       detail: `${summary.exportsFailed} export(s) need review before handoff.`,
       severity: "urgent" as const,
       actionSection: "archiveExports",
+      actionPreset: "failed-exports",
+      actionLabel: "Open exports",
     });
   }
   if (summary.presentationOutlinePending > 0) {

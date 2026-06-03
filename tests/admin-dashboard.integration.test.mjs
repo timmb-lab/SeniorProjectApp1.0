@@ -60,6 +60,12 @@ test("admin dashboard enforces admin-only access and returns safe D1-backed summ
   assert.ok(Array.isArray(body.archiveSnapshot));
   assert.ok(Array.isArray(body.needsAttention));
   assert.ok(Array.isArray(body.recentAudit));
+  assert.ok(Array.isArray(body.recentExports));
+  assert.equal(body.recentExports.length, 3);
+  assert.equal(body.recentExports[0].status, "failed");
+  assert.equal(body.recentExports[0].studentName, "Student A");
+  assert.equal(body.recentExports[1].status, "queued");
+  assert.equal(body.recentExports[2].status, "complete");
 
   const serialized = JSON.stringify(body);
   assert.doesNotMatch(serialized, /drive_file_id|drive_parent_folder_id|storage_key|temporaryPassword/i);
@@ -108,7 +114,9 @@ async function createFixture() {
   await db.prepare("INSERT INTO mentor_meetings (id, mentor_user_id, student_user_id, status) VALUES ('meet-b', 'mentor-a', 'student-b', 'missed')").run();
   await db.prepare("INSERT INTO presentation_slots (id, student_user_id, scheduled_for, duration_minutes, location, status, outline_status) VALUES ('slot-a', 'student-a', '2026-05-21T18:00:00.000Z', 15, 'Room 1', 'scheduled', 'pending')").run();
   await db.prepare("INSERT INTO presentation_slots (id, student_user_id, scheduled_for, duration_minutes, location, status, outline_status) VALUES ('slot-b', 'student-b', '2026-05-21T18:30:00.000Z', 15, 'Room 2', 'completed', 'approved')").run();
-  await db.prepare("INSERT INTO exports (id, export_type, requested_by, target_user_id, status) VALUES ('export-a', 'student_archive', 'admin-a', 'student-a', 'failed')").run();
+  await db.prepare("INSERT INTO exports (id, export_type, requested_by, target_user_id, status, created_at) VALUES ('export-a', 'student_archive', 'admin-a', 'student-a', 'failed', '2026-05-21T09:00:00.000Z')").run();
+  await db.prepare("INSERT INTO exports (id, export_type, requested_by, target_user_id, status, created_at) VALUES ('export-b', 'student_archive', 'admin-a', 'student-b', 'queued', '2026-05-21T08:30:00.000Z')").run();
+  await db.prepare("INSERT INTO exports (id, export_type, requested_by, target_user_id, status, created_at, completed_at) VALUES ('export-c', 'student_archive', 'admin-a', 'student-c', 'complete', '2026-05-21T08:00:00.000Z', '2026-05-21T08:45:00.000Z')").run();
   await db.prepare("INSERT INTO audit_events (id, actor_user_id, action, entity_type) VALUES ('audit-seed', 'admin-a', 'student_dashboard_viewed', 'student_dashboard')").run();
 
   const tokens = {

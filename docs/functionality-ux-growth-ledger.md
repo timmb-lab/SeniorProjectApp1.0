@@ -6302,3 +6302,62 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: hosted permission proof still needs allowed runtime; Admin mentor-meeting and export-failure rows still lack an exact filtered destination; Review Queue missing-submission semantics still need backend evidence.
   - Do not repeat: do not regress the Admin Command Center attention rows back to summary-only for missing mentors, revision loops, or outline follow-up, and do not add fake drill-downs for the remaining rows.
   - First file to inspect next run: `functions/api/admin/dashboard.ts` around `buildNeedsAttention()` and `workspace.js` around the presentation preset handler
+
+## Run 2026-06-02 20:31 PT
+
+- Starting SHA: `3e8b1ae82712ee4a9dcf98feeb75e41374aa9c5d`
+- Ending SHA: pending closeout commit; final hash is reported after commit
+- Branch: `main`
+- Branch policy: started from clean local `main` ahead of `origin/main` only by the previous in-lane commit; this run stayed local-only and did not push
+- Ladder level targeted: `LEVEL_4_ROLE_SPECIFIC_WORKSPACES`
+- Backlog item: `docs/functionality-language-audit.md` item `45` plus the remaining Global Admin route-refresh handoff in `docs/product/demo-role-readiness.md`
+- Work order selected: Turn the Global Admin `Archive exports failed` attention path into a real filtered `Archive / Exports` follow-up list backed by current export rows.
+- Selection reason: current repo evidence showed a real protected-workspace gap, not a speculative polish task. The Admin Command Center already counted failed exports and exposed a dedicated `Archive / Exports` section, but that section still rendered only counts and snapshots, which left the failed-export attention row summary-only. Reusing the existing admin dashboard route to return redacted current package-request rows, then filtering them inside the existing section, was safer and more valuable than a broader Global Admin refresh or any attempt to invent a mentor-meeting destination that still does not exist.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Global Admin archive export follow-up worklist | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | `global_admin`, `admin`, `platform_admin` | 5 | 5 | 5 | S | 58 | selected |
+| Broader Global Admin route refresh across Audit, Programs, Students, Presentation, and Users & Access | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | `global_admin` | 4 | 4 | 3 | M | 44 | deferred: still broader than one safe hourly slice |
+| Admin mentor-meeting exact destination | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | `global_admin` | 4 | 2 | 2 | M | 30 | deferred: current workspace still lacks a precise meeting-follow-up destination |
+| Program Teacher mentor-meeting follow-up destination | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | `program_teacher` | 4 | 3 | 3 | M | 40 | deferred: no precise scoped destination is proven |
+| Hosted section-level permission proof | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all protected roles | 4 | 3 | 2 | M | 35 | deferred: hosted runtime is outside this local batch |
+| Review Queue missing-submission semantics | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | `program_teacher`, `site_admin` | 5 | 2 | 3 | M | 34 | deferred: backend queue rows are still absent |
+| Viewer email visibility policy | `LEVEL_7_AUDITABILITY_AND_TRUST` | `viewer` | 3 | 2 | 3 | S | 30 | deferred: product policy still comes before UI change |
+| Mentor reassignment or removal workflow | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | `site_admin` | 4 | 2 | 3 | M | 33 | deferred: mutation and audit design still needed |
+| Admin recent-audit row drill-downs | `LEVEL_7_AUDITABILITY_AND_TRUST` | `global_admin` | 3 | 3 | 3 | S | 31 | not selected: lower workflow value than fixing a blocked follow-up list already surfaced in the dashboard |
+| Student hosted drill-down refresh | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | `student` | 4 | 2 | 2 | M | 29 | deferred: broader hosted/product pass than this bounded Global Admin slice |
+
+- User-facing improvement: Global Admins can now move from the Admin Command Center failed-export attention row into the existing `Archive / Exports` section and review real failed package requests, while the section also exposes in-progress and complete requests without new routes or unsafe storage details.
+- Roles affected: `global_admin`, `admin`, `platform_admin`
+- Files changed: `functions/api/admin/dashboard.ts`, `workspace.js`, `tests/admin-dashboard.integration.test.mjs`, `tests/workspace-app.test.mjs`, `scripts/verify-dashboard-actions.mjs`, `docs/functionality-language-audit.md`, `docs/product/demo-role-readiness.md`, `docs/progress/run-log.md`, `docs/progress/runs/2026-06-02-2031-global-admin-archive-export-follow-up.json`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`
+- Tests/verifiers added or updated: `tests/admin-dashboard.integration.test.mjs` now proves the admin dashboard returns redacted recent export rows ordered for follow-up; `tests/workspace-app.test.mjs` now proves the Admin Command Center failed-export row opens a filtered archive follow-up list while mentor-meeting remains summary-only; `scripts/verify-dashboard-actions.mjs` now guards the new archive-export preset mapping and the admin-dashboard export-follow-up handoff.
+- Validation commands:
+  - `node --check workspace.js`
+  - `node --test tests/admin-dashboard.integration.test.mjs`
+  - `node --test tests/workspace-app.test.mjs`
+  - `npm run verify:dashboard-actions`
+  - `npm run verify:functionality-language`
+  - `npm run verify:functionality-ux-automation`
+  - `npm run check:production-surfaces`
+  - `npm run typecheck`
+  - `npm run test`
+  - `npm run check`
+  - `node -e "JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-02-2031-global-admin-archive-export-follow-up.json','utf8')); console.log('json ok')"`
+  - `git diff --check`
+- Validation result: passed; focused workspace syntax, admin-dashboard route proof, workspace coverage, and dashboard-action verification passed before docs/state closeout, then the full validation ladder also passed after the closeout files were updated.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: broader Global Admin route refresh, Admin mentor-meeting exact destination, Program Teacher mentor-meeting follow-up destination, hosted section-level permission proof, Review Queue missing-submission semantics, viewer email visibility policy, and mentor reassignment/remove workflow remain open.
+- New backlog items: none
+- Next recommended work order: Continue the bounded Global Admin route refresh only where the current workspace can prove an exact destination; keep both Admin and Program Teacher mentor-meeting follow-up summary-only until a real scoped destination exists.
+- Do-not-repeat notes: do not regress the new archive export follow-up list back to count-only summary cards, and do not invent a mentor-meeting drill-down just because the archive-export gap is now closed.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_4_ROLE_SPECIFIC_WORKSPACES`
+  - Advanced: yes
+  - Evidence: `functions/api/admin/dashboard.ts` now returns redacted current export rows, `workspace.js` filters them inside `Archive / Exports`, and focused route/workspace/verifier coverage proves the failed-export attention handoff while mentor-meeting stays summary-only.
+  - Unlocks: the next Global Admin pass can stop treating export failures as an unresolved dashboard dead end and focus on the remaining route-refresh boundaries.
+  - Next: inspect `functions/api/admin/dashboard.ts` and `workspace.js` around mentor-meeting follow-up only if a more exact current destination can be proven; otherwise continue the broader Global Admin route refresh across the remaining backed surfaces.
+  - Blockers: mentor-meeting follow-up still lacks a precise destination; hosted permission proof still needs allowed runtime; Review Queue missing-submission semantics still need backend evidence.
+  - Do not repeat: do not hide export follow-up back behind counts alone, and do not broaden archive follow-up into site-scoped sections that still require a selected school.
+  - First file to inspect next run: `functions/api/admin/dashboard.ts` around `recentExportRows()` and `buildNeedsAttention()`

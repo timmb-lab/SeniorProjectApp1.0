@@ -975,6 +975,8 @@ test("global admin needs attention rows use real drill-downs and keep unmatched 
             detail: "2 export(s) need review before handoff.",
             severity: "urgent",
             actionSection: "archiveExports",
+            actionPreset: "failed-exports",
+            actionLabel: "Open exports",
           },
           {
             type: "presentation_readiness",
@@ -992,6 +994,33 @@ test("global admin needs attention rows use real drill-downs and keep unmatched 
         presentationSnapshot: [],
         archiveSnapshot: [],
         recentAudit: [],
+        recentExports: [
+          {
+            exportId: "export-failed",
+            exportType: "student_archive",
+            status: "failed",
+            createdAt: "2026-03-26T15:15:00.000Z",
+            studentName: "Avery Archive",
+            requestedBy: "Global Admin Needs Attention",
+          },
+          {
+            exportId: "export-running",
+            exportType: "student_archive",
+            status: "running",
+            createdAt: "2026-03-26T15:45:00.000Z",
+            studentName: "Blair Archive",
+            requestedBy: "Global Admin Needs Attention",
+          },
+          {
+            exportId: "export-complete",
+            exportType: "student_archive",
+            status: "complete",
+            createdAt: "2026-03-26T14:30:00.000Z",
+            completedAt: "2026-03-26T15:05:00.000Z",
+            studentName: "Casey Archive",
+            requestedBy: "Global Admin Needs Attention",
+          },
+        ],
       },
     },
     "/api/presentation-slots": {
@@ -1062,7 +1091,7 @@ test("global admin needs attention rows use real drill-downs and keep unmatched 
   assert.match(adminDashboard, /Revision requests open[\s\S]*data-section="teacher" data-section-preset="revision-requested"[\s\S]*Open review queue/);
   assert.match(adminDashboard, /Presentation outlines pending[\s\S]*data-section="presentation" data-section-preset="outline-follow-up"[\s\S]*Open schedule/);
   assert.match(adminDashboard, /Mentor meeting follow-up[\s\S]*Summary only/);
-  assert.match(adminDashboard, /Archive exports failed[\s\S]*Summary only/);
+  assert.match(adminDashboard, /Archive exports failed[\s\S]*data-section="archiveExports" data-section-preset="failed-exports"[\s\S]*Open exports/);
 
   await vm.runInContext('openWorkspaceSection({ dataset: { section: "presentation", sectionPreset: "outline-follow-up" } })', context);
 
@@ -1074,6 +1103,16 @@ test("global admin needs attention rows use real drill-downs and keep unmatched 
   assert.doesNotMatch(workspaceRoot.innerHTML, /Maya Student|Jordan Student/);
   assert.match(window.location.href, /section=presentation/);
   assert.match(window.location.href, /presentationFocus=outline_follow_up/);
+
+  await vm.runInContext('openWorkspaceSection({ dataset: { section: "archiveExports", sectionPreset: "failed-exports" } })', context);
+
+  assert.equal(vm.runInContext("activeSection", context), "archiveExports");
+  assert.equal(vm.runInContext("adminArchiveExportFilter", context), "failed");
+  assert.match(workspaceRoot.innerHTML, /data-admin-archive-export-filters="true"/);
+  assert.match(workspaceRoot.innerHTML, /data-admin-archive-export-filter="failed" aria-pressed="true"/);
+  assert.match(workspaceRoot.innerHTML, /data-admin-archive-export-list="failed"/);
+  assert.match(workspaceRoot.innerHTML, /Avery Archive/);
+  assert.doesNotMatch(workspaceRoot.innerHTML, /Blair Archive|Casey Archive/);
 });
 
 test("site dashboard top-risk detail stays in dashboard context", async () => {
@@ -4673,6 +4712,8 @@ test("workspace dashboard actions use supported filters and loaders", () => {
   assert.match(sectionOpenBlock, /section === "operations" && button\.dataset\.sectionPreset === "presentation-attention"/);
   assert.match(sectionOpenBlock, /section === "operations" && button\.dataset\.sectionPreset === "outline-pending"/);
   assert.match(sectionOpenBlock, /section === "operations" && button\.dataset\.sectionPreset === "evidence-missing"/);
+  assert.match(sectionOpenBlock, /section === "archiveExports" && button\.dataset\.sectionPreset/);
+  assert.match(sectionOpenBlock, /adminArchiveExportFilter = cleanAdminArchiveExportFilter/);
   assert.match(sectionOpenBlock, /programId,/);
   assert.match(sectionOpenBlock, /loadOperationsReadinessResult\("Showing operations rows for the selected program\."\)/);
   assert.match(workspaceJs, /data-operations-action="filter-category"/);
@@ -4692,6 +4733,7 @@ test("workspace dashboard actions use supported filters and loaders", () => {
   assert.match(workspaceJs, /data-section-preset="status-breakdown"/);
   assert.match(workspaceJs, /data-section-preset="mentor-workload"/);
   assert.match(workspaceJs, /data-section-preset="program-breakdown"/);
+  assert.match(workspaceJs, /"failed-exports"/);
   assert.match(workspaceJs, /preset: "presentation-attention"/);
   assert.match(workspaceJs, /preset: "outline-pending"/);
   assert.match(workspaceJs, /preset: "evidence-missing"/);
