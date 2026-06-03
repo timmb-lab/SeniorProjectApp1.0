@@ -5926,7 +5926,20 @@ test("student requirement rows open in-page details without another route", asyn
         submissions: [
           { id: "submission-proposal", requirement_id: "req-proposal", requirement_title: "Senior Project Proposal", status: "revision_requested", version: 2, updated_at: "2026-05-24T18:00:00.000Z" },
         ],
-        evidence: [],
+        evidence: [
+          {
+            id: "evidence-proposal",
+            submissionId: "submission-proposal",
+            requirementId: "req-proposal",
+            requirementTitle: "Senior Project Proposal",
+            title: "Proposal draft link",
+            artifact_type: "planning_document",
+            source_kind: "external_link",
+            review_status: "pending_review",
+            externalUrl: "https://example.test/proposal-detail",
+            created_at: "2026-05-24T17:50:00.000Z",
+          },
+        ],
         feedback: [
           {
             id: "review-proposal",
@@ -5980,6 +5993,10 @@ test("student requirement rows open in-page details without another route", asyn
   assert.match(workspaceRoot.innerHTML, /Version 2 \/ Revision requested/);
   assert.match(workspaceRoot.innerHTML, /Latest teacher feedback/);
   assert.match(workspaceRoot.innerHTML, /Add one measurable success target before resubmitting/);
+  assert.match(workspaceRoot.innerHTML, /Matching uploaded and linked work/);
+  assert.match(workspaceRoot.innerHTML, /Proposal draft link/);
+  assert.match(workspaceRoot.innerHTML, /href="https:\/\/example\.test\/proposal-detail"/);
+  assert.match(workspaceRoot.innerHTML, /Open link/);
   assert.doesNotMatch(workspaceRoot.innerHTML, /href="#"/);
 });
 
@@ -7492,6 +7509,9 @@ test("student files rows reopen the matching requirement detail", async () => {
   assert.match(workspaceRoot.innerHTML, /data-student-requirement-detail="true"/);
   assert.match(workspaceRoot.innerHTML, /Senior Project Proposal/);
   assert.match(workspaceRoot.innerHTML, /Version 2 \/ Revision requested/);
+  assert.match(workspaceRoot.innerHTML, /Matching uploaded and linked work/);
+  assert.match(workspaceRoot.innerHTML, /Proposal draft/);
+  assert.match(workspaceRoot.innerHTML, /Open link/);
 });
 
 test("workspace renders admin import controls and one-time setup output", async () => {

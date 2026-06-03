@@ -1,10 +1,18 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-06-03T04:38:55-07:00",
-  "lastStartingSha": "4e674c786bf77ee9354de3b50d626f57a848cbbe",
+  "lastRunAt": "2026-06-03T05:06:39-07:00",
+  "lastStartingSha": "00a4c323c3f0ea914007085fac1d333b1862c87e",
   "lastEndingSha": null,
   "currentLadderFocus": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN",
   "completedWorkOrders": [
+    {
+      "id": "student-requirement-detail-evidence-follow-through",
+      "completedAt": "2026-06-03T05:06:39-07:00",
+      "ladderLevel": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN",
+      "type": "TYPE_C_STUDENT_DETAIL_DRILL_DOWN",
+      "summary": "Student requirement detail now re-lists the exact matching uploaded or linked work with the same safe file actions after a requirement is reopened from the dashboard.",
+      "commit": "pending-closeout-commit"
+    },
     {
       "id": "student-evidence-requirement-handoff",
       "completedAt": "2026-06-03T04:38:55-07:00",
@@ -1303,10 +1311,10 @@
   "blockedWorkOrders": [],
   "nextRecommendedWorkOrders": [
     {
-      "id": "student-evidence-follow-through",
+      "id": "student-requirement-detail-feedback-follow-through",
       "ladderLevel": "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN",
       "type": "TYPE_C_STUDENT_DETAIL_DRILL_DOWN",
-      "summary": "Continue the student refresh only if the current dashboard can prove another exact evidence, submission, or feedback handoff from an existing in-page panel."
+      "summary": "Continue the student refresh only if the current requirement detail or submission panels can prove another exact feedback or submission timeline handoff from the same in-page workflow."
     },
     {
       "id": "filtered-audit-cross-school-proof",
@@ -1346,6 +1354,8 @@
     }
   ],
   "doNotRepeat": [
+    "Do not regress student requirement detail back to summary-only facts while the current dashboard already carries the matching evidence rows for the reopened requirement.",
+    "Do not remove safe download or open-link actions from requirement-detail evidence rows while Uploaded and linked work already exposes the same student-scoped file actions.",
     "Do not strip requirementId or requirementTitle from /api/student/dashboard evidence rows while Uploaded and linked work reuses them for exact requirement reopen.",
     "Do not regress student Uploaded and linked work back to passive file history while the existing requirement detail already supports the same student-scoped handoff.",
     "Do not expose storage identifiers, new evidence routes, or other-student file context while deepening student file usability.",
@@ -1523,10 +1533,9 @@
   ],
   "lastValidationStatus": {
     "status": "passed",
-    "completedAt": "2026-06-03T04:38:55-07:00",
+    "completedAt": "2026-06-03T05:06:39-07:00",
     "commands": [
       "node --check workspace.js",
-      "node --test tests/student-dashboard-access.integration.test.mjs",
       "node --test tests/workspace-app.test.mjs",
       "npm run verify:functionality-language",
       "node --test tests/functionality-language-audit.test.mjs",
@@ -1535,10 +1544,10 @@
       "npm run typecheck",
       "npm run test",
       "npm run check",
-      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-03-0438-student-evidence-requirement-handoff.json','utf8')); console.log('json ok')\"",
+      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-03-0506-student-requirement-detail-evidence.json','utf8')); console.log('json ok')\"",
       "git diff --check"
     ],
-    "notes": "Focused student dashboard and workspace checks passed before docs/state closeout, and the broader validation ladder passed after the closeout files were updated. git diff --check reported only CRLF normalization warnings."
+    "notes": "Focused workspace checks passed before docs/state closeout, and the broader validation ladder passed after the closeout files were updated. git diff --check reported only CRLF normalization warnings."
   },
   "lastProductReadinessScorecardSummary": {
     "homepageClarity": "4 to 4",

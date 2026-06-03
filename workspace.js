@@ -5394,7 +5394,7 @@ function renderStudentWorkspaceDisclosurePanels(dashboard, summary, submissions,
         openLabel: "Open checklist",
         closeLabel: "Hide checklist",
         dataAttrs: 'data-student-requirements-panel="true" tabindex="-1"',
-        bodyHtml: renderStudentRequirementPanelBody(requirements, summary, feedback, studentRequirementDetailState),
+        bodyHtml: renderStudentRequirementPanelBody(requirements, summary, feedback, studentRequirementDetailState, evidence),
       })}
       ${renderWorkspaceDisclosurePanel({
         scope: "student",
@@ -5769,7 +5769,7 @@ function renderStudentRequirementPanel(requirements = [], summary = {}, feedback
   `;
 }
 
-function renderStudentRequirementPanelBody(requirements = [], summary = {}, feedback = [], detailState = defaultStudentRequirementDetailState()) {
+function renderStudentRequirementPanelBody(requirements = [], summary = {}, feedback = [], detailState = defaultStudentRequirementDetailState(), evidence = []) {
   const rows = Array.isArray(requirements) ? requirements : [];
   const phaseGroups = groupStudentRequirementsByPhase(rows);
   const activePhaseKey = activeStudentRequirementPhaseKey(phaseGroups, detailState);
@@ -5779,7 +5779,7 @@ function renderStudentRequirementPanelBody(requirements = [], summary = {}, feed
   return `
       ${phaseGroups.length > 1 ? renderStudentRequirementPhaseFilters(phaseGroups, summary, detailState) : ""}
       <div class="workspace-list">
-        ${visiblePhaseGroups.length ? visiblePhaseGroups.map((group) => renderStudentRequirementPhaseGroup(group, feedback, detailState)).join("") : `
+        ${visiblePhaseGroups.length ? visiblePhaseGroups.map((group) => renderStudentRequirementPhaseGroup(group, feedback, detailState, evidence)).join("") : `
           <article class="workspace-empty-state-card" data-student-requirements-empty="true">
             <strong>No project requirements yet.</strong>
             <p>${escapeHtml(summary.waitingForReviewCount ? "Check back after your teacher updates your project requirements." : "Ask your program teacher when your project requirements will be ready.")}</p>
@@ -5854,7 +5854,7 @@ function renderStudentRequirementPhaseFilters(phaseGroups = [], summary = {}, de
   `;
 }
 
-function renderStudentRequirementPhaseGroup(group, feedback = [], detailState = defaultStudentRequirementDetailState()) {
+function renderStudentRequirementPhaseGroup(group, feedback = [], detailState = defaultStudentRequirementDetailState(), evidence = []) {
   const rows = Array.isArray(group?.rows) ? group.rows : [];
   const completeCount = safeNumber(group?.completeCount);
   const remainingCount = safeNumber(group?.remainingCount);
@@ -5870,7 +5870,7 @@ function renderStudentRequirementPhaseGroup(group, feedback = [], detailState = 
         </div>
       </div>
       <div class="workspace-list">
-        ${rows.map((row) => renderStudentRequirementRow(row, feedback, detailState)).join("")}
+        ${rows.map((row) => renderStudentRequirementRow(row, feedback, detailState, evidence)).join("")}
       </div>
     </section>
   `;
@@ -5880,7 +5880,7 @@ function isStudentRequirementComplete(status) {
   return ["approved", "archived", "complete", "completed"].includes(normalizeStatus(status));
 }
 
-function renderStudentRequirementRow(item, feedback = [], detailState = defaultStudentRequirementDetailState()) {
+function renderStudentRequirementRow(item, feedback = [], detailState = defaultStudentRequirementDetailState(), evidence = []) {
   const version = safeNumber(item?.submissionVersion);
   const updatedAt = item?.lastUpdatedAt ? formatDate(item.lastUpdatedAt) : "Not available yet";
   const description = String(item?.description || "").trim();
@@ -5891,6 +5891,7 @@ function renderStudentRequirementRow(item, feedback = [], detailState = defaultS
   const detailDomId = studentRequirementDetailDomId(requirementId);
   const selected = requirementId && detailState?.selectedRequirementId === requirementId;
   const latestFeedback = latestFeedbackForRequirement(item, feedback);
+  const relatedEvidence = matchingEvidenceForRequirement(item, evidence);
   return `
     <article class="workspace-row workspace-student-requirement-row" data-student-requirement-row="true" data-student-requirement-id="${escapeHtml(requirementId)}" data-student-requirement-submission-id="${escapeHtml(submissionId)}" data-student-requirement-evidence-count="${escapeHtml(evidenceCount)}">
       <div>
@@ -5908,7 +5909,7 @@ function renderStudentRequirementRow(item, feedback = [], detailState = defaultS
         ${renderStudentRequirementAction(item, evidenceCount)}
         ${statusPill(item?.status || "missing")}
       </div>
-      ${selected ? renderStudentRequirementDetail(item, latestFeedback) : ""}
+      ${selected ? renderStudentRequirementDetail(item, latestFeedback, relatedEvidence) : ""}
     </article>
   `;
 }
@@ -5934,7 +5935,17 @@ function latestFeedbackForRequirement(item, feedback = []) {
   return latestFeedbackForSubmission({ id: submissionId }, feedback);
 }
 
-function renderStudentRequirementDetail(item, latestFeedback = null) {
+function matchingEvidenceForRequirement(item, evidence = []) {
+  const requirementId = cleanDirectoryFilter(item?.requirementId || "");
+  const submissionId = cleanDirectoryFilter(item?.submissionId || "");
+  return (Array.isArray(evidence) ? evidence : []).filter((row) => {
+    const rowRequirementId = cleanDirectoryFilter(row?.requirementId || "");
+    const rowSubmissionId = cleanDirectoryFilter(row?.submissionId || "");
+    return (requirementId && rowRequirementId === requirementId) || (submissionId && rowSubmissionId === submissionId);
+  });
+}
+
+function renderStudentRequirementDetail(item, latestFeedback = null, evidenceRows = []) {
   const requirementId = studentRequirementId(item);
   const detailDomId = studentRequirementDetailDomId(requirementId);
   const evidenceCount = safeNumber(item?.evidenceCount);
@@ -5968,6 +5979,15 @@ function renderStudentRequirementDetail(item, latestFeedback = null) {
           <small>Feedback meant for you will appear after your teacher reviews or comments on this work.</small>
         </article>
       `}
+      ${evidenceRows.length ? `
+        <div>
+          <h4>Matching uploaded and linked work</h4>
+          <p class="workspace-muted">These are the current files and links already attached to this requirement.</p>
+        </div>
+        <div class="workspace-list" data-student-requirement-evidence-list="true">
+          ${evidenceRows.map(renderStudentRequirementEvidenceRow).join("")}
+        </div>
+      ` : ""}
     </section>
   `;
 }
@@ -5993,6 +6013,34 @@ function renderStudentRequirementOpenButton(item, label = "Open requirement") {
   const requirementId = cleanDirectoryFilter(item?.requirementId || "");
   if (!requirementId) return "";
   return `<button class="workspace-link-button workspace-link-button-small" type="button" data-student-requirement-action="open-detail" data-student-requirement-id="${escapeHtml(requirementId)}">${escapeHtml(label)}</button>`;
+}
+
+function renderEvidenceActions(item, options = {}) {
+  const includeRequirementAction = options.includeRequirementAction !== false;
+  const actions = [];
+  if (includeRequirementAction && item.requirementId) {
+    actions.push(renderStudentRequirementOpenButton(item));
+  }
+  if (item.source_kind === "google_drive_file" && item.downloadUrl) {
+    actions.push(`<a class="workspace-link-button workspace-link-button-small" data-evidence-download="file" href="${escapeHtml(item.downloadUrl)}">Download file</a>`);
+  }
+  if (item.source_kind === "external_link" && item.externalUrl) {
+    actions.push(`<a class="workspace-link-button workspace-link-button-small" data-evidence-link="external" href="${escapeHtml(item.externalUrl)}" target="_blank" rel="noreferrer">Open link</a>`);
+  }
+  return actions;
+}
+
+function renderStudentRequirementEvidenceRow(item) {
+  const actions = renderEvidenceActions(item, { includeRequirementAction: false });
+  const createdAt = item?.created_at ? formatDate(item.created_at) : "Added recently";
+  return `
+    <article class="workspace-mini-row" data-student-requirement-evidence-item="true">
+      <span>${escapeHtml(item.title || "Evidence")}</span>
+      <small>${escapeHtml(evidenceSourceLabel(item.source_kind))} / ${escapeHtml(statusText(item.artifact_type || "evidence"))}</small>
+      <small>${escapeHtml(createdAt)} / ${escapeHtml(statusText(item.review_status || "pending_review"))}</small>
+      ${actions.length ? `<div class="workspace-row-actions">${actions.join("")}</div>` : ""}
+    </article>
+  `;
 }
 
 function renderStudentSubmissionActionButton(item) {
@@ -10961,16 +11009,7 @@ function latestFeedbackForSubmission(submission, feedback = []) {
 }
 
 function renderEvidenceRow(item) {
-  const actions = [];
-  if (item.requirementId) {
-    actions.push(renderStudentRequirementOpenButton(item));
-  }
-  if (item.source_kind === "google_drive_file" && item.downloadUrl) {
-    actions.push(`<a class="workspace-link-button workspace-link-button-small" data-evidence-download="file" href="${escapeHtml(item.downloadUrl)}">Download file</a>`);
-  }
-  if (item.source_kind === "external_link" && item.externalUrl) {
-    actions.push(`<a class="workspace-link-button workspace-link-button-small" data-evidence-link="external" href="${escapeHtml(item.externalUrl)}" target="_blank" rel="noreferrer">Open link</a>`);
-  }
+  const actions = renderEvidenceActions(item);
 
   return `
     <article class="workspace-row">

@@ -21,6 +21,17 @@ This is the compact run log for the current Functionality UX Upgrade automation 
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-06-03 05:06 PT - Functionality UX Upgrade Student Requirement Detail Evidence
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 6 student progress drill-down / requirement-detail evidence follow-through.
+- `starting HEAD`: `00a4c323c3f0ea914007085fac1d333b1862c87e`.
+- `selected slice`: Show the matching uploaded and linked work inside student requirement detail.
+- `repo-grounded findings`: the previous student pass already let Uploaded and linked work reopen the correct requirement, but current `workspace.js` still rendered requirement detail as summary facts plus latest feedback only. Students could reach the right requirement and still had to bounce back to the files panel to confirm which file or link was already attached. Reusing the current student-scoped evidence rows inside the same detail panel was the smallest real follow-through and did not require a new route, broader payload, or policy change.
+- `changes`: `workspace.js` now threads the current student evidence rows through the requirement checklist, filters the matching rows by `requirementId` or `submissionId`, and renders a `Matching uploaded and linked work` list inside requirement detail with the same safe `Download file` and `Open link` actions already available in Uploaded and linked work. `tests/workspace-app.test.mjs` now proves both direct requirement-detail opens and file-row reopens show the matching attached item inside the detail panel. `tests/functionality-language-audit.test.mjs`, `docs/functionality-language-audit.md`, `docs/product/demo-role-readiness.md`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`, and the per-run manifest record the completed slice.
+- `validation`: `node --check workspace.js` and `node --test tests/workspace-app.test.mjs` passed before docs/state closeout. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.
+
 ## 2026-06-03 04:38 PT - Functionality UX Upgrade Student Evidence Requirement Handoff
 
 - `automation ID`: functionality-ux-upgrade-hourly.

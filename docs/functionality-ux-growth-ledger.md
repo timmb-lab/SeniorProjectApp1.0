@@ -7240,3 +7240,61 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: filtered Audit cross-school proof still needs a tighter local scenario; hosted permission proof still needs allowed runtime; mentor reassignment/remove still needs mutation and audit design.
   - Do not repeat: do not revert the student files requirement handoff to passive rows while the current dashboard and tests already prove the exact in-page contract.
   - First file to inspect next run: `functions/api/student/dashboard.ts`
+
+## Run 2026-06-03 05:06 PT
+
+- Starting SHA: `00a4c323c3f0ea914007085fac1d333b1862c87e`
+- Ending SHA: pending closeout commit; final hash is reported after commit
+- Branch: `main`
+- Branch policy: started from clean local `main` ahead of `origin/main` by seventeen earlier in-lane commits; this run stayed local-only and did not push
+- Ladder level targeted: `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN`
+- Backlog item: student requirement-detail evidence follow-through inside `docs/functionality-language-audit.md` and `docs/product/demo-role-readiness.md`
+- Work order selected: show the matching uploaded and linked work inside student requirement detail
+- Selection reason: current repo evidence showed a real follow-through gap, not speculative polish. The previous student slice already let Uploaded and linked work reopen the right requirement, but the requirement detail itself still stopped at summary facts and latest feedback. Students could reach the right requirement and still had to bounce back to the files list to confirm what was attached. Reusing the current student-scoped evidence rows inside the same detail panel kept the slice small, exact, and route-free.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Student requirement-detail evidence follow-through | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | `student` | 5 | 5 | 5 | XS | 58 | selected |
+| Filtered Audit cross-school proof refresh | `LEVEL_7_AUDITABILITY_AND_TRUST` | `global_admin` | 4 | 3 | 3 | M | 37 | deferred: still needs one tighter locally provable scenario |
+| Student next-step anchor follow-through | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | `student` | 4 | 4 | 3 | S | 41 | deferred: broader than this detail-panel batch |
+| Student feedback timeline handoff from requirement detail | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | `student` | 4 | 4 | 3 | S | 41 | deferred: keep for a later exact same-panel handoff |
+| Student evidence-panel language cleanup | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | `student` | 2 | 5 | 4 | XS | 34 | deferred: lower value than the selected drill-down gap |
+| Empty load versus no-data follow-through | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | staff and student | 3 | 4 | 3 | S | 35 | deferred: broader shared-state pass than this slice |
+| Broader Global Admin route refresh across Audit, Programs, Users & Access, and Presentation | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | `global_admin` | 4 | 4 | 3 | M | 43 | deferred: broader than one safe hourly slice |
+| Site selector future-only follow-through | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | multi-site staff | 4 | 3 | 2 | M | 34 | deferred: still needs a broader cross-surface contract |
+| Mentor reassignment or removal workflow | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | `site_admin` | 4 | 2 | 3 | M | 33 | deferred: mutation and audit design still needed |
+| Hosted section-level permission proof | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | protected roles | 4 | 3 | 2 | M | 35 | deferred: hosted runtime is outside this local batch |
+
+- User-facing improvement: students who reopen a requirement from Uploaded and linked work can now see the exact attached files or links inside that same requirement detail and keep the existing safe file actions.
+- Roles affected: `student`
+- Files changed: `workspace.js`, `tests/workspace-app.test.mjs`, `tests/functionality-language-audit.test.mjs`, `docs/functionality-language-audit.md`, `docs/product/demo-role-readiness.md`, `docs/progress/run-log.md`, `docs/progress/runs/2026-06-03-0506-student-requirement-detail-evidence.json`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`
+- Tests/verifiers added or updated: `tests/workspace-app.test.mjs` now proves both direct requirement-detail opens and file-row reopens render the matching attached item inside `Matching uploaded and linked work`; `tests/functionality-language-audit.test.mjs` now tracks the updated audit summary count after the new completed slice.
+- Validation commands:
+  - `node --check workspace.js`
+  - `node --test tests/workspace-app.test.mjs`
+  - `npm run verify:functionality-language`
+  - `node --test tests/functionality-language-audit.test.mjs`
+  - `npm run verify:functionality-ux-automation`
+  - `npm run check:production-surfaces`
+  - `npm run typecheck`
+  - `npm run test`
+  - `npm run check`
+  - `node -e "JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-03-0506-student-requirement-detail-evidence.json','utf8')); console.log('json ok')"`
+  - `git diff --check`
+- Validation result: focused workspace coverage passed before docs/state closeout, and the broader validation ladder passed after the closeout files were updated. `git diff --check` reported only CRLF normalization warnings.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: filtered Audit cross-school proof refresh, student next-step anchor follow-through, requirement-detail feedback-timeline follow-through, student evidence-panel language cleanup, broader Global Admin route refresh, site-selector follow-through, mentor reassignment/remove workflow, and hosted section-level permission proof remain open.
+- New backlog items: none
+- Next recommended work order: continue the student refresh only if the current requirement detail or submission panels can prove another exact feedback or submission timeline handoff; otherwise return to filtered Audit cross-school proof only if a tighter local scenario is now provable
+- Do-not-repeat notes: do not regress student requirement detail back to summary-only facts while the current dashboard already carries the matching evidence rows; do not remove the safe file actions from requirement-detail evidence rows while Uploaded and linked work already exposes the same student-scoped actions; and do not expose storage identifiers, new evidence routes, or other-student file context while deepening student detail.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN`
+  - Advanced: yes
+  - Evidence: requirement detail now renders `Matching uploaded and linked work`, focused workspace tests prove both direct requirement opens and file-row reopens show the attached item, and the same student-scoped file actions stay intact without adding a route.
+  - Unlocks: the next student-facing pass can deepen feedback or submission history from the same requirement-detail context instead of bouncing students back to separate panels.
+  - Next: inspect `workspace.js` student requirement detail and existing student feedback/submission timeline actions only if another same-panel handoff is exact and already backed by current route data; otherwise move back to filtered Audit cross-school proof when a tighter local scenario exists.
+  - Blockers: filtered Audit cross-school proof still needs a tighter local scenario; hosted permission proof still needs allowed runtime; mentor reassignment/remove still needs mutation and audit design.
+  - Do not repeat: do not remove the requirement-detail evidence list while the current dashboard and tests already prove the exact same-panel follow-through.
+  - First file to inspect next run: `workspace.js`

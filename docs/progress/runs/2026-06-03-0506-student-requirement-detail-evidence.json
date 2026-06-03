@@ -1,0 +1,81 @@
+{
+  "automationId": "functionality-ux-upgrade-hourly",
+  "runStartedAt": "2026-06-03T05:06:39-07:00",
+  "branch": "main",
+  "startingSha": "00a4c323c3f0ea914007085fac1d333b1862c87e",
+  "endingSha": null,
+  "workOrderId": "student-requirement-detail-evidence-follow-through",
+  "ladderLevels": [
+    "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN"
+  ],
+  "selectedSlice": "Show the matching uploaded and linked work inside student requirement detail.",
+  "selectionReason": "Current repo evidence showed a real follow-through gap, not speculative polish. The previous student slice already let Uploaded and linked work reopen the right requirement, but the requirement detail itself still stopped at summary facts and latest feedback. Students could reach the right requirement and still had to bounce back to the files list to confirm what was attached. Reusing the current student-scoped evidence rows inside the same detail panel kept the slice small, exact, and route-free.",
+  "candidateCount": 10,
+  "candidateShortlist": [
+    "Student requirement-detail evidence follow-through",
+    "Filtered Audit cross-school proof refresh",
+    "Student next-step anchor follow-through",
+    "Student feedback timeline handoff from requirement detail",
+    "Student evidence-panel language cleanup",
+    "Empty load versus no-data follow-through",
+    "Broader Global Admin route refresh",
+    "Site selector future-only follow-through",
+    "Mentor reassignment or removal workflow",
+    "Hosted section-level permission proof"
+  ],
+  "userFacingImprovement": "Students who reopen a requirement from Uploaded and linked work can now see the exact attached files or links inside that same requirement detail and keep the existing safe file actions.",
+  "privacyAndPermissionNotes": [
+    "The slice changes only the signed-in student's dashboard rendering and reuses the current student-scoped evidence rows already loaded for that dashboard.",
+    "No auth, RBAC, tenant, site, program, mentor-assignment, or student-privacy boundary changed.",
+    "No new routes, broader evidence downloads, or storage-identifier exposure were introduced.",
+    "Requirement detail reuses the same safe Download file and Open link actions already available in Uploaded and linked work."
+  ],
+  "filesChanged": [
+    "workspace.js",
+    "tests/workspace-app.test.mjs",
+    "tests/functionality-language-audit.test.mjs",
+    "docs/functionality-language-audit.md",
+    "docs/product/demo-role-readiness.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-06-03-0506-student-requirement-detail-evidence.json",
+    "docs/functionality-ux-growth-ledger.md",
+    "automation/state/functionality-ux-growth-state.json"
+  ],
+  "validation": {
+    "focusedPassedBeforeCloseout": [
+      "node --check workspace.js",
+      "node --test tests/workspace-app.test.mjs"
+    ],
+    "final": [
+      "node --check workspace.js",
+      "node --test tests/workspace-app.test.mjs",
+      "npm run verify:functionality-language",
+      "node --test tests/functionality-language-audit.test.mjs",
+      "npm run verify:functionality-ux-automation",
+      "npm run check:production-surfaces",
+      "npm run typecheck",
+      "npm run test",
+      "npm run check",
+      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-03-0506-student-requirement-detail-evidence.json','utf8')); console.log('json ok')\"",
+      "git diff --check"
+    ],
+    "result": "passed",
+    "notes": "Focused workspace coverage passed before docs/state closeout, and the broader validation ladder passed after the closeout files were updated. git diff --check reported only CRLF normalization warnings."
+  },
+  "deferred": [
+    "Filtered Audit cross-school proof still needs a tighter locally provable scenario before another audit-focused pass.",
+    "Student next-step anchor follow-through is broader than this requirement-detail batch.",
+    "Requirement-detail feedback timeline follow-through should wait for another exact same-panel handoff.",
+    "Student evidence-panel language cleanup remains lower value than current drill-down depth.",
+    "Broader Global Admin route refresh remains larger than one safe hourly slice.",
+    "Site selector follow-through still needs a broader cross-surface contract.",
+    "Mentor reassignment and removal workflow still needs mutation and audit design.",
+    "Hosted section-level permission proof still needs allowed runtime and audit-event writes."
+  ],
+  "nextRecommended": "Continue the student refresh only if the current requirement detail or submission panels can prove another exact feedback or submission timeline handoff; otherwise return to filtered Audit cross-school proof only if a tighter local scenario is now provable.",
+  "doNotRepeat": [
+    "Do not regress student requirement detail back to summary-only facts while the current dashboard already carries the matching evidence rows for the reopened requirement.",
+    "Do not remove safe download or open-link actions from requirement-detail evidence rows while Uploaded and linked work already exposes the same student-scoped file actions.",
+    "Do not expose storage identifiers, new evidence routes, or other-student file context while deepening student detail."
+  ]
+}
