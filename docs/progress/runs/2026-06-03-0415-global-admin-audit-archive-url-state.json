@@ -1,0 +1,85 @@
+{
+  "automationId": "functionality-ux-upgrade-hourly",
+  "runStartedAt": "2026-06-03T04:15:56-07:00",
+  "branch": "main",
+  "startingSha": "27276bf4280f198773d2b77c05a7d53780ba319d",
+  "endingSha": null,
+  "workOrderId": "global-admin-audit-archive-url-state",
+  "ladderLevels": [
+    "LEVEL_4_ROLE_SPECIFIC_WORKSPACES"
+  ],
+  "selectedSlice": "Preserve Global Admin Audit and Archive / Exports filters through the existing workspace URL-state contract.",
+  "selectionReason": "Current repo evidence showed a real protected-workspace continuity gap, not speculative polish. Global Admins could already open exact Recent Audit and failed-export follow-up views, but unlike the other major worklists those sections still dropped their current filters on reload, share, and browser history. Reusing the current URL-state pattern kept the slice small, safe, and route-backed without touching auth, data scope, or visibility boundaries.",
+  "candidateCount": 10,
+  "candidateShortlist": [
+    "Global Admin Audit and Archive URL state",
+    "Filtered Audit cross-school proof refresh",
+    "Broader Global Admin route refresh",
+    "Presentation ready-for-check-out parity proof refresh",
+    "Student evidence-panel language cleanup",
+    "Site selector future-only follow-through",
+    "Mentor reassignment or removal workflow",
+    "Viewer email visibility policy",
+    "Hosted section-level permission proof",
+    "Admin import approved-path copy refresh"
+  ],
+  "userFacingImprovement": "Global Admins can now reload or share filtered Audit and Archive / Exports views without losing the current protected-activity or package-follow-up filter.",
+  "privacyAndPermissionNotes": [
+    "The slice changes only protected workspace URL-state handling for existing Global Admin sections.",
+    "No auth, RBAC, tenant, site, program, mentor-assignment, or student-privacy boundary changed.",
+    "No new routes, API params, or visibility expansions were introduced.",
+    "Audit remains Global Admin-only, and Archive / Exports still uses the current redacted package-request data."
+  ],
+  "filesChanged": [
+    "workspace.js",
+    "tests/workspace-app.test.mjs",
+    "tests/functionality-language-audit.test.mjs",
+    "scripts/verify-dashboard-actions.mjs",
+    "docs/functionality-language-audit.md",
+    "docs/product/demo-role-readiness.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-06-03-0415-global-admin-audit-archive-url-state.json",
+    "docs/functionality-ux-growth-ledger.md",
+    "automation/state/functionality-ux-growth-state.json"
+  ],
+  "validation": {
+    "focusedPassedBeforeCloseout": [
+      "node --check workspace.js",
+      "node --test tests/workspace-app.test.mjs",
+      "npm run verify:dashboard-actions"
+    ],
+    "final": [
+      "node --check workspace.js",
+      "node --test tests/workspace-app.test.mjs",
+      "npm run verify:dashboard-actions",
+      "npm run verify:functionality-language",
+      "node --test tests/functionality-language-audit.test.mjs",
+      "npm run verify:functionality-ux-automation",
+      "npm run check:production-surfaces",
+      "npm run typecheck",
+      "npm run test",
+      "npm run check",
+      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-03-0415-global-admin-audit-archive-url-state.json','utf8')); console.log('json ok')\"",
+      "git diff --check"
+    ],
+    "result": "passed",
+    "notes": "Focused workspace and archive dashboard-action checks passed before docs/state closeout, the audit regression test was refreshed for the new completed-row count, and the broader validation ladder passed after the closeout files were updated. git diff --check reported only CRLF normalization warnings."
+  },
+  "deferred": [
+    "Filtered Audit cross-school proof still needs a tighter locally provable scenario before another audit-focused pass.",
+    "Broader Global Admin route refresh remains larger than one safe hourly slice.",
+    "Presentation ready-for-check-out parity proof refresh is lower value than the selected protected-worklist continuity gap.",
+    "Student evidence-panel language cleanup remains open after this admin continuity batch.",
+    "Site selector follow-through still needs a broader cross-surface contract.",
+    "Mentor reassignment and removal workflow still needs mutation and audit design.",
+    "Hosted section-level permission proof still needs allowed runtime and audit-event writes.",
+    "Viewer email visibility policy still needs a product decision before any UI change.",
+    "Admin import approved-path copy refresh remains lower value than restoring real filtered worklists."
+  ],
+  "nextRecommended": "Inspect filtered Audit cross-school proof next only if the current workspace can prove one exact local scenario; otherwise continue with another bounded Global Admin or student-facing slice.",
+  "doNotRepeat": [
+    "Do not remove Audit action/entityType URL restore while the existing /api/admin/audit-events route already supports those exact filters.",
+    "Do not remove Archive / Exports adminExportFilter URL restore while the current section already supports exact failed, in-progress, and complete follow-up filters.",
+    "Do not widen Global Admin visibility or invent new audit/export routes while deepening the current filtered worklists."
+  ]
+}

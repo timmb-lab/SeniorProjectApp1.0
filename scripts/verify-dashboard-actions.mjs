@@ -584,7 +584,7 @@ assertMatches(
 );
 assertMatches(
   "workspaceJs",
-  /section === "archiveExports" && button\.dataset\.sectionPreset[\s\S]*const presetMap = \{[\s\S]*"failed-exports": "failed"[\s\S]*"in-progress-exports": "in_progress"[\s\S]*adminArchiveExportFilter = cleanAdminArchiveExportFilter\(presetMap\[button\.dataset\.sectionPreset\] \|\| button\.dataset\.sectionPreset \|\| "all"\)/,
+  /if \(section === "archiveExports"\) \{[\s\S]*const presetMap = \{[\s\S]*"failed-exports": "failed"[\s\S]*"in-progress-exports": "in_progress"[\s\S]*adminArchiveExportFilter = cleanAdminArchiveExportFilter\(presetMap\[button\.dataset\.sectionPreset\] \|\| button\.dataset\.sectionPreset \|\| "all"\)[\s\S]*syncAdminArchiveExportUrlState\(\{ clearFilters: adminArchiveExportFilter === "all" \}\)/,
   "archive export presets must map to supported Archive / Exports filters",
 );
 assertMatches(

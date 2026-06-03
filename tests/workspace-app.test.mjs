@@ -1123,6 +1123,118 @@ test("global admin needs attention rows use real drill-downs and keep unmatched 
   assert.match(workspaceRoot.innerHTML, /data-admin-archive-export-list="failed"/);
   assert.match(workspaceRoot.innerHTML, /Avery Archive/);
   assert.doesNotMatch(workspaceRoot.innerHTML, /Blair Archive|Casey Archive/);
+  assert.equal(new URL(window.location.href).searchParams.get("section"), "archiveExports");
+  assert.equal(new URL(window.location.href).searchParams.get("adminExportFilter"), "failed");
+});
+
+test("global admin archive export URL state restores filtered package requests", async () => {
+  const { context, workspaceRoot, window } = await createWorkspaceContextWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "global-admin-export-url-state",
+          email: "export.url.state@example.edu",
+          displayName: "Export URL State",
+          roles: [{ role_id: "global_admin", scope_type: "global", scope_id: "" }],
+        },
+      },
+    },
+    "/api/site/dashboard": { status: 403, body: { error: "forbidden" } },
+    "/api/site/students": { status: 403, body: { error: "forbidden" } },
+    "/api/site/review-queue": { status: 403, body: { error: "forbidden" } },
+    "/api/site/mentor-assignments": { status: 403, body: { error: "forbidden" } },
+    "/api/site/programs": { status: 403, body: { error: "forbidden" } },
+    "/api/site/access-assignments": { status: 403, body: { error: "forbidden" } },
+    "/api/site/operations-readiness": { status: 403, body: { error: "forbidden" } },
+    "/api/admin/role-assignments": { status: 200, body: { ok: true, assignments: [] } },
+    "/api/admin/dashboard": {
+      status: 200,
+      body: {
+        ok: true,
+        generatedAt: "2026-03-26T16:00:00.000Z",
+        summary: {
+          studentsActive: 250,
+          studentsNoMentor: 18,
+          submissionsSubmitted: 22,
+          revisionRequested: 10,
+          presentationScheduled: 14,
+          exportsQueued: 1,
+          exportsRunning: 1,
+          exportsFailed: 1,
+          exportsComplete: 1,
+          recentAuditEvents: 3,
+          approved: 88,
+          evidenceArtifacts: 690,
+        },
+        needsAttention: [],
+        programBreakdown: [],
+        reviewQueue: [],
+        mentorCoverage: [],
+        presentationSnapshot: [],
+        archiveSnapshot: [],
+        recentAudit: [],
+        recentExports: [
+          {
+            exportId: "export-failed-1",
+            exportType: "student_archive",
+            status: "failed",
+            createdAt: "2026-03-26T15:30:00.000Z",
+            studentName: "Avery Archive",
+            requestedBy: "Global Admin",
+          },
+          {
+            exportId: "export-running-1",
+            exportType: "student_archive",
+            status: "running",
+            createdAt: "2026-03-26T15:10:00.000Z",
+            studentName: "Blair Archive",
+            requestedBy: "Global Admin",
+          },
+          {
+            exportId: "export-complete-1",
+            exportType: "student_archive",
+            status: "complete",
+            createdAt: "2026-03-26T14:55:00.000Z",
+            completedAt: "2026-03-26T15:05:00.000Z",
+            studentName: "Casey Archive",
+            requestedBy: "Global Admin",
+          },
+        ],
+      },
+    },
+    "/api/admin/audit-events": { status: 200, body: { ok: true, events: [] } },
+    "/api/presentation-slots": { status: 200, body: { ok: true, slots: [] } },
+    "/api/reports/readiness": { status: 200, body: { ok: true, scope: "all-programs", metrics: {} } },
+  }, {
+    url: "https://workspace.example/workspace.html?section=archiveExports&adminExportFilter=failed&unknown=keep",
+  });
+
+  assert.match(workspaceRoot.innerHTML, /data-admin-archive-export-filter="failed" aria-pressed="true"/);
+  assert.match(workspaceRoot.innerHTML, /data-admin-archive-export-list="failed"/);
+  assert.match(workspaceRoot.innerHTML, /Avery Archive/);
+  assert.doesNotMatch(workspaceRoot.innerHTML, /Blair Archive|Casey Archive/);
+
+  vm.runInContext(`
+    adminArchiveExportFilter = "complete";
+    activeSection = "archiveExports";
+    syncCurrentWorkspaceUrlState();
+  `, context);
+  const syncedArchiveUrl = new URL(window.location.href);
+  assert.equal(syncedArchiveUrl.searchParams.get("section"), "archiveExports");
+  assert.equal(syncedArchiveUrl.searchParams.get("adminExportFilter"), "complete");
+  assert.equal(syncedArchiveUrl.searchParams.get("unknown"), "keep");
+
+  window.history.pushState({}, "", "/workspace.html?section=archiveExports&adminExportFilter=in_progress&unknown=keep");
+  window.dispatchEvent({ type: "popstate" });
+  for (let index = 0; index < 2; index += 1) {
+    await new Promise((resolve) => setTimeout(resolve, 0));
+  }
+  assert.equal(vm.runInContext("adminArchiveExportFilter", context), "in_progress");
+  assert.match(workspaceRoot.innerHTML, /data-admin-archive-export-filter="in_progress" aria-pressed="true"/);
+  assert.match(workspaceRoot.innerHTML, /Blair Archive/);
+  assert.doesNotMatch(workspaceRoot.innerHTML, /Avery Archive|Casey Archive/);
 });
 
 test("global admin review workload rows open student detail and keep admin dashboard context", async () => {
@@ -1403,7 +1515,7 @@ test("global admin recent audit rows open filtered audit activity", async () => 
       actorName: "Global Admin Audit",
     },
   ];
-  const { context, workspaceRoot, fetchLog } = await createWorkspaceContextWithFetch({
+  const { context, workspaceRoot, fetchLog, window } = await createWorkspaceContextWithFetch({
     "/api/auth/me": {
       status: 200,
       body: {
@@ -1513,11 +1625,138 @@ test("global admin recent audit rows open filtered audit activity", async () => 
   const auditUrl = new URL(auditFetch, "https://workspace.example");
   assert.equal(auditUrl.searchParams.get("action"), "student_dashboard_viewed");
   assert.equal(auditUrl.searchParams.get("entityType"), "student_dashboard");
+  assert.equal(new URL(window.location.href).searchParams.get("section"), "audit");
+  assert.equal(new URL(window.location.href).searchParams.get("action"), "student_dashboard_viewed");
+  assert.equal(new URL(window.location.href).searchParams.get("entityType"), "student_dashboard");
   assert.match(workspaceRoot.innerHTML, /data-admin-audit-filters="true"/);
   assert.match(workspaceRoot.innerHTML, /Filtered by student dashboard \/ student dashboard viewed/);
   assert.match(workspaceRoot.innerHTML, /Show recent activity/);
   assert.match(workspaceRoot.innerHTML, /student dashboard viewed/);
   assert.doesNotMatch(workspaceRoot.innerHTML, /review queue viewed/);
+});
+
+test("global admin audit URL state restores filtered activity", async () => {
+  const auditEvents = [
+    {
+      id: "audit-student-1",
+      action: "student_dashboard_viewed",
+      entityType: "student_dashboard",
+      actorName: "Global Admin Audit",
+      createdAt: "2026-03-26T15:30:00.000Z",
+    },
+    {
+      id: "audit-review-1",
+      action: "review_queue_viewed",
+      entityType: "review_queue",
+      actorName: "Program Teacher Audit",
+      createdAt: "2026-03-26T14:10:00.000Z",
+    },
+  ];
+  const { context, workspaceRoot, fetchLog, window } = await createWorkspaceContextWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "global-admin-audit-url-state",
+          email: "audit.url.state@example.edu",
+          displayName: "Audit URL State",
+          roles: [{ role_id: "global_admin", scope_type: "global", scope_id: "" }],
+        },
+      },
+    },
+    "/api/site/dashboard": { status: 403, body: { error: "forbidden" } },
+    "/api/site/students": { status: 403, body: { error: "forbidden" } },
+    "/api/site/review-queue": { status: 403, body: { error: "forbidden" } },
+    "/api/site/mentor-assignments": { status: 403, body: { error: "forbidden" } },
+    "/api/site/programs": { status: 403, body: { error: "forbidden" } },
+    "/api/site/access-assignments": { status: 403, body: { error: "forbidden" } },
+    "/api/site/operations-readiness": { status: 403, body: { error: "forbidden" } },
+    "/api/admin/role-assignments": { status: 200, body: { ok: true, assignments: [] } },
+    "/api/admin/dashboard": {
+      status: 200,
+      body: {
+        ok: true,
+        generatedAt: "2026-03-26T16:00:00.000Z",
+        summary: {
+          studentsActive: 250,
+          studentsNoMentor: 18,
+          submissionsSubmitted: 22,
+          revisionRequested: 10,
+          presentationScheduled: 14,
+          exportsQueued: 6,
+          exportsFailed: 2,
+          exportsComplete: 4,
+          recentAuditEvents: 3,
+          approved: 88,
+          evidenceArtifacts: 690,
+        },
+        needsAttention: [],
+        programBreakdown: [],
+        reviewQueue: [],
+        mentorCoverage: [],
+        presentationSnapshot: [],
+        archiveSnapshot: [],
+        recentAudit: [],
+        recentExports: [],
+      },
+    },
+    "/api/admin/audit-events": ({ url }) => {
+      const parsed = new URL(url, "https://workspace.example");
+      const action = parsed.searchParams.get("action") || "";
+      const entityType = parsed.searchParams.get("entityType") || "";
+      return {
+        status: 200,
+        body: {
+          ok: true,
+          events: auditEvents.filter((event) => {
+            if (action && event.action !== action) return false;
+            if (entityType && event.entityType !== entityType) return false;
+            return true;
+          }),
+        },
+      };
+    },
+    "/api/presentation-slots": { status: 200, body: { ok: true, slots: [] } },
+    "/api/reports/readiness": { status: 200, body: { ok: true, scope: "all-programs", metrics: {} } },
+  }, {
+    url: "https://workspace.example/workspace.html?section=audit&action=student_dashboard_viewed&entityType=student_dashboard&unknown=keep",
+  });
+
+  assert.match(workspaceRoot.innerHTML, /Filtered by student dashboard \/ student dashboard viewed/);
+  assert.match(workspaceRoot.innerHTML, /student dashboard viewed/);
+  assert.doesNotMatch(workspaceRoot.innerHTML, /review queue viewed/);
+  const initialAuditFetch = fetchLog.find((entry) => entry.startsWith("/api/admin/audit-events?"));
+  assert.ok(initialAuditFetch, "expected filtered audit request on initial load");
+  const initialAuditUrl = new URL(initialAuditFetch, "https://workspace.example");
+  assert.equal(initialAuditUrl.searchParams.get("action"), "student_dashboard_viewed");
+  assert.equal(initialAuditUrl.searchParams.get("entityType"), "student_dashboard");
+
+  vm.runInContext(`
+    adminAuditFilters = {
+      ...defaultAdminAuditFilters(),
+      action: "review_queue_viewed",
+      entityType: "review_queue",
+    };
+    activeSection = "audit";
+    syncCurrentWorkspaceUrlState();
+  `, context);
+  const syncedAuditUrl = new URL(window.location.href);
+  assert.equal(syncedAuditUrl.searchParams.get("section"), "audit");
+  assert.equal(syncedAuditUrl.searchParams.get("action"), "review_queue_viewed");
+  assert.equal(syncedAuditUrl.searchParams.get("entityType"), "review_queue");
+  assert.equal(syncedAuditUrl.searchParams.get("unknown"), "keep");
+
+  window.history.pushState({}, "", "/workspace.html?section=audit&action=review_queue_viewed&entityType=review_queue&unknown=keep");
+  window.dispatchEvent({ type: "popstate" });
+  for (let index = 0; index < 4; index += 1) {
+    await new Promise((resolve) => setTimeout(resolve, 0));
+  }
+  assert.equal(vm.runInContext("adminAuditFilters.action", context), "review_queue_viewed");
+  assert.equal(vm.runInContext("adminAuditFilters.entityType", context), "review_queue");
+  assert.match(workspaceRoot.innerHTML, /Filtered by review queue \/ review queue viewed/);
+  assert.match(workspaceRoot.innerHTML, /review queue viewed/);
+  assert.doesNotMatch(workspaceRoot.innerHTML, /student dashboard viewed/);
 });
 
 test("site dashboard top-risk detail stays in dashboard context", async () => {
@@ -5171,7 +5410,7 @@ test("workspace dashboard actions use supported filters and loaders", () => {
   assert.match(sectionOpenBlock, /section === "operations" && button\.dataset\.sectionPreset === "presentation-attention"/);
   assert.match(sectionOpenBlock, /section === "operations" && button\.dataset\.sectionPreset === "outline-pending"/);
   assert.match(sectionOpenBlock, /section === "operations" && button\.dataset\.sectionPreset === "evidence-missing"/);
-  assert.match(sectionOpenBlock, /section === "archiveExports" && button\.dataset\.sectionPreset/);
+  assert.match(sectionOpenBlock, /if \(section === "archiveExports"\) \{/);
   assert.match(sectionOpenBlock, /adminArchiveExportFilter = cleanAdminArchiveExportFilter/);
   assert.match(sectionOpenBlock, /programId,/);
   assert.match(sectionOpenBlock, /loadOperationsReadinessResult\("Showing operations rows for the selected program\."\)/);

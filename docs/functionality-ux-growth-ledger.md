@@ -7122,3 +7122,62 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: filtered Audit cross-school proof still needs a tighter local scenario; hosted permission proof still needs allowed runtime; mentor reassignment/remove still needs mutation and audit design.
   - Do not repeat: do not revert shared denied-state wording back to unavailable-route copy while the helper already has enough protected-state context.
   - First file to inspect next run: `workspace.js`
+
+## Run 2026-06-03 04:15 PT
+
+- Starting SHA: `27276bf4280f198773d2b77c05a7d53780ba319d`
+- Ending SHA: pending closeout commit; final hash is reported after commit
+- Branch: `main`
+- Branch policy: started from clean local `main` ahead of `origin/main` by fifteen earlier in-lane commits; this run stayed local-only and did not push
+- Ladder level targeted: `LEVEL_4_ROLE_SPECIFIC_WORKSPACES`
+- Backlog item: remaining Global Admin filter-persistence follow-through inside `docs/functionality-language-audit.md` and `docs/product/demo-role-readiness.md`
+- Work order selected: preserve Global Admin Audit and Archive / Exports filters through the existing workspace URL-state contract
+- Selection reason: current repo evidence showed a real protected-workspace continuity gap, not speculative polish. Global Admins could already open exact `Recent Audit` and failed-export follow-up views, but unlike the other major worklists those sections still dropped their current filters on reload, share, and browser history. Reusing the current URL-state pattern was smaller and safer than a broader Global Admin route refresh, a hosted-proof-only pass, or a new audit/export surface.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Global Admin Audit and Archive URL state | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | `global_admin` | 5 | 5 | 5 | S | 58 | selected |
+| Filtered Audit cross-school proof refresh | `LEVEL_7_AUDITABILITY_AND_TRUST` | `global_admin` | 4 | 3 | 3 | M | 37 | deferred: still needs one tighter locally provable scenario |
+| Broader Global Admin route refresh across Audit, Programs, Users & Access, and Presentation | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | `global_admin` | 4 | 4 | 3 | M | 43 | deferred: broader than one safe hourly slice |
+| Presentation ready-for-check-out parity proof refresh | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | presentation roles | 2 | 5 | 4 | XS | 39 | deferred: mostly regression proof, lower user value than the selected protected-worklist gap |
+| Student evidence-panel language cleanup | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | `student` | 3 | 5 | 4 | XS | 45 | deferred: safe follow-on after this admin continuity slice |
+| Site selector future-only follow-through | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | multi-site staff | 4 | 3 | 2 | M | 34 | deferred: broader cross-surface contract than this bounded slice |
+| Mentor reassignment or removal workflow | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | `site_admin` | 4 | 2 | 3 | M | 33 | deferred: mutation and audit design still needed |
+| Viewer email visibility policy | `LEVEL_7_AUDITABILITY_AND_TRUST` | `viewer` | 3 | 2 | 3 | S | 30 | deferred: product policy still comes before UI change |
+| Hosted section-level permission proof | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | protected roles | 4 | 3 | 2 | M | 35 | deferred: hosted runtime is outside this local batch |
+| Admin import approved-path copy refresh | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | `global_admin` | 2 | 5 | 4 | XS | 32 | deferred: lower value than restoring real filtered worklists |
+
+- User-facing improvement: Global Admins can now reload or share filtered Audit and Archive / Exports views without losing the current protected-activity or package-follow-up filter.
+- Roles affected: `global_admin`
+- Files changed: `workspace.js`, `tests/workspace-app.test.mjs`, `tests/functionality-language-audit.test.mjs`, `scripts/verify-dashboard-actions.mjs`, `docs/functionality-language-audit.md`, `docs/product/demo-role-readiness.md`, `docs/progress/run-log.md`, `docs/progress/runs/2026-06-03-0415-global-admin-audit-archive-url-state.json`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`
+- Tests/verifiers added or updated: `tests/workspace-app.test.mjs` now proves filtered Audit activity and Archive / Exports follow-up restore from initial URL state, sync back into history, and restore through `popstate`; `scripts/verify-dashboard-actions.mjs` now guards the existing archive follow-up wiring against the new `archiveExports` branch shape; `tests/functionality-language-audit.test.mjs` now tracks the updated audit summary count after this new completed slice.
+- Validation commands:
+  - `node --check workspace.js`
+  - `node --test tests/workspace-app.test.mjs`
+  - `npm run verify:dashboard-actions`
+  - `npm run verify:functionality-language`
+  - `node --test tests/functionality-language-audit.test.mjs`
+  - `npm run verify:functionality-ux-automation`
+  - `npm run check:production-surfaces`
+  - `npm run typecheck`
+  - `npm run test`
+  - `npm run check`
+  - `node -e "JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-03-0415-global-admin-audit-archive-url-state.json','utf8')); console.log('json ok')"`
+  - `git diff --check`
+- Validation result: passed; focused workspace and archive dashboard-action coverage passed before docs/state closeout, and the full validation ladder passed after the closeout files were updated. `git diff --check` reported only CRLF normalization warnings.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: filtered Audit cross-school proof refresh, broader Global Admin route refresh, Presentation parity proof refresh, student evidence-panel language cleanup, site-selector follow-through, mentor reassignment/remove workflow, hosted section-level permission proof, viewer email visibility policy, and Admin import approved-path copy refresh remain open.
+- New backlog items: none
+- Next recommended work order: inspect filtered Audit cross-school proof next only if the current workspace can prove one exact local scenario; otherwise continue with another bounded Global Admin or student-facing slice
+- Do-not-repeat notes: do not remove Audit `action` and `entityType` URL restore while the existing `/api/admin/audit-events` route already supports those exact filters; do not remove Archive / Exports `adminExportFilter` URL restore while the section already supports exact failed, in-progress, and complete follow-up filters; and do not widen Global Admin visibility or invent new audit/export routes while deepening current filtered worklists.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_4_ROLE_SPECIFIC_WORKSPACES`
+  - Advanced: yes
+  - Evidence: Audit now restores `action` and `entityType`, Archive / Exports now restores `adminExportFilter`, and focused workspace tests prove both initial URL-state load and `popstate` restore without changing route scope.
+  - Unlocks: the next Global Admin or auditability pass can build from stable filtered worklists instead of re-opening passive or reset-prone follow-up views.
+  - Next: inspect `workspace.js` Audit rendering and the current `/api/admin/audit-events` usage only if one exact cross-school filtered scenario can now be proven locally; otherwise move to another bounded role-workspace or student-facing slice.
+  - Blockers: filtered Audit cross-school proof still needs a tighter local scenario; hosted permission proof still needs allowed runtime; mentor reassignment/remove still needs mutation and audit design.
+  - Do not repeat: do not regress Global Admin Audit or Archive / Exports filters back to transient in-memory state while the current workspace and tests already prove the exact URL-state contract.
+  - First file to inspect next run: `workspace.js`

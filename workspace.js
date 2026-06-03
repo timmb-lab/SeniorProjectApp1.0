@@ -293,6 +293,8 @@ const OPERATIONS_URL_FILTER_PARAMS = [
 ];
 const MENTOR_DASHBOARD_URL_FILTER_PARAMS = ["mentorFocus"];
 const PRESENTATION_SCHEDULE_URL_FILTER_PARAMS = ["presentationFocus"];
+const ADMIN_AUDIT_URL_FILTER_PARAMS = ["action", "entityType"];
+const ADMIN_ARCHIVE_EXPORT_URL_FILTER_PARAMS = ["adminExportFilter"];
 const SITE_STUDENT_DETAIL_URL_SECTIONS = new Set([
   "adminDashboard",
   "siteDashboard",
@@ -311,6 +313,8 @@ const WORKSPACE_URL_FILTER_PARAMS = Array.from(new Set([
   ...OPERATIONS_URL_FILTER_PARAMS,
   ...MENTOR_DASHBOARD_URL_FILTER_PARAMS,
   ...PRESENTATION_SCHEDULE_URL_FILTER_PARAMS,
+  ...ADMIN_AUDIT_URL_FILTER_PARAMS,
+  ...ADMIN_ARCHIVE_EXPORT_URL_FILTER_PARAMS,
   ...SITE_STUDENT_DETAIL_URL_PARAMS,
 ]));
 let uploadState = {
@@ -1589,15 +1593,18 @@ async function openWorkspaceSection(button) {
     await loadOperationsReadinessResult(`Showing ${statusText(archiveStatus).toLowerCase()} archive rows.`);
     return;
   }
-  if (section === "archiveExports" && button.dataset.sectionPreset) {
-    const presetMap = {
-      "all-exports": "all",
-      "failed-exports": "failed",
-      "in-progress-exports": "in_progress",
-      "complete-exports": "complete",
-    };
-    adminArchiveExportFilter = cleanAdminArchiveExportFilter(presetMap[button.dataset.sectionPreset] || button.dataset.sectionPreset || "all");
+  if (section === "archiveExports") {
+    if (button.dataset.sectionPreset) {
+      const presetMap = {
+        "all-exports": "all",
+        "failed-exports": "failed",
+        "in-progress-exports": "in_progress",
+        "complete-exports": "complete",
+      };
+      adminArchiveExportFilter = cleanAdminArchiveExportFilter(presetMap[button.dataset.sectionPreset] || button.dataset.sectionPreset || "all");
+    }
     activeSection = "archiveExports";
+    syncAdminArchiveExportUrlState({ clearFilters: adminArchiveExportFilter === "all" });
     renderAppShell();
     return;
   }
@@ -1608,6 +1615,7 @@ async function openWorkspaceSection(button) {
       entityType: cleanAdminAuditFilter(button.dataset.auditEntityType),
     };
     activeSection = "audit";
+    syncAdminAuditUrlState({ clearFilters: !adminAuditFilters.action && !adminAuditFilters.entityType });
     await loadAdminAuditEventsResult(adminAuditFilters.action || adminAuditFilters.entityType
       ? "Showing matching protected activity."
       : "Showing recent protected activity.");
@@ -11355,6 +11363,18 @@ async function handleWorkspaceUrlPopState() {
     renderAppShell(presentationSlotFilter === "all" ? "Presentation schedule link restored." : "Presentation schedule focus restored.", "success");
     return;
   }
+  if (state.hasAdminAuditState && currentUser && availableSectionIds().has("audit")) {
+    await loadAdminAuditEventsResult(adminAuditFilters.action || adminAuditFilters.entityType
+      ? "Protected activity link restored."
+      : "Audit link restored.");
+    return;
+  }
+  if (state.hasAdminArchiveExportState && currentUser && availableSectionIds().has("archiveExports")) {
+    renderAppShell(adminArchiveExportFilter === "all"
+      ? "Archive / Exports link restored."
+      : `${adminArchiveExportFilterLabel(adminArchiveExportFilter)} archive filter restored.`, "success");
+    return;
+  }
   if (state.hasSiteStudentDetailState && currentUser && shouldRestoreSiteStudentDetailFromUrlState(roles, state.siteStudentDetailState?.sourceSection || state.section)) {
     await restoreSiteStudentDetailFromUrlState({
       renderLoading: false,
@@ -11399,6 +11419,14 @@ function applyWorkspaceUrlState(state, options = {}) {
   if (state.hasPresentationScheduleState) {
     presentationSlotFilter = state.presentationSlotFilter;
     if (!state.section) activeSection = "presentation";
+  }
+  if (state.hasAdminAuditState) {
+    adminAuditFilters = state.adminAuditFilters;
+    if (!state.section) activeSection = "audit";
+  }
+  if (state.hasAdminArchiveExportState) {
+    adminArchiveExportFilter = state.adminArchiveExportFilter;
+    if (!state.section) activeSection = "archiveExports";
   }
   if (state.hasSiteStudentDetailState) {
     siteStudentDetailState = {
@@ -11445,6 +11473,8 @@ function workspaceUrlStateFromLocation() {
   const hasOperationsReadinessState = operationsReadinessViewRequested;
   const hasMentorDashboardState = mentorDashboardViewRequested || (!requestedSection && !requestedView && hasMentorDashboardFilterParams(params));
   const hasPresentationScheduleState = presentationViewRequested || (!requestedSection && !requestedView && hasPresentationScheduleFilterParams(params));
+  const hasAdminAuditState = requestedSection === "audit" || (!requestedSection && !requestedView && hasAdminAuditFilterParams(params));
+  const hasAdminArchiveExportState = requestedSection === "archiveExports" || (!requestedSection && !requestedView && hasAdminArchiveExportFilterParams(params));
   const hasSiteStudentDetailState = hasSiteStudentDetailUrlState(params, resolvedSection);
   return {
     section: resolvedSection,
@@ -11462,6 +11492,10 @@ function workspaceUrlStateFromLocation() {
     mentorDashboardFilter: hasMentorDashboardState ? mentorDashboardFilterFromSearchParams(params) : "all",
     hasPresentationScheduleState,
     presentationSlotFilter: hasPresentationScheduleState ? presentationSlotFilterFromSearchParams(params) : "all",
+    hasAdminAuditState,
+    adminAuditFilters: hasAdminAuditState ? adminAuditFiltersFromSearchParams(params) : defaultAdminAuditFilters(),
+    hasAdminArchiveExportState,
+    adminArchiveExportFilter: hasAdminArchiveExportState ? adminArchiveExportFilterFromSearchParams(params) : "all",
     hasSiteStudentDetailState,
     siteStudentDetailState: hasSiteStudentDetailState
       ? siteStudentDetailUrlStateFromSearchParams(params, resolvedSection)
@@ -11503,6 +11537,14 @@ function hasMentorDashboardFilterParams(params) {
 
 function hasPresentationScheduleFilterParams(params) {
   return PRESENTATION_SCHEDULE_URL_FILTER_PARAMS.some((param) => params.has(param));
+}
+
+function hasAdminAuditFilterParams(params) {
+  return ADMIN_AUDIT_URL_FILTER_PARAMS.some((param) => params.has(param));
+}
+
+function hasAdminArchiveExportFilterParams(params) {
+  return ADMIN_ARCHIVE_EXPORT_URL_FILTER_PARAMS.some((param) => params.has(param));
 }
 
 function hasSiteStudentDetailUrlState(params, section) {
@@ -11605,6 +11647,18 @@ function presentationSlotFilterFromSearchParams(params) {
   return cleanPresentationSlotFilter(params.get("presentationFocus"));
 }
 
+function adminAuditFiltersFromSearchParams(params) {
+  return {
+    ...defaultAdminAuditFilters(),
+    action: cleanAdminAuditFilter(params.get("action")),
+    entityType: cleanAdminAuditFilter(params.get("entityType")),
+  };
+}
+
+function adminArchiveExportFilterFromSearchParams(params) {
+  return cleanAdminArchiveExportFilter(params.get("adminExportFilter") || "all");
+}
+
 function adminAuditQueryString() {
   const filters = adminAuditFilters || defaultAdminAuditFilters();
   const params = new URLSearchParams();
@@ -11681,6 +11735,14 @@ function syncCurrentWorkspaceUrlState(options = {}) {
     syncPresentationScheduleUrlState(options);
     return;
   }
+  if (activeSection === "audit") {
+    syncAdminAuditUrlState(options);
+    return;
+  }
+  if (activeSection === "archiveExports") {
+    syncAdminArchiveExportUrlState(options);
+    return;
+  }
   syncWorkspaceSectionOnlyUrlState(activeSection, options);
 }
 
@@ -11745,6 +11807,21 @@ function syncPresentationScheduleUrlState(options = {}) {
   syncFilteredWorkspaceUrlState("presentation", { presentationFocus: cleanPresentationSlotFilter(presentationSlotFilter) }, options, (url, filters) => {
     if (filters.presentationFocus && filters.presentationFocus !== "all") {
       url.searchParams.set("presentationFocus", filters.presentationFocus);
+    }
+  });
+}
+
+function syncAdminAuditUrlState(options = {}) {
+  syncFilteredWorkspaceUrlState("audit", adminAuditFilters || defaultAdminAuditFilters(), options, (url, filters) => {
+    if (filters.action) url.searchParams.set("action", filters.action);
+    if (filters.entityType) url.searchParams.set("entityType", filters.entityType);
+  });
+}
+
+function syncAdminArchiveExportUrlState(options = {}) {
+  syncFilteredWorkspaceUrlState("archiveExports", { adminExportFilter: cleanAdminArchiveExportFilter(adminArchiveExportFilter) }, options, (url, filters) => {
+    if (filters.adminExportFilter && filters.adminExportFilter !== "all") {
+      url.searchParams.set("adminExportFilter", filters.adminExportFilter);
     }
   });
 }

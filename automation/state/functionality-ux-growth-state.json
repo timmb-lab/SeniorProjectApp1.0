@@ -1,10 +1,18 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-06-03T03:39:08-07:00",
-  "lastStartingSha": "2975050c9472ddf5e0668feb1206a46c7a6ee1b1",
+  "lastRunAt": "2026-06-03T04:15:56-07:00",
+  "lastStartingSha": "27276bf4280f198773d2b77c05a7d53780ba319d",
   "lastEndingSha": null,
   "currentLadderFocus": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
   "completedWorkOrders": [
+    {
+      "id": "global-admin-audit-archive-url-state",
+      "completedAt": "2026-06-03T04:15:56-07:00",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "type": "TYPE_D_ROLE_WORKSPACE",
+      "summary": "Global Admin Audit and Archive / Exports filters now restore from the existing workspace URL so filtered protected activity and package-request follow-up survive reload, share, and popstate without adding routes.",
+      "commit": "pending-closeout-commit"
+    },
     {
       "id": "permission-boundary-access-copy",
       "completedAt": "2026-06-03T03:39:08-07:00",
@@ -1287,16 +1295,16 @@
   "blockedWorkOrders": [],
   "nextRecommendedWorkOrders": [
     {
+      "id": "filtered-audit-cross-school-proof",
+      "ladderLevel": "LEVEL_7_AUDITABILITY_AND_TRUST",
+      "type": "TYPE_G_VERIFICATION_REGRESSION_PROTECTION",
+      "summary": "Continue only if the current workspace can prove one exact cross-school Audit filter scenario on top of the restored URL-state contract."
+    },
+    {
       "id": "student-evidence-language-hardening",
       "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
       "type": "TYPE_A_LANGUAGE_PRODUCT_READINESS",
       "summary": "Replace remaining student-facing evidence jargon only where the current dashboard already has a real in-page action."
-    },
-    {
-      "id": "filtered-audit-cross-school-proof",
-      "ladderLevel": "LEVEL_7_AUDITABILITY_AND_TRUST",
-      "type": "TYPE_G_VERIFICATION_REGRESSION_PROTECTION",
-      "summary": "Continue the Global Admin route refresh with filtered Audit cross-school proof only when one locally provable scenario exists."
     },
     {
       "id": "global-admin-route-refresh",
@@ -1491,25 +1499,29 @@
     "Do not re-add the student feedback timeline compare cues unless regression removes data-student-feedback-timeline-summary, current-version markers, evidence-count version rows, or newest-first teacher-note ordering.",
     "Do not re-add the student support quick actions unless regression removes data-student-support-box or the Need help panel stops opening the existing feedback, submission, or requirement workflows.",
     "Do not auto-open multi-school program-scoped or cohort-scoped recent role assignments when more than one accessible school is mapped; keep explicit school choice visible.",
-    "Do not regress multi-school program-scoped or cohort-scoped role-assignment rows back to passive summary-only history while the current workspace can render exact school-choice actions."
+    "Do not regress multi-school program-scoped or cohort-scoped role-assignment rows back to passive summary-only history while the current workspace can render exact school-choice actions.",
+    "Do not remove Audit action/entityType URL restore while the existing /api/admin/audit-events route already supports those exact filters.",
+    "Do not remove Archive / Exports adminExportFilter URL restore while the current section already supports exact failed, in-progress, and complete follow-up filters.",
+    "Do not widen Global Admin visibility or invent new audit/export routes while deepening the current filtered worklists."
   ],
   "lastValidationStatus": {
     "status": "passed",
-    "completedAt": "2026-06-03T03:39:08-07:00",
+    "completedAt": "2026-06-03T04:15:56-07:00",
     "commands": [
       "node --check workspace.js",
       "node --test tests/workspace-app.test.mjs",
-      "node --test tests/functionality-language-audit.test.mjs",
+      "npm run verify:dashboard-actions",
       "npm run verify:functionality-language",
+      "node --test tests/functionality-language-audit.test.mjs",
       "npm run verify:functionality-ux-automation",
       "npm run check:production-surfaces",
       "npm run typecheck",
       "npm run test",
       "npm run check",
-      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-03-0339-permission-boundary-copy.json','utf8')); console.log('json ok')\"",
+      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-03-0415-global-admin-audit-archive-url-state.json','utf8')); console.log('json ok')\"",
       "git diff --check"
     ],
-    "notes": "Focused workspace and audit checks passed before docs/state closeout, and the broader validation ladder passed after the closeout files were updated. git diff --check reported only CRLF normalization warnings."
+    "notes": "Focused workspace and archive dashboard-action checks passed before docs/state closeout, and the broader validation ladder passed after the closeout files were updated. git diff --check reported only CRLF normalization warnings."
   },
   "lastProductReadinessScorecardSummary": {
     "homepageClarity": "4 to 4",
