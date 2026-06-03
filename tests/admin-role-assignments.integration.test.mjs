@@ -194,7 +194,7 @@ test("admin role assignments creates role assignment and audits", async () => {
   assert.equal(event.metadata.scopeType, "global");
 });
 
-test("admin role assignments returns scope names for site, program, and cohort grants", async () => {
+test("admin role assignments returns scope names and assigner names for site, program, and cohort grants", async () => {
   const fixture = await createFixtureWithSession({ userId: "admin-a", roleId: "admin" });
   fixture.db.data.userAccounts.push(buildUser("site-target"));
   fixture.db.data.userAccounts.push(buildUser("program-target"));
@@ -204,6 +204,7 @@ test("admin role assignments returns scope names for site, program, and cohort g
     role_id: "administration",
     scope_type: "site",
     scope_id: "site-b",
+    assigned_by: "admin-a",
     assigned_at: "2026-05-20T03:00:00.000Z",
   });
   fixture.db.data.userRoles.push({
@@ -211,6 +212,7 @@ test("admin role assignments returns scope names for site, program, and cohort g
     role_id: "program_teacher",
     scope_type: "program",
     scope_id: "program-biotech",
+    assigned_by: "admin-a",
     assigned_at: "2026-05-20T02:00:00.000Z",
   });
   fixture.db.data.userRoles.push({
@@ -218,6 +220,7 @@ test("admin role assignments returns scope names for site, program, and cohort g
     role_id: "program_teacher",
     scope_type: "cohort",
     scope_id: "cohort-spring-showcase",
+    assigned_by: "admin-a",
     assigned_at: "2026-05-20T01:00:00.000Z",
   });
   fixture.db.data.sites.push({ id: "site-b", name: "Canyon Ridge Career Academy", status: "active" });
@@ -237,6 +240,7 @@ test("admin role assignments returns scope names for site, program, and cohort g
   assert.equal(body.assignments.some((assignment) => assignment.scopeId === "site-b" && assignment.scopeName === "Canyon Ridge Career Academy"), true);
   assert.equal(body.assignments.some((assignment) => assignment.scopeId === "program-biotech" && assignment.scopeName === "Biotechnology"), true);
   assert.equal(body.assignments.some((assignment) => assignment.scopeId === "cohort-spring-showcase" && assignment.scopeName === "Spring Showcase Cohort"), true);
+  assert.equal(body.assignments.some((assignment) => assignment.scopeId === "site-b" && assignment.assignedByName === "admin-a"), true);
 });
 
 test("admin role assignments accepts V5 global, site, administration, and viewer roles", async () => {
@@ -622,6 +626,7 @@ class MockPreparedStatement {
           scope_id: row.scope_id,
           scope_name: resolveScopeName(this.data, row.scope_type, row.scope_id),
           assigned_by: row.assigned_by ?? null,
+          assigned_by_name: resolveUserName(this.data, row.assigned_by),
           assigned_at: row.assigned_at ?? "2026-05-20T00:00:00.000Z",
         }))
         .slice(0, limit);

@@ -7220,6 +7220,7 @@ test("workspace renders recent role assignments for global admins before site ac
             roleId: "global_admin",
             scopeType: "global",
             scopeId: "",
+            assignedByName: "Platform Owner",
             assignedAt: "2026-06-02T20:15:00.000Z",
           },
           {
@@ -7228,6 +7229,7 @@ test("workspace renders recent role assignments for global admins before site ac
             roleId: "program_teacher",
             scopeType: "program",
             scopeId: "it",
+            assignedByName: "Program Director",
             assignedAt: "2026-06-02T19:10:00.000Z",
           },
           {
@@ -7236,6 +7238,7 @@ test("workspace renders recent role assignments for global admins before site ac
             roleId: "administration",
             scopeType: "site",
             scopeId: "site-desert-valley-high",
+            assignedByName: "Global Access Lead",
             assignedAt: "2026-06-02T18:05:00.000Z",
           },
         ],
@@ -7263,10 +7266,14 @@ test("workspace renders recent role assignments for global admins before site ac
   const adminUsersWithRoles = workspaceRoot.innerHTML;
   assert.match(adminUsersWithRoles, /Global Access Lead/);
   assert.match(adminUsersWithRoles, /Global Admin \/ All schools/);
+  assert.match(adminUsersWithRoles, /Assigned by Platform Owner/);
   assert.match(adminUsersWithRoles, /Program Scope Teacher/);
   assert.match(adminUsersWithRoles, /Program Teacher \/ Program access \/ Information Technology/);
+  assert.match(adminUsersWithRoles, /Assigned by Program Director/);
   assert.match(adminUsersWithRoles, /Site Access Principal/);
   assert.match(adminUsersWithRoles, /Administration \/ Site access \/ Desert Valley High School/);
+  assert.match(adminUsersWithRoles, /Assigned by Global Access Lead/);
+  assert.match(adminUsersWithRoles, /<span class="workspace-chip">Current school<\/span>/);
   assertMarkupOrder(adminUsers, "Recent role assignments", "data-site-access-assignment-form", "recent role assignments should render before assignment forms");
 });
 
@@ -7362,6 +7369,7 @@ test("workspace uses route-backed scope names in recent role assignments without
             scopeType: "site",
             scopeId: "site-canyon-ridge-career",
             scopeName: "Canyon Ridge Career Academy",
+            assignedByName: "Global Scope Admin",
             assignedAt: "2026-06-02T18:05:00.000Z",
           },
           {
@@ -7371,6 +7379,7 @@ test("workspace uses route-backed scope names in recent role assignments without
             scopeType: "program",
             scopeId: "biotech",
             scopeName: "Biotechnology",
+            assignedByName: "Global Scope Admin",
             assignedAt: "2026-06-02T19:10:00.000Z",
           },
           {
@@ -7380,6 +7389,7 @@ test("workspace uses route-backed scope names in recent role assignments without
             scopeType: "cohort",
             scopeId: "spring-showcase",
             scopeName: "Spring Showcase Cohort",
+            assignedByName: "Global Scope Admin",
             assignedAt: "2026-06-02T20:15:00.000Z",
           },
         ],
@@ -7400,8 +7410,11 @@ test("workspace uses route-backed scope names in recent role assignments without
   const adminUsers = workspaceRoot.innerHTML;
   assert.match(adminUsers, /Site Scope Principal/);
   assert.match(adminUsers, /Site Scope Principal[\s\S]*Administration \/ Site access \/ Canyon Ridge Career Academy/);
+  assert.match(adminUsers, /Site Scope Principal[\s\S]*Assigned by Global Scope Admin/);
+  assert.match(adminUsers, /data-site-switch-id="site-canyon-ridge-career"/);
   assert.match(adminUsers, /Program Scope Teacher[\s\S]*Program Teacher \/ Program access \/ Biotechnology/);
   assert.match(adminUsers, /Cohort Scope Teacher[\s\S]*Program Teacher \/ Cohort access \/ Spring Showcase Cohort/);
+  assert.doesNotMatch(adminUsers, /<span class="workspace-chip">Current school<\/span>/);
   assert.doesNotMatch(adminUsers, /Site access \/ site-canyon-ridge-career|Program access \/ biotech|Cohort access \/ spring-showcase|current_site|current_program|current_cohort/);
 });
 

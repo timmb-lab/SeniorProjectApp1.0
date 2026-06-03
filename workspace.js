@@ -7410,14 +7410,33 @@ function renderAdminRoleAssignmentsBody(assignments = []) {
           <div>
             <strong>${escapeHtml(assignment.userName || assignment.userId || "User")}</strong>
             <p>${escapeHtml(roleLabel(assignment.roleId || "role"))} / ${escapeHtml(adminRoleAssignmentScopeText(assignment))}</p>
+            ${assignment.assignedByName ? `<p class="workspace-muted">Assigned by ${escapeHtml(assignment.assignedByName)}</p>` : ""}
             <p class="workspace-muted">Assigned ${escapeHtml(formatDate(assignment.assignedAt))}</p>
           </div>
           <div class="workspace-row-actions">
+            ${renderAdminRoleAssignmentAction(assignment)}
             ${statusPill(assignment.roleId || assignment.scopeType || "configured")}
           </div>
         </article>
       `).join("")}
     </div>
+  `;
+}
+
+function renderAdminRoleAssignmentAction(assignment = {}) {
+  const scopeType = String(assignment.scopeType || "global").toLowerCase();
+  const siteId = String(assignment.scopeId || "").trim();
+  if (scopeType !== "site" || !siteId) return "";
+  const accessibleSites = accessibleSitesForWorkspace();
+  if (!accessibleSites.some((site) => site.siteId === siteId)) return "";
+  const currentSiteId = selectedSiteQueryValue() || currentSiteWorkspaceContext().siteId || "";
+  if (currentSiteId === siteId) {
+    return `<span class="workspace-chip">Current school</span>`;
+  }
+  return `
+    <button class="workspace-link-button workspace-link-button-small" type="button" data-site-switch-id="${escapeHtml(siteId)}">
+      Open school access
+    </button>
   `;
 }
 

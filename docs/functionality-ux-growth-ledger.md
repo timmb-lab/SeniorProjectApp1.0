@@ -6708,3 +6708,62 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: mentor-meeting follow-up still lacks a precise destination; hosted permission proof still needs allowed runtime; Review Queue missing-submission semantics still need backend evidence.
   - Do not repeat: do not revert recent role assignments back to current-site-only label guesses or raw scope ids while the protected route already returns readable labels.
   - First file to inspect next run: `workspace.js` around `renderAdminRoleAssignmentsBody()` and `functions/api/admin/role-assignments.ts`
+
+## Run 2026-06-03 00:31 PT
+
+- Starting SHA: `02c2e3f18c9c4f8f2dcf862173b511d333864dbe`
+- Ending SHA: pending closeout commit; final hash is reported after commit
+- Branch: `main`
+- Branch policy: started from clean local `main` ahead of `origin/main` by eight earlier in-lane commits; this run stayed local-only and did not push
+- Ladder level targeted: `LEVEL_4_ROLE_SPECIFIC_WORKSPACES`
+- Backlog item: remaining Global Admin route-refresh handoff inside `docs/functionality-language-audit.md` and `docs/product/demo-role-readiness.md`
+- Work order selected: Add assigner visibility and a real current-school handoff to Global Admin recent role assignments.
+- Selection reason: current repo evidence showed a real protected-workspace gap, not speculative polish. The previous run already moved route-backed school, program, and cohort labels into `/api/admin/role-assignments`, but school-scoped grants still sat as passive history rows even though the workspace already had a real site-switch contract and school-specific access-management surface. The protected route also still returned only `assignedBy` ids instead of readable assigner names, so the safest next slice was to deepen the same disclosure without adding routes, widening scope, or inventing a new admin page.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Role-assignment school-access handoff | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | `global_admin` | 5 | 5 | 5 | XS | 59 | selected |
+| Broader Global Admin route refresh across Recent Audit, Students, Presentation, Programs, and Users & Access | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | `global_admin` | 4 | 4 | 3 | M | 44 | deferred: broader than one safe hourly slice |
+| Filtered Audit cross-school proof refresh | `LEVEL_7_AUDITABILITY_AND_TRUST` | `global_admin` | 4 | 3 | 3 | M | 36 | deferred: needs a tighter locally provable scenario first |
+| Admin mentor-meeting exact destination | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | `global_admin` | 4 | 2 | 2 | M | 31 | deferred: current workspace still lacks a precise meeting-follow-up destination |
+| Program Teacher mentor-meeting follow-up destination | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | `program_teacher` | 4 | 3 | 3 | M | 40 | deferred: no precise scoped destination is proven |
+| Hosted section-level permission proof | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all protected roles | 4 | 3 | 2 | M | 35 | deferred: hosted runtime is outside this local batch |
+| Review Queue missing-submission semantics | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | `program_teacher`, `site_admin` | 5 | 2 | 3 | M | 34 | deferred: backend queue rows are still absent |
+| Viewer email visibility policy | `LEVEL_7_AUDITABILITY_AND_TRUST` | `viewer` | 3 | 2 | 3 | S | 30 | deferred: product policy still comes before UI change |
+| Mentor reassignment or removal workflow | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | `site_admin` | 4 | 2 | 3 | M | 33 | deferred: mutation and audit design still needed |
+| Student hosted drill-down refresh | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | `student` | 4 | 2 | 2 | M | 29 | deferred: broader hosted/product pass than this bounded Global Admin slice |
+
+- User-facing improvement: Global Admin recent role assignments now show who assigned each grant and let school-scoped rows switch directly into the matching current-school `Users & Access` context instead of staying passive history rows.
+- Roles affected: `global_admin`
+- Files changed: `functions/api/admin/role-assignments.ts`, `workspace.js`, `tests/admin-role-assignments.integration.test.mjs`, `tests/workspace-app.test.mjs`, `docs/functionality-language-audit.md`, `docs/product/demo-role-readiness.md`, `docs/progress/run-log.md`, `docs/progress/runs/2026-06-03-0031-role-assignment-school-access-handoff.json`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`
+- Tests/verifiers added or updated: `tests/admin-role-assignments.integration.test.mjs` now proves `/api/admin/role-assignments` returns protected assigner names alongside route-backed scope labels; `tests/workspace-app.test.mjs` now proves the Global Admin disclosure shows assigner labels plus either `Current school` or the school-switch handoff for school-scoped grants.
+- Validation commands:
+  - `node --check workspace.js`
+  - `node --test tests/admin-role-assignments.integration.test.mjs`
+  - `node --test tests/workspace-app.test.mjs`
+  - `npm run verify:functionality-language`
+  - `node --test tests/functionality-language-audit.test.mjs`
+  - `npm run verify:functionality-ux-automation`
+  - `npm run check:production-surfaces`
+  - `npm run typecheck`
+  - `npm run test`
+  - `npm run check`
+  - `node -e "JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-03-0031-role-assignment-school-access-handoff.json','utf8')); console.log('json ok')"`
+  - `git diff --check`
+- Validation result: passed; focused role-assignment route and workspace coverage passed before docs/state closeout, and the full validation ladder passed after the closeout files were updated.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: broader Global Admin route refresh, filtered Audit cross-school proof refresh, Admin mentor-meeting exact destination, Program Teacher mentor-meeting follow-up destination, hosted section-level permission proof, Review Queue missing-submission semantics, viewer email visibility policy, mentor reassignment/remove workflow, and student hosted drill-down refresh remain open.
+- New backlog items: none
+- Next recommended work order: Continue the bounded Global Admin route refresh only where the current workspace can prove an exact destination; preserve the recent role-assignment school-access handoff and keep mentor-meeting follow-up summary-only until a precise backed path exists.
+- Do-not-repeat notes: do not remove the Global Admin recent-role-assignments disclosure while `/api/admin/role-assignments` remains the protected source of truth for recent grants; do not fall back to current-site-only scope guesses, raw scope ids, or hidden assigner names in that panel while the protected route already returns readable metadata; and do not broaden Site Admin or other site-scoped workspaces with this Global Admin-only disclosure or auto-pick schools without the existing site-switch contract.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_4_ROLE_SPECIFIC_WORKSPACES`
+  - Advanced: yes
+  - Evidence: `/api/admin/role-assignments` now returns protected assigner names, and `renderAdminRoleAssignmentsBody()` turns school-scoped grants into a real current-school handoff through the existing site-switch contract.
+  - Unlocks: the next Global Admin pass can evaluate the remaining route-refresh and boundary gaps without rediscovering the role-assignment panel as passive history.
+  - Next: inspect `workspace.js` around `renderAdminRoleAssignmentsBody()` and the remaining exact Global Admin handoffs only if a current destination is proven.
+  - Blockers: mentor-meeting follow-up still lacks a precise destination; hosted permission proof still needs allowed runtime; Review Queue missing-submission semantics still need backend evidence.
+  - Do not repeat: do not remove the school-access handoff or assigner labels from recent role assignments while the protected route and current site-switch contract already support that workflow.
+  - First file to inspect next run: `workspace.js` around `renderAdminRoleAssignmentsBody()` and `functions/api/admin/role-assignments.ts`

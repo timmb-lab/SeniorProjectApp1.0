@@ -1,10 +1,18 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-06-03T00:07:20-07:00",
-  "lastStartingSha": "83b532a3bc23e042cd5d37772c6c94bdbdee82a0",
+  "lastRunAt": "2026-06-03T00:36:45-07:00",
+  "lastStartingSha": "02c2e3f18c9c4f8f2dcf862173b511d333864dbe",
   "lastEndingSha": null,
   "currentLadderFocus": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
   "completedWorkOrders": [
+    {
+      "id": "role-assignment-school-access-handoff",
+      "completedAt": "2026-06-03T00:36:45-07:00",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "type": "TYPE_D_ROLE_WORKSPACE",
+      "summary": "Global Admin recent role assignments now show protected assigner names and let school-scoped rows switch directly into the matching current-school Users & Access context.",
+      "commit": "pending-closeout-commit"
+    },
     {
       "id": "role-assignment-scope-name-enrichment",
       "completedAt": "2026-06-03T00:07:20-07:00",
@@ -1234,7 +1242,7 @@
       "id": "global-admin-route-refresh",
       "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
       "type": "TYPE_G_VERIFICATION_REGRESSION_PROTECTION",
-      "summary": "Refresh the remaining Global Admin click-through and boundary proof now that role assignments, Review Queue, student detail, and Mentor Assignments helper handoffs no longer fall back to raw ids, generic dead ends, or internal copy."
+      "summary": "Refresh the remaining Global Admin click-through and boundary proof now that recent role assignments can switch into school access, and Review Queue, student detail, and helper handoffs no longer fall back to raw ids, generic dead ends, or internal copy."
     },
     {
       "id": "program-teacher-mentor-meeting-follow-up-destination",
@@ -1276,6 +1284,7 @@
     "Do not silently auto-pick a school for multi-site access-management flows without an explicit site-selection contract and proof.",
     "Do not remove the recent Global Admin role-assignment panel while /api/admin/role-assignments remains the protected source of truth for recent grants.",
     "Do not fall back to current-site-only scope guesses or raw site/program/cohort ids in Global Admin recent role assignments while /api/admin/role-assignments already returns readable scope labels.",
+    "Do not hide assigner names or remove the school-access handoff from school-scoped Global Admin recent role assignments while the protected route and current site-switch contract already support that workflow.",
     "Do not broaden Site Admin workspaces with this Global Admin-only role-assignment disclosure.",
     "Do not regress the Presentation section back to in-memory-only focus state while presentationFocus restore and sync are now proven.",
     "Do not invent new /api/presentation-slots query params or broaden role visibility while extending Presentation continuity.",
@@ -1419,7 +1428,7 @@
   ],
   "lastValidationStatus": {
     "status": "passed",
-    "completedAt": "2026-06-03T00:11:47.4145764-07:00",
+    "completedAt": "2026-06-03T00:36:45.8962898-07:00",
     "commands": [
       "node --check workspace.js",
       "node --test tests/admin-role-assignments.integration.test.mjs",
@@ -1431,7 +1440,7 @@
       "npm run typecheck",
       "npm run test",
       "npm run check",
-      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-03-0007-role-assignment-scope-names.json','utf8')); console.log('json ok')\"",
+      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-03-0031-role-assignment-school-access-handoff.json','utf8')); console.log('json ok')\"",
       "git diff --check"
     ],
     "notes": "Focused role-assignment route and workspace coverage passed before docs/state closeout. Final validation also passed after the closeout files were updated."

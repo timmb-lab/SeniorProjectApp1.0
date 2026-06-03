@@ -21,6 +21,17 @@ This is the compact run log for the current Functionality UX Upgrade automation 
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-06-03 00:31 PT - Functionality UX Upgrade Role Assignment School Access Handoff
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 4 role-specific workspace clarity / Global Admin role-assignment handoff depth.
+- `starting HEAD`: `02c2e3f18c9c4f8f2dcf862173b511d333864dbe`.
+- `selected slice`: Add assigner visibility and a real current-school handoff to the existing Global Admin recent-role-assignments panel.
+- `repo-grounded findings`: `workspace.js` already surfaced recent role assignments inside `Users & Access`, and the previous run had already moved site, program, and cohort names into the protected `/api/admin/role-assignments` payload. The remaining gap was that school-scoped grants still sat as passive history rows even though the workspace already had a route-backed site-switch contract and school-specific access-management surface, and the route still returned only `assignedBy` ids instead of readable assigner names.
+- `changes`: `functions/api/admin/role-assignments.ts` now returns `assignedByName` from the protected route, and `workspace.js` now shows that assigner label in the Global Admin disclosure while turning school-scoped grants into a real `Open school access` handoff when the school is already in the current accessible-site set. `tests/admin-role-assignments.integration.test.mjs` proves the route returns protected assigner names alongside scope names, and `tests/workspace-app.test.mjs` proves the disclosure shows assigner labels plus either `Current school` or the school-switch handoff instead of passive rows only.
+- `validation`: `node --check workspace.js`, `node --test tests/admin-role-assignments.integration.test.mjs`, and `node --test tests/workspace-app.test.mjs` passed before docs/state closeout. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.
+
 ## 2026-06-03 00:07 PT - Functionality UX Upgrade Role Assignment Scope Names
 
 - `automation ID`: functionality-ux-upgrade-hourly.

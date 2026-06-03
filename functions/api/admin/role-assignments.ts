@@ -44,6 +44,7 @@ interface RoleAssignmentListRow {
   scope_id: string;
   scope_name: string | null;
   assigned_by: string | null;
+  assigned_by_name: string | null;
   assigned_at: string;
 }
 
@@ -84,9 +85,11 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
          ELSE NULL
        END AS scope_name,
        user_roles.assigned_by,
+       assigner.display_name AS assigned_by_name,
        user_roles.assigned_at
      FROM user_roles
      JOIN user_accounts user ON user.id = user_roles.user_id
+     LEFT JOIN user_accounts assigner ON assigner.id = user_roles.assigned_by
      LEFT JOIN sites ON user_roles.scope_type = 'site' AND sites.id = user_roles.scope_id
      LEFT JOIN programs ON user_roles.scope_type = 'program' AND programs.id = user_roles.scope_id
      LEFT JOIN cohorts ON user_roles.scope_type = 'cohort' AND cohorts.id = user_roles.scope_id
@@ -105,6 +108,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
       scopeId: row.scope_id,
       scopeName: row.scope_name,
       assignedBy: row.assigned_by,
+      assignedByName: row.assigned_by_name,
       assignedAt: row.assigned_at,
     })),
   });
