@@ -1,10 +1,18 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-06-03T02:45:08-07:00",
-  "lastStartingSha": "800b97127d6c73a5314393687fa10a33cdfdf377",
+  "lastRunAt": "2026-06-03T03:01:42-07:00",
+  "lastStartingSha": "ec6781fe1ed798984d311efef48d7d1c3404145f",
   "lastEndingSha": null,
   "currentLadderFocus": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
   "completedWorkOrders": [
+    {
+      "id": "admin-mentor-meeting-follow-up-handoff",
+      "completedAt": "2026-06-03T03:01:42-07:00",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "type": "TYPE_D_ROLE_WORKSPACE",
+      "summary": "Admin Command Center mentor-meeting attention rows now open the existing Student Directory through the exact mentor_meeting_follow_up filter and preserve school-pick guidance when a site must be selected first.",
+      "commit": "pending-closeout-commit"
+    },
     {
       "id": "program-teacher-mentor-meeting-follow-up-handoff",
       "completedAt": "2026-06-03T02:45:08-07:00",
@@ -1275,13 +1283,13 @@
       "id": "global-admin-route-refresh",
       "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
       "type": "TYPE_G_VERIFICATION_REGRESSION_PROTECTION",
-      "summary": "Continue the Global Admin route refresh only where the current workspace can prove another exact destination after the multi-school role-assignment chooser."
+      "summary": "Continue the Global Admin route refresh only where the current workspace can prove another exact destination after the admin mentor-meeting handoff."
     },
     {
-      "id": "admin-mentor-meeting-exact-destination",
+      "id": "cross-site-programs-behavior-refresh",
       "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
       "type": "TYPE_D_ROLE_WORKSPACE",
-      "summary": "Only add Admin mentor-meeting drill-downs when a precise current destination is proven."
+      "summary": "Inspect cross-site Programs behavior only when the current workspace can prove another bounded school-switch contract."
     },
     {
       "id": "hosted-section-permission-proof",
@@ -1311,7 +1319,8 @@
     "Do not remove the Admin Command Center Review Workload student-detail action while the existing /api/site/students/:studentId route remains authorized for Global Admins.",
     "Do not force Admin Command Center review-row detail back to students source context now that adminDashboard return and URL state are proven.",
     "Do not regress the new Archive / Exports follow-up list back to count-only summary cards while the admin dashboard route already returns safe current export rows.",
-    "Do not invent an Admin mentor-meeting preset until a real exact destination exists.",
+    "Do not regress the Admin Command Center mentor-meeting row back to summary-only while the existing Student Directory supports mentor_meeting_follow_up.",
+    "Do not remove the mentor-meeting follow-up student-list handoff from the Admin Command Center while the current Student Directory filter and school-pick guidance already prove the exact destination.",
     "Do not broaden Global Admin archive follow-up into site-scoped sections that still require an explicit selected-school contract.",
     "Do not remove the Admin Command Center attention drill-downs while the existing Students, Review Queue, and Presentation destinations still back them.",
     "Do not fall back to the generic site-selection-required copy when /api/site/programs returns site_selection_required; keep the Programs-specific school-pick guidance visible.",
@@ -1466,11 +1475,10 @@
   ],
   "lastValidationStatus": {
     "status": "passed",
-    "completedAt": "2026-06-03T02:45:08-07:00",
+    "completedAt": "2026-06-03T03:01:42-07:00",
     "commands": [
       "node --check workspace.js",
-      "node --test tests/program-teacher-dashboard.integration.test.mjs",
-      "node --test tests/site-students.integration.test.mjs",
+      "node --test tests/admin-dashboard.integration.test.mjs",
       "node --test tests/workspace-app.test.mjs",
       "npm run verify:dashboard-actions",
       "npm run verify:functionality-language",
@@ -1480,10 +1488,10 @@
       "npm run typecheck",
       "npm run test",
       "npm run check",
-      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-03-0245-program-teacher-mentor-meeting-follow-up.json','utf8')); console.log('json ok')\"",
+      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-03-0301-admin-mentor-meeting-handoff.json','utf8')); console.log('json ok')\"",
       "git diff --check"
     ],
-    "notes": "Focused Program Teacher dashboard, site-students route, workspace, and dashboard-action coverage passed before docs/state closeout, and the full validation ladder passed after the closeout files were updated. git diff --check reported only CRLF normalization warnings."
+    "notes": "Focused admin-dashboard route, workspace, and dashboard-action coverage passed before docs/state closeout, and the full validation ladder passed after the closeout files were updated. git diff --check reported only CRLF normalization warnings."
   },
   "lastProductReadinessScorecardSummary": {
     "homepageClarity": "4 to 4",

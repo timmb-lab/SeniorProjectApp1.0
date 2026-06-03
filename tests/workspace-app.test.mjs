@@ -967,7 +967,9 @@ test("global admin needs attention rows use real drill-downs and keep unmatched 
             label: "Mentor meeting follow-up",
             detail: "3 meeting record(s) need attention.",
             severity: "warning",
-            actionSection: "mentorAssignments",
+            actionSection: "students",
+            actionPreset: "mentor-meeting-follow-up-students",
+            actionLabel: "Open student list",
           },
           {
             type: "archive_exports",
@@ -1090,8 +1092,16 @@ test("global admin needs attention rows use real drill-downs and keep unmatched 
   assert.match(adminDashboard, /Students without mentors[\s\S]*data-section="students" data-section-preset="missing-mentors"[\s\S]*Open student list/);
   assert.match(adminDashboard, /Revision requests open[\s\S]*data-section="teacher" data-section-preset="revision-requested"[\s\S]*Open review queue/);
   assert.match(adminDashboard, /Presentation outlines pending[\s\S]*data-section="presentation" data-section-preset="outline-follow-up"[\s\S]*Open schedule/);
-  assert.match(adminDashboard, /Mentor meeting follow-up[\s\S]*Summary only/);
+  assert.match(adminDashboard, /Mentor meeting follow-up[\s\S]*data-section="students" data-section-preset="mentor-meeting-follow-up-students"[\s\S]*Open student list/);
   assert.match(adminDashboard, /Archive exports failed[\s\S]*data-section="archiveExports" data-section-preset="failed-exports"[\s\S]*Open exports/);
+
+  await vm.runInContext('openWorkspaceSection({ dataset: { section: "students", sectionPreset: "mentor-meeting-follow-up-students" } })', context);
+
+  assert.equal(vm.runInContext("activeSection", context), "students");
+  assert.equal(vm.runInContext("siteStudentFilters.progressStatus", context), "mentor_meeting_follow_up");
+  assert.match(workspaceRoot.innerHTML, /data-workspace-state="student-directory-site-selection-required"/);
+  assert.match(window.location.href, /section=students/);
+  assert.match(window.location.href, /progressStatus=mentor_meeting_follow_up/);
 
   await vm.runInContext('openWorkspaceSection({ dataset: { section: "presentation", sectionPreset: "outline-follow-up" } })', context);
 

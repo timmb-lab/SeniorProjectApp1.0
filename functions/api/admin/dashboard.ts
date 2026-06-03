@@ -392,7 +392,9 @@ function buildNeedsAttention(summary: Record<string, number>): Array<{
       label: "Mentor meeting follow-up",
       detail: `${summary.mentorMeetingsMakeupRequired + summary.mentorMeetingsMissed} meeting record(s) need attention.`,
       severity: "warning" as const,
-      actionSection: "mentorAssignments",
+      actionSection: "students",
+      actionPreset: "mentor-meeting-follow-up-students",
+      actionLabel: "Open student list",
     });
   }
   if (summary.exportsFailed > 0) {

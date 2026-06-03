@@ -7004,3 +7004,63 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: Admin mentor-meeting follow-up still lacks a precise destination; filtered Audit cross-school proof still needs a tighter local scenario; hosted permission proof still needs allowed runtime.
   - Do not repeat: do not revert Program Teacher mentor-meeting follow-up to summary-only while the current Student Directory route and tests already support the exact handoff.
   - First file to inspect next run: `functions/api/site/students.ts`
+
+## Run 2026-06-03 03:01 PT
+
+- Starting SHA: `ec6781fe1ed798984d311efef48d7d1c3404145f`
+- Ending SHA: pending closeout commit; final hash is reported after commit
+- Branch: `main`
+- Branch policy: started from clean local `main` ahead of `origin/main` by thirteen earlier in-lane commits; this run stayed local-only and did not push
+- Ladder level targeted: `LEVEL_4_ROLE_SPECIFIC_WORKSPACES`
+- Backlog item: remaining Global Admin route-refresh depth inside `docs/functionality-language-audit.md` and `docs/product/demo-role-readiness.md`
+- Work order selected: Turn the Global Admin mentor-meeting follow-up attention row into a real Student Directory handoff using the existing `mentor_meeting_follow_up` filter.
+- Selection reason: current repo evidence showed a real protected-workspace gap, not speculative polish. The previous Program Teacher pass had already proven the current Student Directory contract for mentor-meeting follow-up, and Admin Command Center already used the same Student Directory surface for other exact-destination school-wide follow-up. Reusing that exact filter contract was smaller and safer than another broader Global Admin pass, a hosted-proof-only run, or inventing a new admin-only mentor-meeting surface.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Admin mentor-meeting follow-up handoff | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | `global_admin` | 5 | 5 | 5 | XS | 59 | selected |
+| Filtered Audit cross-school proof refresh | `LEVEL_7_AUDITABILITY_AND_TRUST` | `global_admin` | 4 | 3 | 3 | M | 36 | deferred: still needs one tighter locally provable scenario |
+| Broader Global Admin route refresh across Recent Audit, Students, Presentation, Programs, and Users & Access | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | `global_admin` | 4 | 4 | 3 | M | 44 | deferred: broader than one safe hourly slice |
+| Review Queue missing-submission semantics | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | `program_teacher`, `site_admin` | 5 | 2 | 3 | M | 34 | deferred: backend queue rows are still absent |
+| Site selector future-only follow-through | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | multi-site staff | 4 | 3 | 2 | M | 34 | deferred: broader cross-surface contract than this bounded slice |
+| Mentor reassignment or removal workflow | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | `site_admin` | 4 | 2 | 3 | M | 33 | deferred: mutation and audit design still needed |
+| Hosted section-level permission proof | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all protected roles | 4 | 3 | 2 | M | 35 | deferred: hosted runtime is outside this local batch |
+| Viewer email visibility policy | `LEVEL_7_AUDITABILITY_AND_TRUST` | `viewer` | 3 | 2 | 3 | S | 30 | deferred: product policy still comes before UI change |
+| Cross-site Programs behavior refresh | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | `global_admin`, `site_admin` | 4 | 3 | 3 | M | 37 | deferred: broader than this single admin handoff |
+| Administration hosted read-only click-through refresh | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | `administration` | 4 | 3 | 2 | M | 32 | deferred: hosted proof is outside this local batch |
+
+- User-facing improvement: Global Admins can now open the existing Student Directory directly from the Admin Command Center mentor-meeting follow-up row instead of stopping at a summary-only attention card.
+- Roles affected: `global_admin`
+- Files changed: `functions/api/admin/dashboard.ts`, `scripts/verify-dashboard-actions.mjs`, `tests/admin-dashboard.integration.test.mjs`, `tests/workspace-app.test.mjs`, `docs/functionality-language-audit.md`, `docs/product/demo-role-readiness.md`, `docs/progress/run-log.md`, `docs/progress/runs/2026-06-03-0301-admin-mentor-meeting-handoff.json`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`
+- Tests/verifiers added or updated: `tests/admin-dashboard.integration.test.mjs` now proves the admin-dashboard route emits the exact mentor-meeting Student Directory handoff; `tests/workspace-app.test.mjs` now proves the Admin Command Center row opens the current Student Directory mentor-meeting preset and preserves the existing school-pick state when no site is selected; `scripts/verify-dashboard-actions.mjs` now guards the new admin-dashboard mentor-meeting mapping against regression.
+- Validation commands:
+  - `node --check workspace.js`
+  - `node --test tests/admin-dashboard.integration.test.mjs`
+  - `node --test tests/workspace-app.test.mjs`
+  - `npm run verify:dashboard-actions`
+  - `npm run verify:functionality-language`
+  - `node --test tests/functionality-language-audit.test.mjs`
+  - `npm run verify:functionality-ux-automation`
+  - `npm run check:production-surfaces`
+  - `npm run typecheck`
+  - `npm run test`
+  - `npm run check`
+  - `node -e "JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-03-0301-admin-mentor-meeting-handoff.json','utf8')); console.log('json ok')"`
+  - `git diff --check`
+- Validation result: passed; focused admin-dashboard route, workspace, and dashboard-action coverage passed before docs/state closeout, and the full validation ladder passed after the closeout files were updated. `git diff --check` reported only CRLF normalization warnings.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: filtered Audit cross-school proof refresh, broader Global Admin route refresh, Review Queue missing-submission semantics, site-selector follow-through, mentor reassignment/remove workflow, hosted section-level permission proof, viewer email visibility policy, cross-site Programs behavior refresh, and Administration hosted read-only click-through refresh remain open.
+- New backlog items: none
+- Next recommended work order: Inspect filtered Audit cross-school proof next only if the current workspace can prove one exact local scenario; otherwise continue with another exact-destination Global Admin or role-workspace slice.
+- Do-not-repeat notes: do not regress the Admin Command Center mentor-meeting row back to summary-only while the existing Student Directory supports `mentor_meeting_follow_up`; do not remove the mentor-meeting follow-up student-list handoff from `/api/admin/dashboard` while the current Student Directory filter and school-pick guidance already prove the exact destination; and do not broaden Global Admin visibility beyond the current Student Directory, Review Queue, Audit, Programs, and Archive / Exports routes while deepening dashboard follow-up.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_4_ROLE_SPECIFIC_WORKSPACES`
+  - Advanced: yes
+  - Evidence: Admin Command Center mentor-meeting attention rows now open the existing Student Directory through `progressStatus=mentor_meeting_follow_up`, and focused route/workspace tests prove the current school-pick state still appears before records load when a site must be selected first.
+  - Unlocks: the next Global Admin or auditability pass can build from an exact mentor-meeting follow-up contract instead of rediscovering a passive admin attention row.
+  - Next: inspect `functions/api/admin/dashboard.ts`, `workspace.js`, and the current Audit section only if another exact-destination Global Admin follow-up can be proven; otherwise move to a locally provable filtered Audit scenario.
+  - Blockers: filtered Audit cross-school proof still needs a tighter local scenario; hosted permission proof still needs allowed runtime; Review Queue missing-submission semantics still need backend evidence.
+  - Do not repeat: do not revert Admin Command Center mentor-meeting follow-up to summary-only while the current Student Directory route and tests already support the exact handoff.
+  - First file to inspect next run: `functions/api/admin/dashboard.ts`

@@ -379,8 +379,8 @@ assertMatches(
 );
 assertMatches(
   "adminDashboardApi",
-  /type: "mentor_meetings"[\s\S]*?severity: "warning"[\s\S]*?actionSection: "mentorAssignments"[\s\S]*?\n\s*}\);/,
-  "Admin dashboard mentor-meeting attention rows must keep the current section reference without inventing an exact drill-down",
+  /type: "mentor_meetings"[\s\S]*actionSection: "students"[\s\S]*actionPreset: "mentor-meeting-follow-up-students"[\s\S]*actionLabel: "Open student list"/,
+  "Admin dashboard mentor-meeting attention rows must link to the existing Student Directory mentor-meeting follow-up filter",
 );
 assertMatches(
   "adminDashboardApi",

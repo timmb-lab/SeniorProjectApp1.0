@@ -59,6 +59,20 @@ test("admin dashboard enforces admin-only access and returns safe D1-backed summ
   assert.ok(Array.isArray(body.presentationSnapshot));
   assert.ok(Array.isArray(body.archiveSnapshot));
   assert.ok(Array.isArray(body.needsAttention));
+  assert.deepEqual(
+    body.needsAttention.map((row) => ({
+      type: row.type,
+      actionSection: row.actionSection || "",
+      actionPreset: row.actionPreset || "",
+    })),
+    [
+      { type: "mentor_coverage", actionSection: "students", actionPreset: "missing-mentors" },
+      { type: "review_workload", actionSection: "teacher", actionPreset: "revision-requested" },
+      { type: "mentor_meetings", actionSection: "students", actionPreset: "mentor-meeting-follow-up-students" },
+      { type: "archive_exports", actionSection: "archiveExports", actionPreset: "failed-exports" },
+      { type: "presentation_readiness", actionSection: "presentation", actionPreset: "outline-follow-up" },
+    ],
+  );
   assert.ok(Array.isArray(body.recentAudit));
   assert.ok(Array.isArray(body.recentExports));
   assert.equal(body.recentExports.length, 3);

@@ -21,6 +21,17 @@ This is the compact run log for the current Functionality UX Upgrade automation 
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-06-03 03:01 PT - Functionality UX Upgrade Admin Mentor Meeting Handoff
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 4 role-specific workspace clarity / Global Admin mentor-meeting follow-up depth.
+- `starting HEAD`: `ec6781fe1ed798984d311efef48d7d1c3404145f`.
+- `selected slice`: Turn the Global Admin mentor-meeting follow-up attention row into a real Student Directory handoff using the existing `mentor_meeting_follow_up` filter.
+- `repo-grounded findings`: the previous Global Admin admin-dashboard passes already turned missing-mentor, revision-loop, presentation-outline, export-failure, review-detail, recent-audit, and role-assignment rows into exact destinations, and the previous Program Teacher pass already proved the existing Student Directory could safely filter `mentor_meeting_follow_up`. The remaining gap was in `functions/api/admin/dashboard.ts`: Admin Command Center still rendered mentor-meeting follow-up as a passive summary row even though the current workspace already had an exact filtered student-list destination for that school-wide follow-up.
+- `changes`: `functions/api/admin/dashboard.ts` now maps Admin Command Center mentor-meeting follow-up rows to the existing `students` / `mentor-meeting-follow-up-students` preset with a real `Open student list` action. `tests/admin-dashboard.integration.test.mjs` now proves the protected admin-dashboard payload returns that exact handoff, `tests/workspace-app.test.mjs` now proves the rendered button opens the current Student Directory site-selection-required state with `progressStatus=mentor_meeting_follow_up`, and `scripts/verify-dashboard-actions.mjs` now guards the admin-dashboard mentor-meeting mapping against regression. `docs/functionality-language-audit.md` and `docs/product/demo-role-readiness.md` now record the completed Global Admin handoff.
+- `validation`: `node --check workspace.js`, `node --test tests/admin-dashboard.integration.test.mjs`, `node --test tests/workspace-app.test.mjs`, and `npm run verify:dashboard-actions` passed before docs/state closeout. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.
+
 ## 2026-06-03 02:45 PT - Functionality UX Upgrade Program Teacher Mentor Meeting Handoff
 
 - `automation ID`: functionality-ux-upgrade-hourly.
